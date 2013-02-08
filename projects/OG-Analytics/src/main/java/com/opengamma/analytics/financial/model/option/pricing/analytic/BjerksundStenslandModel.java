@@ -5,9 +5,8 @@
  */
 package com.opengamma.analytics.financial.model.option.pricing.analytic;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.model.option.definition.AmericanVanillaOptionDefinition;
 import com.opengamma.analytics.financial.model.option.definition.StandardOptionDataBundle;
@@ -317,7 +316,7 @@ public class BjerksundStenslandModel {
   }
 
   /**
-   * Get the option price, plus its delta and gamma. <b>Note</b> if a put is required, the gamma is found by divided differecne on the delta. For a call both delta and gamma
+   * Get the option price, plus its delta and gamma. <b>Note</b> if a put is required, the gamma is found by divided difference on the delta. For a call both delta and gamma
    * are found by Algorithmic Differentiation.
    * @param s0 The spot
    * @param k The strike

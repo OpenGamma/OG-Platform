@@ -74,7 +74,8 @@ public abstract class EquityOptionInterpolatedBlackLognormalDefaults extends Def
     ValueRequirementNames.CARRY_RHO,
     ValueRequirementNames.THETA,
     ValueRequirementNames.DUAL_DELTA,
-    ValueRequirementNames.VEGA
+    ValueRequirementNames.VEGA,
+    ValueRequirementNames.PNL // Produced by EquityOption*ScenarioFunction
   };
 
   /**
@@ -119,7 +120,7 @@ public abstract class EquityOptionInterpolatedBlackLognormalDefaults extends Def
     for (final String valueName : s_valueNames) {
       defaults.addValuePropertyName(valueName, EquityOptionFunction.PROPERTY_DISCOUNTING_CURVE_CONFIG);
       defaults.addValuePropertyName(valueName, EquityOptionFunction.PROPERTY_DISCOUNTING_CURVE_NAME);
-      defaults.addValuePropertyName(valueName, EquityOptionFunction.PROPERTY_FORWARD_CURVE_NAME);
+      defaults.addValuePropertyName(valueName, ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_NAME);
       defaults.addValuePropertyName(valueName, ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD);
       defaults.addValuePropertyName(valueName, ValuePropertyNames.SURFACE);
       defaults.addValuePropertyName(valueName, BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR);
@@ -145,7 +146,7 @@ public abstract class EquityOptionInterpolatedBlackLognormalDefaults extends Def
     if (EquityOptionFunction.PROPERTY_DISCOUNTING_CURVE_NAME.equals(propertyName)) {
       return Collections.singleton(_idToDiscountingCurveName.get(id));
     }
-    if (EquityOptionFunction.PROPERTY_FORWARD_CURVE_NAME.equals(propertyName)) {
+    if (ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_NAME.equals(propertyName)) {
       return Collections.singleton(_idToForwardCurveName.get(id));
     }
     if (ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD.equals(propertyName)) {

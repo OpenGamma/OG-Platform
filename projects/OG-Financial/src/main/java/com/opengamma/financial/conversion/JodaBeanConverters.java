@@ -5,15 +5,15 @@
  */
 package com.opengamma.financial.conversion;
 
-import java.util.ArrayList;
-
-import javax.time.calendar.ZonedDateTime;
+import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.convert.StringConvert;
 import org.joda.convert.StringConverter;
+import org.threeten.bp.ZonedDateTime;
 
+import com.google.common.collect.Lists;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -145,7 +145,7 @@ public final class JodaBeanConverters {
       if (StringUtils.isEmpty(str)) {
         return ExternalIdBundle.EMPTY;
       }
-      ArrayList<String> strings = new ArrayList<String>();
+      List<String> strings = Lists.newArrayList();
       for (String s : str.split(",")) {
         strings.add(s.trim());
       }
@@ -213,16 +213,17 @@ public final class JodaBeanConverters {
 
     @Override
     public ExerciseType convertFromString(Class<? extends ExerciseType> cls, String str) {
-      if (str.equals("American")) {
-        return new AmericanExerciseType();
-      } else if (str.equals("Asian")) {
-        return new AsianExerciseType();
-      } else if (str.equals("Bermudan")) {
-        return new BermudanExerciseType();
-      } else if (str.equals("European")) {
-        return new EuropeanExerciseType();
-      } else {
-        return new EuropeanExerciseType();
+      switch (str) {
+        case "American":
+          return new AmericanExerciseType();
+        case "Asian":
+          return new AsianExerciseType();
+        case "Bermudan":
+          return new BermudanExerciseType();
+        case "European":
+          return new EuropeanExerciseType();
+        default:
+          return new EuropeanExerciseType();
       }
     }
   }
@@ -301,7 +302,7 @@ public final class JodaBeanConverters {
 
     @Override
     public BondFutureDeliverable convertFromString(Class<? extends BondFutureDeliverable> cls, String str) {
-      ArrayList<String> ids = new ArrayList<String>();
+      List<String> ids = Lists.newArrayList();
       for (String s : str.substring(str.indexOf('[') + 1, str.lastIndexOf(']')).trim().split(",")) {
         ids.add(s.trim());
       }
@@ -310,47 +311,5 @@ public final class JodaBeanConverters {
       result.setConversionFactor(Double.parseDouble(str.substring(str.indexOf(']') + 1).trim()));
       return result;
     }
-    
   }
-
-  // TODO all these can be combined using Enum.valueOf(enumtype, value). single converter for Enum.class?
-  // TODO converter for MonitoringType
-/*  public static class BarrierTypeConverter implements StringConverter<BarrierType> {
-
-    @Override
-    public BarrierType convertFromString(Class<? extends BarrierType> cls, String str) {
-      return BarrierType.valueOf(str.toUpperCase());
-    }
-
-    @Override
-    public String convertToString(BarrierType barrierType) {
-      return StringUtils.capitalize(barrierType.name().toLowerCase());
-    }
-  }
-
-  public static class BarrierDirectionConverter implements StringConverter<BarrierDirection> {
-
-    @Override
-    public BarrierDirection convertFromString(Class<? extends BarrierDirection> cls, String str) {
-      return BarrierDirection.valueOf(str.toUpperCase().replace(' ', '_'));
-    }
-
-    @Override
-    public String convertToString(BarrierDirection direction) {
-      return WordUtils.capitalize(direction.name().toLowerCase().replace('_', ' '));
-    }
-  }
-
-  public static class SamplingFrequencyConverter implements StringConverter<SamplingFrequency> {
-
-    @Override
-    public SamplingFrequency convertFromString(Class<? extends SamplingFrequency> cls, String str) {
-      return SamplingFrequency.valueOf(str.toUpperCase().replace(' ', '_'));
-    }
-
-    @Override
-    public String convertToString(SamplingFrequency frequency) {
-      return WordUtils.capitalize(frequency.name().toLowerCase().replace('_', ' '));
-    }
-  }*/
 }

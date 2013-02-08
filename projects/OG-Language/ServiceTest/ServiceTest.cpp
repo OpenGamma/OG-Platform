@@ -21,8 +21,8 @@ LOGGING (com.opengamma.language.service.ServiceTest);
 #define TEST_JAVA2CPP		TEXT ("\\\\.\\pipe\\Bar")
 #define TEST_LANGUAGE		TEXT ("test")
 
-#define TIMEOUT_START		30000
-#define TIMEOUT_STOP		1000
+#define TIMEOUT_START		60000
+#define TIMEOUT_STOP		10000
 #define TIMEOUT_CONNECT		1000
 #define TIMEOUT_JOIN		3000
 
@@ -88,7 +88,7 @@ static void RunConnectStop () {
 	LOGDEBUG (TEXT ("Simulating client connection"));
 	CThread *poClient = new CServiceClientThread ();
 	ASSERT (CThread::WaitAndRelease (poClient, TIMEOUT_JOIN));
-	// Need to pause for the JVM to reject the connection
+	// Need to pause for the JVM to acknowledge the connection
 	CThread::Sleep (TIMEOUT_CONNECT);
 	LOGDEBUG (TEXT ("Stopping service"));
 	ServiceStop (true);

@@ -28,8 +28,8 @@ import com.opengamma.util.ArgumentChecker;
   public BeanVisitor<?> decorate(BeanVisitor<?> visitor) {
     return new BeanVisitor<Object>() {
       @Override
-      public void visitBean(MetaBean metaBean) {
-        _delegate.visitBean(metaBean);
+      public void visitMetaBean(MetaBean metaBean) {
+        _delegate.visitMetaBean(metaBean);
       }
 
       @Override
@@ -40,37 +40,37 @@ import com.opengamma.util.ArgumentChecker;
       }
 
       @Override
-      public void visitCollectionProperty(MetaProperty<?> property) {
+      public void visitCollectionProperty(MetaProperty<?> property, BeanTraverser traverser) {
         if (isWriteable(property)) {
-          _delegate.visitCollectionProperty(property);
+          _delegate.visitCollectionProperty(property, traverser);
         }
       }
 
       @Override
-      public void visitSetProperty(MetaProperty<?> property) {
+      public void visitSetProperty(MetaProperty<?> property, BeanTraverser traverser) {
         if (isWriteable(property)) {
-          _delegate.visitSetProperty(property);
+          _delegate.visitSetProperty(property, traverser);
         }
       }
 
       @Override
-      public void visitListProperty(MetaProperty<?> property) {
+      public void visitListProperty(MetaProperty<?> property, BeanTraverser traverser) {
         if (isWriteable(property)) {
-          _delegate.visitListProperty(property);
+          _delegate.visitListProperty(property, traverser);
         }
       }
 
       @Override
-      public void visitMapProperty(MetaProperty<?> property) {
+      public void visitMapProperty(MetaProperty<?> property, BeanTraverser traverser) {
         if (isWriteable(property)) {
-          _delegate.visitMapProperty(property);
+          _delegate.visitMapProperty(property, traverser);
         }
       }
 
       @Override
-      public void visitProperty(MetaProperty<?> property) {
+      public void visitProperty(MetaProperty<?> property, BeanTraverser traverser) {
         if (isWriteable(property)) {
-          _delegate.visitProperty(property);
+          _delegate.visitProperty(property, traverser);
         }
       }
 

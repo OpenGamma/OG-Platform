@@ -9,9 +9,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.time.calendar.Clock;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.Clock;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.option.definition.StandardOptionDataBundle;
@@ -43,14 +43,14 @@ public class PractitionerBlackScholesVolatilitySurfaceFunction extends AbstractF
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-    final ZonedDateTime now = Clock.system(TimeZone.UTC).zonedDateTime();
+    final ZonedDateTime now = ZonedDateTime.now(Clock.systemUTC());
     final EquityOptionSecurity option = (EquityOptionSecurity) target.getSecurity();
     final ValueRequirement underlyingPriceRequirement = getPriceRequirement(option.getUnderlyingId());
     final ValueRequirement discountCurveDataRequirement = getDiscountCurveMarketDataRequirement(option.getCurrency());
     final YieldAndDiscountCurve discountCurve = (YieldAndDiscountCurve) inputs.getValue(discountCurveDataRequirement);
     final double spotPrice = (Double) inputs.getValue(underlyingPriceRequirement);
     final Expiry expiry = option.getExpiry();
-    final double t = DateUtils.getDifferenceInYears(now, expiry.getExpiry().toInstant());
+    final double t = DateUtils.getDifferenceInYears(now, expiry.getExpiry());
     final double b = discountCurve.getInterestRate(t); // TODO cost-of-carry model
     @SuppressWarnings("unused")
     final StandardOptionDataBundle data = new StandardOptionDataBundle(discountCurve, b, null, spotPrice, now);

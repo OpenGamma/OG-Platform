@@ -68,8 +68,8 @@ public abstract class VolatilitySurfaceFitter<T extends SmileModelData> {
    * @param nodePoints The time position of the nodes on each model parameter curve
    * @param interpolators The base interpolator used for each model parameter curve
    */
-  public VolatilitySurfaceFitter(final double[] forwards, final double[][] strikes, final double[] expiries, final double[][] impliedVols,
-      final double[][] errors, final VolatilityFunctionProvider<T> model, final LinkedHashMap<String, double[]> nodePoints, final LinkedHashMap<String, Interpolator1D> interpolators) {
+  public VolatilitySurfaceFitter(final double[] forwards, final double[][] strikes, final double[] expiries, final double[][] impliedVols, final double[][] errors,
+      final VolatilityFunctionProvider<T> model, final LinkedHashMap<String, double[]> nodePoints, final LinkedHashMap<String, Interpolator1D> interpolators) {
 
     Validate.notNull(forwards, "null forwards");
     Validate.notNull(strikes, "null strikes");
@@ -141,7 +141,7 @@ public abstract class VolatilitySurfaceFitter<T extends SmileModelData> {
 
   public LeastSquareResultsWithTransform solve(final DoubleMatrix1D start) {
     final LeastSquareResults lsRes = SOLVER.solve(_vols, _errors, getModelValueFunction(), getModelJacobianFunction(), start);
-    return new LeastSquareResultsWithTransform(lsRes, new UncoupledParameterTransforms(start, getTransforms(), new BitSet()));
+    return new LeastSquareResultsWithTransform(lsRes, new UncoupledParameterTransforms(start, getTransforms(), new BitSet(start.getNumberOfElements())));
   }
 
   /**

@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.calendar.LocalDate;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -28,6 +27,7 @@ import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
@@ -131,7 +131,7 @@ public class DataHistoricalTimeSeriesSourceResource extends AbstractDataResource
     final LocalDate end = (endStr != null ? LocalDate.parse(endStr) : null);
     final HistoricalTimeSeries result;
     if (idValidityDateStr != null) {
-      final LocalDate idValidityDate = (idValidityDateStr == null || "ALL".equals(idValidityDateStr) ? null : LocalDate.parse(idValidityDateStr));
+      final LocalDate idValidityDate = ("ALL".equals(idValidityDateStr) ? null : LocalDate.parse(idValidityDateStr));
       if (start == null && end == null && maxPoints == null) {
         result = getHistoricalTimeSeriesSource().getHistoricalTimeSeries(
             bundle, idValidityDate, dataSource, dataProvider, dataField);
@@ -174,7 +174,7 @@ public class DataHistoricalTimeSeriesSourceResource extends AbstractDataResource
     final LocalDate end = (endStr != null ? LocalDate.parse(endStr) : null);
     final HistoricalTimeSeries result;
     if (idValidityDateStr != null) {
-      final LocalDate idValidityDate = (idValidityDateStr == null || "ALL".equals(idValidityDateStr) ? null : LocalDate.parse(idValidityDateStr));
+      final LocalDate idValidityDate = ("ALL".equals(idValidityDateStr) ? null : LocalDate.parse(idValidityDateStr));
       if (start == null && end == null && maxPoints == null) {
         result = getHistoricalTimeSeriesSource().getHistoricalTimeSeries(
             dataField, bundle, idValidityDate, resolutionKey);
@@ -289,7 +289,7 @@ public class DataHistoricalTimeSeriesSourceResource extends AbstractDataResource
           array[i] = URLEncoder.encode(array[i], "UTF-8").replace('+', ' ');
         }
       }
-    } catch (UnsupportedEncodingException e) {
+    } catch (UnsupportedEncodingException e) {  // CSIGNORE
       throw new OpenGammaRuntimeException("Caught", e);
     }
     return array;

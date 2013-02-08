@@ -7,11 +7,11 @@ package com.opengamma.master.historicaltimeseries.impl;
 
 import java.net.URI;
 
-import javax.time.calendar.LocalDate;
 import javax.ws.rs.core.UriBuilder;
 
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.id.ExternalId;

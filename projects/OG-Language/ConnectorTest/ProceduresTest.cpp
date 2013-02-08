@@ -14,7 +14,6 @@ LOGGING (com.opengamma.language.connector.ProceduresTest);
 
 #define TEST_LANGUAGE		TEXT ("test")
 #define TIMEOUT_STARTUP		30000
-#define TIMEOUT_CALL		3000
 
 static CConnector *g_poConnector;
 
@@ -30,10 +29,10 @@ static void StopConnector () {
 	g_poConnector = NULL;
 }
 
-static void QueryAvailable () {
+static void QueryAvailable (int nTimeout) {
 	CProcedureQueryAvailable query (g_poConnector);
 	ASSERT (query.Send ());
-	com_opengamma_language_procedure_Available *pAvailable = query.Recv (CRequestBuilder::GetDefaultTimeout () * 2);
+	com_opengamma_language_procedure_Available *pAvailable = query.Recv (nTimeout);
 	ASSERT (pAvailable);
 	LOGINFO (TEXT ("Received ") << pAvailable->fudgeCountProcedure << TEXT (" definitions"));
 	ASSERT (pAvailable->fudgeCountProcedure > 0);
@@ -41,6 +40,14 @@ static void QueryAvailable () {
 	for (i = 0; i < pAvailable->fudgeCountProcedure; i++) {
 		LOGDEBUG (TEXT ("Function ") << i << TEXT (": ") << pAvailable->_procedure[i]->_definition->fudgeParent._name << TEXT (" (") << pAvailable->_procedure[i]->_identifier << TEXT (")"));
 	}
+}
+
+static void QueryAvailableFirst () {
+	QueryAvailable (TIMEOUT_STARTUP);
+}
+
+static void QueryAvailableSecond () {
+	QueryAvailable (CRequestBuilder::GetDefaultTimeout () * 2);
 }
 
 static void InvokeInvalid () {
@@ -53,8 +60,9 @@ static void InvokeInvalid () {
 }
 
 BEGIN_TESTS(ProceduresTest)
-	TEST (QueryAvailable)
+	TEST (QueryAvailableFirst)
 	TEST (InvokeInvalid)
+	TEST (QueryAvailableSecond)
 	BEFORE_TEST (StartConnector)
 	AFTER_TEST (StopConnector)
 END_TESTS

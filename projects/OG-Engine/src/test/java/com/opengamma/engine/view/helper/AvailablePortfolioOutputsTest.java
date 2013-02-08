@@ -15,11 +15,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.Instant;
-import javax.time.InstantProvider;
-
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
@@ -162,7 +160,7 @@ public class AvailablePortfolioOutputsTest {
       return new FunctionDefinition() {
 
         @Override
-        public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final InstantProvider atInstant) {
+        public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
           throw new UnsupportedOperationException();
         }
 

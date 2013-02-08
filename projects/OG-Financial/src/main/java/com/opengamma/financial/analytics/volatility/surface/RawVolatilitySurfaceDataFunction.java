@@ -13,13 +13,13 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.InstantProvider;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalTime;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
@@ -33,6 +33,7 @@ import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -63,8 +64,18 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
     _instrumentType = instrumentType;
   }
 
+  /**
+   * Gets the target type for the surface
+   * @return The target type
+   */
   protected abstract ComputationTargetType getTargetType();
 
+  /**
+   * Determines whether this function applies to the target
+   * @param context The compilation context
+   * @param target The computation target
+   * @return true if this function applies to the target
+   */
   protected boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     return true;
   }
@@ -125,7 +136,7 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
     final SurfaceInstrumentProvider<X, Y> provider = (SurfaceInstrumentProvider<X, Y>) specification.getSurfaceInstrumentProvider();
     for (final X x : definition.getXs()) {
       for (final Y y : definition.getYs()) {
-        final ExternalId identifier = provider.getInstrument(x, y, atInstant.toLocalDate());
+        final ExternalId identifier = provider.getInstrument(x, y, atInstant.getDate());
         result.add(new ValueRequirement(provider.getDataFieldName(), ComputationTargetType.PRIMITIVE, identifier));
       }
     }
@@ -133,12 +144,12 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
   }
 
   @Override
-  public CompiledFunctionDefinition compile(final FunctionCompilationContext myContext, final InstantProvider atInstantProvider) {
+  public CompiledFunctionDefinition compile(final FunctionCompilationContext myContext, final Instant atInstant) {
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(myContext);
     final ConfigDBVolatilitySurfaceDefinitionSource definitionSource = new ConfigDBVolatilitySurfaceDefinitionSource(configSource);
     final ConfigDBVolatilitySurfaceSpecificationSource specificationSource = new ConfigDBVolatilitySurfaceSpecificationSource(configSource);
-    final ZonedDateTime atInstant = ZonedDateTime.ofInstant(atInstantProvider, TimeZone.UTC);
-    return new CompiledFunction(atInstant.withTime(0, 0), atInstant.plusDays(1).withTime(0, 0).minusNanos(1000000), atInstant, definitionSource, specificationSource);
+    final ZonedDateTime atZDT = ZonedDateTime.ofInstant(atInstant, ZoneOffset.UTC);
+    return new CompiledFunction(atZDT.with(LocalTime.MIDNIGHT), atZDT.plusDays(1).with(LocalTime.MIDNIGHT).minusNanos(1000000), atZDT, definitionSource, specificationSource);
   }
 
   /**
@@ -161,7 +172,7 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
      */
     public CompiledFunction(final ZonedDateTime from, final ZonedDateTime to, final ZonedDateTime now, final ConfigDBVolatilitySurfaceDefinitionSource definitionSource,
         final ConfigDBVolatilitySurfaceSpecificationSource specificationSource) {
-      super(from, to);
+      super(from.toInstant(), to.toInstant());
       _now = now;
       _definitionSource = definitionSource;
       _specificationSource = specificationSource;
@@ -201,14 +212,67 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
         s_logger.error("Instrument type was null");
         return null;
       }
+      if (!_instrumentType.equals(instrumentType)) {
+        s_logger.error("Instrument type {} did not match that required {}", instrumentType, _instrumentType);
+        return null;
+      }
       try {
         final VolatilitySurfaceDefinition<?, ?> definition = getDefinition(_definitionSource, target, surfaceName);
+        if (definition == null) {
+          s_logger.error("Could not get volatility surface definition for instrument type {} with target {} called {}", new Object[] {target, _instrumentType, surfaceName});
+          return null;
+        }
         final VolatilitySurfaceSpecification specification = getSpecification(_specificationSource, target, surfaceName);
-        return buildDataRequirements(specification, definition, _now, surfaceName, instrumentType);
-      } catch (final OpenGammaRuntimeException e) {
+        if (specification == null) {
+          s_logger.error("Could not get volatility surface specification for instrument type {} with target {} called {}", new Object[] {target, _instrumentType, surfaceName});
+          return null;
+        }
+        final Set<ValueRequirement> requirements = buildDataRequirements(specification, definition, _now, surfaceName, instrumentType);
+        final ValueProperties definitionProperties = ValueProperties.builder()
+            .with(ValuePropertyNames.SURFACE, surfaceName)
+            .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, instrumentType)
+            .get();
+        final ValueProperties specificationProperties = ValueProperties.builder()
+            .with(ValuePropertyNames.SURFACE, surfaceName)
+            .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, instrumentType)
+            .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE, specification.getSurfaceQuoteType())
+            .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_UNITS, specification.getQuoteUnits())
+            .get();
+        requirements.add(new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_SPEC, target.toSpecification(), specificationProperties));
+        requirements.add(new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_DEFINITION, target.toSpecification(), definitionProperties));
+        return requirements;
+      } catch (final Exception e) {
         s_logger.error(e.getMessage());
         return null;
       }
+    }
+
+    @SuppressWarnings("synthetic-access")
+    @Override
+    public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
+      String surfaceQuoteType = null;
+      String surfaceQuoteUnits = null;
+      String surfaceName = null;
+      for (final Map.Entry<ValueSpecification, ValueRequirement> entry : inputs.entrySet()) {
+        final ValueSpecification key = entry.getKey();
+        if (key.getValueName().equals(ValueRequirementNames.VOLATILITY_SURFACE_SPEC)) {
+          surfaceQuoteType = key.getProperty(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE);
+          surfaceQuoteUnits = key.getProperty(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_UNITS);
+          surfaceName = key.getProperty(ValuePropertyNames.SURFACE);
+          break;
+        }
+      }
+      if (surfaceName == null) {
+        return null;
+      }
+      assert surfaceQuoteType != null;
+      assert surfaceQuoteUnits != null;
+      return Collections.singleton(new ValueSpecification(ValueRequirementNames.VOLATILITY_SURFACE_DATA, target.toSpecification(),
+          createValueProperties()
+          .with(ValuePropertyNames.SURFACE, surfaceName)
+          .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, _instrumentType)
+          .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE, surfaceQuoteType)
+          .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_UNITS, surfaceQuoteUnits).get()));
     }
 
     @Override
@@ -225,13 +289,21 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
     @Override
     public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
         final Set<ValueRequirement> desiredValues) {
-      final ValueRequirement desiredValue = desiredValues.iterator().next();
+      final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
       final String surfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
       final String instrumentType = desiredValue.getConstraint(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE);
-      final VolatilitySurfaceDefinition<?, ?> definition = getDefinition(_definitionSource, target, surfaceName);
-      final Object specificationObject = getSpecification(_specificationSource, target, surfaceName);
+      final Object definitionObject = inputs.getValue(ValueRequirementNames.VOLATILITY_SURFACE_DEFINITION);
+      if (definitionObject == null) {
+        throw new OpenGammaRuntimeException("Could not get volatility surface definition");
+      }
+      final Object specificationObject = inputs.getValue(ValueRequirementNames.VOLATILITY_SURFACE_SPEC);
+      if (specificationObject == null) {
+        throw new OpenGammaRuntimeException("Could not get volatility surface specification");
+      }
+      @SuppressWarnings("unchecked")
+      final VolatilitySurfaceDefinition<Object, Object> definition = (VolatilitySurfaceDefinition<Object, Object>) definitionObject;
       final VolatilitySurfaceSpecification specification = (VolatilitySurfaceSpecification) specificationObject;
-      final LocalDate valuationDate = executionContext.getValuationClock().today();
+      final LocalDate valuationDate = LocalDate.now(executionContext.getValuationClock());
       final SurfaceInstrumentProvider<Object, Object> provider = (SurfaceInstrumentProvider<Object, Object>) specification.getSurfaceInstrumentProvider();
       final Map<Pair<Object, Object>, Double> volatilityValues = new HashMap<>();
       final ObjectArrayList<Object> xList = new ObjectArrayList<>();

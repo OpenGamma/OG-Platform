@@ -8,12 +8,11 @@ package com.opengamma.financial.analytics.model.pnl;
 import java.util.Collections;
 import java.util.Set;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
@@ -44,7 +43,6 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.model.forex.BloombergFXSpotRateIdentifierVisitor;
-import com.opengamma.financial.analytics.model.forex.forward.FXForwardFunction;
 import com.opengamma.financial.analytics.timeseries.DateConstraint;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -72,19 +70,19 @@ public class FXForwardCurrencyExposurePnLFunction extends AbstractFunction.NonCo
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Position position = target.getPosition();
-    final ZonedDateTime now = executionContext.getValuationClock().zonedDateTime();
+    final ZonedDateTime now = ZonedDateTime.now(executionContext.getValuationClock());
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final String payCurveName = desiredValue.getConstraint(ValuePropertyNames.PAY_CURVE);
     final String receiveCurveName = desiredValue.getConstraint(ValuePropertyNames.RECEIVE_CURVE);
-    final String payCurveConfig = desiredValue.getConstraint(FXForwardFunction.PAY_CURVE_CALC_CONFIG);
-    final String receiveCurveConfig = desiredValue.getConstraint(FXForwardFunction.RECEIVE_CURVE_CALC_CONFIG);
+    final String payCurveConfig = desiredValue.getConstraint(ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG);
+    final String receiveCurveConfig = desiredValue.getConstraint(ValuePropertyNames.RECEIVE_CURVE_CALCULATION_CONFIG);
     final String samplingPeriod = desiredValue.getConstraint(ValuePropertyNames.SAMPLING_PERIOD);
     final String scheduleCalculator = desiredValue.getConstraint(ValuePropertyNames.SCHEDULE_CALCULATOR);
     final String samplingFunction = desiredValue.getConstraint(ValuePropertyNames.SAMPLING_FUNCTION);
     final FXForwardSecurity security = (FXForwardSecurity) position.getSecurity();
     final MultipleCurrencyAmount mca = (MultipleCurrencyAmount) inputs.getValue(ValueRequirementNames.FX_CURRENCY_EXPOSURE);
     final HistoricalTimeSeries timeSeries = (HistoricalTimeSeries) inputs.getValue(ValueRequirementNames.HISTORICAL_TIME_SERIES);
-    final LocalDate startDate = now.toLocalDate().minus(Period.parse(samplingPeriod));
+    final LocalDate startDate = now.getDate().minus(Period.parse(samplingPeriod));
     final Schedule schedule = ScheduleCalculatorFactory.getScheduleCalculator(scheduleCalculator);
     final TimeSeriesSamplingFunction sampling = TimeSeriesSamplingFunctionFactory.getFunction(samplingFunction);
     final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(executionContext);
@@ -95,14 +93,14 @@ public class FXForwardCurrencyExposurePnLFunction extends AbstractFunction.NonCo
     final CurrencyPair currencyPair = currencyPairs.getCurrencyPair(payCurrency, receiveCurrency);
     final Currency currencyNonBase = currencyPair.getCounter(); // The non-base currency
     final double exposure = mca.getAmount(currencyNonBase);
-    DoubleTimeSeries<?> result = getPnLSeries(startDate, now.toLocalDate(), schedule, sampling, timeSeries);
+    DoubleTimeSeries<?> result = getPnLSeries(startDate, now.getDate(), schedule, sampling, timeSeries);
     result = result.multiply(position.getQuantity().doubleValue() * exposure); // The P/L time series is in the base currency
     final Currency currencyBase = currencyPair.getBase(); // The base currency
     final ValueProperties resultProperties = createValueProperties()
         .with(ValuePropertyNames.PAY_CURVE, payCurveName)
-        .with(FXForwardFunction.PAY_CURVE_CALC_CONFIG, payCurveConfig)
+        .with(ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG, payCurveConfig)
         .with(ValuePropertyNames.RECEIVE_CURVE, receiveCurveName)
-        .with(FXForwardFunction.RECEIVE_CURVE_CALC_CONFIG, receiveCurveConfig)
+        .with(ValuePropertyNames.RECEIVE_CURVE_CALCULATION_CONFIG, receiveCurveConfig)
         .with(ValuePropertyNames.CURRENCY, currencyBase.getCode())
         .with(ValuePropertyNames.SAMPLING_PERIOD, samplingPeriod)
         .with(ValuePropertyNames.SCHEDULE_CALCULATOR, scheduleCalculator)
@@ -133,9 +131,9 @@ public class FXForwardCurrencyExposurePnLFunction extends AbstractFunction.NonCo
     final Currency currencyBase = currencyPairs.getCurrencyPair(security.getPayCurrency(), security.getReceiveCurrency()).getBase();
     final ValueProperties properties = createValueProperties()
         .withAny(ValuePropertyNames.PAY_CURVE)
-        .withAny(FXForwardFunction.PAY_CURVE_CALC_CONFIG)
+        .withAny(ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG)
         .withAny(ValuePropertyNames.RECEIVE_CURVE)
-        .withAny(FXForwardFunction.RECEIVE_CURVE_CALC_CONFIG)
+        .withAny(ValuePropertyNames.RECEIVE_CURVE_CALCULATION_CONFIG)
         .with(ValuePropertyNames.CURRENCY, currencyBase.getCode())
         .withAny(ValuePropertyNames.SAMPLING_PERIOD)
         .withAny(ValuePropertyNames.SCHEDULE_CALCULATOR)
@@ -153,7 +151,7 @@ public class FXForwardCurrencyExposurePnLFunction extends AbstractFunction.NonCo
     if (payCurveNames == null || payCurveNames.size() != 1) {
       return null;
     }
-    final Set<String> payCurveCalculationConfigs = constraints.getValues(FXForwardFunction.PAY_CURVE_CALC_CONFIG);
+    final Set<String> payCurveCalculationConfigs = constraints.getValues(ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG);
     if (payCurveCalculationConfigs == null || payCurveCalculationConfigs.size() != 1) {
       return null;
     }
@@ -161,7 +159,7 @@ public class FXForwardCurrencyExposurePnLFunction extends AbstractFunction.NonCo
     if (receiveCurveNames == null || receiveCurveNames.size() != 1) {
       return null;
     }
-    final Set<String> receiveCurveCalculationConfigs = constraints.getValues(FXForwardFunction.RECEIVE_CURVE_CALC_CONFIG);
+    final Set<String> receiveCurveCalculationConfigs = constraints.getValues(ValuePropertyNames.RECEIVE_CURVE_CALCULATION_CONFIG);
     if (receiveCurveCalculationConfigs == null || receiveCurveCalculationConfigs.size() != 1) {
       return null;
     }
@@ -180,9 +178,9 @@ public class FXForwardCurrencyExposurePnLFunction extends AbstractFunction.NonCo
     final ValueRequirement fxCurrencyExposureRequirement = new ValueRequirement(ValueRequirementNames.FX_CURRENCY_EXPOSURE, ComputationTargetSpecification.of(target.getPosition().getSecurity()),
         ValueProperties.builder()
         .with(ValuePropertyNames.PAY_CURVE, payCurveNames.iterator().next())
-        .with(FXForwardFunction.PAY_CURVE_CALC_CONFIG, payCurveCalculationConfigs.iterator().next())
+        .with(ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG, payCurveCalculationConfigs.iterator().next())
         .with(ValuePropertyNames.RECEIVE_CURVE, receiveCurveNames.iterator().next())
-        .with(FXForwardFunction.RECEIVE_CURVE_CALC_CONFIG, receiveCurveCalculationConfigs.iterator().next()).get());
+        .with(ValuePropertyNames.RECEIVE_CURVE_CALCULATION_CONFIG, receiveCurveCalculationConfigs.iterator().next()).get());
     final ExternalId spotFXId = security.accept(new BloombergFXSpotRateIdentifierVisitor(currencyPairs));
     final HistoricalTimeSeriesResolutionResult timeSeries = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context).resolve(
         ExternalIdBundle.of(spotFXId), null, null, null, MarketDataRequirementNames.MARKET_VALUE, null);

@@ -27,9 +27,7 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
-import com.opengamma.financial.analytics.volatility.surface.SurfaceAndCubePropertyNames;
 
 /**
  *
@@ -79,32 +77,51 @@ public abstract class BlackVolatilitySurfaceFunction extends AbstractFunction.No
     return Sets.newHashSet(forwardCurveRequirement, volatilitySurfaceRequirement, interpolatorRequirement);
   }
 
+  /**
+   * Gets the data in a form that the analytics library can understand
+   * @param inputs The inputs
+   * @return The data
+   */
   protected abstract SmileSurfaceDataBundle getData(final FunctionInputs inputs);
 
+  /**
+   * Gets the instrument type supported by the function
+   * @return The instrument type
+   */
   protected abstract String getInstrumentType();
 
-  protected abstract String getSurfaceQuoteUnits();
-
-  protected abstract String getSurfaceQuoteType();
-
+  /**
+   * Gets general result properties
+   * @return The result properties
+   */
   protected abstract ValueProperties getResultProperties();
 
+  /**
+   * Gets result properties with the constraints set
+   * @param desiredValue The desired value
+   * @return The result properties
+   */
   protected abstract ValueProperties getResultProperties(final ValueRequirement desiredValue);
 
   private ValueRequirement getInterpolatorRequirement(final ComputationTarget target, final ValueRequirement desiredValue) {
     return new ValueRequirement(ValueRequirementNames.BLACK_VOLATILITY_SURFACE_INTERPOLATOR, ComputationTargetSpecification.NULL,
         BlackVolatilitySurfacePropertyUtils.addVolatilityInterpolatorProperties(ValueProperties.builder().get(), desiredValue).get());
   }
+
+  /**
+   * Gets the forward curve requirement
+   * @param target The target
+   * @param desiredValue The desired value
+   * @return The forward curve requirement
+   */
   protected abstract ValueRequirement getForwardCurveRequirement(final ComputationTarget target, final ValueRequirement desiredValue);
 
-  protected ValueRequirement getVolatilityDataRequirement(final ComputationTarget target, final String surfaceName) {
-    final ValueRequirement volDataRequirement = new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_DATA, target.toSpecification(),
-        ValueProperties.builder()
-        .with(SURFACE, surfaceName)
-        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, getInstrumentType())
-        .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE, getSurfaceQuoteType())
-        .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_UNITS, getSurfaceQuoteUnits()).get());
-    return volDataRequirement;
-  }
+  /**
+   * Gets the volatility surface data requirement
+   * @param target The target
+   * @param surfaceName The surface name
+   * @return The volatility surface data requirement
+   */
+  protected abstract ValueRequirement getVolatilityDataRequirement(final ComputationTarget target, final String surfaceName);
 
 }

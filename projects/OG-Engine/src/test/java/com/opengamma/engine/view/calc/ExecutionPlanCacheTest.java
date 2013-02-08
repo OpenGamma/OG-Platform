@@ -224,7 +224,7 @@ public class ExecutionPlanCacheTest {
 
   //-------------------------------------------------------------------------
   public void testCache_identity() {
-    _cacheManager = new CacheManager();
+    _cacheManager = CacheManager.newInstance();
     final ExecutionPlanCache cache = new ExecutionPlanCache(_cacheManager);
     final DependencyGraph graph = createDependencyGraph();
     final ExecutionPlan plan = createExecutionPlan();
@@ -239,7 +239,7 @@ public class ExecutionPlanCacheTest {
   }
 
   public void testCache_key() {
-    _cacheManager = new CacheManager();
+    _cacheManager = CacheManager.newInstance();
     final ExecutionPlanCache cache = new ExecutionPlanCache(_cacheManager);
     final ExecutionPlan plan = createExecutionPlan();
     cache.cachePlan(createDependencyGraph(), 0, plan);
@@ -248,7 +248,7 @@ public class ExecutionPlanCacheTest {
   }
 
   public void testCache_identity_invalid() {
-    _cacheManager = new CacheManager();
+    _cacheManager = CacheManager.newInstance();
     final ExecutionPlanCache cache = new ExecutionPlanCache(_cacheManager);
     final DependencyGraph graph = createDependencyGraph();
     final ExecutionPlan plan = createExecutionPlan();

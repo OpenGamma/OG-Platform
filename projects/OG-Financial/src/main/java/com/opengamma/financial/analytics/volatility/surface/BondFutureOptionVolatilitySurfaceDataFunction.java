@@ -13,12 +13,11 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.calendar.Clock;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.ZonedDateTime;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Clock;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
@@ -89,8 +88,7 @@ public class BondFutureOptionVolatilitySurfaceDataFunction extends AbstractFunct
       throw new OpenGammaRuntimeException("Could not get surface quote units");
     }
 
-    final Clock snapshotClock = executionContext.getValuationClock();
-    final ZonedDateTime now = snapshotClock.zonedDateTime();
+    final ZonedDateTime now = ZonedDateTime.now(executionContext.getValuationClock());
     final ValueProperties surfaceProperties = ValueProperties.builder()
         .with(ValuePropertyNames.SURFACE, surfaceName)
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.BOND_FUTURE_OPTION)
@@ -177,7 +175,7 @@ public class BondFutureOptionVolatilitySurfaceDataFunction extends AbstractFunct
     final Map<Pair<Double, Double>, Double> volatilityValues = new HashMap<Pair<Double, Double>, Double>();
     final DoubleArrayList tList = new DoubleArrayList();
     final DoubleArrayList kList = new DoubleArrayList();
-    final LocalDate today = now.toLocalDate();
+    final LocalDate today = now.getDate();
     for (final Number x : optionVolatilities.getXs()) {
       final Double t = TimeCalculator.getTimeBetween(today, expiryCalculator.getExpiryDate(x.intValue(), today, calendar));
       for (final Double y : optionVolatilities.getYs()) {
@@ -204,7 +202,7 @@ public class BondFutureOptionVolatilitySurfaceDataFunction extends AbstractFunct
     final Map<Pair<Double, Double>, Double> volatilityValues = new HashMap<Pair<Double, Double>, Double>();
     final DoubleArrayList txList = new DoubleArrayList();
     final DoubleArrayList kList = new DoubleArrayList();
-    final LocalDate today = now.toLocalDate();
+    final LocalDate today = now.getDate();
     final Double[] futureExpiries = futurePrices.getXData();
     final int nFutures = futureExpiries.length;
     if (nFutures == 0) {

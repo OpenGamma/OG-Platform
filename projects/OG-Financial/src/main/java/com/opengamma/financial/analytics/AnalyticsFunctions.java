@@ -60,7 +60,7 @@ public class AnalyticsFunctions extends AbstractRepositoryConfigurationBean {
    * @param requirementName the requirement name, not null
    */
   public static void addUnitScalingFunction(final List<FunctionConfiguration> functions, final String requirementName) {
-    functions.add(functionConfiguration(UnitPositionScalingFunction.class, requirementName));
+    functions.add(functionConfiguration(UnitPositionOrTradeScalingFunction.class, requirementName));
     functions.add(functionConfiguration(UnitPositionTradeScalingFunction.class, requirementName));
   }
 
@@ -77,7 +77,7 @@ public class AnalyticsFunctions extends AbstractRepositoryConfigurationBean {
    * @param requirementName the requirement name, not null
    */
   public static void addScalingFunction(final List<FunctionConfiguration> functions, final String requirementName) {
-    functions.add(functionConfiguration(PositionScalingFunction.class, requirementName));
+    functions.add(functionConfiguration(PositionOrTradeScalingFunction.class, requirementName));
     functions.add(functionConfiguration(PositionTradeScalingFunction.class, requirementName));
   }
 
@@ -168,6 +168,8 @@ public class AnalyticsFunctions extends AbstractRepositoryConfigurationBean {
     addUnitScalingFunction(functions, ValueRequirementNames.MACAULAY_DURATION);
     addUnitScalingFunction(functions, ValueRequirementNames.MARKET_CLEAN_PRICE);
     addUnitScalingFunction(functions, ValueRequirementNames.MARKET_DIRTY_PRICE);
+    addSummingFunction(functions, ValueRequirementNames.MTM_PNL);
+    addUnitScalingFunction(functions, ValueRequirementNames.MTM_PNL);
     addUnitScalingFunction(functions, ValueRequirementNames.MARKET_YTM);
     addUnitScalingFunction(functions, ValueRequirementNames.MODIFIED_DURATION);
     addUnitScalingAndSummingFunction(functions, ValueRequirementNames.NET_BASIS);
@@ -178,7 +180,15 @@ public class AnalyticsFunctions extends AbstractRepositoryConfigurationBean {
     addUnitScalingFunction(functions, ValueRequirementNames.PAR_RATE_CURVE_SENSITIVITY);
     addUnitScalingFunction(functions, ValueRequirementNames.PAR_RATE_PARALLEL_CURVE_SHIFT);
     addUnitScalingFunction(functions, ValueRequirementNames.PIECEWISE_SABR_VOL_SURFACE);
+    addScalingAndSummingFunction(functions, ValueRequirementNames.PNL);
     addSummingFunction(functions, ValueRequirementNames.PNL_SERIES);
+    addSummingFunction(functions, ValueRequirementNames.POSITION_DELTA);
+    
+    addSummingFunction(functions, ValueRequirementNames.POSITION_GAMMA);
+    addSummingFunction(functions, ValueRequirementNames.POSITION_RHO);
+    addSummingFunction(functions, ValueRequirementNames.POSITION_THETA);
+    addSummingFunction(functions, ValueRequirementNames.POSITION_VEGA);    
+    
     addScalingAndSummingFunction(functions, ValueRequirementNames.PRESENT_VALUE);
     addScalingAndSummingFunction(functions, ValueRequirementNames.PRESENT_VALUE_CURVE_SENSITIVITY);
     addScalingAndSummingFunction(functions, ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_NODE_SENSITIVITY);
@@ -226,6 +236,8 @@ public class AnalyticsFunctions extends AbstractRepositoryConfigurationBean {
     addScalingAndSummingFunction(functions, ValueRequirementNames.VEGA_QUOTE_MATRIX);
     addUnitScalingFunction(functions, ValueRequirementNames.VOMMA);
     addUnitScalingFunction(functions, ValueRequirementNames.VOMMA_P);
+    addUnitScalingFunction(functions, ValueRequirementNames.WEIGHTED_VEGA);
+    addSummingFunction(functions, ValueRequirementNames.WEIGHTED_VEGA);
     addScalingAndSummingFunction(functions, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES);
     addUnitScalingFunction(functions, ValueRequirementNames.YTM);
     addUnitScalingFunction(functions, ValueRequirementNames.ZETA);
@@ -233,6 +245,7 @@ public class AnalyticsFunctions extends AbstractRepositoryConfigurationBean {
     addUnitScalingFunction(functions, ValueRequirementNames.Z_SPREAD);
     addUnitScalingFunction(functions, ValueRequirementNames.ZOMMA);
     addUnitScalingFunction(functions, ValueRequirementNames.ZOMMA_P);
+    addUnitScalingFunction(functions, ValueRequirementNames.BARRIER_DISTANCE);
   }
 
   protected RepositoryConfigurationSource cashFlowFunctionConfiguration() {

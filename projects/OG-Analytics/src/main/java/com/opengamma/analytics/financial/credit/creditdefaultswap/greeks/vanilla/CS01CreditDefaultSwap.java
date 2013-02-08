@@ -5,15 +5,13 @@
  */
 package com.opengamma.analytics.financial.credit.creditdefaultswap.greeks.vanilla;
 
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.bumpers.CreditSpreadBumpers;
 import com.opengamma.analytics.financial.credit.bumpers.SpreadBumpType;
 import com.opengamma.analytics.financial.credit.cds.ISDACurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.legacy.PresentValueLegacyCreditDefaultSwap;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.PresentValueCreditDefaultSwap;
 import com.opengamma.analytics.financial.credit.marketdatachecker.SpreadTermStructureDataChecker;
 import com.opengamma.util.ArgumentChecker;
@@ -45,7 +43,7 @@ public class CS01CreditDefaultSwap {
 
   public double getCS01ParallelShiftCreditDefaultSwap(
       final ZonedDateTime valuationDate,
-      final/*LegacyVanilla*/CreditDefaultSwapDefinition cds,
+      final LegacyVanillaCreditDefaultSwapDefinition cds,
       final ISDACurve yieldCurve,
       final ZonedDateTime[] marketTenors,
       final double[] marketSpreads,
@@ -76,22 +74,7 @@ public class CS01CreditDefaultSwap {
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Vector to hold the bumped market spreads
-    final double[] bumpedMarketSpreads = spreadBumper.getBumpedCreditSpreads(marketSpreads, spreadBump, spreadBumpType); //new double[marketSpreads.length];
-
-    // ----------------------------------------------------------------------------------------------------------------------------------------
-
-    /*
-    // Calculate the bumped spreads
-    for (int m = 0; m < marketTenors.length; m++) {
-      if (spreadBumpType == SpreadBumpType.ADDITIVE_PARALLEL) {
-        bumpedMarketSpreads[m] = marketSpreads[m] + spreadBump;
-      }
-
-      if (spreadBumpType == SpreadBumpType.MULTIPLICATIVE_PARALLEL) {
-        bumpedMarketSpreads[m] = marketSpreads[m] * (1 + spreadBump);
-      }
-    }
-    */
+    final double[] bumpedMarketSpreads = spreadBumper.getBumpedCreditSpreads(marketSpreads, spreadBump, spreadBumpType);
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -100,10 +83,10 @@ public class CS01CreditDefaultSwap {
     final PresentValueCreditDefaultSwap creditDefaultSwap = new PresentValueCreditDefaultSwap();
 
     // Calculate the unbumped CDS PV
-    final double presentValue = 0; //creditDefaultSwap.calibrateAndGetPresentValue(valuationDate, cds, marketTenors, marketSpreads, yieldCurve, priceType);
+    final double presentValue = creditDefaultSwap.calibrateAndGetPresentValue(valuationDate, cds, marketTenors, marketSpreads, yieldCurve, priceType);
 
     // Calculate the bumped (up) CDS PV
-    final double bumpedPresentValue = 0; //creditDefaultSwap.calibrateAndGetPresentValue(valuationDate, cds, marketTenors, bumpedMarketSpreads, yieldCurve, priceType);;
+    final double bumpedPresentValue = creditDefaultSwap.calibrateAndGetPresentValue(valuationDate, cds, marketTenors, bumpedMarketSpreads, yieldCurve, priceType);
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -155,44 +138,33 @@ public class CS01CreditDefaultSwap {
     // Vector to hold the bumped market spreads
     //double[] bumpedMarketSpreads = new double[marketSpreads.length];
 
+    double[] unbumpedMarketSpreads = new double[marketSpreads.length];
+
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Create a CDS PV calculator
-    final PresentValueLegacyCreditDefaultSwap creditDefaultSwap = new PresentValueLegacyCreditDefaultSwap();
+    final PresentValueCreditDefaultSwap creditDefaultSwap = new PresentValueCreditDefaultSwap();
 
     // Calculate the unbumped CDS PV
-    final double presentValue = 0; //creditDefaultSwap.calibrateAndGetPresentValue(valuationDate, cds, marketTenors, marketSpreads, yieldCurve, priceType);
+    final double presentValue = creditDefaultSwap.calibrateAndGetPresentValue(valuationDate, cds, marketTenors, marketSpreads, yieldCurve, priceType);
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Loop through and bump each of the spreads at each tenor
     for (int m = 0; m < marketSpreads.length; m++) {
 
-      // Reset the bumpedMarketSpreads vector to the original marketSpreads
-      /*
+      // Reset the unbumpedMarketSpreads vector to the original marketSpreads (shouldn't have to do this, but something funny happening if don't)
       for (int n = 0; n < marketTenors.length; n++) {
-        bumpedMarketSpreads[n] = marketSpreads[n];
-      }
-      */
-
-      //final double[] bumpedMarketSpreads = spreadBumper.getBumpedCreditSpreads(marketSpreads, 0, spreadBumpType);
-
-      // Bump the spread at tenor m
-      /*
-      if (spreadBumpType == SpreadBumpType.ADDITIVE_BUCKETED) {
-        bumpedMarketSpreads[m] = marketSpreads[m] + spreadBump;
+        unbumpedMarketSpreads[n] = marketSpreads[n];
       }
 
-      if (spreadBumpType == SpreadBumpType.MULTIPLICATIVE_BUCKETED) {
-        bumpedMarketSpreads[m] = marketSpreads[m] * (1 + spreadBump);
-      }
-      */
-
-      final double[] bumpedMarketSpreads = spreadBumper.getBumpedCreditSpreads(marketSpreads, m, spreadBump, spreadBumpType);
+      // Calculate the bumped spreads vector
+      final double[] bumpedMarketSpreads = spreadBumper.getBumpedCreditSpreads(unbumpedMarketSpreads, m, spreadBump, spreadBumpType);
 
       // Calculate the bumped CDS PV
-      final double bumpedPresentValue = 0; //creditDefaultSwap.calibrateAndGetPresentValue(valuationDate, cds, marketTenors, bumpedMarketSpreads, yieldCurve, priceType);
+      final double bumpedPresentValue = creditDefaultSwap.calibrateAndGetPresentValue(valuationDate, cds, marketTenors, bumpedMarketSpreads, yieldCurve, priceType);
 
+      // Compute the CS01 for this tenor
       bucketedCS01[m] = (bumpedPresentValue - presentValue) / spreadBump;
     }
 

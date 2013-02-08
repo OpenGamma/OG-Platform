@@ -8,7 +8,7 @@ package com.opengamma.financial.analytics.model.cds;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.cds.ISDAApproxCDSPricingMethod;
 import com.opengamma.analytics.financial.credit.cds.ISDACDSDerivative;
@@ -94,7 +94,7 @@ public class ISDAApproxCDSPriceHazardCurveFunction extends ISDAApproxCDSPriceFun
     
     // Time point to price for
     // TODO: Supply an option for the user to specify non-standard step-in and settlement dates
-    final ZonedDateTime pricingDate = executionContext.getValuationClock().zonedDateTime();
+    final ZonedDateTime pricingDate = ZonedDateTime.now(executionContext.getValuationClock());
     final ZonedDateTime stepinDate = pricingDate.plusDays(1);
     final ZonedDateTime settlementDate = findSettlementDate(pricingDate, cdsDefinition.getConvention());
 

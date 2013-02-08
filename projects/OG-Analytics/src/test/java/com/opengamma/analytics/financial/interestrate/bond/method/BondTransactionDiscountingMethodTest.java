@@ -6,11 +6,12 @@
 package com.opengamma.analytics.financial.interestrate.bond.method;
 
 import static org.testng.AssertJUnit.assertEquals;
-
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
+import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
+import static org.threeten.bp.temporal.ChronoUnit.YEARS;
 
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.bond.BondFixedSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BondFixedTransactionDefinition;
@@ -57,11 +58,11 @@ public class BondTransactionDiscountingMethodTest {
   // to derivatives: first coupon
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 8, 18);
   //Fixed Coupon Semi-annual 5Y
-  private static final Period PAYMENT_TENOR_FIXED = Period.ofMonths(6);
+  private static final Period PAYMENT_TENOR_FIXED = Period.of(6, MONTHS);
   private static final DayCount DAY_COUNT_FIXED = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA");
   private static final BusinessDayConvention BUSINESS_DAY_FIXED = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
   private static final boolean IS_EOM_FIXED = false;
-  private static final Period BOND_TENOR_FIXED = Period.ofYears(5);
+  private static final Period BOND_TENOR_FIXED = Period.of(5, YEARS);
   private static final int SETTLEMENT_DAYS_FIXED = 3;
   private static final ZonedDateTime START_ACCRUAL_DATE_FIXED = DateUtils.getUTCDate(2011, 7, 13);
   private static final ZonedDateTime MATURITY_DATE_FIXED = START_ACCRUAL_DATE_FIXED.plus(BOND_TENOR_FIXED);
@@ -105,13 +106,13 @@ public class BondTransactionDiscountingMethodTest {
   private static final DayCount DAY_COUNT_FRN = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
   private static final BusinessDayConvention BUSINESS_DAY_FRN = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
   private static final boolean IS_EOM_FRN = false;
-  private static final Period IBOR_TENOR = Period.ofMonths(3);
+  private static final Period IBOR_TENOR = Period.of(3, MONTHS);
   private static final DayCount IBOR_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("ACT/360");
   private static final int IBOR_SPOT_LAG = 2;
   private static final BusinessDayConvention IBOR_BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final boolean IBOR_IS_EOM = false;
   private static final IborIndex IBOR_INDEX = new IborIndex(CUR, IBOR_TENOR, IBOR_SPOT_LAG, CALENDAR, IBOR_DAY_COUNT, IBOR_BUSINESS_DAY, IBOR_IS_EOM);
-  private static final Period BOND_TENOR_FRN = Period.ofYears(2);
+  private static final Period BOND_TENOR_FRN = Period.of(2, YEARS);
   private static final int SETTLEMENT_DAYS_FRN = 3; // Standard for euro-bonds.
   private static final ZonedDateTime START_ACCRUAL_DATE_FRN = DateUtils.getUTCDate(2011, 7, 13);
   private static final ZonedDateTime MATURITY_DATE_FRN = START_ACCRUAL_DATE_FRN.plus(BOND_TENOR_FRN);

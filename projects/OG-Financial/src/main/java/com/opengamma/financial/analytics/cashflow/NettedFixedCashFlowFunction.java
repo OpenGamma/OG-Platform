@@ -9,11 +9,10 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.CalendricalException;
-import javax.time.calendar.LocalDate;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.DateTimeException;
+import org.threeten.bp.LocalDate;
 
 import com.google.common.collect.Iterables;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
@@ -129,7 +128,7 @@ public class NettedFixedCashFlowFunction extends AbstractFunction.NonCompiledInv
     final String date = Iterables.getOnlyElement(dates);
     try {
       LocalDate.parse(date);
-    } catch (final CalendricalException e) {
+    } catch (final DateTimeException e) {
       s_logger.error("Could not parse date {} - must be in form YYYY-MM-DD", date);
       return null;
     }

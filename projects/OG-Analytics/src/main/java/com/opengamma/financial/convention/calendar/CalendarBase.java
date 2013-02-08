@@ -7,9 +7,8 @@ package com.opengamma.financial.convention.calendar;
 
 import java.io.Serializable;
 
-import javax.time.calendar.LocalDate;
-
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.LocalDate;
 
 /**
  * Abstract base class implementing the {@code Calendar} interface.

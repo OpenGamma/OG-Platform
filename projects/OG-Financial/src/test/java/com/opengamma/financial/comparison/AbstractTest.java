@@ -10,8 +10,10 @@ import java.math.BigDecimal;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.Trade;
@@ -104,8 +106,8 @@ import com.opengamma.util.time.Expiry;
   }
 
   protected Security createEquityOptionSecurity(final String name, final OptionType type, final double strike, final ExternalId underlying) {
-    final EquityOptionSecurity security = new EquityOptionSecurity(type, strike, Currency.USD, underlying, new AmericanExerciseType(), new Expiry(ZonedDateTime.of(2010, 10,
-        10, 12, 0, 0, 0, TimeZone.UTC)), 0d, "EXCH");
+    final EquityOptionSecurity security = new EquityOptionSecurity(type, strike, Currency.USD, underlying, new AmericanExerciseType(),
+        new Expiry(zdt(2010, 10, 10, 12, 0, 0, 0, ZoneOffset.UTC)), 0d, "EXCH");
     security.setExternalIdBundle(createExternalIdBundle());
     security.setName(name);
     security.setUniqueId(createUniqueId("Security"));
@@ -113,7 +115,8 @@ import com.opengamma.util.time.Expiry;
   }
 
   protected Security createSwaptionSecurity(final String name, final boolean isPayer, final Currency currency, final ExternalId underlying) {
-    final SwaptionSecurity security = new SwaptionSecurity(isPayer, underlying, false, new Expiry(ZonedDateTime.of(2010, 10, 10, 12, 0, 0, 0, TimeZone.UTC)), false, currency);
+    final SwaptionSecurity security = new SwaptionSecurity(isPayer, underlying, false,
+        new Expiry(zdt(2010, 10, 10, 12, 0, 0, 0, ZoneOffset.UTC)), false, currency);
     security.setExternalIdBundle(createExternalIdBundle());
     security.setName(name);
     security.setUniqueId(createUniqueId("Security"));
@@ -121,14 +124,19 @@ import com.opengamma.util.time.Expiry;
   }
 
   protected Security createFRASecurity(final String name, final Currency currency, final double rate, final ExternalId underlying) {
-    final ZonedDateTime startDate = ZonedDateTime.of(2010, 10, 10, 12, 0, 0, 0, TimeZone.UTC);
+    final ZonedDateTime startDate = zdt(2010, 10, 10, 12, 0, 0, 0, ZoneOffset.UTC);
     final ZonedDateTime settlementDate = startDate.plusDays(2);
-    final FRASecurity security = new FRASecurity(currency, ExternalId.of("Region", "US"), startDate, ZonedDateTime.of(2012, 10, 10, 12, 0, 0, 0,
-        TimeZone.UTC), rate, 0d, underlying, settlementDate);
+    final FRASecurity security = new FRASecurity(currency, ExternalId.of("Region", "US"), startDate, zdt(2012, 10, 10, 12, 0, 0, 0,
+        ZoneOffset.UTC), rate, 0d, underlying, settlementDate);
     security.setExternalIdBundle(createExternalIdBundle());
     security.setName(name);
     security.setUniqueId(createUniqueId("Security"));
     return security;
+  }
+
+  //-------------------------------------------------------------------------
+  private static ZonedDateTime zdt(int y, int m, int d, int hr, int min, int sec, int nanos, ZoneId zone) {
+    return LocalDateTime.of(y, m, d, hr, min, sec, nanos).atZone(zone);
   }
 
 }

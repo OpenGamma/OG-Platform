@@ -5,7 +5,7 @@
  */
 package com.opengamma.examples.loader;
 
-import javax.time.calendar.TimeZone;
+import org.threeten.bp.ZoneId;
 
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.id.ExternalSchemes;
@@ -41,9 +41,9 @@ public class ExampleExchangeLoader extends AbstractTool<ToolContext> {
   @Override
   protected void doRun() {
     storeExchange(new ManageableExchange(ExternalIdBundle.of(ExternalSchemes.isoMicExchangeId("XLON")), "London Stock Exchange", ExternalIdBundle.of(ExternalSchemes.countryRegionId(Country.GB)),
-        TimeZone.of("Europe/London")));
+        ZoneId.of("Europe/London")));
     storeExchange(new ManageableExchange(ExternalIdBundle.of(ExternalSchemes.isoMicExchangeId("XNYS")), "New York Stock Exchange", ExternalIdBundle.of(ExternalSchemes.countryRegionId(Country.US)),
-        TimeZone.of("America/New_York")));
+        ZoneId.of("America/New_York")));
   }
 
   /**

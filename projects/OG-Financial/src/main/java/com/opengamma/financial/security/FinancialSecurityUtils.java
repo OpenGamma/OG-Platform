@@ -44,6 +44,7 @@ import com.opengamma.financial.security.forward.MetalForwardSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
+import com.opengamma.financial.security.future.DeliverableSwapFutureSecurity;
 import com.opengamma.financial.security.future.EnergyFutureSecurity;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
 import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
@@ -407,7 +408,7 @@ public class FinancialSecurityUtils {
         }
 
         @Override
-        public Currency visitFxFutureOptionSecurity(FxFutureOptionSecurity security) {
+        public Currency visitFxFutureOptionSecurity(final FxFutureOptionSecurity security) {
           return security.getCurrency();
         }
 
@@ -581,6 +582,10 @@ public class FinancialSecurityUtils {
           return security.getNotional().getCurrency();
         }
 
+        @Override
+        public Currency visitDeliverableSwapFutureSecurity(final DeliverableSwapFutureSecurity security) {
+          return security.getCurrency();
+        }
       });
       return ccy;
     } else if (security instanceof RawSecurity) {
@@ -722,7 +727,7 @@ public class FinancialSecurityUtils {
         }
 
         @Override
-        public Collection<Currency> visitFxFutureOptionSecurity(FxFutureOptionSecurity security) {
+        public Collection<Currency> visitFxFutureOptionSecurity(final FxFutureOptionSecurity security) {
           return null;
         }
 
@@ -909,6 +914,11 @@ public class FinancialSecurityUtils {
         @Override
         public Collection<Currency> visitLegacyRecoveryLockCDSSecurity(final LegacyRecoveryLockCDSSecurity security) {
           return Collections.singletonList(security.getNotional().getCurrency());
+        }
+
+        @Override
+        public Collection<Currency> visitDeliverableSwapFutureSecurity(final DeliverableSwapFutureSecurity security) {
+          return Collections.singletonList(security.getCurrency());
         }
       });
       return ccy;

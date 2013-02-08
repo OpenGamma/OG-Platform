@@ -8,7 +8,7 @@ package com.opengamma.id;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.time.Instant;
+import org.threeten.bp.Instant;
 
 /**
  * Utility class for working with identifiers.

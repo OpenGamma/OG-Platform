@@ -14,9 +14,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
-import javax.time.calendar.LocalDate;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
 
 import com.google.common.collect.Sets;
 import com.opengamma.util.tuple.ObjectsPair;

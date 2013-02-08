@@ -207,19 +207,19 @@ public interface ObjectTimeSeries<T, V> extends TimeSeries<T, V> {
 //  
 //  public abstract ZonedDateTimeDoubleTimeSeries toZonedDateTimeDoubleTimeSeries();
 //  
-//  public abstract ZonedDateTimeDoubleTimeSeries toZonedDateTimeDoubleTimeSeries(javax.time.calendar.TimeZone timeZone);
+//  public abstract ZonedDateTimeDoubleTimeSeries toZonedDateTimeDoubleTimeSeries(ZoneId timeZone);
 //  
 //  public abstract MutableZonedDateTimeDoubleTimeSeries toMutableZonedDateTimeDoubleTimeSeries();
 //  
-//  public abstract MutableZonedDateTimeDoubleTimeSeries toMutableZonedDateTimeDoubleTimeSeries(javax.time.calendar.TimeZone timeZone);
+//  public abstract MutableZonedDateTimeDoubleTimeSeries toMutableZonedDateTimeDoubleTimeSeries(ZoneId timeZone);
 //
 //  public abstract LocalDateDoubleTimeSeries toLocalDateDoubleTimeSeries();
 //  
-//  public abstract LocalDateDoubleTimeSeries toLocalDateDoubleTimeSeries(javax.time.calendar.TimeZone timeZone);
+//  public abstract LocalDateDoubleTimeSeries toLocalDateDoubleTimeSeries(ZoneId timeZone);
 //  
 //  public abstract MutableLocalDateDoubleTimeSeries toMutableLocalDateDoubleTimeSeries();
 //  
-//  public abstract MutableLocalDateDoubleTimeSeries toMutableLocalDateDoubleTimeSeries(javax.time.calendar.TimeZone timeZone);
+//  public abstract MutableLocalDateDoubleTimeSeries toMutableLocalDateDoubleTimeSeries(ZoneId timeZone);
 //  
 //  public abstract YearOffsetDoubleTimeSeries toYearOffsetDoubleTimeSeries(ZonedDateTime zeroDate);
 //

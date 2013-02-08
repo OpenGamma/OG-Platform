@@ -7,10 +7,10 @@ package com.opengamma.analytics.financial.instrument.index;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
-
-import javax.time.calendar.Period;
+import static org.threeten.bp.temporal.ChronoUnit.DAYS;
 
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
 
 import com.opengamma.util.money.Currency;
 
@@ -22,7 +22,7 @@ public class IndexPriceTest {
   private static final String NAME = "Euro HICP x";
   private static final Currency CUR = Currency.EUR;
   private static final Currency REGION = Currency.EUR;
-  private static final Period LAG = Period.ofDays(14);
+  private static final Period LAG = Period.of(14, DAYS);
   private static final IndexPrice PRICE_INDEX = new IndexPrice(NAME, CUR, REGION, LAG);
 
   @Test(expectedExceptions = IllegalArgumentException.class)

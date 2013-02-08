@@ -30,7 +30,7 @@ public interface Link<T extends UniqueIdentifiable> extends ObjectIdentifiable {
   /**
    * Gets the object identifier that strongly references the target.
    * 
-   * @return the value of the property
+   * @return the object identifier, may be null
    */
   ObjectId getObjectId();
 
@@ -38,7 +38,7 @@ public interface Link<T extends UniqueIdentifiable> extends ObjectIdentifiable {
    * Gets the external identifier bundle that references the target.
    * An empty bundle is used if not referencing a target by external bundle.
    * 
-   * @return the value of the property, not null
+   * @return the external identifier bundle, not null
    */
   ExternalIdBundle getExternalId();
 

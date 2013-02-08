@@ -110,13 +110,10 @@ public class VaRFunctions extends AbstractRepositoryConfigurationBean {
 
     @Override
     protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
-      //functions.add(functionConfiguration(OptionPositionParametricVaRFunction.class, DEFAULT_CONFIG_NAME));
-      //functions.add(functionConfiguration(OptionPortfolioParametricVaRFunction.class, DEFAULT_CONFIG_NAME, startDate, defaultReturnCalculatorName,
-      //  defaultScheduleName, defaultSamplingCalculatorName, "0.99", "1", ValueRequirementNames.VALUE_DELTA));
-      //functions.add(functionConfiguration(PositionValueGreekSensitivityPnLFunction.class, DEFAULT_CONFIG_NAME, startDate, defaultReturnCalculatorName,
-      //  defaultScheduleName, defaultSamplingCalculatorName, ValueRequirementNames.VALUE_DELTA));
       functions.add(functionConfiguration(NormalHistoricalVaRDefaultPropertiesFunction.class, getSamplingPeriodName(), getScheduleName(), getSamplingCalculatorName(), getMeanCalculatorName(),
           getStdDevCalculatorName(), Double.toString(getConfidenceLevel()), Double.toString(getHorizon())));
+      functions.add(functionConfiguration(EmpiricalHistoricalVaRDefaultPropertiesFunction.class, getSamplingPeriodName(), getScheduleName(), getSamplingCalculatorName(),
+          Double.toString(getConfidenceLevel()), Double.toString(getHorizon())));
     }
 
   }

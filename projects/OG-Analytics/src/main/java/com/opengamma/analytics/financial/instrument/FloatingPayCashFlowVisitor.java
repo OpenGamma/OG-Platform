@@ -9,7 +9,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.time.calendar.LocalDate;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.analytics.financial.instrument.cash.DepositIborDefinition;
@@ -46,7 +46,7 @@ public final class FloatingPayCashFlowVisitor extends InstrumentDefinitionVisito
   @Override
   public Map<LocalDate, MultipleCurrencyAmount> visitDepositIborDefinition(final DepositIborDefinition deposit) {
     ArgumentChecker.notNull(deposit, "deposit");
-    final LocalDate endDate = deposit.getEndDate().toLocalDate();
+    final LocalDate endDate = deposit.getEndDate().getDate();
     if (deposit.getNotional() > 0) {
       return Collections.emptyMap();
     }
@@ -77,7 +77,7 @@ public final class FloatingPayCashFlowVisitor extends InstrumentDefinitionVisito
   @Override
   public Map<LocalDate, MultipleCurrencyAmount> visitCouponIborDefinition(final CouponIborDefinition coupon) {
     ArgumentChecker.notNull(coupon, "coupon");
-    final LocalDate endDate = coupon.getPaymentDate().toLocalDate();
+    final LocalDate endDate = coupon.getPaymentDate().getDate();
     if (coupon.getNotional() > 0) {
       return Collections.emptyMap();
     }
@@ -108,7 +108,7 @@ public final class FloatingPayCashFlowVisitor extends InstrumentDefinitionVisito
   @Override
   public Map<LocalDate, MultipleCurrencyAmount> visitCouponIborSpreadDefinition(final CouponIborSpreadDefinition coupon) {
     ArgumentChecker.notNull(coupon, "coupon");
-    final LocalDate endDate = coupon.getPaymentDate().toLocalDate();
+    final LocalDate endDate = coupon.getPaymentDate().getDate();
     if (coupon.getNotional() > 0) {
       return Collections.emptyMap();
     }
@@ -139,7 +139,7 @@ public final class FloatingPayCashFlowVisitor extends InstrumentDefinitionVisito
   @Override
   public Map<LocalDate, MultipleCurrencyAmount> visitCouponIborGearingDefinition(final CouponIborGearingDefinition coupon) {
     ArgumentChecker.notNull(coupon, "coupon");
-    final LocalDate endDate = coupon.getPaymentDate().toLocalDate();
+    final LocalDate endDate = coupon.getPaymentDate().getDate();
     if (coupon.getNotional() > 0) {
       return Collections.emptyMap();
     }
@@ -169,7 +169,7 @@ public final class FloatingPayCashFlowVisitor extends InstrumentDefinitionVisito
   @Override
   public Map<LocalDate, MultipleCurrencyAmount> visitForwardRateAgreementDefinition(final ForwardRateAgreementDefinition forwardRateAgreement) {
     ArgumentChecker.notNull(forwardRateAgreement, "FRA");
-    final LocalDate endDate = forwardRateAgreement.getPaymentDate().toLocalDate();
+    final LocalDate endDate = forwardRateAgreement.getPaymentDate().getDate();
     if (forwardRateAgreement.getNotional() > 0) {
       return Collections.emptyMap();
     }

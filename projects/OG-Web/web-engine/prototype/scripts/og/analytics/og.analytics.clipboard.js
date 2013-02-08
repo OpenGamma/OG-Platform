@@ -12,6 +12,7 @@ $.register_module({
                 return (is_array(value) ? value : value.v || []).map(function (row) {return row.join(tab);}).join(line);
             },
             DOUBLE: function (value) {return value.v || '';},
+            FUNGIBLE_TRADE: function (value) {return value.v && value.v.name || '';},
             LABELLED_MATRIX_1D: function (value, single) {
                 if (!single) return value.v || '**1D MATRIX**';
                 return [value.v.labels.join(tab)]
@@ -28,8 +29,9 @@ $.register_module({
                     .map(function (row, idx) {return rows[idx] + tab + row.join(tab);}).join(line);
             },
             LABELLED_MATRIX_3D: function (value, single) {return '**3D MATRIX**';},
-            NODE_ID: function (value) {return value.v || '';},
-            POSITION_ID: function (value) {return value.v || '';},
+            NODE: function (value) {return value.v && value.v.name || '';},
+            OTC_TRADE: function (value) {return value.v && value.v.name || '';},
+            POSITION: function (value) {return value.v && value.v.name || '';},
             STRING: function (value) {return value.v || '';},
             SURFACE_DATA: function (value, single) {
                 if (!single) return value.v || '**SURFACE DATA**';
@@ -47,17 +49,12 @@ $.register_module({
             },
             TIME_SERIES: function (value, single) {
                 if (!single) return '**TIME SERIES**';
-                var rows, cols, pad = function (digit) {return digit < 10 ? '0' + digit : digit;};
+                var rows, cols;
                 value = value.v || value;
                 rows = value.timeseries.data;
                 cols = value.timeseries['fieldLabels'];
-                return cols.join(tab) + line + rows.map(function (row) {
-                    var date = new Date(row[0]);
-                    row[0] = date.getUTCFullYear() + '-' + pad(date.getUTCMonth() + 1) + '-' + pad(date.getUTCDate()) +
-                        '  ' + pad(date.getUTCHours()) + ':' + pad(date.getUTCMinutes()) + ':' +
-                        pad(date.getUTCSeconds());
-                    return row.join(tab);
-                }).join(line);
+                return cols.join(tab) + line + rows
+                    .map(function (row) {return (row[0] = og.common.util.date(row[0])), row.join(tab);}).join(line);
             },
             UNKNOWN: function (value, single) {
                 var type = value.t;
@@ -70,11 +67,12 @@ $.register_module({
                 return value.v.data.join(line);
             }
         };
-        var constructor = function (grid) {
+        var Clipboard = function (grid, local) {
             var clipboard = this;
             clipboard.data = clipboard.selection = null;
-            clipboard.dataman = new og.analytics.Data(grid.source, {label: 'clipboard', parent: grid.dataman})
-                .on('data', data_handler, clipboard);
+            clipboard.dataman = new (grid.config.dataman || og.analytics.Data)(grid.source, {
+                label: 'clipboard', parent: grid.dataman
+            }).on('data', data_handler, clipboard);
             clipboard.grid = grid
                 .on('select', function (selection) {clipboard.viewport(selection);})
                 .on('deselect', function () {clipboard.clear();});
@@ -93,7 +91,6 @@ $.register_module({
             if (typeof cell.value === 'undefined') return '';
             if (cell.value.error) {
                 formatted = typeof cell.value.v === 'string' ? cell.value.v : '***ERROR***';
-                og.dev.warn(module.name + ': ' + formatted);
                 return formatted;
             };
             if (formatters[cell.type]) return formatters[cell.type](cell.value, single);
@@ -105,17 +102,17 @@ $.register_module({
             return one.rows.join('|') === two.rows.join('|') && one.cols.join('|') === two.cols.join('|');
         };
         var select = function (text) {textarea.val(text).focus().select();};
-        constructor.prototype.clear = function () {
+        Clipboard.prototype.clear = function () {
             var clipboard = this;
             if (clipboard.selection) clipboard.dataman.viewport(clipboard.selection = clipboard.data = null);
         };
-        constructor.prototype.has = function (selection) {
+        Clipboard.prototype.has = function (selection) {
             var clipboard = this, grid = clipboard.grid,
                 expanded = selection.rows.length === 1 && selection.cols.length === 1;
             clipboard.viewport(selection);
             return !!selection && !!(clipboard.data || (clipboard.data = grid.range(selection, expanded)));
         };
-        constructor.prototype.select = function () {
+        Clipboard.prototype.select = function () {
             var clipboard = this, data = clipboard.data, selection = clipboard.selection,
                 single = selection.rows.length === 1 && selection.cols.length === 1;
             if (!data || !data.length) return og.dev.warn(module.name + ': no data to select'), select('');
@@ -124,7 +121,7 @@ $.register_module({
             }).join(line);
             select(data.formatted);
         };
-        constructor.prototype.viewport = function (selection) {
+        Clipboard.prototype.viewport = function (selection) {
             var clipboard = this, grid = clipboard.grid, grid_data, data_viewport = clipboard.dataman.meta.viewport,
                 expanded = selection && selection.rows.length === 1 && selection.cols.length === 1,
                 format = expanded ? 'EXPANDED' : 'CELL';
@@ -141,6 +138,6 @@ $.register_module({
             node = (textarea = $('<textarea />').appendTo('body')
                 .css({position: 'absolute', top: '-500px', left: '-500px', width: '100px', height: '100px'}))[0];
         });
-        return constructor;
+        return Clipboard;
     }
 });

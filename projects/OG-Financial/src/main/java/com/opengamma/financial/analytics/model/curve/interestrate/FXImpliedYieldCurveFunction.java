@@ -14,10 +14,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
@@ -90,7 +89,7 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues) {
-    final ZonedDateTime now = executionContext.getValuationClock().zonedDateTime();
+    final ZonedDateTime now = ZonedDateTime.now(executionContext.getValuationClock());
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     String domesticCurveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
     final Currency domesticCurrency = target.getValue(PrimitiveComputationTargetType.CURRENCY);
@@ -172,7 +171,7 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
     final String fullForeignCurveName = foreignCurveName + "_" + foreignCurrency.getCode();
     final List<InstrumentDerivative> derivatives = new ArrayList<InstrumentDerivative>();
     for (final Tenor tenor : definition.getTenors()) {
-      final ExternalId identifier = provider.getInstrument(now.toLocalDate(), tenor);
+      final ExternalId identifier = provider.getInstrument(now.getDate(), tenor);
       if (fxForwardData.containsKey(identifier)) {
         final double paymentTime = TimeCalculator.getTimeBetween(now, now.plus(tenor.getPeriod())); //TODO
         final double forwardFX = invertFXQuotes ? 1 / fxForwardData.get(identifier) : fxForwardData.get(identifier);
@@ -233,6 +232,19 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
     if (curveCalculationConfigNames == null || curveCalculationConfigNames.size() != 1) {
       return null;
     }
+    final String domesticCurveCalculationConfigName = curveCalculationConfigNames.iterator().next();
+    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
+    final ConfigDBFXForwardCurveDefinitionSource fxCurveDefinitionSource = new ConfigDBFXForwardCurveDefinitionSource(configSource);
+    final ConfigDBFXForwardCurveSpecificationSource fxCurveSpecificationSource = new ConfigDBFXForwardCurveSpecificationSource(configSource);
+    final ConfigDBCurveCalculationConfigSource curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);
+    final MultiCurveCalculationConfig domesticCurveCalculationConfig = curveCalculationConfigSource.getConfig(domesticCurveCalculationConfigName);
+    if (domesticCurveCalculationConfig == null) {
+      s_logger.error("Could not get domestic curve calculation config called {}", domesticCurveCalculationConfigName);
+      return null;
+    }
+    if (!domesticCurveCalculationConfig.getCalculationMethod().equals(FX_IMPLIED)) {
+      return null;
+    }
     final Set<String> rootFinderAbsoluteTolerance = constraints.getValues(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE);
     if (rootFinderAbsoluteTolerance == null || rootFinderAbsoluteTolerance.size() != 1) {
       return null;
@@ -263,19 +275,6 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
     }
     final Set<String> rightExtrapolatorName = constraints.getValues(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME);
     if (rightExtrapolatorName == null || rightExtrapolatorName.size() != 1) {
-      return null;
-    }
-    final String domesticCurveCalculationConfigName = curveCalculationConfigNames.iterator().next();
-    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
-    final ConfigDBFXForwardCurveDefinitionSource fxCurveDefinitionSource = new ConfigDBFXForwardCurveDefinitionSource(configSource);
-    final ConfigDBFXForwardCurveSpecificationSource fxCurveSpecificationSource = new ConfigDBFXForwardCurveSpecificationSource(configSource);
-    final ConfigDBCurveCalculationConfigSource curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);
-    final MultiCurveCalculationConfig domesticCurveCalculationConfig = curveCalculationConfigSource.getConfig(domesticCurveCalculationConfigName);
-    if (domesticCurveCalculationConfig == null) {
-      s_logger.error("Could not get domestic curve calculation config called {}", domesticCurveCalculationConfigName);
-      return null;
-    }
-    if (!domesticCurveCalculationConfig.getCalculationMethod().equals(FX_IMPLIED)) {
       return null;
     }
     if (domesticCurveCalculationConfig.getExogenousConfigData() == null) {
@@ -330,11 +329,13 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
     requirements.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetSpecification.of(foreignCurrency), foreignCurveProperties));
     return requirements;
   }
-
+  
   private ValueProperties getForeignCurveProperties(final MultiCurveCalculationConfig foreignConfig, final String foreignCurveName) {
     return ValueProperties.builder()
         .with(ValuePropertyNames.CURVE, foreignCurveName)
-        .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, foreignConfig.getCalculationConfigName()).get();
+        .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, foreignConfig.getCalculationConfigName())
+        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, foreignConfig.getCalculationMethod())
+        .get();
   }
 
   private ValueProperties getCurveProperties() {

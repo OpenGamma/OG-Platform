@@ -12,15 +12,12 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.calendar.DayOfWeek;
-import javax.time.calendar.LocalDate;
-
-import net.sf.ehcache.CacheManager;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import org.threeten.bp.DayOfWeek;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
@@ -31,6 +28,8 @@ import com.opengamma.util.timeseries.localdate.ListLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.MutableLocalDateDoubleTimeSeries;
 import com.opengamma.util.tuple.Pair;
+
+import net.sf.ehcache.CacheManager;
 
 /**
  * Test.
@@ -159,7 +158,7 @@ public class HistoricalTimeSeriesSourceTest {
 
   //-------------------------------------------------------------------------
   public void testEHCachingHistoricalTimeSeriesSource() {
-    CacheManager cacheManager = new CacheManager();
+    CacheManager cacheManager = CacheManager.newInstance();
     try {
       doTestCaching(cacheManager);
     } finally {

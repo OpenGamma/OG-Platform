@@ -6,11 +6,11 @@
 package com.opengamma.analytics.financial.interestrate.bond.method;
 
 import static org.testng.AssertJUnit.assertEquals;
-
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
+import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
 
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.bond.BondCapitalIndexedSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BondCapitalIndexedTransactionDefinition;
@@ -61,7 +61,7 @@ public class BondCapitalIndexedTransactionDiscountingMethodTest {
   private static final double INDEX_START_TIPS_1 = 198.47742; // Date: 
   private static final double NOTIONAL_TIPS_1 = 100.00;
   private static final double REAL_RATE_TIPS_1 = 0.02;
-  private static final Period COUPON_PERIOD_TIPS_1 = Period.ofMonths(6);
+  private static final Period COUPON_PERIOD_TIPS_1 = Period.of(6, MONTHS);
   private static final int SETTLEMENT_DAYS_TIPS_1 = 2;
 
   private static final BondCapitalIndexedSecurityDefinition<CouponInflationZeroCouponInterpolationGearingDefinition> BOND_SECURITY_TIPS_1_DEFINITION = BondCapitalIndexedSecurityDefinition

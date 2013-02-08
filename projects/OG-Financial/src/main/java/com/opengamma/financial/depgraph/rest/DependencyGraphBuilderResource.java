@@ -10,8 +10,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
-import javax.time.Instant;
-import javax.time.calendar.ZonedDateTime;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -20,6 +18,8 @@ import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeSerializer;
+import org.threeten.bp.Instant;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.depgraph.DependencyGraph;
@@ -119,7 +119,7 @@ public final class DependencyGraphBuilderResource extends AbstractDataResource {
   @Path("valuationTime/{valuationTime}")
   public DependencyGraphBuilderResource setValuationTime(@PathParam("valuationTime") final String valuationTime) {
     final DependencyGraphBuilderResource resource = new DependencyGraphBuilderResource(this);
-    resource._valuationTime = Instant.of(ZonedDateTime.parse(valuationTime));
+    resource._valuationTime = ZonedDateTime.parse(valuationTime).toInstant();
     return resource;
   }
 

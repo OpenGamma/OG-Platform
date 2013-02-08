@@ -10,11 +10,10 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 
 import java.util.Collection;
 
-import javax.time.Instant;
-
 import org.mockito.ArgumentMatcher;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.google.common.collect.Lists;
 import com.opengamma.core.change.ChangeEvent;

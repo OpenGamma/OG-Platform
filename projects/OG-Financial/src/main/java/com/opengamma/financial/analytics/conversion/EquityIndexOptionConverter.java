@@ -5,8 +5,8 @@
  */
 package com.opengamma.financial.analytics.conversion;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.ExerciseDecisionType;
 import com.opengamma.analytics.financial.commodity.definition.SettlementType;
@@ -44,7 +44,7 @@ public class EquityIndexOptionConverter extends FinancialSecurityVisitorAdapter<
     final ExerciseDecisionType exerciseType = security.getExerciseType().accept(ExerciseTypeAnalyticsVisitorAdapter.getInstance());
     // TODO !!! We need to know how long after expiry does settlement occur?
     // IndexOptions are obviously Cash Settled
-    final LocalDate settlementDate = expiryDT.toLocalDate(); // FIXME !!! Needs to come from convention !!!
+    final LocalDate settlementDate = expiryDT.getDate(); // FIXME !!! Needs to come from convention !!!
     //TODO settlement type needs to come from trade or convention
     return new EquityIndexOptionDefinition(isCall, strike, ccy, exerciseType, expiryDT, settlementDate, unitNotional, SettlementType.CASH);
   }
@@ -61,7 +61,7 @@ public class EquityIndexOptionConverter extends FinancialSecurityVisitorAdapter<
     final ExerciseDecisionType exerciseType = security.getExerciseType().accept(ExerciseTypeAnalyticsVisitorAdapter.getInstance());
     // TODO !!! We need to know how long after expiry does settlement occur?
     // IndexOptions are obviously Cash Settled
-    final LocalDate settlementDate = expiryDT.toLocalDate(); // FIXME !!! Needs to come from convention !!!
+    final LocalDate settlementDate = expiryDT.getDate(); // FIXME !!! Needs to come from convention !!!
     //TODO settlement type needs to come from trade or convention
     return new EquityOptionDefinition(isCall, strike, ccy, exerciseType, expiryDT, settlementDate, unitNotional, SettlementType.PHYSICAL);
   }

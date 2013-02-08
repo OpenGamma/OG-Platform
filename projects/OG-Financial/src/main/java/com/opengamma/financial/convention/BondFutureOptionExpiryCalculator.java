@@ -5,10 +5,10 @@
  */
 package com.opengamma.financial.convention;
 
-import javax.time.calendar.DateAdjuster;
-import javax.time.calendar.DateAdjusters;
-import javax.time.calendar.DayOfWeek;
-import javax.time.calendar.LocalDate;
+import org.threeten.bp.DayOfWeek;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.temporal.TemporalAdjuster;
+import org.threeten.bp.temporal.TemporalAdjusters;
 
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.ArgumentChecker;
@@ -19,9 +19,9 @@ import com.opengamma.util.ArgumentChecker;
 public final class BondFutureOptionExpiryCalculator implements ExchangeTradedInstrumentExpiryCalculator {
   /** Name of the calculator */
   public static final String NAME = "BondFutureOptionExpiryCalculator";
-  private static final DateAdjuster LAST_DAY_ADJUSTER = DateAdjusters.lastDayOfMonth();
-  private static final DateAdjuster PREVIOUS_OR_CURRENT_FRIDAY_ADJUSTER = DateAdjusters.previousOrCurrent(DayOfWeek.FRIDAY);
-  private static final DateAdjuster PREVIOUS_FRIDAY_ADJUSTER = DateAdjusters.previous(DayOfWeek.FRIDAY);
+  private static final TemporalAdjuster LAST_DAY_ADJUSTER = TemporalAdjusters.lastDayOfMonth();
+  private static final TemporalAdjuster PREVIOUS_OR_CURRENT_FRIDAY_ADJUSTER = TemporalAdjusters.previousOrSame(DayOfWeek.FRIDAY);
+  private static final TemporalAdjuster PREVIOUS_FRIDAY_ADJUSTER = TemporalAdjusters.previous(DayOfWeek.FRIDAY);
   private static final BondFutureOptionExpiryCalculator INSTANCE = new BondFutureOptionExpiryCalculator();
 
   public static BondFutureOptionExpiryCalculator getInstance() {
@@ -36,15 +36,15 @@ public final class BondFutureOptionExpiryCalculator implements ExchangeTradedIns
     ArgumentChecker.isTrue(n > 0, "n must be greater than zero; have {}", n);
     ArgumentChecker.notNull(today, "today");
     ArgumentChecker.notNull(holidayCalendar, "holiday calendar");
-    final LocalDate lastFridayOfThisMonth = PREVIOUS_OR_CURRENT_FRIDAY_ADJUSTER.adjustDate(LAST_DAY_ADJUSTER.adjustDate(today));
+    final LocalDate lastFridayOfThisMonth = today.with(LAST_DAY_ADJUSTER).with(PREVIOUS_OR_CURRENT_FRIDAY_ADJUSTER);
     LocalDate lastDayOfMonth;
     LocalDate lastFridayOfMonth;
     if (today.isAfter(lastFridayOfThisMonth)) {
-      lastDayOfMonth = LAST_DAY_ADJUSTER.adjustDate(today.plusMonths(n));
-      lastFridayOfMonth = PREVIOUS_OR_CURRENT_FRIDAY_ADJUSTER.adjustDate(lastDayOfMonth);
+      lastDayOfMonth = today.plusMonths(n).with(LAST_DAY_ADJUSTER);
+      lastFridayOfMonth = lastDayOfMonth.with(PREVIOUS_OR_CURRENT_FRIDAY_ADJUSTER);
     } else {
-      lastDayOfMonth = LAST_DAY_ADJUSTER.adjustDate(today.plusMonths(n - 1));
-      lastFridayOfMonth = PREVIOUS_OR_CURRENT_FRIDAY_ADJUSTER.adjustDate(lastDayOfMonth);
+      lastDayOfMonth = today.plusMonths(n - 1).with(LAST_DAY_ADJUSTER);
+      lastFridayOfMonth = lastDayOfMonth.with(PREVIOUS_OR_CURRENT_FRIDAY_ADJUSTER);
     }
     int nBusinessDays = 0;
     LocalDate date = lastFridayOfMonth.plusDays(1);
@@ -60,7 +60,7 @@ public final class BondFutureOptionExpiryCalculator implements ExchangeTradedIns
       }
       date = date.plusDays(1);
     }
-    LocalDate result = PREVIOUS_FRIDAY_ADJUSTER.adjustDate(lastFridayOfMonth);
+    LocalDate result = lastFridayOfMonth.with(PREVIOUS_FRIDAY_ADJUSTER);
     while (!holidayCalendar.isWorkingDay(result)) {
       result = result.minusDays(1);
     }

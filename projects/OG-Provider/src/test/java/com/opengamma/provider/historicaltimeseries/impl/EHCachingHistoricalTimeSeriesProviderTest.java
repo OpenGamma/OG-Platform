@@ -10,14 +10,12 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.testng.AssertJUnit.assertEquals;
-
-import javax.time.calendar.LocalDate;
-
 import net.sf.ehcache.CacheManager;
 
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProvider;
@@ -52,7 +50,7 @@ public class EHCachingHistoricalTimeSeriesProviderTest {
 
   @BeforeMethod
   public void setUp() {
-    _cacheManager = new CacheManager();
+    _cacheManager = CacheManager.newInstance();
     _underlyingProvider = mock(HistoricalTimeSeriesProvider.class);
     _cachingProvider = new EHCachingHistoricalTimeSeriesProvider(_underlyingProvider, _cacheManager);
   }

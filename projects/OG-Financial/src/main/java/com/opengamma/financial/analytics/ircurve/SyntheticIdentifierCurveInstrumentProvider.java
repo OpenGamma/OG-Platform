@@ -5,9 +5,8 @@
  */
 package com.opengamma.financial.analytics.ircurve;
 
-import javax.time.calendar.LocalDate;
-
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalScheme;

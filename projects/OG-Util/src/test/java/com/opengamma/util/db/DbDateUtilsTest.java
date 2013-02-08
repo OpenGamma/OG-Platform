@@ -12,13 +12,11 @@ import java.sql.Date;
 import java.sql.Time;
 import java.sql.Timestamp;
 
-import javax.time.Instant;
-import javax.time.InstantProvider;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.LocalDateTime;
-import javax.time.calendar.LocalTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.LocalTime;
 
 /**
  * Test DbDateUtils.
@@ -31,8 +29,8 @@ public class DbDateUtilsTest {
   public void test_toSqlTimestamp() {
     Instant instant = Instant.now();
     Timestamp ts = DbDateUtils.toSqlTimestamp(instant);
-    assertEquals(instant.toEpochMillisLong(), ts.getTime());
-    assertEquals(instant.getNanoOfSecond(), ts.getNanos());
+    assertEquals(instant.toEpochMilli(), ts.getTime());
+    assertEquals(instant.getNano(), ts.getNanos());
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -42,15 +40,15 @@ public class DbDateUtilsTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_toSqlTimestamp_InstantProvider_null() {
-    DbDateUtils.toSqlTimestamp((InstantProvider) null);
+    DbDateUtils.toSqlTimestamp((Instant) null);
   }
 
   public void test_fromSqlTimestamp() {
     Timestamp ts = new Timestamp(123456789L);
     ts.setNanos(789654321);
     Instant instant = DbDateUtils.fromSqlTimestamp(ts);
-    assertEquals(ts.getTime(), instant.toEpochMillisLong());
-    assertEquals(ts.getNanos(), instant.getNanoOfSecond());
+    assertEquals(ts.getTime(), instant.toEpochMilli());
+    assertEquals(ts.getNanos(), instant.getNano());
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -66,8 +64,8 @@ public class DbDateUtilsTest {
     Timestamp ts = new Timestamp(123456789L);
     ts.setNanos(789654321);
     Instant instant = DbDateUtils.fromSqlTimestampNullFarFuture(ts);
-    assertEquals(ts.getTime(), instant.toEpochMillisLong());
-    assertEquals(ts.getNanos(), instant.getNanoOfSecond());
+    assertEquals(ts.getTime(), instant.toEpochMilli());
+    assertEquals(ts.getNanos(), instant.getNano());
   }
 
   public void test_fromSqlTimestampNullFarFuture_max() {

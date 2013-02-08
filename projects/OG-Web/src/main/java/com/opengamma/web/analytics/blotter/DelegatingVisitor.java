@@ -23,8 +23,8 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public void visitBean(MetaBean metaBean) {
-    _delegate.visitBean(metaBean);
+  public void visitMetaBean(MetaBean metaBean) {
+    _delegate.visitMetaBean(metaBean);
   }
 
   @Override
@@ -33,28 +33,28 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public void visitCollectionProperty(MetaProperty<?> property) {
-    _delegate.visitCollectionProperty(property);
+  public void visitCollectionProperty(MetaProperty<?> property, BeanTraverser traverser) {
+    _delegate.visitCollectionProperty(property, traverser);
   }
 
   @Override
-  public void visitSetProperty(MetaProperty<?> property) {
-    _delegate.visitSetProperty(property);
+  public void visitSetProperty(MetaProperty<?> property, BeanTraverser traverser) {
+    _delegate.visitSetProperty(property, traverser);
   }
 
   @Override
-  public void visitListProperty(MetaProperty<?> property) {
-    _delegate.visitListProperty(property);
+  public void visitListProperty(MetaProperty<?> property, BeanTraverser traverser) {
+    _delegate.visitListProperty(property, traverser);
   }
 
   @Override
-  public void visitMapProperty(MetaProperty<?> property) {
-    _delegate.visitMapProperty(property);
+  public void visitMapProperty(MetaProperty<?> property, BeanTraverser traverser) {
+    _delegate.visitMapProperty(property, traverser);
   }
 
   @Override
-  public void visitProperty(MetaProperty<?> property) {
-    _delegate.visitProperty(property);
+  public void visitProperty(MetaProperty<?> property, BeanTraverser traverser) {
+    _delegate.visitProperty(property, traverser);
   }
 
   @Override

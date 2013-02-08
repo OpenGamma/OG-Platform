@@ -20,13 +20,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import javax.time.Instant;
-
 import net.sf.ehcache.CacheManager;
 
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.opengamma.core.position.impl.MockPositionSource;
 import com.opengamma.core.position.impl.SimplePortfolio;
@@ -65,7 +64,7 @@ public class ViewDefinitionCompilerTest {
 
   @BeforeMethod
   public void setUp() {
-    _cacheManager = new CacheManager();
+    _cacheManager = CacheManager.newInstance();
   }
 
   @AfterMethod

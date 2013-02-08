@@ -39,6 +39,7 @@ public class ResultsFormatter {
     addFormatters(doubleFormatter,
                   bigDecimalFormatter,
                   currencyAmountFormatter,
+                  zonedDateTimeFormatter,
                   new YieldCurveFormatter(),
                   new VolatilityCubeDataFormatter(),
                   new VolatilitySurfaceDataFormatter(),
@@ -68,9 +69,10 @@ public class ResultsFormatter {
                   new CurrencyPairsFormatter(),
                   new NodeTargetFormatter(),
                   new PositionTargetFormatter(),
+                  new FungibleTradeTargetFormatter(),
+                  new OtcTradeTargetFormatter(),
                   new BlackVolatilitySurfaceMoneynessFcnBackedByGridFormatter(),
                   new FrequencyFormatter(),
-                  zonedDateTimeFormatter,
                   new FXAmountsFormatter(doubleFormatter),
                   new ExpiryFormatter(zonedDateTimeFormatter));
   }

@@ -10,10 +10,9 @@ import static org.testng.AssertJUnit.assertEquals;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.calculator.PresentValueConvertedCalculator;
 import com.opengamma.analytics.financial.calculator.PresentValueCurveSensitivityConvertedCalculator;

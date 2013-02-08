@@ -5,9 +5,8 @@
  */
 package com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.ObjectUtils;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
@@ -41,6 +40,8 @@ public abstract class CreditDefaultSwapDefinition {
   // NOTE : For a standard CDS contract the step-in date is the same as the effective date
 
   // NOTE : We are enforcing the condition that the three obligors have to be different entities
+
+  // NOTE : There are no builder methods in this class because it is abstract
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -100,7 +101,7 @@ public abstract class CreditDefaultSwapDefinition {
   // Flag to determine if we adjust the maturity date to fall on the next IMM date
   private final boolean _immAdjustMaturityDate;
 
-  //Flag to determine if we business day adjust the user input effective date (not a feature of legacy or standard CDS)
+  // Flag to determine if we business day adjust the user input effective date (not a feature of legacy or standard CDS)
   private final boolean _adjustEffectiveDate;
 
   // Flag to determine if we business day adjust the final maturity date (not a feature of legacy or standard CDS)

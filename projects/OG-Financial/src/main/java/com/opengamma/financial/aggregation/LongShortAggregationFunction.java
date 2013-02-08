@@ -40,6 +40,7 @@ import com.opengamma.financial.security.forward.MetalForwardSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
+import com.opengamma.financial.security.future.DeliverableSwapFutureSecurity;
 import com.opengamma.financial.security.future.EnergyFutureSecurity;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
 import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
@@ -188,7 +189,7 @@ public class LongShortAggregationFunction implements AggregationFunction<String>
         }
 
         @Override
-        public String visitFxFutureOptionSecurity(FxFutureOptionSecurity security) {
+        public String visitFxFutureOptionSecurity(final FxFutureOptionSecurity security) {
           return position.getQuantity().longValue() < 0 ? SHORT : LONG;
         }
 
@@ -367,6 +368,11 @@ public class LongShortAggregationFunction implements AggregationFunction<String>
         @Override
         public String visitLegacyRecoveryLockCDSSecurity(final LegacyRecoveryLockCDSSecurity security) {
           return null; //TODO
+        }
+
+        @Override
+        public String visitDeliverableSwapFutureSecurity(final DeliverableSwapFutureSecurity security) {
+          return position.getQuantity().longValue() < 0 ? SHORT : LONG;
         }
       };
       if (position.getSecurity() instanceof FinancialSecurity) {

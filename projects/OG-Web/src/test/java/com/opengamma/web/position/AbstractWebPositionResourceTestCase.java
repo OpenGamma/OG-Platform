@@ -14,16 +14,16 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.LocalTime;
-import javax.time.calendar.OffsetTime;
-import javax.time.calendar.ZoneOffset;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.springframework.core.io.FileSystemResourceLoader;
 import org.springframework.mock.web.MockServletContext;
 import org.testng.annotations.BeforeMethod;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalTime;
+import org.threeten.bp.OffsetTime;
+import org.threeten.bp.ZoneOffset;
 
 import com.google.common.collect.Lists;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;

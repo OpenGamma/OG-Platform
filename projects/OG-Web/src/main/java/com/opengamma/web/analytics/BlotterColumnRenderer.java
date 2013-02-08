@@ -7,7 +7,7 @@ package com.opengamma.web.analytics;
 
 import java.util.List;
 
-import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.core.security.Security;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.analytics.blotter.BlotterColumn;
 import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
@@ -17,13 +17,14 @@ import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
  */
 /* package */ class BlotterColumnRenderer implements GridColumn.CellRenderer {
 
+  /** Maps  */
   private final BlotterColumnMapper _columnMappings;
   private final BlotterColumn _column;
-  private final List<PortfolioGridStructure.PortfolioGridRow> _rows;
+  private final List<PortfolioGridRow> _rows;
 
   public BlotterColumnRenderer(BlotterColumn column,
                                BlotterColumnMapper columnMappings,
-                               List<PortfolioGridStructure.PortfolioGridRow> rows) {
+                               List<PortfolioGridRow> rows) {
     ArgumentChecker.notNull(column, "column");
     ArgumentChecker.notNull(columnMappings, "blotterColumnMappings");
     ArgumentChecker.notNull(rows, "rows");
@@ -34,9 +35,8 @@ import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
 
   @Override
   public ResultsCell getResults(int rowIndex, ResultsCache cache, Class<?> columnType) {
-    // TODO does the cache need to be modified to contain the flattened portfolio?
-    PortfolioGridStructure.PortfolioGridRow row = _rows.get(rowIndex);
-    ManageableSecurity security = row.getSecurity();
+    PortfolioGridRow row = _rows.get(rowIndex);
+    Security security = row.getSecurity();
     return ResultsCell.forStaticValue(_columnMappings.valueFor(_column, security), columnType);
   }
 }

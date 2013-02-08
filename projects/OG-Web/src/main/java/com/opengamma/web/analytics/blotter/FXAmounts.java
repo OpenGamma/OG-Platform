@@ -8,8 +8,6 @@ package com.opengamma.web.analytics.blotter;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.currency.CurrencyUtils;
-import com.opengamma.financial.security.fx.FXForwardSecurity;
-import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
@@ -70,27 +68,24 @@ public class FXAmounts {
     return _counterAmount;
   }
 
-  /* package */ static FXAmounts forForward(FXForwardSecurity security, CurrencyPairs currencyPairs) {
-    return forAmounts(security.getPayCurrency(),
-                      security.getReceiveCurrency(),
-                      security.getPayAmount(),
-                      security.getReceiveAmount(),
-                      currencyPairs);
+  /* package */ static FXAmounts forForward(Currency payCurrency,
+                                            Currency receiveCurrency,
+                                            double payAmount,
+                                            double receiveAmount,
+                                            CurrencyPairs currencyPairs) {
+    return forAmounts(payCurrency, receiveCurrency, payAmount, receiveAmount, currencyPairs);
   }
 
-  /* package */ static FXAmounts forOption(FXOptionSecurity security, CurrencyPairs currencyPairs) {
-    if (security.isLong()) {
-      return forAmounts(security.getPutCurrency(),
-                        security.getCallCurrency(),
-                        security.getPutAmount(),
-                        security.getCallAmount(),
-                        currencyPairs);
+  /* package */ static FXAmounts forOption(Currency putCurrency,
+                                           Currency callCurrency,
+                                           double putAmount,
+                                           double callAmount,
+                                           boolean isLong,
+                                           CurrencyPairs currencyPairs) {
+    if (isLong) {
+      return forAmounts(putCurrency, callCurrency, putAmount, callAmount, currencyPairs);
     } else {
-      return forAmounts(security.getCallCurrency(),
-                        security.getPutCurrency(),
-                        security.getCallAmount(),
-                        security.getPutAmount(),
-                        currencyPairs);
+      return forAmounts(callCurrency, putCurrency, callAmount, putAmount, currencyPairs);
     }
   }
 

@@ -10,12 +10,11 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.calendar.LocalTime;
-import javax.time.calendar.TimeZone;
-
 import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.LocalTime;
+import org.threeten.bp.ZoneId;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
@@ -196,7 +195,7 @@ public class HistoricalValuationFunction extends AbstractFunction.NonCompiledInv
             }
           } else if (TIMEZONE_PROPERTY.equals(constraintName)) {
             if (constraintValues.size() > 0) {
-              updateTempTarget.setTimeZone(TimeZone.of(constraintValues.iterator().next()));
+              updateTempTarget.setTimeZone(ZoneId.of(constraintValues.iterator().next()));
             }
           } else if (VALUATION_TIME_PROPERTY.equals(constraintName)) {
             if (constraintValues.size() > 0) {

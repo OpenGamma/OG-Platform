@@ -13,18 +13,16 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
-import javax.time.calendar.DateProvider;
-import javax.time.calendar.DayOfWeek;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.LocalTime;
-import javax.time.calendar.Period;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
-import javax.time.calendar.format.DateTimeFormatter;
-import javax.time.calendar.format.DateTimeFormatterBuilder;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.DayOfWeek;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalTime;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
+import org.threeten.bp.format.DateTimeFormatter;
+import org.threeten.bp.format.DateTimeFormatterBuilder;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.core.config.ConfigSource;
@@ -256,7 +254,7 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
 
   private FunctionExecutionContext createFunctionExecutionContext(final LocalDate valuationTime) {
     final FunctionExecutionContext context = new FunctionExecutionContext();
-    context.setValuationTime(ZonedDateTime.of(valuationTime, LocalTime.MIDDAY, TimeZone.UTC).toInstant());
+    context.setValuationTime(valuationTime.atTime(LocalTime.NOON).toInstant(ZoneOffset.UTC));
     context.setValuationClock(DateUtils.fixedClockUTC(context.getValuationTime()));
     OpenGammaExecutionContext.setHolidaySource(context, getHolidaySource());
     OpenGammaExecutionContext.setRegionSource(context, getRegionSource());
@@ -441,8 +439,8 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
     return dow.getValue() < 6;
   }
 
-  private boolean isHoliday(final DateProvider ldp, final Currency currency) {
-    return getHolidaySource().isHoliday(ldp.toLocalDate(), currency);
+  private boolean isHoliday(final LocalDate ldp, final Currency currency) {
+    return getHolidaySource().isHoliday(ldp, currency);
   }
 
   /**
@@ -454,7 +452,7 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
    */
   // TODO: replace this with a date adjuster
   protected ZonedDateTime nextWorkingDay(ZonedDateTime zdt, final Currency currency) {
-    while (!isWorkday(zdt.getDayOfWeek(), currency) || isHoliday(zdt, currency)) {
+    while (!isWorkday(zdt.getDayOfWeek(), currency) || isHoliday(zdt.getDate(), currency)) {
       zdt = zdt.plusDays(1);
     }
     return zdt;
@@ -464,7 +462,7 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
     ArgumentChecker.isTrue(currencies.length > 0, "currencies");
     do {
       for (final Currency currency : currencies) {
-        if (!isWorkday(zdt.getDayOfWeek(), currency) || isHoliday(zdt, currency)) {
+        if (!isWorkday(zdt.getDayOfWeek(), currency) || isHoliday(zdt.getDate(), currency)) {
           zdt = zdt.plusDays(1);
           continue;
         }
@@ -482,7 +480,7 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
    */
   // TODO: replace this with a date adjuster
   protected ZonedDateTime previousWorkingDay(ZonedDateTime zdt, final Currency currency) {
-    while (!isWorkday(zdt.getDayOfWeek(), currency) || isHoliday(zdt, currency)) {
+    while (!isWorkday(zdt.getDayOfWeek(), currency) || isHoliday(zdt.getDate(), currency)) {
       zdt = zdt.minusDays(1);
     }
     return zdt;
@@ -492,7 +490,7 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
     ArgumentChecker.isTrue(currencies.length > 0, "currencies");
     do {
       for (final Currency currency : currencies) {
-        if (!isWorkday(zdt.getDayOfWeek(), currency) || isHoliday(zdt, currency)) {
+        if (!isWorkday(zdt.getDayOfWeek(), currency) || isHoliday(zdt.getDate(), currency)) {
           zdt = zdt.minusDays(1);
           continue;
         }
@@ -521,7 +519,7 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
     final T security = createSecurity();
     if (security != null) {
       final ZonedDateTime tradeDate = previousWorkingDay(ZonedDateTime.now().minusDays(getRandom(30)), getRandomCurrency());
-      trade = new ManageableTrade(quantityGenerator.createQuantity(), securityPersister.storeSecurity(security), tradeDate.toLocalDate(), tradeDate.toOffsetTime(),
+      trade = new ManageableTrade(quantityGenerator.createQuantity(), securityPersister.storeSecurity(security), tradeDate.getDate(), tradeDate.toOffsetDateTime().toOffsetTime(),
           ExternalId.of(Counterparty.DEFAULT_SCHEME, counterPartyGenerator.createName()));
     }
     return trade;

@@ -8,8 +8,8 @@ package com.opengamma.financial.analytics.model.option;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.time.calendar.Clock;
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.Clock;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
@@ -33,7 +33,7 @@ public class AsayMarginedFutureOptionModelFunction extends BlackScholesMertonMod
 
   @Override
   protected StandardOptionDataBundle getDataBundle(final Clock relevantTime, final EquityOptionSecurity option, final FunctionInputs inputs) {
-    final ZonedDateTime now = relevantTime.zonedDateTime();
+    final ZonedDateTime now = ZonedDateTime.now(relevantTime);
     final Double spotAsObject = (Double) inputs.getValue(getUnderlyingMarketDataRequirement(option.getUnderlyingId()));
     if (spotAsObject == null) {
       throw new NullPointerException("No spot value for underlying instrument.");

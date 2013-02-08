@@ -8,10 +8,9 @@ package com.opengamma.util.timeseries;
 
 import java.util.List;
 
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.util.timeseries.zoneddatetime.ListZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.timeseries.zoneddatetime.ZonedDateTimeDoubleTimeSeries;
@@ -21,22 +20,22 @@ public class ListZonedDateTimeDoubleTimeSeriesTest extends ZonedDateTimeDoubleTi
 
   @Override
   public ZonedDateTimeDoubleTimeSeries createEmptyTimeSeries() {
-    return new ListZonedDateTimeDoubleTimeSeries(TimeZone.UTC);
+    return new ListZonedDateTimeDoubleTimeSeries(ZoneOffset.UTC);
   }
 
   @Override
   public ZonedDateTimeDoubleTimeSeries createTimeSeries(ZonedDateTime[] times, double[] values) {
-    return new ListZonedDateTimeDoubleTimeSeries(TimeZone.UTC, times, values);
+    return new ListZonedDateTimeDoubleTimeSeries(ZoneOffset.UTC, times, values);
   }
 
   @Override
   public ZonedDateTimeDoubleTimeSeries createTimeSeries(List<ZonedDateTime> times, List<Double> values) {
-    return new ListZonedDateTimeDoubleTimeSeries(TimeZone.UTC, times, values);
+    return new ListZonedDateTimeDoubleTimeSeries(ZoneOffset.UTC, times, values);
   }
 
   @Override
   public ZonedDateTimeDoubleTimeSeries createTimeSeries(DoubleTimeSeries<ZonedDateTime> dts) {
-    return new ListZonedDateTimeDoubleTimeSeries(TimeZone.UTC, dts);
+    return new ListZonedDateTimeDoubleTimeSeries(ZoneOffset.UTC, dts);
   }
 
 }

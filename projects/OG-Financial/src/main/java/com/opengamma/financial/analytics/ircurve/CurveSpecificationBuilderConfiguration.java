@@ -13,10 +13,9 @@ import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import javax.time.calendar.LocalDate;
-
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.threeten.bp.LocalDate;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.OpenGammaRuntimeException;

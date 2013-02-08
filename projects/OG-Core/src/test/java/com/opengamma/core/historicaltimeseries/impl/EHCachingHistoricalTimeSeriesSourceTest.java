@@ -11,13 +11,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.LocalDate;
-
-import net.sf.ehcache.CacheManager;
-
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
@@ -28,6 +25,8 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
+
+import net.sf.ehcache.CacheManager;
 
 /**
  * Test.
@@ -43,7 +42,7 @@ public class EHCachingHistoricalTimeSeriesSourceTest {
 
   @BeforeMethod
   public void setUp() {
-    _cacheManager = new CacheManager();
+    _cacheManager =  CacheManager.newInstance();
     _underlyingSource = mock(HistoricalTimeSeriesSource.class);
     when(_underlyingSource.changeManager()).thenReturn(new BasicChangeManager());
     _cachingSource = new EHCachingHistoricalTimeSeriesSource(_underlyingSource, _cacheManager);

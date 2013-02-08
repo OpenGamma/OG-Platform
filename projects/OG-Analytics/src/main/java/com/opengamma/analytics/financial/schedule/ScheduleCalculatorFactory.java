@@ -8,10 +8,9 @@ package com.opengamma.analytics.financial.schedule;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.time.calendar.DayOfWeek;
-import javax.time.calendar.MonthOfYear;
-
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.DayOfWeek;
+import org.threeten.bp.Month;
 
 /**
  * 
@@ -110,7 +109,7 @@ public class ScheduleCalculatorFactory {
     return new WeeklyScheduleOnDayCalculator(dayOfWeek);
   }
 
-  public static Schedule getScheduleCalculator(final String name, final int dayOfMonth, final MonthOfYear monthOfYear) {
+  public static Schedule getScheduleCalculator(final String name, final int dayOfMonth, final Month monthOfYear) {
     Validate.notNull(name, "name");
     if (!name.equals(ANNUAL_ON_DAY_AND_MONTH)) {
       throw new IllegalArgumentException("Can only ask for " + ANNUAL_ON_DAY_AND_MONTH + " schedule");

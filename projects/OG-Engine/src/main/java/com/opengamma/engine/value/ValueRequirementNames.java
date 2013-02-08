@@ -130,6 +130,11 @@ public final class ValueRequirementNames {
    */
   public static final String PROJECTED_FLOATING_RECEIVE_CASH_FLOWS = "Projected Floating Receive Cash-Flows";
 
+  /**
+   * (For barrier options) The absolute difference between the nearest barrier and the spot.
+   */
+  public static final String BARRIER_DISTANCE = "BarrierDistance";
+
   ///// Curves
   /**
    * Curve containing (date, discount factor) pairs.
@@ -254,6 +259,10 @@ public final class ValueRequirementNames {
    * A volatility surface specification
    */
   public static final String VOLATILITY_SURFACE_SPEC = "VolatilitySurfaceSpecification";
+  /**
+   * A volatility surface definition
+   */
+  public static final String VOLATILITY_SURFACE_DEFINITION = "VolatilitySurfaceDefinition";
   /**
    * The bundle of historical time series objects for elements of a volatility surface.
    */
@@ -736,6 +745,10 @@ public final class ValueRequirementNames {
    */
   public static final String VEGA_P = "VegaP";
   /**
+   * The vega an option with some weighting factor
+   */
+  public static final String WEIGHTED_VEGA = "Weighted Vega";
+  /**
    * The bucketed vega of a security to the market data volatility cube.
    */
   public static final String VEGA_QUOTE_CUBE = "Vega Quote Cube";
@@ -774,6 +787,11 @@ public final class ValueRequirementNames {
    * The daily profit and loss of a security
    */
   public static final String DAILY_PNL = "Daily PnL";
+  /**
+   * The daily profit and loss of an exchange traded security
+   */
+  public static final String MTM_PNL = "Mark-to-Market P&L";
+
   /**
    * The Fisher kurtosis of a distribution (usually the return series of a security or its underlying).
    */

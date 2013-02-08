@@ -12,12 +12,14 @@ import com.opengamma.id.UniqueId;
  */
 /* package */  abstract class RowTarget {
 
+  /** The row name. */
   private final String _name;
-  private final UniqueId _id;
+  /** ID of the row's target. */
+  private final UniqueId _nodeId;
 
-  /* package */  RowTarget(String name, UniqueId id) {
+  /* package */  RowTarget(String name, UniqueId nodeId) {
     _name = name;
-    _id = id;
+    _nodeId = nodeId;
   }
 
   /**
@@ -30,7 +32,7 @@ import com.opengamma.id.UniqueId;
   /**
    * @return The ID of the row's target
    */
-  public UniqueId getId() {
-    return _id;
+  public UniqueId getNodeId() {
+    return _nodeId;
   }
 }

@@ -9,11 +9,10 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.List;
 
-import javax.time.Duration;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.testng.annotations.Test;
+import org.threeten.bp.Duration;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -49,7 +48,7 @@ public class ViewportResultsJsonWriterTest {
   private static GridColumnGroups createColumns(Class<?> type) {
     GridColumn.CellRenderer renderer = new TestCellRenderer();
     GridColumn column = new GridColumn("header", "desc", type, renderer);
-    return new GridColumnGroups(ImmutableList.of(new GridColumnGroup("grp", ImmutableList.of(column))));
+    return new GridColumnGroups(ImmutableList.of(new GridColumnGroup("grp", ImmutableList.of(column), false)));
   }
 
   private List<ResultsCell> createResults(Object value, List<Object> history, Class<?> columnType) {

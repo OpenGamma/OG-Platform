@@ -5,9 +5,8 @@
  */
 package com.opengamma.util.timeseries.fudge;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.fudgemsg.mapping.FudgeBuilderFor;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.util.timeseries.DateTimeConverter;
 import com.opengamma.util.timeseries.fast.FastTimeSeries;

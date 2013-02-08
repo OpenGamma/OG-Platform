@@ -12,10 +12,9 @@ import static org.testng.AssertJUnit.assertSame;
 
 import java.util.List;
 
-import javax.time.calendar.LocalDate;
-
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
 
 import com.google.common.base.Supplier;
 import com.opengamma.DataNotFoundException;

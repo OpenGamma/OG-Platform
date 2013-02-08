@@ -18,8 +18,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.time.calendar.Period;
-
 import org.springframework.util.Assert;
 
 import com.opengamma.OpenGammaRuntimeException;
@@ -29,6 +27,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Tenor;
 
 /**
@@ -41,7 +40,7 @@ public class SecondaryCurveDefinitionAndSpecifications {
   public static YieldCurveDefinition buildFundingCurve(final Currency ccy, final ExternalId region, final Tenor[] depositStrips, final Tenor[] tenorSwaps) {
     final Collection<FixedIncomeStrip> strips = new ArrayList<FixedIncomeStrip>();
     for (final Tenor depositTenor : depositStrips) {
-      if (depositTenor.getPeriod().equals(Period.ofDays(30))) {
+      if (depositTenor.getPeriod().equals(DateUtils.periodOfDays(30))) {
         throw new OpenGammaRuntimeException("This shouldn't happen!");
       }
       strips.add(new FixedIncomeStrip(StripInstrumentType.CASH, depositTenor, SPEC_NAME));

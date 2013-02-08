@@ -25,8 +25,9 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
- */ // TODO how should read-only properties be handled? I guess it depends on the use case of the data
+ * TODO can this be deleted?
+ * TODO how should read-only properties be handled? I guess it depends on the use case of the data
+ */
 // TODO do this as HTML, easier to consume
 /* package */ class JsonBeanStructureVisitor implements BeanVisitor<JSONObject> {
 
@@ -68,7 +69,7 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public void visitBean(MetaBean metaBean) {
+  public void visitMetaBean(MetaBean metaBean) {
     // TODO configurable field name
     _json.clear();
     _json.put("type", metaBean.beanType().getSimpleName());
@@ -88,22 +89,22 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public void visitCollectionProperty(MetaProperty<?> property) {
+  public void visitCollectionProperty(MetaProperty<?> property, BeanTraverser traverser) {
     _json.put(property.name(), arrayType(property));
   }
 
   @Override
-  public void visitSetProperty(MetaProperty<?> property) {
+  public void visitSetProperty(MetaProperty<?> property, BeanTraverser traverser) {
     _json.put(property.name(), arrayType(property));
   }
 
   @Override
-  public void visitListProperty(MetaProperty<?> property) {
+  public void visitListProperty(MetaProperty<?> property, BeanTraverser traverser) {
     _json.put(property.name(), arrayType(property));
   }
 
   @Override
-  public void visitMapProperty(MetaProperty<?> property) {
+  public void visitMapProperty(MetaProperty<?> property, BeanTraverser traverser) {
     Class<? extends Bean> beanType = property.metaBean().beanType();
     Class<?> keyType = JodaBeanUtils.mapKeyType(property, beanType);
     Class<?> valueType = JodaBeanUtils.mapValueType(property, beanType);
@@ -111,7 +112,7 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public void visitProperty(MetaProperty<?> property) {
+  public void visitProperty(MetaProperty<?> property, BeanTraverser traverser) {
     _json.put(property.name(), optional(property, typeFor(property)));
   }
 

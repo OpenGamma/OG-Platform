@@ -28,6 +28,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 /* package */ class BeanTraverser {
 
+  /** Decorators that are applied to the visitor in the {@link #traverse} method. */
   private final List<BeanVisitorDecorator> _decorators;
 
   /* package */ BeanTraverser() {
@@ -42,32 +43,32 @@ import com.opengamma.util.ArgumentChecker;
 
   /* package */ Object traverse(MetaBean metaBean, BeanVisitor<?> visitor) {
     BeanVisitor<?> decoratedVisitor = decorate(visitor);
-    decoratedVisitor.visitBean(metaBean);
-    List<TraversalFailure> failures = Lists.newArrayList();
+    decoratedVisitor.visitMetaBean(metaBean);
+    List<BeanTraversalFailure> failures = Lists.newArrayList();
     for (MetaProperty<?> property : metaBean.metaPropertyIterable()) {
       Class<?> propertyType = property.propertyType();
       try {
         if (Bean.class.isAssignableFrom(propertyType)) {
           decoratedVisitor.visitBeanProperty(property, this);
         } else if (Set.class.isAssignableFrom(propertyType)) {
-          decoratedVisitor.visitSetProperty(property);
+          decoratedVisitor.visitSetProperty(property, this);
         } else if (List.class.isAssignableFrom(propertyType)) {
-          decoratedVisitor.visitListProperty(property);
+          decoratedVisitor.visitListProperty(property, this);
         } else if (Collection.class.isAssignableFrom(propertyType)) {
-          decoratedVisitor.visitCollectionProperty(property);
+          decoratedVisitor.visitCollectionProperty(property, this);
         } else if (Map.class.isAssignableFrom(propertyType)) {
-          decoratedVisitor.visitMapProperty(property);
+          decoratedVisitor.visitMapProperty(property, this);
         } else {
-          decoratedVisitor.visitProperty(property);
+          decoratedVisitor.visitProperty(property, this);
         }
       } catch (Exception e) {
-        failures.add(new TraversalFailure(e, property));
+        failures.add(new BeanTraversalFailure(e, property));
       }
     }
     if (failures.isEmpty()) {
       return decoratedVisitor.finish();
     } else {
-      throw new TraversalException(metaBean, visitor, failures);
+      throw new BeanTraversalException(metaBean, visitor, failures);
     }
   }
 
@@ -78,47 +79,56 @@ import com.opengamma.util.ArgumentChecker;
     }
     return decoratedVisitor;
   }
+}
 
-  /* package */ static final class TraversalFailure {
+/**
+ * Wraps a property and the exception that occurred when the traverser tried to visit the property.
+ */
+/* package */ class BeanTraversalFailure {
 
-    private final Exception _exception;
-    private final MetaProperty<?> _property;
+  /** The exception triggered by the attempted visit. */
+  private final Exception _exception;
+  /** The visited property. */
+  private final MetaProperty<?> _property;
 
-    private TraversalFailure(Exception exception, MetaProperty<?> property) {
-      ArgumentChecker.notNull(exception, "exception");
-      ArgumentChecker.notNull(property, "property");
-      _exception = exception;
-      _property = property;
-    }
+  /* package */ BeanTraversalFailure(Exception exception, MetaProperty<?> property) {
+    ArgumentChecker.notNull(exception, "exception");
+    ArgumentChecker.notNull(property, "property");
+    _exception = exception;
+    _property = property;
+  }
 
-    /* package */ Exception getException() {
-      return _exception;
-    }
+  /* package */ Exception getException() {
+    return _exception;
+  }
 
-    @Override
-    public String toString() {
-      String message = _exception.getMessage() == null ? null : "'" + _exception.getMessage() + "'";
-      return "[" + _property.toString() + ", " + message + "]";
+  @Override
+  public String toString() {
+    String message = _exception.getMessage() == null ? null : "'" + _exception.getMessage() + "'";
+    return "[" + _property.toString() + ", " + message + "]";
+  }
+}
+
+/**
+ * Exception thrown after a bean traversal that threw exceptions. All exceptions thrown during traversal are added
+ * to this exception as {@link #addSuppressed suppressed} exceptions.
+ */
+/* package */ class BeanTraversalException extends OpenGammaRuntimeException {
+
+  /* package */ BeanTraversalException(MetaBean metaBean, BeanVisitor<?> visitor, List<BeanTraversalFailure> failures) {
+    super(buildMessage(metaBean, visitor, failures));
+    for (BeanTraversalFailure failure : failures) {
+      addSuppressed(failure.getException());
     }
   }
 
-  /* package */ static final class TraversalException extends OpenGammaRuntimeException {
-
-    /* package */ TraversalException(MetaBean metaBean, BeanVisitor<?> visitor, List<TraversalFailure> failures) {
-      super(buildMessage(metaBean, visitor, failures));
-      for (TraversalFailure failure : failures) {
-        addSuppressed(failure.getException());
-      }
-    }
-
-    private static String buildMessage(MetaBean metaBean, BeanVisitor<?> visitor, List<TraversalFailure> failures) {
-      ArgumentChecker.notNull(metaBean, "metaBean");
-      ArgumentChecker.notEmpty(failures, "failures");
-      ArgumentChecker.notNull(visitor, "visitor");
-      return "Bean traversal failed. " +
-          "bean: " + metaBean + ", " +
-          "visitor: " + visitor + ", " +
-          "failures: [" + StringUtils.join(failures, ", ") + "]";
-    }
+  private static String buildMessage(MetaBean metaBean, BeanVisitor<?> visitor, List<BeanTraversalFailure> failures) {
+    ArgumentChecker.notNull(metaBean, "metaBean");
+    ArgumentChecker.notEmpty(failures, "failures");
+    ArgumentChecker.notNull(visitor, "visitor");
+    return "Bean traversal failed. " +
+        "bean: " + metaBean + ", " +
+        "visitor: " + visitor + ", " +
+        "failures: [" + StringUtils.join(failures, ", ") + "]";
   }
 }

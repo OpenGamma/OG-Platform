@@ -26,11 +26,12 @@ public class ExternalFunctionProviderTest {
   }
 
   public void testGetFunctions() {
+    ExternalFunctionProvider.setExcludeTests(false);
     final ExternalFunctionProvider provider = new ExternalFunctionProvider();
     final List<MetaFunction> functions = provider.getFunctions();
     assertNotNull(functions);
     boolean found = false;
-    for (MetaFunction function : functions) {
+    for (final MetaFunction function : functions) {
       if ("ExternalFunctionProviderTest".equals(function.getName())) {
         found = true;
       }

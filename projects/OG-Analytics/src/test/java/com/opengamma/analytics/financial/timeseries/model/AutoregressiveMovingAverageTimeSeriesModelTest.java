@@ -7,9 +7,8 @@ package com.opengamma.analytics.financial.timeseries.model;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.LocalDate;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
 
 import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
@@ -46,7 +45,7 @@ public class AutoregressiveMovingAverageTimeSeriesModelTest {
     final int n = 20000;
     DATES = new LocalDate[n];
     for (int i = 0; i < n; i++) {
-      DATES[i] = LocalDate.ofEpochDays(i);
+      DATES[i] = LocalDate.ofEpochDay(i);
     }
     PHI = new double[P + 1];
     PHI[0] = 0.;

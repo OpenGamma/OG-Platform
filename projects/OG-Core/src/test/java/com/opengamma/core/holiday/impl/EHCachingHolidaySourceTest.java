@@ -39,7 +39,7 @@ public class EHCachingHolidaySourceTest {
 
   @BeforeMethod
   public void setUp() {
-    _cacheManager = new CacheManager();
+    _cacheManager = CacheManager.newInstance();
     _underlyingSource = mock(HolidaySource.class);
     _cachingSource = new EHCachingHolidaySource(_underlyingSource, _cacheManager);
   }

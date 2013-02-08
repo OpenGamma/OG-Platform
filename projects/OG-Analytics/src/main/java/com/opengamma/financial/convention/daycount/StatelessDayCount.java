@@ -7,8 +7,8 @@ package com.opengamma.financial.convention.daycount;
 
 import java.io.Serializable;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
@@ -42,7 +42,7 @@ import com.opengamma.util.ArgumentChecker;
   protected void testDates(final ZonedDateTime d1, final ZonedDateTime d2) {
     ArgumentChecker.notNull(d1, "first date");
     ArgumentChecker.notNull(d2, "second date");
-    testDates(d1.toLocalDate(), d2.toLocalDate());
+    testDates(d1.getDate(), d2.getDate());
   }
 
   /**
@@ -69,7 +69,7 @@ import com.opengamma.util.ArgumentChecker;
     ArgumentChecker.notNull(d1, "first date");
     ArgumentChecker.notNull(d2, "second date");
     ArgumentChecker.notNull(d3, "third date");
-    testDates(d1.toLocalDate(), d2.toLocalDate(), d3.toLocalDate());
+    testDates(d1.getDate(), d2.getDate(), d3.getDate());
   }
 
   // -------------------------------------------------------------------------

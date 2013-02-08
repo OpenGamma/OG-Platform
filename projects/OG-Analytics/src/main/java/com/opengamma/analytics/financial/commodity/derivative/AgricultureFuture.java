@@ -5,7 +5,7 @@
  */
 package com.opengamma.analytics.financial.commodity.derivative;
 
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.commodity.definition.SettlementType;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;

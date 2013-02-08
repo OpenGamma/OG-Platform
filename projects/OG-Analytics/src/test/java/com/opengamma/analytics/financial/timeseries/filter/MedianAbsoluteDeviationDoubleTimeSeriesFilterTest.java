@@ -7,9 +7,8 @@ package com.opengamma.analytics.financial.timeseries.filter;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.LocalDate;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
 
 import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
@@ -36,7 +35,7 @@ public class MedianAbsoluteDeviationDoubleTimeSeriesFilterTest {
 
   static {
     for (int i = 0; i < N; i++) {
-      DATES[i] = LocalDate.ofEpochDays(i);
+      DATES[i] = LocalDate.ofEpochDay(i);
       DATA[i] = RANDOM.nextDouble();
     }
     DATA[0] = DATA1;
@@ -71,9 +70,9 @@ public class MedianAbsoluteDeviationDoubleTimeSeriesFilterTest {
   private void assertTimeSeries(final FilteredTimeSeries result, final int size) {
     assertEquals(result.getFilteredTS().size(), size);
     final LocalDateDoubleTimeSeries rejected = result.getRejectedTS();
-    assertEquals(rejected.getTimeAt(0), LocalDate.ofEpochDays(0));
+    assertEquals(rejected.getTimeAt(0), LocalDate.ofEpochDay(0));
     assertEquals(rejected.getValueAt(0), DATA1, EPS);
-    assertEquals(rejected.getTimeAt(1), LocalDate.ofEpochDays(1));
+    assertEquals(rejected.getTimeAt(1), LocalDate.ofEpochDay(1));
     assertEquals(rejected.getValueAt(1), DATA2, EPS);
   }
 }

@@ -7,8 +7,8 @@ package com.opengamma.util.timeseries.localdate;
 
 import java.util.List;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.TimeZone;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZoneId;
 
 import com.opengamma.util.timeseries.DateTimeConverter;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
@@ -37,7 +37,7 @@ public class ArrayLocalDateDoubleTimeSeries extends LocalDateDoubleTimeSeries.In
     super(s_converter, new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, s_converter.convertToInt(dates), values));
   }
 
-  public ArrayLocalDateDoubleTimeSeries(final TimeZone timeZone, final LocalDate[] dates, final double[] values) {
+  public ArrayLocalDateDoubleTimeSeries(final ZoneId timeZone, final LocalDate[] dates, final double[] values) {
     super(new LocalDateEpochDaysConverter(timeZone), new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, new LocalDateEpochDaysConverter(timeZone).convertToInt(dates),
         values));
   }
@@ -46,7 +46,7 @@ public class ArrayLocalDateDoubleTimeSeries extends LocalDateDoubleTimeSeries.In
     super(s_converter, new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, s_converter.convertToInt(dates), values));
   }
 
-  public ArrayLocalDateDoubleTimeSeries(final TimeZone timeZone, final List<LocalDate> dates, final List<Double> values) {
+  public ArrayLocalDateDoubleTimeSeries(final ZoneId timeZone, final List<LocalDate> dates, final List<Double> values) {
     super(new LocalDateEpochDaysConverter(timeZone), new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, new LocalDateEpochDaysConverter(timeZone).convertToInt(dates),
         values));
   }
@@ -55,7 +55,7 @@ public class ArrayLocalDateDoubleTimeSeries extends LocalDateDoubleTimeSeries.In
     super(s_converter, s_converter.convertToInt(new FastListIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS), dts));
   }
 
-  public ArrayLocalDateDoubleTimeSeries(final TimeZone timeZone, final LocalDateDoubleTimeSeries dts) {
+  public ArrayLocalDateDoubleTimeSeries(final ZoneId timeZone, final LocalDateDoubleTimeSeries dts) {
     super(new LocalDateEpochDaysConverter(timeZone), new LocalDateEpochDaysConverter(timeZone).convertToInt(new FastListIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS), dts));
   }
 
@@ -67,7 +67,7 @@ public class ArrayLocalDateDoubleTimeSeries extends LocalDateDoubleTimeSeries.In
     super(converter, pidts);
   }
 
-  public ArrayLocalDateDoubleTimeSeries(final TimeZone timeZone, final FastIntDoubleTimeSeries pidts) {
+  public ArrayLocalDateDoubleTimeSeries(final ZoneId timeZone, final FastIntDoubleTimeSeries pidts) {
     super(new LocalDateEpochDaysConverter(timeZone), pidts);
   }
 

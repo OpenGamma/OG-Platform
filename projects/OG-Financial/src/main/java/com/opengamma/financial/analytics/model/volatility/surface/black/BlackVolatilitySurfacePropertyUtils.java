@@ -48,7 +48,6 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
-import com.opengamma.financial.analytics.model.equity.option.EquityOptionFunction;
 import com.opengamma.id.ExternalId;
 
 /**
@@ -355,7 +354,8 @@ public class BlackVolatilitySurfacePropertyUtils {
     return requirements;
   }
 
-  public static ValueRequirement getSurfaceRequirement(final ValueRequirement desiredValue, final String surfaceName, final String instrumentType, final ExternalId surfaceId) {
+  public static ValueRequirement getSurfaceRequirement(final ValueRequirement desiredValue, final String surfaceName,
+      final String forwardCurveName, final String instrumentType, final ComputationTargetType targetType, final ExternalId surfaceId) {
     final ValueProperties constraints = desiredValue.getConstraints();
     final Set<String> calculationMethod = constraints.getValues(ValuePropertyNames.SURFACE_CALCULATION_METHOD);
     if (calculationMethod != null && calculationMethod.size() == 1) {
@@ -390,12 +390,12 @@ public class BlackVolatilitySurfacePropertyUtils {
           .with(constraint, constraints.getValues(constraint));
       }
     }
-    if (constraints.getValues(EquityOptionFunction.PROPERTY_FORWARD_CURVE_NAME) != null) {
+    if (constraints.getValues(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_NAME) != null) {
       allProperties
         .withoutAny(ValuePropertyNames.CURVE)
-        .with(ValuePropertyNames.CURVE, constraints.getValues(EquityOptionFunction.PROPERTY_FORWARD_CURVE_NAME))
+        .with(ValuePropertyNames.CURVE, forwardCurveName)
         .get();
     }
-    return new ValueRequirement(ValueRequirementNames.BLACK_VOLATILITY_SURFACE, ComputationTargetType.PRIMITIVE, surfaceId, allProperties.get());
+    return new ValueRequirement(ValueRequirementNames.BLACK_VOLATILITY_SURFACE, targetType, surfaceId, allProperties.get());
   }
 }

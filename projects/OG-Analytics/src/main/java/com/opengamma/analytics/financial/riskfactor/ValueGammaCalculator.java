@@ -5,6 +5,9 @@
  */
 package com.opengamma.analytics.financial.riskfactor;
 
+import com.opengamma.analytics.financial.commodity.derivative.AgricultureFutureOption;
+import com.opengamma.analytics.financial.commodity.derivative.EnergyFutureOption;
+import com.opengamma.analytics.financial.commodity.derivative.MetalFutureOption;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.equity.option.EquityOption;
@@ -58,6 +61,24 @@ public final class ValueGammaCalculator implements ValueGreekCalculator {
     public Double visitEquityOption(final EquityOption option, final StaticReplicationDataBundle market) {
       final double spot = market.getForwardCurve().getSpot();
       return option.getUnitAmount() * spot * spot / 2;
+    }
+
+    @Override
+    public Double visitAgricultureFutureOption(final AgricultureFutureOption option, final StaticReplicationDataBundle market) {
+      final double spot = market.getForwardCurve().getSpot();
+      return option.getUnderlying().getUnitAmount() * spot * spot / 2;
+    }
+
+    @Override
+    public Double visitEnergyFutureOption(final EnergyFutureOption option, final StaticReplicationDataBundle market) {
+      final double spot = market.getForwardCurve().getSpot();
+      return option.getUnderlying().getUnitAmount() * spot * spot / 2;
+    }
+
+    @Override
+    public Double visitMetalFutureOption(final MetalFutureOption option, final StaticReplicationDataBundle market) {
+      final double spot = market.getForwardCurve().getSpot();
+      return option.getUnderlying().getUnitAmount() * spot * spot / 2;
     }
   }
 

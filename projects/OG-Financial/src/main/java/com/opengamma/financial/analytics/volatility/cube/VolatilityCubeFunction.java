@@ -10,7 +10,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.InstantProvider;
+import org.threeten.bp.Instant;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
@@ -60,7 +60,7 @@ public class VolatilityCubeFunction extends AbstractFunction {
   }
 
   @Override
-  public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final InstantProvider atInstant) {
+  public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
     final Set<ValueRequirement> requirements = Sets.newHashSet(getMarketDataRequirement());
     return new AbstractFunction.AbstractInvokingCompiledFunction() {
 

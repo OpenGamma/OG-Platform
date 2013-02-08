@@ -7,7 +7,7 @@ package com.opengamma.examples.generator;
 
 import java.math.BigDecimal;
 
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.position.Counterparty;
@@ -188,8 +188,8 @@ public class SwaptionParityPortfolioGeneratorTool extends AbstractPortfolioGener
     public PortfolioNode createPortfolioNode() {
       final SimplePortfolioNode node = new SimplePortfolioNode(_name);
       for (int i = 0; i < _securities.length; i++) {
-        final ManageableTrade trade = new ManageableTrade(BigDecimal.ONE, getSecurityPersister().storeSecurity(_securities[i]), _tradeDates[i].toLocalDate(),
-            _tradeDates[i].toOffsetTime(), ExternalId.of(Counterparty.DEFAULT_SCHEME, COUNTERPARTY));
+        final ManageableTrade trade = new ManageableTrade(BigDecimal.ONE, getSecurityPersister().storeSecurity(_securities[i]), _tradeDates[i].getDate(),
+            _tradeDates[i].toOffsetDateTime().toOffsetTime(), ExternalId.of(Counterparty.DEFAULT_SCHEME, COUNTERPARTY));
         trade.setPremium(0.);
         trade.setPremiumCurrency(CURRENCY);
         final Position position = SimplePositionGenerator.createPositionFromTrade(trade);

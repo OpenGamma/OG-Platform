@@ -11,9 +11,8 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import java.math.BigDecimal;
 
-import javax.time.calendar.LocalDate;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.core.position.Counterparty;
 import com.opengamma.core.position.Position;

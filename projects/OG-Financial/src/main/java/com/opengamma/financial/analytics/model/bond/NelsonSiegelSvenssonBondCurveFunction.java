@@ -12,12 +12,11 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import javax.time.InstantProvider;
-import javax.time.calendar.Clock;
-import javax.time.calendar.ZonedDateTime;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Clock;
+import org.threeten.bp.Instant;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
@@ -93,7 +92,7 @@ public class NelsonSiegelSvenssonBondCurveFunction extends AbstractFunction {
   }
 
   @Override
-  public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final InstantProvider atInstant) {
+  public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
     return new AbstractInvokingCompiledFunction() {
 
       @SuppressWarnings("synthetic-access")
@@ -103,7 +102,7 @@ public class NelsonSiegelSvenssonBondCurveFunction extends AbstractFunction {
         final ConventionBundleSource conventionSource = OpenGammaExecutionContext.getConventionBundleSource(executionContext);
         final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(executionContext);
         final Clock snapshotClock = executionContext.getValuationClock();
-        final ZonedDateTime now = snapshotClock.zonedDateTime();
+        final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
         final BondSecurityConverter converter = new BondSecurityConverter(holidaySource, conventionSource, regionSource);
         final FinancialSecuritySource securitySource = executionContext.getSecuritySource(FinancialSecuritySource.class);
         final Collection<Security> allBonds = new ArrayList<Security>(securitySource.getBondsWithIssuerName(ISSUER_NAME));
@@ -171,7 +170,7 @@ public class NelsonSiegelSvenssonBondCurveFunction extends AbstractFunction {
             final Security sec = iter.next();
             if (sec instanceof BondSecurity) {
               final BondSecurity bond = (BondSecurity) sec;
-              if (bond.getLastTradeDate().getExpiry().toInstant().isBefore(atInstant.toInstant())) {
+              if (bond.getLastTradeDate().getExpiry().toInstant().isBefore(atInstant)) {
                 iter.remove();
               }
               s_logger.info(bond.getLastTradeDate().toString());

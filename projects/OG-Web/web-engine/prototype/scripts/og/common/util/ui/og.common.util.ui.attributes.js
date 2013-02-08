@@ -7,30 +7,40 @@ $.register_module({
     dependencies: ['og.common.util.ui.Form'],
     obj: function () {
         var module = this, Block = og.common.util.ui.Block, add_list = '.og-attributes-add-list',
-        attribute = Handlebars.compile('<li><div class="og-del og-js-rem"></div>{{{key}}} = {{{value}}}</li>');
+        template = Handlebars.compile('<li><div class="og-del og-js-rem"></div>{{{key}}} = {{{value}}}\
+            <input type="hidden" class="og-attributes-key" value="{{{key}}} ">\
+            <input type="hidden" class="og-attributes-value" value="{{{value}}}"></li>');
         var Attributes = function (config) {
-            var block = this, id = og.common.id('attributes'), form = config.form;
-            form.Block.call(block, {module: 'og.views.forms.attributes_tash', extras: {id: id}});
+            var block = this, id = og.common.id('attributes'), form = config.form,
+                attr_data = config.attributes ? Object.keys(config.attributes).reduce(function (acc, val) {
+                    return acc.concat({key: val, value: config.attributes[val]});
+                }, []) : {};
+            form.Block.call(block, {
+                module: 'og.views.forms.attributes_tash', 
+                extras: {id: id, data: attr_data},
+                processor: function (data) {
+                    var attributes = {}, path = config.index.split('.'), last = path.pop();
+                    $('.og-attributes-add-list li').each(function (i, elm) {
+                        attributes[$(elm).find('.og-attributes-key').val()] = 
+                        $(elm).find('.og-attributes-value').val();
+                    });
+                    path.reduce(function (acc, val) {return acc[val];}, data)[last] = attributes;                 
+                }
+            });
             block.on('click', '#' + id + ' ' + add_list + ' .og-js-rem', function (event) {
                 $(event.target).parent().remove();
             }).on('click', '#' + id + ' .og-js-add-attribute', function (event) {
                 event.preventDefault();
-                var $group = $(event.target).parent(), key = $group.find('[name=attr_key]').val(),
-                    value = $group.find('[name=attr_val]').val();
+                var $group = $(event.target).parent(), 
+                key = $group.find('.attr_key').val(),
+                value = $group.find('.attr_val').val();
                 if (!key || !value) return;
-                $(add_list).prepend(attribute({key: key, value: value}));
-                $group.find('[name^=attr]').val('');
-            });
-
-            form.on('form:load', function (){
-                var index, data = og.blotter.util.FAKE_ATTRIBUTES;
-                for (index in data){
-                    if (data.hasOwnProperty(index))
-                        $(add_list).prepend(attribute({key: data[index].key, value: data[index].value}));
-                }
+                $(add_list).prepend(template({key: key, value: value}));
+                $group.find('[class^=attr_]').val('');
+                $('.attr_key').focus();
             });
         };
-        Attributes.prototype = new Block; // inherit Block prototype
+        Attributes.prototype = new Block(); // inherit Block prototype
         return Attributes;
     }
 });

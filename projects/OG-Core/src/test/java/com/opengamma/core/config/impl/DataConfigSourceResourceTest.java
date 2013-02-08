@@ -13,13 +13,13 @@ import static org.testng.AssertJUnit.assertEquals;
 import java.net.URI;
 import java.util.Collections;
 
-import javax.time.Instant;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.fudgemsg.FudgeMsg;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.exchange.impl.SimpleExchange;

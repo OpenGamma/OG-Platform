@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.Set;
 
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
@@ -50,7 +51,7 @@ public class EquityForwardFromSpotAndYieldCurveFunction extends AbstractFunction
     final String curveCalculationConfig = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
     // 1. Get the expiry _time_ from the trade
     final EquityVarianceSwapSecurity security = (EquityVarianceSwapSecurity) target.getSecurity();
-    final double expiry = TimeCalculator.getTimeBetween(executionContext.getValuationClock().zonedDateTime(), security.getLastObservationDate());
+    final double expiry = TimeCalculator.getTimeBetween(ZonedDateTime.now(executionContext.getValuationClock()), security.getLastObservationDate());
 
     // 2. Get the discount curve and spot value
     final Object discountObject = inputs.getValue(getDiscountRequirement(security, curveName, curveCalculationConfig));

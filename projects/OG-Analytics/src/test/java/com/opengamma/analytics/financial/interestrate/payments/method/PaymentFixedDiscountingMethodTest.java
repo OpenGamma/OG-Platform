@@ -7,11 +7,11 @@ package com.opengamma.analytics.financial.interestrate.payments.method;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
-
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
+import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
 
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.GeneratorDeposit;
 import com.opengamma.analytics.financial.instrument.index.generator.EURDeposit;
@@ -37,7 +37,7 @@ public class PaymentFixedDiscountingMethodTest {
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 12, 12);
 
-  private static final Period PAYMENT_PERIOD = Period.ofMonths(12);
+  private static final Period PAYMENT_PERIOD = Period.of(12, MONTHS);
   private static final ZonedDateTime PAYMENT_DATE = ScheduleCalculator
       .getAdjustedDate(REFERENCE_DATE, PAYMENT_PERIOD, DEPOSIT_EUR.getBusinessDayConvention(), EUR_CALENDAR, DEPOSIT_EUR.isEndOfMonth());
   private static final double AMOUNT = 100000000;

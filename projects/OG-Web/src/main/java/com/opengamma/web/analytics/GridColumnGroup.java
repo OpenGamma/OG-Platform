@@ -15,16 +15,23 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class GridColumnGroup {
 
+  /** Name of the group. */
   private final String _name;
+  /** The columns in the group. */
   private final List<GridColumn> _columns;
+  /** Whether the values in this group's cells were calculated by the engine and have dependency graphs available. */
+  private final boolean  _dependencyGraphsAvailable;
 
   /**
    * @param name The name of the group
    * @param columns The columns in the group
+   * @param dependencyGraphsAvailable Whether the values in this group's cells were calculated by the engine and
+   * have dependency graphs available
    */
-  /* package */ GridColumnGroup(String name, List<GridColumn> columns) {
+  /* package */ GridColumnGroup(String name, List<GridColumn> columns, boolean dependencyGraphsAvailable) {
     ArgumentChecker.notNull(name, "name");
     ArgumentChecker.notNull(columns, "cols");
+    _dependencyGraphsAvailable = dependencyGraphsAvailable;
     _name = name;
     _columns = ImmutableList.copyOf(columns);
   }
@@ -41,6 +48,13 @@ public class GridColumnGroup {
    */
   public List<GridColumn> getColumns() {
     return _columns;
+  }
+
+  /**
+   * @return Whether the values in this group's cells were calculated by the engine and have dependency graphs available
+   */
+  public boolean isDependencyGraphsAvailable() {
+    return _dependencyGraphsAvailable;
   }
 
   @Override

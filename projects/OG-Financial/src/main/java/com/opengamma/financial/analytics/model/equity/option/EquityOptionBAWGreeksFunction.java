@@ -9,7 +9,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import com.google.common.collect.Sets;
 import com.opengamma.analytics.financial.equity.EqyOptBaroneAdesiWhaleyGreekCalculator;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.greeks.Greek;
@@ -21,7 +20,6 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
-import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
@@ -30,6 +28,9 @@ import com.opengamma.engine.value.ValueSpecification;
  *
  */
 public class EquityOptionBAWGreeksFunction extends EquityOptionBAWFunction {
+  
+  private static final EqyOptBaroneAdesiWhaleyGreekCalculator CALCULATOR = EqyOptBaroneAdesiWhaleyGreekCalculator.getInstance();
+  
   /** Value requirement names */
   private static final String[] GREEK_NAMES = new String[] {
     ValueRequirementNames.DELTA,
@@ -61,28 +62,20 @@ public class EquityOptionBAWGreeksFunction extends EquityOptionBAWFunction {
   @Override
   protected Set<ComputedValue> computeValues(final InstrumentDerivative derivative, final StaticReplicationDataBundle market, final FunctionInputs inputs,
       final Set<ValueRequirement> desiredValues, final ComputationTargetSpecification targetSpec, final ValueProperties resultProperties) {
-    final GreekResultCollection greeks = derivative.accept(EqyOptBaroneAdesiWhaleyGreekCalculator.getInstance(), market);
+    final GreekResultCollection greeks = derivative.accept(CALCULATOR, market);
     final Set<ComputedValue> result = new HashSet<>();
     for (int i = 0; i < GREEKS.length; i++) {
       final ValueSpecification spec = new ValueSpecification(GREEK_NAMES[i], targetSpec, resultProperties);
       final double greek = greeks.get(GREEKS[i]);
-      result.add(new ComputedValue(spec, greek));
+      final double sign = GREEKS[i].equals(Greek.THETA) ? -1.0 : 1.0; // CALCULATOR produces theta wrt time-to-expiry (T-t) 
+      result.add(new ComputedValue(spec, greek * sign));
     }
     return result;
   }
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
-    final Set<ValueSpecification> results = super.getResults(context, target, inputs);
-    final Set<ValueSpecification> resultsWithoutCurrency = Sets.newHashSetWithExpectedSize(results.size());
-    for (final ValueSpecification spec : results) {
-      final String name = spec.getValueName();
-      final ComputationTargetSpecification targetSpec = spec.getTargetSpecification();
-      final ValueProperties properties = spec.getProperties().copy()
-          .withoutAny(ValuePropertyNames.CURRENCY)
-          .get();
-      resultsWithoutCurrency.add(new ValueSpecification(name, targetSpec, properties));
-    }
-    return results;
+    final Set<ValueSpecification> resultsWithCcy = super.getResults(context, target, inputs);
+    return getResultsWithoutCurrency(resultsWithCcy);
   }
 }

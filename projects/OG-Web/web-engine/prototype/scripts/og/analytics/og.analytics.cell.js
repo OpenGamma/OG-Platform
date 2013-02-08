@@ -28,11 +28,10 @@ $.register_module({
                     throw error; // let og.analytics.Data catch it
                 }
             }).on('fatal', fatal_handler);
+            cell.id = cell.dataman.id;
         };
-        Cell.prototype.fire = events.fire;
+        ['fire', 'off', 'on'].forEach(function (key) {Cell.prototype[key] = events[key];});
         Cell.prototype.kill = function () {this.dataman.kill();};
-        Cell.prototype.off = events.off;
-        Cell.prototype.on = events.on;
         return Cell;
     }
 });

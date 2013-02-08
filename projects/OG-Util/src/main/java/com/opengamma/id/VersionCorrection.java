@@ -7,11 +7,9 @@ package com.opengamma.id;
 
 import java.io.Serializable;
 
-import javax.time.CalendricalException;
-import javax.time.Instant;
-import javax.time.InstantProvider;
-
 import org.apache.commons.lang.ObjectUtils;
+import org.threeten.bp.DateTimeException;
+import org.threeten.bp.Instant;
 
 import com.google.common.base.Objects;
 import com.opengamma.util.ArgumentChecker;
@@ -76,13 +74,11 @@ public final class VersionCorrection implements Comparable<VersionCorrection>, S
    * @param correctedTo  the corrected to instant, null for latest
    * @return the version-correction combination, not null
    */
-  public static VersionCorrection of(InstantProvider versionAsOf, InstantProvider correctedTo) {
+  public static VersionCorrection of(Instant versionAsOf, Instant correctedTo) {
     if (versionAsOf == null && correctedTo == null) {
       return LATEST;
     }
-    Instant v = (versionAsOf != null ? Instant.of(versionAsOf) : null);
-    Instant c = (correctedTo != null ? Instant.of(correctedTo) : null);
-    return new VersionCorrection(v, c);
+    return new VersionCorrection(versionAsOf, correctedTo);
   }
 
   /**
@@ -92,7 +88,7 @@ public final class VersionCorrection implements Comparable<VersionCorrection>, S
    * @param versionAsOf  the version as of instant, null for latest
    * @return the version-correction combination, not null
    */
-  public static VersionCorrection ofVersionAsOf(InstantProvider versionAsOf) {
+  public static VersionCorrection ofVersionAsOf(Instant versionAsOf) {
     return of(versionAsOf, null);
   }
 
@@ -103,7 +99,7 @@ public final class VersionCorrection implements Comparable<VersionCorrection>, S
    * @param correctedTo  the corrected to instant, null for latest
    * @return the version-correction combination, not null
    */
-  public static VersionCorrection ofCorrectedTo(InstantProvider correctedTo) {
+  public static VersionCorrection ofCorrectedTo(Instant correctedTo) {
     return of(null, correctedTo);
   }
 
@@ -165,7 +161,7 @@ public final class VersionCorrection implements Comparable<VersionCorrection>, S
     } else {
       try {
         return Instant.parse(instantStr);
-      } catch (CalendricalException ex) {
+      } catch (DateTimeException ex) {
         throw new IllegalArgumentException(ex);
       }
     }
@@ -214,12 +210,11 @@ public final class VersionCorrection implements Comparable<VersionCorrection>, S
    * @param versionAsOf  the version instant, null for latest
    * @return a version-correction based on this one with the version as of instant altered, not null
    */
-  public VersionCorrection withVersionAsOf(InstantProvider versionAsOf) {
-    Instant v = (versionAsOf != null ? Instant.of(versionAsOf) : null);
-    if (ObjectUtils.equals(_versionAsOf, v)) {
+  public VersionCorrection withVersionAsOf(Instant versionAsOf) {
+    if (ObjectUtils.equals(_versionAsOf, versionAsOf)) {
       return this;
     }
-    return new VersionCorrection(v, _correctedTo);
+    return new VersionCorrection(versionAsOf, _correctedTo);
   }
 
   /**
@@ -230,12 +225,11 @@ public final class VersionCorrection implements Comparable<VersionCorrection>, S
    * @param correctedTo  the corrected to instant, null for latest
    * @return a version-correction based on this one with the corrected to instant altered, not null
    */
-  public VersionCorrection withCorrectedTo(InstantProvider correctedTo) {
-    Instant c = (correctedTo != null ? Instant.of(correctedTo) : null);
-    if (ObjectUtils.equals(_correctedTo, c)) {
+  public VersionCorrection withCorrectedTo(Instant correctedTo) {
+    if (ObjectUtils.equals(_correctedTo, correctedTo)) {
       return this;
     }
-    return new VersionCorrection(_versionAsOf, c);
+    return new VersionCorrection(_versionAsOf, correctedTo);
   }
 
   //-------------------------------------------------------------------------

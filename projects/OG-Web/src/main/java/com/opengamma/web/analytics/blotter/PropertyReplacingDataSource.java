@@ -31,7 +31,7 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public String getValue(String propertyName) {
+  public Object getValue(String propertyName) {
     if (_propertyName.equals(propertyName)) {
       return _value;
     } else {
@@ -40,18 +40,13 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public List<String> getCollectionValues(String propertyName) {
+  public List<?> getCollectionValues(String propertyName) {
     return _delegate.getCollectionValues(propertyName);
   }
 
   @Override
-  public Map<String, String> getMapValues(String propertyName) {
+  public Map<?, ?> getMapValues(String propertyName) {
     return _delegate.getMapValues(propertyName);
-  }
-
-  @Override
-  public BeanDataSource getBeanData(String propertyName) {
-    return _delegate.getBeanData(propertyName);
   }
 
   @Override

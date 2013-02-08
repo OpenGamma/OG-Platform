@@ -21,6 +21,11 @@ public class DoubleMatrix2D implements Matrix<Double> {
   /** * Empty 2D matrix */
   public static final DoubleMatrix2D EMPTY_MATRIX = new DoubleMatrix2D(new double[0][0]);
 
+  @Deprecated
+  public static DoubleMatrix2D noCopy(final double[][] data) {
+    return new DoubleMatrix2D(data, false);
+  }
+
   /**
    * Sets up an empty matrix
    * @param rows Number of rows
@@ -80,6 +85,13 @@ public class DoubleMatrix2D implements Matrix<Double> {
       }
       _elements = _rows * _columns;
     }
+  }
+
+  private DoubleMatrix2D(final double[][] data, final boolean copy) {
+    _rows = data.length;
+    _columns = data[0].length;
+    _elements = _rows * _columns;
+    _data = data;
   }
 
   /**

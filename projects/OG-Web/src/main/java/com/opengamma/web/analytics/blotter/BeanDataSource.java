@@ -9,17 +9,15 @@ import java.util.List;
 import java.util.Map;
 
 /**
- *
+ * TODO should the methods take something to say whether the type is an object or bean? or types for the map method
  */
 /* package */ interface BeanDataSource {
 
-  String getValue(String propertyName);
+  Object getValue(String propertyName);
 
-  List<String> getCollectionValues(String propertyName);
+  List<?> getCollectionValues(String propertyName);
 
-  Map<String, String> getMapValues(String propertyName);
-
-  BeanDataSource getBeanData(String propertyName);
+  Map<?, ?> getMapValues(String propertyName);
 
   String getBeanTypeName();
 }

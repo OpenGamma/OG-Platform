@@ -11,12 +11,11 @@ import static org.testng.Assert.assertSame;
 
 import java.math.BigDecimal;
 
-import javax.time.Instant;
-
 import net.sf.ehcache.CacheManager;
 
 import org.mockito.Mockito;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;

@@ -8,7 +8,7 @@ package com.opengamma.engine.view.execution;
 import java.util.Arrays;
 import java.util.EnumSet;
 
-import javax.time.InstantProvider;
+import org.threeten.bp.Instant;
 
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.id.VersionCorrection;
@@ -104,7 +104,7 @@ public class ExecutionOptions implements ViewExecutionOptions {
    * @param defaultCycleOptions the default view cycle execution options, may be null
    * @return the execution sequence, not null
    */
-  public static ViewExecutionOptions batch(InstantProvider valuationTimeProvider, MarketDataSpecification marketDataSpec, ViewCycleExecutionOptions defaultCycleOptions) {
+  public static ViewExecutionOptions batch(Instant valuationTimeProvider, MarketDataSpecification marketDataSpec, ViewCycleExecutionOptions defaultCycleOptions) {
     ViewCycleExecutionOptions cycleOptions = ViewCycleExecutionOptions.builder().setValuationTime(valuationTimeProvider).setMarketDataSpecification(marketDataSpec).create();
     ViewCycleExecutionSequence sequence = new ArbitraryViewCycleExecutionSequence(Arrays.asList(cycleOptions));
     return of(sequence, defaultCycleOptions, ExecutionFlags.none().batch().runAsFastAsPossible().awaitMarketData().get());
@@ -129,7 +129,7 @@ public class ExecutionOptions implements ViewExecutionOptions {
    * @param marketDataSpec the market data specification, not null
    * @return an execution sequence representing the single cycle, not null
    */
-  public static ViewExecutionOptions singleCycle(InstantProvider valuationTimeProvider, MarketDataSpecification marketDataSpec) {
+  public static ViewExecutionOptions singleCycle(Instant valuationTimeProvider, MarketDataSpecification marketDataSpec) {
     return singleCycle(valuationTimeProvider, marketDataSpec, ExecutionFlags.none().runAsFastAsPossible().awaitMarketData().get());
   }
 
@@ -141,7 +141,7 @@ public class ExecutionOptions implements ViewExecutionOptions {
    * @param flags the execution flags, not null
    * @return an execution sequence representing the single cycle, not null
    */
-  public static ViewExecutionOptions singleCycle(InstantProvider valuationTimeProvider, MarketDataSpecification marketDataSpec, EnumSet<ViewExecutionFlags> flags) {
+  public static ViewExecutionOptions singleCycle(Instant valuationTimeProvider, MarketDataSpecification marketDataSpec, EnumSet<ViewExecutionFlags> flags) {
     ArgumentChecker.notNull(marketDataSpec, "marketDataSpec");
     ArgumentChecker.notNull(flags, "flags");
     ViewCycleExecutionOptions cycleOptions = ViewCycleExecutionOptions.builder().setValuationTime(valuationTimeProvider).setMarketDataSpecification(marketDataSpec).create();

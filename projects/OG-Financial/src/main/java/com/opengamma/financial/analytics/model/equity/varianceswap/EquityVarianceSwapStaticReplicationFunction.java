@@ -8,8 +8,8 @@ package com.opengamma.financial.analytics.model.equity.varianceswap;
 import java.util.Collections;
 import java.util.Set;
 
-import javax.time.calendar.Clock;
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.Clock;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
@@ -80,7 +80,7 @@ public abstract class EquityVarianceSwapStaticReplicationFunction extends Abstra
     final EquityVarianceSwapSecurity security = (EquityVarianceSwapSecurity) target.getSecurity();
 
     final Clock snapshotClock = executionContext.getValuationClock();
-    final ZonedDateTime now = snapshotClock.zonedDateTime().minusYears(2); //TODO remove me - just for testing
+    final ZonedDateTime now = ZonedDateTime.now(snapshotClock).minusYears(2); //TODO remove me - just for testing
 
     final VarianceSwapDefinition defn = security.accept(_converter);
     final HistoricalTimeSeries timeSeries = (HistoricalTimeSeries) inputs.getValue(ValueRequirementNames.HISTORICAL_TIME_SERIES);
@@ -110,7 +110,7 @@ public abstract class EquityVarianceSwapStaticReplicationFunction extends Abstra
     }
     final double spot = (Double) spotObject;
 
-    final double expiry = TimeCalculator.getTimeBetween(executionContext.getValuationClock().zonedDateTime(), security.getLastObservationDate());
+    final double expiry = TimeCalculator.getTimeBetween(ZonedDateTime.now(executionContext.getValuationClock()), security.getLastObservationDate());
     final double discountFactor = discountCurve.getDiscountFactor(expiry);
     ArgumentChecker.isTrue(Double.doubleToLongBits(discountFactor) != 0, "The discount curve has returned a zero value for a discount bond. Check rates.");
     final ForwardCurve forwardCurve = new ForwardCurve(spot, discountCurve.getCurve()); //TODO change this

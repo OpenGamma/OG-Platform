@@ -8,11 +8,13 @@ package com.opengamma.engine.depgraph;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.exclusion.FunctionExclusionGroup;
 import com.opengamma.engine.value.ValueRequirement;
 
@@ -25,12 +27,12 @@ import com.opengamma.engine.value.ValueRequirement;
   private static final Logger s_logger = LoggerFactory.getLogger(RequirementResolver.class);
 
   private final ResolveTask _parentTask;
-  private final Set<FunctionExclusionGroup> _functionExclusion;
+  private final Map<ComputationTargetSpecification, Set<FunctionExclusionGroup>> _functionExclusion;
   private final Set<ResolveTask> _tasks = new HashSet<ResolveTask>();
   private ResolveTask _fallback;
   private ResolvedValue[] _coreResults;
 
-  public RequirementResolver(final ValueRequirement valueRequirement, final ResolveTask parentTask, final Set<FunctionExclusionGroup> functionExclusion) {
+  public RequirementResolver(final ValueRequirement valueRequirement, final ResolveTask parentTask, final Map<ComputationTargetSpecification, Set<FunctionExclusionGroup>> functionExclusion) {
     super(valueRequirement);
     s_logger.debug("Created requirement resolver {}/{}", valueRequirement, parentTask);
     _parentTask = parentTask;

@@ -9,12 +9,11 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 
-import javax.time.Instant;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.id.ExternalId;
@@ -50,7 +49,7 @@ public class ModifyConfigDbConfigMasterWorkerAddTest extends AbstractDbConfigMas
 
   @Test
   public void test_add_add() {
-    Instant now = Instant.now(_cfgMaster.getTimeSource());
+    Instant now = Instant.now(_cfgMaster.getClock());
     
     ConfigItem<ExternalId> item = ConfigItem.of(ExternalId.of("A", "B"));
     item.setName("TestConfig");

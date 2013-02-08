@@ -13,9 +13,9 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import javax.time.calendar.Clock;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.TimeZone;
+import org.threeten.bp.Clock;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZoneOffset;
 
 /**
  * A {@link BloombergReferenceDataStatistics} which stores statistics for several days into the past.
@@ -106,7 +106,7 @@ public class DailyBloombergReferenceDataStatistics implements BloombergReference
 
   private LocalDate getToday() {
     //I think 0000 UTC is when bloomberg tips over
-    Clock clock = Clock.system(TimeZone.UTC);
+    Clock clock = Clock.systemUTC();
     return LocalDate.now(clock);
   }
 

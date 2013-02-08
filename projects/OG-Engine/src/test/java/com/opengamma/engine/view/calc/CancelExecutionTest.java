@@ -22,8 +22,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.time.Instant;
-
 import net.sf.ehcache.CacheManager;
 
 import org.fudgemsg.FudgeContext;
@@ -34,6 +32,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.impl.MockPositionSource;
@@ -113,7 +112,7 @@ public class CancelExecutionTest {
 
   @BeforeMethod
   public void setUp() {
-    _cacheManager = new CacheManager();
+    _cacheManager = CacheManager.newInstance();
   }
 
   @AfterMethod
@@ -204,11 +203,11 @@ public class CancelExecutionTest {
     graphs.put(graph.getCalculationConfigurationName(), graph);
     final CompiledViewDefinitionWithGraphsImpl viewEvaluationModel = new CompiledViewDefinitionWithGraphsImpl(viewDefinition, graphs, Collections.<ComputationTargetReference, UniqueId>emptyMap(),
         new SimplePortfolio("Test Portfolio"), 0);
-    final ViewCycleExecutionOptions cycleOptions = ViewCycleExecutionOptions.builder().setValuationTime(Instant.ofEpochMillis(1)).setMarketDataSpecification(new MarketDataSpecification()).create();
+    final ViewCycleExecutionOptions cycleOptions = ViewCycleExecutionOptions.builder().setValuationTime(Instant.ofEpochMilli(1)).setMarketDataSpecification(new MarketDataSpecification()).create();
     final ExecutionLogModeSource logModeSource = mock(ExecutionLogModeSource.class);
     when(logModeSource.getLogMode(any(DependencyNode.class))).thenReturn(ExecutionLogMode.INDICATORS);
     final SingleComputationCycle cycle = new SingleComputationCycle(UniqueId.of("Test", "Cycle1"), UniqueId.of("Test", "ViewProcess1"), computationCycleResultListener, vpc, viewEvaluationModel,
-        cycleOptions, logModeSource, VersionCorrection.of(Instant.ofEpochMillis(1), Instant.ofEpochMillis(1)));
+        cycleOptions, logModeSource, VersionCorrection.of(Instant.ofEpochMilli(1), Instant.ofEpochMilli(1)));
     return cycle.getDependencyGraphExecutor().execute(graph, new LinkedBlockingQueue<ExecutionResult>(), cycle.getStatisticsGatherer(), logModeSource);
   }
 

@@ -7,10 +7,9 @@ package com.opengamma.financial.analytics.volatility.surface;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.DayOfWeek;
-import javax.time.calendar.LocalDate;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.DayOfWeek;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.analytics.ircurve.NextExpiryAdjuster;
@@ -32,7 +31,7 @@ public class BloombergEquityFutureOptionVolatilitySurfaceInstrumentProviderTest 
   private static final String[][] RESULTS = new String[][]
     {new String[] {"DJX 06/16/12 P90.0 Index", "DJX 06/16/12 P145.0 Index", "DJX 06/16/12 C205.0 Index"},
     new String[] {"DJX 07/21/12 P90.0 Index", "DJX 07/21/12 P145.0 Index", "DJX 07/21/12 C205.0 Index"},
-    new String[] {"DJX 03/16/13 P90.0 Index", "DJX 03/16/13 P145.0 Index", "DJX 03/16/13 C205.0 Index"}}; // TODO Fix date on this last one
+      new String[] { "DJX 01/18/14 P90.0 Index", "DJX 01/18/14 P145.0 Index", "DJX 01/18/14 C205.0 Index" } }; // TODO Fix date on this last one
 
   private static final FutureOptionExpiries UTILS = FutureOptionExpiries.of(new NextExpiryAdjuster(3, DayOfWeek.FRIDAY, 1));
   private static LocalDate[] EXPIRY_DATES = new LocalDate[3];

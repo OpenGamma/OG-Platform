@@ -17,11 +17,9 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import javax.time.Instant;
-import javax.time.InstantProvider;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Instant;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.ObjectId;
@@ -260,10 +258,10 @@ public class CompiledFunctionService {
   }
 
   public CompiledFunctionRepository compileFunctionRepository(final long timestamp) {
-    return getFunctionRepositoryCompiler().compile(getInitializedFunctionRepository(), getFunctionCompilationContext(), getExecutorService(), Instant.ofEpochMillis(timestamp));
+    return getFunctionRepositoryCompiler().compile(getInitializedFunctionRepository(), getFunctionCompilationContext(), getExecutorService(), Instant.ofEpochMilli(timestamp));
   }
 
-  public CompiledFunctionRepository compileFunctionRepository(final InstantProvider timestamp) {
+  public CompiledFunctionRepository compileFunctionRepository(final Instant timestamp) {
     return getFunctionRepositoryCompiler().compile(getInitializedFunctionRepository(), getFunctionCompilationContext(), getExecutorService(), timestamp);
   }
 
