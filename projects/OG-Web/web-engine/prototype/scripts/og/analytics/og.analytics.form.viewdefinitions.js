@@ -48,11 +48,11 @@ $.register_module({
                     var vd = viewdefs_store.filter(function (entry) {
                         return entry.name === menu.$input.val();
                     });
-                    data.viewdefinition = vd[0].id;
+                    data.viewdefinition = vd.length ? vd[0].id : menu.$input.val();
                 }
             });
 
-            form.on("form:load", function () {
+            form.on('form:load', function () {
                 menu = new og.common.util.ui.AutoCombo({
                     selector: '.og-view.og-autocombo',
                     placeholder: 'Search...',
@@ -61,7 +61,7 @@ $.register_module({
                 if (config.val) {
                     og.api.rest.viewdefinitions.get().pipe(function (resp) {
                         store_viewdefinitions(resp);
-                        var val = viewdefs_store.filter(function (entry) { return entry.id === config.val; });
+                        var val = viewdefs_store.filter(function (entry) {return entry.id === config.val;});
                         if (val.length && val[0].name) menu.$input.val(val[0].name);
                     });
                 }
