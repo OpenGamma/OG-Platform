@@ -21,14 +21,22 @@ import com.google.common.collect.Maps;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * Builds a bean instance by traversing the {@link MetaBean} and populating the {@link MetaBean#builder() builder}
+ * with data from a {@link BeanDataSource}. The {@link BeanBuilder builder} is returned so calling code can update
+ * it before building the instance, e.g. to set invariant values that aren't in the data source but are necessary
+ * to build a valid object.
+ * @param <T> The type of bean to build
  */
 /* package */ class BeanBuildingVisitor<T extends Bean> implements BeanVisitor<BeanBuilder<T>> {
 
+  /** The source of data for building the bean */
   private final BeanDataSource _data;
+  /** For looking up {@link MetaBean}s for building the bean and any sub-beans */
   private final MetaBeanFactory _metaBeanFactory;
+  /** For converting the data to property values */
   private final StringConvert _stringConvert;
 
+  /** The builder for the instance being built */
   private BeanBuilder<T> _builder;
 
   @SuppressWarnings("unchecked")
@@ -101,7 +109,7 @@ import com.opengamma.util.ArgumentChecker;
         StringConverter<Object> converter = (StringConverter<Object>) _stringConvert.findConverter(type);
         return converter.convertFromString(type, (String) value);
       } catch (Exception e) {
-        // carry on and try something else
+        // carry on
       }
     } else if (value instanceof BeanDataSource) {
       BeanDataSource beanData = (BeanDataSource) value;

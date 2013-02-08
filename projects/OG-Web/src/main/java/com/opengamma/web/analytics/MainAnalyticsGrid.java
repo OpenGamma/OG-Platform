@@ -111,7 +111,7 @@ import com.opengamma.util.tuple.Pair;
     String calcConfigName = targetForCell.getFirst();
     ValueSpecification valueSpec = targetForCell.getSecond();
     DependencyGraphGrid grid = DependencyGraphGrid.create(compiledViewDef, valueSpec, calcConfigName, _cycle, gridId,
-                                                          _targetResolver, viewportListener, _cache);
+                                                          _targetResolver, viewportListener);
     _depGraphs.put(graphId, grid);
   }
 
