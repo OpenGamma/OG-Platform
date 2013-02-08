@@ -556,7 +556,7 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
   }
 
   @Override
-  public AbstractHistoryResult<HistoricalTimeSeriesInfoDocument> historyByVersionsCorrections(AbstractHistoryRequest request) {
+  protected AbstractHistoryResult<HistoricalTimeSeriesInfoDocument> historyByVersionsCorrections(AbstractHistoryRequest request) {
     HistoricalTimeSeriesInfoHistoryRequest historyRequest = new HistoricalTimeSeriesInfoHistoryRequest();
     historyRequest.setCorrectionsFromInstant(request.getCorrectionsFromInstant());
     historyRequest.setCorrectionsToInstant(request.getCorrectionsToInstant());
@@ -565,4 +565,5 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
     historyRequest.setObjectId(request.getObjectId());
     return history(historyRequest);
   }
+
 }
