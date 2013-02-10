@@ -5,19 +5,20 @@
  */
 package com.opengamma.financial.convention;
 
-import org.joda.beans.BeanDefinition;
-import org.joda.beans.PropertyDefinition;
-
-import com.opengamma.id.ExternalId;
-import com.opengamma.id.ExternalIdBundle;
 import java.util.Map;
+
 import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 
 /**
  * 
@@ -46,9 +47,6 @@ public class FXSpotConvention extends Convention {
   public FXSpotConvention() {
   }
 
-  /**
-   * 
-   */
   public FXSpotConvention(final String name, final ExternalIdBundle externalIdBundle, final int daysToSettle, final ExternalId settlementRegion) {
     super(name, externalIdBundle);
     setDaysToSettle(daysToSettle);
