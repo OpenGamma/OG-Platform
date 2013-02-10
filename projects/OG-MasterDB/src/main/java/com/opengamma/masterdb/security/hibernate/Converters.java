@@ -15,7 +15,6 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
-import com.opengamma.analytics.financial.interestrate.CompoundingType;
 import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -39,7 +38,7 @@ public final class Converters {
   private Converters() {
   }
 
-  public static Currency currencyBeanToCurrency(CurrencyBean currencyBean) {
+  public static Currency currencyBeanToCurrency(final CurrencyBean currencyBean) {
     if (currencyBean == null) {
       return null;
     }
@@ -47,7 +46,7 @@ public final class Converters {
   }
 
   //-------------------------------------------------------------------------
-  public static ExternalId externalIdBeanToExternalId(ExternalIdBean hibernateBean) {
+  public static ExternalId externalIdBeanToExternalId(final ExternalIdBean hibernateBean) {
     if (hibernateBean == null) {
       return null;
     }
@@ -59,7 +58,7 @@ public final class Converters {
   }
 
   //-------------------------------------------------------------------------
-  public static UniqueId uniqueIdBeanToUniqueId(UniqueIdBean hibernateBean) {
+  public static UniqueId uniqueIdBeanToUniqueId(final UniqueIdBean hibernateBean) {
     if (hibernateBean == null) {
       return null;
     }
@@ -75,7 +74,7 @@ public final class Converters {
     if (bean == null) {
       return null;
     }
-    ZonedDateTimeBean zonedDateTimeBean = bean.getExpiry();
+    final ZonedDateTimeBean zonedDateTimeBean = bean.getExpiry();
 
     final long epochSeconds = zonedDateTimeBean.getDate().getTime() / 1000;
     ZonedDateTime zdt = null;
@@ -93,7 +92,7 @@ public final class Converters {
       return null;
     }
     final ExpiryBean bean = new ExpiryBean();
-    
+
     final ZonedDateTimeBean zonedDateTimeBean = new ZonedDateTimeBean();
     zonedDateTimeBean.setDate(new Date(expiry.getExpiry().toInstant().toEpochMilli()));
     zonedDateTimeBean.setZone(expiry.getExpiry().getZone().getId());
@@ -146,7 +145,7 @@ public final class Converters {
     validateDayCount(dayCountBean.getName());
     return DayCountFactory.INSTANCE.getDayCount(dayCountBean.getName());
   }
-  
+
   public static void validateDayCount(final String name) {
     final DayCount dc = DayCountFactory.INSTANCE.getDayCount(name);
     if (dc == null) {
@@ -161,14 +160,14 @@ public final class Converters {
     validateBusinessDayConvention(businessDayConventionBean.getName());
     return BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention(businessDayConventionBean.getName());
   }
-  
+
   public static void validateBusinessDayConvention(final String name) {
     final BusinessDayConvention bdc = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention(name);
     if (bdc == null) {
       throw new OpenGammaRuntimeException("Bad value for businessDayConvention (" + name + ")");
     }
   }
-  
+
   public static YieldConvention yieldConventionBeanToYieldConvention(final YieldConventionBean yieldConventionBean) {
     if (yieldConventionBean == null) {
       return null;
@@ -179,14 +178,14 @@ public final class Converters {
     }
     return yc;
   }
-  
+
   public static void validateYieldConvention(final String name) {
     final YieldConvention yc = YieldConventionFactory.INSTANCE.getYieldConvention(name);
     if (yc == null) {
       throw new OpenGammaRuntimeException("Bad value for yieldConvention (" + name + ")");
     }
   }
-  
+
   public static StubType stubTypeBeanToStubType(final StubTypeBean stubTypeBean) {
     if (stubTypeBean == null) {
       return null;
@@ -195,48 +194,32 @@ public final class Converters {
     return StubType.valueOf(stubTypeBean.getName());
   }
 
-  private static void validateStubType(String name) {
+  private static void validateStubType(final String name) {
     try {
       StubType.valueOf(name);
-    } catch (IllegalArgumentException e) {
+    } catch (final IllegalArgumentException e) {
       throw new OpenGammaRuntimeException("Bad value for stub type (" + name + ")");
     }
   }
-  
-  public static CompoundingType compoundingTypeBeanToCompoundingType(final CompoundingTypeBean compoundingTypeBean) {
-    if (compoundingTypeBean == null) {
-      return null;
-    }
-    validateCompoundingType(compoundingTypeBean.getName());
-    return CompoundingType.valueOf(compoundingTypeBean.getName());
-  }
-  
-  private static void validateCompoundingType(final String name) {
-    try {
-      CompoundingType.valueOf(name);      
-    } catch (IllegalArgumentException e) {
-      throw new OpenGammaRuntimeException("Bad value for compounding type (" + name + ")");
-    }
-  }
-  
+
   public static DebtSeniority debtSeniorityBeanToDebtSeniority(final DebtSeniorityBean bean) {
     if (bean == null) {
       return null;
     }
     try {
       return DebtSeniority.valueOf(bean.getName());
-    } catch (IllegalArgumentException e) {
+    } catch (final IllegalArgumentException e) {
       throw new OpenGammaRuntimeException("Bad value for DebtSeniority type (" + bean.getName() + ")");
     }
   }
-  
+
   public static RestructuringClause restructuringClauseBeanToRestructuringClause(final RestructuringClauseBean bean) {
     if (bean == null) {
       return null;
     }
     try {
       return RestructuringClause.valueOf(bean.getName());
-    } catch (IllegalArgumentException e) {
+    } catch (final IllegalArgumentException e) {
       throw new OpenGammaRuntimeException("Bad value for RestructuringClause type (" + bean.getName() + ")");
     }
   }

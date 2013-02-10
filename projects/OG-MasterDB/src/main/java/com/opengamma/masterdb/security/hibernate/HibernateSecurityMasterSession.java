@@ -645,17 +645,6 @@ public class HibernateSecurityMasterSession implements HibernateSecurityMasterDa
   }
   
   @Override
-  public CompoundingTypeBean getOrCreateCompoundingTypeBean(final String name) {
-    final Query query = getSession().getNamedQuery("CompoundingTypeBean.one");
-    query.setString("name", name);
-    CompoundingTypeBean bean = (CompoundingTypeBean) query.uniqueResult();
-    if (bean == null) {
-      bean = persistBean(new CompoundingTypeBean(name));      
-    }
-    return bean;
-  }
-
-  @Override
   public DebtSeniorityBean getOrCreateDebtSeniorityBean(String name) {
     final Query query = getSession().getNamedQuery("DebtSeniorityBean.one");
     query.setString("name", name);
