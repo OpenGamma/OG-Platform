@@ -9,15 +9,16 @@ $.register_module({
         return function (config) {
             var constructor = this, form, ui = og.common.util.ui, data;
             if(config.details) {data = config.details.data; data.id = config.details.data.trade.uniqueId;}
-            else {data = {security: {type: "EquityVarianceSwapSecurity", name: "EquityVarianceSwapSecurity ABC", 
-                regionId: "ABC~123", externalIdBundle: "", attributes: {}}, trade: og.blotter.util.otc_trade};}
+            else {data = {security: {type: "EquityVarianceSwapSecurity", regionId: "ABC~123", externalIdBundle: "", 
+                attributes: {}}, trade: og.blotter.util.otc_trade};}
             data.nodeId = config.portfolio.id;
             constructor.load = function () {
                 constructor.title = 'Equity Varience Swap';
                 form = new og.common.util.ui.Form({
                     module: 'og.blotter.forms.simple_tash',
                     selector: '.OG-blotter-form-block',
-                    data: data
+                    data: data,
+                    processor: function (data) {data.security.name = og.blotter.util.create_name(data);}
                 });
                 form.children.push(
                     new og.blotter.forms.blocks.Portfolio({form: form, counterparty: data.trade.counterparty, 

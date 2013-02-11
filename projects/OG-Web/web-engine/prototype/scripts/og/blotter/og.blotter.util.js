@@ -9,6 +9,9 @@ $.register_module({
         var bools = {"false": false, "true": true}; 
         return {
             /* Util methods */
+            create_name : function (data){
+                return data.security.type + " " + data.trade.tradeDate; 
+            },
             update_block : function (section, extras){
                 section.block.html(function (html) {
                     $(section.selector).html(html);
