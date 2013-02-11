@@ -10,8 +10,8 @@ $.register_module({
             var constructor = this, form, ui = og.common.util.ui, data;
             if(config.details) {data = config.details.data; data.id = config.details.data.trade.uniqueId;}
             else {data = {security: {type: "EquityVarianceSwapSecurity", name: "EquityVarianceSwapSecurity ABC", 
-                regionId: "ABC~123", externalIdBundle: ""}, trade: og.blotter.util.otc_trade};}
-            data.portfolio = config.portfolio;
+                regionId: "ABC~123", externalIdBundle: "", attributes: {}}, trade: og.blotter.util.otc_trade};}
+            data.nodeId = config.portfolio.id;
             constructor.load = function () {
                 constructor.title = 'Equity Varience Swap';
                 form = new og.common.util.ui.Form({
@@ -21,7 +21,7 @@ $.register_module({
                 });
                 form.children.push(
                     new og.blotter.forms.blocks.Portfolio({form: form, counterparty: data.trade.counterparty, 
-                        portfolio: data.portfolio.name}),
+                        portfolio: data.nodeId}),
                     new form.Block({
                         module: 'og.blotter.forms.blocks.equity_variance_swap_tash',
                         extras: {notional: data.security.notional, region: data.security.regionId,
