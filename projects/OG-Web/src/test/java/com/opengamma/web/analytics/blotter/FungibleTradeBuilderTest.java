@@ -90,7 +90,7 @@ public class FungibleTradeBuilderTest {
                                              _portfolioMaster,
                                              securityMaster,
                                              metaBeans,
-                                             BlotterResource.getStringConvert());
+                                             BlotterUtils.getStringConvert());
     _savedNode = savedPortfolio.getRootNode().getChildNodes().get(0);
   }
 

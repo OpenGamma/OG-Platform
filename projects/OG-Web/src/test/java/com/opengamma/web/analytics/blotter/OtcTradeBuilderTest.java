@@ -98,8 +98,8 @@ public class OtcTradeBuilderTest {
     _builder = new OtcTradeBuilder(_positionMaster,
                                    _portfolioMaster,
                                    _securityMaster,
-                                   BlotterResource.s_metaBeans,
-                                   BlotterResource.getStringConvert());
+                                   BlotterUtils.getMetaBeans(),
+                                   BlotterUtils.getStringConvert());
     ManageablePortfolio portfolio = new ManageablePortfolio();
     ManageablePortfolioNode root = new ManageablePortfolioNode();
     ManageablePortfolioNode node = new ManageablePortfolioNode();

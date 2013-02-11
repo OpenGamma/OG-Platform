@@ -45,6 +45,7 @@ import com.opengamma.util.time.Expiry;
 @SuppressWarnings("unchecked")
 public class JsonJodaRoundTripTest {
 
+  // TODO move to BlotterUtils?
   private static final BeanVisitorDecorator s_propertyFilter = new PropertyFilter(ManageableSecurity.meta().securityType());
 
   /**
@@ -57,7 +58,7 @@ public class JsonJodaRoundTripTest {
     FXForwardSecurity fxForward = new FXForwardSecurity(Currency.USD, 150, Currency.GBP, 100, forwardDate, regionId);
     fxForward.setName("GBP/USD forward");
 
-    JsonDataSink sink = new JsonDataSink(BlotterResource.JSON_BUILDING_CONVERTERS);
+    JsonDataSink sink = new JsonDataSink(BlotterUtils.getJsonBuildingConverters());
     BeanVisitor<JSONObject> writingVisitor = new BuildingBeanVisitor<>(fxForward, sink);
     BeanTraverser traverser = new BeanTraverser(s_propertyFilter);
     JSONObject json = (JSONObject) traverser.traverse(FXForwardSecurity.meta(), writingVisitor);
@@ -66,9 +67,8 @@ public class JsonJodaRoundTripTest {
 
     JsonBeanDataSource dataSource = new JsonBeanDataSource(new JSONObject(json.toString()));
     MetaBeanFactory metaBeanFactory = new MapMetaBeanFactory(ImmutableSet.<MetaBean>of(FXForwardSecurity.meta()));
-    // TODO move these
-    Converters converters = new Converters(OtcTradeBuilder.s_regionConverters, BlotterResource.getStringConvert());
-    BeanVisitor<BeanBuilder<Bean>> readingVisitor = new BeanBuildingVisitor<>(dataSource, metaBeanFactory, converters);
+    BeanVisitor<BeanBuilder<Bean>> readingVisitor =
+        new BeanBuildingVisitor<>(dataSource, metaBeanFactory, BlotterUtils.getBeanBuildingConverters());
     BeanBuilder<FXForwardSecurity> beanBuilder =
         (BeanBuilder<FXForwardSecurity>) traverser.traverse(FXForwardSecurity.meta(), readingVisitor);
     FXForwardSecurity fxForward2 = beanBuilder.build();
@@ -103,7 +103,7 @@ public class JsonJodaRoundTripTest {
     SwapSecurity security = new SwapSecurity(tradeDate, effectiveDate, maturityDate, "cpty", payLeg, receiveLeg);
     security.setName("Test swap");
 
-    JsonDataSink sink = new JsonDataSink(BlotterResource.JSON_BUILDING_CONVERTERS);
+    JsonDataSink sink = new JsonDataSink(BlotterUtils.getJsonBuildingConverters());
     BeanTraverser traverser = new BeanTraverser(s_propertyFilter);
     BeanVisitor<JSONObject> writingVisitor = new BuildingBeanVisitor<>(security, sink);
     JSONObject json = (JSONObject) traverser.traverse(SwapSecurity.meta(), writingVisitor);
@@ -117,8 +117,7 @@ public class JsonJodaRoundTripTest {
         FloatingInterestRateLeg.meta(),
         InterestRateNotional.meta()));
     BeanVisitor<BeanBuilder<SwapSecurity>> readingVisitor =
-        new BeanBuildingVisitor<>(dataSource, metaBeanFactory, new Converters(OtcTradeBuilder.s_regionConverters,
-                                                                              BlotterResource.getStringConvert()));
+        new BeanBuildingVisitor<>(dataSource, metaBeanFactory, BlotterUtils.getBeanBuildingConverters());
     BeanBuilder<SwapSecurity> beanBuilder =
         (BeanBuilder<SwapSecurity>) traverser.traverse(SwapSecurity.meta(), readingVisitor);
     SwapSecurity security2 = beanBuilder.build();
@@ -143,7 +142,7 @@ public class JsonJodaRoundTripTest {
     security.setName("a bond future");
 
     // TODO this isn't converting ExternalIdBundle properly
-    JsonDataSink sink = new JsonDataSink(BlotterResource.JSON_BUILDING_CONVERTERS);
+    JsonDataSink sink = new JsonDataSink(BlotterUtils.getJsonBuildingConverters());
     BeanTraverser traverser = new BeanTraverser(s_propertyFilter);
     BeanVisitor<JSONObject> writingVisitor = new BuildingBeanVisitor<>(security, sink);
     JSONObject json = (JSONObject) traverser.traverse(BondFutureSecurity.meta(), writingVisitor);
@@ -154,9 +153,8 @@ public class JsonJodaRoundTripTest {
     MetaBeanFactory metaBeanFactory = new MapMetaBeanFactory(ImmutableSet.<MetaBean>of(
         BondFutureSecurity.meta(),
         BondFutureDeliverable.meta()));
-    // TODO move these
-    Converters converters = new Converters(OtcTradeBuilder.s_regionConverters, BlotterResource.getStringConvert());
-    BeanVisitor<BeanBuilder<BondFutureSecurity>> readingVisitor = new BeanBuildingVisitor<>(dataSource, metaBeanFactory, converters);
+    BeanVisitor<BeanBuilder<BondFutureSecurity>> readingVisitor =
+        new BeanBuildingVisitor<>(dataSource, metaBeanFactory, BlotterUtils.getBeanBuildingConverters());
     BeanBuilder<BondFutureSecurity> beanBuilder =
         (BeanBuilder<BondFutureSecurity>) traverser.traverse(BondFutureSecurity.meta(), readingVisitor);
     BondFutureSecurity security2 = beanBuilder.build();
