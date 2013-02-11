@@ -21,7 +21,7 @@ $.register_module({
                 });
                 form.children.push(
                     new og.blotter.forms.blocks.Portfolio({form: form, counterparty: data.trade.counterparty, 
-                        portfolio: data.nodeId}),
+                        portfolio: data.nodeId, tradedate: data.trade.tradeDate}),
                     new form.Block({
                         module: 'og.blotter.forms.blocks.long_short_tash'
                     }), 
@@ -56,6 +56,7 @@ $.register_module({
                 form.on('form:load', function (){
                     og.blotter.util.add_datetimepicker("security.expiry");
                     og.blotter.util.add_datetimepicker("security.settlementDate");
+                    og.blotter.util.add_datetimepicker("trade.tradeDate");
                     if(data.security.length) return;
                     og.blotter.util.set_select("trade.premiumCurrency", data.trade.premiumCurrency);
                     og.blotter.util.set_select("security.putCurrency", data.security.putCurrency);

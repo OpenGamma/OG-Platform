@@ -36,7 +36,7 @@ $.register_module({
                 });
                 form.children.push(
                     new og.blotter.forms.blocks.Portfolio({form: form, counterparty: data.trade.counterparty, 
-                        portfolio: data.nodeId}),
+                        portfolio: data.nodeId, tradedate: data.trade.tradeDate}),
                     new form.Block({
                         module: 'og.blotter.forms.blocks.swap_quick_entry_tash'
                     }),
@@ -83,6 +83,7 @@ $.register_module({
                     og.blotter.util.add_datetimepicker("underlying.effectiveDate");
                     og.blotter.util.add_datetimepicker("underlying.maturityDate");
                     og.blotter.util.add_datetimepicker("security.settlementDate");
+                    og.blotter.util.add_datetimepicker("trade.tradeDate");
                     og.blotter.util.add_datetimepicker("security.expiry");
                     og.blotter.util.set_select("security.currency", data.security.currency);
                     og.blotter.util.check_radio("security.payer", data.security.payer);

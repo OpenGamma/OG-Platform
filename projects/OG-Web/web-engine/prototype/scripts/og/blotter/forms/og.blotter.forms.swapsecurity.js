@@ -33,7 +33,7 @@ $.register_module({
                 });
                 form.children.push(
                     new og.blotter.forms.blocks.Portfolio({form: form, counterparty: data.trade.counterparty, 
-                        portfolio: data.nodeId}),
+                        portfolio: data.nodeId, tradedate: data.trade.tradeDate}),
                     new form.Block({
                         module: 'og.blotter.forms.blocks.swap_quick_entry_tash'
                     }),
@@ -63,6 +63,7 @@ $.register_module({
                     og.blotter.util.add_datetimepicker("security.tradeDate");
                     og.blotter.util.add_datetimepicker("security.effectiveDate");
                     og.blotter.util.add_datetimepicker("security.maturityDate");
+                    og.blotter.util.add_datetimepicker("trade.tradeDate");
                     if(typeof data.security.payLeg != 'undefined') {
                         swap_leg({type: data.security.payLeg.type, index: pay_index, leg: pay_leg, child: 4,
                             pay_edit: true});

@@ -21,7 +21,7 @@ $.register_module({
                 });
                 form.children.push(
                     new og.blotter.forms.blocks.Portfolio({form: form, counterparty: data.trade.counterparty, 
-                        portfolio: data.nodeId}),
+                        portfolio: data.nodeId, tradedate: data.trade.tradeDate}),
                     new form.Block({
                         module: 'og.blotter.forms.blocks.equity_variance_swap_tash',
                         extras: {notional: data.security.notional, region: data.security.regionId,
@@ -55,6 +55,7 @@ $.register_module({
                     og.blotter.util.add_datetimepicker("security.settlementDate");
                     og.blotter.util.add_datetimepicker("security.lastObservationDate");
                     og.blotter.util.add_datetimepicker("security.firstObservationDate");
+                    og.blotter.util.add_datetimepicker("trade.tradeDate");
                     if(data.security.length) return;
                     og.blotter.util.set_select("security.currency", data.security.currency);
                     og.blotter.util.check_checkbox("security.parameterizedAsVariance", 

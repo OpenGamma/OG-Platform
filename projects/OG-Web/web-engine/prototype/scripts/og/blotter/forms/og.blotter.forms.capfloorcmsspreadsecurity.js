@@ -21,7 +21,7 @@ $.register_module({
                 });
                 form.children.push(
                     new og.blotter.forms.blocks.Portfolio({form: form, counterparty: data.trade.counterparty, 
-                        portfolio: data.nodeId}),
+                        portfolio: data.nodeId, tradedate: data.trade.tradeDate}),
                     new form.Block({
                         module: 'og.blotter.forms.blocks.cap_floor_cms_tash',
                         extras: {start: data.security.startDate, maturity: data.security.maturityDate, 
@@ -56,6 +56,7 @@ $.register_module({
                 form.on('form:load', function (){
                     og.blotter.util.add_datetimepicker("security.startDate");
                     og.blotter.util.add_datetimepicker("security.maturityDate");
+                    og.blotter.util.add_datetimepicker("trade.tradeDate");
                     if(data.security.length) return;
                     og.blotter.util.set_select("security.currency", data.security.currency);
                     og.blotter.util.check_radio("security.cap", data.security.cap);

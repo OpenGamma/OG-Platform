@@ -49,7 +49,6 @@ $.register_module({
             },
             /* Util data */
             otc_trade : {                
-                tradeDate: "2013-01-01",
                 premiumCurrency: null,
                 tradeTime: null,
                 premium: null,
@@ -59,7 +58,6 @@ $.register_module({
                 type: "OtcTrade"
             },
             fungible_trade : {                
-                tradeDate: "2013-01-01",
                 premiumCurrency: null,
                 tradeTime: null,
                 premium: null,
