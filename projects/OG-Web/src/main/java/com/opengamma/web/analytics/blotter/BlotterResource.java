@@ -111,7 +111,6 @@ public class BlotterResource {
         s_otherTypeNames.add(typeName);
       }
     }
-    // TODO use constants for these
     s_otherTypeNames.add(OtcTradeBuilder.TRADE_TYPE_NAME);
     s_otherTypeNames.add(FungibleTradeBuilder.TRADE_TYPE_NAME);
     Collections.sort(s_otherTypeNames);
@@ -256,7 +255,7 @@ public class BlotterResource {
         }
         root.put("security", securityJson);
       } else {
-        FungibleTradeBuilder.extractTradeData(trade, tradeSink, BlotterUtils.getStringConvert());
+        _fungibleTradeBuilder.extractTradeData(trade, tradeSink, BlotterUtils.getStringConvert());
       }
       JSONObject tradeJson = tradeSink.finish();
       root.put("trade", tradeJson);
