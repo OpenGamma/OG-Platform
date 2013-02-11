@@ -1,2 +1,0 @@
-if (!Object.create)                             // this is because three.js expects Object.create; IE8 doesn't have it
-    Object.create = function () {return this;}; // (obviously not a real replacement for Object.create)
