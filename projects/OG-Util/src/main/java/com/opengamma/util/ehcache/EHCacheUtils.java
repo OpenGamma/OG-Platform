@@ -7,13 +7,13 @@ package com.opengamma.util.ehcache;
 
 import java.util.Collection;
 
+import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.util.ArgumentChecker;
+
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
-
-import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.util.ArgumentChecker;
 
 /**
  * Utilities for working with EHCache.
@@ -32,13 +32,13 @@ public final class EHCacheUtils {
    * Creates a cache manager using the default configuration. This should be used only in a test environment; in other
    * environments a properly configured cache manager should be injected.
    * <p>
-   * Beware that this returns a singleton cache manager instance, and certain operations may not be thread-safe or may interfere with concurrently-running tests.
+   * This used to return a singleton cache manager instance, which caused problems with ehcache 2.6.3.
    * 
    * @return the cache manager, not null
    */
   public static CacheManager createCacheManager() {
     try {
-      return CacheManager.create();
+      return CacheManager.newInstance();
     } catch (CacheException ex) {
       throw new OpenGammaRuntimeException("Unable to create CacheManager", ex);
     }

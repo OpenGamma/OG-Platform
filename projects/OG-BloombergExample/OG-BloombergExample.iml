@@ -52,15 +52,15 @@
           <root url="jar://$USER_HOME$/.ivy2/cache/org.jdesktop/appframework/jars/appframework-1.0.3.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.jdesktop/swingworker/jars/swingworker-1.2.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.jdesktop/swingx/jars/swingx-1.0.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/net.sourceforge.ehcache/ehcache/jars/ehcache-core-1.7.2.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.slf4j/slf4j/jars/slf4j-api-1.5.11.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/net.sourceforge.ehcache/ehcache/jars/ehcache-core-2.6.3.jar!/" />
         </CLASSES>
         <JAVADOC>
           <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.commons/commons-logging/javadocs/commons-logging-javadoc-1.1.1.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.jcsp/jcsp/javadocs/jcsp-docs-1.1-rc2.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.jdesktop/appframework/javadocs/javadoc-1.0.3.zip!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.jdesktop/swingworker/javadocs/javadoc-1.2.zip!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/net.sourceforge.ehcache/ehcache/javadocs/ehcache-core-1.7.2.zip!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/net.sourceforge.ehcache/ehcache/javadocs/ehcache-core-javadoc-2.6.3.jar!/" />
         </JAVADOC>
         <SOURCES>
           <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.poi/poi/sources/poi-sources-3.7.zip!/" />
@@ -70,8 +70,8 @@
           <root url="jar://$USER_HOME$/.ivy2/cache/org.jdesktop/appframework/sources/source-1.0.3.zip!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.jdesktop/swingworker/sources/source-1.2.zip!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.jdesktop/swingx/sources/swingx-beaninfo-1.0.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/net.sourceforge.ehcache/ehcache/sources/ehcache-core-1.7.2.zip!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.slf4j/slf4j/sources/slf4j-api-src-1.5.11.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/net.sourceforge.ehcache/ehcache/sources/ehcache-core-source-2.6.3.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>

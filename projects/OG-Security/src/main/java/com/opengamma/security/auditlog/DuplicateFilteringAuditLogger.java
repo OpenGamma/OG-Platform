@@ -5,10 +5,11 @@
  */
 package com.opengamma.security.auditlog;
 
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.Element;
-
 import com.opengamma.util.ArgumentChecker;
+
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Element;
 
 /**
  * A decorator <code>AuditLogger</code> that only sends the message
@@ -29,6 +30,7 @@ public class DuplicateFilteringAuditLogger extends AbstractAuditLogger {
     _delegate = delegate;
     _cache = new Cache("audit_log_entry_cache", maxElementsInMemory, false,
         false, secondsToKeepInMemory, secondsToKeepInMemory);
+    _cache.setCacheManager(CacheManager.getInstance());
     _cache.initialise();
   }
 
