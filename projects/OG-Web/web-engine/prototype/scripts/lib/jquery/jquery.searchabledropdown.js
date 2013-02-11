@@ -219,8 +219,7 @@
             fs += Math.ceil(fs / fsdiff);
             // set selectedIndex depends on mouse position and line height*/
         	// selectorHelper.selectedIndex($('select option').prop('selectedIndex'));
-            var option = $(e.target), index = $('option', selector)
-            selector.get(0).selectedIndex = selector
+            selectorHelper.selectedIndex($(e.target).get(0).index);
         });
 
         // toggle click event on overlay div
