@@ -51,7 +51,7 @@ $.register_module({
             otc_trade : {                
                 tradeDate: "2013-01-01",
                 premiumCurrency: null,
-                tradeTime: "00:00Z",
+                tradeTime: null,
                 premium: null,
                 premiumTime: null,
                 attributes: {},
