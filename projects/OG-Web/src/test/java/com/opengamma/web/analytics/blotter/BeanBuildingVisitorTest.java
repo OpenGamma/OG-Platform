@@ -40,14 +40,18 @@ public class BeanBuildingVisitorTest {
     JodaBeanConverters.getInstance(); // load converters
   }
 
+  private static final Converters CONVERTERS = new Converters(OtcTradeBuilder.s_regionConverters,
+                                                              BlotterResource.getStringConvert());
+
   /**
    * test building a nice simple security
    */
   @Test
   public void buildFXForwardSecurity() {
+    Converters converters = new Converters(OtcTradeBuilder.s_regionConverters, BlotterResource.getStringConvert());
     BeanVisitor<BeanBuilder<Bean>> visitor = new BeanBuildingVisitor<>(BlotterTestUtils.FX_FORWARD_DATA_SOURCE,
                                                                        META_BEAN_FACTORY,
-                                                                       BlotterResource.getStringConvert());
+                                                                       converters);
     MetaBean metaBean = META_BEAN_FACTORY.beanFor(BlotterTestUtils.FX_FORWARD_DATA_SOURCE);
     BeanBuilder<ManageableSecurity> beanBuilder =
         (BeanBuilder<ManageableSecurity>) new BeanTraverser(s_securityTypeFilter).traverse(metaBean, visitor);
@@ -62,7 +66,7 @@ public class BeanBuildingVisitorTest {
   public void buildSwapSecurity() {
     BeanVisitor<BeanBuilder<Bean>> visitor = new BeanBuildingVisitor<>(BlotterTestUtils.SWAP_DATA_SOURCE,
                                                                        META_BEAN_FACTORY,
-                                                                       BlotterResource.getStringConvert());
+                                                                       CONVERTERS);
     MetaBean metaBean = META_BEAN_FACTORY.beanFor(BlotterTestUtils.SWAP_DATA_SOURCE);
     BeanBuilder<ManageableSecurity> beanBuilder =
         (BeanBuilder<ManageableSecurity>) new BeanTraverser(s_securityTypeFilter).traverse(metaBean, visitor);

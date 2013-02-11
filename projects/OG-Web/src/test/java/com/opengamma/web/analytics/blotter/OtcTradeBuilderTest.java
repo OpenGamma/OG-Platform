@@ -147,8 +147,7 @@ public class OtcTradeBuilderTest {
                                                       "premium", "4321");
     BeanDataSource updatedSecurityData = BlotterTestUtils.overrideBeanData(BlotterTestUtils.FX_FORWARD_DATA_SOURCE,
                                                                            "payCurrency", "AUD",
-                                                                           "payAmount", "200",
-                                                                           "regionId", "Reg~345");
+                                                                           "payAmount", "200");
 
     UniqueId updatedTradeId = _builder.updateTrade(updatedTradeData, updatedSecurityData, null);
     ManageableTrade updatedTrade = _positionMaster.getTrade(updatedTradeId);
@@ -162,7 +161,6 @@ public class OtcTradeBuilderTest {
                                                                                 VersionCorrection.LATEST).getSecurity();
     assertEquals(Currency.AUD, updatedSecurity.getPayCurrency());
     assertEquals(200d, updatedSecurity.getPayAmount());
-    assertEquals(ExternalId.of("Reg", "345"), updatedSecurity.getRegionId());
   }
 
   @Test

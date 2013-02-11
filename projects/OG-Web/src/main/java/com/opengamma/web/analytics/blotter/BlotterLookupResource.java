@@ -41,6 +41,7 @@ import com.opengamma.financial.security.option.SamplingFrequency;
 import com.opengamma.financial.security.swap.FloatingRateType;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.i18n.Country;
 
 /**
  *
@@ -69,8 +70,6 @@ public class BlotterLookupResource {
     }
     return new JSONArray(results).toString();
   }
-
-  // TODO endpoint for the standard external identifier scheme and their human readable names
 
   @GET
   @Path("frequencies")
@@ -152,13 +151,13 @@ public class BlotterLookupResource {
   @Produces(MediaType.APPLICATION_JSON)
   public String getIdSchemes() {
     Map<String, ExternalScheme> schemes = Maps.newHashMap();
-    // TODO should this include the weak ticker types?
-    // TODO are all the names correct?
     schemes.put("ISIN", ExternalSchemes.ISIN);
     schemes.put("CUSIP", ExternalSchemes.CUSIP);
     schemes.put("SEDOL1", ExternalSchemes.SEDOL1);
     schemes.put("Bloomberg BUID", ExternalSchemes.BLOOMBERG_BUID);
+    schemes.put("Bloomberg BUID (weak)", ExternalSchemes.BLOOMBERG_BUID_WEAK);
     schemes.put("Bloomberg Ticker", ExternalSchemes.BLOOMBERG_TICKER);
+    schemes.put("Bloomberg Ticker (weak)", ExternalSchemes.BLOOMBERG_TICKER_WEAK);
     schemes.put("Bloomberg Ticker/Coupon/Maturity", ExternalSchemes.BLOOMBERG_TCM);
     schemes.put("Reuters RIC", ExternalSchemes.RIC);
     schemes.put("ActiveFeed Ticker", ExternalSchemes.ACTIVFEED_TICKER);
@@ -166,5 +165,12 @@ public class BlotterLookupResource {
     schemes.put("ICAP", ExternalSchemes.ICAP);
     schemes.put("GMI", ExternalSchemes.GMI);
     return new JSONObject(schemes).toString();
+  }
+
+  @GET
+  @Path("regions")
+  @Produces(MediaType.APPLICATION_JSON)
+  public String getRegions() {
+    return convertToJsonArray(Country.class, Country.getAvailableCountries().iterator());
   }
 }

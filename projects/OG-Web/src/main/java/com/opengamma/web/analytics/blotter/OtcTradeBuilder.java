@@ -18,10 +18,19 @@ import org.joda.beans.Property;
 import org.joda.convert.StringConvert;
 import org.threeten.bp.ZonedDateTime;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.security.Security;
 import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.security.cash.CashSecurity;
+import com.opengamma.financial.security.cds.CreditDefaultSwapSecurity;
+import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
+import com.opengamma.financial.security.fra.FRASecurity;
+import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
+import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
@@ -46,9 +55,9 @@ import com.opengamma.util.OpenGammaClock;
 /**
  * Builds and saves trades, securities and underlying securities for OTC securities.
  * TODO the use of VersionCorrection.LATEST in this class is incorrect
- * the weak link between trades/positions and securities is a problem for OTCs because in reality they're a single
+ * the weak link between trades, positions and securities is a problem for OTCs because in reality they're a single
  * atomic object. the problem at the moment is there's no way to know which version of the security is being modified
- * given the unique ID of the trade. thereofore it's not possible to detect any concurrent modification of securities,
+ * given the unique ID of the trade. therefore it's not possible to detect any concurrent modification of securities,
  * the last update wins. there are various potential fixes but it might not be worth doing before the imminent refactor
  * of trades, positions and securities.
  */
@@ -66,6 +75,27 @@ import com.opengamma.util.OpenGammaClock;
   private static final BeanTraverser s_beanTraverser = new BeanTraverser(
       new PropertyFilter(FinancialSecurity.meta().externalIdBundle()),
       new PropertyFilter(ManageableSecurity.meta().securityType()));
+
+
+  // TODO javadoc
+  /* package */ static final Map<MetaProperty<?>, Converter<?, ?>> s_regionConverters;
+
+  static {
+    StringToRegionIdConverter stringToRegionIdConverter = new StringToRegionIdConverter();
+    s_regionConverters = Maps.newHashMap();
+    // TODO the matching filters are in BlotterResource - remove these properties completely from JSON output. consolidate
+    s_regionConverters.putAll(
+        ImmutableMap.<MetaProperty<?>, Converter<?, ?>>of(
+            CashSecurity.meta().regionId(), stringToRegionIdConverter,
+            CreditDefaultSwapSecurity.meta().regionId(), stringToRegionIdConverter,
+            EquityVarianceSwapSecurity.meta().regionId(), stringToRegionIdConverter,
+            FRASecurity.meta().regionId(), stringToRegionIdConverter,
+            SwapLeg.meta().regionId(), stringToRegionIdConverter));
+    s_regionConverters.putAll(
+        ImmutableMap.<MetaProperty<?>, Converter<?, ?>>of(
+            FXForwardSecurity.meta().regionId(), new FXRegionConverter(),
+            NonDeliverableFXForwardSecurity.meta().regionId(), new FXRegionConverter()));
+  }
 
   /* package */ OtcTradeBuilder(PositionMaster positionMaster,
                                 PortfolioMaster portfoioMaster,
@@ -197,9 +227,8 @@ import com.opengamma.util.OpenGammaClock;
                      meta.premiumTime());
     tradeBuilder.set(meta.attributes(), tradeData.getMapValues(meta.attributes().name()));
     tradeBuilder.set(meta.quantity(), BigDecimal.ONE);
-    // TODO shouldn't the security ID be here? or will it be the external ID?
+    // the link needs to be non-null but the real ID can't be set until the security has been created later
     tradeBuilder.set(meta.securityLink(), new ManageableSecurityLink());
-    //tradeBuilder.set(meta.securityLink(), new ManageableSecurityLink(security.getUniqueId().getObjectId()));
     String counterparty = (String) tradeData.getValue(COUNTERPARTY);
     if (StringUtils.isEmpty(counterparty)) {
       throw new IllegalArgumentException("Trade counterparty is required");
@@ -255,6 +284,7 @@ import com.opengamma.util.OpenGammaClock;
     if (underlyingId == null) {
       throw new IllegalArgumentException("Unable to get underlying ID for security " + underlying);
     }
+    // TODO I'm not keen on this, it doesn't smell great
     dataSource = new PropertyReplacingDataSource(securityData, "underlyingId", underlyingId.toString());
     return buildSecurity(dataSource);
   }
@@ -278,16 +308,19 @@ import com.opengamma.util.OpenGammaClock;
 
   @SuppressWarnings("unchecked")
   private FinancialSecurity buildSecurity(BeanDataSource data) {
-    // TODO custom converters for dates
-    // default timezone based on OpenGammaClock
-    // default times for effectiveDate and maturityDate properties on SwapSecurity, probably others
+    // TODO factory methods for the visitor so it can be used in the tests?
     BeanVisitor<BeanBuilder<FinancialSecurity>> visitor =
-        new BeanBuildingVisitor<>(data, getMetaBeanFactory(), getStringConvert());
+        new BeanBuildingVisitor<>(data, getMetaBeanFactory(), new Converters(s_regionConverters, getStringConvert()));
     MetaBean metaBean = getMetaBeanFactory().beanFor(data);
     // TODO check it's a FinancialSecurity metaBean
     if (!(metaBean instanceof FinancialSecurity.Meta)) {
       throw new IllegalArgumentException("MetaBean " + metaBean + " isn't for a FinancialSecurity");
     }
+    // TODO set the region, need a visitor? converter for regions? but they're just IDs
+    // is this a similar problem to external ID bundles? a visitor to handle properties? but it's not a single property
+    // could use the ugly underlyingId hack - replace the value as a string using property name, not actual property
+    // regions aren't always on the root bean, e.g. SwapSecurity has a region on each leg
+
     BeanBuilder<FinancialSecurity> builder = (BeanBuilder<FinancialSecurity>) s_beanTraverser.traverse(metaBean, visitor);
     // externalIdBundle needs to be specified or building fails because it's not nullable
     // TODO need to preserve the bundle when editing existing trades. pass to client or use previous version?
@@ -319,5 +352,24 @@ import com.opengamma.util.OpenGammaClock;
     structure.put("properties", properties);
     structure.put("now", ZonedDateTime.now(OpenGammaClock.getInstance()));
     return structure;
+  }
+}
+
+/**
+ * Converts a string to an {@link ExternalId} with a scheme of {@link ExternalSchemes#FINANCIAL}.
+ */
+/* package */ class StringToRegionIdConverter implements Converter<String, ExternalId> {
+
+  /**
+   * Converts a string to an {@link ExternalId} with a scheme of {@link ExternalSchemes#FINANCIAL}.
+   * @param region The region name, not empty
+   * @return An {@link ExternalId} with a scheme of {@link ExternalSchemes#FINANCIAL} and a value of {@code region}.
+   */
+  @Override
+  public ExternalId convert(String region) {
+    if (StringUtils.isEmpty(region)) {
+      throw new IllegalArgumentException("Region must not be empty");
+    }
+    return ExternalId.of(ExternalSchemes.FINANCIAL, region);
   }
 }
