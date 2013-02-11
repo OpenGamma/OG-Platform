@@ -24,7 +24,7 @@ $.register_module({
                 $('input:checkbox[name="'+ name +'"]').prop('checked', bools[value]);
             },
             add_datetimepicker : function (name){$('input[name="'+ name +'"]').datepicker({
-                dateFormat: 'yy-mm-dd'});
+                dateFormat: 'yy-mm-dd', changeMonth: true, changeYear: true});
             },
             get_checkbox : function (name) {
                 return $('input:checkbox[name="'+ name +'"]').is(':checked').toString();
