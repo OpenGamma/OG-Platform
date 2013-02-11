@@ -116,7 +116,7 @@ public class MixedBivariateLogNormalCorrelationFinder {
     double rho = 0.;
     _shift = 0;
     boolean done = false;
-    double[] rhosJump = new double[_nData];
+    double[] rhosJump = new double[_nNormals];
 
     _gradM = exactFunctionDerivative(_rhosGuess);
     _dataDerivedYDiff = exactFunctionValue(_rhosGuess);

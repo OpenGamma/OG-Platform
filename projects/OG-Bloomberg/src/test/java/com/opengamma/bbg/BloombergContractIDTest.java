@@ -107,4 +107,13 @@ public class BloombergContractIDTest {
     }
   }
   
+  public void padding() {
+    final BloombergContractID id = new BloombergContractID("S", "Comdty");
+    assertEquals(id.getContractCode(), "S ");
+    assertEquals(id.getMarketSector(), "Comdty");
+    final BloombergContractID idGC = new BloombergContractID("GC", "Comdty");
+    assertEquals(idGC.getContractCode(), "GC");
+    assertEquals(idGC.getMarketSector(), "Comdty");
+  }
+
 }
