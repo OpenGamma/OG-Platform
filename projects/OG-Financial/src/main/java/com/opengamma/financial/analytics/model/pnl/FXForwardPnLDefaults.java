@@ -22,7 +22,6 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
-import com.opengamma.financial.analytics.model.forex.forward.FXForwardFunction;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
@@ -75,8 +74,8 @@ public class FXForwardPnLDefaults extends DefaultPropertyFunction {
   protected void getDefaults(final PropertyDefaults defaults) {
     defaults.addValuePropertyName(ValueRequirementNames.PNL_SERIES, ValuePropertyNames.PAY_CURVE);
     defaults.addValuePropertyName(ValueRequirementNames.PNL_SERIES, ValuePropertyNames.RECEIVE_CURVE);
-    defaults.addValuePropertyName(ValueRequirementNames.PNL_SERIES, FXForwardFunction.PAY_CURVE_CALC_CONFIG);
-    defaults.addValuePropertyName(ValueRequirementNames.PNL_SERIES, FXForwardFunction.RECEIVE_CURVE_CALC_CONFIG);
+    defaults.addValuePropertyName(ValueRequirementNames.PNL_SERIES, ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG);
+    defaults.addValuePropertyName(ValueRequirementNames.PNL_SERIES, ValuePropertyNames.RECEIVE_CURVE_CALCULATION_CONFIG);
     defaults.addValuePropertyName(ValueRequirementNames.PNL_SERIES, ValuePropertyNames.SAMPLING_PERIOD);
     defaults.addValuePropertyName(ValueRequirementNames.PNL_SERIES, ValuePropertyNames.SCHEDULE_CALCULATOR);
     defaults.addValuePropertyName(ValueRequirementNames.PNL_SERIES, ValuePropertyNames.SAMPLING_FUNCTION);
@@ -112,10 +111,10 @@ public class FXForwardPnLDefaults extends DefaultPropertyFunction {
     if (ValuePropertyNames.RECEIVE_CURVE.equals(propertyName)) {
       return Collections.singleton(receivePair.getSecond());
     }
-    if (FXForwardFunction.PAY_CURVE_CALC_CONFIG.equals(propertyName)) {
+    if (ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG.equals(propertyName)) {
       return Collections.singleton(payPair.getFirst());
     }
-    if (FXForwardFunction.RECEIVE_CURVE_CALC_CONFIG.equals(propertyName)) {
+    if (ValuePropertyNames.RECEIVE_CURVE_CALCULATION_CONFIG.equals(propertyName)) {
       return Collections.singleton(receivePair.getFirst());
     }
     return null;

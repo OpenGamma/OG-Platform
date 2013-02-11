@@ -13,7 +13,7 @@ $.register_module({
             check_state: og.views.common.state.check.partial('/'),
             load: function (args) {
                 og.analytics.blotter = true;
-//                masthead.menu.set_tab(page_name);
+                masthead.menu.set_tab(page_name);
                 $('.new_trade').css({display: 'inline-block'}).click(function (){
                     new og.blotter.Dialog({portfolio:{name:"My Portfolio", id:"XYZ"}});
                 });
@@ -89,8 +89,7 @@ $.register_module({
             },
             init: function () {for (var rule in view.rules) routes.add(view.rules[rule]);},
             rules: {
-                load: {route: '/', method: module.name + '.load'},
-                load_item: {route: '/:data', method: module.name + '.load_item'}
+                load_item: {route: '/:data?', method: module.name + '.load_item'}
             }
         };
     }

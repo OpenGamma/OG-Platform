@@ -193,7 +193,7 @@ $.register_module({
                 if (elem.is(source_s)) return source_handler(entry);
                 if (elem.is(custom_s)) return display_datepicker(entry);
                 if (elem.is(latest_s)) return remove_date(entry);
-                if (elem.is('button')) return menu.button_handler(elem.text());
+                if (elem.is('button')) return menu.button_handler(elem.text()), menu.stop(event), false;
             };
 
             var remove_date = function (entry) {

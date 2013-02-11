@@ -11,6 +11,7 @@ import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDAInstrumentTypes;
+import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDAYieldCurve;
 import com.opengamma.analytics.financial.credit.schedulegeneration.GenerateCreditDefaultSwapPremiumLegSchedule;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
@@ -39,17 +40,16 @@ public class ISDAYieldCurveTest {
   private static final int spotDays = 2;
 
   // This is the valuation date
-  final ZonedDateTime baseDate = zdt(2012, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC);
+  private static final ZonedDateTime baseDate = zdt(2012, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC);
 
   // This is the anchor date for the curve - Z(basedate) = 1
   final ZonedDateTime spotDate = zdt(2012, 11, 19, 0, 0, 0, 0, ZoneOffset.UTC);
 
   // This is the anchor date for the curve - Z(basedate) = 1, valuationDate + spotDays (bda)
-  // final ZonedDateTime spotDate = ZonedDateTime.of(2012, 11, 19, 0, 0, 0, 0, TimeZone.UTC);
 
   // The MM dates
-  // TODO : Need to calc these automatically
-  ZonedDateTime[] dates = {
+  // TODO : Need to calc these automatically - they are bda
+  private final static ZonedDateTime[] dates = {
       zdt(2012, 12, 17, 0, 0, 0, 0, ZoneOffset.UTC),   // 1M, MM
       zdt(2013, 1, 15, 0, 0, 0, 0, ZoneOffset.UTC),    // 2M, MM
       zdt(2013, 2, 15, 0, 0, 0, 0, ZoneOffset.UTC),    // 3M, MM
@@ -77,7 +77,7 @@ public class ISDAYieldCurveTest {
 
    */
 
-  double[] rates = {
+  private static final double[] rates = {
       0.002075,                 // MM
       0.0025699999999999998,    // MM
       0.00310999999999,         // MM
@@ -105,7 +105,7 @@ public class ISDAYieldCurveTest {
    */
 
   // The instrument types
-  ISDAInstrumentTypes[] rateTypes = {
+  private static final ISDAInstrumentTypes[] rateTypes = {
       ISDAInstrumentTypes.MoneyMarket,
       ISDAInstrumentTypes.MoneyMarket,
       ISDAInstrumentTypes.MoneyMarket,
@@ -138,12 +138,41 @@ public class ISDAYieldCurveTest {
   private static final PeriodFrequency swapFixedLegCouponFrequency = PeriodFrequency.SEMI_ANNUAL;
   private static final PeriodFrequency swapFloatingLegCouponFrequency = PeriodFrequency.QUARTERLY;
 
-  private static final DayCount depositDaycountFractionConvention = DayCountFactory.INSTANCE.getDayCount("ACT/360");              // MM DCC
+  private static final DayCount moneyMarketDaycountFractionConvention = DayCountFactory.INSTANCE.getDayCount("ACT/360");              // MM DCC
 
   private static final DayCount swapFixedLegDaycountFractionConvention = DayCountFactory.INSTANCE.getDayCount("30/360");          // Swap DCC
   private static final DayCount swapFloatingLegDaycountFractionConvention = DayCountFactory.INSTANCE.getDayCount("ACT/360");      // Swap DCC
 
   private static final BusinessDayConvention businessdayAdjustmentConvention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"); // Bad Day Conv
+
+  private static final ISDAYieldCurve isdaYieldCurve = new ISDAYieldCurve(
+      baseDate,
+      dates,
+      rateTypes,
+      rates,
+      spotDays,
+      moneyMarketDaycountFractionConvention,
+      swapFixedLegDaycountFractionConvention,
+      swapFloatingLegDaycountFractionConvention,
+      swapFixedLegCouponFrequency,
+      swapFloatingLegCouponFrequency,
+      businessdayAdjustmentConvention,
+      calendar);
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  @Test
+  public void testMMBuild() {
+
+    for (long i = 0; i < 1500; i++)
+    {
+      ZonedDateTime testDate = baseDate.plusDays(i);
+
+      final double Z = isdaYieldCurve.getDiscountFactor(baseDate, testDate);
+
+      //System.out.println("i = " + "\t" + i + "\t" + testDate + "\t" + Z);
+    }
+  }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -548,7 +577,9 @@ public class ISDAYieldCurveTest {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  @Test
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  //@Test
   public void testISDAYieldCurveBuild() {
 
     // Need to check the input data (numpts > 0, dates in ascending order etc)
@@ -574,7 +605,7 @@ public class ISDAYieldCurveTest {
 
     ZonedDateTime valueDate = baseDate;
 
-    DayCount mmDCC = depositDaycountFractionConvention;
+    DayCount mmDCC = moneyMarketDaycountFractionConvention;
 
     // TODO : Calculate these automatically
 
@@ -631,8 +662,6 @@ public class ISDAYieldCurveTest {
 
       ZonedDateTime testDate = zdt(2012, 11, 14, 0, 0, 0, 0, ZoneOffset.UTC).plusDays(i);
 
-      //ZonedDateTime testDate = zdt(2013, 8, 19, 0, 0, 0, 0, ZoneOffset.UTC);
-
       ZonedDateTime loDate;
       ZonedDateTime hiDate;
 
@@ -648,7 +677,7 @@ public class ISDAYieldCurveTest {
       double Z = 0.0;
       double rate = 0.0;
 
-      // Extrapolation
+      // Extrapolation below the first date
       if (testDate.isBefore(zCurveDates[0])) {
         loRate = zCurveCCRates[0];
         z1 = Math.log(1.0 + loRate);
@@ -657,8 +686,8 @@ public class ISDAYieldCurveTest {
         Z = Math.exp(-rate * t);
       }
 
-      // Extrapolation
-      if (testDate.isAfter(zCurveDates[nInstr - 1])) {
+      // Extrapolation beyond the last data
+      if (!testDate.isBefore(zCurveDates[nInstr - 1])) {
 
         int lo = nInstr - 2;
         int hi = nInstr - 1;
@@ -734,9 +763,6 @@ public class ISDAYieldCurveTest {
         t = TimeCalculator.getTimeBetween(valueDate, testDate, ACT_365);
 
         Z = Math.exp(-rate * t);
-
-        //System.out.println(testDate + "\t" + Z);
-
       }
 
       //System.out.println(testDate + "\t" + Z);

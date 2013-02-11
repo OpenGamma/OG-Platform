@@ -105,9 +105,9 @@ $.register_module({
             fingerprint = JSON.stringify(options);
             options.fingerprint = fingerprint;
             cellmenu.container.add([options]);
-            if ((offset.top + inner.height())> $(window).height())
+            if ((offset.top + inner.height()) > $(window).height())
                 inner.css({marginTop: -inner.outerHeight(true)-9});
-            if ((offset.left + inner.width())> $(window).width())
+            if ((offset.left + inner.width()) > $(window).width())
                 inner.css({marginLeft: -inner.width() + width - cellmenu.menu.left} );
             new constructor(cellmenu.grid);
             og.analytics.resize({

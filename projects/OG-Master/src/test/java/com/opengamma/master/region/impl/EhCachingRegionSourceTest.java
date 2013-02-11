@@ -57,7 +57,7 @@ public class EhCachingRegionSourceTest {
 
   @BeforeMethod
   public void setUp() {
-    _cacheManager = new CacheManager();
+    _cacheManager = CacheManager.newInstance();
     _underlying = new TestRegionSource(TEST_REGION);
     _cachingRegionSource = new EHCachingRegionSource(_underlying, _cacheManager);
   }

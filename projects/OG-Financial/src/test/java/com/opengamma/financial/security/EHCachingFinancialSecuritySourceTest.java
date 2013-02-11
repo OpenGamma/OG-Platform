@@ -45,7 +45,7 @@ public class EHCachingFinancialSecuritySourceTest {
 
   @BeforeMethod
   public void setUp() throws Exception {    
-    _cacheManager = new CacheManager(); 
+    _cacheManager = CacheManager.newInstance();
     _underlyingSecuritySource = new MockFinancialSecuritySource();
     _cachingSecuritySource = new EHCachingFinancialSecuritySource(_underlyingSecuritySource, _cacheManager);
     

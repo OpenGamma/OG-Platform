@@ -5,8 +5,11 @@
  */
 package com.opengamma.web.analytics.formatting;
 
-import com.google.common.collect.ImmutableMap;
+import java.util.Map;
+
+import com.google.common.collect.Maps;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.id.UniqueId;
 import com.opengamma.web.analytics.OtcTradeTarget;
 
 /**
@@ -14,19 +17,30 @@ import com.opengamma.web.analytics.OtcTradeTarget;
  */
 /* package */ class OtcTradeTargetFormatter extends AbstractFormatter<OtcTradeTarget> {
 
-  /** Key for the name in the JSON. */
+  /** JSON key */
   private static final String NAME = "name";
-  /** Key for the ID in the JSON. */
-  private static final String ID = "id";
+  /** JSON key */
+  private static final String NODE_ID = "nodeId";
+  /** JSON key */
+  private static final String POSITION_ID = "positionId";
+  /** JSON key */
+  private static final String TRADE_ID = "tradeId";
 
   /* package */ OtcTradeTargetFormatter() {
     super(OtcTradeTarget.class);
   }
 
   @Override
-  public Object formatCell(OtcTradeTarget trade, ValueSpecification valueSpec) {
-    return ImmutableMap.of(NAME, trade.getName(),
-                           ID, trade.getId().getObjectId());
+  public Map<String, Object> formatCell(OtcTradeTarget target, ValueSpecification valueSpec) {
+    Map<String, Object> results = Maps.newHashMap();
+    results.put(NAME, target.getName());
+    results.put(NODE_ID, target.getNodeId().getObjectId());
+    results.put(POSITION_ID, target.getPositionId().getObjectId());
+    UniqueId tradeId = target.getTradeId();
+    if (tradeId != null) {
+      results.put(TRADE_ID, tradeId.getObjectId());
+    }
+    return results;
   }
 
   @Override

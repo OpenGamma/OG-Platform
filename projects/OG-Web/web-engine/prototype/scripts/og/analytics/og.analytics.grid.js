@@ -45,46 +45,101 @@ $.register_module({
             return BMP.rle8(width, height, pixels);
         };
         var col_css = function (id, sets, offset) {
-            var partial_width = 0, columns = sets.reduce(function (acc, set) {return acc.concat(set.columns);}, []),
+            var partial = 0, columns = sets.reduce(function (acc, set) {return acc.concat(set.columns);}, []),
                 total_width = columns.reduce(function (acc, val) {return val.width + acc;}, 0);
             return columns.map(function (val, idx) {
                 var css = {
                     prefix: id, index: idx + (offset || 0),
-                    left: partial_width, right: total_width - partial_width - val.width
+                    left: partial, right: total_width - partial - val.width
                 };
-                return (partial_width += val.width), css;
+                return (partial += val.width), css;
             });
         };
-        var col_resize = (function () {
-            var namespace = '.og_analytics_resizer', resizer = 'OG-g-h-resizer',
-                index, start_left, start_width, min_size = 50;
-            var clean_up = function () {
-                $('.' + resizer).remove();
+        var col_reorder = (function () {
+            var namespace = '.og_analytics_reorder', index, last, first,
+                line = 'OG-g-h-line', reorderer = 'OG-g-h-reorderer', offset_left;
+            var clean_up = function (grid) {
+                $('.' + reorderer).remove();
+                $('.' + line).remove();
                 $(document).off(namespace);
+                grid.elements.scroll_body.off(namespace);
+                grid.selector.clear();
             };
             var mousemove = function (grid, event) {
-                $('.' + resizer).css({left: Math.max(event.pageX - 3, (start_left - start_width) + min_size)});
+                var scroll_left = grid.elements.scroll_body.scrollLeft(),
+                    x = event.pageX - grid.offset.left + scroll_left,
+                    scan = grid.meta.columns.scan.all, nearest = Math.max(
+                        grid.meta.fixed_length - 1,
+                        grid.meta.columns.scan.all.reduce(function (acc, val, idx) {return val < x ? idx : acc;}, 0)
+                    );
+                $('.' + reorderer).css({left: event.pageX - offset_left});
+                $('.' + line).show().css({left: grid.offset.left - scroll_left + scan[nearest]});
             };
             var mouseup = function (grid, event) {
-                clean_up();
+                clean_up(grid);
+            };
+            var scroll = function (event) {
+                $('.' + line).hide();
+            };
+            return function (event, $target) {
+                var grid = this, $clone;
+                clean_up(grid);
+                if (event.which === 3 || event.button === 2) return; // ignore right clicks
+                index = +$target.attr('data-index');
+                first = grid.meta.fixed_length;
+                last = grid.meta.columns.widths.length - 1;
+                $clone = $target.clone();
+                $clone.find('.resize').remove();
+                offset_left = event.pageX - grid.offset.left + grid.elements.scroll_body.scrollLeft() -
+                    grid.meta.columns.scan.all[index - 1];
+                $clone.addClass(reorderer).css({
+                    top: grid.offset.top + grid.meta.set_height - 6,
+                    left: event.pageX - offset_left,
+                    width: grid.meta.columns.widths[index]
+                }).appendTo(document.body);
+                $('<div class="' + line + '" />').css({
+                    top: grid.offset.top + grid.meta.header_height,
+                    left: grid.offset.left - grid.elements.scroll_body.scrollLeft() +
+                        grid.meta.columns.scan.all[index === last ? index - 1 : index] - 3,
+                    height: grid.elements.parent.height() - grid.meta.header_height
+                }).appendTo(document.body);
+                grid.elements.scroll_body.on('scroll' + namespace, scroll);
+                $(document)
+                    .on('mousemove' + namespace, mousemove.partial(grid))
+                    .on('mouseup' + namespace, mouseup.partial(grid));
+            };
+        })();
+        var col_resize = (function () {
+            var namespace = '.og_analytics_resizer', line = 'OG-g-h-line',
+                index, start_left, start_width, min_size = 50;
+            var clean_up = function (grid) {
+                $('.' + line).remove();
+                $(document).off(namespace);
+                grid.selector.clear();
+            };
+            var mousemove = function (grid, event) {
+                $('.' + line).css({left: Math.max(event.pageX - 3, (start_left - start_width) + min_size)});
+            };
+            var mouseup = function (grid, event) {
+                clean_up(grid);
                 grid.col_override[index] = Math.max(min_size, start_width + (event.pageX - start_left));
                 grid.resize();
             };
             return function (event, $target) {
                 var grid = this, offset_left;
-                clean_up();
+                clean_up(grid);
                 if (event.which === 3 || event.button === 2) return; // ignore right clicks
-                index = $target.attr('data-index');
+                index = +$target.parents('div.OG-g-h-col:first').attr('data-index');
                 offset_left = grid.offset.left -
                     (index < grid.meta.fixed_length ? 0 : grid.elements.scroll_body.scrollLeft());
                 start_width = grid.meta.columns.widths[index];
                 $(document)
                     .on('mousemove' + namespace, mousemove.partial(grid))
                     .on('mouseup' + namespace, mouseup.partial(grid));
-                $('<div class="' + resizer + '" />').css({
-                    top: grid.offset.top,
+                $('<div class="' + line + '" />').css({
+                    top: grid.offset.top + grid.meta.set_height,
                     left: start_left = offset_left + grid.meta.columns.scan.all[index] - 3,
-                    height: grid.elements.parent.height()
+                    height: grid.elements.parent.height() - grid.meta.set_height
                 }).appendTo(document.body);
             };
         })();
@@ -183,6 +238,7 @@ $.register_module({
                     var $target = $(event.target), row;
                     event.preventDefault();
                     if ($target.is('.resize')) return col_resize.call(grid, event, $target), void 0;
+                    // if ($target.is('.reorder')) return col_reorder.call(grid, event, $target), void 0;
                     if (!$target.is('.node')) return grid.fire('mousedown', event), void 0;
                     grid.meta.nodes[row = +$target.attr('data-row')] = !grid.meta.nodes[row];
                     grid.resize().selector.clear();
@@ -261,11 +317,15 @@ $.register_module({
             meta.show_save = 'show_save' in config ? config['show_save'] : false;
             meta.viewport = {format: 'CELL'};
             meta.row_height = row_height;
-            meta.header_height =  (meta.show_sets ? set_height : 0) + title_height;
+            meta.set_height = meta.show_sets ? set_height : 0;
+            meta.header_height =  meta.set_height + title_height;
             meta.scrollbar = scrollbar;
+            columns.orig_widths = columns.fixed.concat(columns.scroll).reduce(function (acc, set) {
+                return acc.concat(set.columns.map(function (col) {return col.width || null;}));
+            }, []);
             grid.col_widths();
             col_fields.forEach(function (key) {columns[key + 's'] = [];}); // plural version
-            columns.fixed[0].columns.forEach(populate);
+            columns.fixed.forEach(function (set) {set.columns.forEach(populate);});
             columns.scroll.forEach(function (set) {set.columns.forEach(populate);});
             unravel_structure.call(grid);
             meta.row_class = {}; // TODO populate with added, deleted, edited by data row index
@@ -276,7 +336,7 @@ $.register_module({
         var render_header = (function () {
             var head_data = function (grid, sets, col_offset, set_offset) {
                 var meta = grid.meta, width = meta.columns.width, index = 0, show_save = meta.show_save,
-                    show_sets = meta.show_sets, show_views = meta.show_views;
+                    show_sets = meta.show_sets, show_views = meta.show_views, fixed = !col_offset;
                 return {
                     width: col_offset ? width.scroll : width.fixed, padding_right: col_offset ? scrollbar : 0,
                     sets: sets.map(function (set, idx) {
@@ -287,10 +347,10 @@ $.register_module({
                             };
                         });
                         return {
-                            // only send views in for fixed columns (and if show_views)
-                            views: !col_offset && show_views ? grid.views : null, sparklines: grid.config.sparklines,
-                            name: set.name, index: idx + (set_offset || 0), columns: columns, show_sets: show_sets,
-                            width: columns.reduce(function (acc, col) {return acc + col.width;}, 0), save: show_save
+                            columns: columns, index: idx + (set_offset || 0), name: set.name, reorder: !fixed,
+                            show_save: show_save, show_sets: show_sets, show_sparklines: grid.config.sparklines,
+                            views: fixed && show_views ? grid.views : null,
+                            width: columns.reduce(function (acc, col) {return acc + col.width;}, 0)
                         };
                     })
                 };
@@ -375,11 +435,11 @@ $.register_module({
                 return rep_memo[times] = result;
             };
             var unravel = function (arr, result, indent) {
-                var start = arr[0], end = arr[1], children = arr[2], prefix, last_end = null, str,
+                var start = arr[0], end = arr[1], children = arr[2], expand = !arr[3], prefix, last_end = null, str,
                     i, j, len = children.length, child, curr_start, curr_end, html;
                 html = '<span data-row="' + start + '" class="node {{state}}"></span>&nbsp;'
                 prefix = cache[rep(indent) + html] = counter++;
-                result.push({prefix: prefix, node: true, indent: indent, length: end - start});
+                result.push({prefix: prefix, node: true, indent: indent, length: end - start, expand: expand});
                 for (i = 0; i < len; i += 1) {
                     child = children[i]; curr_start = child[0]; curr_end = child[1]; j = (last_end || start) + 1;
                     if (j < curr_start) prefix = (str = rep(indent + 2)) in cache ? cache[str] : cache[str] = counter++;
@@ -397,7 +457,7 @@ $.register_module({
                 unraveled = meta.structure.length ? unravel(meta.structure, [], 0) : all(meta.data_rows);
                 meta.nodes = unraveled.reduce(function (acc, val, idx) {
                     if (!val.node) return acc;
-                    acc[idx] = true;
+                    acc[idx] = val.expand;
                     acc.all.push(idx);
                     acc.ranges.push(val.length);
                     if (val.indent > 1) acc.collapse.push(idx);
@@ -457,29 +517,44 @@ $.register_module({
             };
         };
         Grid.prototype.col_widths = function () {
-            var grid = this, meta = grid.meta, avg_col_width, fixed_width, scroll_cols = meta.columns.scroll,
-                scroll_width, last_set, remainder, parent_width = grid.elements.parent.width();
-            meta.fixed_length = meta.columns.fixed[0].columns.length;
-            meta.scroll_length = meta.columns.scroll.reduce(function (acc, set) {return acc + set.columns.length;}, 0);
+            var grid = this, meta = grid.meta, avg_col_width, fixed_width,
+                fixed_cols = meta.columns.fixed, scroll_cols = meta.columns.scroll, scroll_data_width,
+                def_scrolls, scroll_width, last_set, remainder, parent_width = grid.elements.parent.width();
+            meta.fixed_length = meta.columns.fixed.length && meta.columns.fixed[0].columns.length;
+            meta.scroll_length = scroll_cols.reduce(function (acc, set) {return acc + set.columns.length;}, 0);
             if (grid.col_override.length !== meta.fixed_length + meta.scroll_length) // if length has changed (in meta)
                 grid.col_override = new Array(meta.fixed_length + meta.scroll_length);
             (function (idx) {
-                meta.columns.fixed.concat(meta.columns.scroll).forEach(function (set) {
-                    set.columns.forEach(function (col) {col.width = grid.col_override[idx++] || col.width;})
+                fixed_cols.concat(scroll_cols).forEach(function (set) {
+                    set.columns.forEach(function (col) {
+                        col.width = grid.col_override[idx] || meta.columns.orig_widths[idx];
+                        idx += 1;
+                    });
                 });
             })(0);
+            def_scrolls = scroll_cols.reduce(function (top, set) {
+                top.length += set.columns.reduce(function (acc, col) {
+                    top.width += +col.width;
+                    return col.width ? acc + 1 : acc;
+                }, 0);
+                return top;
+            }, {length: 0, width: 0});
             meta.columns.widths = [];
-            fixed_width = meta.columns.fixed[0].columns.reduce(function (acc, col, idx) {
+            fixed_width = meta.columns.fixed.length && meta.columns.fixed[0].columns.reduce(function (acc, col, idx) {
                 meta.columns.widths.push(col.width = col.width || (idx ? 150 : 250));
                 return acc + col.width;
             }, 0);
-            remainder = (scroll_width = parent_width - fixed_width - scrollbar) -
-                ((avg_col_width = Math.floor(scroll_width / meta.scroll_length)) * meta.scroll_length);
+            scroll_width = parent_width - fixed_width - scrollbar;
+            avg_col_width = Math.floor((scroll_width - def_scrolls.width) / (meta.scroll_length - def_scrolls.length));
             scroll_cols.forEach(function (set) {
                 set.columns.forEach(function (col) {
                     meta.columns.widths.push(col.width = col.width || Math.max(default_col_width, avg_col_width));
                 });
             });
+            scroll_data_width = scroll_cols.pluck('columns').reduce(function (acc, set) {return acc + set.pluck('width')
+                .reduce(function (acc, val) {return acc + val;});}, 0);
+            if ((remainder = scroll_width - scroll_data_width) <= 0) return;
+            meta.columns.widths[meta.columns.widths.length - 1] += remainder;
             (last_set = scroll_cols[scroll_cols.length - 1].columns)[last_set.length - 1].width += remainder;
         };
         Grid.prototype.fire = og.common.events.fire;
@@ -555,7 +630,7 @@ $.register_module({
                 fixed_bg: background(columns.fixed, columns.width.fixed, 'ecf5fa'),
                 scroll_bg: background(columns.scroll, columns.width.scroll, 'ffffff'),
                 scroll_width: columns.width.scroll, fixed_width: columns.width.fixed + scrollbar,
-                scroll_left: columns.width.fixed, set_height: meta.show_sets ? set_height : 0,
+                scroll_left: columns.width.fixed, set_height: meta.set_height,
                 height: meta.inner.scroll_height, header_height: header_height, row_height: row_height,
                 columns: col_css(id, columns.fixed).concat(col_css(id, columns.scroll, meta.fixed_length)),
                 sets: set_css(id, columns.fixed).concat(set_css(id, columns.scroll, columns.fixed.length))

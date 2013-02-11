@@ -13,6 +13,11 @@
   </li>
   <li>
     <ul>
+      <li><a href="blotter.ftl" class="og-blotter">Blotter</a><span class="OG-icon og-icon-divider"></span></li>
+    </ul>
+  </li>
+  <li>
+    <ul>
       <li><a href="admin.ftl#/portfolios/" class="og-portfolios">Portfolios</a></li>
       <li><a href="admin.ftl#/positions/" class="og-positions">Positions</a></li>
       <li><a href="admin.ftl#/securities/" class="og-securities">Securities</a></li>

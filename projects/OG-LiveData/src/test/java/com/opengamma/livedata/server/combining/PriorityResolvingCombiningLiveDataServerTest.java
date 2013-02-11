@@ -63,7 +63,7 @@ public class PriorityResolvingCombiningLiveDataServerTest {
     setEntitlementChecker(_serverC);
     _serverC.connect();
     
-    _cacheManager = new CacheManager();
+    _cacheManager = CacheManager.newInstance();
     _combiningServer = new PriorityResolvingCombiningLiveDataServer(Lists.newArrayList(_serverB, _serverC), _cacheManager);
     _combiningServer.start();
     

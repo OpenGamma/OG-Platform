@@ -46,6 +46,8 @@ $.register_module({
             }).on('click', '#' + id + ' .og-js-rem', function (event) {
                 $(event.target).parents('tr.row:first').remove();
                 $('#' + id + ' td.number span').each(function (idx) {$(this).html(idx + 1);});
+            }).on('click', '#' + id + ' .og-menu-actions button', function (event) {
+                return menu.button_handler($(event.target).text()), menu.stop(event), false;
             });
 
             form.on('form:load', function () {
