@@ -9,8 +9,11 @@ import org.apache.commons.lang.Validate;
 import org.threeten.bp.DayOfWeek;
 import org.threeten.bp.LocalDate;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.analytics.ircurve.NextExpiryAdjuster;
+
+//FIXME: Take account of holidays
 
 /**
  *  Utility Class for computing Expiries of Future Options from ordinals (i.e. nth future after valuationDate)
@@ -23,6 +26,8 @@ public final class FutureOptionExpiries {
   public static final FutureOptionExpiries IR = FutureOptionExpiries.of(new NextExpiryAdjuster(3, DayOfWeek.WEDNESDAY));
   /** Instance of {@code FutureOptionExpiries} used for Equity Future Options. (Expiries on Saturdays after 3rd Fridays) */
   public static final FutureOptionExpiries EQUITY = FutureOptionExpiries.of(new NextExpiryAdjuster(3, DayOfWeek.FRIDAY, 1));
+  /** Instance of {@code FutureOptionExpiries} used for Equity Futures. (Expiries on 3rd Fridays) */
+  public static final FutureOptionExpiries EQUITY_FUTURE = FutureOptionExpiries.of(new NextExpiryAdjuster(3, DayOfWeek.FRIDAY));
 
   /** The adjuster moves forward to the next IMM month, to the specified day in month*/
   private final NextExpiryAdjuster _nextExpiryAdjuster;
@@ -117,6 +122,28 @@ public final class FutureOptionExpiries {
     final int nExpiryDone = nthFuture - 6;
     final LocalDate nextYear = LocalDate.of(valDate.getYear() + nExpiryDone, 1, 1);
     return getMonthlyExpiry(1, nextYear);
+  }
+
+  /**
+   * Get n'th future expiry.
+   * Only supports One Chicago equity futures. 2 serial months and 2 quarterly
+   * http://www.onechicago.com/?page_id=22
+   * @param nthFuture nth future in the future
+   * @param valDate date to start from
+   * @return expiry the expiry date of the nth option
+   */
+  public LocalDate getEquityFutureExpiry(final int nthFuture, final LocalDate valDate) {
+    Validate.isTrue(nthFuture > 0, "nthFuture must be greater than 0.");
+    if (nthFuture > 4) {
+      throw new OpenGammaRuntimeException("Can only have max 4 futures");
+    }
+    if (nthFuture <= 2) {
+      return getMonthlyExpiry(nthFuture, valDate); // 2 serial months
+    }
+    // quarterly
+    final int nQuarterlyLeft = nthFuture - 2;
+    final LocalDate twoMonthsForward = getMonthlyExpiry(2, valDate);
+    return getQuarterlyExpiry(nQuarterlyLeft, twoMonthsForward);
   }
 
   public LocalDate getMonthlyExpiry(final int nthMonth, final LocalDate valDate) {

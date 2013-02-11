@@ -5,6 +5,7 @@
  */
 package com.opengamma.bbg.util;
 
+import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_CHAIN;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ID_BBG_UNIQUE;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ID_CUSIP;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ID_ISIN;
@@ -52,7 +53,6 @@ import org.threeten.bp.format.DateTimeFormatter;
 import org.threeten.bp.format.DateTimeFormatterBuilder;
 import org.threeten.bp.format.DateTimeFormatters;
 import org.threeten.bp.format.DateTimeParseException;
-import org.threeten.bp.temporal.ISOFields;
 import org.threeten.bp.temporal.TemporalAdjuster;
 
 import com.bloomberglp.blpapi.Datetime;
@@ -427,7 +427,7 @@ public final class BloombergDataUtils {
 
   public static Set<ExternalId> getOptionChain(ReferenceDataProvider refDataProvider, String securityID) {
     ArgumentChecker.notNull(securityID, "security name");
-    Set<ExternalId> result = new TreeSet<ExternalId>();
+    Set<ExternalId> result = new TreeSet<>();
     
     FudgeMsg fieldData = refDataProvider.getReferenceData(Collections.singleton(securityID), Collections.singleton(FIELD_OPT_CHAIN)).get(securityID);
     if (fieldData == null) {
@@ -441,6 +441,38 @@ public final class BloombergDataUtils {
       if (identifier != null) {
         ExternalId ticker = ExternalSchemes.bloombergTickerSecurityId(BloombergDataUtils.removeDuplicateWhiteSpace(identifier, " "));
         result.add(ticker);
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Get the future chain for a security.
+   * There may be futures on multiple exchanges - in general need to restrict to exchanges using the same currency.
+   * Equities: restrict to One Chicago futures with a lead market maker (e.g. AAPL=G3 OC Equity)
+   *
+   * @param refDataProvider the reference data provider
+   * @param securityID the security
+   * @return the (ordered)
+   */
+  public static Set<ExternalId> getFuturechain(ReferenceDataProvider refDataProvider, String securityID) {
+    ArgumentChecker.notNull(securityID, "security name");
+    Set<ExternalId> result = new TreeSet<>();
+
+    FudgeMsg fieldData = refDataProvider.getReferenceData(Collections.singleton(securityID), Collections.singleton(FIELD_FUT_CHAIN)).get(securityID);
+    if (fieldData == null) {
+      s_logger.info("Reference data for security {} cannot be null", securityID);
+      return null;
+    }
+
+    for (FudgeField field : fieldData.getAllByName(FIELD_FUT_CHAIN)) {
+      FudgeMsg chainContainer = (FudgeMsg) field.getValue();
+      String identifier = StringUtils.trimToNull(chainContainer.getString("Security Description"));
+      if (identifier != null) {
+        if (identifier.endsWith("OC Equity") && identifier.startsWith(securityID.split("\\s+")[0] + "=")) { // equity
+          ExternalId ticker = ExternalSchemes.bloombergTickerSecurityId(BloombergDataUtils.removeDuplicateWhiteSpace(identifier, " "));
+          result.add(ticker);
+        }
       }
     }
     return result;

@@ -24,6 +24,8 @@ public class InstrumentTypeProperties {
   public static final String SWAPTION_ATM = "SWAPTION_ATM";
   /** Property representing a surface for equity options */
   public static final String EQUITY_OPTION = "EQUITY_OPTION";
+  /** Property representing a curve for equity futures */
+  public static final String EQUITY_FUTURE_PRICE = "EQUITY_FUTURE_PRICE";
   /** Property representing a surface for bond future options */
   public static final String BOND_FUTURE_OPTION = "BOND_FUTURE_OPTION";
   /** Property representing a curve for bond futures */
