@@ -7,7 +7,6 @@ $.register_module({
     dependencies: [],
     obj: function () {   
         return function (config) {
-            console.log(config);
             var constructor = this, form, ui = og.common.util.ui, data;
             if(config.details) {data = config.details.data; data.id = config.details.data.trade.uniqueId;}
             else {data = {security: {type: "FRASecurity", name: "FRASecurity ABC", 
@@ -51,8 +50,7 @@ $.register_module({
                     og.blotter.util.set_select("security.currency", data.security.currency);
                 });
                 form.on('form:submit', function (result){
-                    console.log(result.data);
-                    og.api.rest.blotter.trades.put(result.data).pipe(console.log);
+                    og.api.rest.blotter.trades.put(result.data);
                 });
             }; 
             constructor.load();
