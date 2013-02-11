@@ -55,20 +55,15 @@ $.register_module({
                         }).on('fatal', url.clear_main);
                         if (og.analytics.blotter) og.analytics.grid.on('contextmenu', function (event, cell, col) {
                            if (cell) return og.common.util.ui.contextmenu({
-
                                defaults: true, zindex: 4, items: [
                                    {name: 'Insert', handler: function () {
                                     new og.blotter.Dialog({portfolio:{name: cell.row_value.nodeId, 
                                         id: cell.row_value.nodeId}});
                                 }},
                                    {name: 'Edit', handler: function () {
-                                        console.log(cell);
                                         og.api.rest.blotter.trades.get({id: cell.row_value.tradeId})
-                                            .pipe(function(data){
-                                                console.log(cell, data);
-                                                new og.blotter.Dialog({details: data, 
-                                                    portfolio:{name: cell.row_value.nodeId, id: cell.row_value.nodeId}}
-                                                    );
+                                            .pipe(function(data){new og.blotter.Dialog({details: data, 
+                                                portfolio:{name: cell.row_value.nodeId, id: cell.row_value.nodeId}});
                                             });
                                    }}
                                ]

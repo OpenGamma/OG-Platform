@@ -6,10 +6,10 @@ $.register_module({
     name: 'og.blotter.forms.blocks.Security',
     dependencies: ['og.common.util.ui.Form'],
     obj: function () {
-        var module = this, Block = og.common.util.ui.Block, sec_id = og.common.id("og-blotter-security"), 
-        scheme_id = og.common.id("og-blotter-scheme"), dropdown;
+        var module = this, Block = og.common.util.ui.Block;
         var Security = function (config) {
-            var block = this, scheme_value, id_value, form = config.form, security = config.security;
+            var block = this, scheme_value, id_value, form = config.form, security = config.security, dropdown,
+            sec_id = og.common.id("og-blotter-security"), scheme_id = og.common.id("og-blotter-scheme");
             if(security){
                 scheme_value = security.split(/~(.+)/)[0];
                 id_value  = security.split(/~(.+)/)[1]; 

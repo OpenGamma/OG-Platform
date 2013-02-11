@@ -10,8 +10,8 @@ $.register_module({
             var constructor = this, form, ui = og.common.util.ui, data;
             if(config.details) {data = config.details.data; data.id = config.details.data.trade.uniqueId;}
             else {data = {security: {type: "CapFloorCMSSpreadSecurity", name: "CapFloorCMSSpreadSecurity ABC", 
-                regionId: "ABC~123", externalIdBundle: ""}, trade: og.blotter.util.otc_trade};}
-            data.portfolio = config.portfolio;
+                regionId: "ABC~123", externalIdBundle: "", attributes: {}}, trade: og.blotter.util.otc_trade};}
+            data.nodeId = config.portfolio.id;
             constructor.load = function () {
                 constructor.title = 'Cap/Floor CMS Spread';
                 form = new og.common.util.ui.Form({
@@ -21,12 +21,11 @@ $.register_module({
                 });
                 form.children.push(
                     new og.blotter.forms.blocks.Portfolio({form: form, counterparty: data.trade.counterparty, 
-                        portfolio: data.portfolio.name}),
+                        portfolio: data.nodeId}),
                     new form.Block({
                         module: 'og.blotter.forms.blocks.cap_floor_cms_tash',
                         extras: {start: data.security.startDate, maturity: data.security.maturityDate, 
-                            notional: data.security.notional,strike: data.security.strike, longId: data.security.longId, 
-                            shortId: data.security.shortId
+                            notional: data.security.notional,strike: data.security.strike
                         },
                         children: [
                             new form.Block({module:'og.views.forms.currency_tash',

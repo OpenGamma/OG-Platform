@@ -18,7 +18,7 @@ import com.opengamma.analytics.financial.model.volatility.smile.function.MixedBi
 public class MixedBivariateLogNormalCorrelationFinderTest {
 
   @Test
-  // (enabled = false)
+   (enabled = false)
   public void printTest() {
 
     final int nNormals = 2;
