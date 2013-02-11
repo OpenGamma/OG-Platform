@@ -19,8 +19,8 @@ ${ogStyle.print('og_all.css', 'all',false)}
       <div class="OG-layout-analytics-dock-south"><#include "modules/common/og.common.gadget_container.ftl"></div>
   </div>
 </div>
-${ogScript.print('og_common.js', false)}
 <!--[if IE]>${ogScript.print('ie.js',false)}<![endif]-->
+${ogScript.print('og_common.js', false)}
 ${ogScript.print('og_analytics2.js',false)}
 </body>
 </html>
