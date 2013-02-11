@@ -202,24 +202,26 @@
         		disable(e, true);
         });
         selector.mousemove(function(e) {
-        	// Disabled on opera because of <select> elements always return scrollTop of 0
-        	// Affects up to Opera 10 beta 1, can be removed if bug is fixed
-            // http://www.greywyvern.com/code/opera/bugs/selectScrollTop
-        	/*if($.browser.opera && parseFloat(jQuery.browser.version) >= 9.8)
-        		return true;
+            /*console.log($(e.srcElement));
+            selectorHelper.selectedIndex($(e.target).get(0).index);*/
 
-        	// get font-size of option
-        	var fs = Math.floor(parseFloat(/([0-9\.]+)px/.exec(selectorHelper.option(0).css("font-size"))));
-        	// calc line height depends on browser
-        	var fsdiff = 4;
-        	if($.browser.opera)
-        		fsdiff = 2.5;
-        	if($.browser.safari || $.browser.chrome)
-        		fsdiff = 3;
-            fs += Math.ceil(fs / fsdiff);
-            // set selectedIndex depends on mouse position and line height*/
-        	// selectorHelper.selectedIndex($('select option').prop('selectedIndex'));
-            selectorHelper.selectedIndex($(e.target).get(0).index);
+            // Disabled on opera because of <select> elements always return scrollTop of 0
+            // Affects up to Opera 10 beta 1, can be removed if bug is fixed
+            // http://www.greywyvern.com/code/opera/bugs/selectScrollTop
+            if($.browser.opera && parseFloat(jQuery.browser.version) >= 9.8)
+                return true;
+
+            // get font-size of option
+            var fs = Math.floor(parseFloat(/([0-9\.]+)px/.exec(selectorHelper.option(0).css("font-size"))));
+            // calc line height depends on browser
+            var fsdiff = 4;
+            if($.browser.opera)
+                fsdiff = 2.5;
+            if($.browser.safari || $.browser.chrome)
+                fsdiff = 3.5;
+            fs += Math.round(fs / fsdiff);
+            // set selectedIndex depends on mouse position and line height
+            selectorHelper.selectedIndex(Math.floor((e.pageY - selector.offset().top + this.scrollTop) / fs));
         });
 
         // toggle click event on overlay div

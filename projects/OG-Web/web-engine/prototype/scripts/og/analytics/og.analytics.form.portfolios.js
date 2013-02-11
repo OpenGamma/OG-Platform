@@ -52,9 +52,9 @@ $.register_module({
                 });
 
                 list.on('mousedown', function (event) {
-                    selectedIndex = list.prop('selectedIndex')
-                    select.prop('selectedIndex', selectedIndex);
-                    input.val(select.find("option:selected").text()).focus(0);
+                    selectedIndex = list.get(0).selectedIndex;
+                    select.get(0).selectedIndex = selectedIndex+1;
+                    input.val(list.find("option:selected").text()).focus(0);
                 });
             });
         };

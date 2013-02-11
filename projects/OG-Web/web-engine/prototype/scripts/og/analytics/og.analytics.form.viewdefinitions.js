@@ -21,7 +21,7 @@ $.register_module({
                 })],
                 processor: function (data) {
                     if (!data[index]) // hack to get the value of a searchable dropdown
-                        data[index] = $('#' + form.id + ' select[name=' + index + ']').siblings('select').val();
+                        data[index] = $('#' + form.id + ' select[name=' + index + ']').val();
                 }
             });
             block.on('form:load', function () {
@@ -31,7 +31,7 @@ $.register_module({
                     input = select.siblings('input').attr('placeholder', 'Select..'),
                     toggle = select.parent().siblings('.og-icon-down');
 
-                if (select.val() !== '') input.val($('option:selected', select).text());
+                if (select.val() !== '') input.val(select.find("option:selected").text());
 
                 input.removeAttr('style').blur(function () {
                     list.hide();
@@ -56,8 +56,9 @@ $.register_module({
                 });
 
                 list.on('mousedown', function (event) {
-                    select.prop('selectedIndex', selectedIndex = list.prop('selectedIndex'));
-                    input.val(select.find("option:selected").text()).focus(0);
+                    selectedIndex = list.get(0).selectedIndex;
+                    select.get(0).selectedIndex = selectedIndex+1;
+                    input.val(list.find("option:selected").text()).focus(0);
                 });
             });
         };
