@@ -21,25 +21,21 @@ $.register_module({
                 }
             });
             block.on('form:load', function () {
-                var selectedIndex,
-                    select = $('#' + form.id + ' select[name=' + index + ']').searchable().hide(),
+                var selectedIndex, selector = '#' + form.id + ' select[name=' + index + ']';
+                    select = $(selector).searchable().hide(),
                     list = select.siblings('select').addClass('dropdown-list'),
                     input = select.siblings('input').attr('placeholder', 'Select portfolio').select(),
                     toggle = select.parent().siblings('.og-icon-down');
 
-                if (select.val() !== '') {
-                    selectedIndex = select.prop('selectedIndex');
-                    var option = $('option', select).eq(selectedIndex);
-                    input.val(option.text());
-                }
+                if (select.val() !== '') input.val($('option:selected', select).text());
 
                 input.removeAttr('style').blur(function () {
                     list.hide();
                 }).keydown(function (event) {
                     if (event.keyCode === $.ui.keyCode.ESCAPE) list.hide();
                     if (event.keyCode === $.ui.keyCode.UP || event.keyCode === $.ui.keyCode.DOWN) {
-                        list.show();
                         if (input.val() === '') input.focus(0).click();
+                        list.show();
                     }
                 }).click(function (event) {
                     list.show().prop('selectedIndex', selectedIndex);
@@ -56,11 +52,9 @@ $.register_module({
                 });
 
                 list.on('mousedown', function (event) {
-                    var text = $(event.target).text(),
-                        selectedIndex = list.prop('selectedIndex');
+                    selectedIndex = list.prop('selectedIndex')
                     select.prop('selectedIndex', selectedIndex);
-                    list.prop('selectedIndex', selectedIndex);
-                    input.val(text).focus(0);
+                    input.val(select.find("option:selected").text()).focus(0);
                 });
             });
         };

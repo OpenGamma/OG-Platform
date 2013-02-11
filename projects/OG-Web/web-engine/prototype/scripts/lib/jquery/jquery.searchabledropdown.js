@@ -205,7 +205,7 @@
         	// Disabled on opera because of <select> elements always return scrollTop of 0
         	// Affects up to Opera 10 beta 1, can be removed if bug is fixed
             // http://www.greywyvern.com/code/opera/bugs/selectScrollTop
-        	if($.browser.opera && parseFloat(jQuery.browser.version) >= 9.8)
+        	/*if($.browser.opera && parseFloat(jQuery.browser.version) >= 9.8)
         		return true;
 
         	// get font-size of option
@@ -215,10 +215,12 @@
         	if($.browser.opera)
         		fsdiff = 2.5;
         	if($.browser.safari || $.browser.chrome)
-        		fsdiff = 3.5;
-        	fs += Math.round(fs / fsdiff);
-        	// set selectedIndex depends on mouse position and line height
-        	selectorHelper.selectedIndex(Math.floor((e.pageY - selector.offset().top + this.scrollTop) / fs));
+        		fsdiff = 3;
+            fs += Math.ceil(fs / fsdiff);
+            // set selectedIndex depends on mouse position and line height*/
+        	// selectorHelper.selectedIndex($('select option').prop('selectedIndex'));
+            var option = $(e.target), index = $('option', selector)
+            selector.get(0).selectedIndex = selector
         });
 
         // toggle click event on overlay div
