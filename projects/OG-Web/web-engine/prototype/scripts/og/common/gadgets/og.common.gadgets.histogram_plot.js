@@ -33,7 +33,7 @@ $.register_module({
                             lineWidth: 1
                         },
                         color: "#42669a"
-                    },
+                    }/*,
                     {
                         label: "Probability density - Normal Distribution",
                         data: config.norm_pdf_data,
@@ -45,11 +45,11 @@ $.register_module({
                         points: {show: true},
                         color: '#AA4643',
                         yaxis: 2
-                    }
+                    }*/
                 ];
                 $plot = $.plot($(selector), data, options);
                 $(selector).bind("plothover", function (event, pos, item) {
-                    if (item/* && item.series.hoverable*/) {
+                    if (item) {
                         if (previousPoint != item.dataIndex) {
                             var x = item.datapoint[0], y = item.datapoint[1], delta = x+config.interval, 
                                 msg = y + " occurrences in range<br/>" + x.toFixed(5) + " to " + delta.toFixed(5);

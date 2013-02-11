@@ -333,7 +333,7 @@ import com.opengamma.util.paging.PagingRequest;
 
   @SuppressWarnings({"rawtypes", "unchecked" })
   @Override
-  public AbstractHistoryResult<ConfigDocument> historyByVersionsCorrections(AbstractHistoryRequest request) {    
+  protected AbstractHistoryResult<ConfigDocument> historyByVersionsCorrections(AbstractHistoryRequest request) {    
     ConfigHistoryRequest historyRequest = new ConfigHistoryRequest();
     historyRequest.setCorrectionsFromInstant(request.getCorrectionsFromInstant());
     historyRequest.setCorrectionsToInstant(request.getCorrectionsToInstant());
@@ -342,5 +342,5 @@ import com.opengamma.util.paging.PagingRequest;
     historyRequest.setObjectId(request.getObjectId());
     return (AbstractHistoryResult) history(historyRequest);
   }
-  
+
 }

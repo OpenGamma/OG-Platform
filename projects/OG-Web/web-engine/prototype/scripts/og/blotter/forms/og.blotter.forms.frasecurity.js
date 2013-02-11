@@ -7,11 +7,12 @@ $.register_module({
     dependencies: [],
     obj: function () {   
         return function (config) {
+            console.log(config);
             var constructor = this, form, ui = og.common.util.ui, data;
             if(config.details) {data = config.details.data; data.id = config.details.data.trade.uniqueId;}
             else {data = {security: {type: "FRASecurity", name: "FRASecurity ABC", 
-                regionId: "ABC~123", externalIdBundle: ""}, trade: og.blotter.util.otc_trade};}
-            data.portfolio = config.portfolio;
+                regionId: "ABC~123", externalIdBundle: "", attributes: {}}, trade: og.blotter.util.otc_trade};}
+            data.nodeId = config.portfolio.id;
             constructor.load = function () {
                 constructor.title = 'Forward Rate Agreement';
                 form = new og.common.util.ui.Form({
@@ -21,7 +22,7 @@ $.register_module({
                 });
                 form.children.push(
                     new og.blotter.forms.blocks.Portfolio({form: form, counterparty: data.trade.counterparty, 
-                        portfolio: data.portfolio.name}),
+                        portfolio: data.nodeId}),
                     new form.Block({
                         module: 'og.blotter.forms.blocks.forward_rate_agreement_tash',
                         extras: {start: data.security.startDate, end: data.security.endDate, 
@@ -50,7 +51,8 @@ $.register_module({
                     og.blotter.util.set_select("security.currency", data.security.currency);
                 });
                 form.on('form:submit', function (result){
-                    og.api.rest.blotter.trades.put(result.data);
+                    console.log(result.data);
+                    og.api.rest.blotter.trades.put(result.data).pipe(console.log);
                 });
             }; 
             constructor.load();

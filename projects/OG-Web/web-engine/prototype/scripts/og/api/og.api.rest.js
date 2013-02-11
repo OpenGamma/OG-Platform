@@ -268,8 +268,10 @@ $.register_module({
                 blotter.trades.put = function (config) {
                     config = config || {};
                     var root = this.root, method = root.split('/'), meta, data = {trade: {}}, id = config.id;
-                    meta = check({bundle: {method: root + '#put', config: config}, required: [{all_of: ['trade']}]});
-                    data.trade = str({trade: config.trade, security: config.security, underlying: config.underlying});
+                    meta = check({bundle: {method: root + '#put', config: config}, 
+                                required: [{all_of: ['trade', 'nodeId']}]});
+                    data.trade = str({trade: config.trade, security: config.security, underlying: config.underlying,
+                        nodeId: config.nodeId});
                     meta.type = id ? 'PUT' : 'POST';
                     if (id) method.push(id);
                     return request(method, {data: data, meta: meta});
