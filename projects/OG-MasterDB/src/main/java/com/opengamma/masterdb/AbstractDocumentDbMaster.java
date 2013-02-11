@@ -913,7 +913,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
    * @return the object history, not null
    * @throws IllegalArgumentException if the request is invalid
    */
-  public abstract AbstractHistoryResult<D> historyByVersionsCorrections(AbstractHistoryRequest request);
+  protected abstract AbstractHistoryResult<D> historyByVersionsCorrections(AbstractHistoryRequest request);
 
   @Override
   public Map<UniqueId, D> get(final Collection<UniqueId> uniqueIds) {
@@ -923,4 +923,5 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
     }
     return map;
   }
+
 }

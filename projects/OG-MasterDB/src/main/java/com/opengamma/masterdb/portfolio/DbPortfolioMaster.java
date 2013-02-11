@@ -477,7 +477,7 @@ public class DbPortfolioMaster
   }
 
   @Override
-  public AbstractHistoryResult<PortfolioDocument> historyByVersionsCorrections(AbstractHistoryRequest request) {
+  protected AbstractHistoryResult<PortfolioDocument> historyByVersionsCorrections(AbstractHistoryRequest request) {
     PortfolioHistoryRequest historyRequest = new PortfolioHistoryRequest();
     historyRequest.setCorrectionsFromInstant(request.getCorrectionsFromInstant());
     historyRequest.setCorrectionsToInstant(request.getCorrectionsToInstant());
@@ -486,4 +486,5 @@ public class DbPortfolioMaster
     historyRequest.setObjectId(request.getObjectId());
     return history(historyRequest);
   }
+
 }

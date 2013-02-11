@@ -26,7 +26,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**
- * 
+ *
  */
 public class UnitPositionOrTradeScalingFunction extends AbstractFunction.NonCompiledInvoker {
 
@@ -44,7 +44,7 @@ public class UnitPositionOrTradeScalingFunction extends AbstractFunction.NonComp
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.POSITION;
+    return ComputationTargetType.POSITION_OR_TRADE;
   }
 
   @Override
