@@ -4,74 +4,72 @@
  */
 $.register_module({
     name: 'og.analytics.form.ViewDefinitions',
-    dependencies: ['og.common.util.ui.Dropdown'],
+    dependencies: ['og.common.util.ui.AutoCombo'],
     obj: function () {
-        var Block = og.common.util.ui.Block;
-        var ViewDefinitions = function (config) {
-            var block = this, form = config.form, index = 'viewdefinition', title = 'calculations', enter = false;
+        var module = this, menu, Block = og.common.util.ui.Block, viewdefs, viewdefs_store,
+            tmpl_header = '<div class="og-option-title"><header class="OG-background-05">calculations:</header></div>';
+
+        var ac_source = function (src, callback) {
+            return function (req, res) {
+                var escaped = $.ui.autocomplete.escapeRegex(req.term),
+                    matcher = new RegExp(escaped, 'i'),
+                    htmlize = function (str) {
+                        return !req.term ? str : str.replace(
+                            new RegExp(
+                                '(?![^&;]+;)(?!<[^<>]*)(' + escaped + ')(?![^<>]*>)(?![^&;]+;)', 'gi'
+                            ), '<strong>$1</strong>'
+                        );
+                    };
+                src.get({page: '*'}).pipe(function (resp){
+                    var data = callback(resp);
+                    if (data && data.length) {
+                        data.sort((function(){
+                            return function (a, b) {return (a === b ? 0 : (a < b ? -1 : 1));};
+                        })());
+                        res(data.reduce(function (acc, val) {
+                            if (!req.term || val && matcher.test(val)) acc.push({label: htmlize(val)});
+                            return acc;
+                        }, []));
+                    }
+                });
+            };
+        };
+
+        var store_viewdefinitions = function (resp) {
+            return viewdefs = (viewdefs_store = resp.data).pluck('name');
+        };
+
+        var ViewDefinitions = function (config, callback) {
+            var block = this, menu, form = config.form;
+
             form.Block.call(block, {
-                template: '<div class="og-option-title">' +
-                    '<header class="OG-background-05">' + title + ':</header>'+
-                    '{{{children}}}'+
-                    '<div class="OG-icon og-icon-down"></div></div>',
-                children: [new og.common.util.ui.Dropdown({
-                    form: form, index: index, resource: 'viewdefinitions', fields: ['id', 'name'],
-                    style: 'width: 100%', value: config.val, placeholder: 'Select...',
-                    rest_options: {page: '*'}
-                })],
+                content: tmpl_header,
                 processor: function (data) {
-                    if (!data[index]) // hack to get the value of a searchable dropdown
-                        data[index] = $('#' + form.id + ' select[name=' + index + ']').val();
+                    var vd = viewdefs_store.filter(function (entry) {
+                        return entry.name === menu.$input.val();
+                    });
+                    data.viewdefinition = vd[0].id;
                 }
             });
-            block.on('form:load', function () {
-                var selectedIndex,
-                    select = $('#' + form.id + ' select[name=' + index + ']').searchable().hide(),
-                    list = select.siblings('select').addClass('dropdown-list'),
-                    input = select.siblings('input').attr('placeholder', 'Select..').select(), // Temp
-                    toggle = select.parent().siblings('.og-icon-down');
 
-                if (select.val() !== '') input.val(select.find("option:selected").text());
-
-                input.removeAttr('style').blur(function () {
-                    if (!enter) {
-                        selectedIndex = list.get(0).selectedIndex;
-                        select.get(0).selectedIndex = selectedIndex+1;
-                    } else enter = false;
-                    list.hide();
-                }).keydown(function (event) {
-                    if (event.keyCode === $.ui.keyCode.ESCAPE) list.hide();
-                    if (event.keyCode === $.ui.keyCode.UP || event.keyCode === $.ui.keyCode.DOWN){
-                        if (input.val() === '') input.focus(0).click();
-                        list.show();
-                    }
-                    if (event.keyCode === $.ui.keyCode.ENTER) {
-                        enter = true;
-                        selectedIndex = list.get(0).selectedIndex;
-                        select.get(0).selectedIndex = selectedIndex;
-                    }
-                }).click(function (event) {
-                    list.show().prop('selectedIndex', selectedIndex);
-                    select.prop('selectedIndex', selectedIndex);
+            form.on("form:load", function () {
+                menu = new og.common.util.ui.AutoCombo({
+                    selector: '.og-view.og-autocombo',
+                    placeholder: 'Search...',
+                    source: ac_source(og.api.rest.viewdefinitions, store_viewdefinitions)
                 });
-
-                toggle.click(function (event) {
-                    selectedIndex = list.prop('selectedIndex');
-                    if (!selectedIndex) {
-                        select.prop('selectedIndex', selectedIndex);
-                        list.show().prop('selectedIndex', selectedIndex);
-                    }
-                    input.focus(0).click();
-                });
-
-                list.on('mousedown', function (event) {
-                    input.val(list.find("option:selected").text()).focus(0);
-                }).on('mouseover', 'option', function (event) {
-                    input.val($(event.target || event.srcElement).text()).focus(0);
-                })
+                if (config.val) {
+                    og.api.rest.viewdefinitions.get().pipe(function (resp) {
+                        store_viewdefinitions(resp);
+                        var val = viewdefs_store.filter(function (entry) { return entry.id === config.val; });
+                        if (val.length && val[0].name) menu.$input.val(val[0].name);
+                    });
+                }
             });
         };
+
         ViewDefinitions.prototype = new Block;
+
         return ViewDefinitions;
     }
 });

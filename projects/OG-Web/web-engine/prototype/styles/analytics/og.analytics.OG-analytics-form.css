@@ -54,38 +54,21 @@
 .OG-analytics-form div.og-portfolios{
     margin-right: 31px;
     width: 20%;
-    height: 40px;
-    left: 2px;
     top: 5px;
-}
-
-.OG-analytics-form .og-portfolios select[name=portfolio] {
-    border: 1px solid #cccccc;
-    height: 35px;
-    line-height: 35px;
-    position: absolute;
-    top: -3px;
-    width:100%;
-    min-width: 10px;
-}
-
-.OG-analytics-form .og-portfolios .dropdown-list option:hover{
-    background: #bed4e3;
+    left: 2px;
 }
 
 .OG-analytics-form .og-portfolios div:first-child {
-    position: relative;
+    /*position: relative;
     top: 4px;
     left: 2px;
-    right: 21px;
+    right: 21px;*/
 }
 
 .OG-analytics-form .og-portfolios input {
     font-family: 'Open Sans', arial, serif;
     font-size: 26px;
     height: 32px;
-    position: absolute;
-    top:-4px;
     width: 100%;
 }
 
@@ -98,18 +81,8 @@
 /**
  * View
  */
-.OG-analytics-form div.og-view {
+.OG-analytics-form .og-view {
     width: 20%;
-    margin-right: 31px;
-}
-
-.OG-analytics-form .og-view select[name=viewdefinition] {
-    height: 22px;
-    line-height: 22px;
-    position: absolute;
-    top: -4px;
-    width:100%;
-    min-width: 10px;
 }
 
 .OG-analytics-form .og-view:hover input {
@@ -123,24 +96,18 @@
     top: 15px;
 }
 
-.OG-analytics-form .og-view .og-option-title header + div{
-    position: relative;
-}
-
 .OG-analytics-form .og-view input {
     border: none;
     font-family: 'Open Sans', arial, serif;
     font-size: 18px;
     height: 22px;
-    position: absolute;
-    top:-4px;
     width: 100%;
 }
 
-.OG-analytics-form .og-view div.og-icon-down{
+.OG-analytics-form .og-view .og-icon-down{
     height: 22px;
-    right:-19px;
-    top:14px;
+    right:7px;
+    top:16px;
 }
 
 
