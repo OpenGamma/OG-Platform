@@ -17,7 +17,7 @@ $.register_module({
             };
             gadget.resize = function () {try {histogram.resize();} catch (error) {}};
             var prepare_data = function (data) {
-                stripped = data.timeseries.data.reduce(function(a, b){return a.concat(b[1]);}, []);
+                stripped = data.timeseries.data.reduce(function (a, b){return a.concat(b[1]);}, []);
             };
             var histogram_data = function () {
                 var buckets = 50, count = [], maxcount = 0, i = 0, label,
@@ -27,7 +27,7 @@ $.register_module({
                     label = min + (interval * i);
                     count[i] = [label, 0];
                 }
-                $.each(stripped, function(index, value) {
+                $.each(stripped, function (index, value) {
                     if (value == max) return maxcount++;
                     var p = Math.floor((value - min) / interval);
                     count[p][1] = count[p][1] + 1;
