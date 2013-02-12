@@ -7,7 +7,7 @@ $.register_module({
     dependencies: ['og.common.gadgets.manager'],
     obj: function () {
         return function (config) {
-            var gadget = this, histogram, alive = og.common.id('gadget_histogram'), $selector = $(config.selector), 
+            var gadget = this, histogram, alive = og.common.id('gadget_histogram'), $selector = $(config.selector),
             output = {}, stripped;
             $(config.selector).addClass(alive).css({position: 'absolute', top: 0, left: 0, right: 0, bottom: 0});
             gadget.alive = function () {
@@ -28,12 +28,12 @@ $.register_module({
                 min = Math.min.apply(Math, stripped);
                 range = max - min;
                 interval = range/buckets;
-                for (var i = 0; i < buckets; i++) { 
+                for (var i = 0; i < buckets; i++) {
                     var label = min + (interval*i);
                     count[i] = [label , 0];}
                 $.each(stripped, function(index, value){
-                    if (value == max) maxcount++; 
-                    else{                        
+                    if (value == max) maxcount++;
+                    else{
                         var p = Math.floor((value-min)/interval);
                         count[p][1] = count[p][1]  + 1;
                     }
@@ -46,7 +46,7 @@ $.register_module({
                 return (Math.exp(-( (diff*diff) / (2*(sigma*sigma)) ))) / (sigma*constant);
             };
             normpdf_data = function () {
-                var norm = [], diff = 0, sigma, constant = Math.sqrt(2*Math.PI), 
+                var norm = [], diff = 0, sigma, constant = Math.sqrt(2*Math.PI),
                     mu = stripped.reduce(function(a,b){return a+b;})/stripped.length;
                 $.each(stripped, function(index, value){
                     diff +=  (value-mu)*(value-mu);
@@ -66,7 +66,7 @@ $.register_module({
                         prepare_data(data);
                         input = $.extend(true, {}, config,  histogram_data()/*, normpdf_data()*/);
                         histogram = new og.common.gadgets.HistogramPlot(input);
-                    }    
+                    }
                 })
                 .on('fatal', function (message) {$selector.html(message);});
             if (!config.child) og.common.gadgets.manager.register(gadget);
