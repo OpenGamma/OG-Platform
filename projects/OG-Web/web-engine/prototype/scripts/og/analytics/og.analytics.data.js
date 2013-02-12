@@ -184,7 +184,7 @@ $.register_module({
                         view_id: view_id, grid_type: grid_type, graph_id: graph_id, viewport_id: viewport_id,
                         rows: viewport.rows, cols: viewport.cols, cells: viewport.cells,
                         format: viewport.format, log: viewport.log
-                    })).pipe(function (result) {if (result.error) return;});
+                    })).pipe(function (result) {if (result.error) fire('fatal', data.prefix + result.message);});
                     viewport_version = promise.id;
                 } catch (error) {fire('fatal', data.prefix + error.message);}
                 return data;
