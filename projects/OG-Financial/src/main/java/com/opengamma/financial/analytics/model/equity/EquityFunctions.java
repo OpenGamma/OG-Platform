@@ -14,6 +14,7 @@ import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
 import com.opengamma.engine.function.config.SimpleRepositoryConfigurationSource;
+import com.opengamma.financial.analytics.model.equity.option.EquityVanillaBarrierOptionDistanceFunction;
 import com.opengamma.financial.analytics.model.equity.option.OptionFunctions;
 import com.opengamma.financial.analytics.model.equity.portfoliotheory.PortfolioTheoryFunctions;
 import com.opengamma.financial.analytics.model.equity.varianceswap.VarianceSwapFunctions;
@@ -36,8 +37,11 @@ public class EquityFunctions extends AbstractRepositoryConfigurationBean {
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
     functions.add(functionConfiguration(AffineDividendFunction.class));
     functions.add(functionConfiguration(EquityForwardCurveFunction.class));
+    functions.add(functionConfiguration(EquityForwardCurveFromFutureCurveFunction.class));
     functions.add(functionConfiguration(SecurityMarketPriceFunction.class));
     functions.add(functionConfiguration(EquitySecurityDeltaFunction.class));
+    functions.add(functionConfiguration(EquitySecurityScenarioPnLFunction.class));
+    functions.add(functionConfiguration(EquityVanillaBarrierOptionDistanceFunction.class));
   }
 
   protected RepositoryConfigurationSource futuresFunctionConfiguration() {

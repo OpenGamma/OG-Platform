@@ -32,7 +32,6 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
-import com.opengamma.financial.analytics.model.forex.forward.FXForwardFunction;
 import com.opengamma.financial.currency.ConfigDBCurrencyPairsSource;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.CurrencyPairs;
@@ -56,9 +55,9 @@ public class FXForwardCurveFromYieldCurvesFunction extends AbstractFunction.NonC
         .withAny(ValuePropertyNames.CURVE)
         .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD, ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD)
         .withAny(ValuePropertyNames.PAY_CURVE)
-        .withAny(FXForwardFunction.PAY_CURVE_CALC_CONFIG)
+        .withAny(ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG)
         .withAny(ValuePropertyNames.RECEIVE_CURVE)
-        .withAny(FXForwardFunction.RECEIVE_CURVE_CALC_CONFIG)
+        .withAny(ValuePropertyNames.RECEIVE_CURVE_CALCULATION_CONFIG)
         .get();
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.FORWARD_CURVE, target.toSpecification(), properties);
     return Collections.singleton(spec);
@@ -75,7 +74,7 @@ public class FXForwardCurveFromYieldCurvesFunction extends AbstractFunction.NonC
     if (payCurveNames == null || payCurveNames.size() != 1) {
       return null;
     }
-    final Set<String> payCurveCalculationConfigs = constraints.getValues(FXForwardFunction.PAY_CURVE_CALC_CONFIG);
+    final Set<String> payCurveCalculationConfigs = constraints.getValues(ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG);
     if (payCurveCalculationConfigs == null || payCurveCalculationConfigs.size() != 1) {
       return null;
     }
@@ -83,7 +82,7 @@ public class FXForwardCurveFromYieldCurvesFunction extends AbstractFunction.NonC
     if (receiveCurveNames == null || receiveCurveNames.size() != 1) {
       return null;
     }
-    final Set<String> receiveCurveCalculationConfigs = constraints.getValues(FXForwardFunction.RECEIVE_CURVE_CALC_CONFIG);
+    final Set<String> receiveCurveCalculationConfigs = constraints.getValues(ValuePropertyNames.RECEIVE_CURVE_CALCULATION_CONFIG);
     if (receiveCurveCalculationConfigs == null || receiveCurveCalculationConfigs.size() != 1) {
       return null;
     }
@@ -185,9 +184,9 @@ public class FXForwardCurveFromYieldCurvesFunction extends AbstractFunction.NonC
         .with(ValuePropertyNames.CURVE, fxForwardCurveName)
         .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD, ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD)
         .with(ValuePropertyNames.PAY_CURVE, Iterables.getOnlyElement(payCurveNames))
-        .with(FXForwardFunction.PAY_CURVE_CALC_CONFIG, Iterables.getOnlyElement(payCurveCalculationConfigs))
+        .with(ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG, Iterables.getOnlyElement(payCurveCalculationConfigs))
         .with(ValuePropertyNames.RECEIVE_CURVE, Iterables.getOnlyElement(receiveCurveNames))
-        .with(FXForwardFunction.RECEIVE_CURVE_CALC_CONFIG, Iterables.getOnlyElement(receiveCurveCalculationConfigs))
+        .with(ValuePropertyNames.RECEIVE_CURVE_CALCULATION_CONFIG, Iterables.getOnlyElement(receiveCurveCalculationConfigs))
         .get();
     final ValueSpecification resultSpec = new ValueSpecification(ValueRequirementNames.FORWARD_CURVE, target.toSpecification(), properties);
     return Collections.singleton(new ComputedValue(resultSpec, fxForwardCurve));

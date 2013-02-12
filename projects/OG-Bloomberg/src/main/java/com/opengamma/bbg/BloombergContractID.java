@@ -27,6 +27,7 @@ import org.threeten.bp.Month;
 import org.threeten.bp.format.DateTimeFormatter;
 import org.threeten.bp.format.DateTimeFormatters;
 
+import com.google.common.base.Strings;
 import com.opengamma.bbg.util.BloombergDataUtils;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.security.option.OptionType;
@@ -65,7 +66,9 @@ public class BloombergContractID extends DirectBean {
   public BloombergContractID(String contractCode, String marketSector) {
     ArgumentChecker.notNull(contractCode, "contractCode");
     ArgumentChecker.notNull(marketSector, "marketSector");
-    setContractCode(contractCode);
+    // ticker must be at least 2 characters long - pad with spaces if shorter
+    final String paddedCode = Strings.padEnd(contractCode, 2, ' ');
+    setContractCode(paddedCode);
     setMarketSector(marketSector);
   }
   

@@ -123,6 +123,8 @@ public abstract class AbstractHistoricalMarketDataProvider extends AbstractMarke
       }
       return null;
     } else {
+      // [PLAT-3044] Using hts.getUniqueId means the consuming functions can't find the value correctly
+      // TODO: the code in develop worked with the R examples, this code does not because of the HTS UniqueId issue
       return new ValueSpecification(desiredValue.getValueName(), ComputationTargetSpecification.of(hts.getUniqueId()), ValueProperties.with(ValuePropertyNames.FUNCTION, getSyntheticFunctionName())
           .get());
     }

@@ -265,7 +265,7 @@ public class DbUserMaster
 
   //-------------------------------------------------------------------------
   @Override
-  public AbstractHistoryResult<UserDocument> historyByVersionsCorrections(AbstractHistoryRequest request) {
+  protected AbstractHistoryResult<UserDocument> historyByVersionsCorrections(AbstractHistoryRequest request) {
     UserHistoryRequest historyRequest = new UserHistoryRequest();
     historyRequest.setCorrectionsFromInstant(request.getCorrectionsFromInstant());
     historyRequest.setCorrectionsToInstant(request.getCorrectionsToInstant());

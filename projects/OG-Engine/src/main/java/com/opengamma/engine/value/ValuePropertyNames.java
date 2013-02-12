@@ -112,6 +112,18 @@ public final class ValuePropertyNames {
   public static final String RECEIVE_CURVE = "ReceiveCurve";
 
   /**
+   * The name of the curve calculation configuration used for the pay leg of an instrument (e.g.
+   * an FX forward or a cross-currency swap).
+   */
+  public static final String PAY_CURVE_CALCULATION_CONFIG = "PayCurveCalculationConfig";
+
+  /**
+   * The name of the curve calculation configuration used for the receive leg of an instrument
+   * (e.g. an FX forward or a cross-currency swap).
+   */
+  public static final String RECEIVE_CURVE_CALCULATION_CONFIG = "ReceiveCurveCalculationConfig";
+
+  /**
    * The symbolic name of a surface used to produce a value, valid within the naming context of
    * the function repository containing the function definition used.
    * <p>
@@ -249,4 +261,9 @@ public final class ValuePropertyNames {
    * such that each column may represent, for example, the vega of all positions sensitive to changes in that specific surface
    */
   public static final String UNDERLYING_TICKER = "UnderlyingTicker";
+
+  /**
+   * Controls the number formatting of the barrier distance - e.g. abs, percentage
+   */
+  public static final String BARRIER_DISTANCE_OUTPUT_FORMAT = "BarrierDistanceOutputFormat";
 }

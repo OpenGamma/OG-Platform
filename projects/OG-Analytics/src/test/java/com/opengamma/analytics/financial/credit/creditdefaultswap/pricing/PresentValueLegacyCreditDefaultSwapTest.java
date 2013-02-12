@@ -64,7 +64,7 @@ public class PresentValueLegacyCreditDefaultSwapTest {
   // ----------------------------------------------------------------------------------
 
   // Flag to control if any test results are output to the console
-  private static final boolean outputResults = false;
+  private static final boolean outputResults = true;
 
   // ----------------------------------------------------------------------------------
 
@@ -606,11 +606,17 @@ public class PresentValueLegacyCreditDefaultSwapTest {
 
     // Call the constructors to create a CDS present value object (for the particular type of CDS contract)
     final PresentValueLegacyFixedRecoveryCreditDefaultSwap fixedRecoveryCreditDefaultSwap = new PresentValueLegacyFixedRecoveryCreditDefaultSwap();
+
     final PresentValueLegacyForwardStartingCreditDefaultSwap forwardStartingCreditDefaultSwap = new PresentValueLegacyForwardStartingCreditDefaultSwap();
+
     final PresentValueLegacyMuniCreditDefaultSwap muniCreditDefaultSwap = new PresentValueLegacyMuniCreditDefaultSwap();
+
     final PresentValueLegacyQuantoCreditDefaultSwap quantoCreditDefaultSwap = new PresentValueLegacyQuantoCreditDefaultSwap();
+
     final PresentValueLegacyRecoveryLockCreditDefaultSwap recoveryLockCreditDefaultSwap = new PresentValueLegacyRecoveryLockCreditDefaultSwap();
+
     final PresentValueLegacySovereignCreditDefaultSwap sovereignCreditDefaultSwap = new PresentValueLegacySovereignCreditDefaultSwap();
+
     final PresentValueLegacyVanillaCreditDefaultSwap vanillaCreditDefaultSwap = new PresentValueLegacyVanillaCreditDefaultSwap();
 
     // Calculate the legacy fixed recovery CDS MtM and par spread 

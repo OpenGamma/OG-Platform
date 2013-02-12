@@ -23,7 +23,7 @@ import com.opengamma.engine.value.ValueSpecification;
  * Calculates the present value of an equity index or equity option using the Bjerksund-Stensland (2002) formula.
  */
 public class EquityOptionBjerksundStenslandPresentValueFunction extends EquityOptionBjerksundStenslandFunction {
-  /** The Barone-Adesi Whaley present value calculator */
+  /** The Bjerksund-Stensland present value calculator */
   private static final EqyOptBjerksundStenslandPresentValueCalculator s_calculator = EqyOptBjerksundStenslandPresentValueCalculator.getInstance();
 
   /**

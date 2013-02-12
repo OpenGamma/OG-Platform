@@ -20,7 +20,7 @@ import com.opengamma.web.analytics.JsonTestUtils;
  */
 public class BlotterLookupResourceTest {
 
-  private final BlotterLookupResource _resource = new BlotterLookupResource(BlotterResource.getStringConvert());
+  private final BlotterLookupResource _resource = new BlotterLookupResource(BlotterUtils.getStringConvert());
 
   static {
     // ensure the converters are loaded and registered

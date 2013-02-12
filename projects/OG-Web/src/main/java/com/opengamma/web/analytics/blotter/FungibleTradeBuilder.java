@@ -20,30 +20,52 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.opengamma.DataNotFoundException;
+import com.opengamma.core.security.Security;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
+import com.opengamma.master.portfolio.ManageablePortfolio;
+import com.opengamma.master.portfolio.ManageablePortfolioNode;
+import com.opengamma.master.portfolio.PortfolioDocument;
+import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
+import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.ManageableSecurityLink;
 import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.master.security.impl.MasterSecuritySource;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.OpenGammaClock;
 
 /**
  *
  */
-/* package */ abstract class FungibleTradeBuilder extends AbstractTradeBuilder {
+/* package */ class FungibleTradeBuilder extends AbstractTradeBuilder {
 
-  /* package */ static String TRADE_TYPE_NAME = "FungibleTrade";
+  /** Value for the type name in the JSON for fungible trades */
+  /* package */ static final String TRADE_TYPE_NAME = "FungibleTrade";
 
+  /** Key used in the JSON for the security ID bundle. */
   private static final String SECURITY_ID_BUNDLE = "securityIdBundle";
 
+  /** For loading and saving portfolios and nodes. */
+  private final PortfolioMaster _portfolioMaster;
+  /** For loading and saving securities. */
+  private final MasterSecuritySource _securitySource;
+
   /* package */ FungibleTradeBuilder(PositionMaster positionMaster,
+                                     PortfolioMaster portfolioMaster,
                                      SecurityMaster securityMaster,
                                      Set<MetaBean> metaBeans,
                                      StringConvert stringConvert) {
-    super(positionMaster, securityMaster, metaBeans, stringConvert);
+    super(positionMaster, portfolioMaster, securityMaster, metaBeans, stringConvert);
+    ArgumentChecker.notNull(portfolioMaster, "portfolioMaster");
+    _portfolioMaster = portfolioMaster;
+    _securitySource = new MasterSecuritySource(getSecurityMaster());
   }
 
   /**
@@ -52,9 +74,8 @@ import com.opengamma.util.OpenGammaClock;
    * @param trade The trade
    * @param sink The sink that should be populated with the trade data
    */
-  /* package */ static void extractTradeData(ManageableTrade trade, BeanDataSink<?> sink, StringConvert stringConvert) {
+  /* package */ void extractTradeData(ManageableTrade trade, BeanDataSink<?> sink, StringConvert stringConvert) {
     sink.setValue("type", TRADE_TYPE_NAME);
-    // TODO extract fields into list, use when building trade
     extractPropertyData(trade.uniqueId(), sink);
     extractPropertyData(trade.tradeDate(), sink);
     extractPropertyData(trade.tradeTime(), sink);
@@ -70,10 +91,86 @@ import com.opengamma.util.OpenGammaClock;
     sink.setValue(SECURITY_ID_BUNDLE, converter.convertToString(securityIdBundle));
   }
 
-  private static void extractPropertyData(Property<?> property, BeanDataSink<?> sink) {
-    sink.setValue(property.name(), property.metaProperty().getString(property.bean()));
+  private void extractPropertyData(Property<?> property, BeanDataSink<?> sink) {
+    sink.setValue(property.name(), getStringConvert().convertToString(property.metaProperty().get(property.bean())));
   }
-  /* package */ UniqueId buildAndSaveTrade(BeanDataSource tradeData) {
+
+  /* package */ UniqueId addTrade(BeanDataSource tradeData, UniqueId nodeId) {
+    ManageableTrade trade = buildTrade(tradeData);
+    Security security = trade.getSecurityLink().resolve(_securitySource);
+    // this slightly awkward approach is due to the portfolio master API. you can look up a node directly but in order
+    // to save it you have to save the whole portfolio. this means you need to look up the node to find the portfolio
+    // ID, look up the portfolio, find the node in the portfolio, modify that copy of the node and save the portfolio
+    // TODO can use a portfolio search request and only hit the master once
+    ManageablePortfolioNode node = _portfolioMaster.getNode(nodeId);
+    ManageablePortfolio portfolio = _portfolioMaster.get(node.getPortfolioId()).getPortfolio();
+    ManageablePortfolioNode portfolioNode = findNode(portfolio, nodeId);
+    ManageablePosition position = findPosition(portfolioNode, security);
+    if (position == null) {
+      // no position in this security on the node, create a new position just for this trade
+      ManageablePosition newPosition = new ManageablePosition(trade.getQuantity(), security.getExternalIdBundle());
+      newPosition.addTrade(trade);
+      ManageablePosition savedPosition = getPositionMaster().add(new PositionDocument(newPosition)).getPosition();
+      portfolioNode.addPosition(savedPosition.getUniqueId());
+      _portfolioMaster.update(new PortfolioDocument(portfolio));
+      return savedPosition.getTrades().get(0).getUniqueId();
+    } else {
+      position.addTrade(trade);
+      position.setQuantity(position.getQuantity().add(trade.getQuantity()));
+      ManageablePosition savedPosition = getPositionMaster().update(new PositionDocument(position)).getPosition();
+      List<ManageableTrade> savedTrades = savedPosition.getTrades();
+      return savedTrades.get(savedTrades.size() - 1).getUniqueId();
+    }
+  }
+
+  /* package */ UniqueId updateTrade(BeanDataSource tradeData) {
+    ManageableTrade trade = buildTrade(tradeData);
+    ManageableTrade previousTrade = getPositionMaster().getTrade(trade.getUniqueId());
+    ManageablePosition position = getPositionMaster().get(previousTrade.getParentPositionId()).getPosition();
+    if (!trade.getSecurityLink().equals(previousTrade.getSecurityLink())) {
+      throw new IllegalArgumentException("Cannot update a trade's security. new version " + trade +
+                                             ", previous version: " + previousTrade);
+    }
+    List<ManageableTrade> trades = Lists.newArrayList();
+    for (ManageableTrade existingTrade : position.getTrades()) {
+      if (existingTrade.getUniqueId().equals(trade.getUniqueId())) {
+        trades.add(trade);
+        position.setQuantity(position.getQuantity().subtract(existingTrade.getQuantity()).add(trade.getQuantity()));
+      } else {
+        trades.add(existingTrade);
+      }
+    }
+    position.setTrades(trades);
+    ManageablePosition savedPosition = getPositionMaster().update(new PositionDocument(position)).getPosition();
+    ManageableTrade savedTrade = savedPosition.getTrade(trade.getUniqueId().getObjectId());
+    if (savedTrade == null) {
+      // shouldn't ever happen
+      throw new DataNotFoundException("Failed to save trade " + trade + " to position " + savedPosition);
+    } else {
+      return savedTrade.getUniqueId();
+    }
+  }
+
+  /**
+   * Returns a position from a node in a security or null if there isn't one.
+   * @param node A portfolio node
+   * @param security The security
+   * @return A position from the node in the security or null if there isn't one
+   */
+  private ManageablePosition findPosition(ManageablePortfolioNode node, Security security) {
+    for (ObjectId positionId : node.getPositionIds()) {
+      // TODO which version do I want? will LATEST do?
+      PositionDocument document = getPositionMaster().get(positionId, VersionCorrection.LATEST);
+      ManageablePosition position = document.getPosition();
+      Security positionSecurity = position.getSecurityLink().resolve(_securitySource);
+      if (positionSecurity.getExternalIdBundle().containsAny(security.getExternalIdBundle())) {
+        return position;
+      }
+    }
+    return null;
+  }
+
+  private ManageableTrade buildTrade(BeanDataSource tradeData) {
     if (!TRADE_TYPE_NAME.equals(tradeData.getBeanTypeName())) {
       throw new IllegalArgumentException("Can only build trades of type " + TRADE_TYPE_NAME +
                                              ", type name = " + tradeData.getBeanTypeName());
@@ -91,34 +188,19 @@ import com.opengamma.util.OpenGammaClock;
                      meta.premiumTime());
     tradeBuilder.set(meta.attributes(), tradeData.getMapValues(meta.attributes().name()));
     String idBundleStr = (String) tradeData.getValue(SECURITY_ID_BUNDLE);
-    // TODO check the security exists and load it if not? and the underlying? what securities have fungible underlying securities?
-    // TODO is a trade's security allowed to change? presumably not
+    // TODO check the security exists and load it if not? and the underlying?
     ExternalIdBundle securityIdBundle = getStringConvert().convertFromString(ExternalIdBundle.class, idBundleStr);
     tradeBuilder.set(meta.securityLink(), new ManageableSecurityLink(securityIdBundle));
+    // this property is done manually so the client can just provide the counterparty name but the counterparty
+    // on the trade is an external ID with the standard counterparty scheme
     String counterparty = (String) tradeData.getValue(COUNTERPARTY);
     if (StringUtils.isEmpty(counterparty)) {
       throw new IllegalArgumentException("Trade counterparty is required");
     }
     tradeBuilder.set(meta.counterpartyExternalId(), ExternalId.of(CPTY_SCHEME, counterparty));
-    ManageableTrade trade = tradeBuilder.build();
-    // TODO need the node ID so we can add the position to the portfolio node
-    ManageablePosition position = getPosition(trade);
-    ManageablePosition savedPosition = savePosition(position);
-    List<ManageableTrade> trades = savedPosition.getTrades();
-    ManageableTrade savedTrade = trades.get(0);
-    return savedTrade.getUniqueId();
+    // TODO validation?
+    return tradeBuilder.build();
   }
-
-  /**
-   * Saves a position to the position master.
-   * @param position The position
-   * @return The saved position
-   */
-  /* package */ abstract ManageablePosition savePosition(ManageablePosition position);
-
-  // TODO need the node ID. if there's an existing position need to add trade to it and adjust the amount
-  /* package */ abstract ManageablePosition getPosition(ManageableTrade trade);
-
   /**
    * Creates a builder for a {@link ManageableTrade} and sets the simple properties from the data source.
    * @param tradeData The trade data
@@ -128,7 +210,7 @@ import com.opengamma.util.OpenGammaClock;
   private BeanBuilder<? extends ManageableTrade> tradeBuilder(BeanDataSource tradeData, MetaProperty<?>... properties) {
     BeanBuilder<? extends ManageableTrade> builder = ManageableTrade.meta().builder();
     for (MetaProperty<?> property : properties) {
-      builder.setString(property, (String) tradeData.getValue(property.name()));
+      builder.set(property, getStringConvert().convertFromString(property.propertyType(), (String) tradeData.getValue(property.name())));
     }
     return builder;
   }

@@ -48,8 +48,7 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
   /* package */ DependencyGraphStructureBuilder(CompiledViewDefinition compiledViewDef,
                                                 ValueSpecification root,
                                                 String calcConfigName,
-                                                ComputationTargetResolver targetResolver,
-                                                ResultsCache cache) {
+                                                ComputationTargetResolver targetResolver) {
     // TODO see [PLAT-2478] this is a bit nasty but will work as long as the engine and web are running in the same VM
     // with this hack in place the user can open a dependency graph before the first set of results arrives
     // and see the graph structure with no values. without this hack the graph would be completely empty.
@@ -100,7 +99,7 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
           nodes.add(newNode);
         }
       }
-      return new AnalyticsNode(nodeStart, _lastRow, Collections.unmodifiableList(nodes));
+      return new AnalyticsNode(nodeStart, _lastRow, Collections.unmodifiableList(nodes), false);
     }
   }
 

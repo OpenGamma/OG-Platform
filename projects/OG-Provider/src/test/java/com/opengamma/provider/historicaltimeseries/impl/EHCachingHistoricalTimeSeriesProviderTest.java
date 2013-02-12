@@ -50,7 +50,7 @@ public class EHCachingHistoricalTimeSeriesProviderTest {
 
   @BeforeMethod
   public void setUp() {
-    _cacheManager = new CacheManager();
+    _cacheManager = CacheManager.newInstance();
     _underlyingProvider = mock(HistoricalTimeSeriesProvider.class);
     _cachingProvider = new EHCachingHistoricalTimeSeriesProvider(_underlyingProvider, _cacheManager);
   }

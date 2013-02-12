@@ -66,7 +66,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
-import com.opengamma.financial.analytics.PositionScalingFunction;
+import com.opengamma.financial.analytics.PositionOrTradeScalingFunction;
 import com.opengamma.financial.analytics.PropertyPreservingFunction;
 import com.opengamma.financial.analytics.SummingFunction;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -223,7 +223,7 @@ public class DefaultPropertyFunctionsTest {
     functions.addFunction(new AggregationDefaultPropertyFunction("Present Value", SummingFunction.AGGREGATION_STYLE_FULL));
     // Basic scaling and aggregation
     functions.addFunction(new SummingFunction("Present Value"));
-    functions.addFunction(new PositionScalingFunction("Present Value"));
+    functions.addFunction(new PositionOrTradeScalingFunction("Present Value"));
     functions.addFunction(new TradeScalingFunction("Present Value"));
     // Mock PV function
     functions.addFunction(new MockPVFunction());

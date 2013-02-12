@@ -366,7 +366,10 @@ public class CurrencyMatrixSourcingFunction extends AbstractFunction.NonCompiled
           }
           return fxRate;
         } else {
-          throw new IllegalArgumentException(valueRequirement.toString());
+          if (marketValue == null) {
+            throw new IllegalArgumentException("Null time series for " + valueRequirement.toString());
+          }
+          throw new IllegalArgumentException("Expected a time series for " + valueRequirement.toString() + ", got " + marketValue.getClass());
         }
       }
 

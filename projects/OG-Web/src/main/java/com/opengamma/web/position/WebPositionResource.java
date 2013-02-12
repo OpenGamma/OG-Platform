@@ -28,6 +28,7 @@ import org.joda.beans.impl.flexi.FlexiBean;
 import com.google.common.base.Objects;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.core.security.Security;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
@@ -169,7 +170,8 @@ public class WebPositionResource extends AbstractWebPositionResource {
     // time-series information is in the wrong place.
     
     ObjectId tsObjectId = null;
-    if (doc.getPosition().getSecurityLink().resolveQuiet(data().getSecuritySource()) != null) {
+    Security security = doc.getPosition().getSecurityLink().resolveQuiet(data().getSecuritySource());
+    if (security != null && !security.getExternalIdBundle().isEmpty()) {
       // Get the last price HTS for the security
       HistoricalTimeSeriesSource htsSource = data().getHistoricalTimeSeriesSource();
       HistoricalTimeSeries series = htsSource.getHistoricalTimeSeries(

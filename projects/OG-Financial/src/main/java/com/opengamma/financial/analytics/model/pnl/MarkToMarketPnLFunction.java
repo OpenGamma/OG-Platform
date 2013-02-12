@@ -45,7 +45,6 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.time.DateUtils;
 
 /**
@@ -92,7 +91,7 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
   @Override
   public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
 
-    final Security security = target.getTrade().getSecurity();
+    final Security security = target.getPositionOrTrade().getSecurity();
     if (FXUtils.isFXSecurity(security)) {
       return false;
     }
@@ -101,7 +100,7 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
   
   @Override
   public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
-    final Security security = target.getTrade().getSecurity();
+    final Security security = target.getPositionOrTrade().getSecurity();
     
     // 1. Get inputs
     Double livePrice = null;
@@ -143,7 +142,7 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
    
     // 2. Scale by Trade Notionals and Quantity 
     
-    // Some SecurityType have Notional values built-in. Scale by these if required.
+    // Some SecurityType's have Notional values built-in. Scale by these if required.
     if (security instanceof FutureSecurity) {
       final FutureSecurity futureSecurity = (FutureSecurity) security;
       dailyValueMove = dailyValueMove * futureSecurity.getUnitAmount();
@@ -156,7 +155,6 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
     }
     // Finally, multiply by the Trade's Quantity
     final Double dailyPnL = target.getTrade().getQuantity().doubleValue() * dailyValueMove;
-    CurrencyAmount pnlCcy = CurrencyAmount.of(FinancialSecurityUtils.getCurrency(security), dailyPnL); 
 
     // 3. Get Spec and Return
     final ValueRequirement desiredValue = desiredValues.iterator().next();
@@ -204,7 +202,7 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
   public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
     
     // Security's Market Value. We scale up by Notionals and Quantities during execute()
-    final Security security = target.getTrade().getSecurity();
+    final Security security = target.getPositionOrTrade().getSecurity();
     final ValueRequirement securityValue = new ValueRequirement(s_valReqPriceLive, ComputationTargetType.SECURITY, security.getUniqueId());
     final Set<ValueRequirement> requirements = Sets.newHashSet(securityValue);
     // TimeSeries - Closing prices and Cost of Carry
@@ -276,7 +274,7 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
   
   protected ValueProperties.Builder createValueProperties(final ComputationTarget target) {
     final ValueProperties.Builder properties = createValueProperties();
-    final Currency ccy = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity());
+    final Currency ccy = FinancialSecurityUtils.getCurrency(target.getPositionOrTrade().getSecurity());
     if (ccy != null) {
       properties.with(ValuePropertyNames.CURRENCY, ccy.getCode());
     }
