@@ -28,7 +28,7 @@ $.register_module({
                 var selectedIndex,
                     select = $('#' + form.id + ' select[name=' + index + ']').searchable().hide(),
                     list = select.siblings('select').addClass('dropdown-list'),
-                    input = select.siblings('input').attr('placeholder', 'Select..'),
+                    input = select.siblings('input').attr('placeholder', 'Select..').select(), // Temp
                     toggle = select.parent().siblings('.og-icon-down');
 
                 if (select.val() !== '') input.val(select.find("option:selected").text());

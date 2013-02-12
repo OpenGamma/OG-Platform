@@ -8,7 +8,6 @@
     position: relative;
 }
 
-.OG-analytics-form .og-portfolios,
 .OG-analytics-form .og-view,
 .OG-analytics-form .og-datasources,
 .OG-analytics-form .og-optional,
@@ -362,4 +361,21 @@
 .OG-analytics-form .og-load,
 .OG-analytics-form .og-status{
     margin-right: 10px;
+}
+
+/** TEMP **/
+
+.OG-analytics-form .og-portfolios,
+.OG-analytics-form .og-optional .og-temporal,
+.OG-analytics-form .og-optional .og-filters{
+    display: none;
+}
+
+.OG-analytics-form .og-optional {
+    min-width: 100px;
+    width:10%;
+}
+
+.OG-analytics-form .og-aggregation{
+    margin:0;
 }
