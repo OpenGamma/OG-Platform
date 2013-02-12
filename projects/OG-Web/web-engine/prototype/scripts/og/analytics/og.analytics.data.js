@@ -131,9 +131,11 @@ $.register_module({
                     .get({view_id: view_id, grid_type: 'primitives'});
                 $.when(port_request, prim_request).then(function (port_struct, prim_struct) {
                     var portfolio = port_struct.data &&
-                            !!(port_struct.data[ROOT] ? port_struct.data[ROOT][1] : port_struct.data[ROWS]),
+                            !!(port_struct.data[ROOT] && port_struct.data[ROOT].length ? port_struct.data[ROOT][1] + 1
+                                : port_struct.data[ROWS]),
                         primitives = prim_struct.data &&
-                            !!(prim_struct.data[ROOT] ? prim_struct.data[ROOT][1] : prim_struct.data[ROWS]);
+                            !!(prim_struct.data[ROOT] && prim_struct.data[ROOT].length ? prim_struct.data[ROOT][1] + 1
+                                : prim_struct.data[ROWS]);
                     if (!grid_type)
                         grid_type = source.type = portfolio ? 'portfolio' : primitives ? 'primitives' : grid_type;
                     api.grid.structure
