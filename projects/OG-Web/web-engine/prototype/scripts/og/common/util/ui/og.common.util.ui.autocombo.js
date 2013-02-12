@@ -13,67 +13,49 @@ $.register_module({
          * @param {Object} obj configuration object,
          * selector (String) and data (Array) are required, placeholder (String) is optional
          */
-        return function (selector, placeholder, data, input_val) {
+        return function (config) {
             var combo = this, d, replace_val;
 
-            if (!selector || typeof selector !== 'string')
+            if (!config.selector || typeof config.selector !== 'string')
                 return og.dev.warn('og.common.util.ui.AutoCombo: Missing or invalid param [selector]');
 
-            if (!placeholder || typeof placeholder !== 'string')
+            if (!config.placeholder || typeof config.placeholder !== 'string')
                 return og.dev.warn('og.common.util.ui.AutoCombo: Missing or invalid param [placeholder]');
 
-            if (!data) return og.dev.warn('og.common.util.ui.AutoCombo: Missing param [data]');
+            if (!config.source || typeof config.source !== 'function')
+                return og.dev.warn('og.common.util.ui.AutoCombo: Missing or invalid param [function]');
 
-            if (!$.isArray(data))
-                return og.dev.warn('og.common.util.ui.AutoCombo: Invalid type param [data]; expected object');
-
-            if (!data.length) og.dev.warn('og.common.util.ui.AutoCombo: Empty array param [data]');
-
-            d = data.sort((function(){
-                return function (a, b) {return (a === b ? 0 : (a < b ? -1 : 1));};
-            })());
             var replace_placeholder = function (event) {
                 if (event.type === 'keydown' && (event.which !== 40 && event.which !== 38)) return;
                 var val = combo.$input.val().replace(/<(|\/)strong>/gi, "");
                 combo.$input.val(val);
             };
+
             combo.state = 'blurred';
             combo.init_blurkill = false;
+
             combo.open = function () {
                 if ('$input' in combo && combo.$input) combo.$input.autocomplete('search', '').select();
             };
-            combo.placeholder = placeholder || '';
-            combo.autocomplete_obj = { // TODO AG: move into og.analytics.form
-                minLength: 0, delay: 0,
+
+            combo.placeholder = config.placeholder || '';
+            combo.autocomplete_obj = {
+                minLength: 0,
+                delay: 0,
                 open: function(event) {},
-                source: function (req, res) {
-                    var escaped = $.ui.autocomplete.escapeRegex(req.term),
-                        matcher = new RegExp(escaped, 'i'),
-                        htmlize = function (str) {
-                            return !req.term ? str : str.replace(
-                                new RegExp(
-                                    '(?![^&;]+;)(?!<[^<>]*)(' + escaped + ')(?![^<>]*>)(?![^&;]+;)', 'gi'
-                                ), '<strong>$1</strong>'
-                            );
-                        };
-                    if (d && d.length) {
-                        res(d.reduce(function (acc, val) {
-                            if (!req.term || val && matcher.test(val)) acc.push({label: htmlize(val)});
-                            return acc;
-                        }, []));
-                    }
-                },
+                source: config.source || $.noop,
                 close: replace_placeholder,
                 focus: replace_placeholder
             };
+
             // wrap input in div, enable input width 100% of parent, FF, IE
-            combo.$wrapper = $('<div>').html('<input type="text">');
+            combo.$wrapper = $('<div class="autocomplete-cntr">').html('<input type="text">');
             combo.$input = combo.$wrapper.find('input');
             combo.$button = $('<div class="OG-icon og-icon-down"></div>');
             if (combo.$input && combo.$button) {
                 combo.$input
                     .autocomplete(combo.autocomplete_obj)
-                    .attr('placeholder', placeholder)
+                    .attr('placeholder', config.placeholder)
                     .on('mouseup', combo.open)
                     .on('mousedown', function (event) {
                         var ac = this;
@@ -89,7 +71,7 @@ $.register_module({
                     })
                     .on('blur', function () {
                         combo.state = 'blurred';
-                        if (combo.$input && combo.$input.val() === placeholder) combo.$input.val('');
+                        if (combo.$input && combo.$input.val() === config.placeholder) combo.$input.val('');
                     })
                     .on('keydown', replace_placeholder)
                     .on('focus', function () {
@@ -106,8 +88,9 @@ $.register_module({
                     return combo.$input.autocomplete('widget').is(':visible') ?
                         combo.$input.autocomplete('close').select() : combo.open();
                 });
-                $([combo.$wrapper, combo.$button]).prependTo(selector);
-                if (input_val) combo.$input.val(input_val);
+                $([combo.$wrapper, combo.$button]).appendTo(config.selector);
+                if (config.input_val) combo.$input.val(config.input_val);
+                og.common.events.fire(config.selector+':autocombo:initialized');
             }
             return combo;
         };

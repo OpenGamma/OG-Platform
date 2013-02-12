@@ -139,6 +139,7 @@ $.register_module({
                 else {
                     if (id === void 0) id = live_id;
                     tabs = gadgets.reduce(function (acc, val, idx) {
+                        
                         return acc.push({
                             'gadget_type': val.config.gadget_type, 'row_name': val.config.row_name, 'delete': true,
                             'col_name': val.config.col_name, 'active': gadgets[idx].active = id === val.id,
@@ -152,7 +153,7 @@ $.register_module({
                             depgraph = val.gadget.config.options.source.depgraph,
                             tmpl_data = og.common.gadgets.mapping.available_types(val.data_type, depgraph);
                         menu_template = typemenu_template(tmpl_data);
-                        menu_config = {$cntr: $('.og-tab-' + val.id + ' .OG-multiselect'), tmpl: menu_template};
+                        menu_config = {cntr: $('.og-tab-' + val.id + ' .OG-multiselect'), tmpl: menu_template};
                         menu = new og.common.util.ui.DropMenu(menu_config);
                         menu.$dom.toggle.on('mousedown', function () {
                             menu.toggle_handler();
@@ -175,7 +176,7 @@ $.register_module({
                                 row_name: val.gadget.config.row_name
                             };
                             if (false !== container.fire('swap', swap_config, val.gadget_index))
-                                container.add([swap_config], val.gadget_index, true);
+                                container.add([swap_config], val.gadget_index);
                             return false;
                         });
                         menu.$dom.toggle.html($icon);
@@ -194,13 +195,14 @@ $.register_module({
              *     obj.name     String
              *     obj.margin   Boolean
              */
-            container.add = function (data, index, swap) {
+            container.add = function (data, index) {
                 var panel_container = selector + ' .OG-gadget-container', new_gadgets;
                 if (!loading && !initialized)
                     return container.init(), setTimeout(container.add.partial(data, index), 10), container;
                 if (!initialized) return setTimeout(container.add.partial(data, index), 10), container;
                 if (!data) return container; // no gadgets for this container
                 if (!selector) throw new TypeError('GadgetsContainer has not been initialized');
+
                 new_gadgets = data.map(function (obj, idx) {
                     var id, gadget_class = 'OG-gadget-' + (id = counter++), gadget,
                         options = $.extend(true, obj.options || {}, {selector: panel_container + ' .' + gadget_class}),
@@ -221,7 +223,7 @@ $.register_module({
                     if (obj.fingerprint) gadget.fingerprint = obj.fingerprint;
                     return gadget;
                 });
-                if (!swap) update_tabs(new_gadgets[new_gadgets.length - 1].id);
+                update_tabs(new_gadgets[new_gadgets.length - 1].id);
                 return container;
             };
             container.alive = function () {

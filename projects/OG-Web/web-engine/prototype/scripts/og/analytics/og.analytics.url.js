@@ -12,7 +12,8 @@ $.register_module({
         var go = function () {
             og.api.rest.compressor.put({content: last_object, dependencies: ['data']}).pipe(function (result) {
                 var current = routes.current(),
-                    hash = routes.hash(og.views.analytics2.rules.load_item, {data: result.data.data});
+                    hash = routes.hash(og.views[og.analytics.blotter ? 'blotter' : 'analytics2']
+                        .rules.load_item, {data: result.data.data});
                 if (current.hash === hash) return url.process(current.args);
                 routes.go(hash);
             });
@@ -38,27 +39,40 @@ $.register_module({
                 return (last_object.main = params), go(), url;
             },
             process: function (args, handler) {
-                og.api.rest.compressor.get({content: args.data, dependencies: ['data']}).pipe(function (result) {
-                    var config = result.data.data, current_main;
+                $.when(args.data ? og.api.rest.compressor.get({content: args.data, dependencies: ['data']}) : void 0)
+                .then(function (result) {
+                    var config = result ? result.data.data : {}, current_main;
                     panels.forEach(function (panel) {delete last_object[panel];});
                     if (config.main && last_fingerprint.main !== (current_main = JSON.stringify(config.main))) {
+                        new og.analytics.Form2({callback: og.analytics.url.main, data: config.main});
                         if (og.analytics.grid) og.analytics.grid.kill();
                         last_object.main = JSON.parse(last_fingerprint.main = current_main);
                         og.analytics.grid = new og.analytics.Grid({
-                            selector: main_selector, cellmenu: true,
-                            source: $.extend({}, last_object.main), show_save: og.analytics.blotter
+                            selector: main_selector, cellmenu: true, show_save: og.analytics.blotter,
+                            source: $.extend({blotter: og.analytics.blotter}, last_object.main)
                         }).on('viewchange', function (view) {
                             url.main($.extend({}, og.analytics.grid.source, {type: view}));
                         }).on('fatal', url.clear_main);
                         if (og.analytics.blotter) og.analytics.grid.on('contextmenu', function (event, cell, col) {
                            if (cell) return og.common.util.ui.contextmenu({
                                defaults: true, zindex: 4, items: [
-                                   {name: 'Insert', callback: function () {new og.blotter.Dialog()}},
-                                   {name: 'Edit', callback: $.noop}
+                                   {name: 'Insert', handler: function () {
+                                    new og.blotter.Dialog({portfolio:{name: cell.row_value.nodeId, 
+                                        id: cell.row_value.nodeId}});
+                                }},
+                                   {name: 'Edit', handler: function () {
+                                        og.api.rest.blotter.trades.get({id: cell.row_value.tradeId})
+                                            .pipe(function(data){new og.blotter.Dialog({details: data, 
+                                                portfolio:{name: cell.row_value.nodeId, id: cell.row_value.nodeId}});
+                                            });
+                                   }}
                                ]
                            }, event, cell);
                         });
+                    } else {
+                        new og.analytics.Form2({callback: og.analytics.url.main, data: config.main});
                     }
+                    if (!config.main) {new og.analytics.Form2({ callback: og.analytics.url.main });}
                     panels.forEach(function (panel) {
                         var gadgets = config[panel], new_gadgets = [];
                         if (!gadgets || !gadgets.length)

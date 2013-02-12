@@ -7,12 +7,13 @@ $.register_module({
     dependencies: [],
     obj: function () {   
         return function (config) {
-            var constructor = this, form, ui = og.common.util.ui, pay_block, receive_block, pay_select, receive_select,
+            var constructor = this, form, ui = og.common.util.ui, data, pay_block, receive_block, pay_select, receive_select,
                 pay_index = og.common.id('pay'), receive_index = og.common.id('receive'), pay_leg = 'security.payLeg.', 
                 receive_leg = 'security.receiveLeg.', $pay_select, $receive_select;
-            if(config) {data = config; data.id = config.trade.uniqueId;}
-            else {data = {security: {type: "SwapSecurity", name: "SwapSecurity ABC", 
-                regionId: 'ABC~123', externalIdBundle: ""}, trade: og.blotter.util.otc_trade};} 
+            if(config.details) {data = config.details.data; data.id = config.details.data.trade.uniqueId;}
+            else {data = {security: {type: "SwapSecurity", regionId: 'ABC~123', externalIdBundle: "", attributes: {}}, 
+                trade: og.blotter.util.otc_trade};}
+            data.nodeId = config.portfolio.id;
             constructor.load = function () {
                 constructor.title = 'Swap';
                 form = new og.common.util.ui.Form({
@@ -28,10 +29,12 @@ $.register_module({
                         data.security.receiveLeg.regionId = 'ABC~123';
                         data.security.payLeg.notional.type = 'InterestRateNotional';
                         data.security.receiveLeg.notional.type = 'InterestRateNotional';
+                        data.security.name = og.blotter.util.create_name(data);
                     }
                 });
                 form.children.push(
-                    new og.blotter.forms.blocks.Portfolio({form: form, counterparty: data.trade.counterparty}),
+                    new og.blotter.forms.blocks.Portfolio({form: form, counterparty: data.trade.counterparty, 
+                        portfolio: data.nodeId, tradedate: data.trade.tradeDate}),
                     new form.Block({
                         module: 'og.blotter.forms.blocks.swap_quick_entry_tash'
                     }),
@@ -61,6 +64,7 @@ $.register_module({
                     og.blotter.util.add_datetimepicker("security.tradeDate");
                     og.blotter.util.add_datetimepicker("security.effectiveDate");
                     og.blotter.util.add_datetimepicker("security.maturityDate");
+                    og.blotter.util.add_datetimepicker("trade.tradeDate");
                     if(typeof data.security.payLeg != 'undefined') {
                         swap_leg({type: data.security.payLeg.type, index: pay_index, leg: pay_leg, child: 4,
                             pay_edit: true});

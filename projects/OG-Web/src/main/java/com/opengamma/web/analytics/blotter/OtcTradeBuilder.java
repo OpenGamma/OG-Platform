@@ -21,8 +21,10 @@ import org.threeten.bp.ZonedDateTime;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.opengamma.core.security.Security;
+import com.opengamma.core.security.SecurityLink;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.portfolio.ManageablePortfolio;
@@ -39,6 +41,8 @@ import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.ManageableSecurityLink;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.master.security.SecuritySearchRequest;
+import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.OpenGammaClock;
 
@@ -101,6 +105,16 @@ import com.opengamma.util.OpenGammaClock;
     return savedTrade.getUniqueId();
   }
 
+  /* package */ UniqueId updatePosition(UniqueId positionId,
+                                        BeanDataSource tradeData,
+                                        BeanDataSource securityData,
+                                        BeanDataSource underlyingData) {
+    ManageableTrade trade = buildTrade(tradeData);
+    ManageablePosition position = getPositionMaster().get(positionId).getPosition();
+    ManageableSecurity previousSecurity = loadSecurity(position.getSecurityLink());
+    return updateSecuritiesAndPosition(securityData, underlyingData, trade, previousSecurity, positionId);
+  }
+
   /* package */ UniqueId updateTrade(BeanDataSource tradeData,
                                      BeanDataSource securityData,
                                      BeanDataSource underlyingData) {
@@ -112,18 +126,53 @@ import com.opengamma.util.OpenGammaClock;
     validate:
       underlying is present
       underlying type is correct
-      trade's security type hasn't changed
+      security type hasn't changed
       trade ID is versioned
     */
     ManageableTrade trade = buildTrade(tradeData);
     ManageableTrade previousTrade = getPositionMaster().getTrade(trade.getUniqueId());
-    ManageableSecurity previousSecurity =
-        getSecurityMaster().get(previousTrade.getSecurityLink().getObjectId(), VersionCorrection.LATEST).getSecurity();
+    ManageableSecurity previousSecurity = loadSecurity(previousTrade.getSecurityLink());
+    UniqueId previousPositionId = previousTrade.getParentPositionId();
+    return updateSecuritiesAndPosition(securityData, underlyingData, trade, previousSecurity, previousPositionId);
+  }
 
-    ManageableSecurity underlying = buildUnderlying(underlyingData);
+  private ManageableSecurity loadSecurity(SecurityLink securityLink) {
+    if (securityLink.getObjectId() != null) {
+      return getSecurityMaster().get(securityLink.getObjectId(), VersionCorrection.LATEST).getSecurity();
+    } else if (securityLink.getExternalId() != null) {
+      ExternalIdBundle idBundle = securityLink.getExternalId();
+      SecuritySearchResult searchResult = getSecurityMaster().search(new SecuritySearchRequest(idBundle));
+      if (searchResult.getSecurities().isEmpty()) {
+        throw new IllegalArgumentException("No security found for ID bundle " + idBundle);
+      }
+      return searchResult.getFirstSecurity();
+    } else {
+      throw new IllegalArgumentException("No IDs in security link " + securityLink);
+    }
+  }
+
+  private UniqueId updateSecuritiesAndPosition(BeanDataSource securityData,
+                                               BeanDataSource underlyingData,
+                                               ManageableTrade trade,
+                                               ManageableSecurity previousSecurity,
+                                               UniqueId positionId) {
+    // need the previous underlying so we don't lose the ID bundle, the data doesn't contain it
+    ExternalIdBundle previousUnderlyingIdBundle;
+    if (previousSecurity instanceof FinancialSecurity) {
+      UnderlyingSecurityVisitor visitor = new UnderlyingSecurityVisitor(VersionCorrection.LATEST, getSecurityMaster());
+      ManageableSecurity previousUnderlying = ((FinancialSecurity) previousSecurity).accept(visitor);
+      if (previousUnderlying != null) {
+        previousUnderlyingIdBundle = previousUnderlying.getExternalIdBundle();
+      } else {
+        previousUnderlyingIdBundle = ExternalIdBundle.EMPTY;
+      }
+    } else {
+      previousUnderlyingIdBundle = ExternalIdBundle.EMPTY;
+    }
+    ManageableSecurity underlying = buildUnderlying(underlyingData, previousUnderlyingIdBundle);
     ManageableSecurity security;
     if (underlying == null) {
-      security = BlotterUtils.buildSecurity(securityData);
+      security = BlotterUtils.buildSecurity(securityData, previousSecurity.getExternalIdBundle());
     } else {
       // need to set the unique ID to the ID from the previous version, securities aren't allowed to change
       // any changes in the security data are interpreted as edits to the security
@@ -131,7 +180,7 @@ import com.opengamma.util.OpenGammaClock;
       validateSecurity(underlying, previousUnderlying);
       underlying.setUniqueId(previousUnderlying.getUniqueId());
       ManageableSecurity savedUnderlying = getSecurityMaster().update(new SecurityDocument(underlying)).getSecurity();
-      security = buildSecurity(securityData, savedUnderlying);
+      security = buildSecurity(securityData, savedUnderlying, previousSecurity.getExternalIdBundle());
     }
     // need to set the unique ID to the ID from the previous version, securities aren't allowed to change
     // any changes in the security data are interpreted as edits to the security
@@ -139,7 +188,7 @@ import com.opengamma.util.OpenGammaClock;
     security.setUniqueId(previousSecurity.getUniqueId());
     ManageableSecurity savedSecurity = getSecurityMaster().update(new SecurityDocument(security)).getSecurity();
     trade.setSecurityLink(new ManageableSecurityLink(savedSecurity.getUniqueId()));
-    ManageablePosition position = getPositionMaster().get(previousTrade.getParentPositionId()).getPosition();
+    ManageablePosition position = getPositionMaster().get(positionId).getPosition();
     position.setTrades(Lists.newArrayList(trade));
     ManageablePosition savedPosition = getPositionMaster().update(new PositionDocument(position)).getPosition();
     ManageableTrade savedTrade = savedPosition.getTrades().get(0);
@@ -190,7 +239,7 @@ import com.opengamma.util.OpenGammaClock;
     tradeBuilder.set(meta.securityLink(), new ManageableSecurityLink());
     String counterparty = (String) tradeData.getValue(COUNTERPARTY);
     if (StringUtils.isEmpty(counterparty)) {
-      throw new IllegalArgumentException("Trade counterparty is required");
+      counterparty = DEFAULT_COUNTERPARTY;
     }
     tradeBuilder.set(meta.counterpartyExternalId(), ExternalId.of(CPTY_SCHEME, counterparty));
     return tradeBuilder.build();
@@ -212,7 +261,16 @@ import com.opengamma.util.OpenGammaClock;
     extractPropertyData(trade.premiumDate(), sink);
     extractPropertyData(trade.premiumTime(), sink);
     sink.setMap(trade.attributes().name(), trade.getAttributes());
-    sink.setValue(COUNTERPARTY, trade.getCounterpartyExternalId().getValue());
+    // this shouldn't be necessary as counterparty ID isn't nullable but there's a bug in the implementation of
+    // ManageableTrade which allows null values
+    ExternalId counterpartyId = trade.getCounterpartyExternalId();
+    String counterpartyValue;
+    if (counterpartyId != null) {
+      counterpartyValue = counterpartyId.getValue();
+    } else {
+      counterpartyValue = null;
+    }
+    sink.setValue(COUNTERPARTY, counterpartyValue);
   }
 
   private void extractPropertyData(Property<?> property, BeanDataSink<?> sink) {
@@ -235,6 +293,10 @@ import com.opengamma.util.OpenGammaClock;
   }
 
   private FinancialSecurity buildSecurity(BeanDataSource securityData, Security underlying) {
+    return buildSecurity(securityData, underlying, ExternalIdBundle.EMPTY);
+  }
+
+  private FinancialSecurity buildSecurity(BeanDataSource securityData, Security underlying, ExternalIdBundle idBundle) {
     ArgumentChecker.notNull(underlying, "underlying");
     BeanDataSource dataSource;
     ExternalId underlyingId = getUnderlyingId(underlying);
@@ -245,14 +307,18 @@ import com.opengamma.util.OpenGammaClock;
     }
     // TODO I'm not keen on this, it doesn't smell great
     dataSource = new PropertyReplacingDataSource(securityData, "underlyingId", underlyingId.toString());
-    return BlotterUtils.buildSecurity(dataSource);
+    return BlotterUtils.buildSecurity(dataSource, idBundle);
   }
 
   private FinancialSecurity buildUnderlying(BeanDataSource underlyingData) {
+    return buildUnderlying(underlyingData, ExternalIdBundle.EMPTY);
+  }
+
+  private FinancialSecurity buildUnderlying(BeanDataSource underlyingData, ExternalIdBundle idBundle) {
     if (underlyingData == null) {
       return null;
     }
-    return BlotterUtils.buildSecurity(underlyingData);
+    return BlotterUtils.buildSecurity(underlyingData, idBundle);
   }
 
   private ExternalId getUnderlyingId(Security underlying) {

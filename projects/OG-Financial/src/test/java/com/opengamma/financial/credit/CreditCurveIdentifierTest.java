@@ -19,41 +19,45 @@ import com.opengamma.util.money.UnorderedCurrencyPair;
  *
  */
 public class CreditCurveIdentifierTest {
-  private static final String ISSUER_ID = "ABC";
+  private static final String RED_CODE = "ABC";
+  private static final Currency CURRENCY = Currency.of("USD");
+  private static final String TERM = "1Y";
   private static final String SENIORITY = "SENIOR";
   private static final String RESTRUCTURING_CLAUSE = "NONE";
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullIssuer() {
-    CreditCurveIdentifier.of((String) null, SENIORITY, RESTRUCTURING_CLAUSE);
+    CreditCurveIdentifier.of((String) null, CURRENCY, TERM, SENIORITY, RESTRUCTURING_CLAUSE);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSeniority() {
-    CreditCurveIdentifier.of(ISSUER_ID, null, RESTRUCTURING_CLAUSE);
+    CreditCurveIdentifier.of(RED_CODE, CURRENCY, TERM, null, RESTRUCTURING_CLAUSE);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullRestructuringClause() {
-    CreditCurveIdentifier.of(ISSUER_ID, SENIORITY, null);
+    CreditCurveIdentifier.of(RED_CODE, CURRENCY, TERM, SENIORITY, null);
   }
 
   @Test
   public void testEqualsHashCode() {
-    final CreditCurveIdentifier id = CreditCurveIdentifier.of(ISSUER_ID, SENIORITY, RESTRUCTURING_CLAUSE);
-    assertEquals(id.getIssuer(), ISSUER_ID);
+    final CreditCurveIdentifier id = CreditCurveIdentifier.of(RED_CODE, CURRENCY, TERM, SENIORITY, RESTRUCTURING_CLAUSE);
+    assertEquals(id.getRedCode(), RED_CODE);
+    assertEquals(id.getCurrency(), CURRENCY);
+    assertEquals(id.getTerm(), TERM);
     assertEquals(id.getSeniority(), SENIORITY);
     assertEquals(id.getRestructuringClause(), RESTRUCTURING_CLAUSE);
-    CreditCurveIdentifier other = CreditCurveIdentifier.of(ISSUER_ID, SENIORITY, RESTRUCTURING_CLAUSE);
+    CreditCurveIdentifier other = CreditCurveIdentifier.of(RED_CODE, CURRENCY, TERM, SENIORITY, RESTRUCTURING_CLAUSE);
     assertEquals(id, other);
     assertEquals(id.hashCode(), other.hashCode());
     assertFalse(id.equals(null));
     assertFalse(id.equals(UnorderedCurrencyPair.of(Currency.AUD, Currency.CAD)));
-    other = CreditCurveIdentifier.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DEF"), SENIORITY, RESTRUCTURING_CLAUSE);
+    other = CreditCurveIdentifier.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DEF"), CURRENCY, TERM, SENIORITY, RESTRUCTURING_CLAUSE);
     assertFalse(other.equals(id));
-    other = CreditCurveIdentifier.of(ISSUER_ID, RESTRUCTURING_CLAUSE, RESTRUCTURING_CLAUSE);
+    other = CreditCurveIdentifier.of(RED_CODE, CURRENCY, TERM, RESTRUCTURING_CLAUSE, RESTRUCTURING_CLAUSE);
     assertFalse(other.equals(id));
-    other = CreditCurveIdentifier.of(ISSUER_ID, SENIORITY, SENIORITY);
+    other = CreditCurveIdentifier.of(RED_CODE, CURRENCY, TERM, SENIORITY, SENIORITY);
     assertFalse(other.equals(id));
   }
 

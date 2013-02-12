@@ -5,7 +5,7 @@
 .OG-button-save {
     background-color: #6abc6a;
     border: 1px solid;
-    border-color: #76c976 #63b563 #63b563 #76c976;
+    border-color: #76c976 #63b563 #63b563 #93ce93;
     color: #fff;
     cursor: pointer;
     line-height: 13px;
@@ -18,7 +18,7 @@
     background: url(/prototype/images/common/sprites/main-sprite-sheet.png) 0 -75px;
     content: '';
     height: 15px;
-    left: -15px;
+    left: -16px;
     position: absolute;
     top: -1px;
     width: 15px;

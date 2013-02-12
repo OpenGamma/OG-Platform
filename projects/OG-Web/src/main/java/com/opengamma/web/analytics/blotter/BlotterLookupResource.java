@@ -6,6 +6,7 @@
 package com.opengamma.web.analytics.blotter;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -171,6 +172,8 @@ public class BlotterLookupResource {
   @Path("regions")
   @Produces(MediaType.APPLICATION_JSON)
   public String getRegions() {
-    return convertToJsonArray(Country.class, Country.getAvailableCountries().iterator());
+    List<Country> countryList = Lists.newArrayList(Country.getAvailableCountries().iterator());
+    Collections.sort(countryList);
+    return convertToJsonArray(Country.class, countryList.iterator());
   }
 }

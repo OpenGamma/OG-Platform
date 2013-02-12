@@ -8,8 +8,8 @@ $.register_module({
     obj: function () {
         var module = this, Block = og.common.util.ui.Block;
         var Security = function (config) {
-            var block = this, scheme_value, id_value, form = config.form, security = config.security,
-                sec_id = og.common.id("og-blotter-security"), scheme_id = og.common.id("og-blotter-scheme");
+            var block = this, scheme_value, id_value, form = config.form, security = config.security, dropdown,
+            sec_id = og.common.id("og-blotter-security"), scheme_id = og.common.id("og-blotter-scheme");
             if(security){
                 scheme_value = security.split(/~(.+)/)[0];
                 id_value  = security.split(/~(.+)/)[1]; 
@@ -18,7 +18,7 @@ $.register_module({
                 module: 'og.blotter.forms.blocks.security_tash', 
                 extras: {label: config.label, sec_id: sec_id, value: id_value},
                 children: [
-                    new og.common.util.ui.Dropdown({
+                    dropdown = new og.common.util.ui.Dropdown({
                         form: form, resource: 'blotter.idschemes', index: scheme_id,
                         value: scheme_value, placeholder: 'Select Scheme',
                         data_generator: function (handler) {
@@ -39,6 +39,15 @@ $.register_module({
                     delete data[scheme_id];
                 }
             });
+            block.name = function () {
+                return  $(this.select_id()).val().trim() + '~' +  $(this.input_id()).val().trim();
+            };
+            block.input_id = function () {
+                return '#' + sec_id;
+            };
+            block.select_id = function () {
+                return '#' + dropdown.id;
+            };
         };
         Security.prototype = new Block(); // inherit Block prototype
         return Security;

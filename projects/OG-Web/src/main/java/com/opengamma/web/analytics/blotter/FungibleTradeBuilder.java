@@ -85,7 +85,16 @@ import com.opengamma.util.OpenGammaClock;
     extractPropertyData(trade.premiumTime(), sink);
     extractPropertyData(trade.quantity(), sink);
     sink.setMap(trade.attributes().name(), trade.getAttributes());
-    sink.setValue(COUNTERPARTY, trade.getCounterpartyExternalId().getValue());
+    // this shouldn't be necessary as counterparty ID isn't nullable but there's a bug in the implementation of
+    // ManageableTrade which allows null values
+    ExternalId counterpartyId = trade.getCounterpartyExternalId();
+    String counterpartyValue;
+    if (counterpartyId != null) {
+      counterpartyValue = counterpartyId.getValue();
+    } else {
+      counterpartyValue = null;
+    }
+    sink.setValue(COUNTERPARTY, counterpartyValue);
     ExternalIdBundle securityIdBundle = trade.getSecurityLink().getExternalId();
     StringConverter<ExternalIdBundle> converter = stringConvert.findConverter(ExternalIdBundle.class);
     sink.setValue(SECURITY_ID_BUNDLE, converter.convertToString(securityIdBundle));
@@ -123,6 +132,29 @@ import com.opengamma.util.OpenGammaClock;
     }
   }
 
+  /**
+   * Updates a position directly. This is only allowed for positions with no trades. The position's size is changed
+   * to match the quantity in the trade details and a single trade is created for the position.
+   * @param tradeData Trade data for the position
+   * @param positionId Unique ID of the position
+   */
+  /* package */ void updatePosition(BeanDataSource tradeData, UniqueId positionId) {
+    ManageableTrade trade = buildTrade(tradeData);
+    // TODO check if the ID is versioned?
+    ManageablePosition position = getPositionMaster().get(positionId).getPosition();
+    if (!trade.getSecurityLink().equals(position.getSecurityLink())) {
+      throw new IllegalArgumentException("Cannot update a position's security. new version " + trade.getSecurityLink() +
+                                             ", previous version: " + position.getSecurityLink());
+    }
+    if (position.getTrades().size() != 0) {
+      throw new IllegalArgumentException("Cannot directly update a position that contains trade. Update the trades");
+    }
+    position.setTrades(Lists.newArrayList(trade));
+    position.setQuantity(trade.getQuantity());
+    getPositionMaster().update(new PositionDocument(position)).getPosition();
+  }
+
+  // TODO would it make more sense to have a void return type? does the client use the returned ID?
   /* package */ UniqueId updateTrade(BeanDataSource tradeData) {
     ManageableTrade trade = buildTrade(tradeData);
     ManageableTrade previousTrade = getPositionMaster().getTrade(trade.getUniqueId());
@@ -195,10 +227,9 @@ import com.opengamma.util.OpenGammaClock;
     // on the trade is an external ID with the standard counterparty scheme
     String counterparty = (String) tradeData.getValue(COUNTERPARTY);
     if (StringUtils.isEmpty(counterparty)) {
-      throw new IllegalArgumentException("Trade counterparty is required");
+      counterparty = DEFAULT_COUNTERPARTY;
     }
     tradeBuilder.set(meta.counterpartyExternalId(), ExternalId.of(CPTY_SCHEME, counterparty));
-    // TODO validation?
     return tradeBuilder.build();
   }
   /**

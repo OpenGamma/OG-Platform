@@ -43,6 +43,8 @@ import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.position.impl.InMemoryPositionMaster;
 import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.master.security.ManageableSecurityLink;
+import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
@@ -169,7 +171,6 @@ public class OtcTradeBuilderTest {
                                          BlotterTestUtils.SWAPTION_DATA_SOURCE,
                                          BlotterTestUtils.SWAP_DATA_SOURCE,
                                          _nodeId);
-
     ManageableTrade trade = _positionMaster.getTrade(tradeId);
     UniqueId positionId = trade.getParentPositionId();
     ManageablePosition position = _positionMaster.get(positionId).getPosition();
@@ -217,7 +218,6 @@ public class OtcTradeBuilderTest {
                                          BlotterTestUtils.SWAPTION_DATA_SOURCE,
                                          BlotterTestUtils.SWAP_DATA_SOURCE,
                                          _nodeId);
-
     BeanDataSource updatedTradeData = createTradeData("uniqueId", tradeId.toString(),
                                                       "counterparty", "updatedCounterparty",
                                                       "tradeDate", "2012-12-22",
@@ -251,5 +251,36 @@ public class OtcTradeBuilderTest {
     SwapSecurity updatedUnderlying = (SwapSecurity) searchResult.getSingleSecurity();
     ZonedDateTime tradeDate = ZonedDateTime.of(LocalDateTime.of(2013, 1, 1, 11, 0), ZoneOffset.UTC);
     assertEquals(tradeDate, updatedUnderlying.getTradeDate());
+  }
+
+  /**
+   * directly update a position that has no trades
+   */
+  @Test
+  public void updatePositionWithNoTrade() {
+    ManageableSecurity security = _securityMaster.add(new SecurityDocument(BlotterTestUtils.FX_FORWARD)).getSecurity();
+    ManageablePosition position = new ManageablePosition();
+    position.setQuantity(BigDecimal.ONE);
+    position.setSecurityLink(new ManageableSecurityLink(security.getUniqueId()));
+    ManageablePosition savedPosition = _positionMaster.add(new PositionDocument(position)).getPosition();
+
+    BeanDataSource updatedTradeData = createTradeData("counterparty", "updatedCounterparty",
+                                                      "tradeDate", "2012-12-22",
+                                                      "premium", "4321");
+    BeanDataSource updatedSecurityData = BlotterTestUtils.overrideBeanData(BlotterTestUtils.FX_FORWARD_DATA_SOURCE,
+                                                                           "payCurrency", "AUD",
+                                                                           "payAmount", "200");
+
+    _builder.updatePosition(savedPosition.getUniqueId(), updatedTradeData, updatedSecurityData, null);
+    ManageablePosition loadedPosition = _positionMaster.get(savedPosition.getUniqueId()).getPosition();
+    assertEquals(1, loadedPosition.getTrades().size());
+    ManageableTrade trade = loadedPosition.getTrades().get(0);
+    assertEquals("updatedCounterparty", trade.getCounterpartyExternalId().getValue());
+    assertEquals(LocalDate.of(2012, 12, 22), trade.getTradeDate());
+    assertEquals(4321d, trade.getPremium());
+    FXForwardSecurity updatedSecurity = (FXForwardSecurity) _securityMaster.get(trade.getSecurityLink().getObjectId(),
+                                                                                VersionCorrection.LATEST).getSecurity();
+    assertEquals(Currency.AUD, updatedSecurity.getPayCurrency());
+    assertEquals(200d, updatedSecurity.getPayAmount());
   }
 }

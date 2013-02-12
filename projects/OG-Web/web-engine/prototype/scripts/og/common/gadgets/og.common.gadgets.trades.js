@@ -293,7 +293,7 @@ $.register_module({
                 version = config.version !== '*' ? config.version : void 0,
                 height = config.height || 400;
             handler = function (result) {
-                if (result.error) return alert(result.message);
+                if (result.error) return $(selector).html(result.error);
                 template_data = result.data.template_data;
                 var trades, selector = config.selector, tbody, has_attributes = false,
                     fields = ['id', 'quantity', 'counterParty', 'trade_date_time', 'premium', 'premium_date_time'];
