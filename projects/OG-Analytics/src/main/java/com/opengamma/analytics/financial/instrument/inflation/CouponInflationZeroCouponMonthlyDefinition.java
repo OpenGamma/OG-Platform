@@ -120,6 +120,30 @@ public class CouponInflationZeroCouponMonthlyDefinition extends CouponInflationD
   }
 
   /**
+   * Builder for inflation zero-coupon based on an inflation lag and the index publication lag. The fixing date is the publication lag after the last reference month.
+   * The index start value is calculated from a time series. The index value required for the coupon should be in the time series.
+   * @param accrualStartDate Start date of the accrual period.
+   * @param paymentDate The payment date.
+   * @param notional Coupon notional.
+   * @param priceIndex The price index associated to the coupon.
+   * @param priceIndexTimeSeries The time series with the relevant price index values.
+   * @param monthLag The lag in month between the index validity and the coupon dates.
+   * @param payNotional Flag indicating if the notional is paid (true) or not (false).
+   * @return The inflation zero-coupon.
+   */
+  public static CouponInflationZeroCouponMonthlyDefinition from(final ZonedDateTime accrualStartDate, final ZonedDateTime paymentDate, final double notional,
+      final IndexPrice priceIndex, final DoubleTimeSeries<ZonedDateTime> priceIndexTimeSeries, final int monthLag, final boolean payNotional) {
+    final ZonedDateTime refInterpolatedDate = accrualStartDate.minusMonths(monthLag);
+    final ZonedDateTime referenceStartDate;
+    referenceStartDate = refInterpolatedDate.withDayOfMonth(1);
+    final Double indexStartValue = priceIndexTimeSeries.getValue(referenceStartDate);
+    if (indexStartValue == null) { // Fixing not known
+      ArgumentChecker.isTrue(false, "Required price index fixing unavailable");
+    }
+    return from(accrualStartDate, paymentDate, notional, priceIndex, indexStartValue, monthLag, payNotional);
+  }
+
+  /**
    * Gets the reference date for the index at the coupon start.
    * @return The reference date for the index at the coupon start.
    */

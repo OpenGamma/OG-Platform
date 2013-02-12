@@ -76,7 +76,7 @@ public class Annuity<P extends Payment> implements InstrumentDerivative {
    * Check if the payments of an annuity is of the type CouponFixed or CouponIbor. Used to check that payment are of vanilla type.
    * @return  True if IborCoupon or FixedCoupon
    */
-  public boolean isIborOrFixed() {
+  public boolean isIborOrFixed() { //TODO: is this method necessary?
     boolean result = true;
     for (final P payment : _payments) {
       result = result && payment.isIborOrFixed();
