@@ -20,6 +20,9 @@ import net.sf.ehcache.Element;
  */
 public final class EHCacheUtils {
 
+  /** The default Ehcache configuration file */
+  private static final String EHCACHE_CONFIG = "../../common/ehcache-default.xml";
+  /** Null value to cache */
   private static final Object NULL = new Object();
 
   /**
@@ -29,16 +32,28 @@ public final class EHCacheUtils {
   }
 
   /**
-   * Creates a cache manager using the default configuration. This should be used only in a test environment; in other
-   * environments a properly configured cache manager should be injected.
+   * Creates/returns the singleton cache manager using the default configuration. This should be used only in a test
+   * environment; in other environments a properly configured cache manager should be injected.
    * <p>
-   * This used to return a singleton cache manager instance, which caused problems with ehcache 2.6.3.
-   * 
+   * Since Ehcache 2.5 multiple cache managers with the same name are not allowed, so parallel tests have to use the
+   * same default cache manager instance.
+   *
+   * (from Ehcache docs)
+   * With Ehcache 2.5.2 and higher, the behavior of the CacheManager creation methods is as follows:
+   *   CacheManager.newInstance(Configuration configuration) – Create a new CacheManager or return the existing one
+   *     named in the configuration.
+   *   CacheManager.create() – Create a new singleton CacheManager with default configuration, or return the existing
+   *     singleton. This is the same as CacheManager.getInstance().
+   *   CacheManager.create(Configuration configuration) – Create a singleton CacheManager with the passed-in
+   *     configuration, or return the existing singleton.
+   *   new CacheManager(Configuration configuration) – Create a new CacheManager, or throw an exception if the
+   *     CacheManager named in the configuration already exists or if the parameter (configuration) is null.
+   *
    * @return the cache manager, not null
    */
   public static CacheManager createCacheManager() {
     try {
-      return CacheManager.newInstance();
+      return CacheManager.newInstance(EHCACHE_CONFIG);
     } catch (CacheException ex) {
       throw new OpenGammaRuntimeException("Unable to create CacheManager", ex);
     }
