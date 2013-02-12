@@ -6,9 +6,9 @@
 package com.opengamma.security.auditlog;
 
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.ehcache.EHCacheUtils;
 
 import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 
 /**
@@ -30,7 +30,7 @@ public class DuplicateFilteringAuditLogger extends AbstractAuditLogger {
     _delegate = delegate;
     _cache = new Cache("audit_log_entry_cache", maxElementsInMemory, false,
         false, secondsToKeepInMemory, secondsToKeepInMemory);
-    _cache.setCacheManager(CacheManager.getInstance());
+    _cache.setCacheManager(EHCacheUtils.createCacheManager());
     _cache.initialise();
   }
 

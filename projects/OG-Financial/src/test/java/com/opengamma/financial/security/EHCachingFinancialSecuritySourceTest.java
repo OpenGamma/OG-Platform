@@ -12,10 +12,6 @@ import static org.testng.AssertJUnit.assertSame;
 
 import java.util.Collection;
 
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Element;
-
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -29,6 +25,10 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ehcache.EHCacheUtils;
 
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Element;
+
 /**
  * Test EHCachingFinancialSecuritySource.
  */
@@ -41,11 +41,10 @@ public class EHCachingFinancialSecuritySourceTest {
   private SimpleSecurity _security1 = new SimpleSecurity("");
   private SimpleSecurity _security1_alternate = new SimpleSecurity("alternate");
   private SimpleSecurity _security2 = new SimpleSecurity("");
-  private CacheManager _cacheManager;
+  private CacheManager _cacheManager = EHCacheUtils.createCacheManager();
 
   @BeforeMethod
   public void setUp() throws Exception {    
-    _cacheManager = CacheManager.newInstance();
     _underlyingSecuritySource = new MockFinancialSecuritySource();
     _cachingSecuritySource = new EHCachingFinancialSecuritySource(_underlyingSecuritySource, _cacheManager);
     
@@ -59,7 +58,6 @@ public class EHCachingFinancialSecuritySourceTest {
     if (_cachingSecuritySource != null) {
       _cachingSecuritySource.shutdown();
     }
-    _cacheManager = EHCacheUtils.shutdownQuiet(_cacheManager);
     _underlyingSecuritySource = null;
     _cachingSecuritySource = null;
   }

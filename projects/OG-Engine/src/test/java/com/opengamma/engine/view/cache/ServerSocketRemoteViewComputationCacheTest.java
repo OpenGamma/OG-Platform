@@ -32,6 +32,7 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.transport.socket.ServerSocketFudgeConnectionReceiver;
 import com.opengamma.transport.socket.SocketFudgeConnection;
 import com.opengamma.util.ThreadUtils;
+import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.tuple.Pair;
 
@@ -74,7 +75,7 @@ public class ServerSocketRemoteViewComputationCacheTest {
     CacheConfiguration cacheConfig = new CacheConfiguration();
     cacheConfig.setMaxElementsInMemory(cacheSize);
     configuration.setDefaultCacheConfiguration(cacheConfig);
-    CacheManager cacheManager = CacheManager.newInstance(configuration);
+    CacheManager cacheManager = EHCacheUtils.createCacheManager();
     _cacheSource = new RemoteViewComputationCacheSource(client, new DefaultFudgeMessageStoreFactory(
         new InMemoryBinaryDataStoreFactory(), s_fudgeContext), cacheManager);
   }

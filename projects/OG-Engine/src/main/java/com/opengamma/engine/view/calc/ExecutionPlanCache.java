@@ -9,10 +9,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Element;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,6 +20,10 @@ import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.function.FunctionParameters;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ehcache.EHCacheUtils;
+
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Element;
 
 /**
  * Caches meta data taken from a graph fragment graph sufficient to construct a fragment
@@ -202,6 +202,13 @@ import com.opengamma.util.ehcache.EHCacheUtils;
       }
       _cache.put(new Element(key, plan));
     }
+  }
+
+  /**
+   * Call this at the end of a unit test run to clear the state of EHCache. It should not be part of a generic lifecycle method.
+   */
+  protected void shutdown() {
+    _cache.getCacheManager().removeCache(CACHE_NAME);
   }
 
   // TODO [ENG-269] If the function costs change significantly, invalidate the execution plan cache.
