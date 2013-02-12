@@ -19,7 +19,6 @@ $.register_module({
                 try {histogram.resize();} catch (error) {}
             };
             prepare_data = function (data) {
-                console.log(data);
                 stripped = data.timeseries.data.reduce(function(a,b){return a.concat(b[1]);},[]);
             };
             histogram_data = function () {
