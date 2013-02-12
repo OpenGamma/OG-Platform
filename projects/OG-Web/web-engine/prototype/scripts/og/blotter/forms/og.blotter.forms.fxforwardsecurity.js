@@ -47,8 +47,7 @@ $.register_module({
                     og.blotter.util.set_datetime("security.forwardDate", data.security.forwardDate);
                 });
                 form.on('form:submit', function (result){
-                    console.log(result.data);
-                    og.api.rest.blotter.trades.put(result.data);
+                    config.endpoint(result.data);
                 });
             }; 
             constructor.load();

@@ -22,7 +22,7 @@ $.register_module({
             $menu.blurkill().html(html).css(css).appendTo('body')
                 .position({my: 'left top', at: 'left top', of: event})
                 .click(function (event) {items[$(event.target).attr('data-id')].handler(), $(this).remove();});
-            return false
+            return false;
         };
     }
 });

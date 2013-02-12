@@ -79,7 +79,7 @@ $.register_module({
                     }
                 }); 
                 form.on('form:submit', function (result){
-                    og.api.rest.blotter.trades.put(result.data);
+                    config.endpoint(result.data);
                 });
                 form.on('change', '#' + pay_select.id, function (event) {
                     og.blotter.util.toggle_fixed($receive_select, event.target.value);

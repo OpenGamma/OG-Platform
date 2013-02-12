@@ -42,7 +42,7 @@ $.register_module({
                     og.blotter.util.add_datetimepicker("trade.tradeDate");
                     get_security();
                 });
-                form.on('form:submit', function (result) {og.api.rest.blotter.trades.put(result.data);});
+                form.on('form:submit', function (result) {config.endpoint(result.data);});
                 form.on('keyup', security.input_id(), function (event) {get_security();});
                 form.on('change', security.select_id(), function (event) {get_security();});
             }; 

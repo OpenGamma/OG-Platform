@@ -242,7 +242,8 @@ $.register_module({
                     root: 'blotter',
                     get: not_available_get, put: not_available_put, del: not_available_del, // no requests to /blotter
                     trades: {root: 'blotter/trades'},
-                    securities: {root: 'blotter/securities'}
+                    securities: {root: 'blotter/securities'},
+                    positions: {root: 'blotter/positions'}
                 };
                 [ // blotter/lookup/* endpoints
                     'barrierdirections', 'barriertypes', 'businessdayconventions', 'daycountconventions',
@@ -266,6 +267,23 @@ $.register_module({
                     return request(method.concat(config.id), {data: {}, meta: meta});
                 };
                 blotter.trades.put = function (config) {
+                    config = config || {};
+                    var root = this.root, method = root.split('/'), meta, data = {trade: {}}, id = config.id;
+                    meta = check({bundle: {method: root + '#put', config: config}, 
+                                required: [{all_of: ['trade', 'nodeId']}]});
+                    data.trade = str({trade: config.trade, security: config.security, underlying: config.underlying,
+                        nodeId: config.nodeId});
+                    meta.type = id ? 'PUT' : 'POST';
+                    if (id) method.push(id);
+                    return request(method, {data: data, meta: meta});
+                };
+                blotter.positions.get = function (config) {
+                    config = config || {};
+                    var root = this.root, method = root.split('/'), meta;
+                    meta = check({bundle: {method: root + '#get', config: config}, required: [{all_of: ['id']}]});
+                    return request(method.concat(config.id), {data: {}, meta: meta});
+                };
+                blotter.positions.put = function (config) {
                     config = config || {};
                     var root = this.root, method = root.split('/'), meta, data = {trade: {}}, id = config.id;
                     meta = check({bundle: {method: root + '#put', config: config}, 
