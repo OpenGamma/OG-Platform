@@ -29,6 +29,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaBean;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableMap;
@@ -248,6 +249,8 @@ public class BlotterResource {
     }
     ManageableSecurityLink securityLink = position.getSecurityLink();
     ManageableTrade trade = new ManageableTrade();
+    trade.setTradeDate(LocalDate.now());
+    trade.setCounterpartyExternalId(ExternalId.of(AbstractTradeBuilder.CPTY_SCHEME, AbstractTradeBuilder.DEFAULT_COUNTERPARTY));
     trade.setQuantity(position.getQuantity());
     trade.setSecurityLink(securityLink);
     return buildTradeJSON(trade, securityLink);
