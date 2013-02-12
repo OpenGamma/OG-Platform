@@ -7,37 +7,32 @@ $.register_module({
     dependencies: ['og.common.gadgets.manager'],
     obj: function () {
         return function (config) {
-            var gadget = this, histogram, alive = og.common.id('gadget_histogram'), $selector = $(config.selector),
-            stripped;
+            var gadget = this, $selector = $(config.selector), histogram, stripped,
+                alive = og.common.id('gadget_histogram');
             $(config.selector).addClass(alive).css({position: 'absolute', top: 0, left: 0, right: 0, bottom: 0});
             gadget.alive = function () {
                 var live = !!$('.' + alive).length;
                 if (!live && histogram) gadget.dataman.kill();
                 return live;
             };
-            gadget.resize = function () {
-                try {histogram.resize();} catch (error) {}
+            gadget.resize = function () {try {histogram.resize();} catch (error) {}};
+            var prepare_data = function (data) {
+                stripped = data.timeseries.data.reduce(function(a, b){return a.concat(b[1]);}, []);
             };
-            prepare_data = function (data) {
-                stripped = data.timeseries.data.reduce(function(a,b){return a.concat(b[1]);},[]);
-            };
-            histogram_data = function () {
-                var max, min, range, buckets = 50, interval, count = [], maxcount = 0;
-                max = Math.max.apply(Math, stripped);
-                min = Math.min.apply(Math, stripped);
-                range = max - min;
-                interval = range/buckets;
-                for (var i = 0; i < buckets; i++) {
-                    var label = min + (interval*i);
-                    count[i] = [label , 0];}
-                $.each(stripped, function(index, value){
-                    if (value == max) maxcount++;
-                    else{
-                        var p = Math.floor((value-min)/interval);
-                        count[p][1] = count[p][1]  + 1;
-                    }
+            var histogram_data = function () {
+                var buckets = 50, count = [], maxcount = 0, i = 0, label,
+                    max = Math.max.apply(Math, stripped), min = Math.min.apply(Math, stripped),
+                    range = max - min, interval = range / buckets;
+                for (; i < buckets; i++) {
+                    label = min + (interval * i);
+                    count[i] = [label, 0];
+                }
+                $.each(stripped, function(index, value) {
+                    if (value == max) return maxcount++;
+                    var p = Math.floor((value - min) / interval);
+                    count[p][1] = count[p][1] + 1;
                 });
-                count[buckets-1][1] = count[buckets-1][1] + maxcount;
+                count[buckets - 1][1] = count[buckets - 1][1] + maxcount;
                 return {histogram_data: count, interval: interval};
             };
             /*normpdf = function (x, mu, sigma, constant) {
@@ -61,7 +56,7 @@ $.register_module({
                 source: config.source, row: config.row, col: config.col, format: 'EXPANDED'}, 'histogram')
                 .on('data', function (value) {
                     var input, data = typeof value.v !== 'undefined' ? value.v : value;
-                    if (!histogram && data && (typeof data === 'object')){
+                    if (!histogram && data && (typeof data === 'object')) {
                         prepare_data(data);
                         input = $.extend(true, {}, config,  histogram_data()/*, normpdf_data()*/);
                         histogram = new og.common.gadgets.HistogramPlot(input);
