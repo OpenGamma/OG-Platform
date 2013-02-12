@@ -56,6 +56,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.portfolio.PortfolioMaster;
+import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.ManageableSecurity;
@@ -228,7 +229,32 @@ public class BlotterResource {
       throw new IllegalArgumentException("The blotter can only be used to update the latest version of a trade");
     }
     ManageableTrade trade = _positionMaster.getTrade(tradeId);
-    ManageableSecurity security = findSecurity(trade.getSecurityLink());
+    ManageableSecurityLink securityLink = trade.getSecurityLink();
+    return buildTradeJSON(trade, securityLink);
+  }
+
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  @Path("positions/{positionId}")
+  public String getPositionJSON(@PathParam("positionId") String positionIdStr) {
+    UniqueId positionId = UniqueId.parse(positionIdStr);
+    if (!positionId.isLatest()) {
+      throw new IllegalArgumentException("The blotter can only be used to update the latest version of a trade");
+    }
+    ManageablePosition position = _positionMaster.get(positionId).getPosition();
+    if (position.getTrades().size() > 0) {
+      throw new IllegalArgumentException("The blotter can only directly update a position if it has no trades. " +
+                                             "Position " + positionId + " has " + position.getTrades().size() + " trades");
+    }
+    ManageableSecurityLink securityLink = position.getSecurityLink();
+    ManageableTrade trade = new ManageableTrade();
+    trade.setQuantity(position.getQuantity());
+    trade.setSecurityLink(securityLink);
+    return buildTradeJSON(trade, securityLink);
+  }
+
+  private String buildTradeJSON(ManageableTrade trade, ManageableSecurityLink securityLink) {
+    ManageableSecurity security = findSecurity(securityLink);
     JSONObject root = new JSONObject();
     try {
       JsonDataSink tradeSink = new JsonDataSink(BlotterUtils.getJsonBuildingConverters());
@@ -334,10 +360,33 @@ public class BlotterResource {
   */
 
   @PUT
+  @Path("positions/{positionIdStr}")
+  @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+  @Produces(MediaType.APPLICATION_JSON)
+  public void updatePosition(@FormParam("trade") String jsonStr, @PathParam("positionIdStr") String positionIdStr) {
+    try {
+      UniqueId positionId = UniqueId.parse(positionIdStr);
+      JSONObject json = new JSONObject(jsonStr);
+      JSONObject tradeJson = json.getJSONObject("trade");
+      String tradeTypeName = tradeJson.getString("type");
+      // TODO tell don't ask - ask each of the existing trade builders until one of them can handle it?
+      if (tradeTypeName.equals(OtcTradeBuilder.TRADE_TYPE_NAME)) {
+        updateOtcPosition(positionId, json, tradeJson);
+        throw new IllegalArgumentException("direct update of positions not implemented for OTC securities");
+      } else if (tradeTypeName.equals(FungibleTradeBuilder.TRADE_TYPE_NAME)) {
+        _fungibleTradeBuilder.updatePosition(new JsonBeanDataSource(tradeJson), positionId);
+      } else {
+        throw new IllegalArgumentException("Unknown trade type " + tradeTypeName);
+      }
+    } catch (JSONException e) {
+      throw new IllegalArgumentException("Failed to parse JSON", e);
+    }
+  }
+
+  @PUT
   @Path("trades/{tradeIdStr}")
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   @Produces(MediaType.APPLICATION_JSON)
-  // TODO the config endpoint uses form params for the JSON. why? better to use a MessageBodyWriter?
   public void updateTrade(@FormParam("trade") String jsonStr, @PathParam("tradeIdStr") String tradeIdStr) {
     try {
       // TODO what should happen to this? the ID is also in the JSON. check they match?
@@ -376,6 +425,24 @@ public class BlotterResource {
       } else {
         return _otcTradeBuilder.addTrade(tradeData, securityData, underlyingData, nodeId);
       }
+    } catch (JSONException e) {
+      throw new IllegalArgumentException("Failed to parse JSON", e);
+    }
+  }
+
+  private UniqueId updateOtcPosition(UniqueId positionId, JSONObject json, JSONObject tradeJson) {
+    try {
+      JSONObject securityJson = json.getJSONObject("security");
+      JSONObject underlyingJson = json.optJSONObject("underlying");
+      BeanDataSource tradeData = new JsonBeanDataSource(tradeJson);
+      BeanDataSource securityData = new JsonBeanDataSource(securityJson);
+      BeanDataSource underlyingData;
+      if (underlyingJson != null) {
+        underlyingData = new JsonBeanDataSource(underlyingJson);
+      } else {
+        underlyingData = null;
+      }
+      return _otcTradeBuilder.updatePosition(positionId, tradeData, securityData, underlyingData);
     } catch (JSONException e) {
       throw new IllegalArgumentException("Failed to parse JSON", e);
     }

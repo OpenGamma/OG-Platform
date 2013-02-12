@@ -26,6 +26,7 @@ import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioDocument;
@@ -63,6 +64,7 @@ public class FungibleTradeBuilderTest {
   private FungibleTradeBuilder _tradeBuilder;
   private ManageablePortfolioNode _savedNode;
   private ManageablePosition _savedPosition;
+  private ManageablePortfolio _savedPortfolio;
 
   @BeforeMethod
   public void setUp() throws Exception {
@@ -84,14 +86,14 @@ public class FungibleTradeBuilderTest {
     node.addPosition(_savedPosition.getUniqueId());
     root.addChildNode(node);
     ManageablePortfolio portfolio = new ManageablePortfolio("portfolio", root);
-    ManageablePortfolio savedPortfolio = _portfolioMaster.add(new PortfolioDocument(portfolio)).getPortfolio();
+    _savedPortfolio = _portfolioMaster.add(new PortfolioDocument(portfolio)).getPortfolio();
     Set<MetaBean> metaBeans = Sets.<MetaBean>newHashSet(ManageableTrade.meta());
     _tradeBuilder = new FungibleTradeBuilder(_positionMaster,
                                              _portfolioMaster,
                                              securityMaster,
                                              metaBeans,
                                              BlotterUtils.getStringConvert());
-    _savedNode = savedPortfolio.getRootNode().getChildNodes().get(0);
+    _savedNode = _savedPortfolio.getRootNode().getChildNodes().get(0);
   }
 
   private BeanDataSource createTradeData(String securityTicker, String id) {
@@ -192,6 +194,33 @@ public class FungibleTradeBuilderTest {
     assertEquals(BigDecimal.valueOf(30), updatedTrade.getQuantity());
     assertEquals(ExternalId.of(AbstractTradeBuilder.CPTY_SCHEME, "cptyName"), updatedTrade.getCounterpartyExternalId());
     assertTrue(updatedTrade.getAttributes().isEmpty());
+  }
+
+  /**
+   * update a position that doesn't have any trades. position's quantity should match trade and trade should be added
+   */
+  @Test
+  public void updatePositionWithNoTrades() {
+    ManageablePosition position = new ManageablePosition(BigDecimal.valueOf(42), APPLE_SECURITY.getExternalIdBundle());
+    ManageablePosition savedPosition = _positionMaster.add(new PositionDocument(position)).getPosition();
+    assertEquals(BigDecimal.valueOf(42), savedPosition.getQuantity());
+
+    _tradeBuilder.updatePosition(createTradeData("AAPL US Equity", null), savedPosition.getUniqueId());
+    ManageablePosition updatedPosition = _positionMaster.get(savedPosition.getUniqueId().getObjectId(),
+                                                             VersionCorrection.LATEST).getPosition();
+    assertEquals(BigDecimal.valueOf(30), updatedPosition.getQuantity());
+    assertEquals(1, updatedPosition.getTrades().size());
+    ManageableTrade trade = updatedPosition.getTrades().get(0);
+    assertEquals(LocalDate.of(2012, 12, 21), trade.getTradeDate());
+    assertEquals(OffsetTime.of(LocalTime.of(14, 25), ZoneOffset.UTC), trade.getTradeTime());
+    assertEquals(APPLE_BUNDLE, trade.getSecurityLink().getExternalId());
+    assertEquals(1234d, trade.getPremium());
+    assertEquals(Currency.USD, trade.getPremiumCurrency());
+    assertEquals(LocalDate.of(2012, 12, 22), trade.getPremiumDate());
+    assertEquals(OffsetTime.of(LocalTime.of(13, 30), ZoneOffset.UTC), trade.getPremiumTime());
+    assertEquals(BigDecimal.valueOf(30), trade.getQuantity());
+    assertEquals(ExternalId.of(AbstractTradeBuilder.CPTY_SCHEME, "cptyName"), trade.getCounterpartyExternalId());
+    assertTrue(trade.getAttributes().isEmpty());
   }
 
   /**
