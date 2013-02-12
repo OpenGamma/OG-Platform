@@ -21,10 +21,10 @@ $.register_module({
         var context_items = function (cell) {
             var items = [];
             var position_edit = function () {
-                og.api.rest.blotter.positions.get({id: cell.row_value.tradeId}).pipe(function(data){
+                var id = cell.row_value.positionId.replace(/~[^~]{1,}$/, '');
+                og.api.rest.blotter.positions.get({id: id}).pipe(function(data){
                     new og.blotter.Dialog({
-                        details: data, portfolio:{name: cell.row_value.nodeId, id: cell.row_value.nodeId}, 
-                        endpoint: og.api.rest.blotter.positions.put
+                        details: data, portfolio:{name: id, id: id}, endpoint: og.api.rest.blotter.positions.put
                     });
                 });
             };
@@ -44,8 +44,13 @@ $.register_module({
             if ((cell.type === "POSITION" && cell.row in og.analytics.grid.meta.nodes) || cell.type === "NODE") {
                 return items;
             }
-            if(cell.type === "OTC_TRADE" && cell.row_value.tradeId) items.push({name: 'Edit', handler: position_edit});
-            else items.push({name: 'Edit', handler: trade_edit});
+            if((cell.type === "OTC_TRADE" || cell.type === "FUNGIBLE_TRADE") && cell.row_value.tradeId){
+                items.push({name: 'Edit', handler: trade_edit}); 
+               
+            } 
+            else {
+                items.push({name: 'Edit', handler: position_edit}); 
+            }
             return items;
         };
         return url = {
@@ -85,6 +90,7 @@ $.register_module({
                         }).on('fatal', url.clear_main);
                         if (og.analytics.blotter) og.analytics.grid.on('contextmenu', function (event, cell, col) {
                             if (cell) {
+                                console.log(cell);
                                 return og.common.util.ui.contextmenu(
                                     {defaults: true, zindex: 4, items: context_items(cell)}, event, cell);
                             }
