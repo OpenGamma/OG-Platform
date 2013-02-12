@@ -205,7 +205,8 @@ public class VolatilityCubeMarketDataFunction extends AbstractFunction {
       final HashMap<Pair<Tenor, Tenor>, Double> strikes = new HashMap<Pair<Tenor, Tenor>, Double>();
 
       final HashMap<ExternalId, Double> otherData = new HashMap<ExternalId, Double>();
-
+      // TODO: PLAT-3044 Need to get back to the external identifiers present in the cube definition, but the value specifications
+      // seen in the function inputs will have been constructed using data provider specific rules
       for (final ComputedValue value : inputs.getAllValues()) {
         if (!(value.getValue() instanceof Double)) {
           continue;

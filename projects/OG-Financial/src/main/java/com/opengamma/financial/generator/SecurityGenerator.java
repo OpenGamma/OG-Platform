@@ -32,7 +32,6 @@ import com.opengamma.core.position.Counterparty;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.function.AbstractFunction;
@@ -41,10 +40,7 @@ import com.opengamma.engine.function.DummyFunctionReinitializer;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputsImpl;
-import com.opengamma.engine.target.ComputationTargetReference;
-import com.opengamma.engine.target.ComputationTargetReferenceVisitor;
-import com.opengamma.engine.target.ComputationTargetRequirement;
-import com.opengamma.engine.target.ComputationTargetSpecificationResolver;
+import com.opengamma.engine.marketdata.ExternalIdBundleResolver;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
@@ -64,10 +60,7 @@ import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurveFromY
 import com.opengamma.financial.analytics.model.curve.interestrate.MarketInstrumentImpliedYieldCurveFunction;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.fx.FXUtils;
-import com.opengamma.id.ExternalBundleIdentifiable;
 import com.opengamma.id.ExternalId;
-import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.id.ExternalIdentifiable;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
@@ -307,53 +300,6 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
     return result.iterator().next();
   }
 
-  // [PLAT-3044] This is in the wrong place. If it is useful, move somewhere more sensible (the ExternalIdBundleLookup classes that were deleted perhaps!?)
-  private static class ExternalIdBundleResolver implements ComputationTargetReferenceVisitor<ExternalIdBundle> {
-
-    private final ComputationTargetResolver.AtVersionCorrection _targetResolver;
-    private final ComputationTargetSpecificationResolver.AtVersionCorrection _specificationResolver;
-
-    public ExternalIdBundleResolver(final ComputationTargetResolver.AtVersionCorrection resolver) {
-      _targetResolver = resolver;
-      _specificationResolver = resolver.getSpecificationResolver();
-    }
-
-    public ComputationTargetSpecification getTargetSpecification(final ComputationTargetReference reference) {
-      return _specificationResolver.getTargetSpecification(reference);
-    }
-
-    public ExternalIdBundle getExternalIdBundle(final ComputationTargetReference reference) {
-      return reference.accept(this);
-    }
-
-    @Override
-    public ExternalIdBundle visitComputationTargetRequirement(final ComputationTargetRequirement requirement) {
-      final ComputationTargetSpecification specification = _specificationResolver.getTargetSpecification(requirement);
-      if (specification != null) {
-        return visitComputationTargetSpecification(specification);
-      } else {
-        return requirement.getIdentifiers();
-      }
-    }
-
-    @Override
-    public ExternalIdBundle visitComputationTargetSpecification(final ComputationTargetSpecification specification) {
-      final ComputationTarget target = _targetResolver.resolve(specification);
-      if (target == null) {
-        return null;
-      }
-      if (target.getValue() instanceof ExternalBundleIdentifiable) {
-        return ((ExternalBundleIdentifiable) target.getValue()).getExternalIdBundle();
-      } else if (target.getValue() instanceof ExternalIdentifiable) {
-        return ((ExternalIdentifiable) target.getValue()).getExternalId().toBundle();
-      } else {
-        // Note: Don't convert the unique identifier to an external identifier.
-        return null;
-      }
-    }
-
-  }
-
   private ComputedValue findMarketData(final ExternalIdBundleResolver resolver, final ValueRequirement requirement) {
     final ComputationTargetSpecification targetSpec = resolver.getTargetSpecification(requirement.getTargetReference());
     // TODO: What to do if the targetSpec can't be resolved. We can still get an identifier bundle, but the spec for the CV will be wrong
@@ -367,12 +313,11 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
 
   private ComputedValue[] findMarketData(final FunctionCompilationContext compilationContext, final Collection<ValueRequirement> requirements) {
     s_logger.debug("Resolving {}", requirements);
-    final ExternalIdBundleLookup lookup = new ExternalIdBundleLookup(compilationContext.getSecuritySource());
-    final ComputationTargetSpecificationResolver.AtVersionCorrection resolver = compilationContext.getComputationTargetResolver().getSpecificationResolver();
+    final ExternalIdBundleResolver lookup = new ExternalIdBundleResolver(compilationContext.getComputationTargetResolver());
     final ComputedValue[] values = new ComputedValue[requirements.size()];
     int i = 0;
     for (final ValueRequirement requirement : requirements) {
-      final ComputedValue value = findMarketData(lookup, resolver, requirement);
+      final ComputedValue value = findMarketData(lookup, requirement);
       if (value == null) {
         s_logger.debug("Couldn't resolve {}", requirement);
         return null;

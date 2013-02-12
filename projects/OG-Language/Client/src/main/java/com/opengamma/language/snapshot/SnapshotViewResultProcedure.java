@@ -56,7 +56,7 @@ public class SnapshotViewResultProcedure extends AbstractProcedureInvoker.Single
 
   public static StructuredMarketDataSnapshot invoke(final SessionContext sessionContext, final ViewClientHandle viewClientHandle) {
     try {
-      final MarketDataSnapshotter snapshotter = new MarketDataSnapshotterImpl(sessionContext.getGlobalContext().getExternalIdBundleLookup(), sessionContext.getGlobalContext()
+      final MarketDataSnapshotter snapshotter = new MarketDataSnapshotterImpl(sessionContext.getGlobalContext()
           .getVolatilityCubeDefinitionSource());
       final ViewClient viewClient = viewClientHandle.get().getViewClient();
       final EngineResourceReference<? extends ViewCycle> viewCycleRef = viewClient.createLatestCycleReference();
@@ -65,9 +65,9 @@ public class SnapshotViewResultProcedure extends AbstractProcedureInvoker.Single
       } finally {
         viewCycleRef.release();
       }
-    } catch (IllegalStateException e) {
+    } catch (final IllegalStateException e) {
       throw new InvokeInvalidArgumentException(VIEW_CLIENT, "View client is not connected to a process");
-    } catch (UnsupportedOperationException e) {
+    } catch (final UnsupportedOperationException e) {
       throw new InvokeInvalidArgumentException(VIEW_CLIENT, "View client is not configured for cycle access");
     } finally {
       viewClientHandle.unlock();

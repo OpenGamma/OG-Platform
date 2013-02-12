@@ -25,7 +25,6 @@ import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractSpringComponentFactory;
 import com.opengamma.component.factory.ComponentInfoAttributes;
-import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.function.exclusion.FunctionExclusionGroups;
@@ -124,9 +123,7 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
     }
     repo.registerComponent(info, viewProcessor);
     if (isPublishRest()) {
-      final CompiledFunctionService compiledFunctionService = appContext.getBean(CompiledFunctionService.class);
-      final SecuritySource securitySource = compiledFunctionService.getFunctionCompilationContext().getSecuritySource();
-      final DataViewProcessorResource vpResource = new DataViewProcessorResource(securitySource, viewProcessor, getVolatilityCubeDefinitionSource(), getJmsConnector(), getFudgeContext(),
+      final DataViewProcessorResource vpResource = new DataViewProcessorResource(viewProcessor, getVolatilityCubeDefinitionSource(), getJmsConnector(), getFudgeContext(),
           getScheduler());
       repo.getRestComponents().publish(info, vpResource);
     }
@@ -244,7 +241,7 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
   }
 
   @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
+  protected Object propertyGet(final String propertyName, final boolean quiet) {
     switch (propertyName.hashCode()) {
       case -281470431:  // classifier
         return getClassifier();
@@ -267,7 +264,7 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
   }
 
   @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
+  protected void propertySet(final String propertyName, final Object newValue, final boolean quiet) {
     switch (propertyName.hashCode()) {
       case -281470431:  // classifier
         setClassifier((String) newValue);
@@ -307,12 +304,12 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      SpringViewProcessorComponentFactory other = (SpringViewProcessorComponentFactory) obj;
+      final SpringViewProcessorComponentFactory other = (SpringViewProcessorComponentFactory) obj;
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
           JodaBeanUtils.equal(isPublishRest(), other.isPublishRest()) &&
           JodaBeanUtils.equal(getFudgeContext(), other.getFudgeContext()) &&
@@ -355,7 +352,7 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
    * The Spring config must create this.
    * @param classifier  the new value of the property, not null
    */
-  public void setClassifier(String classifier) {
+  public void setClassifier(final String classifier) {
     JodaBeanUtils.notNull(classifier, "classifier");
     this._classifier = classifier;
   }
@@ -382,7 +379,7 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
    * Sets the flag determining whether the component should be published by REST (default true).
    * @param publishRest  the new value of the property
    */
-  public void setPublishRest(boolean publishRest) {
+  public void setPublishRest(final boolean publishRest) {
     this._publishRest = publishRest;
   }
 
@@ -407,7 +404,7 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
    * Sets the fudge context.
    * @param fudgeContext  the new value of the property, not null
    */
-  public void setFudgeContext(FudgeContext fudgeContext) {
+  public void setFudgeContext(final FudgeContext fudgeContext) {
     JodaBeanUtils.notNull(fudgeContext, "fudgeContext");
     this._fudgeContext = fudgeContext;
   }
@@ -433,7 +430,7 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
    * Sets the JMS connector.
    * @param jmsConnector  the new value of the property, not null
    */
-  public void setJmsConnector(JmsConnector jmsConnector) {
+  public void setJmsConnector(final JmsConnector jmsConnector) {
     JodaBeanUtils.notNull(jmsConnector, "jmsConnector");
     this._jmsConnector = jmsConnector;
   }
@@ -459,7 +456,7 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
    * Sets the JMS broker URI.
    * @param jmsBrokerUri  the new value of the property
    */
-  public void setJmsBrokerUri(String jmsBrokerUri) {
+  public void setJmsBrokerUri(final String jmsBrokerUri) {
     this._jmsBrokerUri = jmsBrokerUri;
   }
 
@@ -484,7 +481,7 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
    * Sets the scheduler.
    * @param scheduler  the new value of the property, not null
    */
-  public void setScheduler(ScheduledExecutorService scheduler) {
+  public void setScheduler(final ScheduledExecutorService scheduler) {
     JodaBeanUtils.notNull(scheduler, "scheduler");
     this._scheduler = scheduler;
   }
@@ -510,7 +507,7 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
    * Sets the volatility (for market data snapshots).
    * @param volatilityCubeDefinitionSource  the new value of the property
    */
-  public void setVolatilityCubeDefinitionSource(VolatilityCubeDefinitionSource volatilityCubeDefinitionSource) {
+  public void setVolatilityCubeDefinitionSource(final VolatilityCubeDefinitionSource volatilityCubeDefinitionSource) {
     this._volatilityCubeDefinitionSource = volatilityCubeDefinitionSource;
   }
 
@@ -535,7 +532,7 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
    * Sets the market data (for debugging).
    * @param marketDataProviderResolver  the new value of the property
    */
-  public void setMarketDataProviderResolver(MarketDataProviderResolver marketDataProviderResolver) {
+  public void setMarketDataProviderResolver(final MarketDataProviderResolver marketDataProviderResolver) {
     this._marketDataProviderResolver = marketDataProviderResolver;
   }
 
@@ -618,7 +615,7 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
       switch (propertyName.hashCode()) {
         case -281470431:  // classifier
           return _classifier;

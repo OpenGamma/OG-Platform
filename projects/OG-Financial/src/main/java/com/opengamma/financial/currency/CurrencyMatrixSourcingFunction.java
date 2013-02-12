@@ -19,6 +19,7 @@ import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.marketdata.ExternalIdBundleResolver;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
@@ -56,6 +57,7 @@ public class CurrencyMatrixSourcingFunction extends AbstractFunction.NonCompiled
   private final String _currencyMatrixName;
   private final String[] _additionalProperties;
   private CurrencyMatrix _currencyMatrix;
+  // PLAT-2813 Don't need this if we can request HTS requirements directly
   private HistoricalTimeSeriesResolver _htsResolver;
 
   public CurrencyMatrixSourcingFunction(final String currencyMatrixName) {
@@ -126,6 +128,7 @@ public class CurrencyMatrixSourcingFunction extends AbstractFunction.NonCompiled
         context.getFunctionReinitializer().reinitializeFunction(this, matrix.getUniqueId().getObjectId());
       }
     }
+    // PLAT-2813 Don't need this if we can request HTS requirements directly
     setHistoricalTimeSeriesResolver(OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context));
   }
 
@@ -199,11 +202,11 @@ public class CurrencyMatrixSourcingFunction extends AbstractFunction.NonCompiled
     }
   }
 
-  private ValueRequirement getSeriesConversionRequirement(final CurrencyMatrixValueRequirement valueRequirement) {
+  private ValueRequirement getSeriesConversionRequirement(final ExternalIdBundleResolver resolver, final CurrencyMatrixValueRequirement valueRequirement) {
     final ValueRequirement requirement = valueRequirement.getValueRequirement();
-    // TODO: PLAT-2782 resolve the requirement's target to an ExternalIdentifiable or ExternalBundleIdentifiable
-    final ExternalIdBundle targetIdentifiers = s_externalIdLookup.getExternalIds(requirement.getTargetReference());
-    final HistoricalTimeSeriesResolutionResult timeSeries = getHistoricalTimeSeriesResolver().resolve(targetIdentifiers, null, null, null, MarketDataRequirementNames.MARKET_VALUE, null);
+    // TODO: PLAT-2813 Don't perform the resolution here; request the time series directly
+    final ExternalIdBundle targetIdentifiers = resolver.getExternalIdBundle(requirement.getTargetReference());
+    final HistoricalTimeSeriesResolutionResult timeSeries = getHistoricalTimeSeriesResolver().resolve(targetIdentifiers, null, null, null, requirement.getValueName(), null);
     if (timeSeries == null) {
       return null;
     }
@@ -213,7 +216,8 @@ public class CurrencyMatrixSourcingFunction extends AbstractFunction.NonCompiled
         DateConstraint.VALUATION_TIME, true);
   }
 
-  private boolean getSeriesConversionRequirements(final Set<ValueRequirement> requirements, final Set<Pair<Currency, Currency>> visited, final Pair<Currency, Currency> currencies) {
+  private boolean getSeriesConversionRequirements(final ExternalIdBundleResolver resolver, final Set<ValueRequirement> requirements, final Set<Pair<Currency, Currency>> visited,
+      final Pair<Currency, Currency> currencies) {
     if (!visited.add(currencies)) {
       // Gone round in a loop if we've already seen this pair
       throw new IllegalStateException();
@@ -224,8 +228,8 @@ public class CurrencyMatrixSourcingFunction extends AbstractFunction.NonCompiled
 
         @Override
         public Boolean visitCross(final CurrencyMatrixCross cross) {
-          return getSeriesConversionRequirements(requirements, visited, Pair.of(currencies.getFirst(), cross.getCrossCurrency()))
-              && getSeriesConversionRequirements(requirements, visited, Pair.of(cross.getCrossCurrency(), currencies.getSecond()));
+          return getSeriesConversionRequirements(resolver, requirements, visited, Pair.of(currencies.getFirst(), cross.getCrossCurrency()))
+              && getSeriesConversionRequirements(resolver, requirements, visited, Pair.of(cross.getCrossCurrency(), currencies.getSecond()));
         }
 
         @Override
@@ -236,7 +240,7 @@ public class CurrencyMatrixSourcingFunction extends AbstractFunction.NonCompiled
 
         @Override
         public Boolean visitValueRequirement(final CurrencyMatrixValueRequirement valueRequirement) {
-          final ValueRequirement requirement = getSeriesConversionRequirement(valueRequirement);
+          final ValueRequirement requirement = getSeriesConversionRequirement(resolver, valueRequirement);
           if (requirement == null) {
             return Boolean.FALSE;
           }
@@ -259,7 +263,7 @@ public class CurrencyMatrixSourcingFunction extends AbstractFunction.NonCompiled
         return null;
       }
     } else {
-      if (!getSeriesConversionRequirements(requirements, new HashSet<Pair<Currency, Currency>>(), currencies)) {
+      if (!getSeriesConversionRequirements(new ExternalIdBundleResolver(context.getComputationTargetResolver()), requirements, new HashSet<Pair<Currency, Currency>>(), currencies)) {
         return null;
       }
     }
@@ -329,14 +333,14 @@ public class CurrencyMatrixSourcingFunction extends AbstractFunction.NonCompiled
     return rate;
   }
 
-  private Object getSeriesConversionRate(final FunctionInputs inputs, final Currency source, final Currency target) {
+  private Object getSeriesConversionRate(final ExternalIdBundleResolver resolver, final FunctionInputs inputs, final Currency source, final Currency target) {
     final CurrencyMatrixValue value = getCurrencyMatrix().getConversion(source, target);
     final Object rate = value.accept(new CurrencyMatrixValueVisitor<Object>() {
 
       @Override
       public Object visitCross(final CurrencyMatrixCross cross) {
-        final Object r1 = getSeriesConversionRate(inputs, source, cross.getCrossCurrency());
-        final Object r2 = getSeriesConversionRate(inputs, cross.getCrossCurrency(), target);
+        final Object r1 = getSeriesConversionRate(resolver, inputs, source, cross.getCrossCurrency());
+        final Object r2 = getSeriesConversionRate(resolver, inputs, cross.getCrossCurrency(), target);
         return createCrossRate(r1, r2);
       }
 
@@ -347,7 +351,7 @@ public class CurrencyMatrixSourcingFunction extends AbstractFunction.NonCompiled
 
       @Override
       public Object visitValueRequirement(final CurrencyMatrixValueRequirement valueRequirement) {
-        final Object marketValue = inputs.getValue(getSeriesConversionRequirement(valueRequirement));
+        final Object marketValue = inputs.getValue(getSeriesConversionRequirement(resolver, valueRequirement));
         if (marketValue instanceof DoubleTimeSeries) {
           //TODO is this branch ever reached?
           DoubleTimeSeries<?> fxRate = (DoubleTimeSeries<?>) marketValue;
@@ -382,7 +386,7 @@ public class CurrencyMatrixSourcingFunction extends AbstractFunction.NonCompiled
         result = getValueConversionRate(inputs, currencies.getFirst(), currencies.getSecond());
       } else {
         assert CurrencySeriesConversionFunction.SPOT_RATE.equals(desiredValue.getValueName());
-        result = getSeriesConversionRate(inputs, currencies.getFirst(), currencies.getSecond());
+        result = getSeriesConversionRate(new ExternalIdBundleResolver(executionContext.getComputationTargetResolver()), inputs, currencies.getFirst(), currencies.getSecond());
       }
       results.add(new ComputedValue(new ValueSpecification(desiredValue.getValueName(), targetSpec, desiredValue.getConstraints()), result));
     }
