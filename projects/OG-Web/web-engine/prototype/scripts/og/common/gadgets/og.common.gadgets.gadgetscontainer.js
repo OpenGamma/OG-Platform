@@ -238,8 +238,8 @@ $.register_module({
                 id = gadgets.length
                     ? live_id === obj.id ? gadgets[gadgets.length - 1].id : live_id
                     : null;
-                if (!silent && id) gadgets[extract_index(id)].gadget.resize();
                 update_tabs(id); // new active tab or empty
+                if (!silent && id) gadgets[extract_index(id)].gadget.resize();
                 if (!silent) container.fire('del', index);
             };
             container.gadgets = function () {return gadgets;};
