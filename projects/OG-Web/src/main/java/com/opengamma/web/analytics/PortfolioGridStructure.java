@@ -175,7 +175,6 @@ public final class PortfolioGridStructure extends MainGridStructure {
         return Lists.newArrayList(new PortfolioGridRow(target, nodeName, node.getUniqueId()));
       }
 
-      // TODO need to return list of rows including trades - but only for fungible security types
       @Override
       public List<PortfolioGridRow> apply(PortfolioNode parentNode, Position position) {
         ComputationTargetSpecification nodeSpec = ComputationTargetSpecification.of(parentNode);

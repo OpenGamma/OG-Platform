@@ -56,12 +56,11 @@ import com.opengamma.util.time.Expiry;
         "payAmount", "150",
         "receiveCurrency", "GBP",
         "receiveAmount", "100",
-        "forwardDate", forwardDateStr, // maybe need an explicit converter for this
-        "regionId", "Reg~123",
+        "forwardDate", forwardDateStr,
         "attributes", attributes);
 
     ZonedDateTime forwardDate = parseDate(forwardDateStr);
-    ExternalId regionId = ExternalId.of("Reg", "123");
+    ExternalId regionId = ExternalId.of(ExternalSchemes.FINANCIAL, "GB");
     FX_FORWARD = new FXForwardSecurity(Currency.USD, 150, Currency.GBP, 100, forwardDate, regionId);
     FX_FORWARD.setName("TODO");
     FX_FORWARD.setAttributes(attributes);
@@ -86,7 +85,7 @@ import com.opengamma.util.time.Expiry;
           "businessDayConvention", "Modified Following",
           "dayCount", "Act/360",
           "frequency", "3m",
-          "regionId", "Reg~123",
+          "regionId", "123",
           "eom", "true",
           "notional", beanData(
             "type", "InterestRateNotional",
@@ -102,7 +101,7 @@ import com.opengamma.util.time.Expiry;
           "businessDayConvention", "Following",
           "dayCount", "Act/Act",
           "frequency", "6m",
-          "regionId", "Reg~234",
+          "regionId", "234",
           "eom", "true",
           "notional", beanData(
             "type", "InterestRateNotional",
@@ -116,7 +115,7 @@ import com.opengamma.util.time.Expiry;
     SwapLeg payLeg = new FixedInterestRateLeg(
         DayCountFactory.INSTANCE.getDayCount("Act/360"),
         SimpleFrequencyFactory.INSTANCE.getFrequency("3m"),
-        ExternalId.of("Reg", "123"),
+        ExternalId.of(ExternalSchemes.FINANCIAL, "123"),
         BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following"),
         new InterestRateNotional(Currency.USD, 222.33),
         true,
@@ -124,7 +123,7 @@ import com.opengamma.util.time.Expiry;
     FloatingInterestRateLeg receiveLeg = new FloatingInterestRateLeg(
         DayCountFactory.INSTANCE.getDayCount("Act/Act"),
         SimpleFrequencyFactory.INSTANCE.getFrequency("6m"),
-        ExternalId.of("Reg", "234"),
+        ExternalId.of(ExternalSchemes.FINANCIAL, "234"),
         BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"),
         new InterestRateNotional(Currency.GBP, 123.45),
         true,
@@ -155,7 +154,7 @@ import com.opengamma.util.time.Expiry;
         "firstObservationDate", firstObservationDateStr,
         "lastObservationDate", lastObservationDateStr,
         "settlementDate", settlementDateStr,
-        "regionId", "Reg~123",
+        "regionId", "123",
         "observationFrequency", "Weekly",
         "attributes", attributes
     );
@@ -169,7 +168,7 @@ import com.opengamma.util.time.Expiry;
                                        parseDate(firstObservationDateStr),
                                        parseDate(lastObservationDateStr),
                                        parseDate(settlementDateStr),
-                                       ExternalId.of("Reg", "123"),
+                                       ExternalId.of(ExternalSchemes.FINANCIAL, "123"),
                                        SimpleFrequencyFactory.INSTANCE.getFrequency("Weekly"));
     EQUITY_VARIANCE_SWAP.setName("TODO");
     EQUITY_VARIANCE_SWAP.setAttributes(attributes);

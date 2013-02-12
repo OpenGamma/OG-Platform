@@ -37,6 +37,10 @@ public final class BloombergConstants {
    * OPTION CHAIN FIELD
    */
   public static final String FIELD_OPT_CHAIN = "OPT_CHAIN";
+  /**
+   * Future chain
+   */
+  public static final String FIELD_FUT_CHAIN = "FUT_CHAIN";
 
   // CSOFF: TODO: actually write the docs
   public static final String MARKET_SECTOR_GOVT = "Govt";

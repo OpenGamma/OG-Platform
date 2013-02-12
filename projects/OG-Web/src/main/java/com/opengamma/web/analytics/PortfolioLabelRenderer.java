@@ -35,6 +35,8 @@ import com.opengamma.util.ArgumentChecker;
     if (targetType.isTargetType(ComputationTargetType.POSITION)) {
       RowTarget rowTarget;
       if (isOtc(row.getSecurity())) {
+        // TODO different type for OTC positions with no trades? they are effecively the same but the client
+        // needs to know when a position has no trades because it will be a different endpoint to trigger editing
         // OTC trades and positions are shown as a single row as there's always one trade per position
         rowTarget = new OtcTradeTarget(row.getName(), row.getNodeId(), row.getPositionId(), row.getTradeId());
       } else {

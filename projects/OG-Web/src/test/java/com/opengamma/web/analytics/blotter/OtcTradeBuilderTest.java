@@ -98,8 +98,8 @@ public class OtcTradeBuilderTest {
     _builder = new OtcTradeBuilder(_positionMaster,
                                    _portfolioMaster,
                                    _securityMaster,
-                                   BlotterResource.s_metaBeans,
-                                   BlotterResource.getStringConvert());
+                                   BlotterUtils.getMetaBeans(),
+                                   BlotterUtils.getStringConvert());
     ManageablePortfolio portfolio = new ManageablePortfolio();
     ManageablePortfolioNode root = new ManageablePortfolioNode();
     ManageablePortfolioNode node = new ManageablePortfolioNode();
@@ -147,8 +147,7 @@ public class OtcTradeBuilderTest {
                                                       "premium", "4321");
     BeanDataSource updatedSecurityData = BlotterTestUtils.overrideBeanData(BlotterTestUtils.FX_FORWARD_DATA_SOURCE,
                                                                            "payCurrency", "AUD",
-                                                                           "payAmount", "200",
-                                                                           "regionId", "Reg~345");
+                                                                           "payAmount", "200");
 
     UniqueId updatedTradeId = _builder.updateTrade(updatedTradeData, updatedSecurityData, null);
     ManageableTrade updatedTrade = _positionMaster.getTrade(updatedTradeId);
@@ -162,7 +161,6 @@ public class OtcTradeBuilderTest {
                                                                                 VersionCorrection.LATEST).getSecurity();
     assertEquals(Currency.AUD, updatedSecurity.getPayCurrency());
     assertEquals(200d, updatedSecurity.getPayAmount());
-    assertEquals(ExternalId.of("Reg", "345"), updatedSecurity.getRegionId());
   }
 
   @Test

@@ -23,7 +23,6 @@ import com.google.common.collect.Maps;
 import com.opengamma.core.security.Security;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.id.ExternalId;
-import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.portfolio.ManageablePortfolio;
@@ -46,9 +45,9 @@ import com.opengamma.util.OpenGammaClock;
 /**
  * Builds and saves trades, securities and underlying securities for OTC securities.
  * TODO the use of VersionCorrection.LATEST in this class is incorrect
- * the weak link between trades/positions and securities is a problem for OTCs because in reality they're a single
+ * the weak link between trades, positions and securities is a problem for OTCs because in reality they're a single
  * atomic object. the problem at the moment is there's no way to know which version of the security is being modified
- * given the unique ID of the trade. thereofore it's not possible to detect any concurrent modification of securities,
+ * given the unique ID of the trade. therefore it's not possible to detect any concurrent modification of securities,
  * the last update wins. there are various potential fixes but it might not be worth doing before the imminent refactor
  * of trades, positions and securities.
  */
@@ -56,16 +55,6 @@ import com.opengamma.util.OpenGammaClock;
 
   /** Type name for OTC trades used in the data sent to the client. */
   /* package */ static final String TRADE_TYPE_NAME = "OtcTrade";
-
-  /**
-   * For traversing trade and security {@link MetaBean}s and building instances from the data sent from the blotter.
-   * The security type name is filtered out because it is a read-only property. The external ID bundle is filtered
-   * out because it is always empty for trades and securities entered via the blotter but isn't nullable. Therefore
-   * it has to be explicitly set to an empty bundle after the client data is processed but before the object is built.
-   */
-  private static final BeanTraverser s_beanTraverser = new BeanTraverser(
-      new PropertyFilter(FinancialSecurity.meta().externalIdBundle()),
-      new PropertyFilter(ManageableSecurity.meta().securityType()));
 
   /* package */ OtcTradeBuilder(PositionMaster positionMaster,
                                 PortfolioMaster portfoioMaster,
@@ -87,7 +76,7 @@ import com.opengamma.util.OpenGammaClock;
     ManageableSecurity underlying = buildUnderlying(underlyingData);
     ManageableSecurity security;
     if (underlying == null) {
-      security = buildSecurity(securityData);
+      security = BlotterUtils.buildSecurity(securityData);
     } else {
       ManageableSecurity savedUnderlying = getSecurityMaster().add(new SecurityDocument(underlying)).getSecurity();
       security = buildSecurity(securityData, savedUnderlying);
@@ -134,7 +123,7 @@ import com.opengamma.util.OpenGammaClock;
     ManageableSecurity underlying = buildUnderlying(underlyingData);
     ManageableSecurity security;
     if (underlying == null) {
-      security = buildSecurity(securityData);
+      security = BlotterUtils.buildSecurity(securityData);
     } else {
       // need to set the unique ID to the ID from the previous version, securities aren't allowed to change
       // any changes in the security data are interpreted as edits to the security
@@ -197,9 +186,8 @@ import com.opengamma.util.OpenGammaClock;
                      meta.premiumTime());
     tradeBuilder.set(meta.attributes(), tradeData.getMapValues(meta.attributes().name()));
     tradeBuilder.set(meta.quantity(), BigDecimal.ONE);
-    // TODO shouldn't the security ID be here? or will it be the external ID?
+    // the link needs to be non-null but the real ID can't be set until the security has been created later
     tradeBuilder.set(meta.securityLink(), new ManageableSecurityLink());
-    //tradeBuilder.set(meta.securityLink(), new ManageableSecurityLink(security.getUniqueId().getObjectId()));
     String counterparty = (String) tradeData.getValue(COUNTERPARTY);
     if (StringUtils.isEmpty(counterparty)) {
       throw new IllegalArgumentException("Trade counterparty is required");
@@ -255,15 +243,16 @@ import com.opengamma.util.OpenGammaClock;
     if (underlyingId == null) {
       throw new IllegalArgumentException("Unable to get underlying ID for security " + underlying);
     }
+    // TODO I'm not keen on this, it doesn't smell great
     dataSource = new PropertyReplacingDataSource(securityData, "underlyingId", underlyingId.toString());
-    return buildSecurity(dataSource);
+    return BlotterUtils.buildSecurity(dataSource);
   }
 
   private FinancialSecurity buildUnderlying(BeanDataSource underlyingData) {
     if (underlyingData == null) {
       return null;
     }
-    return buildSecurity(underlyingData);
+    return BlotterUtils.buildSecurity(underlyingData);
   }
 
   private ExternalId getUnderlyingId(Security underlying) {
@@ -274,31 +263,6 @@ import com.opengamma.util.OpenGammaClock;
       underlyingId = null;
     }
     return underlyingId;
-  }
-
-  @SuppressWarnings("unchecked")
-  private FinancialSecurity buildSecurity(BeanDataSource data) {
-    // TODO custom converters for dates
-    // default timezone based on OpenGammaClock
-    // default times for effectiveDate and maturityDate properties on SwapSecurity, probably others
-    BeanVisitor<BeanBuilder<FinancialSecurity>> visitor =
-        new BeanBuildingVisitor<>(data, getMetaBeanFactory(), getStringConvert());
-    MetaBean metaBean = getMetaBeanFactory().beanFor(data);
-    // TODO check it's a FinancialSecurity metaBean
-    if (!(metaBean instanceof FinancialSecurity.Meta)) {
-      throw new IllegalArgumentException("MetaBean " + metaBean + " isn't for a FinancialSecurity");
-    }
-    BeanBuilder<FinancialSecurity> builder = (BeanBuilder<FinancialSecurity>) s_beanTraverser.traverse(metaBean, visitor);
-    // externalIdBundle needs to be specified or building fails because it's not nullable
-    // TODO need to preserve the bundle when editing existing trades. pass to client or use previous version?
-    // do in Existing* subclass, that looks up previous version, other subclass doesn't care, no bundle for new trades
-    builder.set(FinancialSecurity.meta().externalIdBundle(), ExternalIdBundle.EMPTY);
-    Object bean = builder.build();
-    if (bean instanceof FinancialSecurity) {
-      return (FinancialSecurity) bean;
-    } else {
-      throw new IllegalArgumentException("object type " + bean.getClass().getName() + " isn't a Financial Security");
-    }
   }
 
   // TODO different versions for OTC / non OTC
