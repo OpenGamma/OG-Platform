@@ -85,6 +85,8 @@ import com.opengamma.util.OpenGammaClock;
     extractPropertyData(trade.premiumTime(), sink);
     extractPropertyData(trade.quantity(), sink);
     sink.setMap(trade.attributes().name(), trade.getAttributes());
+    // this shouldn't be necessary as counterparty ID isn't nullable but there's a bug in the implementation of
+    // ManageableTrade which allows null values
     ExternalId counterpartyId = trade.getCounterpartyExternalId();
     String counterpartyValue;
     if (counterpartyId != null) {
@@ -225,10 +227,9 @@ import com.opengamma.util.OpenGammaClock;
     // on the trade is an external ID with the standard counterparty scheme
     String counterparty = (String) tradeData.getValue(COUNTERPARTY);
     if (StringUtils.isEmpty(counterparty)) {
-      throw new IllegalArgumentException("Trade counterparty is required");
+      counterparty = DEFAULT_COUNTERPARTY;
     }
     tradeBuilder.set(meta.counterpartyExternalId(), ExternalId.of(CPTY_SCHEME, counterparty));
-    // TODO validation?
     return tradeBuilder.build();
   }
   /**
