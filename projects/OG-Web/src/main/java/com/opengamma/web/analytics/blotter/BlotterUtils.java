@@ -195,8 +195,14 @@ import com.opengamma.util.time.Expiry;
    */
   private static final PropertyFilter s_securityTypeFilter = new PropertyFilter(ManageableSecurity.meta().securityType());
 
-  @SuppressWarnings("unchecked")
+
+
   /* package */ static FinancialSecurity buildSecurity(BeanDataSource data) {
+    return buildSecurity(data, ExternalIdBundle.EMPTY);
+  }
+
+  @SuppressWarnings("unchecked")
+  /* package */ static FinancialSecurity buildSecurity(BeanDataSource data, ExternalIdBundle idBundle) {
     BeanVisitor<BeanBuilder<FinancialSecurity>> visitor = new BeanBuildingVisitor<>(data, s_metaBeanFactory,
                                                                                     s_beanBuildingConverters);
     MetaBean metaBean = s_metaBeanFactory.beanFor(data);
@@ -206,9 +212,7 @@ import com.opengamma.util.time.Expiry;
     }
     BeanBuilder<FinancialSecurity> builder = (BeanBuilder<FinancialSecurity>) s_beanBuildingTraverser.traverse(metaBean, visitor);
     // externalIdBundle needs to be specified or building fails because it's not nullable
-    // TODO need to preserve the bundle when editing existing trades. pass to client or use previous version?
-    // might need to return BeanBuilder from this method and do this outside
-    builder.set(FinancialSecurity.meta().externalIdBundle(), ExternalIdBundle.EMPTY);
+    builder.set(FinancialSecurity.meta().externalIdBundle(), idBundle);
     Object bean = builder.build();
     if (bean instanceof FinancialSecurity) {
       return (FinancialSecurity) bean;
