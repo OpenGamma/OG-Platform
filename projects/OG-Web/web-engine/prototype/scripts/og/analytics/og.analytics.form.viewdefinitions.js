@@ -8,7 +8,7 @@ $.register_module({
     obj: function () {
         var Block = og.common.util.ui.Block;
         var ViewDefinitions = function (config) {
-            var block = this, form = config.form, index = 'viewdefinition', title = 'calculations';
+            var block = this, form = config.form, index = 'viewdefinition', title = 'calculations', enter = false;
             form.Block.call(block, {
                 template: '<div class="og-option-title">' +
                     '<header class="OG-background-05">' + title + ':</header>'+
@@ -34,12 +34,21 @@ $.register_module({
                 if (select.val() !== '') input.val(select.find("option:selected").text());
 
                 input.removeAttr('style').blur(function () {
+                    if (!enter) {
+                        selectedIndex = list.get(0).selectedIndex;
+                        select.get(0).selectedIndex = selectedIndex+1;
+                    } else enter = false;
                     list.hide();
                 }).keydown(function (event) {
                     if (event.keyCode === $.ui.keyCode.ESCAPE) list.hide();
                     if (event.keyCode === $.ui.keyCode.UP || event.keyCode === $.ui.keyCode.DOWN){
                         if (input.val() === '') input.focus(0).click();
                         list.show();
+                    }
+                    if (event.keyCode === $.ui.keyCode.ENTER) {
+                        enter = true;
+                        selectedIndex = list.get(0).selectedIndex;
+                        select.get(0).selectedIndex = selectedIndex;
                     }
                 }).click(function (event) {
                     list.show().prop('selectedIndex', selectedIndex);
@@ -56,10 +65,10 @@ $.register_module({
                 });
 
                 list.on('mousedown', function (event) {
-                    selectedIndex = list.get(0).selectedIndex;
-                    select.get(0).selectedIndex = selectedIndex+1;
                     input.val(list.find("option:selected").text()).focus(0);
-                });
+                }).on('mouseover', 'option', function (event) {
+                    input.val($(event.target || event.srcElement).text()).focus(0);
+                })
             });
         };
         ViewDefinitions.prototype = new Block;
