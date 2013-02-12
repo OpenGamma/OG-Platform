@@ -8,7 +8,7 @@ $.register_module({
     obj: function () {
         return function (config) {
             var gadget = this, histogram, alive = og.common.id('gadget_histogram'), $selector = $(config.selector),
-            output = {}, stripped;
+            stripped;
             $(config.selector).addClass(alive).css({position: 'absolute', top: 0, left: 0, right: 0, bottom: 0});
             gadget.alive = function () {
                 var live = !!$('.' + alive).length;
@@ -22,7 +22,7 @@ $.register_module({
                 stripped = data.timeseries.data.reduce(function(a,b){return a.concat(b[1]);},[]);
             };
             histogram_data = function () {
-                var max, min, range, buckets = 50, interval, count = [], maxcount = 0, output = {};
+                var max, min, range, buckets = 50, interval, count = [], maxcount = 0;
                 max = Math.max.apply(Math, stripped);
                 min = Math.min.apply(Math, stripped);
                 range = max - min;
