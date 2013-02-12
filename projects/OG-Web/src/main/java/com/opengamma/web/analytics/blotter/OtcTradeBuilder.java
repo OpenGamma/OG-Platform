@@ -215,7 +215,10 @@ import com.opengamma.util.OpenGammaClock;
       throw new IllegalArgumentException("Security type cannot change, new version " + newVersion + ", " +
                                              "previousVersion: " + previousVersion);
     }
-    if (newVersion.getUniqueId() != null && !newVersion.getUniqueId().equals(previousVersion.getUniqueId())) {
+    // TODO this should check for equality between the IDs but that's not working ATM
+    // needs to be part of the bigger fix for the problem caused by the weak links between the different parts
+    // of OTC trades
+    if (newVersion.getUniqueId() != null && !newVersion.getUniqueId().equalObjectId(previousVersion.getUniqueId())) {
       throw new IllegalArgumentException("Cannot update a security with a different ID, " +
                                              "new ID: " + newVersion.getUniqueId() + ", " +
                                              "previous ID: " + previousVersion.getUniqueId());

@@ -372,7 +372,6 @@ public class BlotterResource {
       // TODO tell don't ask - ask each of the existing trade builders until one of them can handle it?
       if (tradeTypeName.equals(OtcTradeBuilder.TRADE_TYPE_NAME)) {
         updateOtcPosition(positionId, json, tradeJson);
-        throw new IllegalArgumentException("direct update of positions not implemented for OTC securities");
       } else if (tradeTypeName.equals(FungibleTradeBuilder.TRADE_TYPE_NAME)) {
         _fungibleTradeBuilder.updatePosition(new JsonBeanDataSource(tradeJson), positionId);
       } else {
