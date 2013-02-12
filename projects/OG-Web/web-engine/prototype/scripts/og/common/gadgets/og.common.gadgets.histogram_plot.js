@@ -14,25 +14,41 @@ $.register_module({
             };
             show_tooltip = function (x, y, contents){
                 $('<div id="tooltip">' + contents + '</div>').css( {
-                    position: 'absolute', display: 'none', top: y + 5, left: x + 5, border: '1px solid #fdd',
-                    padding: '2px', backgroundColor: '#fee', opacity: 0.80, zIndex: 6
+                    position: 'absolute', display: 'none', top: y + 5, left: x + 5,
+                    padding: '2px', backgroundColor: '#000', opacity: 0.50, zIndex: 6, color: '#fff'
                 }).appendTo("body").fadeIn(200);
             };
             load_plots = function () {
                 var previousPoint = null;
-                options = { grid: { hoverable: true}};
+                options = {
+                    grid: {
+                        borderWidth: 0, labelMargin: 4, color: '#999', minBorderMargin: 0, backgroundColor: '#fff',
+                        hoverable: true, aboveData: false
+                    },
+                    legend: {show: false},
+                    bars: {
+                        show: true,
+                        lineWidth: 0, // in pixels
+                        barWidth: 0, // in units of the x axis
+                        fill: true,
+                        align: 'left', // or "center"
+                        horizontal: false
+                    }
+                };
                 var data = [
                     {
-                        label: "Histogram",
+                        label: 'Histogram',
                         hoverable: true,
                         data: config.histogram_data,
                         bars: {
-                            show: true,
+                             show: true,
                             barWidth: config.interval,
-                            fill: true,
-                            lineWidth: 1
-                        },
-                        color: "#42669a"
+                             fill: true,
+                             lineWidth: 1,
+                             order: 1,
+                             fillColor: '#42669a'
+                         },
+                         color: '#fff'
                     }/*,
                     {
                         label: "Probability density - Normal Distribution",
@@ -51,7 +67,7 @@ $.register_module({
                 $(selector).bind("plothover", function (event, pos, item) {
                     if (item) {
                         if (previousPoint != item.dataIndex) {
-                            var x = item.datapoint[0], y = item.datapoint[1], delta = x+config.interval, 
+                            var x = item.datapoint[0], y = item.datapoint[1], delta = x+config.interval,
                                 msg = y + " occurrences in range<br/>" + x.toFixed(5) + " to " + delta.toFixed(5);
                                 previousPoint = item.dataIndex;
                             $("#tooltip").remove();
@@ -60,7 +76,7 @@ $.register_module({
                     }
                     else {
                         $("#tooltip").remove();
-                        previousPoint = null;            
+                        previousPoint = null;
                     }
                 });
             };

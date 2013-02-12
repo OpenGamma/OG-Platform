@@ -9,7 +9,9 @@ $.register_module({
         return function (config) {
             var gadget = this, $selector = $(config.selector), histogram, stripped,
                 alive = og.common.id('gadget_histogram');
-            $(config.selector).addClass(alive).css({position: 'absolute', top: 0, left: 0, right: 0, bottom: 0});
+            $(config.selector).addClass(alive).css({
+                position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: '#fff'
+            });
             gadget.alive = function () {
                 var live = !!$('.' + alive).length;
                 if (!live && histogram) gadget.dataman.kill();
@@ -19,8 +21,10 @@ $.register_module({
             var prepare_data = function (data) {
                 stripped = data.timeseries.data.reduce(function (a, b){return a.concat(b[1]);}, []);
             };
-            var histogram_data = function () {
-                var buckets = 50, count = [], maxcount = 0, i = 0, label,
+            var histogram_data = function (data) {
+                var max_buckets = 50, bucket_calc = Math.ceil(Math.sqrt(data.timeseries.data.length)),
+                    buckets = bucket_calc < max_buckets ? bucket_calc : max_buckets,
+                    count = [], maxcount = 0, i = 0, label,
                     max = Math.max.apply(Math, stripped), min = Math.min.apply(Math, stripped),
                     range = max - min, interval = range / buckets;
                 for (; i < buckets; i++) {
@@ -58,7 +62,7 @@ $.register_module({
                     var input, data = typeof value.v !== 'undefined' ? value.v : value;
                     if (!histogram && data && (typeof data === 'object')) {
                         prepare_data(data);
-                        input = $.extend(true, {}, config,  histogram_data()/*, normpdf_data()*/);
+                        input = $.extend(true, {}, config, histogram_data(data)/*, normpdf_data()*/);
                         histogram = new og.common.gadgets.HistogramPlot(input);
                     }
                 })
