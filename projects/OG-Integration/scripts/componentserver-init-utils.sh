@@ -36,9 +36,8 @@ set_commandmonitor_opts() {
 }
 
 start() {
-  if [ $(which setsid 2>/dev/null ) ]; then
-    SETSID=setsid
-  else
+  SETSID=$(which setsid 2>/dev/null)
+  if [ -z "$SETSID" -o ! -x "$SETSID" ]; then
     SETSID=
   fi
   RETVAL=0
