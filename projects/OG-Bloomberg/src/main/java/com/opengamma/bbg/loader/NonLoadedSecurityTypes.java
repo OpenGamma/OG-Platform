@@ -60,6 +60,7 @@ public final class NonLoadedSecurityTypes {
       BLOOMBERG_SWAPTION_VOLATILITY_TYPE);
 
   // Misc rates
+  private static final String BLOOMBERG_PHYSICAL_COMMODITY_SPOT_TYPE = "Physical commodity spot.";
   private static final String BLOOMBERG_SPOT_TYPE = "SPOT";
   private static final String BLOOMBERG_CROSS_TYPE = "CROSS";
   private static final String BLOOMBERG_DEPOSIT_TYPE = "DEPOSIT";
@@ -78,6 +79,7 @@ public final class NonLoadedSecurityTypes {
    * The valid Bloomberg security types for spot rates
    */
   public static final Set<String> VALID_SPOT_RATE_TYPES = ImmutableSet.of(
+	  BLOOMBERG_PHYSICAL_COMMODITY_SPOT_TYPE,
       BLOOMBERG_SPOT_TYPE,
       BLOOMBERG_CROSS_TYPE,
       BLOOMBERG_CD);
