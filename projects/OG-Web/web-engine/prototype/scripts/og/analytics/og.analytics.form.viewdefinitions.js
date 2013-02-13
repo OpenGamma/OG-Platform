@@ -58,6 +58,9 @@ $.register_module({
                     placeholder: 'Search...',
                     source: ac_source(og.api.rest.viewdefinitions, store_viewdefinitions)
                 });
+                menu.$input.on('keydown', function (event) {
+                    if (event.keyCode === $.ui.keyCode.ENTER) form.submit();
+                }).select();
                 if (config.val) {
                     og.api.rest.viewdefinitions.get().pipe(function (resp) {
                         store_viewdefinitions(resp);
@@ -65,7 +68,7 @@ $.register_module({
                         if (val.length && val[0].name) menu.$input.val(val[0].name);
                     });
                 }
-            });
+            })
         };
 
         ViewDefinitions.prototype = new Block;
