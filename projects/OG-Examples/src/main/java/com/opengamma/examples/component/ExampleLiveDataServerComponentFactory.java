@@ -1,12 +1,14 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.examples.component;
 
 import java.util.Collection;
 import java.util.Map;
+
+import net.sf.ehcache.CacheManager;
 
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
@@ -53,28 +55,33 @@ public class ExampleLiveDataServerComponentFactory extends AbstractStandardLiveD
    */
   @PropertyDefinition(validate = "notNull")
   private Resource _simulatedData;
+  /**
+   * The EH cache configuration.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private CacheManager _cacheManager;
 
   //-------------------------------------------------------------------------
   @Override
-  protected StandardLiveDataServer initServer(ComponentRepository repo) {
-    ExampleLiveDataServer server = new ExampleLiveDataServer(getSimulatedData());
-    
-    Collection<NormalizationRuleSet> rules = ImmutableList.of(StandardRules.getNoNormalization(), NormalizationRules.getMarketValueNormalization());
-    DefaultDistributionSpecificationResolver distSpecResolver = new DefaultDistributionSpecificationResolver(
+  protected StandardLiveDataServer initServer(final ComponentRepository repo) {
+    final ExampleLiveDataServer server = new ExampleLiveDataServer(getCacheManager(), getSimulatedData());
+
+    final Collection<NormalizationRuleSet> rules = ImmutableList.of(StandardRules.getNoNormalization(), NormalizationRules.getMarketValueNormalization());
+    final DefaultDistributionSpecificationResolver distSpecResolver = new DefaultDistributionSpecificationResolver(
         new SyntheticIdResolver(),
         new StandardRuleResolver(rules),
         new ExampleJmsTopicNameResolver());
     server.setDistributionSpecificationResolver(distSpecResolver);
-    
-    JmsSenderFactory senderFactory = new JmsSenderFactory(getJmsConnector());
+
+    final JmsSenderFactory senderFactory = new JmsSenderFactory(getJmsConnector());
     server.setMarketDataSenderFactory(senderFactory);
-    
+
     repo.registerMBean(new ExampleLiveDataServerMBean(server));
     return server;
   }
 
   @Override
-  protected LiveDataMetaData createMetaData(ComponentRepository repo) {
+  protected LiveDataMetaData createMetaData(final ComponentRepository repo) {
     return new LiveDataMetaData(ImmutableList.of(ExternalSchemes.OG_SYNTHETIC_TICKER), LiveDataServerTypes.STANDARD, SIMULATED_LIVE_SOURCE_NAME);
   }
 
@@ -97,19 +104,24 @@ public class ExampleLiveDataServerComponentFactory extends AbstractStandardLiveD
   }
 
   @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
+  protected Object propertyGet(final String propertyName, final boolean quiet) {
     switch (propertyName.hashCode()) {
       case -349682038:  // simulatedData
         return getSimulatedData();
+      case -1452875317:  // cacheManager
+        return getCacheManager();
     }
     return super.propertyGet(propertyName, quiet);
   }
 
   @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
+  protected void propertySet(final String propertyName, final Object newValue, final boolean quiet) {
     switch (propertyName.hashCode()) {
       case -349682038:  // simulatedData
         setSimulatedData((Resource) newValue);
+        return;
+      case -1452875317:  // cacheManager
+        setCacheManager((CacheManager) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -118,17 +130,19 @@ public class ExampleLiveDataServerComponentFactory extends AbstractStandardLiveD
   @Override
   protected void validate() {
     JodaBeanUtils.notNull(_simulatedData, "simulatedData");
+    JodaBeanUtils.notNull(_cacheManager, "cacheManager");
     super.validate();
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      ExampleLiveDataServerComponentFactory other = (ExampleLiveDataServerComponentFactory) obj;
+      final ExampleLiveDataServerComponentFactory other = (ExampleLiveDataServerComponentFactory) obj;
       return JodaBeanUtils.equal(getSimulatedData(), other.getSimulatedData()) &&
+          JodaBeanUtils.equal(getCacheManager(), other.getCacheManager()) &&
           super.equals(obj);
     }
     return false;
@@ -138,6 +152,7 @@ public class ExampleLiveDataServerComponentFactory extends AbstractStandardLiveD
   public int hashCode() {
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getSimulatedData());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
     return hash ^ super.hashCode();
   }
 
@@ -154,7 +169,7 @@ public class ExampleLiveDataServerComponentFactory extends AbstractStandardLiveD
    * Sets the JMS connector.
    * @param simulatedData  the new value of the property, not null
    */
-  public void setSimulatedData(Resource simulatedData) {
+  public void setSimulatedData(final Resource simulatedData) {
     JodaBeanUtils.notNull(simulatedData, "simulatedData");
     this._simulatedData = simulatedData;
   }
@@ -165,6 +180,32 @@ public class ExampleLiveDataServerComponentFactory extends AbstractStandardLiveD
    */
   public final Property<Resource> simulatedData() {
     return metaBean().simulatedData().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the EH cache configuration.
+   * @return the value of the property, not null
+   */
+  public CacheManager getCacheManager() {
+    return _cacheManager;
+  }
+
+  /**
+   * Sets the EH cache configuration.
+   * @param cacheManager  the new value of the property, not null
+   */
+  public void setCacheManager(final CacheManager cacheManager) {
+    JodaBeanUtils.notNull(cacheManager, "cacheManager");
+    this._cacheManager = cacheManager;
+  }
+
+  /**
+   * Gets the the {@code cacheManager} property.
+   * @return the property, not null
+   */
+  public final Property<CacheManager> cacheManager() {
+    return metaBean().cacheManager().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -183,11 +224,17 @@ public class ExampleLiveDataServerComponentFactory extends AbstractStandardLiveD
     private final MetaProperty<Resource> _simulatedData = DirectMetaProperty.ofReadWrite(
         this, "simulatedData", ExampleLiveDataServerComponentFactory.class, Resource.class);
     /**
+     * The meta-property for the {@code cacheManager} property.
+     */
+    private final MetaProperty<CacheManager> _cacheManager = DirectMetaProperty.ofReadWrite(
+        this, "cacheManager", ExampleLiveDataServerComponentFactory.class, CacheManager.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
-        "simulatedData");
+        "simulatedData",
+        "cacheManager");
 
     /**
      * Restricted constructor.
@@ -196,10 +243,12 @@ public class ExampleLiveDataServerComponentFactory extends AbstractStandardLiveD
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
       switch (propertyName.hashCode()) {
         case -349682038:  // simulatedData
           return _simulatedData;
+        case -1452875317:  // cacheManager
+          return _cacheManager;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -226,6 +275,14 @@ public class ExampleLiveDataServerComponentFactory extends AbstractStandardLiveD
      */
     public final MetaProperty<Resource> simulatedData() {
       return _simulatedData;
+    }
+
+    /**
+     * The meta-property for the {@code cacheManager} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<CacheManager> cacheManager() {
+      return _cacheManager;
     }
 
   }

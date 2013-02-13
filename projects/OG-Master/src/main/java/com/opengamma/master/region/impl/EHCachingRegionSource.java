@@ -10,10 +10,6 @@ import static com.google.common.collect.Maps.newHashMap;
 import java.util.Collection;
 import java.util.Map;
 
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Element;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,6 +24,10 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.region.RegionSearchRequest;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ehcache.EHCacheUtils;
+
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Element;
 
 /**
  * A cache decorating a {@code RegionSource}.
@@ -229,6 +229,13 @@ public class EHCachingRegionSource implements RegionSource {
   @Override
   public String toString() {
     return getClass().getSimpleName() + "[" + getUnderlying() + "]";
+  }
+
+  /**
+   * Call this at the end of a unit test run to clear the state of EHCache. It should not be part of a generic lifecycle method.
+   */
+  protected void shutdown() {
+    _cache.getCacheManager().removeCache(CACHE_NAME);
   }
 
 }

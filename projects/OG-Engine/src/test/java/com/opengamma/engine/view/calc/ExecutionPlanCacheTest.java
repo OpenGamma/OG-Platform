@@ -13,9 +13,6 @@ import static org.testng.Assert.assertTrue;
 import java.util.Map;
 import java.util.concurrent.Future;
 
-import net.sf.ehcache.CacheManager;
-
-import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
 import com.opengamma.engine.ComputationTarget;
@@ -34,18 +31,15 @@ import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ehcache.EHCacheUtils;
 
+import net.sf.ehcache.CacheManager;
+
 /**
  * Test.
  */
 @Test
 public class ExecutionPlanCacheTest {
 
-  private CacheManager _cacheManager;
-
-  @AfterMethod
-  public void tearDown() {
-    _cacheManager = EHCacheUtils.shutdownQuiet(_cacheManager);
-  }
+  private CacheManager _cacheManager = EHCacheUtils.createCacheManager();
 
   //-------------------------------------------------------------------------
   public void testDependencyNodeKey_same() {
@@ -224,7 +218,6 @@ public class ExecutionPlanCacheTest {
 
   //-------------------------------------------------------------------------
   public void testCache_identity() {
-    _cacheManager = CacheManager.newInstance();
     final ExecutionPlanCache cache = new ExecutionPlanCache(_cacheManager);
     final DependencyGraph graph = createDependencyGraph();
     final ExecutionPlan plan = createExecutionPlan();
@@ -236,19 +229,19 @@ public class ExecutionPlanCacheTest {
         new ValueSpecification("1", ComputationTargetSpecification.of(UniqueId.of("Test", "X")), ValueProperties.with(ValuePropertyNames.FUNCTION, "Foo1").get()));
     final ExecutionPlan cached = cache.getCachedPlan(graph, 0);
     assertEquals(cached, plan);
+    cache.shutdown();
   }
 
   public void testCache_key() {
-    _cacheManager = CacheManager.newInstance();
     final ExecutionPlanCache cache = new ExecutionPlanCache(_cacheManager);
     final ExecutionPlan plan = createExecutionPlan();
     cache.cachePlan(createDependencyGraph(), 0, plan);
     final ExecutionPlan cached = cache.getCachedPlan(createDependencyGraph(), 0);
     assertEquals(cached, plan);
+    cache.shutdown();
   }
 
   public void testCache_identity_invalid() {
-    _cacheManager = CacheManager.newInstance();
     final ExecutionPlanCache cache = new ExecutionPlanCache(_cacheManager);
     final DependencyGraph graph = createDependencyGraph();
     final ExecutionPlan plan = createExecutionPlan();
@@ -257,6 +250,7 @@ public class ExecutionPlanCacheTest {
         new ValueSpecification("1", ComputationTargetSpecification.of(UniqueId.of("Test", "X")), ValueProperties.with(ValuePropertyNames.FUNCTION, "Foo1").get()));
     final ExecutionPlan cached = cache.getCachedPlan(graph, 1);
     assertNull(cached);
+    cache.shutdown();
   }
 
 }

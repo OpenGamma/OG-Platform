@@ -38,11 +38,10 @@ public class EHCachingHistoricalTimeSeriesSourceTest {
 
   private HistoricalTimeSeriesSource _underlyingSource;
   private EHCachingHistoricalTimeSeriesSource _cachingSource;
-  private CacheManager _cacheManager;
+  private CacheManager _cacheManager = EHCacheUtils.createCacheManager();
 
   @BeforeMethod
   public void setUp() {
-    _cacheManager =  CacheManager.newInstance();
     _underlyingSource = mock(HistoricalTimeSeriesSource.class);
     when(_underlyingSource.changeManager()).thenReturn(new BasicChangeManager());
     _cachingSource = new EHCachingHistoricalTimeSeriesSource(_underlyingSource, _cacheManager);
@@ -50,7 +49,7 @@ public class EHCachingHistoricalTimeSeriesSourceTest {
 
   @AfterMethod
   public void tearDown() {
-    _cacheManager = EHCacheUtils.shutdownQuiet(_cacheManager);
+    _cachingSource.shutdown();
   }
 
   //-------------------------------------------------------------------------
