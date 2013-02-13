@@ -22,7 +22,7 @@ $.register_module({
                 });
                 form.children.push(
                     new og.blotter.forms.blocks.Portfolio({form: form, counterparty: data.trade.counterparty, 
-                        portfolio: data.nodeId, tradedate: data.trade.tradeDate}),
+                        portfolio: data.nodeId, tradedate: data.trade.tradeDate, prekfdkf: data.trade.prefdkfjh}),
                     new form.Block({
                         module: 'og.blotter.forms.blocks.cap_floor_tash',
                         extras: {start: data.security.startDate, maturity: data.security.maturityDate, 

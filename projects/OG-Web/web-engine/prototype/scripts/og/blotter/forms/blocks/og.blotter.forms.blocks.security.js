@@ -14,13 +14,14 @@ $.register_module({
                 scheme_value = security.split(/~(.+)/)[0];
                 id_value  = security.split(/~(.+)/)[1]; 
             }
+            console.log(config.edit);
             form.Block.call(block, {
                 module: 'og.blotter.forms.blocks.security_tash', 
                 extras: {label: config.label, sec_id: sec_id, value: id_value},
                 children: [
                     dropdown = new og.common.util.ui.Dropdown({
                         form: form, resource: 'blotter.idschemes', index: scheme_id,
-                        value: scheme_value, placeholder: 'Select Scheme',
+                        value: scheme_value, placeholder: 'Select Scheme', disabled: !!config.edit,
                         data_generator: function (handler) {
                             og.api.rest.blotter.idschemes.get().pipe(function (result){
                                 var options = [], obj = result.data;
@@ -33,7 +34,7 @@ $.register_module({
                     })
                 ],                       
                 processor: function (data) {
-                    if (config.insert) {
+                    if (!!config.edit) {
                         var path = config.index.split('.'), last = path.pop(), 
                             merge = data[scheme_id] + "~" + data[sec_id];
                         path.reduce(function (acc, val) {return acc[val];}, data)[last] = merge;                        
