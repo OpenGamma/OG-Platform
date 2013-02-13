@@ -13,6 +13,8 @@ import com.opengamma.integration.copier.portfolio.writer.MasterPortfolioWriter;
 import com.opengamma.integration.copier.portfolio.writer.PortfolioWriter;
 import com.opengamma.integration.copier.portfolio.writer.PrettyPrintingPortfolioWriter;
 import com.opengamma.integration.copier.sheet.SheetFormat;
+import com.opengamma.integration.tool.portfolio.xml.SchemaRegister;
+import com.opengamma.integration.tool.portfolio.xml.XmlPortfolioReader;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -110,9 +112,13 @@ public class PortfolioLoader {
    */
   public void execute() {
 
-    PortfolioWriter portfolioWriter = constructPortfolioWriter(_toolContext, _portfolioName, _write, _overwrite,
-                                                               _mergePositions, _keepCurrentPositions);
     PortfolioReader portfolioReader = constructPortfolioReader(_fileName, _securityType, _ignoreVersion);
+
+    // Get the name from the portfolio reader if it's capable
+    String name = portfolioReader.getPortfolioName();
+
+    PortfolioWriter portfolioWriter = constructPortfolioWriter(_toolContext, name != null ? name : _portfolioName, _write, _overwrite,
+                                                               _mergePositions, _keepCurrentPositions);
     SimplePortfolioCopier portfolioCopier = new SimplePortfolioCopier();
 
     // Create visitor for verbose/quiet mode
@@ -169,6 +175,9 @@ public class PortfolioLoader {
           return new SingleSheetSimplePortfolioReader(filename, securityType);
 //          }
         }
+      case XML:
+        // XMl multi-asset portfolio
+        return new XmlPortfolioReader(filename, new SchemaRegister());
 
       case ZIP:
         // Create zipped multi-asset class loader

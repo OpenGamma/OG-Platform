@@ -1,0 +1,165 @@
+package com.opengamma.integration.tool.portfolio.xml.v1_0;
+
+import java.math.BigDecimal;
+import java.util.Set;
+
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+
+@XmlAccessorType(XmlAccessType.FIELD)
+public abstract class SwapLeg {
+
+  public enum Direction { Pay, Receive}
+
+  public enum StubPeriodType {Long, Short}
+
+  public enum StubPeriodTypeAdjustment {LongCoupon, ShortCoupon}
+
+  public enum InterestCalculation {Adjusted}
+
+  @XmlElement(name = "payReceive")
+  private Direction _direction;
+
+  @XmlElement(name = "currency")
+  private String _currency;
+
+  @XmlElement(name = "notional")
+  private BigDecimal _notional;
+
+  @XmlElement(name = "frequency")
+  private String _frequency;
+
+  @XmlElement(name = "dayCount")
+  private String _dayCount;
+
+  @XmlElement(name = "interestCalculation")
+  private InterestCalculation _interestCalculation;
+
+  @XmlElement(name = "businessDayConvention")
+  private String _businessDayConvention;
+
+  @XmlElement(name = "scheduleGenerationDirection")
+  private String _scheduleGenerationDirection;
+
+  @XmlElement(name = "endOfMonth")
+  private boolean _isEndOfMonth;
+
+  @XmlElement(name = "isIMM")
+  private boolean _isImm;
+
+  @XmlElementWrapper(name = "paymentCalendars")
+  @XmlElement(name = "calendar")
+  private Set<Calendar> _paymentCalendars;
+
+  @XmlElement(name = "stubPeriodType")
+  private StubPeriodType _stubPeriodType;
+
+  @XmlElement(name = "stubPeriodTypeAdjustment")
+  private StubPeriodTypeAdjustment _stubPeriodTypeAdjustment;
+
+  public Direction getDirection() {
+    return _direction;
+  }
+
+  public void setDirection(Direction direction) {
+    this._direction = direction;
+  }
+
+  public String getCurrency() {
+    return _currency;
+  }
+
+  public void setCurrency(String currency) {
+    this._currency = currency;
+  }
+
+  public BigDecimal getNotional() {
+    return _notional;
+  }
+
+  public void setNotional(BigDecimal notional) {
+    this._notional = notional;
+  }
+
+  public String getFrequency() {
+    return _frequency;
+  }
+
+  public void setFrequency(String frequency) {
+    this._frequency = frequency;
+  }
+
+  public String getDayCount() {
+    return _dayCount;
+  }
+
+  public void setDayCount(String dayCount) {
+    this._dayCount = dayCount;
+  }
+
+  public InterestCalculation getInterestCalculation() {
+    return _interestCalculation;
+  }
+
+  public void setInterestCalculation(InterestCalculation interestCalculation) {
+    _interestCalculation = interestCalculation;
+  }
+
+  public String getBusinessDayConvention() {
+    return _businessDayConvention;
+  }
+
+  public void setBusinessDayConvention(String businessDayConvention) {
+    this._businessDayConvention = businessDayConvention;
+  }
+
+  public String getScheduleGenerationDirection() {
+    return _scheduleGenerationDirection;
+  }
+
+  public void setScheduleGenerationDirection(String scheduleGenerationDirection) {
+    this._scheduleGenerationDirection = scheduleGenerationDirection;
+  }
+
+  public boolean isEndOfMonth() {
+    return _isEndOfMonth;
+  }
+
+  public void setEndOfMonth(boolean endOfMonth) {
+    _isEndOfMonth = endOfMonth;
+  }
+
+  public boolean isImm() {
+    return _isImm;
+  }
+
+  public void setImm(boolean imm) {
+    _isImm = imm;
+  }
+
+  public Set<Calendar> getPaymentCalendars() {
+    return _paymentCalendars;
+  }
+
+  public void setPaymentCalendars(Set<Calendar> paymentCalendars) {
+    this._paymentCalendars = paymentCalendars;
+  }
+
+  public StubPeriodType getStubPeriodType() {
+    return _stubPeriodType;
+  }
+
+  public void setStubPeriodType(StubPeriodType stubPeriodType) {
+    _stubPeriodType = stubPeriodType;
+  }
+
+  public StubPeriodTypeAdjustment getStubPeriodTypeAdjustment() {
+    return _stubPeriodTypeAdjustment;
+  }
+
+  public void setStubPeriodTypeAdjustment(StubPeriodTypeAdjustment stubPeriodTypeAdjustment) {
+    _stubPeriodTypeAdjustment = stubPeriodTypeAdjustment;
+  }
+}

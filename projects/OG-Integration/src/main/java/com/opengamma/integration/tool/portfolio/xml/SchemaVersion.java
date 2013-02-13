@@ -1,4 +1,4 @@
-package com.opengamma.integration.tool.portfolio;
+package com.opengamma.integration.tool.portfolio.xml;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

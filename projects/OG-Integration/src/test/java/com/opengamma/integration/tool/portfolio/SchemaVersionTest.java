@@ -5,6 +5,8 @@ import static org.testng.Assert.assertTrue;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.integration.tool.portfolio.xml.SchemaVersion;
+
 public class SchemaVersionTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)

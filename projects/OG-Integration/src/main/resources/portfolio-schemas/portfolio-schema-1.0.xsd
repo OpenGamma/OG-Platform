@@ -4,6 +4,15 @@
   <xs:complexType name="fixingIndexType">
     <xs:sequence>
       <xs:element type="idType" name="id"/>
+      <xs:element name="rateType">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="OIS"/>
+            <xs:enumeration value="CMS"/>
+            <xs:enumeration value="IBOR"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
     </xs:sequence>
   </xs:complexType>
   <xs:complexType name="idType">
@@ -43,18 +52,27 @@
     <xs:all>
       <xs:element type="tradesType" name="trades" minOccurs="0"/>
       <xs:element type="portfoliosType" name="portfolios" minOccurs="0"/>
+      <xs:element name="positions" minOccurs="0"/>
     </xs:all>
     <xs:attribute type="xs:float" name="schemaVersion"/>
   </xs:complexType>
-  <xs:complexType name="portfolioType"/>
-  <xs:complexType name="swapTradeType">
+  <xs:complexType name="portfolioType">
     <xs:sequence>
+      <xs:element name="positionRefs"/>
+    </xs:sequence>
+    <xs:attribute type="xs:string" name="name"/>
+  </xs:complexType>
+
+  <xs:complexType name="swapTradeType">
+    <xs:all>
       <xs:element type="xs:string" name="externalId">
         <xs:annotation>
           <xs:documentation>Probably should be unique in this file too</xs:documentation>
         </xs:annotation>
       </xs:element>
       <xs:element type="xs:date" name="tradeDate"/>
+      <xs:element type="xs:date" name="effectiveDate"/>
+      <xs:element type="xs:date" name="maturity"/>
       <xs:element type="counterpartyType" name="counterparty"/>
       <xs:element type="xs:string" name="isCleared">
         <xs:annotation>
@@ -92,7 +110,7 @@
         </xs:annotation>
       </xs:element>
       <xs:element type="tradeLegsType" name="tradeLegs"/>
-    </xs:sequence>
+    </xs:all>
     <xs:attribute type="xs:string" name="id"/>
   </xs:complexType>
   <xs:complexType name="paymentCalendarsType">
@@ -116,7 +134,7 @@
     <xs:attribute type="xs:string" name="type" use="optional"/>
   </xs:complexType>
   <xs:complexType name="fixedLegType">
-    <xs:sequence>
+    <xs:all>
       <xs:element type="payReceiveType" name="payReceive"/>
       <xs:element type="xs:string" name="currency"/>
       <xs:element type="xs:int" name="notional">
@@ -125,22 +143,21 @@
         </xs:annotation>
       </xs:element>
       <xs:element type="xs:string" name="frequency"/>
-      <xs:element type="xs:date" name="effectiveDate"/>
-      <xs:element type="xs:date" name="maturity"/>
       <xs:element type="xs:float" name="rate"/>
       <xs:element type="xs:string" name="dayCount"/>
-      <xs:element type="xs:string" name="businessDayAdjustment"/>
+      <xs:element type="xs:string" name="businessDayConvention"/>
       <xs:element type="xs:string" name="interestCalculation"/>
       <xs:element type="xs:string" name="scheduleGenerationDirection"/>
       <xs:element type="xs:string" name="endOfMonth"/>
       <xs:element type="paymentCalendarsType" name="paymentCalendars"/>
       <xs:element type="xs:string" name="isIMM"/>
-      <xs:element type="xs:string" name="shortLongCoupon">
+      <xs:element type="xs:string" name="stubPeriodType">
         <xs:annotation>
           <xs:documentation>default = short</xs:documentation>
         </xs:annotation>
       </xs:element>
-    </xs:sequence>
+      <xs:element type="xs:string" name="stubPeriodTypeAdjustment"/>
+    </xs:all>
   </xs:complexType>
   <xs:complexType name="entryType">
     <xs:simpleContent>
@@ -155,7 +172,7 @@
     </xs:sequence>
   </xs:complexType>
   <xs:complexType name="floatingRateLegType">
-    <xs:sequence>
+    <xs:all>
       <xs:element type="payReceiveType" name="payReceive"/>
       <xs:element type="xs:string" name="currency"/>
       <xs:element type="xs:decimal" name="notional">
@@ -166,16 +183,6 @@
       <xs:element type="xs:string" name="frequency">
         <xs:annotation>
           <xs:documentation>map to our InterestRateNotional where sign = Pay/Recieve flag  values from SimpleFrequencyFactory</xs:documentation>
-        </xs:annotation>
-      </xs:element>
-      <xs:element type="xs:date" name="effectiveDate">
-        <xs:annotation>
-          <xs:documentation>loader needs to enforce against convention for now</xs:documentation>
-        </xs:annotation>
-      </xs:element>
-      <xs:element type="xs:date" name="maturity">
-        <xs:annotation>
-          <xs:documentation>loader should enforce same maturity on each leg for now</xs:documentation>
         </xs:annotation>
       </xs:element>
       <xs:element type="xs:float" name="spread">
@@ -219,11 +226,6 @@
           <xs:documentation>loader should enforce type=BANK for now and id schemes all the same for now</xs:documentation>
         </xs:annotation>
       </xs:element>
-      <xs:element type="xs:string" name="shortLongCoupon">
-        <xs:annotation>
-          <xs:documentation>always short for now</xs:documentation>
-        </xs:annotation>
-      </xs:element>
       <xs:element type="xs:string" name="resetFrequency">
         <xs:annotation>
           <xs:documentation>same as frequency for now</xs:documentation>
@@ -239,10 +241,17 @@
           <xs:documentation>we're assuming that resetLag == settlementLag at the moment</xs:documentation>
         </xs:annotation>
       </xs:element>
-      <xs:element type="xs:string" name="resetType">
+      <xs:element name="resetType">
         <xs:annotation>
-          <xs:documentation>In Advance or In Arrears.  Only support In advance at the mo</xs:documentation>
+          <xs:documentation>InAdvance or InArrears.  Only support In advance at the mo</xs:documentation>
         </xs:annotation>
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="InAdvance"/>
+            <xs:enumeration value="InArrears"/>
+          </xs:restriction>
+        </xs:simpleType>
+
       </xs:element>
       <xs:element type="xs:string" name="fixingCalendar">
         <xs:annotation>
@@ -250,12 +259,85 @@
         </xs:annotation>
       </xs:element>
       <xs:element type="fixingIndexType" name="fixingIndex"/>
-      <xs:element type="xs:string" name="shortLongCouponAdjustment">
+
+      <xs:element type="xs:string" name="stubPeriodType">
         <xs:annotation>
           <xs:documentation>Interpolated</xs:documentation>
         </xs:annotation>
       </xs:element>
-    </xs:sequence>
+
+      <xs:element type="xs:string" name="stubPeriodTypeAdjustment"/>
+    </xs:all>
     <xs:attribute type="xs:string" name="type"/>
   </xs:complexType>
+
+  <xs:element name="positions">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="position"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="positionAttributes">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="positionAttribute" maxOccurs="unbounded" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>Position may have a quantity if there are trades but may be recalced from trade values instead</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="position">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="positionAttributes"/>
+        <xs:element ref="tradeRefs"/>
+      </xs:sequence>
+      <xs:attribute type="xs:string" name="id"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="tradeRef">
+    <xs:complexType>
+      <xs:simpleContent>
+        <xs:extension base="xs:string">
+          <xs:attribute type="xs:string" name="ref"/>
+        </xs:extension>
+      </xs:simpleContent>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="positionRef">
+    <xs:complexType>
+      <xs:simpleContent>
+        <xs:extension base="xs:string">
+          <xs:attribute type="xs:string" name="ref"/>
+        </xs:extension>
+      </xs:simpleContent>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="positionAttribute">
+    <xs:complexType>
+      <xs:simpleContent>
+        <xs:extension base="xs:string">
+          <xs:attribute type="xs:string" name="key" use="optional"/>
+          <xs:attribute type="xs:string" name="value" use="optional"/>
+        </xs:extension>
+      </xs:simpleContent>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="tradeRefs">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="tradeRef"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
 </xs:schema>

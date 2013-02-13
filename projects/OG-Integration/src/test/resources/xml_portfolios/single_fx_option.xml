@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<og-portfolio schemaVersion="1.0">
+
+  <trades>
+
+    <fxOptionTrade id="1">
+      <externalSystemId><id scheme="External">IdFromExternalSystem</id></externalSystemId>
+
+      <callPut>Put</callPut>
+      <currencyPair>EUR/USD</currencyPair>
+      <optionCurrency>EUR</optionCurrency>
+
+      <buySell>Buy</buySell>
+      <notional>1000000</notional>
+      <notionalCurrency>EUR</notionalCurrency>
+
+      <tradeDate>2013-01-20</tradeDate>
+      <settlementDate>2013-01-22</settlementDate>
+
+      <maturityDate>2018-01-31</maturityDate>
+      <expiryDate>2018-01-31</expiryDate>
+      <expiryCutoff>ECB|10am NY</expiryCutoff>
+
+      <!-- CashSettled|Physical - switch between NonDeliverableFxOption and the vanilla version respectively -->
+      <settlementType>CashSettled</settlementType>
+      <!-- Only valid for NonDeliverableFxOption (i.e. CashSettled settlement type) -->
+      <settlementCurrency>USD</settlementCurrency>
+
+      <exerciseType>European|American</exerciseType>
+
+      <counterparty><id scheme="Cpty">GOLDMAN</id></counterparty>
+
+      <strike>1.9</strike>
+
+      <premium>250</premium>
+      <premiumCurrency>EUR</premiumCurrency>
+
+      <expiryCalendars>
+        <calendar type="Bank">
+          <id scheme="CountryISO2">FD</id>
+        </calendar>
+      </expiryCalendars>
+
+      <settlementCalendars>
+        <calendar type="Bank">
+          <id scheme="CountryISO2">FD</id>
+        </calendar>
+      </settlementCalendars>
+
+    </fxOptionTrade>
+  </trades>
+
+  <positions>
+    <position id="1">
+      <quantity>1</quantity>
+      <trades>
+        <trade ref="1"/>
+      </trades>
+    </position>
+  </positions>
+
+  <portfolios>
+    <!-- portfolio name must be unique in this set -->
+    <portfolio name="single_fx_portfolio">
+      <positions>
+        <position ref="1"/>
+      </positions>
+    </portfolio>
+  </portfolios>
+
+</og-portfolio>

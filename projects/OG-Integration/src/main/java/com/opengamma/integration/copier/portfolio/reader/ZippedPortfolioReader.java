@@ -189,4 +189,8 @@ public class ZippedPortfolioReader implements PortfolioReader {
     }
   }
 
+  @Override
+  public String getPortfolioName() {
+    return null;
+  }
 }

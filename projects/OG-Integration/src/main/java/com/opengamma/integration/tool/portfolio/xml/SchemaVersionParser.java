@@ -1,4 +1,4 @@
-package com.opengamma.integration.tool.portfolio;
+package com.opengamma.integration.tool.portfolio.xml;
 
 import java.io.Reader;
 
@@ -93,13 +93,13 @@ public class SchemaVersionParser {
 
   private SchemaVersion parseVersionFromElement(StartElement element) {
 
-      Attribute schemaVersion = element.getAttributeByName(SCHEMA_VERSION_QNAME);
-      if (schemaVersion != null) {
-        return new SchemaVersion(schemaVersion.getValue());
-      }
-      else {
-        throw new OpenGammaRuntimeException("No schema version was found - unable to parse file");
-      }
+    Attribute schemaVersion = element.getAttributeByName(SCHEMA_VERSION_QNAME);
+    if (schemaVersion != null) {
+      return new SchemaVersion(schemaVersion.getValue());
+    }
+    else {
+      throw new OpenGammaRuntimeException("No schema version was found - unable to parse file");
+    }
   }
 
   private XMLEventReader createXmlEventReader() throws XMLStreamException {

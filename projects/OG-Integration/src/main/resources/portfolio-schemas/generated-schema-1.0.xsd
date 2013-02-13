@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema version="1.0" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="og-portfolio" type="og-portfolio"/>
+  <xs:complexType name="og-portfolio">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="name" type="xs:string"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0"
+                  name="trades" nillable="true" type="swapTrade"/>
+    </xs:sequence>
+
+    <xs:attribute type="xs:float" name="schemaVersion"/>
+  </xs:complexType>
+  <xs:complexType name="swapTrade">
+    <xs:complexContent>
+      <xs:extension base="trade">
+        <xs:sequence>
+          <xs:element name="fixedLeg" type="fixedLeg"/>
+          <xs:element name="floatingLeg" type="floatingLeg"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="trade">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="counterparty" type="extId"/>
+      <xs:element minOccurs="0" name="effectiveDate" type="localDate"/>
+      <xs:element minOccurs="0" name="externalSystemId" type="extId"/>
+      <xs:element minOccurs="0" name="maturity" type="localDate"/>
+      <xs:element minOccurs="0" name="tradeDate" type="localDate"/>
+    </xs:sequence>
+    <xs:attribute type="xs:string" name="id"/>
+  </xs:complexType>
+  <xs:complexType name="fixedLeg">
+    <xs:complexContent>
+      <xs:extension base="swapLeg">
+        <xs:sequence>
+          <xs:element name="rate" type="xs:double"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType abstract="true" name="swapLeg">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="businessDayConvention" type="xs:string"/>
+      <xs:element minOccurs="0" name="currency" type="xs:string"/>
+      <xs:element minOccurs="0" name="dayCount" type="xs:string"/>
+      <xs:element minOccurs="0" name="direction" type="direction"/>
+      <xs:element name="endOfMonth" type="xs:boolean"/>
+      <xs:element minOccurs="0" name="frequency" type="xs:string"/>
+      <xs:element name="imm" type="xs:boolean"/>
+      <xs:element minOccurs="0" name="notional" type="xs:decimal"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0"
+                  name="paymentCalendars" nillable="true" type="calendar"/>
+      <xs:element minOccurs="0" name="scheduleGenerationDirection" type="xs:string"/>
+      <xs:element minOccurs="0" name="stubPeriodType" type="stubPeriodType"/>
+      <xs:element minOccurs="0" name="stubPeriodTypeAdjustment" type="stubPeriodTypeAdjustment"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="calendar">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="externalId" type="extId"/>
+      <xs:element minOccurs="0" name="type" type="type"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="extId">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="id" type="xs:string"/>
+      <xs:element minOccurs="0" name="scheme" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="floatingLeg">
+    <xs:complexContent>
+      <xs:extension base="swapLeg">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="compoundingMethod" type="xs:string"/>
+          <xs:element maxOccurs="unbounded" minOccurs="0"
+                      name="fixingCalendars" nillable="true" type="calendar"/>
+          <xs:element minOccurs="0" name="fixingIndex" type="fixingIndex"/>
+          <xs:element minOccurs="0" name="resetFrequency" type="xs:string"/>
+          <xs:element minOccurs="0" name="resetLag" type="xs:string"/>
+          <xs:element minOccurs="0" name="resetType" type="resetType"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="fixingIndex">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="index" type="extId"/>
+      <xs:element minOccurs="0" name="rateType" type="rateType"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType final="extension restriction" name="localDate">
+    <xs:complexContent>
+      <xs:extension base="defaultInterfaceChronoLocalDate">
+        <xs:sequence/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType abstract="true" name="defaultInterfaceChronoLocalDate">
+    <xs:complexContent>
+      <xs:extension base="defaultInterfaceTemporal">
+        <xs:sequence/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType abstract="true" name="defaultInterfaceTemporal">
+    <xs:complexContent>
+      <xs:extension base="defaultInterfaceTemporalAccessor">
+        <xs:sequence/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType abstract="true" name="defaultInterfaceTemporalAccessor">
+    <xs:sequence/>
+  </xs:complexType>
+  <xs:simpleType name="direction">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Pay"/>
+      <xs:enumeration value="Receive"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="type">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Bank"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="stubPeriodType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Long"/>
+      <xs:enumeration value="Short"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="stubPeriodTypeAdjustment">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="LongCoupon"/>
+      <xs:enumeration value="ShortCoupon"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="rateType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="OIS"/>
+      <xs:enumeration value="CMS"/>
+      <xs:enumeration value="IBOR"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="resetType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="InAdvance"/>
+      <xs:enumeration value="InArrears"/>
+    </xs:restriction>
+  </xs:simpleType>
+</xs:schema>
+
+

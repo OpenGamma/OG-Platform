@@ -6,14 +6,11 @@ import static org.testng.Assert.assertNull;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.List;
 
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.google.common.collect.Lists;
+import com.opengamma.integration.tool.portfolio.xml.FilesystemPortfolioSchemaLocator;
+import com.opengamma.integration.tool.portfolio.xml.SchemaVersion;
 
 public class FilesystemPortfolioSchemaLocatorTest {
 

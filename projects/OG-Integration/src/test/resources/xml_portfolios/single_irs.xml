@@ -4,46 +4,45 @@
   <trades>
 
     <!-- Trade id must be unique in this list -->
-    <swapTrade id="idForThisTradeInThisFile">
+    <swapTrade id="1">
       <!-- Probably should be unique in this file too -->
-      <externalId>IdFromExternalSystem</externalId>
+      <externalSystemId><id scheme="External">IdFromExternalSystem</id></externalSystemId>
       <tradeDate>2013-01-20</tradeDate>
+      <effectiveDate>2013-02-01</effectiveDate>
+      <maturityDate>2018-01-31</maturityDate>
       <counterparty><id scheme="Cpty">GOLDMAN</id></counterparty>
 
-      <!--optional-->
+<!--      &lt;!&ndash;optional&ndash;&gt;
       <isCleared>false</isCleared>
-      <!--optional-->
+      &lt;!&ndash;optional&ndash;&gt;
       <clearingBroker>dependency on isCleared? / Id format??</clearingBroker>
-      <!--optional-->
+      &lt;!&ndash;optional&ndash;&gt;
       <clearingHouse>dependency on isCleared? / Id format??</clearingHouse>
-      <!--optional-->
+      &lt;!&ndash;optional&ndash;&gt;
       <executingBroker>Id format??</executingBroker>
-      <!--optional-->
+      &lt;!&ndash;optional&ndash;&gt;
       <primeBroker>Id format??</primeBroker>
-      <!--optional-->
-      <collateralAgreement>Only if not cleared</collateralAgreement>
+      &lt;!&ndash;optional&ndash;&gt;
+      <collateralAgreement>Only if not cleared</collateralAgreement>-->
 
       <!-- Additional trade attributes - generally data that won't affect analytics -->
-      <tradeAttributes>
+<!--      <tradeAttributes>
         <entry key="STRING">STRING</entry>
-      </tradeAttributes>
+      </tradeAttributes>-->
 
-      <tradeLegs>
 
         <fixedLeg>
           <payReceive>Pay</payReceive>
           <currency>USD</currency>
           <!-- Notional could be array-valued -->
           <notional>1000000</notional>
-          <frequency></frequency>
-          <effectiveDate>2013-02-01</effectiveDate>
-          <maturity>2018-01-31</maturity>
-          <rate>105.25</rate>
-          <dayCount></dayCount>
-          <businessDayAdjustment></businessDayAdjustment>
+          <frequency>12m</frequency>
+          <dayCount>Actual/365</dayCount>
+          <businessDayConvention>Modified Following</businessDayConvention>
           <interestCalculation>Adjusted</interestCalculation>
           <scheduleGenerationDirection>Backward</scheduleGenerationDirection>
           <endOfMonth>True</endOfMonth>
+          <isIMM>True</isIMM>
           <paymentCalendars>
             <calendar type="Bank"> <!-- default=BANK  -->
               <id scheme="CountryISO2">FD</id>
@@ -52,28 +51,24 @@
               <id scheme="CountryISO2">EN</id>
             </calendar>
           </paymentCalendars>
-          <isIMM>True</isIMM>
-          <!--default = short-->
-          <shortLongCoupon>Long</shortLongCoupon>
+          <stubPeriodType>Long</stubPeriodType>
+          <!-- Default to ShortCoupon-->
+          <stubPeriodTypeAdjustment>LongCoupon|ShortCoupon</stubPeriodTypeAdjustment>
+          <rate>105.25</rate>
         </fixedLeg>
-        <floatingRateLeg type="InterestRate|Inflation">
+
+        <floatingLeg type="InterestRate|Inflation">
           <payReceive>Receive</payReceive>
           <currency>USD</currency>
           <!-- Notional could be array-valued -->
           <notional>1000000</notional>
           <!-- map to our InterestRateNotional where sign = Pay/Recieve flag -->
-          <frequency> <!-- values from SimpleFrequencyFactory -->
-          </frequency>
-          <!-- loader needs to enforce against convention for now -->
-          <effectiveDate>2013-02-01</effectiveDate>
-          <!-- loader should enforce same maturity on each leg for now -->
-          <maturity>2018-01-31</maturity>
+          <frequency>12m</frequency>
           <!-- loader should support either spread or gearing for now, schema should allow both -->
           <spread>5.25</spread>
           <gearing>-3</gearing>
           <!-- use DayCountFactory -->
-          <dayCount>
-          </dayCount>
+          <dayCount>Actual/365</dayCount>
           <!-- use BusinessDayConventionFactory -->
           <businessDayConvention>Modified Following</businessDayConvention>
           <!-- only adjusted supported now -->
@@ -97,7 +92,6 @@
           </paymentCalendars>
 
           <!-- always short for now -->
-          <shortLongCoupon>Long</shortLongCoupon>
           <!-- same as frequency for now -->
           <resetFrequency></resetFrequency>
           <!-- not supported at the moment as frequencies must match -->
@@ -105,18 +99,48 @@
           <!-- we're assuming that resetLag == settlementLag at the moment -->
           <resetLag></resetLag>
           <!-- In Advance or In Arrears.  Only support In advance at the mo -->
-          <resetType>In Advance</resetType>
+          <resetType>InAdvance</resetType>
           <!-- same as payment calendar at the moment -->
-          <fixingCalendar></fixingCalendar>
+          <fixingCalendars></fixingCalendars>
           <fixingIndex>
             <id scheme="BLOOMBERG_TICKER">US0003M Curncy</id>
+            <!-- OIS|CMS|IBOR -->
+            <rateType>IBOR</rateType>
           </fixingIndex>
-          <!-- Interpolated -->
-          <shortLongCouponAdjustment></shortLongCouponAdjustment>
-        </floatingRateLeg>
+
+          <stubPeriodType>Long</stubPeriodType>
+          <!-- Interpolated - Default to ShortCoupon-->
+          <stubPeriodTypeAdjustment>LongCoupon|ShortCoupon</stubPeriodTypeAdjustment>
+        </floatingLeg>
 
 
-      </tradeLegs>
     </swapTrade>
   </trades>
+
+  <positions>
+    <position id="1">
+      <quantity>105</quantity>
+      <!--<security><id scheme="BLOOMBERG_TICKER">US0003M Curncy</id></security>-->
+
+<!--      <positionAttributes>
+        &lt;!&ndash;Position may have a quantity if there are trades but may be recalced from trade values instead&ndash;&gt;
+        <positionAttribute key="Quantity" value="1"/>
+        <positionAttribute key="Bloomberg BUID" value="IX14276430-0"/>
+        <positionAttribute key="Bloomberg Ticker" value="USU2 Comdty"/>
+      </positionAttributes>-->
+      <trades>
+        <trade ref="1"/>
+      </trades>
+    </position>
+  </positions>
+
+  <portfolios>
+    <!-- portfolio name must be unique in this set -->
+    <portfolio name="single_irs_portfolio">
+      <positions>
+        <position ref="1"/>
+      </positions>
+    </portfolio>
+  </portfolios>
+
 </og-portfolio>
