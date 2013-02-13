@@ -155,7 +155,6 @@ $.register_module({
                     error: function (xhr, status, error) {
                         // re-send requests that have timed out only if they are GETs (/updates requests don't time out)
                         if (error === 'timeout' && is_get && !config.meta.is_update) return send();
-                        console.log(xhr, status, error);
                         var result = {
                             error: xhr.status || true, data: null,
                             meta: {content_length: (xhr.responseText || '').length, url: url, promise: promise.id},
@@ -286,7 +285,6 @@ $.register_module({
                 };
                 blotter.positions.put = function (config) {
                     config = config || {};
-                    console.log(config);
                     var root = this.root, method = root.split('/'), meta, data = {trade: {}}, id = config.id;
                     meta = check({bundle: {method: root + '#put', config: config}, 
                                 required: [{all_of: ['trade', 'nodeId']}]});

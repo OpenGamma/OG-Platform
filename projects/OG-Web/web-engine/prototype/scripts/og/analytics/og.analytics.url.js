@@ -21,7 +21,6 @@ $.register_module({
         var context_items = function (cell) {
             var items = [];
             var position_edit = function () {
-                console.log(cell);
                 var arr = cell.row_value.positionId.split('~'), id = arr[0] + '~' + arr[1];
                 og.api.rest.blotter.positions.get({id: id}).pipe(function(data){
                     data.data.trade.uniqueId = id;
@@ -49,11 +48,9 @@ $.register_module({
                 return items;
             }
             if((cell.type === "OTC_TRADE" || cell.type === "FUNGIBLE_TRADE") && cell.row_value.tradeId){
-                console.log('trade');
                 items.push({name: 'Edit', handler: trade_edit}); 
             } 
             else {
-                console.log('position');
                 items.push({name: 'Edit', handler: position_edit}); 
             }
             return items;
