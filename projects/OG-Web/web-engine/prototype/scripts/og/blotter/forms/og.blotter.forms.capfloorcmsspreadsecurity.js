@@ -64,7 +64,7 @@ $.register_module({
                     og.blotter.util.check_radio("security.payer", data.security.payer);
                 });
                 form.on('form:submit', function (result){
-                   config.endpoint(result.data);
+                   config.handler(result.data);
                 });
             }; 
             constructor.load();

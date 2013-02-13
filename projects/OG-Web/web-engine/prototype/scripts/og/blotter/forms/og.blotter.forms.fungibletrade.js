@@ -12,9 +12,13 @@ $.register_module({
             ids_selector = 'og-blocks-fungible-security-ids',
             blank_details = "<table class='" + details_selector + "'></table>",
             blank_ids = "<table class='" + ids_selector + "'></table>";
-            if(config.details) {data = config.details.data; data.id = config.details.data.trade.uniqueId;}
+            if(config.details) {
+                data = config.details.data; 
+                data.id = config.details.data.trade.uniqueId;
+            }
             else {data = {trade: og.blotter.util.fungible_trade};}
             data.nodeId = config.portfolio.id;
+            console.log(data);
             constructor.load = function () {
                 constructor.title = 'Fungible Trade';
                 form = new og.common.util.ui.Form({
@@ -23,7 +27,8 @@ $.register_module({
                     selector: '.OG-blotter-form-block'
                 });
                 security = new og.blotter.forms.blocks.Security({form: form, label: "Underlying ID", 
-                    security: data.trade.securityIdBundle, index: "trade.securityIdBundle"});
+                    security: data.trade.securityIdBundle.split(',')[0], 
+                    index: "trade.securityIdBundle", insert: !config.details});
                 form.children.push(
                     new og.blotter.forms.blocks.Portfolio({form: form, counterparty: data.trade.counterparty, 
                         portfolio: data.nodeId, tradedate: data.trade.tradeDate}),
@@ -42,7 +47,9 @@ $.register_module({
                     og.blotter.util.add_datetimepicker("trade.tradeDate");
                     get_security();
                 });
-                form.on('form:submit', function (result) {config.endpoint(result.data);});
+                form.on('form:submit', function (result) {
+                    config.handler(result.data);
+                });
                 form.on('keyup', security.input_id(), function (event) {get_security();});
                 form.on('change', security.select_id(), function (event) {get_security();});
             }; 

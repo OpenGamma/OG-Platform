@@ -65,7 +65,7 @@ $.register_module({
                     og.blotter.util.check_checkbox("security.ibor", data.security.ibor);
                 });
                 form.on('form:submit', function (result){
-                    config.endpoint(result.data);
+                    config.handler(result.data);
                 });
             }; 
             constructor.load();

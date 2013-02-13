@@ -52,7 +52,7 @@ $.register_module({
                     og.blotter.util.set_select("security.currency", data.security.currency);
                 });
                 form.on('form:submit', function (result){
-                    config.endpoint(result.data);
+                    config.handler(result.data);
                 });
             }; 
             constructor.load();

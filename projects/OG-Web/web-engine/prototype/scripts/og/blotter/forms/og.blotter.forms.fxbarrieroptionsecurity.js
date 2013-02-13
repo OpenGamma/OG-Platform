@@ -76,7 +76,7 @@ $.register_module({
                     og.blotter.util.check_radio("security.longShort", data.security.longShort);
                 });
                 form.on('form:submit', function (result){
-                    config.endpoint(result.data);
+                    config.handler(result.data);
                 });
             }; 
             constructor.load();

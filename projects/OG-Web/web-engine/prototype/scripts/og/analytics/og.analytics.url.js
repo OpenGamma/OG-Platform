@@ -21,10 +21,13 @@ $.register_module({
         var context_items = function (cell) {
             var items = [];
             var position_edit = function () {
-                var id = cell.row_value.positionId.replace(/~[^~]{1,}$/, '');
+                console.log(cell);
+                var arr = cell.row_value.positionId.split('~'), id = arr[0] + '~' + arr[1];
                 og.api.rest.blotter.positions.get({id: id}).pipe(function(data){
+                    data.data.trade.uniqueId = id;
                     new og.blotter.Dialog({
-                        details: data, portfolio:{name: id, id: id}, endpoint: og.api.rest.blotter.positions.put
+                        details: data, portfolio:{name: id, id: id}, 
+                        handler: function (data) {og.api.rest.blotter.positions.put(data);}
                     });
                 });
             };
@@ -32,23 +35,25 @@ $.register_module({
                 og.api.rest.blotter.trades.get({id: cell.row_value.tradeId}).pipe(function(data){
                     new og.blotter.Dialog({
                         details: data, portfolio:{name: cell.row_value.nodeId, id: cell.row_value.nodeId},
-                        endpoint: og.api.rest.blotter.trades.put
+                        handler: function (data) {og.api.rest.blotter.trades.put(data);}
                     });
                 });
             };
             var trade_insert = function () {
                 new og.blotter.Dialog({portfolio:{name: cell.row_value.nodeId, id: cell.row_value.nodeId}, 
-                    endpoint: og.api.rest.blotter.trades.put});
+                    handler: function (data) {og.api.rest.blotter.trades.put(data);}
+                });
             };
             items.push({name: 'Insert', handler: trade_insert});
             if ((cell.type === "POSITION" && cell.row in og.analytics.grid.meta.nodes) || cell.type === "NODE") {
                 return items;
             }
             if((cell.type === "OTC_TRADE" || cell.type === "FUNGIBLE_TRADE") && cell.row_value.tradeId){
+                console.log('trade');
                 items.push({name: 'Edit', handler: trade_edit}); 
-               
             } 
             else {
+                console.log('position');
                 items.push({name: 'Edit', handler: position_edit}); 
             }
             return items;
@@ -89,11 +94,8 @@ $.register_module({
                             url.main($.extend({}, og.analytics.grid.source, {type: view}));
                         }).on('fatal', url.clear_main);
                         if (og.analytics.blotter) og.analytics.grid.on('contextmenu', function (event, cell, col) {
-                            if (cell) {
-                                console.log(cell);
-                                return og.common.util.ui.contextmenu(
-                                    {defaults: true, zindex: 4, items: context_items(cell)}, event, cell);
-                            }
+                            if (cell) return og.common.util.ui.contextmenu({defaults: true, zindex: 4, 
+                                items: context_items(cell)}, event, cell);
                         });
                     } else {
                         new og.analytics.Form2({callback: og.analytics.url.main, data: config.main});

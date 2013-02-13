@@ -47,7 +47,7 @@ $.register_module({
                     og.blotter.util.set_datetime("security.forwardDate", data.security.forwardDate);
                 });
                 form.on('form:submit', function (result){
-                    config.endpoint(result.data);
+                    config.handler(result.data);
                 });
             }; 
             constructor.load();

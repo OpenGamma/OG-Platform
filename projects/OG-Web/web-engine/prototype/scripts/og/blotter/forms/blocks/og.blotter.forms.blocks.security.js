@@ -33,8 +33,11 @@ $.register_module({
                     })
                 ],                       
                 processor: function (data) {
-                    var path = config.index.split('.'), last = path.pop(), merge = data[scheme_id] + "~" + data[sec_id];
-                    path.reduce(function (acc, val) {return acc[val];}, data)[last] = merge;
+                    if (config.insert) {
+                        var path = config.index.split('.'), last = path.pop(), 
+                            merge = data[scheme_id] + "~" + data[sec_id];
+                        path.reduce(function (acc, val) {return acc[val];}, data)[last] = merge;                        
+                    }
                     delete data[sec_id];
                     delete data[scheme_id];
                 }

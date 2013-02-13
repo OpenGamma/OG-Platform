@@ -104,7 +104,7 @@ $.register_module({
                     }
                 }); 
                 form.on('form:submit', function (result){
-                    config.endpoint(result.data);
+                    config.handler(result.data);
                 });
                 form.on('change', '#' + pay_select.id, function (event) {
                     og.blotter.util.toggle_fixed($receive_select, event.target.value);
