@@ -15,7 +15,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 public final class BrentCrudeFutureExpiryCalculator implements ExchangeTradedInstrumentExpiryCalculator {
   /** Name of the calculator */
-  public static final String NAME = "SoybeanFutureExpiryCalculator";
+  public static final String NAME = "BrentCrudeFutureExpiryCalculator";
   private static final BrentCrudeFutureExpiryCalculator INSTANCE = new BrentCrudeFutureExpiryCalculator();
 
   public static BrentCrudeFutureExpiryCalculator getInstance() {
@@ -26,7 +26,7 @@ public final class BrentCrudeFutureExpiryCalculator implements ExchangeTradedIns
   }
 
   /**
-   * Expiry date of Soybean Futures:
+   * Expiry date of Brent crude Futures:
    * The business day preceding the 15th day of the contract month.
    * See http://www.cmegroup.com/trading/energy/crude-oil/brent-crude-oil-last-day_contractSpecs_futures.html#prodType=AME
    * Note: Logic to handle holidays in London is not handled currently

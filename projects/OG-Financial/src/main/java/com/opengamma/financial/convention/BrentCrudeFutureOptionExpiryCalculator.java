@@ -5,10 +5,7 @@
  */
 package com.opengamma.financial.convention;
 
-import org.threeten.bp.DayOfWeek;
 import org.threeten.bp.LocalDate;
-import org.threeten.bp.temporal.TemporalAdjuster;
-import org.threeten.bp.temporal.TemporalAdjusters;
 
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.ArgumentChecker;
@@ -18,10 +15,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 public final class BrentCrudeFutureOptionExpiryCalculator implements ExchangeTradedInstrumentExpiryCalculator {
   /** Name of the calculator */
-  public static final String NAME = "SoybeanFutureOptionExpiryCalculator";
-  private static final TemporalAdjuster LAST_DAY_ADJUSTER = TemporalAdjusters.lastDayOfMonth();
-  private static final TemporalAdjuster PREVIOUS_OR_CURRENT_FRIDAY_ADJUSTER = TemporalAdjusters.previousOrSame(DayOfWeek.FRIDAY);
-  private static final TemporalAdjuster PREVIOUS_FRIDAY_ADJUSTER = TemporalAdjusters.previous(DayOfWeek.FRIDAY);
+  public static final String NAME = "BrentCrudeFutureOptionExpiryCalculator";
   private static final BrentCrudeFutureOptionExpiryCalculator INSTANCE = new BrentCrudeFutureOptionExpiryCalculator();
 
   public static BrentCrudeFutureOptionExpiryCalculator getInstance() {
@@ -33,7 +27,7 @@ public final class BrentCrudeFutureOptionExpiryCalculator implements ExchangeTra
 
 
   /**
-   * Expiry date of Soybean Future Options:
+   * Expiry date of Brent Crude Future Options:
    * 3 business days prior to the future expiry
    * See http://www.cmegroup.com/trading/energy/crude-oil/brent-crude-oil-last-day_contractSpecs_options.html#prodType=AME
    * @param n n'th expiry date after today
