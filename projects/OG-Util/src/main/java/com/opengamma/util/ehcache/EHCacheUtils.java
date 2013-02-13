@@ -5,6 +5,7 @@
  */
 package com.opengamma.util.ehcache;
 
+import java.io.InputStream;
 import java.util.Collection;
 
 import com.opengamma.OpenGammaRuntimeException;
@@ -20,8 +21,9 @@ import net.sf.ehcache.Element;
  */
 public final class EHCacheUtils {
 
-  /** The default Ehcache configuration file */
-  private static final String EHCACHE_CONFIG = "../../common/ehcache-default.xml";
+  /** The default Ehcache configuration file name */
+  private static final String DEFAULT_EHCACHE_CONFIG_FILE = "/com/opengamma/util/ehcache/default-ehcache.xml";
+
   /** Null value to cache */
   private static final Object NULL = new Object();
 
@@ -53,12 +55,25 @@ public final class EHCacheUtils {
    */
   public static CacheManager createCacheManager() {
     try {
-      return CacheManager.newInstance(EHCACHE_CONFIG);
+      return CacheManager.newInstance(getEhCacheConfig());
     } catch (CacheException ex) {
       throw new OpenGammaRuntimeException("Unable to create CacheManager", ex);
     }
   }
-  
+
+  public static synchronized InputStream getEhCacheConfig() {
+    String ehcacheConfigFile = DEFAULT_EHCACHE_CONFIG_FILE;
+    String overrideEhcacheConfigFile = System.getProperty("ehcache.config"); // passed in by Ant
+    if (overrideEhcacheConfigFile != null) {
+      ehcacheConfigFile = overrideEhcacheConfigFile;
+      System.err.println("Using ehcache.config from system property: " + ehcacheConfigFile);
+    } else {
+      System.err.println("Using default ehcache.config file name: " + ehcacheConfigFile);
+    }
+    return EHCacheUtils.class.getResourceAsStream(ehcacheConfigFile);
+  }
+
+
   /**
    * Clears the contents of all caches (without deleting the caches themselves). Should be called e.g. between tests.
    * 
