@@ -49,6 +49,7 @@ import com.opengamma.financial.currency.ConfigDBCurrencyPairsSource;
 import com.opengamma.financial.currency.CurrencyMatrixSourcingFunction;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.CurrencyPairs;
+import com.opengamma.financial.currency.CurrencySeriesConversionFunction;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -77,7 +78,7 @@ public class FXForwardCurrencyExposurePnLFunction extends AbstractFunction.NonCo
     final String samplingFunction = desiredValue.getConstraint(ValuePropertyNames.SAMPLING_FUNCTION);
     final FXForwardSecurity security = (FXForwardSecurity) position.getSecurity();
     final MultipleCurrencyAmount mca = (MultipleCurrencyAmount) inputs.getValue(ValueRequirementNames.FX_CURRENCY_EXPOSURE);
-    final HistoricalTimeSeries timeSeries = (HistoricalTimeSeries) inputs.getValue(ValueRequirementNames.HISTORICAL_TIME_SERIES);
+    final HistoricalTimeSeries timeSeries = (HistoricalTimeSeries) inputs.getValue(CurrencySeriesConversionFunction.SPOT_RATE);
     final Currency payCurrency = security.getPayCurrency();
     final Currency receiveCurrency = security.getReceiveCurrency();
     if (timeSeries == null) {
