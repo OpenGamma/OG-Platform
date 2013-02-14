@@ -26,7 +26,7 @@ $.register_module({
                     data.data.trade.uniqueId = id;
                     new og.blotter.Dialog({
                         details: data, portfolio:{name: id, id: id}, 
-                        handler: function (data) {og.api.rest.blotter.positions.put(data);}
+                        handler: function (data) {return og.api.rest.blotter.positions.put(data);}
                     });
                 });
             };
@@ -34,7 +34,7 @@ $.register_module({
                 og.api.rest.blotter.trades.get({id: cell.row_value.tradeId}).pipe(function(data){
                     new og.blotter.Dialog({
                         details: data, portfolio:{name: cell.row_value.nodeId, id: cell.row_value.nodeId},
-                        handler: function (data) {og.api.rest.blotter.trades.put(data);}
+                        handler: function (data) {return og.api.rest.blotter.trades.put(data);}
                     });
                 });
             };
