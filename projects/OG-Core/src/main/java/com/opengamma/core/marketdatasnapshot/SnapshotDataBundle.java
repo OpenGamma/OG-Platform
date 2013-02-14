@@ -18,7 +18,7 @@ import com.opengamma.id.ExternalIdBundle;
  * <p>
  * This class is mutable and not thread-safe.
  */
-public class SnapshotDataBundle {
+public final class SnapshotDataBundle {
 
   /**
    * The market values in the bundle.
@@ -146,9 +146,5 @@ public class SnapshotDataBundle {
   public Set<Map.Entry<ExternalIdBundle, Double>> getDataPointSet() {
     return Collections.unmodifiableSet(_dataPoints.entrySet());
   }
-
-  // TODO: [PLAT-3044] Fudge serialization
-
-  // TODO: [PLAT-3044] Unit test
 
 }
