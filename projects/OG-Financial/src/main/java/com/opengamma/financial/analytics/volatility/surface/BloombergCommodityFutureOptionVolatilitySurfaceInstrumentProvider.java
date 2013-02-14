@@ -91,11 +91,11 @@ public class BloombergCommodityFutureOptionVolatilitySurfaceInstrumentProvider e
     ticker.append(strike > useCallAboveStrike() ? "C" : "P");
     ticker.append(" ");
     // temp workaround for BZA which has 2 decimal places - need to find the proper rule.
-    if (prefix.equals("BZA")) {
-      ticker.append(withTwoDigits.format(strike));
-    } else {
+    //if (prefix.equals("BZA")) {
+    //  ticker.append(withTwoDigits.format(strike));
+    //} else {
       ticker.append(strike);
-    }
+    //}
     ticker.append(" ");
     ticker.append(getPostfix());
     return ExternalId.of(getScheme(), ticker.toString());
