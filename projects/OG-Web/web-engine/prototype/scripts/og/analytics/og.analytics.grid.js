@@ -240,9 +240,11 @@ $.register_module({
                     if ($target.is('.resize')) return col_resize.call(grid, event, $target), void 0;
                     // if ($target.is('.reorder')) return col_reorder.call(grid, event, $target), void 0;
                     if (!$target.is('.node')) return grid.fire('mousedown', event), void 0;
+                    if ($target.is('.loading')) return;
+                    $target.removeClass('expand collapse').addClass('loading');
                     grid.meta.nodes[row = +$target.attr('data-row')] = !grid.meta.nodes[row];
                     grid.resize().selector.clear();
-                    return false; // kill bubbling if it's a node
+                    return false; // kill bubbling
                 })
                 .on('contextmenu', '.OG-g-sel, .OG-g-cell', function (event) { // for cells
                     hoverin_handler(event, true); // silently run hoverin_handler to set cell
