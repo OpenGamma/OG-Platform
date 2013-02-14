@@ -35,22 +35,6 @@ public class MarketDataUtils {
    * 
    * @param provider the provider to test, not null
    * @param requirement the requirement to test, not null
-   * @return true if the requirement can be satisfied by the provider, false otherwise
-   */
-  public static boolean isAvailable(final MarketDataAvailabilityProvider provider, final ValueRequirement requirement) {
-    try {
-      // [PLAT-3044] Pass in the target properly
-      return provider.getAvailability(ComputationTargetSpecification.NULL, null, requirement) != null;
-    } catch (final MarketDataNotSatisfiableException e) {
-      return false;
-    }
-  }
-
-  /**
-   * Tests whether the requirement can be satisfied by the availability provider.
-   * 
-   * @param provider the provider to test, not null
-   * @param requirement the requirement to test, not null
    * @return one of the three availability states - see {@link MarketDataAvailability} for more details, not null
    */
   public static MarketDataAvailability getAvailability(final MarketDataAvailabilityProvider provider, final ValueRequirement requirement) {

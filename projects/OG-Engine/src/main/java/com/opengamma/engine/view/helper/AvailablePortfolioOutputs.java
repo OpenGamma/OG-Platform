@@ -32,8 +32,8 @@ import com.opengamma.engine.function.CompiledFunctionRepository;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.exclusion.FunctionExclusionGroup;
 import com.opengamma.engine.function.exclusion.FunctionExclusionGroups;
-import com.opengamma.engine.marketdata.MarketDataUtils;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
+import com.opengamma.engine.marketdata.availability.MarketDataNotSatisfiableException;
 import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.target.ComputationTargetResolverUtils;
 import com.opengamma.engine.target.ComputationTargetType;
@@ -247,6 +247,14 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
       return allResults;
     }
 
+    public boolean isAvailable(final ComputationTargetSpecification targetSpec, final Object target, final ValueRequirement requirement) {
+      try {
+        return _marketDataAvailabilityProvider.getAvailability(targetSpec, target, requirement) != null;
+      } catch (final MarketDataNotSatisfiableException e) {
+        return false;
+      }
+    }
+
     private Set<ValueSpecification> resultWithSatisfiedRequirements(final Set<ValueRequirement> visitedRequirements, final Set<FunctionExclusionGroup> visitedFunctions,
         final CompiledFunctionDefinition function, final ComputationTarget target, final ValueRequirement requiredOutputValue, final ValueSpecification resolvedOutputValue) {
       final Set<ValueRequirement> requirements;
@@ -274,12 +282,12 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
         final ComputationTargetReference targetRef = requirement.getTargetReference();
         if (targetRef instanceof ComputationTargetSpecification) {
           final ComputationTargetSpecification targetSpec = targetRef.getSpecification();
-          if (MarketDataUtils.isAvailable(_marketDataAvailabilityProvider, requirement)) {
+          final UniqueIdentifiable requirementTarget = _targetCache.get(targetSpec.getUniqueId());
+          if (isAvailable(targetSpec, requirementTarget, requirement)) {
             s_logger.debug("Requirement {} can be satisfied by market data", requirement);
             inputs.put(new SingleItem<ValueSpecification>(new ValueSpecification(requirement.getValueName(), targetSpec, ValueProperties.with(ValuePropertyNames.FUNCTION, "marketdata").get())),
                 requirement);
           } else {
-            final UniqueIdentifiable requirementTarget = _targetCache.get(targetSpec.getUniqueId());
             if (requirementTarget != null) {
               s_logger.debug("Resolving {} for function {}", requirement, function);
               final Set<ValueSpecification> satisfied = satisfyRequirement(visitedRequirements, visitedFunctions, ComputationTargetResolverUtils.createResolvedTarget(targetSpec, requirementTarget),
@@ -456,7 +464,7 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
 
   /**
    * Constructs a new output set.
-   *
+   * 
    * @param portfolio the portfolio (must be resolved), not null
    * @param functionRepository the functions, not null
    * @param functionExclusionGroups the function exclusion groups
