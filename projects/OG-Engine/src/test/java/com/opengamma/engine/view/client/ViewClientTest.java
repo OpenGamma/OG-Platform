@@ -18,10 +18,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
-import org.threeten.bp.Instant;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
@@ -30,14 +27,8 @@ import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
-import com.opengamma.engine.marketdata.AbstractMarketDataProvider;
-import com.opengamma.engine.marketdata.AbstractMarketDataSnapshot;
-import com.opengamma.engine.marketdata.MarketDataInjector;
-import com.opengamma.engine.marketdata.MarketDataPermissionProvider;
-import com.opengamma.engine.marketdata.MarketDataSnapshot;
-import com.opengamma.engine.marketdata.MarketDataUtils;
-import com.opengamma.engine.marketdata.PermissiveMarketDataPermissionProvider;
-import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
+import com.opengamma.engine.marketdata.InMemoryLKVMarketDataProvider;
+import com.opengamma.engine.marketdata.InMemoryLKVMarketDataSnapshot;
 import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.target.ComputationTargetType;
@@ -264,7 +255,6 @@ public class ViewClientTest {
     resultListener.assertCycleStarted(TIMEOUT);
     resultListener.assertCycleFragmentCompleted(TIMEOUT);
     final ViewDeltaResultModel result2 = resultListener.getCycleCompleted(TIMEOUT).getDeltaResult();
-
 
     expected = new HashMap<ValueRequirement, Object>();
     expected.put(ViewProcessorTestEnvironment.getPrimitive1(), 3);
@@ -570,8 +560,8 @@ public class ViewClientTest {
     final ViewCalculationConfiguration calcConfig = new ViewCalculationConfiguration(vd, "Default");
     calcConfig.addSpecificRequirement(requirement2);
     vd.addViewCalculationConfiguration(calcConfig);
-    vd.setMinFullCalculationPeriod(Long.MAX_VALUE);  // Never force a full calculation
-    vd.setMaxFullCalculationPeriod(Long.MAX_VALUE);  // Never force a full calculation
+    vd.setMinFullCalculationPeriod(Long.MAX_VALUE); // Never force a full calculation
+    vd.setMaxFullCalculationPeriod(Long.MAX_VALUE); // Never force a full calculation
     env.setViewDefinition(vd);
 
     env.init();
@@ -703,127 +693,30 @@ public class ViewClientTest {
   }
 
   /**
-   * Avoids the ConcurrentHashMap-based implementation of InMemoryLKVSnapshotProvider, where the LKV map can appear to
-   * lag behind if accessed from a different thread immediately after a change.
+   * Avoids the ConcurrentHashMap-based implementation of InMemoryLKVSnapshotProvider, where the LKV map can appear to lag behind if accessed from a different thread immediately after a change.
    */
-  private static class SynchronousInMemoryLKVSnapshotProvider extends AbstractMarketDataProvider implements MarketDataInjector,
-  MarketDataAvailabilityProvider {
-
-    private static final Logger s_logger = LoggerFactory.getLogger(SynchronousInMemoryLKVSnapshotProvider.class);
-
-    private final Map<ValueSpecification, Object> _lastKnownValues = new HashMap<ValueSpecification, Object>();
-    private final MarketDataPermissionProvider _permissionProvider = new PermissiveMarketDataPermissionProvider();
+  private static class SynchronousInMemoryLKVSnapshotProvider extends InMemoryLKVMarketDataProvider {
 
     @Override
-    public void subscribe(final ValueSpecification valueSpecification) {
-      subscribe(Collections.singleton(valueSpecification));
-    }
-
-    @Override
-    public void subscribe(final Set<ValueSpecification> valueSpecifications) {
-      // No actual subscription to make, but we still need to acknowledge it.
-      subscriptionSucceeded(valueSpecifications);
-    }
-
-    @Override
-    public void unsubscribe(final ValueSpecification valueSpecification) {
-    }
-
-    @Override
-    public void unsubscribe(final Set<ValueSpecification> valueSpecifications) {
+    public synchronized InMemoryLKVMarketDataSnapshot snapshot(final MarketDataSpecification marketDataSpec) {
+      return super.snapshot(marketDataSpec);
     }
 
     //-----------------------------------------------------------------------
     @Override
-    public MarketDataAvailabilityProvider getAvailabilityProvider() {
-      return this;
+    public synchronized void addValue(final ValueSpecification valueSpecification, final Object value) {
+      super.addValue(valueSpecification, value);
     }
 
     @Override
-    public MarketDataPermissionProvider getPermissionProvider() {
-      return _permissionProvider;
+    public synchronized void removeValue(final ValueSpecification valueSpecification) {
+      super.removeValue(valueSpecification);
     }
 
     //-----------------------------------------------------------------------
     @Override
-    public boolean isCompatible(final MarketDataSpecification marketDataSpec) {
-      return true;
-    }
-
-    @Override
-    public MarketDataSnapshot snapshot(final MarketDataSpecification marketDataSpec) {
-      synchronized (_lastKnownValues) {
-        final Map<ValueSpecification, Object> snapshotValues = new HashMap<ValueSpecification, Object>(_lastKnownValues);
-        return new SynchronousInMemoryLKVSnapshot(snapshotValues);
-      }
-    }
-
-    //-----------------------------------------------------------------------
-    @Override
-    public void addValue(final ValueSpecification valueSpecification, final Object value) {
-      s_logger.debug("Setting {} = {}", valueSpecification, value);
-      synchronized (_lastKnownValues) {
-        _lastKnownValues.put(valueSpecification, new ComputedValue(valueSpecification, value));
-      }
-      // Don't notify listeners of the change - we'll kick off a computation cycle manually in the tests
-    }
-
-    @Override
-    public void addValue(final ValueRequirement valueRequirement, final Object value) {
-      addValue(MarketDataUtils.createMarketDataValue(valueRequirement, MarketDataUtils.DEFAULT_EXTERNAL_ID), value);
-    }
-
-    @Override
-    public void removeValue(final ValueSpecification valueSpecification) {
-      synchronized(_lastKnownValues) {
-        _lastKnownValues.remove(valueSpecification);
-      }
-      // Don't notify listeners of the change - we'll kick off a computation cycle manually in the tests
-    }
-
-    @Override
-    public void removeValue(final ValueRequirement valueRequirement) {
-      removeValue(MarketDataUtils.createMarketDataValue(valueRequirement, MarketDataUtils.DEFAULT_EXTERNAL_ID));
-    }
-
-    //-----------------------------------------------------------------------
-    @Override
-    public ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final Object target, final ValueRequirement desiredValue) {
-      // [PLAT-3044] Do this properly
-      synchronized (_lastKnownValues) {
-        return _lastKnownValues.containsKey(desiredValue) ? MarketDataUtils.createMarketDataValue(desiredValue, MarketDataUtils.DEFAULT_EXTERNAL_ID) : null;
-      }
-    }
-
-  }
-
-  private static class SynchronousInMemoryLKVSnapshot extends AbstractMarketDataSnapshot {
-
-    private final Map<ValueSpecification, Object> _snapshot;
-    private final Instant _snapshotTime = Instant.now();
-
-    public SynchronousInMemoryLKVSnapshot(final Map<ValueSpecification, Object> snapshot) {
-      _snapshot = snapshot;
-    }
-
-    @Override
-    public UniqueId getUniqueId() {
-      return UniqueId.of(MARKET_DATA_SNAPSHOT_ID_SCHEME, "SynchronousInMemoryLKVSnapshot:"+getSnapshotTime());
-    }
-
-    @Override
-    public Instant getSnapshotTimeIndication() {
-      return _snapshotTime;
-    }
-
-    @Override
-    public Instant getSnapshotTime() {
-      return _snapshotTime;
-    }
-
-    @Override
-    public Object query(final ValueSpecification specification) {
-      return _snapshot.get(specification);
+    public synchronized ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final Object target, final ValueRequirement desiredValue) {
+      return super.getAvailability(targetSpec, target, desiredValue);
     }
 
   }

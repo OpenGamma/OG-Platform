@@ -97,8 +97,8 @@ public class InMemoryLKVMarketDataProvider extends AbstractMarketDataProvider im
   //-------------------------------------------------------------------------
   @Override
   public ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final Object target, final ValueRequirement desiredValue) {
-    // [PLAT-3044] Do this properly - use the targetSpec
-    return _lastKnownValues.containsKey(desiredValue) ? MarketDataUtils.createMarketDataValue(desiredValue, MarketDataUtils.DEFAULT_EXTERNAL_ID) : null;
+    // TODO: [PLAT-3044] Plug into the abstract market data availability provider
+    throw new UnsupportedOperationException("[PLAT-3044] test the availability of " + targetSpec + " (" + target + ") for " + desiredValue);
   }
 
   //-------------------------------------------------------------------------

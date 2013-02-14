@@ -5,12 +5,8 @@
  */
 package com.opengamma.engine.marketdata;
 
-import com.opengamma.core.id.ExternalIdOrderConfig;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.MarketDataSourcingFunction;
-import com.opengamma.engine.marketdata.availability.MarketDataAvailability;
-import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
-import com.opengamma.engine.marketdata.availability.MarketDataNotSatisfiableException;
 import com.opengamma.engine.target.ComputationTargetReferenceVisitor;
 import com.opengamma.engine.target.ComputationTargetRequirement;
 import com.opengamma.engine.value.ValueProperties;
@@ -30,23 +26,6 @@ public class MarketDataUtils {
 
   // [PLAT-3044] Most of the methods here should not be necessary. Arbitrary conversion from external id bundles to unique identifiers is unlikely to be a good idea. Review and deprecate/delete.
 
-  /**
-   * Tests whether the requirement can be satisfied by the availability provider.
-   * 
-   * @param provider the provider to test, not null
-   * @param requirement the requirement to test, not null
-   * @return one of the three availability states - see {@link MarketDataAvailability} for more details, not null
-   */
-  public static MarketDataAvailability getAvailability(final MarketDataAvailabilityProvider provider, final ValueRequirement requirement) {
-    // REVIEW 2013-01-31 Andrew -- do we need this ?
-    try {
-      // [PLAT-3044] Pass in the target properly
-      return (provider.getAvailability(ComputationTargetSpecification.NULL, null, requirement) != null) ? MarketDataAvailability.AVAILABLE : MarketDataAvailability.NOT_AVAILABLE;
-    } catch (final MarketDataNotSatisfiableException e) {
-      return MarketDataAvailability.MISSING;
-    }
-  }
-
   private static ComputationTargetReferenceVisitor<ComputationTargetSpecification> s_getSpecification = new ComputationTargetReferenceVisitor<ComputationTargetSpecification>() {
 
     @Override
@@ -59,17 +38,6 @@ public class MarketDataUtils {
       return specification;
     }
 
-  };
-
-  /**
-   * Support function for extracting one of the external identifiers (based on the default order config) as the best available as a unique identifier for the target.
-   */
-  public static final Function1<ValueRequirement, UniqueId> DEFAULT_EXTERNAL_ID = new Function1<ValueRequirement, UniqueId>() {
-    @Override
-    public UniqueId execute(final ValueRequirement requirement) {
-      final ExternalId eid = ExternalIdOrderConfig.DEFAULT_CONFIG.getPreferred(requirement.getTargetReference().getRequirement().getIdentifiers());
-      return UniqueId.of(eid.getScheme().getName(), eid.getValue());
-    }
   };
 
   public static ValueSpecification createMarketDataValue(final ValueRequirement requirement, final Function1<ValueRequirement, UniqueId> uidLookup) {

@@ -25,7 +25,6 @@ import com.opengamma.engine.marketdata.MarketDataListener;
 import com.opengamma.engine.marketdata.MarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.MarketDataProvider;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
-import com.opengamma.engine.marketdata.MarketDataUtils;
 import com.opengamma.engine.marketdata.PermissiveMarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.live.LiveMarketDataProvider;
@@ -227,7 +226,6 @@ public class ViewComputationJobTest {
     resultListener.assertProcessCompleted(TIMEOUT);
   }
 
-
   @Test
   public void testChangeMarketDataProviderBetweenCyclesWithCycleFragmentCompletedCalls() throws InterruptedException {
     final ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
@@ -284,7 +282,6 @@ public class ViewComputationJobTest {
 
     client.shutdown();
   }
-
 
   @Test
   public void testUpdateViewDefinitionCausesRecompile() {
@@ -446,9 +443,12 @@ public class ViewComputationJobTest {
     @Override
     public ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final Object target, final ValueRequirement desiredValue) {
       // [PLAT-3044] Do this properly
-      // Want the market data provider to indicate that data is available even before it's really available
-      return (desiredValue.equals(ViewProcessorTestEnvironment.getPrimitive1()) || desiredValue.equals(ViewProcessorTestEnvironment.getPrimitive2())) ? MarketDataUtils
-          .createMarketDataValue(desiredValue, MarketDataUtils.DEFAULT_EXTERNAL_ID) : null;
+      if (desiredValue.equals(ViewProcessorTestEnvironment.getPrimitive1()) || desiredValue.equals(ViewProcessorTestEnvironment.getPrimitive2())) {
+        // Want the market data provider to indicate that data is available even before it's really available
+        throw new UnsupportedOperationException("[PLAT-3044] Create a value specification for " + targetSpec + " (" + target + ") to satisfy " + desiredValue);
+      } else {
+        return null;
+      }
     }
 
     @Override
