@@ -7,7 +7,7 @@ $.register_module({
     dependencies: [],
     obj: function () {
         return function (config) {
-            var constructor = this, form, ui = og.common.util.ui, data;
+            var constructor = this, form, ui = og.common.util.ui, data, validate;
             if(config.details) {data = config.details.data; data.id = config.details.data.trade.uniqueId;}
             else {data = {security: {type: "FXOptionSecurity", regionId: "ABC~123", externalIdBundle: "",
                 attributes: {}}, trade: og.blotter.util.otc_trade};}
@@ -65,14 +65,16 @@ $.register_module({
                     og.blotter.util.check_radio("security.longShort", data.security.longShort);
                 });
                 form.on('form:submit', function (result){
-                    config.handler(result.data);
+                    $.when(config.handler(result.data)).then(validate);
                 });
             };
             constructor.load();
-            constructor.submit = function () {
+            constructor.submit = function (handler) {
+                validate = handler;
                 form.submit();
             };
-            constructor.submit_new = function () {
+            constructor.submit_new = function (handler) {
+                validate = handler;
                 delete data.id;
                 form.submit();
             };

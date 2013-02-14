@@ -55,7 +55,8 @@ $.register_module({
                 validate = handler;
                 form.submit();
             };
-            constructor.submit_new = function () {
+            constructor.submit_new = function (handler) {
+                validate = handler;
                 delete data.id;
                 form.submit();
             };

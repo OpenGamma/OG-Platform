@@ -11,7 +11,7 @@ $.register_module({
             dropdown = '.og-blotter-security-select', securityId, details_selector = 'og-blocks-fungible-details',
             ids_selector = 'og-blocks-fungible-security-ids',
             blank_details = "<table class='" + details_selector + "'></table>",
-            blank_ids = "<table class='" + ids_selector + "'></table>";
+            blank_ids = "<table class='" + ids_selector + "'></table>", validate;
             if(config.details) {data = config.details.data; data.id = config.details.data.trade.uniqueId;}
             else {data = {trade: og.blotter.util.fungible_trade};}
             if(data.trade.securityIdBundle) securityId = data.trade.securityIdBundle.split(',')[0];
@@ -44,7 +44,7 @@ $.register_module({
                     get_security();
                 });
                 form.on('form:submit', function (result) {
-                    config.handler(result.data);
+                    $.when(config.handler(result.data)).then(validate);
                 });
                 form.on('keyup', security.input_id(), function (event) {get_security();});
                 form.on('change', security.select_id(), function (event) {get_security();});
@@ -90,10 +90,12 @@ $.register_module({
                 $('.' + ids_selector).replaceWith(blank_ids);
             };
             constructor.load();
-            constructor.submit = function () {
+            constructor.submit = function (handler) {
+                validate = handler;
                 form.submit();
             };
-            constructor.submit_new = function () {
+            constructor.submit_new = function (handler) {
+                validate = handler;
                 delete data.trade.uniqueId;
                 delete data.id;
                 form.submit();

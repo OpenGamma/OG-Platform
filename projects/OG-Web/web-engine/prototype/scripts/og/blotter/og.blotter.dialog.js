@@ -52,10 +52,8 @@ $.register_module({
             };
             constructor.create = function () {
                 var buttons = {
-                        'Save': function () {
-                            form_wrapper.submit(validation_handler); 
-                        },
-                        'Save as new' : function () {form_wrapper.submit_new(); $(this).dialog('close');},
+                        'Save': function () {form_wrapper.submit(validation_handler);},
+                        'Save as new' : function () {form_wrapper.submit_new(validation_handler);},
                         'Cancel': function () {$(this).dialog('close');}
                     };
                 if(!config.details) delete buttons['Save as new'];

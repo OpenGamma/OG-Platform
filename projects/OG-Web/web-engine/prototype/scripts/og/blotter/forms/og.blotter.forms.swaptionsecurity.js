@@ -7,8 +7,8 @@ $.register_module({
     dependencies: [],
     obj: function () {
         return function (config) {
-            var constructor = this, form, ui = og.common.util.ui, data, pay_block, receive_block, pay_select,
-                receive_select, pay_index = og.common.id('pay'), receive_index = og.common.id('receive'),
+            var constructor = this, form, ui = og.common.util.ui, data, pay_block, receive_block, pay_select, 
+                receive_select, pay_index = og.common.id('pay'), receive_index = og.common.id('receive'), validate, 
                 pay_leg = 'underlying.payLeg.', receive_leg = 'underlying.receiveLeg.', $pay_select, $receive_select;
             if(config.details) {data = config.details.data; data.id = config.details.data.trade.uniqueId;}
             else { data = {underlying: {type: "SwapSecurity", regionId: 'ABC~123', externalIdBundle: "",
@@ -104,7 +104,7 @@ $.register_module({
                     }
                 });
                 form.on('form:submit', function (result){
-                    config.handler(result.data);
+                    $.when(config.handler(result.data)).then(validate);
                 });
                 form.on('change', '#' + pay_select.id, function (event) {
                     og.blotter.util.toggle_fixed($receive_select, event.target.value);
@@ -141,10 +141,12 @@ $.register_module({
                 form.children[swap.child] = new_block;
             };
             constructor.load();
-            constructor.submit = function () {
+            constructor.submit = function (handler) {
+                validate = handler;
                 form.submit();
             };
-            constructor.submit_new = function () {
+            constructor.submit_new = function (handler) {
+                validate = handler;
                 delete data.id;
                 form.submit();
             };
