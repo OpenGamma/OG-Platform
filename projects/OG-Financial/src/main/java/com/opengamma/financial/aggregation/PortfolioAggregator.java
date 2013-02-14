@@ -19,6 +19,7 @@ import java.util.TreeMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Lists;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
@@ -30,7 +31,7 @@ import com.opengamma.id.UniqueIdSupplier;
 /**
  * An aggregator of portfolios.
  */
-public class PortfolioAggregator {
+public final class PortfolioAggregator {
   
   private static final Logger s_logger = LoggerFactory.getLogger(PortfolioAggregator.class);
 
@@ -60,22 +61,27 @@ public class PortfolioAggregator {
       aggId = createSyntheticIdentifier();
     }
     String aggPortfolioName = buildPortfolioName(inputPortfolio.getName());
-    List<Position> flattenedPortfolio = new ArrayList<Position>();
-    flatten(inputPortfolio.getRootNode(), flattenedPortfolio);
+    List<Position> flattenedPortfolio = flatten(inputPortfolio);
     final SimplePortfolioNode root = new SimplePortfolioNode(createSyntheticIdentifier(), buildPortfolioName("Portfolio"));
     SimplePortfolio aggPortfolio = new SimplePortfolio(aggId, aggPortfolioName, root);
     aggregate(root, flattenedPortfolio, new ArrayDeque<AggregationFunction<?>>(_aggregationFunctions));
     return aggPortfolio;
   }
   
-  protected void flatten(PortfolioNode portfolioNode, List<Position> flattenedPortfolio) {
+  public static List<Position> flatten(Portfolio inputPortfolio) {
+    List<Position> positions = Lists.newArrayList();
+    flatten(inputPortfolio.getRootNode(), positions);
+    return positions;
+  }
+  
+  private static void flatten(PortfolioNode portfolioNode, List<Position> flattenedPortfolio) {
     flattenedPortfolio.addAll(portfolioNode.getPositions());    
     for (PortfolioNode subNode : portfolioNode.getChildNodes()) {
       flatten(subNode, flattenedPortfolio);
     }
   }
   
-  protected void aggregate(SimplePortfolioNode inputNode, List<Position> flattenedPortfolio, Queue<AggregationFunction<?>> functionList) {
+  private void aggregate(SimplePortfolioNode inputNode, List<Position> flattenedPortfolio, Queue<AggregationFunction<?>> functionList) {
     AggregationFunction<?> nextFunction = functionList.remove();
     s_logger.debug("Aggregating {} positions by {}", flattenedPortfolio, nextFunction);
     @SuppressWarnings("unchecked")
@@ -115,7 +121,7 @@ public class PortfolioAggregator {
     }
   }
 
-  protected String buildPortfolioName(String existingName) {
+  private String buildPortfolioName(String existingName) {
     StringBuilder aggregatedPortfolioName = new StringBuilder();
     aggregatedPortfolioName.append(existingName);
     aggregatedPortfolioName.append(" aggregated by ");
