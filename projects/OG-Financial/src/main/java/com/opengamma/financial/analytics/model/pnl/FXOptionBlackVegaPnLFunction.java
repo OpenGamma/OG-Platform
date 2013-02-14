@@ -47,7 +47,6 @@ import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
 import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
-import com.opengamma.financial.analytics.model.forex.BloombergFXSpotRateIdentifierVisitor;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFunction;
 import com.opengamma.financial.analytics.timeseries.DateConstraint;
@@ -61,6 +60,7 @@ import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceSpe
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.currency.ConfigDBCurrencyPairsSource;
+import com.opengamma.financial.currency.CurrencyMatrixSourcingFunction;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.security.FinancialSecurity;
@@ -68,7 +68,6 @@ import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
@@ -240,19 +239,17 @@ public class FXOptionBlackVegaPnLFunction extends AbstractFunction.NonCompiledIn
         .with(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME, Iterables.getOnlyElement(rightExtrapolatorNames))
         .with(ValuePropertyNames.CURRENCY, vegaResultCurrency).get());
     final ValueRequirement surfaceHTSRequirement = getVolatilitySurfaceHTSRequirement(currencies, surfaceName, samplingPeriod);
-    final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
+    final Set<ValueRequirement> requirements = new HashSet<>();
     requirements.add(vegaMatrixRequirement);
     requirements.add(surfaceHTSRequirement);
+    final ValueRequirement fxSpotRequirement;
     if (!currencyBase.equals(vegaResultCurrency)) {
-      final ExternalIdBundle spotIdentifier = ExternalIdBundle.of(security.accept(new BloombergFXSpotRateIdentifierVisitor(currencyPairs)));
-      final HistoricalTimeSeriesResolutionResult timeSeries = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context).resolve(spotIdentifier, null, null, null,
-          MarketDataRequirementNames.MARKET_VALUE, null);
-      if (timeSeries == null) {
-        return null;
+      if (currencyPair.getBase().equals(putCurrency)) {
+        fxSpotRequirement = CurrencyMatrixSourcingFunction.getSeriesConversionRequirement(putCurrency, callCurrency);
+      } else {
+        fxSpotRequirement = CurrencyMatrixSourcingFunction.getSeriesConversionRequirement(callCurrency, putCurrency);
       }
-      final ValueRequirement spotFXRequirement = HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries,
-          MarketDataRequirementNames.MARKET_VALUE, DateConstraint.VALUATION_TIME.minus(samplingPeriods.iterator().next()), true, DateConstraint.VALUATION_TIME, true);
-      requirements.add(spotFXRequirement);
+      requirements.add(fxSpotRequirement);
     }
     return requirements;
   }

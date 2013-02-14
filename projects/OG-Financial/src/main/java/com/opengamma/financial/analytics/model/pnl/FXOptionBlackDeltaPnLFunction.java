@@ -26,7 +26,6 @@ import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.security.Security;
-import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -43,21 +42,17 @@ import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
-import com.opengamma.financial.analytics.model.forex.BloombergFXSpotRateIdentifierVisitor;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFunction;
-import com.opengamma.financial.analytics.timeseries.DateConstraint;
-import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.currency.ConfigDBCurrencyPairsSource;
+import com.opengamma.financial.currency.CurrencyMatrixSourcingFunction;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
-import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
@@ -204,30 +199,31 @@ public class FXOptionBlackDeltaPnLFunction extends AbstractFunction.NonCompiledI
       return null;
     }
     final FinancialSecurity security = (FinancialSecurity) target.getPosition().getSecurity();
+    final ValueProperties exposureConstraints = ValueProperties.builder()
+        .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD)
+        .with(FXOptionBlackFunction.PUT_CURVE, putCurveNames.iterator().next())
+        .with(FXOptionBlackFunction.PUT_CURVE_CALC_CONFIG, putCurveCalculationConfigs.iterator().next())
+        .with(FXOptionBlackFunction.CALL_CURVE, callCurveNames.iterator().next())
+        .with(FXOptionBlackFunction.CALL_CURVE_CALC_CONFIG, callCurveCalculationConfigs.iterator().next())
+        .with(ValuePropertyNames.SURFACE, surfaceNames.iterator().next())
+        .with(InterpolatedDataProperties.X_INTERPOLATOR_NAME, interpolatorNames.iterator().next())
+        .with(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME, leftExtrapolatorNames.iterator().next())
+        .with(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME, rightExtrapolatorNames.iterator().next()).get();
     final ValueRequirement fxCurrencyExposureRequirement = new ValueRequirement(
-        ValueRequirementNames.FX_CURRENCY_EXPOSURE, ComputationTargetType.SECURITY, security.getUniqueId(), ValueProperties.builder()
-            .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD)
-            .with(FXOptionBlackFunction.PUT_CURVE, putCurveNames.iterator().next())
-            .with(FXOptionBlackFunction.PUT_CURVE_CALC_CONFIG, putCurveCalculationConfigs.iterator().next())
-            .with(FXOptionBlackFunction.CALL_CURVE, callCurveNames.iterator().next())
-            .with(FXOptionBlackFunction.CALL_CURVE_CALC_CONFIG, callCurveCalculationConfigs.iterator().next())
-            .with(ValuePropertyNames.SURFACE, surfaceNames.iterator().next())
-            .with(InterpolatedDataProperties.X_INTERPOLATOR_NAME, interpolatorNames.iterator().next())
-            .with(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME, leftExtrapolatorNames.iterator().next())
-            .with(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME, rightExtrapolatorNames.iterator().next()).get());
+        ValueRequirementNames.FX_CURRENCY_EXPOSURE, ComputationTargetType.SECURITY, security.getUniqueId(), exposureConstraints);
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
     final ConfigDBCurrencyPairsSource currencyPairsSource = new ConfigDBCurrencyPairsSource(configSource);
+    final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
+    final Currency callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor());
     final CurrencyPairs currencyPairs = currencyPairsSource.getCurrencyPairs(CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
-    final ExternalIdBundle spotIdentifier = ExternalIdBundle.of(security.accept(new BloombergFXSpotRateIdentifierVisitor(currencyPairs)));
-    final HistoricalTimeSeriesResolutionResult timeSeries = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context).resolve(spotIdentifier, null, null, null,
-        MarketDataRequirementNames.MARKET_VALUE, null);
-    if (timeSeries == null) {
-      s_logger.error("Could not get time series for identifier " + spotIdentifier);
-      return null;
+    final CurrencyPair currencyPair = currencyPairs.getCurrencyPair(putCurrency, callCurrency);
+    final ValueRequirement fxSpotRequirement;
+    if (currencyPair.getBase().equals(putCurrency)) {
+      fxSpotRequirement = CurrencyMatrixSourcingFunction.getSeriesConversionRequirement(putCurrency, callCurrency);
+    } else {
+      fxSpotRequirement = CurrencyMatrixSourcingFunction.getSeriesConversionRequirement(callCurrency, putCurrency);
     }
-    final ValueRequirement marketValueRequirement = HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries,
-        MarketDataRequirementNames.MARKET_VALUE, DateConstraint.VALUATION_TIME.minus(samplingPeriods.iterator().next()), true, DateConstraint.VALUATION_TIME, true);
-    return ImmutableSet.of(fxCurrencyExposureRequirement, marketValueRequirement);
+    return ImmutableSet.of(fxCurrencyExposureRequirement, fxSpotRequirement);
   }
 
   private DoubleTimeSeries<?> getPnLSeries(final LocalDate startDate, final LocalDate now, final Schedule scheduleCalculator,
