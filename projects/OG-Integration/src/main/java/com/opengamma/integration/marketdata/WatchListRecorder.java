@@ -41,7 +41,9 @@ import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.security.impl.RemoteSecuritySource;
-import com.opengamma.engine.marketdata.ExternalIdBundleLookup;
+import com.opengamma.engine.ComputationTargetResolver;
+import com.opengamma.engine.DefaultComputationTargetResolver;
+import com.opengamma.engine.marketdata.ExternalIdBundleResolver;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessor;
@@ -72,14 +74,14 @@ public class WatchListRecorder {
   private static final int VALIDITY_PERIOD_DAYS = 1;
 
   private final ViewProcessor _viewProcessor;
-  private final ExternalIdBundleLookup _lookup;
+  private final ExternalIdBundleResolver _lookup;
   private final List<String> _schemes; // in order of preference
   private PrintWriter _writer = new PrintWriter(System.out);
 
-  public WatchListRecorder(final ViewProcessor viewProcessor, final SecuritySource securitySource) {
+  public WatchListRecorder(final ViewProcessor viewProcessor, final ComputationTargetResolver targetResolver) {
     _viewProcessor = viewProcessor;
     _schemes = new ArrayList<String>();
-    _lookup = new ExternalIdBundleLookup(securitySource);
+    _lookup = new ExternalIdBundleResolver(targetResolver.atVersionCorrection(VersionCorrection.LATEST));
   }
 
   public void addWatchScheme(final ExternalScheme scheme) {
@@ -91,7 +93,7 @@ public class WatchListRecorder {
   }
 
   private void emitSpecification(final ValueSpecification specification, final Set<ExternalId> emitted, final Set<ExternalId> emittedRecently) {
-    final ExternalIdBundle identifiers = _lookup.getExternalIds(specification.getTargetSpecification());
+    final ExternalIdBundle identifiers = specification.getTargetSpecification().accept(_lookup);
     schemeLoop: for (final String scheme : _schemes) { //CSIGNORE
       for (final ExternalId sid : identifiers) {
         if (scheme.equals(sid.getScheme().getName())) {
@@ -200,7 +202,7 @@ public class WatchListRecorder {
       for (int i = 0; i < compilations.size(); i++) {
         final CompiledViewDefinition compilation = compilations.get(i);
         final Set<ValueSpecification> liveData = compilation.getMarketDataRequirements();
-        s_logger.info("{} live data requirements for view {} for compilation {}", new Object[] {liveData.size(), viewDefinition, compilation.toString()});
+        s_logger.info("{} live data requirements for view {} for compilation {}", new Object[] {liveData.size(), viewDefinition, compilation.toString() });
         _writer.println("# " + (i + 1) + " of " + compilations.size() + " - " + compilation);
         for (final ValueSpecification specification : liveData) {
           s_logger.debug("Specification {}", specification);
@@ -230,11 +232,11 @@ public class WatchListRecorder {
   //-------------------------------------------------------------------------
   /**
    * Main entry point.
-   *
-   * @param args  the arguments
+   * 
+   * @param args the arguments
    * @throws Exception if an error occurs
    */
-  public static void main(final String[] args) throws Exception {  // CSIGNORE
+  public static void main(final String[] args) throws Exception { // CSIGNORE
     final CommandLineParser parser = new PosixParser();
     final Options options = new Options();
     final Option outputFileOpt = new Option("o", "output", true, "output file");
@@ -279,8 +281,9 @@ public class WatchListRecorder {
     final JmsConnector jmsConnector = factory.getObjectCreating();
 
     final ViewProcessor viewProcessor = new RemoteViewProcessor(viewProcessorInfo.getUri(), jmsConnector, Executors.newSingleThreadScheduledExecutor());
-    final SecuritySource securitySource = new RemoteSecuritySource(securitySourceInfo.getUri());
-    return new WatchListRecorder(viewProcessor, securitySource);
+    // TODO: Not ideal; the published resolver should be used rather than an ad-hoc one created based just on the security source
+    final ComputationTargetResolver targetResolver = new DefaultComputationTargetResolver(new RemoteSecuritySource(securitySourceInfo.getUri()));
+    return new WatchListRecorder(viewProcessor, targetResolver);
   }
 
 }

@@ -25,6 +25,7 @@ import javax.ws.rs.core.UriInfo;
 import org.fudgemsg.FudgeContext;
 
 import com.opengamma.core.config.impl.DataConfigSourceResource;
+import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.marketdata.snapshot.MarketDataSnapshotter;
 import com.opengamma.engine.view.ViewProcess;
 import com.opengamma.engine.view.ViewProcessor;
@@ -80,6 +81,10 @@ public class DataViewProcessorResource extends AbstractDataResource {
    */
   private final ViewProcessor _viewProcessor;
   /**
+   * The computation target resolver.
+   */
+  private final ComputationTargetResolver _targetResolver;
+  /**
    * The volatility cube definition.
    */
   private final VolatilityCubeDefinitionSource _volatilityCubeDefinitionSource;
@@ -107,16 +112,19 @@ public class DataViewProcessorResource extends AbstractDataResource {
 
   /**
    * Creates an instance.
-   *
+   * 
    * @param viewProcessor the view processor, not null
+   * @param targetResolver the target resolver, not null
    * @param volatilityCubeDefinitionSource the volatility cube, not null
    * @param jmsConnector the JMS connector, not null
    * @param fudgeContext the Fudge context, not null
    * @param scheduler the scheduler, not null
    */
-  public DataViewProcessorResource(final ViewProcessor viewProcessor, final VolatilityCubeDefinitionSource volatilityCubeDefinitionSource, final JmsConnector jmsConnector,
+  public DataViewProcessorResource(final ViewProcessor viewProcessor, final ComputationTargetResolver targetResolver, final VolatilityCubeDefinitionSource volatilityCubeDefinitionSource,
+      final JmsConnector jmsConnector,
       final FudgeContext fudgeContext, final ScheduledExecutorService scheduler) {
     _viewProcessor = viewProcessor;
+    _targetResolver = targetResolver;
     _volatilityCubeDefinitionSource = volatilityCubeDefinitionSource;
     _jmsConnector = jmsConnector;
     _scheduler = scheduler;
@@ -130,6 +138,7 @@ public class DataViewProcessorResource extends AbstractDataResource {
 
   /**
    * Gets the viewProcessor field.
+   * 
    * @return the viewProcessor
    */
   public ViewProcessor getViewProcessor() {
@@ -145,29 +154,29 @@ public class DataViewProcessorResource extends AbstractDataResource {
   @GET
   @Path(PATH_NAME)
   public Response getName() {
-    return responseOk(_viewProcessor.getName());
+    return responseOk(getViewProcessor().getName());
   }
 
   @Path(PATH_CONFIG_SOURCE)
   public DataConfigSourceResource getConfigSource() {
-    return new DataConfigSourceResource(_viewProcessor.getConfigSource());
+    return new DataConfigSourceResource(getViewProcessor().getConfigSource());
   }
 
   @Path(PATH_NAMED_MARKET_DATA_SPEC_REPOSITORY)
   public DataNamedMarketDataSpecificationRepositoryResource getLiveMarketDataSourceRegistry() {
-    return new DataNamedMarketDataSpecificationRepositoryResource(_viewProcessor.getNamedMarketDataSpecificationRepository());
+    return new DataNamedMarketDataSpecificationRepositoryResource(getViewProcessor().getNamedMarketDataSpecificationRepository());
   }
 
   @Path(PATH_SNAPSHOTTER)
   public DataMarketDataSnapshotterResource getMarketDataSnapshotterImpl() {
-    final MarketDataSnapshotter snp = new MarketDataSnapshotterImpl(_volatilityCubeDefinitionSource);
-    return new DataMarketDataSnapshotterResource(_viewProcessor, snp);
+    final MarketDataSnapshotter snp = new MarketDataSnapshotterImpl(_targetResolver, _volatilityCubeDefinitionSource);
+    return new DataMarketDataSnapshotterResource(getViewProcessor(), snp);
   }
 
   //-------------------------------------------------------------------------
   @Path(PATH_PROCESSES + "/{viewProcessId}")
   public DataViewProcessResource getViewProcess(@PathParam("viewProcessId") final String viewProcessId) {
-    final ViewProcess view = _viewProcessor.getViewProcess(UniqueId.parse(viewProcessId));
+    final ViewProcess view = getViewProcessor().getViewProcess(UniqueId.parse(viewProcessId));
     return new DataViewProcessResource(view);
   }
 
@@ -179,7 +188,7 @@ public class DataViewProcessorResource extends AbstractDataResource {
     if (viewClientResource != null) {
       return viewClientResource;
     }
-    final ViewClient viewClient = _viewProcessor.getViewClient(viewClientId);
+    final ViewClient viewClient = getViewProcessor().getViewClient(viewClientId);
     final URI viewProcessorUri = getViewProcessorUri(uriInfo);
     return createViewClientResource(viewClient, viewProcessorUri);
   }
@@ -188,7 +197,7 @@ public class DataViewProcessorResource extends AbstractDataResource {
   @Path(PATH_CLIENTS)
   @Consumes(FudgeRest.MEDIA)
   public Response createViewClient(@Context final UriInfo uriInfo, final UserPrincipal user) {
-    final ViewClient client = _viewProcessor.createViewClient(user);
+    final ViewClient client = getViewProcessor().createViewClient(user);
     final URI viewProcessorUri = getViewProcessorUri(uriInfo);
     // Required for heartbeating, but also acts as an optimisation for getViewClient because view clients created
     // through the REST API should be accessed again through the same API, potentially many times.
@@ -224,7 +233,7 @@ public class DataViewProcessorResource extends AbstractDataResource {
     DataViewCycleManagerResource resource = _cycleManagerResource.get();
     if (resource == null) {
       final URI baseUri = UriBuilder.fromUri(viewProcessorUri).path(PATH_CYCLES).build();
-      final DataViewCycleManagerResource newResource = new DataViewCycleManagerResource(baseUri, _viewProcessor.getViewCycleManager());
+      final DataViewCycleManagerResource newResource = new DataViewCycleManagerResource(baseUri, getViewProcessor().getViewCycleManager());
       if (_cycleManagerResource.compareAndSet(null, newResource)) {
         resource = newResource;
         final DataViewCycleManagerResource.ReleaseExpiredReferencesRunnable task = newResource.createReleaseExpiredReferencesTask();

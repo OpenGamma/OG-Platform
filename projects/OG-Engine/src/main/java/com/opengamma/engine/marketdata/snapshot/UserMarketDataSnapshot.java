@@ -317,12 +317,10 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
 
   private static SnapshotDataBundle createSnapshotDataBundle(final UnstructuredMarketDataSnapshot values) {
     final SnapshotDataBundle ret = new SnapshotDataBundle();
-    final HashMap<ExternalId, Double> points = new HashMap<ExternalId, Double>();
     for (final Entry<MarketDataValueSpecification, Map<String, ValueSnapshot>> entry : values.getValues().entrySet()) {
       final Double value = query(entry.getValue().get(MarketDataRequirementNames.MARKET_VALUE));
-      points.put(entry.getKey().getIdentifier(), value);
+      ret.setDataPoint(entry.getKey().getIdentifiers(), value);
     }
-    ret.setDataPoints(points);
     return ret;
   }
 

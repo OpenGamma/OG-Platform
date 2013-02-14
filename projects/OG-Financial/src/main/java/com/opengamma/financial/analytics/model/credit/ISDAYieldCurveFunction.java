@@ -6,7 +6,6 @@
 package com.opengamma.financial.analytics.model.credit;
 
 import java.util.Collections;
-import java.util.Map;
 import java.util.Set;
 
 import org.threeten.bp.Clock;
@@ -53,7 +52,6 @@ import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
-import com.opengamma.id.ExternalId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.money.Currency;
@@ -99,8 +97,7 @@ public class ISDAYieldCurveFunction extends AbstractFunction {
           throw new OpenGammaRuntimeException("Could not get yield curve data");
         }
         final InterpolatedYieldCurveSpecificationWithSecurities specification = (InterpolatedYieldCurveSpecificationWithSecurities) specificationObject;
-        final SnapshotDataBundle data = (SnapshotDataBundle) dataObject;
-        final Map<ExternalId, Double> marketData = data.getDataPoints();
+        final SnapshotDataBundle marketData = (SnapshotDataBundle) dataObject;
         final int n = marketData.size();
         final double[] times = new double[n];
         final double[] yields = new double[n];
@@ -111,7 +108,7 @@ public class ISDAYieldCurveFunction extends AbstractFunction {
           if (!(securityType.equals(CashSecurity.SECURITY_TYPE) || securityType.equals(SwapSecurity.SECURITY_TYPE))) {
             throw new OpenGammaRuntimeException("ISDA curves should only use Libor and swap rates");
           }
-          final Double marketValue = marketData.get(strip.getSecurityIdentifier());
+          final Double marketValue = marketData.getDataPoint(strip.getSecurityIdentifier());
           if (marketValue == null) {
             throw new OpenGammaRuntimeException("Could not get market data for " + strip);
           }

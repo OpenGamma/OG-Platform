@@ -41,7 +41,7 @@ import com.opengamma.util.async.AsynchronousExecution;
 
 /**
  * Takes a snapshot from the next cycle of a view client, automatically triggering a cycle.
- *
+ * 
  * @deprecated This should be a procedure as it has a side effect. It also duplicates the functionality of other existing functions and procedures (e.g. SnapshotViewResultFunction and
  *             TriggerViewCycle)
  */
@@ -82,7 +82,7 @@ public class TakeSnapshotNowFunction extends AbstractFunctionInvoker implements 
       resultListener.awaitResult();
 
       if (resultListener.getCycleReference() != null) {
-        final MarketDataSnapshotter snapshotter = new MarketDataSnapshotterImpl(globalContext.getVolatilityCubeDefinitionSource());
+        final MarketDataSnapshotter snapshotter = new MarketDataSnapshotterImpl(globalContext.getComputationTargetResolver(), globalContext.getVolatilityCubeDefinitionSource());
         return snapshotter.createSnapshot(viewClient.getViewClient(), resultListener.getCycleReference());
       } else {
         throw new OpenGammaRuntimeException("Unable to obtain cycle from view client " + viewClient.getViewClient().getUniqueId(), resultListener.getException());

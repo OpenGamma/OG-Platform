@@ -26,6 +26,7 @@ import com.google.common.collect.Multimaps;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.marketdatasnapshot.MarketDataValueSpecification;
+import com.opengamma.core.marketdatasnapshot.MarketDataValueType;
 import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.UnstructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.ValueSnapshot;
@@ -37,11 +38,11 @@ import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
 import com.opengamma.core.marketdatasnapshot.YieldCurveSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableUnstructuredMarketDataSnapshot;
+import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
-import com.opengamma.engine.marketdata.MarketDataUtils;
+import com.opengamma.engine.marketdata.ExternalIdBundleResolver;
 import com.opengamma.engine.marketdata.snapshot.MarketDataSnapshotter;
-import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -55,6 +56,7 @@ import com.opengamma.engine.view.compilation.CompiledViewCalculationConfiguratio
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Default implementation of {@link MarketDataSnapshotter}.
@@ -64,6 +66,7 @@ public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
 
   private static final Logger s_logger = LoggerFactory.getLogger(MarketDataSnapshotterImpl.class);
 
+  private final ComputationTargetResolver _resolver;
   private final VolatilityCubeDefinitionSource _cubeDefinitionSource;
   private final YieldCurveSnapper _yieldCurveSnapper = new YieldCurveSnapper();
   private final VolatilitySurfaceSnapper _volatilitySurfaceSnapper = new VolatilitySurfaceSnapper();
@@ -72,9 +75,12 @@ public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
   private final StructuredSnapper[] _structuredSnappers;
 
   /**
+   * @param resolver the target resolver, not null
    * @param cubeDefinitionSource The source of vol cube defns ( used to fill out the cube snapshots with nulls )
    */
-  public MarketDataSnapshotterImpl(final VolatilityCubeDefinitionSource cubeDefinitionSource) {
+  public MarketDataSnapshotterImpl(final ComputationTargetResolver resolver, final VolatilityCubeDefinitionSource cubeDefinitionSource) {
+    ArgumentChecker.notNull(resolver, "resolver");
+    _resolver = resolver;
     _cubeDefinitionSource = cubeDefinitionSource;
     _volatilityCubeSnapper = new VolatilityCubeSnapper(_cubeDefinitionSource);
     _structuredSnappers = new StructuredSnapper[] {_yieldCurveSnapper, _volatilitySurfaceSnapper, _volatilityCubeSnapper };
@@ -83,7 +89,8 @@ public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
   @Override
   public StructuredMarketDataSnapshot createSnapshot(final ViewClient client, final ViewCycle cycle) {
     final CompiledViewDefinitionWithGraphs defn = cycle.getCompiledViewDefinition();
-    return createSnapshot(cycle.getResultModel(), getGraphs(defn), cycle, defn.getViewDefinition().getName());
+    final ComputationTargetResolver.AtVersionCorrection resolver = _resolver.atVersionCorrection(cycle.getResultModel().getVersionCorrection());
+    return createSnapshot(new ExternalIdBundleResolver(resolver), cycle.getResultModel(), getGraphs(defn), cycle, defn.getViewDefinition().getName());
   }
 
   private Map<String, DependencyGraph> getGraphs(final CompiledViewDefinitionWithGraphs defn) {
@@ -96,9 +103,9 @@ public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
     return ret;
   }
 
-  public StructuredMarketDataSnapshot createSnapshot(final ViewComputationResultModel results,
+  public StructuredMarketDataSnapshot createSnapshot(final ExternalIdBundleResolver resolver, final ViewComputationResultModel results,
       final Map<String, DependencyGraph> graphs, final ViewCycle viewCycle, final String basisViewName) {
-    final UnstructuredMarketDataSnapshot globalValues = getGlobalValues(results, graphs);
+    final UnstructuredMarketDataSnapshot globalValues = getGlobalValues(resolver, results, graphs);
 
     final Map<YieldCurveKey, YieldCurveSnapshot> yieldCurves = _yieldCurveSnapper.getValues(results, graphs, viewCycle);
     final Map<VolatilitySurfaceKey, VolatilitySurfaceSnapshot> surfaces = _volatilitySurfaceSnapper.getValues(results, graphs, viewCycle);
@@ -113,16 +120,17 @@ public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
     return ret;
   }
 
-  private UnstructuredMarketDataSnapshot getGlobalValues(final ViewComputationResultModel results, final Map<String, DependencyGraph> graphs) {
+  private UnstructuredMarketDataSnapshot getGlobalValues(final ExternalIdBundleResolver resolver, final ViewComputationResultModel results, final Map<String, DependencyGraph> graphs) {
     final Set<ComputedValue> data = results.getAllMarketData();
-    final Multimap<MarketDataValueSpecification, ComputedValue> indexedData = identifyGlobalValues(data, graphs);
+    final Multimap<MarketDataValueSpecification, ComputedValue> indexedData = identifyGlobalValues(resolver, data, graphs);
     final Map<MarketDataValueSpecification, Map<String, ValueSnapshot>> dict = getGlobalValues(indexedData);
     final ManageableUnstructuredMarketDataSnapshot snapshot = new ManageableUnstructuredMarketDataSnapshot();
     snapshot.setValues(dict);
     return snapshot;
   }
 
-  private Multimap<MarketDataValueSpecification, ComputedValue> identifyGlobalValues(final Set<ComputedValue> data, final Map<String, DependencyGraph> graphs) {
+  private Multimap<MarketDataValueSpecification, ComputedValue> identifyGlobalValues(final ExternalIdBundleResolver resolver, final Set<ComputedValue> data,
+      final Map<String, DependencyGraph> graphs) {
     final Multimap<MarketDataValueSpecification, ComputedValue> indexedData = ArrayListMultimap.create();
     final Set<ComputedValue> dataFound = new HashSet<ComputedValue>();
     Set<ComputedValue> dataRemaining = null;
@@ -137,14 +145,12 @@ public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
         final DependencyNode nodeProducing = graph.getNodeProducing(computedValue.getSpecification());
         if (nodeProducing != null && isTerminalUnstructuredOutput(nodeProducing, graph)) {
           dataFound.add(computedValue);
-          // [PLAT-3044] The target specification is peculiar to the market data provider. What the consumer(s) of that value asked for is another matter.
-          // [PLAT-3044] A NO-OP translation node to re-write the value would indicate the originally requested target, the problem is then just resolving that target.
-          final ComputationTargetReference target = nodeProducing.getRequiredMarketData().getTargetSpecification();
-          final ExternalIdBundle identifiers = _identifierLookup.getExternalIds(target);
+          final ExternalIdBundle identifiers = resolver.visitComputationTargetSpecification(nodeProducing.getRequiredMarketData().getTargetSpecification());
           if (identifiers != null) {
             // TODO: should use the order config to prioritise which scheme to select
             // TODO: we could add the config to the lookup to avoid passing two objects around
-            indexedData.put(new MarketDataValueSpecification(MarketDataUtils.getMarketDataValueType(target.getType()), identifiers.iterator().next()), computedValue);
+            // TODO: should we store all of the possible identifiers?
+            indexedData.put(new MarketDataValueSpecification(MarketDataValueType.PRIMITIVE, identifiers.iterator().next()), computedValue);
           }
         }
       }

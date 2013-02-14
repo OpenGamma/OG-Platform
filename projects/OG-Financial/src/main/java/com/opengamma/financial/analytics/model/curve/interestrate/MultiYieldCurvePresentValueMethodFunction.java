@@ -50,6 +50,7 @@ import com.opengamma.analytics.math.rootfinding.newton.BroydenVectorRootFinder;
 import com.opengamma.analytics.math.rootfinding.newton.NewtonVectorRootFinder;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
@@ -75,7 +76,6 @@ import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalcula
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
-import com.opengamma.id.ExternalId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.money.Currency;
 
@@ -130,10 +130,10 @@ public class MultiYieldCurvePresentValueMethodFunction extends MultiYieldCurveFu
       int nInstruments = 0;
       final InterpolatedYieldCurveSpecificationWithSecurities spec = getYieldCurveSpecification(inputs, targetSpec, curveName);
       final Interpolator1D interpolator = spec.getInterpolator();
-      final Map<ExternalId, Double> marketDataMap = getMarketData(inputs, targetSpec, curveName);
+      final SnapshotDataBundle marketData = getMarketData(inputs, targetSpec, curveName);
       final DoubleArrayList nodeTimes = new DoubleArrayList();
       for (final FixedIncomeStripWithSecurity strip : spec.getStrips()) {
-        final Double marketValue = marketDataMap.get(strip.getSecurityIdentifier());
+        final Double marketValue = marketData.getDataPoint(strip.getSecurityIdentifier());
         if (marketValue == null) {
           throw new OpenGammaRuntimeException("Could not get market data for " + strip);
         }
@@ -318,6 +318,7 @@ public class MultiYieldCurvePresentValueMethodFunction extends MultiYieldCurveFu
         .with(PROPERTY_USE_FINITE_DIFFERENCE, useFiniteDifference).get();
   }
 
+  @Override
   protected String getCalculationMethod() {
     return PRESENT_VALUE_STRING;
   }

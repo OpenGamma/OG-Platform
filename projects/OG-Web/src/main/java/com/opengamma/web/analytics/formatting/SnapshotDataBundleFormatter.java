@@ -13,10 +13,10 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
 
-/* package */ class SnapshotDataBundleFormatter extends AbstractFormatter<SnapshotDataBundle> {
+/* package */class SnapshotDataBundleFormatter extends AbstractFormatter<SnapshotDataBundle> {
 
   private static final String DATA = "data";
   private static final String LABELS = "labels";
@@ -25,7 +25,7 @@ import com.opengamma.util.ArgumentChecker;
 
   private final DoubleFormatter _doubleFormatter;
 
-  /* package */ SnapshotDataBundleFormatter(final DoubleFormatter doubleFormatter) {
+  /* package */SnapshotDataBundleFormatter(final DoubleFormatter doubleFormatter) {
     super(SnapshotDataBundle.class);
     ArgumentChecker.notNull(doubleFormatter, "doubleFormatter");
     _doubleFormatter = doubleFormatter;
@@ -39,15 +39,23 @@ import com.opengamma.util.ArgumentChecker;
 
   @Override
   public String formatCell(final SnapshotDataBundle bundle, final ValueSpecification valueSpec) {
-    return "Data Bundle (" + bundle.getDataPoints().size() + " points)";
+    return "Data Bundle (" + bundle.size() + " points)";
   }
 
   private Map<String, Object> formatExpanded(final SnapshotDataBundle bundle, final ValueSpecification valueSpec) {
-    final Map<ExternalId, Double> dataPoints = bundle.getDataPoints();
-    final List<List<String>> results = Lists.newArrayListWithCapacity(dataPoints.size());
+    final List<List<String>> results = Lists.newArrayListWithCapacity(bundle.size());
     final Map<String, Object> resultsMap = Maps.newHashMap();
-    for (final Map.Entry<ExternalId, Double> entry : dataPoints.entrySet()) {
-      final String idStr = entry.getKey().toString();
+    for (final Map.Entry<ExternalIdBundle, Double> entry : bundle.getDataPointSet()) {
+      final String idStr;
+      // TODO: [PLAT-3044] This pattern might be quite common now we've used bundles more often; factor somewhere else
+      if (entry.getKey().isEmpty()) {
+        idStr = "";
+      } else if (entry.getKey().size() == 1) {
+        idStr = entry.getKey().iterator().next().toString();
+      } else {
+        // TODO: [PLAT-3044] Use an ExternalIdOrderConfig object to pick out an identifier from the bundle to display
+        idStr = entry.getKey().toString();
+      }
       final String formattedValue = _doubleFormatter.formatCell(entry.getValue(), valueSpec);
       results.add(ImmutableList.of(idStr, formattedValue));
     }

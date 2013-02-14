@@ -13,7 +13,6 @@ import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPro
 import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_YIELD_CURVE_CALCULATION_METHOD;
 
 import java.util.Collections;
-import java.util.Map;
 import java.util.Set;
 
 import org.threeten.bp.Instant;
@@ -54,7 +53,6 @@ import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
 import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
-import com.opengamma.id.ExternalId;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.money.Currency;
 
@@ -92,7 +90,7 @@ public class ISDALegacyCDSHazardCurveFunction extends AbstractFunction {
         if (dataObject == null) {
           throw new OpenGammaRuntimeException("Could not get yield curve data");
         }
-        final Map<ExternalId, Double> marketData = ((SnapshotDataBundle) dataObject).getDataPoints();
+        final SnapshotDataBundle marketData = (SnapshotDataBundle) dataObject;
         final InterpolatedYieldCurveSpecificationWithSecurities yieldCurveSpec = (InterpolatedYieldCurveSpecificationWithSecurities) yieldCurveSpecObject;
         final ISDACurve yieldCurve = (ISDACurve) yieldCurveObject;
         final ZonedDateTime now = ZonedDateTime.now(executionContext.getValuationClock());
@@ -117,7 +115,7 @@ public class ISDALegacyCDSHazardCurveFunction extends AbstractFunction {
             throw new OpenGammaRuntimeException("Strips for hazard curve must be of type " + StripInstrumentType.SIMPLE_ZERO_DEPOSIT);
           }
           tenors[i] = strip.getMaturity();
-          marketSpreads[i++] = marketData.get(strip.getSecurityIdentifier());
+          marketSpreads[i++] = marketData.getDataPoint(strip.getSecurityIdentifier());
         }
         final HazardRateCurve curve = calibrationCalculator.getCalibratedHazardRateCurve(now, cds, tenors, marketSpreads, yieldCurve, PriceType.CLEAN);
         final ValueProperties properties = createValueProperties()

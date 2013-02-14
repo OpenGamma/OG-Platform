@@ -29,7 +29,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
-import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 
 /**
  * Function to shift a yield curve's market data, implemented using properties and constraints.
@@ -96,7 +96,7 @@ public class YieldCurveMarketDataShiftFunction extends AbstractFunction.NonCompi
     }
     s_logger.debug("Applying {} to {}", shift, marketData);
     final OverrideOperation operation = compiler.compile(shift, executionContext.getComputationTargetResolver());
-    for (final Map.Entry<ExternalId, Double> dataPoint : marketData.getDataPoints().entrySet()) {
+    for (final Map.Entry<ExternalIdBundle, Double> dataPoint : marketData.getDataPointSet()) {
       s_logger.debug("Applying to {}", dataPoint);
       final Object result = operation.apply(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, dataPoint.getKey()),
           dataPoint.getValue());

@@ -69,15 +69,15 @@ public class UserMarketDataSnapshotTest {
   }
 
   @Test
-  public void testGetAvailabilityAndQuery () {
-    final UserMarketDataSnapshot snapshot = createSnapshot ();
+  public void testGetAvailabilityAndQuery() {
+    final UserMarketDataSnapshot snapshot = createSnapshot();
     final MarketDataAvailabilityProvider provider = snapshot.getAvailabilityProvider();
     final ComputationTargetSpecification target = ComputationTargetSpecification.of(Currency.USD);
     ValueSpecification specification = provider.getAvailability(target, Currency.USD,
         new ValueRequirement(ValueRequirementNames.YIELD_CURVE_MARKET_DATA, target, ValueProperties.with(ValuePropertyNames.CURVE, "testCurve").get()));
     assertNotNull(specification);
     assertNotNull(snapshot.query(specification));
-    assertEquals(123d, ((SnapshotDataBundle) snapshot.query(specification)).getDataPoints().get(ExternalId.of("TestScheme", "Value1")));
+    assertEquals(123d, ((SnapshotDataBundle) snapshot.query(specification)).getDataPoint(ExternalId.of("TestScheme", "Value1")));
     specification = provider.getAvailability(target, Currency.USD,
         new ValueRequirement(ValueRequirementNames.YIELD_CURVE_MARKET_DATA, target, ValueProperties.with(ValuePropertyNames.CURVE, "testCurve").with("SomethingElse", "Value").get()));
     assertNull(specification);

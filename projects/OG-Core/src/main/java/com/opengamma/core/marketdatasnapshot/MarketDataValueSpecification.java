@@ -12,6 +12,7 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -30,13 +31,13 @@ public final class MarketDataValueSpecification {
    */
   private final MarketDataValueType _type;
   /**
-   * The identifier of the target.
+   * The identifier(s) of the target.
    */
-  private final ExternalId _identifier;
+  private final ExternalIdBundle _identifiers;
 
   /**
    * Creates an instance for a type of market data and an external identifier.
-   *
+   * 
    * @param type the type of market data this refers to, not null
    * @param identifier an identifier of the data this refers to, for example a ticker, not null
    */
@@ -44,13 +45,20 @@ public final class MarketDataValueSpecification {
     ArgumentChecker.notNull(type, "type");
     ArgumentChecker.notNull(identifier, "identifier");
     _type = type;
-    _identifier = identifier;
+    _identifiers = identifier.toBundle();
+  }
+
+  public MarketDataValueSpecification(final MarketDataValueType type, final ExternalIdBundle identifiers) {
+    ArgumentChecker.notNull(type, "type");
+    ArgumentChecker.notNull(identifiers, "identifiers");
+    _type = type;
+    _identifiers = identifiers;
   }
 
   //-------------------------------------------------------------------------
   /**
    * Gets the type of the market data.
-   *
+   * 
    * @return the type
    */
   public MarketDataValueType getType() {
@@ -59,11 +67,23 @@ public final class MarketDataValueSpecification {
 
   /**
    * Gets the identifier of the data.
-   *
+   * 
    * @return the identifier
+   * @deprecated [PLAT-3044] There might be multiple identifiers
    */
+  @Deprecated
   public ExternalId getIdentifier() {
-    return _identifier;
+    // TODO: [PLAT-3044] delete this
+    return _identifiers.iterator().next();
+  }
+
+  /**
+   * Gets the identifier(s) of the data.
+   * 
+   * @return the identifiers
+   */
+  public ExternalIdBundle getIdentifiers() {
+    return _identifiers;
   }
 
   //-------------------------------------------------------------------------
@@ -71,8 +91,8 @@ public final class MarketDataValueSpecification {
    * Checks if this specification equals another.
    * <p>
    * This checks the type and unique identifier.
-   *
-   * @param object  the object to compare to, null returns false
+   * 
+   * @param object the object to compare to, null returns false
    * @return true if equal
    */
   @Override
@@ -83,14 +103,14 @@ public final class MarketDataValueSpecification {
     if (object instanceof MarketDataValueSpecification) {
       final MarketDataValueSpecification other = (MarketDataValueSpecification) object;
       return ObjectUtils.equals(getType(), other.getType()) &&
-              ObjectUtils.equals(getIdentifier(), other.getIdentifier());
+          ObjectUtils.equals(getIdentifiers(), other.getIdentifiers());
     }
     return false;
   }
 
   /**
    * Returns a suitable hash code.
-   *
+   * 
    * @return the hash code
    */
   @Override
@@ -100,28 +120,28 @@ public final class MarketDataValueSpecification {
 
   /**
    * Creates a Fudge representation of the value specification:
+   * 
    * <pre>
    *   message {
    *     string type;
-   *     UniqueId uniqueId;
+   *     ExternalIdBundle identifiers;
    *   }
    * </pre>
-   *
+   * 
    * @param serializer Fudge serialization context, not null
    * @return the message representation of this value specification
    */
   public MutableFudgeMsg toFudgeMsg(final FudgeSerializer serializer) {
     final MutableFudgeMsg msg = serializer.newMessage();
     msg.add("type", null, _type.name());
-    serializer.addToMessage(msg, "uniqueId", null, _identifier);
-    // TODO: the field should be called identifier, not uniqueId, if it's an external identifier
+    serializer.addToMessage(msg, "identifiers", null, _identifiers);
     return msg;
   }
 
   public static MarketDataValueSpecification fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
     final MarketDataValueType type = deserializer.fieldValueToObject(MarketDataValueType.class, msg.getByName("type"));
-    final ExternalId identifier = deserializer.fieldValueToObject(ExternalId.class, msg.getByName("uniqueId"));
-    return new MarketDataValueSpecification(type, identifier);
+    final ExternalIdBundle identifiers = deserializer.fieldValueToObject(ExternalIdBundle.class, msg.getByName("identifiers"));
+    return new MarketDataValueSpecification(type, identifiers);
   }
 
 }
