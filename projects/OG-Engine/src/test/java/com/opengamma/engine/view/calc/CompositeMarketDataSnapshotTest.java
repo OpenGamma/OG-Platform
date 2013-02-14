@@ -29,7 +29,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
-import com.opengamma.engine.marketdata.MarketDataUtils;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -42,15 +41,15 @@ public class CompositeMarketDataSnapshotTest {
   private static final ComputationTargetSpecification TARGET = new ComputationTargetSpecification(ComputationTargetType.SECURITY, UniqueId.of("scheme", "value"));
   private static final ValueRequirement REQUIREMENT1 = new ValueRequirement("r1", TARGET);
   private static final ValueRequirement REQUIREMENT2 = new ValueRequirement("r2", TARGET);
-  private static final ValueSpecification SPECIFICATION1 = MarketDataUtils.createMarketDataValue(REQUIREMENT1.getValueName(), TARGET);
-  private static final ValueSpecification SPECIFICATION1_EXT = MarketDataUtils.createMarketDataValue(REQUIREMENT1.getValueName(), TARGET, ValueProperties.with(ValuePropertyNames.DATA_PROVIDER, "0")
-      .get());
-  private static final ValueSpecification SPECIFICATION2 = MarketDataUtils.createMarketDataValue(REQUIREMENT2.getValueName(), TARGET);
-  private static final ValueSpecification SPECIFICATION2_EXT = MarketDataUtils.createMarketDataValue(REQUIREMENT2.getValueName(), TARGET, ValueProperties.with(ValuePropertyNames.DATA_PROVIDER, "1")
-      .get());
+  private static final ValueSpecification SPECIFICATION1 = new ValueSpecification(REQUIREMENT1.getValueName(), TARGET, ValueProperties.with(ValuePropertyNames.FUNCTION, "F").get());
+  private static final ValueSpecification SPECIFICATION1_EXT = new ValueSpecification(REQUIREMENT1.getValueName(), TARGET, ValueProperties.with(ValuePropertyNames.FUNCTION, "F")
+      .with(ValuePropertyNames.DATA_PROVIDER, "0").get());
+  private static final ValueSpecification SPECIFICATION2 = new ValueSpecification(REQUIREMENT2.getValueName(), TARGET, ValueProperties.with(ValuePropertyNames.FUNCTION, "F").get());
+  private static final ValueSpecification SPECIFICATION2_EXT = new ValueSpecification(REQUIREMENT2.getValueName(), TARGET, ValueProperties.with(ValuePropertyNames.FUNCTION, "F")
+      .with(ValuePropertyNames.DATA_PROVIDER, "1").get());
   private static final Object VALUE1 = "V1";
   private static final Object VALUE2 = "V2";
-  private static final ValueSpecification UNKNOWN_SPECIFICATION = MarketDataUtils.createMarketDataValue("u", TARGET);
+  private static final ValueSpecification UNKNOWN_SPECIFICATION = new ValueSpecification("u", TARGET, ValueProperties.with(ValuePropertyNames.FUNCTION, "F").get());
 
   private MarketDataSnapshot _delegate1;
   private MarketDataSnapshot _delegate2;
