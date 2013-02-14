@@ -5,11 +5,11 @@
 $.register_module({
     name: 'og.blotter.forms.frasecurity',
     dependencies: [],
-    obj: function () {   
+    obj: function () {
         return function (config) {
             var constructor = this, form, ui = og.common.util.ui, data;
             if(config.details) {data = config.details.data; data.id = config.details.data.trade.uniqueId;}
-            else {data = {security: {type: "FRASecurity", regionId: "ABC~123", externalIdBundle: "", attributes: {}}, 
+            else {data = {security: {type: "FRASecurity", regionId: "ABC~123", externalIdBundle: "", attributes: {}},
                 trade: og.blotter.util.otc_trade};}
             data.nodeId = config.portfolio.id;
             constructor.load = function () {
@@ -21,12 +21,12 @@ $.register_module({
                     processor: function (data) {data.security.name = og.blotter.util.create_name(data);}
                 });
                 form.children.push(
-                    new og.blotter.forms.blocks.Portfolio({form: form, counterparty: data.trade.counterparty, 
-                        portfolio: data.nodeId, tradedate: data.trade.tradeDate}),
+                    new og.blotter.forms.blocks.Portfolio({form: form, counterparty: data.trade.counterparty,
+                        portfolio: data.nodeId, trade: data.trade}),
                     new form.Block({
                         module: 'og.blotter.forms.blocks.forward_rate_agreement_tash',
-                        extras: {start: data.security.startDate, end: data.security.endDate, 
-                            fixing:data.security.fixingDate, underlyingId: data.security.underlyingId, 
+                        extras: {start: data.security.startDate, end: data.security.endDate,
+                            fixing:data.security.fixingDate, underlyingId: data.security.underlyingId,
                             region: data.security.regionId, amount: data.security.amount, rate: data.security.rate
                         },
                         children: [
@@ -54,7 +54,7 @@ $.register_module({
                 form.on('form:submit', function (result){
                     config.handler(result.data);
                 });
-            }; 
+            };
             constructor.load();
             constructor.submit = function () {
                 form.submit();

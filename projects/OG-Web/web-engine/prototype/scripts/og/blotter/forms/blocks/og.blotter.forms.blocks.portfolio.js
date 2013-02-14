@@ -9,9 +9,15 @@ $.register_module({
         var module = this, Block = og.common.util.ui.Block;
         var Portfolio = function (config) {
             var block = this, id = og.common.id('attributes'), form = config.form;
-            form.Block.call(block, {module: 'og.blotter.forms.blocks.portfolio_tash', 
-                extras: {id: id, counterparty: config.counterparty, portfolio: config.portfolio, 
-                    tradedate: config.tradedate}});
+            console.log(config.trade);
+            form.Block.call(block, {module: 'og.blotter.forms.blocks.portfolio_tash',
+                extras: {
+                    id: id,
+                    counterparty: config.counterparty,
+                    portfolio: config.portfolio,
+                    trade: config.trade
+                }
+            });
         };
         Portfolio.prototype = new Block(); // inherit Block prototype
         return Portfolio;

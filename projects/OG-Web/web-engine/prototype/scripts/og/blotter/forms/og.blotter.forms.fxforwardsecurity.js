@@ -9,7 +9,7 @@ $.register_module({
         return function (config) {
             var constructor = this, form, ui = og.common.util.ui, data;
             if(config.details) {data = config.details.data; data.id = config.details.data.trade.uniqueId;}
-            else {data = {security: {type: "FXForwardSecurity", regionId: "ABC~123", externalIdBundle: "", 
+            else {data = {security: {type: "FXForwardSecurity", regionId: "ABC~123", externalIdBundle: "",
                 attributes: {}}, trade: og.blotter.util.otc_trade};}
             data.nodeId = config.portfolio.id;
             constructor.load = function () {
@@ -21,18 +21,18 @@ $.register_module({
                     processor: function (data) {data.security.name = og.blotter.util.create_name(data);}
                 });
                 form.children.push(
-                    new og.blotter.forms.blocks.Portfolio({form: form, counterparty: data.trade.counterparty, 
-                        portfolio: data.nodeId, tradedate: data.trade.tradeDate}),
+                    new og.blotter.forms.blocks.Portfolio({form: form, counterparty: data.trade.counterparty,
+                        portfolio: data.nodeId, trade: data.trade}),
                     new form.Block({
                         module: 'og.blotter.forms.blocks.fx_forward_tash',
                         extras: {pay: data.security.payAmount, receive: data.security.receiveAmount},
                         children: [
-                            new form.Block({module:'og.views.forms.currency_tash', 
+                            new form.Block({module:'og.views.forms.currency_tash',
                                 extras:{name: 'security.payCurrency'}}),
-                            new form.Block({module:'og.views.forms.currency_tash', 
+                            new form.Block({module:'og.views.forms.currency_tash',
                                 extras:{name: 'security.receiveCurrency'}})
                         ]
-                    }),                    
+                    }),
                     new og.common.util.ui.Attributes({
                         form: form, attributes: data.trade.attributes, index: 'trade.attributes'
                     })
@@ -49,7 +49,7 @@ $.register_module({
                 form.on('form:submit', function (result){
                     config.handler(result.data);
                 });
-            }; 
+            };
             constructor.load();
             constructor.submit = function () {
                 form.submit();

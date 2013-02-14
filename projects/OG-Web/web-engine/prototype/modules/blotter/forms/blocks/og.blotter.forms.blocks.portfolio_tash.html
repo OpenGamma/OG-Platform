@@ -1,8 +1,8 @@
 <section class="og-blotter-portfolio" id="{{id}}">
   <table class="OG-table">
     <colgroup>
-      <col style="width: 30%">              
-      <col style="width: 70%">              
+      <col style="width: 30%">
+      <col style="width: 70%">
     </colgroup>
     </thead>
     <tbody>
@@ -29,11 +29,22 @@
       <tr>
         <td>
           <label>
-            <span>Trade Date</span>
+            <span>Trade Date / Time</span>
           </label>
         </td>
-        <td>
-          <input name="trade.tradeDate" type="text" value="{{tradedate}}" />
+        <td class="og-double-cell">
+          <div>
+            <span><input name="trade.tradeDate" type="text" value="{{trade.tradeDate}}" /></span>
+            <span><input name="trade.tradeTime" type="text" value="{{trade.tradeTime}}" /></span>
+            <a href="#">Premium</a>
+          </div>
+        </td>
+      </tr>
+      <tr class="hidden">
+        <td colspan="2">
+          <fieldset class="premium-currency">
+            <input name="premium" type="text" value="{{premium}}" />
+          </fieldset>
         </td>
       </tr>
     </tbody>

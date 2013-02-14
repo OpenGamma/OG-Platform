@@ -9,7 +9,7 @@ $.register_module({
         return function (config) {
             var constructor = this, form, ui = og.common.util.ui, data;
             if(config.details) {data = config.details.data; data.id = config.details.data.trade.uniqueId;}
-            else {data = {security: {type: "CapFloorCMSSpreadSecurity", regionId: "ABC~123", externalIdBundle: "", 
+            else {data = {security: {type: "CapFloorCMSSpreadSecurity", regionId: "ABC~123", externalIdBundle: "",
                 attributes: {}}, trade: og.blotter.util.otc_trade};}
             data.nodeId = config.portfolio.id;
             constructor.load = function () {
@@ -21,11 +21,11 @@ $.register_module({
                     processor: function (data) {data.security.name = og.blotter.util.create_name(data);}
                 });
                 form.children.push(
-                    new og.blotter.forms.blocks.Portfolio({form: form, counterparty: data.trade.counterparty, 
-                        portfolio: data.nodeId, tradedate: data.trade.tradeDate}),
+                    new og.blotter.forms.blocks.Portfolio({form: form, counterparty: data.trade.counterparty,
+                        portfolio: data.nodeId, trade: data.trade}),
                     new form.Block({
                         module: 'og.blotter.forms.blocks.cap_floor_cms_tash',
-                        extras: {start: data.security.startDate, maturity: data.security.maturityDate, 
+                        extras: {start: data.security.startDate, maturity: data.security.maturityDate,
                             notional: data.security.notional,strike: data.security.strike
                         },
                         children: [
@@ -38,7 +38,7 @@ $.register_module({
                             new og.blotter.forms.blocks.Security({
                                 form: form, label: "Short Underlying ID", security: data.security.shortId,
                                 index: "security.shortId"
-                            }),                            
+                            }),
                             new ui.Dropdown({
                                 form: form, resource: 'blotter.frequencies', index: 'security.frequency',
                                 value: data.security.frequency, placeholder: 'Select Frequency'
@@ -66,7 +66,7 @@ $.register_module({
                 form.on('form:submit', function (result){
                    config.handler(result.data);
                 });
-            }; 
+            };
             constructor.load();
             constructor.submit = function () {
                 form.submit();

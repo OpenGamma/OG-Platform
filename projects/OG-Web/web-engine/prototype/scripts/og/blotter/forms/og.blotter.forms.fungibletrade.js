@@ -5,10 +5,10 @@
 $.register_module({
     name: 'og.blotter.forms.fungibletrade',
     dependencies: [],
-    obj: function () {   
+    obj: function () {
         return function (config) {
-            var constructor = this, form, request, data, security, $security_input, util = og.blotter.util, 
-            dropdown = '.og-blotter-security-select', securityId, details_selector = 'og-blocks-fungible-details', 
+            var constructor = this, form, request, data, security, $security_input, util = og.blotter.util,
+            dropdown = '.og-blotter-security-select', securityId, details_selector = 'og-blocks-fungible-details',
             ids_selector = 'og-blocks-fungible-security-ids',
             blank_details = "<table class='" + details_selector + "'></table>",
             blank_ids = "<table class='" + ids_selector + "'></table>";
@@ -23,19 +23,19 @@ $.register_module({
                     data: data,
                     selector: '.OG-blotter-form-block'
                 });
-                security = new og.blotter.forms.blocks.Security({form: form, label: "Underlying ID", 
+                security = new og.blotter.forms.blocks.Security({form: form, label: "Underlying ID",
                     security: securityId, index: "trade.securityIdBundle", edit: !!config.details});
                 form.children.push(
-                    new og.blotter.forms.blocks.Portfolio({form: form, counterparty: data.trade.counterparty, 
-                        portfolio: data.nodeId, tradedate: data.trade.tradeDate}),
-                    new form.Block({module: 'og.blotter.forms.blocks.fungible_tash', 
+                    new og.blotter.forms.blocks.Portfolio({form: form, counterparty: data.trade.counterparty,
+                        portfolio: data.nodeId, trade: data.trade}),
+                    new form.Block({module: 'og.blotter.forms.blocks.fungible_tash',
                         extras: {quantity: data.trade.quantity},
                         children: [security]
                     }),
                     new og.common.util.ui.Attributes({
                         form: form, attributes: data.trade.attributes, index: 'trade.attributes'
-                    }),                    
-                    new form.Block({content: blank_details}),                   
+                    }),
+                    new form.Block({content: blank_details}),
                     new form.Block({content: blank_ids})
                 );
                 form.dom();
@@ -48,7 +48,7 @@ $.register_module({
                 });
                 form.on('keyup', security.input_id(), function (event) {get_security();});
                 form.on('change', security.select_id(), function (event) {get_security();});
-            }; 
+            };
             get_security = function () {
                 request = og.api.rest.blotter.securities.get({id:security.name()}).pipe(
                     function(result){populate(result);}
@@ -57,7 +57,7 @@ $.register_module({
             populate = function (config){
                 var details_block, ids_block, details, basket;
                 if(config.error) {clear_info(); return;}
-                ids_block = new form.Block({module: 'og.blotter.forms.blocks.fungible_security_ids_tash', 
+                ids_block = new form.Block({module: 'og.blotter.forms.blocks.fungible_security_ids_tash',
                     extras: {security: security_ids(config.data.externalIdBundle)}
                 });
                 basket = config.data.basket;

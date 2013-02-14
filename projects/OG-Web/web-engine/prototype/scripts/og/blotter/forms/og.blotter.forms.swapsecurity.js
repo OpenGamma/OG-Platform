@@ -5,13 +5,13 @@
 $.register_module({
     name: 'og.blotter.forms.swapsecurity',
     dependencies: [],
-    obj: function () {   
+    obj: function () {
         return function (config) {
             var constructor = this, form, ui = og.common.util.ui, data, pay_block, receive_block, pay_select, receive_select,
-                pay_index = og.common.id('pay'), receive_index = og.common.id('receive'), pay_leg = 'security.payLeg.', 
+                pay_index = og.common.id('pay'), receive_index = og.common.id('receive'), pay_leg = 'security.payLeg.',
                 receive_leg = 'security.receiveLeg.', $pay_select, $receive_select;
             if(config.details) {data = config.details.data; data.id = config.details.data.trade.uniqueId;}
-            else {data = {security: {type: "SwapSecurity", regionId: 'ABC~123', externalIdBundle: "", attributes: {}}, 
+            else {data = {security: {type: "SwapSecurity", regionId: 'ABC~123', externalIdBundle: "", attributes: {}},
                 trade: og.blotter.util.otc_trade};}
             data.nodeId = config.portfolio.id;
             constructor.load = function () {
@@ -33,14 +33,14 @@ $.register_module({
                     }
                 });
                 form.children.push(
-                    new og.blotter.forms.blocks.Portfolio({form: form, counterparty: data.trade.counterparty, 
-                        portfolio: data.nodeId, tradedate: data.trade.tradeDate}),
+                    new og.blotter.forms.blocks.Portfolio({form: form, counterparty: data.trade.counterparty,
+                        portfolio: data.nodeId, trade: data.trade}),
                     new form.Block({
                         module: 'og.blotter.forms.blocks.swap_quick_entry_tash'
                     }),
                     new form.Block({
                         module: 'og.blotter.forms.blocks.swap_details_tash',
-                        extras: {trade: data.security.tradeDate, maturity: data.security.maturityDate, 
+                        extras: {trade: data.security.tradeDate, maturity: data.security.maturityDate,
                             effective: data.security.effectiveDate, prefix: 'security.'}
                     }),
                     pay_select = new ui.Dropdown({
@@ -65,19 +65,20 @@ $.register_module({
                     og.blotter.util.add_datetimepicker("security.effectiveDate");
                     og.blotter.util.add_datetimepicker("security.maturityDate");
                     og.blotter.util.add_datetimepicker("trade.tradeDate");
+                    og.blotter.util.add_time_picker("trade.tradeTime");
                     if(typeof data.security.payLeg != 'undefined') {
                         swap_leg({type: data.security.payLeg.type, index: pay_index, leg: pay_leg, child: 4,
                             pay_edit: true});
                         $pay_select.val(data.security.payLeg.type);
                         og.blotter.util.toggle_fixed($receive_select, data.security.payLeg.type);
-                    }   
+                    }
                     if(typeof data.security.receiveLeg != 'undefined'){
                         swap_leg({type: data.security.receiveLeg.type, index: receive_index,leg: receive_leg,
                             child: 6, receive_edit: true});
                         $receive_select.val(data.security.receiveLeg.type);
                         og.blotter.util.toggle_fixed($pay_select, data.security.receiveLeg.type);
                     }
-                }); 
+                });
                 form.on('form:submit', function (result){
                     config.handler(result.data);
                 });
@@ -94,23 +95,23 @@ $.register_module({
                 var new_block;
                 if(!swap.type.length) {new_block = new form.Block({content:"<div id='" + swap.index + "'></div>"});}
                 else if(!~swap.type.indexOf('Floating')){
-                    new_block = new og.blotter.forms.blocks.Fixedleg({form: form, data: data, leg: swap.leg, 
+                    new_block = new og.blotter.forms.blocks.Fixedleg({form: form, data: data, leg: swap.leg,
                         index: swap.index});
                 } else {
-                    new_block = new og.blotter.forms.blocks.Floatingleg({form: form, data: data, leg: swap.leg, 
-                        type: swap.type, index: swap.index});                    
+                    new_block = new og.blotter.forms.blocks.Floatingleg({form: form, data: data, leg: swap.leg,
+                        type: swap.type, index: swap.index});
                 }
                 new_block.html(function (html) {
                     $('#' + swap.index).replaceWith(html);
                     if(swap.receive_edit) {
                         og.blotter.util.check_checkbox(receive_leg + 'eom', data.security.receiveLeg.eom);
-                        og.blotter.util.set_select(receive_leg + "notional.currency", 
+                        og.blotter.util.set_select(receive_leg + "notional.currency",
                             data.security.receiveLeg.notional.currency);
                     }
                     else if(swap.pay_edit) {
                         og.blotter.util.check_checkbox(pay_leg + 'eom', data.security.payLeg.eom);
-                        og.blotter.util.set_select(pay_leg + "notional.currency", 
-                            data.security.payLeg.notional.currency);                        
+                        og.blotter.util.set_select(pay_leg + "notional.currency",
+                            data.security.payLeg.notional.currency);
                     }
                 });
                 form.children[swap.child] = new_block;

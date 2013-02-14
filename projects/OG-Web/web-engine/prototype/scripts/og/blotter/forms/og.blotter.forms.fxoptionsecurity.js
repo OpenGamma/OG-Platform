@@ -5,11 +5,11 @@
 $.register_module({
     name: 'og.blotter.forms.fxoptionsecurity',
     dependencies: [],
-    obj: function () {   
+    obj: function () {
         return function (config) {
             var constructor = this, form, ui = og.common.util.ui, data;
             if(config.details) {data = config.details.data; data.id = config.details.data.trade.uniqueId;}
-            else {data = {security: {type: "FXOptionSecurity", regionId: "ABC~123", externalIdBundle: "", 
+            else {data = {security: {type: "FXOptionSecurity", regionId: "ABC~123", externalIdBundle: "",
                 attributes: {}}, trade: og.blotter.util.otc_trade};}
             data.nodeId = config.portfolio.id;
             constructor.load = function () {
@@ -21,21 +21,21 @@ $.register_module({
                     processor: function (data) {data.security.name = og.blotter.util.create_name(data);}
                 });
                 form.children.push(
-                    new og.blotter.forms.blocks.Portfolio({form: form, counterparty: data.trade.counterparty, 
-                        portfolio: data.nodeId, tradedate: data.trade.tradeDate}),
+                    new og.blotter.forms.blocks.Portfolio({form: form, counterparty: data.trade.counterparty,
+                        portfolio: data.nodeId, trade: data.trade}),
                     new form.Block({
                         module: 'og.blotter.forms.blocks.long_short_tash'
-                    }), 
+                    }),
                     new form.Block({
                         module: 'og.blotter.forms.blocks.fx_option_value_tash',
                         extras: {put: data.security.putAmount, call: data.security.callAmount},
                         children: [
-                            new form.Block({module:'og.views.forms.currency_tash', 
+                            new form.Block({module:'og.views.forms.currency_tash',
                                 extras:{name: 'security.putCurrency'}}),
-                            new form.Block({module:'og.views.forms.currency_tash', 
+                            new form.Block({module:'og.views.forms.currency_tash',
                                 extras:{name: 'security.callCurrency'}})
                         ]
-                    }),                    
+                    }),
                     new form.Block({
                         module: 'og.blotter.forms.blocks.fx_option_date_tash',
                         extras: {expiry: data.security.expiry, settlement: data.security.settlementDate,
@@ -45,7 +45,7 @@ $.register_module({
                                 form: form, resource: 'blotter.exercisetypes', index: 'security.exerciseType',
                                 value: data.security.exerciseType, placeholder: 'Select Exercise Type'
                             }),
-                            new form.Block({module:'og.views.forms.currency_tash', 
+                            new form.Block({module:'og.views.forms.currency_tash',
                                 extras:{name: 'trade.premiumCurrency'}})
                         ]
                     }),
@@ -67,7 +67,7 @@ $.register_module({
                 form.on('form:submit', function (result){
                     config.handler(result.data);
                 });
-            }; 
+            };
             constructor.load();
             constructor.submit = function () {
                 form.submit();

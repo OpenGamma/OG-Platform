@@ -6,11 +6,11 @@ $.register_module({
     name: 'og.blotter.util',
     dependencies: [],
     obj: function () {
-        var bools = {"false": false, "true": true}; 
+        var bools = {"false": false, "true": true};
         return {
             /* Util methods */
             create_name : function (data){
-                return data.security.type + " " + data.trade.tradeDate; 
+                return data.security.type + " " + data.trade.tradeDate;
             },
             update_block : function (section, extras){
                 section.block.html(function (html) {
@@ -28,6 +28,9 @@ $.register_module({
             },
             add_datetimepicker : function (name){$('input[name="'+ name +'"]').datepicker({
                 dateFormat: 'yy-mm-dd', changeMonth: true, changeYear: true});
+            },
+            add_time_picker : function (name) {
+                $('input[name="'+ name +'"]').datetimepicker({ timeOnly:true });
             },
             get_checkbox : function (name) {
                 return $('input:checkbox[name="'+ name +'"]').is(':checked').toString();
@@ -51,22 +54,12 @@ $.register_module({
                     option.removeAttr("disabled");
             },
             /* Util data */
-            otc_trade : {                
-                premiumCurrency: null,
-                tradeTime: null,
-                premium: null,
-                premiumTime: null,
+            otc_trade : {
                 attributes: {},
-                premiumDate: null,
                 type: "OtcTrade"
             },
-            fungible_trade : {                
-                premiumCurrency: null,
-                tradeTime: null,
-                premium: null,
-                premiumTime: null,
+            fungible_trade : {
                 attributes: {},
-                premiumDate: null,
                 type: "FungibleTrade"
             },
             swap_types : [
