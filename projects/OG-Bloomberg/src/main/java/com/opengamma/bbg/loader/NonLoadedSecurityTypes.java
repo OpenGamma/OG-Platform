@@ -79,7 +79,7 @@ public final class NonLoadedSecurityTypes {
    * The valid Bloomberg security types for spot rates
    */
   public static final Set<String> VALID_SPOT_RATE_TYPES = ImmutableSet.of(
-	  BLOOMBERG_PHYSICAL_COMMODITY_SPOT_TYPE,
+      BLOOMBERG_PHYSICAL_COMMODITY_SPOT_TYPE,
       BLOOMBERG_SPOT_TYPE,
       BLOOMBERG_CROSS_TYPE,
       BLOOMBERG_CD);
