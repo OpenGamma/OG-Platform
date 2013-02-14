@@ -29,7 +29,6 @@ $.register_module({
                         var fields = datum.split('|');
                         return {value: fields[values], text: fields[texts], selected: value === fields[values]};
                     });
-                    console.log(config);
                     template_data.disabled = !template_data.options.length || disabled;
                     handler(template(template_data));
                 };

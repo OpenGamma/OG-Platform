@@ -14,10 +14,9 @@ $.register_module({
                 scheme_value = security.split(/~(.+)/)[0];
                 id_value  = security.split(/~(.+)/)[1]; 
             }
-            console.log(config.edit);
             form.Block.call(block, {
                 module: 'og.blotter.forms.blocks.security_tash', 
-                extras: {label: config.label, sec_id: sec_id, value: id_value},
+                extras: {label: config.label, sec_id: sec_id, value: id_value, disabled: !!config.edit},
                 children: [
                     dropdown = new og.common.util.ui.Dropdown({
                         form: form, resource: 'blotter.idschemes', index: scheme_id,
