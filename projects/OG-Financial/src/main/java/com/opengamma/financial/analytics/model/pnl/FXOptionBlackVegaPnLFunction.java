@@ -63,6 +63,7 @@ import com.opengamma.financial.currency.ConfigDBCurrencyPairsSource;
 import com.opengamma.financial.currency.CurrencyMatrixSourcingFunction;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.CurrencyPairs;
+import com.opengamma.financial.currency.CurrencySeriesConversionFunction;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
@@ -123,7 +124,7 @@ public class FXOptionBlackVegaPnLFunction extends AbstractFunction.NonCompiledIn
     final String vegaResultCurrency = getResultCurrency(target, baseCounterPair);
     final String currencyBase = baseCounterPair.getBase().getCode();
     if (!currencyBase.equals(vegaResultCurrency)) {
-      final Object spotFXObject = inputs.getValue(ValueRequirementNames.HISTORICAL_TIME_SERIES);
+      final Object spotFXObject = inputs.getValue(CurrencySeriesConversionFunction.SPOT_RATE);
       if (spotFXObject == null) {
         throw new OpenGammaRuntimeException("Could not get spot FX time series");
       }

@@ -8,8 +8,6 @@ package com.opengamma.financial.analytics.model.pnl;
 import java.util.Collections;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
@@ -49,6 +47,7 @@ import com.opengamma.financial.currency.ConfigDBCurrencyPairsSource;
 import com.opengamma.financial.currency.CurrencyMatrixSourcingFunction;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.CurrencyPairs;
+import com.opengamma.financial.currency.CurrencySeriesConversionFunction;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.util.money.Currency;
@@ -59,7 +58,6 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  *
  */
 public class FXDigitalCallSpreadBlackDeltaPnLFunction extends AbstractFunction.NonCompiledInvoker {
-  private static final Logger s_logger = LoggerFactory.getLogger(FXDigitalCallSpreadBlackDeltaPnLFunction.class);
   private static final HolidayDateRemovalFunction HOLIDAY_REMOVER = HolidayDateRemovalFunction.getInstance();
   private static final Calendar WEEKEND_CALENDAR = new MondayToFridayCalendar("Weekend");
   private static final TimeSeriesDifferenceOperator DIFFERENCE = new TimeSeriesDifferenceOperator();
@@ -94,7 +92,7 @@ public class FXDigitalCallSpreadBlackDeltaPnLFunction extends AbstractFunction.N
     final CurrencyPair currencyPair = currencyPairs.getCurrencyPair(putCurrency, callCurrency);
     final Currency currencyNonBase = currencyPair.getCounter(); // The non-base currency
     final double delta = mca.getAmount(currencyNonBase);
-    final HistoricalTimeSeries timeSeries = (HistoricalTimeSeries) inputs.getValue(ValueRequirementNames.HISTORICAL_TIME_SERIES);
+    final HistoricalTimeSeries timeSeries = (HistoricalTimeSeries) inputs.getValue(CurrencySeriesConversionFunction.SPOT_RATE);
     DoubleTimeSeries<?> result = getPnLSeries(startDate, now.getDate(), schedule, sampling, timeSeries);
     result = result.multiply(position.getQuantity().doubleValue() * delta);
     final Currency currencyBase = currencyPair.getBase(); // The base currency

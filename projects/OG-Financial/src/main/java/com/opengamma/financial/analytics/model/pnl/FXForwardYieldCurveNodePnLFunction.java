@@ -64,6 +64,7 @@ import com.opengamma.financial.currency.ConfigDBCurrencyPairsSource;
 import com.opengamma.financial.currency.CurrencyMatrixSourcingFunction;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.CurrencyPairs;
+import com.opengamma.financial.currency.CurrencySeriesConversionFunction;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
@@ -142,7 +143,7 @@ public class FXForwardYieldCurveNodePnLFunction extends AbstractFunction.NonComp
     final CurrencyPairs currencyPairs = currencyPairsSource.getCurrencyPairs(CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
     final CurrencyPair currencyPair = currencyPairs.getCurrencyPair(payCurrency, receiveCurrency);
     final Currency currencyBase = currencyPair.getBase();
-    final Object fxSpotTSObject = inputs.getValue(ValueRequirementNames.HISTORICAL_TIME_SERIES);
+    final Object fxSpotTSObject = inputs.getValue(CurrencySeriesConversionFunction.SPOT_RATE);
     if (fxSpotTSObject == null) {
       throw new OpenGammaRuntimeException("Could not get spot FX time series");
     }
