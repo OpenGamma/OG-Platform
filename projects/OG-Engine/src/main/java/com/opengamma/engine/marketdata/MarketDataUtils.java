@@ -5,8 +5,6 @@
  */
 package com.opengamma.engine.marketdata;
 
-import java.util.Map;
-
 import com.opengamma.core.id.ExternalIdOrderConfig;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.MarketDataSourcingFunction;
@@ -20,8 +18,6 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.ExternalId;
-import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.PublicAPI;
 import com.opengamma.util.functional.Function1;
@@ -34,37 +30,9 @@ public class MarketDataUtils {
 
   // [PLAT-3044] Most of the methods here should not be necessary. Arbitrary conversion from external id bundles to unique identifiers is unlikely to be a good idea. Review and deprecate/delete.
 
-  public static ExternalId getPreferredIdentifier(final ExternalIdOrderConfig ordering, final ExternalIdBundle bundle) {
-    if (bundle.size() == 1) {
-      return bundle.iterator().next();
-    } else {
-      final Map<ExternalScheme, Integer> rates = ordering.getRateMap();
-      ExternalId preferred = null;
-      int preferredScore = Integer.MIN_VALUE;
-      for (final ExternalId id : bundle) {
-        final int score = rates.get(id.getScheme());
-        if (preferred == null) {
-          preferred = id;
-          preferredScore = score;
-        } else {
-          if (score > preferredScore) {
-            preferred = id;
-            preferredScore = score;
-          } else if (score == preferredScore) {
-            // same score, so use natural ordering of the schemes
-            if (id.getScheme().compareTo(preferred.getScheme()) < 0) {
-              preferred = id;
-            }
-          }
-        }
-      }
-      return preferred;
-    }
-  }
-
   /**
    * Tests whether the requirement can be satisfied by the availability provider.
-   *
+   * 
    * @param provider the provider to test, not null
    * @param requirement the requirement to test, not null
    * @return true if the requirement can be satisfied by the provider, false otherwise
@@ -80,7 +48,7 @@ public class MarketDataUtils {
 
   /**
    * Tests whether the requirement can be satisfied by the availability provider.
-   *
+   * 
    * @param provider the provider to test, not null
    * @param requirement the requirement to test, not null
    * @return one of the three availability states - see {@link MarketDataAvailability} for more details, not null
@@ -115,7 +83,7 @@ public class MarketDataUtils {
   public static final Function1<ValueRequirement, UniqueId> DEFAULT_EXTERNAL_ID = new Function1<ValueRequirement, UniqueId>() {
     @Override
     public UniqueId execute(final ValueRequirement requirement) {
-      final ExternalId eid = getPreferredIdentifier(ExternalIdOrderConfig.DEFAULT_CONFIG, requirement.getTargetReference().getRequirement().getIdentifiers());
+      final ExternalId eid = ExternalIdOrderConfig.DEFAULT_CONFIG.getPreferred(requirement.getTargetReference().getRequirement().getIdentifiers());
       return UniqueId.of(eid.getScheme().getName(), eid.getValue());
     }
   };
@@ -130,7 +98,7 @@ public class MarketDataUtils {
 
   /**
    * Creates a specification that can be returned as a result by a data provider that satisfies the given requirement.
-   *
+   * 
    * @param requirement the original requirement to be satisfied, not null
    * @param target the satisfying target identifier - to be used if the requirement did not include a unique identifier, not null
    * @return a satisfying value specification
@@ -141,7 +109,7 @@ public class MarketDataUtils {
 
   /**
    * Creates a specification that can be returned as a result by a data provider that satisfied the given requirement.
-   *
+   * 
    * @param requirement the original requirement to be satisfied, not null
    * @param target the satisfying target identifier - to be used if the requirement did not include a unique identifier, not null
    * @return a satisfying value specification
@@ -156,7 +124,7 @@ public class MarketDataUtils {
 
   /**
    * Creates a specification that can be returned as a result by a data provider that satisfies the given requirement.
-   *
+   * 
    * @param valueName the value name that is satisfied, not null
    * @param target the computation target, not null
    * @return a satisfying value specification
@@ -167,7 +135,7 @@ public class MarketDataUtils {
 
   /**
    * Creates a specification that can be returned as a result by a data provider that satisfies the given requirement.
-   *
+   * 
    * @param valueName the value name that is satisfied, not null
    * @param target the computation target, not null
    * @param properties the properties of the satisfying result, not null
