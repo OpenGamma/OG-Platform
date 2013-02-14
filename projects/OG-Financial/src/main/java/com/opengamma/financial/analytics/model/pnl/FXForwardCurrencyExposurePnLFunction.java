@@ -16,6 +16,7 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.schedule.HolidayDateRemovalFunction;
 import com.opengamma.analytics.financial.schedule.Schedule;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculatorFactory;
@@ -77,14 +78,17 @@ public class FXForwardCurrencyExposurePnLFunction extends AbstractFunction.NonCo
     final FXForwardSecurity security = (FXForwardSecurity) position.getSecurity();
     final MultipleCurrencyAmount mca = (MultipleCurrencyAmount) inputs.getValue(ValueRequirementNames.FX_CURRENCY_EXPOSURE);
     final HistoricalTimeSeries timeSeries = (HistoricalTimeSeries) inputs.getValue(ValueRequirementNames.HISTORICAL_TIME_SERIES);
+    final Currency payCurrency = security.getPayCurrency();
+    final Currency receiveCurrency = security.getReceiveCurrency();
+    if (timeSeries == null) {
+      throw new OpenGammaRuntimeException("Could not get spot FX series for " + payCurrency + " / " + receiveCurrency);
+    }
     final LocalDate startDate = now.getDate().minus(Period.parse(samplingPeriod));
     final Schedule schedule = ScheduleCalculatorFactory.getScheduleCalculator(scheduleCalculator);
     final TimeSeriesSamplingFunction sampling = TimeSeriesSamplingFunctionFactory.getFunction(samplingFunction);
     final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(executionContext);
     final ConfigDBCurrencyPairsSource currencyPairsSource = new ConfigDBCurrencyPairsSource(configSource);
     final CurrencyPairs currencyPairs = currencyPairsSource.getCurrencyPairs(CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
-    final Currency payCurrency = security.getPayCurrency();
-    final Currency receiveCurrency = security.getReceiveCurrency();
     final CurrencyPair currencyPair = currencyPairs.getCurrencyPair(payCurrency, receiveCurrency);
     final Currency currencyNonBase = currencyPair.getCounter(); // The non-base currency
     final double exposure = mca.getAmount(currencyNonBase);
