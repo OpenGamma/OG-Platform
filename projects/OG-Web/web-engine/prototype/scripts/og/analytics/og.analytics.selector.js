@@ -127,17 +127,17 @@ $.register_module({
         };
         Selector.prototype.selection = function (rectangle) {
             if (!this.rectangle && !rectangle) return null;
-            var selector = this, grid = selector.grid, meta = grid.meta,
+            var selector = this, grid = selector.grid, meta = grid.meta, state = grid.state,
                 bottom_right = (rectangle = rectangle || selector.rectangle).bottom_right,
                 top_left = rectangle.top_left, grid = selector.grid,
-                row_start = Math.floor(top_left.top / grid.meta.row_height),
-                row_end = Math.floor(bottom_right.bottom / grid.meta.row_height),
-                lcv, scan = grid.meta.columns.scan.all, rows = [], cols = [];
+                row_start = Math.floor(top_left.top / meta.row_height),
+                row_end = Math.floor(bottom_right.bottom / meta.row_height),
+                lcv, scan = meta.columns.scan.all, rows = [], cols = [];
             if (row_start < 0) return null; // bad input
             for (lcv = 0; lcv < scan.length; lcv += 1)
                 if (scan[lcv] <= bottom_right.right && scan[lcv] > top_left.left) cols.push(lcv);
                 else if (scan[lcv] > bottom_right.right) break;
-            for (lcv = row_start; lcv < row_end; lcv += 1) rows.push(meta.available[lcv]);
+            for (lcv = row_start; lcv < row_end; lcv += 1) rows.push(state.available[lcv]);
             return {cols: cols, rows: rows, type: cols.map(function (col) {return meta.columns.types[col];})};
         };
         return Selector;

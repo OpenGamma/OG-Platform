@@ -31,8 +31,9 @@ $.register_module({
                 while (++start <= end) result.push(start);
                 return result;
             };
-            return function (meta) {
-                nodes = meta.nodes;
+            return function () {
+                var grid = this, meta = grid.meta, state = grid.state;
+                nodes = state.nodes;
                 return meta.structure.length ? unravel(meta.structure, []) : all(meta.data_rows);
             };
         })();
@@ -122,7 +123,7 @@ $.register_module({
             };
             var mouseup = function (grid, event) {
                 clean_up(grid);
-                grid.col_override[index] = Math.max(min_size, start_width + (event.pageX - start_left));
+                grid.state.col_override[index] = Math.max(min_size, start_width + (event.pageX - start_left));
                 grid.resize();
             };
             return function (event, $target) {
@@ -165,7 +166,7 @@ $.register_module({
             grid.formatter = new og.analytics.Formatter(grid);
             grid.id = '#' + og.common.id('grid');
             grid.meta = null;
-            grid.col_override = [];
+            grid.state = {col_override: [], nodes: null, structure: null};
             grid.source = config.source;
             grid.updated = (function (last, delta) {
                 return function (time) {
@@ -242,7 +243,7 @@ $.register_module({
                     if (!$target.is('.node')) return grid.fire('mousedown', event), void 0;
                     if ($target.is('.loading')) return;
                     $target.removeClass('expand collapse').addClass('loading');
-                    grid.meta.nodes[row = +$target.attr('data-row')] = !grid.meta.nodes[row];
+                    grid.state.nodes[row = +$target.attr('data-row')] = !grid.state.nodes[row];
                     grid.resize().selector.clear();
                     return false; // kill bubbling
                 })
@@ -322,14 +323,16 @@ $.register_module({
             meta.set_height = meta.show_sets ? set_height : 0;
             meta.header_height =  meta.set_height + title_height;
             meta.scrollbar = scrollbar;
+            meta.fixed_length = meta.columns.fixed.length && meta.columns.fixed[0].columns.length;
+            meta.scroll_length = meta.columns.scroll.reduce(function (acc, set) {return acc + set.columns.length;}, 0);
             columns.orig_widths = columns.fixed.concat(columns.scroll).reduce(function (acc, set) {
                 return acc.concat(set.columns.map(function (col) {return col.width || null;}));
             }, []);
+            verify_state.call(grid);
             grid.col_widths();
             col_fields.forEach(function (key) {columns[key + 's'] = [];}); // plural version
             columns.fixed.forEach(function (set) {set.columns.forEach(populate);});
             columns.scroll.forEach(function (set) {set.columns.forEach(populate);});
-            unravel_structure.call(grid);
             meta.row_class = {}; // TODO populate with added, deleted, edited by data row index
             if (grid.elements.empty) init_elements.call(grid);
             grid.resize(!meta.start_expanded);
@@ -366,10 +369,11 @@ $.register_module({
         })();
         var render_rows = (function () {
             var row_data = function (grid, data, fixed, loading) {
-                var meta = grid.meta, fixed_len = meta.fixed_length, i, j, index, data_row, inner = meta.inner, prefix,
-                    cols = meta.viewport.cols, rows = meta.viewport.rows, grid_row = meta.available.indexOf(rows[0]),
-                    types = meta.columns.types, type, total_cols = cols.length, formatter = grid.formatter, col_end,
-                    row_len = rows.length, col_len = fixed ? fixed_len : total_cols - fixed_len, column, cells, value,
+                var meta = grid.meta, state = grid.state, fixed_len = meta.fixed_length, i, j, index, data_row,
+                    inner = meta.inner, prefix, cols = meta.viewport.cols, rows = meta.viewport.rows,
+                    grid_row = state.available.indexOf(rows[0]), types = meta.columns.types, type,
+                    total_cols = cols.length, formatter = grid.formatter, col_end, row_len = rows.length,
+                    col_len = fixed ? fixed_len : total_cols - fixed_len, column, cells, value,
                     widths = meta.columns.widths, row_class = meta.row_class, result = {
                         rows: [], loading: loading, holder_height: Math
                             .max(inner.height + (fixed ? scrollbar : 0), inner.scroll_height - (fixed ? 0 : scrollbar)),
@@ -385,8 +389,8 @@ $.register_module({
                         value = formatter[type = types[column]] ?
                             data[index] && formatter[type](data[index], widths[column], row_height)
                                 : data[index] && data[index].v || '';
-                        prefix = fixed && j === 0 ? meta.unraveled_cache[meta.unraveled[data_row]]({
-                            state: grid.meta.nodes[data_row] ? 'collapse' : 'expand'
+                        prefix = fixed && j === 0 ? state.unraveled_cache[state.unraveled[data_row]]({
+                            state: grid.state.nodes[data_row] ? 'collapse' : 'expand'
                         }) : '';
                         cells.push({
                             column: column, value: prefix + value,
@@ -454,30 +458,37 @@ $.register_module({
                 return result;
             };
             return function () {
-                var grid = this, meta = grid.meta, unraveled, prefix;
-                cache = {}; counter = 0; grid.meta.unraveled_cache = [];
+                var grid = this, meta = grid.meta, state = grid.state, unraveled;
+                cache = {}; counter = 0; state.unraveled_cache = [];
                 unraveled = meta.structure.length ? unravel(meta.structure, [], 0) : all(meta.data_rows);
-                meta.nodes = unraveled.reduce(function (acc, val, idx) {
+                state.nodes = unraveled.reduce(function (acc, val, idx) {
                     if (!val.node) return acc;
                     acc[idx] = val.expand;
                     acc.all.push(idx);
-                    acc.ranges.push(val.length);
                     if (val.indent > 1) acc.collapse.push(idx);
                     return acc;
-                }, {all: [], ranges: [], collapse: []});
-                for (prefix in cache) meta.unraveled_cache[+cache[prefix]] = Handlebars.compile(prefix);
-                meta.unraveled = unraveled.pluck('prefix');
+                }, {all: [], collapse: []});
+                Object.keys(cache)
+                    .forEach(function (prefix) {state.unraveled_cache[+cache[prefix]] = Handlebars.compile(prefix);});
+                state.unraveled = unraveled.pluck('prefix');
+                state.structure = meta.structure;
             };
         })();
+        var verify_state = function () {
+            var grid = this, meta = grid.meta, state = grid.state;
+            if (state.col_override.length !== meta.fixed_length + meta.scroll_length) // if length has changed (in meta)
+                state.col_override = new Array(meta.fixed_length + meta.scroll_length);
+            if (JSON.stringify(meta.structure) !== JSON.stringify(state.structure)) unravel_structure.call(grid);
+        };
         var viewport = function (handler) {
             var grid = this, meta = grid.meta, viewport = meta.viewport, inner = meta.inner, elements = grid.elements,
                 top_position = elements.scroll_body.scrollTop(), left_position = elements.scroll_head.scrollLeft(),
                 fixed_len = meta.fixed_length, row_start = Math.floor((top_position / inner.height) * meta.rows),
                 scroll_position = left_position + inner.width, buffer = viewport_buffer.call(grid), lcv,
-                row_end = Math.min(row_start + meta.visible_rows + buffer.row, meta.available.length),
+                row_end = Math.min(row_start + meta.visible_rows + buffer.row, grid.state.available.length),
                 scroll_cols = meta.columns.scroll.reduce(function (acc, set) {return acc.concat(set.columns);}, []);
             lcv = Math.max(0, row_start - buffer.row); viewport.rows = [];
-            while (lcv < row_end) viewport.rows.push(meta.available[lcv++]);
+            while (lcv < row_end) viewport.rows.push(grid.state.available[lcv++]);
             (viewport.cols = []), (lcv = 0);
             while (lcv < fixed_len) viewport.cols.push(lcv++);
             viewport.cols = viewport.cols.concat(scroll_cols.reduce(function (acc, col, idx) {
@@ -519,17 +530,13 @@ $.register_module({
             };
         };
         Grid.prototype.col_widths = function () {
-            var grid = this, meta = grid.meta, avg_col_width, fixed_width,
+            var grid = this, state = grid.state, meta = grid.meta, avg_col_width, fixed_width,
                 fixed_cols = meta.columns.fixed, scroll_cols = meta.columns.scroll, scroll_data_width,
                 def_scrolls, scroll_width, last_set, remainder, parent_width = grid.elements.parent.width();
-            meta.fixed_length = meta.columns.fixed.length && meta.columns.fixed[0].columns.length;
-            meta.scroll_length = scroll_cols.reduce(function (acc, set) {return acc + set.columns.length;}, 0);
-            if (grid.col_override.length !== meta.fixed_length + meta.scroll_length) // if length has changed (in meta)
-                grid.col_override = new Array(meta.fixed_length + meta.scroll_length);
             (function (idx) {
                 fixed_cols.concat(scroll_cols).forEach(function (set) {
                     set.columns.forEach(function (col) {
-                        col.width = grid.col_override[idx] || meta.columns.orig_widths[idx];
+                        col.width = state.col_override[idx] || meta.columns.orig_widths[idx];
                         idx += 1;
                     });
                 });
@@ -595,9 +602,9 @@ $.register_module({
             }) ? result : null;
         };
         Grid.prototype.resize = function (collapse) {
-            var grid = this, config = grid.config, meta = grid.meta, columns = meta.columns, id = grid.id, css, sheet,
-                width = grid.elements.parent.width(), data_width, height = grid.elements.parent.height(),
-                header_height = meta.header_height;
+            var grid = this, config = grid.config, meta = grid.meta, state = grid.state, columns = meta.columns,
+                id = grid.id, css, sheet, width = grid.elements.parent.width(), data_width,
+                height = grid.elements.parent.height(), header_height = meta.header_height;
             grid.col_widths();
             columns.width = {
                 fixed: columns.fixed.reduce(function (acc, set) {
@@ -620,8 +627,8 @@ $.register_module({
             columns.scan.all = columns.scan.fixed
                 .concat(columns.scan.scroll.map(function (val) {return val + columns.width.fixed;}));
             data_width = columns.scan.all[columns.scan.all.length - 1] + scrollbar;
-            if (collapse) meta.nodes.collapse.forEach(function (node) {meta.nodes[node] = false;});
-            meta.rows = (meta.available = available(grid.meta)).length;
+            if (collapse) state.nodes.collapse.forEach(function (node) {state.nodes[node] = false;});
+            meta.rows = (state.available = available.call(grid)).length;
             meta.inner = {
                 scroll_height: height - header_height, height: meta.rows * row_height,
                 width: Math.min(width, data_width) - columns.width.fixed
