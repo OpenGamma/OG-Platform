@@ -19,6 +19,10 @@ $.register_module({
                         extras:{name: leg + "notional.currency"}
                     }),
                     new ui.Dropdown({
+                        form: form, resource: 'blotter.regions', index:  leg + '.regionId',
+                        value: data.regionId, placeholder: 'Select Region ID'
+                    }),
+                    new ui.Dropdown({
                         form: form, resource: 'blotter.daycountconventions', 
                         index: leg + 'dayCount',
                         value: data.dayCount, placeholder: 'Select Day Count'

@@ -11,7 +11,7 @@ $.register_module({
                 receive_select, pay_index = og.common.id('pay'), receive_index = og.common.id('receive'), validate, 
                 pay_leg = 'security.payLeg.', receive_leg = 'security.receiveLeg.', $pay_select, $receive_select;
             if(config.details) {data = config.details.data; data.id = config.details.data.trade.uniqueId;}
-            else {data = {security: {type: "SwapSecurity", regionId: 'ABC~123', externalIdBundle: "", attributes: {}},
+            else {data = {security: {type: "SwapSecurity", externalIdBundle: "", attributes: {}},
                 trade: og.blotter.util.otc_trade};}
             data.nodeId = config.portfolio.id;
             constructor.load = function () {
@@ -25,8 +25,6 @@ $.register_module({
                         data.security.receiveLeg.type = $receive_select.val();
                         data.security.counterparty = data.trade.counterparty;
                         data.security.attributes = {};
-                        data.security.payLeg.regionId = 'ABC~123';
-                        data.security.receiveLeg.regionId = 'ABC~123';
                         data.security.payLeg.notional.type = 'InterestRateNotional';
                         data.security.receiveLeg.notional.type = 'InterestRateNotional';
                         data.security.name = og.blotter.util.create_name(data);
@@ -125,8 +123,6 @@ $.register_module({
                 validate = handler;
                 delete data.id;
                 form.submit();
-            };
-            constructor.kill = function () {
             };
         };
     }
