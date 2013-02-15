@@ -62,6 +62,28 @@ public class Primitive implements UniqueIdentifiable, Serializable {
       return new ExternalIdentifiablePrimitive(deserializer, msg);
     }
 
+    @Override
+    public String toString() {
+      return getExternalId().toString();
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+      if (o == this) {
+        return true;
+      }
+      if (!o.getClass().equals(ExternalIdentifiablePrimitive.class)) {
+        return false;
+      }
+      final ExternalIdentifiablePrimitive other = (ExternalIdentifiablePrimitive) o;
+      return getUniqueId().equals(other.getUniqueId()) && getExternalId().equals(other.getExternalId());
+    }
+
+    @Override
+    public int hashCode() {
+      return getUniqueId().hashCode() * 31 + getExternalId().hashCode();
+    }
+
   }
 
   /**
@@ -99,6 +121,28 @@ public class Primitive implements UniqueIdentifiable, Serializable {
       return new ExternalBundleIdentifiablePrimitive(deserializer, msg);
     }
 
+    @Override
+    public String toString() {
+      return getExternalIdBundle().toString();
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+      if (o == this) {
+        return true;
+      }
+      if (!o.getClass().equals(ExternalBundleIdentifiablePrimitive.class)) {
+        return false;
+      }
+      final ExternalBundleIdentifiablePrimitive other = (ExternalBundleIdentifiablePrimitive) o;
+      return getUniqueId().equals(other.getUniqueId()) && getExternalIdBundle().equals(other.getExternalIdBundle());
+    }
+
+    @Override
+    public int hashCode() {
+      return getUniqueId().hashCode() * 31 + getExternalIdBundle().hashCode();
+    }
+
   }
 
   private final UniqueId _uid;
@@ -123,6 +167,28 @@ public class Primitive implements UniqueIdentifiable, Serializable {
 
   public static Primitive fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
     return new Primitive(deserializer, msg);
+  }
+
+  @Override
+  public String toString() {
+    return getUniqueId().toString();
+  }
+
+  @Override
+  public boolean equals(final Object o) {
+    if (o == this) {
+      return true;
+    }
+    if (!o.getClass().equals(Primitive.class)) {
+      return false;
+    }
+    final Primitive other = (Primitive) o;
+    return getUniqueId().equals(other.getUniqueId());
+  }
+
+  @Override
+  public int hashCode() {
+    return getUniqueId().hashCode();
   }
 
 }

@@ -10,6 +10,7 @@ import static org.testng.Assert.assertTrue;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.engine.target.Primitive;
 import com.opengamma.id.ExternalBundleIdentifiable;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -39,7 +40,7 @@ public class PrimitiveResolverTest {
 
   public void testPrimitiveResolver() {
     final Resolver<?> resolver = new PrimitiveResolver();
-    assertEquals(resolver.resolveObject(UniqueId.of("Foo", "Bar"), VersionCorrection.LATEST), UniqueId.of("Foo", "Bar"));
+    assertEquals(resolver.resolveObject(UniqueId.of("Foo", "Bar"), VersionCorrection.LATEST), new Primitive(UniqueId.of("Foo", "Bar")));
     UniqueId uid = resolver.resolveExternalId(ExternalId.of("Foo", "Bar").toBundle(), VersionCorrection.LATEST);
     Object o = resolver.resolveObject(uid, VersionCorrection.LATEST);
     assertTrue(o instanceof ExternalIdentifiable);
