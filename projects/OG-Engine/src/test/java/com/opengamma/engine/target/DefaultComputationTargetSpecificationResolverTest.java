@@ -17,6 +17,7 @@ import org.threeten.bp.Instant;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.target.resolver.IdentifierResolver;
+import com.opengamma.engine.target.resolver.PrimitiveResolver;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
@@ -42,8 +43,8 @@ public class DefaultComputationTargetSpecificationResolverTest {
   private final VersionCorrection VC = VersionCorrection.of(Instant.now(), Instant.now());
   private final DefaultComputationTargetSpecificationResolver RESOLVER = new DefaultComputationTargetSpecificationResolver();
   private final ComputationTargetSpecification SPECIFICATION_NULL = ComputationTargetSpecification.NULL;
-  private final ComputationTargetSpecification SPECIFICATION_PRIMITIVE_VERSIONED = ComputationTargetSpecification.of(UniqueId.of("Test", "X", "V"));
-  private final ComputationTargetSpecification SPECIFICATION_PRIMITIVE_LATEST = ComputationTargetSpecification.of(UniqueId.of("Test", "X"));
+  private final ComputationTargetSpecification SPECIFICATION_PRIMITIVE_VERSIONED = ComputationTargetSpecification.of(UniqueId.of("ExternalId-Test", "X", "V"));
+  private final ComputationTargetSpecification SPECIFICATION_PRIMITIVE_LATEST = ComputationTargetSpecification.of(UniqueId.of("ExternalId-Test", "X"));
   private final ComputationTargetSpecification SPECIFICATION_FOO_VERSIONED = new ComputationTargetSpecification(ComputationTargetType.of(Foo.class), UniqueId.of("Foo", "Bar", "V"));
   private final ComputationTargetSpecification SPECIFICATION_FOO_LATEST = new ComputationTargetSpecification(ComputationTargetType.of(Foo.class), UniqueId.of("Foo", "Bar"));
   private final ComputationTargetSpecification SPECIFICATION_FOO_BAD = new ComputationTargetSpecification(ComputationTargetType.of(Foo.class), UniqueId.of("Foo", "Cow"));
@@ -93,6 +94,7 @@ public class DefaultComputationTargetSpecificationResolverTest {
       }
 
     });
+    RESOLVER.addResolver(ComputationTargetType.PRIMITIVE, new PrimitiveResolver());
   }
 
   public void testSpecification_null() {
