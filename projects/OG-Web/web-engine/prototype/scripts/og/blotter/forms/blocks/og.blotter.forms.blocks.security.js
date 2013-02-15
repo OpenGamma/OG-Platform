@@ -33,7 +33,7 @@ $.register_module({
                     })
                 ],                       
                 processor: function (data) {
-                    if (!!config.edit) {
+                    if (!config.edit) {
                         var path = config.index.split('.'), last = path.pop(), 
                             merge = data[scheme_id] + "~" + data[sec_id];
                         path.reduce(function (acc, val) {return acc[val];}, data)[last] = merge;                        
@@ -46,10 +46,10 @@ $.register_module({
                 return  $(this.select_id()).val().trim() + '~' +  $(this.input_id()).val().trim();
             };
             block.input_id = function () {
-                return '#' + sec_id;
+                return '#' + this.sec_id;
             };
             block.select_id = function () {
-                return '#' + dropdown.id;
+                return '#' + this.dropdown.id;
             };
         };
         Security.prototype = new Block(); // inherit Block prototype

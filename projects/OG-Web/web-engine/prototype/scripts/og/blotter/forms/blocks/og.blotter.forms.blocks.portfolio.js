@@ -9,7 +9,6 @@ $.register_module({
         var module = this, Block = og.common.util.ui.Block;
         var Portfolio = function (config) {
             var block = this, id = og.common.id('attributes'), form = config.form;
-            console.log(config.trade);
             form.Block.call(block, {module: 'og.blotter.forms.blocks.portfolio_tash',
                 extras: {
                     id: id,
