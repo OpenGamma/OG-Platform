@@ -3,6 +3,8 @@ package com.opengamma.integration.tool.portfolio.xml.v1_0;
 import static com.opengamma.integration.tool.portfolio.xml.v1_0.SwapLeg.Direction;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -35,12 +37,12 @@ import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.Notional;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.ExternalId;
+import com.opengamma.integration.tool.portfolio.xml.PortfolioPosition;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
-import com.opengamma.util.tuple.ObjectsPair;
 
 public class PortfolioConverter {
 
@@ -56,29 +58,53 @@ public class PortfolioConverter {
    * which were not in the original xml file e.g. where a set of trades were specified but no
    * positions, each trade will be added to a new position.
    */
-  public Iterable<ObjectsPair<ManageablePosition, ManageableSecurity[]>> getPositions() {
+  public Iterable<PortfolioPosition> getPositions() {
 
-    List<ObjectsPair<ManageablePosition, ManageableSecurity[]>> managedPositions = Lists.newArrayList();
+    // A portfolio may consist of any combination of:
+    // - recursively nested portfolios
+    // - positions (which may or may not contain trades)
+    // - trades
 
-    for (Position position : nullCheck(_portfolio.getPositions())) {
+    return processPortfolio(_portfolio, true, new String[0]);
+  }
+
+  private List<PortfolioPosition> processPortfolio(Portfolio parentPortfolio, boolean isParentRoot, String[] parentPath) {
+
+    List<PortfolioPosition> managedPositions = Lists.newArrayList();
+
+    String[] extendedPath = isParentRoot ? parentPath : growParentPath(parentPath, parentPortfolio.getName());
+
+    for (Portfolio portfolio : nullCheck(parentPortfolio.getPortfolios())) {
+
+      managedPositions.addAll(processPortfolio(portfolio, false, extendedPath));
+    }
+
+    for (Position position : nullCheck(parentPortfolio.getPositions())) {
 
       List<Trade> trades = position.getTrades();
 
       for (Trade trade : trades) {
 
         ManageableSecurity security = extractSecurityFromTrade(trade, trades.size());
-        managedPositions.add(createPositionSecurityPair(position, security));
+        managedPositions.add(createPortfolioPosition(position, security, extendedPath));
       }
     }
 
-    for (Trade trade : nullCheck(_portfolio.getTrades())) {
+    for (Trade trade : nullCheck(parentPortfolio.getTrades())) {
 
       // TODO we probably want logic to allow for the aggregation of trades into positions but for now we'll create a position per trade
       ManageableSecurity security = extractSecurityFromTrade(trade, 1);
-      managedPositions.add(createPositionSecurityPair(trade, security));
+      managedPositions.add(createPortfolioPosition(trade, security, extendedPath));
     }
-
     return managedPositions;
+  }
+
+  private String[] growParentPath(String[] parentPath, String name) {
+
+    int oldLength = parentPath.length;
+    String[] extended = Arrays.copyOf(parentPath, oldLength  + 1);
+    extended[oldLength] = name;
+    return extended;
   }
 
   private ManageableSecurity extractSecurityFromTrade(Trade trade, int tradesSize) {
@@ -199,14 +225,18 @@ public class PortfolioConverter {
     return swapTrade.getTradeDate().atStartOfDay(ZoneOffset.UTC);
   }
 
-  private ObjectsPair<ManageablePosition, ManageableSecurity[]> createPositionSecurityPair(Position position,
-                                                                                           ManageableSecurity security) {
-    return new ObjectsPair<>(convertPosition(position, security), new ManageableSecurity[]{security});
+  private String[] pathToArray(List<String> parentPath) {
+    return parentPath.toArray(new String[parentPath.size()]);
   }
 
-  private ObjectsPair<ManageablePosition, ManageableSecurity[]> createPositionSecurityPair(Trade trade,
-                                                                                           ManageableSecurity security) {
-    return new ObjectsPair<>(convertTradeToPosition(trade, security), new ManageableSecurity[]{security});
+  private PortfolioPosition createPortfolioPosition(Position position,
+                                                    ManageableSecurity security,
+                                                    String[] parentPath) {
+    return new PortfolioPosition(convertPosition(position, security), new ManageableSecurity[]{security}, parentPath);
+  }
+
+  private PortfolioPosition createPortfolioPosition(Trade trade, ManageableSecurity security, String[] parentPath) {
+    return new PortfolioPosition(convertTradeToPosition(trade, security), new ManageableSecurity[]{security}, parentPath);
   }
 
   private ManageablePosition convertTradeToPosition(Trade trade, ManageableSecurity security) {

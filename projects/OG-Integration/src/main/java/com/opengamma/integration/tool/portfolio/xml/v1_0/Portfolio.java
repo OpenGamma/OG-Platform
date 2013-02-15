@@ -25,6 +25,9 @@ public class Portfolio {
   @XmlJavaTypeAdapter(TradeRefAdapter.class)
   private Set<Trade> _trades;
 
+  @XmlElement(name = "portfolio")
+  private Set<Portfolio> _portfolios;
+
   public String getName() {
     return _name;
   }
@@ -47,5 +50,13 @@ public class Portfolio {
 
   public void setTrades(Set<Trade> trades) {
     _trades = trades;
+  }
+
+  public Set<Portfolio> getPortfolios() {
+    return _portfolios;
+  }
+
+  public void setPortfolios(Set<Portfolio> portfolios) {
+    _portfolios = portfolios;
   }
 }

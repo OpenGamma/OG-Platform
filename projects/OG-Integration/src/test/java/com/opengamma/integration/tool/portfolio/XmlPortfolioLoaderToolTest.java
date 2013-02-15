@@ -7,6 +7,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +20,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.tool.ToolContext;
+import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.portfolio.PortfolioSearchRequest;
 import com.opengamma.master.portfolio.impl.InMemoryPortfolioMaster;
@@ -65,6 +67,20 @@ public class XmlPortfolioLoaderToolTest {
   }
 
   @Test
+  public void testEmptyPortfolio() {
+
+
+    // We should get a default portfolio and position automatically generated for the trades
+    String fileLocation = "src/test/resources/xml_portfolios/empty_portfolio.xml";
+    File file = new File(fileLocation);
+    new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, true, false, false, false, true).execute();
+
+    assertEquals(_portfolioMaster.search(new PortfolioSearchRequest()).getPortfolios().size(), 1);
+    assertEquals(_positionMaster.search(new PositionSearchRequest()).getPositions().size(), 0);
+    assertEquals(_securityMaster.search(new SecuritySearchRequest()).getSecurities().size(), 0);
+  }
+
+  @Test
   public void testSinglePortfolioSinglePositionNoTrades() {
 
   }
@@ -89,7 +105,8 @@ public class XmlPortfolioLoaderToolTest {
 
     assertEquals(_portfolioMaster.search(new PortfolioSearchRequest()).getPortfolios().size(), 1);
     assertEquals(_positionMaster.search(new PositionSearchRequest()).getPositions().size(), 2);
-    assertEquals(_securityMaster.search(new SecuritySearchRequest()).getSecurities().size(), 2); }
+    assertEquals(_securityMaster.search(new SecuritySearchRequest()).getSecurities().size(), 2);
+  }
 
   @Test
   public void testSinglePortfolioSinglePositionSingleIrs() {
@@ -151,5 +168,20 @@ public class XmlPortfolioLoaderToolTest {
     assertEquals(_portfolioMaster.search(new PortfolioSearchRequest()).getPortfolios().size(), 1);
     assertEquals(_positionMaster.search(new PositionSearchRequest()).getPositions().size(), 3);
     assertEquals(_securityMaster.search(new SecuritySearchRequest()).getSecurities().size(), 3);
+  }
+
+  @Test
+  public void testNestedPortfolios() {
+    String fileLocation = "src/test/resources/xml_portfolios/nested_portfolios.xml";
+    File file = new File(fileLocation);
+    new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, true, false, false, false, true).execute();
+
+    List<ManageablePortfolio> portfolios = _portfolioMaster.search(new PortfolioSearchRequest()).getPortfolios();
+    assertEquals(portfolios.size(), 1);
+
+    assertEquals(portfolios.get(0).getRootNode().getChildNodes().size(), 2);
+
+    assertEquals(_positionMaster.search(new PositionSearchRequest()).getPositions().size(), 4);
+    assertEquals(_securityMaster.search(new SecuritySearchRequest()).getSecurities().size(), 4);
   }
 }

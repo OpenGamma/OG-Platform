@@ -3,10 +3,10 @@ package com.opengamma.integration.tool.portfolio.xml.v1_0;
 import java.util.Set;
 
 import com.google.common.collect.Iterables;
-import com.opengamma.integration.tool.portfolio.xml.PfConverter;
+import com.opengamma.integration.tool.portfolio.xml.PortfolioDocumentConverter;
 import com.opengamma.integration.tool.portfolio.xml.VersionedPortfolioHandler;
 
-public class PfConverterV1_0 implements PfConverter {
+public class PortfolioDocumentConverterV1_0 implements PortfolioDocumentConverter {
 
   @Override
   public VersionedPortfolioHandler convert(Object content) {
@@ -15,7 +15,7 @@ public class PfConverterV1_0 implements PfConverter {
 
     Set<Portfolio> portfolios = portfolioDocument.getPortfolios();
 
-    Portfolio portfolio = portfolios == null ?
+    Portfolio portfolio = portfolios == null || portfolios.isEmpty() ?
         // File didn't have a portfolio, so create one
         createDummyPortfolio(portfolioDocument) :
         // Temporarily restrict to just one top-level portfolio per file

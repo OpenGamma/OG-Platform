@@ -8,16 +8,16 @@ import com.opengamma.util.tuple.ObjectsPair;
 
 public class VersionedPortfolioHandler {
 
-  private Iterator<ObjectsPair<ManageablePosition, ManageableSecurity[]>> _positionIterator;
+  private Iterator<PortfolioPosition> _positionIterator;
   private String _portfolioName;
 
   public VersionedPortfolioHandler(String name,
-                                   Iterator<ObjectsPair<ManageablePosition, ManageableSecurity[]>> iterator) {
+                                   Iterator<PortfolioPosition> iterator) {
     _portfolioName = name;
     _positionIterator = iterator;
   }
 
-  public Iterator<ObjectsPair<ManageablePosition, ManageableSecurity[]>> getPositionIterator() {
+  public Iterator<PortfolioPosition> getPositionIterator() {
     return _positionIterator;
   }
 

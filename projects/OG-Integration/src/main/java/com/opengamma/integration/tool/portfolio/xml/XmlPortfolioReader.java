@@ -13,8 +13,9 @@ import com.opengamma.util.tuple.ObjectsPair;
 
 public class XmlPortfolioReader implements PortfolioReader {
 
-  private final Iterator<ObjectsPair<ManageablePosition, ManageableSecurity[]>> _positionIterator;
+  private final Iterator<PortfolioPosition> _positionIterator;
   private final String _portfolioName;
+  private String[] _currentPath = new String[0];
 
   public XmlPortfolioReader(String fileLocation, SchemaRegister schemaRegister) {
 
@@ -44,12 +45,18 @@ public class XmlPortfolioReader implements PortfolioReader {
 
   @Override
   public ObjectsPair<ManageablePosition, ManageableSecurity[]> readNext() {
-    return _positionIterator.hasNext() ? _positionIterator.next() : null;
+    return _positionIterator.hasNext() ? processPosition(_positionIterator.next()) : null;
+  }
+
+  private ObjectsPair<ManageablePosition, ManageableSecurity[]> processPosition(PortfolioPosition position) {
+    // Handle a portfolio level change
+   _currentPath = position.getPortfolioPath();
+    return new ObjectsPair<>(position.getPosition(), position.getSecurities());
   }
 
   @Override
   public String[] getCurrentPath() {
-    return new String[0];
+    return _currentPath;
   }
 
   @Override

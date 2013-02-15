@@ -1,6 +1,6 @@
 package com.opengamma.integration.tool.portfolio.xml;
 
-public interface PfConverter {
+public interface PortfolioDocumentConverter {
 
   VersionedPortfolioHandler convert(Object content);
 }

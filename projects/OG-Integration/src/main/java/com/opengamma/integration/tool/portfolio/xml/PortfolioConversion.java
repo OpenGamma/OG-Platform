@@ -13,11 +13,11 @@ import com.sun.xml.internal.bind.IDResolver;
 public abstract class PortfolioConversion {
 
   private final Class _portfolioDocumentClass;
-  private final PfConverter _portfolioConverter;
+  private final PortfolioDocumentConverter _portfolioConverter;
   private final IdRefResolverFactory _idRefResolverFactory;
 
   public PortfolioConversion(Class portfolioDocumentClass,
-                             PfConverter converter,
+                             PortfolioDocumentConverter converter,
                              IdRefResolverFactory idRefResolverFactory) {
 
     _portfolioDocumentClass = portfolioDocumentClass;

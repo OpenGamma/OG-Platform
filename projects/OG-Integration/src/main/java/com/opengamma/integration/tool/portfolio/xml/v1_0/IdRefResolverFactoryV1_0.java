@@ -1,7 +1,5 @@
 package com.opengamma.integration.tool.portfolio.xml.v1_0;
 
-import java.lang.Override;
-
 import com.opengamma.integration.tool.portfolio.xml.IdRefResolverFactory;
 import com.sun.xml.internal.bind.IDResolver;
 
