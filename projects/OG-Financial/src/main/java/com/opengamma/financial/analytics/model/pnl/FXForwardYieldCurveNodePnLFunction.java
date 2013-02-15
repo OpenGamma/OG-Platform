@@ -54,7 +54,6 @@ import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
 import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalculationConfigSource;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
 import com.opengamma.financial.analytics.model.curve.interestrate.FXImpliedYieldCurveFunction;
-import com.opengamma.financial.analytics.model.forex.BloombergFXSpotRateIdentifierVisitor;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.analytics.timeseries.DateConstraint;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
@@ -62,16 +61,14 @@ import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunction
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.currency.ConfigDBCurrencyPairsSource;
+import com.opengamma.financial.currency.CurrencyMatrixSourcingFunction;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.CurrencyPairs;
+import com.opengamma.financial.currency.CurrencySeriesConversionFunction;
 import com.opengamma.financial.security.FinancialSecurity;
-import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.id.ExternalId;
-import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
@@ -146,7 +143,7 @@ public class FXForwardYieldCurveNodePnLFunction extends AbstractFunction.NonComp
     final CurrencyPairs currencyPairs = currencyPairsSource.getCurrencyPairs(CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
     final CurrencyPair currencyPair = currencyPairs.getCurrencyPair(payCurrency, receiveCurrency);
     final Currency currencyBase = currencyPair.getBase();
-    final Object fxSpotTSObject = inputs.getValue(ValueRequirementNames.HISTORICAL_TIME_SERIES);
+    final Object fxSpotTSObject = inputs.getValue(CurrencySeriesConversionFunction.SPOT_RATE);
     if (fxSpotTSObject == null) {
       throw new OpenGammaRuntimeException("Could not get spot FX time series");
     }
@@ -258,13 +255,14 @@ public class FXForwardYieldCurveNodePnLFunction extends AbstractFunction.NonComp
     final String samplingPeriod = Iterables.getOnlyElement(samplingPeriods);
     final ValueRequirement payYCHTSRequirement = getYCHTSRequirement(payCurrency, payCurveName, samplingPeriod);
     final ValueRequirement receiveYCHTSRequirement = getYCHTSRequirement(receiveCurrency, receiveCurveName, samplingPeriod);
-    final HistoricalTimeSeriesResolver historicalTimeSeriesResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
-    final ValueRequirement fxSpotRequirement = getFXSpotRequirement(historicalTimeSeriesResolver, security, new BloombergFXSpotRateIdentifierVisitor(currencyPairs), samplingPeriod);
-    if (fxSpotRequirement == null) {
-      s_logger.error("Could not get time series for FX spot series {} / {}", payCurrencyName, receiveCurrencyName);
-      return null;
+    final CurrencyPair currencyPair = currencyPairs.getCurrencyPair(payCurrency, receiveCurrency);
+    final ValueRequirement fxSpotRequirement;
+    if (currencyPair.getBase().equals(payCurrency)) {
+      fxSpotRequirement = CurrencyMatrixSourcingFunction.getSeriesConversionRequirement(payCurrency, receiveCurrency);
+    } else {
+      fxSpotRequirement = CurrencyMatrixSourcingFunction.getSeriesConversionRequirement(receiveCurrency, payCurrency);
     }
-    final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
+    final Set<ValueRequirement> requirements = new HashSet<>();
     requirements.add(payYCNSRequirement);
     requirements.add(payYCHTSRequirement);
     requirements.add(receiveYCNSRequirement);
@@ -283,17 +281,6 @@ public class FXForwardYieldCurveNodePnLFunction extends AbstractFunction.NonComp
     final ValueProperties properties = ValueProperties.builder()
         .with(ValuePropertyNames.CURVE, yieldCurveName).get();
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, ComputationTargetType.CURRENCY.specification(currency), properties);
-  }
-
-  private ValueRequirement getFXSpotRequirement(final HistoricalTimeSeriesResolver historicalTimeSeriesResolver, final FinancialSecurity security,
-      final FinancialSecurityVisitor<ExternalId> visitor, final String samplingPeriods) {
-    final HistoricalTimeSeriesResolutionResult timeSeries = historicalTimeSeriesResolver.resolve(
-        ExternalIdBundle.of(security.accept(visitor)), null, null, null, MarketDataRequirementNames.MARKET_VALUE, null);
-    if (timeSeries == null) {
-      return null;
-    }
-    return HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries,
-        MarketDataRequirementNames.MARKET_VALUE, DateConstraint.VALUATION_TIME.minus(samplingPeriods), true, DateConstraint.VALUATION_TIME, true);
   }
 
   private ValueRequirement getYCHTSRequirement(final Currency currency, final String yieldCurveName, final String samplingPeriod) {
@@ -360,7 +347,7 @@ public class FXForwardYieldCurveNodePnLFunction extends AbstractFunction.NonComp
       stripList.add(index, strip.getInstrumentType());
     }
     for (int i = 0; i < n; i++) {
-      final ExternalId id = stripsArray[i].getSecurityIdentifier(); 
+      final ExternalId id = stripsArray[i].getSecurityIdentifier();
       double sensitivity = values[i];
       if (stripList.get(i) == StripInstrumentType.FUTURE) {
         // TODO Temporary fix as sensitivity is to rate, but historical time series is to price (= 1 - rate)

@@ -27,6 +27,7 @@ import com.opengamma.engine.marketdata.PermissiveMarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.spec.HistoricalMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.ExternalIdBundle;
@@ -156,6 +157,9 @@ public abstract class AbstractHistoricalMarketDataProvider extends AbstractMarke
 
   @Override
   public ExternalIdBundle getExternalIdBundle(final ValueRequirement requirement) {
+    if (ComputationTargetType.NULL.equals(requirement.getTargetReference().getType())) {
+      return null;
+    }
     final Pair<ExternalIdBundle, Integer> existingSubscription = _subscriptionIdBundleMap.get(requirement);
     if (existingSubscription != null) {
       return existingSubscription.getFirst();
