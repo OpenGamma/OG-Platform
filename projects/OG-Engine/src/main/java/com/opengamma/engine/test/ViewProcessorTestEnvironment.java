@@ -205,7 +205,7 @@ public class ViewProcessorTestEnvironment {
   }
 
   private MarketDataProvider generateMarketDataProvider(final SecuritySource securitySource) {
-    final InMemoryLKVMarketDataProvider provider = new InMemoryLKVMarketDataProvider(securitySource);
+    final InMemoryLKVMarketDataProvider provider = new InMemoryLKVMarketDataProvider();
     provider.addValue(getPrimitive1(), 0);
     provider.addValue(getPrimitive2(), 0);
     setMarketDataProvider(provider);

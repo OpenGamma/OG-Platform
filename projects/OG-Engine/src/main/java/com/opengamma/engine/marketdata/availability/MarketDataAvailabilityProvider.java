@@ -17,8 +17,7 @@ import com.opengamma.util.PublicSPI;
 /**
  * Used to obtain the availability status of market data.
  * <p>
- * For example, in dependency graph building, this is used to decide whether a requirement can be
- * satisfied directly from market data, or whether a function is required to produce the requirement.
+ * For example, in dependency graph building, this is used to decide whether a requirement can be satisfied directly from market data, or whether a function is required to produce the requirement.
  */
 @PublicSPI
 public interface MarketDataAvailabilityProvider {
@@ -34,9 +33,9 @@ public interface MarketDataAvailabilityProvider {
    * will be passed.
    * <p>
    * The {@code ValueSpecification} returned from this method will be the one used to establish the subscription from a relevant {@link MarketDataProvider} instance.
-   *
+   * 
    * @param targetSpec the resolved target specification from the data requirement, not null
-   * @param target the resolved target the requirement corresponds to, not null
+   * @param target the resolved target the requirement corresponds to, not null (unless the target specification is {@link ComputationTargetSpecification#NULL})
    * @param desiredValue the market data requirement to test, not null
    * @return the satisfying value specification, or null if it cannot be satisfied
    * @throws MarketDataNotSatisfiableException if the requirement must not be satisfied

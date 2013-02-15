@@ -63,8 +63,6 @@ public class LiveMarketDataProvider extends AbstractMarketDataProvider implement
         marketDataUser);
   }
 
-  // [PLAT-3044] The MDAP has to do the ValueSpecification creation through LiveDataSpecificationLookup
-
   public LiveMarketDataProvider(final LiveDataClient liveDataClient,
       final MarketDataAvailabilityProvider availabilityProvider,
       final MarketDataPermissionProvider permissionProvider,

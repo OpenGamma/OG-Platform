@@ -66,7 +66,7 @@ public class ViewProcessContext {
     ArgumentChecker.notNull(overrideOperationCompiler, "overrideOperationCompiler");
     _configSource = configSource;
     _viewPermissionProvider = viewPermissionProvider;
-    final InMemoryLKVMarketDataProvider liveDataOverrideInjector = new InMemoryLKVMarketDataProvider(functionCompilationService.getFunctionCompilationContext().getSecuritySource());
+    final InMemoryLKVMarketDataProvider liveDataOverrideInjector = new InMemoryLKVMarketDataProvider();
     _liveDataOverrideInjector = liveDataOverrideInjector;
     _marketDataProviderResolver = new MarketDataProviderResolverWithOverride(marketDataProviderResolver, liveDataOverrideInjector);
     _functionCompilationService = functionCompilationService;
@@ -88,7 +88,7 @@ public class ViewProcessContext {
   public ConfigSource getConfigSource() {
     return _configSource;
   }
-  
+
   /**
    * Gets the view permission provider
    * 
@@ -97,7 +97,7 @@ public class ViewProcessContext {
   public ViewPermissionProvider getViewPermissionProvider() {
     return _viewPermissionProvider;
   }
-  
+
   /**
    * Gets the market data provider resolver.
    * 
@@ -159,7 +159,7 @@ public class ViewProcessContext {
   /**
    * Gets the dependency graph executor factory.
    * 
-   * @return  the dependency graph executor factory, not null
+   * @return the dependency graph executor factory, not null
    */
   public DependencyGraphExecutorFactory<?> getDependencyGraphExecutorFactory() {
     return _dependencyGraphExecutorFactory;
@@ -177,7 +177,7 @@ public class ViewProcessContext {
   /**
    * Uses this context to form a {@code ViewCompliationServices} instance.
    * 
-   * @param marketDataAvailabilityProvider  the availability provider corresponding to the desired source of market data, not null
+   * @param marketDataAvailabilityProvider the availability provider corresponding to the desired source of market data, not null
    * @return the services, not null
    */
   public ViewCompilationServices asCompilationServices(final MarketDataAvailabilityProvider marketDataAvailabilityProvider) {

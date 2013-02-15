@@ -29,6 +29,7 @@ import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
 import com.opengamma.engine.marketdata.InMemoryLKVMarketDataProvider;
 import com.opengamma.engine.marketdata.InMemoryLKVMarketDataSnapshot;
+import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.target.ComputationTargetType;
@@ -702,7 +703,6 @@ public class ViewClientTest {
       return super.snapshot(marketDataSpec);
     }
 
-    //-----------------------------------------------------------------------
     @Override
     public synchronized void addValue(final ValueSpecification valueSpecification, final Object value) {
       super.addValue(valueSpecification, value);
@@ -713,10 +713,17 @@ public class ViewClientTest {
       super.removeValue(valueSpecification);
     }
 
-    //-----------------------------------------------------------------------
     @Override
-    public synchronized ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final Object target, final ValueRequirement desiredValue) {
-      return super.getAvailability(targetSpec, target, desiredValue);
+    public MarketDataAvailabilityProvider getAvailabilityProvider() {
+      final MarketDataAvailabilityProvider underlying = super.getAvailabilityProvider();
+      return new MarketDataAvailabilityProvider() {
+        @Override
+        public ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final Object target, final ValueRequirement desiredValue) {
+          synchronized (SynchronousInMemoryLKVSnapshotProvider.this) {
+            return underlying.getAvailability(targetSpec, target, desiredValue);
+          }
+        }
+      };
     }
 
   }

@@ -435,16 +435,15 @@ public class ViewComputationJobTest {
 
     @Override
     public MarketDataSnapshot snapshot(final MarketDataSpecification marketDataSpec) {
-      // [PLAT-3044] The MDAP must perform resolution of external identifier bundles
       return new LiveMarketDataSnapshot(_underlyingProvider.snapshot(marketDataSpec),
           new LiveMarketDataProvider(_dummyLiveDataClient, getAvailabilityProvider(), UserPrincipal.getTestUser()));
     }
 
     @Override
     public ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final Object target, final ValueRequirement desiredValue) {
-      // [PLAT-3044] Do this properly
       if (desiredValue.equals(ViewProcessorTestEnvironment.getPrimitive1()) || desiredValue.equals(ViewProcessorTestEnvironment.getPrimitive2())) {
         // Want the market data provider to indicate that data is available even before it's really available
+        // [PLAT-3044] Need to use the same logic that the underlyingProvider will use so that the correct value specification is created even before the provider will do it
         throw new UnsupportedOperationException("[PLAT-3044] Create a value specification for " + targetSpec + " (" + target + ") to satisfy " + desiredValue);
       } else {
         return null;

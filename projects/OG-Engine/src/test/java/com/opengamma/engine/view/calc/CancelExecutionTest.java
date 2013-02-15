@@ -149,7 +149,6 @@ public class CancelExecutionTest {
     }
   };
 
-  @SuppressWarnings("unchecked")
   private Future<?> executeTestJob(final DependencyGraphExecutorFactory<?> factory) {
     final InMemoryLKVMarketDataProvider marketDataProvider = new InMemoryLKVMarketDataProvider();
     final MarketDataProviderResolver marketDataProviderResolver = new SingleMarketDataProviderResolver(new SingletonMarketDataProviderFactory(marketDataProvider));

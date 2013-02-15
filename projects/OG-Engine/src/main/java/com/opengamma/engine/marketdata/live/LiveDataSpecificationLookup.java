@@ -28,7 +28,7 @@ import com.opengamma.util.ArgumentChecker;
 
   /**
    * Constructs a new instance.
-   *
+   * 
    * @param normalizationRules the normalization rules to use
    */
   public LiveDataSpecificationLookup(final String normalizationRules) {
@@ -42,7 +42,7 @@ import com.opengamma.util.ArgumentChecker;
 
   /**
    * Creates a live data specification corresponding to the given data identifier.
-   *
+   * 
    * @param identifier a market data identifier, not null
    * @return the live data specification, not null
    */
@@ -52,7 +52,7 @@ import com.opengamma.util.ArgumentChecker;
 
   /**
    * Creates a live data specification corresponding to the given data identifiers.
-   *
+   * 
    * @param identifiers the market data identifiers, not null
    * @return the live data specification, not null
    */
@@ -62,7 +62,7 @@ import com.opengamma.util.ArgumentChecker;
 
   /**
    * Creates a live data specification based on a value specification returned by {@link #getValueSpecification}.
-   *
+   * 
    * @param valueSpec the value specification, not null
    * @return the original live data specification
    */
@@ -78,9 +78,11 @@ import com.opengamma.util.ArgumentChecker;
     return new LiveDataSpecification(normalizer, identifiers);
   }
 
+  // [PLAT-3044] Both of these are wrong; conversion is specific to a live data provider; the delegate pattern should be used
+
   /**
    * Creates a value specification corresponding to the give live data specification.
-   *
+   * 
    * @param liveDataSpec the live data specification, not null
    * @return the equivalent value specification that can be passed to {@link #getLiveDataSpecification}
    */
