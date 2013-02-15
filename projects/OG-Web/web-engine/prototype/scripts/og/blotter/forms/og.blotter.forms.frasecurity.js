@@ -9,7 +9,7 @@ $.register_module({
         return function (config) {
             var constructor = this, form, ui = og.common.util.ui, data, validate;
             if(config.details) {data = config.details.data; data.id = config.details.data.trade.uniqueId;}
-            else {data = {security: {type: "FRASecurity", regionId: "ABC~123", externalIdBundle: "", attributes: {}},
+            else {data = {security: {type: "FRASecurity", externalIdBundle: "", attributes: {}},
                 trade: og.blotter.util.otc_trade};}
             data.nodeId = config.portfolio.id;
             constructor.load = function () {
@@ -32,6 +32,10 @@ $.register_module({
                         children: [
                             new form.Block({module:'og.views.forms.currency_tash',
                                 extras:{name: "security.currency"}}),
+                            new ui.Dropdown({
+                                form: form, resource: 'blotter.regions', index: 'security.regionId',
+                                value: data.security.regionId, placeholder: 'Select Region ID'
+                            }),
                             new og.blotter.forms.blocks.Security({
                                 form: form, label: "Underlying ID", security: data.security.underlyingId,
                                 index: "security.underlyingId"
@@ -64,8 +68,6 @@ $.register_module({
                 validate = handler;
                 delete data.id;
                 form.submit();
-            };
-            constructor.kill = function () {
             };
         };
     }
