@@ -147,7 +147,7 @@ public class FXForwardYieldCurveNodePnLFunction extends AbstractFunction.NonComp
     if (fxSpotTSObject == null) {
       throw new OpenGammaRuntimeException("Could not get spot FX time series");
     }
-    final DoubleTimeSeries<?> fxSpotTS = ((HistoricalTimeSeries) fxSpotTSObject).getTimeSeries();
+    final DoubleTimeSeries<?> fxSpotTS = (DoubleTimeSeries<?>) fxSpotTSObject;
     DoubleTimeSeries<?> result;
     if (payCurrency.equals(currencyBase)) {
       result = payResult;
