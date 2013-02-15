@@ -69,7 +69,6 @@ public class XmlPortfolioLoaderToolTest {
   @Test
   public void testEmptyPortfolio() {
 
-
     // We should get a default portfolio and position automatically generated for the trades
     String fileLocation = "src/test/resources/xml_portfolios/empty_portfolio.xml";
     File file = new File(fileLocation);
@@ -78,6 +77,21 @@ public class XmlPortfolioLoaderToolTest {
     assertEquals(_portfolioMaster.search(new PortfolioSearchRequest()).getPortfolios().size(), 1);
     assertEquals(_positionMaster.search(new PositionSearchRequest()).getPositions().size(), 0);
     assertEquals(_securityMaster.search(new SecuritySearchRequest()).getSecurities().size(), 0);
+  }
+
+  @Test
+  public void testMissingReference() {
+
+    String fileLocation = "src/test/resources/xml_portfolios/missing_trade_reference.xml";
+    File file = new File(fileLocation);
+    try {
+      new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, true, false, false, false, true).execute();
+    }
+    catch (OpenGammaRuntimeException e) {
+      assertEquals(_portfolioMaster.search(new PortfolioSearchRequest()).getPortfolios().size(), 0);
+      assertEquals(_positionMaster.search(new PositionSearchRequest()).getPositions().size(), 0);
+      assertEquals(_securityMaster.search(new SecuritySearchRequest()).getSecurities().size(), 0);
+    }
   }
 
   @Test

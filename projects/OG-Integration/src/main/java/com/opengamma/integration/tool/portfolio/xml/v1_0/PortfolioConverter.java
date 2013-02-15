@@ -3,7 +3,6 @@ package com.opengamma.integration.tool.portfolio.xml.v1_0;
 import static com.opengamma.integration.tool.portfolio.xml.v1_0.SwapLeg.Direction;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -48,7 +47,6 @@ public class PortfolioConverter {
 
   private final Portfolio _portfolio;
 
-
   public PortfolioConverter(Portfolio portfolio) {
     _portfolio = portfolio;
   }
@@ -65,36 +63,54 @@ public class PortfolioConverter {
     // - positions (which may or may not contain trades)
     // - trades
 
-    return processPortfolio(_portfolio, true, new String[0]);
+    return processPortfolio(_portfolio, true, null);
   }
 
-  private List<PortfolioPosition> processPortfolio(Portfolio parentPortfolio, boolean isParentRoot, String[] parentPath) {
+  /**
+   * Produce the collection of positions held in a portfolio. A portfolio may consist of any combination of:
+   * <ul>
+   * <li>recursively nested portfolios</li>
+   * <li>positions (which may or may not contain trades)</li>
+   * <li>trades</li>
+   * </ul>
+   * and this method will produce a List of PortfolioPosition objects by examining the above elements.
+   * If portfolios are nested, this method will be called recursively noting the portfolio path as the
+   * portfolio hieracrhy is decended.
+   *
+   * @param portfolio the portfolio to be examined
+   * @param isRoot indicates if the portfolio has no parent i.e. a root node
+   * @param parentPath the path to the portfolio (an array of the names of the portfolio's ancestors).
+   * @return the positions held by the portfolio
+   */
+  private List<PortfolioPosition> processPortfolio(Portfolio portfolio, boolean isRoot, String[] parentPath) {
 
     List<PortfolioPosition> managedPositions = Lists.newArrayList();
 
-    String[] extendedPath = isParentRoot ? parentPath : growParentPath(parentPath, parentPortfolio.getName());
+    // This is needed as we never want the name of the root portfolio to appear in the path. So for
+    // a root portfolio we want an empty path, for a child of the root we want just the portfolio name etc.
+    String[] portfolioPath = isRoot ? new String[0] : growParentPath(parentPath, portfolio.getName());
 
-    for (Portfolio portfolio : nullCheck(parentPortfolio.getPortfolios())) {
+    for (Portfolio nestedPortfolio : nullCheckIterable(portfolio.getPortfolios())) {
 
-      managedPositions.addAll(processPortfolio(portfolio, false, extendedPath));
+      managedPositions.addAll(processPortfolio(nestedPortfolio, false, portfolioPath));
     }
 
-    for (Position position : nullCheck(parentPortfolio.getPositions())) {
+    for (Position position : nullCheckIterable(portfolio.getPositions())) {
 
       List<Trade> trades = position.getTrades();
 
       for (Trade trade : trades) {
 
         ManageableSecurity security = extractSecurityFromTrade(trade, trades.size());
-        managedPositions.add(createPortfolioPosition(position, security, extendedPath));
+        managedPositions.add(createPortfolioPosition(position, security, portfolioPath));
       }
     }
 
-    for (Trade trade : nullCheck(parentPortfolio.getTrades())) {
+    for (Trade trade : nullCheckIterable(portfolio.getTrades())) {
 
       // TODO we probably want logic to allow for the aggregation of trades into positions but for now we'll create a position per trade
       ManageableSecurity security = extractSecurityFromTrade(trade, 1);
-      managedPositions.add(createPortfolioPosition(trade, security, extendedPath));
+      managedPositions.add(createPortfolioPosition(trade, security, portfolioPath));
     }
     return managedPositions;
   }
@@ -132,9 +148,8 @@ public class PortfolioConverter {
     }
   }
 
-  private <T> Iterable<T> nullCheck(Iterable<T> collection) {
-
-    return collection == null ? ImmutableList.<T>of() : collection;
+  private <T> Iterable<T> nullCheckIterable(Iterable<T> iterable) {
+    return iterable == null ? ImmutableList.<T>of() : iterable;
   }
 
   private ManageableSecurity handleFxOptionTrade(FxOptionTrade fxOptionTrade) {
@@ -223,10 +238,6 @@ public class PortfolioConverter {
 
   private ZonedDateTime convertLocalDate(SwapTrade swapTrade) {
     return swapTrade.getTradeDate().atStartOfDay(ZoneOffset.UTC);
-  }
-
-  private String[] pathToArray(List<String> parentPath) {
-    return parentPath.toArray(new String[parentPath.size()]);
   }
 
   private PortfolioPosition createPortfolioPosition(Position position,
