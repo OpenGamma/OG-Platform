@@ -87,7 +87,7 @@ public class FXForwardAndSwapConvention extends Convention {
   }
 
   @Override
-  protected Object propertyGet(final String propertyName, final boolean quiet) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -1912646125:  // spotConvention
         return getSpotConvention();
@@ -102,7 +102,7 @@ public class FXForwardAndSwapConvention extends Convention {
   }
 
   @Override
-  protected void propertySet(final String propertyName, final Object newValue, final boolean quiet) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -1912646125:  // spotConvention
         setSpotConvention((String) newValue);
@@ -129,12 +129,12 @@ public class FXForwardAndSwapConvention extends Convention {
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      final FXForwardAndSwapConvention other = (FXForwardAndSwapConvention) obj;
+      FXForwardAndSwapConvention other = (FXForwardAndSwapConvention) obj;
       return JodaBeanUtils.equal(getSpotConvention(), other.getSpotConvention()) &&
           JodaBeanUtils.equal(getBusinessDayConvention(), other.getBusinessDayConvention()) &&
           JodaBeanUtils.equal(isIsEOM(), other.isIsEOM()) &&
@@ -167,7 +167,7 @@ public class FXForwardAndSwapConvention extends Convention {
    * Sets the spot convention.
    * @param spotConvention  the new value of the property, not null
    */
-  public void setSpotConvention(final String spotConvention) {
+  public void setSpotConvention(String spotConvention) {
     JodaBeanUtils.notNull(spotConvention, "spotConvention");
     this._spotConvention = spotConvention;
   }
@@ -193,7 +193,7 @@ public class FXForwardAndSwapConvention extends Convention {
    * Sets the business day convention.
    * @param businessDayConvention  the new value of the property, not null
    */
-  public void setBusinessDayConvention(final BusinessDayConvention businessDayConvention) {
+  public void setBusinessDayConvention(BusinessDayConvention businessDayConvention) {
     JodaBeanUtils.notNull(businessDayConvention, "businessDayConvention");
     this._businessDayConvention = businessDayConvention;
   }
@@ -219,7 +219,7 @@ public class FXForwardAndSwapConvention extends Convention {
    * Sets should dates follow the end-of-month rule.
    * @param isEOM  the new value of the property
    */
-  public void setIsEOM(final boolean isEOM) {
+  public void setIsEOM(boolean isEOM) {
     this._isEOM = isEOM;
   }
 
@@ -244,7 +244,7 @@ public class FXForwardAndSwapConvention extends Convention {
    * Sets the settlement region.
    * @param settlementRegion  the new value of the property, not null
    */
-  public void setSettlementRegion(final ExternalId settlementRegion) {
+  public void setSettlementRegion(ExternalId settlementRegion) {
     JodaBeanUtils.notNull(settlementRegion, "settlementRegion");
     this._settlementRegion = settlementRegion;
   }
@@ -291,7 +291,7 @@ public class FXForwardAndSwapConvention extends Convention {
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "spotConvention",
         "businessDayConvention",
         "isEOM",
@@ -304,7 +304,7 @@ public class FXForwardAndSwapConvention extends Convention {
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
         case -1912646125:  // spotConvention
           return _spotConvention;

@@ -168,7 +168,7 @@ public class UserFinancialPositionSourceComponentFactory extends AbstractCompone
   }
 
   @Override
-  protected Object propertyGet(final String propertyName, final boolean quiet) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -281470431:  // classifier
         return getClassifier();
@@ -193,7 +193,7 @@ public class UserFinancialPositionSourceComponentFactory extends AbstractCompone
   }
 
   @Override
-  protected void propertySet(final String propertyName, final Object newValue, final boolean quiet) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -281470431:  // classifier
         setClassifier((String) newValue);
@@ -235,12 +235,12 @@ public class UserFinancialPositionSourceComponentFactory extends AbstractCompone
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      final UserFinancialPositionSourceComponentFactory other = (UserFinancialPositionSourceComponentFactory) obj;
+      UserFinancialPositionSourceComponentFactory other = (UserFinancialPositionSourceComponentFactory) obj;
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
           JodaBeanUtils.equal(isPublishRest(), other.isPublishRest()) &&
           JodaBeanUtils.equal(getCacheManager(), other.getCacheManager()) &&
@@ -283,7 +283,7 @@ public class UserFinancialPositionSourceComponentFactory extends AbstractCompone
    * Sets the classifier that the factory should publish under.
    * @param classifier  the new value of the property, not null
    */
-  public void setClassifier(final String classifier) {
+  public void setClassifier(String classifier) {
     JodaBeanUtils.notNull(classifier, "classifier");
     this._classifier = classifier;
   }
@@ -309,7 +309,7 @@ public class UserFinancialPositionSourceComponentFactory extends AbstractCompone
    * Sets the flag determining whether the component should be published by REST (default true).
    * @param publishRest  the new value of the property
    */
-  public void setPublishRest(final boolean publishRest) {
+  public void setPublishRest(boolean publishRest) {
     this._publishRest = publishRest;
   }
 
@@ -334,7 +334,7 @@ public class UserFinancialPositionSourceComponentFactory extends AbstractCompone
    * Sets the cache manager.
    * @param cacheManager  the new value of the property
    */
-  public void setCacheManager(final CacheManager cacheManager) {
+  public void setCacheManager(CacheManager cacheManager) {
     this._cacheManager = cacheManager;
   }
 
@@ -359,7 +359,7 @@ public class UserFinancialPositionSourceComponentFactory extends AbstractCompone
    * Sets the classifier that the factory should publish under (underlying master).
    * @param underlyingClassifier  the new value of the property
    */
-  public void setUnderlyingClassifier(final String underlyingClassifier) {
+  public void setUnderlyingClassifier(String underlyingClassifier) {
     this._underlyingClassifier = underlyingClassifier;
   }
 
@@ -384,7 +384,7 @@ public class UserFinancialPositionSourceComponentFactory extends AbstractCompone
    * Sets the portfolio master (underlying master).
    * @param underlyingPortfolioMaster  the new value of the property, not null
    */
-  public void setUnderlyingPortfolioMaster(final PortfolioMaster underlyingPortfolioMaster) {
+  public void setUnderlyingPortfolioMaster(PortfolioMaster underlyingPortfolioMaster) {
     JodaBeanUtils.notNull(underlyingPortfolioMaster, "underlyingPortfolioMaster");
     this._underlyingPortfolioMaster = underlyingPortfolioMaster;
   }
@@ -410,7 +410,7 @@ public class UserFinancialPositionSourceComponentFactory extends AbstractCompone
    * Sets the position master (underlying master).
    * @param underlyingPositionMaster  the new value of the property, not null
    */
-  public void setUnderlyingPositionMaster(final PositionMaster underlyingPositionMaster) {
+  public void setUnderlyingPositionMaster(PositionMaster underlyingPositionMaster) {
     JodaBeanUtils.notNull(underlyingPositionMaster, "underlyingPositionMaster");
     this._underlyingPositionMaster = underlyingPositionMaster;
   }
@@ -436,7 +436,7 @@ public class UserFinancialPositionSourceComponentFactory extends AbstractCompone
    * Sets the classifier that the factory should publish under (user master).
    * @param userClassifier  the new value of the property
    */
-  public void setUserClassifier(final String userClassifier) {
+  public void setUserClassifier(String userClassifier) {
     this._userClassifier = userClassifier;
   }
 
@@ -461,7 +461,7 @@ public class UserFinancialPositionSourceComponentFactory extends AbstractCompone
    * Sets the portfolio master (user master).
    * @param userPortfolioMaster  the new value of the property
    */
-  public void setUserPortfolioMaster(final PortfolioMaster userPortfolioMaster) {
+  public void setUserPortfolioMaster(PortfolioMaster userPortfolioMaster) {
     this._userPortfolioMaster = userPortfolioMaster;
   }
 
@@ -486,7 +486,7 @@ public class UserFinancialPositionSourceComponentFactory extends AbstractCompone
    * Sets the position master (user master).
    * @param userPositionMaster  the new value of the property
    */
-  public void setUserPositionMaster(final PositionMaster userPositionMaster) {
+  public void setUserPositionMaster(PositionMaster userPositionMaster) {
     this._userPositionMaster = userPositionMaster;
   }
 
@@ -557,7 +557,7 @@ public class UserFinancialPositionSourceComponentFactory extends AbstractCompone
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier",
         "publishRest",
         "cacheManager",
@@ -575,7 +575,7 @@ public class UserFinancialPositionSourceComponentFactory extends AbstractCompone
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
         case -281470431:  // classifier
           return _classifier;
