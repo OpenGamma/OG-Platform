@@ -15,65 +15,21 @@ import com.google.common.collect.Maps;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.DummyChangeManager;
 import com.opengamma.engine.target.ComputationTargetType;
-import com.opengamma.id.ExternalBundleIdentifiable;
+import com.opengamma.engine.target.Primitive;
+import com.opengamma.engine.target.Primitive.ExternalBundleIdentifiablePrimitive;
+import com.opengamma.engine.target.Primitive.ExternalIdentifiablePrimitive;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.id.ExternalIdentifiable;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
-import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.VersionCorrection;
 
 /**
  * A {@link ObjectResolver} for {@link ComputationTargetType#PRIMITIVE}.
  */
-public class PrimitiveResolver implements Resolver<UniqueIdentifiable> {
+public class PrimitiveResolver implements Resolver<Primitive> {
 
   private static final String SCHEME_PREFIX = "ExternalId-";
-
-  private static final class Bundle implements ExternalBundleIdentifiable, UniqueIdentifiable {
-
-    private final UniqueId _uid;
-    private final ExternalIdBundle _eids;
-
-    private Bundle(final UniqueId uid, final ExternalIdBundle eids) {
-      _uid = uid;
-      _eids = eids;
-    }
-
-    @Override
-    public UniqueId getUniqueId() {
-      return _uid;
-    }
-
-    @Override
-    public ExternalIdBundle getExternalIdBundle() {
-      return _eids;
-    }
-
-  }
-
-  private static final class Single implements ExternalIdentifiable, UniqueIdentifiable {
-
-    private final UniqueId _uid;
-    private final ExternalId _eid;
-
-    private Single(final UniqueId uid, final ExternalId eid) {
-      _uid = uid;
-      _eid = eid;
-    }
-
-    @Override
-    public UniqueId getUniqueId() {
-      return _uid;
-    }
-
-    @Override
-    public ExternalId getExternalId() {
-      return _eid;
-    }
-
-  }
 
   private static void escape(final String str, final StringBuilder into) {
     if ((str.indexOf('-') < 0) && (str.indexOf('\\') < 0)) {
@@ -176,7 +132,7 @@ public class PrimitiveResolver implements Resolver<UniqueIdentifiable> {
   // ObjectResolver
 
   @Override
-  public UniqueIdentifiable resolveObject(final UniqueId uniqueId, final VersionCorrection versionCorrection) {
+  public Primitive resolveObject(final UniqueId uniqueId, final VersionCorrection versionCorrection) {
     final String scheme = uniqueId.getScheme();
     if (scheme.startsWith(SCHEME_PREFIX)) {
       final String[] schemes = unescape(scheme, SCHEME_PREFIX.length());
@@ -185,19 +141,19 @@ public class PrimitiveResolver implements Resolver<UniqueIdentifiable> {
         if (values != null) {
           if (schemes.length == values.length) {
             if (schemes.length == 1) {
-              return new Single(uniqueId, ExternalId.of(schemes[0], values[0]));
+              return new ExternalIdentifiablePrimitive(uniqueId, ExternalId.of(schemes[0], values[0]));
             } else {
               final ExternalId[] identifiers = new ExternalId[schemes.length];
               for (int i = 0; i < schemes.length; i++) {
                 identifiers[i] = ExternalId.of(schemes[i], values[i]);
               }
-              return new Bundle(uniqueId, ExternalIdBundle.of(identifiers));
+              return new ExternalBundleIdentifiablePrimitive(uniqueId, ExternalIdBundle.of(identifiers));
             }
           }
         }
       }
     }
-    return uniqueId;
+    return new Primitive(uniqueId);
   }
 
   @Override

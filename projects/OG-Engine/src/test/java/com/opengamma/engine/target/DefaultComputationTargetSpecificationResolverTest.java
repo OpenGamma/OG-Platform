@@ -42,8 +42,8 @@ public class DefaultComputationTargetSpecificationResolverTest {
   private final VersionCorrection VC = VersionCorrection.of(Instant.now(), Instant.now());
   private final DefaultComputationTargetSpecificationResolver RESOLVER = new DefaultComputationTargetSpecificationResolver();
   private final ComputationTargetSpecification SPECIFICATION_NULL = ComputationTargetSpecification.NULL;
-  private final ComputationTargetSpecification SPECIFICATION_PRIMITIVE_VERSIONED = ComputationTargetType.PRIMITIVE.specification(UniqueId.of("Test", "X", "V"));
-  private final ComputationTargetSpecification SPECIFICATION_PRIMITIVE_LATEST = ComputationTargetType.PRIMITIVE.specification(UniqueId.of("Test", "X"));
+  private final ComputationTargetSpecification SPECIFICATION_PRIMITIVE_VERSIONED = ComputationTargetSpecification.of(UniqueId.of("Test", "X", "V"));
+  private final ComputationTargetSpecification SPECIFICATION_PRIMITIVE_LATEST = ComputationTargetSpecification.of(UniqueId.of("Test", "X"));
   private final ComputationTargetSpecification SPECIFICATION_FOO_VERSIONED = new ComputationTargetSpecification(ComputationTargetType.of(Foo.class), UniqueId.of("Foo", "Bar", "V"));
   private final ComputationTargetSpecification SPECIFICATION_FOO_LATEST = new ComputationTargetSpecification(ComputationTargetType.of(Foo.class), UniqueId.of("Foo", "Bar"));
   private final ComputationTargetSpecification SPECIFICATION_FOO_BAD = new ComputationTargetSpecification(ComputationTargetType.of(Foo.class), UniqueId.of("Foo", "Cow"));
@@ -51,7 +51,7 @@ public class DefaultComputationTargetSpecificationResolverTest {
   private final ComputationTargetRequirement REQUIREMENT_FOO_VALID = new ComputationTargetRequirement(ComputationTargetType.of(Foo.class), ExternalIdBundle.of(ExternalId.of("Test", "B")));
   private final ComputationTargetRequirement REQUIREMENT_FOO_INVALID = new ComputationTargetRequirement(ComputationTargetType.of(Foo.class), ExternalIdBundle.of(ExternalId.of("Test", "C")));
 
-  public DefaultComputationTargetSpecificationResolverTest () {
+  public DefaultComputationTargetSpecificationResolverTest() {
     RESOLVER.addResolver(ComputationTargetType.of(Foo.class), new IdentifierResolver() {
 
       @Override

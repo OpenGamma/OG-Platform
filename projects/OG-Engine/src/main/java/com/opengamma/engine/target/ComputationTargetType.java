@@ -63,7 +63,7 @@ public abstract class ComputationTargetType implements Serializable {
   /**
    * A simple type, for trivial items for which a unique ID (which can just be an arbitrary string triple if scheme, value and version used) that does not need resolving is sufficient.
    */
-  public static final PrimitiveComputationTargetType<UniqueIdentifiable> PRIMITIVE = defaultPrimitive(UniqueIdentifiable.class, "PRIMITIVE", new PrimitiveResolver());
+  public static final PrimitiveComputationTargetType<Primitive> PRIMITIVE = defaultPrimitive(Primitive.class, "PRIMITIVE", new PrimitiveResolver());
 
   /**
    * A currency.
