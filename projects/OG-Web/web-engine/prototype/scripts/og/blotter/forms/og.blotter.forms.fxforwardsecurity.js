@@ -9,8 +9,8 @@ $.register_module({
         return function (config) {
             var constructor = this, form, ui = og.common.util.ui, data, validate;
             if(config.details) {data = config.details.data; data.id = config.details.data.trade.uniqueId;}
-            else {data = {security: {type: "FXForwardSecurity", regionId: "ABC~123", externalIdBundle: "",
-                attributes: {}}, trade: og.blotter.util.otc_trade};}
+            else {data = {security: {type: "FXForwardSecurity", externalIdBundle: "", attributes: {}}, 
+                trade: og.blotter.util.otc_trade};}
             data.nodeId = config.portfolio.id;
             constructor.load = function () {
                 constructor.title = 'FX Forward';
@@ -59,8 +59,6 @@ $.register_module({
                 validate = handler;
                 delete data.id;
                 form.submit();
-            };
-            constructor.kill = function () {
             };
         };
     }
