@@ -13,7 +13,6 @@ import java.util.concurrent.CountDownLatch;
 
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
-import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**
@@ -24,7 +23,7 @@ public class MockMarketDataProvider extends AbstractMarketDataProvider {
   private final String _name;
   private final boolean _subscriptionsSucceed;
   private final CountDownLatch _responseLatch;
-  private final Map<ValueSpecification, ComputedValue> _values = new HashMap<ValueSpecification, ComputedValue>();
+  private final Map<ValueSpecification, Object> _values = new HashMap<ValueSpecification, Object>();
   private int _queryCount;
   private int _snapshotCount;
 
@@ -91,14 +90,14 @@ public class MockMarketDataProvider extends AbstractMarketDataProvider {
   }
 
   public void put(final ValueSpecification specification, final Object value) {
-    _values.put(specification, new ComputedValue(specification, value));
+    _values.put(specification, value);
   }
 
-  /*package*/ void incrementQueryCount() {
+  /*package*/void incrementQueryCount() {
     _queryCount++;
   }
 
-  /*package*/ComputedValue getValue(final ValueSpecification specification) {
+  /*package*/Object getValue(final ValueSpecification specification) {
     return _values.get(specification);
   }
 

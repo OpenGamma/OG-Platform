@@ -124,7 +124,7 @@ public class MarketDataProviderWithOverrideTest {
     overrideProvider.put(spec1, new OverrideOperation() {
       @Override
       public Object apply(final ValueRequirement requirement, final Object original) {
-        assertEquals(spec1, requirement);
+        assertEquals("Value-1", requirement.getValueName());
         assertEquals("value2", original);
         return "value1";
       }
