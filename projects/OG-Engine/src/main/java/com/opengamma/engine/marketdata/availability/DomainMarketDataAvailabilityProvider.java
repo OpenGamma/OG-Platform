@@ -17,6 +17,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalScheme;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -32,7 +33,7 @@ public class DomainMarketDataAvailabilityProvider extends ValueNameMarketDataAva
 
   /**
    * Creates a provider.
-   *
+   * 
    * @param acceptableSchemes the acceptable schemes, not null
    * @param validMarketDataRequirementNames the valid market data requirement names, not null
    */
@@ -77,6 +78,12 @@ public class DomainMarketDataAvailabilityProvider extends ValueNameMarketDataAva
     } else {
       return null;
     }
+  }
+
+  @Override
+  protected ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final UniqueId identifier, final ValueRequirement desiredValue) {
+    // There is no external identifier, so the scheme can never match
+    return null;
   }
 
 }

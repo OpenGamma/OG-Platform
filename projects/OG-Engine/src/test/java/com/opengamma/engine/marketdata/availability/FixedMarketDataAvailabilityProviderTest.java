@@ -1,0 +1,91 @@
+/**
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
+package com.opengamma.engine.marketdata.availability;
+
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
+
+import org.testng.annotations.Test;
+
+import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
+import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.UniqueId;
+
+/**
+ * Tests the {@link FixedMarketDataAvailabilityProvider} class.
+ */
+@Test
+public class FixedMarketDataAvailabilityProviderTest {
+
+  public void testEmpty() {
+    final FixedMarketDataAvailabilityProvider available = new FixedMarketDataAvailabilityProvider();
+    assertNull(available.getAvailability(ComputationTargetSpecification.NULL, ExternalId.of("A", "1"), new ValueRequirement("Foo", ComputationTargetSpecification.NULL)));
+    assertNull(available.getAvailability(ComputationTargetSpecification.NULL, ExternalIdBundle.of(ExternalId.of("A", "1"), ExternalId.of("C", "1")), new ValueRequirement("Foo",
+        ComputationTargetSpecification.NULL)));
+    assertNull(available.getAvailability(ComputationTargetSpecification.NULL, UniqueId.of("X", "1"), new ValueRequirement("Foo", ComputationTargetSpecification.NULL)));
+  }
+
+  public void testAddAvailable_byExternalId() {
+    final FixedMarketDataAvailabilityProvider available = new FixedMarketDataAvailabilityProvider();
+    final ValueProperties properties = ValueProperties.with(ValuePropertyNames.FUNCTION, "Mock").get();
+    final ValueSpecification fooSpec = new ValueSpecification("Foo", ComputationTargetSpecification.NULL, properties);
+    available.addAvailableData(ExternalId.of("A", "1"), fooSpec);
+    available.addAvailableData(ExternalId.of("A", "1"), new ValueSpecification("Bar", ComputationTargetSpecification.NULL, properties));
+    assertEquals(available.getAvailability(ComputationTargetSpecification.NULL, ExternalId.of("A", "1"), new ValueRequirement("Foo", ComputationTargetSpecification.NULL)), fooSpec);
+  }
+
+  public void testAddAvailable_byExternalIdBundle() {
+    final FixedMarketDataAvailabilityProvider available = new FixedMarketDataAvailabilityProvider();
+    final ValueProperties properties = ValueProperties.with(ValuePropertyNames.FUNCTION, "Mock").get();
+    final ValueSpecification fooSpec = new ValueSpecification("Foo", ComputationTargetSpecification.NULL, properties);
+    available.addAvailableData(ExternalIdBundle.of(ExternalId.of("A", "1"), ExternalId.of("B", "1")), fooSpec);
+    available.addAvailableData(ExternalIdBundle.of(ExternalId.of("A", "1"), ExternalId.of("B", "1")), new ValueSpecification("Bar", ComputationTargetSpecification.NULL, properties));
+    assertEquals(available.getAvailability(ComputationTargetSpecification.NULL, ExternalIdBundle.of(ExternalId.of("A", "1"), ExternalId.of("C", "1")), new ValueRequirement("Foo",
+        ComputationTargetSpecification.NULL)), fooSpec);
+  }
+
+  public void testAddAvailable_byUniqueId() {
+    final FixedMarketDataAvailabilityProvider available = new FixedMarketDataAvailabilityProvider();
+    final ValueProperties properties = ValueProperties.with(ValuePropertyNames.FUNCTION, "Mock").get();
+    final ValueSpecification fooSpec = new ValueSpecification("Foo", ComputationTargetSpecification.of(UniqueId.of("X", "1")), properties);
+    final ValueSpecification barSpec = new ValueSpecification("Bar", ComputationTargetSpecification.of(UniqueId.of("X", "1")), properties);
+    available.addAvailableData(fooSpec);
+    available.addAvailableData(barSpec);
+    assertEquals(available.getAvailability(ComputationTargetSpecification.of(UniqueId.of("X", "1")), UniqueId.of("X", "1"),
+        new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("X", "1")))), fooSpec);
+  }
+
+  @Test(expectedExceptions = {MarketDataNotSatisfiableException.class })
+  public void testAddMissing_byExternalId() {
+    final FixedMarketDataAvailabilityProvider available = new FixedMarketDataAvailabilityProvider();
+    available.addMissingData(ExternalId.of("A", "1"), "Foo");
+    available.addMissingData(ExternalId.of("A", "1"), "Bar");
+    available.getAvailability(ComputationTargetSpecification.NULL, ExternalId.of("A", "1"), new ValueRequirement("Foo", ComputationTargetSpecification.NULL));
+  }
+
+  @Test(expectedExceptions = {MarketDataNotSatisfiableException.class })
+  public void testAddMissing_byExternalIdBundle() {
+    final FixedMarketDataAvailabilityProvider available = new FixedMarketDataAvailabilityProvider();
+    available.addMissingData(ExternalIdBundle.of(ExternalId.of("A", "1"), ExternalId.of("B", "1")), "Foo");
+    available.addMissingData(ExternalIdBundle.of(ExternalId.of("A", "1"), ExternalId.of("B", "1")), "Bar");
+    available.getAvailability(ComputationTargetSpecification.NULL, ExternalIdBundle.of(ExternalId.of("A", "1"), ExternalId.of("C", "1")), new ValueRequirement("Foo",
+        ComputationTargetSpecification.NULL));
+  }
+
+  @Test(expectedExceptions = {MarketDataNotSatisfiableException.class })
+  public void testAddMissing_byUniqueId() {
+    final FixedMarketDataAvailabilityProvider available = new FixedMarketDataAvailabilityProvider();
+    available.addMissingData(UniqueId.of("X", "1"), "Foo");
+    available.addMissingData(UniqueId.of("X", "1"), "Bar");
+    available.getAvailability(ComputationTargetSpecification.NULL, UniqueId.of("X", "1"), new ValueRequirement("Foo", ComputationTargetSpecification.NULL));
+  }
+
+}

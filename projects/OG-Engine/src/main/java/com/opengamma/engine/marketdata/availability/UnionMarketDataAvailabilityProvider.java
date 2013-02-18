@@ -31,19 +31,17 @@ public class UnionMarketDataAvailabilityProvider implements MarketDataAvailabili
   public ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final Object target, final ValueRequirement desiredValue) {
     MarketDataNotSatisfiableException missing = null;
     boolean failed = false;
-    try {
-      for (final MarketDataAvailabilityProvider underlying : _underlyings) {
-        try {
-          final ValueSpecification result = underlying.getAvailability(targetSpec, target, desiredValue);
-          if (result != null) {
-            return result;
-          }
-        } catch (final BlockingOperation e) {
-          failed = true;
+    for (final MarketDataAvailabilityProvider underlying : _underlyings) {
+      try {
+        final ValueSpecification result = underlying.getAvailability(targetSpec, target, desiredValue);
+        if (result != null) {
+          return result;
         }
+      } catch (final BlockingOperation e) {
+        failed = true;
+      } catch (final MarketDataNotSatisfiableException e) {
+        missing = e;
       }
-    } catch (final MarketDataNotSatisfiableException e) {
-      missing = e;
     }
     if (failed) {
       // Blocking mode is off, nothing declared AVAILABLE, and at least one wanted to block

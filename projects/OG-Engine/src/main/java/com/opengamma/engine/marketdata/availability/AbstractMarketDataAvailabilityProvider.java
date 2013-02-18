@@ -26,6 +26,10 @@ public abstract class AbstractMarketDataAvailabilityProvider implements MarketDa
   /**
    * A {@link MarketDataAvailabilityProvider} coupled to a copy of an {@link AbstractMarketDataAvailabilityProvider} allowing the market data provider to override the behaviors which construct the
    * resulting value specifications.
+   * <p>
+   * The typical division of responsibility is that the externally constructed availability provider that is passed to the data provider instance identifies which value names and possible which
+   * targets are potentially satisfied. The delegate instance that is constructed by the data provider then produced value specifications that the provider can convert to live data subscriptions or
+   * query the snapshot data with.
    */
   public abstract static class Delegate implements MarketDataAvailabilityProvider {
 
@@ -84,7 +88,7 @@ public abstract class AbstractMarketDataAvailabilityProvider implements MarketDa
 
   /**
    * Resolves the availability of an item that can be referenced by external identifier.
-   *
+   * 
    * @param targetSpec the target specification as passed to {@link MarketDataAvailabilityProvider#getAvailability}, possibly null
    * @param identifier the external identifier of the target object, not null
    * @param desiredValue the requested value to test and resolve, not null
@@ -96,7 +100,7 @@ public abstract class AbstractMarketDataAvailabilityProvider implements MarketDa
 
   /**
    * Resolves the availability of an item that can be referenced by one or more external identifiers.
-   *
+   * 
    * @param targetSpec the target specification as passed to {@link MarketDataAvailabilityProvider#getAvailability}, possibly null
    * @param identifiers the external identifiers of the target object, not null
    * @param desiredValue the requested value to test and resolve, not null
@@ -108,7 +112,7 @@ public abstract class AbstractMarketDataAvailabilityProvider implements MarketDa
 
   /**
    * Resolves the availability of an item that can only be referenced by unique identifier
-   *
+   * 
    * @param targetSpec the target specification as passed to {@link MarketDataAvailabilityProvider#getAvailability}, possibly null
    * @param identifier the unique identifier of the target object, not null
    * @param desiredValue the requested value to test and resolve, not null
@@ -120,7 +124,7 @@ public abstract class AbstractMarketDataAvailabilityProvider implements MarketDa
 
   /**
    * Tests how the target can be referenced and defers to one of the other {@code getAvailability} methods.
-   *
+   * 
    * @param targetSpec the target specification as passed to {@link MarketDataAvailabilityProvider#getAvailability}, possibly null
    * @param target the target to evaluate, not null
    * @param desiredValue the requested value to test and resolve, not null
