@@ -11,10 +11,6 @@ import static org.testng.Assert.assertNull;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import net.sf.ehcache.CacheManager;
-
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 
@@ -26,6 +22,8 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionR
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
 import com.opengamma.util.ehcache.EHCacheUtils;
+
+import net.sf.ehcache.CacheManager;
 
 /**
  * Test.
@@ -63,17 +61,7 @@ public class EHCachingHistoricalTimeSeriesResolverTest {
   private final String _key1 = "K1";
   private final String _key2 = "K2";
 
-  private CacheManager _cacheManager;
-
-  @BeforeMethod
-  public void setUp() {
-    _cacheManager = CacheManager.newInstance();
-  }
-
-  @AfterMethod
-  public void tearDown() {
-    _cacheManager = EHCacheUtils.shutdownQuiet(_cacheManager);
-  }
+  private CacheManager _cacheManager = EHCacheUtils.createCacheManager();
 
   //-------------------------------------------------------------------------
   private HistoricalTimeSeriesResolver createUnderlying(final AtomicInteger hits) {
@@ -125,7 +113,7 @@ public class EHCachingHistoricalTimeSeriesResolverTest {
   }
 
   private void testResolve_null(final boolean optimistic) {
-    _cacheManager.clearAll();
+    //_cacheManager.clearAll();
     final AtomicInteger hits = new AtomicInteger();
     final EHCachingHistoricalTimeSeriesResolver resolver = createResolver(optimistic, hits);
     for (int i = 0; i < 3; i++) {
@@ -149,6 +137,7 @@ public class EHCachingHistoricalTimeSeriesResolverTest {
       assertNull(resolver.resolve(null, null, _source2, _provider2, _field2, null));
       assertEquals(hits.get(), 18);
     }
+    resolver.shutdown();
   }
 
   public void testResolve_null_opt() {
@@ -196,11 +185,12 @@ public class EHCachingHistoricalTimeSeriesResolverTest {
       assertNull(resolver.resolve(_bundle3, _date2, dataSource, dataProvider, _field2, resolutionKey));
       assertEquals(hits.getAndSet(0), (i == 0) && ((hitMask & 0x20000) != 0) ? 1 : 0);
     }
+    resolver.shutdown();
   }
 
   @Test(invocationCount = 5, successPercentage = 19)
   public void testResolve_dates_opt() {
-    _cacheManager.clearAll();
+    //_cacheManager.clearAll();
     testResolve_dates(true, null, null, null, true, 0x3C21D);
     testResolve_dates(true, null, null, _key1, true, 0x3C21D);
     testResolve_dates(true, null, null, _key2, false, 0x3C01D);
@@ -232,7 +222,7 @@ public class EHCachingHistoricalTimeSeriesResolverTest {
 
   @Test(invocationCount = 5, successPercentage = 19)
   public void testResolve_dates_pess() {
-    _cacheManager.clearAll();
+    //_cacheManager.clearAll();
     testResolve_dates(false, null, null, null, true, 0x1420E);
     testResolve_dates(false, null, null, _key1, true, 0x14209);
     testResolve_dates(false, null, null, _key2, false, 0x14009);
@@ -279,10 +269,11 @@ public class EHCachingHistoricalTimeSeriesResolverTest {
       assertNull(resolver.resolve(_bundle2, null, dataSource, dataProvider, _field2, resolutionKey));
       assertEquals(hits.getAndSet(0), (i == 0) && ((hitMask & 0x80) != 0) ? 1 : 0);
     }
+    resolver.shutdown();
   }
 
   public void testResolve_nodates_opt() {
-    _cacheManager.clearAll();
+    //_cacheManager.clearAll();
     testResolve_nodates(true, null, null, null, true, 0x5);
     testResolve_nodates(true, null, null, _key1, true, 0x5);
     testResolve_nodates(true, null, null, _key2, false, 0x5);
@@ -313,7 +304,7 @@ public class EHCachingHistoricalTimeSeriesResolverTest {
   }
 
   public void testResolve_nodates_pess() {
-    _cacheManager.clearAll();
+    //_cacheManager.clearAll();
     testResolve_nodates(false, null, null, null, true, 0x6);
     testResolve_nodates(false, null, null, _key1, true, 0x1);
     testResolve_nodates(false, null, null, _key2, false, 0x1);

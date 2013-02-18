@@ -152,7 +152,6 @@ public final class PortfolioGridStructure extends MainGridStructure {
     return new GridColumn(column.getName(), "", String.class, new BlotterColumnRenderer(column, columnMappings, rows));
   }
 
-
   private static List<PortfolioGridRow> buildRows(final CompiledViewDefinition viewDef) {
     final Portfolio portfolio = viewDef.getPortfolio();
     if (portfolio == null) {

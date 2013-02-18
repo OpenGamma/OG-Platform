@@ -9,13 +9,14 @@ $.register_module({
         return function (config) {
             var dialog = this, $selector, form_block = '.OG-blotter-form-block', form_wrapper, title, submit;
             dialog.load = function () {
-                if(config) {
+                if(config.details) {
                     title = "Edit Trade", submit = "Update";
                     og.api.text({module: 'og.blotter.forms.blocks.form_edit_tash'}).pipe(function (template){
-                       var type = config.data.security ? config.data.security.type.toLowerCase() : "fungibletrade";
+                        var type = config.details.data.security ? 
+                            config.details.data.security.type.toLowerCase() : "fungibletrade";
                         $selector = $(template);
                         dialog.create();
-                        dialog.populate(type, config.data);
+                        dialog.populate(type, config);
                     });
                 }
                 else {
@@ -23,13 +24,13 @@ $.register_module({
                     og.api.text({module: 'og.blotter.forms.blocks.form_types_tash'}).pipe(function (template){
                         $selector = $(template)
                         .on('change', function (event) {
-                            dialog.populate($(event.target).val());
+                            dialog.populate($(event.target).val(), config);
                         }); 
                         dialog.create();
                     });
                 }
             };
-            dialog.populate = function (suffix, data) {
+            dialog.populate = function (suffix, config) {
                 var str, inner;
                 str = 'og.blotter.forms.' + suffix;
                 inner = str.split('.').reduce(function (acc, val) {
@@ -37,7 +38,7 @@ $.register_module({
                     else return acc[val];
                     }, window);
                 if(inner) {
-                    form_wrapper = new inner(data);
+                    form_wrapper = new inner(config);
                     $('.ui-dialog-title').html(form_wrapper.title);
                 }
             };

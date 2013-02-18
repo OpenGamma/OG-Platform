@@ -15,8 +15,6 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
-import net.sf.ehcache.CacheManager;
-
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -37,6 +35,8 @@ import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
 
+import net.sf.ehcache.CacheManager;
+
 /**
  * Test EHCachingRegionSource
  */
@@ -53,18 +53,19 @@ public class EhCachingRegionSourceTest {
 
   private EHCachingRegionSource _cachingRegionSource;
   private TestRegionSource _underlying;
-  private CacheManager _cacheManager;
+  private CacheManager _cacheManager = EHCacheUtils.createCacheManager();
 
   @BeforeMethod
   public void setUp() {
-    _cacheManager = CacheManager.newInstance();
+    //_cacheManager = EHCacheUtils.createCacheManager();
     _underlying = new TestRegionSource(TEST_REGION);
     _cachingRegionSource = new EHCachingRegionSource(_underlying, _cacheManager);
   }
 
   @AfterMethod
   public void tearDown() {
-    _cacheManager = EHCacheUtils.shutdownQuiet(_cacheManager);
+    //_cacheManager = EHCacheUtils.shutdownQuiet(_cacheManager);
+    _cachingRegionSource.shutdown();
   }
 
   //-------------------------------------------------------------------------

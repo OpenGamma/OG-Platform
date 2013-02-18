@@ -60,6 +60,7 @@ $.register_module({
                             api.configs.get(rest_options).pipe(function (result) {
                                 var options = result.data.data
                                     .map(function (val) {return val.split('|')[1].split('_').slice(0, -1).join('_');});
+                                console.log(options);
                                 handler(options);
                             });
                         }

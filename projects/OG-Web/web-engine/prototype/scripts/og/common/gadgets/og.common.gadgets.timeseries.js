@@ -22,8 +22,8 @@ $.register_module({
                     if (!timeseries && data && (typeof data === 'object')) timeseries = new og.common.gadgets
                         .TimeseriesPlot($.extend(true, {}, config, {data: [data]}));
                 })
-                .on('fatal', function (message) {$selector.html(message)});
+                .on('fatal', function (message) {$selector.html(message);});
             if (!config.child) og.common.gadgets.manager.register(gadget);
-        }
+        };
     }
 });

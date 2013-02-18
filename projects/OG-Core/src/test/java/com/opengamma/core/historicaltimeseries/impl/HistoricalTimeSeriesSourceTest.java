@@ -158,12 +158,8 @@ public class HistoricalTimeSeriesSourceTest {
 
   //-------------------------------------------------------------------------
   public void testEHCachingHistoricalTimeSeriesSource() {
-    CacheManager cacheManager = CacheManager.newInstance();
-    try {
-      doTestCaching(cacheManager);
-    } finally {
-      EHCacheUtils.shutdownQuiet(cacheManager);
-    }
+    CacheManager cacheManager = EHCacheUtils.createCacheManager();
+    doTestCaching(cacheManager);
   }
 
   private void doTestCaching(CacheManager cacheManager) {
@@ -278,6 +274,9 @@ public class HistoricalTimeSeriesSourceTest {
       HistoricalTimeSeries historicalTimeSeries = cachedProvider.getHistoricalTimeSeries(ids, dataSource, dataProvider, field);
       assertEquals(ids, cachedProvider.getExternalIdBundle(historicalTimeSeries.getUniqueId()));
     }
+
+    // Shut down cache
+    cachedProvider.shutdown();
   }
 
 }

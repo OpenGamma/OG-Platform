@@ -8,10 +8,6 @@ package com.opengamma.master.historicaltimeseries.impl;
 import java.text.MessageFormat;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Element;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.LocalDate;
@@ -25,6 +21,10 @@ import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesI
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.tuple.Triple;
+
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Element;
 
 /**
  * A <code>HistoricalTimeSeriesResolver</code> that tries to find the distribution spec in a cache. If it doesn't find it, it will delegate to an underlying <code>HistoricalTimeSeriesResolver</code>.
@@ -287,6 +287,13 @@ public class EHCachingHistoricalTimeSeriesResolver implements HistoricalTimeSeri
       }
     }
     return resolveResult;
+  }
+
+  /**
+   * Call this at the end of a unit test run to clear the state of EHCache. It should not be part of a generic lifecycle method.
+   */
+  protected void shutdown() {
+    _cacheManager.removeCache(_cache.getName());
   }
 
 }

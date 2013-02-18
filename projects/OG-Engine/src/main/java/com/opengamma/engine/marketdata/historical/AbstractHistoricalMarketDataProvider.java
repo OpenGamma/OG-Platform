@@ -44,10 +44,10 @@ public abstract class AbstractHistoricalMarketDataProvider extends AbstractMarke
 
   /**
    * Creates a new market data provider.
-   *
-   * @param historicalTimeSeriesSource  the underlying source of historical data, not null
-   * @param securitySource  the source of securities, not null
-   * @param timeSeriesResolverKey  the source resolver key, or null to use the source default
+   * 
+   * @param historicalTimeSeriesSource the underlying source of historical data, not null
+   * @param securitySource the source of securities, not null
+   * @param timeSeriesResolverKey the source resolver key, or null to use the source default
    */
   public AbstractHistoricalMarketDataProvider(final HistoricalTimeSeriesSource historicalTimeSeriesSource,
       final SecuritySource securitySource,
@@ -140,7 +140,7 @@ public abstract class AbstractHistoricalMarketDataProvider extends AbstractMarke
 
   /**
    * The function name used in value specifications describing items sourced by this provider. This is only used for diagnostics when browsing the dependency graph.
-   *
+   * 
    * @return the function name
    */
   protected String getSyntheticFunctionName() {

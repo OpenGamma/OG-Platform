@@ -20,6 +20,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicReference;
 
+import net.sf.ehcache.CacheManager;
+
 import org.apache.commons.io.IOUtils;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeField;
@@ -41,7 +43,6 @@ import com.opengamma.livedata.server.SubscriptionListener;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.NamedThreadPoolFactory;
 import com.opengamma.util.TerminatableJob;
-import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
@@ -66,12 +67,12 @@ public class ExampleLiveDataServer extends StandardLiveDataServer {
   private final TerminatableJob _marketDataSimulatorJob = new SimulatedMarketDataJob();
   private ExecutorService _executorService;
 
-  public ExampleLiveDataServer(final Resource initialValuesFile) {
-    this(initialValuesFile, SCALING_FACTOR, MAX_MILLIS_BETWEEN_TICKS);
+  public ExampleLiveDataServer(final CacheManager cacheManager, final Resource initialValuesFile) {
+    this(cacheManager, initialValuesFile, SCALING_FACTOR, MAX_MILLIS_BETWEEN_TICKS);
   }
 
-  public ExampleLiveDataServer(final Resource initialValuesFile, final double scalingFactor, final int maxMillisBetweenTicks) {
-    super(EHCacheUtils.createCacheManager());
+  public ExampleLiveDataServer(final CacheManager cacheManager, final Resource initialValuesFile, final double scalingFactor, final int maxMillisBetweenTicks) {
+    super(cacheManager);
     readInitialValues(initialValuesFile);
     _scalingFactor = scalingFactor;
     _maxMillisBetweenTicks = maxMillisBetweenTicks;

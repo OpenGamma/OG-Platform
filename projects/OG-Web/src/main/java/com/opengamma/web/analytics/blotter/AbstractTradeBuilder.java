@@ -33,6 +33,8 @@ import com.opengamma.util.ArgumentChecker;
   /* package */ static final ExternalScheme CPTY_SCHEME = ExternalScheme.of("Cpty");
   /** JSON key for the counterparty name */
   /* package */ static final String COUNTERPARTY = "counterparty";
+  /** Counterparty name used if one isn't supplied. */
+  /* package */ static final String DEFAULT_COUNTERPARTY = "Default Counterparty";
 
   /** For loading and saving securities */
   private final SecurityMaster _securityMaster;
@@ -123,10 +125,6 @@ import com.opengamma.util.ArgumentChecker;
 
   /* package */ PositionMaster getPositionMaster() {
     return _positionMaster;
-  }
-
-  /* package */ MetaBeanFactory getMetaBeanFactory() {
-    return _metaBeanFactory;
   }
 
   /* package */ StringConvert getStringConvert() {

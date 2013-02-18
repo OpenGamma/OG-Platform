@@ -3,12 +3,13 @@
  * Please see distribution for license.
  */
 $.register_module({
-    name: 'og.analytics.FiltersMenu',
+    name: 'og.analytics.form.FiltersMenu',
     dependencies: [],
     obj: function () {
         var module = this, Block = og.common.util.ui.Block;
         var FiltersMenu = function (config) {
-            var block = this, form = config.form, id = og.common.id('filters'), filters = config.filters || [];
+            var block = this, form = config.form, id = og.common.id('filters'),
+                menu, filters = config.filters || [{key:'', value:''}];
             var new_row = function (val, idx) {
                 return new form.Block({
                     module: 'og.analytics.form_filters_row_tash',
@@ -45,6 +46,15 @@ $.register_module({
             }).on('click', '#' + id + ' .og-js-rem', function (event) {
                 $(event.target).parents('tr.row:first').remove();
                 $('#' + id + ' td.number span').each(function (idx) {$(this).html(idx + 1);});
+            }).on('click', '#' + id + ' .og-menu-actions button', function (event) {
+                return menu.button_handler($(event.target).text()), menu.stop(event), false;
+            });
+
+            form.on('form:load', function () {
+                menu = new og.common.util.ui.DropMenu({cntr: $('.og-filters', '.OG-analytics-form')});
+                og.common.events.on('filters:dropmenu:open', function() {menu.fire('dropmenu:open', this);});
+                og.common.events.on('filters:dropmenu:close', function() {menu.fire('dropmenu:close', this);});
+                og.common.events.on('filters:dropmenu:focus', function() {menu.fire('dropmenu:focus', this);});
             });
         };
         FiltersMenu.prototype = new Block; // inherit Block prototype

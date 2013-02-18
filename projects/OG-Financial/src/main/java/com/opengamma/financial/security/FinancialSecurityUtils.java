@@ -952,7 +952,9 @@ public class FinancialSecurityUtils {
           equityIndexOptionVisitor(true).
           equityOptionVisitor(true).
           equityBarrierOptionVisitor(true).
-          bondFutureOptionSecurityVisitor(true).create());
+              bondFutureOptionSecurityVisitor(true).
+              equityIndexFutureOptionVisitor(true).
+              create());
 
       result = isExchangeTraded == null ? false : isExchangeTraded;
     }
