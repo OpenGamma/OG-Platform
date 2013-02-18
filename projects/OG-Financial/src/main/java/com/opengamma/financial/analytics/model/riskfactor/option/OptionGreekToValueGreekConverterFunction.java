@@ -38,6 +38,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.PropertyPreservingFunction;
 import com.opengamma.financial.analytics.greeks.AvailableGreeks;
 import com.opengamma.financial.analytics.greeks.AvailableValueGreeks;
+import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.util.ArgumentChecker;
 
@@ -71,7 +72,7 @@ public class OptionGreekToValueGreekConverterFunction extends PropertyPreserving
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Position position = target.getPosition();
-    final EquityOptionSecurity security = (EquityOptionSecurity) position.getSecurity();
+    final Security security = position.getSecurity();
     final GreekResultCollection greekResultCollection = new GreekResultCollection();
     final Map<UnderlyingType, Double> underlyingData = new HashMap<UnderlyingType, Double>();
     Greek greek;
@@ -81,7 +82,11 @@ public class OptionGreekToValueGreekConverterFunction extends PropertyPreserving
     final Double greekResult = (Double) inputs.getValue(underlyingGreekRequirementName);
     greek = AvailableGreeks.getGreekForValueRequirementName(underlyingGreekRequirementName);
     greekResultCollection.put(greek, greekResult);
-    final OptionTradeData tradeData = new OptionTradeData(position.getQuantity().doubleValue(), security.getPointValue());
+    double pointValue = 1.0;
+    if (security instanceof EquityOptionSecurity) {
+      pointValue = ((EquityOptionSecurity) security).getPointValue();
+    }
+    final OptionTradeData tradeData = new OptionTradeData(position.getQuantity().doubleValue(), pointValue);
     order = greek.getUnderlying();
     underlyings = order.getUnderlyings();
     for (final UnderlyingType underlying : underlyings) {
@@ -112,7 +117,11 @@ public class OptionGreekToValueGreekConverterFunction extends PropertyPreserving
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return target.getPosition().getSecurity() instanceof EquityOptionSecurity;
+    Security sec = target.getPosition().getSecurity();
+    if (sec instanceof EquityOptionSecurity || sec instanceof EquitySecurity) {
+      return true;
+    }
+    return false;
   }
 
   @Override
@@ -166,11 +175,6 @@ public class OptionGreekToValueGreekConverterFunction extends PropertyPreserving
     }
     results.add(new ValueSpecification(getRequirementName(), target.toSpecification(), properties.get()));
     return results;
-  }
-
-  @Override
-  public String getShortName() {
-    return "GreekToValueGreekConverter";
   }
 
   @Override

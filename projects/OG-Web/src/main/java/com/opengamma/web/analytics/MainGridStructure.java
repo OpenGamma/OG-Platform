@@ -5,7 +5,6 @@
  */
 package com.opengamma.web.analytics;
 
-import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 
@@ -105,8 +104,6 @@ import com.opengamma.util.tuple.Pair;
     return Pair.of(viewportResults, state);
   }
 
-  // TODO do I need different subclasses for portfolios and primitives, primitives version has security?
-
   /**
    * A row in the grid.
    */
@@ -116,19 +113,12 @@ import com.opengamma.util.tuple.Pair;
     private final ComputationTargetSpecification _target;
     /** The row label. */
     private final String _name;
-    /** The row's quantity, null for row's that don't represent a position. */
-    private final BigDecimal _quantity;
 
     /* package */ Row(ComputationTargetSpecification target, String name) {
-      this(target, name, null);
-    }
-
-    /* package */ Row(ComputationTargetSpecification target, String name, BigDecimal quantity) {
       ArgumentChecker.notNull(target, "target");
       ArgumentChecker.notNull(name, "name");
       _target = target;
       _name = name;
-      _quantity = quantity;
     }
 
     /* package */ ComputationTargetSpecification getTarget() {
@@ -139,14 +129,9 @@ import com.opengamma.util.tuple.Pair;
       return _name;
     }
 
-    // TODO this is specific to the portfolio grid
-    /* package */ BigDecimal getQuantity() {
-      return _quantity;
-    }
-
     @Override
     public String toString() {
-      return "Row [_target=" + _target + ", _name='" + _name + '\'' + ", _quantity=" + _quantity + "]";
+      return "Row [_target=" + _target + ", _name='" + _name + '\'' + "]";
     }
   }
 }

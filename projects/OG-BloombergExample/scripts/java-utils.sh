@@ -25,8 +25,12 @@ build_classpath() {
   fi
 
   _CLASSPATH=""
-  for _FILE in $(find ${_PREFIX}lib -name "*.jar" -or -name "*.zip") ; do
-    _CLASSPATH=${_CLASSPATH}:${_FILE}
-  done
+  if [ -f ${_PREFIX}lib/classpath.jar ]; then
+    _CLASSPATH="${_PREFIX}lib/classpath.jar"
+  else
+    for _FILE in $(find ${_PREFIX}lib -name "*.jar" -o -name "*.zip") ; do
+      _CLASSPATH=${_CLASSPATH}:${_FILE}
+    done
+  fi
   echo "${_CLASSPATH}"
 }

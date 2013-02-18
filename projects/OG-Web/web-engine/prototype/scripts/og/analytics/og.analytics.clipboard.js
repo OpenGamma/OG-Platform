@@ -12,6 +12,7 @@ $.register_module({
                 return (is_array(value) ? value : value.v || []).map(function (row) {return row.join(tab);}).join(line);
             },
             DOUBLE: function (value) {return value.v || '';},
+            FUNGIBLE_TRADE: function (value) {return value.v && value.v.name || '';},
             LABELLED_MATRIX_1D: function (value, single) {
                 if (!single) return value.v || '**1D MATRIX**';
                 return [value.v.labels.join(tab)]
@@ -28,8 +29,9 @@ $.register_module({
                     .map(function (row, idx) {return rows[idx] + tab + row.join(tab);}).join(line);
             },
             LABELLED_MATRIX_3D: function (value, single) {return '**3D MATRIX**';},
-            NODE_ID: function (value) {return value.v && value.v.name || '';},
-            POSITION_ID: function (value) {return value.v && value.v.name || '';},
+            NODE: function (value) {return value.v && value.v.name || '';},
+            OTC_TRADE: function (value) {return value.v && value.v.name || '';},
+            POSITION: function (value) {return value.v && value.v.name || '';},
             STRING: function (value) {return value.v || '';},
             SURFACE_DATA: function (value, single) {
                 if (!single) return value.v || '**SURFACE DATA**';

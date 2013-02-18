@@ -41,6 +41,8 @@ public abstract class CreditDefaultSwapDefinition {
 
   // NOTE : We are enforcing the condition that the three obligors have to be different entities
 
+  // NOTE : There are no builder methods in this class because it is abstract
+
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // TODO : Do we need to allow negative notionals to be consistent with end users (convention above is sensible, but might not be market practice - although MarkIt enforces N > 0)
@@ -99,7 +101,7 @@ public abstract class CreditDefaultSwapDefinition {
   // Flag to determine if we adjust the maturity date to fall on the next IMM date
   private final boolean _immAdjustMaturityDate;
 
-  //Flag to determine if we business day adjust the user input effective date (not a feature of legacy or standard CDS)
+  // Flag to determine if we business day adjust the user input effective date (not a feature of legacy or standard CDS)
   private final boolean _adjustEffectiveDate;
 
   // Flag to determine if we business day adjust the final maturity date (not a feature of legacy or standard CDS)

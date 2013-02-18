@@ -32,18 +32,18 @@ public class GeneralBlackVolatilityInterpolationDefaults {
         Interpolator1DFactory.DOUBLE_QUADRATIC,
         Interpolator1DFactory.LINEAR_EXTRAPOLATOR,
         Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
-    SABR_INTERPOLATION_DEFAULTS = new ArrayList<String>(commonProperties);
+    SABR_INTERPOLATION_DEFAULTS = new ArrayList<>(commonProperties);
     SABR_INTERPOLATION_DEFAULTS.add(VolatilityFunctionFactory.HAGAN);
     SABR_INTERPOLATION_DEFAULTS.add(WeightingFunctionFactory.SINE_WEIGHTING_FUNCTION_NAME);
     SABR_INTERPOLATION_DEFAULTS.add("false");
     SABR_INTERPOLATION_DEFAULTS.add("0.5");
-    MIXED_LOG_NORMAL_INTERPOLATION_DEFAULTS = new ArrayList<String>(commonProperties);
+    MIXED_LOG_NORMAL_INTERPOLATION_DEFAULTS = new ArrayList<>(commonProperties);
     MIXED_LOG_NORMAL_INTERPOLATION_DEFAULTS.add(WeightingFunctionFactory.SINE_WEIGHTING_FUNCTION_NAME);
-    SPLINE_INTERPOLATION_DEFAULTS = new ArrayList<String>(commonProperties);
+    SPLINE_INTERPOLATION_DEFAULTS = new ArrayList<>(commonProperties);
     SPLINE_INTERPOLATION_DEFAULTS.add(Interpolator1DFactory.DOUBLE_QUADRATIC);
     SPLINE_INTERPOLATION_DEFAULTS.add(Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
     SPLINE_INTERPOLATION_DEFAULTS.add(Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
-    SPLINE_INTERPOLATION_DEFAULTS.add(BlackVolatilitySurfacePropertyNamesAndValues.QUIET_SPLINE_EXTRAPOLATOR_FAILURE);
+    SPLINE_INTERPOLATION_DEFAULTS.add(BlackVolatilitySurfacePropertyNamesAndValues.FLAT_SPLINE_EXTRAPOLATOR_FAILURE);
   }
   
   /**

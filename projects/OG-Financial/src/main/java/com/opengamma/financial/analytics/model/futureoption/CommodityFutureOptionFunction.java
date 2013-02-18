@@ -43,7 +43,7 @@ public abstract class CommodityFutureOptionFunction extends FutureOptionFunction
     final ExternalId currencyId = ExternalId.of(Currency.OBJECT_SCHEME, FinancialSecurityUtils.getCurrency(security).getCode());
     final String fullSurfaceName = CommodityFutureOptionUtils.getSurfaceName(security, surfaceName);
     final String fullForwardCurveName = CommodityFutureOptionUtils.getSurfaceName(security, forwardCurveName);
-    final ValueRequirement requirement = BlackVolatilitySurfacePropertyUtils.getSurfaceRequirement(desiredValue, surfaceName, forwardCurveName,
+    final ValueRequirement requirement = BlackVolatilitySurfacePropertyUtils.getSurfaceRequirement(desiredValue, ValueProperties.none(), surfaceName, forwardCurveName,
         InstrumentTypeProperties.COMMODITY_FUTURE_OPTION, ComputationTargetType.CURRENCY, currencyId);
     final ValueProperties.Builder properties = requirement.getConstraints().copy();
     properties.withoutAny(ValuePropertyNames.SURFACE).with(ValuePropertyNames.SURFACE, fullSurfaceName);

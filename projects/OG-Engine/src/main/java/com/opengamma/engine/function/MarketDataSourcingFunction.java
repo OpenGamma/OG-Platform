@@ -37,6 +37,8 @@ public final class MarketDataSourcingFunction extends AbstractFunction.NonCompil
    */
   public static final class Inputs implements FunctionParameters {
 
+    private static final long serialVersionUID = 1L;
+
     private final ExternalIdBundle _identifiers;
 
     private Inputs(final ExternalIdBundle identifiers) {

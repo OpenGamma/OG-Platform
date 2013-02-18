@@ -51,13 +51,13 @@ public class AnalyticsViewManager {
                               ComputationTargetResolver targetResolver,
                               NamedMarketDataSpecificationRepository marketDataSpecificationRepository,
                               BlotterColumnMapper blotterColumnMapper) {
-    _blotterColumnMapper = blotterColumnMapper;
     ArgumentChecker.notNull(viewProcessor, "viewProcessor");
     ArgumentChecker.notNull(aggregatedViewDefManager, "aggregatedViewDefManager");
     ArgumentChecker.notNull(snapshotMaster, "snapshotMaster");
     ArgumentChecker.notNull(targetResolver, "targetResolver");
     ArgumentChecker.notNull(marketDataSpecificationRepository, "marketDataSpecificationRepository");
-    ArgumentChecker.notNull(blotterColumnMapper, "blotterColumnMappings");
+    ArgumentChecker.notNull(blotterColumnMapper, "blotterColumnMapper");
+    _blotterColumnMapper = blotterColumnMapper;
     _targetResolver = targetResolver;
     _viewProcessor = viewProcessor;
     _aggregatedViewDefManager = aggregatedViewDefManager;

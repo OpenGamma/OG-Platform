@@ -10,22 +10,25 @@ import java.util.Map;
 
 import org.joda.beans.Bean;
 import org.joda.beans.MetaBean;
+import org.joda.beans.MetaProperty;
 
 /**
  * Interface for classes that receive data from a bean and create another object from it.
- * TODO is this interface worth the complication or would it be better to imlement BeanVisitor directly?
+ * @param <T> The type of object created by the sink
  */
 /* package */ interface BeanDataSink<T> {
 
   void setBeanData(MetaBean metaBean, Bean bean);
 
-  void setValue(String propertyName, String value);
+  void setValue(String propertyName, Object value);
 
-  void setCollectionValues(String propertyName, Collection<String> values);
+  void setCollection(String propertyName, Collection<?> values);
 
-  void setMapValues(String propertyName, Map<String, String> values);
+  void setMap(String propertyName, Map<?, ?> values);
 
-  void setBeanValue(String propertyName, Bean bean, BeanTraverser traverser);
+  // TODO why does the sink need to do the conversion?
+  // because when it needs to traverse a BeanDataSource only the sink knows how to create another sink
+  Object convert(Object value, MetaProperty<?> property, Class<?> expectedType, BeanTraverser traverser);
 
   T finish();
 }

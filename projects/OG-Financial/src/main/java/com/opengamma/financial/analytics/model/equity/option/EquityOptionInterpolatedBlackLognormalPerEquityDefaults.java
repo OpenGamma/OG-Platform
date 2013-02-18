@@ -25,7 +25,12 @@ public class EquityOptionInterpolatedBlackLognormalPerEquityDefaults extends Equ
 
   @Override
   protected String getId(final Security security) {
-    return EquitySecurityUtils.getIndexOrEquityNameFromUnderlying(security).toUpperCase();
+    final String id = EquitySecurityUtils.getIndexOrEquityNameFromUnderlying(security);
+    if (id != null) {
+      return id.toUpperCase();
+    } else {
+      return null;
+    }
   }
 
 }

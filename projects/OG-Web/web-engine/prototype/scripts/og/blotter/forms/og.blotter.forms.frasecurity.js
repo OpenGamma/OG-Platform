@@ -7,19 +7,22 @@ $.register_module({
     dependencies: [],
     obj: function () {   
         return function (config) {
-            var constructor = this, form, ui = og.common.util.ui;
-            if(config) {data = config; data.id = config.trade.uniqueId;}
-            else {data = {security: {type: "FRASecurity", name: "FRASecurity ABC", 
-                regionId: "ABC~123", externalIdBundle: ""}, trade: og.blotter.util.otc_trade};}
+            var constructor = this, form, ui = og.common.util.ui, data;
+            if(config.details) {data = config.details.data; data.id = config.details.data.trade.uniqueId;}
+            else {data = {security: {type: "FRASecurity", regionId: "ABC~123", externalIdBundle: "", attributes: {}}, 
+                trade: og.blotter.util.otc_trade};}
+            data.nodeId = config.portfolio.id;
             constructor.load = function () {
                 constructor.title = 'Forward Rate Agreement';
                 form = new og.common.util.ui.Form({
                     module: 'og.blotter.forms.simple_tash',
                     selector: '.OG-blotter-form-block',
-                    data: data
+                    data: data,
+                    processor: function (data) {data.security.name = og.blotter.util.create_name(data);}
                 });
                 form.children.push(
-                    new og.blotter.forms.blocks.Portfolio({form: form, counterparty: data.trade.counterparty}),
+                    new og.blotter.forms.blocks.Portfolio({form: form, counterparty: data.trade.counterparty, 
+                        portfolio: data.nodeId, tradedate: data.trade.tradeDate}),
                     new form.Block({
                         module: 'og.blotter.forms.blocks.forward_rate_agreement_tash',
                         extras: {start: data.security.startDate, end: data.security.endDate, 
@@ -44,11 +47,12 @@ $.register_module({
                     og.blotter.util.add_datetimepicker("security.fixingDate");
                     og.blotter.util.add_datetimepicker("security.endDate");
                     og.blotter.util.add_datetimepicker("security.startDate");
+                    og.blotter.util.add_datetimepicker("trade.tradeDate");
                     if(data.security.length) return;
                     og.blotter.util.set_select("security.currency", data.security.currency);
                 });
                 form.on('form:submit', function (result){
-                    og.api.rest.blotter.trades.put(result.data);
+                    config.handler(result.data);
                 });
             }; 
             constructor.load();

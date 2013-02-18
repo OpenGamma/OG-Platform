@@ -7,14 +7,15 @@ $.register_module({
     dependencies: [],
     obj: function () {   
         return function (config) {
-            var constructor = this, form, ui = og.common.util.ui, pay_block, receive_block, pay_select, receive_select,
-                pay_index = og.common.id('pay'), receive_index = og.common.id('receive'), pay_leg = 'underlying.payLeg.', 
-                receive_leg = 'underlying.receiveLeg.', $pay_select, $receive_select;
-            if(config) {data = config; data.id = config.trade.uniqueId;}
-            else { data = {underlying: {type: "SwapSecurity", name: "SwaptSecurity ABC", regionId: 'ABC~123', 
-                externalIdBundle: ""}, trade: og.blotter.util.otc_trade, security: {type: "SwaptionSecurity", 
+            var constructor = this, form, ui = og.common.util.ui, data, pay_block, receive_block, pay_select, 
+                receive_select, pay_index = og.common.id('pay'), receive_index = og.common.id('receive'), 
+                pay_leg = 'underlying.payLeg.', receive_leg = 'underlying.receiveLeg.', $pay_select, $receive_select;
+            if(config.details) {data = config.details.data; data.id = config.details.data.trade.uniqueId;}
+            else { data = {underlying: {type: "SwapSecurity", regionId: 'ABC~123', externalIdBundle: "", 
+                attributes: {}}, trade: og.blotter.util.otc_trade, security: {type: "SwaptionSecurity", 
                 name: "SwaptionSecurity ABC", regionId: 'ABC~123', externalIdBundle: ""}};
-            } 
+            }
+            data.nodeId = config.portfolio.id;
             constructor.load = function () {
                 constructor.title = 'Swaption';
                 form = new og.common.util.ui.Form({
@@ -31,10 +32,12 @@ $.register_module({
                         data.underlying.receiveLeg.regionId = 'ABC~123';
                         data.underlying.payLeg.notional.type = 'InterestRateNotional';
                         data.underlying.receiveLeg.notional.type = 'InterestRateNotional';
+                        data.security.name = og.blotter.util.create_name(data);
                     }
                 });
                 form.children.push(
-                    new og.blotter.forms.blocks.Portfolio({form: form, counterparty: data.trade.counterparty}),
+                    new og.blotter.forms.blocks.Portfolio({form: form, counterparty: data.trade.counterparty, 
+                        portfolio: data.nodeId, tradedate: data.trade.tradeDate}),
                     new form.Block({
                         module: 'og.blotter.forms.blocks.swap_quick_entry_tash'
                     }),
@@ -81,6 +84,7 @@ $.register_module({
                     og.blotter.util.add_datetimepicker("underlying.effectiveDate");
                     og.blotter.util.add_datetimepicker("underlying.maturityDate");
                     og.blotter.util.add_datetimepicker("security.settlementDate");
+                    og.blotter.util.add_datetimepicker("trade.tradeDate");
                     og.blotter.util.add_datetimepicker("security.expiry");
                     og.blotter.util.set_select("security.currency", data.security.currency);
                     og.blotter.util.check_radio("security.payer", data.security.payer);
@@ -100,8 +104,7 @@ $.register_module({
                     }
                 }); 
                 form.on('form:submit', function (result){
-                    console.log(result);
-                    og.api.rest.blotter.trades.put(result.data);
+                    config.handler(result.data);
                 });
                 form.on('change', '#' + pay_select.id, function (event) {
                     og.blotter.util.toggle_fixed($receive_select, event.target.value);

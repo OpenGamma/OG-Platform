@@ -252,7 +252,7 @@ public class DbMarketDataSnapshotMaster
   }
 
   @Override
-  public AbstractHistoryResult<MarketDataSnapshotDocument> historyByVersionsCorrections(AbstractHistoryRequest request) {
+  protected AbstractHistoryResult<MarketDataSnapshotDocument> historyByVersionsCorrections(AbstractHistoryRequest request) {
     MarketDataSnapshotHistoryRequest historyRequest = new MarketDataSnapshotHistoryRequest();
     historyRequest.setCorrectionsFromInstant(request.getCorrectionsFromInstant());
     historyRequest.setCorrectionsToInstant(request.getCorrectionsToInstant());
@@ -261,4 +261,5 @@ public class DbMarketDataSnapshotMaster
     historyRequest.setObjectId(request.getObjectId());
     return history(historyRequest);
   }
+
 }

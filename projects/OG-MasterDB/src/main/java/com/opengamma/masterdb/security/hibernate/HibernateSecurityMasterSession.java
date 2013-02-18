@@ -633,6 +633,7 @@ public class HibernateSecurityMasterSession implements HibernateSecurityMasterDa
     }
   }
   
+  @Override
   public StubTypeBean getOrCreateStubTypeBean(String name) {
     final Query query = getSession().getNamedQuery("StubTypeBean.one");
     query.setString("name", name);
@@ -642,7 +643,7 @@ public class HibernateSecurityMasterSession implements HibernateSecurityMasterDa
     }
     return bean;
   }
-
+  
   @Override
   public DebtSeniorityBean getOrCreateDebtSeniorityBean(String name) {
     final Query query = getSession().getNamedQuery("DebtSeniorityBean.one");

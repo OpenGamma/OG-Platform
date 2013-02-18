@@ -20,7 +20,6 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
-import com.opengamma.financial.analytics.model.forex.forward.FXForwardFunction;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityTypes;
@@ -67,8 +66,8 @@ public class FXForwardDefaults extends DefaultPropertyFunction {
     for (final String valueRequirement : VALUE_REQUIREMENTS) {
       defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.PAY_CURVE);
       defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.RECEIVE_CURVE);
-      defaults.addValuePropertyName(valueRequirement, FXForwardFunction.PAY_CURVE_CALC_CONFIG);
-      defaults.addValuePropertyName(valueRequirement, FXForwardFunction.RECEIVE_CURVE_CALC_CONFIG);
+      defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG);
+      defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.RECEIVE_CURVE_CALCULATION_CONFIG);
     }
   }
 
@@ -93,10 +92,10 @@ public class FXForwardDefaults extends DefaultPropertyFunction {
     if (ValuePropertyNames.RECEIVE_CURVE.equals(propertyName)) {
       return Collections.singleton(receivePair.getSecond());
     }
-    if (FXForwardFunction.PAY_CURVE_CALC_CONFIG.equals(propertyName)) {
+    if (ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG.equals(propertyName)) {
       return Collections.singleton(payPair.getFirst());
     }
-    if (FXForwardFunction.RECEIVE_CURVE_CALC_CONFIG.equals(propertyName)) {
+    if (ValuePropertyNames.RECEIVE_CURVE_CALCULATION_CONFIG.equals(propertyName)) {
       return Collections.singleton(receivePair.getFirst());
     }
     return null;

@@ -268,4 +268,7 @@ public class MultiYieldCurveParRateMethodFunction extends MultiYieldCurveFunctio
         .with(PROPERTY_USE_FINITE_DIFFERENCE, useFiniteDifference).get();
   }
 
+  protected String getCalculationMethod() {
+    return PAR_RATE_STRING;
+  }
 }

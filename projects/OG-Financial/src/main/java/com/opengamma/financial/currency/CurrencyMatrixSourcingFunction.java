@@ -351,6 +351,7 @@ public class CurrencyMatrixSourcingFunction extends AbstractFunction.NonCompiled
       public Object visitValueRequirement(final CurrencyMatrixValueRequirement valueRequirement) {
         final Object marketValue = inputs.getValue(getSeriesConversionRequirement(valueRequirement));
         if (marketValue instanceof DoubleTimeSeries) {
+          //TODO is this branch ever reached?
           DoubleTimeSeries<?> fxRate = (DoubleTimeSeries<?>) marketValue;
           if (valueRequirement.isReciprocal()) {
             fxRate = fxRate.reciprocal();
@@ -363,7 +364,10 @@ public class CurrencyMatrixSourcingFunction extends AbstractFunction.NonCompiled
           }
           return fxRate;
         } else {
-          throw new IllegalArgumentException(valueRequirement.toString());
+          if (marketValue == null) {
+            throw new IllegalArgumentException("Null time series for " + valueRequirement.toString());
+          }
+          throw new IllegalArgumentException("Expected a time series for " + valueRequirement.toString() + ", got " + marketValue.getClass());
         }
       }
 

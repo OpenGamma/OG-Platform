@@ -848,6 +848,16 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
       return this;
     }
 
+    public Builder<T> equityIndexFutureOptionVisitor(final T value) {
+      _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
+        @Override
+        public T visitEquityIndexFutureOptionSecurity(final EquityIndexFutureOptionSecurity security) {
+          return value;
+        }
+      };
+      return this;
+    }
+
     public Builder<T> equityBarrierOptionVisitor(final T value) {
       _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
         @Override

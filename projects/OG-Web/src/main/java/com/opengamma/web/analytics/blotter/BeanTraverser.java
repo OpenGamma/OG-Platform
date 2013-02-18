@@ -28,6 +28,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 /* package */ class BeanTraverser {
 
+  /** Decorators that are applied to the visitor in the {@link #traverse} method. */
   private final List<BeanVisitorDecorator> _decorators;
 
   /* package */ BeanTraverser() {
@@ -50,15 +51,15 @@ import com.opengamma.util.ArgumentChecker;
         if (Bean.class.isAssignableFrom(propertyType)) {
           decoratedVisitor.visitBeanProperty(property, this);
         } else if (Set.class.isAssignableFrom(propertyType)) {
-          decoratedVisitor.visitSetProperty(property);
+          decoratedVisitor.visitSetProperty(property, this);
         } else if (List.class.isAssignableFrom(propertyType)) {
-          decoratedVisitor.visitListProperty(property);
+          decoratedVisitor.visitListProperty(property, this);
         } else if (Collection.class.isAssignableFrom(propertyType)) {
-          decoratedVisitor.visitCollectionProperty(property);
+          decoratedVisitor.visitCollectionProperty(property, this);
         } else if (Map.class.isAssignableFrom(propertyType)) {
-          decoratedVisitor.visitMapProperty(property);
+          decoratedVisitor.visitMapProperty(property, this);
         } else {
-          decoratedVisitor.visitProperty(property);
+          decoratedVisitor.visitProperty(property, this);
         }
       } catch (Exception e) {
         failures.add(new BeanTraversalFailure(e, property));
@@ -80,9 +81,14 @@ import com.opengamma.util.ArgumentChecker;
   }
 }
 
+/**
+ * Wraps a property and the exception that occurred when the traverser tried to visit the property.
+ */
 /* package */ class BeanTraversalFailure {
 
+  /** The exception triggered by the attempted visit. */
   private final Exception _exception;
+  /** The visited property. */
   private final MetaProperty<?> _property;
 
   /* package */ BeanTraversalFailure(Exception exception, MetaProperty<?> property) {
@@ -103,6 +109,10 @@ import com.opengamma.util.ArgumentChecker;
   }
 }
 
+/**
+ * Exception thrown after a bean traversal that threw exceptions. All exceptions thrown during traversal are added
+ * to this exception as {@link #addSuppressed suppressed} exceptions.
+ */
 /* package */ class BeanTraversalException extends OpenGammaRuntimeException {
 
   /* package */ BeanTraversalException(MetaBean metaBean, BeanVisitor<?> visitor, List<BeanTraversalFailure> failures) {

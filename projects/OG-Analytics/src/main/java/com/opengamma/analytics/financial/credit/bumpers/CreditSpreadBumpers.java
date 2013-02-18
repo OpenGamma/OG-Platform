@@ -5,7 +5,6 @@
  */
 package com.opengamma.analytics.financial.credit.bumpers;
 
-
 /**
  * Class containing utilities for bumping credit spread term structures by user defined methods and amounts
  */
@@ -49,12 +48,12 @@ public class CreditSpreadBumpers {
 
     // Calculate the bumped spreads
 
-    if (spreadBumpType == SpreadBumpType.ADDITIVE_PARALLEL) {
-      bumpedCreditSpreads[spreadTenorToBump] = marketSpreads[spreadTenorToBump] + spreadBump;
+    if (spreadBumpType == SpreadBumpType.ADDITIVE_BUCKETED) {
+      bumpedCreditSpreads[spreadTenorToBump] = bumpedCreditSpreads[spreadTenorToBump] + spreadBump;
     }
 
-    if (spreadBumpType == SpreadBumpType.MULTIPLICATIVE_PARALLEL) {
-      bumpedCreditSpreads[spreadTenorToBump] = marketSpreads[spreadTenorToBump] * (1 + spreadBump);
+    if (spreadBumpType == SpreadBumpType.MULTIPLICATIVE_BUCKETED) {
+      bumpedCreditSpreads[spreadTenorToBump] = bumpedCreditSpreads[spreadTenorToBump] * (1 + spreadBump);
     }
 
     return bumpedCreditSpreads;

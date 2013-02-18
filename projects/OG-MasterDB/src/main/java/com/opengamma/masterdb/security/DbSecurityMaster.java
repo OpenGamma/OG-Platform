@@ -426,7 +426,7 @@ public class DbSecurityMaster
   }
 
   @Override
-  public AbstractHistoryResult<SecurityDocument> historyByVersionsCorrections(AbstractHistoryRequest request) {
+  protected AbstractHistoryResult<SecurityDocument> historyByVersionsCorrections(AbstractHistoryRequest request) {
     SecurityHistoryRequest historyRequest = new SecurityHistoryRequest();
     historyRequest.setCorrectionsFromInstant(request.getCorrectionsFromInstant());
     historyRequest.setCorrectionsToInstant(request.getCorrectionsToInstant());
@@ -435,4 +435,5 @@ public class DbSecurityMaster
     historyRequest.setObjectId(request.getObjectId());
     return history(historyRequest);
   }
+
 }

@@ -29,6 +29,7 @@ public class FutureFunctions extends AbstractRepositoryConfigurationBean {
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
     functions.add(functionConfiguration(BondFuturePriceCurveFunction.class));
     functions.add(functionConfiguration(CommodityFuturePriceCurveFunction.class));
+    functions.add(functionConfiguration(EquityFuturePriceCurveFunction.class));
     functions.add(functionConfiguration(IRFuturePriceCurveFunction.class));
   }
 

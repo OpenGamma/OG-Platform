@@ -15,6 +15,7 @@ import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.id.ExternalIdBundle;
 
@@ -44,8 +45,16 @@ public class UnderlyingTypeToValueRequirementMapper {
         default:
           throw new NotImplementedException("Don't know how to get ValueRequirement for " + underlying);
       }
+    } else if (security instanceof EquitySecurity) {
+      final EquitySecurity equity = (EquitySecurity) security;
+      if (underlying == UnderlyingType.SPOT_PRICE) {
+        return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, equity.getUniqueId());
+      } else {
+        throw new NotImplementedException("Don't know how to get ValueRequirement for " + underlying); 
+      }
+    } else {   
+      throw new NotImplementedException("Can only get ValueRequirements for EquityOptionSecurity and EquitySecurity. Was " + security + ")");
     }
-    throw new NotImplementedException("Can only get ValueRequirements for options (was " + security + ")");
   }
 
 }

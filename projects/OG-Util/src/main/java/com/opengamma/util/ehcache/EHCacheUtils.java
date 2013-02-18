@@ -5,21 +5,26 @@
  */
 package com.opengamma.util.ehcache;
 
+import java.io.InputStream;
 import java.util.Collection;
+
+import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.util.ArgumentChecker;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 
-import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.util.ArgumentChecker;
-
 /**
  * Utilities for working with EHCache.
  */
 public final class EHCacheUtils {
 
+  /** The default Ehcache configuration file name */
+  private static final String DEFAULT_EHCACHE_CONFIG_FILE = "/com/opengamma/util/ehcache/default-ehcache.xml";
+
+  /** Null value to cache */
   private static final Object NULL = new Object();
 
   /**
@@ -29,21 +34,46 @@ public final class EHCacheUtils {
   }
 
   /**
-   * Creates a cache manager using the default configuration. This should be used only in a test environment; in other
-   * environments a properly configured cache manager should be injected.
+   * Creates/returns the singleton cache manager using the default configuration. This should be used only in a test
+   * environment; in other environments a properly configured cache manager should be injected.
    * <p>
-   * Beware that this returns a singleton cache manager instance, and certain operations may not be thread-safe or may interfere with concurrently-running tests.
-   * 
+   * Since Ehcache 2.5 multiple cache managers with the same name are not allowed, so parallel tests have to use the
+   * same default cache manager instance.
+   *
+   * (from Ehcache docs)
+   * With Ehcache 2.5.2 and higher, the behavior of the CacheManager creation methods is as follows:
+   *   CacheManager.newInstance(Configuration configuration) – Create a new CacheManager or return the existing one
+   *     named in the configuration.
+   *   CacheManager.create() – Create a new singleton CacheManager with default configuration, or return the existing
+   *     singleton. This is the same as CacheManager.getInstance().
+   *   CacheManager.create(Configuration configuration) – Create a singleton CacheManager with the passed-in
+   *     configuration, or return the existing singleton.
+   *   new CacheManager(Configuration configuration) – Create a new CacheManager, or throw an exception if the
+   *     CacheManager named in the configuration already exists or if the parameter (configuration) is null.
+   *
    * @return the cache manager, not null
    */
   public static CacheManager createCacheManager() {
     try {
-      return CacheManager.create();
+      return CacheManager.newInstance(getEhCacheConfig());
     } catch (CacheException ex) {
       throw new OpenGammaRuntimeException("Unable to create CacheManager", ex);
     }
   }
-  
+
+  public static synchronized InputStream getEhCacheConfig() {
+    String ehcacheConfigFile = DEFAULT_EHCACHE_CONFIG_FILE;
+    String overrideEhcacheConfigFile = System.getProperty("ehcache.config"); // passed in by Ant
+    if (overrideEhcacheConfigFile != null) {
+      ehcacheConfigFile = overrideEhcacheConfigFile;
+      System.err.println("Using ehcache.config from system property: " + ehcacheConfigFile);
+    } else {
+      System.err.println("Using default ehcache.config file name: " + ehcacheConfigFile);
+    }
+    return EHCacheUtils.class.getResourceAsStream(ehcacheConfigFile);
+  }
+
+
   /**
    * Clears the contents of all caches (without deleting the caches themselves). Should be called e.g. between tests.
    * 

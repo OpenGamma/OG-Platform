@@ -30,6 +30,7 @@ import com.opengamma.financial.security.forward.MetalForwardSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
+import com.opengamma.financial.security.future.DeliverableSwapFutureSecurity;
 import com.opengamma.financial.security.future.EnergyFutureSecurity;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
 import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
@@ -244,7 +245,7 @@ public class FinancialSecurityVisitorSameMethodAdapter<T> implements FinancialSe
   }
 
   @Override
-  public T visitFxFutureOptionSecurity(FxFutureOptionSecurity security) {
+  public T visitFxFutureOptionSecurity(final FxFutureOptionSecurity security) {
     return _value.visit(security);
   }
 
@@ -338,4 +339,8 @@ public class FinancialSecurityVisitorSameMethodAdapter<T> implements FinancialSe
     return _value.visit(security);
   }
 
+  @Override
+  public T visitDeliverableSwapFutureSecurity(final DeliverableSwapFutureSecurity security) {
+    return _value.visit(security);
+  }
 }

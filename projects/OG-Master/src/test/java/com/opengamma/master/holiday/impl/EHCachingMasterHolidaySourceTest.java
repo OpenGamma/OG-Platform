@@ -14,8 +14,6 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Collections;
 
-import net.sf.ehcache.CacheManager;
-
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -32,6 +30,8 @@ import com.opengamma.master.holiday.ManageableHoliday;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.money.Currency;
 
+import net.sf.ehcache.CacheManager;
+
 /**
  * Test.
  */
@@ -47,19 +47,19 @@ public class EHCachingMasterHolidaySourceTest {
 
   private HolidayMaster _underlyingHolidayMaster = null;
   private EHCachingMasterHolidaySource _cachingHolidaySource = null;
-  private CacheManager _cacheManager;
+  private CacheManager _cacheManager = EHCacheUtils.createCacheManager();
 
   @BeforeMethod
   public void setUp() {
-    _cacheManager = new CacheManager();
+//    _cacheManager = EHCacheUtils.createCacheManager();
     _underlyingHolidayMaster = mock(HolidayMaster.class);
-    EHCacheUtils.clear(_cacheManager, EHCachingMasterHolidaySource.HOLIDAY_CACHE);
     _cachingHolidaySource = new EHCachingMasterHolidaySource(_underlyingHolidayMaster, _cacheManager);
   }
 
   @AfterMethod
   public void tearDown() {
-    _cacheManager = EHCacheUtils.shutdownQuiet(_cacheManager);
+//    _cacheManager = EHCacheUtils.shutdownQuiet(_cacheManager);
+    EHCacheUtils.clear(_cacheManager, EHCachingMasterHolidaySource.HOLIDAY_CACHE);
   }
 
   //-------------------------------------------------------------------------

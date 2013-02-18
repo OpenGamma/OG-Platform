@@ -39,7 +39,7 @@
     "timeseries": {
         "fieldLabels": ["Time", "Value"],
         "data": [
-        	<#list timeseries.timeSeries.toZonedDateTimeDoubleTimeSeries().iterator() as item>[${item.key.toInstant().toEpochMillisLong()?c},${item.value?c}]<#if item_has_next>,</#if></#list>
+        	<#list timeseries.timeSeries.toZonedDateTimeDoubleTimeSeries().iterator() as item>[${item.key.toInstant().toEpochMilli()?c},${item.value?c}]<#if item_has_next>,</#if></#list>
         ]
     }
 }

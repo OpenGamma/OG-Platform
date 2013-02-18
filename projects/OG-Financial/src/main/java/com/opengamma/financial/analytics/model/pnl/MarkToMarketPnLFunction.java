@@ -91,7 +91,7 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
   @Override
   public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
 
-    final Security security = target.getTrade().getSecurity();
+    final Security security = target.getPositionOrTrade().getSecurity();
     if (FXUtils.isFXSecurity(security)) {
       return false;
     }
@@ -100,7 +100,7 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
   
   @Override
   public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
-    final Security security = target.getTrade().getSecurity();
+    final Security security = target.getPositionOrTrade().getSecurity();
     
     // 1. Get inputs
     Double livePrice = null;
@@ -122,7 +122,7 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
         } else if (_closingPriceField.equals(field)) {
           // Get most recent closing price before today 
           // By intention, this will not be today's close even if it's available  
-          // TODO Review - Note that this may be stale, as we take latest value. Illiquid securities do not trade each day..
+          // TODO Review - Note that this may be stale, if time series aren't updated nightly, as we take latest value. Illiquid securities do not trade each day..
           Object value = input.getValue();
           if (value == null) {
             throw new NullPointerException("Did not satisfy time series latest requirement," + _closingPriceField + ", for security, " + security.getExternalIdBundle());
@@ -142,7 +142,7 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
    
     // 2. Scale by Trade Notionals and Quantity 
     
-    // Some SecurityType have Notional values built-in. Scale by these if required.
+    // Some SecurityType's have Notional values built-in. Scale by these if required.
     if (security instanceof FutureSecurity) {
       final FutureSecurity futureSecurity = (FutureSecurity) security;
       dailyValueMove = dailyValueMove * futureSecurity.getUnitAmount();
@@ -202,7 +202,7 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
   public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
     
     // Security's Market Value. We scale up by Notionals and Quantities during execute()
-    final Security security = target.getTrade().getSecurity();
+    final Security security = target.getPositionOrTrade().getSecurity();
     final ValueRequirement securityValue = new ValueRequirement(s_valReqPriceLive, ComputationTargetType.SECURITY, security.getUniqueId());
     final Set<ValueRequirement> requirements = Sets.newHashSet(securityValue);
     // TimeSeries - Closing prices and Cost of Carry
@@ -274,7 +274,7 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
   
   protected ValueProperties.Builder createValueProperties(final ComputationTarget target) {
     final ValueProperties.Builder properties = createValueProperties();
-    final Currency ccy = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity());
+    final Currency ccy = FinancialSecurityUtils.getCurrency(target.getPositionOrTrade().getSecurity());
     if (ccy != null) {
       properties.with(ValuePropertyNames.CURRENCY, ccy.getCode());
     }

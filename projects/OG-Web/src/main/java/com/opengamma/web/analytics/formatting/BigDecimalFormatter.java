@@ -60,6 +60,7 @@ import com.opengamma.web.server.conversion.DoubleValueSizeBasedDecimalPlaceForma
     // PnL
     s_formatters.put(ValueRequirementNames.PNL, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
     s_formatters.put(ValueRequirementNames.DAILY_PNL, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
+    s_formatters.put(ValueRequirementNames.MTM_PNL, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
 
     // Greeks
     s_formatters.put(ValueRequirementNames.DELTA, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);

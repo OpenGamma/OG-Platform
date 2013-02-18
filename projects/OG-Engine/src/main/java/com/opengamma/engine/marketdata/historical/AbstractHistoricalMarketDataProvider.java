@@ -27,6 +27,7 @@ import com.opengamma.engine.marketdata.PermissiveMarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.spec.HistoricalMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.ExternalIdBundle;
@@ -37,9 +38,9 @@ import com.opengamma.util.tuple.Pair;
  * Market data provider that sources data from historical time-series.
  */
 public abstract class AbstractHistoricalMarketDataProvider extends AbstractMarketDataProvider implements MarketDataAvailabilityProvider, MarketDataTargetResolver {
-  
+
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractHistoricalMarketDataProvider.class);
-  
+
   private final HistoricalTimeSeriesSource _historicalTimeSeriesSource;
   private final String _timeSeriesResolverKey;
   private final MarketDataPermissionProvider _permissionProvider;
@@ -48,14 +49,14 @@ public abstract class AbstractHistoricalMarketDataProvider extends AbstractMarke
 
   /**
    * Creates a new market data provider.
-   * 
+   *
    * @param historicalTimeSeriesSource  the underlying source of historical data, not null
    * @param securitySource  the source of securities, not null
    * @param timeSeriesResolverKey  the source resolver key, or null to use the source default
    */
-  public AbstractHistoricalMarketDataProvider(HistoricalTimeSeriesSource historicalTimeSeriesSource,
-                                              SecuritySource securitySource,
-                                              String timeSeriesResolverKey) {
+  public AbstractHistoricalMarketDataProvider(final HistoricalTimeSeriesSource historicalTimeSeriesSource,
+                                              final SecuritySource securitySource,
+                                              final String timeSeriesResolverKey) {
     ArgumentChecker.notNull(historicalTimeSeriesSource, "historicalTimeSeriesSource");
     ArgumentChecker.notNull(securitySource, "securitySource");
     _historicalTimeSeriesSource = historicalTimeSeriesSource;
@@ -63,21 +64,21 @@ public abstract class AbstractHistoricalMarketDataProvider extends AbstractMarke
     _permissionProvider = new PermissiveMarketDataPermissionProvider();
     _externalIdLookup = new ExternalIdBundleLookup(securitySource);
   }
-  
+
   public AbstractHistoricalMarketDataProvider(final HistoricalTimeSeriesSource historicalTimeSeriesSource, final SecuritySource securitySource) {
     this(historicalTimeSeriesSource, securitySource, null);
   }
 
   @Override
-  public void subscribe(ValueRequirement valueRequirement) {
+  public void subscribe(final ValueRequirement valueRequirement) {
     subscribe(Collections.singleton(valueRequirement));
   }
 
   @Override
-  public void subscribe(Set<ValueRequirement> valueRequirements) {
+  public void subscribe(final Set<ValueRequirement> valueRequirements) {
     synchronized (_subscriptionIdBundleMap) {
-      for (ValueRequirement requirement : valueRequirements) {
-        Pair<ExternalIdBundle, Integer> existing = _subscriptionIdBundleMap.get(requirement);
+      for (final ValueRequirement requirement : valueRequirements) {
+        final Pair<ExternalIdBundle, Integer> existing = _subscriptionIdBundleMap.get(requirement);
         if (existing != null) {
           _subscriptionIdBundleMap.put(requirement, Pair.of(existing.getFirst(), existing.getSecond() + 1));
         } else {
@@ -88,17 +89,17 @@ public abstract class AbstractHistoricalMarketDataProvider extends AbstractMarke
     s_logger.debug("Added subscriptions to {}", valueRequirements);
     subscriptionSucceeded(valueRequirements);
   }
-  
+
   @Override
-  public void unsubscribe(ValueRequirement valueRequirement) {
+  public void unsubscribe(final ValueRequirement valueRequirement) {
     unsubscribe(Collections.singleton(valueRequirement));
   }
 
   @Override
-  public void unsubscribe(Set<ValueRequirement> valueRequirements) {
+  public void unsubscribe(final Set<ValueRequirement> valueRequirements) {
     synchronized (_subscriptionIdBundleMap) {
-      for (ValueRequirement requirement : valueRequirements) {
-        Pair<ExternalIdBundle, Integer> existing = _subscriptionIdBundleMap.get(requirement);
+      for (final ValueRequirement requirement : valueRequirements) {
+        final Pair<ExternalIdBundle, Integer> existing = _subscriptionIdBundleMap.get(requirement);
         if (existing == null) {
           s_logger.warn("Attempted to unsubscribe from {} for which no subscription exists", requirement);
           continue;
@@ -112,7 +113,7 @@ public abstract class AbstractHistoricalMarketDataProvider extends AbstractMarke
     }
     s_logger.debug("Removed subscriptions from {}", valueRequirements);
   }
-  
+
   //-------------------------------------------------------------------------
   @Override
   public MarketDataAvailabilityProvider getAvailabilityProvider() {
@@ -126,11 +127,11 @@ public abstract class AbstractHistoricalMarketDataProvider extends AbstractMarke
 
   //-------------------------------------------------------------------------
   @Override
-  public boolean isCompatible(MarketDataSpecification marketDataSpec) {
+  public boolean isCompatible(final MarketDataSpecification marketDataSpec) {
     if (!(marketDataSpec instanceof HistoricalMarketDataSpecification)) {
       return false;
     }
-    HistoricalMarketDataSpecification historicalSpec = (HistoricalMarketDataSpecification) marketDataSpec;
+    final HistoricalMarketDataSpecification historicalSpec = (HistoricalMarketDataSpecification) marketDataSpec;
     return ObjectUtils.equals(_timeSeriesResolverKey, historicalSpec.getTimeSeriesResolverKey());
   }
 
@@ -149,13 +150,17 @@ public abstract class AbstractHistoricalMarketDataProvider extends AbstractMarke
       }
       return null;
     } else {
-      return MarketDataUtils.createMarketDataValue(requirement, hts.getUniqueId());
+      // [PLAT-3044] Using hts.getUniqueId means the consuming functions can't find the value correctly
+      return MarketDataUtils.createMarketDataValue(requirement, MarketDataUtils.DEFAULT_EXTERNAL_ID/*hts.getUniqueId()*/);
     }
   }
 
   @Override
   public ExternalIdBundle getExternalIdBundle(final ValueRequirement requirement) {
-    Pair<ExternalIdBundle, Integer> existingSubscription = _subscriptionIdBundleMap.get(requirement);
+    if (ComputationTargetType.NULL.equals(requirement.getTargetReference().getType())) {
+      return null;
+    }
+    final Pair<ExternalIdBundle, Integer> existingSubscription = _subscriptionIdBundleMap.get(requirement);
     if (existingSubscription != null) {
       return existingSubscription.getFirst();
     }
@@ -165,7 +170,7 @@ public abstract class AbstractHistoricalMarketDataProvider extends AbstractMarke
   protected HistoricalTimeSeriesSource getTimeSeriesSource() {
     return _historicalTimeSeriesSource;
   }
-  
+
   protected ExternalIdBundleLookup getExternalIdBundleLookup() {
     return _externalIdLookup;
   }
@@ -173,5 +178,5 @@ public abstract class AbstractHistoricalMarketDataProvider extends AbstractMarke
   public String getTimeSeriesResolverKey() {
     return _timeSeriesResolverKey;
   }
-  
+
 }

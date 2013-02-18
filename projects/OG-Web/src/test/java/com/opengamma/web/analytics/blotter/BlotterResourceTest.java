@@ -25,7 +25,7 @@ import com.opengamma.master.security.ManageableSecurity;
 
 public class BlotterResourceTest {
 
-  private final StringConvert _stringConvert = BlotterResource.getStringConvert();
+  private final StringConvert _stringConvert = BlotterUtils.getStringConvert();
   
   @Test
   public void isSecurity() {

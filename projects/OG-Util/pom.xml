@@ -51,6 +51,10 @@
       <artifactId>fudge-java</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.threeten</groupId>
+      <artifactId>threetenbp</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.apache.httpcomponents</groupId>
       <artifactId>httpclient</artifactId>
     </dependency>

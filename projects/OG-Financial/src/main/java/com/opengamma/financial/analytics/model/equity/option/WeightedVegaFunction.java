@@ -113,7 +113,6 @@ public class WeightedVegaFunction extends AbstractFunction.NonCompiledInvoker {
   }
 
   @Override
-  // TODO What does it imply to call createValueProperties()? Is this the ALL that Elaine talked about?
   public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
     return Collections.singleton(new ValueSpecification(getValueRequirementName(), target.toSpecification(), ValueProperties.all()));
   }

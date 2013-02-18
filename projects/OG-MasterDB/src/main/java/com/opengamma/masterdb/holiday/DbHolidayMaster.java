@@ -360,7 +360,7 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
   }
 
   @Override
-  public AbstractHistoryResult<HolidayDocument> historyByVersionsCorrections(AbstractHistoryRequest request) {
+  protected AbstractHistoryResult<HolidayDocument> historyByVersionsCorrections(AbstractHistoryRequest request) {
     HolidayHistoryRequest historyRequest = new HolidayHistoryRequest();
     historyRequest.setCorrectionsFromInstant(request.getCorrectionsFromInstant());
     historyRequest.setCorrectionsToInstant(request.getCorrectionsToInstant());
@@ -369,4 +369,5 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
     historyRequest.setObjectId(request.getObjectId());
     return history(historyRequest);
   }
+
 }

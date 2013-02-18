@@ -10,10 +10,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Element;
-
 import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +33,10 @@ import com.opengamma.util.timeseries.localdate.ListLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
+
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Element;
 
 /**
  * A cache decorating a {@code HistoricalTimeSeriesSource}.
@@ -744,6 +744,14 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
     } else {
       return (ExternalIdBundle) idBundleCacheElement.getObjectValue();
     }
+  }
+
+  /**
+   * Call this at the end of a unit test run to clear the state of EHCache. It should not be part of a generic lifecycle method.
+   */
+  protected void shutdown() {
+    _dataCache.getCacheManager().removeCache(DATA_CACHE_NAME);
+    _identifierBundleCache.getCacheManager().removeCache(ID_BUNDLE_CACHE_NAME);
   }
 
 }

@@ -13,7 +13,7 @@
     box-shadow: 3px 3px 3px #ebebeb;
     -moz-box-shadow: 3px 3px 3px #ebebeb;
     -webkit-box-shadow: 3px 3px 3px #ebebeb;
-    height:275px;
+    height:100%;
 }
 .OG-analytics-inplace .ui-layout-header:after,
 .OG-analytics-inplace .ui-layout-header {

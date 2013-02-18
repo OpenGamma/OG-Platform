@@ -23,6 +23,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 /* package */ class JsonBeanDataSource implements BeanDataSource {
 
+  /** The underlying data. */
   private final JSONObject _json;
 
   /* package */ JsonBeanDataSource(JSONObject json) {
@@ -39,51 +40,58 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public String getValue(String propertyName) {
-    Object value = _json.opt(propertyName);
-    if (isNull(value)) {
-      return null;
-    }
-    if (!(value instanceof String)) {
-      throw new IllegalArgumentException("Value " + value + " of property " + propertyName + " is not a string");
-    }
-    return (String) value;
+  public Object getValue(String propertyName) {
+    return createValue(_json.opt(propertyName));
   }
 
   @Override
-  public List<String> getCollectionValues(String propertyName) {
+  public List<Object> getCollectionValues(String propertyName) {
     JSONArray array = _json.optJSONArray(propertyName);
-    if (isNull(array)) {
-      return null;
-    }
-    List<String> strings = Lists.newArrayListWithCapacity(array.length());
-    for (int i = 0; i < array.length(); i++) {
-      strings.add((String) array.opt(i));
-    }
-    return strings;
+    return createCollection(array);
   }
 
+  // TODO this won't cope with maps with beans as keys or values. need to fix
   @Override
-  public Map<String, String> getMapValues(String propertyName) {
+  public Map<?, ?> getMapValues(String propertyName) {
     JSONObject jsonObject = _json.optJSONObject(propertyName);
     if (isNull(jsonObject)) {
       return null;
     }
-    Map<String, String> map = Maps.newHashMap();
+    Map<String, Object> map = Maps.newHashMap();
     for (Iterator it = jsonObject.keys(); it.hasNext(); ) {
       String key = (String) it.next();
-      map.put(key, (String) jsonObject.opt(key));
+      map.put(key, jsonObject.opt(key));
     }
     return map;
   }
 
-  @Override
-  public BeanDataSource getBeanData(String propertyName) {
-    JSONObject json = _json.optJSONObject(propertyName);
-    if (isNull(json)) {
+  private static Object createValue(Object object) {
+    if (isNull(object)) {
+      return null;
+    } else if (object instanceof JSONObject) {
+      return new JsonBeanDataSource((JSONObject) object);
+    } else if (object instanceof JSONArray) {
+      return createCollection((JSONArray) object);
+    } else {
+      return object;
+    }
+  }
+
+  private static List<Object> createCollection(JSONArray array) {
+    if (isNull(array)) {
       return null;
     }
-    return new JsonBeanDataSource(json);
+    List<Object> items = Lists.newArrayList();
+    for (int i = 0; i < array.length(); i++) {
+      Object item;
+      try {
+        item = array.get(i);
+      } catch (JSONException e) {
+        return null;
+      }
+      items.add(createValue(item));
+    }
+    return items;
   }
 
   @Override

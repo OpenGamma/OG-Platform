@@ -10,7 +10,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.testng.AssertJUnit.assertSame;
-import net.sf.ehcache.CacheManager;
 
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -22,6 +21,8 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ehcache.EHCacheUtils;
+
+import net.sf.ehcache.CacheManager;
 
 /**
  * Test {@link EHCachingHolidaySource}.
@@ -35,18 +36,17 @@ public class EHCachingHolidaySourceTest {
 
   private HolidaySource _underlyingSource;
   private EHCachingHolidaySource _cachingSource;
-  private CacheManager _cacheManager;
 
   @BeforeMethod
   public void setUp() {
-    _cacheManager = new CacheManager();
+    CacheManager cacheManager = EHCacheUtils.createCacheManager();
     _underlyingSource = mock(HolidaySource.class);
-    _cachingSource = new EHCachingHolidaySource(_underlyingSource, _cacheManager);
+    _cachingSource = new EHCachingHolidaySource(_underlyingSource, cacheManager);
   }
 
   @AfterMethod
   public void tearDown() {
-    _cacheManager = EHCacheUtils.shutdownQuiet(_cacheManager);
+    _cachingSource.shutdown();
   }
 
   //-------------------------------------------------------------------------

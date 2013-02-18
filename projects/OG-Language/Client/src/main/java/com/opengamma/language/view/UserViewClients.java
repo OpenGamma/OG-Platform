@@ -62,8 +62,9 @@ public class UserViewClients extends ViewClients<ViewClientKey, UserContext> {
           if (existing == null) {
             return new AttachedViewClientHandle(this, client);
           }
+          client.destroy();
           client = existing;
-        } catch (Exception e) {
+        } catch (final Exception e) {
           viewClient.shutdown();
           throw new OpenGammaRuntimeException("Error initialising new view client", e);
         }

@@ -10,6 +10,7 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import it.unimi.dsi.fastutil.objects.Object2LongMap;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -18,9 +19,11 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * A filter to determine whether given values are to go into a private or shared cache. 
+ * A filter to determine whether given values are to go into a private or shared cache.
  */
-public final class CacheSelectHint implements IdentifierEncodedValueSpecifications {
+public final class CacheSelectHint implements IdentifierEncodedValueSpecifications, Serializable {
+
+  private static final long serialVersionUID = 1L;
 
   private static final CacheSelectHint ALL_SHARED_INSTANCE = new CacheSelectHint(null, null, true);
   private static final CacheSelectHint ALL_PRIVATE_INSTANCE = new CacheSelectHint(null, null, false);
@@ -62,7 +65,7 @@ public final class CacheSelectHint implements IdentifierEncodedValueSpecificatio
     if (_valueIdentifiers == null) {
       _valueIdentifiers = new long[_valueSpecifications.size()];
       int i = 0;
-      for (ValueSpecification specification : _valueSpecifications) {
+      for (final ValueSpecification specification : _valueSpecifications) {
         _valueIdentifiers[i++] = valueSpecifications.getLong(specification);
       }
     }
@@ -76,7 +79,7 @@ public final class CacheSelectHint implements IdentifierEncodedValueSpecificatio
   @Override
   public void convertIdentifiers(final Long2ObjectMap<ValueSpecification> identifiers) {
     if (_valueSpecifications.isEmpty()) {
-      for (long identifier : _valueIdentifiers) {
+      for (final long identifier : _valueIdentifiers) {
         _valueSpecifications.add(identifiers.get(identifier));
       }
     }
@@ -84,7 +87,7 @@ public final class CacheSelectHint implements IdentifierEncodedValueSpecificatio
 
   @Override
   public void collectIdentifiers(final LongSet identifiers) {
-    for (long identifier : _valueIdentifiers) {
+    for (final long identifier : _valueIdentifiers) {
       identifiers.add(identifier);
     }
   }
@@ -99,6 +102,7 @@ public final class CacheSelectHint implements IdentifierEncodedValueSpecificatio
 
   /**
    * Gets the valueIdentifiers field.
+   * 
    * @return the valueIdentifiers
    */
   public long[] getValueIdentifiers() {
@@ -107,13 +111,14 @@ public final class CacheSelectHint implements IdentifierEncodedValueSpecificatio
 
   /**
    * Gets the isPrivate field.
+   * 
    * @return the isPrivate
    */
   public boolean isPrivate() {
     return _isPrivate;
   }
 
-  public static CacheSelectHint create(long[] valueIdentifiers, boolean isPrivate) {
+  public static CacheSelectHint create(final long[] valueIdentifiers, final boolean isPrivate) {
     return new CacheSelectHint(null, valueIdentifiers, isPrivate);
   }
 
@@ -128,7 +133,7 @@ public final class CacheSelectHint implements IdentifierEncodedValueSpecificatio
     if (!_valueSpecifications.isEmpty()) {
       sb.append(" except for [");
       boolean comma = false;
-      for (ValueSpecification v : _valueSpecifications) {
+      for (final ValueSpecification v : _valueSpecifications) {
         if (comma) {
           sb.append(", ");
         } else {

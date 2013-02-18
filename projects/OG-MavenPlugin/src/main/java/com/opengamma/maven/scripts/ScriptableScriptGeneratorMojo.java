@@ -126,7 +126,7 @@ public class ScriptableScriptGeneratorMojo extends AbstractMojo {
         getLog().warn("No template for scriptable class " + className);
         continue;
       }
-      ScriptsGenerator.generate(className, _outputDir, template, templateData, SystemUtils.IS_OS_WINDOWS);
+      ScriptsGenerator.generate(className, _outputDir, template, templateData, false);
     }
     
     if (_additionalScripts != null) {

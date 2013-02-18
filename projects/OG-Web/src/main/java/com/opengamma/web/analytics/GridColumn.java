@@ -16,10 +16,15 @@ import com.opengamma.util.ArgumentChecker;
  */
 /* package */ class GridColumn {
 
+  /** The column header. */
   private final String _header;
+  /** Description of the column. */
   private final String _description;
+  /** Type of data displayed in the column, null if unknown or if different rows contain different types. */
   private final Class<?> _type;
+  /** Converts cell data to strings or objects for display in the client. */
   private final CellRenderer _renderer;
+  /** Specifies the analytics data displayed in the column, null if the column data doesn't come from the engine. */
   private final ColumnSpecification _columnSpec;
 
   /* package */ GridColumn(String header, String description, Class<?> type, CellRenderer renderer) {
@@ -45,18 +50,16 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   /**
-   * Factory method that creates a column for a key based requirement and calculation configutation and a column type.
-   *
-   *
-   * @param columnSpec
+   * Factory method that creates a column for a column specification, calculation configutation and data type.
+   * @param columnSpec The column specification
    * @param columnType Type of data displayed in the column
    * @return A column for displaying data calculated for the requirement and calculation configuration
    */
-  /* package */ static GridColumn forKey(ColumnSpecification columnSpec,
-                                         Class<?> columnType,
-                                         TargetLookup targetLookup) {
+  /* package */ static GridColumn forSpec(ColumnSpecification columnSpec,
+                                          Class<?> columnType,
+                                          TargetLookup targetLookup) {
     CellRenderer renderer = new AnalyticsRenderer(columnSpec, targetLookup);
-    return new GridColumn(createHeader(columnSpec),
+    return new GridColumn(columnSpec.getValueName(),
                           createDescription(columnSpec.getValueProperties()),
                           columnType,
                           renderer,
@@ -93,17 +96,6 @@ import com.opengamma.util.ArgumentChecker;
 
   /* package */ ResultsCell getResults(int rowIndex, ResultsCache cache) {
     return _renderer.getResults(rowIndex, cache, _type);
-  }
-
-  private static String createHeader(ColumnSpecification columnKey) {
-    String header;
-    String normalizedConfigName = columnKey.getCalcConfigName().toLowerCase().trim();
-    if ("default".equals(normalizedConfigName) || "portfolio".equals(normalizedConfigName)) {
-      header = columnKey.getValueName();
-    } else {
-      header = columnKey.getCalcConfigName() + "/" + columnKey.getValueName();
-    }
-    return header;
   }
 
   private static String createDescription(ValueProperties constraints) {

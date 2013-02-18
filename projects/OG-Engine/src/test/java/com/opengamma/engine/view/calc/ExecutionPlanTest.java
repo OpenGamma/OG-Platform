@@ -9,7 +9,12 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Future;
@@ -101,11 +106,7 @@ public class ExecutionPlanTest {
   }
 
   /**
-   * Creates a graph:
-   * 
-   *       N3 N4
-   *       | \ |
-   *       N1 N2
+   * Creates a graph: N3 N4 | \ | N1 N2
    */
   private DependencyGraph createDependencyGraph() {
     final DependencyGraph graph = new DependencyGraph("Default");
@@ -136,7 +137,7 @@ public class ExecutionPlanTest {
     when(logModeSource.getLogMode(any(DependencyNode.class))).thenReturn(ExecutionLogMode.INDICATORS);
     return logModeSource;
   }
-  
+
   private MutableGraphFragmentContext createMutableGraphFragmentContext() {
     final MutableGraphFragmentContext context = new MutableGraphFragmentContext(createExecutor(), createDependencyGraph(), new LinkedBlockingQueue<ExecutionResult>(), createLogModeSource());
     return context;
@@ -159,6 +160,7 @@ public class ExecutionPlanTest {
     final GraphFragmentContext context = createGraphFragmentContext();
     final Future<?> future = plan.run(context, createStatisticsGatherer());
     assertEquals(future.get(Timeout.standardTimeoutMillis(), TimeUnit.MILLISECONDS), context.getGraph());
+    testSerialization(plan);
   }
 
   public void testMultipleFragments() throws Exception {
@@ -184,6 +186,19 @@ public class ExecutionPlanTest {
     final GraphFragmentContext context = createGraphFragmentContext();
     final Future<?> future = plan.run(context, createStatisticsGatherer());
     assertEquals(future.get(Timeout.standardTimeoutMillis(), TimeUnit.MILLISECONDS), context.getGraph());
+    testSerialization(plan);
+  }
+
+  private void testSerialization(final ExecutionPlan plan) throws Exception {
+    final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    final ObjectOutputStream oos = new ObjectOutputStream(baos);
+    oos.writeObject(plan);
+    final ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+    final ObjectInputStream ois = new ObjectInputStream(bais);
+    final ExecutionPlan in = (ExecutionPlan) ois.readObject();
+    // There aren't any proper comparison methods to use
+    assertTrue(in.isTestEqual(plan));
+    assertTrue(plan.isTestEqual(in));
   }
 
 }
