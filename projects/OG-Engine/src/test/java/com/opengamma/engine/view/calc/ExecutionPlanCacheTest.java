@@ -10,8 +10,14 @@ import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.Map;
 import java.util.concurrent.Future;
+
+import net.sf.ehcache.CacheManager;
 
 import org.testng.annotations.Test;
 
@@ -31,15 +37,13 @@ import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ehcache.EHCacheUtils;
 
-import net.sf.ehcache.CacheManager;
-
 /**
  * Test.
  */
 @Test
 public class ExecutionPlanCacheTest {
 
-  private CacheManager _cacheManager = EHCacheUtils.createCacheManager();
+  private final CacheManager _cacheManager = EHCacheUtils.createCacheManager();
 
   //-------------------------------------------------------------------------
   public void testDependencyNodeKey_same() {
@@ -202,17 +206,36 @@ public class ExecutionPlanCacheTest {
     assertFalse(bk.equals(ak));
   }
 
+  public void testDependencyGraphKey_serialization() throws Exception {
+    final DependencyGraphKey a = new DependencyGraphKey(createDependencyGraph(), 0);
+    final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    final ObjectOutputStream oos = new ObjectOutputStream(baos);
+    oos.writeObject(a);
+    final ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(baos.toByteArray()));
+    final DependencyGraphKey b = (DependencyGraphKey) ois.readObject();
+    assertEquals(b, a);
+  }
+
   private ExecutionPlan createExecutionPlan() {
     return new ExecutionPlan() {
+
+      private static final long serialVersionUID = 1L;
+
       @Override
-      public Future<DependencyGraph> run(GraphFragmentContext context, GraphExecutorStatisticsGatherer statistics) {
+      public Future<DependencyGraph> run(final GraphFragmentContext context, final GraphExecutorStatisticsGatherer statistics) {
         return null;
       }
 
       @Override
-      public ExecutionPlan withNodes(Map<DependencyNodeKey, DependencyNode> nodes) {
+      public ExecutionPlan withNodes(final Map<DependencyNodeKey, DependencyNode> nodes) {
         return this;
       }
+
+      @Override
+      /* package */boolean isTestEqual(final ExecutionPlan plan) {
+        return plan == this;
+      }
+
     };
   }
 

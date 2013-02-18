@@ -23,12 +23,16 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * Converts equity index options and equity options into something that OG-Analytics can use
+ * Converts equity index options, equity options and equity index future options into something that OG-Analytics can use.
  */
-public class EquityIndexOptionConverter extends FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> {
+public class EquityOptionsConverter extends FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> {
+  /** Source for conventions */
   private final ConventionBundleSource _conventionSource;
 
-  public EquityIndexOptionConverter(final ConventionBundleSource conventionSource) {
+  /**
+   * @param conventionSource The convention source, not null
+   */
+  public EquityOptionsConverter(final ConventionBundleSource conventionSource) {
     ArgumentChecker.notNull(conventionSource, "convention source");
     _conventionSource = conventionSource;
   }
@@ -49,7 +53,6 @@ public class EquityIndexOptionConverter extends FinancialSecurityVisitorAdapter<
     return new EquityIndexOptionDefinition(isCall, strike, ccy, exerciseType, expiryDT, settlementDate, unitNotional, SettlementType.CASH);
   }
 
-  //TODO this should call into a specific type
   @Override
   public InstrumentDefinition<?> visitEquityOptionSecurity(final EquityOptionSecurity security) {
     ArgumentChecker.notNull(security, "security");
@@ -65,6 +68,11 @@ public class EquityIndexOptionConverter extends FinancialSecurityVisitorAdapter<
     //TODO settlement type needs to come from trade or convention
     return new EquityOptionDefinition(isCall, strike, ccy, exerciseType, expiryDT, settlementDate, unitNotional, SettlementType.PHYSICAL);
   }
+
+//  @Override
+//  public InstrumentDefinition<?> visitEquityIndexFutureOptionSecurity(final EquityIndexFutureOptionSecurity security) {
+//    ArgumentChecker.notNull(security, "security");
+//  }
 }
 
 

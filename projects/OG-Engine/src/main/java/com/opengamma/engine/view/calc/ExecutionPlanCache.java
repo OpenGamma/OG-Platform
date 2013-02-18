@@ -5,9 +5,16 @@
  */
 package com.opengamma.engine.view.calc;
 
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Element;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,13 +28,8 @@ import com.opengamma.engine.function.FunctionParameters;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ehcache.EHCacheUtils;
 
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Element;
-
 /**
- * Caches meta data taken from a graph fragment graph sufficient to construct a fragment
- * graph quickly for a recently processed graph.
+ * Caches meta data taken from a graph fragment graph sufficient to construct a fragment graph quickly for a recently processed graph.
  */
 /* package */class ExecutionPlanCache {
 
@@ -36,11 +38,12 @@ import net.sf.ehcache.Element;
   private static final String CACHE_NAME = "executionPlans";
 
   /**
-   * Tests two dependency nodes for equality. Two nodes are the same if they
-   * are for the same parameterized function on the same target, taking the same input
-   * values and producing the same output values.
+   * Tests two dependency nodes for equality. Two nodes are the same if they are for the same parameterized function on the same target, taking the same input values and producing the same output
+   * values.
    */
-  protected static final class DependencyNodeKey {
+  protected static final class DependencyNodeKey implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private final ComputationTargetSpecification _target;
     private final String _functionId;
@@ -85,22 +88,23 @@ import net.sf.ehcache.Element;
   }
 
   /**
-   * Tests if two dependency graphs are the same. Graphs are the same if they produce the
-   * same terminal outputs and contain nodes which apply the same parameterized functions
-   * to the same target with the same input values and produce the same output values.  
+   * Tests if two dependency graphs are the same. Graphs are the same if they produce the same terminal outputs and contain nodes which apply the same parameterized functions to the same target with
+   * the same input values and produce the same output values.
    */
-  protected static final class DependencyGraphKey {
+  protected static final class DependencyGraphKey implements Serializable {
 
-    private final long _functionInitId;
-    private final Set<ValueSpecification> _terminals;
-    private final Map<DependencyNodeKey, DependencyNode> _nodes;
+    private static final long serialVersionUID = 1L;
+
+    private long _functionInitId;
+    private Set<ValueSpecification> _terminals;
+    private Map<DependencyNodeKey, DependencyNode> _nodes;
 
     public DependencyGraphKey(final DependencyGraph graph, final long functionInitId) {
       _functionInitId = functionInitId;
       _terminals = new HashSet<ValueSpecification>(graph.getTerminalOutputSpecifications());
       final Set<DependencyNode> nodes = graph.getDependencyNodes();
       _nodes = Maps.newHashMapWithExpectedSize(nodes.size());
-      for (DependencyNode node : nodes) {
+      for (final DependencyNode node : nodes) {
         _nodes.put(new DependencyNodeKey(node), node);
       }
     }
@@ -136,22 +140,40 @@ import net.sf.ehcache.Element;
       return _nodes;
     }
 
+    private void writeObject(final ObjectOutputStream out) throws Exception {
+      out.writeLong(_functionInitId);
+      out.writeObject(_terminals);
+      out.writeInt(_nodes.size());
+      for (final DependencyNodeKey key : _nodes.keySet()) {
+        out.writeObject(key);
+      }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void readObject(final ObjectInputStream in) throws Exception {
+      _functionInitId = in.readLong();
+      _terminals = (Set<ValueSpecification>) in.readObject();
+      final int nodes = in.readInt();
+      _nodes = Maps.newHashMapWithExpectedSize(nodes);
+      for (int i = 0; i < nodes; i++) {
+        _nodes.put((DependencyNodeKey) in.readObject(), null);
+      }
+    }
+
   }
 
   private final Cache _cache;
 
   /**
-   * Building the "key" object can be costly. If the graph is still in memory, then we can keep a previous key
-   * around. The current behavior of view processes and executors is that graphs do not get modified once they
-   * are constructed and being used. If this changes then we will have a problem at execution as the older plan
-   * will match.
+   * Building the "key" object can be costly. If the graph is still in memory, then we can keep a previous key around. The current behavior of view processes and executors is that graphs do not get
+   * modified once they are constructed and being used. If this changes then we will have a problem at execution as the older plan will match.
    */
   private final Map<DependencyGraph, DependencyGraphKey> _identityLookup = new MapMaker().weakKeys().makeMap();
 
   /**
    * Constructs an instance.
    * 
-   * @param manager  the cache manager from which to obtain the execution plan cache, null not to use caching.
+   * @param manager the cache manager from which to obtain the execution plan cache, null not to use caching.
    */
   public ExecutionPlanCache(final CacheManager manager) {
     if (manager == null) {

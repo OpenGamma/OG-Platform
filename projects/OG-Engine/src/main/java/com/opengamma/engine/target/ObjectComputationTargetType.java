@@ -5,6 +5,8 @@
  */
 package com.opengamma.engine.target;
 
+import java.io.ObjectStreamException;
+
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.id.UniqueIdentifiable;
@@ -17,7 +19,7 @@ import com.opengamma.util.ArgumentChecker;
  * @param <T> the target object type
  */
 public class ObjectComputationTargetType<T extends UniqueIdentifiable> extends ComputationTargetType {
-  
+
   private static final long serialVersionUID = 1L;
 
   private final ComputationTargetType _underlying;
@@ -27,12 +29,12 @@ public class ObjectComputationTargetType<T extends UniqueIdentifiable> extends C
     _underlying = type;
     _clazz = clazz;
   }
-  
+
   public static <T extends UniqueIdentifiable> ObjectComputationTargetType<T> of(final ComputationTargetType type, final Class<T> clazz) {
     assert type.isTargetType(clazz) : clazz + " is not valid for " + type;
     return new ObjectComputationTargetType<T>(type, clazz);
   }
-  
+
   public static <T extends UniqueIdentifiable> ObjectComputationTargetType<T> of(final Class<T> clazz) {
     return new ObjectComputationTargetType<T>(ComputationTargetType.of(clazz), clazz);
   }
@@ -114,6 +116,10 @@ public class ObjectComputationTargetType<T extends UniqueIdentifiable> extends C
   @Override
   public boolean isTargetType(final Class<? extends UniqueIdentifiable> type) {
     return getUnderlying().isTargetType(type);
+  }
+
+  protected Object writeReplace() throws ObjectStreamException {
+    return getUnderlying();
   }
 
 }
