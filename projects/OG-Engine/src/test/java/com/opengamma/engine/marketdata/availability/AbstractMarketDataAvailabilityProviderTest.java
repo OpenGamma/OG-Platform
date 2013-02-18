@@ -37,7 +37,11 @@ public abstract class AbstractMarketDataAvailabilityProviderTest {
 
     @Override
     protected ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final UniqueId identifier, final ValueRequirement desiredValue) {
-      return new ValueSpecification(desiredValue.getValueName(), targetSpec, ValueProperties.with(ValuePropertyNames.FUNCTION, "UniqueId").get());
+      if (identifier != null) {
+        return new ValueSpecification(desiredValue.getValueName(), targetSpec, ValueProperties.with(ValuePropertyNames.FUNCTION, "UniqueId").get());
+      } else {
+        return null;
+      }
     }
 
   }

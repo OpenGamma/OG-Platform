@@ -39,9 +39,22 @@ public class InMemoryLKVMarketDataProvider extends AbstractMarketDataProvider im
   private static final Logger s_logger = LoggerFactory.getLogger(InMemoryLKVMarketDataProvider.class);
   private static final AtomicInteger s_nextIdentifier = new AtomicInteger();
 
-  private abstract static class TargetData extends ConcurrentHashMap<String, Set<ValueSpecification>> {
+  private static class TargetData extends ConcurrentHashMap<String, Set<ValueSpecification>> {
 
     private static final long serialVersionUID = 1L;
+
+    private final Set<ExternalId> _identifiers;
+
+    public TargetData(final ValueSpecification initialValue) {
+      final Set<ValueSpecification> values = new CopyOnWriteArraySet<ValueSpecification>();
+      values.add(initialValue);
+      put(initialValue.getValueName(), values);
+      _identifiers = new CopyOnWriteArraySet<ExternalId>();
+    }
+
+    public TargetData(final ExternalIdBundle identifiers) {
+      _identifiers = new CopyOnWriteArraySet<ExternalId>(identifiers.getExternalIds());
+    }
 
     public ValueSpecification getAvailability(final ValueRequirement desiredValue) {
       final Set<ValueSpecification> specs = get(desiredValue.getValueName());
@@ -76,45 +89,6 @@ public class InMemoryLKVMarketDataProvider extends AbstractMarketDataProvider im
       }
     }
 
-  }
-
-  private static final class WeakTargetData extends TargetData {
-
-    private static final long serialVersionUID = 1L;
-
-    private volatile ComputationTargetSpecification _specification;
-
-    public WeakTargetData(final ComputationTargetSpecification specification) {
-      _specification = specification;
-    }
-
-    public ComputationTargetSpecification getSpecification() {
-      return _specification;
-    }
-
-    public void setSpecification(final ComputationTargetSpecification specification) {
-      _specification = specification;
-    }
-
-  }
-
-  private static final class StrictTargetData extends TargetData {
-
-    private static final long serialVersionUID = 1L;
-
-    private final Set<ExternalId> _identifiers;
-
-    public StrictTargetData(final ValueSpecification initialValue) {
-      final Set<ValueSpecification> values = new CopyOnWriteArraySet<ValueSpecification>();
-      values.add(initialValue);
-      put(initialValue.getValueName(), values);
-      _identifiers = new CopyOnWriteArraySet<ExternalId>();
-    }
-
-    public StrictTargetData(final ExternalIdBundle identifiers) {
-      _identifiers = new CopyOnWriteArraySet<ExternalId>(identifiers.getExternalIds());
-    }
-
     public Set<ExternalId> getIdentifiers() {
       return _identifiers;
     }
@@ -124,8 +98,8 @@ public class InMemoryLKVMarketDataProvider extends AbstractMarketDataProvider im
   private final String _syntheticScheme = "InMemoryLKV" + s_nextIdentifier.getAndIncrement();
   private final AtomicInteger _nextSyntheticIdentifier = new AtomicInteger();
   private final Map<ValueSpecification, Object> _lastKnownValues = new ConcurrentHashMap<ValueSpecification, Object>();
-  private final ConcurrentMap<ExternalId, WeakTargetData> _weakIndex = new ConcurrentHashMap<ExternalId, WeakTargetData>();
-  private final ConcurrentMap<ComputationTargetSpecification, StrictTargetData> _strictIndex = new ConcurrentHashMap<ComputationTargetSpecification, StrictTargetData>();
+  private final ConcurrentMap<ExternalId, ComputationTargetSpecification> _weakIndex = new ConcurrentHashMap<ExternalId, ComputationTargetSpecification>();
+  private final ConcurrentMap<ComputationTargetSpecification, TargetData> _strictIndex = new ConcurrentHashMap<ComputationTargetSpecification, TargetData>();
   private final MarketDataPermissionProvider _permissionProvider;
   private final MarketDataAvailabilityProvider _availability = new AbstractMarketDataAvailabilityProvider() {
 
@@ -135,8 +109,9 @@ public class InMemoryLKVMarketDataProvider extends AbstractMarketDataProvider im
       throw new UnsupportedOperationException();
     }
 
-    private <T> ValueSpecification getAvailability(final Map<T, ? extends TargetData> data, final T key, final ValueRequirement desiredValue) {
-      final TargetData values = data.get(key);
+    @Override
+    protected ValueSpecification getAvailability(final ComputationTargetSpecification key, final ValueRequirement desiredValue) {
+      final TargetData values = _strictIndex.get(key);
       if (values != null) {
         return values.getAvailability(desiredValue);
       } else {
@@ -144,21 +119,30 @@ public class InMemoryLKVMarketDataProvider extends AbstractMarketDataProvider im
       }
     }
 
+    private ValueSpecification getAvailability(final ExternalId key, final ValueRequirement desiredValue) {
+      final ComputationTargetSpecification target = _weakIndex.get(key);
+      if (target != null) {
+        return getAvailability(target, desiredValue);
+      } else {
+        return null;
+      }
+    }
+
     @Override
     protected ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final ExternalId identifier, final ValueRequirement desiredValue) {
-      ValueSpecification available = getAvailability(_strictIndex, targetSpec, desiredValue);
+      ValueSpecification available = getAvailability(targetSpec, desiredValue);
       if (available == null) {
-        available = getAvailability(_weakIndex, identifier, desiredValue);
+        available = getAvailability(identifier, desiredValue);
       }
       return available;
     }
 
     @Override
     protected ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final ExternalIdBundle identifiers, final ValueRequirement desiredValue) {
-      ValueSpecification available = getAvailability(_strictIndex, targetSpec, desiredValue);
+      ValueSpecification available = getAvailability(targetSpec, desiredValue);
       if (available == null) {
         for (final ExternalId identifier : identifiers) {
-          available = getAvailability(_weakIndex, identifier, desiredValue);
+          available = getAvailability(identifier, desiredValue);
           if (available != null) {
             break;
           }
@@ -169,7 +153,7 @@ public class InMemoryLKVMarketDataProvider extends AbstractMarketDataProvider im
 
     @Override
     protected ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final UniqueId identifier, final ValueRequirement desiredValue) {
-      return getAvailability(_strictIndex, targetSpec, desiredValue);
+      return getAvailability(targetSpec, desiredValue);
     }
 
   };
@@ -183,14 +167,14 @@ public class InMemoryLKVMarketDataProvider extends AbstractMarketDataProvider im
       ComputationTargetSpecification found = null;
       boolean update = false;
       for (final ExternalId identifier : requirement.getIdentifiers()) {
-        final WeakTargetData data = _weakIndex.get(identifier);
-        if (data != null) {
+        final ComputationTargetSpecification weakSpec = _weakIndex.get(identifier);
+        if (weakSpec != null) {
           if (found != null) {
             if (!update) {
-              update = found != data.getSpecification();
+              update = !found.equals(weakSpec);
             }
           } else {
-            found = data.getSpecification();
+            found = weakSpec;
           }
         } else {
           update = true;
@@ -198,17 +182,12 @@ public class InMemoryLKVMarketDataProvider extends AbstractMarketDataProvider im
       }
       if (found == null) {
         found = requirement.replaceIdentifier(UniqueId.of(_syntheticScheme, Integer.toString(_nextSyntheticIdentifier.getAndIncrement())));
-        final StrictTargetData data = new StrictTargetData(requirement.getIdentifiers());
+        final TargetData data = new TargetData(requirement.getIdentifiers());
         _strictIndex.put(found, data);
       }
       if (update) {
         for (final ExternalId identifier : requirement.getIdentifiers()) {
-          final WeakTargetData data = _weakIndex.get(identifier);
-          if (data == null) {
-            _weakIndex.putIfAbsent(identifier, new WeakTargetData(found));
-          } else {
-            data.setSpecification(found);
-          }
+          _weakIndex.put(identifier, found);
         }
       }
       return found;
@@ -275,10 +254,10 @@ public class InMemoryLKVMarketDataProvider extends AbstractMarketDataProvider im
   @Override
   public void addValue(final ValueSpecification specification, final Object value) {
     _lastKnownValues.put(specification, value);
-    StrictTargetData data = _strictIndex.get(specification.getTargetSpecification());
+    TargetData data = _strictIndex.get(specification.getTargetSpecification());
     if (data == null) {
-      data = new StrictTargetData(specification);
-      final StrictTargetData existing = _strictIndex.putIfAbsent(specification.getTargetSpecification(), data);
+      data = new TargetData(specification);
+      final TargetData existing = _strictIndex.putIfAbsent(specification.getTargetSpecification(), data);
       if (existing != null) {
         existing.addValue(specification);
       }
@@ -295,18 +274,9 @@ public class InMemoryLKVMarketDataProvider extends AbstractMarketDataProvider im
 
   @Override
   public void removeValue(final ValueSpecification specification) {
-    final StrictTargetData data = _strictIndex.get(specification.getTargetSpecification());
+    final TargetData data = _strictIndex.get(specification.getTargetSpecification());
     if (data != null) {
       data.removeValue(specification);
-      for (final ExternalId identifier : data.getIdentifiers()) {
-        final ConcurrentMap<String, Set<ValueSpecification>> values = _weakIndex.get(identifier);
-        if (values != null) {
-          final Set<ValueSpecification> specs = values.get(specification.getValueName());
-          if (specs != null) {
-            specs.remove(specification);
-          }
-        }
-      }
     }
     _lastKnownValues.remove(specification);
     valueChanged(specification);

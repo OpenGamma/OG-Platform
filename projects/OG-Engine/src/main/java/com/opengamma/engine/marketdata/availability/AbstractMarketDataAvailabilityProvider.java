@@ -123,6 +123,17 @@ public abstract class AbstractMarketDataAvailabilityProvider implements MarketDa
   }
 
   /**
+   * Resolves the availability of the null target.
+   * 
+   * @param targetSpec the target specification, always {@link ComputationTargetSpecification#NULL}
+   * @param desiredValue the requested value to test and resolve, not null
+   * @return the resolved subscription value if available, null otherwise
+   */
+  protected ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final ValueRequirement desiredValue) {
+    return _delegate.getAvailability(targetSpec, (UniqueId) null, desiredValue);
+  }
+
+  /**
    * Tests how the target can be referenced and defers to one of the other {@code getAvailability} methods.
    * 
    * @param targetSpec the target specification as passed to {@link MarketDataAvailabilityProvider#getAvailability}, possibly null
@@ -138,6 +149,8 @@ public abstract class AbstractMarketDataAvailabilityProvider implements MarketDa
       return getAvailability(targetSpec, ((ExternalIdentifiable) target).getExternalId(), desiredValue);
     } else if (target instanceof UniqueIdentifiable) {
       return getAvailability(targetSpec, ((UniqueIdentifiable) target).getUniqueId(), desiredValue);
+    } else if (target == null) {
+      return getAvailability(targetSpec, desiredValue);
     } else {
       return null;
     }
