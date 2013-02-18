@@ -160,7 +160,7 @@ $.register_module({
         };
         var Grid = function (config) {
             if (!config) return;
-            var grid = window.grid = this;
+            var grid = this;
             grid.config = config;
             grid.elements = {empty: true, parent: $(config.selector).html('&nbsp;instantiating grid...')};
             grid.formatter = new og.analytics.Formatter(grid);
