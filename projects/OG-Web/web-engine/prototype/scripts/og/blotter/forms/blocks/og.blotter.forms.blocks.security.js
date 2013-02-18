@@ -46,10 +46,10 @@ $.register_module({
                 return  $(this.select_id()).val().trim() + '~' +  $(this.input_id()).val().trim();
             };
             block.input_id = function () {
-                return '#' + this.sec_id;
+                return '#' + sec_id;
             };
             block.select_id = function () {
-                return '#' + this.dropdown.id;
+                return '#' + dropdown.id;
             };
         };
         Security.prototype = new Block(); // inherit Block prototype
