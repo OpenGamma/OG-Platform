@@ -52,6 +52,7 @@ import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 
 /**
  *
@@ -75,7 +76,7 @@ public class FXForwardCurrencyExposurePnLFunction extends AbstractFunction.NonCo
     final String samplingFunction = desiredValue.getConstraint(ValuePropertyNames.SAMPLING_FUNCTION);
     final FXForwardSecurity security = (FXForwardSecurity) position.getSecurity();
     final MultipleCurrencyAmount mca = (MultipleCurrencyAmount) inputs.getValue(ValueRequirementNames.FX_CURRENCY_EXPOSURE);
-    final HistoricalTimeSeries timeSeries = (HistoricalTimeSeries) inputs.getValue(CurrencySeriesConversionFunction.SPOT_RATE);
+    final DoubleTimeSeries<?> timeSeries = (DoubleTimeSeries<?>) inputs.getValue(CurrencySeriesConversionFunction.SPOT_RATE);
     final Currency payCurrency = security.getPayCurrency();
     final Currency receiveCurrency = security.getReceiveCurrency();
     if (timeSeries == null) {
@@ -191,9 +192,9 @@ public class FXForwardCurrencyExposurePnLFunction extends AbstractFunction.NonCo
   }
 
   private DoubleTimeSeries<?> getPnLSeries(final LocalDate startDate, final LocalDate now, final Schedule scheduleCalculator,
-      final TimeSeriesSamplingFunction samplingFunction, final HistoricalTimeSeries dbTimeSeries) {
+      final TimeSeriesSamplingFunction samplingFunction, final DoubleTimeSeries<?> dbTimeSeries) {
     final LocalDate[] dates = HOLIDAY_REMOVER.getStrippedSchedule(scheduleCalculator.getSchedule(startDate, now, true, false), WEEKEND_CALENDAR);
-    DoubleTimeSeries<?> result = samplingFunction.getSampledTimeSeries(dbTimeSeries.getTimeSeries(), dates);
+    DoubleTimeSeries<?> result = samplingFunction.getSampledTimeSeries(dbTimeSeries, dates);
     result = result.reciprocal(); // Implementation note: to obtain the P/L for one unit of non-base currency expressed in base currency.
     return DIFFERENCE.evaluate(result);
   }

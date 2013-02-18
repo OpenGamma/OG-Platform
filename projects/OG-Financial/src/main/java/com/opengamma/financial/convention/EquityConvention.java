@@ -64,7 +64,7 @@ public class EquityConvention extends Convention {
   }
 
   @Override
-  protected Object propertyGet(final String propertyName, final boolean quiet) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 1415964195:  // exDividendPeriod
         return getExDividendPeriod();
@@ -73,7 +73,7 @@ public class EquityConvention extends Convention {
   }
 
   @Override
-  protected void propertySet(final String propertyName, final Object newValue, final boolean quiet) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 1415964195:  // exDividendPeriod
         setExDividendPeriod((Integer) newValue);
@@ -83,12 +83,12 @@ public class EquityConvention extends Convention {
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      final EquityConvention other = (EquityConvention) obj;
+      EquityConvention other = (EquityConvention) obj;
       return JodaBeanUtils.equal(getExDividendPeriod(), other.getExDividendPeriod()) &&
           super.equals(obj);
     }
@@ -115,7 +115,7 @@ public class EquityConvention extends Convention {
    * Sets the ex-dividend period.
    * @param exDividendPeriod  the new value of the property
    */
-  public void setExDividendPeriod(final int exDividendPeriod) {
+  public void setExDividendPeriod(int exDividendPeriod) {
     this._exDividendPeriod = exDividendPeriod;
   }
 
@@ -146,7 +146,7 @@ public class EquityConvention extends Convention {
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "exDividendPeriod");
 
     /**
@@ -156,7 +156,7 @@ public class EquityConvention extends Convention {
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
         case 1415964195:  // exDividendPeriod
           return _exDividendPeriod;
