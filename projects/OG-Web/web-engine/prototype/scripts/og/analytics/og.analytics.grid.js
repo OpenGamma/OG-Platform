@@ -160,7 +160,7 @@ $.register_module({
         };
         var Grid = function (config) {
             if (!config) return;
-            var grid = this;
+            var grid = window.grid = this;
             grid.config = config;
             grid.elements = {empty: true, parent: $(config.selector).html('&nbsp;instantiating grid...')};
             grid.formatter = new og.analytics.Formatter(grid);
@@ -241,8 +241,7 @@ $.register_module({
                     if ($target.is('.resize')) return col_resize.call(grid, event, $target), void 0;
                     // if ($target.is('.reorder')) return col_reorder.call(grid, event, $target), void 0;
                     if (!$target.is('.node')) return grid.fire('mousedown', event), void 0;
-                    if ($target.is('.loading')) return;
-                    $target.removeClass('expand collapse').addClass('loading');
+                    if ($target.is('.loading')) return; else $target.removeClass('expand collapse').addClass('loading');
                     grid.state.nodes[row = +$target.attr('data-row')] = !grid.state.nodes[row];
                     grid.resize().selector.clear();
                     return false; // kill bubbling
@@ -374,10 +373,7 @@ $.register_module({
                     grid_row = state.available.indexOf(rows[0]), types = meta.columns.types, type,
                     total_cols = cols.length, formatter = grid.formatter, col_end, row_len = rows.length,
                     col_len = fixed ? fixed_len : total_cols - fixed_len, column, cells, value,
-                    widths = meta.columns.widths, row_class = meta.row_class, result = {
-                        rows: [], loading: loading, holder_height: Math
-                            .max(inner.height + (fixed ? scrollbar : 0), inner.scroll_height - (fixed ? 0 : scrollbar)),
-                    };
+                    widths = meta.columns.widths, row_class = meta.row_class, result = {rows: [], loading: loading};
                 if (loading) return result;
                 for (i = 0; i < row_len; i += 1) {
                     result.rows.push({
@@ -638,12 +634,15 @@ $.register_module({
                 id: id, viewport_width: meta.inner.width, rest_top: meta.inner.height,
                 fixed_bg: background(columns.fixed, columns.width.fixed, 'ecf5fa'),
                 scroll_bg: background(columns.scroll, columns.width.scroll, 'ffffff'),
+                scroll_height: Math.max(meta.inner.height, meta.inner.scroll_height - scrollbar),
+                fixed_height: Math.max(meta.inner.height + scrollbar, meta.inner.scroll_height),
                 scroll_width: columns.width.scroll, fixed_width: columns.width.fixed + scrollbar,
                 scroll_left: columns.width.fixed, set_height: meta.set_height,
                 height: meta.inner.scroll_height, header_height: header_height, row_height: row_height,
                 columns: col_css(id, columns.fixed).concat(col_css(id, columns.scroll, meta.fixed_length)),
                 sets: set_css(id, columns.fixed).concat(set_css(id, columns.scroll, columns.fixed.length))
             });
+            grid.elements.style.empty();
             if ((sheet = grid.elements.style[0]).styleSheet) sheet.styleSheet.cssText = css; // IE
             else sheet.appendChild(document.createTextNode(css));
             grid.offset = grid.elements.parent.offset();
