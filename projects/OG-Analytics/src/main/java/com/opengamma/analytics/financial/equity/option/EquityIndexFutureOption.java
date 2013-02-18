@@ -89,12 +89,14 @@ public class EquityIndexFutureOption implements InstrumentDerivative {
 
   @Override
   public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
-    return null;
+    ArgumentChecker.notNull(visitor, "visitor");
+    return visitor.visitEquityIndexFutureOption(this, data);
   }
 
   @Override
   public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
-    return null;
+    ArgumentChecker.notNull(visitor, "visitor");
+    return visitor.visitEquityIndexFutureOption(this);
   }
 
   @Override

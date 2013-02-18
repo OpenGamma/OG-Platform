@@ -29,6 +29,7 @@ import com.opengamma.analytics.financial.commodity.definition.MetalFutureDefinit
 import com.opengamma.analytics.financial.commodity.definition.MetalFutureOptionDefinition;
 import com.opengamma.analytics.financial.equity.future.definition.EquityFutureDefinition;
 import com.opengamma.analytics.financial.equity.future.definition.EquityIndexDividendFutureDefinition;
+import com.opengamma.analytics.financial.equity.option.EquityIndexFutureOptionDefinition;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOptionDefinition;
 import com.opengamma.analytics.financial.equity.option.EquityOptionDefinition;
 import com.opengamma.analytics.financial.equity.variance.EquityVarianceSwapDefinition;
@@ -99,7 +100,7 @@ import com.opengamma.analytics.financial.instrument.varianceswap.VarianceSwapDef
  */
 public class InstrumentDefinitionVisitorTest {
   private static final Set<InstrumentDefinition<?>> ALL_INSTRUMENTS = TestInstrumentDefinitionsAndDerivatives.getAllInstruments();
-  private static final MyVisitor<Object> VISITOR = new MyVisitor<Object>();
+  private static final MyVisitor<Object> VISITOR = new MyVisitor<>();
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDelegate() {
@@ -148,7 +149,7 @@ public class InstrumentDefinitionVisitorTest {
   public void testDelegate() {
     final String s = "aaaa";
     final String result = s + " + data1";
-    final BondFixedVisitor<Object> visitor = new BondFixedVisitor<Object>(VISITOR, s);
+    final BondFixedVisitor<Object> visitor = new BondFixedVisitor<>(VISITOR, s);
     for (final InstrumentDefinition<?> definition : ALL_INSTRUMENTS) {
       if (definition instanceof BondFixedSecurityDefinition) {
         assertEquals(definition.accept(visitor), s);
@@ -191,7 +192,7 @@ public class InstrumentDefinitionVisitorTest {
   @Test
   public void testSameValueAdapter() {
     final Double value = Math.PI;
-    final InstrumentDefinitionVisitor<Double, Double> visitor = new InstrumentDefinitionVisitorSameValueAdapter<Double, Double>(value);
+    final InstrumentDefinitionVisitor<Double, Double> visitor = new InstrumentDefinitionVisitorSameValueAdapter<>(value);
     for (final InstrumentDefinition<?> definition : ALL_INSTRUMENTS) {
       assertEquals(value, definition.accept(visitor));
       assertEquals(value, definition.accept(visitor, Math.E));
@@ -972,6 +973,16 @@ public class InstrumentDefinitionVisitorTest {
 
     @Override
     public String visitEquityIndexOptionDefinition(final EquityIndexOptionDefinition option) {
+      return getValue(option, false);
+    }
+
+    @Override
+    public String visitEquityIndexFutureOptionDefinition(final EquityIndexFutureOptionDefinition option, final T data) {
+      return getValue(option, true);
+    }
+
+    @Override
+    public String visitEquityIndexFutureOptionDefinition(final EquityIndexFutureOptionDefinition option) {
       return getValue(option, false);
     }
 
