@@ -10,7 +10,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisito
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * energy future option commodity derivative
+ * Metal future option commodity derivative
  */
 public class MetalFutureOption extends CommodityFutureOption<MetalFuture> {
 

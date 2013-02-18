@@ -74,7 +74,11 @@
   <bean id="hsqldbDbHolidayMaster" class="com.opengamma.masterdb.holiday.DbHolidayMaster">
     <constructor-arg ref="hsqldbDbConnector" />
   </bean>
-  
+
+  <bean id="hsqldbDbOrganisationMaster" class="com.opengamma.masterdb.orgs.DbOrganisationMaster">
+    <constructor-arg ref="hsqldbDbConnector" />
+  </bean>
+
   <bean id="hsqldbDbFunctionCostsMaster" class="com.opengamma.masterdb.engine.stats.DbFunctionCostsMaster">
     <constructor-arg ref="hsqldbDbConnector" />
   </bean>
@@ -140,6 +144,10 @@
   </bean>
 
   <bean id="postgresDbHolidayMaster" class="com.opengamma.masterdb.holiday.DbHolidayMaster">
+    <constructor-arg ref="postgresDbConnector" />
+  </bean>
+
+  <bean id="postgresDbOrganisationMaster" class="com.opengamma.masterdb.orgs.DbOrganisationMaster">
     <constructor-arg ref="postgresDbConnector" />
   </bean>
   
@@ -208,6 +216,10 @@
   </bean>
 
   <bean id="sqlserver2008DbHolidayMaster" class="com.opengamma.masterdb.holiday.DbHolidayMaster">
+    <constructor-arg ref="sqlserver2008DbConnector" />
+  </bean>
+
+  <bean id="sqlserver2008DbOrganisationMaster" class="com.opengamma.masterdb.orgs.DbOrganisationMaster">
     <constructor-arg ref="sqlserver2008DbConnector" />
   </bean>
   

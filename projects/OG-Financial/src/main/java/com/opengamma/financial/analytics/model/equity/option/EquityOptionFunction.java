@@ -45,7 +45,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.financial.analytics.conversion.EquityIndexOptionConverter;
+import com.opengamma.financial.analytics.conversion.EquityOptionsConverter;
 import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
@@ -77,7 +77,7 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
   /** The value requirement name */
   private final String[] _valueRequirementNames;
   /** Converts the security to the form used in analytics */
-  private EquityIndexOptionConverter _converter; // set in init(), not constructor
+  private EquityOptionsConverter _converter; // set in init(), not constructor
 
   /**
    * @param valueRequirementNames A list of value requirement names, not null or empty
@@ -90,7 +90,7 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
   @Override
   public void init(final FunctionCompilationContext context) {
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
-    _converter = new EquityIndexOptionConverter(conventionSource);
+    _converter = new EquityOptionsConverter(conventionSource);
   }
 
   @Override
