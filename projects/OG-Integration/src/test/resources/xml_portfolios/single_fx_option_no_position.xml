@@ -3,21 +3,25 @@
 
   <trades>
 
-    <fxOptionTrade id="1">
+    <fxOptionTrade id="t1">
       <externalSystemId><id scheme="External">IdFromExternalSystem</id></externalSystemId>
 
+      <tradeDate>2013-01-20</tradeDate>
+      <maturityDate>2018-01-31</maturityDate>
+      <settlementDate>2013-01-22</settlementDate>
+      <counterparty><id scheme="Cpty">GOLDMAN</id></counterparty>
+
+      <premium>250</premium>
+      <premiumCurrency>EUR</premiumCurrency>
+
       <callPut>Put</callPut>
+      <buySell>Buy</buySell>
       <currencyPair>EUR/USD</currencyPair>
       <optionCurrency>EUR</optionCurrency>
 
-      <buySell>Buy</buySell>
       <notional>1000000</notional>
       <notionalCurrency>EUR</notionalCurrency>
 
-      <tradeDate>2013-01-20</tradeDate>
-      <settlementDate>2013-01-22</settlementDate>
-
-      <maturityDate>2018-01-31</maturityDate>
       <expiryDate>2018-01-31</expiryDate>
       <expiryCutoff>ECB|10am NY</expiryCutoff>
 
@@ -26,14 +30,11 @@
       <!-- Only valid for NonDeliverableFxOption (i.e. CashSettled settlement type) -->
       <settlementCurrency>USD</settlementCurrency>
 
-      <exerciseType>European|American</exerciseType>
+      <exerciseType>American</exerciseType>
 
-      <counterparty><id scheme="Cpty">GOLDMAN</id></counterparty>
 
       <strike>1.9</strike>
 
-      <premium>250</premium>
-      <premiumCurrency>EUR</premiumCurrency>
 
       <expiryCalendars>
         <calendar type="Bank">
@@ -55,7 +56,7 @@
     <!-- portfolio name must be unique in this set -->
     <portfolio name="single_fx_portfolio">
       <trades>
-        <trade ref="1"/>
+        <trade ref="t1"/>
       </trades>
     </portfolio>
   </portfolios>

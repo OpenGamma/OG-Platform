@@ -28,7 +28,8 @@ public class FloatingLeg extends SwapLeg {
 
   private FixingIndex fixingIndex;
 
-  private BigDecimal spread;
+  @XmlElement(name = "spread")
+  private BigDecimal _spread;
 
   private BigDecimal gearing;
 
@@ -96,11 +97,11 @@ public class FloatingLeg extends SwapLeg {
   }
 
   public BigDecimal getSpread() {
-    return spread;
+    return _spread;
   }
 
   public void setSpread(BigDecimal spread) {
-    this.spread = spread;
+    this._spread = spread;
   }
 
   public BigDecimal getGearing() {

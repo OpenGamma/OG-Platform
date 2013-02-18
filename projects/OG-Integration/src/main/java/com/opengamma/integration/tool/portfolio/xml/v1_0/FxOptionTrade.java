@@ -13,6 +13,7 @@ import org.threeten.bp.LocalDate;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
+
 public class FxOptionTrade extends Trade {
 
   public enum CallPut {Call, Put}
@@ -49,14 +50,14 @@ public class FxOptionTrade extends Trade {
   @XmlElement(name = "settlementType")
   private SettlementType _settlementType;
 
+  @XmlElement(name = "settlementCurrency")
+  private String _settlementCurrency;
+
   @XmlElement(name = "exerciseType")
   private ExerciseType _exerciseType;
 
   @XmlElement(name = "strike")
   private BigDecimal _strike;
-
-  @XmlElement(name = "settlementCurrency")
-  private String _settlementCurrency;
 
   @XmlElementWrapper(name = "expiryCalendars")
   @XmlElement(name = "calendar")

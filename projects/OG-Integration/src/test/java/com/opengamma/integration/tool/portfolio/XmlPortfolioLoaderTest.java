@@ -22,6 +22,7 @@ import javax.xml.bind.helpers.DefaultValidationEventHandler;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.validation.Schema;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
@@ -176,7 +177,7 @@ public class XmlPortfolioLoaderTest {
   private SchemaLocator createSchemaLocatorStub() {
     return new SchemaLocator() {
       @Override
-      public File lookupSchema(SchemaVersion version) {
+      public Schema lookupSchema(SchemaVersion version) {
         return null;
       }
     };
@@ -215,7 +216,7 @@ public class XmlPortfolioLoaderTest {
       SchemaVersion version = parseSchemaVersion(file);
 
       // Use the schema version to lookup appropriate schema
-      File schema = _schemaLocator.lookupSchema(version);
+      Schema schema = _schemaLocator.lookupSchema(version);
 
       try {
         // This is going to use DOM to parse the document which has memory/speed implications
@@ -239,7 +240,7 @@ public class XmlPortfolioLoaderTest {
       }
     }
 
-    private DocumentBuilder createDocumentBuilder(File schema,
+    private DocumentBuilder createDocumentBuilder(Schema schema,
                                                   ErrorHandler errorHandler) throws ParserConfigurationException {
       DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
       documentBuilderFactory.setNamespaceAware(true);

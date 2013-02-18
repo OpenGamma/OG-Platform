@@ -88,6 +88,8 @@ public class XmlPortfolioLoaderToolTest {
       new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, true, false, false, false, true).execute();
     }
     catch (OpenGammaRuntimeException e) {
+
+      // Parse failed so no data should have been added to masters
       assertEquals(_portfolioMaster.search(new PortfolioSearchRequest()).getPortfolios().size(), 0);
       assertEquals(_positionMaster.search(new PositionSearchRequest()).getPositions().size(), 0);
       assertEquals(_securityMaster.search(new SecuritySearchRequest()).getSecurities().size(), 0);
@@ -96,17 +98,17 @@ public class XmlPortfolioLoaderToolTest {
 
   @Test
   public void testSinglePortfolioSinglePositionNoTrades() {
-
+    // to be added
   }
 
   @Test
   public void testSinglePortfolioMultiplePositionNoTrades() {
-
+    // to be added
   }
 
   @Test
   public void testNoPortfolioMultiplePositionNoTradesCreatesDefaultPortfolio() {
-
+     // to be added
   }
 
   @Test
@@ -151,6 +153,19 @@ public class XmlPortfolioLoaderToolTest {
 
     // We should get a position automatically generated for the trade
     String fileLocation = "src/test/resources/xml_portfolios/single_fx_option_no_position.xml";
+    File file = new File(fileLocation);
+    new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, true, false, false, false, true).execute();
+
+    assertEquals(_portfolioMaster.search(new PortfolioSearchRequest()).getPortfolios().size(), 1);
+    assertEquals(_positionMaster.search(new PositionSearchRequest()).getPositions().size(), 1);
+    assertEquals(_securityMaster.search(new SecuritySearchRequest()).getSecurities().size(), 1);
+  }
+
+  @Test
+  public void testSinglePortfolioNoPositionSingleEquityVarianceSwap() {
+
+    // We should get a position automatically generated for the trade
+    String fileLocation = "src/test/resources/xml_portfolios/single_equity_variance_swap_no_position.xml";
     File file = new File(fileLocation);
     new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, true, false, false, false, true).execute();
 

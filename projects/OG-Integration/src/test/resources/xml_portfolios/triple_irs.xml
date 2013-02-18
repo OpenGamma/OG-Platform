@@ -4,17 +4,18 @@
   <trades>
 
     <!-- Trade id must be unique in this list -->
-    <swapTrade id="1">
+    <swapTrade id="t1">
       <!-- Probably should be unique in this file too -->
       <externalSystemId>
         <id scheme="External">Id1FromExternalSystem</id>
       </externalSystemId>
       <tradeDate>2013-01-20</tradeDate>
-      <effectiveDate>2013-02-01</effectiveDate>
       <maturityDate>2018-01-31</maturityDate>
       <counterparty>
         <id scheme="Cpty">GOLDMAN</id>
       </counterparty>
+
+      <effectiveDate>2013-02-01</effectiveDate>
 
       <fixedLeg>
         <payReceive>Pay</payReceive>
@@ -23,11 +24,11 @@
         <notional>1000000</notional>
         <frequency>12m</frequency>
         <dayCount>Actual/365</dayCount>
-        <businessDayConvention>Modified Following</businessDayConvention>
         <interestCalculation>Adjusted</interestCalculation>
+        <businessDayConvention>Modified Following</businessDayConvention>
         <scheduleGenerationDirection>Backward</scheduleGenerationDirection>
-        <endOfMonth>True</endOfMonth>
-        <isIMM>True</isIMM>
+        <endOfMonth>true</endOfMonth>
+        <isIMM>true</isIMM>
         <paymentCalendars>
           <calendar type="Bank"> <!-- default=BANK  -->
             <id scheme="CountryISO2">FD</id>
@@ -38,32 +39,29 @@
         </paymentCalendars>
         <stubPeriodType>Long</stubPeriodType>
         <!-- Default to ShortCoupon-->
-        <stubPeriodTypeAdjustment>LongCoupon|ShortCoupon</stubPeriodTypeAdjustment>
+        <stubPeriodTypeAdjustment>ShortCoupon</stubPeriodTypeAdjustment>
         <rate>105.25</rate>
       </fixedLeg>
 
-      <floatingLeg type="InterestRate|Inflation">
+      <floatingLeg>
         <payReceive>Receive</payReceive>
         <currency>USD</currency>
         <!-- Notional could be array-valued -->
         <notional>1000000</notional>
         <!-- map to our InterestRateNotional where sign = Pay/Recieve flag -->
         <frequency>12m</frequency>
-        <!-- loader should support either spread or gearing for now, schema should allow both -->
-        <spread>5.25</spread>
-        <gearing>-3</gearing>
         <!-- use DayCountFactory -->
         <dayCount>Actual/365</dayCount>
-        <!-- use BusinessDayConventionFactory -->
-        <businessDayConvention>Modified Following</businessDayConvention>
         <!-- only adjusted supported now -->
         <interestCalculation>Adjusted</interestCalculation>
+        <!-- use BusinessDayConventionFactory -->
+        <businessDayConvention>Modified Following</businessDayConvention>
         <!-- only Backward supported -->
         <scheduleGenerationDirection>Backward</scheduleGenerationDirection>
         <!-- EOM -->
-        <endOfMonth>True</endOfMonth>
+        <endOfMonth>true</endOfMonth>
         <!-- must be false for now -->
-        <isIMM>True</isIMM>
+        <isIMM>true</isIMM>
 
 
         <paymentCalendars>
@@ -75,6 +73,10 @@
           </calendar>
           <!-- loader should enforce type=BANK for now and id schemes all the same for now -->
         </paymentCalendars>
+
+        <stubPeriodType>Long</stubPeriodType>
+        <!-- Interpolated - Default to ShortCoupon-->
+        <stubPeriodTypeAdjustment>LongCoupon</stubPeriodTypeAdjustment>
 
         <!-- always short for now -->
         <!-- same as frequency for now -->
@@ -93,23 +95,23 @@
           <rateType>IBOR</rateType>
         </fixingIndex>
 
-        <stubPeriodType>Long</stubPeriodType>
-        <!-- Interpolated - Default to ShortCoupon-->
-        <stubPeriodTypeAdjustment>LongCoupon|ShortCoupon</stubPeriodTypeAdjustment>
+        <!-- loader should support either spread or gearing for now, schema should allow both -->
+        <spread>5.25</spread>
+        <gearing>-3</gearing>
       </floatingLeg>
     </swapTrade>
 
-    <swapTrade id="2">
+    <swapTrade id="t2">
       <!-- Probably should be unique in this file too -->
       <externalSystemId>
         <id scheme="External">Id2FromExternalSystem</id>
       </externalSystemId>
       <tradeDate>2013-01-20</tradeDate>
-      <effectiveDate>2013-02-01</effectiveDate>
       <maturityDate>2018-01-31</maturityDate>
       <counterparty>
         <id scheme="Cpty">GOLDMAN</id>
       </counterparty>
+      <effectiveDate>2013-02-01</effectiveDate>
 
       <fixedLeg>
         <payReceive>Pay</payReceive>
@@ -118,11 +120,11 @@
         <notional>1000000</notional>
         <frequency>12m</frequency>
         <dayCount>Actual/365</dayCount>
-        <businessDayConvention>Modified Following</businessDayConvention>
         <interestCalculation>Adjusted</interestCalculation>
+        <businessDayConvention>Modified Following</businessDayConvention>
         <scheduleGenerationDirection>Backward</scheduleGenerationDirection>
-        <endOfMonth>True</endOfMonth>
-        <isIMM>True</isIMM>
+        <endOfMonth>true</endOfMonth>
+        <isIMM>true</isIMM>
         <paymentCalendars>
           <calendar type="Bank"> <!-- default=BANK  -->
             <id scheme="CountryISO2">FD</id>
@@ -133,32 +135,29 @@
         </paymentCalendars>
         <stubPeriodType>Long</stubPeriodType>
         <!-- Default to ShortCoupon-->
-        <stubPeriodTypeAdjustment>LongCoupon|ShortCoupon</stubPeriodTypeAdjustment>
+        <stubPeriodTypeAdjustment>ShortCoupon</stubPeriodTypeAdjustment>
         <rate>105.25</rate>
       </fixedLeg>
 
-      <floatingLeg type="InterestRate|Inflation">
+      <floatingLeg>
         <payReceive>Receive</payReceive>
         <currency>USD</currency>
         <!-- Notional could be array-valued -->
         <notional>1000000</notional>
         <!-- map to our InterestRateNotional where sign = Pay/Recieve flag -->
         <frequency>12m</frequency>
-        <!-- loader should support either spread or gearing for now, schema should allow both -->
-        <spread>5.25</spread>
-        <gearing>-3</gearing>
         <!-- use DayCountFactory -->
         <dayCount>Actual/365</dayCount>
-        <!-- use BusinessDayConventionFactory -->
-        <businessDayConvention>Modified Following</businessDayConvention>
         <!-- only adjusted supported now -->
         <interestCalculation>Adjusted</interestCalculation>
+        <!-- use BusinessDayConventionFactory -->
+        <businessDayConvention>Modified Following</businessDayConvention>
         <!-- only Backward supported -->
         <scheduleGenerationDirection>Backward</scheduleGenerationDirection>
         <!-- EOM -->
-        <endOfMonth>True</endOfMonth>
+        <endOfMonth>true</endOfMonth>
         <!-- must be false for now -->
-        <isIMM>True</isIMM>
+        <isIMM>true</isIMM>
 
 
         <paymentCalendars>
@@ -168,8 +167,12 @@
           <calendar>
             <id scheme="CountryISO2">EN</id>
           </calendar>
-          <!-- loader should enforce type=BANK for now and id schemes all the same for now -->
+          <!-- loader should enforce type=BANK for now and idttttttttttttt schemes all the same for now -->
         </paymentCalendars>
+
+        <stubPeriodType>Long</stubPeriodType>
+        <!-- Interpolated - Default to ShortCoupon-->
+        <stubPeriodTypeAdjustment>ShortCoupon</stubPeriodTypeAdjustment>
 
         <!-- always short for now -->
         <!-- same as frequency for now -->
@@ -188,23 +191,23 @@
           <rateType>IBOR</rateType>
         </fixingIndex>
 
-        <stubPeriodType>Long</stubPeriodType>
-        <!-- Interpolated - Default to ShortCoupon-->
-        <stubPeriodTypeAdjustment>LongCoupon|ShortCoupon</stubPeriodTypeAdjustment>
+        <!-- loader should support either spread or gearing for now, schema should allow both -->
+        <spread>5.25</spread>
+        <gearing>-3</gearing>
       </floatingLeg>
     </swapTrade>
 
-    <swapTrade id="3">
+    <swapTrade id="t3">
       <!-- Probably should be unique in this file too -->
       <externalSystemId>
         <id scheme="External">Id3FromExternalSystem</id>
       </externalSystemId>
       <tradeDate>2013-01-20</tradeDate>
-      <effectiveDate>2013-02-01</effectiveDate>
       <maturityDate>2018-01-31</maturityDate>
       <counterparty>
         <id scheme="Cpty">GOLDMAN</id>
       </counterparty>
+      <effectiveDate>2013-02-01</effectiveDate>
 
       <fixedLeg>
         <payReceive>Pay</payReceive>
@@ -213,11 +216,11 @@
         <notional>1000000</notional>
         <frequency>12m</frequency>
         <dayCount>Actual/365</dayCount>
-        <businessDayConvention>Modified Following</businessDayConvention>
         <interestCalculation>Adjusted</interestCalculation>
+        <businessDayConvention>Modified Following</businessDayConvention>
         <scheduleGenerationDirection>Backward</scheduleGenerationDirection>
-        <endOfMonth>True</endOfMonth>
-        <isIMM>True</isIMM>
+        <endOfMonth>true</endOfMonth>
+        <isIMM>true</isIMM>
         <paymentCalendars>
           <calendar type="Bank"> <!-- default=BANK  -->
             <id scheme="CountryISO2">FD</id>
@@ -228,32 +231,29 @@
         </paymentCalendars>
         <stubPeriodType>Long</stubPeriodType>
         <!-- Default to ShortCoupon-->
-        <stubPeriodTypeAdjustment>LongCoupon|ShortCoupon</stubPeriodTypeAdjustment>
+        <stubPeriodTypeAdjustment>LongCoupon</stubPeriodTypeAdjustment>
         <rate>105.25</rate>
       </fixedLeg>
 
-      <floatingLeg type="InterestRate|Inflation">
+      <floatingLeg>
         <payReceive>Receive</payReceive>
         <currency>USD</currency>
         <!-- Notional could be array-valued -->
         <notional>1000000</notional>
         <!-- map to our InterestRateNotional where sign = Pay/Recieve flag -->
         <frequency>12m</frequency>
-        <!-- loader should support either spread or gearing for now, schema should allow both -->
-        <spread>5.25</spread>
-        <gearing>-3</gearing>
         <!-- use DayCountFactory -->
         <dayCount>Actual/365</dayCount>
-        <!-- use BusinessDayConventionFactory -->
-        <businessDayConvention>Modified Following</businessDayConvention>
         <!-- only adjusted supported now -->
         <interestCalculation>Adjusted</interestCalculation>
+        <!-- use BusinessDayConventionFactory -->
+        <businessDayConvention>Modified Following</businessDayConvention>
         <!-- only Backward supported -->
         <scheduleGenerationDirection>Backward</scheduleGenerationDirection>
         <!-- EOM -->
-        <endOfMonth>True</endOfMonth>
+        <endOfMonth>true</endOfMonth>
         <!-- must be false for now -->
-        <isIMM>True</isIMM>
+        <isIMM>true</isIMM>
 
 
         <paymentCalendars>
@@ -265,6 +265,10 @@
           </calendar>
           <!-- loader should enforce type=BANK for now and id schemes all the same for now -->
         </paymentCalendars>
+
+        <stubPeriodType>Long</stubPeriodType>
+        <!-- Interpolated - Default to ShortCoupon-->
+        <stubPeriodTypeAdjustment>ShortCoupon</stubPeriodTypeAdjustment>
 
         <!-- always short for now -->
         <!-- same as frequency for now -->
@@ -283,30 +287,30 @@
           <rateType>IBOR</rateType>
         </fixingIndex>
 
-        <stubPeriodType>Long</stubPeriodType>
-        <!-- Interpolated - Default to ShortCoupon-->
-        <stubPeriodTypeAdjustment>LongCoupon|ShortCoupon</stubPeriodTypeAdjustment>
+        <!-- loader should support either spread or gearing for now, schema should allow both -->
+        <spread>5.25</spread>
+        <gearing>-3</gearing>
       </floatingLeg>
     </swapTrade>
   </trades>
 
   <positions>
-    <position id="1">
+    <position id="p1">
       <quantity>1</quantity>
       <trades>
-        <trade ref="1"/>
+        <trade ref="t1"/>
       </trades>
     </position>
-    <position id="2">
+    <position id="p2">
       <quantity>1</quantity>
       <trades>
-        <trade ref="2"/>
+        <trade ref="t2"/>
       </trades>
     </position>
-    <position id="3">
+    <position id="p3">
       <quantity>1</quantity>
       <trades>
-        <trade ref="3"/>
+        <trade ref="t3"/>
       </trades>
     </position>
   </positions>
@@ -314,9 +318,9 @@
   <portfolios>
     <portfolio name="triple_irs_portfolio">
       <positions>
-        <position ref="1"/>
-        <position ref="2"/>
-        <position ref="3"/>
+        <position ref="p1"/>
+        <position ref="p2"/>
+        <position ref="p3"/>
       </positions>
     </portfolio>
   </portfolios>

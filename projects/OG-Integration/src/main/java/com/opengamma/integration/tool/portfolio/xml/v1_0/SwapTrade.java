@@ -9,10 +9,12 @@ import org.threeten.bp.LocalDate;
 @XmlRootElement
 public class SwapTrade extends Trade {
 
-  private FixedLeg fixedLeg;
-  private FloatingLeg floatingLeg;
   @XmlElement(name = "effectiveDate")
   private LocalDate _effectiveDate;
+
+  private FixedLeg fixedLeg;
+
+  private FloatingLeg floatingLeg;
 
   public FixedLeg getFixedLeg() {
     return fixedLeg;

@@ -1,343 +1,295 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <xs:element name="og-portfolio" type="og-portfolioType"/>
-  <xs:complexType name="fixingIndexType">
-    <xs:sequence>
-      <xs:element type="idType" name="id"/>
-      <xs:element name="rateType">
-        <xs:simpleType>
-          <xs:restriction base="xs:string">
-            <xs:enumeration value="OIS"/>
-            <xs:enumeration value="CMS"/>
-            <xs:enumeration value="IBOR"/>
-          </xs:restriction>
-        </xs:simpleType>
+<xs:schema version="1.0" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="fxOptionTrade" type="fxOptionTrade"/>
+  <xs:element name="og-portfolio" type="portfolioDocumentV10"/>
+  <xs:element name="position" type="position"/>
+  <xs:element name="positionRef" type="positionRef"/>
+  <xs:element name="swapTrade" type="swapTrade"/>
+  <xs:element name="trade" type="trade"/>
+  <xs:element name="tradeRef" type="tradeRef"/>
+  <xs:complexType name="portfolioDocumentV10">
+    <xs:all>
+      <xs:element minOccurs="0" name="portfolios">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element maxOccurs="unbounded" minOccurs="0"
+                        name="portfolio" type="portfolio"/>
+          </xs:sequence>
+        </xs:complexType>
       </xs:element>
+      <xs:element minOccurs="0" name="positions">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element maxOccurs="unbounded" minOccurs="0" ref="position"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element minOccurs="0" name="trades">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:choice maxOccurs="unbounded" minOccurs="0">
+              <xs:element ref="trade"/>
+              <xs:element ref="fxOptionTrade"/>
+              <xs:element ref="swapTrade"/>
+            </xs:choice>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:all>
+    <xs:attribute name="schemaVersion" type="xs:string"/>
+  </xs:complexType>
+  <xs:complexType name="portfolio">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="positions">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element maxOccurs="unbounded" minOccurs="0"
+                        name="position" type="positionRef"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element minOccurs="0" name="trades">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element maxOccurs="unbounded" minOccurs="0"
+                        name="trade" type="tradeRef"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element maxOccurs="unbounded" minOccurs="0"
+                  name="portfolio" type="portfolio"/>
+    </xs:sequence>
+    <xs:attribute name="name" type="xs:string"/>
+  </xs:complexType>
+  <xs:complexType name="positionRef">
+    <xs:sequence>
+      <xs:element minOccurs="0" ref="position"/>
+    </xs:sequence>
+    <xs:attribute name="ref" type="xs:IDREF"/>
+  </xs:complexType>
+  <xs:complexType name="position">
+    <xs:all>
+      <xs:element minOccurs="0" name="trades">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element maxOccurs="unbounded" minOccurs="0"
+                        name="trade" type="tradeRef"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element minOccurs="0" name="quantity" type="xs:decimal"/>
+      <xs:element minOccurs="0" name="security" type="idWrapper"/>
+    </xs:all>
+    <xs:attribute name="id" type="xs:ID"/>
+  </xs:complexType>
+  <xs:complexType name="tradeRef">
+    <xs:sequence>
+      <xs:element minOccurs="0" ref="trade"/>
+    </xs:sequence>
+    <xs:attribute name="ref" type="xs:IDREF"/>
+  </xs:complexType>
+  <xs:complexType name="trade">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="externalSystemId" type="idWrapper"/>
+      <xs:element minOccurs="0" name="tradeDate" type="xs:string"/>
+      <xs:element minOccurs="0" name="maturityDate" type="xs:string"/>
+      <xs:element minOccurs="0" name="settlementDate" type="xs:string"/>
+      <xs:element minOccurs="0" name="counterparty" type="idWrapper"/>
+      <xs:element minOccurs="0" name="premium" type="xs:decimal"/>
+      <xs:element minOccurs="0" name="premiumCurrency" type="xs:string"/>
+    </xs:sequence>
+    <xs:attribute name="id" type="xs:ID"/>
+  </xs:complexType>
+  <xs:complexType name="idWrapper">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="id" type="extId"/>
     </xs:sequence>
   </xs:complexType>
-  <xs:complexType name="idType">
+  <xs:complexType name="extId">
     <xs:simpleContent>
       <xs:extension base="xs:string">
-        <xs:attribute type="xs:string" name="scheme" use="optional"/>
+        <xs:attribute name="scheme" type="xs:string"/>
       </xs:extension>
     </xs:simpleContent>
   </xs:complexType>
-  <xs:simpleType name="payReceiveType">
+  <xs:complexType name="fxOptionTrade">
+    <xs:complexContent>
+      <xs:extension base="trade">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="callPut" type="callPut"/>
+          <xs:element minOccurs="0" name="buySell" type="buySell"/>
+          <xs:element minOccurs="0" name="currencyPair" type="xs:string"/>
+          <xs:element minOccurs="0" name="optionCurrency" type="xs:string"/>
+          <xs:element minOccurs="0" name="notional" type="xs:decimal"/>
+          <xs:element minOccurs="0" name="notionalCurrency" type="xs:string"/>
+          <xs:element minOccurs="0" name="expiryDate" type="xs:string"/>
+          <xs:element minOccurs="0" name="expiryCutoff" type="xs:string"/>
+          <xs:element minOccurs="0" name="settlementType" type="settlementType"/>
+          <xs:element minOccurs="0" name="settlementCurrency" type="xs:string"/>
+          <xs:element minOccurs="0" name="exerciseType" type="exerciseType"/>
+          <xs:element minOccurs="0" name="strike" type="xs:decimal"/>
+          <xs:element minOccurs="0" name="expiryCalendars">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element maxOccurs="unbounded"
+                            minOccurs="0" name="calendar" type="calendar"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element minOccurs="0" name="settlementCalendars">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element maxOccurs="unbounded"
+                            minOccurs="0" name="calendar" type="calendar"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="calendar">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="id" type="extId"/>
+    </xs:sequence>
+    <xs:attribute name="type" type="type"/>
+  </xs:complexType>
+  <xs:complexType name="swapTrade">
+    <xs:complexContent>
+      <xs:extension base="trade">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="effectiveDate" type="xs:string"/>
+          <xs:element minOccurs="0" name="fixedLeg" type="fixedLeg"/>
+          <xs:element minOccurs="0" name="floatingLeg" type="floatingLeg"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="fixedLeg">
+    <xs:complexContent>
+      <xs:extension base="swapLeg">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="rate" type="xs:decimal"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType abstract="true" name="swapLeg">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="payReceive" type="direction"/>
+      <xs:element minOccurs="0" name="currency" type="xs:string"/>
+      <xs:element minOccurs="0" name="notional" type="xs:decimal"/>
+      <xs:element minOccurs="0" name="frequency" type="xs:string"/>
+      <xs:element minOccurs="0" name="dayCount" type="xs:string"/>
+      <xs:element minOccurs="0" name="interestCalculation" type="interestCalculation"/>
+      <xs:element minOccurs="0" name="businessDayConvention" type="xs:string"/>
+      <xs:element minOccurs="0" name="scheduleGenerationDirection" type="xs:string"/>
+      <xs:element name="endOfMonth" type="xs:boolean"/>
+      <xs:element name="isIMM" type="xs:boolean"/>
+      <xs:element minOccurs="0" name="paymentCalendars">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element maxOccurs="unbounded" minOccurs="0"
+                        name="calendar" type="calendar"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element minOccurs="0" name="stubPeriodType" type="stubPeriodType"/>
+      <xs:element minOccurs="0" name="stubPeriodTypeAdjustment" type="stubPeriodTypeAdjustment"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="floatingLeg">
+    <xs:complexContent>
+      <xs:extension base="swapLeg">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="resetFrequency" type="xs:string"/>
+          <xs:element minOccurs="0" name="compoundingMethod" type="xs:string"/>
+          <xs:element minOccurs="0" name="resetLag" type="xs:string"/>
+          <xs:element minOccurs="0" name="resetType" type="resetType"/>
+          <xs:element minOccurs="0" name="fixingCalendars">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element maxOccurs="unbounded"
+                            minOccurs="0" name="calendar" type="calendar"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element minOccurs="0" name="fixingIndex" type="fixingIndex"/>
+          <xs:element minOccurs="0" name="spread" type="xs:decimal"/>
+          <xs:element minOccurs="0" name="gearing" type="xs:decimal"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="fixingIndex">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="id" type="extId"/>
+      <xs:element minOccurs="0" name="rateType" type="rateType"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:simpleType name="callPut">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Call"/>
+      <xs:enumeration value="Put"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="buySell">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Buy"/>
+      <xs:enumeration value="Sell"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="settlementType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Physical"/>
+      <xs:enumeration value="CashSettled"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="exerciseType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="European"/>
+      <xs:enumeration value="American"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="type">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Bank"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="direction">
     <xs:restriction base="xs:string">
       <xs:enumeration value="Pay"/>
       <xs:enumeration value="Receive"/>
     </xs:restriction>
   </xs:simpleType>
-  <xs:complexType name="tradesType">
-    <xs:all>
-      <xs:element type="swapTradeType" name="swapTrade" minOccurs="0">
-        <xs:annotation>
-          <xs:documentation>Trade id must be unique in this list</xs:documentation>
-        </xs:annotation>
-      </xs:element>
-    </xs:all>
-  </xs:complexType>
-  <xs:complexType name="portfoliosType">
-    <xs:all>
-      <xs:element type="portfolioType" name="portfolio" minOccurs="0"/>
-    </xs:all>
-  </xs:complexType>
-  <xs:complexType name="tradeLegsType">
-    <xs:all>
-      <xs:element type="floatingRateLegType" name="floatingRateLeg" minOccurs="1" maxOccurs="1"/>
-      <xs:element type="fixedLegType" name="fixedLeg" minOccurs="1" maxOccurs="1"/>
-    </xs:all>
-  </xs:complexType>
-  <xs:complexType name="og-portfolioType">
-    <xs:all>
-      <xs:element type="tradesType" name="trades" minOccurs="0"/>
-      <xs:element type="portfoliosType" name="portfolios" minOccurs="0"/>
-      <xs:element name="positions" minOccurs="0"/>
-    </xs:all>
-    <xs:attribute type="xs:float" name="schemaVersion"/>
-  </xs:complexType>
-  <xs:complexType name="portfolioType">
-    <xs:sequence>
-      <xs:element name="positionRefs"/>
-    </xs:sequence>
-    <xs:attribute type="xs:string" name="name"/>
-  </xs:complexType>
-
-  <xs:complexType name="swapTradeType">
-    <xs:all>
-      <xs:element type="xs:string" name="externalId">
-        <xs:annotation>
-          <xs:documentation>Probably should be unique in this file too</xs:documentation>
-        </xs:annotation>
-      </xs:element>
-      <xs:element type="xs:date" name="tradeDate"/>
-      <xs:element type="xs:date" name="effectiveDate"/>
-      <xs:element type="xs:date" name="maturity"/>
-      <xs:element type="counterpartyType" name="counterparty"/>
-      <xs:element type="xs:string" name="isCleared">
-        <xs:annotation>
-          <xs:documentation>optional</xs:documentation>
-        </xs:annotation>
-      </xs:element>
-      <xs:element type="xs:string" name="clearingBroker">
-        <xs:annotation>
-          <xs:documentation>optional</xs:documentation>
-        </xs:annotation>
-      </xs:element>
-      <xs:element type="xs:string" name="clearingHouse">
-        <xs:annotation>
-          <xs:documentation>optional</xs:documentation>
-        </xs:annotation>
-      </xs:element>
-      <xs:element type="xs:string" name="executingBroker">
-        <xs:annotation>
-          <xs:documentation>optional</xs:documentation>
-        </xs:annotation>
-      </xs:element>
-      <xs:element type="xs:string" name="primeBroker">
-        <xs:annotation>
-          <xs:documentation>optional</xs:documentation>
-        </xs:annotation>
-      </xs:element>
-      <xs:element type="xs:string" name="collateralAgreement">
-        <xs:annotation>
-          <xs:documentation>optional</xs:documentation>
-        </xs:annotation>
-      </xs:element>
-      <xs:element type="tradeAttributesType" name="tradeAttributes">
-        <xs:annotation>
-          <xs:documentation>Additional trade attributes - generally data that won't affect analytics</xs:documentation>
-        </xs:annotation>
-      </xs:element>
-      <xs:element type="tradeLegsType" name="tradeLegs"/>
-    </xs:all>
-    <xs:attribute type="xs:string" name="id"/>
-  </xs:complexType>
-  <xs:complexType name="paymentCalendarsType">
-    <xs:sequence>
-      <xs:element type="calendarType" name="calendar" maxOccurs="unbounded" minOccurs="0"/>
-    </xs:sequence>
-  </xs:complexType>
-  <xs:complexType name="tradeAttributesType">
-    <xs:sequence>
-      <xs:element type="entryType" name="entry"/>
-    </xs:sequence>
-  </xs:complexType>
-  <xs:complexType name="calendarType">
-    <xs:sequence>
-      <xs:element type="idType" name="id">
-        <xs:annotation>
-          <xs:documentation>default=BANK   default=BANK   default=BANK</xs:documentation>
-        </xs:annotation>
-      </xs:element>
-    </xs:sequence>
-    <xs:attribute type="xs:string" name="type" use="optional"/>
-  </xs:complexType>
-  <xs:complexType name="fixedLegType">
-    <xs:all>
-      <xs:element type="payReceiveType" name="payReceive"/>
-      <xs:element type="xs:string" name="currency"/>
-      <xs:element type="xs:int" name="notional">
-        <xs:annotation>
-          <xs:documentation>Notional could be array-valued</xs:documentation>
-        </xs:annotation>
-      </xs:element>
-      <xs:element type="xs:string" name="frequency"/>
-      <xs:element type="xs:float" name="rate"/>
-      <xs:element type="xs:string" name="dayCount"/>
-      <xs:element type="xs:string" name="businessDayConvention"/>
-      <xs:element type="xs:string" name="interestCalculation"/>
-      <xs:element type="xs:string" name="scheduleGenerationDirection"/>
-      <xs:element type="xs:string" name="endOfMonth"/>
-      <xs:element type="paymentCalendarsType" name="paymentCalendars"/>
-      <xs:element type="xs:string" name="isIMM"/>
-      <xs:element type="xs:string" name="stubPeriodType">
-        <xs:annotation>
-          <xs:documentation>default = short</xs:documentation>
-        </xs:annotation>
-      </xs:element>
-      <xs:element type="xs:string" name="stubPeriodTypeAdjustment"/>
-    </xs:all>
-  </xs:complexType>
-  <xs:complexType name="entryType">
-    <xs:simpleContent>
-      <xs:extension base="xs:string">
-        <xs:attribute type="xs:string" name="key"/>
-      </xs:extension>
-    </xs:simpleContent>
-  </xs:complexType>
-  <xs:complexType name="counterpartyType">
-    <xs:sequence>
-      <xs:element type="idType" name="id"/>
-    </xs:sequence>
-  </xs:complexType>
-  <xs:complexType name="floatingRateLegType">
-    <xs:all>
-      <xs:element type="payReceiveType" name="payReceive"/>
-      <xs:element type="xs:string" name="currency"/>
-      <xs:element type="xs:decimal" name="notional">
-        <xs:annotation>
-          <xs:documentation>Notional could be array-valued</xs:documentation>
-        </xs:annotation>
-      </xs:element>
-      <xs:element type="xs:string" name="frequency">
-        <xs:annotation>
-          <xs:documentation>map to our InterestRateNotional where sign = Pay/Recieve flag  values from SimpleFrequencyFactory</xs:documentation>
-        </xs:annotation>
-      </xs:element>
-      <xs:element type="xs:float" name="spread">
-        <xs:annotation>
-          <xs:documentation>loader should support ei ther spread or gearing for now, schema should allow both</xs:documentation>
-        </xs:annotation>
-      </xs:element>
-      <xs:element type="xs:float" name="gearing"/>
-      <xs:element type="xs:string" name="dayCount">
-        <xs:annotation>
-          <xs:documentation>use DayCountFactory</xs:documentation>
-        </xs:annotation>
-      </xs:element>
-      <xs:element type="xs:string" name="businessDayConvention">
-        <xs:annotation>
-          <xs:documentation>use BusinessDayConventionFactory</xs:documentation>
-        </xs:annotation>
-      </xs:element>
-      <xs:element type="xs:string" name="interestCalculation">
-        <xs:annotation>
-          <xs:documentation>only adjusted supported now</xs:documentation>
-        </xs:annotation>
-      </xs:element>
-      <xs:element type="xs:string" name="scheduleGenerationDirection">
-        <xs:annotation>
-          <xs:documentation>only Backward supported</xs:documentation>
-        </xs:annotation>
-      </xs:element>
-      <xs:element type="xs:string" name="endOfMonth">
-        <xs:annotation>
-          <xs:documentation>EOM</xs:documentation>
-        </xs:annotation>
-      </xs:element>
-      <xs:element type="xs:string" name="isIMM">
-        <xs:annotation>
-          <xs:documentation>must be false for now</xs:documentation>
-        </xs:annotation>
-      </xs:element>
-      <xs:element type="paymentCalendarsType" name="paymentCalendars">
-        <xs:annotation>
-          <xs:documentation>loader should enforce type=BANK for now and id schemes all the same for now</xs:documentation>
-        </xs:annotation>
-      </xs:element>
-      <xs:element type="xs:string" name="resetFrequency">
-        <xs:annotation>
-          <xs:documentation>same as frequency for now</xs:documentation>
-        </xs:annotation>
-      </xs:element>
-      <xs:element type="xs:string" name="compoundingMethod">
-        <xs:annotation>
-          <xs:documentation>not supported at the moment as frequencies must match</xs:documentation>
-        </xs:annotation>
-      </xs:element>
-      <xs:element type="xs:string" name="resetLag">
-        <xs:annotation>
-          <xs:documentation>we're assuming that resetLag == settlementLag at the moment</xs:documentation>
-        </xs:annotation>
-      </xs:element>
-      <xs:element name="resetType">
-        <xs:annotation>
-          <xs:documentation>InAdvance or InArrears.  Only support In advance at the mo</xs:documentation>
-        </xs:annotation>
-        <xs:simpleType>
-          <xs:restriction base="xs:string">
-            <xs:enumeration value="InAdvance"/>
-            <xs:enumeration value="InArrears"/>
-          </xs:restriction>
-        </xs:simpleType>
-
-      </xs:element>
-      <xs:element type="xs:string" name="fixingCalendar">
-        <xs:annotation>
-          <xs:documentation>same as payment calendar at the moment</xs:documentation>
-        </xs:annotation>
-      </xs:element>
-      <xs:element type="fixingIndexType" name="fixingIndex"/>
-
-      <xs:element type="xs:string" name="stubPeriodType">
-        <xs:annotation>
-          <xs:documentation>Interpolated</xs:documentation>
-        </xs:annotation>
-      </xs:element>
-
-      <xs:element type="xs:string" name="stubPeriodTypeAdjustment"/>
-    </xs:all>
-    <xs:attribute type="xs:string" name="type"/>
-  </xs:complexType>
-
-  <xs:element name="positions">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element ref="position"/>
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-
-  <xs:element name="positionAttributes">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element ref="positionAttribute" maxOccurs="unbounded" minOccurs="0">
-          <xs:annotation>
-            <xs:documentation>Position may have a quantity if there are trades but may be recalced from trade values instead</xs:documentation>
-          </xs:annotation>
-        </xs:element>
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-
-  <xs:element name="position">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element ref="positionAttributes"/>
-        <xs:element ref="tradeRefs"/>
-      </xs:sequence>
-      <xs:attribute type="xs:string" name="id"/>
-    </xs:complexType>
-  </xs:element>
-
-  <xs:element name="tradeRef">
-    <xs:complexType>
-      <xs:simpleContent>
-        <xs:extension base="xs:string">
-          <xs:attribute type="xs:string" name="ref"/>
-        </xs:extension>
-      </xs:simpleContent>
-    </xs:complexType>
-  </xs:element>
-
-  <xs:element name="positionRef">
-    <xs:complexType>
-      <xs:simpleContent>
-        <xs:extension base="xs:string">
-          <xs:attribute type="xs:string" name="ref"/>
-        </xs:extension>
-      </xs:simpleContent>
-    </xs:complexType>
-  </xs:element>
-
-  <xs:element name="positionAttribute">
-    <xs:complexType>
-      <xs:simpleContent>
-        <xs:extension base="xs:string">
-          <xs:attribute type="xs:string" name="key" use="optional"/>
-          <xs:attribute type="xs:string" name="value" use="optional"/>
-        </xs:extension>
-      </xs:simpleContent>
-    </xs:complexType>
-  </xs:element>
-
-  <xs:element name="tradeRefs">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element ref="tradeRef"/>
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-
+  <xs:simpleType name="interestCalculation">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Adjusted"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="stubPeriodType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Long"/>
+      <xs:enumeration value="Short"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="stubPeriodTypeAdjustment">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="LongCoupon"/>
+      <xs:enumeration value="ShortCoupon"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="resetType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="InAdvance"/>
+      <xs:enumeration value="InArrears"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="rateType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="OIS"/>
+      <xs:enumeration value="CMS"/>
+      <xs:enumeration value="IBOR"/>
+    </xs:restriction>
+  </xs:simpleType>
 </xs:schema>

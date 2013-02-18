@@ -6,29 +6,40 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.helpers.DefaultValidationEventHandler;
+import javax.xml.validation.Schema;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.util.ArgumentChecker;
 import com.sun.xml.internal.bind.IDResolver;
 
 public abstract class PortfolioConversion {
 
+  public static final String SCHEMA_LOCATION = "src/main/resources/portfolio-schemas";
+
   private final Class _portfolioDocumentClass;
   private final PortfolioDocumentConverter _portfolioConverter;
   private final IdRefResolverFactory _idRefResolverFactory;
+  private final FilesystemPortfolioSchemaLocator _schemaLocator = new FilesystemPortfolioSchemaLocator(new File(SCHEMA_LOCATION));
+  private final Schema _schema;
 
-  public PortfolioConversion(Class portfolioDocumentClass,
+  public PortfolioConversion(SchemaVersion schemaVersion,
+                             Class portfolioDocumentClass,
                              PortfolioDocumentConverter converter,
                              IdRefResolverFactory idRefResolverFactory) {
 
     _portfolioDocumentClass = portfolioDocumentClass;
     _portfolioConverter = converter;
     _idRefResolverFactory = idRefResolverFactory;
+    _schema = _schemaLocator.lookupSchema(schemaVersion);
+
+    ArgumentChecker.notNull(_schema, "schema");
   }
 
   public VersionedPortfolioHandler convertPortfolio(File file) {
 
     try {
-      return _portfolioConverter.convert(createUnmarshaller().unmarshal(file));
+      Unmarshaller unmarshaller = createUnmarshaller();
+      return _portfolioConverter.convert(unmarshaller.unmarshal(file));
     } catch (JAXBException e) {
       throw new OpenGammaRuntimeException("Error parsing XML content", e);
     }
@@ -38,6 +49,8 @@ public abstract class PortfolioConversion {
 
     JAXBContext jc = JAXBContext.newInstance(_portfolioDocumentClass);
     Unmarshaller unmarshaller = jc.createUnmarshaller();
+
+    unmarshaller.setSchema(_schema);
 
     // Output parsing info to System.out
     unmarshaller.setEventHandler(new DefaultValidationEventHandler());

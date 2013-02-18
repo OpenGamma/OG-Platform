@@ -2,6 +2,13 @@ package com.opengamma.integration.tool.portfolio.xml;
 
 import java.io.File;
 
+import javax.xml.XMLConstants;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
+
+import org.xml.sax.SAXException;
+
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -24,13 +31,20 @@ public class FilesystemPortfolioSchemaLocator implements SchemaLocator {
    * Checks if a file with the expected name for the specified version exists in the
    * schema directory. If it does, then it is returned, else null.
    *
+   *
    * @param version the version of the schema to check for
    * @return a schema with the required version if it exists, null otherwise
    */
   @Override
-  public File lookupSchema(SchemaVersion version) {
+  public Schema lookupSchema(SchemaVersion version) {
 
+    SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
     File requiredFile = new File(_schemaLocation, "portfolio-schema-" + version.toString() + ".xsd");
-    return requiredFile.exists() ? requiredFile : null;
+
+    try {
+      return requiredFile.exists() ? factory.newSchema(requiredFile) : null;
+    } catch (SAXException e) {
+      throw new OpenGammaRuntimeException("Unable to parse schema file", e);
+    }
   }
 }

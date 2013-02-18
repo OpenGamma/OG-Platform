@@ -21,7 +21,7 @@ public class GenerateSchema {
   @Test
   public void generate() throws JAXBException, IOException {
 
-    JAXBContext ctx = JAXBContext.newInstance(Portfolio.class);
+    JAXBContext ctx = JAXBContext.newInstance(PortfolioDocumentV1_0.class);
 
     DOMResult result = extractSchemaResult(ctx);
 
