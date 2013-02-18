@@ -46,7 +46,8 @@ public class FudgeObjectXMLConsumer extends FudgeBase implements MessageBodyRead
   @Override
   public boolean isReadable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
     return type != String.class &&  // allow manually created JSON string to work
-        getFudgeContext().getObjectDictionary().getMessageBuilder(type) != null;
+        getFudgeContext().getObjectDictionary().getMessageBuilder(type) != null
+        && !getFudgeContext().getObjectDictionary().getMessageBuilder(type).getClass().getCanonicalName().equals("org.fudgemsg.mapping.JavaBeanBuilder");
   }
 
   @Override
