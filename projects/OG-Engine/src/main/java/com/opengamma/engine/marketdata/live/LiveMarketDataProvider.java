@@ -22,6 +22,7 @@ import com.opengamma.engine.marketdata.InMemoryLKVMarketDataProvider;
 import com.opengamma.engine.marketdata.MarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.MarketDataProvider;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
+import com.opengamma.engine.marketdata.availability.AbstractMarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
@@ -33,6 +34,7 @@ import com.opengamma.livedata.LiveDataValueUpdate;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResult;
+import com.opengamma.livedata.normalization.StandardRules;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -55,7 +57,7 @@ public class LiveMarketDataProvider extends AbstractMarketDataProvider implement
   private final UserPrincipal _marketDataUser;
 
   public LiveMarketDataProvider(final LiveDataClient liveDataClient,
-      final MarketDataAvailabilityProvider availabilityProvider,
+      final AbstractMarketDataAvailabilityProvider availabilityProvider,
       final UserPrincipal marketDataUser) {
     this(liveDataClient,
         availabilityProvider,
@@ -64,7 +66,7 @@ public class LiveMarketDataProvider extends AbstractMarketDataProvider implement
   }
 
   public LiveMarketDataProvider(final LiveDataClient liveDataClient,
-      final MarketDataAvailabilityProvider availabilityProvider,
+      final AbstractMarketDataAvailabilityProvider availabilityProvider,
       final MarketDataPermissionProvider permissionProvider,
       final UserPrincipal marketDataUser) {
     ArgumentChecker.notNull(liveDataClient, "liveDataClient");
@@ -72,7 +74,7 @@ public class LiveMarketDataProvider extends AbstractMarketDataProvider implement
     ArgumentChecker.notNull(permissionProvider, "permissionProvider");
     ArgumentChecker.notNull(marketDataUser, "marketDataUser");
     _liveDataClient = liveDataClient;
-    _availabilityProvider = availabilityProvider;
+    _availabilityProvider = new LiveMarketDataAvailabilityProvider(StandardRules.getOpenGammaRuleSetId(), availabilityProvider);
     _underlyingProvider = new InMemoryLKVMarketDataProvider();
     _permissionProvider = permissionProvider;
     _marketDataUser = marketDataUser;
@@ -89,7 +91,7 @@ public class LiveMarketDataProvider extends AbstractMarketDataProvider implement
     synchronized (_liveDataSpec2Subscriptions) {
       _failedSubscriptions.removeAll(valueSpecifications); //Put these back to a waiting state so that we can try again
       for (final ValueSpecification valueSpecification : valueSpecifications) {
-        final LiveDataSpecification liveDataSpec = LiveDataSpecificationLookup.getLiveDataSpecification(valueSpecification);
+        final LiveDataSpecification liveDataSpec = LiveMarketDataAvailabilityProvider.getLiveDataSpecification(valueSpecification);
         Set<ValueSpecification> subscriptions = _liveDataSpec2Subscriptions.get(liveDataSpec);
         if (subscriptions == null) {
           subscriptions = new CopyOnWriteArraySet<ValueSpecification>();
@@ -120,7 +122,7 @@ public class LiveMarketDataProvider extends AbstractMarketDataProvider implement
     synchronized (_liveDataSpec2Subscriptions) {
       _failedSubscriptions.removeAll(valueSpecifications);
       for (final ValueSpecification valueSpecification : valueSpecifications) {
-        final LiveDataSpecification liveDataSpec = LiveDataSpecificationLookup.getLiveDataSpecification(valueSpecification);
+        final LiveDataSpecification liveDataSpec = LiveMarketDataAvailabilityProvider.getLiveDataSpecification(valueSpecification);
         final Set<ValueSpecification> subscriptions = _liveDataSpec2Subscriptions.get(liveDataSpec);
         if (subscriptions != null) {
           subscriptions.remove(valueSpecification);

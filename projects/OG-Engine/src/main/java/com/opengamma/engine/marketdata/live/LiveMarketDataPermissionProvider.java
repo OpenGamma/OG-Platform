@@ -67,7 +67,7 @@ public class LiveMarketDataPermissionProvider implements MarketDataPermissionPro
   private Map<LiveDataSpecification, Collection<ValueSpecification>> getRequiredLiveDataSpecifications(final Set<ValueSpecification> specifications) {
     final Map<LiveDataSpecification, Collection<ValueSpecification>> returnValue = Maps.newHashMapWithExpectedSize(specifications.size());
     for (final ValueSpecification specification : specifications) {
-      final LiveDataSpecification liveDataSpec = LiveDataSpecificationLookup.getLiveDataSpecification(specification);
+      final LiveDataSpecification liveDataSpec = LiveMarketDataAvailabilityProvider.getLiveDataSpecification(specification);
       Collection<ValueSpecification> specs = returnValue.get(liveDataSpec);
       if (specs == null) {
         specs = new ArrayList<ValueSpecification>();
