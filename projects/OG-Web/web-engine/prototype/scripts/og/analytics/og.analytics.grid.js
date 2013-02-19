@@ -91,7 +91,6 @@ $.register_module({
             };
             var mouseup = function (grid, event) {
                 clean_up(grid);
-                console.log('nearest', nearest);
             };
             var scroll = function () {$('.' + line).hide();};
             return function (event, $target) {
