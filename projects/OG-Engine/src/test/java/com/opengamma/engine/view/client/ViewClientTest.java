@@ -29,6 +29,7 @@ import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
 import com.opengamma.engine.marketdata.InMemoryLKVMarketDataProvider;
 import com.opengamma.engine.marketdata.InMemoryLKVMarketDataSnapshot;
+import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityFilter;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
@@ -723,6 +724,12 @@ public class ViewClientTest {
             return underlying.getAvailability(targetSpec, target, desiredValue);
           }
         }
+
+        @Override
+        public MarketDataAvailabilityFilter getAvailabilityFilter() {
+          throw new UnsupportedOperationException();
+        }
+
       };
     }
 

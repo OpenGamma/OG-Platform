@@ -23,7 +23,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Market data availability delegate that can perform conversion to/from the {@link LiveDataSpecification} objects needed by the data provider.
  */
-/* package */class LiveMarketDataAvailabilityProvider extends AbstractMarketDataAvailabilityProvider.Delegate {
+/* package */class LiveMarketDataAvailabilityProvider extends AbstractMarketDataAvailabilityProvider {
 
   private static final String IDENTIFIER_PROPERTY = "Id";
 
@@ -36,10 +36,8 @@ import com.opengamma.util.ArgumentChecker;
    * Constructs a new instance.
    * 
    * @param normalizationRules the normalization rules to use
-   * @param underlying the underlying availability provider to use
    */
-  public LiveMarketDataAvailabilityProvider(final String normalizationRules, final AbstractMarketDataAvailabilityProvider underlying) {
-    super(underlying);
+  public LiveMarketDataAvailabilityProvider(final String normalizationRules) {
     ArgumentChecker.notNull(normalizationRules, "normalizationRules");
     _target = new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueId.of("Data", normalizationRules));
   }
@@ -91,6 +89,13 @@ import com.opengamma.util.ArgumentChecker;
 
   @Override
   protected ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final UniqueId identifier, final ValueRequirement desiredValue) {
+    // Can't provide any live data unless there is an external identifier recognized by the data provider
+    return null;
+  }
+
+  @Override
+  protected ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final ValueRequirement desiredValue) {
+    // Can't provide any live data for the NULL target
     return null;
   }
 

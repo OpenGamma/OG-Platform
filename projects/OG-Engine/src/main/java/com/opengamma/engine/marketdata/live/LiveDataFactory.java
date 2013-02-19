@@ -5,7 +5,7 @@
  */
 package com.opengamma.engine.marketdata.live;
 
-import com.opengamma.engine.marketdata.availability.AbstractMarketDataAvailabilityProvider;
+import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityFilter;
 import com.opengamma.livedata.LiveDataClient;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
@@ -16,17 +16,22 @@ import com.opengamma.util.ArgumentChecker;
 public class LiveDataFactory {
 
   private final LiveDataClient _liveDataClient;
-  private final AbstractMarketDataAvailabilityProvider _availabilityProvider;
+  private final MarketDataAvailabilityFilter _availabilityFilter;
 
-  public LiveDataFactory(final LiveDataClient liveDataClient,
-      final AbstractMarketDataAvailabilityProvider availabilityProvider) {
+  /**
+   * Creates a new factory.
+   * 
+   * @param liveDataClient the live data client to use to source data values
+   * @param availabilityFilter the filter describing which values to source from this live data client
+   */
+  public LiveDataFactory(final LiveDataClient liveDataClient, final MarketDataAvailabilityFilter availabilityFilter) {
     ArgumentChecker.notNull(liveDataClient, "liveDataClient");
-    ArgumentChecker.notNull(availabilityProvider, "availabilityProvider");
+    ArgumentChecker.notNull(availabilityFilter, "availabilityFilter");
     _liveDataClient = liveDataClient;
-    _availabilityProvider = availabilityProvider;
+    _availabilityFilter = availabilityFilter;
   }
 
   /* package */LiveMarketDataProvider create(final UserPrincipal user) {
-    return new LiveMarketDataProvider(_liveDataClient, _availabilityProvider, user);
+    return new LiveMarketDataProvider(_liveDataClient, _availabilityFilter, user);
   }
 }

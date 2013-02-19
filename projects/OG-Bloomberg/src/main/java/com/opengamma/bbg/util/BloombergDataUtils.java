@@ -79,7 +79,7 @@ import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.core.value.MarketDataRequirementNamesHelper;
 import com.opengamma.engine.marketdata.availability.DomainMarketDataAvailabilityFilter;
-import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
+import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityFilter;
 import com.opengamma.financial.analytics.ircurve.NextMonthlyExpiryAdjuster;
 import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.id.ExternalId;
@@ -292,7 +292,7 @@ public final class BloombergDataUtils {
     return fieldAdjustmentMap;
   }
 
-  public static MarketDataAvailabilityProvider createAvailabilityProvider() {
+  public static MarketDataAvailabilityFilter createAvailabilityFilter() {
     final Set<ExternalScheme> acceptableSchemes = ImmutableSet.of(
         ExternalSchemes.BLOOMBERG_BUID_WEAK,
         ExternalSchemes.BLOOMBERG_BUID,
@@ -434,7 +434,7 @@ public final class BloombergDataUtils {
     }
     for (final FudgeField field : fieldData.getAllByName(FIELD_OPT_CHAIN)) {
       final FudgeMsg chainContainer = (FudgeMsg) field.getValue();
-      final String identifier =  StringUtils.trimToNull(chainContainer.getString("Security Description"));
+      final String identifier = StringUtils.trimToNull(chainContainer.getString("Security Description"));
       if (identifier != null) {
         final ExternalId ticker = ExternalSchemes.bloombergTickerSecurityId(BloombergDataUtils.removeDuplicateWhiteSpace(identifier, " "));
         result.add(ticker);
@@ -444,10 +444,9 @@ public final class BloombergDataUtils {
   }
 
   /**
-   * Get the future chain for a security.
-   * There may be futures on multiple exchanges - in general need to restrict to exchanges using the same currency.
-   * Equities: restrict to One Chicago futures with a lead market maker (e.g. AAPL=G3 OC Equity)
-   *
+   * Get the future chain for a security. There may be futures on multiple exchanges - in general need to restrict to exchanges using the same currency. Equities: restrict to One Chicago futures with
+   * a lead market maker (e.g. AAPL=G3 OC Equity)
+   * 
    * @param refDataProvider the reference data provider
    * @param securityID the security
    * @return the (ordered)
@@ -477,7 +476,8 @@ public final class BloombergDataUtils {
 
   /**
    * Checks if the specified field contains valid data.
-   * @param name  the field name, not null
+   * 
+   * @param name the field name, not null
    * @return true if the field is valid
    */
   public static boolean isValidField(final String name) {
@@ -589,7 +589,8 @@ public final class BloombergDataUtils {
 
   /**
    * Given a position master, it pulls the current positions identifier bundles.
-   * @param positionMaster  the position master, not-null
+   * 
+   * @param positionMaster the position master, not-null
    * @return a set of bundles of current positions
    */
   public static Set<ExternalIdBundle> getCurrentIdentifiers(final PositionMaster positionMaster) {
@@ -597,14 +598,15 @@ public final class BloombergDataUtils {
     final PositionSearchRequest searchRequest = new PositionSearchRequest();
     final Set<ExternalIdBundle> securities = new HashSet<ExternalIdBundle>();
     for (final PositionDocument doc : PositionSearchIterator.iterable(positionMaster, searchRequest)) {
-      securities.add(doc.getPosition().getSecurityLink().getExternalId());  // TODO: doesn't work if linked by object id
+      securities.add(doc.getPosition().getSecurityLink().getExternalId()); // TODO: doesn't work if linked by object id
     }
     return securities;
   }
 
   /**
    * Removes duplicate whitespace from the specified field.
-   * @param field  the field name, not null
+   * 
+   * @param field the field name, not null
    * @param replacement the replacement string, not null
    * @return the stripped field, not null
    */
@@ -643,12 +645,11 @@ public final class BloombergDataUtils {
   }
 
   /**
-   * Convert bundles to preferred bloomberg keys.
-   * Where possible these keys will be BUIDs [BBG-87]
-   *
+   * Convert bundles to preferred bloomberg keys. Where possible these keys will be BUIDs [BBG-87]
+   * 
    * @param identifiers the collection of bundles, not null
    * @param refDataProvider the ReferenceDataProvider to use to resolve bundles not containing BUIDs, not null
-   * @return BiMap  of bloomberg key (hopefully a buid key) to bundle, not null
+   * @return BiMap of bloomberg key (hopefully a buid key) to bundle, not null
    */
   public static BiMap<String, ExternalIdBundle> convertToBloombergBuidKeys(final Collection<ExternalIdBundle> identifiers, final ReferenceDataProvider refDataProvider) {
     ArgumentChecker.notNull(identifiers, "identifiers");
@@ -684,17 +685,16 @@ public final class BloombergDataUtils {
     return bundle2Bbgkey;
   }
 
-  private static <TKey, TValue>  void changeKey(final TKey oldKey, final TKey newKey, final BiMap<TKey, TValue> map) {
+  private static <TKey, TValue> void changeKey(final TKey oldKey, final TKey newKey, final BiMap<TKey, TValue> map) {
     //REVIEW simon : is it ok that we discard duplicates here
     final TValue oldValue = map.remove(oldKey);
     map.put(newKey, oldValue);
   }
 
   /**
-   * Splits a ticker at the market sector, returning a pair of the ticker excluding the market sector and the market
-   * sector itself.
-   *
-   * @param ticker  the ticker, not null
+   * Splits a ticker at the market sector, returning a pair of the ticker excluding the market sector and the market sector itself.
+   * 
+   * @param ticker the ticker, not null
    * @return a pair of the ticker excluding the market sector, and the market sector, not null
    */
   public static Pair<String, String> splitTickerAtMarketSector(final String ticker) {
@@ -721,11 +721,11 @@ public final class BloombergDataUtils {
 
   /**
    * Generates an equity option ticker from details about the option.
-   *
-   * @param underlyingTicker  the ticker of the underlying equity, not null
-   * @param expiry  the option expiry, not null
-   * @param optionType  the option type, not null
-   * @param strike  the strike rate
+   * 
+   * @param underlyingTicker the ticker of the underlying equity, not null
+   * @param expiry the option expiry, not null
+   * @param optionType the option type, not null
+   * @param strike the strike rate
    * @return the equity option ticker, not null
    */
   public static ExternalId generateEquityOptionTicker(final String underlyingTicker, final Expiry expiry, final OptionType optionType, final double strike) {
@@ -738,13 +738,13 @@ public final class BloombergDataUtils {
     final String strikeString = strikeFormat.format(strike);
     final StringBuilder sb = new StringBuilder();
     sb.append(tickerMarketSectorPair.getFirst())
-      .append(' ')
-      .append(expiry.getExpiry().toString(expiryFormatter))
-      .append(' ')
-      .append(optionType == OptionType.PUT ? 'P' : 'C')
-      .append(strikeString)
-      .append(' ')
-      .append(tickerMarketSectorPair.getSecond());
+        .append(' ')
+        .append(expiry.getExpiry().toString(expiryFormatter))
+        .append(' ')
+        .append(optionType == OptionType.PUT ? 'P' : 'C')
+        .append(strikeString)
+        .append(' ')
+        .append(tickerMarketSectorPair.getSecond());
     return ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, sb.toString());
   }
 
@@ -848,12 +848,11 @@ public final class BloombergDataUtils {
     return null;
   }
 
-
   //-------------------------------------------------------------------------
   /**
    * Resolves the data provider name.
-   *
-   * @param dataProvider  the data provider, null returns the unknown value
+   * 
+   * @param dataProvider the data provider, null returns the unknown value
    * @return the resolver data provider, not null
    */
   public static String resolveDataProvider(final String dataProvider) {
@@ -862,8 +861,8 @@ public final class BloombergDataUtils {
 
   /**
    * Resolves the data provider to provide an observation time.
-   *
-   * @param dataProvider  the data provider, null returns the unknown value
+   * 
+   * @param dataProvider the data provider, null returns the unknown value
    * @return the corresponding observation time for the given data provider
    */
   public static String resolveObservationTime(final String dataProvider) {
@@ -875,11 +874,11 @@ public final class BloombergDataUtils {
   }
 
   private static DateTimeFormatter BLOOMBERG_DATE_FORMATTER = new DateTimeFormatterBuilder()
-    .parseCaseInsensitive()
-    .appendValue(YEAR, 4)
-    .appendValue(MONTH_OF_YEAR, 2)
-    .appendValue(DAY_OF_MONTH, 2)
-    .toFormatter();
+      .parseCaseInsensitive()
+      .appendValue(YEAR, 4)
+      .appendValue(MONTH_OF_YEAR, 2)
+      .appendValue(DAY_OF_MONTH, 2)
+      .toFormatter();
 
   public static String toBloombergDate(LocalDate localDate) {
     localDate = localDate.withYear(Math.min(9999, localDate.getYear()));
@@ -888,6 +887,7 @@ public final class BloombergDataUtils {
 
   /**
    * Returns future month code for a given month
+   * 
    * @param month the month of year, not null
    * @return the future month code, null if not available
    */

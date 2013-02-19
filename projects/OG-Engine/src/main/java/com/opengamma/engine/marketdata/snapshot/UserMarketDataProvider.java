@@ -28,8 +28,7 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Implementation of {@link MarketDataProvider} which sources its data from user-generated snapshots from a
- * {@link MarketDataSnapshotSource}.
+ * Implementation of {@link MarketDataProvider} which sources its data from user-generated snapshots from a {@link MarketDataSnapshotSource}.
  */
 public class UserMarketDataProvider extends AbstractMarketDataProvider {
 
@@ -111,7 +110,7 @@ public class UserMarketDataProvider extends AbstractMarketDataProvider {
       // [PLAT-1459] 2011-10-03 -- missing values in the snapshot will prevent the dep graph from building even though
       // it builds in the live case where the availability provider is more optimistic. Using a union of the two works
       // around this problem.
-      return new UnionMarketDataAvailability(Arrays.asList(getBaseMarketDataAvailabilityProvider(), snapshot.getAvailabilityProvider()));
+      return new UnionMarketDataAvailability.Provider(Arrays.asList(getBaseMarketDataAvailabilityProvider(), snapshot.getAvailabilityProvider()));
     }
   }
 

@@ -32,7 +32,7 @@ import com.opengamma.engine.function.CompiledFunctionRepository;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.exclusion.FunctionExclusionGroup;
 import com.opengamma.engine.function.exclusion.FunctionExclusionGroups;
-import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
+import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityFilter;
 import com.opengamma.engine.marketdata.availability.MarketDataNotSatisfiableException;
 import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.target.ComputationTargetResolverUtils;
@@ -134,7 +134,7 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
     private final FunctionCompilationContext _context;
     private final Collection<CompiledFunctionDefinition> _functions;
     private final FunctionExclusionGroups _functionExclusionGroups;
-    private final MarketDataAvailabilityProvider _marketDataAvailabilityProvider;
+    private final MarketDataAvailabilityFilter _marketDataAvailabilityFilter;
     private final Map<UniqueId, UniqueIdentifiable> _targetCache;
     private final Map<ComputationTarget, Map<CompiledFunctionDefinition, Set<ValueSpecification>>> _resultsCache =
         new HashMap<ComputationTarget, Map<CompiledFunctionDefinition, Set<ValueSpecification>>>();
@@ -144,11 +144,11 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
     private int _work;
 
     public FunctionApplicator(final FunctionCompilationContext context, final Collection<CompiledFunctionDefinition> functions, final FunctionExclusionGroups functionExclusionGroups,
-        final MarketDataAvailabilityProvider marketDataAvailabilityProvider, final TargetCachePopulator targetCache) {
+        final MarketDataAvailabilityFilter marketDataAvailabilityFilter, final TargetCachePopulator targetCache) {
       _context = context;
       _functions = functions;
       _functionExclusionGroups = functionExclusionGroups;
-      _marketDataAvailabilityProvider = marketDataAvailabilityProvider;
+      _marketDataAvailabilityFilter = marketDataAvailabilityFilter;
       _totalWork = targetCache.getWork() * functions.size();
       _targetCache = targetCache.getCache();
     }
@@ -249,7 +249,7 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
 
     public boolean isAvailable(final ComputationTargetSpecification targetSpec, final Object target, final ValueRequirement requirement) {
       try {
-        return _marketDataAvailabilityProvider.getAvailability(targetSpec, target, requirement) != null;
+        return _marketDataAvailabilityFilter.isAvailable(targetSpec, target, requirement);
       } catch (final MarketDataNotSatisfiableException e) {
         return false;
       }
@@ -468,19 +468,19 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
    * @param portfolio the portfolio (must be resolved), not null
    * @param functionRepository the functions, not null
    * @param functionExclusionGroups the function exclusion groups
-   * @param marketDataAvailabilityProvider the market data availability provider, not null
+   * @param marketDataAvailability the market data availability, not null
    * @param anyValue value to use when composing a wild-card with a finite set of property values, or null to not compose
    */
   public AvailablePortfolioOutputs(final Portfolio portfolio, final CompiledFunctionRepository functionRepository, final FunctionExclusionGroups functionExclusionGroups,
-      final MarketDataAvailabilityProvider marketDataAvailabilityProvider, final String anyValue) {
+      final MarketDataAvailabilityFilter marketDataAvailability, final String anyValue) {
     ArgumentChecker.notNull(portfolio, "portfolio");
     ArgumentChecker.notNull(functionRepository, "functions");
-    ArgumentChecker.notNull(marketDataAvailabilityProvider, "marketDataAvailabilityProvider");
+    ArgumentChecker.notNull(marketDataAvailability, "marketDataAvailability");
     _anyValue = anyValue;
     final Collection<CompiledFunctionDefinition> functions = functionRepository.getAllFunctions();
     final TargetCachePopulator targetCachePopulator = new TargetCachePopulator();
     PortfolioNodeTraverser.depthFirst(targetCachePopulator).traverse(portfolio.getRootNode());
-    PortfolioNodeTraverser.depthFirst(new FunctionApplicator(functionRepository.getCompilationContext(), functions, functionExclusionGroups, marketDataAvailabilityProvider, targetCachePopulator))
+    PortfolioNodeTraverser.depthFirst(new FunctionApplicator(functionRepository.getCompilationContext(), functions, functionExclusionGroups, marketDataAvailability, targetCachePopulator))
         .traverse(portfolio.getRootNode());
   }
 

@@ -28,6 +28,8 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class FixedMarketDataAvailabilityProvider implements MarketDataAvailabilityProvider {
 
+  // TODO: The correct implementation of this is within InMemoryLKVMarketDataProvider
+
   private static final class TargetMarketData {
 
     private Set<String> _missing;

@@ -19,13 +19,13 @@ import org.threeten.bp.Instant;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.change.ChangeType;
-import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.marketdata.InMemoryLKVMarketDataProvider;
 import com.opengamma.engine.marketdata.MarketDataListener;
 import com.opengamma.engine.marketdata.MarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.MarketDataProvider;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
 import com.opengamma.engine.marketdata.PermissiveMarketDataPermissionProvider;
+import com.opengamma.engine.marketdata.availability.FixedMarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.live.LiveMarketDataProvider;
 import com.opengamma.engine.marketdata.live.LiveMarketDataSnapshot;
@@ -36,7 +36,6 @@ import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.test.TestViewResultListener;
 import com.opengamma.engine.test.ViewProcessorTestEnvironment;
 import com.opengamma.engine.value.ComputedValue;
-import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewProcessImpl;
@@ -325,10 +324,11 @@ public class ViewComputationJobTest {
     }
   }
 
-  private static class TestLiveMarketDataProvider implements MarketDataProvider, MarketDataAvailabilityProvider {
+  private static class TestLiveMarketDataProvider implements MarketDataProvider {
 
     private final String _sourceName;
     private final InMemoryLKVMarketDataProvider _underlyingProvider;
+    private final FixedMarketDataAvailabilityProvider _availability;
     private final LiveDataClient _dummyLiveDataClient = new LiveDataClient() {
 
       @Override
@@ -382,6 +382,9 @@ public class ViewComputationJobTest {
       ArgumentChecker.notNull(sourceName, "sourceName");
       _sourceName = sourceName;
       _underlyingProvider = underlyingProvider;
+      _availability = new FixedMarketDataAvailabilityProvider();
+      _availability.addAvailableData(_underlyingProvider.resolveRequirement(ViewProcessorTestEnvironment.getPrimitive1()));
+      _availability.addAvailableData(_underlyingProvider.resolveRequirement(ViewProcessorTestEnvironment.getPrimitive2()));
     }
 
     @Override
@@ -416,7 +419,7 @@ public class ViewComputationJobTest {
 
     @Override
     public MarketDataAvailabilityProvider getAvailabilityProvider() {
-      return this;
+      return _availability;
     }
 
     @Override
@@ -436,18 +439,7 @@ public class ViewComputationJobTest {
     @Override
     public MarketDataSnapshot snapshot(final MarketDataSpecification marketDataSpec) {
       return new LiveMarketDataSnapshot(_underlyingProvider.snapshot(marketDataSpec),
-          new LiveMarketDataProvider(_dummyLiveDataClient, getAvailabilityProvider(), UserPrincipal.getTestUser()));
-    }
-
-    @Override
-    public ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final Object target, final ValueRequirement desiredValue) {
-      if (desiredValue.equals(ViewProcessorTestEnvironment.getPrimitive1()) || desiredValue.equals(ViewProcessorTestEnvironment.getPrimitive2())) {
-        // Want the market data provider to indicate that data is available even before it's really available
-        // [PLAT-3044] Need to use the same logic that the underlyingProvider will use so that the correct value specification is created even before the provider will do it
-        throw new UnsupportedOperationException("[PLAT-3044] Create a value specification for " + targetSpec + " (" + target + ") to satisfy " + desiredValue);
-      } else {
-        return null;
-      }
+          new LiveMarketDataProvider(_dummyLiveDataClient, getAvailabilityProvider().getAvailabilityFilter(), UserPrincipal.getTestUser()));
     }
 
     @Override

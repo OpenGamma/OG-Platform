@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.view.calc;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -21,8 +22,10 @@ import com.opengamma.engine.marketdata.MarketDataListener;
 import com.opengamma.engine.marketdata.MarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.MarketDataProvider;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
+import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityFilter;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.availability.MarketDataNotSatisfiableException;
+import com.opengamma.engine.marketdata.availability.UnionMarketDataAvailability;
 import com.opengamma.engine.marketdata.resolver.MarketDataProviderResolver;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.value.ValueProperties;
@@ -34,15 +37,18 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * <p>A source of market data that aggregates data from multiple underlying {@link MarketDataProvider}s.
- * Each request for market data is handled by one of the underlying providers. When a subscription is made
- * the underlying providers are checked in priority order until one of them is able to provide the data.</p>
- * <p>All notifications of market data updates and subscription changes are delivered to all listeners. Therefore
- * instances of this class shouldn't be shared between multiple view processes.</p>
- * <p>This class isn't thread safe. It is intended for use in ViewComputationJob where it will only ever be accessed
- * by a single thread.</p>
+ * <p>
+ * A source of market data that aggregates data from multiple underlying {@link MarketDataProvider}s. Each request for market data is handled by one of the underlying providers. When a subscription is
+ * made the underlying providers are checked in priority order until one of them is able to provide the data.
+ * </p>
+ * <p>
+ * All notifications of market data updates and subscription changes are delivered to all listeners. Therefore instances of this class shouldn't be shared between multiple view processes.
+ * </p>
+ * <p>
+ * This class isn't thread safe. It is intended for use in ViewComputationJob where it will only ever be accessed by a single thread.
+ * </p>
  */
-/* package */ class ViewComputationJobDataProvider {
+/* package */class ViewComputationJobDataProvider {
 
   private static final String PROVIDER_PROPERTY = "Provider";
 
@@ -60,7 +66,7 @@ import com.opengamma.util.tuple.Pair;
    * @param resolver For resolving market data specifications into providers, not null
    * @throws IllegalArgumentException If any of the data providers in {@code specs} can't be resolved
    */
-  /* package */ ViewComputationJobDataProvider(final UserPrincipal user,
+  /* package */ViewComputationJobDataProvider(final UserPrincipal user,
       final List<MarketDataSpecification> specs,
       final MarketDataProviderResolver resolver) {
     ArgumentChecker.notNull(user, "user");
@@ -81,25 +87,27 @@ import com.opengamma.util.tuple.Pair;
 
   /**
    * Adds a listener that will be notified of market data updates and subscription changes.
+   * 
    * @param listener The listener, not null
    */
-  /* package */ void addListener(final MarketDataListener listener) {
+  /* package */void addListener(final MarketDataListener listener) {
     ArgumentChecker.notNull(listener, "listener");
     _listeners.add(listener);
   }
 
   /**
    * Removes a listener.
+   * 
    * @param listener The listener, not null
    */
-  /* package */ void removeListener(final MarketDataListener listener) {
+  /* package */void removeListener(final MarketDataListener listener) {
     _listeners.remove(listener);
   }
 
   /**
    * Divides up the specifications into a set for each underlying provider. The values from each underlying will have been tagged with a provider property which indicates the underlying they came
    * from. This is removed from the returned result so the original value specifications as used by the underlying are returned.
-   *
+   * 
    * @param specifications The market data specifications
    * @return A set of specifications for each underlying provider, in the same order as the providers
    */
@@ -130,7 +138,7 @@ import com.opengamma.util.tuple.Pair;
   /**
    * Identifies the provider a given specification is used for. The values from the underlying will have been tagged with a provider property which indicates the underlying. Thsi is removed from the
    * result so the original value specification as used by the underlying is returned.
-   *
+   * 
    * @param specification the specification to test
    * @return the provider index and the underlying's specification, or null if it could not be found
    */
@@ -155,7 +163,7 @@ import com.opengamma.util.tuple.Pair;
   /**
    * Converts a value specification as used by a given underlying to one that can be used by this provider. An integer identifier for the underlying provider will be put into a property that the
    * {@link #partitionSpecificationsByProvider} helper will use to map the specification back to the originating underlying.
-   *
+   * 
    * @param providerId the index of the provider in the list
    * @param underlying the value specification as used by the underlying
    * @return a value specification for external use
@@ -173,7 +181,7 @@ import com.opengamma.util.tuple.Pair;
 
   /**
    * Sets up subscriptions for market data
-   *
+   * 
    * @param specifications The market data items, not null
    */
   /* package */void subscribe(final Set<ValueSpecification> specifications) {
@@ -189,7 +197,7 @@ import com.opengamma.util.tuple.Pair;
 
   /**
    * Unsubscribes from market data.
-   *
+   * 
    * @param specifications The subscriptions that should be removed, not null
    */
   /* package */void unsubscribe(final Set<ValueSpecification> specifications) {
@@ -206,21 +214,21 @@ import com.opengamma.util.tuple.Pair;
   /**
    * @return An availability provider backed by the availability providers of the underlying market data providers
    */
-  /* package */ MarketDataAvailabilityProvider getAvailabilityProvider() {
+  /* package */MarketDataAvailabilityProvider getAvailabilityProvider() {
     return _availabilityProvider;
   }
 
   /**
    * @return An permissions provider backed by the permissions providers of the underlying market data providers
    */
-  /* package */ MarketDataPermissionProvider getPermissionProvider() {
+  /* package */MarketDataPermissionProvider getPermissionProvider() {
     return _permissionsProvider;
   }
 
   /**
    * @return A snapshot of market data backed by snapshots from the underlying providers.
    */
-  /* package */ MarketDataSnapshot snapshot() {
+  /* package */MarketDataSnapshot snapshot() {
     final List<MarketDataSnapshot> snapshots = Lists.newArrayListWithCapacity(_providers.size());
     for (int i = 0; i < _providers.size(); i++) {
       final MarketDataSnapshot snapshot = _providers.get(i).snapshot(_specs.get(i));
@@ -229,17 +237,16 @@ import com.opengamma.util.tuple.Pair;
     return new CompositeMarketDataSnapshot(snapshots, new ValueSpecificationProvider(_providers.size()));
   }
 
-  /* package */ Duration getRealTimeDuration(final Instant fromInstant, final Instant toInstant) {
+  /* package */Duration getRealTimeDuration(final Instant fromInstant, final Instant toInstant) {
     return Duration.between(fromInstant, toInstant);
   }
 
-  /* package */ List<MarketDataSpecification> getMarketDataSpecifications() {
+  /* package */List<MarketDataSpecification> getMarketDataSpecifications() {
     return _specs;
   }
 
   /**
-   * Listens for updates from the underlying providers and distributes them to the listeners. This is
-   * an inner class to avoid polluting the API with public listener methods that users of the class
+   * Listens for updates from the underlying providers and distributes them to the listeners. This is an inner class to avoid polluting the API with public listener methods that users of the class
    * aren't interested in.
    */
   private class Listener implements MarketDataListener {
@@ -274,9 +281,8 @@ import com.opengamma.util.tuple.Pair;
   }
 
   /**
-   * {@link MarketDataAvailabilityProvider} that checks the underlying providers for availability. If the data
-   * is available from any underlying provider then it is available. If it isn't available but is missing from any
-   * of the underlying providers then it is missing. Otherwise it is unavailable.
+   * {@link MarketDataAvailabilityProvider} that checks the underlying providers for availability. If the data is available from any underlying provider then it is available. If it isn't available but
+   * is missing from any of the underlying providers then it is missing. Otherwise it is unavailable.
    */
   private class AvailabilityProvider implements MarketDataAvailabilityProvider {
 
@@ -304,6 +310,16 @@ import com.opengamma.util.tuple.Pair;
         return null;
       }
     }
+
+    @Override
+    public MarketDataAvailabilityFilter getAvailabilityFilter() {
+      final List<MarketDataAvailabilityFilter> union = new ArrayList<MarketDataAvailabilityFilter>(_providers.size());
+      for (final MarketDataProvider provider : _providers) {
+        union.add(provider.getAvailabilityProvider().getAvailabilityFilter());
+      }
+      return new UnionMarketDataAvailability.Filter(union);
+    }
+
   }
 
   /**
@@ -314,7 +330,7 @@ import com.opengamma.util.tuple.Pair;
 
     /**
      * Checks permissions with the underlying providers and returns any requirements for which the user has no permissions with any provider.
-     *
+     * 
      * @param user The user whose market data permissions should be checked
      * @param specifications The market data to check access to
      * @return Values for which the user has no permissions with any of the underlying providers

@@ -22,6 +22,7 @@ import org.testng.annotations.Test;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.marketdata.InMemoryLKVMarketDataProvider;
 import com.opengamma.engine.marketdata.InMemoryLKVMarketDataSnapshot;
+import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityFilter;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
@@ -146,12 +147,19 @@ public class ViewClientTest {
     public MarketDataAvailabilityProvider getAvailabilityProvider() {
       final MarketDataAvailabilityProvider underlying = super.getAvailabilityProvider();
       return new MarketDataAvailabilityProvider() {
+
         @Override
         public ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final Object target, final ValueRequirement desiredValue) {
           synchronized (SynchronousInMemoryLKVSnapshotProvider.this) {
             return underlying.getAvailability(targetSpec, target, desiredValue);
           }
         }
+
+        @Override
+        public MarketDataAvailabilityFilter getAvailabilityFilter() {
+          throw new UnsupportedOperationException();
+        }
+
       };
     }
 

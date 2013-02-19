@@ -19,6 +19,7 @@ import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.marketdata.AbstractMarketDataProvider;
 import com.opengamma.engine.marketdata.MarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.PermissiveMarketDataPermissionProvider;
+import com.opengamma.engine.marketdata.availability.AbstractMarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.spec.HistoricalMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
@@ -26,15 +27,15 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.id.ExternalBundleIdentifiable;
+import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.id.ExternalIdentifiable;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * Market data provider that sources data from historical time-series.
  */
-public abstract class AbstractHistoricalMarketDataProvider extends AbstractMarketDataProvider implements MarketDataAvailabilityProvider {
+public abstract class AbstractHistoricalMarketDataProvider extends AbstractMarketDataProvider {
 
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractHistoricalMarketDataProvider.class);
 
@@ -88,7 +89,41 @@ public abstract class AbstractHistoricalMarketDataProvider extends AbstractMarke
   //-------------------------------------------------------------------------
   @Override
   public MarketDataAvailabilityProvider getAvailabilityProvider() {
-    return this;
+    return new AbstractMarketDataAvailabilityProvider() {
+
+      @Override
+      protected ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final ExternalId identifier, final ValueRequirement desiredValue) {
+        return getAvailability(targetSpec, identifier.toBundle(), desiredValue);
+      }
+
+      @Override
+      protected ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final ExternalIdBundle identifiers, final ValueRequirement desiredValue) {
+        final HistoricalTimeSeries hts = _historicalTimeSeriesSource.getHistoricalTimeSeries(desiredValue.getValueName(), identifiers, null, _timeSeriesResolverKey, null, true, null, true, 0);
+        if (hts == null) {
+          if (s_logger.isDebugEnabled() && desiredValue.getValueName().equals(MarketDataRequirementNames.MARKET_VALUE)) {
+            s_logger.debug("Missing market data {}", desiredValue);
+          }
+          return null;
+        } else {
+          // [PLAT-3044] Using hts.getUniqueId means the consuming functions can't find the value correctly
+          // TODO: the code in develop worked with the R examples, this code does not because of the HTS UniqueId issue
+          return new ValueSpecification(desiredValue.getValueName(), ComputationTargetSpecification.of(hts.getUniqueId()), ValueProperties
+              .with(ValuePropertyNames.FUNCTION, getSyntheticFunctionName())
+              .get());
+        }
+      }
+
+      @Override
+      protected ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final UniqueId identifier, final ValueRequirement desiredValue) {
+        return null;
+      }
+
+      @Override
+      protected ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final ValueRequirement desiredValue) {
+        return null;
+      }
+
+    };
   }
 
   @Override
@@ -104,30 +139,6 @@ public abstract class AbstractHistoricalMarketDataProvider extends AbstractMarke
     }
     final HistoricalMarketDataSpecification historicalSpec = (HistoricalMarketDataSpecification) marketDataSpec;
     return ObjectUtils.equals(_timeSeriesResolverKey, historicalSpec.getTimeSeriesResolverKey());
-  }
-
-  @Override
-  public ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final Object target, final ValueRequirement desiredValue) {
-    final ExternalIdBundle identifiers;
-    if (target instanceof ExternalBundleIdentifiable) {
-      identifiers = ((ExternalBundleIdentifiable) target).getExternalIdBundle();
-    } else if (target instanceof ExternalIdentifiable) {
-      identifiers = ((ExternalIdentifiable) target).getExternalId().toBundle();
-    } else {
-      return null;
-    }
-    final HistoricalTimeSeries hts = _historicalTimeSeriesSource.getHistoricalTimeSeries(desiredValue.getValueName(), identifiers, null, _timeSeriesResolverKey, null, true, null, true, 0);
-    if (hts == null) {
-      if (s_logger.isDebugEnabled() && desiredValue.getValueName().equals(MarketDataRequirementNames.MARKET_VALUE)) {
-        s_logger.debug("Missing market data {}", desiredValue);
-      }
-      return null;
-    } else {
-      // [PLAT-3044] Using hts.getUniqueId means the consuming functions can't find the value correctly
-      // TODO: the code in develop worked with the R examples, this code does not because of the HTS UniqueId issue
-      return new ValueSpecification(desiredValue.getValueName(), ComputationTargetSpecification.of(hts.getUniqueId()), ValueProperties.with(ValuePropertyNames.FUNCTION, getSyntheticFunctionName())
-          .get());
-    }
   }
 
   protected HistoricalTimeSeriesSource getTimeSeriesSource() {

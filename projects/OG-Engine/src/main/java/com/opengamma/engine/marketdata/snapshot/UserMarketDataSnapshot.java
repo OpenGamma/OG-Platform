@@ -37,7 +37,9 @@ import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.MemoryUtils;
 import com.opengamma.engine.marketdata.AbstractMarketDataSnapshot;
 import com.opengamma.engine.marketdata.availability.AbstractMarketDataAvailabilityProvider;
+import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityFilter;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
+import com.opengamma.engine.marketdata.availability.ProviderMarketDataAvailabilityFilter;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -469,13 +471,7 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
   // MarketDataAvailabilityProvider
 
   public MarketDataAvailabilityProvider getAvailabilityProvider() {
-    return new AbstractMarketDataAvailabilityProvider() {
-
-      @Override
-      protected MarketDataAvailabilityProvider withDelegate(final Delegate delegate) {
-        assert false;
-        throw new UnsupportedOperationException();
-      }
+    final MarketDataAvailabilityProvider unstructured = new AbstractMarketDataAvailabilityProvider() {
 
       @Override
       protected ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final ExternalId identifier, final ValueRequirement desiredValue) {
@@ -494,6 +490,7 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
 
       @Override
       protected ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final ExternalIdBundle identifiers, final ValueRequirement desiredValue) {
+        // [PLAT-3044] Snapshots are broken; holding MarketDataValueSpecifications in a map won't give the correct search behavior
         for (final ExternalId identifier : identifiers) {
           final ValueSpecification resolved = getAvailability(targetSpec, identifier, desiredValue);
           if (resolved != null) {
@@ -504,17 +501,35 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
       }
 
       @Override
+      protected ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final UniqueId identifier, final ValueRequirement desiredValue) {
+        return null;
+      }
+
+      @Override
+      protected ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final ValueRequirement desiredValue) {
+        return null;
+      }
+
+    };
+    return new MarketDataAvailabilityProvider() {
+
+      @Override
       public ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final Object target, final ValueRequirement desiredValue) {
         final StructuredMarketDataHandler handler = s_structuredDataHandler.get(desiredValue.getValueName());
         if (handler == null) {
           if ((getSnapshot().getGlobalValues() != null) && (getSnapshot().getGlobalValues().getValues() != null) && !getSnapshot().getGlobalValues().getValues().isEmpty()) {
-            return super.getAvailability(targetSpec, target, desiredValue);
+            return unstructured.getAvailability(targetSpec, target, desiredValue);
           } else {
             return null;
           }
         } else {
           return handler.resolve(targetSpec, target, desiredValue, getSnapshot());
         }
+      }
+
+      @Override
+      public MarketDataAvailabilityFilter getAvailabilityFilter() {
+        return new ProviderMarketDataAvailabilityFilter(this);
       }
 
     };

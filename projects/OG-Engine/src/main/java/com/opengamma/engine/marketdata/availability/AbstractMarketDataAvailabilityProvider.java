@@ -82,6 +82,11 @@ public abstract class AbstractMarketDataAvailabilityProvider implements MarketDa
     }
   }
 
+  @Override
+  public MarketDataAvailabilityFilter getAvailabilityFilter() {
+    return new ProviderMarketDataAvailabilityFilter(this);
+  }
+
   public static AbstractMarketDataAvailabilityProvider of(final MarketDataAvailabilityProvider provider) {
     if (provider instanceof AbstractMarketDataAvailabilityProvider) {
       return (AbstractMarketDataAvailabilityProvider) provider;

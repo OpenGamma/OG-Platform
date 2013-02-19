@@ -51,8 +51,7 @@ public class LiveMarketDataProviderTest {
     availabilityProvider.addAvailableData(test1Specification);
     availabilityProvider.addAvailableData(test2Specification);
     availabilityProvider.addAvailableData(test3Specification);
-    // [PLAT-3044] The MDAP must perform resolution of external identifier bundles
-    final LiveMarketDataProvider provider = new LiveMarketDataProvider(client, availabilityProvider, UserPrincipal.getTestUser());
+    final LiveMarketDataProvider provider = new LiveMarketDataProvider(client, availabilityProvider.getAvailabilityFilter(), UserPrincipal.getTestUser());
 
     provider.subscribe(test1Specification);
     provider.subscribe(test2Specification);
@@ -94,6 +93,5 @@ public class LiveMarketDataProviderTest {
 
     assertNull(snapshot.query(constructSpecification("invalidticker")));
   }
-
 
 }

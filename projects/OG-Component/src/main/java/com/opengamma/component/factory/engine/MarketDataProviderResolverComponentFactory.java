@@ -106,6 +106,7 @@ public class MarketDataProviderResolverComponentFactory extends AbstractComponen
   }
 
   protected MarketDataProviderFactory initUserMarketDataProviderFactory() {
+    // [PLAT-1459] This shouldn't be the optimistic data availability filter, but one representative of the filters used by the actual live data providers
     return new UserMarketDataProviderFactory(getMarketDataSnapshotSource(), new OptimisticMarketDataAvailabilityFilter());
   }
 
@@ -117,11 +118,13 @@ public class MarketDataProviderResolverComponentFactory extends AbstractComponen
   ///CLOVER:OFF
   /**
    * The meta-bean for {@code MarketDataProviderResolverComponentFactory}.
+   * 
    * @return the meta-bean, not null
    */
   public static MarketDataProviderResolverComponentFactory.Meta meta() {
     return MarketDataProviderResolverComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(MarketDataProviderResolverComponentFactory.Meta.INSTANCE);
   }
@@ -134,15 +137,15 @@ public class MarketDataProviderResolverComponentFactory extends AbstractComponen
   @Override
   protected Object propertyGet(final String propertyName, final boolean quiet) {
     switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
+      case -281470431: // classifier
         return getClassifier();
-      case -301472921:  // liveMarketDataProviderFactory
+      case -301472921: // liveMarketDataProviderFactory
         return getLiveMarketDataProviderFactory();
-      case 358729161:  // historicalTimeSeriesSource
+      case 358729161: // historicalTimeSeriesSource
         return getHistoricalTimeSeriesSource();
-      case -702456965:  // securitySource
+      case -702456965: // securitySource
         return getSecuritySource();
-      case -2019554651:  // marketDataSnapshotSource
+      case -2019554651: // marketDataSnapshotSource
         return getMarketDataSnapshotSource();
     }
     return super.propertyGet(propertyName, quiet);
@@ -151,19 +154,19 @@ public class MarketDataProviderResolverComponentFactory extends AbstractComponen
   @Override
   protected void propertySet(final String propertyName, final Object newValue, final boolean quiet) {
     switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
+      case -281470431: // classifier
         setClassifier((String) newValue);
         return;
-      case -301472921:  // liveMarketDataProviderFactory
+      case -301472921: // liveMarketDataProviderFactory
         setLiveMarketDataProviderFactory((MarketDataProviderFactory) newValue);
         return;
-      case 358729161:  // historicalTimeSeriesSource
+      case 358729161: // historicalTimeSeriesSource
         setHistoricalTimeSeriesSource((HistoricalTimeSeriesSource) newValue);
         return;
-      case -702456965:  // securitySource
+      case -702456965: // securitySource
         setSecuritySource((SecuritySource) newValue);
         return;
-      case -2019554651:  // marketDataSnapshotSource
+      case -2019554651: // marketDataSnapshotSource
         setMarketDataSnapshotSource((MarketDataSnapshotSource) newValue);
         return;
     }
@@ -211,6 +214,7 @@ public class MarketDataProviderResolverComponentFactory extends AbstractComponen
   //-----------------------------------------------------------------------
   /**
    * Gets the classifier under which to publish.
+   * 
    * @return the value of the property, not null
    */
   public String getClassifier() {
@@ -219,7 +223,8 @@ public class MarketDataProviderResolverComponentFactory extends AbstractComponen
 
   /**
    * Sets the classifier under which to publish.
-   * @param classifier  the new value of the property, not null
+   * 
+   * @param classifier the new value of the property, not null
    */
   public void setClassifier(final String classifier) {
     JodaBeanUtils.notNull(classifier, "classifier");
@@ -228,6 +233,7 @@ public class MarketDataProviderResolverComponentFactory extends AbstractComponen
 
   /**
    * Gets the the {@code classifier} property.
+   * 
    * @return the property, not null
    */
   public final Property<String> classifier() {
@@ -237,6 +243,7 @@ public class MarketDataProviderResolverComponentFactory extends AbstractComponen
   //-----------------------------------------------------------------------
   /**
    * Gets the live market data provider factory.
+   * 
    * @return the value of the property, not null
    */
   public MarketDataProviderFactory getLiveMarketDataProviderFactory() {
@@ -245,7 +252,8 @@ public class MarketDataProviderResolverComponentFactory extends AbstractComponen
 
   /**
    * Sets the live market data provider factory.
-   * @param liveMarketDataProviderFactory  the new value of the property, not null
+   * 
+   * @param liveMarketDataProviderFactory the new value of the property, not null
    */
   public void setLiveMarketDataProviderFactory(final MarketDataProviderFactory liveMarketDataProviderFactory) {
     JodaBeanUtils.notNull(liveMarketDataProviderFactory, "liveMarketDataProviderFactory");
@@ -254,6 +262,7 @@ public class MarketDataProviderResolverComponentFactory extends AbstractComponen
 
   /**
    * Gets the the {@code liveMarketDataProviderFactory} property.
+   * 
    * @return the property, not null
    */
   public final Property<MarketDataProviderFactory> liveMarketDataProviderFactory() {
@@ -263,6 +272,7 @@ public class MarketDataProviderResolverComponentFactory extends AbstractComponen
   //-----------------------------------------------------------------------
   /**
    * Gets the historical time-series source.
+   * 
    * @return the value of the property, not null
    */
   public HistoricalTimeSeriesSource getHistoricalTimeSeriesSource() {
@@ -271,7 +281,8 @@ public class MarketDataProviderResolverComponentFactory extends AbstractComponen
 
   /**
    * Sets the historical time-series source.
-   * @param historicalTimeSeriesSource  the new value of the property, not null
+   * 
+   * @param historicalTimeSeriesSource the new value of the property, not null
    */
   public void setHistoricalTimeSeriesSource(final HistoricalTimeSeriesSource historicalTimeSeriesSource) {
     JodaBeanUtils.notNull(historicalTimeSeriesSource, "historicalTimeSeriesSource");
@@ -280,6 +291,7 @@ public class MarketDataProviderResolverComponentFactory extends AbstractComponen
 
   /**
    * Gets the the {@code historicalTimeSeriesSource} property.
+   * 
    * @return the property, not null
    */
   public final Property<HistoricalTimeSeriesSource> historicalTimeSeriesSource() {
@@ -289,6 +301,7 @@ public class MarketDataProviderResolverComponentFactory extends AbstractComponen
   //-----------------------------------------------------------------------
   /**
    * Gets the security source.
+   * 
    * @return the value of the property, not null
    */
   public SecuritySource getSecuritySource() {
@@ -297,7 +310,8 @@ public class MarketDataProviderResolverComponentFactory extends AbstractComponen
 
   /**
    * Sets the security source.
-   * @param securitySource  the new value of the property, not null
+   * 
+   * @param securitySource the new value of the property, not null
    */
   public void setSecuritySource(final SecuritySource securitySource) {
     JodaBeanUtils.notNull(securitySource, "securitySource");
@@ -306,6 +320,7 @@ public class MarketDataProviderResolverComponentFactory extends AbstractComponen
 
   /**
    * Gets the the {@code securitySource} property.
+   * 
    * @return the property, not null
    */
   public final Property<SecuritySource> securitySource() {
@@ -315,6 +330,7 @@ public class MarketDataProviderResolverComponentFactory extends AbstractComponen
   //-----------------------------------------------------------------------
   /**
    * Gets the market data snapshot source.
+   * 
    * @return the value of the property, not null
    */
   public MarketDataSnapshotSource getMarketDataSnapshotSource() {
@@ -323,7 +339,8 @@ public class MarketDataProviderResolverComponentFactory extends AbstractComponen
 
   /**
    * Sets the market data snapshot source.
-   * @param marketDataSnapshotSource  the new value of the property, not null
+   * 
+   * @param marketDataSnapshotSource the new value of the property, not null
    */
   public void setMarketDataSnapshotSource(final MarketDataSnapshotSource marketDataSnapshotSource) {
     JodaBeanUtils.notNull(marketDataSnapshotSource, "marketDataSnapshotSource");
@@ -332,6 +349,7 @@ public class MarketDataProviderResolverComponentFactory extends AbstractComponen
 
   /**
    * Gets the the {@code marketDataSnapshotSource} property.
+   * 
    * @return the property, not null
    */
   public final Property<MarketDataSnapshotSource> marketDataSnapshotSource() {
@@ -377,7 +395,7 @@ public class MarketDataProviderResolverComponentFactory extends AbstractComponen
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier",
         "liveMarketDataProviderFactory",
         "historicalTimeSeriesSource",
@@ -393,15 +411,15 @@ public class MarketDataProviderResolverComponentFactory extends AbstractComponen
     @Override
     protected MetaProperty<?> metaPropertyGet(final String propertyName) {
       switch (propertyName.hashCode()) {
-        case -281470431:  // classifier
+        case -281470431: // classifier
           return _classifier;
-        case -301472921:  // liveMarketDataProviderFactory
+        case -301472921: // liveMarketDataProviderFactory
           return _liveMarketDataProviderFactory;
-        case 358729161:  // historicalTimeSeriesSource
+        case 358729161: // historicalTimeSeriesSource
           return _historicalTimeSeriesSource;
-        case -702456965:  // securitySource
+        case -702456965: // securitySource
           return _securitySource;
-        case -2019554651:  // marketDataSnapshotSource
+        case -2019554651: // marketDataSnapshotSource
           return _marketDataSnapshotSource;
       }
       return super.metaPropertyGet(propertyName);
@@ -425,6 +443,7 @@ public class MarketDataProviderResolverComponentFactory extends AbstractComponen
     //-----------------------------------------------------------------------
     /**
      * The meta-property for the {@code classifier} property.
+     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<String> classifier() {
@@ -433,6 +452,7 @@ public class MarketDataProviderResolverComponentFactory extends AbstractComponen
 
     /**
      * The meta-property for the {@code liveMarketDataProviderFactory} property.
+     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<MarketDataProviderFactory> liveMarketDataProviderFactory() {
@@ -441,6 +461,7 @@ public class MarketDataProviderResolverComponentFactory extends AbstractComponen
 
     /**
      * The meta-property for the {@code historicalTimeSeriesSource} property.
+     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<HistoricalTimeSeriesSource> historicalTimeSeriesSource() {
@@ -449,6 +470,7 @@ public class MarketDataProviderResolverComponentFactory extends AbstractComponen
 
     /**
      * The meta-property for the {@code securitySource} property.
+     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<SecuritySource> securitySource() {
@@ -457,6 +479,7 @@ public class MarketDataProviderResolverComponentFactory extends AbstractComponen
 
     /**
      * The meta-property for the {@code marketDataSnapshotSource} property.
+     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<MarketDataSnapshotSource> marketDataSnapshotSource() {

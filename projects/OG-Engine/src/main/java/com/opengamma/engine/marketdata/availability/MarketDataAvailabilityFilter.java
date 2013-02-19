@@ -45,7 +45,8 @@ public interface MarketDataAvailabilityFilter {
   /**
    * Combines this filter with a {@link MarketDataAvailabilityProvider} to produce resolved value specifications for items that would pass the filter.
    * <p>
-   * Typically this will be used by a {@link MarketDataProvider} that has been initialized with an externally provided availability filter.
+   * Typically this will be used by a {@link MarketDataProvider} that has been initialized with an externally provided availability filter. This should be used in place of a provider just calling
+   * {@link #isAvailable} on the filter as the filter may need to perform conversion of the resolution parameters before they are passed to the underlying provider instance.
    * 
    * @param provider the base provider that can construct value specifications corresponding to the {@code MarketDataProvider}
    * @return a {@link MarketDataAvailabilityProvider} instance

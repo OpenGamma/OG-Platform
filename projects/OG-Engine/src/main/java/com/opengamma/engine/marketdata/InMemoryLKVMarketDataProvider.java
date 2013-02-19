@@ -43,17 +43,13 @@ public class InMemoryLKVMarketDataProvider extends AbstractMarketDataProvider im
 
     private static final long serialVersionUID = 1L;
 
-    private final Set<ExternalId> _identifiers;
-
     public TargetData(final ValueSpecification initialValue) {
       final Set<ValueSpecification> values = new CopyOnWriteArraySet<ValueSpecification>();
       values.add(initialValue);
       put(initialValue.getValueName(), values);
-      _identifiers = new CopyOnWriteArraySet<ExternalId>();
     }
 
-    public TargetData(final ExternalIdBundle identifiers) {
-      _identifiers = new CopyOnWriteArraySet<ExternalId>(identifiers.getExternalIds());
+    public TargetData() {
     }
 
     public ValueSpecification getAvailability(final ValueRequirement desiredValue) {
@@ -89,10 +85,6 @@ public class InMemoryLKVMarketDataProvider extends AbstractMarketDataProvider im
       }
     }
 
-    public Set<ExternalId> getIdentifiers() {
-      return _identifiers;
-    }
-
   }
 
   private final String _syntheticScheme = "InMemoryLKV" + s_nextIdentifier.getAndIncrement();
@@ -101,13 +93,10 @@ public class InMemoryLKVMarketDataProvider extends AbstractMarketDataProvider im
   private final ConcurrentMap<ExternalId, ComputationTargetSpecification> _weakIndex = new ConcurrentHashMap<ExternalId, ComputationTargetSpecification>();
   private final ConcurrentMap<ComputationTargetSpecification, TargetData> _strictIndex = new ConcurrentHashMap<ComputationTargetSpecification, TargetData>();
   private final MarketDataPermissionProvider _permissionProvider;
-  private final MarketDataAvailabilityProvider _availability = new AbstractMarketDataAvailabilityProvider() {
 
-    @Override
-    protected MarketDataAvailabilityProvider withDelegate(final Delegate delegate) {
-      assert false;
-      throw new UnsupportedOperationException();
-    }
+  // TODO: This is what the FixedMarketDataAvailabilityProvider should be
+
+  private final MarketDataAvailabilityProvider _availability = new AbstractMarketDataAvailabilityProvider() {
 
     @Override
     protected ValueSpecification getAvailability(final ComputationTargetSpecification key, final ValueRequirement desiredValue) {
@@ -182,7 +171,7 @@ public class InMemoryLKVMarketDataProvider extends AbstractMarketDataProvider im
       }
       if (found == null) {
         found = requirement.replaceIdentifier(UniqueId.of(_syntheticScheme, Integer.toString(_nextSyntheticIdentifier.getAndIncrement())));
-        final TargetData data = new TargetData(requirement.getIdentifiers());
+        final TargetData data = new TargetData();
         _strictIndex.put(found, data);
       }
       if (update) {
@@ -302,7 +291,14 @@ public class InMemoryLKVMarketDataProvider extends AbstractMarketDataProvider im
     return new HashMap<ValueSpecification, Object>(_lastKnownValues);
   }
 
-  protected ValueSpecification resolveRequirement(final ValueRequirement requirement) {
+  /**
+   * Returns the {@link ValueSpecification} that is a possible resolution of the value requirement. This will be the specification used by {@link #addValue(ValueRequirement,Object)} or
+   * {@link #removeValue(ValueRequirement)}.
+   * 
+   * @param requirement the requirement to resolve, not null
+   * @return the resolved {@code ValueSpecification}, not null
+   */
+  public ValueSpecification resolveRequirement(final ValueRequirement requirement) {
     final ComputationTargetSpecification targetSpec = requirement.getTargetReference().accept(_getTargetSpecification);
     return new ValueSpecification(requirement.getValueName(), targetSpec, requirement.getConstraints().copy().withoutAny(ValuePropertyNames.FUNCTION)
         .with(ValuePropertyNames.FUNCTION, MarketDataSourcingFunction.UNIQUE_ID).get());

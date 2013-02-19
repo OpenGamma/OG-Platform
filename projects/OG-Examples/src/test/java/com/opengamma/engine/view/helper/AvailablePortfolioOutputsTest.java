@@ -26,7 +26,7 @@ import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.function.CompiledFunctionRepository;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.exclusion.FunctionExclusionGroups;
-import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
+import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityFilter;
 import com.opengamma.engine.marketdata.availability.OptimisticMarketDataAvailabilityFilter;
 import com.opengamma.engine.view.compilation.PortfolioCompiler;
 import com.opengamma.id.VersionCorrection;
@@ -44,7 +44,7 @@ public class AvailablePortfolioOutputsTest {
   private ComponentRepository _repo;
   private CompiledFunctionRepository _functionRepository;
   private FunctionExclusionGroups _functionExclusionGroups;
-  private MarketDataAvailabilityProvider _availabilityProvider;
+  private MarketDataAvailabilityFilter _marketDataAvailability;
   private PortfolioMaster _portfolioMaster;
   private PositionSource _positionSource;
   private SecuritySource _securitySource;
@@ -61,7 +61,7 @@ public class AvailablePortfolioOutputsTest {
     _portfolioMaster = _repo.getInstance(PortfolioMaster.class, "central");
     _positionSource = _repo.getInstance(PositionSource.class, "combined");
     _securitySource = _repo.getInstance(SecuritySource.class, "combined");
-    _availabilityProvider = new OptimisticMarketDataAvailabilityFilter();
+    _marketDataAvailability = new OptimisticMarketDataAvailabilityFilter();
     _executorService = Executors.newCachedThreadPool();
   }
 
@@ -88,7 +88,7 @@ public class AvailablePortfolioOutputsTest {
     final long t2 = System.nanoTime();
     portfolio = PortfolioCompiler.resolvePortfolio(portfolio, _executorService, _securitySource);
     final long t3 = System.nanoTime();
-    final AvailableOutputs outputs = new AvailablePortfolioOutputs(portfolio, _functionRepository, _functionExclusionGroups, _availabilityProvider, "?");
+    final AvailableOutputs outputs = new AvailablePortfolioOutputs(portfolio, _functionRepository, _functionExclusionGroups, _marketDataAvailability, "?");
     final long t4 = System.nanoTime();
     s_logger.info("Fetch={}ms, Resolve={}ms, Outputs={}ms", new Object[] {(t2 - t1) / 1e6, (t3 - t2) / 1e6, (t4 - t3) / 1e6 });
     s_logger.info("Outputs for {}", portfolio.getName());

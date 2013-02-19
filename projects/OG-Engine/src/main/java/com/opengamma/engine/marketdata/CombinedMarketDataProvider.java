@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.marketdata;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -15,8 +16,10 @@ import java.util.Set;
 
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityFilter;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.availability.MarketDataNotSatisfiableException;
+import com.opengamma.engine.marketdata.availability.UnionMarketDataAvailability;
 import com.opengamma.engine.marketdata.spec.CombinedMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.value.ValueProperties;
@@ -27,8 +30,7 @@ import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Implementation of {@link MarketDataProvider} which sources its data from one of two {@link MarketDataProvider}s,
- * choosing based on the availability of data.
+ * Implementation of {@link MarketDataProvider} which sources its data from one of two {@link MarketDataProvider}s, choosing based on the availability of data.
  */
 public class CombinedMarketDataProvider extends AbstractMarketDataProvider {
 
@@ -164,6 +166,11 @@ public class CombinedMarketDataProvider extends AbstractMarketDataProvider {
         } else {
           return null;
         }
+      }
+
+      @Override
+      public MarketDataAvailabilityFilter getAvailabilityFilter() {
+        return new UnionMarketDataAvailability.Filter(Arrays.asList(_preferredProvider.getAvailabilityFilter(), _fallbackProvider.getAvailabilityFilter()));
       }
 
     };

@@ -22,7 +22,7 @@ import com.opengamma.engine.marketdata.InMemoryLKVMarketDataProvider;
 import com.opengamma.engine.marketdata.MarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.MarketDataProvider;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
-import com.opengamma.engine.marketdata.availability.AbstractMarketDataAvailabilityProvider;
+import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityFilter;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
@@ -57,24 +57,22 @@ public class LiveMarketDataProvider extends AbstractMarketDataProvider implement
   private final UserPrincipal _marketDataUser;
 
   public LiveMarketDataProvider(final LiveDataClient liveDataClient,
-      final AbstractMarketDataAvailabilityProvider availabilityProvider,
+      final MarketDataAvailabilityFilter availabilityFilter,
       final UserPrincipal marketDataUser) {
-    this(liveDataClient,
-        availabilityProvider,
-        new LiveMarketDataPermissionProvider(liveDataClient),
-        marketDataUser);
+    this(liveDataClient, availabilityFilter, new LiveMarketDataPermissionProvider(liveDataClient), marketDataUser);
   }
 
   public LiveMarketDataProvider(final LiveDataClient liveDataClient,
-      final AbstractMarketDataAvailabilityProvider availabilityProvider,
+      final MarketDataAvailabilityFilter availabilityFilter,
       final MarketDataPermissionProvider permissionProvider,
       final UserPrincipal marketDataUser) {
     ArgumentChecker.notNull(liveDataClient, "liveDataClient");
-    ArgumentChecker.notNull(availabilityProvider, "availabilityProvider");
+    ArgumentChecker.notNull(availabilityFilter, "availabilityFilter");
     ArgumentChecker.notNull(permissionProvider, "permissionProvider");
     ArgumentChecker.notNull(marketDataUser, "marketDataUser");
     _liveDataClient = liveDataClient;
-    _availabilityProvider = new LiveMarketDataAvailabilityProvider(StandardRules.getOpenGammaRuleSetId(), availabilityProvider);
+    // TODO: Should we use the default normalization rules from the live data client rather than hard code the standard rule set here?
+    _availabilityProvider = availabilityFilter.withProvider(new LiveMarketDataAvailabilityProvider(StandardRules.getOpenGammaRuleSetId()));
     _underlyingProvider = new InMemoryLKVMarketDataProvider();
     _permissionProvider = permissionProvider;
     _marketDataUser = marketDataUser;
