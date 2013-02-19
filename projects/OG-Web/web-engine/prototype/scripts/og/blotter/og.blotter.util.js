@@ -29,8 +29,11 @@ $.register_module({
             add_datetimepicker : function (name){$('input[name="'+ name +'"]').datepicker({
                 dateFormat: 'yy-mm-dd', changeMonth: true, changeYear: true});
             },
-            add_time_picker : function (name) {
-                $('input[name="'+ name +'"]').datetimepicker({ timeOnly:true });
+            add_date_picker : function (selector){
+                $(selector).datepicker({ dateFormat: 'yy-mm-dd', changeMonth: true, changeYear: true });
+            },
+            add_time_picker : function (selector) {
+                $(selector).datetimepicker({ timeOnly:true });
             },
             get_checkbox : function (name) {
                 return $('input:checkbox[name="'+ name +'"]').is(':checked').toString();

@@ -29,20 +29,33 @@
       <tr>
         <td>
           <label>
-            <span>Trade Date / Time</span>
+            <span>Trade Date/Time</span>
           </label>
         </td>
-        <td class="og-double-cell">
-          <div><span><input name="trade.tradeDate" type="text" value="{{trade.tradeDate}}" />
-          </span><span><input name="trade.tradeTime" type="text" value="{{trade.tradeTime}}" />
-          </span><a href="#">Premium</a></div>
+        <td class="og-double-cell trade">
+          <div><span><input class="blotter-date" name="trade.tradeDate" type="text" value="{{trade.tradeDate}}" />
+          </span><span><input class="blotter-time" name="trade.tradeTime" type="text" value="{{trade.tradeTime}}" />
+          </span></div><a class="premium-toggle">Premium</a>
         </td>
       </tr>
       <tr class="hidden">
-        <td colspan="2">
-          <fieldset class="premium-currency">
-            <input name="premium" type="text" value="{{premium}}" />
-          </fieldset>
+        <td>
+          <label>Premium Currency</label>
+        </td>
+        <td class="og-double-cell">
+          <div><span>{{{item_0}}}
+          </span><span><input name="trade.premium" type="text" value="{{trade.premium}}" />
+          </span></div>
+        </td>
+      </tr>
+      <tr class="hidden">
+        <td>
+          <label>Premium Date/Time</label>
+        </td>
+        <td class="og-double-cell">
+          <div><span><input class="blotter-date" name="premium" type="text" value="{{trade.premiumDate}}" />
+          </span><span><input class="blotter-time" name="premium" type="text" value="{{trade.premiumTime}}" />
+          </span></div>
         </td>
       </tr>
     </tbody>

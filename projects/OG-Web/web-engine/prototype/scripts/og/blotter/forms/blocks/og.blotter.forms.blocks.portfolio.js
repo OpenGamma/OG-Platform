@@ -15,7 +15,20 @@ $.register_module({
                     counterparty: config.counterparty,
                     portfolio: config.portfolio,
                     trade: config.trade
-                }
+                },
+                children: [
+                    new form.Block({module:'og.views.forms.currency_tash', extras:{name: 'trade.premiumCurrency'}}),
+                ]
+            });
+
+            form.on('form:load', function () {
+                $('.premium-toggle', '#'+id).click(function (event) {
+                    var $hidden = $('.hidden', '#'+id);
+                    $hidden.is(':visible') ? $hidden.hide() : $hidden.show();
+                    event.preventDefault();
+                    return false
+                });
+                og.blotter.util.set_select("trade.premiumCurrency", config.trade.premiumCurrency);
             });
         };
         Portfolio.prototype = new Block(); // inherit Block prototype

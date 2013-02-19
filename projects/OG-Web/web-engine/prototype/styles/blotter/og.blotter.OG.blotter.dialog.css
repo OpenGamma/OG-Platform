@@ -74,6 +74,18 @@
     overflow-y: scroll;
     width: 97%;
 }
+
+.OG-blotter-form-block .og-blotter-portfolio .premium-toggle{
+    cursor:pointer;
+}
+
 .OG-blotter-form-block .og-blotter-portfolio tr.hidden {
     display: none;
 }
+
+/*.OG-blotter-form-block .og-blotter-portfolio .blotter-date,
+.OG-blotter-form-block .og-blotter-portfolio .blotter-time{
+    display:inline-block;
+    width:47%;
+}
+*/

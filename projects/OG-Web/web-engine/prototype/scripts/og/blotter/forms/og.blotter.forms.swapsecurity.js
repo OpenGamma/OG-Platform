@@ -7,8 +7,8 @@ $.register_module({
     dependencies: [],
     obj: function () {
         return function (config) {
-            var constructor = this, form, ui = og.common.util.ui, data, pay_block, receive_block, pay_select, 
-                receive_select, pay_index = og.common.id('pay'), receive_index = og.common.id('receive'), validate, 
+            var constructor = this, form, ui = og.common.util.ui, data, pay_block, receive_block, pay_select,
+                receive_select, pay_index = og.common.id('pay'), receive_index = og.common.id('receive'), validate,
                 pay_leg = 'security.payLeg.', receive_leg = 'security.receiveLeg.', $pay_select, $receive_select;
             if(config.details) {data = config.details.data; data.id = config.details.data.trade.uniqueId;}
             else {data = {security: {type: "SwapSecurity", externalIdBundle: "", attributes: {}},
@@ -62,8 +62,8 @@ $.register_module({
                     og.blotter.util.add_datetimepicker("security.tradeDate");
                     og.blotter.util.add_datetimepicker("security.effectiveDate");
                     og.blotter.util.add_datetimepicker("security.maturityDate");
-                    og.blotter.util.add_datetimepicker("trade.tradeDate");
-                    og.blotter.util.add_time_picker("trade.tradeTime");
+                    og.blotter.util.add_date_picker('.blotter-date');
+                    og.blotter.util.add_time_picker('.blotter-time');
                     if(typeof data.security.payLeg != 'undefined') {
                         swap_leg({type: data.security.payLeg.type, index: pay_index, leg: pay_leg, child: 4,
                             pay_edit: true});
