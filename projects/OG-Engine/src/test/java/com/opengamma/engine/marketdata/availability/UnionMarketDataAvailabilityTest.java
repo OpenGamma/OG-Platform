@@ -16,6 +16,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -23,13 +24,14 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.ExternalBundleIdentifiable;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.async.BlockingOperation;
 
 /**
  * Tests the {@link UnionMarketDataAvailability} class.
  */
 @Test
-public class UnionMarketDataAvailabilityFilterTest {
+public class UnionMarketDataAvailabilityTest {
 
   private static class BlockingDataProvider implements MarketDataAvailabilityProvider {
 
@@ -72,9 +74,9 @@ public class UnionMarketDataAvailabilityFilterTest {
     final FixedMarketDataAvailabilityProvider b = new FixedMarketDataAvailabilityProvider();
     final MarketDataAvailabilityProvider c = new BlockingDataProvider();
     final ValueProperties properties = ValueProperties.with(ValuePropertyNames.FUNCTION, "Mock").get();
-    a.addAvailableData(ExternalId.of("A", "Present"), new ValueSpecification("Foo", ComputationTargetSpecification.NULL, properties));
+    a.addAvailableData(ExternalId.of("A", "Present"), new ValueSpecification("Foo", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueId.of("Y", "A")), properties));
     a.addMissingData(ExternalId.of("A", "Missing"), "Foo");
-    b.addAvailableData(ExternalId.of("B", "Present"), new ValueSpecification("Foo", ComputationTargetSpecification.NULL, properties));
+    b.addAvailableData(ExternalId.of("B", "Present"), new ValueSpecification("Foo", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueId.of("Y", "B")), properties));
     b.addMissingData(ExternalId.of("B", "Missing"), "Foo");
     return new UnionMarketDataAvailability.Provider(Arrays.asList(c, a, b));
   }
@@ -118,17 +120,15 @@ public class UnionMarketDataAvailabilityFilterTest {
   public void testGetAvailability_available(final MarketDataAvailabilityProvider availability) {
     try {
       BlockingOperation.off();
-      final ValueRequirement desiredValue = new ValueRequirement("Foo", ComputationTargetSpecification.NULL);
-      assertNotNull(availability.getAvailability(ComputationTargetSpecification.NULL, ExternalId.of("A", "Present"), desiredValue));
-      assertNotNull(availability.getAvailability(ComputationTargetSpecification.NULL, ExternalId.of("B", "Present"), desiredValue));
-      assertNotNull(availability.getAvailability(ComputationTargetSpecification.NULL, ExternalIdBundle.of(ExternalId.of("A", "Present"), ExternalId.of("B", "Present")), desiredValue));
-      assertNotNull(availability.getAvailability(ComputationTargetSpecification.NULL, ExternalIdBundle.of(ExternalId.of("A", "Present"), ExternalId.of("B", "Present"), ExternalId.of("C", "Absent")),
-          desiredValue));
-      assertNotNull(availability.getAvailability(ComputationTargetSpecification.NULL,
-          ExternalIdBundle.of(ExternalId.of("A", "Present"), ExternalId.of("B", "Present"), ExternalId.of("C", "Blocking")), desiredValue));
-      assertNotNull(availability.getAvailability(ComputationTargetSpecification.NULL,
-          ExternalIdBundle.of(ExternalId.of("A", "Present"), ExternalId.of("B", "Missing"), ExternalId.of("C", "Blocking")), desiredValue));
-      assertNotNull(availability.getAvailability(ComputationTargetSpecification.NULL, ExternalIdBundle.of(ExternalId.of("A", "Missing"), ExternalId.of("B", "Present")), desiredValue));
+      final ComputationTargetSpecification targetSpec = new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueId.of("X", "0"));
+      final ValueRequirement desiredValue = new ValueRequirement("Foo", targetSpec);
+      assertNotNull(availability.getAvailability(targetSpec, ExternalId.of("A", "Present"), desiredValue));
+      assertNotNull(availability.getAvailability(targetSpec, ExternalId.of("B", "Present"), desiredValue));
+      assertNotNull(availability.getAvailability(targetSpec, ExternalIdBundle.of(ExternalId.of("A", "Present"), ExternalId.of("B", "Present")), desiredValue));
+      assertNotNull(availability.getAvailability(targetSpec, ExternalIdBundle.of(ExternalId.of("A", "Present"), ExternalId.of("B", "Present"), ExternalId.of("C", "Absent")), desiredValue));
+      assertNotNull(availability.getAvailability(targetSpec, ExternalIdBundle.of(ExternalId.of("A", "Present"), ExternalId.of("B", "Present"), ExternalId.of("C", "Blocking")), desiredValue));
+      assertNotNull(availability.getAvailability(targetSpec, ExternalIdBundle.of(ExternalId.of("A", "Present"), ExternalId.of("B", "Missing"), ExternalId.of("C", "Blocking")), desiredValue));
+      assertNotNull(availability.getAvailability(targetSpec, ExternalIdBundle.of(ExternalId.of("A", "Missing"), ExternalId.of("B", "Present")), desiredValue));
     } finally {
       BlockingOperation.on();
     }
@@ -138,17 +138,15 @@ public class UnionMarketDataAvailabilityFilterTest {
   public void testIsAvailable_available(final MarketDataAvailabilityFilter availability) {
     try {
       BlockingOperation.off();
-      final ValueRequirement desiredValue = new ValueRequirement("Foo", ComputationTargetSpecification.NULL);
-      assertTrue(availability.isAvailable(ComputationTargetSpecification.NULL, ExternalId.of("A", "Present"), desiredValue));
-      assertTrue(availability.isAvailable(ComputationTargetSpecification.NULL, ExternalId.of("B", "Present"), desiredValue));
-      assertTrue(availability.isAvailable(ComputationTargetSpecification.NULL, ExternalIdBundle.of(ExternalId.of("A", "Present"), ExternalId.of("B", "Present")), desiredValue));
-      assertTrue(availability.isAvailable(ComputationTargetSpecification.NULL, ExternalIdBundle.of(ExternalId.of("A", "Present"), ExternalId.of("B", "Present"), ExternalId.of("C", "Absent")),
-          desiredValue));
-      assertTrue(availability.isAvailable(ComputationTargetSpecification.NULL, ExternalIdBundle.of(ExternalId.of("A", "Present"), ExternalId.of("B", "Present"), ExternalId.of("C", "Blocking")),
-          desiredValue));
-      assertTrue(availability.isAvailable(ComputationTargetSpecification.NULL, ExternalIdBundle.of(ExternalId.of("A", "Present"), ExternalId.of("B", "Missing"), ExternalId.of("C", "Blocking")),
-          desiredValue));
-      assertTrue(availability.isAvailable(ComputationTargetSpecification.NULL, ExternalIdBundle.of(ExternalId.of("A", "Missing"), ExternalId.of("B", "Present")), desiredValue));
+      final ComputationTargetSpecification targetSpec = new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueId.of("X", "0"));
+      final ValueRequirement desiredValue = new ValueRequirement("Foo", targetSpec);
+      assertTrue(availability.isAvailable(targetSpec, ExternalId.of("A", "Present"), desiredValue));
+      assertTrue(availability.isAvailable(targetSpec, ExternalId.of("B", "Present"), desiredValue));
+      assertTrue(availability.isAvailable(targetSpec, ExternalIdBundle.of(ExternalId.of("A", "Present"), ExternalId.of("B", "Present")), desiredValue));
+      assertTrue(availability.isAvailable(targetSpec, ExternalIdBundle.of(ExternalId.of("A", "Present"), ExternalId.of("B", "Present"), ExternalId.of("C", "Absent")), desiredValue));
+      assertTrue(availability.isAvailable(targetSpec, ExternalIdBundle.of(ExternalId.of("A", "Present"), ExternalId.of("B", "Present"), ExternalId.of("C", "Blocking")), desiredValue));
+      assertTrue(availability.isAvailable(targetSpec, ExternalIdBundle.of(ExternalId.of("A", "Present"), ExternalId.of("B", "Missing"), ExternalId.of("C", "Blocking")), desiredValue));
+      assertTrue(availability.isAvailable(targetSpec, ExternalIdBundle.of(ExternalId.of("A", "Missing"), ExternalId.of("B", "Present")), desiredValue));
     } finally {
       BlockingOperation.on();
     }
@@ -156,18 +154,20 @@ public class UnionMarketDataAvailabilityFilterTest {
 
   @Test(dataProvider = "providers")
   public void testGetAvailability_absent(final MarketDataAvailabilityProvider availability) {
-    final ValueRequirement desiredValue = new ValueRequirement("Foo", ComputationTargetSpecification.NULL);
-    assertNull(availability.getAvailability(ComputationTargetSpecification.NULL, ExternalId.of("A", "Absent"), desiredValue));
-    assertNull(availability.getAvailability(ComputationTargetSpecification.NULL, ExternalId.of("B", "Absent"), desiredValue));
-    assertNull(availability.getAvailability(ComputationTargetSpecification.NULL, ExternalId.of("C", "Absent"), desiredValue));
+    final ComputationTargetSpecification targetSpec = new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueId.of("X", "0"));
+    final ValueRequirement desiredValue = new ValueRequirement("Foo", targetSpec);
+    assertNull(availability.getAvailability(targetSpec, ExternalId.of("A", "Absent"), desiredValue));
+    assertNull(availability.getAvailability(targetSpec, ExternalId.of("B", "Absent"), desiredValue));
+    assertNull(availability.getAvailability(targetSpec, ExternalId.of("C", "Absent"), desiredValue));
   }
 
   @Test(dataProvider = "filters")
   public void testIsAvailable_absent(final MarketDataAvailabilityFilter availability) {
-    final ValueRequirement desiredValue = new ValueRequirement("Foo", ComputationTargetSpecification.NULL);
-    assertFalse(availability.isAvailable(ComputationTargetSpecification.NULL, ExternalId.of("A", "Absent"), desiredValue));
-    assertFalse(availability.isAvailable(ComputationTargetSpecification.NULL, ExternalId.of("B", "Absent"), desiredValue));
-    assertFalse(availability.isAvailable(ComputationTargetSpecification.NULL, ExternalId.of("C", "Absent"), desiredValue));
+    final ComputationTargetSpecification targetSpec = new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueId.of("X", "0"));
+    final ValueRequirement desiredValue = new ValueRequirement("Foo", targetSpec);
+    assertFalse(availability.isAvailable(targetSpec, ExternalId.of("A", "Absent"), desiredValue));
+    assertFalse(availability.isAvailable(targetSpec, ExternalId.of("B", "Absent"), desiredValue));
+    assertFalse(availability.isAvailable(targetSpec, ExternalId.of("C", "Absent"), desiredValue));
   }
 
   @Test(expectedExceptions = {MarketDataNotSatisfiableException.class }, dataProvider = "providers")

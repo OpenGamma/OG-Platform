@@ -13,7 +13,9 @@ import org.testng.annotations.Test;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.target.Primitive;
+import com.opengamma.engine.target.Primitive.ExternalIdentifiablePrimitive;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 
 /**
@@ -37,9 +39,9 @@ public class OptimisticMarketDataAvailabilityFilterTest {
   public void testPresent() {
     final MarketDataAvailabilityFilter availability = create();
     final ComputationTargetSpecification targetSpec = new ComputationTargetSpecification(ComputationTargetType.SECURITY, UniqueId.of("Security", "Foo"));
-    final Object target = new Primitive(UniqueId.of("Security", "Foo"));
     final ValueRequirement desiredValue = new ValueRequirement("Market_Value", targetSpec);
-    assertTrue(availability.isAvailable(targetSpec, target, desiredValue));
+    assertTrue(availability.isAvailable(targetSpec, new Primitive(UniqueId.of("Security", "Foo")), desiredValue));
+    assertTrue(availability.isAvailable(targetSpec, new ExternalIdentifiablePrimitive(UniqueId.of("Security", "Foo"), ExternalId.of("Foo", "Bar")), desiredValue));
   }
 
 }

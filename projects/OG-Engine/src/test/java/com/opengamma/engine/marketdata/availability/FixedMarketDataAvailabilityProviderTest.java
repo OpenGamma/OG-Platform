@@ -11,6 +11,7 @@ import static org.testng.Assert.assertNull;
 import org.testng.annotations.Test;
 
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -27,10 +28,10 @@ public class FixedMarketDataAvailabilityProviderTest {
 
   public void testEmpty() {
     final FixedMarketDataAvailabilityProvider available = new FixedMarketDataAvailabilityProvider();
-    assertNull(available.getAvailability(ComputationTargetSpecification.NULL, ExternalId.of("A", "1"), new ValueRequirement("Foo", ComputationTargetSpecification.NULL)));
-    assertNull(available.getAvailability(ComputationTargetSpecification.NULL, ExternalIdBundle.of(ExternalId.of("A", "1"), ExternalId.of("C", "1")), new ValueRequirement("Foo",
-        ComputationTargetSpecification.NULL)));
-    assertNull(available.getAvailability(ComputationTargetSpecification.NULL, UniqueId.of("X", "1"), new ValueRequirement("Foo", ComputationTargetSpecification.NULL)));
+    final ComputationTargetSpecification targetSpec = new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueId.of("X", "1"));
+    assertNull(available.getAvailability(targetSpec, ExternalId.of("A", "1"), new ValueRequirement("Foo", targetSpec)));
+    assertNull(available.getAvailability(targetSpec, ExternalIdBundle.of(ExternalId.of("A", "1"), ExternalId.of("C", "1")), new ValueRequirement("Foo", targetSpec)));
+    assertNull(available.getAvailability(targetSpec, UniqueId.of("X", "1"), new ValueRequirement("Foo", targetSpec)));
   }
 
   public void testAddAvailable_byExternalId() {
@@ -83,9 +84,10 @@ public class FixedMarketDataAvailabilityProviderTest {
   @Test(expectedExceptions = {MarketDataNotSatisfiableException.class })
   public void testAddMissing_byUniqueId() {
     final FixedMarketDataAvailabilityProvider available = new FixedMarketDataAvailabilityProvider();
+    final ComputationTargetSpecification targetSpec = new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueId.of("X", "1"));
     available.addMissingData(UniqueId.of("X", "1"), "Foo");
     available.addMissingData(UniqueId.of("X", "1"), "Bar");
-    available.getAvailability(ComputationTargetSpecification.NULL, UniqueId.of("X", "1"), new ValueRequirement("Foo", ComputationTargetSpecification.NULL));
+    available.getAvailability(targetSpec, targetSpec.getUniqueId(), new ValueRequirement("Foo", targetSpec));
   }
 
 }

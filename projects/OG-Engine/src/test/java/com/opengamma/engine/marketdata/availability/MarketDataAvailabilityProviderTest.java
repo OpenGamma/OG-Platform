@@ -6,7 +6,6 @@
 package com.opengamma.engine.marketdata.availability;
 
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertSame;
 
 import org.mockito.Mockito;
@@ -91,7 +90,7 @@ public class MarketDataAvailabilityProviderTest {
   public void testGetAvailability_null() {
     final MarketDataAvailabilityProvider availability = create();
     final ValueRequirement desiredValue = new ValueRequirement("Bar", ComputationTargetSpecification.NULL);
-    assertNull(availability.getAvailability(ComputationTargetSpecification.NULL, null, desiredValue).getProperty(ValuePropertyNames.FUNCTION), "null");
+    assertEquals(availability.getAvailability(ComputationTargetSpecification.NULL, null, desiredValue).getProperty(ValuePropertyNames.FUNCTION), "null");
   }
 
   public void testOf_same() {
