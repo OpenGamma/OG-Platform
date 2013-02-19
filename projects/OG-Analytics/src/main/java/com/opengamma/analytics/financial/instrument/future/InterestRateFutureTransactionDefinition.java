@@ -216,6 +216,11 @@ public class InterestRateFutureTransactionDefinition implements InstrumentDefini
     return _quantity;
   }
 
+  public InterestRateFutureTransactionDefinition withNewNotionalAndTransactionPrice(final double notional, final double transactionPrice) {
+    return new InterestRateFutureTransactionDefinition(_transactionDate, transactionPrice, _quantity, getLastTradingDate(), getFixingPeriodStartDate(), getFixingPeriodEndDate(), getIborIndex(),
+        notional, getPaymentAccrualFactor(), getName());
+  }
+
   @Override
   /**
    * @param lastMarginPrice The price on which the last margining was done.

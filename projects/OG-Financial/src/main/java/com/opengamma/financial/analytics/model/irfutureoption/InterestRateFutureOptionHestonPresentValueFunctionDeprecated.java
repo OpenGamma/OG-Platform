@@ -18,11 +18,13 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionPremiumSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionPremiumTransaction;
+import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureSecurityDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureTransactionDiscountingMethod;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
@@ -164,7 +166,7 @@ public class InterestRateFutureOptionHestonPresentValueFunctionDeprecated extend
   private class MyDerivativeVisitor extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, Double> {
     private final double _alpha = -0.5;
     private final double _tolerance = 0.001;
-    private final InterestRateFutureTransactionDiscountingMethod _futurePricer = InterestRateFutureTransactionDiscountingMethod.getInstance();
+    private final InterestRateFutureSecurityDiscountingMethod _futurePricer = InterestRateFutureSecurityDiscountingMethod.getInstance();
     private final FourierPricer _fourierPricer = new FourierPricer(new RungeKuttaIntegrator1D());
     private final ComputationTarget _target;
     private final FunctionInputs _inputs;
@@ -179,7 +181,7 @@ public class InterestRateFutureOptionHestonPresentValueFunctionDeprecated extend
       final double t = option.getExpirationTime();
       final double k = option.getStrike();
       final boolean isCall = option.isCall();
-      final InterestRateFutureTransaction irFuture = option.getUnderlyingFuture();
+      final InterestRateFutureSecurity irFuture = option.getUnderlyingFuture();
       final double f = 1 - _futurePricer.price(irFuture, getYieldCurves(_target, _inputs));
       final BlackFunctionData blackData = new BlackFunctionData(f, 1, 0);
       final EuropeanVanillaOption vanillaOption = new EuropeanVanillaOption(k, t, isCall);
@@ -197,7 +199,7 @@ public class InterestRateFutureOptionHestonPresentValueFunctionDeprecated extend
       final double t = option.getExpirationTime();
       final double k = option.getStrike();
       final boolean isCall = option.isCall();
-      final InterestRateFutureTransaction irFuture = option.getUnderlyingFuture();
+      final InterestRateFutureSecurity irFuture = option.getUnderlyingFuture();
       final double f = 1 - _futurePricer.price(irFuture, getYieldCurves(_target, _inputs));
       final BlackFunctionData blackData = new BlackFunctionData(f, 1, 1e-6);
       final EuropeanVanillaOption vanillaOption = new EuropeanVanillaOption(k, t, isCall);

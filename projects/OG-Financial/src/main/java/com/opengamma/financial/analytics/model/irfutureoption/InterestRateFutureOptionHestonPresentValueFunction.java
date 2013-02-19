@@ -26,8 +26,8 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.Interest
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionPremiumSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionPremiumTransaction;
+import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureSecurityDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureTransactionDiscountingMethod;
-import com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureSecurityDiscountingMethod;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.analytics.financial.model.option.pricing.fourier.FourierPricer;
@@ -222,7 +222,7 @@ public class InterestRateFutureOptionHestonPresentValueFunction extends Abstract
       final double t = option.getExpirationTime();
       final double k = option.getStrike();
       final boolean isCall = option.isCall();
-      final InterestRateFutureTransaction irFuture = option.getUnderlyingFuture();
+      final InterestRateFutureSecurity irFuture = option.getUnderlyingFuture();
       final double f = 1 - _futurePricer.price(irFuture, _curves);
       final BlackFunctionData blackData = new BlackFunctionData(f, 1, 1e-6);
       final EuropeanVanillaOption vanillaOption = new EuropeanVanillaOption(k, t, isCall);
