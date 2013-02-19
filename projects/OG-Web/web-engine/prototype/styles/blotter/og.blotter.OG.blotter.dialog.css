@@ -83,9 +83,7 @@
     display: none;
 }
 
-/*.OG-blotter-form-block .og-blotter-portfolio .blotter-date,
-.OG-blotter-form-block .og-blotter-portfolio .blotter-time{
-    display:inline-block;
-    width:47%;
+.OG-blotter-form-block .og-double-cell span{
+    padding-right: 3%;
+    width: 47%;
 }
-*/
