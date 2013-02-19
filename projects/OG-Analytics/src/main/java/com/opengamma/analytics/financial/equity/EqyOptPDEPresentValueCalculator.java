@@ -6,6 +6,7 @@
 package com.opengamma.analytics.financial.equity;
 
 import com.opengamma.analytics.financial.ExerciseDecisionType;
+import com.opengamma.analytics.financial.equity.option.EquityIndexFutureOption;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.equity.option.EquityOption;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
@@ -76,6 +77,29 @@ public final class EqyOptPDEPresentValueCalculator extends InstrumentDerivativeV
     final double interestRate = data.getDiscountCurve().getInterestRate(time);
     final double costOfCarry = interestRate; //TODO
     return option.getUnitAmount() * MODEL.price(spot, strike, interestRate, costOfCarry, time, sigma, isCall, isAmerican, 10, 500);
+  }
+
+  @Override
+  public Double visitEquityIndexFutureOption(final EquityIndexFutureOption option, final StaticReplicationDataBundle data) {
+    ArgumentChecker.notNull(option, "option");
+    ArgumentChecker.notNull(data, "data");
+    final double spot = data.getForwardCurve().getSpot();
+    final double strike = option.getStrike();
+    final double time = option.getExpiry();
+    final double sigma = data.getVolatilitySurface().getVolatility(time, strike);
+    final boolean isCall = option.isCall();
+    final boolean isAmerican;
+    final ExerciseDecisionType exercise = option.getExerciseType();
+    if (exercise == ExerciseDecisionType.AMERICAN) {
+      isAmerican = true;
+    } else if (exercise == ExerciseDecisionType.EUROPEAN) {
+      isAmerican = false;
+    } else {
+      throw new IllegalArgumentException("Can only price American or European expiry options");
+    }
+    final double interestRate = data.getDiscountCurve().getInterestRate(time);
+    final double costOfCarry = interestRate; //TODO
+    return option.getPointValue() * MODEL.price(spot, strike, interestRate, costOfCarry, time, sigma, isCall, isAmerican, 10, 500);
   }
 
 }

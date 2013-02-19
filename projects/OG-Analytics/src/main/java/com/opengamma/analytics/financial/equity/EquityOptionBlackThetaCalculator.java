@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.financial.equity;
 
+import com.opengamma.analytics.financial.equity.option.EquityIndexFutureOption;
+import com.opengamma.analytics.financial.equity.option.EquityIndexFutureOptionBlackMethod;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOptionBlackMethod;
 import com.opengamma.analytics.financial.equity.option.EquityOption;
@@ -34,16 +36,23 @@ public final class EquityOptionBlackThetaCalculator extends InstrumentDerivative
   public Double visitEquityIndexOption(final EquityIndexOption option, final StaticReplicationDataBundle data) {
     ArgumentChecker.notNull(option, "option");
     ArgumentChecker.notNull(data, "data");
-
-    final Double rhoBlack =  EquityIndexOptionBlackMethod.getInstance().spotTheta(option, data);
-    return rhoBlack;
+    final Double thetaBlack =  EquityIndexOptionBlackMethod.getInstance().spotTheta(option, data);
+    return thetaBlack;
   }
 
   @Override
   public Double visitEquityOption(final EquityOption option, final StaticReplicationDataBundle data) {
     ArgumentChecker.notNull(option, "option");
     ArgumentChecker.notNull(data, "data");
-    final Double rhoBlack =  EquityOptionBlackMethod.getInstance().spotTheta(option, data);
-    return rhoBlack;
+    final Double thetaBlack =  EquityOptionBlackMethod.getInstance().spotTheta(option, data);
+    return thetaBlack;
+  }
+
+  @Override
+  public Double visitEquityIndexFutureOption(final EquityIndexFutureOption option, final StaticReplicationDataBundle data) {
+    ArgumentChecker.notNull(option, "option");
+    ArgumentChecker.notNull(data, "data");
+    final Double thetaBlack =  EquityIndexFutureOptionBlackMethod.getInstance().spotTheta(option, data);
+    return thetaBlack;
   }
 }
