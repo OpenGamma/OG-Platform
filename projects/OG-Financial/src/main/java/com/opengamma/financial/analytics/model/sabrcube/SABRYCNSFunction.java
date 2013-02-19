@@ -136,13 +136,18 @@ public abstract class SABRYCNSFunction extends AbstractFunction.NonCompiledInvok
       throw new OpenGammaRuntimeException("Could not find curve calculation configuration named " + curveCalculationConfigName);
     }
     final String[] curveNames = curveCalculationConfig.getYieldCurveNames();
+    final int numCurveNames = curveNames.length;
+    final String[] fullCurveNames = new String[numCurveNames];
+    for (int i = 0; i < numCurveNames; i++) {
+      fullCurveNames[i] = curveNames[i] + "_" + currency.getCode();
+    }
     final String curveCalculationMethod = curveCalculationConfig.getCalculationMethod();
     final YieldCurveBundle curves = YieldCurveFunctionUtils.getYieldCurves(inputs, curveCalculationConfig);
     final YieldCurveBundle knownCurves = YieldCurveFunctionUtils.getFixedCurves(inputs, curveCalculationConfig, curveCalculationConfigSource);
     final InterpolatedYieldCurveSpecificationWithSecurities curveSpec = (InterpolatedYieldCurveSpecificationWithSecurities) curveSpecObject;
     final SABRInterestRateDataBundle data = getModelParameters(target, inputs, currency, dayCount, curves, desiredValue);
     final SABRInterestRateDataBundle knownData = knownCurves == null ? null : getModelParameters(target, inputs, currency, dayCount, knownCurves, desiredValue);
-    final InstrumentDerivative derivative = _definitionConverter.convert(security, definition, now, curveNames, timeSeries); //TODO
+    final InstrumentDerivative derivative = _definitionConverter.convert(security, definition, now, fullCurveNames, timeSeries); //TODO
     final ValueProperties properties = createValueProperties(target, desiredValue).get();
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, target.toSpecification(), properties);
     final Object jacobianObject = inputs.getValue(ValueRequirementNames.YIELD_CURVE_JACOBIAN);

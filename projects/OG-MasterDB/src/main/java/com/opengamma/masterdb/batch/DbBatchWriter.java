@@ -405,9 +405,23 @@ public class DbBatchWriter extends AbstractDbMaster {
     Map<Map<String, Object>, Collection<ComputationTargetSpecification>> computationTargetsData = newHashMapWithDefaultCollection();
     for (ComputationTargetSpecification targetSpecification : computationTargetSpecifications) {
       Map<String, Object> attribs = newHashMap();
-      attribs.put("id_scheme", targetSpecification.getUniqueId().getScheme());
-      attribs.put("id_value", targetSpecification.getUniqueId().getValue());
-      attribs.put("id_version", targetSpecification.getUniqueId().getVersion());
+      
+      String idScheme;
+      String idValue;
+      String idVersion;
+      if (ComputationTargetSpecification.NULL.equals(targetSpecification)) {
+        idScheme = null;
+        idValue = null;
+        idVersion = null;
+      } else {
+        UniqueId uniqueId = targetSpecification.getUniqueId();
+        idScheme = uniqueId.getScheme();
+        idValue = uniqueId.getValue();
+        idVersion = uniqueId.getVersion();
+      }
+      attribs.put("id_scheme", idScheme);
+      attribs.put("id_value", idValue);
+      attribs.put("id_version", idVersion);
       attribs.put("type", targetSpecification.getType().toString());
       computationTargetsData.get(attribs).add(targetSpecification);
     }
