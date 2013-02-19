@@ -306,20 +306,21 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot implement
   @Override
   public ComputedValue query(ValueRequirement requirement) {
     final StructuredMarketDataKeyFactory factory = s_structuredKeyFactories.get(requirement.getValueName());
-    if (factory == null) {
-      return null;
-    }
-    final Pair<? extends StructuredMarketDataKey, ValueSpecification> key = factory.fromRequirement(requirement, this);
-    if (key != null) {
-      final Object value = key.getFirst().accept(this);
-      if (value == null) {
-        return null;
+    if (factory != null) {
+      final Pair<? extends StructuredMarketDataKey, ValueSpecification> key = factory.fromRequirement(requirement, this);
+      if (key != null) {
+        final Object value = key.getFirst().accept(this);
+        if (value == null) {
+          return null;
+        } else {
+          return new ComputedValue(key.getSecond(), value);
+        }
       } else {
-        return new ComputedValue(key.getSecond(), value);
+        // TODO: Or call queryUnstructured?
+        return null;
       }
-    } else {
-      return queryUnstructured(requirement);
     }
+    return queryUnstructured(requirement);
   }
 
   //-------------------------------------------------------------------------
@@ -338,7 +339,10 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot implement
       Map<String, ValueSnapshot> map = globalValues.getValues().get(marketDataValueSpecification);
       if (map != null) {
         ValueSnapshot valueSnapshot = map.get(requirement.getValueName());
-        return new ComputedValue(MarketDataUtils.createMarketDataValue(requirement, identifier), query(valueSnapshot));
+        final Object value = query(valueSnapshot);
+        if (value != null) {
+          return new ComputedValue(MarketDataUtils.createMarketDataValue(requirement, identifier), value);
+        }
       }
     }
     return null;
