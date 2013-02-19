@@ -105,7 +105,7 @@ public class VolatilitySurfaceInterpolator {
     }
   }
 
-  //TODO add new constructor pattern using builder to set options, as in EquityVarianceSwapPricer 
+  //TODO add new constructor pattern using builder to set options, as in EquityVarianceSwapPricer
 
   public Function1D<Double, Double>[] getIndependentSmileFits(final SmileSurfaceDataBundle marketData) {
     ArgumentChecker.notNull(marketData, "market data");
@@ -144,14 +144,14 @@ public class VolatilitySurfaceInterpolator {
   /**
    * Given a set of smiles in the moneyness dimension, produce surface function that additionally interpolates in expiry. <p>
    * Access to the individual parts of getVolatilitySurface() permits user to bump vols without having to recalibrate each independent smile
-   * @param smileFunctions Array of Function1D's, one per expiry, that return volatility given strike 
+   * @param smileFunctions Array of Function1D's, one per expiry, that return volatility given strike
    * @param marketData The mark data - contains the forwards, expiries, and strikes and (market) implied volatilities at each expiry, not null
    * @return Implied volatility surface parameterised by time and moneyness
    */
   public BlackVolatilitySurfaceMoneynessFcnBackedByGrid combineIndependentSmileFits(final Function1D<Double, Double>[] smileFunctions,
       final SmileSurfaceDataBundle marketData) {
     ArgumentChecker.notNull(marketData, "market data");
-    ArgumentChecker.isTrue(marketData.getNumExpiries() > 0, "Not a single smile fit has been provided!");
+    ArgumentChecker.isTrue(marketData.getNumExpiries() > 0, "Do not have market data for any expiry");
     final int n = marketData.getNumExpiries();
     final double[] forwards = marketData.getForwards();
     final double[] expiries = marketData.getExpiries();
@@ -173,17 +173,17 @@ public class VolatilitySurfaceInterpolator {
       public Double evaluate(final Double... tm) {
         final double t = tm[0];
         final double m = tm[1];
-        
+
         // Case 1: Only a single expiry is available
         if (n == 1) {
           return smileFunctions[0].evaluate(forwards[0] * m);
         }
-        
+
         // Case 2 & 3: Extrapolation OR Less than 4 Expiries => Linear Extrapolation / Interpolation
         // FIXME Casey 15-01-2015 Extrapolation is hardcoded, to Linear.Should take input from _timeInterpolator
         // FIXME If n < 4, time interpolation is hardcoded, also to be linear.
         final int index = SurfaceArrayUtils.getLowerBoundIndex(expiries, t);
-        
+
         if (index == 0 || index == (n - 1) || n < 4) {
           int lowIdx;
           if (index == 0) {
@@ -193,7 +193,7 @@ public class VolatilitySurfaceInterpolator {
           } else {
             lowIdx = index;
           }
-          final double x = _useLogTime ? Math.log(t) : t;         
+          final double x = _useLogTime ? Math.log(t) : t;
           final double k0 = forwards[lowIdx] * Math.pow(m, Math.sqrt(expiries[lowIdx] / t));
           final double k1 = forwards[lowIdx + 1] * Math.pow(m, Math.sqrt(expiries[lowIdx + 1] / t));
           double var0 = square(smileFunctions[lowIdx].evaluate(k0));
@@ -221,7 +221,7 @@ public class VolatilitySurfaceInterpolator {
             return Math.sqrt(Math.min(var0, var1) /  (_useIntegratedVariance ? t : 1.0)) ;
           }
         }
-        
+
         // Case 4: Interpolation when n >= 4
         //FIXME Time interpolator hard-coded to be a natural cubic spline when n > 3
         int lower;
