@@ -26,6 +26,9 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class MixedBivariateLogNormalFitterTest {
 
+  /**
+   * 
+   */
   @Test
       (enabled = false)
       public void FittingTestManyDataPts() {
@@ -140,6 +143,9 @@ public class MixedBivariateLogNormalFitterTest {
 
   }
 
+  /**
+   * 
+   */
   @Test
       (enabled = false)
       public void TestDerivingZ1() {
@@ -464,6 +470,9 @@ public class MixedBivariateLogNormalFitterTest {
 
   }
 
+  /**
+   * 
+   */
   @Test
       (enabled = false)
       public void TestError() {
@@ -655,9 +664,11 @@ public class MixedBivariateLogNormalFitterTest {
 
   }
 
-  @Test
-      (enabled = false)
-      public void TestAccuracy() {
+  /**
+   * 
+   */
+  @Test(enabled = false)
+  public void TestAccuracy() {
 
     final int nNorms = 2;
     final int nParams = 5 * nNorms - 3;
@@ -713,67 +724,14 @@ public class MixedBivariateLogNormalFitterTest {
     System.out.println("true values: " + inSigmasX[0] + "\t" + inSigmasX[1]);
     System.out.println("\n");
 
-    int ctr = 0;
-    while (ctr <= 1000) {
-      ++ctr;
+    for (int i = 0; i < nParams; ++i) {
+      aaGuess1[i] = 1e-2 + obj.nextDouble();
+    }
+    MixedBivariateLogNormalFitter fitter1 = new MixedBivariateLogNormalFitter(aaGuess1, xx, yy, time, fwdX, fwdY, nNorms, nDataPtsX, 1);
 
-      for (int i = 0; i < nParams; ++i) {
-        aaGuess1[i] = 1e-2 + obj.nextDouble();
-      }
-      MixedBivariateLogNormalFitter fitter1 = new MixedBivariateLogNormalFitter(aaGuess1, xx, yy, time, fwdX, fwdY, nNorms, nDataPtsX, 1);
+    boolean fitDone = false;
 
-      boolean fitDone = false;
-
-      while (fitDone == false) {
-
-        for (int i = 0; i < nNorms; ++i) {
-          aaGuess1X[i] = aaGuess1[i];
-          aaGuess1Y[i] = aaGuess1[i + nNorms];
-        }
-        for (int i = 0; i < nNorms - 1; ++i) {
-          aaGuess1X[i + nNorms] = aaGuess1[i + 2 * nNorms];
-          aaGuess1X[i + 2 * nNorms - 1] = aaGuess1[i + 3 * nNorms - 1];
-          aaGuess1Y[i + nNorms] = aaGuess1[i + 2 * nNorms];
-          aaGuess1Y[i + 2 * nNorms - 1] = aaGuess1[i + 4 * nNorms - 2];
-        }
-
-        MixedLogNormalModelData tmpObj1X = new MixedLogNormalModelData(aaGuess1X, true);
-        double[] tmpSigmasX = tmpObj1X.getVolatilities();
-
-        System.out.println("guess: " + tmpSigmasX[0] + "\t" + tmpSigmasX[1]);
-        fitter1.doFit();
-        aaGuess1 = fitter1.getParams();
-        System.out.println("inintial sq: " + fitter1.getInitialSq());
-
-        for (int i = 0; i < nNorms; ++i) {
-          aaGuess1X[i] = aaGuess1[i];
-          aaGuess1Y[i] = aaGuess1[i + nNorms];
-        }
-        for (int i = 0; i < nNorms - 1; ++i) {
-          aaGuess1X[i + nNorms] = aaGuess1[i + 2 * nNorms];
-          aaGuess1X[i + 2 * nNorms - 1] = aaGuess1[i + 3 * nNorms - 1];
-          aaGuess1Y[i + nNorms] = aaGuess1[i + 2 * nNorms];
-          aaGuess1Y[i + 2 * nNorms - 1] = aaGuess1[i + 4 * nNorms - 2];
-        }
-
-        tmpObj1X = new MixedLogNormalModelData(aaGuess1X, true);
-        tmpSigmasX = tmpObj1X.getVolatilities();
-
-        if (fitter1.getFinalSq() <= fitter1.getInitialSq() * 1e-10) {
-          fitDone = true;
-          System.out.println("\n");
-          System.out.println("answer: " + tmpSigmasX[0] + "\t" + tmpSigmasX[1]);
-          System.out.println("sq: " + fitter1.getFinalSq());
-          System.out.println("\n");
-          System.out.println("\n");
-        } else {
-          for (int i = 0; i < nParams; ++i) {
-            aaGuess1[i] = 1e-2 + obj.nextDouble();
-          }
-          fitter1 = new MixedBivariateLogNormalFitter(aaGuess1, xx, yy, time, fwdX, fwdY, nNorms, nDataPtsX, 1);
-        }
-
-      }
+    while (fitDone == false) {
 
       for (int i = 0; i < nNorms; ++i) {
         aaGuess1X[i] = aaGuess1[i];
@@ -786,58 +744,341 @@ public class MixedBivariateLogNormalFitterTest {
         aaGuess1Y[i + 2 * nNorms - 1] = aaGuess1[i + 4 * nNorms - 2];
       }
 
-      final MixedLogNormalModelData objAns1X = new MixedLogNormalModelData(aaGuess1X, true);
-      final double[] weights = objAns1X.getWeights();
-      final double[] sigmasX = objAns1X.getVolatilities();
-      final double[] relativePartialForwardsX = objAns1X.getRelativeForwards();
+      MixedLogNormalModelData tmpObj1X = new MixedLogNormalModelData(aaGuess1X, true);
+      double[] tmpSigmasX = tmpObj1X.getVolatilities();
 
-      final MixedLogNormalModelData objAns1Y = new MixedLogNormalModelData(aaGuess1Y, true);
-      final double[] sigmasY = objAns1Y.getVolatilities();
-      final double[] relativePartialForwardsY = objAns1Y.getRelativeForwards();
+      System.out.println("guess: " + tmpSigmasX[0] + "\t" + tmpSigmasX[1]);
+      fitter1.doFit();
+      aaGuess1 = fitter1.getParams();
+      System.out.println("inintial sq: " + fitter1.getInitialSq());
 
-      final MixedBivariateLogNormalModelVolatility objZ = new MixedBivariateLogNormalModelVolatility(weights, sigmasX,
-          sigmasY, relativePartialForwardsX, relativePartialForwardsY, rhos);
-
-      double[] ansVolsX = new double[100];
-      double[] ansVolsY = new double[100];
-      double[] ansVolsZ = new double[100];
-      for (int i = 0; i < 100; i++) {
-        double k = fwdX * (0.1 + 2. * i / 100.);
-        final EuropeanVanillaOption option = new EuropeanVanillaOption(k, time, true);
-        ansVolsX[i] = volfunc.getVolatility(option, fwdX, objAns1X);
-        ansVolsY[i] = volfunc.getVolatility(option, fwdY, objAns1Y);
-        ansVolsZ[i] = objZ.getImpliedVolatilityZ(option, fwdZ);
-        //   System.out.println(k + "\t" + ansVolsX[i] + "\t" + ansVolsY[i] + "\t" + ansVolsZ[i]);
+      for (int i = 0; i < nNorms; ++i) {
+        aaGuess1X[i] = aaGuess1[i];
+        aaGuess1Y[i] = aaGuess1[i + nNorms];
+      }
+      for (int i = 0; i < nNorms - 1; ++i) {
+        aaGuess1X[i + nNorms] = aaGuess1[i + 2 * nNorms];
+        aaGuess1X[i + 2 * nNorms - 1] = aaGuess1[i + 3 * nNorms - 1];
+        aaGuess1Y[i + nNorms] = aaGuess1[i + 2 * nNorms];
+        aaGuess1Y[i + 2 * nNorms - 1] = aaGuess1[i + 4 * nNorms - 2];
       }
 
-      final MixedBivariateLogNormalModelVolatility objTrueZ = new MixedBivariateLogNormalModelVolatility(inWeights, inSigmasX,
-          inSigmasY, inRelativePartialForwardsX, inRelativePartialForwardsY, rhos);
+      tmpObj1X = new MixedLogNormalModelData(aaGuess1X, true);
+      tmpSigmasX = tmpObj1X.getVolatilities();
 
-      double[] trueVolsX = new double[100];
-      double[] trueVolsY = new double[100];
-      double[] trueVolsZ = new double[100];
-      for (int i = 0; i < 100; i++) {
-        double k = fwdY * (0.1 + 2. * i / 100.);
-        final EuropeanVanillaOption option = new EuropeanVanillaOption(k, time, true);
-        trueVolsX[i] = volfunc.getVolatility(option, fwdX, inObjX);
-        trueVolsY[i] = volfunc.getVolatility(option, fwdY, inObjY);
-        trueVolsZ[i] = objTrueZ.getImpliedVolatilityZ(option, fwdZ);
-        //     System.out.println(k + "\t" + trueVolsX[i] + "\t" + trueVolsY[i] + "\t" + trueVolsZ[i]);
-
-      }
-
-      final double[] inSigmasZ = objTrueZ.getSigmasZ();
-
-      for (int i = 0; i < 100; i++) {
-        double k = fwdX * (0.1 + 2. * i / 100.);
-        assertEquals("Imp Vols of X " + k, ansVolsX[i], trueVolsX[i], Math.abs((inSigmasX[0] + inSigmasX[1]) / 2.) * 1e-6);
-        assertEquals("Imp Vols of Y " + k, ansVolsY[i], trueVolsY[i], Math.abs((inSigmasY[0] + inSigmasY[1]) / 2.) * 1e-6);
-        assertEquals("Imp Vols of Z " + k, ansVolsZ[i], trueVolsZ[i], Math.abs((inSigmasZ[0] + inSigmasZ[1]) / 2.) * 1e-6);
+      if (fitter1.getFinalSq() <= fitter1.getInitialSq() * 1e-14) {
+        fitDone = true;
+        System.out.println("\n");
+        System.out.println("answer: " + tmpSigmasX[0] + "\t" + tmpSigmasX[1]);
+        System.out.println("sq: " + fitter1.getFinalSq());
+        System.out.println("\n");
+        System.out.println("\n");
+      } else {
+        for (int i = 0; i < nParams; ++i) {
+          aaGuess1[i] = 1e-2 + obj.nextDouble();
+        }
+        fitter1 = new MixedBivariateLogNormalFitter(aaGuess1, xx, yy, time, fwdX, fwdY, nNorms, nDataPtsX, 1);
       }
 
     }
+
+    for (int i = 0; i < nNorms; ++i) {
+      aaGuess1X[i] = aaGuess1[i];
+      aaGuess1Y[i] = aaGuess1[i + nNorms];
+    }
+    for (int i = 0; i < nNorms - 1; ++i) {
+      aaGuess1X[i + nNorms] = aaGuess1[i + 2 * nNorms];
+      aaGuess1X[i + 2 * nNorms - 1] = aaGuess1[i + 3 * nNorms - 1];
+      aaGuess1Y[i + nNorms] = aaGuess1[i + 2 * nNorms];
+      aaGuess1Y[i + 2 * nNorms - 1] = aaGuess1[i + 4 * nNorms - 2];
+    }
+
+    final MixedLogNormalModelData objAns1X = new MixedLogNormalModelData(aaGuess1X, true);
+    final double[] weights = objAns1X.getWeights();
+    final double[] sigmasX = objAns1X.getVolatilities();
+    final double[] relativePartialForwardsX = objAns1X.getRelativeForwards();
+
+    final MixedLogNormalModelData objAns1Y = new MixedLogNormalModelData(aaGuess1Y, true);
+    final double[] sigmasY = objAns1Y.getVolatilities();
+    final double[] relativePartialForwardsY = objAns1Y.getRelativeForwards();
+
+    final MixedBivariateLogNormalModelVolatility objZ = new MixedBivariateLogNormalModelVolatility(weights, sigmasX,
+        sigmasY, relativePartialForwardsX, relativePartialForwardsY, rhos);
+
+    double[] ansVolsX = new double[100];
+    double[] ansVolsY = new double[100];
+    double[] ansVolsZ = new double[100];
+    for (int i = 0; i < 100; i++) {
+      double k = fwdX * (0.1 + 2. * i / 100.);
+      final EuropeanVanillaOption option = new EuropeanVanillaOption(k, time, true);
+      ansVolsX[i] = volfunc.getVolatility(option, fwdX, objAns1X);
+      ansVolsY[i] = volfunc.getVolatility(option, fwdY, objAns1Y);
+      ansVolsZ[i] = objZ.getImpliedVolatilityZ(option, fwdZ);
+      //   System.out.println(k + "\t" + ansVolsX[i] + "\t" + ansVolsY[i] + "\t" + ansVolsZ[i]);
+    }
+
+    final MixedBivariateLogNormalModelVolatility objTrueZ = new MixedBivariateLogNormalModelVolatility(inWeights, inSigmasX,
+        inSigmasY, inRelativePartialForwardsX, inRelativePartialForwardsY, rhos);
+
+    double[] trueVolsX = new double[100];
+    double[] trueVolsY = new double[100];
+    double[] trueVolsZ = new double[100];
+    for (int i = 0; i < 100; i++) {
+      double k = fwdY * (0.1 + 2. * i / 100.);
+      final EuropeanVanillaOption option = new EuropeanVanillaOption(k, time, true);
+      trueVolsX[i] = volfunc.getVolatility(option, fwdX, inObjX);
+      trueVolsY[i] = volfunc.getVolatility(option, fwdY, inObjY);
+      trueVolsZ[i] = objTrueZ.getImpliedVolatilityZ(option, fwdZ);
+      //     System.out.println(k + "\t" + trueVolsX[i] + "\t" + trueVolsY[i] + "\t" + trueVolsZ[i]);
+
+    }
+
+    final double[] inSigmasZ = objTrueZ.getSigmasZ();
+
+    for (int i = 0; i < 100; i++) {
+      double k = fwdX * (0.1 + 2. * i / 100.);
+      assertEquals("Imp Vols of X " + k, ansVolsX[i], trueVolsX[i], Math.abs((inSigmasX[0] + inSigmasX[1]) / 2.) * 1e-6);
+      assertEquals("Imp Vols of Y " + k, ansVolsY[i], trueVolsY[i], Math.abs((inSigmasY[0] + inSigmasY[1]) / 2.) * 1e-6);
+      assertEquals("Imp Vols of Z " + k, ansVolsZ[i], trueVolsZ[i], Math.abs((inSigmasZ[0] + inSigmasZ[1]) / 2.) * 1e-6);
+    }
+
   }
 
+  /**
+   * 
+   */
+  @Test
+      (enabled = false)
+      public void TestAccuracy2() {
+
+    final int nNorms = 2;
+    final int nParams = 5 * nNorms - 3;
+    final int nDataPts = 14;
+    final int nDataPtsX = 7;
+    final int nParamsX = 3 * nNorms - 2;
+    final int nParamsY = 3 * nNorms - 2;
+
+    final double fwdX = 1.;
+    final double fwdY = 1.;
+    final double fwdZ = fwdX / fwdY;
+    final double time = 1.0;
+
+    double[] xx = new double[nDataPts];
+    double[] yy = new double[nDataPts];
+    double[] aaGuess1 = new double[nParams];
+    double[] aaGuess1X = new double[nParamsX];
+    double[] aaGuess1Y = new double[nParamsY];
+    double[] rhos = new double[nNorms];
+
+    Random obj = new Random();
+
+    double[] inRelativePartialForwardsX = {1., 1. };
+    double[] inRelativePartialForwardsY = {Math.exp(-0.2), (1. - Math.exp(-0.2) * 0.7) / 0.3 };
+
+    double[] inSigmasX = {0.25, 0.7 };
+    double[] inSigmasY = {0.3, 0.5 };
+
+    double[] inWeights = {0.7, 0.3 };
+
+    final MixedLogNormalModelData inObjX = new MixedLogNormalModelData(inWeights, inSigmasX, inRelativePartialForwardsX);
+    final MixedLogNormalModelData inObjY = new MixedLogNormalModelData(inWeights, inSigmasY, inRelativePartialForwardsY);
+
+    xx = new double[] {0.5, 0.7, 0.9, 1.0, 1.2, 1.5, 1.8, 0.5, 0.7, 0.9, 1.0, 1.2, 1.5, 1.8 };
+
+    final MixedLogNormalVolatilityFunction volfunc = MixedLogNormalVolatilityFunction.getInstance();
+    Arrays.fill(yy, 0.);
+
+    for (int j = 0; j < nDataPtsX; ++j) {
+      EuropeanVanillaOption option = new EuropeanVanillaOption(xx[j], time, true);
+      yy[j] = volfunc.getVolatility(option, fwdX, inObjX);
+    }
+
+    for (int j = nDataPtsX; j < nDataPts; ++j) {
+      EuropeanVanillaOption option = new EuropeanVanillaOption(xx[j], time, true);
+      yy[j] = volfunc.getVolatility(option, fwdY, inObjY);
+    }
+
+    for (int i = 0; i < nNorms; ++i) {
+      rhos[i] = 0.2 * (0.5 * i + 1.);
+    }
+
+    //   System.out.println("true values: " + inSigmasX[0] + "\t" + inSigmasX[1]);
+    //  System.out.println("\n");
+
+    for (int i = 0; i < nParams; ++i) {
+      aaGuess1[i] = 1e-2 + obj.nextDouble();
+    }
+    MixedBivariateLogNormalFitter fitter1 = new MixedBivariateLogNormalFitter(aaGuess1, xx, yy, time, fwdX, fwdY, nNorms, nDataPtsX, 1);
+
+    boolean fitDone = false;
+
+    while (fitDone == false) {
+
+      for (int i = 0; i < nNorms; ++i) {
+        aaGuess1X[i] = aaGuess1[i];
+        aaGuess1Y[i] = aaGuess1[i + nNorms];
+      }
+      for (int i = 0; i < nNorms - 1; ++i) {
+        aaGuess1X[i + nNorms] = aaGuess1[i + 2 * nNorms];
+        aaGuess1X[i + 2 * nNorms - 1] = aaGuess1[i + 3 * nNorms - 1];
+        aaGuess1Y[i + nNorms] = aaGuess1[i + 2 * nNorms];
+        aaGuess1Y[i + 2 * nNorms - 1] = aaGuess1[i + 4 * nNorms - 2];
+      }
+
+      //  MixedLogNormalModelData tmpObj1X = new MixedLogNormalModelData(aaGuess1X, true);
+      //double[] tmpSigmasX = tmpObj1X.getVolatilities();
+
+      // System.out.println("guess: " + tmpSigmasX[0] + "\t" + tmpSigmasX[1]);
+      fitter1.doFit();
+      aaGuess1 = fitter1.getParams();
+      System.out.println("inintial sq: " + fitter1.getInitialSq());
+      System.out.println("final sq: " + fitter1.getFinalSq());
+      System.out.println("\n");
+
+      for (int i = 0; i < nNorms; ++i) {
+        aaGuess1X[i] = aaGuess1[i];
+        aaGuess1Y[i] = aaGuess1[i + nNorms];
+      }
+      for (int i = 0; i < nNorms - 1; ++i) {
+        aaGuess1X[i + nNorms] = aaGuess1[i + 2 * nNorms];
+        aaGuess1X[i + 2 * nNorms - 1] = aaGuess1[i + 3 * nNorms - 1];
+        aaGuess1Y[i + nNorms] = aaGuess1[i + 2 * nNorms];
+        aaGuess1Y[i + 2 * nNorms - 1] = aaGuess1[i + 4 * nNorms - 2];
+      }
+
+      //   tmpObj1X = new MixedLogNormalModelData(aaGuess1X, true);
+      //  tmpSigmasX = tmpObj1X.getVolatilities();
+
+      if (fitter1.getFinalSq() <= fitter1.getInitialSq() * 1e-14) {
+        fitDone = true;
+        //System.out.println("\n");
+        //System.out.println("answer: " + tmpSigmasX[0] + "\t" + tmpSigmasX[1]);
+
+        System.out.println("XY Fitting Done");
+        System.out.println("\n");
+      } else {
+        for (int i = 0; i < nParams; ++i) {
+          aaGuess1[i] = 1e-2 + obj.nextDouble();
+        }
+        fitter1 = new MixedBivariateLogNormalFitter(aaGuess1, xx, yy, time, fwdX, fwdY, nNorms, nDataPtsX, 1);
+      }
+
+    }
+
+    for (int i = 0; i < nNorms; ++i) {
+      aaGuess1X[i] = aaGuess1[i];
+      aaGuess1Y[i] = aaGuess1[i + nNorms];
+    }
+    for (int i = 0; i < nNorms - 1; ++i) {
+      aaGuess1X[i + nNorms] = aaGuess1[i + 2 * nNorms];
+      aaGuess1X[i + 2 * nNorms - 1] = aaGuess1[i + 3 * nNorms - 1];
+      aaGuess1Y[i + nNorms] = aaGuess1[i + 2 * nNorms];
+      aaGuess1Y[i + 2 * nNorms - 1] = aaGuess1[i + 4 * nNorms - 2];
+    }
+
+    final MixedLogNormalModelData objAns1X = new MixedLogNormalModelData(aaGuess1X, true);
+    final double[] weights = objAns1X.getWeights();
+    final double[] sigmasX = objAns1X.getVolatilities();
+    final double[] relativePartialForwardsX = objAns1X.getRelativeForwards();
+
+    final MixedLogNormalModelData objAns1Y = new MixedLogNormalModelData(aaGuess1Y, true);
+    final double[] sigmasY = objAns1Y.getVolatilities();
+    final double[] relativePartialForwardsY = objAns1Y.getRelativeForwards();
+
+    final MixedBivariateLogNormalModelVolatility objTrueZ = new MixedBivariateLogNormalModelVolatility(inWeights, inSigmasX,
+        inSigmasY, inRelativePartialForwardsX, inRelativePartialForwardsY, rhos);
+
+    double[] xxZ = new double[nDataPtsX];
+    double[] yyZ = new double[nDataPtsX];
+    for (int j = 0; j < nDataPtsX; ++j) {
+      EuropeanVanillaOption option = new EuropeanVanillaOption(xx[j], time, true);
+      xxZ[j] = xx[j];
+      yyZ[j] = objTrueZ.getImpliedVolatilityZ(option, fwdZ);
+    }
+
+    double[] rhosGuess = new double[nNorms];
+    for (int i = 0; i < nNorms; ++i) {
+      rhosGuess[i] = 1. - obj.nextDouble();
+    }
+
+    MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder(rhosGuess, xxZ, yyZ, time, weights, sigmasX, sigmasY,
+        relativePartialForwardsX,
+        relativePartialForwardsY, fwdX, fwdY);
+
+    boolean fitRhoDone = false;
+    int counterRho = 0;
+
+    while (fitRhoDone == false) {
+      ++counterRho;
+
+      fitter.doFit();
+      rhosGuess = fitter.getParams();
+      System.out.println("\n");
+      System.out.println("inintial sq: " + fitter.getInitialSq());
+
+      System.out.println("final sq: " + fitter.getFinalSq());
+      System.out.println("\n");
+
+      if (fitter.getFinalSq() <= 1e-14) {
+        fitRhoDone = true;
+        System.out.println("Rho Fitting Done");
+      } else {
+        for (int i = 0; i < nNorms; ++i) {
+          rhosGuess[i] = 1. - obj.nextDouble();
+        }
+        fitter = new MixedBivariateLogNormalCorrelationFinder(rhosGuess, xxZ, yyZ, time, weights, sigmasX, sigmasY, relativePartialForwardsX,
+            relativePartialForwardsY, fwdX, fwdY);
+      }
+
+      ArgumentChecker.isTrue(counterRho < 500, "Too many inerations for rho. Start with new guess parameters.");
+    }
+
+    System.out.println("\n");
+
+    rhosGuess = fitter.getParams();
+
+    final MixedBivariateLogNormalModelVolatility objZ = new MixedBivariateLogNormalModelVolatility(weights, sigmasX,
+        sigmasY, relativePartialForwardsX, relativePartialForwardsY, rhosGuess);
+
+    double[] ansVolsX = new double[100];
+    double[] ansVolsY = new double[100];
+    double[] ansVolsZ = new double[100];
+    for (int i = 0; i < 100; i++) {
+      double k = fwdX * (0.1 + 2. * i / 100.);
+      final EuropeanVanillaOption option = new EuropeanVanillaOption(k, time, true);
+      ansVolsX[i] = volfunc.getVolatility(option, fwdX, objAns1X);
+      ansVolsY[i] = volfunc.getVolatility(option, fwdY, objAns1Y);
+      ansVolsZ[i] = objZ.getImpliedVolatilityZ(option, fwdZ);
+      //   System.out.println(k + "\t" + ansVolsX[i] + "\t" + ansVolsY[i] + "\t" + ansVolsZ[i]);
+    }
+
+    double[] trueVolsX = new double[100];
+    double[] trueVolsY = new double[100];
+    double[] trueVolsZ = new double[100];
+    for (int i = 0; i < 100; i++) {
+      double k = fwdY * (0.1 + 2. * i / 100.);
+      final EuropeanVanillaOption option = new EuropeanVanillaOption(k, time, true);
+      trueVolsX[i] = volfunc.getVolatility(option, fwdX, inObjX);
+      trueVolsY[i] = volfunc.getVolatility(option, fwdY, inObjY);
+      trueVolsZ[i] = objTrueZ.getImpliedVolatilityZ(option, fwdZ);
+      //     System.out.println(k + "\t" + trueVolsX[i] + "\t" + trueVolsY[i] + "\t" + trueVolsZ[i]);
+
+    }
+
+    final double[] inSigmasZ = objTrueZ.getSigmasZ();
+
+    for (int i = 0; i < 100; i++) {
+      double k = fwdX * (0.1 + 2. * i / 100.);
+      assertEquals("Imp Vols of X " + k, ansVolsX[i], trueVolsX[i], Math.abs((inSigmasX[0] + inSigmasX[1]) / 2.) * 1e-7);
+      assertEquals("Imp Vols of Y " + k, ansVolsY[i], trueVolsY[i], Math.abs((inSigmasY[0] + inSigmasY[1]) / 2.) * 1e-7);
+      assertEquals("Imp Vols of Z " + k, ansVolsZ[i], trueVolsZ[i], Math.abs((inSigmasZ[0] + inSigmasZ[1]) / 2.) * 1e-7);
+    }
+
+  }
+
+  /**
+   * 
+   */
   @Test
       (enabled = false)
       public void TestNoise() {
@@ -1060,6 +1301,9 @@ public class MixedBivariateLogNormalFitterTest {
 
   }
 
+  /**
+   * 
+   */
   @Test
       (enabled = false)
       public void TestMarketData() {
@@ -1327,6 +1571,9 @@ public class MixedBivariateLogNormalFitterTest {
 
   }
 
+  /**
+   * 
+   */
   @Test
       (enabled = false)
       public void TestXYfitterZfitter() {
@@ -1407,7 +1654,7 @@ public class MixedBivariateLogNormalFitterTest {
       volEURUSD[i] = cal3.getVolatility();
     }
 
-    final int nNorms = 2;
+    final int nNorms = 3;
     final int nParams = 5 * nNorms - 3;
 
     final int nDataPtsX = 2 * nDeltas + 1;
@@ -1425,7 +1672,7 @@ public class MixedBivariateLogNormalFitterTest {
 
     Random objRand = new Random();
 
-    final int choiceOfExpiry = 3;
+    final int choiceOfExpiry = 1;
     final double fwdX = fwdEURUSD[choiceOfExpiry];
     final double fwdY = fwdGBPUSD[choiceOfExpiry];
     final double fwdZ = fwdX / fwdY;
@@ -1446,7 +1693,7 @@ public class MixedBivariateLogNormalFitterTest {
     final double aaGuessFactor = choiceOfExpiry + 1.;
     MixedBivariateLogNormalFitter fitter1 = new MixedBivariateLogNormalFitter(aaGuess, xx, yy, time, fwdX, fwdY, nNorms, nDataPtsX, aaGuessFactor);
 
-    final double prec = 1e-5; // Precision should be chosen depending on maturities
+    final double prec = 1e-8; // Precision should be chosen depending on maturities
 
     boolean fitDone = false;
     int counter = 0;
@@ -1484,7 +1731,7 @@ public class MixedBivariateLogNormalFitterTest {
       System.out.println("XYsq: " + fitter1.getFinalSq());
       System.out.println("\n");
 
-      if (fitter1.getFinalSq() <= prec) {
+      if (fitter1.getFinalSq() <= prec * fitter1.getInitialSq()) {
         fitDone = true;
         System.out.println("XY Fitting Done");
       } else {
@@ -1541,7 +1788,7 @@ public class MixedBivariateLogNormalFitterTest {
       System.out.println("final sq: " + fitter.getFinalSq());
       System.out.println("\n");
 
-      if (fitter.getFinalSq() <= prec) {
+      if (fitter.getFinalSq() <= 1e-4 * fitter.getInitialSq()) {
         fitRhoDone = true;
         System.out.println("Rho Fitting Done");
       } else {
@@ -1658,6 +1905,9 @@ public class MixedBivariateLogNormalFitterTest {
 
   }
 
+  /**
+   * 
+   */
   @Test
       (enabled = false)
       public void CheckingModelParams() {
