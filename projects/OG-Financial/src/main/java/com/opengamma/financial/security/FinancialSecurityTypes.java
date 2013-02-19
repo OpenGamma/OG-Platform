@@ -38,6 +38,7 @@ import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSecurity;
+import com.opengamma.financial.security.option.EquityIndexFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
@@ -156,6 +157,11 @@ public class FinancialSecurityTypes {
    * The Equity Option security type.
    */
   public static final ObjectComputationTargetType<EquityOptionSecurity> EQUITY_OPTION_SECURITY = ObjectComputationTargetType.of(EquityOptionSecurity.class);
+
+  /**
+   * The Equity Index Future Option security type.
+   */
+  public static final ObjectComputationTargetType<EquityIndexFutureOptionSecurity> EQUITY_INDEX_FUTURE_OPTION_SECURITY = ObjectComputationTargetType.of(EquityIndexFutureOptionSecurity.class);
 
   /**
    * The Equity security type.
