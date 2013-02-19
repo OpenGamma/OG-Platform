@@ -57,31 +57,43 @@ $.register_module({
             });
         };
         var col_reorder = (function () {
-            var namespace = '.og_analytics_reorder', index, last, first,
+            var namespace = '.og_analytics_reorder', index, last, first, grid_width, timeout = null, nearest,
                 line = 'OG-g-h-line', reorderer = 'OG-g-h-reorderer', offset_left;
+            var auto_scroll = function (direction, scroll_left) {
+                var increment = 10, interval = 75, scroll_body = grid.elements.scroll_body;
+                clearTimeout(timeout);
+                if (direction === 'right') scroll_body.scrollLeft(scroll_left + increment);
+                else if (direction === 'left') scroll_body.scrollLeft(scroll_left - increment);
+                timeout = setTimeout(function () {auto_scroll(direction, scroll_body.scrollLeft());}, interval);
+            };
             var clean_up = function (grid) {
                 $('.' + reorderer).remove();
                 $('.' + line).remove();
                 $(document).off(namespace);
+                timeout = clearTimeout(timeout), null;
                 grid.elements.scroll_body.off(namespace);
                 grid.selector.clear();
             };
             var mousemove = function (grid, event) {
                 var scroll_left = grid.elements.scroll_body.scrollLeft(),
-                    x = event.pageX - grid.offset.left + scroll_left,
-                    scan = grid.meta.columns.scan.all, nearest = Math.max(
-                        grid.meta.fixed_length - 1,
-                        grid.meta.columns.scan.all.reduce(function (acc, val, idx) {return val < x ? idx : acc;}, 0)
-                    );
+                    x = event.pageX - grid.offset.left + scroll_left, fixed_width = grid.meta.columns.width.fixed,
+                    scan = grid.meta.columns.scan.all, line_left;
+                nearest = Math.max(
+                    grid.meta.fixed_length - 1,
+                    grid.meta.columns.scan.all.reduce(function (acc, val, idx) {return val < x ? idx : acc;}, 0)
+                );
+                line_left = grid.offset.left - scroll_left + scan[nearest];
                 $('.' + reorderer).css({left: event.pageX - offset_left});
-                $('.' + line).show().css({left: grid.offset.left - scroll_left + scan[nearest]});
+                if (line_left <= fixed_width + grid.offset.left) return auto_scroll('left', scroll_left);
+                if (line_left >= grid_width) return auto_scroll('right', scroll_left);
+                timeout = clearTimeout(timeout), null;
+                $('.' + line).show().css({left: line_left});
             };
             var mouseup = function (grid, event) {
                 clean_up(grid);
+                console.log('nearest', nearest);
             };
-            var scroll = function (event) {
-                $('.' + line).hide();
-            };
+            var scroll = function () {$('.' + line).hide();};
             return function (event, $target) {
                 var grid = this, $clone;
                 clean_up(grid);
@@ -89,6 +101,7 @@ $.register_module({
                 index = +$target.attr('data-index');
                 first = grid.meta.fixed_length;
                 last = grid.meta.columns.widths.length - 1;
+                grid_width = grid.elements.parent.width();
                 $clone = $target.clone();
                 $clone.find('.resize').remove();
                 offset_left = event.pageX - grid.offset.left + grid.elements.scroll_body.scrollLeft() -
