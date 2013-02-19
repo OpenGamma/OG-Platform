@@ -26,7 +26,6 @@ import com.google.common.collect.Multimaps;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.marketdatasnapshot.MarketDataValueSpecification;
-import com.opengamma.core.marketdatasnapshot.MarketDataValueType;
 import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.UnstructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.ValueSnapshot;
@@ -147,10 +146,7 @@ public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
           dataFound.add(computedValue);
           final ExternalIdBundle identifiers = resolver.visitComputationTargetSpecification(nodeProducing.getRequiredMarketData().getTargetSpecification());
           if (identifiers != null) {
-            // TODO: should use the order config to prioritise which scheme to select
-            // TODO: we could add the config to the lookup to avoid passing two objects around
-            // TODO: should we store all of the possible identifiers?
-            indexedData.put(new MarketDataValueSpecification(MarketDataValueType.PRIMITIVE, identifiers.iterator().next()), computedValue);
+            indexedData.put(new MarketDataValueSpecification(identifiers), computedValue);
           }
         }
       }

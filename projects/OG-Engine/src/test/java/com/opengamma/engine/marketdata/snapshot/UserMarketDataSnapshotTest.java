@@ -18,7 +18,6 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.core.marketdatasnapshot.MarketDataValueSpecification;
-import com.opengamma.core.marketdatasnapshot.MarketDataValueType;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.UnstructuredMarketDataSnapshot;
@@ -43,7 +42,7 @@ import com.opengamma.util.money.Currency;
 public class UserMarketDataSnapshotTest {
 
   private Map<MarketDataValueSpecification, Map<String, ValueSnapshot>> generateGlobalValuesMap(final ExternalId testValueId, final Double marketValue) {
-    final MarketDataValueSpecification valueSpec = new MarketDataValueSpecification(MarketDataValueType.PRIMITIVE, testValueId);
+    final MarketDataValueSpecification valueSpec = new MarketDataValueSpecification(testValueId);
     final Map<String, ValueSnapshot> values = ImmutableMap.of(MarketDataRequirementNames.MARKET_VALUE, new ValueSnapshot(marketValue));
     return ImmutableMap.<MarketDataValueSpecification, Map<String, ValueSnapshot>>of(valueSpec, values);
   }

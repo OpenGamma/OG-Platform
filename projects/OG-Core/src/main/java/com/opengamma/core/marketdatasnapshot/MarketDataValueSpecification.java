@@ -27,10 +27,6 @@ public final class MarketDataValueSpecification {
   // like this just needs the identifier. This whole class can then be removed; only the identifier is needed for its purpose.
 
   /**
-   * The type of the target.
-   */
-  private final MarketDataValueType _type;
-  /**
    * The identifier(s) of the target.
    */
   private final ExternalIdBundle _identifiers;
@@ -38,31 +34,16 @@ public final class MarketDataValueSpecification {
   /**
    * Creates an instance for a type of market data and an external identifier.
    * 
-   * @param type the type of market data this refers to, not null
    * @param identifier an identifier of the data this refers to, for example a ticker, not null
    */
-  public MarketDataValueSpecification(final MarketDataValueType type, final ExternalId identifier) {
-    ArgumentChecker.notNull(type, "type");
+  public MarketDataValueSpecification(final ExternalId identifier) {
     ArgumentChecker.notNull(identifier, "identifier");
-    _type = type;
     _identifiers = identifier.toBundle();
   }
 
-  public MarketDataValueSpecification(final MarketDataValueType type, final ExternalIdBundle identifiers) {
-    ArgumentChecker.notNull(type, "type");
+  public MarketDataValueSpecification(final ExternalIdBundle identifiers) {
     ArgumentChecker.notNull(identifiers, "identifiers");
-    _type = type;
     _identifiers = identifiers;
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Gets the type of the market data.
-   * 
-   * @return the type
-   */
-  public MarketDataValueType getType() {
-    return _type;
   }
 
   /**
@@ -90,8 +71,7 @@ public final class MarketDataValueSpecification {
     }
     if (object instanceof MarketDataValueSpecification) {
       final MarketDataValueSpecification other = (MarketDataValueSpecification) object;
-      return ObjectUtils.equals(getType(), other.getType()) &&
-          ObjectUtils.equals(getIdentifiers(), other.getIdentifiers());
+      return ObjectUtils.equals(getIdentifiers(), other.getIdentifiers());
     }
     return false;
   }
@@ -103,7 +83,7 @@ public final class MarketDataValueSpecification {
    */
   @Override
   public int hashCode() {
-    return ObjectUtils.hashCode(getType()) ^ ObjectUtils.hashCode(getIdentifiers());
+    return ObjectUtils.hashCode(getIdentifiers());
   }
 
   /**
@@ -111,7 +91,6 @@ public final class MarketDataValueSpecification {
    * 
    * <pre>
    *   message {
-   *     string type;
    *     ExternalIdBundle identifiers;
    *   }
    * </pre>
@@ -121,15 +100,13 @@ public final class MarketDataValueSpecification {
    */
   public MutableFudgeMsg toFudgeMsg(final FudgeSerializer serializer) {
     final MutableFudgeMsg msg = serializer.newMessage();
-    msg.add("type", null, _type.name());
     serializer.addToMessage(msg, "identifiers", null, _identifiers);
     return msg;
   }
 
   public static MarketDataValueSpecification fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
-    final MarketDataValueType type = deserializer.fieldValueToObject(MarketDataValueType.class, msg.getByName("type"));
     final ExternalIdBundle identifiers = deserializer.fieldValueToObject(ExternalIdBundle.class, msg.getByName("identifiers"));
-    return new MarketDataValueSpecification(type, identifiers);
+    return new MarketDataValueSpecification(identifiers);
   }
 
 }

@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.opengamma.core.marketdatasnapshot.MarketDataValueSpecification;
-import com.opengamma.core.marketdatasnapshot.MarketDataValueType;
 import com.opengamma.core.marketdatasnapshot.UnstructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.ValueSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableUnstructuredMarketDataSnapshot;
@@ -25,14 +24,7 @@ import com.opengamma.id.ExternalId;
 
   public static List<Double> getValue(final UnstructuredMarketDataSnapshot snapshot, final String valueName, final ExternalId identifier) {
     final Map<MarketDataValueSpecification, Map<String, ValueSnapshot>> globalValues = snapshot.getValues();
-    Map<String, ValueSnapshot> values = globalValues.get(new MarketDataValueSpecification(MarketDataValueType.SECURITY, identifier));
-    if (values != null) {
-      final ValueSnapshot value = values.get(valueName);
-      if (value != null) {
-        return Arrays.asList(value.getOverrideValue(), value.getMarketValue());
-      }
-    }
-    values = globalValues.get(new MarketDataValueSpecification(MarketDataValueType.PRIMITIVE, identifier));
+    final Map<String, ValueSnapshot> values = globalValues.get(new MarketDataValueSpecification(identifier));
     if (values != null) {
       final ValueSnapshot value = values.get(valueName);
       if (value != null) {
@@ -42,9 +34,9 @@ import com.opengamma.id.ExternalId;
     return null;
   }
 
-  private static Map<String, ValueSnapshot> getValueMap(final UnstructuredMarketDataSnapshot snapshot, final ExternalId identifier, final MarketDataValueType type, final boolean addIfMissing) {
+  private static Map<String, ValueSnapshot> getValueMap(final UnstructuredMarketDataSnapshot snapshot, final ExternalId identifier, final boolean addIfMissing) {
     final Map<MarketDataValueSpecification, Map<String, ValueSnapshot>> globalValues = snapshot.getValues();
-    final MarketDataValueSpecification spec = new MarketDataValueSpecification(type, identifier);
+    final MarketDataValueSpecification spec = new MarketDataValueSpecification(identifier);
     Map<String, ValueSnapshot> values = globalValues.get(spec);
     if ((values == null) && addIfMissing) {
       values = new HashMap<String, ValueSnapshot>();
@@ -53,10 +45,9 @@ import com.opengamma.id.ExternalId;
     return values;
   }
 
-  public static void setValue(final UnstructuredMarketDataSnapshot snapshot, final String valueName, final ExternalId identifier,
-      final Double overrideValue, final Double marketValue, final MarketDataValueType type) {
+  public static void setValue(final UnstructuredMarketDataSnapshot snapshot, final String valueName, final ExternalId identifier, final Double overrideValue, final Double marketValue) {
     if ((overrideValue != null) || (marketValue != null)) {
-      final Map<String, ValueSnapshot> values = getValueMap(snapshot, identifier, type, true);
+      final Map<String, ValueSnapshot> values = getValueMap(snapshot, identifier, true);
       final ValueSnapshot value = values.get(valueName);
       if (value != null) {
         if (marketValue != null) {
@@ -68,7 +59,7 @@ import com.opengamma.id.ExternalId;
         values.put(valueName, new ValueSnapshot(marketValue, overrideValue));
       }
     } else {
-      final Map<String, ValueSnapshot> values = getValueMap(snapshot, identifier, type, false);
+      final Map<String, ValueSnapshot> values = getValueMap(snapshot, identifier, false);
       if (values != null) {
         values.remove(valueName);
       }
