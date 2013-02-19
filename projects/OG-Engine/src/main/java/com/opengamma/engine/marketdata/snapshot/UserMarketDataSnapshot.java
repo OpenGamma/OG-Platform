@@ -17,7 +17,6 @@ import org.threeten.bp.Instant;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.core.marketdatasnapshot.MarketDataValueSpecification;
-import com.opengamma.core.marketdatasnapshot.MarketDataValueType;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.UnstructuredMarketDataSnapshot;
@@ -34,20 +33,19 @@ import com.opengamma.core.marketdatasnapshot.YieldCurveSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.MemoryUtils;
 import com.opengamma.engine.marketdata.AbstractMarketDataSnapshot;
-import com.opengamma.engine.marketdata.availability.AbstractMarketDataAvailabilityProvider;
+import com.opengamma.engine.marketdata.InMemoryLKVMarketDataProvider;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityFilter;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.availability.ProviderMarketDataAvailabilityFilter;
+import com.opengamma.engine.target.ComputationTargetReference;
+import com.opengamma.engine.target.ComputationTargetRequirement;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.id.ExternalId;
-import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.money.Currency;
@@ -67,10 +65,10 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
   private static final String SURFACE_QUOTE_UNITS_PROPERTY = "SurfaceUnits";
 
   private static final Map<String, StructuredMarketDataHandler> s_structuredDataHandler = new HashMap<String, StructuredMarketDataHandler>();
-  private static final ValueProperties GLOBAL_VALUE_QUERY_PROPERTIES = MemoryUtils.instance(ValueProperties.with(ValuePropertyNames.FUNCTION, "GlobalValue").get());
 
   private final MarketDataSnapshotSource _snapshotSource;
   private final UniqueId _snapshotId;
+  private final InMemoryLKVMarketDataProvider _unstructured = new InMemoryLKVMarketDataProvider();
   private StructuredMarketDataSnapshot _snapshot;
 
   /**
@@ -310,11 +308,14 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
     if (valueSnapshot == null) {
       return null;
     }
-    //TODO configure which value to use
+    // TODO: If there is a use case to run a snapshot with the original values then we might want a mode to use the original values
+    // instead of the overrides. The alternative is to create a new snapshot programmatically (or revert to an earlier version) which
+    // does not have the override values.
     if (valueSnapshot.getOverrideValue() != null) {
       return valueSnapshot.getOverrideValue();
+    } else {
+      return valueSnapshot.getMarketValue();
     }
-    return valueSnapshot.getMarketValue();
   }
 
   private static SnapshotDataBundle createSnapshotDataBundle(final UnstructuredMarketDataSnapshot values) {
@@ -380,34 +381,6 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
     return dataPoints;
   }
 
-  protected ValueSpecification convertMarketDataValueSpecification(final MarketDataValueSpecification marketDataSpec, final String valueName) {
-    final ExternalId identifier = marketDataSpec.getIdentifier();
-    final ComputationTargetSpecification targetSpec = new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueId.of("UserMarketDataSnapshot", identifier.toString()));
-    return new ValueSpecification(valueName, targetSpec, GLOBAL_VALUE_QUERY_PROPERTIES);
-  }
-
-  protected MarketDataValueSpecification convertValueSpecification(final ValueSpecification valueSpec) {
-    final ExternalId identifier = ExternalId.parse(valueSpec.getTargetSpecification().getUniqueId().getValue());
-    return new MarketDataValueSpecification(MarketDataValueType.PRIMITIVE, identifier);
-  }
-
-  protected Object queryUnstructured(final ValueSpecification valueSpec) {
-    final UnstructuredMarketDataSnapshot unstructured = getSnapshot().getGlobalValues();
-    if (unstructured != null) {
-      final Map<MarketDataValueSpecification, Map<String, ValueSnapshot>> valuesByTarget = unstructured.getValues();
-      if (valuesByTarget != null) {
-        final Map<String, ValueSnapshot> valuesByName = valuesByTarget.get(convertValueSpecification(valueSpec));
-        if (valuesByName != null) {
-          final ValueSnapshot value = valuesByName.get(valueSpec.getValueName());
-          if (value != null) {
-            return query(value);
-          }
-        }
-      }
-    }
-    return null;
-  }
-
   // AbstractMarketDataSnapshot
 
   @Override
@@ -430,6 +403,16 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
         // Can't leave as null or there will be errors about an uninitialized snapshot. Throwing an exception here might be better than assuming
         // an empty snapshot.
         _snapshot = new ManageableMarketDataSnapshot();
+      }
+      if (_snapshot.getGlobalValues() != null) {
+        if (_snapshot.getGlobalValues().getValues() != null) {
+          for (final Map.Entry<MarketDataValueSpecification, Map<String, ValueSnapshot>> globalValue : _snapshot.getGlobalValues().getValues().entrySet()) {
+            final ComputationTargetReference target = new ComputationTargetRequirement(ComputationTargetType.PRIMITIVE, globalValue.getKey().getIdentifiers());
+            for (final Map.Entry<String, ValueSnapshot> targetValue : globalValue.getValue().entrySet()) {
+              _unstructured.addValue(new ValueRequirement(targetValue.getKey(), target), query(targetValue.getValue()));
+            }
+          }
+        }
       }
     }
   }
@@ -462,7 +445,7 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
   public Object query(final ValueSpecification valueSpecification) {
     final StructuredMarketDataHandler handler = s_structuredDataHandler.get(valueSpecification.getValueName());
     if (handler == null) {
-      return queryUnstructured(valueSpecification);
+      return _unstructured.getCurrentValue(valueSpecification);
     } else {
       return handler.query(valueSpecification, getSnapshot());
     }
@@ -471,46 +454,7 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
   // MarketDataAvailabilityProvider
 
   public MarketDataAvailabilityProvider getAvailabilityProvider() {
-    final MarketDataAvailabilityProvider unstructured = new AbstractMarketDataAvailabilityProvider() {
-
-      @Override
-      protected ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final ExternalId identifier, final ValueRequirement desiredValue) {
-        final MarketDataValueSpecification mdvs;
-        if (targetSpec.getType().isTargetType(ComputationTargetType.SECURITY)) {
-          mdvs = new MarketDataValueSpecification(MarketDataValueType.SECURITY, identifier);
-        } else {
-          mdvs = new MarketDataValueSpecification(MarketDataValueType.PRIMITIVE, identifier);
-        }
-        if (getSnapshot().getGlobalValues().getValues().containsKey(mdvs)) {
-          return convertMarketDataValueSpecification(mdvs, desiredValue.getValueName());
-        } else {
-          return null;
-        }
-      }
-
-      @Override
-      protected ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final ExternalIdBundle identifiers, final ValueRequirement desiredValue) {
-        // [PLAT-3044] Snapshots are broken; holding MarketDataValueSpecifications in a map won't give the correct search behavior
-        for (final ExternalId identifier : identifiers) {
-          final ValueSpecification resolved = getAvailability(targetSpec, identifier, desiredValue);
-          if (resolved != null) {
-            return resolved;
-          }
-        }
-        return null;
-      }
-
-      @Override
-      protected ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final UniqueId identifier, final ValueRequirement desiredValue) {
-        return null;
-      }
-
-      @Override
-      protected ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final ValueRequirement desiredValue) {
-        return null;
-      }
-
-    };
+    final MarketDataAvailabilityProvider unstructured = _unstructured.getAvailabilityProvider();
     return new MarketDataAvailabilityProvider() {
 
       @Override

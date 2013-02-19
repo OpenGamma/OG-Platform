@@ -66,18 +66,6 @@ public final class MarketDataValueSpecification {
   }
 
   /**
-   * Gets the identifier of the data.
-   * 
-   * @return the identifier
-   * @deprecated [PLAT-3044] There might be multiple identifiers
-   */
-  @Deprecated
-  public ExternalId getIdentifier() {
-    // TODO: [PLAT-3044] delete this
-    return _identifiers.iterator().next();
-  }
-
-  /**
    * Gets the identifier(s) of the data.
    * 
    * @return the identifiers
@@ -115,7 +103,7 @@ public final class MarketDataValueSpecification {
    */
   @Override
   public int hashCode() {
-    return ObjectUtils.hashCode(getType()) ^ ObjectUtils.hashCode(getIdentifier());
+    return ObjectUtils.hashCode(getType()) ^ ObjectUtils.hashCode(getIdentifiers());
   }
 
   /**
