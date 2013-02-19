@@ -5,41 +5,82 @@
  */
 package com.opengamma.engine.marketdata.availability;
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.function.MarketDataSourcingFunction;
+import com.opengamma.engine.target.ComputationTargetReferenceVisitor;
+import com.opengamma.engine.target.ComputationTargetRequirement;
+import com.opengamma.engine.target.ComputationTargetType;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.id.ExternalBundleIdentifiable;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.id.ExternalIdentifiable;
 import com.opengamma.id.UniqueId;
-import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * Implements a {@link MarketDataAvailabilityProvider} around a fixed set of available market data items.
- * <p>
- * This is intended for constructing test cases only as the population of available items must be coupled to the target resolution strategy.
  */
-public class FixedMarketDataAvailabilityProvider implements MarketDataAvailabilityProvider {
+public class FixedMarketDataAvailabilityProvider extends AbstractMarketDataAvailabilityProvider {
 
-  // TODO: The correct implementation of this is within InMemoryLKVMarketDataProvider
+  private static final AtomicInteger s_nextIdentifier = new AtomicInteger();
 
-  private static final class TargetMarketData {
+  private static class TargetData extends ConcurrentHashMap<String, Set<ValueSpecification>> {
+
+    private static final long serialVersionUID = 1L;
 
     private Set<String> _missing;
-    private Map<String, ValueSpecification> _available;
 
-    public void addAvailableData(final ValueSpecification valueSpecification) {
-      if (_available == null) {
-        _available = new HashMap<String, ValueSpecification>();
+    public TargetData(final ValueSpecification initialValue) {
+      final Set<ValueSpecification> values = new CopyOnWriteArraySet<ValueSpecification>();
+      values.add(initialValue);
+      put(initialValue.getValueName(), values);
+    }
+
+    public TargetData() {
+    }
+
+    public ValueSpecification getAvailability(final ValueRequirement desiredValue) {
+      if ((_missing != null) && _missing.contains(desiredValue.getValueName())) {
+        throw new MarketDataNotSatisfiableException(desiredValue);
       }
-      _available.put(valueSpecification.getValueName(), valueSpecification);
+      final Set<ValueSpecification> specs = get(desiredValue.getValueName());
+      if (specs != null) {
+        for (final ValueSpecification spec : specs) {
+          if (desiredValue.getConstraints().isSatisfiedBy(spec.getProperties())) {
+            return spec;
+          }
+        }
+      }
+      return null;
+    }
+
+    public void addValue(final ValueSpecification specification) {
+      Set<ValueSpecification> values = get(specification.getValueName());
+      if (values == null) {
+        values = new CopyOnWriteArraySet<ValueSpecification>();
+        values.add(specification);
+        final Set<ValueSpecification> existing = putIfAbsent(specification.getValueName(), values);
+        if (existing != null) {
+          existing.add(specification);
+        }
+      } else {
+        values.add(specification);
+      }
+    }
+
+    public void removeValue(final ValueSpecification specification) {
+      final Set<ValueSpecification> values = get(specification.getValueName());
+      if (values != null) {
+        values.remove(specification);
+      }
     }
 
     public void addMissingData(final String valueName) {
@@ -49,194 +90,211 @@ public class FixedMarketDataAvailabilityProvider implements MarketDataAvailabili
       _missing.add(valueName);
     }
 
-    public ValueSpecification getAvailability(final ValueRequirement desiredValue) {
-      if ((_missing != null) && _missing.contains(desiredValue.getValueName())) {
-        throw new MarketDataNotSatisfiableException(desiredValue);
-      }
-      if (_available != null) {
-        return _available.get(desiredValue.getValueName());
-      }
-      return null;
-    }
-
   }
 
-  private final Map<ExternalId, TargetMarketData> _dataByEid;
-  private final Map<UniqueId, TargetMarketData> _dataByUid;
+  private final String _syntheticScheme = "InMemoryLKV" + s_nextIdentifier.getAndIncrement();
+  private final AtomicInteger _nextSyntheticIdentifier = new AtomicInteger();
+  private final ConcurrentMap<ExternalId, ComputationTargetSpecification> _weakIndex;
+  private final ConcurrentMap<ComputationTargetSpecification, TargetData> _strictIndex;
+  private final ComputationTargetReferenceVisitor<ComputationTargetSpecification> _getTargetSpecification = new ComputationTargetReferenceVisitor<ComputationTargetSpecification>() {
+
+    @Override
+    public ComputationTargetSpecification visitComputationTargetRequirement(final ComputationTargetRequirement requirement) {
+      if (requirement.getIdentifiers().isEmpty()) {
+        return ComputationTargetSpecification.NULL;
+      }
+      ComputationTargetSpecification found = null;
+      boolean update = false;
+      for (final ExternalId identifier : requirement.getIdentifiers()) {
+        final ComputationTargetSpecification weakSpec = _weakIndex.get(identifier);
+        if (weakSpec != null) {
+          if (found != null) {
+            if (!update) {
+              update = !found.equals(weakSpec);
+            }
+          } else {
+            found = weakSpec;
+          }
+        } else {
+          update = true;
+        }
+      }
+      if (found == null) {
+        found = requirement.replaceIdentifier(UniqueId.of(_syntheticScheme, Integer.toString(_nextSyntheticIdentifier.getAndIncrement())));
+        final TargetData data = new TargetData();
+        _strictIndex.put(found, data);
+      }
+      if (update) {
+        for (final ExternalId identifier : requirement.getIdentifiers()) {
+          _weakIndex.put(identifier, found);
+        }
+      }
+      return found;
+    }
+
+    @Override
+    public ComputationTargetSpecification visitComputationTargetSpecification(final ComputationTargetSpecification specification) {
+      return specification;
+    }
+
+  };
 
   public FixedMarketDataAvailabilityProvider() {
-    this(new HashMap<ExternalId, TargetMarketData>(), new HashMap<UniqueId, TargetMarketData>());
+    this(new ConcurrentHashMap<ExternalId, ComputationTargetSpecification>(), new ConcurrentHashMap<ComputationTargetSpecification, TargetData>());
   }
 
-  private FixedMarketDataAvailabilityProvider(final Map<ExternalId, TargetMarketData> dataByEid, final Map<UniqueId, TargetMarketData> dataByUid) {
-    _dataByEid = dataByEid;
-    _dataByUid = dataByUid;
+  private FixedMarketDataAvailabilityProvider(final ConcurrentMap<ExternalId, ComputationTargetSpecification> weakIndex, final ConcurrentMap<ComputationTargetSpecification, TargetData> strictIndex) {
+    _weakIndex = weakIndex;
+    _strictIndex = strictIndex;
   }
 
-  protected ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final UniqueId identifier, final ValueRequirement desiredValue, final TargetMarketData data) {
-    return data.getAvailability(desiredValue);
+  protected ValueSpecification getAvailabilityImpl(final ComputationTargetSpecification targetSpec, final ValueRequirement desiredValue) {
+    final TargetData values = _strictIndex.get(targetSpec);
+    if (values != null) {
+      return values.getAvailability(desiredValue);
+    } else {
+      return null;
+    }
   }
 
-  protected ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final ExternalId identifier, final ValueRequirement desiredValue, final TargetMarketData data) {
-    return data.getAvailability(desiredValue);
+  protected ValueSpecification getAvailabilityImpl(final ExternalId key, final ValueRequirement desiredValue) {
+    final ComputationTargetSpecification target = _weakIndex.get(key);
+    if (target != null) {
+      return getAvailabilityImpl(target, desiredValue);
+    } else {
+      return null;
+    }
   }
 
   @Override
-  public ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final Object target, final ValueRequirement desiredValue) {
-    ValueSpecification result;
-    TargetMarketData data;
-    synchronized (_dataByUid) {
-      if (target instanceof UniqueIdentifiable) {
-        final UniqueId identifier = ((UniqueIdentifiable) target).getUniqueId();
-        data = _dataByUid.get(identifier);
-        if (data != null) {
-          result = getAvailability(targetSpec, identifier, desiredValue, data);
-          if (result != null) {
-            return result;
-          }
-        }
-      }
+  protected ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final ExternalId identifier, final ValueRequirement desiredValue) {
+    ValueSpecification available = getAvailabilityImpl(targetSpec, desiredValue);
+    if (available == null) {
+      available = getAvailabilityImpl(identifier, desiredValue);
     }
-    synchronized (_dataByEid) {
-      if (target instanceof ExternalIdentifiable) {
-        final ExternalId identifier = ((ExternalIdentifiable) target).getExternalId();
-        data = _dataByEid.get(identifier);
-        if (data != null) {
-          result = getAvailability(targetSpec, identifier, desiredValue, data);
-          if (result != null) {
-            return result;
-          }
-        }
-      }
-      if (target instanceof ExternalBundleIdentifiable) {
-        for (final ExternalId identifier : ((ExternalBundleIdentifiable) target).getExternalIdBundle()) {
-          data = _dataByEid.get(identifier);
-          if (data != null) {
-            result = getAvailability(targetSpec, identifier, desiredValue, data);
-            if (result != null) {
-              return result;
-            }
-          }
-        }
-      }
-    }
-    return null;
+    return available;
   }
 
   @Override
-  public MarketDataAvailabilityFilter getAvailabilityFilter() {
-    return new MarketDataAvailabilityFilter() {
-
-      @Override
-      public boolean isAvailable(final ComputationTargetSpecification targetSpec, final Object target, final ValueRequirement desiredValue) {
-        return getAvailability(targetSpec, target, desiredValue) != null;
-      }
-
-      @Override
-      public MarketDataAvailabilityProvider withProvider(final MarketDataAvailabilityProvider provider) {
-        return FixedMarketDataAvailabilityProvider.this.withProvider(provider);
-      }
-
-    };
-  }
-
-  protected MarketDataAvailabilityProvider withProvider(final MarketDataAvailabilityProvider provider) {
-    final AbstractMarketDataAvailabilityProvider underlying = AbstractMarketDataAvailabilityProvider.of(provider);
-    return new FixedMarketDataAvailabilityProvider(_dataByEid, _dataByUid) {
-
-      @Override
-      protected ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final UniqueId identifier, final ValueRequirement desiredValue, final TargetMarketData data) {
-        if (super.getAvailability(targetSpec, identifier, desiredValue, data) != null) {
-          return underlying.getAvailability(targetSpec, identifier, desiredValue);
-        } else {
-          return null;
+  protected ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final ExternalIdBundle identifiers, final ValueRequirement desiredValue) {
+    ValueSpecification available = getAvailabilityImpl(targetSpec, desiredValue);
+    if (available == null) {
+      for (final ExternalId identifier : identifiers) {
+        available = getAvailabilityImpl(identifier, desiredValue);
+        if (available != null) {
+          break;
         }
       }
-
-      @Override
-      protected ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final ExternalId identifier, final ValueRequirement desiredValue, final TargetMarketData data) {
-        if (super.getAvailability(targetSpec, identifier, desiredValue, data) != null) {
-          return underlying.getAvailability(targetSpec, identifier, desiredValue);
-        } else {
-          return null;
-        }
-      }
-
-      @Override
-      public MarketDataAvailabilityFilter getAvailabilityFilter() {
-        return FixedMarketDataAvailabilityProvider.this.getAvailabilityFilter();
-      }
-
-    };
+    }
+    return available;
   }
 
-  private TargetMarketData getOrCreateTargetMarketData(final ExternalId identifier) {
-    TargetMarketData targetData = _dataByEid.get(identifier);
-    if (targetData == null) {
-      targetData = new TargetMarketData();
-      _dataByEid.put(identifier, targetData);
-    }
-    return targetData;
+  @Override
+  protected ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final UniqueId identifier, final ValueRequirement desiredValue) {
+    return getAvailabilityImpl(targetSpec, desiredValue);
   }
 
-  private TargetMarketData getOrCreateTargetMarketData(final UniqueId identifier) {
-    TargetMarketData targetData = _dataByUid.get(identifier);
-    if (targetData == null) {
-      targetData = new TargetMarketData();
-      _dataByUid.put(identifier, targetData);
+  @Override
+  protected ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final ValueRequirement desiredValue) {
+    return getAvailabilityImpl(targetSpec, desiredValue);
+  }
+
+  /**
+   * Returns the {@link ValueSpecification} that is a possible resolution of the value requirement. This will be the specification used by {@link #addValue(ValueRequirement,Object)} or
+   * {@link #removeValue(ValueRequirement)}.
+   * 
+   * @param requirement the requirement to resolve, not null
+   * @return the resolved {@code ValueSpecification}, not null
+   */
+  public ValueSpecification resolveRequirement(final ValueRequirement requirement) {
+    final ComputationTargetSpecification targetSpec = requirement.getTargetReference().accept(_getTargetSpecification);
+    return new ValueSpecification(requirement.getValueName(), targetSpec, requirement.getConstraints().copy().withoutAny(ValuePropertyNames.FUNCTION)
+        .with(ValuePropertyNames.FUNCTION, MarketDataSourcingFunction.UNIQUE_ID).get());
+  }
+
+  protected void addAvailableData(final ComputationTargetSpecification target, final ValueSpecification valueSpecification) {
+    TargetData data = _strictIndex.get(target);
+    if (data == null) {
+      data = new TargetData(valueSpecification);
+      final TargetData existing = _strictIndex.putIfAbsent(target, data);
+      if (existing != null) {
+        existing.addValue(valueSpecification);
+      }
+    } else {
+      data.addValue(valueSpecification);
     }
-    return targetData;
+  }
+
+  protected void removeAvailableData(final ComputationTargetSpecification target, final ValueSpecification valueSpecification) {
+    final TargetData data = _strictIndex.get(target);
+    if (data != null) {
+      data.removeValue(valueSpecification);
+    }
   }
 
   public void addAvailableData(final ExternalId identifier, final ValueSpecification valueSpecification) {
     ArgumentChecker.notNull(identifier, "identifier");
     ArgumentChecker.notNull(valueSpecification, "valueSpecification");
-    synchronized (_dataByEid) {
-      getOrCreateTargetMarketData(identifier).addAvailableData(valueSpecification);
-    }
+    final ComputationTargetSpecification target = valueSpecification.getTargetSpecification();
+    addAvailableData(target, valueSpecification);
+    _weakIndex.put(identifier, target);
   }
 
   public void addAvailableData(final ExternalIdBundle identifiers, final ValueSpecification valueSpecification) {
     ArgumentChecker.notNull(identifiers, "identifiers");
     ArgumentChecker.notNull(valueSpecification, "valueSpecification");
-    synchronized (_dataByEid) {
-      for (final ExternalId identifier : identifiers) {
-        getOrCreateTargetMarketData(identifier).addAvailableData(valueSpecification);
-      }
+    final ComputationTargetSpecification target = valueSpecification.getTargetSpecification();
+    addAvailableData(target, valueSpecification);
+    for (final ExternalId identifier : identifiers) {
+      _weakIndex.put(identifier, target);
     }
   }
 
   public void addAvailableData(final ValueSpecification valueSpecification) {
     ArgumentChecker.notNull(valueSpecification, "valueSpecification");
-    synchronized (_dataByUid) {
-      getOrCreateTargetMarketData(valueSpecification.getTargetSpecification().getUniqueId()).addAvailableData(valueSpecification);
+    addAvailableData(valueSpecification.getTargetSpecification(), valueSpecification);
+  }
+
+  public void removeAvailableData(final ValueSpecification valueSpecification) {
+    ArgumentChecker.notNull(valueSpecification, "valueSpecification");
+    removeAvailableData(valueSpecification.getTargetSpecification(), valueSpecification);
+  }
+
+  protected void addMissingData(final ComputationTargetSpecification target, final String valueName) {
+    TargetData data = _strictIndex.get(target);
+    if (data == null) {
+      data = new TargetData();
+      data.addMissingData(valueName);
+      final TargetData existing = _strictIndex.putIfAbsent(target, data);
+      if (existing != null) {
+        existing.addMissingData(valueName);
+      }
+    } else {
+      data.addMissingData(valueName);
     }
   }
 
   public void addMissingData(final ExternalId identifier, final String valueName) {
     ArgumentChecker.notNull(identifier, "identifier");
     ArgumentChecker.notNull(valueName, "valueName");
-    synchronized (_dataByEid) {
-      getOrCreateTargetMarketData(identifier).addMissingData(valueName);
-    }
+    final ComputationTargetSpecification target = new ComputationTargetRequirement(ComputationTargetType.PRIMITIVE, identifier).accept(_getTargetSpecification);
+    addMissingData(target, valueName);
+    // Creating the target specification updated the weak index
   }
 
   public void addMissingData(final ExternalIdBundle identifiers, final String valueName) {
     ArgumentChecker.notNull(identifiers, "identifiers");
     ArgumentChecker.notNull(valueName, "valueName");
-    synchronized (_dataByEid) {
-      for (final ExternalId identifier : identifiers) {
-        getOrCreateTargetMarketData(identifier).addMissingData(valueName);
-      }
-    }
+    final ComputationTargetSpecification target = new ComputationTargetRequirement(ComputationTargetType.PRIMITIVE, identifiers).accept(_getTargetSpecification);
+    addMissingData(target, valueName);
+    // Creating the target specification updated the weak index
   }
 
   public void addMissingData(final UniqueId identifier, final String valueName) {
     ArgumentChecker.notNull(identifier, "identifier");
     ArgumentChecker.notNull(valueName, "valueName");
-    synchronized (_dataByUid) {
-      getOrCreateTargetMarketData(identifier).addMissingData(valueName);
-    }
+    final ComputationTargetSpecification target = new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, identifier);
+    addMissingData(target, valueName);
   }
 
 }

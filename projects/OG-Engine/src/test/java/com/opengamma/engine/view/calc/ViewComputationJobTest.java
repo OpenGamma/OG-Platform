@@ -383,8 +383,8 @@ public class ViewComputationJobTest {
       _sourceName = sourceName;
       _underlyingProvider = underlyingProvider;
       _availability = new FixedMarketDataAvailabilityProvider();
-      _availability.addAvailableData(_underlyingProvider.resolveRequirement(ViewProcessorTestEnvironment.getPrimitive1()));
-      _availability.addAvailableData(_underlyingProvider.resolveRequirement(ViewProcessorTestEnvironment.getPrimitive2()));
+      _availability.addAvailableData(_availability.resolveRequirement(ViewProcessorTestEnvironment.getPrimitive1()));
+      _availability.addAvailableData(_availability.resolveRequirement(ViewProcessorTestEnvironment.getPrimitive2()));
     }
 
     @Override
