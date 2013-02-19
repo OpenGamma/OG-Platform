@@ -189,8 +189,7 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
   @Override
   public ComputationTargetType getTargetType() {
     return FinancialSecurityTypes.EQUITY_INDEX_OPTION_SECURITY
-        .or(FinancialSecurityTypes.EQUITY_OPTION_SECURITY)
-        .or(FinancialSecurityTypes.EQUITY_INDEX_FUTURE_OPTION_SECURITY);
+        .or(FinancialSecurityTypes.EQUITY_OPTION_SECURITY);
   }
 
   @Override
@@ -350,6 +349,11 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
     return results;
   }
 
+  /**
+   * Converts result properties with a currency property to one without.
+   * @param resultsWithCurrency The set of results with the currency property set
+   * @return A set of results without a currency property
+   */
   protected Set<ValueSpecification> getResultsWithoutCurrency(final Set<ValueSpecification> resultsWithCurrency) {
     final Set<ValueSpecification> resultsWithoutCurrency = Sets.newHashSetWithExpectedSize(resultsWithCurrency.size());
     for (final ValueSpecification spec : resultsWithCurrency) {

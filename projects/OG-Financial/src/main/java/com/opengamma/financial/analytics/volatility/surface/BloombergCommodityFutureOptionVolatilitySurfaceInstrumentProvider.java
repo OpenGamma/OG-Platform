@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.analytics.volatility.surface;
 
-import java.text.DecimalFormat;
 import java.util.Map;
 
 import org.threeten.bp.LocalDate;
@@ -34,7 +33,6 @@ public class BloombergCommodityFutureOptionVolatilitySurfaceInstrumentProvider e
     EXPIRY_RULES.put("LC", LiveCattleFutureOptionExpiryCalculator.getInstance());   // Live Cattle
     EXPIRY_RULES.put("S ", SoybeanFutureOptionExpiryCalculator.getInstance());      // Soy
   }
-  private static final DecimalFormat withTwoDigits = new DecimalFormat(".00");
 
   /**
    * Uses the default ticker scheme (BLOOMBERG_TICKER_WEAK)

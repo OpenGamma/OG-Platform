@@ -28,9 +28,8 @@ public class EquityOptionInterpolatedBlackLognormalPerEquityDefaults extends Equ
     final String id = EquitySecurityUtils.getIndexOrEquityNameFromUnderlying(security);
     if (id != null) {
       return id.toUpperCase();
-    } else {
-      return null;
     }
+    return null;
   }
 
 }

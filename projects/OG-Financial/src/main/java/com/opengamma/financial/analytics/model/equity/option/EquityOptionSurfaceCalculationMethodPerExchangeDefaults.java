@@ -8,6 +8,7 @@ package com.opengamma.financial.analytics.model.equity.option;
 import com.opengamma.core.security.Security;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.financial.security.FinancialSecurityUtils;
+import com.opengamma.id.ExternalId;
 
 /**
  * Populates {@link EquityOptionFunction}, including {@link EquityVanillaBarrierOptionBlackFunction}, with defaults appropriate
@@ -25,7 +26,11 @@ public class EquityOptionSurfaceCalculationMethodPerExchangeDefaults extends Equ
 
   @Override
   protected String getId(final Security security) {
-    return FinancialSecurityUtils.getExchange(security).getValue().toUpperCase();
+    final ExternalId exchange = FinancialSecurityUtils.getExchange(security);
+    if (exchange == null) {
+      return null;
+    }
+    return exchange.getValue().toUpperCase();
   }
 
 }

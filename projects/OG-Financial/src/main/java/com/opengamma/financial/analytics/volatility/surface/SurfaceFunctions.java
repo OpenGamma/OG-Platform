@@ -132,6 +132,7 @@ public class SurfaceFunctions extends AbstractRepositoryConfigurationBean {
     functions.add(functionConfiguration(EquityOptionVolatilitySurfaceDataFunction.class));
     functions.add(functionConfiguration(IRFutureOptionVolatilitySurfaceDataFunction.class));
     functions.add(functionConfiguration(RawBondFutureOptionVolatilitySurfaceDataFunction.class));
+    functions.add(functionConfiguration(RawEquityFutureOptionVolatilitySurfaceDataFunction.class));
     functions.add(functionConfiguration(RawEquityOptionVolatilitySurfaceDataFunction.class));
     functions.add(functionConfiguration(RawIRFutureOptionVolatilitySurfaceDataFunction.class));
     functions.add(functionConfiguration(RawFXVolatilitySurfaceDataFunction.class));
