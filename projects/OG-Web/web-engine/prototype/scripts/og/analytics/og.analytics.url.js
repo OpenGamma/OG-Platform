@@ -46,8 +46,19 @@ $.register_module({
                     handler: function (data) {return og.api.rest.blotter.trades.put(data);}
                 });
             };
-            var trade_remove = function () {
-                //do something
+            var trade_delete = function () {
+                og.common.util.ui.dialog({
+                    type: 'confirm',
+                    title: 'Delete Trade / Position?',
+                    width: 400, height: 190,
+                    message: 'Are you sure you want to permanently delete this trade / position?',
+                    buttons: {
+                        'Delete': function () {
+                            //do something
+                        },
+                        'Cancel': function () {$(this).dialog('close');}
+                    }
+                });
             };
             items.push({name: 'Add Trade', handler: trade_insert});
             if ((cell.type === "POSITION" && cell.row in og.analytics.grid.state.nodes) || cell.type === "NODE") {
@@ -59,7 +70,7 @@ $.register_module({
             else {
                 items.push({name: 'Edit Trade', handler: position_edit}); 
             }
-            items.push({name: 'Remove', handler: trade_remove});
+            items.push({name: 'Delete', handler: trade_delete});
             return items;
         };
         return url = {
