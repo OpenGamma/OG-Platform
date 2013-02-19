@@ -285,7 +285,7 @@ $.register_module({
                 };
                 blotter.positions.put = function (config) {
                     config = config || {};
-                    var root = this.root, method = root.split('/'), meta, data = {trade: {}}, id = config.id;
+                    var root = this.root, method = root.split('/'), meta, data = {trade: {}}, id = config.nodeId;
                     meta = check({bundle: {method: root + '#put', config: config}, 
                                 required: [{all_of: ['trade', 'nodeId']}]});
                     data.trade = str({trade: config.trade, security: config.security, underlying: config.underlying,
