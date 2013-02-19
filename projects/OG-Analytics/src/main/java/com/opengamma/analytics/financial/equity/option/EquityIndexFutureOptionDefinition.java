@@ -5,13 +5,17 @@
  */
 package com.opengamma.analytics.financial.equity.option;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.ExerciseDecisionType;
 import com.opengamma.analytics.financial.equity.future.definition.EquityFutureDefinition;
+import com.opengamma.analytics.financial.equity.future.derivative.EquityIndexFuture;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
+import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
 
 /**
  * 
@@ -20,6 +24,7 @@ public class EquityIndexFutureOptionDefinition implements InstrumentDefinition<E
   /** The expiry date */
   private final ZonedDateTime _expiryDate;
   /** The underlying equity future */
+  //TODO probably best to create a separate type for equity index futures
   private final EquityFutureDefinition _underlying;
   /** The strike */
   private final double _strike;
@@ -48,22 +53,42 @@ public class EquityIndexFutureOptionDefinition implements InstrumentDefinition<E
     _isCall = isCall;
   }
 
+  /**
+   * Gets the expiry date.
+   * @return The expiry date
+   */
   public ZonedDateTime getExpiryDate() {
     return _expiryDate;
   }
 
+  /**
+   * Gets the definition of the underlying.
+   * @return The underlying definition
+   */
   public EquityFutureDefinition getUnderlying() {
     return _underlying;
   }
 
+  /**
+   * Gets the strike.
+   * @return The strike
+   */
   public double getStrike() {
     return _strike;
   }
 
+  /**
+   * Gets the exercise type.
+   * @return The exercise type
+   */
   public ExerciseDecisionType getExerciseType() {
     return _exerciseType;
   }
 
+  /**
+   * Gets the option type (put or call)
+   * @return true if the option is a call, false if the option is a put
+   */
   public boolean isCall() {
     return _isCall;
   }
@@ -72,13 +97,13 @@ public class EquityIndexFutureOptionDefinition implements InstrumentDefinition<E
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((_exerciseType == null) ? 0 : _exerciseType.hashCode());
-    result = prime * result + ((_expiryDate == null) ? 0 : _expiryDate.hashCode());
+    result = prime * result + _exerciseType.hashCode();
+    result = prime * result + _expiryDate.hashCode();
     result = prime * result + (_isCall ? 1231 : 1237);
     long temp;
     temp = Double.doubleToLongBits(_strike);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    result = prime * result + ((_underlying == null) ? 0 : _underlying.hashCode());
+    result = prime * result + _underlying.hashCode();
     return result;
   }
 
@@ -87,9 +112,6 @@ public class EquityIndexFutureOptionDefinition implements InstrumentDefinition<E
     if (this == obj) {
       return true;
     }
-    if (obj == null) {
-      return false;
-    }
     if (!(obj instanceof EquityIndexFutureOptionDefinition)) {
       return false;
     }
@@ -97,24 +119,16 @@ public class EquityIndexFutureOptionDefinition implements InstrumentDefinition<E
     if (_exerciseType != other._exerciseType) {
       return false;
     }
-    if (_expiryDate == null) {
-      if (other._expiryDate != null) {
-        return false;
-      }
-    } else if (!_expiryDate.equals(other._expiryDate)) {
-      return false;
-    }
     if (_isCall != other._isCall) {
       return false;
     }
-    if (Double.doubleToLongBits(_strike) != Double.doubleToLongBits(other._strike)) {
+    if (Double.compare(_strike, other._strike) != 0) {
       return false;
     }
-    if (_underlying == null) {
-      if (other._underlying != null) {
-        return false;
-      }
-    } else if (!_underlying.equals(other._underlying)) {
+    if (!ObjectUtils.equals(_expiryDate, other._expiryDate)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_underlying, other._underlying)) {
       return false;
     }
     return true;
@@ -122,17 +136,27 @@ public class EquityIndexFutureOptionDefinition implements InstrumentDefinition<E
 
   @Override
   public EquityIndexFutureOption toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    return null;
+    ArgumentChecker.inOrderOrEqual(date, _expiryDate, "valuation date", "expiry");
+    final double timeToExpiry = TimeCalculator.getTimeBetween(date, _expiryDate);
+    final double timeToFutureFixing = TimeCalculator.getTimeBetween(date, _underlying.getExpiryDate());
+    final double timeToFutureDelivery = TimeCalculator.getTimeBetween(date, _underlying.getSettlementDate());
+    final double futureStrike = _underlying.getStrikePrice();
+    final Currency currency = _underlying.getCurrency();
+    final double unitValue = _underlying.getUnitAmount();
+    final EquityIndexFuture underlying = new EquityIndexFuture(timeToFutureFixing, timeToFutureDelivery, futureStrike, currency, unitValue);
+    return new EquityIndexFutureOption(timeToExpiry, underlying, _strike, _exerciseType, _isCall);
   }
 
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
-    return null;
+    ArgumentChecker.notNull(visitor, "visitor");
+    return visitor.visitEquityIndexFutureOptionDefinition(this, data);
   }
 
   @Override
   public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
-    return null;
+    ArgumentChecker.notNull(visitor, "visitor");
+    return visitor.visitEquityIndexFutureOptionDefinition(this);
   }
 
 
