@@ -11,11 +11,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.opengamma.core.marketdatasnapshot.MarketDataValueSpecification;
 import com.opengamma.core.marketdatasnapshot.UnstructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.ValueSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableUnstructuredMarketDataSnapshot;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 
 /* package */final class UnstructuredMarketDataSnapshotUtil {
 
@@ -23,8 +23,9 @@ import com.opengamma.id.ExternalId;
   }
 
   public static List<Double> getValue(final UnstructuredMarketDataSnapshot snapshot, final String valueName, final ExternalId identifier) {
-    final Map<MarketDataValueSpecification, Map<String, ValueSnapshot>> globalValues = snapshot.getValues();
-    final Map<String, ValueSnapshot> values = globalValues.get(new MarketDataValueSpecification(identifier));
+    final Map<ExternalIdBundle, Map<String, ValueSnapshot>> globalValues = snapshot.getValues();
+    // TODO [PLAT-3044] Querying by bundle won't work
+    final Map<String, ValueSnapshot> values = globalValues.get(identifier.toBundle());
     if (values != null) {
       final ValueSnapshot value = values.get(valueName);
       if (value != null) {
@@ -35,12 +36,12 @@ import com.opengamma.id.ExternalId;
   }
 
   private static Map<String, ValueSnapshot> getValueMap(final UnstructuredMarketDataSnapshot snapshot, final ExternalId identifier, final boolean addIfMissing) {
-    final Map<MarketDataValueSpecification, Map<String, ValueSnapshot>> globalValues = snapshot.getValues();
-    final MarketDataValueSpecification spec = new MarketDataValueSpecification(identifier);
-    Map<String, ValueSnapshot> values = globalValues.get(spec);
+    final Map<ExternalIdBundle, Map<String, ValueSnapshot>> globalValues = snapshot.getValues();
+    // TODO [PLAT-3044] Querying by bundle won't work
+    Map<String, ValueSnapshot> values = globalValues.get(identifier.toBundle());
     if ((values == null) && addIfMissing) {
       values = new HashMap<String, ValueSnapshot>();
-      globalValues.put(spec, values);
+      globalValues.put(identifier.toBundle(), values);
     }
     return values;
   }
@@ -68,7 +69,7 @@ import com.opengamma.id.ExternalId;
 
   public static UnstructuredMarketDataSnapshot create() {
     final ManageableUnstructuredMarketDataSnapshot values = new ManageableUnstructuredMarketDataSnapshot();
-    values.setValues(new HashMap<MarketDataValueSpecification, Map<String, ValueSnapshot>>());
+    values.setValues(new HashMap<ExternalIdBundle, Map<String, ValueSnapshot>>());
     return values;
   }
 

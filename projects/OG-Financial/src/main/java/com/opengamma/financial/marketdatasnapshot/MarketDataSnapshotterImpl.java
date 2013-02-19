@@ -25,7 +25,6 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.marketdatasnapshot.MarketDataValueSpecification;
 import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.UnstructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.ValueSnapshot;
@@ -121,16 +120,16 @@ public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
 
   private UnstructuredMarketDataSnapshot getGlobalValues(final ExternalIdBundleResolver resolver, final ViewComputationResultModel results, final Map<String, DependencyGraph> graphs) {
     final Set<ComputedValue> data = results.getAllMarketData();
-    final Multimap<MarketDataValueSpecification, ComputedValue> indexedData = identifyGlobalValues(resolver, data, graphs);
-    final Map<MarketDataValueSpecification, Map<String, ValueSnapshot>> dict = getGlobalValues(indexedData);
+    final Multimap<ExternalIdBundle, ComputedValue> indexedData = identifyGlobalValues(resolver, data, graphs);
+    final Map<ExternalIdBundle, Map<String, ValueSnapshot>> dict = getGlobalValues(indexedData);
     final ManageableUnstructuredMarketDataSnapshot snapshot = new ManageableUnstructuredMarketDataSnapshot();
     snapshot.setValues(dict);
     return snapshot;
   }
 
-  private Multimap<MarketDataValueSpecification, ComputedValue> identifyGlobalValues(final ExternalIdBundleResolver resolver, final Set<ComputedValue> data,
+  private Multimap<ExternalIdBundle, ComputedValue> identifyGlobalValues(final ExternalIdBundleResolver resolver, final Set<ComputedValue> data,
       final Map<String, DependencyGraph> graphs) {
-    final Multimap<MarketDataValueSpecification, ComputedValue> indexedData = ArrayListMultimap.create();
+    final Multimap<ExternalIdBundle, ComputedValue> indexedData = ArrayListMultimap.create();
     final Set<ComputedValue> dataFound = new HashSet<ComputedValue>();
     Set<ComputedValue> dataRemaining = null;
     for (final Entry<String, DependencyGraph> entry : graphs.entrySet()) {
@@ -146,7 +145,7 @@ public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
           dataFound.add(computedValue);
           final ExternalIdBundle identifiers = resolver.visitComputationTargetSpecification(nodeProducing.getRequiredMarketData().getTargetSpecification());
           if (identifiers != null) {
-            indexedData.put(new MarketDataValueSpecification(identifiers), computedValue);
+            indexedData.put(identifiers, computedValue);
           }
         }
       }
@@ -202,7 +201,7 @@ public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
     return false;
   }
 
-  private Map<MarketDataValueSpecification, Map<String, ValueSnapshot>> getGlobalValues(final Multimap<MarketDataValueSpecification, ComputedValue> dataByTarget) {
+  private Map<ExternalIdBundle, Map<String, ValueSnapshot>> getGlobalValues(final Multimap<ExternalIdBundle, ComputedValue> dataByTarget) {
     return Maps.transformValues(dataByTarget.asMap(),
         new Function<Collection<ComputedValue>, Map<String, ValueSnapshot>>() {
 

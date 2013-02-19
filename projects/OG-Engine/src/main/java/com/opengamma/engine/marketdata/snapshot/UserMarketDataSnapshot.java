@@ -16,7 +16,6 @@ import org.threeten.bp.Instant;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
-import com.opengamma.core.marketdatasnapshot.MarketDataValueSpecification;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.UnstructuredMarketDataSnapshot;
@@ -46,6 +45,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.money.Currency;
@@ -320,9 +320,9 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
 
   private static SnapshotDataBundle createSnapshotDataBundle(final UnstructuredMarketDataSnapshot values) {
     final SnapshotDataBundle ret = new SnapshotDataBundle();
-    for (final Entry<MarketDataValueSpecification, Map<String, ValueSnapshot>> entry : values.getValues().entrySet()) {
+    for (final Entry<ExternalIdBundle, Map<String, ValueSnapshot>> entry : values.getValues().entrySet()) {
       final Double value = query(entry.getValue().get(MarketDataRequirementNames.MARKET_VALUE));
-      ret.setDataPoint(entry.getKey().getIdentifiers(), value);
+      ret.setDataPoint(entry.getKey(), value);
     }
     return ret;
   }
@@ -406,8 +406,8 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
       }
       if (_snapshot.getGlobalValues() != null) {
         if (_snapshot.getGlobalValues().getValues() != null) {
-          for (final Map.Entry<MarketDataValueSpecification, Map<String, ValueSnapshot>> globalValue : _snapshot.getGlobalValues().getValues().entrySet()) {
-            final ComputationTargetReference target = new ComputationTargetRequirement(ComputationTargetType.PRIMITIVE, globalValue.getKey().getIdentifiers());
+          for (final Map.Entry<ExternalIdBundle, Map<String, ValueSnapshot>> globalValue : _snapshot.getGlobalValues().getValues().entrySet()) {
+            final ComputationTargetReference target = new ComputationTargetRequirement(ComputationTargetType.PRIMITIVE, globalValue.getKey());
             for (final Map.Entry<String, ValueSnapshot> targetValue : globalValue.getValue().entrySet()) {
               _unstructured.addValue(new ValueRequirement(targetValue.getKey(), target), query(targetValue.getValue()));
             }

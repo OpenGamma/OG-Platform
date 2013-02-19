@@ -21,7 +21,6 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.opengamma.core.marketdatasnapshot.MarketDataValueSpecification;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.marketdatasnapshot.ValueSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableUnstructuredMarketDataSnapshot;
@@ -163,9 +162,9 @@ public abstract class StructuredSnapper<TKey, TCalculatedValue, TSnapshot> {
 
   protected static ManageableUnstructuredMarketDataSnapshot getUnstructured(final SnapshotDataBundle bundle) {
     final Set<Entry<ExternalIdBundle, Double>> bundlePoints = bundle.getDataPointSet();
-    final Map<MarketDataValueSpecification, Map<String, ValueSnapshot>> data = Maps.newHashMapWithExpectedSize(bundlePoints.size());
+    final Map<ExternalIdBundle, Map<String, ValueSnapshot>> data = Maps.newHashMapWithExpectedSize(bundlePoints.size());
     for (final Map.Entry<ExternalIdBundle, Double> bundlePoint : bundle.getDataPointSet()) {
-      data.put(new MarketDataValueSpecification(bundlePoint.getKey()), Collections.singletonMap(MarketDataRequirementNames.MARKET_VALUE, new ValueSnapshot(bundlePoint.getValue())));
+      data.put(bundlePoint.getKey(), Collections.singletonMap(MarketDataRequirementNames.MARKET_VALUE, new ValueSnapshot(bundlePoint.getValue())));
     }
     final ManageableUnstructuredMarketDataSnapshot snapshot = new ManageableUnstructuredMarketDataSnapshot();
     snapshot.setValues(data);

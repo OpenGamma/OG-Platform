@@ -17,7 +17,6 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
-import com.opengamma.core.marketdatasnapshot.MarketDataValueSpecification;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.UnstructuredMarketDataSnapshot;
@@ -33,6 +32,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
 
@@ -41,10 +41,9 @@ import com.opengamma.util.money.Currency;
  */
 public class UserMarketDataSnapshotTest {
 
-  private Map<MarketDataValueSpecification, Map<String, ValueSnapshot>> generateGlobalValuesMap(final ExternalId testValueId, final Double marketValue) {
-    final MarketDataValueSpecification valueSpec = new MarketDataValueSpecification(testValueId);
+  private Map<ExternalIdBundle, Map<String, ValueSnapshot>> generateGlobalValuesMap(final ExternalId testValueId, final Double marketValue) {
     final Map<String, ValueSnapshot> values = ImmutableMap.of(MarketDataRequirementNames.MARKET_VALUE, new ValueSnapshot(marketValue));
-    return ImmutableMap.<MarketDataValueSpecification, Map<String, ValueSnapshot>>of(valueSpec, values);
+    return ImmutableMap.<ExternalIdBundle, Map<String, ValueSnapshot>>of(testValueId.toBundle(), values);
   }
 
   private UserMarketDataSnapshot createSnapshot() {

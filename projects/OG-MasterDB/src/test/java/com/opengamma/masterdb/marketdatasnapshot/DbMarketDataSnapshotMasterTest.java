@@ -18,7 +18,6 @@ import org.testng.annotations.Test;
 import org.threeten.bp.Instant;
 
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.core.marketdatasnapshot.MarketDataValueSpecification;
 import com.opengamma.core.marketdatasnapshot.UnstructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.ValueSnapshot;
 import com.opengamma.core.marketdatasnapshot.VolatilityCubeKey;
@@ -91,7 +90,7 @@ public class DbMarketDataSnapshotMasterTest extends DbTest {
     final HashMap<YieldCurveKey, YieldCurveSnapshot> yieldCurves = new HashMap<YieldCurveKey, YieldCurveSnapshot>();
 
     final ManageableUnstructuredMarketDataSnapshot globalValues = new ManageableUnstructuredMarketDataSnapshot();
-    globalValues.setValues(new HashMap<MarketDataValueSpecification, Map<String, ValueSnapshot>>());
+    globalValues.setValues(new HashMap<ExternalIdBundle, Map<String, ValueSnapshot>>());
     marketDataSnapshot.setGlobalValues(globalValues);
     marketDataSnapshot.setYieldCurves(yieldCurves);
 
@@ -110,12 +109,12 @@ public class DbMarketDataSnapshotMasterTest extends DbTest {
     final ManageableUnstructuredMarketDataSnapshot globalValues = new ManageableUnstructuredMarketDataSnapshot();
     snapshot1.setGlobalValues(globalValues);
 
-    final HashMap<MarketDataValueSpecification, Map<String, ValueSnapshot>> values = new HashMap<MarketDataValueSpecification, Map<String, ValueSnapshot>>();
+    final HashMap<ExternalIdBundle, Map<String, ValueSnapshot>> values = new HashMap<ExternalIdBundle, Map<String, ValueSnapshot>>();
 
     final HashMap<YieldCurveKey, YieldCurveSnapshot> yieldCurves = new HashMap<YieldCurveKey, YieldCurveSnapshot>();
 
-    final MarketDataValueSpecification specA = new MarketDataValueSpecification(ExternalId.of("XXX", "AAA"));
-    final MarketDataValueSpecification specB = new MarketDataValueSpecification(ExternalIdBundle.of(ExternalId.of("XXX", "B1"), ExternalId.of("XXX", "B2")));
+    final ExternalIdBundle specA = ExternalId.of("XXX", "AAA").toBundle();
+    final ExternalIdBundle specB = ExternalIdBundle.of(ExternalId.of("XXX", "B1"), ExternalId.of("XXX", "B2"));
 
     final HashMap<String, ValueSnapshot> hashMapA = new HashMap<String, ValueSnapshot>();
     hashMapA.put("X", new ValueSnapshot(Double.valueOf(12), null));
@@ -209,8 +208,8 @@ public class DbMarketDataSnapshotMasterTest extends DbTest {
     assertEquivalent(addedGlobalValues.getValues(), loadedGlobalValues.getValues());
   }
 
-  private void assertEquivalent(final Map<MarketDataValueSpecification, Map<String, ValueSnapshot>> added,
-      final Map<MarketDataValueSpecification, Map<String, ValueSnapshot>> loaded) throws AssertionError {
+  private void assertEquivalent(final Map<ExternalIdBundle, Map<String, ValueSnapshot>> added,
+      final Map<ExternalIdBundle, Map<String, ValueSnapshot>> loaded) throws AssertionError {
     if (added == null && loaded == null) {
       return;
     }
@@ -219,7 +218,7 @@ public class DbMarketDataSnapshotMasterTest extends DbTest {
     }
     assertEquals(added.keySet(), loaded.keySet());
 
-    for (final MarketDataValueSpecification spec : added.keySet()) {
+    for (final ExternalIdBundle spec : added.keySet()) {
       final Map<String, ValueSnapshot> aMap = added.get(spec);
       final Map<String, ValueSnapshot> loadMap = loaded.get(spec);
 
