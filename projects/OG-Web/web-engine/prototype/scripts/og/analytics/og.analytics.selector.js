@@ -42,14 +42,14 @@ $.register_module({
             };
             var mousedown = function (event) {
                 initialize();
-                var $target = $(event.target), right_click = event.which === 3 || event.button === 2,
-                    scroll_body = grid.elements.scroll_body, selection = selector.selection(),
+                var $target = $(event.target), scroll_body = grid.elements.scroll_body,
                     is_cell = ($target.is(cell) ? $target : $target.parents(cell + ':first')).length,
                     x = event.pageX - grid_offset.left + (event.pageX > fixed_width ? scroll_body.scrollLeft() : 0),
                     y = event.pageY - grid_offset.top + scroll_body.scrollTop() - grid.meta.header_height;
                 selector.clear();
                 clean_up();
-                if (!right_click && (!is_cell || $target.is(overlay))) return selector.fire('deselect');
+                if (!(event.which === 3 || event.button === 2) && (!is_cell || $target.is(overlay)))
+                    return selector.fire('deselect');
                 selector.busy(true);
                 setTimeout(function () { // do this after the event has finished (and its parents have gotten it)
                     if (!selector.registered) selector.registered = !!grid.elements.parent
