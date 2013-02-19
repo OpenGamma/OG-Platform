@@ -198,7 +198,7 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
    * Tests the dirty real price computation from the real yield in the "US I/L real" convention.
    */
   public void dirtyRealPriceFromRealYieldTips1() {
-    final double[] yield = new double[] {-0.01, 0.00, 0.01, 0.02, 0.03 };
+    final double[] yield = new double[] {-0.01, 0.00, 0.01, 0.02, 0.03};
     final int nbCoupon = BOND_SECURITY_TIPS_1.getCoupon().getNumberOfPayments();
     final double[] dirtyRealPrice = new double[yield.length];
     final double[] dirtyRealPriceExpected = new double[yield.length];
@@ -222,7 +222,7 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
    * Tests the clean real price from the dirty real price.
    */
   public void yieldRealFromDirtyRealTips1() {
-    final double[] yield = new double[] {-0.01, 0.00, 0.01, 0.02, 0.03 };
+    final double[] yield = new double[] {-0.01, 0.00, 0.01, 0.02, 0.03};
     final double[] dirtyRealPrice = new double[yield.length];
     final double[] yieldComputed = new double[yield.length];
     for (int loopyield = 0; loopyield < yield.length; loopyield++) {
@@ -242,17 +242,13 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
     final InflationIssuerProviderDiscount market = MulticurveProviderDiscountDataSets.createMarket1(pricingDate20110817);
     final double cleanRealPrice = 1.00;
     final BondCapitalIndexedSecurity<Coupon> bond_110817 = BOND_SECURITY_TIPS_1_DEFINITION.toDerivative(pricingDate20110817, US_CPI, "Not used");
-    /*TODO : Find another way to test the index because due to cleaning, the method estimatedIndex don't exist anymore
-    */
-    /*final double referenceIndexExpected = 225.83129;*/
-    /*final double referenceIndex = bond_110817.getSettlement().estimatedIndex(market.getInflationProvider());
-    assertEquals("Inflation Capital Indexed bond: index", referenceIndexExpected, referenceIndex, 1.0E-5);*/
     final double referenceIndexExpected = 225.83129;
-    final double referenceIndex = market.getPriceIndex(PRICE_INDEX_USCPI, bond_110817.getAccrualFactorToNextCoupon());
-    assertEquals("Inflation Capital Indexed bond: index", referenceIndexExpected, referenceIndex, 1.0E-5);
+    final MultipleCurrencyAmount netAmountSettle = bond_110817.getSettlement().accept(NADIC, market.getInflationProvider());
+    final double referenceIndexComputed = netAmountSettle.getAmount(bond_110817.getCurrency()) * BOND_SECURITY_TIPS_1_DEFINITION.getIndexStartValue() / bond_110817.getSettlement().getNotional();
+    assertEquals("Inflation Capital Indexed bond: index", referenceIndexExpected, referenceIndexComputed, 1.0E-5);
     final double indexRatioExpected = 1.13782;
-    /* final MultipleCurrencyAmount indexRatioCalculated = BOND_SECURITY_TIPS_1.getSettlement().accept(NADIC, market.getInflationProvider());
-     assertEquals("Inflation Capital Indexed bond: indexRatio", indexRatioExpected, indexRatioCalculated.getAmount(PRICE_INDEX_USCPI.getCurrency()) / NOTIONAL_TIPS_1, 1.0E-5);*/
+    final MultipleCurrencyAmount indexRatioCalculated = bond_110817.getSettlement().accept(NADIC, market.getInflationProvider());
+    assertEquals("Inflation Capital Indexed bond: indexRatio", indexRatioExpected, indexRatioCalculated.getAmount(PRICE_INDEX_USCPI.getCurrency()) / NOTIONAL_TIPS_1, 1.0E-5);
     final double yieldExpected = 1.999644 / 100.0;
     final double dirtyRealPriceComputed = METHOD_BOND_INFLATION.dirtyRealPriceFromCleanRealPrice(bond_110817, cleanRealPrice);
     final double yieldComputed = METHOD_BOND_INFLATION.yieldRealFromDirtyRealPrice(bond_110817, dirtyRealPriceComputed);
@@ -278,13 +274,12 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
     final InflationIssuerProviderDiscount market = MulticurveProviderDiscountDataSets.createMarket1(pricingDate20110817);
     final double cleanRealPrice = 1.13 + 0.01 / 32;
     final BondCapitalIndexedSecurity<Coupon> bond_110817 = BOND_SECURITY_TIPS_1_DEFINITION.toDerivative(pricingDate20110817, US_CPI, "Not used");
-    /*TODO : Find another way to test the index because due to cleaning, the method estimatedIndex don't exist anymore
-    */
-    /*final double referenceIndexExpected = 225.83129;
-    final double referenceIndex = bond_110817.getSettlement().estimatedIndex(market.getInflationProvider());
-    assertEquals("Inflation Capital Indexed bond: index", referenceIndexExpected, referenceIndex, 1.0E-5);*/
+    final double referenceIndexExpected = 225.83129;
+    final MultipleCurrencyAmount netAmountSettle = bond_110817.getSettlement().accept(NADIC, market.getInflationProvider());
+    final double referenceIndexComputed = netAmountSettle.getAmount(bond_110817.getCurrency()) * BOND_SECURITY_TIPS_1_DEFINITION.getIndexStartValue() / bond_110817.getSettlement().getNotional();
+    assertEquals("Inflation Capital Indexed bond: index", referenceIndexExpected, referenceIndexComputed, 1.0E-5);
     final double indexRatioExpected = 1.13782;
-    /* assertEquals("Inflation Capital Indexed bond: indexRatio", indexRatioExpected, referenceIndex / INDEX_START_TIPS_1, 1.0E-5);*/
+    assertEquals("Inflation Capital Indexed bond: indexRatio", indexRatioExpected, referenceIndexComputed / INDEX_START_TIPS_1, 1.0E-5);
     final double yieldExpected = -0.892152 / 100.0;
     final double dirtyRealPriceComputed = METHOD_BOND_INFLATION.dirtyRealPriceFromCleanRealPrice(bond_110817, cleanRealPrice);
     final double yieldComputed = METHOD_BOND_INFLATION.yieldRealFromDirtyRealPrice(bond_110817, dirtyRealPriceComputed);
@@ -310,16 +305,11 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
     final InflationIssuerProviderDiscount market = MulticurveProviderDiscountDataSets.createMarket1(pricingDate20110817);
     final double cleanRealPrice = 1.00;
     final BondCapitalIndexedSecurity<Coupon> bond_110817 = BOND_SECURITY_TIPS_1_DEFINITION.toDerivative(pricingDate20110817, US_CPI, "Not used");
-    /*TODO : Find another way to test the index because due to cleaning, the method estimatedIndex don't exist anymore
     final double referenceIndexExpected = 225.82348;
-     final double referenceIndex = bond_110817.getSettlement().estimatedIndex(market.getInflationProvider());
-    final MultipleCurrencyAmount referenceIndex = bond_110817.getSettlement().accept(NADIC, MARKET.getInflationProvider());
-      pvCoupon = pvCoupon.plus(BOND_SECURITY_GILT_1.getCoupon().getNthPayment(loopcpn).accept(PVDIC, marketUKGovt));
-    assertEquals("Inflation Capital Indexed bond: index", referenceIndexExpected, referenceIndex.getAmount(PRICE_INDEX_USCPI.getCurrency()) * INDEX_START_TIPS_1, 1.0E-5);*/
+    final MultipleCurrencyAmount netAmountSettle = bond_110817.getSettlement().accept(NADIC, market.getInflationProvider());
+    final double referenceIndexComputed = netAmountSettle.getAmount(bond_110817.getCurrency()) * BOND_SECURITY_TIPS_1_DEFINITION.getIndexStartValue() / bond_110817.getSettlement().getNotional();
+    assertEquals("Inflation Capital Indexed bond: index", referenceIndexExpected, referenceIndexComputed, 1.0E-5);
     final double indexRatioExpected = 1.13778;
-    /*assertEquals("Inflation Capital Indexed bond: indexRatio", indexRatioExpected, referenceIndex / INDEX_START_TIPS_1, 1.0E-5);*/
-    /* assertEquals("Inflation Capital Indexed bond: indexRatio", indexRatioExpected, referenceIndex.getAmount(PRICE_INDEX_USCPI.getCurrency()), 1.0E-5);*/
-
     final double yieldExpected = 1.999636 / 100.0;
     final double dirtyRealPriceComputed = METHOD_BOND_INFLATION.dirtyRealPriceFromCleanRealPrice(bond_110817, cleanRealPrice);
     final double yieldComputed = METHOD_BOND_INFLATION.yieldRealFromDirtyRealPrice(bond_110817, dirtyRealPriceComputed);
@@ -344,7 +334,7 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
     long startTime, endTime;
     final int nbTest = 10000;
 
-    final double[] yield = new double[] {-0.01, 0.00, 0.01, 0.02, 0.03 };
+    final double[] yield = new double[] {-0.01, 0.00, 0.01, 0.02, 0.03};
 
     final double[] dirtyRealPrice = new double[yield.length];
     startTime = System.currentTimeMillis();

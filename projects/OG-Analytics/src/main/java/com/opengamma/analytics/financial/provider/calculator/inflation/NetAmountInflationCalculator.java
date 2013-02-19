@@ -24,7 +24,7 @@ import com.opengamma.analytics.financial.provider.description.inflation.Inflatio
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
- * Calculates the net amount of an inflation instruments for a given MarketBundle
+ * Calculates the estimated net amount of an inflation instruments for a given InflationProvider.
  */
 
 public final class NetAmountInflationCalculator extends InstrumentDerivativeVisitorDelegate<InflationProviderInterface, MultipleCurrencyAmount> {
