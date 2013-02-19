@@ -58,7 +58,7 @@ import com.opengamma.engine.function.resolver.ComputationTargetResults;
 import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
 import com.opengamma.engine.function.resolver.FunctionPriority;
 import com.opengamma.engine.function.resolver.FunctionResolver;
-import com.opengamma.engine.marketdata.availability.DomainMarketDataAvailabilityProvider;
+import com.opengamma.engine.marketdata.availability.DomainMarketDataAvailabilityFilter;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
@@ -399,7 +399,7 @@ public class DefaultPropertyFunctionsTest {
     ctx.setComputationTargetResults(new ComputationTargetResults(cfr.getAllResolutionRules()));
     ctx.init();
     builder.setFunctionResolver(cfr);
-    builder.setMarketDataAvailabilityProvider(new DomainMarketDataAvailabilityProvider(Arrays.asList(ExternalScheme.of("Foo")), Arrays.asList(MarketDataRequirementNames.MARKET_VALUE)));
+    builder.setMarketDataAvailabilityProvider(new DomainMarketDataAvailabilityFilter(Arrays.asList(ExternalScheme.of("Foo")), Arrays.asList(MarketDataRequirementNames.MARKET_VALUE)));
     return builder;
   }
 

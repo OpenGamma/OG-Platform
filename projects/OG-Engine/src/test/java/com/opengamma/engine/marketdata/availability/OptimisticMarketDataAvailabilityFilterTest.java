@@ -5,12 +5,11 @@
  */
 package com.opengamma.engine.marketdata.availability;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertTrue;
 
 import org.testng.annotations.Test;
 
-import com.google.common.collect.ImmutableSet;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.target.Primitive;
@@ -18,30 +17,29 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.id.UniqueId;
 
 /**
- * Tests the {@link ValueNameMarketDataAvailabilityProvider} class.
+ * Tests the {@link OptimisticMarketDataAvailabilityFilter} class.
  */
 @Test
-public class ValueNameMarketDataAvailabilityProviderTest extends AbstractMarketDataAvailabilityProviderTest {
+public class OptimisticMarketDataAvailabilityFilterTest {
 
-  @Override
-  protected AbstractMarketDataAvailabilityProvider createBase() {
-    return new ValueNameMarketDataAvailabilityProvider(ImmutableSet.of("Foo", "Bar"));
+  protected MarketDataAvailabilityFilter create() {
+    return new OptimisticMarketDataAvailabilityFilter();
   }
 
   public void testMissing() {
-    final MarketDataAvailabilityProvider availability = create();
+    final MarketDataAvailabilityFilter availability = create();
     final ComputationTargetSpecification targetSpec = new ComputationTargetSpecification(ComputationTargetType.SECURITY, UniqueId.of("Security", "Foo"));
     final Object target = new Primitive(UniqueId.of("Security", "Foo"));
-    final ValueRequirement desiredValue = new ValueRequirement("Cow", targetSpec);
-    assertNull(availability.getAvailability(targetSpec, target, desiredValue));
+    final ValueRequirement desiredValue = new ValueRequirement("Value", targetSpec);
+    assertFalse(availability.isAvailable(targetSpec, target, desiredValue));
   }
 
   public void testPresent() {
-    final MarketDataAvailabilityProvider availability = create();
+    final MarketDataAvailabilityFilter availability = create();
     final ComputationTargetSpecification targetSpec = new ComputationTargetSpecification(ComputationTargetType.SECURITY, UniqueId.of("Security", "Foo"));
     final Object target = new Primitive(UniqueId.of("Security", "Foo"));
-    final ValueRequirement desiredValue = new ValueRequirement("Bar", targetSpec);
-    assertEquals(availability.getAvailability(targetSpec, target, desiredValue).getValueName(), desiredValue.getValueName());
+    final ValueRequirement desiredValue = new ValueRequirement("Market_Value", targetSpec);
+    assertTrue(availability.isAvailable(targetSpec, target, desiredValue));
   }
 
 }

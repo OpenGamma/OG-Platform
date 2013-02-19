@@ -33,7 +33,7 @@ import com.opengamma.core.security.Security;
 import com.opengamma.engine.function.CompiledFunctionRepository;
 import com.opengamma.engine.function.exclusion.FunctionExclusionGroups;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
-import com.opengamma.engine.marketdata.availability.OptimisticMarketDataAvailabilityProvider;
+import com.opengamma.engine.marketdata.availability.OptimisticMarketDataAvailabilityFilter;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.view.helper.AvailableOutput;
@@ -116,7 +116,7 @@ public abstract class AbstractDocumentation implements Runnable {
 
   private final CompiledFunctionRepository _functionRepository;
   private final FunctionExclusionGroups _functionExclusionGroups;
-  private final MarketDataAvailabilityProvider _availabilityProvider = new OptimisticMarketDataAvailabilityProvider();
+  private final MarketDataAvailabilityProvider _availabilityProvider = new OptimisticMarketDataAvailabilityFilter();
   private final SecurityTypePortfolioFilter _securityTypePortfolioFilter = new SecurityTypePortfolioFilter();
   private final Map<String, Set<AvailableOutput>> _availableOutputsBySecurityType = new HashMap<String, Set<AvailableOutput>>();
   private final Map<String, Set<AvailableOutput>> _availableOutputsByName = new HashMap<String, Set<AvailableOutput>>();

@@ -5,8 +5,8 @@
  */
 package com.opengamma.engine.marketdata.availability;
 
-import static org.testng.Assert.assertNotNull;
-import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertTrue;
 
 import org.testng.annotations.Test;
 
@@ -23,65 +23,64 @@ import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.UniqueId;
 
 /**
- * Tests the {@link DomainMarketDataAvailabilityProvider} class.
+ * Tests the {@link DomainMarketDataAvailabilityFilter} class.
  */
 @Test
-public class DomainMarketDataAvailabilityProviderTest extends AbstractMarketDataAvailabilityProviderTest {
+public class DomainMarketDataAvailabilityFilterTest {
 
-  @Override
-  protected AbstractMarketDataAvailabilityProvider createBase() {
-    return new DomainMarketDataAvailabilityProvider(ImmutableSet.of(ExternalScheme.of("Ticker")), ImmutableSet.of("Foo", "Bar"));
+  protected MarketDataAvailabilityFilter create() {
+    return new DomainMarketDataAvailabilityFilter(ImmutableSet.of(ExternalScheme.of("Ticker")), ImmutableSet.of("Foo", "Bar"));
   }
 
   public void testGetAvailability_uniqueId() {
-    final MarketDataAvailabilityProvider availability = create();
+    final MarketDataAvailabilityFilter availability = create();
     final ComputationTargetSpecification targetSpec = new ComputationTargetSpecification(ComputationTargetType.SECURITY, UniqueId.of("Security", "Foo"));
     final Object target = new Primitive(UniqueId.of("Security", "Foo"));
     ValueRequirement desiredValue = new ValueRequirement("Cow", targetSpec);
-    assertNull(availability.getAvailability(targetSpec, target, desiredValue));
+    assertFalse(availability.isAvailable(targetSpec, target, desiredValue));
     desiredValue = new ValueRequirement("Foo", targetSpec);
-    assertNull(availability.getAvailability(targetSpec, target, desiredValue));
+    assertFalse(availability.isAvailable(targetSpec, target, desiredValue));
   }
 
   public void testGetAvailability_externalId_nomatch() {
-    final MarketDataAvailabilityProvider availability = create();
+    final MarketDataAvailabilityFilter availability = create();
     final ComputationTargetSpecification targetSpec = new ComputationTargetSpecification(ComputationTargetType.SECURITY, UniqueId.of("Security", "Foo"));
     final Object target = new ExternalIdentifiablePrimitive(UniqueId.of("Security", "Foo"), ExternalId.of("BAD", "Foo"));
     ValueRequirement desiredValue = new ValueRequirement("Cow", targetSpec);
-    assertNull(availability.getAvailability(targetSpec, target, desiredValue));
+    assertFalse(availability.isAvailable(targetSpec, target, desiredValue));
     desiredValue = new ValueRequirement("Foo", targetSpec);
-    assertNull(availability.getAvailability(targetSpec, target, desiredValue));
+    assertFalse(availability.isAvailable(targetSpec, target, desiredValue));
   }
 
   public void testGetAvailability_externalId_match() {
-    final MarketDataAvailabilityProvider availability = create();
+    final MarketDataAvailabilityFilter availability = create();
     final ComputationTargetSpecification targetSpec = new ComputationTargetSpecification(ComputationTargetType.SECURITY, UniqueId.of("Security", "Foo"));
     final Object target = new ExternalIdentifiablePrimitive(UniqueId.of("Security", "Foo"), ExternalId.of("Ticker", "Foo"));
     ValueRequirement desiredValue = new ValueRequirement("Cow", targetSpec);
-    assertNull(availability.getAvailability(targetSpec, target, desiredValue));
+    assertFalse(availability.isAvailable(targetSpec, target, desiredValue));
     desiredValue = new ValueRequirement("Foo", targetSpec);
-    assertNotNull(availability.getAvailability(targetSpec, target, desiredValue));
+    assertTrue(availability.isAvailable(targetSpec, target, desiredValue));
   }
 
   public void testGetAvailability_externalIdBundle_nomatch() {
-    final MarketDataAvailabilityProvider availability = create();
+    final MarketDataAvailabilityFilter availability = create();
     final ComputationTargetSpecification targetSpec = new ComputationTargetSpecification(ComputationTargetType.SECURITY, UniqueId.of("Security", "Foo"));
     final Object target = new ExternalBundleIdentifiablePrimitive(UniqueId.of("Security", "Foo"), ExternalIdBundle.of(ExternalId.of("BAD1", "Foo"), ExternalId.of("BAD2", "Foo")));
     ValueRequirement desiredValue = new ValueRequirement("Cow", targetSpec);
-    assertNull(availability.getAvailability(targetSpec, target, desiredValue));
+    assertFalse(availability.isAvailable(targetSpec, target, desiredValue));
     desiredValue = new ValueRequirement("Foo", targetSpec);
-    assertNull(availability.getAvailability(targetSpec, target, desiredValue));
+    assertFalse(availability.isAvailable(targetSpec, target, desiredValue));
   }
 
   public void testGetAvailability_externalIdBundle_match() {
-    final MarketDataAvailabilityProvider availability = create();
+    final MarketDataAvailabilityFilter availability = create();
     final ComputationTargetSpecification targetSpec = new ComputationTargetSpecification(ComputationTargetType.SECURITY, UniqueId.of("Security", "Foo"));
     final Object target = new ExternalBundleIdentifiablePrimitive(UniqueId.of("Security", "Foo"), ExternalIdBundle.of(ExternalId.of("Ticker", "X"), ExternalId.of("BAD2", "Foo"),
         ExternalId.of("Ticker", "Y")));
     ValueRequirement desiredValue = new ValueRequirement("Cow", targetSpec);
-    assertNull(availability.getAvailability(targetSpec, target, desiredValue));
+    assertFalse(availability.isAvailable(targetSpec, target, desiredValue));
     desiredValue = new ValueRequirement("Foo", targetSpec);
-    assertNotNull(availability.getAvailability(targetSpec, target, desiredValue));
+    assertTrue(availability.isAvailable(targetSpec, target, desiredValue));
   }
 
 }

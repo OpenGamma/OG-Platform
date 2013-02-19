@@ -19,7 +19,7 @@ import com.opengamma.engine.marketdata.MarketDataProvider;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
 import com.opengamma.engine.marketdata.PermissiveMarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
-import com.opengamma.engine.marketdata.availability.UnionMarketDataAvailabilityProvider;
+import com.opengamma.engine.marketdata.availability.UnionMarketDataAvailability;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.UserMarketDataSpecification;
 import com.opengamma.engine.value.ValueSpecification;
@@ -111,7 +111,7 @@ public class UserMarketDataProvider extends AbstractMarketDataProvider {
       // [PLAT-1459] 2011-10-03 -- missing values in the snapshot will prevent the dep graph from building even though
       // it builds in the live case where the availability provider is more optimistic. Using a union of the two works
       // around this problem.
-      return new UnionMarketDataAvailabilityProvider(Arrays.asList(getBaseMarketDataAvailabilityProvider(), snapshot.getAvailabilityProvider()));
+      return new UnionMarketDataAvailability(Arrays.asList(getBaseMarketDataAvailabilityProvider(), snapshot.getAvailabilityProvider()));
     }
   }
 

@@ -22,7 +22,9 @@ import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Implements {@link MarketDataAvailabilityProvider} around a fixed set of available market data items.
+ * Implements a {@link MarketDataAvailabilityProvider} around a fixed set of available market data items.
+ * <p>
+ * This is intended for constructing test cases only as the population of available items must be coupled to the target resolution strategy.
  */
 public class FixedMarketDataAvailabilityProvider implements MarketDataAvailabilityProvider {
 
@@ -57,43 +59,113 @@ public class FixedMarketDataAvailabilityProvider implements MarketDataAvailabili
 
   }
 
-  private final Map<ExternalId, TargetMarketData> _dataByEid = new HashMap<ExternalId, TargetMarketData>();
-  private final Map<UniqueId, TargetMarketData> _dataByUid = new HashMap<UniqueId, TargetMarketData>();
+  private final Map<ExternalId, TargetMarketData> _dataByEid;
+  private final Map<UniqueId, TargetMarketData> _dataByUid;
+
+  public FixedMarketDataAvailabilityProvider() {
+    this(new HashMap<ExternalId, TargetMarketData>(), new HashMap<UniqueId, TargetMarketData>());
+  }
+
+  private FixedMarketDataAvailabilityProvider(final Map<ExternalId, TargetMarketData> dataByEid, final Map<UniqueId, TargetMarketData> dataByUid) {
+    _dataByEid = dataByEid;
+    _dataByUid = dataByUid;
+  }
+
+  protected ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final UniqueId identifier, final ValueRequirement desiredValue, final TargetMarketData data) {
+    return data.getAvailability(desiredValue);
+  }
+
+  protected ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final ExternalId identifier, final ValueRequirement desiredValue, final TargetMarketData data) {
+    return data.getAvailability(desiredValue);
+  }
 
   @Override
-  public synchronized ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final Object target, final ValueRequirement desiredValue) {
+  public ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final Object target, final ValueRequirement desiredValue) {
     ValueSpecification result;
     TargetMarketData data;
-    if (target instanceof UniqueIdentifiable) {
-      data = _dataByUid.get(((UniqueIdentifiable) target).getUniqueId());
-      if (data != null) {
-        result = data.getAvailability(desiredValue);
-        if (result != null) {
-          return result;
-        }
-      }
-    }
-    if (target instanceof ExternalIdentifiable) {
-      data = _dataByEid.get(((ExternalIdentifiable) target).getExternalId());
-      if (data != null) {
-        result = data.getAvailability(desiredValue);
-        if (result != null) {
-          return result;
-        }
-      }
-    }
-    if (target instanceof ExternalBundleIdentifiable) {
-      for (final ExternalId identifier : ((ExternalBundleIdentifiable) target).getExternalIdBundle()) {
-        data = _dataByEid.get(identifier);
+    synchronized (_dataByUid) {
+      if (target instanceof UniqueIdentifiable) {
+        final UniqueId identifier = ((UniqueIdentifiable) target).getUniqueId();
+        data = _dataByUid.get(identifier);
         if (data != null) {
-          result = data.getAvailability(desiredValue);
+          result = getAvailability(targetSpec, identifier, desiredValue, data);
           if (result != null) {
             return result;
           }
         }
       }
     }
+    synchronized (_dataByEid) {
+      if (target instanceof ExternalIdentifiable) {
+        final ExternalId identifier = ((ExternalIdentifiable) target).getExternalId();
+        data = _dataByEid.get(identifier);
+        if (data != null) {
+          result = getAvailability(targetSpec, identifier, desiredValue, data);
+          if (result != null) {
+            return result;
+          }
+        }
+      }
+      if (target instanceof ExternalBundleIdentifiable) {
+        for (final ExternalId identifier : ((ExternalBundleIdentifiable) target).getExternalIdBundle()) {
+          data = _dataByEid.get(identifier);
+          if (data != null) {
+            result = getAvailability(targetSpec, identifier, desiredValue, data);
+            if (result != null) {
+              return result;
+            }
+          }
+        }
+      }
+    }
     return null;
+  }
+
+  @Override
+  public MarketDataAvailabilityFilter getAvailabilityFilter() {
+    return new MarketDataAvailabilityFilter() {
+
+      @Override
+      public boolean isAvailable(final ComputationTargetSpecification targetSpec, final Object target, final ValueRequirement desiredValue) {
+        return getAvailability(targetSpec, target, desiredValue) != null;
+      }
+
+      @Override
+      public MarketDataAvailabilityProvider withProvider(final MarketDataAvailabilityProvider provider) {
+        return FixedMarketDataAvailabilityProvider.this.withProvider(provider);
+      }
+
+    };
+  }
+
+  protected MarketDataAvailabilityProvider withProvider(final MarketDataAvailabilityProvider provider) {
+    final AbstractMarketDataAvailabilityProvider underlying = AbstractMarketDataAvailabilityProvider.of(provider);
+    return new FixedMarketDataAvailabilityProvider(_dataByEid, _dataByUid) {
+
+      @Override
+      protected ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final UniqueId identifier, final ValueRequirement desiredValue, final TargetMarketData data) {
+        if (super.getAvailability(targetSpec, identifier, desiredValue, data) != null) {
+          return underlying.getAvailability(targetSpec, identifier, desiredValue);
+        } else {
+          return null;
+        }
+      }
+
+      @Override
+      protected ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final ExternalId identifier, final ValueRequirement desiredValue, final TargetMarketData data) {
+        if (super.getAvailability(targetSpec, identifier, desiredValue, data) != null) {
+          return underlying.getAvailability(targetSpec, identifier, desiredValue);
+        } else {
+          return null;
+        }
+      }
+
+      @Override
+      public MarketDataAvailabilityFilter getAvailabilityFilter() {
+        return FixedMarketDataAvailabilityProvider.this.getAvailabilityFilter();
+      }
+
+    };
   }
 
   private TargetMarketData getOrCreateTargetMarketData(final ExternalId identifier) {
@@ -114,43 +186,55 @@ public class FixedMarketDataAvailabilityProvider implements MarketDataAvailabili
     return targetData;
   }
 
-  public synchronized void addAvailableData(final ExternalId identifier, final ValueSpecification valueSpecification) {
+  public void addAvailableData(final ExternalId identifier, final ValueSpecification valueSpecification) {
     ArgumentChecker.notNull(identifier, "identifier");
     ArgumentChecker.notNull(valueSpecification, "valueSpecification");
-    getOrCreateTargetMarketData(identifier).addAvailableData(valueSpecification);
-  }
-
-  public synchronized void addAvailableData(final ExternalIdBundle identifiers, final ValueSpecification valueSpecification) {
-    ArgumentChecker.notNull(identifiers, "identifiers");
-    ArgumentChecker.notNull(valueSpecification, "valueSpecification");
-    for (final ExternalId identifier : identifiers) {
+    synchronized (_dataByEid) {
       getOrCreateTargetMarketData(identifier).addAvailableData(valueSpecification);
     }
   }
 
-  public synchronized void addAvailableData(final ValueSpecification valueSpecification) {
+  public void addAvailableData(final ExternalIdBundle identifiers, final ValueSpecification valueSpecification) {
+    ArgumentChecker.notNull(identifiers, "identifiers");
     ArgumentChecker.notNull(valueSpecification, "valueSpecification");
-    getOrCreateTargetMarketData(valueSpecification.getTargetSpecification().getUniqueId()).addAvailableData(valueSpecification);
+    synchronized (_dataByEid) {
+      for (final ExternalId identifier : identifiers) {
+        getOrCreateTargetMarketData(identifier).addAvailableData(valueSpecification);
+      }
+    }
   }
 
-  public synchronized void addMissingData(final ExternalId identifier, final String valueName) {
+  public void addAvailableData(final ValueSpecification valueSpecification) {
+    ArgumentChecker.notNull(valueSpecification, "valueSpecification");
+    synchronized (_dataByUid) {
+      getOrCreateTargetMarketData(valueSpecification.getTargetSpecification().getUniqueId()).addAvailableData(valueSpecification);
+    }
+  }
+
+  public void addMissingData(final ExternalId identifier, final String valueName) {
     ArgumentChecker.notNull(identifier, "identifier");
     ArgumentChecker.notNull(valueName, "valueName");
-    getOrCreateTargetMarketData(identifier).addMissingData(valueName);
-  }
-
-  public synchronized void addMissingData(final ExternalIdBundle identifiers, final String valueName) {
-    ArgumentChecker.notNull(identifiers, "identifiers");
-    ArgumentChecker.notNull(valueName, "valueName");
-    for (final ExternalId identifier : identifiers) {
+    synchronized (_dataByEid) {
       getOrCreateTargetMarketData(identifier).addMissingData(valueName);
     }
   }
 
-  public synchronized void addMissingData(final UniqueId identifier, final String valueName) {
+  public void addMissingData(final ExternalIdBundle identifiers, final String valueName) {
+    ArgumentChecker.notNull(identifiers, "identifiers");
+    ArgumentChecker.notNull(valueName, "valueName");
+    synchronized (_dataByEid) {
+      for (final ExternalId identifier : identifiers) {
+        getOrCreateTargetMarketData(identifier).addMissingData(valueName);
+      }
+    }
+  }
+
+  public void addMissingData(final UniqueId identifier, final String valueName) {
     ArgumentChecker.notNull(identifier, "identifier");
     ArgumentChecker.notNull(valueName, "valueName");
-    getOrCreateTargetMarketData(identifier).addMissingData(valueName);
+    synchronized (_dataByUid) {
+      getOrCreateTargetMarketData(identifier).addMissingData(valueName);
+    }
   }
 
 }

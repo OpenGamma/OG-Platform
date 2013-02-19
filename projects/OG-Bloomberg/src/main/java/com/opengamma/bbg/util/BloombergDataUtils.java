@@ -78,7 +78,7 @@ import com.opengamma.bbg.referencedata.ReferenceDataProviderGetResult;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.core.value.MarketDataRequirementNamesHelper;
-import com.opengamma.engine.marketdata.availability.DomainMarketDataAvailabilityProvider;
+import com.opengamma.engine.marketdata.availability.DomainMarketDataAvailabilityFilter;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.financial.analytics.ircurve.NextMonthlyExpiryAdjuster;
 import com.opengamma.financial.security.option.OptionType;
@@ -299,7 +299,7 @@ public final class BloombergDataUtils {
         ExternalSchemes.BLOOMBERG_TICKER_WEAK,
         ExternalSchemes.BLOOMBERG_TICKER);
     final Collection<String> validMarketDataRequirementNames = MarketDataRequirementNamesHelper.constructValidRequirementNames();
-    return new DomainMarketDataAvailabilityProvider(acceptableSchemes, validMarketDataRequirementNames);
+    return new DomainMarketDataAvailabilityFilter(acceptableSchemes, validMarketDataRequirementNames);
   }
 
   public static FudgeMsg parseElement(final Element element) {

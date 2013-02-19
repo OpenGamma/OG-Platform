@@ -38,7 +38,7 @@ import com.opengamma.engine.function.FunctionParameters;
 import com.opengamma.engine.function.InMemoryCompiledFunctionRepository;
 import com.opengamma.engine.function.exclusion.AbstractFunctionExclusionGroups;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
-import com.opengamma.engine.marketdata.availability.OptimisticMarketDataAvailabilityProvider;
+import com.opengamma.engine.marketdata.availability.OptimisticMarketDataAvailabilityFilter;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -371,7 +371,7 @@ public class AvailablePortfolioOutputsTest {
   public void init() {
     _testPortfolio = createPortfolio();
     _functionRepository = createFunctionRepository();
-    _availabilityProvider = new OptimisticMarketDataAvailabilityProvider();
+    _availabilityProvider = new OptimisticMarketDataAvailabilityFilter();
   }
 
   public void testGetSecurityTypes() {

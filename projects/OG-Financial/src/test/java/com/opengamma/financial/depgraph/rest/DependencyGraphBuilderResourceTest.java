@@ -40,7 +40,7 @@ import com.opengamma.engine.marketdata.MarketDataListener;
 import com.opengamma.engine.marketdata.MarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.MarketDataProvider;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
-import com.opengamma.engine.marketdata.availability.DomainMarketDataAvailabilityProvider;
+import com.opengamma.engine.marketdata.availability.DomainMarketDataAvailabilityFilter;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.resolver.SingleMarketDataProviderResolver;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
@@ -142,7 +142,7 @@ public class DependencyGraphBuilderResourceTest {
 
       @Override
       public MarketDataAvailabilityProvider getAvailabilityProvider() {
-        return new DomainMarketDataAvailabilityProvider(Arrays.asList(ExternalScheme.of("Foo")), Arrays.asList(MarketDataRequirementNames.MARKET_VALUE));
+        return new DomainMarketDataAvailabilityFilter(Arrays.asList(ExternalScheme.of("Foo")), Arrays.asList(MarketDataRequirementNames.MARKET_VALUE));
       }
 
       @Override

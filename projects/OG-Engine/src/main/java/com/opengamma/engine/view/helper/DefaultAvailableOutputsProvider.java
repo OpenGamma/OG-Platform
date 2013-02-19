@@ -21,7 +21,7 @@ import com.opengamma.engine.function.CompiledFunctionRepository;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.exclusion.FunctionExclusionGroups;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
-import com.opengamma.engine.marketdata.availability.OptimisticMarketDataAvailabilityProvider;
+import com.opengamma.engine.marketdata.availability.OptimisticMarketDataAvailabilityFilter;
 import com.opengamma.engine.view.compilation.PortfolioCompiler;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
@@ -41,7 +41,7 @@ public class DefaultAvailableOutputsProvider implements AvailableOutputsProvider
 
   public DefaultAvailableOutputsProvider(CompiledFunctionService compiledFunctionService, FunctionExclusionGroups functionExclusionGroups, PositionSource positionSource,
       SecuritySource securitySource, String wildcardIndicator) {
-    this(compiledFunctionService, functionExclusionGroups, new OptimisticMarketDataAvailabilityProvider(), positionSource, securitySource, wildcardIndicator);
+    this(compiledFunctionService, functionExclusionGroups, new OptimisticMarketDataAvailabilityFilter(), positionSource, securitySource, wildcardIndicator);
   }
 
   public DefaultAvailableOutputsProvider(CompiledFunctionService compiledFunctionService, FunctionExclusionGroups functionExclusionGroups,

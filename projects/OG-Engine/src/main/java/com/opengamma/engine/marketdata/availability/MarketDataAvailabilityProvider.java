@@ -42,4 +42,11 @@ public interface MarketDataAvailabilityProvider {
    */
   ValueSpecification getAvailability(ComputationTargetSpecification targetSpec, Object target, ValueRequirement desiredValue) throws MarketDataNotSatisfiableException;
 
+  /**
+   * Returns an associated (or equivalent) {@link MarketDataAvailabilityFilter} for a possibly cheaper data requirement test or to expose any externally configured rules for determining availability.
+   * 
+   * @return a {@link MarketDataAvailabilityFilter} instance.
+   */
+  MarketDataAvailabilityFilter getAvailabilityFilter();
+
 }

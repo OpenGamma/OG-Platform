@@ -29,7 +29,7 @@ import com.opengamma.core.value.MarketDataRequirementNamesHelper;
 import com.opengamma.engine.marketdata.InMemoryNamedMarketDataSpecificationRepository;
 import com.opengamma.engine.marketdata.MarketDataProviderFactory;
 import com.opengamma.engine.marketdata.NamedMarketDataSpecificationRepository;
-import com.opengamma.engine.marketdata.availability.DomainMarketDataAvailabilityProvider;
+import com.opengamma.engine.marketdata.availability.DomainMarketDataAvailabilityFilter;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.live.LiveDataFactory;
 import com.opengamma.engine.marketdata.live.LiveMarketDataProviderFactory;
@@ -117,7 +117,7 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
   private MarketDataAvailabilityProvider createAvailabilityProvider(final LiveDataMetaDataProvider provider) {
     final List<ExternalScheme> acceptableSchemes = provider.metaData().getSupportedSchemes();
     final Collection<String> validMarketDataRequirementNames = MarketDataRequirementNamesHelper.constructValidRequirementNames();
-    return new DomainMarketDataAvailabilityProvider(acceptableSchemes, validMarketDataRequirementNames);
+    return new DomainMarketDataAvailabilityFilter(acceptableSchemes, validMarketDataRequirementNames);
   }
 
   private NamedMarketDataSpecificationRepository initNamedMarketDataSpecificationRepository(final ComponentRepository repo) {

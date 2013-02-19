@@ -27,7 +27,7 @@ import com.opengamma.engine.function.CompiledFunctionRepository;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.exclusion.FunctionExclusionGroups;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
-import com.opengamma.engine.marketdata.availability.OptimisticMarketDataAvailabilityProvider;
+import com.opengamma.engine.marketdata.availability.OptimisticMarketDataAvailabilityFilter;
 import com.opengamma.engine.view.compilation.PortfolioCompiler;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.portfolio.PortfolioMaster;
@@ -61,7 +61,7 @@ public class AvailablePortfolioOutputsTest {
     _portfolioMaster = _repo.getInstance(PortfolioMaster.class, "central");
     _positionSource = _repo.getInstance(PositionSource.class, "combined");
     _securitySource = _repo.getInstance(SecuritySource.class, "combined");
-    _availabilityProvider = new OptimisticMarketDataAvailabilityProvider();
+    _availabilityProvider = new OptimisticMarketDataAvailabilityFilter();
     _executorService = Executors.newCachedThreadPool();
   }
 

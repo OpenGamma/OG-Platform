@@ -36,7 +36,7 @@ import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.exclusion.FunctionExclusionGroups;
 import com.opengamma.engine.function.resolver.FunctionResolver;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
-import com.opengamma.engine.marketdata.availability.OptimisticMarketDataAvailabilityProvider;
+import com.opengamma.engine.marketdata.availability.OptimisticMarketDataAvailabilityFilter;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessor;
@@ -95,7 +95,7 @@ public class GraphBuildingSpeedTest {
     dependencyGraphBuilder.setRunQueueFactory(RunQueueFactory.getOrdered());
     //dependencyGraphBuilder.setRunQueueFactory(RunQueueFactory.getConcurrentLinkedQueue());
     //dependencyGraphBuilder.setRunQueueFactory(RunQueueFactory.getConcurrentStack());
-    final MarketDataAvailabilityProvider mdap = new OptimisticMarketDataAvailabilityProvider();
+    final MarketDataAvailabilityProvider mdap = new OptimisticMarketDataAvailabilityFilter();
     return new ViewCompilationServices(mdap, functionResolver, cfs.getFunctionCompilationContext(), cfs.getExecutorService(), dependencyGraphBuilder);
   }
 
