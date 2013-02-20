@@ -59,12 +59,14 @@ $.register_module({
         var col_reorder = (function () {
             var namespace = '.og_analytics_reorder', index, last, first, grid_width, timeout = null, nearest,
                 line = 'OG-g-h-line', reorderer = 'OG-g-h-reorderer', offset_left;
-            var auto_scroll = function (direction, scroll_left) {
-                var increment = 10, interval = 75, scroll_body = grid.elements.scroll_body;
+            var auto_scroll = function (direction, scroll_left, scroll_body) {
+                var increment = 10, interval = 75;
                 clearTimeout(timeout);
                 if (direction === 'right') scroll_body.scrollLeft(scroll_left + increment);
                 else if (direction === 'left') scroll_body.scrollLeft(scroll_left - increment);
-                timeout = setTimeout(function () {auto_scroll(direction, scroll_body.scrollLeft());}, interval);
+                timeout = setTimeout(function () {
+                    auto_scroll(direction, scroll_body.scrollLeft(), scroll_body);
+                }, interval);
             };
             var clean_up = function (grid) {
                 $('.' + reorderer).remove();
@@ -75,7 +77,7 @@ $.register_module({
                 grid.selector.clear();
             };
             var mousemove = function (grid, event) {
-                var scroll_left = grid.elements.scroll_body.scrollLeft(),
+                var scroll_body = grid.elements.scroll_body, scroll_left = scroll_body.scrollLeft(),
                     x = event.pageX - grid.offset.left + scroll_left, fixed_width = grid.meta.columns.width.fixed,
                     scan = grid.meta.columns.scan.all, line_left;
                 nearest = Math.max(
@@ -84,13 +86,15 @@ $.register_module({
                 );
                 line_left = grid.offset.left - scroll_left + scan[nearest];
                 $('.' + reorderer).css({left: event.pageX - offset_left});
-                if (line_left <= fixed_width + grid.offset.left) return auto_scroll('left', scroll_left);
-                if (line_left >= grid_width) return auto_scroll('right', scroll_left);
+                if (line_left <= fixed_width + grid.offset.left && scroll_left)
+                    return auto_scroll('left', scroll_left, scroll_body);
+                if (line_left >= grid_width) return auto_scroll('right', scroll_left, scroll_body);
                 timeout = clearTimeout(timeout), null;
                 $('.' + line).show().css({left: line_left});
             };
             var mouseup = function (grid, event) {
                 clean_up(grid);
+                if (nearest === index || nearest + 1 === index) return; // no reordering
             };
             var scroll = function () {$('.' + line).hide();};
             return function (event, $target) {
@@ -178,7 +182,7 @@ $.register_module({
             grid.formatter = new og.analytics.Formatter(grid);
             grid.id = '#' + og.common.id('grid');
             grid.meta = null;
-            grid.state = {col_override: [], nodes: null, structure: null};
+            grid.state = {col_override: [], col_reorder: [], nodes: null, structure: null};
             grid.source = config.source;
             grid.updated = (function (last, delta) {
                 return function (time) {
@@ -349,6 +353,9 @@ $.register_module({
             grid.resize(!meta.start_expanded);
             render_rows.call(grid, null, true);
         };
+        var reorder_cols = function () {
+            var grid = this;
+        };
         var render_header = (function () {
             var head_data = function (grid, sets, col_offset, set_offset) {
                 var meta = grid.meta, width = meta.columns.width, index = 0, show_save = meta.show_save,
@@ -492,24 +499,26 @@ $.register_module({
             var grid = this, meta = grid.meta, viewport = meta.viewport, inner = meta.inner, elements = grid.elements,
                 top_position = elements.scroll_body.scrollTop(), left_position = elements.scroll_head.scrollLeft(),
                 fixed_len = meta.fixed_length, row_start = Math.floor((top_position / inner.height) * meta.rows),
-                scroll_position = left_position + inner.width, buffer = viewport_buffer.call(grid), lcv,
+                scroll_position = left_position + inner.width, buffer = viewport_buffer.call(grid), lcv, reorder,
                 row_end = Math.min(row_start + meta.visible_rows + buffer.row, grid.state.available.length),
                 scroll_cols = meta.columns.scroll.reduce(function (acc, set) {return acc.concat(set.columns);}, []);
             lcv = Math.max(0, row_start - buffer.row); viewport.rows = [];
             while (lcv < row_end) viewport.rows.push(grid.state.available[lcv++]);
             (viewport.cols = []), (lcv = 0);
             while (lcv < fixed_len) viewport.cols.push(lcv++);
+            reorder = grid.state.col_reorder.length && grid.state.col_reorder;
             viewport.cols = viewport.cols.concat(scroll_cols.reduce(function (acc, col, idx) {
                 var lcv;
                 if (!('scan' in acc)) return acc;
                 if ((acc.scan += col.width) >= left_position) {
                     if (!acc.cols.length && idx) // pad before
-                        for (lcv = Math.max(0, idx - buffer.col); lcv < idx; lcv += 1) acc.cols.push(lcv + fixed_len);
-                    acc.cols.push(idx + fixed_len);
+                        for (lcv = Math.max(0, idx - buffer.col); lcv < idx; lcv += 1)
+                            acc.cols.push(reorder ? reorder[lcv + fixed_len] : lcv + fixed_len);
+                    acc.cols.push(reorder ? reorder[idx + fixed_len] : idx + fixed_len);
                 }
                 if (acc.scan > scroll_position) {
                     for (lcv = idx + 1; lcv < Math.min(idx + buffer.col, scroll_cols.length); lcv += 1)
-                        acc.cols.push(lcv + fixed_len);
+                        acc.cols.push(reorder ? reorder[lcv + fixed_len] : lcv + fixed_len);
                     delete acc.scan;
                 }
                 return acc;

@@ -96,11 +96,13 @@ $.register_module({
                         item: 'history.' + page_name + '.recent',
                         value: routes.current().hash
                     });
-                    if (!og.views.config_forms[config_type]) render_type = 'default';
-                    if (too_large && !og.views.config_forms[config_type].is_default)
+                    render_type = config_type;
+                    if (too_large && !og.views.config_forms[config_type].is_default) {
                         view.error('This configuration is using the default form because it contains too much data (' +
                             result.meta.content_length + ' bytes)');
-                    render_type = too_large ? 'default' : config_type;
+                        render_type = 'default';
+                    }
+                    if (!og.views.config_forms[config_type]) render_type = 'default';
                     render_options = {
                         is_new: is_new,
                         data: details_json,
