@@ -167,7 +167,8 @@ public abstract class SABRYCNSFunction extends AbstractFunction.NonCompiledInvok
     } else {
       sensitivities = CALCULATOR.calculateFromParRate(derivative, knownData, data, jacobian, nodeCalculator);
     }
-    return YieldCurveNodeSensitivitiesHelper.getInstrumentLabelledSensitivitiesForCurve(curveName, data, sensitivities, curveSpec, spec);
+    final String fullCurveName = curveName + "_" + currency.getCode();
+    return YieldCurveNodeSensitivitiesHelper.getInstrumentLabelledSensitivitiesForCurve(fullCurveName, data, sensitivities, curveSpec, spec);
 
   }
 

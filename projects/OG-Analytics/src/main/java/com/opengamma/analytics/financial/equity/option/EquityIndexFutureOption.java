@@ -27,6 +27,8 @@ public class EquityIndexFutureOption implements InstrumentDerivative {
   private final ExerciseDecisionType _exerciseType;
   /** Is the option a call or put */
   private final boolean _isCall;
+  /** The point value of the option */
+  private final double _pointValue;
 
   /**
    * @param expiry The time to expiry in years, greater than zero.
@@ -34,8 +36,10 @@ public class EquityIndexFutureOption implements InstrumentDerivative {
    * @param strike The strike, greater than zero
    * @param exerciseType The exercise type, not null
    * @param isCall true if the option is a call, false if the option is a put
+   * @param pointValue The point value of the option
    */
-  public EquityIndexFutureOption(final double expiry, final EquityIndexFuture underlying, final double strike, final ExerciseDecisionType exerciseType, final boolean isCall) {
+  public EquityIndexFutureOption(final double expiry, final EquityIndexFuture underlying, final double strike, final ExerciseDecisionType exerciseType, final boolean isCall,
+      final double pointValue) {
     ArgumentChecker.notNegativeOrZero(expiry, "expiry");
     ArgumentChecker.notNull(underlying, "underlying");
     ArgumentChecker.notNegativeOrZero(strike, "strike");
@@ -45,6 +49,7 @@ public class EquityIndexFutureOption implements InstrumentDerivative {
     _strike = strike;
     _exerciseType = exerciseType;
     _isCall = isCall;
+    _pointValue = pointValue;
   }
 
   /**
@@ -87,6 +92,14 @@ public class EquityIndexFutureOption implements InstrumentDerivative {
     return _isCall;
   }
 
+  /**
+   * Gets the point value.
+   * @return The point value
+   */
+  public double getPointValue() {
+    return _pointValue;
+  }
+
   @Override
   public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
     ArgumentChecker.notNull(visitor, "visitor");
@@ -111,6 +124,8 @@ public class EquityIndexFutureOption implements InstrumentDerivative {
     temp = Double.doubleToLongBits(_strike);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     result = prime * result + _underlying.hashCode();
+    temp = Double.doubleToLongBits(_pointValue);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
     return result;
   }
 
@@ -134,6 +149,9 @@ public class EquityIndexFutureOption implements InstrumentDerivative {
       return false;
     }
     if (Double.compare(_expiry, other._expiry) != 0) {
+      return false;
+    }
+    if (Double.compare(_pointValue, other._pointValue) != 0) {
       return false;
     }
     if (!ObjectUtils.equals(_underlying, other._underlying)) {

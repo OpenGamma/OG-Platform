@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model;
@@ -39,7 +39,7 @@ import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * 
+ *
  */
 public class YieldCurveNodeSensitivitiesHelper {
   private static final DecimalFormat s_formatter = new DecimalFormat("##.######");
@@ -75,28 +75,8 @@ public class YieldCurveNodeSensitivitiesHelper {
       final DoubleMatrix1D sensitivitiesForCurve, final InterpolatedYieldCurveSpecificationWithSecurities curveSpec,
       final ValueSpecification resultSpec) {
     return getHybridLabelledSensitivitiesForCurve(curveName, bundle, sensitivitiesForCurve, curveSpec, resultSpec);
-//    final int nSensitivities = curveSpec.getStrips().size();
-//    int startIndex = 0;
-//    for (final String name : bundle.getAllNames()) {
-//      if (curveName.equals(name)) {
-//        break;
-//      }
-//      if (!(bundle.getCurve(name) instanceof YieldCurve)) { //TODO: make it more generic
-//        throw new IllegalArgumentException("Can only handle YieldCurve");
-//      }
-//      startIndex += ((YieldCurve) bundle.getCurve(name)).getCurve().size();
-//    }
-//    final YieldAndDiscountCurve curve = bundle.getCurve(curveName);
-//    final Double[] keys = ((YieldCurve) curve).getCurve().getXData();
-//    final double[] values = new double[nSensitivities];
-//    final Object[] labels = YieldCurveLabelGenerator.getLabels(curveSpec);
-//    for (int i = 0; i < nSensitivities; i++) {
-//      values[i] = sensitivitiesForCurve.getEntry(i + startIndex);
-//    }
-//    final DoubleLabelledMatrix1D labelledMatrix = new DoubleLabelledMatrix1D(keys, labels, values);
-//    return Collections.singleton(new ComputedValue(resultSpec, labelledMatrix));
   }
-  
+
   public static Set<ComputedValue> getHybridLabelledSensitivitiesForCurve(final String curveName, final YieldCurveBundle bundle,
       final DoubleMatrix1D sensitivitiesForCurve, final InterpolatedYieldCurveSpecificationWithSecurities curveSpec,
       final ValueSpecification resultSpec) {

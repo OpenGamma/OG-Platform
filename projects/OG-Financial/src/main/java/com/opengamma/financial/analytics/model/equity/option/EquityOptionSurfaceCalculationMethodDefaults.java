@@ -71,7 +71,10 @@ public abstract class EquityOptionSurfaceCalculationMethodDefaults extends Defau
    * @param perIdConfig Default values of curve configuration, discounting curve, surface name and interpolation method per id, not null
    */
   public EquityOptionSurfaceCalculationMethodDefaults(final String priority, final String... perIdConfig) {
-    super(FinancialSecurityTypes.EQUITY_INDEX_OPTION_SECURITY.or(FinancialSecurityTypes.EQUITY_BARRIER_OPTION_SECURITY).or(FinancialSecurityTypes.EQUITY_OPTION_SECURITY), true);
+    super(FinancialSecurityTypes.EQUITY_INDEX_OPTION_SECURITY
+        .or(FinancialSecurityTypes.EQUITY_BARRIER_OPTION_SECURITY)
+        .or(FinancialSecurityTypes.EQUITY_OPTION_SECURITY)
+        .or(FinancialSecurityTypes.EQUITY_INDEX_FUTURE_OPTION_SECURITY), true);
     ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(perIdConfig, "per id configuration");
     _priority = PriorityClass.valueOf(priority);

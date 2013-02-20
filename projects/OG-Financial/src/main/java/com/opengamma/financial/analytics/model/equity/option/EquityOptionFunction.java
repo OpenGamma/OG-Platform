@@ -27,6 +27,8 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurface;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.value.MarketDataRequirementNames;
@@ -44,7 +46,11 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
+import com.opengamma.financial.analytics.conversion.BondFutureSecurityConverter;
+import com.opengamma.financial.analytics.conversion.BondSecurityConverter;
 import com.opengamma.financial.analytics.conversion.EquityOptionsConverter;
+import com.opengamma.financial.analytics.conversion.FutureSecurityConverter;
+import com.opengamma.financial.analytics.conversion.InterestRateFutureSecurityConverter;
 import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
@@ -88,8 +94,15 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
 
   @Override
   public void init(final FunctionCompilationContext context) {
+    final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
+    final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
-    _converter = new EquityOptionsConverter(conventionSource);
+    final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
+    final InterestRateFutureSecurityConverter irFutureConverter = new InterestRateFutureSecurityConverter(holidaySource, conventionSource, regionSource);
+    final BondSecurityConverter bondConverter = new BondSecurityConverter(holidaySource, conventionSource, regionSource);
+    final BondFutureSecurityConverter bondFutureConverter = new BondFutureSecurityConverter(securitySource, bondConverter);
+    final FutureSecurityConverter futureSecurityConverter = new FutureSecurityConverter(irFutureConverter, bondFutureConverter);
+    _converter = new EquityOptionsConverter(futureSecurityConverter, securitySource);
   }
 
   @Override
@@ -175,7 +188,8 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
 
   @Override
   public ComputationTargetType getTargetType() {
-    return FinancialSecurityTypes.EQUITY_INDEX_OPTION_SECURITY.or(FinancialSecurityTypes.EQUITY_OPTION_SECURITY);
+    return FinancialSecurityTypes.EQUITY_INDEX_OPTION_SECURITY
+        .or(FinancialSecurityTypes.EQUITY_OPTION_SECURITY);
   }
 
   @Override
@@ -335,6 +349,11 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
     return results;
   }
 
+  /**
+   * Converts result properties with a currency property to one without.
+   * @param resultsWithCurrency The set of results with the currency property set
+   * @return A set of results without a currency property
+   */
   protected Set<ValueSpecification> getResultsWithoutCurrency(final Set<ValueSpecification> resultsWithCurrency) {
     final Set<ValueSpecification> resultsWithoutCurrency = Sets.newHashSetWithExpectedSize(resultsWithCurrency.size());
     for (final ValueSpecification spec : resultsWithCurrency) {

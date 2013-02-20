@@ -114,24 +114,24 @@ public class EquityBlackVolatilitySurfacePerCurrencyDefaults extends DefaultProp
   @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
-    final String exchange = EquitySecurityUtils.getCurrency(securitySource, target.getUniqueId());
-    if (exchange == null) {
-      s_logger.error("Could not get exchange for {}; should never happen", target.getUniqueId());
+    final String currency = EquitySecurityUtils.getCurrency(securitySource, target.getUniqueId());
+    if (currency == null) {
+      s_logger.error("Could not get currency for {}; should never happen", target.getUniqueId());
       return null;
     }
-    final String forwardCurveName = _forwardCurveNames.get(exchange);
+    final String forwardCurveName = _forwardCurveNames.get(currency);
     if (forwardCurveName == null) {
-      s_logger.error("Could not get defaults for {}; should never happen", exchange);
+      s_logger.error("Could not get defaults for {}; should never happen", currency);
       return null;
     }
     if (ValuePropertyNames.CURVE.equals(propertyName)) {
       return Collections.singleton(forwardCurveName);
     }
     if (ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD.equals(propertyName)) {
-      return Collections.singleton(_forwardCurveCalculationMethodNames.get(exchange));
+      return Collections.singleton(_forwardCurveCalculationMethodNames.get(currency));
     }
     if (ValuePropertyNames.SURFACE.equals(propertyName)) {
-      return Collections.singleton(_surfaceNames.get(exchange));
+      return Collections.singleton(_surfaceNames.get(currency));
     }
     s_logger.error("Could not find default value for {} in this function", propertyName);
     return null;

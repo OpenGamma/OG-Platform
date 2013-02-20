@@ -5,14 +5,13 @@
  */
 package com.opengamma.financial.analytics.volatility.surface;
 
+import java.text.DecimalFormat;
 import java.util.HashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.DayOfWeek;
 import org.threeten.bp.LocalDate;
-import org.threeten.bp.format.DateTimeFormatter;
-import org.threeten.bp.format.DateTimeFormatters;
 
 import com.opengamma.financial.analytics.ircurve.NextExpiryAdjuster;
 import com.opengamma.financial.analytics.model.FutureOptionExpiries;
@@ -22,50 +21,27 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Provides ExternalIds for equity future options used to build a volatility surface
  */
-public class BloombergEquityFutureOptionVolatilitySurfaceInstrumentProvider extends BloombergFutureOptionVolatilitySurfaceInstrumentProvider {
+public class BloombergEquityIndexFutureOptionVolatilitySurfaceInstrumentProvider extends BloombergFutureOptionVolatilitySurfaceInstrumentProvider {
   /** The logger */
-  private static final Logger s_logger = LoggerFactory.getLogger(BloombergEquityFutureOptionVolatilitySurfaceInstrumentProvider.class);
-  /** The date-time formatter */
-  private static final DateTimeFormatter FORMAT = DateTimeFormatters.pattern("MM/dd/yy");
+  private static final Logger s_logger = LoggerFactory.getLogger(BloombergEquityIndexFutureOptionVolatilitySurfaceInstrumentProvider.class);
+  /** The strike formatter */
+  private static final DecimalFormat FORMATTER = new DecimalFormat("##.###");
   /** The expiry rules */
   private static final HashMap<String, FutureOptionExpiries> EXPIRY_RULES;
   static {
     EXPIRY_RULES = new HashMap<>();
-    EXPIRY_RULES.put("NKY", FutureOptionExpiries.of(new NextExpiryAdjuster(2, DayOfWeek.FRIDAY)));
-    EXPIRY_RULES.put("NDX", FutureOptionExpiries.of(new NextExpiryAdjuster(3, DayOfWeek.FRIDAY, 1))); //TODO
-    EXPIRY_RULES.put("RUT", FutureOptionExpiries.of(new NextExpiryAdjuster(3, DayOfWeek.FRIDAY, 1))); //TODO
-    EXPIRY_RULES.put("DJX", FutureOptionExpiries.of(new NextExpiryAdjuster(3, DayOfWeek.FRIDAY, 1)));
-    EXPIRY_RULES.put("SPX", FutureOptionExpiries.of(new NextExpiryAdjuster(3, DayOfWeek.FRIDAY, 1)));
-    EXPIRY_RULES.put("VIX", FutureOptionExpiries.of(new NextExpiryAdjuster(3, DayOfWeek.FRIDAY, -30)));
-    EXPIRY_RULES.put("AAPL US", FutureOptionExpiries.of(new NextExpiryAdjuster(3, DayOfWeek.FRIDAY, 1)));
-    EXPIRY_RULES.put("UKX", FutureOptionExpiries.of(new NextExpiryAdjuster(3, DayOfWeek.FRIDAY)));
-    EXPIRY_RULES.put("FB US", FutureOptionExpiries.of(new NextExpiryAdjuster(3, DayOfWeek.FRIDAY, 1)));
-    EXPIRY_RULES.put("DEFAULT", FutureOptionExpiries.of(new NextExpiryAdjuster(3, DayOfWeek.FRIDAY, 1)));
-    //TODO DAX, EUROSTOXX 50 (SX5E)
+    EXPIRY_RULES.put("DEFAULT", FutureOptionExpiries.of(new NextExpiryAdjuster(3, DayOfWeek.FRIDAY, 1))); //TODO
   }
 
   /**
-   * Uses the default ticker scheme (BLOOMBERG_TICKER_WEAK)
-   * @param futureOptionPrefix the prefix to the resulting code (e.g. DJX), not null
+   * @param futureOptionPrefix the prefix to the resulting code (e.g. SP), not null
    * @param postfix the postfix to the resulting code (e.g. Index), not null
-   * @param dataFieldName the name of the data field, not null. Expecting MarketDataRequirementNames.IMPLIED_VOLATILITY or OPT_IMPLIED_VOLATILITY_MID
-   * @param useCallAboveStrike the strike above which to use calls rather than puts, not null
-   * @param exchangeIdName the exchange id, not null
-   */
-  public BloombergEquityFutureOptionVolatilitySurfaceInstrumentProvider(final String futureOptionPrefix, final String postfix, final String dataFieldName, final Double useCallAboveStrike,
-      final String exchangeIdName) {
-    super(futureOptionPrefix, postfix, dataFieldName, useCallAboveStrike, exchangeIdName);
-  }
-
-  /**
-   * @param futureOptionPrefix the prefix to the resulting code (e.g. DJX), not null
-   * @param postfix the postfix to the resulting code (e.g. Index), not null
-   * @param dataFieldName the name of the data field, not null. Expecting MarketDataRequirementNames.IMPLIED_VOLATILITY or OPT_IMPLIED_VOLATILITY_MID
+   * @param dataFieldName the name of the data field, not null.
    * @param useCallAboveStrike the strike above which to use calls rather than puts, not null
    * @param exchangeIdName the exchange id, not null
    * @param schemeName the ticker scheme name, not null
    */
-  public BloombergEquityFutureOptionVolatilitySurfaceInstrumentProvider(final String futureOptionPrefix, final String postfix, final String dataFieldName, final Double useCallAboveStrike,
+  public BloombergEquityIndexFutureOptionVolatilitySurfaceInstrumentProvider(final String futureOptionPrefix, final String postfix, final String dataFieldName, final Double useCallAboveStrike,
       final String exchangeIdName, final String schemeName) {
     super(futureOptionPrefix, postfix, dataFieldName, useCallAboveStrike, exchangeIdName, schemeName);
   }
@@ -73,8 +49,8 @@ public class BloombergEquityFutureOptionVolatilitySurfaceInstrumentProvider exte
   /**
    * Provides an ExternalID for Bloomberg ticker,
    * given a reference date and an integer offset, the n'th subsequent option <p>
-   * The format is prefix + date + callPutFlag + strike + postfix <p>
-   * e.g. DJX 12/21/13 C145.0 Index
+   * The format is prefix + month + year + callPutFlag + strike + postfix <p>
+   * e.g. SPH3C 1000.0 Index
    * <p>
    * @param futureOptionNumber n'th future following curve date, not null
    * @param strike option's strike, expressed as price in %, e.g. 98.750, not null
@@ -97,10 +73,10 @@ public class BloombergEquityFutureOptionVolatilitySurfaceInstrumentProvider exte
       expiryRule = EXPIRY_RULES.get("DEFAULT");
     }
     final LocalDate expiry = expiryRule.getEquityFutureOptionExpiry(futureOptionNumber.intValue(), surfaceDate);
-    ticker.append(FORMAT.print(expiry));
-    ticker.append(" ");
+    final String expiryCode = BloombergFutureUtils.getShortExpiryCode(expiry);
+    ticker.append(expiryCode);
     ticker.append(strike > useCallAboveStrike() ? "C" : "P");
-    ticker.append(strike);
+    ticker.append(FORMATTER.format(strike));
     ticker.append(" ");
     ticker.append(getPostfix());
     return ExternalId.of(getScheme(), ticker.toString());

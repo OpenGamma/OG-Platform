@@ -49,6 +49,10 @@
     <subant buildpathref="cc.build.path" target="clean" inheritall="true" />
   </target>
 
+  <target name="clean-tests" depends="common.clean-tests">
+    <subant buildpathref="cctest.build.path" target="clean" inheritall="true" />
+  </target>
+
   <target name="dist-publish" depends="common.dist-publish,compile-msm" />
 
   <macrodef name="installer-make">

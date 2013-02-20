@@ -104,7 +104,6 @@ public final class CreditCurveIdentifier implements UniqueIdentifiable, ObjectId
     ArgumentChecker.notNull(currency, "currency");
     ArgumentChecker.notNull(seniority, "seniority");
     ArgumentChecker.notNull(restructuringClause, "restructuring clause");
-    ArgumentChecker.notNull(term, "restructuring clause");
     _redCode = redCode;
     _currency = currency;
     _seniority = seniority;
@@ -151,10 +150,12 @@ public final class CreditCurveIdentifier implements UniqueIdentifiable, ObjectId
 
 
   /**
+   * @deprecated
    * Gets the term;
    *
    * @return the term
    */
+  @Deprecated
   public String getTerm() {
     return _term;
   }
