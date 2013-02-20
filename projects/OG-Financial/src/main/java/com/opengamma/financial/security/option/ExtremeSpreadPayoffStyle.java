@@ -206,7 +206,7 @@ public class ExtremeSpreadPayoffStyle extends PayoffStyle {
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "periodEnd",
         "reverse");
 
