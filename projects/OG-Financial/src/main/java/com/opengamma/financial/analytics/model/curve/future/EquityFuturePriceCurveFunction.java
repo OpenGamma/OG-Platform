@@ -94,7 +94,7 @@ public class EquityFuturePriceCurveFunction extends FuturePriceCurveFunction {
   @Override
   protected Double getTimeToMaturity(int n, LocalDate date, Calendar calendar) {
     //TODO: Need to check for specific expiry rule from instrument provider
-    return Double.valueOf(TimeCalculator.getTimeBetween(date, FutureOptionExpiries.EQUITY.getEquityFutureExpiry(n, date)));
+    return Double.valueOf(TimeCalculator.getTimeBetween(date, FutureOptionExpiries.EQUITY.getOneChicagoEquityFutureExpiry(n, date)));
   }
 
   @Override

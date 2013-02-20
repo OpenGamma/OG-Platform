@@ -5,13 +5,15 @@
  */
 package com.opengamma.financial.analytics.model;
 
-import org.apache.commons.lang.Validate;
 import org.threeten.bp.DayOfWeek;
 import org.threeten.bp.LocalDate;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.analytics.ircurve.NextExpiryAdjuster;
+import com.opengamma.financial.convention.frequency.Frequency;
+import com.opengamma.financial.convention.frequency.PeriodFrequency;
+import com.opengamma.util.ArgumentChecker;
 
 //FIXME: Take account of holidays
 
@@ -20,6 +22,8 @@ import com.opengamma.financial.analytics.ircurve.NextExpiryAdjuster;
  *  For IR Options use: TemporalAdjusters.dayOfWeekInMonth(3, DayOfWeek.WEDNESDAY), new NextExpiryAdjuster()
  *  For Equity Options use: new SaturdayAfterThirdFridayAdjuster(), new NextEquityExpiryAdjuster()
  */
+//TODO there is far too much hard-coding of assumptions (e.g. when to switch from serial to quarterly in this class.
+// Add information to the surface instrument provider, not in here
 public final class FutureOptionExpiries {
 
   /** Instance of {@code FutureOptionExpiries} used for Interest Rate Future Options. (Expiries on 3rd Wednesdays) */
@@ -38,7 +42,7 @@ public final class FutureOptionExpiries {
    * @param nextExpiryAdjuster Examples: NextExpiryAdjuster, NextExpiryAdjuster
    */
   private FutureOptionExpiries(final NextExpiryAdjuster nextExpiryAdjuster) {
-    Validate.notNull(nextExpiryAdjuster, "nextExpiryAdjuster was null. Example: NextExpiryAdjuster");
+    ArgumentChecker.notNull(nextExpiryAdjuster, "nextExpiryAdjuster was null. Example: NextExpiryAdjuster");
     _nextExpiryAdjuster = nextExpiryAdjuster;
   }
 
@@ -49,7 +53,7 @@ public final class FutureOptionExpiries {
    * @return the FutureOptionExpiries class, never null
    */
   public static FutureOptionExpiries of(final NextExpiryAdjuster nextExpiryAdjuster) {
-    Validate.notNull(nextExpiryAdjuster, "nextExpiryAdjuster was null. Example: NextExpiryAdjuster");
+    ArgumentChecker.notNull(nextExpiryAdjuster, "nextExpiryAdjuster was null. Example: NextExpiryAdjuster");
     return new FutureOptionExpiries(nextExpiryAdjuster);
   }
 
@@ -94,8 +98,16 @@ public final class FutureOptionExpiries {
     return TimeCalculator.getTimeBetween(today, previousMonday);
   }
 
+  /**
+   * @deprecated Hard-codes in assumptions about which expiries to look for
+   * Gets monthly expiries for the first six months, then switch to quarterly
+   * @param nthFuture nth future
+   * @param valDate The date from which to start
+   * @return the expiry date of the nth option
+   */
+  @Deprecated
   public LocalDate getFutureOptionExpiry(final int nthFuture, final LocalDate valDate) {
-    Validate.isTrue(nthFuture > 0, "nthFuture must be greater than 0.");
+    ArgumentChecker.isTrue(nthFuture > 0, "nthFuture must be greater than 0.");
     if (nthFuture <= 6) { // We look for expiries in the first 6 serial months after curveDate
       return getMonthlyExpiry(nthFuture, valDate);
     }
@@ -106,6 +118,7 @@ public final class FutureOptionExpiries {
   }
 
   /**
+   * @deprecated Hard-codes in assumptions about which expiries to look for
    * Get monthly expiries for the first 6 expires then look for January yearly ones
    * CME options seem to follow no clear pattern some switch to yearly after 4 monthly options and some have 8 or more
    * pick a value in the middle so hopefully we get a reasonable number of valid expires for all options
@@ -113,8 +126,9 @@ public final class FutureOptionExpiries {
    * @param valDate date to start from
    * @return expiry the expiry date of the nth option
    */
-  public LocalDate getEquityFutureOptionExpiry(final int nthFuture, final LocalDate valDate) {
-    Validate.isTrue(nthFuture > 0, "nthFuture must be greater than 0.");
+  @Deprecated
+  public LocalDate getCMEEquityFutureOptionExpiry(final int nthFuture, final LocalDate valDate) {
+    ArgumentChecker.isTrue(nthFuture > 0, "nthFuture must be greater than 0.");
     if (nthFuture <= 6) { // We look for expiries in the first 6 serial months after curveDate
       return getMonthlyExpiry(nthFuture, valDate);
     }
@@ -125,6 +139,7 @@ public final class FutureOptionExpiries {
   }
 
   /**
+   * @deprecated Hard-codes in assumptions about which expiries to look for.
    * Get n'th future expiry.
    * Only supports One Chicago equity futures. 2 serial months and 2 quarterly
    * http://www.onechicago.com/?page_id=22
@@ -132,8 +147,9 @@ public final class FutureOptionExpiries {
    * @param valDate date to start from
    * @return expiry the expiry date of the nth option
    */
-  public LocalDate getEquityFutureExpiry(final int nthFuture, final LocalDate valDate) {
-    Validate.isTrue(nthFuture > 0, "nthFuture must be greater than 0.");
+  @Deprecated
+  public LocalDate getOneChicagoEquityFutureExpiry(final int nthFuture, final LocalDate valDate) {
+    ArgumentChecker.isTrue(nthFuture > 0, "nthFuture must be greater than 0.");
     if (nthFuture > 4) {
       throw new OpenGammaRuntimeException("Can only have max 4 futures");
     }
@@ -146,23 +162,59 @@ public final class FutureOptionExpiries {
     return getQuarterlyExpiry(nQuarterlyLeft, twoMonthsForward);
   }
 
-  public LocalDate getMonthlyExpiry(final int nthMonth, final LocalDate valDate) {
-    Validate.isTrue(nthMonth > 0, "nthFuture must be greater than 0.");
-    LocalDate expiry = valDate.with(_nextExpiryAdjuster.getDayOfMonthAdjuster()); // Compute the expiry of valuationDate's month
-    if (!expiry.isAfter(valDate)) { // If it is not strictly after valuationDate...
-      expiry = (valDate.plusMonths(1)).with(_nextExpiryAdjuster.getDayOfMonthAdjuster());  // nextExpiry is third Wednesday of next month
+  /**
+   * Given a frequency, returns the nth expiry from the date according to the expiry rule. Only handles monthly and quarterly expiries at the moment.
+   * @param nthExpiry The nth expiry, greater than zero
+   * @param date The date, not null
+   * @param frequency The frequency, not null
+   * @return The expiry date
+   * @throws IllegalArgumentException If the frequency is not monthly or quarterly
+   */
+  public LocalDate getExpiry(final int nthExpiry, final LocalDate date, final Frequency frequency) {
+    ArgumentChecker.notNegativeOrZero(nthExpiry, "nth expiry");
+    ArgumentChecker.notNull(date, "date");
+    ArgumentChecker.notNull(frequency, "frequency");
+    final String periodFrequencyName = PeriodFrequency.convertToPeriodFrequency(frequency).getConventionName();
+    switch(periodFrequencyName) {
+      case Frequency.MONTHLY_NAME:
+        return getMonthlyExpiry(nthExpiry, date);
+      case Frequency.QUARTERLY_NAME:
+        return getQuarterlyExpiry(nthExpiry, date);
+      default:
+        throw new IllegalArgumentException("Could not handle frequency type " + frequency);
     }
-    if (nthMonth > 1) {
-      expiry = (expiry.plusMonths(nthMonth - 1)).with(_nextExpiryAdjuster.getDayOfMonthAdjuster());
+  }
+
+  /**
+   * Given the expiry rule, returns the expiry date of the nth month.
+   * @param nthExpiry The nth expiry, greater than zero
+   * @param date The date, not null
+   * @return The expiry date of the nth monthly instrument
+   */
+  public LocalDate getMonthlyExpiry(final int nthExpiry, final LocalDate date) {
+    ArgumentChecker.notNegativeOrZero(nthExpiry, "nth expiry");
+    ArgumentChecker.notNull(date, "date");
+    LocalDate expiry = date.with(_nextExpiryAdjuster.getDayOfMonthAdjuster()); // Compute the expiry of valuationDate's month
+    if (!expiry.isAfter(date)) { // If it is not strictly after valuationDate...
+      expiry = (date.plusMonths(1)).with(_nextExpiryAdjuster.getDayOfMonthAdjuster());
+    }
+    if (nthExpiry > 1) {
+      expiry = (expiry.plusMonths(nthExpiry - 1)).with(_nextExpiryAdjuster.getDayOfMonthAdjuster());
     }
     return expiry;
   }
 
-
-  public LocalDate getQuarterlyExpiry(final int nthFuture, final LocalDate valDate) {
-    Validate.isTrue(nthFuture > 0, "nthFuture must be greater than 0.");
-    LocalDate expiry = valDate.with(_nextExpiryAdjuster);
-    for (int i = 1; i < nthFuture; i++) {
+  /**
+   * Given the expiry rule, returns the expiry date of the nth quarter.
+   * @param nthExpiry The nth expiry, greater than zero
+   * @param date The date, not null
+   * @return The expiry date of the nth quarterly instrument
+   */
+  public LocalDate getQuarterlyExpiry(final int nthExpiry, final LocalDate date) {
+    ArgumentChecker.notNegativeOrZero(nthExpiry, "nth expiry");
+    ArgumentChecker.notNull(date, "date");
+    LocalDate expiry = date.with(_nextExpiryAdjuster);
+    for (int i = 1; i < nthExpiry; i++) {
       expiry = (expiry.plusDays(7)).with(_nextExpiryAdjuster);
     }
     return expiry;

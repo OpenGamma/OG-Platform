@@ -41,18 +41,18 @@ public class BloombergEquityFuturePriceCurveInstrumentProviderTest extends Finan
 
   @Test
   public void testExpiryMonth() {
-    assertEquals(Month.FEBRUARY, EXPIRY_CALC.getEquityFutureExpiry(1, DATE).getMonth());
-    assertEquals(Month.MARCH, EXPIRY_CALC.getEquityFutureExpiry(2, DATE).getMonth());
-    assertEquals(Month.JUNE, EXPIRY_CALC.getEquityFutureExpiry(3, DATE).getMonth());
-    assertEquals(Month.SEPTEMBER, EXPIRY_CALC.getEquityFutureExpiry(4, DATE).getMonth());
+    assertEquals(Month.FEBRUARY, EXPIRY_CALC.getOneChicagoEquityFutureExpiry(1, DATE).getMonth());
+    assertEquals(Month.MARCH, EXPIRY_CALC.getOneChicagoEquityFutureExpiry(2, DATE).getMonth());
+    assertEquals(Month.JUNE, EXPIRY_CALC.getOneChicagoEquityFutureExpiry(3, DATE).getMonth());
+    assertEquals(Month.SEPTEMBER, EXPIRY_CALC.getOneChicagoEquityFutureExpiry(4, DATE).getMonth());
   }
 
   @Test
   public void testExpiryDate() {
-    assertEquals(LocalDate.of(2013, 2, 15), EXPIRY_CALC.getEquityFutureExpiry(1, DATE));
-    assertEquals(LocalDate.of(2013, 3, 15), EXPIRY_CALC.getEquityFutureExpiry(2, DATE));
-    assertEquals(LocalDate.of(2013, 6, 21), EXPIRY_CALC.getEquityFutureExpiry(3, DATE));
-    assertEquals(LocalDate.of(2013, 9, 20), EXPIRY_CALC.getEquityFutureExpiry(4, DATE));
+    assertEquals(LocalDate.of(2013, 2, 15), EXPIRY_CALC.getOneChicagoEquityFutureExpiry(1, DATE));
+    assertEquals(LocalDate.of(2013, 3, 15), EXPIRY_CALC.getOneChicagoEquityFutureExpiry(2, DATE));
+    assertEquals(LocalDate.of(2013, 6, 21), EXPIRY_CALC.getOneChicagoEquityFutureExpiry(3, DATE));
+    assertEquals(LocalDate.of(2013, 9, 20), EXPIRY_CALC.getOneChicagoEquityFutureExpiry(4, DATE));
   }
 
   @Test

@@ -39,7 +39,7 @@ public class BloombergEquityIndexFutureOptionVolatilitySurfaceInstrumentProvider
     message.add(DATA_FIELD_NAME, object.getDataFieldName());
     message.add(CALL_FIELD_NAME, object.useCallAboveStrike());
     message.add(EXCHANGE_ID_FIELD_NAME, object.getExchangeIdName());
-    message.add(TICKER_SCHEME_NAME, object.getSchemeName());
+    message.add(TICKER_SCHEME_NAME, object.getTickerSchemeName());
     return message;
   }
 
