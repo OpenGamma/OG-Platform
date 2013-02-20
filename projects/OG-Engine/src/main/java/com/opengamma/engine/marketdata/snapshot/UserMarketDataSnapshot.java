@@ -17,6 +17,7 @@ import org.threeten.bp.Instant;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.core.marketdatasnapshot.MarketDataValueSpecification;
+import com.opengamma.core.marketdatasnapshot.MarketDataValueType;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.marketdatasnapshot.StructuredMarketDataKey;
 import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
@@ -334,8 +335,12 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot implement
       return null;
     }
     final ExternalIdBundle identifiers = _identifierLookup.getExternalIds(requirement.getTargetReference());
+    MarketDataValueType type = MarketDataUtils.getMarketDataValueType(requirement.getTargetReference().getType());
+    if(type == null){
+      return null;
+    }
     for (ExternalId identifier : identifiers) {
-      MarketDataValueSpecification marketDataValueSpecification = new MarketDataValueSpecification(MarketDataUtils.getMarketDataValueType(requirement.getTargetReference().getType()), identifier);
+      MarketDataValueSpecification marketDataValueSpecification = new MarketDataValueSpecification(type, identifier);
       Map<String, ValueSnapshot> map = globalValues.getValues().get(marketDataValueSpecification);
       if (map != null) {
         ValueSnapshot valueSnapshot = map.get(requirement.getValueName());
