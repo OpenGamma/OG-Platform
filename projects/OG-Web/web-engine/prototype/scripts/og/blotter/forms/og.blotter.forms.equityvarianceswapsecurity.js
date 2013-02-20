@@ -13,7 +13,7 @@ $.register_module({
                 attributes: {}}, trade: og.blotter.util.otc_trade};}
             data.nodeId = config.portfolio.id;
             constructor.load = function () {
-                constructor.title = 'Equity Varience Swap';
+                constructor.title = 'Equity Variance Swap';
                 form = new og.common.util.ui.Form({
                     module: 'og.blotter.forms.simple_tash',
                     selector: '.OG-blotter-form-block',
@@ -57,10 +57,8 @@ $.register_module({
                 );
                 form.dom();
                 form.on('form:load', function (){
-                    og.blotter.util.add_datetimepicker("security.settlementDate");
-                    og.blotter.util.add_datetimepicker("security.lastObservationDate");
-                    og.blotter.util.add_datetimepicker("security.firstObservationDate");
-                    og.blotter.util.add_datetimepicker("trade.tradeDate");
+                    og.blotter.util.add_date_picker('.blotter-date');
+                    og.blotter.util.add_time_picker('.blotter-time');
                     if(data.security.length) return;
                     og.blotter.util.set_select("security.currency", data.security.currency);
                     og.blotter.util.check_checkbox("security.parameterizedAsVariance",
