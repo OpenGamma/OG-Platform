@@ -23,14 +23,12 @@ import com.opengamma.engine.function.config.RepositoryConfigurationSource;
 import com.opengamma.financial.analytics.CurrencyPairsDefaults;
 import com.opengamma.financial.analytics.model.bond.BondFunctions;
 import com.opengamma.financial.analytics.model.bondfutureoption.BondFutureOptionFunctions;
-import com.opengamma.financial.analytics.model.commodity.CommodityForwardCurveFromFuturePerCurrencyDefaults;
 import com.opengamma.financial.analytics.model.credit.CreditFunctions;
-import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardFunctions;
 import com.opengamma.financial.analytics.model.curve.interestrate.InterestRateFunctions;
-import com.opengamma.financial.analytics.model.equity.EquityForwardCurveYieldCurveImpliedPerCurrencyDefaults;
 import com.opengamma.financial.analytics.model.equity.EquityForwardCurvePerExchangeDefaults;
 import com.opengamma.financial.analytics.model.equity.EquityForwardCurvePerTickerDefaults;
+import com.opengamma.financial.analytics.model.equity.EquityForwardCurveYieldCurveImpliedPerCurrencyDefaults;
 import com.opengamma.financial.analytics.model.equity.futures.EquityDividendYieldPricingDefaults;
 import com.opengamma.financial.analytics.model.equity.option.EquityOptionInterpolatedBlackLognormalPerCurrencyDefaults;
 import com.opengamma.financial.analytics.model.equity.option.EquityOptionInterpolatedBlackLognormalPerEquityDefaults;
@@ -51,9 +49,6 @@ import com.opengamma.financial.analytics.model.pnl.PNLFunctions;
 import com.opengamma.financial.analytics.model.sensitivities.SensitivitiesFunctions;
 import com.opengamma.financial.analytics.model.var.VaRFunctions;
 import com.opengamma.financial.analytics.model.volatility.local.defaultproperties.LocalVolatilitySurfaceDefaults;
-import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.BlackVolatilitySurfaceMixedLogNormalDefaults;
-import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.BlackVolatilitySurfaceSABRDefaults;
-import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.BlackVolatilitySurfaceSplineDefaults;
 import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.CommodityBlackVolatilitySurfacePrimitiveDefaults;
 import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.CommodityBlackVolatilitySurfaceSecurityDefaults;
 import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.CommodityBlackVolatilitySurfaceTradeDefaults;
@@ -71,7 +66,6 @@ import com.opengamma.util.SingletonFactoryBean;
 import com.opengamma.util.functional.Function1;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.spring.defaults.EquityInstrumentDefaultValues;
-import com.opengamma.web.spring.defaults.GeneralBlackVolatilityInterpolationDefaults;
 import com.opengamma.web.spring.defaults.GeneralLocalVolatilitySurfaceDefaults;
 import com.opengamma.web.spring.defaults.TargetSpecificBlackVolatilitySurfaceDefaults;
 
@@ -169,23 +163,23 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
     public void setForwardCurveName(final String key, final String forwardCurveName) {
       _forwardCurveName.set(key, forwardCurveName);
     }
-    
+
     public String getForwardCurveName(final String key) {
       return _forwardCurveName.get(key);
     }
-    
+
     public void setForwardCurveCalculationMethod(final String key, final String forwardCurveCalculationMethod) {
       _forwardCurveCalculationMethod.set(key, forwardCurveCalculationMethod);
     }
-    
+
     public String getForwardCurveCalculationMethod(final String key) {
       return _forwardCurveCalculationMethod.get(key);
     }
-    
+
     public void setSurfaceCalculationMethod(final String key, final String surfaceCalculationMethod) {
       _surfaceCalculationMethod.set(key, surfaceCalculationMethod);
     }
-    
+
     public String getSurfaceCalculationMethod(final String key) {
       return _surfaceCalculationMethod.get(key);
     }
@@ -602,15 +596,6 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
 
   }
 
-  protected void addBlackVolatilitySurfaceDefaults(final List<FunctionConfiguration> functionConfigs) {
-    functionConfigs.add(new ParameterizedFunctionConfiguration(BlackVolatilitySurfaceSABRDefaults.class.getName(),
-        GeneralBlackVolatilityInterpolationDefaults.getSABRInterpolationDefaults()));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(BlackVolatilitySurfaceMixedLogNormalDefaults.class.getName(),
-        GeneralBlackVolatilityInterpolationDefaults.getMixedLogNormalInterpolationDefaults()));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(BlackVolatilitySurfaceSplineDefaults.class.getName(),
-        GeneralBlackVolatilityInterpolationDefaults.getSplineInterpolationDefaults()));
-  }
-
   protected void addCommodityBlackVolatilitySurfaceDefaults(final List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(new ParameterizedFunctionConfiguration(CommodityBlackVolatilitySurfacePrimitiveDefaults.class.getName(),
         TargetSpecificBlackVolatilitySurfaceDefaults.getAllCommodityDefaults()));
@@ -770,10 +755,9 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
     functionConfigs.add(new ParameterizedFunctionConfiguration(LocalVolatilitySurfaceDefaults.class.getName(),
         GeneralLocalVolatilitySurfaceDefaults.getLocalVolatilitySurfaceDefaults()));
   }
-  
+
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
-    addBlackVolatilitySurfaceDefaults(functions);
     addCommodityBlackVolatilitySurfaceDefaults(functions);
     addCurrencyConversionFunctions(functions);
     addEquityDividendYieldFuturesDefaults(functions);
@@ -1230,15 +1214,21 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
   protected void setVolatilitySurfaceDefaults(final com.opengamma.financial.analytics.model.volatility.surface.SurfaceFunctions.Defaults defaults) {
   }
 
+  protected void setVolatilitySurfaceBlackDefaults(final com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.DefaultPropertiesFunctions defaults) {
+  }
+
   protected void setVolatilitySurfaceDefaults(final com.opengamma.financial.analytics.volatility.surface.SurfaceFunctions.Defaults defaults) {
   }
 
   protected RepositoryConfigurationSource volatilitySurfaceFunctions() {
     final com.opengamma.financial.analytics.model.volatility.surface.SurfaceFunctions.Defaults d1 = new com.opengamma.financial.analytics.model.volatility.surface.SurfaceFunctions.Defaults();
     setVolatilitySurfaceDefaults(d1);
-    final com.opengamma.financial.analytics.volatility.surface.SurfaceFunctions.Defaults d2 = new com.opengamma.financial.analytics.volatility.surface.SurfaceFunctions.Defaults();
-    setVolatilitySurfaceDefaults(d2);
-    return CombiningRepositoryConfigurationSource.of(getRepository(d1), getRepository(d2));
+    final com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.DefaultPropertiesFunctions d2 =
+        new com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.DefaultPropertiesFunctions();
+    setVolatilitySurfaceBlackDefaults(d2);
+    final com.opengamma.financial.analytics.volatility.surface.SurfaceFunctions.Defaults d3 = new com.opengamma.financial.analytics.volatility.surface.SurfaceFunctions.Defaults();
+    setVolatilitySurfaceDefaults(d3);
+    return CombiningRepositoryConfigurationSource.of(getRepository(d1), getRepository(d2), getRepository(d3));
   }
 
   @Override

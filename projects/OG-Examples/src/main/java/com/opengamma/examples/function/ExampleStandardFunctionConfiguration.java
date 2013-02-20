@@ -96,6 +96,7 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
   protected CurrencyPairInfo usdEurCurrencyPairInfo() {
     final CurrencyPairInfo i = super.usdEurCurrencyPairInfo();
     i.setCurveName(null, "DiscountingImplied");
+    i.setSurfaceName(null, "SECONDARY");
     return i;
   }
 
@@ -214,6 +215,5 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
     defaults.setPayCurveName("SECONDARY");
     defaults.setReceiveCurveName("SECONDARY");
   }
-
 
 }
