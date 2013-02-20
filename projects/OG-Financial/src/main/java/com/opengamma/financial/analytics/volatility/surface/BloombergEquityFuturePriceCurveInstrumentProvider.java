@@ -111,7 +111,7 @@ public class BloombergEquityFuturePriceCurveInstrumentProvider implements Future
     if (expiryRule == null) {
       expiryRule = EXPIRY_RULES.get("DEFAULT");
     }
-    final LocalDate expiryDate = expiryRule.getEquityFutureExpiry(futureNumber.intValue(), curveDate);
+    final LocalDate expiryDate = expiryRule.getOneChicagoEquityFutureExpiry(futureNumber.intValue(), curveDate);
     final String expiryCode = BloombergFutureUtils.getShortExpiryCode(expiryDate);
     ticker.append(expiryCode);
     ticker.append(" ");

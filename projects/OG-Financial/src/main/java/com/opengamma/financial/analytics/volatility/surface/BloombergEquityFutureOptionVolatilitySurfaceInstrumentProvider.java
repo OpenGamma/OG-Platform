@@ -96,7 +96,7 @@ public class BloombergEquityFutureOptionVolatilitySurfaceInstrumentProvider exte
       //throw new OpenGammaRuntimeException("No expiry rule has been setup for " + prefix + ". Determine week and day pattern and add to EXPIRY_RULES.");
       expiryRule = EXPIRY_RULES.get("DEFAULT");
     }
-    final LocalDate expiry = expiryRule.getEquityFutureOptionExpiry(futureOptionNumber.intValue(), surfaceDate);
+    final LocalDate expiry = expiryRule.getCMEEquityFutureOptionExpiry(futureOptionNumber.intValue(), surfaceDate);
     ticker.append(FORMAT.print(expiry));
     ticker.append(" ");
     ticker.append(strike > useCallAboveStrike() ? "C" : "P");
