@@ -55,9 +55,8 @@ $.register_module({
                 );
                 form.dom();
                 form.on('form:load', function (){
-                    og.blotter.util.add_datetimepicker("security.startDate");
-                    og.blotter.util.add_datetimepicker("security.maturityDate");
-                    og.blotter.util.add_datetimepicker("trade.tradeDate");
+                    og.blotter.util.add_date_picker('.blotter-date');
+                    og.blotter.util.add_time_picker('.blotter-time');
                     if(data.security.length) return;
                     og.blotter.util.set_select("security.currency", data.security.currency);
                     og.blotter.util.check_radio("security.cap", data.security.cap);
