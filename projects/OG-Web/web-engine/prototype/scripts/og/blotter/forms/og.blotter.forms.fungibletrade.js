@@ -40,7 +40,8 @@ $.register_module({
                 );
                 form.dom();
                 form.on('form:load', function () {
-                    og.blotter.util.add_datetimepicker("trade.tradeDate");
+                    og.blotter.util.add_date_picker('.blotter-date');
+                    og.blotter.util.add_time_picker('.blotter-time');
                     get_security();
                 });
                 form.on('form:submit', function (result) {
