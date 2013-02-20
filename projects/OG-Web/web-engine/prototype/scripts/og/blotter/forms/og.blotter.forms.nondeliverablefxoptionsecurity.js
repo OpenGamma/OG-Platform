@@ -56,9 +56,8 @@ $.register_module({
                 );
                 form.dom();
                 form.on('form:load', function (){
-                    og.blotter.util.add_datetimepicker("security.expiry");
-                    og.blotter.util.add_datetimepicker("security.settlementDate");
-                    og.blotter.util.add_datetimepicker("trade.tradeDate");
+                    og.blotter.util.add_date_picker('.blotter-date');
+                    og.blotter.util.add_time_picker('.blotter-time');
                     if(data.security.length) return;
                     og.blotter.util.set_select("security.putCurrency", data.security.putCurrency);
                     og.blotter.util.set_select("security.callCurrency", data.security.callCurrency);

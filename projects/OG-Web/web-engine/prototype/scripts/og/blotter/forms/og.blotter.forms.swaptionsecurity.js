@@ -78,12 +78,8 @@ $.register_module({
                 form.on('form:load', function (){
                     $pay_select = $('#' + pay_select.id);
                     $receive_select = $('#' + receive_select.id);
-                    og.blotter.util.add_datetimepicker("underlying.tradeDate");
-                    og.blotter.util.add_datetimepicker("underlying.effectiveDate");
-                    og.blotter.util.add_datetimepicker("underlying.maturityDate");
-                    og.blotter.util.add_datetimepicker("security.settlementDate");
-                    og.blotter.util.add_datetimepicker("trade.tradeDate");
-                    og.blotter.util.add_datetimepicker("security.expiry");
+                    og.blotter.util.add_date_picker('.blotter-date');
+                    og.blotter.util.add_time_picker('.blotter-time');
                     og.blotter.util.set_select("security.currency", data.security.currency);
                     og.blotter.util.check_radio("security.payer", data.security.payer);
                     og.blotter.util.check_radio("security.cashSettled", data.security.cashSettled);
