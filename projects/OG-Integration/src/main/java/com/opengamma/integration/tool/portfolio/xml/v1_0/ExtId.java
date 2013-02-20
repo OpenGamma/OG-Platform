@@ -17,7 +17,7 @@ public class ExtId {
   /**
    * The scheme for this external id.
    */
-  @XmlAttribute(name = "scheme")
+  @XmlAttribute(name = "scheme", required = true)
   private String _scheme;
 
   /**

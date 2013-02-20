@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
@@ -200,12 +202,33 @@ public class PortfolioConverter {
       ExerciseType exerciseType = fxOptionTrade.getExerciseType() == FxOptionTrade.ExerciseType.American ?
           new AmericanExerciseType() : new EuropeanExerciseType();
 
-      return fxOptionTrade.getSettlementType() == FxOptionTrade.SettlementType.Physical ?
+      ManageableSecurity security = fxOptionTrade.getSettlementType() == FxOptionTrade.SettlementType.Physical ?
           new FXOptionSecurity(putCurrency, callCurrency, putAmount.doubleValue(), callAmount.doubleValue(),
                                expiry, settlementDate, isLong, exerciseType) :
-          new NonDeliverableFXOptionSecurity(putCurrency, callCurrency, putAmount.doubleValue(), callAmount.doubleValue(),
-                               expiry, settlementDate, isLong, exerciseType,
-                               fxOptionTrade.getSettlementCurrency().equals(callCurrency.getCode()));
+          new NonDeliverableFXOptionSecurity(putCurrency,
+                                             callCurrency,
+                                             putAmount.doubleValue(),
+                                             callAmount.doubleValue(),
+                                             expiry,
+                                             settlementDate,
+                                             isLong,
+                                             exerciseType,
+                                             fxOptionTrade.getSettlementCurrency().equals(callCurrency.getCode()));
+
+      // Generate the loader SECURITY_ID (should be uniquely identifying)
+      security.addExternalId(ExternalId.of("XML_LOADER", Integer.toHexString(
+          new HashCodeBuilder()
+              .append(security.getClass())
+              .append(isLong)
+              .append(callCurrency)
+              .append(callAmount)
+              .append(putCurrency)
+              .append(putAmount)
+              .append(expiry)
+              .append(exerciseType).toHashCode()
+      )));
+
+      return security;
 
     } else {
       throw new OpenGammaRuntimeException("Option currency: [" + optionCurrency +
@@ -228,16 +251,29 @@ public class PortfolioConverter {
       throw new OpenGammaRuntimeException("One leg should be Pay and one Receive");
     }
 
-    return new SwapSecurity(convertLocalDate(swapTrade),
-                                             swapTrade.getEffectiveDate().atStartOfDay(ZoneOffset.UTC),
-                                             swapTrade.getMaturityDate().atStartOfDay(ZoneOffset.UTC),
-                                             swapTrade.getCounterparty().getExternalId().getId(),
-                                             payLeg,
-                                             receiveLeg);
+    SwapSecurity security = new SwapSecurity(convertLocalDate(swapTrade.getTradeDate()),
+                                             convertLocalDate(swapTrade.getEffectiveDate()),
+                                             convertLocalDate(swapTrade.getMaturityDate()),
+                                                 swapTrade.getCounterparty().getExternalId().getId(),
+                                                 payLeg,
+                                                 receiveLeg);
+
+    // Generate the loader SECURITY_ID (should be uniquely identifying)
+    security.addExternalId(ExternalId.of("XML_LOADER", Integer.toHexString(
+        new HashCodeBuilder()
+            .append(security.getClass())
+            .append(swapTrade.getTradeDate())
+            .append(swapTrade.getEffectiveDate())
+            .append(swapTrade.getMaturityDate())
+            .append(floatingLeg.getFixingIndex())
+            .append(fixedLeg.getRate())
+            .toHashCode())));
+
+    return security;
   }
 
-  private ZonedDateTime convertLocalDate(SwapTrade swapTrade) {
-    return swapTrade.getTradeDate().atStartOfDay(ZoneOffset.UTC);
+  private ZonedDateTime convertLocalDate(LocalDate date) {
+    return date.atStartOfDay(ZoneOffset.UTC);
   }
 
   private PortfolioPosition createPortfolioPosition(Position position,
@@ -337,7 +373,12 @@ public class PortfolioConverter {
     BusinessDayConvention businessDayConvention =
         BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention(fixedLeg.getBusinessDayConvention());
     boolean isEndOfMonth = fixedLeg.isEndOfMonth();
-    return new FixedInterestRateLeg(dayCount, frequency, region, businessDayConvention, notional, isEndOfMonth, fixedLeg.getRate().doubleValue());
+    return new FixedInterestRateLeg(dayCount, frequency, region, businessDayConvention, notional, isEndOfMonth,
+                                    convertRate(fixedLeg.getRate()));
+  }
+
+  private double convertRate(BigDecimal rate) {
+    return rate.divide(new BigDecimal(100)).doubleValue();
   }
 
   private Set<String> extractCalendarRegions(Set<Calendar> calendars) {

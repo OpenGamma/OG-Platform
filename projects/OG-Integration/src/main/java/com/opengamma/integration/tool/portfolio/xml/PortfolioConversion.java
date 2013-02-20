@@ -14,12 +14,12 @@ import com.sun.xml.internal.bind.IDResolver;
 
 public abstract class PortfolioConversion {
 
-  public static final String SCHEMA_LOCATION = "src/main/resources/portfolio-schemas";
+  public static final String SCHEMA_LOCATION = "portfolio-schemas";
 
   private final Class _portfolioDocumentClass;
   private final PortfolioDocumentConverter _portfolioConverter;
   private final IdRefResolverFactory _idRefResolverFactory;
-  private final FilesystemPortfolioSchemaLocator _schemaLocator = new FilesystemPortfolioSchemaLocator(new File(SCHEMA_LOCATION));
+  private final FilesystemPortfolioSchemaLocator _schemaLocator = new FilesystemPortfolioSchemaLocator(new File(getClass().getClassLoader().getResource(SCHEMA_LOCATION).getFile()));
   private final Schema _schema;
 
   public PortfolioConversion(SchemaVersion schemaVersion,

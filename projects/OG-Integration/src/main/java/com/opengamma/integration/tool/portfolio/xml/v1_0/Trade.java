@@ -19,11 +19,12 @@ import org.threeten.bp.LocalDate;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Trade {
 
-  private IdWrapper externalSystemId;
-
   @XmlAttribute
   @XmlID
   private String _id;
+
+  @XmlElement(name = "externalSystemId", required = true)
+  private IdWrapper _externalSystemId;
 
   @XmlElement(name = "tradeDate")
   private LocalDate _tradeDate;
@@ -36,17 +37,19 @@ public class Trade {
 
   @XmlElement(name = "counterparty")
   private IdWrapper _counterparty;
+
   @XmlElement(name = "premium")
   private BigDecimal _premium;
+
   @XmlElement(name = "premiumCurrency")
   private String _premiumCurrency;
 
   public IdWrapper getExternalSystemId() {
-    return externalSystemId;
+    return _externalSystemId;
   }
 
   public void setExternalSystemId(IdWrapper externalSystemId) {
-    this.externalSystemId = externalSystemId;
+    this._externalSystemId = externalSystemId;
   }
 
   public LocalDate getTradeDate() {

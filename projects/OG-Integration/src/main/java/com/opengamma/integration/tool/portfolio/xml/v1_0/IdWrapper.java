@@ -7,7 +7,7 @@ import javax.xml.bind.annotation.XmlElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class IdWrapper {
 
-  @XmlElement(name = "id")
+  @XmlElement(name = "id", required = true)
   private ExtId _externalId;
 
   public ExtId getExternalId() {

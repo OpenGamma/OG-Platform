@@ -13,14 +13,22 @@ public class FloatingLeg extends SwapLeg {
 
   public enum ResetType {InAdvance, InArrears}
 
-  private String resetFrequency;
+  public enum StubPeriodCouponAdjustment {LegIndex, AverageOfNearestIndices, ClosestButNotLongerThanLegIndex, ClosestButNotShorterThanLegIndex}
 
-  private String compoundingMethod;
+  @XmlElement(name = "resetFrequency")
+  private String _resetFrequency;
 
-  private String resetLag;
+  @XmlElement(name = "compoundingMethod")
+  private String _compoundingMethod;
+
+  @XmlElement(name = "resetLag")
+  private String _resetLag;
 
   @XmlElement(name = "resetType")
   private ResetType _resetType;
+
+  @XmlElement(name = "stubPeriodCouponAdjustment")
+  private StubPeriodCouponAdjustment _stubPeriodCouponAdjustment;
 
   @XmlElementWrapper(name = "fixingCalendars")
   @XmlElement(name = "calendar")
@@ -31,7 +39,8 @@ public class FloatingLeg extends SwapLeg {
   @XmlElement(name = "spread")
   private BigDecimal _spread;
 
-  private BigDecimal gearing;
+  @XmlElement(name = "gearing")
+  private BigDecimal _gearing;
 
 /*  <resetFrequency></resetFrequency>
   <!-- not supported at the moment as frequencies must match -->
@@ -49,27 +58,27 @@ public class FloatingLeg extends SwapLeg {
   </fixingIndex>*/
 
   public String getResetFrequency() {
-    return resetFrequency;
+    return _resetFrequency;
   }
 
   public void setResetFrequency(String resetFrequency) {
-    this.resetFrequency = resetFrequency;
+    this._resetFrequency = resetFrequency;
   }
 
   public String getCompoundingMethod() {
-    return compoundingMethod;
+    return _compoundingMethod;
   }
 
   public void setCompoundingMethod(String compoundingMethod) {
-    this.compoundingMethod = compoundingMethod;
+    this._compoundingMethod = compoundingMethod;
   }
 
   public String getResetLag() {
-    return resetLag;
+    return _resetLag;
   }
 
   public void setResetLag(String resetLag) {
-    this.resetLag = resetLag;
+    this._resetLag = resetLag;
   }
 
   public ResetType getResetType() {
@@ -78,6 +87,14 @@ public class FloatingLeg extends SwapLeg {
 
   public void setResetType(ResetType resetType) {
     _resetType = resetType;
+  }
+
+  public StubPeriodCouponAdjustment getStubPeriodCouponAdjustment() {
+    return _stubPeriodCouponAdjustment;
+  }
+
+  public void setStubPeriodCouponAdjustment(StubPeriodCouponAdjustment stubPeriodCouponAdjustment) {
+    _stubPeriodCouponAdjustment = stubPeriodCouponAdjustment;
   }
 
   public Set<Calendar> getFixingCalendars() {
@@ -105,10 +122,10 @@ public class FloatingLeg extends SwapLeg {
   }
 
   public BigDecimal getGearing() {
-    return gearing;
+    return _gearing;
   }
 
   public void setGearing(BigDecimal gearing) {
-    this.gearing = gearing;
+    this._gearing = gearing;
   }
 }

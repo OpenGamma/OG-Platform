@@ -10,7 +10,6 @@
       <tradeDate>2013-01-20</tradeDate>
       <maturityDate>2018-01-31</maturityDate>
       <counterparty><id scheme="Cpty">GOLDMAN</id></counterparty>
-      <effectiveDate>2013-02-01</effectiveDate>
 
 <!--      &lt;!&ndash;optional&ndash;&gt;
       <isCleared>false</isCleared>
@@ -31,31 +30,32 @@
       </tradeAttributes>-->
 
 
-        <fixedLeg>
-          <payReceive>Pay</payReceive>
-          <currency>USD</currency>
-          <!-- Notional could be array-valued -->
-          <notional>1000000</notional>
-          <frequency>12m</frequency>
-          <dayCount>Actual/365</dayCount>
-          <interestCalculation>Adjusted</interestCalculation>
-          <businessDayConvention>Modified Following</businessDayConvention>
-          <scheduleGenerationDirection>Backward</scheduleGenerationDirection>
-          <endOfMonth>true</endOfMonth>
-          <isIMM>true</isIMM>
-          <paymentCalendars>
-            <calendar type="Bank"> <!-- default=BANK  -->
-              <id scheme="CountryISO2">FD</id>
-            </calendar>
-            <calendar type="Bank"> <!-- default=BANK  -->
-              <id scheme="CountryISO2">EN</id>
-            </calendar>
-          </paymentCalendars>
-          <stubPeriodType>Long</stubPeriodType>
-          <!-- One of LongCoupon|ShortCoupon - default to ShortCoupon -->
-          <stubPeriodTypeAdjustment>LongCoupon</stubPeriodTypeAdjustment>
-          <rate>105.25</rate>
-        </fixedLeg>
+      <effectiveDate>2013-02-01</effectiveDate>
+
+      <fixedLeg>
+        <payReceive>Pay</payReceive>
+        <currency>USD</currency>
+        <!-- Notional could be array-valued -->
+        <notional>1000000</notional>
+        <frequency>12m</frequency>
+        <dayCount>Actual/365</dayCount>
+        <interestCalculation>Adjusted</interestCalculation>
+        <businessDayConvention>Modified Following</businessDayConvention>
+        <scheduleGenerationDirection>Backward</scheduleGenerationDirection>
+        <endOfMonth>true</endOfMonth>
+        <isIMM>true</isIMM>
+        <paymentCalendars>
+          <calendar type="Bank"> <!-- default=BANK  -->
+            <id scheme="CountryISO2">FD</id>
+          </calendar>
+          <calendar type="Bank"> <!-- default=BANK  -->
+            <id scheme="CountryISO2">EN</id>
+          </calendar>
+        </paymentCalendars>
+        <!-- One of LongCoupon|ShortCoupon - default to ShortCoupon -->
+        <stubPeriodType>ShortCoupon</stubPeriodType>
+        <rate>105.25</rate>
+      </fixedLeg>
 
       <!--type="InterestRate|Inflation"-->
       <floatingLeg >
@@ -90,8 +90,7 @@
         </paymentCalendars>
 
 
-        <stubPeriodType>Long</stubPeriodType>
-        <stubPeriodTypeAdjustment>LongCoupon</stubPeriodTypeAdjustment>
+        <stubPeriodType>LongCoupon</stubPeriodType>
 
         <!-- always short for now -->
         <!-- same as frequency for now -->
@@ -102,6 +101,7 @@
         <resetLag></resetLag>
         <!-- In Advance or In Arrears.  Only support In advance at the mo -->
         <resetType>InAdvance</resetType>
+        <stubPeriodCouponAdjustment>LegIndex</stubPeriodCouponAdjustment>
         <!-- same as payment calendar at the moment -->
         <fixingCalendars></fixingCalendars>
         <fixingIndex>
@@ -114,7 +114,7 @@
         <spread>5.25</spread>
         <gearing>-3</gearing>
 
-        </floatingLeg>
+      </floatingLeg>
 
 
     </swapTrade>
@@ -122,7 +122,7 @@
 
   <positions>
     <position id="p1">
-      <quantity>105</quantity>
+      <quantity>1</quantity>
       <!--<security><id scheme="BLOOMBERG_TICKER">US0003M Curncy</id></security>-->
 
 <!--      <positionAttributes>

@@ -16,10 +16,14 @@ import com.beust.jcommander.internal.Sets;
 import com.sun.org.apache.xml.internal.serialize.OutputFormat;
 import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
 
-public class GenerateSchema {
+/**
+ * Utility class used for generating a schema from a base portfolio document. This can
+ * be used as a starting point for schema creation. The schema will be written to
+ * the standard output stream.
+ */
+public class SchemaGenerator {
 
-  @Test
-  public void generate() throws JAXBException, IOException {
+  public static void main(String[] args) throws JAXBException, IOException {
 
     JAXBContext ctx = JAXBContext.newInstance(PortfolioDocumentV1_0.class);
 
@@ -31,12 +35,9 @@ public class GenerateSchema {
     format.setIndenting(true);
     XMLSerializer serializer = new XMLSerializer(System.out, format);
     serializer.serialize(document);
-
-
-
   }
 
-  private DOMResult extractSchemaResult(JAXBContext ctx) throws IOException {
+  private static DOMResult extractSchemaResult(JAXBContext ctx) throws IOException {
 
     final Set<DOMResult> resultWrapper = Sets.newHashSet();
 

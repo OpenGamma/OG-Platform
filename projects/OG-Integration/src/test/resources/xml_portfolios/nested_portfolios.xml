@@ -36,9 +36,7 @@
             <id scheme="CountryISO2">EN</id>
           </calendar>
         </paymentCalendars>
-        <stubPeriodType>Long</stubPeriodType>
-        <!-- Default to ShortCoupon-->
-        <stubPeriodTypeAdjustment>LongCoupon</stubPeriodTypeAdjustment>
+        <stubPeriodType>LongCoupon</stubPeriodType>
         <rate>105.25</rate>
       </fixedLeg>
 
@@ -73,9 +71,7 @@
           <!-- loader should enforce type=BANK for now and id schemes all the same for now -->
         </paymentCalendars>
 
-        <stubPeriodType>Long</stubPeriodType>
-        <!-- Interpolated - Default to ShortCoupon-->
-        <stubPeriodTypeAdjustment>LongCoupon</stubPeriodTypeAdjustment>
+        <stubPeriodType>LongCoupon</stubPeriodType>
 
         <!-- always short for now -->
         <!-- same as frequency for now -->
@@ -86,6 +82,7 @@
         <resetLag></resetLag>
         <!-- In Advance or In Arrears.  Only support In advance at the mo -->
         <resetType>InAdvance</resetType>
+        <stubPeriodCouponAdjustment>LegIndex</stubPeriodCouponAdjustment>
         <!-- same as payment calendar at the moment -->
         <fixingCalendars></fixingCalendars>
         <fixingIndex>
@@ -133,9 +130,7 @@
             <id scheme="CountryISO2">EN</id>
           </calendar>
         </paymentCalendars>
-        <stubPeriodType>Long</stubPeriodType>
-        <!-- Default to ShortCoupon-->
-        <stubPeriodTypeAdjustment>LongCoupon</stubPeriodTypeAdjustment>
+        <stubPeriodType>LongCoupon</stubPeriodType>
         <rate>105.25</rate>
       </fixedLeg>
 
@@ -170,9 +165,8 @@
           <!-- loader should enforce type=BANK for now and id schemes all the same for now -->
         </paymentCalendars>
 
-        <stubPeriodType>Long</stubPeriodType>
+        <stubPeriodType>LongCoupon</stubPeriodType>
         <!-- Interpolated - Default to ShortCoupon-->
-        <stubPeriodTypeAdjustment>ShortCoupon</stubPeriodTypeAdjustment>
 
         <!-- always short for now -->
         <!-- same as frequency for now -->
@@ -183,6 +177,7 @@
         <resetLag></resetLag>
         <!-- In Advance or In Arrears.  Only support In advance at the mo -->
         <resetType>InAdvance</resetType>
+        <stubPeriodCouponAdjustment>LegIndex</stubPeriodCouponAdjustment>
         <!-- same as payment calendar at the moment -->
         <fixingCalendars></fixingCalendars>
         <fixingIndex>

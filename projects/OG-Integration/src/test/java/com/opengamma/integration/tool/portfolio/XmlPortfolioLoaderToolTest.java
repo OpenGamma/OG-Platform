@@ -9,6 +9,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 
+import javax.xml.xpath.XPathExpressionException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -18,8 +20,10 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
+import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.tool.ToolContext;
+import com.opengamma.integration.tool.portfolio.xml.XmlPortfolioReader;
 import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.portfolio.PortfolioSearchRequest;
@@ -64,6 +68,20 @@ public class XmlPortfolioLoaderToolTest {
     _positionMaster = null;
     _portfolioMaster = null;
     _securityMaster = null;
+  }
+
+  @Test(expectedExceptions = OpenGammaRuntimeException.class)
+  public void testLoadingFileWithWrongRootElementFails() {
+    String fileLocation = "src/test/resources/xml_portfolios/wrong_root_element.xml";
+    File file = new File(fileLocation);
+    new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, true, false, false, false, true).execute();
+  }
+
+  @Test(expectedExceptions = OpenGammaRuntimeException.class)
+  public void testLoadingFileWithNoSchemaVersionFails() {
+    String fileLocation = "src/test/resources/xml_portfolios/empty_portfolio_no_version";
+    File file = new File(fileLocation);
+    new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, true, false, false, false, true).execute();
   }
 
   @Test

@@ -4,6 +4,7 @@ import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 
@@ -60,6 +61,13 @@ public class FilesystemPortfolioSchemaLocatorTest {
     for (String version : versions) {
       File f = new File(dir, "portfolio-schema-" + version + ".xsd");
       f.createNewFile();
+
+      FileWriter writer = new FileWriter(f);
+      // Write a minimal schema to the file
+      writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?> <xs:schema version=\"1.0\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"> </xs:schema>");
+      writer.flush();
+      writer.close();
+
       f.deleteOnExit();
     }
     return dir;

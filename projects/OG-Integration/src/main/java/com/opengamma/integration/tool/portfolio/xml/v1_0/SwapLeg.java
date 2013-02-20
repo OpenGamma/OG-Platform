@@ -13,11 +13,11 @@ public abstract class SwapLeg {
 
   public enum Direction { Pay, Receive}
 
-  public enum StubPeriodType {Long, Short}
-
-  public enum StubPeriodTypeAdjustment {LongCoupon, ShortCoupon}
+  public enum StubPeriodType {LongCoupon, ShortCoupon}
 
   public enum InterestCalculation {Adjusted}
+
+  public enum ScheduleGenerationDirection {Backward}
 
   @XmlElement(name = "payReceive")
   private Direction _direction;
@@ -41,7 +41,7 @@ public abstract class SwapLeg {
   private String _businessDayConvention;
 
   @XmlElement(name = "scheduleGenerationDirection")
-  private String _scheduleGenerationDirection;
+  private ScheduleGenerationDirection _scheduleGenerationDirection;
 
   @XmlElement(name = "endOfMonth")
   private boolean _isEndOfMonth;
@@ -55,9 +55,6 @@ public abstract class SwapLeg {
 
   @XmlElement(name = "stubPeriodType")
   private StubPeriodType _stubPeriodType;
-
-  @XmlElement(name = "stubPeriodTypeAdjustment")
-  private StubPeriodTypeAdjustment _stubPeriodTypeAdjustment;
 
   public Direction getDirection() {
     return _direction;
@@ -115,11 +112,11 @@ public abstract class SwapLeg {
     this._businessDayConvention = businessDayConvention;
   }
 
-  public String getScheduleGenerationDirection() {
+  public ScheduleGenerationDirection getScheduleGenerationDirection() {
     return _scheduleGenerationDirection;
   }
 
-  public void setScheduleGenerationDirection(String scheduleGenerationDirection) {
+  public void setScheduleGenerationDirection(ScheduleGenerationDirection scheduleGenerationDirection) {
     this._scheduleGenerationDirection = scheduleGenerationDirection;
   }
 
@@ -153,13 +150,5 @@ public abstract class SwapLeg {
 
   public void setStubPeriodType(StubPeriodType stubPeriodType) {
     _stubPeriodType = stubPeriodType;
-  }
-
-  public StubPeriodTypeAdjustment getStubPeriodTypeAdjustment() {
-    return _stubPeriodTypeAdjustment;
-  }
-
-  public void setStubPeriodTypeAdjustment(StubPeriodTypeAdjustment stubPeriodTypeAdjustment) {
-    _stubPeriodTypeAdjustment = stubPeriodTypeAdjustment;
   }
 }

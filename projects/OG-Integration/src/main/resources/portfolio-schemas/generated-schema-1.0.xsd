@@ -53,7 +53,7 @@
                   name="paymentCalendars" nillable="true" type="calendar"/>
       <xs:element minOccurs="0" name="scheduleGenerationDirection" type="xs:string"/>
       <xs:element minOccurs="0" name="stubPeriodType" type="stubPeriodType"/>
-      <xs:element minOccurs="0" name="stubPeriodTypeAdjustment" type="stubPeriodTypeAdjustment"/>
+      <xs:element minOccurs="0" name="stubPeriodCouponAdjustment" type="stubPeriodCouponAdjustment"/>
     </xs:sequence>
   </xs:complexType>
   <xs:complexType name="calendar">
@@ -130,7 +130,7 @@
       <xs:enumeration value="Short"/>
     </xs:restriction>
   </xs:simpleType>
-  <xs:simpleType name="stubPeriodTypeAdjustment">
+  <xs:simpleType name="stubPeriodCouponAdjustment">
     <xs:restriction base="xs:string">
       <xs:enumeration value="LongCoupon"/>
       <xs:enumeration value="ShortCoupon"/>

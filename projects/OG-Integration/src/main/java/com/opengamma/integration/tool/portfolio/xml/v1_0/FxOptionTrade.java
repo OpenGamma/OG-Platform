@@ -23,22 +23,22 @@ public class FxOptionTrade extends Trade {
   public enum ExerciseType {European, American}
   public enum SettlementType {Physical, CashSettled}
 
-  @XmlElement(name = "callPut")
+  @XmlElement(name = "callPut", required = true)
   private CallPut _callPut;
 
-  @XmlElement(name = "buySell")
+  @XmlElement(name = "buySell", required = true)
   private BuySell _buySell;
 
-  @XmlElement(name = "currencyPair")
+  @XmlElement(name = "currencyPair", required = true)
   private String _currencyPair;
 
-  @XmlElement(name = "optionCurrency")
+  @XmlElement(name = "optionCurrency", required = true)
   private String _optionCurrency;
 
-  @XmlElement(name = "notional")
+  @XmlElement(name = "notional", required = true)
   private BigDecimal _notional;
 
-  @XmlElement(name = "notionalCurrency")
+  @XmlElement(name = "notionalCurrency", required = true)
   private String _notionalCurrency;
 
   @XmlElement(name = "expiryDate")
@@ -56,7 +56,7 @@ public class FxOptionTrade extends Trade {
   @XmlElement(name = "exerciseType")
   private ExerciseType _exerciseType;
 
-  @XmlElement(name = "strike")
+  @XmlElement(name = "strike", required = true)
   private BigDecimal _strike;
 
   @XmlElementWrapper(name = "expiryCalendars")
