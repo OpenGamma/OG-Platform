@@ -96,8 +96,7 @@ $.register_module({
                         item: 'history.' + page_name + '.recent',
                         value: routes.current().hash
                     });
-                    if (!og.views.config_forms[config_type])
-                        return view.notify(null), view.error('No renderer for: ' + config_type);
+                    if (!og.views.config_forms[config_type]) render_type = 'default';
                     if (too_large && !og.views.config_forms[config_type].is_default)
                         view.error('This configuration is using the default form because it contains too much data (' +
                             result.meta.content_length + ' bytes)');
@@ -164,8 +163,6 @@ $.register_module({
                         selector: '.OG-layout-admin-details-center .ui-layout-content',
                         type: details_json.template_data.type
                     };
-                    if (render_type !== config_type)
-                        render_options.type_map = og.views.config_forms[config_type].type_map;
                     $(render_options.selector).css({'overflow': 'auto'});
                     og.views.config_forms[render_type](render_options);
                 };
