@@ -57,7 +57,7 @@ $.register_module({
             });
         };
         var col_reorder = (function () {
-            var namespace = '.og_analytics_reorder', index, last, first, grid_width, timeout = null, nearest,
+            var namespace = '.og_analytics_reorder', index, last, first, grid_width, timeout = null, after,
                 line = 'OG-g-h-line', reorderer = 'OG-g-h-reorderer', offset_left;
             var auto_scroll = function (direction, scroll_left, scroll_body) {
                 var increment = 10, interval = 75;
@@ -80,11 +80,11 @@ $.register_module({
                 var scroll_body = grid.elements.scroll_body, scroll_left = scroll_body.scrollLeft(),
                     x = event.pageX - grid.offset.left + scroll_left, fixed_width = grid.meta.columns.width.fixed,
                     scan = grid.meta.columns.scan.all, line_left;
-                nearest = Math.max(
+                after = Math.max(
                     grid.meta.fixed_length - 1,
                     grid.meta.columns.scan.all.reduce(function (acc, val, idx) {return val < x ? idx : acc;}, 0)
                 );
-                line_left = grid.offset.left - scroll_left + scan[nearest];
+                line_left = grid.offset.left - scroll_left + scan[after];
                 $('.' + reorderer).css({left: event.pageX - offset_left});
                 if (line_left <= fixed_width + grid.offset.left && scroll_left)
                     return auto_scroll('left', scroll_left, scroll_body);
@@ -93,8 +93,15 @@ $.register_module({
                 $('.' + line).show().css({left: line_left});
             };
             var mouseup = function (grid, event) {
+                var state = grid.state, columns = grid.meta.columns;
                 clean_up(grid);
-                if (nearest === index || nearest + 1 === index) return; // no reordering
+                if (after === index || after + 1 === index) return; // no reordering
+                (function (arr) {
+                    arr.splice(after < index ? after + 1 : after, 0, arr.splice(index, 1)[0]);
+                })(state.col_reorder.length ? state.col_reorder : state.col_reorder = range(0, columns.length - 1));
+                reorder_cols.call(grid);
+                grid.resize();
+                render_rows.call(grid, grid.raw);
             };
             var scroll = function () {$('.' + line).hide();};
             return function (event, $target) {
@@ -325,11 +332,8 @@ $.register_module({
                 og.common.gadgets.manager.register({alive: grid.alive, resize: grid.resize, context: grid});
             elements.empty = false;
         };
-        var init_grid = function (meta) {
-            var grid = this, columns = meta.columns, config = grid.config,
-                col_fields = ['description', 'header', 'type'];
-            var populate = function (col) {col_fields.forEach(function (key) {columns[key + 's'].push(col[key]);});};
-            grid.meta = meta;
+        var init_grid = function (metadata) {
+            var grid = this, config = grid.config, meta = grid.meta = JSON.parse(JSON.stringify(metadata)); // a copy
             ['show_sets', 'show_views', 'start_expanded']
                 .forEach(function (key) {meta[key] = key in config ? config[key] : true;});
             meta.show_save = 'show_save' in config ? config['show_save'] : false;
@@ -340,21 +344,51 @@ $.register_module({
             meta.scrollbar = scrollbar;
             meta.fixed_length = meta.columns.fixed.length && meta.columns.fixed[0].columns.length;
             meta.scroll_length = meta.columns.scroll.reduce(function (acc, set) {return acc + set.columns.length;}, 0);
-            columns.orig_widths = columns.fixed.concat(columns.scroll).reduce(function (acc, set) {
-                return acc.concat(set.columns.map(function (col) {return col.width || null;}));
-            }, []);
             verify_state.call(grid);
-            grid.col_widths();
-            col_fields.forEach(function (key) {columns[key + 's'] = [];}); // plural version
-            columns.fixed.forEach(function (set) {set.columns.forEach(populate);});
-            columns.scroll.forEach(function (set) {set.columns.forEach(populate);});
+            populate_cols.call(grid);
             meta.row_class = {}; // TODO populate with added, deleted, edited by data row index
             if (grid.elements.empty) init_elements.call(grid);
             grid.resize(!meta.start_expanded);
             render_rows.call(grid, null, true);
         };
+        var populate_cols = function () {
+            var grid = this, columns = grid.meta.columns, col_fields = ['description', 'header', 'type'];
+            var populate = function (col) {col_fields.forEach(function (key) {columns[key + 's'].push(col[key]);});};
+            columns.orig_widths = columns.fixed.concat(columns.scroll).reduce(function (acc, set) {
+                return acc.concat(set.columns.map(function (col) {return col.width || null;}));
+            }, []);
+            grid.col_widths();
+            col_fields.forEach(function (key) {columns[key + 's'] = [];}); // plural version
+            columns.fixed.forEach(function (set) {set.columns.forEach(populate);});
+            columns.scroll.forEach(function (set) {set.columns.forEach(populate);});
+            columns.length = columns.types.length;
+        };
+        var range = function (start, end) {
+            var result = [], lcv;
+            for (lcv = start; lcv < end + 1; lcv += 1) result.push(lcv);
+            return result;
+        };
         var reorder_cols = function () {
-            var grid = this;
+            var grid = this, meta = grid.meta = $.extend(grid.meta, JSON.parse(JSON.stringify(grid.dataman.meta))),
+                columns = meta.columns, reorder, scrolls, sets;
+            if (!grid.state.col_reorder.length) return;
+            reorder = grid.state.col_reorder.slice(meta.fixed_length)
+                .map(function (value) {return value - meta.fixed_length;});
+            scrolls = columns.scroll.reduce(function (acc, set, idx) {
+                return acc.concat(set.columns.map(function (col) {return (col.orig_set = idx), col;}));
+            }, []);
+            scrolls = reorder.map(function (idx) {return scrolls[idx];});
+            sets = columns.scroll.reduce(function (acc, set) {delete set.columns; return acc.concat(set);}, []);
+            columns.scroll = scrolls.reduce(function (acc, col, idx) {
+                var length = acc.length, same_set = length && scrolls[idx - 1].orig_set === col.orig_set, orig_set;
+                if (same_set) return acc[length - 1].columns.push(col), acc;
+                orig_set = sets[col.orig_set];
+                acc.push(Object.keys(orig_set).reduce(function (acc, key) {
+                    return (acc[key] = orig_set[key]), acc;
+                }, {columns: [col]}));
+                return acc;
+            }, []);
+            populate_cols.call(grid);
         };
         var render_header = (function () {
             var head_data = function (grid, sets, col_offset, set_offset) {
@@ -386,9 +420,9 @@ $.register_module({
             };
         })();
         var render_rows = (function () {
-            var row_data = function (grid, data, fixed, loading) {
-                var meta = grid.meta, state = grid.state, fixed_len = meta.fixed_length, i, j, index, data_row,
-                    inner = meta.inner, prefix, cols = meta.viewport.cols, rows = meta.viewport.rows,
+            var row_data = function (grid, fixed, loading) {
+                var data = grid.data, meta = grid.meta, state = grid.state, fixed_len = meta.fixed_length, i, j, index,
+                    data_row, inner = meta.inner, prefix, cols = meta.viewport.cols, rows = meta.viewport.rows,
                     grid_row = state.available.indexOf(rows[0]), types = meta.columns.types, type,
                     total_cols = cols.length, formatter = grid.formatter, col_end, row_len = rows.length,
                     col_len = fixed ? fixed_len : total_cols - fixed_len, column, cells, value,
@@ -416,12 +450,24 @@ $.register_module({
                 return result;
             };
             return function (data, loading) { // TODO handle scenario where grid was busy when data stopped ticking
-                var grid = this, meta = grid.meta;
+                var grid = this, meta = grid.meta, reorder;
                 if (grid.busy()) return; else grid.busy(true); // don't accept more data if rendering
-                grid.data = data;
-                grid.elements.fixed_body[0][HTML] = templates.row(row_data(grid, data, true, loading));
+                reorder = meta.viewport.cols.slice(1).reduce(function (acc, val) {
+                    return (acc.value = acc.value || val < acc.last), (acc.last = val), acc;
+                }, {last: meta.viewport.cols[0], value: false}).value;
+                grid.raw = data;
+                grid.data = reorder ? (function () {
+                    var row_len = meta.viewport.rows.length, col_len = meta.viewport.cols.length,
+                        mask = meta.viewport.cols.map(function (col, idx) {return {col: col, idx: idx};})
+                            .sort(function (a, b) {return a.col - b.col;}).pluck('idx');
+                    return range(0, row_len - 1).reduce(function (acc, row) {
+                        var row_offset = row * col_len;
+                        return acc.concat(mask.map(function (col_offset) {return data[row_offset + col_offset];}));
+                    }, []);
+                })() : data;
+                grid.elements.fixed_body[0][HTML] = templates.row(row_data(grid, true, loading));
                 grid.elements.scroll_body
-                    .html(grid.formatter.transform(templates.row(row_data(grid, data, false, loading))));
+                    .html(grid.formatter.transform(templates.row(row_data(grid, false, loading))));
                 grid.updated(+new Date);
                 if (loading) {
                     if (!grid.elements.notified) grid.elements.main
