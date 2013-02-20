@@ -5,7 +5,6 @@ import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.HashMap;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,7 +89,6 @@ public class DbMarketDataSnapshotMasterTest extends DbTest {
     final HashMap<YieldCurveKey, YieldCurveSnapshot> yieldCurves = new HashMap<YieldCurveKey, YieldCurveSnapshot>();
 
     final ManageableUnstructuredMarketDataSnapshot globalValues = new ManageableUnstructuredMarketDataSnapshot();
-    globalValues.setValues(new HashMap<ExternalIdBundle, Map<String, ValueSnapshot>>());
     marketDataSnapshot.setGlobalValues(globalValues);
     marketDataSnapshot.setYieldCurves(yieldCurves);
 
@@ -109,28 +107,21 @@ public class DbMarketDataSnapshotMasterTest extends DbTest {
     final ManageableUnstructuredMarketDataSnapshot globalValues = new ManageableUnstructuredMarketDataSnapshot();
     snapshot1.setGlobalValues(globalValues);
 
-    final HashMap<ExternalIdBundle, Map<String, ValueSnapshot>> values = new HashMap<ExternalIdBundle, Map<String, ValueSnapshot>>();
-
     final HashMap<YieldCurveKey, YieldCurveSnapshot> yieldCurves = new HashMap<YieldCurveKey, YieldCurveSnapshot>();
 
     final ExternalIdBundle specA = ExternalId.of("XXX", "AAA").toBundle();
     final ExternalIdBundle specB = ExternalIdBundle.of(ExternalId.of("XXX", "B1"), ExternalId.of("XXX", "B2"));
 
-    final HashMap<String, ValueSnapshot> hashMapA = new HashMap<String, ValueSnapshot>();
-    hashMapA.put("X", new ValueSnapshot(Double.valueOf(12), null));
-    hashMapA.put("Y", new ValueSnapshot(Double.valueOf(1), null));
-    hashMapA.put("Z", new ValueSnapshot(null, null));
-    values.put(specA, hashMapA);
-    final HashMap<String, ValueSnapshot> hashMapB = new HashMap<String, ValueSnapshot>();
-    hashMapB.put("X", new ValueSnapshot(Double.valueOf(12), Double.valueOf(11)));
-    values.put(specB, hashMapB);
+    globalValues.putValue(specA, "X", new ValueSnapshot(Double.valueOf(12), null));
+    globalValues.putValue(specA, "Y", new ValueSnapshot(Double.valueOf(1), null));
+    globalValues.putValue(specA, "Z", new ValueSnapshot(null, null));
+    globalValues.putValue(specB, "X", new ValueSnapshot(Double.valueOf(12), Double.valueOf(11)));
 
     final ManageableYieldCurveSnapshot manageableYieldCurveSnapshot = new ManageableYieldCurveSnapshot();
     manageableYieldCurveSnapshot.setValuationTime(Instant.now());
     manageableYieldCurveSnapshot.setValues(globalValues);
     yieldCurves.put(new YieldCurveKey(Currency.GBP, "Default"), manageableYieldCurveSnapshot);
 
-    globalValues.setValues(values);
     snapshot1.setYieldCurves(yieldCurves);
 
     final HashMap<Pair<Tenor, Tenor>, ValueSnapshot> strikes = new HashMap<Pair<Tenor, Tenor>, ValueSnapshot>();
@@ -205,31 +196,12 @@ public class DbMarketDataSnapshotMasterTest extends DbTest {
     if (addedGlobalValues == null && loadedGlobalValues != null) {
       throw new AssertionError(null);
     }
-    assertEquivalent(addedGlobalValues.getValues(), loadedGlobalValues.getValues());
-  }
-
-  private void assertEquivalent(final Map<ExternalIdBundle, Map<String, ValueSnapshot>> added,
-      final Map<ExternalIdBundle, Map<String, ValueSnapshot>> loaded) throws AssertionError {
-    if (added == null && loaded == null) {
-      return;
-    }
-    if (added == null || loaded == null) {
-      throw new AssertionError(null);
-    }
-    assertEquals(added.keySet(), loaded.keySet());
-
-    for (final ExternalIdBundle spec : added.keySet()) {
-      final Map<String, ValueSnapshot> aMap = added.get(spec);
-      final Map<String, ValueSnapshot> loadMap = loaded.get(spec);
-
-      assertEquals(aMap.keySet(), loadMap.keySet());
-      //TODO
-      //TODO assertEquals(addedValue.getMarketValue(), loadedValue.getMarketValue(), 0.0);
-      //TODO assertEquals(addedValue.getOverrideValue(), loadedValue.getOverrideValue());
+    assertEquals(addedGlobalValues.getTargets(), loadedGlobalValues.getTargets());
+    for (final ExternalIdBundle target : addedGlobalValues.getTargets()) {
+      assertEquals(addedGlobalValues.getTargetValues(target), loadedGlobalValues.getTargetValues(target));
     }
   }
 
-  //-------------------------------------------------------------------------
   @Test
   public void test_toString() {
     assertEquals("DbMarketDataSnapshotMaster[DbSnp]", _snpMaster.toString());

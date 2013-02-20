@@ -320,9 +320,11 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
 
   private static SnapshotDataBundle createSnapshotDataBundle(final UnstructuredMarketDataSnapshot values) {
     final SnapshotDataBundle ret = new SnapshotDataBundle();
-    for (final Entry<ExternalIdBundle, Map<String, ValueSnapshot>> entry : values.getValues().entrySet()) {
-      final Double value = query(entry.getValue().get(MarketDataRequirementNames.MARKET_VALUE));
-      ret.setDataPoint(entry.getKey(), value);
+    for (final ExternalIdBundle target : values.getTargets()) {
+      final Double value = query(values.getValue(target, MarketDataRequirementNames.MARKET_VALUE));
+      if (value != null) {
+        ret.setDataPoint(target, value);
+      }
     }
     return ret;
   }
@@ -404,13 +406,12 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
         // an empty snapshot.
         _snapshot = new ManageableMarketDataSnapshot();
       }
-      if (_snapshot.getGlobalValues() != null) {
-        if (_snapshot.getGlobalValues().getValues() != null) {
-          for (final Map.Entry<ExternalIdBundle, Map<String, ValueSnapshot>> globalValue : _snapshot.getGlobalValues().getValues().entrySet()) {
-            final ComputationTargetReference target = new ComputationTargetRequirement(ComputationTargetType.PRIMITIVE, globalValue.getKey());
-            for (final Map.Entry<String, ValueSnapshot> targetValue : globalValue.getValue().entrySet()) {
-              _unstructured.addValue(new ValueRequirement(targetValue.getKey(), target), query(targetValue.getValue()));
-            }
+      final UnstructuredMarketDataSnapshot globalValues = _snapshot.getGlobalValues();
+      if (globalValues != null) {
+        for (final ExternalIdBundle target : globalValues.getTargets()) {
+          final ComputationTargetReference targetRef = new ComputationTargetRequirement(ComputationTargetType.PRIMITIVE, target);
+          for (final Map.Entry<String, ValueSnapshot> valuePair : globalValues.getTargetValues(target).entrySet()) {
+            _unstructured.addValue(new ValueRequirement(valuePair.getKey(), targetRef), query(valuePair.getValue()));
           }
         }
       }
@@ -461,11 +462,7 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
       public ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final Object target, final ValueRequirement desiredValue) {
         final StructuredMarketDataHandler handler = s_structuredDataHandler.get(desiredValue.getValueName());
         if (handler == null) {
-          if ((getSnapshot().getGlobalValues() != null) && (getSnapshot().getGlobalValues().getValues() != null) && !getSnapshot().getGlobalValues().getValues().isEmpty()) {
-            return unstructured.getAvailability(targetSpec, target, desiredValue);
-          } else {
-            return null;
-          }
+          return unstructured.getAvailability(targetSpec, target, desiredValue);
         } else {
           return handler.resolve(targetSpec, target, desiredValue, getSnapshot());
         }

@@ -7,11 +7,9 @@ package com.opengamma.language.snapshot;
 
 import static org.testng.Assert.assertEquals;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-
 import org.testng.annotations.Test;
 
+import com.opengamma.core.marketdatasnapshot.ValueSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableUnstructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableYieldCurveSnapshot;
 import com.opengamma.id.ExternalId;
@@ -24,11 +22,9 @@ import com.opengamma.language.ValueUtils;
 @Test
 public class YieldCurveTensorTest {
 
-  @SuppressWarnings("unchecked")
   private ManageableYieldCurveSnapshot createSnapshot() {
     final ManageableYieldCurveSnapshot snapshot = new ManageableYieldCurveSnapshot();
     final ManageableUnstructuredMarketDataSnapshot values = new ManageableUnstructuredMarketDataSnapshot();
-    values.setValues(new LinkedHashMap());
     UnstructuredMarketDataSnapshotUtil.setValue(values, "V", ExternalId.of("Test", "A"), null, 0.1);
     UnstructuredMarketDataSnapshotUtil.setValue(values, "V", ExternalId.of("Test", "B"), 0.25, 0.2);
     UnstructuredMarketDataSnapshotUtil.setValue(values, "V", ExternalId.of("Test", "C"), 0.35, null);
@@ -61,9 +57,9 @@ public class YieldCurveTensorTest {
   }
 
   private void assertValue(final ManageableYieldCurveSnapshot snapshot, final String identifier, final Double expectedOverride, final Double expectedMarket) {
-    final List<Double> value = UnstructuredMarketDataSnapshotUtil.getValue(snapshot.getValues(), "V", ExternalId.of("Test", identifier));
-    assertEquals(value.get(0), expectedOverride);
-    assertEquals(value.get(1), expectedMarket);
+    final ValueSnapshot value = snapshot.getValues().getValue(ExternalId.of("Test", identifier), "V");
+    assertEquals(value.getOverrideValue(), expectedOverride);
+    assertEquals(value.getMarketValue(), expectedMarket);
   }
 
   public void testUpdateMarketValue() {

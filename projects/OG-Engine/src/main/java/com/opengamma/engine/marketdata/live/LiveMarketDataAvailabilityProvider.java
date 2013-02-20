@@ -28,7 +28,7 @@ import com.opengamma.util.ArgumentChecker;
   private static final String IDENTIFIER_PROPERTY = "Id";
 
   /**
-   * All specifications will use the normalization rule set identifier as the target.
+   * All specifications will use the same normalization rule set.
    */
   private final ComputationTargetSpecification _target;
 
@@ -43,6 +43,8 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   protected ComputationTargetSpecification getTarget() {
+    // [PLAT-3044] This is wrong if snapshots are to work; the target must be resolvable to at least the identifiers that produced the specification. It would be better to use
+    // the supplied target specification and encode the normalization as a property.
     return _target;
   }
 

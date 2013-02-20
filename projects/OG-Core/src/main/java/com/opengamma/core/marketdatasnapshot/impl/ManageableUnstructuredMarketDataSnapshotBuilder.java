@@ -5,7 +5,6 @@
  */
 package com.opengamma.core.marketdatasnapshot.impl;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.fudgemsg.FudgeField;
@@ -16,7 +15,6 @@ import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
-import com.google.common.collect.Maps;
 import com.opengamma.core.marketdatasnapshot.ValueSnapshot;
 import com.opengamma.id.ExternalIdBundle;
 
@@ -50,16 +48,12 @@ public class ManageableUnstructuredMarketDataSnapshotBuilder implements FudgeBui
   @Override
   public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final ManageableUnstructuredMarketDataSnapshot object) {
     final MutableFudgeMsg ret = serializer.newMessage();
-
-    for (final Map.Entry<ExternalIdBundle, Map<String, ValueSnapshot>> subMap : object.getValues().entrySet()) {
-
-      for (final Map.Entry<String, ValueSnapshot> subMapEntry : subMap.getValue().entrySet()) {
+    for (final ExternalIdBundle target : object.getTargets()) {
+      for (final Map.Entry<String, ValueSnapshot> targetEntry : object.getTargetValues(target).entrySet()) {
         final MutableFudgeMsg msg = serializer.newMessage();
-
-        serializer.addToMessage(msg, IDENTIFIERS_FIELD_NAME, null, subMap.getKey());
-        serializer.addToMessage(msg, VALUE_NAME_FIELD_NAME, null, subMapEntry.getKey());
-        serializer.addToMessage(msg, VALUE_FIELD_NAME, null, subMapEntry.getValue());
-
+        serializer.addToMessage(msg, IDENTIFIERS_FIELD_NAME, null, target);
+        serializer.addToMessage(msg, VALUE_NAME_FIELD_NAME, null, targetEntry.getKey());
+        serializer.addToMessage(msg, VALUE_FIELD_NAME, null, targetEntry.getValue());
         ret.add(1, msg);
       }
     }
@@ -68,22 +62,15 @@ public class ManageableUnstructuredMarketDataSnapshotBuilder implements FudgeBui
 
   @Override
   public ManageableUnstructuredMarketDataSnapshot buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
-    final Map<ExternalIdBundle, Map<String, ValueSnapshot>> values = Maps.newHashMap();
-
+    final ManageableUnstructuredMarketDataSnapshot object = new ManageableUnstructuredMarketDataSnapshot();
     for (final FudgeField fudgeField : message.getAllByOrdinal(1)) {
       final FudgeMsg innerValue = (FudgeMsg) fudgeField.getValue();
-      final ExternalIdBundle spec = deserializer.fieldValueToObject(ExternalIdBundle.class, innerValue.getByName(IDENTIFIERS_FIELD_NAME));
+      final ExternalIdBundle identifiers = deserializer.fieldValueToObject(ExternalIdBundle.class, innerValue.getByName(IDENTIFIERS_FIELD_NAME));
       final String valueName = innerValue.getFieldValue(String.class, innerValue.getByName(VALUE_NAME_FIELD_NAME));
       final ValueSnapshot value = deserializer.fieldValueToObject(ValueSnapshot.class, innerValue.getByName(VALUE_FIELD_NAME));
-      if (!values.containsKey(spec)) {
-        values.put(spec, new HashMap<String, ValueSnapshot>());
-      }
-      values.get(spec).put(valueName, value);
+      object.putValue(identifiers, valueName, value);
     }
-
-    final ManageableUnstructuredMarketDataSnapshot ret = new ManageableUnstructuredMarketDataSnapshot();
-    ret.setValues(values);
-    return ret;
+    return object;
   }
 
 }

@@ -75,7 +75,7 @@ public final class SnapshotDataBundle {
    * Sets a data point in the snapshot. Any previous points with matching identifiers will be replaced.
    * 
    * @param identifiers the identifiers to set, not null
-   * @param value the value to set
+   * @param value the value to set, not null
    */
   public void setDataPoint(final ExternalIdBundle identifiers, final Double value) {
     if (_dataPoints.put(identifiers, value) == null) {

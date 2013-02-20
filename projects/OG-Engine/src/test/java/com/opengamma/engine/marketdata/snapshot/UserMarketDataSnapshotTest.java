@@ -23,6 +23,7 @@ import com.opengamma.core.marketdatasnapshot.UnstructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.ValueSnapshot;
 import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
 import com.opengamma.core.marketdatasnapshot.YieldCurveSnapshot;
+import com.opengamma.core.marketdatasnapshot.impl.ManageableUnstructuredMarketDataSnapshot;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
@@ -32,7 +33,6 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.ExternalId;
-import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
 
@@ -41,9 +41,10 @@ import com.opengamma.util.money.Currency;
  */
 public class UserMarketDataSnapshotTest {
 
-  private Map<ExternalIdBundle, Map<String, ValueSnapshot>> generateGlobalValuesMap(final ExternalId testValueId, final Double marketValue) {
-    final Map<String, ValueSnapshot> values = ImmutableMap.of(MarketDataRequirementNames.MARKET_VALUE, new ValueSnapshot(marketValue));
-    return ImmutableMap.<ExternalIdBundle, Map<String, ValueSnapshot>>of(testValueId.toBundle(), values);
+  private UnstructuredMarketDataSnapshot generateUnstructured(final ExternalId testValueId, final Double marketValue) {
+    final ManageableUnstructuredMarketDataSnapshot values = new ManageableUnstructuredMarketDataSnapshot();
+    values.putValue(testValueId, MarketDataRequirementNames.MARKET_VALUE, new ValueSnapshot(marketValue));
+    return values;
   }
 
   private UserMarketDataSnapshot createSnapshot() {
@@ -52,15 +53,11 @@ public class UserMarketDataSnapshotTest {
     final UniqueId snapshotId = UniqueId.of("TestSnapshot", "1");
     when(snapshotSource.get(snapshotId)).thenReturn(snapshot);
     final ExternalId testValueId = ExternalId.of("TestScheme", "Value1");
-    final UnstructuredMarketDataSnapshot globalValues = mock(UnstructuredMarketDataSnapshot.class);
-    when(globalValues.getValues()).thenReturn(generateGlobalValuesMap(testValueId, 234d));
-    when(snapshot.getGlobalValues()).thenReturn(globalValues);
+    when(snapshot.getGlobalValues()).thenReturn(generateUnstructured(testValueId, 234d));
     final UserMarketDataSnapshot userSnapshot = new UserMarketDataSnapshot(snapshotSource, snapshotId);
     userSnapshot.init();
-    final UnstructuredMarketDataSnapshot yieldCurveValues = mock(UnstructuredMarketDataSnapshot.class);
-    when(yieldCurveValues.getValues()).thenReturn(generateGlobalValuesMap(testValueId, 123d));
     final YieldCurveSnapshot yieldCurveSnapshot = mock(YieldCurveSnapshot.class);
-    when(yieldCurveSnapshot.getValues()).thenReturn(yieldCurveValues);
+    when(yieldCurveSnapshot.getValues()).thenReturn(generateUnstructured(testValueId, 123d));
     final Map<YieldCurveKey, YieldCurveSnapshot> yieldCurveMap = ImmutableMap.of(new YieldCurveKey(Currency.USD, "testCurve"), yieldCurveSnapshot);
     when(snapshot.getYieldCurves()).thenReturn(yieldCurveMap);
     return userSnapshot;

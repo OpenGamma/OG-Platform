@@ -6,7 +6,6 @@
 package com.opengamma.financial.marketdatasnapshot;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -162,12 +161,10 @@ public abstract class StructuredSnapper<TKey, TCalculatedValue, TSnapshot> {
 
   protected static ManageableUnstructuredMarketDataSnapshot getUnstructured(final SnapshotDataBundle bundle) {
     final Set<Entry<ExternalIdBundle, Double>> bundlePoints = bundle.getDataPointSet();
-    final Map<ExternalIdBundle, Map<String, ValueSnapshot>> data = Maps.newHashMapWithExpectedSize(bundlePoints.size());
-    for (final Map.Entry<ExternalIdBundle, Double> bundlePoint : bundle.getDataPointSet()) {
-      data.put(bundlePoint.getKey(), Collections.singletonMap(MarketDataRequirementNames.MARKET_VALUE, new ValueSnapshot(bundlePoint.getValue())));
-    }
     final ManageableUnstructuredMarketDataSnapshot snapshot = new ManageableUnstructuredMarketDataSnapshot();
-    snapshot.setValues(data);
+    for (final Map.Entry<ExternalIdBundle, Double> bundlePoint : bundle.getDataPointSet()) {
+      snapshot.putValue(bundlePoint.getKey(), MarketDataRequirementNames.MARKET_VALUE, new ValueSnapshot(bundlePoint.getValue()));
+    }
     return snapshot;
   }
 

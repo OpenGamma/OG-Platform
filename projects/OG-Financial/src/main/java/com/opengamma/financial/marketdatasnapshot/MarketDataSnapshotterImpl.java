@@ -6,9 +6,10 @@
 package com.opengamma.financial.marketdatasnapshot;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -16,17 +17,8 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Function;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ImmutableListMultimap;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.Multimaps;
-import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
-import com.opengamma.core.marketdatasnapshot.UnstructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.ValueSnapshot;
 import com.opengamma.core.marketdatasnapshot.VolatilityCubeKey;
 import com.opengamma.core.marketdatasnapshot.VolatilityCubeSnapshot;
@@ -103,7 +95,7 @@ public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
 
   public StructuredMarketDataSnapshot createSnapshot(final ExternalIdBundleResolver resolver, final ViewComputationResultModel results,
       final Map<String, DependencyGraph> graphs, final ViewCycle viewCycle, final String basisViewName) {
-    final UnstructuredMarketDataSnapshot globalValues = getGlobalValues(resolver, results, graphs);
+    final ManageableUnstructuredMarketDataSnapshot globalValues = getGlobalValues(resolver, results, graphs);
 
     final Map<YieldCurveKey, YieldCurveSnapshot> yieldCurves = _yieldCurveSnapper.getValues(results, graphs, viewCycle);
     final Map<VolatilitySurfaceKey, VolatilitySurfaceSnapshot> surfaces = _volatilitySurfaceSnapper.getValues(results, graphs, viewCycle);
@@ -118,39 +110,29 @@ public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
     return ret;
   }
 
-  private UnstructuredMarketDataSnapshot getGlobalValues(final ExternalIdBundleResolver resolver, final ViewComputationResultModel results, final Map<String, DependencyGraph> graphs) {
-    final Set<ComputedValue> data = results.getAllMarketData();
-    final Multimap<ExternalIdBundle, ComputedValue> indexedData = identifyGlobalValues(resolver, data, graphs);
-    final Map<ExternalIdBundle, Map<String, ValueSnapshot>> dict = getGlobalValues(indexedData);
+  private ManageableUnstructuredMarketDataSnapshot getGlobalValues(final ExternalIdBundleResolver resolver, final ViewComputationResultModel results, final Map<String, DependencyGraph> graphs) {
     final ManageableUnstructuredMarketDataSnapshot snapshot = new ManageableUnstructuredMarketDataSnapshot();
-    snapshot.setValues(dict);
-    return snapshot;
-  }
-
-  private Multimap<ExternalIdBundle, ComputedValue> identifyGlobalValues(final ExternalIdBundleResolver resolver, final Set<ComputedValue> data,
-      final Map<String, DependencyGraph> graphs) {
-    final Multimap<ExternalIdBundle, ComputedValue> indexedData = ArrayListMultimap.create();
-    final Set<ComputedValue> dataFound = new HashSet<ComputedValue>();
-    Set<ComputedValue> dataRemaining = null;
-    for (final Entry<String, DependencyGraph> entry : graphs.entrySet()) {
-      if (dataRemaining == null) {
-        dataRemaining = data;
-      } else {
-        dataRemaining = Sets.difference(dataRemaining, dataFound);
-      }
-      final DependencyGraph graph = entry.getValue();
-      for (final ComputedValue computedValue : dataRemaining) {
-        final DependencyNode nodeProducing = graph.getNodeProducing(computedValue.getSpecification());
-        if (nodeProducing != null && isTerminalUnstructuredOutput(nodeProducing, graph)) {
-          dataFound.add(computedValue);
-          final ExternalIdBundle identifiers = resolver.visitComputationTargetSpecification(nodeProducing.getRequiredMarketData().getTargetSpecification());
-          if (identifiers != null) {
-            indexedData.put(identifiers, computedValue);
+    final Collection<ComputedValue> data = new ArrayList<ComputedValue>(results.getAllMarketData());
+    for (final Entry<String, DependencyGraph> graphEntry : graphs.entrySet()) {
+      final DependencyGraph graph = graphEntry.getValue();
+      final Iterator<ComputedValue> itrData = data.iterator();
+      while (itrData.hasNext()) {
+        final ComputedValue computedValue = itrData.next();
+        if (computedValue.getValue() instanceof Double) {
+          final DependencyNode nodeProducing = graph.getNodeProducing(computedValue.getSpecification());
+          if ((nodeProducing != null) && isTerminalUnstructuredOutput(nodeProducing, graph)) {
+            itrData.remove();
+            final ExternalIdBundle identifiers = resolver.visitComputationTargetSpecification(nodeProducing.getRequiredMarketData().getTargetSpecification());
+            if (identifiers != null) {
+              snapshot.putValue(identifiers, computedValue.getSpecification().getValueName(), new ValueSnapshot((Double) computedValue.getValue()));
+            }
           }
+        } else {
+          itrData.remove();
         }
       }
     }
-    return indexedData;
+    return snapshot;
   }
 
   private boolean isTerminalUnstructuredOutput(DependencyNode node, final DependencyGraph graph) {
@@ -199,31 +181,6 @@ public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
     }
 
     return false;
-  }
-
-  private Map<ExternalIdBundle, Map<String, ValueSnapshot>> getGlobalValues(final Multimap<ExternalIdBundle, ComputedValue> dataByTarget) {
-    return Maps.transformValues(dataByTarget.asMap(),
-        new Function<Collection<ComputedValue>, Map<String, ValueSnapshot>>() {
-
-          @Override
-          public Map<String, ValueSnapshot> apply(final Collection<ComputedValue> from) {
-            final ImmutableListMultimap<String, ComputedValue> indexed = Multimaps.index(from, new Function<ComputedValue, String>() {
-              @Override
-              public String apply(final ComputedValue from) {
-                return from.getSpecification().getValueName();
-              }
-            });
-            return Maps.transformValues(indexed.asMap(), new Function<Collection<ComputedValue>, ValueSnapshot>() {
-
-              @Override
-              public ValueSnapshot apply(final Collection<ComputedValue> from) {
-                final ComputedValue computedValue = Iterables.get(from, 0);
-                return new ValueSnapshot((Double) computedValue.getValue());
-              }
-
-            });
-          }
-        });
   }
 
   // TODO: snapshot should be holding value specifications not value requirements

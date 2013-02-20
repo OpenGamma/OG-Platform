@@ -9,6 +9,7 @@ package com.opengamma.language.snapshot;
 import java.util.Arrays;
 import java.util.List;
 
+import com.opengamma.core.marketdatasnapshot.impl.ManageableUnstructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableYieldCurveSnapshot;
 import com.opengamma.id.ExternalId;
 import com.opengamma.language.context.SessionContext;
@@ -55,7 +56,7 @@ public class SetYieldCurvePointFunction extends AbstractFunctionInvoker implemen
   public static ManageableYieldCurveSnapshot invoke(final ManageableYieldCurveSnapshot snapshot, final String valueName, final ExternalId identifier,
       final Double overrideValue, final Double marketValue) {
     if (snapshot.getValues() == null) {
-      snapshot.setValues(UnstructuredMarketDataSnapshotUtil.create());
+      snapshot.setValues(new ManageableUnstructuredMarketDataSnapshot());
     }
     UnstructuredMarketDataSnapshotUtil.setValue(snapshot.getValues(), valueName, identifier, overrideValue, marketValue);
     return snapshot;

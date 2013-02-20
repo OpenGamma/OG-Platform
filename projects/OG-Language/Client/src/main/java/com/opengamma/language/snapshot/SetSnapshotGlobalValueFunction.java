@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
+import com.opengamma.core.marketdatasnapshot.impl.ManageableUnstructuredMarketDataSnapshot;
 import com.opengamma.id.ExternalId;
 import com.opengamma.language.context.SessionContext;
 import com.opengamma.language.definition.Categories;
@@ -59,7 +60,7 @@ public class SetSnapshotGlobalValueFunction extends AbstractFunctionInvoker impl
   public static ManageableMarketDataSnapshot invoke(final ManageableMarketDataSnapshot snapshot, final String valueName, final ExternalId identifier, final Double overrideValue,
       final Double marketValue) {
     if (snapshot.getGlobalValues() == null) {
-      snapshot.setGlobalValues(UnstructuredMarketDataSnapshotUtil.create());
+      snapshot.setGlobalValues(new ManageableUnstructuredMarketDataSnapshot());
     }
     UnstructuredMarketDataSnapshotUtil.setValue(snapshot.getGlobalValues(), valueName, identifier, overrideValue, marketValue);
     return snapshot;
