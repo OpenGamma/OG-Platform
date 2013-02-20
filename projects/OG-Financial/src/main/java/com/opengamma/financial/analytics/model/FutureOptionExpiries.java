@@ -11,9 +11,8 @@ import org.threeten.bp.LocalDate;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.analytics.ircurve.NextExpiryAdjuster;
-import com.opengamma.financial.convention.frequency.Frequency;
-import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.time.Tenor;
 
 //FIXME: Take account of holidays
 
@@ -163,26 +162,24 @@ public final class FutureOptionExpiries {
   }
 
   /**
-   * Given a frequency, returns the nth expiry from the date according to the expiry rule. Only handles monthly and quarterly expiries at the moment.
+   * Given a tenor, returns the nth expiry from the date according to the expiry rule. Only handles monthly and quarterly expiries at the moment.
    * @param nthExpiry The nth expiry, greater than zero
    * @param date The date, not null
-   * @param frequency The frequency, not null
+   * @param tenor The tenor, not null
    * @return The expiry date
-   * @throws IllegalArgumentException If the frequency is not monthly or quarterly
+   * @throws IllegalArgumentException If the tenor is not monthly or quarterly
    */
-  public LocalDate getExpiry(final int nthExpiry, final LocalDate date, final Frequency frequency) {
+  public LocalDate getExpiry(final int nthExpiry, final LocalDate date, final Tenor tenor) {
     ArgumentChecker.notNegativeOrZero(nthExpiry, "nth expiry");
     ArgumentChecker.notNull(date, "date");
-    ArgumentChecker.notNull(frequency, "frequency");
-    final String periodFrequencyName = PeriodFrequency.convertToPeriodFrequency(frequency).getConventionName();
-    switch(periodFrequencyName) {
-      case Frequency.MONTHLY_NAME:
-        return getMonthlyExpiry(nthExpiry, date);
-      case Frequency.QUARTERLY_NAME:
-        return getQuarterlyExpiry(nthExpiry, date);
-      default:
-        throw new IllegalArgumentException("Could not handle frequency type " + frequency);
+    ArgumentChecker.notNull(tenor, "tenor");
+    if (tenor.equals(Tenor.ONE_MONTH)) {
+      return getMonthlyExpiry(nthExpiry, date);
     }
+    if (tenor.equals(Tenor.THREE_MONTHS)) {
+      return getQuarterlyExpiry(nthExpiry, date);
+    }
+    throw new IllegalArgumentException("Could not handle frequency type " + tenor);
   }
 
   /**
