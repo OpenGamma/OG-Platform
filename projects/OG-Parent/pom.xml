@@ -46,25 +46,25 @@
   <!-- standard build setup -->
   <build>
     <resources>
-		<resource>
-		<targetPath>.</targetPath>
-		<directory>${project.build.sourceDirectory}</directory>
-		<includes>
-		  <include>**/*.properties</include>
-		  <include>**/*.csv</include>
-		  <include>**/*.dat</include>
-		  <include>**/*.elsql</include>
-		  <include>**/*.ftl</include>
-		  <include>**/*.proto</include>
-		  <include>**/*.txt</include>
-		  <include>**/*.version</include>
-		  <include>**/*.xml</include>
-		</includes>
-	  </resource>
-  <resource>
-    <directory>src/main/resources</directory>
-  </resource>
-</resources>  
+      <resource>
+        <targetPath>.</targetPath>
+        <directory>${project.build.sourceDirectory}</directory>
+        <includes>
+          <include>**/*.properties</include>
+          <include>**/*.csv</include>
+          <include>**/*.dat</include>
+          <include>**/*.elsql</include>
+          <include>**/*.ftl</include>
+          <include>**/*.proto</include>
+          <include>**/*.txt</include>
+          <include>**/*.version</include>
+          <include>**/*.xml</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>src/main/resources</directory>
+      </resource>
+    </resources>
     <testResources>
       <testResource>
         <targetPath>.</targetPath>
@@ -96,13 +96,13 @@
           <excludeDefaultDirectories>true</excludeDefaultDirectories>
           <filesets>
             <fileset>
-            <directory>target</directory>
-            <includes>
-              <include>**/*</include>
-            </includes>
-          </fileset>
-        </filesets>
-      </configuration>
+              <directory>target</directory>
+              <includes>
+                <include>**/*</include>
+              </includes>
+            </fileset>
+          </filesets>
+        </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -145,7 +145,7 @@
             <include>**/*Test.java</include>
           </includes>
           <groups>integration</groups>
-      </configuration>
+        </configuration>
         <executions>
           <execution>
             <goals>
@@ -257,7 +257,7 @@
                   </includes>
                 </bannedDependencies>
                 <!-- ensure dependencies resolve to latest version -->
-                <requireUpperBoundDeps/>
+                <requireUpperBoundDeps />
                 <!-- need Java 7 or greater -->
                 <requireJavaVersion>
                   <version>[1.7,)</version>
