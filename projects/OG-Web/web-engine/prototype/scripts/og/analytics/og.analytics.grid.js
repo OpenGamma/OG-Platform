@@ -344,8 +344,7 @@ $.register_module({
             meta.fixed_length = meta.columns.fixed.length && meta.columns.fixed[0].columns.length;
             meta.scroll_length = meta.columns.scroll.reduce(function (acc, set) {return acc + set.columns.length;}, 0);
             verify_state.call(grid);
-            reorder_cols.call(grid);
-            populate_cols.call(grid);
+            if (!reorder_cols.call(grid)) populate_cols.call(grid);
             meta.row_class = {}; // TODO populate with added, deleted, edited by data row index
             if (grid.elements.empty) init_elements.call(grid);
             grid.resize(!meta.start_expanded);
@@ -369,9 +368,9 @@ $.register_module({
             return result;
         };
         var reorder_cols = function () {
-            if (!this.state.col_reorder.length) return;
-            var grid = this, meta = grid.meta = $.extend(grid.meta, JSON.parse(JSON.stringify(grid.dataman.meta))),
-                columns = meta.columns, reorder, scrolls, sets;
+            var grid = this, meta = grid.meta, columns, reorder, scrolls, sets;
+            if (!grid.state.col_reorder.length) return false;
+            columns = (meta = grid.meta = $.extend(grid.meta, JSON.parse(JSON.stringify(grid.dataman.meta)))).columns;
             reorder = grid.state.col_reorder.slice(meta.fixed_length)
                 .map(function (value) {return value - meta.fixed_length;});
             scrolls = columns.scroll.reduce(function (acc, set, idx) {
@@ -388,7 +387,7 @@ $.register_module({
                 }, {columns: [col]}));
                 return acc;
             }, []);
-            populate_cols.call(grid);
+            return populate_cols.call(grid), true;
         };
         var render_header = (function () {
             var head_data = function (grid, sets, col_offset, set_offset) {
