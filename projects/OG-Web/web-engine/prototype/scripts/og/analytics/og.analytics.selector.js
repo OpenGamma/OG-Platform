@@ -133,13 +133,17 @@ $.register_module({
                 top_left = rectangle.top_left, grid = selector.grid,
                 row_start = Math.floor(top_left.top / meta.row_height),
                 row_end = Math.floor(bottom_right.bottom / meta.row_height),
-                lcv, scan = meta.columns.scan.all, rows = [], cols = [];
+                lcv, scan = meta.columns.scan.all, rows = [], cols = [], types;
             if (row_start < 0) return null; // bad input
             for (lcv = 0; lcv < scan.length; lcv += 1)
-                if (scan[lcv] <= bottom_right.right && scan[lcv] > top_left.left) cols.push(lcv);
+                if (scan[lcv] <= bottom_right.right && scan[lcv] > top_left.left)
+                    cols.push(state.col_reorder.length ? state.col_reorder[lcv] : lcv);
                 else if (scan[lcv] > bottom_right.right) break;
             for (lcv = row_start; lcv < row_end; lcv += 1) rows.push(state.available[lcv]);
-            return {cols: cols, rows: rows, type: cols.map(function (col) {return meta.columns.types[col];})};
+            types = cols.map(function (col) {
+                return meta.columns.types[state.col_reorder.length ? state.col_reorder.indexOf(col) : col];
+            });
+            return {cols: cols, rows: rows, type: types};
         };
         return Selector;
     }

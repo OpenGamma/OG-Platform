@@ -344,6 +344,7 @@ $.register_module({
             meta.fixed_length = meta.columns.fixed.length && meta.columns.fixed[0].columns.length;
             meta.scroll_length = meta.columns.scroll.reduce(function (acc, set) {return acc + set.columns.length;}, 0);
             verify_state.call(grid);
+            reorder_cols.call(grid);
             populate_cols.call(grid);
             meta.row_class = {}; // TODO populate with added, deleted, edited by data row index
             if (grid.elements.empty) init_elements.call(grid);
@@ -528,8 +529,10 @@ $.register_module({
         })();
         var verify_state = function () {
             var grid = this, meta = grid.meta, state = grid.state;
-            if (state.col_override.length !== meta.fixed_length + meta.scroll_length) // if length has changed (in meta)
+            if (state.col_override.length !== meta.fixed_length + meta.scroll_length) {// if length has changed (in meta)
                 state.col_override = new Array(meta.fixed_length + meta.scroll_length);
+                state.col_reorder = [];
+            }
             if (JSON.stringify(meta.structure) !== JSON.stringify(state.structure)) unravel_structure.call(grid);
         };
         var viewport = function (handler) {
@@ -574,11 +577,11 @@ $.register_module({
         };
         Grid.prototype.cell = function (selection) {
             if (!this.data || 1 !== selection.rows.length || 1 !== selection.cols.length) return null;
-            var grid = this, meta = grid.meta, viewport = grid.meta.viewport, rows = viewport.rows,
+            var grid = this, meta = grid.meta, state = grid.state, viewport = grid.meta.viewport, rows = viewport.rows,
                 cols = viewport.cols, row = selection.rows[0], col = selection.cols[0], col_index = cols.indexOf(col),
                 data_index = rows.indexOf(row) * cols.length + col_index, cell = grid.data[data_index];
             return typeof cell === 'undefined' ? null : {
-                row: selection.rows[0], col: selection.cols[0], value: cell, type: cell.t || selection.type[0],
+                row: row, col: col, value: cell, type: cell.t || selection.type[0],
                 row_name: grid.data[data_index - col_index].v.name, col_name: meta.columns.headers[col],
                 row_value: grid.data[data_index - col_index].v
             };
