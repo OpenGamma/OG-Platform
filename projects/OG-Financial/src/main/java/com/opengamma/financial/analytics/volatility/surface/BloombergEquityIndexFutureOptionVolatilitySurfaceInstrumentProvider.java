@@ -13,19 +13,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.DayOfWeek;
 import org.threeten.bp.LocalDate;
-import org.threeten.bp.Period;
 
 import com.opengamma.financial.analytics.ircurve.NextExpiryAdjuster;
 import com.opengamma.financial.analytics.model.FutureOptionExpiries;
-import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
 
 /**
  * Provides ExternalIds for equity future options used to build a volatility surface
  */
-public class BloombergEquityIndexFutureOptionVolatilitySurfaceInstrumentProvider implements CallPutSurfaceInstrumentProvider<Pair<Integer, Period>, Double> {
+public class BloombergEquityIndexFutureOptionVolatilitySurfaceInstrumentProvider implements CallPutSurfaceInstrumentProvider<Pair<Integer, Tenor>, Double> {
   /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergEquityIndexFutureOptionVolatilitySurfaceInstrumentProvider.class);
   /** The strike formatter */
@@ -73,7 +72,7 @@ public class BloombergEquityIndexFutureOptionVolatilitySurfaceInstrumentProvider
    * @return the id of the Bloomberg ticker
    */
   @Override
-  public ExternalId getInstrument(final Pair<Integer, Period> nthOfPeriod, final Double strike, final LocalDate surfaceDate) {
+  public ExternalId getInstrument(final Pair<Integer, Tenor> nthOfPeriod, final Double strike, final LocalDate surfaceDate) {
     ArgumentChecker.notNull(nthOfPeriod, "futureOptionNumber");
     ArgumentChecker.notNull(strike, "strike");
     ArgumentChecker.notNull(surfaceDate, "surface date");
@@ -86,8 +85,8 @@ public class BloombergEquityIndexFutureOptionVolatilitySurfaceInstrumentProvider
       expiryRule = EXPIRY_RULES.get("DEFAULT");
     }
     final int nthExpiry = nthOfPeriod.getFirst();
-    final PeriodFrequency frequency = PeriodFrequency.of(nthOfPeriod.getSecond());
-    final LocalDate expiry = expiryRule.getExpiry(nthExpiry, surfaceDate, frequency);
+    final Tenor period = nthOfPeriod.getSecond();
+    final LocalDate expiry = expiryRule.getExpiry(nthExpiry, surfaceDate, period);
     final String expiryCode = BloombergFutureUtils.getShortExpiryCode(expiry);
     ticker.append(expiryCode);
     ticker.append(strike > useCallAboveStrike() ? "C" : "P");
@@ -107,7 +106,7 @@ public class BloombergEquityIndexFutureOptionVolatilitySurfaceInstrumentProvider
   }
 
   @Override
-  public ExternalId getInstrument(final Pair<Integer, Period> xAxis, final Double yAxis) {
+  public ExternalId getInstrument(final Pair<Integer, Tenor> xAxis, final Double yAxis) {
     throw new UnsupportedOperationException("Must supply a surface date");
   }
 

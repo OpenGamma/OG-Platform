@@ -12,13 +12,12 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
-import org.threeten.bp.Period;
-import org.threeten.bp.temporal.ChronoUnit;
 
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.financial.fudgemsg.FinancialTestBase;
 import com.opengamma.id.ExternalId;
+import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -28,7 +27,7 @@ public class BloombergEquityFutureOptionVolatilitySurfaceInstrumentProviderTest 
   private static final String PREFIX = "SP";
   private static final String POSTFIX = "Index";
   private static final LocalDate DATE = LocalDate.of(2013, 2, 28);
-  private static final List<Pair<Integer, Period>> N_OPTION = new ArrayList<>();
+  private static final List<Pair<Integer, Tenor>> N_OPTION = new ArrayList<>();
   private static final double[] STRIKES = new double[] {110, 120, 130, 140, 150};
   private static final double SPOT = 131;
   private static final String DATA_FIELD_NAME = MarketDataRequirementNames.MID_IMPLIED_VOLATILITY;
@@ -46,9 +45,9 @@ public class BloombergEquityFutureOptionVolatilitySurfaceInstrumentProviderTest 
 
   static {
     final int[] n = new int[] {1, 2, 3, 4, 1, 2, 4};
-    final Period monthly = Period.of(1, ChronoUnit.MONTHS);
-    final Period quarterly = Period.of(3, ChronoUnit.MONTHS);
-    final Period[] periods = new Period[] {monthly, monthly, monthly, monthly, quarterly, quarterly, quarterly};
+    final Tenor monthly = Tenor.ONE_MONTH;
+    final Tenor quarterly = Tenor.THREE_MONTHS;
+    final Tenor[] periods = new Tenor[] {monthly, monthly, monthly, monthly, quarterly, quarterly, quarterly};
     for (int i = 0; i < n.length; i++) {
       N_OPTION.add(Pair.of(n[i], periods[i]));
     }
@@ -59,7 +58,7 @@ public class BloombergEquityFutureOptionVolatilitySurfaceInstrumentProviderTest 
     final BloombergEquityIndexFutureOptionVolatilitySurfaceInstrumentProvider provider =
         new BloombergEquityIndexFutureOptionVolatilitySurfaceInstrumentProvider(PREFIX, POSTFIX, DATA_FIELD_NAME, SPOT, EXCHANGE, SCHEME);
     int i = 0;
-    for (final Pair<Integer, Period> p : N_OPTION) {
+    for (final Pair<Integer, Tenor> p : N_OPTION) {
       for (final double strike : STRIKES) {
         assertEquals(ExternalId.of(SCHEME, RESULTS[i++]), provider.getInstrument(p, strike, DATE));
       }
