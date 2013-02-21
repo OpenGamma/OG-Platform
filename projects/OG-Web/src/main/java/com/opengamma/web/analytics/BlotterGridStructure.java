@@ -83,6 +83,8 @@ public class BlotterGridStructure extends PortfolioGridStructure {
     groups.add(blotterColumns);
     groups.addAll(analyticsColumns);
     GridColumnGroups columnGroups = new GridColumnGroups(groups);
-    return new BlotterGridStructure(columnGroups, getRootNode(), getRows(), getTargetLookup(), _columnMapper, getValueMappings());
+    ValueMappings valueMappings = new ValueMappings(compiledViewDef);
+    TargetLookup targetLookup = new TargetLookup(valueMappings, getRows());
+    return new BlotterGridStructure(columnGroups, getRootNode(), getRows(), targetLookup, _columnMapper, valueMappings);
   }
 }
