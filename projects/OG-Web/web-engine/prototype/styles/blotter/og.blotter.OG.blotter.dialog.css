@@ -74,15 +74,22 @@
     overflow-y: scroll;
     width: 97%;
 }
-
+.OG-blotter-form-block .og-blotter-portfolio {
+    margin-top: 0!important;
+}
+.OG-blotter-error-block {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+.OG-blotter-trade-select {
+    width: 100%!important;
+}
 .OG-blotter-form-block .og-blotter-portfolio .premium-toggle{
     cursor:pointer;
 }
-
 .OG-blotter-form-block .og-blotter-portfolio .hidden {
     display: none;
 }
-
 .OG-blotter-form-block .og-double-cell span{
     padding-right: 3%;
     width: 47%;
