@@ -23,16 +23,11 @@ public class TargetSpecificBlackVolatilitySurfaceDefaults {
   // TODO: Move the code from here into the sub-classes that extend StandardFunctionConfiguration as they reference data provider specific values (e.g. TULLETT/BBG)
 
   private static final Map<UnorderedCurrencyPair, List<String>> FX_BLACK_SURFACE_DEFAULTS;
-  private static final Map<Currency, List<String>> COMMODITY_BLACK_SURFACE_DEFAULTS;
 
   static {
     final List<String> eurusd = Arrays.asList("EURUSD", "DiscountingImplied", ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD, "TULLETT");
     FX_BLACK_SURFACE_DEFAULTS = new HashMap<>();
     FX_BLACK_SURFACE_DEFAULTS.put(UnorderedCurrencyPair.of(Currency.EUR, Currency.USD), eurusd);
-
-    final List<String> usdCommodity = Arrays.asList("USD", "BBG", ForwardCurveValuePropertyNames.PROPERTY_FUTURE_PRICE_METHOD, "BBG");
-    COMMODITY_BLACK_SURFACE_DEFAULTS = new HashMap<>();
-    COMMODITY_BLACK_SURFACE_DEFAULTS.put(Currency.USD, usdCommodity);
   }
 
   /**
@@ -43,19 +38,6 @@ public class TargetSpecificBlackVolatilitySurfaceDefaults {
   public static List<String> getAllFXDefaults() {
     final List<String> result = new ArrayList<>();
     for (final List<String> defaults : FX_BLACK_SURFACE_DEFAULTS.values()) {
-      result.addAll(defaults);
-    }
-    return result;
-  }
-
-  /**
-   * Gets all lists of default values for commodity Black volatility surfaces
-   * 
-   * @return A collection of lists containing the default values
-   */
-  public static List<String> getAllCommodityDefaults() {
-    final List<String> result = new ArrayList<>();
-    for (final List<String> defaults : COMMODITY_BLACK_SURFACE_DEFAULTS.values()) {
       result.addAll(defaults);
     }
     return result;
@@ -76,18 +58,4 @@ public class TargetSpecificBlackVolatilitySurfaceDefaults {
     throw new IllegalArgumentException("Could not get Black volatility surface defaults for " + currencyPair);
   }
 
-  /**
-   * Gets the default values for a commodity Black volatility surface for a particular currency
-   * 
-   * @param currency The currency
-   * @return A list containing the default values
-   * @throws IllegalArgumentException if default values for the currency are not found
-   */
-  public static List<String> getCommodityDefaults(final Currency currency) {
-    final List<String> defaults = COMMODITY_BLACK_SURFACE_DEFAULTS.get(currency);
-    if (defaults != null) {
-      return defaults;
-    }
-    throw new IllegalArgumentException("Could not get Black volatility surface defaults for " + currency);
-  }
 }

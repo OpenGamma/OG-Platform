@@ -5,7 +5,11 @@
  */
 package com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.InitializingBean;
 
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.WeightingFunctionFactory;
 import com.opengamma.analytics.financial.model.volatility.smile.function.VolatilityFunctionFactory;
@@ -20,8 +24,49 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class DefaultPropertiesFunctions extends AbstractRepositoryConfigurationBean {
 
-  // TODO: Currency and/or CurrencyPair specific data
+  /**
+   * Currency specific data.
+   */
+  public static class CurrencyInfo implements InitializingBean {
 
+    private String _curveName;
+    private String _curveCalculationMethod;
+    private String _surfaceName;
+
+    public String getCurveName() {
+      return _curveName;
+    }
+
+    public void setCurveName(final String curveName) {
+      _curveName = curveName;
+    }
+
+    public String getCurveCalculationMethod() {
+      return _curveCalculationMethod;
+    }
+
+    public void setCurveCalculationMethod(final String curveCalculationMethod) {
+      _curveCalculationMethod = curveCalculationMethod;
+    }
+
+    public String getSurfaceName() {
+      return _surfaceName;
+    }
+
+    public void setSurfaceName(final String surfaceName) {
+      _surfaceName = surfaceName;
+    }
+
+    @Override
+    public void afterPropertiesSet() {
+      ArgumentChecker.notNullInjected(getCurveName(), "curveName");
+      ArgumentChecker.notNullInjected(getCurveCalculationMethod(), "curveCalculationMethod");
+      ArgumentChecker.notNullInjected(getSurfaceName(), "surfaceName");
+    }
+
+  }
+
+  private final Map<String, CurrencyInfo> _perCurrencyInfo = new HashMap<String, CurrencyInfo>();
   private String _timeAxis = BlackVolatilitySurfacePropertyNamesAndValues.LOG_TIME;
   private String _yAxis = BlackVolatilitySurfacePropertyNamesAndValues.LOG_Y;
   private String _volatilityTransform = BlackVolatilitySurfacePropertyNamesAndValues.INTEGRATED_VARIANCE;
@@ -37,7 +82,22 @@ public class DefaultPropertiesFunctions extends AbstractRepositoryConfigurationB
   private String _splineRightExtrapolator = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
   private String _splineExtrapolatorFailBehaviour = BlackVolatilitySurfacePropertyNamesAndValues.FLAT_SPLINE_EXTRAPOLATOR_FAILURE;
 
-  // TODO: Currency and/or CurrencyPair specific data
+  public void setPerCurrencyInfo(final Map<String, CurrencyInfo> perCurrencyInfo) {
+    _perCurrencyInfo.clear();
+    _perCurrencyInfo.putAll(perCurrencyInfo);
+  }
+
+  public Map<String, CurrencyInfo> getPerCurrencyInfo() {
+    return _perCurrencyInfo;
+  }
+
+  public void setCurrencyInfo(final String currency, final CurrencyInfo info) {
+    _perCurrencyInfo.put(currency, info);
+  }
+
+  public CurrencyInfo getCurrencyInfo(final String currency) {
+    return _perCurrencyInfo.get(currency);
+  }
 
   public String getTimeAxis() {
     return _timeAxis;
@@ -168,13 +228,30 @@ public class DefaultPropertiesFunctions extends AbstractRepositoryConfigurationB
     super.afterPropertiesSet();
   }
 
+  protected void addCommodityBlackDefaults(final List<FunctionConfiguration> functions) {
+    final String[] args = new String[getPerCurrencyInfo().size() * 4];
+    int i = 0;
+    for (final Map.Entry<String, CurrencyInfo> e : getPerCurrencyInfo().entrySet()) {
+      args[i++] = e.getKey();
+      args[i++] = e.getValue().getCurveName();
+      args[i++] = e.getValue().getCurveCalculationMethod();
+      args[i++] = e.getValue().getSurfaceName();
+    }
+    functions.add(functionConfiguration(CommodityBlackVolatilitySurfacePrimitiveDefaults.class, args));
+    functions.add(functionConfiguration(CommodityBlackVolatilitySurfaceSecurityDefaults.class, args));
+    functions.add(functionConfiguration(CommodityBlackVolatilitySurfaceTradeDefaults.class, args));
+  }
+
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
-    functions.add(functionConfiguration(BlackVolatilitySurfaceSABRDefaults.class, getTimeAxis(), getYAxis(), getVolatilityTransform(), getTimeInterpolator(), getTimeLeftExtrapolator(),
-        getTimeRightExtrapolator(), getSabrModel(), getWeightingFunction(), isUseExternalBeta() ? "true" : "false", Double.toString(getExternalBeta())));
     functions.add(functionConfiguration(BlackVolatilitySurfaceMixedLogNormalDefaults.class, getTimeAxis(), getYAxis(), getVolatilityTransform(), getTimeInterpolator(), getTimeLeftExtrapolator(),
         getTimeRightExtrapolator(), getWeightingFunction()));
+    functions.add(functionConfiguration(BlackVolatilitySurfaceSABRDefaults.class, getTimeAxis(), getYAxis(), getVolatilityTransform(), getTimeInterpolator(), getTimeLeftExtrapolator(),
+        getTimeRightExtrapolator(), getSabrModel(), getWeightingFunction(), isUseExternalBeta() ? "true" : "false", Double.toString(getExternalBeta())));
     functions.add(functionConfiguration(BlackVolatilitySurfaceSplineDefaults.class, getTimeAxis(), getYAxis(), getVolatilityTransform(), getTimeInterpolator(), getTimeLeftExtrapolator(),
         getTimeRightExtrapolator(), getSplineInterpolator(), getSplineLeftExtrapolator(), getSplineRightExtrapolator(), getSplineExtrapolatorFailBehaviour()));
+    if (getPerCurrencyInfo().isEmpty()) {
+      addCommodityBlackDefaults(functions);
+    }
   }
 }

@@ -149,10 +149,11 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
     i.setSurfaceName("model/bondfutureoption", "BBG");
     i.setSurfaceName("model/futureoption", "BBG");
     i.setSurfaceName("model/irfutureoption", "DEFAULT_PRICE");
+    i.setSurfaceName("model/volatility/surface/black", "BBG");
     i.setCubeName(null, "BLOOMBERG");
-    i.setForwardCurveName("model/futureoption", "BBG");
-    i.setForwardCurveCalculationMethod("model/futureoption", ForwardCurveValuePropertyNames.PROPERTY_FUTURE_PRICE_METHOD);
-    i.setSurfaceCalculationMethod("model/futureoption", BlackVolatilitySurfacePropertyNamesAndValues.INTERPOLATED_BLACK_LOGNORMAL);
+    i.setForwardCurveName(null, "BBG");
+    i.setForwardCurveCalculationMethod(null, ForwardCurveValuePropertyNames.PROPERTY_FUTURE_PRICE_METHOD);
+    i.setSurfaceCalculationMethod(null, BlackVolatilitySurfacePropertyNamesAndValues.INTERPOLATED_BLACK_LOGNORMAL);
     return i;
   }
 

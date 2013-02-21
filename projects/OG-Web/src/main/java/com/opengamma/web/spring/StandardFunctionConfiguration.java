@@ -49,9 +49,6 @@ import com.opengamma.financial.analytics.model.pnl.PNLFunctions;
 import com.opengamma.financial.analytics.model.sensitivities.SensitivitiesFunctions;
 import com.opengamma.financial.analytics.model.var.VaRFunctions;
 import com.opengamma.financial.analytics.model.volatility.local.defaultproperties.LocalVolatilitySurfaceDefaults;
-import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.CommodityBlackVolatilitySurfacePrimitiveDefaults;
-import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.CommodityBlackVolatilitySurfaceSecurityDefaults;
-import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.CommodityBlackVolatilitySurfaceTradeDefaults;
 import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.EquityBlackVolatilitySurfacePerCurrencyDefaults;
 import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.EquityBlackVolatilitySurfacePerExchangeDefaults;
 import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.EquityBlackVolatilitySurfacePerTickerDefaults;
@@ -593,16 +590,6 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
     setCurrencyPairInfo(Pair.of("USD", "NZD"), usdNzdCurrencyPairInfo());
     setCurrencyPairInfo(Pair.of("USD", "SGD"), usdSgdCurrencyPairInfo());
     setCurrencyPairInfo(Pair.of("USD", "ZAR"), usdZarCurrencyPairInfo());
-
-  }
-
-  protected void addCommodityBlackVolatilitySurfaceDefaults(final List<FunctionConfiguration> functionConfigs) {
-    functionConfigs.add(new ParameterizedFunctionConfiguration(CommodityBlackVolatilitySurfacePrimitiveDefaults.class.getName(),
-        TargetSpecificBlackVolatilitySurfaceDefaults.getAllCommodityDefaults()));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(CommodityBlackVolatilitySurfaceSecurityDefaults.class.getName(),
-        TargetSpecificBlackVolatilitySurfaceDefaults.getAllCommodityDefaults()));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(CommodityBlackVolatilitySurfaceTradeDefaults.class.getName(),
-        TargetSpecificBlackVolatilitySurfaceDefaults.getAllCommodityDefaults()));
   }
 
   protected void addCurrencyConversionFunctions(final List<FunctionConfiguration> functionConfigs) {
@@ -758,7 +745,6 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
 
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
-    addCommodityBlackVolatilitySurfaceDefaults(functions);
     addCurrencyConversionFunctions(functions);
     addEquityDividendYieldFuturesDefaults(functions);
     addEquityForwardDefaults(functions);
@@ -1214,7 +1200,24 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
   protected void setVolatilitySurfaceDefaults(final com.opengamma.financial.analytics.model.volatility.surface.SurfaceFunctions.Defaults defaults) {
   }
 
+  protected void setVolatilitySurfaceBlackDefaults(final CurrencyInfo i,
+      final com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo defaults) {
+    defaults.setCurveName(i.getForwardCurveName("model/volatility/surface/black"));
+    defaults.setCurveCalculationMethod(i.getForwardCurveCalculationMethod("model/volatility/surface/black"));
+    defaults.setSurfaceName(i.getSurfaceName("model/volatility/surface/black"));
+  }
+
   protected void setVolatilitySurfaceBlackDefaults(final com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.DefaultPropertiesFunctions defaults) {
+    defaults
+        .setPerCurrencyInfo(getCurrencyInfo(new Function1<CurrencyInfo, com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo>() {
+          @Override
+          public com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo execute(final CurrencyInfo i) {
+            final com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo d =
+                new com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo();
+            setVolatilitySurfaceBlackDefaults(i, d);
+            return d;
+          }
+        }));
   }
 
   protected void setVolatilitySurfaceDefaults(final com.opengamma.financial.analytics.volatility.surface.SurfaceFunctions.Defaults defaults) {
