@@ -24,8 +24,8 @@ $.register_module({
             var position_edit = function () {
                 //console.log("position edit");
                 var arr = cell.row_value.positionId.split('~'), id = arr[0] + '~' + arr[1];
-                og.api.rest.blotter.positions.get({id: id}).pipe(function(data){
-                    //console.log(data);
+                og.api.rest.blotter.positions.get({id: id}).pipe(function (data) {
+                    // console.log(data);
                     new og.blotter.Dialog({
                         details: data, portfolio:{name: id, id: id}, 
                         handler: function (data) {return og.api.rest.blotter.positions.put(data);}
@@ -34,7 +34,7 @@ $.register_module({
             };
             var trade_edit = function () {
                 //console.log("trade edit");
-                og.api.rest.blotter.trades.get({id: cell.row_value.tradeId}).pipe(function(data){
+                og.api.rest.blotter.trades.get({id: cell.row_value.tradeId}).pipe(function (data) {
                     new og.blotter.Dialog({
                         details: data, portfolio:{name: cell.row_value.nodeId, id: cell.row_value.nodeId},
                         handler: function (data) {return og.api.rest.blotter.trades.put(data);}
