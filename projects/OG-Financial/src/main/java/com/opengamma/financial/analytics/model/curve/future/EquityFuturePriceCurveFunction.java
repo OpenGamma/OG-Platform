@@ -51,13 +51,11 @@ import com.opengamma.id.ExternalId;
 
 //TODO: Take account of holidays
 //TODO: Modify parent class to handle most of this logic
-//FIXME: Hardcoded to BBG
 //TODO: Take expiry rules from instrument provider
 
 /**
  * Function providing an equity future curve.
  *
- * Currently only works for Bloomberg. Need to remove hardcoded Curve properties when expanding to other data providers
  */
 public class EquityFuturePriceCurveFunction extends FuturePriceCurveFunction {
 
@@ -92,7 +90,7 @@ public class EquityFuturePriceCurveFunction extends FuturePriceCurveFunction {
   }
 
   @Override
-  protected Double getTimeToMaturity(int n, LocalDate date, Calendar calendar) {
+  protected Double getTimeToMaturity(final int n, final LocalDate date, final Calendar calendar) {
     //TODO: Need to check for specific expiry rule from instrument provider
     return Double.valueOf(TimeCalculator.getTimeBetween(date, FutureOptionExpiries.EQUITY.getOneChicagoEquityFutureExpiry(n, date)));
   }
@@ -134,18 +132,18 @@ public class EquityFuturePriceCurveFunction extends FuturePriceCurveFunction {
         }
         curveName = curveNames.iterator().next();
         //TODO use separate definition and specification names?
-        final String curveDefinitionName = "BBG";//curveName;
-        final String curveSpecificationName = "BBG";//curveName;
+        final String curveDefinitionName = curveName;
+        final String curveSpecificationName = curveName;
         final FuturePriceCurveDefinition<Object> priceCurveDefinition = getCurveDefinition(curveDefinitionSource, target,
             curveDefinitionName);
         if (priceCurveDefinition == null) {
-          s_logger.error("Price curve definition for target {} with curve name {} and instrument type {} was null", new Object[] { target, curveDefinitionName, getInstrumentType() });
+          s_logger.error("Price curve definition for target {} with curve name {} and instrument type {} was null", new Object[] {target, curveDefinitionName, getInstrumentType()});
           return null;
         }
         final FuturePriceCurveSpecification priceCurveSpecification = getCurveSpecification(curveSpecificationSource, target,
             curveSpecificationName);
         if (priceCurveSpecification == null) {
-          s_logger.error("Price curve specification for target {} with curve name {} and instrument type {} was null", new Object[] { target, curveSpecificationName, getInstrumentType() });
+          s_logger.error("Price curve specification for target {} with curve name {} and instrument type {} was null", new Object[] {target, curveSpecificationName, getInstrumentType()});
           return null;
         }
         final Set<ValueRequirement> requirements = Collections.unmodifiableSet(buildRequirements(priceCurveSpecification, priceCurveDefinition, atZDT));
@@ -169,8 +167,8 @@ public class EquityFuturePriceCurveFunction extends FuturePriceCurveFunction {
         final ValueRequirement desiredValue = desiredValues.iterator().next();
         final String curveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
         //TODO use separate definition and specification names?
-        final String curveDefinitionName = "BBG"; //curveName;
-        final String curveSpecificationName = "BBG"; //curveName;
+        final String curveDefinitionName = curveName;
+        final String curveSpecificationName = curveName;
         final FuturePriceCurveDefinition<Object> priceCurveDefinition = getCurveDefinition(curveDefinitionSource, target, curveDefinitionName);
         final FuturePriceCurveSpecification priceCurveSpecification = getCurveSpecification(curveSpecificationSource, target, curveSpecificationName);
         final Clock snapshotClock = executionContext.getValuationClock();

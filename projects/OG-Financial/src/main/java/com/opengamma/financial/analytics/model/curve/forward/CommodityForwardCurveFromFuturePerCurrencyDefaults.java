@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.commodity;
+package com.opengamma.financial.analytics.model.curve.forward;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -16,10 +16,10 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.target.ComputationTargetType;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
-import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.util.ArgumentChecker;
 
@@ -69,7 +69,7 @@ public class CommodityForwardCurveFromFuturePerCurrencyDefaults extends DefaultP
   @Override
   protected void getDefaults(final PropertyDefaults defaults) {
     for (final String valueRequirement : VALUE_REQUIREMENTS) {
-//      defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.CURVE);
+      defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.CURVE);
       defaults.addValuePropertyName(valueRequirement, ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD);
     }
   }
@@ -82,9 +82,9 @@ public class CommodityForwardCurveFromFuturePerCurrencyDefaults extends DefaultP
       s_logger.error("Could not get defaults for {}; should never happen", currency);
       return null;
     }
-//    if (ValuePropertyNames.CURVE.equals(propertyName)) {
-//      return Collections.singleton(forwardCurveName);
-//    }
+    if (ValuePropertyNames.CURVE.equals(propertyName)) {
+      return Collections.singleton(_forwardCurveNames.get(currency));
+    }
     if (ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD.equals(propertyName)) {
       return Collections.singleton(_forwardCurveCalculationMethods.get(currency));
     }
