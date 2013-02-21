@@ -57,13 +57,13 @@ public class CouponInflationYearOnYearInterpolation extends CouponInflation {
    * @param priceIndex The price index associated to the coupon.
    * @param referenceStartTime The reference time for the index at the coupon start.
    * @param referenceEndTime The reference time for the index at the coupon end.
+   * @param payNotional Flag indicating if the notional is paid (true) or not (false).
    * @param weightStart The weight on the first month index in the interpolation of the index at the coupon start.
    * @param weightEnd The weight on the first month index in the interpolation of the index at the coupon end.
-   * @param payNotional Flag indicating if the notional is paid (true) or not (false).
    */
   public CouponInflationYearOnYearInterpolation(final Currency currency, final double paymentTime, final double paymentYearFraction, final double notional, final IndexPrice priceIndex,
       final double[] referenceStartTime, final double[] referenceEndTime,
-      final double weightStart, final double weightEnd, final boolean payNotional) {
+      final boolean payNotional, final double weightStart, final double weightEnd) {
     super(currency, paymentTime, paymentYearFraction, notional, priceIndex);
     this._referenceStartTime = referenceStartTime;
     this._referenceEndTime = referenceEndTime;
@@ -116,8 +116,8 @@ public class CouponInflationYearOnYearInterpolation extends CouponInflation {
   @Override
   public CouponInflationYearOnYearInterpolation withNotional(final double notional) {
     return new CouponInflationYearOnYearInterpolation(getCurrency(), getPaymentTime(), getPaymentYearFraction(), notional, getPriceIndex(), _referenceStartTime, _referenceEndTime,
-        _weightStart,
-        _weightEnd, _payNotional);
+        _payNotional,
+        _weightStart, _weightEnd);
   }
 
   @Override

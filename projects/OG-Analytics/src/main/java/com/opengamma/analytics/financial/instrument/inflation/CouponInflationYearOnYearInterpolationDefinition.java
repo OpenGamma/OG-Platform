@@ -6,6 +6,8 @@
 
 package com.opengamma.analytics.financial.instrument.inflation;
 
+import java.util.Arrays;
+
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
@@ -68,13 +70,13 @@ public class CouponInflationYearOnYearInterpolationDefinition extends CouponInfl
    * @param monthLag The lag in month between the index validity and the coupon dates.
    * @param referenceStartDate The reference date for the index at the coupon start.
    * @param referenceEndDate The reference date for the index at the coupon end.
+   * @param payNotional Flag indicating if the notional is paid (true) or not (false).
    * @param weightStart The weight on the first month index in the interpolation of the index at the coupon start.
    * @param weightEnd The weight on the first month index in the interpolation of the index at the coupon end.
-   * @param payNotional Flag indicating if the notional is paid (true) or not (false).
    */
   public CouponInflationYearOnYearInterpolationDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate,
-      final ZonedDateTime accrualEndDate, final double paymentYearFraction, final double notional, final IndexPrice priceIndex, final ZonedDateTime[] referenceStartDate,
-      final ZonedDateTime[] referenceEndDate, final double weightStart, final double weightEnd, final int monthLag, final boolean payNotional) {
+      final ZonedDateTime accrualEndDate, final double paymentYearFraction, final double notional, final IndexPrice priceIndex, final int monthLag,
+      final ZonedDateTime[] referenceStartDate, final ZonedDateTime[] referenceEndDate, final boolean payNotional, final double weightStart, final double weightEnd) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, paymentYearFraction, notional, priceIndex);
     ArgumentChecker.notNull(referenceStartDate, "Reference start date");
     ArgumentChecker.notNull(referenceEndDate, "Reference end date");
@@ -92,23 +94,23 @@ public class CouponInflationYearOnYearInterpolationDefinition extends CouponInfl
    * @param paymentDate The payment date.
    * @param notional Coupon notional.
    * @param priceIndex The price index associated to the coupon.
-   * @param weightStart The weight on the first month index in the interpolation of the index at the _referenceStartDate.
-   * @param weightEnd The weight on the first month index in the interpolation of the index at the _referenceEndDate.
    * @param monthLag The lag in month between the index validity and the coupon dates.
    * @param payNotional Flag indicating if the notional is paid (true) or not (false).
+   * @param weightStart The weight on the first month index in the interpolation of the index at the _referenceStartDate.
+   * @param weightEnd The weight on the first month index in the interpolation of the index at the _referenceEndDate.
    * @return The inflation zero-coupon.
    */
   public static CouponInflationYearOnYearInterpolationDefinition from(final ZonedDateTime accrualStartDate, final ZonedDateTime paymentDate, final double notional,
-      final IndexPrice priceIndex, final double weightStart, final double weightEnd, final int monthLag, final boolean payNotional) {
+      final IndexPrice priceIndex, final int monthLag, final boolean payNotional, final double weightStart, final double weightEnd) {
     final ZonedDateTime[] referenceStartDate = new ZonedDateTime[2];
     final ZonedDateTime[] referenceEndDate = new ZonedDateTime[2];
-    referenceStartDate[0] = accrualStartDate.minusMonths(monthLag);
+    referenceStartDate[0] = accrualStartDate.minusMonths(monthLag).withDayOfMonth(1);
     referenceStartDate[1] = referenceStartDate[0].plusMonths(1);
     referenceEndDate[0] = paymentDate.minusMonths(monthLag).withDayOfMonth(1);
     referenceEndDate[1] = referenceEndDate[0].plusMonths(1);
 
     return new CouponInflationYearOnYearInterpolationDefinition(priceIndex.getCurrency(), paymentDate, accrualStartDate, paymentDate, 1.0, notional, priceIndex,
-        referenceStartDate, referenceEndDate, weightStart, weightEnd, monthLag, payNotional);
+        monthLag, referenceStartDate, referenceEndDate, payNotional, weightStart, weightEnd);
   }
 
   /**
@@ -166,7 +168,7 @@ public class CouponInflationYearOnYearInterpolationDefinition extends CouponInfl
     referenceEndDate[0] = refInterpolatedDate.withDayOfMonth(1);
     referenceEndDate[1] = referenceEndDate[0].plusMonths(1);
     return new CouponInflationYearOnYearInterpolationDefinition(getCurrency(), paymentDate, accrualStartDate, accrualEndDate, getPaymentYearFraction(), getNotional(),
-        getPriceIndex(), getReferenceStartDate(), referenceEndDate, getWeightStart(), getWeightEnd(), _monthLag, payNotional());
+        getPriceIndex(), _monthLag, getReferenceStartDate(), referenceEndDate, payNotional(), getWeightStart(), getWeightEnd());
   }
 
   @Override
@@ -183,8 +185,8 @@ public class CouponInflationYearOnYearInterpolationDefinition extends CouponInfl
     final double[] referenceEndTime = new double[2];
     referenceEndTime[0] = TimeCalculator.getTimeBetween(date, getReferenceEndDate()[0]);
     referenceEndTime[1] = TimeCalculator.getTimeBetween(date, getReferenceEndDate()[1]);
-    return new CouponInflationYearOnYearInterpolation(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), getPriceIndex(), referenceStartTime, referenceEndTime, _weightStart,
-        _weightStart, _payNotional);
+    return new CouponInflationYearOnYearInterpolation(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), getPriceIndex(), referenceStartTime, referenceEndTime, _payNotional,
+        _weightStart, _weightStart);
   }
 
   @Override
@@ -199,7 +201,7 @@ public class CouponInflationYearOnYearInterpolationDefinition extends CouponInfl
     final LocalDate dayFixing = getReferenceEndDate()[1].getDate();
     if (dayConversion.isAfter(dayFixing)) {
       final Double fixedEndIndex0 = priceIndexTimeSeries.getValue(getReferenceEndDate()[0]);
-      final Double fixedEndIndex1 = priceIndexTimeSeries.getValue(getReferenceEndDate()[0]);
+      final Double fixedEndIndex1 = priceIndexTimeSeries.getValue(getReferenceEndDate()[1]);
       final Double fixedEndIndex = getWeightEnd() * fixedEndIndex0 + (1 - getWeightEnd()) * fixedEndIndex1;
       if (fixedEndIndex != null) {
         final Double fixedStartIndex0 = priceIndexTimeSeries.getValue(getReferenceStartDate()[0]);
@@ -215,8 +217,8 @@ public class CouponInflationYearOnYearInterpolationDefinition extends CouponInfl
     referenceEndTime[1] = TimeCalculator.getTimeBetween(date, _referenceEndDate[1]);
     referenceStartTime[0] = TimeCalculator.getTimeBetween(date, _referenceStartDate[0]);
     referenceStartTime[1] = TimeCalculator.getTimeBetween(date, _referenceStartDate[1]);
-    return new CouponInflationYearOnYearInterpolation(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), getPriceIndex(), referenceStartTime, referenceEndTime, _weightStart,
-        _weightStart, _payNotional);
+    return new CouponInflationYearOnYearInterpolation(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), getPriceIndex(), referenceStartTime, referenceEndTime, _payNotional,
+        _weightStart, _weightStart);
   }
 
   @Override
@@ -235,13 +237,18 @@ public class CouponInflationYearOnYearInterpolationDefinition extends CouponInfl
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result = prime * result + ((_referenceEndDate == null) ? 0 : _referenceEndDate.hashCode());
-    result = prime * result + ((_referenceStartDate == null) ? 0 : _referenceStartDate.hashCode());
+    result = prime * result + Arrays.hashCode(_referenceEndDate);
+    result = prime * result + Arrays.hashCode(_referenceStartDate);
+    long temp;
+    temp = Double.doubleToLongBits(_weightEnd);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_weightStart);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
     return result;
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (this == obj) {
       return true;
     }
@@ -251,19 +258,17 @@ public class CouponInflationYearOnYearInterpolationDefinition extends CouponInfl
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final CouponInflationYearOnYearInterpolationDefinition other = (CouponInflationYearOnYearInterpolationDefinition) obj;
-    if (_referenceEndDate == null) {
-      if (other._referenceEndDate != null) {
-        return false;
-      }
-    } else if (!_referenceEndDate.equals(other._referenceEndDate)) {
+    CouponInflationYearOnYearInterpolationDefinition other = (CouponInflationYearOnYearInterpolationDefinition) obj;
+    if (!Arrays.equals(_referenceEndDate, other._referenceEndDate)) {
       return false;
     }
-    if (_referenceStartDate == null) {
-      if (other._referenceStartDate != null) {
-        return false;
-      }
-    } else if (!_referenceStartDate.equals(other._referenceStartDate)) {
+    if (!Arrays.equals(_referenceStartDate, other._referenceStartDate)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_weightEnd) != Double.doubleToLongBits(other._weightEnd)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_weightStart) != Double.doubleToLongBits(other._weightStart)) {
       return false;
     }
     return true;

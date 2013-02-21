@@ -61,11 +61,11 @@ public class CouponInflationYearOnYearInterpolationDiscountingMethodTest {
   private static final double TOLERANCE_PV_DELTA = 1.0E+2;
 
   private static final CouponInflationYearOnYearInterpolationDefinition YEAR_ON_YEAR_NO_DEFINITION = CouponInflationYearOnYearInterpolationDefinition.from(PAYMENT_DATE_MINUS1, PAYMENT_DATE, NOTIONAL,
-      PRICE_INDEX_EUR, WEIGHT_START, WEIGHT_END, MONTH_LAG, false);
+      PRICE_INDEX_EUR, MONTH_LAG, false, WEIGHT_START, WEIGHT_END);
   private static final CouponInflationYearOnYearInterpolation YEAR_ON_YEAR_NO = YEAR_ON_YEAR_NO_DEFINITION.toDerivative(PRICING_DATE, "not used");
   private static final CouponInflationYearOnYearInterpolationDefinition YEAR_ON_YEAR_WITH_DEFINITION = CouponInflationYearOnYearInterpolationDefinition.from(PAYMENT_DATE_MINUS1, PAYMENT_DATE,
       NOTIONAL,
-      PRICE_INDEX_EUR, WEIGHT_START, WEIGHT_END, MONTH_LAG, true);
+      PRICE_INDEX_EUR, MONTH_LAG, true, WEIGHT_START, WEIGHT_END);
   private static final CouponInflationYearOnYearInterpolation YEAR_ON_YEAR_WITH = YEAR_ON_YEAR_WITH_DEFINITION.toDerivative(PRICING_DATE, "not used");
   private static final CouponInflationYearOnYearInterpolationDiscountingMethod METHOD = new CouponInflationYearOnYearInterpolationDiscountingMethod();
   private static final PresentValueDiscountingInflationCalculator PVIC = PresentValueDiscountingInflationCalculator.getInstance();
