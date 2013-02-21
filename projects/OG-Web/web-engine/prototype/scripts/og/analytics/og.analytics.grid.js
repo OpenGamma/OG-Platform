@@ -369,9 +369,9 @@ $.register_module({
             return result;
         };
         var reorder_cols = function () {
+            if (!this.state.col_reorder.length) return;
             var grid = this, meta = grid.meta = $.extend(grid.meta, JSON.parse(JSON.stringify(grid.dataman.meta))),
                 columns = meta.columns, reorder, scrolls, sets;
-            if (!grid.state.col_reorder.length) return;
             reorder = grid.state.col_reorder.slice(meta.fixed_length)
                 .map(function (value) {return value - meta.fixed_length;});
             scrolls = columns.scroll.reduce(function (acc, set, idx) {
