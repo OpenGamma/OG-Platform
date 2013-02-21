@@ -17,7 +17,6 @@ import com.opengamma.engine.function.config.SimpleRepositoryConfigurationSource;
 import com.opengamma.financial.analytics.model.bond.BondFunctions;
 import com.opengamma.financial.analytics.model.bondfutureoption.BondFutureOptionFunctions;
 import com.opengamma.financial.analytics.model.cds.CDSFunctions;
-import com.opengamma.financial.analytics.model.commodity.CommodityFunctions;
 import com.opengamma.financial.analytics.model.credit.CreditFunctions;
 import com.opengamma.financial.analytics.model.curve.CurveFunctions;
 import com.opengamma.financial.analytics.model.equity.EquityFunctions;
@@ -65,10 +64,6 @@ public class ModelFunctions extends AbstractRepositoryConfigurationBean {
 
   protected RepositoryConfigurationSource cdsFunctionConfiguration() {
     return CDSFunctions.instance();
-  }
-
-  protected RepositoryConfigurationSource commodityFunctionConfiguration() {
-    return CommodityFunctions.instance();
   }
 
   protected RepositoryConfigurationSource creditFunctionConfiguration() {
@@ -147,7 +142,7 @@ public class ModelFunctions extends AbstractRepositoryConfigurationBean {
   @Override
   protected RepositoryConfigurationSource createObject() {
     return CombiningRepositoryConfigurationSource.of(super.createObject(), bondFunctionConfiguration(), bondFutureOptionFunctionConfiguration(), cdsFunctionConfiguration(),
-        commodityFunctionConfiguration(), creditFunctionConfiguration(), curveFunctionConfiguration(), equityFunctionConfiguration(), fixedIncomeFunctionConfiguration(), forexFunctionConfiguration(),
+        creditFunctionConfiguration(), curveFunctionConfiguration(), equityFunctionConfiguration(), fixedIncomeFunctionConfiguration(), forexFunctionConfiguration(),
         futureFunctionConfiguration(), futureOptionFunctionConfiguration(), horizonFunctionConfiguration(), irFutureOptionFunctionConfiguration(), optionFunctionConfiguration(),
         pnlFunctionConfiguration(), riskFactorFunctionConfiguration(), sabrCubeFunctionConfiguration(), sensitivitiesFunctionConfiguration(), simpleInstrumentFunctionConfiguration(),
         swaptionFunctionConfiguration(), varFunctionConfiguration(), volatilityFunctionConfiguration());

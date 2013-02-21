@@ -32,8 +32,6 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
 
-//TODO: Stop Curve defaulting to Discounting should be BBG.
-
 /**
  *
  */
