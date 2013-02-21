@@ -66,10 +66,10 @@ public interface CompiledFunctionDefinition {
    */
   Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target);
 
-/**
+  /**
    * Obtain all input requirements necessary for the operation of this function at execution time. The target requirement is available to allow property constraints on input requirements to be
-   * specified if necessary. It is only valid to call this on a function which has previously returned a value from {@link #getResults(FunctionCompilationContext,ComputationTarget) that satisfies
-   * the desired value, its behavior is otherwise undefined.
+   * specified if necessary. It is only valid to call this on a function which has previously returned a value from {@link #getResults(FunctionCompilationContext,ComputationTarget)} that satisfies the
+   * desired value, its behavior is otherwise undefined.
    * 
    * @param context the compilation context with view-specific parameters and configurations
    * @param target the target for which calculation is desired
