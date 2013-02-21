@@ -16,8 +16,10 @@ import com.opengamma.analytics.financial.model.volatility.smile.function.Volatil
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
+import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
 import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyNamesAndValues;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Function repository configuration source for the functions contained in this package.
@@ -30,7 +32,7 @@ public class DefaultPropertiesFunctions extends AbstractRepositoryConfigurationB
   public static class CurrencyInfo implements InitializingBean {
 
     private String _curveName;
-    private String _curveCalculationMethod;
+    private String _curveCalculationMethod = ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD;
     private String _surfaceName;
 
     public String getCurveName() {
@@ -66,7 +68,50 @@ public class DefaultPropertiesFunctions extends AbstractRepositoryConfigurationB
 
   }
 
+  /**
+   * Currency-pair specific data.
+   */
+  public static class CurrencyPairInfo implements InitializingBean {
+
+    private String _curveName;
+    private String _curveCalculationMethod = ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD;
+    private String _surfaceName;
+
+    public void setCurveName(final String curveName) {
+      _curveName = curveName;
+    }
+
+    public String getCurveName() {
+      return _curveName;
+    }
+
+    public void setCurveCalculationMethod(final String curveCalculationMethod) {
+      _curveCalculationMethod = curveCalculationMethod;
+    }
+
+    public String getCurveCalculationMethod() {
+      return _curveCalculationMethod;
+    }
+
+    public void setSurfaceName(final String surfaceName) {
+      _surfaceName = surfaceName;
+    }
+
+    public String getSurfaceName() {
+      return _surfaceName;
+    }
+
+    @Override
+    public void afterPropertiesSet() {
+      ArgumentChecker.notNullInjected(getCurveName(), "curveName");
+      ArgumentChecker.notNullInjected(getCurveCalculationMethod(), "curveCalculationMethod");
+      ArgumentChecker.notNullInjected(getSurfaceName(), "surfaceName");
+    }
+
+  }
+
   private final Map<String, CurrencyInfo> _perCurrencyInfo = new HashMap<String, CurrencyInfo>();
+  private final Map<Pair<String, String>, CurrencyPairInfo> _perCurrencyPairInfo = new HashMap<Pair<String, String>, CurrencyPairInfo>();
   private String _timeAxis = BlackVolatilitySurfacePropertyNamesAndValues.LOG_TIME;
   private String _yAxis = BlackVolatilitySurfacePropertyNamesAndValues.LOG_Y;
   private String _volatilityTransform = BlackVolatilitySurfacePropertyNamesAndValues.INTEGRATED_VARIANCE;
@@ -97,6 +142,23 @@ public class DefaultPropertiesFunctions extends AbstractRepositoryConfigurationB
 
   public CurrencyInfo getCurrencyInfo(final String currency) {
     return _perCurrencyInfo.get(currency);
+  }
+
+  public void setPerCurrencyPairInfo(final Map<Pair<String, String>, CurrencyPairInfo> perCurrencyPairInfo) {
+    _perCurrencyPairInfo.clear();
+    _perCurrencyPairInfo.putAll(perCurrencyPairInfo);
+  }
+
+  public Map<Pair<String, String>, CurrencyPairInfo> getPerCurrencyPairInfo() {
+    return _perCurrencyPairInfo;
+  }
+
+  public void setCurrencyPairInfo(final Pair<String, String> currencyPair, final CurrencyPairInfo info) {
+    _perCurrencyPairInfo.put(currencyPair, info);
+  }
+
+  public CurrencyPairInfo getCurrencyPairInfo(final Pair<String, String> currencyPair) {
+    return _perCurrencyPairInfo.get(currencyPair);
   }
 
   public String getTimeAxis() {
@@ -242,6 +304,21 @@ public class DefaultPropertiesFunctions extends AbstractRepositoryConfigurationB
     functions.add(functionConfiguration(CommodityBlackVolatilitySurfaceTradeDefaults.class, args));
   }
 
+  protected void addFXOptionBlackDefaults(final List<FunctionConfiguration> functions) {
+    final String[] args = new String[getPerCurrencyPairInfo().size() * 4];
+    int i = 0;
+    for (final Map.Entry<Pair<String, String>, CurrencyPairInfo> e : getPerCurrencyPairInfo().entrySet()) {
+      args[i++] = (e.getKey().getFirst().compareTo(e.getKey().getSecond()) < 0) ? e.getKey().getFirst() + e.getKey().getSecond() : e.getKey().getSecond() + e.getKey().getFirst();
+      args[i++] = e.getValue().getCurveName();
+      args[i++] = e.getValue().getCurveCalculationMethod();
+      args[i++] = e.getValue().getSurfaceName();
+    }
+    functions.add(functionConfiguration(FXBlackVolatilitySurfacePrimitiveDefaults.class, args));
+    functions.add(functionConfiguration(FXBlackVolatilitySurfaceSecurityDefaults.class, args));
+    functions.add(functionConfiguration(FXBlackVolatilitySurfaceTradeDefaults.class, args));
+
+  }
+
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
     functions.add(functionConfiguration(BlackVolatilitySurfaceMixedLogNormalDefaults.class, getTimeAxis(), getYAxis(), getVolatilityTransform(), getTimeInterpolator(), getTimeLeftExtrapolator(),
@@ -250,8 +327,11 @@ public class DefaultPropertiesFunctions extends AbstractRepositoryConfigurationB
         getTimeRightExtrapolator(), getSabrModel(), getWeightingFunction(), isUseExternalBeta() ? "true" : "false", Double.toString(getExternalBeta())));
     functions.add(functionConfiguration(BlackVolatilitySurfaceSplineDefaults.class, getTimeAxis(), getYAxis(), getVolatilityTransform(), getTimeInterpolator(), getTimeLeftExtrapolator(),
         getTimeRightExtrapolator(), getSplineInterpolator(), getSplineLeftExtrapolator(), getSplineRightExtrapolator(), getSplineExtrapolatorFailBehaviour()));
-    if (getPerCurrencyInfo().isEmpty()) {
+    if (!getPerCurrencyInfo().isEmpty()) {
       addCommodityBlackDefaults(functions);
+    }
+    if (!getPerCurrencyPairInfo().isEmpty()) {
+      addFXOptionBlackDefaults(functions);
     }
   }
 }

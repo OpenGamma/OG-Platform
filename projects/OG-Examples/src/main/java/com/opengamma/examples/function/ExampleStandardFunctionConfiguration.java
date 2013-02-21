@@ -89,6 +89,8 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
     i.setCurveConfiguration(null, "DefaultTwoCurveUSDConfig");
     i.setCurveName(null, "Discounting");
     i.setCubeName(null, "SECONDARY");
+    i.setForwardCurveName(null, "Forward3M");
+    i.setSurfaceName(null, "SECONDARY");
     return i;
   }
 
