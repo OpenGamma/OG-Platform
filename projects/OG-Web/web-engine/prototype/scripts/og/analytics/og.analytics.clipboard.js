@@ -135,7 +135,7 @@ $.register_module({
                         clipboard.data = null);
         };
         $(function () {
-            node = (textarea = $('<textarea />').appendTo('body')
+            node = (textarea = $('<textarea readonly="readonly" />').appendTo('body')
                 .css({position: 'absolute', top: '-500px', left: '-500px', width: '100px', height: '100px'}))[0];
         });
         return Clipboard;
