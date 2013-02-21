@@ -58,7 +58,7 @@ $.register_module({
                     };
                 if(!config.details) delete buttons['Save as new'];
                 blotter = new og.common.util.ui.dialog({
-                    type: 'input', title: title, width: 530, height: 800, custom: $selector,
+                    type: 'input', title: title, width: 530, height: 700, custom: $selector,
                     buttons: buttons
                 });
             };
