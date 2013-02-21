@@ -104,7 +104,7 @@ public class ExampleLiveDataServerComponentFactory extends AbstractStandardLiveD
   }
 
   @Override
-  protected Object propertyGet(final String propertyName, final boolean quiet) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -349682038:  // simulatedData
         return getSimulatedData();
@@ -115,7 +115,7 @@ public class ExampleLiveDataServerComponentFactory extends AbstractStandardLiveD
   }
 
   @Override
-  protected void propertySet(final String propertyName, final Object newValue, final boolean quiet) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -349682038:  // simulatedData
         setSimulatedData((Resource) newValue);
@@ -135,12 +135,12 @@ public class ExampleLiveDataServerComponentFactory extends AbstractStandardLiveD
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      final ExampleLiveDataServerComponentFactory other = (ExampleLiveDataServerComponentFactory) obj;
+      ExampleLiveDataServerComponentFactory other = (ExampleLiveDataServerComponentFactory) obj;
       return JodaBeanUtils.equal(getSimulatedData(), other.getSimulatedData()) &&
           JodaBeanUtils.equal(getCacheManager(), other.getCacheManager()) &&
           super.equals(obj);
@@ -169,7 +169,7 @@ public class ExampleLiveDataServerComponentFactory extends AbstractStandardLiveD
    * Sets the JMS connector.
    * @param simulatedData  the new value of the property, not null
    */
-  public void setSimulatedData(final Resource simulatedData) {
+  public void setSimulatedData(Resource simulatedData) {
     JodaBeanUtils.notNull(simulatedData, "simulatedData");
     this._simulatedData = simulatedData;
   }
@@ -195,7 +195,7 @@ public class ExampleLiveDataServerComponentFactory extends AbstractStandardLiveD
    * Sets the EH cache configuration.
    * @param cacheManager  the new value of the property, not null
    */
-  public void setCacheManager(final CacheManager cacheManager) {
+  public void setCacheManager(CacheManager cacheManager) {
     JodaBeanUtils.notNull(cacheManager, "cacheManager");
     this._cacheManager = cacheManager;
   }
@@ -232,7 +232,7 @@ public class ExampleLiveDataServerComponentFactory extends AbstractStandardLiveD
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "simulatedData",
         "cacheManager");
 
@@ -243,7 +243,7 @@ public class ExampleLiveDataServerComponentFactory extends AbstractStandardLiveD
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
         case -349682038:  // simulatedData
           return _simulatedData;

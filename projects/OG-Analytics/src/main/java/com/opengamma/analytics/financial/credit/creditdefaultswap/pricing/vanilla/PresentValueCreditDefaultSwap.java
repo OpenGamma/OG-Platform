@@ -1,9 +1,11 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla;
+
+import java.util.Arrays;
 
 import org.threeten.bp.ZonedDateTime;
 
@@ -22,7 +24,8 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Class containing the methods for valuing a CDS which are common to all types of CDS e.g. the contingent leg calculation
+ * Class containing the methods for valuing a CDS which are common to all types of CDS e.g. the contingent leg
+ * calculation
  */
 public class PresentValueCreditDefaultSwap {
 
@@ -73,7 +76,6 @@ public class PresentValueCreditDefaultSwap {
 
     // Local variable definitions
     int startIndex = 0;
-    int endIndex = 0;
 
     double presentValuePremiumLeg = 0.0;
     double presentValueAccruedInterest = 0.0;
@@ -168,19 +170,26 @@ public class PresentValueCreditDefaultSwap {
 
       // Now calculate the accrued leg component if required (need to re-write this code)
 
+
       if (cds.getIncludeAccruedPremium()) {
-
         final double stepinDiscountFactor = 1.0;
+        int endIndex;
 
-        startIndex = endIndex;
+        Arrays.sort(accruedLegIntegrationSchedule); //TODO is this extra sorting necessary?
 
-        while (accruedLegIntegrationSchedule[endIndex] < t) {
-          ++endIndex;
+
+        for (endIndex = startIndex; endIndex < accruedLegIntegrationSchedule.length; endIndex++) {
+          if (accruedLegIntegrationSchedule[endIndex] >= t) {
+            break;
+          }
         }
+        if (endIndex >= accruedLegIntegrationSchedule.length) {
+          endIndex = accruedLegIntegrationSchedule.length - 1;
+        }
+        presentValueAccruedInterest += valueFeeLegAccrualOnDefault(dcf, accruedLegIntegrationSchedule, yieldCurve, hazardRateCurve, startIndex, endIndex, offsetStepinTime, stepinDiscountFactor);
 
-        presentValueAccruedInterest += valueFeeLegAccrualOnDefault(dcf, accruedLegIntegrationSchedule, yieldCurve, hazardRateCurve, startIndex, endIndex,
-            offsetStepinTime, stepinDiscountFactor);
       }
+
 
       // ----------------------------------------------------------------------------------------------------------------------------------------
     }
