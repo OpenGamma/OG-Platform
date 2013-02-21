@@ -17,10 +17,17 @@ import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationYearOnYearInterpolationDefinition;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationYearOnYearInterpolation;
 import com.opengamma.analytics.financial.provider.calculator.inflation.NetAmountInflationCalculator;
+import com.opengamma.analytics.financial.provider.calculator.inflation.PresentValueCurveSensitivityDiscountingInflationCalculator;
 import com.opengamma.analytics.financial.provider.calculator.inflation.PresentValueDiscountingInflationCalculator;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationIssuerProviderDiscount;
+import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
+import com.opengamma.analytics.financial.provider.sensitivity.inflation.MultipleCurrencyInflationSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.inflation.ParameterSensitivityInflationMulticurveDiscountInterpolatedFDCalculator;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterInflationSensitivityParameterCalculator;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
+import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -48,6 +55,11 @@ public class CouponInflationYearOnYearInterpolationDiscountingMethodTest {
   private static final ZonedDateTime PRICING_DATE = DateUtils.getUTCDate(2011, 8, 3);
   private static final double WEIGHT_START = 1.0 - (PAYMENT_DATE.getDayOfMonth() - 1) / PAYMENT_DATE.getDate().lengthOfMonth();
   private static final double WEIGHT_END = 1.0 - (PAYMENT_DATE.getDayOfMonth() - 1) / PAYMENT_DATE.getDate().lengthOfMonth();
+
+  private static final double SHIFT_FD = 1.0E-7;
+  private static final double TOLERANCE_PV = 1.0E-2;
+  private static final double TOLERANCE_PV_DELTA = 1.0E+2;
+
   private static final CouponInflationYearOnYearInterpolationDefinition YEAR_ON_YEAR_NO_DEFINITION = CouponInflationYearOnYearInterpolationDefinition.from(PAYMENT_DATE_MINUS1, PAYMENT_DATE, NOTIONAL,
       PRICE_INDEX_EUR, WEIGHT_START, WEIGHT_END, MONTH_LAG, false);
   private static final CouponInflationYearOnYearInterpolation YEAR_ON_YEAR_NO = YEAR_ON_YEAR_NO_DEFINITION.toDerivative(PRICING_DATE, "not used");
@@ -58,6 +70,9 @@ public class CouponInflationYearOnYearInterpolationDiscountingMethodTest {
   private static final CouponInflationYearOnYearInterpolationDiscountingMethod METHOD = new CouponInflationYearOnYearInterpolationDiscountingMethod();
   private static final PresentValueDiscountingInflationCalculator PVIC = PresentValueDiscountingInflationCalculator.getInstance();
   private static final NetAmountInflationCalculator NAIC = NetAmountInflationCalculator.getInstance();
+  private static final PresentValueCurveSensitivityDiscountingInflationCalculator PVCSDC = PresentValueCurveSensitivityDiscountingInflationCalculator.getInstance();
+  private static final ParameterInflationSensitivityParameterCalculator<InflationProviderInterface> PSC = new ParameterInflationSensitivityParameterCalculator<InflationProviderInterface>(PVCSDC);
+  private static final ParameterSensitivityInflationMulticurveDiscountInterpolatedFDCalculator PS_PV_FDC = new ParameterSensitivityInflationMulticurveDiscountInterpolatedFDCalculator(PVIC, SHIFT_FD);
 
   @Test
   /**
@@ -73,7 +88,7 @@ public class CouponInflationYearOnYearInterpolationDiscountingMethodTest {
     final double initialIndex = YEAR_ON_YEAR_NO.getWeightStart() * initialIndexMonth0 + (1 - YEAR_ON_YEAR_NO.getWeightStart()) * initialIndexMonth1;
     final double finalIndex = YEAR_ON_YEAR_NO.getWeightEnd() * finalIndexMonth0 + (1 - YEAR_ON_YEAR_NO.getWeightEnd()) * finalIndexMonth1;
     final double pvExpected = (finalIndex / initialIndex - 1) * df * NOTIONAL;
-    assertEquals("Year on year coupon inflation: Present value", pvExpected, pv.getAmount(YEAR_ON_YEAR_NO.getCurrency()), 1.0E-2);
+    assertEquals("Year on year coupon inflation DiscountingMethod: Present value", pvExpected, pv.getAmount(YEAR_ON_YEAR_NO.getCurrency()), TOLERANCE_PV);
   }
 
   @Test
@@ -89,7 +104,7 @@ public class CouponInflationYearOnYearInterpolationDiscountingMethodTest {
     final double initialIndex = YEAR_ON_YEAR_NO.getWeightStart() * initialIndexMonth0 + (1 - YEAR_ON_YEAR_NO.getWeightStart()) * initialIndexMonth1;
     final double finalIndex = YEAR_ON_YEAR_NO.getWeightEnd() * finalIndexMonth0 + (1 - YEAR_ON_YEAR_NO.getWeightEnd()) * finalIndexMonth1;
     final double naExpected = (finalIndex / initialIndex - 1) * NOTIONAL;
-    assertEquals("Year on year coupon inflation: Net amount", naExpected, na.getAmount(YEAR_ON_YEAR_NO.getCurrency()), 1.0E-2);
+    assertEquals("Year on year coupon inflation DiscountingMethod: Net amount", naExpected, na.getAmount(YEAR_ON_YEAR_NO.getCurrency()), TOLERANCE_PV);
   }
 
   @Test
@@ -99,7 +114,7 @@ public class CouponInflationYearOnYearInterpolationDiscountingMethodTest {
   public void presentValueMethodVsCalculator() {
     final MultipleCurrencyAmount pvMethod = METHOD.presentValue(YEAR_ON_YEAR_NO, MARKET.getInflationProvider());
     final MultipleCurrencyAmount pvCalculator = YEAR_ON_YEAR_NO.accept(PVIC, MARKET.getInflationProvider());
-    assertEquals("Year on year coupon inflation: Present value", pvMethod, pvCalculator);
+    assertEquals("Year on year coupon inflation DiscountingMethod: Present value", pvMethod, pvCalculator);
   }
 
   @Test
@@ -109,7 +124,7 @@ public class CouponInflationYearOnYearInterpolationDiscountingMethodTest {
   public void netamountMethodVsCalculator() {
     final MultipleCurrencyAmount naMethod = METHOD.netAmount(YEAR_ON_YEAR_NO, MARKET.getInflationProvider());
     final MultipleCurrencyAmount naCalculator = YEAR_ON_YEAR_NO.accept(NAIC, MARKET.getInflationProvider());
-    assertEquals("Year on year coupon inflation: Net amount", naMethod, naCalculator);
+    assertEquals("Year on year coupon inflation DiscountingMethod: Net amount", naMethod, naCalculator);
   }
 
   @Test
@@ -126,7 +141,7 @@ public class CouponInflationYearOnYearInterpolationDiscountingMethodTest {
     final double initialIndex = YEAR_ON_YEAR_WITH.getWeightStart() * initialIndexMonth0 + (1 - YEAR_ON_YEAR_WITH.getWeightStart()) * initialIndexMonth1;
     final double finalIndex = YEAR_ON_YEAR_WITH.getWeightEnd() * finalIndexMonth0 + (1 - YEAR_ON_YEAR_WITH.getWeightEnd()) * finalIndexMonth1;
     final double pvExpected = (finalIndex / initialIndex) * df * NOTIONAL;
-    assertEquals("Year on year coupon inflation: Present value", pvExpected, pv.getAmount(YEAR_ON_YEAR_WITH.getCurrency()), 1.0E-2);
+    assertEquals("Year on year coupon inflation DiscountingMethod: Present value", pvExpected, pv.getAmount(YEAR_ON_YEAR_WITH.getCurrency()), TOLERANCE_PV);
   }
 
   @Test
@@ -143,6 +158,47 @@ public class CouponInflationYearOnYearInterpolationDiscountingMethodTest {
     final double initialIndex = YEAR_ON_YEAR_WITH.getWeightStart() * initialIndexMonth0 + (1 - YEAR_ON_YEAR_WITH.getWeightStart()) * initialIndexMonth1;
     final double finalIndex = YEAR_ON_YEAR_WITH.getWeightEnd() * finalIndexMonth0 + (1 - YEAR_ON_YEAR_WITH.getWeightEnd()) * finalIndexMonth1;
     final double pvExpected = (finalIndex / initialIndex - 1) * df * NOTIONAL;
-    assertEquals("Year on year coupon inflation: Present value", pvExpected, pv.getAmount(YEAR_ON_YEAR_WITH.getCurrency()), 1.0E-2);
+    assertEquals("Year on year coupon inflation DiscountingMethod: Present value", pvExpected, pv.getAmount(YEAR_ON_YEAR_WITH.getCurrency()), TOLERANCE_PV);
   }
+
+  @Test
+  /**
+   * Test the present value curves sensitivity.
+  */
+  public void presentValueCurveSensitivityWithNotional() {
+
+    final MultipleCurrencyParameterSensitivity pvicsFD = PS_PV_FDC.calculateSensitivity(YEAR_ON_YEAR_WITH, MARKET.getInflationProvider());
+    final MultipleCurrencyParameterSensitivity pvicsExact = PSC.calculateSensitivity(YEAR_ON_YEAR_WITH, MARKET.getInflationProvider(), MARKET.getAllNames());
+
+    AssertSensivityObjects.assertEquals("Year on year coupon inflation DiscountingMethod: presentValueCurveSensitivity ", pvicsExact, pvicsFD, TOLERANCE_PV_DELTA);
+
+  }
+
+  @Test
+  /**
+    * Test the present value curves sensitivity.
+   */
+  public void presentValueCurveSensitivityNoNotional() {
+
+    final MultipleCurrencyParameterSensitivity pvicsFD = PS_PV_FDC.calculateSensitivity(YEAR_ON_YEAR_NO, MARKET.getInflationProvider());
+    final MultipleCurrencyParameterSensitivity pvicsExact = PSC.calculateSensitivity(YEAR_ON_YEAR_NO, MARKET.getInflationProvider(), MARKET.getAllNames());
+
+    AssertSensivityObjects.assertEquals("Year on year coupon inflation DiscountingMethod: presentValueCurveSensitivity ", pvicsExact, pvicsFD, TOLERANCE_PV_DELTA);
+
+  }
+
+  @Test
+  public void presentValueMarketSensitivityMethodVsCalculatorNoNotional() {
+    final MultipleCurrencyInflationSensitivity pvcisMethod = METHOD.presentValueCurveSensitivity(YEAR_ON_YEAR_NO, MARKET.getInflationProvider());
+    final MultipleCurrencyInflationSensitivity pvcisCalculator = YEAR_ON_YEAR_NO.accept(PVCSDC, MARKET.getInflationProvider());
+    AssertSensivityObjects.assertEquals("Year on year coupon inflation DiscountingMethod: presentValueMarketSensitivity", pvcisMethod, pvcisCalculator, TOLERANCE_PV_DELTA);
+  }
+
+  @Test
+  public void presentValueMarketSensitivityMethodVsCalculatorWithNotional() {
+    final MultipleCurrencyInflationSensitivity pvcisMethod = METHOD.presentValueCurveSensitivity(YEAR_ON_YEAR_WITH, MARKET.getInflationProvider());
+    final MultipleCurrencyInflationSensitivity pvcisCalculator = YEAR_ON_YEAR_WITH.accept(PVCSDC, MARKET.getInflationProvider());
+    AssertSensivityObjects.assertEquals("Year on year coupon inflation DiscountingMethod: presentValueMarketSensitivity", pvcisMethod, pvcisCalculator, TOLERANCE_PV_DELTA);
+  }
+
 }

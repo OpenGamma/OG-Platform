@@ -6,6 +6,7 @@
 package com.opengamma.analytics.financial.provider.description.inflation;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -19,6 +20,7 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscou
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Class describing a "market" with discounting, forward, price index and credit curves.
@@ -34,6 +36,10 @@ public class InflationProviderDiscount implements InflationProviderInterface {
    * A map with one price curve by price index.
    */
   private final Map<IndexPrice, PriceIndexCurve> _priceIndexCurves;
+  /**
+   * Map of all curves used in the provider. The order is ???
+   */
+  private Map<String, PriceIndexCurve> _allCurves;
 
   /**
    * Constructor with empty maps for discounting, forward and price index.
@@ -41,6 +47,7 @@ public class InflationProviderDiscount implements InflationProviderInterface {
   public InflationProviderDiscount() {
     _multicurveProvider = new MulticurveProviderDiscount();
     _priceIndexCurves = new LinkedHashMap<IndexPrice, PriceIndexCurve>();
+    setInflationCurves();
   }
 
   /**
@@ -50,6 +57,7 @@ public class InflationProviderDiscount implements InflationProviderInterface {
   public InflationProviderDiscount(final FXMatrix fxMatrix) {
     _multicurveProvider = new MulticurveProviderDiscount(fxMatrix);
     _priceIndexCurves = new LinkedHashMap<IndexPrice, PriceIndexCurve>();
+    setInflationCurves();
   }
 
   /**
@@ -64,6 +72,7 @@ public class InflationProviderDiscount implements InflationProviderInterface {
       final Map<IndexON, YieldAndDiscountCurve> forwardONCurves, final Map<IndexPrice, PriceIndexCurve> priceIndexCurves, final FXMatrix fxMatrix) {
     _multicurveProvider = new MulticurveProviderDiscount(discountingCurves, forwardIborCurves, forwardONCurves, fxMatrix);
     _priceIndexCurves = priceIndexCurves;
+    setInflationCurves();
   }
 
   /**
@@ -74,6 +83,18 @@ public class InflationProviderDiscount implements InflationProviderInterface {
   public InflationProviderDiscount(final MulticurveProviderDiscount multicurve, final Map<IndexPrice, PriceIndexCurve> priceIndexCurves) {
     _multicurveProvider = multicurve;
     _priceIndexCurves = priceIndexCurves;
+    setInflationCurves();
+  }
+
+  private void setInflationCurves() {
+    _allCurves = new LinkedHashMap<String, PriceIndexCurve>();
+
+    final Set<IndexPrice> indexSet = _priceIndexCurves.keySet();
+    for (final IndexPrice index : indexSet) {
+      final String name = _priceIndexCurves.get(index).getName();
+      _allCurves.put(name, _priceIndexCurves.get(index));
+    }
+
   }
 
   @Override
@@ -128,6 +149,7 @@ public class InflationProviderDiscount implements InflationProviderInterface {
       throw new IllegalArgumentException("Price index curve already set: " + index.toString());
     }
     _priceIndexCurves.put(index, curve);
+    setInflationCurves();
   }
 
   @Override
@@ -333,6 +355,22 @@ public class InflationProviderDiscount implements InflationProviderInterface {
   public InflationProviderDiscount withForward(final IndexON index, YieldAndDiscountCurve replacement) {
     MulticurveProviderDiscount decoratedMulticurve = _multicurveProvider.withForward(index, replacement);
     return new InflationProviderDiscount(decoratedMulticurve, _priceIndexCurves);
+  }
+
+  @Override
+  public double[] parameterInflationSensitivity(String name, List<DoublesPair> pointSensitivity) {
+    final PriceIndexCurve curve = _allCurves.get(name);
+    final int nbParameters = curve.getNumberOfParameters();
+    final double[] result = new double[nbParameters];
+    if (pointSensitivity != null && pointSensitivity.size() > 0) {
+      for (final DoublesPair timeAndS : pointSensitivity) {
+        final double[] sensi1Point = curve.getPriceIndexParameterSensitivity(timeAndS.getFirst());
+        for (int loopparam = 0; loopparam < nbParameters; loopparam++) {
+          result[loopparam] += timeAndS.getSecond() * sensi1Point[loopparam];
+        }
+      }
+    }
+    return result;
   }
 
 }

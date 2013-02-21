@@ -26,7 +26,6 @@ import com.opengamma.analytics.financial.provider.description.inflation.Inflatio
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
-import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.curve.DoublesCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.curve.MultiplyCurveSpreadFunction;
@@ -100,9 +99,20 @@ public class MulticurveProviderDiscountDataSets {
   private static final String EUR_ISSUER_NAME = "EUR " + ISSUER_NAME;
   private static final YieldAndDiscountCurve EUR_ISSUER = new YieldCurve(EUR_ISSUER_NAME, new InterpolatedDoublesCurve(EUR_ISSUER_TIME, EUR_ISSUER_RATE, LINEAR_FLAT, true, EUR_ISSUER_NAME));
 
-  private static final YieldAndDiscountCurve CURVE_GBP_35 = YieldCurve.from(ConstantDoublesCurve.from(0.0350, "GBP 3.50"));
-  private static final YieldAndDiscountCurve CURVE_GBP_30 = YieldCurve.from(ConstantDoublesCurve.from(0.0400, "GBP 3.00"));
-  private static final YieldAndDiscountCurve CURVE_USD_30 = YieldCurve.from(ConstantDoublesCurve.from(0.0300, "USD 3.00"));
+  private static final String GBP35 = "GBP 3.50";
+  private static final double[] GBP35_TIME = new double[] {0.0, 10.0 };
+  private static final double[] GBP35_RATE = new double[] {0.0350, 0.0350 };
+  private static final YieldAndDiscountCurve CURVE_GBP_35 = new YieldCurve(GBP35, new InterpolatedDoublesCurve(GBP35_TIME, GBP35_RATE, LINEAR_FLAT, true, GBP35));
+
+  private static final String GBP30 = "GBP 3.00";
+  private static final double[] GBP30_TIME = new double[] {0.0, 10.0 };
+  private static final double[] GBP30_RATE = new double[] {0.030, 0.030 };
+  private static final YieldAndDiscountCurve CURVE_GBP_30 = new YieldCurve(GBP30, new InterpolatedDoublesCurve(GBP30_TIME, GBP30_RATE, LINEAR_FLAT, true, GBP30));
+
+  private static final String USD30 = "USD 3.00";
+  private static final double[] USD30_TIME = new double[] {0.0, 10.0 };
+  private static final double[] USD30_RATE = new double[] {0.030, 0.030 };
+  private static final YieldAndDiscountCurve CURVE_USD_30 = new YieldCurve(USD30, new InterpolatedDoublesCurve(USD30_TIME, USD30_RATE, LINEAR_FLAT, true, USD30));
 
   private static final IndexIborMaster MASTER_IBOR_INDEX = IndexIborMaster.getInstance();
   private static final IborIndex USDLIBOR3M = MASTER_IBOR_INDEX.getIndex("USDLIBOR3M", CALENDAR_USD);

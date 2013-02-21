@@ -77,9 +77,8 @@ public class ParameterSensitivityInflationMulticurveDiscountInterpolatedFDCalcul
     // Inflation
     final Set<IndexPrice> indexPrice = multicurve.getPriceIndexes();
     for (final IndexPrice index : indexPrice) {
-      final PriceIndexCurve curve = multicurve.getCurve(index);
-      ArgumentChecker.isTrue(curve instanceof PriceIndexCurve, "Curve should be a YieldCurve");
-      final PriceIndexCurve curveIndex = curve;
+      final PriceIndexCurve curveIndex = multicurve.getCurve(index);
+
       ArgumentChecker.isTrue(curveIndex.getCurve() instanceof InterpolatedDoublesCurve, "Yield curve should be based on InterpolatedDoublesCurve");
       final InterpolatedDoublesCurve curveInt = (InterpolatedDoublesCurve) curveIndex.getCurve();
       final int nbNodePoint = curveInt.getXDataAsPrimitive().length;

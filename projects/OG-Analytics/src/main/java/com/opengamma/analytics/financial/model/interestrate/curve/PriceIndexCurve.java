@@ -11,6 +11,7 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.analytics.math.curve.DoublesCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * A curve containing the (estimated) price index at different maturities. The maturities can be (slightly) negative as the price index are known only with a certain lag.
@@ -23,6 +24,8 @@ public class PriceIndexCurve {
    * The price index curve.
    */
   private final DoublesCurve _curve;
+
+  private static final double SMALL_TIME = 1.0E-6;
 
   /**
    * Constructor from a curve object.
@@ -81,6 +84,34 @@ public class PriceIndexCurve {
    */
   public double getPriceIndex(final Double timeToIndex) {
     return _curve.getYValue(timeToIndex);
+  }
+
+  /**
+   * Returns the estimated inflation rate between two given time .
+   * @param firstTime The time
+   * @param secondTime The time 
+   * @return The price index.
+   */
+  public double getInflationRate(final Double firstTime, final Double secondTime) {
+    ArgumentChecker.isTrue(firstTime < secondTime, "firstTime should be before secondTime");
+    return _curve.getYValue(secondTime) / _curve.getYValue(firstTime) - 1.0;
+  }
+
+  public int getNumberOfParameters() {
+    return _curve.size();
+  }
+
+  public double[] getPriceIndexParameterSensitivity(final double time) {
+    final Double[] curveSensitivity = _curve.getYValueParameterSensitivity(time);
+    final double[] priceIndexZeroSensitivity = new double[curveSensitivity.length];
+    // Implementation note: if time = 0, the rate is ill-defined: return 0 sensitivity
+    if (Math.abs(time) < SMALL_TIME) {
+      return priceIndexZeroSensitivity;
+    }
+    for (int loopp = 0; loopp < curveSensitivity.length; loopp++) {
+      priceIndexZeroSensitivity[loopp] = curveSensitivity[loopp];
+    }
+    return priceIndexZeroSensitivity;
   }
 
   @Override

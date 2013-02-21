@@ -15,6 +15,7 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponInterpolationGearing;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.inflation.InflationSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.inflation.MultipleCurrencyInflationSensitivity;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -70,7 +71,7 @@ public class CouponInflationZeroCouponInterpolationGearingDiscountingMethod {
    * @param inflation The inflation provider.
    * @return The present value sensitivity.
    */
-  public InflationSensitivity presentValueCurveSensitivity(final CouponInflationZeroCouponInterpolationGearing coupon, final InflationProviderInterface inflation) {
+  public MultipleCurrencyInflationSensitivity presentValueCurveSensitivity(final CouponInflationZeroCouponInterpolationGearing coupon, final InflationProviderInterface inflation) {
     Validate.notNull(coupon, "Coupon");
     Validate.notNull(inflation, "Inflation");
     double estimatedIndexMonth0 = inflation.getPriceIndex(coupon.getPriceIndex(), coupon.getReferenceEndTime()[0]);
@@ -92,8 +93,8 @@ public class CouponInflationZeroCouponInterpolationGearingDiscountingMethod {
     listPrice.add(new DoublesPair(coupon.getReferenceEndTime()[0], estimatedIndexMonth0Bar));
     listPrice.add(new DoublesPair(coupon.getReferenceEndTime()[1], estimatedIndexMonth1Bar));
     resultMapPrice.put(inflation.getName(coupon.getPriceIndex()), listPrice);
-    final InflationSensitivity result = InflationSensitivity.ofYieldDiscountingAndPrice(resultMapDisc, resultMapPrice);
-    return result;
+    final InflationSensitivity inflationSensitivity = InflationSensitivity.ofYieldDiscountingAndPrice(resultMapDisc, resultMapPrice);
+    return MultipleCurrencyInflationSensitivity.of(coupon.getCurrency(), inflationSensitivity);
   }
 
 }

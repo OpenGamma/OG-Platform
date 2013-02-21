@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.provider.description.inflation;
 
+import java.util.List;
 import java.util.Set;
 
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
@@ -15,6 +16,7 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscou
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Interface specific to inflation curves.
@@ -57,6 +59,8 @@ public interface InflationProviderInterface extends ParameterProviderInterface {
    * @return The names.
    */
   Set<String> getAllNames();
+
+  double[] parameterInflationSensitivity(String name, List<DoublesPair> pointSensitivity);
 
   /**
    * Returns the MulticurveProvider from which the InflationProvider is composed.

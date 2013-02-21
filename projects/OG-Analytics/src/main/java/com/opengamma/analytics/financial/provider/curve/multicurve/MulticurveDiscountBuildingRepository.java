@@ -49,7 +49,7 @@ public class MulticurveDiscountBuildingRepository {
    */
   private final double _toleranceRel;
   /**
-   * The relative tolerance for the root finder.
+   * The maximum number of steps for the root finder.
    */
   private final int _stepMaximum;
   /**
@@ -97,7 +97,7 @@ public class MulticurveDiscountBuildingRepository {
     final MulticurveDiscountBuildingData data = new MulticurveDiscountBuildingData(instruments, generator);
     final Function1D<DoubleMatrix1D, DoubleMatrix1D> curveCalculator = new MulticurveDiscountFinderFunction(calculator, data);
     final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new MulticurveDiscountFinderJacobian(new ParameterSensitivityMulticurveUnderlyingMatrixCalculator(sensitivityCalculator),
-                data);
+        data);
     //    final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new MulticurveDiscountFinderJacobian(
     //                new ParameterSensitivityMatrixMulticurveCalculator(sensitivityCalculator), data); // TODO
     final double[] parameters = _rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(initGuess)).getData();
@@ -128,7 +128,7 @@ public class MulticurveDiscountBuildingRepository {
     final GeneratorMulticurveProviderDiscount generator = new GeneratorMulticurveProviderDiscount(knownData, discountingMap, forwardIborMap, forwardONMap, generatorsMap);
     final MulticurveDiscountBuildingData data = new MulticurveDiscountBuildingData(instruments, generator);
     final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new MulticurveDiscountFinderJacobian(new ParameterSensitivityMulticurveUnderlyingMatrixCalculator(sensitivityCalculator),
-                data);
+        data);
     //    final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator =
     //                new MulticurveDiscountFinderJacobian(new ParameterSensitivityMatrixMulticurveCalculator(sensitivityCalculator), data); // TODO
     final DoubleMatrix2D jacobian = jacobianCalculator.evaluate(new DoubleMatrix1D(parameters));

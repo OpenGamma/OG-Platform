@@ -16,6 +16,7 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationYearOnYearMonthly;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.inflation.InflationSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.inflation.MultipleCurrencyInflationSensitivity;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -84,7 +85,7 @@ public class CouponInflationYearOnYearMonthlyDiscountingMethod {
    * @param inflation The inflation provider.
    * @return The present value sensitivity.
    */
-  public InflationSensitivity presentValueCurveSensitivity(final CouponInflationYearOnYearMonthly coupon, final InflationProviderInterface inflation) {
+  public MultipleCurrencyInflationSensitivity presentValueCurveSensitivity(final CouponInflationYearOnYearMonthly coupon, final InflationProviderInterface inflation) {
     Validate.notNull(coupon, "Coupon");
     Validate.notNull(inflation, "Inflation");
     double estimatedIndexStart = indexEstimationStart(coupon, inflation);
@@ -104,8 +105,8 @@ public class CouponInflationYearOnYearMonthlyDiscountingMethod {
     listPrice.add(new DoublesPair(coupon.getReferenceEndTime(), estimatedIndexEndBar));
     listPrice.add(new DoublesPair(coupon.getReferenceStartTime(), estimatedIndexStartBar));
     resultMapPrice.put(inflation.getName(coupon.getPriceIndex()), listPrice);
-    final InflationSensitivity result = InflationSensitivity.ofYieldDiscountingAndPrice(resultMapDisc, resultMapPrice);
-    return result;
+    final InflationSensitivity inflationSensitivity = InflationSensitivity.ofYieldDiscountingAndPrice(resultMapDisc, resultMapPrice);
+    return MultipleCurrencyInflationSensitivity.of(coupon.getCurrency(), inflationSensitivity);
   }
 
 }

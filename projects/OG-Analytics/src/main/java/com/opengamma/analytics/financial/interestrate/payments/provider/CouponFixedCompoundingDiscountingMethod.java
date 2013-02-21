@@ -4,7 +4,7 @@
  * Please see distribution for license.
  */
 
-package com.opengamma.analytics.financial.interestrate.payments.method;
+package com.opengamma.analytics.financial.interestrate.payments.provider;
 
 import java.util.ArrayList;
 import java.util.HashMap;
