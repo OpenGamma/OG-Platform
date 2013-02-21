@@ -50,8 +50,7 @@ $.register_module({
                 total_width = columns.reduce(function (acc, val) {return val.width + acc;}, 0);
             return columns.map(function (val, idx) {
                 var css = {
-                    prefix: id, index: idx + (offset || 0),
-                    left: partial, right: total_width - partial - val.width
+                    prefix: id, index: idx + (offset || 0), left: partial, right: total_width - partial - val.width
                 };
                 return (partial += val.width), css;
             });
@@ -96,12 +95,12 @@ $.register_module({
                 var state = grid.state, columns = grid.meta.columns;
                 clean_up(grid);
                 if (after === index || after + 1 === index) return; // no reordering
-                (function (arr) {
+                if (!state.col_reorder.length) state.col_reorder = range(0, columns.length - 1);
+                [state.col_reorder, state.col_override].forEach(function (arr) {
                     arr.splice(after < index ? after + 1 : after, 0, arr.splice(index, 1)[0]);
-                })(state.col_reorder.length ? state.col_reorder : state.col_reorder = range(0, columns.length - 1));
+                });
                 reorder_cols.call(grid);
                 grid.resize();
-                render_rows.call(grid, grid.raw);
             };
             var scroll = function () {$('.' + line).hide();};
             return function (event, $target) {
@@ -262,7 +261,7 @@ $.register_module({
                     var $target = $(event.target), row;
                     event.preventDefault();
                     if ($target.is('.resize')) return col_resize.call(grid, event, $target), void 0;
-                    // if ($target.is('.reorder')) return col_reorder.call(grid, event, $target), void 0;
+                    if ($target.is('.reorder')) return col_reorder.call(grid, event, $target), void 0;
                     if (!$target.is('.node')) return grid.fire('mousedown', event), void 0;
                     if ($target.is('.loading')) return; else $target.removeClass('expand collapse').addClass('loading');
                     grid.state.nodes[row = +$target.attr('data-row')] = !grid.state.nodes[row];
@@ -434,7 +433,8 @@ $.register_module({
                     });
                     if (fixed) {j = 0; col_end = col_len;} else {j = fixed_len; col_end = col_len + fixed_len;}
                     for (; j < col_end; j += 1) {
-                        index = i * total_cols + j; column = cols[j];
+                        index = i * total_cols + j;
+                        column = state.col_reorder.length ? state.col_reorder.indexOf(cols[j]) : cols[j];
                         value = formatter[type = types[column]] ?
                             data[index] && formatter[type](data[index], widths[column], row_height)
                                 : data[index] && data[index].v || '';
@@ -455,16 +455,7 @@ $.register_module({
                 reorder = meta.viewport.cols.slice(1).reduce(function (acc, val) {
                     return (acc.value = acc.value || val < acc.last), (acc.last = val), acc;
                 }, {last: meta.viewport.cols[0], value: false}).value;
-                grid.raw = data;
-                grid.data = reorder ? (function () {
-                    var row_len = meta.viewport.rows.length, col_len = meta.viewport.cols.length,
-                        mask = meta.viewport.cols.map(function (col, idx) {return {col: col, idx: idx};})
-                            .sort(function (a, b) {return a.col - b.col;}).pluck('idx');
-                    return range(0, row_len - 1).reduce(function (acc, row) {
-                        var row_offset = row * col_len;
-                        return acc.concat(mask.map(function (col_offset) {return data[row_offset + col_offset];}));
-                    }, []);
-                })() : data;
+                grid.data = data;
                 grid.elements.fixed_body[0][HTML] = templates.row(row_data(grid, true, loading));
                 grid.elements.scroll_body
                     .html(grid.formatter.transform(templates.row(row_data(grid, false, loading))));
@@ -480,8 +471,8 @@ $.register_module({
             };
         })();
         var set_css = function (id, sets, offset) {
-            var partial = 0, columns = sets.reduce(function (acc, set) {return acc.concat(set.columns);}, []),
-                total_width = columns.reduce(function (acc, val) {return val.width + acc;}, 0);
+            var partial = 0, total_width = sets.reduce(function (acc, set) {return acc.concat(set.columns);}, [])
+                .reduce(function (acc, val) {return val.width + acc;}, 0);
             return sets.map(function (set, idx) {
                 var set_width = set.columns.reduce(function (acc, val) {return val.width + acc;}, 0), css;
                 css = {
