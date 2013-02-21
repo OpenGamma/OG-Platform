@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.bbg.loader;
+package com.opengamma.bbg.config;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -18,6 +18,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.opengamma.bbg.loader.SecurityType;
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;

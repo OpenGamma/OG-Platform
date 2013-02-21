@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.bbg.loader;
+package com.opengamma.bbg.config;
 
 import static com.opengamma.bbg.BloombergConstants.BBG_BASE_METAL_TYPE;
 import static com.opengamma.bbg.BloombergConstants.BBG_COAL;
@@ -62,6 +62,7 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 import org.testng.annotations.Test;
 
+import com.opengamma.bbg.config.BloombergSecurityTypeDefinition;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
