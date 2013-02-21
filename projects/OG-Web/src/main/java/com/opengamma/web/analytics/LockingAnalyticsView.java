@@ -33,10 +33,10 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public List<String> updateStructure(CompiledViewDefinition compiledViewDefinition) {
+  public List<String> updateColumns(CompiledViewDefinition compiledViewDefinition) {
     try {
       _lock.writeLock().lock();
-      return _delegate.updateStructure(compiledViewDefinition);
+      return _delegate.updateColumns(compiledViewDefinition);
     } finally {
       _lock.writeLock().unlock();
     }
@@ -171,4 +171,14 @@ import com.opengamma.util.ArgumentChecker;
       _lock.readLock().unlock();
     }
   }
+
+  /*@Override
+  public List<String> entityChanged(ChangeEvent event) {
+    try {
+      _lock.writeLock().lock();
+      return _delegate.entityChanged(event);
+    } finally {
+      _lock.writeLock().unlock();
+    }
+  }*/
 }

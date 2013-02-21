@@ -131,4 +131,8 @@ import com.opengamma.util.ArgumentChecker;
   /* package */ String getCallbackId() {
     return _callbackId;
   }
+
+  ViewportListener getViewportListener() {
+    return _viewportListener;
+  }
 }

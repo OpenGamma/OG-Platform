@@ -104,6 +104,11 @@ import com.opengamma.util.tuple.Pair;
     return Pair.of(viewportResults, state);
   }
 
+  /** For looking up the underlying target of a grid cell. */
+  TargetLookup getTargetLookup() {
+    return _targetLookup;
+  }
+
   /**
    * A row in the grid.
    */

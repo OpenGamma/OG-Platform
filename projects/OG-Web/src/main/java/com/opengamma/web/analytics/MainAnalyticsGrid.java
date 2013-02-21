@@ -232,6 +232,11 @@ import com.opengamma.util.tuple.Pair;
     return _cache;
   }
 
+  /** For looking up calculation targets using their specifications. */
+  ComputationTargetResolver getTargetResolver() {
+    return _targetResolver;
+  }
+
   /**
    * Resolver that doesn't resolve anything, used for grids that will always be empty.
    */

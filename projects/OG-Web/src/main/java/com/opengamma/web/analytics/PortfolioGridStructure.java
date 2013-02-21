@@ -32,73 +32,70 @@ import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
-import com.opengamma.web.analytics.blotter.BlotterColumn;
-import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
 
 /**
  * The structure of the grid that displays portfolio data and analytics. Contains the column definitions and
  * the portfolio tree structure.
+ * TODO subclass for the blotter?
  */
-public final class PortfolioGridStructure extends MainGridStructure {
+public class PortfolioGridStructure extends MainGridStructure {
 
   /** The root node of the portfolio structure. */
-  private final AnalyticsNode _root;
+  private final AnalyticsNode _rootNode;
+  /** Rows in the grid. */
+  private final List<PortfolioGridRow> _rows;
+  private final ValueMappings _valueMappings;
 
-  private PortfolioGridStructure(GridColumnGroups columnGroups,
-                                 CompiledViewDefinition compiledViewDef,
-                                 TargetLookup targetLookup) {
+  /* package */  PortfolioGridStructure(GridColumnGroups columnGroups,
+                                        AnalyticsNode rootNode,
+                                        List<PortfolioGridRow> rows,
+                                        TargetLookup targetLookup,
+                                        ValueMappings valueMappings) {
     super(columnGroups, targetLookup);
-    _root = AnalyticsNode.portoflioRoot(compiledViewDef);
+    _rootNode = rootNode;
+    _rows = rows;
+    _valueMappings = valueMappings;
   }
 
-  private PortfolioGridStructure() {
-    _root = AnalyticsNode.emptyRoot();
-  }
-
-  /* package */ static PortfolioGridStructure forAnalytics(CompiledViewDefinition compiledViewDef,
-                                                           ValueMappings valueMappings) {
-    ArgumentChecker.notNull(compiledViewDef, "compiledViewDef");
+  /* package */ static PortfolioGridStructure create(Portfolio portfolio, ValueMappings valueMappings) {
     ArgumentChecker.notNull(valueMappings, "valueMappings");
-    List<PortfolioGridRow> rows = buildRows(compiledViewDef);
+    List<PortfolioGridRow> rows = buildRows(portfolio);
     TargetLookup targetLookup = new TargetLookup(valueMappings, rows);
-    GridColumnGroup fixedColumns = buildFixedColumns(rows);
-    List<GridColumnGroup> analyticsColumns = buildAnalyticsColumns(compiledViewDef.getViewDefinition(), targetLookup);
-    List<GridColumnGroup> groups = Lists.newArrayList(fixedColumns);
-    groups.addAll(analyticsColumns);
-    GridColumnGroups columnGroups = new GridColumnGroups(groups);
-    return new PortfolioGridStructure(columnGroups, compiledViewDef, targetLookup);
-  }
-
-  /* package */ static PortfolioGridStructure forBlotter(CompiledViewDefinition compiledViewDef,
-                                                         ValueMappings valueMappings,
-                                                         BlotterColumnMapper columnMappings) {
-    ArgumentChecker.notNull(compiledViewDef, "compiledViewDef");
-    ArgumentChecker.notNull(valueMappings, "valueMappings");
-    ArgumentChecker.notNull(columnMappings, "columnMappings");
-    List<PortfolioGridRow> rows = buildRows(compiledViewDef);
-    TargetLookup targetLookup = new TargetLookup(valueMappings, rows);
-    GridColumnGroup fixedColumns = buildFixedColumns(rows);
-    GridColumnGroup blotterColumns = buildBlotterColumns(columnMappings, rows);
-    List<GridColumnGroup> analyticsColumns = buildAnalyticsColumns(compiledViewDef.getViewDefinition(), targetLookup);
-    List<GridColumnGroup> groups = Lists.newArrayList(fixedColumns);
-    groups.add(blotterColumns);
-    groups.addAll(analyticsColumns);
-    GridColumnGroups columnGroups = new GridColumnGroups(groups);
-    return new PortfolioGridStructure(columnGroups, compiledViewDef, targetLookup);
-  }
-
-  /* package */ static PortfolioGridStructure empty() {
-    return new PortfolioGridStructure();
+    AnalyticsNode rootNode = AnalyticsNode.portoflioRoot(portfolio);
+    return new PortfolioGridStructure(GridColumnGroups.empty(), rootNode, rows, targetLookup, valueMappings);
   }
 
   /**
    * @return The root node of the portfolio structure.
    */
-  public AnalyticsNode getRoot() {
-    return _root;
+  public AnalyticsNode getRootNode() {
+    return _rootNode;
   }
 
-  private static GridColumnGroup buildFixedColumns(List<PortfolioGridRow> rows) {
+  /* package */ PortfolioGridStructure withUpdatedRows(Portfolio portfolio) {
+    List<PortfolioGridRow> rows = buildRows(portfolio);
+    TargetLookup targetLookup = new TargetLookup(_valueMappings, rows);
+    GridColumnGroup fixedColumns = buildFixedColumns(_rows);
+    ViewDefinition viewDefinition = null; // TODO
+    List<GridColumnGroup> analyticsColumns = buildAnalyticsColumns(viewDefinition, targetLookup);
+    List<GridColumnGroup> groups = Lists.newArrayList(fixedColumns);
+    groups.addAll(analyticsColumns);
+    GridColumnGroups columnGroups = new GridColumnGroups(groups);
+    return new PortfolioGridStructure(columnGroups, _rootNode, rows, targetLookup, _valueMappings);
+  }
+
+  /* package */ PortfolioGridStructure withUpdatedColumns(CompiledViewDefinition compiledViewDef) {
+    GridColumnGroup fixedColumns = buildFixedColumns(_rows);
+    ValueMappings valueMappings = new ValueMappings(compiledViewDef);
+    TargetLookup targetLookup = new TargetLookup(valueMappings, _rows);
+    List<GridColumnGroup> analyticsColumns = buildAnalyticsColumns(compiledViewDef.getViewDefinition(), targetLookup);
+    List<GridColumnGroup> groups = Lists.newArrayList(fixedColumns);
+    groups.addAll(analyticsColumns);
+    GridColumnGroups columnGroups = new GridColumnGroups(groups);
+    return new PortfolioGridStructure(columnGroups, _rootNode, _rows, targetLookup, valueMappings);
+  }
+
+  /* package */ static GridColumnGroup buildFixedColumns(List<PortfolioGridRow> rows) {
     GridColumn labelColumn = new GridColumn("Label", "", null, new PortfolioLabelRenderer(rows));
     GridColumn quantityColumn = new GridColumn("Quantity", "", BigDecimal.class, new QuantityRenderer(rows), null);
     return new GridColumnGroup("fixed", ImmutableList.of(labelColumn, quantityColumn), false);
@@ -108,7 +105,7 @@ public final class PortfolioGridStructure extends MainGridStructure {
    * @param viewDef The view definition
    * @return Columns for displaying calculated analytics data, one group per calculation configuration
    */
-  private static List<GridColumnGroup> buildAnalyticsColumns(ViewDefinition viewDef, TargetLookup targetLookup) {
+  /* package */ static List<GridColumnGroup> buildAnalyticsColumns(ViewDefinition viewDef, TargetLookup targetLookup) {
     List<GridColumnGroup> columnGroups = Lists.newArrayList();
     Set<ColumnSpecification> columnSpecs = Sets.newHashSet();
     for (ViewCalculationConfiguration calcConfig : viewDef.getAllCalculationConfigurations()) {
@@ -130,30 +127,7 @@ public final class PortfolioGridStructure extends MainGridStructure {
     return columnGroups;
   }
 
-  private static GridColumnGroup buildBlotterColumns(BlotterColumnMapper columnMappings,
-                                                     List<PortfolioGridRow> rows) {
-    List<GridColumn> columns = Lists.newArrayList(
-        blotterColumn(BlotterColumn.TYPE, columnMappings, rows),
-        blotterColumn(BlotterColumn.PRODUCT, columnMappings, rows),
-        blotterColumn(BlotterColumn.QUANTITY, columnMappings, rows),
-        blotterColumn(BlotterColumn.DIRECTION, columnMappings, rows),
-        blotterColumn(BlotterColumn.START, columnMappings, rows),
-        blotterColumn(BlotterColumn.MATURITY, columnMappings, rows),
-        blotterColumn(BlotterColumn.RATE, columnMappings, rows),
-        blotterColumn(BlotterColumn.INDEX, columnMappings, rows),
-        blotterColumn(BlotterColumn.FREQUENCY, columnMappings, rows),
-        blotterColumn(BlotterColumn.FLOAT_FREQUENCY, columnMappings, rows));
-    return new GridColumnGroup("Blotter", columns, false);
-  }
-
-  private static GridColumn blotterColumn(BlotterColumn column,
-                                          BlotterColumnMapper columnMappings,
-                                          List<PortfolioGridRow> rows) {
-    return new GridColumn(column.getName(), "", String.class, new BlotterColumnRenderer(column, columnMappings, rows));
-  }
-
-  private static List<PortfolioGridRow> buildRows(final CompiledViewDefinition viewDef) {
-    final Portfolio portfolio = viewDef.getPortfolio();
+  /* package */ static List<PortfolioGridRow> buildRows(final Portfolio portfolio) {
     if (portfolio == null) {
       return Collections.emptyList();
     }
@@ -220,107 +194,13 @@ public final class PortfolioGridStructure extends MainGridStructure {
       return false;
     }
   }
-}
 
-/**
- * A row in the grid. TODO subclass(es) for trades with trade & position ID?
- * also security only belongs in position and trade rows, not nodes. do we really care?
- */
-/* package */ class PortfolioGridRow extends MainGridStructure.Row {
-
-  /** The row's security, null if the row represents a node in the portfolio structure. */
-  private final Security _security;
-  /** The row's quantity, null for row's that don't represent a position or trade. */
-  private final BigDecimal _quantity;
-  /** The node ID of the row (if it's a noderow ) or its parent node (if it's a position or trade row). */
-  private final UniqueId _nodeId;
-  /** The position ID of the row (if it's a position row) or its parent position (if it's a trade row). */
-  private final UniqueId _positionId;
-  /** The row's trade ID (if it's a trade row). */
-  private final UniqueId _tradeId;
-
-  /**
-   * For rows representing portfolio nodes which have no security or quantity
-   * @param target The row's target
-   * @param name The row name
-   */
-  /* package */ PortfolioGridRow(ComputationTargetSpecification target, String name, UniqueId nodeId) {
-    super(target, name);
-    ArgumentChecker.notNull(nodeId, "nodeId");
-    _security = null;
-    _quantity = null;
-    _nodeId = nodeId;
-    _positionId = null;
-    _tradeId = null;
+  /** Rows in the grid. */
+  /* package */ List<PortfolioGridRow> getRows() {
+    return _rows;
   }
 
-  /**
-   * For rows representing position nodes which have a security and quantity
-   * @param target The row's target
-   * @param security The position's security, not null
-   * @param quantity The position's quantity, not null
-   */
-  /* package */ PortfolioGridRow(ComputationTargetSpecification target,
-                                 String name,
-                                 Security security,
-                                 BigDecimal quantity,
-                                 UniqueId nodeId,
-                                 UniqueId positionId) {
-    super(target, name);
-    ArgumentChecker.notNull(security, "security");
-    ArgumentChecker.notNull(quantity, "quantity");
-    ArgumentChecker.notNull(nodeId, "nodeId");
-    ArgumentChecker.notNull(positionId, "positionId");
-    _security = security;
-    _quantity = quantity;
-    _nodeId = nodeId;
-    _positionId = positionId;
-    _tradeId = null;
-  }
-
-  /**
-   * For rows representing position nodes which have a security and quantity
-   * @param target The row's target
-   * @param security The position's security, not null
-   * @param quantity The position's quantity, not null
-   */
-  /* package */ PortfolioGridRow(ComputationTargetSpecification target,
-                                 String name,
-                                 Security security,
-                                 BigDecimal quantity,
-                                 UniqueId nodeId,
-                                 UniqueId positionId,
-                                 UniqueId tradeId) {
-    super(target, name);
-    ArgumentChecker.notNull(security, "security");
-    ArgumentChecker.notNull(quantity, "quantity");
-    ArgumentChecker.notNull(nodeId, "nodeId");
-    ArgumentChecker.notNull(positionId, "positionId");
-    ArgumentChecker.notNull(tradeId, "tradeId");
-    _security = security;
-    _quantity = quantity;
-    _nodeId = nodeId;
-    _positionId = positionId;
-    _tradeId = tradeId;
-  }
-
-  /* package */ Security getSecurity() {
-    return _security;
-  }
-
-  /* package */ BigDecimal getQuantity() {
-    return _quantity;
-  }
-
-  /* package */ UniqueId getNodeId() {
-    return _nodeId;
-  }
-
-  /* package */ UniqueId getPositionId() {
-    return _positionId;
-  }
-
-  /* package */ UniqueId getTradeId() {
-    return _tradeId;
+  /* package */ ValueMappings getValueMappings() {
+    return _valueMappings;
   }
 }

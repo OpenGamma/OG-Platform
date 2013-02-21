@@ -7,16 +7,25 @@ package com.opengamma.web.analytics;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.DataNotFoundException;
+import com.opengamma.core.position.Portfolio;
+import com.opengamma.core.position.PositionSource;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.marketdata.NamedMarketDataSpecificationRepository;
+import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.client.ViewClient;
+import com.opengamma.engine.view.compilation.PortfolioCompiler;
+import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.UserPrincipal;
+import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
@@ -44,19 +53,31 @@ public class AnalyticsViewManager {
   private final ComputationTargetResolver _targetResolver;
   private final NamedMarketDataSpecificationRepository _marketDataSpecificationRepository;
   private final BlotterColumnMapper _blotterColumnMapper;
+  private final PositionSource _positionSource;
+  private final ConfigMaster _configMaster;
+  private final SecuritySource _securitySource;
 
   public AnalyticsViewManager(ViewProcessor viewProcessor,
                               AggregatedViewDefinitionManager aggregatedViewDefManager,
                               MarketDataSnapshotMaster snapshotMaster,
                               ComputationTargetResolver targetResolver,
                               NamedMarketDataSpecificationRepository marketDataSpecificationRepository,
-                              BlotterColumnMapper blotterColumnMapper) {
+                              BlotterColumnMapper blotterColumnMapper,
+                              PositionSource positionSource,
+                              ConfigMaster configMaster,
+                              SecuritySource securitySource) {
     ArgumentChecker.notNull(viewProcessor, "viewProcessor");
     ArgumentChecker.notNull(aggregatedViewDefManager, "aggregatedViewDefManager");
     ArgumentChecker.notNull(snapshotMaster, "snapshotMaster");
     ArgumentChecker.notNull(targetResolver, "targetResolver");
     ArgumentChecker.notNull(marketDataSpecificationRepository, "marketDataSpecificationRepository");
     ArgumentChecker.notNull(blotterColumnMapper, "blotterColumnMapper");
+    ArgumentChecker.notNull(positionSource, "positionSource");
+    ArgumentChecker.notNull(configMaster, "configMaster");
+    ArgumentChecker.notNull(securitySource, "securitySource");
+    _positionSource = positionSource;
+    _configMaster = configMaster;
+    _securitySource = securitySource;
     _blotterColumnMapper = blotterColumnMapper;
     _targetResolver = targetResolver;
     _viewProcessor = viewProcessor;
@@ -87,10 +108,20 @@ public class AnalyticsViewManager {
     if (_viewConnections.containsKey(viewId)) {
       throw new IllegalArgumentException("View ID " + viewId + " is already in use");
     }
+    // TODO need to load and fully resolve the portfolio, need portfolio and security master
+    // portfolio ID only available in the view def, need config master
+    ViewDefinition viewDef = (ViewDefinition) _configMaster.get(request.getViewDefinitionId()).getConfig().getValue();
+    UniqueId portfolioId = viewDef.getPortfolioId();
+    // TODO confirm the correct versioning behaviour
+    Portfolio portfolio = _positionSource.getPortfolio(portfolioId.getObjectId(), VersionCorrection.LATEST);
+    // TODO something a bit more sophisticated with the executor
+    Portfolio resolvedPortfolio =
+        PortfolioCompiler.resolvePortfolio(portfolio, Executors.newSingleThreadExecutor(), _securitySource);
     ViewClient viewClient = _viewProcessor.createViewClient(user);
     s_logger.debug("Client ID {} creating new view with ID {}", clientId, viewId);
     ViewportListener viewportListener = new LoggingViewportListener(viewClient);
-    AnalyticsView view = new SimpleAnalyticsView(viewId,
+    AnalyticsView view = new SimpleAnalyticsView(resolvedPortfolio,
+                                                 viewId,
                                                  portfolioGridId,
                                                  primitivesGridId,
                                                  _targetResolver,

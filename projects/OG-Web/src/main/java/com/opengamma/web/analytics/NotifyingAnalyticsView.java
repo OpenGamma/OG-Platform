@@ -34,8 +34,8 @@ import com.opengamma.web.analytics.push.UpdateListener;
   }
 
   @Override
-  public List<String> updateStructure(CompiledViewDefinition compiledViewDefinition) {
-    List<String> callbackIds = _delegate.updateStructure(compiledViewDefinition);
+  public List<String> updateColumns(CompiledViewDefinition compiledViewDefinition) {
+    List<String> callbackIds = _delegate.updateColumns(compiledViewDefinition);
     _listener.itemsUpdated(callbackIds);
     return callbackIds;
   }
@@ -134,4 +134,11 @@ import com.opengamma.web.analytics.push.UpdateListener;
   public ViewportResults getData(GridType gridType, int graphId, int viewportId) {
     return _delegate.getData(gridType, graphId, viewportId);
   }
+
+  /*@Override
+  public List<String> entityChanged(ChangeEvent event) {
+    List<String> ids = _delegate.entityChanged(event);
+    _listener.itemsUpdated(ids);
+    return ids;
+  }*/
 }

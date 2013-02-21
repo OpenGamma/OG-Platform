@@ -42,7 +42,7 @@ public final class PrimitivesGridStructure extends MainGridStructure {
 
   /* package */static PrimitivesGridStructure create(CompiledViewDefinition compiledViewDef, ValueMappings valueMappings) {
     List<MainGridStructure.Row> rows = rows(compiledViewDef);
-    GridColumn labelColumn = new GridColumn("Label", "", String.class, new PrimitivesLabelRenderer(rows));
+    GridColumn labelColumn = new GridColumn("Name", "", String.class, new PrimitivesLabelRenderer(rows));
     GridColumnGroup fixedColumns = new GridColumnGroup("fixed", ImmutableList.of(labelColumn), false);
     TargetLookup targetLookup = new TargetLookup(valueMappings, rows);
     List<GridColumnGroup> analyticsColumns = buildAnalyticsColumns(compiledViewDef.getViewDefinition(), targetLookup);

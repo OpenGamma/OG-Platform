@@ -31,10 +31,10 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public List<String> updateStructure(CompiledViewDefinition compiledViewDefinition) {
+  public List<String> updateColumns(CompiledViewDefinition compiledViewDefinition) {
     long startTime = System.currentTimeMillis();
     s_logger.trace("Executing AnalyticsView.updateStructure");
-    List<String> retVal = _delegate.updateStructure(compiledViewDefinition);
+    List<String> retVal = _delegate.updateColumns(compiledViewDefinition);
     s_logger.trace("Method updateStructure completed in " + (System.currentTimeMillis() - startTime) + "ms");
     return retVal;
   }
@@ -176,4 +176,13 @@ import com.opengamma.util.ArgumentChecker;
     s_logger.trace("Method getData completed in " + (System.currentTimeMillis() - startTime) + "ms");
     return retVal;
   }
+
+  /*@Override
+  public List<String> entityChanged(ChangeEvent event) {
+    long startTime = System.currentTimeMillis();
+    s_logger.trace("Executing AnalyticsView.entityChanged");
+    List<String> retVal = _delegate.entityChanged(event);
+    s_logger.trace("Method entityChanged completed in " + (System.currentTimeMillis() - startTime) + "ms");
+    return retVal;
+  }*/
 }

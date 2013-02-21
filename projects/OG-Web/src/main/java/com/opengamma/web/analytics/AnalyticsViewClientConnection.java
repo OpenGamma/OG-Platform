@@ -7,6 +7,10 @@ package com.opengamma.web.analytics;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.threeten.bp.Instant;
+
 import com.google.common.collect.Lists;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.marketdata.NamedMarketDataSpecificationRepository;
@@ -36,7 +40,9 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
  * Connects the engine to an {@link AnalyticsView}. Contains the logic for setting up a {@link ViewClient}, connecting it to a view process, handling events from the engine and forwarding data to the
  * {@code ViewClient}.
  */
-/* package */ class AnalyticsViewClientConnection {
+/* package */ class AnalyticsViewClientConnection /*implements ChangeListener*/ {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(AnalyticsViewClientConnection.class);
 
   private final AnalyticsView _view;
   private final ViewClient _viewClient;
@@ -138,6 +144,11 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
     return _view;
   }
 
+  /*@Override
+  public void entityChanged(ChangeEvent event) {
+    _view.entityChanged(event);
+  }*/
+
   /**
    * Listener for view results. This is an inner class to avoid polluting the interface of the parent class with public callback methods.
    */
@@ -167,7 +178,12 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
 
     @Override
     public void viewDefinitionCompiled(CompiledViewDefinition compiledViewDefinition, boolean hasMarketDataPermissions) {
-      _view.updateStructure(compiledViewDefinition);
+      _view.updateColumns(compiledViewDefinition);
+    }
+
+    @Override
+    public void viewDefinitionCompilationFailed(Instant valuationTime, Exception exception) {
+      s_logger.warn("Compilation of the view definition failed", exception);
     }
   }
 
