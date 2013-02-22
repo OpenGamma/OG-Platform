@@ -65,8 +65,6 @@ public class PortfolioAggregationTool extends AbstractTool<IntegrationToolContex
     _aggregationFunctions.put("AssetClass", new AssetClassAggregationFunction());
     _aggregationFunctions.put("Currency", new CurrencyAggregationFunction());
     _aggregationFunctions.put("DetailedAssetClass", new DetailedAssetClassAggregationFunction());
-    _aggregationFunctions.put("Account", new PositionAttributeAggregationFunction("account"));
-    _aggregationFunctions.put("SubAccount", new PositionAttributeAggregationFunction("subaccount"));
     _aggregationFunctions.put("Underlying", new UnderlyingAggregationFunction(secSource, "BLOOMBERG_TICKER"));
   }
   
@@ -91,8 +89,9 @@ public class PortfolioAggregationTool extends AbstractTool<IntegrationToolContex
     options.addOption(aggregationTypesOption);
     @SuppressWarnings("static-access")
     Option splitPortfoliosOption =  OptionBuilder.withLongOpt("split")
-                                                 .withDescription("Split into separate portfolios grouped by the top-level aggregator" +
-                                                                  " instead of aggregating the existing portfoliio")
+                                                 .withDescription(
+                                                     "Split into separate portfolios grouped by the top-level aggregator" +
+                                                         " instead of aggregating the existing portfoliio")
                                                  .create(SPLIT_OPT);
     options.addOption(splitPortfoliosOption);
     return options; 
@@ -163,13 +162,12 @@ public class PortfolioAggregationTool extends AbstractTool<IntegrationToolContex
     } else { 
       @SuppressWarnings("unchecked")
       AggregationFunction<?>[] results = new AggregationFunction<?>[aggregatorNames.length];
-      for (int i=0; i < aggregatorNames.length; i++) {
+      for (int i = 0; i < aggregatorNames.length; i++) {
         AggregationFunction<?> aggregationFunction = _aggregationFunctions.get(aggregatorNames[i].trim());
         if (aggregationFunction != null) {
           results[i] = aggregationFunction;
         } else {
-          s_logger.error("Couldn't find an aggregator called " + aggregatorNames[i]);
-          System.exit(1);
+          results[i] =  new PositionAttributeAggregationFunction(aggregatorNames[i].trim());
         }
       }
       return results;
