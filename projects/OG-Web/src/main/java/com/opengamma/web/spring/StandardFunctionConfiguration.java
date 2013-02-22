@@ -111,6 +111,10 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
     private final Value _cubeName = new Value();
     private final Value _forwardCurveName = new Value();
     private final Value _forwardCurveCalculationMethod = new Value();
+//    private final Value _commodityForwardCurveName = new Value();
+//    private final Value _commodityForwardCurveCalculationMethod = new Value();
+//    private final Value _equityForwardCurveName = new Value();
+//    private final Value _equityForwardCurveCalculationMethod = new Value();
     private final Value _surfaceCalculationMethod = new Value();
 
     public CurrencyInfo(final String currency) {

@@ -115,8 +115,10 @@ public class BloombergEquityFuturePriceCurveInstrumentProvider implements Future
     final String expiryCode = BloombergFutureUtils.getShortExpiryCode(expiryDate);
     ticker.append(expiryCode);
     ticker.append(" ");
-    ticker.append(getExchange());
-    ticker.append(" ");
+    if (getExchange() != null) {
+      ticker.append(getExchange());
+      ticker.append(" ");
+    }
     ticker.append(getPostfix());
     return ExternalId.of(getTickerScheme(), ticker.toString());
   }

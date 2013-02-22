@@ -1,9 +1,9 @@
 /**
- * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.equity;
+package com.opengamma.financial.analytics.model.curve.forward;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -16,7 +16,6 @@ import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.curve.NodalDoublesCurve;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
-import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -30,12 +29,11 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
-import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
 
 /**
  *
  */
-public class EquityForwardCurveFromFutureCurveFunction extends AbstractFunction.NonCompiledInvoker {
+public class EquityIndexForwardCurveFromFutureCurveFunction extends AbstractFunction.NonCompiledInvoker {
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
@@ -70,15 +68,7 @@ public class EquityForwardCurveFromFutureCurveFunction extends AbstractFunction.
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.PRIMITIVE;
-  }
-
-  @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    final String targetScheme = target.getUniqueId().getScheme();
-    return targetScheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER.getName())
-        || targetScheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName())
-        || targetScheme.equalsIgnoreCase(ExternalSchemes.ACTIVFEED_TICKER.getName());
+    return ComputationTargetType.CURRENCY;
   }
 
   @Override
