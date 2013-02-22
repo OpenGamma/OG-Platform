@@ -7,35 +7,52 @@ package com.opengamma.analytics.financial.credit.scratchpad;
 
 import java.util.Arrays;
 
-import org.testng.annotations.Test;
-
 /**
  * 
  */
 public class ScratchPadTest {
 
-  @Test
+  //@Test
   public void test() {
 
-    double[] x = new double[10];
+    double startTime = tic(); //System.nanoTime();
 
-    for (int i = 0; i < 10; i++) {
-      x[i] = 100 - i * i;
+    int n = 1000000;
+
+    double[] x = new double[n];
+
+    for (int i = 0; i < n; i++) {
+      x[i] = n - i * i;
     }
 
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < n; i++) {
       //System.out.println(i + "\t" + x[i]);
     }
 
-    final int n = x.length;
+    //final int num = x.length;
 
     final double[] copy = Arrays.copyOf(x, n);
 
     Arrays.sort(copy);
 
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < n; i++) {
       //System.out.println(i + "\t" + copy[i]);
     }
+
+    double endTime = toc(); //System.nanoTime();
+
+    double duration = (endTime - startTime) / 1e9;
+
+    //System.out.println(duration);
+
+  }
+
+  double tic() {
+    return System.nanoTime();
+  }
+
+  double toc() {
+    return System.nanoTime();
   }
 
 }

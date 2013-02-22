@@ -31,6 +31,8 @@ public class StandardCreditDefaultSwapDefinition extends CreditDefaultSwapDefini
   // TODO : Need to add the test file for this object
   // TODO : Check hashCode (and need to fix this) and equals methods
 
+  // TODO : Maybe replace the _cashSettlementDate with an integer to make this more like the MarkIt calculator
+
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Member variables specific to the standard CDS contract
