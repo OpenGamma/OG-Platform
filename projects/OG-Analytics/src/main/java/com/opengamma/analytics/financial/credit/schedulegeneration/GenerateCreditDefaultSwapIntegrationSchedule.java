@@ -50,7 +50,7 @@ public class GenerateCreditDefaultSwapIntegrationSchedule {
     ArgumentChecker.notNull(hazardRateCurve, "Hazard Rate Curve");
 
     // Do we want to include the CDS premium leg cashflow schedule as points
-    final boolean includeSchedule = true;
+    final boolean includeSchedule = false;
 
     // Get the start time of the CDS with respect to the current valuation date (can obviously be negative)
     final double startTime = calculateCreditDefaultSwapStartTime(valuationDate, cds, ACT_365);
@@ -118,34 +118,43 @@ public class GenerateCreditDefaultSwapIntegrationSchedule {
     ArgumentChecker.notNull(startTime, "Start time");
     ArgumentChecker.notNull(endTime, "End time");
 
+    // TODO : Check ordering of startTime and endTime
+
     // ------------------------------------------------
 
-    double offset = 0.0;
+    // TODO : Move these lines into the includeSchedule code as they are only used here
 
     final GenerateCreditDefaultSwapPremiumLegSchedule premiumLegCashflowSchedule = new GenerateCreditDefaultSwapPremiumLegSchedule();
 
-    final ZonedDateTime[] cashflowSchedule = premiumLegCashflowSchedule.constructCreditDefaultSwapPremiumLegSchedule(cds);
+    final ZonedDateTime[] cashflowSchedule = premiumLegCashflowSchedule.constructISDACompliantCreditDefaultSwapPremiumLegSchedule(cds);
 
     final double[] cashflowScheduleAsDoubles = premiumLegCashflowSchedule.convertTenorsToDoubles(cashflowSchedule, valuationDate, ACT_365);
 
+    // ------------------------------------------------
+
+    // All the timenodes in the list
     final NavigableSet<Double> allTimePoints = new TreeSet<Double>();
 
+    // The subset of timenodes in the range over which protection extends
     Set<Double> timePointsInRange;
 
-    double[] x = yieldCurve.getTimePoints();
-
     // ------------------------------------------------
+
+    // Add the timenodes on the rates curve
+    double[] x = yieldCurve.getTimePoints();
 
     for (final double element : x) {
       allTimePoints.add(new Double(element));
     }
 
+    // Add the timenodes on the hazard rate curve
     x = hazardRateCurve.getShiftedTimePoints();
 
     for (final double element : x) {
       allTimePoints.add(new Double(element));
     }
 
+    // Add the timenodes at the times when protection starts and ends
     allTimePoints.add(new Double(startTime));
     allTimePoints.add(new Double(endTime));
 
@@ -153,11 +162,14 @@ public class GenerateCreditDefaultSwapIntegrationSchedule {
 
     if (includeSchedule) {
 
+      double offset = 0.0;
+
       if (cds.getProtectionStart()) {
         offset = cds.getProtectionOffset();
       }
 
       final double offsetStartTime = TimeCalculator.getTimeBetween(valuationDate, cashflowSchedule[1], ACT_365) - offset;
+
       allTimePoints.add(new Double(offsetStartTime));
 
       double periodEndTime = 0.0;
@@ -208,6 +220,7 @@ public class GenerateCreditDefaultSwapIntegrationSchedule {
 
   // -------------------------------------------------------------------------------------------------
 
+  // TODO : Note this is hard coded at the moment
   // Calculate the step in time for the CDS (the point at which protection coverage starts)
   public double calculateCreditDefaultSwapStepinTime(
       final ZonedDateTime valuationDate,
@@ -240,13 +253,14 @@ public class GenerateCreditDefaultSwapIntegrationSchedule {
 
   // -------------------------------------------------------------------------------------------------
 
-  // Calculate the start time of the CDS contract with respect to the valuation date (can be negative obviously)
   public double calculateProtectionStartTime(
       final ZonedDateTime valuationDate,
       final CreditDefaultSwapDefinition cds,
       final DayCount dayCount) {
 
+    // Calculate the start time of the CDS contract with respect to the valuation date (can be negative obviously)
     final double startTime = calculateCreditDefaultSwapStartTime(valuationDate, cds, dayCount);
+
     final double stepInTime = calculateCreditDefaultSwapStepinTime(valuationDate, dayCount);
 
     final double offsetPricingTime = -cds.getProtectionOffset();
