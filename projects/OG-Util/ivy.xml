@@ -6,7 +6,7 @@
   </publications>
   <dependencies>
     <dependency org="org.fudgemsg" name="fudge-java" rev="0.3.9.6"/>
-    <dependency org="org.fudgemsg" name="fudge-proto" rev="0.3.9.4"/>
+    <dependency org="org.fudgemsg" name="fudge-proto" rev="0.3.9.5"/>
     <dependency org="org.apache.commons" name="commons-lang" rev="2.6"/>
     <dependency org="org.apache.commons" name="commons-io" rev="2.3"/>
     <dependency org="org.apache.commons" name="commons-cli" rev="1.2"/>
