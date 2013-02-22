@@ -51,11 +51,16 @@ $.register_module({
             /* Util data */
             otc_trade : {
                 attributes: {},
-                type: "OtcTrade"
+                type: "OtcTrade",
+                premiumCurrency: 'USD',
+                premium: 10
+
             },
             fungible_trade : {
                 attributes: {},
-                type: "FungibleTrade"
+                type: "FungibleTrade",
+                premiumCurrency: 'USD',
+                premium: 10
             },
             swap_types : [
                 {text:'Floating Interest Rate Leg', value:'FloatingInterestRateLeg'},
