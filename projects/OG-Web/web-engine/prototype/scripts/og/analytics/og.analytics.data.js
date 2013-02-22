@@ -19,7 +19,6 @@ $.register_module({
             var data_handler = (function () {
                 var timeout = null, rate = 500, last = +new Date, current, delta;
                 var handler = function (result) {
-                    if (data.paused) return;
                     if (!result || result.error) // do not kill connection even if there is an error, just warn
                         return og.dev.warn(data.prefix + (result && result.message || 'reset connection'));
                     if (result.data && result.data.version === viewport_version) fire('data', result.data.data);
@@ -204,10 +203,8 @@ $.register_module({
                 setTimeout(initialize); // allow events to be attached
             }
         };
-        Data.pause = function () {Data.prototype.paused = !Data.prototype.paused;};
         Data.prototype.off = og.common.events.off;
         Data.prototype.on = og.common.events.on;
-        Data.prototype.paused = false;
         return Data;
     }
 });
