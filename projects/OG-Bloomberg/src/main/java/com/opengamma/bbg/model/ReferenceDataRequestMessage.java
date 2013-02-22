@@ -5,11 +5,11 @@ import java.util.Set;
 import java.util.TreeSet;
 public class ReferenceDataRequestMessage implements java.io.Serializable {
           public Set<String> getSecurities () {
-          return new TreeSet<String> (getSecurity ());
-        }
-        public Set<String> getFields () {
-          return new TreeSet<String> (getField ()); 
-        }
+            return new TreeSet<String> (getSecurity ());
+          }
+          public Set<String> getFields () {
+            return new TreeSet<String> (getField ()); 
+          }
   private static final long serialVersionUID = 27268955680917l;
   private java.util.List<String> _security;
   public static final String SECURITY_KEY = "security";

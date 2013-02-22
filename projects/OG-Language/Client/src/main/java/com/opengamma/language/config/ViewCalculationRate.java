@@ -3,7 +3,7 @@
 package com.opengamma.language.config;
 public class ViewCalculationRate extends com.opengamma.language.config.ConfigurationItem implements java.io.Serializable {
           @Override 
-        public <T> T accept (final ConfigurationItemVisitor<T> visitor) { return visitor.visitViewCalculationRate (this); }
+          public <T> T accept (final ConfigurationItemVisitor<T> visitor) { return visitor.visitViewCalculationRate (this); }
   private static final long serialVersionUID = -1430661887897626589l;
   private long _minDelta;
   public static final String MIN_DELTA_KEY = "minDelta";

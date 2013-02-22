@@ -3,7 +3,7 @@
 package com.opengamma.language.config;
 public class ValueProperty extends com.opengamma.language.config.ConfigurationItem implements java.io.Serializable {
           @Override
-        public <T> T accept (ConfigurationItemVisitor<T> visitor) { return visitor.visitValueProperty (this); }
+          public <T> T accept (ConfigurationItemVisitor<T> visitor) { return visitor.visitValueProperty (this); }
   private static final long serialVersionUID = -3771451130679827296l;
   private String _configuration;
   public static final int CONFIGURATION_ORDINAL = 1;

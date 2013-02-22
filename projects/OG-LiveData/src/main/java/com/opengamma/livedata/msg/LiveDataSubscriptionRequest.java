@@ -3,13 +3,13 @@
 package com.opengamma.livedata.msg;
 public class LiveDataSubscriptionRequest implements java.io.Serializable {
         @Override
-      public String toString() {
-        return new StringBuilder()
-        .append("LiveDataSubscriptionRequest[")
-        .append(_specifications.size())
-        .append(" specifications]")
-        .toString();
-      }
+        public String toString() {
+          return new StringBuilder()
+          .append("LiveDataSubscriptionRequest[")
+          .append(_specifications.size())
+          .append(" specifications]")
+          .toString();
+        }
   private static final long serialVersionUID = 666128997025752l;
   private com.opengamma.livedata.UserPrincipal _user;
   public static final String USER_KEY = "user";

@@ -3,7 +3,7 @@
 package com.opengamma.language.config;
 public class EnableCycleAccess extends com.opengamma.language.config.ConfigurationItem implements java.io.Serializable {
           @Override
-        public <T> T accept (ConfigurationItemVisitor<T> visitor) { return visitor.visitEnableCycleAccess (this); }
+          public <T> T accept (ConfigurationItemVisitor<T> visitor) { return visitor.visitEnableCycleAccess (this); }
   private static final long serialVersionUID = 1l;
   public EnableCycleAccess () {
   }

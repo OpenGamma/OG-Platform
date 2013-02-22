@@ -3,7 +3,7 @@
 package com.opengamma.language.config;
 public class MarketDataOverride extends com.opengamma.language.config.ConfigurationItem implements java.io.Serializable {
           @Override
-        public <T> T accept (ConfigurationItemVisitor<T> visitor) { return visitor.visitMarketDataOverride (this); }
+          public <T> T accept (ConfigurationItemVisitor<T> visitor) { return visitor.visitMarketDataOverride (this); }
   private static final long serialVersionUID = 6585821937380815577l;
   public enum Operation {
     ADD,
