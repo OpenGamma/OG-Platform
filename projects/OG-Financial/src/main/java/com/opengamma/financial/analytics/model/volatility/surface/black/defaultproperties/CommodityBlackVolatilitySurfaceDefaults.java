@@ -93,7 +93,7 @@ public abstract class CommodityBlackVolatilitySurfaceDefaults extends DefaultPro
 
   @Override
   public String getMutualExclusionGroup() {
-    return OpenGammaFunctionExclusions.COMMODITY_BLACK_VOLATILITY_SURFACE_DEFAULTS;
+    return OpenGammaFunctionExclusions.BLACK_VOLATILITY_SURFACE_DEFAULTS;
   }
 
 }

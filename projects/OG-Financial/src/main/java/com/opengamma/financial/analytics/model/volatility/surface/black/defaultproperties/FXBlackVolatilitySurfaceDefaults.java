@@ -116,7 +116,7 @@ public abstract class FXBlackVolatilitySurfaceDefaults extends DefaultPropertyFu
 
   @Override
   public String getMutualExclusionGroup() {
-    return OpenGammaFunctionExclusions.FX_BLACK_VOLATILITY_SURFACE_DEFAULTS;
+    return OpenGammaFunctionExclusions.BLACK_VOLATILITY_SURFACE_DEFAULTS;
   }
 
 }
