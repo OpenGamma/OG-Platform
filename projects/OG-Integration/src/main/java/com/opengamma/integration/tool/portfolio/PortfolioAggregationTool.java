@@ -19,7 +19,10 @@ import org.threeten.bp.Period;
 
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.position.Portfolio;
+import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.PositionSource;
+import com.opengamma.core.position.impl.SimplePortfolio;
+import com.opengamma.core.position.impl.SimplePortfolioNode;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.view.compilation.PortfolioCompiler;
 import com.opengamma.financial.aggregation.AggregationFunction;
@@ -56,7 +59,8 @@ public class PortfolioAggregationTool extends AbstractTool<IntegrationToolContex
   private final Map<String, AggregationFunction<?>> _aggregationFunctions = new HashMap<String, AggregationFunction<?>>();
   private static final String PORTFOLIO_OPT = "p";
   private static final String AGGREGATION_OPT = "a";
-  
+  private static final String SPLIT_OPT = "s";
+
   private void populate(SecuritySource secSource) {
     _aggregationFunctions.put("AssetClass", new AssetClassAggregationFunction());
     _aggregationFunctions.put("Currency", new CurrencyAggregationFunction());
@@ -82,12 +86,18 @@ public class PortfolioAggregationTool extends AbstractTool<IntegrationToolContex
                                                  .isRequired()
                                                  .withValueSeparator(',')
                                                  .withDescription("The (comma, no space seperated) names of the aggregation" +
-                                                                  " styles to use: e.g AssetClass, Currency, DetailtedAssetClass")
+                                                                  " styles to use: e.g AssetClass,Currency,DetailtedAssetClass")
                                                  .create(AGGREGATION_OPT);
     options.addOption(aggregationTypesOption);
+    @SuppressWarnings("static-access")
+    Option splitPortfoliosOption =  OptionBuilder.withLongOpt("split")
+                                                 .withDescription("Split into separate portfolios grouped by the top-level aggregator" +
+                                                                  " instead of aggregating the existing portfoliio")
+                                                 .create(SPLIT_OPT);
+    options.addOption(splitPortfoliosOption);
     return options; 
   }
-  
+
   @Override
   protected void doRun() {
     PortfolioMaster portfolioMaster = getToolContext().getPortfolioMaster();
@@ -131,7 +141,17 @@ public class PortfolioAggregationTool extends AbstractTool<IntegrationToolContex
       System.exit(1);
     }
     SavePortfolio savePortfolio = new SavePortfolio(newFixedThreadPool, portfolioMaster, positionMaster);
-    savePortfolio.savePortfolio(aggregatedPortfolio, true); // update matching named portfolio.
+    if (getCommandLine().hasOption(SPLIT_OPT)) {
+      for (PortfolioNode portfolioNode : aggregatedPortfolio.getRootNode().getChildNodes()) {
+        String splitPortfolioName = portfolioName + " (" + getCommandLine().getOptionValues(AGGREGATION_OPT)[0] + ": " + portfolioNode.getName() + ")";
+        Portfolio splitPortfolio = new SimplePortfolio(splitPortfolioName, (SimplePortfolioNode) portfolioNode);
+        s_logger.info("Saving split portfolio " + portfolioName + "...");
+        savePortfolio.savePortfolio(splitPortfolio, true);
+      }
+
+    } else {
+      savePortfolio.savePortfolio(aggregatedPortfolio, true); // update matching named portfolio.
+    }
     s_logger.info("Saved.");
   }
   
