@@ -1,13 +1,15 @@
+/**
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.integration.tool.portfolio.xml.v1_0.conversion;
 
 import java.math.BigDecimal;
-import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -45,7 +47,7 @@ public class SwapTradeSecurityExtractor extends TradeSecurityExtractor<SwapTrade
       throw new OpenGammaRuntimeException("One leg should be Pay and one Receive");
     }
 
-    SwapSecurity security = new SwapSecurity(convertLocalDate(swapTrade.getTradeDate()),
+    ManageableSecurity security = new SwapSecurity(convertLocalDate(swapTrade.getTradeDate()),
                                              convertLocalDate(swapTrade.getEffectiveDate()),
                                              convertLocalDate(swapTrade.getMaturityDate()),
                                              swapTrade.getCounterparty().getExternalId().getId(),
@@ -87,10 +89,9 @@ public class SwapTradeSecurityExtractor extends TradeSecurityExtractor<SwapTrade
   }
 
   private ExternalId extractRegion(SwapLeg floatingLeg) {
-    Set<String> calendarRegions = extractCalendarRegions(floatingLeg.getPaymentCalendars());
-
-    return ExternalSchemes.financialRegionId(StringUtils.join(calendarRegions, "+"));
+    return extractRegion(floatingLeg.getPaymentCalendars());
   }
+
   private double convertRate(BigDecimal rate) {
     return rate.divide(new BigDecimal(100)).doubleValue();
   }

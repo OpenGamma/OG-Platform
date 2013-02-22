@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.integration.tool.portfolio.xml.v1_0.conversion;
 
 import java.math.BigDecimal;
@@ -13,6 +18,7 @@ import com.opengamma.core.security.Security;
 import com.opengamma.integration.tool.portfolio.xml.PortfolioPosition;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.EquityVarianceSwapTrade;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.FxDigitalOptionTrade;
+import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.FxForwardTrade;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.FxOptionTrade;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.Portfolio;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.Position;
@@ -33,7 +39,8 @@ public class PortfolioConverter {
       FxOptionTrade.class, new FxOptionTradeSecurityExtractor(),
       FxDigitalOptionTrade.class, new FxDigitalOptionTradeSecurityExtractor(),
       SwapTrade.class, new SwapTradeSecurityExtractor(),
-      EquityVarianceSwapTrade.class, new EquityVarianceSwapTradeSecurityExtractor()
+      EquityVarianceSwapTrade.class, new EquityVarianceSwapTradeSecurityExtractor() ,
+      FxForwardTrade.class, new FxForwardTradeSecurityExtractor()
   );
 
   public PortfolioConverter(Portfolio portfolio) {

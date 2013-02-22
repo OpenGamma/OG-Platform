@@ -19,16 +19,18 @@
       <currencyPair>EUR/USD</currencyPair>
       <optionCurrency>EUR</optionCurrency>
 
-      <expiryDate>2018-01-31</expiryDate>
-      <expiryCutoff>ECB|10am NY</expiryCutoff>
-
       <strike>1.9</strike>
 
-      <expiryCalendars>
-        <calendar type="Bank">
-          <id scheme="CountryISO2">FD</id>
-        </calendar>
-      </expiryCalendars>
+      <fxExpiry>
+        <expiryDate>2018-01-31</expiryDate>
+        <expiryCutoff>ECB|10am NY</expiryCutoff>
+
+        <expiryCalendars>
+          <calendar type="Bank">
+            <id scheme="CountryISO2">FD</id>
+          </calendar>
+        </expiryCalendars>
+      </fxExpiry>
 
       <paymentCalendars>
         <calendar type="Bank">

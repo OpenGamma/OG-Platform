@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 @XmlJavaTypeAdapters({
     @XmlJavaTypeAdapter(value = LocalDateAdapter.class, type = LocalDate.class)})
 package com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb;

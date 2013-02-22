@@ -11,13 +11,11 @@
 
       <counterparty><id scheme="Cpty">GOLDMAN</id></counterparty>
 
-      <currencyPair>EUR/USD</currencyPair>
-      <buySell>Buy</buySell>
-      <optionCurrency>EUR</optionCurrency>
+      <payAmount>1000000.00</payAmount >
+      <payCurrency>EUR</payCurrency >
 
-      <nominal>1000000.00</nominal>
-
-      <rate>1.9</rate>
+      <receiveAmount>1400000.00</receiveAmount>
+      <receiveCurrency>USD</receiveCurrency >
 
       <paymentCalendars>
         <calendar type="Bank">
@@ -28,10 +26,9 @@
     </fxForwardTrade>
   </trades>
 
-
   <portfolios>
     <!-- portfolio name must be unique in this set -->
-    <portfolio name="single_fx_digital_option_portfolio">
+    <portfolio name="fx_forward_portfolio">
       <trades>
         <trade ref="t1"/>
       </trades>

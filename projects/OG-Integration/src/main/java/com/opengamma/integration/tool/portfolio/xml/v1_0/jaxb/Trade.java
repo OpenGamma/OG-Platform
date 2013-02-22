@@ -1,5 +1,9 @@
+/**
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb;
-
 
 import java.math.BigDecimal;
 
@@ -15,7 +19,7 @@ import org.threeten.bp.LocalDate;
 
 @XmlRootElement
 // Ensure we look at subclasses when unmarshalling
-@XmlSeeAlso({ AbstractFxOptionTrade.class, SwapTrade.class, EquityVarianceSwapTrade.class })
+@XmlSeeAlso({ AbstractFxOptionTrade.class, SwapTrade.class, EquityVarianceSwapTrade.class, FxForwardTrade.class })
 @XmlAccessorType(XmlAccessType.FIELD)
 public abstract class Trade {
 

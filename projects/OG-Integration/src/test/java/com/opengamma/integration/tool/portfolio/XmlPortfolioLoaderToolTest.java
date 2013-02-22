@@ -206,6 +206,32 @@ public class XmlPortfolioLoaderToolTest {
   }
 
   @Test
+  public void testSinglePortfolioNoPositionSingleFxForward() {
+
+    // We should get a position automatically generated for the trade
+    String fileLocation = "src/test/resources/xml_portfolios/fx_forward_no_position.xml";
+    File file = new File(fileLocation);
+    new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, true, false, false, false, true).execute();
+
+    assertEquals(_portfolioMaster.search(new PortfolioSearchRequest()).getPortfolios().size(), 1);
+    assertEquals(_positionMaster.search(new PositionSearchRequest()).getPositions().size(), 1);
+    assertEquals(_securityMaster.search(new SecuritySearchRequest()).getSecurities().size(), 1);
+  }
+
+  @Test
+  public void testSinglePortfolioNoPositionSingleNdfFxForward() {
+
+    // We should get a position automatically generated for the trade
+    String fileLocation = "src/test/resources/xml_portfolios/ndf_fx_forward_no_position.xml";
+    File file = new File(fileLocation);
+    new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, true, false, false, false, true).execute();
+
+    assertEquals(_portfolioMaster.search(new PortfolioSearchRequest()).getPortfolios().size(), 1);
+    assertEquals(_positionMaster.search(new PositionSearchRequest()).getPositions().size(), 1);
+    assertEquals(_securityMaster.search(new SecuritySearchRequest()).getSecurities().size(), 1);
+  }
+
+  @Test
   public void testSinglePortfolioNoPositionMultipleFxOption() {
 
     // We should get a position automatically generated for the trades
