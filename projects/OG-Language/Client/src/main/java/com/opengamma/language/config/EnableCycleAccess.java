@@ -1,6 +1,5 @@
 // Automatically created - do not modify
-///CLOVER:OFF
-// CSOFF: Generated File
+///CLOVER:OFF - CSOFF
 package com.opengamma.language.config;
 public class EnableCycleAccess extends com.opengamma.language.config.ConfigurationItem implements java.io.Serializable {
           @Override
@@ -51,5 +50,4 @@ public class EnableCycleAccess extends com.opengamma.language.config.Configurati
     return org.apache.commons.lang.builder.ToStringBuilder.reflectionToString(this, org.apache.commons.lang.builder.ToStringStyle.SHORT_PREFIX_STYLE);
   }
 }
-///CLOVER:ON
-// CSON: Generated File
+///CLOVER:ON - CSON

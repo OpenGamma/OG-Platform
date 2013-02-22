@@ -1,6 +1,5 @@
 // Automatically created - do not modify
-///CLOVER:OFF
-// CSOFF: Generated File
+///CLOVER:OFF - CSOFF
 package com.opengamma.language.procedure;
 public abstract class Custom extends com.opengamma.language.connector.Procedure implements java.io.Serializable {
   public <T1,T2> T1 accept (final ProcedureVisitor<T1,T2> visitor, final T2 data) throws com.opengamma.util.async.AsynchronousExecution { return visitor.visitCustom (this, data); }
@@ -44,5 +43,4 @@ public abstract class Custom extends com.opengamma.language.connector.Procedure 
     return org.apache.commons.lang.builder.ToStringBuilder.reflectionToString(this, org.apache.commons.lang.builder.ToStringStyle.SHORT_PREFIX_STYLE);
   }
 }
-///CLOVER:ON
-// CSON: Generated File
+///CLOVER:ON - CSON
