@@ -43,7 +43,7 @@ public class GenerateCreditDefaultSwapPremiumLegScheduleTest {
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 
   // Flag to control if any test results are output to the console
-  private static final boolean outputResults = false;
+  private static final boolean outputResults = true;
 
   // ----------------------------------------------------------------------------------
 
@@ -109,10 +109,10 @@ public class GenerateCreditDefaultSwapPremiumLegScheduleTest {
 
   private static final Calendar calendar = new MondayToFridayCalendar("TestCalendar");
 
-  private static final ZonedDateTime startDate = DateUtils.getUTCDate(2008, 3, 20);
-  private static final ZonedDateTime effectiveDate = DateUtils.getUTCDate(2008, 3, 21);
-  private static final ZonedDateTime maturityDate = DateUtils.getUTCDate(2013, 3, 20);
-  private static final ZonedDateTime valuationDate = DateUtils.getUTCDate(2008, 9, 18);
+  private static final ZonedDateTime startDate = DateUtils.getUTCDate(2013, 1, 30);
+  private static final ZonedDateTime effectiveDate = DateUtils.getUTCDate(2013, 1, 31);
+  private static final ZonedDateTime maturityDate = DateUtils.getUTCDate(2013, 9, 20);
+  private static final ZonedDateTime valuationDate = DateUtils.getUTCDate(2013, 1, 30);
 
   private static final StubType stubType = StubType.FRONTSHORT;
   private static final PeriodFrequency couponFrequency = PeriodFrequency.QUARTERLY;
@@ -120,8 +120,8 @@ public class GenerateCreditDefaultSwapPremiumLegScheduleTest {
   private static final BusinessDayConvention businessdayAdjustmentConvention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
 
   private static final boolean immAdjustMaturityDate = true;
-  private static final boolean adjustEffectiveDate = true;
-  private static final boolean adjustMaturityDate = true;
+  private static final boolean adjustEffectiveDate = false;
+  private static final boolean adjustMaturityDate = false;
 
   private static final double notional = 10000000.0;
   private static final double recoveryRate = 0.40;

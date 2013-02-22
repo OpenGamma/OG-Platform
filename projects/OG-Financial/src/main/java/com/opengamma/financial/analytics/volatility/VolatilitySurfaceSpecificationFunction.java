@@ -67,7 +67,7 @@ public class VolatilitySurfaceSpecificationFunction extends AbstractFunction {
               throw new OpenGammaRuntimeException("Could not get volatility surface specification named " + fullSpecificationName);
             }
           }
-        } else if (instrumentType.equals(InstrumentTypeProperties.EQUITY_OPTION)) {
+        } else if (instrumentType.equals(InstrumentTypeProperties.EQUITY_OPTION) || instrumentType.equals(InstrumentTypeProperties.EQUITY_FUTURE_OPTION)) {
           final String fullSpecificationName = surfaceName + "_" + EquitySecurityUtils.getIndexOrEquityName(target.getUniqueId());
           specification = source.getSpecification(fullSpecificationName, instrumentType);
           if (specification == null) {

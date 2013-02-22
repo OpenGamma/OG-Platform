@@ -43,7 +43,9 @@ $.register_module({
                 }
             });
             block.name = function () {
-                return  $(this.select_id()).val().trim() + '~' +  $(this.input_id()).val().trim();
+                var scheme = $(this.select_id()).val().trim(), id = $(this.input_id()).val().trim();
+                if (!scheme.length || !id.length) return false;
+                return  scheme + '~' + id;
             };
             block.input_id = function () {
                 return '#' + sec_id;

@@ -940,6 +940,7 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
   protected void setForwardCurveDefaults(final CurrencyInfo i, final ForwardFunctions.Defaults.CurrencyInfo defaults) {
     defaults.setCurveConfiguration(i.getCurveConfiguration("model/curve/forward"));
     defaults.setDiscountingCurve(i.getCurveName("model/curve/forward/discounting"));
+    defaults.setForwardCurve(i.getCurveName("model/curve/forward"));
   }
 
   protected void setForwardCurveDefaults(final CurrencyPairInfo i, final ForwardFunctions.Defaults.CurrencyPairInfo defaults) {

@@ -41,6 +41,104 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
 
   // -------------------------------------------------------------------------------------------
 
+  public ZonedDateTime[] constructISDACompliantCreditDefaultSwapPremiumLegSchedule(final CreditDefaultSwapDefinition cds) {
+
+    // ------------------------------------------------
+
+    // Check input CDS object is not null
+    ArgumentChecker.notNull(cds, "CDS");
+
+    // ------------------------------------------------
+
+    int totalDates = 0;
+
+    ZonedDateTime[] tempCashflowSchedule = new ZonedDateTime[1000];
+
+    ZonedDateTime date;
+    final ZonedDateTime startDate = cds.getStartDate();
+    final ZonedDateTime endDate = cds.getMaturityDate();
+
+    final boolean protectStart = cds.getProtectionStart();
+
+    final StubType stubType = cds.getStubType();
+
+    // ------------------------------------------------
+
+    // TODO : Check this logic
+    /*
+    if (protectStart) {
+      ArgumentChecker.isTrue(startDate.isBefore(endDate), null);
+    } else {
+      ArgumentChecker.isTrue(endDate.isAfter(startDate), null);
+    }
+    */
+
+    if (protectStart && endDate.equals(startDate)) {
+      // TODO : Add code for when there are only two dates and break out of routine
+    }
+
+    // ------------------------------------------------
+
+    // Is the stub at the front end of the payment schedule
+    if (stubType == StubType.FRONTSHORT || stubType == StubType.FRONTLONG) {
+
+      int i = 0;
+
+      date = endDate;
+
+      while (date.isAfter(startDate)) {
+        tempCashflowSchedule[i] = date;
+        i++;
+        totalDates++;
+        date = date.minus(cds.getCouponFrequency().getPeriod());
+      }
+
+      // TODO : Check the FRONTSHORT/FRONTLONG logic here
+      if (date.isEqual(startDate) || totalDates == 1 || stubType == StubType.FRONTSHORT) {
+        totalDates++;
+        tempCashflowSchedule[i] = startDate;
+      } else {
+        tempCashflowSchedule[i - 1] = startDate;
+      }
+
+    }
+
+    // TODO : Add the code for the back stub
+    // Is the stub at the back end of the payment schedule
+    if (stubType == StubType.BACKSHORT || stubType == StubType.BACKLONG) {
+
+    }
+
+    ZonedDateTime[] cashflowSchedule = new ZonedDateTime[totalDates];
+
+    for (int i = 0; i < totalDates; i++) {
+      cashflowSchedule[i] = tempCashflowSchedule[totalDates - 1 - i];
+    }
+
+    ZonedDateTime[] bdaCashflowSchedule = new ZonedDateTime[cashflowSchedule.length];
+
+    bdaCashflowSchedule[0] = cashflowSchedule[0];
+
+    for (int i = 1; i < bdaCashflowSchedule.length - 1; i++) {
+      bdaCashflowSchedule[i] = businessDayAdjustDate(cashflowSchedule[i], cds.getCalendar(), cds.getBusinessDayAdjustmentConvention());
+    }
+
+    // Careful of this - we are not modifying the maturity date of the CDS
+    /*
+    if (protectStart) {
+      bdaCashflowSchedule[bdaCashflowSchedule.length - 1] = cashflowSchedule[cashflowSchedule.length - 1].plusDays(1);
+    }
+    */
+
+    bdaCashflowSchedule[bdaCashflowSchedule.length - 1] = cashflowSchedule[cashflowSchedule.length - 1];
+
+    // ------------------------------------------------
+
+    return cashflowSchedule;
+  }
+
+  // -------------------------------------------------------------------------------------------
+
   // Public method to generate the premium leg cashflow schedule from the input CDS contract specification
   public ZonedDateTime[] constructCreditDefaultSwapPremiumLegSchedule(final CreditDefaultSwapDefinition cds) {
 
@@ -189,19 +287,33 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
     // Get the convention for adjusting non-business days
     final BusinessDayConvention businessdayAdjustmentConvention = cds.getBusinessDayAdjustmentConvention();
 
+    // Do we business day adjust the final cashflow
+    final boolean adjustedMaturityDateConvention = cds.getAdjustMaturityDate();
+
     final int numberOfCashflows = cashflowSchedule.length;
 
     final ZonedDateTime[] adjustedCashflowSchedule = new ZonedDateTime[numberOfCashflows];
 
     // -------------------------------------------------------------------------------
 
-    // Business day adjust all of the cashflow dates except the final one (which is handled seperately)
+    // TODO : Reverse the order of the dates in the cashflow schedule
+
+    // Business day adjust all of the cashflow dates except the first one (which is not bda) and the final one (which handled seperately)
+    //for (int i = 1; i < numberOfCashflows - 2; i++)
     for (int i = 0; i < numberOfCashflows - 1; i++) {
       adjustedCashflowSchedule[i] = businessDayAdjustDate(cashflowSchedule[i], calendar, businessdayAdjustmentConvention);
     }
 
+    /*
+    if (cds.getProtectionStart()) {
+      adjustedCashflowSchedule[0] = cashflowSchedule[0].plusDays(1);
+    } else {
+      adjustedCashflowSchedule[0] = cashflowSchedule[0];
+    }
+    */
+
     // Determine if we need to business day adjust the final cashflow or not
-    if (cds.getAdjustMaturityDate()) {
+    if (adjustedMaturityDateConvention) {
       adjustedCashflowSchedule[numberOfCashflows - 1] = businessDayAdjustDate(cashflowSchedule[numberOfCashflows - 1], calendar, businessdayAdjustmentConvention);
     } else {
       adjustedCashflowSchedule[numberOfCashflows - 1] = cashflowSchedule[numberOfCashflows - 1];
@@ -214,6 +326,8 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
 
   // -------------------------------------------------------------------------------------------
 
+  // TODO : Need to sort out the front stubs
+
   // Method to calculate the premium leg cashflow dates given the adjusted effective and maturity dates
   private ZonedDateTime[] calculateCashflowDates(final CreditDefaultSwapDefinition cds, final ZonedDateTime adjustedEffectiveDate, final ZonedDateTime adjustedMaturityDate) {
 
@@ -223,7 +337,11 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
     ArgumentChecker.notNull(adjustedEffectiveDate, "Adjusted effective date");
     ArgumentChecker.notNull(adjustedMaturityDate, "Adjusted maturity date");
 
+    // TODO : Check that mat date is after start date
+
     // -------------------------------------------------------------------------------
+
+    final ZonedDateTime startDate = cds.getStartDate();
 
     // Get the coupon stub type
     final StubType stubType = cds.getStubType();
@@ -233,6 +351,10 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
 
     // Compute the number of cashflows in the premium leg schedule (based on the adjusted effective and maturity dates and the coupon frequency and stub type)
     final int numberOfCashflows = calculateNumberOfPremiumLegCashflows(adjustedEffectiveDate, adjustedMaturityDate, couponFrequency, stubType);
+
+    //final int numberOfCashflows = calculateNumberOfPremiumLegCashflows(startDate, adjustedMaturityDate, couponFrequency, stubType);
+
+    // TODO : Need to check if there are less than two cashflow dates
 
     // Build the cashflow schedule (include the node at the effective date even though there is no cashflow on this date)
     final ZonedDateTime[] cashflowSchedule = new ZonedDateTime[numberOfCashflows + 1];
@@ -245,6 +367,18 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
       // Start at the adjusted maturity of the contract
       ZonedDateTime cashflowDate = adjustedMaturityDate;
 
+      /*
+      int i = 0;
+
+      cashflowSchedule[i] = cashflowDate;
+
+      while (cashflowDate.isAfter(startDate)) {
+        i++;
+        cashflowDate = cashflowDate.minus(couponFrequency.getPeriod());
+        cashflowSchedule[i] = cashflowDate;
+      }
+      */
+
       // Note the order of the loop and the termination condition (i > 0 not i = 0)
       for (int i = numberOfCashflows; i > 0; i--) {
 
@@ -255,6 +389,8 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
         cashflowDate = cashflowDate.minus(couponFrequency.getPeriod());
       }
 
+      // TODO : Sort this out
+
       if (stubType == StubType.FRONTSHORT) {
         // Append the timenode at the adjusted effective date at the beginning of the cashflow schedule vector
         cashflowSchedule[0] = adjustedEffectiveDate;
@@ -263,15 +399,31 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
       if (stubType == StubType.FRONTLONG) {
         cashflowSchedule[0] = cashflowDate.minus(couponFrequency.getPeriod());
       }
+
     }
 
     // -------------------------------------------------------------------------------
+
+    // TODO : Test this code
+    // TODO : Add the appendage at the end
 
     // The stub is at the back of the premium leg schedule
     if (stubType == StubType.BACKSHORT || stubType == StubType.BACKLONG) {
 
       // Start at the adjusted effective date of the contract
       ZonedDateTime cashflowDate = adjustedEffectiveDate;
+
+      /*
+      int i = 0;
+
+      cashflowSchedule[i] = cashflowDate;
+
+      while (cashflowDate.isBefore(adjustedMaturityDate)) {
+        i++;
+        cashflowDate = cashflowDate.plus(couponFrequency.getPeriod());
+        cashflowSchedule[i] = cashflowDate;
+      }
+      */
 
       for (int i = 0; i < numberOfCashflows; i++) {
 
@@ -281,6 +433,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
         // Step forward in time by the specified number of months
         cashflowDate = cashflowDate.plus(couponFrequency.getPeriod());
       }
+
     }
 
     // -------------------------------------------------------------------------------
@@ -289,7 +442,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
     for (int i = 0; i < cashflowSchedule.length; i++) {
       System.out.println("i = " + i + "\t" + cashflowSchedule[i]);
     }
-     */
+    */
 
     return cashflowSchedule;
   }
@@ -297,7 +450,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
   // -------------------------------------------------------------------------------------------
 
   // Method to determine if a date supplied is an IMM date
-  private boolean isAnIMMDate(final ZonedDateTime date) {
+  public boolean isAnIMMDate(final ZonedDateTime date) {
 
     ArgumentChecker.notNull(date, "date");
 
@@ -451,15 +604,15 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
 
   // Method to calculate the number of premium leg cashflows given the adjusted effective and maturity dates and the coupon frequency
   private int calculateNumberOfPremiumLegCashflows(
-      final ZonedDateTime adjustedEffectiveDate,
-      final ZonedDateTime adjustedMaturityDate,
+      final ZonedDateTime startDate,
+      final ZonedDateTime endDate,
       final PeriodFrequency couponFrequency,
       final StubType stubType) {
 
     // -------------------------------------------------------------------------------
 
-    ArgumentChecker.notNull(adjustedEffectiveDate, "Adjusted effective date");
-    ArgumentChecker.notNull(adjustedMaturityDate, "Adjusted maturity date");
+    ArgumentChecker.notNull(startDate, "Start date");
+    ArgumentChecker.notNull(endDate, "End date");
     ArgumentChecker.notNull(couponFrequency, "Coupon frequency");
     ArgumentChecker.notNull(stubType, "Stub type");
 
@@ -473,10 +626,10 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
     if (stubType == StubType.FRONTSHORT || stubType == StubType.FRONTLONG) {
 
       // Start at the adjusted maturity date of the contract
-      ZonedDateTime cashflowDate = adjustedMaturityDate;
+      ZonedDateTime cashflowDate = endDate;
 
       // Step back in time in steps of size determined by the coupon frequency until we get to the first valid date after the adjusted effective date
-      while (cashflowDate.isAfter(adjustedEffectiveDate)) {
+      while (cashflowDate.isAfter(startDate)) {
 
         // Step back in time
         cashflowDate = cashflowDate.minus(couponFrequency.getPeriod());
@@ -497,10 +650,10 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
     if (stubType == StubType.BACKSHORT || stubType == StubType.BACKLONG) {
 
       // Start at the adjusted effective date of the contract
-      ZonedDateTime cashflowDate = adjustedEffectiveDate;
+      ZonedDateTime cashflowDate = startDate;
 
       // Step forward in time in steps of size determined by the coupon frequency until we get to the last valid date before the adjusted maturity date
-      while (cashflowDate.isBefore(adjustedMaturityDate)) {
+      while (cashflowDate.isBefore(endDate)) {
 
         // Step forward in time
         cashflowDate = cashflowDate.plus(couponFrequency.getPeriod());

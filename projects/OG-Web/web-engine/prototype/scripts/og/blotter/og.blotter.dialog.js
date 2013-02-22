@@ -18,17 +18,17 @@ $.register_module({
                 blotter.close();
             };
             constructor.load = function () {
-                if(config.details) {
-                    title = "Edit Trade", submit = "Update";
+                if (config.details) {
+                    title = 'Edit Trade', submit = 'Update';
                     og.api.text({module: 'og.blotter.forms.blocks.form_edit_tash'}).pipe(function (template){
                         var type = config.details.data.security ?
-                            config.details.data.security.type.toLowerCase() : "fungibletrade";
+                            config.details.data.security.type.toLowerCase() : 'fungibletrade';
                         $selector = $(template);
                         constructor.create();
                         constructor.populate(type, config);
                     });
                 } else {
-                    title = "Add New Tade", submit = "Create";
+                    title = 'Add New Tade', submit = 'Create';
                     og.api.text({module: 'og.blotter.forms.blocks.form_types_tash'}).pipe(function (template){
                         $selector = $(template)
                         .on('change', function (event) {
@@ -56,9 +56,9 @@ $.register_module({
                         'Save as new' : function () {form_wrapper.submit_new(validation_handler);},
                         'Cancel': function () {$(this).dialog('close');}
                     };
-                if(!config.details) delete buttons['Save as new'];
+                if (!config.details) delete buttons['Save as new'];
                 blotter = new og.common.util.ui.dialog({
-                    type: 'input', title: title, width: 530, height: 800, custom: $selector,
+                    type: 'input', title: title, width: 530, height: 700, custom: $selector,
                     buttons: buttons
                 });
             };

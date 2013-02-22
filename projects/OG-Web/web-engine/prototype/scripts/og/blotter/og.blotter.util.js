@@ -12,11 +12,6 @@ $.register_module({
             create_name : function (data){
                 return data.security.type + " " + data.trade.tradeDate;
             },
-            update_block : function (section, extras){
-                section.block.html(function (html) {
-                    $(section.selector).html(html);
-                }, extras);
-            },
             check_radio : function (name, value){
                 $('input:radio[name="'+ name +'"]').filter('[value='+ value + ']').attr('checked', true);
             },
@@ -25,9 +20,6 @@ $.register_module({
             },
             check_checkbox : function (name, value){
                 $('input:checkbox[name="'+ name +'"]').prop('checked', bools[value]);
-            },
-            add_datetimepicker : function (name){$('input[name="'+ name +'"]').datepicker({
-                dateFormat: 'yy-mm-dd', changeMonth: true, changeYear: true});
             },
             add_date_picker : function (selector){
                 $(selector).datepicker({ dateFormat: 'yy-mm-dd', changeMonth: true, changeYear: true });

@@ -87,12 +87,8 @@ $.register_module({
             if (!grid.selector.copyable) grid.selector.render();
         };
         var format = function (cell, single) {
-            var formatted;
             if (typeof cell.value === 'undefined') return '';
-            if (cell.value.error) {
-                formatted = typeof cell.value.v === 'string' ? cell.value.v : '***ERROR***';
-                return formatted;
-            };
+            if (cell.value.error) return typeof cell.value.v === 'string' ? cell.value.v : '***ERROR***';
             if (formatters[cell.type]) return formatters[cell.type](cell.value, single);
             og.dev.warn(module.name + ': no formatter for ' + cell.type, cell);
             return typeof cell.value.v === 'string' ? cell.value.v : '';
@@ -135,7 +131,7 @@ $.register_module({
                         clipboard.data = null);
         };
         $(function () {
-            node = (textarea = $('<textarea />').appendTo('body')
+            node = (textarea = $('<textarea readonly="readonly" />').appendTo('body')
                 .css({position: 'absolute', top: '-500px', left: '-500px', width: '100px', height: '100px'}))[0];
         });
         return Clipboard;

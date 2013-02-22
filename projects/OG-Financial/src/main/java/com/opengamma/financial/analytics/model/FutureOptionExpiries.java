@@ -72,16 +72,30 @@ public final class FutureOptionExpiries {
   }
 
   /**
+   * @deprecated
    * Compute time between now and future or future option's settlement date,
    * typically two business days before the third wednesday of the expiry month.
    * @param n nth Future after now
    * @param today Valuation Date
    * @return OG-Analytic Time in years between now and the future's settlement date
    */
+  @Deprecated
   public Double getFutureOptionTtm(final int n, final LocalDate today) {
     final LocalDate expiry = getFutureOptionExpiry(n, today);
     final LocalDate previousMonday = expiry;
     return TimeCalculator.getTimeBetween(today, previousMonday);
+  }
+
+  /**
+   * Compute time between now and future or future option's settlement date,
+   * @param n nth Future after now
+   * @param today Valuation Date
+   * @param tenor The tenor of future option resets
+   * @return OG-Analytic Time in years between now and the future's settlement date
+   */
+  public Double getFutureOptionTtm(final int n, final LocalDate today, final Tenor tenor) {
+    final LocalDate expiry = getExpiry(n, today, tenor);
+    return TimeCalculator.getTimeBetween(today, expiry);
   }
 
   /**

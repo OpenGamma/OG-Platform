@@ -35,22 +35,22 @@
         <td class="og-double-cell trade">
           <div><span><input class="blotter-date" name="trade.tradeDate" type="text" value="{{trade.tradeDate}}" />
           </span><span><input class="blotter-time" name="trade.tradeTime" type="text" value="{{trade.tradeTime}}" />
-          </span></div><a class="premium-toggle">Premium</a>
+          </span></div>
         </td>
       </tr>
-      <tr class="hidden">
+      <tr>
         <td>
-          <label>Premium Currency</label>
+          <a class="premium-toggle">Premium<span class="OG-icon og-icon-down"></span></a>
         </td>
         <td class="og-double-cell">
-          <div><span>{{{item_0}}}
+          <div class="hidden"><span>{{{item_0}}}
           </span><span><input name="trade.premium" type="text" value="{{trade.premium}}" />
           </span></div>
         </td>
       </tr>
       <tr class="hidden">
         <td>
-          <label>Premium Date/Time</label>
+          <label>Date/Time</label>
         </td>
         <td class="og-double-cell">
           <div><span><input class="blotter-date" name="premium" type="text" value="{{trade.premiumDate}}" />

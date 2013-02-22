@@ -59,9 +59,6 @@ $.register_module({
                 form.on('form:load', function (){
                     $pay_select = $('#' + pay_select.id);
                     $receive_select = $('#' + receive_select.id);
-                    og.blotter.util.add_datetimepicker("security.tradeDate");
-                    og.blotter.util.add_datetimepicker("security.effectiveDate");
-                    og.blotter.util.add_datetimepicker("security.maturityDate");
                     og.blotter.util.add_date_picker('.blotter-date');
                     og.blotter.util.add_time_picker('.blotter-time');
                     if(typeof data.security.payLeg != 'undefined') {

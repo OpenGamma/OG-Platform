@@ -51,9 +51,8 @@ $.register_module({
                 form.on('change', security.select_id(), function (event) {get_security();});
             };
             get_security = function () {
-                request = og.api.rest.blotter.securities.get({id:security.name()}).pipe(
-                    function(result){populate(result);}
-                );
+                var id = security.name();
+                if(id) request = og.api.rest.blotter.securities.get({id:id}).pipe(function(result){populate(result);});
             };
             populate = function (config){
                 var details_block, ids_block, details, basket;
