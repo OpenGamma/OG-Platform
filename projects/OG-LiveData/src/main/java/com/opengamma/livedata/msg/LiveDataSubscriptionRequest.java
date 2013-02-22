@@ -1,6 +1,5 @@
 // Automatically created - do not modify
-///CLOVER:OFF
-// CSOFF: Generated File
+///CLOVER:OFF - CSOFF
 package com.opengamma.livedata.msg;
 public class LiveDataSubscriptionRequest implements java.io.Serializable {
         @Override
@@ -205,5 +204,4 @@ public class LiveDataSubscriptionRequest implements java.io.Serializable {
     return hc;
   }
 }
-///CLOVER:ON
-// CSON: Generated File
+///CLOVER:ON - CSON
