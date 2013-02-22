@@ -25,12 +25,20 @@
     </xs:annotation>
   </xs:element>
 
+  <xs:element name="equityVarianceSwapTrade" type="equityVarianceSwapTrade">
+    <xs:annotation>
+      <xs:documentation>Element representing an equity variance swap trade</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
   <xs:element name="trade" type="trade">
     <xs:annotation>
       <xs:documentation>Element representing a trade - generally a more specific trade element will be used
       </xs:documentation>
     </xs:annotation>
   </xs:element>
+
+  <xs:element name="fxDigitalOptionTrade" type="fxDigitalOptionTrade"/>
 
   <xs:complexType name="ogPortfolio">
     <xs:all>
@@ -88,13 +96,7 @@
         <xs:complexType>
           <xs:sequence>
             <xs:choice maxOccurs="unbounded" minOccurs="0">
-              <xs:element ref="trade">
-                <xs:annotation>
-                  <xs:documentation>
-                    An individual trade within the trades collection.
-                  </xs:documentation>
-                </xs:annotation>
-              </xs:element>
+
               <xs:element ref="fxOptionTrade">
                 <xs:annotation>
                   <xs:documentation>
@@ -102,6 +104,15 @@
                   </xs:documentation>
                 </xs:annotation>
               </xs:element>
+
+              <xs:element ref="fxDigitalOptionTrade">
+                <xs:annotation>
+                  <xs:documentation>
+                    An individual FX digital option trade within the trades collection.
+                  </xs:documentation>
+                </xs:annotation>
+              </xs:element>
+
               <xs:element ref="swapTrade">
                 <xs:annotation>
                   <xs:documentation>
@@ -109,6 +120,15 @@
                   </xs:documentation>
                 </xs:annotation>
               </xs:element>
+
+              <xs:element ref="equityVarianceSwapTrade">
+                <xs:annotation>
+                  <xs:documentation>
+                    An individual equity variance swap trade within the trades collection.
+                  </xs:documentation>
+                </xs:annotation>
+              </xs:element>
+
             </xs:choice>
           </xs:sequence>
         </xs:complexType>
@@ -295,14 +315,6 @@
         </xs:annotation>
       </xs:element>
 
-      <xs:element minOccurs="0" name="settlementDate" type="xs:string">
-        <xs:annotation>
-          <xs:documentation>
-            The settlement date of the trade.
-          </xs:documentation>
-        </xs:annotation>
-      </xs:element>
-
       <xs:element minOccurs="0" name="counterparty" type="idWrapper">
         <xs:annotation>
           <xs:documentation>
@@ -327,6 +339,14 @@
         </xs:annotation>
       </xs:element>
 
+      <xs:element minOccurs="0" name="premiumSettlementDate" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>
+            The settlement date of the trade.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+
     </xs:sequence>
 
     <xs:attribute name="id" type="xs:ID">
@@ -340,11 +360,11 @@
     </xs:attribute>
 
   </xs:complexType>
-
-  <xs:complexType name="fxOptionTrade">
+  <xs:complexType name="abstractFxOptionTrade">
     <xs:complexContent>
       <xs:extension base="trade">
         <xs:sequence>
+
           <xs:element name="callPut" type="callPut">
             <xs:annotation>
               <xs:documentation>
@@ -377,22 +397,6 @@
             </xs:annotation>
           </xs:element>
 
-          <xs:element name="notional" type="xs:decimal">
-            <xs:annotation>
-              <xs:documentation>
-                The notional of the trade.
-              </xs:documentation>
-            </xs:annotation>
-          </xs:element>
-
-          <xs:element name="notionalCurrency" type="xs:string">
-            <xs:annotation>
-              <xs:documentation>
-                The currency of the notional of the trade.
-              </xs:documentation>
-            </xs:annotation>
-          </xs:element>
-
           <xs:element name="expiryDate" type="xs:string" minOccurs="0">
             <xs:annotation>
               <xs:documentation>
@@ -405,6 +409,56 @@
             <xs:annotation>
               <xs:documentation>
                 The expiry cutoff of the trade.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+
+          <xs:element name="strike" type="xs:decimal">
+            <xs:annotation>
+              <xs:documentation>
+                The strike of the trade.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+
+          <xs:element minOccurs="0" name="expiryCalendars">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="calendar" type="calendar" maxOccurs="unbounded" minOccurs="0"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+
+          <xs:element minOccurs="0" name="paymentCalendars">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="calendar" type="calendar" maxOccurs="unbounded" minOccurs="0"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="fxOptionTrade">
+    <xs:complexContent>
+      <xs:extension base="abstractFxOptionTrade">
+        <xs:sequence>
+
+          <xs:element name="notional" type="xs:decimal">
+            <xs:annotation>
+              <xs:documentation>
+                The notional of the trade.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+
+          <xs:element name="notionalCurrency" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>
+                The currency of the notional of the trade.
               </xs:documentation>
             </xs:annotation>
           </xs:element>
@@ -433,30 +487,6 @@
             </xs:annotation>
           </xs:element>
 
-          <xs:element name="strike" type="xs:decimal">
-            <xs:annotation>
-              <xs:documentation>
-                The strike of the trade.
-              </xs:documentation>
-            </xs:annotation>
-          </xs:element>
-
-          <xs:element minOccurs="0" name="expiryCalendars">
-            <xs:complexType>
-              <xs:sequence>
-                <xs:element name="calendar" type="calendar" maxOccurs="unbounded" minOccurs="0"/>
-              </xs:sequence>
-            </xs:complexType>
-          </xs:element>
-
-          <xs:element minOccurs="0" name="settlementCalendars">
-            <xs:complexType>
-              <xs:sequence>
-                <xs:element name="calendar" type="calendar" maxOccurs="unbounded" minOccurs="0"/>
-              </xs:sequence>
-            </xs:complexType>
-
-          </xs:element>
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>
@@ -729,6 +759,35 @@
       </xs:element>
 
     </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="equityVarianceSwapTrade">
+    <xs:complexContent>
+      <xs:extension base="trade">
+        <xs:sequence>
+          <xs:element name="buySell" type="buySell"/>
+          <xs:element name="currency" type="xs:string"/>
+          <xs:element name="strike" type="xs:decimal"/>
+          <xs:element name="underlying" type="idWrapper"/>
+          <xs:element name="vegaAmount" type="xs:decimal"/>
+          <xs:element name="observationStartDate" type="xs:string"/>
+          <xs:element name="observationEndDate" type="xs:string"/>
+          <xs:element name="observationfrequency" type="xs:string" minOccurs="0"/>
+          <xs:element name="annualizationFactor" type="xs:double"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="fxDigitalOptionTrade">
+    <xs:complexContent>
+      <xs:extension base="abstractFxOptionTrade">
+        <xs:sequence>
+          <xs:element name="payout" type="xs:decimal"/>
+          <xs:element name="payoutCurrency" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
   </xs:complexType>
 
   <xs:simpleType name="callPut">

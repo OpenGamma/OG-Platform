@@ -1,7 +1,9 @@
-package com.opengamma.integration.tool.portfolio.xml.v1_0;
+package com.opengamma.integration.tool.portfolio.xml.v1_0.conversion;
 
 import com.opengamma.integration.tool.portfolio.xml.PortfolioConversion;
 import com.opengamma.integration.tool.portfolio.xml.SchemaVersion;
+import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.IdRefResolverFactoryV1_0;
+import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.PortfolioDocumentV1_0;
 
 public class PortfolioConversionV1_0 extends PortfolioConversion {
 

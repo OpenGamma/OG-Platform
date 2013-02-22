@@ -1,10 +1,13 @@
-package com.opengamma.integration.tool.portfolio.xml.v1_0;
+package com.opengamma.integration.tool.portfolio.xml.v1_0.conversion;
 
 import java.util.Set;
 
 import com.google.common.collect.Iterables;
 import com.opengamma.integration.tool.portfolio.xml.PortfolioDocumentConverter;
 import com.opengamma.integration.tool.portfolio.xml.VersionedPortfolioHandler;
+import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.Portfolio;
+import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.PortfolioDocumentV1_0;
+import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.Position;
 
 public class PortfolioDocumentConverterV1_0 implements PortfolioDocumentConverter {
 

@@ -1,4 +1,4 @@
-package com.opengamma.integration.tool.portfolio.xml.v1_0;
+package com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 

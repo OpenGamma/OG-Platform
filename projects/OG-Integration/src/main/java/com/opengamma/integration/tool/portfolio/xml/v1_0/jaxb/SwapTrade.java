@@ -1,4 +1,4 @@
-package com.opengamma.integration.tool.portfolio.xml.v1_0;
+package com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb;
 
 
 import javax.xml.bind.annotation.XmlElement;
@@ -40,5 +40,10 @@ public class SwapTrade extends Trade {
 
   public void setEffectiveDate(LocalDate effectiveDate) {
     this._effectiveDate = effectiveDate;
+  }
+
+  @Override
+  public boolean canBePositionAggregated() {
+    return false;
   }
 }

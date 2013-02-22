@@ -3,17 +3,18 @@
 
   <trades>
 
-    <fxOptionTrade id="t1">
+    <equityVarianceSwapTrade id="t1">
+
       <externalSystemId><id scheme="External">IdFromExternalSystem</id></externalSystemId>
 
       <tradeDate>2012-08-20</tradeDate>
       <maturityDate>2012-09-15</maturityDate>
-      <settlementDate>2012-08-22</settlementDate>
 
       <counterparty><id scheme="Cpty">GOLDMAN</id></counterparty>
 
       <premium>250</premium>
       <premiumCurrency>GBP</premiumCurrency>
+      <premiumSettlementDate>2012-08-22</premiumSettlementDate>
 
       <buySell>Buy</buySell>
       <currency>GBP</currency>
@@ -25,7 +26,6 @@
 
       <vegaAmount>100000</vegaAmount>
 
-
       <observationStartDate>2012-08-22</observationStartDate>
 
       <observationEndDate>2012-09-15</observationEndDate>
@@ -33,7 +33,7 @@
 
       <annualizationFactor>252</annualizationFactor>
 
-    </fxOptionTrade>
+    </equityVarianceSwapTrade>
   </trades>
 
 

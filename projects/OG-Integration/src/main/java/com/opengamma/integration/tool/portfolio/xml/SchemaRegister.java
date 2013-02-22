@@ -3,7 +3,7 @@ package com.opengamma.integration.tool.portfolio.xml;
 import java.util.Map;
 
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.integration.tool.portfolio.xml.v1_0.PortfolioConversionV1_0;
+import com.opengamma.integration.tool.portfolio.xml.v1_0.conversion.PortfolioConversionV1_0;
 
 public class SchemaRegister {
 

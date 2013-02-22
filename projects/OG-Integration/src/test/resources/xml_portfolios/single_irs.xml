@@ -11,25 +11,6 @@
       <maturityDate>2018-01-31</maturityDate>
       <counterparty><id scheme="Cpty">GOLDMAN</id></counterparty>
 
-<!--      &lt;!&ndash;optional&ndash;&gt;
-      <isCleared>false</isCleared>
-      &lt;!&ndash;optional&ndash;&gt;
-      <clearingBroker>dependency on isCleared? / Id format??</clearingBroker>
-      &lt;!&ndash;optional&ndash;&gt;
-      <clearingHouse>dependency on isCleared? / Id format??</clearingHouse>
-      &lt;!&ndash;optional&ndash;&gt;
-      <executingBroker>Id format??</executingBroker>
-      &lt;!&ndash;optional&ndash;&gt;
-      <primeBroker>Id format??</primeBroker>
-      &lt;!&ndash;optional&ndash;&gt;
-      <collateralAgreement>Only if not cleared</collateralAgreement>-->
-
-      <!-- Additional trade attributes - generally data that won't affect analytics -->
-<!--      <tradeAttributes>
-        <entry key="STRING">STRING</entry>
-      </tradeAttributes>-->
-
-
       <effectiveDate>2013-02-01</effectiveDate>
 
       <fixedLeg>

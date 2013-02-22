@@ -199,34 +199,21 @@
 
       <tradeDate>2013-01-20</tradeDate>
       <maturityDate>2018-01-31</maturityDate>
-      <settlementDate>2013-01-22</settlementDate>
       <counterparty><id scheme="Cpty">GOLDMAN</id></counterparty>
 
       <premium>250</premium>
       <premiumCurrency>EUR</premiumCurrency>
+      <premiumSettlementDate>2013-01-22</premiumSettlementDate>
 
       <callPut>Put</callPut>
       <buySell>Buy</buySell>
       <currencyPair>EUR/USD</currencyPair>
       <optionCurrency>EUR</optionCurrency>
 
-      <notional>1000000</notional>
-      <notionalCurrency>EUR</notionalCurrency>
-
-
       <expiryDate>2018-01-31</expiryDate>
       <expiryCutoff>ECB|10am NY</expiryCutoff>
 
-      <!-- CashSettled|Physical - switch between NonDeliverableFxOption and the vanilla version respectively -->
-      <settlementType>CashSettled</settlementType>
-      <!-- Only valid for NonDeliverableFxOption (i.e. CashSettled settlement type) -->
-      <settlementCurrency>USD</settlementCurrency>
-
-      <exerciseType>European</exerciseType>
-
-
       <strike>1.9</strike>
-
 
       <expiryCalendars>
         <calendar type="Bank">
@@ -234,11 +221,22 @@
         </calendar>
       </expiryCalendars>
 
-      <settlementCalendars>
+      <paymentCalendars>
         <calendar type="Bank">
           <id scheme="CountryISO2">FD</id>
         </calendar>
-      </settlementCalendars>
+      </paymentCalendars>
+
+      <notional>1000000</notional>
+      <notionalCurrency>EUR</notionalCurrency>
+
+
+      <!-- CashSettled|Physical - switch between NonDeliverableFxOption and the vanilla version respectively -->
+      <settlementType>CashSettled</settlementType>
+      <!-- Only valid for NonDeliverableFxOption (i.e. CashSettled settlement type) -->
+      <settlementCurrency>USD</settlementCurrency>
+
+      <exerciseType>European</exerciseType>
 
     </fxOptionTrade>
 
@@ -247,31 +245,20 @@
 
       <tradeDate>2013-01-25</tradeDate>
       <maturityDate>2018-01-31</maturityDate>
-      <settlementDate>2013-01-27</settlementDate>
 
       <counterparty><id scheme="Cpty">GOLDMAN</id></counterparty>
 
       <premium>250</premium>
       <premiumCurrency>EUR</premiumCurrency>
+      <premiumSettlementDate>2013-01-27</premiumSettlementDate>
 
       <callPut>Put</callPut>
       <buySell>Buy</buySell>
       <currencyPair>EUR/USD</currencyPair>
       <optionCurrency>EUR</optionCurrency>
 
-      <notional>2000000</notional>
-      <notionalCurrency>EUR</notionalCurrency>
-
       <expiryDate>2018-01-31</expiryDate>
       <expiryCutoff>ECB|10am NY</expiryCutoff>
-
-      <!-- CashSettled|Physical - switch between NonDeliverableFxOption and the vanilla version respectively -->
-      <settlementType>CashSettled</settlementType>
-      <!-- Only valid for NonDeliverableFxOption (i.e. CashSettled settlement type) -->
-      <settlementCurrency>USD</settlementCurrency>
-
-      <exerciseType>European</exerciseType>
-
 
       <strike>1.9</strike>
 
@@ -281,11 +268,22 @@
         </calendar>
       </expiryCalendars>
 
-      <settlementCalendars>
+      <paymentCalendars>
         <calendar type="Bank">
           <id scheme="CountryISO2">FD</id>
         </calendar>
-      </settlementCalendars>
+      </paymentCalendars>
+
+      <notional>2000000</notional>
+      <notionalCurrency>EUR</notionalCurrency>
+
+      <!-- CashSettled|Physical - switch between NonDeliverableFxOption and the vanilla version respectively -->
+      <settlementType>CashSettled</settlementType>
+      <!-- Only valid for NonDeliverableFxOption (i.e. CashSettled settlement type) -->
+      <settlementCurrency>USD</settlementCurrency>
+
+      <exerciseType>European</exerciseType>
+
 
     </fxOptionTrade>
   </trades>

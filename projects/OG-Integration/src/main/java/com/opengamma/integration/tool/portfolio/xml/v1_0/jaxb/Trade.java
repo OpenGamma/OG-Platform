@@ -1,4 +1,4 @@
-package com.opengamma.integration.tool.portfolio.xml.v1_0;
+package com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb;
 
 
 import java.math.BigDecimal;
@@ -15,9 +15,9 @@ import org.threeten.bp.LocalDate;
 
 @XmlRootElement
 // Ensure we look at subclasses when unmarshalling
-@XmlSeeAlso({ FxOptionTrade.class, SwapTrade.class })
+@XmlSeeAlso({ AbstractFxOptionTrade.class, SwapTrade.class, EquityVarianceSwapTrade.class })
 @XmlAccessorType(XmlAccessType.FIELD)
-public class Trade {
+public abstract class Trade {
 
   @XmlAttribute
   @XmlID
@@ -32,9 +32,6 @@ public class Trade {
   @XmlElement(name = "maturityDate")
   private LocalDate _maturityDate;
 
-  @XmlElement(name = "settlementDate")
-  private LocalDate _settlementDate;
-
   @XmlElement(name = "counterparty")
   private IdWrapper _counterparty;
 
@@ -43,6 +40,9 @@ public class Trade {
 
   @XmlElement(name = "premiumCurrency")
   private String _premiumCurrency;
+
+  @XmlElement(name = "premiumSettlementDate")
+  private LocalDate _premiumSettlementDate;
 
   public IdWrapper getExternalSystemId() {
     return _externalSystemId;
@@ -84,12 +84,12 @@ public class Trade {
     _id = id;
   }
 
-  public LocalDate getSettlementDate() {
-    return _settlementDate;
+  public LocalDate getPremiumSettlementDate() {
+    return _premiumSettlementDate;
   }
 
-  public void setSettlementDate(LocalDate settlementDate) {
-    _settlementDate = settlementDate;
+  public void setPremiumSettlementDate(LocalDate premiumSettlementDate) {
+    _premiumSettlementDate = premiumSettlementDate;
   }
 
   public BigDecimal getPremium() {
@@ -107,6 +107,8 @@ public class Trade {
   public void setPremiumCurrency(String premiumCurrency) {
     _premiumCurrency = premiumCurrency;
   }
+
+  public abstract boolean canBePositionAggregated();
 
   /*
 

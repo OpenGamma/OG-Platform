@@ -1,8 +1,10 @@
-package com.opengamma.integration.tool.portfolio.xml.v1_0;
+package com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
+
+import com.opengamma.id.ExternalId;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 public class IdWrapper {
@@ -16,5 +18,9 @@ public class IdWrapper {
 
   public void setExternalId(ExtId externalId) {
     _externalId = externalId;
+  }
+
+  public ExternalId toExternalId() {
+    return _externalId.toExternalId();
   }
 }

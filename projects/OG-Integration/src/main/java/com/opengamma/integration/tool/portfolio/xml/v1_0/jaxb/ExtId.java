@@ -1,4 +1,4 @@
-package com.opengamma.integration.tool.portfolio.xml.v1_0;
+package com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -40,5 +40,9 @@ public class ExtId {
 
   public void setId(String id) {
     _id = id;
+  }
+
+  public ExternalId toExternalId() {
+    return ExternalId.of(_scheme, _id);
   }
 }

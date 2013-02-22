@@ -9,10 +9,10 @@ import javax.xml.bind.SchemaOutputResolver;
 import javax.xml.transform.Result;
 import javax.xml.transform.dom.DOMResult;
 
-import org.testng.annotations.Test;
 import org.w3c.dom.Document;
 
 import com.beust.jcommander.internal.Sets;
+import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.PortfolioDocumentV1_0;
 import com.sun.org.apache.xml.internal.serialize.OutputFormat;
 import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
 

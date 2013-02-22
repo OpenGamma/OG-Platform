@@ -2,13 +2,18 @@
 <og-portfolio schemaVersion="1.0">
 
   <trades>
+    <fxDigitalOptionTrade id="t1">
 
-    <fxOptionTrade id="t1">
-      <externalSystemId><id scheme="External">IdFromExternalSystem</id></externalSystemId>
+      <externalSystemId>
+        <id scheme="External">IdFromExternalSystem1</id>
+      </externalSystemId>
 
       <tradeDate>2013-01-20</tradeDate>
       <maturityDate>2018-01-31</maturityDate>
-      <counterparty><id scheme="Cpty">GOLDMAN</id></counterparty>
+
+      <counterparty>
+        <id scheme="Cpty">GOLDMAN</id>
+      </counterparty>
 
       <premium>250</premium>
       <premiumCurrency>EUR</premiumCurrency>
@@ -19,11 +24,8 @@
       <currencyPair>EUR/USD</currencyPair>
       <optionCurrency>EUR</optionCurrency>
 
-
       <expiryDate>2018-01-31</expiryDate>
       <expiryCutoff>ECB|10am NY</expiryCutoff>
-
-
 
       <strike>1.9</strike>
 
@@ -39,33 +41,19 @@
         </calendar>
       </paymentCalendars>
 
-      <notional>1000000</notional>
-      <notionalCurrency>EUR</notionalCurrency>
+      <payout>1000000.00</payout>
+      <payoutCurrency>EUR</payoutCurrency>
 
-      <!-- CashSettled|Physical - switch between NonDeliverableFxOption and the vanilla version respectively -->
-      <settlementType>CashSettled</settlementType>
-      <!-- Only valid for NonDeliverableFxOption (i.e. CashSettled settlement type) -->
-      <settlementCurrency>USD</settlementCurrency>
-
-      <exerciseType>European</exerciseType>
-    </fxOptionTrade>
+    </fxDigitalOptionTrade>
   </trades>
 
-  <positions>
-    <position id="p1">
-      <quantity>1</quantity>
-      <trades>
-        <trade ref="t1"/>
-      </trades>
-    </position>
-  </positions>
 
   <portfolios>
     <!-- portfolio name must be unique in this set -->
-    <portfolio name="single_fx_portfolio">
-      <positions>
-        <position ref="p1"/>
-      </positions>
+    <portfolio name="single_fx_digital_option_portfolio">
+      <trades>
+        <trade ref="t1"/>
+      </trades>
     </portfolio>
   </portfolios>
 
