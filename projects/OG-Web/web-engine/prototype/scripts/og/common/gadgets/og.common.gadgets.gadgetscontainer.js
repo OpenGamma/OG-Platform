@@ -139,7 +139,6 @@ $.register_module({
                 else {
                     if (id === void 0) id = live_id;
                     tabs = gadgets.reduce(function (acc, val, idx) {
-                        
                         return acc.push({
                             'gadget_type': val.config.gadget_type, 'row_name': val.config.row_name, 'delete': true,
                             'col_name': val.config.col_name, 'active': gadgets[idx].active = id === val.id,
@@ -202,7 +201,6 @@ $.register_module({
                 if (!initialized) return setTimeout(container.add.partial(data, index), 10), container;
                 if (!data) return container; // no gadgets for this container
                 if (!selector) throw new TypeError('GadgetsContainer has not been initialized');
-
                 new_gadgets = data.map(function (obj, idx) {
                     var id, gadget_class = 'OG-gadget-' + (id = counter++), gadget,
                         options = $.extend(true, obj.options || {}, {selector: panel_container + ' .' + gadget_class}),

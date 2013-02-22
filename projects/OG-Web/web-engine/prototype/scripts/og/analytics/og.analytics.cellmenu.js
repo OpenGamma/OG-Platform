@@ -47,7 +47,8 @@ $.register_module({
                         options = mapping.options(cell, grid, panel);
                     cellmenu.destroy_frozen();
                     cellmenu.hide();
-                    if (!panel) og.analytics.url.launch(options); else og.analytics.url.add(panel, options);
+                    if (!panel) og.analytics.url.launch(options); 
+                    else og.analytics.url.add(panel, options);
                 });
                 grid.on('cellhoverin', function (cell) {
                     if (cellmenu.frozen || cellmenu.busy()) return;
@@ -105,6 +106,7 @@ $.register_module({
             fingerprint = JSON.stringify(options);
             options.fingerprint = fingerprint;
             cellmenu.container.add([options]);
+            cellmenu.container.on('launch', og.analytics.url.launch);
             if ((offset.top + inner.height()) > $(window).height())
                 inner.css({marginTop: -inner.outerHeight(true)-9});
             if ((offset.left + inner.width()) > $(window).width())
