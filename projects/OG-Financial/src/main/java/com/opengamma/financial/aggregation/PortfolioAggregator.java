@@ -147,7 +147,8 @@ public final class PortfolioAggregator {
     return aggregatedPortfolioName.toString();
   }
 
-  public static void aggregate(String portfolioName, PortfolioMaster portfolioMaster, PositionMaster positionMaster,
+  public static void aggregate(String portfolioName, String aggregationName,
+                               PortfolioMaster portfolioMaster, PositionMaster positionMaster,
                                PositionSource positionSource, SecuritySource secSource,
                                AggregationFunction<?>[] aggregationFunctions, boolean split) {
     PortfolioSearchRequest searchReq = new PortfolioSearchRequest();
@@ -186,7 +187,7 @@ public final class PortfolioAggregator {
     SavePortfolio savePortfolio = new SavePortfolio(newFixedThreadPool, portfolioMaster, positionMaster);
     if (split) {
       for (PortfolioNode portfolioNode : aggregatedPortfolio.getRootNode().getChildNodes()) {
-        String splitPortfolioName = portfolioName + " (" + portfolioNode.getName() + ")";
+        String splitPortfolioName = portfolioName + " (" + aggregationName + " " + portfolioNode.getName() + ")";
         Portfolio splitPortfolio = new SimplePortfolio(splitPortfolioName, (SimplePortfolioNode) portfolioNode);
         s_logger.info("Saving split portfolio " + portfolioName + "...");
         savePortfolio.savePortfolio(splitPortfolio, true);

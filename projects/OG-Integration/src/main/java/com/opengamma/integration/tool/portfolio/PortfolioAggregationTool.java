@@ -52,7 +52,8 @@ public class PortfolioAggregationTool extends AbstractTool<IntegrationToolContex
   @Override
   protected void doRun() {
     populateAggregationFunctionMap(getToolContext().getSecuritySource());
-    PortfolioAggregator.aggregate(getCommandLine().getOptionValue(PORTFOLIO_OPT) + " by " + getCommandLine().getOptionValues(AGGREGATION_OPT)[0],
+    PortfolioAggregator.aggregate(getCommandLine().getOptionValue(PORTFOLIO_OPT),
+                                  getCommandLine().getOptionValues(AGGREGATION_OPT)[0],
                                   getToolContext().getPortfolioMaster(),
                                   getToolContext().getPositionMaster(),
                                   getToolContext().getPositionSource(),
