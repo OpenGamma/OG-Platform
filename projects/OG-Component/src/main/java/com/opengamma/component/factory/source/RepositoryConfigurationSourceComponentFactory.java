@@ -195,13 +195,11 @@ public class RepositoryConfigurationSourceComponentFactory extends AbstractCompo
   ///CLOVER:OFF
   /**
    * The meta-bean for {@code RepositoryConfigurationSourceComponentFactory}.
-   *
    * @return the meta-bean, not null
    */
   public static RepositoryConfigurationSourceComponentFactory.Meta meta() {
     return RepositoryConfigurationSourceComponentFactory.Meta.INSTANCE;
   }
-
   static {
     JodaBeanUtils.registerMetaBean(RepositoryConfigurationSourceComponentFactory.Meta.INSTANCE);
   }
@@ -212,33 +210,33 @@ public class RepositoryConfigurationSourceComponentFactory extends AbstractCompo
   }
 
   @Override
-  protected Object propertyGet(final String propertyName, final boolean quiet) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case -281470431: // classifier
+      case -281470431:  // classifier
         return getClassifier();
-      case -614707837: // publishRest
+      case -614707837:  // publishRest
         return isPublishRest();
-      case 10395716: // configMaster
+      case 10395716:  // configMaster
         return getConfigMaster();
-      case -1281578674: // conventionBundleSource
+      case -1281578674:  // conventionBundleSource
         return getConventionBundleSource();
     }
     return super.propertyGet(propertyName, quiet);
   }
 
   @Override
-  protected void propertySet(final String propertyName, final Object newValue, final boolean quiet) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case -281470431: // classifier
+      case -281470431:  // classifier
         setClassifier((String) newValue);
         return;
-      case -614707837: // publishRest
+      case -614707837:  // publishRest
         setPublishRest((Boolean) newValue);
         return;
-      case 10395716: // configMaster
+      case 10395716:  // configMaster
         setConfigMaster((ConfigMaster) newValue);
         return;
-      case -1281578674: // conventionBundleSource
+      case -1281578674:  // conventionBundleSource
         setConventionBundleSource((ConventionBundleSource) newValue);
         return;
     }
@@ -254,12 +252,12 @@ public class RepositoryConfigurationSourceComponentFactory extends AbstractCompo
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      final RepositoryConfigurationSourceComponentFactory other = (RepositoryConfigurationSourceComponentFactory) obj;
+      RepositoryConfigurationSourceComponentFactory other = (RepositoryConfigurationSourceComponentFactory) obj;
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
           JodaBeanUtils.equal(isPublishRest(), other.isPublishRest()) &&
           JodaBeanUtils.equal(getConfigMaster(), other.getConfigMaster()) &&
@@ -282,7 +280,6 @@ public class RepositoryConfigurationSourceComponentFactory extends AbstractCompo
   //-----------------------------------------------------------------------
   /**
    * Gets the classifier that the factory should publish under.
-   *
    * @return the value of the property, not null
    */
   public String getClassifier() {
@@ -291,17 +288,15 @@ public class RepositoryConfigurationSourceComponentFactory extends AbstractCompo
 
   /**
    * Sets the classifier that the factory should publish under.
-   *
-   * @param classifier the new value of the property, not null
+   * @param classifier  the new value of the property, not null
    */
-  public void setClassifier(final String classifier) {
+  public void setClassifier(String classifier) {
     JodaBeanUtils.notNull(classifier, "classifier");
     this._classifier = classifier;
   }
 
   /**
    * Gets the the {@code classifier} property.
-   *
    * @return the property, not null
    */
   public final Property<String> classifier() {
@@ -311,7 +306,6 @@ public class RepositoryConfigurationSourceComponentFactory extends AbstractCompo
   //-----------------------------------------------------------------------
   /**
    * Gets the flag determining whether the component should be published by REST (default true).
-   *
    * @return the value of the property
    */
   public boolean isPublishRest() {
@@ -320,16 +314,14 @@ public class RepositoryConfigurationSourceComponentFactory extends AbstractCompo
 
   /**
    * Sets the flag determining whether the component should be published by REST (default true).
-   *
-   * @param publishRest the new value of the property
+   * @param publishRest  the new value of the property
    */
-  public void setPublishRest(final boolean publishRest) {
+  public void setPublishRest(boolean publishRest) {
     this._publishRest = publishRest;
   }
 
   /**
    * Gets the the {@code publishRest} property.
-   *
    * @return the property, not null
    */
   public final Property<Boolean> publishRest() {
@@ -339,7 +331,6 @@ public class RepositoryConfigurationSourceComponentFactory extends AbstractCompo
   //-----------------------------------------------------------------------
   /**
    * Gets the config master.
-   *
    * @return the value of the property, not null
    */
   public ConfigMaster getConfigMaster() {
@@ -348,17 +339,15 @@ public class RepositoryConfigurationSourceComponentFactory extends AbstractCompo
 
   /**
    * Sets the config master.
-   *
-   * @param configMaster the new value of the property, not null
+   * @param configMaster  the new value of the property, not null
    */
-  public void setConfigMaster(final ConfigMaster configMaster) {
+  public void setConfigMaster(ConfigMaster configMaster) {
     JodaBeanUtils.notNull(configMaster, "configMaster");
     this._configMaster = configMaster;
   }
 
   /**
    * Gets the the {@code configMaster} property.
-   *
    * @return the property, not null
    */
   public final Property<ConfigMaster> configMaster() {
@@ -368,7 +357,6 @@ public class RepositoryConfigurationSourceComponentFactory extends AbstractCompo
   //-----------------------------------------------------------------------
   /**
    * Gets the convention bundle source.
-   *
    * @return the value of the property, not null
    */
   public ConventionBundleSource getConventionBundleSource() {
@@ -377,17 +365,15 @@ public class RepositoryConfigurationSourceComponentFactory extends AbstractCompo
 
   /**
    * Sets the convention bundle source.
-   *
-   * @param conventionBundleSource the new value of the property, not null
+   * @param conventionBundleSource  the new value of the property, not null
    */
-  public void setConventionBundleSource(final ConventionBundleSource conventionBundleSource) {
+  public void setConventionBundleSource(ConventionBundleSource conventionBundleSource) {
     JodaBeanUtils.notNull(conventionBundleSource, "conventionBundleSource");
     this._conventionBundleSource = conventionBundleSource;
   }
 
   /**
    * Gets the the {@code conventionBundleSource} property.
-   *
    * @return the property, not null
    */
   public final Property<ConventionBundleSource> conventionBundleSource() {
@@ -428,7 +414,7 @@ public class RepositoryConfigurationSourceComponentFactory extends AbstractCompo
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier",
         "publishRest",
         "configMaster",
@@ -441,15 +427,15 @@ public class RepositoryConfigurationSourceComponentFactory extends AbstractCompo
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case -281470431: // classifier
+        case -281470431:  // classifier
           return _classifier;
-        case -614707837: // publishRest
+        case -614707837:  // publishRest
           return _publishRest;
-        case 10395716: // configMaster
+        case 10395716:  // configMaster
           return _configMaster;
-        case -1281578674: // conventionBundleSource
+        case -1281578674:  // conventionBundleSource
           return _conventionBundleSource;
       }
       return super.metaPropertyGet(propertyName);
@@ -473,7 +459,6 @@ public class RepositoryConfigurationSourceComponentFactory extends AbstractCompo
     //-----------------------------------------------------------------------
     /**
      * The meta-property for the {@code classifier} property.
-     *
      * @return the meta-property, not null
      */
     public final MetaProperty<String> classifier() {
@@ -482,7 +467,6 @@ public class RepositoryConfigurationSourceComponentFactory extends AbstractCompo
 
     /**
      * The meta-property for the {@code publishRest} property.
-     *
      * @return the meta-property, not null
      */
     public final MetaProperty<Boolean> publishRest() {
@@ -491,7 +475,6 @@ public class RepositoryConfigurationSourceComponentFactory extends AbstractCompo
 
     /**
      * The meta-property for the {@code configMaster} property.
-     *
      * @return the meta-property, not null
      */
     public final MetaProperty<ConfigMaster> configMaster() {
@@ -500,7 +483,6 @@ public class RepositoryConfigurationSourceComponentFactory extends AbstractCompo
 
     /**
      * The meta-property for the {@code conventionBundleSource} property.
-     *
      * @return the meta-property, not null
      */
     public final MetaProperty<ConventionBundleSource> conventionBundleSource() {

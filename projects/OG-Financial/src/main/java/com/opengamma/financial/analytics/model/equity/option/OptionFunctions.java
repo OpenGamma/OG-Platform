@@ -11,6 +11,8 @@ import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.financial.analytics.model.futureoption.BarrierOptionDistanceDefaults;
+import com.opengamma.financial.analytics.model.futureoption.BarrierOptionDistanceFunction;
 
 /**
  * Function repository configuration source for the functions contained in this package.
@@ -39,12 +41,14 @@ public class OptionFunctions extends AbstractRepositoryConfigurationBean {
   /**
    * @param overhedge The overhedge to use for equity barrier options
    * @param callSpreadFullWidth The width of the call spread to use for barrier options
+   * @param barrierFormat the barrier output display format
    * @return The repository with equity barrier option defaults set
    */
-  public static RepositoryConfigurationSource defaults(final double overhedge, final double callSpreadFullWidth) {
+  public static RepositoryConfigurationSource defaults(final double overhedge, final double callSpreadFullWidth, final String barrierFormat) {
     final Defaults factory = new Defaults();
     factory.setOverhedge(overhedge);
     factory.setCallSpreadFullWidth(callSpreadFullWidth);
+    factory.setBarrierDistanceFormat(barrierFormat);
     factory.afterPropertiesSet();
     return factory.getObject();
   }
@@ -56,6 +60,7 @@ public class OptionFunctions extends AbstractRepositoryConfigurationBean {
 
     private double _overhedge; /* = 0.0; */
     private double _callSpreadFullWidth = 0.001;
+    private String _barrierFormat = BarrierOptionDistanceFunction.BARRIER_ABS;
 
     public void setOverhedge(final double overhedge) {
       _overhedge = overhedge;
@@ -73,9 +78,18 @@ public class OptionFunctions extends AbstractRepositoryConfigurationBean {
       return _callSpreadFullWidth;
     }
 
+    public void setBarrierDistanceFormat(final String format) {
+      _barrierFormat = format;
+    }
+
+    public String getBarrierDistanceFormat() {
+      return _barrierFormat;
+    }
+
     @Override
     protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
       functions.add(functionConfiguration(EquityVanillaBarrierOptionDefaults.class, Double.toString(getOverhedge()), Double.toString(getCallSpreadFullWidth())));
+      functions.add(functionConfiguration(BarrierOptionDistanceDefaults.class, getBarrierDistanceFormat()));
     }
 
   }
@@ -84,19 +98,23 @@ public class OptionFunctions extends AbstractRepositoryConfigurationBean {
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
     functions.add(functionConfiguration(EquityOptionBAWGreeksFunction.class));
     functions.add(functionConfiguration(EquityOptionBAWPresentValueFunction.class));
+    functions.add(functionConfiguration(EquityOptionBAWScenarioPnLFunction.class));
     functions.add(functionConfiguration(EquityOptionBAWValueDeltaFunction.class));
     functions.add(functionConfiguration(EquityOptionBAWValueGammaFunction.class));
     functions.add(functionConfiguration(EquityOptionBjerksundStenslandGreeksFunction.class));
     functions.add(functionConfiguration(EquityOptionBjerksundStenslandPresentValueFunction.class));
     functions.add(functionConfiguration(EquityOptionBjerksundStenslandValueDeltaFunction.class));
     functions.add(functionConfiguration(EquityOptionBjerksundStenslandValueGammaFunction.class));
+    functions.add(functionConfiguration(EquityOptionBjerksundStenslandScenarioPnLFunction.class));
     functions.add(functionConfiguration(EquityOptionPDEPresentValueFunction.class));
+    functions.add(functionConfiguration(EquityOptionPDEScenarioPnLFunction.class));
     functions.add(functionConfiguration(EquityOptionBlackFundingCurveSensitivitiesFunction.class));
     functions.add(functionConfiguration(EquityOptionBlackImpliedVolFunction.class));
     functions.add(functionConfiguration(EquityOptionBlackPresentValueFunction.class));
     functions.add(functionConfiguration(EquityOptionBlackRhoFunction.class));
     functions.add(functionConfiguration(EquityOptionBlackSpotDeltaFunction.class));
     functions.add(functionConfiguration(EquityOptionBlackThetaFunction.class));
+    functions.add(functionConfiguration(EquityOptionBlackScenarioPnLFunction.class));
     functions.add(functionConfiguration(EquityOptionBlackSpotGammaFunction.class));
     functions.add(functionConfiguration(EquityOptionBlackSpotVannaFunction.class));
     functions.add(functionConfiguration(EquityOptionBlackVegaFunction.class));
@@ -122,7 +140,8 @@ public class OptionFunctions extends AbstractRepositoryConfigurationBean {
     functions.add(functionConfiguration(PositionGreeksFunction.class, ValueRequirementNames.POSITION_RHO, ValueRequirementNames.RHO));
     functions.add(functionConfiguration(PositionGreeksFunction.class, ValueRequirementNames.POSITION_THETA, ValueRequirementNames.THETA));
     functions.add(functionConfiguration(PositionGreeksFunction.class, ValueRequirementNames.POSITION_VEGA, ValueRequirementNames.VEGA));
-    functions.add(functionConfiguration(WeightedVegaFunction.class)); 
+    functions.add(functionConfiguration(WeightedVegaFunction.class));
+    functions.add(functionConfiguration(EquityVanillaBarrierOptionDistanceFunction.class));
   }
 
 }

@@ -201,17 +201,6 @@ public class ViewDefinitionFactoryBean extends SingletonFactoryBean<ViewDefiniti
           }
         }
       }
-      if (getTradeRequirements() != null) {
-        for (Map.Entry<String, Map<String, String[]>> config : getTradeRequirements().entrySet()) {
-          ViewCalculationConfiguration calcConfig = getOrCreateCalcConfig(viewDefinition, config.getKey());
-          for (Map.Entry<String, String[]> security : config.getValue().entrySet()) {
-            for (String value : security.getValue()) {
-              final Pair<String, ValueProperties> requirement = parseValueRequirement(value);
-              calcConfig.addTradeRequirement(security.getKey(), requirement.getFirst(), requirement.getSecond());
-            }
-          }
-        }
-      }
     } else {
       viewDefinition = new ViewDefinition(getName(), getUserName());
     }

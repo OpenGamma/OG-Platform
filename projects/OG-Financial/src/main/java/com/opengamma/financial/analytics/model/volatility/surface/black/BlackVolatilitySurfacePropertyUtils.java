@@ -354,7 +354,7 @@ public class BlackVolatilitySurfacePropertyUtils {
     return requirements;
   }
 
-  public static ValueRequirement getSurfaceRequirement(final ValueRequirement desiredValue, final String surfaceName,
+  public static ValueRequirement getSurfaceRequirement(final ValueRequirement desiredValue, final ValueProperties additionalConstraints, final String surfaceName,
       final String forwardCurveName, final String instrumentType, final ComputationTargetType targetType, final ExternalId surfaceId) {
     final ValueProperties constraints = desiredValue.getConstraints();
     final Set<String> calculationMethod = constraints.getValues(ValuePropertyNames.SURFACE_CALCULATION_METHOD);
@@ -368,7 +368,7 @@ public class BlackVolatilitySurfacePropertyUtils {
       s_logger.error("No value set for interpolation method");
       return null;
     }
-    ValueProperties interpolationProperties = addBlackSurfaceProperties(ValueProperties.none(), instrumentType).get();
+    ValueProperties interpolationProperties = addBlackSurfaceProperties(additionalConstraints, instrumentType).get();
     if (interpolationMethod.equals(SABR)) {
       interpolationProperties = addSABRVolatilityInterpolatorProperties(interpolationProperties).get();
     } else if (interpolationMethod.equals(SPLINE)) {

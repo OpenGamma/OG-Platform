@@ -126,6 +126,7 @@ public class FutureFunctions extends AbstractRepositoryConfigurationBean {
     functions.add(functionConfiguration(MarkToMarketSpotFuturesFunction.class));
     functions.add(functionConfiguration(MarkToMarketValueDeltaFuturesFunction.class));
     functions.add(functionConfiguration(MarkToMarketValueRhoFuturesFunction.class));
+    functions.add(functionConfiguration(FutureSecurityDeltaFunction.class));
     // TODO: add functions from package
   }
 

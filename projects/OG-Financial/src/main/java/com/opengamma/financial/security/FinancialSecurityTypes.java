@@ -15,6 +15,7 @@ import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.cds.CDSSecurity;
 import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
+import com.opengamma.financial.security.cds.StandardVanillaCDSSecurity;
 import com.opengamma.financial.security.deposit.ContinuousZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.PeriodicZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.SimpleZeroDepositSecurity;
@@ -37,6 +38,7 @@ import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSecurity;
+import com.opengamma.financial.security.option.EquityIndexFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
@@ -157,6 +159,11 @@ public class FinancialSecurityTypes {
   public static final ObjectComputationTargetType<EquityOptionSecurity> EQUITY_OPTION_SECURITY = ObjectComputationTargetType.of(EquityOptionSecurity.class);
 
   /**
+   * The Equity Index Future Option security type.
+   */
+  public static final ObjectComputationTargetType<EquityIndexFutureOptionSecurity> EQUITY_INDEX_FUTURE_OPTION_SECURITY = ObjectComputationTargetType.of(EquityIndexFutureOptionSecurity.class);
+
+  /**
    * The Equity security type.
    */
   public static final ObjectComputationTargetType<EquitySecurity> EQUITY_SECURITY = ObjectComputationTargetType.of(EquitySecurity.class);
@@ -225,6 +232,11 @@ public class FinancialSecurityTypes {
    * The Legacy Vanilla CDS security type
    */
   public static final ObjectComputationTargetType<LegacyVanillaCDSSecurity> LEGACY_VANILLA_CDS_SECURITY = ObjectComputationTargetType.of(LegacyVanillaCDSSecurity.class);
+
+  /**
+   * The Standard Vanilla CDS security type
+   */
+  public static final ObjectComputationTargetType<StandardVanillaCDSSecurity> STANDARD_VANILLA_CDS_SECURITY = ObjectComputationTargetType.of(StandardVanillaCDSSecurity.class);
 
   /**
    * The Metal Future security type.

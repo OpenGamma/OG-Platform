@@ -1,8 +1,8 @@
 <section class="og-blotter-portfolio" id="{{id}}">
   <table class="OG-table">
     <colgroup>
-      <col style="width: 30%">              
-      <col style="width: 70%">              
+      <col style="width: 30%">
+      <col style="width: 70%">
     </colgroup>
     </thead>
     <tbody>
@@ -13,7 +13,7 @@
           </label>
         </td>
         <td>
-          <span>Test Portfolio</span>
+          <span>{{portfolio}}</span>
         </td>
       </tr>
       <tr>
@@ -24,6 +24,38 @@
         </td>
         <td>
           <input name="trade.counterparty" type="text" value="{{counterparty}}" />
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <label>
+            <span>Trade Date/Time</span>
+          </label>
+        </td>
+        <td class="og-double-cell trade">
+          <div><span><input class="blotter-date" name="trade.tradeDate" type="text" value="{{trade.tradeDate}}" />
+          </span><span><input class="blotter-time" name="trade.tradeTime" type="text" value="{{trade.tradeTime}}" />
+          </span></div>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <a class="premium-toggle">Premium<span class="OG-icon og-icon-down"></span></a>
+        </td>
+        <td class="og-double-cell">
+          <div class="hidden"><span>{{{item_0}}}
+          </span><span><input name="trade.premium" type="text" value="{{trade.premium}}" />
+          </span></div>
+        </td>
+      </tr>
+      <tr class="hidden">
+        <td>
+          <label>Date/Time</label>
+        </td>
+        <td class="og-double-cell">
+          <div><span><input class="blotter-date" name="premium" type="text" value="{{trade.premiumDate}}" />
+          </span><span><input class="blotter-time" name="premium" type="text" value="{{trade.premiumTime}}" />
+          </span></div>
         </td>
       </tr>
     </tbody>

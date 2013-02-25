@@ -482,7 +482,7 @@ import com.opengamma.util.tuple.Triple;
         }
 
       };
-      final Set<FunctionExclusionGroup> functionExclusion = getFunctionExclusion(context, getFunction().getFunction());
+      final Map<ComputationTargetSpecification, Set<FunctionExclusionGroup>> functionExclusion = getFunctionExclusion(context, getFunction().getFunction());
       for (ValueRequirement inputRequirement : additionalRequirements) {
         final ResolvedValueProducer inputProducer = context.resolveRequirement(inputRequirement, getTask(), functionExclusion);
         lock.incrementAndGet();
@@ -613,7 +613,7 @@ import com.opengamma.util.tuple.Triple;
       } else {
         s_logger.debug("Function {} requires {}", functionDefinition, inputRequirements);
         worker.setPumpingState(state, inputRequirements.size());
-        final Set<FunctionExclusionGroup> functionExclusion = getFunctionExclusion(context, functionDefinition);
+        final Map<ComputationTargetSpecification, Set<FunctionExclusionGroup>> functionExclusion = getFunctionExclusion(context, functionDefinition);
         for (ValueRequirement inputRequirement : inputRequirements) {
           final ResolvedValueProducer inputProducer = context.resolveRequirement(inputRequirement, getTask(), functionExclusion);
           worker.addInput(context, inputProducer);

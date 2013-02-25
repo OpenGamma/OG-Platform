@@ -94,7 +94,7 @@ public class ComputationTargetReferenceFudgeBuilder implements FudgeBuilder<Comp
 
     @Override
     public List<ComputationTargetType> visitMultipleComputationTargetTypes(final Set<ComputationTargetType> types, final Void reserved) {
-      throw new IllegalArgumentException();
+      return Collections.emptyList();
     }
 
     @Override

@@ -169,13 +169,7 @@ public class ComputationTargetTypeFudgeBuilder implements FudgeBuilder<Computati
 
     @Override
     public Boolean visitNestedComputationTargetTypes(final List<ComputationTargetType> types, final MutableFudgeMsg data) {
-      // Add fields in order
-      for (final ComputationTargetType type : types) {
-        if (type.accept(s_baseEncoder, data)) {
-          data.add(null, null, FudgeWireType.STRING, type.toString());
-        }
-      }
-      return Boolean.FALSE;
+      throw new IllegalArgumentException();
     }
 
     @Override

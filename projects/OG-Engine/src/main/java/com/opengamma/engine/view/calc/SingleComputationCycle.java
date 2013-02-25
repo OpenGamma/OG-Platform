@@ -449,6 +449,13 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
         computedValue = new ComputedValue(marketDataSpec, MissingMarketDataSentinel.getInstance());
         computedValueResult = new ComputedValueResult(computedValue, aggregatedExecutionLog);
       } else {
+        if (!computedValue.getSpecification().equals(marketDataSpec)) {
+          // [PLAT-3044] Changing the snapshot query to return a computed value was wrong. The provider should return the strict value specification
+          // and that should be used to query the snapshot. The chaotic mapping of value requirements to/from value specifications to cross between
+          // the execution engine and market data subsystems will then be removed.
+          s_logger.warn("Requirement {} resolved to {}, but snapshot data is {}", new Object[] {marketDataRequirement, marketDataSpec, computedValue.getSpecification() });
+          computedValue = new ComputedValue(marketDataSpec, computedValue.getValue());
+        }
         computedValueResult = new ComputedValueResult(computedValue, AggregatedExecutionLog.EMPTY);
         fragmentResultModel.addMarketData(computedValueResult);
         fullResultModel.addMarketData(computedValueResult);

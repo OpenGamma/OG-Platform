@@ -26,7 +26,7 @@ public class SimplePortfolioCopier implements PortfolioCopier {
   }
 
   public SimplePortfolioCopier(boolean flatten) {
-     _flatten = flatten;
+    _flatten = flatten;
   }
 
   @Override
@@ -71,7 +71,5 @@ public class SimplePortfolioCopier implements PortfolioCopier {
 
     }
 
-    // Flush changes to portfolio master
-    portfolioWriter.flush();
   }
 }

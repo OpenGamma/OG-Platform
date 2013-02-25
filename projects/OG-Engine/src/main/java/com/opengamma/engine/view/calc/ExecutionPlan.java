@@ -5,6 +5,8 @@
  */
 package com.opengamma.engine.view.calc;
 
+import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -24,23 +26,23 @@ import com.opengamma.engine.view.calc.ExecutionPlanCache.DependencyNodeKey;
 import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
 
 /**
- * Abstract description of an execution plan. A plan can be created from a set of {@link GraphFragment}
- * objects for persistence into a cache to avoid the build cost. A cached plan can be used to
- * construct a set of objects equivalent to the originals and start the execution for a different
- * executor.
+ * Abstract description of an execution plan. A plan can be created from a set of {@link GraphFragment} objects for persistence into a cache to avoid the build cost. A cached plan can be used to
+ * construct a set of objects equivalent to the originals and start the execution for a different executor.
  */
-/* package */abstract class ExecutionPlan {
+/* package */abstract class ExecutionPlan implements Serializable {
+
+  private static final long serialVersionUID = 1L;
 
   private static final Logger s_logger = LoggerFactory.getLogger(ExecutionPlan.class);
 
   private static Collection<DependencyNode> mapNodes(final Collection<DependencyNode> from, final Map<DependencyNodeKey, DependencyNode> to) {
     final Collection<DependencyNode> nodes = new ArrayList<DependencyNode>(from.size());
-    for (DependencyNode node : from) {
+    for (final DependencyNode node : from) {
       final DependencyNode mapped = to.get(new DependencyNodeKey(node));
       if (mapped == null) {
         s_logger.warn("Node {} not mapped", node);
       } else if (mapped == node) {
-        s_logger.info("Using identity mapping");
+        s_logger.debug("Using identity mapping");
         return from;
       } else {
         nodes.add(mapped);
@@ -49,13 +51,27 @@ import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
     return nodes;
   }
 
-  private static final class SingleFragment extends ExecutionPlan {
+  private static Collection<DependencyNode> mapNodeKeys(final Collection<DependencyNodeKey> from, final Map<DependencyNodeKey, DependencyNode> to) {
+    final Collection<DependencyNode> nodes = new ArrayList<DependencyNode>(from.size());
+    for (final DependencyNodeKey node : from) {
+      final DependencyNode mapped = to.get(node);
+      if (mapped == null) {
+        s_logger.warn("Node {} not mapped", node);
+      } else {
+        nodes.add(mapped);
+      }
+    }
+    return nodes;
+  }
 
-    private final Collection<DependencyNode> _nodes;
+  private static final class SingleFragment extends ExecutionPlan implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    private final transient Collection<DependencyNode> _nodes;
     private final CacheSelectHint _cacheSelectHint;
 
     public SingleFragment(final Collection<DependencyNode> nodes, final CacheSelectHint cacheSelectHint) {
-      s_logger.info("Creating {} for {} nodes", this, nodes.size());
       _nodes = nodes;
       _cacheSelectHint = cacheSelectHint;
     }
@@ -72,16 +88,30 @@ import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
 
     @Override
     public SingleFragment withNodes(final Map<DependencyNodeKey, DependencyNode> nodes) {
-      return new SingleFragment(mapNodes(_nodes, nodes), _cacheSelectHint);
+      // The supplied nodes are the content of the fragment
+      return new SingleFragment(nodes.values(), _cacheSelectHint);
+    }
+
+    /* package */@Override
+    boolean isTestEqual(final ExecutionPlan other) {
+      if (other instanceof SingleFragment) {
+        return _cacheSelectHint.isPrivate() == ((SingleFragment) other)._cacheSelectHint.isPrivate();
+      }
+      return false;
     }
 
   }
 
-  private static final class MultipleFragment extends ExecutionPlan {
+  private static final class MultipleFragment extends ExecutionPlan implements Serializable {
 
-    private static final class FragmentDescriptor {
+    private static final long serialVersionUID = 1L;
 
-      private final Collection<DependencyNode> _nodes;
+    private static final class FragmentDescriptor implements Serializable {
+
+      private static final long serialVersionUID = 1L;
+
+      private final transient Collection<DependencyNode> _nodes;
+      private volatile Collection<DependencyNodeKey> _nodeKeys;
       private final CacheSelectHint _cacheSelectHint;
       private final int[] _inputs;
       private final int[] _outputs;
@@ -97,14 +127,14 @@ import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
         } else {
           a = new int[fragment.getInputFragments().size()];
           i = 0;
-          for (GraphFragment<?> input : fragment.getInputFragments()) {
+          for (final GraphFragment<?> input : fragment.getInputFragments()) {
             a[i++] = input.getIdentifier();
           }
           _inputs = a;
         }
         a = new int[fragment.getOutputFragments().size()];
         i = 0;
-        for (GraphFragment<?> output : fragment.getOutputFragments()) {
+        for (final GraphFragment<?> output : fragment.getOutputFragments()) {
           a[i++] = output.getIdentifier();
         }
         if ((i == 1) && (a[0] == 1)) {
@@ -116,7 +146,7 @@ import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
         if (tails != null) {
           a = new int[tails.size()];
           i = 0;
-          for (GraphFragment<?> tail : tails) {
+          for (final GraphFragment<?> tail : tails) {
             a[i++] = tail.getIdentifier();
           }
           _tail = a;
@@ -126,7 +156,11 @@ import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
       }
 
       private FragmentDescriptor(final FragmentDescriptor copyFrom, final Map<DependencyNodeKey, DependencyNode> withNodes) {
-        _nodes = mapNodes(copyFrom.getNodes(), withNodes);
+        if (copyFrom.getNodes() != null) {
+          _nodes = mapNodes(copyFrom.getNodes(), withNodes);
+        } else {
+          _nodes = mapNodeKeys(copyFrom.getNodeKeys(), withNodes);
+        }
         _cacheSelectHint = copyFrom.getCacheSelectHint();
         _inputs = copyFrom.getInputs();
         _outputs = copyFrom.getOutputs();
@@ -135,6 +169,10 @@ import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
 
       public Collection<DependencyNode> getNodes() {
         return _nodes;
+      }
+
+      public Collection<DependencyNodeKey> getNodeKeys() {
+        return _nodeKeys;
       }
 
       public CacheSelectHint getCacheSelectHint() {
@@ -153,6 +191,20 @@ import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
         return _tail;
       }
 
+      /**
+       * Populates the node keys structure.
+       */
+      private void writeObject(final java.io.ObjectOutputStream out) throws IOException {
+        if (_nodeKeys == null) {
+          final Collection<DependencyNodeKey> keys = new ArrayList<DependencyNodeKey>(_nodes.size());
+          for (final DependencyNode node : _nodes) {
+            keys.add(new DependencyNodeKey(node));
+          }
+          _nodeKeys = keys;
+        }
+        out.defaultWriteObject();
+      }
+
     }
 
     private final Map<Integer, FragmentDescriptor> _fragments;
@@ -168,7 +220,7 @@ import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
     }
 
     private void process(final Collection<? extends GraphFragment<?>> fragments) {
-      for (GraphFragment<?> fragment : fragments) {
+      for (final GraphFragment<?> fragment : fragments) {
         if (_fragments.get(fragment.getIdentifier()) == null) {
           _fragments.put(fragment.getIdentifier(), new FragmentDescriptor(fragment));
           process(fragment.getInputFragments());
@@ -182,20 +234,20 @@ import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
       s_logger.info("Running {} for {} fragments", this, _fragments.size());
       context.allocateFragmentMap(_fragments.size());
       final Map<Integer, GraphFragment> fragments = Maps.newHashMapWithExpectedSize(_fragments.size());
-      for (Map.Entry<Integer, FragmentDescriptor> descriptor : _fragments.entrySet()) {
+      for (final Map.Entry<Integer, FragmentDescriptor> descriptor : _fragments.entrySet()) {
         final GraphFragment fragment = new GraphFragment(context, descriptor.getValue().getNodes());
         fragment.setCacheSelectHint(descriptor.getValue().getCacheSelectHint());
         fragments.put(descriptor.getKey(), fragment);
       }
       final List<GraphFragment> runnables = new LinkedList<GraphFragment>();
       final GraphFragment.Root root = new GraphFragment.Root(context, statistics);
-      for (Map.Entry<Integer, FragmentDescriptor> entry : _fragments.entrySet()) {
+      for (final Map.Entry<Integer, FragmentDescriptor> entry : _fragments.entrySet()) {
         final GraphFragment fragment = fragments.get(entry.getKey());
         final FragmentDescriptor descriptor = _fragments.get(entry.getKey());
         if (descriptor.getInputs() == null) {
           runnables.add(fragment);
         } else {
-          for (Integer i : descriptor.getInputs()) {
+          for (final Integer i : descriptor.getInputs()) {
             fragment.getInputFragments().add(fragments.get(i));
           }
           fragment.initBlockCount();
@@ -204,20 +256,20 @@ import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
           fragment.getOutputFragments().add(root);
           root.getInputFragments().add(fragment);
         } else {
-          for (Integer i : descriptor.getOutputs()) {
+          for (final Integer i : descriptor.getOutputs()) {
             fragment.getOutputFragments().add(fragments.get(i));
           }
         }
         if (descriptor.getTail() != null) {
           final List<GraphFragment> tail = new ArrayList<GraphFragment>(descriptor.getTail().length);
-          for (Integer i : descriptor.getTail()) {
+          for (final Integer i : descriptor.getTail()) {
             tail.add(fragments.get(i));
           }
           fragment.setTail(tail);
         }
       }
       root.initBlockCount();
-      for (GraphFragment runnable : runnables) {
+      for (final GraphFragment runnable : runnables) {
         runnable.execute(context);
       }
       return root.getFuture();
@@ -226,10 +278,18 @@ import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
     @Override
     public MultipleFragment withNodes(final Map<DependencyNodeKey, DependencyNode> nodes) {
       final Map<Integer, FragmentDescriptor> fragments = new HashMap<Integer, FragmentDescriptor>(_fragments);
-      for (Map.Entry<Integer, FragmentDescriptor> fragment : fragments.entrySet()) {
+      for (final Map.Entry<Integer, FragmentDescriptor> fragment : fragments.entrySet()) {
         fragment.setValue(new FragmentDescriptor(fragment.getValue(), nodes));
       }
       return new MultipleFragment(fragments);
+    }
+
+    /* package */@Override
+    boolean isTestEqual(final ExecutionPlan other) {
+      if (other instanceof MultipleFragment) {
+        return _fragments.size() == ((MultipleFragment) other)._fragments.size();
+      }
+      return false;
     }
 
   }
@@ -253,5 +313,10 @@ import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
   public abstract Future<DependencyGraph> run(final GraphFragmentContext context, final GraphExecutorStatisticsGatherer statistics);
 
   public abstract ExecutionPlan withNodes(final Map<DependencyNodeKey, DependencyNode> nodes);
+
+  /**
+   * Tests equality between two plans; this is sufficient for the unit tests, it is not really a valid comparison check.
+   */
+  /* package */abstract boolean isTestEqual(ExecutionPlan other);
 
 }

@@ -16,6 +16,7 @@ import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.StubType;
+import com.opengamma.analytics.financial.credit.calibratehazardratecurve.legacy.CalibrateHazardRateCurveLegacyCreditDefaultSwap;
 import com.opengamma.analytics.financial.credit.cds.ISDACurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.obligor.CreditRating;
@@ -378,7 +379,6 @@ public class CalibrateHazardRateCurveTest {
     tenors[0] = DateUtils.getUTCDate(2013, 6, 20);
     marketSpreads[0] = flatSpread;
 
-    /*
     LegacyVanillaCreditDefaultSwapDefinition calibrationCDS = cds;
 
     calibrationCDS = calibrationCDS.withRecoveryRate(calibrationRecoveryRate);
@@ -392,7 +392,6 @@ public class CalibrateHazardRateCurveTest {
         System.out.println(calibratedHazardRateTermStructure[i]);
       }
     }
-    */
 
     // -----------------------------------------------------------------------------------------------
   }

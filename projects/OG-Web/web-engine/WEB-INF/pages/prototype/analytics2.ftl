@@ -6,7 +6,6 @@ ${ogStyle.print('og_all.css', 'all',false)}
 <div class="OG-layout-analytics-container">
   <div class="ui-layout-north">
       <#include "modules/common/og.common.masthead.ftl">
-      <div class="og-form"></div>
   </div>
   <div class="ui-layout-center">
     <div class="OG-layout-analytics-center"></div>
@@ -20,8 +19,8 @@ ${ogStyle.print('og_all.css', 'all',false)}
       <div class="OG-layout-analytics-dock-south"><#include "modules/common/og.common.gadget_container.ftl"></div>
   </div>
 </div>
-${ogScript.print('og_common.js', false)}
 <!--[if IE]>${ogScript.print('ie.js',false)}<![endif]-->
+${ogScript.print('og_common.js', false)}
 ${ogScript.print('og_analytics2.js',false)}
 </body>
 </html>

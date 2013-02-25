@@ -17,6 +17,7 @@ import com.opengamma.analytics.financial.commodity.derivative.MetalFutureOption;
 import com.opengamma.analytics.financial.credit.cds.ISDACDSDerivative;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityFuture;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityIndexDividendFuture;
+import com.opengamma.analytics.financial.equity.option.EquityIndexFutureOption;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.equity.option.EquityOption;
 import com.opengamma.analytics.financial.equity.variance.EquityVarianceSwap;
@@ -419,6 +420,10 @@ public interface InstrumentDerivativeVisitor<DATA_TYPE, RESULT_TYPE> {
   RESULT_TYPE visitEquityOption(EquityOption option, DATA_TYPE data);
 
   RESULT_TYPE visitEquityOption(EquityOption option);
+
+  RESULT_TYPE visitEquityIndexFutureOption(EquityIndexFutureOption option, DATA_TYPE data);
+
+  RESULT_TYPE visitEquityIndexFutureOption(EquityIndexFutureOption option);
 
   //  -----     Variance swaps     -----
 

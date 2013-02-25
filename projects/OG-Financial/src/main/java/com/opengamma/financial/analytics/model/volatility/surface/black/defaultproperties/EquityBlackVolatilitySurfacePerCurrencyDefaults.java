@@ -36,27 +36,27 @@ public class EquityBlackVolatilitySurfacePerCurrencyDefaults extends DefaultProp
   private static final Logger s_logger = LoggerFactory.getLogger(EquityBlackVolatilitySurfacePerCurrencyDefaults.class);
   /** The value requirements for which these defaults apply */
   private static final String[] VALUE_REQUIREMENTS = new String[] {
-    ValueRequirementNames.BLACK_VOLATILITY_SURFACE,
-    ValueRequirementNames.LOCAL_VOLATILITY_SURFACE,
-    ValueRequirementNames.PURE_VOLATILITY_SURFACE,
-    ValueRequirementNames.FORWARD_DELTA,
-    ValueRequirementNames.DUAL_DELTA,
-    ValueRequirementNames.DUAL_GAMMA,
-    ValueRequirementNames.FORWARD_GAMMA,
-    ValueRequirementNames.FORWARD_VEGA,
-    ValueRequirementNames.FORWARD_VOMMA,
-    ValueRequirementNames.FORWARD_VANNA,
-    ValueRequirementNames.PRESENT_VALUE,
-    ValueRequirementNames.IMPLIED_VOLATILITY,
-    ValueRequirementNames.GRID_DUAL_DELTA,
-    ValueRequirementNames.GRID_DUAL_GAMMA,
-    ValueRequirementNames.GRID_FORWARD_DELTA,
-    ValueRequirementNames.GRID_FORWARD_GAMMA,
-    ValueRequirementNames.GRID_FORWARD_VEGA,
-    ValueRequirementNames.GRID_FORWARD_VANNA,
-    ValueRequirementNames.GRID_FORWARD_VOMMA,
-    ValueRequirementNames.GRID_IMPLIED_VOLATILITY,
-    ValueRequirementNames.GRID_PRESENT_VALUE
+      ValueRequirementNames.BLACK_VOLATILITY_SURFACE,
+      ValueRequirementNames.LOCAL_VOLATILITY_SURFACE,
+      ValueRequirementNames.PURE_VOLATILITY_SURFACE,
+      ValueRequirementNames.FORWARD_DELTA,
+      ValueRequirementNames.DUAL_DELTA,
+      ValueRequirementNames.DUAL_GAMMA,
+      ValueRequirementNames.FORWARD_GAMMA,
+      ValueRequirementNames.FORWARD_VEGA,
+      ValueRequirementNames.FORWARD_VOMMA,
+      ValueRequirementNames.FORWARD_VANNA,
+      ValueRequirementNames.PRESENT_VALUE,
+      ValueRequirementNames.IMPLIED_VOLATILITY,
+      ValueRequirementNames.GRID_DUAL_DELTA,
+      ValueRequirementNames.GRID_DUAL_GAMMA,
+      ValueRequirementNames.GRID_FORWARD_DELTA,
+      ValueRequirementNames.GRID_FORWARD_GAMMA,
+      ValueRequirementNames.GRID_FORWARD_VEGA,
+      ValueRequirementNames.GRID_FORWARD_VANNA,
+      ValueRequirementNames.GRID_FORWARD_VOMMA,
+      ValueRequirementNames.GRID_IMPLIED_VOLATILITY,
+      ValueRequirementNames.GRID_PRESENT_VALUE
   };
   /** Ids to forward curve names */
   private final Map<String, String> _forwardCurveNames;
@@ -114,24 +114,24 @@ public class EquityBlackVolatilitySurfacePerCurrencyDefaults extends DefaultProp
   @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
-    final String exchange = EquitySecurityUtils.getCurrency(securitySource, target.getUniqueId());
-    if (exchange == null) {
-      s_logger.error("Could not get exchange for {}; should never happen", target.getUniqueId());
+    final String currency = EquitySecurityUtils.getCurrency(securitySource, target.getUniqueId());
+    if (currency == null) {
+      s_logger.error("Could not get currency for {}; should never happen", target.getUniqueId());
       return null;
     }
-    final String forwardCurveName = _forwardCurveNames.get(exchange);
+    final String forwardCurveName = _forwardCurveNames.get(currency);
     if (forwardCurveName == null) {
-      s_logger.error("Could not get defaults for {}; should never happen", exchange);
+      s_logger.error("Could not get defaults for {}; should never happen", currency);
       return null;
     }
     if (ValuePropertyNames.CURVE.equals(propertyName)) {
       return Collections.singleton(forwardCurveName);
     }
     if (ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD.equals(propertyName)) {
-      return Collections.singleton(_forwardCurveCalculationMethodNames.get(exchange));
+      return Collections.singleton(_forwardCurveCalculationMethodNames.get(currency));
     }
     if (ValuePropertyNames.SURFACE.equals(propertyName)) {
-      return Collections.singleton(_surfaceNames.get(exchange));
+      return Collections.singleton(_surfaceNames.get(currency));
     }
     s_logger.error("Could not find default value for {} in this function", propertyName);
     return null;
@@ -144,7 +144,7 @@ public class EquityBlackVolatilitySurfacePerCurrencyDefaults extends DefaultProp
 
   @Override
   public String getMutualExclusionGroup() {
-    return OpenGammaFunctionExclusions.EQUITY_BLACK_VOLATILITY_SURFACE_DEFAULTS;
+    return OpenGammaFunctionExclusions.BLACK_VOLATILITY_SURFACE_DEFAULTS;
   }
 
 }

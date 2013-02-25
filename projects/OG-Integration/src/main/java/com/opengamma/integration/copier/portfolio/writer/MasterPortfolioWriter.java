@@ -189,8 +189,13 @@ public class MasterPortfolioWriter implements PortfolioWriter {
     // Write position
     if (_overwrite) {
       // Add the new position to the position master
-      PositionDocument addedDoc = _positionMaster.add(new PositionDocument(position));
-
+      PositionDocument addedDoc;
+      try {
+        addedDoc = _positionMaster.add(new PositionDocument(position));
+      } catch (Exception e) {
+        s_logger.error("Unable to add position " + position.getUniqueId() + ": " + e.getMessage());
+        return null;
+      }
       // Add the new position to the portfolio
       _currentNode.addPosition(addedDoc.getUniqueId());
 
@@ -240,8 +245,13 @@ public class MasterPortfolioWriter implements PortfolioWriter {
       }
 
       // Add the new position to the position master
-      PositionDocument addedDoc = _positionMaster.add(new PositionDocument(position));
-
+      PositionDocument addedDoc;
+      try {
+        addedDoc = _positionMaster.add(new PositionDocument(position));
+      } catch (Exception e) {
+        s_logger.error("Unable to add position " + position.getUniqueId() + ": " + e.getMessage());
+        return null;
+      }
       // Add the new position to the portfolio
       _currentNode.addPosition(addedDoc.getUniqueId());
 
@@ -307,8 +317,13 @@ public class MasterPortfolioWriter implements PortfolioWriter {
 
     // Not found, so add it
     SecurityDocument addDoc = new SecurityDocument(security);
-    SecurityDocument result = _securityMaster.add(addDoc);
-    return result.getSecurity();
+    try {
+      SecurityDocument result = _securityMaster.add(addDoc);
+      return result.getSecurity();
+    } catch (Exception e) {
+      s_logger.error("Failed to write security " + security + " to the security master");
+      return null;
+    }
   }
   
   @Override
@@ -346,7 +361,12 @@ public class MasterPortfolioWriter implements PortfolioWriter {
       // If keeping original portfolio nodes and merging positions, populate position map with existing positions in node
       if (_keepCurrentPositions && _mergePositions && _originalNode != null) {
         for (ObjectId positionId : _originalNode.getPositionIds()) {
-          ManageablePosition position = _positionMaster.get(positionId, VersionCorrection.LATEST).getPosition();
+          ManageablePosition position = null;
+          try {
+            position = _positionMaster.get(positionId, VersionCorrection.LATEST).getPosition();
+          } catch (Exception e) {
+            // no action
+          }
           if (position != null) {
             position.getSecurityLink().resolve(_securitySource);
             if (position.getSecurity() != null) {
@@ -467,8 +487,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
 
         portfolio.setRootNode(rootNode);
         _portfolioDocument.setPortfolio(portfolio);
-        _portfolioDocument = _portfolioMaster.update(_portfolioDocument);
-      }      
+      }
     }
     // Set current node to the root node
     _currentNode = _portfolioDocument.getPortfolio().getRootNode();

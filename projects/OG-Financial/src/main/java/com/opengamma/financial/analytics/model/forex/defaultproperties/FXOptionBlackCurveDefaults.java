@@ -127,7 +127,7 @@ public class FXOptionBlackCurveDefaults extends DefaultPropertyFunction {
 
   @Override
   public String getMutualExclusionGroup() {
-    return OpenGammaFunctionExclusions.FX_OPTION_BLACK_CURVE_DEFAULTS;
+    return OpenGammaFunctionExclusions.CURVE_DEFAULTS;
   }
 
   protected static String[] getRequirementNames() {

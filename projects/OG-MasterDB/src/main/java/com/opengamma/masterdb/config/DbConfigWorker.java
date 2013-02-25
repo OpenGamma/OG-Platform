@@ -15,7 +15,9 @@ import java.util.EnumMap;
 import java.util.List;
 
 import org.fudgemsg.FudgeContext;
+import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
+import org.fudgemsg.mapping.FudgeObjectReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
@@ -24,7 +26,6 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.core.support.SqlLobValue;
 import org.springframework.jdbc.support.lob.LobHandler;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.elsql.ElSqlBundle;
 import com.opengamma.id.IdUtils;
@@ -63,7 +64,7 @@ import com.opengamma.util.paging.PagingRequest;
   /**
    * The Fudge context.
    */
-  protected static final FudgeContext FUDGE_CONTEXT = OpenGammaFudgeContext.getInstance();
+  protected static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();
 
   /**
    * SQL order by.
@@ -124,11 +125,11 @@ import com.opengamma.util.paging.PagingRequest;
       ((MutableUniqueIdentifiable) value).setUniqueId(uniqueId);
     }
     // serialize the configuration value
-    FudgeMsgEnvelope env = FUDGE_CONTEXT.toFudgeMsg(value);
+    FudgeMsgEnvelope env = s_fudgeContext.toFudgeMsg(value);
     // REVIEW 2011-01-06 Andrew -- the serialization should only add headers for anything subclass
     // to the reified type to match the deserialization call, reduce payload size and allow easier
     // refactoring of stored objects following an upgrade through database operations.
-    byte[] bytes = FUDGE_CONTEXT.toByteArray(env.getMessage());
+    byte[] bytes = s_fudgeContext.toByteArray(env.getMessage());
     // the arguments for inserting into the config table
     final DbMapSqlParameterSource docArgs = new DbMapSqlParameterSource()
       .addValue("doc_id", docId)
@@ -312,28 +313,35 @@ import com.opengamma.util.paging.PagingRequest;
       try {
         reifiedType = loadClass(configType);
       } catch (ClassNotFoundException ex) {
-        throw new OpenGammaRuntimeException("Unable to load class", ex);
+        s_logger.warn("ConfigType: {} class can not be found for docOid: {}", configType, docOid);
       }
-      Object value = FUDGE_CONTEXT.readObject(reifiedType, new ByteArrayInputStream(bytes));
       
-      ConfigItem<?> item = ConfigItem.of(value);
-      item.setName(name);
-      item.setType(reifiedType);
-      ConfigDocument doc = new ConfigDocument(item);
-      UniqueId uniqueId = createUniqueId(docOid, docId);
-      doc.setUniqueId(uniqueId);
-      IdUtils.setInto(value, uniqueId);
-      doc.setVersionFromInstant(DbDateUtils.fromSqlTimestamp(versionFrom));
-      doc.setVersionToInstant(DbDateUtils.fromSqlTimestampNullFarFuture(versionTo));
-      doc.setCorrectionFromInstant(DbDateUtils.fromSqlTimestamp(correctionFrom));
-      doc.setCorrectionToInstant(DbDateUtils.fromSqlTimestampNullFarFuture(correctionTo));     
-      _documents.add(doc);
+      try {
+        Object value = s_fudgeContext.readObject(reifiedType, new ByteArrayInputStream(bytes));
+        ConfigItem<?> item = ConfigItem.of(value);
+        item.setName(name);
+        item.setType(reifiedType);
+        ConfigDocument doc = new ConfigDocument(item);
+        UniqueId uniqueId = createUniqueId(docOid, docId);
+        doc.setUniqueId(uniqueId);
+        IdUtils.setInto(value, uniqueId);
+        doc.setVersionFromInstant(DbDateUtils.fromSqlTimestamp(versionFrom));
+        doc.setVersionToInstant(DbDateUtils.fromSqlTimestampNullFarFuture(versionTo));
+        doc.setCorrectionFromInstant(DbDateUtils.fromSqlTimestamp(correctionFrom));
+        doc.setCorrectionToInstant(DbDateUtils.fromSqlTimestampNullFarFuture(correctionTo));
+        _documents.add(doc);
+        
+      } catch (Exception ex) {
+        FudgeObjectReader objReader = s_fudgeContext.createObjectReader(new ByteArrayInputStream(bytes));
+        FudgeMsg fudgeMsg = objReader.getMessageReader().nextMessage();
+        s_logger.warn("Bad fudge message in database, unable to deserialise docOid:{} {} to {}", new Object[] {docOid, fudgeMsg, configType});
+      }
     }
   }
 
   @SuppressWarnings({"rawtypes", "unchecked" })
   @Override
-  public AbstractHistoryResult<ConfigDocument> historyByVersionsCorrections(AbstractHistoryRequest request) {    
+  protected AbstractHistoryResult<ConfigDocument> historyByVersionsCorrections(AbstractHistoryRequest request) {    
     ConfigHistoryRequest historyRequest = new ConfigHistoryRequest();
     historyRequest.setCorrectionsFromInstant(request.getCorrectionsFromInstant());
     historyRequest.setCorrectionsToInstant(request.getCorrectionsToInstant());
@@ -342,5 +350,5 @@ import com.opengamma.util.paging.PagingRequest;
     historyRequest.setObjectId(request.getObjectId());
     return (AbstractHistoryResult) history(historyRequest);
   }
-  
+
 }

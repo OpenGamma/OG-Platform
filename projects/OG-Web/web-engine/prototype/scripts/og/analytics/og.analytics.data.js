@@ -68,7 +68,7 @@ $.register_module({
             })();
             var initialize = function () {
                 var message, put_options = ['viewdefinition', 'aggregators', 'providers']
-                    .reduce(function (acc, val) {return (acc[val] = source[val]), acc;}, {});
+                    .reduce(function (acc, val) {return (acc[val] = source[val]), acc;}, {blotter: !!source.blotter});
                 if (depgraph || bypass_types) grid_type = source.type; // don't bother with type_setup
                 if (view_id && grid_type) return structure_setup();
                 if (grid_type) return api.put(put_options).pipe(view_handler).pipe(structure_handler);
@@ -131,9 +131,11 @@ $.register_module({
                     .get({view_id: view_id, grid_type: 'primitives'});
                 $.when(port_request, prim_request).then(function (port_struct, prim_struct) {
                     var portfolio = port_struct.data &&
-                            !!(port_struct.data[ROOT] ? port_struct.data[ROOT][1] : port_struct.data[ROWS]),
+                            !!(port_struct.data[ROOT] && port_struct.data[ROOT].length ? port_struct.data[ROOT][1] + 1
+                                : port_struct.data[ROWS]),
                         primitives = prim_struct.data &&
-                            !!(prim_struct.data[ROOT] ? prim_struct.data[ROOT][1] : prim_struct.data[ROWS]);
+                            !!(prim_struct.data[ROOT] && prim_struct.data[ROOT].length ? prim_struct.data[ROOT][1] + 1
+                                : prim_struct.data[ROWS]);
                     if (!grid_type)
                         grid_type = source.type = portfolio ? 'portfolio' : primitives ? 'primitives' : grid_type;
                     api.grid.structure
@@ -182,7 +184,7 @@ $.register_module({
                         view_id: view_id, grid_type: grid_type, graph_id: graph_id, viewport_id: viewport_id,
                         rows: viewport.rows, cols: viewport.cols, cells: viewport.cells,
                         format: viewport.format, log: viewport.log
-                    })).pipe(function (result) {if (result.error) return;});
+                    })).pipe(function (result) {if (result.error) fire('fatal', data.prefix + result.message);});
                     viewport_version = promise.id;
                 } catch (error) {fire('fatal', data.prefix + error.message);}
                 return data;

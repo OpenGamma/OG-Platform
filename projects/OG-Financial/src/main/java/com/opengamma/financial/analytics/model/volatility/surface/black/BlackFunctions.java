@@ -34,6 +34,7 @@ public class BlackFunctions extends AbstractRepositoryConfigurationBean {
     functions.add(functionConfiguration(BlackVolatilitySurfaceMixedLogNormalInterpolatorFunction.class));
     functions.add(functionConfiguration(BlackVolatilitySurfaceSABRInterpolatorFunction.class));
     functions.add(functionConfiguration(BlackVolatilitySurfaceSplineInterpolatorFunction.Exception.class));
+    functions.add(functionConfiguration(BlackVolatilitySurfaceSplineInterpolatorFunction.Flat.class));
     functions.add(functionConfiguration(BlackVolatilitySurfaceSplineInterpolatorFunction.Quiet.class));
     functions.add(functionConfiguration(CommodityBlackVolatilitySurfaceFunction.SABR.class));
     functions.add(functionConfiguration(CommodityBlackVolatilitySurfaceFunction.Spline.class));

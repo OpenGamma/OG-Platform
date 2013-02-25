@@ -22,14 +22,10 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import net.sf.ehcache.CacheManager;
-
 import org.fudgemsg.FudgeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.threeten.bp.Instant;
@@ -86,7 +82,6 @@ import com.opengamma.engine.view.permission.ViewPermissionProvider;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.UserPrincipal;
-import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.log.ThreadLocalLogEventListener;
 import com.opengamma.util.test.Timeout;
 
@@ -106,18 +101,6 @@ public class CancelExecutionTest {
         {multipleNodeExecutorFactoryManyJobs() },
         {multipleNodeExecutorFactoryOneJob() },
         {new SingleNodeExecutorFactory() }, };
-  }
-
-  private CacheManager _cacheManager;
-
-  @BeforeMethod
-  public void setUp() {
-    _cacheManager = new CacheManager();
-  }
-
-  @AfterMethod
-  public void tearDown() {
-    _cacheManager = EHCacheUtils.shutdownQuiet(_cacheManager);
   }
 
   //-------------------------------------------------------------------------

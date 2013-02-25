@@ -4,8 +4,6 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.Collections;
 
-import net.sf.ehcache.CacheManager;
-
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.MutableFudgeMsg;
 import org.testng.annotations.AfterMethod;
@@ -47,7 +45,6 @@ public class PriorityResolvingCombiningLiveDataServerTest {
   private MockLiveDataServer _serverB;
   private MockLiveDataServer _serverC;
   private PriorityResolvingCombiningLiveDataServer _combiningServer;
-  private CacheManager _cacheManager;
 
   @BeforeMethod
   public void setUp() {
@@ -63,8 +60,7 @@ public class PriorityResolvingCombiningLiveDataServerTest {
     setEntitlementChecker(_serverC);
     _serverC.connect();
     
-    _cacheManager = new CacheManager();
-    _combiningServer = new PriorityResolvingCombiningLiveDataServer(Lists.newArrayList(_serverB, _serverC), _cacheManager);
+    _combiningServer = new PriorityResolvingCombiningLiveDataServer(Lists.newArrayList(_serverB, _serverC), EHCacheUtils.createCacheManager());
     _combiningServer.start();
     
     assertEquals(StandardLiveDataServer.ConnectionStatus.CONNECTED, _combiningServer.getConnectionStatus());
@@ -73,7 +69,9 @@ public class PriorityResolvingCombiningLiveDataServerTest {
 
   @AfterMethod
   public void tearDown() {
-    _cacheManager = EHCacheUtils.shutdownQuiet(_cacheManager);
+    assertEquals(StandardLiveDataServer.ConnectionStatus.CONNECTED, _combiningServer.getConnectionStatus());
+    _combiningServer.stop();
+    assertEquals(StandardLiveDataServer.ConnectionStatus.NOT_CONNECTED, _combiningServer.getConnectionStatus());
   }
 
   //-------------------------------------------------------------------------
@@ -94,13 +92,6 @@ public class PriorityResolvingCombiningLiveDataServerTest {
         }
       }
     };
-  }
-  
-  @AfterMethod
-  public void teardown() {
-    assertEquals(StandardLiveDataServer.ConnectionStatus.CONNECTED, _combiningServer.getConnectionStatus());
-    _combiningServer.stop();
-    assertEquals(StandardLiveDataServer.ConnectionStatus.NOT_CONNECTED, _combiningServer.getConnectionStatus());
   }
 
   //-------------------------------------------------------------------------

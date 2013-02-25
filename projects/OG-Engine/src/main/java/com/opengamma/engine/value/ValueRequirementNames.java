@@ -130,6 +130,11 @@ public final class ValueRequirementNames {
    */
   public static final String PROJECTED_FLOATING_RECEIVE_CASH_FLOWS = "Projected Floating Receive Cash-Flows";
 
+  /**
+   * (For barrier options) The absolute difference between the nearest barrier and the spot.
+   */
+  public static final String BARRIER_DISTANCE = "BarrierDistance";
+
   ///// Curves
   /**
    * Curve containing (date, discount factor) pairs.
@@ -300,6 +305,17 @@ public final class ValueRequirementNames {
    * The change in the value of an instrument if the credit curve is moved by 1 basis point.
    */
   public static final String CS01 = "CS01";
+
+  /**
+   * The bucketed CS01 for a credit default swap.
+   */
+  public static final String BUCKETED_CS01 = "Bucketed CS01";
+
+  /**
+   * The market spread in a bucket used for bucketed CS01 for CDS
+   */
+  public static final String MARKET_SPREAD = "Market Spread";
+
   /**
    * The dividend yield of an equity or equity index.
    */

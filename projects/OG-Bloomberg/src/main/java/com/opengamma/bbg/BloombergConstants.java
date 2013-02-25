@@ -37,6 +37,10 @@ public final class BloombergConstants {
    * OPTION CHAIN FIELD
    */
   public static final String FIELD_OPT_CHAIN = "OPT_CHAIN";
+  /**
+   * Future chain
+   */
+  public static final String FIELD_FUT_CHAIN = "FUT_CHAIN";
 
   // CSOFF: TODO: actually write the docs
   public static final String MARKET_SECTOR_GOVT = "Govt";
@@ -181,6 +185,8 @@ public final class BloombergConstants {
   //Bloomberg agriculture future types
   public static final String BBG_WHEAT = "Wheat";
   public static final String BBG_SOY = "Soy";
+  public static final String BBG_LIVESTOCK = "Livestock";
+  public static final String BBG_FOODSTUFF = "Foodstuff";
 
   //Bloomberg index future type
   public static final String BLOOMBERG_EQUITY_INDEX_TYPE = "Equity Index";
@@ -209,6 +215,7 @@ public final class BloombergConstants {
   public static final String BLOOMBERG_PHYSICAL_COMMODITY_FUTURE_TYPE = "Physical commodity future.";
   public static final String BLOOMBERG_FINANCIAL_COMMODITY_FUTURE_TYPE = "Financial commodity future.";
   public static final String BLOOMBERG_PHYSICAL_COMMODITY_FUTURE_OPTION_TYPE = "Physical commodity option.";
+  public static final String BLOOMBERG_PHYSICAL_INDEX_FUTURE_TYPE = "Physical index future.";
 
   public static final Name RESPONSE_ERROR = new Name("responseError");
   public static final Name SECURITY_DATA = new Name("securityData");

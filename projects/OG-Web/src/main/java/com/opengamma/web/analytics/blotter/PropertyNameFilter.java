@@ -19,6 +19,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 /* package */ class PropertyNameFilter implements BeanVisitorDecorator {
 
+  /** Names of the properties that will be filtered out. */
   private final Set<String> _propertyNames;
 
   /* package */ PropertyNameFilter(String... propertyNames) {
@@ -39,33 +40,33 @@ import com.opengamma.util.ArgumentChecker;
         }
       }
 
-      public void visitCollectionProperty(MetaProperty<?> property) {
+      public void visitCollectionProperty(MetaProperty<?> property, BeanTraverser traverser) {
         if (!_propertyNames.contains(property.name())) {
-          visitor.visitCollectionProperty(property);
+          visitor.visitCollectionProperty(property, traverser);
         }
       }
 
-      public void visitSetProperty(MetaProperty<?> property) {
+      public void visitSetProperty(MetaProperty<?> property, BeanTraverser traverser) {
         if (!_propertyNames.contains(property.name())) {
-          visitor.visitSetProperty(property);
+          visitor.visitSetProperty(property, traverser);
         }
       }
 
-      public void visitListProperty(MetaProperty<?> property) {
+      public void visitListProperty(MetaProperty<?> property, BeanTraverser traverser) {
         if (!_propertyNames.contains(property.name())) {
-          visitor.visitListProperty(property);
+          visitor.visitListProperty(property, traverser);
         }
       }
 
-      public void visitMapProperty(MetaProperty<?> property) {
+      public void visitMapProperty(MetaProperty<?> property, BeanTraverser traverser) {
         if (!_propertyNames.contains(property.name())) {
-          visitor.visitMapProperty(property);
+          visitor.visitMapProperty(property, traverser);
         }
       }
 
-      public void visitProperty(MetaProperty<?> property) {
+      public void visitProperty(MetaProperty<?> property, BeanTraverser traverser) {
         if (!_propertyNames.contains(property.name())) {
-          visitor.visitProperty(property);
+          visitor.visitProperty(property, traverser);
         }
       }
 
