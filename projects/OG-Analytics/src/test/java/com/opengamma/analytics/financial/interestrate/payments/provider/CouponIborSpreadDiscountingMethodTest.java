@@ -33,7 +33,7 @@ import com.opengamma.util.time.DateUtils;
 /**
  * Tests related to the pricing and sensitivities of Ibor coupon with spread in the discounting method.
  */
-public class CouponIborSpreadDiscountingProviderMethodTest {
+public class CouponIborSpreadDiscountingMethodTest {
 
   private static final MulticurveProviderDiscount PROVIDER = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
   private static final IborIndex[] IBOR_INDEXES = MulticurveProviderDiscountDataSets.getIndexesIborMulticurveEurUsd();

@@ -38,7 +38,7 @@ import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeS
 /**
  * Tests related to the pricing methods for OIS coupon in the discounting method with data in MarketBundle.
  */
-public class CouponOISDiscountingMarketMethodTest {
+public class CouponOISDiscountingMethodTest {
 
   private static final MulticurveProviderDiscount PROVIDER = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
 
