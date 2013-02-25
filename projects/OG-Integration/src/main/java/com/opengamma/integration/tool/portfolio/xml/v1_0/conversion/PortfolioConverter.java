@@ -23,6 +23,7 @@ import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.FxOptionTrade;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.Portfolio;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.Position;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.SwapTrade;
+import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.SwaptionTrade;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.Trade;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
@@ -35,13 +36,15 @@ public class PortfolioConverter {
   private final Portfolio _portfolio;
 
   // todo - this would be better using a visitor implementation
-  private static final Map<Class<? extends Trade>, TradeSecurityExtractor<? extends Trade>> _extractors = ImmutableMap.of(
-      FxOptionTrade.class, new FxOptionTradeSecurityExtractor(),
-      FxDigitalOptionTrade.class, new FxDigitalOptionTradeSecurityExtractor(),
-      SwapTrade.class, new SwapTradeSecurityExtractor(),
-      EquityVarianceSwapTrade.class, new EquityVarianceSwapTradeSecurityExtractor() ,
-      FxForwardTrade.class, new FxForwardTradeSecurityExtractor()
-  );
+  private static final Map<Class<? extends Trade>, TradeSecurityExtractor<? extends Trade>> _extractors =
+      ImmutableMap.<Class<? extends Trade>, TradeSecurityExtractor<? extends Trade>>builder()
+        .put(FxOptionTrade.class, new FxOptionTradeSecurityExtractor())
+        .put(FxDigitalOptionTrade.class, new FxDigitalOptionTradeSecurityExtractor())
+        .put(SwapTrade.class, new SwapTradeSecurityExtractor())
+        .put(EquityVarianceSwapTrade.class, new EquityVarianceSwapTradeSecurityExtractor())
+        .put(FxForwardTrade.class, new FxForwardTradeSecurityExtractor())
+        .put(SwaptionTrade.class, new SwaptionTradeSecurityExtractor())
+        .build();
 
   public PortfolioConverter(Portfolio portfolio) {
     _portfolio = portfolio;
@@ -94,7 +97,7 @@ public class PortfolioConverter {
 
       for (Trade trade : trades) {
 
-        ManageableSecurity security = extractSecurityFromTrade(trade, trades.size());
+        ManageableSecurity[] security = extractSecurityFromTrade(trade, trades.size());
         managedPositions.add(createPortfolioPosition(position, security, portfolioPath));
       }
     }
@@ -102,7 +105,7 @@ public class PortfolioConverter {
     for (Trade trade : nullCheckIterable(portfolio.getTrades())) {
 
       // TODO we probably want logic to allow for the aggregation of trades into positions but for now we'll create a position per trade
-      ManageableSecurity security = extractSecurityFromTrade(trade, 1);
+      ManageableSecurity[] security = extractSecurityFromTrade(trade, 1);
       managedPositions.add(createPortfolioPosition(trade, security, portfolioPath));
     }
     return managedPositions;
@@ -124,7 +127,7 @@ public class PortfolioConverter {
     return extended;
   }
 
-  private ManageableSecurity extractSecurityFromTrade(Trade trade, int tradesSize) {
+  private ManageableSecurity[] extractSecurityFromTrade(Trade trade, int tradesSize) {
 
     ArgumentChecker.isFalse(tradesSize > 1 && !trade.canBePositionAggregated(), "Trade type cannot be aggregated in positions");
 
@@ -145,13 +148,13 @@ public class PortfolioConverter {
 
 
   private PortfolioPosition createPortfolioPosition(Position position,
-                                                    ManageableSecurity security,
+                                                    ManageableSecurity[] security,
                                                     String[] parentPath) {
-    return new PortfolioPosition(convertPosition(position, security), new ManageableSecurity[]{security}, parentPath);
+    return new PortfolioPosition(convertPosition(position, security[0]), security, parentPath);
   }
 
-  private PortfolioPosition createPortfolioPosition(Trade trade, ManageableSecurity security, String[] parentPath) {
-    return new PortfolioPosition(convertTradeToPosition(trade, security), new ManageableSecurity[]{security}, parentPath);
+  private PortfolioPosition createPortfolioPosition(Trade trade, ManageableSecurity[] security, String[] parentPath) {
+    return new PortfolioPosition(convertTradeToPosition(trade, security[0]), security, parentPath);
   }
 
   private ManageablePosition convertTradeToPosition(Trade trade, ManageableSecurity security) {

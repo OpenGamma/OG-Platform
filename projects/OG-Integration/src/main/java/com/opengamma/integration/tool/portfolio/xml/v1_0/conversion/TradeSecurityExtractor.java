@@ -21,7 +21,7 @@ import com.opengamma.master.security.ManageableSecurity;
 
 public abstract class TradeSecurityExtractor<T extends Trade> {
 
-  public abstract ManageableSecurity extractSecurity(T trade);
+  public abstract ManageableSecurity[] extractSecurity(T trade);
 
   protected ZonedDateTime convertLocalDate(LocalDate date) {
     return date.atStartOfDay(ZoneOffset.UTC);
@@ -41,5 +41,9 @@ public abstract class TradeSecurityExtractor<T extends Trade> {
   protected ExternalId extractRegion(Set<Calendar> calendars) {
     Set<String> calendarRegions = extractCalendarRegions(calendars);
     return ExternalSchemes.financialRegionId(StringUtils.join(calendarRegions, "+"));
+  }
+
+  protected ManageableSecurity[] securityArray(ManageableSecurity... securities) {
+    return securities;
   }
 }

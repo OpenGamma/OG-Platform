@@ -19,7 +19,7 @@ import com.opengamma.util.money.Currency;
 public class FxForwardTradeSecurityExtractor extends TradeSecurityExtractor<FxForwardTrade> {
 
   @Override
-  public ManageableSecurity extractSecurity(FxForwardTrade trade) {
+  public ManageableSecurity[] extractSecurity(FxForwardTrade trade) {
 
     ExternalId region = extractRegion(trade.getPaymentCalendars());
     boolean nonDeliverable = checkNonDeliverable(trade);
@@ -46,7 +46,7 @@ public class FxForwardTradeSecurityExtractor extends TradeSecurityExtractor<FxFo
             .append(trade.getMaturityDate())
             .append(region).toHashCode()
     )));
-    return security;
+    return securityArray(security);
   }
 
   private boolean checkNonDeliverable(FxForwardTrade trade) {

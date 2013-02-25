@@ -15,13 +15,14 @@ import com.opengamma.util.money.Currency;
 public class EquityVarianceSwapTradeSecurityExtractor extends TradeSecurityExtractor<EquityVarianceSwapTrade> {
 
   @Override
-  public ManageableSecurity extractSecurity(EquityVarianceSwapTrade trade) {
+  public ManageableSecurity[] extractSecurity(EquityVarianceSwapTrade trade) {
     ExternalId region = null;
     boolean parameterizedAsVariance = false; // distinguishes vega or variance strike/notional
-    return new EquityVarianceSwapSecurity(trade.getUnderlying().toExternalId(), Currency.of(trade.getCurrency()), trade.getStrike().doubleValue(),
+    return securityArray(new EquityVarianceSwapSecurity(trade.getUnderlying().toExternalId(), Currency.of(trade.getCurrency()), trade.getStrike().doubleValue(),
                                           trade.getVegaAmount().doubleValue(),
                                           parameterizedAsVariance, trade.getAnnualizationFactor(), convertLocalDate(trade.getObservationStartDate()),
                                           convertLocalDate(trade.getObservationEndDate()), convertLocalDate(trade.getPremiumSettlementDate()),
-                                          region, SimpleFrequencyFactory.INSTANCE.getFrequency(trade.getObservationfrequency()));
+                                          region, SimpleFrequencyFactory.INSTANCE.getFrequency(trade.getObservationfrequency())));
   }
+
 }

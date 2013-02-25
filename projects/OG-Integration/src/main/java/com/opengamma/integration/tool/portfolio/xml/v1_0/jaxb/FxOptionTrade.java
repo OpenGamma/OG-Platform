@@ -16,10 +16,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class FxOptionTrade extends AbstractFxOptionTrade {
 
-  public enum ExerciseType {European, American}
-
-  public enum SettlementType {Physical, CashSettled}
-
   @XmlElement(name = "notional", required = true)
   private BigDecimal _notional;
 

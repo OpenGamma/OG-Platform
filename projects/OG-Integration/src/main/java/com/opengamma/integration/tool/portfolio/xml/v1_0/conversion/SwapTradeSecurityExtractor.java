@@ -34,7 +34,7 @@ import com.opengamma.util.money.Currency;
 public class SwapTradeSecurityExtractor extends TradeSecurityExtractor<SwapTrade> {
 
   @Override
-  public ManageableSecurity extractSecurity(SwapTrade swapTrade) {
+  public ManageableSecurity[] extractSecurity(SwapTrade swapTrade) {
     FixedLeg fixedLeg = swapTrade.getFixedLeg();
     FloatingLeg floatingLeg = swapTrade.getFloatingLeg();
 
@@ -65,7 +65,7 @@ public class SwapTradeSecurityExtractor extends TradeSecurityExtractor<SwapTrade
             .append(fixedLeg.getRate())
             .toHashCode())));
 
-    return security;
+    return securityArray(security);
   }
 
   private com.opengamma.financial.security.swap.SwapLeg convertFixedLeg(FixedLeg fixedLeg) {

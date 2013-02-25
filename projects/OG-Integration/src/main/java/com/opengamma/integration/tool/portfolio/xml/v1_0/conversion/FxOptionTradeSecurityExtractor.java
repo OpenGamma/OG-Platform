@@ -14,20 +14,21 @@ import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.FxOptionTrade;
+import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.SettlementType;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.money.Currency;
 
 public class FxOptionTradeSecurityExtractor extends TradeSecurityExtractor<FxOptionTrade> {
 
   @Override
-  public ManageableSecurity extractSecurity(FxOptionTrade fxOptionTrade) {
+  public ManageableSecurity[] extractSecurity(FxOptionTrade fxOptionTrade) {
 
     FxOptionCalculator calculator = new FxOptionCalculator(fxOptionTrade, fxOptionTrade.getNotional(), Currency.of(fxOptionTrade.getNotionalCurrency()));
 
-    ExerciseType exerciseType = fxOptionTrade.getExerciseType() == FxOptionTrade.ExerciseType.American ?
+    ExerciseType exerciseType = fxOptionTrade.getExerciseType() == com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.ExerciseType.American ?
         new AmericanExerciseType() : new EuropeanExerciseType();
 
-    ManageableSecurity security = fxOptionTrade.getSettlementType() == FxOptionTrade.SettlementType.Physical ?
+    ManageableSecurity security = fxOptionTrade.getSettlementType() == SettlementType.Physical ?
         new FXOptionSecurity(calculator.getPutCurrency(),
                              calculator.getCallCurrency(),
                              calculator.getPutAmount(),
@@ -59,7 +60,7 @@ public class FxOptionTradeSecurityExtractor extends TradeSecurityExtractor<FxOpt
             .append(exerciseType).toHashCode()
     )));
 
-    return security;
+    return securityArray(security);
   }
 
 }

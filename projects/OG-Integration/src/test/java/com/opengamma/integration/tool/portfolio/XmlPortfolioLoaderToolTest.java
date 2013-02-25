@@ -232,6 +232,21 @@ public class XmlPortfolioLoaderToolTest {
   }
 
   @Test
+  public void testSinglePortfolioNoPositionSingleSwaption() {
+
+    // We should get a position automatically generated for the trade
+    String fileLocation = "src/test/resources/xml_portfolios/swaption_no_position.xml";
+    File file = new File(fileLocation);
+    new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, true, false, false, false, true).execute();
+
+    assertEquals(_portfolioMaster.search(new PortfolioSearchRequest()).getPortfolios().size(), 1);
+    assertEquals(_positionMaster.search(new PositionSearchRequest()).getPositions().size(), 1);
+
+    // We end up with 2 securities: the swaption itself, and its underlying swap
+    assertEquals(_securityMaster.search(new SecuritySearchRequest()).getSecurities().size(), 2);
+  }
+
+  @Test
   public void testSinglePortfolioNoPositionMultipleFxOption() {
 
     // We should get a position automatically generated for the trades

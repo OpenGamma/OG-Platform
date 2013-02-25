@@ -43,6 +43,7 @@
   <xs:element name="fxForwardTrade" type="fxForwardTrade"/>
 
   <xs:element name="fxExpiry" type="fxExpiry"/>
+  <xs:element name="swaptionTrade" type="swaptionTrade"/>
 
   <xs:complexType name="ogPortfolio">
     <xs:all>
@@ -137,6 +138,14 @@
                 <xs:annotation>
                   <xs:documentation>
                     An individual fx forward trade within the trades collection.
+                  </xs:documentation>
+                </xs:annotation>
+              </xs:element>
+
+              <xs:element ref="swaptionTrade">
+                <xs:annotation>
+                  <xs:documentation>
+                    An individual swaption trade within the trades collection.
                   </xs:documentation>
                 </xs:annotation>
               </xs:element>
@@ -832,6 +841,39 @@
     </xs:complexContent>
   </xs:complexType>
 
+  <xs:complexType name="swaptionTrade">
+    <xs:complexContent>
+      <xs:extension base="trade">
+        <xs:sequence>
+          <xs:element name="buySell" type="buySell"/>
+          <xs:element name="paymentCalendars" minOccurs="0">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="calendar" type="calendar" maxOccurs="unbounded" minOccurs="0"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element minOccurs="0" name="exerciseCalendars">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element  name="calendar" type="calendar" maxOccurs="unbounded" minOccurs="0"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="expirationDate" type="xs:string"/>
+          <xs:element name="exerciseType" type="exerciseType"/>
+          <xs:element name="stubPeriodType" type="stubPeriodType" minOccurs="0"/>
+          <xs:element name="settlementType" type="settlementType" minOccurs="0"/>
+          <xs:element name="cashSettlementCalculationMethod" type="cashSettlementCalculationMethod" minOccurs="0"/>
+          <xs:element name="cashSettlementPaymentDate" type="xs:string" minOccurs="0"/>
+          <xs:element name="cashSettlementCurrency" type="xs:string" minOccurs="0"/>
+          <xs:element name="underlyingSwapTrade" type="swapTrade" minOccurs="0"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+
   <xs:simpleType name="callPut">
     <xs:restriction base="xs:string">
       <xs:enumeration value="Call"/>
@@ -913,6 +955,16 @@
       <xs:enumeration value="OIS"/>
       <xs:enumeration value="CMS"/>
       <xs:enumeration value="IBOR"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="cashSettlementCalculationMethod">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="CashPrice"/>
+      <xs:enumeration value="CashPriceAlternateMethod"/>
+      <xs:enumeration value="ParYieldCurveAdjusted"/>
+      <xs:enumeration value="ParYieldCurveUnadjusted"/>
+      <xs:enumeration value="ZeroCouponYieldUnadjusted"/>
     </xs:restriction>
   </xs:simpleType>
 

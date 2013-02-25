@@ -18,8 +18,6 @@ public abstract class SwapLeg {
 
   public enum Direction { Pay, Receive}
 
-  public enum StubPeriodType {LongCoupon, ShortCoupon}
-
   public enum InterestCalculation {Adjusted}
 
   public enum ScheduleGenerationDirection {Backward}

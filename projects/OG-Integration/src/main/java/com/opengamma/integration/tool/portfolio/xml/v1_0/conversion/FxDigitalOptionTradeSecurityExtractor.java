@@ -16,7 +16,7 @@ import com.opengamma.util.money.Currency;
 public class FxDigitalOptionTradeSecurityExtractor extends TradeSecurityExtractor<FxDigitalOptionTrade> {
 
   @Override
-  public ManageableSecurity extractSecurity(FxDigitalOptionTrade trade) {
+  public ManageableSecurity[] extractSecurity(FxDigitalOptionTrade trade) {
 
     Currency payoutCurrency = Currency.of(trade.getPayoutCurrency());
     FxOptionCalculator calculator = new FxOptionCalculator(trade, trade.getPayout(), payoutCurrency);
@@ -44,8 +44,6 @@ public class FxDigitalOptionTradeSecurityExtractor extends TradeSecurityExtracto
             .append(calculator.getSettlementDate()).toHashCode()
     )));
 
-    return security;
-
+    return securityArray(security);
   }
-
 }
