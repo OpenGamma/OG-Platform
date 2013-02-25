@@ -336,6 +336,7 @@
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.histogram_plot.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.curve.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.log.js</fragment>
+    <fragment>/scripts/og/common/gadgets/og.common.gadgets.text.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.surface.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.securitiesidentifiers.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.gadgetscontainer.js</fragment>
