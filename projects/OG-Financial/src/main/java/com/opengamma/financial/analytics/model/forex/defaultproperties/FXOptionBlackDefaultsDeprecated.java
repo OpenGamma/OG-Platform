@@ -13,6 +13,7 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.analytics.model.forex.option.black.deprecated.FXOptionBlackFunctionDeprecated;
@@ -29,17 +30,17 @@ import com.opengamma.util.money.Currency;
 @Deprecated
 public class FXOptionBlackDefaultsDeprecated extends DefaultPropertyFunction {
   private static final String[] VALUE_REQUIREMENTS = new String[] {
-    ValueRequirementNames.PRESENT_VALUE,
-    ValueRequirementNames.FX_CURRENCY_EXPOSURE,
-    ValueRequirementNames.VALUE_VEGA,
-    ValueRequirementNames.VALUE_GAMMA,
-    ValueRequirementNames.VALUE_GAMMA_P,
-    ValueRequirementNames.VEGA_MATRIX,
-    ValueRequirementNames.VEGA_QUOTE_MATRIX,
-    ValueRequirementNames.FX_CURVE_SENSITIVITIES,
-    ValueRequirementNames.PV01,
-    ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
-    ValueRequirementNames.SECURITY_IMPLIED_VOLATILITY
+      ValueRequirementNames.PRESENT_VALUE,
+      ValueRequirementNames.FX_CURRENCY_EXPOSURE,
+      ValueRequirementNames.VALUE_VEGA,
+      ValueRequirementNames.VALUE_GAMMA,
+      ValueRequirementNames.VALUE_GAMMA_P,
+      ValueRequirementNames.VEGA_MATRIX,
+      ValueRequirementNames.VEGA_QUOTE_MATRIX,
+      ValueRequirementNames.FX_CURVE_SENSITIVITIES,
+      ValueRequirementNames.PV01,
+      ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
+      ValueRequirementNames.SECURITY_IMPLIED_VOLATILITY
   };
   private final String _putCurveName;
   private final String _putForwardCurveName;
@@ -142,4 +143,10 @@ public class FXOptionBlackDefaultsDeprecated extends DefaultPropertyFunction {
     }
     return null;
   }
+
+  @Override
+  public String getMutualExclusionGroup() {
+    return OpenGammaFunctionExclusions.SURFACE_DEFAULTS;
+  }
+
 }

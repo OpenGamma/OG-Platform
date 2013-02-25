@@ -1,6 +1,5 @@
 // Automatically created - do not modify
-///CLOVER:OFF
-// CSOFF: Generated File
+///CLOVER:OFF - CSOFF
 package com.opengamma.language.function;
 public class Available extends com.opengamma.language.connector.Function implements java.io.Serializable {
   private static final long serialVersionUID = 43552799486l;
@@ -250,5 +249,4 @@ public class Available extends com.opengamma.language.connector.Function impleme
     return org.apache.commons.lang.builder.ToStringBuilder.reflectionToString(this, org.apache.commons.lang.builder.ToStringStyle.SHORT_PREFIX_STYLE);
   }
 }
-///CLOVER:ON
-// CSON: Generated File
+///CLOVER:ON - CSON

@@ -294,6 +294,27 @@
           </dependency>
         </dependencies>
       </plugin>
+      <plugin>
+        <groupId>org.fudgemsg</groupId>
+        <artifactId>maven-fudge-proto-plugin</artifactId>
+        <version>0.3.9.5</version>
+        <executions>
+          <execution>
+            <id>joda-beans-generate</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+          </execution>
+        </executions>
+        <dependencies>
+          <dependency>
+            <groupId>org.fudgemsg</groupId>
+            <artifactId>fudge-proto</artifactId>
+            <version>0.3.9.5</version>
+          </dependency>
+        </dependencies>
+      </plugin>
     </plugins>
     <pluginManagement>
       <plugins>
@@ -395,7 +416,7 @@
       <dependency>
         <groupId>org.fudgemsg</groupId>
         <artifactId>fudge-proto</artifactId>
-        <version>0.3.9.4</version>
+        <version>0.3.9.5</version>
       </dependency>
       <dependency>
         <groupId>org.threeten</groupId>
@@ -1029,6 +1050,13 @@
     <joda.beans.indent>2</joda.beans.indent>
     <joda.beans.prefix>_</joda.beans.prefix>
     <joda.beans.stopOnError>true</joda.beans.stopOnError>
+    <fudge.proto.searchDir>..{RELATIVE}../projects/OG-Util/src/main/java;..{RELATIVE}../projects/OG-Engine/src/main/java;..{RELATIVE}../projects/OG-Language/Client/src/main/java</fudge.proto.searchDir>
+    <fudge.proto.verbose>false</fudge.proto.verbose>
+    <fudge.proto.listFiles>false</fudge.proto.listFiles>
+    <fudge.proto.rebuildAll>true</fudge.proto.rebuildAll>
+    <fudge.proto.excludes>*Security.proto;*ExerciseType.proto;*OptionType.proto;*PayoffStyle.proto;*SwapLeg.proto;*Notional.proto</fudge.proto.excludes>
+    <fudge.proto.fileHeader>///CLOVER:OFF - CSOFF</fudge.proto.fileHeader>
+    <fudge.proto.fileFooter>///CLOVER:ON - CSON</fudge.proto.fileFooter>
   </properties>
 
 </project>

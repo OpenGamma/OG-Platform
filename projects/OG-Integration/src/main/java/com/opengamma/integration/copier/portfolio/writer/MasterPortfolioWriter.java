@@ -487,8 +487,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
 
         portfolio.setRootNode(rootNode);
         _portfolioDocument.setPortfolio(portfolio);
-        _portfolioDocument = _portfolioMaster.update(_portfolioDocument);
-      }      
+      }
     }
     // Set current node to the root node
     _currentNode = _portfolioDocument.getPortfolio().getRootNode();

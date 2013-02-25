@@ -111,8 +111,8 @@ public class ForwardFunctions extends AbstractRepositoryConfigurationBean {
 
     }
 
-    private final Map<String, CurrencyInfo> _perCurrencyInfo = new HashMap<String, CurrencyInfo>();
-    private final Map<Pair<String, String>, CurrencyPairInfo> _perCurrencyPairInfo = new HashMap<Pair<String, String>, CurrencyPairInfo>();
+    private final Map<String, CurrencyInfo> _perCurrencyInfo = new HashMap<>();
+    private final Map<Pair<String, String>, CurrencyPairInfo> _perCurrencyPairInfo = new HashMap<>();
     private String _interpolator = "DoubleQuadratic";
     private String _leftExtrapolator = "LinearExtrapolator";
     private String _rightExtrapolator = "FlatExtrapolator";
@@ -215,10 +215,10 @@ public class ForwardFunctions extends AbstractRepositoryConfigurationBean {
     }
 
     /**
-     * Adds defaults for functions that calculate a forward curve using future quotes.
+     * Adds defaults for functions that calculate a commodity forward curve using future quotes.
      * @param functions The list of functions
      */
-    protected void addForwardFromFutureCurvePerCurrencyDefaults(final List<FunctionConfiguration> functions) {
+    protected void addCommodityForwardFromFutureCurvePerCurrencyDefaults(final List<FunctionConfiguration> functions) {
       final String[] args = new String[getPerCurrencyInfo().size() * 3 + 1];
       args[0] = PriorityClass.ABOVE_NORMAL.name();
       int i = 1;
@@ -230,13 +230,30 @@ public class ForwardFunctions extends AbstractRepositoryConfigurationBean {
       functions.add(functionConfiguration(CommodityForwardCurveFromFuturePerCurrencyDefaults.class, args));
     }
 
+    /**
+     * Adds defaults for functions that calculate an equity forward curve using future quotes.
+     * @param functions The list of functions
+     */
+    protected void addEquityForwardFromFutureCurvePerCurrencyDefaults(final List<FunctionConfiguration> functions) {
+      final String[] args = new String[getPerCurrencyInfo().size() * 3 + 1];
+      args[0] = PriorityClass.ABOVE_NORMAL.name();
+      int i = 1;
+      for (final Map.Entry<String, CurrencyInfo> e : getPerCurrencyInfo().entrySet()) {
+        args[i++] = e.getKey();
+        args[i++] = e.getValue().getForwardCurve();
+        args[i++] = e.getValue().getCurveConfiguration();
+      }
+      functions.add(functionConfiguration(EquityIndexForwardCurveFromFuturePerCurrencyDefaults.class, args));
+    }
+
     @Override
     protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
       functions.add(functionConfiguration(FXForwardCurveFromMarketQuotesDefaults.class, getInterpolator(), getLeftExtrapolator(), getRightExtrapolator()));
       functions.add(functionConfiguration(InterpolatedForwardCurveDefaults.class, getInterpolator(), getLeftExtrapolator(), getRightExtrapolator()));
       if (!getPerCurrencyInfo().isEmpty()) {
         addForwardCurveDefaults(functions);
-        addForwardFromFutureCurvePerCurrencyDefaults(functions);
+        addCommodityForwardFromFutureCurvePerCurrencyDefaults(functions);
+        addEquityForwardFromFutureCurvePerCurrencyDefaults(functions);
       }
       if (!getPerCurrencyPairInfo().isEmpty()) {
         addFXForwardCurveDefaults(functions);
@@ -253,5 +270,6 @@ public class ForwardFunctions extends AbstractRepositoryConfigurationBean {
     functions.add(functionConfiguration(FXForwardCurveFromYieldCurvesFunction.class));
     functions.add(functionConfiguration(FXForwardCurveMarketDataFunction.class));
     functions.add(functionConfiguration(CommodityForwardCurveFromFutureCurveFunction.class));
+    functions.add(functionConfiguration(EquityIndexForwardCurveFromFutureCurveFunction.class));
   }
 }

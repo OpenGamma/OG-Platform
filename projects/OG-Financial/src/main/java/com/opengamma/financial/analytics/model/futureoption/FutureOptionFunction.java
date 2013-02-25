@@ -215,6 +215,15 @@ public abstract class FutureOptionFunction extends AbstractFunction.NonCompiledI
     return Sets.newHashSet(discountingReq, forwardCurveReq, volReq);
   }
 
+  /** 
+   * Allows us to set which ValueSpecifications contain ValuePropertyNames.CURRENCY <p>
+   * PresentValue and ValueGamma will, while Delta and PositionDelta will not.
+   * @return true if Function's specification contains ValuePropertyNames.CURRENCY, else false.
+   */
+  protected boolean getFunctionIncludesCurrencyProperty() {
+    return true;
+  }
+  
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
     boolean discountCurvePropertiesSet = false;
@@ -223,8 +232,10 @@ public abstract class FutureOptionFunction extends AbstractFunction.NonCompiledI
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final ValueProperties.Builder properties = createValueProperties()
         .with(ValuePropertyNames.CALCULATION_METHOD, getCalculationMethod())
-        .with(CalculationPropertyNamesAndValues.PROPERTY_MODEL_TYPE, getModelType())
-        .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode());
+        .with(CalculationPropertyNamesAndValues.PROPERTY_MODEL_TYPE, getModelType());
+    if (getFunctionIncludesCurrencyProperty()) {
+      properties.with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode());
+    }
     for (final Map.Entry<ValueSpecification, ValueRequirement> entry : inputs.entrySet()) {
       final ValueSpecification value = entry.getKey();
       final String inputName = value.getValueName();
