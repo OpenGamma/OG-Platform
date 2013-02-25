@@ -20,12 +20,12 @@ import org.testng.annotations.Test;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.analytics.financial.curve.generator.GeneratorCurveAddYield;
-import com.opengamma.analytics.financial.curve.generator.GeneratorCurveDiscountFactorInterpolatedAnchorNode;
-import com.opengamma.analytics.financial.curve.generator.GeneratorCurveDiscountFactorInterpolatedNumber;
-import com.opengamma.analytics.financial.curve.generator.GeneratorCurveYieldInterpolated;
-import com.opengamma.analytics.financial.curve.generator.GeneratorCurveYieldInterpolatedAnchor;
-import com.opengamma.analytics.financial.curve.generator.GeneratorYDCurve;
+import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorCurveAddYield;
+import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorCurveDiscountFactorInterpolatedAnchorNode;
+import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorCurveDiscountFactorInterpolatedNumber;
+import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorCurveYieldInterpolated;
+import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorCurveYieldInterpolatedAnchor;
+import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorYDCurve;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.cash.CashDefinition;

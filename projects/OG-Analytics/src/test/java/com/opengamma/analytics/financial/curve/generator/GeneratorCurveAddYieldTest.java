@@ -10,6 +10,9 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.apache.commons.lang.ArrayUtils;
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorCurveAddYield;
+import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorCurveYieldInterpolatedNode;
+import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorYDCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountAddZeroSpreadCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;

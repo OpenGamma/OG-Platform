@@ -12,7 +12,7 @@ import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
 
-import com.opengamma.analytics.financial.curve.generator.GeneratorYDCurve;
+import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorYDCurve;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -15,7 +15,6 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Compute the spread to be added to the market standard quote of the instrument for which the present value of the instrument is zero.
  * The notion of "market quote" will depend of each instrument.
- * @author marc
  */
 public final class ParSpreadInflationMarketQuoteDiscountingCalculator extends InstrumentDerivativeVisitorAdapter<InflationProviderInterface, Double> {
 

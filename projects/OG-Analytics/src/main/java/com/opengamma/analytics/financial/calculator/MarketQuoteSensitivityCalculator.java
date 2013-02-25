@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.opengamma.analytics.financial.curve.sensitivity.AbstractParameterSensitivityCalculator;
+import com.opengamma.analytics.financial.curve.interestrate.sensitivity.AbstractParameterSensitivityCalculator;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.math.matrix.ColtMatrixAlgebra;

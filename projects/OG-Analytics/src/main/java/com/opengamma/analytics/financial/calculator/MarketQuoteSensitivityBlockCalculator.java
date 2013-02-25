@@ -8,7 +8,7 @@ package com.opengamma.analytics.financial.calculator;
 import java.util.LinkedHashMap;
 import java.util.Set;
 
-import com.opengamma.analytics.financial.curve.sensitivity.AbstractParameterSensitivityBlockCalculator;
+import com.opengamma.analytics.financial.curve.interestrate.sensitivity.AbstractParameterSensitivityBlockCalculator;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlock;
