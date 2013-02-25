@@ -66,7 +66,7 @@ $.register_module({
             depgraph_blacklist: ['DOUBLE', 'STRING', 'TENOR', 'UNKNOWN'],
             data_type_map: {
                 CURVE                   : [3, 1, 6],
-                STRING                  : [9]
+                STRING                  : [9],
                 DOUBLE                  : [0, 6],
                 FUNGIBLE_TRADE          : [5],
                 LABELLED_MATRIX_1D      : [0, 1, 6],
