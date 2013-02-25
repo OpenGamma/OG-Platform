@@ -313,7 +313,7 @@ import com.opengamma.util.time.Expiry;
 
   @Override
   public OffsetTime convertFromString(Class<? extends OffsetTime> cls, String timeString) {
-    return OffsetTime.of(LocalTime.parse(timeString), ZoneOffset.UTC);
+    return OffsetTime.of(LocalTime.parse(timeString.trim()), ZoneOffset.UTC);
   }
 
   @Override
