@@ -43,8 +43,10 @@ $.register_module({
             gadget.resize = function () {
                 gadget.update();
             };
-            if (loading_template) gadget.load(); else og.api.text({module: 'og.analytics.loading_tash'})
-                .pipe(function (template) {loading_template = Handlebars.compile(template); gadget.load();});
+            if (loading_template) gadget.load();
+            else og.api.text({module: 'og.analytics.loading_tash'}).pipe(function (template) {
+                loading_template = Handlebars.compile(template); gadget.load();
+            });
             if (!config.child) og.common.gadgets.manager.register(gadget);
         };
     }

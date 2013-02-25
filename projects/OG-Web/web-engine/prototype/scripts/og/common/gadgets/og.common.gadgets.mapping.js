@@ -14,7 +14,8 @@ $.register_module({
             'Surface': 'Surface',
             'Timeseries': 'Time Series',
             'Histogram' : 'Histogram',
-            'ExpandedPositions': 'Position'
+            'ExpandedPositions': 'Position',
+            'Text' : 'Text'
         };
         return mapping = {
             gadgets: [
@@ -66,7 +67,7 @@ $.register_module({
             depgraph_blacklist: ['DOUBLE', 'STRING', 'TENOR', 'UNKNOWN'],
             data_type_map: {
                 CURVE                   : [3, 1, 6],
-                STRING                  : [9],
+                STRING                  : [8],
                 DOUBLE                  : [0, 6],
                 FUNGIBLE_TRADE          : [5],
                 LABELLED_MATRIX_1D      : [0, 1, 6],
