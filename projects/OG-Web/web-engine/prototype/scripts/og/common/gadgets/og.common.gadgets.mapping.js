@@ -17,7 +17,9 @@ $.register_module({
             'ExpandedPositions': 'Position'
         };
         return mapping = {
-            gadgets: ['Depgraph', 'Data', 'Surface', 'Curve', 'Timeseries', 'ExpandedPositions', 'Log', 'Histogram'],
+            gadgets: [
+                'Depgraph', 'Data', 'Surface', 'Curve', 'Timeseries', 'ExpandedPositions', 'Log', 'Histogram', 'Text'
+            ],
             panel_preference: {
                 'south'      : [0, 2, 4, 3, 1, 5, 6],
                 'dock-north' : [2, 4, 3, 1, 0, 5, 6],
@@ -64,6 +66,7 @@ $.register_module({
             depgraph_blacklist: ['DOUBLE', 'STRING', 'TENOR', 'UNKNOWN'],
             data_type_map: {
                 CURVE                   : [3, 1, 6],
+                STRING                  : [9]
                 DOUBLE                  : [0, 6],
                 FUNGIBLE_TRADE          : [5],
                 LABELLED_MATRIX_1D      : [0, 1, 6],
