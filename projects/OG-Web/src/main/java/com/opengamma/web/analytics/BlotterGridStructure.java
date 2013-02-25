@@ -78,13 +78,13 @@ public class BlotterGridStructure extends PortfolioGridStructure {
   BlotterGridStructure withUpdatedColumns(CompiledViewDefinition compiledViewDef) {
     GridColumnGroup fixedColumns = buildFixedColumns(getRows());
     GridColumnGroup blotterColumns = buildBlotterColumns();
-    List<GridColumnGroup> analyticsColumns = buildAnalyticsColumns(compiledViewDef.getViewDefinition(), getTargetLookup());
+    ValueMappings valueMappings = new ValueMappings(compiledViewDef);
+    TargetLookup targetLookup = new TargetLookup(valueMappings, getRows());
+    List<GridColumnGroup> analyticsColumns = buildAnalyticsColumns(compiledViewDef.getViewDefinition(), targetLookup);
     List<GridColumnGroup> groups = Lists.newArrayList(fixedColumns);
     groups.add(blotterColumns);
     groups.addAll(analyticsColumns);
     GridColumnGroups columnGroups = new GridColumnGroups(groups);
-    ValueMappings valueMappings = new ValueMappings(compiledViewDef);
-    TargetLookup targetLookup = new TargetLookup(valueMappings, getRows());
     return new BlotterGridStructure(columnGroups, getRootNode(), getRows(), targetLookup, _columnMapper, valueMappings);
   }
 }

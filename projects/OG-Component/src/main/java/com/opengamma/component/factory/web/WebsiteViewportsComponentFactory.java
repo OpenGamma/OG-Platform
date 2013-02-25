@@ -190,10 +190,6 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     // TODO should be able to configure the currency pairs
     CurrencyPairs currencyPairs = currencyPairsSource.getCurrencyPairs(CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
     BlotterColumnMapper blotterColumnMapper = DefaultBlotterColumnMappings.create(currencyPairs);
-    // TODO probably need to keep these separate so the view can do a lookup from the correct master
-    // aggregate position, trade and security changes
-    List<ChangeProvider> changeProviders = Lists.<ChangeProvider>newArrayList(getPositionMaster(), getSecurityMaster());
-    ChangeManager changeManager = new AggregatingChangeManager(changeProviders);
     AnalyticsViewManager analyticsViewManager = new AnalyticsViewManager(getViewProcessor(),
                                                                          aggregatedViewDefManager,
                                                                          getMarketDataSnapshotMaster(),
@@ -202,7 +198,9 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
                                                                          blotterColumnMapper,
                                                                          getPositionSource(),
                                                                          getConfigMaster(),
-                                                                         getSecuritySource());
+                                                                         getSecuritySource(),
+                                                                         getSecurityMaster(),
+                                                                         getPositionMaster());
     ResultsFormatter resultsFormatter = new ResultsFormatter();
     GridColumnsJsonWriter columnWriter = new GridColumnsJsonWriter(resultsFormatter);
     ViewportResultsJsonWriter viewportResultsWriter = new ViewportResultsJsonWriter(resultsFormatter);

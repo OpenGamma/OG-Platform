@@ -5,9 +5,6 @@
  */
 package com.opengamma.web.analytics;
 
-import java.math.BigDecimal;
-
-import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
@@ -18,10 +15,11 @@ import com.opengamma.util.ArgumentChecker;
  */
 /* package */ class PortfolioGridRow extends MainGridStructure.Row {
 
+  // TODO should these be ObjectIds?
   /** The row's security, null if the row represents a node in the portfolio structure. */
-  private final Security _security;
-  /** The row's quantity, null for row's that don't represent a position or trade. */
-  private final BigDecimal _quantity;
+  private final UniqueId _securityId;
+  /** The row's underlying security ID, null if there's no underlying or this isn't a trade or position row. */
+  private final UniqueId _underlyingId;
   /** The node ID of the row (if it's a noderow ) or its parent node (if it's a position or trade row). */
   private final UniqueId _nodeId;
   /** The position ID of the row (if it's a position row) or its parent position (if it's a trade row). */
@@ -37,8 +35,8 @@ import com.opengamma.util.ArgumentChecker;
   /* package */ PortfolioGridRow(ComputationTargetSpecification target, String name, UniqueId nodeId) {
     super(target, name);
     ArgumentChecker.notNull(nodeId, "nodeId");
-    _security = null;
-    _quantity = null;
+    _securityId = null;
+    _underlyingId = null;
     _nodeId = nodeId;
     _positionId = null;
     _tradeId = null;
@@ -47,22 +45,21 @@ import com.opengamma.util.ArgumentChecker;
   /**
    * For rows representing position nodes which have a security and quantity
    * @param target The row's target
-   * @param security The position's security, not null
-   * @param quantity The position's quantity, not null
+   * @param securityId The position's security ID, not null
    */
   /* package */ PortfolioGridRow(ComputationTargetSpecification target,
                                  String name,
-                                 Security security,
-                                 BigDecimal quantity,
+                                 UniqueId securityId,
+                                 //UniqueId underlyingId,
                                  UniqueId nodeId,
                                  UniqueId positionId) {
     super(target, name);
-    ArgumentChecker.notNull(security, "security");
-    ArgumentChecker.notNull(quantity, "quantity");
+    ArgumentChecker.notNull(securityId, "securityId");
     ArgumentChecker.notNull(nodeId, "nodeId");
     ArgumentChecker.notNull(positionId, "positionId");
-    _security = security;
-    _quantity = quantity;
+    _securityId = securityId;
+    _underlyingId = null;
+    //_underlyingId = underlyingId;
     _nodeId = nodeId;
     _positionId = positionId;
     _tradeId = null;
@@ -71,35 +68,34 @@ import com.opengamma.util.ArgumentChecker;
   /**
    * For rows representing position nodes which have a security and quantity
    * @param target The row's target
-   * @param security The position's security, not null
-   * @param quantity The position's quantity, not null
+   * @param securityId The position's security ID, not null
    */
   /* package */ PortfolioGridRow(ComputationTargetSpecification target,
                                  String name,
-                                 Security security,
-                                 BigDecimal quantity,
+                                 UniqueId securityId,
+                                 //UniqueId underlyingId,
                                  UniqueId nodeId,
                                  UniqueId positionId,
                                  UniqueId tradeId) {
     super(target, name);
-    ArgumentChecker.notNull(security, "security");
-    ArgumentChecker.notNull(quantity, "quantity");
+    ArgumentChecker.notNull(securityId, "securityId");
     ArgumentChecker.notNull(nodeId, "nodeId");
     ArgumentChecker.notNull(positionId, "positionId");
     ArgumentChecker.notNull(tradeId, "tradeId");
-    _security = security;
-    _quantity = quantity;
+    _securityId = securityId;
+    _underlyingId = null;
+    //_underlyingId = underlyingId;
     _nodeId = nodeId;
     _positionId = positionId;
     _tradeId = tradeId;
   }
 
-  /* package */ Security getSecurity() {
-    return _security;
+  /* package */ UniqueId getSecurityId() {
+    return _securityId;
   }
 
-  /* package */ BigDecimal getQuantity() {
-    return _quantity;
+  /* package */ UniqueId getUnderlyingId() {
+    return _underlyingId;
   }
 
   /* package */ UniqueId getNodeId() {

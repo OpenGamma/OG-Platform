@@ -5,9 +5,13 @@
  */
 package com.opengamma.web.analytics;
 
+import java.util.List;
+
+import com.google.common.collect.Lists;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
+import com.opengamma.id.ObjectId;
 import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
 
 /**
@@ -51,5 +55,14 @@ import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
                                                          BlotterColumnMapper blotterColumnMapper) {
     PortfolioGridStructure gridStructure = BlotterGridStructure.create(portfolio, blotterColumnMapper);
     return new PortfolioAnalyticsGrid(gridStructure, gridId, targetResolver, viewportListener);
+  }
+
+  /* package */ List<String> updateEntity(ObjectId id, ResultsCache cache) {
+    List<String> ids = Lists.newArrayList();
+    for (MainGridViewport viewport : getViewports().values()) {
+      viewport.updateResults(cache);
+      ids.add(viewport.getCallbackId());
+    }
+    return ids;
   }
 }

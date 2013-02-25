@@ -82,7 +82,7 @@ import com.opengamma.util.tuple.Pair;
     List<ResultsCell> results = Lists.newArrayList();
     for (GridCell cell : viewportDefinition) {
       GridColumn column = _columnGroups.getColumn(cell.getColumn());
-      ResultsCell resultsCell = column.getResults(cell.getRow(), cache);
+      ResultsCell resultsCell = column.buildResults(cell.getRow(), cache);
       updated = updated || resultsCell.isUpdated();
       if (resultsCell.getValue() != null) {
         hasData = true;

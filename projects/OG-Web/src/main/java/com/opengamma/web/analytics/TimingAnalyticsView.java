@@ -177,12 +177,21 @@ import com.opengamma.util.ArgumentChecker;
     return retVal;
   }
 
-  /*@Override
-  public List<String> entityChanged(ChangeEvent event) {
+  @Override
+  public List<String> entityChanged(MasterChangeNotification<?> notification) {
     long startTime = System.currentTimeMillis();
     s_logger.trace("Executing AnalyticsView.entityChanged");
-    List<String> retVal = _delegate.entityChanged(event);
+    List<String> retVal = _delegate.entityChanged(notification);
     s_logger.trace("Method entityChanged completed in " + (System.currentTimeMillis() - startTime) + "ms");
     return retVal;
-  }*/
+  }
+
+  @Override
+  public List<String> portfolioChanged() {
+    long startTime = System.currentTimeMillis();
+    s_logger.trace("Executing AnalyticsView.entityChanged");
+    List<String> retVal = _delegate.portfolioChanged();
+    s_logger.trace("Method portfolioChanged completed in " + (System.currentTimeMillis() - startTime) + "ms");
+    return retVal;
+  }
 }

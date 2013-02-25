@@ -172,13 +172,23 @@ import com.opengamma.util.ArgumentChecker;
     }
   }
 
-  /*@Override
-  public List<String> entityChanged(ChangeEvent event) {
+  @Override
+  public List<String> entityChanged(MasterChangeNotification<?> notification) {
     try {
       _lock.writeLock().lock();
-      return _delegate.entityChanged(event);
+      return _delegate.entityChanged(notification);
     } finally {
       _lock.writeLock().unlock();
     }
-  }*/
+  }
+
+  @Override
+  public List<String> portfolioChanged() {
+    try {
+      _lock.writeLock().lock();
+      return _delegate.portfolioChanged();
+    } finally {
+      _lock.writeLock().unlock();
+    }
+  }
 }

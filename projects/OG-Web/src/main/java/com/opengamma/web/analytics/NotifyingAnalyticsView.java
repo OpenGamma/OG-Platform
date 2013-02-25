@@ -135,10 +135,17 @@ import com.opengamma.web.analytics.push.UpdateListener;
     return _delegate.getData(gridType, graphId, viewportId);
   }
 
-  /*@Override
-  public List<String> entityChanged(ChangeEvent event) {
-    List<String> ids = _delegate.entityChanged(event);
+  @Override
+  public List<String> entityChanged(MasterChangeNotification<?> notification) {
+    List<String> ids = _delegate.entityChanged(notification);
     _listener.itemsUpdated(ids);
     return ids;
-  }*/
+  }
+
+  @Override
+  public List<String> portfolioChanged() {
+    List<String> ids = _delegate.portfolioChanged();
+    _listener.itemsUpdated(ids);
+    return ids;
+  }
 }

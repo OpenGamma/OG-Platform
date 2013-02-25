@@ -49,6 +49,7 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
   private final AggregatedViewDefinition _aggregatedViewDef;
   private final ViewExecutionOptions _executionOptions;
   private final NamedMarketDataSpecificationRepository _marketDataSpecRepo;
+  private final List<AutoCloseable> _listeners;
 
   private EngineResourceReference<? extends ViewCycle> _cycleReference = EmptyViewCycle.REFERENCE;
 
@@ -65,13 +66,15 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
                                               AnalyticsView view,
                                               NamedMarketDataSpecificationRepository marketDataSpecRepo,
                                               AggregatedViewDefinitionManager aggregatedViewDefManager,
-                                              MarketDataSnapshotMaster snapshotMaster) {
+                                              MarketDataSnapshotMaster snapshotMaster,
+                                              List<AutoCloseable> listeners) {
     ArgumentChecker.notNull(viewRequest, "viewRequest");
     ArgumentChecker.notNull(viewClient, "viewClient");
     ArgumentChecker.notNull(view, "view");
     ArgumentChecker.notNull(marketDataSpecRepo, "marketDataSpecRepo");
     ArgumentChecker.notNull(aggregatedViewDefManager, "aggregatedViewDefManager");
     ArgumentChecker.notNull(snapshotMaster, "snapshotMaster");
+    ArgumentChecker.notNull(listeners, "listeners");
     _view = view;
     _viewClient = viewClient;
     _aggregatedViewDef = new AggregatedViewDefinition(aggregatedViewDefManager, viewRequest);
@@ -81,6 +84,7 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
     ViewCycleExecutionOptions defaultOptions = ViewCycleExecutionOptions.builder().setValuationTime(viewRequest.getValuationTime()).setMarketDataSpecifications(actualMarketDataSpecs)
         .setResolverVersionCorrection(viewRequest.getPortfolioVersionCorrection()).create();
     _executionOptions = ExecutionOptions.of(new InfiniteViewCycleExecutionSequence(), defaultOptions, ExecutionFlags.triggersEnabled().get());
+    _listeners = listeners;
     // this recalcs periodically or when market data changes. might need to give
     // the user the option to specify the behaviour
   }
@@ -134,6 +138,13 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
     } finally {
       _cycleReference.release();
       _aggregatedViewDef.close();
+      for (AutoCloseable listener : _listeners) {
+        try {
+          listener.close();
+        } catch (Exception e) {
+          s_logger.warn("Failed to close listener " + listener, e);
+        }
+      }
     }
   }
 
@@ -143,11 +154,6 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
   /* package */ AnalyticsView getView() {
     return _view;
   }
-
-  /*@Override
-  public void entityChanged(ChangeEvent event) {
-    _view.entityChanged(event);
-  }*/
 
   /**
    * Listener for view results. This is an inner class to avoid polluting the interface of the parent class with public callback methods.

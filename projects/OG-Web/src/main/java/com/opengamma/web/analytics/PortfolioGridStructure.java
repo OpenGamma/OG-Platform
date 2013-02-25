@@ -96,7 +96,7 @@ public class PortfolioGridStructure extends MainGridStructure {
   }
 
   /* package */ static GridColumnGroup buildFixedColumns(List<PortfolioGridRow> rows) {
-    GridColumn labelColumn = new GridColumn("Label", "", null, new PortfolioLabelRenderer(rows));
+    GridColumn labelColumn = new GridColumn("Name", "", null, new PortfolioLabelRenderer(rows));
     GridColumn quantityColumn = new GridColumn("Quantity", "", BigDecimal.class, new QuantityRenderer(rows), null);
     return new GridColumnGroup("fixed", ImmutableList.of(labelColumn, quantityColumn), false);
   }
@@ -159,20 +159,24 @@ public class PortfolioGridStructure extends MainGridStructure {
         List<PortfolioGridRow> rows = Lists.newArrayList();
         UniqueId nodeId = parentNode.getUniqueId();
         if (isFungible(position.getSecurity())) {
-          rows.add(new PortfolioGridRow(target, security.getName(), security, position.getQuantity(), nodeId, positionId));
+          rows.add(new PortfolioGridRow(target, security.getName(), security.getUniqueId(), nodeId, positionId));
           for (Trade trade : position.getTrades()) {
             String tradeDate = trade.getTradeDate().toString();
-            rows.add(new PortfolioGridRow(ComputationTargetSpecification.of(trade), tradeDate, security, trade.getQuantity(),
-                                          nodeId, positionId, trade.getUniqueId()));
+            rows.add(new PortfolioGridRow(ComputationTargetSpecification.of(trade),
+                                          tradeDate,
+                                          security.getUniqueId(),
+                                          nodeId,
+                                          positionId,
+                                          trade.getUniqueId()));
           }
         } else {
           Collection<Trade> trades = position.getTrades();
           if (trades.isEmpty()) {
-            rows.add(new PortfolioGridRow(target, security.getName(), security, position.getQuantity(), nodeId, positionId));
+            rows.add(new PortfolioGridRow(target, security.getName(), security.getUniqueId(), nodeId, positionId));
           } else {
             // there is never more than one trade on a position in an OTC security
             UniqueId tradeId = trades.iterator().next().getUniqueId();
-            rows.add(new PortfolioGridRow(target, security.getName(), security, position.getQuantity(), nodeId, positionId, tradeId));
+            rows.add(new PortfolioGridRow(target, security.getName(), security.getUniqueId(), nodeId, positionId, tradeId));
           }
         }
         return rows;

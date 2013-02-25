@@ -41,8 +41,6 @@ import com.opengamma.util.tuple.Pair;
   /** For looking up calculation targets using their specifications. */
   private final ComputationTargetResolver _targetResolver;
 
-  /** Cache of results. */
-  protected ResultsCache _cache = new ResultsCache();
   /** The calculation cycle used to calculate the most recent set of results. */
   protected ViewCycle _cycle = EmptyViewCycle.INSTANCE;
 
@@ -68,17 +66,16 @@ import com.opengamma.util.tuple.Pair;
    * @return List of IDs specifiying the viewports whose data has changed as a result of the new update
    */
   /* package */ List<String> updateResults(ResultsCache cache, ViewCycle cycle) {
-    _cache = cache;
     _cycle = cycle;
     List<String> updatedIds = Lists.newArrayList();
-    for (MainGridViewport viewport : _viewports.values()) {
+    for (MainGridViewport viewport : getViewports().values()) {
       viewport.updateResults(cache);
       if (viewport.getState() == Viewport.State.FRESH_DATA) {
         updatedIds.add(viewport.getCallbackId());
       }
     }
     for (DependencyGraphGrid grid : _depGraphs.values()) {
-      updatedIds.addAll(grid.updateResults(cycle));
+      updatedIds.addAll(grid.updateResults(cycle, cache));
     }
     return updatedIds;
   }
@@ -154,32 +151,43 @@ import com.opengamma.util.tuple.Pair;
   /**
    * Creates a viewport on a dependency graph grid.
    *
+   *
    * @param graphId ID of the dependency graph
    * @param viewportId ID of the viewport, can be any unique value
    * @param callbackId ID passed to listeners when the viewport's data changes, can be any unique value
    * @param viewportDefinition Definition of the viewport
+   * @param cache
    * @return {@code true} if there is data available for the new viewport
    */
-  /* package */ boolean createViewport(int graphId, int viewportId, String callbackId, ViewportDefinition viewportDefinition) {
-    return getDependencyGraph(graphId).createViewport(viewportId, callbackId, viewportDefinition);
+  /* package */ boolean createViewport(int graphId,
+                                       int viewportId,
+                                       String callbackId,
+                                       ViewportDefinition viewportDefinition,
+                                       ResultsCache cache) {
+    return getDependencyGraph(graphId).createViewport(viewportId, callbackId, viewportDefinition, cache);
   }
 
   @Override
-  MainGridViewport createViewport(ViewportDefinition viewportDefinition, String callbackId) {
-    return new MainGridViewport(_gridStructure, callbackId, viewportDefinition, _cycle, _cache);
+  MainGridViewport createViewport(ViewportDefinition viewportDefinition, String callbackId, ResultsCache cache) {
+    return new MainGridViewport(_gridStructure, callbackId, viewportDefinition, _cycle, cache);
   }
 
   /**
    * Updates an existing viewport on a dependency graph grid
    *
+   *
    * @param graphId ID of the dependency graph
    * @param viewportId ID of the viewport
    * @param viewportDefinition Definition of the viewport
+   * @param cache
    * @return The viewport's callback ID if it has data available, {@code null} if not.
    * @throws DataNotFoundException If no dependency graph exists with the specified ID
    */
-  /* package */ String updateViewport(int graphId, int viewportId, ViewportDefinition viewportDefinition) {
-    return getDependencyGraph(graphId).updateViewport(viewportId, viewportDefinition);
+  /* package */ String updateViewport(int graphId,
+                                      int viewportId,
+                                      ViewportDefinition viewportDefinition,
+                                      ResultsCache cache) {
+    return getDependencyGraph(graphId).updateViewport(viewportId, viewportDefinition, cache);
   }
 
   /**
@@ -225,11 +233,6 @@ import com.opengamma.util.tuple.Pair;
   @Override
   protected ViewCycle getViewCycle() {
     return _cycle;
-  }
-
-  @Override
-  protected ResultsCache getResultsCache() {
-    return _cache;
   }
 
   /** For looking up calculation targets using their specifications. */

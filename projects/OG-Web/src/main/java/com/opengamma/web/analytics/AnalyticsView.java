@@ -179,5 +179,7 @@ public interface AnalyticsView {
    */
   ViewportResults getData(GridType gridType, int graphId, int viewportId);
 
-  //List<String> entityChanged(ChangeEvent event);
+  List<String> entityChanged(MasterChangeNotification<?> notification);
+
+  List<String> portfolioChanged();
 }
