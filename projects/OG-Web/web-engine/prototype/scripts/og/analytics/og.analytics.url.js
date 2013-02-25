@@ -21,6 +21,8 @@ $.register_module({
         var context_items = function (cell) {
             //console.log(cell);
             var items = [];
+            if (url.last.main.aggregators.length)
+                return items.push({name: 'Unable to add/edit trades whilst aggregated', handler: $.noop}), items;
             var position_edit = function () {
                 //console.log("position edit");
                 var arr = cell.row_value.positionId.split('~'), id = arr[0] + '~' + arr[1];
