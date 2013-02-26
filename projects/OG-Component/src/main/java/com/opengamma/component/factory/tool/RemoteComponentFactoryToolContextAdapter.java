@@ -22,7 +22,7 @@ public class RemoteComponentFactoryToolContextAdapter extends ToolContext {
   /**
    * A set of classifiers to search for.
    */
-  private static final List<String> DEFAULT_CLASSIFIER_CHAIN = Arrays.asList(new String[] {"central", "main", "default", "shared", "combined" });
+  private static final List<String> DEFAULT_CLASSIFIER_CHAIN = Arrays.asList(new String[] {"central", "main", "default", "shared", "combined", "standard" });
 
   /**
    * Creates an instance.
@@ -58,6 +58,8 @@ public class RemoteComponentFactoryToolContextAdapter extends ToolContext {
     setPositionSource(remoteComponentFactory.getPositionSource(classifierPreferences));
     setHistoricalTimeSeriesSource(remoteComponentFactory.getHistoricalTimeSeriesSource(classifierPreferences));
     setMarketDataSnapshotSource(remoteComponentFactory.getMarketDataSnapshotSource(classifierPreferences));
+    
+    setSecurityLoader(remoteComponentFactory.getSecurityLoader(classifierPreferences));
     
     // this may need customizing per-project
     setConventionBundleSource(new DefaultConventionBundleSource(new InMemoryConventionBundleMaster()));

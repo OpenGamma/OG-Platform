@@ -62,7 +62,9 @@ import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.region.RegionMaster;
 import com.opengamma.master.region.impl.RemoteRegionMaster;
+import com.opengamma.master.security.SecurityLoader;
 import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.master.security.impl.RemoteSecurityLoader;
 import com.opengamma.masterdb.portfolio.RemoteDbPortfolioMaster;
 import com.opengamma.masterdb.position.RemoteDbPositionMaster;
 import com.opengamma.masterdb.security.RemoteDbSecurityMaster;
@@ -349,6 +351,36 @@ public class RemoteComponentFactory {
     Map<String, SecurityMaster> result = new LinkedHashMap<String, SecurityMaster>();
     for (ComponentInfo info : getComponentServer().getComponentInfos(SecurityMaster.class)) {
       result.put(info.getClassifier(), new RemoteDbSecurityMaster(info.getUri()));
+    }
+    return result;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * @param name the classifier name of the object you want to retrieve
+   * @return the interface requested, or null if not present
+   */
+  public SecurityLoader getSecurityLoader(final String name) {
+    URI uri = getComponentServer().getComponentInfo(SecurityLoader.class, name).getUri();
+    return new RemoteSecurityLoader(uri);
+  }
+
+  /**
+   * @param preferredClassifiers a list of names of classifiers in order of preference (most preferred first), or null
+   * @return the best matching interface available
+   */
+  public SecurityLoader getSecurityLoader(final List<String> preferredClassifiers) {
+    URI uri = getTopLevelComponent(preferredClassifiers, SecurityLoader.class).getUri();
+    return new RemoteSecurityLoader(uri);
+  }
+
+  /**
+   * @return a map of classifier names to requested interface type
+   */
+  public Map<String, SecurityLoader> getSecurityLoaders() {
+    Map<String, SecurityLoader> result = new LinkedHashMap<String, SecurityLoader>();
+    for (ComponentInfo info : getComponentServer().getComponentInfos(SecurityLoader.class)) {
+      result.put(info.getClassifier(), new RemoteSecurityLoader(info.getUri()));
     }
     return result;
   }
