@@ -382,7 +382,7 @@ public class CogdaLiveDataServerFactory extends AbstractComponentFactory {
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "listenJmsConnector",
         "listenTopicName",
         "dataRedisServer",

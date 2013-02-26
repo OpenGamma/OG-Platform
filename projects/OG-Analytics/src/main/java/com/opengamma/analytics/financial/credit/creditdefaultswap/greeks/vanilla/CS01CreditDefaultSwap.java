@@ -88,8 +88,6 @@ public class CS01CreditDefaultSwap {
     // Calculate the bumped (up) CDS PV
     final double bumpedPresentValue = creditDefaultSwap.calibrateAndGetPresentValue(valuationDate, cds, marketTenors, bumpedMarketSpreads, yieldCurve, priceType);
 
-    System.out.println(cds.getMaturityDate() + "\t" + presentValue + "\t" + bumpedPresentValue);
-
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Calculate the parallel CS01

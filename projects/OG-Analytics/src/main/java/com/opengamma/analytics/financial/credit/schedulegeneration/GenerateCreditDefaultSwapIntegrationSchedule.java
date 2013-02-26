@@ -208,6 +208,31 @@ public class GenerateCreditDefaultSwapIntegrationSchedule {
 
   // -------------------------------------------------------------------------------------------
 
+  public double[] getTruncatedTimeLine(final double[] timeline, final double startTime, final double endTime) {
+
+    final NavigableSet<Double> allTimePoints = new TreeSet<Double>();
+    Set<Double> timePointsInRange;
+
+    for (int i = 0; i < timeline.length; i++) {
+      allTimePoints.add(timeline[i]);
+    }
+
+    timePointsInRange = allTimePoints.subSet(new Double(startTime), true, new Double(endTime), true);
+
+    final Double[] boxed = new Double[timePointsInRange.size()];
+    timePointsInRange.toArray(boxed);
+
+    final double[] truncatedTimeline = new double[boxed.length];
+
+    for (int i = 0; i < boxed.length; ++i) {
+      truncatedTimeline[i] = boxed[i].doubleValue();
+    }
+
+    return truncatedTimeline;
+  }
+
+  // -------------------------------------------------------------------------------------------
+
   public double calculateCreditDefaultSwapStartTime(
       final ZonedDateTime valuationDate,
       final CreditDefaultSwapDefinition cds,

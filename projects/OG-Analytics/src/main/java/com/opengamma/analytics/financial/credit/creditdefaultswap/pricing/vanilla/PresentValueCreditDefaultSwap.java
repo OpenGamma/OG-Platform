@@ -5,8 +5,6 @@
  */
 package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla;
 
-import java.util.Arrays;
-
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.PriceType;
@@ -149,10 +147,13 @@ public class PresentValueCreditDefaultSwap {
     // Determine where in the cashflow schedule the valuationDate is
     final int startCashflowIndex = getCashflowIndex(valuationDate, premiumLegSchedule, 1, 1);
 
-    /*
-    
     ZonedDateTime today = valuationDate;
     ZonedDateTime stepinDate = cds.getEffectiveDate();
+
+    // TODO : Add the extra logic for this calculation
+    ZonedDateTime matDate = cds.getMaturityDate();
+
+    // TODO : Check when today > matDate || stepinDate > matDate
 
     double thisPV = 0.0;
 
@@ -169,12 +170,7 @@ public class PresentValueCreditDefaultSwap {
 
       // TODO : Check accEndDate < stepinDate
 
-      // Case ACCRUAL_PAY_NONE
-
       double accTime = TimeCalculator.getTimeBetween(accrualStartDate, accrualEndDate, ACT_360);
-
-      // TODO : Remove the coupon
-      //double amount = 1.0 * (100.0 / 10000.0) * accTime;
 
       if (i == premiumLegSchedule.length - 1) {
         obsOffset = 0;
@@ -188,16 +184,35 @@ public class PresentValueCreditDefaultSwap {
       final double survival = hazardRateCurve.getSurvivalProbability(tObsOffset);
       final double discount = yieldCurve.getDiscountFactor(t);
 
-      System.out.println(i + "\t" + accTime + "\t" + survival + "\t" + discount);
+      //System.out.println(i + "\t" + accTime + "\t" + survival + "\t" + discount);
 
       thisPV += accTime * discount * survival;
+
+      // ---------------------------------------------
+
+      // ACCRUAL_PAY_ALL
+      if (cds.getIncludeAccruedPremium()) {
+
+        double accrual = 0.0;
+
+        ZonedDateTime offsetStepinDate = stepinDate.plusDays(obsOffset);
+        ZonedDateTime offsetAccStartDate = accrualStartDate.plusDays(obsOffset);
+        ZonedDateTime offsetAccEndDate = accrualEndDate.plusDays(obsOffset);
+
+        final double startTime = TimeCalculator.getTimeBetween(valuationDate, offsetAccStartDate, ACT_360);
+        final double endTime = TimeCalculator.getTimeBetween(valuationDate, offsetAccEndDate, ACT_360);
+
+        final double[] truncatedTimeline = accruedSchedule.getTruncatedTimeLine(accruedLegIntegrationSchedule, startTime, endTime);
+
+        thisPV += accrual;
+      }
     }
 
-    double temp = (50.359999999999997 / 10000) * thisPV;
-    */
+    presentValuePremiumLeg = thisPV;
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
+    /*
     // Calculate the value of the remaining premium and accrual payments (due after valuationDate)
     for (int i = startCashflowIndex; i < premiumLegSchedule.length; i++) {
 
@@ -249,13 +264,11 @@ public class PresentValueCreditDefaultSwap {
 
       // Now calculate the accrued leg component if required (need to re-write this code)
 
-
       if (cds.getIncludeAccruedPremium()) {
         final double stepinDiscountFactor = 1.0;
         int endIndex;
 
         Arrays.sort(accruedLegIntegrationSchedule); //TODO is this extra sorting necessary?
-
 
         for (endIndex = startIndex; endIndex < accruedLegIntegrationSchedule.length; endIndex++) {
           if (accruedLegIntegrationSchedule[endIndex] >= t) {
@@ -269,13 +282,18 @@ public class PresentValueCreditDefaultSwap {
 
       }
 
-
       // ----------------------------------------------------------------------------------------------------------------------------------------
     }
+    */
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
-    return cds.getNotional() * (presentValuePremiumLeg + presentValueAccruedInterest);
+    // TODO : Check this calculation - maybe move it out of this routine and into the PV calculation routine?
+    // TODO : Note the cash settlement date is hardcoded at 3 days
+    final double t = TimeCalculator.getTimeBetween(valuationDate, valuationDate.plusDays(3));
+    final double valueDatePV = yieldCurve.getDiscountFactor(t);
+
+    return cds.getNotional() * (presentValuePremiumLeg + presentValueAccruedInterest) / valueDatePV;
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
   }

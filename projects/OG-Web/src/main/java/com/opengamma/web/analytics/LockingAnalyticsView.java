@@ -33,10 +33,10 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public List<String> updateStructure(CompiledViewDefinition compiledViewDefinition) {
+  public List<String> updateColumns(CompiledViewDefinition compiledViewDefinition) {
     try {
       _lock.writeLock().lock();
-      return _delegate.updateStructure(compiledViewDefinition);
+      return _delegate.updateColumns(compiledViewDefinition);
     } finally {
       _lock.writeLock().unlock();
     }
@@ -169,6 +169,26 @@ import com.opengamma.util.ArgumentChecker;
       return _delegate.getData(gridType, graphId, viewportId);
     } finally {
       _lock.readLock().unlock();
+    }
+  }
+
+  @Override
+  public List<String> entityChanged(MasterChangeNotification<?> notification) {
+    try {
+      _lock.writeLock().lock();
+      return _delegate.entityChanged(notification);
+    } finally {
+      _lock.writeLock().unlock();
+    }
+  }
+
+  @Override
+  public List<String> portfolioChanged() {
+    try {
+      _lock.writeLock().lock();
+      return _delegate.portfolioChanged();
+    } finally {
+      _lock.writeLock().unlock();
     }
   }
 }

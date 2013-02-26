@@ -79,8 +79,8 @@ import com.opengamma.util.ArgumentChecker;
 
   /**
    * Converts an object from one type to another
-   * @param f The unconverted object
-   * @return The converted object
+   * @param f The unconverted object, possibly null
+   * @return The converted object, possibly null
    */
   T convert(F f);
 }

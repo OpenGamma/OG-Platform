@@ -33,7 +33,7 @@ public class BarrierOptionDistanceDefaults extends DefaultPropertyFunction {
    * Value requirement names for which these properties apply
    */
   private static final String[] s_valueNames = new String[] {
-      ValueRequirementNames.BARRIER_DISTANCE
+    ValueRequirementNames.BARRIER_DISTANCE
   };
 
   /**

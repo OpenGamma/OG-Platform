@@ -61,6 +61,11 @@ public class DbToolContextComponentFactory extends AbstractComponentFactory {
   @PropertyDefinition
   private String _jdbcUrl;
   /**
+   * The database schema, if different from the default.
+   */
+  @PropertyDefinition
+  private String _schema;
+  /**
    * The database management instance.
    */
   @PropertyDefinition
@@ -162,6 +167,8 @@ public class DbToolContextComponentFactory extends AbstractComponentFactory {
         return getDbConnector();
       case -1752402828:  // jdbcUrl
         return getJdbcUrl();
+      case -907987551:  // schema
+        return getSchema();
       case 209279841:  // dbManagement
         return getDbManagement();
       case 1541392229:  // schemaNamesList
@@ -183,6 +190,9 @@ public class DbToolContextComponentFactory extends AbstractComponentFactory {
         return;
       case -1752402828:  // jdbcUrl
         setJdbcUrl((String) newValue);
+        return;
+      case -907987551:  // schema
+        setSchema((String) newValue);
         return;
       case 209279841:  // dbManagement
         setDbManagement((DbManagement) newValue);
@@ -213,6 +223,7 @@ public class DbToolContextComponentFactory extends AbstractComponentFactory {
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
           JodaBeanUtils.equal(getDbConnector(), other.getDbConnector()) &&
           JodaBeanUtils.equal(getJdbcUrl(), other.getJdbcUrl()) &&
+          JodaBeanUtils.equal(getSchema(), other.getSchema()) &&
           JodaBeanUtils.equal(getDbManagement(), other.getDbManagement()) &&
           JodaBeanUtils.equal(getSchemaNamesList(), other.getSchemaNamesList()) &&
           JodaBeanUtils.equal(getScriptsResource(), other.getScriptsResource()) &&
@@ -227,6 +238,7 @@ public class DbToolContextComponentFactory extends AbstractComponentFactory {
     hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDbConnector());
     hash += hash * 31 + JodaBeanUtils.hashCode(getJdbcUrl());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSchema());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDbManagement());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSchemaNamesList());
     hash += hash * 31 + JodaBeanUtils.hashCode(getScriptsResource());
@@ -307,6 +319,31 @@ public class DbToolContextComponentFactory extends AbstractComponentFactory {
    */
   public final Property<String> jdbcUrl() {
     return metaBean().jdbcUrl().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the database schema, if different from the default.
+   * @return the value of the property
+   */
+  public String getSchema() {
+    return _schema;
+  }
+
+  /**
+   * Sets the database schema, if different from the default.
+   * @param schema  the new value of the property
+   */
+  public void setSchema(String schema) {
+    this._schema = schema;
+  }
+
+  /**
+   * Gets the the {@code schema} property.
+   * @return the property, not null
+   */
+  public final Property<String> schema() {
+    return metaBean().schema().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -410,6 +447,11 @@ public class DbToolContextComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<String> _jdbcUrl = DirectMetaProperty.ofReadWrite(
         this, "jdbcUrl", DbToolContextComponentFactory.class, String.class);
     /**
+     * The meta-property for the {@code schema} property.
+     */
+    private final MetaProperty<String> _schema = DirectMetaProperty.ofReadWrite(
+        this, "schema", DbToolContextComponentFactory.class, String.class);
+    /**
      * The meta-property for the {@code dbManagement} property.
      */
     private final MetaProperty<DbManagement> _dbManagement = DirectMetaProperty.ofReadWrite(
@@ -428,10 +470,11 @@ public class DbToolContextComponentFactory extends AbstractComponentFactory {
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier",
         "dbConnector",
         "jdbcUrl",
+        "schema",
         "dbManagement",
         "schemaNamesList",
         "scriptsResource");
@@ -451,6 +494,8 @@ public class DbToolContextComponentFactory extends AbstractComponentFactory {
           return _dbConnector;
         case -1752402828:  // jdbcUrl
           return _jdbcUrl;
+        case -907987551:  // schema
+          return _schema;
         case 209279841:  // dbManagement
           return _dbManagement;
         case 1541392229:  // schemaNamesList
@@ -499,6 +544,14 @@ public class DbToolContextComponentFactory extends AbstractComponentFactory {
      */
     public final MetaProperty<String> jdbcUrl() {
       return _jdbcUrl;
+    }
+
+    /**
+     * The meta-property for the {@code schema} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> schema() {
+      return _schema;
     }
 
     /**

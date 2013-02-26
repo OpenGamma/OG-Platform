@@ -48,7 +48,7 @@ public class ChangeEvent extends DirectBean implements Serializable {
   @PropertyDefinition
   private Instant _versionFrom;
   /**
-   * The end of a timespan of the change of the entity, not null.
+   * The end of a timespan of the change of the entity.
    */
   @PropertyDefinition
   private Instant _versionTo;

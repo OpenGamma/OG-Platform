@@ -10,6 +10,8 @@ import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.format.DateTimeFormatter;
 import org.threeten.bp.format.DateTimeFormatterBuilder;
@@ -24,6 +26,8 @@ import com.opengamma.util.ArgumentChecker;
  */
 public abstract class RowParser {
 
+  private static final Logger s_logger = LoggerFactory.getLogger(RowParser.class);
+  
   // CSOFF
   /** Standard date-time formatter for the input. */
   protected DateTimeFormatter CSV_DATE_FORMATTER;
@@ -147,12 +151,10 @@ public abstract class RowParser {
   
  
   public static String getWithException(Map<String, String> fieldValueMap, String fieldName) {
-    
     String result = fieldValueMap.get(fieldName);
     if (result == null) {
-      System.err.println(fieldValueMap);
+      s_logger.warn("No value for field " + fieldName);
       return null;
-      //throw new IllegalArgumentException("Could not find field '" + fieldName + "'");
     }
     return result;
   }

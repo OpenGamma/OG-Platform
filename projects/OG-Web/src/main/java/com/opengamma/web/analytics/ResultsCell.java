@@ -39,11 +39,23 @@ import com.opengamma.engine.view.calcnode.MissingInput;
   /**
    * Factory method that creates a grid cell for displaying a static value.
    * @param value The cell's value
+   * @param updated true if the value was updated in the last calculation cycle
+   * @param type TODO remove
+   * @return A cell for displaying the value
+   */
+  /* package */ static ResultsCell forStaticValue(Object value, Class<?> type, boolean updated) {
+    return new ResultsCell(value, null, null, null, updated, type);
+  }
+
+  // TODO is this version still required? or should all callers be specifying whether the value was updated?
+  /**
+   * Factory method that creates a grid cell for displaying a static value.
+   * @param value The cell's value
    * @param type TODO remove
    * @return A cell for displaying the value
    */
   /* package */ static ResultsCell forStaticValue(Object value, Class<?> type) {
-    return new ResultsCell(value, null, null, null, false, type);
+    return forStaticValue(value, type, false);
   }
 
   /**

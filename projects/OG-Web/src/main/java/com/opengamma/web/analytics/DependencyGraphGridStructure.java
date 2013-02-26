@@ -111,7 +111,7 @@ public class DependencyGraphGridStructure implements GridStructure {
     List<ResultsCell> results = Lists.newArrayList();
     for (GridCell cell : viewportDefinition) {
       GridColumn column = _columnGroups.getColumn(cell.getColumn());
-      results.add(column.getResults(cell.getRow(), cache));
+      results.add(column.buildResults(cell.getRow(), cache));
     }
     ViewportResults newResults = new ViewportResults(results,
                                                      viewportDefinition,
