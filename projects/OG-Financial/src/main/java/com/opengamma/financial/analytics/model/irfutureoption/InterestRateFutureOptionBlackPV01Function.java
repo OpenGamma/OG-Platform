@@ -38,7 +38,7 @@ public class InterestRateFutureOptionBlackPV01Function extends InterestRateFutur
     if (!pv01.containsKey(fullCurveName)) {
       throw new OpenGammaRuntimeException("Could not get PV01 for " + curveName);
     }
-    return Collections.singleton(new ComputedValue(spec, pv01.get(curveName)));
+    return Collections.singleton(new ComputedValue(spec, pv01.get(fullCurveName)));
   }
 
 }
