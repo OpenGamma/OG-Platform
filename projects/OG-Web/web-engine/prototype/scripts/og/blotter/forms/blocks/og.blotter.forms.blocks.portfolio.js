@@ -17,7 +17,7 @@ $.register_module({
                     trade: config.trade
                 },
                 children: [
-                    new form.Block({module:'og.views.forms.currency_tash', extras:{name: 'trade.premiumCurrency'}}),
+                    new form.Block({module:'og.views.forms.currency_tash', extras:{name: 'trade.premiumCurrency'}})
                 ]
             });
 
@@ -26,7 +26,7 @@ $.register_module({
                     var $hidden = $('.hidden', '#'+id);
                     $hidden.is(':visible') ? $hidden.hide() : $hidden.show();
                     event.preventDefault();
-                    return false
+                    return false;
                 });
                 og.blotter.util.set_select("trade.premiumCurrency", config.trade.premiumCurrency);
             });

@@ -21,7 +21,8 @@ $.register_module({
                 form = new og.common.util.ui.Form({
                     module: 'og.blotter.forms.fungible_tash',
                     data: data,
-                    selector: '.OG-blotter-form-block'
+                    selector: '.OG-blotter-form-block',
+                    processor: function (data) {og.blotter.util.cleanup(data);}
                 });
                 security = new og.blotter.forms.blocks.Security({form: form, label: "Underlying ID",
                     security: securityId, index: "trade.securityIdBundle", edit: !!config.details});

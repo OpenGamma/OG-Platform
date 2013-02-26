@@ -63,10 +63,10 @@ $.register_module({
                 });
             };
             items.push({name: 'Add Trade', handler: trade_insert});
-            if ((cell.type === "POSITION" && cell.row in og.analytics.grid.state.nodes) || cell.type === "NODE") {
+            if (cell.row in og.analytics.grid.state.nodes || cell.type === "NODE") {
                 return items;
             }
-            if((cell.type === "OTC_TRADE" || cell.type === "FUNGIBLE_TRADE") && cell.row_value.tradeId){
+            if (cell.row_value.tradeId) {
                 items.push({name: 'Edit Trade', handler: trade_edit}); 
             } 
             else {
