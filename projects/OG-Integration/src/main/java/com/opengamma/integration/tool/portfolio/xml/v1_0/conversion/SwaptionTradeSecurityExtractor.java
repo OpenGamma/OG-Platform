@@ -35,7 +35,7 @@ public class SwaptionTradeSecurityExtractor extends TradeSecurityExtractor<Swapt
     boolean isPayer = swapTrade.getFixedLeg().getDirection() == SwapLeg.Direction.Pay;
     Expiry expiry = new Expiry(trade.getExpirationDate().atStartOfDay(ZoneOffset.UTC));
 
-    Currency fixedLegCurrency = Currency.of(swapTrade.getFixedLeg().getCurrency());
+    Currency fixedLegCurrency = swapTrade.getFixedLeg().getCurrency();
 
     ExerciseType exerciseType = trade.getExerciseType();
 

@@ -190,7 +190,7 @@ public class PortfolioConverter {
     BigDecimal premium = trade.getPremium();
     if (premium != null) {
       manageableTrade.setPremium(premium.doubleValue());
-      manageableTrade.setPremiumCurrency(Currency.of(trade.getPremiumCurrency()));
+      manageableTrade.setPremiumCurrency(trade.getPremiumCurrency());
     }
     return manageableTrade;
   }

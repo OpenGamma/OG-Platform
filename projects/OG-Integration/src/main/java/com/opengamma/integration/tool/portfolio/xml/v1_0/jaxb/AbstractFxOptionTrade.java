@@ -16,6 +16,7 @@ import javax.xml.bind.annotation.XmlSeeAlso;
 import org.threeten.bp.LocalDate;
 
 import com.opengamma.financial.security.option.OptionType;
+import com.opengamma.util.money.Currency;
 
 @XmlRootElement
 @XmlSeeAlso({FxOptionTrade.class, FxDigitalOptionTrade.class})
@@ -28,7 +29,7 @@ public abstract class AbstractFxOptionTrade extends Trade {
   @XmlElement(name = "currencyPair", required = true)
   private String _currencyPair;
   @XmlElement(name = "optionCurrency", required = true)
-  private String _optionCurrency;
+  private Currency _optionCurrency;
   @XmlElement(name = "strike", required = true)
   private BigDecimal _strike;
 
@@ -63,11 +64,11 @@ public abstract class AbstractFxOptionTrade extends Trade {
     _currencyPair = currencyPair;
   }
 
-  public String getOptionCurrency() {
+  public Currency getOptionCurrency() {
     return _optionCurrency;
   }
 
-  public void setOptionCurrency(String optionCurrency) {
+  public void setOptionCurrency(Currency optionCurrency) {
     _optionCurrency = optionCurrency;
   }
 

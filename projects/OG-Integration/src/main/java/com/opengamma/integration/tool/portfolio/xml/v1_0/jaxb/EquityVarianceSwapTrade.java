@@ -14,6 +14,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.threeten.bp.LocalDate;
 
+import com.opengamma.util.money.Currency;
+
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class EquityVarianceSwapTrade extends Trade {
@@ -22,7 +24,7 @@ public class EquityVarianceSwapTrade extends Trade {
   private BuySell _buySell;
 
   @XmlElement(name = "currency", required = true)
-  private String _currency;
+  private Currency _currency;
 
   @XmlElement(name = "strike", required = true)
   private BigDecimal _strike;
@@ -53,11 +55,11 @@ public class EquityVarianceSwapTrade extends Trade {
     _buySell = buySell;
   }
 
-  public String getCurrency() {
+  public Currency getCurrency() {
     return _currency;
   }
 
-  public void setCurrency(String currency) {
+  public void setCurrency(Currency currency) {
     _currency = currency;
   }
 

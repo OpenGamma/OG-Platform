@@ -13,6 +13,8 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 
+import com.opengamma.util.money.Currency;
+
 @XmlAccessorType(XmlAccessType.FIELD)
 public abstract class SwapLeg {
 
@@ -26,7 +28,7 @@ public abstract class SwapLeg {
   private Direction _direction;
 
   @XmlElement(name = "currency")
-  private String _currency;
+  private Currency _currency;
 
   @XmlElement(name = "notional")
   private BigDecimal _notional;
@@ -67,11 +69,11 @@ public abstract class SwapLeg {
     this._direction = direction;
   }
 
-  public String getCurrency() {
+  public Currency getCurrency() {
     return _currency;
   }
 
-  public void setCurrency(String currency) {
+  public void setCurrency(Currency currency) {
     this._currency = currency;
   }
 

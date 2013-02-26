@@ -17,6 +17,8 @@ import javax.xml.bind.annotation.XmlSeeAlso;
 
 import org.threeten.bp.LocalDate;
 
+import com.opengamma.util.money.Currency;
+
 @XmlRootElement
 // Ensure we look at subclasses when unmarshalling
 @XmlSeeAlso({ AbstractFxOptionTrade.class, SwapTrade.class, EquityVarianceSwapTrade.class,
@@ -44,7 +46,7 @@ public abstract class Trade {
   private BigDecimal _premium;
 
   @XmlElement(name = "premiumCurrency")
-  private String _premiumCurrency;
+  private Currency _premiumCurrency;
 
   @XmlElement(name = "premiumSettlementDate")
   private LocalDate _premiumSettlementDate;
@@ -105,11 +107,11 @@ public abstract class Trade {
     _premium = premium;
   }
 
-  public String getPremiumCurrency() {
+  public Currency getPremiumCurrency() {
     return _premiumCurrency;
   }
 
-  public void setPremiumCurrency(String premiumCurrency) {
+  public void setPremiumCurrency(Currency premiumCurrency) {
     _premiumCurrency = premiumCurrency;
   }
 

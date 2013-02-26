@@ -15,6 +15,8 @@ import javax.xml.bind.annotation.XmlSeeAlso;
 
 import org.threeten.bp.LocalDate;
 
+import com.opengamma.util.money.Currency;
+
 @XmlRootElement
 public class FxForwardTrade extends Trade {
 
@@ -22,16 +24,16 @@ public class FxForwardTrade extends Trade {
   private BigDecimal _payAmount;
 
   @XmlElement(name = "payCurrency", required = true)
-  private String _payCurrency;
+  private Currency _payCurrency;
 
   @XmlElement(name = "receiveAmount", required = true)
   private BigDecimal _receiveAmount;
 
   @XmlElement(name = "receiveCurrency", required = true)
-  private String _receiveCurrency;
+  private Currency _receiveCurrency;
 
   @XmlElement(name = "settlementCurrency")
-  private String _settlementCurrency;
+  private Currency _settlementCurrency;
 
   @XmlElement(name = "fxExpiry")
   private FxExpiry _fxExpiry;
@@ -48,11 +50,11 @@ public class FxForwardTrade extends Trade {
     _payAmount = payAmount;
   }
 
-  public String getPayCurrency() {
+  public Currency getPayCurrency() {
     return _payCurrency;
   }
 
-  public void setPayCurrency(String payCurrency) {
+  public void setPayCurrency(Currency payCurrency) {
     _payCurrency = payCurrency;
   }
 
@@ -64,11 +66,11 @@ public class FxForwardTrade extends Trade {
     _receiveAmount = receiveAmount;
   }
 
-  public String getReceiveCurrency() {
+  public Currency getReceiveCurrency() {
     return _receiveCurrency;
   }
 
-  public void setReceiveCurrency(String receiveCurrency) {
+  public void setReceiveCurrency(Currency receiveCurrency) {
     _receiveCurrency = receiveCurrency;
   }
 
@@ -80,11 +82,11 @@ public class FxForwardTrade extends Trade {
     _paymentCalendars = paymentCalendars;
   }
 
-  public String getSettlementCurrency() {
+  public Currency getSettlementCurrency() {
     return _settlementCurrency;
   }
 
-  public void setSettlementCurrency(String settlementCurrency) {
+  public void setSettlementCurrency(Currency settlementCurrency) {
     _settlementCurrency = settlementCurrency;
   }
 

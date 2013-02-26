@@ -12,6 +12,8 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.opengamma.util.money.Currency;
+
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class FxOptionTrade extends AbstractFxOptionTrade {
@@ -20,13 +22,13 @@ public class FxOptionTrade extends AbstractFxOptionTrade {
   private BigDecimal _notional;
 
   @XmlElement(name = "notionalCurrency", required = true)
-  private String _notionalCurrency;
+  private Currency _notionalCurrency;
 
   @XmlElement(name = "settlementType")
   private SettlementType _settlementType;
 
   @XmlElement(name = "settlementCurrency")
-  private String _settlementCurrency;
+  private Currency _settlementCurrency;
 
   @XmlElement(name = "exerciseType")
   private ExerciseType _exerciseType;
@@ -39,11 +41,11 @@ public class FxOptionTrade extends AbstractFxOptionTrade {
     _notional = notional;
   }
 
-  public String getNotionalCurrency() {
+  public Currency getNotionalCurrency() {
     return _notionalCurrency;
   }
 
-  public void setNotionalCurrency(String notionalCurrency) {
+  public void setNotionalCurrency(Currency notionalCurrency) {
     _notionalCurrency = notionalCurrency;
   }
 
@@ -63,11 +65,11 @@ public class FxOptionTrade extends AbstractFxOptionTrade {
     _exerciseType = exerciseType;
   }
 
-  public String getSettlementCurrency() {
+  public Currency getSettlementCurrency() {
     return _settlementCurrency;
   }
 
-  public void setSettlementCurrency(String settlementCurrency) {
+  public void setSettlementCurrency(Currency settlementCurrency) {
     _settlementCurrency = settlementCurrency;
   }
 }

@@ -16,14 +16,13 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.FxOptionTrade;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.SettlementType;
 import com.opengamma.master.security.ManageableSecurity;
-import com.opengamma.util.money.Currency;
 
 public class FxOptionTradeSecurityExtractor extends TradeSecurityExtractor<FxOptionTrade> {
 
   @Override
   public ManageableSecurity[] extractSecurity(FxOptionTrade fxOptionTrade) {
 
-    FxOptionCalculator calculator = new FxOptionCalculator(fxOptionTrade, fxOptionTrade.getNotional(), Currency.of(fxOptionTrade.getNotionalCurrency()));
+    FxOptionCalculator calculator = new FxOptionCalculator(fxOptionTrade, fxOptionTrade.getNotional(), fxOptionTrade.getNotionalCurrency());
 
     ExerciseType exerciseType = fxOptionTrade.getExerciseType() == com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.ExerciseType.American ?
         new AmericanExerciseType() : new EuropeanExerciseType();

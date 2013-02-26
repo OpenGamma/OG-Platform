@@ -37,7 +37,7 @@ class FxOptionCalculator {
 
     CurrencyPair cp = CurrencyPair.parse(trade.getCurrencyPair());
 
-    Currency optionCurrency = Currency.of(trade.getOptionCurrency());
+    Currency optionCurrency = trade.getOptionCurrency();
     Currency notionalCurrency = currency;
 
     ArgumentChecker.isTrue(cp.contains(optionCurrency), "Option currency must appear in the currency pair");

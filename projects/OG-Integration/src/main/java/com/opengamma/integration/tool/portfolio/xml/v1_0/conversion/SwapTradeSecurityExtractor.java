@@ -84,8 +84,7 @@ public class SwapTradeSecurityExtractor extends TradeSecurityExtractor<SwapTrade
 
 
   private Notional extractNotional(SwapLeg floatingLeg) {
-    Currency currency = Currency.of(floatingLeg.getCurrency());
-    return new InterestRateNotional(currency, floatingLeg.getNotional().doubleValue());
+    return new InterestRateNotional(floatingLeg.getCurrency(), floatingLeg.getNotional().doubleValue());
   }
 
   private ExternalId extractRegion(SwapLeg floatingLeg) {

@@ -12,6 +12,8 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.opengamma.util.money.Currency;
+
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class FxDigitalOptionTrade extends AbstractFxOptionTrade {
@@ -20,7 +22,7 @@ public class FxDigitalOptionTrade extends AbstractFxOptionTrade {
   private BigDecimal _payout;
 
   @XmlElement(name = "payoutCurrency", required = true)
-  private String _payoutCurrency;
+  private Currency _payoutCurrency;
 
   public BigDecimal getPayout() {
     return _payout;
@@ -30,11 +32,11 @@ public class FxDigitalOptionTrade extends AbstractFxOptionTrade {
     _payout = payout;
   }
 
-  public String getPayoutCurrency() {
+  public Currency getPayoutCurrency() {
     return _payoutCurrency;
   }
 
-  public void setPayoutCurrency(String payoutCurrency) {
+  public void setPayoutCurrency(Currency payoutCurrency) {
     _payoutCurrency = payoutCurrency;
   }
 }

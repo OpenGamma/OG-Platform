@@ -18,7 +18,7 @@ public class FxDigitalOptionTradeSecurityExtractor extends TradeSecurityExtracto
   @Override
   public ManageableSecurity[] extractSecurity(FxDigitalOptionTrade trade) {
 
-    Currency payoutCurrency = Currency.of(trade.getPayoutCurrency());
+    Currency payoutCurrency = trade.getPayoutCurrency();
     FxOptionCalculator calculator = new FxOptionCalculator(trade, trade.getPayout(), payoutCurrency);
 
     ManageableSecurity security = new FXDigitalOptionSecurity(calculator.getPutCurrency(),

@@ -16,6 +16,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.threeten.bp.LocalDate;
 
+import com.opengamma.util.money.Currency;
+
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class SwaptionTrade extends Trade {
@@ -60,7 +62,7 @@ public class SwaptionTrade extends Trade {
   private LocalDate _cashSettlementPaymentDate;
 
   @XmlElement(name = "cashSettlementCurrency")
-  private String _cashSettlementCurrency;
+  private Currency _cashSettlementCurrency;
 
   @XmlElement(name = "underlyingSwapTrade")
   private SwapTrade _underlyingSwapTrade;
@@ -138,11 +140,11 @@ public class SwaptionTrade extends Trade {
     _cashSettlementPaymentDate = cashSettlementPaymentDate;
   }
 
-  public String getCashSettlementCurrency() {
+  public Currency getCashSettlementCurrency() {
     return _cashSettlementCurrency;
   }
 
-  public void setCashSettlementCurrency(String cashSettlementCurrency) {
+  public void setCashSettlementCurrency(Currency cashSettlementCurrency) {
     _cashSettlementCurrency = cashSettlementCurrency;
   }
 

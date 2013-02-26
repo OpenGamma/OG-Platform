@@ -24,9 +24,9 @@ public class FxForwardTradeSecurityExtractor extends TradeSecurityExtractor<FxFo
     ExternalId region = extractRegion(trade.getPaymentCalendars());
     boolean nonDeliverable = checkNonDeliverable(trade);
 
-    Currency payCurrency = Currency.of(trade.getPayCurrency());
+    Currency payCurrency = trade.getPayCurrency();
     double payAmount = trade.getPayAmount().doubleValue();
-    Currency receiveCurrency = Currency.of(trade.getReceiveCurrency());
+    Currency receiveCurrency = trade.getReceiveCurrency();
     double receiveAmount = trade.getReceiveAmount().doubleValue();
     ZonedDateTime forwardDate = convertLocalDate(trade.getMaturityDate());
 
