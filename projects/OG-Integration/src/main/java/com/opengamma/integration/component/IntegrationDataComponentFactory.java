@@ -20,11 +20,11 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.bbg.BloombergIdentifierProvider;
 import com.opengamma.bbg.loader.BloombergHistoricalTimeSeriesLoader;
-import com.opengamma.bbg.loader.BloombergSecurityLoader;
 import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
+import com.opengamma.financial.security.DefaultSecurityLoader;
 import com.opengamma.master.historicaltimeseries.ExternalIdResolver;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesLoader;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
@@ -91,7 +91,7 @@ public class IntegrationDataComponentFactory extends AbstractComponentFactory {
    * @return the loader, not null
    */
   protected SecurityLoader createSecurityLoader(ComponentRepository repo) {
-    return new BloombergSecurityLoader(getSecurityProvider(), getSecurityMaster());
+    return new DefaultSecurityLoader(getSecurityMaster(), getSecurityProvider());
   }
 
   protected HistoricalTimeSeriesLoader initHistoricalTimeSeriesLoader(ComponentRepository repo) {

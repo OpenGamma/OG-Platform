@@ -16,7 +16,6 @@ import org.threeten.bp.LocalDate;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.bbg.BloombergIdentifierProvider;
 import com.opengamma.bbg.loader.BloombergHistoricalTimeSeriesLoader;
-import com.opengamma.bbg.loader.BloombergSecurityLoader;
 import com.opengamma.bloombergexample.generator.BloombergExamplePortfolioGeneratorTool;
 import com.opengamma.bloombergexample.loader.CurveNodeHistoricalDataLoader;
 import com.opengamma.bloombergexample.loader.DemoEquityOptionCollarPortfolioLoader;
@@ -34,6 +33,7 @@ import com.opengamma.financial.currency.CurrencyMatrixConfigPopulator;
 import com.opengamma.financial.currency.CurrencyPairsConfigPopulator;
 import com.opengamma.financial.generator.AbstractPortfolioGeneratorTool;
 import com.opengamma.financial.generator.StaticNameGenerator;
+import com.opengamma.financial.security.DefaultSecurityLoader;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -229,8 +229,8 @@ public class ExampleDatabasePopulator extends AbstractTool<IntegrationToolContex
     try {
       final SecurityMaster securityMaster = getToolContext().getSecurityMaster();
       final SecurityProvider securityProvider = getToolContext().getSecurityProvider();
-      final BloombergSecurityLoader securityLoader = new BloombergSecurityLoader(securityProvider, securityMaster);
-      securityLoader.loadSecurity(_futuresToLoad);
+      final DefaultSecurityLoader securityLoader = new DefaultSecurityLoader(securityMaster, securityProvider);
+      securityLoader.loadSecurities(_futuresToLoad);
       _futuresToLoad.clear();
       log.done();
     } catch (final RuntimeException t) {

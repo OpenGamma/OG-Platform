@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.provider.security.impl;
+package com.opengamma.master.security.impl;
 
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.mock;
@@ -20,39 +20,38 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.provider.security.SecurityProvider;
-import com.opengamma.provider.security.SecurityProviderRequest;
-import com.opengamma.provider.security.SecurityProviderResult;
+import com.opengamma.master.security.SecurityLoader;
+import com.opengamma.master.security.SecurityLoaderRequest;
+import com.opengamma.master.security.SecurityLoaderResult;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**
  * Test.
  */
 @Test(groups="unit")
-public class DataSecurityProviderResourceTest {
+public class DataSecurityLoaderResourceTest {
 
-  private SecurityProvider _underlying;
+  private SecurityLoader _underlying;
   private UriInfo _uriInfo;
-  private DataSecurityProviderResource _resource;
+  private DataSecurityLoaderResource _resource;
 
   @BeforeMethod
   public void setUp() {
-    _underlying = mock(SecurityProvider.class);
+    _underlying = mock(SecurityLoader.class);
     _uriInfo = mock(UriInfo.class);
     when(_uriInfo.getBaseUri()).thenReturn(URI.create("testhost"));
-    _resource = new DataSecurityProviderResource(_underlying);
+    _resource = new DataSecurityLoaderResource(_underlying);
   }
 
   //-------------------------------------------------------------------------
   @Test
   public void testGet() {
-    final SecurityProviderRequest request = SecurityProviderRequest.createGet(
-        ExternalIdBundle.of("A", "B"), "S");
-    final SecurityProviderResult result = new SecurityProviderResult();
+    final SecurityLoaderRequest request = SecurityLoaderRequest.create(ExternalIdBundle.of("A", "B"));
+    final SecurityLoaderResult result = new SecurityLoaderResult();
     
-    when(_underlying.getSecurities(same(request))).thenReturn(result);
+    when(_underlying.loadSecurities(same(request))).thenReturn(result);
     
-    Response test = _resource.getSecurity(request);
+    Response test = _resource.loadSecurities(request);
     assertEquals(Status.OK.getStatusCode(), test.getStatus());
     assertSame(result, test.getEntity());
   }

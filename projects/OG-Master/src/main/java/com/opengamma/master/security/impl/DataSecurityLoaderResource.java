@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.provider.security.impl;
+package com.opengamma.master.security.impl;
 
 import java.net.URI;
 
@@ -16,43 +16,43 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
-import com.opengamma.provider.security.SecurityProvider;
-import com.opengamma.provider.security.SecurityProviderRequest;
-import com.opengamma.provider.security.SecurityProviderResult;
+import com.opengamma.master.security.SecurityLoader;
+import com.opengamma.master.security.SecurityLoaderRequest;
+import com.opengamma.master.security.SecurityLoaderResult;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;
 
 /**
- * RESTful resource for the security provider.
+ * RESTful resource for the security loader.
  * <p>
- * This resource receives and processes RESTful calls to the security provider.
+ * This resource receives and processes RESTful calls to the security loader.
  */
-@Path("securityProvider")
-public class DataSecurityProviderResource extends AbstractDataResource {
+@Path("securityLoader")
+public class DataSecurityLoaderResource extends AbstractDataResource {
 
   /**
    * The provider.
    */
-  private final SecurityProvider _securityProvider;
+  private final SecurityLoader _securityLoader;
 
   /**
-   * Creates the resource, exposing the underlying provider over REST.
+   * Creates the resource, exposing the underlying loader over REST.
    * 
-   * @param securityProvider  the underlying provider, not null
+   * @param securityLoader  the underlying loader, not null
    */
-  public DataSecurityProviderResource(final SecurityProvider securityProvider) {
-    ArgumentChecker.notNull(securityProvider, "securityProvider");
-    _securityProvider = securityProvider;
+  public DataSecurityLoaderResource(final SecurityLoader securityLoader) {
+    ArgumentChecker.notNull(securityLoader, "securityLoader");
+    _securityLoader = securityLoader;
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the security provider.
+   * Gets the underlying security loader.
    * 
-   * @return the security provider, not null
+   * @return the underlying security loader, not null
    */
-  public SecurityProvider getSecurityProvider() {
-    return _securityProvider;
+  public SecurityLoader getSecurityLoader() {
+    return _securityLoader;
   }
 
   //-------------------------------------------------------------------------
@@ -62,16 +62,16 @@ public class DataSecurityProviderResource extends AbstractDataResource {
   }
 
   @HEAD
-  @Path("securityGet")
+  @Path("securityLoad")
   public Response status() {
     // simple HEAD to quickly return
     return responseOk();
   }
 
   @POST  // should be a get, but query is too large
-  @Path("securityGet")
-  public Response getSecurity(SecurityProviderRequest request) {
-    SecurityProviderResult result = getSecurityProvider().getSecurities(request);
+  @Path("securityLoad")
+  public Response loadSecurities(SecurityLoaderRequest request) {
+    SecurityLoaderResult result = getSecurityLoader().loadSecurities(request);
     return responseOkFudge(result);
   }
 
@@ -83,7 +83,7 @@ public class DataSecurityProviderResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uriGet(URI baseUri) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("securityGet");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("securityLoad");
     return bld.build();
   }
 

@@ -18,10 +18,10 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.bbg.loader.BloombergSecurityLoader;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
+import com.opengamma.financial.security.DefaultSecurityLoader;
 import com.opengamma.master.security.SecurityLoader;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.provider.security.SecurityProvider;
@@ -52,7 +52,7 @@ public class ExampleSecurityLoaderComponentFactory extends AbstractComponentFact
   //-------------------------------------------------------------------------
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
-    SecurityLoader securityLoader = new BloombergSecurityLoader(getSecurityProvider(), getSecurityMaster());
+    SecurityLoader securityLoader = new DefaultSecurityLoader(getSecurityMaster(), getSecurityProvider());
     
     ComponentInfo info = new ComponentInfo(SecurityLoader.class, getClassifier());
     repo.registerComponent(info, securityLoader);
