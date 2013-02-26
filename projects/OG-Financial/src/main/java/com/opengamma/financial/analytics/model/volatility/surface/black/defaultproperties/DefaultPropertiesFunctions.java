@@ -110,8 +110,8 @@ public class DefaultPropertiesFunctions extends AbstractRepositoryConfigurationB
 
   }
 
-  private final Map<String, CurrencyInfo> _perCurrencyInfo = new HashMap<String, CurrencyInfo>();
-  private final Map<Pair<String, String>, CurrencyPairInfo> _perCurrencyPairInfo = new HashMap<Pair<String, String>, CurrencyPairInfo>();
+  private final Map<String, CurrencyInfo> _perCurrencyInfo = new HashMap<>();
+  private final Map<Pair<String, String>, CurrencyPairInfo> _perCurrencyPairInfo = new HashMap<>();
   private String _timeAxis = BlackVolatilitySurfacePropertyNamesAndValues.LOG_TIME;
   private String _yAxis = BlackVolatilitySurfacePropertyNamesAndValues.LOG_Y;
   private String _volatilityTransform = BlackVolatilitySurfacePropertyNamesAndValues.INTEGRATED_VARIANCE;

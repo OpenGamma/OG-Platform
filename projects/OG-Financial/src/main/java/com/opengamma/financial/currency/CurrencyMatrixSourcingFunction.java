@@ -308,33 +308,22 @@ public class CurrencyMatrixSourcingFunction extends AbstractFunction.NonCompiled
 
       @Override
       public Object visitValueRequirement(final CurrencyMatrixValueRequirement valueRequirement) {
-//      marketValue = inputs.getValue(valueRequirement.getValueRequirement());
-        for (final ComputedValue computedValue : inputs.getAllValues()) {
-          final Object marketValue = computedValue.getValue();
-          if (marketValue instanceof Number) {
-            double rate = ((Number) marketValue).doubleValue();
-            if (valueRequirement.isReciprocal()) {
-              rate = 1.0 / rate;
-            }
-            return rate;
-//        } else if (marketValue instanceof DoubleTimeSeries) {
-//          DoubleTimeSeries<?> rate = (DoubleTimeSeries<?>) marketValue;
-//          if (valueRequirement.isReciprocal()) {
-//            rate = rate.reciprocal();
-//          }
-//          return rate;
-//        } else if (marketValue instanceof HistoricalTimeSeries) {
-//          DoubleTimeSeries<?> rate = ((HistoricalTimeSeries) marketValue).getTimeSeries();
-//          if (valueRequirement.isReciprocal()) {
-//            rate = rate.reciprocal();
-//          }
-//          return rate;
+        final Object marketValue = inputs.getValue(valueRequirement.getValueRequirement());
+        if (marketValue instanceof Number) {
+          double rate = ((Number) marketValue).doubleValue();
+          if (valueRequirement.isReciprocal()) {
+            rate = 1.0 / rate;
           }
+          return rate;
+        } else if (marketValue instanceof DoubleTimeSeries) {
+          DoubleTimeSeries<?> rate = (DoubleTimeSeries<?>) marketValue;
+          if (valueRequirement.isReciprocal()) {
+            rate = rate.reciprocal();
+          }
+          return rate;
+        } else {
+          throw new IllegalArgumentException(valueRequirement.toString());
         }
-//        } else {
-        throw new IllegalArgumentException("Expected a single spot rate for " + valueRequirement.toString());
-//        }
-//        }
       }
 
     });
@@ -360,28 +349,26 @@ public class CurrencyMatrixSourcingFunction extends AbstractFunction.NonCompiled
 
       @Override
       public Object visitValueRequirement(final CurrencyMatrixValueRequirement valueRequirement) {
-//        final Object marketValue = inputs.getValue(getSeriesConversionRequirement(valueRequirement));
-        for (final ComputedValue computedValue : inputs.getAllValues()) {
-          final Object marketValue = computedValue.getValue();
-          if (marketValue instanceof DoubleTimeSeries) {
-            //TODO is this branch ever reached?
-            DoubleTimeSeries<?> fxRate = (DoubleTimeSeries<?>) marketValue;
-            if (valueRequirement.isReciprocal()) {
-              fxRate = fxRate.reciprocal();
-            }
-            return fxRate;
-          } else if (marketValue instanceof HistoricalTimeSeries) {
-            DoubleTimeSeries<?> fxRate = ((HistoricalTimeSeries) marketValue).getTimeSeries();
-            if (valueRequirement.isReciprocal()) {
-              fxRate = fxRate.reciprocal();
-            }
-            return fxRate;
+        final Object marketValue = inputs.getValue(getSeriesConversionRequirement(valueRequirement));
+        if (marketValue instanceof DoubleTimeSeries) {
+          //TODO is this branch ever reached?
+          DoubleTimeSeries<?> fxRate = (DoubleTimeSeries<?>) marketValue;
+          if (valueRequirement.isReciprocal()) {
+            fxRate = fxRate.reciprocal();
           }
+          return fxRate;
+        } else if (marketValue instanceof HistoricalTimeSeries) {
+          DoubleTimeSeries<?> fxRate = ((HistoricalTimeSeries) marketValue).getTimeSeries();
+          if (valueRequirement.isReciprocal()) {
+            fxRate = fxRate.reciprocal();
+          }
+          return fxRate;
+        } else {
+          if (marketValue == null) {
+            throw new IllegalArgumentException("Null time series for " + valueRequirement.toString());
+          }
+          throw new IllegalArgumentException("Expected a time series for " + valueRequirement.toString() + ", got " + marketValue.getClass());
         }
-//          } else {
-        throw new IllegalArgumentException("Expected a time series for " + valueRequirement.toString());
-//          }
-//        }
       }
 
     });
@@ -445,3 +432,4 @@ public class CurrencyMatrixSourcingFunction extends AbstractFunction.NonCompiled
   }
 
 }
+

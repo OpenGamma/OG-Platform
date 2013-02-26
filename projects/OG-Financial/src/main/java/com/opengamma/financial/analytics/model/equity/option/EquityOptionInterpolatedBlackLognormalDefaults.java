@@ -21,6 +21,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
+import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
 import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyNamesAndValues;
 import com.opengamma.financial.property.DefaultPropertyFunction;
@@ -85,8 +86,7 @@ public abstract class EquityOptionInterpolatedBlackLognormalDefaults extends Def
   public EquityOptionInterpolatedBlackLognormalDefaults(final String priority, final String... perIdConfig) {
     super(FinancialSecurityTypes.EQUITY_INDEX_OPTION_SECURITY
         .or(FinancialSecurityTypes.EQUITY_BARRIER_OPTION_SECURITY)
-        .or(FinancialSecurityTypes.EQUITY_OPTION_SECURITY)
-        .or(FinancialSecurityTypes.EQUITY_INDEX_FUTURE_OPTION_SECURITY), true);
+        .or(FinancialSecurityTypes.EQUITY_OPTION_SECURITY), true);
     ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(perIdConfig, "per id configuration");
     _priority = PriorityClass.valueOf(priority);
@@ -132,6 +132,9 @@ public abstract class EquityOptionInterpolatedBlackLognormalDefaults extends Def
 
   @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
+    if (!InstrumentTypeProperties.EQUITY_OPTION.equals(desiredValue.getConstraint(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE))) {
+      return null;
+    }
     final Set<String> surfaceCalculationMethod = desiredValue.getConstraints().getValues(ValuePropertyNames.SURFACE_CALCULATION_METHOD);
     if (surfaceCalculationMethod != null && surfaceCalculationMethod.size() == 1) {
       if (!Iterables.getOnlyElement(surfaceCalculationMethod).equals(BlackVolatilitySurfacePropertyNamesAndValues.INTERPOLATED_BLACK_LOGNORMAL)) {
