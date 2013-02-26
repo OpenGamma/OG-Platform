@@ -20,6 +20,7 @@ import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.EquityVarianceSwap
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.FxDigitalOptionTrade;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.FxForwardTrade;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.FxOptionTrade;
+import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.OtcEquityIndexOptionTrade;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.Portfolio;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.Position;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.SwapTrade;
@@ -44,6 +45,7 @@ public class PortfolioConverter {
         .put(EquityVarianceSwapTrade.class, new EquityVarianceSwapTradeSecurityExtractor())
         .put(FxForwardTrade.class, new FxForwardTradeSecurityExtractor())
         .put(SwaptionTrade.class, new SwaptionTradeSecurityExtractor())
+        .put(OtcEquityIndexOptionTrade.class, new OtcEquityIndexOptionTradeSecurityExtractor())
         .build();
 
   public PortfolioConverter(Portfolio portfolio) {

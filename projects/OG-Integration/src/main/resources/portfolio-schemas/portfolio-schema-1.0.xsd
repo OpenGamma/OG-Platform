@@ -45,6 +45,8 @@
   <xs:element name="fxExpiry" type="fxExpiry"/>
   <xs:element name="swaptionTrade" type="swaptionTrade"/>
 
+  <xs:element name="otcEquityIndexOptionTrade" type="otcEquityIndexOptionTrade"/>
+
   <xs:complexType name="ogPortfolio">
     <xs:all>
 
@@ -146,6 +148,14 @@
                 <xs:annotation>
                   <xs:documentation>
                     An individual swaption trade within the trades collection.
+                  </xs:documentation>
+                </xs:annotation>
+              </xs:element>
+
+              <xs:element ref="otcEquityIndexOptionTrade">
+                <xs:annotation>
+                  <xs:documentation>
+                    An individual OTC equity index option trade within the trades collection.
                   </xs:documentation>
                 </xs:annotation>
               </xs:element>
@@ -873,6 +883,38 @@
     </xs:complexContent>
   </xs:complexType>
 
+  <xs:complexType name="otcEquityIndexOptionTrade">
+    <xs:complexContent>
+      <xs:extension base="trade">
+        <xs:sequence>
+          <xs:element name="optionType" type="xs:string"/>
+          <xs:element name="buySell" type="buySell"/>
+          <xs:element name="underlyingId" type="idWrapper"/>
+          <xs:element name="notional" type="xs:decimal"/>
+          <xs:element name="notionalCurrency" type="xs:string"/>
+          <xs:element name="strike" type="xs:decimal"/>
+          <xs:element name="exerciseType" type="exerciseType"/>
+          <xs:element name="expiryDate" type="xs:string"/>
+          <xs:element minOccurs="0" name="expiryCalendars">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element maxOccurs="unbounded"
+                            minOccurs="0" name="calendar" type="calendar"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element minOccurs="0" name="settlementCalendars">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element maxOccurs="unbounded"
+                            minOccurs="0" name="calendar" type="calendar"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
 
   <xs:simpleType name="callPut">
     <xs:restriction base="xs:string">

@@ -15,12 +15,14 @@ import javax.xml.bind.annotation.XmlSeeAlso;
 
 import org.threeten.bp.LocalDate;
 
+import com.opengamma.financial.security.option.OptionType;
+
 @XmlRootElement
 @XmlSeeAlso({FxOptionTrade.class, FxDigitalOptionTrade.class})
 public abstract class AbstractFxOptionTrade extends Trade {
 
   @XmlElement(name = "callPut", required = true)
-  private CallPut _callPut;
+  private OptionType _callPut;
   @XmlElement(name = "buySell", required = true)
   private BuySell _buySell;
   @XmlElement(name = "currencyPair", required = true)
@@ -37,11 +39,11 @@ public abstract class AbstractFxOptionTrade extends Trade {
   @XmlElement(name = "calendar")
   private Set<Calendar> _paymentCalendars;
 
-  public CallPut getCallPut() {
+  public OptionType getOptionType() {
     return _callPut;
   }
 
-  public void setCallPut(CallPut callPut) {
+  public void setCallPut(OptionType callPut) {
     _callPut = callPut;
   }
 

@@ -20,7 +20,7 @@ import org.threeten.bp.LocalDate;
 @XmlRootElement
 // Ensure we look at subclasses when unmarshalling
 @XmlSeeAlso({ AbstractFxOptionTrade.class, SwapTrade.class, EquityVarianceSwapTrade.class,
-                FxForwardTrade.class, SwaptionTrade.class })
+                FxForwardTrade.class, SwaptionTrade.class, OtcEquityIndexOptionTrade.class })
 @XmlAccessorType(XmlAccessType.FIELD)
 public abstract class Trade {
 

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<og-portfolio schemaVersion="1.0">
+
+  <trades>
+    <otcEquityIndexOptionTrade id="t1">
+
+      <externalSystemId><id scheme="External">IdFromExternalSystem1</id></externalSystemId>
+
+      <tradeDate>2013-01-20</tradeDate>
+      <maturityDate>2018-01-31</maturityDate>
+      <counterparty><id scheme="Cpty">GOLDMAN</id></counterparty>
+
+      <premium>250</premium>
+      <premiumCurrency>EUR</premiumCurrency>
+      <premiumSettlementDate>2013-01-22</premiumSettlementDate>
+
+      <optionType>Put</optionType>
+      <buySell>Buy</buySell>
+
+      <underlyingId><id scheme="BLOOMBERG_TICKER">EI09SPX</id></underlyingId>
+
+      <notional>250000</notional>
+      <!-- Validate to check matches underlying ? In future may want to allow it to differ from underlying -->
+      <notionalCurrency>EUR</notionalCurrency>
+
+      <strike>600</strike>
+      <exerciseType>European</exerciseType>
+      <expiryDate>2018-01-31</expiryDate>
+
+      <expiryCalendars>
+        <calendar type="Bank">
+          <id scheme="CountryISO2">FD</id>
+        </calendar>
+      </expiryCalendars>
+
+      <settlementCalendars>
+        <calendar type="Bank">
+          <id scheme="CountryISO2">FD</id>
+        </calendar>
+      </settlementCalendars>
+
+    </otcEquityIndexOptionTrade>
+  </trades>
+
+  <portfolios>
+    <portfolio name="otc_equity_index_portfolio">
+      <trades>
+        <trade ref="t1"/>
+      </trades>
+    </portfolio>
+  </portfolios>
+
+</og-portfolio>

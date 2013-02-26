@@ -11,9 +11,9 @@ import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.financial.currency.CurrencyPair;
+import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.AbstractFxOptionTrade;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.BuySell;
-import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.CallPut;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
@@ -42,8 +42,9 @@ class FxOptionCalculator {
 
     ArgumentChecker.isTrue(cp.contains(optionCurrency), "Option currency must appear in the currency pair");
     ArgumentChecker.isTrue(cp.contains(notionalCurrency), "Notional currency must appear in the currency pair");
+    ArgumentChecker.notNull(trade.getOptionType(), "Option type");
 
-    boolean isCall = trade.getCallPut() == CallPut.Call;
+    boolean isCall = trade.getOptionType() == OptionType.CALL;
     Currency other = cp.getComplement(optionCurrency);
     _callCurrency = isCall ? optionCurrency : other;
     _putCurrency = isCall ? other : optionCurrency;
