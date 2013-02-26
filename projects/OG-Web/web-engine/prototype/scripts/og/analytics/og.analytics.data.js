@@ -236,7 +236,6 @@ $.register_module({
                 return parents.push(parent), parent;
             };
             pool.remove = function (data) {
-                console.log('data.parent.refcount', data.parent.refcount);
                 data.parent.refcount = data.parent.refcount.filter(function (id) {return id !== data.id;});
                 children = children.filter(function (child) {return child.id !== data.id;});
                 if (data.parent.refcount.length) return;
@@ -245,6 +244,7 @@ $.register_module({
             };
             $(window).on('unload', function () {
                 children.forEach(function (child) {try {child.kill();} catch (error) {}});
+                parents.forEach(function (child) {try {parent.kill();} catch (error) {}});
             });
         };
         return Data;
