@@ -5,8 +5,6 @@
  */
 package com.opengamma.component.factory.web;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +23,8 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.springframework.web.context.ServletContextAware;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.core.change.AggregatingChangeManager;
@@ -195,7 +195,12 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
                                                                          getMarketDataSnapshotMaster(),
                                                                          getComputationTargetResolver(),
                                                                          getMarketDataSpecificationRepository(),
-                                                                         blotterColumnMapper);
+                                                                         blotterColumnMapper,
+                                                                         getPositionSource(),
+                                                                         getConfigMaster(),
+                                                                         getSecuritySource(),
+                                                                         getSecurityMaster(),
+                                                                         getPositionMaster());
     ResultsFormatter resultsFormatter = new ResultsFormatter();
     GridColumnsJsonWriter columnWriter = new GridColumnsJsonWriter(resultsFormatter);
     ViewportResultsJsonWriter viewportResultsWriter = new ViewportResultsJsonWriter(resultsFormatter);
@@ -230,7 +235,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
   }
 
   protected ChangeManager buildChangeManager() {
-    List<ChangeProvider> providers = new ArrayList<ChangeProvider>();
+    List<ChangeProvider> providers = Lists.newArrayList();
     providers.add(getPositionMaster());
     providers.add(getPortfolioMaster());
     providers.add(getSecurityMaster());
@@ -240,7 +245,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
   }
 
   protected MasterChangeManager buildMasterChangeManager() {
-    Map<MasterType, ChangeProvider> providers = new HashMap<MasterType, ChangeProvider>();
+    Map<MasterType, ChangeProvider> providers = Maps.newHashMap();
     providers.put(MasterType.POSITION, getPositionMaster());
     providers.put(MasterType.PORTFOLIO, getPortfolioMaster());
     providers.put(MasterType.SECURITY, getSecurityMaster());
@@ -981,7 +986,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "configMaster",
         "securityMaster",
         "securitySource",

@@ -10,6 +10,7 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
+import org.fudgemsg.types.secondary.ThreeTenInstantFieldType;
 import org.fudgemsg.types.secondary.ThreeTenLocalTimeFieldType;
 import org.fudgemsg.wire.types.FudgeWireType;
 import org.threeten.bp.Instant;
@@ -230,7 +231,7 @@ public class ViewEvaluationTarget extends TempTarget {
     message.add("timeZone", null, FudgeWireType.STRING, getTimeZone().getId());
     message.add("valuationTime", null, ThreeTenLocalTimeFieldType.INSTANCE, getValuationTime());
     if (getCorrection() != null) {
-      message.add("correction", null, ThreeTenLocalTimeFieldType.INSTANCE, getCorrection());
+      message.add("correction", null, ThreeTenInstantFieldType.INSTANCE, getCorrection());
     }
   }
 

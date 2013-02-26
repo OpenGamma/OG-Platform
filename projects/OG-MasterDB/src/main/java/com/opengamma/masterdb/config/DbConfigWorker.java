@@ -16,8 +16,10 @@ import java.util.List;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.FudgeMsgEnvelope;
+import org.fudgemsg.MutableFudgeMsg;
+import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeObjectReader;
+import org.fudgemsg.mapping.FudgeSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
@@ -124,12 +126,9 @@ import com.opengamma.util.paging.PagingRequest;
     if (value instanceof MutableUniqueIdentifiable) {
       ((MutableUniqueIdentifiable) value).setUniqueId(uniqueId);
     }
-    // serialize the configuration value
-    FudgeMsgEnvelope env = s_fudgeContext.toFudgeMsg(value);
-    // REVIEW 2011-01-06 Andrew -- the serialization should only add headers for anything subclass
-    // to the reified type to match the deserialization call, reduce payload size and allow easier
-    // refactoring of stored objects following an upgrade through database operations.
-    byte[] bytes = s_fudgeContext.toByteArray(env.getMessage());
+    
+    byte[] bytes = serializeToFudge(value);
+    
     // the arguments for inserting into the config table
     final DbMapSqlParameterSource docArgs = new DbMapSqlParameterSource()
       .addValue("doc_id", docId)
@@ -144,6 +143,13 @@ import com.opengamma.util.paging.PagingRequest;
     final String sqlDoc = getElSqlBundle().getSql("Insert", docArgs);
     getJdbcTemplate().update(sqlDoc, docArgs);
     return document;
+  }
+
+  private byte[] serializeToFudge(final Object configObj) {
+    // serialize the configuration value
+    FudgeSerializer serializer = new FudgeSerializer(s_fudgeContext);
+    MutableFudgeMsg objectToFudgeMsg = serializer.objectToFudgeMsg(configObj);
+    return s_fudgeContext.toByteArray(objectToFudgeMsg);
   }
 
   //-------------------------------------------------------------------------
@@ -316,15 +322,19 @@ import com.opengamma.util.paging.PagingRequest;
         s_logger.warn("ConfigType: {} class can not be found for docOid: {}", configType, docOid);
       }
       
+      FudgeObjectReader objReader = s_fudgeContext.createObjectReader(new ByteArrayInputStream(bytes));
+      FudgeMsg fudgeMsg = objReader.getMessageReader().nextMessage();
       try {
-        Object value = s_fudgeContext.readObject(reifiedType, new ByteArrayInputStream(bytes));
-        ConfigItem<?> item = ConfigItem.of(value);
+        
+        FudgeDeserializer deserializer = new FudgeDeserializer(s_fudgeContext);
+        Object configObj = deserializer.fudgeMsgToObject(reifiedType, fudgeMsg);
+        ConfigItem<?> item = ConfigItem.of(configObj);
         item.setName(name);
         item.setType(reifiedType);
         ConfigDocument doc = new ConfigDocument(item);
         UniqueId uniqueId = createUniqueId(docOid, docId);
         doc.setUniqueId(uniqueId);
-        IdUtils.setInto(value, uniqueId);
+        IdUtils.setInto(configObj, uniqueId);
         doc.setVersionFromInstant(DbDateUtils.fromSqlTimestamp(versionFrom));
         doc.setVersionToInstant(DbDateUtils.fromSqlTimestampNullFarFuture(versionTo));
         doc.setCorrectionFromInstant(DbDateUtils.fromSqlTimestamp(correctionFrom));
@@ -332,8 +342,6 @@ import com.opengamma.util.paging.PagingRequest;
         _documents.add(doc);
         
       } catch (Exception ex) {
-        FudgeObjectReader objReader = s_fudgeContext.createObjectReader(new ByteArrayInputStream(bytes));
-        FudgeMsg fudgeMsg = objReader.getMessageReader().nextMessage();
         s_logger.warn("Bad fudge message in database, unable to deserialise docOid:{} {} to {}", new Object[] {docOid, fudgeMsg, configType});
       }
     }

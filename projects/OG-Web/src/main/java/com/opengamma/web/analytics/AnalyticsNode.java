@@ -13,7 +13,6 @@ import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.security.Security;
-import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.util.ArgumentChecker;
 
@@ -49,11 +48,10 @@ import com.opengamma.util.ArgumentChecker;
 
   /**
    * Factory method that creates a node structure from a portfolio and returns the root node.
-   * @param compiledViewDef A view definition
+   * @param portfolio The portfolio
    * @return The root node of the portfolio's node structure
    */
-  /* package */ static AnalyticsNode portoflioRoot(CompiledViewDefinition compiledViewDef) {
-    Portfolio portfolio = compiledViewDef.getPortfolio();
+  /* package */ static AnalyticsNode portoflioRoot(Portfolio portfolio) {
     if (portfolio == null) {
       return new AnalyticsNode(0, 0, Collections.<AnalyticsNode>emptyList(), false);
     }

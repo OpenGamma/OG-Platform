@@ -24,6 +24,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import org.apache.commons.lang.StringUtils;
 import org.joda.beans.Bean;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaBean;
@@ -204,6 +205,9 @@ public class BlotterResource {
   @Produces(MediaType.APPLICATION_JSON)
   @Path("securities/{securityExternalId}")
   public String getSecurityJSON(@PathParam("securityExternalId") String securityExternalIdStr) {
+    if (StringUtils.isEmpty(securityExternalIdStr)) {
+      return new JSONObject().toString();
+    }
     ExternalId securityExternalId = ExternalId.parse(securityExternalIdStr);
     SecuritySearchResult searchResult = _securityMaster.search(new SecuritySearchRequest(securityExternalId));
     if (searchResult.getSecurities().size() == 0) {

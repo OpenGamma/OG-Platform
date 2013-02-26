@@ -6,7 +6,6 @@
 package com.opengamma.provider.security;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -62,7 +61,7 @@ public class SecurityEnhancerRequest extends DirectBean {
    * @param securities  the securities to enhance, not null
    * @return the request, not null
    */
-  public static SecurityEnhancerRequest create(Collection<? extends Security> securities) {
+  public static SecurityEnhancerRequest create(Iterable<? extends Security> securities) {
     SecurityEnhancerRequest request = new SecurityEnhancerRequest();
     request.addSecurities(securities);
     return request;
@@ -91,7 +90,7 @@ public class SecurityEnhancerRequest extends DirectBean {
    * 
    * @param securities  the securities to enhance, not null
    */
-  public void addSecurities(Collection<? extends Security> securities) {
+  public void addSecurities(Iterable<? extends Security> securities) {
     ArgumentChecker.notNull(securities, "securities");
     Iterables.addAll(getSecurities(), securities);
   }
