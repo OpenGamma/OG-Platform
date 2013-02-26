@@ -10,6 +10,7 @@ import java.util.List;
 
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.Trade;
+import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -39,7 +40,16 @@ import com.opengamma.util.ArgumentChecker;
       updated = result.isUpdated();
     } else if (row.getPositionId() != null) {
       ResultsCache.Result result = cache.getEntity(row.getPositionId().getObjectId());
-      quantity = ((Position) result.getValue()).getQuantity();
+      // this could be SimplePosition or ManageablePosition
+      // TODO remove this when the object model is fixed ManageablePosition implements Position
+      if (result.getValue() instanceof ManageablePosition) {
+        quantity = ((ManageablePosition) result.getValue()).getQuantity();
+      } else if (result.getValue() instanceof Position) {
+        quantity = ((Position) result.getValue()).getQuantity();
+      } else {
+        throw new IllegalArgumentException("Unexpected type " + result.getValue().getClass().getName() + " for ID " +
+                                               row.getPositionId());
+      }
       updated = result.isUpdated();
     } else {
       quantity = null;
