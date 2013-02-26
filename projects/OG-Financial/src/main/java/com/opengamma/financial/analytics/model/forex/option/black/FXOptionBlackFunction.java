@@ -183,7 +183,7 @@ public abstract class FXOptionBlackFunction extends AbstractFunction.NonCompiled
     final ValueRequirement fxVolatilitySurface = getSurfaceRequirement(surfaceName, putCurrency, callCurrency, interpolatorName, leftExtrapolatorName, rightExtrapolatorName);
     final ValueRequirement spotRequirement = CurrencyMatrixSourcingFunction.getConversionRequirement(putCurrency, callCurrency);
     final ValueRequirement pairQuoteRequirement = new ValueRequirement(ValueRequirementNames.CURRENCY_PAIRS, ComputationTargetSpecification.NULL);
-    return Sets.newHashSet(putFundingCurve, callFundingCurve, fxVolatilitySurface, spotRequirement, pairQuoteRequirement); 
+    return Sets.newHashSet(putFundingCurve, callFundingCurve, fxVolatilitySurface, spotRequirement, pairQuoteRequirement);
   }
 
   protected abstract ValueProperties.Builder getResultProperties(final ComputationTarget target);
