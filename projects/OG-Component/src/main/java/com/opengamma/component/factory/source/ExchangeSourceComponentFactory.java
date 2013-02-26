@@ -61,7 +61,7 @@ public class ExchangeSourceComponentFactory extends AbstractComponentFactory {
   //-------------------------------------------------------------------------
   /**
    * Initializes the exchange source, setting up component information and REST.
-   * Override using {@link #createCurrencyPairsSource(ComponentRepository)}.
+   * Override using {@link #createExchangeSource(ComponentRepository)}.
    * 
    * @param repo  the component repository, not null
    * @param configuration  the remaining configuration, not null

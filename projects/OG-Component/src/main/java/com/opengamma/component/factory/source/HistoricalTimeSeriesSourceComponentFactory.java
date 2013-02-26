@@ -75,7 +75,8 @@ public class HistoricalTimeSeriesSourceComponentFactory extends AbstractComponen
   //-------------------------------------------------------------------------
   /**
    * Initializes the HTS source, setting up component information and REST.
-   * Override using {@link #createCurrencyPairsSource(ComponentRepository)}.
+   * Override using {@link #createResolver(ComponentRepository)} and
+   * {@link #createSource(ComponentRepository, HistoricalTimeSeriesResolver)}.
    * 
    * @param repo  the component repository, not null
    * @param configuration  the remaining configuration, not null

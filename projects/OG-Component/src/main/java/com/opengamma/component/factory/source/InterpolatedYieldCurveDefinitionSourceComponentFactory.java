@@ -61,7 +61,7 @@ public class InterpolatedYieldCurveDefinitionSourceComponentFactory extends Abst
   //-------------------------------------------------------------------------
   /**
    * Initializes the source, setting up component information and REST.
-   * Override using {@link #createCurrencyPairsSource(ComponentRepository)}.
+   * Override using {@link #createInterpolatedYieldCurveDefinitionSource(ComponentRepository)}.
    * 
    * @param repo  the component repository, not null
    * @param configuration  the remaining configuration, not null
