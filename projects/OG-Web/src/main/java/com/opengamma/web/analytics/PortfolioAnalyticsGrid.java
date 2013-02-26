@@ -57,7 +57,7 @@ import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
     return new PortfolioAnalyticsGrid(gridStructure, gridId, targetResolver, viewportListener);
   }
 
-  /* package */ List<String> updateEntity(ObjectId id, ResultsCache cache) {
+  /* package */ List<String> updateEntities(ResultsCache cache, List<ObjectId> entityIds) {
     List<String> ids = Lists.newArrayList();
     for (MainGridViewport viewport : getViewports().values()) {
       viewport.updateResults(cache);

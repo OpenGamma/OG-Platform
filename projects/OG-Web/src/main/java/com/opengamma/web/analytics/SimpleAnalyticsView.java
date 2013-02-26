@@ -17,13 +17,17 @@ import com.google.common.collect.Lists;
 import com.opengamma.core.change.ChangeEvent;
 import com.opengamma.core.change.ChangeType;
 import com.opengamma.core.position.Portfolio;
+import com.opengamma.core.position.Position;
+import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.PortfolioMapper;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
 
@@ -245,14 +249,31 @@ import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
     ChangeEvent event = notification.getEvent();
     if (isChangeRelevant(event)) {
       if (event.getType() == ChangeType.REMOVED) {
+        // TODO clean up trades from cache if this is a position that has been removed
         _cache.remove(notification.getEntity().getUniqueId().getObjectId());
         _portfolioGrid = _portfolioGrid.withUpdatedRows(_portfolioSupplier.get());
         // return the IDs of all grids because the portfolio structure has changed
         // TODO if we had separate IDs for rows and columns it would save the client rebuilding the column metadata
         return getGridIds();
       } else {
-        _cache.put(notification.getEntity());
-        return _portfolioGrid.updateEntity(event.getObjectId(), _cache);
+        UniqueIdentifiable entity = notification.getEntity();
+        _cache.put(entity);
+        List<ObjectId> entityIds = Lists.newArrayList(entity.getUniqueId().getObjectId());
+        // TODO get rid of this duplication when ManageablePosition implements Position
+        // TODO would it be nicer to have a getEntities() method on MasterChangeNotification?
+        // would need different impls for different entity types. probably not worth it
+        if (entity instanceof Position) {
+          for (Trade trade : ((Position) entity).getTrades()) {
+            entityIds.add(trade.getUniqueId().getObjectId());
+            _cache.put(trade);
+          }
+        } else if (entity instanceof ManageablePosition) {
+          for (Trade trade : ((ManageablePosition) entity).getTrades()) {
+            entityIds.add(trade.getUniqueId().getObjectId());
+            _cache.put(trade);
+          }
+        }
+        return _portfolioGrid.updateEntities(_cache, entityIds);
       }
     } else {
       return Collections.emptyList();
