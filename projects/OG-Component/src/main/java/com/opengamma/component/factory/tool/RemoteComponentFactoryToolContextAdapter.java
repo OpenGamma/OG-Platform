@@ -19,12 +19,26 @@ import com.opengamma.financial.tool.ToolContext;
  */
 public class RemoteComponentFactoryToolContextAdapter extends ToolContext {
 
+  /**
+   * A set of classifiers to search for.
+   */
   private static final List<String> DEFAULT_CLASSIFIER_CHAIN = Arrays.asList(new String[] {"central", "main", "default", "shared", "combined" });
-  
+
+  /**
+   * Creates an instance.
+   * 
+   * @param remoteComponentFactory  the remote factory, not null
+   */
   public RemoteComponentFactoryToolContextAdapter(RemoteComponentFactory remoteComponentFactory) {
     this(remoteComponentFactory, DEFAULT_CLASSIFIER_CHAIN);
   }
-      
+
+  /**
+   * Creates an instance.
+   * 
+   * @param remoteComponentFactory  the remote factory, not null
+   * @param classifierPreferences  the classifiers to search for, not null
+   */
   public RemoteComponentFactoryToolContextAdapter(RemoteComponentFactory remoteComponentFactory, List<String> classifierPreferences) {
     setConfigMaster(remoteComponentFactory.getConfigMaster(classifierPreferences));
     setExchangeMaster(remoteComponentFactory.getExchangeMaster(classifierPreferences));
@@ -35,6 +49,7 @@ public class RemoteComponentFactoryToolContextAdapter extends ToolContext {
     setPortfolioMaster(remoteComponentFactory.getPortfolioMaster(classifierPreferences));
     setHistoricalTimeSeriesMaster(remoteComponentFactory.getHistoricalTimeSeriesMaster(classifierPreferences));
     setMarketDataSnapshotMaster(remoteComponentFactory.getMarketDataSnapshotMaster(classifierPreferences));
+    
     setConfigSource(remoteComponentFactory.getConfigSource(classifierPreferences));
     setExchangeSource(remoteComponentFactory.getExchangeSource(classifierPreferences));
     setHolidaySource(remoteComponentFactory.getHolidaySource(classifierPreferences));
@@ -43,6 +58,7 @@ public class RemoteComponentFactoryToolContextAdapter extends ToolContext {
     setPositionSource(remoteComponentFactory.getPositionSource(classifierPreferences));
     setHistoricalTimeSeriesSource(remoteComponentFactory.getHistoricalTimeSeriesSource(classifierPreferences));
     setMarketDataSnapshotSource(remoteComponentFactory.getMarketDataSnapshotSource(classifierPreferences));
+    
     // this may need customizing per-project
     setConventionBundleSource(new DefaultConventionBundleSource(new InMemoryConventionBundleMaster()));
   }
@@ -51,5 +67,5 @@ public class RemoteComponentFactoryToolContextAdapter extends ToolContext {
   public void close() {
     // No need to shutdown remote components
   }
-  
+
 }
