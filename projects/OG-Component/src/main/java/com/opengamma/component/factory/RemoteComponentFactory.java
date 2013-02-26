@@ -52,7 +52,9 @@ import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.impl.RemoteConfigMaster;
 import com.opengamma.master.exchange.ExchangeMaster;
 import com.opengamma.master.exchange.impl.RemoteExchangeMaster;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesLoader;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
+import com.opengamma.master.historicaltimeseries.impl.RemoteHistoricalTimeSeriesLoader;
 import com.opengamma.master.historicaltimeseries.impl.RemoteHistoricalTimeSeriesMaster;
 import com.opengamma.master.holiday.HolidayMaster;
 import com.opengamma.master.holiday.impl.RemoteHolidayMaster;
@@ -503,6 +505,36 @@ public class RemoteComponentFactory {
     Map<String, HistoricalTimeSeriesMaster> result = new LinkedHashMap<String, HistoricalTimeSeriesMaster>();
     for (ComponentInfo info : getComponentServer().getComponentInfos(HistoricalTimeSeriesMaster.class)) {
       result.put(info.getClassifier(), new RemoteHistoricalTimeSeriesMaster(info.getUri()));
+    }
+    return result;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * @param name the classifier name of the object you want to retrieve
+   * @return the interface requested, or null if not present
+   */
+  public HistoricalTimeSeriesLoader getHistoricalTimeSeriesLoader(final String name) {
+    URI uri = getComponentServer().getComponentInfo(HistoricalTimeSeriesLoader.class, name).getUri();
+    return new RemoteHistoricalTimeSeriesLoader(uri);
+  }
+
+  /**
+   * @param preferredClassifiers a list of names of classifiers in order of preference (most preferred first), or null
+   * @return the best matching interface available
+   */
+  public HistoricalTimeSeriesLoader getHistoricalTimeSeriesLoader(final List<String> preferredClassifiers) {
+    URI uri = getTopLevelComponent(preferredClassifiers, HistoricalTimeSeriesLoader.class).getUri();
+    return new RemoteHistoricalTimeSeriesLoader(uri);
+  }
+
+  /**
+   * @return a map of classifier names to requested interface type
+   */
+  public Map<String, HistoricalTimeSeriesLoader> getHistoricalTimeSeriesLoaders() {
+    Map<String, HistoricalTimeSeriesLoader> result = new LinkedHashMap<String, HistoricalTimeSeriesLoader>();
+    for (ComponentInfo info : getComponentServer().getComponentInfos(HistoricalTimeSeriesLoader.class)) {
+      result.put(info.getClassifier(), new RemoteHistoricalTimeSeriesLoader(info.getUri()));
     }
     return result;
   }

@@ -255,7 +255,7 @@ public class DemoEquityOptionCollarPortfolioLoader extends AbstractTool<Integrat
       s_logger.info("Using time {} for bucket {} ({})", new Object[] {chosenExpiry, bucketPeriod, targetExpiry });
 
       final Set<BloombergTickerParserEQOption> optionsAtExpiry = optionsByExpiry.get(chosenExpiry);
-      final TreeMap<Double, Pair<BloombergTickerParserEQOption, BloombergTickerParserEQOption>> optionsByStrike = new TreeMap<Double, Pair<BloombergTickerParserEQOption, BloombergTickerParserEQOption>>();
+      final TreeMap<Double, Pair<BloombergTickerParserEQOption, BloombergTickerParserEQOption>> optionsByStrike = new TreeMap<>();
       for (final BloombergTickerParserEQOption option : optionsAtExpiry) {
         //        s_logger.info("option {}", option);
         final double key = option.getStrike();
@@ -496,7 +496,8 @@ public class DemoEquityOptionCollarPortfolioLoader extends AbstractTool<Integrat
       }
     }
     final ExternalIdBundle searchBundle = idBundle.withoutScheme(ExternalSchemes.ISIN); // For things which move country, e.g. ISIN(VALE5 BZ Equity) == ISIN(RIODF US Equity)
-    final Map<ExternalId, UniqueId> timeSeries = getToolContext().getHistoricalTimeSeriesLoader().addTimeSeries(searchBundle.getExternalIds(), "UNKNOWN", "PX_LAST", LocalDate.now().minusYears(1), null);
+    final Map<ExternalId, UniqueId> timeSeries = getToolContext().getHistoricalTimeSeriesLoader()
+        .loadTimeSeries(searchBundle.getExternalIds(), "UNKNOWN", "PX_LAST", LocalDate.now().minusYears(1), null);
     if (timeSeries.size() != 1) {
       throw new OpenGammaRuntimeException("Failed to load time series " + idBundle + " " + timeSeries);
     }
