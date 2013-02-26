@@ -179,7 +179,7 @@ public class PortfolioConverter {
   private ManageableTrade convertTrade(Trade trade, Security security) {
 
     // Would anything other than 1 for quantity make sense here (for OTC trades)?
-    ManageableTrade manageableTrade = new ManageableTrade(BigDecimal.ONE,
+    ManageableTrade manageableTrade = new ManageableTrade(trade.getQuantity(),
                                                           security.getExternalIdBundle(),
                                                           trade.getTradeDate(),
                                                           null,

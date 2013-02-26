@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<og-portfolio schemaVersion="1.0">
+
+  <trades>
+    <listedEquityIndexOptionTrade id="t1">
+
+      <externalSystemId><id scheme="External">IdFromExternalSystem1</id></externalSystemId>
+
+      <tradeDate>2013-01-20</tradeDate>
+      <counterparty><id scheme="Cpty">GOLDMAN</id></counterparty>
+
+      <premium>250</premium>
+      <premiumCurrency>EUR</premiumCurrency>
+      <premiumSettlementDate>2013-01-22</premiumSettlementDate>
+
+      <callPut>Put</callPut>
+      <buySell>Buy</buySell>
+
+      <underlying><id scheme="BLOOMBERG_TICKER">EI09SPX</id></underlying>
+
+
+      <!--
+Price        (strike?)
+Executing broker
+Clearing broker
+array of "fees" which could be executing broker, clearing fee, taxes all of them are <type, amount, currency>
+
+Futures:
+same as equities
+expiry (MAR13 format)
+
+Options:
+same as futures (except for price)
+call/put
+Premium
+strike
+      -->
+
+      <strike>600</strike>
+
+      <futureExpiry>MAR15</futureExpiry>
+      <!--
+      At some point we may want to allow mid curve future options where
+      option expiry is significantly earlier than the underlying future
+      -->
+      <optionExpiry>MAR15</optionExpiry>
+      <exerciseType>European</exerciseType>
+
+      <numContracts>100000</numContracts>
+
+      <pointValue>100</pointValue>
+      <exchange>CME</exchange>
+
+      <broker type="executing"><id scheme="BROKER">executingbrokerId</id></broker>
+      <broker type="clearing"><id scheme="BROKER">clearingbrokerId</id></broker>
+
+      <fees>
+        <fee type="clearingFee"><monetaryAmount currency="EUR">150</monetaryAmount></fee>
+        <fee type="xyzTax"><monetaryAmount currency="EUR">30</monetaryAmount></fee>
+      </fees>
+
+    </listedEquityIndexOptionTrade>
+  </trades>
+
+  <portfolios>
+    <portfolio name="listed_equity_index_portfolio">
+      <trades>
+        <trade ref="t1"/>
+      </trades>
+    </portfolio>
+  </portfolios>
+
+</og-portfolio>

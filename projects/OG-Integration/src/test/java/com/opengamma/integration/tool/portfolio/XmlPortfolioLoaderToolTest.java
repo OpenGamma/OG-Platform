@@ -7,6 +7,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.List;
 
 import javax.xml.xpath.XPathExpressionException;
@@ -28,6 +29,7 @@ import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.portfolio.PortfolioSearchRequest;
 import com.opengamma.master.portfolio.impl.InMemoryPortfolioMaster;
+import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.position.PositionSearchRequest;
 import com.opengamma.master.position.impl.InMemoryPositionMaster;
@@ -240,7 +242,27 @@ public class XmlPortfolioLoaderToolTest {
     new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, true, false, false, false, true).execute();
 
     assertEquals(_portfolioMaster.search(new PortfolioSearchRequest()).getPortfolios().size(), 1);
-    assertEquals(_positionMaster.search(new PositionSearchRequest()).getPositions().size(), 1);
+    List<ManageablePosition> positions = _positionMaster.search(new PositionSearchRequest()).getPositions();
+    assertEquals(positions.size(), 1);
+
+    assertEquals(Iterables.getOnlyElement(positions.get(0).getTrades()).getQuantity(), new BigDecimal(250000));
+    assertEquals(_securityMaster.search(new SecuritySearchRequest()).getSecurities().size(), 1);
+  }
+
+  @Test
+  public void testSinglePortfolioNoPositionListedEquityIndexOption() {
+
+    // We should get a position automatically generated for the trade
+    String fileLocation = "src/test/resources/xml_portfolios/listed_equity_index_option.xml";
+    File file = new File(fileLocation);
+    new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, true, false, false, false, true).execute();
+
+    assertEquals(_portfolioMaster.search(new PortfolioSearchRequest()).getPortfolios().size(), 1);
+    List<ManageablePosition> positions = _positionMaster.search(new PositionSearchRequest()).getPositions();
+    assertEquals(positions.size(), 1);
+
+    assertEquals(Iterables.getOnlyElement(positions.get(0).getTrades()).getQuantity(), new BigDecimal(100000));
+
     assertEquals(_securityMaster.search(new SecuritySearchRequest()).getSecurities().size(), 1);
   }
 
