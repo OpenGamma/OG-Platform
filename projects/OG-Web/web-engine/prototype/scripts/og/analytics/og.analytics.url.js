@@ -54,7 +54,7 @@ $.register_module({
                             url.main($.extend({}, og.analytics.grid.source, {type: view}));
                         }).on('fatal', url.clear_main);
                         if (og.analytics.blotter) og.analytics.grid.on('contextmenu', function (event, cell, col) {
-                            if (cell) return og.blotter.contextmenu(cell);
+                            if (cell) return og.blotter.contextmenu(cell, event);
                         });
                     } else {
                         new og.analytics.Form2({callback: og.analytics.url.main, data: config.main});
