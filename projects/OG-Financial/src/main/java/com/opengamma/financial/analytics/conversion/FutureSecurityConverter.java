@@ -36,7 +36,7 @@ import com.opengamma.util.ArgumentChecker;
  *
  */
 public class FutureSecurityConverter extends FinancialSecurityVisitorAdapter<InstrumentDefinitionWithData<?, Double>>
-  implements FinancialSecurityVisitorWithData<Double, InstrumentDefinitionWithData<?, Double>> {
+    implements FinancialSecurityVisitorWithData<Double, InstrumentDefinitionWithData<?, Double>> {
   private final InterestRateFutureSecurityConverter _irFutureConverter;
   private final BondFutureSecurityConverter _bondFutureConverter;
 
@@ -47,6 +47,7 @@ public class FutureSecurityConverter extends FinancialSecurityVisitorAdapter<Ins
 
   @Override
   public InstrumentDefinitionWithData<?, Double> visit(final FutureSecurity future, final Double referencePrice) {
+
     final FinancialSecurityVisitor<InstrumentDefinitionWithData<?, Double>> visitor = new FinancialSecurityVisitorAdapter<InstrumentDefinitionWithData<?, Double>>() {
 
       @Override
@@ -102,9 +103,9 @@ public class FutureSecurityConverter extends FinancialSecurityVisitorAdapter<Ins
       public InstrumentDefinitionWithData<?, Double> visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
         final InterestRateFutureTransactionDefinition securityDefinition = (InterestRateFutureTransactionDefinition) security.accept(_irFutureConverter);
         return securityDefinition;
-//      new InterestRateFutureTransactionDefinition(securityDefinition.getLastTradingDate(), referencePrice, 
-//      securityDefinition.getLastTradingDate(), securityDefinition.getIborIndex(),
-//      securityDefinition.getNotional(), securityDefinition.getPaymentAccrualFactor(), 1, securityDefinition.getName());
+        //      new InterestRateFutureTransactionDefinition(securityDefinition.getLastTradingDate(), referencePrice, 
+        //      securityDefinition.getLastTradingDate(), securityDefinition.getIborIndex(),
+        //      securityDefinition.getNotional(), securityDefinition.getPaymentAccrualFactor(), 1, securityDefinition.getName());
       }
 
       @SuppressWarnings("synthetic-access")
@@ -114,6 +115,7 @@ public class FutureSecurityConverter extends FinancialSecurityVisitorAdapter<Ins
       }
 
     };
+
     return future.accept(visitor);
   }
 
@@ -144,7 +146,7 @@ public class FutureSecurityConverter extends FinancialSecurityVisitorAdapter<Ins
 
   @Override
   public InstrumentDefinitionWithData<?, Double> visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
-    return (InterestRateFutureSecurityDefinition) security.accept(_irFutureConverter); 
+    return (InterestRateFutureSecurityDefinition) security.accept(_irFutureConverter);
   }
 
   @Override
