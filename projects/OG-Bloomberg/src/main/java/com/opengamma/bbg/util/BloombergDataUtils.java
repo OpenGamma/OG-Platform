@@ -5,6 +5,8 @@
  */
 package com.opengamma.bbg.util;
 
+import static com.opengamma.bbg.BloombergConstants.DATA_PROVIDER_UNKNOWN;
+import static com.opengamma.bbg.BloombergConstants.EXCHANGE_DATA_PROVIDER;
 import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_CHAIN;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ID_BBG_UNIQUE;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ID_CUSIP;
@@ -12,6 +14,7 @@ import static com.opengamma.bbg.BloombergConstants.FIELD_ID_ISIN;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ID_SEDOL1;
 import static com.opengamma.bbg.BloombergConstants.FIELD_OPT_CHAIN;
 import static com.opengamma.bbg.BloombergConstants.FIELD_PARSEKYABLE_DES;
+import static com.opengamma.bbg.BloombergConstants.EXCHANGE_OBSERVATION_TIME;
 import static com.opengamma.bbg.BloombergConstants.ON_OFF_FIELDS;
 import static org.threeten.bp.temporal.ChronoField.DAY_OF_MONTH;
 import static org.threeten.bp.temporal.ChronoField.MONTH_OF_YEAR;
@@ -191,16 +194,12 @@ public final class BloombergDataUtils {
   /**
    * The observation time map.
    */
-  private static final Map<String, String> OBSERVATION_TIME_MAP =
-      ImmutableMap.<String, String>builder().put("CMPL", "LONDON_CLOSE").put("CMPT", "TOKYO_CLOSE").put("CMPN", "NEWYORK_CLOSE").build();
-  /**
-   * The unknown data provider.
-   */
-  public static final String UNKNOWN_DATA_PROVIDER = "UNKNOWN";
-  /**
-   * The unknown observation time.
-   */
-  public static final String UNKNOWN_OBSERVATION_TIME = "UNKNOWN";
+  private static final Map<String, String> s_observationTimeMap = ImmutableMap.<String, String>builder()
+      .put("CMPL", "LONDON_CLOSE")
+      .put("CMPT", "TOKYO_CLOSE")
+      .put("CMPN", "NEWYORK_CLOSE")
+      .put(EXCHANGE_DATA_PROVIDER, EXCHANGE_OBSERVATION_TIME)
+      .build();
 
   /**
    * Restricted constructor.
@@ -860,7 +859,7 @@ public final class BloombergDataUtils {
    * @return the resolver data provider, not null
    */
   public static String resolveDataProvider(String dataProvider) {
-    return (dataProvider == null ? UNKNOWN_DATA_PROVIDER : dataProvider);
+    return (dataProvider == null || dataProvider.equalsIgnoreCase(DATA_PROVIDER_UNKNOWN) ? EXCHANGE_DATA_PROVIDER : dataProvider);
   }
 
   /**
@@ -869,15 +868,15 @@ public final class BloombergDataUtils {
    * @param dataProvider  the data provider, null returns the unknown value
    * @return the corresponding observation time for the given data provider
    */
-  public static String resolveObservationTime(final String dataProvider) {
-    if (dataProvider == null) {
-      return UNKNOWN_OBSERVATION_TIME;
+  public static String resolveObservationTime(String dataProvider) {
+    if (dataProvider == null || dataProvider.equalsIgnoreCase(DATA_PROVIDER_UNKNOWN) || dataProvider.equalsIgnoreCase(EXCHANGE_DATA_PROVIDER)) {
+      dataProvider = EXCHANGE_DATA_PROVIDER;
     }
-    String observationTime = OBSERVATION_TIME_MAP.get(dataProvider);
-    return (observationTime == null ? UNKNOWN_OBSERVATION_TIME : observationTime);
+    return s_observationTimeMap.get(dataProvider);
+    
   }
 
-  private static DateTimeFormatter BLOOMBERG_DATE_FORMATTER = new DateTimeFormatterBuilder()
+  private static DateTimeFormatter s_bloombergDateFormatter = new DateTimeFormatterBuilder()
     .parseCaseInsensitive()
     .appendValue(YEAR, 4)
     .appendValue(MONTH_OF_YEAR, 2)
@@ -886,7 +885,7 @@ public final class BloombergDataUtils {
 
   public static String toBloombergDate(LocalDate localDate) {
     localDate = localDate.withYear(Math.min(9999, localDate.getYear()));
-    return localDate.toString(BLOOMBERG_DATE_FORMATTER);
+    return localDate.toString(s_bloombergDateFormatter);
   }
   
   /**
