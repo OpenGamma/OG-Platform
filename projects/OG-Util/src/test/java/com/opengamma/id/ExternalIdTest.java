@@ -12,7 +12,7 @@ import org.testng.annotations.Test;
 /**
  * Test {@link ExternalId}. 
  */
-@Test
+@Test(groups = "unit")
 public class ExternalIdTest {
 
   private static final ExternalScheme SCHEME = ExternalScheme.of("Scheme");
@@ -49,7 +49,7 @@ public class ExternalIdTest {
       for (String value : strs) {
         final ExternalId testEID = ExternalId.of(scheme, value);
         final String testStr = testEID.toString();
-        System.out.println("scheme = " + scheme + ", value = " + value + ", eid = " + testEID.toString());
+        // System.out.println("scheme = " + scheme + ", value = " + value + ", eid = " + testEID.toString());
         final ExternalId eid = ExternalId.parse(testStr);
         assertEquals(testEID, eid);
       }

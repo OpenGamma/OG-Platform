@@ -20,7 +20,7 @@ import org.threeten.bp.ZonedDateTime;
 /**
  * Test.
  */
-@Test
+@Test(groups = "unit")
 public class FlexiDateTimeTest {
 
   private static final LocalDate DATE = LocalDate.of(2010, 7, 1);

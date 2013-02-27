@@ -16,7 +16,7 @@ import org.threeten.bp.LocalDate;
 /**
  * Test {@link ExternalIdWithDates}. 
  */
-@Test
+@Test(groups = "unit")
 public class ExternalIdWithDatesTest {
 
   private static final ExternalScheme SCHEME = ExternalScheme.of("Scheme");

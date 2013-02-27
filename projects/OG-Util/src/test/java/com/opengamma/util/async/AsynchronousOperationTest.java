@@ -20,7 +20,7 @@ import com.opengamma.util.test.Timeout;
 /**
  * Tests the {@link AsynchronousOperation} and related classes.
  */
-@Test
+@Test(groups = "integration")
 public class AsynchronousOperationTest {
 
   private static final String RESULT = "Foo";

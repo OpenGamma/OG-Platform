@@ -14,7 +14,7 @@ import org.testng.annotations.Test;
 /**
  * Test MagnitudeDoublesPairComparator.
  */
-@Test
+@Test(groups = "unit")
 public class MagnitudeDoublesPairComparatorTest {
 
   public void testCompare_differentQuadrants() {

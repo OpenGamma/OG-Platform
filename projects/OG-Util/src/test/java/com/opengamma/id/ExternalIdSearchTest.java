@@ -23,7 +23,7 @@ import com.google.common.collect.Sets;
 /**
  * Test {@link ExternalIdSearch}.
  */
-@Test
+@Test(groups = "unit")
 public class ExternalIdSearchTest {
 
   private final ExternalId _id11 = ExternalId.of("D1", "V1");

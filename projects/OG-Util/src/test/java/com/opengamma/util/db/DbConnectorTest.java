@@ -19,7 +19,7 @@ import com.jolbox.bonecp.BoneCPDataSource;
 /**
  * Test.
  */
-@Test
+@Test(groups = "unit")
 public class DbConnectorTest {
 
   //-------------------------------------------------------------------------

@@ -84,7 +84,7 @@ public class JmsBatchMessageDispatcherTest {
     while(actualTotal < totalSize) {
       while(batchSizes.isEmpty()) {
         Thread.sleep(100);
-        if((System.currentTimeMillis() - startTime) > 5000l) {
+        if ((System.currentTimeMillis() - startTime) > 5000l) {
           fail("Did not receive a batch in 5 seconds.");
         }
       }
@@ -95,7 +95,7 @@ public class JmsBatchMessageDispatcherTest {
         batchSizes.clear();
       }
       
-      if((System.currentTimeMillis() - startTime) > 5000l) {
+      if ((System.currentTimeMillis() - startTime) > 5000l) {
         fail("Did not receive expected total batches in 5 seconds.");
       }
     }

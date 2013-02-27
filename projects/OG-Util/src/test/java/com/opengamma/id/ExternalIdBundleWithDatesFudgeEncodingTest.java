@@ -16,7 +16,7 @@ import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 /**
  * Test Fudge encoding.
  */
-@Test
+@Test(groups = "unit")
 public class ExternalIdBundleWithDatesFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
 
   private static final LocalDate VALID_FROM = LocalDate.of(2010, JANUARY, 1);

@@ -16,7 +16,7 @@ import org.testng.annotations.Test;
 /**
  * Test Triple.
  */
-@Test
+@Test(groups = "unit")
 public class TripleTest {
 
   public void testOf_Object_Object() {

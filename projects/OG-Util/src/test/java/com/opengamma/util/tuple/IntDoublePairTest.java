@@ -13,7 +13,7 @@ import org.testng.annotations.Test;
 /**
  * Test IntDoublePair.
  */
-@Test
+@Test(groups = "unit")
 public class IntDoublePairTest {
 
   public void test_IntDoublePair_of() {
