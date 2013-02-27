@@ -154,7 +154,7 @@ $.register_module({
                 }
                 if (trade.counterParty) trade.counterParty =
                     trade.counterParty.split('~')[1] || trade.counterParty;
-                if (trade.quantity) trade.quantity = trade.quantity.replace(/[,.]/g, '');
+                if (trade.quantity) trade.quantity = trade.quantity.replace(/[,]/g, '');
                 if (trade.currency) trade.premiumCurrency = trade.currency, delete trade.currency;
                 if (trade.attributes && trade.attributes.dealAttributes) {
                     for (deal in trade.attributes.dealAttributes) {
