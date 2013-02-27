@@ -550,7 +550,7 @@ public class DemoEquityOptionCollarPortfolioLoader extends AbstractTool<Integrat
   private ManageableSecurity loadSecurity(final ExternalId ticker) {
     final ExternalIdBundle tickerBundle = ExternalIdBundle.of(ticker);
     final Collection<ExternalIdBundle> bundles = Collections.singleton(tickerBundle);
-    final Map<ExternalIdBundle, UniqueId> loaded = getToolContext().getSecurityLoader().loadSecurity(bundles);
+    final Map<ExternalIdBundle, UniqueId> loaded = getToolContext().getSecurityLoader().loadSecurities(bundles);
     final UniqueId loadedSec = loaded.get(tickerBundle);
     if (loadedSec == null) {
       throw new OpenGammaRuntimeException("Failed to load security for " + ticker);

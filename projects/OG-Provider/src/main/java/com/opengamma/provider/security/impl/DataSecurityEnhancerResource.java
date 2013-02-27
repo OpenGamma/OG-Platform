@@ -47,9 +47,9 @@ public class DataSecurityEnhancerResource extends AbstractDataResource {
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the security enhancer.
+   * Gets the underlying security enhancer.
    * 
-   * @return the security enhancer, not null
+   * @return the underlying security enhancer, not null
    */
   public SecurityEnhancer getSecurityEnhancer() {
     return _securityEnhancer;

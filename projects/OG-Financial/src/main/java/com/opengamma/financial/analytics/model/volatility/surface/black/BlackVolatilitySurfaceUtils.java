@@ -10,7 +10,9 @@ import it.unimi.dsi.fastutil.doubles.DoubleLinkedOpenHashSet;
 import it.unimi.dsi.fastutil.doubles.DoubleList;
 
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -81,6 +83,34 @@ public class BlackVolatilitySurfaceUtils {
     return Pair.of(fullStrikes, fullValues);
   }
 
+  public static Triple<double[], double[][], double[][]> getStrikesAndValues(final double[] expiries, final double[] strikes, final VolatilitySurfaceData<Object, Object> volatilitySurface,
+      final int minNumberOfStrikes) {
+    final int nExpiries = expiries.length;
+    final int nStrikes = strikes.length;
+    final List<double[]> fullStrikes = new ArrayList<>();
+    final List<double[]> fullValues = new ArrayList<>();
+    final DoubleList availableExpiries = new DoubleArrayList();
+    for (int i = 0; i < nExpiries; i++) {
+      final DoubleList availableStrikes = new DoubleArrayList();
+      final DoubleList availableVols = new DoubleArrayList();
+      for (int j = 0; j < nStrikes; j++) {
+        final Double vol = volatilitySurface.getVolatility(expiries[i], strikes[j]);
+        if (vol != null) {
+          availableStrikes.add(strikes[j]);
+          availableVols.add(vol);
+        }
+      }
+      if (availableVols.size() == 0) {
+        throw new OpenGammaRuntimeException("No volatility values found for expiry " + expiries[i]);
+      } else if (availableVols.size() >= minNumberOfStrikes) {
+        availableExpiries.add(expiries[i]);
+        fullStrikes.add(availableStrikes.toDoubleArray());
+        fullValues.add(availableVols.toDoubleArray());
+      }
+    }
+    return new Triple<>(availableExpiries.toDoubleArray(), fullStrikes.toArray(new double[0][]), fullValues.toArray(new double[0][]));
+  }
+
   public static Triple<double[], double[][], double[][]> getStrippedStrikesAndValues(final VolatilitySurfaceData<Object, Object> volatilitySurface) {
     final Object[] expiries = getUniqueExpiriesWithData(volatilitySurface);
     final Object[] strikeValues = volatilitySurface.getYs();
@@ -101,7 +131,7 @@ public class BlackVolatilitySurfaceUtils {
       strikes[i] = availableStrikes.toDoubleArray();
       values[i] = availableVols.toDoubleArray();
     }
-    return new Triple<double[], double[][], double[][]>(getArrayOfDoubles(expiries), strikes, values);
+    return new Triple<>(getArrayOfDoubles(expiries), strikes, values);
   }
 
   public static SmileSurfaceDataBundle getDataFromStandardQuotes(final ForwardCurve forwardCurve, final VolatilitySurfaceData<Object, Object> volatilitySurface) {
@@ -111,6 +141,16 @@ public class BlackVolatilitySurfaceUtils {
     // Convert vols and strikes to double[][],
     // noting that different expiries may have different populated strikes
     return new StandardSmileSurfaceDataBundle(forwardCurve, uniqueExpiries, strikesAndValues.getFirst(), strikesAndValues.getSecond());
+  }
+
+  public static SmileSurfaceDataBundle getDataFromStandardQuotes(final ForwardCurve forwardCurve, final VolatilitySurfaceData<Object, Object> volatilitySurface,
+      final int minNumberOfStrikes) {
+    final double[] uniqueExpiries = getUniqueExpiries(volatilitySurface);
+    final double[] uniqueStrikes = getUniqueStrikes(volatilitySurface);
+    final Triple<double[], double[][], double[][]> strikesAndValues = getStrikesAndValues(uniqueExpiries, uniqueStrikes, volatilitySurface, minNumberOfStrikes);
+    // Convert vols and strikes to double[][],
+    // noting that different expiries may have different populated strikes
+    return new StandardSmileSurfaceDataBundle(forwardCurve, strikesAndValues.getFirst(), strikesAndValues.getSecond(), strikesAndValues.getThird());
   }
 
   public static ForexSmileDeltaSurfaceDataBundle getDataFromStrangleRiskReversalQuote(final ForwardCurve forwardCurve,

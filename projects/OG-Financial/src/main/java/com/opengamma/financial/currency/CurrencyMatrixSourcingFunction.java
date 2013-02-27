@@ -432,3 +432,4 @@ public class CurrencyMatrixSourcingFunction extends AbstractFunction.NonCompiled
   }
 
 }
+

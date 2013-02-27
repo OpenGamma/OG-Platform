@@ -24,9 +24,9 @@ import org.slf4j.LoggerFactory;
 import org.threeten.bp.LocalDate;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.bbg.loader.BloombergSecurityLoader;
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.id.ExternalSchemes;
+import com.opengamma.financial.security.DefaultSecurityLoader;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.GICSCode;
 import com.opengamma.id.ExternalId;
@@ -163,9 +163,9 @@ public class ExampleEquityPortfolioLoader extends AbstractTool<IntegrationToolCo
   private Collection<UniqueId> loadSecurities(Collection<ExternalId> identifiers) {
     SecurityMaster securityMaster = getToolContext().getSecurityMaster();
     SecurityProvider securityProvider = getToolContext().getSecurityProvider();
-    BloombergSecurityLoader securityLoader = new BloombergSecurityLoader(securityProvider, securityMaster);
+    DefaultSecurityLoader securityLoader = new DefaultSecurityLoader(securityMaster, securityProvider);
     
-    final Map<ExternalIdBundle, UniqueId> loadedSecurities = securityLoader.loadSecurity(map(identifiers, new Function1<ExternalId, ExternalIdBundle>() {
+    final Map<ExternalIdBundle, UniqueId> loadedSecurities = securityLoader.loadSecurities(map(identifiers, new Function1<ExternalId, ExternalIdBundle>() {
       @Override
       public ExternalIdBundle execute(ExternalId ticker) {
         return ExternalIdBundle.of(ticker);

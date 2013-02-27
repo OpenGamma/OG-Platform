@@ -33,7 +33,6 @@ import com.opengamma.analytics.financial.credit.obligor.Region;
 import com.opengamma.analytics.financial.credit.obligor.Sector;
 import com.opengamma.analytics.financial.credit.obligor.definition.Obligor;
 import com.opengamma.analytics.financial.credit.schedulegeneration.GenerateCreditDefaultSwapPremiumLegSchedule;
-import com.opengamma.analytics.financial.interestrate.PeriodicInterestRate;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -128,8 +127,8 @@ public class RMGridTest {
 
   private static final Calendar calendar = new MondayToFridayCalendar("TestCalendar");
 
-  private static final ZonedDateTime valuationDate = DateUtils.getUTCDate(2013, 1, 30);
-  private static final ZonedDateTime startDate = DateUtils.getUTCDate(2012, 12, 20);
+  private static final ZonedDateTime valuationDate = DateUtils.getUTCDate(2013, 3, 19);
+  private static final ZonedDateTime startDate = DateUtils.getUTCDate(2006, 4, 12);
   private static final ZonedDateTime effectiveDate = valuationDate.plusDays(1); //DateUtils.getUTCDate(2013, 2, 1);
   private static final ZonedDateTime maturityDate = DateUtils.getUTCDate(2023, 3, 20);
 
@@ -291,6 +290,8 @@ public class RMGridTest {
   };
   */
 
+  /*
+  // 30/1/2013
   double[] times = {
       s_act365.getDayCountFraction(baseDate, zdt(2013, 2, 28, 0, 0, 0, 0, ZoneOffset.UTC)),     // 1M     
       s_act365.getDayCountFraction(baseDate, zdt(2013, 3, 29, 0, 0, 0, 0, ZoneOffset.UTC)),     // 2M
@@ -299,9 +300,79 @@ public class RMGridTest {
       s_act365.getDayCountFraction(baseDate, zdt(2013, 10, 30, 0, 0, 0, 0, ZoneOffset.UTC)),    // 9M
       s_act365.getDayCountFraction(baseDate, zdt(2014, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC))      // 1Y
   };
+  */
 
-  //double[] rates = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+  /*
+  double[] times = {
+      s_act365.getDayCountFraction(baseDate, zdt(2013, 3, 15, 0, 0, 0, 0, ZoneOffset.UTC)),     // 1M     
+      s_act365.getDayCountFraction(baseDate, zdt(2013, 4, 15, 0, 0, 0, 0, ZoneOffset.UTC)),     // 2M
+      s_act365.getDayCountFraction(baseDate, zdt(2013, 5, 15, 0, 0, 0, 0, ZoneOffset.UTC)),     // 3M
+      s_act365.getDayCountFraction(baseDate, zdt(2013, 8, 15, 0, 0, 0, 0, ZoneOffset.UTC)),     // 6M
+      s_act365.getDayCountFraction(baseDate, zdt(2013, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC)),    // 9M
+      s_act365.getDayCountFraction(baseDate, zdt(2014, 2, 17, 0, 0, 0, 0, ZoneOffset.UTC))      // 1Y
+  };
+  */
 
+  /*
+  double[] times = {
+      s_act365.getDayCountFraction(baseDate, zdt(2013, 4, 1, 0, 0, 0, 0, ZoneOffset.UTC)),     // 1M     
+      s_act365.getDayCountFraction(baseDate, zdt(2013, 5, 1, 0, 0, 0, 0, ZoneOffset.UTC)),     // 2M
+      s_act365.getDayCountFraction(baseDate, zdt(2013, 6, 3, 0, 0, 0, 0, ZoneOffset.UTC)),     // 3M
+      s_act365.getDayCountFraction(baseDate, zdt(2013, 9, 2, 0, 0, 0, 0, ZoneOffset.UTC)),     // 6M
+      s_act365.getDayCountFraction(baseDate, zdt(2013, 12, 2, 0, 0, 0, 0, ZoneOffset.UTC)),    // 9M
+      s_act365.getDayCountFraction(baseDate, zdt(2014, 3, 3, 0, 0, 0, 0, ZoneOffset.UTC))      // 1Y
+  };
+  */
+
+  // 19/3/2013
+  double[] times = {
+      s_act365.getDayCountFraction(baseDate, zdt(2013, 4, 19, 0, 0, 0, 0, ZoneOffset.UTC)),     // 1M     
+      s_act365.getDayCountFraction(baseDate, zdt(2013, 5, 20, 0, 0, 0, 0, ZoneOffset.UTC)),     // 2M
+      s_act365.getDayCountFraction(baseDate, zdt(2013, 6, 19, 0, 0, 0, 0, ZoneOffset.UTC)),     // 3M
+      s_act365.getDayCountFraction(baseDate, zdt(2013, 9, 19, 0, 0, 0, 0, ZoneOffset.UTC)),     // 6M
+      s_act365.getDayCountFraction(baseDate, zdt(2013, 12, 19, 0, 0, 0, 0, ZoneOffset.UTC)),    // 9M
+      s_act365.getDayCountFraction(baseDate, zdt(2014, 3, 19, 0, 0, 0, 0, ZoneOffset.UTC))      // 1Y
+  };
+
+  /*
+  // 20/3/2013
+  double[] times = {
+      s_act365.getDayCountFraction(baseDate, zdt(2013, 4, 22, 0, 0, 0, 0, ZoneOffset.UTC)),     // 1M     
+      s_act365.getDayCountFraction(baseDate, zdt(2013, 5, 20, 0, 0, 0, 0, ZoneOffset.UTC)),     // 2M
+      s_act365.getDayCountFraction(baseDate, zdt(2013, 6, 20, 0, 0, 0, 0, ZoneOffset.UTC)),     // 3M
+      s_act365.getDayCountFraction(baseDate, zdt(2013, 9, 20, 0, 0, 0, 0, ZoneOffset.UTC)),     // 6M
+      s_act365.getDayCountFraction(baseDate, zdt(2013, 12, 20, 0, 0, 0, 0, ZoneOffset.UTC)),    // 9M
+      s_act365.getDayCountFraction(baseDate, zdt(2014, 3, 20, 0, 0, 0, 0, ZoneOffset.UTC))      // 1Y
+  };
+  */
+
+  /*
+  // 21/3/2013
+  double[] times = {
+      s_act365.getDayCountFraction(baseDate, zdt(2013, 4, 22, 0, 0, 0, 0, ZoneOffset.UTC)),     // 1M     
+      s_act365.getDayCountFraction(baseDate, zdt(2013, 5, 21, 0, 0, 0, 0, ZoneOffset.UTC)),     // 2M
+      s_act365.getDayCountFraction(baseDate, zdt(2013, 6, 21, 0, 0, 0, 0, ZoneOffset.UTC)),     // 3M
+      s_act365.getDayCountFraction(baseDate, zdt(2013, 9, 23, 0, 0, 0, 0, ZoneOffset.UTC)),     // 6M
+      s_act365.getDayCountFraction(baseDate, zdt(2013, 12, 23, 0, 0, 0, 0, ZoneOffset.UTC)),    // 9M
+      s_act365.getDayCountFraction(baseDate, zdt(2014, 3, 20, 0, 0, 0, 0, ZoneOffset.UTC))      // 1Y
+  };
+  */
+
+  /*
+  // 10/6/2013
+  double[] times = {
+      s_act365.getDayCountFraction(baseDate, zdt(2013, 7, 10, 0, 0, 0, 0, ZoneOffset.UTC)),     // 1M     
+      s_act365.getDayCountFraction(baseDate, zdt(2013, 8, 12, 0, 0, 0, 0, ZoneOffset.UTC)),     // 2M
+      s_act365.getDayCountFraction(baseDate, zdt(2013, 9, 10, 0, 0, 0, 0, ZoneOffset.UTC)),     // 3M
+      s_act365.getDayCountFraction(baseDate, zdt(2013, 12, 10, 0, 0, 0, 0, ZoneOffset.UTC)),    // 6M
+      s_act365.getDayCountFraction(baseDate, zdt(2014, 3, 10, 0, 0, 0, 0, ZoneOffset.UTC)),     // 9M
+      s_act365.getDayCountFraction(baseDate, zdt(2014, 6, 10, 0, 0, 0, 0, ZoneOffset.UTC))      // 1Y
+  };
+  */
+
+  double[] rates = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+
+  /*
   private static final double[] rates = {
       (new PeriodicInterestRate(0.002017, 1)).toContinuous().getRate(),
       (new PeriodicInterestRate(0.002465, 1)).toContinuous().getRate(),
@@ -310,15 +381,16 @@ public class RMGridTest {
       (new PeriodicInterestRate(0.006428, 1)).toContinuous().getRate(),
       (new PeriodicInterestRate(0.007955, 1)).toContinuous().getRate()
   };
+  */
 
   ISDACurve yieldCurve = new ISDACurve("IR_CURVE", times, rates, s_act365.getDayCountFraction(valuationDate, baseDate));
 
   // ----------------------------------------------------------------------------------
 
-  private static final int spotDays = 2;
+  private static final int spotDays = 0;
   final ZonedDateTime spotDate = valuationDate.plusDays(spotDays);
 
-  private static final ZonedDateTime isdaBaseDate = valuationDate;
+  private static final ZonedDateTime isdaBaseDate = valuationDate.plusDays(spotDays);
 
   /*
   private static final ZonedDateTime[] isdaTimes = {
@@ -337,10 +409,11 @@ public class RMGridTest {
       zdt(2013, 4, 30, 0, 0, 0, 0, ZoneOffset.UTC),
       zdt(2013, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
       zdt(2013, 10, 30, 0, 0, 0, 0, ZoneOffset.UTC),
-      zdt(2014, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC)
+      zdt(2014, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC) /*,
+                                                   zdt(2015, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC)*/
   };
 
-  private static final double[] isdaRates = {0.002017, 0.002465, 0.003005, 0.004758, 0.006428, 0.007955 };
+  private static final double[] isdaRates = {0.002017, 0.002465, 0.003005, 0.004758, 0.006428, 0.007955, /*0.004395*/};
 
   private static final ISDAInstrumentTypes[] rateTypes = {
       ISDAInstrumentTypes.MoneyMarket,
@@ -348,7 +421,8 @@ public class RMGridTest {
       ISDAInstrumentTypes.MoneyMarket,
       ISDAInstrumentTypes.MoneyMarket,
       ISDAInstrumentTypes.MoneyMarket,
-      ISDAInstrumentTypes.MoneyMarket
+      ISDAInstrumentTypes.MoneyMarket /*,
+                                      ISDAInstrumentTypes.Swap*/
   };
 
   private static final PeriodFrequency swapFixedLegCouponFrequency = PeriodFrequency.SEMI_ANNUAL;
@@ -448,7 +522,7 @@ public class RMGridTest {
 
   // ----------------------------------------------------------------------------------
 
-  @Test
+  //@Test
   public void testDiscountFactors() {
 
     for (long i = 0; i < 3000; i++)
@@ -463,7 +537,7 @@ public class RMGridTest {
 
   // ----------------------------------------------------------------------------------
 
-  //@Test
+  @Test
   public void testPVCalculation() {
 
     if (outputResults) {

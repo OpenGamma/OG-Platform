@@ -26,7 +26,7 @@ public class FutureOptionFunctions extends AbstractRepositoryConfigurationBean {
 
   /**
    * Default instance of a repository configuration source exposing the functions from this package.
-   * 
+   *
    * @return the configuration source exposing functions from this package
    */
   public static RepositoryConfigurationSource instance() {
@@ -197,6 +197,13 @@ public class FutureOptionFunctions extends AbstractRepositoryConfigurationBean {
     functions.add(functionConfiguration(CommodityFutureOptionBjerksundStenslandGreeksFunction.class));
     functions.add(functionConfiguration(CommodityFutureOptionBjerksundStenslandValueDeltaFunction.class));
     functions.add(functionConfiguration(CommodityFutureOptionBjerksundStenslandValueGammaFunction.class));
+    functions.add(functionConfiguration(EquityFutureOptionBlackDeltaFunction.class));
+    functions.add(functionConfiguration(EquityFutureOptionBlackGammaFunction.class));
+    functions.add(functionConfiguration(EquityFutureOptionBlackPVFunction.class));
+    functions.add(functionConfiguration(EquityFutureOptionBlackThetaFunction.class));
+    functions.add(functionConfiguration(EquityFutureOptionBlackVegaFunction.class));
+    functions.add(functionConfiguration(EquityFutureOptionBlackValueDeltaFunction.class));
+    functions.add(functionConfiguration(EquityFutureOptionBlackValueGammaFunction.class));
   }
 
 }

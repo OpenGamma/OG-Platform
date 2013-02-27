@@ -38,7 +38,7 @@ public class BloombergSecurityProviderComponentFactory extends SecurityProviderC
 
   //-------------------------------------------------------------------------
   @Override
-  protected BloombergSecurityProvider initSecurityProvider(ComponentRepository repo) {
+  protected BloombergSecurityProvider createSecurityProvider(ComponentRepository repo) {
     ExchangeDataProvider exchangeDataProvider = initExchangeDataProvider(repo);
     return new BloombergSecurityProvider(getReferenceDataProvider(), exchangeDataProvider);
   }
