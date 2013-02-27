@@ -24,7 +24,7 @@ import com.opengamma.transport.CollectingFudgeMessageReceiver;
 /**
  * Test.
  */
-@Test
+@Test(groups = "integration")
 public class SocketFudgeMessageConduitTest {
   public void simpleTest() throws Exception {
     CollectingFudgeMessageReceiver collectingReceiver = new CollectingFudgeMessageReceiver();

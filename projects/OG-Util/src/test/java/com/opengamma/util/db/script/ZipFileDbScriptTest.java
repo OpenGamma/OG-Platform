@@ -24,7 +24,7 @@ import com.google.common.collect.ImmutableSet;
 /**
  * Tests {@link ZipFileDbScript} and {@link ZipFileDbScriptDirectory}.
  */
-@Test
+@Test(groups = "unit")
 public class ZipFileDbScriptTest {
 
   public void test_traverse() throws IOException {

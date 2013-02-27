@@ -17,7 +17,7 @@ import com.opengamma.util.timeseries.ObjectTimeSeries;
 import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeObjectTimeSeries;
 import com.opengamma.util.timeseries.zoneddatetime.ZonedDateTimeObjectTimeSeries;
 
-@Test
+@Test(groups = "unit")
 public class ArrayZonedDateTimeObjectTimeSeriesTest extends ZonedDateTimeObjectTimeSeriesTest {
   @Override
   public ZonedDateTimeObjectTimeSeries<BigDecimal> createEmptyTimeSeries() {

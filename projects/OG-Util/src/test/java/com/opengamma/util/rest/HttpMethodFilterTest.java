@@ -21,7 +21,7 @@ import com.sun.jersey.spi.container.ContainerRequest;
 /**
  * Test HttpMethodFilter.
  */
-@Test
+@Test(groups = "unit")
 public class HttpMethodFilterTest {
 
   public void test_filter_noActionOnGet() {

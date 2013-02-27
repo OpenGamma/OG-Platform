@@ -5,7 +5,6 @@
  */
 package com.opengamma.util.timeseries;
 
-
 import java.sql.Date;
 import java.util.List;
 
@@ -14,26 +13,26 @@ import org.testng.annotations.Test;
 import com.opengamma.util.timeseries.sqldate.MapSQLDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.sqldate.SQLDateDoubleTimeSeries;
 
-@Test
+@Test(groups = "unit")
 public class MapSQLDateDoubleTimeSeriesTest extends SQLDateDoubleTimeSeriesTest {
 
   @Override
-  public SQLDateDoubleTimeSeries createEmptyTimeSeries() {
+  protected SQLDateDoubleTimeSeries createEmptyTimeSeries() {
     return new MapSQLDateDoubleTimeSeries();
   }
 
   @Override
-  public SQLDateDoubleTimeSeries createTimeSeries(Date[] times, double[] values) {
+  protected SQLDateDoubleTimeSeries createTimeSeries(Date[] times, double[] values) {
     return new MapSQLDateDoubleTimeSeries(times, values);
   }
 
   @Override
-  public SQLDateDoubleTimeSeries createTimeSeries(List<Date> times, List<Double> values) {
+  protected SQLDateDoubleTimeSeries createTimeSeries(List<Date> times, List<Double> values) {
     return new MapSQLDateDoubleTimeSeries(times, values);
   }
-  
+
   @Override
-  public SQLDateDoubleTimeSeries createTimeSeries(DoubleTimeSeries<Date> dts) {
+  protected SQLDateDoubleTimeSeries createTimeSeries(DoubleTimeSeries<Date> dts) {
     return new MapSQLDateDoubleTimeSeries(dts);
   }
 

@@ -14,11 +14,10 @@ import java.util.NoSuchElementException;
 
 import org.testng.annotations.Test;
 
-
 /**
  * Test Paging.
  */
-@Test
+@Test(groups = "unit")
 public final class PagingTest {
 
   public void test_factory_of_Collection_empty() {

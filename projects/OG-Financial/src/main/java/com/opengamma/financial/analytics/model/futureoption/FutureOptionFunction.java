@@ -270,7 +270,7 @@ public abstract class FutureOptionFunction extends AbstractFunction.NonCompiledI
         for (final String property : surfaceProperties.getProperties()) {
           properties.with(property, surfaceProperties.getValues(property));
         }
-        properties.with(ValuePropertyNames.SURFACE, CommodityFutureOptionUtils.getSurfaceNameWithoutTicker(security, surfaceName));
+        properties.with(ValuePropertyNames.SURFACE, getSurfaceName(security, surfaceName));
         surfacePropertiesSet = true;
       } else if (inputName.equals(ValueRequirementNames.FORWARD_CURVE) && !forwardCurvePropertiesSet) {
         final ValueProperties forwardCurveProperties = value.getProperties().copy()
@@ -282,7 +282,7 @@ public abstract class FutureOptionFunction extends AbstractFunction.NonCompiledI
         for (final String property : forwardCurveProperties.getProperties()) {
           properties.with(property, forwardCurveProperties.getValues(property));
         }
-        properties.with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_NAME, CommodityFutureOptionUtils.getSurfaceNameWithoutTicker(security, forwardCurveName));
+        properties.with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_NAME, getSurfaceName(security, forwardCurveName));
         forwardCurvePropertiesSet = true;
       }
     }
@@ -328,6 +328,8 @@ public abstract class FutureOptionFunction extends AbstractFunction.NonCompiledI
   protected abstract String getCalculationMethod();
 
   protected abstract String getModelType();
+
+  protected abstract String getSurfaceName(FinancialSecurity security, String surfaceName);
 
   /**
    * Constructs the underlying future price requirement

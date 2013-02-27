@@ -53,7 +53,7 @@ public class CurrencyMatrixSourceComponentFactory extends AbstractComponentFacto
   //-------------------------------------------------------------------------
   /**
    * Initializes the currency matrix source, setting up component information and REST.
-   * Override using {@link #createConfigSource(ComponentRepository)}.
+   * Override using {@link #createCurrencyMatrixSource(ComponentRepository)}.
    * 
    * @param repo  the component repository, not null
    * @param configuration  the remaining configuration, not null

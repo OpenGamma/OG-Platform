@@ -23,7 +23,7 @@ import com.opengamma.util.test.Timeout;
 /**
  * Tests the {@link BoneCPHack} class.
  */
-@Test
+@Test(groups = "integration")
 public class BoneCPHackTest {
 
   private BoneCPConfig createConfig() {

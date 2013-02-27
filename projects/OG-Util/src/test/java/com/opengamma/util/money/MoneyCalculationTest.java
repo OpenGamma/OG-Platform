@@ -14,7 +14,7 @@ import org.testng.annotations.Test;
 /**
  * Test.
  */
-@Test
+@Test(groups = "unit")
 public class MoneyCalculationTest {
 
   public void test_add() {

@@ -12,7 +12,7 @@ import org.testng.annotations.Test;
 /**
  * Test {@link ObjectIdSupplier}. 
  */
-@Test
+@Test(groups = "unit")
 public class ObjectIdSupplierTest {
 
   public void test_basics() {

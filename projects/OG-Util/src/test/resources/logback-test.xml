@@ -1,0 +1,20 @@
+<!-- If you want to make things much more quiet, use this file like -Dlogback.configurationFile=com/opengamma/util/warn-logback.xml -->
+<configuration>
+
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <layout class="ch.qos.logback.classic.PatternLayout">
+      <Pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</Pattern>
+    </layout>
+  </appender>
+
+  <appender name="BRIDGE" class="com.opengamma.util.log.LogbackBridgeAppender" />
+
+  <logger name="com.opengamma.util.rest.AbstractExceptionMapper" level="ERROR" />
+  <logger name="com.jolbox.bonecp.ConnectionPartition" level="ERROR" />
+
+  <root level="warn">
+    <appender-ref ref="STDOUT" />
+    <appender-ref ref="BRIDGE" />
+  </root>
+
+</configuration>

@@ -283,7 +283,7 @@ public class BloombergHistoricalLoader {
     }
     for (String dataProvider : _dataProviders) {
       for (String dataField : _dataFields) {
-        _loader.addTimeSeries(identifiers, dataProvider, dataField, startDate, endDate);
+        _loader.loadTimeSeries(identifiers, dataProvider, dataField, startDate, endDate);
       }
     }
   }
@@ -321,7 +321,7 @@ public class BloombergHistoricalLoader {
       String dataProvider = providerFieldRequests.getKey().getFirst();
       String dataField = providerFieldRequests.getKey().getSecond();
       Set<ExternalId> identifiers = providerFieldRequests.getValue();
-      _loader.addTimeSeries(identifiers, dataProvider, dataField, startDate, endDate);
+      _loader.loadTimeSeries(identifiers, dataProvider, dataField, startDate, endDate);
     }
   }
   

@@ -45,7 +45,7 @@ $.register_module({
                         $('.og-inplace-resizer').remove(), og.common.gadgets.manager.clean();
                 });
                 $(function () { // in addition to binding hash change events to window, also fire it onload
-                    var common = og.views.common, is_child, parent_api, api = og.api.rest;
+                    var common = og.views.common, is_child, opener_og, parent_api, parent_data, api = og.api.rest;
                     $('.OG-js-loading').hide();
                     $('.OG-layout-admin-container, .OG-layout-analytics-container, .OG-layout-blotter-container')
                         .css({'visibility': 'visible'});
@@ -59,9 +59,12 @@ $.register_module({
                     // check if the parent's document is the same as the window's (instead of just comparing
                     // window.parent to window, we use document because IE8 doesn't know true from false)
                     is_child = (window.parent.document !== window.document) || window.opener;
-                    parent_api = (window.opener && window.opener.og && window.opener.og.api.rest) ||
+                    parent_api = ((opener_og = window.opener && window.opener.og) && window.opener.og.api.rest) ||
                         window.parent.og.api.rest;
+                    parent_data = (opener_og && window.opener.og.analytics && window.opener.og.analytics.Data) ||
+                        window.parent.og.analytics && window.parent.og.analytics.Data;
                     if (is_child && parent_api) og.api.rest = parent_api; else if (og.api.rest) api.subscribe();
+                    if (is_child && parent_data) og.analytics.Data = parent_data;
                     routes.handler();
                     set_title((new Date).toLocaleTimeString());
                 });

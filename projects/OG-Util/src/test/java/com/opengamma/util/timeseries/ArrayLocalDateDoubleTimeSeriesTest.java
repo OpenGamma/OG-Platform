@@ -13,26 +13,27 @@ import org.threeten.bp.LocalDate;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
-@Test
+@Test(groups = "unit")
 public class ArrayLocalDateDoubleTimeSeriesTest extends LocalDateDoubleTimeSeriesTest {
 
   @Override
-  public LocalDateDoubleTimeSeries createEmptyTimeSeries() {
+  protected LocalDateDoubleTimeSeries createEmptyTimeSeries() {
     return new ArrayLocalDateDoubleTimeSeries();
   }
 
   @Override
-  public LocalDateDoubleTimeSeries createTimeSeries(LocalDate[] times, double[] values) {
+  protected LocalDateDoubleTimeSeries createTimeSeries(LocalDate[] times, double[] values) {
     return new ArrayLocalDateDoubleTimeSeries(times, values);
   }
 
   @Override
-  public LocalDateDoubleTimeSeries createTimeSeries(List<LocalDate> times, List<Double> values) {
+  protected LocalDateDoubleTimeSeries createTimeSeries(List<LocalDate> times, List<Double> values) {
     return new ArrayLocalDateDoubleTimeSeries(times, values);
   }
 
   @Override
-  public LocalDateDoubleTimeSeries createTimeSeries(DoubleTimeSeries<LocalDate> dts) {
+  protected LocalDateDoubleTimeSeries createTimeSeries(DoubleTimeSeries<LocalDate> dts) {
     return new ArrayLocalDateDoubleTimeSeries(dts);
   }
+
 }

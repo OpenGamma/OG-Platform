@@ -14,13 +14,13 @@ import org.testng.annotations.Test;
 /**
  * Test GUIDGenerator.
  */
-@Test
+@Test(groups = "unit")
 public class GUIDGeneratorTest {
 
   public void generatorAlwaysGeneratesSomething() {
     UUID uuid = GUIDGenerator.generate();
     assertNotNull(uuid);
-    System.out.println("Generated UUID " + uuid);
+    // System.out.println("Generated UUID " + uuid);
   }
 
 }

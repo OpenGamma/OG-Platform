@@ -92,9 +92,9 @@ public class SecurityLoaderRequest extends DirectBean {
 
   //-------------------------------------------------------------------------
   /**
-   * Adds an array of historical time-series external identifiers to the collection to load.
+   * Adds an array of security external identifiers to the collection to load.
    * 
-   * @param externalIds  the historical time-series identifiers to load, not null
+   * @param externalIds  the security identifiers to load, not null
    */
   public void addExternalIds(ExternalId... externalIds) {
     ArgumentChecker.notNull(externalIds, "externalIds");
@@ -106,9 +106,9 @@ public class SecurityLoaderRequest extends DirectBean {
   }
 
   /**
-   * Adds an array of historical time-series external identifiers to the collection to load.
+   * Adds an array of security external identifiers to the collection to load.
    * 
-   * @param externalIdBundles  the historical time-series identifiers to load, not null
+   * @param externalIdBundles  the security identifiers to load, not null
    */
   public void addExternalIds(ExternalIdBundle... externalIdBundles) {
     ArgumentChecker.notNull(externalIdBundles, "externalIdBundles");
@@ -116,9 +116,9 @@ public class SecurityLoaderRequest extends DirectBean {
   }
 
   /**
-   * Adds a collection of historical time-series external identifiers to the collection to load.
+   * Adds a collection of security external identifiers to the collection to load.
    * 
-   * @param externalIdBundles  the historical time-series identifiers to load, not null
+   * @param externalIdBundles  the security identifiers to load, not null
    */
   public void addExternalIds(Iterable<ExternalIdBundle> externalIdBundles) {
     ArgumentChecker.notNull(externalIdBundles, "externalIdBundles");

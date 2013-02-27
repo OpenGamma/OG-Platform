@@ -6,7 +6,7 @@ $.register_module({
     name: 'og.analytics.Data',
     dependencies: ['og.api.rest'],
     obj: function () {
-        var module = this, to_string = Object.prototype.toString;
+        var module = this;
         var Data = function (source, config) {
             var data = this, api = og.api.rest.views, meta, label = config.label ? config.label + '-' : '',
                 viewport = null, viewport_id, viewport_cache, prefix, view_id = config.view_id, viewport_version,
@@ -142,8 +142,8 @@ $.register_module({
                         primitives = prim_struct.data &&
                             !!(prim_struct.data[ROOT] && prim_struct.data[ROOT].length ? prim_struct.data[ROOT][1] + 1
                                 : prim_struct.data[ROWS]);
-                    if (!grid_type)
-                        grid_type = source.type = portfolio ? 'portfolio' : primitives ? 'primitives' : grid_type;
+                    if (!grid_type) grid_type = portfolio ? 'portfolio' : primitives ? 'primitives' : grid_type;
+                    if (!config.pool) source.type = grid_type; // keep parent connections' sources immutable
                     api.grid.structure
                         .get({dry: true, view_id: view_id, grid_type: grid_type, update: structure_setup});
                     structure_handler(grid_type === 'portfolio' ? port_struct : prim_struct);
@@ -158,16 +158,15 @@ $.register_module({
             data.disconnect = function () {
                 if (arguments.length) og.dev.warn.apply(null, Array.prototype.slice.call(arguments));
                 if (view_id && !data.parent) api.del({view_id: view_id});
+                if (data.parent) {
+                    data.viewport(null); // at least delete the viewport
+                    if (graph_id) // delete graph_id if it exists
+                        api.grid.depgraphs.del({view_id: view_id, graph_id: graph_id, grid_type: grid_type});
+                }
                 data.prefix = module.name + ' (' + label + view_id + '-dead' + '):\n';
                 data.connection = view_id = graph_id = viewport_id = subscribed = null;
             };
             data.id = og.common.id('data');
-            data.kill = function () {
-                data.disconnect.apply(data, Array.prototype.slice.call(arguments));
-                Pool.remove(data);
-                if (!data.parent)
-                    og.api.rest.off('disconnect', disconnect_handler).off('reconnect', reconnect_handler);
-            };
             data.meta = meta = {columns: {}};
             data.source = source;
             data.pool = config.pool;
@@ -206,21 +205,15 @@ $.register_module({
                 setTimeout(initialize); // allow events to be attached
             }
         };
+        Data.prototype.kill = function () {
+            var data = this;
+            data.disconnect.apply(data, Array.prototype.slice.call(arguments));
+            Pool.remove(data);
+            if (!data.parent)
+                og.api.rest.off('disconnect', disconnect_handler).off('reconnect', reconnect_handler);
+        };
         Data.prototype.off = og.common.events.off;
         Data.prototype.on = og.common.events.on;
-        var equals = function (a, b) {
-            var a_keys, b_keys, a_type = to_string.call(a), b_type = to_string.call(b);
-            if (a === b) return true;
-            if (a_type !== b_type) return false;
-            if (a_type === '[object Array]') return a.length === b.length &&
-                a.reduce(function (acc, val, idx) {return acc && equals(val, b[idx]);}, true);
-            if (a === null || b === null) return false; // these should have matched in the primitive check
-            if (typeof a !== 'object' || typeof b !== 'object') return a === b;
-            a_keys = Object.keys(a).sort();
-            b_keys = Object.keys(b).sort();
-            if (a_keys.join() !== b_keys.join()) return false;
-            return a_keys.reduce(function (acc, key) {return acc && equals(a[key], b[key]);}, true);
-        };
         var Pool = new function () {
             var pool = this, children = [], parents = [];
             pool.add = function (data) {children.push(data);};
@@ -228,8 +221,8 @@ $.register_module({
                 var parent, source;
                 if (data.pool) return null;
                 source = JSON.parse(JSON.stringify(data.source)); // make a copy
-                source.depgraph = false; delete source.row; delete source.col; // normalize the source
-                parent = parents.filter(function (candidate) {return equals(candidate.source, source);});
+                ['col', 'depgraph', 'row', 'type'].forEach(function (key) {delete source[key]}); // normalize sources
+                parent = parents.filter(function (candidate) {return Object.equals(candidate.source, source);});
                 if (parent.length && (parent = parent[0])) return parent.refcount.push(data.id), parent;
                 parent = new Data(source, {pool: true, label: 'pool'});
                 parent.refcount = [data.id];

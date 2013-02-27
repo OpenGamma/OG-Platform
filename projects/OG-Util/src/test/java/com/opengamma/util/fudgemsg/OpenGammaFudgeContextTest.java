@@ -18,6 +18,7 @@ import com.opengamma.util.paging.PagingFudgeBuilder;
 /**
  * Test OpenGammaFudgeContext.
  */
+@Test(groups = "unit")
 public class OpenGammaFudgeContextTest {
 
   @Test

@@ -5,20 +5,29 @@
  */
 package com.opengamma.financial.analytics.model.futureoption;
 
-import com.opengamma.engine.ComputationTargetSpecification;
+import java.util.Set;
+
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
+import com.opengamma.core.security.SecuritySource;
+import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
+import com.opengamma.financial.analytics.model.equity.option.EquityOptionFunction;
 import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyUtils;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityTypes;
-import com.opengamma.financial.security.FinancialSecurityUtils;
+import com.opengamma.financial.security.future.EquityFutureSecurity;
+import com.opengamma.financial.security.option.EquityIndexFutureOptionSecurity;
 import com.opengamma.id.ExternalId;
-import com.opengamma.util.money.Currency;
+import com.opengamma.id.ExternalIdBundle;
 
 /**
  *
@@ -38,27 +47,86 @@ public abstract class EquityFutureOptionFunction extends FutureOptionFunction {
   }
 
   @Override
-  protected ValueRequirement getVolatilitySurfaceRequirement(final ValueRequirement desiredValue, final FinancialSecurity security, final String surfaceName,
-      final String forwardCurveName, final String surfaceCalculationMethod) {
-    final ExternalId currencyId = ExternalId.of(Currency.OBJECT_SCHEME, FinancialSecurityUtils.getCurrency(security).getCode());
-    final String fullSurfaceName = CommodityFutureOptionUtils.getSurfaceName(security, surfaceName);
-    final String fullForwardCurveName = CommodityFutureOptionUtils.getSurfaceName(security, forwardCurveName);
-    final ValueRequirement requirement = BlackVolatilitySurfacePropertyUtils.getSurfaceRequirement(desiredValue, ValueProperties.none(), surfaceName, forwardCurveName,
-        InstrumentTypeProperties.EQUITY_FUTURE_OPTION, ComputationTargetType.CURRENCY, currencyId);
-    final ValueProperties.Builder properties = requirement.getConstraints().copy();
-    properties.withoutAny(ValuePropertyNames.SURFACE).with(ValuePropertyNames.SURFACE, fullSurfaceName);
-    properties.withoutAny(ValuePropertyNames.CURVE).with(ValuePropertyNames.CURVE, fullForwardCurveName);
-    return new ValueRequirement(requirement.getValueName(), requirement.getTargetReference(), properties.get());
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
+    final ValueProperties constraints = desiredValue.getConstraints();
+    final Set<String> calculationMethod = constraints.getValues(ValuePropertyNames.CALCULATION_METHOD);
+    if (calculationMethod != null && calculationMethod.size() == 1) {
+      if (!getCalculationMethod().equals(Iterables.getOnlyElement(calculationMethod))) {
+        return null;
+      }
+    }
+    final EquityIndexFutureOptionSecurity security = (EquityIndexFutureOptionSecurity) target.getSecurity();
+    final Set<String> discountingCurveNames = constraints.getValues(EquityOptionFunction.PROPERTY_DISCOUNTING_CURVE_NAME);
+    if (discountingCurveNames == null || discountingCurveNames.size() != 1) {
+      return null;
+    }
+    final Set<String> discountingCurveConfigs = constraints.getValues(EquityOptionFunction.PROPERTY_DISCOUNTING_CURVE_CONFIG);
+    if (discountingCurveConfigs == null || discountingCurveConfigs.size() != 1) {
+      return null;
+    }
+    final String discountingCurveName = Iterables.getOnlyElement(discountingCurveNames);
+    final String discountingCurveConfig = Iterables.getOnlyElement(discountingCurveConfigs);
+    final ValueRequirement discountingReq = getDiscountCurveRequirement(discountingCurveName, discountingCurveConfig, security);
+    final Set<String> surfaceNames = constraints.getValues(ValuePropertyNames.SURFACE);
+    if (surfaceNames == null || surfaceNames.size() != 1) {
+      return null;
+    }
+    final String volSurfaceName = Iterables.getOnlyElement(surfaceNames);
+    final Set<String> surfaceCalculationMethods = constraints.getValues(ValuePropertyNames.SURFACE_CALCULATION_METHOD);
+    if (surfaceCalculationMethods == null || surfaceCalculationMethods.size() != 1) {
+      return null;
+    }
+    final String surfaceCalculationMethod = Iterables.getOnlyElement(surfaceCalculationMethods);
+    final Set<String> forwardCurveNames = constraints.getValues(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_NAME);
+    if (forwardCurveNames == null || forwardCurveNames.size() != 1) {
+      return null;
+    }
+    final Set<String> forwardCurveCalculationMethods = constraints.getValues(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD);
+    if (forwardCurveCalculationMethods == null || forwardCurveCalculationMethods.size() != 1) {
+      return null;
+    }
+    final ExternalIdBundle underlyingFutureId = ExternalIdBundle.of(security.getUnderlyingId());
+    final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
+    final EquityFutureSecurity underlyingFuture = (EquityFutureSecurity) securitySource.getSingle(underlyingFutureId); //TODO version correction
+    final ExternalId underlyingIndexId = underlyingFuture.getUnderlyingId();
+    final String forwardCurveCalculationMethod = Iterables.getOnlyElement(forwardCurveCalculationMethods);
+    final String forwardCurveName = Iterables.getOnlyElement(forwardCurveNames);
+    final ValueRequirement volReq = getVolatilitySurfaceRequirement(desiredValue, volSurfaceName, forwardCurveName, surfaceCalculationMethod, underlyingIndexId);
+    final ValueRequirement forwardCurveReq = getForwardCurveRequirement(forwardCurveName, forwardCurveCalculationMethod, underlyingIndexId);
+    return Sets.newHashSet(discountingReq, forwardCurveReq, volReq);
   }
 
   @Override
+  protected ValueRequirement getVolatilitySurfaceRequirement(final ValueRequirement desiredValue, final FinancialSecurity security, final String surfaceName,
+      final String forwardCurveName, final String surfaceCalculationMethod) {
+    throw new UnsupportedOperationException();
+  }
+
+  private ValueRequirement getVolatilitySurfaceRequirement(final ValueRequirement desiredValue, final String surfaceName, final String forwardCurveName,
+      final String surfaceCalculationMethod, final ExternalId underlyingBuid) {
+    // REVIEW Andrew 2012-01-17 -- Could we pass a CTRef to the getSurfaceRequirement and use the underlyingBuid external identifier directly with a target type of SECURITY
+    // TODO Casey - Replace desiredValue with smileInterpolatorName in BlackVolatilitySurfacePropertyUtils.getSurfaceRequirement
+    return BlackVolatilitySurfacePropertyUtils.getSurfaceRequirement(desiredValue, ValueProperties.none(), surfaceName, forwardCurveName,
+        InstrumentTypeProperties.EQUITY_FUTURE_OPTION, ComputationTargetType.PRIMITIVE, underlyingBuid);
+  }
+
+
+  @Override
   protected ValueRequirement getForwardCurveRequirement(final FinancialSecurity security, final String forwardCurveName, final String forwardCurveCalculationMethod) {
-    final Currency currency = FinancialSecurityUtils.getCurrency(security);
-    final String fullCurveName = CommodityFutureOptionUtils.getSurfaceName(security, forwardCurveName);
+    throw new UnsupportedOperationException();
+  }
+
+  private ValueRequirement getForwardCurveRequirement(final String forwardCurveName, final String forwardCurveCalculationMethod, final ExternalId underlyingIndexId) {
     final ValueProperties properties = ValueProperties.builder()
-        .with(ValuePropertyNames.CURVE, fullCurveName)
+        .with(ValuePropertyNames.CURVE, forwardCurveName)
         .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD, forwardCurveCalculationMethod)
         .get();
-    return new ValueRequirement(ValueRequirementNames.FORWARD_CURVE, ComputationTargetSpecification.of(currency), properties);
+    // REVIEW Andrew 2012-01-17 -- Why can't we just use the underlyingBuid external identifier directly here, with a target type of SECURITY, and shift the logic into the reference resolver?
+    return new ValueRequirement(ValueRequirementNames.FORWARD_CURVE, ComputationTargetType.PRIMITIVE, underlyingIndexId, properties);
+  }
+
+  @Override
+  protected String getSurfaceName(final FinancialSecurity security, final String surfaceName) {
+    return surfaceName;
   }
 }

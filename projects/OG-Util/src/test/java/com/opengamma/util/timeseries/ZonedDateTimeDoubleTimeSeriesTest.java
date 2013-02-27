@@ -10,17 +10,17 @@ import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 /**
- * 
+ * Test.
  */
 public abstract class ZonedDateTimeDoubleTimeSeriesTest extends DoubleTimeSeriesTest<ZonedDateTime> {
   
-  public ZonedDateTime makeDate(int year, int month, int day) {
+  protected ZonedDateTime makeDate(int year, int month, int day) {
     ZonedDateTime one = ZonedDateTime.of(LocalDateTime.of(year, month, day, 0, 0), ZoneOffset.UTC);//ZoneId.of(java.util.TimeZone.getDefault().getID()));
     return one;
   }
   
   @Override
-  public ZonedDateTime[] testTimes() {
+  protected ZonedDateTime[] testTimes() {
     ZonedDateTime one = makeDate(2010, 2, 8);
     ZonedDateTime two = makeDate(2010, 2, 9);
     ZonedDateTime three = makeDate(2010, 2, 10);
@@ -31,7 +31,7 @@ public abstract class ZonedDateTimeDoubleTimeSeriesTest extends DoubleTimeSeries
   }
 
   @Override
-  public ZonedDateTime[] testTimes2() {
+  protected ZonedDateTime[] testTimes2() {
     ZonedDateTime one = makeDate(2010, 2, 11);
     ZonedDateTime two = makeDate(2010, 2, 12);
     ZonedDateTime three = makeDate(2010, 2, 13);
@@ -42,7 +42,8 @@ public abstract class ZonedDateTimeDoubleTimeSeriesTest extends DoubleTimeSeries
   } 
 
   @Override
-  public ZonedDateTime[] emptyTimes() {
+  protected ZonedDateTime[] emptyTimes() {
     return new ZonedDateTime[] {};
   }
+
 }

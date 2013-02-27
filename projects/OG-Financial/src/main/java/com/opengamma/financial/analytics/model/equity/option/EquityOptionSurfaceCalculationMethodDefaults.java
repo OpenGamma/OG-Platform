@@ -20,7 +20,6 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
-import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.util.ArgumentChecker;
@@ -104,9 +103,6 @@ public abstract class EquityOptionSurfaceCalculationMethodDefaults extends Defau
 
   @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
-    if (!InstrumentTypeProperties.EQUITY_OPTION.equals(desiredValue.getConstraint(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE))) {
-      return null;
-    }
     final String id = getId(target.getSecurity());
     if (!_idToSurfaceCalculationMethod.containsKey(id)) {
       s_logger.error("Could not find defaults for {}", id);

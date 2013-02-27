@@ -18,7 +18,7 @@ import com.beust.jcommander.internal.Maps;
 /**
  * Test.
  */
-@Test
+@Test(groups = "unit")
 public class MapUtilsTest {
 
   public void test_putIfAbsentGet() {

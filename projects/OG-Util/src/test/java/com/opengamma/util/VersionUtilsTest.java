@@ -13,7 +13,7 @@ import org.testng.annotations.Test;
 /**
  * Test VersionUtils.
  */
-@Test
+@Test(groups = "unit")
 public class VersionUtilsTest {
 
   public void validPropertyFile() {
