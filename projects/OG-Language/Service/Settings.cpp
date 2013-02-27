@@ -45,7 +45,11 @@ LOGGING(com.opengamma.language.service.Settings);
 # endif /* ifndef DEFAULT_SDDL */
 #endif /* ifdef _WIN32 */
 #ifndef DEFAULT_SERVICE_NAME
-# define DEFAULT_SERVICE_NAME		TEXT ("OpenGammaLanguageAPI")
+# ifdef _WIN32
+#  define DEFAULT_SERVICE_NAME		TEXT ("OpenGammaLanguageAPI")
+# else /* ifdef _WIN32 */
+#  define DEFAULT_SERVICE_NAME		TEXT ("og-language")
+# endif /* ifdef _WIN32 */
 #endif /* ifndef DEFAULT_SERVICE_NAME */
 #ifndef DEFAULT_CONNECTION_PIPE
 # ifndef DEFAULT_PIPE_NAME
