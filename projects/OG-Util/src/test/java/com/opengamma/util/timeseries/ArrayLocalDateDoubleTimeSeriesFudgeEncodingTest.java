@@ -24,6 +24,7 @@ public class ArrayLocalDateDoubleTimeSeriesFudgeEncodingTest extends AbstractFud
   public void testCycle() {
     DoubleTimeSeries<LocalDate> ts =  test.createStandardTimeSeries();
     
+    @SuppressWarnings("rawtypes")
     DoubleTimeSeries cycleObject = cycleObject(DoubleTimeSeries.class, ts);
     assertEquals(ArrayLocalDateDoubleTimeSeries.class, cycleObject.getClass());
     assertEquals(ts, cycleObject);

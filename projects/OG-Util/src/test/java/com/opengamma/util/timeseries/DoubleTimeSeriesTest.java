@@ -101,6 +101,7 @@ public abstract class DoubleTimeSeriesTest<E> {
       final List<E> times = Arrays.asList(testTimes());
       for (int test = 0; test < 100; test++) {
         Collections.shuffle(times);
+        @SuppressWarnings("unchecked")
         final E[] shuffledTimes = (E[]) times.toArray();
         for (int i=0; i < times.size(); i++) {
           mts.putDataPoint(shuffledTimes[i], Double.valueOf(i));
