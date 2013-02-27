@@ -16,7 +16,7 @@ import com.opengamma.util.timeseries.ObjectTimeSeries;
 import com.opengamma.util.timeseries.sqldate.MapSQLDateObjectTimeSeries;
 import com.opengamma.util.timeseries.sqldate.SQLDateObjectTimeSeries;
 
-@Test
+@Test(groups = "unit")
 public class MapSQLDateObjectTimeSeriesTest extends SQLDateObjectTimeSeriesTest {
 
   @Override

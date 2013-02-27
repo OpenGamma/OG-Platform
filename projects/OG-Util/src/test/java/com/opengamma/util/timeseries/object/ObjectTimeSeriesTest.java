@@ -25,7 +25,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.util.timeseries.ObjectTimeSeries;
 
-@Test
+@Test(groups = "unit")
 public abstract class ObjectTimeSeriesTest<E, T> {
   
   @SuppressWarnings("unused")

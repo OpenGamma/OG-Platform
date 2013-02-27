@@ -13,16 +13,16 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.IntDoubleTimeSeriesTest;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
 
-@Test
+@Test(groups = "unit")
 public class FastArrayIntDoubleTimeSeriesTest extends IntDoubleTimeSeriesTest {
 
   @Override
-  public DoubleTimeSeries<Integer> createEmptyTimeSeries() {
+  protected DoubleTimeSeries<Integer> createEmptyTimeSeries() {
     return new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS);
   }
 
   @Override
-  public DoubleTimeSeries<Integer> createTimeSeries(final Integer[] times, final double[] values) {
+  protected DoubleTimeSeries<Integer> createTimeSeries(final Integer[] times, final double[] values) {
     final int[] primTimes = new int[times.length];
     for (int i = 0; i < times.length; i++) {
       primTimes[i] = times[i].intValue();
@@ -31,12 +31,12 @@ public class FastArrayIntDoubleTimeSeriesTest extends IntDoubleTimeSeriesTest {
   }
 
   @Override
-  public DoubleTimeSeries<Integer> createTimeSeries(final List<Integer> times, final List<Double> values) {
+  protected DoubleTimeSeries<Integer> createTimeSeries(final List<Integer> times, final List<Double> values) {
     return new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS, times, values);
   }
 
   @Override
-  public DoubleTimeSeries<Integer> createTimeSeries(final DoubleTimeSeries<Integer> dts) {
+  protected DoubleTimeSeries<Integer> createTimeSeries(final DoubleTimeSeries<Integer> dts) {
     return new FastArrayIntDoubleTimeSeries((FastIntDoubleTimeSeries) dts);
   }
 

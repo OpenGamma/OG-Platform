@@ -18,7 +18,7 @@ import org.threeten.bp.Month;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
-@Test
+@Test(groups = "unit")
 public class BulkTimeSeriesOperationsTest {
 
   private Logger s_logger = LoggerFactory.getLogger(BulkTimeSeriesOperationsTest.class);

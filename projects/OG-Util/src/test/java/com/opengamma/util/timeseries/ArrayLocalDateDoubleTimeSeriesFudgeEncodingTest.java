@@ -16,7 +16,7 @@ import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 /**
  * Test Fudge encoding.
  */
-@Test
+@Test(groups = "unit")
 public class ArrayLocalDateDoubleTimeSeriesFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
 
   private ArrayLocalDateDoubleTimeSeriesTest test = new ArrayLocalDateDoubleTimeSeriesTest();

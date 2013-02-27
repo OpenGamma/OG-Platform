@@ -15,7 +15,6 @@ import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 
 import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.FudgeMsgFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
@@ -26,22 +25,20 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.CompareUtils;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
-@Test
+@Test(groups = "unit")
 public abstract class DoubleTimeSeriesTest<E> {
 
   @SuppressWarnings("unused")
   private static final Logger s_logger = LoggerFactory.getLogger(DoubleTimeSeriesTest.class);
 
-  public abstract DoubleTimeSeries<E> createEmptyTimeSeries();
-  public abstract DoubleTimeSeries<E> createTimeSeries(E[] times, double[] values);
-  public abstract DoubleTimeSeries<E> createTimeSeries(List<E> times, List<Double> values);
-  public abstract DoubleTimeSeries<E> createTimeSeries(DoubleTimeSeries<E> dts);
+  protected abstract DoubleTimeSeries<E> createEmptyTimeSeries();
+  protected abstract DoubleTimeSeries<E> createTimeSeries(E[] times, double[] values);
+  protected abstract DoubleTimeSeries<E> createTimeSeries(List<E> times, List<Double> values);
+  protected abstract DoubleTimeSeries<E> createTimeSeries(DoubleTimeSeries<E> dts);
 
-  public abstract E[] emptyTimes();
-  @Test
-  public abstract E[] testTimes();
-  @Test
-  public abstract E[] testTimes2();
+  protected abstract E[] emptyTimes();
+  protected abstract E[] testTimes();
+  protected abstract E[] testTimes2();
 
   @Test
   public void testArrayConstructor() {
@@ -111,13 +108,13 @@ public abstract class DoubleTimeSeriesTest<E> {
     }
   }
 
-  public DoubleTimeSeries<E> createStandardTimeSeries() {
+  protected DoubleTimeSeries<E> createStandardTimeSeries() {
     final E[] times = testTimes();
     final double[] values = {1.0, 2.0, 3.0, 4.0, 5.0, 6.0};
     return createTimeSeries(times, values);
   }
 
-  public DoubleTimeSeries<E> createStandardTimeSeries2() {
+  protected DoubleTimeSeries<E> createStandardTimeSeries2() {
     final E[] times = testTimes2();
     final double[] values = {4.0, 5.0, 6.0, 7.0, 8.0, 9.0};
     return createTimeSeries(times, values);
@@ -466,7 +463,7 @@ public abstract class DoubleTimeSeriesTest<E> {
   @Test
   public void testFudgeSerialization() {
     final FudgeMsg msg = OpenGammaFudgeContext.getInstance().toFudgeMsg(createStandardTimeSeries()).getMessage();
-    FudgeMsgFormatter.outputToSystemOut(msg);
+    // FudgeMsgFormatter.outputToSystemOut(msg);
     final Object o = OpenGammaFudgeContext.getInstance().fromFudgeMsg(msg);
     AssertJUnit.assertEquals(createStandardTimeSeries(), o);
   }

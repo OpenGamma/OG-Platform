@@ -13,26 +13,27 @@ import org.testng.annotations.Test;
 import com.opengamma.util.timeseries.date.time.ArrayDateTimeDoubleTimeSeries;
 import com.opengamma.util.timeseries.date.time.DateTimeDoubleTimeSeries;
 
-@Test
+@Test(groups = "unit")
 public class ArrayDateTimeDoubleTimeSeriesTest extends DateDoubleTimeSeriesTest {
 
   @Override
-  public DateTimeDoubleTimeSeries createEmptyTimeSeries() {
+  protected DateTimeDoubleTimeSeries createEmptyTimeSeries() {
     return new ArrayDateTimeDoubleTimeSeries();
   }
 
   @Override
-  public DateTimeDoubleTimeSeries createTimeSeries(Date[] times, double[] values) {
+  protected DateTimeDoubleTimeSeries createTimeSeries(Date[] times, double[] values) {
     return new ArrayDateTimeDoubleTimeSeries(times, values);
   }
 
   @Override
-  public DateTimeDoubleTimeSeries createTimeSeries(List<Date> times, List<Double> values) {
+  protected DateTimeDoubleTimeSeries createTimeSeries(List<Date> times, List<Double> values) {
     return new ArrayDateTimeDoubleTimeSeries(times, values);
   }
 
   @Override
-  public DateTimeDoubleTimeSeries createTimeSeries(DoubleTimeSeries<Date> dts) {
+  protected DateTimeDoubleTimeSeries createTimeSeries(DoubleTimeSeries<Date> dts) {
     return new ArrayDateTimeDoubleTimeSeries(dts);
   }
+
 }

@@ -15,26 +15,26 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
-@Test
+@Test(groups = "unit")
 public class ListYearOffsetDoubleTimeSeriesTest extends YearOffsetDoubleTimeSeriesTest {
 
   @Override
-  public YearOffsetDoubleTimeSeries createEmptyTimeSeries() {
+  protected YearOffsetDoubleTimeSeries createEmptyTimeSeries() {
     return new ListYearOffsetDoubleTimeSeries(zdt(2013, 1, 24, 12, 0, 0, 0, ZoneOffset.UTC), new Double[0], new double[0]);
   }
 
   @Override
-  public YearOffsetDoubleTimeSeries createTimeSeries(final Double[] times, final double[] values) {
+  protected YearOffsetDoubleTimeSeries createTimeSeries(final Double[] times, final double[] values) {
     return new ListYearOffsetDoubleTimeSeries(zdt(2013, 1, 24, 12, 0, 0, 0, ZoneOffset.UTC), times, values);
   }
 
   @Override
-  public YearOffsetDoubleTimeSeries createTimeSeries(final List<Double> times, final List<Double> values) {
+  protected YearOffsetDoubleTimeSeries createTimeSeries(final List<Double> times, final List<Double> values) {
     return new ListYearOffsetDoubleTimeSeries(zdt(2013, 1, 24, 12, 0, 0, 0, ZoneOffset.UTC), times, values);
   }
 
   @Override
-  public YearOffsetDoubleTimeSeries createTimeSeries(final DoubleTimeSeries<Double> dts) {
+  protected YearOffsetDoubleTimeSeries createTimeSeries(final DoubleTimeSeries<Double> dts) {
     return new ListYearOffsetDoubleTimeSeries((YearOffsetDoubleTimeSeries) dts);
   }
 
