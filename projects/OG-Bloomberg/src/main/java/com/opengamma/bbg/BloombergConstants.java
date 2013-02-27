@@ -181,6 +181,7 @@ public final class BloombergConstants {
   public static final String BBG_ELECTRICITY = "Electricity";
   public static final String BBG_COAL = "Coal";
   public static final String BBG_CRUDE_OIL = "Crude Oil";
+  public static final String BBG_NATURAL_GAS = "Natural Gas";
 
   //Bloomberg agriculture future types
   public static final String BBG_WHEAT = "Wheat";
