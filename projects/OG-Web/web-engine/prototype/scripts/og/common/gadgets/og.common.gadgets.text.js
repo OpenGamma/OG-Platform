@@ -8,6 +8,7 @@ $.register_module({
     obj: function () {
         var loading_template;
         return function (config) {
+            return console.log(config);
             var gadget = this, alive = og.common.id('gadget_text'), $selector = $(config.selector),
                 instantiated, tash, $msg, sbar_size = og.common.util.scrollbar_size + 'px',
                 cell_options = {source: config.source, col: config.col, row: config.row, format: 'EXPANDED', log: true},
