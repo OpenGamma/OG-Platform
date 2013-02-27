@@ -10,9 +10,9 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.bumpers.CreditSpreadBumpers;
 import com.opengamma.analytics.financial.credit.bumpers.SpreadBumpType;
-import com.opengamma.analytics.financial.credit.cds.ISDACurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.PresentValueCreditDefaultSwap;
+import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
 import com.opengamma.analytics.financial.credit.marketdatachecker.SpreadTermStructureDataChecker;
 import com.opengamma.util.ArgumentChecker;
 
@@ -44,7 +44,7 @@ public class CS01CreditDefaultSwap {
   public double getCS01ParallelShiftCreditDefaultSwap(
       final ZonedDateTime valuationDate,
       final LegacyVanillaCreditDefaultSwapDefinition cds,
-      final ISDACurve yieldCurve,
+      final ISDADateCurve yieldCurve,
       final ZonedDateTime[] marketTenors,
       final double[] marketSpreads,
       final double spreadBump,
@@ -103,7 +103,7 @@ public class CS01CreditDefaultSwap {
   public double[] getCS01BucketedCreditDefaultSwap(
       final ZonedDateTime valuationDate,
       final LegacyVanillaCreditDefaultSwapDefinition cds,
-      final ISDACurve yieldCurve,
+      final ISDADateCurve yieldCurve,
       final ZonedDateTime[] marketTenors,
       final double[] marketSpreads,
       final double spreadBump,

@@ -55,7 +55,7 @@ public class ISDAYieldCurve {
 
   public ISDAYieldCurve(
       final ZonedDateTime baseDate,
-      final ZonedDateTime[] instrumentMaturities,
+      final ZonedDateTime[] instrumentTenors, //final ISDAYieldCurveTenors[] instrumentTenors,
       final ISDAInstrumentTypes[] instrumentTypes,
       final double[] instrumentRates,
       final int spotDays,
@@ -77,7 +77,7 @@ public class ISDAYieldCurve {
 
     _baseDate = baseDate;
 
-    _numberOfInstruments = instrumentMaturities.length;
+    _numberOfInstruments = instrumentTenors.length;
 
     _spotDays = spotDays;
 
@@ -88,8 +88,8 @@ public class ISDAYieldCurve {
     _numberOfSwapInstruments = getNumberOfInstruments(instrumentTypes, ISDAInstrumentTypes.Swap);
     _numberOfCashInstruments = getNumberOfInstruments(instrumentTypes, ISDAInstrumentTypes.MoneyMarket);
 
-    final ZonedDateTime[] swapDates = getInstrumentDates(instrumentMaturities, instrumentTypes, ISDAInstrumentTypes.Swap, _numberOfSwapInstruments);
-    final ZonedDateTime[] cashDates = getInstrumentDates(instrumentMaturities, instrumentTypes, ISDAInstrumentTypes.MoneyMarket, _numberOfCashInstruments);
+    final ZonedDateTime[] swapDates = getInstrumentDates(instrumentTenors, instrumentTypes, ISDAInstrumentTypes.Swap, _numberOfSwapInstruments);
+    final ZonedDateTime[] cashDates = getInstrumentDates(instrumentTenors, instrumentTypes, ISDAInstrumentTypes.MoneyMarket, _numberOfCashInstruments);
 
     final double[] swapRates = getInstrumentRates(instrumentRates, instrumentTypes, ISDAInstrumentTypes.Swap, _numberOfSwapInstruments);
     final double[] cashRates = getInstrumentRates(instrumentRates, instrumentTypes, ISDAInstrumentTypes.MoneyMarket, _numberOfCashInstruments);

@@ -5,18 +5,10 @@
  */
 package com.opengamma.analytics.financial.credit.creditdefaultswap.greeks.vanilla;
 
-import org.threeten.bp.ZonedDateTime;
-
-import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.bumpers.RecoveryRateBumpType;
-import com.opengamma.analytics.financial.credit.calibratehazardratecurve.legacy.CalibrateHazardRateCurveLegacyCreditDefaultSwap;
-import com.opengamma.analytics.financial.credit.cds.ISDACurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.legacy.PresentValueLegacyCreditDefaultSwap;
-import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
 import com.opengamma.financial.convention.daycount.ActualThreeSixtyFive;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.util.ArgumentChecker;
 
 /**
  * Class containing methods for the computation of RecoveryRate01 for a vanilla Legacy CDS
@@ -51,6 +43,7 @@ public class RecRate01CreditDefaultSwap {
 
   // Compute the RecoveryRate01
 
+  /*
   public double getRecoveryRate01CreditDefaultSwap(
       final ZonedDateTime valuationDate,
       final LegacyVanillaCreditDefaultSwapDefinition cds,
@@ -119,6 +112,7 @@ public class RecRate01CreditDefaultSwap {
 
     return recoveryRate01;
   }
+  */
 
   // ------------------------------------------------------------------------------------------------------------------------------------------
 
