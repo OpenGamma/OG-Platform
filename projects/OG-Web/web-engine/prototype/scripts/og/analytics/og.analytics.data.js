@@ -222,7 +222,7 @@ $.register_module({
                 if (data.pool) return null;
                 source = JSON.parse(JSON.stringify(data.source)); // make a copy
                 ['col', 'depgraph', 'row', 'type'].forEach(function (key) {delete source[key]}); // normalize sources
-                parent = parents.filter(function (candidate) {return equals(candidate.source, source);});
+                parent = parents.filter(function (candidate) {return Object.equals(candidate.source, source);});
                 if (parent.length && (parent = parent[0])) return parent.refcount.push(data.id), parent;
                 parent = new Data(source, {pool: true, label: 'pool'});
                 parent.refcount = [data.id];
