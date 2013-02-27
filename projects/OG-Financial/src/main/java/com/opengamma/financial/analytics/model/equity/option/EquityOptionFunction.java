@@ -272,7 +272,7 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
     // Discounting curve
     final ValueRequirement discountingReq = getDiscountCurveRequirement(discountingCurveName, discountingCurveConfig, security, additionalConstraints);
     // Forward curve
-    final ValueRequirement forwardCurveReq = getForwardCurveRequirement(tsSource, securitySource, forwardCurveName, forwardCurveCalculationMethod, security, underlyingId, additionalConstraints);
+    final ValueRequirement forwardCurveReq = getForwardCurveRequirement(forwardCurveName, forwardCurveCalculationMethod, underlyingId, additionalConstraints);
     if (forwardCurveReq == null) {
       return null;
     }
@@ -375,8 +375,8 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetSpecification.of(FinancialSecurityUtils.getCurrency(security)), properties);
   }
 
-  private ValueRequirement getForwardCurveRequirement(final HistoricalTimeSeriesSource tsSource, final SecuritySource securitySource,
-      final String forwardCurveName, final String forwardCurveCalculationMethod, final Security security, final ExternalId underlyingBuid, final ValueProperties additionalConstraints) {
+  private ValueRequirement getForwardCurveRequirement(final String forwardCurveName, final String forwardCurveCalculationMethod, final ExternalId underlyingBuid,
+      final ValueProperties additionalConstraints) {
     final ValueProperties properties = ValueProperties.builder() // TODO: Update to this => additionalConstraints.copy()
         .with(ValuePropertyNames.CURVE, forwardCurveName)
         .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD, forwardCurveCalculationMethod)

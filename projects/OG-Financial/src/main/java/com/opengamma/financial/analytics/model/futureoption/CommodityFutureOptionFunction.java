@@ -61,4 +61,9 @@ public abstract class CommodityFutureOptionFunction extends FutureOptionFunction
         .get();
     return new ValueRequirement(ValueRequirementNames.FORWARD_CURVE, ComputationTargetSpecification.of(currency), properties);
   }
+
+  @Override
+  protected String getSurfaceName(final FinancialSecurity security, final String surfaceName) {
+    return CommodityFutureOptionUtils.getSurfaceNameWithoutTicker(security, surfaceName);
+  }
 }
