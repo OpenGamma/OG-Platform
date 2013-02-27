@@ -12,7 +12,7 @@ import org.testng.annotations.Test;
 /**
  * Test.
  */
-@Test
+@Test(groups = "unit")
 public class DerbyDbDialectTest extends DbDialectTest {
 
   public DerbyDbDialectTest() {

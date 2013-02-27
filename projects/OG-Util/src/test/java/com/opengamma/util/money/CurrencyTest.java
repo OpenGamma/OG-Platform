@@ -22,7 +22,7 @@ import com.opengamma.id.UniqueId;
 /**
  * Test Currency.
  */
-@Test
+@Test(groups = "unit")
 public class CurrencyTest {
 
   //-----------------------------------------------------------------------

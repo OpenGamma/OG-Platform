@@ -17,7 +17,7 @@ import org.testng.annotations.Test;
 /**
  * Test ObjectsPair.
  */
-@Test
+@Test(groups = "unit")
 public class ObjectsPairTest {
 
   public void test_Pair_Of_String_String() {

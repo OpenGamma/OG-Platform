@@ -16,6 +16,7 @@ import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 /**
  * Test Fudge support.
  */
+@Test(groups = "unit")
 public class CurrencyFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
 
   private static final Currency s_ref = Currency.USD;

@@ -12,7 +12,7 @@ import org.testng.annotations.Test;
 /**
  * Test FirstThenSecondDoublesPairComparator.
  */
-@Test
+@Test(groups = "unit")
 public class FirstThenSecondDoublesPairComparatorTest {
 
   public void testSingleton() {

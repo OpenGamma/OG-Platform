@@ -15,7 +15,7 @@ import org.testng.annotations.Test;
 /**
  * Tests the {@link BlockingOperation} class.
  */
-@Test
+@Test(groups = "integration")
 public class BlockingOperationTest {
 
   public void testDefaultState() {

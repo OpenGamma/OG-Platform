@@ -22,6 +22,8 @@ import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesLoader;
+import com.opengamma.master.historicaltimeseries.impl.DataHistoricalTimeSeriesLoaderResource;
+import com.opengamma.master.historicaltimeseries.impl.RemoteHistoricalTimeSeriesLoader;
 
 /**
  * Component factory providing the {@code HistoricalTimeSeriesLoader}.
@@ -52,14 +54,15 @@ public abstract class AbstractHistoricalTimeSeriesLoaderComponentFactory extends
    */
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
-    final HistoricalTimeSeriesLoader loader = createHistoricalTimeSeriesLoader(repo);
-    final ComponentInfo info = new ComponentInfo(HistoricalTimeSeriesLoader.class, getClassifier());
+    HistoricalTimeSeriesLoader loader = createHistoricalTimeSeriesLoader(repo);
+    
+    ComponentInfo info = new ComponentInfo(HistoricalTimeSeriesLoader.class, getClassifier());
     info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
-//    info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteHistoricalTimeSeriesLoader.class);
+    info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteHistoricalTimeSeriesLoader.class);
     repo.registerComponent(info, loader);
-//    if (isPublishRest()) {
-//      repo.getRestComponents().publish(info, new DataHistoricalTimeSeriesLoaderResource(loader));
-//    }
+    if (isPublishRest()) {
+      repo.getRestComponents().publish(info, new DataHistoricalTimeSeriesLoaderResource(loader));
+    }
   }
 
   /**

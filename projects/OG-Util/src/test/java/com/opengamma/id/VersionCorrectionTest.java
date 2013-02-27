@@ -15,7 +15,7 @@ import org.threeten.bp.Instant;
 /**
  * Test {@link VersionCorrection}. 
  */
-@Test
+@Test(groups = "unit")
 public class VersionCorrectionTest {
 
   private static final Instant INSTANT1 = Instant.ofEpochSecond(1);

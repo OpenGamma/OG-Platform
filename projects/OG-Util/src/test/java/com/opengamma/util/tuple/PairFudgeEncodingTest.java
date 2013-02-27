@@ -20,7 +20,7 @@ import com.opengamma.util.time.Tenor;
 /**
  * Test Fudge encoding.
  */
-@Test
+@Test(groups = "unit")
 public class PairFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
 
   public void test_OO_Bundle() {

@@ -16,24 +16,24 @@ import java.io.IOException;
 import javax.ws.rs.ext.MessageBodyReader;
 import javax.ws.rs.ext.MessageBodyWriter;
 
-import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.MutableFudgeMsg;
 import org.testng.annotations.Test;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * Test the FudgeXXXProducer and FudgeXXXConsumer pairs by cycling
  * a Fudge message through them.
  */
-@Test
-public class FudgeProviders {
+@Test(groups = "unit")
+public class FudgeProvidersTest {
 
   @SuppressWarnings({"rawtypes", "unchecked" })
   private void testBeans(final MessageBodyWriter producer, final MessageBodyReader consumer) {
-    final MutableFudgeMsg msgIn = FudgeContext.GLOBAL_DEFAULT.newMessage();
+    final MutableFudgeMsg msgIn = OpenGammaFudgeContext.getInstance().newMessage();
     msgIn.add("foo", "bar");
     msgIn.add("number", 42);
     final FudgeMsgEnvelope msgInEnv = new FudgeMsgEnvelope(msgIn, 0, 0);

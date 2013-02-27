@@ -53,7 +53,7 @@ public class InterpolatedYieldCurveSpecificationBuilderComponentFactory extends 
   //-------------------------------------------------------------------------
   /**
    * Initializes the source, setting up component information and REST.
-   * Override using {@link #createCurrencyPairsSource(ComponentRepository)}.
+   * Override using {@link #createInterpolatedYieldCurveSpecificationBuilder(ComponentRepository)}.
    * 
    * @param repo  the component repository, not null
    * @param configuration  the remaining configuration, not null

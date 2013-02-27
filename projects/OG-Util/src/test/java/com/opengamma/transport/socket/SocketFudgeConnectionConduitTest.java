@@ -31,7 +31,7 @@ import com.opengamma.util.test.Timeout;
 /**
  * Tests the SocketFudgeConnection and ServerSocketFudgeConnectionReceiver classes
  */
-@Test(singleThreaded = true)
+@Test(groups = "integration", singleThreaded = true)
 public class SocketFudgeConnectionConduitTest {
   
   private final AtomicInteger _counter = new AtomicInteger();

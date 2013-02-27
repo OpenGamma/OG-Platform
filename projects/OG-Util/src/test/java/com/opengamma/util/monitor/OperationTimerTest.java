@@ -14,7 +14,7 @@ import org.testng.annotations.Test;
 /**
  * Test OperationTimer.
  */
-@Test
+@Test(groups = "integration")
 public class OperationTimerTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(OperationTimerTest.class);

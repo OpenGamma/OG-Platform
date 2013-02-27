@@ -61,7 +61,7 @@ public class RegionSourceComponentFactory extends AbstractComponentFactory {
   //-------------------------------------------------------------------------
   /**
    * Initializes the region source, setting up component information and REST.
-   * Override using {@link #createCurrencyPairsSource(ComponentRepository)}.
+   * Override using {@link #createRegionSource(ComponentRepository)}.
    * 
    * @param repo  the component repository, not null
    * @param configuration  the remaining configuration, not null

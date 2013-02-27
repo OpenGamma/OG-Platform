@@ -8,6 +8,7 @@ package com.opengamma.analytics.financial.interestrate;
 import com.opengamma.analytics.financial.commodity.derivative.AgricultureFutureOption;
 import com.opengamma.analytics.financial.commodity.derivative.EnergyFutureOption;
 import com.opengamma.analytics.financial.commodity.derivative.MetalFutureOption;
+import com.opengamma.analytics.financial.equity.option.EquityIndexFutureOption;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.equity.option.EquityOption;
 import com.opengamma.analytics.financial.forex.derivative.ForexSwap;
@@ -254,5 +255,10 @@ public final class LastTimeCalculator extends InstrumentDerivativeVisitorAdapter
   @Override
   public Double visitEquityOption(final EquityOption option) {
     return option.getTimeToExpiry();
+  }
+
+  @Override
+  public Double visitEquityIndexFutureOption(final EquityIndexFutureOption option) {
+    return option.getExpiry();
   }
 }

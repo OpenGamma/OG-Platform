@@ -220,7 +220,7 @@ public class CurveHtsResolverTool extends AbstractTool<IntegrationToolContext> {
         for (final String dataField : dataFields) {
           s_logger.info("Loading time series (field: " + dataField + ", provider: " + dataProvider + ") with external IDs " + externalIds);
           if (write) {
-            loader.addTimeSeries(externalIds, dataProvider, dataField, LocalDate.now().minusYears(1), null);
+            loader.loadTimeSeries(externalIds, dataProvider, dataField, LocalDate.now().minusYears(1), null);
           }
         }
       }

@@ -106,7 +106,7 @@ public abstract class AbstractFudgeBuilderTestCase {
 
   protected FudgeMsg cycleMessage(final FudgeMsg message) {
     final byte[] data = getFudgeContext().toByteArray(message);
-    s_logger.info("{} bytes", data.length);
+    getLogger().info("{} bytes", data.length);
     return getFudgeContext().deserialize(data).getMessage();
   }
 

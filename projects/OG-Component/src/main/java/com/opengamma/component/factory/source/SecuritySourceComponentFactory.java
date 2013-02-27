@@ -53,7 +53,7 @@ public class SecuritySourceComponentFactory extends AbstractComponentFactory {
   //-------------------------------------------------------------------------
   /**
    * Initializes the security source, setting up component information and REST.
-   * Override using {@link #createCurrencyPairsSource(ComponentRepository)}.
+   * Override using {@link #createSecuritySource(ComponentRepository)}.
    * 
    * @param repo  the component repository, not null
    * @param configuration  the remaining configuration, not null

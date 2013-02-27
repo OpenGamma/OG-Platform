@@ -16,7 +16,7 @@ import com.opengamma.util.timeseries.ObjectTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateObjectTimeSeries;
 import com.opengamma.util.timeseries.localdate.MapLocalDateObjectTimeSeries;
 
-@Test
+@Test(groups = "unit")
 public class MapLocalDateObjectTimeSeriesTest extends LocalDateObjectTimeSeriesTest {
 
   @Override

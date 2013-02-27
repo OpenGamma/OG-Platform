@@ -8,12 +8,16 @@ package com.opengamma.util.timeseries;
 import java.util.Calendar;
 import java.util.Date;
 
+import org.testng.annotations.Test;
+
 /**
- * 
+ * Test.
  */
+@Test(groups = "unit")
 public abstract class DateDoubleTimeSeriesTest extends DoubleTimeSeriesTest<Date> {
+
   @Override
-  public Date[] testTimes() {
+  protected Date[] testTimes() {
     Calendar cal = Calendar.getInstance();
     cal.clear();
     cal.set(2010, 1, 8); // feb
@@ -28,11 +32,11 @@ public abstract class DateDoubleTimeSeriesTest extends DoubleTimeSeriesTest<Date
     Date five = cal.getTime();
     cal.set(2010, 1, 13);
     Date six = cal.getTime();
-    return new Date[] { one, two, three, four, five, six };
+    return new Date[] {one, two, three, four, five, six };
   }
 
   @Override
-  public Date[] testTimes2() {
+  protected Date[] testTimes2() {
     Calendar cal = Calendar.getInstance();
     cal.clear();
     cal.set(2010, 1, 11); // feb
@@ -47,11 +51,12 @@ public abstract class DateDoubleTimeSeriesTest extends DoubleTimeSeriesTest<Date
     Date five = cal.getTime();
     cal.set(2010, 1, 16);
     Date six = cal.getTime();
-    return new Date[] { one, two, three, four, five, six };
-  } 
+    return new Date[] {one, two, three, four, five, six };
+  }
 
   @Override
-  public Date[] emptyTimes() {
+  protected Date[] emptyTimes() {
     return new Date[] {};
   }
+
 }

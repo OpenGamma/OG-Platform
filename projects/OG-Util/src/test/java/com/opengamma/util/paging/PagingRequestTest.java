@@ -12,11 +12,10 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
-
 /**
  * Test PagingRequest.
  */
-@Test
+@Test(groups = "unit")
 public final class PagingRequestTest {
 
   public void test_ALL() {
