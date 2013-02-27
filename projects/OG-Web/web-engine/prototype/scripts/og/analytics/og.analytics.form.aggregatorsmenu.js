@@ -59,7 +59,9 @@ $.register_module({
             };
 
             var serialize = function () {
-                return remove_orphans(), query.pluck('val');
+                return remove_orphans(), query.pluck('val').filter(function (entry) {
+                    return entry !== default_sel_txt;
+                });
             };
 
             var init = function () {
@@ -120,8 +122,10 @@ $.register_module({
                 if (!menu.opts[entry]) return;
                 var sel_pos = menu.opts[entry].data('pos'), select = $(select_s, menu.opts[entry]),
                     sel_val = select.val(), idx = query.pluck('pos').indexOf(sel_pos);
-                if (sel_val === default_sel_txt && !preload)
-                    return remove_entry(idx), query.length === 0 ? $query.html(default_sel_txt) : false;
+                if (sel_val === default_sel_txt && !preload) {
+                    remove_entry(idx);
+                    if (query.length === 0) $query.html(default_sel_txt);
+                }
                 else if (~idx) query[entry].val = sel_val;
                 else query.splice(sel_pos, 0, {pos:sel_pos, val:sel_val, required_field:false});
             };
