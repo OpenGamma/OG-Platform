@@ -8,6 +8,7 @@ package com.opengamma.web.analytics;
 import java.util.List;
 
 import com.opengamma.core.security.Security;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.analytics.blotter.BlotterColumn;
 import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
@@ -36,7 +37,18 @@ import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
   @Override
   public ResultsCell getResults(int rowIndex, ResultsCache cache, Class<?> columnType) {
     PortfolioGridRow row = _rows.get(rowIndex);
-    Security security = row.getSecurity();
-    return ResultsCell.forStaticValue(_columnMappings.valueFor(_column, security), columnType);
+    UniqueId securityId = row.getSecurityId();
+    Security security;
+    ResultsCache.Result result;
+    boolean updated;
+    if (securityId != null) {
+      result = cache.getEntity(securityId.getObjectId());
+      security = (Security) result.getValue();
+      updated = result.isUpdated();
+    } else {
+      security = null;
+      updated = false;
+    }
+    return ResultsCell.forStaticValue(_columnMappings.valueFor(_column, security), columnType, updated);
   }
 }

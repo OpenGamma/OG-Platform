@@ -40,6 +40,8 @@ public class BlackFunctions extends AbstractRepositoryConfigurationBean {
     functions.add(functionConfiguration(CommodityBlackVolatilitySurfaceFunction.Spline.class));
     functions.add(functionConfiguration(EquityBlackVolatilitySurfaceFunction.SABR.class));
     functions.add(functionConfiguration(EquityBlackVolatilitySurfaceFunction.Spline.class));
+    functions.add(functionConfiguration(EquityFutureBlackVolatilitySurfaceFunction.SABR.class));
+    functions.add(functionConfiguration(EquityFutureBlackVolatilitySurfaceFunction.Spline.class));
     functions.add(functionConfiguration(ForexBlackVolatilitySurfaceFunction.MixedLogNormal.class));
     functions.add(functionConfiguration(ForexBlackVolatilitySurfaceFunction.SABR.class));
     functions.add(functionConfiguration(ForexBlackVolatilitySurfaceFunction.Spline.class));

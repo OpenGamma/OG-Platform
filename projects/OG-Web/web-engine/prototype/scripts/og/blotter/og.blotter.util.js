@@ -6,8 +6,8 @@ $.register_module({
     name: 'og.blotter.util',
     dependencies: [],
     obj: function () {
-        var bools = {"false": false, "true": true};
-        return {
+        var util = this, bools = {"false": false, "true": true};
+        return util = {
             /* Util methods */
             create_name : function (data){
                 return data.security.type + " " + data.trade.tradeDate;
@@ -48,19 +48,23 @@ $.register_module({
                 else
                     option.removeAttr("disabled");
             },
+            cleanup : function (obj) {
+                Object.keys(obj).forEach(function (key) {
+                    var value = obj[key];
+                    if (typeof value === 'string' && !value.length) 
+                        delete obj[key];
+                    else if (value instanceof Object) 
+                        util.cleanup(value);
+                });
+            },
             /* Util data */
             otc_trade : {
                 attributes: {},
-                type: "OtcTrade",
-                premiumCurrency: 'USD',
-                premium: 10
-
+                type: "OtcTrade"
             },
             fungible_trade : {
                 attributes: {},
-                type: "FungibleTrade",
-                premiumCurrency: 'USD',
-                premium: 10
+                type: "FungibleTrade"
             },
             swap_types : [
                 {text:'Floating Interest Rate Leg', value:'FloatingInterestRateLeg'},

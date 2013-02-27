@@ -31,7 +31,7 @@ public interface AnalyticsView {
    * @param compiledViewDefinition The compiled view definition whose data will be displayed in the grids
    * @return Callback IDs of grids that were updated
    */
-  List<String> updateStructure(CompiledViewDefinition compiledViewDefinition);
+  List<String> updateColumns(CompiledViewDefinition compiledViewDefinition);
 
   /**
    * Updates the data in the grids when a cycle completes in the calculation engine.
@@ -178,4 +178,8 @@ public interface AnalyticsView {
    * @return The current data for the viewport.
    */
   ViewportResults getData(GridType gridType, int graphId, int viewportId);
+
+  List<String> entityChanged(MasterChangeNotification<?> notification);
+
+  List<String> portfolioChanged();
 }

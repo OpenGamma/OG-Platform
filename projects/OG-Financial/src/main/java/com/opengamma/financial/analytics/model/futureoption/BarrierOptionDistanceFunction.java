@@ -8,9 +8,6 @@ package com.opengamma.financial.analytics.model.futureoption;
 import java.util.Collections;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.AbstractFunction.NonCompiledInvoker;
@@ -23,7 +20,6 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.model.equity.option.EquityVanillaBarrierOptionDistanceFunction;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.util.async.AsynchronousExecution;
 
@@ -33,9 +29,6 @@ import com.opengamma.util.async.AsynchronousExecution;
  * Defined as absolute difference (optionally expressed as a percentage) between barrier level and market price
  */
 public abstract class BarrierOptionDistanceFunction extends NonCompiledInvoker {
-
-  /** The logger */
-  private static final Logger s_logger = LoggerFactory.getLogger(EquityVanillaBarrierOptionDistanceFunction.class);
   /** absolute difference */
   public static final String BARRIER_ABS = "abs";
   /** percentage difference from barrier level */
@@ -73,22 +66,23 @@ public abstract class BarrierOptionDistanceFunction extends NonCompiledInvoker {
       return null;
     }
 
-    ValueRequirement marketRequirement = getMarketDataRequirement(security);
+    final ValueRequirement marketRequirement = getMarketDataRequirement(security);
     return Collections.singleton(marketRequirement);
   }
 
   @Override
-  public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
+      final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final ValueRequirement desiredValue = desiredValues.iterator().next();
 
     // Do we care whether the option has expired?
-    Double spot = getSpot(inputs);
+    final Double spot = getSpot(inputs);
 
     final String outputFormat = desiredValue.getConstraint(ValuePropertyNames.BARRIER_DISTANCE_OUTPUT_FORMAT);
 
     Double distance;
-    double barrier = getBarrierLevel(security);
+    final double barrier = getBarrierLevel(security);
     switch (outputFormat) {
       case BARRIER_ABS:
         distance = Double.valueOf(Math.abs(barrier - spot.doubleValue()));

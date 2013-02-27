@@ -131,7 +131,7 @@ public abstract class EquityFutureBlackVolatilitySurfaceFunction extends BlackVo
 
     @SuppressWarnings("unchecked")
     final VolatilitySurfaceData<Object, Object> volatilitySurface = (VolatilitySurfaceData<Object, Object>) volatilitySurfaceObject;
-    return BlackVolatilitySurfaceUtils.getDataFromStandardQuotes(forwardCurve, volatilitySurface);
+    return BlackVolatilitySurfaceUtils.getDataFromStandardQuotes(forwardCurve, volatilitySurface, 4); //TODO remove hard-coding
   }
 
   @Override

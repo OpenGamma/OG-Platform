@@ -66,7 +66,7 @@ $.register_module({
             },
             depgraph_blacklist: ['DOUBLE', 'STRING', 'TENOR', 'UNKNOWN'],
             data_type_map: {
-                CURVE                   : [3, 1, 6],
+                CURVE                   : [3, 1, 6, 0],
                 STRING                  : [8],
                 DOUBLE                  : [0, 6],
                 FUNGIBLE_TRADE          : [5],
@@ -78,12 +78,12 @@ $.register_module({
                 POSITION                : [5],
                 STRING                  : [0, 6],
                 SURFACE_DATA            : [2, 1, 0, 6],
-                UNPLOTTABLE_SURFACE_DATA: [1, 6],
+                UNPLOTTABLE_SURFACE_DATA: [1, 6, 0],
                 TENOR                   : [0, 6],
-                TIME_SERIES             : [4, 1, 7, 6],
+                TIME_SERIES             : [4, 1, 7, 6, 0],
                 UNKNOWN                 : [0, 6],
                 VECTOR                  : [0, 1, 6],
-                HISTOGRAM               : [5, 1, 6]
+                HISTOGRAM               : [5, 1, 6, 0]
             }
         };
     }

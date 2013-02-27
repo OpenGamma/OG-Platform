@@ -43,7 +43,7 @@ import com.opengamma.web.spring.BloombergVolatilityCubeFunctions;
 import com.opengamma.web.spring.DemoStandardFunctionConfiguration;
 
 /**
- * Component factory for the repository configuration source.
+ * Component factory providing the {@code RepositoryConfigurationSource}.
  */
 @BeanDefinition
 public class RepositoryConfigurationSourceComponentFactory extends AbstractComponentFactory {

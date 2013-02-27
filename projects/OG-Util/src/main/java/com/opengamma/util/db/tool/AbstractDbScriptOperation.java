@@ -52,7 +52,7 @@ public abstract class AbstractDbScriptOperation<T extends DbToolContext> extends
    * @return the current schema version of the group, null if not versioned
    */
   protected Integer getCurrentGroupVersion(String groupName) {
-    return getDbToolContext().getDbManagement().getSchemaGroupVersion(getDbToolContext().getCatalog(), null, groupName);
+    return getDbToolContext().getDbManagement().getSchemaGroupVersion(getDbToolContext().getCatalog(), getDbToolContext().getSchema(), groupName);
   }
 
 }

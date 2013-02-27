@@ -20,6 +20,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
+import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
 import com.opengamma.financial.analytics.model.equity.EquitySecurityUtils;
 import com.opengamma.financial.property.DefaultPropertyFunction;
@@ -33,27 +34,27 @@ public class EquityBlackVolatilitySurfacePerTickerDefaults extends DefaultProper
   private static final Logger s_logger = LoggerFactory.getLogger(EquityBlackVolatilitySurfacePerTickerDefaults.class);
   /** The value requirements for which these defaults apply */
   private static final String[] VALUE_REQUIREMENTS = new String[] {
-      ValueRequirementNames.BLACK_VOLATILITY_SURFACE,
-      ValueRequirementNames.LOCAL_VOLATILITY_SURFACE,
-      ValueRequirementNames.PURE_VOLATILITY_SURFACE,
-      ValueRequirementNames.FORWARD_DELTA,
-      ValueRequirementNames.DUAL_DELTA,
-      ValueRequirementNames.DUAL_GAMMA,
-      ValueRequirementNames.FORWARD_GAMMA,
-      ValueRequirementNames.FORWARD_VEGA,
-      ValueRequirementNames.FORWARD_VOMMA,
-      ValueRequirementNames.FORWARD_VANNA,
-      ValueRequirementNames.PRESENT_VALUE,
-      ValueRequirementNames.IMPLIED_VOLATILITY,
-      ValueRequirementNames.GRID_DUAL_DELTA,
-      ValueRequirementNames.GRID_DUAL_GAMMA,
-      ValueRequirementNames.GRID_FORWARD_DELTA,
-      ValueRequirementNames.GRID_FORWARD_GAMMA,
-      ValueRequirementNames.GRID_FORWARD_VEGA,
-      ValueRequirementNames.GRID_FORWARD_VANNA,
-      ValueRequirementNames.GRID_FORWARD_VOMMA,
-      ValueRequirementNames.GRID_IMPLIED_VOLATILITY,
-      ValueRequirementNames.GRID_PRESENT_VALUE
+    ValueRequirementNames.BLACK_VOLATILITY_SURFACE,
+    ValueRequirementNames.LOCAL_VOLATILITY_SURFACE,
+    ValueRequirementNames.PURE_VOLATILITY_SURFACE,
+    ValueRequirementNames.FORWARD_DELTA,
+    ValueRequirementNames.DUAL_DELTA,
+    ValueRequirementNames.DUAL_GAMMA,
+    ValueRequirementNames.FORWARD_GAMMA,
+    ValueRequirementNames.FORWARD_VEGA,
+    ValueRequirementNames.FORWARD_VOMMA,
+    ValueRequirementNames.FORWARD_VANNA,
+    ValueRequirementNames.PRESENT_VALUE,
+    ValueRequirementNames.IMPLIED_VOLATILITY,
+    ValueRequirementNames.GRID_DUAL_DELTA,
+    ValueRequirementNames.GRID_DUAL_GAMMA,
+    ValueRequirementNames.GRID_FORWARD_DELTA,
+    ValueRequirementNames.GRID_FORWARD_GAMMA,
+    ValueRequirementNames.GRID_FORWARD_VEGA,
+    ValueRequirementNames.GRID_FORWARD_VANNA,
+    ValueRequirementNames.GRID_FORWARD_VOMMA,
+    ValueRequirementNames.GRID_IMPLIED_VOLATILITY,
+    ValueRequirementNames.GRID_PRESENT_VALUE
   };
   /** Ids to forward curve names */
   private final Map<String, String> _idToForwardCurveName;
@@ -106,6 +107,9 @@ public class EquityBlackVolatilitySurfacePerTickerDefaults extends DefaultProper
 
   @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
+    if (!desiredValue.getConstraint(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE).equals(InstrumentTypeProperties.EQUITY_OPTION)) {
+      return null;
+    }
     final String id = target.getUniqueId().getValue();
     final String curveName = _idToForwardCurveName.get(id);
     if (curveName == null) {

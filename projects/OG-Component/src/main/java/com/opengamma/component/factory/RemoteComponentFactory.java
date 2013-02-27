@@ -62,7 +62,9 @@ import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.region.RegionMaster;
 import com.opengamma.master.region.impl.RemoteRegionMaster;
+import com.opengamma.master.security.SecurityLoader;
 import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.master.security.impl.RemoteSecurityLoader;
 import com.opengamma.masterdb.portfolio.RemoteDbPortfolioMaster;
 import com.opengamma.masterdb.position.RemoteDbPositionMaster;
 import com.opengamma.masterdb.security.RemoteDbSecurityMaster;
@@ -139,8 +141,8 @@ public class RemoteComponentFactory {
     return result;
   }
   
+  //-------------------------------------------------------------------------
   // Configs
-  
   /**
    * @param preferredClassifiers a list of names of classifiers in order of preference (most preferred first), or null
    * @return the best matching interface available
@@ -158,7 +160,7 @@ public class RemoteComponentFactory {
     URI uri = getComponentServer().getComponentInfo(ConfigMaster.class, name).getUri();
     return new RemoteConfigMaster(uri);
   }
-  
+
   /**
    * @return a map of classifier names to requested interface type
    */
@@ -169,7 +171,8 @@ public class RemoteComponentFactory {
     }
     return result;
   }
-  
+
+  //-------------------------------------------------------------------------
   /**
    * @param preferredClassifiers a list of names of classifiers in order of preference (most preferred first), or null
    * @return the best matching master available
@@ -178,7 +181,7 @@ public class RemoteComponentFactory {
     ComponentInfo componentInfo = getTopLevelComponent(preferredClassifiers, ConfigSource.class);
     return new RemoteConfigSource(componentInfo.getUri());
   }
-  
+
   /**
    * @param name the classifier name of the object you want to retrieve
    * @return the interface requested, or null if not present
@@ -187,7 +190,7 @@ public class RemoteComponentFactory {
     URI uri = getComponentServer().getComponentInfo(ConfigSource.class, name).getUri();
     return new RemoteConfigSource(uri);
   }
-  
+
   /**
    * @return a map of classifier names to requested interface type
    */
@@ -199,6 +202,7 @@ public class RemoteComponentFactory {
     return result;    
   }
 
+  //-------------------------------------------------------------------------
   // Portfolios
   /**
    * @param name the classifier name of the object you want to retrieve
@@ -217,7 +221,7 @@ public class RemoteComponentFactory {
     URI uri = getTopLevelComponent(preferredClassifiers, PortfolioMaster.class).getUri();
     return new RemoteDbPortfolioMaster(uri);
   }
-  
+
   /**
    * @return a map of classifier names to requested interface type
    */
@@ -229,6 +233,7 @@ public class RemoteComponentFactory {
     return result;    
   }
 
+  //-------------------------------------------------------------------------
   // Positions
   /**
    * @param name the classifier name of the object you want to retrieve
@@ -238,7 +243,7 @@ public class RemoteComponentFactory {
     URI uri = getComponentServer().getComponentInfo(PositionMaster.class, name).getUri();
     return new RemoteDbPositionMaster(uri);
   }
-  
+
   /**
    * @param preferredClassifiers a list of names of classifiers in order of preference (most preferred first), or null
    * @return the best matching interface available
@@ -247,7 +252,7 @@ public class RemoteComponentFactory {
     URI uri = getTopLevelComponent(preferredClassifiers, PositionMaster.class).getUri();
     return new RemoteDbPositionMaster(uri);
   }
-  
+
   /**
    * @return a map of classifier names to requested interface type
    */
@@ -258,7 +263,8 @@ public class RemoteComponentFactory {
     }
     return result;
   }
-  
+
+  //-------------------------------------------------------------------------
   /**
    * @param name the classifier name of the object you want to retrieve
    * @return the interface requested, or null if not present
@@ -267,7 +273,7 @@ public class RemoteComponentFactory {
     URI uri = getComponentServer().getComponentInfo(PositionSource.class, name).getUri();
     return new RemotePositionSource(uri);
   }
-  
+
   /**
    * @param preferredClassifiers a list of names of classifiers in order of preference (most preferred first), or null
    * @return the best matching interface available
@@ -276,7 +282,7 @@ public class RemoteComponentFactory {
     URI uri = getTopLevelComponent(preferredClassifiers, PositionSource.class).getUri();
     return new RemotePositionSource(uri);
   }
-  
+
   /**
    * @return a map of classifier names to requested interface type
    */
@@ -287,7 +293,8 @@ public class RemoteComponentFactory {
     }
     return result;    
   }
-  
+
+  //-------------------------------------------------------------------------
   // Securities
   /**
    * @param name the classifier name of the object you want to retrieve
@@ -297,7 +304,7 @@ public class RemoteComponentFactory {
     URI uri = getComponentServer().getComponentInfo(SecuritySource.class, name).getUri();
     return new RemoteFinancialSecuritySource(uri);
   }
-  
+
   /**
    * @param preferredClassifiers a list of names of classifiers in order of preference (most preferred first), or null
    * @return the best matching interface available
@@ -306,7 +313,7 @@ public class RemoteComponentFactory {
     URI uri = getTopLevelComponent(preferredClassifiers, SecuritySource.class).getUri();
     return new RemoteSecuritySource(uri);
   }
-  
+
   /**
    * @return a map of classifier names to requested interface type
    */
@@ -317,7 +324,8 @@ public class RemoteComponentFactory {
     }
     return result;
   }
-  
+
+  //-------------------------------------------------------------------------
   /**
    * @param name the classifier name of the object you want to retrieve
    * @return the interface requested, or null if not present
@@ -326,7 +334,7 @@ public class RemoteComponentFactory {
     URI uri = getComponentServer().getComponentInfo(SecurityMaster.class, name).getUri();
     return new RemoteDbSecurityMaster(uri);
   }
-  
+
   /**
    * @param preferredClassifiers a list of names of classifiers in order of preference (most preferred first), or null
    * @return the best matching interface available
@@ -335,6 +343,7 @@ public class RemoteComponentFactory {
     URI uri = getTopLevelComponent(preferredClassifiers, SecurityMaster.class).getUri();
     return new RemoteDbSecurityMaster(uri);
   }
+
   /**
    * @return a map of classifier names to requested interface type
    */
@@ -346,6 +355,37 @@ public class RemoteComponentFactory {
     return result;
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * @param name the classifier name of the object you want to retrieve
+   * @return the interface requested, or null if not present
+   */
+  public SecurityLoader getSecurityLoader(final String name) {
+    URI uri = getComponentServer().getComponentInfo(SecurityLoader.class, name).getUri();
+    return new RemoteSecurityLoader(uri);
+  }
+
+  /**
+   * @param preferredClassifiers a list of names of classifiers in order of preference (most preferred first), or null
+   * @return the best matching interface available
+   */
+  public SecurityLoader getSecurityLoader(final List<String> preferredClassifiers) {
+    URI uri = getTopLevelComponent(preferredClassifiers, SecurityLoader.class).getUri();
+    return new RemoteSecurityLoader(uri);
+  }
+
+  /**
+   * @return a map of classifier names to requested interface type
+   */
+  public Map<String, SecurityLoader> getSecurityLoaders() {
+    Map<String, SecurityLoader> result = new LinkedHashMap<String, SecurityLoader>();
+    for (ComponentInfo info : getComponentServer().getComponentInfos(SecurityLoader.class)) {
+      result.put(info.getClassifier(), new RemoteSecurityLoader(info.getUri()));
+    }
+    return result;
+  }
+
+  //-------------------------------------------------------------------------
   // Market Data Snapshots
   /**
    * @param name the classifier name of the object you want to retrieve
@@ -355,7 +395,7 @@ public class RemoteComponentFactory {
     URI uri = getComponentServer().getComponentInfo(MarketDataSnapshotMaster.class, name).getUri();
     return new RemoteMarketDataSnapshotMaster(uri);
   }
-  
+
   /**
    * @param preferredClassifiers a list of names of classifiers in order of preference (most preferred first), or null
    * @return the best matching interface available
@@ -364,7 +404,7 @@ public class RemoteComponentFactory {
     URI uri = getTopLevelComponent(preferredClassifiers, MarketDataSnapshotMaster.class).getUri();
     return new RemoteMarketDataSnapshotMaster(uri);
   }
-  
+
   /**
    * @return a map of classifier names to requested interface type
    */
@@ -375,7 +415,8 @@ public class RemoteComponentFactory {
     }
     return result;
   }
-  
+
+  //-------------------------------------------------------------------------
   /**
    * @param name the classifier name of the object you want to retrieve
    * @return the interface requested, or null if not present
@@ -384,7 +425,7 @@ public class RemoteComponentFactory {
     URI uri = getComponentServer().getComponentInfo(MarketDataSnapshotSource.class, name).getUri();
     return new RemoteMarketDataSnapshotSource(uri);
   }
-  
+
   /**
    * @param preferredClassifiers a list of names of classifiers in order of preference (most preferred first), or null
    * @return the best matching interface available
@@ -393,7 +434,7 @@ public class RemoteComponentFactory {
     URI uri = getTopLevelComponent(preferredClassifiers, MarketDataSnapshotSource.class).getUri();
     return new RemoteMarketDataSnapshotSource(uri);
   }
-  
+
   /**
    * @return a map of classifier names to requested interface type
    */
@@ -405,6 +446,7 @@ public class RemoteComponentFactory {
     return result;
   }
 
+  //-------------------------------------------------------------------------
   // Historical Time Series
   /**
    * @param name the classifier name of the object you want to retrieve
@@ -414,7 +456,7 @@ public class RemoteComponentFactory {
     URI uri = getComponentServer().getComponentInfo(HistoricalTimeSeriesSource.class, name).getUri();
     return new RemoteHistoricalTimeSeriesSource(uri);
   }
-  
+
   /**
    * @param preferredClassifiers a list of names of classifiers in order of preference (most preferred first), or null
    * @return the best matching interface available
@@ -423,7 +465,7 @@ public class RemoteComponentFactory {
     URI uri = getTopLevelComponent(preferredClassifiers, HistoricalTimeSeriesSource.class).getUri();
     return new RemoteHistoricalTimeSeriesSource(uri);
   }
-  
+
   /**
    * @return a map of classifier names to requested interface type
    */
@@ -434,7 +476,8 @@ public class RemoteComponentFactory {
     }
     return result;    
   }
-  
+
+  //-------------------------------------------------------------------------
   /**
    * @param name the classifier name of the object you want to retrieve
    * @return the interface requested, or null if not present
@@ -443,7 +486,7 @@ public class RemoteComponentFactory {
     URI uri = getComponentServer().getComponentInfo(HistoricalTimeSeriesMaster.class, name).getUri();
     return new RemoteHistoricalTimeSeriesMaster(uri);
   }
-  
+
   /**
    * @param preferredClassifiers a list of names of classifiers in order of preference (most preferred first), or null
    * @return the best matching interface available
@@ -452,7 +495,7 @@ public class RemoteComponentFactory {
     URI uri = getTopLevelComponent(preferredClassifiers, HistoricalTimeSeriesMaster.class).getUri();
     return new RemoteHistoricalTimeSeriesMaster(uri);
   }
-  
+
   /**
    * @return a map of classifier names to requested interface type
    */
@@ -464,6 +507,7 @@ public class RemoteComponentFactory {
     return result;
   }
 
+  //-------------------------------------------------------------------------
   // Currency Matrices
   /**
    * @param name the classifier name of the object you want to retrieve
@@ -473,7 +517,7 @@ public class RemoteComponentFactory {
     URI uri = getComponentServer().getComponentInfo(CurrencyMatrixSource.class, name).getUri();
     return new RemoteCurrencyMatrixSource(uri);
   }
-  
+
   /**
    * @param preferredClassifiers a list of names of classifiers in order of preference (most preferred first), or null
    * @return the best matching interface available
@@ -482,7 +526,7 @@ public class RemoteComponentFactory {
     URI uri = getTopLevelComponent(preferredClassifiers, CurrencyMatrixSource.class).getUri();
     return new RemoteCurrencyMatrixSource(uri);
   }
-  
+
   /**
    * @return a map of classifier names to requested interface type
    */
@@ -493,7 +537,8 @@ public class RemoteComponentFactory {
     }
     return result;    
   }
-  
+
+  //-------------------------------------------------------------------------
   // Repository Configurations
   /**
    * @param name the classifier name of the object you want to retrieve
@@ -503,7 +548,7 @@ public class RemoteComponentFactory {
     URI uri = getComponentServer().getComponentInfo(RepositoryConfigurationSource.class, name).getUri();
     return new RemoteRepositoryConfigurationSource(uri);
   }
-  
+
   /**
    * @param preferredClassifiers a list of names of classifiers in order of preference (most preferred first), or null
    * @return the best matching interface available
@@ -512,7 +557,7 @@ public class RemoteComponentFactory {
     URI uri = getTopLevelComponent(preferredClassifiers, RepositoryConfigurationSource.class).getUri();
     return new RemoteRepositoryConfigurationSource(uri);
   }
-  
+
   /**
    * @return a map of classifier names to requested interface type
    */
@@ -523,7 +568,8 @@ public class RemoteComponentFactory {
     }
     return result;    
   }
-  
+
+  //-------------------------------------------------------------------------
   // Exchanges
   /**
    * @param name the classifier name of the object you want to retrieve
@@ -533,7 +579,7 @@ public class RemoteComponentFactory {
     URI uri = getComponentServer().getComponentInfo(ExchangeSource.class, name).getUri();
     return new RemoteExchangeSource(uri);
   }
-  
+
   /**
    * @param preferredClassifiers a list of names of classifiers in order of preference (most preferred first), or null
    * @return the best matching interface available
@@ -542,7 +588,7 @@ public class RemoteComponentFactory {
     URI uri = getTopLevelComponent(preferredClassifiers, ExchangeSource.class).getUri();
     return new RemoteExchangeSource(uri);
   }
-  
+
   /**
    * @return a map of classifier names to requested interface type
    */
@@ -553,7 +599,8 @@ public class RemoteComponentFactory {
     }
     return result;    
   }
-  
+
+  //-------------------------------------------------------------------------
   /**
    * @param name the classifier name of the object you want to retrieve
    * @return the interface requested, or null if not present
@@ -562,7 +609,7 @@ public class RemoteComponentFactory {
     URI uri = getComponentServer().getComponentInfo(ExchangeMaster.class, name).getUri();
     return new RemoteExchangeMaster(uri);
   }
-  
+
   /**
    * @param preferredClassifiers a list of names of classifiers in order of preference (most preferred first), or null
    * @return the best matching interface available
@@ -571,7 +618,7 @@ public class RemoteComponentFactory {
     URI uri = getTopLevelComponent(preferredClassifiers, ExchangeMaster.class).getUri();
     return new RemoteExchangeMaster(uri);
   }
-  
+
   /**
    * @return a map of classifier names to requested interface type
    */
@@ -583,6 +630,7 @@ public class RemoteComponentFactory {
     return result;    
   }
 
+  //-------------------------------------------------------------------------
   // Regions
   /**
    * @param name the classifier name of the object you want to retrieve
@@ -592,7 +640,7 @@ public class RemoteComponentFactory {
     URI uri = getComponentServer().getComponentInfo(RegionSource.class, name).getUri();
     return new RemoteRegionSource(uri);
   }
-  
+
   /**
    * @param preferredClassifiers a list of names of classifiers in order of preference (most preferred first), or null
    * @return the best matching interface available
@@ -601,7 +649,7 @@ public class RemoteComponentFactory {
     URI uri = getTopLevelComponent(preferredClassifiers, RegionSource.class).getUri();
     return new RemoteRegionSource(uri);
   }
-  
+
   /**
    * @return a map of classifier names to requested interface type
    */
@@ -612,7 +660,8 @@ public class RemoteComponentFactory {
     }
     return result;    
   }
-  
+
+  //-------------------------------------------------------------------------
   /**
    * @param name the classifier name of the object you want to retrieve
    * @return the interface requested, or null if not present
@@ -621,7 +670,7 @@ public class RemoteComponentFactory {
     URI uri = getComponentServer().getComponentInfo(RegionMaster.class, name).getUri();
     return new RemoteRegionMaster(uri);
   }
-  
+
   /**
    * @param preferredClassifiers a list of names of classifiers in order of preference (most preferred first), or null
    * @return the best matching interface available
@@ -630,7 +679,7 @@ public class RemoteComponentFactory {
     URI uri = getTopLevelComponent(preferredClassifiers, RegionMaster.class).getUri();
     return new RemoteRegionMaster(uri);
   }
-  
+
   /**
    * @return a map of classifier names to requested interface type
    */
@@ -642,6 +691,7 @@ public class RemoteComponentFactory {
     return result;    
   }
 
+  //-------------------------------------------------------------------------
   // Holidays
   /**
    * @param name the classifier name of the object you want to retrieve
@@ -651,7 +701,7 @@ public class RemoteComponentFactory {
     URI uri = getComponentServer().getComponentInfo(HolidaySource.class, name).getUri();
     return new RemoteHolidaySource(uri);
   }
-  
+
   /**
    * @param preferredClassifiers a list of names of classifiers in order of preference (most preferred first), or null
    * @return the best matching interface available
@@ -660,7 +710,7 @@ public class RemoteComponentFactory {
     URI uri = getTopLevelComponent(preferredClassifiers, HolidaySource.class).getUri();
     return new RemoteHolidaySource(uri);
   }
-  
+
   /**
    * @return a map of classifier names to requested interface type
    */
@@ -671,7 +721,8 @@ public class RemoteComponentFactory {
     }
     return result;    
   }
-  
+
+  //-------------------------------------------------------------------------
   /**
    * @param name the classifier name of the object you want to retrieve
    * @return the interface requested, or null if not present
@@ -680,7 +731,7 @@ public class RemoteComponentFactory {
     URI uri = getComponentServer().getComponentInfo(HolidayMaster.class, name).getUri();
     return new RemoteHolidayMaster(uri);
   }
-  
+
   /**
    * @param preferredClassifiers a list of names of classifiers in order of preference (most preferred first), or null
    * @return the best matching interface available
@@ -689,7 +740,7 @@ public class RemoteComponentFactory {
     URI uri = getTopLevelComponent(preferredClassifiers, HolidayMaster.class).getUri();
     return new RemoteHolidayMaster(uri);
   }
-  
+
   /**
    * @return a map of classifier names to requested interface type
    */
@@ -701,8 +752,8 @@ public class RemoteComponentFactory {
     return result;    
   }
 
+  //-------------------------------------------------------------------------
   // Interpolated Yield Curve Definitions
-  
   /* REVIEW: jim 28-May-2012 -- Why are we not just using the config source for this stuff? */
   /**
    * @param name the classifier name of the object you want to retrieve
@@ -712,7 +763,7 @@ public class RemoteComponentFactory {
     URI uri = getComponentServer().getComponentInfo(InterpolatedYieldCurveDefinitionSource.class, name).getUri();
     return new RemoteInterpolatedYieldCurveDefinitionSource(uri);
   }
-  
+
   /**
    * @param preferredClassifiers a list of names of classifiers in order of preference (most preferred first), or null
    * @return the best matching interface available
@@ -721,7 +772,7 @@ public class RemoteComponentFactory {
     URI uri = getTopLevelComponent(preferredClassifiers, InterpolatedYieldCurveDefinitionSource.class).getUri();
     return new RemoteInterpolatedYieldCurveDefinitionSource(uri);
   }
-  
+
   /**
    * @return a map of classifier names to requested interface type
    */
@@ -738,8 +789,8 @@ public class RemoteComponentFactory {
     return new RemoteInterpolatedYieldCurveDefinitionMaster(uri);
   }
 
+  //-------------------------------------------------------------------------
   // Interpolated Yield Curve Specification Builders
-  
   /* REVIEW: jim 28-May-2012 -- What on earth is this stuff - this is a data structure, not a service! */
   /**
    * @param name the classifier name of the object you want to retrieve
@@ -749,7 +800,7 @@ public class RemoteComponentFactory {
     URI uri = getComponentServer().getComponentInfo(InterpolatedYieldCurveSpecificationBuilder.class, name).getUri();
     return new RemoteInterpolatedYieldCurveSpecificationBuilder(uri);
   }
-  
+
   /* REVIEW: jim 28-May-2012 -- What on earth is this stuff - this is a data structure, not a service! */
   /**
    * @param preferredClassifiers a list of names of classifiers in order of preference (most preferred first), or null
@@ -759,7 +810,7 @@ public class RemoteComponentFactory {
     URI uri = getTopLevelComponent(preferredClassifiers, InterpolatedYieldCurveSpecificationBuilder.class).getUri();
     return new RemoteInterpolatedYieldCurveSpecificationBuilder(uri);
   }
-  
+
   /* REVIEW: jim 28-May-2012 -- What on earth is this stuff - this is a data structure, not a service! */
   /**
    * @return a map of classifier names to requested interface type
@@ -794,7 +845,7 @@ public class RemoteComponentFactory {
     JmsConnector jmsConnector = getJmsConnector(jmsBrokerUri);
     return jmsConnector;
   }
-  
+
   private ComponentServer getComponentServer() {
     return _componentServer;
   }

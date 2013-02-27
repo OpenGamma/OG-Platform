@@ -41,6 +41,8 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.conversion.CommodityFutureOptionConverter;
+import com.opengamma.financial.analytics.conversion.EquityOptionsConverter;
+import com.opengamma.financial.analytics.conversion.FutureSecurityConverter;
 import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
@@ -50,7 +52,6 @@ import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
-import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
@@ -82,9 +83,12 @@ public abstract class FutureOptionFunction extends AbstractFunction.NonCompiledI
     final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
+    final FutureSecurityConverter futureSecurityConverter = new FutureSecurityConverter(null, null);
     final FinancialSecurityVisitor<InstrumentDefinition<?>> commodityFutureOption = new CommodityFutureOptionConverter(securitySource, holidaySource, conventionSource, regionSource);
+    final FinancialSecurityVisitor<InstrumentDefinition<?>> equityFutureOption = new EquityOptionsConverter(futureSecurityConverter, securitySource);
     _converter = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder()
-        .commodityFutureOptionSecurityVisitor(commodityFutureOption).create();
+        .commodityFutureOptionSecurityVisitor(commodityFutureOption)
+        .equityIndexFutureOptionVisitor(equityFutureOption).create();
   }
 
   @Override
@@ -178,7 +182,7 @@ public abstract class FutureOptionFunction extends AbstractFunction.NonCompiledI
         return null;
       }
     }
-    final CommodityFutureOptionSecurity security = (CommodityFutureOptionSecurity) target.getSecurity();
+    final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final Set<String> discountingCurveNames = constraints.getValues(EquityOptionFunction.PROPERTY_DISCOUNTING_CURVE_NAME);
     if (discountingCurveNames == null || discountingCurveNames.size() != 1) {
       return null;
@@ -215,7 +219,7 @@ public abstract class FutureOptionFunction extends AbstractFunction.NonCompiledI
     return Sets.newHashSet(discountingReq, forwardCurveReq, volReq);
   }
 
-  /** 
+  /**
    * Allows us to set which ValueSpecifications contain ValuePropertyNames.CURRENCY <p>
    * PresentValue and ValueGamma will, while Delta and PositionDelta will not.
    * @return true if Function's specification contains ValuePropertyNames.CURRENCY, else false.
@@ -223,7 +227,7 @@ public abstract class FutureOptionFunction extends AbstractFunction.NonCompiledI
   protected boolean getFunctionIncludesCurrencyProperty() {
     return true;
   }
-  
+
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
     boolean discountCurvePropertiesSet = false;

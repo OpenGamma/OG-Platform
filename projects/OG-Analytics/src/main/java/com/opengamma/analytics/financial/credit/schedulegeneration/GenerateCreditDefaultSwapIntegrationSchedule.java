@@ -42,7 +42,8 @@ public class GenerateCreditDefaultSwapIntegrationSchedule {
       final ZonedDateTime valuationDate,
       final CreditDefaultSwapDefinition cds,
       final ISDACurve yieldCurve,
-      final HazardRateCurve hazardRateCurve) {
+      final HazardRateCurve hazardRateCurve,
+      final boolean includeSchedule) {
 
     // Check input objects are not null
     ArgumentChecker.notNull(cds, "CDS");
@@ -50,7 +51,7 @@ public class GenerateCreditDefaultSwapIntegrationSchedule {
     ArgumentChecker.notNull(hazardRateCurve, "Hazard Rate Curve");
 
     // Do we want to include the CDS premium leg cashflow schedule as points
-    final boolean includeSchedule = false;
+    //final boolean includeSchedule = false;
 
     // Get the start time of the CDS with respect to the current valuation date (can obviously be negative)
     final double startTime = calculateCreditDefaultSwapStartTime(valuationDate, cds, ACT_365);
@@ -70,6 +71,8 @@ public class GenerateCreditDefaultSwapIntegrationSchedule {
 
   public double[] constructCreditDefaultSwapContingentLegIntegrationSchedule(
       final ZonedDateTime valuationDate,
+      final ZonedDateTime startDate,
+      final ZonedDateTime endDate,
       final CreditDefaultSwapDefinition cds,
       final ISDACurve yieldCurve,
       final HazardRateCurve hazardRateCurve) {
@@ -83,13 +86,14 @@ public class GenerateCreditDefaultSwapIntegrationSchedule {
     final boolean includeSchedule = false;
 
     // Calculate the time at which protection starts
-    final double protectionStartTime = calculateProtectionStartTime(valuationDate, cds, ACT_365);
+    final double protectionStartTime = TimeCalculator.getTimeBetween(valuationDate, startDate, ACT_365); //calculateProtectionStartTime(valuationDate, cds, ACT_365);
+    final double protectionEndTime = TimeCalculator.getTimeBetween(valuationDate, endDate, ACT_365);
 
     // Calculate the maturity of the CDS with respect to the valuation date
     final double maturity = calculateCreditDefaultSwapMaturity(valuationDate, cds, ACT_365);
 
     // Calculate the schedule of integration timenodes for the contingent leg calculation
-    final double[] timeNodes = constructISDACompliantIntegrationSchedule(valuationDate, cds, yieldCurve, hazardRateCurve, protectionStartTime, maturity, includeSchedule);
+    final double[] timeNodes = constructISDACompliantIntegrationSchedule(valuationDate, cds, yieldCurve, hazardRateCurve, protectionStartTime, /*maturity*/protectionEndTime, includeSchedule);
 
     return timeNodes;
   }
@@ -208,6 +212,34 @@ public class GenerateCreditDefaultSwapIntegrationSchedule {
 
   // -------------------------------------------------------------------------------------------
 
+  public double[] getTruncatedTimeLine(final double[] timeline, final double startTime, final double endTime) {
+
+    final NavigableSet<Double> allTimePoints = new TreeSet<Double>();
+    Set<Double> timePointsInRange;
+
+    for (int i = 0; i < timeline.length; i++) {
+      allTimePoints.add(timeline[i]);
+    }
+
+    allTimePoints.add(startTime);
+    allTimePoints.add(endTime);
+
+    timePointsInRange = allTimePoints.subSet(new Double(startTime), true, new Double(endTime), true);
+
+    final Double[] boxed = new Double[timePointsInRange.size()];
+    timePointsInRange.toArray(boxed);
+
+    final double[] truncatedTimeline = new double[boxed.length];
+
+    for (int i = 0; i < boxed.length; ++i) {
+      truncatedTimeline[i] = boxed[i].doubleValue();
+    }
+
+    return truncatedTimeline;
+  }
+
+  // -------------------------------------------------------------------------------------------
+
   public double calculateCreditDefaultSwapStartTime(
       final ZonedDateTime valuationDate,
       final CreditDefaultSwapDefinition cds,
@@ -279,6 +311,7 @@ public class GenerateCreditDefaultSwapIntegrationSchedule {
       final CreditDefaultSwapDefinition cds,
       final DayCount dayCount) {
 
+    ZonedDateTime mat = cds.getMaturityDate();
     final double maturity = TimeCalculator.getTimeBetween(valuationDate, cds.getMaturityDate(), dayCount);
 
     return maturity;

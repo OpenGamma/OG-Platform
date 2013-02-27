@@ -130,6 +130,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
     }
     */
 
+    // Remember if protectStart = TRUE then there is an extra day of accrued that is not captured here
     bdaCashflowSchedule[bdaCashflowSchedule.length - 1] = cashflowSchedule[cashflowSchedule.length - 1];
 
     // ------------------------------------------------
