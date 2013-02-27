@@ -14,7 +14,8 @@ import com.opengamma.financial.analytics.model.option.AnalyticOptionDefaultCurve
 import com.opengamma.financial.analytics.model.pnl.PNLFunctions;
 import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyNamesAndValues;
 import com.opengamma.financial.currency.CurrencyMatrixConfigPopulator;
-import com.opengamma.financial.currency.CurrencyMatrixSourcingFunction;
+import com.opengamma.financial.currency.CurrencyMatrixSeriesSourcingFunction;
+import com.opengamma.financial.currency.CurrencyMatrixSpotSourcingFunction;
 
 /**
  * Constructs a standard function repository.
@@ -263,8 +264,8 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
   @Override
   protected void addCurrencyConversionFunctions(final List<FunctionConfiguration> functionConfigs) {
     super.addCurrencyConversionFunctions(functionConfigs);
-    functionConfigs.add(functionConfiguration(CurrencyMatrixSourcingFunction.class, CurrencyMatrixConfigPopulator.BLOOMBERG_LIVE_DATA));
-    functionConfigs.add(functionConfiguration(CurrencyMatrixSourcingFunction.class, CurrencyMatrixConfigPopulator.SYNTHETIC_LIVE_DATA));
+    functionConfigs.add(functionConfiguration(CurrencyMatrixSpotSourcingFunction.class, CurrencyMatrixConfigPopulator.BLOOMBERG_LIVE_DATA));
+    functionConfigs.add(functionConfiguration(CurrencyMatrixSeriesSourcingFunction.class, CurrencyMatrixConfigPopulator.SYNTHETIC_LIVE_DATA));
   }
 
   @Override
