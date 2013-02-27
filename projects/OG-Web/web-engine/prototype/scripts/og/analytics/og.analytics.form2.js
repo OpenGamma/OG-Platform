@@ -40,7 +40,7 @@ $.register_module({
                 //new og.analytics.form.FiltersMenu({form:form, index:'filters', filters:  data.filters || null})
             );
             form.on('form:load', load_handler);
-            form.on('form:submit', function (result) { load_form(result.data); });
+            form.on('form:submit', function (result) {load_form(result.data);});
             form.on('keydown', selectors.form_controls, keydown_handler);
             form.dom();
         };

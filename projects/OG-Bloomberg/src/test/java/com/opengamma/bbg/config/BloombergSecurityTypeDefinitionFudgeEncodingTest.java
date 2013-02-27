@@ -69,7 +69,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 /**
  * Test conversion of {@link BloombergSecurityTypeDefinition} to/from Fudge messages.
  */
-@Test
+@Test(groups="unit")
 public class BloombergSecurityTypeDefinitionFudgeEncodingTest {
 
   private static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();

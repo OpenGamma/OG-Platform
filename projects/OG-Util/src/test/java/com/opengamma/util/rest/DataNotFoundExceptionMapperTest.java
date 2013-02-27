@@ -16,7 +16,7 @@ import com.sun.jersey.api.client.ClientResponse.Status;
 /**
  * Test DataNotFoundExceptionMapper.
  */
-@Test
+@Test(groups = "unit")
 public class DataNotFoundExceptionMapperTest extends AbstractExceptionMapperTestHelper {
 
   @Test(dataProvider="mediaTypes")

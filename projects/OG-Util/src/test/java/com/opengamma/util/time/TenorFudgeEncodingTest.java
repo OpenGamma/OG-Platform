@@ -16,6 +16,7 @@ import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 /**
  * Test Tenor Fudge support.
  */
+@Test(groups = "unit")
 public class TenorFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
 
   private static final Tenor s_ref = Tenor.EIGHT_MONTHS;

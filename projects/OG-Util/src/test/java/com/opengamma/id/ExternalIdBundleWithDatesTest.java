@@ -27,7 +27,7 @@ import com.google.common.collect.Sets;
 /**
  * Test {@link ExternalIdBundleWithDates}.
  */
-@Test
+@Test(groups = "unit")
 public class ExternalIdBundleWithDatesTest {
 
   private final ExternalId _id11 = ExternalId.of("D1", "V1");

@@ -62,7 +62,7 @@ public class FinancialSecuritySourceComponentFactory extends AbstractComponentFa
   //-------------------------------------------------------------------------
   /**
    * Initializes the financial security source, setting up component information and REST.
-   * Override using {@link #createCurrencyPairsSource(ComponentRepository)}.
+   * Override using {@link #createFinancialSecuritySource(ComponentRepository)}.
    * 
    * @param repo  the component repository, not null
    * @param configuration  the remaining configuration, not null

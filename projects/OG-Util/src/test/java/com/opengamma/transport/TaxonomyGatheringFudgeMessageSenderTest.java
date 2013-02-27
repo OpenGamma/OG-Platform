@@ -24,7 +24,7 @@ import org.testng.annotations.Test;
 /**
  * Test TaxonomyGatheringFudgeMessageSender.
  */
-@Test
+@Test(groups = "integration")
 public class TaxonomyGatheringFudgeMessageSenderTest {
 
   public void noTaxonomyFileAvailableYet() throws IOException {

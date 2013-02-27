@@ -14,7 +14,7 @@ import org.testng.annotations.Test;
 /**
  * Test.
  */
-@Test
+@Test(groups = "unit")
 public class CompareUtilsTest {
 
   public void test_max() {

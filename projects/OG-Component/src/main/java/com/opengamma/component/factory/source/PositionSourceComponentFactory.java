@@ -67,7 +67,7 @@ public class PositionSourceComponentFactory extends AbstractComponentFactory {
   //-------------------------------------------------------------------------
   /**
    * Initializes the position source, setting up component information and REST.
-   * Override using {@link #createCurrencyPairsSource(ComponentRepository)}.
+   * Override using {@link #createPositionSource(ComponentRepository)}.
    * 
    * @param repo  the component repository, not null
    * @param configuration  the remaining configuration, not null

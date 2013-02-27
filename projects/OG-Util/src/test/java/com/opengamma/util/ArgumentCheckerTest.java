@@ -24,7 +24,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Test ArgumentChecker.
  */
-@Test
+@Test(groups = "unit")
 public class ArgumentCheckerTest {
 
   //-------------------------------------------------------------------------

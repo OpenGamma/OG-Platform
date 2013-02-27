@@ -18,7 +18,10 @@ $.register_module({
                     module: 'og.blotter.forms.simple_tash',
                     selector: '.OG-blotter-form-block',
                     data: data,
-                    processor: function (data) {data.security.name = og.blotter.util.create_name(data);}
+                    processor: function (data) {
+                        data.security.name = og.blotter.util.create_name(data);
+                        og.blotter.util.cleanup(data);
+                    }
                 });
                 form.children.push(
                     new og.blotter.forms.blocks.Portfolio({form: form, counterparty: data.trade.counterparty,

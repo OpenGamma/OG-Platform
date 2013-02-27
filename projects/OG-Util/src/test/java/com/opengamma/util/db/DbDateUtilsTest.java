@@ -22,7 +22,7 @@ import org.threeten.bp.LocalTime;
  * Test DbDateUtils.
  */
 @SuppressWarnings("deprecation")
-@Test
+@Test(groups = "unit")
 public class DbDateUtilsTest {
 
   //-------------------------------------------------------------------------

@@ -179,7 +179,7 @@ public class ExampleMultiCurrencySwapPortfolioLoader extends AbstractTool<Integr
       getToolContext().getHistoricalTimeSeriesMaster(),
       getToolContext().getHistoricalTimeSeriesProvider(),
       new BloombergIdentifierProvider(getToolContext().getBloombergReferenceDataProvider()));
-    loader.addTimeSeries(externalIds, "UNKNOWN", "PX_LAST", LocalDate.now().minusYears(1), LocalDate.now());
+    loader.loadTimeSeries(externalIds, "UNKNOWN", "PX_LAST", LocalDate.now().minusYears(1), LocalDate.now());
   }
 
   private SwapSecurity makeSwap(final SecureRandom random, final Currency ccy, final LocalDate tradeDate, final Tenor maturity) {

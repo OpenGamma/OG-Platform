@@ -15,7 +15,7 @@ import com.sun.jersey.api.client.ClientResponse.Status;
 /**
  * Test IllegalArgumentExceptionMapper.
  */
-@Test
+@Test(groups = "unit")
 public class IllegalArgumentExceptionMapperTest extends AbstractExceptionMapperTestHelper {
 
   @Test(dataProvider="mediaTypes")

@@ -60,6 +60,7 @@ public class RemoteComponentFactoryToolContextAdapter extends ToolContext {
     setMarketDataSnapshotSource(remoteComponentFactory.getMarketDataSnapshotSource(classifierPreferences));
     
     setSecurityLoader(remoteComponentFactory.getSecurityLoader(classifierPreferences));
+    setHistoricalTimeSeriesLoader(remoteComponentFactory.getHistoricalTimeSeriesLoader(classifierPreferences));
     
     // this may need customizing per-project
     setConventionBundleSource(new DefaultConventionBundleSource(new InMemoryConventionBundleMaster()));

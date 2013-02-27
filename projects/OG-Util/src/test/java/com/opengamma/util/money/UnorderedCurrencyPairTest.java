@@ -12,7 +12,7 @@ import org.testng.annotations.Test;
 /**
  * Test UnorderedCurrencyPair.
  */
-@Test
+@Test(groups = "unit")
 public class UnorderedCurrencyPairTest {
 
   //-----------------------------------------------------------------------
