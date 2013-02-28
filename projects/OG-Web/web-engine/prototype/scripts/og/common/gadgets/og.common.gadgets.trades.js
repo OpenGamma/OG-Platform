@@ -263,7 +263,7 @@ $.register_module({
         action.edit = function (trade_id) {
                 og.api.rest.blotter.trades.get({id: 'DbPos~' + trade_id}).pipe(function (data) {
                 new og.blotter.Dialog({
-                    details: data, portfolio:{name: 11, id: 11},
+                    details: data,
                     handler: function (data) {return og.api.rest.blotter.trades.put(data);}
                 });
             });
