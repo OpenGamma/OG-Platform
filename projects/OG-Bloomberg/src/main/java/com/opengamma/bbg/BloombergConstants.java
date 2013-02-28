@@ -34,13 +34,13 @@ public final class BloombergConstants {
    */
   public static final String DATA_PROVIDER_UNKNOWN = "UNKNOWN";
   /**
-   * Name for Exchange data provider.
+   * Name for default data provider.
    */
-  public static final String EXCHANGE_DATA_PROVIDER = "EXCHANGE";
+  public static final String DEFAULT_DATA_PROVIDER = "DEFAULT";
   /**
-   * Exchange observation time code
+   * Default observation time code
    */
-  public static final String EXCHANGE_OBSERVATION_TIME = "EXCH_CLOSE";
+  public static final String DEFAULT_OBSERVATION_TIME = "DEFAULT_CLOSE";
   /**
    * OPTION CHAIN FIELD
    */

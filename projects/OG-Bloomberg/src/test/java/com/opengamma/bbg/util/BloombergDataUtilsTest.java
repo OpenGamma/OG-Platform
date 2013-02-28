@@ -11,7 +11,7 @@ import static com.opengamma.bbg.BloombergConstants.FIELD_ID_BBG_UNIQUE;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ID_CUSIP;
 import static com.opengamma.bbg.BloombergConstants.FIELD_OPT_CHAIN;
 import static com.opengamma.bbg.BloombergConstants.FIELD_PARSEKYABLE_DES;
-import static com.opengamma.bbg.BloombergConstants.EXCHANGE_OBSERVATION_TIME;
+import static com.opengamma.bbg.BloombergConstants.DEFAULT_OBSERVATION_TIME;
 import static com.opengamma.bbg.util.BloombergDataUtils.toBloombergDate;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
@@ -169,8 +169,8 @@ public class BloombergDataUtilsTest {
   }
 
   public void test_resolveObservationTime() {
-    assertEquals(EXCHANGE_OBSERVATION_TIME, BloombergDataUtils.resolveObservationTime(null));
-    assertEquals(EXCHANGE_OBSERVATION_TIME, BloombergDataUtils.resolveObservationTime("UNKNOWN"));
+    assertEquals(DEFAULT_OBSERVATION_TIME, BloombergDataUtils.resolveObservationTime(null));
+    assertEquals(DEFAULT_OBSERVATION_TIME, BloombergDataUtils.resolveObservationTime("UNKNOWN"));
     assertNull(BloombergDataUtils.resolveObservationTime("FOO"));
     assertEquals("LONDON_CLOSE", BloombergDataUtils.resolveObservationTime("CMPL"));
     assertEquals("NEWYORK_CLOSE", BloombergDataUtils.resolveObservationTime("CMPN"));

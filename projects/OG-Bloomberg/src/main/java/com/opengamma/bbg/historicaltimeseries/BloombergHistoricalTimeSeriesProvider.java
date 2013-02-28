@@ -11,7 +11,7 @@ import static com.opengamma.bbg.BloombergConstants.BLOOMBERG_HISTORICAL_DATA_REQ
 import static com.opengamma.bbg.BloombergConstants.BLOOMBERG_SECURITIES_REQUEST;
 import static com.opengamma.bbg.BloombergConstants.DATA_PROVIDER_UNKNOWN;
 import static com.opengamma.bbg.BloombergConstants.ERROR_INFO;
-import static com.opengamma.bbg.BloombergConstants.EXCHANGE_DATA_PROVIDER;
+import static com.opengamma.bbg.BloombergConstants.DEFAULT_DATA_PROVIDER;
 import static com.opengamma.bbg.BloombergConstants.FIELD_DATA;
 import static com.opengamma.bbg.BloombergConstants.FIELD_EXCEPTIONS;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ID;
@@ -231,7 +231,7 @@ public class BloombergHistoricalTimeSeriesProvider extends AbstractHistoricalTim
 
     private ExternalId getPreferredIdentifier(final ExternalIdBundle identifiers, final String dataProvider) {
       ExternalId preferredId = null;
-      if (dataProvider == null || dataProvider.equalsIgnoreCase(DATA_PROVIDER_UNKNOWN) || dataProvider.equalsIgnoreCase(EXCHANGE_DATA_PROVIDER)) {
+      if (dataProvider == null || dataProvider.equalsIgnoreCase(DATA_PROVIDER_UNKNOWN) || dataProvider.equalsIgnoreCase(DEFAULT_DATA_PROVIDER)) {
         preferredId = identifiers.getExternalId(BLOOMBERG_BUID);
       }
       if (preferredId == null) {

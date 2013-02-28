@@ -6,7 +6,7 @@
 package com.opengamma.bbg.util;
 
 import static com.opengamma.bbg.BloombergConstants.DATA_PROVIDER_UNKNOWN;
-import static com.opengamma.bbg.BloombergConstants.EXCHANGE_DATA_PROVIDER;
+import static com.opengamma.bbg.BloombergConstants.DEFAULT_DATA_PROVIDER;
 
 import java.util.LinkedHashMap;
 import java.util.Locale;
@@ -77,7 +77,7 @@ public final class BloombergDomainIdentifierResolver {
    */
   public static String toBloombergKeyWithDataProvider(ExternalId externalId, String dataProvider) {
     ArgumentChecker.notNull(externalId, "externalId");
-    if (dataProvider == null || dataProvider.contains(DATA_PROVIDER_UNKNOWN) || dataProvider.equalsIgnoreCase(EXCHANGE_DATA_PROVIDER)) {
+    if (dataProvider == null || dataProvider.contains(DATA_PROVIDER_UNKNOWN) || dataProvider.equalsIgnoreCase(DEFAULT_DATA_PROVIDER)) {
       return toBloombergKey(externalId);
     }
     

@@ -6,7 +6,7 @@
 package com.opengamma.bbg.util;
 
 import static com.opengamma.bbg.BloombergConstants.DATA_PROVIDER_UNKNOWN;
-import static com.opengamma.bbg.BloombergConstants.EXCHANGE_DATA_PROVIDER;
+import static com.opengamma.bbg.BloombergConstants.DEFAULT_DATA_PROVIDER;
 import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_CHAIN;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ID_BBG_UNIQUE;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ID_CUSIP;
@@ -14,7 +14,7 @@ import static com.opengamma.bbg.BloombergConstants.FIELD_ID_ISIN;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ID_SEDOL1;
 import static com.opengamma.bbg.BloombergConstants.FIELD_OPT_CHAIN;
 import static com.opengamma.bbg.BloombergConstants.FIELD_PARSEKYABLE_DES;
-import static com.opengamma.bbg.BloombergConstants.EXCHANGE_OBSERVATION_TIME;
+import static com.opengamma.bbg.BloombergConstants.DEFAULT_OBSERVATION_TIME;
 import static com.opengamma.bbg.BloombergConstants.ON_OFF_FIELDS;
 import static org.threeten.bp.temporal.ChronoField.DAY_OF_MONTH;
 import static org.threeten.bp.temporal.ChronoField.MONTH_OF_YEAR;
@@ -198,7 +198,7 @@ public final class BloombergDataUtils {
       .put("CMPL", "LONDON_CLOSE")
       .put("CMPT", "TOKYO_CLOSE")
       .put("CMPN", "NEWYORK_CLOSE")
-      .put(EXCHANGE_DATA_PROVIDER, EXCHANGE_OBSERVATION_TIME)
+      .put(DEFAULT_DATA_PROVIDER, DEFAULT_OBSERVATION_TIME)
       .build();
 
   /**
@@ -859,7 +859,7 @@ public final class BloombergDataUtils {
    * @return the resolver data provider, not null
    */
   public static String resolveDataProvider(String dataProvider) {
-    return (dataProvider == null || dataProvider.equalsIgnoreCase(DATA_PROVIDER_UNKNOWN) ? EXCHANGE_DATA_PROVIDER : dataProvider);
+    return (dataProvider == null || dataProvider.equalsIgnoreCase(DATA_PROVIDER_UNKNOWN) ? DEFAULT_DATA_PROVIDER : dataProvider);
   }
 
   /**
@@ -869,8 +869,8 @@ public final class BloombergDataUtils {
    * @return the corresponding observation time for the given data provider
    */
   public static String resolveObservationTime(String dataProvider) {
-    if (dataProvider == null || dataProvider.equalsIgnoreCase(DATA_PROVIDER_UNKNOWN) || dataProvider.equalsIgnoreCase(EXCHANGE_DATA_PROVIDER)) {
-      dataProvider = EXCHANGE_DATA_PROVIDER;
+    if (dataProvider == null || dataProvider.equalsIgnoreCase(DATA_PROVIDER_UNKNOWN) || dataProvider.equalsIgnoreCase(DEFAULT_DATA_PROVIDER)) {
+      dataProvider = DEFAULT_DATA_PROVIDER;
     }
     return s_observationTimeMap.get(dataProvider);
     
