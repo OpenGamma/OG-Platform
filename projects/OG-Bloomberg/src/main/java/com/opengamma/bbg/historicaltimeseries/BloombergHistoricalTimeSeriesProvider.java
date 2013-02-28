@@ -231,13 +231,8 @@ public class BloombergHistoricalTimeSeriesProvider extends AbstractHistoricalTim
 
     private ExternalId getPreferredIdentifier(final ExternalIdBundle identifiers, final String dataProvider) {
       ExternalId preferredId = null;
-      
       if (dataProvider == null || dataProvider.equalsIgnoreCase(DATA_PROVIDER_UNKNOWN) || dataProvider.equalsIgnoreCase(EXCHANGE_DATA_PROVIDER)) {
-        Set<ExternalId> buids = identifiers.getExternalIds(BLOOMBERG_BUID);
-        // there should not be multiple BUIDs
-        if (!buids.isEmpty()) {
-          preferredId = buids.iterator().next();
-        }
+        preferredId = identifiers.getExternalId(BLOOMBERG_BUID);
       }
       if (preferredId == null) {
         Set<ExternalId> tickers = identifiers.getExternalIds(BLOOMBERG_TICKER);
