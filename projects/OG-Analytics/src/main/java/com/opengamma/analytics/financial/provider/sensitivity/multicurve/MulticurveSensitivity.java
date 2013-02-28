@@ -21,12 +21,12 @@ import com.opengamma.util.tuple.DoublesPair;
 public class MulticurveSensitivity {
 
   /**
-   * The map containing the sensitivity to the yield (continuously compounded) (for discounting and issuer specific curves). 
+   * The map containing the sensitivity to the yield (continuously compounded) (for discounting and issuer specific curves).
    * The map linked the curve (String) to a list of pairs (cash flow time, sensitivity value).
    */
   private final Map<String, List<DoublesPair>> _sensitivityYieldDiscounting;
   /**
-   * The map containing the sensitivity to forward curve. The sensitivity will depend on the way the curve is described (discount factor curve, forward rate, ...) 
+   * The map containing the sensitivity to forward curve. The sensitivity will depend on the way the curve is described (discount factor curve, forward rate, ...)
    * The map linked the curve (String) to a list of pairs (cash flow time, sensitivity value).
    */
   private final Map<String, List<ForwardSensitivity>> _sensitivityForward;
@@ -37,8 +37,8 @@ public class MulticurveSensitivity {
    * Default constructor, creating an empty HashMap for the sensitivity.
    */
   public MulticurveSensitivity() {
-    _sensitivityYieldDiscounting = new HashMap<String, List<DoublesPair>>();
-    _sensitivityForward = new HashMap<String, List<ForwardSensitivity>>();
+    _sensitivityYieldDiscounting = new HashMap<>();
+    _sensitivityForward = new HashMap<>();
   }
 
   /**
@@ -85,9 +85,9 @@ public class MulticurveSensitivity {
   }
 
   public static MulticurveSensitivity ofForward(final String curveName, final ForwardSensitivity pointSensitivity) {
-    final List<ForwardSensitivity> listForward = new ArrayList<ForwardSensitivity>();
+    final List<ForwardSensitivity> listForward = new ArrayList<>();
     listForward.add(pointSensitivity);
-    HashMap<String, List<ForwardSensitivity>> mapFwd = new HashMap<String, List<ForwardSensitivity>>();
+    final HashMap<String, List<ForwardSensitivity>> mapFwd = new HashMap<>();
     mapFwd.put(curveName, listForward);
     return MulticurveSensitivity.ofForward(mapFwd);
   }
