@@ -728,12 +728,12 @@ public class FinancialSecurityUtils {
 
         @Override
         public Collection<Currency> visitCommodityFutureOptionSecurity(final CommodityFutureOptionSecurity commodityFutureOptionSecurity) {
-          return null;
+          return Collections.singleton(commodityFutureOptionSecurity.getCurrency());
         }
 
         @Override
         public Collection<Currency> visitFxFutureOptionSecurity(final FxFutureOptionSecurity security) {
-          return null;
+          return Collections.singleton(security.getCurrency());
         }
 
         @Override
