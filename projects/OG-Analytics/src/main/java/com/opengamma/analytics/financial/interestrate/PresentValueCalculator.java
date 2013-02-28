@@ -26,7 +26,9 @@ import com.opengamma.analytics.financial.interestrate.cash.method.DepositZeroDis
 import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRateAgreement;
 import com.opengamma.analytics.financial.interestrate.fra.method.ForwardRateAgreementDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuture;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.future.method.BondFutureDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureTransactionDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.ForexForward;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponCMS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
@@ -187,17 +189,13 @@ public class PresentValueCalculator extends InstrumentDerivativeVisitorAdapter<Y
     return METHOD_FRA.presentValue(fra, curves).getAmount();
   }
 
-  //  /**
-  //   * {@inheritDoc}
-  //   * Future transaction pricing without convexity adjustment.
-  //   */
-  //  @Override
-  //  public Double visitInterestRateFuture(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
-  //    Validate.notNull(curves);
-  //    Validate.notNull(future);
-  //    final InterestRateFutureTransactionDiscountingMethod method = InterestRateFutureTransactionDiscountingMethod.getInstance();
-  //    return method.presentValue(future, curves).getAmount();
-  //  }
+  @Override
+  public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
+    Validate.notNull(curves);
+    Validate.notNull(future);
+    final InterestRateFutureTransactionDiscountingMethod method = InterestRateFutureTransactionDiscountingMethod.getInstance();
+    return method.presentValue(future, curves).getAmount();
+  }
 
   @Override
   public Double visitSwap(final Swap<?, ?> swap, final YieldCurveBundle curves) {

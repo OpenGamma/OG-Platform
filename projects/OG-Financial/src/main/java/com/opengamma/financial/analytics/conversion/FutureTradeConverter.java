@@ -26,6 +26,7 @@ import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.future.FutureSecurity;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * Visits a Trade containing a FutureSecurity (OG-Financial)
@@ -34,10 +35,17 @@ import com.opengamma.util.ArgumentChecker;
 public class FutureTradeConverter {
 
   /**
-   * The security converter.
+   * The security converter (to convert the trade underlying).
    */
   private final FutureSecurityConverter _futureSecurityConverter;
 
+  /**
+   * Constructor.
+   * @param securitySource The security source.
+   * @param holidaySource The holiday source.
+   * @param conventionSource The convention source.
+   * @param regionSource The region source.
+   */
   public FutureTradeConverter(final SecuritySource securitySource, final HolidaySource holidaySource, final ConventionBundleSource conventionSource,
       final RegionSource regionSource) {
     final InterestRateFutureSecurityConverter irFutureConverter = new InterestRateFutureSecurityConverter(holidaySource, conventionSource, regionSource);
@@ -56,14 +64,27 @@ public class FutureTradeConverter {
     final Security security = trade.getSecurity();
     if (security instanceof FutureSecurity) {
       InstrumentDefinitionWithData<?, Double> securityDefinition = ((FutureSecurity) security).accept(_futureSecurityConverter);
-      InstrumentDefinitionWithData<?, Double> tradeDefinition = securityToTrade(securityDefinition, trade.getPremium(),
-          trade.getTradeDate().atTime(trade.getTradeTime().getTime()).atZone(ZoneOffset.UTC)); //TODO get the real time zone
-      // TODO: The trade price is stored in the trade premium. This has to be corrected.
+      double tradePremium = 0.0;
+      if (trade.getPremium() != null) {
+        tradePremium = trade.getPremium(); // TODO: The trade price is stored in the trade premium. This has to be corrected.
+      }
+      ZonedDateTime tradeDate = DateUtils.getUTCDate(1900, 1, 1);
+      if ((trade.getTradeDate() != null) && (trade.getTradeTime().getTime() != null)) {
+        tradeDate = trade.getTradeDate().atTime(trade.getTradeTime().getTime()).atZone(ZoneOffset.UTC); //TODO get the real time zone
+      }
+      InstrumentDefinitionWithData<?, Double> tradeDefinition = securityToTrade(securityDefinition, tradePremium, tradeDate);
       return tradeDefinition;
     }
     throw new IllegalArgumentException("Can only handle FutureSecurity");
   }
 
+  /**
+   * Creates the OG-Analytics tradeDefinition from the OG-Analytics securityDefinition and the trade details (price and date).
+   * @param securityDefinition The security definition (OG-Analytics object).
+   * @param tradePrice The trade price.
+   * @param tradeDate The trade date.
+   * @return The tradeDefinition.
+   */
   private InstrumentDefinitionWithData<?, Double> securityToTrade(InstrumentDefinitionWithData<?, Double> securityDefinition, final Double tradePrice, final ZonedDateTime tradeDate) {
 
     final InstrumentDefinitionVisitorAdapter<InstrumentDefinitionWithData<?, Double>, InstrumentDefinitionWithData<?, Double>> visitor =

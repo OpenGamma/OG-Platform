@@ -155,7 +155,7 @@ public abstract class InterestRateFutureFunction extends AbstractFunction.NonCom
         createValueProperties()
             .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode())
             .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
-            .with(ValuePropertyNames.CALCULATION_METHOD, "MarcTemp").get());
+            .with(ValuePropertyNames.CALCULATION_METHOD, "MarcTemp").get()); // TODO Remove.
   }
 
   private ValueSpecification getSpecification(final ComputationTarget target, final String curveCalculationConfig) {

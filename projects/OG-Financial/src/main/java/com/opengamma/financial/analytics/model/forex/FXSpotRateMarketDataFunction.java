@@ -23,7 +23,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.currency.ConfigDBCurrencyPairsSource;
-import com.opengamma.financial.currency.CurrencyMatrixSourcingFunction;
+import com.opengamma.financial.currency.CurrencyMatrixSpotSourcingFunction;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.util.money.UnorderedCurrencyPair;
@@ -98,7 +98,7 @@ public class FXSpotRateMarketDataFunction extends AbstractFunction.NonCompiledIn
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final UnorderedCurrencyPair unordered = UnorderedCurrencyPair.of(target.getUniqueId());
     final CurrencyPair ordered = _currencyPairs.getCurrencyPair(unordered.getFirstCurrency(), unordered.getSecondCurrency());
-    return Collections.singleton(CurrencyMatrixSourcingFunction.getConversionRequirement(ordered.getCounter(), ordered.getBase()));
+    return Collections.singleton(CurrencyMatrixSpotSourcingFunction.getConversionRequirement(ordered.getCounter(), ordered.getBase()));
   }
 
   @Override

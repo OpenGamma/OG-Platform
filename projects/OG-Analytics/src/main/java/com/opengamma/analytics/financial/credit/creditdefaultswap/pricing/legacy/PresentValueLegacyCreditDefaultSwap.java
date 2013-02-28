@@ -9,10 +9,10 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.PriceType;
-import com.opengamma.analytics.financial.credit.cds.ISDACurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.PresentValueCreditDefaultSwap;
 import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
+import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
 import com.opengamma.analytics.financial.credit.schedulegeneration.GenerateCreditDefaultSwapPremiumLegSchedule;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
@@ -22,6 +22,10 @@ import com.opengamma.util.ArgumentChecker;
  *  Class containing methods for the valuation of a vanilla Legacy CDS (this valuation methodology is common to most legacy CDS's)
  */
 public class PresentValueLegacyCreditDefaultSwap {
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  // TODO : Remember to reinstate the clean price calculation  when code is refactored
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -37,7 +41,7 @@ public class PresentValueLegacyCreditDefaultSwap {
   public double getPresentValueLegacyCreditDefaultSwap(
       final ZonedDateTime valuationDate,
       final LegacyCreditDefaultSwapDefinition cds,
-      final ISDACurve yieldCurve,
+      final ISDADateCurve yieldCurve,
       final HazardRateCurve hazardRateCurve,
       final PriceType priceType) {
 
@@ -54,7 +58,7 @@ public class PresentValueLegacyCreditDefaultSwap {
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Calculate the value of the premium leg (including accrued if required)
-    final double presentValuePremiumLeg = presentValueCreditDefaultSwap.calculatePremiumLeg(valuationDate, cds, yieldCurve, hazardRateCurve);
+    final double presentValuePremiumLeg = presentValueCreditDefaultSwap.calculatePremiumLeg(valuationDate, cds, yieldCurve, hazardRateCurve, priceType);
 
     // Calculate the value of the contingent leg
     final double presentValueContingentLeg = presentValueCreditDefaultSwap.calculateContingentLeg(valuationDate, cds, yieldCurve, hazardRateCurve);
@@ -64,10 +68,12 @@ public class PresentValueLegacyCreditDefaultSwap {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
+    /*
     // If we require the clean price, then calculate the accrued interest and add this to the PV
     if (priceType == PriceType.CLEAN) {
       presentValue += (cds.getParSpread() / 10000.0) * presentValueCreditDefaultSwap.calculateAccruedInterest(valuationDate, cds);
     }
+    */
 
     // If we are selling protection, then reverse the direction of the premium and contingent leg cashflows
     if (cds.getBuySellProtection() == BuySellProtection.SELL) {
@@ -86,7 +92,7 @@ public class PresentValueLegacyCreditDefaultSwap {
   public double getParSpreadLegacyCreditDefaultSwap(
       final ZonedDateTime valuationDate,
       final LegacyCreditDefaultSwapDefinition cds,
-      final ISDACurve yieldCurve,
+      final ISDADateCurve yieldCurve,
       final HazardRateCurve hazardRateCurve,
       final PriceType priceType) {
 
@@ -116,15 +122,17 @@ public class PresentValueLegacyCreditDefaultSwap {
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Calculate the value of the premium leg
-    final double presentValuePremiumLeg = presentValueCreditDefaultSwap.calculatePremiumLeg(valuationDate, cds, yieldCurve, hazardRateCurve);
+    final double presentValuePremiumLeg = presentValueCreditDefaultSwap.calculatePremiumLeg(valuationDate, cds, yieldCurve, hazardRateCurve, priceType);
 
     // Calculate the value of the contingent leg
     final double presentValueContingentLeg = presentValueCreditDefaultSwap.calculateContingentLeg(valuationDate, cds, yieldCurve, hazardRateCurve);
 
+    /*
     // If we require the clean price, then calculate the accrued interest and add this to the PV of the premium leg
     if (priceType == PriceType.CLEAN) {
       accruedInterest = presentValueCreditDefaultSwap.calculateAccruedInterest(valuationDate, cds);
     }
+    */
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 

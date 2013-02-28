@@ -35,7 +35,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.conversion.ForexSecurityConverter;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
-import com.opengamma.financial.currency.CurrencyMatrixSourcingFunction;
+import com.opengamma.financial.currency.CurrencyMatrixSpotSourcingFunction;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.security.FinancialSecurity;
@@ -181,7 +181,7 @@ public abstract class FXOptionBlackFunction extends AbstractFunction.NonCompiled
     final ValueRequirement putFundingCurve = getCurveRequirement(ComputationTargetSpecification.of(putCurrency), putCurveName, putCurveCalculationConfig);
     final ValueRequirement callFundingCurve = getCurveRequirement(ComputationTargetSpecification.of(callCurrency), callCurveName, callCurveCalculationConfig);
     final ValueRequirement fxVolatilitySurface = getSurfaceRequirement(surfaceName, putCurrency, callCurrency, interpolatorName, leftExtrapolatorName, rightExtrapolatorName);
-    final ValueRequirement spotRequirement = CurrencyMatrixSourcingFunction.getConversionRequirement(putCurrency, callCurrency);
+    final ValueRequirement spotRequirement = CurrencyMatrixSpotSourcingFunction.getConversionRequirement(putCurrency, callCurrency);
     final ValueRequirement pairQuoteRequirement = new ValueRequirement(ValueRequirementNames.CURRENCY_PAIRS, ComputationTargetSpecification.NULL);
     return Sets.newHashSet(putFundingCurve, callFundingCurve, fxVolatilitySurface, spotRequirement, pairQuoteRequirement);
   }

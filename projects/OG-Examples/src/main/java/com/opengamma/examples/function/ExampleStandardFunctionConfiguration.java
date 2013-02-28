@@ -34,7 +34,8 @@ import com.opengamma.financial.analytics.model.simpleinstrument.SimpleFXFuturePr
 import com.opengamma.financial.analytics.model.simpleinstrument.SimpleFuturePresentValueFunctionDeprecated;
 import com.opengamma.financial.analytics.volatility.surface.Grid2DInterpolatedVolatilitySurfaceFunctionDeprecated;
 import com.opengamma.financial.currency.CurrencyMatrixConfigPopulator;
-import com.opengamma.financial.currency.CurrencyMatrixSourcingFunction;
+import com.opengamma.financial.currency.CurrencyMatrixSeriesSourcingFunction;
+import com.opengamma.financial.currency.CurrencyMatrixSpotSourcingFunction;
 import com.opengamma.web.spring.StandardFunctionConfiguration;
 
 /**
@@ -105,7 +106,8 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
   @Override
   protected void addCurrencyConversionFunctions(final List<FunctionConfiguration> functionConfigs) {
     super.addCurrencyConversionFunctions(functionConfigs);
-    functionConfigs.add(functionConfiguration(CurrencyMatrixSourcingFunction.class, CurrencyMatrixConfigPopulator.SYNTHETIC_LIVE_DATA));
+    functionConfigs.add(functionConfiguration(CurrencyMatrixSpotSourcingFunction.class, CurrencyMatrixConfigPopulator.SYNTHETIC_LIVE_DATA));
+    functionConfigs.add(functionConfiguration(CurrencyMatrixSeriesSourcingFunction.class, CurrencyMatrixConfigPopulator.SYNTHETIC_LIVE_DATA));
   }
 
   protected void addFixedIncomeInstrumentDefaults(final List<FunctionConfiguration> functionConfigs) {
