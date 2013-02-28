@@ -33,7 +33,7 @@ public class FloatingStrikeLookbackOptionDefinition extends OptionDefinition {
       return isCall() ? data.getSpot() - ts.minValue() : ts.maxValue() - data.getSpot();
     }
   };
-  private final OptionExerciseFunction<StandardOptionWithSpotTimeSeriesDataBundle> _exerciseFunction = new EuropeanExerciseFunction<StandardOptionWithSpotTimeSeriesDataBundle>();
+  private final OptionExerciseFunction<StandardOptionWithSpotTimeSeriesDataBundle> _exerciseFunction = new EuropeanExerciseFunction<>();
 
   public FloatingStrikeLookbackOptionDefinition(final Expiry expiry, final boolean isCall) {
     super(null, expiry, isCall);

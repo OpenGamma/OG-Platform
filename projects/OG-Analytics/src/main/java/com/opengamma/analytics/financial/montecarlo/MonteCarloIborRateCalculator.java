@@ -18,7 +18,7 @@ import com.opengamma.analytics.financial.interestrate.swaption.derivative.Swapti
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 
 /**
- * Computes the total instrument price over different paths (the sum of prices over the different paths, not its average). 
+ * Computes the total instrument price over different paths (the sum of prices over the different paths, not its average).
  * The data bundle contains the different Ibor rates paths and the instrument reference amounts. The numeraire is the last time in the LMM description.
  */
 public class MonteCarloIborRateCalculator extends InstrumentDerivativeVisitorAdapter<MonteCarloIborRateDataBundle, Double> {
@@ -61,7 +61,7 @@ public class MonteCarloIborRateCalculator extends InstrumentDerivativeVisitorAda
     final double[] discounting = new double[nbPath];
     final double omega = (payment.isCap() ? 1.0 : -1.0);
     for (int looppath = 0; looppath < nbPath; looppath++) {
-      ibor[looppath] = impactAmount[0] * pathIborRate[impactIndex[0]][looppath] + (impactAmount[0] - 1.0) / payment.getFixingYearFraction();
+      ibor[looppath] = impactAmount[0] * pathIborRate[impactIndex[0]][looppath] + (impactAmount[0] - 1.0) / payment.getFixingAccrualFactor();
       // Ibor in the right convention; path in Dsc curve
       payoff = Math.max(omega * (ibor[looppath] - payment.getStrike()), 0);
       discounting[looppath] = 1.0;
@@ -171,7 +171,7 @@ public class MonteCarloIborRateCalculator extends InstrumentDerivativeVisitorAda
           final CouponIborRatchet cpn = (CouponIborRatchet) annuity.getNthPayment(loopcpn);
           for (int looppath = 0; looppath < nbPath; looppath++) {
             ibor = (-impactAmount[loopcpn][0] * discounting[loopcpn][impactIndex[loopcpn][0]][looppath] / (impactAmount[loopcpn][1] * discounting[loopcpn][impactIndex[loopcpn][1]][looppath]) - 1.0)
-                / cpn.getFixingYearFraction();
+                / cpn.getFixingAccrualFactor();
             final double cpnMain = cpn.getMainCoefficients()[0] * cpnRate[loopcpn - 1][looppath] + cpn.getMainCoefficients()[1] * ibor + cpn.getMainCoefficients()[2];
             final double cpnFloor = cpn.getFloorCoefficients()[0] * cpnRate[loopcpn - 1][looppath] + cpn.getFloorCoefficients()[1] * ibor + cpn.getFloorCoefficients()[2];
             final double cpnCap = cpn.getCapCoefficients()[0] * cpnRate[loopcpn - 1][looppath] + cpn.getCapCoefficients()[1] * ibor + cpn.getCapCoefficients()[2];

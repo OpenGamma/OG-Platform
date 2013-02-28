@@ -52,11 +52,12 @@ public class InstrumentTestHelper {
   public static final DayCount SEMI_ANNUAL_DAY_COUNT = new SemiAnnualDayCount();
   public static final DayCount QUARTERLY_DAY_COUNT = new QuarterlyDayCount();
   public static final BusinessDayConvention NONE = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("None");
-  public static final Currency FIXED_INCOME_CURRENCY = Currency.USD;
-  public static final IborIndex USD_IBOR_INDEX1 = new IborIndex(FIXED_INCOME_CURRENCY, Period.of(6, MONTHS), 0, NO_HOLIDAY, SEMI_ANNUAL_DAY_COUNT, NONE, false, "f");
-  public static final IborIndex USD_IBOR_INDEX2 = new IborIndex(FIXED_INCOME_CURRENCY, Period.of(3, MONTHS), 0, NO_HOLIDAY, QUARTERLY_DAY_COUNT, NONE, false, "f");
-  public static final ZonedDateTime CASH_START = zdt(2012, 6, 1, 11, 0, 0, 0, ZoneOffset.UTC);
-  public static final ZonedDateTime CASH_MATURITY = zdt(2012, 12, 1, 11, 0, 0, 0, ZoneOffset.UTC);
+  public static final Currency FIXED_INCOME_CURRENCY = Currency.EUR;
+  public static final IborIndex USD_IBOR_INDEX1 = new IborIndex(FIXED_INCOME_CURRENCY, DateUtils.periodOfMonths(6), 0, NO_HOLIDAY, SEMI_ANNUAL_DAY_COUNT, NONE, false,
+      "f");
+  public static final IborIndex USD_IBOR_INDEX2 = new IborIndex(FIXED_INCOME_CURRENCY, DateUtils.periodOfMonths(3), 0, NO_HOLIDAY, QUARTERLY_DAY_COUNT, NONE, false, "f");
+  public static final ZonedDateTime CASH_START = ZonedDateTime.of(LocalDateTime.of(2012, 6, 1, 11, 0, 0, 0), ZoneOffset.UTC);
+  public static final ZonedDateTime CASH_MATURITY = ZonedDateTime.of(LocalDateTime.of(2012, 12, 1, 11, 0, 0, 0), ZoneOffset.UTC);
   public static final double CASH_NOTIONAL = 234000;
   public static final double CASH_RATE = 0.002;
   public static final ZonedDateTime PAYMENT_MATURITY = zdt(2011, 1, 1, 11, 0, 0, 0, ZoneOffset.UTC);
@@ -120,8 +121,8 @@ public class InstrumentTestHelper {
       SWAP_NOTIONAL, SWAP_FIXED_RATE, IBOR_SPREAD, true);
   public static final SwapFixedIborSpreadDefinition RECEIVER_SWAP_WITH_SPREAD = SwapFixedIborSpreadDefinition.from(SWAP_START, SWAP_MATURITY, SWAP_GENERATOR,
       SWAP_NOTIONAL, SWAP_NOTIONAL, SWAP_FIXED_RATE, IBOR_SPREAD, false);
-  public static final SwapIborIborDefinition PAY_SPREAD_IBOR_IBOR_SWAP = SwapIborIborDefinition.from(SWAP_START, Period.of(50, YEARS), IBOR_IBOR_GENERATOR, SWAP_NOTIONAL,
-      IBOR_SPREAD, true);
+  public static final SwapIborIborDefinition PAY_SPREAD_IBOR_IBOR_SWAP = SwapIborIborDefinition.from(SWAP_START, Period.of(50, YEARS), IBOR_IBOR_GENERATOR,
+      SWAP_NOTIONAL, IBOR_SPREAD, true);
   public static final SwapIborIborDefinition RECEIVE_SPREAD_IBOR_IBOR_SWAP = SwapIborIborDefinition.from(SWAP_START, Period.of(50, YEARS), IBOR_IBOR_GENERATOR,
       SWAP_NOTIONAL, IBOR_SPREAD, false);
   public static final DoubleTimeSeries<LocalDate> IBOR_FIXING_SERIES;
@@ -187,7 +188,7 @@ public class InstrumentTestHelper {
   }
 
   //-------------------------------------------------------------------------
-  private static ZonedDateTime zdt(int y, int m, int d, int hr, int min, int sec, int nanos, ZoneId zone) {
+  private static ZonedDateTime zdt(final int y, final int m, final int d, final int hr, final int min, final int sec, final int nanos, final ZoneId zone) {
     return LocalDateTime.of(y, m, d, hr, min, sec, nanos).atZone(zone);
   }
 

@@ -51,7 +51,7 @@ public final class InterestRateFutureOptionMarginSecurityBlackSurfaceMethod exte
   /**
    * The method used to compute the future price. It is a method without convexity adjustment.
    */
-  private static final InterestRateFutureDiscountingMethod METHOD_FUTURE = InterestRateFutureDiscountingMethod.getInstance();
+  private static final InterestRateFutureSecurityDiscountingMethod METHOD_FUTURE = InterestRateFutureSecurityDiscountingMethod.getInstance();
 
   /**
    * Computes the option security price from future price.

@@ -50,7 +50,7 @@ public class LocalVolatilityBackwardPDECalculator extends LocalVolatilityPDECalc
     final PDEGrid1D grid = getGrid(getTimeMesh(expiry), getSpaceMesh(maxForward, forward));
     final ConvectionDiffusionPDE1DCoefficients pde = getPDEProvider().getBackwardsLocalVol(expiry, localVolatility);
     final Function1D<Double, Double> payoff = getInitialConditionProvider().getEuropeanPayoff(strike, isCall);
-    final PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> db = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(pde, payoff, lower, upper, grid);
+    final PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> db = new PDE1DDataBundle<>(pde, payoff, lower, upper, grid);
     return (PDETerminalResults1D) getSolver().solve(db);
   }
 
@@ -66,7 +66,7 @@ public class LocalVolatilityBackwardPDECalculator extends LocalVolatilityPDECalc
     final PDEGrid1D grid = getGrid(getTimeMesh(expiry), getSpaceMesh(maxForward, forward));
     final ConvectionDiffusionPDE1DCoefficients pde = getPDEProvider().getBackwardsLocalVol(forwardCurve, expiry, localVolatility);
     final Function1D<Double, Double> payoff = getInitialConditionProvider().getEuropeanPayoff(strike, isCall);
-    final PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> db = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(pde, payoff, lower, upper, grid);
+    final PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> db = new PDE1DDataBundle<>(pde, payoff, lower, upper, grid);
     return (PDETerminalResults1D) getSolver().solve(db);
   }
 

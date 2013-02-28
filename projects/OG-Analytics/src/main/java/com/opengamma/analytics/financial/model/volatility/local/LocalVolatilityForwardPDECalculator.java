@@ -52,7 +52,7 @@ public class LocalVolatilityForwardPDECalculator extends LocalVolatilityPDECalcu
     final BoundaryCondition upper = getUpperBoundaryCondition(option, maxMoneyness);
     final ConvectionDiffusionPDE1DCoefficients pde = getPDEProvider().getForwardLocalVol(localVolatility);
     final Function1D<Double, Double> intCond = getInitialConditionProvider().getForwardCallPut(isCall);
-    final PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> db = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(pde, intCond, lower, upper, grid);
+    final PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> db = new PDE1DDataBundle<>(pde, intCond, lower, upper, grid);
     return (PDETerminalResults1D) getSolver().solve(db);
   }
 
@@ -67,7 +67,7 @@ public class LocalVolatilityForwardPDECalculator extends LocalVolatilityPDECalcu
     final BoundaryCondition upper = getUpperBoundaryCondition(option, maxMoneyness);
     final ConvectionDiffusionPDE1DCoefficients pde = getPDEProvider().getForwardLocalVol(forwardCurve, localVolatility);
     final Function1D<Double, Double> intCond = getInitialConditionProvider().getForwardCallPut(isCall);
-    final PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> db = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(pde, intCond, lower, upper, grid);
+    final PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> db = new PDE1DDataBundle<>(pde, intCond, lower, upper, grid);
     return (PDETerminalResults1D) getSolver().solve(db);
   }
 

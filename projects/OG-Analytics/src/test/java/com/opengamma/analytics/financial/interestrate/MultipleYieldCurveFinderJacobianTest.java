@@ -20,7 +20,7 @@ import org.threeten.bp.Period;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
-import com.opengamma.analytics.financial.interestrate.fra.ForwardRateAgreement;
+import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRateAgreement;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
@@ -59,7 +59,7 @@ public class MultipleYieldCurveFinderJacobianTest {
   private static final LinkedHashMap<String, Interpolator1D> FRA_INTERPOLATORS;
   private static final LinkedHashMap<String, Interpolator1D> MIXED_INTERPOLATORS;
   private static final InstrumentDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> SENSITIVITY_CALCULATOR = ParRateCurveSensitivityCalculator.getInstance();
-  private static final FXMatrix FX_MATRIX = new FXMatrix(Currency.USD);
+  private static final FXMatrix FX_MATRIX = new FXMatrix(Currency.EUR);
 
   private static final int N = 10;
   private static final int M = 5;

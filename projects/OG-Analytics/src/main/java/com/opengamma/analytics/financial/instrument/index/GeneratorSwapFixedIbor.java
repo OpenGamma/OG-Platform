@@ -21,7 +21,7 @@ import com.opengamma.util.money.Currency;
 /**
  * Class with the description of swap characteristics.
  */
-public class GeneratorSwapFixedIbor extends GeneratorInstrument {
+public class GeneratorSwapFixedIbor extends GeneratorInstrument<GeneratorAttributeIR> {
 
   /**
    * The fixed leg period of payments.
@@ -161,23 +161,14 @@ public class GeneratorSwapFixedIbor extends GeneratorInstrument {
 
   @Override
   /**
-   * The effective date is date+_spotLag. The maturity date is effective date+tenor.
-   */
-  public SwapFixedIborDefinition generateInstrument(ZonedDateTime date, Period tenor, double fixedRate, double notional, Object... objects) {
-    ArgumentChecker.notNull(date, "Reference date");
-    final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(date, _spotLag, _iborIndex.getCalendar());
-    return SwapFixedIborDefinition.from(startDate, tenor, this, notional, fixedRate, true);
-  }
-
-  @Override
-  /**
    * The effective date is spot+startTenor. The maturity date is effective date + endTenor
    */
-  public SwapFixedIborDefinition generateInstrument(final ZonedDateTime date, final Period startTenor, final Period endTenor, double fixedRate, double notional, Object... objects) {
+  public SwapFixedIborDefinition generateInstrument(final ZonedDateTime date, final double rate, final double notional, final GeneratorAttributeIR attribute) {
     ArgumentChecker.notNull(date, "Reference date");
+    ArgumentChecker.notNull(attribute, "Attributes");
     final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, _spotLag, _iborIndex.getCalendar());
-    final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spot, startTenor, _iborIndex);
-    return SwapFixedIborDefinition.from(startDate, endTenor, this, notional, fixedRate, true);
+    final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spot, attribute.getStartPeriod(), _iborIndex);
+    return SwapFixedIborDefinition.from(startDate, attribute.getEndPeriod(), this, notional, rate, true);
   }
 
   @Override

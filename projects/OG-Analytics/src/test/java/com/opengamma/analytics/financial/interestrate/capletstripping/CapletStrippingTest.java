@@ -59,7 +59,7 @@ public class CapletStrippingTest {
 
   private static final LinkedHashMap<String, Function1D<Double, Double>> PARAMETER_FUNCTIONS = new LinkedHashMap<String, Function1D<Double, Double>>();
 
-  protected static final Currency CUR = Currency.USD;
+  protected static final Currency CUR = Currency.EUR;
   private static final Period TENOR = Period.of(6, MONTHS);
   private static final int SETTLEMENT_DAYS = 2;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
@@ -76,7 +76,7 @@ public class CapletStrippingTest {
     private final double d = 0.04;
 
     @Override
-    public Double evaluate(Double t) {
+    public Double evaluate(final Double t) {
       return (a + t * b) * Math.exp(-c * t) + d;
     }
   };
@@ -84,7 +84,7 @@ public class CapletStrippingTest {
   private static Function1D<Double, Double> BETA = new Function1D<Double, Double>() {
 
     @Override
-    public Double evaluate(Double t) {
+    public Double evaluate(final Double t) {
       return 0.5;
     }
   };
@@ -97,7 +97,7 @@ public class CapletStrippingTest {
     private final double d = 0.0;
 
     @Override
-    public Double evaluate(Double t) {
+    public Double evaluate(final Double t) {
       return (a + t * b) * Math.exp(-c * t) + d;
     }
   };
@@ -110,7 +110,7 @@ public class CapletStrippingTest {
     private final double d = 0.4;
 
     @Override
-    public Double evaluate(Double t) {
+    public Double evaluate(final Double t) {
       return (a + t * b) * Math.exp(-c * t) + d;
     }
   };
@@ -175,10 +175,10 @@ public class CapletStrippingTest {
     TRANSFORMS.put(NAMES[2], new DoubleRangeLimitTransform(-1, 1)); //-0.95<rho<0.95
     TRANSFORMS.put(NAMES[3], new SingleRangeLimitTransform(0.0, LimitType.GREATER_THAN));
 
-    double[][] values = new double[4][NODES.length];
+    final double[][] values = new double[4][NODES.length];
     for (int i = 0; i < 4; i++) {
-      Function1D<Double, Double> func = PARAMETER_FUNCTIONS.get(NAMES[i]);
-      ParameterLimitsTransform trans = TRANSFORMS.get(NAMES[i]);
+      final Function1D<Double, Double> func = PARAMETER_FUNCTIONS.get(NAMES[i]);
+      final ParameterLimitsTransform trans = TRANSFORMS.get(NAMES[i]);
       for (int j = 0; j < NODES.length; j++) {
         values[i][j] = trans.transform(func.evaluate(NODES[j])); //fitting parameters
       }
@@ -187,13 +187,13 @@ public class CapletStrippingTest {
     CURVES = new LinkedHashMap<String, Curve<Double, Double>>();
     CURVE_NODES = new LinkedHashMap<String, double[]>();
     INTERPOLATORS = new LinkedHashMap<String, Interpolator1D>();
-    DoubleQuadraticInterpolator1D baseInterpolator = new DoubleQuadraticInterpolator1D();
+    final DoubleQuadraticInterpolator1D baseInterpolator = new DoubleQuadraticInterpolator1D();
     int index = 0;
-    for (String name : NAMES) {
+    for (final String name : NAMES) {
       CURVE_NODES.put(name, NODES);
       INTERPOLATORS.put(name, baseInterpolator);
-      Interpolator1D intp = new TransformedInterpolator1D(baseInterpolator, TRANSFORMS.get(name));
-      InterpolatedDoublesCurve intpCurve = InterpolatedDoublesCurve.from(NODES, values[index++], intp);
+      final Interpolator1D intp = new TransformedInterpolator1D(baseInterpolator, TRANSFORMS.get(name));
+      final InterpolatedDoublesCurve intpCurve = InterpolatedDoublesCurve.from(NODES, values[index++], intp);
       CURVES.put(name, intpCurve);
     }
 
@@ -209,12 +209,12 @@ public class CapletStrippingTest {
     MARKET_VEGAS = new double[CAP_MATURITIES.length * STRIKES.length];
 
     int count = 0;
-    for (int i = 0; i < CAP_MATURITIES.length; i++) {
+    for (final int element : CAP_MATURITIES) {
 
-      for (int j = 0; j < STRIKES.length; j++) {
-        CapFloor cap = makeCap(CAP_MATURITIES[i], SimpleFrequency.QUARTERLY, "funding", "3m Libor", STRIKES[j]);
+      for (final double element2 : STRIKES) {
+        final CapFloor cap = makeCap(element, SimpleFrequency.QUARTERLY, "funding", "3m Libor", element2);
         CAPS.add(cap);
-        CapFloorPricer pricer = new CapFloorPricer(cap, YIELD_CURVES);
+        final CapFloorPricer pricer = new CapFloorPricer(cap, YIELD_CURVES);
         MARKET_PRICES[count] = pricer.price(VOL_MODEL);
         MARKET_VOLS[count] = pricer.impliedVol(VOL_MODEL);
         MARKET_VEGAS[count] = 0.001 * pricer.vega(VOL_MODEL);
@@ -225,7 +225,7 @@ public class CapletStrippingTest {
     CURVE_BUILDER = new InterpolatedCurveBuildingFunction(CURVE_NODES, INTERPOLATORS);
 
     //start from some realistic values, and transform these into the fitting parameters
-    double[] start = new double[4 * NODES.length];
+    final double[] start = new double[4 * NODES.length];
     Arrays.fill(start, 0, NODES.length, TRANSFORMS.get(NAMES[0]).transform(0.3));
     Arrays.fill(start, NODES.length, 2 * NODES.length, TRANSFORMS.get(NAMES[1]).transform(0.7));
     Arrays.fill(start, 2 * NODES.length, 3 * NODES.length, TRANSFORMS.get(NAMES[2]).transform(-0.2));
@@ -234,13 +234,13 @@ public class CapletStrippingTest {
     END = new DoubleMatrix1D(join(values));
   }
 
-  private static double[] join(double[]... from) {
-    int n = from.length;
+  private static double[] join(final double[]... from) {
+    final int n = from.length;
     int sum = 0;
     for (int i = 0; i < n; i++) {
       sum += from[i].length;
     }
-    double[] res = new double[sum];
+    final double[] res = new double[sum];
     int index = 0;
     for (int i = 0; i < n; i++) {
       final int m = from[i].length;
@@ -254,14 +254,14 @@ public class CapletStrippingTest {
   public void testJacobian() {
 
     final VectorFieldFirstOrderDifferentiator jacFDCal = new VectorFieldFirstOrderDifferentiator();
-    Function1D<DoubleMatrix1D, DoubleMatrix1D> func = new CapletStrippingFunction(CAPS, YIELD_CURVES, CURVE_NODES, INTERPOLATORS, TRANSFORMS, null);
-    Function1D<DoubleMatrix1D, DoubleMatrix2D> jacFDFunc = jacFDCal.differentiate(func);
-    Function1D<DoubleMatrix1D, DoubleMatrix2D> jacAnalFunc = new CapletStrippingJacobian(CAPS, YIELD_CURVES, CURVE_NODES, INTERPOLATORS, TRANSFORMS, null);
+    final Function1D<DoubleMatrix1D, DoubleMatrix1D> func = new CapletStrippingFunction(CAPS, YIELD_CURVES, CURVE_NODES, INTERPOLATORS, TRANSFORMS, null);
+    final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacFDFunc = jacFDCal.differentiate(func);
+    final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacAnalFunc = new CapletStrippingJacobian(CAPS, YIELD_CURVES, CURVE_NODES, INTERPOLATORS, TRANSFORMS, null);
 
-    DoubleMatrix2D jacFD = jacFDFunc.evaluate(END);
-    DoubleMatrix2D jacAnal = jacAnalFunc.evaluate(END);
-    int rows = jacFD.getNumberOfRows();
-    int cols = jacFD.getNumberOfColumns();
+    final DoubleMatrix2D jacFD = jacFDFunc.evaluate(END);
+    final DoubleMatrix2D jacAnal = jacAnalFunc.evaluate(END);
+    final int rows = jacFD.getNumberOfRows();
+    final int cols = jacFD.getNumberOfColumns();
 
     assertEquals("# rows does not match", rows, jacAnal.getNumberOfRows(), 0);
     assertEquals("# cols does not match", cols, jacAnal.getNumberOfColumns(), 0);
@@ -280,27 +280,27 @@ public class CapletStrippingTest {
   @Test
   public void testStripping() {
 
-    CapletStrippingFunction func = new CapletStrippingFunction(CAPS, YIELD_CURVES, CURVE_NODES, INTERPOLATORS, TRANSFORMS, null);
-    CapletStrippingJacobian jac = new CapletStrippingJacobian(CAPS, YIELD_CURVES, CURVE_NODES, INTERPOLATORS, TRANSFORMS, null);
+    final CapletStrippingFunction func = new CapletStrippingFunction(CAPS, YIELD_CURVES, CURVE_NODES, INTERPOLATORS, TRANSFORMS, null);
+    final CapletStrippingJacobian jac = new CapletStrippingJacobian(CAPS, YIELD_CURVES, CURVE_NODES, INTERPOLATORS, TRANSFORMS, null);
 
-    double[] sigma = new double[MARKET_PRICES.length];
+    final double[] sigma = new double[MARKET_PRICES.length];
     Arrays.fill(sigma, 0.0001); //1bps
 
-    NonLinearLeastSquare ls = new NonLinearLeastSquare();
-    LeastSquareResults lsRes = ls.solve(new DoubleMatrix1D(MARKET_VOLS), new DoubleMatrix1D(sigma), func, jac, START);
+    final NonLinearLeastSquare ls = new NonLinearLeastSquare();
+    final LeastSquareResults lsRes = ls.solve(new DoubleMatrix1D(MARKET_VOLS), new DoubleMatrix1D(sigma), func, jac, START);
 
-    DoubleMatrix1D res = lsRes.getFitParameters();
+    final DoubleMatrix1D res = lsRes.getFitParameters();
 
     assertTrue("chi^2 too large", lsRes.getChiSq() < 0.3);
 
     //We don't recover exactly the initial curves. Why?
-    LinkedHashMap<String, InterpolatedDoublesCurve> curves = CURVE_BUILDER.evaluate(res);
-    for (String name : NAMES) {
-      Curve<Double, Double> fitCurve = curves.get(name);
-      ParameterLimitsTransform trans = TRANSFORMS.get(name);
-      Curve<Double, Double> initialCurve = CURVES.get(name);
+    final LinkedHashMap<String, InterpolatedDoublesCurve> curves = CURVE_BUILDER.evaluate(res);
+    for (final String name : NAMES) {
+      final Curve<Double, Double> fitCurve = curves.get(name);
+      final ParameterLimitsTransform trans = TRANSFORMS.get(name);
+      final Curve<Double, Double> initialCurve = CURVES.get(name);
       for (int i = 0; i < 25; i++) {
-        double t = i * 20. / 25;
+        final double t = i * 20. / 25;
         assertEquals(name + " - time: " + t, initialCurve.getYValue(t), trans.inverseTransform(fitCurve.getYValue(t)), 5e-2);
       }
     }
@@ -308,14 +308,14 @@ public class CapletStrippingTest {
   }
 
   private static CapFloor makeCap(final int years, final SimpleFrequency freq, final String discountCurve, final String indexCurve, final double strike) {
-    int n = (int) (years * freq.getPeriodsPerYear()) - 1; //first caplet missing
-    double tau = 1.0 / freq.getPeriodsPerYear();
+    final int n = (int) (years * freq.getPeriodsPerYear()) - 1; //first caplet missing
+    final double tau = 1.0 / freq.getPeriodsPerYear();
 
-    CapFloorIbor[] caplets = new CapFloorIbor[n];
+    final CapFloorIbor[] caplets = new CapFloorIbor[n];
     for (int i = 0; i < n; i++) {
-      double fixingStart = (i + 1) * tau;
-      double fixingEnd = (i + 2) * tau;
-      caplets[i] = new CapFloorIbor(Currency.USD, fixingEnd, discountCurve, tau, 1.0, fixingStart, INDEX, fixingStart, fixingEnd, tau, indexCurve, strike, true);
+      final double fixingStart = (i + 1) * tau;
+      final double fixingEnd = (i + 2) * tau;
+      caplets[i] = new CapFloorIbor(Currency.EUR, fixingEnd, discountCurve, tau, 1.0, fixingStart, INDEX, fixingStart, fixingEnd, tau, indexCurve, strike, true);
     }
     return new CapFloor(caplets);
   }

@@ -37,12 +37,12 @@ public abstract class SmileSurfaceDataBundle {
 
   public abstract SmileSurfaceDataBundle withBumpedPoint(int expiryIndex, int strikeIndex, double amount);
 
-  /** 
+  /**
    * Sanity check
    * Test that integrated variance is increasing as one moves out in expiries. This is just a proxy.
    * It compares various as one moves down a column, be it strike or Moneyness.
    * @param expiries Option expiries
-   * @param vols Implied Volatilities  
+   * @param vols Implied Volatilities
    */
   protected void checkVolatilities(final double[] expiries, final double[][] vols) {
     final int nExpiries = expiries.length;
@@ -59,20 +59,20 @@ public abstract class SmileSurfaceDataBundle {
     }
   }
 
-  /** 
+  /**
    * Sanity check
    * Test that integrated variance is increasing as one moves out in expiries. This is just a proxy.
    * This version is to be used when expiry rows have different length, but share common strikes.
    * @param expiries Option expiries
    * @param strikes Available strikes for each expiry
-   * @param vols Implied Volatilities, sharing dimension of strikes 
+   * @param vols Implied Volatilities, sharing dimension of strikes
    */
   protected void checkVolatilities(final double[] expiries, final double[][] strikes, final double[][] vols) {
     final int nExpiries = expiries.length;
     // Build a map keyed by the strike
-    final HashMap<Double, ArrayList<Double>> strikeVarMap = new HashMap<Double, ArrayList<Double>>();
+    final HashMap<Double, ArrayList<Double>> strikeVarMap = new HashMap<>();
     for (int k = 0; k < strikes[0].length; k++) {
-      final ArrayList<Double> intVar = new ArrayList<Double>();
+      final ArrayList<Double> intVar = new ArrayList<>();
       intVar.add(vols[0][k] * vols[0][k] * expiries[0]);
       strikeVarMap.put(strikes[0][k], intVar);
     }
@@ -84,7 +84,7 @@ public abstract class SmileSurfaceDataBundle {
           // Add Vol to existing key
           strikeVarMap.get(strikes[i][k]).add(vols[i][k] * vols[i][k] * expiries[i]);
         } else { // Add new key
-          final ArrayList<Double> intVar = new ArrayList<Double>();
+          final ArrayList<Double> intVar = new ArrayList<>();
           intVar.add(vols[i][k] * vols[i][k] * expiries[i]);
           strikeVarMap.put(strikes[i][k], intVar);
         }

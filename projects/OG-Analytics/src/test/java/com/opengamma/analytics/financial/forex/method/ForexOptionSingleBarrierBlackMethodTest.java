@@ -154,8 +154,7 @@ public class ForexOptionSingleBarrierBlackMethodTest {
     final double priceBarrierDown = METHOD_BARRIER.presentValue(impossibleKnockOut, SMILE_BUNDLE).getAmount(CUR_2);
     assertTrue("PV : Knock-Out + Knock-In Barriers do not sum to the underlying vanilla (as approximated by a barrierOption with an impossibly low barrier",
         Math.abs((priceBarrierKO + priceBarrierKI) / priceBarrierDown - 1.0) < 1e-4);
-    assertTrue("PV : Knock-Out + Knock-In Barriers do not sum to the underlying vanilla",
-        ((priceBarrierKO + priceBarrierKI) / priceVanilla - 1.0) < 1e-4);
+    assertTrue("PV : Knock-Out + Knock-In Barriers do not sum to the underlying vanilla", ((priceBarrierKO + priceBarrierKI) / priceVanilla - 1.0) < 1e-4);
   }
 
   @Test
@@ -293,16 +292,16 @@ public class ForexOptionSingleBarrierBlackMethodTest {
     final MultipleCurrencyInterestRateCurveSensitivity sensi = METHOD_BARRIER.presentValueCurveSensitivity(OPTION_BARRIER, SMILE_BUNDLE);
     final double dfDomestic = CURVES.getCurve(CURVES_NAME[1]).getDiscountFactor(payTime);
     final double dfForeign = CURVES.getCurve(CURVES_NAME[0]).getDiscountFactor(payTime);
-    final double costOfCarry = rateDomestic - rateForeign;
+    //    final double costOfCarry = rateDomestic - rateForeign;
     final double forward = SPOT * dfForeign / dfDomestic;
     final double volatility = SMILE_TERM.getVolatility(new Triple<Double, Double, Double>(VANILLA_LONG.getTimeToExpiry(), STRIKE, forward));
     final double rebateByForeignUnit = REBATE / Math.abs(NOTIONAL);
     // Finite difference
     final double deltaShift = 0.00001; // 0.1 bp
-    final double bumpedPvForeignPlus = BLACK_BARRIER_FUNCTION.getPrice(VANILLA_LONG, BARRIER_KI, rebateByForeignUnit, SPOT, rateDomestic - (rateForeign + deltaShift), rateDomestic, volatility) *
-        NOTIONAL;
-    final double bumpedPvForeignMinus = BLACK_BARRIER_FUNCTION.getPrice(VANILLA_LONG, BARRIER_KI, rebateByForeignUnit, SPOT, rateDomestic - (rateForeign - deltaShift), rateDomestic, volatility) *
-        NOTIONAL;
+    final double bumpedPvForeignPlus = BLACK_BARRIER_FUNCTION.getPrice(VANILLA_LONG, BARRIER_KI, rebateByForeignUnit, SPOT, rateDomestic - (rateForeign + deltaShift), rateDomestic, volatility)
+        * NOTIONAL;
+    final double bumpedPvForeignMinus = BLACK_BARRIER_FUNCTION.getPrice(VANILLA_LONG, BARRIER_KI, rebateByForeignUnit, SPOT, rateDomestic - (rateForeign - deltaShift), rateDomestic, volatility)
+        * NOTIONAL;
     final double resultForeign = (bumpedPvForeignPlus - bumpedPvForeignMinus) / (2 * deltaShift);
     assertEquals("Forex vanilla option: curve exposure", payTime, sensi.getSensitivity(CUR_2).getSensitivities().get(CURVES_NAME[0]).get(0).first, 1E-2);
     assertEquals("Forex vanilla option: curve exposure", resultForeign, sensi.getSensitivity(CUR_2).getSensitivities().get(CURVES_NAME[0]).get(0).second, 1E-8 * NOTIONAL);
@@ -503,7 +502,6 @@ public class ForexOptionSingleBarrierBlackMethodTest {
     final double d2PdSdsig100 = METHOD_BARRIER.d2PriceDSpotDVolFD(BARRIER_SHORT, SMILE_BUNDLE, 0.01).getAmount();
     final double d2PdSdsig1 = METHOD_BARRIER.d2PriceDSpotDVolFD(BARRIER_SHORT, SMILE_BUNDLE, 0.0001).getAmount();
     assertTrue(true);
-
   }
 
   @Test
@@ -532,8 +530,8 @@ public class ForexOptionSingleBarrierBlackMethodTest {
     final double foreignAmount = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentCurrency1().getAmount();
     final double rebateByForeignUnit = optionForex.getRebate() / Math.abs(foreignAmount);
     final double sign = (optionForex.getUnderlyingOption().isLong() ? 1.0 : -1.0);
-    final double vol = FXVolatilityUtils.getVolatility(smile, optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getUnderlyingOption().getTimeToExpiry(),
-        optionForex.getUnderlyingOption().getStrike(), forward);
+    final double vol = FXVolatilityUtils.getVolatility(smile, optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getUnderlyingOption().getTimeToExpiry(), optionForex
+        .getUnderlyingOption().getStrike(), forward);
 
     // Bump scenarios
     final double volUp = (1.0 + relShift) * vol;

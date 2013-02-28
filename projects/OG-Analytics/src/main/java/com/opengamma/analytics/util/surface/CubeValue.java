@@ -10,12 +10,12 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Triple;
 
 /**
- * Object to represent values linked to a cube (triple of doubles) for which the values can be added or multiplied by a constant. 
+ * Object to represent values linked to a cube (triple of doubles) for which the values can be added or multiplied by a constant.
  * Used for different sensitivities (FX,...). The objects stored as a HashMap(DoublesPair, Double).
  */
 public class CubeValue {
@@ -29,7 +29,7 @@ public class CubeValue {
    * Constructor. Create an empty map.
    */
   public CubeValue() {
-    _data = new HashMap<Triple<Double, Double, Double>, Double>();
+    _data = new HashMap<>();
   }
 
   /**
@@ -37,8 +37,8 @@ public class CubeValue {
    * @param map The map.
    */
   private CubeValue(final HashMap<Triple<Double, Double, Double>, Double> map) {
-    Validate.notNull(map, "Map");
-    _data = new HashMap<Triple<Double, Double, Double>, Double>(map);
+    ArgumentChecker.notNull(map, "Map");
+    _data = new HashMap<>(map);
   }
 
   /**
@@ -48,8 +48,8 @@ public class CubeValue {
    * @return The surface value.
    */
   public static CubeValue from(final Triple<Double, Double, Double> point, final Double value) {
-    Validate.notNull(point, "Point");
-    HashMap<Triple<Double, Double, Double>, Double> data = new HashMap<Triple<Double, Double, Double>, Double>();
+    ArgumentChecker.notNull(point, "Point");
+    final HashMap<Triple<Double, Double, Double>, Double> data = new HashMap<>();
     data.put(point, value);
     return new CubeValue(data);
   }
@@ -60,8 +60,8 @@ public class CubeValue {
    * @return The surface value.
    */
   public static CubeValue from(final Map<Triple<Double, Double, Double>, Double> map) {
-    Validate.notNull(map, "Map");
-    HashMap<Triple<Double, Double, Double>, Double> data = new HashMap<Triple<Double, Double, Double>, Double>();
+    ArgumentChecker.notNull(map, "Map");
+    final HashMap<Triple<Double, Double, Double>, Double> data = new HashMap<>();
     data.putAll(map);
     return new CubeValue(data);
   }
@@ -72,8 +72,8 @@ public class CubeValue {
    * @return The surface value.
    */
   public static CubeValue from(final CubeValue surface) {
-    Validate.notNull(surface, "Surface value");
-    HashMap<Triple<Double, Double, Double>, Double> data = new HashMap<Triple<Double, Double, Double>, Double>();
+    ArgumentChecker.notNull(surface, "Surface value");
+    final HashMap<Triple<Double, Double, Double>, Double> data = new HashMap<>();
     data.putAll(surface.getMap());
     return new CubeValue(data);
   }
@@ -93,7 +93,7 @@ public class CubeValue {
    * @param value The associated value.
    */
   public void add(final Triple<Double, Double, Double> point, final Double value) {
-    Validate.notNull(point, "Point");
+    ArgumentChecker.notNull(point, "Point");
     if (_data.containsKey(point)) {
       _data.put(point, value + _data.get(point));
     } else {
@@ -102,16 +102,16 @@ public class CubeValue {
   }
 
   /**
-   * Create a new object containing the point of both initial objects. If a point is only on one surface, its value is the original value. 
+   * Create a new object containing the point of both initial objects. If a point is only on one surface, its value is the original value.
    * If a point is on both surfaces, the values on that point are added.
    * @param value1 The first surface value.
    * @param value2 The second surface value.
    * @return The combined/sum surface value.
    */
   public static CubeValue plus(final CubeValue value1, final CubeValue value2) {
-    Validate.notNull(value1, "Surface value 1");
-    Validate.notNull(value2, "Surface value 2");
-    final HashMap<Triple<Double, Double, Double>, Double> plus = new HashMap<Triple<Double, Double, Double>, Double>(value1._data);
+    ArgumentChecker.notNull(value1, "Surface value 1");
+    ArgumentChecker.notNull(value2, "Surface value 2");
+    final HashMap<Triple<Double, Double, Double>, Double> plus = new HashMap<>(value1._data);
     for (final Triple<Double, Double, Double> p : value2._data.keySet()) {
       if (value1._data.containsKey(p)) {
         plus.put(p, value2._data.get(p) + value1._data.get(p));
@@ -131,9 +131,9 @@ public class CubeValue {
    * @return The combined/sum surface value.
    */
   public static CubeValue plus(final CubeValue surfaceValue, final Triple<Double, Double, Double> point, final Double value) {
-    Validate.notNull(surfaceValue, "Surface value");
-    Validate.notNull(point, "Point");
-    final HashMap<Triple<Double, Double, Double>, Double> plus = new HashMap<Triple<Double, Double, Double>, Double>(surfaceValue._data);
+    ArgumentChecker.notNull(surfaceValue, "Surface value");
+    ArgumentChecker.notNull(point, "Point");
+    final HashMap<Triple<Double, Double, Double>, Double> plus = new HashMap<>(surfaceValue._data);
     if (surfaceValue._data.containsKey(point)) {
       plus.put(point, value + surfaceValue._data.get(point));
     } else {
@@ -149,17 +149,17 @@ public class CubeValue {
    * @return The multiplied surface.
    */
   public static CubeValue multiplyBy(final CubeValue surfaceValue, final double factor) {
-    Validate.notNull(surfaceValue, "Surface value");
-    final HashMap<Triple<Double, Double, Double>, Double> multiplied = new HashMap<Triple<Double, Double, Double>, Double>();
+    ArgumentChecker.notNull(surfaceValue, "Surface value");
+    final HashMap<Triple<Double, Double, Double>, Double> multiplied = new HashMap<>();
     for (final Triple<Double, Double, Double> p : surfaceValue._data.keySet()) {
       multiplied.put(p, surfaceValue._data.get(p) * factor);
     }
     return new CubeValue(multiplied);
   }
 
-  public static boolean compare(final CubeValue value1, final CubeValue value2, double tolerance) {
-    Set<Triple<Double, Double, Double>> set1 = value1._data.keySet();
-    Set<Triple<Double, Double, Double>> set2 = value2._data.keySet();
+  public static boolean compare(final CubeValue value1, final CubeValue value2, final double tolerance) {
+    final Set<Triple<Double, Double, Double>> set1 = value1._data.keySet();
+    final Set<Triple<Double, Double, Double>> set2 = value2._data.keySet();
     if (!set1.equals(set2)) {
       return false;
     }
@@ -185,7 +185,7 @@ public class CubeValue {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -195,7 +195,7 @@ public class CubeValue {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    CubeValue other = (CubeValue) obj;
+    final CubeValue other = (CubeValue) obj;
     if (!ObjectUtils.equals(_data, other._data)) {
       return false;
     }
