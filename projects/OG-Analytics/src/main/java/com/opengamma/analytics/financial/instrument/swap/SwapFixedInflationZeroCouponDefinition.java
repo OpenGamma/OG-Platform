@@ -12,6 +12,7 @@ import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
+import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedInflation;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZeroCouponInterpolationDefinition;
@@ -69,6 +70,32 @@ public class SwapFixedInflationZeroCouponDefinition extends SwapDefinition {
   }
 
   /**
+   * Builder from financial details and the time series of exiting price index values and a generator of swap.
+   * @param settlementDate The swap settlement date.
+   * @param fixedRate The swap fixed rate (annual compounding). The fixed payment is (1+fixedRate)^tenor-1.
+   * @param notional The swap notional.
+   * @param generator the generator of swap
+   * @param isPayer The flag 
+   * @param priceIndexTimeSeries The time series with the relevant price index values.
+   * @return The zero coupon inflation swap.
+   */
+  public static SwapFixedInflationZeroCouponDefinition fromInterpolation(final ZonedDateTime settlementDate, double fixedRate, double notional, final GeneratorSwapFixedInflation generator,
+      final boolean isPayer, final DoubleTimeSeries<ZonedDateTime> priceIndexTimeSeries) {
+    Validate.notNull(generator, "generator");
+    Validate.notNull(settlementDate, "Settlement date");
+    Validate.notNull(priceIndexTimeSeries, "Time series of price index");
+    ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(settlementDate, Period.of(generator.getTenor(), YEARS), generator.getBusinessDayConvention(), generator.getCalendar(),
+        generator.isEndOfMonth());
+    CouponFixedCompoundingDefinition fixedCpn = CouponFixedCompoundingDefinition.from(generator.getIndexPrice().getCurrency(), paymentDate, settlementDate, (isPayer ? -1.0 : 1.0) * notional,
+        generator.getTenor(),
+        fixedRate);
+    CouponInflationZeroCouponInterpolationDefinition inflationCpn = CouponInflationZeroCouponInterpolationDefinition.from(settlementDate, paymentDate, (isPayer ? 1.0 : -1.0) * notional,
+        generator.getIndexPrice(),
+        priceIndexTimeSeries, generator.getMonthLag(), false);
+    return new SwapFixedInflationZeroCouponDefinition(fixedCpn, inflationCpn);
+  }
+
+  /**
    * Builder from financial details and the time series of exiting price index values.
    * @param index The price index.
    * @param settlementDate The swap settlement date.
@@ -99,4 +126,29 @@ public class SwapFixedInflationZeroCouponDefinition extends SwapDefinition {
     return new SwapFixedInflationZeroCouponDefinition(fixedCpn, inflationCpn);
   }
 
+  /**
+   * Builder from financial details and the time series of exiting price index values and a generator of swap.
+   * @param settlementDate The swap settlement date.
+   * @param fixedRate The swap fixed rate (annual compounding). The fixed payment is (1+fixedRate)^tenor-1.
+   * @param notional The swap notional.
+   * @param generator The swap generator.
+   * @param isPayer The flag
+   * @param priceIndexTimeSeries The time series with the relevant price index values.
+   * @return The zero coupon inflation swap.
+   */
+  public static SwapFixedInflationZeroCouponDefinition fromMonthly(final ZonedDateTime settlementDate, double fixedRate, double notional, final GeneratorSwapFixedInflation generator,
+      final boolean isPayer, final DoubleTimeSeries<ZonedDateTime> priceIndexTimeSeries) {
+    Validate.notNull(generator, "generator");
+    Validate.notNull(settlementDate, "Settlement date");
+    Validate.notNull(priceIndexTimeSeries, "Time series of price index");
+    ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(settlementDate, Period.of(generator.getTenor(), YEARS), generator.getBusinessDayConvention(), generator.getCalendar(),
+        generator.isEndOfMonth());
+    CouponFixedCompoundingDefinition fixedCpn = CouponFixedCompoundingDefinition.from(generator.getIndexPrice().getCurrency(), paymentDate, settlementDate, (isPayer ? -1.0 : 1.0) * notional,
+        generator.getTenor(),
+        fixedRate);
+    CouponInflationZeroCouponMonthlyDefinition inflationCpn = CouponInflationZeroCouponMonthlyDefinition.from(settlementDate, paymentDate, (isPayer ? 1.0 : -1.0) * notional,
+        generator.getIndexPrice(),
+        priceIndexTimeSeries, generator.getMonthLag(), false);
+    return new SwapFixedInflationZeroCouponDefinition(fixedCpn, inflationCpn);
+  }
 }

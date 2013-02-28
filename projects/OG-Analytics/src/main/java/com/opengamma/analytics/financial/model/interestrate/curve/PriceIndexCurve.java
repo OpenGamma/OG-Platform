@@ -5,6 +5,9 @@
  */
 package com.opengamma.analytics.financial.model.interestrate.curve;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
@@ -99,6 +102,14 @@ public class PriceIndexCurve {
 
   public int getNumberOfParameters() {
     return _curve.size();
+  }
+
+  /**
+   * @param name The time 
+   * @return nothing
+   */
+  public List<String> getUnderlyingCurvesNames(final String name) {
+    return new ArrayList<>();
   }
 
   public double[] getPriceIndexParameterSensitivity(final double time) {

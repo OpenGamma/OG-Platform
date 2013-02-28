@@ -40,8 +40,6 @@ public class CouponFixedCompoundingTest {
   private static final double[] PAYMENT_ACCRUAL_FACTORS = new double[NB_SUB_PERIOD];
   private static final double PAYMENT_ACCRUAL_FACTOR;
 
-  private static final double TOLERANCE = 1.0E-10;
-
   static {
     ACCRUAL_START_DATES[0] = START_DATE;
     for (int loopsub = 1; loopsub < NB_SUB_PERIOD; loopsub++) {

@@ -18,6 +18,7 @@ import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
+import com.opengamma.analytics.math.curve.DoublesCurve;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
@@ -323,6 +324,24 @@ public class InflationProviderDiscount implements InflationProviderInterface {
       throw new IllegalArgumentException("Price index curve not in set: " + index);
     }
     _priceIndexCurves.put(index, curve);
+  }
+
+  @Override
+  public Integer getNumberOfParameters(String name) {
+    final Object curveObject = _allCurves.get(name);
+    if (curveObject instanceof PriceIndexCurve) {
+      return ((PriceIndexCurve) curveObject).getNumberOfParameters();
+    } else if (curveObject instanceof YieldAndDiscountCurve) {
+      return ((YieldAndDiscountCurve) curveObject).getNumberOfParameters();
+    } else {
+      ArgumentChecker.isTrue(curveObject instanceof DoublesCurve, "Curve not a DoublesCurve, can not computed sensitivity");
+      return ((DoublesCurve) curveObject).size();
+    }
+  }
+
+  @Override
+  public List<String> getUnderlyingCurvesNames(final String name) {
+    return _allCurves.get(name).getUnderlyingCurvesNames(name);
   }
 
   @Override
