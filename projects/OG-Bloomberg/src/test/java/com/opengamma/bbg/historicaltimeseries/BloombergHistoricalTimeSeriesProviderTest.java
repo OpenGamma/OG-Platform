@@ -6,7 +6,7 @@
 package com.opengamma.bbg.historicaltimeseries;
 
 import static com.opengamma.bbg.BloombergConstants.BLOOMBERG_DATA_SOURCE_NAME;
-import static com.opengamma.bbg.BloombergConstants.DATA_PROVIDER_UNKNOWN;
+import static com.opengamma.bbg.BloombergConstants.DEFAULT_DATA_PROVIDER;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotNull;
@@ -44,7 +44,6 @@ public class BloombergHistoricalTimeSeriesProviderTest {
   private static final ExternalIdBundle COMPLEX_BUNDLE = ExternalIdBundle.of(
       ExternalId.of("BLOOMBERG_BUID", "EQ0010121400001000"), ExternalId.of("BLOOMBERG_TICKER", "C US Equity"),
       ExternalId.of("CUSIP", "172967101"), ExternalId.of("ISIN", "US1729671016"), ExternalId.of("SEDOL1", "2297907"));
-  private static final String DEFAULT_DATA_PROVIDER = DATA_PROVIDER_UNKNOWN;
   private static final String BBG_DATA_SOURCE = BLOOMBERG_DATA_SOURCE_NAME;
   private static final String PX_LAST = "PX_LAST";
 

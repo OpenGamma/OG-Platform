@@ -299,6 +299,8 @@ public class GammaLegacyCreditDefaultSwapTest {
 
   // Hazard rate term structure (assume this has been calibrated previously)
 
+  static ZonedDateTime[] hazardRateDates = {zdt(2013, 06, 20, 0, 0, 0, 0, ZoneOffset.UTC), zdt(2015, 06, 20, 0, 0, 0, 0, ZoneOffset.UTC), zdt(2018, 06, 20, 0, 0, 0, 0, ZoneOffset.UTC) };
+
   static double[] hazardRateTimes = {
       0.0,
       s_act365.getDayCountFraction(valuationDate, zdt(2013, 06, 20, 0, 0, 0, 0, ZoneOffset.UTC)),
@@ -314,7 +316,7 @@ public class GammaLegacyCreditDefaultSwapTest {
   };
 
   // Build the hazard rate curve object (No offset - survival probability = 1 on valuationDate)
-  private static final HazardRateCurve hazardRateCurve = new HazardRateCurve(hazardRateTimes, hazardRates, 0.0);
+  private static final HazardRateCurve hazardRateCurve = new HazardRateCurve(hazardRateDates, hazardRateTimes, hazardRates, 0.0);
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 

@@ -9,11 +9,12 @@ import java.sql.Date;
 import java.util.Calendar;
 
 /**
- * 
+ * Test.
  */
 public abstract class SQLDateObjectTimeSeriesTest extends BigDecimalObjectTimeSeriesTest<Date> {
+
   @Override
-  public Date[] testTimes() {
+  protected Date[] testTimes() {
     Calendar cal = Calendar.getInstance();
     cal.clear();
     cal.set(2010, 1, 8); // feb
@@ -28,11 +29,11 @@ public abstract class SQLDateObjectTimeSeriesTest extends BigDecimalObjectTimeSe
     Date five = new Date(cal.getTimeInMillis());
     cal.set(2010, 1, 13);
     Date six = new Date(cal.getTimeInMillis());
-    return new Date[] { one, two, three, four, five, six };
+    return new Date[] {one, two, three, four, five, six };
   }
 
   @Override
-  public Date[] testTimes2() {
+  protected Date[] testTimes2() {
     Calendar cal = Calendar.getInstance();
     cal.clear();
     cal.set(2010, 1, 11); // feb
@@ -47,11 +48,12 @@ public abstract class SQLDateObjectTimeSeriesTest extends BigDecimalObjectTimeSe
     Date five = new Date(cal.getTimeInMillis());
     cal.set(2010, 1, 16);
     Date six = new Date(cal.getTimeInMillis());
-    return new Date[] { one, two, three, four, five, six };
-  } 
+    return new Date[] {one, two, three, four, five, six };
+  }
 
   @Override
-  public Date[] emptyTimes() {
+  protected Date[] emptyTimes() {
     return new Date[] {};
   }
+
 }

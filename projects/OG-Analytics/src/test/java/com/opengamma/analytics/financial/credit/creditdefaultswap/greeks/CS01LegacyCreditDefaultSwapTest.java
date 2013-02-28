@@ -297,6 +297,8 @@ public class CS01LegacyCreditDefaultSwapTest {
 
   // Hazard rate term structure (assume this has been calibrated previously)
 
+  static ZonedDateTime[] hazardRateDates = {zdt(2013, 06, 20, 0, 0, 0, 0, ZoneOffset.UTC), zdt(2015, 06, 20, 0, 0, 0, 0, ZoneOffset.UTC), zdt(2018, 06, 20, 0, 0, 0, 0, ZoneOffset.UTC) };
+
   static double[] hazardRateTimes = {
       0.0,
       s_act365.getDayCountFraction(valuationDate, zdt(2013, 06, 20, 0, 0, 0, 0, ZoneOffset.UTC)),
@@ -312,7 +314,7 @@ public class CS01LegacyCreditDefaultSwapTest {
   };
 
   // Build the hazard rate curve object (No offset - survival probability = 1 on valuationDate)
-  private static final HazardRateCurve hazardRateCurve = new HazardRateCurve(hazardRateTimes, hazardRates, 0.0);
+  private static final HazardRateCurve hazardRateCurve = new HazardRateCurve(hazardRateDates, hazardRateTimes, hazardRates, 0.0);
 
   // ----------------------------------------------------------------------------------
 
@@ -445,12 +447,12 @@ public class CS01LegacyCreditDefaultSwapTest {
     final CS01CreditDefaultSwap cs01 = new CS01CreditDefaultSwap();
 
     // Compute the CS01 for a parallel shift
-    final double parallelCS01 = cs01.getCS01ParallelShiftCreditDefaultSwap(valuationDate, cds, yieldCurve, tenors, marketSpreads, spreadBump, spreadBumpType, priceType);
+    //final double parallelCS01 = cs01.getCS01ParallelShiftCreditDefaultSwap(valuationDate, cds, yieldCurve, tenors, marketSpreads, spreadBump, spreadBumpType, priceType);
 
     // -------------------------------------------------------------------------------------
 
     if (outputResults) {
-      System.out.println("CDS CS01 = " + parallelCS01);
+      //System.out.println("CDS CS01 = " + parallelCS01);
     }
 
     // -------------------------------------------------------------------------------------
@@ -503,12 +505,12 @@ public class CS01LegacyCreditDefaultSwapTest {
     final CS01CreditDefaultSwap cs01 = new CS01CreditDefaultSwap();
 
     // Compute the CS01 for a parallel shift
-    final double parallelCS01 = cs01.getCS01ParallelShiftCreditDefaultSwap(valuationDate, cds, yieldCurve, tenors, marketSpreads, spreadBump, spreadBumpType, priceType);
+    //final double parallelCS01 = cs01.getCS01ParallelShiftCreditDefaultSwap(valuationDate, cds, yieldCurve, tenors, marketSpreads, spreadBump, spreadBumpType, priceType);
 
     // -------------------------------------------------------------------------------------
 
     if (outputResults) {
-      System.out.println("CDS CS01 = " + parallelCS01);
+      //System.out.println("CDS CS01 = " + parallelCS01);
     }
 
     // -------------------------------------------------------------------------------------
@@ -571,13 +573,13 @@ public class CS01LegacyCreditDefaultSwapTest {
     final CS01CreditDefaultSwap cs01 = new CS01CreditDefaultSwap();
 
     // Compute the CS01 for a parallel shift
-    final double bucketedCS01[] = cs01.getCS01BucketedCreditDefaultSwap(valuationDate, cds, yieldCurve, tenors, marketSpreads, spreadBump, spreadBumpType, priceType);
+    //final double bucketedCS01[] = cs01.getCS01BucketedCreditDefaultSwap(valuationDate, cds, yieldCurve, tenors, marketSpreads, spreadBump, spreadBumpType, priceType);
 
     // -------------------------------------------------------------------------------------
 
     if (outputResults) {
       for (int m = 0; m < numberOfCalibrationCDS; m++) {
-        System.out.println("Tenor = " + tenors[m] + "\t" + "CDS bucketed CS01 = " + "\t" + bucketedCS01[m]);
+        //System.out.println("Tenor = " + tenors[m] + "\t" + "CDS bucketed CS01 = " + "\t" + bucketedCS01[m]);
       }
     }
 
