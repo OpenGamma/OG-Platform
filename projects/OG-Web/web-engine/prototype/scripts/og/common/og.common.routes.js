@@ -38,8 +38,12 @@ $.register_module({
                     set_title(title || (new Date).toLocaleTimeString());
                     title = null;
                 });
-                // escape key will break long-polling, so prevent the default action
-                $(window).on('keydown', function (e) {if (e.keyCode === $.ui.keyCode.ESCAPE) e.preventDefault();});
+                $(window).on('keydown', function (event) {
+                    if (event.keyCode !== $.ui.keyCode.ESCAPE) return;
+                    event.preventDefault(); // escape key will break long-polling, so prevent the default action
+                    if ($('.OG-cell-options.og-frozen').remove().length) // remove any inplace gadgets and clean up
+                        $('.og-inplace-resizer').remove(), og.common.gadgets.manager.clean();
+                });
                 $(function () { // in addition to binding hash change events to window, also fire it onload
                     var common = og.views.common, is_child, parent_api, api = og.api.rest;
                     $('.OG-js-loading').hide();

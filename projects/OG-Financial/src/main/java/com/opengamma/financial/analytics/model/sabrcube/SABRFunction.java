@@ -62,17 +62,20 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.money.Currency;
 
 /**
- *
+ * Base class for functions that use a SABR model to price CMS, swaption, cap/floor and cap/floor CMS spread
  */
 public abstract class SABRFunction extends AbstractFunction.NonCompiledInvoker {
+  /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(SABRFunction.class);
   /** String labelling the type of SABR calculation (with right extrapolation) */
   public static final String SABR_RIGHT_EXTRAPOLATION = "SABRRightExtrapolation";
   /** String labelling the type of SABR extrapolation (none) */
   public static final String SABR_NO_EXTRAPOLATION = "SABRNoExtrapolation";
-
+  /** Converts securities to definitions */
   private FinancialSecurityVisitor<InstrumentDefinition<?>> _securityVisitor;
+  /** The security source */
   private SecuritySource _securitySource;
+  /** Converts definitions to derivatives */
   private FixedIncomeConverterDataProvider _definitionConverter;
 
   @Override
@@ -118,9 +121,14 @@ public abstract class SABRFunction extends AbstractFunction.NonCompiledInvoker {
       throw new OpenGammaRuntimeException("Could not find curve calculation configuration named " + curveCalculationConfigName);
     }
     final String[] curveNames = curveCalculationConfig.getYieldCurveNames(); //TODO
+    final int numCurveNames = curveNames.length;
+    final String[] fullCurveNames = new String[numCurveNames];
+    for (int i = 0; i < numCurveNames; i++) {
+      fullCurveNames[i] = curveNames[i] + "_" + currency.getCode();
+    }
     final YieldCurveBundle curves = YieldCurveFunctionUtils.getYieldCurves(inputs, curveCalculationConfig);
     final SABRInterestRateDataBundle data = getModelParameters(target, inputs, currency, dayCount, curves, desiredValue);
-    final InstrumentDerivative derivative = getConverter().convert(security, definition, now, curveNames, timeSeries);
+    final InstrumentDerivative derivative = getConverter().convert(security, definition, now, fullCurveNames, timeSeries);
     final Object result = getResult(derivative, data, desiredValue);
     final ValueProperties properties = getResultProperties(createValueProperties().get(), currency.getCode(), desiredValue);
     final ValueSpecification spec = new ValueSpecification(getValueRequirement(), target.toSpecification(), properties);
@@ -181,8 +189,19 @@ public abstract class SABRFunction extends AbstractFunction.NonCompiledInvoker {
     }
   }
 
+  /**
+   * Gets the value requirement.
+   * @return The value requirement
+   */
   protected abstract String getValueRequirement();
 
+  /**
+   * Gets the result.
+   * @param derivative The derivative
+   * @param data The market data
+   * @param desiredValue The desired value
+   * @return
+   */
   protected abstract Object getResult(final InstrumentDerivative derivative, final SABRInterestRateDataBundle data, final ValueRequirement desiredValue);
 
   protected ValueRequirement getCurveRequirement(final String curveName, final String advisoryForward, final String advisoryFunding, final String calculationMethod,

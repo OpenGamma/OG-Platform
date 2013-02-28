@@ -16,14 +16,11 @@ import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
-import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.util.async.AsynchronousExecution;
-import com.opengamma.util.money.Currency;
 
 /**
  * Provides sensitivity of EquitySecurity price with respect to itself, i.e. always unity.
@@ -60,9 +57,7 @@ public class EquitySecurityDeltaFunction  extends AbstractFunction.NonCompiledIn
 
   @Override
   public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
-    Currency currency = FinancialSecurityUtils.getCurrency(target.getSecurity());
-    return Collections.singleton(new ValueSpecification(getValueRequirementName(), target.toSpecification(), 
-        createValueProperties().with(ValuePropertyNames.CURRENCY, currency.getCode()).get()));
+    return Collections.singleton(new ValueSpecification(getValueRequirementName(), target.toSpecification(), createValueProperties().get()));
   }
 
   @Override

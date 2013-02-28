@@ -151,7 +151,7 @@ public class VolatilitySurfaceInterpolator {
   public BlackVolatilitySurfaceMoneynessFcnBackedByGrid combineIndependentSmileFits(final Function1D<Double, Double>[] smileFunctions,
       final SmileSurfaceDataBundle marketData) {
     ArgumentChecker.notNull(marketData, "market data");
-    ArgumentChecker.isTrue(marketData.getNumExpiries() > 0, "Not a single smile fit has been provided!");
+    ArgumentChecker.isTrue(marketData.getNumExpiries() > 0, "Do not have market data for any expiry");
     final int n = marketData.getNumExpiries();
     final double[] forwards = marketData.getForwards();
     final double[] expiries = marketData.getExpiries();

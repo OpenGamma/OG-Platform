@@ -187,7 +187,7 @@ public abstract class AbstractSearchResult<D extends AbstractDocument> extends A
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "versionCorrection");
 
     /**

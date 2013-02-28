@@ -12,10 +12,15 @@ import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.E
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.analytics.financial.model.volatility.smile.function.MixedLogNormalModelData;
 import com.opengamma.analytics.financial.model.volatility.smile.function.MixedLogNormalVolatilityFunction;
+import com.opengamma.analytics.math.matrix.CommonsMatrixAlgebra;
+import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
+import com.opengamma.analytics.math.matrix.MatrixAlgebra;
+import com.opengamma.analytics.math.matrix.MatrixAlgebraFactory;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Fitting volatility smiles of two mixed log-normal models with mixed normal variables X,Y by using Levenberg-Marquardt (LM) method. 
+ * Fitting volatility smiles of two mixed log-normal models with mixed normal variables X,Y. 
  * As model constraints are eventually violated starting with some initial guess parameters, 
  * the LM algorithm is modified such that model parameters satisfy all of the constraints in every step of the fitting iteration.  
  * X,Y should have the same number of normal distributions and share all of the weights.
@@ -49,6 +54,8 @@ public class MixedBivariateLogNormalFitter {
   private double _paramsGuessCorrection;
 
   private Random _randObj = new Random();
+  private CommonsMatrixAlgebra _algComObj = new CommonsMatrixAlgebra();
+  private final MatrixAlgebra _algOgObj = MatrixAlgebraFactory.getMatrixAlgebra("OG");
 
   private MixedLogNormalVolatilityFunction _volfunc = MixedLogNormalVolatilityFunction.getInstance();
 
@@ -101,7 +108,7 @@ public class MixedBivariateLogNormalFitter {
   }
 
   /**
-   * Find a set of parameters such that sum ( (_dataStrikes - exactFunctionValue)^2 ) is minimum by using Levenberg-Marquardt (LM) method. 
+   * Find a set of parameters such that sum ( (_dataStrikes - exactFunctionValue)^2 ) is minimum 
    */
   public void doFit() {
 
@@ -109,7 +116,7 @@ public class MixedBivariateLogNormalFitter {
     double rho = 0.;
     _shift = 0;
     boolean done = false;
-    double[] paramsJump = new double[_nData];
+    double[] paramsJump = new double[_nParams];
 
     _gradM = exactFunctionDerivative(_paramsGuess);
     _dataDerivedYDiff = exactFunctionValue(_paramsGuess);
@@ -581,8 +588,8 @@ public class MixedBivariateLogNormalFitter {
    */
   private double[] theMatrixEqnSolver() {
 
-    double[][] inverse = new double[_nParams][_nParams];
-    inverse = _hessian;
+    double[][] toBeInv = new double[_nParams][_nParams];
+    toBeInv = _hessian;
 
     double tmpDerivativeNorm = getVecNorm(_gradFunctionValueM);
     double tmpSquFact = 0.02 * 0.5 * getVecNormSq(exactFunctionValue(_paramsGuess));
@@ -591,77 +598,18 @@ public class MixedBivariateLogNormalFitter {
     }
 
     for (int i = 0; i < _nParams; ++i) {
-      inverse[i][i] = inverse[i][i] + _shift;
+      toBeInv[i][i] = toBeInv[i][i] + _shift;
     }
 
     double[] soln = new double[_nParams];
-    soln = _gradFunctionValueM;
 
-    int iRow = 0, iCol = 0;
+    final DoubleMatrix2D toBeInvMatrix = new DoubleMatrix2D(toBeInv);
+    final DoubleMatrix1D gradMatrixM = new DoubleMatrix1D(_gradFunctionValueM);
 
-    double bigElem, dumElem, pivInv;
+    final DoubleMatrix2D toBeInvMatrixInv = _algComObj.getInverse(toBeInvMatrix);
+    final DoubleMatrix1D solnMatrix = (DoubleMatrix1D) _algOgObj.multiply(toBeInvMatrixInv, gradMatrixM);
 
-    int[] indCol = new int[_nParams];
-    int[] indRow = new int[_nParams];
-    int[] iPiv = new int[_nParams];
-    Arrays.fill(iPiv, 0);
-
-    for (int i = 0; i < _nParams; ++i) {
-      bigElem = 0.0;
-      for (int j = 0; j < _nParams; ++j) {
-        if (iPiv[j] != 1) {
-          for (int k = 0; k < _nParams; ++k) {
-            if (iPiv[k] == 0) {
-              if (Math.abs(inverse[j][k]) >= bigElem) {
-                bigElem = Math.abs(inverse[j][k]);
-                iRow = j;
-                iCol = k;
-              }
-            }
-          }
-        }
-      }
-      ++(iPiv[iCol]);
-      if (iRow != iCol) {
-        for (int l = 0; l < _nParams; ++l) {
-          double tmp = inverse[iRow][l];
-          inverse[iRow][l] = inverse[iCol][l];
-          inverse[iCol][l] = tmp;
-        }
-
-        double tmp = soln[iRow];
-        soln[iRow] = soln[iCol];
-        soln[iCol] = tmp;
-      }
-      indRow[i] = iRow;
-      indCol[i] = iCol;
-
-      pivInv = 1. / inverse[iCol][iCol];
-      inverse[iCol][iCol] = 1.;
-      for (int l = 0; l < _nParams; ++l) {
-        inverse[iCol][l] *= pivInv;
-      }
-      soln[iCol] *= pivInv;
-      for (int l = 0; l < _nParams; ++l) {
-        if (l != iCol) {
-          dumElem = inverse[l][iCol];
-          inverse[l][iCol] = 0.0;
-          for (int m = 0; m < _nParams; ++m) {
-            inverse[l][m] -= inverse[iCol][m] * dumElem;
-          }
-          soln[l] -= soln[iCol] * dumElem;
-        }
-      }
-    }
-    for (int l = _nParams - 1; l >= 0; --l) {
-      if (indRow[l] != indCol[l]) {
-        for (int k = 0; k < _nParams; ++k) {
-          double tmp = inverse[k][indRow[l]];
-          inverse[k][indRow[l]] = inverse[k][indCol[l]];
-          inverse[k][indCol[l]] = tmp;
-        }
-      }
-    }
+    soln = solnMatrix.getData();
 
     return soln;
 

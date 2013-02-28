@@ -307,8 +307,10 @@ public class Client implements Runnable {
       }
     } catch (final FudgeRuntimeIOException e) {
       s_logger.warn("Error reading message {}", e.toString());
+      s_logger.debug("Caught exception", e);
     } catch (final Throwable t) {
       s_logger.error("Unexpected exception thrown during read loop", t);
+      s_logger.debug("Caught exception", t);
     }
     watchdogFuture.cancel(true);
     // Shutdown (poison may have already been called by a watchdog - no harm in calling it twice though)
@@ -336,16 +338,14 @@ public class Client implements Runnable {
       // but just using a FileInputStream was not releasing the blocked reader thread on my Linux workstation
       // at pipe closure.
       _inputPipe = getClientContext().getFudgeContext().createReader(
-          (DataInput) new DataInputStream(new BufferedInputStream(Channels.newInputStream(new FileInputStream(
-              getInputPipeName()).getChannel()))));
+          (DataInput) new DataInputStream(new BufferedInputStream(new InputStreamWrapper(Channels.newInputStream(new FileInputStream(getInputPipeName()).getChannel())))));
     } catch (final FileNotFoundException e) {
       s_logger.warn("Couldn't connect to pipe: {} ({})", getInputPipeName(), e.toString());
       return false;
     }
     s_logger.debug("Connecting to output pipe: {}", getOutputPipeName());
     try {
-      _outputPipe = getClientContext().getFudgeContext().createWriter(
-          (DataOutput) new DataOutputStream(new BufferedOutputStream(new FileOutputStream(getOutputPipeName()))));
+      _outputPipe = getClientContext().getFudgeContext().createWriter((DataOutput) new DataOutputStream(new BufferedOutputStream(new FileOutputStream(getOutputPipeName()))));
     } catch (final FileNotFoundException e) {
       s_logger.warn("Couldn't connect to pipe: {} ({})", getOutputPipeName(), e.toString());
     }

@@ -144,7 +144,7 @@ public class IntegrationToolContextComponentFactory extends ToolContextComponent
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "bloombergReferenceDataProvider");
 
     /**

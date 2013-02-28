@@ -42,37 +42,78 @@ public class BloombergContractIDTest {
   }
   
   public void toOptionExternalId() {
+    for (OptionType optionType : OPTION_TYPES) {
+      if (optionType == OptionType.CALL) {
+        assertEquals(ExternalSchemes.bloombergTickerSecurityId("ED 01/2011 C1.234 COMDTY"), BBG_CONTRACT.toOptionExternalId(1, 2011, 1.234, optionType));
+        assertEquals(ExternalSchemes.bloombergTickerSecurityId("ED 02/2011 C1.234 COMDTY"), BBG_CONTRACT.toOptionExternalId(2, 2011, 1.234, optionType));
+        assertEquals(ExternalSchemes.bloombergTickerSecurityId("ED 03/2011 C1.234 COMDTY"), BBG_CONTRACT.toOptionExternalId(3, 2011, 1.234, optionType));
+        assertEquals(ExternalSchemes.bloombergTickerSecurityId("ED 04/2011 C1.234 COMDTY"), BBG_CONTRACT.toOptionExternalId(4, 2011, 1.234, optionType));
+        assertEquals(ExternalSchemes.bloombergTickerSecurityId("ED 05/2011 C1.234 COMDTY"), BBG_CONTRACT.toOptionExternalId(5, 2011, 1.234, optionType));
+        assertEquals(ExternalSchemes.bloombergTickerSecurityId("ED 06/2011 C1.234 COMDTY"), BBG_CONTRACT.toOptionExternalId(6, 2011, 1.234, optionType));
+        assertEquals(ExternalSchemes.bloombergTickerSecurityId("ED 07/2011 C1.234 COMDTY"), BBG_CONTRACT.toOptionExternalId(7, 2011, 1.234, optionType));
+        assertEquals(ExternalSchemes.bloombergTickerSecurityId("ED 08/2011 C1.234 COMDTY"), BBG_CONTRACT.toOptionExternalId(8, 2011, 1.234, optionType));
+        assertEquals(ExternalSchemes.bloombergTickerSecurityId("ED 09/2011 C1.234 COMDTY"), BBG_CONTRACT.toOptionExternalId(9, 2011, 1.234, optionType));
+        assertEquals(ExternalSchemes.bloombergTickerSecurityId("ED 10/2011 C1.234 COMDTY"), BBG_CONTRACT.toOptionExternalId(10, 2011, 1.234, optionType));
+        assertEquals(ExternalSchemes.bloombergTickerSecurityId("ED 11/2011 C1.234 COMDTY"), BBG_CONTRACT.toOptionExternalId(11, 2011, 1.234, optionType));
+        assertEquals(ExternalSchemes.bloombergTickerSecurityId("ED 12/2011 C1.234 COMDTY"), BBG_CONTRACT.toOptionExternalId(12, 2011, 1.234, optionType));
+      } else {
+        assertEquals(ExternalSchemes.bloombergTickerSecurityId("ED 01/2011 P1.234 COMDTY"), BBG_CONTRACT.toOptionExternalId(1, 2011, 1.234, optionType));
+        assertEquals(ExternalSchemes.bloombergTickerSecurityId("ED 02/2011 P1.234 COMDTY"), BBG_CONTRACT.toOptionExternalId(2, 2011, 1.234, optionType));
+        assertEquals(ExternalSchemes.bloombergTickerSecurityId("ED 03/2011 P1.234 COMDTY"), BBG_CONTRACT.toOptionExternalId(3, 2011, 1.234, optionType));
+        assertEquals(ExternalSchemes.bloombergTickerSecurityId("ED 04/2011 P1.234 COMDTY"), BBG_CONTRACT.toOptionExternalId(4, 2011, 1.234, optionType));
+        assertEquals(ExternalSchemes.bloombergTickerSecurityId("ED 05/2011 P1.234 COMDTY"), BBG_CONTRACT.toOptionExternalId(5, 2011, 1.234, optionType));
+        assertEquals(ExternalSchemes.bloombergTickerSecurityId("ED 06/2011 P1.234 COMDTY"), BBG_CONTRACT.toOptionExternalId(6, 2011, 1.234, optionType));
+        assertEquals(ExternalSchemes.bloombergTickerSecurityId("ED 07/2011 P1.234 COMDTY"), BBG_CONTRACT.toOptionExternalId(7, 2011, 1.234, optionType));
+        assertEquals(ExternalSchemes.bloombergTickerSecurityId("ED 08/2011 P1.234 COMDTY"), BBG_CONTRACT.toOptionExternalId(8, 2011, 1.234, optionType));
+        assertEquals(ExternalSchemes.bloombergTickerSecurityId("ED 09/2011 P1.234 COMDTY"), BBG_CONTRACT.toOptionExternalId(9, 2011, 1.234, optionType));
+        assertEquals(ExternalSchemes.bloombergTickerSecurityId("ED 10/2011 P1.234 COMDTY"), BBG_CONTRACT.toOptionExternalId(10, 2011, 1.234, optionType));
+        assertEquals(ExternalSchemes.bloombergTickerSecurityId("ED 11/2011 P1.234 COMDTY"), BBG_CONTRACT.toOptionExternalId(11, 2011, 1.234, optionType));
+        assertEquals(ExternalSchemes.bloombergTickerSecurityId("ED 12/2011 P1.234 COMDTY"), BBG_CONTRACT.toOptionExternalId(12, 2011, 1.234, optionType));
+      }
+    }
+  }
+  
+  public void toFutureOptionExternalId() {
     for (Integer year : YEARS) {
       for (OptionType optionType : OPTION_TYPES) {
         if (optionType == OptionType.CALL) {
-          assertEquals(ExternalSchemes.bloombergTickerSecurityId("EDF1C 1.234 COMDTY"), BBG_CONTRACT.toOptionExternalId(1, year, 1.234, optionType));
-          assertEquals(ExternalSchemes.bloombergTickerSecurityId("EDG1C 1.234 COMDTY"), BBG_CONTRACT.toOptionExternalId(2, year, 1.234, optionType));
-          assertEquals(ExternalSchemes.bloombergTickerSecurityId("EDH1C 1.234 COMDTY"), BBG_CONTRACT.toOptionExternalId(3, year, 1.234, optionType));
-          assertEquals(ExternalSchemes.bloombergTickerSecurityId("EDJ1C 1.234 COMDTY"), BBG_CONTRACT.toOptionExternalId(4, year, 1.234, optionType));
-          assertEquals(ExternalSchemes.bloombergTickerSecurityId("EDK1C 1.234 COMDTY"), BBG_CONTRACT.toOptionExternalId(5, year, 1.234, optionType));
-          assertEquals(ExternalSchemes.bloombergTickerSecurityId("EDM1C 1.234 COMDTY"), BBG_CONTRACT.toOptionExternalId(6, year, 1.234, optionType));
-          assertEquals(ExternalSchemes.bloombergTickerSecurityId("EDN1C 1.234 COMDTY"), BBG_CONTRACT.toOptionExternalId(7, year, 1.234, optionType));
-          assertEquals(ExternalSchemes.bloombergTickerSecurityId("EDQ1C 1.234 COMDTY"), BBG_CONTRACT.toOptionExternalId(8, year, 1.234, optionType));
-          assertEquals(ExternalSchemes.bloombergTickerSecurityId("EDU1C 1.234 COMDTY"), BBG_CONTRACT.toOptionExternalId(9, year, 1.234, optionType));
-          assertEquals(ExternalSchemes.bloombergTickerSecurityId("EDV1C 1.234 COMDTY"), BBG_CONTRACT.toOptionExternalId(10, year, 1.234, optionType));
-          assertEquals(ExternalSchemes.bloombergTickerSecurityId("EDX1C 1.234 COMDTY"), BBG_CONTRACT.toOptionExternalId(11, year, 1.234, optionType));
-          assertEquals(ExternalSchemes.bloombergTickerSecurityId("EDZ1C 1.234 COMDTY"), BBG_CONTRACT.toOptionExternalId(12, year, 1.234, optionType));
+          assertEquals(ExternalSchemes.bloombergTickerSecurityId("EDF1C 1.234 COMDTY"), BBG_CONTRACT.toFutureOptionExternalId(1, year, 1.234, optionType));
+          assertEquals(ExternalSchemes.bloombergTickerSecurityId("EDG1C 1.234 COMDTY"), BBG_CONTRACT.toFutureOptionExternalId(2, year, 1.234, optionType));
+          assertEquals(ExternalSchemes.bloombergTickerSecurityId("EDH1C 1.234 COMDTY"), BBG_CONTRACT.toFutureOptionExternalId(3, year, 1.234, optionType));
+          assertEquals(ExternalSchemes.bloombergTickerSecurityId("EDJ1C 1.234 COMDTY"), BBG_CONTRACT.toFutureOptionExternalId(4, year, 1.234, optionType));
+          assertEquals(ExternalSchemes.bloombergTickerSecurityId("EDK1C 1.234 COMDTY"), BBG_CONTRACT.toFutureOptionExternalId(5, year, 1.234, optionType));
+          assertEquals(ExternalSchemes.bloombergTickerSecurityId("EDM1C 1.234 COMDTY"), BBG_CONTRACT.toFutureOptionExternalId(6, year, 1.234, optionType));
+          assertEquals(ExternalSchemes.bloombergTickerSecurityId("EDN1C 1.234 COMDTY"), BBG_CONTRACT.toFutureOptionExternalId(7, year, 1.234, optionType));
+          assertEquals(ExternalSchemes.bloombergTickerSecurityId("EDQ1C 1.234 COMDTY"), BBG_CONTRACT.toFutureOptionExternalId(8, year, 1.234, optionType));
+          assertEquals(ExternalSchemes.bloombergTickerSecurityId("EDU1C 1.234 COMDTY"), BBG_CONTRACT.toFutureOptionExternalId(9, year, 1.234, optionType));
+          assertEquals(ExternalSchemes.bloombergTickerSecurityId("EDV1C 1.234 COMDTY"), BBG_CONTRACT.toFutureOptionExternalId(10, year, 1.234, optionType));
+          assertEquals(ExternalSchemes.bloombergTickerSecurityId("EDX1C 1.234 COMDTY"), BBG_CONTRACT.toFutureOptionExternalId(11, year, 1.234, optionType));
+          assertEquals(ExternalSchemes.bloombergTickerSecurityId("EDZ1C 1.234 COMDTY"), BBG_CONTRACT.toFutureOptionExternalId(12, year, 1.234, optionType));
         } else {
-          assertEquals(ExternalSchemes.bloombergTickerSecurityId("EDF1P 1.234 COMDTY"), BBG_CONTRACT.toOptionExternalId(1, year, 1.234, optionType));
-          assertEquals(ExternalSchemes.bloombergTickerSecurityId("EDG1P 1.234 COMDTY"), BBG_CONTRACT.toOptionExternalId(2, year, 1.234, optionType));
-          assertEquals(ExternalSchemes.bloombergTickerSecurityId("EDH1P 1.234 COMDTY"), BBG_CONTRACT.toOptionExternalId(3, year, 1.234, optionType));
-          assertEquals(ExternalSchemes.bloombergTickerSecurityId("EDJ1P 1.234 COMDTY"), BBG_CONTRACT.toOptionExternalId(4, year, 1.234, optionType));
-          assertEquals(ExternalSchemes.bloombergTickerSecurityId("EDK1P 1.234 COMDTY"), BBG_CONTRACT.toOptionExternalId(5, year, 1.234, optionType));
-          assertEquals(ExternalSchemes.bloombergTickerSecurityId("EDM1P 1.234 COMDTY"), BBG_CONTRACT.toOptionExternalId(6, year, 1.234, optionType));
-          assertEquals(ExternalSchemes.bloombergTickerSecurityId("EDN1P 1.234 COMDTY"), BBG_CONTRACT.toOptionExternalId(7, year, 1.234, optionType));
-          assertEquals(ExternalSchemes.bloombergTickerSecurityId("EDQ1P 1.234 COMDTY"), BBG_CONTRACT.toOptionExternalId(8, year, 1.234, optionType));
-          assertEquals(ExternalSchemes.bloombergTickerSecurityId("EDU1P 1.234 COMDTY"), BBG_CONTRACT.toOptionExternalId(9, year, 1.234, optionType));
-          assertEquals(ExternalSchemes.bloombergTickerSecurityId("EDV1P 1.234 COMDTY"), BBG_CONTRACT.toOptionExternalId(10, year, 1.234, optionType));
-          assertEquals(ExternalSchemes.bloombergTickerSecurityId("EDX1P 1.234 COMDTY"), BBG_CONTRACT.toOptionExternalId(11, year, 1.234, optionType));
-          assertEquals(ExternalSchemes.bloombergTickerSecurityId("EDZ1P 1.234 COMDTY"), BBG_CONTRACT.toOptionExternalId(12, year, 1.234, optionType));
+          assertEquals(ExternalSchemes.bloombergTickerSecurityId("EDF1P 1.234 COMDTY"), BBG_CONTRACT.toFutureOptionExternalId(1, year, 1.234, optionType));
+          assertEquals(ExternalSchemes.bloombergTickerSecurityId("EDG1P 1.234 COMDTY"), BBG_CONTRACT.toFutureOptionExternalId(2, year, 1.234, optionType));
+          assertEquals(ExternalSchemes.bloombergTickerSecurityId("EDH1P 1.234 COMDTY"), BBG_CONTRACT.toFutureOptionExternalId(3, year, 1.234, optionType));
+          assertEquals(ExternalSchemes.bloombergTickerSecurityId("EDJ1P 1.234 COMDTY"), BBG_CONTRACT.toFutureOptionExternalId(4, year, 1.234, optionType));
+          assertEquals(ExternalSchemes.bloombergTickerSecurityId("EDK1P 1.234 COMDTY"), BBG_CONTRACT.toFutureOptionExternalId(5, year, 1.234, optionType));
+          assertEquals(ExternalSchemes.bloombergTickerSecurityId("EDM1P 1.234 COMDTY"), BBG_CONTRACT.toFutureOptionExternalId(6, year, 1.234, optionType));
+          assertEquals(ExternalSchemes.bloombergTickerSecurityId("EDN1P 1.234 COMDTY"), BBG_CONTRACT.toFutureOptionExternalId(7, year, 1.234, optionType));
+          assertEquals(ExternalSchemes.bloombergTickerSecurityId("EDQ1P 1.234 COMDTY"), BBG_CONTRACT.toFutureOptionExternalId(8, year, 1.234, optionType));
+          assertEquals(ExternalSchemes.bloombergTickerSecurityId("EDU1P 1.234 COMDTY"), BBG_CONTRACT.toFutureOptionExternalId(9, year, 1.234, optionType));
+          assertEquals(ExternalSchemes.bloombergTickerSecurityId("EDV1P 1.234 COMDTY"), BBG_CONTRACT.toFutureOptionExternalId(10, year, 1.234, optionType));
+          assertEquals(ExternalSchemes.bloombergTickerSecurityId("EDX1P 1.234 COMDTY"), BBG_CONTRACT.toFutureOptionExternalId(11, year, 1.234, optionType));
+          assertEquals(ExternalSchemes.bloombergTickerSecurityId("EDZ1P 1.234 COMDTY"), BBG_CONTRACT.toFutureOptionExternalId(12, year, 1.234, optionType));
         }
       }
     }
   }
   
+  public void padding() {
+    final BloombergContractID id = new BloombergContractID("S", "Comdty");
+    assertEquals(id.getContractCode(), "S ");
+    assertEquals(id.getMarketSector(), "Comdty");
+    final BloombergContractID idGC = new BloombergContractID("GC", "Comdty");
+    assertEquals(idGC.getContractCode(), "GC");
+    assertEquals(idGC.getMarketSector(), "Comdty");
+  }
+
 }

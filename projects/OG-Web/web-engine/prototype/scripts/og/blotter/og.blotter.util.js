@@ -6,20 +6,11 @@ $.register_module({
     name: 'og.blotter.util',
     dependencies: [],
     obj: function () {
-
-        var bools = {"false": false, "true": true},
-            FAKE_ATTRIBUTES = [
-                {key: 'what',value: 'that'},
-                {key: 'colour',value: 'white'},
-                {key: 'moral',value: 'bad'},
-                {key: 'direction',value: 'down'},
-                {key: 'speed',value: 'fast'}]; 
+        var bools = {"false": false, "true": true};
         return {
             /* Util methods */
-            update_block : function (section, extras){
-                section.block.html(function (html) {
-                    $(section.selector).html(html);
-                }, extras);
+            create_name : function (data){
+                return data.security.type + " " + data.trade.tradeDate;
             },
             check_radio : function (name, value){
                 $('input:radio[name="'+ name +'"]').filter('[value='+ value + ']').attr('checked', true);
@@ -30,11 +21,11 @@ $.register_module({
             check_checkbox : function (name, value){
                 $('input:checkbox[name="'+ name +'"]').prop('checked', bools[value]);
             },
-            add_datetimepicker : function (name){
-                $('input[name="'+ name +'"]').datetimepicker({
-                    dateFormat: 'yy-mm-dd',separator: 'T',firstDay: 1, showTimezone: true, timeFormat: 'hh:mm:ss',
-                    timeSuffix: '+00:00[UTC]'
-                });
+            add_date_picker : function (selector){
+                $(selector).datepicker({ dateFormat: 'yy-mm-dd', changeMonth: true, changeYear: true });
+            },
+            add_time_picker : function (selector) {
+                $(selector).datetimepicker({ timeOnly:true });
             },
             get_checkbox : function (name) {
                 return $('input:checkbox[name="'+ name +'"]').is(':checked').toString();
@@ -58,31 +49,18 @@ $.register_module({
                     option.removeAttr("disabled");
             },
             /* Util data */
-            otc_trade : {                
-                tradeDate: "2013-01-01",
-                premiumCurrency: null,
-                tradeTime: "00:00Z",
-                premium: null,
-                premiumTime: null,
+            otc_trade : {
                 attributes: {},
-                premiumDate: null,
-                type: "OtcTrade",
-                counterparty: 'ABC Counterparty'
+                type: "OtcTrade"
             },
-            fungible_trade : {                
-                tradeDate: "2013-01-01",
-                premiumCurrency: null,
-                tradeTime: "00:00Z",
-                premium: null,
-                premiumTime: null,
+            fungible_trade : {
                 attributes: {},
-                premiumDate: null,
                 type: "FungibleTrade"
             },
             swap_types : [
-                {text:'FLoating Interest Rate Leg', value:'FloatingInterestRateLeg'},
-                {text:'FLoating Gearing Interest Rate Leg', value:'FloatingGearingIRLeg'},
-                {text:'FLoating Spread Interest Rate Leg', value:'FloatingSpreadIRLeg'},
+                {text:'Floating Interest Rate Leg', value:'FloatingInterestRateLeg'},
+                {text:'Floating Gearing Interest Rate Leg', value:'FloatingGearingIRLeg'},
+                {text:'Floating Spread Interest Rate Leg', value:'FloatingSpreadIRLeg'},
                 {text:'Fixed Interest Rate Leg', value:'FixedInterestRateLeg'}
             ]
         };

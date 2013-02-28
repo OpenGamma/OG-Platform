@@ -408,7 +408,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
 
   //-------------------------------------------------------------------------
   @Override
-  public AbstractHistoryResult<PositionDocument> historyByVersionsCorrections(final AbstractHistoryRequest request) {
+  protected AbstractHistoryResult<PositionDocument> historyByVersionsCorrections(final AbstractHistoryRequest request) {
     final PositionHistoryRequest historyRequest = new PositionHistoryRequest();
     historyRequest.setCorrectionsFromInstant(request.getCorrectionsFromInstant());
     historyRequest.setCorrectionsToInstant(request.getCorrectionsToInstant());

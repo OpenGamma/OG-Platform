@@ -255,7 +255,7 @@ public class VolatilitySurfaceCreator extends AbstractTool<IntegrationToolContex
       if (!_knownVolSpecNames.contains(name)) {
         s_logger.info("Creating VolatilitySurfaceSpecification \"{}\"", name);
         final BloombergCommodityFutureOptionVolatilitySurfaceInstrumentProvider surfaceInstrumentProvider =
-            new BloombergCommodityFutureOptionVolatilitySurfaceInstrumentProvider(tickerParser.getSymbol(), tickerParser.getSymbol(), FIELD_NAME_VOL, getSpot(underlyingOptChainTicker),
+            new BloombergCommodityFutureOptionVolatilitySurfaceInstrumentProvider(tickerParser.getSymbol(), tickerParser.getTypeName(), FIELD_NAME_VOL, getSpot(underlyingOptChainTicker),
                 security.getTradingExchange());
         createVolatilitySpecification(security.getCurrency().getUniqueId(), name, surfaceInstrumentProvider);
       }

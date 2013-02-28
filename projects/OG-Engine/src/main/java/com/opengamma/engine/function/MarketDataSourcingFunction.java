@@ -20,6 +20,7 @@ import com.opengamma.engine.target.ComputationTargetReferenceVisitor;
 import com.opengamma.engine.target.ComputationTargetRequirement;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.ExternalIdBundle;
@@ -36,6 +37,8 @@ public final class MarketDataSourcingFunction extends AbstractFunction.NonCompil
    * specification that the market data must be added to the cache under will be identified from the dependency graph structure.
    */
   public static final class Inputs implements FunctionParameters {
+
+    private static final long serialVersionUID = 1L;
 
     private final ExternalIdBundle _identifiers;
 
@@ -136,7 +139,7 @@ public final class MarketDataSourcingFunction extends AbstractFunction.NonCompil
     } else {
       target = desiredValue.getTargetSpecification();
     }
-    return new ValueRequirement(desiredValue.getValueName(), target);
+    return new ValueRequirement(desiredValue.getValueName(), target, desiredValue.getProperties().withoutAny(ValuePropertyNames.FUNCTION));
   }
 
 }

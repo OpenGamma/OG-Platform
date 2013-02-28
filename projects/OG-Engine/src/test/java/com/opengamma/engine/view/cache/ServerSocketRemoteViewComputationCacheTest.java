@@ -17,10 +17,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.config.Configuration;
-
 import org.fudgemsg.FudgeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,8 +32,13 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.transport.socket.ServerSocketFudgeConnectionReceiver;
 import com.opengamma.transport.socket.SocketFudgeConnection;
 import com.opengamma.util.ThreadUtils;
+import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.tuple.Pair;
+
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.Configuration;
 
 /**
  * A test of the remote View Computation Cache Source infrastucture operating
@@ -74,7 +75,7 @@ public class ServerSocketRemoteViewComputationCacheTest {
     CacheConfiguration cacheConfig = new CacheConfiguration();
     cacheConfig.setMaxElementsInMemory(cacheSize);
     configuration.setDefaultCacheConfiguration(cacheConfig);
-    CacheManager cacheManager = new CacheManager(configuration);
+    CacheManager cacheManager = EHCacheUtils.createCacheManager();
     _cacheSource = new RemoteViewComputationCacheSource(client, new DefaultFudgeMessageStoreFactory(
         new InMemoryBinaryDataStoreFactory(), s_fudgeContext), cacheManager);
   }

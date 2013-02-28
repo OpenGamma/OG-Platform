@@ -8,10 +8,6 @@ package com.opengamma.id;
 import java.io.Serializable;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializer;
-import org.fudgemsg.mapping.FudgeSerializer;
 import org.threeten.bp.LocalDate;
 
 import com.google.common.base.Objects;
@@ -207,34 +203,6 @@ public final class ExternalIdWithDates
       buf.append("~E~").append(_validTo.toString());
     }
     return buf.toString();
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * This is for more efficient code within the .proto representations of securities, allowing this class
-   * to be used directly as a message type instead of through the serialization framework.
-   * 
-   * @param serializer  the serializer, not null
-   * @param msg  the message to populate, not null
-   * @deprecated Use builder
-   */
-  @Deprecated
-  public void toFudgeMsg(final FudgeSerializer serializer, final MutableFudgeMsg msg) {
-    ExternalIdWithDatesFudgeBuilder.toFudgeMsg(serializer, this, msg);
-  }
-
-  /**
-   * This is for more efficient code within the .proto representations of securities, allowing this class
-   * to be used directly as a message type instead of through the serialization framework.
-   * 
-   * @param deserializer  the deserializer, not null
-   * @param msg  the message to decode, not null
-   * @return the created object, not null
-   * @deprecated Use builder
-   */
-  @Deprecated
-  public static ExternalIdWithDates fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
-    return ExternalIdWithDatesFudgeBuilder.fromFudgeMsg(deserializer, msg);
   }
 
 }

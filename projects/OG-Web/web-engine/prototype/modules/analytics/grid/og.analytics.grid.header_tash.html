@@ -7,7 +7,7 @@
           <div class="OG-g-h-set-name s{{index}}">
             <div class="OG-grid-options">
               <!-- SPARKLINES -->
-              {{#if sparklines}}
+              {{#if show_sparklines}}
                 <div class="og-sparklines og-active">
                   <div class="OG-icon og-icon-sparkline"></div><span>ON</span>
                 </div>
@@ -28,10 +28,10 @@
                   </div>
                 {{/if}}
               </div>
-              {{#if save}}
-              <div class="og-buttons">
+              {{#if show_save}}
+              <!--<div class="og-buttons">
                 <div class="OG-button-save">save...</div>
-              </div>
+              </div>-->
               {{/if}}
             </div>
           </div>
@@ -42,8 +42,11 @@
       {{/if}}
       <div class="OG-g-h-cols">
         {{#each columns}}
-            <div class="OG-g-h-col c{{index}}" title="{{../name}}: {{name}}
-{{description}}">{{name}}</div>
+            <div class="OG-g-h-col c{{index}} {{#if ../reorder}}reorder{{/if}}" data-index="{{index}}"
+            title="{{../name}}: {{name}}
+{{description}}">{{name}}
+              <div class="OG-g-h-resize resize"></div>
+            </div>
         {{/each}}
       </div>
     </div>

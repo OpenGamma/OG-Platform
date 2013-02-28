@@ -60,7 +60,7 @@ public class AnalyticsFunctions extends AbstractRepositoryConfigurationBean {
    * @param requirementName the requirement name, not null
    */
   public static void addUnitScalingFunction(final List<FunctionConfiguration> functions, final String requirementName) {
-    functions.add(functionConfiguration(UnitPositionScalingFunction.class, requirementName));
+    functions.add(functionConfiguration(UnitPositionOrTradeScalingFunction.class, requirementName));
     functions.add(functionConfiguration(UnitPositionTradeScalingFunction.class, requirementName));
   }
 
@@ -77,7 +77,7 @@ public class AnalyticsFunctions extends AbstractRepositoryConfigurationBean {
    * @param requirementName the requirement name, not null
    */
   public static void addScalingFunction(final List<FunctionConfiguration> functions, final String requirementName) {
-    functions.add(functionConfiguration(PositionScalingFunction.class, requirementName));
+    functions.add(functionConfiguration(PositionOrTradeScalingFunction.class, requirementName));
     functions.add(functionConfiguration(PositionTradeScalingFunction.class, requirementName));
   }
 
@@ -180,6 +180,7 @@ public class AnalyticsFunctions extends AbstractRepositoryConfigurationBean {
     addUnitScalingFunction(functions, ValueRequirementNames.PAR_RATE_CURVE_SENSITIVITY);
     addUnitScalingFunction(functions, ValueRequirementNames.PAR_RATE_PARALLEL_CURVE_SHIFT);
     addUnitScalingFunction(functions, ValueRequirementNames.PIECEWISE_SABR_VOL_SURFACE);
+    addScalingAndSummingFunction(functions, ValueRequirementNames.PNL);
     addSummingFunction(functions, ValueRequirementNames.PNL_SERIES);
     addSummingFunction(functions, ValueRequirementNames.POSITION_DELTA);
     
@@ -244,6 +245,7 @@ public class AnalyticsFunctions extends AbstractRepositoryConfigurationBean {
     addUnitScalingFunction(functions, ValueRequirementNames.Z_SPREAD);
     addUnitScalingFunction(functions, ValueRequirementNames.ZOMMA);
     addUnitScalingFunction(functions, ValueRequirementNames.ZOMMA_P);
+    addUnitScalingFunction(functions, ValueRequirementNames.BARRIER_DISTANCE);
   }
 
   protected RepositoryConfigurationSource cashFlowFunctionConfiguration() {

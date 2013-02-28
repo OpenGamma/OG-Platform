@@ -15,8 +15,13 @@ import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * TODO this isn't nice as it has to save the security twice, once to get the unique ID and once to add the external ID
+ * Returns an {@link ExternalId} with the scheme {@link UniqueId#EXTERNAL_SCHEME} for on OTC security which can be
+ * used as the underlying ID in another security. Currently only supports {@link SwapSecurity}, returns null for all
+ * other security types. If the security doesn't have an existing ID then one is created from its unique ID. So
+ * this can only be used on a security which have been saved and has an ID.
+ * TODO this isn't nice as the security has to be saved twice, once to get the unique ID and once to add the external ID
  * it would be better if SwaptionSecurity referred to its underlying with a SecurityLink. but it doesn't (yet?)
+ * TODO update this once Swaption has been updated to use a link to refer to its underlying
  */
 /* package */ class ExternalIdVisitor extends FinancialSecurityVisitorSameValueAdapter<ExternalId> {
 

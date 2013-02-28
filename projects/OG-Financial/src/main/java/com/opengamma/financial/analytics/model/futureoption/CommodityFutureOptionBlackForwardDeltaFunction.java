@@ -32,6 +32,11 @@ public class CommodityFutureOptionBlackForwardDeltaFunction extends CommodityFut
   }
 
   @Override
+  protected boolean getFunctionIncludesCurrencyProperty() {
+    return false;
+  }
+  
+  @Override
   protected Set<ComputedValue> computeValues(final InstrumentDerivative derivative, final StaticReplicationDataBundle market, final FunctionInputs inputs,
       final Set<ValueRequirement> desiredValues, final ComputationTargetSpecification targetSpec, final ValueProperties resultProperties) {
     final double forwardDelta = derivative.accept(CommodityFutureOptionBlackForwardDeltaCalculator.getInstance(), market);

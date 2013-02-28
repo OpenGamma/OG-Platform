@@ -111,6 +111,37 @@
     text-overflow: ellipsis;
     background: #ecf5fa;
     padding: 0 0 0 4px;
+    white-space: nowrap;
+}
+
+.OG-g-h-resize {
+    float: right;
+    position: absolute;
+    right: -3px;
+    top: 0;
+    height: 100%;
+    width: 3px;
+    cursor: ew-resize;
+    border-left: 3px solid transparent;
+}
+
+.OG-g-h-resize:hover {
+    border-left-color: #999;
+}
+
+.OG-g-h-line {
+    border-left: 1px dotted #000;
+    position: absolute;
+    z-index: 5;
+}
+
+.OG-g-h-reorderer {
+    position: absolute;
+    font-weight: bold;
+    border: 2px dotted #555;
+    padding: 4;
+    margin: 0;
+    z-index: 1;
 }
 
 .OG-g-h-set-name {

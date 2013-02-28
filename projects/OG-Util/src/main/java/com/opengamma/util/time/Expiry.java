@@ -7,10 +7,6 @@ package com.opengamma.util.time;
 
 import java.io.Serializable;
 
-import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializer;
-import org.fudgemsg.mapping.FudgeSerializer;
 import org.threeten.bp.Instant;
 import org.threeten.bp.ZonedDateTime;
 
@@ -137,34 +133,6 @@ public class Expiry implements Serializable {
     } else {
       return "Expiry[" + _expiry + "]";
     }
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * This is for more efficient code within the .proto representations of securities, allowing this class
-   * to be used directly as a message type instead of through the serialization framework.
-   *
-   * @param serializer  the serializer, not null
-   * @param msg  the message to populate, not null
-   * @deprecated Use builder
-   */
-  @Deprecated
-  public void toFudgeMsg(final FudgeSerializer serializer, final MutableFudgeMsg msg) {
-    ExpiryFudgeBuilder.toFudgeMsg(serializer, this, msg);
-  }
-
-  /**
-   * This is for more efficient code within the .proto representations of securities, allowing this class
-   * to be used directly as a message type instead of through the serialization framework.
-   *
-   * @param deserializer  the deserializer, not null
-   * @param msg  the message to decode, not null
-   * @return the created object, not null
-   * @deprecated Use builder
-   */
-  @Deprecated
-  public static Expiry fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
-    return ExpiryFudgeBuilder.fromFudgeMsg(deserializer, msg);
   }
 
 }

@@ -12,10 +12,66 @@ $.register_module({
         var go = function () {
             og.api.rest.compressor.put({content: last_object, dependencies: ['data']}).pipe(function (result) {
                 var current = routes.current(),
-                    hash = routes.hash(og.views.analytics2.rules.load_item, {data: result.data.data});
+                    hash = routes.hash(og.views[og.analytics.blotter ? 'blotter' : 'analytics2']
+                        .rules.load_item, {data: result.data.data});
                 if (current.hash === hash) return url.process(current.args);
                 routes.go(hash);
             });
+        };
+        var context_items = function (cell) {
+            //console.log(cell);
+            var items = [];
+            var position_edit = function () {
+                //console.log("position edit");
+                var arr = cell.row_value.positionId.split('~'), id = arr[0] + '~' + arr[1];
+                og.api.rest.blotter.positions.get({id: id}).pipe(function (data) {
+                    // console.log(data);
+                    new og.blotter.Dialog({
+                        details: data, portfolio:{name: id, id: id}, 
+                        handler: function (data) {return og.api.rest.blotter.positions.put(data);}
+                    });
+                });
+            };
+            var trade_edit = function () {
+                //console.log("trade edit");
+                og.api.rest.blotter.trades.get({id: cell.row_value.tradeId}).pipe(function (data) {
+                    new og.blotter.Dialog({
+                        details: data, portfolio:{name: cell.row_value.nodeId, id: cell.row_value.nodeId},
+                        handler: function (data) {return og.api.rest.blotter.trades.put(data);}
+                    });
+                });
+            };
+            var trade_insert = function () {
+                new og.blotter.Dialog({portfolio:{name: cell.row_value.nodeId, id: cell.row_value.nodeId}, 
+                    handler: function (data) {return og.api.rest.blotter.trades.put(data);}
+                });
+            };
+            var trade_delete = function () {
+                og.common.util.ui.dialog({
+                    type: 'confirm',
+                    title: 'Delete Trade / Position?',
+                    width: 400, height: 190,
+                    message: 'Are you sure you want to permanently delete this trade / position?',
+                    buttons: {
+                        'Delete': function () {
+                            //do something
+                        },
+                        'Cancel': function () {$(this).dialog('close');}
+                    }
+                });
+            };
+            items.push({name: 'Add Trade', handler: trade_insert});
+            if ((cell.type === "POSITION" && cell.row in og.analytics.grid.state.nodes) || cell.type === "NODE") {
+                return items;
+            }
+            if((cell.type === "OTC_TRADE" || cell.type === "FUNGIBLE_TRADE") && cell.row_value.tradeId){
+                items.push({name: 'Edit Trade', handler: trade_edit}); 
+            } 
+            else {
+                items.push({name: 'Edit Trade', handler: position_edit}); 
+            }
+            items.push({name: 'Delete', handler: trade_delete});
+            return items;
         };
         return url = {
             add: function (container, params, silent) {
@@ -38,27 +94,28 @@ $.register_module({
                 return (last_object.main = params), go(), url;
             },
             process: function (args, handler) {
-                og.api.rest.compressor.get({content: args.data, dependencies: ['data']}).pipe(function (result) {
-                    var config = result.data.data, current_main;
+                $.when(args.data ? og.api.rest.compressor.get({content: args.data, dependencies: ['data']}) : void 0)
+                .then(function (result) {
+                    var config = result ? result.data.data : {}, current_main;
                     panels.forEach(function (panel) {delete last_object[panel];});
                     if (config.main && last_fingerprint.main !== (current_main = JSON.stringify(config.main))) {
+                        new og.analytics.Form2({callback: og.analytics.url.main, data: config.main});
                         if (og.analytics.grid) og.analytics.grid.kill();
                         last_object.main = JSON.parse(last_fingerprint.main = current_main);
                         og.analytics.grid = new og.analytics.Grid({
-                            selector: main_selector, cellmenu: true,
-                            source: $.extend({}, last_object.main), show_save: og.analytics.blotter
+                            selector: main_selector, cellmenu: true, show_save: og.analytics.blotter,
+                            source: $.extend({blotter: og.analytics.blotter}, last_object.main)
                         }).on('viewchange', function (view) {
                             url.main($.extend({}, og.analytics.grid.source, {type: view}));
                         }).on('fatal', url.clear_main);
                         if (og.analytics.blotter) og.analytics.grid.on('contextmenu', function (event, cell, col) {
-                           if (cell) return og.common.util.ui.contextmenu({
-                               defaults: true, zindex: 4, items: [
-                                   {name: 'Insert', callback: function () {new og.blotter.Dialog()}},
-                                   {name: 'Edit', callback: $.noop}
-                               ]
-                           }, event, cell);
+                            if (cell) return og.common.util.ui.contextmenu({defaults: true, zindex: 4, 
+                                items: context_items(cell)}, event, cell);
                         });
+                    } else {
+                        new og.analytics.Form2({callback: og.analytics.url.main, data: config.main});
                     }
+                    if (!config.main) {new og.analytics.Form2({ callback: og.analytics.url.main });}
                     panels.forEach(function (panel) {
                         var gadgets = config[panel], new_gadgets = [];
                         if (!gadgets || !gadgets.length)

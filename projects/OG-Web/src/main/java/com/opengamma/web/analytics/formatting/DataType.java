@@ -9,8 +9,10 @@ package com.opengamma.web.analytics.formatting;
  *
  */
 public enum DataType {
-  POSITION_ID,
-  NODE_ID,
+  POSITION,
+  NODE,
+  FUNGIBLE_TRADE,
+  OTC_TRADE,
   STRING,
   DOUBLE,
   CURVE,

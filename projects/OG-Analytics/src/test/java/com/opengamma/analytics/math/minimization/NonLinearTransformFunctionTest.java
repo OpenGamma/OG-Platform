@@ -26,7 +26,7 @@ public class NonLinearTransformFunctionTest {
   private static final ParameterLimitsTransform[] NULL_TRANSFORMS;
   private static final ParameterLimitsTransform[] TRANSFORMS;
 
-  private static final Function1D<DoubleMatrix1D, DoubleMatrix1D> FUCTION = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
+  private static final Function1D<DoubleMatrix1D, DoubleMatrix1D> FUNCTION = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
     @Override
     public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
       Validate.isTrue(x.getNumberOfElements() == 2);
@@ -73,7 +73,7 @@ public class NonLinearTransformFunctionTest {
     fixed.set(0);
     DoubleMatrix1D start = new DoubleMatrix1D(new double[] {Math.PI / 4, 1 });
     UncoupledParameterTransforms transforms = new UncoupledParameterTransforms(start, NULL_TRANSFORMS, fixed);
-    NonLinearTransformFunction transFunc = new NonLinearTransformFunction(FUCTION, JACOBIAN, transforms);
+    NonLinearTransformFunction transFunc = new NonLinearTransformFunction(FUNCTION, JACOBIAN, transforms);
     Function1D<DoubleMatrix1D, DoubleMatrix1D> func = transFunc.getFittingFunction();
     Function1D<DoubleMatrix1D, DoubleMatrix2D> jacFunc = transFunc.getFittingJacobian();
 
@@ -98,7 +98,7 @@ public class NonLinearTransformFunctionTest {
     BitSet fixed = new BitSet();
     DoubleMatrix1D start = new DoubleMatrix1D(new double[2]);
     UncoupledParameterTransforms transforms = new UncoupledParameterTransforms(start, TRANSFORMS, fixed);
-    NonLinearTransformFunction transFunc = new NonLinearTransformFunction(FUCTION, JACOBIAN, transforms);
+    NonLinearTransformFunction transFunc = new NonLinearTransformFunction(FUNCTION, JACOBIAN, transforms);
     Function1D<DoubleMatrix1D, DoubleMatrix1D> func = transFunc.getFittingFunction();
     Function1D<DoubleMatrix1D, DoubleMatrix2D> jacFunc = transFunc.getFittingJacobian();
 

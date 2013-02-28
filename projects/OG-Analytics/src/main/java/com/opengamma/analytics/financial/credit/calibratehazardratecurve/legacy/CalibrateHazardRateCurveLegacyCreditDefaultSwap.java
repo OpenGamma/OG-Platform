@@ -42,7 +42,7 @@ public class CalibrateHazardRateCurveLegacyCreditDefaultSwap {
   private static final int DEFAULT_MAX_NUMBER_OF_ITERATIONS = 100;
   private final int _maximumNumberOfIterations;
 
-  private static final double DEFAULT_TOLERANCE = 1e-15;
+  private static final double DEFAULT_TOLERANCE = 1e-10;
   private final double _tolerance;
 
   private static final double DEFAULT_HAZARD_RATE_RANGE_MULTIPLIER = 0.5;
@@ -139,7 +139,7 @@ public class CalibrateHazardRateCurveLegacyCreditDefaultSwap {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
-    // Vector of (calibrated) piecewise constant hazard rates that we compute from the solver
+    // Vector of (calibrated) piecewise constant hazard rates that we compute from the solver (this will have an element added to the end of it each time through the m loop below)
     final double[] hazardRates = new double[marketTenors.length];
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -160,9 +160,10 @@ public class CalibrateHazardRateCurveLegacyCreditDefaultSwap {
       // Construct a temporary vector of the first m tenors (note size of array)
       final double[] runningTenors = new double[m + 1];
 
+      // Construct a temporary vector of the hazard rates corresponding to the first m tenors (note size of array)
       final double[] runningHazardRates = new double[m + 1];
 
-      // Populate this vector with the first m tenors (needed to construct the survival curve using these tenors)
+      // Populate these vector with the first m tenors (needed to construct the survival curve using these tenors)
       for (int i = 0; i <= m; i++) {
         runningTenors[i] = tenorsAsDoubles[i];
         runningHazardRates[i] = hazardRates[i];
@@ -226,6 +227,9 @@ public class CalibrateHazardRateCurveLegacyCreditDefaultSwap {
     final HazardRateCurve hazardRateCurve = new HazardRateCurve(runningTenors, hazardRates, 0.0);
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
+
+    // TODO : For testing purposes only - remember to take out
+    final double temp = calculateCDSPV(valuationDate, calibrationCDS, runningTenors, hazardRates, hazardRateGuess, yieldCurve, hazardRateCurve, priceType);
 
     // Now do the root search (in hazard rate space) - simple bisection method for the moment (guaranteed to work and we are not concerned with speed at the moment)
 

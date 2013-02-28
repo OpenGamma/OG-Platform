@@ -118,7 +118,12 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
       throw new OpenGammaRuntimeException("Could not find curve calculation configuration named " + curveCalculationConfigName);
     }
     final String[] curveNames = curveCalculationConfig.getYieldCurveNames();
-    final String[] yieldCurveNames = curveNames.length == 1 ? new String[] {curveNames[0], curveNames[0] } : curveNames;
+    final int numCurveNames = curveNames.length;
+    final String[] fullCurveNames = new String[numCurveNames];
+    for (int i = 0; i < numCurveNames; i++) {
+      fullCurveNames[i] = curveNames[i] + "_" + currency.getCode();
+    }
+    final String[] yieldCurveNames = numCurveNames == 1 ? new String[] {fullCurveNames[0], fullCurveNames[0] } : fullCurveNames;
     final String[] curveNamesForSecurity = FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security, yieldCurveNames[0], yieldCurveNames[1]);
     final YieldCurveBundle bundle = YieldCurveFunctionUtils.getAllYieldCurves(inputs, curveCalculationConfig, curveCalculationConfigSource);
     final InstrumentDefinition<?> definition = security.accept(_visitor);
@@ -230,7 +235,7 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
   }
 
   protected static Set<ValueRequirement> getCurveRequirements(final MultiCurveCalculationConfig curveConfig, final ConfigDBCurveCalculationConfigSource configSource) {
-    final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
+    final Set<ValueRequirement> requirements = new HashSet<>();
     if (curveConfig.getExogenousConfigData() != null) {
       final LinkedHashMap<String, String[]> exogenousCurves = curveConfig.getExogenousConfigData();
       for (final Map.Entry<String, String[]> entry : exogenousCurves.entrySet()) {

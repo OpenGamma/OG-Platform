@@ -1,6 +1,5 @@
 // Automatically created - do not modify
-///CLOVER:OFF
-// CSOFF: Generated File
+///CLOVER:OFF - CSOFF
 package com.opengamma.language.livedata;
 public class Disconnect extends com.opengamma.language.connector.LiveData implements java.io.Serializable {
   public <T1,T2> T1 accept (final LiveDataVisitor<T1,T2> visitor, final T2 data) throws com.opengamma.util.async.AsynchronousExecution { return visitor.visitDisconnect (this, data); }
@@ -76,5 +75,4 @@ public class Disconnect extends com.opengamma.language.connector.LiveData implem
     return org.apache.commons.lang.builder.ToStringBuilder.reflectionToString(this, org.apache.commons.lang.builder.ToStringStyle.SHORT_PREFIX_STYLE);
   }
 }
-///CLOVER:ON
-// CSON: Generated File
+///CLOVER:ON - CSON

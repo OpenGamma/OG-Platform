@@ -7,13 +7,16 @@ package com.opengamma.engine.depgraph;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Sets;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.function.exclusion.FunctionExclusionGroup;
@@ -38,15 +41,22 @@ import com.opengamma.util.tuple.Triple;
     return _functions;
   }
 
-  protected Set<FunctionExclusionGroup> getFunctionExclusion(final GraphBuildingContext context, final CompiledFunctionDefinition function) {
-    final Set<FunctionExclusionGroup> parentExclusion = getTask().getFunctionExclusion();
+  protected Map<ComputationTargetSpecification, Set<FunctionExclusionGroup>> getFunctionExclusion(final GraphBuildingContext context, final CompiledFunctionDefinition function) {
+    final Map<ComputationTargetSpecification, Set<FunctionExclusionGroup>> parentExclusion = getTask().getFunctionExclusion();
     if (parentExclusion != null) {
       final FunctionExclusionGroup functionExclusion = context.getFunctionExclusionGroups().getExclusionGroup(function.getFunctionDefinition());
       if (functionExclusion != null) {
-        final Set<FunctionExclusionGroup> result = Sets.newHashSetWithExpectedSize(parentExclusion.size() + 1);
-        result.addAll(parentExclusion);
-        result.add(functionExclusion);
-        return result;
+        final ComputationTargetSpecification target = getTargetSpecification(context);
+        Set<FunctionExclusionGroup> result = parentExclusion.get(target);
+        if (result == null) {
+          result = Collections.singleton(functionExclusion);
+        } else {
+          result = new HashSet<FunctionExclusionGroup>(result);
+          result.add(functionExclusion);
+        }
+        final Map<ComputationTargetSpecification, Set<FunctionExclusionGroup>> result2 = new HashMap<ComputationTargetSpecification, Set<FunctionExclusionGroup>>(parentExclusion);
+        result2.put(target, result);
+        return result2;
       } else {
         return parentExclusion;
       }
@@ -55,7 +65,8 @@ import com.opengamma.util.tuple.Triple;
       if (groups != null) {
         final FunctionExclusionGroup functionExclusion = groups.getExclusionGroup(function.getFunctionDefinition());
         if (functionExclusion != null) {
-          return Collections.singleton(functionExclusion);
+          final ComputationTargetSpecification target = getTargetSpecification(context);
+          return Collections.singletonMap(target, Collections.singleton(functionExclusion));
         } else {
           return null;
         }
@@ -74,11 +85,14 @@ import com.opengamma.util.tuple.Triple;
     }
     final Triple<ParameterizedFunction, ValueSpecification, Collection<ValueSpecification>> resolvedFunction = getFunctions().next();
     if (getTask().getFunctionExclusion() != null) {
-      final FunctionExclusionGroup exclusion = context.getFunctionExclusionGroups().getExclusionGroup(resolvedFunction.getFirst().getFunction().getFunctionDefinition());
-      if ((exclusion != null) && getTask().getFunctionExclusion().contains(exclusion)) {
-        s_logger.debug("Ignoring {} from exclusion group {}", resolvedFunction, exclusion);
-        setRunnableTaskState(this, context);
-        return true;
+      final Set<FunctionExclusionGroup> groups = getTask().getFunctionExclusion().get(getTargetSpecification(context));
+      if (groups != null) {
+        final FunctionExclusionGroup exclusion = context.getFunctionExclusionGroups().getExclusionGroup(resolvedFunction.getFirst().getFunction().getFunctionDefinition());
+        if ((exclusion != null) && groups.contains(exclusion)) {
+          s_logger.debug("Ignoring {} from exclusion group {}", resolvedFunction, exclusion);
+          setRunnableTaskState(this, context);
+          return true;
+        }
       }
     }
     s_logger.debug("Considering {} for {}", resolvedFunction, getValueRequirement());
@@ -93,13 +107,11 @@ import com.opengamma.util.tuple.Triple;
       if (existingValue == null) {
         // We're going to work on producing
         s_logger.debug("Creating producer for {} (original={})", resolvedOutput, originalOutput);
-        final FunctionApplicationStep state = new FunctionApplicationStep(getTask(), getFunctions(), resolvedFunction, resolvedOutput);
-        setRunnableTaskState(state, context);
+        setRunnableTaskState(new FunctionApplicationStep(getTask(), getFunctions(), resolvedFunction, resolvedOutput), context);
       } else {
         // Value has already been produced
         s_logger.debug("Using existing production of {} (original={})", resolvedOutput, originalOutput);
-        final ExistingProductionStep state = new ExistingProductionStep(getTask(), getFunctions(), resolvedFunction, resolvedOutput);
-        setTaskState(state);
+        setTaskState(new ExistingProductionStep(getTask(), getFunctions(), resolvedFunction, resolvedOutput));
         if (!pushResult(context, existingValue, false)) {
           s_logger.debug("Production not accepted - rescheduling");
           setRunnableTaskState(this, context);
@@ -112,9 +124,10 @@ import com.opengamma.util.tuple.Triple;
       setTaskState(state);
       ResolvedValueProducer singleTask = null;
       AggregateResolvedValueProducer aggregate = null;
-      // Must not to introduce a loop (checking parent resolve tasks isn't sufficient) so only use "finished" tasks.
+      // Must not introduce a loop (checking parent resolve tasks isn't sufficient) so only use "finished" tasks.
       final ResolveTask[] existingTasks = existing.getFirst();
       final ResolvedValueProducer[] existingProducers = existing.getSecond();
+      boolean recursion = false;
       for (int i = 0; i < existingTasks.length; i++) {
         if (existingTasks[i].isFinished()) {
           // Can use this task without creating a loop
@@ -129,6 +142,8 @@ import com.opengamma.util.tuple.Triple;
             }
             aggregate.addProducer(context, existingProducers[i]);
           }
+        } else if (!recursion && getTask().hasParent(existingTasks[i])) {
+          recursion = true;
         }
         // Only the producers are ref-counted
         existingProducers[i].release(context);
@@ -141,8 +156,13 @@ import com.opengamma.util.tuple.Triple;
         if (singleTask != null) {
           singleTask.addCallback(context, state);
           singleTask.release(context);
-        } else {
+        } else if (recursion) {
+          // Loop detected
           state.failed(context, getValueRequirement(), context.recursiveRequirement(getValueRequirement()));
+        } else {
+          // Other threads haven't progressed to completion, and a loop isn't obvious - try and produce the value ourselves
+          s_logger.debug("No suitable delegate found - creating producer");
+          setRunnableTaskState(new FunctionApplicationStep(getTask(), getFunctions(), resolvedFunction, resolvedOutput), context);
         }
       }
     }

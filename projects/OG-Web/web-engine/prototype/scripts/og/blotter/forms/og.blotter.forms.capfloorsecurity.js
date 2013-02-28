@@ -7,23 +7,26 @@ $.register_module({
     dependencies: [],
     obj: function () {
         return function (config) {
-            var constructor = this, form, ui = og.common.util.ui;
-            if(config) {data = config; data.id = config.trade.uniqueId;}
-            else {data = {security: {type: "CapFloorSecurity", name: "CapFloorSecurity ABC", 
-                regionId: "ABC~123", externalIdBundle: ""}, trade: og.blotter.util.otc_trade};}
+            var constructor = this, form, ui = og.common.util.ui, data, validate;
+            if(config.details) {data = config.details.data; data.id = config.details.data.trade.uniqueId;}
+            else {data = {security: {type: "CapFloorSecurity", externalIdBundle: "", attributes: {}}, 
+                trade: og.blotter.util.otc_trade};}
+            data.nodeId = config.portfolio.id;
             constructor.load = function () {
                 constructor.title = 'Cap/Floor';
                 form = new og.common.util.ui.Form({
                     module: 'og.blotter.forms.simple_tash',
                     selector: '.OG-blotter-form-block',
-                    data: data
+                    data: data,
+                    processor: function (data) {data.security.name = og.blotter.util.create_name(data);}
                 });
                 form.children.push(
-                    new og.blotter.forms.blocks.Portfolio({form: form, counterparty: data.trade.counterparty}),
+                    new og.blotter.forms.blocks.Portfolio({form: form, counterparty: data.trade.counterparty,
+                        portfolio: data.nodeId, trade: data.trade}),
                     new form.Block({
                         module: 'og.blotter.forms.blocks.cap_floor_tash',
-                        extras: {start: data.security.startDate, maturity: data.security.maturityDate, 
-                            notional: data.security.notional,strike: data.security.strike, 
+                        extras: {start: data.security.startDate, maturity: data.security.maturityDate,
+                            notional: data.security.notional,strike: data.security.strike,
                             underlyingId: data.security.underlyingId
                         },
                         processor: function (data) {
@@ -52,8 +55,8 @@ $.register_module({
                 );
                 form.dom();
                 form.on('form:load', function (){
-                    og.blotter.util.add_datetimepicker("security.startDate");
-                    og.blotter.util.add_datetimepicker("security.maturityDate");
+                    og.blotter.util.add_date_picker('.blotter-date');
+                    og.blotter.util.add_time_picker('.blotter-time');
                     if(data.security.length) return;
                     og.blotter.util.set_select("security.currency", data.security.currency);
                     og.blotter.util.check_radio("security.cap", data.security.cap);
@@ -61,18 +64,18 @@ $.register_module({
                     og.blotter.util.check_checkbox("security.ibor", data.security.ibor);
                 });
                 form.on('form:submit', function (result){
-                    og.api.rest.blotter.trades.put(result.data);
+                    $.when(config.handler(result.data)).then(validate);
                 });
-            }; 
+            };
             constructor.load();
-            constructor.submit = function () {
+            constructor.submit = function (handler) {
+                validate = handler;
                 form.submit();
             };
-            constructor.submit_new = function () {
+            constructor.submit_new = function (handler) {
+                validate = handler;
                 delete data.id;
                 form.submit();
-            };
-            constructor.kill = function () {
             };
         };
     }

@@ -53,7 +53,9 @@ public class InterestRateFutureOptionBlackYieldCurveNodePnLFunction extends Yiel
         curveNames.add(entry.getValue().getConstraint(ValuePropertyNames.CURVE));
       }
     }
-    assert !curveNames.isEmpty();
+    if (curveNames.isEmpty()) {
+      return null;
+    }
     final ValueProperties properties = createValueProperties()
         .withAny(ValuePropertyNames.CURRENCY)
         .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)

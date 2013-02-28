@@ -20,7 +20,6 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
-import com.opengamma.financial.analytics.model.forex.forward.FXForwardFunction;
 import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFunction;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityUtils;
@@ -215,15 +214,15 @@ public class DefaultPnLRequirementsGatherer implements PnLRequirementsGatherer {
         }
         final ValueProperties currencyExposureProperties = commonProperties.copy()
             .with(ValuePropertyNames.PAY_CURVE, payDiscountingCurve)
-            .with(FXForwardFunction.PAY_CURVE_CALC_CONFIG, payCalculationConfig)
+            .with(ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG, payCalculationConfig)
             .with(ValuePropertyNames.RECEIVE_CURVE, receiveDiscountingCurve)
-            .with(FXForwardFunction.RECEIVE_CURVE_CALC_CONFIG, receiveCalculationConfig)
+            .with(ValuePropertyNames.RECEIVE_CURVE_CALCULATION_CONFIG, receiveCalculationConfig)
             .with(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.FX_CURRENCY_EXPOSURE).get();
         final ValueProperties ycnsProperties = commonProperties.copy()
             .with(ValuePropertyNames.PAY_CURVE, payDiscountingCurve)
-            .with(FXForwardFunction.PAY_CURVE_CALC_CONFIG, payCalculationConfig)
+            .with(ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG, payCalculationConfig)
             .with(ValuePropertyNames.RECEIVE_CURVE, receiveDiscountingCurve)
-            .with(FXForwardFunction.RECEIVE_CURVE_CALC_CONFIG, receiveCalculationConfig)
+            .with(ValuePropertyNames.RECEIVE_CURVE_CALCULATION_CONFIG, receiveCalculationConfig)
             .with(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES).get();
         final ValueRequirement fxCurrencyExposure = new ValueRequirement(ValueRequirementNames.PNL_SERIES, targetSpec, currencyExposureProperties);
         final ValueRequirement fxYCNSExposure = new ValueRequirement(ValueRequirementNames.PNL_SERIES, targetSpec, ycnsProperties);

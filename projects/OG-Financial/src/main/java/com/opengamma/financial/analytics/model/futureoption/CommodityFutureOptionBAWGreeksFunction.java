@@ -52,6 +52,11 @@ public class CommodityFutureOptionBAWGreeksFunction extends CommodityFutureOptio
   }
 
   @Override
+  protected boolean getFunctionIncludesCurrencyProperty() {
+    return false;
+  }
+  
+  @Override
   protected Set<ComputedValue> computeValues(final InstrumentDerivative derivative, final StaticReplicationDataBundle market, final FunctionInputs inputs,
       final Set<ValueRequirement> desiredValues, final ComputationTargetSpecification targetSpec, final ValueProperties resultProperties) {
     final GreekResultCollection greeks = derivative.accept(ComFutOptBAWGreekCalculator.getInstance(), market);

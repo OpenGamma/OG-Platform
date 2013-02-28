@@ -390,6 +390,22 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
     setAllCurves();
   }
 
+  /**
+   * Replaces the forward curve for a given ON index.
+   * @param index The index.
+   * @param curve The yield curve used for forward.
+   *  @throws IllegalArgumentException if curve name NOT already present
+   */
+  public void replaceCurve(final IndexON index, final YieldAndDiscountCurve curve) {
+    ArgumentChecker.notNull(index, "Index");
+    ArgumentChecker.notNull(curve, "curve");
+    if (!_forwardONCurves.containsKey(index)) {
+      throw new IllegalArgumentException("Forward curve not in set: " + index);
+    }
+    _forwardONCurves.put(index, curve);
+    setAllCurves();
+  }
+
   @Override
   public double getFxRate(final Currency ccy1, final Currency ccy2) {
     return _fxMatrix.getFxRate(ccy1, ccy2);
