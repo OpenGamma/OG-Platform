@@ -27,6 +27,7 @@ import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.cds.CDSSecurity;
+import com.opengamma.financial.security.cds.CreditIndexSecurity;
 import com.opengamma.financial.security.cds.LegacyFixedRecoveryCDSSecurity;
 import com.opengamma.financial.security.cds.LegacyRecoveryLockCDSSecurity;
 import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
@@ -591,6 +592,12 @@ public class FinancialSecurityUtils {
         public Currency visitDeliverableSwapFutureSecurity(final DeliverableSwapFutureSecurity security) {
           return security.getCurrency();
         }
+
+        @Override
+        public Currency visitCreditIndexSecurity(final CreditIndexSecurity security) {
+          return security.getCurrency();
+        }
+        
       });
       return ccy;
     } else if (security instanceof RawSecurity) {
@@ -611,6 +618,7 @@ public class FinancialSecurityUtils {
    * @return a Currency, where it is possible to determine a single Currency association, null otherwise.
    */
   public static Collection<Currency> getCurrencies(final Security security, final SecuritySource securitySource) {
+    
     if (security instanceof FinancialSecurity) {
       final FinancialSecurity finSec = (FinancialSecurity) security;
       final Collection<Currency> ccy = finSec.accept(new FinancialSecurityVisitor<Collection<Currency>>() {
@@ -923,6 +931,11 @@ public class FinancialSecurityUtils {
 
         @Override
         public Collection<Currency> visitDeliverableSwapFutureSecurity(final DeliverableSwapFutureSecurity security) {
+          return Collections.singletonList(security.getCurrency());
+        }
+
+        @Override
+        public Collection<Currency> visitCreditIndexSecurity(CreditIndexSecurity security) {
           return Collections.singletonList(security.getCurrency());
         }
       });
