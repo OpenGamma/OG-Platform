@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.convention;
@@ -21,7 +21,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 
 /**
- * 
+ *
  */
 @BeanDefinition
 public class ExchangeTradedFutureAndOptionConvention extends Convention {
@@ -33,7 +33,7 @@ public class ExchangeTradedFutureAndOptionConvention extends Convention {
    * The expiry convention.
    */
   @PropertyDefinition(validate = "notNull")
-  private String _expiryConvention;
+  private ExternalId _expiryConvention;
 
   /**
    * The exchange calendar.
@@ -42,12 +42,12 @@ public class ExchangeTradedFutureAndOptionConvention extends Convention {
   private ExternalId _exchangeCalendar;
 
   /**
-   * 
+   *
    */
   public ExchangeTradedFutureAndOptionConvention() {
   }
 
-  public ExchangeTradedFutureAndOptionConvention(final String name, final ExternalIdBundle externalIdBundle, final String expiryConvention,
+  public ExchangeTradedFutureAndOptionConvention(final String name, final ExternalIdBundle externalIdBundle, final ExternalId expiryConvention,
       final ExternalId exchangeCalendar) {
     super(name, externalIdBundle);
     setExpiryConvention(expiryConvention);
@@ -87,7 +87,7 @@ public class ExchangeTradedFutureAndOptionConvention extends Convention {
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 2143523076:  // expiryConvention
-        setExpiryConvention((String) newValue);
+        setExpiryConvention((ExternalId) newValue);
         return;
       case 29366913:  // exchangeCalendar
         setExchangeCalendar((ExternalId) newValue);
@@ -130,7 +130,7 @@ public class ExchangeTradedFutureAndOptionConvention extends Convention {
    * Gets the expiry convention.
    * @return the value of the property, not null
    */
-  public String getExpiryConvention() {
+  public ExternalId getExpiryConvention() {
     return _expiryConvention;
   }
 
@@ -138,7 +138,7 @@ public class ExchangeTradedFutureAndOptionConvention extends Convention {
    * Sets the expiry convention.
    * @param expiryConvention  the new value of the property, not null
    */
-  public void setExpiryConvention(String expiryConvention) {
+  public void setExpiryConvention(ExternalId expiryConvention) {
     JodaBeanUtils.notNull(expiryConvention, "expiryConvention");
     this._expiryConvention = expiryConvention;
   }
@@ -147,7 +147,7 @@ public class ExchangeTradedFutureAndOptionConvention extends Convention {
    * Gets the the {@code expiryConvention} property.
    * @return the property, not null
    */
-  public final Property<String> expiryConvention() {
+  public final Property<ExternalId> expiryConvention() {
     return metaBean().expiryConvention().createProperty(this);
   }
 
@@ -190,8 +190,8 @@ public class ExchangeTradedFutureAndOptionConvention extends Convention {
     /**
      * The meta-property for the {@code expiryConvention} property.
      */
-    private final MetaProperty<String> _expiryConvention = DirectMetaProperty.ofReadWrite(
-        this, "expiryConvention", ExchangeTradedFutureAndOptionConvention.class, String.class);
+    private final MetaProperty<ExternalId> _expiryConvention = DirectMetaProperty.ofReadWrite(
+        this, "expiryConvention", ExchangeTradedFutureAndOptionConvention.class, ExternalId.class);
     /**
      * The meta-property for the {@code exchangeCalendar} property.
      */
@@ -242,7 +242,7 @@ public class ExchangeTradedFutureAndOptionConvention extends Convention {
      * The meta-property for the {@code expiryConvention} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<String> expiryConvention() {
+    public final MetaProperty<ExternalId> expiryConvention() {
       return _expiryConvention;
     }
 
