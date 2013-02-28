@@ -40,7 +40,7 @@ public final class BloombergConstants {
   /**
    * Default observation time code
    */
-  public static final String DEFAULT_OBSERVATION_TIME = "DEFAULT_CLOSE";
+  public static final String DEFAULT_OBSERVATION_TIME = "DEFAULT";
   /**
    * OPTION CHAIN FIELD
    */
