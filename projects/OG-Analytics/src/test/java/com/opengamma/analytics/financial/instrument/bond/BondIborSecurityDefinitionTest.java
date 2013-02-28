@@ -39,8 +39,9 @@ import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeS
 
 public class BondIborSecurityDefinitionTest {
   //Quarterly Libor6m 2Y
-  private static final Currency CUR = Currency.USD;
+  private static final Currency CUR = Currency.EUR;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
+  private static final String ISSUER_NAME = "Issuer";
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
   private static final boolean IS_EOM = false;
@@ -56,7 +57,7 @@ public class BondIborSecurityDefinitionTest {
   private static final ZonedDateTime MATURITY_DATE = START_ACCRUAL_DATE.plus(BOND_TENOR);
 
   private static final BondIborSecurityDefinition FRN_DEFINITION = BondIborSecurityDefinition.from(MATURITY_DATE, START_ACCRUAL_DATE, IBOR_INDEX, SETTLEMENT_DAYS,
-      DAY_COUNT, BUSINESS_DAY, IS_EOM);
+      DAY_COUNT, BUSINESS_DAY, IS_EOM, ISSUER_NAME);
 
   private static final String CREDIT_CURVE_NAME = "Credit";
   private static final String DSC_CURVE_NAME = "Discounting";
@@ -64,41 +65,41 @@ public class BondIborSecurityDefinitionTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullMaturity() {
-    BondIborSecurityDefinition.from(null, START_ACCRUAL_DATE, IBOR_INDEX, SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, IS_EOM);
+    BondIborSecurityDefinition.from(null, START_ACCRUAL_DATE, IBOR_INDEX, SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, IS_EOM, ISSUER_NAME);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullStart() {
-    BondIborSecurityDefinition.from(MATURITY_DATE, null, IBOR_INDEX, SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, IS_EOM);
+    BondIborSecurityDefinition.from(MATURITY_DATE, null, IBOR_INDEX, SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, IS_EOM, ISSUER_NAME);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullIndex() {
-    BondIborSecurityDefinition.from(MATURITY_DATE, START_ACCRUAL_DATE, null, SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, IS_EOM);
+    BondIborSecurityDefinition.from(MATURITY_DATE, START_ACCRUAL_DATE, null, SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, IS_EOM, ISSUER_NAME);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDayCount() {
-    BondIborSecurityDefinition.from(MATURITY_DATE, START_ACCRUAL_DATE, IBOR_INDEX, SETTLEMENT_DAYS, null, BUSINESS_DAY, IS_EOM);
+    BondIborSecurityDefinition.from(MATURITY_DATE, START_ACCRUAL_DATE, IBOR_INDEX, SETTLEMENT_DAYS, null, BUSINESS_DAY, IS_EOM, ISSUER_NAME);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullBusinessDay() {
-    BondIborSecurityDefinition.from(MATURITY_DATE, START_ACCRUAL_DATE, IBOR_INDEX, SETTLEMENT_DAYS, DAY_COUNT, null, IS_EOM);
+    BondIborSecurityDefinition.from(MATURITY_DATE, START_ACCRUAL_DATE, IBOR_INDEX, SETTLEMENT_DAYS, DAY_COUNT, null, IS_EOM, ISSUER_NAME);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testPositiveNominal() {
     final AnnuityCouponIborDefinition coupon = AnnuityCouponIborDefinition.fromAccrualUnadjusted(START_ACCRUAL_DATE, MATURITY_DATE, 1.0, IBOR_INDEX, false);
     final AnnuityPaymentFixedDefinition nominal = new AnnuityPaymentFixedDefinition(new PaymentFixedDefinition[] {new PaymentFixedDefinition(CUR, MATURITY_DATE, -1.0)});
-    new BondIborSecurityDefinition(nominal, coupon, 0, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT);
+    new BondIborSecurityDefinition(nominal, coupon, 0, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, ISSUER_NAME);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testPositiveCoupon() {
     final AnnuityCouponIborDefinition coupon = AnnuityCouponIborDefinition.fromAccrualUnadjusted(START_ACCRUAL_DATE, MATURITY_DATE, 1.0, IBOR_INDEX, false);
     final AnnuityPaymentFixedDefinition nominal = new AnnuityPaymentFixedDefinition(new PaymentFixedDefinition[] {new PaymentFixedDefinition(CUR, MATURITY_DATE, -1.0)});
-    new BondIborSecurityDefinition(nominal, coupon, 0, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT);
+    new BondIborSecurityDefinition(nominal, coupon, 0, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, ISSUER_NAME);
   }
 
   @Test
@@ -119,10 +120,10 @@ public class BondIborSecurityDefinitionTest {
   @Test
   public void testDatesVsFixed() {
     final BondIborSecurityDefinition bondIbor = BondIborSecurityDefinition.from(MATURITY_DATE, START_ACCRUAL_DATE, IBOR_INDEX, SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY,
-        IS_EOM);
+        IS_EOM, ISSUER_NAME);
     final YieldConvention yield = YieldConventionFactory.INSTANCE.getYieldConvention("STREET CONVENTION");
     final BondFixedSecurityDefinition bondFixed = BondFixedSecurityDefinition.from(CUR, MATURITY_DATE, START_ACCRUAL_DATE, IBOR_TENOR, 0.0, SETTLEMENT_DAYS, CALENDAR,
-        DAY_COUNT, BUSINESS_DAY, yield, IS_EOM);
+        DAY_COUNT, BUSINESS_DAY, yield, IS_EOM, ISSUER_NAME);
     assertEquals(bondIbor.getNominal(), bondFixed.getNominal());
     for (int loopcpn = 0; loopcpn < bondIbor.getCoupons().getNumberOfPayments(); loopcpn++) {
       assertEquals("Payment " + loopcpn, bondIbor.getCoupons().getNthPayment(loopcpn).getPaymentDate(), bondFixed.getCoupons().getNthPayment(loopcpn).getPaymentDate());

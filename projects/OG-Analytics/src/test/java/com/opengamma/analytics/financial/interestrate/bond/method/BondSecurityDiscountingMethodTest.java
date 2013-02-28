@@ -49,7 +49,7 @@ public class BondSecurityDiscountingMethodTest {
   // T 4 5/8 11/15/16 - ISIN - US912828FY19
   private static final String ISSUER = "US TREASURY N/B";
   private static final String REPO_TYPE = "General collateral";
-  private static final Currency CUR = Currency.USD;
+  private static final Currency CUR = Currency.EUR;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final Period PAYMENT_TENOR_FIXED = Period.of(6, MONTHS);
   private static final int COUPON_PER_YEAR = 2;

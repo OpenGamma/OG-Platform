@@ -12,6 +12,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
 
 /**
  * Description of transaction on an bond future option with up-front margin security.
@@ -68,6 +69,14 @@ public class BondFutureOptionPremiumTransaction implements InstrumentDerivative 
    */
   public PaymentFixed getPremium() {
     return _premium;
+  }
+
+  /**
+   * Returns the transaction currency.
+   * @return The currency.
+   */
+  public Currency getCurrency() {
+    return _underlyingOption.getCurrency();
   }
 
   @Override

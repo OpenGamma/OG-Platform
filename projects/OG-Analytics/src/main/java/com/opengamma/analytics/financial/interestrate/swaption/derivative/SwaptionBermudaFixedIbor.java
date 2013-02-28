@@ -14,6 +14,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisito
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
 
 /**
  * Class describing a Bermuda swaption on vanilla swaps with physical delivery.
@@ -87,6 +88,14 @@ public class SwaptionBermudaFixedIbor implements InstrumentDerivative {
    */
   public double[] getSettlementTime() {
     return _settlementTime;
+  }
+
+  /**
+   * Gets the swaption currency.
+   * @return The currency.
+   */
+  public Currency getCurrency() {
+    return _underlyingSwap[0].getFirstLeg().getCurrency();
   }
 
   @Override

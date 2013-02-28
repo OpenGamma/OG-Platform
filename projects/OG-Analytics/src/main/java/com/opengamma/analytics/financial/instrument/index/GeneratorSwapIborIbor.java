@@ -6,7 +6,6 @@
 package com.opengamma.analytics.financial.instrument.index;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.swap.SwapIborIborDefinition;
@@ -17,7 +16,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Class with the description of swap characteristics.
  */
-public class GeneratorSwapIborIbor extends GeneratorInstrument {
+public class GeneratorSwapIborIbor extends GeneratorInstrument<GeneratorAttributeIR> {
 
   /**
    * The Ibor index of the first leg.
@@ -69,8 +68,8 @@ public class GeneratorSwapIborIbor extends GeneratorInstrument {
    * @param endOfMonth The end-of-month flag.
    * @param spotLag The swap spot lag (usually 2 or 0).
    */
-  public GeneratorSwapIborIbor(final String name, final IborIndex iborIndex1, final IborIndex iborIndex2, final BusinessDayConvention businessDayConvention, final boolean endOfMonth, 
-      final int spotLag) {
+  public GeneratorSwapIborIbor(final String name, final IborIndex iborIndex1, final IborIndex iborIndex2, final BusinessDayConvention businessDayConvention,
+      final boolean endOfMonth, final int spotLag) {
     super(name);
     ArgumentChecker.notNull(iborIndex1, "ibor index 1");
     ArgumentChecker.notNull(iborIndex2, "ibor index 2");
@@ -125,22 +124,17 @@ public class GeneratorSwapIborIbor extends GeneratorInstrument {
   @Override
   /**
    * The effective date is date+_spotLag. The maturity date is effective date+tenor.
+   * @param date The trade date.
+   * @param tenor The maturity tenor.
+   * @param spread The spread on the first Ibor leg.
+   * @param notional The swap notional.
    */
-  public SwapIborIborDefinition generateInstrument(ZonedDateTime date, Period tenor, double spread, double notional, Object... objects) {
+  public SwapIborIborDefinition generateInstrument(final ZonedDateTime date, final double spread, final double notional, final GeneratorAttributeIR attribute) {
     ArgumentChecker.notNull(date, "Reference date");
-    final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(date, _spotLag, _iborIndex1.getCalendar());
-    return SwapIborIborDefinition.from(startDate, tenor, this, notional, spread, true);
-  }
-
-  @Override
-  /**
-   * The effective date is spot+startTenor. The maturity date is effective date + endTenor
-   */
-  public SwapIborIborDefinition generateInstrument(final ZonedDateTime date, final Period startTenor, final Period endTenor, double spread, double notional, Object... objects) {
-    ArgumentChecker.notNull(date, "Reference date");
+    ArgumentChecker.notNull(attribute, "Attributes");
     final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, _spotLag, _iborIndex1.getCalendar());
-    final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spot, startTenor, _iborIndex1);
-    return SwapIborIborDefinition.from(startDate, endTenor, this, notional, spread, true);
+    final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spot, attribute.getStartPeriod(), _iborIndex1);
+    return SwapIborIborDefinition.from(startDate, attribute.getEndPeriod(), this, notional, spread, true);
   }
 
   @Override
@@ -161,7 +155,7 @@ public class GeneratorSwapIborIbor extends GeneratorInstrument {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -171,7 +165,7 @@ public class GeneratorSwapIborIbor extends GeneratorInstrument {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    GeneratorSwapIborIbor other = (GeneratorSwapIborIbor) obj;
+    final GeneratorSwapIborIbor other = (GeneratorSwapIborIbor) obj;
     if (!ObjectUtils.equals(_businessDayConvention, other._businessDayConvention)) {
       return false;
     }

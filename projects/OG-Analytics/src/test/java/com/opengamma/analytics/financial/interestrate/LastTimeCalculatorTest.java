@@ -12,20 +12,14 @@ import org.testng.annotations.Test;
 import org.threeten.bp.Period;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
-import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
-import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityPaymentFixed;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositZero;
-import com.opengamma.analytics.financial.interestrate.fra.ForwardRateAgreement;
-import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
+import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRateAgreement;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
-import com.opengamma.analytics.financial.interestrate.swap.derivative.FixedFloatSwap;
-import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
-import com.opengamma.analytics.financial.interestrate.swap.derivative.TenorSwap;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -40,7 +34,7 @@ import com.opengamma.util.money.Currency;
  */
 public class LastTimeCalculatorTest {
   private static LastTimeCalculator LDC = LastTimeCalculator.getInstance();
-  private static final Currency CUR = Currency.USD;
+  private static final Currency CUR = Currency.EUR;
 
   private static final Period TENOR = Period.of(6, MONTHS);
   private static final int SETTLEMENT_DAYS = 2;
@@ -83,7 +77,7 @@ public class LastTimeCalculatorTest {
     final double fixingPeriodAccrualFactor = 0.267;
     final double paymentAccrualFactor = 0.25;
     final double refrencePrice = 0.0;
-    final InterestRateFuture ir = new InterestRateFuture(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor, refrencePrice, 1, paymentAccrualFactor, 1,
+    final InterestRateFutureTransaction ir = new InterestRateFutureTransaction(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor, refrencePrice, 1, paymentAccrualFactor, 1,
         "S", "Funding", "Forward");
     assertEquals(fixingPeriodEndTime, ir.accept(LDC), 1e-12);
   }
@@ -95,81 +89,12 @@ public class LastTimeCalculatorTest {
   }
 
   @Test
-  public void testForwardLiborAnnuity() {
-    final int n = 15;
-    final double alpha = 0.245;
-    final double yearFrac = 0.25;
-    final double spread = 0.01;
-    final double[] paymentTimes = new double[n];
-    final double[] indexFixing = new double[n];
-    final double[] indexMaturity = new double[n];
-    final double[] yearFracs = new double[n];
-    final double[] spreads = new double[n];
-    for (int i = 0; i < n; i++) {
-      indexFixing[i] = i * alpha + 0.1;
-      paymentTimes[i] = (i + 1) * alpha;
-      indexMaturity[i] = paymentTimes[i] + 0.1;
-      yearFracs[i] = yearFrac;
-      spreads[i] = spread;
-    }
-    final AnnuityCouponIborSpread annuity = new AnnuityCouponIborSpread(CUR, paymentTimes, indexFixing, INDEX, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, Math.E, "Bill", "Ben", true);
-    assertEquals(n * alpha + 0.1, annuity.accept(LDC), 1e-12);
-  }
-
-  @Test
   public void testBond() {
     final double mat = 1.0;
     final AnnuityPaymentFixed nominal = new AnnuityPaymentFixed(new PaymentFixed[] {new PaymentFixed(CUR, mat, 1.0, "a") });
     final AnnuityCouponFixed coupon = new AnnuityCouponFixed(CUR, new double[] {0.5, mat }, 0.03, "a", false);
     final BondFixedSecurity bond = new BondFixedSecurity(nominal, coupon, 0, 0, 0.5, SimpleYieldConvention.TRUE, 2, "a", "b");
     assertEquals(mat, bond.accept(LDC), 1e-12);
-  }
-
-  @Test
-  public void testFixedFloatSwap() {
-    final int n = 20;
-    final double[] fixedPaymentTimes = new double[n];
-    final double[] floatPaymentTimes = new double[2 * n];
-
-    for (int i = 0; i < n * 2; i++) {
-      if (i % 2 == 0) {
-        fixedPaymentTimes[i / 2] = (i + 2) * 0.25;
-      }
-      floatPaymentTimes[i] = (i + 1) * 0.25;
-    }
-    final double swapRate = 0.045;
-
-    final Swap<?, ?> swap = new FixedFloatSwap(CUR, fixedPaymentTimes, floatPaymentTimes, INDEX, swapRate, "", "", true);
-    assertEquals(n * 0.5, swap.accept(LDC), 1e-12);
-  }
-
-  @Test
-  public void testTenorSwap() {
-    final int n = 20;
-    final double tau = 0.25;
-    final double[] paymentTimes = new double[n];
-    final double[] spreads = new double[n];
-    final double[] yearFracs = new double[n];
-    final double[] indexFixing = new double[n];
-    final double[] indexMaturity = new double[n];
-    final double forward = 0.003;
-    for (int i = 0; i < n; i++) {
-      indexFixing[i] = i * tau;
-      paymentTimes[i] = (i + 1) * tau;
-      indexMaturity[i] = paymentTimes[i];
-      spreads[i] = forward;
-      yearFracs[i] = tau;
-    }
-
-    final Annuity<CouponIborSpread> payLeg = new AnnuityCouponIborSpread(CUR, paymentTimes, indexFixing, INDEX, indexFixing, indexMaturity, yearFracs, yearFracs, new double[yearFracs.length],
-        1.0, "", "", true);
-    final Annuity<CouponIborSpread> receiveLeg = new AnnuityCouponIborSpread(CUR, paymentTimes, indexFixing, INDEX, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, 1.0, "", "",
-        false);
-
-    final Swap<?, ?> swap = new TenorSwap<CouponIborSpread>(payLeg, receiveLeg);
-
-    assertEquals(n * tau, swap.accept(LDC), 1e-12);// passing in swap twice is just to show that anything can be passed in -second case is it is ignored
-
   }
 
   @Test

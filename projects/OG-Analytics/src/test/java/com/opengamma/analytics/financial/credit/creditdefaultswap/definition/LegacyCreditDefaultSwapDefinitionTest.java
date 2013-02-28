@@ -96,7 +96,7 @@ public class LegacyCreditDefaultSwapDefinitionTest {
   private static final Region referenceEntityRegion = Region.EUROPE;
   private static final String referenceEntityCountry = "United Kingdom";
 
-  private static final Currency currency = Currency.USD;
+  private static final Currency currency = Currency.EUR;
 
   private static final DebtSeniority debtSeniority = DebtSeniority.SENIOR;
   private static final RestructuringClause restructuringClause = RestructuringClause.NORE;

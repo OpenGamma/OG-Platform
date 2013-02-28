@@ -103,12 +103,12 @@ public final class DeliverableSwapFuturesSecurityHullWhiteMethod {
     for (int loopcf = 0; loopcf < nbCf; loopcf++) {
       cfeAmountBar[loopcf] = (df[loopcf] * adjustments[loopcf]) / df[0] * priceBar;
     }
-    final List<DoublesPair> listDfSensi = new ArrayList<DoublesPair>();
+    final List<DoublesPair> listDfSensi = new ArrayList<>();
     for (int loopcf = 0; loopcf < cfe.getNumberOfPayments(); loopcf++) {
       final DoublesPair dfSensi = new DoublesPair(cfe.getNthPayment(loopcf).getPaymentTime(), -cfe.getNthPayment(loopcf).getPaymentTime() * df[loopcf] * dfBar[loopcf]);
       listDfSensi.add(dfSensi);
     }
-    final Map<String, List<DoublesPair>> pvsDF = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> pvsDF = new HashMap<>();
     pvsDF.put(cfe.getDiscountCurve(), listDfSensi);
     InterestRateCurveSensitivity sensitivity = new InterestRateCurveSensitivity(pvsDF);
     final Map<Double, InterestRateCurveSensitivity> cfeCurveSensi = futures.getUnderlyingSwap().accept(CFECSC, curves);

@@ -18,11 +18,11 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class MixedLogNormalModel2DFitter {
 
-  static private int _ITRMAX = 1000;
-  static private double _EPS_1 = 1.E-12;
-  static private double _EPS_2 = 1.E-12;
+  private static int _ITRMAX = 1000;
+  private static double _EPS_1 = 1.E-12;
+  private static double _EPS_2 = 1.E-12;
 
-  private double _tau = 1.E-3;
+  private final double _tau = 1.E-3;
   private double _shiftModFac = 2.;
   private double _shift;
   private double[] _paramsGuess;
@@ -31,8 +31,8 @@ public class MixedLogNormalModel2DFitter {
 
   private double[] _dataDerivedYDiff;
   private double[][] _gradM;
-  private double[] _gradFunctionValueM;
-  private double[][] _hessian;
+  private final double[] _gradFunctionValueM;
+  private final double[][] _hessian;
 
   final int _nParams;
   final int _nData;
@@ -113,12 +113,12 @@ public class MixedLogNormalModel2DFitter {
     }
     _shift = _tau * _shift;
 
-    double[] tmpvec = exactFunctionValue(_paramsGuess);
+    final double[] tmpvec = exactFunctionValue(_paramsGuess);
     copydouble = 0.5 * getVecNormSq(tmpvec);
 
     if (getVecNorm(_gradFunctionValueM) <= _EPS_1) {
       done = true;
-      double[] tmp = exactFunctionValue(_paramsGuess);
+      final double[] tmp = exactFunctionValue(_paramsGuess);
       _chiSq = 0.5 * getVecNormSq(tmp);
     }
 
@@ -131,7 +131,7 @@ public class MixedLogNormalModel2DFitter {
       if (getVecNorm(paramsJump) <= _EPS_2 * (getVecNorm(_paramsGuess) + _EPS_2)) {
 
         done = true;
-        double[] tmp = exactFunctionValue(_paramsGuess);
+        final double[] tmp = exactFunctionValue(_paramsGuess);
         _chiSq = 0.5 * getVecNormSq(tmp);
 
       } else {
@@ -183,7 +183,7 @@ public class MixedLogNormalModel2DFitter {
 
       if (k == _ITRMAX) {
         System.out.println("Too Many Iterations");
-        double[] tmp = exactFunctionValue(_paramsGuess);
+        final double[] tmp = exactFunctionValue(_paramsGuess);
         _chiSq = 0.5 * getVecNormSq(tmp);
       }
     }
@@ -236,7 +236,7 @@ public class MixedLogNormalModel2DFitter {
   }
 
   private double exactFunctionDiff(final double[] jump) {
-    double[] tmp0 = exactFunctionValue(_paramsGuess);
+    final double[] tmp0 = exactFunctionValue(_paramsGuess);
     double[] newParams = new double[_nParams];
     double[] tmp1 = new double[_nData];
 
@@ -252,8 +252,8 @@ public class MixedLogNormalModel2DFitter {
 
     final int dof = 3 * _nNormals - 2;
 
-    double[] paramsX = new double[dof];
-    double[] paramsY = new double[dof];
+    final double[] paramsX = new double[dof];
+    final double[] paramsY = new double[dof];
 
     for (int i = 0; i < _nNormals; ++i) {
       paramsX[i] = params[i];
@@ -271,19 +271,19 @@ public class MixedLogNormalModel2DFitter {
       paramsY[i + 2 * _nNormals - 1] = params[i + 4 * _nNormals - 2];
     }
 
-    MixedLogNormalModelData dataX = new MixedLogNormalModelData(paramsX, true);
-    MixedLogNormalModelData dataY = new MixedLogNormalModelData(paramsY, true);
+    final MixedLogNormalModelData dataX = new MixedLogNormalModelData(paramsX, true);
+    final MixedLogNormalModelData dataY = new MixedLogNormalModelData(paramsY, true);
 
-    double[] res = new double[_nData];
+    final double[] res = new double[_nData];
     Arrays.fill(res, 0.);
 
     for (int j = 0; j < _nDataX; ++j) {
-      EuropeanVanillaOption option = new EuropeanVanillaOption(_dataStrikes[j], _timeToExpiry, true);
+      final EuropeanVanillaOption option = new EuropeanVanillaOption(_dataStrikes[j], _timeToExpiry, true);
       res[j] = _dataVols[j] - volfunc.getVolatility(option, _forwardX, dataX);
     }
 
     for (int j = _nDataX; j < _nData; ++j) {
-      EuropeanVanillaOption option = new EuropeanVanillaOption(_dataStrikes[j], _timeToExpiry, true);
+      final EuropeanVanillaOption option = new EuropeanVanillaOption(_dataStrikes[j], _timeToExpiry, true);
       res[j] = _dataVols[j] - volfunc.getVolatility(option, _forwardY, dataY);
     }
 
@@ -293,8 +293,8 @@ public class MixedLogNormalModel2DFitter {
   public double[][] exactFunctionDerivative(final double[] params) {
 
     final int dof = 3 * _nNormals - 2;
-    double[] paramsX = new double[dof];
-    double[] paramsY = new double[dof];
+    final double[] paramsX = new double[dof];
+    final double[] paramsY = new double[dof];
 
     for (int i = 0; i < _nNormals; ++i) {
       paramsX[i] = params[i];
@@ -312,10 +312,10 @@ public class MixedLogNormalModel2DFitter {
       paramsY[i + 2 * _nNormals - 1] = params[i + 4 * _nNormals - 2];
     }
 
-    MixedLogNormalModelData dataX = new MixedLogNormalModelData(paramsX, true);
-    MixedLogNormalModelData dataY = new MixedLogNormalModelData(paramsY, true);
+    final MixedLogNormalModelData dataX = new MixedLogNormalModelData(paramsX, true);
+    final MixedLogNormalModelData dataY = new MixedLogNormalModelData(paramsY, true);
 
-    double[][] res = new double[_nData][_nParams];
+    final double[][] res = new double[_nData][_nParams];
     for (int i = 0; i < _nData; ++i) {
       Arrays.fill(res[i], 0.);
     }
@@ -334,8 +334,8 @@ public class MixedLogNormalModel2DFitter {
     copydouble = params.length;
 
     for (int j = 0; j < _nDataX; ++j) {
-      EuropeanVanillaOption option = new EuropeanVanillaOption(_dataStrikes[j], _timeToExpiry, true);
-      double impVolX = volfunc.getVolatility(option, _forwardX, dataX);
+      final EuropeanVanillaOption option = new EuropeanVanillaOption(_dataStrikes[j], _timeToExpiry, true);
+      final double impVolX = volfunc.getVolatility(option, _forwardX, dataX);
       for (int i = 0; i < _nNormals; ++i) {
         for (int l = i; l < _nNormals; ++l) {
           res[j][i] += -_forwardX * weightsX[l] * BlackFormulaRepository.vega(relativeForwardsX[l], _dataStrikes[j] / _forwardX, _timeToExpiry, sigmasX[l]) /
@@ -347,7 +347,7 @@ public class MixedLogNormalModel2DFitter {
           res[j][i] += -_forwardX *
               (BlackFormulaRepository.price(relativeForwardsX[l], _dataStrikes[j] / _forwardX, _timeToExpiry, sigmasX[l], true) - relativeForwardsX[l] *
                   BlackFormulaRepository.delta(relativeForwardsX[l], _dataStrikes[j] / _forwardX, _timeToExpiry, sigmasX[l], true)) * weightsJacobianX[l][i - 2 * _nNormals] /
-              BlackFormulaRepository.vega(_forwardX, _dataStrikes[j], _timeToExpiry, impVolX);
+                  BlackFormulaRepository.vega(_forwardX, _dataStrikes[j], _timeToExpiry, impVolX);
         }
       }
       for (int i = 3 * _nNormals - 1; i < 4 * _nNormals - 2; ++i) {
@@ -360,8 +360,8 @@ public class MixedLogNormalModel2DFitter {
     }
 
     for (int j = _nDataX; j < _nData; ++j) {
-      EuropeanVanillaOption option = new EuropeanVanillaOption(_dataStrikes[j], _timeToExpiry, true);
-      double impVolY = volfunc.getVolatility(option, _forwardY, dataY);
+      final EuropeanVanillaOption option = new EuropeanVanillaOption(_dataStrikes[j], _timeToExpiry, true);
+      final double impVolY = volfunc.getVolatility(option, _forwardY, dataY);
       for (int i = _nNormals; i < 2 * _nNormals; ++i) {
         for (int l = i; l < 2 * _nNormals; ++l) {
           res[j][i] += -_forwardY * weightsY[l - _nNormals] * BlackFormulaRepository.vega(relativeForwardsY[l - _nNormals], _dataStrikes[j] / _forwardY, _timeToExpiry, sigmasY[l - _nNormals]) /
@@ -452,7 +452,7 @@ public class MixedLogNormalModel2DFitter {
 
   private double[] addVectors(final double[] vecA, final double[] vecB) {
     final int dim = vecA.length;
-    double[] res = new double[dim];
+    final double[] res = new double[dim];
 
     for (int i = 0; i < dim; ++i) {
       res[i] = vecA[i] + vecB[i];
@@ -477,15 +477,15 @@ public class MixedLogNormalModel2DFitter {
 
     double big, dum, pivinv;
 
-    int[] indxc = new int[_nParams];
-    int[] indxr = new int[_nParams];
-    int[] ipiv = new int[_nParams];
+    final int[] indxc = new int[_nParams];
+    final int[] indxr = new int[_nParams];
+    final int[] ipiv = new int[_nParams];
     Arrays.fill(ipiv, 0);
 
     for (int i = 0; i < _nParams; i++) {
       big = 0.0;
       for (int j = 0; j < _nParams; j++) {
-        if (ipiv[j] != 1)
+        if (ipiv[j] != 1) {
           for (int k = 0; k < _nParams; k++) {
             if (ipiv[k] == 0) {
               if (Math.abs(inverse[j][k]) >= big) {
@@ -495,16 +495,17 @@ public class MixedLogNormalModel2DFitter {
               }
             }
           }
+        }
       }
       ++(ipiv[icol]);
       if (irow != icol) {
         for (int l = 0; l < _nParams; l++) {
-          double tmp = inverse[irow][l];
+          final double tmp = inverse[irow][l];
           inverse[irow][l] = inverse[icol][l];
           inverse[icol][l] = tmp;
         }
 
-        double tmp = soln[irow];
+        final double tmp = soln[irow];
         soln[irow] = soln[icol];
         soln[icol] = tmp;
 
@@ -518,7 +519,7 @@ public class MixedLogNormalModel2DFitter {
         inverse[icol][l] *= pivinv;
       }
       soln[icol] *= pivinv;
-      for (int ll = 0; ll < _nParams; ll++)
+      for (int ll = 0; ll < _nParams; ll++) {
         if (ll != icol) {
           dum = inverse[ll][icol];
           inverse[ll][icol] = 0.0;
@@ -527,14 +528,16 @@ public class MixedLogNormalModel2DFitter {
           }
           soln[ll] -= soln[icol] * dum;
         }
+      }
     }
     for (int l = _nParams - 1; l >= 0; l--) {
-      if (indxr[l] != indxc[l])
+      if (indxr[l] != indxc[l]) {
         for (int k = 0; k < _nParams; k++) {
-          double tmp = inverse[k][indxr[l]];
+          final double tmp = inverse[k][indxr[l]];
           inverse[k][indxr[l]] = inverse[k][indxc[l]];
           inverse[k][indxc[l]] = tmp;
         }
+      }
     }
 
     return soln;

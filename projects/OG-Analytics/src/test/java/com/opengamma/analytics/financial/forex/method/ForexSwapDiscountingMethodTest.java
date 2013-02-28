@@ -254,7 +254,7 @@ public class ForexSwapDiscountingMethodTest {
       result[loopnode] = (psBumped - ps) / deltaShift;
       final DoublesPair pairPv = sensi2.get(loopnode);
       assertEquals("Sensitivity par spread to curve: Node " + loopnode, nodeTimesExtended[loopnode + 1], pairPv.getFirst(), TOLERANCE_TIME);
-      //      assertEquals("Sensitivity par spread to curve: Node " + loopnode, pairPv.second, result[loopnode], TOLERANCE_SPREAD_DELTA);
+      //      assertEquals("Sensitivity par spread to curve: Node " + loopnode, pairPv.second, result[loopnode], TOLERANCE_SPREAD_DELTA); //TODO: Why commented?
     }
     CURVES_FX.replaceCurve(CURVES_NAME[1], curveToBump);
     InterestRateCurveSensitivity prcsCalculator = fxSwap.accept(PSCSC, CURVES_FX);

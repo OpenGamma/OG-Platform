@@ -8,10 +8,11 @@ package com.opengamma.analytics.financial.schedule;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.Validate;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Month;
 import org.threeten.bp.ZonedDateTime;
+
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
@@ -20,7 +21,7 @@ public class MonthlyScheduleOnDayCalculator extends Schedule {
   private final int _dayOfMonth;
 
   public MonthlyScheduleOnDayCalculator(final int dayOfMonth) {
-    Validate.isTrue(dayOfMonth > 0 && dayOfMonth < 32);
+    ArgumentChecker.isTrue(dayOfMonth > 0 && dayOfMonth < 32, "invalid day of month"); //TODO not the best test
     _dayOfMonth = dayOfMonth;
   }
 
@@ -30,16 +31,16 @@ public class MonthlyScheduleOnDayCalculator extends Schedule {
   }
 
   public LocalDate[] getSchedule(final LocalDate startDate, final LocalDate endDate) {
-    Validate.notNull(startDate, "start date");
-    Validate.notNull(endDate, "end date");
-    Validate.isTrue(startDate.isBefore(endDate) || startDate.equals(endDate));
+    ArgumentChecker.notNull(startDate, "start date");
+    ArgumentChecker.notNull(endDate, "end date");
+    ArgumentChecker.isFalse(startDate.isAfter(endDate), "start date must not be after end date");
     if (startDate.equals(endDate)) {
       if (startDate.getDayOfMonth() == _dayOfMonth) {
         return new LocalDate[] {startDate};
       }
       throw new IllegalArgumentException("Start date and end date were the same but their day of month was not the same as that required");
     }
-    final List<LocalDate> dates = new ArrayList<LocalDate>();
+    final List<LocalDate> dates = new ArrayList<>();
     int year = endDate.getYear();
     Month month = startDate.getMonth();
     LocalDate date = startDate.withMonth(month.getValue()).withDayOfMonth(_dayOfMonth);
@@ -65,16 +66,16 @@ public class MonthlyScheduleOnDayCalculator extends Schedule {
   }
 
   public ZonedDateTime[] getSchedule(final ZonedDateTime startDate, final ZonedDateTime endDate) {
-    Validate.notNull(startDate, "start date");
-    Validate.notNull(endDate, "end date");
-    Validate.isTrue(startDate.isBefore(endDate) || startDate.equals(endDate));
+    ArgumentChecker.notNull(startDate, "start date");
+    ArgumentChecker.notNull(endDate, "end date");
+    ArgumentChecker.isFalse(startDate.isAfter(endDate), "start date must not be after end date");
     if (startDate.equals(endDate)) {
       if (startDate.getDayOfMonth() == _dayOfMonth) {
         return new ZonedDateTime[] {startDate};
       }
       throw new IllegalArgumentException("Start date and end date were the same but their day of month was not the same as that required");
     }
-    final List<ZonedDateTime> dates = new ArrayList<ZonedDateTime>();
+    final List<ZonedDateTime> dates = new ArrayList<>();
     int year = endDate.getYear();
     Month month = startDate.getMonth();
     ZonedDateTime date = startDate.withMonth(month.getValue()).withDayOfMonth(_dayOfMonth);

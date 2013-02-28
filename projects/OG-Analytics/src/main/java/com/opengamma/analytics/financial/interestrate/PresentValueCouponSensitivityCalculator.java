@@ -6,18 +6,15 @@
 package com.opengamma.analytics.financial.interestrate;
 
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
-import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
-import com.opengamma.analytics.financial.interestrate.fra.ForwardRateAgreement;
+import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRateAgreement;
 import com.opengamma.analytics.financial.interestrate.fra.method.ForwardRateAgreementDiscountingMethod;
-import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
-import com.opengamma.analytics.financial.interestrate.swap.derivative.FixedFloatSwap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
-import com.opengamma.analytics.financial.interestrate.swap.derivative.TenorSwap;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 
 /**
@@ -67,25 +64,13 @@ public final class PresentValueCouponSensitivityCalculator extends InstrumentDer
   }
 
   @Override
-  public Double visitInterestRateFuture(final InterestRateFuture future, final YieldCurveBundle curves) {
+  public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
     return future.getPaymentAccrualFactor() * future.getQuantity() * future.getNotional();
   }
 
   @Override
   public Double visitFixedCouponSwap(final SwapFixedCoupon<?> swap, final YieldCurveBundle curves) {
     return REPLACE_RATE.visitFixedCouponAnnuity(swap.getFixedLeg(), 1.0).accept(PVC, curves);
-  }
-
-  /**
-   * The assumption is that spread is received (i.e. the spread, if any, is on the received leg only)
-   * If the spread is paid (i.e. on the pay leg), swap the legs around and take the negative of the returned value.
-   * @param swap 
-   * @param curves 
-   * @return  The spread on the receive leg of a basis swap 
-   */
-  @Override
-  public Double visitTenorSwap(final TenorSwap<? extends Payment> swap, final YieldCurveBundle curves) {
-    return ((AnnuityCouponIborSpread) swap.getSecondLeg()).withUnitCoupons().accept(PVC, curves);
   }
 
   @Override
@@ -102,8 +87,4 @@ public final class PresentValueCouponSensitivityCalculator extends InstrumentDer
     return sum;
   }
 
-  @Override
-  public Double visitFixedFloatSwap(final FixedFloatSwap swap, final YieldCurveBundle data) {
-    return visitFixedCouponSwap(swap, data);
-  }
 }

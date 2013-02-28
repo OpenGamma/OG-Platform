@@ -26,8 +26,7 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModel {
    * \end{equation*}
    * $$
    * <p>
-   * Reference: Henrard, M. The Irony in the derivatives discounting Part II:
-   * the crisis. Wilmott Journal, 2010, 2, 301-316
+   * Reference: Henrard, M. The Irony in the derivatives discounting Part II: the crisis. Wilmott Journal, 2010, 2, 301-316
    * @param data The Hull-White model parameters.
    * @param t0 The expiry time.
    * @param t1 The first reference time.

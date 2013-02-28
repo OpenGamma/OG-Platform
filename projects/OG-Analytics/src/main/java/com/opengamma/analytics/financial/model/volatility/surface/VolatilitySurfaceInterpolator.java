@@ -217,9 +217,8 @@ public class VolatilitySurfaceInterpolator {
           }
           if (var >= 0.0) {
             return Math.sqrt(var / (_useIntegratedVariance ? t : 1.0));
-          } else {
-            return Math.sqrt(Math.min(var0, var1) /  (_useIntegratedVariance ? t : 1.0)) ;
           }
+          return Math.sqrt(Math.min(var0, var1) /  (_useIntegratedVariance ? t : 1.0));
         }
 
         // Case 4: Interpolation when n >= 4

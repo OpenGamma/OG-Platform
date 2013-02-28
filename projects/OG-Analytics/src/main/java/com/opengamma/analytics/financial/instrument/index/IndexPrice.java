@@ -12,7 +12,7 @@ import org.threeten.bp.Period;
 import com.opengamma.util.money.Currency;
 
 /**
- * Class describing an price index, like the one used in inflation instruments.
+ * Class describing a price index, like the one used in inflation instruments.
  */
 public class IndexPrice {
 
@@ -24,31 +24,17 @@ public class IndexPrice {
    * The currency in which the index is computed.
    */
   private final Currency _currency;
-  /**
-   * The reference region for the price index.
-   */
-  private final Currency _region; // FIXME: to be changed to Region
-  /**
-   * The lag between the month end and the index publication.
-   */
-  private final Period _publicationLag;
 
   /**
    * Constructor of the price index.
    * @param name The index name. Not null.
    * @param ccy The currency in which the index is computed. Not null.
-   * @param region The reference region for the price index. Not null.
-   * @param publicationLag The lag between the month end and the index publication.
    */
-  public IndexPrice(final String name, final Currency ccy, final Currency region, final Period publicationLag) {
+  public IndexPrice(final String name, final Currency ccy) {
     Validate.notNull(name, "Name");
     Validate.notNull(ccy, "Currency");
-    Validate.notNull(region, "Region");
-    Validate.notNull(publicationLag, "Publication lag");
     _name = name;
     _currency = ccy;
-    _region = region;
-    _publicationLag = publicationLag;
   }
 
   /**
@@ -67,22 +53,6 @@ public class IndexPrice {
     return _currency;
   }
 
-  /**
-   * Gets the region associated to the price index.
-   * @return The region.
-   */
-  public Currency getRegion() {
-    return _region;
-  }
-
-  /**
-   * Gets the publication lag of the price index.
-   * @return The lag.
-   */
-  public Period getPublicationLag() {
-    return _publicationLag;
-  }
-
   @Override
   public String toString() {
     return _name;
@@ -94,7 +64,7 @@ public class IndexPrice {
     int result = 1;
     result = prime * result + _currency.hashCode();
     result = prime * result + _name.hashCode();
-    result = prime * result + _region.hashCode();
+
     return result;
   }
 
@@ -114,9 +84,6 @@ public class IndexPrice {
       return false;
     }
     if (!ObjectUtils.equals(_name, other._name)) {
-      return false;
-    }
-    if (!ObjectUtils.equals(_region, other._region)) {
       return false;
     }
     return true;

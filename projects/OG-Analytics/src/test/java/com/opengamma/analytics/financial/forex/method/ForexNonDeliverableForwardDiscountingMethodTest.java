@@ -51,8 +51,8 @@ public class ForexNonDeliverableForwardDiscountingMethodTest {
   private static final FXMatrix FX_MATRIX = new FXMatrix(USD, KRW, USD_KRW);
   private static final YieldCurveBundle CURVESFX = new YieldCurveBundle(CURVES.getCurvesMap(), FX_MATRIX, CURVE_CURRENCY);
 
-  private static final ForexNonDeliverableForward NDF = NDF_DEFINITION.toDerivative(REFERENCE_DATE, new String[] {CURVE_NAMES[3], CURVE_NAMES[1] });
-  private static final Forex FOREX = FOREX_DEFINITION.toDerivative(REFERENCE_DATE, new String[] {CURVE_NAMES[1], CURVE_NAMES[3] });
+  private static final ForexNonDeliverableForward NDF = NDF_DEFINITION.toDerivative(REFERENCE_DATE, new String[] {CURVE_NAMES[3], CURVE_NAMES[1]});
+  private static final Forex FOREX = FOREX_DEFINITION.toDerivative(REFERENCE_DATE, new String[] {CURVE_NAMES[1], CURVE_NAMES[3]});
 
   private static final ForexNonDeliverableForwardDiscountingMethod METHOD_NDF = ForexNonDeliverableForwardDiscountingMethod.getInstance();
   private static final ForexDiscountingMethod METHOD_FX = ForexDiscountingMethod.getInstance();

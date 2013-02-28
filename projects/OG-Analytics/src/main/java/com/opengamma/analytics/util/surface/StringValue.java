@@ -9,10 +9,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.Validate;
+import com.opengamma.util.ArgumentChecker;
 
 /**
- * Object to represent values linked to strings for which the values can be added or multiplied by a constant. 
+ * Object to represent values linked to strings for which the values can be added or multiplied by a constant.
  * Used for different sensitivities (parallel curve sensitivity,...). The objects stored as a HashMap(String, Double).
  */
 public class StringValue {
@@ -26,7 +26,7 @@ public class StringValue {
    * Constructor. Create an empty map.
    */
   public StringValue() {
-    _data = new HashMap<String, Double>();
+    _data = new HashMap<>();
   }
 
   /**
@@ -34,8 +34,8 @@ public class StringValue {
    * @param map The map.
    */
   private StringValue(final HashMap<String, Double> map) {
-    Validate.notNull(map, "Map");
-    _data = new HashMap<String, Double>(map);
+    ArgumentChecker.notNull(map, "Map");
+    _data = new HashMap<>(map);
   }
 
   /**
@@ -45,8 +45,8 @@ public class StringValue {
    * @return The surface value.
    */
   public static StringValue from(final String point, final Double value) {
-    Validate.notNull(point, "Point");
-    HashMap<String, Double> data = new HashMap<String, Double>();
+    ArgumentChecker.notNull(point, "Point");
+    final HashMap<String, Double> data = new HashMap<>();
     data.put(point, value);
     return new StringValue(data);
   }
@@ -57,8 +57,8 @@ public class StringValue {
    * @return The surface value.
    */
   public static StringValue from(final Map<String, Double> map) {
-    Validate.notNull(map, "Map");
-    HashMap<String, Double> data = new HashMap<String, Double>();
+    ArgumentChecker.notNull(map, "Map");
+    final HashMap<String, Double> data = new HashMap<>();
     data.putAll(map);
     return new StringValue(data);
   }
@@ -69,8 +69,8 @@ public class StringValue {
    * @return The surface value.
    */
   public static StringValue from(final StringValue surface) {
-    Validate.notNull(surface, "Surface value");
-    HashMap<String, Double> data = new HashMap<String, Double>();
+    ArgumentChecker.notNull(surface, "Surface value");
+    final HashMap<String, Double> data = new HashMap<>();
     data.putAll(surface.getMap());
     return new StringValue(data);
   }
@@ -90,7 +90,7 @@ public class StringValue {
    * @param value The associated value.
    */
   public void add(final String point, final Double value) {
-    Validate.notNull(point, "Point");
+    ArgumentChecker.notNull(point, "Point");
     if (_data.containsKey(point)) {
       _data.put(point, value + _data.get(point));
     } else {
@@ -99,16 +99,16 @@ public class StringValue {
   }
 
   /**
-   * Create a new object containing the point of both initial objects. If a point is only on one surface, its value is the original value. 
+   * Create a new object containing the point of both initial objects. If a point is only on one surface, its value is the original value.
    * If a point is on both surfaces, the values on that point are added.
    * @param value1 The first "string value".
    * @param value2 The second "string value".
    * @return The combined/sum "string value".
    */
   public static StringValue plus(final StringValue value1, final StringValue value2) {
-    Validate.notNull(value1, "Surface value 1");
-    Validate.notNull(value2, "Surface value 2");
-    final HashMap<String, Double> plus = new HashMap<String, Double>(value1._data);
+    ArgumentChecker.notNull(value1, "Surface value 1");
+    ArgumentChecker.notNull(value2, "Surface value 2");
+    final HashMap<String, Double> plus = new HashMap<>(value1._data);
     for (final String p : value2._data.keySet()) {
       if (value1._data.containsKey(p)) {
         plus.put(p, value2._data.get(p) + value1._data.get(p));
@@ -128,9 +128,9 @@ public class StringValue {
    * @return The combined/sum surface value.
    */
   public static StringValue plus(final StringValue stringValue, final String point, final Double value) {
-    Validate.notNull(stringValue, "Surface value");
-    Validate.notNull(point, "Point");
-    final HashMap<String, Double> plus = new HashMap<String, Double>(stringValue._data);
+    ArgumentChecker.notNull(stringValue, "Surface value");
+    ArgumentChecker.notNull(point, "Point");
+    final HashMap<String, Double> plus = new HashMap<>(stringValue._data);
     if (stringValue._data.containsKey(point)) {
       plus.put(point, value + stringValue._data.get(point));
     } else {
@@ -146,8 +146,8 @@ public class StringValue {
    * @return The multiplied surface.
    */
   public static StringValue multiplyBy(final StringValue stringValue, final double factor) {
-    Validate.notNull(stringValue, "Surface value");
-    final HashMap<String, Double> multiplied = new HashMap<String, Double>();
+    ArgumentChecker.notNull(stringValue, "Surface value");
+    final HashMap<String, Double> multiplied = new HashMap<>();
     for (final String p : stringValue._data.keySet()) {
       multiplied.put(p, stringValue._data.get(p) * factor);
     }
@@ -155,16 +155,16 @@ public class StringValue {
   }
 
   /**
-   * Compare the values in two objects. The result is true if the list of strings are the same in both maps and the differences between the values associated of each of those strings are 
+   * Compare the values in two objects. The result is true if the list of strings are the same in both maps and the differences between the values associated of each of those strings are
    * less than the tolerance.
    * @param value1 The first "string value".
    * @param value2 The second "string value".
    * @param tolerance The tolerance.
    * @return The comparison flag.
    */
-  public static boolean compare(final StringValue value1, final StringValue value2, double tolerance) {
-    Set<String> set1 = value1._data.keySet();
-    Set<String> set2 = value2._data.keySet();
+  public static boolean compare(final StringValue value1, final StringValue value2, final double tolerance) {
+    final Set<String> set1 = value1._data.keySet();
+    final Set<String> set2 = value2._data.keySet();
     if (!set1.equals(set2)) {
       return false;
     }

@@ -28,7 +28,7 @@ public class NthOrderUnderlying implements Underlying {
     }
     _order = order;
     if (order == 0) {
-      _underlyingSet = new ArrayList<UnderlyingType>(0);
+      _underlyingSet = new ArrayList<>(0);
     } else {
       _underlyingSet = Arrays.asList(underlying);
     }

@@ -119,7 +119,7 @@ public class CouponIborSpread extends CouponFloating {
    * Gets the accrual factor for the fixing period.
    * @return The accrual factor.
    */
-  public double getFixingYearFraction() {
+  public double getFixingAccrualFactor() {
     return _fixingAccrualFactor;
   }
 
@@ -165,7 +165,7 @@ public class CouponIborSpread extends CouponFloating {
   @Override
   public CouponIborSpread withNotional(final double notional) {
     return new CouponIborSpread(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), notional, getFixingTime(), _index, getFixingPeriodStartTime(),
-        getFixingPeriodEndTime(), getFixingYearFraction(), getSpread(), getForwardCurveName());
+        getFixingPeriodEndTime(), getFixingAccrualFactor(), getSpread(), getForwardCurveName());
   }
 
   @Override
@@ -223,7 +223,7 @@ public class CouponIborSpread extends CouponFloating {
 
   public CouponIborSpread withSpread(final double spread) {
     return new CouponIborSpread(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), getNotional(), getFixingTime(), _index, getFixingPeriodStartTime(),
-        getFixingPeriodEndTime(), getFixingYearFraction(), spread, getForwardCurveName());
+        getFixingPeriodEndTime(), getFixingAccrualFactor(), spread, getForwardCurveName());
   }
 
   public CouponFixed withUnitCoupon() {

@@ -5,7 +5,6 @@
  */
 package com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation;
 
-
 import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.OpenGammaRuntimeException;
@@ -28,11 +27,10 @@ public class SmileInterpolatorSpline implements GeneralSmileInterpolator {
   private static final ScalarFirstOrderDifferentiator DIFFERENTIATOR = new ScalarFirstOrderDifferentiator();
   private static final ShiftedLogNormalTailExtrapolationFitter TAIL_FITTER = new ShiftedLogNormalTailExtrapolationFitter();
 
-  private static final String s_exception = "Exception";  // OG-Financial's BlackVolatilitySurfacePropertyNamesAndValues.EXCEPTION_SPLINE_EXTRAPOLATOR_FAILURE;
-  private static final String s_flat = "Flat";  // OG-Financial's BlackVolatilitySurfacePropertyNamesAndValues.FLAT_SPLINE_EXTRAPOLATOR_FAILURE;
-  private static final String s_quiet = "Quiet";  // OG-Financial's BlackVolatilitySurfacePropertyNamesAndValues.QUIET_SPLINE_EXTRAPOLATOR_FAILURE;
-  
-  
+  private static final String s_exception = "Exception"; // OG-Financial's BlackVolatilitySurfacePropertyNamesAndValues.EXCEPTION_SPLINE_EXTRAPOLATOR_FAILURE;
+  private static final String s_flat = "Flat"; // OG-Financial's BlackVolatilitySurfacePropertyNamesAndValues.FLAT_SPLINE_EXTRAPOLATOR_FAILURE;
+  private static final String s_quiet = "Quiet"; // OG-Financial's BlackVolatilitySurfacePropertyNamesAndValues.QUIET_SPLINE_EXTRAPOLATOR_FAILURE;
+
   private final Interpolator1D _interpolator;
   private final String _extrapolatorFailureBehaviour;
 
@@ -99,23 +97,23 @@ public class SmileInterpolatorSpline implements GeneralSmileInterpolator {
     };
 
     // Extrapolation of High and Low Strikes by ShiftedLogNormalTailExtrapolationFitter
-    
+
     // Solutions contain two parameters: [0] = mu = ln(shiftedForward / originalForward), [1] = theta = new ln volatility to use
-    final double[] shiftLnVolHighTail; 
+    final double[] shiftLnVolHighTail;
     final double[] shiftLnVolLowTail;
-    
+
     // Volatility gradient (dVol/dStrike) of interpolator
     final Function1D<Double, Double> dSigmaDx = DIFFERENTIATOR.differentiate(interpFunc, domain);
-    
+
     // The 'quiet' method reduces smile if the volatility gradient is either out of bounds of ShiftedLognormal model, or if root-finder fails to find solution
     if (_extrapolatorFailureBehaviour.equalsIgnoreCase(s_quiet)) {
       shiftLnVolHighTail = TAIL_FITTER.fitVolatilityAndGradRecursivelyByReducingSmile(forward, strikes[n - 1], impliedVols[n - 1], dSigmaDx.evaluate(kH), expiry);
       shiftLnVolLowTail = TAIL_FITTER.fitVolatilityAndGradRecursivelyByReducingSmile(forward, kL, impliedVols[0], dSigmaDx.evaluate(kL), expiry);
-    // 'Exception' will throw an exception if it fails to fit to target vol and gradient provided by interpolating function at the boundary
+      // 'Exception' will throw an exception if it fails to fit to target vol and gradient provided by interpolating function at the boundary
     } else if (_extrapolatorFailureBehaviour.equalsIgnoreCase(s_exception)) {
       shiftLnVolHighTail = TAIL_FITTER.fitVolatilityAndGrad(forward, kH, impliedVols[n - 1], dSigmaDx.evaluate(kH), expiry);
       shiftLnVolLowTail = TAIL_FITTER.fitVolatilityAndGrad(forward, kL, impliedVols[0], dSigmaDx.evaluate(kL), expiry);
-    // 'Flat' will simply return the target volatility at the boundary. Thus the target gradient is zero.
+      // 'Flat' will simply return the target volatility at the boundary. Thus the target gradient is zero.
     } else if (_extrapolatorFailureBehaviour.equalsIgnoreCase(s_flat)) {
       shiftLnVolHighTail = TAIL_FITTER.fitVolatilityAndGrad(forward, kH, impliedVols[n - 1], 0.0, expiry);
       shiftLnVolLowTail = TAIL_FITTER.fitVolatilityAndGrad(forward, kL, impliedVols[0], 0.0, expiry);
