@@ -33,8 +33,7 @@ public class ReferenceValue<REFERENCE> {
    * @param map The map.
    */
   private ReferenceValue(final HashMap<REFERENCE, Double> map) {
-    ArgumentChecker.notNull(map, "Map");
-    _data = new HashMap<>(map);
+    _data = map;
   }
 
   /**
@@ -51,6 +50,7 @@ public class ReferenceValue<REFERENCE> {
    * @param point The surface point.
    * @param value The associated value.
    */
+  // TODO: do we need this?
   public void add(final REFERENCE point, final Double value) {
     ArgumentChecker.notNull(point, "Point");
     if (_data.containsKey(point)) {
@@ -59,6 +59,8 @@ public class ReferenceValue<REFERENCE> {
       _data.put(point, value);
     }
   }
+
+  // TODO: ReferenceValue<REFERENCE> plus(final ReferenceValue<REFERENCE> other)
 
   /**
    * Create a new object containing the point of the initial object with the all values multiplied by a given factor.
