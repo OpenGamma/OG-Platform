@@ -13,8 +13,8 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * This class contains all the relevant information to solve a 1D PDE on a finite difference grid - the (functional) coefficients that
- * describe the PDE; the initial condition; the boundary conditions; the free boundary (if any); and the grid.   
- * @param <T> The type of PDE   
+ * describe the PDE; the initial condition; the boundary conditions; the free boundary (if any); and the grid.
+ * @param <T> The type of PDE
  */
 public class PDE1DDataBundle<T extends PDE1DCoefficients> {
 
@@ -29,9 +29,9 @@ public class PDE1DDataBundle<T extends PDE1DCoefficients> {
    * All the relevant information to solve a 1D PDE on a finite difference grid
    * @param coefficients The description of the PDE $\mathcal{D}[V(t,x)]=0$
    * @param initialCondition The function V(0,x)
-   * @param lowerBoundary Boundary condition at the lowest value of x 
-   * @param upperBoundary Boundary condition at the highest value of x 
-   * @param grid 2D grid (t & x) on which the PDE will be solved 
+   * @param lowerBoundary Boundary condition at the lowest value of x
+   * @param upperBoundary Boundary condition at the highest value of x
+   * @param grid 2D grid (t & x) on which the PDE will be solved
    */
   public PDE1DDataBundle(final T coefficients,
       final Function1D<Double, Double> initialCondition,
@@ -51,11 +51,11 @@ public class PDE1DDataBundle<T extends PDE1DCoefficients> {
    * All the relevant information to solve a 1D PDE on a finite difference grid
    * @param coefficients The description of the PDE $\mathcal{D}[V(t,x)]=0$
    * @param initialCondition The function V(0,x)
-   * @param lowerBoundary Boundary condition at the lowest value of x 
-   * @param upperBoundary Boundary condition at the highest value of x 
-   * @param freeBoundary for a free-boundary function, $H(t,x)$, the solution to the PDE at $(t,x)$ is $max(V^*(t,x),H(t,x))$ 
-   * where $max(V^*(t,x)$ is the value calculated before the free-boundary condition is applied 
-   * @param grid 2D grid (t & x) on which the PDE will be solved 
+   * @param lowerBoundary Boundary condition at the lowest value of x
+   * @param upperBoundary Boundary condition at the highest value of x
+   * @param freeBoundary for a free-boundary function, $H(t,x)$, the solution to the PDE at $(t,x)$ is $max(V^*(t,x),H(t,x))$
+   * where $max(V^*(t,x)$ is the value calculated before the free-boundary condition is applied
+   * @param grid 2D grid (t & x) on which the PDE will be solved
    */
   public PDE1DDataBundle(final T coefficients,
       final Function1D<Double, Double> initialCondition,
@@ -76,10 +76,10 @@ public class PDE1DDataBundle<T extends PDE1DCoefficients> {
   /**
    * All the relevant information to solve a 1D PDE on a finite difference grid
    * @param coefficients The description of the PDE $\mathcal{D}[V(t,x)]=0$
-   * @param initialCondition The values $V(0,x_i)$ where $x_i$ are the spacial grid points 
-   * @param lowerBoundary Boundary condition at the lowest value of x 
-   * @param upperBoundary Boundary condition at the highest value of x 
-   * @param grid 2D grid (t & x) on which the PDE will be solved 
+   * @param initialCondition The values $V(0,x_i)$ where $x_i$ are the spacial grid points
+   * @param lowerBoundary Boundary condition at the lowest value of x
+   * @param upperBoundary Boundary condition at the highest value of x
+   * @param grid 2D grid (t & x) on which the PDE will be solved
    */
   public PDE1DDataBundle(final T coefficients,
       final double[] initialCondition,
@@ -99,12 +99,12 @@ public class PDE1DDataBundle<T extends PDE1DCoefficients> {
   /**
    * All the relevant information to solve a 1D PDE on a finite difference grid
    * @param coefficients The description of the PDE $\mathcal{D}[V(t,x)]=0$
-   * @param initialCondition The values $V(0,x_i)$ where $x_i$ are the spacial grid points 
-   * @param lowerBoundary Boundary condition at the lowest value of x 
-   * @param upperBoundary Boundary condition at the highest value of x 
-   * @param freeBoundary for a free-boundary function, $H(t,x)$, the solution to the PDE at $(t,x)$ is $max(V^*(t,x),H(t,x))$ 
-   * where $max(V^*(t,x)$ is the value calculated before the free-boundary condition is applied 
-   * @param grid 2D grid (t & x) on which the PDE will be solved 
+   * @param initialCondition The values $V(0,x_i)$ where $x_i$ are the spacial grid points
+   * @param lowerBoundary Boundary condition at the lowest value of x
+   * @param upperBoundary Boundary condition at the highest value of x
+   * @param freeBoundary for a free-boundary function, $H(t,x)$, the solution to the PDE at $(t,x)$ is $max(V^*(t,x),H(t,x))$
+   * where $max(V^*(t,x)$ is the value calculated before the free-boundary condition is applied
+   * @param grid 2D grid (t & x) on which the PDE will be solved
    */
   public PDE1DDataBundle(final T coefficients,
       final double[] initialCondition,
@@ -174,23 +174,23 @@ public class PDE1DDataBundle<T extends PDE1DCoefficients> {
 
   public PDE1DDataBundle<T> withInitialConditions(final Function1D<Double, Double> initialCondition) {
     if (_freeBoundary == null) {
-      return new PDE1DDataBundle<T>(_coefficients, initialCondition, _lowerBoundary, _upperBoundary, _grid);
+      return new PDE1DDataBundle<>(_coefficients, initialCondition, _lowerBoundary, _upperBoundary, _grid);
     }
-    return new PDE1DDataBundle<T>(_coefficients, initialCondition, _lowerBoundary, _upperBoundary, _freeBoundary, _grid);
+    return new PDE1DDataBundle<>(_coefficients, initialCondition, _lowerBoundary, _upperBoundary, _freeBoundary, _grid);
   }
 
   public PDE1DDataBundle<T> withInitialConditions(final double[] initialCondition) {
     if (_freeBoundary == null) {
-      return new PDE1DDataBundle<T>(_coefficients, initialCondition, _lowerBoundary, _upperBoundary, _grid);
+      return new PDE1DDataBundle<>(_coefficients, initialCondition, _lowerBoundary, _upperBoundary, _grid);
     }
-    return new PDE1DDataBundle<T>(_coefficients, initialCondition, _lowerBoundary, _upperBoundary, _freeBoundary, _grid);
+    return new PDE1DDataBundle<>(_coefficients, initialCondition, _lowerBoundary, _upperBoundary, _freeBoundary, _grid);
   }
 
   public PDE1DDataBundle<T> withGrid(final PDEGrid1D grid) {
     if (_freeBoundary == null) {
-      return new PDE1DDataBundle<T>(_coefficients, _initialCondition, _lowerBoundary, _upperBoundary, grid);
+      return new PDE1DDataBundle<>(_coefficients, _initialCondition, _lowerBoundary, _upperBoundary, grid);
     }
-    return new PDE1DDataBundle<T>(_coefficients, _initialCondition, _lowerBoundary, _upperBoundary, _freeBoundary, grid);
+    return new PDE1DDataBundle<>(_coefficients, _initialCondition, _lowerBoundary, _upperBoundary, _freeBoundary, grid);
   }
 
   @Override
@@ -207,7 +207,7 @@ public class PDE1DDataBundle<T extends PDE1DCoefficients> {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -218,6 +218,7 @@ public class PDE1DDataBundle<T extends PDE1DCoefficients> {
       return false;
     }
     @SuppressWarnings("unchecked")
+    final
     PDE1DDataBundle<T> other = (PDE1DDataBundle<T>) obj;
     if (_coefficients == null) {
       if (other._coefficients != null) {

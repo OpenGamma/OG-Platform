@@ -5,13 +5,13 @@
  */
 package com.opengamma.analytics.financial.simpleinstruments.pricing;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.analytics.financial.simpleinstruments.derivative.SimpleFXFuture;
 import com.opengamma.analytics.financial.simpleinstruments.derivative.SimpleFuture;
 import com.opengamma.analytics.financial.simpleinstruments.derivative.SimpleInstrument;
 import com.opengamma.analytics.financial.simpleinstruments.derivative.SimpleInstrumentVisitor;
 import com.opengamma.util.money.CurrencyAmount;
-
-import org.apache.commons.lang.Validate;
 
 /**
  * @deprecated This should be removed when SimpleFuturePresentValueFunctionDeprecated is

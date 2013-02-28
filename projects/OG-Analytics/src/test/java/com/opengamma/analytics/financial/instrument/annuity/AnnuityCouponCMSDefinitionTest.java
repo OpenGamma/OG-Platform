@@ -28,7 +28,7 @@ import com.opengamma.util.time.DateUtils;
  * Tests related to the construction of CMS legs.
  */
 public class AnnuityCouponCMSDefinitionTest {
-  private static final Currency CUR = Currency.USD;
+  private static final Currency CUR = Currency.EUR;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   // Ibor index
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");

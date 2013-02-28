@@ -5,7 +5,7 @@
  */
 package com.opengamma.analytics.math.function;
 
-import org.apache.commons.lang.Validate;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 1-D function implementation.
@@ -21,11 +21,8 @@ public abstract class Function1D<S, T> implements Function<S, T> {
    */
   @Override
   public T evaluate(final S... x) {
-    Validate.noNullElements(x, "Parameter list");
-    Validate.notEmpty(x, "parameter list");
-    if (x.length > 1) {
-      throw new IllegalArgumentException("Array had more than one element");
-    }
+    ArgumentChecker.noNulls(x, "parameter list");
+    ArgumentChecker.isTrue(x.length == 1, "parameter list must have one element");
     return evaluate(x[0]);
   }
 

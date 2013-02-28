@@ -45,7 +45,7 @@ public class AnnuityCouponIborRatchet extends Annuity<Coupon> {
   /**
    * @param payments The payments composing the annuity.
    */
-  public AnnuityCouponIborRatchet(Coupon[] payments) {
+  public AnnuityCouponIborRatchet(final Coupon[] payments) {
     super(payments);
     _isFixed = new boolean[payments.length];
     Validate.isTrue((payments[0] instanceof CouponFixed) || (payments[0] instanceof CouponIborGearing), "First coupon should be CouponFixed or a CouponIborGearing");
@@ -65,28 +65,28 @@ public class AnnuityCouponIborRatchet extends Annuity<Coupon> {
   }
 
   public InstrumentDerivative[] calibrationBasket(final RatchetIborCalibrationType type, final YieldCurveBundle curves) {
-    ArrayList<InstrumentDerivative> calibration = new ArrayList<InstrumentDerivative>();
+    final ArrayList<InstrumentDerivative> calibration = new ArrayList<>();
     switch (type) {
       case FORWARD_COUPON:
-        int nbCpn = getNumberOfPayments();
-        double[] cpnRate = new double[nbCpn];
+        final int nbCpn = getNumberOfPayments();
+        final double[] cpnRate = new double[nbCpn];
         for (int loopcpn = 0; loopcpn < nbCpn; loopcpn++) {
           if (getNthPayment(loopcpn) instanceof CouponIborRatchet) {
-            CouponIborRatchet cpn = (CouponIborRatchet) getNthPayment(loopcpn);
-            double ibor = PRC.visitCouponIborSpread(cpn, curves);
-            double cpnMain = cpn.getMainCoefficients()[0] * cpnRate[loopcpn - 1] + cpn.getMainCoefficients()[1] * ibor + cpn.getMainCoefficients()[2];
-            double cpnFloor = cpn.getFloorCoefficients()[0] * cpnRate[loopcpn - 1] + cpn.getFloorCoefficients()[1] * ibor + cpn.getFloorCoefficients()[2];
-            double cpnCap = cpn.getCapCoefficients()[0] * cpnRate[loopcpn - 1] + cpn.getCapCoefficients()[1] * ibor + cpn.getCapCoefficients()[2];
+            final CouponIborRatchet cpn = (CouponIborRatchet) getNthPayment(loopcpn);
+            final double ibor = PRC.visitCouponIborSpread(cpn, curves);
+            final double cpnMain = cpn.getMainCoefficients()[0] * cpnRate[loopcpn - 1] + cpn.getMainCoefficients()[1] * ibor + cpn.getMainCoefficients()[2];
+            final double cpnFloor = cpn.getFloorCoefficients()[0] * cpnRate[loopcpn - 1] + cpn.getFloorCoefficients()[1] * ibor + cpn.getFloorCoefficients()[2];
+            final double cpnCap = cpn.getCapCoefficients()[0] * cpnRate[loopcpn - 1] + cpn.getCapCoefficients()[1] * ibor + cpn.getCapCoefficients()[2];
             cpnRate[loopcpn] = Math.min(Math.max(cpnFloor, cpnMain), cpnCap);
             calibration.add(new CapFloorIbor(cpn.getCurrency(), cpn.getPaymentTime(), cpn.getFundingCurveName(), cpn.getPaymentYearFraction(), cpn.getNotional(), cpn.getFixingTime(), cpn.getIndex(),
-                cpn.getFixingPeriodStartTime(), cpn.getFixingPeriodEndTime(), cpn.getFixingYearFraction(), cpn.getForwardCurveName(), cpnRate[loopcpn], true));
+                cpn.getFixingPeriodStartTime(), cpn.getFixingPeriodEndTime(), cpn.getFixingAccrualFactor(), cpn.getForwardCurveName(), cpnRate[loopcpn], true));
           } else {
             if (getNthPayment(loopcpn) instanceof CouponFixed) {
-              CouponFixed cpn = (CouponFixed) getNthPayment(loopcpn);
+              final CouponFixed cpn = (CouponFixed) getNthPayment(loopcpn);
               cpnRate[loopcpn] = cpn.getFixedRate();
             } else {
-              CouponIborGearing cpn = (CouponIborGearing) getNthPayment(loopcpn);
-              double ibor = PRC.visitCouponIborGearing(cpn, curves);
+              final CouponIborGearing cpn = (CouponIborGearing) getNthPayment(loopcpn);
+              final double ibor = PRC.visitCouponIborGearing(cpn, curves);
               cpnRate[loopcpn] = cpn.getFactor() * ibor + cpn.getSpread();
             }
           }
@@ -100,12 +100,12 @@ public class AnnuityCouponIborRatchet extends Annuity<Coupon> {
   }
 
   @Override
-  public <S, T> T accept(InstrumentDerivativeVisitor<S, T> visitor, S data) {
+  public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
     return visitor.visitAnnuityCouponIborRatchet(this, data);
   }
 
   @Override
-  public <T> T accept(InstrumentDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
     return visitor.visitAnnuityCouponIborRatchet(this);
   }
 

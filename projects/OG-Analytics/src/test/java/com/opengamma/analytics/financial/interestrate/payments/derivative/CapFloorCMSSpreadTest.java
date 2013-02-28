@@ -35,7 +35,7 @@ import com.opengamma.util.time.DateUtils;
 public class CapFloorCMSSpreadTest {
 
   //Swaps
-  private static final Currency CUR = Currency.USD;
+  private static final Currency CUR = Currency.EUR;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final boolean IS_EOM = true;
@@ -97,11 +97,10 @@ public class CapFloorCMSSpreadTest {
   @Test
   public void testEqualHash() {
     final CapFloorCMSSpread newCMSSpread = new CapFloorCMSSpread(CUR, PAYMENT_TIME, PAYMENT_ACCRUAL_FACTOR, NOTIONAL, FIXING_TIME, SWAP_1, CMS_INDEX_1, SWAP_2, CMS_INDEX_2, SETTLEMENT_TIME, STRIKE,
-        IS_CAP,
-        FUNDING_CURVE_NAME);
+        IS_CAP, FUNDING_CURVE_NAME);
     assertEquals(newCMSSpread.equals(CMS_SPREAD), true);
     assertEquals(newCMSSpread.hashCode() == CMS_SPREAD.hashCode(), true);
-    final Currency newCur = Currency.EUR;
+    final Currency newCur = Currency.USD;
     CapFloorCMSSpread modifiedCMSSpread;
     modifiedCMSSpread = new CapFloorCMSSpread(newCur, PAYMENT_TIME, PAYMENT_ACCRUAL_FACTOR, NOTIONAL, FIXING_TIME, SWAP_1, CMS_INDEX_1, SWAP_2, CMS_INDEX_2, SETTLEMENT_TIME, STRIKE, IS_CAP,
         FUNDING_CURVE_NAME);

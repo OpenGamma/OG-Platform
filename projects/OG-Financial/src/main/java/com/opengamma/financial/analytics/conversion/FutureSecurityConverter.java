@@ -17,7 +17,7 @@ import com.opengamma.analytics.financial.commodity.definition.SettlementType;
 import com.opengamma.analytics.financial.equity.future.definition.EquityFutureDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
 import com.opengamma.analytics.financial.instrument.future.BondFutureDefinition;
-import com.opengamma.analytics.financial.instrument.future.InterestRateFutureDefinition;
+import com.opengamma.analytics.financial.instrument.future.InterestRateFutureTransactionDefinition;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
@@ -99,9 +99,11 @@ public class FutureSecurityConverter extends FinancialSecurityVisitorAdapter<Ins
       @SuppressWarnings("synthetic-access")
       @Override
       public InstrumentDefinitionWithData<?, Double> visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
-        final InterestRateFutureDefinition securityDefinition = (InterestRateFutureDefinition) security.accept(_irFutureConverter);
-        return new InterestRateFutureDefinition(securityDefinition.getLastTradingDate(), referencePrice, securityDefinition.getLastTradingDate(), securityDefinition.getIborIndex(),
-            securityDefinition.getNotional(), securityDefinition.getPaymentAccrualFactor(), 1, securityDefinition.getName());
+        final InterestRateFutureTransactionDefinition securityDefinition = (InterestRateFutureTransactionDefinition) security.accept(_irFutureConverter);
+        return securityDefinition;
+//      new InterestRateFutureTransactionDefinition(securityDefinition.getLastTradingDate(), referencePrice, 
+//      securityDefinition.getLastTradingDate(), securityDefinition.getIborIndex(),
+//      securityDefinition.getNotional(), securityDefinition.getPaymentAccrualFactor(), 1, securityDefinition.getName());
       }
 
       @SuppressWarnings("synthetic-access")
@@ -141,7 +143,7 @@ public class FutureSecurityConverter extends FinancialSecurityVisitorAdapter<Ins
 
   @Override
   public InstrumentDefinitionWithData<?, Double> visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
-    return (InterestRateFutureDefinition) security.accept(_irFutureConverter);
+    return (InterestRateFutureTransactionDefinition) security.accept(_irFutureConverter);
   }
 
   @Override

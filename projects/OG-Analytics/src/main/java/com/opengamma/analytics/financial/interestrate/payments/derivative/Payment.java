@@ -78,7 +78,7 @@ public abstract class Payment implements InstrumentDerivative {
    * Check if the payment is of the type CouponFixed or CouponIbor. Used to check that payment are of vanilla type.
    * @return  True if IborCoupon or FixedCoupon
    */
-  public boolean isIborOrFixed() {
+  public boolean isIborOrFixed() { //TODO: is this method necessary?
     return (this instanceof CouponFixed) || (this instanceof CouponIbor);
   }
 

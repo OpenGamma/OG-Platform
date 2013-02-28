@@ -20,7 +20,7 @@ import com.opengamma.util.tuple.Pair;
 public class PresentValueVolatilityNodeSensitivityDataBundleTest {
 
   private static final Currency CUR_1 = Currency.EUR;
-  private static final Currency CUR_2 = Currency.USD;
+  private static final Currency CUR_2 = Currency.EUR;
   private static final Currency CUR_3 = Currency.GBP;
   private static final int NB_EXPIRY = 4;
   private static final int NB_STRIKE = 5;

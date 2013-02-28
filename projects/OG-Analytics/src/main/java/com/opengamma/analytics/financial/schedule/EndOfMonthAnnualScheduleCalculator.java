@@ -9,9 +9,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.lang.Validate;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
+
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
@@ -25,10 +26,10 @@ public class EndOfMonthAnnualScheduleCalculator extends Schedule {
   }
 
   public LocalDate[] getSchedule(final LocalDate startDate, final LocalDate endDate, final boolean fromEnd) {
-    Validate.notNull(startDate, "start date");
-    Validate.notNull(endDate, "end date");
+    ArgumentChecker.notNull(startDate, "start date");
+    ArgumentChecker.notNull(endDate, "end date");
     final LocalDate[] monthly = EOM_CALCULATOR.getSchedule(startDate, endDate);
-    final List<LocalDate> result = new ArrayList<LocalDate>();
+    final List<LocalDate> result = new ArrayList<>();
     if (fromEnd) {
       for (int i = monthly.length - 1; i >= 0; i -= 12) {
         result.add(monthly[i]);
@@ -48,10 +49,10 @@ public class EndOfMonthAnnualScheduleCalculator extends Schedule {
   }
 
   public ZonedDateTime[] getSchedule(final ZonedDateTime startDate, final ZonedDateTime endDate, final boolean fromEnd) {
-    Validate.notNull(startDate, "start date");
-    Validate.notNull(endDate, "end date");
+    ArgumentChecker.notNull(startDate, "start date");
+    ArgumentChecker.notNull(endDate, "end date");
     final ZonedDateTime[] monthly = EOM_CALCULATOR.getSchedule(startDate, endDate);
-    final List<ZonedDateTime> result = new ArrayList<ZonedDateTime>();
+    final List<ZonedDateTime> result = new ArrayList<>();
     if (fromEnd) {
       for (int i = monthly.length - 1; i >= 0; i -= 12) {
         result.add(monthly[i]);

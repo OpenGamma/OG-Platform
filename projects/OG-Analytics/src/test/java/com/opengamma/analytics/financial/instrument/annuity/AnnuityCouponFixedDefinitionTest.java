@@ -30,7 +30,7 @@ import com.opengamma.util.time.DateUtils;
 
 public class AnnuityCouponFixedDefinitionTest {
   //Semi-annual 2Y
-  private static final Currency CUR = Currency.USD;
+  private static final Currency CUR = Currency.EUR;
   private static final PeriodFrequency PAYMENT_FREQUENCY = PeriodFrequency.SEMI_ANNUAL;
   private static final Period PAYMENT_TENOR = Period.of(6, MONTHS);
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");

@@ -102,12 +102,12 @@ public class CapFloorIborInArrearsReplicationMethodTest {
    */
   public void persentValueSABRExtrapolation() {
     final CapFloorIbor capStandard = new CapFloorIbor(CUR, CAP_LONG.getFixingPeriodEndTime(), FUNDING_CURVE_NAME, CAP_LONG.getPaymentYearFraction(), NOTIONAL, CAP_LONG.getFixingTime(), INDEX,
-        CAP_LONG.getFixingPeriodStartTime(), CAP_LONG.getFixingPeriodEndTime(), CAP_LONG.getFixingYearFraction(), FORWARD_CURVE_NAME, STRIKE, IS_CAP);
+        CAP_LONG.getFixingPeriodStartTime(), CAP_LONG.getFixingPeriodEndTime(), CAP_LONG.getFixingAccrualFactor(), FORWARD_CURVE_NAME, STRIKE, IS_CAP);
     final double priceStandard = capStandard.accept(PVC, SABR_BUNDLE);
     final double beta = CURVES.getCurve(FORWARD_CURVE_NAME).getDiscountFactor(CAP_LONG.getFixingPeriodStartTime())
         / CURVES.getCurve(FORWARD_CURVE_NAME).getDiscountFactor(CAP_LONG.getFixingPeriodEndTime()) * CURVES.getCurve(FUNDING_CURVE_NAME).getDiscountFactor(CAP_LONG.getFixingPeriodEndTime())
         / CURVES.getCurve(FUNDING_CURVE_NAME).getDiscountFactor(CAP_LONG.getFixingPeriodStartTime());
-    final double strikePart = (1.0 + CAP_LONG.getFixingYearFraction() * STRIKE) * priceStandard;
+    final double strikePart = (1.0 + CAP_LONG.getFixingAccrualFactor() * STRIKE) * priceStandard;
     final RungeKuttaIntegrator1D integrator = new RungeKuttaIntegrator1D(1.0, 1E-8, 10);
     final InArrearsIntegrant integrant = new InArrearsIntegrant(METHOD_SABREXTRA_STD, capStandard, SABR_BUNDLE);
     double integralPart;
@@ -116,7 +116,7 @@ public class CapFloorIborInArrearsReplicationMethodTest {
     } catch (final Exception e) {
       throw new RuntimeException(e);
     }
-    integralPart *= 2.0 * CAP_LONG.getFixingYearFraction();
+    integralPart *= 2.0 * CAP_LONG.getFixingAccrualFactor();
     final CurrencyAmount price = METHOD_SABREXTRA_CAP_IA.presentValue(CAP_LONG, SABR_BUNDLE);
     final double priceExpected = (strikePart + integralPart) / beta;
     assertEquals("Cap/floor IA - SABR pricing", priceExpected, price.getAmount(), 1E+0);

@@ -219,14 +219,14 @@ public final class ForexOptionDigitalBlackMethod implements ForexPricingMethod {
     final double rForeignBar = -payTime * dfForeign * dfForeignBar;
     final double rDomesticBar = -payTime * dfDomestic * dfDomesticBar;
     // Sensitivity object
-    final List<DoublesPair> listForeign = new ArrayList<DoublesPair>();
+    final List<DoublesPair> listForeign = new ArrayList<>();
     listForeign.add(new DoublesPair(payTime, rForeignBar));
-    final Map<String, List<DoublesPair>> resultForeignMap = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> resultForeignMap = new HashMap<>();
     resultForeignMap.put(foreignCurveName, listForeign);
     InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(resultForeignMap);
-    final List<DoublesPair> listDomestic = new ArrayList<DoublesPair>();
+    final List<DoublesPair> listDomestic = new ArrayList<>();
     listDomestic.add(new DoublesPair(payTime, rDomesticBar));
-    final Map<String, List<DoublesPair>> resultDomesticMap = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> resultDomesticMap = new HashMap<>();
     resultDomesticMap.put(domesticCurveName, listDomestic);
     result = result.plus(new InterestRateCurveSensitivity(resultDomesticMap));
     return MultipleCurrencyInterestRateCurveSensitivity.of(domesticCcy, result);

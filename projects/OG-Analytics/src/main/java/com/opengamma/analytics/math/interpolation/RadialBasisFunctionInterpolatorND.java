@@ -10,24 +10,24 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.data.InterpolatorNDDataBundle;
 import com.opengamma.analytics.math.interpolation.data.RadialBasisFunctionInterpolatorDataBundle;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
 /**
  * 
  */
 public class RadialBasisFunctionInterpolatorND extends InterpolatorND {
- //TODO R White 14/07/2011 These are only used by getDataBundle, the actual interpolate method used the information in the RadialBasisFunctionInterpolatorDataBundle
- // should remove them altogether and just pass in the information in the getDataBundle method
+  //TODO R White 14/07/2011 These are only used by getDataBundle, the actual interpolate method used the information in the RadialBasisFunctionInterpolatorDataBundle
+  // should remove them altogether and just pass in the information in the getDataBundle method
   private final Function1D<Double, Double> _basisFunction;
   private final boolean _useNormalized;
 
   public RadialBasisFunctionInterpolatorND(final Function1D<Double, Double> basisFunction, final boolean useNormalized) {
-    Validate.notNull(basisFunction, "basis function");
+    ArgumentChecker.notNull(basisFunction, "basis function");
     _basisFunction = basisFunction;
     _useNormalized = useNormalized;
   }
@@ -35,8 +35,8 @@ public class RadialBasisFunctionInterpolatorND extends InterpolatorND {
   @Override
   public Double interpolate(final InterpolatorNDDataBundle data, final double[] x) {
     validateInput(data, x);
-    Validate.isTrue(data instanceof RadialBasisFunctionInterpolatorDataBundle, "RadialBasisFunctionInterpolatorND needs a RadialBasisFunctionInterpolatorDataBundle");
-    RadialBasisFunctionInterpolatorDataBundle radialData = (RadialBasisFunctionInterpolatorDataBundle) data;
+    ArgumentChecker.isTrue(data instanceof RadialBasisFunctionInterpolatorDataBundle, "RadialBasisFunctionInterpolatorND needs a RadialBasisFunctionInterpolatorDataBundle");
+    final RadialBasisFunctionInterpolatorDataBundle radialData = (RadialBasisFunctionInterpolatorDataBundle) data;
     final List<Pair<double[], Double>> rawData = radialData.getData();
     final double[] w = radialData.getWeights();
     final Function1D<Double, Double> basisFunction = radialData.getBasisFunction();
@@ -57,17 +57,17 @@ public class RadialBasisFunctionInterpolatorND extends InterpolatorND {
 
   @Override
   public Map<double[], Double> getNodeSensitivitiesForValue(final InterpolatorNDDataBundle data, final double[] x) {
-    Validate.notNull(data, "data");
-    Validate.notNull(x, "x array");
-    Validate.isTrue(data instanceof RadialBasisFunctionInterpolatorDataBundle, "RadialBasisFunctionInterpolatorNDSensitivityCalculator needs a RadialBasisFunctionInterpolatorDataBundle");
-    RadialBasisFunctionInterpolatorDataBundle radialData = (RadialBasisFunctionInterpolatorDataBundle) data;
+    ArgumentChecker.notNull(data, "data");
+    ArgumentChecker.notNull(x, "x array");
+    ArgumentChecker.isTrue(data instanceof RadialBasisFunctionInterpolatorDataBundle, "RadialBasisFunctionInterpolatorNDSensitivityCalculator needs a RadialBasisFunctionInterpolatorDataBundle");
+    final RadialBasisFunctionInterpolatorDataBundle radialData = (RadialBasisFunctionInterpolatorDataBundle) data;
     final List<Pair<double[], Double>> rawData = radialData.getData();
     final Function1D<Double, Double> basisFunction = radialData.getBasisFunction();
     final int n = rawData.size();
     double[] xi;
-    double[] phi = new double[n];
+    final double[] phi = new double[n];
     double normSum = 0;
-    double[] phiNorm = new double[n];
+    final double[] phiNorm = new double[n];
     for (int i = 0; i < n; i++) {
       xi = rawData.get(i).getFirst();
       phi[i] = basisFunction.evaluate(DistanceCalculator.getDistance(x, xi));
@@ -84,9 +84,9 @@ public class RadialBasisFunctionInterpolatorND extends InterpolatorND {
         phiNorm[i] = sum;
       }
     }
-    double[] temp = radialData.getDecompositionResult().solve(phi);
+    final double[] temp = radialData.getDecompositionResult().solve(phi);
     double sense = 0;
-    Map<double[], Double> res = new HashMap<double[], Double>(n);
+    final Map<double[], Double> res = new HashMap<>(n);
     for (int i = 0; i < n; i++) {
       if (radialData.isNormalized()) {
         sense = temp[i] * phiNorm[i] / normSum;

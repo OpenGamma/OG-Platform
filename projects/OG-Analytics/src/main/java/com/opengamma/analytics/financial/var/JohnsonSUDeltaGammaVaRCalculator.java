@@ -6,13 +6,13 @@
 package com.opengamma.analytics.financial.var;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.math.TrigonometricFunctionUtils;
 import com.opengamma.analytics.math.function.Function;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.rootfinding.BisectionSingleRootFinder;
 import com.opengamma.analytics.math.rootfinding.RealSingleRootFinder;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
@@ -27,10 +27,10 @@ public class JohnsonSUDeltaGammaVaRCalculator<T> implements VaRCalculator<Normal
 
   public JohnsonSUDeltaGammaVaRCalculator(final Function<T, Double> meanCalculator, final Function<T, Double> stdCalculator,
       final Function<T, Double> skewCalculator, final Function<T, Double> kurtosisCalculator) {
-    Validate.notNull(meanCalculator, "mean calculator");
-    Validate.notNull(stdCalculator, "standard deviation calculator");
-    Validate.notNull(skewCalculator, "skew calculator");
-    Validate.notNull(kurtosisCalculator, "kurtosis calculator");
+    ArgumentChecker.notNull(meanCalculator, "mean calculator");
+    ArgumentChecker.notNull(stdCalculator, "standard deviation calculator");
+    ArgumentChecker.notNull(skewCalculator, "skew calculator");
+    ArgumentChecker.notNull(kurtosisCalculator, "kurtosis calculator");
     _meanCalculator = meanCalculator;
     _stdCalculator = stdCalculator;
     _skewCalculator = skewCalculator;
@@ -55,8 +55,8 @@ public class JohnsonSUDeltaGammaVaRCalculator<T> implements VaRCalculator<Normal
 
   @Override
   public VaRCalculationResult evaluate(final NormalVaRParameters parameters, final T... data) {
-    Validate.notNull(parameters, "parameters");
-    Validate.notNull(data, "data");
+    ArgumentChecker.notNull(parameters, "parameters");
+    ArgumentChecker.notNull(data, "data");
     // TODO if skewness is positive then need to fit to -x and take from upper tail of distribution
     final double k = _kurtosisCalculator.evaluate(data);
     if (k < 0) {

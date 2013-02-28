@@ -12,7 +12,7 @@ import com.opengamma.analytics.financial.equity.future.derivative.EquityFuture;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityIndexDividendFuture;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuture;
-import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
 import com.opengamma.analytics.financial.simpleinstruments.pricing.SimpleFutureDataBundle;
 import com.opengamma.util.ArgumentChecker;
 
@@ -60,7 +60,7 @@ public abstract class MarkToMarketFuturesCalculator extends InstrumentDerivative
   }
 
   @Override
-  public Double visitInterestRateFuture(final InterestRateFuture future, final SimpleFutureDataBundle dataBundle) {
+  public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction future, final SimpleFutureDataBundle dataBundle) {
     ArgumentChecker.notNull(future, "future");
     ArgumentChecker.notNull(dataBundle, "data bundle");
     return Double.valueOf(getResult(dataBundle, future.getReferencePrice(), future.getNotional(), future.getLastTradingTime()));

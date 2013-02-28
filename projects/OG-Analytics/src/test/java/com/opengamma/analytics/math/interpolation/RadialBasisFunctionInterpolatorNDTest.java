@@ -69,7 +69,7 @@ public class RadialBasisFunctionInterpolatorNDTest extends InterpolatorNDTestCas
   public void testMultiquadraticRadialBasisFunction() {
     final double r0 = 1;
     final InterpolatorND interpolator = new RadialBasisFunctionInterpolatorND(new GaussianRadialBasisFunction(r0), false);
-    assertCosExp(interpolator, 1e-2);
+    assertCosExp(interpolator, 1e-1);
   }
 
   @Test

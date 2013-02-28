@@ -63,7 +63,7 @@ public class CapletStrippingJacobian extends Function1D<DoubleMatrix1D, DoubleMa
 
     _knownParameterTermSturctures = knownParameterTermSturctures;
 
-    final LinkedHashMap<String, Interpolator1D> transInterpolators = new LinkedHashMap<String, Interpolator1D>();
+    final LinkedHashMap<String, Interpolator1D> transInterpolators = new LinkedHashMap<>();
     final Set<String> names = interpolators.keySet();
     _parameterNames = names;
     for (final String name : names) {
@@ -71,7 +71,7 @@ public class CapletStrippingJacobian extends Function1D<DoubleMatrix1D, DoubleMa
       transInterpolators.put(name, temp);
     }
 
-    _capPricers = new ArrayList<CapFloorPricer>(caps.size());
+    _capPricers = new ArrayList<>(caps.size());
     for (final CapFloor cap : caps) {
       _capPricers.add(new CapFloorPricer(cap, yieldCurves));
     }
