@@ -188,7 +188,9 @@ public final class PortfolioAggregator {
     if (split) {
       for (PortfolioNode portfolioNode : aggregatedPortfolio.getRootNode().getChildNodes()) {
         String splitPortfolioName = portfolioName + " (" + aggregationName + " " + portfolioNode.getName() + ")";
-        Portfolio splitPortfolio = new SimplePortfolio(splitPortfolioName, (SimplePortfolioNode) portfolioNode);
+        SimplePortfolioNode root = new SimplePortfolioNode("root");
+        root.addChildNode(portfolioNode);
+        Portfolio splitPortfolio = new SimplePortfolio(splitPortfolioName, root);
         s_logger.info("Saving split portfolio " + portfolioName + "...");
         savePortfolio.savePortfolio(splitPortfolio, true);
       }
