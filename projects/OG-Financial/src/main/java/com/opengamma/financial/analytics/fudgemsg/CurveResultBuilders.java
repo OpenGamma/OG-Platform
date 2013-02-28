@@ -136,7 +136,7 @@ import com.opengamma.util.tuple.DoublesPair;
         final MutableFudgeMsg perCurveMessage = serializer.newMessage();
         perCurveMessage.add(FORWARD_CURVE_NAME, entry.getKey());
         for (final ForwardSensitivity sensitivity : entry.getValue()) {
-          perCurveMessage.add(SENSITIVITY_TO_FORWARD_VALUE, sensitivity);
+          serializer.addToMessageWithClassHeaders(perCurveMessage, SENSITIVITY_TO_FORWARD_VALUE, null, sensitivity);
         }
         message.add(SENSITIVITY_TO_FORWARD_DATA, perCurveMessage);
       }
