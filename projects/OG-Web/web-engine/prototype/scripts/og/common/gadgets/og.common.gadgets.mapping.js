@@ -67,7 +67,6 @@ $.register_module({
             depgraph_blacklist: ['DOUBLE', 'STRING', 'TENOR', 'UNKNOWN'],
             data_type_map: {
                 CURVE                   : [3, 1, 6, 0],
-                STRING                  : [8],
                 DOUBLE                  : [0, 6],
                 FUNGIBLE_TRADE          : [5],
                 LABELLED_MATRIX_1D      : [0, 1, 6],
@@ -76,7 +75,7 @@ $.register_module({
                 MATRIX_2D               : [0, 1, 6],
                 OTC_TRADE               : [5],
                 POSITION                : [5],
-                STRING                  : [0, 6],
+                STRING                  : [0, 6, 8],
                 SURFACE_DATA            : [2, 1, 0, 6],
                 UNPLOTTABLE_SURFACE_DATA: [1, 6, 0],
                 TENOR                   : [0, 6],
