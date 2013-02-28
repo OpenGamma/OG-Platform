@@ -978,6 +978,11 @@ public class FinancialSecurityUtils {
       final ExternalId id = finSec.accept(new FinancialSecurityVisitorAdapter<ExternalId>() {
 
         @Override
+        public ExternalId visitFxFutureOptionSecurity(final FxFutureOptionSecurity security) {
+          return security.getUnderlyingId();
+        }
+        
+        @Override
         public ExternalId visitEnergyForwardSecurity(final EnergyForwardSecurity security) {
           return security.getUnderlyingId();
         }
