@@ -254,8 +254,11 @@ $.register_module({
                     return $('.OG-g-h-set-name .og-menu').toggle(), false;
                 })
                 .on('click', '.OG-g-h-set-name .og-sparklines', function (event) {
-                    return $(this).toggleClass('og-active').find('span')
-                        .html((grid.config.sparklines = !grid.config.sparklines) ? 'ON' : 'OFF'), false;
+                    $(this).toggleClass('og-active').find('span')
+                        .html((grid.config.sparklines = !grid.config.sparklines) ? 'ON' : 'OFF');
+                    render_rows.call(grid, grid.data);
+                    grid.resize();
+                    return false;
                 })
                 .on('mousedown', function (event) {
                     var $target = $(event.target), row;
@@ -442,7 +445,7 @@ $.register_module({
                             state: grid.state.nodes[data_row] ? 'collapse' : 'expand'
                         }) : '';
                         cells.push({
-                            column: column, value: prefix + value,
+                            column: column, value: prefix + value, type: type,
                             logging: data[index] && data[index][logging], error: data[index] && data[index].error
                         });
                     }
@@ -698,7 +701,7 @@ $.register_module({
                 scroll_height: Math.max(meta.inner.height, meta.inner.scroll_height - scrollbar),
                 fixed_height: Math.max(meta.inner.height + scrollbar, meta.inner.scroll_height),
                 scroll_width: columns.width.scroll, fixed_width: columns.width.fixed + scrollbar,
-                scroll_left: columns.width.fixed, set_height: meta.set_height,
+                scroll_left: columns.width.fixed, set_height: meta.set_height, sparklines: grid.config.sparklines,
                 height: meta.inner.scroll_height, header_height: header_height, row_height: row_height,
                 columns: col_css(id, columns.fixed).concat(col_css(id, columns.scroll, meta.fixed_length)),
                 sets: set_css(id, columns.fixed).concat(set_css(id, columns.scroll, columns.fixed.length))
