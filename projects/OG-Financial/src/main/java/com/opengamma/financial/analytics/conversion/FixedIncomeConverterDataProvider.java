@@ -368,6 +368,9 @@ public class FixedIncomeConverterDataProvider {
     @SuppressWarnings({"unchecked", "synthetic-access" })
     public InstrumentDerivative convert(final SwapSecurity security, final SwapDefinition definition, final ZonedDateTime now, final String[] curveNames, final HistoricalTimeSeriesBundle timeSeries) {
       Validate.notNull(security, "security");
+      if (timeSeries == null) {
+        return definition.toDerivative(now, curveNames);
+      }
       final SwapLeg payLeg = security.getPayLeg();
       final SwapLeg receiveLeg = security.getReceiveLeg();
       final ZonedDateTime fixingSeriesStartDate = security.getEffectiveDate().isBefore(now) ? security.getEffectiveDate() : now;
