@@ -26,6 +26,8 @@ struct _setting {
 	struct _setting *pNext;
 };
 
+class CAbstractSettings;
+
 /// Base class for lazy generation of default values. Default values that are computationally
 /// expensive to generate should be produced by a provider to avoid the overhead if the user
 /// has explicitly provided that setting.
@@ -49,13 +51,14 @@ protected:
 	/// Calculates the default value. The default value may be NULL. If a string is returned
 	/// it must be allocated on the heap - the memory will be freed by the destructor.
 	///
+	/// @param pOwner the calling CAbstractSettings instance, not NULL
 	/// @return the default value, possibly NULL
-	virtual TCHAR *CalculateString () const = 0;
+	virtual TCHAR *CalculateString (const CAbstractSettings *pOwner) const = 0;
 
 public:
 	CAbstractSettingProvider ();
 	~CAbstractSettingProvider ();
-	const TCHAR *GetString () const;
+	const TCHAR *GetString (const CAbstractSettings *pOwner) const;
 };
 
 /// Base class for querying application settings. The Windows implementation uses the registry for storage

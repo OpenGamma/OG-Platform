@@ -24,6 +24,11 @@
 #define SETTINGS_SERVICE_POLL				TEXT ("servicePoll")
 #define SETTINGS_START_TIMEOUT				TEXT ("startTimeout")
 #define SETTINGS_STOP_TIMEOUT				TEXT ("stopTimeout")
+#ifndef _WIN32
+#define SETTINGS_SERVICE_QUERY_CMD			SERVICE_SETTINGS_QUERY_CMD
+#define SETTINGS_SERVICE_START_CMD			SERVICE_SETTINGS_START_CMD
+#define SETTINGS_SERVICE_STOP_CMD			SERVICE_SETTINGS_STOP_CMD
+#endif /* ifndef _WIN32 */
 
 #define CSettings CConnectorSettings
 
@@ -43,6 +48,11 @@ private:
 	const TCHAR *GetServiceExecutable (const CAbstractSettingProvider *poDefault) const { return Get (SETTINGS_SERVICE_EXECUTABLE, poDefault); }
 	const TCHAR *GetServiceName (const TCHAR *pszDefault) const { return Get (SETTINGS_SERVICE_NAME, pszDefault); }
 	int GetServicePoll (int nDefault) const { return Get (SETTINGS_SERVICE_POLL, nDefault); }
+#ifndef _WIN32
+	const TCHAR *GetServiceQueryCmd (const CAbstractSettingProvider *poDefault) const { return Get (SETTINGS_SERVICE_QUERY_CMD, poDefault); }
+	const TCHAR *GetServiceStartCmd (const CAbstractSettingProvider *poDefault) const { return Get (SETTINGS_SERVICE_START_CMD, poDefault); }
+	const TCHAR *GetServiceStopCmd (const CAbstractSettingProvider *poDefault) const { return Get (SETTINGS_SERVICE_STOP_CMD, poDefault); }
+#endif /* ifndef _WIN32 */
 	int GetStartTimeout (int nDefault) const { return Get (SETTINGS_START_TIMEOUT, nDefault); }
 	int GetStopTimeout (int nDefault) const { return Get (SETTINGS_STOP_TIMEOUT, nDefault); }
 public:
@@ -59,6 +69,11 @@ public:
 	const TCHAR *GetServiceExecutable () const;
 	const TCHAR *GetServiceName () const;
 	int GetServicePoll () const;
+#ifndef _WIN32
+	const TCHAR *GetServiceQueryCmd () const;
+	const TCHAR *GetServiceStartCmd () const;
+	const TCHAR *GetServiceStopCmd () const;
+#endif /* ifndef _WIN32 */
 	int GetStartTimeout () const;
 	int GetStopTimeout () const;
 };

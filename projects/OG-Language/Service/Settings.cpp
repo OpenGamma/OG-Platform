@@ -51,17 +51,37 @@ LOGGING(com.opengamma.language.service.Settings);
 #  define DEFAULT_SERVICE_NAME		TEXT ("og-language")
 # endif /* ifdef _WIN32 */
 #endif /* ifndef DEFAULT_SERVICE_NAME */
+#ifndef _WIN32
+# ifndef SERVICE_CTRL_CHK_PREFIX
+#  define SERVICE_CTRL_CHK_PREFIX	TEXT ("/etc/init.d/")
+# endif /* ifndef SERVICE_CTRL_CHK_PREFIX */
+# ifndef SERVICE_CTRL_CHK_SUFFIX
+#  define SERVICE_CTRL_CHK_SUFFIX	TEXT ("")
+# endif /* ifndef SERVICE_CTRL_CHK_SUFFIX */
+# ifndef SERVICE_CTRL_CMD_PREFIX
+#  define SERVICE_CTRL_CMD_PREFIX	TEXT ("/sbin/service ")
+# endif /* ifndef SERVICE_CTRL_CMD_PREFIX */
+# ifndef SERVICE_CTRL_CMD_SUFFIX
+#  define SERVICE_CTRL_CMD_SUFFIX	TEXT (" %s > /dev/null")
+# endif /* ifdef SERVICE_CTRL_CMD_SUFFIX */
+# ifndef SERVICE_CTRL_QUERY_PARAM
+#  define SERVICE_CTRL_QUERY_PARAM	TEXT ("status")
+# endif /* ifndef SERVICE_CTRL_QUERY_PARAM */
+# ifndef SERVICE_CTRL_START_PARAM
+#  define SERVICE_CTRL_START_PARAM	TEXT ("start")
+# endif /* ifdef SERVICE_CTRL_START_PARAM */
+# ifndef SERVICE_CTRL_STOP_PARAM
+#  define SERVICE_CTRL_STOP_PARAM	TEXT ("stop")
+# endif /* ifdef SERVICE_CTRL_STOP_PARAM */
+#endif /* ifndef _WIN32 */
 #ifndef DEFAULT_CONNECTION_PIPE
-# ifndef DEFAULT_PIPE_NAME
-#  define DEFAULT_PIPE_NAME			TEXT ("Connection")
-# endif /* ifndef DEFAULT_PIPE_NAME */
 # ifdef _WIN32
-#  define DEFAULT_CONNECTION_PIPE	TEXT ("\\\\.\\pipe\\") DEFAULT_SERVICE_NAME TEXT ("-") DEFAULT_PIPE_NAME
+#  define DEFAULT_CONNECTION_PIPE	TEXT ("\\\\.\\pipe\\") DEFAULT_SERVICE_NAME TEXT ("-Connection")
 # else /* ifdef _WIN32 */
 #  ifndef DEFAULT_PIPE_FOLDER
-#   define DEFAULT_PIPE_FOLDER		TEXT ("/var/run/OG-Language/")
+#   define DEFAULT_PIPE_FOLDER		TEXT ("/var/run/opengamma/")
 #  endif /* ifndef DEFAULT_PIPE_FOLDER */
-#  define DEFAULT_CONNECTION_PIPE	DEFAULT_PIPE_FOLDER DEFAULT_PIPE_NAME TEXT (".sock")
+#  define DEFAULT_CONNECTION_PIPE	DEFAULT_PIPE_FOLDER DEFAULT_SERVICE_NAME TEXT (".sock")
 # endif /* ifdef _WIN32 */
 #endif /* ifndef DEFAULT_CONNECTION_PIPE */
 #ifndef DEFAULT_JVM_MIN_HEAP
@@ -71,7 +91,7 @@ LOGGING(com.opengamma.language.service.Settings);
 # define DEFAULT_JVM_MAX_HEAP		512
 #endif /* ifndef DEFAULT_JVM_MAX_HEAP */
 #ifndef DEFAULT_PID_FILE
-# define DEFAULT_PID_FILE			DEFAULT_PIPE_FOLDER TEXT ("LanguageIntegration.pid")
+# define DEFAULT_PID_FILE			DEFAULT_PIPE_FOLDER TEXT ("og-language.pid")
 #endif /* ifndef DEFAULT_PID_FILE */
 
 /// Returns the default name of the pipe for incoming client connections.
@@ -87,6 +107,79 @@ const TCHAR *ServiceDefaultConnectionPipe () {
 const TCHAR *ServiceDefaultServiceName () {
 	return DEFAULT_SERVICE_NAME;
 }
+
+#ifndef _WIN32
+
+static size_t _maxstrlen (const TCHAR *pszA, const TCHAR *pszB) {
+	size_t cchA = _tcslen (pszA);
+	size_t cchB = _tcslen (pszB);
+	if (cchA < cchB) {
+		return cchB;
+	} else {
+		return cchA;
+	}
+}
+
+/// Creates a service control string by checking for a file which is based on the service name and
+/// then composing the service name with the operation. For example it might search for
+/// "/etc/init.d/<service>" and then execute "service <service> <command>"
+///
+/// This will allocate memory for the returned string if successful. The caller must release this
+/// when done.
+///
+/// @param[in] pszServiceName the service name, not NULL
+/// @param[in] pszOperation the operation string, not NULL
+/// @return the service control command, or NULL if there is a problem
+static TCHAR *_ServiceCreateControl (const TCHAR *pszServiceName, const TCHAR *pszOperation) {
+	TCHAR *pszTemp1 = NULL;
+	TCHAR *pszResult = NULL;
+	do {
+		size_t cb = (_maxstrlen (SERVICE_CTRL_CHK_PREFIX, SERVICE_CTRL_CMD_PREFIX) + _tcslen (pszServiceName) + _maxstrlen (SERVICE_CTRL_CHK_SUFFIX, SERVICE_CTRL_CMD_SUFFIX) + 1) * sizeof (TCHAR);
+		pszTemp1 = (TCHAR*)malloc (cb);
+		if (!pszTemp1) {
+			LOGFATAL (TEXT ("Out of memory"));
+			break;
+		}
+		StringCbPrintf (pszTemp1, cb, TEXT ("%s%s%s"), SERVICE_CTRL_CHK_PREFIX, pszServiceName, SERVICE_CTRL_CHK_SUFFIX);
+		LOGDEBUG (TEXT ("Testing for ") << pszTemp1);
+		struct stat statBuf;
+		if (stat (pszTemp1, &statBuf)) {
+			LOGWARN (TEXT ("Couldn't stat ") << pszTemp1);
+			break;
+		}
+		LOGDEBUG (TEXT ("Found ") << pszTemp1 << TEXT (" with mode ") << statBuf.st_mode);
+		if (!(statBuf.st_mode & (S_IXUSR | S_IXGRP | S_IXOTH))) {
+			LOGWARN (TEXT ("Service script ") << pszTemp1 << TEXT (" doesn't have execute bit set"));
+			break;
+		}
+		StringCbPrintf (pszTemp1, cb, TEXT ("%s%s%s"), SERVICE_CTRL_CMD_PREFIX, pszServiceName, SERVICE_CTRL_CMD_SUFFIX);
+		LOGDEBUG (TEXT ("Forming service operation \"") << pszTemp1 << TEXT ("\" with ") << pszOperation);
+		cb = (_tcslen (pszTemp1) + _tcslen (pszOperation) - 1) * sizeof (TCHAR);
+		pszResult = (TCHAR*)malloc (cb);
+		if (!pszResult) {
+			LOGFATAL (TEXT ("Out of memory"));
+			break;
+		}
+		StringCbPrintf (pszResult, cb, pszTemp1, pszOperation);
+		LOGINFO (TEXT ("Found service control command: ") << pszResult);
+	} while (false);
+	if (pszTemp1) free (pszTemp1);
+	return pszResult;
+}
+
+TCHAR *ServiceCreateQueryCmd (const TCHAR *pszServiceName) {
+	return _ServiceCreateControl (pszServiceName, SERVICE_CTRL_QUERY_PARAM);
+}
+
+TCHAR *ServiceCreateStartCmd (const TCHAR *pszServiceName) {
+	return _ServiceCreateControl (pszServiceName, SERVICE_CTRL_START_PARAM);
+}
+
+TCHAR *ServiceCreateStopCmd (const TCHAR *pszServiceName) {
+	return _ServiceCreateControl (pszServiceName, SERVICE_CTRL_STOP_PARAM);
+}
+
+#endif /* ifndef _WIN32 */
 
 /// Extracts the numeric version fragment from a string.
 ///
@@ -304,8 +397,9 @@ private:
 
 	/// Checks for a JVM library from the registry (Windows), or by scanning the file system (Posix)
 	///
+	/// @param[in] poSettings ignored
 	/// @return the path to the JVM DLL, a default best guess, or NULL if there is a problem
-	TCHAR *CalculateString () const {
+	TCHAR *CalculateString (const CAbstractSettings *poSettings) const {
 		TCHAR *pszLibrary = NULL;
 		do {
 #ifdef _WIN32
@@ -385,8 +479,9 @@ protected:
 #define CLIENT_JAR_LEN		10
 	/// Scans backwards from the service executable's folder until it finds one containing client.jar
 	///
+	/// @param[in] poSettings ignored
 	/// @return the path, or a default best guess if none is found
-	TCHAR *CalculateString () const {
+	TCHAR *CalculateString (const CAbstractSettings *poSettings) const {
 		TCHAR *pszJarPath = NULL;
 		// Scan backwards from the module to find a path which has Client.jar in. This works if all of the
 		// JARs and DLLs are in the same folder, but also in the case of a build system where we have sub-folders
@@ -452,8 +547,8 @@ const TCHAR *CSettings::GetJarPath () const {
 /// Locates the ext folder by searching for the client.jar
 class CExtPathDefault : public CAbstractSettingProvider {
 protected:
-	TCHAR *CalculateString () const {
-		const TCHAR *pszJarPath = g_oJarPathDefault.GetString ();
+	TCHAR *CalculateString (const CAbstractSettings *poSettings) const {
+		const TCHAR *pszJarPath = g_oJarPathDefault.GetString (poSettings);
 		if (!pszJarPath) {
 			LOGERROR (TEXT ("No JAR path to base EXT from"));
 			return NULL;

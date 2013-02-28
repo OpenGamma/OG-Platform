@@ -9,7 +9,7 @@
 #include <unistd.h>
 
 #ifndef SERVICE_CONTROL
-# define SERVICE_CONTROL    "/usr/sbin/service"
+# define SERVICE_CONTROL    "/sbin/service"
 #endif /* ifndef SERVICE_CONTROL */
 #ifndef SERVICE_NAME
 # define SERVICE_NAME		"og-language"

@@ -19,7 +19,7 @@ LOGGING (com.opengamma.language.service.SettingsTest);
 	PRINT (_key_); \
 	ASSERT (settings.Get##_key_());
 
-static void Defaults () {
+static void InternalDefaults () {
 	CSettings settings;
 	PRINT_AND_ASSERT (AnnotationCache);
 	PRINT_AND_ASSERT (BusyTimeout);
@@ -35,6 +35,39 @@ static void Defaults () {
 #endif /* ifdef _WIN32 */
 }
 
+#undef PRINT
+#define PRINT(_key_) \
+	LOGINFO (TEXT (#_key) TEXT (" = ") << _key_ ());
+
+#undef PRINT_AND_ASSERT
+#define PRINT_AND_ASSERT(_key_) \
+	PRINT (_key_); \
+	ASSERT (_key_ ());
+
+static void PublicDefaults () {
+	PRINT_AND_ASSERT (ServiceDefaultConnectionPipe ());
+	PRINT_AND_ASSERT (ServiceDefaultServiceName ());
+}
+
+static void PublicCommandHelpers () {
+	TCHAR *psz = ServiceCreateStartCmd ("og-language");
+	if (psz) {
+		LOGINFO (TEXT ("startCmd = ") << psz);
+		free (psz);
+	} else {
+		LOGINFO (TEXT ("no default start command"));
+	}
+	psz = ServiceCreateStopCmd ("og-language");
+	if (psz) {
+		LOGINFO (TEXT ("stopCmd = ") << psz);
+		free (psz);
+	} else {
+		LOGINFO (TEXT ("no default stop command"));
+	}
+}
+
 BEGIN_TESTS (ServiceSettingsTest)
-	TEST (Defaults);
+	TEST (InternalDefaults);
+	TEST (PublicDefaults);
+	TEST (PublicCommandHelpers);
 END_TESTS
