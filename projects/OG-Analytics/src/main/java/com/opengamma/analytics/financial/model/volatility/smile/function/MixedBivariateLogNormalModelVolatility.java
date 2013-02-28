@@ -11,6 +11,7 @@ import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.E
 import com.opengamma.util.ArgumentChecker;
 
 /**
+ * Data container for mixed bivariate log-normal model, where data for X,Y are reordered such that sigmasZ are appropriately ordered
  * Derive volatility smile of a mixed log-normal model with mixed normal variable Z = X-Y under the assumption that X, Y are mixed bivariate normal variables. 
  * Here all of the parameters of X,Y and their correlations are input parameters.
  */
@@ -25,9 +26,7 @@ public class MixedBivariateLogNormalModelVolatility {
   private double[] _relativePartialForwardsY;
   private double[] _rhos;
 
-  private double _driftCorrection;
-
-  private int _nNormals;
+  private final double _driftCorrection;
 
   /**
    * Set up mixed log-normal models with mixed normal variables X, Y and another mixed log-normal model with Z = X-Y
@@ -37,21 +36,39 @@ public class MixedBivariateLogNormalModelVolatility {
    * @param rhos The correlation between distributions of X and Y
    */
   public MixedBivariateLogNormalModelVolatility(final double[] weights, final double[] sigmasX, final double[] sigmasY, final double[] rhos) {
+    ArgumentChecker.notNull(weights, "weights is Null");
+    ArgumentChecker.notNull(sigmasX, "sigmasX is Null");
+    ArgumentChecker.notNull(sigmasY, "sigmasY is Null");
+    ArgumentChecker.notNull(rhos, "rhos is Null");
+
     ArgumentChecker.isTrue(sigmasX.length == sigmasY.length, "sigmasX must be the same length as sigmasY");
     ArgumentChecker.isTrue(sigmasX.length == rhos.length, "sigmasX must be the same length as rhos");
+    ArgumentChecker.isTrue(sigmasX.length == weights.length, "sigmasX must be the same length as weights");
 
-    _nNormals = sigmasX.length;
-    _relativePartialForwardsX = new double[_nNormals];
-    _relativePartialForwardsY = new double[_nNormals];
+    final int nNormals = sigmasX.length;
+
+    for (int i = 0; i < nNormals; ++i) {
+      ArgumentChecker.isFalse(Double.isNaN(weights[i]), "weights containing NaN");
+      ArgumentChecker.isFalse(Double.isInfinite(weights[i]), "weights containing Infinity");
+      ArgumentChecker.isFalse(Double.isNaN(sigmasX[i]), "sigmasX containing NaN");
+      ArgumentChecker.isFalse(Double.isInfinite(sigmasX[i]), "sigmasX containing Infinity");
+      ArgumentChecker.isFalse(Double.isNaN(sigmasY[i]), "sigmasY containing NaN");
+      ArgumentChecker.isFalse(Double.isInfinite(sigmasY[i]), "sigmasY containing Infinity");
+      ArgumentChecker.isFalse(Double.isNaN(rhos[i]), "rhos containing NaN");
+      ArgumentChecker.isFalse(Double.isInfinite(rhos[i]), "rhos containing Infinity");
+    }
+
+    _relativePartialForwardsX = new double[nNormals];
+    _relativePartialForwardsY = new double[nNormals];
     Arrays.fill(_relativePartialForwardsX, 1.);
     Arrays.fill(_relativePartialForwardsY, 1.);
 
-    _weights = new double[_nNormals];
-    _sigmasX = new double[_nNormals];
-    _sigmasY = new double[_nNormals];
-    _rhos = new double[_nNormals];
+    _weights = new double[nNormals];
+    _sigmasX = new double[nNormals];
+    _sigmasY = new double[nNormals];
+    _rhos = new double[nNormals];
 
-    for (int i = 0; i < _nNormals; ++i) {
+    for (int i = 0; i < nNormals; ++i) {
       _weights[i] = weights[i];
       _sigmasX[i] = sigmasX[i];
       _sigmasY[i] = sigmasY[i];
@@ -62,24 +79,17 @@ public class MixedBivariateLogNormalModelVolatility {
     double[] relativePartialForwards = getrelativePartialForwardZ(_relativePartialForwardsX, _relativePartialForwardsY, _sigmasX, _sigmasY, _rhos);
     _driftCorrection = getDriftCorrectionZ(_weights, _relativePartialForwardsX, _relativePartialForwardsY, _sigmasX, _sigmasY, _rhos);
 
-    for (int i = 0; i < _nNormals; ++i) {
+    for (int i = 0; i < nNormals; ++i) {
       relativePartialForwards[i] *= _driftCorrection;
-    }
-
-    //Avoid negative sigmas
-    for (int i = 0; i < _nNormals; ++i) {
-      if (sigmas[i] <= 0.) {
-        sigmas[i] = 1e-5;
-      }
     }
 
     int j = 0;
     double tmpSigmas = 0;
     double tmpWeights = 0;
     double tmpRelativePartialForwards = 0;
-    for (int i = 0; i < _nNormals; ++i) {
+    for (int i = 0; i < nNormals; ++i) {
       j = i;
-      for (int k = i; k < _nNormals; ++k) {
+      for (int k = i; k < nNormals; ++k) {
         if (sigmas[j] > sigmas[k]) {
           j = k;
         }
@@ -126,21 +136,45 @@ public class MixedBivariateLogNormalModelVolatility {
   public MixedBivariateLogNormalModelVolatility(final double[] weights, final double[] sigmasX, final double[] sigmasY, final double[] relativePartialForwardsX,
       final double[] relativePartialForwardsY,
       final double[] rhos) {
+
+    ArgumentChecker.notNull(weights, "weights is Null");
+    ArgumentChecker.notNull(sigmasX, "sigmasX is Null");
+    ArgumentChecker.notNull(sigmasY, "sigmasY is Null");
+    ArgumentChecker.notNull(relativePartialForwardsX, "relativePartialForwardsX is Null");
+    ArgumentChecker.notNull(relativePartialForwardsY, "relativePartialForwardsY is Null");
+    ArgumentChecker.notNull(rhos, "rhos is Null");
+
     ArgumentChecker.isTrue(sigmasX.length == sigmasY.length, "sigmasX must be the same length as sigmasY");
     ArgumentChecker.isTrue(sigmasX.length == rhos.length, "sigmasX must be the same length as rhos");
-    ArgumentChecker.isTrue(relativePartialForwardsX.length == relativePartialForwardsY.length, "relativePartialForwardsX must be the same length as relativePartialForwardsY");
-    ArgumentChecker.isTrue(relativePartialForwardsX.length == rhos.length, "relativePartialForwardsX must be the same length as rhos");
+    ArgumentChecker.isTrue(sigmasX.length == weights.length, "sigmasX must be the same length as weights");
+    ArgumentChecker.isTrue(sigmasX.length == relativePartialForwardsX.length, "sigmasX must be the same length as relativePartialForwardsX");
+    ArgumentChecker.isTrue(sigmasX.length == relativePartialForwardsY.length, "sigmasX must be the same length as relativePartialForwardsY");
 
-    _nNormals = sigmasX.length;
+    final int nNormals = sigmasX.length;
 
-    _weights = new double[_nNormals];
-    _sigmasX = new double[_nNormals];
-    _sigmasY = new double[_nNormals];
-    _relativePartialForwardsX = new double[_nNormals];
-    _relativePartialForwardsY = new double[_nNormals];
-    _rhos = new double[_nNormals];
+    for (int i = 0; i < nNormals; ++i) {
+      ArgumentChecker.isFalse(Double.isNaN(weights[i]), "weights containing NaN");
+      ArgumentChecker.isFalse(Double.isInfinite(weights[i]), "weights containing Infinity");
+      ArgumentChecker.isFalse(Double.isNaN(sigmasX[i]), "sigmasX containing NaN");
+      ArgumentChecker.isFalse(Double.isInfinite(sigmasX[i]), "sigmasX containing Infinity");
+      ArgumentChecker.isFalse(Double.isNaN(sigmasY[i]), "sigmasY containing NaN");
+      ArgumentChecker.isFalse(Double.isInfinite(sigmasY[i]), "sigmasY containing Infinity");
+      ArgumentChecker.isFalse(Double.isNaN(relativePartialForwardsX[i]), "relativePartialForwardsX containing NaN");
+      ArgumentChecker.isFalse(Double.isInfinite(relativePartialForwardsX[i]), "relativePartialForwardsX containing Infinity");
+      ArgumentChecker.isFalse(Double.isNaN(relativePartialForwardsY[i]), "relativePartialForwardsY containing NaN");
+      ArgumentChecker.isFalse(Double.isInfinite(relativePartialForwardsY[i]), "relativePartialForwardsY containing Infinity");
+      ArgumentChecker.isFalse(Double.isNaN(rhos[i]), "rhos containing NaN");
+      ArgumentChecker.isFalse(Double.isInfinite(rhos[i]), "rhos containing Infinity");
+    }
 
-    for (int i = 0; i < _nNormals; ++i) {
+    _weights = new double[nNormals];
+    _sigmasX = new double[nNormals];
+    _sigmasY = new double[nNormals];
+    _relativePartialForwardsX = new double[nNormals];
+    _relativePartialForwardsY = new double[nNormals];
+    _rhos = new double[nNormals];
+
+    for (int i = 0; i < nNormals; ++i) {
       _weights[i] = weights[i];
       _sigmasX[i] = sigmasX[i];
       _sigmasY[i] = sigmasY[i];
@@ -154,7 +188,7 @@ public class MixedBivariateLogNormalModelVolatility {
     double[] sigmas = getVolatilityZ(_sigmasX, _sigmasY, _rhos);
     double[] relativePartialForwards = getrelativePartialForwardZ(_relativePartialForwardsX, _relativePartialForwardsY, _sigmasX, _sigmasY, _rhos);
 
-    for (int i = 0; i < _nNormals; ++i) {
+    for (int i = 0; i < nNormals; ++i) {
       relativePartialForwards[i] *= _driftCorrection;
     }
 
@@ -164,9 +198,9 @@ public class MixedBivariateLogNormalModelVolatility {
     double tmpSigmas = 0;
     double tmpWeights = 0;
     double tmpRelativePartialForwards = 0;
-    for (int i = 0; i < _nNormals; ++i) {
+    for (int i = 0; i < nNormals; ++i) {
       j = i;
-      for (int k = i; k < _nNormals; ++k) {
+      for (int k = i; k < nNormals; ++k) {
         if (sigmas[j] > sigmas[k]) {
           j = k;
         }
@@ -247,12 +281,17 @@ public class MixedBivariateLogNormalModelVolatility {
   }
 
   /**
-   * @return exp(-(driftCorrection)) where rpf_i -> rpf_i * exp(-(driftCorrection)) for all i
+   * Access drift correction
+   * @return _driftCorrection
    */
   public double getInvExpDriftCorrection() {
     return _driftCorrection;
   }
 
+  /**
+   * Access weights ordered in terms of sigmasZ
+   * @return weights
+   */
   public double[] getOrderedWeights() {
     return _data.getWeights();
   }
@@ -264,6 +303,10 @@ public class MixedBivariateLogNormalModelVolatility {
     return _data.getVolatilities();
   }
 
+  /**
+   * Access relativeForwardsZ
+   * @return relativeForwardsZ
+   */
   public double[] getRelativeForwardsZ() {
     return _data.getRelativeForwards();
   }
@@ -278,23 +321,45 @@ public class MixedBivariateLogNormalModelVolatility {
     return volfunc.getVolatility(option, forward, _data);
   }
 
+  /**
+   * Call price for Z, used for checking call-put parity
+   * @param option 
+   * @param forward 
+   * @return call price  
+   */
   public double getPriceZ(final EuropeanVanillaOption option, final double forward) {
     final MixedLogNormalVolatilityFunction volfunc = MixedLogNormalVolatilityFunction.getInstance();
     return volfunc.getPrice(option, forward, _data);
   }
 
+  /**
+   * Access sigmasX reordered in terms of sigmasZ
+   * @return sigmasX
+   */
   public double[] getOrderedSigmasX() {
     return _sigmasX;
   }
 
+  /**
+   * Access sigmasY reordered in terms of sigmasZ
+   * @return sigmasY
+   */
   public double[] getOrderedSigmasY() {
     return _sigmasY;
   }
 
+  /**
+   * Access relativePartialForwardsX reordered in terms of sigmasZ
+   * @return relativePartialForwardsX
+   */
   public double[] getOrderedRelativePartialForwardsX() {
     return _relativePartialForwardsX;
   }
 
+  /**
+   * Access relativePartialForwardsY reordered in terms of sigmasZ
+   * @return relativePartialForwardsY
+   */
   public double[] getOrderedRelativePartialForwardsY() {
     return _relativePartialForwardsY;
   }
