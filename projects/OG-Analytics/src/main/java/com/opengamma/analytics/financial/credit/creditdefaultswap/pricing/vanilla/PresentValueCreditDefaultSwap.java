@@ -146,7 +146,7 @@ public class PresentValueCreditDefaultSwap {
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Determine where in the cashflow schedule the valuationDate is
-    final int startCashflowIndex = getCashflowIndex(valuationDate, premiumLegSchedule, 1, 1);
+    //final int startCashflowIndex = getCashflowIndex(valuationDate, premiumLegSchedule, 1, 1);
 
     ZonedDateTime today = valuationDate;
     ZonedDateTime stepinDate = cds.getEffectiveDate();
@@ -279,8 +279,35 @@ public class PresentValueCreditDefaultSwap {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
+    // TODO : Check this calculation - maybe move it out of this routine and into the PV calculation routine?
+    // TODO : Note the cash settlement date is hardcoded at 3 days
+    final double tSett = TimeCalculator.getTimeBetween(valuationDate, valuationDate.plusDays(3));
+    final double valueDatePV = yieldCurve.getDiscountFactor(tSett);
+
+    presentValuePremiumLeg /= valueDatePV;
+
+    // ----------------------------------------------------------------------------------------------------------------------------------------
+
     if (priceType == PriceType.CLEAN) {
 
+      // pass in stepinDate as 'today' 31/1/2013
+
+      double ai = 0.0;
+
+      // TODO : Maybe check if stepinDate is in range [startDate, maturityDate] - probably not necessary
+
+      final int startCashflowIndex = getCashflowIndex(stepinDate, premiumLegSchedule, 0, 1);
+
+      // Get the date of the last coupon before the current valuation date
+      final ZonedDateTime previousPeriod = premiumLegSchedule[startCashflowIndex - 1];
+
+      // Compute the amount of time between previousPeriod and stepinDate
+      final double dcf = cds.getDayCountFractionConvention().getDayCountFraction(previousPeriod, stepinDate);
+
+      // Calculate the accrued interest gained in this period of time
+      ai = /*(cds.getParSpread() / 10000.0) * */dcf;
+
+      presentValuePremiumLeg -= ai;
     }
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -370,12 +397,7 @@ public class PresentValueCreditDefaultSwap {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
-    // TODO : Check this calculation - maybe move it out of this routine and into the PV calculation routine?
-    // TODO : Note the cash settlement date is hardcoded at 3 days
-    final double tSett = TimeCalculator.getTimeBetween(valuationDate, valuationDate.plusDays(3));
-    final double valueDatePV = yieldCurve.getDiscountFactor(tSett);
-
-    return cds.getNotional() * (presentValuePremiumLeg + presentValueAccruedInterest) / valueDatePV;
+    return cds.getNotional() * presentValuePremiumLeg;
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
   }

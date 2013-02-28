@@ -33,6 +33,7 @@ import com.opengamma.analytics.financial.credit.obligor.Region;
 import com.opengamma.analytics.financial.credit.obligor.Sector;
 import com.opengamma.analytics.financial.credit.obligor.definition.Obligor;
 import com.opengamma.analytics.financial.credit.schedulegeneration.GenerateCreditDefaultSwapPremiumLegSchedule;
+import com.opengamma.analytics.financial.interestrate.PeriodicInterestRate;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -144,7 +145,7 @@ public class RMGridTest {
   private static final double notional = 1000000.0;
   private static final double recoveryRate = 0.25;
   private static final boolean includeAccruedPremium = true;
-  private static final PriceType priceType = PriceType.DIRTY;
+  private static final PriceType priceType = PriceType.CLEAN;
   private static final boolean protectionStart = true;
 
   private static final double parSpread = 100.0;
@@ -277,7 +278,7 @@ public class RMGridTest {
 
   // ----------------------------------------------------------------------------------
 
-  private static final ZonedDateTime baseDate = valuationDate.plusDays(1); //zdt(2013, 1, 31, 0, 0, 0, 0, ZoneOffset.UTC);
+  private static final ZonedDateTime baseDate = valuationDate; //.plusDays(1); //zdt(2013, 1, 31, 0, 0, 0, 0, ZoneOffset.UTC);
 
   /*
   double[] times = {
@@ -413,6 +414,7 @@ public class RMGridTest {
       s_act365.getDayCountFraction(baseDate, yieldCurveDates[5])      // 1Y
   };
   */
+
   /*
   // 10/6/2013
   double[] times = {
@@ -446,9 +448,8 @@ public class RMGridTest {
   };
   */
 
-  double[] rates = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+  //double[] rates = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 
-  /*
   private static final double[] rates = {
       (new PeriodicInterestRate(0.002017, 1)).toContinuous().getRate(),
       (new PeriodicInterestRate(0.002465, 1)).toContinuous().getRate(),
@@ -457,7 +458,6 @@ public class RMGridTest {
       (new PeriodicInterestRate(0.006428, 1)).toContinuous().getRate(),
       (new PeriodicInterestRate(0.007955, 1)).toContinuous().getRate()
   };
-  */
 
   ISDADateCurve yieldCurve = new ISDADateCurve("IR_CURVE", yieldCurveDates, yieldCurveTimes, rates, s_act365.getDayCountFraction(valuationDate, baseDate));
 
@@ -599,6 +599,48 @@ public class RMGridTest {
   // ----------------------------------------------------------------------------------
 
   //@Test
+  public void testGenerateDates() {
+
+    ZonedDateTime[] testDates = {
+        baseDate.plusMonths(1),
+        baseDate.plusMonths(2),
+        baseDate.plusMonths(3),
+        baseDate.plusMonths(6),
+        baseDate.plusMonths(9),
+        baseDate.plusMonths(12) };
+
+    final int nInstr = testDates.length;
+
+    final ZonedDateTime[] bdaTestDates = new ZonedDateTime[nInstr];
+
+    final ZonedDateTime curveBaseDate = valuationDate;
+
+    //System.out.println(baseDate);
+
+    for (int i = 0; i < testDates.length; i++) {
+      //System.out.println(testDates[i]);
+    }
+
+    //System.out.println();
+
+    final BusinessDayConvention conv = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("MF");
+
+    GenerateCreditDefaultSwapPremiumLegSchedule schedule = new GenerateCreditDefaultSwapPremiumLegSchedule();
+
+    for (int i = 0; i < testDates.length; i++) {
+      bdaTestDates[i] = schedule.businessDayAdjustDate(testDates[i], calendar, conv);
+    }
+
+    //System.out.println(baseDate);
+
+    for (int i = 0; i < testDates.length; i++) {
+      //System.out.println(bdaTestDates[i]);
+    }
+  }
+
+  // ----------------------------------------------------------------------------------
+
+  //@Test
   public void testDiscountFactors() {
 
     for (long i = 0; i < 3000; i++)
@@ -613,7 +655,7 @@ public class RMGridTest {
 
   // ----------------------------------------------------------------------------------
 
-  @Test
+  //@Test
   public void testPVCalculation() {
 
     if (outputResults) {
@@ -704,7 +746,7 @@ public class RMGridTest {
 
   // ----------------------------------------------------------------------------------
 
-  //@Test
+  @Test
   public void testRMGrid() {
 
     if (outputResults) {
@@ -732,7 +774,7 @@ public class RMGridTest {
 
     // The type of spread bump to apply
     //final SpreadBumpType spreadBumpType = SpreadBumpType.ADDITIVE_BUCKETED;
-    final SpreadBumpType spreadBumpType = SpreadBumpType.ADDITIVE_PARALLEL;
+    //final SpreadBumpType spreadBumpType = SpreadBumpType.ADDITIVE_PARALLEL;
 
     // The magnitude (but not direction) of bump to apply (in bps)
     final double spreadBump = 1.0;
@@ -787,15 +829,15 @@ public class RMGridTest {
       rollingCDS = rollingCDS.withMaturityDate(bdaMaturities[i]);
 
       // Compute the bucketed CS01 for this CDS
-      //final double bucketedCS01[] = cs01.getCS01BucketedCreditDefaultSwap(valuationDate, rollingCDS, yieldCurve, tenors, marketSpreads, spreadBump, spreadBumpType, priceType);
+      final double bucketedCS01[] = cs01.getCS01BucketedCreditDefaultSwap(valuationDate, rollingCDS, yieldCurve, tenors, marketSpreads, spreadBump, SpreadBumpType.ADDITIVE_BUCKETED, priceType);
 
       // Compute the parallel CS01 for this CDS
-      final double parallelCS01 = cs01.getCS01ParallelShiftCreditDefaultSwap(valuationDate, rollingCDS, yieldCurve, tenors, marketSpreads, spreadBump, spreadBumpType, priceType);
+      final double parallelCS01 = cs01.getCS01ParallelShiftCreditDefaultSwap(valuationDate, rollingCDS, yieldCurve, tenors, marketSpreads, spreadBump, SpreadBumpType.ADDITIVE_PARALLEL, priceType);
 
       // Output grid
       if (outputResults) {
 
-        // System.out.print(marketSpreads[0] + "\t" + bdaMaturities[i] + "\t");
+        //System.out.print(marketSpreads[0] + "\t" + bdaMaturities[i] + "\t");
 
         //System.out.println(marketSpreads[0] + "\t" + bdaMaturities[i] + "\t" + parallelCS01);
 
