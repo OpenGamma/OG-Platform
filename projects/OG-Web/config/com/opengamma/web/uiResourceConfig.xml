@@ -441,6 +441,7 @@
     <fragment>/scripts/og/views/og.views.holidays.js</fragment>
     <fragment>/scripts/og/views/og.views.regions.js</fragment>
     <fragment>/scripts/og/views/og.views.configs.js</fragment>
+    <bundle idref="blotter.js" />
   </bundle>
   <bundle id="ie.js">
     <fragment>/scripts/lib/excanvas.js</fragment>

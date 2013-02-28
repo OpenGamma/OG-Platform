@@ -261,6 +261,14 @@ $.register_module({
             });
         };
         action.edit = function (trade_id) {
+                og.api.rest.blotter.trades.get({id: 'DbPos~' + trade_id}).pipe(function (data) {
+                new og.blotter.Dialog({
+                    details: data, portfolio:{name: 11, id: 11},
+                    handler: function (data) {return og.api.rest.blotter.trades.put(data);}
+                });
+            });
+            
+            /*
             var handler = function (result) {
                 var trade_obj;
                 if (result.error) return alert(result.message);
@@ -279,6 +287,7 @@ $.register_module({
                 });
             };
             api.rest.positions.get({dependencies: dependencies, id: template_data.object_id, handler: handler});
+            */
         };
         action.put = function (trades) {
             api.rest.positions.put({
