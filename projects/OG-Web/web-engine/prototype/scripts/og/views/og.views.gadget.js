@@ -10,7 +10,7 @@ $.register_module({
             gadgets = common.gadgets, content = '.OG-gadget-container', $content = $(content);
         return view = {
             init: function () {
-                for (var rule in view.rules) 
+                for (var rule in view.rules)
                     routes.add(view.rules[rule]);
             },
             block: function (args) {
@@ -45,9 +45,6 @@ $.register_module({
                 $content.html('<section></section>');
                 new gadgets.SecuritiesIdentifiers({id: args.id, selector: '#gadget_content section'});
             },
-            textgadget: function (args) {
-                new gadgets.Text({"foo":"bar"});
-            },
             timeseries: function (args) {
                 var options = {selector: '.OG-timeseries-container', datapoints_link: false};
                 $content.html('<section class="' + options.selector.substring(1) + '"></section>');
@@ -63,7 +60,6 @@ $.register_module({
                 grid: {route: '/grid/:data', method: module.name + '.grid'},
                 positions: {route: '/positions/:id/trades:?', method: module.name + '.positions'},
                 securities: {route: '/securities/:id', method: module.name + '.securities'},
-                textgadget: {route: '/textgadget', method: module.name  + '.textgadget'},
                 timeseries: {route: '/timeseries/id:?/key:?', method: module.name + '.timeseries'}
             }
         }
