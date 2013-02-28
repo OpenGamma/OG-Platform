@@ -9,6 +9,8 @@ import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.F
 import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.ISDA_EXTRAPOLATOR;
 import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.ISDA_INTERPOLATOR;
 
+import org.threeten.bp.ZonedDateTime;
+
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.curve.DoublesCurve;
@@ -22,6 +24,7 @@ import com.opengamma.util.ArgumentChecker;
  * Partially adopted from the RiskCare implementation of the ISDA model
  */
 public class HazardRateCurve {
+
   private static final CombinedInterpolatorExtrapolator INTERPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(ISDA_INTERPOLATOR, FLAT_EXTRAPOLATOR, ISDA_EXTRAPOLATOR);
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -36,13 +39,17 @@ public class HazardRateCurve {
 
   private final double[] _shiftedTimePoints;
 
+  private final ZonedDateTime[] _curveTenors;
+
   private final double _zeroDiscountFactor;
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  public HazardRateCurve(final double[] xData, final double[] yData, final double offset) {
+  public HazardRateCurve(final ZonedDateTime[] curveTenors, final double[] xData, final double[] yData, final double offset) {
 
     _offset = offset;
+
+    _curveTenors = curveTenors;
 
     // Choose interpolation/extrapolation to match the behaviour of curves in the ISDA CDS reference code
     if (xData.length > 1) {
@@ -66,12 +73,12 @@ public class HazardRateCurve {
 
   // Builder method to build a new SurvivalCurve object given the tenor and hazard rate inputs
 
-  public HazardRateCurve bootstrapHelperHazardRateCurve(final double[] tenorsAsDoubles, final double[] hazardRates) {
+  public HazardRateCurve bootstrapHelperHazardRateCurve(final ZonedDateTime[] curveTenors, final double[] tenorsAsDoubles, final double[] hazardRates) {
 
     ArgumentChecker.notNull(tenorsAsDoubles, "Tenors as doubles field");
     ArgumentChecker.notNull(hazardRates, "Hazard rates field");
 
-    final HazardRateCurve modifiedHazardRateCurve = new HazardRateCurve(tenorsAsDoubles, hazardRates, 0.0);
+    final HazardRateCurve modifiedHazardRateCurve = new HazardRateCurve(curveTenors, tenorsAsDoubles, hazardRates, 0.0);
 
     return modifiedHazardRateCurve;
   }
@@ -84,6 +91,10 @@ public class HazardRateCurve {
 
   public DoublesCurve getCurve() {
     return _curve;
+  }
+
+  public ZonedDateTime[] getCurveTenors() {
+    return _curveTenors;
   }
 
   public double[] getShiftedTimePoints() {

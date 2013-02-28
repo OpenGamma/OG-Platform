@@ -11,14 +11,16 @@ import java.math.BigDecimal;
  * 
  */
 public abstract class BigDecimalObjectTimeSeriesTest<DATE_TYPE> extends ObjectTimeSeriesTest<DATE_TYPE, BigDecimal> {
+
   @Override
-  public BigDecimal[] testValues() {
+  protected BigDecimal[] testValues() {
     return new BigDecimal[] { BigDecimal.valueOf(1), BigDecimal.valueOf(2), BigDecimal.valueOf(3), BigDecimal.valueOf(4),
                               BigDecimal.valueOf(5), BigDecimal.valueOf(6) };
   }
     
   @Override
-  public BigDecimal[] emptyValues() {
+  protected BigDecimal[] emptyValues() {
     return new BigDecimal[] {};
   };
+
 }

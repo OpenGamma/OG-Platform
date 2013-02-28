@@ -143,7 +143,7 @@ $.register_module({
                             !!(prim_struct.data[ROOT] && prim_struct.data[ROOT].length ? prim_struct.data[ROOT][1] + 1
                                 : prim_struct.data[ROWS]);
                     if (!grid_type) grid_type = portfolio ? 'portfolio' : primitives ? 'primitives' : grid_type;
-                    if (!config.pool) source.type = grid_type; // keep parent connections' sources immutable
+                    if (data.parent) source.type = grid_type; // keep parent connections' sources immutable
                     api.grid.structure
                         .get({dry: true, view_id: view_id, grid_type: grid_type, update: structure_setup});
                     structure_handler(grid_type === 'portfolio' ? port_struct : prim_struct);

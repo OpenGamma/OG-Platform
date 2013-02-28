@@ -39,9 +39,9 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.money.Currency;
 
 /**
- * Test the {@link CurrencyMatrixSourcingFunction}.
+ * Test the {@link CurrencyMatrixSpotSourcingFunction}.
  */
-public class CurrencyMatrixSourcingFunctionTest {
+public class CurrencyMatrixSpotSourcingFunctionTest {
 
   private final Currency _currencyUSD = Currency.USD;
   private final Currency _currencyGBP = Currency.GBP;
@@ -50,7 +50,7 @@ public class CurrencyMatrixSourcingFunctionTest {
   private final double _rateEUR_GBP = 1.1;
   private FunctionExecutionContext _functionExecutionContext;
   private FunctionCompilationContext _functionCompilationContext;
-  private CurrencyMatrixSourcingFunction _function;
+  private CurrencyMatrixSpotSourcingFunction _function;
 
   @BeforeMethod
   public void setupContexts() {
@@ -67,7 +67,7 @@ public class CurrencyMatrixSourcingFunctionTest {
         return matrix;
       }
     });
-    _function = new CurrencyMatrixSourcingFunction("Foo");
+    _function = new CurrencyMatrixSpotSourcingFunction("Foo");
     _function.setUniqueId("currencyMatrixSourcing");
     _function.init(_functionCompilationContext);
   }
@@ -75,17 +75,17 @@ public class CurrencyMatrixSourcingFunctionTest {
   @Test
   public void testCanApplyTo() {
     assertTrue(_function.canApplyTo(_functionCompilationContext, new ComputationTarget(ComputationTargetType.PRIMITIVE, UniqueId.of(
-        CurrencyMatrixSourcingFunction.TARGET_IDENTIFIER_SCHEME, "USDGBP"))));
+        AbstractCurrencyMatrixSourcingFunction.TARGET_IDENTIFIER_SCHEME, "USDGBP"))));
     assertTrue(_function.canApplyTo(_functionCompilationContext, new ComputationTarget(ComputationTargetType.PRIMITIVE, UniqueId.of(
-        CurrencyMatrixSourcingFunction.TARGET_IDENTIFIER_SCHEME, "GBPUSD"))));
+        AbstractCurrencyMatrixSourcingFunction.TARGET_IDENTIFIER_SCHEME, "GBPUSD"))));
     assertFalse(_function.canApplyTo(_functionCompilationContext, new ComputationTarget(ComputationTargetType.PRIMITIVE, UniqueId.of(
-        CurrencyMatrixSourcingFunction.TARGET_IDENTIFIER_SCHEME, "USD_EUR"))));
+        AbstractCurrencyMatrixSourcingFunction.TARGET_IDENTIFIER_SCHEME, "USD_EUR"))));
     assertFalse(_function.canApplyTo(_functionCompilationContext, new ComputationTarget(ComputationTargetType.PRIMITIVE, UniqueId.of("Invalid Scheme", "EURUSD"))));
   }
 
   @Test
   public void testGetResults() {
-    final ComputationTarget ct = new ComputationTarget(ComputationTargetType.PRIMITIVE, UniqueId.of(CurrencyMatrixSourcingFunction.TARGET_IDENTIFIER_SCHEME, "USDEUR"));
+    final ComputationTarget ct = new ComputationTarget(ComputationTargetType.PRIMITIVE, UniqueId.of(AbstractCurrencyMatrixSourcingFunction.TARGET_IDENTIFIER_SCHEME, "USDEUR"));
     final Set<ValueSpecification> results = _function.getResults(_functionCompilationContext, ct);
     assertEquals(1, results.size());
     final ValueSpecification result = results.iterator().next();
@@ -99,7 +99,7 @@ public class CurrencyMatrixSourcingFunctionTest {
     final ComputationTargetSpecificationResolver resolver = new DefaultComputationTargetSpecificationResolver();
 
     // Require value the "right" way up
-    ComputationTarget outTarget = new ComputationTarget(ComputationTargetType.PRIMITIVE, UniqueId.of(CurrencyMatrixSourcingFunction.TARGET_IDENTIFIER_SCHEME, "USDGBP"));
+    ComputationTarget outTarget = new ComputationTarget(ComputationTargetType.PRIMITIVE, UniqueId.of(AbstractCurrencyMatrixSourcingFunction.TARGET_IDENTIFIER_SCHEME, "USDGBP"));
     // [PLAT-2290] Execute should be taking a ValueSpecification, getRequirements should be taking a ValueRequirement
     ValueRequirement outRequirement = new ValueRequirement(ValueRequirementNames.SPOT_RATE, outTarget.toSpecification(), ValueProperties.with(ValuePropertyNames.FUNCTION, "CMSF").get());
     Set<ValueRequirement> inRequirements = _function.getRequirements(_functionCompilationContext, outTarget, outRequirement);
@@ -115,7 +115,7 @@ public class CurrencyMatrixSourcingFunctionTest {
     assertEquals(_rateUSD_GBP, (Double) output.getValue(), Double.MIN_NORMAL);
 
     // Require value the "wrong" way up
-    outTarget = new ComputationTarget(ComputationTargetType.PRIMITIVE, UniqueId.of(CurrencyMatrixSourcingFunction.TARGET_IDENTIFIER_SCHEME, "GBPUSD"));
+    outTarget = new ComputationTarget(ComputationTargetType.PRIMITIVE, UniqueId.of(AbstractCurrencyMatrixSourcingFunction.TARGET_IDENTIFIER_SCHEME, "GBPUSD"));
     // [PLAT-2290] Execute should be taking a ValueSpecification, getRequirements should be taking a ValueRequirement
     outRequirement = new ValueRequirement(ValueRequirementNames.SPOT_RATE, outTarget.toSpecification(), ValueProperties.with(ValuePropertyNames.FUNCTION, "CMSF").get());
     inRequirements = _function.getRequirements(_functionCompilationContext, outTarget, outRequirement);
@@ -131,7 +131,7 @@ public class CurrencyMatrixSourcingFunctionTest {
     assertEquals(1.0 / _rateUSD_GBP, (Double) output.getValue(), Double.MIN_NORMAL);
 
     // Require no additional live data
-    outTarget = new ComputationTarget(ComputationTargetType.PRIMITIVE, UniqueId.of(CurrencyMatrixSourcingFunction.TARGET_IDENTIFIER_SCHEME, "GBPEUR"));
+    outTarget = new ComputationTarget(ComputationTargetType.PRIMITIVE, UniqueId.of(AbstractCurrencyMatrixSourcingFunction.TARGET_IDENTIFIER_SCHEME, "GBPEUR"));
     // [PLAT-2290] Execute should be taking a ValueSpecification, getRequirements should be taking a ValueRequirement
     outRequirement = new ValueRequirement(ValueRequirementNames.SPOT_RATE, outTarget.toSpecification(), ValueProperties.with(ValuePropertyNames.FUNCTION, "CMSF").get());
     inRequirements = _function.getRequirements(_functionCompilationContext, outTarget, outRequirement);
@@ -143,7 +143,7 @@ public class CurrencyMatrixSourcingFunctionTest {
     assertEquals(1.0 / _rateEUR_GBP, (Double) output.getValue(), Double.MIN_NORMAL);
 
     // Require intermediate value
-    outTarget = new ComputationTarget(ComputationTargetType.PRIMITIVE, UniqueId.of(CurrencyMatrixSourcingFunction.TARGET_IDENTIFIER_SCHEME, "EURUSD"));
+    outTarget = new ComputationTarget(ComputationTargetType.PRIMITIVE, UniqueId.of(AbstractCurrencyMatrixSourcingFunction.TARGET_IDENTIFIER_SCHEME, "EURUSD"));
     // [PLAT-2290] Execute should be taking a ValueSpecification, getRequirements should be taking a ValueRequirement
     outRequirement = new ValueRequirement(ValueRequirementNames.SPOT_RATE, outTarget.toSpecification(), ValueProperties.with(ValuePropertyNames.FUNCTION, "CMSF").get());
     inRequirements = _function.getRequirements(_functionCompilationContext, outTarget, outRequirement);

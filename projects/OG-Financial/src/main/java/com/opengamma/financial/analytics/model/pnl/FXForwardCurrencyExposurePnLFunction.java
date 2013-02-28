@@ -22,7 +22,6 @@ import com.opengamma.analytics.financial.schedule.TimeSeriesSamplingFunction;
 import com.opengamma.analytics.financial.schedule.TimeSeriesSamplingFunctionFactory;
 import com.opengamma.analytics.financial.timeseries.util.TimeSeriesDifferenceOperator;
 import com.opengamma.core.config.ConfigSource;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
@@ -44,7 +43,7 @@ import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.currency.ConfigDBCurrencyPairsSource;
-import com.opengamma.financial.currency.CurrencyMatrixSourcingFunction;
+import com.opengamma.financial.currency.CurrencyMatrixSeriesSourcingFunction;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.currency.CurrencySeriesConversionFunction;
@@ -52,7 +51,6 @@ import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 
 /**
  *
@@ -184,9 +182,9 @@ public class FXForwardCurrencyExposurePnLFunction extends AbstractFunction.NonCo
     final CurrencyPair currencyPair = currencyPairs.getCurrencyPair(payCurrency, receiveCurrency);
     final ValueRequirement fxSpotRequirement;
     if (currencyPair.getBase().equals(payCurrency)) {
-      fxSpotRequirement = CurrencyMatrixSourcingFunction.getSeriesConversionRequirement(payCurrency, receiveCurrency);
+      fxSpotRequirement = CurrencyMatrixSeriesSourcingFunction.getConversionRequirement(payCurrency, receiveCurrency);
     } else {
-      fxSpotRequirement = CurrencyMatrixSourcingFunction.getSeriesConversionRequirement(receiveCurrency, payCurrency);
+      fxSpotRequirement = CurrencyMatrixSeriesSourcingFunction.getConversionRequirement(receiveCurrency, payCurrency);
     }
     return ImmutableSet.of(fxCurrencyExposureRequirement, fxSpotRequirement);
   }

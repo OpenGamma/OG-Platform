@@ -98,14 +98,12 @@ $.register_module({
            og.common.gadgets.manager.clean();
         };
         constructor.prototype.create_inplace = function (unique) {
-            var cellmenu = this, panel = 'inplace', options, cell = cellmenu.current, fingerprint,
+            var cellmenu = this, panel = 'inplace', options, cell = cellmenu.current,
                 offset = cellmenu.inplace.$dom.cntr.offset(), inner = cellmenu.inplace.$dom.menu;
             cellmenu.destroy_frozen();
             cellmenu.frozen = true;
             cellmenu.menu.addClass('og-frozen');
             options = mapping.options(cell, cellmenu.grid, panel);
-            fingerprint = JSON.stringify(options);
-            options.fingerprint = fingerprint;
             cellmenu.container.add([options]);
             cellmenu.container.on('launch', og.analytics.url.launch);
             if ((offset.top + inner.height()) > $(window).height())

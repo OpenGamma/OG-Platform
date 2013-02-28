@@ -61,7 +61,7 @@ import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunction
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.currency.ConfigDBCurrencyPairsSource;
-import com.opengamma.financial.currency.CurrencyMatrixSourcingFunction;
+import com.opengamma.financial.currency.CurrencyMatrixSeriesSourcingFunction;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.currency.CurrencySeriesConversionFunction;
@@ -258,9 +258,9 @@ public class FXForwardYieldCurveNodePnLFunction extends AbstractFunction.NonComp
     final CurrencyPair currencyPair = currencyPairs.getCurrencyPair(payCurrency, receiveCurrency);
     final ValueRequirement fxSpotRequirement;
     if (currencyPair.getBase().equals(payCurrency)) {
-      fxSpotRequirement = CurrencyMatrixSourcingFunction.getSeriesConversionRequirement(payCurrency, receiveCurrency);
+      fxSpotRequirement = CurrencyMatrixSeriesSourcingFunction.getConversionRequirement(payCurrency, receiveCurrency);
     } else {
-      fxSpotRequirement = CurrencyMatrixSourcingFunction.getSeriesConversionRequirement(receiveCurrency, payCurrency);
+      fxSpotRequirement = CurrencyMatrixSeriesSourcingFunction.getConversionRequirement(receiveCurrency, payCurrency);
     }
     final Set<ValueRequirement> requirements = new HashSet<>();
     requirements.add(payYCNSRequirement);

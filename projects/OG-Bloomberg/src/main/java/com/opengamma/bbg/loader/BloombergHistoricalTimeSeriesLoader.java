@@ -256,8 +256,11 @@ public class BloombergHistoricalTimeSeriesLoader extends AbstractHistoricalTimeS
               bundle.getExternalIds().iterator().next())).toString();
         info.setName(dataField + " " + idStr);
         info.setDataProvider(dataProvider);
-        String derivedObservationTime = BloombergDataUtils.resolveObservationTime(dataProvider);
-        info.setObservationTime(derivedObservationTime);
+        String resolvedObservationTime = BloombergDataUtils.resolveObservationTime(dataProvider);
+        if (resolvedObservationTime == null) {
+          throw new OpenGammaRuntimeException("Unable to resolve observation time from given dataProvider: " + dataProvider);
+        }
+        info.setObservationTime(resolvedObservationTime);
         
         // get time-series creating if necessary
         HistoricalTimeSeriesInfoSearchRequest request = new HistoricalTimeSeriesInfoSearchRequest();
