@@ -38,7 +38,7 @@ $.register_module({
             main: function (params) {
                 url.clear_main();
                 $(main_selector).html('requesting...');
-                return (last.main = params), go(), url;
+                return go($.extend({}, last, {main: params})), url;
             },
             process: function (args, handler) {
                 $.when(args.data ? og.api.rest.compressor.get({content: args.data, dependencies: ['data']}) : void 0)
