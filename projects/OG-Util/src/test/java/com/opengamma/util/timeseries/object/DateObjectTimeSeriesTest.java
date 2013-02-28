@@ -9,11 +9,12 @@ import java.util.Calendar;
 import java.util.Date;
 
 /**
- * 
+ * Test.
  */
 public abstract class DateObjectTimeSeriesTest extends BigDecimalObjectTimeSeriesTest<Date> {
+
   @Override
-  public Date[] testTimes() {
+  protected Date[] testTimes() {
     Calendar cal = Calendar.getInstance();
     cal.clear();
     cal.set(2010, 1, 8); // feb
@@ -32,7 +33,7 @@ public abstract class DateObjectTimeSeriesTest extends BigDecimalObjectTimeSerie
   }
 
   @Override
-  public Date[] testTimes2() {
+  protected Date[] testTimes2() {
     Calendar cal = Calendar.getInstance();
     cal.clear();
     cal.set(2010, 1, 11); // feb
@@ -51,9 +52,8 @@ public abstract class DateObjectTimeSeriesTest extends BigDecimalObjectTimeSerie
   } 
 
   @Override
-  public Date[] emptyTimes() {
+  protected Date[] emptyTimes() {
     return new Date[] {};
   }
- 
 
 }

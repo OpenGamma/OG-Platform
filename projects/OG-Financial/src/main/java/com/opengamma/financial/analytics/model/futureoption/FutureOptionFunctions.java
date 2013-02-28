@@ -204,6 +204,10 @@ public class FutureOptionFunctions extends AbstractRepositoryConfigurationBean {
     functions.add(functionConfiguration(EquityFutureOptionBlackVegaFunction.class));
     functions.add(functionConfiguration(EquityFutureOptionBlackValueDeltaFunction.class));
     functions.add(functionConfiguration(EquityFutureOptionBlackValueGammaFunction.class));
+    functions.add(functionConfiguration(EquityFutureOptionBAWPVFunction.class));
+    functions.add(functionConfiguration(EquityFutureOptionBAWGreeksFunction.class));
+    functions.add(functionConfiguration(EquityFutureOptionBAWValueDeltaFunction.class));
+    functions.add(functionConfiguration(EquityFutureOptionBAWValueGammaFunction.class));
   }
 
 }

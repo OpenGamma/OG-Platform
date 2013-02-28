@@ -24,13 +24,6 @@ import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.leg
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyRecoveryLockCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacySovereignCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.legacy.PresentValueLegacyFixedRecoveryCreditDefaultSwap;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.legacy.PresentValueLegacyForwardStartingCreditDefaultSwap;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.legacy.PresentValueLegacyMuniCreditDefaultSwap;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.legacy.PresentValueLegacyQuantoCreditDefaultSwap;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.legacy.PresentValueLegacyRecoveryLockCreditDefaultSwap;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.legacy.PresentValueLegacySovereignCreditDefaultSwap;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.legacy.PresentValueLegacyVanillaCreditDefaultSwap;
 import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.obligor.CreditRating;
 import com.opengamma.analytics.financial.credit.obligor.CreditRatingFitch;
@@ -331,6 +324,8 @@ public class PresentValueLegacyCreditDefaultSwapTest {
 
   // Hazard rate term structure (assume this has been calibrated previously)
 
+  static ZonedDateTime[] hazardRateDates = {zdt(2013, 06, 20, 0, 0, 0, 0, ZoneOffset.UTC), zdt(2015, 06, 20, 0, 0, 0, 0, ZoneOffset.UTC), zdt(2018, 06, 20, 0, 0, 0, 0, ZoneOffset.UTC) };
+
   static double[] hazardRateTimes = {
       0.0,
       s_act365.getDayCountFraction(valuationDate, zdt(2013, 06, 20, 0, 0, 0, 0, ZoneOffset.UTC)),
@@ -346,7 +341,7 @@ public class PresentValueLegacyCreditDefaultSwapTest {
   };
 
   // Build the hazard rate curve object (No offset - survival probability = 1 on valuationDate)
-  private static final HazardRateCurve hazardRateCurve = new HazardRateCurve(hazardRateTimes, hazardRates, 0.0);
+  private static final HazardRateCurve hazardRateCurve = new HazardRateCurve(hazardRateDates, hazardRateTimes, hazardRates, 0.0);
 
   private static final HazardRateCurve sovereignHazardRateCurve = hazardRateCurve;
   private static final HazardRateCurve muniHazardRateCurve = hazardRateCurve;
@@ -604,6 +599,7 @@ public class PresentValueLegacyCreditDefaultSwapTest {
 
     // -----------------------------------------------------------------------------------------------
 
+    /*
     // Call the constructors to create a CDS present value object (for the particular type of CDS contract)
     final PresentValueLegacyFixedRecoveryCreditDefaultSwap fixedRecoveryCreditDefaultSwap = new PresentValueLegacyFixedRecoveryCreditDefaultSwap();
 
@@ -674,6 +670,7 @@ public class PresentValueLegacyCreditDefaultSwapTest {
       System.out.println("Legacy Sovereign CDS par spread = " + "\t" + parSpreadSovereignCDS);
       System.out.println("Legacy Vanilla CDS par spread = " + "\t" + parSpreadLegacyVanillaCDS);
     }
+    */
 
     // -----------------------------------------------------------------------------------------------
   }

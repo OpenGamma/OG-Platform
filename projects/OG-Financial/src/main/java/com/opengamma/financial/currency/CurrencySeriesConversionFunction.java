@@ -249,7 +249,7 @@ public class CurrencySeriesConversionFunction extends AbstractFunction.NonCompil
     if (inputCurrency.equals(outputCurrency)) {
       return Collections.emptySet();
     }
-    return Collections.singleton(CurrencyMatrixSourcingFunction.getSeriesConversionRequirement(inputCurrency, outputCurrency));
+    return Collections.singleton(CurrencyMatrixSeriesSourcingFunction.getConversionRequirement(inputCurrency, outputCurrency));
   }
 
   @Override

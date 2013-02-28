@@ -18,6 +18,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.threeten.bp.LocalTime;
 
+import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 
 /**
@@ -36,11 +37,10 @@ public class SwapIndexConvention extends Convention {
   private LocalTime _fixingTime;
 
   /**
-   * The swap convention name.
+   * The swap convention.
    */
-  //TODO is this the best type?
   @PropertyDefinition(validate = "notNull")
-  private String _swapConvention;
+  private ExternalId _swapConvention;
 
   /**
    * For the builder.
@@ -49,7 +49,7 @@ public class SwapIndexConvention extends Convention {
     super();
   }
 
-  public SwapIndexConvention(final String name, final ExternalIdBundle externalIdBundle, final LocalTime fixingTime, final String swapConvention) {
+  public SwapIndexConvention(final String name, final ExternalIdBundle externalIdBundle, final LocalTime fixingTime, final ExternalId swapConvention) {
     super(name, externalIdBundle);
     setFixingTime(fixingTime);
     setSwapConvention(swapConvention);
@@ -90,7 +90,7 @@ public class SwapIndexConvention extends Convention {
         setFixingTime((LocalTime) newValue);
         return;
       case 1414180196:  // swapConvention
-        setSwapConvention((String) newValue);
+        setSwapConvention((ExternalId) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -153,18 +153,18 @@ public class SwapIndexConvention extends Convention {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the swapConvention.
+   * Gets the swap convention.
    * @return the value of the property, not null
    */
-  public String getSwapConvention() {
+  public ExternalId getSwapConvention() {
     return _swapConvention;
   }
 
   /**
-   * Sets the swapConvention.
+   * Sets the swap convention.
    * @param swapConvention  the new value of the property, not null
    */
-  public void setSwapConvention(String swapConvention) {
+  public void setSwapConvention(ExternalId swapConvention) {
     JodaBeanUtils.notNull(swapConvention, "swapConvention");
     this._swapConvention = swapConvention;
   }
@@ -173,7 +173,7 @@ public class SwapIndexConvention extends Convention {
    * Gets the the {@code swapConvention} property.
    * @return the property, not null
    */
-  public final Property<String> swapConvention() {
+  public final Property<ExternalId> swapConvention() {
     return metaBean().swapConvention().createProperty(this);
   }
 
@@ -195,8 +195,8 @@ public class SwapIndexConvention extends Convention {
     /**
      * The meta-property for the {@code swapConvention} property.
      */
-    private final MetaProperty<String> _swapConvention = DirectMetaProperty.ofReadWrite(
-        this, "swapConvention", SwapIndexConvention.class, String.class);
+    private final MetaProperty<ExternalId> _swapConvention = DirectMetaProperty.ofReadWrite(
+        this, "swapConvention", SwapIndexConvention.class, ExternalId.class);
     /**
      * The meta-properties.
      */
@@ -250,7 +250,7 @@ public class SwapIndexConvention extends Convention {
      * The meta-property for the {@code swapConvention} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<String> swapConvention() {
+    public final MetaProperty<ExternalId> swapConvention() {
       return _swapConvention;
     }
 

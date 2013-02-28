@@ -736,12 +736,12 @@ public class FinancialSecurityUtils {
 
         @Override
         public Collection<Currency> visitCommodityFutureOptionSecurity(final CommodityFutureOptionSecurity commodityFutureOptionSecurity) {
-          return null;
+          return Collections.singleton(commodityFutureOptionSecurity.getCurrency());
         }
 
         @Override
         public Collection<Currency> visitFxFutureOptionSecurity(final FxFutureOptionSecurity security) {
-          return null;
+          return Collections.singleton(security.getCurrency());
         }
 
         @Override
@@ -990,6 +990,11 @@ public class FinancialSecurityUtils {
       final FinancialSecurity finSec = (FinancialSecurity) security;
       final ExternalId id = finSec.accept(new FinancialSecurityVisitorAdapter<ExternalId>() {
 
+        @Override
+        public ExternalId visitFxFutureOptionSecurity(final FxFutureOptionSecurity security) {
+          return security.getUnderlyingId();
+        }
+        
         @Override
         public ExternalId visitEnergyForwardSecurity(final EnergyForwardSecurity security) {
           return security.getUnderlyingId();

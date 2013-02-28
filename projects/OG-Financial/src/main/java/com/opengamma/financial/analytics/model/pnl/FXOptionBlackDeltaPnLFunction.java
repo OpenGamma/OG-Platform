@@ -44,7 +44,7 @@ import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackF
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.currency.ConfigDBCurrencyPairsSource;
-import com.opengamma.financial.currency.CurrencyMatrixSourcingFunction;
+import com.opengamma.financial.currency.CurrencyMatrixSeriesSourcingFunction;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.currency.CurrencySeriesConversionFunction;
@@ -217,9 +217,9 @@ public class FXOptionBlackDeltaPnLFunction extends AbstractFunction.NonCompiledI
     final CurrencyPair currencyPair = currencyPairs.getCurrencyPair(putCurrency, callCurrency);
     final ValueRequirement fxSpotRequirement;
     if (currencyPair.getBase().equals(putCurrency)) {
-      fxSpotRequirement = CurrencyMatrixSourcingFunction.getSeriesConversionRequirement(putCurrency, callCurrency);
+      fxSpotRequirement = CurrencyMatrixSeriesSourcingFunction.getConversionRequirement(putCurrency, callCurrency);
     } else {
-      fxSpotRequirement = CurrencyMatrixSourcingFunction.getSeriesConversionRequirement(callCurrency, putCurrency);
+      fxSpotRequirement = CurrencyMatrixSeriesSourcingFunction.getConversionRequirement(callCurrency, putCurrency);
     }
     return ImmutableSet.of(fxCurrencyExposureRequirement, fxSpotRequirement);
   }

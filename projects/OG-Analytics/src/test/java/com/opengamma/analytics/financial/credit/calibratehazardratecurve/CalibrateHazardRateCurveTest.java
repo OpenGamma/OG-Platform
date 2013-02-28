@@ -385,11 +385,11 @@ public class CalibrateHazardRateCurveTest {
 
     final CalibrateHazardRateCurveLegacyCreditDefaultSwap hazardRateCurve = new CalibrateHazardRateCurveLegacyCreditDefaultSwap();
 
-    final double[] calibratedHazardRateTermStructure = hazardRateCurve.getCalibratedHazardRateTermStructure(valuationDate, calibrationCDS, tenors, marketSpreads, yieldCurve, priceType);
+    //final double[] calibratedHazardRateTermStructure = hazardRateCurve.getCalibratedHazardRateTermStructure(valuationDate, calibrationCDS, tenors, marketSpreads, yieldCurve, priceType);
 
     if (outputResults) {
       for (int i = 0; i < numberOfCalibrationCDS; i++) {
-        System.out.println(calibratedHazardRateTermStructure[i]);
+        //System.out.println(calibratedHazardRateTermStructure[i]);
       }
     }
 
