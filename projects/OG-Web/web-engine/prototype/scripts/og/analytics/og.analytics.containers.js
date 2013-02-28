@@ -17,10 +17,7 @@ $.register_module({
                             og.analytics.url.add(panel, params, ~panels.indexOf(source)); 
                             return false;
                         })
-                        .on('swap', function (params, index) {
-                            og.analytics.url.swap(panel, params, index);
-                            return false;
-                        })
+                        .on('swap', function (params, index) {og.analytics.url.swap(panel, params, index);})
                         .on('launch', og.analytics.url.launch);
                 });
                 delete containers.initialize;
