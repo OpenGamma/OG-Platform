@@ -14,7 +14,7 @@ $.register_module({
          * selector (String) and data (Array) are required, placeholder (String) is optional
          */
         return function (config) {
-            var combo = this, d, replace_val;
+            var combo = this, d, replace_val, input_tag;
 
             if (!config.selector || typeof config.selector !== 'string')
                 return og.dev.warn('og.common.util.ui.AutoCombo: Missing or invalid param [selector]');
@@ -47,9 +47,9 @@ $.register_module({
                 close: replace_placeholder,
                 focus: replace_placeholder
             };
-
+            input_tag = config.name ? '<input type="text" name="'+ config.name +'">' : '<input type="text">';
             // wrap input in div, enable input width 100% of parent, FF, IE
-            combo.$wrapper = $('<div class="autocomplete-cntr">').html('<input type="text">');
+            combo.$wrapper = $('<div class="autocomplete-cntr">').html(input_tag);
             combo.$input = combo.$wrapper.find('input');
             combo.$button = $('<div class="OG-icon og-icon-down"></div>');
             if (combo.$input && combo.$button) {

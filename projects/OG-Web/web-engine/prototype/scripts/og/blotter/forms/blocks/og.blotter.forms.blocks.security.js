@@ -10,7 +10,7 @@ $.register_module({
         var Security = function (config) {
             var block = this, scheme_value, id_value, form = config.form, security = config.security, dropdown,
             sec_id = og.common.id("og-blotter-security"), scheme_id = og.common.id("og-blotter-scheme");
-            if(security){
+            if (security) {
                 scheme_value = security.split(/~(.+)/)[0];
                 id_value  = security.split(/~(.+)/)[1]; 
             }
