@@ -154,6 +154,24 @@ public class InflationProviderForward implements InflationProviderInterface {
   }
 
   @Override
+  public Integer getNumberOfParameters(String name) {
+    final Object curveObject = _allCurves.get(name);
+    if (curveObject instanceof PriceIndexCurve) {
+      return ((PriceIndexCurve) curveObject).getNumberOfParameters();
+    } else if (curveObject instanceof YieldAndDiscountCurve) {
+      return ((YieldAndDiscountCurve) curveObject).getNumberOfParameters();
+    } else {
+      ArgumentChecker.isTrue(curveObject instanceof DoublesCurve, "Curve not a DoublesCurve, can not computed sensitivity");
+      return ((DoublesCurve) curveObject).size();
+    }
+  }
+
+  @Override
+  public List<String> getUnderlyingCurvesNames(final String name) {
+    return _allCurves.get(name).getUnderlyingCurvesNames(name);
+  }
+
+  @Override
   public MulticurveProviderForward getMulticurveProvider() {
     return _multicurveProvider;
   }

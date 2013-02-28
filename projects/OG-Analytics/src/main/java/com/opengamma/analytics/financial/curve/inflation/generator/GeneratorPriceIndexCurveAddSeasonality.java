@@ -6,6 +6,7 @@
 package com.opengamma.analytics.financial.curve.inflation.generator;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
+import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -48,8 +49,13 @@ public class GeneratorPriceIndexCurveAddSeasonality extends GeneratorPriceIndexC
   }
 
   @Override
-  PriceIndexCurve generateCurve(String name, double[] parameters) {
+  public PriceIndexCurve generateCurve(String name, double[] parameters) {
     throw new UnsupportedOperationException("Cannot create the curve form the generator without an existing curve");
+  }
+
+  @Override
+  public PriceIndexCurve generateCurve(String name, InflationProviderInterface multicurves, double[] parameters) {
+    return null;
   }
 
 }

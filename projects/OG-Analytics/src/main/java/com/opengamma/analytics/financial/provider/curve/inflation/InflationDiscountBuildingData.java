@@ -1,18 +1,18 @@
 /**
- * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.provider.curve.multicurve;
+package com.opengamma.analytics.financial.provider.curve.inflation;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
+import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderDiscount;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Data required to build curves in the Multiple Curve on MulticurveProviderDiscount framework.
+ * Data required to build inflation curves in the Multiple Curve on MulticurveProviderDiscount framework.
  */
-public class MulticurveDiscountBuildingData {
+public class InflationDiscountBuildingData {
 
   /**
    * The list of instruments. Not null.
@@ -21,7 +21,7 @@ public class MulticurveDiscountBuildingData {
   /**
    * The generator of the MarketDiscount.
    */
-  private final GeneratorMulticurveProviderDiscount _generator;
+  private final GeneratorInflationProviderDiscount _generator;
   /**
    * The number of instruments. The size of _instruments.
    */
@@ -32,7 +32,7 @@ public class MulticurveDiscountBuildingData {
    * @param instruments The list of instruments.
    * @param generator The market generator.
    */
-  public MulticurveDiscountBuildingData(final InstrumentDerivative[] instruments, final GeneratorMulticurveProviderDiscount generator) {
+  public InflationDiscountBuildingData(final InstrumentDerivative[] instruments, final GeneratorInflationProviderDiscount generator) {
     ArgumentChecker.notNull(instruments, "Instruments");
     ArgumentChecker.notNull(generator, "Market generator");
     _instruments = instruments;
@@ -54,7 +54,7 @@ public class MulticurveDiscountBuildingData {
    * Gets the know curves.
    * @return The known curves.
    */
-  public MulticurveProviderDiscount getKnownData() {
+  public InflationProviderDiscount getKnownData() {
     return _generator.getKnownData();
   }
 
@@ -62,7 +62,7 @@ public class MulticurveDiscountBuildingData {
    * Gets the building function.
    * @return The building function.
    */
-  public GeneratorMulticurveProviderDiscount getGeneratorMarket() {
+  public GeneratorInflationProviderDiscount getGeneratorMarket() {
     return _generator;
   }
 

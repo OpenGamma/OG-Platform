@@ -63,6 +63,15 @@ public interface InflationProviderInterface extends ParameterProviderInterface {
   double[] parameterInflationSensitivity(String name, List<DoublesPair> pointSensitivity);
 
   /**
+   * Gets the number of parameters for a curve described by its name.
+   * @param name The curve name.
+   * @return The number of parameters.
+   */
+  Integer getNumberOfParameters(String name);
+
+  List<String> getUnderlyingCurvesNames(String name);
+
+  /**
    * Returns the MulticurveProvider from which the InflationProvider is composed.
    * @return The multi-curves provider.
    */
