@@ -69,7 +69,7 @@
     text-align: right;
     padding-right: {{#if sparklines}}65{{else}}18{{/if}}px;
 }
-{{id}} .OG-g-b-fixed .OG-g-DOUBLE {
+.OG-g-b-fixed .OG-g-DOUBLE {
     text-align: right;
     padding-right: 4px;
 }

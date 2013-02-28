@@ -6,7 +6,8 @@ $.register_module({
     name: 'og.common.gadgets.Data',
     dependencies: ['og.common.gadgets.manager', 'og.common.events', 'og.analytics.Grid'],
     obj: function () {
-        var module = this, Grid = og.analytics.Grid, loading_template, formatters, char_width = 9, STRING = 'STRING';
+        var module = this, Grid = og.analytics.Grid, loading_template, formatters, char_width = 9,
+            DOUBLE = 'DOUBLE_GADGET', STRING = 'STRING';
         var cell_value = function (v) {return {v: v + ''};};
         var col_names = (function () {
             var letters = 'ABΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ'.split(''), base = letters.length, base_log = Math.log(base);
@@ -34,7 +35,7 @@ $.register_module({
                 columns: {
                     fixed: [{columns: [{type: STRING, header: first ? cols[0] : '', width: fixed_width}]}],
                     scroll: [{
-                        columns: cols.slice(first ? 1 : 0).map(function (col) {return {type: STRING, header: col};})
+                        columns: cols.slice(first ? 1 : 0).map(function (col) {return {type: DOUBLE, header: col};})
                     }],
                     total: first ? cols.length : cols.length + 1
                 }

@@ -256,8 +256,8 @@ $.register_module({
                 .on('click', '.OG-g-h-set-name .og-sparklines', function (event) {
                     $(this).toggleClass('og-active').find('span')
                         .html((grid.config.sparklines = !grid.config.sparklines) ? 'ON' : 'OFF');
-                    render_rows.call(grid, grid.data);
-                    grid.resize();
+                    render_rows.call(grid, grid.data); // re-render right away to show sparklines before next tick
+                    grid.resize(); // re-write styles
                     return false;
                 })
                 .on('mousedown', function (event) {
@@ -445,7 +445,7 @@ $.register_module({
                             state: grid.state.nodes[data_row] ? 'collapse' : 'expand'
                         }) : '';
                         cells.push({
-                            column: column, value: prefix + value, type: type,
+                            column: column, value: prefix + value, type: data[index].t || type,
                             logging: data[index] && data[index][logging], error: data[index] && data[index].error
                         });
                     }
