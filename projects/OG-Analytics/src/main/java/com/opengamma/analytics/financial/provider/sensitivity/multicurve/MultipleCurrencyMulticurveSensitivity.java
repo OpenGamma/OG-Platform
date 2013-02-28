@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.provider.sensitivity.multicurve;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -16,7 +17,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * Class describing a the sensitivity of some value (present value, par rate, etc) to a family of yield curves. 
+ * Class describing a the sensitivity of some value (present value, par rate, etc) to a family of yield curves.
  * The currency in which the sensitivity is expressed is indicated through a map.
  */
 public class MultipleCurrencyMulticurveSensitivity {
@@ -27,11 +28,11 @@ public class MultipleCurrencyMulticurveSensitivity {
    */
   private final TreeMap<Currency, MulticurveSensitivity> _sensitivity;
 
-  /** 
+  /**
    * Constructor. A new map is created.
    */
   public MultipleCurrencyMulticurveSensitivity() {
-    _sensitivity = new TreeMap<Currency, MulticurveSensitivity>();
+    _sensitivity = new TreeMap<>();
   }
 
   /**
@@ -51,7 +52,7 @@ public class MultipleCurrencyMulticurveSensitivity {
   public static MultipleCurrencyMulticurveSensitivity of(final Currency ccy, final MulticurveSensitivity sensitivity) {
     ArgumentChecker.notNull(ccy, "Currency");
     ArgumentChecker.notNull(sensitivity, "Sensitivity");
-    final TreeMap<Currency, MulticurveSensitivity> map = new TreeMap<Currency, MulticurveSensitivity>();
+    final TreeMap<Currency, MulticurveSensitivity> map = new TreeMap<>();
     map.put(ccy, sensitivity);
     return new MultipleCurrencyMulticurveSensitivity(map);
   }
@@ -71,7 +72,7 @@ public class MultipleCurrencyMulticurveSensitivity {
   }
 
   /**
-   * Create a new multiple currency sensitivity by adding the sensitivity associated to a given currency. 
+   * Create a new multiple currency sensitivity by adding the sensitivity associated to a given currency.
    * If the currency is not yet present in the existing sensitivity a new map is created with the extra entry.
    * If the currency is already present, the associated sensitivities are added (in the sense of {@link InterestRateCurveSensitivity}) and a new map is created with all the other
    * existing entries and the entry with the currency and the sum sensitivity.
@@ -82,7 +83,7 @@ public class MultipleCurrencyMulticurveSensitivity {
   public MultipleCurrencyMulticurveSensitivity plus(final Currency ccy, final MulticurveSensitivity sensitivity) {
     ArgumentChecker.notNull(ccy, "Currency");
     ArgumentChecker.notNull(sensitivity, "Sensitivity");
-    final TreeMap<Currency, MulticurveSensitivity> map = new TreeMap<Currency, MulticurveSensitivity>();
+    final TreeMap<Currency, MulticurveSensitivity> map = new TreeMap<>();
     if (_sensitivity.containsKey(ccy)) {
       map.put(ccy, sensitivity.plus(_sensitivity.get(ccy)));
       for (final Currency loopccy : _sensitivity.keySet()) {
@@ -98,14 +99,14 @@ public class MultipleCurrencyMulticurveSensitivity {
   }
 
   /**
-   * Create a new multiple currency sensitivity by adding another multiple currency sensitivity. 
+   * Create a new multiple currency sensitivity by adding another multiple currency sensitivity.
    * For each currency in the other multiple currency sensitivity, the currency and its associated sensitivity are added.
    * @param other The multiple currency sensitivity. Not null.
    * @return The new multiple currency sensitivity.
    */
   public MultipleCurrencyMulticurveSensitivity plus(final MultipleCurrencyMulticurveSensitivity other) {
     ArgumentChecker.notNull(other, "Sensitivity");
-    final TreeMap<Currency, MulticurveSensitivity> map = new TreeMap<Currency, MulticurveSensitivity>();
+    final TreeMap<Currency, MulticurveSensitivity> map = new TreeMap<>();
     map.putAll(_sensitivity);
     MultipleCurrencyMulticurveSensitivity result = new MultipleCurrencyMulticurveSensitivity(map);
     for (final Currency loopccy : other._sensitivity.keySet()) {
@@ -115,12 +116,12 @@ public class MultipleCurrencyMulticurveSensitivity {
   }
 
   /**
-   * Create a new multiple currency sensitivity by multiplying all the sensitivities in a multiple currency sensitivity by a common factor. 
+   * Create a new multiple currency sensitivity by multiplying all the sensitivities in a multiple currency sensitivity by a common factor.
    * @param factor The multiplicative factor.
    * @return The new multiple currency sensitivity.
    */
   public MultipleCurrencyMulticurveSensitivity multipliedBy(final double factor) {
-    final TreeMap<Currency, MulticurveSensitivity> map = new TreeMap<Currency, MulticurveSensitivity>();
+    final TreeMap<Currency, MulticurveSensitivity> map = new TreeMap<>();
     for (final Currency loopccy : _sensitivity.keySet()) {
       map.put(loopccy, _sensitivity.get(loopccy).multipliedBy(factor));
     }
@@ -132,7 +133,7 @@ public class MultipleCurrencyMulticurveSensitivity {
    * @return The cleaned sensitivity.
    */
   public MultipleCurrencyMulticurveSensitivity cleaned() {
-    final TreeMap<Currency, MulticurveSensitivity> map = new TreeMap<Currency, MulticurveSensitivity>();
+    final TreeMap<Currency, MulticurveSensitivity> map = new TreeMap<>();
     for (final Currency loopccy : _sensitivity.keySet()) {
       map.put(loopccy, _sensitivity.get(loopccy).cleaned());
     }
@@ -141,13 +142,13 @@ public class MultipleCurrencyMulticurveSensitivity {
   }
 
   /**
-   * Returns a new multiple currency sensitivity by creating clean sensitivity for each currency (see {@link InterestRateCurveSensitivity} clean() method). 
+   * Returns a new multiple currency sensitivity by creating clean sensitivity for each currency (see {@link InterestRateCurveSensitivity} clean() method).
    * The total value below the tolerance threshold are removed.
    * @param tolerance The tolerance.
    * @return The cleaned sensitivity.
    */
   public MultipleCurrencyMulticurveSensitivity cleaned(final double tolerance) {
-    final TreeMap<Currency, MulticurveSensitivity> map = new TreeMap<Currency, MulticurveSensitivity>();
+    final TreeMap<Currency, MulticurveSensitivity> map = new TreeMap<>();
     for (final Currency loopccy : _sensitivity.keySet()) {
       map.put(loopccy, _sensitivity.get(loopccy).cleaned(tolerance));
     }
@@ -171,11 +172,19 @@ public class MultipleCurrencyMulticurveSensitivity {
    */
   public MultipleCurrencyMulticurveSensitivity converted(final Currency ccy, final FXMatrix fx) {
     MulticurveSensitivity sensi = new MulticurveSensitivity();
-    for (Currency c : _sensitivity.keySet()) {
-      double rate = fx.getFxRate(c, ccy);
+    for (final Currency c : _sensitivity.keySet()) {
+      final double rate = fx.getFxRate(c, ccy);
       sensi = sensi.plus(_sensitivity.get(c).multipliedBy(rate));
     }
     return of(ccy, sensi);
+  }
+
+  /**
+   * Gets the sensitivities for all currencies.
+   * @return The sensitivities
+   */
+  public Map<Currency, MulticurveSensitivity> getSensitivities() {
+    return _sensitivity;
   }
 
   @Override
@@ -192,7 +201,7 @@ public class MultipleCurrencyMulticurveSensitivity {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -202,7 +211,7 @@ public class MultipleCurrencyMulticurveSensitivity {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    MultipleCurrencyMulticurveSensitivity other = (MultipleCurrencyMulticurveSensitivity) obj;
+    final MultipleCurrencyMulticurveSensitivity other = (MultipleCurrencyMulticurveSensitivity) obj;
     if (!ObjectUtils.equals(_sensitivity, other._sensitivity)) {
       return false;
     }

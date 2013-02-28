@@ -20,6 +20,8 @@ import org.fudgemsg.mapping.FudgeSerializer;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -144,4 +146,37 @@ import com.opengamma.util.tuple.DoublesPair;
 
   }
 
+  @FudgeBuilderFor(MultipleCurrencyMulticurveSensitivity.class)
+  public static final class MultipleCurrencyMulticurveSensitivityBuilder extends AbstractFudgeBuilder<MultipleCurrencyMulticurveSensitivity> {
+    /** The currencies field */
+    private static final String CURRENCY = "currency";
+    /** The sensitivities field */
+    private static final String SENSITIVITIES = "sensitivities";
+
+    @Override
+    public MultipleCurrencyMulticurveSensitivity buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+      final List<FudgeField> currencies = message.getAllByName(CURRENCY);
+      final List<FudgeField> sensitivities = message.getAllByName(SENSITIVITIES);
+      if (currencies.size() != sensitivities.size()) {
+        throw new OpenGammaRuntimeException("Should have same number of sensitivities as currencies");
+      }
+      MultipleCurrencyMulticurveSensitivity result = new MultipleCurrencyMulticurveSensitivity();
+      for (int i = 0; i < currencies.size(); i++) {
+        final Currency currency = Currency.of((String) currencies.get(i).getValue());
+        final MulticurveSensitivity sensitivity = deserializer.fieldValueToObject(MulticurveSensitivity.class, sensitivities.get(i));
+        result = result.plus(currency, sensitivity);
+      }
+      return result;
+    }
+
+    @Override
+    protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final MultipleCurrencyMulticurveSensitivity object) {
+      final Map<Currency, MulticurveSensitivity> sensitivities = object.getSensitivities();
+      for (final Map.Entry<Currency, MulticurveSensitivity> entry : sensitivities.entrySet()) {
+        message.add(CURRENCY, entry.getKey().getCode());
+        serializer.addToMessageWithClassHeaders(message, SENSITIVITIES, null, entry.getValue());
+      }
+    }
+
+  }
 }
