@@ -11,6 +11,7 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
 
 /**
  * Description of transaction on an interest rate future option with up-front margin security.
@@ -66,6 +67,14 @@ public class InterestRateFutureOptionMarginTransaction implements InstrumentDeri
    */
   public double getReferencePrice() {
     return _referencePrice;
+  }
+
+  /**
+   * Returns the transaction currency.
+   * @return The currency.
+   */
+  public Currency getCurrency() {
+    return _underlyingOption.getCurrency();
   }
 
   @Override

@@ -26,8 +26,8 @@ public class NoPaddingTimeSeriesSamplingFunction implements TimeSeriesSamplingFu
     ArgumentChecker.notNull(schedule, "schedule");
     final LocalDateDoubleTimeSeries localDateTS = ts.toLocalDateDoubleTimeSeries();
     final List<LocalDate> tsDates = localDateTS.times();
-    final List<LocalDate> scheduledDates = new ArrayList<LocalDate>();
-    final List<Double> scheduledData = new ArrayList<Double>();
+    final List<LocalDate> scheduledDates = new ArrayList<>();
+    final List<Double> scheduledData = new ArrayList<>();
     for (final LocalDate localDate : schedule) {
       if (tsDates.contains(localDate)) {
         scheduledDates.add(localDate);

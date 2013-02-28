@@ -64,7 +64,7 @@ public final class FuturesRatesSensitivityFDCalculator extends InstrumentDerivat
         dataBundle.getSpotValue(), dataBundle.getDividendYield(), dataBundle.getCostOfCarry());
     final double pvDown = future.accept(_presentValueCalculator, bumpedMarket);
     final double sensitivity = (pvUp - pvDown) / (2.0 * SHIFT);
-    final Map<String, List<DoublesPair>> curveSensitivities = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> curveSensitivities = new HashMap<>();
     curveSensitivities.put(discCrvName, Lists.newArrayList(new DoublesPair(settlement, sensitivity)));
     final NodeYieldSensitivityCalculator distributor = PresentValueNodeSensitivityCalculator.getDefaultInstance();
     return distributor.curveToNodeSensitivities(curveSensitivities, interpolatedCurves);

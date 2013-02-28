@@ -51,7 +51,6 @@ public class TestsDataSetsForex {
     FX_MATRIX.addCurrency(GBP, USD, GBP_USD);
   }
 
-
   /**
    * Create a yield curve bundle with three curves. One called "Discounting EUR" with a constant rate of 2.50%, one called "Discounting USD" with a constant rate of 1.00%
    * and one called "Discounting GBP" with a constant rate of 2.00%; "Discounting KRW" with a constant rate of 3.21%;

@@ -11,6 +11,7 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
 
 /**
  * Describes a (Treasury) Bill transaction.
@@ -18,7 +19,7 @@ import com.opengamma.util.ArgumentChecker;
 public class BillTransaction implements InstrumentDerivative {
 
   /**
-   * The bill underlying the transaction. 
+   * The bill underlying the transaction.
    * <P> The bill may not be suitable for standard price and yield calculation (incorrect settlement).
    */
   private final BillSecurity _billPurchased;
@@ -84,6 +85,10 @@ public class BillTransaction implements InstrumentDerivative {
    */
   public BillSecurity getBillStandard() {
     return _billStandard;
+  }
+
+  public Currency getCurrency() {
+    return _billStandard.getCurrency();
   }
 
   @Override

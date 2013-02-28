@@ -27,8 +27,8 @@ public class PreviousValuePaddingTimeSeriesSamplingFunction implements TimeSerie
     final LocalDateDoubleTimeSeries localDateTS = ts.toLocalDateDoubleTimeSeries();
     final LocalDate[] tsDates = localDateTS.timesArray();
     final double[] values = localDateTS.valuesArrayFast();
-    final List<LocalDate> scheduledDates = new ArrayList<LocalDate>();
-    final List<Double> scheduledData = new ArrayList<Double>();
+    final List<LocalDate> scheduledDates = new ArrayList<>();
+    final List<Double> scheduledData = new ArrayList<>();
     int dateIndex = 0;
     for (final LocalDate localDate : schedule) {
       if (dateIndex < tsDates.length) {

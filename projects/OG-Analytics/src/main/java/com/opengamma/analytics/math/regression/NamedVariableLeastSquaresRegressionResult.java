@@ -26,7 +26,7 @@ public class NamedVariableLeastSquaresRegressionResult extends LeastSquaresRegre
     if (independentVariableNames == null) {
       throw new IllegalArgumentException("List of independent variable names was null");
     }
-    _independentVariableNames = new ArrayList<String>();
+    _independentVariableNames = new ArrayList<>();
     if (result.hasIntercept()) {
       if (independentVariableNames.size() != result.getBetas().length - 1) {
         throw new IllegalArgumentException("Length of variable name array did not match number of results in the regression");

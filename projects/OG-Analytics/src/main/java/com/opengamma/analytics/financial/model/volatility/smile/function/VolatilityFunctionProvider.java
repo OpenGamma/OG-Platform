@@ -47,7 +47,7 @@ public abstract class VolatilityFunctionProvider<T extends SmileModelData> {
   public Function1D<T, double[]> getVolatilityFunction(final double forward, final double[] strikes, final double timeToExpiry) {
 
     final int n = strikes.length;
-    final List<Function1D<T, Double>> funcs = new ArrayList<Function1D<T, Double>>(n);
+    final List<Function1D<T, Double>> funcs = new ArrayList<>(n);
     for (int i = 0; i < n; i++) {
       final boolean isCall = strikes[i] >= forward;
       funcs.add(getVolatilityFunction(new EuropeanVanillaOption(strikes[i], timeToExpiry, isCall), forward));
@@ -152,7 +152,7 @@ public abstract class VolatilityFunctionProvider<T extends SmileModelData> {
   protected Function1D<T, double[][]> getVolatilityAdjointFunctionByCallingSingleStrikes(final double forward, final double[] strikes, final double timeToExpiry) {
 
     final int n = strikes.length;
-    final List<Function1D<T, double[]>> funcs = new ArrayList<Function1D<T, double[]>>(n);
+    final List<Function1D<T, double[]>> funcs = new ArrayList<>(n);
     for (int i = 0; i < n; i++) {
       final boolean isCall = strikes[i] >= forward;
       funcs.add(getVolatilityAdjointFunction(new EuropeanVanillaOption(strikes[i], timeToExpiry, isCall), forward));
@@ -201,7 +201,7 @@ public abstract class VolatilityFunctionProvider<T extends SmileModelData> {
   protected Function1D<T, double[][]> getModelAdjointFunctionByCallingSingleStrikes(final double forward, final double[] strikes, final double timeToExpiry) {
 
     final int n = strikes.length;
-    final List<Function1D<T, double[]>> funcs = new ArrayList<Function1D<T, double[]>>(n);
+    final List<Function1D<T, double[]>> funcs = new ArrayList<>(n);
     for (int i = 0; i < n; i++) {
       final boolean isCall = strikes[i] >= forward;
       funcs.add(getModelAdjointFunction(new EuropeanVanillaOption(strikes[i], timeToExpiry, isCall), forward));

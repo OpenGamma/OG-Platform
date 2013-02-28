@@ -181,24 +181,24 @@ public class PresentValueLegacyCreditDefaultSwapTest {
   final ZonedDateTime baseDate = zdt(baseDateYear, baseDateMonth, baseDateDay, 0, 0, 0, 0, ZoneOffset.UTC);
 
   double[] times = {
-      s_act365.getDayCountFraction(baseDate, zdt(2008, 10, 22, 0, 0, 0, 0, ZoneOffset.UTC)),   // 1M
-      s_act365.getDayCountFraction(baseDate, zdt(2008, 11, 24, 0, 0, 0, 0, ZoneOffset.UTC)),   // 2M
-      s_act365.getDayCountFraction(baseDate, zdt(2008, 12, 22, 0, 0, 0, 0, ZoneOffset.UTC)),   // 3M
-      s_act365.getDayCountFraction(baseDate, zdt(2009, 3, 23, 0, 0, 0, 0, ZoneOffset.UTC)),    // 6M
-      s_act365.getDayCountFraction(baseDate, zdt(2009, 6, 22, 0, 0, 0, 0, ZoneOffset.UTC)),    // 9M
-      s_act365.getDayCountFraction(baseDate, zdt(2009, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),    // 12M
-      s_act365.getDayCountFraction(baseDate, zdt(2010, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),    // 18M
-      s_act365.getDayCountFraction(baseDate, zdt(2010, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),    // 24M
-      s_act365.getDayCountFraction(baseDate, zdt(2011, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),    // 30M
-      s_act365.getDayCountFraction(baseDate, zdt(2011, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),    // 36M
-      s_act365.getDayCountFraction(baseDate, zdt(2012, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),    // 42M
-      s_act365.getDayCountFraction(baseDate, zdt(2012, 9, 24, 0, 0, 0, 0, ZoneOffset.UTC)),    // 48M
-      s_act365.getDayCountFraction(baseDate, zdt(2013, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),    // 54M
-      s_act365.getDayCountFraction(baseDate, zdt(2013, 9, 23, 0, 0, 0, 0, ZoneOffset.UTC)),    // 60M
-      s_act365.getDayCountFraction(baseDate, zdt(2014, 3, 24, 0, 0, 0, 0, ZoneOffset.UTC)),    // 66M
-      s_act365.getDayCountFraction(baseDate, zdt(2014, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),    // 72M
-      s_act365.getDayCountFraction(baseDate, zdt(2015, 3, 23, 0, 0, 0, 0, ZoneOffset.UTC)),    // 78M
-      s_act365.getDayCountFraction(baseDate, zdt(2015, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),    // 84M
+      s_act365.getDayCountFraction(baseDate, zdt(2008, 10, 22, 0, 0, 0, 0, ZoneOffset.UTC)), // 1M
+      s_act365.getDayCountFraction(baseDate, zdt(2008, 11, 24, 0, 0, 0, 0, ZoneOffset.UTC)), // 2M
+      s_act365.getDayCountFraction(baseDate, zdt(2008, 12, 22, 0, 0, 0, 0, ZoneOffset.UTC)), // 3M
+      s_act365.getDayCountFraction(baseDate, zdt(2009, 3, 23, 0, 0, 0, 0, ZoneOffset.UTC)), // 6M
+      s_act365.getDayCountFraction(baseDate, zdt(2009, 6, 22, 0, 0, 0, 0, ZoneOffset.UTC)), // 9M
+      s_act365.getDayCountFraction(baseDate, zdt(2009, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)), // 12M
+      s_act365.getDayCountFraction(baseDate, zdt(2010, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)), // 18M
+      s_act365.getDayCountFraction(baseDate, zdt(2010, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)), // 24M
+      s_act365.getDayCountFraction(baseDate, zdt(2011, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)), // 30M
+      s_act365.getDayCountFraction(baseDate, zdt(2011, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)), // 36M
+      s_act365.getDayCountFraction(baseDate, zdt(2012, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)), // 42M
+      s_act365.getDayCountFraction(baseDate, zdt(2012, 9, 24, 0, 0, 0, 0, ZoneOffset.UTC)), // 48M
+      s_act365.getDayCountFraction(baseDate, zdt(2013, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)), // 54M
+      s_act365.getDayCountFraction(baseDate, zdt(2013, 9, 23, 0, 0, 0, 0, ZoneOffset.UTC)), // 60M
+      s_act365.getDayCountFraction(baseDate, zdt(2014, 3, 24, 0, 0, 0, 0, ZoneOffset.UTC)), // 66M
+      s_act365.getDayCountFraction(baseDate, zdt(2014, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)), // 72M
+      s_act365.getDayCountFraction(baseDate, zdt(2015, 3, 23, 0, 0, 0, 0, ZoneOffset.UTC)), // 78M
+      s_act365.getDayCountFraction(baseDate, zdt(2015, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)), // 84M
       s_act365.getDayCountFraction(baseDate, zdt(2016, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
       s_act365.getDayCountFraction(baseDate, zdt(2016, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
       s_act365.getDayCountFraction(baseDate, zdt(2017, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
@@ -240,79 +240,46 @@ public class PresentValueLegacyCreditDefaultSwapTest {
       s_act365.getDayCountFraction(baseDate, zdt(2035, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
       s_act365.getDayCountFraction(baseDate, zdt(2035, 9, 24, 0, 0, 0, 0, ZoneOffset.UTC)),
       s_act365.getDayCountFraction(baseDate, zdt(2036, 3, 24, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(baseDate, zdt(2036, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),  // 336M
-      s_act365.getDayCountFraction(baseDate, zdt(2037, 3, 23, 0, 0, 0, 0, ZoneOffset.UTC)),  // 342M
-      s_act365.getDayCountFraction(baseDate, zdt(2037, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),  // 348M
-      s_act365.getDayCountFraction(baseDate, zdt(2038, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),  // 354M
-      s_act365.getDayCountFraction(baseDate, zdt(2038, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),  // 360M
+      s_act365.getDayCountFraction(baseDate, zdt(2036, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)), // 336M
+      s_act365.getDayCountFraction(baseDate, zdt(2037, 3, 23, 0, 0, 0, 0, ZoneOffset.UTC)), // 342M
+      s_act365.getDayCountFraction(baseDate, zdt(2037, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)), // 348M
+      s_act365.getDayCountFraction(baseDate, zdt(2038, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)), // 354M
+      s_act365.getDayCountFraction(baseDate, zdt(2038, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)), // 360M
   };
 
-  double[] rates = {
-      (new PeriodicInterestRate(0.00452115893602745000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.00965814197655757000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.01256719569422680000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.01808999617970230000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.01966710100627830000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.02112741666666660000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.01809534760435110000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.01655763824251000000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.01880609764411780000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.02033274208031280000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.02201082479582110000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.02329627269146610000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.02457991990962620000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.02564349380607000000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.02664198869678810000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.02747534265210970000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.02822421752113560000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.02887011718207980000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.02947938315126190000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.03001849170997110000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.03051723047721790000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.03096814372457490000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.03140378315953840000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.03180665717369410000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.03220470040815960000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.03257895748982500000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.03300576868204530000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.03339934269742980000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.03371439235915700000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.03401013049588440000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.03427957764613110000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.03453400145380310000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.03476707646146720000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.03498827591548650000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.03504602653686710000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.03510104623115760000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.03515188034751750000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.03519973661653090000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.03524486925430900000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.03528773208373260000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.03532784361012300000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.03536647655059340000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.03540272683370320000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.03543754047166620000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.03539936837313170000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.03536201961264760000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.03532774866571060000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.03529393446018300000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.03526215518920560000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.03523175393297300000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.03520264296319420000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.03517444167763210000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.03514783263597550000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.03512186451200650000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.03510945878934860000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.03509733233582990000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.03508585365890470000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.03507449693456950000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.03506379166273740000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.03505346751846350000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.03504350450444570000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.03503383205190350000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.03502458863645770000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.03501550511625420000, 1)).toContinuous().getRate()
-  };
+  double[] rates = {(new PeriodicInterestRate(0.00452115893602745000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.00965814197655757000, 1)).toContinuous().getRate(), (new PeriodicInterestRate(0.01256719569422680000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.01808999617970230000, 1)).toContinuous().getRate(), (new PeriodicInterestRate(0.01966710100627830000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.02112741666666660000, 1)).toContinuous().getRate(), (new PeriodicInterestRate(0.01809534760435110000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.01655763824251000000, 1)).toContinuous().getRate(), (new PeriodicInterestRate(0.01880609764411780000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.02033274208031280000, 1)).toContinuous().getRate(), (new PeriodicInterestRate(0.02201082479582110000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.02329627269146610000, 1)).toContinuous().getRate(), (new PeriodicInterestRate(0.02457991990962620000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.02564349380607000000, 1)).toContinuous().getRate(), (new PeriodicInterestRate(0.02664198869678810000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.02747534265210970000, 1)).toContinuous().getRate(), (new PeriodicInterestRate(0.02822421752113560000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.02887011718207980000, 1)).toContinuous().getRate(), (new PeriodicInterestRate(0.02947938315126190000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.03001849170997110000, 1)).toContinuous().getRate(), (new PeriodicInterestRate(0.03051723047721790000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.03096814372457490000, 1)).toContinuous().getRate(), (new PeriodicInterestRate(0.03140378315953840000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.03180665717369410000, 1)).toContinuous().getRate(), (new PeriodicInterestRate(0.03220470040815960000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.03257895748982500000, 1)).toContinuous().getRate(), (new PeriodicInterestRate(0.03300576868204530000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.03339934269742980000, 1)).toContinuous().getRate(), (new PeriodicInterestRate(0.03371439235915700000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.03401013049588440000, 1)).toContinuous().getRate(), (new PeriodicInterestRate(0.03427957764613110000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.03453400145380310000, 1)).toContinuous().getRate(), (new PeriodicInterestRate(0.03476707646146720000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.03498827591548650000, 1)).toContinuous().getRate(), (new PeriodicInterestRate(0.03504602653686710000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.03510104623115760000, 1)).toContinuous().getRate(), (new PeriodicInterestRate(0.03515188034751750000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.03519973661653090000, 1)).toContinuous().getRate(), (new PeriodicInterestRate(0.03524486925430900000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.03528773208373260000, 1)).toContinuous().getRate(), (new PeriodicInterestRate(0.03532784361012300000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.03536647655059340000, 1)).toContinuous().getRate(), (new PeriodicInterestRate(0.03540272683370320000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.03543754047166620000, 1)).toContinuous().getRate(), (new PeriodicInterestRate(0.03539936837313170000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.03536201961264760000, 1)).toContinuous().getRate(), (new PeriodicInterestRate(0.03532774866571060000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.03529393446018300000, 1)).toContinuous().getRate(), (new PeriodicInterestRate(0.03526215518920560000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.03523175393297300000, 1)).toContinuous().getRate(), (new PeriodicInterestRate(0.03520264296319420000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.03517444167763210000, 1)).toContinuous().getRate(), (new PeriodicInterestRate(0.03514783263597550000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.03512186451200650000, 1)).toContinuous().getRate(), (new PeriodicInterestRate(0.03510945878934860000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.03509733233582990000, 1)).toContinuous().getRate(), (new PeriodicInterestRate(0.03508585365890470000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.03507449693456950000, 1)).toContinuous().getRate(), (new PeriodicInterestRate(0.03506379166273740000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.03505346751846350000, 1)).toContinuous().getRate(), (new PeriodicInterestRate(0.03504350450444570000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.03503383205190350000, 1)).toContinuous().getRate(), (new PeriodicInterestRate(0.03502458863645770000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.03501550511625420000, 1)).toContinuous().getRate() };
 
   // Use an ISDACurve object (from RiskCare implementation) for the yield curve
   final double offset = s_act365.getDayCountFraction(valuationDate, baseDate);
@@ -329,16 +296,13 @@ public class PresentValueLegacyCreditDefaultSwapTest {
   static double[] hazardRateTimes = {
       0.0,
       s_act365.getDayCountFraction(valuationDate, zdt(2013, 06, 20, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(valuationDate, zdt(2015, 06, 20, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(valuationDate, zdt(2018, 06, 20, 0, 0, 0, 0, ZoneOffset.UTC))
-  };
 
-  static double[] hazardRates = {
-      (new PeriodicInterestRate(0.09709857471184660000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.09709857471184660000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.09705141266558010000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.09701141671498870000, 1)).toContinuous().getRate()
-  };
+      s_act365.getDayCountFraction(valuationDate, zdt(2015, 06, 20, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(valuationDate, zdt(2018, 06, 20, 0, 0, 0, 0, ZoneOffset.UTC)) };
+
+  static double[] hazardRates = {(new PeriodicInterestRate(0.09709857471184660000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.09709857471184660000, 1)).toContinuous().getRate(), (new PeriodicInterestRate(0.09705141266558010000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.09701141671498870000, 1)).toContinuous().getRate() };
 
   // Build the hazard rate curve object (No offset - survival probability = 1 on valuationDate)
   private static final HazardRateCurve hazardRateCurve = new HazardRateCurve(hazardRateDates, hazardRateTimes, hazardRates, 0.0);
@@ -350,241 +314,61 @@ public class PresentValueLegacyCreditDefaultSwapTest {
 
   // Construct the obligors party to the contract
 
-  private static final Obligor protectionBuyer = new Obligor(
-      protectionBuyerTicker,
-      protectionBuyerShortName,
-      protectionBuyerREDCode,
-      protectionBuyerCompositeRating,
-      protectionBuyerImpliedRating,
-      protectionBuyerCreditRatingMoodys,
-      protectionBuyerCreditRatingStandardAndPoors,
-      protectionBuyerCreditRatingFitch,
-      protectionBuyerHasDefaulted,
-      protectionBuyerSector,
-      protectionBuyerRegion,
-      protectionBuyerCountry);
+  private static final Obligor protectionBuyer = new Obligor(protectionBuyerTicker, protectionBuyerShortName, protectionBuyerREDCode, protectionBuyerCompositeRating,
+      protectionBuyerImpliedRating, protectionBuyerCreditRatingMoodys, protectionBuyerCreditRatingStandardAndPoors, protectionBuyerCreditRatingFitch,
+      protectionBuyerHasDefaulted, protectionBuyerSector, protectionBuyerRegion, protectionBuyerCountry);
 
-  private static final Obligor protectionSeller = new Obligor(
-      protectionSellerTicker,
-      protectionSellerShortName,
-      protectionSellerREDCode,
-      protectionSellerCompositeRating,
-      protectionSellerImpliedRating,
-      protectionSellerCreditRatingMoodys,
-      protectionSellerCreditRatingStandardAndPoors,
-      protectionSellerCreditRatingFitch,
-      protectionSellerHasDefaulted,
-      protectionSellerSector,
-      protectionSellerRegion,
-      protectionSellerCountry);
+  private static final Obligor protectionSeller = new Obligor(protectionSellerTicker, protectionSellerShortName, protectionSellerREDCode,
+      protectionSellerCompositeRating, protectionSellerImpliedRating, protectionSellerCreditRatingMoodys, protectionSellerCreditRatingStandardAndPoors,
+      protectionSellerCreditRatingFitch, protectionSellerHasDefaulted, protectionSellerSector, protectionSellerRegion, protectionSellerCountry);
 
-  private static final Obligor referenceEntity = new Obligor(
-      referenceEntityTicker,
-      referenceEntityShortName,
-      referenceEntityREDCode,
-      referenceEntityCompositeRating,
-      referenceEntityImpliedRating,
-      referenceEntityCreditRatingMoodys,
-      referenceEntityCreditRatingStandardAndPoors,
-      referenceEntityCreditRatingFitch,
-      referenceEntityHasDefaulted,
-      referenceEntitySector,
-      referenceEntityRegion,
-      referenceEntityCountry);
+  private static final Obligor referenceEntity = new Obligor(referenceEntityTicker, referenceEntityShortName, referenceEntityREDCode, referenceEntityCompositeRating,
+      referenceEntityImpliedRating, referenceEntityCreditRatingMoodys, referenceEntityCreditRatingStandardAndPoors, referenceEntityCreditRatingFitch,
+      referenceEntityHasDefaulted, referenceEntitySector, referenceEntityRegion, referenceEntityCountry);
 
-  private static final Obligor sovereignReferenceEntity = new Obligor(
-      sovereignReferenceEntityTicker,
-      sovereignReferenceEntityShortName,
-      sovereignReferenceEntityREDCode,
-      sovereignReferenceEntityCompositeRating,
-      sovereignReferenceEntityImpliedRating,
-      sovereignReferenceEntityCreditRatingMoodys,
-      sovereignReferenceEntityCreditRatingStandardAndPoors,
-      sovereignReferenceEntityCreditRatingFitch,
-      sovereignReferenceEntityHasDefaulted,
-      sovereignReferenceEntitySector,
-      sovereignReferenceEntityRegion,
-      sovereignReferenceEntityCountry);
+  private static final Obligor sovereignReferenceEntity = new Obligor(sovereignReferenceEntityTicker, sovereignReferenceEntityShortName, sovereignReferenceEntityREDCode,
+      sovereignReferenceEntityCompositeRating, sovereignReferenceEntityImpliedRating, sovereignReferenceEntityCreditRatingMoodys,
+      sovereignReferenceEntityCreditRatingStandardAndPoors, sovereignReferenceEntityCreditRatingFitch, sovereignReferenceEntityHasDefaulted,
+      sovereignReferenceEntitySector, sovereignReferenceEntityRegion, sovereignReferenceEntityCountry);
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 
   // Construct a set of CDS contracts for each type of CDS contract
 
-  private static final LegacyFixedRecoveryCreditDefaultSwapDefinition legacyFixedRecoveryCDS = new LegacyFixedRecoveryCreditDefaultSwapDefinition(
-      buySellProtection,
-      protectionBuyer,
-      protectionSeller,
-      referenceEntity,
-      currency,
-      debtSeniority,
-      restructuringClause,
-      calendar,
-      startDate,
-      effectiveDate,
-      maturityDate,
-      stubType,
-      couponFrequency,
-      daycountFractionConvention,
-      businessdayAdjustmentConvention,
-      immAdjustMaturityDate,
-      adjustEffectiveDate,
-      adjustMaturityDate,
-      notional,
-      fixedRecoveryRate,
-      includeAccruedPremium,
-      protectionStart,
-      parSpread);
+  private static final LegacyFixedRecoveryCreditDefaultSwapDefinition legacyFixedRecoveryCDS = new LegacyFixedRecoveryCreditDefaultSwapDefinition(buySellProtection,
+      protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate, maturityDate, stubType,
+      couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, notional,
+      fixedRecoveryRate, includeAccruedPremium, protectionStart, parSpread);
 
   private static final LegacyForwardStartingCreditDefaultSwapDefinition legacyForwardStartingCDS = new LegacyForwardStartingCreditDefaultSwapDefinition(
-      buySellProtection,
-      protectionBuyer,
-      protectionSeller,
-      referenceEntity,
-      currency,
-      debtSeniority,
-      restructuringClause,
-      calendar,
-      startDate,
-      effectiveDate,
-      maturityDate,
-      stubType,
-      couponFrequency,
-      daycountFractionConvention,
-      businessdayAdjustmentConvention,
-      immAdjustMaturityDate,
-      adjustEffectiveDate,
-      adjustMaturityDate,
-      notional,
-      recoveryRate,
-      includeAccruedPremium,
-      protectionStart,
-      parSpread,
-      forwardStartDate);
+      buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
+      maturityDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
+      adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, protectionStart, parSpread, forwardStartDate);
 
-  private static final LegacyMuniCreditDefaultSwapDefinition legacyMuniCDS = new LegacyMuniCreditDefaultSwapDefinition(
-      buySellProtection,
-      protectionBuyer,
-      protectionSeller,
-      referenceEntity,
-      currency,
-      debtSeniority,
-      restructuringClause,
-      calendar,
-      startDate,
-      effectiveDate,
-      maturityDate,
-      stubType,
-      couponFrequency,
-      daycountFractionConvention,
-      businessdayAdjustmentConvention,
-      immAdjustMaturityDate,
-      adjustEffectiveDate,
-      adjustMaturityDate,
-      notional,
-      recoveryRate,
-      includeAccruedPremium,
-      protectionStart,
-      parSpread);
+  private static final LegacyMuniCreditDefaultSwapDefinition legacyMuniCDS = new LegacyMuniCreditDefaultSwapDefinition(buySellProtection, protectionBuyer,
+      protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate, maturityDate, stubType, couponFrequency,
+      daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, notional, recoveryRate,
+      includeAccruedPremium, protectionStart, parSpread);
 
-  private static final LegacyQuantoCreditDefaultSwapDefinition legacyQuantoCDS = new LegacyQuantoCreditDefaultSwapDefinition(
-      buySellProtection,
-      protectionBuyer,
-      protectionSeller,
-      referenceEntity,
-      currency,
-      debtSeniority,
-      restructuringClause,
-      calendar,
-      startDate,
-      effectiveDate,
-      maturityDate,
-      stubType,
-      couponFrequency,
-      daycountFractionConvention,
-      businessdayAdjustmentConvention,
-      immAdjustMaturityDate,
-      adjustEffectiveDate,
-      adjustMaturityDate,
-      notional,
-      recoveryRate,
-      includeAccruedPremium,
-      protectionStart,
-      parSpread);
+  private static final LegacyQuantoCreditDefaultSwapDefinition legacyQuantoCDS = new LegacyQuantoCreditDefaultSwapDefinition(buySellProtection, protectionBuyer,
+      protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate, maturityDate, stubType, couponFrequency,
+      daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, notional, recoveryRate,
+      includeAccruedPremium, protectionStart, parSpread);
 
-  private static final LegacyRecoveryLockCreditDefaultSwapDefinition legacyRecoveryLockCDS = new LegacyRecoveryLockCreditDefaultSwapDefinition(
-      buySellProtection,
-      protectionBuyer,
-      protectionSeller,
-      referenceEntity,
-      currency,
-      debtSeniority,
-      restructuringClause,
-      calendar,
-      startDate,
-      effectiveDate,
-      maturityDate,
-      stubType,
-      couponFrequency,
-      daycountFractionConvention,
-      businessdayAdjustmentConvention,
-      immAdjustMaturityDate,
-      adjustEffectiveDate,
-      adjustMaturityDate,
-      notional,
-      recoveryRate,
-      includeAccruedPremium,
-      protectionStart,
-      parSpread);
+  private static final LegacyRecoveryLockCreditDefaultSwapDefinition legacyRecoveryLockCDS = new LegacyRecoveryLockCreditDefaultSwapDefinition(buySellProtection,
+      protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate, maturityDate, stubType,
+      couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, notional,
+      recoveryRate, includeAccruedPremium, protectionStart, parSpread);
 
-  private static final LegacySovereignCreditDefaultSwapDefinition legacySovereignCDS = new LegacySovereignCreditDefaultSwapDefinition(
-      buySellProtection,
-      protectionBuyer,
-      protectionSeller,
-      sovereignReferenceEntity,
-      currency,
-      debtSeniority,
-      restructuringClause,
-      calendar,
-      startDate,
-      effectiveDate,
-      maturityDate,
-      stubType,
-      couponFrequency,
-      daycountFractionConvention,
-      businessdayAdjustmentConvention,
-      immAdjustMaturityDate,
-      adjustEffectiveDate,
-      adjustMaturityDate,
-      notional,
-      recoveryRate,
-      includeAccruedPremium,
-      protectionStart,
-      parSpread);
+  private static final LegacySovereignCreditDefaultSwapDefinition legacySovereignCDS = new LegacySovereignCreditDefaultSwapDefinition(buySellProtection, protectionBuyer,
+      protectionSeller, sovereignReferenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate, maturityDate, stubType,
+      couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, notional,
+      recoveryRate, includeAccruedPremium, protectionStart, parSpread);
 
-  private static final LegacyVanillaCreditDefaultSwapDefinition legacyVanillaCDS = new LegacyVanillaCreditDefaultSwapDefinition(
-      buySellProtection,
-      protectionBuyer,
-      protectionSeller,
-      referenceEntity,
-      currency,
-      debtSeniority,
-      restructuringClause,
-      calendar,
-      startDate,
-      effectiveDate,
-      maturityDate,
-      stubType,
-      couponFrequency,
-      daycountFractionConvention,
-      businessdayAdjustmentConvention,
-      immAdjustMaturityDate,
-      adjustEffectiveDate,
-      adjustMaturityDate,
-      notional,
-      recoveryRate,
-      includeAccruedPremium,
-      protectionStart,
-      parSpread);
+  private static final LegacyVanillaCreditDefaultSwapDefinition legacyVanillaCDS = new LegacyVanillaCreditDefaultSwapDefinition(buySellProtection, protectionBuyer,
+      protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate, maturityDate, stubType, couponFrequency,
+      daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, notional, recoveryRate,
+      includeAccruedPremium, protectionStart, parSpread);
 
   // -----------------------------------------------------------------------------------------------
 
@@ -616,39 +400,46 @@ public class PresentValueLegacyCreditDefaultSwapTest {
     final PresentValueLegacyVanillaCreditDefaultSwap vanillaCreditDefaultSwap = new PresentValueLegacyVanillaCreditDefaultSwap();
 
     // Calculate the legacy fixed recovery CDS MtM and par spread 
-    final double presentValueLegacyFixedRecoveryCDS = fixedRecoveryCreditDefaultSwap.getPresentValueLegacyFixedRecoveryCreditDefaultSwap(valuationDate, legacyFixedRecoveryCDS, yieldCurve,
-        hazardRateCurve, priceType);
-    final double parSpreadLegacyFixedRecoveryCDS = fixedRecoveryCreditDefaultSwap.getParSpreadLegacyFixedRecoveryCreditDefaultSwap(valuationDate, legacyFixedRecoveryCDS, yieldCurve, hazardRateCurve,
-        priceType);
+    final double presentValueLegacyFixedRecoveryCDS = fixedRecoveryCreditDefaultSwap.getPresentValueLegacyFixedRecoveryCreditDefaultSwap(valuationDate,
+        legacyFixedRecoveryCDS, yieldCurve, hazardRateCurve, priceType);
+    final double parSpreadLegacyFixedRecoveryCDS = fixedRecoveryCreditDefaultSwap.getParSpreadLegacyFixedRecoveryCreditDefaultSwap(valuationDate, legacyFixedRecoveryCDS,
+        yieldCurve, hazardRateCurve, priceType);
 
     // Calculate the legacy forward starting CDS MtM  and par spread
-    final double presentValueLegacyForwardStartingCDS = forwardStartingCreditDefaultSwap.getPresentValueLegacyForwardStartingCreditDefaultSwap(valuationDate, legacyForwardStartingCDS, yieldCurve,
-        hazardRateCurve, priceType);
-    final double parSpreadLegacyForwardStartingCDS = forwardStartingCreditDefaultSwap.getParSpreadLegacyForwardStartingCreditDefaultSwap(valuationDate, legacyForwardStartingCDS, yieldCurve,
-        hazardRateCurve, priceType);
+    final double presentValueLegacyForwardStartingCDS = forwardStartingCreditDefaultSwap.getPresentValueLegacyForwardStartingCreditDefaultSwap(valuationDate,
+        legacyForwardStartingCDS, yieldCurve, hazardRateCurve, priceType);
+    final double parSpreadLegacyForwardStartingCDS = forwardStartingCreditDefaultSwap.getParSpreadLegacyForwardStartingCreditDefaultSwap(valuationDate,
+        legacyForwardStartingCDS, yieldCurve, hazardRateCurve, priceType);
 
     // Calculate the legacy muni CDS MtM and par spread
-    final double presentValueLegacyMuniCDS = muniCreditDefaultSwap.getPresentValueLegacyMuniCreditDefaultSwap(valuationDate, legacyMuniCDS, yieldCurve, muniHazardRateCurve, priceType);
-    final double parSpreadLegacyMuniCDS = muniCreditDefaultSwap.getParSpreadLegacyMuniCreditDefaultSwap(valuationDate, legacyMuniCDS, yieldCurve, muniHazardRateCurve, priceType);
+    final double presentValueLegacyMuniCDS = muniCreditDefaultSwap.getPresentValueLegacyMuniCreditDefaultSwap(valuationDate, legacyMuniCDS, yieldCurve,
+        muniHazardRateCurve, priceType);
+    final double parSpreadLegacyMuniCDS = muniCreditDefaultSwap.getParSpreadLegacyMuniCreditDefaultSwap(valuationDate, legacyMuniCDS, yieldCurve, muniHazardRateCurve,
+        priceType);
 
     // Calculate the legacy quanto CDS MtM and par spread
-    final double presentValueLegacyQuantoCDS = quantoCreditDefaultSwap.getPresentValueLegacyQuantoCreditDefaultSwap(valuationDate, legacyQuantoCDS, yieldCurve, hazardRateCurve, priceType);
-    final double parSpreadLegacyQuantoCDS = quantoCreditDefaultSwap.getParSpreadLegacyQuantoCreditDefaultSwap(valuationDate, legacyQuantoCDS, yieldCurve, hazardRateCurve, priceType);
+    final double presentValueLegacyQuantoCDS = quantoCreditDefaultSwap.getPresentValueLegacyQuantoCreditDefaultSwap(valuationDate, legacyQuantoCDS, yieldCurve,
+        hazardRateCurve, priceType);
+    final double parSpreadLegacyQuantoCDS = quantoCreditDefaultSwap.getParSpreadLegacyQuantoCreditDefaultSwap(valuationDate, legacyQuantoCDS, yieldCurve,
+        hazardRateCurve, priceType);
 
     // Calculate the legacy recovery lock CDS MtM and par spread
-    final double presentValueLegacyRecoveryLockCDS = recoveryLockCreditDefaultSwap.getPresentValueLegacyRecoveryLockCreditDefaultSwap(valuationDate, legacyRecoveryLockCDS, yieldCurve,
-        hazardRateCurve, priceType);
-    final double parSpreadLegacyRecoveryLockCDS = recoveryLockCreditDefaultSwap.getParSpreadLegacyRecoveryLockCreditDefaultSwap(valuationDate, legacyRecoveryLockCDS, yieldCurve, hazardRateCurve,
-        priceType);
+    final double presentValueLegacyRecoveryLockCDS = recoveryLockCreditDefaultSwap.getPresentValueLegacyRecoveryLockCreditDefaultSwap(valuationDate,
+        legacyRecoveryLockCDS, yieldCurve, hazardRateCurve, priceType);
+    final double parSpreadLegacyRecoveryLockCDS = recoveryLockCreditDefaultSwap.getParSpreadLegacyRecoveryLockCreditDefaultSwap(valuationDate, legacyRecoveryLockCDS,
+        yieldCurve, hazardRateCurve, priceType);
 
     // Calculate the legacy sovereign CDS MtM and par spread
-    final double presentValueSovereignCDS = sovereignCreditDefaultSwap.getPresentValueLegacySovereignCreditDefaultSwap(valuationDate, legacySovereignCDS, yieldCurve, sovereignHazardRateCurve,
-        priceType);
-    final double parSpreadSovereignCDS = sovereignCreditDefaultSwap.getParSpreadLegacySovereignCreditDefaultSwap(valuationDate, legacySovereignCDS, yieldCurve, sovereignHazardRateCurve, priceType);
+    final double presentValueSovereignCDS = sovereignCreditDefaultSwap.getPresentValueLegacySovereignCreditDefaultSwap(valuationDate, legacySovereignCDS, yieldCurve,
+        sovereignHazardRateCurve, priceType);
+    final double parSpreadSovereignCDS = sovereignCreditDefaultSwap.getParSpreadLegacySovereignCreditDefaultSwap(valuationDate, legacySovereignCDS, yieldCurve,
+        sovereignHazardRateCurve, priceType);
 
     // Calculate the legacy vanilla CDS MtM and par spread
-    final double presentValueLegacyVanillaCDS = vanillaCreditDefaultSwap.getPresentValueLegacyVanillaCreditDefaultSwap(valuationDate, legacyVanillaCDS, yieldCurve, hazardRateCurve, priceType);
-    final double parSpreadLegacyVanillaCDS = vanillaCreditDefaultSwap.getParSpreadLegacyVanillaCreditDefaultSwap(valuationDate, legacyVanillaCDS, yieldCurve, hazardRateCurve, priceType);
+    final double presentValueLegacyVanillaCDS = vanillaCreditDefaultSwap.getPresentValueLegacyVanillaCreditDefaultSwap(valuationDate, legacyVanillaCDS, yieldCurve,
+        hazardRateCurve, priceType);
+    final double parSpreadLegacyVanillaCDS = vanillaCreditDefaultSwap.getParSpreadLegacyVanillaCreditDefaultSwap(valuationDate, legacyVanillaCDS, yieldCurve,
+        hazardRateCurve, priceType);
 
     // Report the results
     if (outputResults) {
@@ -859,7 +650,7 @@ public class PresentValueLegacyCreditDefaultSwapTest {
   */
 
   //-------------------------------------------------------------------------
-  private static ZonedDateTime zdt(int y, int m, int d, int hr, int min, int sec, int nanos, ZoneId zone) {
+  private static ZonedDateTime zdt(final int y, final int m, final int d, final int hr, final int min, final int sec, final int nanos, final ZoneId zone) {
     return LocalDateTime.of(y, m, d, hr, min, sec, nanos).atZone(zone);
   }
 

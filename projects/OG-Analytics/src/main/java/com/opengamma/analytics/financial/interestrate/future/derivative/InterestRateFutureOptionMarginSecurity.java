@@ -21,7 +21,7 @@ public class InterestRateFutureOptionMarginSecurity implements InstrumentDerivat
   /**
    * Underlying future security.
    */
-  private final InterestRateFuture _underlyingFuture;
+  private final InterestRateFutureSecurity _underlyingFuture;
   /**
    * Expiration date.
    */
@@ -50,7 +50,7 @@ public class InterestRateFutureOptionMarginSecurity implements InstrumentDerivat
    * @param strike The option strike.
    * @param isCall The cap (true) / floor (false) flag.
    */
-  public InterestRateFutureOptionMarginSecurity(final InterestRateFuture underlyingFuture, final double expirationTime, final double strike, final boolean isCall) {
+  public InterestRateFutureOptionMarginSecurity(final InterestRateFutureSecurity underlyingFuture, final double expirationTime, final double strike, final boolean isCall) {
     Validate.notNull(underlyingFuture, "underlying future");
     this._underlyingFuture = underlyingFuture;
     this._expirationTime = expirationTime;
@@ -64,7 +64,7 @@ public class InterestRateFutureOptionMarginSecurity implements InstrumentDerivat
    * Gets the underlying future security.
    * @return The underlying future security.
    */
-  public InterestRateFuture getUnderlyingFuture() {
+  public InterestRateFutureSecurity getUnderlyingFuture() {
     return _underlyingFuture;
   }
 

@@ -29,7 +29,7 @@ public class GeneralizedLeastSquareResults<T> extends LeastSquareResults {
   public GeneralizedLeastSquareResults(final List<Function1D<T, Double>> basisFunctions, final double chiSq, final DoubleMatrix1D parameters, final DoubleMatrix2D covariance) {
     super(chiSq, parameters, covariance, null);
 
-    _function = new BasisFunctionAggregation<T>(basisFunctions, parameters.getData());
+    _function = new BasisFunctionAggregation<>(basisFunctions, parameters.getData());
   }
 
   /**

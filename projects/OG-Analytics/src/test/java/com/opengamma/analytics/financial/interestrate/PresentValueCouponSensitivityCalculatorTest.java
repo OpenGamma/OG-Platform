@@ -16,11 +16,9 @@ import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityPaymentFixed;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
-import com.opengamma.analytics.financial.interestrate.fra.ForwardRateAgreement;
-import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
+import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRateAgreement;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
-import com.opengamma.analytics.financial.interestrate.swap.derivative.FixedFloatSwap;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
@@ -43,7 +41,7 @@ public class PresentValueCouponSensitivityCalculatorTest {
   private static final String ZERO_PC_CURVE_NAME = "0%";
   private static final YieldCurveBundle CURVES;
   private static final double DELTA = 1e-5;
-  private static final Currency CUR = Currency.USD;
+  private static final Currency CUR = Currency.EUR;
 
   private static final Period TENOR = Period.of(6, MONTHS);
   private static final int SETTLEMENT_DAYS = 2;
@@ -102,29 +100,29 @@ public class PresentValueCouponSensitivityCalculatorTest {
     assertEquals(temp, fra.accept(PVCSC, CURVES), 1e-5);
   }
 
-  @Test
-  public void testFutures() {
-    final IborIndex iborIndex = new IborIndex(CUR, Period.of(1, MONTHS), 2, new MondayToFridayCalendar("A"), DayCountFactory.INSTANCE.getDayCount("Actual/365"),
-        BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), true);
-    final double lastTradingTime = 1.468;
-    final double fixingPeriodStartTime = 1.467;
-    final double fixingPeriodEndTime = 1.75;
-    final double fixingPeriodAccrualFactor = 0.267;
-    final double paymentAccrualFactor = 0.25;
-    final double referencePrice = 0.0; // TODO CASE - Future refactor - referencePrice = 0.0
-    //  final double rate = 0.0356;
-    final int quantity = 123;
-    final InterestRateFuture ir = new InterestRateFuture(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor, referencePrice, 1, paymentAccrualFactor,
-        quantity, "A", FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
-    final InterestRateFuture irUp = new InterestRateFuture(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor, referencePrice - DELTA, 1,
-        paymentAccrualFactor, quantity, "A", FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
-    final InterestRateFuture irDown = new InterestRateFuture(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor, referencePrice + DELTA, 1,
-        paymentAccrualFactor, quantity, "A", FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
-    final double pvUp = irUp.accept(PVC, CURVES);
-    final double pvDown = irDown.accept(PVC, CURVES);
-    final double temp = (pvUp - pvDown) / 2 / DELTA;
-    assertEquals(temp, ir.accept(PVCSC, CURVES), 1e-10);
-  }
+  //  @Test
+  //  public void testFutures() {
+  //    final IborIndex iborIndex = new IborIndex(CUR, Period.ofMonths(1), 2, new MondayToFridayCalendar("A"), DayCountFactory.INSTANCE.getDayCount("Actual/365"),
+  //        BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), true);
+  //    final double lastTradingTime = 1.468;
+  //    final double fixingPeriodStartTime = 1.467;
+  //    final double fixingPeriodEndTime = 1.75;
+  //    final double fixingPeriodAccrualFactor = 0.267;
+  //    final double paymentAccrualFactor = 0.25;
+  //    final double referencePrice = 0.0; // TODO CASE - Future refactor - referencePrice = 0.0
+  //    //  final double rate = 0.0356;
+  //    final int quantity = 123;
+  //    final InterestRateFutureTransaction ir = new InterestRateFutureTransaction(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor, referencePrice, 1, paymentAccrualFactor,
+  //        quantity, "A", FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
+  //    final InterestRateFutureTransaction irUp = new InterestRateFutureTransaction(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor, referencePrice - DELTA, 1,
+  //        paymentAccrualFactor, quantity, "A", FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
+  //    final InterestRateFutureTransaction irDown = new InterestRateFutureTransaction(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor, referencePrice + DELTA, 1,
+  //        paymentAccrualFactor, quantity, "A", FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
+  //    final double pvUp = irUp.accept(PVC, CURVES);
+  //    final double pvDown = irDown.accept(PVC, CURVES);
+  //    final double temp = (pvUp - pvDown) / 2 / DELTA;
+  //    assertEquals(temp, ir.accept(PVCSC, CURVES), 1e-10);
+  //  }
 
   @Test
   public void testBond() {
@@ -140,7 +138,7 @@ public class PresentValueCouponSensitivityCalculatorTest {
       couponsUp[i] = new CouponFixed(CUR, tau * (i + 1), FIVE_PC_CURVE_NAME, yearFrac, coupon + DELTA);
       couponsDown[i] = new CouponFixed(CUR, tau * (i + 1), FIVE_PC_CURVE_NAME, yearFrac, coupon - DELTA);
     }
-    final AnnuityPaymentFixed nominal = new AnnuityPaymentFixed(new PaymentFixed[] {new PaymentFixed(CUR, tau * n, 1, FIVE_PC_CURVE_NAME) });
+    final AnnuityPaymentFixed nominal = new AnnuityPaymentFixed(new PaymentFixed[] {new PaymentFixed(CUR, tau * n, 1, FIVE_PC_CURVE_NAME)});
     final BondFixedSecurity bond = new BondFixedSecurity(nominal, new AnnuityCouponFixed(coupons), 0, 0, 0.5, SimpleYieldConvention.TRUE, 2, FIVE_PC_CURVE_NAME, "S");
     final BondFixedSecurity bondUp = new BondFixedSecurity(nominal, new AnnuityCouponFixed(couponsUp), 0, 0, 0.5, SimpleYieldConvention.TRUE, 2, FIVE_PC_CURVE_NAME, "S");
     final BondFixedSecurity bondDown = new BondFixedSecurity(nominal, new AnnuityCouponFixed(couponsDown), 0, 0, 0.5, SimpleYieldConvention.TRUE, 2, FIVE_PC_CURVE_NAME, "S");
@@ -148,31 +146,6 @@ public class PresentValueCouponSensitivityCalculatorTest {
     final double pvDown = bondDown.accept(PVC, CURVES);
     final double temp = (pvUp - pvDown) / 2 / DELTA;
     assertEquals(temp, bond.accept(PVCSC, CURVES), 1e-10);
-  }
-
-  @Test
-  public void testFixedFloatSwap() {
-    final int n = 20;
-    final double[] fixedPaymentTimes = new double[n];
-    final double[] floatPaymentTimes = new double[2 * n];
-
-    for (int i = 0; i < n * 2; i++) {
-      if (i % 2 == 0) {
-        fixedPaymentTimes[i / 2] = (i + 2) * 0.25;
-      }
-      floatPaymentTimes[i] = (i + 1) * 0.25;
-    }
-    final double swapRate = 0.04;
-
-    final FixedFloatSwap swap = new FixedFloatSwap(CUR, fixedPaymentTimes, floatPaymentTimes, INDEX, swapRate, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME, true);
-    final FixedFloatSwap swapUp = new FixedFloatSwap(CUR, fixedPaymentTimes, floatPaymentTimes, INDEX, swapRate + DELTA, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME, true);
-    final FixedFloatSwap swapDown = new FixedFloatSwap(CUR, fixedPaymentTimes, floatPaymentTimes, INDEX, swapRate - DELTA, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME, true);
-
-    final double pvUp = swapUp.accept(PVC, CURVES);
-    final double pvDown = swapDown.accept(PVC, CURVES);
-    final double temp = (pvUp - pvDown) / 2 / DELTA;
-
-    assertEquals(temp, swap.accept(PVCSC, CURVES), 1e-10);
   }
 
 }

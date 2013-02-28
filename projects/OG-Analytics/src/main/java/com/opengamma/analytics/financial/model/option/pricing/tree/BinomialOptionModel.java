@@ -121,7 +121,7 @@ public class BinomialOptionModel<T extends StandardOptionDataBundle> extends Tre
             }
           }
         }
-        return new RecombiningBinomialTree<DoublesPair>(spotAndOptionPrices);
+        return new RecombiningBinomialTree<>(spotAndOptionPrices);
       }
     };
   }

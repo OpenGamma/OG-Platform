@@ -14,7 +14,6 @@ import com.opengamma.analytics.financial.equity.option.EquityOption;
 import com.opengamma.analytics.financial.forex.derivative.ForexSwap;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
-import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponIbor;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillTransaction;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedTransaction;
@@ -24,10 +23,10 @@ import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositCounterpart;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositIbor;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositZero;
-import com.opengamma.analytics.financial.interestrate.fra.ForwardRateAgreement;
+import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRateAgreement;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumTransaction;
-import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionPremiumSecurity;
@@ -39,10 +38,8 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponOIS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
-import com.opengamma.analytics.financial.interestrate.swap.derivative.FixedFloatSwap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
-import com.opengamma.analytics.financial.interestrate.swap.derivative.TenorSwap;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
 
 /**
@@ -60,11 +57,6 @@ public final class LastTimeCalculator extends InstrumentDerivativeVisitorAdapter
   }
 
   private LastTimeCalculator() {
-  }
-
-  @Override
-  public Double visitTenorSwap(final TenorSwap<? extends Payment> swap) {
-    return visitSwap(swap);
   }
 
   @Override
@@ -93,7 +85,7 @@ public final class LastTimeCalculator extends InstrumentDerivativeVisitorAdapter
   }
 
   @Override
-  public Double visitInterestRateFuture(final InterestRateFuture future) {
+  public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction future) {
     return future.getFixingPeriodEndTime();
   }
 
@@ -132,16 +124,6 @@ public final class LastTimeCalculator extends InstrumentDerivativeVisitorAdapter
   @Override
   public Double visitCouponFixed(final CouponFixed payment) {
     return payment.getPaymentTime();
-  }
-
-  @Override
-  public Double visitForwardLiborAnnuity(final AnnuityCouponIbor annuity) {
-    return visitGenericAnnuity(annuity);
-  }
-
-  @Override
-  public Double visitFixedFloatSwap(final FixedFloatSwap swap) {
-    return visitSwap(swap);
   }
 
   @Override

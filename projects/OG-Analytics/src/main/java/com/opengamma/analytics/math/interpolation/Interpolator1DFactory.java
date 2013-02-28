@@ -72,8 +72,8 @@ public final class Interpolator1DFactory {
   private static final Map<Class<?>, String> s_instanceNames;
 
   static {
-    final Map<String, Interpolator1D> staticInstances = new HashMap<String, Interpolator1D>();
-    final Map<Class<?>, String> instanceNames = new HashMap<Class<?>, String>();
+    final Map<String, Interpolator1D> staticInstances = new HashMap<>();
+    final Map<Class<?>, String> instanceNames = new HashMap<>();
     staticInstances.put(LINEAR, LINEAR_INSTANCE);
     instanceNames.put(LinearInterpolator1D.class, LINEAR);
     staticInstances.put(EXPONENTIAL, EXPONENTIAL_INSTANCE);
@@ -97,8 +97,8 @@ public final class Interpolator1DFactory {
     staticInstances.put(ISDA_EXTRAPOLATOR, ISDA_EXTRAPOLATOR_INSTANCE);
     instanceNames.put(ISDAExtrapolator1D.class, ISDA_EXTRAPOLATOR);
 
-    s_staticInstances = new HashMap<String, Interpolator1D>(staticInstances);
-    s_instanceNames = new HashMap<Class<?>, String>(instanceNames);
+    s_staticInstances = new HashMap<>(staticInstances);
+    s_instanceNames = new HashMap<>(instanceNames);
   }
 
   private Interpolator1DFactory() {

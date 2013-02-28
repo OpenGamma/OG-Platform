@@ -11,6 +11,7 @@ import java.util.Map;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.CalendarNoHoliday;
+import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.util.money.Currency;
 
@@ -42,12 +43,15 @@ public final class IndexONMaster {
    */
   private IndexONMaster() {
     Calendar baseCalendar = new CalendarNoHoliday("No Holidays");
+    DayCount act360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+    DayCount act365 = DayCountFactory.INSTANCE.getDayCount("Actual/365");
     _on = new HashMap<String, IndexON>();
-    _on.put("EONIA", new IndexON("EONIA", Currency.EUR, DayCountFactory.INSTANCE.getDayCount("Actual/360"), 0, baseCalendar));
-    _on.put("FED FUND", new IndexON("FED FUND", Currency.USD, DayCountFactory.INSTANCE.getDayCount("Actual/360"), 1, baseCalendar));
-    _on.put("SONIA", new IndexON("SONIA", Currency.GBP, DayCountFactory.INSTANCE.getDayCount("Actual/365"), 0, baseCalendar));
-    _on.put("RBA ON", new IndexON("RBA ON", Currency.AUD, DayCountFactory.INSTANCE.getDayCount("Actual/365"), 0, baseCalendar));
-    _on.put("DKK TN", new IndexON("DKK TN", Currency.DKK, DayCountFactory.INSTANCE.getDayCount("Actual/360"), 1, baseCalendar));
+    _on.put("EONIA", new IndexON("EONIA", Currency.EUR, act360, 0, baseCalendar));
+    _on.put("FED FUND", new IndexON("FED FUND", Currency.USD, act360, 1, baseCalendar));
+    _on.put("SONIA", new IndexON("SONIA", Currency.GBP, act365, 0, baseCalendar));
+    _on.put("RBA ON", new IndexON("RBA ON", Currency.AUD, act365, 0, baseCalendar));
+    _on.put("DKK TN", new IndexON("DKK TN", Currency.DKK, act360, 1, baseCalendar));
+    _on.put("TONAR", new IndexON("TONAR", Currency.JPY, act365, 0, baseCalendar));
   }
 
   public IndexON getIndex(final String name, final Calendar cal) {

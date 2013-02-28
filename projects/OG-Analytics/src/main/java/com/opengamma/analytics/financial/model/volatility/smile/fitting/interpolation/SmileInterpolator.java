@@ -73,7 +73,7 @@ public abstract class SmileInterpolator<T extends SmileModelData> implements Gen
     ArgumentChecker.isTrue(impliedVols.length == n, "#strikes != # vols; have {} and {}", impliedVols.length, n);
     validateStrikes(strikes);
 
-    final List<T> modelParameters = new ArrayList<T>(n);
+    final List<T> modelParameters = new ArrayList<>(n);
 
     final double[] errors = new double[n];
     Arrays.fill(errors, FIT_ERROR);

@@ -26,6 +26,8 @@ public class DiscountCurve extends YieldAndDiscountCurve {
    */
   private final DoublesCurve _curve;
 
+  private static final double SMALL_TIME = 1.0E-6;
+
   /**
    * Constructor from a curve containing the discount factors.
    * @param name The discount curve name.
@@ -56,26 +58,25 @@ public class DiscountCurve extends YieldAndDiscountCurve {
    * @return The discount curve.
    */
   public static DiscountCurve fromYieldsInterpolated(final double[] nodePoints, final double[] yields, final Interpolator1D interpolator, final String name) {
-    int nbYields = yields.length;
+    final int nbYields = yields.length;
     ArgumentChecker.isTrue(nodePoints.length == nbYields, "Yields array of incorrect length");
-    double[] discountFactor = new double[nbYields];
+    final double[] discountFactor = new double[nbYields];
     for (int loopy = 0; loopy < nbYields; loopy++) {
       discountFactor[loopy] = Math.exp(-nodePoints[loopy] * yields[loopy]);
     }
-    InterpolatedDoublesCurve curve = new InterpolatedDoublesCurve(nodePoints, discountFactor, interpolator, false);
+    final InterpolatedDoublesCurve curve = new InterpolatedDoublesCurve(nodePoints, discountFactor, interpolator, false);
     return new DiscountCurve(name, curve);
   }
 
   @Override
   public double getInterestRate(final Double time) {
-    double eps = 1.0E-6;
-    if (Math.abs(time) > eps) {
+    if (Math.abs(time) > SMALL_TIME) {
       return -Math.log(getDiscountFactor(time)) / time;
     }
     // Implementation note: if time too close to 0, compute the limit for t->0.
-    double dfP = getDiscountFactor(time + eps);
-    double df = getDiscountFactor(time);
-    return (df - dfP) / (eps * df);
+    final double dfP = getDiscountFactor(time + SMALL_TIME);
+    final double df = getDiscountFactor(time);
+    return (df - dfP) / (SMALL_TIME * df);
   }
 
   @Override
@@ -84,10 +85,14 @@ public class DiscountCurve extends YieldAndDiscountCurve {
   }
 
   @Override
-  public double[] getInterestRateParameterSensitivity(double time) {
-    Double[] dfSensitivity = _curve.getYValueParameterSensitivity(time);
-    double[] rSensitivity = new double[dfSensitivity.length];
-    double df = getDiscountFactor(time);
+  public double[] getInterestRateParameterSensitivity(final double time) {
+    final Double[] dfSensitivity = _curve.getYValueParameterSensitivity(time);
+    final double[] rSensitivity = new double[dfSensitivity.length];
+    // Implementation note: if time = 0, the rate is ill-defined: return 0 sensitivity
+    if (Math.abs(time) < SMALL_TIME) {
+      return rSensitivity;
+    }
+    final double df = getDiscountFactor(time);
     for (int loopp = 0; loopp < dfSensitivity.length; loopp++) {
       rSensitivity[loopp] = -dfSensitivity[loopp] / (time * df);
     }
@@ -101,11 +106,11 @@ public class DiscountCurve extends YieldAndDiscountCurve {
 
   @Override
   public List<String> getUnderlyingCurvesNames() {
-    return new ArrayList<String>();
+    return new ArrayList<>();
   }
 
   /**
-   * Gets the underlying curve. 
+   * Gets the underlying curve.
    * @return The curve.
    */
   public Curve<Double, Double> getCurve() {

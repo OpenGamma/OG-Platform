@@ -12,12 +12,13 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
  * Class with the description of swap characteristics.
  */
-public class GeneratorFRA extends GeneratorInstrument {
+public class GeneratorFRA extends GeneratorInstrument<GeneratorAttributeIR> {
 
   /**
    * The Ibor index underlying the FRA.
@@ -61,19 +62,13 @@ public class GeneratorFRA extends GeneratorInstrument {
 
   @Override
   /**
-   * The FRA is from spot+(tenor-_iborIndex.getTenor()) to spot + tenor.
+   * The FRA is from spot+(endtenor-_iborIndex.getTenor()) to spot + endtenor. The start period is not used.
    */
-  public ForwardRateAgreementDefinition generateInstrument(ZonedDateTime date, Period tenor, double rate, double notional, Object... objects) {
-    Period startPeriod = tenor.minus(_iborIndex.getTenor());
+  public ForwardRateAgreementDefinition generateInstrument(final ZonedDateTime date, final double rate, final double notional, final GeneratorAttributeIR attribute) {
+    ArgumentChecker.notNull(date, "Reference date");
+    ArgumentChecker.notNull(attribute, "Attributes");
+    Period startPeriod = attribute.getEndPeriod().minus(_iborIndex.getTenor());
     return ForwardRateAgreementDefinition.fromTrade(date, startPeriod, notional, _iborIndex, rate);
-  }
-
-  @Override
-  /**
-   * The FRA is from spot+startTenor to spot + (startTenor+_iborIndex.getTenor()). The endTenor is not used.
-   */
-  public ForwardRateAgreementDefinition generateInstrument(final ZonedDateTime date, final Period startTenor, final Period endTenor, double rate, double notional, Object... objects) {
-    return ForwardRateAgreementDefinition.fromTrade(date, startTenor, notional, _iborIndex, rate);
   }
 
   @Override

@@ -55,9 +55,12 @@ public class AnnuityCouponIborRatchetDefinition extends AnnuityCouponDefinition<
    * @param index The Ibor index.
    * @param isPayer The payer (true) / receiver (false) flag.
    * @param firstCouponFixedRate The rate of the first coupon.
-   * @param mainCoefficients The coefficients of the main payment (before floor and cap). Array of length 3.
-   * @param floorCoefficients The coefficients of the floor. Array of length 3.
-   * @param capCoefficients The coefficients of the cap. Array of length 3.
+   * @param mainCoefficients The coefficients of the main payment (before floor and cap). Array of length 3. The first coefficient is the previous coupon factor,
+   * the second is the Ibor factor and the third is the additive term.
+   * @param floorCoefficients The coefficients of the floor. Array of length 3. The first coefficient is the previous coupon factor,
+   * the second is the Ibor factor and the third is the additive term.
+   * @param capCoefficients The coefficients of the cap. Array of length 3. The first coefficient is the previous coupon factor,
+   * the second is the Ibor factor and the third is the additive term.
    * @return The annuity.
    */
   public static AnnuityCouponIborRatchetDefinition withFirstCouponFixed(final ZonedDateTime settlementDate, final Period annuityTenor, final double notional, final IborIndex index,

@@ -15,10 +15,10 @@ public class ConvectionDiffusionPDE1DCoupledCoefficients extends ConvectionDiffu
   private final double _lambda;
 
   /**
-   * @param a
-   * @param b
-   * @param c
-   * @param lambda the coupling to other system 
+   * @param a a
+   * @param b b
+   * @param c c
+   * @param lambda the coupling to other system
    */
   public ConvectionDiffusionPDE1DCoupledCoefficients(final Surface<Double, Double, Double> a, final Surface<Double, Double, Double> b, final Surface<Double, Double, Double> c,
       final double lambda) {

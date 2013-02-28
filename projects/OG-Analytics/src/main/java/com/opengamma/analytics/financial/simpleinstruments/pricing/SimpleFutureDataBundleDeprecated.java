@@ -5,10 +5,10 @@
  */
 package com.opengamma.analytics.financial.simpleinstruments.pricing;
 
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
-
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
+
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 
 /**
  * @deprecated This has been replaced by SimpleFutureDataBundle
