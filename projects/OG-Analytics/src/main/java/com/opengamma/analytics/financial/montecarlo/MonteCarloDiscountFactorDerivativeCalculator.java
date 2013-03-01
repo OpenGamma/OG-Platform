@@ -104,7 +104,7 @@ public class MonteCarloDiscountFactorDerivativeCalculator extends InstrumentDeri
           final CouponIborRatchet cpn = (CouponIborRatchet) annuity.getNthPayment(loopcpn);
           for (int looppath = 0; looppath < nbPath; looppath++) {
             ibor[loopcpn][looppath] = (-impactAmount[loopcpn][0] * pathDiscountFactors[looppath][loopcpn][0] / (impactAmount[loopcpn][1] * pathDiscountFactors[looppath][loopcpn][1]) - 1.0)
-                / cpn.getFixingYearFraction();
+                / cpn.getFixingAccrualFactor();
             cpnMain[loopcpn][looppath] = cpn.getMainCoefficients()[0] * cpnRate[loopcpn - 1][looppath] + cpn.getMainCoefficients()[1] * ibor[loopcpn][looppath] + cpn.getMainCoefficients()[2];
             cpnFloor[loopcpn][looppath] = cpn.getFloorCoefficients()[0] * cpnRate[loopcpn - 1][looppath] + cpn.getFloorCoefficients()[1] * ibor[loopcpn][looppath] + cpn.getFloorCoefficients()[2];
             cpnCap[loopcpn][looppath] = cpn.getCapCoefficients()[0] * cpnRate[loopcpn - 1][looppath] + cpn.getCapCoefficients()[1] * ibor[loopcpn][looppath] + cpn.getCapCoefficients()[2];
@@ -162,15 +162,15 @@ public class MonteCarloDiscountFactorDerivativeCalculator extends InstrumentDeri
                 + cpn.getMainCoefficients()[0] * cpnMainBar[loopcpn][looppath];
             iborBar[loopcpn][looppath] = cpn.getMainCoefficients()[1] * cpnMainBar[loopcpn][looppath] + cpn.getFloorCoefficients()[1] * cpnFloorBar[loopcpn][looppath] + cpn.getCapCoefficients()[1]
                 * cpnCapBar[loopcpn][looppath];
-            impactAmountBar[loopcpn][0] += -pathDiscountFactors[looppath][loopcpn][0] / (impactAmount[loopcpn][1] * pathDiscountFactors[looppath][loopcpn][1]) / cpn.getFixingYearFraction()
+            impactAmountBar[loopcpn][0] += -pathDiscountFactors[looppath][loopcpn][0] / (impactAmount[loopcpn][1] * pathDiscountFactors[looppath][loopcpn][1]) / cpn.getFixingAccrualFactor()
                 * iborBar[loopcpn][looppath];
             impactAmountBar[loopcpn][1] += impactAmount[loopcpn][0] * pathDiscountFactors[looppath][loopcpn][0] / pathDiscountFactors[looppath][loopcpn][1]
-                / (impactAmount[loopcpn][1] * impactAmount[loopcpn][1]) / cpn.getFixingYearFraction() * iborBar[loopcpn][looppath];
+                / (impactAmount[loopcpn][1] * impactAmount[loopcpn][1]) / cpn.getFixingAccrualFactor() * iborBar[loopcpn][looppath];
             pathDiscountFactorsBar[looppath][loopcpn][1] = cpnRate[loopcpn][looppath] * cpn.getPaymentYearFraction() * cpn.getNotional() * annuityPathValueBar[looppath];
-            pathDiscountFactorsBar[looppath][loopcpn][0] = -impactAmount[loopcpn][0] / (impactAmount[loopcpn][1] * pathDiscountFactors[looppath][loopcpn][1]) / cpn.getFixingYearFraction()
+            pathDiscountFactorsBar[looppath][loopcpn][0] = -impactAmount[loopcpn][0] / (impactAmount[loopcpn][1] * pathDiscountFactors[looppath][loopcpn][1]) / cpn.getFixingAccrualFactor()
                 * iborBar[loopcpn][looppath];
             pathDiscountFactorsBar[looppath][loopcpn][1] += impactAmount[loopcpn][0] * pathDiscountFactors[looppath][loopcpn][0] / impactAmount[loopcpn][1]
-                / (pathDiscountFactors[looppath][loopcpn][1] * pathDiscountFactors[looppath][loopcpn][1]) / cpn.getFixingYearFraction() * iborBar[loopcpn][looppath];
+                / (pathDiscountFactors[looppath][loopcpn][1] * pathDiscountFactors[looppath][loopcpn][1]) / cpn.getFixingAccrualFactor() * iborBar[loopcpn][looppath];
           }
         } else {
           final CouponIborGearing cpn = (CouponIborGearing) annuity.getNthPayment(loopcpn);

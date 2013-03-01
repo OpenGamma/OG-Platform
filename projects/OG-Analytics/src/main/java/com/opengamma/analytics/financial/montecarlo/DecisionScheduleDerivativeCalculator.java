@@ -58,7 +58,7 @@ public class DecisionScheduleDerivativeCalculator extends InstrumentDerivativeVi
       impactTime[0][loopcf] = cfe.getNthPayment(loopcf).getPaymentTime();
       impactAmount[0][loopcf] = cfe.getNthPayment(loopcf).getAmount();
     }
-    final ArrayList<Map<Double, InterestRateCurveSensitivity>> impactAmountDerivative = new ArrayList<Map<Double, InterestRateCurveSensitivity>>();
+    final ArrayList<Map<Double, InterestRateCurveSensitivity>> impactAmountDerivative = new ArrayList<>();
     impactAmountDerivative.add(swaption.getUnderlyingSwap().accept(CFECSC, curves));
     final DecisionScheduleDerivative decision = new DecisionScheduleDerivative(decisionTime, impactTime, impactAmount, impactAmountDerivative);
     return decision;
@@ -80,7 +80,7 @@ public class DecisionScheduleDerivativeCalculator extends InstrumentDerivativeVi
         impactAmount[loopcpn][loopcf] = cfe.getNthPayment(loopcf).getAmount();
       }
     }
-    final ArrayList<Map<Double, InterestRateCurveSensitivity>> impactAmountDerivative = new ArrayList<Map<Double, InterestRateCurveSensitivity>>();
+    final ArrayList<Map<Double, InterestRateCurveSensitivity>> impactAmountDerivative = new ArrayList<>();
     for (int loopcpn = 0; loopcpn < nbCpn; loopcpn++) {
       impactAmountDerivative.add(annuity.getNthPayment(loopcpn).accept(CFECSC, curves));
     }

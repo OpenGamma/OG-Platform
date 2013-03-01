@@ -41,7 +41,7 @@ public class FXMatrix {
    * Constructor with no currency. The FXMatrix constructed has no currency and no fx rates.
    */
   public FXMatrix() {
-    _currencies = new LinkedHashMap<Currency, Integer>();
+    _currencies = new LinkedHashMap<>();
     _fxRates = new double[0][0];
     _nbCurrencies = 0;
   }
@@ -52,7 +52,7 @@ public class FXMatrix {
    */
   public FXMatrix(final Currency ccy) {
     ArgumentChecker.notNull(ccy, "Currency");
-    _currencies = new LinkedHashMap<Currency, Integer>();
+    _currencies = new LinkedHashMap<>();
     _currencies.put(ccy, 0);
     _fxRates = new double[1][1];
     _fxRates[0][0] = 1.0;
@@ -66,7 +66,7 @@ public class FXMatrix {
    * @param fxRate TheFX rate between ccy1 and the ccy2. It is 1 ccy1 = fxRate * ccy2. The FX matrix will be completed with the ccy2/ccy1 rate.
    */
   public FXMatrix(final Currency ccy1, final Currency ccy2, final double fxRate) {
-    _currencies = new LinkedHashMap<Currency, Integer>();
+    _currencies = new LinkedHashMap<>();
     _fxRates = new double[0][0];
     addCurrency(ccy1, ccy2, fxRate);
   }
@@ -78,7 +78,7 @@ public class FXMatrix {
   public FXMatrix(final FXMatrix fxMatrix) {
     ArgumentChecker.notNull(fxMatrix, "FXMatrix");
     _nbCurrencies = fxMatrix._nbCurrencies;
-    _currencies = new LinkedHashMap<Currency, Integer>(fxMatrix._currencies);
+    _currencies = new LinkedHashMap<>(fxMatrix._currencies);
     _fxRates = new double[_nbCurrencies][];
     for (int loopc = 0; loopc < _nbCurrencies; loopc++) {
       _fxRates[loopc] = fxMatrix._fxRates[loopc].clone();

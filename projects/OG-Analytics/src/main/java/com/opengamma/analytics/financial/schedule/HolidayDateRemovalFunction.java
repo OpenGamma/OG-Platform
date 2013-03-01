@@ -30,7 +30,7 @@ public final class HolidayDateRemovalFunction {
   public LocalDate[] getStrippedSchedule(final LocalDate[] dates, final Calendar holidays) {
     ArgumentChecker.notNull(dates, "date");
     ArgumentChecker.notNull(holidays, "holidays");
-    final List<LocalDate> stripped = new ArrayList<LocalDate>();
+    final List<LocalDate> stripped = new ArrayList<>();
     for (final LocalDate date : dates) {
       if (holidays.isWorkingDay(date)) {
         stripped.add(date);

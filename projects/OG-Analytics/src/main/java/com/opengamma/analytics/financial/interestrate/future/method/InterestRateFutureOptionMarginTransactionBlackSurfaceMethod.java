@@ -59,7 +59,7 @@ public final class InterestRateFutureOptionMarginTransactionBlackSurfaceMethod e
   public double presentValueGamma(final InterestRateFutureOptionMarginTransaction transaction, final YieldCurveWithBlackCubeBundle blackData) {
     final double securityGamma = ((InterestRateFutureOptionMarginSecurityBlackSurfaceMethod) getSecurityMethod()).optionPriceGamma(transaction.getUnderlyingOption(), blackData);
     final double txnGamma = securityGamma * transaction.getQuantity() * transaction.getUnderlyingOption().getUnderlyingFuture().getNotional()
-                          * transaction.getUnderlyingOption().getUnderlyingFuture().getPaymentAccrualFactor();
+        * transaction.getUnderlyingOption().getUnderlyingFuture().getPaymentAccrualFactor();
     return txnGamma;
   }
 }

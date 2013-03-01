@@ -363,7 +363,7 @@ public class ISDATestGridHarness {
     final StubType stubType = StubType.SHORT_START;
     
     // Now build the CDS object
-    final ISDACDSPremiumDefinition premiumDefinition = ISDACDSPremiumDefinition.from(startDate, maturity, couponFrequency, convention, stubType, /* protect start */ true, /*notional*/ 1.0, spread, Currency.USD);
+    final ISDACDSPremiumDefinition premiumDefinition = ISDACDSPremiumDefinition.from(startDate, maturity, couponFrequency, convention, stubType, /* protect start */ true, /*notional*/ 1.0, spread, Currency.EUR);
     final ISDACDSDefinition cdsDefinition = new ISDACDSDefinition(startDate, maturity, premiumDefinition, /*notional*/1.0, spread, recoveryRate, /* accrualOnDefault */ true, /* payOnDefault */ true, /* protectStart */ true, couponFrequency, convention, stubType);
     final ISDACDSDerivative cds = cdsDefinition.toDerivative(pricingDate, stepinDate, settlementDate, "IR_CURVE");  
     

@@ -55,7 +55,7 @@ public class SwapFixedIborDefinitionTest {
   private static final PeriodFrequency INDEX_FREQUENCY = PeriodFrequency.QUARTERLY;
   private static final int SETTLEMENT_DAYS = 2;
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-  private static final Currency CUR = Currency.USD;
+  private static final Currency CUR = Currency.EUR;
   private static final IborIndex IBOR_INDEX = new IborIndex(CUR, INDEX_TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM);
   private static final ZonedDateTime[] IBOR_PAYMENT_DATES_UNADJUSTED = ScheduleCalculator.getUnadjustedDateSchedule(SETTLEMENT_DATE, MATURITY_DATE, INDEX_FREQUENCY);
   private static final ZonedDateTime[] IBOR_PAYMENT_DATES = ScheduleCalculator.getAdjustedDateSchedule(IBOR_PAYMENT_DATES_UNADJUSTED, BUSINESS_DAY, CALENDAR);

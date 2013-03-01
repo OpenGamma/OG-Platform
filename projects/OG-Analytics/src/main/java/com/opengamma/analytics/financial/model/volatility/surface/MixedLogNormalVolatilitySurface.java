@@ -19,20 +19,19 @@ import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Utility to produce volatility surfaces (implied and local) via a mixed log-normal model. This guarantees an arbitrage free implied volatility surface and a corresponding 
- * local volatility surface. It's use is primarily in testing 
+ * Utility to produce volatility surfaces (implied and local) via a mixed log-normal model. This guarantees an arbitrage free implied volatility surface and a corresponding
+ * local volatility surface. It's use is primarily in testing
  */
 public class MixedLogNormalVolatilitySurface {
 
-  private static final double ROOT_2_PI = Math.sqrt(2 * Math.PI);
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
 
   /**
-   * The out-the-money price surface 
+   * The out-the-money price surface
    * @param fwdCurve The forward curve
-   * @param disCurve the discount curve 
+   * @param disCurve the discount curve
    * @param data parameters of a Mixed Log-Normal Model
-   * @return out-the-money price surface 
+   * @return out-the-money price surface
    */
   public static PriceSurface getPriceSurface(final ForwardCurve fwdCurve, final YieldAndDiscountCurve disCurve, final MultiHorizonMixedLogNormalModelData data) {
     final double minT = 1e-6;
@@ -82,7 +81,7 @@ public class MixedLogNormalVolatilitySurface {
 
   /**
    * Gets the implied volatility surface from a mixed log-normal model
-   * @param fwdCurve The forward curve 
+   * @param fwdCurve The forward curve
    * @param data parameters of a Mixed Log-Normal Model
    * @return implied volatility surface
    */
@@ -145,7 +144,7 @@ public class MixedLogNormalVolatilitySurface {
 
   /**
    * Gets the local volatility surface from a mixed log-normal model
-   * @param fwdCurve The forward curve 
+   * @param fwdCurve The forward curve
    * @param data parameters of a Mixed Log-Normal Model
    * @return local volatility surface
    */
@@ -225,7 +224,7 @@ public class MixedLogNormalVolatilitySurface {
           // d1SqrMin = d1Sqr[i];
           // }
           if (w[i] > 0.0) {
-            double test = Math.log(w[i]) + t * mu[i] - d1Sqr[i] / 2.0;
+            final double test = Math.log(w[i]) + t * mu[i] - d1Sqr[i] / 2.0;
             if (test > maxVal) {
               index = i;
               maxVal = test;

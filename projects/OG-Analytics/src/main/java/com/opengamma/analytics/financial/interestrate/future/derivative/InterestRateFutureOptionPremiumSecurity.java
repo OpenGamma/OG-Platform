@@ -21,7 +21,7 @@ public class InterestRateFutureOptionPremiumSecurity implements InstrumentDeriva
   /**
    * Underlying future security.
    */
-  private final InterestRateFuture _underlyingFuture;
+  private final InterestRateFutureSecurity _underlyingFuture;
   /**
    * Expiration date.
    */
@@ -50,7 +50,7 @@ public class InterestRateFutureOptionPremiumSecurity implements InstrumentDeriva
    * @param strike The option strike.
    * @param isCall The cap (true) / floor (false) flag.
    */
-  public InterestRateFutureOptionPremiumSecurity(final InterestRateFuture underlyingFuture, final double expirationTime, final double strike, final boolean isCall) {
+  public InterestRateFutureOptionPremiumSecurity(final InterestRateFutureSecurity underlyingFuture, final double expirationTime, final double strike, final boolean isCall) {
     Validate.notNull(underlyingFuture, "underlying future");
     this._underlyingFuture = underlyingFuture;
     this._expirationTime = expirationTime;
@@ -64,7 +64,7 @@ public class InterestRateFutureOptionPremiumSecurity implements InstrumentDeriva
    * Gets the underlying future security.
    * @return The underlying future security.
    */
-  public InterestRateFuture getUnderlyingFuture() {
+  public InterestRateFutureSecurity getUnderlyingFuture() {
     return _underlyingFuture;
   }
 

@@ -70,7 +70,7 @@ public class ISDAModelTest {
     final boolean protectStart = true;
 
     final ISDACDSPremiumDefinition premiumDefinition = ISDACDSPremiumDefinition.from(startDate, maturity, couponFrequency, convention, stubType, protectStart, notional, spread,
-        Currency.USD);
+        Currency.EUR);
 
     return new ISDACDSDefinition(startDate, maturity, premiumDefinition, notional, spread, recoveryRate, accrualOnDefault, payOnDefault, protectStart, couponFrequency, convention, stubType);
   }

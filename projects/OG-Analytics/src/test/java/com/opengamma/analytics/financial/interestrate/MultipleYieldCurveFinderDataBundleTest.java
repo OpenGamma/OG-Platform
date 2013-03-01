@@ -43,7 +43,7 @@ public class MultipleYieldCurveFinderDataBundleTest {
   private static final Interpolator1D INTERPOLATOR1 = new LinearInterpolator1D();
   private static final Interpolator1D INTERPOLATOR2 = new LogLinearInterpolator1D();
   private static final MultipleYieldCurveFinderDataBundle DATA;
-  private static final FXMatrix FX_MATRIX = new FXMatrix(Currency.USD);
+  private static final FXMatrix FX_MATRIX = new FXMatrix(Currency.EUR);
 
   static {
     final int n = 10;

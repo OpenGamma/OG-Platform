@@ -14,21 +14,19 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
-import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
-import com.opengamma.analytics.financial.interestrate.swap.derivative.FixedFloatSwap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * Calculator of the cash flow equivalent sensitivity to the curve. The result is a map of <Double, PresentValueSensitivity>. 
- * The cash flow equivalent sensitivity is represented by the double which is the time of the cash flow and the PresentValueSensitivity which is the sensitivity of the 
+ * Calculator of the cash flow equivalent sensitivity to the curve. The result is a map of <Double, PresentValueSensitivity>.
+ * The cash flow equivalent sensitivity is represented by the double which is the time of the cash flow and the PresentValueSensitivity which is the sensitivity of the
  * cash flow at that date.
  */
 public class CashFlowEquivalentCurveSensitivityCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, Map<Double, InterestRateCurveSensitivity>> {
@@ -110,8 +108,7 @@ public class CashFlowEquivalentCurveSensitivityCalculator extends InstrumentDeri
     final double paymentTime = payment.getPaymentTime();
     final double beta = forwardCurve.getDiscountFactor(fixingStartTime) / forwardCurve.getDiscountFactor(fixingEndTime) * discountingCurve.getDiscountFactor(paymentTime)
         / discountingCurve.getDiscountFactor(fixingStartTime);
-    final double betaBar = payment.getNotional() * payment.getPaymentYearFraction() / payment.getFixingYearFraction();
-
+    final double betaBar = payment.getNotional() * payment.getPaymentYearFraction() / payment.getFixingAccrualFactor();
     final Map<Double, InterestRateCurveSensitivity> result = new HashMap<Double, InterestRateCurveSensitivity>();
     final Map<String, List<DoublesPair>> resultPVS = new HashMap<String, List<DoublesPair>>();
     final List<DoublesPair> listForward = new ArrayList<DoublesPair>();
@@ -151,11 +148,6 @@ public class CashFlowEquivalentCurveSensitivityCalculator extends InstrumentDeri
   }
 
   @Override
-  public Map<Double, InterestRateCurveSensitivity> visitForwardLiborAnnuity(final AnnuityCouponIbor annuity, final YieldCurveBundle curves) {
-    return visitGenericAnnuity(annuity, curves);
-  }
-
-  @Override
   public Map<Double, InterestRateCurveSensitivity> visitSwap(final Swap<?, ?> swap, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(swap);
@@ -170,11 +162,6 @@ public class CashFlowEquivalentCurveSensitivityCalculator extends InstrumentDeri
 
   @Override
   public Map<Double, InterestRateCurveSensitivity> visitFixedCouponSwap(final SwapFixedCoupon<?> swap, final YieldCurveBundle curves) {
-    return visitSwap(swap, curves);
-  }
-
-  @Override
-  public Map<Double, InterestRateCurveSensitivity> visitFixedFloatSwap(final FixedFloatSwap swap, final YieldCurveBundle curves) {
     return visitSwap(swap, curves);
   }
 

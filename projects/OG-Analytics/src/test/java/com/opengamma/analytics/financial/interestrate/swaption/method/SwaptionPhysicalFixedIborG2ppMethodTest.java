@@ -15,27 +15,21 @@ import org.threeten.bp.ZonedDateTime;
 
 import cern.jet.random.engine.MersenneTwister;
 
-import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
-import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIborMaster;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexSwap;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
-import com.opengamma.analytics.financial.interestrate.ParRateCalculator;
 import com.opengamma.analytics.financial.interestrate.PresentValueCalculator;
 import com.opengamma.analytics.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
-import com.opengamma.analytics.financial.interestrate.swap.method.SwapFixedCouponDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.analytics.financial.model.interestrate.TestsDataSetG2pp;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.interestrate.definition.G2ppPiecewiseConstantDataBundle;
 import com.opengamma.analytics.financial.model.interestrate.definition.G2ppPiecewiseConstantParameters;
-import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
-import com.opengamma.analytics.financial.model.volatility.BlackImpliedVolatilityFormula;
 import com.opengamma.analytics.financial.montecarlo.G2ppMonteCarloMethod;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
@@ -55,9 +49,9 @@ import com.opengamma.util.time.DateUtils;
  */
 public class SwaptionPhysicalFixedIborG2ppMethodTest {
   // Swaption 5Yx5Y
-  private static final Currency CUR = Currency.USD;
+  private static final Currency CUR = Currency.EUR;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
-  private static final GeneratorSwapFixedIborMaster GENERATOR_SWAP_MASTER = GeneratorSwapFixedIborMaster.getInstance();
+  //  private static final GeneratorSwapFixedIborMaster GENERATOR_SWAP_MASTER = GeneratorSwapFixedIborMaster.getInstance();
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final boolean IS_EOM = true;
   private static final int SETTLEMENT_DAYS = 2;
@@ -95,14 +89,14 @@ public class SwaptionPhysicalFixedIborG2ppMethodTest {
   // Calculator
   private static final SwaptionPhysicalFixedIborG2ppApproximationMethod METHOD_G2PP_APPROXIMATION = new SwaptionPhysicalFixedIborG2ppApproximationMethod();
   private static final SwaptionPhysicalFixedIborG2ppNumericalIntegrationMethod METHOD_G2PP_NI = new SwaptionPhysicalFixedIborG2ppNumericalIntegrationMethod();
-  private static final SwapFixedCouponDiscountingMethod METHOD_SWAP = SwapFixedCouponDiscountingMethod.getInstance();
-  private static final ParRateCalculator PRC = ParRateCalculator.getInstance();
+  //  private static final SwapFixedCouponDiscountingMethod METHOD_SWAP = SwapFixedCouponDiscountingMethod.getInstance();
+  //  private static final ParRateCalculator PRC = ParRateCalculator.getInstance();
 
   private static final G2ppPiecewiseConstantParameters PARAMETERS_G2PP = TestsDataSetG2pp.createG2ppParameters1();
   private static final G2ppPiecewiseConstantDataBundle BUNDLE_G2PP = new G2ppPiecewiseConstantDataBundle(PARAMETERS_G2PP, CURVES);
   private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
 
-  private static final double BP1 = 0.0001;
+  //  private static final double BP1 = 0.0001;
 
   @Test(enabled = false)
   /**
@@ -191,64 +185,65 @@ public class SwaptionPhysicalFixedIborG2ppMethodTest {
     assertEquals("Swaption physical - G2++ - present value - approximation vs Monte Carlo", pvApproximation.getAmount(), pvMC[nbPath.length - 1].getAmount(), 1.0E+3);
   }
 
-  @Test(enabled = false)
-  /**
-   * Test the present value by approximation vs by numerical integration for a grid of expiry/tenor.
-   */
-  public void approximationNumericalIntegrationGrid() {
-    final G2ppPiecewiseConstantParameters parametersG2pp = TestsDataSetG2pp.createG2ppParameters2();
-    final G2ppPiecewiseConstantDataBundle bundleG2pp = new G2ppPiecewiseConstantDataBundle(parametersG2pp, CURVES);
-    final GeneratorSwapFixedIbor generator = GENERATOR_SWAP_MASTER.getGenerator("EUR1YEURIBOR6M", CALENDAR);
-    final Period[] expiry = new Period[] {Period.of(6, MONTHS), Period.of(1, YEARS), Period.of(2, YEARS), Period.of(5, YEARS), Period.of(10, YEARS), Period.of(25, YEARS) };
-    final int nbExpiry = expiry.length;
-    final Period[] tenor = new Period[] {Period.of(2, YEARS), Period.of(5, YEARS), Period.of(10, YEARS), Period.of(25, YEARS) };
-    final int nbTenor = tenor.length;
-    final double[] fixedRate = new double[] {0.02, 0.03, 0.04, 0.05, 0.06 };
-    final int nbStrike = fixedRate.length;
-    final SwaptionPhysicalFixedIbor[][][] swaption = new SwaptionPhysicalFixedIbor[nbExpiry][nbTenor][nbStrike];
-    final ZonedDateTime[] expiryDate = new ZonedDateTime[nbExpiry];
-    final ZonedDateTime[] settleDate = new ZonedDateTime[nbExpiry];
-    for (int loopexp = 0; loopexp < nbExpiry; loopexp++) {
-      expiryDate[loopexp] = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, expiry[loopexp], generator.getIborIndex());
-      settleDate[loopexp] = ScheduleCalculator.getAdjustedDate(expiryDate[loopexp], generator.getSpotLag(), CALENDAR);
-      for (int loopten = 0; loopten < nbTenor; loopten++) {
-        for (int loopstrike = 0; loopstrike < nbStrike; loopstrike++) {
-          final SwapFixedIborDefinition swapDefinition = SwapFixedIborDefinition.from(settleDate[loopexp], tenor[loopten], generator, 10000.0, fixedRate[loopstrike], true);
-          final SwaptionPhysicalFixedIborDefinition swaptionDefinition = SwaptionPhysicalFixedIborDefinition.from(expiryDate[loopexp], swapDefinition, true);
-          swaption[loopexp][loopten][loopstrike] = swaptionDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
-        }
-      }
-    }
-    final double[][][] pvApprox = new double[nbExpiry][nbTenor][nbStrike];
-    final double[][][] volApprox = new double[nbExpiry][nbTenor][nbStrike];
-    final double[][][] pvNI = new double[nbExpiry][nbTenor][nbStrike];
-    final double[][][] volNI = new double[nbExpiry][nbTenor][nbStrike];
-    final double[][][] pvDiff = new double[nbExpiry][nbTenor][nbStrike];
-    final double[][][] volDiff = new double[nbExpiry][nbTenor][nbStrike];
-    final BlackImpliedVolatilityFormula implied = new BlackImpliedVolatilityFormula();
-    for (int loopexp = 0; loopexp < nbExpiry; loopexp++) {
-      for (int loopten = 0; loopten < nbTenor; loopten++) {
-        for (int loopstrike = 0; loopstrike < nbStrike; loopstrike++) {
-          pvApprox[loopexp][loopten][loopstrike] = METHOD_G2PP_APPROXIMATION.presentValue(swaption[loopexp][loopten][loopstrike], bundleG2pp).getAmount();
-          pvNI[loopexp][loopten][loopstrike] = METHOD_G2PP_NI.presentValue(swaption[loopexp][loopten][loopstrike], bundleG2pp).getAmount();
-          pvDiff[loopexp][loopten][loopstrike] = pvApprox[loopexp][loopten][loopstrike] - pvNI[loopexp][loopten][loopstrike];
-          final double pvbp = METHOD_SWAP.presentValueBasisPoint(swaption[loopexp][loopten][loopstrike].getUnderlyingSwap(), CURVES);
-          final double forward = swaption[loopexp][loopten][loopstrike].getUnderlyingSwap().accept(PRC, CURVES);
-          final BlackFunctionData data = new BlackFunctionData(forward, pvbp, 0.20);
-          volApprox[loopexp][loopten][loopstrike] = implied.getImpliedVolatility(data, swaption[loopexp][loopten][loopstrike], pvApprox[loopexp][loopten][loopstrike]);
-          volNI[loopexp][loopten][loopstrike] = implied.getImpliedVolatility(data, swaption[loopexp][loopten][loopstrike], pvNI[loopexp][loopten][loopstrike]);
-          volDiff[loopexp][loopten][loopstrike] = (volApprox[loopexp][loopten][loopstrike] - volNI[loopexp][loopten][loopstrike]) / BP1; // In bp
-        }
-      }
-    }
-    for (int loopexp = 0; loopexp < nbExpiry; loopexp++) {
-      for (int loopten = 0; loopten < nbTenor; loopten++) {
-        for (int loopstrike = 0; loopstrike < nbStrike; loopstrike++) {
-          assertEquals("Swaption physical - G2++ - present value - approximation vs Numerical integration", volNI[loopexp][loopten][loopstrike], volApprox[loopexp][loopten][loopstrike], 10 * BP1);
-        }
-      }
-    }
-  }
+  //  @Test(enabled = false)
+  //  /**
+  //   * Test the present value by approximation vs by numerical integration for a grid of expiry/tenor.
+  //   */
+  //  public void approximationNumericalIntegrationGrid() {
+  //    G2ppPiecewiseConstantParameters parametersG2pp = TestsDataSetG2pp.createG2ppParameters2();
+  //    G2ppPiecewiseConstantDataBundle bundleG2pp = new G2ppPiecewiseConstantDataBundle(parametersG2pp, CURVES);
+  //    GeneratorSwapFixedIbor generator = GENERATOR_SWAP_MASTER.getGenerator("EUR1YEURIBOR6M", CALENDAR);
+  //    Period[] expiry = new Period[] {Period.ofMonths(6), Period.ofYears(1), Period.ofYears(2), Period.ofYears(5), Period.ofYears(10), Period.ofYears(25)};
+  //    int nbExpiry = expiry.length;
+  //    Period[] tenor = new Period[] {Period.ofYears(2), Period.ofYears(5), Period.ofYears(10), Period.ofYears(25)};
+  //    int nbTenor = tenor.length;
+  //    double[] fixedRate = new double[] {0.02, 0.03, 0.04, 0.05, 0.06};
+  //    int nbStrike = fixedRate.length;
+  //    SwaptionPhysicalFixedIbor[][][] swaption = new SwaptionPhysicalFixedIbor[nbExpiry][nbTenor][nbStrike];
+  //    ZonedDateTime[] expiryDate = new ZonedDateTime[nbExpiry];
+  //    ZonedDateTime[] settleDate = new ZonedDateTime[nbExpiry];
+  //    for (int loopexp = 0; loopexp < nbExpiry; loopexp++) {
+  //      expiryDate[loopexp] = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, expiry[loopexp], generator.getIborIndex());
+  //      settleDate[loopexp] = ScheduleCalculator.getAdjustedDate(expiryDate[loopexp], generator.getSpotLag(), CALENDAR);
+  //      for (int loopten = 0; loopten < nbTenor; loopten++) {
+  //        for (int loopstrike = 0; loopstrike < nbStrike; loopstrike++) {
+  //          SwapFixedIborDefinition swapDefinition = SwapFixedIborDefinition.from(settleDate[loopexp], tenor[loopten], generator, 10000.0, fixedRate[loopstrike], true);
+  //          SwaptionPhysicalFixedIborDefinition swaptionDefinition = SwaptionPhysicalFixedIborDefinition.from(expiryDate[loopexp], swapDefinition, true);
+  //          swaption[loopexp][loopten][loopstrike] = swaptionDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
+  //        }
+  //      }
+  //    }
+  //    double[][][] pvApprox = new double[nbExpiry][nbTenor][nbStrike];
+  //    double[][][] volApprox = new double[nbExpiry][nbTenor][nbStrike];
+  //    double[][][] pvNI = new double[nbExpiry][nbTenor][nbStrike];
+  //    double[][][] volNI = new double[nbExpiry][nbTenor][nbStrike];
+  //    double[][][] pvDiff = new double[nbExpiry][nbTenor][nbStrike];
+  //    double[][][] volDiff = new double[nbExpiry][nbTenor][nbStrike];
+  //    BlackImpliedVolatilityFormula implied = new BlackImpliedVolatilityFormula();
+  //    for (int loopexp = 0; loopexp < nbExpiry; loopexp++) {
+  //      for (int loopten = 0; loopten < nbTenor; loopten++) {
+  //        for (int loopstrike = 0; loopstrike < nbStrike; loopstrike++) {
+  //          pvApprox[loopexp][loopten][loopstrike] = METHOD_G2PP_APPROXIMATION.presentValue(swaption[loopexp][loopten][loopstrike], bundleG2pp).getAmount();
+  //          pvNI[loopexp][loopten][loopstrike] = METHOD_G2PP_NI.presentValue(swaption[loopexp][loopten][loopstrike], bundleG2pp).getAmount();
+  //          pvDiff[loopexp][loopten][loopstrike] = pvApprox[loopexp][loopten][loopstrike] - pvNI[loopexp][loopten][loopstrike];
+  //          double pvbp = METHOD_SWAP.presentValueBasisPoint(swaption[loopexp][loopten][loopstrike].getUnderlyingSwap(), CURVES);
+  //          double forward = PRC.visit(swaption[loopexp][loopten][loopstrike].getUnderlyingSwap(), CURVES);
+  //          BlackFunctionData data = new BlackFunctionData(forward, pvbp, 0.20);
+  //          volApprox[loopexp][loopten][loopstrike] = implied.getImpliedVolatility(data, swaption[loopexp][loopten][loopstrike], pvApprox[loopexp][loopten][loopstrike]);
+  //          volNI[loopexp][loopten][loopstrike] = implied.getImpliedVolatility(data, swaption[loopexp][loopten][loopstrike], pvNI[loopexp][loopten][loopstrike]);
+  //          volDiff[loopexp][loopten][loopstrike] = (volApprox[loopexp][loopten][loopstrike] - volNI[loopexp][loopten][loopstrike]) / BP1; // In bp
+  //        }
+  //      }
+  //    }
+  //    for (int loopexp = 0; loopexp < nbExpiry; loopexp++) {
+  //      for (int loopten = 0; loopten < nbTenor; loopten++) {
+  //        for (int loopstrike = 0; loopstrike < nbStrike; loopstrike++) {
+  //          assertEquals("Swaption physical - G2++ - present value - approximation vs Numerical integration - exp: " + loopexp + ", ten: " + loopten + ", str: " + loopstrike,
+  //              volNI[loopexp][loopten][loopstrike], volApprox[loopexp][loopten][loopstrike], 100 * BP1);
+  //        }
+  //      }
+  //    }
+  //  }
 
   @Test(enabled = false)
   /**
@@ -259,6 +254,23 @@ public class SwaptionPhysicalFixedIborG2ppMethodTest {
     final int nbTest = 100;
     CurrencyAmount pvPayerLongApproximation = CurrencyAmount.of(CUR, 0.0);
     CurrencyAmount pvPayerLongNI = CurrencyAmount.of(CUR, 0.0);
+
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      pvPayerLongApproximation = METHOD_G2PP_APPROXIMATION.presentValue(SWAPTION_PAYER_LONG, BUNDLE_G2PP);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest + " pv swaption G2++ approximation method: " + (endTime - startTime) + " ms");
+    // Performance note: G2++ price: 24-Aug-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 175 ms for 10000 swaptions.
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      pvPayerLongNI = METHOD_G2PP_NI.presentValue(SWAPTION_PAYER_LONG, BUNDLE_G2PP);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest + " pv swaption G2++ numerical integration method: " + (endTime - startTime) + " ms");
+    // Performance note: G2++ price: 24-Aug-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 1075 ms for 100 swaptions.
+    // TODO: 20-Nov-12: Why is it now very slow (6000ms)?
+
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
       pvPayerLongApproximation = METHOD_G2PP_APPROXIMATION.presentValue(SWAPTION_PAYER_LONG, BUNDLE_G2PP);

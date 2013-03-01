@@ -9,10 +9,9 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * For a given sets of knot points (x values) for named curves, and corresponding interpolators, produces a function that takes a set
@@ -26,12 +25,12 @@ public class InterpolatedCurveBuildingFunction {
   private final int _nNodes;
 
   public InterpolatedCurveBuildingFunction(final LinkedHashMap<String, double[]> knotPoints, final LinkedHashMap<String, Interpolator1D> interpolators) {
-    Validate.notNull(knotPoints, "null knot points");
-    Validate.notNull(interpolators, "null interpolators");
+    ArgumentChecker.notNull(knotPoints, "null knot points");
+    ArgumentChecker.notNull(interpolators, "null interpolators");
     int count = 0;
     for (final Map.Entry<String, double[]> entry : knotPoints.entrySet()) {
       final int size = entry.getValue().length;
-      Validate.isTrue(size > 0, "no knot points for " + entry.getKey());
+      ArgumentChecker.isTrue(size > 0, "no knot points for " + entry.getKey());
       count += size;
     }
     _knotPoints = knotPoints;
@@ -40,10 +39,10 @@ public class InterpolatedCurveBuildingFunction {
   }
 
   public LinkedHashMap<String, InterpolatedDoublesCurve> evaluate(final DoubleMatrix1D x) {
-    Validate.notNull(x, "null data x");
-    Validate.isTrue(_nNodes == x.getNumberOfElements(), "x wrong length");
+    ArgumentChecker.notNull(x, "null data x");
+    ArgumentChecker.isTrue(_nNodes == x.getNumberOfElements(), "x wrong length");
 
-    final LinkedHashMap<String, InterpolatedDoublesCurve> res = new LinkedHashMap<String, InterpolatedDoublesCurve>();
+    final LinkedHashMap<String, InterpolatedDoublesCurve> res = new LinkedHashMap<>();
     int index = 0;
 
     for (final String name : _interpolators.keySet()) {

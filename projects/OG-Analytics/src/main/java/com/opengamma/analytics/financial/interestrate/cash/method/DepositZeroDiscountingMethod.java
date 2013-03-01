@@ -83,8 +83,8 @@ public final class DepositZeroDiscountingMethod implements PricingMethod {
     final double pvBar = 1.0;
     final double dfEndBar = deposit.getNotional() + deposit.getInterestAmount() * pvBar;
     final double dfStartBar = -deposit.getInitialAmount() * pvBar;
-    final Map<String, List<DoublesPair>> resultMapDsc = new HashMap<String, List<DoublesPair>>();
-    final List<DoublesPair> listDiscounting = new ArrayList<DoublesPair>();
+    final Map<String, List<DoublesPair>> resultMapDsc = new HashMap<>();
+    final List<DoublesPair> listDiscounting = new ArrayList<>();
     listDiscounting.add(new DoublesPair(deposit.getStartTime(), -deposit.getStartTime() * dfStart * dfStartBar));
     listDiscounting.add(new DoublesPair(deposit.getEndTime(), -deposit.getEndTime() * dfEnd * dfEndBar));
     resultMapDsc.put(deposit.getDiscountingCurveName(), listDiscounting);
@@ -123,8 +123,8 @@ public final class DepositZeroDiscountingMethod implements PricingMethod {
     final double rccBar = deposit.getRate().fromContinuousDerivative(new ContinuousInterestRate(rcc)) * rateBar;
     final double dfEndTimeBar = -1.0 / dfEndTime / deposit.getPaymentAccrualFactor() * rccBar;
     final double dfStartTimeBar = 1.0 / dfStartTime / deposit.getPaymentAccrualFactor() * rccBar;
-    final Map<String, List<DoublesPair>> resultMapDsc = new HashMap<String, List<DoublesPair>>();
-    final List<DoublesPair> listDiscounting = new ArrayList<DoublesPair>();
+    final Map<String, List<DoublesPair>> resultMapDsc = new HashMap<>();
+    final List<DoublesPair> listDiscounting = new ArrayList<>();
     listDiscounting.add(new DoublesPair(deposit.getStartTime(), -deposit.getStartTime() * dfStartTime * dfStartTimeBar));
     listDiscounting.add(new DoublesPair(deposit.getEndTime(), -deposit.getEndTime() * dfEndTime * dfEndTimeBar));
     resultMapDsc.put(deposit.getDiscountingCurveName(), listDiscounting);
@@ -143,8 +143,8 @@ public final class DepositZeroDiscountingMethod implements PricingMethod {
     Validate.notNull(curves);
     final double dfStart = curves.getCurve(deposit.getDiscountingCurveName()).getDiscountFactor(deposit.getStartTime());
     final double dfEnd = curves.getCurve(deposit.getDiscountingCurveName()).getDiscountFactor(deposit.getEndTime());
-    double ccrs = Math.log(deposit.getInitialAmount() * dfStart / (deposit.getNotional() * dfEnd)) / deposit.getPaymentAccrualFactor();
-    InterestRate rs = deposit.getRate().fromContinuous(new ContinuousInterestRate(ccrs));
+    final double ccrs = Math.log(deposit.getInitialAmount() * dfStart / (deposit.getNotional() * dfEnd)) / deposit.getPaymentAccrualFactor();
+    final InterestRate rs = deposit.getRate().fromContinuous(new ContinuousInterestRate(ccrs));
     return rs.getRate() - deposit.getRate().getRate();
   }
 
@@ -159,15 +159,15 @@ public final class DepositZeroDiscountingMethod implements PricingMethod {
     Validate.notNull(curves);
     final double dfStart = curves.getCurve(deposit.getDiscountingCurveName()).getDiscountFactor(deposit.getStartTime());
     final double dfEnd = curves.getCurve(deposit.getDiscountingCurveName()).getDiscountFactor(deposit.getEndTime());
-    double ccrs = Math.log(deposit.getInitialAmount() * dfStart / (deposit.getNotional() * dfEnd)) / deposit.getPaymentAccrualFactor();
+    final double ccrs = Math.log(deposit.getInitialAmount() * dfStart / (deposit.getNotional() * dfEnd)) / deposit.getPaymentAccrualFactor();
     // Backward sweep
-    double parSpreadBar = 1.0;
-    double rsBar = parSpreadBar;
-    double ccrsBar = deposit.getRate().fromContinuousDerivative(new ContinuousInterestRate(ccrs)) * rsBar;
-    double dfEndBar = -1 / (dfEnd * deposit.getPaymentAccrualFactor()) * ccrsBar;
-    double dfStartBar = 1 / (dfEnd * deposit.getPaymentAccrualFactor()) * ccrsBar;
-    final Map<String, List<DoublesPair>> resultMapDsc = new HashMap<String, List<DoublesPair>>();
-    final List<DoublesPair> listDiscounting = new ArrayList<DoublesPair>();
+    final double parSpreadBar = 1.0;
+    final double rsBar = parSpreadBar;
+    final double ccrsBar = deposit.getRate().fromContinuousDerivative(new ContinuousInterestRate(ccrs)) * rsBar;
+    final double dfEndBar = -1 / (dfEnd * deposit.getPaymentAccrualFactor()) * ccrsBar;
+    final double dfStartBar = 1 / (dfEnd * deposit.getPaymentAccrualFactor()) * ccrsBar;
+    final Map<String, List<DoublesPair>> resultMapDsc = new HashMap<>();
+    final List<DoublesPair> listDiscounting = new ArrayList<>();
     listDiscounting.add(new DoublesPair(deposit.getStartTime(), -deposit.getStartTime() * dfStart * dfStartBar));
     listDiscounting.add(new DoublesPair(deposit.getEndTime(), -deposit.getEndTime() * dfEnd * dfEndBar));
     resultMapDsc.put(deposit.getDiscountingCurveName(), listDiscounting);

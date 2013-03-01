@@ -10,11 +10,12 @@ import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.Validate;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.temporal.TemporalAdjusters;
+
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
@@ -27,16 +28,16 @@ public class EndOfMonthScheduleCalculator extends Schedule {
   }
 
   public LocalDate[] getSchedule(final LocalDate startDate, final LocalDate endDate) {
-    Validate.notNull(startDate, "start date");
-    Validate.notNull(endDate, "end date");
-    Validate.isTrue(startDate.isBefore(endDate) || startDate.equals(endDate));
+    ArgumentChecker.notNull(startDate, "start date");
+    ArgumentChecker.notNull(endDate, "end date");
+    ArgumentChecker.isFalse(startDate.isAfter(endDate), "start date must not be after end date");
     if (startDate.equals(endDate)) {
       if (startDate.getDayOfMonth() == startDate.lengthOfMonth()) {
         return new LocalDate[] {startDate};
       }
       throw new IllegalArgumentException("Start date and end date were the same but neither was the last day of the month");
     }
-    final List<LocalDate> dates = new ArrayList<LocalDate>();
+    final List<LocalDate> dates = new ArrayList<>();
     LocalDate date = startDate.with(TemporalAdjusters.lastDayOfMonth());
     while (!date.isAfter(endDate)) {
       dates.add(date);
@@ -51,16 +52,16 @@ public class EndOfMonthScheduleCalculator extends Schedule {
   }
 
   public ZonedDateTime[] getSchedule(final ZonedDateTime startDate, final ZonedDateTime endDate) {
-    Validate.notNull(startDate, "start date");
-    Validate.notNull(endDate, "end date");
-    Validate.isTrue(startDate.isBefore(endDate) || startDate.equals(endDate));
+    ArgumentChecker.notNull(startDate, "start date");
+    ArgumentChecker.notNull(endDate, "end date");
+    ArgumentChecker.isFalse(startDate.isAfter(endDate), "start date must not be after end date");
     if (startDate.equals(endDate)) {
       if (startDate.getDayOfMonth() == startDate.getDate().lengthOfMonth()) {
         return new ZonedDateTime[] {startDate};
       }
       throw new IllegalArgumentException("Start date and end date were the same but neither was the last day of the month");
     }
-    final List<ZonedDateTime> dates = new ArrayList<ZonedDateTime>();
+    final List<ZonedDateTime> dates = new ArrayList<>();
     ZonedDateTime date = startDate.with(TemporalAdjusters.lastDayOfMonth());
     while (!date.isAfter(endDate)) {
       dates.add(date);

@@ -11,12 +11,12 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.Expiry;
 
 /**
- * Class defining a supershare option. 
+ * Class defining a supershare option.
  * <p>
  * Supershare options have European-style exercise with payoff
  * $$
  * \begin{align*}
- * \mathrm{payoff} = 
+ * \mathrm{payoff} =
  * \begin{cases}
  * \frac{S}{K_L} \quad & \mathrm{if} \quad K_L \leq S \leq K_H\\
  * 0\quad & \mathrm{otherwise}
@@ -26,7 +26,7 @@ import com.opengamma.util.time.Expiry;
  * where $K_L$ is the lower bound, $K_H$ the upper bound and $S$ the spot.
  */
 public class SupershareOptionDefinition extends OptionDefinition {
-  private final OptionExerciseFunction<StandardOptionDataBundle> _exerciseFunction = new EuropeanExerciseFunction<StandardOptionDataBundle>();
+  private final OptionExerciseFunction<StandardOptionDataBundle> _exerciseFunction = new EuropeanExerciseFunction<>();
   private final OptionPayoffFunction<StandardOptionDataBundle> _payoffFunction = new OptionPayoffFunction<StandardOptionDataBundle>() {
 
     @SuppressWarnings("synthetic-access")
@@ -71,7 +71,7 @@ public class SupershareOptionDefinition extends OptionDefinition {
   }
 
   /**
-   * @return The lower bound 
+   * @return The lower bound
    */
   public double getLowerBound() {
     return _lowerBound;

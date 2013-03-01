@@ -53,7 +53,7 @@ public class CapFloorIborHullWhiteMethodTest {
   private static final DayCount DAY_COUNT_INDEX = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final boolean IS_EOM = true;
-  private static final Currency CUR = Currency.USD;
+  private static final Currency CUR = Currency.EUR;
   private static final IborIndex INDEX = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM);
   private static final ZonedDateTime FIXING_DATE = DateUtils.getUTCDate(2011, 1, 3);
   private static final double NOTIONAL = 100000000; //100m
@@ -86,7 +86,7 @@ public class CapFloorIborHullWhiteMethodTest {
     double t0 = CAP_LONG.getFixingPeriodStartTime();
     double t1 = CAP_LONG.getFixingPeriodEndTime();
     double theta = CAP_LONG.getFixingTime();
-    double deltaF = CAP_LONG.getFixingYearFraction();
+    double deltaF = CAP_LONG.getFixingAccrualFactor();
     double deltaP = CAP_LONG.getPaymentYearFraction();
     double alpha0 = MODEL.alpha(PARAMETERS_HW, 0.0, theta, tp, t0);
     double alpha1 = MODEL.alpha(PARAMETERS_HW, 0.0, theta, tp, t1);

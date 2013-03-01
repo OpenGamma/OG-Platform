@@ -17,10 +17,8 @@ import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositCou
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositZero;
 import com.opengamma.analytics.financial.interestrate.cash.method.CashDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.cash.method.DepositZeroDiscountingMethod;
-import com.opengamma.analytics.financial.interestrate.fra.ForwardRateAgreement;
+import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRateAgreement;
 import com.opengamma.analytics.financial.interestrate.fra.method.ForwardRateAgreementDiscountingMethod;
-import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
-import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 
@@ -58,7 +56,7 @@ public final class ParSpreadMarketQuoteCalculator extends InstrumentDerivativeVi
   private static final DepositZeroDiscountingMethod METHOD_DEPOSIT_ZERO = DepositZeroDiscountingMethod.getInstance();
   private static final BillTransactionDiscountingMethod METHOD_BILL_TRANSACTION = BillTransactionDiscountingMethod.getInstance();
   private static final ForwardRateAgreementDiscountingMethod METHOD_FRA = ForwardRateAgreementDiscountingMethod.getInstance();
-  private static final InterestRateFutureDiscountingMethod METHOD_IR_FUTURES = InterestRateFutureDiscountingMethod.getInstance();
+  //  private static final InterestRateFutureTransactionDiscountingMethod METHOD_IR_FUTURES = InterestRateFutureTransactionDiscountingMethod.getInstance();
   private static final ForexSwapDiscountingMethod METHOD_FX_SWAP = ForexSwapDiscountingMethod.getInstance();
 
   //     -----     Deposit     -----
@@ -85,16 +83,16 @@ public final class ParSpreadMarketQuoteCalculator extends InstrumentDerivativeVi
     return METHOD_BILL_TRANSACTION.parSpread(bill, curves);
   }
 
-  //     -----     Swaps     -----
+  //-----     Swaps     -----
 
   /**
-   * For swaps the ParSpread is the spread to be added on each coupon of the first leg to obtain a present value of zero.
-   * It is computed as the opposite of the present value of the swap in currency of the first leg divided by the present value of a basis point
-   * of the first leg (as computed by the PresentValueBasisPointCalculator).
-   * @param swap The swap.
-   * @param curves The yield curve bundle.
-   * @return The par spread.
-   */
+  * For swaps the ParSpread is the spread to be added on each coupon of the first leg to obtain a present value of zero.
+  * It is computed as the opposite of the present value of the swap in currency of the first leg divided by the present value of a basis point
+  * of the first leg (as computed by the PresentValueBasisPointCalculator).
+  * @param swap The swap.
+  * @param curves The yield curve bundle.
+  * @return The par spread.
+  */
   @Override
   public Double visitSwap(final Swap<?, ?> swap, final YieldCurveBundle curves) {
     Validate.notNull(curves);
@@ -122,16 +120,16 @@ public final class ParSpreadMarketQuoteCalculator extends InstrumentDerivativeVi
 
   //     -----     Futures     -----
 
-  /**
-   * For InterestRateFutures the ParSpread is the spread to be added to the reference price to obtain a present value of zero.
-   * @param future The futures.
-   * @param curves The yield curve bundle.
-   * @return The par spread.
-   */
-  @Override
-  public Double visitInterestRateFuture(final InterestRateFuture future, final YieldCurveBundle curves) {
-    return METHOD_IR_FUTURES.price(future, curves) - future.getReferencePrice();
-  }
+  //  /**
+  //   * For InterestRateFutures the ParSpread is the spread to be added to the reference price to obtain a present value of zero.
+  //   * @param future The futures.
+  //   * @param curves The yield curve bundle.
+  //   * @return The par spread.
+  //   */
+  //  @Override
+  //  public Double visitInterestRateFuture(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
+  //    return METHOD_IR_FUTURES.price(future, curves) - future.getReferencePrice();
+  //  }
 
   //     -----     Forex     -----
 

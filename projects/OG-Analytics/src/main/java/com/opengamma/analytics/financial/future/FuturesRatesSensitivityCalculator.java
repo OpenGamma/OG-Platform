@@ -58,7 +58,7 @@ public final class FuturesRatesSensitivityCalculator extends InstrumentDerivativ
     final double rhoSettle = -1 * settlement * future.accept(_presentValueCalculator, dataBundle);
     //  We use PresentValueNodeSensitivityCalculator to distribute this risk across the curve
     final NodeYieldSensitivityCalculator distributor = PresentValueNodeSensitivityCalculator.getDefaultInstance();
-    final Map<String, List<DoublesPair>> curveSensMap = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> curveSensMap = new HashMap<>();
     curveSensMap.put(discCrvName, Lists.newArrayList(new DoublesPair(settlement, rhoSettle)));
     return distributor.curveToNodeSensitivities(curveSensMap, interpolatedCurves);
 
