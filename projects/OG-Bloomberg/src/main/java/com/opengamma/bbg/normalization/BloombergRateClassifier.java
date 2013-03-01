@@ -108,6 +108,10 @@ public class BloombergRateClassifier {
       case VOLATILITY_QUOTE:
       case CD:
         return 100;
+      case EQUITY_FUTURE:
+        return 1;
+      case INDEX_FUTURE:
+        return 1;
       default:
         return 1;
     }
