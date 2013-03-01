@@ -38,6 +38,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.BloombergConstants;
 import com.opengamma.bbg.util.BloombergDataUtils;
 import com.opengamma.bbg.util.BloombergDomainIdentifierResolver;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesConstants;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -405,7 +406,7 @@ public class BloombergHistoricalLoader {
         // lookup start date as one day after the latest point in the series
         UniqueId htsId = doc.getInfo().getUniqueId();
         LocalDate latestDate = getLatestDate(htsId);
-        if (isUpToDate(latestDate)) {
+        if (isUpToDate(latestDate, doc.getInfo().getObservationTime())) {
           s_logger.debug("Not scheduling update for up to date series {} from {}", htsId, latestDate);
           continue;  // up to date, so do not fetch
         }
@@ -452,8 +453,13 @@ public class BloombergHistoricalLoader {
     }
   }
 
-  private boolean isUpToDate(LocalDate latestDate) {
-    LocalDate previousWeekDay = DateUtils.previousWeekDay();
+  private boolean isUpToDate(LocalDate latestDate, String observationTime) {
+    LocalDate previousWeekDay = null;
+    if (observationTime.equalsIgnoreCase(HistoricalTimeSeriesConstants.TOKYO_CLOSE)) {
+      previousWeekDay = DateUtils.previousWeekDay().plusDays(1);
+    } else {
+      previousWeekDay = DateUtils.previousWeekDay();
+    }
     return previousWeekDay.isBefore(latestDate) || previousWeekDay.equals(latestDate);
   }
 
