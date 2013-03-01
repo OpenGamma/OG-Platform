@@ -19,7 +19,7 @@ import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermS
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
-import com.opengamma.analytics.util.surface.SurfaceValue;
+import com.opengamma.analytics.util.amount.SurfaceValue;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;

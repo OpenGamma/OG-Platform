@@ -7,7 +7,7 @@ package com.opengamma.analytics.financial.interestrate.future.provider;
 
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
 import com.opengamma.analytics.financial.provider.description.interestrate.NormalSTIRFuturesSmileProviderInterface;
-import com.opengamma.analytics.util.surface.SurfaceValue;
+import com.opengamma.analytics.util.amount.SurfaceValue;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 

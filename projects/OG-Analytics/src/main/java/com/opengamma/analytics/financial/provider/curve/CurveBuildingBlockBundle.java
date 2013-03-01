@@ -17,7 +17,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Bundle of curves names and the curve building block associated.
  */
-// TODO: REVIEW: should this be part of the YieldCurveBundle?
+// TODO: REVIEW: should this be part of the MulticurvePovider?
 public class CurveBuildingBlockBundle {
 
   /**
