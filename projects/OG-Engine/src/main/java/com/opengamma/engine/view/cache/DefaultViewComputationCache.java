@@ -25,13 +25,14 @@ import com.google.common.collect.Lists;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.fudgemsg.WriteReplaceHelper;
 import com.opengamma.util.tuple.Pair;
 
 /**
  * An implementation of {@link ViewComputationCache} which backs value storage on a pair of {@link IdentifierMap} and {@link FudgeMessageStore}.
  */
 public class DefaultViewComputationCache implements ViewComputationCache,
-Iterable<Pair<ValueSpecification, FudgeMsg>> {
+    Iterable<Pair<ValueSpecification, FudgeMsg>> {
 
   /**
    * Callback to locate missing data.
@@ -403,7 +404,7 @@ Iterable<Pair<ValueSpecification, FudgeMsg>> {
     }
     serializer.reset();
     final MutableFudgeMsg message = serializer.newMessage();
-    serializer.addToMessageWithClassHeaders(message, null, NATIVE_FIELD_INDEX, value);
+    serializer.addToMessageWithClassHeaders(message, null, NATIVE_FIELD_INDEX, WriteReplaceHelper.writeReplace(value));
     // Optimize the "value encoded as sub-message" case to reduce space requirement
     final Object svalue = message.getValue(NATIVE_FIELD_INDEX);
     if (svalue instanceof FudgeMsg) {
