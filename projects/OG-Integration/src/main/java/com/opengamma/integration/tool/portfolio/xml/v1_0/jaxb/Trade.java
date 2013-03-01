@@ -11,6 +11,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlID;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
@@ -21,6 +22,8 @@ import org.joda.beans.impl.direct.DirectBean;
 import org.threeten.bp.LocalDate;
 
 import com.opengamma.util.money.Currency;
+
+import java.util.List;
 import java.util.Map;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.JodaBeanUtils;
@@ -32,8 +35,8 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 @XmlRootElement
 // Ensure we look at subclasses when unmarshalling
-@XmlSeeAlso({ AbstractFxOptionTrade.class, SwapTrade.class, EquityVarianceSwapTrade.class,
-                FxForwardTrade.class, SwaptionTrade.class, OtcEquityIndexOptionTrade.class })
+@XmlSeeAlso({ AbstractFxOptionTrade.class, SwapTrade.class, EquityVarianceSwapTrade.class, FxForwardTrade.class,
+                SwaptionTrade.class, OtcEquityIndexOptionTrade.class, ListedIndexOptionTrade.class})
 @XmlAccessorType(XmlAccessType.FIELD)
 @BeanDefinition
 public abstract class Trade extends DirectBean {
@@ -70,6 +73,11 @@ public abstract class Trade extends DirectBean {
   @XmlElement(name = "premiumSettlementDate")
   @PropertyDefinition
   private LocalDate _premiumSettlementDate;
+
+  @XmlElementWrapper(name = "additionalCashflows")
+  @XmlElement(name = "additionalCashflow")
+  @PropertyDefinition
+  private List<AdditionalCashflow> _additionalCashflows;
 
   public BigDecimal getQuantity() {
     return BigDecimal.ONE;
@@ -136,10 +144,13 @@ public abstract class Trade extends DirectBean {
         return getPremiumCurrency();
       case -1581750610:  // premiumSettlementDate
         return getPremiumSettlementDate();
+      case -254405301:  // additionalCashflows
+        return getAdditionalCashflows();
     }
     return super.propertyGet(propertyName, quiet);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
@@ -167,6 +178,9 @@ public abstract class Trade extends DirectBean {
       case -1581750610:  // premiumSettlementDate
         setPremiumSettlementDate((LocalDate) newValue);
         return;
+      case -254405301:  // additionalCashflows
+        setAdditionalCashflows((List<AdditionalCashflow>) newValue);
+        return;
     }
     super.propertySet(propertyName, newValue, quiet);
   }
@@ -185,7 +199,8 @@ public abstract class Trade extends DirectBean {
           JodaBeanUtils.equal(getCounterparty(), other.getCounterparty()) &&
           JodaBeanUtils.equal(getPremium(), other.getPremium()) &&
           JodaBeanUtils.equal(getPremiumCurrency(), other.getPremiumCurrency()) &&
-          JodaBeanUtils.equal(getPremiumSettlementDate(), other.getPremiumSettlementDate());
+          JodaBeanUtils.equal(getPremiumSettlementDate(), other.getPremiumSettlementDate()) &&
+          JodaBeanUtils.equal(getAdditionalCashflows(), other.getAdditionalCashflows());
     }
     return false;
   }
@@ -201,6 +216,7 @@ public abstract class Trade extends DirectBean {
     hash += hash * 31 + JodaBeanUtils.hashCode(getPremium());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPremiumCurrency());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPremiumSettlementDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getAdditionalCashflows());
     return hash;
   }
 
@@ -406,6 +422,31 @@ public abstract class Trade extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the additionalCashflows.
+   * @return the value of the property
+   */
+  public List<AdditionalCashflow> getAdditionalCashflows() {
+    return _additionalCashflows;
+  }
+
+  /**
+   * Sets the additionalCashflows.
+   * @param additionalCashflows  the new value of the property
+   */
+  public void setAdditionalCashflows(List<AdditionalCashflow> additionalCashflows) {
+    this._additionalCashflows = additionalCashflows;
+  }
+
+  /**
+   * Gets the the {@code additionalCashflows} property.
+   * @return the property, not null
+   */
+  public final Property<List<AdditionalCashflow>> additionalCashflows() {
+    return metaBean().additionalCashflows().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code Trade}.
    */
   public static class Meta extends DirectMetaBean {
@@ -455,6 +496,12 @@ public abstract class Trade extends DirectBean {
     private final MetaProperty<LocalDate> _premiumSettlementDate = DirectMetaProperty.ofReadWrite(
         this, "premiumSettlementDate", Trade.class, LocalDate.class);
     /**
+     * The meta-property for the {@code additionalCashflows} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<List<AdditionalCashflow>> _additionalCashflows = DirectMetaProperty.ofReadWrite(
+        this, "additionalCashflows", Trade.class, (Class) List.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -466,7 +513,8 @@ public abstract class Trade extends DirectBean {
         "counterparty",
         "premium",
         "premiumCurrency",
-        "premiumSettlementDate");
+        "premiumSettlementDate",
+        "additionalCashflows");
 
     /**
      * Restricted constructor.
@@ -493,6 +541,8 @@ public abstract class Trade extends DirectBean {
           return _premiumCurrency;
         case -1581750610:  // premiumSettlementDate
           return _premiumSettlementDate;
+        case -254405301:  // additionalCashflows
+          return _additionalCashflows;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -575,6 +625,14 @@ public abstract class Trade extends DirectBean {
      */
     public final MetaProperty<LocalDate> premiumSettlementDate() {
       return _premiumSettlementDate;
+    }
+
+    /**
+     * The meta-property for the {@code additionalCashflows} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<List<AdditionalCashflow>> additionalCashflows() {
+      return _additionalCashflows;
     }
 
   }

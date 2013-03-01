@@ -32,15 +32,15 @@ public class SwaptionTradeSecurityExtractor extends TradeSecurityExtractor<Swapt
 
     ExternalId underlyingId = underlying.getExternalIdBundle().getExternalId(ExternalScheme.of("XML_LOADER"));
 
-    boolean isPayer = swapTrade.getFixedLeg().getDirection() == SwapLeg.Direction.Pay;
+    boolean isPayer = swapTrade.getFixedLeg().getDirection() == SwapLeg.Direction.PAY;
     Expiry expiry = new Expiry(trade.getExpirationDate().atStartOfDay(ZoneOffset.UTC));
 
     Currency fixedLegCurrency = swapTrade.getFixedLeg().getCurrency();
 
     ExerciseType exerciseType = trade.getExerciseType();
 
-    ManageableSecurity security = new SwaptionSecurity(isPayer, underlyingId, trade.getBuySell() == BuySell.Buy,
-                                                       expiry, trade.getSettlementType() == SettlementType.CashSettled,
+    ManageableSecurity security = new SwaptionSecurity(isPayer, underlyingId, trade.getBuySell() == BuySell.BUY,
+                                                       expiry, trade.getSettlementType() == SettlementType.CASH_SETTLED,
                                                        fixedLegCurrency,
                                                        null, exerciseType.convert(),
                                                        convertLocalDate(trade.getCashSettlementPaymentDate()));

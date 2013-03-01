@@ -13,20 +13,20 @@ import javax.xml.bind.annotation.XmlElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Calendar {
 
-  public enum Type {Bank}
+  public enum CalendarType {Bank}
 
-  @XmlAttribute
-  private Type type;
+  @XmlAttribute(name = "calendarType")
+  private CalendarType _calendarType;
 
   @XmlElement(name = "id")
   private ExtId _externalId;
 
-  public Type getType() {
-    return type;
+  public CalendarType getCalendarType() {
+    return _calendarType;
   }
 
-  public void setType(Type type) {
-    this.type = type;
+  public void setCalendarType(CalendarType type) {
+    this._calendarType = type;
   }
 
   public ExtId getId() {

@@ -5,23 +5,17 @@
  */
 package com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb;
 
-import javax.xml.bind.annotation.adapters.XmlAdapter;
-
 import org.threeten.bp.LocalDate;
-import org.threeten.bp.format.DateTimeFormatter;
-import org.threeten.bp.format.DateTimeFormatters;
 
-public class LocalDateAdapter extends XmlAdapter<String, LocalDate> {
-
-  private static DateTimeFormatter DATE_FORMATTER = DateTimeFormatters.pattern("yyyy-MM-dd");
+public class LocalDateAdapter extends AbstractDateAdapter<LocalDate> {
 
   @Override
-  public LocalDate unmarshal(String v) throws Exception {
-    return DATE_FORMATTER.parse(v, LocalDate.class);
+  protected String getDatePattern() {
+    return "yyyy-MM-dd";
   }
 
   @Override
-  public String marshal(LocalDate v) throws Exception {
-    return DATE_FORMATTER.print(v);
+  public LocalDate unmarshal(String v) throws Exception {
+    return _formatter.parse(v, LocalDate.class);
   }
 }

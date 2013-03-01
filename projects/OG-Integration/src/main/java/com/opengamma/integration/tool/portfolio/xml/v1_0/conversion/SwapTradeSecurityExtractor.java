@@ -29,7 +29,6 @@ import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.FloatingLeg;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.SwapLeg;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.SwapTrade;
 import com.opengamma.master.security.ManageableSecurity;
-import com.opengamma.util.money.Currency;
 
 public class SwapTradeSecurityExtractor extends TradeSecurityExtractor<SwapTrade> {
 
@@ -38,9 +37,9 @@ public class SwapTradeSecurityExtractor extends TradeSecurityExtractor<SwapTrade
     FixedLeg fixedLeg = swapTrade.getFixedLeg();
     FloatingLeg floatingLeg = swapTrade.getFloatingLeg();
 
-    com.opengamma.financial.security.swap.SwapLeg payLeg = fixedLeg.getDirection() == SwapLeg.Direction.Pay ?
+    com.opengamma.financial.security.swap.SwapLeg payLeg = fixedLeg.getDirection() == SwapLeg.Direction.PAY ?
         convertFixedLeg(fixedLeg) : convertFloatingLeg(floatingLeg);
-    com.opengamma.financial.security.swap.SwapLeg receiveLeg = fixedLeg.getDirection() == SwapLeg.Direction.Receive ?
+    com.opengamma.financial.security.swap.SwapLeg receiveLeg = fixedLeg.getDirection() == SwapLeg.Direction.RECEIVE ?
         convertFixedLeg(fixedLeg) : convertFloatingLeg(floatingLeg);
 
     if (payLeg == receiveLeg) {

@@ -30,6 +30,7 @@ import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.portfolio.PortfolioSearchRequest;
 import com.opengamma.master.portfolio.impl.InMemoryPortfolioMaster;
 import com.opengamma.master.position.ManageablePosition;
+import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.position.PositionSearchRequest;
 import com.opengamma.master.position.impl.InMemoryPositionMaster;
@@ -253,7 +254,7 @@ public class XmlPortfolioLoaderToolTest {
   public void testSinglePortfolioNoPositionListedEquityIndexOption() {
 
     // We should get a position automatically generated for the trade
-    String fileLocation = "src/test/resources/xml_portfolios/listed_equity_index_option.xml";
+    String fileLocation = "src/test/resources/xml_portfolios/listed_index_option.xml";
     File file = new File(fileLocation);
     new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, true, false, false, false, true).execute();
 
@@ -261,7 +262,12 @@ public class XmlPortfolioLoaderToolTest {
     List<ManageablePosition> positions = _positionMaster.search(new PositionSearchRequest()).getPositions();
     assertEquals(positions.size(), 1);
 
-    assertEquals(Iterables.getOnlyElement(positions.get(0).getTrades()).getQuantity(), new BigDecimal(100000));
+    ManageablePosition position = positions.get(0);
+    List<ManageableTrade> trades = position.getTrades();
+    assertEquals(trades.size(), 2);
+    assertEquals(trades.get(0).getQuantity(), BigDecimal.valueOf(25000));
+    assertEquals(trades.get(1).getQuantity(), BigDecimal.valueOf(-10000));
+    assertEquals(position.getQuantity(), BigDecimal.valueOf(15000));
 
     assertEquals(_securityMaster.search(new SecuritySearchRequest()).getSecurities().size(), 1);
   }

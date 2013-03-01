@@ -24,10 +24,10 @@ public class FxOptionTradeSecurityExtractor extends TradeSecurityExtractor<FxOpt
 
     FxOptionCalculator calculator = new FxOptionCalculator(fxOptionTrade, fxOptionTrade.getNotional(), fxOptionTrade.getNotionalCurrency());
 
-    ExerciseType exerciseType = fxOptionTrade.getExerciseType() == com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.ExerciseType.American ?
+    ExerciseType exerciseType = fxOptionTrade.getExerciseType() == com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.ExerciseType.AMERICAN ?
         new AmericanExerciseType() : new EuropeanExerciseType();
 
-    ManageableSecurity security = fxOptionTrade.getSettlementType() == SettlementType.Physical ?
+    ManageableSecurity security = fxOptionTrade.getSettlementType() == SettlementType.PHYSICAL ?
         new FXOptionSecurity(calculator.getPutCurrency(),
                              calculator.getCallCurrency(),
                              calculator.getPutAmount(),

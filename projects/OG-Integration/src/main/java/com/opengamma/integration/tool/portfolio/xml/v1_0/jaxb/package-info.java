@@ -5,8 +5,8 @@
  */
 @XmlJavaTypeAdapters({
     @XmlJavaTypeAdapter(value = LocalDateAdapter.class, type = LocalDate.class),
-    @XmlJavaTypeAdapter(value = OptionTypeAdapter.class, type = OptionType.class) ,
-    @XmlJavaTypeAdapter(value = CurrencyAdapter.class, type = Currency.class)
+    @XmlJavaTypeAdapter(value = OptionTypeAdapter.class, type = OptionType.class),
+    @XmlJavaTypeAdapter(value = CurrencyAdapter.class, type = Currency.class),
 })
 package com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb;
 

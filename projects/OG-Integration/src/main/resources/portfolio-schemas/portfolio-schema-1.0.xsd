@@ -47,6 +47,9 @@
 
   <xs:element name="otcEquityIndexOptionTrade" type="otcEquityIndexOptionTrade"/>
 
+
+  <xs:element name="listedIndexOptionTrade" type="listedIndexOptionTrade"/>
+
   <xs:complexType name="ogPortfolio">
     <xs:all>
 
@@ -156,6 +159,14 @@
                 <xs:annotation>
                   <xs:documentation>
                     An individual OTC equity index option trade within the trades collection.
+                  </xs:documentation>
+                </xs:annotation>
+              </xs:element>
+
+              <xs:element ref="listedIndexOptionTrade">
+                <xs:annotation>
+                  <xs:documentation>
+                    An individual listed index option trade within the trades collection.
                   </xs:documentation>
                 </xs:annotation>
               </xs:element>
@@ -376,6 +387,14 @@
             The settlement date of the trade.
           </xs:documentation>
         </xs:annotation>
+      </xs:element>
+
+      <xs:element minOccurs="0" name="additionalCashflows">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="additionalCashflow" type="additionalCashflow" maxOccurs="unbounded" minOccurs="0"/>
+          </xs:sequence>
+        </xs:complexType>
       </xs:element>
 
     </xs:sequence>
@@ -916,6 +935,66 @@
     </xs:complexContent>
   </xs:complexType>
 
+  <xs:complexType name="listedIndexOptionTrade">
+    <xs:complexContent>
+      <xs:extension base="trade">
+        <xs:sequence>
+          <xs:element name="optionType" type="xs:string"/>
+          <xs:element name="buySell" type="buySell"/>
+          <xs:element name="underlyingId" type="idWrapper"/>
+          <xs:element name="strike" type="xs:decimal"/>
+          <xs:element name="optionExpiry" type="xs:string"/>
+          <xs:element name="exerciseType" type="exerciseType"/>
+          <xs:element name="numContracts" type="xs:int"/>
+          <xs:element name="pointValue" type="xs:int"/>
+          <xs:element name="currency" type="xs:string"/>
+          <xs:element name="exchange" type="xs:string"/>
+          <xs:element name="brokers" minOccurs="0">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="broker" type="broker" minOccurs="0" maxOccurs="unbounded"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+        <xs:attribute name="type" type="listedIndexOptionType" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="broker">
+    <xs:sequence>
+      <xs:element name="id" type="extId"/>
+    </xs:sequence>
+    <xs:attribute name="type" type="brokerType"/>
+  </xs:complexType>
+
+  <xs:complexType final="extension restriction" name="externalId">
+    <xs:sequence/>
+  </xs:complexType>
+
+  <xs:simpleType name="cashflowType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="premium"/>
+      <xs:enumeration value="clearingFee"/>
+      <xs:enumeration value="other"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="brokerType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="clearingBroker"/>
+      <xs:enumeration value="executingBroker"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="listedIndexOptionType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="equityIndexOption"/>
+      <xs:enumeration value="equityDividendOption"/>
+    </xs:restriction>
+  </xs:simpleType>
+
   <xs:simpleType name="callPut">
     <xs:restriction base="xs:string">
       <xs:enumeration value="Call"/>
@@ -1022,6 +1101,23 @@
     </xs:sequence>
   </xs:complexType>
 
+  <xs:complexType name="additionalCashflow">
+    <xs:sequence>
+      <xs:element name="counterparty" type="idWrapper" minOccurs="0"/>
+      <xs:element name="monetaryAmount" type="monetaryAmount"/>
+      <xs:element name="cashflowDate" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+    <xs:attribute name="type" type="cashflowType"/>
+  </xs:complexType>
+
+  <xs:complexType name="monetaryAmount">
+    <xs:simpleContent>
+      <xs:extension base="xs:decimal">
+        <xs:attribute name="currency" type="xs:string" use="required"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
   <xs:complexType name="extId">
     <xs:simpleContent>
       <xs:extension base="xs:string">
@@ -1038,7 +1134,7 @@
 
   <xs:complexType name="calendar">
     <xs:sequence>
-      <xs:element minOccurs="0" name="id" type="extId"/>
+      <xs:element name="id" type="extId" minOccurs="0"/>
     </xs:sequence>
     <xs:attribute name="type" type="type"/>
   </xs:complexType>

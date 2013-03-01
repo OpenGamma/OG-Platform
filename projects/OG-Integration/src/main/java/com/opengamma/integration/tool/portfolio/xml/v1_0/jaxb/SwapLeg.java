@@ -12,17 +12,30 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlEnumValue;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import com.opengamma.util.money.Currency;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 public abstract class SwapLeg {
 
-  public enum Direction { Pay, Receive}
+  public enum Direction {
+    @XmlEnumValue(value = "Pay")
+    PAY,
+    @XmlEnumValue(value = "Receive")
+    RECEIVE
+  }
 
-  public enum InterestCalculation {Adjusted}
+  public enum InterestCalculation {
+    @XmlEnumValue(value = "Adjusted")
+    ADJUSTED
+  }
 
-  public enum ScheduleGenerationDirection {Backward}
+  public enum ScheduleGenerationDirection {
+    @XmlEnumValue(value = "Backward")
+    BACKWARD
+  }
 
   @XmlElement(name = "payReceive")
   private Direction _direction;

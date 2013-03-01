@@ -33,23 +33,23 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 public abstract class AbstractFxOptionTrade extends Trade {
 
   @XmlElement(name = "callPut", required = true)
-  @PropertyDefinition
+  @PropertyDefinition(validate = "notNull")
   private OptionType _optionType;
 
   @XmlElement(name = "buySell", required = true)
-  @PropertyDefinition
+  @PropertyDefinition(validate = "notNull")
   private BuySell _buySell;
 
   @XmlElement(name = "currencyPair", required = true)
-  @PropertyDefinition
+  @PropertyDefinition(validate = "notNull")
   private String _currencyPair;
 
   @XmlElement(name = "optionCurrency", required = true)
-  @PropertyDefinition
+  @PropertyDefinition(validate = "notNull")
   private Currency _optionCurrency;
 
   @XmlElement(name = "strike", required = true)
-  @PropertyDefinition
+  @PropertyDefinition(validate = "notNull")
   private BigDecimal _strike;
 
   @XmlElement(name = "fxExpiry")
@@ -127,6 +127,16 @@ public abstract class AbstractFxOptionTrade extends Trade {
   }
 
   @Override
+  protected void validate() {
+    JodaBeanUtils.notNull(_optionType, "optionType");
+    JodaBeanUtils.notNull(_buySell, "buySell");
+    JodaBeanUtils.notNull(_currencyPair, "currencyPair");
+    JodaBeanUtils.notNull(_optionCurrency, "optionCurrency");
+    JodaBeanUtils.notNull(_strike, "strike");
+    super.validate();
+  }
+
+  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;
@@ -159,7 +169,7 @@ public abstract class AbstractFxOptionTrade extends Trade {
   //-----------------------------------------------------------------------
   /**
    * Gets the optionType.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public OptionType getOptionType() {
     return _optionType;
@@ -167,9 +177,10 @@ public abstract class AbstractFxOptionTrade extends Trade {
 
   /**
    * Sets the optionType.
-   * @param optionType  the new value of the property
+   * @param optionType  the new value of the property, not null
    */
   public void setOptionType(OptionType optionType) {
+    JodaBeanUtils.notNull(optionType, "optionType");
     this._optionType = optionType;
   }
 
@@ -184,7 +195,7 @@ public abstract class AbstractFxOptionTrade extends Trade {
   //-----------------------------------------------------------------------
   /**
    * Gets the buySell.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public BuySell getBuySell() {
     return _buySell;
@@ -192,9 +203,10 @@ public abstract class AbstractFxOptionTrade extends Trade {
 
   /**
    * Sets the buySell.
-   * @param buySell  the new value of the property
+   * @param buySell  the new value of the property, not null
    */
   public void setBuySell(BuySell buySell) {
+    JodaBeanUtils.notNull(buySell, "buySell");
     this._buySell = buySell;
   }
 
@@ -209,7 +221,7 @@ public abstract class AbstractFxOptionTrade extends Trade {
   //-----------------------------------------------------------------------
   /**
    * Gets the currencyPair.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public String getCurrencyPair() {
     return _currencyPair;
@@ -217,9 +229,10 @@ public abstract class AbstractFxOptionTrade extends Trade {
 
   /**
    * Sets the currencyPair.
-   * @param currencyPair  the new value of the property
+   * @param currencyPair  the new value of the property, not null
    */
   public void setCurrencyPair(String currencyPair) {
+    JodaBeanUtils.notNull(currencyPair, "currencyPair");
     this._currencyPair = currencyPair;
   }
 
@@ -234,7 +247,7 @@ public abstract class AbstractFxOptionTrade extends Trade {
   //-----------------------------------------------------------------------
   /**
    * Gets the optionCurrency.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public Currency getOptionCurrency() {
     return _optionCurrency;
@@ -242,9 +255,10 @@ public abstract class AbstractFxOptionTrade extends Trade {
 
   /**
    * Sets the optionCurrency.
-   * @param optionCurrency  the new value of the property
+   * @param optionCurrency  the new value of the property, not null
    */
   public void setOptionCurrency(Currency optionCurrency) {
+    JodaBeanUtils.notNull(optionCurrency, "optionCurrency");
     this._optionCurrency = optionCurrency;
   }
 
@@ -259,7 +273,7 @@ public abstract class AbstractFxOptionTrade extends Trade {
   //-----------------------------------------------------------------------
   /**
    * Gets the strike.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public BigDecimal getStrike() {
     return _strike;
@@ -267,9 +281,10 @@ public abstract class AbstractFxOptionTrade extends Trade {
 
   /**
    * Sets the strike.
-   * @param strike  the new value of the property
+   * @param strike  the new value of the property, not null
    */
   public void setStrike(BigDecimal strike) {
+    JodaBeanUtils.notNull(strike, "strike");
     this._strike = strike;
   }
 

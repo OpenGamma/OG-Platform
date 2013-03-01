@@ -6,24 +6,32 @@
  */
 package com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb;
 
+import javax.xml.bind.annotation.XmlEnumValue;
+
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.security.option.AmericanExerciseType;
 import com.opengamma.financial.security.option.BermudanExerciseType;
 import com.opengamma.financial.security.option.EuropeanExerciseType;
 
 public enum ExerciseType {
-  European, American, Bermudan;
+
+  @XmlEnumValue(value = "European")
+  EUROPEAN,
+  @XmlEnumValue(value = "American")
+  AMERICAN,
+  @XmlEnumValue(value = "Bermudan")
+  BERMUDAN;
 
 
   public com.opengamma.financial.security.option.ExerciseType convert() {
 
     switch (this) {
 
-      case American:
+      case AMERICAN:
         return new AmericanExerciseType();
-      case Bermudan:
+      case BERMUDAN:
         return new BermudanExerciseType();
-      case European:
+      case EUROPEAN:
         return new EuropeanExerciseType();
       default:
         throw new OpenGammaRuntimeException("Unexpected exercise type: " + name());

@@ -6,4 +6,11 @@
  */
 package com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb;
 
-public enum SettlementType {Physical, CashSettled}
+import javax.xml.bind.annotation.XmlEnumValue;
+
+public enum SettlementType {
+  @XmlEnumValue(value = "Physical")
+  PHYSICAL,
+  @XmlEnumValue(value = "CashSettled")
+  CASH_SETTLED
+}

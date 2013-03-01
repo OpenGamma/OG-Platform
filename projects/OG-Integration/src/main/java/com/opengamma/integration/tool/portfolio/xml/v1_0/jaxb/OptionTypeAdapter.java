@@ -7,6 +7,7 @@ package com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
+import com.google.common.base.CaseFormat;
 import com.opengamma.financial.security.option.OptionType;
 
 public class OptionTypeAdapter extends XmlAdapter<String, OptionType> {
@@ -18,6 +19,6 @@ public class OptionTypeAdapter extends XmlAdapter<String, OptionType> {
 
   @Override
   public String marshal(OptionType v) throws Exception {
-    return v.name();
+    return CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, v.name());
   }
 }

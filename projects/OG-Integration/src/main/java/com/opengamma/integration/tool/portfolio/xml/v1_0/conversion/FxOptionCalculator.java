@@ -58,7 +58,7 @@ class FxOptionCalculator {
 
     _expiry = new Expiry(trade.getFxExpiry().getExpiryDate().atStartOfDay(ZoneOffset.UTC));
     _settlementDate = trade.getPremiumSettlementDate().atStartOfDay(ZoneOffset.UTC);
-    _long = trade.getBuySell() == BuySell.Buy;
+    _long = trade.getBuySell() == BuySell.BUY;
   }
 
   public Currency getCallCurrency() {

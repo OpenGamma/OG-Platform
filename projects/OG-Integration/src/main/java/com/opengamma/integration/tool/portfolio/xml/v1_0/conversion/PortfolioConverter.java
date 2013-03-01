@@ -16,10 +16,13 @@ import com.google.common.collect.Lists;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.security.Security;
 import com.opengamma.integration.tool.portfolio.xml.PortfolioPosition;
+import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.AdditionalCashflow;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.EquityVarianceSwapTrade;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.FxDigitalOptionTrade;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.FxForwardTrade;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.FxOptionTrade;
+import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.ListedIndexOptionTrade;
+import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.MonetaryAmount;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.OtcEquityIndexOptionTrade;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.Portfolio;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.Position;
@@ -30,7 +33,6 @@ import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.money.Currency;
 
 public class PortfolioConverter {
 
@@ -46,6 +48,7 @@ public class PortfolioConverter {
         .put(FxForwardTrade.class, new FxForwardTradeSecurityExtractor())
         .put(SwaptionTrade.class, new SwaptionTradeSecurityExtractor())
         .put(OtcEquityIndexOptionTrade.class, new OtcEquityIndexOptionTradeSecurityExtractor())
+        .put(ListedIndexOptionTrade.class, new ListedIndexOptionTradeSecurityExtractor())
         .build();
 
   public PortfolioConverter(Portfolio portfolio) {
@@ -96,14 +99,32 @@ public class PortfolioConverter {
     for (Position position : nullCheckIterable(portfolio.getPositions())) {
 
       List<Trade> trades = position.getTrades();
+      BigDecimal tradeTotalQuantity = BigDecimal.ZERO;
+
+      // Track the security
+      ManageableSecurity[] positionSecurity = null;
 
       for (Trade trade : trades) {
 
-        ManageableSecurity[] security = extractSecurityFromTrade(trade, trades.size());
-        managedPositions.add(createPortfolioPosition(position, security, portfolioPath));
+        ManageableSecurity[] tradeSecurity = extractSecurityFromTrade(trade, trades.size());
+        if (positionSecurity == null) {
+
+          positionSecurity = tradeSecurity;
+
+        } else if (!Arrays.equals(positionSecurity, tradeSecurity)) {
+
+          throw new OpenGammaRuntimeException("Security must be the same for all trades grouped into a position - " +
+                                                  "position has security: [" + positionSecurity[0] +
+                                                  "] but found trade with: [" + tradeSecurity[0] + "]");
+        }
+
+        tradeTotalQuantity = tradeTotalQuantity.add(trade.getQuantity());
+
       }
+      managedPositions.add(createPortfolioPosition(position, positionSecurity, portfolioPath, tradeTotalQuantity));
     }
 
+    // These trades have not supplied under positions, but directly in a portfolio
     for (Trade trade : nullCheckIterable(portfolio.getTrades())) {
 
       // TODO we probably want logic to allow for the aggregation of trades into positions but for now we'll create a position per trade
@@ -151,8 +172,9 @@ public class PortfolioConverter {
 
   private PortfolioPosition createPortfolioPosition(Position position,
                                                     ManageableSecurity[] security,
-                                                    String[] parentPath) {
-    return new PortfolioPosition(convertPosition(position, security[0]), security, parentPath);
+                                                    String[] parentPath,
+                                                    BigDecimal tradeQuantity) {
+    return new PortfolioPosition(convertPosition(position, security[0], tradeQuantity), security, parentPath);
   }
 
   private PortfolioPosition createPortfolioPosition(Trade trade, ManageableSecurity[] security, String[] parentPath) {
@@ -165,9 +187,13 @@ public class PortfolioConverter {
     return manageablePosition;
   }
 
-  private ManageablePosition convertPosition(Position position, Security security) {
+  private ManageablePosition convertPosition(Position position, Security security, BigDecimal tradeQuantity) {
 
-    ManageablePosition manageablePosition = new ManageablePosition(position.getQuantity(), security.getExternalIdBundle());
+    // If the position is supplying a quantity, then we should use that
+    // rather than the total quantity calculated from the trades
+    BigDecimal positionQuantity = position.getQuantity();
+    ManageablePosition manageablePosition = new ManageablePosition(
+        positionQuantity != null ? positionQuantity : tradeQuantity, security.getExternalIdBundle());
 
     List<Trade> trades = position.getTrades();
     for (Trade trade : trades) {
@@ -178,7 +204,6 @@ public class PortfolioConverter {
 
   private ManageableTrade convertTrade(Trade trade, Security security) {
 
-    // Would anything other than 1 for quantity make sense here (for OTC trades)?
     ManageableTrade manageableTrade = new ManageableTrade(trade.getQuantity(),
                                                           security.getExternalIdBundle(),
                                                           trade.getTradeDate(),
@@ -187,10 +212,23 @@ public class PortfolioConverter {
 
     manageableTrade.setProviderId(trade.getExternalSystemId().toExternalId());
 
-    BigDecimal premium = trade.getPremium();
-    if (premium != null) {
-      manageableTrade.setPremium(premium.doubleValue());
-      manageableTrade.setPremiumCurrency(trade.getPremiumCurrency());
+    for (AdditionalCashflow cashflow : nullCheckIterable(trade.getAdditionalCashflows())) {
+
+      if (cashflow.getCashflowType() == AdditionalCashflow.CashflowType.PREMIUM) {
+        MonetaryAmount monetaryAmount = cashflow.getMonetaryAmount();
+        manageableTrade.setPremium(monetaryAmount.getAmount().doubleValue());
+        manageableTrade.setPremiumCurrency(monetaryAmount.getCurrency());
+        manageableTrade.setPremiumDate(cashflow.getCashflowDate());
+      }
+    }
+
+    if (manageableTrade.getPremium() == null) {
+
+      BigDecimal premium = trade.getPremium();
+      if (premium != null) {
+        manageableTrade.setPremium(premium.doubleValue());
+        manageableTrade.setPremiumCurrency(trade.getPremiumCurrency());
+      }
     }
     return manageableTrade;
   }
