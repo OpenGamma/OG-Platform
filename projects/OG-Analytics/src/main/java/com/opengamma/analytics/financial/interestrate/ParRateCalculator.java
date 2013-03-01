@@ -12,6 +12,10 @@ import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositZer
 import com.opengamma.analytics.financial.interestrate.cash.method.DepositZeroDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRateAgreement;
 import com.opengamma.analytics.financial.interestrate.fra.method.ForwardRateAgreementDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
+import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureSecurityDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureTransactionDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.ForexForward;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
@@ -61,7 +65,8 @@ public final class ParRateCalculator extends InstrumentDerivativeVisitorAdapter<
   //  private static final CouponIborGearingDiscountingMethod METHOD_IBOR_GEARING = CouponIborGearingDiscountingMethod.getInstance();
   private static final DepositZeroDiscountingMethod METHOD_DEPOSIT_ZERO = DepositZeroDiscountingMethod.getInstance();
   private static final ForwardRateAgreementDiscountingMethod METHOD_FRA = ForwardRateAgreementDiscountingMethod.getInstance();
-  //  private static final InterestRateFutureSecurityDiscountingMethod METHOD_IRFUT = InterestRateFutureTransactionDiscountingMethod.getInstance();
+  private static final InterestRateFutureTransactionDiscountingMethod METHOD_IRFUT_TRANSACTION = InterestRateFutureTransactionDiscountingMethod.getInstance();
+  private static final InterestRateFutureSecurityDiscountingMethod METHOD_IRFUT_SECURITY = InterestRateFutureSecurityDiscountingMethod.getInstance();
   private static final SwapFixedCouponDiscountingMethod METHOD_SWAP = SwapFixedCouponDiscountingMethod.getInstance();
 
   // TODO: review
@@ -94,13 +99,22 @@ public final class ParRateCalculator extends InstrumentDerivativeVisitorAdapter<
     return METHOD_FRA.parRate(fra, curves);
   }
 
-  //  @Override
-  //  /**
-  //   * Compute the future rate (1-price) without convexity adjustment.
-  //   */
-  //  public Double visitInterestRateFuture(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
-  //    return METHOD_IRFUT.parRate(future, curves);
-  //  }
+  /**
+   * {@inheritDoc}
+   * Compute the future rate (1-price) without convexity adjustment.
+   */
+  @Override
+  public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
+    return METHOD_IRFUT_TRANSACTION.parRate(future, curves);
+  }
+
+  /**
+   * Compute the future rate (1-price) without convexity adjustment.
+   */
+  @Override
+  public Double visitInterestRateFutureSecurity(final InterestRateFutureSecurity future, final YieldCurveBundle curves) {
+    return METHOD_IRFUT_SECURITY.parRate(future, curves);
+  }
 
   /**
    * Computes the par rate of a swap with one fixed leg.

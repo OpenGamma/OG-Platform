@@ -26,11 +26,12 @@ import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositZer
 import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRateAgreement;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumTransaction;
-import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionPremiumSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionPremiumTransaction;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponCMS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
@@ -86,6 +87,11 @@ public final class LastTimeCalculator extends InstrumentDerivativeVisitorAdapter
 
   @Override
   public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction future) {
+    return future.getFixingPeriodEndTime();
+  }
+
+  @Override
+  public Double visitInterestRateFutureSecurity(final InterestRateFutureSecurity future) {
     return future.getFixingPeriodEndTime();
   }
 
@@ -243,4 +249,5 @@ public final class LastTimeCalculator extends InstrumentDerivativeVisitorAdapter
   public Double visitEquityIndexFutureOption(final EquityIndexFutureOption option) {
     return option.getExpiry();
   }
+
 }

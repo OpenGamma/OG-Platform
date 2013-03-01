@@ -10,6 +10,7 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -18,6 +19,8 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.SimpleParameterSensitivity;
+import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -70,5 +73,18 @@ public class CurveResultBuildersTest extends AnalyticsTestBase {
     sensitivities = sensitivities.plus(Currency.AUD, sensitivities1);
     sensitivities = sensitivities.plus(Currency.CAD, sensitivities2);
     assertEquals(sensitivities, cycleObject(MultipleCurrencyMulticurveSensitivity.class, sensitivities));
+  }
+
+  @Test
+  public void testSimpleParameterSensitivity() {
+    final String name1 = "YC1";
+    final String name2 = "YC2";
+    final DoubleMatrix1D sensitivities1 = new DoubleMatrix1D(new double[] {1, 2, 4, 6, 7, 9, 12});
+    final DoubleMatrix1D sensitivities2 = new DoubleMatrix1D(new double[] {89, 456, 234, 12});
+    final LinkedHashMap<String, DoubleMatrix1D> sensitivities = new LinkedHashMap<>();
+    sensitivities.put(name1, sensitivities1);
+    sensitivities.put(name2, sensitivities2);
+    final SimpleParameterSensitivity sps = new SimpleParameterSensitivity(sensitivities);
+    assertEquals(sps, cycleObject(SimpleParameterSensitivity.class, sps));
   }
 }

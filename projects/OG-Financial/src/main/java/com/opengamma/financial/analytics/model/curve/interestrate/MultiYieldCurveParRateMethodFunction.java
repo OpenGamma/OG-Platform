@@ -28,6 +28,7 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
+import com.opengamma.analytics.financial.instrument.future.InterestRateFutureSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureTransactionDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.LastTimeCalculator;
@@ -115,13 +116,13 @@ public class MultiYieldCurveParRateMethodFunction extends MultiYieldCurveFunctio
     final MultiCurveCalculationConfig curveCalculationConfig = new ConfigDBCurveCalculationConfigSource(configSource).getConfig(curveCalculationConfigName);
     final ComputationTargetSpecification targetSpec = target.toSpecification();
     final YieldCurveBundle knownCurves = getKnownCurves(curveCalculationConfig, targetSpec, inputs);
-    final List<InstrumentDerivative> derivatives = new ArrayList<InstrumentDerivative>();
+    final List<InstrumentDerivative> derivatives = new ArrayList<>();
     final DoubleArrayList marketValues = new DoubleArrayList();
     final DoubleArrayList initialRatesGuess = new DoubleArrayList();
     final String[] curveNames = curveCalculationConfig.getYieldCurveNames();
-    final LinkedHashMap<String, double[]> curveNodes = new LinkedHashMap<String, double[]>();
-    final LinkedHashMap<String, Interpolator1D> interpolators = new LinkedHashMap<String, Interpolator1D>();
-    final Map<String, Integer> nodesPerCurve = new HashMap<String, Integer>();
+    final LinkedHashMap<String, double[]> curveNodes = new LinkedHashMap<>();
+    final LinkedHashMap<String, Interpolator1D> interpolators = new LinkedHashMap<>();
+    final Map<String, Integer> nodesPerCurve = new HashMap<>();
     final HistoricalTimeSeriesBundle timeSeries = getTimeSeriesBundle(inputs, targetSpec, curveCalculationConfigName);
     for (final String curveName : curveNames) {
       int nInstruments = 0;
@@ -140,8 +141,14 @@ public class MultiYieldCurveParRateMethodFunction extends MultiYieldCurveFunctio
         final InstrumentDerivative derivative = _definitionConverter.convert(security, definition, now, curveNamesForSecurity, timeSeries);
         if (derivative != null) {
           if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
-            final InstrumentDefinition<?> unitNotional = ((InterestRateFutureTransactionDefinition) definition).withNewNotionalAndTransactionPrice(1, marketValue);
-            // Implementation note: to have the same notional for OTC and futures (and thus not near-singular Jacobian)
+            InstrumentDefinition<?> unitNotional;
+            if (definition instanceof InterestRateFutureSecurityDefinition) {
+              final InterestRateFutureSecurityDefinition securityDefinition = (InterestRateFutureSecurityDefinition) definition;
+              unitNotional = new InterestRateFutureTransactionDefinition(securityDefinition, now, marketValue, 1);
+            } else {
+              unitNotional = ((InterestRateFutureTransactionDefinition) definition).withNewNotionalAndTransactionPrice(1, marketValue);
+              // Implementation note: to have the same notional for OTC and futures (and thus not near-singular Jacobian)
+            }
             final InstrumentDerivative unitNotionalDerivative = _definitionConverter.convert(security, unitNotional, now, curveNamesForSecurity, timeSeries);
             derivatives.add(unitNotionalDerivative);
             initialRatesGuess.add(1 - marketValue);
@@ -163,7 +170,7 @@ public class MultiYieldCurveParRateMethodFunction extends MultiYieldCurveFunctio
     final int iterations = Integer.parseInt(iterationsName);
     final boolean useFiniteDifference = Boolean.parseBoolean(useFiniteDifferenceName);
     final Decomposition<?> decomposition = DecompositionFactory.getDecomposition(decompositionName);
-    final Set<ComputedValue> results = new HashSet<ComputedValue>();
+    final Set<ComputedValue> results = new HashSet<>();
     final Currency currency = Currency.of(targetSpec.getUniqueId().getValue());
     final MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(derivatives, marketValues.toDoubleArray(), knownCurves, curveNodes, interpolators, useFiniteDifference,
         new FXMatrix(currency));
@@ -268,6 +275,7 @@ public class MultiYieldCurveParRateMethodFunction extends MultiYieldCurveFunctio
         .with(PROPERTY_USE_FINITE_DIFFERENCE, useFiniteDifference).get();
   }
 
+  @Override
   protected String getCalculationMethod() {
     return PAR_RATE_STRING;
   }
