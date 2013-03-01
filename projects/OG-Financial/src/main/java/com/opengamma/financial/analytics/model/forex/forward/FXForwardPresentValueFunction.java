@@ -10,7 +10,6 @@ import java.util.Set;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
@@ -23,19 +22,15 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.CurrencyLabelledMatrix1D;
-import com.opengamma.financial.currency.CurrencyMatrixSourcingFunction;
-import com.opengamma.financial.currency.CurrencyPair;
-import com.opengamma.financial.currency.CurrencyPairs;
+import com.opengamma.financial.currency.CurrencyMatrixSpotSourcingFunction;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
-import com.opengamma.id.UniqueId;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.money.UnorderedCurrencyPair;
 
 /**
  * Calculates Present Value on FX Forward instruments.
@@ -86,7 +81,7 @@ public class FXForwardPresentValueFunction extends AbstractFunction.NonCompiledI
     FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     Currency payCurrency = getPayCurrency(security);
     Currency receiveCurrency = getReceiveCurrency(security);
-    ValueRequirement spotRateRequirement = CurrencyMatrixSourcingFunction.getConversionRequirement(payCurrency, receiveCurrency);
+    ValueRequirement spotRateRequirement = CurrencyMatrixSpotSourcingFunction.getConversionRequirement(payCurrency, receiveCurrency);
     return ImmutableSet.of(fxPvRequirement, spotRateRequirement);
   }
   
