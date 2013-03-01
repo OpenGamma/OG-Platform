@@ -23,13 +23,13 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Class containing the sensitivity of the present value to specific parameters or market quotes and methods for manipulating these data. 
+ * Class containing the sensitivity of the present value to specific parameters or market quotes and methods for manipulating these data.
  * The vector of sensitivities is stored with reference to a curve name and currency pair, with the sensitivity amounts assumed to be in the currency of the pair.
  */
 public class MultipleCurrencyParameterSensitivity {
   /**
    * The map containing the sensitivity. The map links a pair of curve name and currency to a vector of sensitivities (sensitivities to parameters/inputs).
-   * The sensitivity is expressed in the currency of the pair. 
+   * The sensitivity is expressed in the currency of the pair.
    */
   private final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> _sensitivity;
 
@@ -37,21 +37,21 @@ public class MultipleCurrencyParameterSensitivity {
    * Default constructor, creating an empty LinkedHashMap for the sensitivity.
    */
   public MultipleCurrencyParameterSensitivity() {
-    _sensitivity = new LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D>();
+    _sensitivity = new LinkedHashMap<>();
   }
 
   /**
    * Constructor taking a map.
-   * @param sensitivity The map with the sensitivities, not null. The map is copied. 
+   * @param sensitivity The map with the sensitivities, not null. The map is copied.
    */
   public MultipleCurrencyParameterSensitivity(final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> sensitivity) {
     ArgumentChecker.notNull(sensitivity, "sensitivity");
-    _sensitivity = new LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D>(sensitivity);
+    _sensitivity = new LinkedHashMap<>(sensitivity);
   }
 
   /**
    * Static constructor from a map. The map is copied.
-   * @param sensitivity A map of name / currency pairs to vector of sensitivities, not null 
+   * @param sensitivity A map of name / currency pairs to vector of sensitivities, not null
    * @return An instance of ParameterSensitivity
    */
   public static MultipleCurrencyParameterSensitivity of(final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> sensitivity) {
@@ -70,7 +70,7 @@ public class MultipleCurrencyParameterSensitivity {
     ArgumentChecker.notNull(nameCcy, "Name/currency");
     ArgumentChecker.notNull(sensitivity, "Matrix");
     final MatrixAlgebra algebra = MatrixAlgebraFactory.COMMONS_ALGEBRA;
-    final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> result = new LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D>();
+    final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> result = new LinkedHashMap<>();
     result.putAll(_sensitivity);
     if (result.containsKey(nameCcy)) {
       result.put(nameCcy, (DoubleMatrix1D) algebra.add(result.get(nameCcy), sensitivity));
@@ -88,7 +88,7 @@ public class MultipleCurrencyParameterSensitivity {
   public MultipleCurrencyParameterSensitivity plus(final MultipleCurrencyParameterSensitivity other) {
     ArgumentChecker.notNull(other, "Sensitivity to add");
     final MatrixAlgebra algebra = MatrixAlgebraFactory.COMMONS_ALGEBRA;
-    final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> result = new LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D>();
+    final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> result = new LinkedHashMap<>();
     result.putAll(_sensitivity);
     for (final Map.Entry<Pair<String, Currency>, DoubleMatrix1D> entry : other.getSensitivities().entrySet()) {
       final Pair<String, Currency> nameCcy = entry.getKey();
@@ -108,7 +108,7 @@ public class MultipleCurrencyParameterSensitivity {
    */
   public MultipleCurrencyParameterSensitivity multipliedBy(final double factor) {
     final MatrixAlgebra algebra = MatrixAlgebraFactory.COMMONS_ALGEBRA;
-    final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> result = new LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D>();
+    final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> result = new LinkedHashMap<>();
     for (final Pair<String, Currency> nameCcy : _sensitivity.keySet()) {
       result.put(nameCcy, (DoubleMatrix1D) algebra.scale(_sensitivity.get(nameCcy), factor));
     }
@@ -171,7 +171,7 @@ public class MultipleCurrencyParameterSensitivity {
    * @return The map.
    */
   public Map<Pair<String, Currency>, Double> totalSensitivityByCurveCurrency() {
-    final HashMap<Pair<String, Currency>, Double> s = new HashMap<Pair<String, Currency>, Double>();
+    final HashMap<Pair<String, Currency>, Double> s = new HashMap<>();
     for (final Entry<Pair<String, Currency>, DoubleMatrix1D> entry : _sensitivity.entrySet()) {
       double total = 0.0;
       for (int loopi = 0; loopi < entry.getValue().getNumberOfElements(); loopi++) {
@@ -191,7 +191,7 @@ public class MultipleCurrencyParameterSensitivity {
   public double totalSensitivity(final FXMatrix fxMatrix, final Currency ccy) {
     double total = 0.0;
     for (final Entry<Pair<String, Currency>, DoubleMatrix1D> entry : _sensitivity.entrySet()) {
-      double fx = fxMatrix.getFxRate(entry.getKey().getSecond(), ccy);
+      final double fx = fxMatrix.getFxRate(entry.getKey().getSecond(), ccy);
       for (int loopi = 0; loopi < entry.getValue().getNumberOfElements(); loopi++) {
         total += entry.getValue().getEntry(loopi) * fx;
       }

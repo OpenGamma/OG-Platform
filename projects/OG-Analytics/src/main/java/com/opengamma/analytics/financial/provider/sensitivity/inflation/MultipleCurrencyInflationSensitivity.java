@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.financial.provider.sensitivity.inflation;
 
+import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -16,7 +18,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * Class describing a the sensitivity of some value (present value, par rate, etc) to a family of yield curves. 
+ * Class describing a the sensitivity of some value (present value, par rate, etc) to a family of yield curves.
  * The currency in which the sensitivity is expressed is indicated through a map.
  */
 public class MultipleCurrencyInflationSensitivity {
@@ -27,11 +29,11 @@ public class MultipleCurrencyInflationSensitivity {
    */
   private final TreeMap<Currency, InflationSensitivity> _sensitivity;
 
-  /** 
+  /**
    * Constructor. A new map is created.
    */
   public MultipleCurrencyInflationSensitivity() {
-    _sensitivity = new TreeMap<Currency, InflationSensitivity>();
+    _sensitivity = new TreeMap<>();
   }
 
   /**
@@ -51,7 +53,7 @@ public class MultipleCurrencyInflationSensitivity {
   public static MultipleCurrencyInflationSensitivity of(final Currency ccy, final InflationSensitivity sensitivity) {
     ArgumentChecker.notNull(ccy, "Currency");
     ArgumentChecker.notNull(sensitivity, "Sensitivity");
-    final TreeMap<Currency, InflationSensitivity> map = new TreeMap<Currency, InflationSensitivity>();
+    final TreeMap<Currency, InflationSensitivity> map = new TreeMap<>();
     map.put(ccy, sensitivity);
     return new MultipleCurrencyInflationSensitivity(map);
   }
@@ -71,7 +73,7 @@ public class MultipleCurrencyInflationSensitivity {
   }
 
   /**
-   * Create a new multiple currency sensitivity by adding the sensitivity associated to a given currency. 
+   * Create a new multiple currency sensitivity by adding the sensitivity associated to a given currency.
    * If the currency is not yet present in the existing sensitivity a new map is created with the extra entry.
    * If the currency is already present, the associated sensitivities are added (in the sense of {@link InterestRateCurveSensitivity}) and a new map is created with all the other
    * existing entries and the entry with the currency and the sum sensitivity.
@@ -82,7 +84,7 @@ public class MultipleCurrencyInflationSensitivity {
   public MultipleCurrencyInflationSensitivity plus(final Currency ccy, final InflationSensitivity sensitivity) {
     ArgumentChecker.notNull(ccy, "Currency");
     ArgumentChecker.notNull(sensitivity, "Sensitivity");
-    final TreeMap<Currency, InflationSensitivity> map = new TreeMap<Currency, InflationSensitivity>();
+    final TreeMap<Currency, InflationSensitivity> map = new TreeMap<>();
     if (_sensitivity.containsKey(ccy)) {
       map.put(ccy, sensitivity.plus(_sensitivity.get(ccy)));
       for (final Currency loopccy : _sensitivity.keySet()) {
@@ -98,14 +100,14 @@ public class MultipleCurrencyInflationSensitivity {
   }
 
   /**
-   * Create a new multiple currency sensitivity by adding another multiple currency sensitivity. 
+   * Create a new multiple currency sensitivity by adding another multiple currency sensitivity.
    * For each currency in the other multiple currency sensitivity, the currency and its associated sensitivity are added.
    * @param other The multiple currency sensitivity. Not null.
    * @return The new multiple currency sensitivity.
    */
   public MultipleCurrencyInflationSensitivity plus(final MultipleCurrencyInflationSensitivity other) {
     ArgumentChecker.notNull(other, "Sensitivity");
-    final TreeMap<Currency, InflationSensitivity> map = new TreeMap<Currency, InflationSensitivity>();
+    final TreeMap<Currency, InflationSensitivity> map = new TreeMap<>();
     map.putAll(_sensitivity);
     MultipleCurrencyInflationSensitivity result = new MultipleCurrencyInflationSensitivity(map);
     for (final Currency loopccy : other._sensitivity.keySet()) {
@@ -115,12 +117,12 @@ public class MultipleCurrencyInflationSensitivity {
   }
 
   /**
-   * Create a new multiple currency sensitivity by multiplying all the sensitivities in a multiple currency sensitivity by a common factor. 
+   * Create a new multiple currency sensitivity by multiplying all the sensitivities in a multiple currency sensitivity by a common factor.
    * @param factor The multiplicative factor.
    * @return The new multiple currency sensitivity.
    */
   public MultipleCurrencyInflationSensitivity multipliedBy(final double factor) {
-    final TreeMap<Currency, InflationSensitivity> map = new TreeMap<Currency, InflationSensitivity>();
+    final TreeMap<Currency, InflationSensitivity> map = new TreeMap<>();
     for (final Currency loopccy : _sensitivity.keySet()) {
       map.put(loopccy, _sensitivity.get(loopccy).multipliedBy(factor));
     }
@@ -132,7 +134,7 @@ public class MultipleCurrencyInflationSensitivity {
    * @return The cleaned sensitivity.
    */
   public MultipleCurrencyInflationSensitivity cleaned() {
-    final TreeMap<Currency, InflationSensitivity> map = new TreeMap<Currency, InflationSensitivity>();
+    final TreeMap<Currency, InflationSensitivity> map = new TreeMap<>();
     for (final Currency loopccy : _sensitivity.keySet()) {
       map.put(loopccy, _sensitivity.get(loopccy).cleaned());
     }
@@ -156,11 +158,19 @@ public class MultipleCurrencyInflationSensitivity {
    */
   public MultipleCurrencyInflationSensitivity converted(final Currency ccy, final FXMatrix fx) {
     InflationSensitivity sensi = new InflationSensitivity();
-    for (Currency c : _sensitivity.keySet()) {
-      double rate = fx.getFxRate(c, ccy);
+    for (final Currency c : _sensitivity.keySet()) {
+      final double rate = fx.getFxRate(c, ccy);
       sensi = sensi.plus(_sensitivity.get(c).multipliedBy(rate));
     }
     return of(ccy, sensi);
+  }
+
+  /**
+   * Gets all sensitivities.
+   * @return The sensitivities wrapped in an unmodifiable map
+   */
+  public Map<Currency, InflationSensitivity> getSensitivities() {
+    return Collections.unmodifiableMap(_sensitivity);
   }
 
   @Override
@@ -177,7 +187,7 @@ public class MultipleCurrencyInflationSensitivity {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -187,7 +197,7 @@ public class MultipleCurrencyInflationSensitivity {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    MultipleCurrencyInflationSensitivity other = (MultipleCurrencyInflationSensitivity) obj;
+    final MultipleCurrencyInflationSensitivity other = (MultipleCurrencyInflationSensitivity) obj;
     if (!ObjectUtils.equals(_sensitivity, other._sensitivity)) {
       return false;
     }
