@@ -22,10 +22,10 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 /**
- * Represents a member of a Credit Index
+ * Represents a member of a Credit Default Swap Index
  */
 @BeanDefinition
-public class CreditIndexComponent extends DirectBean {
+public class CreditDefaultSwapIndexComponent extends DirectBean {
   /**
    * The obligor red code identifier
    */
@@ -48,16 +48,16 @@ public class CreditIndexComponent extends DirectBean {
    * The meta-bean for {@code CreditIndexComponent}.
    * @return the meta-bean, not null
    */
-  public static CreditIndexComponent.Meta meta() {
-    return CreditIndexComponent.Meta.INSTANCE;
+  public static CreditDefaultSwapIndexComponent.Meta meta() {
+    return CreditDefaultSwapIndexComponent.Meta.INSTANCE;
   }
   static {
-    JodaBeanUtils.registerMetaBean(CreditIndexComponent.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(CreditDefaultSwapIndexComponent.Meta.INSTANCE);
   }
 
   @Override
-  public CreditIndexComponent.Meta metaBean() {
-    return CreditIndexComponent.Meta.INSTANCE;
+  public CreditDefaultSwapIndexComponent.Meta metaBean() {
+    return CreditDefaultSwapIndexComponent.Meta.INSTANCE;
   }
 
   @Override
@@ -102,7 +102,7 @@ public class CreditIndexComponent extends DirectBean {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      CreditIndexComponent other = (CreditIndexComponent) obj;
+      CreditDefaultSwapIndexComponent other = (CreditDefaultSwapIndexComponent) obj;
       return JodaBeanUtils.equal(getObligorRedCode(), other.getObligorRedCode()) &&
           JodaBeanUtils.equal(getWeight(), other.getWeight()) &&
           JodaBeanUtils.equal(getBondID(), other.getBondID());
@@ -210,17 +210,17 @@ public class CreditIndexComponent extends DirectBean {
      * The meta-property for the {@code obligorRedCode} property.
      */
     private final MetaProperty<ExternalId> _obligorRedCode = DirectMetaProperty.ofReadWrite(
-        this, "obligorRedCode", CreditIndexComponent.class, ExternalId.class);
+        this, "obligorRedCode", CreditDefaultSwapIndexComponent.class, ExternalId.class);
     /**
      * The meta-property for the {@code weight} property.
      */
     private final MetaProperty<Double> _weight = DirectMetaProperty.ofReadWrite(
-        this, "weight", CreditIndexComponent.class, Double.class);
+        this, "weight", CreditDefaultSwapIndexComponent.class, Double.class);
     /**
      * The meta-property for the {@code bondID} property.
      */
     private final MetaProperty<ExternalIdBundle> _bondID = DirectMetaProperty.ofReadWrite(
-        this, "bondID", CreditIndexComponent.class, ExternalIdBundle.class);
+        this, "bondID", CreditDefaultSwapIndexComponent.class, ExternalIdBundle.class);
     /**
      * The meta-properties.
      */
@@ -250,13 +250,13 @@ public class CreditIndexComponent extends DirectBean {
     }
 
     @Override
-    public BeanBuilder<? extends CreditIndexComponent> builder() {
-      return new DirectBeanBuilder<CreditIndexComponent>(new CreditIndexComponent());
+    public BeanBuilder<? extends CreditDefaultSwapIndexComponent> builder() {
+      return new DirectBeanBuilder<CreditDefaultSwapIndexComponent>(new CreditDefaultSwapIndexComponent());
     }
 
     @Override
-    public Class<? extends CreditIndexComponent> beanType() {
-      return CreditIndexComponent.class;
+    public Class<? extends CreditDefaultSwapIndexComponent> beanType() {
+      return CreditDefaultSwapIndexComponent.class;
     }
 
     @Override
