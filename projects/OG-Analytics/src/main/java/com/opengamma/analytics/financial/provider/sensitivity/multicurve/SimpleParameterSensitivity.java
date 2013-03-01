@@ -20,8 +20,8 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Class containing the sensitivity of value to specific parameters or market quotes and methods for manipulating these data.
  * The vector of sensitivities is stored with reference to a curve name.
- * TODO: The string should be replace by a curveId at some stage.
  */
+// TODO: The string should be replace by a curveId at some stage.
 public class SimpleParameterSensitivity {
   /**
    * The map containing the sensitivity. The map links the curve name to a vector of sensitivities (sensitivities to parameters/inputs).

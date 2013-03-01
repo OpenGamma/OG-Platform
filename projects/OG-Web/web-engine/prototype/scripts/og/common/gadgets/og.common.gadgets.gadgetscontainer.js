@@ -174,8 +174,7 @@ $.register_module({
                                 col_name: val.gadget.config.col_name, data_type: val.gadget.config.data_type,
                                 row_name: val.gadget.config.row_name
                             };
-                            if (false !== container.fire('swap', swap_config, val.gadget_index))
-                                container.add([swap_config], val.gadget_index);
+                            container.swap(swap_config, val.gadget_index);
                             return false;
                         });
                         menu.$dom.toggle.html($icon);
@@ -218,7 +217,6 @@ $.register_module({
                         }
                         gadgets.splice(index, 1, gadget);
                     } else gadgets.push(gadget);
-                    if (obj.fingerprint) gadget.fingerprint = obj.fingerprint;
                     return gadget;
                 });
                 update_tabs(new_gadgets[new_gadgets.length - 1].id);
@@ -324,14 +322,16 @@ $.register_module({
                     }
                 });
             };
-            container.verify = function (fingerprints) {
-                if (!initialized) return setTimeout(container.verify.partial(fingerprints), 10), container;
-                var gadget_prints = gadgets.pluck('fingerprint'), keep;
-                keep = (fingerprints || []).map(function (fingerprint) {
-                    var index;
-                    if (!fingerprint) return null;
-                    if (~(index = gadget_prints.indexOf(fingerprint))) return index; else return null;
-                }).reduce(function (acc, val) {if (val !== null) acc[val] = null; return acc;}, {});
+            container.swap = function (config, index) {
+                container.add([config], index);
+                container.fire('swap', config, index);
+            };
+            container.verify = function (new_gadgets) {
+                if (!initialized) return setTimeout(container.verify.partial(new_gadgets), 10), container;
+                var keep = gadgets.pluck('config').reduce(function (acc, cfg, idx) {
+                    if (new_gadgets.some(function (gadget) {return Object.equals(cfg, gadget);})) acc[idx] = null;
+                    return acc;
+                }, {});
                 gadgets.forEach(function (gadget, index) {if (!(index in keep)) container.del(gadgets[index], true);});
                 return container;
             };

@@ -7,6 +7,7 @@ package com.opengamma.financial.analytics.fudgemsg;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -21,6 +22,8 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.SimpleParameterSensitivity;
+import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -146,6 +149,9 @@ import com.opengamma.util.tuple.DoublesPair;
 
   }
 
+  /**
+   * Fudge builder for {@link MultipleCurrencyMulticurveSensitivity}
+   */
   @FudgeBuilderFor(MultipleCurrencyMulticurveSensitivity.class)
   public static final class MultipleCurrencyMulticurveSensitivityBuilder extends AbstractFudgeBuilder<MultipleCurrencyMulticurveSensitivity> {
     /** The currencies field */
@@ -175,6 +181,52 @@ import com.opengamma.util.tuple.DoublesPair;
       for (final Map.Entry<Currency, MulticurveSensitivity> entry : sensitivities.entrySet()) {
         message.add(CURRENCY, entry.getKey().getCode());
         serializer.addToMessageWithClassHeaders(message, SENSITIVITIES, null, entry.getValue());
+      }
+    }
+
+  }
+
+  @FudgeBuilderFor(SimpleParameterSensitivity.class)
+  public static final class SimpleParameterSensitivityBuilder extends AbstractFudgeBuilder<SimpleParameterSensitivity> {
+    /** The curve name field */
+    private static final String CURVE_NAME = "curveName";
+    /** The sensitivity field */
+    private static final String SENSITIVITY = "sensitivity";
+    /** The sensitivity vector per curve field */
+    private static final String SENSITIVITIES_FOR_CURVE = "sensitivitiesForCurve";
+
+    @Override
+    public SimpleParameterSensitivity buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+      final LinkedHashMap<String, DoubleMatrix1D> sensitivities = new LinkedHashMap<>();
+      final List<FudgeField> curves = message.getAllByName(CURVE_NAME);
+      final List<FudgeField> sensitivitiesPerCurve = message.getAllByName(SENSITIVITIES_FOR_CURVE);
+      if (curves.size() != sensitivitiesPerCurve.size()) {
+        throw new OpenGammaRuntimeException("Should have a vector of sensitivities for each curve name");
+      }
+      for (int i = 0; i < curves.size(); i++) {
+        final String curve = (String) curves.get(i).getValue();
+        final FudgeMsg perCurveMessage = (FudgeMsg) sensitivitiesPerCurve.get(i).getValue();
+        final List<FudgeField> perCurveFields = perCurveMessage.getAllByName(SENSITIVITY);
+        final double[] values = new double[perCurveFields.size()];
+        for (int j = 0; j < perCurveFields.size(); j++) {
+          values[j] = (Double) perCurveFields.get(j).getValue();
+        }
+        sensitivities.put(curve, new DoubleMatrix1D(values));
+      }
+      return new SimpleParameterSensitivity(sensitivities);
+    }
+
+    @Override
+    protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final SimpleParameterSensitivity object) {
+      final Map<String, DoubleMatrix1D> sensitivities = object.getSensitivities();
+      for (final Map.Entry<String, DoubleMatrix1D> entry : sensitivities.entrySet()) {
+        final MutableFudgeMsg perCurveMessage = serializer.newMessage();
+        message.add(CURVE_NAME, entry.getKey());
+        final double[] sensitivity = entry.getValue().getData();
+        for (final double d : sensitivity) {
+          perCurveMessage.add(SENSITIVITY, d);
+        }
+        message.add(SENSITIVITIES_FOR_CURVE, perCurveMessage);
       }
     }
 

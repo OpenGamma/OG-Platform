@@ -208,6 +208,7 @@
     <fragment>/scripts/lib/js.ext.string.prototype.lang.js</fragment>
     <fragment>/scripts/lib/js.ext.string.prototype.trim.js</fragment>
     <fragment>/scripts/lib/js.ext.object.create.js</fragment>
+    <fragment>/scripts/lib/js.ext.object.equals.js</fragment>
     <fragment>/scripts/lib/js.ext.object.keys.js</fragment>
     <fragment>/scripts/lib/js.ext.function.prototype.bind.js</fragment>
     <fragment>/scripts/lib/js.ext.function.prototype.partial.js</fragment>

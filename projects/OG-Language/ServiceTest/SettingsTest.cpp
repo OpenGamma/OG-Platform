@@ -37,7 +37,7 @@ static void InternalDefaults () {
 
 #undef PRINT
 #define PRINT(_key_) \
-	LOGINFO (TEXT (#_key) TEXT (" = ") << _key_ ());
+	LOGINFO (TEXT (#_key_) TEXT (" = ") << _key_ ());
 
 #undef PRINT_AND_ASSERT
 #define PRINT_AND_ASSERT(_key_) \
@@ -45,11 +45,12 @@ static void InternalDefaults () {
 	ASSERT (_key_ ());
 
 static void PublicDefaults () {
-	PRINT_AND_ASSERT (ServiceDefaultConnectionPipe ());
-	PRINT_AND_ASSERT (ServiceDefaultServiceName ());
+	PRINT_AND_ASSERT (ServiceDefaultConnectionPipe);
+	PRINT_AND_ASSERT (ServiceDefaultServiceName);
 }
 
 static void PublicCommandHelpers () {
+#ifndef _WIN32
 	TCHAR *psz = ServiceCreateStartCmd ("og-language");
 	if (psz) {
 		LOGINFO (TEXT ("startCmd = ") << psz);
@@ -64,6 +65,7 @@ static void PublicCommandHelpers () {
 	} else {
 		LOGINFO (TEXT ("no default stop command"));
 	}
+#endif /* ifndef _WIN32 */
 }
 
 BEGIN_TESTS (ServiceSettingsTest)

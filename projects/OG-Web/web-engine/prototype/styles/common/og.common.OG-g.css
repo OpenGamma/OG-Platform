@@ -224,3 +224,10 @@
 .OG-g .og-neg {
     color: #a62a2a;
 }
+
+/* column type styles */
+.OG-g-LABELLED_MATRIX_1D, .OG-g-LABELLED_MATRIX_2D, .OG-g-LABELLED_MATRIX_3D,
+.OG-g-UNPLOTTABLE_SURFACE_DATA, .OG-g-VECTOR, .OG-g-DOUBLE_GADGET {
+    text-align: right;
+    padding-right: 4px;
+}

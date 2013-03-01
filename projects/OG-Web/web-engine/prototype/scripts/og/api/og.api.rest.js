@@ -688,7 +688,19 @@ $.register_module({
                 grid: {
                     depgraphs: {
                         root: 'views/{{view_id}}/{{grid_type}}/depgraphs',
-                        del: not_implemented_del,
+                        del: function (config) {
+                            config = config || {};
+                            var root = this.root, method = root.split('/'), data = {}, meta;
+                            meta = check({
+                                bundle: {method: root + '#del', config: config},
+                                required: [{all_of: ['view_id', 'grid_type', 'graph_id']}]
+                            });
+                            meta.type = 'DELETE';
+                            method[1] = config.view_id;
+                            method[2] = config.grid_type;
+                            method.push(config.graph_id);
+                            return request(method, {data: {}, meta: meta});
+                        },
                         get: not_available_get,
                         structure: {
                             root: 'views/{{view_id}}/{{grid_type}}/depgraphs/{{graph_id}}',
@@ -895,6 +907,7 @@ $.register_module({
                 }});
             })();
         }});
+        $(window).on('unload', function () {api.fire('abandon');});
         return api;
     }
 });
