@@ -42,11 +42,23 @@ static inline int StringCbPrintfW (wchar_t *pszBuffer, size_t cbBuffer, const wc
 	if ((size_t)result > cbBuffer) return -1;
 	return 0;
 }
+
+static inline int StringCchPrintfW (wchar_t *pszBuffer, size_t cchBuffer, const wchar_t *pszFormat, ...) {
+	va_list args;
+	va_start (args, pszFormat);
+	int result;
+	result = vswprintf (pszBuffer, cchBuffer, pszFormat, args);
+	if (result < 0) return -1;
+	if ((size_t)result > cchBuffer) return -1;
+	return 0;
+}
 #endif /* ifdef WCHAR_AVAILABLE */
 #ifdef _UNICODE
 #define StringCbPrintf StringCbPrintfW
+#define StringCchPrintf StringCchPrintfW
 #else /* ifdef _UNICODE */
 #define StringCbPrintf StringCbPrintfA
+#define StringCchPrintf StringCbPrintfA
 #endif /* ifdef _UNICODE */
 #endif /* ifndef _WIN32 */
 
