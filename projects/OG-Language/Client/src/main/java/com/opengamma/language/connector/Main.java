@@ -11,6 +11,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 
 import com.opengamma.language.context.SessionContext;
@@ -76,6 +77,17 @@ public class Main {
       s_logger.info("Starting OpenGamma language integration service");
       s_springContext = new LanguageSpringContext();
       return null;
+    } catch (final BeanCreationException e) {
+      s_logger.error("Exception thrown", e);
+      Throwable t = e;
+      do {
+        t = t.getCause();
+      } while (t instanceof BeanCreationException);
+      if (t != null) {
+        return t.getMessage();
+      } else {
+        return e.getMessage();
+      }
     } catch (final Throwable t) {
       s_logger.error("Exception thrown", t);
       return t.getMessage();
