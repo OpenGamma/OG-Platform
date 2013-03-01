@@ -295,19 +295,58 @@ static void JNICALL _writeProperty (JNIEnv *pEnv, jclass cls, jstring jstrProper
 
 /// Creates a new JVM instance.
 ///
+/// @param[in] poFeedback the feedback reporting mechansim for errors, never NULL
 /// @return the JVM, or NULL if there was a problem
-CJVM *CJVM::Create () {
+CJVM *CJVM::Create (CErrorFeedback *poFeedback) {
 	CSettings oSettings;
 	const TCHAR *pszLibrary = oSettings.GetJvmLibrary ();
 	LOGDEBUG (TEXT ("Loading library ") << pszLibrary << TEXT (" and creating JVM"));
 	CLibrary *poLibrary = _LoadJVMLibrary (pszLibrary);
 	if (!poLibrary) {
-		LOGWARN (TEXT ("Couldn't load ") << pszLibrary << TEXT (", error ") << GetLastError ());
+		int ec = GetLastError ();
+		LOGWARN (TEXT ("Couldn't load ") << pszLibrary << TEXT (", error ") << ec);
+		TCHAR *psz = new TCHAR[1024];
+		if (psz) {
+			StringCchPrintf (psz, 1024,
+				TEXT ("Couldn't load the Java virtual machine - %s, error %d.")
+				TEXT ("\nPlease check that a suitable version of Java is installed. If Java is installed and you are seeing this message, please refer to the OpenGamma documentation for instructions on how to update the configuration to locate your Java version.")
+#ifdef _WIN32
+#ifdef _WIN64
+				TEXT ("\nThis is a 64-bit installation.")
+#else /* ifdef _WIN64 */
+				TEXT ("\nThis is a 32-bit installation.")
+#endif /* ifdef _WIN64 */
+#endif /* ifdef _WIN32 */
+				, pszLibrary, ec);
+			poFeedback->Write (psz);
+			delete psz;
+		} else {
+			LOGFATAL (TEXT ("Out of memory"));
+		}
 		return NULL;
 	}
 	JNI_CREATEJAVAVMPROC procCreateVM = (JNI_CREATEJAVAVMPROC)poLibrary->GetAddress ("JNI_CreateJavaVM");
 	if (!procCreateVM) {
-		LOGWARN (TEXT ("Couldn't find JNI_CreateJavaVM, error ") << GetLastError ());
+		int ec = GetLastError ();
+		LOGWARN (TEXT ("Couldn't find JNI_CreateJavaVM, error ") << ec);
+		TCHAR *psz = new TCHAR[1024];
+		if (psz) {
+			StringCchPrintf (psz, 1024,
+				TEXT ("Invalid Java virtual machine - %s, error %d.")
+				TEXT ("\nPlease check that a suitable version of Java is installed. If Java is installed and you are seeing this message, please refer to the OpenGamma documentation for instructions on how to update the configuration to locate your Java version.")
+#ifdef _WIN32
+#ifdef _WIN64
+				TEXT ("\nThis is a 64-bit installation.")
+#else /* ifdef _WIN64 */
+				TEXT ("\tThis is a 32-bit installation.")
+#endif /* ifdef _WIN64 */
+#endif /* ifdef _WIN32 */
+				, pszLibrary, ec);
+			poFeedback->Write (psz);
+			delete psz;
+		} else {
+			LOGFATAL (TEXT ("Out of memory"));
+		}
 		delete poLibrary;
 		return NULL;
 	}
@@ -331,6 +370,15 @@ CJVM *CJVM::Create () {
 	}
 	if (err) {
 		LOGWARN (TEXT ("Couldn't create JVM, error ") << err);
+		TCHAR *psz = new TCHAR[1024];
+		if (psz) {
+			StringCchPrintf (psz, 1024,
+				TEXT ("Couldn't create the Java virtual machine, error %d.")
+				TEXT ("\nThe Java library being used is %s"),
+				err, pszLibrary);
+			poFeedback->Write (psz);
+			delete psz;
+		}
 		delete poLibrary;
 		return NULL;
 	}
@@ -340,6 +388,7 @@ CJVM *CJVM::Create () {
 	if (!pJvm) {
 		LOGFATAL (TEXT ("Out of memory"));
 		delete poLibrary;
+		poFeedback->Write (TEXT ("Out of memory"));
 		return NULL;
 	}
 	LOGDEBUG (TEXT ("Registering native methods"));
@@ -351,12 +400,19 @@ CJVM *CJVM::Create () {
 	jclass cls = pEnv->FindClass (MAIN_CLASS);
 	if (!cls) {
 		LOGWARN (TEXT ("Couldn't find class ") << TEXT (MAIN_CLASS));
+		poFeedback->Write (TEXT ("One or more class files could not be found.\nPlease refer to the OpenGamma documentation for instructions on how to set the classpath for this service correctly."));
 		delete pJvm;
 		return NULL;
 	}
 	err = pEnv->RegisterNatives (cls, methods, 3);
 	if (err) {
 		LOGWARN (TEXT ("Couldn't register native methods, error ") << err);
+		TCHAR *psz = new TCHAR[1024];
+		if (psz) {
+			StringCchPrintf (psz, 1024, TEXT ("Couldn't register native methods, error %d"), err);
+			poFeedback->Write (psz);
+			delete psz;
+		}
 		delete pJvm;
 		return NULL;
 	}
@@ -543,6 +599,9 @@ void CJVM::CProperties::Setting (const TCHAR *pszKey, const TCHAR *pszValue) con
 class CBusyTask : public CThread {
 private:
 
+	/// Feedback instance
+	CErrorFeedback *m_poFeedback;
+
 	/// JVM instance to invoke the method on
 	CJVM *m_pJVM;
 
@@ -553,16 +612,18 @@ public:
 	/// Creates a new slave thread
 	///
 	/// @param[in] pJVM JVM instance to invoke the method in
+	/// @param[in] poFeedback the feedback instance
 	/// @param[in] bStart TRUE to invoke Start, FALSE to invoke Stop
-	CBusyTask (CJVM *pJVM, bool bStart) {
+	CBusyTask (CJVM *pJVM, CErrorFeedback *poFeedback, bool bStart) {
 		m_pJVM = pJVM;
+		m_poFeedback = poFeedback;
 		m_bStart = bStart;
 	}
 
 	// Invokes either Start or Stop on the JVM instance
 	void Run () {
 		if (m_bStart) {
-			m_pJVM->Start (false);
+			m_pJVM->Start (m_poFeedback, false);
 		} else {
 			m_pJVM->Stop (false);
 		}
@@ -573,13 +634,13 @@ public:
 ///
 /// @param[in] bAsync TRUE to return immediately and use a slave thread to start the Java stack, FALSE
 /// to start it from the calling thread.
-void CJVM::Start (bool bAsync) {
+void CJVM::Start (CErrorFeedback *poFeedback, bool bAsync) {
 	if (bAsync) {
 		m_oMutex.Enter ();
 		if (m_poBusyTask) {
 			LOGERROR (TEXT ("Already a busy task running"));
 		} else {
-			m_poBusyTask = new CBusyTask (this, true);
+			m_poBusyTask = new CBusyTask (this, poFeedback, true);
 			if (m_poBusyTask->Start ()) {
 				LOGINFO (TEXT ("Created startup thread ") << m_poBusyTask->GetThreadId ());
 			} else {
@@ -592,8 +653,8 @@ void CJVM::Start (bool bAsync) {
 	} else {
 		TCHAR *pszStartupError = InvokeString ("svcStart");
 		if (pszStartupError) {
-			LOGERROR (TEXT ("Couldn't start service - ") << pszStartupError);
-			// [PLAT-1292] TODO - route the message back to the caller
+			LOGERROR (TEXT ("Couldn't start service"));
+			poFeedback->Write (pszStartupError);
 			free (pszStartupError);
 		} else {
 			LOGINFO (TEXT ("Service started"));
@@ -612,7 +673,7 @@ void CJVM::Stop (bool bAsync) {
 		if (m_poBusyTask) {
 			LOGERROR (TEXT ("Already a busy task running"));
 		} else {
-			m_poBusyTask = new CBusyTask (this, false);
+			m_poBusyTask = new CBusyTask (this, NULL, false);
 			if (m_poBusyTask->Start ()) {
 				LOGINFO (TEXT ("Created stop thread ") << m_poBusyTask->GetThreadId ());
 			} else {

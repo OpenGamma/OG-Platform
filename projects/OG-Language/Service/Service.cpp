@@ -313,14 +313,17 @@ static void _ServiceStop (int nReason) {
 /// on how it was started.
 void ServiceRun (int nReason) {
 	_ServiceStartup (nReason);
-	g_poJVM = CJVM::Create ();
-	if (!g_poJVM) {
-		LOGERROR (TEXT ("Couldn't create JVM"));
-		_ReportStateErrored ();
-		_ServiceStop (nReason);
-		return;
+	{
+		CErrorFeedback oServiceErrors;
+		g_poJVM = CJVM::Create (&oServiceErrors);
+		if (!g_poJVM) {
+			LOGERROR (TEXT ("Couldn't create JVM"));
+			_ReportStateErrored ();
+			_ServiceStop (nReason);
+			return;
+		}
+		g_poJVM->Start (&oServiceErrors);
 	}
-	g_poJVM->Start ();
 	g_poPipe = CConnectionPipe::Create ();
 	if (!g_poPipe) {
 		LOGERROR (TEXT ("Couldn't create IPC pipe"));
@@ -400,7 +403,8 @@ bool ServiceRunning () {
 
 /// Configure the service.
 void ServiceConfigure () {
-	g_poJVM = CJVM::Create ();
+	CErrorFeedback oFeedback;
+	g_poJVM = CJVM::Create (&oFeedback);
 	if (!g_poJVM) {
 		LOGERROR (TEXT ("Couldn't create JVM"));
 		return;
