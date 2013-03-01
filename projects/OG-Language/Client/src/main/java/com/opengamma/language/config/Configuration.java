@@ -7,19 +7,21 @@
 package com.opengamma.language.config;
 
 import java.net.URI;
+import java.util.Collection;
 
+import org.apache.commons.lang.StringUtils;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.language.connector.ConnectorStartupError;
 import com.opengamma.transport.jaxrs.UriEndPointDescriptionProvider;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Configuration document describing how to connect to or otherwise work with components from an OpenGamma installation. Configuration
- * information is typically published at a URL as a Fudge message containing further URLs and relevant configuration strings. 
+ * Configuration document describing how to connect to or otherwise work with components from an OpenGamma installation. Configuration information is typically published at a URL as a Fudge message
+ * containing further URLs and relevant configuration strings.
  */
 public final class Configuration {
 
@@ -70,16 +72,22 @@ public final class Configuration {
 
   protected <T> T missingConfiguration(final String entry) {
     if (isFailOnMissingConfiguration()) {
-      throw new OpenGammaRuntimeException("Missing configuration " + entry);
+      throw new ConnectorStartupError("No configuration data for " + entry + " was published by the server",
+          "The \"fail on missing configuration\" flag is set to TRUE which has prevented the system from starting. " +
+              "Either set the flag to FALSE or correct the server configuration to include " + entry);
     } else {
       s_logger.debug("Ignoring missing configuration {}", entry);
     }
     return null;
   }
 
-  protected <T> T invalidUrl(final String entry) {
+  protected <T> T invalidUrl(final String entry, final Collection<String> addresses) {
     if (isFailOnInvalidURI()) {
-      throw new OpenGammaRuntimeException("Invalid URI for configuration entry " + entry);
+      throw new ConnectorStartupError("The published address(es) of " + entry + " did not respond",
+          "The \"fail on invalid URI\" flag is set to TRUE which has prevented the system from starting. " +
+              "Either set the flag to FALSE, correct the server configuration to use a different address for " + entry + ", or " +
+              "try again in a few moments.",
+          "The addresses tried were: " + StringUtils.join(addresses, ", "));
     } else {
       s_logger.debug("Ignoring invalid URI for {}", entry);
     }
@@ -117,7 +125,7 @@ public final class Configuration {
     if (uri == null) {
       s_logger.warn("No accessible URI for {}", entry);
       s_logger.debug("Tried {}", submsg);
-      return invalidUrl(entry);
+      return invalidUrl(entry, getURIValidater().getAllURIStrings(submsg));
     }
     return uri;
   }
