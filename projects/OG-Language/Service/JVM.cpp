@@ -401,7 +401,7 @@ void CJVM::CProperties::SetProperties (const CSettings *poSettings) const {
 /// @param[in] pszMethodName name of the method to invoke, never NULL
 /// @param[in] pszSignature method signature to invoke, never NULL
 /// @return the method result, or FALSE if it could not be invoked
-bool CJVM::Invoke (JNIEnv *pEnv, const char *pszMethodName, const char *pszSignature, ...) {
+bool CJVM::InvokeBool (JNIEnv *pEnv, const char *pszMethodName, const char *pszSignature, ...) {
 	LOGDEBUG ("Invoking " << pszMethodName << " on " << MAIN_CLASS);
 	jclass cls = pEnv->FindClass (MAIN_CLASS);
 	if (!cls) {
@@ -420,24 +420,84 @@ bool CJVM::Invoke (JNIEnv *pEnv, const char *pszMethodName, const char *pszSigna
 	return res != 0;
 }
 
-/// Attaches the calling thread to the JVM and calls the no-arg static method on the Main class.
+/// Calls a static method on the Main class that returns a string value. The string (from Java)
+/// will be duplicated and a copy allocated on the heap. The caller must release this memory
+/// when done.
 ///
-/// @param[in] pszMethodName name of the method to invoke
-/// @return boolean result of the method, or FALSE if it could not be invoked
-bool CJVM::Invoke (const char *pszMethodName) {
+/// @param[in] pEnv the JNI environment, never NULL
+/// @param[in] pszMethodName name of the method to invoke, never NULL
+/// @param[in] pszSignature method signature of psMethodName, never NULL
+/// @return the method result, duplicated onto the heap if not NULL
+TCHAR *CJVM::InvokeString (JNIEnv *pEnv, const char *pszMethodName, const char *pszSignature, ...) {
+	LOGDEBUG ("Invoking " << pszMethodName << " on " << MAIN_CLASS);
+	jclass cls = pEnv->FindClass (MAIN_CLASS);
+	if (!cls) {
+		LOGWARN (TEXT ("Couldn't find class ") << TEXT (MAIN_CLASS));
+		return false;
+	}
+	jmethodID mtd = pEnv->GetStaticMethodID (cls, pszMethodName, pszSignature);
+	if (!mtd) {
+		LOGWARN ("Couldn't find method " << pszMethodName << " on " << MAIN_CLASS);
+		return false;
+	}
+	va_list args;
+	va_start (args, pszSignature);
+	jstring jstrResult = (jstring)pEnv->CallStaticObjectMethodV (cls, mtd, args);
+	if (jstrResult) {
+		TODO (TEXT ("[PLAT-1292] Get the string contents and duplicate it onto the heap"));
+		LOGDEBUG (pszMethodName << " returned <a string>");
+		pEnv->DeleteLocalRef (jstrResult);
+		return _tcsdup ("[PLAT-1292] TODO - copy the string returned from the Java method");
+	}  else {
+		LOGDEBUG (pszMethodName << " returned NULL");
+		return NULL;
+	}
+}
+
+/// Attaches the calling thread to the JVM and return the thread's Java context/environment.
+///
+/// @param[in] pvm the Java VM
+/// @return the Java environment
+static JNIEnv *_AttachThread (JavaVM *pvm) {
 	JNIEnv *pEnv;
 	JavaVMAttachArgs args;
 	memset (&args, 0, sizeof (args));
 	args.version = JNI_VERSION_1_6;
 	args.name = (char*)"Asynchronous SCM thread";
-	jint err = m_pJVM->AttachCurrentThread ((void**)&pEnv, &args);
+	jint err = pvm->AttachCurrentThread ((void**)&pEnv, &args);
 	if (err) {
 		LOGWARN (TEXT ("Couldn't attach thread to JVM, error ") << err);
+		return NULL;
+	}
+	return pEnv;
+}
+
+/// Attaches the calling thread to the JVM and calls the no-arg static method on the Main class.
+///
+/// @param[in] pszMethodName name of the method to invoke
+/// @return boolean result of the method, or FALSE if it could not be invoked
+bool CJVM::InvokeBool (const char *pszMethodName) {
+	JNIEnv *pEnv = _AttachThread (m_pJVM);
+	if (!pEnv) {
 		return false;
 	}
-	jboolean res = Invoke (pEnv, pszMethodName, "()Z");
+	jboolean res = InvokeBool (pEnv, pszMethodName, "()Z");
 	m_pJVM->DetachCurrentThread ();
 	return res != 0;
+}
+
+/// Attaches the calling thread to the JVM and calls the no-arg static method on the Main class.
+///
+/// @param[in] pszMethodName name of the method to invoke
+/// @return the string result of the method, or NULL if there was none.
+TCHAR *CJVM::InvokeString (const char *pszMethodName) {
+	JNIEnv *pEnv = _AttachThread (m_pJVM);
+	if (!pEnv) {
+		return _tcsdup (TEXT ("Internal Java error"));
+	}
+	TCHAR *psz = InvokeString (pEnv, pszMethodName, "()Ljava/lang/String;");
+	m_pJVM->DetachCurrentThread ();
+	return psz;
 }
 
 #ifdef _UNICODE
@@ -470,7 +530,7 @@ void CJVM::CProperties::Setting (const TCHAR *pszKey, const TCHAR *pszValue) con
 	jstring jsKey = m_pEnv->NewStringUTF (pszKey);
 	jstring jsValue = m_pEnv->NewStringUTF (pszValue);
 #endif /* ifdef _UNICODE */
-	bool bResult = Invoke (m_pEnv, "setProperty", "(Ljava/lang/String;Ljava/lang/String;)Z", jsKey, jsValue);
+	bool bResult = InvokeBool (m_pEnv, "setProperty", "(Ljava/lang/String;Ljava/lang/String;)Z", jsKey, jsValue);
 	m_pEnv->PopLocalFrame (NULL);
 	if (bResult) {
 		LOGDEBUG (TEXT ("Set property ") << pszKey << TEXT (" = ") << pszValue);
@@ -530,11 +590,14 @@ void CJVM::Start (bool bAsync) {
 		}
 		m_oMutex.Leave ();
 	} else {
-		if (Invoke ("svcStart")) {
+		TCHAR *pszStartupError = InvokeString ("svcStart");
+		if (pszStartupError) {
+			LOGERROR (TEXT ("Couldn't start service - ") << pszStartupError);
+			// [PLAT-1292] TODO - route the message back to the caller
+			free (pszStartupError);
+		} else {
 			LOGINFO (TEXT ("Service started"));
 			m_bRunning = true;
-		} else {
-			LOGERROR (TEXT ("Couldn't start service"));
 		}
 	}
 }
@@ -560,7 +623,7 @@ void CJVM::Stop (bool bAsync) {
 		}
 		m_oMutex.Leave ();
 	} else {
-		if (Invoke ("svcStop")) {
+		if (InvokeBool ("svcStop")) {
 			LOGINFO (TEXT ("Service stopped"));
 			m_bRunning = false;
 		} else {
@@ -635,7 +698,7 @@ void CJVM::UserConnection (const TCHAR *pszUserName, const TCHAR *pszInputPipe, 
 #else /* ifdef _DEBUG */
 #define DEBUG_FLAG false
 #endif /* ifdef _DEBUG */
-		if (Invoke (m_pEnv, "svcAccept", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Z)Z", jsUserName, jsInputPipe, jsOutputPipe, jsLanguageID, DEBUG_FLAG)) {
+		if (InvokeBool (m_pEnv, "svcAccept", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Z)Z", jsUserName, jsInputPipe, jsOutputPipe, jsLanguageID, DEBUG_FLAG)) {
 #undef DEBUG_FLAG
 			LOGINFO (TEXT ("Connection from ") << pszUserName << TEXT (" accepted"));
 		} else {
@@ -653,7 +716,7 @@ void CJVM::UserConnection (const TCHAR *pszUserName, const TCHAR *pszInputPipe, 
 ///
 /// @return TRUE if it is stopped, FALSE if not or if the method couldn't be invoked
 bool CJVM::IsStopped () const {
-	return Invoke (m_pEnv, "svcIsStopped", "()Z");
+	return InvokeBool (m_pEnv, "svcIsStopped", "()Z");
 }
 
 /// Runs the configuration task. If the configuration was changed and the service should be
@@ -662,7 +725,7 @@ bool CJVM::IsStopped () const {
 /// @return TRUE if the service configuration was changed, FALSE otherwise
 bool CJVM::Configure () {
 	g_nWriteProperty = 0;
-	if (Invoke ("svcConfigure")) {
+	if (InvokeBool ("svcConfigure")) {
 		LOGINFO (TEXT ("Configuration callback updated ") << g_nWriteProperty << TEXT (" setting(s)"));
 		return g_nWriteProperty > 0;
 	} else {
