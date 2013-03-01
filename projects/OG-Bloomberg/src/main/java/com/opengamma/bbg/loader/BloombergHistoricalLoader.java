@@ -236,7 +236,7 @@ public class BloombergHistoricalLoader {
     if (_updateDb || _reload) {
       if (_reload) {
         _startDate = DEFAULT_START_DATE;
-        _endDate = LocalDate.now();
+        _endDate = LocalDate.MAX;
       }
       updateTimeSeriesInDB();
       return;
@@ -435,7 +435,7 @@ public class BloombergHistoricalLoader {
     }
     
     // select end date
-    LocalDate endDate = (_endDate == null ? LocalDate.now() : _endDate);
+    LocalDate endDate = (_endDate == null ? LocalDate.MAX : _endDate);
     
     s_logger.info("Updating {} time series to {}", toUpdate, endDate);
     // load from Bloomberg and store in database
