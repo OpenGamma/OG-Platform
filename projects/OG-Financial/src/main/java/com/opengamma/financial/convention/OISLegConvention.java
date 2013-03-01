@@ -81,7 +81,7 @@ public class OISLegConvention extends Convention {
   }
 
   @Override
-  protected Object propertyGet(final String propertyName, final boolean quiet) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -1218695809:  // overnightIndexConvention
         return getOvernightIndexConvention();
@@ -94,7 +94,7 @@ public class OISLegConvention extends Convention {
   }
 
   @Override
-  protected void propertySet(final String propertyName, final Object newValue, final boolean quiet) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -1218695809:  // overnightIndexConvention
         setOvernightIndexConvention((ExternalId) newValue);
@@ -117,12 +117,12 @@ public class OISLegConvention extends Convention {
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      final OISLegConvention other = (OISLegConvention) obj;
+      OISLegConvention other = (OISLegConvention) obj;
       return JodaBeanUtils.equal(getOvernightIndexConvention(), other.getOvernightIndexConvention()) &&
           JodaBeanUtils.equal(getPaymentTenor(), other.getPaymentTenor()) &&
           JodaBeanUtils.equal(getPaymentDelay(), other.getPaymentDelay()) &&
@@ -153,7 +153,7 @@ public class OISLegConvention extends Convention {
    * Sets the overnight index convention.
    * @param overnightIndexConvention  the new value of the property, not null
    */
-  public void setOvernightIndexConvention(final ExternalId overnightIndexConvention) {
+  public void setOvernightIndexConvention(ExternalId overnightIndexConvention) {
     JodaBeanUtils.notNull(overnightIndexConvention, "overnightIndexConvention");
     this._overnightIndexConvention = overnightIndexConvention;
   }
@@ -179,7 +179,7 @@ public class OISLegConvention extends Convention {
    * Sets the payment tenor.
    * @param paymentTenor  the new value of the property, not null
    */
-  public void setPaymentTenor(final Tenor paymentTenor) {
+  public void setPaymentTenor(Tenor paymentTenor) {
     JodaBeanUtils.notNull(paymentTenor, "paymentTenor");
     this._paymentTenor = paymentTenor;
   }
@@ -205,7 +205,7 @@ public class OISLegConvention extends Convention {
    * Sets the payment delay in days.
    * @param paymentDelay  the new value of the property
    */
-  public void setPaymentDelay(final int paymentDelay) {
+  public void setPaymentDelay(int paymentDelay) {
     this._paymentDelay = paymentDelay;
   }
 
@@ -258,7 +258,7 @@ public class OISLegConvention extends Convention {
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
         case -1218695809:  // overnightIndexConvention
           return _overnightIndexConvention;

@@ -75,8 +75,9 @@ public final class PaymentFixedDiscountingProviderMethod {
   /**
    * Compute the the present value curve sensitivity of a fixed payment by discounting to a parallel curve movement.
    * @param payment The payment.
-   * @param multicurves The multi-curve provider.
-   * @return The sensitivity.
+   * @param multicurves The multi-curves provider.
+   * @return The sensitivity. 
+   * TODO: Should this be multiple-currency?
    */
   public StringValue presentValueParallelCurveSensitivity(PaymentFixed payment, final MulticurveProviderInterface multicurves) {
     final double time = payment.getPaymentTime();

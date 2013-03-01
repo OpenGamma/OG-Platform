@@ -13,7 +13,7 @@ import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.cds.CDSSecurity;
-import com.opengamma.financial.security.cds.CreditIndexSecurity;
+import com.opengamma.financial.security.cds.CreditDefaultSwapIndexSecurity;
 import com.opengamma.financial.security.cds.LegacyFixedRecoveryCDSSecurity;
 import com.opengamma.financial.security.cds.LegacyRecoveryLockCDSSecurity;
 import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
@@ -339,7 +339,7 @@ class FinancialSecurityVisitorDelegate<T> implements FinancialSecurityVisitor<T>
   }
 
   @Override
-  public T visitCreditIndexSecurity(CreditIndexSecurity security) {
-    return _delegate.visitCreditIndexSecurity(security);
+  public T visitCreditDefaultSwapIndexSecurity(CreditDefaultSwapIndexSecurity security) {
+    return _delegate.visitCreditDefaultSwapIndexSecurity(security);
   }
 }
