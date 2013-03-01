@@ -36,7 +36,7 @@ public class ViewDeltaResultCalculator {
    */
   public static ViewDeltaResultModel computeDeltaModel(ViewDefinition viewDefinition, ViewResultModel previousResult, ViewResultModel result) {
     InMemoryViewDeltaResultModel deltaModel = new InMemoryViewDeltaResultModel();
-    deltaModel.setValuationTime(result.getValuationTime());
+    deltaModel.setViewCycleExecutionOptions(result.getViewCycleExecutionOptions());
     deltaModel.setCalculationTime(result.getCalculationTime());
     deltaModel.setCalculationDuration(result.getCalculationDuration());
     deltaModel.setVersionCorrection(result.getVersionCorrection());

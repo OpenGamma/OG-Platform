@@ -20,6 +20,7 @@ import org.threeten.bp.Instant;
 import com.google.common.collect.Sets;
 import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -34,8 +35,11 @@ public class ViewComputationResultModelImplTest {
   }
 
   static void checkModel(InMemoryViewResultModel model) {
-    model.setValuationTime(Instant.ofEpochMilli(400));
-    assertEquals(Instant.ofEpochMilli(400), model.getValuationTime());
+    ViewCycleExecutionOptions executionOptions = ViewCycleExecutionOptions.builder()
+        .setValuationTime(Instant.ofEpochMilli(400)).create();
+
+    model.setViewCycleExecutionOptions(executionOptions);
+    assertEquals(executionOptions, model.getViewCycleExecutionOptions());
     model.setCalculationTime(Instant.ofEpochMilli(500));
     assertEquals(Instant.ofEpochMilli(500), model.getCalculationTime());
     model.setCalculationDuration(Duration.ofMillis(100));

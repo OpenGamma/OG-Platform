@@ -26,7 +26,7 @@ public class ViewResultModelMergeUtils {
   
   //-------------------------------------------------------------------------
   public static void merge(ViewResultModel source, InMemoryViewResultModel destination) {
-    destination.setValuationTime(source.getValuationTime());
+    destination.setViewCycleExecutionOptions(source.getViewCycleExecutionOptions());
     destination.setCalculationTime(source.getCalculationTime());
     destination.setCalculationDuration(source.getCalculationDuration());
     destination.setVersionCorrection(source.getVersionCorrection());
