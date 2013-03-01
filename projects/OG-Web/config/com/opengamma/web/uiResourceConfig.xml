@@ -167,6 +167,7 @@
     <fragment>/styles/analytics/og.analytics.gadget.OG-gadgets-container.css</fragment>
     <fragment>/styles/analytics/og.analytics.gadget.OG-gadget-tabs-options.css</fragment>
     <fragment>/styles/analytics/og.analytics.gadget.OG-gadget-expanded-positions.css</fragment>
+    <fragment>/styles/analytics/og.analytics.gadget.OG-gadget-text.css</fragment>
     <fragment>/styles/analytics/og.analytics.gadget.OG-logger.css</fragment>
     <fragment>/styles/analytics/og.analytics.OG-layout-blotter.css</fragment>
     <fragment>/styles/analytics/og.analytics.OG-layout-analytics.css</fragment>
