@@ -27,7 +27,6 @@ public class ViewFunctions extends AbstractRepositoryConfigurationBean {
 
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
-    functions.add(functionConfiguration(ViewEvaluationFunction.class));
     functions.add(functionConfiguration(HistoricalViewEvaluationFunction.class));
   }
 
