@@ -64,12 +64,12 @@ public class VolatilitySurfaceSpecificationFudgeBuilder implements FudgeBuilder<
     }
     final String name = message.getString("name");
     final FudgeField field = message.getByName("surfaceInstrumentProvider");
-    final SurfaceInstrumentProvider<?, ?> surfaceInstrumentProvider = (SurfaceInstrumentProvider<?, ?>) deserializer.fieldValueToObject(field);
+    final FudgeMsg surfaceInstrumentProvider = (FudgeMsg) deserializer.fieldValueToObject(field);
     if (message.hasField("quoteUnits") && message.getString("quoteUnits") != null) {
       final String quoteUnits = message.getString("quoteUnits");
-      return new VolatilitySurfaceSpecification(name, target, quoteType, quoteUnits, surfaceInstrumentProvider);
+      return new VolatilitySurfaceSpecification(name, target, quoteType, quoteUnits, (SurfaceInstrumentProvider<?, ?>) surfaceInstrumentProvider);
     }
-    return new VolatilitySurfaceSpecification(name, target, quoteType, surfaceInstrumentProvider);
+    return new VolatilitySurfaceSpecification(name, target, quoteType, (SurfaceInstrumentProvider<?, ?>) surfaceInstrumentProvider);
   }
 
 }
