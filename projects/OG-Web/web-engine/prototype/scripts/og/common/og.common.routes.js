@@ -63,7 +63,9 @@ $.register_module({
                         window.parent.og.api.rest;
                     parent_data = (opener_og && window.opener.og.analytics && window.opener.og.analytics.Data) ||
                         window.parent.og.analytics && window.parent.og.analytics.Data;
-                    if (is_child && parent_api) og.api.rest = parent_api; else if (og.api.rest) api.subscribe();
+                    if (is_child && parent_api)
+                        (og.api.rest = parent_api).on('abandon', function () {document.location.reload();});
+                    else if (og.api.rest) api.subscribe();
                     if (is_child && parent_data) og.analytics.Data = parent_data;
                     routes.handler();
                     set_title((new Date).toLocaleTimeString());

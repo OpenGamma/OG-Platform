@@ -22,7 +22,7 @@ public abstract class FunctionND<S, T> implements Function<S, T> {
    */
   @Override
   public T evaluate(final S... x) {
-    ArgumentChecker.notNull(x, "x");
+    ArgumentChecker.noNulls(x, "x");
     return evaluateFunction(x);
   }
 

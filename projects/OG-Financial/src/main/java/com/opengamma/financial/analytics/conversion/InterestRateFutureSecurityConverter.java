@@ -11,7 +11,6 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureSecurityDefinition;
-import com.opengamma.analytics.financial.instrument.future.InterestRateFutureTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.id.ExternalSchemes;
@@ -67,7 +66,6 @@ public class InterestRateFutureSecurityConverter extends FinancialSecurityVisito
         iborConvention.getBusinessDayConvention(), iborConvention.isEOMConvention());
     final double notional = security.getUnitAmount() * 100.0 / paymentAccrualFactor; // Unit amount for one percent
     return new InterestRateFutureSecurityDefinition(lastTradeDate, iborIndex, notional, paymentAccrualFactor, security.getName());
-    // new InterestRateFutureTransactionDefinition(lastTradeDate, 0.0, lastTradeDate, iborIndex, notional, paymentAccrualFactor, 1, security.getName());
   }
 
   private double getAccrualFactor(final Period period) {
