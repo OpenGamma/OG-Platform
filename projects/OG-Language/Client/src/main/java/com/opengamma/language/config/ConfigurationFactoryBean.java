@@ -7,6 +7,7 @@
 package com.opengamma.language.config;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.concurrent.Executors;
 
 import org.apache.commons.lang.ObjectUtils;
@@ -15,15 +16,15 @@ import org.fudgemsg.FudgeMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.language.connector.ConnectorStartupError;
 import com.opengamma.transport.jaxrs.UriEndPointDescriptionProvider;
 import com.opengamma.transport.jaxrs.UriEndPointDescriptionProvider.Validater;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.SingletonFactoryBean;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
-import com.opengamma.util.rest.UniformInterfaceException404NotFound;
 
 /**
- * Factory bean for creating a {@link Configuration} object from a supplied URL. 
+ * Factory bean for creating a {@link Configuration} object from a supplied URL.
  */
 public final class ConfigurationFactoryBean extends SingletonFactoryBean<Configuration> {
 
@@ -45,7 +46,13 @@ public final class ConfigurationFactoryBean extends SingletonFactoryBean<Configu
 
   public void setConfigurationURI(final String configurationUri) {
     ArgumentChecker.notNull(configurationUri, "configurationURI");
-    _configurationUri = URI.create(configurationUri);
+    try {
+      _configurationUri = new URI(configurationUri);
+    } catch (final URISyntaxException ex) {
+      throw new ConnectorStartupError("The configuration URL is not valid: " + configurationUri,
+          "A valid configuration URL must be supplied to start the service. Please re-run the Language Integration " +
+              "configuration tool or consult the distribution documentation for more details.");
+    }
   }
 
   //-------------------------------------------------------------------------
@@ -82,21 +89,35 @@ public final class ConfigurationFactoryBean extends SingletonFactoryBean<Configu
   protected Configuration createObject() {
     ArgumentChecker.notNull(_configurationUri, "configurationUri");
     s_logger.debug("Querying configuration document at {}", getConfigurationURI());
-    Configuration configuration = getConfiguration();
+    final Configuration configuration = getConfiguration();
     configuration.setFailOnInvalidURI(isFailOnInvalidURI());
     configuration.setFailOnMissingConfiguration(isFailOnMissingConfiguration());
     return configuration;
   }
 
-  protected Configuration getConfiguration() {
+  protected FudgeMsg getConfigurationMessage() {
+    final RemoteConfiguration remote = new RemoteConfiguration(getConfigurationURIAsURI());
+    final FudgeMsg msg;
     try {
-      FudgeMsg msg = new RemoteConfiguration(getConfigurationURIAsURI()).getConfigurationMsg();
-      Validater validater = UriEndPointDescriptionProvider.validater(Executors.newCachedThreadPool(), getConfigurationURIAsURI());
-      return new Configuration(getFudgeContext(), msg, validater);
-      
-    } catch (UniformInterfaceException404NotFound ex) {
-      return new Configuration(getFudgeContext(), getFudgeContext().newMessage(), null);
+      msg = remote.getConfigurationMsg();
+    } catch (final Throwable t) {
+      throw new ConnectorStartupError("The OpenGamma server at " + getConfigurationURI() + " is not responding",
+          "The Language Integration service cannot start without an OpenGamma backend server to connect to. " +
+              "Please check the OpenGamma server is running and try again.");
     }
+    if (msg == null) {
+      throw new ConnectorStartupError("The configuration address " + getConfigurationURI() + " is not valid",
+          "Either the configuration address is wrong, or the OpenGamma server is not running correctly.",
+          "Please check the OpenGamma server is running, re-run the Language Integration " +
+              "configuration tool or consult the distribution documentation for more details.");
+    }
+    return msg;
+  }
+
+  protected Configuration getConfiguration() {
+    final Validater validater = UriEndPointDescriptionProvider.validater(Executors.newCachedThreadPool(), getConfigurationURIAsURI());
+    final FudgeMsg msg = getConfigurationMessage();
+    return new Configuration(getFudgeContext(), msg, validater);
   }
 
 }

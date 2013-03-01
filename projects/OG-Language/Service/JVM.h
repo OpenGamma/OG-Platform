@@ -47,8 +47,10 @@ private:
 	};
 
 	CJVM (CLibrary *hModule, JavaVM *pJVM, JNIEnv *pEnv);
-	static bool Invoke (JNIEnv *pEnv, const char *pszMethod, const char *pszSignature, ...);
-	bool Invoke (const char *pszMethod);
+	static bool InvokeBool (JNIEnv *pEnv, const char *pszMethod, const char *pszSignature, ...);
+	static TCHAR *InvokeString (JNIEnv *pEnv, const char *pszMethod, const char *pszSignature, ...);
+	bool InvokeBool (const char *pszMethod);
+	TCHAR *InvokeString (const char *pszMethod);
 public:
 	~CJVM ();
 	static CJVM *Create ();
