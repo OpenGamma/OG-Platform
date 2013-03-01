@@ -5,6 +5,10 @@
  */
 package com.opengamma.analytics.financial.interestrate;
 
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
+import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureTransactionDiscountingMethod;
+
 
 /**
  * Returns the underlying future price of the security, given a yield curve bundle
@@ -23,17 +27,17 @@ public class DiscountingUnderlyingFuturePriceCalculator extends InstrumentDeriva
   DiscountingUnderlyingFuturePriceCalculator() {
   }
 
-  //  /** The method used to compute the future price. It is a method without convexity adjustment.  */
-  //  private static final InterestRateFutureTransactionDiscountingMethod METHOD_FUTURE = InterestRateFutureTransactionDiscountingMethod.getInstance();
-  //
-  //  @Override
-  //  public Double visitInterestRateFutureOptionMarginSecurity(final InterestRateFutureOptionMarginSecurity option, final YieldCurveBundle curves) {
-  //    return METHOD_FUTURE.price(option.getUnderlyingFuture(), curves);
-  //  }
-  //
-  //  @Override
-  //  public Double visitInterestRateFutureOptionMarginTransaction(final InterestRateFutureOptionMarginTransaction option, final YieldCurveBundle curves) {
-  //    return METHOD_FUTURE.price(option.getUnderlyingOption().getUnderlyingFuture(), curves);
-  //  }
+  /** The method used to compute the future price. It is a method without convexity adjustment.  */
+  private static final InterestRateFutureTransactionDiscountingMethod METHOD_FUTURE = InterestRateFutureTransactionDiscountingMethod.getInstance();
+
+  @Override
+  public Double visitInterestRateFutureOptionMarginSecurity(final InterestRateFutureOptionMarginSecurity option, final YieldCurveBundle curves) {
+    return METHOD_FUTURE.presentValue(option.getUnderlyingFuture(), curves).getAmount();
+  }
+
+  @Override
+  public Double visitInterestRateFutureOptionMarginTransaction(final InterestRateFutureOptionMarginTransaction option, final YieldCurveBundle curves) {
+    return METHOD_FUTURE.presentValue(option.getUnderlyingOption().getUnderlyingFuture(), curves).getAmount();
+  }
 
 }

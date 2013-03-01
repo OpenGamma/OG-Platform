@@ -115,13 +115,13 @@ public class MultiYieldCurveParRateMethodFunction extends MultiYieldCurveFunctio
     final MultiCurveCalculationConfig curveCalculationConfig = new ConfigDBCurveCalculationConfigSource(configSource).getConfig(curveCalculationConfigName);
     final ComputationTargetSpecification targetSpec = target.toSpecification();
     final YieldCurveBundle knownCurves = getKnownCurves(curveCalculationConfig, targetSpec, inputs);
-    final List<InstrumentDerivative> derivatives = new ArrayList<InstrumentDerivative>();
+    final List<InstrumentDerivative> derivatives = new ArrayList<>();
     final DoubleArrayList marketValues = new DoubleArrayList();
     final DoubleArrayList initialRatesGuess = new DoubleArrayList();
     final String[] curveNames = curveCalculationConfig.getYieldCurveNames();
-    final LinkedHashMap<String, double[]> curveNodes = new LinkedHashMap<String, double[]>();
-    final LinkedHashMap<String, Interpolator1D> interpolators = new LinkedHashMap<String, Interpolator1D>();
-    final Map<String, Integer> nodesPerCurve = new HashMap<String, Integer>();
+    final LinkedHashMap<String, double[]> curveNodes = new LinkedHashMap<>();
+    final LinkedHashMap<String, Interpolator1D> interpolators = new LinkedHashMap<>();
+    final Map<String, Integer> nodesPerCurve = new HashMap<>();
     final HistoricalTimeSeriesBundle timeSeries = getTimeSeriesBundle(inputs, targetSpec, curveCalculationConfigName);
     for (final String curveName : curveNames) {
       int nInstruments = 0;
@@ -163,7 +163,7 @@ public class MultiYieldCurveParRateMethodFunction extends MultiYieldCurveFunctio
     final int iterations = Integer.parseInt(iterationsName);
     final boolean useFiniteDifference = Boolean.parseBoolean(useFiniteDifferenceName);
     final Decomposition<?> decomposition = DecompositionFactory.getDecomposition(decompositionName);
-    final Set<ComputedValue> results = new HashSet<ComputedValue>();
+    final Set<ComputedValue> results = new HashSet<>();
     final Currency currency = Currency.of(targetSpec.getUniqueId().getValue());
     final MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(derivatives, marketValues.toDoubleArray(), knownCurves, curveNodes, interpolators, useFiniteDifference,
         new FXMatrix(currency));
@@ -268,6 +268,7 @@ public class MultiYieldCurveParRateMethodFunction extends MultiYieldCurveFunctio
         .with(PROPERTY_USE_FINITE_DIFFERENCE, useFiniteDifference).get();
   }
 
+  @Override
   protected String getCalculationMethod() {
     return PAR_RATE_STRING;
   }
