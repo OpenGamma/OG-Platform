@@ -44,8 +44,8 @@ public abstract class ViewResultModelFudgeBuilder {
     final MutableFudgeMsg message = serializer.newMessage();
     message.add(FIELD_VIEWPROCESSID, resultModel.getViewProcessId());
     message.add(FIELD_VIEWCYCLEID, resultModel.getViewCycleId());
-    message.add(FIELD_VIEW_CYCLE_EXECUTION_OPTIONS, resultModel.getViewCycleExecutionOptions());
     message.add(FIELD_CALCULATION_TIME, resultModel.getCalculationTime());
+    serializer.addToMessage(message, FIELD_VIEW_CYCLE_EXECUTION_OPTIONS, null, resultModel.getViewCycleExecutionOptions());
     serializer.addToMessage(message, FIELD_CALCULATION_DURATION, null, resultModel.getCalculationDuration());
     serializer.addToMessage(message, FIELD_VERSION_CORRECTION, null, resultModel.getVersionCorrection());
     final Collection<String> calculationConfigurations = resultModel.getCalculationConfigurationNames();
