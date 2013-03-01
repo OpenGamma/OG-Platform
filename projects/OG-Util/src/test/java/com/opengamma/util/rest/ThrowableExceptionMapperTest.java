@@ -15,7 +15,7 @@ import com.sun.jersey.api.client.ClientResponse.Status;
 /**
  * Test ThrowableExceptionMapper.
  */
-@Test
+@Test(groups = "unit")
 public class ThrowableExceptionMapperTest extends AbstractExceptionMapperTestHelper {
   
   @Test(dataProvider="mediaTypes")

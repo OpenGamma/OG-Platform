@@ -200,6 +200,9 @@ public class InterestRateCurveSensitivityUtils {
    * @return True if the difference is below the tolerance and False if not.
    */
   public static boolean compare(final List<DoublesPair> sensi1, final List<DoublesPair> sensi2, final double tolerance) {
+    if (sensi1.size() != sensi2.size()) {
+      return false;
+    }
     for (int looptime = 0; looptime < sensi1.size(); looptime++) {
       if ((Math.abs(sensi1.get(looptime).first - sensi2.get(looptime).first) > tolerance) || (Math.abs(sensi1.get(looptime).second - sensi2.get(looptime).second) > tolerance)) {
         return false;

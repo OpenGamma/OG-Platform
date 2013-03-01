@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.convention;
@@ -21,7 +21,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 
 /**
- * 
+ *
  */
 @BeanDefinition
 public class InterestRateFutureConvention extends ExchangeTradedFutureAndOptionConvention {
@@ -33,7 +33,7 @@ public class InterestRateFutureConvention extends ExchangeTradedFutureAndOptionC
    * The index convention.
    */
   @PropertyDefinition(validate = "notNull")
-  private String _indexConvention;
+  private ExternalId _indexConvention;
 
   /**
    * For the builder.
@@ -41,8 +41,8 @@ public class InterestRateFutureConvention extends ExchangeTradedFutureAndOptionC
   public InterestRateFutureConvention() {
   }
 
-  public InterestRateFutureConvention(final String name, final ExternalIdBundle externalIdBundle, final String expiryConvention,
-      final ExternalId exchangeCalendar, final String indexConvention) {
+  public InterestRateFutureConvention(final String name, final ExternalIdBundle externalIdBundle, final ExternalId expiryConvention,
+      final ExternalId exchangeCalendar, final ExternalId indexConvention) {
     super(name, externalIdBundle, expiryConvention, exchangeCalendar);
     setIndexConvention(indexConvention);
   }
@@ -78,7 +78,7 @@ public class InterestRateFutureConvention extends ExchangeTradedFutureAndOptionC
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -668532253:  // indexConvention
-        setIndexConvention((String) newValue);
+        setIndexConvention((ExternalId) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -115,7 +115,7 @@ public class InterestRateFutureConvention extends ExchangeTradedFutureAndOptionC
    * Gets the index convention.
    * @return the value of the property, not null
    */
-  public String getIndexConvention() {
+  public ExternalId getIndexConvention() {
     return _indexConvention;
   }
 
@@ -123,7 +123,7 @@ public class InterestRateFutureConvention extends ExchangeTradedFutureAndOptionC
    * Sets the index convention.
    * @param indexConvention  the new value of the property, not null
    */
-  public void setIndexConvention(String indexConvention) {
+  public void setIndexConvention(ExternalId indexConvention) {
     JodaBeanUtils.notNull(indexConvention, "indexConvention");
     this._indexConvention = indexConvention;
   }
@@ -132,7 +132,7 @@ public class InterestRateFutureConvention extends ExchangeTradedFutureAndOptionC
    * Gets the the {@code indexConvention} property.
    * @return the property, not null
    */
-  public final Property<String> indexConvention() {
+  public final Property<ExternalId> indexConvention() {
     return metaBean().indexConvention().createProperty(this);
   }
 
@@ -149,8 +149,8 @@ public class InterestRateFutureConvention extends ExchangeTradedFutureAndOptionC
     /**
      * The meta-property for the {@code indexConvention} property.
      */
-    private final MetaProperty<String> _indexConvention = DirectMetaProperty.ofReadWrite(
-        this, "indexConvention", InterestRateFutureConvention.class, String.class);
+    private final MetaProperty<ExternalId> _indexConvention = DirectMetaProperty.ofReadWrite(
+        this, "indexConvention", InterestRateFutureConvention.class, ExternalId.class);
     /**
      * The meta-properties.
      */
@@ -193,7 +193,7 @@ public class InterestRateFutureConvention extends ExchangeTradedFutureAndOptionC
      * The meta-property for the {@code indexConvention} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<String> indexConvention() {
+    public final MetaProperty<ExternalId> indexConvention() {
       return _indexConvention;
     }
 

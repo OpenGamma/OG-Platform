@@ -11,6 +11,7 @@ import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -53,9 +54,19 @@ public class ValueRenamingFunction extends AbstractFunction.NonCompiledInvoker {
 
   @Override
   public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) {
-    ComputedValue inputValue = Iterables.getOnlyElement(inputs.getAllValues());
-    ValueSpecification outputSpec = getOutputSpec(inputValue.getSpecification());
-    return ImmutableSet.of(new ComputedValue(outputSpec, inputValue.getValue()));
+    Set<ComputedValue> result = new HashSet<>();
+    Object prevValue = null;
+    for (ComputedValue inputValue : inputs.getAllValues()) {
+      Object value = inputValue.getValue();
+      if (prevValue == null) {
+        prevValue = value;
+      } else if (!value.equals(prevValue)) {
+        throw new OpenGammaRuntimeException("Attempted to rename two unequal values with the same name: " + _newValueName);
+      }
+      ValueSpecification outputSpec = getOutputSpec(inputValue.getSpecification());
+      result.add(new ComputedValue(outputSpec, value));
+    }
+    return result;
   }
 
   @Override
@@ -88,9 +99,13 @@ public class ValueRenamingFunction extends AbstractFunction.NonCompiledInvoker {
   }
 
   @Override
-  public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Map<ValueSpecification, ValueRequirement> inputs) {
+  public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Map<ValueSpecification, ValueRequirement> inputs) {    
     if (inputs.size() != 1) {
-      return null;
+      final Set<ValueSpecification> result = new HashSet<>();
+      for (ValueSpecification spec : inputs.keySet()) {
+        result.add(getOutputSpec(spec));
+      }
+      return result;
     }
     ValueSpecification inputSpec = Iterables.getOnlyElement(inputs.keySet());
     return ImmutableSet.of(getOutputSpec(inputSpec));

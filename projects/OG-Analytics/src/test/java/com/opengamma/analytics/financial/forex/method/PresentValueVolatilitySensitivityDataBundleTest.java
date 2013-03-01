@@ -25,7 +25,7 @@ import com.opengamma.util.tuple.Pair;
 public class PresentValueVolatilitySensitivityDataBundleTest {
 
   private static final Currency CUR_1 = Currency.EUR;
-  private static final Currency CUR_2 = Currency.USD;
+  private static final Currency CUR_2 = Currency.EUR;
   private static final Currency CUR_3 = Currency.GBP;
 
   @Test

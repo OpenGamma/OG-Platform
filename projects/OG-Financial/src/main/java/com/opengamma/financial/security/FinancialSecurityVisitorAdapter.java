@@ -13,6 +13,7 @@ import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.cds.CDSSecurity;
+import com.opengamma.financial.security.cds.CreditDefaultSwapIndexSecurity;
 import com.opengamma.financial.security.cds.LegacyFixedRecoveryCDSSecurity;
 import com.opengamma.financial.security.cds.LegacyRecoveryLockCDSSecurity;
 import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
@@ -57,6 +58,7 @@ import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.ForwardSwapSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Adapter for visiting all concrete asset classes.
@@ -77,212 +79,230 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
 
   @Override
   public T visitCorporateBondSecurity(final CorporateBondSecurity security) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass().getName() + ") is not supporting " + security.getClass().getName() + " security.");
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
   }
 
   @Override
   public T visitGovernmentBondSecurity(final GovernmentBondSecurity security) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass().getName() + ") is not supporting " + security.getClass().getName() + " security.");
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
   }
 
   @Override
   public T visitMunicipalBondSecurity(final MunicipalBondSecurity security) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass().getName() + ") is not supporting " + security.getClass().getName() + " security.");
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
   }
 
   @Override
   public T visitCapFloorCMSSpreadSecurity(final CapFloorCMSSpreadSecurity security) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass().getName() + ") is not supporting " + security.getClass().getName() + " security.");
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
   }
 
   @Override
   public T visitCapFloorSecurity(final CapFloorSecurity security) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass().getName() + ") is not supporting " + security.getClass().getName() + " security.");
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
   }
 
   @Override
   public T visitCashSecurity(final CashSecurity security) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass().getName() + ") is not supporting " + security.getClass().getName() + " security.");
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
   }
 
   @Override
   public T visitCashFlowSecurity(final CashFlowSecurity security) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass().getName() + ") is not supporting " + security.getClass().getName() + " security.");
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
   }
 
   @Override
   public T visitContinuousZeroDepositSecurity(final ContinuousZeroDepositSecurity security) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass().getName() + ") is not supporting " + security.getClass().getName() + " security.");
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
   }
 
   @Override
   public T visitEquityBarrierOptionSecurity(final EquityBarrierOptionSecurity security) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass().getName() + ") is not supporting " + security.getClass().getName() + " security.");
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
   }
 
   @Override
   public T visitEquityIndexDividendFutureOptionSecurity(final EquityIndexDividendFutureOptionSecurity security) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass().getName() + ") is not supporting " + security.getClass().getName() + " security.");
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
   }
 
   @Override
   public T visitEquityIndexFutureOptionSecurity(final EquityIndexFutureOptionSecurity security) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass().getName() + ") is not supporting " + security.getClass().getName() + " security.");
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
   }
 
   @Override
   public T visitEquityIndexOptionSecurity(final EquityIndexOptionSecurity security) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass().getName() + ") is not supporting " + security.getClass().getName() + " security.");
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
   }
 
   @Override
   public T visitEquityOptionSecurity(final EquityOptionSecurity security) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass().getName() + ") is not supporting " + security.getClass().getName() + " security.");
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
   }
 
   @Override
   public T visitEquitySecurity(final EquitySecurity security) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass().getName() + ") is not supporting " + security.getClass().getName() + " security.");
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
   }
 
   @Override
   public T visitEquityVarianceSwapSecurity(final EquityVarianceSwapSecurity security) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass().getName() + ") is not supporting " + security.getClass().getName() + " security.");
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
   }
 
   @Override
   public T visitFRASecurity(final FRASecurity security) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass().getName() + ") is not supporting " + security.getClass().getName() + " security.");
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
   }
 
   @Override
   public T visitFXBarrierOptionSecurity(final FXBarrierOptionSecurity security) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass().getName() + ") is not supporting " + security.getClass().getName() + " security.");
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
   }
 
   @Override
   public T visitFXDigitalOptionSecurity(final FXDigitalOptionSecurity security) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass().getName() + ") is not supporting " + security.getClass().getName() + " security.");
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
   }
 
   @Override
   public T visitFXForwardSecurity(final FXForwardSecurity security) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass().getName() + ") is not supporting " + security.getClass().getName() + " security.");
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
   }
 
   @Override
   public T visitFXOptionSecurity(final FXOptionSecurity security) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass().getName() + ") is not supporting " + security.getClass().getName() + " security.");
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
   }
 
   @Override
   public T visitIRFutureOptionSecurity(final IRFutureOptionSecurity security) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass().getName() + ") is not supporting " + security.getClass().getName() + " security.");
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
   }
 
   @Override
   public T visitNonDeliverableFXDigitalOptionSecurity(final NonDeliverableFXDigitalOptionSecurity security) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass().getName() + ") is not supporting " + security.getClass().getName() + " security.");
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
   }
 
   @Override
   public T visitNonDeliverableFXForwardSecurity(final NonDeliverableFXForwardSecurity security) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass().getName() + ") is not supporting " + security.getClass().getName() + " security.");
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
   }
 
   @Override
   public T visitNonDeliverableFXOptionSecurity(final NonDeliverableFXOptionSecurity security) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass().getName() + ") is not supporting " + security.getClass().getName() + " security.");
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
   }
 
   @Override
   public T visitPeriodicZeroDepositSecurity(final PeriodicZeroDepositSecurity security) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass().getName() + ") is not supporting " + security.getClass().getName() + " security.");
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
   }
 
   @Override
   public T visitSimpleZeroDepositSecurity(final SimpleZeroDepositSecurity security) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass().getName() + ") is not supporting " + security.getClass().getName() + " security.");
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
   }
 
   @Override
   public T visitForwardSwapSecurity(final ForwardSwapSecurity security) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass().getName() + ") is not supporting " + security.getClass().getName() + " security.");
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
   }
 
   @Override
   public T visitSwapSecurity(final SwapSecurity security) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass().getName() + ") is not supporting " + security.getClass().getName() + " security.");
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
   }
 
   @Override
   public T visitSwaptionSecurity(final SwaptionSecurity security) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass().getName() + ") is not supporting " + security.getClass().getName() + " security.");
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
   }
 
   @Override
   public T visitCommodityFutureOptionSecurity(final CommodityFutureOptionSecurity security) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass().getName() + ") is not supporting " + security.getClass().getName() + " security.");
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
   }
 
   @Override
   public T visitFxFutureOptionSecurity(final FxFutureOptionSecurity security) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass().getName() + ") is not supporting " + security.getClass().getName() + " security.");
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
   }
 
   @Override
   public T visitBondFutureOptionSecurity(final BondFutureOptionSecurity security) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass().getName() + ") is not supporting " + security.getClass().getName() + " security.");
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
   }
 
   @Override
   public T visitAgricultureForwardSecurity(final AgricultureForwardSecurity security) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass().getName() + ") is not supporting " + security.getClass().getName() + " security.");
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
   }
 
   @Override
   public T visitEnergyForwardSecurity(final EnergyForwardSecurity security) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass().getName() + ") is not supporting " + security.getClass().getName() + " security.");
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
   }
 
   @Override
   public T visitMetalForwardSecurity(final MetalForwardSecurity security) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass().getName() + ") is not supporting " + security.getClass().getName() + " security.");
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
   }
 
   @Override
   public T visitCDSSecurity(final CDSSecurity security) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass().getName() + ") is not supporting " + security.getClass().getName() + " security.");
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
   }
 
   @Override
   public T visitStandardVanillaCDSSecurity(final StandardVanillaCDSSecurity security) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass().getName() + ") is not supporting " + security.getClass().getName() + " security.");
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
   }
 
   @Override
   public T visitStandardFixedRecoveryCDSSecurity(final StandardFixedRecoveryCDSSecurity security) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass().getName() + ") is not supporting " + security.getClass().getName() + " security.");
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
   }
 
   @Override
   public T visitStandardRecoveryLockCDSSecurity(final StandardRecoveryLockCDSSecurity security) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass().getName() + ") is not supporting " + security.getClass().getName() + " security.");
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
   }
 
   @Override
   public T visitLegacyVanillaCDSSecurity(final LegacyVanillaCDSSecurity security) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass().getName() + ") is not supporting " + security.getClass().getName() + " security.");
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
   }
 
   @Override
   public T visitLegacyFixedRecoveryCDSSecurity(final LegacyFixedRecoveryCDSSecurity security) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass().getName() + ") is not supporting " + security.getClass().getName() + " security.");
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
   }
 
   @Override
   public T visitLegacyRecoveryLockCDSSecurity(final LegacyRecoveryLockCDSSecurity security) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass().getName() + ") is not supporting " + security.getClass().getName() + " security.");
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
+  }
+  
+  @Override
+  public T visitCreditDefaultSwapIndexSecurity(CreditDefaultSwapIndexSecurity security) {
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
+  }
+  
+  /**
+   * Generic message for unsupported methods in FinancialSecurityVisitor implementations
+   * 
+   * @param clazz the implementation class, not null
+   * @param security the financial security, not null
+   * @return the message, not null;
+   */
+  public static String getUnsupportedOperationMessage(final Class<?> clazz, final FinancialSecurity security) {
+    ArgumentChecker.notNull(clazz, "implementation class");
+    ArgumentChecker.notNull(security, "financial security");
+    return "This visitor (" + clazz.getName() + ") is not supporting " + security.getClass().getName() + " security.";
   }
 
   /**

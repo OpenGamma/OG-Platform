@@ -51,4 +51,9 @@ public class ISDAFunctionConstants {
    * Value property to give the offset for the ISDA yield curve
    */
   public static final String ISDA_CURVE_OFFSET = "ISDACurveOffset";
+
+  /**
+   * Value property for the ISDA curve date
+   */
+  public static final String ISDA_CURVE_DATE = "ISDACurveDate";
 }

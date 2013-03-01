@@ -16,7 +16,7 @@ import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 /**
  * Test Fudge encoding.
  */
-@Test
+@Test(groups = "unit")
 public class FlexiDateTimeFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
 
   public void test_LD() {

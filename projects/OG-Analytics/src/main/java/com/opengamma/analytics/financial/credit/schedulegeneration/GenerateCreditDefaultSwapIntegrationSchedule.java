@@ -11,9 +11,9 @@ import java.util.TreeSet;
 
 import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.analytics.financial.credit.cds.ISDACurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
+import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
@@ -38,11 +38,12 @@ public class GenerateCreditDefaultSwapIntegrationSchedule {
 
   // Method to calculate the time nodes used to approximate the integral in the accrued leg calculation
 
-  public double[] constructCreditDefaultSwapAccruedLegIntegrationSchedule(
+  public ZonedDateTime[] constructCreditDefaultSwapAccruedLegIntegrationSchedule(
       final ZonedDateTime valuationDate,
       final CreditDefaultSwapDefinition cds,
-      final ISDACurve yieldCurve,
-      final HazardRateCurve hazardRateCurve) {
+      final ISDADateCurve yieldCurve,
+      final HazardRateCurve hazardRateCurve,
+      final boolean includeSchedule) {
 
     // Check input objects are not null
     ArgumentChecker.notNull(cds, "CDS");
@@ -50,7 +51,7 @@ public class GenerateCreditDefaultSwapIntegrationSchedule {
     ArgumentChecker.notNull(hazardRateCurve, "Hazard Rate Curve");
 
     // Do we want to include the CDS premium leg cashflow schedule as points
-    final boolean includeSchedule = false;
+    //final boolean includeSchedule = false;
 
     // Get the start time of the CDS with respect to the current valuation date (can obviously be negative)
     final double startTime = calculateCreditDefaultSwapStartTime(valuationDate, cds, ACT_365);
@@ -58,8 +59,15 @@ public class GenerateCreditDefaultSwapIntegrationSchedule {
     // Get the (offset) maturity of the CDS
     final double offsetMaturityTime = calculateCreditDefaultSwapOffsetMaturity(valuationDate, cds, ACT_365);
 
+    final ZonedDateTime startDate = cds.getStartDate();
+    ZonedDateTime endDate = cds.getMaturityDate();
+
+    if (cds.getProtectionStart()) {
+      endDate = endDate.plusDays(1);
+    }
+
     // Calculate the schedule of integration timenodes for the accrued leg calculation
-    final double[] timeNodes = constructISDACompliantIntegrationSchedule(valuationDate, cds, yieldCurve, hazardRateCurve, startTime, offsetMaturityTime, includeSchedule);
+    final ZonedDateTime[] timeNodes = constructISDACompliantAccruedLegIntegrationSchedule(valuationDate, cds, yieldCurve, hazardRateCurve, startDate, endDate, includeSchedule);
 
     return timeNodes;
   }
@@ -70,8 +78,10 @@ public class GenerateCreditDefaultSwapIntegrationSchedule {
 
   public double[] constructCreditDefaultSwapContingentLegIntegrationSchedule(
       final ZonedDateTime valuationDate,
+      final ZonedDateTime startDate,
+      final ZonedDateTime endDate,
       final CreditDefaultSwapDefinition cds,
-      final ISDACurve yieldCurve,
+      final ISDADateCurve yieldCurve,
       final HazardRateCurve hazardRateCurve) {
 
     // Check input objects are not null
@@ -83,25 +93,26 @@ public class GenerateCreditDefaultSwapIntegrationSchedule {
     final boolean includeSchedule = false;
 
     // Calculate the time at which protection starts
-    final double protectionStartTime = calculateProtectionStartTime(valuationDate, cds, ACT_365);
+    final double protectionStartTime = TimeCalculator.getTimeBetween(valuationDate, startDate, ACT_365); //calculateProtectionStartTime(valuationDate, cds, ACT_365);
+    final double protectionEndTime = TimeCalculator.getTimeBetween(valuationDate, endDate, ACT_365);
 
     // Calculate the maturity of the CDS with respect to the valuation date
     final double maturity = calculateCreditDefaultSwapMaturity(valuationDate, cds, ACT_365);
 
     // Calculate the schedule of integration timenodes for the contingent leg calculation
-    final double[] timeNodes = constructISDACompliantIntegrationSchedule(valuationDate, cds, yieldCurve, hazardRateCurve, protectionStartTime, maturity, includeSchedule);
+    final double[] timeNodes = constructISDACompliantIntegrationSchedule(valuationDate, cds, yieldCurve, hazardRateCurve, protectionStartTime, /*maturity*/protectionEndTime, includeSchedule);
 
     return timeNodes;
   }
 
   // -------------------------------------------------------------------------------------------
 
-  // Method to construct a set of timenodes compliant with the ISDA model (adapted from the RiskCare implementation)
+  // Method to construct a set of timenodes compliant with the ISDA model (adapted from the good RiskCare implementation)
 
   private double[] constructISDACompliantIntegrationSchedule(
       final ZonedDateTime valuationDate,
       final CreditDefaultSwapDefinition cds,
-      final ISDACurve yieldCurve,
+      final ISDADateCurve yieldCurve,
       final HazardRateCurve hazardRateCurve,
       final double startTime,
       final double endTime,
@@ -122,7 +133,7 @@ public class GenerateCreditDefaultSwapIntegrationSchedule {
 
     // ------------------------------------------------
 
-    // TODO : Move these lines into the includeSchedule code as they are only used here
+    // TODO : Move these lines into the includeSchedule code as they are only used there
 
     final GenerateCreditDefaultSwapPremiumLegSchedule premiumLegCashflowSchedule = new GenerateCreditDefaultSwapPremiumLegSchedule();
 
@@ -206,29 +217,149 @@ public class GenerateCreditDefaultSwapIntegrationSchedule {
     return timePoints;
   }
 
-  // -------------------------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------------------------------
 
-  public double[] getTruncatedTimeLine(final double[] timeline, final double startTime, final double endTime) {
+  // This is a total hack just to get the accrued leg calculation working - need to re-merge with the other functions
+  // This is actually how I want to re-write the other function
 
-    final NavigableSet<Double> allTimePoints = new TreeSet<Double>();
-    Set<Double> timePointsInRange;
+  private ZonedDateTime[] constructISDACompliantAccruedLegIntegrationSchedule(
+      final ZonedDateTime valuationDate,
+      final CreditDefaultSwapDefinition cds,
+      final ISDADateCurve yieldCurve,
+      final HazardRateCurve hazardRateCurve,
+      final ZonedDateTime startDate,
+      final ZonedDateTime endDate,
+      final boolean includeSchedule) {
 
-    for (int i = 0; i < timeline.length; i++) {
-      allTimePoints.add(timeline[i]);
+    // ------------------------------------------------
+
+    // Check input arguments are not null
+
+    ArgumentChecker.notNull(cds, "CDS");
+    ArgumentChecker.notNull(yieldCurve, "Yield curve");
+    ArgumentChecker.notNull(hazardRateCurve, "Hazard rate curve");
+
+    ArgumentChecker.notNull(startDate, "Start date");
+    ArgumentChecker.notNull(endDate, "End date");
+
+    // TODO : Check ordering of startTime and endTime
+
+    // ------------------------------------------------
+
+    // TODO : Move these lines into the includeSchedule code as they are only used there
+
+    //final GenerateCreditDefaultSwapPremiumLegSchedule premiumLegCashflowSchedule = new GenerateCreditDefaultSwapPremiumLegSchedule();
+
+    //final ZonedDateTime[] cashflowSchedule = premiumLegCashflowSchedule.constructISDACompliantCreditDefaultSwapPremiumLegSchedule(cds);
+
+    //final double[] cashflowScheduleAsDoubles = premiumLegCashflowSchedule.convertTenorsToDoubles(cashflowSchedule, valuationDate, ACT_365);
+
+    // ------------------------------------------------
+
+    // All the timenodes in the list
+    final NavigableSet<ZonedDateTime> allDates = new TreeSet<ZonedDateTime>();
+
+    // The subset of timenodes in the range over which protection extends
+    Set<ZonedDateTime> allDatesInRange;
+
+    // ------------------------------------------------
+
+    final ZonedDateTime[] yieldCurveDates = yieldCurve.getCurveTenors();
+
+    final ZonedDateTime[] hazardCurveDates = hazardRateCurve.getCurveTenors();
+
+    for (int i = 0; i < yieldCurveDates.length; i++) {
+      allDates.add(yieldCurveDates[i]);
     }
 
-    timePointsInRange = allTimePoints.subSet(new Double(startTime), true, new Double(endTime), true);
+    for (int i = 0; i < hazardCurveDates.length; i++) {
+      allDates.add(hazardCurveDates[i]);
+    }
 
-    final Double[] boxed = new Double[timePointsInRange.size()];
-    timePointsInRange.toArray(boxed);
+    // Add the timenodes at the times when protection starts and ends
+    allDates.add(startDate);
+    allDates.add(endDate);
 
-    final double[] truncatedTimeline = new double[boxed.length];
+    // ------------------------------------------------
+
+    /*
+    if (includeSchedule) {
+
+      double offset = 0.0;
+
+      if (cds.getProtectionStart()) {
+        offset = cds.getProtectionOffset();
+      }
+
+      final double offsetStartTime = TimeCalculator.getTimeBetween(valuationDate, cashflowSchedule[1], ACT_365) - offset;
+
+      allTimePoints.add(new Double(offsetStartTime));
+
+      double periodEndTime = 0.0;
+      for (int i = 0; i < cashflowSchedule.length; i++) {
+
+        if (i < cashflowSchedule.length - 1) {
+          periodEndTime = cashflowScheduleAsDoubles[i] - offset;
+        } else {
+          periodEndTime = cashflowScheduleAsDoubles[i];
+        }
+
+        allTimePoints.add(new Double(periodEndTime));
+      }
+
+      timePointsInRange = allTimePoints.subSet(new Double(offsetStartTime), true, new Double(endDate), true);
+
+    } else {
+      timePointsInRange = allTimePoints.subSet(new Double(startDate), true, new Double(endDate), true);
+    } */
+
+    allDatesInRange = allDates.subSet(startDate, true, endDate, true);
+
+    // ------------------------------------------------
+
+    final ZonedDateTime[] boxed = new ZonedDateTime[allDatesInRange.size()];
+    allDatesInRange.toArray(boxed);
+
+    final ZonedDateTime[] timePoints = new ZonedDateTime[boxed.length];
 
     for (int i = 0; i < boxed.length; ++i) {
-      truncatedTimeline[i] = boxed[i].doubleValue();
+      timePoints[i] = boxed[i];
     }
 
-    return truncatedTimeline;
+    // ------------------------------------------------
+
+    return timePoints;
+  }
+
+  // -------------------------------------------------------------------------------------------
+
+  public ZonedDateTime[] getTruncatedTimeLine(final ZonedDateTime[] fullDateList, final ZonedDateTime startDate, final ZonedDateTime endDate) {
+
+    // All the timenodes in the list
+    final NavigableSet<ZonedDateTime> allDates = new TreeSet<ZonedDateTime>();
+
+    // The subset of timenodes in the range over which protection extends
+    Set<ZonedDateTime> allDatesInRange;
+
+    for (int i = 0; i < fullDateList.length; i++) {
+      allDates.add(fullDateList[i]);
+    }
+
+    allDates.add(startDate);
+    allDates.add(endDate);
+
+    allDatesInRange = allDates.subSet(startDate, true, endDate, true);
+
+    final ZonedDateTime[] boxed = new ZonedDateTime[allDatesInRange.size()];
+    allDatesInRange.toArray(boxed);
+
+    final ZonedDateTime[] truncatedDateList = new ZonedDateTime[boxed.length];
+
+    for (int i = 0; i < boxed.length; ++i) {
+      truncatedDateList[i] = boxed[i];
+    }
+
+    return truncatedDateList;
   }
 
   // -------------------------------------------------------------------------------------------
@@ -304,6 +435,7 @@ public class GenerateCreditDefaultSwapIntegrationSchedule {
       final CreditDefaultSwapDefinition cds,
       final DayCount dayCount) {
 
+    ZonedDateTime mat = cds.getMaturityDate();
     final double maturity = TimeCalculator.getTimeBetween(valuationDate, cds.getMaturityDate(), dayCount);
 
     return maturity;

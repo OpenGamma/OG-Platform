@@ -21,7 +21,7 @@ import com.opengamma.util.time.Expiry;
  */
 public class ForwardStartOptionDefinition extends OptionDefinition {
   private static final Logger s_logger = LoggerFactory.getLogger(ForwardStartOptionDefinition.class);
-  private final OptionExerciseFunction<StandardOptionDataBundle> _exerciseFunction = new EuropeanExerciseFunction<StandardOptionDataBundle>();
+  private final OptionExerciseFunction<StandardOptionDataBundle> _exerciseFunction = new EuropeanExerciseFunction<>();
   private final OptionPayoffFunction<StandardOptionDataBundle> _payoffFunction = new OptionPayoffFunction<StandardOptionDataBundle>() {
 
     @Override

@@ -62,11 +62,11 @@ public class VolatilitySurfaceInterpolator {
   }
 
   /**
-   * <b>Note</b> The combination of useIntegratedVariance = true, useLogTime != useLogValue  can produce very bad results, including considerable dips/humps between
-   * points at the same level (all other combinations give a flat line), and thus should be avoided.
+   * <b>Note</b> The combination of useIntegratedVariance = true, useLogTime != useLogValue can produce very bad results, including considerable dips/humps between points at the same level (all other
+   * combinations give a flat line), and thus should be avoided.
+   * 
    * @param useIntegratedVariance if true integrated variance ($\sigma^2t$) is used in the interpolation, otherwise variance is used
-   * @param useLogTime if true the natural-log of the time values are used in interpolation, if false the time values are used directly. This can be useful if the
-   * expiries vary greatly in magnitude
+   * @param useLogTime if true the natural-log of the time values are used in interpolation, if false the time values are used directly. This can be useful if the expiries vary greatly in magnitude
    * @param useLogVariance If true the log of variance (actually either variance or integrated variance) is used in the interpolation
    */
   public VolatilitySurfaceInterpolator(final boolean useIntegratedVariance, final boolean useLogTime, final boolean useLogVariance) {
@@ -125,25 +125,29 @@ public class VolatilitySurfaceInterpolator {
   }
 
   /**
-   * For a given expiry and strike, perform an interpolation between either the variance (square of volatility) or integrated variances
-   *  of points with the same proxy delta (defined as d = Math.log(forward / k) / Math.sqrt(t)) on the fitted smiles.<p>
-   *  Each smile is fitted independently using the supplied GeneralSmileInterpolator (the default is SmileInterpolatorSABR), which produces a curve (the smile) that
-   *  fits all the market implied volatilities and has sensible extrapolation behaviour. <p>
-   *  The interpolation in the time direction uses the supplied interpolator (default is  natural cubic spline) using the four nearest points. There is no guarantees of a
-   *  monotonically increasing integrated variance  (hence calendar arbitrage or negative local volatility are possible), but using log time to better space out the x-points helps.
+   * For a given expiry and strike, perform an interpolation between either the variance (square of volatility) or integrated variances of points with the same proxy delta (defined as d =
+   * Math.log(forward / k) / Math.sqrt(t)) on the fitted smiles.
+   * <p>
+   * Each smile is fitted independently using the supplied GeneralSmileInterpolator (the default is SmileInterpolatorSABR), which produces a curve (the smile) that fits all the market implied
+   * volatilities and has sensible extrapolation behaviour.
+   * <p>
+   * The interpolation in the time direction uses the supplied interpolator (default is natural cubic spline) using the four nearest points. There is no guarantees of a monotonically increasing
+   * integrated variance (hence calendar arbitrage or negative local volatility are possible), but using log time to better space out the x-points helps.
+   * 
    * @param marketData The mark data - contains the forwards, expiries, and strikes and (market) implied volatilities at each expiry, not null
    * @return Implied volatility surface parameterised by time and moneyness
    */
   public BlackVolatilitySurfaceMoneynessFcnBackedByGrid getVolatilitySurface(final SmileSurfaceDataBundle marketData) {
     ArgumentChecker.notNull(marketData, "market data");
-
     final Function1D<Double, Double>[] smileFunctions = getIndependentSmileFits(marketData);
     return combineIndependentSmileFits(smileFunctions, marketData);
   }
 
   /**
-   * Given a set of smiles in the moneyness dimension, produce surface function that additionally interpolates in expiry. <p>
+   * Given a set of smiles in the moneyness dimension, produce surface function that additionally interpolates in expiry.
+   * <p>
    * Access to the individual parts of getVolatilitySurface() permits user to bump vols without having to recalibrate each independent smile
+   * 
    * @param smileFunctions Array of Function1D's, one per expiry, that return volatility given strike
    * @param marketData The mark data - contains the forwards, expiries, and strikes and (market) implied volatilities at each expiry, not null
    * @return Implied volatility surface parameterised by time and moneyness
@@ -217,9 +221,8 @@ public class VolatilitySurfaceInterpolator {
           }
           if (var >= 0.0) {
             return Math.sqrt(var / (_useIntegratedVariance ? t : 1.0));
-          } else {
-            return Math.sqrt(Math.min(var0, var1) /  (_useIntegratedVariance ? t : 1.0)) ;
           }
+          return Math.sqrt(Math.min(var0, var1) / (_useIntegratedVariance ? t : 1.0));
         }
 
         // Case 4: Interpolation when n >= 4
@@ -259,12 +262,19 @@ public class VolatilitySurfaceInterpolator {
       }
 
       public Object writeReplace() {
-        return new InvokedSerializedForm(VolatilitySurfaceInterpolator.this, "getVolatilitySurface", marketData);
+        return new InvokedSerializedForm(new InvokedSerializedForm(new InvokedSerializedForm(VolatilitySurfaceInterpolator.this, "getVolatilitySurface", marketData), "getSurface"), "getFunction");
       }
+
     };
 
     return new BlackVolatilitySurfaceMoneynessFcnBackedByGrid(FunctionalDoublesSurface.from(surFunc), marketData.getForwardCurve(), marketData,
-        VolatilitySurfaceInterpolator.this);
+        VolatilitySurfaceInterpolator.this) {
+
+      public Object writeReplace() {
+        return new InvokedSerializedForm(VolatilitySurfaceInterpolator.this, "getVolatilitySurface", marketData);
+      }
+
+    };
   }
 
   //TODO find a way of bumping a single point without recalibrating all unaffected smiles

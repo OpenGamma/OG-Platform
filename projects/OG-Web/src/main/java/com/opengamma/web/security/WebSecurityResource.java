@@ -6,7 +6,7 @@
 package com.opengamma.web.security;
 
 import java.net.URI;
-import java.util.Collections;
+import java.util.Map;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -27,6 +27,8 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchRequest;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchResult;
 import com.opengamma.master.security.SecurityDocument;
+import com.opengamma.master.security.SecurityLoaderRequest;
+import com.opengamma.master.security.SecurityLoaderResult;
 import com.opengamma.web.FreemarkerCustomRenderer;
 
 /**
@@ -88,7 +90,9 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
 
   private URI updateSecurity(SecurityDocument doc) {
     ExternalIdBundle identifierBundle = doc.getSecurity().getExternalIdBundle();
-    data().getSecurityLoader().loadSecurity(Collections.singleton(identifierBundle));
+    SecurityLoaderRequest request = SecurityLoaderRequest.create(identifierBundle);
+    request.setForceUpdate(true);
+    data().getSecurityLoader().loadSecurities(request);  // ignore errors
     return WebSecurityResource.uri(data());
   }
 

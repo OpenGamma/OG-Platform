@@ -317,7 +317,7 @@ public class WebAllHistoricalTimeSeriesResource extends AbstractWebHistoricalTim
     HistoricalTimeSeriesLoader loader = data().getHistoricalTimeSeriesLoader();
     Map<ExternalId, UniqueId> added = Maps.newHashMap();
     if (!identifiers.isEmpty()) {
-      added = loader.addTimeSeries(identifiers, dataProvider, dataField, startDate, endDate);
+      added = loader.loadTimeSeries(identifiers, dataProvider, dataField, startDate, endDate);
     }
     return added;
   }

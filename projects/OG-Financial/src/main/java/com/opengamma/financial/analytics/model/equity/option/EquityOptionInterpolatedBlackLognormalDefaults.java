@@ -85,8 +85,7 @@ public abstract class EquityOptionInterpolatedBlackLognormalDefaults extends Def
   public EquityOptionInterpolatedBlackLognormalDefaults(final String priority, final String... perIdConfig) {
     super(FinancialSecurityTypes.EQUITY_INDEX_OPTION_SECURITY
         .or(FinancialSecurityTypes.EQUITY_BARRIER_OPTION_SECURITY)
-        .or(FinancialSecurityTypes.EQUITY_OPTION_SECURITY)
-        .or(FinancialSecurityTypes.EQUITY_INDEX_FUTURE_OPTION_SECURITY), true);
+        .or(FinancialSecurityTypes.EQUITY_OPTION_SECURITY), true);
     ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(perIdConfig, "per id configuration");
     _priority = PriorityClass.valueOf(priority);

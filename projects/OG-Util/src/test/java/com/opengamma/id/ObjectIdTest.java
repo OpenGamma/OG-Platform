@@ -13,7 +13,7 @@ import org.testng.annotations.Test;
 /**
  * Test {@link ObjectId}. 
  */
-@Test
+@Test(groups = "unit")
 public class ObjectIdTest {
 
   public void test_factory_String_String() {
@@ -51,7 +51,7 @@ public class ObjectIdTest {
       for (String value : strs) {
         final ObjectId testOID = ObjectId.of(scheme, value);
         final String testStr = testOID.toString();
-        System.out.println("scheme = " + scheme + ", value = " + value + ", oid = " + testOID.toString());
+        // System.out.println("scheme = " + scheme + ", value = " + value + ", oid = " + testOID.toString());
         final ObjectId oid = ObjectId.parse(testStr);
         assertEquals(testOID, oid);
       }

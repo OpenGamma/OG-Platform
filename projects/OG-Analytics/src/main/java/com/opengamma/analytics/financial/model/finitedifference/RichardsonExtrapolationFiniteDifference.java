@@ -10,7 +10,7 @@ import org.apache.commons.lang.Validate;
 /**
  * 
  */
-public class RichardsonExtrapolationFiniteDifference implements ConvectionDiffusionPDESolver, PDE1DSolver<ConvectionDiffusionPDE1DCoefficients> {
+public class RichardsonExtrapolationFiniteDifference implements ConvectionDiffusionPDESolver {
 
   private final ConvectionDiffusionPDESolver _baseSolver;
 
@@ -20,11 +20,11 @@ public class RichardsonExtrapolationFiniteDifference implements ConvectionDiffus
   }
 
   @Override
-  public PDEResults1D solve(PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> pdeData) {
-    PDEGrid1D grid = pdeData.getGrid();
+  public PDEResults1D solve(final PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> pdeData) {
+    final PDEGrid1D grid = pdeData.getGrid();
     final PDEGrid1D grid2 = grid.withDoubleTimeSteps();
     final PDEResults1D res1 = _baseSolver.solve(pdeData);
-    PDE1DDataBundle pdeData2 = pdeData.withGrid(grid2);
+    final PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> pdeData2 = pdeData.withGrid(grid2);
     final PDEResults1D res2 = _baseSolver.solve(pdeData2);
     final int n = res1.getNumberSpaceNodes();
     if (res1 instanceof PDEFullResults1D) {

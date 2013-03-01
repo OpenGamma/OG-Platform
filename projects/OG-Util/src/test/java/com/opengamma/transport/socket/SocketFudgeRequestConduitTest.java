@@ -28,7 +28,7 @@ import com.opengamma.transport.FudgeRequestReceiver;
 /**
  * Test.
  */
-@Test
+@Test(groups = "integration")
 public class SocketFudgeRequestConduitTest {
 
   @Test(invocationCount = 5, successPercentage = 19)

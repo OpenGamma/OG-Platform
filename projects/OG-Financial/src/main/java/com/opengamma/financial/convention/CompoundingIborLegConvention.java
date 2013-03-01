@@ -16,10 +16,11 @@ import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
-import org.threeten.bp.Period;
 
 import com.opengamma.analytics.financial.interestrate.CompoundingType;
+import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.util.time.Tenor;
 
 /**
  *
@@ -34,13 +35,13 @@ public class CompoundingIborLegConvention extends Convention {
    * The ibor index convention.
    */
   @PropertyDefinition(validate = "notNull")
-  private String _iborIndexConvention;
+  private ExternalId _iborIndexConvention;
 
   /**
-   * The payment period.
+   * The payment tenor.
    */
   @PropertyDefinition(validate = "notNull")
-  private Period _paymentPeriod;
+  private Tenor _paymentTenor;
 
   /**
    * The compounding type.
@@ -54,11 +55,11 @@ public class CompoundingIborLegConvention extends Convention {
   public CompoundingIborLegConvention() {
   }
 
-  public CompoundingIborLegConvention(final String name, final ExternalIdBundle externalIdBundle, final String iborIndexConvention, final Period paymentPeriod,
+  public CompoundingIborLegConvention(final String name, final ExternalIdBundle externalIdBundle, final ExternalId iborIndexConvention, final Tenor paymentTenor,
       final CompoundingType compoundingType) {
     super(name, externalIdBundle);
     setIborIndexConvention(iborIndexConvention);
-    setPaymentPeriod(paymentPeriod);
+    setPaymentTenor(paymentTenor);
     setCompoundingType(compoundingType);
   }
 
@@ -85,8 +86,8 @@ public class CompoundingIborLegConvention extends Convention {
     switch (propertyName.hashCode()) {
       case -1542426233:  // iborIndexConvention
         return getIborIndexConvention();
-      case 1331459943:  // paymentPeriod
-        return getPaymentPeriod();
+      case -507548582:  // paymentTenor
+        return getPaymentTenor();
       case -1936397775:  // compoundingType
         return getCompoundingType();
     }
@@ -97,10 +98,10 @@ public class CompoundingIborLegConvention extends Convention {
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -1542426233:  // iborIndexConvention
-        setIborIndexConvention((String) newValue);
+        setIborIndexConvention((ExternalId) newValue);
         return;
-      case 1331459943:  // paymentPeriod
-        setPaymentPeriod((Period) newValue);
+      case -507548582:  // paymentTenor
+        setPaymentTenor((Tenor) newValue);
         return;
       case -1936397775:  // compoundingType
         setCompoundingType((CompoundingType) newValue);
@@ -112,7 +113,7 @@ public class CompoundingIborLegConvention extends Convention {
   @Override
   protected void validate() {
     JodaBeanUtils.notNull(_iborIndexConvention, "iborIndexConvention");
-    JodaBeanUtils.notNull(_paymentPeriod, "paymentPeriod");
+    JodaBeanUtils.notNull(_paymentTenor, "paymentTenor");
     JodaBeanUtils.notNull(_compoundingType, "compoundingType");
     super.validate();
   }
@@ -125,7 +126,7 @@ public class CompoundingIborLegConvention extends Convention {
     if (obj != null && obj.getClass() == this.getClass()) {
       CompoundingIborLegConvention other = (CompoundingIborLegConvention) obj;
       return JodaBeanUtils.equal(getIborIndexConvention(), other.getIborIndexConvention()) &&
-          JodaBeanUtils.equal(getPaymentPeriod(), other.getPaymentPeriod()) &&
+          JodaBeanUtils.equal(getPaymentTenor(), other.getPaymentTenor()) &&
           JodaBeanUtils.equal(getCompoundingType(), other.getCompoundingType()) &&
           super.equals(obj);
     }
@@ -136,7 +137,7 @@ public class CompoundingIborLegConvention extends Convention {
   public int hashCode() {
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getIborIndexConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentPeriod());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentTenor());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCompoundingType());
     return hash ^ super.hashCode();
   }
@@ -146,7 +147,7 @@ public class CompoundingIborLegConvention extends Convention {
    * Gets the ibor index convention.
    * @return the value of the property, not null
    */
-  public String getIborIndexConvention() {
+  public ExternalId getIborIndexConvention() {
     return _iborIndexConvention;
   }
 
@@ -154,7 +155,7 @@ public class CompoundingIborLegConvention extends Convention {
    * Sets the ibor index convention.
    * @param iborIndexConvention  the new value of the property, not null
    */
-  public void setIborIndexConvention(String iborIndexConvention) {
+  public void setIborIndexConvention(ExternalId iborIndexConvention) {
     JodaBeanUtils.notNull(iborIndexConvention, "iborIndexConvention");
     this._iborIndexConvention = iborIndexConvention;
   }
@@ -163,34 +164,34 @@ public class CompoundingIborLegConvention extends Convention {
    * Gets the the {@code iborIndexConvention} property.
    * @return the property, not null
    */
-  public final Property<String> iborIndexConvention() {
+  public final Property<ExternalId> iborIndexConvention() {
     return metaBean().iborIndexConvention().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the payment period.
+   * Gets the payment tenor.
    * @return the value of the property, not null
    */
-  public Period getPaymentPeriod() {
-    return _paymentPeriod;
+  public Tenor getPaymentTenor() {
+    return _paymentTenor;
   }
 
   /**
-   * Sets the payment period.
-   * @param paymentPeriod  the new value of the property, not null
+   * Sets the payment tenor.
+   * @param paymentTenor  the new value of the property, not null
    */
-  public void setPaymentPeriod(Period paymentPeriod) {
-    JodaBeanUtils.notNull(paymentPeriod, "paymentPeriod");
-    this._paymentPeriod = paymentPeriod;
+  public void setPaymentTenor(Tenor paymentTenor) {
+    JodaBeanUtils.notNull(paymentTenor, "paymentTenor");
+    this._paymentTenor = paymentTenor;
   }
 
   /**
-   * Gets the the {@code paymentPeriod} property.
+   * Gets the the {@code paymentTenor} property.
    * @return the property, not null
    */
-  public final Property<Period> paymentPeriod() {
-    return metaBean().paymentPeriod().createProperty(this);
+  public final Property<Tenor> paymentTenor() {
+    return metaBean().paymentTenor().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -232,13 +233,13 @@ public class CompoundingIborLegConvention extends Convention {
     /**
      * The meta-property for the {@code iborIndexConvention} property.
      */
-    private final MetaProperty<String> _iborIndexConvention = DirectMetaProperty.ofReadWrite(
-        this, "iborIndexConvention", CompoundingIborLegConvention.class, String.class);
+    private final MetaProperty<ExternalId> _iborIndexConvention = DirectMetaProperty.ofReadWrite(
+        this, "iborIndexConvention", CompoundingIborLegConvention.class, ExternalId.class);
     /**
-     * The meta-property for the {@code paymentPeriod} property.
+     * The meta-property for the {@code paymentTenor} property.
      */
-    private final MetaProperty<Period> _paymentPeriod = DirectMetaProperty.ofReadWrite(
-        this, "paymentPeriod", CompoundingIborLegConvention.class, Period.class);
+    private final MetaProperty<Tenor> _paymentTenor = DirectMetaProperty.ofReadWrite(
+        this, "paymentTenor", CompoundingIborLegConvention.class, Tenor.class);
     /**
      * The meta-property for the {@code compoundingType} property.
      */
@@ -250,7 +251,7 @@ public class CompoundingIborLegConvention extends Convention {
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "iborIndexConvention",
-        "paymentPeriod",
+        "paymentTenor",
         "compoundingType");
 
     /**
@@ -264,8 +265,8 @@ public class CompoundingIborLegConvention extends Convention {
       switch (propertyName.hashCode()) {
         case -1542426233:  // iborIndexConvention
           return _iborIndexConvention;
-        case 1331459943:  // paymentPeriod
-          return _paymentPeriod;
+        case -507548582:  // paymentTenor
+          return _paymentTenor;
         case -1936397775:  // compoundingType
           return _compoundingType;
       }
@@ -292,16 +293,16 @@ public class CompoundingIborLegConvention extends Convention {
      * The meta-property for the {@code iborIndexConvention} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<String> iborIndexConvention() {
+    public final MetaProperty<ExternalId> iborIndexConvention() {
       return _iborIndexConvention;
     }
 
     /**
-     * The meta-property for the {@code paymentPeriod} property.
+     * The meta-property for the {@code paymentTenor} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Period> paymentPeriod() {
-      return _paymentPeriod;
+    public final MetaProperty<Tenor> paymentTenor() {
+      return _paymentTenor;
     }
 
     /**

@@ -297,10 +297,10 @@
       <plugin>
         <groupId>org.fudgemsg</groupId>
         <artifactId>maven-fudge-proto-plugin</artifactId>
-        <version>0.3.9.5</version>
+        <version>0.3.9.6</version>
         <executions>
           <execution>
-            <id>joda-beans-generate</id>
+            <id>fudge-proto-generate</id>
             <phase>generate-sources</phase>
             <goals>
               <goal>generate</goal>
@@ -1049,7 +1049,8 @@
     <tests.testng.excludedgroups>integration</tests.testng.excludedgroups>
     <joda.beans.indent>2</joda.beans.indent>
     <joda.beans.prefix>_</joda.beans.prefix>
-    <joda.beans.stopOnError>true</joda.beans.stopOnError>
+    <joda.beans.stopOnError>false</joda.beans.stopOnError>
+    <!--<joda.beans.stopOnError>true</joda.beans.stopOnError>-->
     <fudge.proto.searchDir>..{RELATIVE}../projects/OG-Util/src/main/java;..{RELATIVE}../projects/OG-Engine/src/main/java;..{RELATIVE}../projects/OG-Language/Client/src/main/java</fudge.proto.searchDir>
     <fudge.proto.verbose>false</fudge.proto.verbose>
     <fudge.proto.listFiles>false</fudge.proto.listFiles>

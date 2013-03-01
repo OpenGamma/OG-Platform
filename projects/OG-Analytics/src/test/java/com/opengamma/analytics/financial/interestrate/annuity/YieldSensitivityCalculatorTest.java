@@ -18,7 +18,7 @@ import com.opengamma.util.money.Currency;
  */
 public class YieldSensitivityCalculatorTest {
   private static YieldSensitivityCalculator YSC = YieldSensitivityCalculator.getInstance();
-  private static final Currency CUR = Currency.USD;
+  private static final Currency CUR = Currency.EUR;
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullAnnuity1() {

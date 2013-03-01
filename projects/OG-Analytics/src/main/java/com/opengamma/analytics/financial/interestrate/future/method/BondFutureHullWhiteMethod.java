@@ -144,8 +144,8 @@ public final class BondFutureHullWhiteMethod extends BondFutureMethod {
         }
       }
     }
-    final ArrayList<Double> refx = new ArrayList<Double>();
-    final ArrayList<Integer> ctd = new ArrayList<Integer>();
+    final ArrayList<Double> refx = new ArrayList<>();
+    final ArrayList<Integer> ctd = new ArrayList<>();
     int lastInd = indMin[0];
     ctd.add(indMin[0]);
     for (int looppt = 1; looppt < nbPoint; looppt++) {
@@ -307,8 +307,8 @@ public final class BondFutureHullWhiteMethod extends BondFutureMethod {
         }
       }
     }
-    final ArrayList<Double> refx = new ArrayList<Double>();
-    final ArrayList<Integer> ctd = new ArrayList<Integer>();
+    final ArrayList<Double> refx = new ArrayList<>();
+    final ArrayList<Integer> ctd = new ArrayList<>();
     int lastInd = indMin[0];
     ctd.add(indMin[0]);
     for (int looppt = 1; looppt < nbPoint; looppt++) {
@@ -345,8 +345,8 @@ public final class BondFutureHullWhiteMethod extends BondFutureMethod {
       dfBar[loopbnd] = new double[nbCf];
     }
     double dfdeliveryBar = 0.0;
-    final Map<String, List<DoublesPair>> resultMap = new HashMap<String, List<DoublesPair>>();
-    final List<DoublesPair> listCredit = new ArrayList<DoublesPair>();
+    final Map<String, List<DoublesPair>> resultMap = new HashMap<>();
+    final List<DoublesPair> listCredit = new ArrayList<>();
     if (nbInt == 1) {
       for (int loopcf = 0; loopcf < cfaAdjusted[ctd.get(0)].length; loopcf++) {
         cfaAdjustedBar[ctd.get(0)][loopcf] = priceBar;
@@ -401,7 +401,7 @@ public final class BondFutureHullWhiteMethod extends BondFutureMethod {
   /**
    * Compute the present value sensitivity to rates of a bond future by discounting.
    * @param future The future.
-   * @param curves The yield curves. Should contain the credit and repo curves associated. 
+   * @param curves The yield curves. Should contain the credit and repo curves associated.
    * @return The present value rate sensitivity.
    */
   public InterestRateCurveSensitivity presentValueCurveSensitivity(final BondFuture future, final HullWhiteOneFactorPiecewiseConstantDataBundle curves) {

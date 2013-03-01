@@ -25,9 +25,9 @@ public class LocalVolDensity {
 
   /**
    * Get the coefficients (a, b and c) for the PDE governing the evolution of the transition density for a single underlying (i.e. 1 spatial dimension). The PDE is of the form
-   * $frac{\partial V}{\partial t} + a(x,t)\frac{\partial^2V}{\partial x^2}+b(x,t)\frac{\partial V}{\partial x} +c(x,t)V=0$ where $V(x,t)$ is the density 
+   * $frac{\partial V}{\partial t} + a(x,t)\frac{\partial^2V}{\partial x^2}+b(x,t)\frac{\partial V}{\partial x} +c(x,t)V=0$ where $V(x,t)$ is the density
    * @param forward the forward curve
-   * @param localVol the local volatility surface (parameterised by strike) 
+   * @param localVol the local volatility surface (parameterised by strike)
    * @return The coefficients a, b & c - which are all functions of time and asset value (space)
    */
   public static ConvectionDiffusionPDE1DCoefficients getStandardCoefficients(final ForwardCurve forward, final LocalVolatilitySurfaceStrike localVol) {
@@ -92,10 +92,10 @@ public class LocalVolDensity {
   }
 
   /**
-   * Get the coefficients (a, b, c, $\alpha$ & $\beta$) for the PDE governing the evolution of the transition density for a single underlying (i.e. 1 spatial dimension). 
-   * The PDE is of the form $frac{\partial V}{\partial t} + a(x,t)\frac{\alpha(x,t)\partial^2V}{\partial x^2}+b(x,t)\frac{\beta(x,t)\partial V}{\partial x} +c(x,t)V=0$ where $V(x,t)$ is the density 
+   * Get the coefficients (a, b, c, $\alpha$ & $\beta$) for the PDE governing the evolution of the transition density for a single underlying (i.e. 1 spatial dimension).
+   * The PDE is of the form $frac{\partial V}{\partial t} + a(x,t)\frac{\alpha(x,t)\partial^2V}{\partial x^2}+b(x,t)\frac{\beta(x,t)\partial V}{\partial x} +c(x,t)V=0$ where $V(x,t)$ is the density
    * @param forward the forward curve
-   * @param localVol the local volatility surface (parameterised by strike) 
+   * @param localVol the local volatility surface (parameterised by strike)
    * @return The coefficients a, b, c, $\alpha$ & $\beta$ - which are all functions of time and asset value (space)
    */
   public static ConvectionDiffusionPDE1DFullCoefficients getFullCoefficients(final ForwardCurve forward, final LocalVolatilitySurfaceStrike localVol) {
@@ -145,21 +145,6 @@ public class LocalVolDensity {
         final double t = ts[0];
 
         return forward.getDrift(t);
-      }
-    };
-
-    //using a log-normal distribution with a very small Standard deviation as a proxy for a Dirac delta
-    final Function1D<Double, Double> initialCondition = new Function1D<Double, Double>() {
-      private final double _volRootTOffset = 0.01;
-
-      @Override
-      public Double evaluate(final Double s) {
-        if (s == 0) {
-          return 0.0;
-        }
-        final double x = Math.log(s / forward.getSpot());
-        final NormalDistribution dist = new NormalDistribution(0, _volRootTOffset);
-        return dist.getPDF(x) / s;
       }
     };
 

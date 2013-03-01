@@ -15,7 +15,7 @@ import com.opengamma.financial.security.option.OptionType;
 /**
  * Tests {@link BloombergContractID} 
  */
-@Test
+@Test(groups="unit")
 public class BloombergContractIDTest {
   
   private static final Integer[] YEARS = {1, 11, 2011};

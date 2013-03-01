@@ -43,7 +43,7 @@ import com.opengamma.web.spring.BloombergVolatilityCubeFunctions;
 import com.opengamma.web.spring.DemoStandardFunctionConfiguration;
 
 /**
- * Component factory for the repository configuration source.
+ * Component factory providing the {@code RepositoryConfigurationSource}.
  */
 @BeanDefinition
 public class RepositoryConfigurationSourceComponentFactory extends AbstractComponentFactory {
@@ -414,7 +414,7 @@ public class RepositoryConfigurationSourceComponentFactory extends AbstractCompo
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier",
         "publishRest",
         "configMaster",

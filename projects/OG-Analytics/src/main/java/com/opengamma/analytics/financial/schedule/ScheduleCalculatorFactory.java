@@ -75,7 +75,7 @@ public class ScheduleCalculatorFactory {
   /** Annual EOM calculator */
   public static final EndOfMonthAnnualScheduleCalculator ANNUAL_EOM_CALCULATOR = new EndOfMonthAnnualScheduleCalculator();
 
-  private static final Map<String, Schedule> s_instances = new HashMap<String, Schedule>();
+  private static final Map<String, Schedule> s_instances = new HashMap<>();
 
   static {
     s_instances.put(DAILY, DAILY_CALCULATOR);

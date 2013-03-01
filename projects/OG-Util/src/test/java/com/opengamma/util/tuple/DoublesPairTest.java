@@ -14,7 +14,7 @@ import org.testng.annotations.Test;
 /**
  * Test DoublesPair.
  */
-@Test
+@Test(groups = "unit")
 public class DoublesPairTest {
 
   public void test_DoublesPair_of_DoublesPair() {

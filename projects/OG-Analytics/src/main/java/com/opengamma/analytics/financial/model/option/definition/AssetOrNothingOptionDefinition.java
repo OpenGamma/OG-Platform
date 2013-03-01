@@ -15,7 +15,7 @@ import com.opengamma.util.time.Expiry;
  * Asset-or-nothing options have European-style exercise with payoff
  * $$
  * \begin{align*}
- * \mathrm{payoff} = 
+ * \mathrm{payoff} =
  * \begin{cases}
  * 0 \quad & \mathrm{if} \quad S \leq K\\\\
  * S \quad & \mathrm{otherwise}
@@ -25,7 +25,7 @@ import com.opengamma.util.time.Expiry;
  * and
  * $$
  * \begin{align*}
- * \mathrm{payoff} = 
+ * \mathrm{payoff} =
  * \begin{cases}
  * 0 \quad & \mathrm{if} \quad S \geq K\\\\
  * S \quad & \mathrm{otherwise}
@@ -35,7 +35,7 @@ import com.opengamma.util.time.Expiry;
  * for a put, where $K$ is the strike and $S$ is the spot.
  */
 public class AssetOrNothingOptionDefinition extends OptionDefinition {
-  private final OptionExerciseFunction<StandardOptionDataBundle> _exerciseFunction = new EuropeanExerciseFunction<StandardOptionDataBundle>();
+  private final OptionExerciseFunction<StandardOptionDataBundle> _exerciseFunction = new EuropeanExerciseFunction<>();
   private final OptionPayoffFunction<StandardOptionDataBundle> _payoffFunction = new OptionPayoffFunction<StandardOptionDataBundle>() {
 
     @Override
@@ -48,7 +48,7 @@ public class AssetOrNothingOptionDefinition extends OptionDefinition {
   };
 
   /**
-   * @param strike The strike 
+   * @param strike The strike
    * @param expiry The expiry
    * @param isCall Is the option a call or put
    */

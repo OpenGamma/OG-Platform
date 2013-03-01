@@ -13,7 +13,7 @@ import org.testng.annotations.Test;
 /**
  * Test {@link DataNotFoundException}. 
  */
-@Test
+@Test(groups = "unit")
 public class DataNotFoundExceptionTest {
 
   public void test_constructor_String() {

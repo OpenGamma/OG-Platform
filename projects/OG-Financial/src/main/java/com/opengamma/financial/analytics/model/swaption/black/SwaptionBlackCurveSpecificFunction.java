@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.swaption.black;
@@ -58,7 +58,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ *
  */
 public abstract class SwaptionBlackCurveSpecificFunction extends AbstractFunction.NonCompiledInvoker {
   private static final Logger s_logger = LoggerFactory.getLogger(SwaptionBlackCurveSpecificFunction.class);
@@ -111,7 +111,11 @@ public abstract class SwaptionBlackCurveSpecificFunction extends AbstractFunctio
     if (curveNames.length == 1) {
       curveNames = new String[] {curveNames[0], curveNames[0] };
     }
-    final InstrumentDerivative swaption = definition.toDerivative(now, curveNames); //TODO
+    final String[] fullCurveNames = new String[curveNames.length];
+    for (int i = 0; i < curveNames.length; i++) {
+      fullCurveNames[i] = curveNames[i] + "_" + currency.getCode();
+    }
+    final InstrumentDerivative swaption = definition.toDerivative(now, fullCurveNames); //TODO
     final ValueProperties properties = getResultProperties(currency.getCode(), curveCalculationConfigName, surfaceName, curveName);
     final ValueSpecification spec = new ValueSpecification(_valueRequirementName, target.toSpecification(), properties);
     final YieldCurveBundle curves = YieldCurveFunctionUtils.getYieldCurves(inputs, curveCalculationConfig);

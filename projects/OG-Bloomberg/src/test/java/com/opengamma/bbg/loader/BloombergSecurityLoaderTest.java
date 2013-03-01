@@ -27,7 +27,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 
-import org.apache.commons.lang.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -37,8 +36,8 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
-import com.opengamma.bbg.util.BloombergSecurityUtils;
 import com.opengamma.core.security.Security;
+import com.opengamma.financial.security.DefaultSecurityLoader;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
@@ -103,7 +102,7 @@ public class BloombergSecurityLoaderTest extends DbTest {
 
   private ConfigurableApplicationContext _context;
   private SecurityMaster _securityMaster;
-  private BloombergSecurityLoader _securityLoader;
+  private DefaultSecurityLoader _securityLoader;
 
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public BloombergSecurityLoaderTest(String databaseType, String databaseVersion) {
@@ -120,7 +119,7 @@ public class BloombergSecurityLoaderTest extends DbTest {
     _context = context;
     SecurityProvider secProvider = _context.getBean("bloombergSecurityProvider", SecurityProvider.class);
     _securityMaster = _context.getBean(getDatabaseType() + "DbSecurityMaster", SecurityMaster.class);
-    _securityLoader = new BloombergSecurityLoader(secProvider, _securityMaster);
+    _securityLoader = new DefaultSecurityLoader(_securityMaster, secProvider);
   }
 
   @Override
@@ -139,7 +138,7 @@ public class BloombergSecurityLoaderTest extends DbTest {
     //test we can load security from bloomberg
     ExternalIdBundle identifierBundle = expected.getExternalIdBundle();
 
-    Map<ExternalIdBundle, UniqueId> loadedSecurities = _securityLoader.loadSecurity(Collections.singleton(identifierBundle));
+    Map<ExternalIdBundle, UniqueId> loadedSecurities = _securityLoader.loadSecurities(Collections.singleton(identifierBundle));
     assertNotNull(loadedSecurities);
     assertEquals(1, loadedSecurities.size());
     UniqueId uid = loadedSecurities.get(identifierBundle);

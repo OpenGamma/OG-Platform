@@ -11,18 +11,19 @@ $.register_module({
             open_icon = '.og-small',
             expand_class = 'og-expanded',
             panels = ['south', 'dock-north', 'dock-center', 'dock-south'],
-            width = 34,
+            width,
             mapping = og.common.gadgets.mapping;
         var constructor = function (grid) {
             var cellmenu = this, depgraph = grid.source.depgraph, primitives = grid.source.type === 'primitives',
-                parent = grid.elements.parent, inplace_config, timer;
+                parent = grid.elements.parent, inplace_config, timer, singlepanel = og.analytics.containers.initialize;
             cellmenu.frozen = false;
             cellmenu.grid = grid;
-            if (og.analytics.containers.initialize) throw new Error(module.name + ': there are no panels');
+            width = singlepanel ? 20 : 34;
             cellmenu.busy = (function (busy) {
                 return function (value) {return busy = typeof value !== 'undefined' ? value : busy;};
             })(false);
             og.api.text({module: 'og.analytics.cell_options'}).pipe(function (template) {
+                template = (Handlebars.compile(template))({singlepanel:singlepanel ? true : false});
                 (cellmenu.menu = $(template)).hide()
                 .on('mouseleave', function () {
                     clearTimeout(timer), cellmenu.menu.removeClass(expand_class), cellmenu.hide();
@@ -47,7 +48,8 @@ $.register_module({
                         options = mapping.options(cell, grid, panel);
                     cellmenu.destroy_frozen();
                     cellmenu.hide();
-                    if (!panel) og.analytics.url.launch(options); else og.analytics.url.add(panel, options);
+                    if (!panel) og.analytics.url.launch(options); 
+                    else og.analytics.url.add(panel, options);
                 });
                 grid.on('cellhoverin', function (cell) {
                     if (cellmenu.frozen || cellmenu.busy()) return;
@@ -105,6 +107,7 @@ $.register_module({
             fingerprint = JSON.stringify(options);
             options.fingerprint = fingerprint;
             cellmenu.container.add([options]);
+            cellmenu.container.on('launch', og.analytics.url.launch);
             if ((offset.top + inner.height()) > $(window).height())
                 inner.css({marginTop: -inner.outerHeight(true)-9});
             if ((offset.left + inner.width()) > $(window).width())
@@ -116,7 +119,7 @@ $.register_module({
                 mouseup_handler: function (right, bottom) {
                     var newWidth = Math.max(480,($(document).outerWidth() - right) - inner.offset().left),
                         newHeight = ($(document).outerHeight() - bottom) - inner.offset().top;
-                    inner.css({width: newWidth, height: newHeight}); 
+                    inner.css({width: newWidth, height: newHeight});
                     cellmenu.container.resize();
                 }
             });
@@ -129,8 +132,11 @@ $.register_module({
         };
         constructor.prototype.show = function () {
             var cellmenu = this, current = this.current;
-            if (cellmenu.menu && cellmenu.menu.length) cellmenu.menu.appendTo($('body'))
-                .css({top: current.top, left: current.right - width + cellmenu.grid.offset.left}).show();
+            if (cellmenu.menu && cellmenu.menu.length) {
+                cellmenu.menu
+                    .appendTo($('body'))
+                    .css({top: current.top, left: current.right - width + cellmenu.grid.offset.left}).show();
+            }
 
         };
         return constructor;

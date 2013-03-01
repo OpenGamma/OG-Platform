@@ -15,6 +15,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Allows the {@link ValueSpecification} and calculation configuration name to be looked up for a cell in the main
  * grid.
+ * TODO this needs a better name, not sure what though
  */
 /* package */ class TargetLookup {
 

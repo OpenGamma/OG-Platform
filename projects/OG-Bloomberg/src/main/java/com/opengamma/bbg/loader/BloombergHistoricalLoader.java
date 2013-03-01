@@ -6,6 +6,7 @@
 package com.opengamma.bbg.loader;
 
 import static com.opengamma.bbg.BloombergConstants.BLOOMBERG_DATA_SOURCE_NAME;
+import static com.opengamma.bbg.BloombergConstants.DEFAULT_DATA_PROVIDER;
 
 import java.io.File;
 import java.io.FileReader;
@@ -279,11 +280,11 @@ public class BloombergHistoricalLoader {
     LocalDate startDate = _startDate == null ? DEFAULT_START_DATE : _startDate;
     LocalDate endDate = _endDate == null ? LocalDate.now() : _endDate;
     if (_dataProviders.isEmpty()) {
-      _dataProviders.add(BloombergDataUtils.UNKNOWN_DATA_PROVIDER);
+      _dataProviders.add(DEFAULT_DATA_PROVIDER);
     }
     for (String dataProvider : _dataProviders) {
       for (String dataField : _dataFields) {
-        _loader.addTimeSeries(identifiers, dataProvider, dataField, startDate, endDate);
+        _loader.loadTimeSeries(identifiers, dataProvider, dataField, startDate, endDate);
       }
     }
   }
@@ -321,7 +322,7 @@ public class BloombergHistoricalLoader {
       String dataProvider = providerFieldRequests.getKey().getFirst();
       String dataField = providerFieldRequests.getKey().getSecond();
       Set<ExternalId> identifiers = providerFieldRequests.getValue();
-      _loader.addTimeSeries(identifiers, dataProvider, dataField, startDate, endDate);
+      _loader.loadTimeSeries(identifiers, dataProvider, dataField, startDate, endDate);
     }
   }
   
@@ -343,7 +344,7 @@ public class BloombergHistoricalLoader {
             String idValue = line[3];
             if (StringUtils.isBlank(provider)) {
               // Perfectly fine - we'll resolve the provider later
-              provider = BloombergDataUtils.UNKNOWN_DATA_PROVIDER;
+              provider = DEFAULT_DATA_PROVIDER;
             }
             if (StringUtils.isBlank(field)) {
               s_logger.warn("Blank field value found in CSV file {} for identifier {}. This line will be ignored.", file, idValue);

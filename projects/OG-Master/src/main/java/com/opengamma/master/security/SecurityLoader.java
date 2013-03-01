@@ -5,7 +5,6 @@
  */
 package com.opengamma.master.security;
 
-import java.util.Collection;
 import java.util.Map;
 
 import com.opengamma.id.ExternalIdBundle;
@@ -13,27 +12,51 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.util.PublicSPI;
 
 /**
- * A general purpose security loader for populating a master.
+ * A tool for loading securities into a master.
  * <p>
- * SecurityLoader adds or updates the details about a security in the attached master.
- * This will normally be achieved by calling a standard external data source.
+ * The security loader provides the functionality to load new securities into the system.
+ * The loaded securities will be placed into a master.
+ * <p>
+ * Implementations will check the master before loading to ensure that the same
+ * security is not loaded twice.
  */
 @PublicSPI
 public interface SecurityLoader {
 
   /**
-   * Loads the security data for the requested bundles.
+   * Ensures information about a single security is available.
+   * <p>
+   * The security is specified by external identifier bundle.
    * 
-   * @param identifiers  a collection of identifiers to load, not null
-   * @return a map of input bundle to created unique identifier from the master, not null
+   * @param externalIdBundle  the external identifier bundle, not null
+   * @return the security information, null if not found
+   * @throws RuntimeException if a problem occurs
    */
-  Map<ExternalIdBundle, UniqueId> loadSecurity(Collection<ExternalIdBundle> identifiers);
+  UniqueId loadSecurity(ExternalIdBundle externalIdBundle);
 
   /**
-   * Gets the associated master.
+   * Gets information about a collection of securities from the underlying data source.
+   * <p>
+   * The securities are specified by external identifier bundles.
+   * The result is keyed by the input bundles.
+   * A missing entry in the result occurs if the security information could not be found
    * 
-   * @return the master that is being populated, not null
+   * @param externalIdBundles  the external identifier bundles, not null
+   * @return the security information, not null
+   * @throws RuntimeException if a problem occurs
    */
-  SecurityMaster getSecurityMaster();
+  Map<ExternalIdBundle, UniqueId> loadSecurities(Iterable<ExternalIdBundle> externalIdBundles);
+
+  /**
+   * Gets one or more security information objects from the underlying data source.
+   * <p>
+   * This is the underlying operation.
+   * All other methods delegate to this one.
+   * 
+   * @param request  the request, not null
+   * @return the security information result, not null
+   * @throws RuntimeException if a problem occurs
+   */
+  SecurityLoaderResult loadSecurities(SecurityLoaderRequest request);
 
 }

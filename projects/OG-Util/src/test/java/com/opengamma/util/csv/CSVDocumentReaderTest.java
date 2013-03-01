@@ -18,7 +18,10 @@ import org.testng.annotations.Test;
 import com.google.common.collect.Lists;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
-@Test
+/**
+ * Test.
+ */
+@Test(groups = "unit")
 public class CSVDocumentReaderTest {
   
   private static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();

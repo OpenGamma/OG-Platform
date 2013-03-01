@@ -13,7 +13,7 @@ import org.testng.annotations.Test;
 /**
  * Tests the {@link WeakInstanceCache}.
  */
-@Test
+@Test(groups = "unit")
 public class WeakInstanceCacheTest {
 
   private static final class Foo {

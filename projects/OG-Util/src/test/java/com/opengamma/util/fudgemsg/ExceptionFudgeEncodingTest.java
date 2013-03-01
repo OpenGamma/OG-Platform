@@ -14,7 +14,7 @@ import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 /**
  * Test Fudge encoding.
  */
-@Test
+@Test(groups = "unit")
 public class ExceptionFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
 
   public void test_UTC() {

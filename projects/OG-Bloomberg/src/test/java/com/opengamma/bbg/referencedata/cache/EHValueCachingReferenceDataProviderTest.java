@@ -16,7 +16,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 /**
  * Test.
  */
-@Test(groups = "unit")
+@Test(groups= {"unit", "ehcache"})
 public class EHValueCachingReferenceDataProviderTest extends AbstractValueCachingReferenceDataProviderTestCase {
 
   @Override

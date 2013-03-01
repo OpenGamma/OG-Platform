@@ -31,12 +31,17 @@ public class ISDAYieldCurve {
   // TODO : Check that nCash, nSwap != 0
   // TODO : _basis is hard coded - replace this
   // TODO : Add the swap code
+  // TODO : Check the efficiacy of the input data
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   private final int _numberOfInstruments;
   private final int _numberOfCashInstruments;
   private final int _numberOfSwapInstruments;
+
+  private final int _spotDays;
+
+  private final ZonedDateTime _baseDate;
 
   private final ZonedDateTime[] _zCurveDates;
 
@@ -50,7 +55,7 @@ public class ISDAYieldCurve {
 
   public ISDAYieldCurve(
       final ZonedDateTime baseDate,
-      final ZonedDateTime[] instrumentMaturities,
+      final ZonedDateTime[] instrumentTenors, //final ISDAYieldCurveTenors[] instrumentTenors,
       final ISDAInstrumentTypes[] instrumentTypes,
       final double[] instrumentRates,
       final int spotDays,
@@ -70,7 +75,11 @@ public class ISDAYieldCurve {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
-    _numberOfInstruments = instrumentMaturities.length;
+    _baseDate = baseDate;
+
+    _numberOfInstruments = instrumentTenors.length;
+
+    _spotDays = spotDays;
 
     _zCurveDates = new ZonedDateTime[_numberOfInstruments];
     _zCurveRates = new double[_numberOfInstruments];
@@ -79,12 +88,15 @@ public class ISDAYieldCurve {
     _numberOfSwapInstruments = getNumberOfInstruments(instrumentTypes, ISDAInstrumentTypes.Swap);
     _numberOfCashInstruments = getNumberOfInstruments(instrumentTypes, ISDAInstrumentTypes.MoneyMarket);
 
-    final ZonedDateTime[] swapDates = getInstrumentDates(instrumentMaturities, instrumentTypes, ISDAInstrumentTypes.Swap, _numberOfSwapInstruments);
-    final ZonedDateTime[] cashDates = getInstrumentDates(instrumentMaturities, instrumentTypes, ISDAInstrumentTypes.MoneyMarket, _numberOfCashInstruments);
+    final ZonedDateTime[] swapDates = getInstrumentDates(instrumentTenors, instrumentTypes, ISDAInstrumentTypes.Swap, _numberOfSwapInstruments);
+    final ZonedDateTime[] cashDates = getInstrumentDates(instrumentTenors, instrumentTypes, ISDAInstrumentTypes.MoneyMarket, _numberOfCashInstruments);
 
     final double[] swapRates = getInstrumentRates(instrumentRates, instrumentTypes, ISDAInstrumentTypes.Swap, _numberOfSwapInstruments);
     final double[] cashRates = getInstrumentRates(instrumentRates, instrumentTypes, ISDAInstrumentTypes.MoneyMarket, _numberOfCashInstruments);
 
+    // ----------------------------------------------------------------------------------------------------------------------------------------
+
+    // Calculate the cash instrument discount factors
     for (int i = 0; i < _numberOfCashInstruments; i++) {
 
       final double dcf = TimeCalculator.getTimeBetween(baseDate, cashDates[i], moneyMarketDaycountConvention);
@@ -94,9 +106,39 @@ public class ISDAYieldCurve {
       _zCurveDates[i] = cashDates[i];
       _zCurveRates[i] = cashRates[i];
       _zCurveCCRates[i] = Math.pow(discount, -1.0 / (_basis * dcf2)) - 1.0;
-
-      //System.out.println("i = " + "\t" + i + "\t" + _zCurveDates[i] + "\t" + _zCurveRates[i] + "\t" + _zCurveCCRates[i]);
     }
+
+    // ----------------------------------------------------------------------------------------------------------------------------------------
+
+    ZonedDateTime lastStubDate;
+
+    if (_numberOfCashInstruments < 1) {
+      lastStubDate = _baseDate;
+    } else {
+      lastStubDate = cashDates[_numberOfCashInstruments - 1];
+    }
+
+    // TODO : Add code to ensure number of active swaps is > 0 (JpmcdsZCSwaps)
+
+    for (int i = 0; i < _numberOfSwapInstruments; i++) {
+      _zCurveDates[i + _numberOfCashInstruments] = swapDates[i];
+      _zCurveRates[i + _numberOfCashInstruments] = swapRates[i];
+      _zCurveCCRates[i + _numberOfCashInstruments] = 0.0;
+    }
+
+    // Fixed swap interval is 6M (2 payments per year)
+    final double fixedSwapFreq = 2.0;
+
+    // Float swap interval is 3M (4 payments per year)
+    final double floatSwapFreq = 4.0;
+
+    // ----------------------------------------------------------------------------------------------------------------------------------------
+
+    /*
+    for (int i = 0; i < _numberOfInstruments; i++) {
+      System.out.println(i + "\t" + _zCurveDates[i] + "\t" + _zCurveRates[i] + "\t" + _zCurveCCRates[i]);
+    }
+    */
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
   }

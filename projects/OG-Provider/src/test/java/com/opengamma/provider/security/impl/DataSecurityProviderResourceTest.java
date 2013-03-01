@@ -21,8 +21,8 @@ import org.testng.annotations.Test;
 
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.provider.security.SecurityProvider;
-import com.opengamma.provider.security.SecurityProviderGetRequest;
-import com.opengamma.provider.security.SecurityProviderGetResult;
+import com.opengamma.provider.security.SecurityProviderRequest;
+import com.opengamma.provider.security.SecurityProviderResult;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**
@@ -46,9 +46,9 @@ public class DataSecurityProviderResourceTest {
   //-------------------------------------------------------------------------
   @Test
   public void testGet() {
-    final SecurityProviderGetRequest request = SecurityProviderGetRequest.createGet(
+    final SecurityProviderRequest request = SecurityProviderRequest.createGet(
         ExternalIdBundle.of("A", "B"), "S");
-    final SecurityProviderGetResult result = new SecurityProviderGetResult();
+    final SecurityProviderResult result = new SecurityProviderResult();
     
     when(_underlying.getSecurities(same(request))).thenReturn(result);
     

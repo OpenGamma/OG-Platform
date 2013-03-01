@@ -24,6 +24,19 @@ $.register_module({
             routes = common.routes, ui = common.util.ui, module = this,
             page_name = module.name.split('.').pop(), json = {},
             view, details_page, portfolio_name,
+            create_portolio = function () {
+                $(this).dialog('close');
+                api.rest.portfolios.put({
+                    handler: function (result) {
+                        var args = routes.current().args, rule = view.rules.load_item;
+                        if (result.error) return view.error(result.message);
+                        view.search(args);
+                        routes.go(routes.hash(rule, args, {
+                            add: {id: result.meta.id}, del: ['version', 'node', 'sync']}));
+                    },
+                    name: ui.dialog({return_field_value: 'name'})
+                });
+            },
             toolbar_buttons = {
                 'new': function () {
                     ui.dialog({
@@ -32,22 +45,18 @@ $.register_module({
                         title: 'Add New Portfolio',
                         fields: [{type: 'input', name: 'Portfolio Name', id: 'name'}],
                         buttons: {
-                            'OK': function () {
-                                $(this).dialog('close');
-                                api.rest.portfolios.put({
-                                    handler: function (result) {
-                                        var args = routes.current().args, rule = view.rules.load_item;
-                                        if (result.error) return view.error(result.message);
-                                        view.search(args);
-                                        routes.go(routes.hash(rule, args, {
-                                            add: {id: result.meta.id}, del: ['version', 'node', 'sync']}));
-                                    },
-                                    name: ui.dialog({return_field_value: 'name'})
-                                });
-                            },
+                            'OK': create_portolio,
                             'Cancel': function () {$(this).dialog('close');}
+                        },
+                        open: function (event, ui) {
+                            $(this).keydown(function (event) {
+                                if (event.which === $.ui.keyCode.ENTER) {
+                                    $(this).dialog('close');
+                                    create_portolio();
+                                }
+                            });
                         }
-                    })
+                    });
                 },
                 'import': og.views.common.toolbar.upload,
                 'delete': function () {

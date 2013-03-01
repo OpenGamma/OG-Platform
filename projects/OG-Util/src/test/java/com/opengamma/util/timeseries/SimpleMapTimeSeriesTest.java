@@ -14,7 +14,7 @@ import org.threeten.bp.LocalDate;
 /**
  * Test {@link SimpleMapTimeSeries}.
  */
-@Test
+@Test(groups = "unit")
 public class SimpleMapTimeSeriesTest {
 
   private static final LocalDate DATE1 = LocalDate.of(2011, 6, 1);

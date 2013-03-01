@@ -37,7 +37,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ *
  */
 public class BondSecurityConverter extends FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> {
   private final HolidaySource _holidaySource;
@@ -105,7 +105,7 @@ public class BondSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
     final int settlementDays = convention.getBondSettlementDays(firstAccrualDate, maturityDate);
     final Period paymentPeriod = getTenor(security.getCouponFrequency());
     return BondFixedSecurityDefinition.from(currency, maturityDate, firstAccrualDate, paymentPeriod, rate, settlementDays, calendar, dayCount, businessDay,
-        yieldConvention, isEOM);
+        yieldConvention, isEOM, security.getIssuerName());
   }
 
   @Override

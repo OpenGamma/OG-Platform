@@ -54,7 +54,7 @@ public class EquityVarianceSwapPricerTest {
 
   private static final double R = 0.07;
   private static final YieldAndDiscountCurve DISCOUNT_CURVE = new YieldCurve("Discount", ConstantDoublesCurve.from(R));
-  private static final VarianceSwap VS = new VarianceSwap(0, 0.75, 0.75, 0.0, 1.0, Currency.USD, 252, 252, 0, new double[0], new double[0]);
+  private static final VarianceSwap VS = new VarianceSwap(0, 0.75, 0.75, 0.0, 1.0, Currency.EUR, 252, 252, 0, new double[0], new double[0]);
   private static final EquityVarianceSwap EVS_COR_FRO_DIVS = new EquityVarianceSwap(VS, true);
   private static final EquityVarianceSwap EVS = new EquityVarianceSwap(VS, false);
   private static final EquityVarianceSwapPricer PRICER = EquityVarianceSwapPricer.builder().create();

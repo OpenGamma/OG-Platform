@@ -17,9 +17,8 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinition;
   /* package */ PrimitivesAnalyticsGrid(CompiledViewDefinition compiledViewDef,
                                         String gridId,
                                         ComputationTargetResolver targetResolver,
-                                        ValueMappings valueMappings,
                                         ViewportListener viewportListener) {
-    this(PrimitivesGridStructure.create(compiledViewDef, valueMappings), gridId, targetResolver, viewportListener);
+    this(PrimitivesGridStructure.create(compiledViewDef), gridId, targetResolver, viewportListener);
   }
 
   /* package */ PrimitivesAnalyticsGrid(MainGridStructure gridStructure,
@@ -31,13 +30,17 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 
   /**
    *
+   *
    * @param viewportDefinition Defines the extent and properties of the viewport
    * @param callbackId ID that will be passed to listeners when the grid's data changes
+   * @param cache
    * @return The viewport
    */
   @Override
-  protected MainGridViewport createViewport(ViewportDefinition viewportDefinition, String callbackId) {
-    return new MainGridViewport(_gridStructure, callbackId, viewportDefinition, _cycle, _cache);
+  protected MainGridViewport createViewport(ViewportDefinition viewportDefinition,
+                                            String callbackId,
+                                            ResultsCache cache) {
+    return new MainGridViewport(_gridStructure, callbackId, viewportDefinition, _cycle, cache);
   }
 
   /**

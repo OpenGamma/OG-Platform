@@ -17,7 +17,6 @@ import com.opengamma.analytics.financial.model.finitedifference.PDEGrid1D;
 import com.opengamma.analytics.financial.model.finitedifference.PDEResults1D;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.volatility.local.AbsoluteLocalVolatilitySurface;
-import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilitySurfaceStrike;
 import com.opengamma.analytics.math.function.Function;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
@@ -127,22 +126,6 @@ public class TwoStateMarkovChainWithLocalVolDensity {
     return new ExtendedCoupledPDEDataBundle(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b), FunctionalDoublesSurface.from(c), FunctionalDoublesSurface.from(aStar),
         FunctionalDoublesSurface.from(bStar), -lambda2, initialCondition);
 
-  }
-
-  //TODO handle with a central calculator
-  private double getLocalVolFirstDiv(final LocalVolatilitySurfaceStrike localVol, final double t, final double s) {
-    final double eps = 1e-4;
-    final double up = localVol.getVolatility(t, s + eps);
-    final double down = localVol.getVolatility(t, s - eps);
-    return (up - down) / 2 / eps;
-  }
-
-  private double getLocalVolSecondDiv(final LocalVolatilitySurfaceStrike localVol, final double t, final double s) {
-    final double eps = 1e-4;
-    final double up = localVol.getVolatility(t, s + eps);
-    final double mid = localVol.getVolatility(t, s);
-    final double down = localVol.getVolatility(t, s - eps);
-    return (up + down - 2 * mid) / eps / eps;
   }
 
 }

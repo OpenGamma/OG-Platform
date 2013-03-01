@@ -9,11 +9,12 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.Month;
 
 /**
- * 
+ * Test.
  */
 public abstract class LocalDateObjectTimeSeriesTest extends BigDecimalObjectTimeSeriesTest<LocalDate> {
+
   @Override
-  public LocalDate[] testTimes() {
+  protected LocalDate[] testTimes() {
     LocalDate one = LocalDate.of(2010, Month.FEBRUARY, 8);
     LocalDate two = LocalDate.of(2010, Month.FEBRUARY, 9);
     LocalDate three = LocalDate.of(2010, Month.FEBRUARY, 10);
@@ -24,7 +25,7 @@ public abstract class LocalDateObjectTimeSeriesTest extends BigDecimalObjectTime
   }
 
   @Override
-  public LocalDate[] testTimes2() {
+  protected LocalDate[] testTimes2() {
     LocalDate one = LocalDate.of(2010, Month.FEBRUARY, 11);
     LocalDate two = LocalDate.of(2010, Month.FEBRUARY, 12);
     LocalDate three = LocalDate.of(2010, Month.FEBRUARY, 13);
@@ -35,7 +36,8 @@ public abstract class LocalDateObjectTimeSeriesTest extends BigDecimalObjectTime
   } 
 
   @Override
-  public LocalDate[] emptyTimes() {
+  protected LocalDate[] emptyTimes() {
     return new LocalDate[] {};
   }
+
 }

@@ -22,7 +22,7 @@ import com.opengamma.id.UniqueId;
 /**
  * Test Country.
  */
-@Test
+@Test(groups = "unit")
 public class CountryTest {
 
   //-----------------------------------------------------------------------

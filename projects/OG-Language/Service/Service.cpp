@@ -167,7 +167,7 @@ void ServiceSuspend () {
 /// Win32 service signal handler. Responds to the STOP request only.
 ///
 /// @param[in] dwAction signal to handle
-static void WINAPI ServiceHandler (DWORD dwAction) {
+static void WINAPI _SignalHandler (DWORD dwAction) {
 	switch (dwAction) {
 	case SERVICE_CONTROL_STOP :
 		LOGINFO (TEXT ("STOP signal received from SCM"));
@@ -178,6 +178,21 @@ static void WINAPI ServiceHandler (DWORD dwAction) {
 		break;
 	default :
 		LOGWARN (TEXT ("Unrecognised signal ") << dwAction << TEXT (" received from SCM"));
+		break;
+	}
+}
+#else /* ifdef _WIN32 */
+/// Posix signal handler to catch the TERM signal.
+///
+/// @param[in] nSignal the signal number to handle
+static void _SignalHandler (int nSignal) {
+	switch (nSignal) {
+	case SIGTERM :
+		LOGINFO (TEXT ("TERM signal received from O/S"));
+		ServiceStop (TRUE);
+		break;
+	default :
+		LOGWARN (TEXT ("Unrecognised signal ") << nSignal << TEXT (" received from O/S"));
 		break;
 	}
 }
@@ -193,7 +208,7 @@ static void _ServiceStartup (int nReason) {
 	CSettings oSettings;
 #ifdef _WIN32
 	if (nReason == SERVICE_RUN_SCM) {
-		g_hServiceStatus = RegisterServiceCtrlHandler (oSettings.GetServiceName (), ServiceHandler);
+		g_hServiceStatus = RegisterServiceCtrlHandler (oSettings.GetServiceName (), _SignalHandler);
 	}
 	PCTSTR pszSDDL = oSettings.GetServiceSDDL ();
 	if (pszSDDL) {
@@ -256,6 +271,8 @@ static void _ServiceStartup (int nReason) {
 	if (nReason == SERVICE_RUN_DAEMON) {
 		const TCHAR *pszPID = oSettings.GetPidFile ();
 		if (pszPID) {
+			LOGDEBUG (TEXT ("Setting signal handler"));
+			sigset (SIGTERM, _SignalHandler);
 			LOGINFO (TEXT ("Creating PID file ") << pszPID);
 			FILE *f = fopen (pszPID, "wt");
 			if (f) {

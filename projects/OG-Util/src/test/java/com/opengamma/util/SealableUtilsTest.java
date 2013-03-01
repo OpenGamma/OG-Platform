@@ -10,7 +10,7 @@ import org.testng.annotations.Test;
 /**
  * Test.
  */
-@Test
+@Test(groups = "unit")
 public class SealableUtilsTest {
 
   private static class MockSealed implements Sealable {

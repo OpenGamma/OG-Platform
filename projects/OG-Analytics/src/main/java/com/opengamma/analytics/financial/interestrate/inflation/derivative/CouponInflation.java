@@ -9,7 +9,6 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
-import com.opengamma.analytics.financial.interestrate.market.description.IMarketBundle;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.util.money.Currency;
 
@@ -27,13 +26,12 @@ public abstract class CouponInflation extends Coupon {
    * Inflation coupon constructor.
    * @param currency The coupon currency.
    * @param paymentTime The time to payment.
-   * @param fundingCurveName The discounting curve name.
    * @param paymentYearFraction Accrual factor of the accrual period.
    * @param notional Coupon notional.
    * @param priceIndex The price index associated to the coupon.
    */
-  public CouponInflation(Currency currency, double paymentTime, String fundingCurveName, double paymentYearFraction, double notional, IndexPrice priceIndex) {
-    super(currency, paymentTime, fundingCurveName, paymentYearFraction, notional);
+  public CouponInflation(Currency currency, double paymentTime, double paymentYearFraction, double notional, IndexPrice priceIndex) {
+    super(currency, paymentTime, "Not used", paymentYearFraction, notional);
     Validate.notNull(priceIndex, "Price index");
     _priceIndex = priceIndex;
   }
@@ -50,14 +48,6 @@ public abstract class CouponInflation extends Coupon {
   public String toString() {
     return super.toString() + ", price index=" + _priceIndex.toString();
   }
-
-  /**
-   * Computes the estimated price index for the coupon with a given market. 
-   * The estimation return the correct price index even if it is already fixed and the relevant data is in the price curve.
-   * @param market The market curve data.
-   * @return The estimated index.
-   */
-  public abstract double estimatedIndex(IMarketBundle market);
 
   @Override
   public int hashCode() {

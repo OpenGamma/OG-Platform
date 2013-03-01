@@ -14,7 +14,7 @@ import com.opengamma.util.paging.PagingRequest;
 /**
  * Test DbDialect.
  */
-@Test
+@Test(groups = "unit")
 public class DbDialectTest {
 
   protected DbDialect _dialect = new MockDbDialect();

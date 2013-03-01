@@ -12,7 +12,7 @@ import org.testng.annotations.Test;
 /**
  * Test PerformanceCounter.
  */
-@Test
+@Test(groups = "unit")
 public class PerformanceCounterTest {
   
   public void oneSecCounter() {

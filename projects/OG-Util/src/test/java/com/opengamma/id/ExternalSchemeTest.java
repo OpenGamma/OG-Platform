@@ -13,7 +13,7 @@ import org.testng.annotations.Test;
 /**
  * Test {@link ExternalScheme}.
  */
-@Test
+@Test(groups = "unit")
 public class ExternalSchemeTest {
 
   public void test_factory() {

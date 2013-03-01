@@ -14,7 +14,7 @@ import com.opengamma.util.time.DateUtils;
 public class ForexNonDeliverableOptionDefinitionTest {
 
   private static final Currency KRW = Currency.of("KRW");
-  private static final Currency USD = Currency.USD;
+  private static final Currency USD = Currency.EUR;
   private static final ZonedDateTime FIXING_DATE = DateUtils.getUTCDate(2012, 5, 2);
   private static final ZonedDateTime PAYMENT_DATE = DateUtils.getUTCDate(2012, 5, 4);
   private static final double NOMINAL_USD = 1000000; // 1m

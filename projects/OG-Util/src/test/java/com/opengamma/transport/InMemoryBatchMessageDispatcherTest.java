@@ -17,7 +17,7 @@ import org.testng.annotations.Test;
 /**
  * Test InMemoryBatchMessageDispatcher.
  */
-@Test
+@Test(groups = "integration")
 public class InMemoryBatchMessageDispatcherTest {
   
   public void testBaseUsage() throws Exception {
@@ -55,7 +55,7 @@ public class InMemoryBatchMessageDispatcherTest {
     long startTime = System.currentTimeMillis();
     while(batchSizes.isEmpty()) {
       Thread.sleep(100);
-      if((System.currentTimeMillis() - startTime) > 5000l) {
+      if ((System.currentTimeMillis() - startTime) > 5000l) {
         fail("Did not receive a batch in 5 seconds.");
       }
     }

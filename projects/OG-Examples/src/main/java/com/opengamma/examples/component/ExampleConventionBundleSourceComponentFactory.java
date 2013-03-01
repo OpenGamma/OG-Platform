@@ -5,6 +5,7 @@
  */
 package com.opengamma.examples.component;
 
+import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.source.ConventionBundleSourceComponentFactory;
 import com.opengamma.examples.convention.SyntheticInMemoryConventionBundleMaster;
 import com.opengamma.financial.convention.ConventionBundleMaster;
@@ -15,7 +16,7 @@ import com.opengamma.financial.convention.ConventionBundleMaster;
 public class ExampleConventionBundleSourceComponentFactory extends ConventionBundleSourceComponentFactory {
 
   @Override
-  protected ConventionBundleMaster getOrCreateConventionBundleMaster() {
+  protected ConventionBundleMaster createConventionBundleMaster(ComponentRepository repo) {
     return new SyntheticInMemoryConventionBundleMaster();
   }
 

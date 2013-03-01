@@ -33,7 +33,6 @@ public class PresentValueConvertedCalculator extends InstrumentDerivativeVisitor
    * @param pvCalculator The present value calculator (with MultiCurrencyAmount output).
    */
   public PresentValueConvertedCalculator(final Currency currency, final InstrumentDerivativeVisitorAdapter<YieldCurveBundle, MultipleCurrencyAmount> pvCalculator) {
-    super();
     _currency = currency;
     _pvCalculator = pvCalculator;
   }
