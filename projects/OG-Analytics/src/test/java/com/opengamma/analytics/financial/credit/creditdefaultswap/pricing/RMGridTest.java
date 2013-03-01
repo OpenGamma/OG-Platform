@@ -5,7 +5,6 @@
  */
 package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing;
 
-import org.testng.annotations.Test;
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZoneOffset;
@@ -23,8 +22,6 @@ import com.opengamma.analytics.financial.credit.creditdefaultswap.greeks.vanilla
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.legacy.PresentValueLegacyCreditDefaultSwap;
 import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
-import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDAInstrumentTypes;
-import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDAYieldCurve;
 import com.opengamma.analytics.financial.credit.obligor.CreditRating;
 import com.opengamma.analytics.financial.credit.obligor.CreditRatingFitch;
 import com.opengamma.analytics.financial.credit.obligor.CreditRatingMoodys;
@@ -463,67 +460,6 @@ public class RMGridTest {
 
   // ----------------------------------------------------------------------------------
 
-  private static final int spotDays = 0;
-  final ZonedDateTime spotDate = valuationDate.plusDays(spotDays);
-
-  private static final ZonedDateTime isdaBaseDate = valuationDate.plusDays(spotDays);
-
-  /*
-  private static final ZonedDateTime[] isdaTimes = {
-      isdaBaseDate.plusMonths(1),
-      isdaBaseDate.plusMonths(2),
-      isdaBaseDate.plusMonths(3),
-      isdaBaseDate.plusMonths(6),
-      isdaBaseDate.plusMonths(9),
-      isdaBaseDate.plusMonths(12)
-  };
-  */
-
-  private static final ZonedDateTime[] isdaTimes = {
-      zdt(2013, 2, 28, 0, 0, 0, 0, ZoneOffset.UTC),
-      zdt(2013, 3, 29, 0, 0, 0, 0, ZoneOffset.UTC),
-      zdt(2013, 4, 30, 0, 0, 0, 0, ZoneOffset.UTC),
-      zdt(2013, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
-      zdt(2013, 10, 30, 0, 0, 0, 0, ZoneOffset.UTC),
-      zdt(2014, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC) /*,
-                                                   zdt(2015, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC)*/
-  };
-
-  private static final double[] isdaRates = {0.002017, 0.002465, 0.003005, 0.004758, 0.006428, 0.007955, /*0.004395*/};
-
-  private static final ISDAInstrumentTypes[] rateTypes = {
-      ISDAInstrumentTypes.MoneyMarket,
-      ISDAInstrumentTypes.MoneyMarket,
-      ISDAInstrumentTypes.MoneyMarket,
-      ISDAInstrumentTypes.MoneyMarket,
-      ISDAInstrumentTypes.MoneyMarket,
-      ISDAInstrumentTypes.MoneyMarket /*,
-                                      ISDAInstrumentTypes.Swap*/
-  };
-
-  private static final PeriodFrequency swapFixedLegCouponFrequency = PeriodFrequency.SEMI_ANNUAL;
-  private static final PeriodFrequency swapFloatingLegCouponFrequency = PeriodFrequency.QUARTERLY;
-
-  private static final DayCount moneyMarketDaycountFractionConvention = DayCountFactory.INSTANCE.getDayCount("ACT/360");          // MM DCC
-  private static final DayCount swapFixedLegDaycountFractionConvention = DayCountFactory.INSTANCE.getDayCount("30/360");          // Swap DCC
-  private static final DayCount swapFloatingLegDaycountFractionConvention = DayCountFactory.INSTANCE.getDayCount("ACT/360");      // Swap DCC
-
-  private static final ISDAYieldCurve isdaYieldCurve = new ISDAYieldCurve(
-      isdaBaseDate,
-      isdaTimes,
-      rateTypes,
-      isdaRates,
-      spotDays,
-      moneyMarketDaycountFractionConvention,
-      swapFixedLegDaycountFractionConvention,
-      swapFloatingLegDaycountFractionConvention,
-      swapFixedLegCouponFrequency,
-      swapFloatingLegCouponFrequency,
-      businessdayAdjustmentConvention,
-      calendar);
-
-  // ----------------------------------------------------------------------------------
-
   // Construct the obligors party to the contract
 
   private static final Obligor protectionBuyer = new Obligor(
@@ -641,21 +577,6 @@ public class RMGridTest {
   // ----------------------------------------------------------------------------------
 
   //@Test
-  public void testDiscountFactors() {
-
-    for (long i = 0; i < 3000; i++)
-    {
-      ZonedDateTime testDate = isdaBaseDate.plusDays(i);
-
-      final double Z = isdaYieldCurve.getDiscountFactor(isdaBaseDate, testDate);
-
-      //System.out.println("i = " + "\t" + i + "\t" + testDate + "\t" + Z);
-    }
-  }
-
-  // ----------------------------------------------------------------------------------
-
-  //@Test
   public void testPVCalculation() {
 
     if (outputResults) {
@@ -746,7 +667,7 @@ public class RMGridTest {
 
   // ----------------------------------------------------------------------------------
 
-  @Test
+  //@Test
   public void testRMGrid() {
 
     if (outputResults) {

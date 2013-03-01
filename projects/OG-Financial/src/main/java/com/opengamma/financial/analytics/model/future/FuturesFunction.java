@@ -35,10 +35,7 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.financial.analytics.conversion.BondFutureSecurityConverter;
-import com.opengamma.financial.analytics.conversion.BondSecurityConverter;
-import com.opengamma.financial.analytics.conversion.FutureSecurityConverter;
-import com.opengamma.financial.analytics.conversion.InterestRateFutureSecurityConverter;
+import com.opengamma.financial.analytics.conversion.FutureTradeConverter;
 import com.opengamma.financial.analytics.timeseries.DateConstraint;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
@@ -56,10 +53,13 @@ import com.opengamma.util.time.DateUtils;
  * @param <T> The type of the data returned from the calculator
  */
 public abstract class FuturesFunction<T> extends AbstractFunction.NonCompiledInvoker {
+
   /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(FuturesFunction.class);
-  /** The converter */
-  private FutureSecurityConverter _converter;
+  //  /** The converter */
+  //  private FutureSecurityConverter _converter;
+  /** The trade converter */
+  private FutureTradeConverter _tradeConverter;
 
   /** The value requirement name */
   private final String _valueRequirementName;
@@ -70,7 +70,7 @@ public abstract class FuturesFunction<T> extends AbstractFunction.NonCompiledInv
    * @param valueRequirementName String describes the value requested
    * @param calculator The calculator
    */
-  public FuturesFunction(final String valueRequirementName, final InstrumentDerivativeVisitor<SimpleFutureDataBundle, T> calculator)  {
+  public FuturesFunction(final String valueRequirementName, final InstrumentDerivativeVisitor<SimpleFutureDataBundle, T> calculator) {
     ArgumentChecker.notNull(valueRequirementName, "value requirement name");
     ArgumentChecker.notNull(calculator, "calculator");
     _valueRequirementName = valueRequirementName;
@@ -83,10 +83,11 @@ public abstract class FuturesFunction<T> extends AbstractFunction.NonCompiledInv
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
-    final InterestRateFutureSecurityConverter irFutureConverter = new InterestRateFutureSecurityConverter(holidaySource, conventionSource, regionSource);
-    final BondSecurityConverter bondConverter = new BondSecurityConverter(holidaySource, conventionSource, regionSource);
-    final BondFutureSecurityConverter bondFutureConverter = new BondFutureSecurityConverter(securitySource, bondConverter);
-    _converter = new FutureSecurityConverter(irFutureConverter, bondFutureConverter);
+    //    final InterestRateFutureSecurityConverter irFutureConverter = new InterestRateFutureSecurityConverter(holidaySource, conventionSource, regionSource);
+    //    final BondSecurityConverter bondConverter = new BondSecurityConverter(holidaySource, conventionSource, regionSource);
+    //    final BondFutureSecurityConverter bondFutureConverter = new BondFutureSecurityConverter(securitySource, bondConverter);
+    //    _converter = new FutureSecurityConverter(irFutureConverter, bondFutureConverter);
+    _tradeConverter = new FutureTradeConverter(securitySource, holidaySource, conventionSource, regionSource);
   }
 
   @Override
@@ -111,8 +112,16 @@ public abstract class FuturesFunction<T> extends AbstractFunction.NonCompiledInv
     }
     // Build the analytic's version of the security - the derivative
     final ZonedDateTime valuationTime = ZonedDateTime.now(executionContext.getValuationClock());
-    final InstrumentDefinitionWithData<?, Double> definition = security.accept(_converter);
-    final InstrumentDerivative derivative = definition.toDerivative(valuationTime, lastMarginPrice, new String[] {"", ""});
+    final InstrumentDefinitionWithData<?, Double> tradeDefinition = _tradeConverter.convert(trade);
+    double referencePrice = lastMarginPrice; // TODO: Decide if this logic should be here or in toDerivative. 
+    if (trade.getTradeDate() != null) {
+      if (trade.getTradeDate().isEqual(valuationTime.getDate())) { // Transaction is on pricing date.if (trade.getPremium() != null) {
+        if (trade.getPremium() != null) {
+          referencePrice = trade.getPremium(); // TODO: The trade price is stored in the trade premium. This has to be corrected.
+        }
+      }
+    }
+    final InstrumentDerivative derivative = tradeDefinition.toDerivative(valuationTime, referencePrice, new String[] {"", "" });
     // Build the DataBundle it requires
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final SimpleFutureDataBundle dataBundle = getFutureDataBundle(security, inputs, timeSeriesBundle, desiredValue);

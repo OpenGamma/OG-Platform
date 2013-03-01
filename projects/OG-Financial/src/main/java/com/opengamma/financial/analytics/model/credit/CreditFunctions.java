@@ -189,6 +189,8 @@ public class CreditFunctions extends AbstractRepositoryConfigurationBean {
     functions.add(functionConfiguration(ISDALegacyVanillaCDSCleanPriceFunction.class));
     functions.add(functionConfiguration(ISDALegacyVanillaCDSDirtyPriceFunction.class));
     functions.add(functionConfiguration(ISDAYieldCurveFunction.class));
+    functions.add(functionConfiguration(BucketedSpreadCurveFunction.class));
+    functions.add(functionConfiguration(ISDABucketedCS01VanillaCDSFunction.class));
   }
 
 }
