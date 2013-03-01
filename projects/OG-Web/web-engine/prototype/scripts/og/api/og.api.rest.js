@@ -907,6 +907,7 @@ $.register_module({
                 }});
             })();
         }});
+        $(window).on('unload', function () {api.fire('abandon');});
         return api;
     }
 });

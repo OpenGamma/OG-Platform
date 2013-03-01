@@ -229,10 +229,11 @@ $.register_module({
                 return parents.push(parent), parent;
             };
             pool.remove = function (data) {
-                if (data.parent && data.parent.refcount)
-                    data.parent.refcount = data.parent.refcount.filter(function (id) {return id !== data.id;});
                 children = children.filter(function (child) {return child.id !== data.id;});
-                if (data.parent && data.parent.refcount && data.parent.refcount.length) return;
+                if (data.parent && data.parent.refcount) {
+                    data.parent.refcount = data.parent.refcount.filter(function (id) {return id !== data.id;});
+                    if (data.parent.refcount.length) return;
+                }
                 data.parent.kill();
                 parents = parents.filter(function (parent) {return parent.id !== data.parent.id;});
             };
