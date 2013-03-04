@@ -38,7 +38,7 @@ public class ManageableUnstructuredMarketDataSnapshot implements UnstructuredMar
   /**
    * The index for lookup operations.
    */
-  private final Map<ExternalId, ExternalIdBundle> _index = new HashMap<ExternalId, ExternalIdBundle>();
+  private final Map<ExternalId, Map<String, ExternalIdBundle>> _index = new HashMap<ExternalId, Map<String, ExternalIdBundle>>();
 
   /**
    * Creates an empty snapshot.
@@ -57,7 +57,14 @@ public class ManageableUnstructuredMarketDataSnapshot implements UnstructuredMar
       if (values != null) {
         _values.put(target, new LinkedHashMap<String, ValueSnapshot>(values));
         for (final ExternalId identifier : target) {
-          _index.put(identifier, target);
+          Map<String, ExternalIdBundle> index = _index.get(identifier);
+          if (index == null) {
+            index = new HashMap<String, ExternalIdBundle>();
+            _index.put(identifier, index);
+          }
+          for (final String value : values.keySet()) {
+            index.put(value, target);
+          }
         }
       }
     }
@@ -79,9 +86,12 @@ public class ManageableUnstructuredMarketDataSnapshot implements UnstructuredMar
 
   @Override
   public ValueSnapshot getValue(final ExternalId identifier, final String valueName) {
-    final ExternalIdBundle key = _index.get(identifier);
-    if (key != null) {
-      return getImpl(key, valueName);
+    final Map<String, ExternalIdBundle> index = _index.get(identifier);
+    if (index != null) {
+      final ExternalIdBundle key = index.get(valueName);
+      if (key != null) {
+        return getImpl(key, valueName);
+      }
     }
     return null;
   }
@@ -125,7 +135,26 @@ public class ManageableUnstructuredMarketDataSnapshot implements UnstructuredMar
    * @param value the value to associate, not null
    */
   public void putValue(final ExternalId identifier, final String valueName, final ValueSnapshot value) {
-    throw new UnsupportedOperationException("[PLAT-3044] Update the snapshot");
+    Map<String, ExternalIdBundle> index = _index.get(identifier);
+    ExternalIdBundle key;
+    if (index == null) {
+      index = new HashMap<String, ExternalIdBundle>();
+      _index.put(identifier, index);
+      key = ExternalIdBundle.of(identifier);
+      index.put(valueName, key);
+    } else {
+      key = index.get(valueName);
+      if (key == null) {
+        key = ExternalIdBundle.of(identifier);
+        index.put(valueName, key);
+      }
+    }
+    Map<String, ValueSnapshot> values = _values.get(key);
+    if (values == null) {
+      values = new HashMap<String, ValueSnapshot>();
+      _values.put(key, values);
+    }
+    values.put(valueName, value);
   }
 
   /**
@@ -136,7 +165,26 @@ public class ManageableUnstructuredMarketDataSnapshot implements UnstructuredMar
    * @param value the value to associate, not null
    */
   public void putValue(final ExternalIdBundle identifiers, final String valueName, final ValueSnapshot value) {
-    throw new UnsupportedOperationException("[PLAT-3044] Update the snapshot");
+    Map<String, ValueSnapshot> values = _values.get(identifiers);
+    if (values != null) {
+      if (values.put(valueName, value) != null) {
+        // Already have a value for this bundle/valueName pair so don't need to update the index
+        return;
+      }
+    } else {
+      values = new HashMap<String, ValueSnapshot>();
+      _values.put(identifiers, values);
+      values.put(valueName, value);
+    }
+    removeValue(identifiers, valueName);
+    for (final ExternalId identifier : identifiers) {
+      Map<String, ExternalIdBundle> index = _index.get(identifier);
+      if (index == null) {
+        index = new HashMap<String, ExternalIdBundle>();
+        _index.put(identifier, index);
+      }
+      index.put(valueName, identifiers);
+    }
   }
 
   /**
@@ -146,7 +194,24 @@ public class ManageableUnstructuredMarketDataSnapshot implements UnstructuredMar
    * @param valueName the value name, not null
    */
   public void removeValue(final ExternalId identifier, final String valueName) {
-    throw new UnsupportedOperationException("[PLAT-3044] Update the snapshot");
+    final Map<String, ExternalIdBundle> index = _index.get(identifier);
+    if (index != null) {
+      final ExternalIdBundle key = index.remove(valueName);
+      if (key != null) {
+        if (index.isEmpty()) {
+          _index.remove(identifier);
+        }
+        final Map<String, ValueSnapshot> values = _values.get(key);
+        if (values != null) {
+          if (values.remove(valueName) != null) {
+            if (values.isEmpty()) {
+              _values.remove(key);
+            }
+          }
+        }
+        removeValue(key, valueName);
+      }
+    }
   }
 
   /**
@@ -156,7 +221,9 @@ public class ManageableUnstructuredMarketDataSnapshot implements UnstructuredMar
    * @param valueName the value name, not null
    */
   public void removeValue(final ExternalIdBundle identifiers, final String valueName) {
-    throw new UnsupportedOperationException("[PLAT-3044] Update the snapshot");
+    for (final ExternalId identifier : identifiers) {
+      removeValue(identifier, valueName);
+    }
   }
 
 }
