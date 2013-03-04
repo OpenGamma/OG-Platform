@@ -64,6 +64,9 @@ $.register_module({
             select_id = function () {
                 return '#' + scheme_id;
             };
+            form.on('form:load', function (){
+                block.create_autocomplete();
+            });
         };
         Security.prototype = new Block(); // inherit Block prototype
         return Security;
