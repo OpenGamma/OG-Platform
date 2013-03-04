@@ -1,9 +1,9 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.fixedincome.config;
+package com.opengamma.financial.convention;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -40,19 +40,19 @@ import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ *
  */
 public class CurveProviderHelper {
   private static final Logger s_logger = LoggerFactory.getLogger(CurveProviderHelper.class);
 
   /**
-   * 
+   *
    */
   public CurveProviderHelper() {
   }
 
   public static Map<Currency, YieldAndDiscountCurve> getDiscountingCurves(final FinancialSecurity security, final FunctionInputs inputs,
-      final CurveExposureConfiguration config, final SecuritySource securitySource) {
+      final DiscountingMethodCurveExposureConfiguration config, final SecuritySource securitySource) {
     final FinancialSecurityVisitor<Set<ValueRequirement>> curveRequirementVisitor = new FinancialSecurityVisitorSameValueAdapter<Set<ValueRequirement>>(null) {
 
       @Override
@@ -145,7 +145,11 @@ public class CurveProviderHelper {
     return discountingCurves;
   }
 
-  public static Map<IborIndex, YieldAndDiscountCurve> getForwardIborCurves(final FinancialSecurity security) {
+  public static Map<IborIndex, YieldAndDiscountCurve> getForwardIborCurves(final FinancialSecurity security, final FunctionInputs inputs,
+      final DiscountingMethodCurveExposureConfiguration config, final SecuritySource securitySource) {
+    final FinancialSecurityVisitor<Set<ValueRequirement>> curveRequirementVisitor = new FinancialSecurityVisitorSameValueAdapter<Set<ValueRequirement>>(null) {
+
+    };
     return null;
   }
 
