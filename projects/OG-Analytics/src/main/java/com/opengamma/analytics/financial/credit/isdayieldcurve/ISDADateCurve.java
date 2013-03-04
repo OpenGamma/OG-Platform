@@ -17,11 +17,18 @@ import com.opengamma.analytics.math.curve.DoublesCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
+import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.daycount.DayCountFactory;
 
 /**
  * 
  */
 public class ISDADateCurve {
+
+  private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
+  private static final DayCount ACT_360 = DayCountFactory.INSTANCE.getDayCount("ACT/360");
+
+  // ------------------------------------------------------------------------------------------------------------------------------------
 
   private static final CombinedInterpolatorExtrapolator INTERPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(ISDA_INTERPOLATOR, FLAT_EXTRAPOLATOR, ISDA_EXTRAPOLATOR);
 
@@ -36,6 +43,8 @@ public class ISDADateCurve {
   private final double[] _shiftedTimePoints;
 
   private final double _zeroDiscountFactor;
+
+  // ------------------------------------------------------------------------------------------------------------------------------------
 
   public ISDADateCurve(final String name, final ZonedDateTime[] curveTenors, final double[] xData, final double[] yData, final double offset) {
 
@@ -61,6 +70,8 @@ public class ISDADateCurve {
 
     _zeroDiscountFactor = Math.exp(_offset * getInterestRate(0.0));
   }
+
+  // ------------------------------------------------------------------------------------------------------------------------------------
 
   public ZonedDateTime[] getCurveTenors() {
     return _curveTenors;
@@ -106,4 +117,5 @@ public class ISDADateCurve {
     return _shiftedTimePoints.length;
   }
 
+  // ------------------------------------------------------------------------------------------------------------------------------------
 }

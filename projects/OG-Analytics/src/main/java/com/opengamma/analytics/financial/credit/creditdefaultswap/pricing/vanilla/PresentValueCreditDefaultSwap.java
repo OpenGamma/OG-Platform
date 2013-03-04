@@ -201,6 +201,8 @@ public class PresentValueCreditDefaultSwap {
       final double survival = hazardRateCurve.getSurvivalProbability(tObsOffset);
       final double discount = yieldCurve.getDiscountFactor(t);
 
+      //final double discount = yieldCurve.getDiscountFactor(today, accrualEndDate);
+
       //System.out.println(i + "\t" + accTime + "\t" + survival + "\t" + discount);
 
       thisPV += delta * accTime * discount * survival;
@@ -238,6 +240,8 @@ public class PresentValueCreditDefaultSwap {
         double s0 = hazardRateCurve.getSurvivalProbability(t);
         double df0 = yieldCurve.getDiscountFactor(t);
 
+        //double df0 = yieldCurve.getDiscountFactor(today, subStartDate);
+
         for (int j = 1; j < truncatedDateList.length; ++j) {
 
           double thisAccPV = 0.0;
@@ -249,6 +253,8 @@ public class PresentValueCreditDefaultSwap {
             t = TimeCalculator.getTimeBetween(today, truncatedDateList[j], ACT_365);
             double s1 = hazardRateCurve.getSurvivalProbability(t);
             double df1 = yieldCurve.getDiscountFactor(t);
+
+            //double df1 = yieldCurve.getDiscountFactor(today, truncatedDateList[j]);
 
             double t0 = TimeCalculator.getTimeBetween(offsetAccStartDate, subStartDate, ACT_365) + 0.5 / 365.0;
             double t1 = TimeCalculator.getTimeBetween(offsetAccStartDate, truncatedDateList[j], ACT_365) + 0.5 / 365.0;
@@ -281,7 +287,7 @@ public class PresentValueCreditDefaultSwap {
 
     // TODO : Check this calculation - maybe move it out of this routine and into the PV calculation routine?
     // TODO : Note the cash settlement date is hardcoded at 3 days
-    final double tSett = TimeCalculator.getTimeBetween(valuationDate, valuationDate.plusDays(3));
+    final double tSett = TimeCalculator.getTimeBetween(valuationDate, valuationDate.plusDays(5));
     final double valueDatePV = yieldCurve.getDiscountFactor(tSett);
 
     presentValuePremiumLeg /= valueDatePV;
@@ -396,6 +402,8 @@ public class PresentValueCreditDefaultSwap {
     */
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
+
+    //System.out.println(cds.getNotional() * presentValuePremiumLeg);
 
     return cds.getNotional() * presentValuePremiumLeg;
 
@@ -635,7 +643,7 @@ public class PresentValueCreditDefaultSwap {
 
     // TODO : Check this calculation - maybe move it out of this routine and into the PV calculation routine?
     // TODO : Note the cash settlement date is hardcoded at 3 days
-    final double t = TimeCalculator.getTimeBetween(valuationDate, valuationDate.plusDays(3));
+    final double t = TimeCalculator.getTimeBetween(valuationDate, valuationDate.plusDays(5));
     final double valueDatePV = yieldCurve.getDiscountFactor(t);
 
     return cds.getNotional() * presentValueContingentLeg / valueDatePV;

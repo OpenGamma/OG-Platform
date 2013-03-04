@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing;
 
+import org.testng.annotations.Test;
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZoneOffset;
@@ -30,7 +31,6 @@ import com.opengamma.analytics.financial.credit.obligor.Region;
 import com.opengamma.analytics.financial.credit.obligor.Sector;
 import com.opengamma.analytics.financial.credit.obligor.definition.Obligor;
 import com.opengamma.analytics.financial.credit.schedulegeneration.GenerateCreditDefaultSwapPremiumLegSchedule;
-import com.opengamma.analytics.financial.interestrate.PeriodicInterestRate;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -286,7 +286,7 @@ public class RMGridTest {
       s_act365.getDayCountFraction(baseDate, baseDate.plusMonths(9)),
       s_act365.getDayCountFraction(baseDate, baseDate.plusMonths(12))
   };
-  */
+   */
 
   /*
   // 1/3/2013
@@ -307,9 +307,10 @@ public class RMGridTest {
       s_act365.getDayCountFraction(baseDate, yieldCurveDates[4]),     // 9M
       s_act365.getDayCountFraction(baseDate, yieldCurveDates[5])      // 1Y
   };
-  */
+   */
 
   // 30/1/2013
+  /*
   ZonedDateTime[] yieldCurveDates = {
       zdt(2013, 2, 28, 0, 0, 0, 0, ZoneOffset.UTC),
       zdt(2013, 3, 29, 0, 0, 0, 0, ZoneOffset.UTC),
@@ -318,14 +319,140 @@ public class RMGridTest {
       zdt(2013, 10, 30, 0, 0, 0, 0, ZoneOffset.UTC),
       zdt(2014, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC)
   };
+   */
+
+  ZonedDateTime[] yieldCurveDates = {
+      zdt(2013, 2, 28, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2013, 3, 29, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2013, 4, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2013, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2013, 10, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2014, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2014, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2015, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2015, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2016, 1, 29, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2016, 7, 29, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2017, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2017, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2018, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2018, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2019, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2019, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2020, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2020, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2021, 1, 29, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2021, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2022, 1, 31, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2022, 7, 29, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2023, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2023, 7, 31, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2024, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2024, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2025, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2025, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2026, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2026, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2027, 1, 29, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2027, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2028, 1, 31, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2028, 7, 31, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2029, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2029, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2030, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2030, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2031, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2031, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2032, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2032, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2033, 1, 31, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2033, 7, 29, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2034, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2034, 7, 31, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2035, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2035, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2036, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2036, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2037, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2037, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2038, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2038, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2039, 1, 31, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2039, 7, 29, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2040, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2040, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2041, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2041, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2042, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2042, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2043, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC)
+  };
 
   double[] yieldCurveTimes = {
-      s_act365.getDayCountFraction(baseDate, yieldCurveDates[0]),     // 1M     
-      s_act365.getDayCountFraction(baseDate, yieldCurveDates[1]),     // 2M
-      s_act365.getDayCountFraction(baseDate, yieldCurveDates[2]),     // 3M
-      s_act365.getDayCountFraction(baseDate, yieldCurveDates[3]),     // 6M
-      s_act365.getDayCountFraction(baseDate, yieldCurveDates[4]),     // 9M
-      s_act365.getDayCountFraction(baseDate, yieldCurveDates[5])      // 1Y
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[0]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[1]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[2]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[3]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[4]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[5]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[6]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[7]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[8]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[9]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[10]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[11]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[12]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[13]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[14]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[15]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[16]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[17]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[18]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[19]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[20]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[21]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[22]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[23]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[24]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[25]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[26]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[27]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[28]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[29]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[30]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[31]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[32]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[33]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[34]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[35]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[36]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[37]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[38]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[39]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[40]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[41]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[42]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[43]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[44]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[45]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[46]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[47]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[48]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[49]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[50]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[51]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[52]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[53]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[54]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[55]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[56]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[57]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[58]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[59]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[60]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[61]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[62]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[63])
   };
 
   /*
@@ -347,7 +474,7 @@ public class RMGridTest {
       s_act365.getDayCountFraction(baseDate, yieldCurveDates[4]),     // 9M
       s_act365.getDayCountFraction(baseDate, yieldCurveDates[5])      // 1Y
   };
-  */
+   */
 
   /*
   // 19/3/2013
@@ -368,7 +495,7 @@ public class RMGridTest {
       s_act365.getDayCountFraction(baseDate, yieldCurveDates[4]),     // 9M
       s_act365.getDayCountFraction(baseDate, yieldCurveDates[5])      // 1Y
   };
-  */
+   */
 
   /*
   // 20/3/2013
@@ -389,7 +516,7 @@ public class RMGridTest {
       s_act365.getDayCountFraction(baseDate, yieldCurveDates[4]),     // 9M
       s_act365.getDayCountFraction(baseDate, yieldCurveDates[5])      // 1Y
   };
-  */
+   */
 
   /*
   // 21/3/2013
@@ -410,7 +537,7 @@ public class RMGridTest {
       s_act365.getDayCountFraction(baseDate, yieldCurveDates[4]),     // 9M
       s_act365.getDayCountFraction(baseDate, yieldCurveDates[5])      // 1Y
   };
-  */
+   */
 
   /*
   // 10/6/2013
@@ -422,7 +549,7 @@ public class RMGridTest {
       s_act365.getDayCountFraction(baseDate, zdt(2014, 3, 10, 0, 0, 0, 0, ZoneOffset.UTC)),     // 9M
       s_act365.getDayCountFraction(baseDate, zdt(2014, 6, 10, 0, 0, 0, 0, ZoneOffset.UTC))      // 1Y
   };
-  */
+   */
 
   /*
   // 15/9/2013
@@ -443,10 +570,78 @@ public class RMGridTest {
       s_act365.getDayCountFraction(baseDate, yieldCurveDates[4]),     // 9M
       s_act365.getDayCountFraction(baseDate, yieldCurveDates[5])      // 1Y
   };
-  */
+   */
 
   //double[] rates = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 
+  double[] rates = {
+      0.0020469398963709473,
+      0.002501864423114286,
+      0.0030502347816789843,
+      0.004829949174541159,
+      0.006522625025034312,
+      0.008065486111111131,
+      0.005629511430584877,
+      0.004393593770308283,
+      0.005251835895630608,
+      0.005831262552165626,
+      0.007009657447744511,
+      0.00790751215674671,
+      0.009285775302585675,
+      0.010395963833218537,
+      0.011788998281891505,
+      0.012970711608828876,
+      0.014279610037949197,
+      0.015421571541585745,
+      0.01658207458964589,
+      0.017604240836319698,
+      0.018669926523961378,
+      0.019633226952841705,
+      0.020569229333792682,
+      0.02144095801122866,
+      0.022301830509302345,
+      0.02308941586503166,
+      0.023805136016763262,
+      0.024468745526579464,
+      0.025078024702453794,
+      0.025650117661823568,
+      0.02617148723394913,
+      0.026661324750865356,
+      0.027115106275981793,
+      0.027545656339872937,
+      0.027886810280336016,
+      0.02820851780672462,
+      0.02850757614158117,
+      0.02879380095239914,
+      0.02905934751569972,
+      0.029314371920297067,
+      0.02955173975943559,
+      0.029780400828259612,
+      0.029994997820663727,
+      0.030202217081450364,
+      0.030357410307428667,
+      0.030510216400872148,
+      0.030653538858346208,
+      0.0307911211738785,
+      0.030921187940242012,
+      0.03104768086276155,
+      0.031167477211878625,
+      0.031283546549800034,
+      0.03139307749474618,
+      0.0314994147598717,
+      0.03159461239355821,
+      0.03168764827055548,
+      0.03177428791948356,
+      0.03186053357866836,
+      0.031942286759037986,
+      0.03202198665755751,
+      0.03209764335645926,
+      0.03217190908790313,
+      0.032242493745427314,
+      0.03231186272591617
+  };
+
+  /*
   private static final double[] rates = {
       (new PeriodicInterestRate(0.002017, 1)).toContinuous().getRate(),
       (new PeriodicInterestRate(0.002465, 1)).toContinuous().getRate(),
@@ -455,6 +650,7 @@ public class RMGridTest {
       (new PeriodicInterestRate(0.006428, 1)).toContinuous().getRate(),
       (new PeriodicInterestRate(0.007955, 1)).toContinuous().getRate()
   };
+   */
 
   ISDADateCurve yieldCurve = new ISDADateCurve("IR_CURVE", yieldCurveDates, yieldCurveTimes, rates, s_act365.getDayCountFraction(valuationDate, baseDate));
 
@@ -667,7 +863,7 @@ public class RMGridTest {
 
   // ----------------------------------------------------------------------------------
 
-  //@Test
+  @Test
   public void testRMGrid() {
 
     if (outputResults) {
@@ -692,10 +888,6 @@ public class RMGridTest {
 
       bdaMaturities[i] = schedule.businessDayAdjustDate(maturities[i], calendar, businessdayAdjustmentConvention);
     }
-
-    // The type of spread bump to apply
-    //final SpreadBumpType spreadBumpType = SpreadBumpType.ADDITIVE_BUCKETED;
-    //final SpreadBumpType spreadBumpType = SpreadBumpType.ADDITIVE_PARALLEL;
 
     // The magnitude (but not direction) of bump to apply (in bps)
     final double spreadBump = 1.0;
@@ -728,7 +920,8 @@ public class RMGridTest {
     LegacyVanillaCreditDefaultSwapDefinition rollingCDS = cds;
 
     // Loop over each of the maturities
-    for (int i = 0; i < numberOfMaturities; i++) {
+    for (int i = 103; i < 104; i++) {
+      //for (int i = numberOfMaturities - 1; i < numberOfMaturities; i++) {
 
       final double[] marketSpreads = new double[numberOfCalibrationCDS];
 
@@ -736,15 +929,6 @@ public class RMGridTest {
       for (int m = 0; m < numberOfCalibrationCDS; m++) {
         marketSpreads[m] = curveLevel[i];
       }
-
-      /*
-      if (schedule.isAnIMMDate(maturities[i])) {
-        rollingCDS = rollingCDS.withStartDate(startDate);
-      }
-      else {
-        rollingCDS = rollingCDS.withStartDate(valuationDate);
-      }
-       */
 
       // Set the maturity of the CDS to value
       rollingCDS = rollingCDS.withMaturityDate(bdaMaturities[i]);
