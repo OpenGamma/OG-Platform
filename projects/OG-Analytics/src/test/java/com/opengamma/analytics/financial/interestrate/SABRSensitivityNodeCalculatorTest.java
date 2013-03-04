@@ -14,7 +14,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateParameters;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
-import com.opengamma.analytics.util.surface.SurfaceValue;
+import com.opengamma.analytics.util.amount.SurfaceValue;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -112,11 +112,11 @@ public class SABRSensitivityNodeCalculatorTest {
     final SurfaceValue nu2 = SurfaceValue.from(point2, 45.67);
     final PresentValueSABRSensitivityDataBundle onePoint1 = new PresentValueSABRSensitivityDataBundle(alpha1, beta1, rho1, nu1);
     final PresentValueSABRSensitivityDataBundle onePoint2 = new PresentValueSABRSensitivityDataBundle(alpha2, beta2, rho2, nu2);
-    final PresentValueSABRSensitivityDataBundle twoPoints = PresentValueSABRSensitivityDataBundle.plus(onePoint1, onePoint2);
+    final PresentValueSABRSensitivityDataBundle twoPoints = onePoint1.plus(onePoint2);
     final PresentValueSABRSensitivityDataBundle node1 = SABRSensitivityNodeCalculator.calculateNodeSensitivities(onePoint1, SABR_PARAMETERS);
     final PresentValueSABRSensitivityDataBundle node2 = SABRSensitivityNodeCalculator.calculateNodeSensitivities(onePoint2, SABR_PARAMETERS);
     final PresentValueSABRSensitivityDataBundle nodeSum = SABRSensitivityNodeCalculator.calculateNodeSensitivities(twoPoints, SABR_PARAMETERS);
-    assertEquals("SABR Node calculator", PresentValueSABRSensitivityDataBundle.plus(node1, node2), nodeSum);
+    assertEquals("SABR Node calculator", node1.plus(node2), nodeSum);
   }
 
 }

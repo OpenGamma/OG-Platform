@@ -22,6 +22,8 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.AggregatedExecutionLog;
 import com.opengamma.engine.view.ViewResultEntry;
 import com.opengamma.engine.view.ViewResultModel;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.CurrencyAmount;
 
@@ -49,6 +51,9 @@ import com.opengamma.util.money.CurrencyAmount;
   /** The cached results. */
   private final Map<ResultKey, CacheItem> _results = Maps.newHashMap();
 
+  /** Cache of portoflio entities, i.e. trades, positions, securities */
+  private final Map<ObjectId, CacheItem> _entities = Maps.newHashMap();
+
   /** ID that's incremented each time results are received, used for keeping track of which items were updated. */
   private long _lastUpdateId;
 
@@ -59,12 +64,12 @@ import com.opengamma.util.money.CurrencyAmount;
    * Puts a set of results into the cache.
    * @param results The results, not null
    */
-  /* package */ void put(final ViewResultModel results) {
+  /* package */ void put(ViewResultModel results) {
     ArgumentChecker.notNull(results, "results");
     _lastUpdateId++;
     _lastCalculationDuration = results.getCalculationDuration();
-    final List<ViewResultEntry> allResults = results.getAllResults();
-    for (final ViewResultEntry result : allResults) {
+    List<ViewResultEntry> allResults = results.getAllResults();
+    for (ViewResultEntry result : allResults) {
       put(result.getCalculationConfiguration(), result.getComputedValue());
     }
   }
@@ -75,10 +80,10 @@ import com.opengamma.util.money.CurrencyAmount;
    * @param results The results
    * @param duration Duration of the calculation cycle that produced the results
    */
-  /* package */ void put(final String calcConfigName, final Map<ValueSpecification, ComputedValueResult> results, final Duration duration) {
+  /* package */ void put(String calcConfigName, Map<ValueSpecification, ComputedValueResult> results, Duration duration) {
     _lastUpdateId++;
     _lastCalculationDuration = duration;
-    for (final ComputedValueResult result : results.values()) {
+    for (ComputedValueResult result : results.values()) {
       put(calcConfigName, result);
     }
   }
@@ -88,15 +93,56 @@ import com.opengamma.util.money.CurrencyAmount;
    * @param calcConfigName The name of the calculation configuration used to calculate the results
    * @param result The result value and associated data
    */
-  private void put(final String calcConfigName, final ComputedValueResult result) {
-    final ValueSpecification spec = result.getSpecification();
-    final Object value = result.getValue();
-    final ResultKey key = new ResultKey(calcConfigName, spec);
-    final CacheItem cacheResult = _results.get(key);
+  private void put(String calcConfigName, ComputedValueResult result) {
+    ValueSpecification spec = result.getSpecification();
+    Object value = result.getValue();
+    ResultKey key = new ResultKey(calcConfigName, spec);
+    CacheItem cacheResult = _results.get(key);
     if (cacheResult == null) {
       _results.put(key, new CacheItem(value, result.getAggregatedExecutionLog(), _lastUpdateId));
     } else {
       cacheResult.setLatestValue(value, result.getAggregatedExecutionLog(), _lastUpdateId);
+    }
+  }
+
+  /* package */ void put(List<UniqueIdentifiable> entities) {
+    ArgumentChecker.notNull(entities, "entities");
+    _lastUpdateId++;
+    for (UniqueIdentifiable entity : entities) {
+      ArgumentChecker.notNull(entity, "entity");
+      putEntity(entity);
+    }
+  }
+
+  /* package */ void put(UniqueIdentifiable entity) {
+    ArgumentChecker.notNull(entity, "entity");
+    ++_lastUpdateId;
+    putEntity(entity);
+  }
+
+  /* package */ void remove(ObjectId id) {
+    ++_lastUpdateId;
+    _entities.remove(id);
+  }
+
+  private void putEntity(UniqueIdentifiable entity) {
+    ObjectId id = entity.getUniqueId().getObjectId();
+    CacheItem cacheResult = _entities.get(id);
+    if (cacheResult == null) {
+      _entities.put(id, new CacheItem(entity, null, _lastUpdateId));
+    } else {
+      cacheResult.setLatestValue(entity, null, _lastUpdateId);
+    }
+  }
+
+  /* package */ Result getEntity(ObjectId id) {
+    CacheItem item = _entities.get(id);
+    if (item != null) {
+      // flag whether this result was updated by the last set of results that were put into the cache
+      boolean updatedByLastResults = (item.getLastUpdateId() == _lastUpdateId);
+      return Result.forValue(item.getValue(), null, null, updatedByLastResults);
+    } else {
+      return s_emptyResult;
     }
   }
 
@@ -109,12 +155,12 @@ import com.opengamma.util.money.CurrencyAmount;
    * provided for missing values.
    * @return A cache result, not null
    */
-  /* package */ Result getResult(final String calcConfigName, final ValueSpecification valueSpec, final Class<?> columnType) {
-    final CacheItem item = _results.get(new ResultKey(calcConfigName, valueSpec));
+  /* package */ Result getResult(String calcConfigName, ValueSpecification valueSpec, Class<?> columnType) {
+    CacheItem item = _results.get(new ResultKey(calcConfigName, valueSpec));
     if (item != null) {
       // flag whether this result was updated by the last set of results that were put into the cache
-      final boolean updatedByLastResults = (item.getLastUpdateId() == _lastUpdateId);
-      return new Result(item.getValue(), item.getHistory(), item.getAggregatedExecutionLog(), updatedByLastResults);
+      boolean updatedByLastResults = (item.getLastUpdateId() == _lastUpdateId);
+      return Result.forValue(item.getValue(), item.getHistory(), item.getAggregatedExecutionLog(), updatedByLastResults);
     } else {
       if (s_historyTypes.contains(columnType)) {
         return s_emptyResultWithHistory;
@@ -137,7 +183,7 @@ import com.opengamma.util.money.CurrencyAmount;
    * @param type The type, possibly null
    * @return The history, possibly null
    */
-  /* package */ Collection<Object> emptyHistory(final Class<?> type) {
+  /* package */ Collection<Object> emptyHistory(Class<?> type) {
     if (s_historyTypes.contains(type)) {
       return Collections.emptyList();
     } else {
@@ -149,14 +195,14 @@ import com.opengamma.util.money.CurrencyAmount;
    * An item from the cache including its history and a flag indicating whether it was updated by the most recent
    * calculation cycle. Instances of this class are intended for users of the cache.
    */
-  /* package */ static final class Result {
+  /* package */ static class Result {
 
     private final Object _value;
     private final Collection<Object> _history;
     private final boolean _updated;
     private final AggregatedExecutionLog _aggregatedExecutionLog;
 
-    private Result(final Object value, final Collection<Object> history, final AggregatedExecutionLog aggregatedExecutionLog, final boolean updated) {
+    private Result(Object value, Collection<Object> history, AggregatedExecutionLog aggregatedExecutionLog, boolean updated) {
       _value = value;
       _history = history;
       _aggregatedExecutionLog = aggregatedExecutionLog;
@@ -185,6 +231,14 @@ import com.opengamma.util.money.CurrencyAmount;
       return _updated;
     }
 
+    private static Result forValue(Object value,
+                                   Collection<Object> history,
+                                   AggregatedExecutionLog aggregatedExecutionLog,
+                                   boolean updated) {
+      ArgumentChecker.notNull(value, "value");
+      return new Result(value, history, aggregatedExecutionLog, updated);
+    }
+
     /**
      * @return A result with no value and no history, for value requirements that never have history
      */
@@ -207,14 +261,14 @@ import com.opengamma.util.money.CurrencyAmount;
   /**
    * An item stored in the cache, this is an internal implementation detail.
    */
-  private final static class CacheItem {
+  private static class CacheItem {
 
     private Collection<Object> _history;
     private Object _latestValue;
     private long _lastUpdateId = -1;
     private AggregatedExecutionLog _aggregatedExecutionLog;
 
-    private CacheItem(final Object value, final AggregatedExecutionLog executionLog, final long lastUpdateId) {
+    private CacheItem(Object value, AggregatedExecutionLog executionLog, long lastUpdateId) {
       setLatestValue(value, executionLog, lastUpdateId);
     }
 
@@ -225,7 +279,7 @@ import com.opengamma.util.money.CurrencyAmount;
      * @param lastUpdateId ID of the set of results that calculated it
      */
     @SuppressWarnings("unchecked")
-    private void setLatestValue(final Object latestValue, final AggregatedExecutionLog executionLog, final long lastUpdateId) {
+    private void setLatestValue(Object latestValue, AggregatedExecutionLog executionLog, long lastUpdateId) {
       ArgumentChecker.notNull(latestValue, "latestValue");
       _latestValue = latestValue;
       _lastUpdateId = lastUpdateId;
@@ -271,25 +325,25 @@ import com.opengamma.util.money.CurrencyAmount;
   /**
    * Immutable key for items in the cache, this is in implelemtation detail.
    */
-  private static final class ResultKey {
+  private static class ResultKey {
 
     private final String _calcConfigName;
     private final ValueSpecification _valueSpec;
 
-    private ResultKey(final String calcConfigName, final ValueSpecification valueSpec) {
+    private ResultKey(String calcConfigName, ValueSpecification valueSpec) {
       _calcConfigName = calcConfigName;
       _valueSpec = valueSpec;
     }
 
     @Override
-    public boolean equals(final Object o) {
+    public boolean equals(Object o) {
       if (this == o) {
         return true;
       }
       if (o == null || getClass() != o.getClass()) {
         return false;
       }
-      final ResultKey resultKey = (ResultKey) o;
+      ResultKey resultKey = (ResultKey) o;
       if (!_calcConfigName.equals(resultKey._calcConfigName)) {
         return false;
       }

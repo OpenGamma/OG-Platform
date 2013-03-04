@@ -17,7 +17,7 @@ import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompounded;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
@@ -84,7 +84,7 @@ public final class PresentValueBasisPointCurveSensitivityCalculator extends Inst
   }
 
   @Override
-  public InterestRateCurveSensitivity visitCouponIborCompounded(final CouponIborCompounded coupon, final YieldCurveBundle curves) {
+  public InterestRateCurveSensitivity visitCouponIborCompounding(final CouponIborCompounding coupon, final YieldCurveBundle curves) {
     return visitCoupon(coupon, curves);
   }
 

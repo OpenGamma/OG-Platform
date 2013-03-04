@@ -25,9 +25,8 @@ import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.calibratehazardratecurve.legacy.CalibrateHazardRateCurveLegacyCreditDefaultSwap;
-import com.opengamma.analytics.financial.credit.cds.ISDACurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
+import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
@@ -92,7 +91,7 @@ public class ISDALegacyCDSHazardCurveFunction extends AbstractFunction {
         }
         final SnapshotDataBundle marketData = (SnapshotDataBundle) dataObject;
         final InterpolatedYieldCurveSpecificationWithSecurities yieldCurveSpec = (InterpolatedYieldCurveSpecificationWithSecurities) yieldCurveSpecObject;
-        final ISDACurve yieldCurve = (ISDACurve) yieldCurveObject;
+        final ISDADateCurve yieldCurve = (ISDADateCurve) yieldCurveObject;
         final ZonedDateTime now = ZonedDateTime.now(executionContext.getValuationClock());
         final LegacyVanillaCDSSecurity security = (LegacyVanillaCDSSecurity) target.getSecurity();
         final LegacyVanillaCreditDefaultSwapDefinition cds = _converter.visitLegacyVanillaCDSSecurity(security);
@@ -117,7 +116,7 @@ public class ISDALegacyCDSHazardCurveFunction extends AbstractFunction {
           tenors[i] = strip.getMaturity();
           marketSpreads[i++] = marketData.getDataPoint(strip.getSecurityIdentifier());
         }
-        final HazardRateCurve curve = calibrationCalculator.getCalibratedHazardRateCurve(now, cds, tenors, marketSpreads, yieldCurve, PriceType.CLEAN);
+        final double[] curve = calibrationCalculator.getCalibratedHazardRateTermStructure(now, cds, tenors, marketSpreads, yieldCurve, PriceType.CLEAN);
         final ValueProperties properties = createValueProperties()
             .with(ValuePropertyNames.CURVE, curveName)
             .with(PROPERTY_HAZARD_RATE_CURVE_N_ITERATIONS, nIterationsName)

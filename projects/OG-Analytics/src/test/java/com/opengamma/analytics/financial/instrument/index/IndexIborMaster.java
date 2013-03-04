@@ -20,7 +20,7 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.util.money.Currency;
 
 /**
- * Description of Ibor indexes available for tests. 
+ * Description of Ibor indexes available for tests.
  */
 public final class IndexIborMaster {
 
@@ -46,7 +46,7 @@ public final class IndexIborMaster {
    * Private constructor.
    */
   private IndexIborMaster() {
-    Calendar baseCalendar = new CalendarNoHoliday("No Holidays");
+    final Calendar baseCalendar = new CalendarNoHoliday("No Holidays");
     _ibor = new HashMap<String, IborIndex>();
     _ibor.put(
         "AUDBB3M",
@@ -78,7 +78,7 @@ public final class IndexIborMaster {
             .getBusinessDayConvention("Modified Following"), true, "EURIBOR12M"));
     _ibor.put(
         "USDLIBOR1M",
-        new IborIndex(Currency.EUR, Period.of(1, MONTHS), 2, baseCalendar, DayCountFactory.INSTANCE.getDayCount("Actual/360"), BusinessDayConventionFactory.INSTANCE
+        new IborIndex(Currency.USD, Period.of(1, MONTHS), 2, baseCalendar, DayCountFactory.INSTANCE.getDayCount("Actual/360"), BusinessDayConventionFactory.INSTANCE
             .getBusinessDayConvention("Modified Following"), true, "USDLIBOR1M"));
     _ibor.put(
         "USDLIBOR3M",
@@ -119,7 +119,7 @@ public final class IndexIborMaster {
   }
 
   public IborIndex getIndex(final String name, final Calendar cal) {
-    IborIndex indexNoCalendar = _ibor.get(name);
+    final IborIndex indexNoCalendar = _ibor.get(name);
     if (indexNoCalendar == null) {
       throw new OpenGammaRuntimeException("Could not get Ibor index for " + name);
     }

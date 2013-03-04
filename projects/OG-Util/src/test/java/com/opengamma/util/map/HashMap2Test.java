@@ -16,9 +16,9 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Tests the {@link HashMap2} implementation.
  */
-@Test
+@Test(groups = "unit")
 public class HashMap2Test {
-  
+
   public void testBasicOperations() {
     final Map2<String, String, String> map = new HashMap2<String, String, String>();
     assertTrue(map.isEmpty());
@@ -43,7 +43,7 @@ public class HashMap2Test {
     assertFalse(map.containsKey(Pair.of("B", "A")));
     assertFalse(map.containsKey("A", "B"));
   }
-  
+
   public void testRemove() {
     final Map2<String, String, String> map = new HashMap2<String, String, String>();
     map.put(Pair.of("A", "B"), "Foo");
@@ -57,7 +57,7 @@ public class HashMap2Test {
     assertEquals(map.size(), 0);
     assertEquals(map.remove("A", "B"), null);
   }
-  
+
   public void testPutIfAbsent() {
     final Map2<String, String, String> map = new HashMap2<String, String, String>();
     assertEquals(map.put("A", "B", "Foo"), null);
@@ -69,5 +69,5 @@ public class HashMap2Test {
     assertEquals(map.get("A", "B"), "Cow");
     assertEquals(map.get("B", "A"), "Dog");
   }
-  
+
 }

@@ -17,7 +17,7 @@ import com.sun.jersey.api.client.ClientResponse.Status;
 /**
  * Test WebApplicationException.
  */
-@Test
+@Test(groups = "unit")
 public class WebApplicationExceptionTest {
 
   public void test_mapping() {

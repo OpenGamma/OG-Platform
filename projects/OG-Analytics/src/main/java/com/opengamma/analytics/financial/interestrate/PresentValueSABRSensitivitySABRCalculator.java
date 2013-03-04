@@ -8,8 +8,6 @@ package com.opengamma.analytics.financial.interestrate;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
-import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
-import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureOptionMarginTransactionSABRMethod;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorCMS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorCMSSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
@@ -135,17 +133,17 @@ public final class PresentValueSABRSensitivitySABRCalculator extends InstrumentD
     throw new UnsupportedOperationException("The PresentValueSABRSensitivitySABRCalculator visitor visitCapFloorCMSSpread requires a SABRInterestRateDataBundle with correlation as data.");
   }
 
-  @Override
-  public PresentValueSABRSensitivityDataBundle visitInterestRateFutureOptionMarginTransaction(final InterestRateFutureOptionMarginTransaction option, final YieldCurveBundle curves) {
-    Validate.notNull(curves);
-    Validate.notNull(option);
-    if (curves instanceof SABRInterestRateDataBundle) {
-      final SABRInterestRateDataBundle sabrBundle = (SABRInterestRateDataBundle) curves;
-      final InterestRateFutureOptionMarginTransactionSABRMethod method = InterestRateFutureOptionMarginTransactionSABRMethod.getInstance();
-      return method.presentValueSABRSensitivity(option, sabrBundle);
-    }
-    throw new UnsupportedOperationException("The PresentValueSABRSensitivitySABRCalculator visitor visitInterestRateFutureOptionMarginTransaction requires a SABRInterestRateDataBundle as data.");
-  }
+  //  @Override
+  //  public PresentValueSABRSensitivityDataBundle visitInterestRateFutureOptionMarginTransaction(final InterestRateFutureOptionMarginTransaction option, final YieldCurveBundle curves) {
+  //    Validate.notNull(curves);
+  //    Validate.notNull(option);
+  //    if (curves instanceof SABRInterestRateDataBundle) {
+  //      final SABRInterestRateDataBundle sabrBundle = (SABRInterestRateDataBundle) curves;
+  //      final InterestRateFutureOptionMarginTransactionSABRMethod method = InterestRateFutureOptionMarginTransactionSABRMethod.getInstance();
+  //      return method.presentValueSABRSensitivity(option, sabrBundle);
+  //    }
+  //    throw new UnsupportedOperationException("The PresentValueSABRSensitivitySABRCalculator visitor visitInterestRateFutureOptionMarginTransaction requires a SABRInterestRateDataBundle as data.");
+  //  }
 
   @Override
   public PresentValueSABRSensitivityDataBundle visitGenericAnnuity(final Annuity<? extends Payment> annuity, final YieldCurveBundle curves) {
@@ -153,7 +151,7 @@ public final class PresentValueSABRSensitivitySABRCalculator extends InstrumentD
     Validate.notNull(annuity);
     PresentValueSABRSensitivityDataBundle pvss = new PresentValueSABRSensitivityDataBundle();
     for (final Payment p : annuity.getPayments()) {
-      pvss = PresentValueSABRSensitivityDataBundle.plus(pvss, p.accept(this, curves));
+      pvss = pvss.plus(p.accept(this, curves));
     }
     return pvss;
   }
@@ -172,10 +170,10 @@ public final class PresentValueSABRSensitivitySABRCalculator extends InstrumentD
     Validate.notNull(swap);
     PresentValueSABRSensitivityDataBundle pvss = new PresentValueSABRSensitivityDataBundle();
     for (final Payment p : swap.getFirstLeg().getPayments()) {
-      pvss = PresentValueSABRSensitivityDataBundle.plus(pvss, p.accept(this, curves));
+      pvss = pvss.plus(p.accept(this, curves));
     }
     for (final Payment p : swap.getSecondLeg().getPayments()) {
-      pvss = PresentValueSABRSensitivityDataBundle.plus(pvss, p.accept(this, curves));
+      pvss = pvss.plus(p.accept(this, curves));
     }
     return pvss;
   }

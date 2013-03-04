@@ -50,7 +50,7 @@ import com.opengamma.util.tuple.Pair;
    * @param cache The latest results
    */
   /* package */ void updateResults(ResultsCache cache) {
-    Pair<ViewportResults,State> resultsAndState = _gridStructure.createResults(_viewportDefinition, cache);
+    Pair<ViewportResults, State> resultsAndState = _gridStructure.createResults(_viewportDefinition, cache);
     _latestResults = resultsAndState.getFirst();
     _state = resultsAndState.getSecond();
   }

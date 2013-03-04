@@ -13,7 +13,7 @@ import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 /**
  * Test Fudge encoding.
  */
-@Test
+@Test(groups = "unit")
 public class ExpiryFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
 
   public void test_accuracyHour() {

@@ -12,6 +12,7 @@ import static org.threeten.bp.temporal.ChronoUnit.DAYS;
 import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
 import static org.threeten.bp.temporal.ChronoUnit.YEARS;
 
+import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
 import org.threeten.bp.Clock;
@@ -604,5 +605,18 @@ public final class DateUtils {
   }
 
   // TODO useful to have methods such as # weeks between.
+
+
+  /**
+   * Converts GregorianCalendar to ZonedDateTime
+   *
+   * @param calendar the calendar, not null
+   * @return the zoned-date-time, not null
+   */
+  public static ZonedDateTime toZonedDateTime(GregorianCalendar calendar) {
+    ZoneId zone = ZoneId.of(calendar.getTimeZone().getID());
+    Instant instant = Instant.ofEpochMilli(calendar.getTimeInMillis());
+    return ZonedDateTime.ofInstant(instant, zone);
+  }
 
 }

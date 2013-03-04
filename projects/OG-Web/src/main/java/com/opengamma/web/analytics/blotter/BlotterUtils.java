@@ -213,12 +213,7 @@ import com.opengamma.util.time.Expiry;
     BeanBuilder<FinancialSecurity> builder = (BeanBuilder<FinancialSecurity>) s_beanBuildingTraverser.traverse(metaBean, visitor);
     // externalIdBundle needs to be specified or building fails because it's not nullable
     builder.set(FinancialSecurity.meta().externalIdBundle(), idBundle);
-    Object bean = builder.build();
-    if (bean instanceof FinancialSecurity) {
-      return (FinancialSecurity) bean;
-    } else {
-      throw new IllegalArgumentException("object type " + bean.getClass().getName() + " isn't a Financial Security");
-    }
+    return builder.build();
   }
 
   // TODO move to BlotterUtils
@@ -313,7 +308,11 @@ import com.opengamma.util.time.Expiry;
 
   @Override
   public OffsetTime convertFromString(Class<? extends OffsetTime> cls, String timeString) {
-    return OffsetTime.of(LocalTime.parse(timeString), ZoneOffset.UTC);
+    if (!StringUtils.isEmpty(timeString)) {
+      return OffsetTime.of(LocalTime.parse(timeString.trim()), ZoneOffset.UTC);
+    } else {
+      return null;
+    }
   }
 
   @Override

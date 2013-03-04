@@ -163,7 +163,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     final InMemoryViewComputationResultModel result = new InMemoryViewComputationResultModel();
     result.setViewCycleId(getCycleId());
     result.setViewProcessId(getViewProcessId());
-    result.setValuationTime(getExecutionOptions().getValuationTime());
+    result.setViewCycleExecutionOptions(getExecutionOptions());
     result.setVersionCorrection(getVersionCorrection());
     return result;
   }

@@ -12,7 +12,7 @@ import org.testng.annotations.Test;
 /**
  * Tests the Timeout benchmark.
  */
-@Test
+@Test(groups = "integration")
 public class TimeoutTest {
 
   public void testTimeoutMillis() {

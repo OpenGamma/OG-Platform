@@ -15,6 +15,7 @@ import com.google.common.collect.Sets;
 import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.bbg.util.BloombergDataUtils;
 import com.opengamma.bbg.util.BloombergDomainIdentifierResolver;
+import com.opengamma.financial.security.DefaultSecurityLoader;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.masterdb.security.DbSecurityMaster;
@@ -48,11 +49,11 @@ public class BloombergIRFutureOptionLoader {
     String bloombergKey = BloombergDomainIdentifierResolver.toBloombergKey(underlyingId);
     SecurityProvider secProvider = appcontext.getBean("bloombergSecurityProvider", SecurityProvider.class);
     DbSecurityMaster secMaster = appcontext.getBean("dbSecurityMaster", DbSecurityMaster.class);
-    BloombergSecurityLoader loader = new BloombergSecurityLoader(secProvider, secMaster);
+    DefaultSecurityLoader loader = new DefaultSecurityLoader(secMaster, secProvider);
     
     Set<ExternalId> optionChain = BloombergDataUtils.getOptionChain(bbgRefDataProvider, bloombergKey);
     if (optionChain != null && !optionChain.isEmpty()) {
-      loader.loadSecurity(toBundles(optionChain));
+      loader.loadSecurities(toBundles(optionChain));
     }
   }
 

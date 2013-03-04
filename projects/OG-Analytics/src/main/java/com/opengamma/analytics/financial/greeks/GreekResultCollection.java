@@ -36,7 +36,7 @@ public class GreekResultCollection implements Iterable<Pair<Greek, Double>> {
   // as Greek is going to be promoted to an Object from an Enum.
   // REVIEW elaine 2010-06-25 Greek is now an Object
   /** The backing map */
-  private final Map<Greek, Double> _backingMap = new TreeMap<Greek, Double>();
+  private final Map<Greek, Double> _backingMap = new TreeMap<>();
 
   /**
    * Gets the value of a greek.
@@ -103,7 +103,7 @@ public class GreekResultCollection implements Iterable<Pair<Greek, Double>> {
   public String toString() {
     final StringBuilder sb = new StringBuilder();
     sb.append("GreekResultCollection[");
-    final List<String> elements = new LinkedList<String>();
+    final List<String> elements = new LinkedList<>();
     for (final Map.Entry<Greek, Double> entry : _backingMap.entrySet()) {
       final StringBuilder elementSb = new StringBuilder();
       elementSb.append(entry.getKey()).append("=").append(entry.getValue());

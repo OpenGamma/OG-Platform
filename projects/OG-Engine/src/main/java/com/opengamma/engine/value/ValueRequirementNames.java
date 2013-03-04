@@ -305,6 +305,17 @@ public final class ValueRequirementNames {
    * The change in the value of an instrument if the credit curve is moved by 1 basis point.
    */
   public static final String CS01 = "CS01";
+
+  /**
+   * The bucketed CS01 for a credit default swap.
+   */
+  public static final String BUCKETED_CS01 = "Bucketed CS01";
+
+  /**
+   * The bucketed (CS01) spreads for a credit default swap.
+   */
+  public static final String BUCKETED_SPREADS = "Bucketed Spreads";
+
   /**
    * The dividend yield of an equity or equity index.
    */
@@ -1254,6 +1265,12 @@ public final class ValueRequirementNames {
    * The affine dividends of an index or equity
    */
   public static final String AFFINE_DIVIDENDS = "Affine Dividends";
+
+  /**
+   * A type which represents the function target. Can be used
+   * to load an item directly from the database and push it directly to a function as an input
+   */
+  public static final String TARGET_TYPE = "TargetType";
 
   ///// Externally-sourced values
   // Existing value requirement names with a suffix

@@ -19,10 +19,11 @@ import com.jolbox.bonecp.BoneCPDataSource;
 /**
  * Test.
  */
-@Test
+@Test(groups = "unit")
 public class DbConnectorTest {
 
   //-------------------------------------------------------------------------
+  @SuppressWarnings("resource")
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_nulls() {
     new DbConnector(null, null, null, null, null, null);
@@ -45,6 +46,7 @@ public class DbConnectorTest {
     assertEquals(null, test.getHibernateTemplate());
     assertSame(transMgr, test.getTransactionManager());
     assertSame(transTemplate, test.getTransactionTemplate());
+    test.close();
   }
 
   //-------------------------------------------------------------------------
@@ -58,6 +60,7 @@ public class DbConnectorTest {
     DbConnector test = new DbConnector("Test", dialect, ds, jdbcTemplate, null, transTemplate);
     
     assertEquals("DbConnector[Test]", test.toString());
+    test.close();
   }
 
 }

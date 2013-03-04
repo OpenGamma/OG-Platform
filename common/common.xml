@@ -79,10 +79,8 @@
 			<exclude name="*PayoffStyle.proto" />
 			<exclude name="*SwapLeg.proto" />
 			<exclude name="*Notional.proto" />
-			<fileHeader>///CLOVER:OFF
-// CSOFF: Generated File</fileHeader>
-			<fileFooter>///CLOVER:ON
-// CSON: Generated File</fileFooter>
+			<fileHeader>///CLOVER:OFF - CSOFF</fileHeader>
+			<fileFooter>///CLOVER:ON - CSON</fileFooter>
 		</fudgeproto>
 		<fixcrlf preservelastmodified="true" srcdir="${src.dir}">
 			<include name="**/*.java"/>

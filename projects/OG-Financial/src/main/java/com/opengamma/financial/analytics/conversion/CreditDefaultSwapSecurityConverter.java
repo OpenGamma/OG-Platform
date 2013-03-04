@@ -44,10 +44,36 @@ import com.opengamma.util.money.Currency;
  *
  */
 public class CreditDefaultSwapSecurityConverter extends FinancialSecurityVisitorAdapter<CreditDefaultSwapDefinition> {
-  private static final Obligor DUMMY_OBLIGOR = new Obligor(
-      "Dummy",
-      "Dummy",
-      "Dummy",
+  private static final Obligor DUMMY_OBLIGOR_A = new Obligor(
+      "Dummy_A",
+      "Dummy_A",
+      "Dummy_A",
+      CreditRating.A,
+      CreditRating.A,
+      CreditRatingMoodys.A,
+      CreditRatingStandardAndPoors.A,
+      CreditRatingFitch.A,
+      false,
+      Sector.BASICMATERIALS,
+      Region.EUROPE,
+      "CA");
+  private static final Obligor DUMMY_OBLIGOR_B = new Obligor(
+      "Dummy_B",
+      "Dummy_B",
+      "Dummy_B",
+      CreditRating.A,
+      CreditRating.A,
+      CreditRatingMoodys.A,
+      CreditRatingStandardAndPoors.A,
+      CreditRatingFitch.A,
+      false,
+      Sector.BASICMATERIALS,
+      Region.ASIA,
+      "NY");
+  private static final Obligor DUMMY_OBLIGOR_C = new Obligor(
+      "Dummy_C",
+      "Dummy_C",
+      "Dummy_C",
       CreditRating.A,
       CreditRating.A,
       CreditRatingMoodys.A,
@@ -56,7 +82,7 @@ public class CreditDefaultSwapSecurityConverter extends FinancialSecurityVisitor
       false,
       Sector.BASICMATERIALS,
       Region.NORTHAMERICA,
-      "CA");
+      "NJ");
   private final HolidaySource _holidaySource;
   private final RegionSource _regionSource;
 
@@ -96,7 +122,7 @@ public class CreditDefaultSwapSecurityConverter extends FinancialSecurityVisitor
     final StubType stubType = security.getStubType().toAnalyticsType();
     final ZonedDateTime cashSettlementDate = security.getCashSettlementDate();
     final boolean adjustCashSettlementDate = security.isAdjustCashSettlementDate();
-    return new StandardVanillaCreditDefaultSwapDefinition(buySellProtection, DUMMY_OBLIGOR, DUMMY_OBLIGOR, DUMMY_OBLIGOR, currency,
+    return new StandardVanillaCreditDefaultSwapDefinition(buySellProtection, DUMMY_OBLIGOR_A, DUMMY_OBLIGOR_B, DUMMY_OBLIGOR_C, currency,
         debtSeniority, restructuringClause, calendar, startDate, effectiveDate, maturityDate, stubType, couponFrequency,
         dayCount, businessDayConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, amount,
         recoveryRate, includeAccruedPremium, protectionStart, quotedSpread, premiumLegCoupon, upFrontAmount, cashSettlementDate,
@@ -128,7 +154,7 @@ public class CreditDefaultSwapSecurityConverter extends FinancialSecurityVisitor
     final boolean protectionStart = security.isProtectionStart();
     final StubType stubType = security.getStubType().toAnalyticsType();
     final double parSpread = security.getParSpread();
-    return new LegacyVanillaCreditDefaultSwapDefinition(buySellProtection, DUMMY_OBLIGOR, DUMMY_OBLIGOR, DUMMY_OBLIGOR, currency,
+    return new LegacyVanillaCreditDefaultSwapDefinition(buySellProtection, DUMMY_OBLIGOR_A, DUMMY_OBLIGOR_B, DUMMY_OBLIGOR_C, currency,
         debtSeniority, restructuringClause, calendar, startDate, effectiveDate, maturityDate, stubType,
         couponFrequency, dayCount, businessDayConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate,
         amount, recoveryRate, includeAccruedPremium, protectionStart, parSpread);

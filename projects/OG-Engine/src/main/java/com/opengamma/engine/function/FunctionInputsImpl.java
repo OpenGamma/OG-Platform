@@ -28,7 +28,6 @@ import com.opengamma.util.tuple.Pair;
 
 /**
  * An implementation of {@link FunctionInputs} that stores all inputs in internal maps.
- *
  */
 public class FunctionInputsImpl implements FunctionInputs, Serializable {
 
@@ -141,6 +140,11 @@ public class FunctionInputsImpl implements FunctionInputs, Serializable {
   @Override
   public Collection<ValueSpecification> getMissingValues() {
     return Collections.unmodifiableCollection(_missingValues);
+  }
+
+  @Override
+  public String toString() {
+    return "Values = " + _values + ", Missing = " + _missingValues;
   }
 
 }

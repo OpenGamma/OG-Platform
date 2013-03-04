@@ -6,7 +6,6 @@
 package com.opengamma.financial.analytics.model.equity.option;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -28,6 +27,8 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurface;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.value.MarketDataRequirementNames;
@@ -45,7 +46,11 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.financial.analytics.conversion.EquityIndexOptionConverter;
+import com.opengamma.financial.analytics.conversion.BondFutureSecurityConverter;
+import com.opengamma.financial.analytics.conversion.BondSecurityConverter;
+import com.opengamma.financial.analytics.conversion.EquityOptionsConverter;
+import com.opengamma.financial.analytics.conversion.FutureSecurityConverter;
+import com.opengamma.financial.analytics.conversion.InterestRateFutureSecurityConverter;
 import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
@@ -77,7 +82,7 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
   /** The value requirement name */
   private final String[] _valueRequirementNames;
   /** Converts the security to the form used in analytics */
-  private EquityIndexOptionConverter _converter; // set in init(), not constructor
+  private EquityOptionsConverter _converter; // set in init(), not constructor
 
   /**
    * @param valueRequirementNames A list of value requirement names, not null or empty
@@ -89,8 +94,15 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
 
   @Override
   public void init(final FunctionCompilationContext context) {
+    final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
+    final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
-    _converter = new EquityIndexOptionConverter(conventionSource);
+    final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
+    final InterestRateFutureSecurityConverter irFutureConverter = new InterestRateFutureSecurityConverter(holidaySource, conventionSource, regionSource);
+    final BondSecurityConverter bondConverter = new BondSecurityConverter(holidaySource, conventionSource, regionSource);
+    final BondFutureSecurityConverter bondFutureConverter = new BondFutureSecurityConverter(securitySource, bondConverter);
+    final FutureSecurityConverter futureSecurityConverter = new FutureSecurityConverter(irFutureConverter, bondFutureConverter);
+    _converter = new EquityOptionsConverter(futureSecurityConverter, securitySource);
   }
 
   @Override
@@ -176,7 +188,8 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
 
   @Override
   public ComputationTargetType getTargetType() {
-    return FinancialSecurityTypes.EQUITY_INDEX_OPTION_SECURITY.or(FinancialSecurityTypes.EQUITY_OPTION_SECURITY);
+    return FinancialSecurityTypes.EQUITY_INDEX_OPTION_SECURITY
+        .or(FinancialSecurityTypes.EQUITY_OPTION_SECURITY);
   }
 
   @Override
@@ -192,9 +205,8 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
   private static String oneOrNull(final Collection<String> values) {
     if ((values == null) || values.isEmpty() || (values.size() != 1)) {
       return null;
-    } else {
-      return values.iterator().next();
     }
+    return Iterables.getOnlyElement(values);
   }
 
   @Override
@@ -208,10 +220,10 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
     String forwardCurveName = null;
     String forwardCurveCalculationMethod = null;
     ValueProperties.Builder additionalConstraintsBuilder = null;
-    if (constraints.getProperties().isEmpty()) { 
+    if (constraints.getProperties().isEmpty()) {
       return null;
     }
-    for (String property : constraints.getProperties()) {
+    for (final String property : constraints.getProperties()) {
       if (ValuePropertyNames.CALCULATION_METHOD.equals(property)) {
         if (!constraints.getValues(property).contains(getCalculationMethod())) {
           return null;
@@ -237,18 +249,18 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
         final Set<String> values = constraints.getValues(property);
         if (values.isEmpty()) {
           additionalConstraintsBuilder.withAny(property);
-        } else { 
+        } else {
           additionalConstraintsBuilder.with(property, values);
         }
       }
     }
-    if ((discountingCurveName == null) || (discountingCurveConfig == null) || 
+    if ((discountingCurveName == null) || (discountingCurveConfig == null) ||
         (surfaceName == null) || (surfaceCalculationMethod == null) || (surfaceSmileInterpolator == null) ||
         (forwardCurveName == null) || (forwardCurveCalculationMethod == null)) {
       return null;
     }
-    ValueProperties additionalConstraints = (additionalConstraintsBuilder != null) ? additionalConstraintsBuilder.get() : ValueProperties.none();
-    
+    final ValueProperties additionalConstraints = (additionalConstraintsBuilder != null) ? additionalConstraintsBuilder.get() : ValueProperties.none();
+
     // Get security and its underlying's ExternalId.
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final HistoricalTimeSeriesSource tsSource = OpenGammaCompilationContext.getHistoricalTimeSeriesSource(context); // TODO: Do we still require tsSource? Was used to access id bundles
@@ -260,7 +272,7 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
     // Discounting curve
     final ValueRequirement discountingReq = getDiscountCurveRequirement(discountingCurveName, discountingCurveConfig, security, additionalConstraints);
     // Forward curve
-    final ValueRequirement forwardCurveReq = getForwardCurveRequirement(tsSource, securitySource, forwardCurveName, forwardCurveCalculationMethod, security, underlyingId, additionalConstraints);
+    final ValueRequirement forwardCurveReq = getForwardCurveRequirement(forwardCurveName, forwardCurveCalculationMethod, underlyingId, additionalConstraints);
     if (forwardCurveReq == null) {
       return null;
     }
@@ -271,7 +283,7 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
       return null;
     }
     // Return the set
-    return Sets.newHashSet(discountingReq, volReq, forwardCurveReq);    
+    return Sets.newHashSet(discountingReq, volReq, forwardCurveReq);
   }
 
   @Override
@@ -337,6 +349,11 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
     return results;
   }
 
+  /**
+   * Converts result properties with a currency property to one without.
+   * @param resultsWithCurrency The set of results with the currency property set
+   * @return A set of results without a currency property
+   */
   protected Set<ValueSpecification> getResultsWithoutCurrency(final Set<ValueSpecification> resultsWithCurrency) {
     final Set<ValueSpecification> resultsWithoutCurrency = Sets.newHashSetWithExpectedSize(resultsWithCurrency.size());
     for (final ValueSpecification spec : resultsWithCurrency) {
@@ -351,15 +368,15 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
   }
 
   private ValueRequirement getDiscountCurveRequirement(final String fundingCurveName, final String curveCalculationConfigName, final Security security, final ValueProperties additionalConstraints) {
-    final ValueProperties properties = ValueProperties.builder() // TODO: Update to this => additionalConstraints.copy() 
+    final ValueProperties properties = ValueProperties.builder() // TODO: Update to this => additionalConstraints.copy()
         .with(ValuePropertyNames.CURVE, fundingCurveName)
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName)
         .get();
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetSpecification.of(FinancialSecurityUtils.getCurrency(security)), properties);
   }
 
-  private ValueRequirement getForwardCurveRequirement(final HistoricalTimeSeriesSource tsSource, final SecuritySource securitySource,
-      final String forwardCurveName, final String forwardCurveCalculationMethod, final Security security, final ExternalId underlyingBuid, final ValueProperties additionalConstraints) {
+  private ValueRequirement getForwardCurveRequirement(final String forwardCurveName, final String forwardCurveCalculationMethod, final ExternalId underlyingBuid,
+      final ValueProperties additionalConstraints) {
     final ValueProperties properties = ValueProperties.builder() // TODO: Update to this => additionalConstraints.copy()
         .with(ValuePropertyNames.CURVE, forwardCurveName)
         .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD, forwardCurveCalculationMethod)
@@ -373,16 +390,18 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
       final String surfaceCalculationMethod, final ExternalId underlyingBuid, final ValueProperties additionalConstraints) {
     // REVIEW Andrew 2012-01-17 -- Could we pass a CTRef to the getSurfaceRequirement and use the underlyingBuid external identifier directly with a target type of SECURITY
     // TODO Casey - Replace desiredValue with smileInterpolatorName in BlackVolatilitySurfacePropertyUtils.getSurfaceRequirement
-    return BlackVolatilitySurfacePropertyUtils.getSurfaceRequirement(desiredValue, ValueProperties.none(), surfaceName, forwardCurveName, InstrumentTypeProperties.EQUITY_OPTION, ComputationTargetType.PRIMITIVE, underlyingBuid);
+    return BlackVolatilitySurfacePropertyUtils.getSurfaceRequirement(desiredValue, ValueProperties.none(), surfaceName, forwardCurveName,
+        InstrumentTypeProperties.EQUITY_OPTION, ComputationTargetType.PRIMITIVE, underlyingBuid);
     // TODO Casey - Replace above with below - ie pass additional constraints
-    //return BlackVolatilitySurfacePropertyUtils.getSurfaceRequirement(desiredValue, additionalConstraints, surfaceName, forwardCurveName, InstrumentTypeProperties.EQUITY_OPTION, ComputationTargetType.PRIMITIVE, underlyingBuid);
+    //return BlackVolatilitySurfacePropertyUtils.getSurfaceRequirement(desiredValue, additionalConstraints, surfaceName, forwardCurveName,
+    //InstrumentTypeProperties.EQUITY_OPTION, ComputationTargetType.PRIMITIVE, underlyingBuid);
   }
 
   private ExternalId getWeakUnderlyingId(final ExternalId underlyingId, final HistoricalTimeSeriesSource tsSource, final SecuritySource securitySource, final String surfaceName) {
     /** scheme we return i.e. BBG_WEAK */
-    ExternalScheme desiredScheme = EquitySecurityUtils.getTargetType(surfaceName);
+    final ExternalScheme desiredScheme = EquitySecurityUtils.getTargetType(surfaceName);
     /** scheme we look for i.e. BBG */
-    ExternalScheme sourceScheme = EquitySecurityUtils.getRemappedScheme(desiredScheme);
+    final ExternalScheme sourceScheme = EquitySecurityUtils.getRemappedScheme(desiredScheme);
     if (desiredScheme == null) { // surface name is unknown
       return null;
     }
@@ -408,7 +427,7 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
         return ExternalId.of(desiredScheme, idBundle.getExternalId(sourceScheme).getValue());
       }
     }
-    if (underlyingSecurity.getExternalIdBundle().getExternalId(sourceScheme) != null) {
+    if (underlyingSecurity != null && underlyingSecurity.getExternalIdBundle().getExternalId(sourceScheme) != null) {
       return ExternalId.of(desiredScheme, underlyingSecurity.getExternalIdBundle().getExternalId(sourceScheme).getValue());
     }
     s_logger.error("Couldn't get ticker of type " + sourceScheme + " only have " + underlyingId);

@@ -71,7 +71,5 @@ public class SimplePortfolioCopier implements PortfolioCopier {
 
     }
 
-    // Flush changes to portfolio master
-    portfolioWriter.flush();
   }
 }

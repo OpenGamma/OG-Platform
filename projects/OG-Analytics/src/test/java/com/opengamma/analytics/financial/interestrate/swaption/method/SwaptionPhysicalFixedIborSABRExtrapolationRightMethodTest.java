@@ -60,7 +60,7 @@ public class SwaptionPhysicalFixedIborSABRExtrapolationRightMethodTest {
   private static final boolean IS_LONG = true;
   private static final int SETTLEMENT_DAYS = 2;
   // Swap 5Y description
-  private static final Currency CUR = Currency.USD;
+  private static final Currency CUR = Currency.EUR;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final boolean IS_EOM = true;
@@ -89,7 +89,7 @@ public class SwaptionPhysicalFixedIborSABRExtrapolationRightMethodTest {
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2008, 8, 18);
   private static final String FUNDING_CURVE_NAME = "Funding";
   private static final String FORWARD_CURVE_NAME = "Forward";
-  private static final String[] CURVES_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME };
+  private static final String[] CURVES_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME};
   private static final SwaptionPhysicalFixedIbor SWAPTION_LONG_PAYER = SWAPTION_DEFINITION_LONG_PAYER.toDerivative(REFERENCE_DATE, CURVES_NAME);
   private static final SwaptionPhysicalFixedIbor SWAPTION_LONG_RECEIVER = SWAPTION_DEFINITION_LONG_RECEIVER.toDerivative(REFERENCE_DATE, CURVES_NAME);
   private static final SwaptionPhysicalFixedIbor SWAPTION_SHORT_PAYER = SWAPTION_DEFINITION_SHORT_PAYER.toDerivative(REFERENCE_DATE, CURVES_NAME);
@@ -187,7 +187,7 @@ public class SwaptionPhysicalFixedIborSABRExtrapolationRightMethodTest {
   /**
    * Test the present value sensitivity for a swaption with strike above the cut-off strike.
    */
-  public void testPresentValueSensitivityExtra() {
+  public void presentValueCurveSensitivityExtra() {
     final YieldCurveBundle curves = TestsDataSetsSABR.createCurves1();
     final SABRInterestRateParameters sabrParameter = TestsDataSetsSABR.createSABR1();
     final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
@@ -198,8 +198,8 @@ public class SwaptionPhysicalFixedIborSABRExtrapolationRightMethodTest {
     final SwaptionPhysicalFixedIbor swaptionLongPayerHighStrike = swaptionDefinitionLongPayerHighStrike.toDerivative(REFERENCE_DATE, CURVES_NAME);
     final SwaptionPhysicalFixedIbor swaptionShortPayerHighStrike = swaptionDefinitionShortPayerHighStrike.toDerivative(REFERENCE_DATE, CURVES_NAME);
     // Swaption sensitivity
-    InterestRateCurveSensitivity pvsLongPayerExtra = METHOD_EXTRAPOLATION.presentValueSensitivity(swaptionLongPayerHighStrike, sabrBundle);
-    final InterestRateCurveSensitivity pvsShortPayerExtra = METHOD_EXTRAPOLATION.presentValueSensitivity(swaptionShortPayerHighStrike, sabrBundle);
+    InterestRateCurveSensitivity pvsLongPayerExtra = METHOD_EXTRAPOLATION.presentValueCurveSensitivity(swaptionLongPayerHighStrike, sabrBundle);
+    final InterestRateCurveSensitivity pvsShortPayerExtra = METHOD_EXTRAPOLATION.presentValueCurveSensitivity(swaptionShortPayerHighStrike, sabrBundle);
     // Long/short parity
     final InterestRateCurveSensitivity pvsShortPayer_1 = pvsShortPayerExtra.multipliedBy(-1);
     assertEquals(pvsLongPayerExtra.getSensitivities(), pvsShortPayer_1.getSensitivities());
@@ -211,7 +211,7 @@ public class SwaptionPhysicalFixedIborSABRExtrapolationRightMethodTest {
     final double pv = METHOD_EXTRAPOLATION.presentValue(swaptionLongPayerHighStrike, sabrBundle);
     // 1. Forward curve sensitivity
     final String bumpedCurveName = "Bumped Curve";
-    final String[] bumpedCurvesForwardName = {FUNDING_CURVE_NAME, bumpedCurveName };
+    final String[] bumpedCurvesForwardName = {FUNDING_CURVE_NAME, bumpedCurveName};
     final SwaptionPhysicalFixedIbor swaptionBumpedForward = swaptionDefinitionLongPayerHighStrike.toDerivative(REFERENCE_DATE, bumpedCurvesForwardName);
     final YieldAndDiscountCurve curveForward = curves.getCurve(FORWARD_CURVE_NAME);
     final Set<Double> timeForwardSet = new TreeSet<Double>();
@@ -247,7 +247,7 @@ public class SwaptionPhysicalFixedIborSABRExtrapolationRightMethodTest {
       assertEquals("Sensitivity to forward curve: Node " + i, resFwd[i], pair.getSecond(), deltaTolerance);
     }
     // 2. Funding curve sensitivity
-    final String[] bumpedCurvesFundingName = {bumpedCurveName, FORWARD_CURVE_NAME };
+    final String[] bumpedCurvesFundingName = {bumpedCurveName, FORWARD_CURVE_NAME};
     final SwaptionPhysicalFixedIbor swaptionBumpedFunding = swaptionDefinitionLongPayerHighStrike.toDerivative(REFERENCE_DATE, bumpedCurvesFundingName);
     final int nbPayDate = swaptionDefinitionLongPayerHighStrike.getUnderlyingSwap().getIborLeg().getPayments().length;
     final YieldAndDiscountCurve curveFunding = curves.getCurve(FUNDING_CURVE_NAME);
@@ -294,7 +294,7 @@ public class SwaptionPhysicalFixedIborSABRExtrapolationRightMethodTest {
     final PresentValueSABRSensitivityDataBundle pvsLongPayer = METHOD_EXTRAPOLATION.presentValueSABRSensitivity(swaptionLongPayerHighStrike, sabrBundle);
     PresentValueSABRSensitivityDataBundle pvsShortPayer = METHOD_EXTRAPOLATION.presentValueSABRSensitivity(swaptionShortPayerHighStrike, sabrBundle);
     // Long/short parity
-    pvsShortPayer = PresentValueSABRSensitivityDataBundle.multiplyBy(pvsShortPayer, -1.0);
+    pvsShortPayer = pvsShortPayer.multiplyBy(-1.0);
     assertEquals(pvsLongPayer.getAlpha(), pvsShortPayer.getAlpha());
     // SABR sensitivity vs finite difference
     final double pvLongPayer = METHOD_EXTRAPOLATION.presentValue(swaptionLongPayerHighStrike, sabrBundle);
@@ -360,7 +360,7 @@ public class SwaptionPhysicalFixedIborSABRExtrapolationRightMethodTest {
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
       methodExtrapolation.presentValue(swaptionLongPayerHighStrike, sabrBundle);
-      methodExtrapolation.presentValueSensitivity(swaptionLongPayerHighStrike, sabrBundle);
+      methodExtrapolation.presentValueCurveSensitivity(swaptionLongPayerHighStrike, sabrBundle);
       methodExtrapolation.presentValueSABRSensitivity(swaptionLongPayerHighStrike, sabrBundle);
     }
     endTime = System.currentTimeMillis();
@@ -376,7 +376,7 @@ public class SwaptionPhysicalFixedIborSABRExtrapolationRightMethodTest {
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
       methodExtrapolation.presentValue(swaptionLongReceiverHighStrike, sabrBundle);
-      methodExtrapolation.presentValueSensitivity(swaptionLongReceiverHighStrike, sabrBundle);
+      methodExtrapolation.presentValueCurveSensitivity(swaptionLongReceiverHighStrike, sabrBundle);
       methodExtrapolation.presentValueSABRSensitivity(swaptionLongReceiverHighStrike, sabrBundle);
     }
     endTime = System.currentTimeMillis();
@@ -385,7 +385,7 @@ public class SwaptionPhysicalFixedIborSABRExtrapolationRightMethodTest {
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
       methodNoExtrapolation.presentValue(swaptionLongReceiverHighStrike, sabrBundle);
-      methodExtrapolation.presentValueSensitivity(swaptionLongReceiverHighStrike, sabrBundle);
+      methodExtrapolation.presentValueCurveSensitivity(swaptionLongReceiverHighStrike, sabrBundle);
       methodExtrapolation.presentValueSABRSensitivity(swaptionLongReceiverHighStrike, sabrBundle);
     }
     endTime = System.currentTimeMillis();

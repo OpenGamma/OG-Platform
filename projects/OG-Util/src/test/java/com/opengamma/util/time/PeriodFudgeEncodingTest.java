@@ -18,6 +18,7 @@ import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 /**
  * Test Period Fudge support.
  */
+@Test(groups = "unit")
 public class PeriodFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
 
   private static final Period s_ref = Period.of(2, DAYS);

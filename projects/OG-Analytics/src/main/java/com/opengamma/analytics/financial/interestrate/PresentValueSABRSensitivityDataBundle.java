@@ -9,7 +9,7 @@ import java.util.Map;
 
 import org.apache.commons.lang.ObjectUtils;
 
-import com.opengamma.analytics.util.surface.SurfaceValue;
+import com.opengamma.analytics.util.amount.SurfaceValue;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -120,24 +120,22 @@ public class PresentValueSABRSensitivityDataBundle {
 
   /**
    * Create a new sensitivity object with all the sensitivities multiplied by a common factor. 
-   * @param sensi The SABR sensitivity.
    * @param factor The multiplicative factor.
    * @return The multiplied sensitivity.
    */
-  public static PresentValueSABRSensitivityDataBundle multiplyBy(final PresentValueSABRSensitivityDataBundle sensi, final double factor) {
-    return new PresentValueSABRSensitivityDataBundle(SurfaceValue.multiplyBy(sensi._alpha, factor), SurfaceValue.multiplyBy(sensi._beta, factor), SurfaceValue.multiplyBy(sensi._rho, factor),
-        SurfaceValue.multiplyBy(sensi._nu, factor));
+  public PresentValueSABRSensitivityDataBundle multiplyBy(final double factor) {
+    return new PresentValueSABRSensitivityDataBundle(SurfaceValue.multiplyBy(_alpha, factor), SurfaceValue.multiplyBy(_beta, factor), SurfaceValue.multiplyBy(_rho, factor), SurfaceValue.multiplyBy(
+        _nu, factor));
   }
 
   /**
    * Return the sum of to sensitivities in a new one. The original sensitivities are unchanged. 
-   * @param sensi1 The first SABR sensitivity. 
-   * @param sensi2 The second SABR sensitivity.
+   * @param other The other SABR sensitivity.
    * @return The sum sensitivity.
    */
-  public static PresentValueSABRSensitivityDataBundle plus(final PresentValueSABRSensitivityDataBundle sensi1, final PresentValueSABRSensitivityDataBundle sensi2) {
-    return new PresentValueSABRSensitivityDataBundle(SurfaceValue.plus(sensi1._alpha, sensi2._alpha), SurfaceValue.plus(sensi1._beta, sensi2._beta), SurfaceValue.plus(sensi1._rho, sensi2._rho),
-        SurfaceValue.plus(sensi1._nu, sensi2._nu));
+  public PresentValueSABRSensitivityDataBundle plus(final PresentValueSABRSensitivityDataBundle other) {
+    return new PresentValueSABRSensitivityDataBundle(SurfaceValue.plus(_alpha, other._alpha), SurfaceValue.plus(_beta, other._beta), SurfaceValue.plus(_rho, other._rho), SurfaceValue.plus(_nu,
+        other._nu));
   }
 
   /**

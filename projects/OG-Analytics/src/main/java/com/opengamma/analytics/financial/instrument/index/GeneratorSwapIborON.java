@@ -7,7 +7,6 @@ package com.opengamma.analytics.financial.instrument.index;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
-import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.swap.SwapIborONDefinition;
@@ -19,7 +18,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Generator (or template) for OIS.
  */
-public class GeneratorSwapIborON extends GeneratorInstrument {
+public class GeneratorSwapIborON extends GeneratorInstrument<GeneratorAttributeIR> {
 
   /**
    * The Ibor index.
@@ -63,7 +62,8 @@ public class GeneratorSwapIborON extends GeneratorInstrument {
    * @param endOfMonth The flag indicating if the end-of-month rule is used (used for both legs).
    * @param spotLag The index spot lag in days between trade and settlement date (usually 2 or 0).
    */
-  public GeneratorSwapIborON(final String name, final IborIndex indexIbor, final IndexON indexON, final BusinessDayConvention businessDayConvention, final boolean endOfMonth, final int spotLag) {
+  public GeneratorSwapIborON(final String name, final IborIndex indexIbor, final IndexON indexON, final BusinessDayConvention businessDayConvention,
+      final boolean endOfMonth, final int spotLag) {
     super(name);
     Validate.notNull(indexIbor, "Index Ibor");
     Validate.notNull(indexON, "Index ON");
@@ -88,8 +88,8 @@ public class GeneratorSwapIborON extends GeneratorInstrument {
    * @param spotLag The index spot lag in days between trade and settlement date (usually 2 or 0).
    * @param paymentLag The lag in days between the last ON fixing date and the coupon payment.
    */
-  public GeneratorSwapIborON(final String name, final IborIndex indexIbor, final IndexON indexON, final BusinessDayConvention businessDayConvention, final boolean endOfMonth, final int spotLag,
-      final int paymentLag) {
+  public GeneratorSwapIborON(final String name, final IborIndex indexIbor, final IndexON indexON, final BusinessDayConvention businessDayConvention,
+      final boolean endOfMonth, final int spotLag, final int paymentLag) {
     super(name);
     Validate.notNull(indexIbor, "Index Ibor");
     Validate.notNull(indexON, "Index ON");
@@ -180,20 +180,12 @@ public class GeneratorSwapIborON extends GeneratorInstrument {
   /**
    * The effective date is spot+startTenor. The end of fixing period is effective date+tenor.
    */
-  public SwapIborONDefinition generateInstrument(ZonedDateTime date, Period tenor, double spread, double notional, Object... objects) {
+  public SwapIborONDefinition generateInstrument(final ZonedDateTime date, final double spread, final double notional, final GeneratorAttributeIR attribute) {
     ArgumentChecker.notNull(date, "Reference date");
-    final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(date, _spotLag, _indexIbor.getCalendar());
-    return SwapIborONDefinition.from(startDate, tenor, this, notional, spread, true);
-  }
-
-  @Override
-  /**
-   * The effective date is spot+startTenor. The end of fixing period is effective date+endTenor.
-   */
-  public SwapIborONDefinition generateInstrument(final ZonedDateTime date, final Period startTenor, final Period endTenor, double spread, double notional, Object... objects) {
+    ArgumentChecker.notNull(attribute, "Attributes");
     final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, _spotLag, _indexIbor.getCalendar());
-    final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spot, startTenor, _indexIbor);
-    return SwapIborONDefinition.from(startDate, endTenor, this, notional, spread, true);
+    final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spot, attribute.getStartPeriod(), _indexIbor);
+    return SwapIborONDefinition.from(startDate, attribute.getEndPeriod(), this, notional, spread, true);
   }
 
   @Override
@@ -212,7 +204,7 @@ public class GeneratorSwapIborON extends GeneratorInstrument {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -222,7 +214,7 @@ public class GeneratorSwapIborON extends GeneratorInstrument {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    GeneratorSwapIborON other = (GeneratorSwapIborON) obj;
+    final GeneratorSwapIborON other = (GeneratorSwapIborON) obj;
     if (!ObjectUtils.equals(_businessDayConvention, other._businessDayConvention)) {
       return false;
     }

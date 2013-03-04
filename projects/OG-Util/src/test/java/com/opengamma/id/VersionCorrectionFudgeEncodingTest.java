@@ -13,7 +13,7 @@ import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 /**
  * Test Fudge encoding.
  */
-@Test
+@Test(groups = "unit")
 public class VersionCorrectionFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
 
   private static final Instant INSTANT1 = Instant.ofEpochSecond(1);

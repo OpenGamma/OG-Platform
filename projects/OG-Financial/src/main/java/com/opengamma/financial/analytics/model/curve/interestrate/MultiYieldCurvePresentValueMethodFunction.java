@@ -28,7 +28,8 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
-import com.opengamma.analytics.financial.instrument.future.InterestRateFutureDefinition;
+import com.opengamma.analytics.financial.instrument.future.InterestRateFutureSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.future.InterestRateFutureTransactionDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.LastTimeCalculator;
 import com.opengamma.analytics.financial.interestrate.MultipleYieldCurveFinderDataBundle;
@@ -143,8 +144,14 @@ public class MultiYieldCurvePresentValueMethodFunction extends MultiYieldCurveFu
         final InstrumentDerivative derivative = _definitionConverter.convert(security, definition, now, curveNamesForSecurity, timeSeries);
         if (derivative != null) {
           if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
-            final InstrumentDefinition<?> unitNotional = ((InterestRateFutureDefinition) definition).withNewNotionalAndTransactionPrice(1, marketValue);
-            // Implementation note: to have the same notional for OTC and futures (and thus not near-singular Jacobian)
+            InstrumentDefinition<?> unitNotional;
+            if (definition instanceof InterestRateFutureSecurityDefinition) {
+              final InterestRateFutureSecurityDefinition securityDefinition = (InterestRateFutureSecurityDefinition) definition;
+              unitNotional = new InterestRateFutureTransactionDefinition(securityDefinition, now, marketValue, 1);
+            } else {
+              unitNotional = ((InterestRateFutureTransactionDefinition) definition).withNewNotionalAndTransactionPrice(1, marketValue);
+              // Implementation note: to have the same notional for OTC and futures (and thus not near-singular Jacobian)
+            }
             final InstrumentDerivative unitNotionalDerivative = _definitionConverter.convert(security, unitNotional, now, curveNamesForSecurity, timeSeries);
             derivatives.add(unitNotionalDerivative);
             initialRatesGuess.add(1 - marketValue);

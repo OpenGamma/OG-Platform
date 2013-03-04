@@ -223,7 +223,7 @@ public class FixedVarianceSwapLeg extends VarianceSwapLeg {
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "strike",
         "type");
 

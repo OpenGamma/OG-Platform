@@ -10,7 +10,6 @@ import static com.opengamma.analytics.math.linearalgebra.TridiagonalSolver.solvT
 import java.util.Arrays;
 
 import org.apache.commons.lang.NotImplementedException;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.math.MathException;
 import com.opengamma.analytics.math.linearalgebra.Decomposition;
@@ -27,7 +26,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver {
   private static final Decomposition<?> DCOMP = new LUDecompositionCommons();
-  // private static final DEFAULT 
+  // private static final DEFAULT
   private final double _theta;
   private final boolean _showFullResults;
 
@@ -45,7 +44,7 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
    * @param showFullResults Show the full results
    */
   public ThetaMethodFiniteDifference(final double theta, final boolean showFullResults) {
-    Validate.isTrue(theta >= 0 && theta <= 1.0, "theta must be in the range 0 to 1");
+    ArgumentChecker.isTrue(theta >= 0 && theta <= 1.0, "theta must be in the range 0 to 1");
     _theta = theta;
     _showFullResults = showFullResults;
   }
@@ -55,17 +54,17 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
   }
 
   @Override
-  //TODO This is so ugly 
+  //TODO This is so ugly
   public PDEResults1D solve(final PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> pdeData) {
-    Validate.notNull(pdeData, "pde data");
-    ConvectionDiffusionPDE1DCoefficients coeff = pdeData.getCoefficients();
+    ArgumentChecker.notNull(pdeData, "pde data");
+    final ConvectionDiffusionPDE1DCoefficients coeff = pdeData.getCoefficients();
     if (coeff instanceof ConvectionDiffusionPDE1DStandardCoefficients) {
       final PDE1DDataBundle<ConvectionDiffusionPDE1DStandardCoefficients> temp = convertPDE1DDataBundle(pdeData);
-      SolverImpl solver = new SolverImpl(temp);
+      final SolverImpl solver = new SolverImpl(temp);
       return solver.solve();
     } else if (coeff instanceof ConvectionDiffusionPDE1DFullCoefficients) {
-      ConvectionDiffusionPDE1DFullCoefficients temp = (ConvectionDiffusionPDE1DFullCoefficients) coeff;
-      ExtendedSolverImpl solver = new ExtendedSolverImpl(temp, pdeData.getInitialCondition(), pdeData.getLowerBoundary(), pdeData.getUpperBoundary(),
+      final ConvectionDiffusionPDE1DFullCoefficients temp = (ConvectionDiffusionPDE1DFullCoefficients) coeff;
+      final ExtendedSolverImpl solver = new ExtendedSolverImpl(temp, pdeData.getInitialCondition(), pdeData.getLowerBoundary(), pdeData.getUpperBoundary(),
           pdeData.getFreeBoundary(), pdeData.getGrid());
       return solver.solve();
     }
@@ -74,14 +73,13 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
 
   private static PDE1DDataBundle<ConvectionDiffusionPDE1DStandardCoefficients> convertPDE1DDataBundle(final PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> pdeData) {
     if (pdeData.getFreeBoundary() == null) {
-      return new PDE1DDataBundle<ConvectionDiffusionPDE1DStandardCoefficients>(
+      return new PDE1DDataBundle<>(
           (ConvectionDiffusionPDE1DStandardCoefficients) pdeData.getCoefficients(), pdeData.getInitialCondition(), pdeData.getLowerBoundary(),
           pdeData.getUpperBoundary(), pdeData.getGrid());
-    } else {
-      return new PDE1DDataBundle<ConvectionDiffusionPDE1DStandardCoefficients>(
-          (ConvectionDiffusionPDE1DStandardCoefficients) pdeData.getCoefficients(), pdeData.getInitialCondition(), pdeData.getLowerBoundary(),
-          pdeData.getUpperBoundary(), pdeData.getFreeBoundary(), pdeData.getGrid());
     }
+    return new PDE1DDataBundle<>(
+        (ConvectionDiffusionPDE1DStandardCoefficients) pdeData.getCoefficients(), pdeData.getInitialCondition(), pdeData.getLowerBoundary(),
+        pdeData.getUpperBoundary(), pdeData.getFreeBoundary(), pdeData.getGrid());
   }
 
   private enum SolverMode {
@@ -100,17 +98,17 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
     private final double[][] _x1st;
     private final double[][] _x2nd;
     private final double[] _dx;
-    //initial and boundary conditions  
+    //initial and boundary conditions
     private final double[] _initial;
     private final BoundaryCondition _lower;
     private final BoundaryCondition _upper;
-    //PDE coefficients 
+    //PDE coefficients
     private final ConvectionDiffusionPDE1DStandardCoefficients _coeff;
-    //free boundary problems 
+    //free boundary problems
     private final SolverMode _mode;
     private final Surface<Double, Double, Double> _freeB;
 
-    public SolverImpl(PDE1DDataBundle<ConvectionDiffusionPDE1DStandardCoefficients> pdeData) {
+    public SolverImpl(final PDE1DDataBundle<ConvectionDiffusionPDE1DStandardCoefficients> pdeData) {
 
       //unpack pdeData
       _grid = pdeData.getGrid();
@@ -147,6 +145,7 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
       }
     }
 
+    @SuppressWarnings({"synthetic-access" })
     public PDEResults1D solve() {
 
       double[][] full = null;
@@ -160,10 +159,10 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
 
       double[] topRow = _lower.getLeftMatrixCondition(_coeff, _grid, t);
       double[] bottomRow = _upper.getLeftMatrixCondition(_coeff, _grid, t);
-      double[] cDag = new double[_nNodesX - 2];
-      double[] lDag = new double[_nNodesX - 2];
-      double[] uDag = new double[_nNodesX - 2];
-      for (int ii = 0; ii < _nNodesX - 2; ii++) { //tri-diagonal form 
+      final double[] cDag = new double[_nNodesX - 2];
+      final double[] lDag = new double[_nNodesX - 2];
+      final double[] uDag = new double[_nNodesX - 2];
+      for (int ii = 0; ii < _nNodesX - 2; ii++) { //tri-diagonal form
         final double x = _grid.getSpaceNode(ii + 1);
         final double a = _coeff.getA(t, x);
         final double b = _coeff.getB(t, x);
@@ -174,12 +173,12 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
       }
 
       for (int jj = 0; jj < _nNodesT - 1; jj++) {
-        double dt = _dt[jj];
+        final double dt = _dt[jj];
 
-        //RHS of system 
-        double[] y = new double[_nNodesX];
+        //RHS of system
+        final double[] y = new double[_nNodesX];
         //main part of RHS
-        for (int ii = 1; ii < _nNodesX - 1; ii++) { //tri-diagonal form 
+        for (int ii = 1; ii < _nNodesX - 1; ii++) { //tri-diagonal form
           y[ii] = (1 - (1 - _theta) * dt * cDag[ii - 1]) * h[ii] - (1 - _theta) * dt * (lDag[ii - 1] * h[ii - 1] + +uDag[ii - 1] * h[ii + 1]);
         }
 
@@ -188,10 +187,10 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
         y[0] = _lower.getConstant(_coeff, t);
         y[_nNodesX - 1] = _upper.getConstant(_coeff, t);
 
-        //put the LHS of system in tri-diagonal form 
-        double[] d = new double[_nNodesX]; //main diag
-        double[] u = new double[_nNodesX - 1]; //upper
-        double[] l = new double[_nNodesX - 1]; //lower
+        //put the LHS of system in tri-diagonal form
+        final double[] d = new double[_nNodesX]; //main diag
+        final double[] u = new double[_nNodesX - 1]; //upper
+        final double[] l = new double[_nNodesX - 1]; //lower
         //lower boundary conditions
         topRow = _lower.getLeftMatrixCondition(_coeff, _grid, t);
         final int p2 = topRow.length;
@@ -209,9 +208,9 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
           ArgumentChecker.isFalse(q2 > 2, "Boundary condition means that system is not tri-diagonal");
         }
 
-        for (int ii = 0; ii < _nNodesX - 2; ii++) { //tri-diagonal form 
+        for (int ii = 0; ii < _nNodesX - 2; ii++) { //tri-diagonal form
           final double x = _grid.getSpaceNode(ii + 1);
-          double a = _coeff.getA(t, x);
+          final double a = _coeff.getA(t, x);
           final double b = _coeff.getB(t, x);
           final double c = _coeff.getC(t, x);
           //debug - fitting par
@@ -239,9 +238,9 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
             break;
           case psor:
             h = solvTriDag(lhs, y);
-            double[] free = new double[_nNodesX];
+            final double[] free = new double[_nNodesX];
             for (int ii = 0; ii < _nNodesX; ii++) {
-              double x = _grid.getSpaceNode(ii);
+              final double x = _grid.getSpaceNode(ii);
               free[ii] = _freeB.getZValue(t, x);
             }
             h = solvePSOR(lhs, y, h, free);
@@ -263,16 +262,17 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
       return res;
     }
 
+    @SuppressWarnings("synthetic-access")
     private double[] solveLU(final TridiagonalMatrix lM, final double[] y) {
-      DecompositionResult res = DCOMP.evaluate(lM.toDoubleMatrix2D());
+      final DecompositionResult res = DCOMP.evaluate(lM.toDoubleMatrix2D());
       return res.solve(y);
     }
 
     private double[] solvePSOR(final TridiagonalMatrix lM, final double[] b, final double[] x, final double[] minVal) {
 
-      double[] d = lM.getDiagonalData();
-      double[] u = lM.getUpperSubDiagonalData();
-      double[] l = lM.getLowerSubDiagonalData();
+      final double[] d = lM.getDiagonalData();
+      final double[] u = lM.getUpperSubDiagonalData();
+      final double[] l = lM.getLowerSubDiagonalData();
 
       final int maxInt = 100000;
       final double omega = 1.0;
@@ -285,7 +285,6 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
       }
 
       final int n = b.length;
-      double errSqr = 1.0;
       double maxErr = 1.0;
       int count = 0;
       double temp;
@@ -324,10 +323,10 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
     }
 
     /**
-     * This is modified from the Exponential Fitting of Duffy. We find no effect on the accuracy from using this adjustment, but leave it as a stub for further investigation   
-     * @param a The diffusion coefficient 
-     * @param b The convection coefficient 
-     * @param i The index of the (internal) space node 
+     * This is modified from the Exponential Fitting of Duffy. We find no effect on the accuracy from using this adjustment, but leave it as a stub for further investigation
+     * @param a The diffusion coefficient
+     * @param b The convection coefficient
+     * @param i The index of the (internal) space node
      * @return The adjusted diffusion coefficient (rho)
      */
     @SuppressWarnings("unused")
@@ -345,7 +344,7 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
       // convection dominated
       if (Math.abs(bdx1) > 10 * Math.abs(a) || Math.abs(bdx2) > 10 * Math.abs(a)) {
         // a > 0 is unphysical as it corresponds to a negative diffusion
-        double sign = (a > 0.0 ? -1.0 : 1.0);
+        final double sign = (a > 0.0 ? -1.0 : 1.0);
         if (b > 0) {
           rho = sign * b * x1st[0] / x2nd[0];
         } else {
@@ -388,6 +387,7 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
     private double _t1;
     private double _t2;
 
+    @SuppressWarnings("synthetic-access")
     public SolverImplDeprecated(final ConvectionDiffusionPDE1DStandardCoefficients coeff, final double[] initialCondition, final BoundaryCondition lowerBoundary,
         final BoundaryCondition upperBoundary, final Surface<Double, Double, Double> freeBoundary, final PDEGrid1D grid) {
       _coefficients = coeff;
@@ -539,7 +539,6 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
     }
 
     private void solveMatrixSystem() {
-      final double omega = 1.0;
       //   @SuppressWarnings("unused")
       //NOTE get this working again with dynamic omega
       //final int count = solveBySOR(omega);
@@ -557,16 +556,17 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
 
     }
 
-    @SuppressWarnings({"unused", "synthetic-access" })
+    @SuppressWarnings({"synthetic-access" })
     private void solveByLU() {
-      DoubleMatrix2D temp = new DoubleMatrix2D(_m);
-      DecompositionResult res = DCOMP.evaluate(temp);
-      double[] f = res.solve(_q);
+      final DoubleMatrix2D temp = new DoubleMatrix2D(_m);
+      final DecompositionResult res = DCOMP.evaluate(temp);
+      final double[] f = res.solve(_q);
       for (int i = 0; i < f.length; i++) {
         _f[i] = f[i];
       }
     }
 
+    @SuppressWarnings("unused")
     private int solveBySOR(final double omega) {
 
       double sum;
@@ -615,7 +615,7 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
       // convection dominated
       if (Math.abs(bdx1) > 10 * Math.abs(a) || Math.abs(bdx2) > 10 * Math.abs(a)) {
         // a > 0 is unphysical as it corresponds to a negative diffusion
-        double sign = (a > 0.0 ? -1.0 : 1.0);
+        final double sign = (a > 0.0 ? -1.0 : 1.0);
         if (b > 0) {
           rho = sign * b * x1st[0] / x2nd[0];
         } else {
@@ -749,7 +749,7 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
     void initialise() {
       super.initialise();
       double x;
-      double t = getT1();
+      final double t = getT1();
       for (int i = 0; i < getGrid().getNumSpaceNodes(); i++) {
         x = getGrid().getSpaceNode(i);
         _alpha[i] = _coeff.getAlpha(t, x);
@@ -759,7 +759,7 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
 
     @Override
     void updateRHSVector() {
-      double dt = getT2() - getT1();
+      final double dt = getT2() - getT1();
       double[] x1st, x2nd;
       double temp;
       for (int i = 1; i < getGrid().getNumSpaceNodes() - 1; i++) {
@@ -776,7 +776,7 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
 
     @Override
     void updateLHSMatrix() {
-      double dt = getT2() - getT1();
+      final double dt = getT2() - getT1();
       double[] x1st, x2nd;
       for (int i = 1; i < getGrid().getNumSpaceNodes() - 1; i++) {
         x1st = getGrid().getFirstDerivativeCoefficients(i);

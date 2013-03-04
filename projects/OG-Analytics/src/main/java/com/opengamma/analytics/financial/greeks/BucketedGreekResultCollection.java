@@ -31,7 +31,7 @@ public class BucketedGreekResultCollection implements Iterable<Pair<Greek, doubl
 
   };
 
-  private final Map<Greek, double[][]> _dataMap = new TreeMap<Greek, double[][]>();
+  private final Map<Greek, double[][]> _dataMap = new TreeMap<>();
   private final double[][] _strikes;
   private final double[] _expiries;
   private final int _nExpiries;

@@ -20,6 +20,7 @@ import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
@@ -30,31 +31,31 @@ import com.opengamma.util.tuple.Pair;
 public abstract class FXForwardCurveFromYieldCurvesDefaults extends DefaultPropertyFunction {
   private static final Logger s_logger = LoggerFactory.getLogger(FXForwardCurveFromYieldCurvesDefaults.class);
   private static final String[] VALUE_REQUIREMENTS = new String[] {
-    ValueRequirementNames.FORWARD_CURVE,
-    ValueRequirementNames.BLACK_VOLATILITY_SURFACE,
-    ValueRequirementNames.LOCAL_VOLATILITY_SURFACE,
-    ValueRequirementNames.PURE_VOLATILITY_SURFACE,
-    ValueRequirementNames.FORWARD_DELTA,
-    ValueRequirementNames.DUAL_DELTA,
-    ValueRequirementNames.DUAL_GAMMA,
-    ValueRequirementNames.FORWARD_GAMMA,
-    ValueRequirementNames.FOREX_DOMESTIC_PRICE,
-    ValueRequirementNames.FOREX_PV_QUOTES,
-    ValueRequirementNames.FORWARD_VEGA,
-    ValueRequirementNames.FORWARD_VOMMA,
-    ValueRequirementNames.FORWARD_VANNA,
-    ValueRequirementNames.PRESENT_VALUE,
-    ValueRequirementNames.FX_PRESENT_VALUE,
-    ValueRequirementNames.IMPLIED_VOLATILITY,
-    ValueRequirementNames.GRID_DUAL_DELTA,
-    ValueRequirementNames.GRID_DUAL_GAMMA,
-    ValueRequirementNames.GRID_FORWARD_DELTA,
-    ValueRequirementNames.GRID_FORWARD_GAMMA,
-    ValueRequirementNames.GRID_FORWARD_VEGA,
-    ValueRequirementNames.GRID_FORWARD_VANNA,
-    ValueRequirementNames.GRID_FORWARD_VOMMA,
-    ValueRequirementNames.GRID_IMPLIED_VOLATILITY,
-    ValueRequirementNames.GRID_PRESENT_VALUE
+      ValueRequirementNames.FORWARD_CURVE,
+      ValueRequirementNames.BLACK_VOLATILITY_SURFACE,
+      ValueRequirementNames.LOCAL_VOLATILITY_SURFACE,
+      ValueRequirementNames.PURE_VOLATILITY_SURFACE,
+      ValueRequirementNames.FORWARD_DELTA,
+      ValueRequirementNames.DUAL_DELTA,
+      ValueRequirementNames.DUAL_GAMMA,
+      ValueRequirementNames.FORWARD_GAMMA,
+      ValueRequirementNames.FOREX_DOMESTIC_PRICE,
+      ValueRequirementNames.FOREX_PV_QUOTES,
+      ValueRequirementNames.FORWARD_VEGA,
+      ValueRequirementNames.FORWARD_VOMMA,
+      ValueRequirementNames.FORWARD_VANNA,
+      ValueRequirementNames.PRESENT_VALUE,
+      ValueRequirementNames.FX_PRESENT_VALUE,
+      ValueRequirementNames.IMPLIED_VOLATILITY,
+      ValueRequirementNames.GRID_DUAL_DELTA,
+      ValueRequirementNames.GRID_DUAL_GAMMA,
+      ValueRequirementNames.GRID_FORWARD_DELTA,
+      ValueRequirementNames.GRID_FORWARD_GAMMA,
+      ValueRequirementNames.GRID_FORWARD_VEGA,
+      ValueRequirementNames.GRID_FORWARD_VANNA,
+      ValueRequirementNames.GRID_FORWARD_VOMMA,
+      ValueRequirementNames.GRID_IMPLIED_VOLATILITY,
+      ValueRequirementNames.GRID_PRESENT_VALUE
   };
   private final Map<String, Pair<String, String>> _currencyCurveConfigAndDiscountingCurveNames;
 
@@ -122,8 +123,9 @@ public abstract class FXForwardCurveFromYieldCurvesDefaults extends DefaultPrope
 
   protected abstract String getSecondCurrency(ComputationTarget target);
 
-//  @Override
-//  public String getMutualExclusionGroup() {
-//    return OpenGammaFunctionExclusions.IMPLIED_FX_FORWARD_CURVE_DEFAULTS;
-//  }
+  @Override
+  public String getMutualExclusionGroup() {
+    return OpenGammaFunctionExclusions.CURVE_DEFAULTS;
+  }
+
 }

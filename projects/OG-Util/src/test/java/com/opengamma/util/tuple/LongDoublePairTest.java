@@ -13,7 +13,7 @@ import org.testng.annotations.Test;
 /**
  * Test LongDoublePair.
  */
-@Test
+@Test(groups = "unit")
 public class LongDoublePairTest {
 
   public void test_LongDoublePair_of() {

@@ -34,6 +34,10 @@ public final class BloombergConstants {
    */
   public static final String DATA_PROVIDER_UNKNOWN = "UNKNOWN";
   /**
+   * Name for default data provider.
+   */
+  public static final String DEFAULT_DATA_PROVIDER = "DEFAULT";
+  /**
    * OPTION CHAIN FIELD
    */
   public static final String FIELD_OPT_CHAIN = "OPT_CHAIN";
@@ -181,12 +185,15 @@ public final class BloombergConstants {
   public static final String BBG_ELECTRICITY = "Electricity";
   public static final String BBG_COAL = "Coal";
   public static final String BBG_CRUDE_OIL = "Crude Oil";
+  public static final String BBG_NATURAL_GAS = "Natural Gas";
 
   //Bloomberg agriculture future types
   public static final String BBG_WHEAT = "Wheat";
   public static final String BBG_SOY = "Soy";
   public static final String BBG_LIVESTOCK = "Livestock";
   public static final String BBG_FOODSTUFF = "Foodstuff";
+  public static final String BBG_CORN = "Corn";
+  
 
   //Bloomberg index future type
   public static final String BLOOMBERG_EQUITY_INDEX_TYPE = "Equity Index";
@@ -215,6 +222,7 @@ public final class BloombergConstants {
   public static final String BLOOMBERG_PHYSICAL_COMMODITY_FUTURE_TYPE = "Physical commodity future.";
   public static final String BLOOMBERG_FINANCIAL_COMMODITY_FUTURE_TYPE = "Financial commodity future.";
   public static final String BLOOMBERG_PHYSICAL_COMMODITY_FUTURE_OPTION_TYPE = "Physical commodity option.";
+  public static final String BLOOMBERG_PHYSICAL_INDEX_FUTURE_TYPE = "Physical index future.";
 
   public static final Name RESPONSE_ERROR = new Name("responseError");
   public static final Name SECURITY_DATA = new Name("securityData");

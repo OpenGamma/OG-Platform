@@ -9,9 +9,27 @@ $.register_module({
         var module = this, Block = og.common.util.ui.Block;
         var Portfolio = function (config) {
             var block = this, id = og.common.id('attributes'), form = config.form;
-            form.Block.call(block, {module: 'og.blotter.forms.blocks.portfolio_tash', 
-                extras: {id: id, counterparty: config.counterparty, portfolio: config.portfolio, 
-                    tradedate: config.tradedate}});
+            form.Block.call(block, {module: 'og.blotter.forms.blocks.portfolio_tash',
+                extras: {
+                    id: id,
+                    counterparty: config.counterparty,
+                    portfolio: config.portfolio,
+                    trade: config.trade
+                },
+                children: [
+                    new form.Block({module:'og.views.forms.currency_tash', extras:{name: 'trade.premiumCurrency'}})
+                ]
+            });
+
+            form.on('form:load', function () {
+                $('.premium-toggle', '#'+id).click(function (event) {
+                    var $hidden = $('.hidden', '#'+id);
+                    $hidden.is(':visible') ? $hidden.hide() : $hidden.show();
+                    event.preventDefault();
+                    return false;
+                });
+                og.blotter.util.set_select("trade.premiumCurrency", config.trade.premiumCurrency);
+            });
         };
         Portfolio.prototype = new Block(); // inherit Block prototype
         return Portfolio;

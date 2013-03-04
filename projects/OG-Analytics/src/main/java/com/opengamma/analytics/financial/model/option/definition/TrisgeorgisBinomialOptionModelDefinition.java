@@ -26,7 +26,7 @@ public class TrisgeorgisBinomialOptionModelDefinition extends BinomialOptionMode
     final double dt = t / n;
     final double nu = b - 0.5 * sigma * sigma;
     final double du = getUpFactor(option, data, n, j);
-    return new ConstantRecombiningBinomialTree<Double>(0.5 * (1 + nu * dt / Math.log(du)));
+    return new ConstantRecombiningBinomialTree<>(0.5 * (1 + nu * dt / Math.log(du)));
   }
 
   @Override

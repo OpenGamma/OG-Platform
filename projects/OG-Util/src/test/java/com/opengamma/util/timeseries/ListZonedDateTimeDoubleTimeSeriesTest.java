@@ -5,7 +5,6 @@
  */
 package com.opengamma.util.timeseries;
 
-
 import java.util.List;
 
 import org.testng.annotations.Test;
@@ -15,26 +14,26 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.util.timeseries.zoneddatetime.ListZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.timeseries.zoneddatetime.ZonedDateTimeDoubleTimeSeries;
 
-@Test
+@Test(groups = "unit")
 public class ListZonedDateTimeDoubleTimeSeriesTest extends ZonedDateTimeDoubleTimeSeriesTest {
 
   @Override
-  public ZonedDateTimeDoubleTimeSeries createEmptyTimeSeries() {
+  protected ZonedDateTimeDoubleTimeSeries createEmptyTimeSeries() {
     return new ListZonedDateTimeDoubleTimeSeries(ZoneOffset.UTC);
   }
 
   @Override
-  public ZonedDateTimeDoubleTimeSeries createTimeSeries(ZonedDateTime[] times, double[] values) {
+  protected ZonedDateTimeDoubleTimeSeries createTimeSeries(ZonedDateTime[] times, double[] values) {
     return new ListZonedDateTimeDoubleTimeSeries(ZoneOffset.UTC, times, values);
   }
 
   @Override
-  public ZonedDateTimeDoubleTimeSeries createTimeSeries(List<ZonedDateTime> times, List<Double> values) {
+  protected ZonedDateTimeDoubleTimeSeries createTimeSeries(List<ZonedDateTime> times, List<Double> values) {
     return new ListZonedDateTimeDoubleTimeSeries(ZoneOffset.UTC, times, values);
   }
 
   @Override
-  public ZonedDateTimeDoubleTimeSeries createTimeSeries(DoubleTimeSeries<ZonedDateTime> dts) {
+  protected ZonedDateTimeDoubleTimeSeries createTimeSeries(DoubleTimeSeries<ZonedDateTime> dts) {
     return new ListZonedDateTimeDoubleTimeSeries(ZoneOffset.UTC, dts);
   }
 

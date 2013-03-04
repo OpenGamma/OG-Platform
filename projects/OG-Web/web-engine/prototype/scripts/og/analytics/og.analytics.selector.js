@@ -41,14 +41,15 @@ $.register_module({
                 $(grid.id + ' ' + overlay).remove();
             };
             var mousedown = function (event) {
-                if (event.which === 3 || event.button === 2) return; else initialize(); // ignore right clicks
+                initialize();
                 var $target = $(event.target), scroll_body = grid.elements.scroll_body,
-                    x = event.pageX - grid_offset.left + (event.pageX > fixed_width ? scroll_body.scrollLeft() : 0),
                     is_cell = ($target.is(cell) ? $target : $target.parents(cell + ':first')).length,
+                    x = event.pageX - grid_offset.left + (event.pageX > fixed_width ? scroll_body.scrollLeft() : 0),
                     y = event.pageY - grid_offset.top + scroll_body.scrollTop() - grid.meta.header_height;
                 selector.clear();
                 clean_up();
-                if (!is_cell || $target.is(overlay)) return selector.fire('deselect');
+                if (!(event.which === 3 || event.button === 2) && (!is_cell || $target.is(overlay)))
+                    return selector.fire('deselect');
                 selector.busy(true);
                 setTimeout(function () { // do this after the event has finished (and its parents have gotten it)
                     if (!selector.registered) selector.registered = !!grid.elements.parent
@@ -127,18 +128,22 @@ $.register_module({
         };
         Selector.prototype.selection = function (rectangle) {
             if (!this.rectangle && !rectangle) return null;
-            var selector = this, grid = selector.grid, meta = grid.meta,
+            var selector = this, grid = selector.grid, meta = grid.meta, state = grid.state,
                 bottom_right = (rectangle = rectangle || selector.rectangle).bottom_right,
                 top_left = rectangle.top_left, grid = selector.grid,
-                row_start = Math.floor(top_left.top / grid.meta.row_height),
-                row_end = Math.floor(bottom_right.bottom / grid.meta.row_height),
-                lcv, scan = grid.meta.columns.scan.all, rows = [], cols = [];
+                row_start = Math.floor(top_left.top / meta.row_height),
+                row_end = Math.floor(bottom_right.bottom / meta.row_height),
+                lcv, scan = meta.columns.scan.all, rows = [], cols = [], types;
             if (row_start < 0) return null; // bad input
             for (lcv = 0; lcv < scan.length; lcv += 1)
-                if (scan[lcv] <= bottom_right.right && scan[lcv] > top_left.left) cols.push(lcv);
+                if (scan[lcv] <= bottom_right.right && scan[lcv] > top_left.left)
+                    cols.push(state.col_reorder.length ? state.col_reorder[lcv] : lcv);
                 else if (scan[lcv] > bottom_right.right) break;
-            for (lcv = row_start; lcv < row_end; lcv += 1) rows.push(meta.available[lcv]);
-            return {cols: cols, rows: rows, type: cols.map(function (col) {return meta.columns.types[col];})};
+            for (lcv = row_start; lcv < row_end; lcv += 1) rows.push(state.available[lcv]);
+            types = cols.map(function (col) {
+                return meta.columns.types[state.col_reorder.length ? state.col_reorder.indexOf(col) : col];
+            });
+            return {cols: cols, rows: rows, type: types};
         };
         return Selector;
     }

@@ -106,22 +106,22 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
   /**
    * The yield curve definition source.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition()
   private InterpolatedYieldCurveDefinitionSource _interpolatedYieldCurveDefinitionSource;
   /**
    * The yield curve specification source.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition()
   private InterpolatedYieldCurveSpecificationBuilder _interpolatedYieldCurveSpecificationBuilder;
   /**
    * The volitility cube source.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition()
   private VolatilityCubeDefinitionSource _volatilityCubeDefinitionSource;
   /**
    * The currency matrix source.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition()
   private CurrencyMatrixSource _currencyMatrixSource;
   /**
    * The holiday source.
@@ -392,10 +392,6 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
     JodaBeanUtils.notNull(_targetResolver, "targetResolver");
     JodaBeanUtils.notNull(_regionSource, "regionSource");
     JodaBeanUtils.notNull(_conventionBundleSource, "conventionBundleSource");
-    JodaBeanUtils.notNull(_interpolatedYieldCurveDefinitionSource, "interpolatedYieldCurveDefinitionSource");
-    JodaBeanUtils.notNull(_interpolatedYieldCurveSpecificationBuilder, "interpolatedYieldCurveSpecificationBuilder");
-    JodaBeanUtils.notNull(_volatilityCubeDefinitionSource, "volatilityCubeDefinitionSource");
-    JodaBeanUtils.notNull(_currencyMatrixSource, "currencyMatrixSource");
     JodaBeanUtils.notNull(_holidaySource, "holidaySource");
     JodaBeanUtils.notNull(_exchangeSource, "exchangeSource");
     JodaBeanUtils.notNull(_historicalTimeSeriesSource, "historicalTimeSeriesSource");
@@ -696,7 +692,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets the yield curve definition source.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public InterpolatedYieldCurveDefinitionSource getInterpolatedYieldCurveDefinitionSource() {
     return _interpolatedYieldCurveDefinitionSource;
@@ -704,10 +700,9 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets the yield curve definition source.
-   * @param interpolatedYieldCurveDefinitionSource  the new value of the property, not null
+   * @param interpolatedYieldCurveDefinitionSource  the new value of the property
    */
   public void setInterpolatedYieldCurveDefinitionSource(InterpolatedYieldCurveDefinitionSource interpolatedYieldCurveDefinitionSource) {
-    JodaBeanUtils.notNull(interpolatedYieldCurveDefinitionSource, "interpolatedYieldCurveDefinitionSource");
     this._interpolatedYieldCurveDefinitionSource = interpolatedYieldCurveDefinitionSource;
   }
 
@@ -722,7 +717,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets the yield curve specification source.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public InterpolatedYieldCurveSpecificationBuilder getInterpolatedYieldCurveSpecificationBuilder() {
     return _interpolatedYieldCurveSpecificationBuilder;
@@ -730,10 +725,9 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets the yield curve specification source.
-   * @param interpolatedYieldCurveSpecificationBuilder  the new value of the property, not null
+   * @param interpolatedYieldCurveSpecificationBuilder  the new value of the property
    */
   public void setInterpolatedYieldCurveSpecificationBuilder(InterpolatedYieldCurveSpecificationBuilder interpolatedYieldCurveSpecificationBuilder) {
-    JodaBeanUtils.notNull(interpolatedYieldCurveSpecificationBuilder, "interpolatedYieldCurveSpecificationBuilder");
     this._interpolatedYieldCurveSpecificationBuilder = interpolatedYieldCurveSpecificationBuilder;
   }
 
@@ -748,7 +742,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets the volitility cube source.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public VolatilityCubeDefinitionSource getVolatilityCubeDefinitionSource() {
     return _volatilityCubeDefinitionSource;
@@ -756,10 +750,9 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets the volitility cube source.
-   * @param volatilityCubeDefinitionSource  the new value of the property, not null
+   * @param volatilityCubeDefinitionSource  the new value of the property
    */
   public void setVolatilityCubeDefinitionSource(VolatilityCubeDefinitionSource volatilityCubeDefinitionSource) {
-    JodaBeanUtils.notNull(volatilityCubeDefinitionSource, "volatilityCubeDefinitionSource");
     this._volatilityCubeDefinitionSource = volatilityCubeDefinitionSource;
   }
 
@@ -774,7 +767,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets the currency matrix source.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public CurrencyMatrixSource getCurrencyMatrixSource() {
     return _currencyMatrixSource;
@@ -782,10 +775,9 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets the currency matrix source.
-   * @param currencyMatrixSource  the new value of the property, not null
+   * @param currencyMatrixSource  the new value of the property
    */
   public void setCurrencyMatrixSource(CurrencyMatrixSource currencyMatrixSource) {
-    JodaBeanUtils.notNull(currencyMatrixSource, "currencyMatrixSource");
     this._currencyMatrixSource = currencyMatrixSource;
   }
 
@@ -1175,7 +1167,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier",
         "configSource",
         "configMaster",

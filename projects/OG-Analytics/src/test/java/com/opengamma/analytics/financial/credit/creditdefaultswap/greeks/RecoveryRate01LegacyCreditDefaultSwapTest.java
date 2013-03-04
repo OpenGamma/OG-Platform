@@ -298,6 +298,8 @@ public class RecoveryRate01LegacyCreditDefaultSwapTest {
 
   // Hazard rate term structure (assume this has been calibrated previously)
 
+  static ZonedDateTime[] hazardRateDates = {zdt(2013, 06, 20, 0, 0, 0, 0, ZoneOffset.UTC), zdt(2015, 06, 20, 0, 0, 0, 0, ZoneOffset.UTC), zdt(2018, 06, 20, 0, 0, 0, 0, ZoneOffset.UTC) };
+
   static double[] hazardRateTimes = {
       0.0,
       s_act365.getDayCountFraction(valuationDate, zdt(2013, 06, 20, 0, 0, 0, 0, ZoneOffset.UTC)),
@@ -313,7 +315,7 @@ public class RecoveryRate01LegacyCreditDefaultSwapTest {
   };
 
   // Build the hazard rate curve object (No offset - survival probability = 1 on valuationDate)
-  private static final HazardRateCurve hazardRateCurve = new HazardRateCurve(hazardRateTimes, hazardRates, 0.0);
+  private static final HazardRateCurve hazardRateCurve = new HazardRateCurve(hazardRateDates, hazardRateTimes, hazardRates, 0.0);
 
   // ----------------------------------------------------------------------------------
 
@@ -446,12 +448,12 @@ public class RecoveryRate01LegacyCreditDefaultSwapTest {
     final RecRate01CreditDefaultSwap recRate01 = new RecRate01CreditDefaultSwap();
 
     // Compute the RecoveryRate01
-    final double recoveryRate01 = recRate01.getRecoveryRate01CreditDefaultSwap(valuationDate, cds, yieldCurve, tenors, marketSpreads, recoveryRateBump, recoveryRateBumpType, priceType);
+    //final double recoveryRate01 = recRate01.getRecoveryRate01CreditDefaultSwap(valuationDate, cds, yieldCurve, tenors, marketSpreads, recoveryRateBump, recoveryRateBumpType, priceType);
 
     // -------------------------------------------------------------------------------------
 
     if (outputResults) {
-      System.out.println("CDS RecoveryRate01 = " + recoveryRate01);
+      //System.out.println("CDS RecoveryRate01 = " + recoveryRate01);
     }
 
     // -------------------------------------------------------------------------------------

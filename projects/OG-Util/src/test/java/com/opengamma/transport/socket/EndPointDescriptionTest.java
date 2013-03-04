@@ -23,7 +23,7 @@ import org.testng.annotations.Test;
 /**
  * Test.
  */
-@Test
+@Test(groups = "integration")
 public class EndPointDescriptionTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(EndPointDescriptionTest.class);

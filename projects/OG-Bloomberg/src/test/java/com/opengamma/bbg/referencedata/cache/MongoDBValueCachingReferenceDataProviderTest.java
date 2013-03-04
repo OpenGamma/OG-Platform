@@ -13,7 +13,7 @@ import com.opengamma.bbg.test.MongoCachedReferenceData;
 /**
  * Test.
  */
-@Test(groups = "unit")
+@Test(groups= {"unit", "mongodb"})
 public class MongoDBValueCachingReferenceDataProviderTest extends AbstractValueCachingReferenceDataProviderTestCase {
 
   @Override

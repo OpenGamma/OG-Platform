@@ -94,7 +94,7 @@ import com.opengamma.util.ArgumentChecker;
     return _columnSpec;
   }
 
-  /* package */ ResultsCell getResults(int rowIndex, ResultsCache cache) {
+  /* package */ ResultsCell buildResults(int rowIndex, ResultsCache cache) {
     return _renderer.getResults(rowIndex, cache, _type);
   }
 

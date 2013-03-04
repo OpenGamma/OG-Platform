@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.future;
@@ -56,7 +56,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ *
  */
 public abstract class InterestRateFutureCurveSpecificFunction extends AbstractFunction.NonCompiledInvoker {
   private static final Logger s_logger = LoggerFactory.getLogger(InterestRateFutureCurveSpecificFunction.class);
@@ -94,7 +94,12 @@ public abstract class InterestRateFutureCurveSpecificFunction extends AbstractFu
     if (curveCalculationConfig == null) {
       throw new OpenGammaRuntimeException("Could not find curve calculation configuration named " + curveCalculationConfigName);
     }
+    final String currency = FinancialSecurityUtils.getCurrency(trade.getSecurity()).getCode();
     final String[] curveNames = curveCalculationConfig.getYieldCurveNames();
+    final String[] fullCurveNames = new String[curveNames.length];
+    for (int i = 0; i < curveNames.length; i++) {
+      fullCurveNames[i] = curveNames[i] + "_" + currency;
+    }
     final YieldCurveBundle data = YieldCurveFunctionUtils.getAllYieldCurves(inputs, curveCalculationConfig, curveCalculationConfigSource);
     final ValueRequirement curveSpecRequirement = getCurveSpecRequirement(target, curveName);
     final Object curveSpecObject = inputs.getValue(curveSpecRequirement);
@@ -103,14 +108,14 @@ public abstract class InterestRateFutureCurveSpecificFunction extends AbstractFu
     }
     final InterpolatedYieldCurveSpecificationWithSecurities curveSpec = (InterpolatedYieldCurveSpecificationWithSecurities) curveSpecObject;
     final InstrumentDefinition<InstrumentDerivative> irFutureDefinition = _converter.convert(trade);
-    final InstrumentDerivative irFuture = _dataConverter.convert(trade.getSecurity(), irFutureDefinition, now, curveNames, timeSeries);
+    final InstrumentDerivative irFuture = _dataConverter.convert(trade.getSecurity(), irFutureDefinition, now, fullCurveNames, timeSeries);
     final ValueSpecification spec = new ValueSpecification(_valueRequirement, target.toSpecification(),
         createValueProperties(target, curveName, curveCalculationConfigName));
-    return getResults(irFuture, curveName, curveSpec, data, spec);
+    return getResults(irFuture, curveName, curveSpec, data, spec, trade.getSecurity());
   }
 
   protected abstract Set<ComputedValue> getResults(final InstrumentDerivative irFuture, final String curveName, final InterpolatedYieldCurveSpecificationWithSecurities curveSpec,
-      final YieldCurveBundle curves, final ValueSpecification resultSpec);
+      final YieldCurveBundle curves, final ValueSpecification resultSpec, final Security security);
 
   @Override
   public ComputationTargetType getTargetType() {

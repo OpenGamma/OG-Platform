@@ -29,7 +29,7 @@ import com.opengamma.OpenGammaRuntimeException;
 /**
  * Test.
  */
-@Test
+@Test(groups = "integration")
 public class MessageBatchingWriterTest {
 
   private static final class DelayingOutputStream extends OutputStream {

@@ -208,6 +208,7 @@
     <fragment>/scripts/lib/js.ext.string.prototype.lang.js</fragment>
     <fragment>/scripts/lib/js.ext.string.prototype.trim.js</fragment>
     <fragment>/scripts/lib/js.ext.object.create.js</fragment>
+    <fragment>/scripts/lib/js.ext.object.equals.js</fragment>
     <fragment>/scripts/lib/js.ext.object.keys.js</fragment>
     <fragment>/scripts/lib/js.ext.function.prototype.bind.js</fragment>
     <fragment>/scripts/lib/js.ext.function.prototype.partial.js</fragment>
@@ -368,6 +369,7 @@
   <bundle id="blotter.js">
     <fragment>/scripts/og/blotter/og.blotter.dialog.js</fragment>
     <fragment>/scripts/og/blotter/og.blotter.util.js</fragment>
+    <fragment>/scripts/og/blotter/og.blotter.contextmenu.js</fragment>
     <!--Reusable Blocks-->
     <fragment>/scripts/og/blotter/forms/blocks/og.blotter.forms.blocks.portfolio.js</fragment>
     <fragment>/scripts/og/blotter/forms/blocks/og.blotter.forms.blocks.security.js</fragment>

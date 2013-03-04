@@ -37,7 +37,7 @@ import com.opengamma.util.time.DateUtils;
 public class CapFloorCMSSpreadDefinitionTest {
 
   //Swaps
-  private static final Currency CUR = Currency.USD;
+  private static final Currency CUR = Currency.EUR;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final boolean IS_EOM = true;
@@ -156,7 +156,7 @@ public class CapFloorCMSSpreadDefinitionTest {
         SWAP_DEFINITION_1, CMS_INDEX_1, SWAP_DEFINITION_2, CMS_INDEX_2, STRIKE, IS_CAP);
     assertEquals(newCMSSpread.equals(CMS_SPREAD_DEFINITION), true);
     assertEquals(newCMSSpread.hashCode() == CMS_SPREAD_DEFINITION.hashCode(), true);
-    final Currency newCur = Currency.EUR;
+    final Currency newCur = Currency.USD;
     final CapFloorCMSSpreadDefinition cmsSpreadCur = new CapFloorCMSSpreadDefinition(newCur, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, PAYMENT_ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE,
         SWAP_DEFINITION_1, CMS_INDEX_1, SWAP_DEFINITION_2, CMS_INDEX_2, STRIKE, IS_CAP);
     assertEquals(cmsSpreadCur.equals(CMS_SPREAD_DEFINITION), false);
@@ -187,8 +187,7 @@ public class CapFloorCMSSpreadDefinitionTest {
     assertEquals(SWAP_1, cmsSpread.getUnderlyingSwap1());
     assertEquals(SWAP_2, cmsSpread.getUnderlyingSwap2());
     final CapFloorCMSSpread cmsSpreadExpected = new CapFloorCMSSpread(CUR, PAYMENT_TIME, PAYMENT_ACCRUAL_FACTOR, NOTIONAL, FIXING_TIME, SWAP_1, CMS_INDEX_1, SWAP_2, CMS_INDEX_2, SETTLEMENT_TIME,
-        STRIKE,
-        IS_CAP, FUNDING_CURVE_NAME);
+        STRIKE, IS_CAP, FUNDING_CURVE_NAME);
     assertEquals("CMS Spread to derivatives", cmsSpreadExpected, cmsSpread);
 
   }

@@ -64,7 +64,7 @@ public class CapletStrippingFunction extends Function1D<DoubleMatrix1D, DoubleMa
       Validate.isTrue((knotPoints.containsKey(RHO) && interpolators.containsKey(RHO)) ^ knownParameterTermSturctures.containsKey(RHO), "rho curve not found");
     }
 
-    final LinkedHashMap<String, Interpolator1D> transInterpolators = new LinkedHashMap<String, Interpolator1D>();
+    final LinkedHashMap<String, Interpolator1D> transInterpolators = new LinkedHashMap<>();
     for (final Map.Entry<String, Interpolator1D> entry : interpolators.entrySet()) {
       final String name = entry.getKey();
       final Interpolator1D temp = new TransformedInterpolator1D(entry.getValue(), parameterTransforms.get(name));
@@ -75,7 +75,7 @@ public class CapletStrippingFunction extends Function1D<DoubleMatrix1D, DoubleMa
 
     //  _parameterTransforms = parameterTransforms; //TODO all the check for this
 
-    _capPricers = new ArrayList<CapFloorPricer>(caps.size());
+    _capPricers = new ArrayList<>(caps.size());
     for (final CapFloor cap : caps) {
       _capPricers.add(new CapFloorPricer(cap, yieldCurves));
     }

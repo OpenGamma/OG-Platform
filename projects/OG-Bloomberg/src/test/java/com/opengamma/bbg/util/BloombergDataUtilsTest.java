@@ -14,6 +14,7 @@ import static com.opengamma.bbg.BloombergConstants.FIELD_PARSEKYABLE_DES;
 import static com.opengamma.bbg.util.BloombergDataUtils.toBloombergDate;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.io.StringReader;
@@ -32,6 +33,7 @@ import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Sets;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesConstants;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundleWithDates;
@@ -167,12 +169,12 @@ public class BloombergDataUtilsTest {
   }
 
   public void test_resolveObservationTime() {
-    assertEquals("UNKNOWN", BloombergDataUtils.resolveObservationTime(null));
-    assertEquals("UNKNOWN", BloombergDataUtils.resolveObservationTime("UNKNOWN"));
-    assertEquals("UNKNOWN", BloombergDataUtils.resolveObservationTime("FOO"));
-    assertEquals("LONDON_CLOSE", BloombergDataUtils.resolveObservationTime("CMPL"));
-    assertEquals("NEWYORK_CLOSE", BloombergDataUtils.resolveObservationTime("CMPN"));
-    assertEquals("TOKYO_CLOSE", BloombergDataUtils.resolveObservationTime("CMPT"));
+    assertEquals(HistoricalTimeSeriesConstants.DEFAULT_OBSERVATION_TIME, BloombergDataUtils.resolveObservationTime(null));
+    assertEquals(HistoricalTimeSeriesConstants.DEFAULT_OBSERVATION_TIME, BloombergDataUtils.resolveObservationTime("UNKNOWN"));
+    assertNull(BloombergDataUtils.resolveObservationTime("FOO"));
+    assertEquals(HistoricalTimeSeriesConstants.LONDON_CLOSE, BloombergDataUtils.resolveObservationTime("CMPL"));
+    assertEquals(HistoricalTimeSeriesConstants.NEWYORK_CLOSE, BloombergDataUtils.resolveObservationTime("CMPN"));
+    assertEquals(HistoricalTimeSeriesConstants.TOKYO_CLOSE, BloombergDataUtils.resolveObservationTime("CMPT"));
   }
 
   @Test

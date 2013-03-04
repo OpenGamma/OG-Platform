@@ -42,6 +42,7 @@ import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.bbg.util.BloombergDomainIdentifierResolver;
 import com.opengamma.bbg.util.ReferenceDataProviderUtils;
 import com.opengamma.core.id.ExternalSchemes;
+import com.opengamma.financial.security.DefaultSecurityLoader;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalScheme;
@@ -75,7 +76,7 @@ public class BloombergSecurityFileLoader {
   private static final String OPTION = "option";
   private static final String IDENTIFICATION_SCHEME = "scheme";
 
-  private final BloombergSecurityLoader _securityLoader;
+  private final DefaultSecurityLoader _securityLoader;
   private ReferenceDataProvider _refDataProvider;
   private String[] _files;
   private int _optionSize;
@@ -90,7 +91,7 @@ public class BloombergSecurityFileLoader {
   public BloombergSecurityFileLoader(final SecurityProvider securityProvider, final SecurityMaster securityMaster) {
     ArgumentChecker.notNull(securityProvider, "securityProvider");
     ArgumentChecker.notNull(securityMaster, "securityMaster");
-    _securityLoader = new BloombergSecurityLoader(securityProvider, securityMaster);
+    _securityLoader = new DefaultSecurityLoader(securityMaster, securityProvider);
   }
 
   //-------------------------------------------------------------------------
@@ -131,11 +132,11 @@ public class BloombergSecurityFileLoader {
     
     Set<ExternalIdBundle> identifiers = readInputFiles();
     
-    Map<ExternalIdBundle, UniqueId> loadedSecurities = _securityLoader.loadSecurity(identifiers);
+    Map<ExternalIdBundle, UniqueId> loadedSecurities = _securityLoader.loadSecurities(identifiers);
     List<ExternalIdBundle> errors = findErrors(loadedSecurities);
     if (_optionSize > 0) {
       Set<ExternalIdBundle> optionIdentifiers = loadOptionIdentifiers(identifiers);
-      Map<ExternalIdBundle, UniqueId> loadedOptionSecurities = _securityLoader.loadSecurity(optionIdentifiers);
+      Map<ExternalIdBundle, UniqueId> loadedOptionSecurities = _securityLoader.loadSecurities(optionIdentifiers);
       errors.addAll(findErrors(loadedOptionSecurities));
     }
    

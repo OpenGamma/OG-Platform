@@ -38,7 +38,7 @@ public class PortfolioGridStructureMessageBodyWriter implements MessageBodyWrite
 
   @Override
   public boolean isWriteable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
-    return type.equals(PortfolioGridStructure.class);
+    return PortfolioGridStructure.class.isAssignableFrom(type);
   }
 
   @Override
@@ -59,7 +59,7 @@ public class PortfolioGridStructureMessageBodyWriter implements MessageBodyWrite
                       MediaType mediaType,
                       MultivaluedMap<String, Object> httpHeaders,
                       OutputStream entityStream) throws IOException, WebApplicationException {
-    String rootNodeJson = AnalyticsNodeJsonWriter.getJson(gridStructure.getRoot());
+    String rootNodeJson = AnalyticsNodeJsonWriter.getJson(gridStructure.getRootNode());
     entityStream.write(("{\"columnSets\":" + columnsJson(gridStructure) + "," +
         "\"rootNode\":" + rootNodeJson + "}").getBytes());
   }

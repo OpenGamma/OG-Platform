@@ -13,7 +13,7 @@ import org.testng.annotations.Test;
 /**
  * Test Currency.
  */
-@Test
+@Test(groups = "unit")
 public class StandardCurrencyPairsTest {
 
   public void testCases() {

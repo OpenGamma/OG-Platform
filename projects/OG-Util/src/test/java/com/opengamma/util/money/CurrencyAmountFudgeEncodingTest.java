@@ -12,7 +12,7 @@ import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 /**
  * Test Fudge encoding.
  */
-@Test
+@Test(groups = "unit")
 public class CurrencyAmountFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
 
   public void test() {

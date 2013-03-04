@@ -73,7 +73,7 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
   private static final boolean IS_LONG = true;
   private static final int SETTLEMENT_DAYS = 2;
   // Swap 5Y description
-  private static final Currency CUR = Currency.USD;
+  private static final Currency CUR = Currency.EUR;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final boolean IS_EOM = true;
@@ -108,7 +108,7 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2008, 8, 18);
   private static final String FUNDING_CURVE_NAME = "Funding";
   private static final String FORWARD_CURVE_NAME = "Forward";
-  private static final String[] CURVES_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME };
+  private static final String[] CURVES_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME};
   private static final YieldCurveBundle CURVES = TestsDataSetsSABR.createCurves1();
   private static final SABRInterestRateParameters SABR_PARAMETER = TestsDataSetsSABR.createSABR1();
   private static final SABRInterestRateDataBundle SABR_BUNDLE = new SABRInterestRateDataBundle(SABR_PARAMETER, CURVES);
@@ -246,7 +246,7 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
     final double pv = SWAPTION_LONG_PAYER.accept(PVC, sabrBundle);
     // 1. Forward curve sensitivity
     final String bumpedCurveName = "Bumped Curve";
-    final String[] bumpedCurvesForwardName = {FUNDING_CURVE_NAME, bumpedCurveName };
+    final String[] bumpedCurvesForwardName = {FUNDING_CURVE_NAME, bumpedCurveName};
     final SwaptionPhysicalFixedIbor swaptionBumpedForward = SWAPTION_DEFINITION_LONG_PAYER.toDerivative(REFERENCE_DATE, bumpedCurvesForwardName);
     final YieldAndDiscountCurve curveForward = curves.getCurve(FORWARD_CURVE_NAME);
     final Set<Double> timeForwardSet = new TreeSet<Double>();
@@ -281,7 +281,7 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
       assertEquals("Node " + i, res, pair.getSecond(), deltaTolerance);
     }
     // 2. Funding curve sensitivity
-    final String[] bumpedCurvesFundingName = {bumpedCurveName, FORWARD_CURVE_NAME };
+    final String[] bumpedCurvesFundingName = {bumpedCurveName, FORWARD_CURVE_NAME};
     final SwaptionPhysicalFixedIbor swaptionBumpedFunding = SWAPTION_DEFINITION_LONG_PAYER.toDerivative(REFERENCE_DATE, bumpedCurvesFundingName);
     final int nbPayDate = SWAPTION_DEFINITION_LONG_PAYER.getUnderlyingSwap().getIborLeg().getPayments().length;
     final YieldAndDiscountCurve curveFunding = curves.getCurve(FUNDING_CURVE_NAME);
@@ -306,7 +306,6 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
       assertEquals("Node " + i, nodeTimesFunding[i + 1], pair.getFirst(), 1E-8);
       assertEquals("Node " + i, res, pair.getSecond(), deltaTolerance);
     }
-
   }
 
   @Test
@@ -318,7 +317,7 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
     final PresentValueSABRSensitivityDataBundle pvsLongPayer = METHOD.presentValueSABRSensitivity(SWAPTION_LONG_PAYER, sabrBundle);
     PresentValueSABRSensitivityDataBundle pvsShortPayer = METHOD.presentValueSABRSensitivity(SWAPTION_SHORT_PAYER, sabrBundle);
     // Long/short parity
-    pvsShortPayer = PresentValueSABRSensitivityDataBundle.multiplyBy(pvsShortPayer, -1.0);
+    pvsShortPayer = pvsShortPayer.multiplyBy(-1.0);
     assertEquals(pvsLongPayer.getAlpha(), pvsShortPayer.getAlpha());
     // SABR sensitivity vs finite difference
     final double pvLongPayer = METHOD.presentValue(SWAPTION_LONG_PAYER, sabrBundle).getAmount();
@@ -443,13 +442,14 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
     final int nbTest2 = 10;
     final PresentValueSABRHullWhiteMonteCarloCalculator pvcSABRHWMC = PresentValueSABRHullWhiteMonteCarloCalculator.getInstance();
     final double[] pvMC = new double[nbTest2];
+
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest2; looptest++) {
       pvMC[looptest] = SWAPTION_LONG_PAYER.accept(pvcSABRHWMC, SABR_BUNDLE);
     }
     endTime = System.currentTimeMillis();
     System.out.println(nbTest2 + " physical swaptions SABR + Hull-White Monte Carlo: " + (endTime - startTime) + " ms");
-    // Performance note: price+delta+vega: 12-Jun-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 375 ms for 100 swaptions.
+    // Performance note: price: 12-Jun-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 530 ms for 10 swaptions.
 
   }
 

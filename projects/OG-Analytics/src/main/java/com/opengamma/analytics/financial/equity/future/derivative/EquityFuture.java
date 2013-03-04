@@ -78,6 +78,14 @@ public class EquityFuture implements InstrumentDerivative {
     return _unitAmount;
   }
 
+  /**
+   * Gets the currency.
+   * @return The currency
+   */
+  public Currency getCurrency() {
+    return _currency;
+  }
+
   @Override
   public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
     ArgumentChecker.notNull(visitor, "visitor");

@@ -22,7 +22,7 @@ import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
-import com.opengamma.analytics.financial.instrument.future.InterestRateFutureDefinition;
+import com.opengamma.analytics.financial.instrument.future.InterestRateFutureTransactionDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.LastTimeCalculator;
@@ -415,7 +415,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
         if (!_calcTypeParRate) {
           // Scale notional to 1 - this is to better condition the jacobian matrix
           // Set trade price to current market value - so the present value will be zero once fit
-          definition = ((InterestRateFutureDefinition) definition).withNewNotionalAndTransactionPrice(1.0, marketValue);
+          definition = ((InterestRateFutureTransactionDefinition) definition).withNewNotionalAndTransactionPrice(1.0, marketValue);
         }
         marketValue = 1 - marketValue; // transform to rate for initial rates guess
       }
@@ -552,7 +552,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
           if (!_calcTypeParRate) {
             // Scale notional to 1 - this is to better condition the jacobian matrix
             // Set trade price to current market value - so the present value will be zero once fit
-            definition = ((InterestRateFutureDefinition) definition).withNewNotionalAndTransactionPrice(1.0, marketValue);
+            definition = ((InterestRateFutureTransactionDefinition) definition).withNewNotionalAndTransactionPrice(1.0, marketValue);
           }
           marketValue = 1 - marketValue; // transform to rate for initial rates guess
         }

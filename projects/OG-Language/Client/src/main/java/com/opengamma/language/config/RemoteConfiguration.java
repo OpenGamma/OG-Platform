@@ -21,7 +21,7 @@ public final class RemoteConfiguration extends AbstractRemoteClient {
   /**
    * Creates the resource.
    * 
-   * @param baseUri  the base URI, not null
+   * @param baseUri the base URI, not null
    */
   public RemoteConfiguration(final URI baseUri) {
     super(baseUri);
@@ -36,8 +36,7 @@ public final class RemoteConfiguration extends AbstractRemoteClient {
   public FudgeMsg getConfigurationMsg() {
     try {
       return accessRemote(getBaseUri()).get(FudgeMsg.class);
-      
-    } catch (UniformInterfaceException404NotFound ex) {
+    } catch (final UniformInterfaceException404NotFound ex) {
       return null;
     }
   }

@@ -127,7 +127,23 @@ public class Tenor implements Comparable<Tenor> {
    */
   public static final Tenor FIVE_YEARS = new Tenor(Period.of(5, YEARS));
   /**
-   * A tenor of 5 years.
+   * A tenor of 6 years.
+   */
+  public static final Tenor SIX_YEARS = new Tenor(Period.of(6, YEARS));
+  /**
+   * A tenor of 7 years.
+   */
+  public static final Tenor SEVEN_YEARS = new Tenor(Period.of(7, YEARS));
+  /**
+   * A tenor of 8 years.
+   */
+  public static final Tenor EIGHT_YEARS = new Tenor(Period.of(8, YEARS));
+  /**
+   * A tenor of 9 years.
+   */
+  public static final Tenor NINE_YEARS = new Tenor(Period.of(9, YEARS));
+  /**
+   * A tenor of 10 years.
    */
   public static final Tenor TEN_YEARS = new Tenor(Period.of(10, YEARS));
   /**
@@ -196,6 +212,7 @@ public class Tenor implements Comparable<Tenor> {
     return new Tenor(Period.of(years, YEARS)); // TODO: what do we do here
   }
 
+  @Override
   public boolean equals(Object o) {
     if (o == null) {
       return false;
@@ -207,10 +224,12 @@ public class Tenor implements Comparable<Tenor> {
     return getPeriod().equals(other.getPeriod());
   }
 
+  @Override
   public int hashCode() {
     return getPeriod().hashCode();
   }
 
+  @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("Tenor[");

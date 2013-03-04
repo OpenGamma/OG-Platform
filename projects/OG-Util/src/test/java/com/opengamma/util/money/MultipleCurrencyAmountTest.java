@@ -24,6 +24,7 @@ import com.google.common.collect.Sets;
 /**
  * Test MultipleCurrencyAmount.
  */
+@Test(groups = "unit")
 public class MultipleCurrencyAmountTest {
 
   private static final Currency CCY1 = Currency.AUD;

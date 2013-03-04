@@ -40,10 +40,11 @@ import com.opengamma.util.time.DateUtils;
 public class BondFixedSecurityDefinitionTest {
 
   //Semi-annual 2Y
-  private static final Currency CUR = Currency.USD;
+  private static final Currency CUR = Currency.EUR;
   private static final Period PAYMENT_TENOR = Period.of(6, MONTHS);
   private static final int COUPON_PER_YEAR = 2;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
+  private static final String ISSUER_NAME = "Issuer";
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
   private static final boolean IS_EOM = false;
@@ -55,7 +56,7 @@ public class BondFixedSecurityDefinitionTest {
   private static final YieldConvention YIELD_CONVENTION = YieldConventionFactory.INSTANCE.getYieldConvention("STREET CONVENTION");
   private static final double NOTIONAL = 1.0;
   private static final BondFixedSecurityDefinition BOND_SECURITY_DEFINITION = BondFixedSecurityDefinition.from(CUR, MATURITY_DATE, START_ACCRUAL_DATE, PAYMENT_TENOR,
-      RATE, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY, YIELD_CONVENTION, IS_EOM);
+      RATE, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY, YIELD_CONVENTION, IS_EOM, ISSUER_NAME);
   // to derivatives: common
   private static final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
   private static final String CREDIT_CURVE_NAME = "Credit";
@@ -67,44 +68,49 @@ public class BondFixedSecurityDefinitionTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurrency() {
     BondFixedSecurityDefinition.from(null, MATURITY_DATE, START_ACCRUAL_DATE, PAYMENT_TENOR, RATE, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY, YIELD_CONVENTION,
-        IS_EOM);
+        IS_EOM, ISSUER_NAME);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullMaturity() {
-    BondFixedSecurityDefinition.from(CUR, null, START_ACCRUAL_DATE, PAYMENT_TENOR, RATE, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY, YIELD_CONVENTION, IS_EOM);
+    BondFixedSecurityDefinition.from(CUR, null, START_ACCRUAL_DATE, PAYMENT_TENOR, RATE, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY, YIELD_CONVENTION, IS_EOM,
+        ISSUER_NAME);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullStart() {
-    BondFixedSecurityDefinition.from(CUR, MATURITY_DATE, null, PAYMENT_TENOR, RATE, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY, YIELD_CONVENTION, IS_EOM);
+    BondFixedSecurityDefinition.from(CUR, MATURITY_DATE, null, PAYMENT_TENOR, RATE, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY, YIELD_CONVENTION, IS_EOM,
+        ISSUER_NAME);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullPeriod() {
-    BondFixedSecurityDefinition.from(CUR, MATURITY_DATE, START_ACCRUAL_DATE, null, RATE, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY, YIELD_CONVENTION, IS_EOM);
+    BondFixedSecurityDefinition.from(CUR, MATURITY_DATE, START_ACCRUAL_DATE, null, RATE, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY, YIELD_CONVENTION, IS_EOM,
+        ISSUER_NAME);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCalendar() {
     BondFixedSecurityDefinition.from(CUR, MATURITY_DATE, START_ACCRUAL_DATE, PAYMENT_TENOR, RATE, SETTLEMENT_DAYS, null, DAY_COUNT, BUSINESS_DAY, YIELD_CONVENTION,
-        IS_EOM);
+        IS_EOM, ISSUER_NAME);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDayCount() {
-    BondFixedSecurityDefinition
-        .from(CUR, MATURITY_DATE, START_ACCRUAL_DATE, PAYMENT_TENOR, RATE, SETTLEMENT_DAYS, CALENDAR, null, BUSINESS_DAY, YIELD_CONVENTION, IS_EOM);
+    BondFixedSecurityDefinition.from(CUR, MATURITY_DATE, START_ACCRUAL_DATE, PAYMENT_TENOR, RATE, SETTLEMENT_DAYS, CALENDAR, null, BUSINESS_DAY, YIELD_CONVENTION,
+        IS_EOM, ISSUER_NAME);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullBusinessDay() {
-    BondFixedSecurityDefinition.from(CUR, MATURITY_DATE, START_ACCRUAL_DATE, PAYMENT_TENOR, RATE, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, null, YIELD_CONVENTION, IS_EOM);
+    BondFixedSecurityDefinition.from(CUR, MATURITY_DATE, START_ACCRUAL_DATE, PAYMENT_TENOR, RATE, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, null, YIELD_CONVENTION, IS_EOM,
+        ISSUER_NAME);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullYield() {
-    BondFixedSecurityDefinition.from(CUR, MATURITY_DATE, START_ACCRUAL_DATE, PAYMENT_TENOR, RATE, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY, null, IS_EOM);
+    BondFixedSecurityDefinition.from(CUR, MATURITY_DATE, START_ACCRUAL_DATE, PAYMENT_TENOR, RATE, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY, null, IS_EOM,
+        ISSUER_NAME);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -112,7 +118,7 @@ public class BondFixedSecurityDefinitionTest {
     final AnnuityCouponFixedDefinition coupon = AnnuityCouponFixedDefinition.fromAccrualUnadjusted(CUR, START_ACCRUAL_DATE, MATURITY_DATE, PAYMENT_TENOR, true, true,
         CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM, 1.0, RATE, false);
     final AnnuityPaymentFixedDefinition nominal = new AnnuityPaymentFixedDefinition(new PaymentFixedDefinition[] {new PaymentFixedDefinition(CUR, MATURITY_DATE, -1.0)});
-    new BondFixedSecurityDefinition(nominal, coupon, 0, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, YIELD_CONVENTION, IS_EOM);
+    new BondFixedSecurityDefinition(nominal, coupon, 0, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, YIELD_CONVENTION, IS_EOM, ISSUER_NAME);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -120,7 +126,7 @@ public class BondFixedSecurityDefinitionTest {
     final AnnuityCouponFixedDefinition coupon = AnnuityCouponFixedDefinition.fromAccrualUnadjusted(CUR, START_ACCRUAL_DATE, MATURITY_DATE, PAYMENT_TENOR, true, true,
         CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM, 1.0, RATE, true);
     final AnnuityPaymentFixedDefinition nominal = new AnnuityPaymentFixedDefinition(new PaymentFixedDefinition[] {new PaymentFixedDefinition(CUR, MATURITY_DATE, 1.0)});
-    new BondFixedSecurityDefinition(nominal, coupon, 0, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, YIELD_CONVENTION, IS_EOM);
+    new BondFixedSecurityDefinition(nominal, coupon, 0, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, YIELD_CONVENTION, IS_EOM, ISSUER_NAME);
   }
 
   @Test
@@ -144,7 +150,7 @@ public class BondFixedSecurityDefinitionTest {
   @Test
   public void testDates() {
     final BondFixedSecurityDefinition BOND_DEFINITION = BondFixedSecurityDefinition.from(CUR, MATURITY_DATE, START_ACCRUAL_DATE, PAYMENT_TENOR, RATE, SETTLEMENT_DAYS,
-        CALENDAR, DAY_COUNT, BUSINESS_DAY, YIELD_CONVENTION, IS_EOM);
+        CALENDAR, DAY_COUNT, BUSINESS_DAY, YIELD_CONVENTION, IS_EOM, ISSUER_NAME);
     final ZonedDateTime[] expectedPaymentDates = new ZonedDateTime[] {DateUtils.getUTCDate(2012, 1, 13), DateUtils.getUTCDate(2012, 7, 13),
         DateUtils.getUTCDate(2013, 1, 14), DateUtils.getUTCDate(2013, 7, 15)};
     final ZonedDateTime[] expectedStartDates = new ZonedDateTime[] {DateUtils.getUTCDate(2011, 7, 13), DateUtils.getUTCDate(2012, 1, 13),

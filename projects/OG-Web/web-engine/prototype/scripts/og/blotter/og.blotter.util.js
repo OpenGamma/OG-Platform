@@ -6,16 +6,11 @@ $.register_module({
     name: 'og.blotter.util',
     dependencies: [],
     obj: function () {
-        var bools = {"false": false, "true": true}; 
-        return {
+        var util = this, bools = {"false": false, "true": true};
+        return util = {
             /* Util methods */
             create_name : function (data){
-                return data.security.type + " " + data.trade.tradeDate; 
-            },
-            update_block : function (section, extras){
-                section.block.html(function (html) {
-                    $(section.selector).html(html);
-                }, extras);
+                return data.security.type + " " + data.trade.tradeDate;
             },
             check_radio : function (name, value){
                 $('input:radio[name="'+ name +'"]').filter('[value='+ value + ']').attr('checked', true);
@@ -26,8 +21,11 @@ $.register_module({
             check_checkbox : function (name, value){
                 $('input:checkbox[name="'+ name +'"]').prop('checked', bools[value]);
             },
-            add_datetimepicker : function (name){$('input[name="'+ name +'"]').datepicker({
-                dateFormat: 'yy-mm-dd', changeMonth: true, changeYear: true});
+            add_date_picker : function (selector){
+                $(selector).datepicker({ dateFormat: 'yy-mm-dd', changeMonth: true, changeYear: true });
+            },
+            add_time_picker : function (selector) {
+                $(selector).datetimepicker({ timeOnly:true });
             },
             get_checkbox : function (name) {
                 return $('input:checkbox[name="'+ name +'"]').is(':checked').toString();
@@ -50,23 +48,22 @@ $.register_module({
                 else
                     option.removeAttr("disabled");
             },
+            cleanup : function (obj) {
+                Object.keys(obj).forEach(function (key) {
+                    var value = obj[key];
+                    if (typeof value === 'string' && !value.length) 
+                        delete obj[key];
+                    else if (value instanceof Object) 
+                        util.cleanup(value);
+                });
+            },
             /* Util data */
-            otc_trade : {                
-                premiumCurrency: null,
-                tradeTime: null,
-                premium: null,
-                premiumTime: null,
+            otc_trade : {
                 attributes: {},
-                premiumDate: null,
                 type: "OtcTrade"
             },
-            fungible_trade : {                
-                premiumCurrency: null,
-                tradeTime: null,
-                premium: null,
-                premiumTime: null,
+            fungible_trade : {
                 attributes: {},
-                premiumDate: null,
                 type: "FungibleTrade"
             },
             swap_types : [

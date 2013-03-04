@@ -18,7 +18,6 @@ import org.fudgemsg.types.FudgeSecondaryType;
 import org.fudgemsg.types.FudgeTime;
 import org.fudgemsg.types.SecondaryFieldType;
 import org.fudgemsg.wire.types.FudgeWireType;
-import org.threeten.bp.LocalTime;
 import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZonedDateTime;
 

@@ -21,6 +21,7 @@ import org.fudgemsg.mapping.FudgeSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.test.BuilderTestProxyFactory.BuilderTestProxy;
@@ -28,6 +29,7 @@ import com.opengamma.util.test.BuilderTestProxyFactory.BuilderTestProxy;
 /**
  * Base class for builder tests.
  */
+@Test(groups = "unit")
 public abstract class AbstractFudgeBuilderTestCase {
 
   /** Logger. */
@@ -106,7 +108,7 @@ public abstract class AbstractFudgeBuilderTestCase {
 
   protected FudgeMsg cycleMessage(final FudgeMsg message) {
     final byte[] data = getFudgeContext().toByteArray(message);
-    s_logger.info("{} bytes", data.length);
+    getLogger().info("{} bytes", data.length);
     return getFudgeContext().deserialize(data).getMessage();
   }
 
@@ -122,7 +124,7 @@ public abstract class AbstractFudgeBuilderTestCase {
     }
   }
 
-  public static void isInstanceOf(Object parameter, Class<?> clazz) {
+  protected static void isInstanceOf(Object parameter, Class<?> clazz) {
     if (!clazz.isInstance(parameter)) {
       throw new AssertionError("Expected an object to be instance of <" + clazz.getName() + "> but it was instance of <" + parameter.getClass().getName() + "> actually.");
     }

@@ -20,6 +20,7 @@ import org.threeten.bp.Instant;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ComputedValueResult;
+import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 
@@ -32,7 +33,7 @@ public abstract class InMemoryViewResultModel implements ViewResultModel, Serial
   
   private UniqueId _viewProcessId;
   private UniqueId _viewCycleId;
-  private Instant _valuationTime;
+  private ViewCycleExecutionOptions _viewCycleExecutionOptions;
   private Instant _calculationTime;
   private Duration _calculationDuration;
   private VersionCorrection _versionCorrection;
@@ -57,14 +58,14 @@ public abstract class InMemoryViewResultModel implements ViewResultModel, Serial
   public void setViewCycleId(UniqueId viewCycleId) {
     _viewCycleId = viewCycleId;
   }
-
+    
   @Override
-  public Instant getValuationTime() {
-    return _valuationTime;
+  public ViewCycleExecutionOptions getViewCycleExecutionOptions() {
+    return _viewCycleExecutionOptions;
   }
-
-  public void setValuationTime(Instant valuationTime) {
-    _valuationTime = valuationTime;
+  
+  public void setViewCycleExecutionOptions(ViewCycleExecutionOptions viewCycleExecutionOptions) {
+    _viewCycleExecutionOptions = viewCycleExecutionOptions;
   }
 
   @Override

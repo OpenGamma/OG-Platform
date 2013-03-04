@@ -11,6 +11,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 
 import com.opengamma.language.context.SessionContext;
@@ -41,7 +42,7 @@ public class Main {
       s_logger.debug("Setting system property {}={}", property, value);
       System.setProperty(property, value);
       return true;
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       s_logger.error("Couldn't set property {}={}", property, value);
       s_logger.warn("Exception thrown", t);
       return false;
@@ -49,8 +50,7 @@ public class Main {
   }
 
   /**
-   * Updates the store that the service wrapper retrieves properties from that are passed to
-   * {@link #setProperty}.
+   * Updates the store that the service wrapper retrieves properties from that are passed to {@link #setProperty}.
    * 
    * @param property key of the property to set, never null
    * @param value value to set, or null to delete the property
@@ -70,16 +70,27 @@ public class Main {
   /**
    * Entry point from the service wrapper - starts the service.
    * 
-   * @return true if the service started properly
+   * @return null if the service started properly, otherwise a string for display to the user describing why the stack wasn't started
    */
-  public static boolean svcStart() {
+  public static String svcStart() {
     try {
       s_logger.info("Starting OpenGamma language integration service");
       s_springContext = new LanguageSpringContext();
-      return true;
-    } catch (Throwable t) {
+      return null;
+    } catch (final BeanCreationException e) {
+      s_logger.error("Exception thrown", e);
+      Throwable t = e;
+      do {
+        t = t.getCause();
+      } while (t instanceof BeanCreationException);
+      if (t != null) {
+        return t.getMessage();
+      } else {
+        return e.getMessage();
+      }
+    } catch (final Throwable t) {
       s_logger.error("Exception thrown", t);
-      return false;
+      return t.getMessage();
     }
   }
 
@@ -89,9 +100,8 @@ public class Main {
    * @param userName the user name of the incoming connection
    * @param inputPipeName the pipe created for sending data from C++ to Java
    * @param outputPipeName the pipe created for sending data from Java to C++
-   * @param languageID the identifier of the bound language. Language specific factories will
-   *                   be used if present, otherwise the default factories will be used.
-   * @param debug  true if the bound language is a debug build
+   * @param languageID the identifier of the bound language. Language specific factories will be used if present, otherwise the default factories will be used.
+   * @param debug true if the bound language is a debug build
    * @return true if the connection started okay
    */
   public static synchronized boolean svcAccept(final String userName, final String inputPipeName,
@@ -112,16 +122,15 @@ public class Main {
         }
       });
       return true;
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       s_logger.error("Exception thrown", t);
       return false;
     }
   }
 
   /**
-   * Reports that a client has disconnected. The last client to disconnect will cause the service to terminate.
-   * The potential race between this and a pending call to {@link #svcAccept} is handled by locking within the
-   * service wrapper. 
+   * Reports that a client has disconnected. The last client to disconnect will cause the service to terminate. The potential race between this and a pending call to {@link #svcAccept} is handled by
+   * locking within the service wrapper.
    */
   private static synchronized void clientDisconnected() {
     if (--s_activeConnections == 0) {
@@ -142,16 +151,14 @@ public class Main {
   }
 
   /**
-   * Requests the host process stop the service. This may be ignored if there is a pending request that
-   * has not reached {@link #svcAccept} yet, or if stopping on the last client disconnect is disabled.
+   * Requests the host process stop the service. This may be ignored if there is a pending request that has not reached {@link #svcAccept} yet, or if stopping on the last client disconnect is
+   * disabled.
    */
   private static native void notifyStop();
 
   /**
-   * Deadlocks the calling thread against the pipe dispatch thread within the C++ layer. This
-   * is for testing error recovery by deliberately hanging the JVM.
-   * 
-   * DO NOT CALL THIS FUNCTION UNLESS YOU WANT THINGS TO BREAK.
+   * Deadlocks the calling thread against the pipe dispatch thread within the C++ layer. This is for testing error recovery by deliberately hanging the JVM. DO NOT CALL THIS FUNCTION UNLESS YOU WANT
+   * THINGS TO BREAK.
    */
   public static native void notifyPause();
 
@@ -169,7 +176,7 @@ public class Main {
       s_springContext.stop();
       s_logger.info("OpenGamma Language Integration service stopped");
       return true;
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       s_logger.error("Exception thrown", t);
       return false;
     }
