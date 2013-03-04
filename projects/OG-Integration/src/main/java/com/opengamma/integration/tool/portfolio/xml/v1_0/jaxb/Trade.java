@@ -36,7 +36,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 @XmlRootElement
 // Ensure we look at subclasses when unmarshalling
 @XmlSeeAlso({ AbstractFxOptionTrade.class, SwapTrade.class, EquityVarianceSwapTrade.class, FxForwardTrade.class,
-                SwaptionTrade.class, OtcEquityIndexOptionTrade.class, ListedIndexOptionTrade.class})
+                SwaptionTrade.class, OtcEquityIndexOptionTrade.class, ListedSecurityTrade.class})
 @XmlAccessorType(XmlAccessType.FIELD)
 @BeanDefinition
 public abstract class Trade extends DirectBean {
@@ -61,18 +61,6 @@ public abstract class Trade extends DirectBean {
   @XmlElement(name = "counterparty")
   @PropertyDefinition
   private IdWrapper _counterparty;
-
-  @XmlElement(name = "premium")
-  @PropertyDefinition
-  private BigDecimal _premium;
-
-  @XmlElement(name = "premiumCurrency")
-  @PropertyDefinition
-  private Currency _premiumCurrency;
-
-  @XmlElement(name = "premiumSettlementDate")
-  @PropertyDefinition
-  private LocalDate _premiumSettlementDate;
 
   @XmlElementWrapper(name = "additionalCashflows")
   @XmlElement(name = "additionalCashflow")
@@ -138,12 +126,6 @@ public abstract class Trade extends DirectBean {
         return getMaturityDate();
       case -1651301782:  // counterparty
         return getCounterparty();
-      case -318452137:  // premium
-        return getPremium();
-      case 1136581512:  // premiumCurrency
-        return getPremiumCurrency();
-      case -1581750610:  // premiumSettlementDate
-        return getPremiumSettlementDate();
       case -254405301:  // additionalCashflows
         return getAdditionalCashflows();
     }
@@ -169,15 +151,6 @@ public abstract class Trade extends DirectBean {
       case -1651301782:  // counterparty
         setCounterparty((IdWrapper) newValue);
         return;
-      case -318452137:  // premium
-        setPremium((BigDecimal) newValue);
-        return;
-      case 1136581512:  // premiumCurrency
-        setPremiumCurrency((Currency) newValue);
-        return;
-      case -1581750610:  // premiumSettlementDate
-        setPremiumSettlementDate((LocalDate) newValue);
-        return;
       case -254405301:  // additionalCashflows
         setAdditionalCashflows((List<AdditionalCashflow>) newValue);
         return;
@@ -197,9 +170,6 @@ public abstract class Trade extends DirectBean {
           JodaBeanUtils.equal(getTradeDate(), other.getTradeDate()) &&
           JodaBeanUtils.equal(getMaturityDate(), other.getMaturityDate()) &&
           JodaBeanUtils.equal(getCounterparty(), other.getCounterparty()) &&
-          JodaBeanUtils.equal(getPremium(), other.getPremium()) &&
-          JodaBeanUtils.equal(getPremiumCurrency(), other.getPremiumCurrency()) &&
-          JodaBeanUtils.equal(getPremiumSettlementDate(), other.getPremiumSettlementDate()) &&
           JodaBeanUtils.equal(getAdditionalCashflows(), other.getAdditionalCashflows());
     }
     return false;
@@ -213,9 +183,6 @@ public abstract class Trade extends DirectBean {
     hash += hash * 31 + JodaBeanUtils.hashCode(getTradeDate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMaturityDate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCounterparty());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPremium());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPremiumCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPremiumSettlementDate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getAdditionalCashflows());
     return hash;
   }
@@ -347,81 +314,6 @@ public abstract class Trade extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the premium.
-   * @return the value of the property
-   */
-  public BigDecimal getPremium() {
-    return _premium;
-  }
-
-  /**
-   * Sets the premium.
-   * @param premium  the new value of the property
-   */
-  public void setPremium(BigDecimal premium) {
-    this._premium = premium;
-  }
-
-  /**
-   * Gets the the {@code premium} property.
-   * @return the property, not null
-   */
-  public final Property<BigDecimal> premium() {
-    return metaBean().premium().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the premiumCurrency.
-   * @return the value of the property
-   */
-  public Currency getPremiumCurrency() {
-    return _premiumCurrency;
-  }
-
-  /**
-   * Sets the premiumCurrency.
-   * @param premiumCurrency  the new value of the property
-   */
-  public void setPremiumCurrency(Currency premiumCurrency) {
-    this._premiumCurrency = premiumCurrency;
-  }
-
-  /**
-   * Gets the the {@code premiumCurrency} property.
-   * @return the property, not null
-   */
-  public final Property<Currency> premiumCurrency() {
-    return metaBean().premiumCurrency().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the premiumSettlementDate.
-   * @return the value of the property
-   */
-  public LocalDate getPremiumSettlementDate() {
-    return _premiumSettlementDate;
-  }
-
-  /**
-   * Sets the premiumSettlementDate.
-   * @param premiumSettlementDate  the new value of the property
-   */
-  public void setPremiumSettlementDate(LocalDate premiumSettlementDate) {
-    this._premiumSettlementDate = premiumSettlementDate;
-  }
-
-  /**
-   * Gets the the {@code premiumSettlementDate} property.
-   * @return the property, not null
-   */
-  public final Property<LocalDate> premiumSettlementDate() {
-    return metaBean().premiumSettlementDate().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Gets the additionalCashflows.
    * @return the value of the property
    */
@@ -481,21 +373,6 @@ public abstract class Trade extends DirectBean {
     private final MetaProperty<IdWrapper> _counterparty = DirectMetaProperty.ofReadWrite(
         this, "counterparty", Trade.class, IdWrapper.class);
     /**
-     * The meta-property for the {@code premium} property.
-     */
-    private final MetaProperty<BigDecimal> _premium = DirectMetaProperty.ofReadWrite(
-        this, "premium", Trade.class, BigDecimal.class);
-    /**
-     * The meta-property for the {@code premiumCurrency} property.
-     */
-    private final MetaProperty<Currency> _premiumCurrency = DirectMetaProperty.ofReadWrite(
-        this, "premiumCurrency", Trade.class, Currency.class);
-    /**
-     * The meta-property for the {@code premiumSettlementDate} property.
-     */
-    private final MetaProperty<LocalDate> _premiumSettlementDate = DirectMetaProperty.ofReadWrite(
-        this, "premiumSettlementDate", Trade.class, LocalDate.class);
-    /**
      * The meta-property for the {@code additionalCashflows} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
@@ -511,9 +388,6 @@ public abstract class Trade extends DirectBean {
         "tradeDate",
         "maturityDate",
         "counterparty",
-        "premium",
-        "premiumCurrency",
-        "premiumSettlementDate",
         "additionalCashflows");
 
     /**
@@ -535,12 +409,6 @@ public abstract class Trade extends DirectBean {
           return _maturityDate;
         case -1651301782:  // counterparty
           return _counterparty;
-        case -318452137:  // premium
-          return _premium;
-        case 1136581512:  // premiumCurrency
-          return _premiumCurrency;
-        case -1581750610:  // premiumSettlementDate
-          return _premiumSettlementDate;
         case -254405301:  // additionalCashflows
           return _additionalCashflows;
       }
@@ -601,30 +469,6 @@ public abstract class Trade extends DirectBean {
      */
     public final MetaProperty<IdWrapper> counterparty() {
       return _counterparty;
-    }
-
-    /**
-     * The meta-property for the {@code premium} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<BigDecimal> premium() {
-      return _premium;
-    }
-
-    /**
-     * The meta-property for the {@code premiumCurrency} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<Currency> premiumCurrency() {
-      return _premiumCurrency;
-    }
-
-    /**
-     * The meta-property for the {@code premiumSettlementDate} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<LocalDate> premiumSettlementDate() {
-      return _premiumSettlementDate;
     }
 
     /**

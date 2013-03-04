@@ -47,8 +47,13 @@
 
   <xs:element name="otcEquityIndexOptionTrade" type="otcEquityIndexOptionTrade"/>
 
+  <xs:element name="listedSecurityTrade" type="listedSecurityTrade"/>
 
-  <xs:element name="listedIndexOptionTrade" type="listedIndexOptionTrade"/>
+  <xs:element name="optionSecurity" type="optionSecurityDefinition"/>
+  <xs:element name="futureSecurity" type="futureSecurityDefinition"/>
+
+  <xs:element name="securityDefinition" type="listedSecurityDefinition"/>
+
 
   <xs:complexType name="ogPortfolio">
     <xs:all>
@@ -163,7 +168,7 @@
                 </xs:annotation>
               </xs:element>
 
-              <xs:element ref="listedIndexOptionTrade">
+              <xs:element ref="listedSecurityTrade">
                 <xs:annotation>
                   <xs:documentation>
                     An individual listed index option trade within the trades collection.
@@ -415,7 +420,7 @@
       <xs:extension base="trade">
         <xs:sequence>
 
-          <xs:element name="callPut" type="callPut">
+          <xs:element name="optionType" type="optionType">
             <xs:annotation>
               <xs:documentation>
                 Is this option a call or a put.
@@ -935,20 +940,12 @@
     </xs:complexContent>
   </xs:complexType>
 
-  <xs:complexType name="listedIndexOptionTrade">
+  <xs:complexType name="listedSecurityTrade">
     <xs:complexContent>
       <xs:extension base="trade">
         <xs:sequence>
-          <xs:element name="optionType" type="xs:string"/>
           <xs:element name="buySell" type="buySell"/>
-          <xs:element name="underlyingId" type="idWrapper"/>
-          <xs:element name="strike" type="xs:decimal"/>
-          <xs:element name="optionExpiry" type="xs:string"/>
-          <xs:element name="exerciseType" type="exerciseType"/>
           <xs:element name="numContracts" type="xs:int"/>
-          <xs:element name="pointValue" type="xs:int"/>
-          <xs:element name="currency" type="xs:string"/>
-          <xs:element name="exchange" type="xs:string"/>
           <xs:element name="brokers" minOccurs="0">
             <xs:complexType>
               <xs:sequence>
@@ -956,11 +953,54 @@
               </xs:sequence>
             </xs:complexType>
           </xs:element>
+          <xs:choice>
+            <xs:element ref="optionSecurity"/>
+            <xs:element ref="futureSecurity"/>
+          </xs:choice>
         </xs:sequence>
-        <xs:attribute name="type" type="listedIndexOptionType" use="required"/>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
+
+  <xs:complexType name="listedSecurityDefinition">
+    <xs:sequence>
+      <xs:element name="underlyingId" type="idWrapper"/>
+      <xs:element name="pointValue" type="xs:int"/>
+      <xs:element name="currency" type="xs:string"/>
+      <xs:element name="exchange" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+
+  <xs:complexType name="optionSecurityDefinition">
+    <xs:complexContent>
+      <xs:extension base="listedSecurityDefinition">
+        <xs:sequence>
+          <xs:element name="optionType" type="optionType"/>
+          <xs:element name="strike" type="xs:decimal"/>
+          <xs:element name="optionExpiry" type="xs:string"/>
+          <xs:element name="exerciseType" type="exerciseType"/>
+        </xs:sequence>
+        <xs:attribute name="type" type="listedOptionType" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="futureSecurityDefinition">
+    <xs:complexContent>
+      <xs:extension base="listedSecurityDefinition">
+        <xs:sequence>
+          <xs:element name="price" type="xs:decimal"/>
+          <xs:element name="futureExpiry" type="xs:string"/>
+          <xs:element name="settlementExchange" type="xs:string" />
+          <xs:element name="settlementDate" type="xs:string" />
+          <xs:element name="futureCategory" type="xs:string" />
+        </xs:sequence>
+        <xs:attribute name="type" type="listedFutureType" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
 
   <xs:complexType name="broker">
     <xs:sequence>
@@ -988,14 +1028,7 @@
     </xs:restriction>
   </xs:simpleType>
 
-  <xs:simpleType name="listedIndexOptionType">
-    <xs:restriction base="xs:string">
-      <xs:enumeration value="equityIndexOption"/>
-      <xs:enumeration value="equityDividendOption"/>
-    </xs:restriction>
-  </xs:simpleType>
-
-  <xs:simpleType name="callPut">
+  <xs:simpleType name="optionType">
     <xs:restriction base="xs:string">
       <xs:enumeration value="Call"/>
       <xs:enumeration value="Put"/>
@@ -1025,7 +1058,8 @@
 
   <xs:simpleType name="type">
     <xs:restriction base="xs:string">
-      <xs:enumeration value="Bank"/>
+      <xs:enumeration value="bank"/>
+      <xs:enumeration value="currency"/>
     </xs:restriction>
   </xs:simpleType>
 
@@ -1138,5 +1172,19 @@
     </xs:sequence>
     <xs:attribute name="type" type="type"/>
   </xs:complexType>
+
+  <xs:simpleType name="listedOptionType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="equityIndexOption"/>
+      <xs:enumeration value="equityDividendOption"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="listedFutureType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="equityIndexFuture"/>
+      <xs:enumeration value="equityDividendFuture"/>
+    </xs:restriction>
+  </xs:simpleType>
 
 </xs:schema>

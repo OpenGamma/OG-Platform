@@ -20,6 +20,7 @@ public class XmlPortfolioReader implements PortfolioReader {
 
   private final Iterator<PortfolioPosition> _positionIterator;
   private final String _portfolioName;
+
   private String[] _currentPath = new String[0];
 
   public XmlPortfolioReader(String fileLocation, SchemaRegister schemaRegister) {

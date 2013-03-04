@@ -273,6 +273,49 @@ public class XmlPortfolioLoaderToolTest {
   }
 
   @Test
+  public void testSinglePortfolioNoPositionListedEquityIndexFuture() {
+
+    // We should get a position automatically generated for the trade
+    String fileLocation = "src/test/resources/xml_portfolios/listed_index_future.xml";
+    File file = new File(fileLocation);
+    new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, true, false, false, false, true).execute();
+
+    assertEquals(_portfolioMaster.search(new PortfolioSearchRequest()).getPortfolios().size(), 1);
+    List<ManageablePosition> positions = _positionMaster.search(new PositionSearchRequest()).getPositions();
+    assertEquals(positions.size(), 1);
+
+    ManageablePosition position = positions.get(0);
+    List<ManageableTrade> trades = position.getTrades();
+    assertEquals(trades.size(), 1);
+    assertEquals(trades.get(0).getQuantity(), BigDecimal.valueOf(1000));
+    assertEquals(position.getQuantity(), BigDecimal.valueOf(1000));
+
+    assertEquals(_securityMaster.search(new SecuritySearchRequest()).getSecurities().size(), 1);
+  }
+
+  @Test
+  public void testSinglePortfolioNoPositionListedEquityIndexFutureOption() {
+
+    // We should get a position automatically generated for the trade
+    String fileLocation = "src/test/resources/xml_portfolios/listed_index_future_option.xml";
+    File file = new File(fileLocation);
+    new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, true, false, false, false, true).execute();
+
+    assertEquals(_portfolioMaster.search(new PortfolioSearchRequest()).getPortfolios().size(), 1);
+    List<ManageablePosition> positions = _positionMaster.search(new PositionSearchRequest()).getPositions();
+    assertEquals(positions.size(), 1);
+
+    ManageablePosition position = positions.get(0);
+    List<ManageableTrade> trades = position.getTrades();
+    assertEquals(trades.size(), 2);
+    assertEquals(trades.get(0).getQuantity(), BigDecimal.valueOf(25000));
+    assertEquals(trades.get(1).getQuantity(), BigDecimal.valueOf(-10000));
+    assertEquals(position.getQuantity(), BigDecimal.valueOf(15000));
+
+    assertEquals(_securityMaster.search(new SecuritySearchRequest()).getSecurities().size(), 1);
+  }
+
+  @Test
   public void testSinglePortfolioNoPositionSingleSwaption() {
 
     // We should get a position automatically generated for the trade

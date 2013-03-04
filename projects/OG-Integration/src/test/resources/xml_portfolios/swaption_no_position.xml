@@ -4,7 +4,6 @@
   <trades>
     <swaptionTrade id="t1">
 
-
       <externalSystemId>
         <id scheme="External">Id1FromExternalSystem</id>
       </externalSystemId>
@@ -15,27 +14,31 @@
         <id scheme="Cpty">GOLDMAN</id>
       </counterparty>
 
-      <premium>250</premium>
-      <!-- (by default it should be the currency of the first leg of the swap)-->
-      <premiumCurrency>EUR</premiumCurrency>
-      <premiumSettlementDate>2013-01-22</premiumSettlementDate>
+      <additionalCashflows>
+        <additionalCashflow type="premium">
+          <counterparty><id scheme="CParty">xyz</id></counterparty>
+          <!-- (by default it should be the currency of the first leg of the swap)-->
+          <monetaryAmount currency="USD">150</monetaryAmount>
+          <cashflowDate>2013-01-22</cashflowDate>
+        </additionalCashflow>
+      </additionalCashflows>
 
       <buySell>Buy</buySell>
 
       <paymentCalendars>
-        <calendar type="Bank"> <!-- default=BANK  -->
+        <calendar type="bank"> <!-- default=BANK  -->
           <id scheme="CountryISO2">FD</id>
         </calendar>
-        <calendar type="Bank"> <!-- default=BANK  -->
+        <calendar type="bank"> <!-- default=BANK  -->
           <id scheme="CountryISO2">EN</id>
         </calendar>
       </paymentCalendars>
 
       <exerciseCalendars>
-        <calendar type="Bank"> <!-- default=BANK  -->
+        <calendar type="bank"> <!-- default=BANK  -->
           <id scheme="CountryISO2">FD</id>
         </calendar>
-        <calendar type="Bank"> <!-- default=BANK  -->
+        <calendar type="bank"> <!-- default=BANK  -->
           <id scheme="CountryISO2">EN</id>
         </calendar>
       </exerciseCalendars>
@@ -88,10 +91,10 @@
           <endOfMonth>true</endOfMonth>
           <isIMM>true</isIMM>
           <paymentCalendars>
-            <calendar type="Bank"> <!-- default=BANK  -->
+            <calendar type="bank"> <!-- default=BANK  -->
               <id scheme="CountryISO2">FD</id>
             </calendar>
-            <calendar type="Bank"> <!-- default=BANK  -->
+            <calendar type="bank"> <!-- default=BANK  -->
               <id scheme="CountryISO2">EN</id>
             </calendar>
           </paymentCalendars>
@@ -123,7 +126,7 @@
 
 
           <paymentCalendars>
-            <calendar type="Bank"> <!-- default=BANK  -->
+            <calendar type="bank"> <!-- default=BANK  -->
               <id scheme="CountryISO2">FD</id>
             </calendar>
             <calendar>

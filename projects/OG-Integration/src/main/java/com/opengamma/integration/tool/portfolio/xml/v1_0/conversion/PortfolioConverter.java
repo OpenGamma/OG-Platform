@@ -21,7 +21,7 @@ import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.EquityVarianceSwap
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.FxDigitalOptionTrade;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.FxForwardTrade;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.FxOptionTrade;
-import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.ListedIndexOptionTrade;
+import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.ListedSecurityTrade;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.MonetaryAmount;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.OtcEquityIndexOptionTrade;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.Portfolio;
@@ -48,7 +48,7 @@ public class PortfolioConverter {
         .put(FxForwardTrade.class, new FxForwardTradeSecurityExtractor())
         .put(SwaptionTrade.class, new SwaptionTradeSecurityExtractor())
         .put(OtcEquityIndexOptionTrade.class, new OtcEquityIndexOptionTradeSecurityExtractor())
-        .put(ListedIndexOptionTrade.class, new ListedIndexOptionTradeSecurityExtractor())
+        .put(ListedSecurityTrade.class, new ListedTradeSecurityExtractor())
         .build();
 
   public PortfolioConverter(Portfolio portfolio) {
@@ -124,7 +124,7 @@ public class PortfolioConverter {
       managedPositions.add(createPortfolioPosition(position, positionSecurity, portfolioPath, tradeTotalQuantity));
     }
 
-    // These trades have not supplied under positions, but directly in a portfolio
+    // These trades have not been supplied under positions, but directly in a portfolio
     for (Trade trade : nullCheckIterable(portfolio.getTrades())) {
 
       // TODO we probably want logic to allow for the aggregation of trades into positions but for now we'll create a position per trade
@@ -160,8 +160,7 @@ public class PortfolioConverter {
       return extractor.extractSecurity(trade);
 
     } else {
-      throw new OpenGammaRuntimeException("Unable to handle trade with type [" + trade.getClass().getName() +
-                                              "] - [" + trade + "]");
+      throw new OpenGammaRuntimeException("Unable to handle trade with type [" + trade.getClass().getName() + "] - [" + trade + "]");
     }
   }
 
@@ -182,7 +181,7 @@ public class PortfolioConverter {
   }
 
   private ManageablePosition convertTradeToPosition(Trade trade, ManageableSecurity security) {
-    ManageablePosition manageablePosition = new ManageablePosition(BigDecimal.ONE, security.getExternalIdBundle());
+    ManageablePosition manageablePosition = new ManageablePosition(trade.getQuantity(), security.getExternalIdBundle());
     manageablePosition.addTrade(convertTrade(trade, security));
     return manageablePosition;
   }
@@ -222,14 +221,6 @@ public class PortfolioConverter {
       }
     }
 
-    if (manageableTrade.getPremium() == null) {
-
-      BigDecimal premium = trade.getPremium();
-      if (premium != null) {
-        manageableTrade.setPremium(premium.doubleValue());
-        manageableTrade.setPremiumCurrency(trade.getPremiumCurrency());
-      }
-    }
     return manageableTrade;
   }
 

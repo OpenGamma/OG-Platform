@@ -26,10 +26,10 @@
         <endOfMonth>true</endOfMonth>
         <isIMM>true</isIMM>
         <paymentCalendars>
-          <calendar type="Bank"> <!-- default=BANK  -->
+          <calendar type="bank"> <!-- default=BANK  -->
             <id scheme="CountryISO2">FD</id>
           </calendar>
-          <calendar type="Bank"> <!-- default=BANK  -->
+          <calendar type="bank"> <!-- default=BANK  -->
             <id scheme="CountryISO2">EN</id>
           </calendar>
         </paymentCalendars>
@@ -61,7 +61,7 @@
 
 
         <paymentCalendars>
-          <calendar type="Bank"> <!-- default=BANK  -->
+          <calendar type="bank"> <!-- default=BANK  -->
             <id scheme="CountryISO2">FD</id>
           </calendar>
           <calendar>
