@@ -98,6 +98,7 @@
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-surface.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-temporal.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-aggregation.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-text.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-filter.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-background.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-tooltip.css</fragment>
