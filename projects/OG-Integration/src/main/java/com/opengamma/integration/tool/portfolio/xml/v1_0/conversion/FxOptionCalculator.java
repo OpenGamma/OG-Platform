@@ -6,13 +6,16 @@
 package com.opengamma.integration.tool.portfolio.xml.v1_0.conversion;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
+import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.AbstractFxOptionTrade;
+import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.AdditionalCashflow;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.BuySell;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -54,11 +57,30 @@ class FxOptionCalculator {
     // Depending on the currency, either call amount or put amount equals the supplied amount
     // Then use the fact that Strike = (call amount / put amount) to calculate the other value
     _callAmount = (_callCurrency.equals(notionalCurrency) ? amount : amount.multiply(strike)).doubleValue();
-    _putAmount = (_putCurrency.equals(notionalCurrency) ? amount : amount.divide(strike)).doubleValue();
+    _putAmount = (_putCurrency.equals(notionalCurrency) ? amount : amount.divide(strike, RoundingMode.HALF_UP)).doubleValue();
 
     _expiry = new Expiry(trade.getFxExpiry().getExpiryDate().atStartOfDay(ZoneOffset.UTC));
-    _settlementDate = trade.getPremiumSettlementDate().atStartOfDay(ZoneOffset.UTC);
+    _settlementDate = extractSettlementDate(trade);
     _long = trade.getBuySell() == BuySell.BUY;
+  }
+
+  /**
+   * Get a settlement date based on the premium paid for the option.
+   *
+   * @param trade
+   * @return
+   */
+  private ZonedDateTime extractSettlementDate(AbstractFxOptionTrade trade) {
+
+    if (trade.getAdditionalCashflows() != null) {
+
+      for (AdditionalCashflow cashflow : trade.getAdditionalCashflows()) {
+        if (cashflow.getCashflowType() == AdditionalCashflow.CashflowType.PREMIUM) {
+          return cashflow.getCashflowDate().atStartOfDay(ZoneOffset.UTC);
+        }
+      }
+    }
+    return null;
   }
 
   public Currency getCallCurrency() {

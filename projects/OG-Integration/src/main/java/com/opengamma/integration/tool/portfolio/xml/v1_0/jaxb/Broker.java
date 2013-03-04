@@ -8,6 +8,7 @@ package com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlEnumValue;
 
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.PropertyDefinition;
@@ -27,7 +28,12 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 @BeanDefinition
 public class Broker extends DirectBean {
 
-  public enum BrokerType {CLEARING_BROKER, EXECUTING_BROKER}
+  public enum BrokerType {
+    @XmlEnumValue(value = "clearingBroker")
+    CLEARING_BROKER,
+    @XmlEnumValue(value = "executingBroker")
+    EXECUTING_BROKER
+  }
 
   @XmlAttribute(name = "type", required = true)
   @PropertyDefinition(validate = "notNull")

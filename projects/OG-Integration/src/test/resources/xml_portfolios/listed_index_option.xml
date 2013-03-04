@@ -2,7 +2,7 @@
 <og-portfolio schemaVersion="1.0">
 
   <trades>
-    <listedIndexOptionTrade type="equityIndexOption" id="t1" >
+    <listedSecurityTrade id="t1" >
 
       <externalSystemId><id scheme="External">IdFromExternalSystem1</id></externalSystemId>
 
@@ -22,31 +22,34 @@
         </additionalCashflow>
       </additionalCashflows>
 
-      <optionType>Put</optionType>
       <buySell>Buy</buySell>
-
-      <underlyingId><id scheme="BLOOMBERG_TICKER">EI09SPX</id></underlyingId>
-
-      <strike>600</strike>
-
-      <optionExpiry>MAR15</optionExpiry>
-      <exerciseType>European</exerciseType>
-
       <numContracts>25000</numContracts>
-
-      <pointValue>100</pointValue>
-      <currency>EUR</currency>
-      <exchange>CME</exchange>
 
       <brokers>
         <broker type="executingBroker"><id scheme="BROKER">executingbrokerId</id></broker>
         <broker type="clearingBroker"><id scheme="BROKER">clearingbrokerId</id></broker>
       </brokers>
 
-    </listedIndexOptionTrade>
+      <optionSecurity type="equityIndexOption">
 
-    <!-- Same as previous trade in terms of security but different quantity - position should aggregate -->
-    <listedIndexOptionTrade type="equityIndexOption" id="t2" >
+        <underlyingId><id scheme="BLOOMBERG_TICKER">EI09SPX</id></underlyingId>
+        <pointValue>100</pointValue>
+        <currency>EUR</currency>
+        <exchange>CME</exchange>
+
+        <optionType>Put</optionType>
+
+        <strike>600</strike>
+
+        <optionExpiry>MAR15</optionExpiry>
+        <exerciseType>European</exerciseType>
+
+      </optionSecurity>
+
+    </listedSecurityTrade>
+
+    <!-- Same as previous trade in terms of security but different quantity - position will aggregate them -->
+    <listedSecurityTrade id="t2" >
 
       <externalSystemId><id scheme="External">IdFromExternalSystem2</id></externalSystemId>
 
@@ -66,28 +69,31 @@
         </additionalCashflow>
       </additionalCashflows>
 
-      <optionType>Put</optionType>
       <buySell>Sell</buySell>
-
-      <underlyingId><id scheme="BLOOMBERG_TICKER">EI09SPX</id></underlyingId>
-
-      <strike>600</strike>
-
-      <optionExpiry>MAR15</optionExpiry>
-      <exerciseType>European</exerciseType>
-
       <numContracts>10000</numContracts>
-
-      <pointValue>100</pointValue>
-      <currency>EUR</currency>
-      <exchange>CME</exchange>
 
       <brokers>
         <broker type="executingBroker"><id scheme="BROKER">executingbrokerId2</id></broker>
         <broker type="clearingBroker"><id scheme="BROKER">clearingbrokerId2</id></broker>
       </brokers>
 
-    </listedIndexOptionTrade>
+      <optionSecurity type="equityIndexOption">
+
+        <underlyingId><id scheme="BLOOMBERG_TICKER">EI09SPX</id></underlyingId>
+
+        <pointValue>100</pointValue>
+        <currency>EUR</currency>
+        <exchange>CME</exchange>
+
+        <optionType>Put</optionType>
+        <strike>600</strike>
+
+        <optionExpiry>MAR15</optionExpiry>
+        <exerciseType>European</exerciseType>
+
+      </optionSecurity>
+
+    </listedSecurityTrade>
   </trades>
 
   <positions>

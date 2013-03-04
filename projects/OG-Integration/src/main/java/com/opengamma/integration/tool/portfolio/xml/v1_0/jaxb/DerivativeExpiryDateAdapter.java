@@ -8,7 +8,7 @@ package com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb;
 
 import org.threeten.bp.YearMonth;
 
-public class OptionExpiryDateAdapter extends AbstractDateAdapter<YearMonth> {
+public class DerivativeExpiryDateAdapter extends AbstractDateAdapter<YearMonth> {
 
   @Override
   protected String getDatePattern() {

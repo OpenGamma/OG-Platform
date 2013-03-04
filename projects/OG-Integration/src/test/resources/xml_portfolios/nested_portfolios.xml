@@ -29,10 +29,10 @@
         <endOfMonth>true</endOfMonth>
         <isIMM>false</isIMM>
         <paymentCalendars>
-          <calendar type="Bank"> <!-- default=BANK  -->
+          <calendar type="bank"> <!-- default=BANK  -->
             <id scheme="CountryISO2">FD</id>
           </calendar>
-          <calendar type="Bank"> <!-- default=BANK  -->
+          <calendar type="bank"> <!-- default=BANK  -->
             <id scheme="CountryISO2">EN</id>
           </calendar>
         </paymentCalendars>
@@ -62,7 +62,7 @@
 
 
         <paymentCalendars>
-          <calendar type="Bank"> <!-- default=BANK  -->
+          <calendar type="bank"> <!-- default=BANK  -->
             <id scheme="CountryISO2">FD</id>
           </calendar>
           <calendar>
@@ -123,10 +123,10 @@
         <endOfMonth>true</endOfMonth>
         <isIMM>true</isIMM>
         <paymentCalendars>
-          <calendar type="Bank"> <!-- default=BANK  -->
+          <calendar type="bank"> <!-- default=BANK  -->
             <id scheme="CountryISO2">FD</id>
           </calendar>
-          <calendar type="Bank"> <!-- default=BANK  -->
+          <calendar type="bank"> <!-- default=BANK  -->
             <id scheme="CountryISO2">EN</id>
           </calendar>
         </paymentCalendars>
@@ -156,7 +156,7 @@
 
 
         <paymentCalendars>
-          <calendar type="Bank"> <!-- default=BANK  -->
+          <calendar type="bank"> <!-- default=BANK  -->
             <id scheme="CountryISO2">FD</id>
           </calendar>
           <calendar>
@@ -201,11 +201,15 @@
       <maturityDate>2018-01-31</maturityDate>
       <counterparty><id scheme="Cpty">GOLDMAN</id></counterparty>
 
-      <premium>250</premium>
-      <premiumCurrency>EUR</premiumCurrency>
-      <premiumSettlementDate>2013-01-22</premiumSettlementDate>
+      <additionalCashflows>
+        <additionalCashflow type="premium">
+          <counterparty><id scheme="CParty">xyz</id></counterparty>
+          <monetaryAmount currency="EUR">150</monetaryAmount>
+          <cashflowDate>2013-01-22</cashflowDate>
+        </additionalCashflow>
+      </additionalCashflows>
 
-      <callPut>Put</callPut>
+      <optionType>Put</optionType>
       <buySell>Buy</buySell>
       <currencyPair>EUR/USD</currencyPair>
       <optionCurrency>EUR</optionCurrency>
@@ -218,13 +222,13 @@
 
 
         <expiryCalendars>
-          <calendar type="Bank">
+          <calendar type="bank">
             <id scheme="CountryISO2">FD</id>
           </calendar>
         </expiryCalendars>
       </fxExpiry>
       <paymentCalendars>
-        <calendar type="Bank">
+        <calendar type="bank">
           <id scheme="CountryISO2">FD</id>
         </calendar>
       </paymentCalendars>
@@ -250,11 +254,15 @@
 
       <counterparty><id scheme="Cpty">GOLDMAN</id></counterparty>
 
-      <premium>250</premium>
-      <premiumCurrency>EUR</premiumCurrency>
-      <premiumSettlementDate>2013-01-27</premiumSettlementDate>
+      <additionalCashflows>
+        <additionalCashflow type="premium">
+          <counterparty><id scheme="CParty">xyz</id></counterparty>
+          <monetaryAmount currency="EUR">150</monetaryAmount>
+          <cashflowDate>2013-01-22</cashflowDate>
+        </additionalCashflow>
+      </additionalCashflows>
 
-      <callPut>Put</callPut>
+      <optionType>Put</optionType>
       <buySell>Buy</buySell>
       <currencyPair>EUR/USD</currencyPair>
       <optionCurrency>EUR</optionCurrency>
@@ -266,14 +274,14 @@
         <expiryCutoff>ECB|10am NY</expiryCutoff>
 
         <expiryCalendars>
-          <calendar type="Bank">
+          <calendar type="bank">
             <id scheme="CountryISO2">FD</id>
           </calendar>
         </expiryCalendars>
       </fxExpiry>
 
       <paymentCalendars>
-        <calendar type="Bank">
+        <calendar type="bank">
           <id scheme="CountryISO2">FD</id>
         </calendar>
       </paymentCalendars>

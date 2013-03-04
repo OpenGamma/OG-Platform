@@ -5,42 +5,52 @@
     <fxDigitalOptionTrade id="t1">
 
       <externalSystemId>
-        <id scheme="External">IdFromExternalSystem1</id>
+        <id scheme="BarxDealNumber">1234</id>
       </externalSystemId>
 
       <tradeDate>2013-01-20</tradeDate>
-      <maturityDate>2018-01-31</maturityDate>
+      <maturityDate>2013-05-20</maturityDate>
 
       <counterparty>
-        <id scheme="Cpty">GOLDMAN</id>
+        <id scheme="Cpty">Barclays London</id>
       </counterparty>
 
-      <premium>250</premium>
-      <premiumCurrency>EUR</premiumCurrency>
-      <premiumSettlementDate>2013-01-22</premiumSettlementDate>
+      <additionalCashflows>
+        <additionalCashflow type="premium">
+          <counterparty><id scheme="Cpty">Barclays London</id></counterparty>
+          <monetaryAmount currency="EUR">150</monetaryAmount>
+          <cashflowDate>2013-01-22</cashflowDate>
+        </additionalCashflow>
+      </additionalCashflows>
 
-      <callPut>Put</callPut>
+      <optionType>Call</optionType>
       <buySell>Buy</buySell>
       <currencyPair>EUR/USD</currencyPair>
       <optionCurrency>EUR</optionCurrency>
 
-      <strike>1.9</strike>
+      <strike>1.4</strike>
 
       <fxExpiry>
-        <expiryDate>2018-01-31</expiryDate>
-        <expiryCutoff>ECB|10am NY</expiryCutoff>
+        <expiryDate>2013-05-18</expiryDate>
+        <expiryCutoff>ECB</expiryCutoff>
 
         <expiryCalendars>
-          <calendar type="Bank">
-            <id scheme="CountryISO2">FD</id>
+          <calendar type="currency">
+            <id scheme="CurrencyCode">EUR</id>
+          </calendar>
+          <calendar type="currency">
+            <id scheme="CurrencyCode">USD</id>
           </calendar>
         </expiryCalendars>
       </fxExpiry>
 
       <paymentCalendars>
-        <calendar type="Bank">
-          <id scheme="CountryISO2">FD</id>
-        </calendar>
+          <calendar type="currency">
+            <id scheme="CurrencyCode">EUR</id>
+          </calendar>
+          <calendar type="currency">
+            <id scheme="CurrencyCode">USD</id>
+          </calendar>
       </paymentCalendars>
 
       <payout>1000000.00</payout>

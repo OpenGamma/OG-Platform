@@ -9,11 +9,16 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlEnumValue;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Calendar {
 
-  public enum CalendarType {Bank}
+  public enum CalendarType {
+    @XmlEnumValue(value = "bank")
+    BANK,
+    @XmlEnumValue(value = "currency")
+    CURRENCY}
 
   @XmlAttribute(name = "calendarType")
   private CalendarType _calendarType;

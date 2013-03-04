@@ -20,7 +20,7 @@ public class EquityVarianceSwapTradeSecurityExtractor extends TradeSecurityExtra
     return securityArray(new EquityVarianceSwapSecurity(trade.getUnderlying().toExternalId(), trade.getCurrency(), trade.getStrike().doubleValue(),
                                           trade.getVegaAmount().doubleValue(),
                                           parameterizedAsVariance, trade.getAnnualizationFactor(), convertLocalDate(trade.getObservationStartDate()),
-                                          convertLocalDate(trade.getObservationEndDate()), convertLocalDate(trade.getPremiumSettlementDate()),
+                                          convertLocalDate(trade.getObservationEndDate()), /*convertLocalDate(trade.getPremiumSettlementDate())*/ null,
                                           region, SimpleFrequencyFactory.INSTANCE.getFrequency(trade.getObservationfrequency())));
   }
 

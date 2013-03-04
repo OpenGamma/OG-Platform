@@ -32,7 +32,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 @BeanDefinition
 public abstract class AbstractFxOptionTrade extends Trade {
 
-  @XmlElement(name = "callPut", required = true)
+  @XmlElement(name = "optionType", required = true)
   @PropertyDefinition(validate = "notNull")
   private OptionType _optionType;
 
