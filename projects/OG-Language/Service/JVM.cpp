@@ -500,10 +500,34 @@ TCHAR *CJVM::InvokeString (JNIEnv *pEnv, const char *pszMethodName, const char *
 	va_start (args, pszSignature);
 	jstring jstrResult = (jstring)pEnv->CallStaticObjectMethodV (cls, mtd, args);
 	if (jstrResult) {
-		TODO (TEXT ("[PLAT-1292] Get the string contents and duplicate it onto the heap"));
-		LOGDEBUG (pszMethodName << " returned <a string>");
+		TCHAR *pszResult;
+#ifdef _UNICODE
+		jsize cchResult = pEnv->GetStringLength (jstrResult);
+#else /* ifdef _UNICODE */
+		jsize cchResult = pEnv->GetStringUTFLength (jstrResult);
+#endif /* ifdef _UNICODE */
+		pszResult = new TCHAR[cchResult + 1];
+		if (pszResult) {
+			jboolean bCopy;
+#ifdef _UNICODE
+			const jchar *pszResultChars = pEnv->GetStringChars (jstrResult, &bCopy);
+#else /* ifdef _UNICODE */
+			const char *pszResultChars = pEnv->GetStringUTFChars (jstrResult, &bCopy);
+#endif /* ifdef_ UNICODE */
+			memcpy (pszResult, pszResultChars, cchResult);
+			pszResult[cchResult] = 0;
+#ifdef _UNICODE
+			pEnv->ReleaseStringChars (jstrResult, pszResultChars);
+#else /* ifdef _UNICODE */
+			pEnv->ReleaseStringUTFChars (jstrResult, pszResultChars);
+#endif /* ifdef _UNICODE */
+			LOGDEBUG ("String returned from " << pszMethodName);
+			LOGDEBUG (pszResult);
+		} else {
+			LOGFATAL (TEXT ("Out of memory"));
+		}
 		pEnv->DeleteLocalRef (jstrResult);
-		return _tcsdup ("[PLAT-1292] TODO - copy the string returned from the Java method");
+		return pszResult;
 	}  else {
 		LOGDEBUG (pszMethodName << " returned NULL");
 		return NULL;
