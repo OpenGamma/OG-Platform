@@ -20,8 +20,12 @@ import com.opengamma.analytics.financial.commodity.derivative.MetalForward;
 import com.opengamma.analytics.financial.commodity.derivative.MetalFuture;
 import com.opengamma.analytics.financial.commodity.derivative.MetalFutureOption;
 import com.opengamma.analytics.financial.credit.cds.ISDACDSDerivative;
+import com.opengamma.analytics.financial.equity.future.derivative.CashSettledFuture;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityFuture;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityIndexDividendFuture;
+import com.opengamma.analytics.financial.equity.future.derivative.EquityIndexFuture;
+import com.opengamma.analytics.financial.equity.future.derivative.IndexFuture;
+import com.opengamma.analytics.financial.equity.future.derivative.VolatilityIndexFuture;
 import com.opengamma.analytics.financial.equity.option.EquityIndexFutureOption;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.equity.option.EquityOption;
@@ -248,7 +252,6 @@ public class ForexDerivativeVisitorTest {
     public String visitBondFixedSecurity(final BondFixedSecurity bond, final T data) {
       return null;
     }
-
     @Override
     public String visitBondFixedTransaction(final BondFixedTransaction bond, final T data) {
       return null;
@@ -666,13 +669,11 @@ public class ForexDerivativeVisitorTest {
 
     @Override
     public String visitDepositZero(final DepositZero deposit, final T data) {
-      // TODO Auto-generated method stub
       return null;
     }
 
     @Override
     public String visitDepositZero(final DepositZero deposit) {
-      // TODO Auto-generated method stub
       return null;
     }
 
@@ -708,13 +709,11 @@ public class ForexDerivativeVisitorTest {
 
     @Override
     public String visitCouponIborCompounding(final CouponIborCompounding payment) {
-      // TODO Auto-generated method stub
       return null;
     }
 
     @Override
     public String visitCouponIborCompounding(final CouponIborCompounding payment, final T data) {
-      // TODO Auto-generated method stub
       return null;
     }
 
@@ -975,6 +974,46 @@ public class ForexDerivativeVisitorTest {
 
     @Override
     public String visitFixedCompoundingCouponSwap(SwapFixedCompoundingCoupon<?> swap) {
+      return null;
+    }
+
+    @Override
+    public String visitCashSettledFuture(CashSettledFuture future, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitCashSettledFuture(CashSettledFuture future) {
+      return null;
+    }
+
+    @Override
+    public String visitIndexFuture(IndexFuture future, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitIndexFuture(IndexFuture future) {
+      return null;
+    }
+
+    @Override
+    public String visitEquityIndexFuture(EquityIndexFuture future, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitEquityIndexFuture(EquityIndexFuture future) {
+      return null;
+    }
+
+    @Override
+    public String visitVolatilityIndexFuture(VolatilityIndexFuture future, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitVolatilityIndexFuture(VolatilityIndexFuture future) {
       return null;
     }
 

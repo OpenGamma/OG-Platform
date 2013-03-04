@@ -16,6 +16,9 @@ import com.opengamma.analytics.financial.commodity.definition.MetalFutureDefinit
 import com.opengamma.analytics.financial.commodity.definition.MetalFutureOptionDefinition;
 import com.opengamma.analytics.financial.equity.future.definition.EquityFutureDefinition;
 import com.opengamma.analytics.financial.equity.future.definition.EquityIndexDividendFutureDefinition;
+import com.opengamma.analytics.financial.equity.future.definition.EquityIndexFutureDefinition;
+import com.opengamma.analytics.financial.equity.future.definition.IndexFutureDefinition;
+import com.opengamma.analytics.financial.equity.future.definition.VolatilityIndexFutureDefinition;
 import com.opengamma.analytics.financial.equity.option.EquityIndexFutureOptionDefinition;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOptionDefinition;
 import com.opengamma.analytics.financial.equity.option.EquityOptionDefinition;
@@ -417,11 +420,23 @@ public interface InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
   RESULT_TYPE visitEquityFutureDefinition(EquityFutureDefinition future, DATA_TYPE data);
 
   RESULT_TYPE visitEquityFutureDefinition(EquityFutureDefinition future);
+  
+  RESULT_TYPE visitIndexFutureDefinition(IndexFutureDefinition future, DATA_TYPE data);
 
+  RESULT_TYPE visitIndexFutureDefinition(IndexFutureDefinition future);
+  
+  RESULT_TYPE visitEquityIndexFutureDefinition(EquityIndexFutureDefinition future, DATA_TYPE data);
+
+  RESULT_TYPE visitEquityIndexFutureDefinition(EquityIndexFutureDefinition future);
+  
   RESULT_TYPE visitEquityIndexDividendFutureDefinition(EquityIndexDividendFutureDefinition future, DATA_TYPE data);
 
   RESULT_TYPE visitEquityIndexDividendFutureDefinition(EquityIndexDividendFutureDefinition future);
+  
+  RESULT_TYPE visitVolatilityIndexFutureDefinition(VolatilityIndexFutureDefinition future, DATA_TYPE data);
 
+  RESULT_TYPE visitVolatilityIndexFutureDefinition(VolatilityIndexFutureDefinition future);
+  
   RESULT_TYPE visitEquityIndexOptionDefinition(EquityIndexOptionDefinition option, DATA_TYPE data);
 
   RESULT_TYPE visitEquityIndexOptionDefinition(EquityIndexOptionDefinition option);
