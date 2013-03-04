@@ -8,18 +8,23 @@ package com.opengamma.engine.depgraph;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.MarketDataSourcingFunction;
 import com.opengamma.engine.function.ParameterizedFunction;
+import com.opengamma.engine.function.RelabellingFunction;
 import com.opengamma.engine.marketdata.availability.MarketDataNotSatisfiableException;
 import com.opengamma.engine.target.ComputationTargetReferenceVisitor;
 import com.opengamma.engine.target.ComputationTargetRequirement;
 import com.opengamma.engine.target.lazy.LazyComputationTargetResolver;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.async.BlockingOperation;
@@ -28,6 +33,13 @@ import com.opengamma.util.tuple.Triple;
 /* package */final class GetFunctionsStep extends ResolveTask.State {
 
   private static final Logger s_logger = LoggerFactory.getLogger(GetFunctionsStep.class);
+
+  private static final ParameterizedFunction MARKET_DATA_SOURCING_FUNCTION = createParameterizedFunction(MarketDataSourcingFunction.INSTANCE);
+  private static final ParameterizedFunction RELABELLING_FUNCTION = createParameterizedFunction(RelabellingFunction.INSTANCE);
+
+  private static ParameterizedFunction createParameterizedFunction(final CompiledFunctionDefinition function) {
+    return new ParameterizedFunction(function, function.getFunctionDefinition().getDefaultParameters());
+  }
 
   public GetFunctionsStep(final ResolveTask task) {
     super(task);
@@ -78,51 +90,79 @@ import com.opengamma.util.tuple.Triple;
     }
     if (marketDataSpec != null) {
       s_logger.info("Found live data for {}", getValueRequirement());
-      if ((getValueRequirement().getValueName() == marketDataSpec.getValueName())
-          && getValueRequirement().getConstraints().isSatisfiedBy(marketDataSpec.getProperties())) {
-        final MarketDataSourcingFunction function = MarketDataSourcingFunction.INSTANCE;
-        final ValueSpecification resultSpec = context.simplifyType(marketDataSpec);
-        final ResolvedValue resolvedValue = createResult(resultSpec, new ParameterizedFunction(function, function.getDefaultParameters()), Collections.<ValueSpecification>emptySet(),
-            Collections.singleton(resultSpec));
-        final ResolvedValueProducer producer = new SingleResolvedValueProducer(getValueRequirement(), resolvedValue);
-        final ResolvedValueProducer existing = context.declareTaskProducing(resultSpec, getTask(), producer);
-        if (existing == producer) {
-          context.declareProduction(resolvedValue);
-          if (!pushResult(context, resolvedValue, true)) {
-            throw new IllegalStateException(resolvedValue + " rejected by pushResult");
+      marketDataSpec = context.simplifyType(marketDataSpec);
+      ResolvedValue resolvedValue = createResult(marketDataSpec, MARKET_DATA_SOURCING_FUNCTION, Collections.<ValueSpecification>emptySet(), Collections.singleton(marketDataSpec));
+      final ValueProperties constraints = getValueRequirement().getConstraints();
+      if ((getValueRequirement().getValueName() != marketDataSpec.getValueName())
+          || !targetSpec.equals(marketDataSpec.getTargetSpecification())
+          || !constraints.isSatisfiedBy(marketDataSpec.getProperties())) {
+        // The specification returned by market data provision does not match the logical target; publish a substitute node
+        context.declareProduction(resolvedValue);
+        ValueProperties properties;
+        final Set<String> functionNames = constraints.getValues(ValuePropertyNames.FUNCTION);
+        if (functionNames == null) {
+          final Set<String> allProperties = constraints.getProperties();
+          if ((allProperties == null) || !allProperties.isEmpty()) {
+            // Requirement made no constraint on function identifier
+            properties = ValueProperties.with(ValuePropertyNames.FUNCTION, RelabellingFunction.UNIQUE_ID).get();
+          } else {
+            // Requirement used a nearly infinite property bundle that omitted a function identifier
+            properties = constraints.copy().withAny(ValuePropertyNames.FUNCTION).get();
           }
-          // Leave in current state; will go to finished after being pumped
         } else {
-          producer.release(context);
-          existing.addCallback(context, new ResolvedValueCallback() {
-
-            @Override
-            public void resolved(final GraphBuildingContext context, final ValueRequirement valueRequirement, final ResolvedValue resolvedValue, final ResolutionPump pump) {
-              if (pump != null) {
-                pump.close(context);
-              }
-              if (!pushResult(context, resolvedValue, true)) {
-                throw new IllegalStateException(resolvedValue + " rejected by pushResult");
-              }
-              // Leave in current state; will go to finished after being pumped
+          if (functionNames.isEmpty()) {
+            final Set<String> allProperties = constraints.getProperties();
+            if (allProperties.isEmpty()) {
+              // Requirement is for an infinite or nearly infinite property bundle. This is valid but may be indicative of an error
+              properties = constraints;
+            } else {
+              // Requirement had a wild card for the function but is otherwise finite
+              properties = constraints.copy().withoutAny(ValuePropertyNames.FUNCTION).with(ValuePropertyNames.FUNCTION, RelabellingFunction.UNIQUE_ID).get();
             }
-
-            @Override
-            public void failed(final GraphBuildingContext context, final ValueRequirement value, final ResolutionFailure failure) {
-              storeFailure(failure);
-              setTaskStateFinished(context);
-            }
-
-          });
-          existing.release(context);
+          } else if (functionNames.size() == 1) {
+            // Requirement is fully specified 
+            properties = constraints;
+          } else {
+            // Requirement allowed a choice of function - pick one
+            properties = constraints.copy().withoutAny(ValuePropertyNames.FUNCTION).with(ValuePropertyNames.FUNCTION, functionNames.iterator().next()).get();
+          }
+        }
+        final ValueSpecification relabelledSpec = new ValueSpecification(getValueRequirement().getValueName(), targetSpec, properties);
+        resolvedValue = createResult(relabelledSpec, RELABELLING_FUNCTION, Collections.singleton(marketDataSpec), Collections.singleton(relabelledSpec));
+      }
+      final ResolvedValueProducer producer = new SingleResolvedValueProducer(getValueRequirement(), resolvedValue);
+      final ResolvedValueProducer existing = context.declareTaskProducing(resolvedValue.getValueSpecification(), getTask(), producer);
+      if (existing == producer) {
+        context.declareProduction(resolvedValue);
+        if (!pushResult(context, resolvedValue, true)) {
+          throw new IllegalStateException(resolvedValue + " rejected by pushResult");
         }
         // Leave in current state; will go to finished after being pumped
       } else {
-        // A well behaved market data provider shouldn't do this, treat as missing market data
-        s_logger.warn("Live data {} cannot satisfy {}", marketDataSpec, getValueRequirement());
-        storeFailure(context.marketDataMissing(getValueRequirement()));
-        setTaskStateFinished(context);
+        producer.release(context);
+        existing.addCallback(context, new ResolvedValueCallback() {
+
+          @Override
+          public void resolved(final GraphBuildingContext context, final ValueRequirement valueRequirement, final ResolvedValue resolvedValue, final ResolutionPump pump) {
+            if (pump != null) {
+              pump.close(context);
+            }
+            if (!pushResult(context, resolvedValue, true)) {
+              throw new IllegalStateException(resolvedValue + " rejected by pushResult");
+            }
+            // Leave in current state; will go to finished after being pumped
+          }
+
+          @Override
+          public void failed(final GraphBuildingContext context, final ValueRequirement value, final ResolutionFailure failure) {
+            storeFailure(failure);
+            setTaskStateFinished(context);
+          }
+
+        });
+        existing.release(context);
       }
+      // Leave in current state; will go to finished after being pumped
     } else {
       if (missing) {
         s_logger.info("Missing market data for {}", getValueRequirement());

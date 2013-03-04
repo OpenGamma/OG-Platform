@@ -17,11 +17,11 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
 import com.opengamma.engine.function.NoOpFunction;
+import com.opengamma.engine.function.RelabellingFunction;
 import com.opengamma.util.ReflectionUtils;
 
 /**
- * Constructs and bootstraps an {@link InMemoryFunctionRepository} based on configuration
- * provided in a Fudge-encoded stream.
+ * Constructs and bootstraps an {@link InMemoryFunctionRepository} based on configuration provided in a Fudge-encoded stream.
  */
 public class RepositoryFactory {
 
@@ -29,13 +29,14 @@ public class RepositoryFactory {
 
   /**
    * Constructs a repository from the configuration.
-   *
-   * @param configuration  the configuration, not null
+   * 
+   * @param configuration the configuration, not null
    * @return the repository, not null
    */
   public static InMemoryFunctionRepository constructRepository(final RepositoryConfiguration configuration) {
     final InMemoryFunctionRepository repository = new InMemoryFunctionRepository();
     repository.addFunction(new NoOpFunction());
+    repository.addFunction(RelabellingFunction.INSTANCE);
     if (configuration.getFunctions() != null) {
       for (final FunctionConfiguration functionConfig : configuration.getFunctions()) {
         if (functionConfig instanceof ParameterizedFunctionConfiguration) {
@@ -64,8 +65,7 @@ public class RepositoryFactory {
 
   protected static AbstractFunction createParameterizedFunction(final Class<?> definitionClass, final List<String> parameterList) {
     try {
-    constructors:
-      for (final Constructor<?> constructor : definitionClass.getConstructors()) {
+      constructors: for (final Constructor<?> constructor : definitionClass.getConstructors()) {
         final Class<?>[] parameters = constructor.getParameterTypes();
         final Object[] args = new Object[parameters.length];
         int used = 0;

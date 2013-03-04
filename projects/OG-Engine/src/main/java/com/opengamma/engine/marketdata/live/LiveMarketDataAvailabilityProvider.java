@@ -43,8 +43,6 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   protected ComputationTargetSpecification getTarget() {
-    // [PLAT-3044] This is wrong if snapshots are to work; the target must be resolvable to at least the identifiers that produced the specification. It would be better to use
-    // the supplied target specification and encode the normalization as a property.
     return _target;
   }
 
