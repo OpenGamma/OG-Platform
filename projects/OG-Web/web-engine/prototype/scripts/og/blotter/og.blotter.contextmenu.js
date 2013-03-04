@@ -4,14 +4,14 @@
  */
 $.register_module({
     name: 'og.blotter.contextmenu',
-    dependencies: ['og.analytics.url'],
+    dependencies: [],
     obj: function () {
         return function (cell, event) {
             var module = this;
             module.context_items = function (cell) {
                 //console.log(cell);
                 var items = [];
-                if (og.analytics.url.last.main.aggregators.length) {
+                if (og.analytics.url && og.analytics.url.last.main.aggregators.length) {
                      items.push({name: 'Unable to add/edit trades whilst aggregated', handler: $.noop});
                      return items;
                 }

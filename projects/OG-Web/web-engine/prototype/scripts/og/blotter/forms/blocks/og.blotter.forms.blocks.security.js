@@ -11,7 +11,7 @@ $.register_module({
             var block = this, scheme_value, id_value, form = config.form, security = config.security, dropdown,
             sec_id = og.common.id("og-blotter-security"), scheme_id = og.common.id("og-blotter-scheme"),
             scheme_selector =  og.common.id("og-blotter-scheme-selector"), options = [], menu,
-            scheme_tmpl = '<span id="' + scheme_selector + '"></span>', callback = config.callback || $.noob;
+            scheme_tmpl = '<span id="' + scheme_selector + '"></span>', callback = config.callback || $.noop;
             if (security) {
                 scheme_value = security.split(/~(.+)/)[0];
                 id_value  = security.split(/~(.+)/)[1]; 
@@ -41,7 +41,7 @@ $.register_module({
                     Object.keys(obj).forEach(function(key) { 
                         options.push(obj[key]);
                     });
-                    options.sort();
+                    options.sort(); 
                     menu = new og.common.util.ui.AutoCombo({
                         selector: '#' + scheme_selector,
                         placeholder: 'Select Scheme',
@@ -55,8 +55,8 @@ $.register_module({
                     menu.$input.autocomplete('widget').css('max-height', 500);
                     form.on('keyup', input_id(), function (event) {callback();});
                     form.on('keyup', select_id(), function (event) {callback();}); 
-                    callback();                   
-                });
+                    callback(); 
+                });                           
             };
             input_id = function () {
                 return '#' + sec_id;
@@ -64,9 +64,6 @@ $.register_module({
             select_id = function () {
                 return '#' + scheme_id;
             };
-            form.on("form:load", function () {
-                block.create_autocomplete();
-            });
         };
         Security.prototype = new Block(); // inherit Block prototype
         return Security;
