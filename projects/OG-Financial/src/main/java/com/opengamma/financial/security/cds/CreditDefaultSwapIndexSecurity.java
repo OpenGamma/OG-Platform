@@ -75,6 +75,22 @@ public class CreditDefaultSwapIndexSecurity extends FinancialSecurity {
     super(SECURITY_TYPE);
   }
   
+  /**
+   * Creates an instance.
+   * 
+   * @param version  the version, not null
+   * @param series  the series, not null
+   * @param family  the family, not null
+   * @param currency  the currency, not null
+   */
+  public CreditDefaultSwapIndexSecurity(String version, String series, String family, Currency currency) {
+    super(SECURITY_TYPE);
+    setVersion(version);
+    setSeries(series);
+    setFamily(family);
+    setCurrency(currency);
+  }
+  
   @Override
   public <T> T accept(FinancialSecurityVisitor<T> visitor) {
     return visitor.visitCreditDefaultSwapIndexSecurity(this);
