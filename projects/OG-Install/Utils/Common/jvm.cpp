@@ -203,7 +203,7 @@ static HMODULE _findJavaFromRegistry (PCSTR pszPublisher) {
 	HMODULE hModule = (HMODULE)INVALID_HANDLE_VALUE;
 	HKEY hKey = NULL;
 	do {
-		char sz[8];
+		char sz[MAX_PATH];
 		StringCbPrintf (sz, sizeof (sz), "SOFTWARE\\%s\\Java Runtime Environment", pszPublisher);
 		if (RegOpenKey (HKEY_LOCAL_MACHINE, sz, &hKey) != ERROR_SUCCESS) break;
 		DWORD cb = sizeof (sz);
