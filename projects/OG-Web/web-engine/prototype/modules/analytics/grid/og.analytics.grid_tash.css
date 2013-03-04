@@ -64,3 +64,12 @@
     top: 6px;
     width: 9px;
 }
+/* type formatting */
+{{id}} .OG-g-b-scroll .OG-g-DOUBLE {
+    text-align: right;
+    padding-right: {{#if sparklines}}65{{else}}18{{/if}}px;
+}
+.OG-g-b-fixed .OG-g-DOUBLE {
+    text-align: right;
+    padding-right: 4px;
+}

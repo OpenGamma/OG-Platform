@@ -26,7 +26,7 @@ import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.rootfinding.BracketRoot;
 import com.opengamma.analytics.math.rootfinding.BrentSingleRootFinder;
 import com.opengamma.analytics.math.rootfinding.RealSingleRootFinder;
-import com.opengamma.analytics.util.surface.StringValue;
+import com.opengamma.analytics.util.amount.StringAmount;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -123,7 +123,7 @@ public final class BondSecurityDiscountingMethod {
     curvesWithZ.addAll(curves);
     final YieldAndDiscountCurve shiftedDiscounting = curves.getCurve(discountingCurveName).withParallelShift(zSpread);
     curvesWithZ.replaceCurve(discountingCurveName, shiftedDiscounting);
-    final StringValue parallelSensi = presentValueParallelCurveSensitivity(bond, curvesWithZ);
+    final StringAmount parallelSensi = presentValueParallelCurveSensitivity(bond, curvesWithZ);
     return parallelSensi.getMap().get(discountingCurveName);
 
   }
@@ -506,9 +506,9 @@ public final class BondSecurityDiscountingMethod {
    * @param curves The curve bundle.
    * @return The present value curve sensitivity.
    */
-  public StringValue presentValueParallelCurveSensitivity(final BondSecurity<? extends Payment, ? extends Coupon> bond, final YieldCurveBundle curves) {
-    final StringValue pvpcsNominal = bond.getNominal().accept(PVPCSC, curves);
-    final StringValue pvpcsCoupon = bond.getCoupon().accept(PVPCSC, curves);
-    return StringValue.plus(pvpcsNominal, pvpcsCoupon);
+  public StringAmount presentValueParallelCurveSensitivity(final BondSecurity<? extends Payment, ? extends Coupon> bond, final YieldCurveBundle curves) {
+    final StringAmount pvpcsNominal = bond.getNominal().accept(PVPCSC, curves);
+    final StringAmount pvpcsCoupon = bond.getCoupon().accept(PVPCSC, curves);
+    return StringAmount.plus(pvpcsNominal, pvpcsCoupon);
   }
 }

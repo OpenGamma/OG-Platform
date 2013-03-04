@@ -13,13 +13,13 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Paymen
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
 import com.opengamma.analytics.financial.interestrate.payments.provider.PaymentFixedDiscountingProviderMethod;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
-import com.opengamma.analytics.util.surface.StringValue;
+import com.opengamma.analytics.util.amount.StringAmount;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * Calculates the present value sensitivity to parallel curve movements.
  */
-public final class PresentValueParallelCurveSensitivityDiscountingCalculator extends InstrumentDerivativeVisitorAdapter<MulticurveProviderInterface, StringValue> {
+public final class PresentValueParallelCurveSensitivityDiscountingCalculator extends InstrumentDerivativeVisitorAdapter<MulticurveProviderInterface, StringAmount> {
   // TODO: This calculator is similar (equivalent?) to the PV01Calculator. Should they be merged?
 
   /**
@@ -49,30 +49,30 @@ public final class PresentValueParallelCurveSensitivityDiscountingCalculator ext
   // -----     Payment/Coupon     ------
 
   @Override
-  public StringValue visitFixedPayment(final PaymentFixed payment, final MulticurveProviderInterface multicurves) {
+  public StringAmount visitFixedPayment(final PaymentFixed payment, final MulticurveProviderInterface multicurves) {
     return METHOD_PAYMENTFIXED.presentValueParallelCurveSensitivity(payment, multicurves);
   }
 
   @Override
-  public StringValue visitCouponFixed(final CouponFixed payment, final MulticurveProviderInterface multicurves) {
+  public StringAmount visitCouponFixed(final CouponFixed payment, final MulticurveProviderInterface multicurves) {
     return visitFixedPayment(payment.toPaymentFixed(), multicurves);
   }
 
   // -----     Annuity     ------
 
   @Override
-  public StringValue visitGenericAnnuity(final Annuity<? extends Payment> annuity, final MulticurveProviderInterface multicurves) {
+  public StringAmount visitGenericAnnuity(final Annuity<? extends Payment> annuity, final MulticurveProviderInterface multicurves) {
     ArgumentChecker.notNull(annuity, "Annuity");
     ArgumentChecker.notNull(multicurves, "multicurve");
-    StringValue pvpcs = new StringValue();
+    StringAmount pvpcs = new StringAmount();
     for (final Payment p : annuity.getPayments()) {
-      pvpcs = StringValue.plus(pvpcs, p.accept(this, multicurves));
+      pvpcs = StringAmount.plus(pvpcs, p.accept(this, multicurves));
     }
     return pvpcs;
   }
 
   @Override
-  public StringValue visitFixedCouponAnnuity(final AnnuityCouponFixed annuity, final MulticurveProviderInterface multicurves) {
+  public StringAmount visitFixedCouponAnnuity(final AnnuityCouponFixed annuity, final MulticurveProviderInterface multicurves) {
     return visitGenericAnnuity(annuity, multicurves);
   }
 

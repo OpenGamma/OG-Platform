@@ -35,7 +35,7 @@ public class InterestRateFutureTradeConverter {
     final int quantity = 1;
     ZonedDateTime tradeDate;
     if (trade.getTradeTime() != null) {
-      ZoneId zone = trade.getTradeTime().getOffset();
+      final ZoneId zone = trade.getTradeTime().getOffset();
       tradeDate = trade.getTradeDate().atTime(trade.getTradeTime().getTime()).atZone(zone);
     } else {
       tradeDate = trade.getTradeDate().atTime(LocalTime.NOON).atZone(ZoneOffset.UTC);

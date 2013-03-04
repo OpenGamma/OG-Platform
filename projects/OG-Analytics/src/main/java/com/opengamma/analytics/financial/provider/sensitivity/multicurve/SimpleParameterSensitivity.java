@@ -18,31 +18,31 @@ import com.opengamma.analytics.math.matrix.MatrixAlgebraFactory;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Class containing the sensitivity of value to specific parameters or market quotes and methods for manipulating these data. 
+ * Class containing the sensitivity of value to specific parameters or market quotes and methods for manipulating these data.
  * The vector of sensitivities is stored with reference to a curve name.
- * TODO: The string should be replace by a curveId at some stage.
  */
+// TODO: The string should be replace by a curveId at some stage.
 public class SimpleParameterSensitivity {
   /**
    * The map containing the sensitivity. The map links the curve name to a vector of sensitivities (sensitivities to parameters/inputs).
-   * TODO: Do we need a linked hash map?
    */
+  // TODO: Do we need a linked hash map?
   private final LinkedHashMap<String, DoubleMatrix1D> _sensitivity;
 
   /**
    * Default constructor, creating an empty LinkedHashMap for the sensitivity.
    */
   public SimpleParameterSensitivity() {
-    _sensitivity = new LinkedHashMap<String, DoubleMatrix1D>();
+    _sensitivity = new LinkedHashMap<>();
   }
 
   /**
    * Constructor taking a map.
-   * @param sensitivity The map with the sensitivities, not null. A new map is created. 
+   * @param sensitivity The map with the sensitivities, not null. A new map is created.
    */
   public SimpleParameterSensitivity(final LinkedHashMap<String, DoubleMatrix1D> sensitivity) {
     ArgumentChecker.notNull(sensitivity, "sensitivity");
-    _sensitivity = new LinkedHashMap<String, DoubleMatrix1D>(sensitivity);
+    _sensitivity = new LinkedHashMap<>(sensitivity);
   }
 
   /**
@@ -56,7 +56,7 @@ public class SimpleParameterSensitivity {
     ArgumentChecker.notNull(name, "Name");
     ArgumentChecker.notNull(sensitivity, "Matrix");
     final MatrixAlgebra algebra = MatrixAlgebraFactory.COMMONS_ALGEBRA;
-    final LinkedHashMap<String, DoubleMatrix1D> result = new LinkedHashMap<String, DoubleMatrix1D>();
+    final LinkedHashMap<String, DoubleMatrix1D> result = new LinkedHashMap<>();
     result.putAll(_sensitivity);
     if (result.containsKey(name)) {
       result.put(name, (DoubleMatrix1D) algebra.add(result.get(name), sensitivity));
@@ -74,7 +74,7 @@ public class SimpleParameterSensitivity {
   public SimpleParameterSensitivity plus(final SimpleParameterSensitivity other) {
     ArgumentChecker.notNull(other, "Sensitivity to add");
     final MatrixAlgebra algebra = MatrixAlgebraFactory.COMMONS_ALGEBRA;
-    final LinkedHashMap<String, DoubleMatrix1D> result = new LinkedHashMap<String, DoubleMatrix1D>();
+    final LinkedHashMap<String, DoubleMatrix1D> result = new LinkedHashMap<>();
     result.putAll(_sensitivity);
     for (final Map.Entry<String, DoubleMatrix1D> entry : other.getSensitivities().entrySet()) {
       final String name = entry.getKey();
@@ -94,7 +94,7 @@ public class SimpleParameterSensitivity {
    */
   public SimpleParameterSensitivity multipliedBy(final double factor) {
     final MatrixAlgebra algebra = MatrixAlgebraFactory.COMMONS_ALGEBRA;
-    final LinkedHashMap<String, DoubleMatrix1D> result = new LinkedHashMap<String, DoubleMatrix1D>();
+    final LinkedHashMap<String, DoubleMatrix1D> result = new LinkedHashMap<>();
     for (final String nameCcy : _sensitivity.keySet()) {
       result.put(nameCcy, (DoubleMatrix1D) algebra.scale(_sensitivity.get(nameCcy), factor));
     }

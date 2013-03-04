@@ -5,7 +5,9 @@
  */
 package com.opengamma.analytics.financial.provider.curve;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
@@ -19,7 +21,7 @@ import com.opengamma.util.tuple.Pair;
 public class CurveBuildingBlock {
 
   /**
-   * The list of curve in the block as a map: Name to a pair of integers: 
+   * The list of curve in the block as a map: Name to a pair of integers:
    *   1) Start of the curve parameters in the array of all parameters of the block. 2) Number of parameters in the curve
    */
   private final LinkedHashMap<String, Pair<Integer, Integer>> _unit;
@@ -30,9 +32,9 @@ public class CurveBuildingBlock {
    * Constructor from a map. A new map is created.
    * @param block The curve block. Not null.
    */
-  public CurveBuildingBlock(LinkedHashMap<String, Pair<Integer, Integer>> block) {
+  public CurveBuildingBlock(final LinkedHashMap<String, Pair<Integer, Integer>> block) {
     ArgumentChecker.notNull(block, "Curve building block");
-    _unit = new LinkedHashMap<String, Pair<Integer, Integer>>();
+    _unit = new LinkedHashMap<>();
     _unit.putAll(block);
   }
 
@@ -62,6 +64,14 @@ public class CurveBuildingBlock {
     return _unit.keySet();
   }
 
+  /**
+   * Gets all of the underlying data.
+   * @return The data wrapped in an unmodifiable map.
+   */
+  public Map<String, Pair<Integer, Integer>> getData() {
+    return Collections.unmodifiableMap(_unit);
+  }
+
   @Override
   public String toString() {
     return _unit.toString();
@@ -76,7 +86,7 @@ public class CurveBuildingBlock {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -86,7 +96,7 @@ public class CurveBuildingBlock {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    CurveBuildingBlock other = (CurveBuildingBlock) obj;
+    final CurveBuildingBlock other = (CurveBuildingBlock) obj;
     if (!ObjectUtils.equals(_unit, other._unit)) {
       return false;
     }

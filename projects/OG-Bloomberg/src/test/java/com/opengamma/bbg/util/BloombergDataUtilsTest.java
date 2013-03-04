@@ -11,7 +11,6 @@ import static com.opengamma.bbg.BloombergConstants.FIELD_ID_BBG_UNIQUE;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ID_CUSIP;
 import static com.opengamma.bbg.BloombergConstants.FIELD_OPT_CHAIN;
 import static com.opengamma.bbg.BloombergConstants.FIELD_PARSEKYABLE_DES;
-import static com.opengamma.bbg.BloombergConstants.DEFAULT_OBSERVATION_TIME;
 import static com.opengamma.bbg.util.BloombergDataUtils.toBloombergDate;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
@@ -34,6 +33,7 @@ import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Sets;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesConstants;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundleWithDates;
@@ -169,12 +169,12 @@ public class BloombergDataUtilsTest {
   }
 
   public void test_resolveObservationTime() {
-    assertEquals(DEFAULT_OBSERVATION_TIME, BloombergDataUtils.resolveObservationTime(null));
-    assertEquals(DEFAULT_OBSERVATION_TIME, BloombergDataUtils.resolveObservationTime("UNKNOWN"));
+    assertEquals(HistoricalTimeSeriesConstants.DEFAULT_OBSERVATION_TIME, BloombergDataUtils.resolveObservationTime(null));
+    assertEquals(HistoricalTimeSeriesConstants.DEFAULT_OBSERVATION_TIME, BloombergDataUtils.resolveObservationTime("UNKNOWN"));
     assertNull(BloombergDataUtils.resolveObservationTime("FOO"));
-    assertEquals("LONDON_CLOSE", BloombergDataUtils.resolveObservationTime("CMPL"));
-    assertEquals("NEWYORK_CLOSE", BloombergDataUtils.resolveObservationTime("CMPN"));
-    assertEquals("TOKYO_CLOSE", BloombergDataUtils.resolveObservationTime("CMPT"));
+    assertEquals(HistoricalTimeSeriesConstants.LONDON_CLOSE, BloombergDataUtils.resolveObservationTime("CMPL"));
+    assertEquals(HistoricalTimeSeriesConstants.NEWYORK_CLOSE, BloombergDataUtils.resolveObservationTime("CMPN"));
+    assertEquals(HistoricalTimeSeriesConstants.TOKYO_CLOSE, BloombergDataUtils.resolveObservationTime("CMPT"));
   }
 
   @Test

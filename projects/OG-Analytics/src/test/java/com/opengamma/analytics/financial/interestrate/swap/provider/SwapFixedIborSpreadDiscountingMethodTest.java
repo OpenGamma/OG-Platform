@@ -112,7 +112,7 @@ public class SwapFixedIborSpreadDiscountingMethodTest {
     assertEquals("SwapFixedIborSpreadDiscountingMethod: forwardSwapSpreadModified", forwardExpected, forwardComputed, TOLERANCE_RATE);
   }
 
-  @Test(enabled = true)
+  @Test(enabled = false)
   /**
    * Test the performance of building swaps and computing their PV and delta.
    */

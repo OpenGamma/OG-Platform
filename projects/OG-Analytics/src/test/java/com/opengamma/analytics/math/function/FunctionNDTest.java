@@ -1,7 +1,15 @@
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.analytics.math.function;
 
 import org.testng.annotations.Test;
 
+/**
+ * 
+ */
 public class FunctionNDTest {
   private static final FunctionND<Double, Double> F = new FunctionND<Double, Double>() {
 

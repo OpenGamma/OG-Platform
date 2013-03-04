@@ -14,7 +14,6 @@ import static com.opengamma.bbg.BloombergConstants.FIELD_ID_ISIN;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ID_SEDOL1;
 import static com.opengamma.bbg.BloombergConstants.FIELD_OPT_CHAIN;
 import static com.opengamma.bbg.BloombergConstants.FIELD_PARSEKYABLE_DES;
-import static com.opengamma.bbg.BloombergConstants.DEFAULT_OBSERVATION_TIME;
 import static com.opengamma.bbg.BloombergConstants.ON_OFF_FIELDS;
 import static org.threeten.bp.temporal.ChronoField.DAY_OF_MONTH;
 import static org.threeten.bp.temporal.ChronoField.MONTH_OF_YEAR;
@@ -78,6 +77,7 @@ import com.opengamma.bbg.referencedata.ReferenceDataError;
 import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.bbg.referencedata.ReferenceDataProviderGetRequest;
 import com.opengamma.bbg.referencedata.ReferenceDataProviderGetResult;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesConstants;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.value.MarketDataRequirementNames;
@@ -195,10 +195,10 @@ public final class BloombergDataUtils {
    * The observation time map.
    */
   private static final Map<String, String> s_observationTimeMap = ImmutableMap.<String, String>builder()
-      .put("CMPL", "LONDON_CLOSE")
-      .put("CMPT", "TOKYO_CLOSE")
-      .put("CMPN", "NEWYORK_CLOSE")
-      .put(DEFAULT_DATA_PROVIDER, DEFAULT_OBSERVATION_TIME)
+      .put("CMPL", HistoricalTimeSeriesConstants.LONDON_CLOSE)
+      .put("CMPT", HistoricalTimeSeriesConstants.TOKYO_CLOSE)
+      .put("CMPN", HistoricalTimeSeriesConstants.NEWYORK_CLOSE)
+      .put(DEFAULT_DATA_PROVIDER, HistoricalTimeSeriesConstants.DEFAULT_OBSERVATION_TIME)
       .build();
 
   /**

@@ -32,7 +32,11 @@ import com.opengamma.analytics.financial.interestrate.cash.method.DepositZeroDis
 import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRateAgreement;
 import com.opengamma.analytics.financial.interestrate.fra.method.ForwardRateAgreementDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuture;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.future.method.BondFutureDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureSecurityDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureTransactionDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponCMS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
@@ -97,6 +101,8 @@ public class PresentValueCurveSensitivityCalculator extends InstrumentDerivative
   private static final CouponIborGearingDiscountingMethod METHOD_CPN_IBOR_GEARING = CouponIborGearingDiscountingMethod.getInstance();
   private static final CouponIborCompoundedDiscountingMethod METHOD_CPN_IBOR_COMP = CouponIborCompoundedDiscountingMethod.getInstance();
   private static final ForwardRateAgreementDiscountingMethod METHOD_FRA = ForwardRateAgreementDiscountingMethod.getInstance();
+  private static final InterestRateFutureTransactionDiscountingMethod METHOD_IRFUT_TRANSACTION = InterestRateFutureTransactionDiscountingMethod.getInstance();
+  private static final InterestRateFutureSecurityDiscountingMethod METHOD_IRFUT_SECURITY = InterestRateFutureSecurityDiscountingMethod.getInstance();
 
   // -----     Deposit     ------
 
@@ -152,15 +158,23 @@ public class PresentValueCurveSensitivityCalculator extends InstrumentDerivative
     return METHOD_FRA.presentValueCurveSensitivity(fra, curves).getSensitivities();
   }
 
-  //  /**
-  //   * {@inheritDoc}
-  //   * Future transaction pricing without convexity adjustment.
-  //   */
-  //  @Override
-  //  public Map<String, List<DoublesPair>> visitInterestRateFuture(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
-  //    final InterestRateFutureTransactionDiscountingMethod method = InterestRateFutureTransactionDiscountingMethod.getInstance();
-  //    return method.presentValueCurveSensitivity(future, curves).getSensitivities();
-  //  }
+  /**
+   * {@inheritDoc}
+   * Future transaction pricing without convexity adjustment.
+   */
+  @Override
+  public Map<String, List<DoublesPair>> visitInterestRateFutureTransaction(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
+    return METHOD_IRFUT_TRANSACTION.presentValueCurveSensitivity(future, curves).getSensitivities();
+  }
+
+  /**
+   * {@inheritDoc}
+   * Future security pricing without convexity adjustment.
+   */
+  @Override
+  public Map<String, List<DoublesPair>> visitInterestRateFutureSecurity(final InterestRateFutureSecurity future, final YieldCurveBundle curves) {
+    return METHOD_IRFUT_SECURITY.presentValueCurveSensitivity(future, curves).getSensitivities();
+  }
 
   @Override
   public Map<String, List<DoublesPair>> visitBondFixedSecurity(final BondFixedSecurity bond, final YieldCurveBundle curves) {

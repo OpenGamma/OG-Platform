@@ -62,7 +62,7 @@ import com.opengamma.util.functional.Function1;
     if (operation != null) {
       result = operation.execute(specification.getUniqueId());
     }
-    if (result == null) {
+    if (result == null && specification.getUniqueId() != null) {
       // Some code may still exist that is forcing an identifier into a unique id when constructing value requirements. We handle
       // that case here temporarily. This code should be removed when all of the functions have been fixed and there are no remaining
       // view definitions in the configuration database that have unique id forms for primitive requirements. There are also the

@@ -51,9 +51,9 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
    */
   public MulticurveProviderDiscount() {
     // TODO: Do we need a LinkedHashMap or a more efficient Map could be used?
-    _discountingCurves = new LinkedHashMap<Currency, YieldAndDiscountCurve>();
-    _forwardIborCurves = new LinkedHashMap<IborIndex, YieldAndDiscountCurve>();
-    _forwardONCurves = new LinkedHashMap<IndexON, YieldAndDiscountCurve>();
+    _discountingCurves = new LinkedHashMap<>();
+    _forwardIborCurves = new LinkedHashMap<>();
+    _forwardONCurves = new LinkedHashMap<>();
     _fxMatrix = new FXMatrix();
     setAllCurves();
   }
@@ -63,9 +63,9 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
    * @param fxMatrix The FXMatrix.
    */
   public MulticurveProviderDiscount(final FXMatrix fxMatrix) {
-    _discountingCurves = new LinkedHashMap<Currency, YieldAndDiscountCurve>();
-    _forwardIborCurves = new LinkedHashMap<IborIndex, YieldAndDiscountCurve>();
-    _forwardONCurves = new LinkedHashMap<IndexON, YieldAndDiscountCurve>();
+    _discountingCurves = new LinkedHashMap<>();
+    _forwardIborCurves = new LinkedHashMap<>();
+    _forwardONCurves = new LinkedHashMap<>();
     _fxMatrix = fxMatrix;
     setAllCurves();
   }
@@ -105,15 +105,15 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
 
   @Override
   public MulticurveProviderDiscount copy() {
-    final LinkedHashMap<Currency, YieldAndDiscountCurve> discountingCurves = new LinkedHashMap<Currency, YieldAndDiscountCurve>(_discountingCurves);
-    final LinkedHashMap<IborIndex, YieldAndDiscountCurve> forwardIborCurves = new LinkedHashMap<IborIndex, YieldAndDiscountCurve>(_forwardIborCurves);
-    final LinkedHashMap<IndexON, YieldAndDiscountCurve> forwardONCurves = new LinkedHashMap<IndexON, YieldAndDiscountCurve>(_forwardONCurves);
+    final LinkedHashMap<Currency, YieldAndDiscountCurve> discountingCurves = new LinkedHashMap<>(_discountingCurves);
+    final LinkedHashMap<IborIndex, YieldAndDiscountCurve> forwardIborCurves = new LinkedHashMap<>(_forwardIborCurves);
+    final LinkedHashMap<IndexON, YieldAndDiscountCurve> forwardONCurves = new LinkedHashMap<>(_forwardONCurves);
     final FXMatrix fxMatrix = new FXMatrix(_fxMatrix);
     return new MulticurveProviderDiscount(discountingCurves, forwardIborCurves, forwardONCurves, fxMatrix);
   }
 
   private void setAllCurves() {
-    _allCurves = new LinkedHashMap<String, YieldAndDiscountCurve>();
+    _allCurves = new LinkedHashMap<>();
     final Set<Currency> ccySet = _discountingCurves.keySet();
     for (final Currency ccy : ccySet) {
       final String name = _discountingCurves.get(ccy).getName();
@@ -422,21 +422,21 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
 
   public MulticurveProviderDiscount withDiscountFactor(final Currency ccy, final YieldAndDiscountCurve replacement) {
     // REVIEW: Is this too slow for the pricing of cash-flows?
-    final Map<Currency, YieldAndDiscountCurve> newDiscountCurves = new LinkedHashMap<Currency, YieldAndDiscountCurve>(_discountingCurves);
+    final Map<Currency, YieldAndDiscountCurve> newDiscountCurves = new LinkedHashMap<>(_discountingCurves);
     newDiscountCurves.put(ccy, replacement); //TODO think about ccy not existing in current map
     final MulticurveProviderDiscount decorated = new MulticurveProviderDiscount(newDiscountCurves, _forwardIborCurves, _forwardONCurves, _fxMatrix);
     return decorated;
   }
 
   public MulticurveProviderDiscount withForward(final IborIndex index, final YieldAndDiscountCurve replacement) {
-    final Map<IborIndex, YieldAndDiscountCurve> newForwardCurves = new LinkedHashMap<IborIndex, YieldAndDiscountCurve>(_forwardIborCurves);
+    final Map<IborIndex, YieldAndDiscountCurve> newForwardCurves = new LinkedHashMap<>(_forwardIborCurves);
     newForwardCurves.put(index, replacement);
     final MulticurveProviderDiscount decorated = new MulticurveProviderDiscount(_discountingCurves, newForwardCurves, _forwardONCurves, _fxMatrix);
     return decorated;
   }
 
   public MulticurveProviderDiscount withForward(final IndexON index, final YieldAndDiscountCurve replacement) {
-    final Map<IndexON, YieldAndDiscountCurve> newForwardCurves = new LinkedHashMap<IndexON, YieldAndDiscountCurve>(_forwardONCurves);
+    final Map<IndexON, YieldAndDiscountCurve> newForwardCurves = new LinkedHashMap<>(_forwardONCurves);
     newForwardCurves.put(index, replacement);
     final MulticurveProviderDiscount decorated = new MulticurveProviderDiscount(_discountingCurves, _forwardIborCurves, newForwardCurves, _fxMatrix);
     return decorated;

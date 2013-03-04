@@ -11,26 +11,25 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Multi
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
-import com.opengamma.analytics.util.surface.ReferenceValue;
+import com.opengamma.analytics.util.amount.ReferenceAmount;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Returns the change in present value of an instrument due to a parallel move of the yield curve, scaled so that the move is 1bp.
- * FIXME: In progress
+ * Returns the change in present value of an instrument due to a parallel move of all the curve's parameters, scaled so that the move is one basis point (0.0001).
  */
-public final class PV01MarketQuoteCalculator extends InstrumentDerivativeVisitorSameMethodAdapter<MulticurveProviderInterface, ReferenceValue<Pair<String, Currency>>> {
+public final class PV01CurveParametersCalculator extends InstrumentDerivativeVisitorSameMethodAdapter<MulticurveProviderInterface, ReferenceAmount<Pair<String, Currency>>> {
 
   /**
   * The unique instance of the sensitivity calculator.
   */
-  private static final PV01MarketQuoteCalculator INSTANCE = new PV01MarketQuoteCalculator();
+  private static final PV01CurveParametersCalculator INSTANCE = new PV01CurveParametersCalculator();
 
   /**
    * Returns the instance of the calculator.
    * @return The instance.
    */
-  public static PV01MarketQuoteCalculator getInstance() {
+  public static PV01CurveParametersCalculator getInstance() {
     return INSTANCE;
   }
 
@@ -46,7 +45,7 @@ public final class PV01MarketQuoteCalculator extends InstrumentDerivativeVisitor
   /**
    * Private standard constructor. Using the standard curve sensitivity calculator: PresentValueCurveSensitivityCalculator.
    */
-  private PV01MarketQuoteCalculator() {
+  private PV01CurveParametersCalculator() {
     _parameterSensitivityCalculator = new ParameterSensitivityParameterCalculator<MulticurveProviderInterface>(PresentValueCurveSensitivityDiscountingCalculator.getInstance());
   }
 
@@ -54,12 +53,12 @@ public final class PV01MarketQuoteCalculator extends InstrumentDerivativeVisitor
    * Calculates the change in present value of an instrument due to a parallel move of each yield curve the instrument is sensitive to, scaled so that the move is 1bp.
    * @param ird The instrument. 
    * @param multicurves The multi-curves provider.
-   * @return X 
+   * @return The scale sensitivity for each curve/currency.
    */
   @Override
-  public ReferenceValue<Pair<String, Currency>> visit(final InstrumentDerivative ird, final MulticurveProviderInterface multicurves) {
+  public ReferenceAmount<Pair<String, Currency>> visit(final InstrumentDerivative ird, final MulticurveProviderInterface multicurves) {
     final MultipleCurrencyParameterSensitivity sensi = _parameterSensitivityCalculator.calculateSensitivity(ird, multicurves, multicurves.getAllNames());
-    final ReferenceValue<Pair<String, Currency>> ref = new ReferenceValue<Pair<String, Currency>>();
+    final ReferenceAmount<Pair<String, Currency>> ref = new ReferenceAmount<Pair<String, Currency>>();
     for (Pair<String, Currency> nameCcy : sensi.getAllNamesCurrency()) {
       DoubleMatrix1D vector = sensi.getSensitivity(nameCcy);
       double total = 0.0;
@@ -72,7 +71,7 @@ public final class PV01MarketQuoteCalculator extends InstrumentDerivativeVisitor
   }
 
   @Override
-  public ReferenceValue<Pair<String, Currency>> visit(final InstrumentDerivative derivative) {
+  public ReferenceAmount<Pair<String, Currency>> visit(final InstrumentDerivative derivative) {
     throw new UnsupportedOperationException("Need curve data");
   }
 

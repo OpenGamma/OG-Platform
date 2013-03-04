@@ -34,6 +34,7 @@ public class ForwardFunctions extends AbstractRepositoryConfigurationBean {
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
     functions.add(functionConfiguration(FXForwardPV01Function.class));
     functions.add(functionConfiguration(FXForwardFXPresentValueFunction.class));
+    functions.add(functionConfiguration(FXForwardPresentValueFunction.class));
     functions.add(functionConfiguration(FXForwardCurrencyExposureFunction.class));
     functions.add(functionConfiguration(FXForwardYCNSFunction.class));
     functions.add(functionConfiguration(FXForwardPresentValueCurveSensitivityFunction.class));

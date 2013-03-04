@@ -55,8 +55,9 @@ protected:
 
 	/// Return the string "Foo"
 	///
+	/// @param[in] poSettings the settings object
 	/// @return the default string
-	TCHAR *CalculateString () const {
+	TCHAR *CalculateString (const CAbstractSettings *poSettings) const {
 		return _tcsdup (TEXT ("Foo"));
 	}
 
@@ -67,7 +68,7 @@ static CTestSettingProvider g_oTest;
 
 /// Tests the CAbstractSettingProvider::GetString implementation
 static void Provider () {
-	const TCHAR *pszTestValue = g_oTest.GetString ();
+	const TCHAR *pszTestValue = g_oTest.GetString (NULL);
 	ASSERT (pszTestValue);
 	ASSERT (!_tcscmp (pszTestValue, TEXT ("Foo")));
 }

@@ -63,4 +63,5 @@ public abstract class ParameterSensitivityParameterAbstractCalculator<DATA_TYPE 
    */
   public abstract MultipleCurrencyParameterSensitivity pointToParameterSensitivity(final MultipleCurrencyMulticurveSensitivity sensitivity, final DATA_TYPE parameterMulticurves,
       final Set<String> curvesSet);
+
 }
