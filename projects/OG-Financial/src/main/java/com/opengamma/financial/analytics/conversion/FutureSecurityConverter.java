@@ -15,6 +15,7 @@ import com.opengamma.analytics.financial.commodity.definition.EnergyFutureDefini
 import com.opengamma.analytics.financial.commodity.definition.MetalFutureDefinition;
 import com.opengamma.analytics.financial.commodity.definition.SettlementType;
 import com.opengamma.analytics.financial.equity.future.definition.EquityFutureDefinition;
+import com.opengamma.analytics.financial.equity.future.definition.IndexFutureDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
 import com.opengamma.analytics.financial.instrument.future.BondFutureDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureSecurityDefinition;
@@ -27,6 +28,7 @@ import com.opengamma.financial.security.future.EnergyFutureSecurity;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
 import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
 import com.opengamma.financial.security.future.FutureSecurity;
+import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.id.ExternalId;
@@ -98,6 +100,14 @@ public class FutureSecurityConverter extends FinancialSecurityVisitorAdapter<Ins
         return new EquityFutureDefinition(expiry, expiry, referencePrice, security.getCurrency(), security.getUnitAmount());
       }
 
+      
+      @Override
+      public InstrumentDefinitionWithData<?, Double> visitIndexFutureSecurity(final IndexFutureSecurity security) {
+        final ZonedDateTime expiry = security.getExpiry().getExpiry();
+        String type = security.getSecurityType();
+        return new IndexFutureDefinition(expiry, expiry, referencePrice, security.getCurrency(), security.getUnitAmount(), security.getUnderlyingId());
+      }
+      
       @SuppressWarnings("synthetic-access")
       @Override
       public InstrumentDefinitionWithData<?, Double> visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
@@ -141,6 +151,11 @@ public class FutureSecurityConverter extends FinancialSecurityVisitorAdapter<Ins
 
   @Override
   public InstrumentDefinitionWithData<?, Double> visitEquityFutureSecurity(final EquityFutureSecurity security) {
+    return visit(security, 0.);
+  }
+  
+  @Override
+  public InstrumentDefinitionWithData<?, Double> visitIndexFutureSecurity(final IndexFutureSecurity security) {
     return visit(security, 0.);
   }
 
