@@ -23,8 +23,12 @@ import com.opengamma.analytics.financial.commodity.derivative.MetalForward;
 import com.opengamma.analytics.financial.commodity.derivative.MetalFuture;
 import com.opengamma.analytics.financial.commodity.derivative.MetalFutureOption;
 import com.opengamma.analytics.financial.credit.cds.ISDACDSDerivative;
+import com.opengamma.analytics.financial.equity.future.derivative.CashSettledFuture;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityFuture;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityIndexDividendFuture;
+import com.opengamma.analytics.financial.equity.future.derivative.EquityIndexFuture;
+import com.opengamma.analytics.financial.equity.future.derivative.IndexFuture;
+import com.opengamma.analytics.financial.equity.future.derivative.VolatilityIndexFuture;
 import com.opengamma.analytics.financial.equity.option.EquityIndexFutureOption;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.equity.option.EquityOption;
@@ -1048,6 +1052,46 @@ public class InstrumentDerivativeVisitorTest {
     @Override
     public String visitFixedCompoundingCouponSwap(SwapFixedCompoundingCoupon<?> swap) {
       return null;
+    }
+
+    @Override
+    public String visitCashSettledFuture(CashSettledFuture future, T data) {
+      return getValue(future, true);
+    }
+
+    @Override
+    public String visitCashSettledFuture(CashSettledFuture future) {
+      return getValue(future, false);
+    }
+
+    @Override
+    public String visitIndexFuture(IndexFuture future, T data) {
+      return getValue(future, true);
+    }
+
+    @Override
+    public String visitIndexFuture(IndexFuture future) {
+      return getValue(future, false);
+    }
+
+    @Override
+    public String visitEquityIndexFuture(EquityIndexFuture future, T data) {
+      return getValue(future, true);
+    }
+
+    @Override
+    public String visitEquityIndexFuture(EquityIndexFuture future) {
+      return getValue(future, false);// TODO Auto-generated method stub
+    }
+
+    @Override
+    public String visitVolatilityIndexFuture(VolatilityIndexFuture future, T data) {
+      return getValue(future, true);
+    }
+
+    @Override
+    public String visitVolatilityIndexFuture(VolatilityIndexFuture future) {
+      return getValue(future, false);
     }
   }
 

@@ -5,6 +5,10 @@
  */
 package com.opengamma.analytics.financial.instrument;
 
+import java.util.Map;
+
+import org.threeten.bp.LocalDate;
+
 import com.opengamma.analytics.financial.commodity.definition.AgricultureForwardDefinition;
 import com.opengamma.analytics.financial.commodity.definition.AgricultureFutureDefinition;
 import com.opengamma.analytics.financial.commodity.definition.AgricultureFutureOptionDefinition;
@@ -16,6 +20,9 @@ import com.opengamma.analytics.financial.commodity.definition.MetalFutureDefinit
 import com.opengamma.analytics.financial.commodity.definition.MetalFutureOptionDefinition;
 import com.opengamma.analytics.financial.equity.future.definition.EquityFutureDefinition;
 import com.opengamma.analytics.financial.equity.future.definition.EquityIndexDividendFutureDefinition;
+import com.opengamma.analytics.financial.equity.future.definition.EquityIndexFutureDefinition;
+import com.opengamma.analytics.financial.equity.future.definition.IndexFutureDefinition;
+import com.opengamma.analytics.financial.equity.future.definition.VolatilityIndexFutureDefinition;
 import com.opengamma.analytics.financial.equity.option.EquityIndexFutureOptionDefinition;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOptionDefinition;
 import com.opengamma.analytics.financial.equity.option.EquityOptionDefinition;
@@ -87,6 +94,8 @@ import com.opengamma.analytics.financial.instrument.swaption.SwaptionCashFixedIb
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.varianceswap.VarianceSwapDefinition;
+import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * Adapter that uses the same method regardless of the type of the instrument definition.
@@ -859,6 +868,16 @@ public abstract class InstrumentDefinitionVisitorSameMethodAdapter<DATA_TYPE, RE
   public RESULT_TYPE visitEquityFutureDefinition(final EquityFutureDefinition future) {
     return visit(future);
   }
+  
+  @Override
+  public RESULT_TYPE visitIndexFutureDefinition(final IndexFutureDefinition future, final DATA_TYPE data) {
+    return visit(future, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitIndexFutureDefinition(final IndexFutureDefinition future) {
+    return visit(future);
+  }
 
   @Override
   public RESULT_TYPE visitEquityIndexDividendFutureDefinition(final EquityIndexDividendFutureDefinition future, final DATA_TYPE data) {
@@ -920,4 +939,23 @@ public abstract class InstrumentDefinitionVisitorSameMethodAdapter<DATA_TYPE, RE
     return visit(varianceSwap, data);
   }
 
+  @Override
+  public RESULT_TYPE visitEquityIndexFutureDefinition(EquityIndexFutureDefinition definition, DATA_TYPE data) {
+    return visit(definition, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitEquityIndexFutureDefinition(EquityIndexFutureDefinition definition) {
+    return visit(definition);
+  }
+
+  @Override
+  public RESULT_TYPE visitVolatilityIndexFutureDefinition(VolatilityIndexFutureDefinition definition, DATA_TYPE data) {
+    return visit(definition, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitVolatilityIndexFutureDefinition(VolatilityIndexFutureDefinition definition) {
+    return visit(definition);
+  }
 }

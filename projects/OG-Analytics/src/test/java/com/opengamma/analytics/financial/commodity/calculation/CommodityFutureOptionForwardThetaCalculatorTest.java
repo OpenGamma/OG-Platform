@@ -38,7 +38,7 @@ public class CommodityFutureOptionForwardThetaCalculatorTest extends CommodityFu
     final AgricultureFuture future = definition.toDerivative(A_DATE, new String[0]);
     final AgricultureFutureOption option = new AgricultureFutureOption(EXPIRY, future, STRIKE, EXERCISE, true);
     final double pv = option.accept(PRICER, MARKET);
-    assertEquals(answer, pv * option.getUnderlying().getAmount(), TOLERANCE);
+    assertEquals(answer, pv * option.getUnderlying().getUnitAmount(), TOLERANCE);
   }
 
   @Test
@@ -50,7 +50,7 @@ public class CommodityFutureOptionForwardThetaCalculatorTest extends CommodityFu
     final EnergyFuture future = definition.toDerivative(A_DATE, new String[0]);
     final EnergyFutureOption option = new EnergyFutureOption(EXPIRY, future, STRIKE, EXERCISE, true);
     final double pv = option.accept(PRICER, MARKET);
-    assertEquals(answer, pv * option.getUnderlying().getAmount(), TOLERANCE);
+    assertEquals(answer, pv * option.getUnderlying().getUnitAmount(), TOLERANCE);
   }
 
   @Test
@@ -62,6 +62,6 @@ public class CommodityFutureOptionForwardThetaCalculatorTest extends CommodityFu
     final MetalFuture future = definition.toDerivative(A_DATE, new String[0]);
     final MetalFutureOption option = new MetalFutureOption(EXPIRY, future, STRIKE, EXERCISE, true);
     final double pv = option.accept(PRICER, MARKET);
-    assertEquals(answer, pv * option.getUnderlying().getAmount(), TOLERANCE);
+    assertEquals(answer, pv * option.getUnderlying().getUnitAmount(), TOLERANCE);
   }
 }

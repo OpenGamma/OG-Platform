@@ -60,13 +60,18 @@ public class ViewProcess implements ViewProcessMBean {
   }
   
   @Override
-  public String getPortfolioIdentifier() {
+  public String getPortfolioId() {
     return _viewProcess.getLatestViewDefinition().getPortfolioId().toString();
   }
 
   @Override
   public UniqueId getDefinitionId() {
     return _viewProcess.getDefinitionId();
+  }
+  
+  @Override
+  public boolean isPersistent() {
+    return _viewProcess.getLatestViewDefinition().isPersistent();
   }
 
   @Override

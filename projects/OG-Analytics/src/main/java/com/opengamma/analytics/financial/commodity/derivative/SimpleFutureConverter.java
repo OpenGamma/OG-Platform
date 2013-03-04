@@ -32,18 +32,18 @@ public final class SimpleFutureConverter extends InstrumentDerivativeVisitorAdap
   }
 
   @Override
-  public SimpleFuture visitAgricultureFuture(final AgricultureFuture visitor) {
-    return new SimpleFuture(visitor.getExpiry(), visitor.getSettlement(), visitor.getReferencePrice(), visitor.getUnitAmount(), visitor.getCurrency());
+  public SimpleFuture visitAgricultureFuture(final AgricultureFuture future) {
+    return new SimpleFuture(future.getExpiry(), future.getSettlement(), future.getReferencePrice(), future.getUnitAmount(), future.getCurrency());
   }
 
   @Override
-  public SimpleFuture visitEnergyFuture(final EnergyFuture visitor) {
-    return new SimpleFuture(visitor.getExpiry(), visitor.getSettlement(), visitor.getReferencePrice(), visitor.getUnitAmount(), visitor.getCurrency());
+  public SimpleFuture visitEnergyFuture(final EnergyFuture future) {
+    return new SimpleFuture(future.getExpiry(), future.getSettlement(), future.getReferencePrice(), future.getUnitAmount(), future.getCurrency());
   }
 
   @Override
-  public SimpleFuture visitMetalFuture(final MetalFuture visitor) {
-    return new SimpleFuture(visitor.getExpiry(), visitor.getSettlement(), visitor.getReferencePrice(), visitor.getUnitAmount(), visitor.getCurrency());
+  public SimpleFuture visitMetalFuture(final MetalFuture future) {
+    return new SimpleFuture(future.getExpiry(), future.getSettlement(), future.getReferencePrice(), future.getUnitAmount(), future.getCurrency());
   }
 
 }

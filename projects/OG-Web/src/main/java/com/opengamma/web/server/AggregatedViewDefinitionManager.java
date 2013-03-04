@@ -115,6 +115,9 @@ public class AggregatedViewDefinitionManager {
                                                                               aggregatedPortfolioReference.incrementReferenceCount(),
                                                                               baseViewDefinition.getMarketDataUser());
         
+        // Treat as a transient view definition that should not be persistent
+        aggregatedViewDefinition.setPersistent(false);
+        
         ConfigItem<ViewDefinition> configItem = ConfigItem.of(aggregatedViewDefinition);
         configItem.setName(aggregatedViewDefinition.getName());
         UniqueId viewDefinitionId = _userViewDefinitionRepository.add(new ConfigDocument(configItem)).getUniqueId();
