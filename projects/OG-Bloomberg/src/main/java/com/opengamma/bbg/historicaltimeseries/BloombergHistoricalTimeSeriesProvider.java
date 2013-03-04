@@ -221,7 +221,9 @@ public class BloombergHistoricalTimeSeriesProvider extends AbstractHistoricalTim
       request.set("periodicityAdjustment", "ACTUAL");
       request.set("periodicitySelection", "DAILY");
       request.set("startDate", toBloombergDate(dateRange.getStartDateInclusive()));
-      request.set("endDate", toBloombergDate(dateRange.getEndDateInclusive()));
+      if (!dateRange.isEndDateMaximum()) {
+        request.set("endDate", toBloombergDate(dateRange.getEndDateInclusive()));
+      }
       request.set("adjustmentSplit", true);
       if (maxPoints != null && maxPoints <= 0) {
         request.set("maxDataPoints", -maxPoints);

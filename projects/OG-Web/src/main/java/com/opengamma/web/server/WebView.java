@@ -295,7 +295,7 @@ public class WebView {
 
           getRemote().startBatch();
 
-          final long valuationTimeMillis = update.getValuationTime().toEpochMilli();
+          final long valuationTimeMillis = update.getViewCycleExecutionOptions().getValuationTime().toEpochMilli();
           final long calculationDurationMillis = update.getCalculationDuration().toMillis();
 
           sendStartMessage(valuationTimeMillis, calculationDurationMillis);
@@ -464,7 +464,7 @@ public class WebView {
       return null;
     }
     final String csv = grid.dumpContentsToCsv(latestResult);
-    return Pair.of(latestResult.getValuationTime(), csv);
+    return Pair.of(latestResult.getViewCycleExecutionOptions().getValuationTime(), csv);
   }
 
   //-------------------------------------------------------------------------

@@ -29,7 +29,7 @@ import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.rootfinding.BracketRoot;
 import com.opengamma.analytics.math.rootfinding.BrentSingleRootFinder;
 import com.opengamma.analytics.math.rootfinding.RealSingleRootFinder;
-import com.opengamma.analytics.util.surface.StringValue;
+import com.opengamma.analytics.util.amount.StringAmount;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -129,7 +129,7 @@ public final class BondSecurityDiscountingMethod {
    */
   public double presentValueZSpreadSensitivity(final BondSecurity<? extends Payment, ? extends Coupon> bond, final IssuerProviderInterface issuerMulticurves, final double zSpread) {
     final IssuerProviderInterface issuerShifted = new IssuerProviderIssuerDecoratedSpread(issuerMulticurves, bond.getIssuerCcy(), zSpread);
-    final StringValue parallelSensi = presentValueParallelCurveSensitivity(bond, issuerShifted);
+    final StringAmount parallelSensi = presentValueParallelCurveSensitivity(bond, issuerShifted);
     return parallelSensi.getMap().get(issuerMulticurves.getName(bond.getIssuerCcy()));
   }
 
@@ -524,11 +524,11 @@ public final class BondSecurityDiscountingMethod {
    * @param issuerMulticurves The issuer and multi-curves provider.
    * @return The present value curve sensitivity.
    */
-  public StringValue presentValueParallelCurveSensitivity(final BondSecurity<? extends Payment, ? extends Coupon> bond, final IssuerProviderInterface issuerMulticurves) {
+  public StringAmount presentValueParallelCurveSensitivity(final BondSecurity<? extends Payment, ? extends Coupon> bond, final IssuerProviderInterface issuerMulticurves) {
     ArgumentChecker.notNull(bond, "Bond");
     final MulticurveProviderInterface multicurvesDecorated = new MulticurveProviderDiscountingDecoratedIssuer(issuerMulticurves, bond.getCurrency(), bond.getIssuer());
-    final StringValue pvpcsNominal = bond.getNominal().accept(PVPCSDC, multicurvesDecorated);
-    final StringValue pvpcsCoupon = bond.getCoupon().accept(PVPCSDC, multicurvesDecorated);
-    return StringValue.plus(pvpcsNominal, pvpcsCoupon);
+    final StringAmount pvpcsNominal = bond.getNominal().accept(PVPCSDC, multicurvesDecorated);
+    final StringAmount pvpcsCoupon = bond.getCoupon().accept(PVPCSDC, multicurvesDecorated);
+    return StringAmount.plus(pvpcsNominal, pvpcsCoupon);
   }
 }

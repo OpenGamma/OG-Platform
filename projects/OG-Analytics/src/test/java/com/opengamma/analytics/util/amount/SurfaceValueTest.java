@@ -3,13 +3,14 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.util.surface;
+package com.opengamma.analytics.util.amount;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.util.amount.SurfaceValue;
 import com.opengamma.util.tuple.DoublesPair;
 
 public class SurfaceValueTest {

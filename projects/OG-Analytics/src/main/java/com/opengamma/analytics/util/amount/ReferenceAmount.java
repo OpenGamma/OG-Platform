@@ -3,9 +3,10 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.util.surface;
+package com.opengamma.analytics.util.amount;
 
 import java.util.HashMap;
+import java.util.Map.Entry;
 
 import com.opengamma.util.ArgumentChecker;
 
@@ -14,7 +15,7 @@ import com.opengamma.util.ArgumentChecker;
  * Used for different sensitivities (parallel curve sensitivity,...). The objects stored as a HashMap(String, Double).
  * @param <REFERENCE> The reference object.
  */
-public class ReferenceValue<REFERENCE> {
+public class ReferenceAmount<REFERENCE> {
 
   /**
    * The data stored as a map. Not null.
@@ -24,7 +25,7 @@ public class ReferenceValue<REFERENCE> {
   /**
    * Constructor. Create an empty map.
    */
-  public ReferenceValue() {
+  public ReferenceAmount() {
     _data = new HashMap<>();
   }
 
@@ -32,7 +33,7 @@ public class ReferenceValue<REFERENCE> {
    * Constructor from an existing map. The map is used in the new object (no new map is created).
    * @param map The map.
    */
-  private ReferenceValue(final HashMap<REFERENCE, Double> map) {
+  private ReferenceAmount(final HashMap<REFERENCE, Double> map) {
     _data = map;
   }
 
@@ -50,7 +51,6 @@ public class ReferenceValue<REFERENCE> {
    * @param point The surface point.
    * @param value The associated value.
    */
-  // TODO: do we need this?
   public void add(final REFERENCE point, final Double value) {
     ArgumentChecker.notNull(point, "Point");
     if (_data.containsKey(point)) {
@@ -60,19 +60,62 @@ public class ReferenceValue<REFERENCE> {
     }
   }
 
-  // TODO: ReferenceValue<REFERENCE> plus(final ReferenceValue<REFERENCE> other)
+  /**
+   * Create a new object containing the points of the initial object plus the points of another object. If two points <REFERENCE> are identical, the values are added.
+   * @param other The other ReferenceAmount.
+   * @return The total.
+   */
+  public ReferenceAmount<REFERENCE> plus(final ReferenceAmount<REFERENCE> other) {
+    final HashMap<REFERENCE, Double> plusMap = new HashMap<>(_data);
+    final ReferenceAmount<REFERENCE> plus = new ReferenceAmount<>(plusMap);
+    for (final Entry<REFERENCE, Double> p : other._data.entrySet()) {
+      plus.add(p.getKey(), p.getValue());
+    }
+    return plus;
+  }
 
   /**
    * Create a new object containing the point of the initial object with the all values multiplied by a given factor.
    * @param factor The multiplicative factor.
    * @return The multiplied surface.
    */
-  public ReferenceValue<REFERENCE> multiplyBy(final double factor) {
+  public ReferenceAmount<REFERENCE> multiplyBy(final double factor) {
     final HashMap<REFERENCE, Double> multiplied = new HashMap<>();
     for (final REFERENCE p : _data.keySet()) {
       multiplied.put(p, _data.get(p) * factor);
     }
-    return new ReferenceValue<REFERENCE>(multiplied);
+    return new ReferenceAmount<REFERENCE>(multiplied);
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + _data.hashCode();
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    @SuppressWarnings("unchecked")
+    ReferenceAmount<REFERENCE> other = (ReferenceAmount<REFERENCE>) obj;
+    if (_data == null) {
+      if (other._data != null) {
+        return false;
+      }
+    } else if (!_data.equals(other._data)) {
+      return false;
+    }
+    return true;
   }
 
 }

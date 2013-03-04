@@ -5,7 +5,9 @@
  */
 package com.opengamma.analytics.financial.provider.curve;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.apache.commons.lang.ObjectUtils;
 
@@ -15,7 +17,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Bundle of curves names and the curve building block associated.
  */
-// TODO: REVIEW: should this be part of the YieldCurveBundle?
+// TODO: REVIEW: should this be part of the MulticurvePovider?
 public class CurveBuildingBlockBundle {
 
   /**
@@ -28,20 +30,20 @@ public class CurveBuildingBlockBundle {
    * An empty map is created.
    */
   public CurveBuildingBlockBundle() {
-    _bundle = new LinkedHashMap<String, Pair<CurveBuildingBlock, DoubleMatrix2D>>();
+    _bundle = new LinkedHashMap<>();
   }
 
   /**
    * Constructor from a map. A new map is created.
    * @param bundle A map of string to curve building units and Jacobian.
    */
-  public CurveBuildingBlockBundle(LinkedHashMap<String, Pair<CurveBuildingBlock, DoubleMatrix2D>> bundle) {
-    _bundle = new LinkedHashMap<String, Pair<CurveBuildingBlock, DoubleMatrix2D>>();
+  public CurveBuildingBlockBundle(final LinkedHashMap<String, Pair<CurveBuildingBlock, DoubleMatrix2D>> bundle) {
+    _bundle = new LinkedHashMap<>();
     _bundle.putAll(bundle);
   }
 
   /**
-   * Add the curves and building block from another bundle. 
+   * Add the curves and building block from another bundle.
    * The existing map is changed. If the curves already existed in the bundle, the new value is used.
    * @param other The other bundle.
    */
@@ -58,6 +60,14 @@ public class CurveBuildingBlockBundle {
     return _bundle.get(name);
   }
 
+  /**
+   * Gets all of the underlying data.
+   * @return The data wrapped in an unmodifiable map
+   */
+  public Map<String, Pair<CurveBuildingBlock, DoubleMatrix2D>> getData() {
+    return Collections.unmodifiableMap(_bundle);
+  }
+
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -67,7 +77,7 @@ public class CurveBuildingBlockBundle {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -77,7 +87,7 @@ public class CurveBuildingBlockBundle {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    CurveBuildingBlockBundle other = (CurveBuildingBlockBundle) obj;
+    final CurveBuildingBlockBundle other = (CurveBuildingBlockBundle) obj;
     if (!ObjectUtils.equals(_bundle, other._bundle)) {
       return false;
     }

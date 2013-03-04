@@ -23,6 +23,7 @@ import java.util.concurrent.Future;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.threeten.bp.Clock;
 import org.threeten.bp.LocalDate;
 
 import com.opengamma.bbg.BloombergConnector;
@@ -31,6 +32,7 @@ import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProviderGetRequest;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.LocalDateRange;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
@@ -195,6 +197,18 @@ public class BloombergHistoricalTimeSeriesProviderTest {
       LocalDateRange range = LocalDateRange.of(_startDate, _endDate, true);
       return _provider.getHistoricalTimeSeries(_secDes, _dataSource, _dataProvider, _field, range);
     }
+  }
+  
+  @Test
+  public void test_getAllAvailiableSeries() {
+    LocalDateDoubleTimeSeries hts = _provider.getHistoricalTimeSeries(ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("JPY3M Curncy")), BBG_DATA_SOURCE, "CMPL", PX_LAST);
+    assertNotNull(hts);
+    assertEquals(getLatestWeekDay(), hts.getLatestTime());
+  }
+  
+  private LocalDate getLatestWeekDay() {
+    Clock clock = Clock.systemUTC();
+    return DateUtils.previousWeekDay(LocalDate.now(clock).plusDays(1));
   }
 
 }

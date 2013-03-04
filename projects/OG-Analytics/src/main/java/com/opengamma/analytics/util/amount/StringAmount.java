@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.util.surface;
+package com.opengamma.analytics.util.amount;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,7 +15,7 @@ import com.opengamma.util.ArgumentChecker;
  * Object to represent values linked to strings for which the values can be added or multiplied by a constant.
  * Used for different sensitivities (parallel curve sensitivity,...). The objects stored as a HashMap(String, Double).
  */
-public class StringValue {
+public class StringAmount {
 
   /**
    * The data stored as a map. Not null.
@@ -25,7 +25,7 @@ public class StringValue {
   /**
    * Constructor. Create an empty map.
    */
-  public StringValue() {
+  public StringAmount() {
     _data = new HashMap<>();
   }
 
@@ -33,7 +33,7 @@ public class StringValue {
    * Constructor from an existing map. The map is used in the new object (no new map is created).
    * @param map The map.
    */
-  private StringValue(final HashMap<String, Double> map) {
+  private StringAmount(final HashMap<String, Double> map) {
     ArgumentChecker.notNull(map, "Map");
     _data = new HashMap<>(map);
   }
@@ -44,11 +44,11 @@ public class StringValue {
    * @param value The associated value.
    * @return The surface value.
    */
-  public static StringValue from(final String point, final Double value) {
+  public static StringAmount from(final String point, final Double value) {
     ArgumentChecker.notNull(point, "Point");
     final HashMap<String, Double> data = new HashMap<>();
     data.put(point, value);
-    return new StringValue(data);
+    return new StringAmount(data);
   }
 
   /**
@@ -56,11 +56,11 @@ public class StringValue {
    * @param map The map.
    * @return The surface value.
    */
-  public static StringValue from(final Map<String, Double> map) {
+  public static StringAmount from(final Map<String, Double> map) {
     ArgumentChecker.notNull(map, "Map");
     final HashMap<String, Double> data = new HashMap<>();
     data.putAll(map);
-    return new StringValue(data);
+    return new StringAmount(data);
   }
 
   /**
@@ -68,11 +68,11 @@ public class StringValue {
    * @param surface The StringValue
    * @return The surface value.
    */
-  public static StringValue from(final StringValue surface) {
+  public static StringAmount from(final StringAmount surface) {
     ArgumentChecker.notNull(surface, "Surface value");
     final HashMap<String, Double> data = new HashMap<>();
     data.putAll(surface.getMap());
-    return new StringValue(data);
+    return new StringAmount(data);
   }
 
   /**
@@ -105,7 +105,7 @@ public class StringValue {
    * @param value2 The second "string value".
    * @return The combined/sum "string value".
    */
-  public static StringValue plus(final StringValue value1, final StringValue value2) {
+  public static StringAmount plus(final StringAmount value1, final StringAmount value2) {
     ArgumentChecker.notNull(value1, "Surface value 1");
     ArgumentChecker.notNull(value2, "Surface value 2");
     final HashMap<String, Double> plus = new HashMap<>(value1._data);
@@ -116,7 +116,7 @@ public class StringValue {
         plus.put(p, value2._data.get(p));
       }
     }
-    return new StringValue(plus);
+    return new StringAmount(plus);
   }
 
   /**
@@ -127,7 +127,7 @@ public class StringValue {
    * @param value The associated value.
    * @return The combined/sum surface value.
    */
-  public static StringValue plus(final StringValue stringValue, final String point, final Double value) {
+  public static StringAmount plus(final StringAmount stringValue, final String point, final Double value) {
     ArgumentChecker.notNull(stringValue, "Surface value");
     ArgumentChecker.notNull(point, "Point");
     final HashMap<String, Double> plus = new HashMap<>(stringValue._data);
@@ -136,7 +136,7 @@ public class StringValue {
     } else {
       plus.put(point, value);
     }
-    return new StringValue(plus);
+    return new StringAmount(plus);
   }
 
   /**
@@ -145,13 +145,13 @@ public class StringValue {
    * @param factor The multiplicative factor.
    * @return The multiplied surface.
    */
-  public static StringValue multiplyBy(final StringValue stringValue, final double factor) {
+  public static StringAmount multiplyBy(final StringAmount stringValue, final double factor) {
     ArgumentChecker.notNull(stringValue, "Surface value");
     final HashMap<String, Double> multiplied = new HashMap<>();
     for (final String p : stringValue._data.keySet()) {
       multiplied.put(p, stringValue._data.get(p) * factor);
     }
-    return new StringValue(multiplied);
+    return new StringAmount(multiplied);
   }
 
   /**
@@ -162,7 +162,7 @@ public class StringValue {
    * @param tolerance The tolerance.
    * @return The comparison flag.
    */
-  public static boolean compare(final StringValue value1, final StringValue value2, final double tolerance) {
+  public static boolean compare(final StringAmount value1, final StringAmount value2, final double tolerance) {
     final Set<String> set1 = value1._data.keySet();
     final Set<String> set2 = value2._data.keySet();
     if (!set1.equals(set2)) {

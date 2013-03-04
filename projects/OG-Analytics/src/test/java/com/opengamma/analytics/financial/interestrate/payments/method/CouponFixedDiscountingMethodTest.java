@@ -21,7 +21,7 @@ import com.opengamma.analytics.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
-import com.opengamma.analytics.util.surface.StringValue;
+import com.opengamma.analytics.util.amount.StringAmount;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.util.money.CurrencyAmount;
@@ -75,7 +75,7 @@ public class CouponFixedDiscountingMethodTest {
    * Tests the present value curve sensitivity to parallel curve movements of fixed coupons.
    */
   public void presentValueParallelCurveSensitivity() {
-    final StringValue pvpcsComputed = METHOD.presentValueParallelCurveSensitivity(CPN_PAY, YC_BUNDLE);
+    final StringAmount pvpcsComputed = METHOD.presentValueParallelCurveSensitivity(CPN_PAY, YC_BUNDLE);
     final double pvpcsExpected = -CPN_PAY.getPaymentTime() * CPN_PAY.getAmount() * YC_BUNDLE.getCurve(CURVES_NAME[0]).getDiscountFactor(CPN_PAY.getPaymentTime());
     assertEquals("CouponFixed: Present value parallel curve sensitivity by discounting", 1, pvpcsComputed.getMap().size());
     assertEquals("CouponFixed: Present value parallel curve sensitivity by discounting", pvpcsExpected, pvpcsComputed.getMap().get(CURVES_NAME[0]), 1.0E-2);
@@ -86,9 +86,9 @@ public class CouponFixedDiscountingMethodTest {
    * Tests the present value curve sensitivity to parallel curve movements of fixed coupons.
    */
   public void presentValueParallelCurveSensitivityMethodVsCalculator() {
-    final StringValue pvpcsMethod = METHOD.presentValueParallelCurveSensitivity(CPN_PAY, YC_BUNDLE);
-    final StringValue pvpcsCalculator = CPN_PAY.accept(PVPCSC, YC_BUNDLE);
-    assertTrue("CouponFixed: Present value parallel curve sensitivity by discounting", StringValue.compare(pvpcsMethod, pvpcsCalculator, 1.0E-5));
+    final StringAmount pvpcsMethod = METHOD.presentValueParallelCurveSensitivity(CPN_PAY, YC_BUNDLE);
+    final StringAmount pvpcsCalculator = CPN_PAY.accept(PVPCSC, YC_BUNDLE);
+    assertTrue("CouponFixed: Present value parallel curve sensitivity by discounting", StringAmount.compare(pvpcsMethod, pvpcsCalculator, 1.0E-5));
   }
 
 }

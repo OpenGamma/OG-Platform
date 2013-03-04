@@ -180,7 +180,7 @@ public class RegressionTest {
         s_logger.debug("Got result {}", result);
         assertTrue(result instanceof ViewComputationResultModel);
         ViewComputationResultModel model = (ViewComputationResultModel) result;
-        assertEquals(valuationInstant, model.getValuationTime());
+        assertEquals(valuationInstant, model.getViewCycleExecutionOptions().getValuationTime());
         valuationInstant = valuationInstant.plus(1, DAYS);
       } while (!valuationInstant.isAfter(lastValuationInstant));
       viewClient.triggerCycle();

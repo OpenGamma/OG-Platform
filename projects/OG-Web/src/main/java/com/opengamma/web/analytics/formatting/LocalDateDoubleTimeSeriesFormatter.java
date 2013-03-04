@@ -34,7 +34,9 @@ import com.opengamma.util.timeseries.zoneddatetime.ZonedDateTimeDoubleTimeSeries
 
   @Override
   public String formatCell(LocalDateDoubleTimeSeries timeSeries, ValueSpecification valueSpec) {
-    return "Time-series (" + timeSeries.getEarliestTime() + " to " + timeSeries.getLatestTime() + ")";
+    String text = "Time-series ";
+    text += timeSeries.isEmpty() ? "(empty)" : "(" + timeSeries.getEarliestTime() + " to " + timeSeries.getLatestTime() + ")";
+    return text;
   }
 
   private Map<String, Object> formatExpanded(LocalDateDoubleTimeSeries value) {

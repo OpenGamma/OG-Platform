@@ -14,7 +14,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Paymen
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
-import com.opengamma.analytics.util.surface.StringValue;
+import com.opengamma.analytics.util.amount.StringAmount;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
@@ -79,10 +79,10 @@ public final class PaymentFixedDiscountingProviderMethod {
    * @return The sensitivity. 
    * TODO: Should this be multiple-currency?
    */
-  public StringValue presentValueParallelCurveSensitivity(PaymentFixed payment, final MulticurveProviderInterface multicurves) {
+  public StringAmount presentValueParallelCurveSensitivity(PaymentFixed payment, final MulticurveProviderInterface multicurves) {
     final double time = payment.getPaymentTime();
     double sensitivity = -time * payment.getAmount() * multicurves.getDiscountFactor(payment.getCurrency(), time);
-    return StringValue.from(multicurves.getName(payment.getCurrency()), sensitivity);
+    return StringAmount.from(multicurves.getName(payment.getCurrency()), sensitivity);
   }
 
 }
