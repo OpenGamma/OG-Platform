@@ -14,16 +14,13 @@ $.register_module({
          * selector (String) and data (Array) are required, placeholder (String) is optional
          */
         return function (config) {
-            var combo = this, d, replace_val, input_tag;
+            var combo = this, d, replace_val, input_tag, no_arrow = config.no_arrow || false;
 
             if (!config.selector || typeof config.selector !== 'string')
                 return og.dev.warn('og.common.util.ui.AutoCombo: Missing or invalid param [selector]');
 
             if (!config.placeholder || typeof config.placeholder !== 'string')
                 return og.dev.warn('og.common.util.ui.AutoCombo: Missing or invalid param [placeholder]');
-
-            if (!config.source || typeof config.source !== 'function')
-                return og.dev.warn('og.common.util.ui.AutoCombo: Missing or invalid param [function]');
 
             var replace_placeholder = function (event) {
                 if (event.type === 'keydown' && (event.which !== 40 && event.which !== 38)) return;
@@ -45,9 +42,13 @@ $.register_module({
                 open: function(event) {},
                 source: config.source || $.noop,
                 close: replace_placeholder,
-                focus: replace_placeholder
+                focus: replace_placeholder,
+                select: config.select || $.noop
             };
-            input_tag = config.name ? '<input type="text" name="'+ config.name +'">' : '<input type="text">';
+            input_tag = config.id ? '<input type="text" id="'+ config.id +'"' : '<input type="text"';
+            input_tag += config.name ? ' name="'+ config.name + '" ' : '';
+            input_tag += config.value ? ' value="'+ config.value + '" ' : '';
+            input_tag += config.disabled ? ' disabled >' : '>';
             // wrap input in div, enable input width 100% of parent, FF, IE
             combo.$wrapper = $('<div class="autocomplete-cntr">').html(input_tag);
             combo.$input = combo.$wrapper.find('input');
@@ -88,7 +89,8 @@ $.register_module({
                     return combo.$input.autocomplete('widget').is(':visible') ?
                         combo.$input.autocomplete('close').select() : combo.open();
                 });
-                $([combo.$wrapper, combo.$button]).appendTo(config.selector);
+                $(combo.$wrapper).appendTo(config.selector);
+                if (!no_arrow) $(combo.$button).appendTo(config.selector);
                 if (config.input_val) combo.$input.val(config.input_val);
                 og.common.events.fire(config.selector+':autocombo:initialized');
             }

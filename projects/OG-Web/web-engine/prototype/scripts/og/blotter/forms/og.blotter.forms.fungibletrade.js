@@ -25,7 +25,9 @@ $.register_module({
                     processor: function (data) {og.blotter.util.cleanup(data);}
                 });
                 security = new og.blotter.forms.blocks.Security({form: form, label: "Underlying ID",
-                    security: securityId, index: "trade.securityIdBundle", edit: !!config.details});
+                    security: securityId, index: "trade.securityIdBundle", edit: !!config.details, 
+                    callback: function () {get_security();}
+                });
                 form.children.push(
                     new og.blotter.forms.blocks.Portfolio({form: form, counterparty: data.trade.counterparty,
                         portfolio: data.nodeId, trade: data.trade}),
@@ -43,13 +45,10 @@ $.register_module({
                 form.on('form:load', function () {
                     og.blotter.util.add_date_picker('.blotter-date');
                     og.blotter.util.add_time_picker('.blotter-time');
-                    get_security();
                 });
                 form.on('form:submit', function (result) {
                     $.when(config.handler(result.data)).then(validate);
                 });
-                form.on('keyup', security.input_id(), function (event) {get_security();});
-                form.on('change', security.select_id(), function (event) {get_security();});
             };
             get_security = function () {
                 var id = security.name();
