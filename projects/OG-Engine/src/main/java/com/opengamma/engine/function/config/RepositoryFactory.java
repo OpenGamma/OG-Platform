@@ -28,6 +28,16 @@ public class RepositoryFactory {
   private static final Logger s_logger = LoggerFactory.getLogger(RepositoryFactory.class);
 
   /**
+   * The number of functions that are always in a constructed repository regardless of the {@link RepositoryConfiguration} document used. For example:
+   * <ul>
+   * <li>The no-op function used for execution suppression ({@link NoOpFunction})</li>
+   * <li>The value aliasing function ({@link RelabellingFunction})</li>
+   * </ul>
+   * For exam
+   */
+  public static final int INTRINSIC_FUNCTION_COUNT = 2;
+
+  /**
    * Constructs a repository from the configuration.
    * 
    * @param configuration the configuration, not null
