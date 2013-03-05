@@ -32,16 +32,16 @@
 
       <optionSecurity type="equityIndexOption">
 
-        <underlyingId><id scheme="BLOOMBERG_TICKER">EI09SPX</id></underlyingId>
+        <underlyingId><id scheme="BLOOMBERG_BUID">EI09SPX</id></underlyingId>
         <pointValue>100</pointValue>
-        <currency>EUR</currency>
-        <exchange>CME</exchange>
+        <currency>USD</currency>
+        <exchange>US</exchange>
 
-        <optionType>Put</optionType>
+        <optionType>Call</optionType>
 
-        <strike>600</strike>
+        <strike>1400</strike>
 
-        <optionExpiry>MAR15</optionExpiry>
+        <optionExpiry>DEC13</optionExpiry>
         <exerciseType>European</exerciseType>
 
       </optionSecurity>
@@ -79,16 +79,16 @@
 
       <optionSecurity type="equityIndexOption">
 
-        <underlyingId><id scheme="BLOOMBERG_TICKER">EI09SPX</id></underlyingId>
+        <underlyingId><id scheme="BLOOMBERG_BUID">EI09SPX</id></underlyingId>
 
         <pointValue>100</pointValue>
-        <currency>EUR</currency>
-        <exchange>CME</exchange>
+        <currency>USD</currency>
+        <exchange>US</exchange>
 
-        <optionType>Put</optionType>
-        <strike>600</strike>
+        <optionType>Call</optionType>
+        <strike>1400</strike>
 
-        <optionExpiry>MAR15</optionExpiry>
+        <optionExpiry>DEC13</optionExpiry>
         <exerciseType>European</exerciseType>
 
       </optionSecurity>
@@ -110,7 +110,7 @@
   </positions>
 
   <portfolios>
-    <portfolio name="listed_equity_index_portfolio">
+    <portfolio name="listed_equity_index_option_portfolio">
       <positions>
         <position ref="p1"/>
       </positions>

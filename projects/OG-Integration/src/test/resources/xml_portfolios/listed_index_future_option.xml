@@ -58,7 +58,7 @@
   </trades>
 
   <portfolios>
-    <portfolio name="listed_equity_index_portfolio">
+    <portfolio name="listed_equity_index_future_option_portfolio">
       <trades>
         <trade ref="t1"/>
       </trades>

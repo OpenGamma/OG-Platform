@@ -15,12 +15,15 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.security.Security;
+import com.opengamma.id.ExternalId;
 import com.opengamma.integration.tool.portfolio.xml.PortfolioPosition;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.AdditionalCashflow;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.EquityVarianceSwapTrade;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.FxDigitalOptionTrade;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.FxForwardTrade;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.FxOptionTrade;
+import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.IdWrapper;
+import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.ListedSecurityDefinition;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.ListedSecurityTrade;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.MonetaryAmount;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.OtcEquityIndexOptionTrade;
@@ -101,10 +104,11 @@ public class PortfolioConverter {
       List<Trade> trades = position.getTrades();
       BigDecimal tradeTotalQuantity = BigDecimal.ZERO;
 
-      // Track the security
-      ManageableSecurity[] positionSecurity = null;
+      // If we have a security defined on the position then we need to
+      // check it matches the one from the trades (if there was one)
+      ManageableSecurity[] positionSecurity = extractSecurityFromPosition(position.getListedSecurityDefinition());;
 
-      for (Trade trade : trades) {
+      for (Trade trade : nullCheckIterable(trades)) {
 
         ManageableSecurity[] tradeSecurity = extractSecurityFromTrade(trade, trades.size());
         if (positionSecurity == null) {
@@ -119,9 +123,13 @@ public class PortfolioConverter {
         }
 
         tradeTotalQuantity = tradeTotalQuantity.add(trade.getQuantity());
-
       }
-      managedPositions.add(createPortfolioPosition(position, positionSecurity, portfolioPath, tradeTotalQuantity));
+
+      if (positionSecurity != null) {
+        managedPositions.add(createPortfolioPosition(position, positionSecurity, portfolioPath, tradeTotalQuantity));
+      } else {
+        throw new OpenGammaRuntimeException("No security specified on either trades or position");
+      }
     }
 
     // These trades have not been supplied under positions, but directly in a portfolio
@@ -148,6 +156,11 @@ public class PortfolioConverter {
     String[] extended = Arrays.copyOf(path, oldLength  + 1);
     extended[oldLength] = name;
     return extended;
+  }
+
+  private ManageableSecurity[] extractSecurityFromPosition(ListedSecurityDefinition listedSecurityDefinition) {
+
+    return listedSecurityDefinition != null ? listedSecurityDefinition.getSecurityExtractor().extract() : null;
   }
 
   private ManageableSecurity[] extractSecurityFromTrade(Trade trade, int tradesSize) {
@@ -189,13 +202,18 @@ public class PortfolioConverter {
   private ManageablePosition convertPosition(Position position, Security security, BigDecimal tradeQuantity) {
 
     // If the position is supplying a quantity, then we should use that
-    // rather than the total quantity calculated from the trades
+    // rather than the total quantity obtained from the trades
     BigDecimal positionQuantity = position.getQuantity();
     ManageablePosition manageablePosition = new ManageablePosition(
         positionQuantity != null ? positionQuantity : tradeQuantity, security.getExternalIdBundle());
 
+    IdWrapper externalSystemId = position.getExternalSystemId();
+    if (externalSystemId != null) {
+      manageablePosition.setProviderId(externalSystemId.toExternalId());
+    }
+
     List<Trade> trades = position.getTrades();
-    for (Trade trade : trades) {
+    for (Trade trade : nullCheckIterable(trades)) {
       manageablePosition.addTrade(convertTrade(trade, security));
     }
 

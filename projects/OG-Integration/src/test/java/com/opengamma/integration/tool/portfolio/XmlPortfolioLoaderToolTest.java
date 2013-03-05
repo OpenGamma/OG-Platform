@@ -182,6 +182,9 @@ public class XmlPortfolioLoaderToolTest {
     assertEquals(_securityMaster.search(new SecuritySearchRequest()).getSecurities().size(), 1);
   }
 
+
+  /*
+  Removed until ready to fully implement
   @Test
   public void testSinglePortfolioNoPositionSingleEquityVarianceSwap() {
 
@@ -194,6 +197,7 @@ public class XmlPortfolioLoaderToolTest {
     assertEquals(_positionMaster.search(new PositionSearchRequest()).getPositions().size(), 1);
     assertEquals(_securityMaster.search(new SecuritySearchRequest()).getSecurities().size(), 1);
   }
+  */
 
   @Test
   public void testSinglePortfolioNoPositionSingleFxDigitalOption() {
@@ -374,5 +378,17 @@ public class XmlPortfolioLoaderToolTest {
 
     assertEquals(_positionMaster.search(new PositionSearchRequest()).getPositions().size(), 4);
     assertEquals(_securityMaster.search(new SecuritySearchRequest()).getSecurities().size(), 4);
+  }
+
+  @Test
+  public void testDefineSecuritiesAgainstPositions() {
+
+    String fileLocation = "src/test/resources/xml_portfolios/position_defined_securities_portfolio.xml";
+    File file = new File(fileLocation);
+    new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, true, false, false, false, true).execute();
+
+    assertEquals(_portfolioMaster.search(new PortfolioSearchRequest()).getPortfolios().size(), 1);
+    assertEquals(_positionMaster.search(new PositionSearchRequest()).getPositions().size(), 2);
+    assertEquals(_securityMaster.search(new SecuritySearchRequest()).getSecurities().size(), 2);
   }
 }

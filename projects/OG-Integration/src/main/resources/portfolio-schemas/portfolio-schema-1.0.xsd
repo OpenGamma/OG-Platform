@@ -269,13 +269,31 @@
   </xs:complexType>
 
   <xs:complexType name="position">
-    <xs:all>
+    <xs:sequence>
 
-      <xs:element minOccurs="0" name="trades">
+      <xs:element name="externalSystemId" type="idWrapper" minOccurs="0">
         <xs:annotation>
           <xs:documentation>
-            The collection of trades contributing to the position</xs:documentation>
+            An external reference for the position
+          </xs:documentation>
         </xs:annotation>
+      </xs:element>
+
+      <xs:element name="quantity" minOccurs="0" type="xs:decimal">
+        <xs:annotation>
+          <xs:documentation>
+            The number of units in the position
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+
+      <xs:element name="trades" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>
+            The collection of trades contributing to the position
+          </xs:documentation>
+        </xs:annotation>
+
         <xs:complexType>
           <xs:sequence>
             <xs:element name="trade" type="tradeRef" maxOccurs="unbounded" minOccurs="0">
@@ -289,14 +307,6 @@
         </xs:complexType>
       </xs:element>
 
-      <xs:element name="quantity" minOccurs="0" type="xs:decimal">
-        <xs:annotation>
-          <xs:documentation>
-            The number of units in the position
-          </xs:documentation>
-        </xs:annotation>
-      </xs:element>
-
       <xs:element name="security" minOccurs="0" type="idWrapper">
         <xs:annotation>
           <xs:documentation>
@@ -305,6 +315,12 @@
         </xs:annotation>
       </xs:element>
 
+      <xs:choice minOccurs="0">
+        <xs:element ref="optionSecurity"/>
+        <xs:element ref="futureSecurity"/>
+        <xs:element ref="futureOptionSecurity"/>
+      </xs:choice>
+
       <xs:element name="additionalAttributes" type="additionalAttributes" minOccurs="0">
         <xs:annotation>
           <xs:documentation>
@@ -312,7 +328,7 @@
           </xs:documentation>
         </xs:annotation>
       </xs:element>
-    </xs:all>
+    </xs:sequence>
 
     <xs:attribute name="id" type="xs:ID">
       <xs:annotation>

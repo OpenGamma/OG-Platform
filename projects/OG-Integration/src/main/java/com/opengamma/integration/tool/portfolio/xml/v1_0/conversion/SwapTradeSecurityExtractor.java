@@ -94,8 +94,6 @@ public class SwapTradeSecurityExtractor extends TradeSecurityExtractor<SwapTrade
     return rate.divide(new BigDecimal(100)).doubleValue();
   }
 
-
-
   private com.opengamma.financial.security.swap.SwapLeg convertFloatingLeg(FloatingLeg floatingLeg) {
 
     Notional notional = extractNotional(floatingLeg);
@@ -110,7 +108,6 @@ public class SwapTradeSecurityExtractor extends TradeSecurityExtractor<SwapTrade
     FixingIndex fixingIndex = floatingLeg.getFixingIndex();
     ExternalId referenceRate = fixingIndex.getIndex().toExternalId();
     FloatingRateType rateType = FloatingRateType.valueOf(fixingIndex.getRateType().toString());
-
 
     return new FloatingInterestRateLeg(dayCount, frequency, region, businessDayConvention, notional, isEndOfMonth,
                                        referenceRate, rateType);

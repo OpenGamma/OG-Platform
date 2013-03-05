@@ -13,6 +13,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementRef;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlID;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -44,19 +45,27 @@ public class Position extends DirectBean {
   @PropertyDefinition
   private String _id;
 
+  @XmlElement(name = "externalSystemId")
+  @PropertyDefinition
+  private IdWrapper _externalSystemId;
+
+  @XmlElement(name = "quantity")
+  @PropertyDefinition
+  private BigDecimal _quantity;
+
   @XmlElementWrapper(name = "trades")
   @XmlElement(name = "trade")
   @XmlJavaTypeAdapter(TradeRefAdapter.class)
   @PropertyDefinition
   private List<Trade> _trades;
 
-  @XmlElement(name = "quantity")
-  @PropertyDefinition
-  private BigDecimal _quantity;
-
   @XmlElement(name = "security")
   @PropertyDefinition
   private IdWrapper _security;
+
+  @XmlElementRef
+  @PropertyDefinition
+  private ListedSecurityDefinition _listedSecurityDefinition;
 
   @XmlElement(name = "additionalAttributes")
   @XmlJavaTypeAdapter(AttributeMapAdapter.class)
@@ -94,12 +103,16 @@ public class Position extends DirectBean {
     switch (propertyName.hashCode()) {
       case 3355:  // id
         return getId();
+      case -1924302699:  // externalSystemId
+        return getExternalSystemId();
       case -865715313:  // trades
         return getTrades();
       case -1285004149:  // quantity
         return getQuantity();
       case 949122880:  // security
         return getSecurity();
+      case -163631792:  // listedSecurityDefinition
+        return getListedSecurityDefinition();
       case -1075726114:  // additionalAttributes
         return getAdditionalAttributes();
     }
@@ -113,6 +126,9 @@ public class Position extends DirectBean {
       case 3355:  // id
         setId((String) newValue);
         return;
+      case -1924302699:  // externalSystemId
+        setExternalSystemId((IdWrapper) newValue);
+        return;
       case -865715313:  // trades
         setTrades((List<Trade>) newValue);
         return;
@@ -121,6 +137,9 @@ public class Position extends DirectBean {
         return;
       case 949122880:  // security
         setSecurity((IdWrapper) newValue);
+        return;
+      case -163631792:  // listedSecurityDefinition
+        setListedSecurityDefinition((ListedSecurityDefinition) newValue);
         return;
       case -1075726114:  // additionalAttributes
         setAdditionalAttributes((Map<String, String>) newValue);
@@ -137,9 +156,11 @@ public class Position extends DirectBean {
     if (obj != null && obj.getClass() == this.getClass()) {
       Position other = (Position) obj;
       return JodaBeanUtils.equal(getId(), other.getId()) &&
+          JodaBeanUtils.equal(getExternalSystemId(), other.getExternalSystemId()) &&
           JodaBeanUtils.equal(getTrades(), other.getTrades()) &&
           JodaBeanUtils.equal(getQuantity(), other.getQuantity()) &&
           JodaBeanUtils.equal(getSecurity(), other.getSecurity()) &&
+          JodaBeanUtils.equal(getListedSecurityDefinition(), other.getListedSecurityDefinition()) &&
           JodaBeanUtils.equal(getAdditionalAttributes(), other.getAdditionalAttributes());
     }
     return false;
@@ -149,9 +170,11 @@ public class Position extends DirectBean {
   public int hashCode() {
     int hash = getClass().hashCode();
     hash += hash * 31 + JodaBeanUtils.hashCode(getId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalSystemId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getTrades());
     hash += hash * 31 + JodaBeanUtils.hashCode(getQuantity());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSecurity());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getListedSecurityDefinition());
     hash += hash * 31 + JodaBeanUtils.hashCode(getAdditionalAttributes());
     return hash;
   }
@@ -179,6 +202,31 @@ public class Position extends DirectBean {
    */
   public final Property<String> id() {
     return metaBean().id().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the externalSystemId.
+   * @return the value of the property
+   */
+  public IdWrapper getExternalSystemId() {
+    return _externalSystemId;
+  }
+
+  /**
+   * Sets the externalSystemId.
+   * @param externalSystemId  the new value of the property
+   */
+  public void setExternalSystemId(IdWrapper externalSystemId) {
+    this._externalSystemId = externalSystemId;
+  }
+
+  /**
+   * Gets the the {@code externalSystemId} property.
+   * @return the property, not null
+   */
+  public final Property<IdWrapper> externalSystemId() {
+    return metaBean().externalSystemId().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -258,6 +306,31 @@ public class Position extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the listedSecurityDefinition.
+   * @return the value of the property
+   */
+  public ListedSecurityDefinition getListedSecurityDefinition() {
+    return _listedSecurityDefinition;
+  }
+
+  /**
+   * Sets the listedSecurityDefinition.
+   * @param listedSecurityDefinition  the new value of the property
+   */
+  public void setListedSecurityDefinition(ListedSecurityDefinition listedSecurityDefinition) {
+    this._listedSecurityDefinition = listedSecurityDefinition;
+  }
+
+  /**
+   * Gets the the {@code listedSecurityDefinition} property.
+   * @return the property, not null
+   */
+  public final Property<ListedSecurityDefinition> listedSecurityDefinition() {
+    return metaBean().listedSecurityDefinition().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Sets the additionalAttributes.
    * @param additionalAttributes  the new value of the property
    */
@@ -289,6 +362,11 @@ public class Position extends DirectBean {
     private final MetaProperty<String> _id = DirectMetaProperty.ofReadWrite(
         this, "id", Position.class, String.class);
     /**
+     * The meta-property for the {@code externalSystemId} property.
+     */
+    private final MetaProperty<IdWrapper> _externalSystemId = DirectMetaProperty.ofReadWrite(
+        this, "externalSystemId", Position.class, IdWrapper.class);
+    /**
      * The meta-property for the {@code trades} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
@@ -305,6 +383,11 @@ public class Position extends DirectBean {
     private final MetaProperty<IdWrapper> _security = DirectMetaProperty.ofReadWrite(
         this, "security", Position.class, IdWrapper.class);
     /**
+     * The meta-property for the {@code listedSecurityDefinition} property.
+     */
+    private final MetaProperty<ListedSecurityDefinition> _listedSecurityDefinition = DirectMetaProperty.ofReadWrite(
+        this, "listedSecurityDefinition", Position.class, ListedSecurityDefinition.class);
+    /**
      * The meta-property for the {@code additionalAttributes} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
@@ -316,9 +399,11 @@ public class Position extends DirectBean {
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "id",
+        "externalSystemId",
         "trades",
         "quantity",
         "security",
+        "listedSecurityDefinition",
         "additionalAttributes");
 
     /**
@@ -332,12 +417,16 @@ public class Position extends DirectBean {
       switch (propertyName.hashCode()) {
         case 3355:  // id
           return _id;
+        case -1924302699:  // externalSystemId
+          return _externalSystemId;
         case -865715313:  // trades
           return _trades;
         case -1285004149:  // quantity
           return _quantity;
         case 949122880:  // security
           return _security;
+        case -163631792:  // listedSecurityDefinition
+          return _listedSecurityDefinition;
         case -1075726114:  // additionalAttributes
           return _additionalAttributes;
       }
@@ -369,6 +458,14 @@ public class Position extends DirectBean {
     }
 
     /**
+     * The meta-property for the {@code externalSystemId} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<IdWrapper> externalSystemId() {
+      return _externalSystemId;
+    }
+
+    /**
      * The meta-property for the {@code trades} property.
      * @return the meta-property, not null
      */
@@ -390,6 +487,14 @@ public class Position extends DirectBean {
      */
     public final MetaProperty<IdWrapper> security() {
       return _security;
+    }
+
+    /**
+     * The meta-property for the {@code listedSecurityDefinition} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ListedSecurityDefinition> listedSecurityDefinition() {
+      return _listedSecurityDefinition;
     }
 
     /**
