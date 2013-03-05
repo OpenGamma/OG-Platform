@@ -10,18 +10,19 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.Iterator;
 
+import javax.annotation.Nullable;
+
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.integration.copier.portfolio.reader.PortfolioReader;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.tuple.ObjectsPair;
 
-public class XmlPortfolioReader implements PortfolioReader {
+public class XmlPortfolioReader implements Iterable<PortfolioReader> {
 
-  private final Iterator<PortfolioPosition> _positionIterator;
-  private final String _portfolioName;
-
-  private String[] _currentPath = new String[0];
+  private final Iterable<PortfolioReader> _readers;
 
   public XmlPortfolioReader(String fileLocation, SchemaRegister schemaRegister) {
 
@@ -31,14 +32,22 @@ public class XmlPortfolioReader implements PortfolioReader {
 
     if (converter != null) {
 
-      VersionedPortfolioHandler vph =  converter.convertPortfolio(new File(fileLocation));
-
-      _portfolioName = vph.getPortfolioName();
-      _positionIterator = vph.getPositionIterator();
+      Iterable<VersionedPortfolioHandler> vph =  converter.convertPortfolio(new File(fileLocation));
+      _readers = Iterables.transform(vph, new Function<VersionedPortfolioHandler, PortfolioReader>() {
+        @Override
+        public PortfolioReader apply(final VersionedPortfolioHandler vph) {
+          return new XmlReader(vph);
+        }
+      });
 
     } else {
       throw new OpenGammaRuntimeException("Unable to process schema version: " + version);
     }
+  }
+
+  @Override
+  public Iterator<PortfolioReader> iterator() {
+    return _readers.iterator();
   }
 
   private SchemaVersion extractSchemaVersion(String fileLocation) {
@@ -49,29 +58,41 @@ public class XmlPortfolioReader implements PortfolioReader {
     }
   }
 
-  @Override
-  public ObjectsPair<ManageablePosition, ManageableSecurity[]> readNext() {
-    return _positionIterator.hasNext() ? processPosition(_positionIterator.next()) : null;
-  }
+  public static class XmlReader implements PortfolioReader {
 
-  private ObjectsPair<ManageablePosition, ManageableSecurity[]> processPosition(PortfolioPosition position) {
-    // Handle a portfolio level change
-    _currentPath = position.getPortfolioPath();
-    return new ObjectsPair<>(position.getPosition(), position.getSecurities());
-  }
+    private final Iterator<PortfolioPosition> _positionIterator;
+    private final String _portfolioName;
 
-  @Override
-  public String[] getCurrentPath() {
-    return _currentPath;
-  }
+    public XmlReader(VersionedPortfolioHandler vph) {
+      _portfolioName = vph.getPortfolioName();
+      _positionIterator = vph.getPositionIterator();    }
 
-  @Override
-  public void close() {
+    private String[] _currentPath = new String[0];
 
-  }
+    @Override
+    public ObjectsPair<ManageablePosition, ManageableSecurity[]> readNext() {
+      return _positionIterator.hasNext() ? processPosition(_positionIterator.next()) : null;
+    }
 
-  @Override
-  public String getPortfolioName() {
-    return _portfolioName;
+    private ObjectsPair<ManageablePosition, ManageableSecurity[]> processPosition(PortfolioPosition position) {
+      // Handle a portfolio level change
+      _currentPath = position.getPortfolioPath();
+      return new ObjectsPair<>(position.getPosition(), position.getSecurities());
+    }
+
+    @Override
+    public String[] getCurrentPath() {
+      return _currentPath;
+    }
+
+    @Override
+    public void close() {
+
+    }
+
+    @Override
+    public String getPortfolioName() {
+      return _portfolioName;
+    }
   }
 }

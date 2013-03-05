@@ -391,4 +391,16 @@ public class XmlPortfolioLoaderToolTest {
     assertEquals(_positionMaster.search(new PositionSearchRequest()).getPositions().size(), 2);
     assertEquals(_securityMaster.search(new SecuritySearchRequest()).getSecurities().size(), 2);
   }
+
+  @Test
+  public void testMultiPortfolioLoad() {
+
+    String fileLocation = "src/test/resources/xml_portfolios/multi_portfolio.xml";
+    File file = new File(fileLocation);
+    new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, true, false, false, false, true).execute();
+
+    assertEquals(_portfolioMaster.search(new PortfolioSearchRequest()).getPortfolios().size(), 2);
+    assertEquals(_positionMaster.search(new PositionSearchRequest()).getPositions().size(), 2);
+    assertEquals(_securityMaster.search(new SecuritySearchRequest()).getSecurities().size(), 2);
+  }
 }

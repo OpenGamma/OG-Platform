@@ -7,5 +7,5 @@ package com.opengamma.integration.tool.portfolio.xml;
 
 public interface PortfolioDocumentConverter {
 
-  VersionedPortfolioHandler convert(Object content);
+  Iterable<VersionedPortfolioHandler> convert(Object content);
 }

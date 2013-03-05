@@ -40,7 +40,7 @@ public abstract class PortfolioConversion {
     ArgumentChecker.notNull(_schema, "schema");
   }
 
-  public VersionedPortfolioHandler convertPortfolio(File file) {
+  public Iterable<VersionedPortfolioHandler> convertPortfolio(File file) {
 
     try {
       Unmarshaller unmarshaller = createUnmarshaller();
