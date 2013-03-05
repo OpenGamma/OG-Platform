@@ -148,8 +148,8 @@ public class MarketDataSnapshotTool extends AbstractComponentTool {
 
     if (task != null) {
       for (StructuredMarketDataSnapshot snapshot : task.get()) {
-        ManageableMarketDataSnapshot manageableMarketDataSnapshot = new ManageableMarketDataSnapshot(
-            snapshot.getBasisViewName() + "/" + valuationInstant, snapshot.getGlobalValues(), snapshot.getYieldCurves());
+        ManageableMarketDataSnapshot manageableMarketDataSnapshot = new ManageableMarketDataSnapshot(snapshot);
+        manageableMarketDataSnapshot.setName(snapshot.getBasisViewName() + "/" + valuationInstant);
         marketDataSnapshotMaster.add(new MarketDataSnapshotDocument(manageableMarketDataSnapshot));
       }
     }
