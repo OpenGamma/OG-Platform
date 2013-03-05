@@ -9,7 +9,7 @@ $.register_module({
         var loading_template;
         return function (config) {
             var gadget = this, surface, alive = og.common.id('gadget_surface'), $selector = $(config.selector),
-                surface_options = {selector: config.selector, options: {}};
+                surface_options = {selector: config.selector, options: {webgl: og.app.WEBGL}};
             $(config.selector).addClass(alive).css({position: 'absolute', top: 0, left: 0, right: 0, bottom: 0});
             gadget.alive = function () {
                 var live = !!$('.' + alive).length;
