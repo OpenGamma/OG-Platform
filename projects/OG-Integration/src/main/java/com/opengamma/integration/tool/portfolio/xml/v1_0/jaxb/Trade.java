@@ -15,12 +15,14 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlID;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBean;
 import org.threeten.bp.LocalDate;
 
+import com.google.common.collect.ImmutableMap;
 import com.opengamma.util.money.Currency;
 
 import java.util.List;
@@ -67,8 +69,21 @@ public abstract class Trade extends DirectBean {
   @PropertyDefinition
   private List<AdditionalCashflow> _additionalCashflows;
 
+  @XmlJavaTypeAdapter(AttributeMapAdapter.class)
+  @XmlElement(name = "additionalAttributes")
+  @PropertyDefinition(get = "manual")
+  private Map<String, String> _additionalAttributes;
+
   public BigDecimal getQuantity() {
     return BigDecimal.ONE;
+  }
+
+  /**
+   * Gets the additionalAttributes.
+   * @return the value of the property
+   */
+  public Map<String, String> getAdditionalAttributes() {
+    return _additionalAttributes == null ? ImmutableMap.<String, String>of() : _additionalAttributes;
   }
 
   public abstract boolean canBePositionAggregated();
@@ -128,6 +143,8 @@ public abstract class Trade extends DirectBean {
         return getCounterparty();
       case -254405301:  // additionalCashflows
         return getAdditionalCashflows();
+      case -1075726114:  // additionalAttributes
+        return getAdditionalAttributes();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -154,6 +171,9 @@ public abstract class Trade extends DirectBean {
       case -254405301:  // additionalCashflows
         setAdditionalCashflows((List<AdditionalCashflow>) newValue);
         return;
+      case -1075726114:  // additionalAttributes
+        setAdditionalAttributes((Map<String, String>) newValue);
+        return;
     }
     super.propertySet(propertyName, newValue, quiet);
   }
@@ -170,7 +190,8 @@ public abstract class Trade extends DirectBean {
           JodaBeanUtils.equal(getTradeDate(), other.getTradeDate()) &&
           JodaBeanUtils.equal(getMaturityDate(), other.getMaturityDate()) &&
           JodaBeanUtils.equal(getCounterparty(), other.getCounterparty()) &&
-          JodaBeanUtils.equal(getAdditionalCashflows(), other.getAdditionalCashflows());
+          JodaBeanUtils.equal(getAdditionalCashflows(), other.getAdditionalCashflows()) &&
+          JodaBeanUtils.equal(getAdditionalAttributes(), other.getAdditionalAttributes());
     }
     return false;
   }
@@ -184,6 +205,7 @@ public abstract class Trade extends DirectBean {
     hash += hash * 31 + JodaBeanUtils.hashCode(getMaturityDate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCounterparty());
     hash += hash * 31 + JodaBeanUtils.hashCode(getAdditionalCashflows());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getAdditionalAttributes());
     return hash;
   }
 
@@ -339,6 +361,23 @@ public abstract class Trade extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
+   * Sets the additionalAttributes.
+   * @param additionalAttributes  the new value of the property
+   */
+  public void setAdditionalAttributes(Map<String, String> additionalAttributes) {
+    this._additionalAttributes = additionalAttributes;
+  }
+
+  /**
+   * Gets the the {@code additionalAttributes} property.
+   * @return the property, not null
+   */
+  public final Property<Map<String, String>> additionalAttributes() {
+    return metaBean().additionalAttributes().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code Trade}.
    */
   public static class Meta extends DirectMetaBean {
@@ -379,6 +418,12 @@ public abstract class Trade extends DirectBean {
     private final MetaProperty<List<AdditionalCashflow>> _additionalCashflows = DirectMetaProperty.ofReadWrite(
         this, "additionalCashflows", Trade.class, (Class) List.class);
     /**
+     * The meta-property for the {@code additionalAttributes} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<Map<String, String>> _additionalAttributes = DirectMetaProperty.ofReadWrite(
+        this, "additionalAttributes", Trade.class, (Class) Map.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -388,7 +433,8 @@ public abstract class Trade extends DirectBean {
         "tradeDate",
         "maturityDate",
         "counterparty",
-        "additionalCashflows");
+        "additionalCashflows",
+        "additionalAttributes");
 
     /**
      * Restricted constructor.
@@ -411,6 +457,8 @@ public abstract class Trade extends DirectBean {
           return _counterparty;
         case -254405301:  // additionalCashflows
           return _additionalCashflows;
+        case -1075726114:  // additionalAttributes
+          return _additionalAttributes;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -477,6 +525,14 @@ public abstract class Trade extends DirectBean {
      */
     public final MetaProperty<List<AdditionalCashflow>> additionalCashflows() {
       return _additionalCashflows;
+    }
+
+    /**
+     * The meta-property for the {@code additionalAttributes} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Map<String, String>> additionalAttributes() {
+      return _additionalAttributes;
     }
 
   }

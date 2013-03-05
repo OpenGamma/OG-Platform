@@ -221,6 +221,8 @@ public class PortfolioConverter {
       }
     }
 
+    manageableTrade.setAttributes(trade.getAdditionalAttributes());
+
     return manageableTrade;
   }
 

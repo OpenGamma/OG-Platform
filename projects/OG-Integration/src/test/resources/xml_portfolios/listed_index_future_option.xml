@@ -2,7 +2,7 @@
 <og-portfolio schemaVersion="1.0">
 
   <trades>
-    <listedIndexFutureOptionTrade id="t1">
+    <listedSecurityTrade id="t1">
 
       <externalSystemId><id scheme="External">IdFromExternalSystem1</id></externalSystemId>
 
@@ -16,41 +16,45 @@
         </additionalCashflow>
 
         <additionalCashflow type="premium">
-          <counterparty><id scheme="CParty">xyz</id></counterparty>
+          <counterparty><id scheme="Cpty">xyz</id></counterparty>
           <monetaryAmount currency="EUR">250</monetaryAmount>
           <cashflowDate>2013-01-22</cashflowDate>
         </additionalCashflow>
       </additionalCashflows>
 
-      <optionType>Put</optionType>
+      <additionalAttributes>
+        <attribute name="attr1">attr1-value</attribute>
+        <attribute name="attr2">attr2-value</attribute>
+      </additionalAttributes>
+
       <buySell>Buy</buySell>
-
-      <underlying><id scheme="BLOOMBERG_TICKER">EI09SPX</id></underlying>
-
-      <strike>600</strike>
-
-      <futureExpiry>MAR15</futureExpiry>
-      <!--
-      At some point we may want to allow mid curve future options where
-      option expiry is significantly earlier than the underlying future
-      -->
-      <optionExpiry>MAR14</optionExpiry>
-      <exerciseType>European</exerciseType>
-
-      <numContracts>10000</numContracts>
-
-      <pointValue>100</pointValue>
-      <currency>EUR</currency>
-      <exchange>CME</exchange>
-
-      <margined></margined>
+      <numContracts>1000</numContracts>
 
       <brokers>
         <broker type="executingBroker"><id scheme="BROKER">executingbrokerId</id></broker>
         <broker type="clearingBroker"><id scheme="BROKER">clearingbrokerId</id></broker>
       </brokers>
 
-    </listedIndexFutureOptionTrade>
+      <futureOptionSecurity type="equityIndexFutureOption">
+
+        <underlyingId><id scheme="BLOOMBERG_TICKER">EI09SPX</id></underlyingId>
+        <pointValue>100</pointValue>
+        <currency>EUR</currency>
+        <exchange>CME</exchange>
+
+        <optionType>Put</optionType>
+        <strike>600</strike>
+        <futureExpiry>MAR15</futureExpiry>
+        <!--
+        At some point we may want to allow mid curve future options where
+        option expiry is significantly earlier than the underlying future
+        -->
+        <optionExpiry>MAR14</optionExpiry>
+        <exerciseType>European</exerciseType>
+        <margined>false</margined>
+      </futureOptionSecurity>
+
+    </listedSecurityTrade>
   </trades>
 
   <portfolios>

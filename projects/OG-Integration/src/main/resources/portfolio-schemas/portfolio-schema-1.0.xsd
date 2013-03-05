@@ -49,10 +49,10 @@
 
   <xs:element name="listedSecurityTrade" type="listedSecurityTrade"/>
 
+  <xs:element name="securityDefinition" type="listedSecurityDefinition"/>
   <xs:element name="optionSecurity" type="optionSecurityDefinition"/>
   <xs:element name="futureSecurity" type="futureSecurityDefinition"/>
-
-  <xs:element name="securityDefinition" type="listedSecurityDefinition"/>
+  <xs:element name="futureOptionSecurity" type="futureOptionSecurityDefinition"/>
 
 
   <xs:complexType name="ogPortfolio">
@@ -394,7 +394,7 @@
         </xs:annotation>
       </xs:element>
 
-      <xs:element minOccurs="0" name="additionalCashflows">
+      <xs:element name="additionalCashflows" minOccurs="0">
         <xs:complexType>
           <xs:sequence>
             <xs:element name="additionalCashflow" type="additionalCashflow" maxOccurs="unbounded" minOccurs="0"/>
@@ -402,6 +402,7 @@
         </xs:complexType>
       </xs:element>
 
+      <xs:element name="additionalAttributes" type="additionalAttributes" minOccurs="0"/>
     </xs:sequence>
 
     <xs:attribute name="id" type="xs:ID">
@@ -415,6 +416,23 @@
     </xs:attribute>
 
   </xs:complexType>
+
+
+  <xs:complexType name="additionalAttributes">
+    <xs:sequence>
+      <xs:element maxOccurs="unbounded" minOccurs="0"
+                  name="attribute" nillable="true" type="attribute"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="attribute">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="name" type="xs:string"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
   <xs:complexType name="abstractFxOptionTrade">
     <xs:complexContent>
       <xs:extension base="trade">
@@ -956,6 +974,7 @@
           <xs:choice>
             <xs:element ref="optionSecurity"/>
             <xs:element ref="futureSecurity"/>
+            <xs:element ref="futureOptionSecurity"/>
           </xs:choice>
         </xs:sequence>
       </xs:extension>
@@ -971,7 +990,6 @@
     </xs:sequence>
   </xs:complexType>
 
-
   <xs:complexType name="optionSecurityDefinition">
     <xs:complexContent>
       <xs:extension base="listedSecurityDefinition">
@@ -982,6 +1000,22 @@
           <xs:element name="exerciseType" type="exerciseType"/>
         </xs:sequence>
         <xs:attribute name="type" type="listedOptionType" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="futureOptionSecurityDefinition">
+    <xs:complexContent>
+      <xs:extension base="listedSecurityDefinition">
+        <xs:sequence>
+          <xs:element name="optionType" type="optionType"/>
+          <xs:element name="strike" type="xs:decimal"/>
+          <xs:element name="futureExpiry" type="xs:string"/>
+          <xs:element name="optionExpiry" type="xs:string" minOccurs="0"/>
+          <xs:element name="exerciseType" type="exerciseType"/>
+          <xs:element name="margined" type="xs:boolean"/>
+        </xs:sequence>
+        <xs:attribute name="type" type="listedFutureOptionType" use="required"/>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
@@ -1184,6 +1218,13 @@
     <xs:restriction base="xs:string">
       <xs:enumeration value="equityIndexFuture"/>
       <xs:enumeration value="equityDividendFuture"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="listedFutureOptionType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="equityIndexFutureOption"/>
+      <xs:enumeration value="equityDividendFutureOption"/>
     </xs:restriction>
   </xs:simpleType>
 
