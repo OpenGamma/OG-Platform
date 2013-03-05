@@ -794,7 +794,7 @@ public final class ValueRequirementNames {
   /**
    * The monetized vega.
    */
-  public static final String MONETIZED_VEGA = "MonetizedVega";
+  public static final String MONETIZED_VEGA = "Monetized Vega";
 
   ///// Series Analysis
 
