@@ -101,7 +101,7 @@ public class UserMarketDataProvider extends AbstractMarketDataProvider {
 
   //-------------------------------------------------------------------------
   @Override
-  public MarketDataAvailabilityProvider getAvailabilityProvider() {
+  public MarketDataAvailabilityProvider getAvailabilityProvider(final MarketDataSpecification marketDataSpec) {
     final UserMarketDataSnapshot snapshot = snapshot();
     snapshot.init();
     if (getBaseMarketDataAvailabilityProvider() == null) {

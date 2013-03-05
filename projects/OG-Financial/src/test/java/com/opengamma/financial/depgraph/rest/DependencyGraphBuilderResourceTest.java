@@ -142,7 +142,7 @@ public class DependencyGraphBuilderResourceTest {
       }
 
       @Override
-      public MarketDataAvailabilityProvider getAvailabilityProvider() {
+      public MarketDataAvailabilityProvider getAvailabilityProvider(final MarketDataSpecification marketDataSpec) {
         return new DomainMarketDataAvailabilityFilter(Arrays.asList(ExternalScheme.of("Foo")), Arrays.asList(MarketDataRequirementNames.MARKET_VALUE))
             .withProvider(new DefaultMarketDataAvailabilityProvider());
       }

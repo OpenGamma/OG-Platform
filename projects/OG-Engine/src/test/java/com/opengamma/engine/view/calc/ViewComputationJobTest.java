@@ -418,7 +418,7 @@ public class ViewComputationJobTest {
     }
 
     @Override
-    public MarketDataAvailabilityProvider getAvailabilityProvider() {
+    public MarketDataAvailabilityProvider getAvailabilityProvider(final MarketDataSpecification marketDataSpec) {
       return _availability;
     }
 
@@ -439,7 +439,7 @@ public class ViewComputationJobTest {
     @Override
     public MarketDataSnapshot snapshot(final MarketDataSpecification marketDataSpec) {
       return new LiveMarketDataSnapshot(_underlyingProvider.snapshot(marketDataSpec),
-          new LiveMarketDataProvider(_dummyLiveDataClient, getAvailabilityProvider().getAvailabilityFilter(), UserPrincipal.getTestUser()));
+          new LiveMarketDataProvider(_dummyLiveDataClient, getAvailabilityProvider(marketDataSpec).getAvailabilityFilter(), UserPrincipal.getTestUser()));
     }
 
     @Override

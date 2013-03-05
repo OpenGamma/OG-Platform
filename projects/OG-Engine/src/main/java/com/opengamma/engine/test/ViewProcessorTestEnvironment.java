@@ -30,6 +30,7 @@ import com.opengamma.engine.marketdata.InMemoryNamedMarketDataSpecificationRepos
 import com.opengamma.engine.marketdata.MarketDataProvider;
 import com.opengamma.engine.marketdata.resolver.MarketDataProviderResolver;
 import com.opengamma.engine.marketdata.resolver.SingleMarketDataProviderResolver;
+import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewCalculationResultModel;
@@ -142,7 +143,7 @@ public class ViewProcessorTestEnvironment {
       throw new IllegalStateException(ViewProcessorTestEnvironment.class.getName() + " has not been initialised");
     }
     final ViewCompilationServices compilationServices = new ViewCompilationServices(
-        getMarketDataProvider().getAvailabilityProvider(),
+        getMarketDataProvider().getAvailabilityProvider(MarketData.live()),
         getFunctionResolver(),
         getFunctionCompilationContext(),
         getViewProcessor().getFunctionCompilationService().getExecutorService(),

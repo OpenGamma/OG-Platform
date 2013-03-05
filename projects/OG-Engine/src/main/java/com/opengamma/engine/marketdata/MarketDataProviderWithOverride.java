@@ -90,9 +90,9 @@ public class MarketDataProviderWithOverride implements MarketDataProvider {
 
   /**
    * Constructs an instance using the specified providers.
-   *
-   * @param underlying  the underlying, or default, provider, not null
-   * @param override  the override provider, not null
+   * 
+   * @param underlying the underlying, or default, provider, not null
+   * @param override the override provider, not null
    */
   public MarketDataProviderWithOverride(final MarketDataProvider underlying, final MarketDataProvider override) {
     ArgumentChecker.notNull(underlying, "underlying");
@@ -132,7 +132,6 @@ public class MarketDataProviderWithOverride implements MarketDataProvider {
     }
   }
 
-
   //-------------------------------------------------------------------------
   @Override
   public void subscribe(final ValueSpecification valueSpecification) {
@@ -161,9 +160,9 @@ public class MarketDataProviderWithOverride implements MarketDataProvider {
 
   //-------------------------------------------------------------------------
   @Override
-  public MarketDataAvailabilityProvider getAvailabilityProvider() {
+  public MarketDataAvailabilityProvider getAvailabilityProvider(final MarketDataSpecification marketDataSpec) {
     // Assume overrides only valid if data available from underlying
-    return _underlying.getAvailabilityProvider();
+    return _underlying.getAvailabilityProvider(marketDataSpec);
   }
 
   @Override

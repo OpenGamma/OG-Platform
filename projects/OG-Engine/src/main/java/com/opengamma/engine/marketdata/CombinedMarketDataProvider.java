@@ -64,14 +64,11 @@ public class CombinedMarketDataProvider extends AbstractMarketDataProvider {
 
   };
 
-  private final MarketDataAvailabilityProvider _availabilityProvider;
-
   private boolean _listenerAttached;
 
   public CombinedMarketDataProvider(final MarketDataProvider preferred, final MarketDataProvider fallBack) {
     _preferred = preferred;
     _fallBack = fallBack;
-    _availabilityProvider = buildAvailabilityProvider();
   }
 
   @Override
@@ -102,11 +99,6 @@ public class CombinedMarketDataProvider extends AbstractMarketDataProvider {
     }
   }
 
-  @Override
-  public MarketDataAvailabilityProvider getAvailabilityProvider() {
-    return _availabilityProvider;
-  }
-
   private ValueSpecification createValueSpecification(final ValueSpecification underlying, final String provider) {
     final ValueProperties.Builder properties = underlying.getProperties().copy();
     final String dataProvider = underlying.getProperty(ValuePropertyNames.DATA_PROVIDER);
@@ -126,12 +118,16 @@ public class CombinedMarketDataProvider extends AbstractMarketDataProvider {
    * <li>Null if either provider returned null
    * <li>{@link MarketDataNotSatisfiableException} being thrown if both providers do so
    * </ul>
+   * 
+   * @param marketDataSpec the market data specification, not null
+   * @return the provider, not null
    */
-  private MarketDataAvailabilityProvider buildAvailabilityProvider() {
+  @Override
+  public MarketDataAvailabilityProvider getAvailabilityProvider(final MarketDataSpecification marketDataSpec) {
     return new MarketDataAvailabilityProvider() {
 
-      private final MarketDataAvailabilityProvider _preferredProvider = _preferred.getAvailabilityProvider();
-      private final MarketDataAvailabilityProvider _fallbackProvider = _fallBack.getAvailabilityProvider();
+      private final MarketDataAvailabilityProvider _preferredProvider = _preferred.getAvailabilityProvider(marketDataSpec);
+      private final MarketDataAvailabilityProvider _fallbackProvider = _fallBack.getAvailabilityProvider(marketDataSpec);
 
       @Override
       public ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final Object target, final ValueRequirement desiredValue) {

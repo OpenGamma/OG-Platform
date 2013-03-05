@@ -54,7 +54,7 @@ import com.opengamma.util.tuple.Pair;
   private final List<MarketDataProvider> _providers;
   /** The specs for the underlying providers in the same order as the providers. */
   private final List<MarketDataSpecification> _specs;
-  private final MarketDataAvailabilityProvider _availabilityProvider = new AvailabilityProvider();
+  private final MarketDataAvailabilityProvider _availabilityProvider;
   private final PermissionsProvider _permissionsProvider = new PermissionsProvider();
   private final CopyOnWriteArraySet<MarketDataListener> _listeners = new CopyOnWriteArraySet<MarketDataListener>();
 
@@ -81,6 +81,7 @@ import com.opengamma.util.tuple.Pair;
       _providers.add(provider);
       provider.addListener(new Listener(index++));
     }
+    _availabilityProvider = new AvailabilityProvider(_providers, _specs);
   }
 
   /**
@@ -303,7 +304,16 @@ import com.opengamma.util.tuple.Pair;
    * {@link MarketDataAvailabilityProvider} that checks the underlying providers for availability. If the data is available from any underlying provider then it is available. If it isn't available but
    * is missing from any of the underlying providers then it is missing. Otherwise it is unavailable.
    */
-  private class AvailabilityProvider implements MarketDataAvailabilityProvider {
+  private static final class AvailabilityProvider implements MarketDataAvailabilityProvider {
+
+    private final List<MarketDataAvailabilityProvider> _providers;
+
+    public AvailabilityProvider(final List<MarketDataProvider> providers, final List<MarketDataSpecification> specs) {
+      _providers = new ArrayList<MarketDataAvailabilityProvider>(providers.size());
+      for (int i = 0; i < providers.size(); i++) {
+        _providers.add(providers.get(i).getAvailabilityProvider(specs.get(i)));
+      }
+    }
 
     /**
      * @param desiredValue the market data requirement, not null
@@ -313,9 +323,9 @@ import com.opengamma.util.tuple.Pair;
     public ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final Object target, final ValueRequirement desiredValue) {
       MarketDataNotSatisfiableException missing = null;
       for (int i = 0; i < _providers.size(); i++) {
-        final MarketDataProvider provider = _providers.get(i);
+        final MarketDataAvailabilityProvider provider = _providers.get(i);
         try {
-          final ValueSpecification underlying = provider.getAvailabilityProvider().getAvailability(targetSpec, target, desiredValue);
+          final ValueSpecification underlying = provider.getAvailability(targetSpec, target, desiredValue);
           if (underlying != null) {
             return convertUnderlyingSpecification(i, underlying);
           }
@@ -333,8 +343,8 @@ import com.opengamma.util.tuple.Pair;
     @Override
     public MarketDataAvailabilityFilter getAvailabilityFilter() {
       final List<MarketDataAvailabilityFilter> union = new ArrayList<MarketDataAvailabilityFilter>(_providers.size());
-      for (final MarketDataProvider provider : _providers) {
-        union.add(provider.getAvailabilityProvider().getAvailabilityFilter());
+      for (MarketDataAvailabilityProvider provider : _providers) {
+        union.add(provider.getAvailabilityFilter());
       }
       return new UnionMarketDataAvailability.Filter(union);
     }

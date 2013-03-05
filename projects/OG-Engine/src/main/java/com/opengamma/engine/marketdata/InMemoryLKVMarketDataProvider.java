@@ -63,7 +63,7 @@ public class InMemoryLKVMarketDataProvider extends AbstractMarketDataProvider im
   }
 
   @Override
-  public MarketDataAvailabilityProvider getAvailabilityProvider() {
+  public MarketDataAvailabilityProvider getAvailabilityProvider(final MarketDataSpecification marketDataSpec) {
     return _availability;
   }
 

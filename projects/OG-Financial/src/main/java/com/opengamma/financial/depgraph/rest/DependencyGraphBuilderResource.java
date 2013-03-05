@@ -200,7 +200,7 @@ public final class DependencyGraphBuilderResource extends AbstractDataResource {
     final UserPrincipal marketDataUser = UserPrincipal.getLocalUser();
     final MarketDataProviderResolver resolver = _builderContext.getMarketDataProviderResolver();
     final MarketDataProvider marketDataProvider = resolver.resolve(marketDataUser, _marketData);
-    builder.setMarketDataAvailabilityProvider(marketDataProvider.getAvailabilityProvider());
+    builder.setMarketDataAvailabilityProvider(marketDataProvider.getAvailabilityProvider(_marketData));
     final FudgeContext fudgeContext = _fudgeContext;
     final ResolutionFailureGatherer<MutableFudgeMsg> failures = new ResolutionFailureGatherer<MutableFudgeMsg>(new ResolutionFailureFudgeBuilder.Visitor(
         _fudgeContext));
