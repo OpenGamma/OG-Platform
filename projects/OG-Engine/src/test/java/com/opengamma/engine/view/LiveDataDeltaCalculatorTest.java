@@ -26,7 +26,6 @@ import com.opengamma.engine.test.MockFunction;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
-import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.cache.InMemoryViewComputationCacheSource;
 import com.opengamma.engine.view.cache.ViewComputationCache;
@@ -34,28 +33,28 @@ import com.opengamma.engine.view.calc.LiveDataDeltaCalculator;
 import com.opengamma.id.UniqueId;
 
 /**
- * 
+ *
  */
 @Test
 public class LiveDataDeltaCalculatorTest {
-  
+
   FunctionCompilationContext _context = new FunctionCompilationContext();
-  
+
   DependencyGraph _graph = getTestGraph();
   DependencyNode _node0;
   DependencyNode _node1;
   DependencyNode _node2;
   DependencyNode _node3;
   DependencyNode _node4;
-  
-  ViewComputationCache _cache; 
+
+  ViewComputationCache _cache;
   ViewComputationCache _previousCache;
   LiveDataDeltaCalculator _deltaCalculator;
-  
+
   @BeforeMethod
   public void setUp() {
     final InMemoryViewComputationCacheSource source = new InMemoryViewComputationCacheSource (FudgeContext.GLOBAL_DEFAULT);
-    _cache = source.getCache(UniqueId.of("Test", "ViewCycle", "1"), "Default"); 
+    _cache = source.getCache(UniqueId.of("Test", "ViewCycle", "1"), "Default");
     _previousCache = source.getCache(UniqueId.of("Test", "ViewCycle", "0"), "Default");
     _deltaCalculator = new LiveDataDeltaCalculator(
         _graph,
@@ -63,19 +62,19 @@ public class LiveDataDeltaCalculatorTest {
         _previousCache);
 
   }
-  
-  private ComputationTarget getTarget(String name) {
+
+  private ComputationTarget getTarget(final String name) {
     return new ComputationTarget(ComputationTargetType.PRIMITIVE, UniqueId.of("testdomain", name));
   }
-  
-  private DependencyNode createNode(String name, Set<DependencyNode> inputNodes) {
+
+  private DependencyNode createNode(final String name, final Set<DependencyNode> inputNodes) {
     final ComputationTarget target = getTarget(name);
     final DependencyNode node = new DependencyNode(target);
     final ValueSpecification output;
     if (inputNodes.isEmpty()) {
       final MarketDataSourcingFunction msdf = MarketDataSourcingFunction.INSTANCE;
       output = new ValueSpecification(name, target.toSpecification(), ValueProperties.with(ValuePropertyNames.FUNCTION, msdf.getUniqueId()).get());
-      node.setFunction(new ParameterizedFunction(msdf, msdf.getParameters(new ValueRequirement(name, target.toSpecification()))));
+      node.setFunction(new ParameterizedFunction(msdf, msdf.getDefaultParameters()));
     } else {
       final MockFunction mock = new MockFunction(target);
       output = new ValueSpecification(name, target.toSpecification(), ValueProperties.with(ValuePropertyNames.FUNCTION, mock.getUniqueId()).get());
@@ -86,15 +85,15 @@ public class LiveDataDeltaCalculatorTest {
     node.addInputNodes(inputNodes);
     return node;
   }
-  
-  private void put(ViewComputationCache cache, DependencyNode node, Object value) {
-    ValueSpecification spec = node.getOutputValues().iterator().next();
+
+  private void put(final ViewComputationCache cache, final DependencyNode node, final Object value) {
+    final ValueSpecification spec = node.getOutputValues().iterator().next();
     cache.putSharedValue(new ComputedValue(spec, value));
   }
 
   /**
    * @return The test graph
-   * 
+   *
    *         <pre>
    *         0   1
    *          \ / \
@@ -104,7 +103,7 @@ public class LiveDataDeltaCalculatorTest {
    * </pre>
    */
   private DependencyGraph getTestGraph() {
-    DependencyGraph graph = new DependencyGraph("test");
+    final DependencyGraph graph = new DependencyGraph("test");
     _node0 = createNode("Node0", Collections.<DependencyNode>emptySet());
     _node1 = createNode("Node1", Collections.<DependencyNode>emptySet());
     _node2 = createNode("Node2", Sets.newHashSet(_node0, _node1));
@@ -117,63 +116,63 @@ public class LiveDataDeltaCalculatorTest {
     graph.addDependencyNode(_node4);
     return graph;
   }
-  
+
   public void noChangeA() {
     put(_cache, _node0, 6.0);
     put(_previousCache, _node0, 6.0);
-        
+
     _deltaCalculator.computeDelta();
-    
+
     assertEquals(_graph.getDependencyNodes(), _deltaCalculator.getUnchangedNodes());
     assertEquals(Collections.emptySet(), _deltaCalculator.getChangedNodes());
   }
-  
+
   public void noChangeB() {
     put(_cache, _node1, 6.0);
     put(_previousCache, _node1, 6.0);
-        
+
     _deltaCalculator.computeDelta();
-    
+
     assertEquals(_graph.getDependencyNodes(), _deltaCalculator.getUnchangedNodes());
     assertEquals(Collections.emptySet(), _deltaCalculator.getChangedNodes());
   }
-  
+
   public void noChangeC() {
     put(_cache, _node2, 6.0);
     put(_previousCache, _node2, 6.0);
-        
+
     _deltaCalculator.computeDelta();
-    
+
     assertEquals(_graph.getDependencyNodes(), _deltaCalculator.getUnchangedNodes());
     assertEquals(Collections.emptySet(), _deltaCalculator.getChangedNodes());
   }
-  
+
   public void changeA() {
     put(_cache, _node0, 6.0);
     put(_previousCache, _node0, 7.0);
-        
+
     _deltaCalculator.computeDelta();
-    
+
     assertEquals(Sets.newHashSet(_node1, _node3), _deltaCalculator.getUnchangedNodes());
     assertEquals(Sets.newHashSet(_node0, _node2, _node4), _deltaCalculator.getChangedNodes());
   }
-  
+
   public void changeB() {
     put(_cache, _node1, 6.0);
     put(_previousCache, _node1, 7.0);
-        
+
     _deltaCalculator.computeDelta();
-    
+
     assertEquals(Sets.newHashSet(_node0), _deltaCalculator.getUnchangedNodes());
     assertEquals(Sets.newHashSet(_node1, _node2, _node3, _node4), _deltaCalculator.getChangedNodes());
   }
-  
+
   public void changeC() {
     put(_cache, _node2, 6.0);
     put(_previousCache, _node2, 7.0);
-        
+
     _deltaCalculator.computeDelta();
-    
+
     assertEquals(_graph.getDependencyNodes(), _deltaCalculator.getUnchangedNodes());
     assertEquals(Collections.emptySet(), _deltaCalculator.getChangedNodes());
   }

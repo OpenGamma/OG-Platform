@@ -12,38 +12,31 @@ import java.util.concurrent.TimeUnit;
 
 import org.threeten.bp.Instant;
 
-import com.google.common.base.Supplier;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
-import com.opengamma.engine.value.ComputedValue;
-import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Snapshot of market data which aggregates data from multiple underlying snapshots.
  */
-/* package */ class CompositeMarketDataSnapshot implements MarketDataSnapshot {
+/* package */class CompositeMarketDataSnapshot implements MarketDataSnapshot {
 
   /** The underlying snapshots. */
   private final List<MarketDataSnapshot> _snapshots;
-  /** Supplies the current set of subscriptions for the underlying snapshots in the same order as the snapshots. */
-  private final Supplier<List<Set<ValueRequirement>>> _subscriptionSupplier;
+  /** The object that can map the value specifications to/from an underlying provider. */
+  private final ViewComputationJobDataProvider.ValueSpecificationProvider _valueMap;
 
   /**
    * @param snapshots The underlying snapshots
-   * @param subscriptionSupplier Supplies the current set of subscriptions for the underlying snapshots
-   * in the same order as the snapshots. This snapshot is created before subscriptions are set up but the subscriptions
-   * are available by the time this snapshot needs to use them. So the subscriptions must be requested from the
-   * supplier when they're required.
    */
-  /* package */ CompositeMarketDataSnapshot(List<MarketDataSnapshot> snapshots,
-                                            Supplier<List<Set<ValueRequirement>>> subscriptionSupplier) {
+  /* package */CompositeMarketDataSnapshot(final List<MarketDataSnapshot> snapshots, final ViewComputationJobDataProvider.ValueSpecificationProvider valueMap) {
     ArgumentChecker.notEmpty(snapshots, "snapshots");
-    ArgumentChecker.notNull(subscriptionSupplier, "subscriptionSupplier");
-    _subscriptionSupplier = subscriptionSupplier;
+    ArgumentChecker.notNull(valueMap, "valueMap");
     _snapshots = snapshots;
+    _valueMap = valueMap;
   }
 
   @Override
@@ -58,8 +51,8 @@ import com.opengamma.util.ArgumentChecker;
    */
   @Override
   public Instant getSnapshotTimeIndication() {
-    for (MarketDataSnapshot snapshot : _snapshots) {
-      Instant snapshotTimeIndication = snapshot.getSnapshotTimeIndication();
+    for (final MarketDataSnapshot snapshot : _snapshots) {
+      final Instant snapshotTimeIndication = snapshot.getSnapshotTimeIndication();
       if (snapshotTimeIndication != null) {
         return snapshotTimeIndication;
       }
@@ -72,31 +65,31 @@ import com.opengamma.util.ArgumentChecker;
    */
   @Override
   public void init() {
-    for (MarketDataSnapshot snapshot : _snapshots) {
+    for (final MarketDataSnapshot snapshot : _snapshots) {
       snapshot.init();
     }
   }
 
   /**
    * Initializes the underlying snapshots.
-   * @param requirements  the values required in the snapshot, not null
-   * @param timeout  the maximum time to wait for the required values
-   * @param unit  the timeout unit, not null
+   *
+   * @param values the values required in the snapshot, not null
+   * @param timeout the maximum time to wait for the required values
+   * @param unit the timeout unit, not null
    */
   @Override
-  public void init(Set<ValueRequirement> requirements, long timeout, TimeUnit unit) {
-    ArgumentChecker.notNull(requirements, "requirements");
+  public void init(final Set<ValueSpecification> values, final long timeout, final TimeUnit unit) {
+    ArgumentChecker.notNull(values, "values");
     ArgumentChecker.notNull(unit, "unit");
-    List<Set<ValueRequirement>> subscriptions = _subscriptionSupplier.get();
+    final List<Set<ValueSpecification>> valuesBySnapshot = _valueMap.getUnderlyingSpecifications(values);
     for (int i = 0; i < _snapshots.size(); i++) {
-      MarketDataSnapshot snapshot = _snapshots.get(i);
-      Set<ValueRequirement> snapshotSubscriptions = subscriptions.get(i);
-      // TODO whole timeout? or divide timeout between all delegate snapshots and keep track of how much is left?
-      // the combined snapshot does this but that seems broken to me
-      Set<ValueRequirement> snapshotRequirements = Sets.intersection(snapshotSubscriptions, requirements);
-      if (snapshotRequirements.isEmpty()) {
+      final MarketDataSnapshot snapshot = _snapshots.get(i);
+      final Set<ValueSpecification> snapshotSubscriptions = valuesBySnapshot.get(i);
+      if (snapshotSubscriptions.isEmpty()) {
         snapshot.init();
       } else {
+        // TODO whole timeout? or divide timeout between all delegate snapshots and keep track of how much is left?
+        // the combined snapshot does this but that seems broken to me
         snapshot.init(snapshotSubscriptions, timeout, unit);
       }
     }
@@ -108,8 +101,8 @@ import com.opengamma.util.ArgumentChecker;
    */
   @Override
   public Instant getSnapshotTime() {
-    for (MarketDataSnapshot snapshot : _snapshots) {
-      Instant snapshotTime = snapshot.getSnapshotTime();
+    for (final MarketDataSnapshot snapshot : _snapshots) {
+      final Instant snapshotTime = snapshot.getSnapshotTime();
       if (snapshotTime != null) {
         return snapshotTime;
       }
@@ -119,43 +112,42 @@ import com.opengamma.util.ArgumentChecker;
 
   /**
    * Returns the value from one of the underlying snapshots or null if it isn't available in any of them
-   * @param requirement  the value required, not null
+   *
+   * @param value the value required, not null
    * @return The value from one of the underlying snapshots or null if it isn't available in any of them
    */
   @Override
-  public ComputedValue query(ValueRequirement requirement) {
-    ArgumentChecker.notNull(requirement, "requirement");
-    List<Set<ValueRequirement>> subscriptions = _subscriptionSupplier.get();
-    for (int i = 0; i < _snapshots.size(); i++) {
-      MarketDataSnapshot snapshot = _snapshots.get(i);
-      Set<ValueRequirement> snapshotSubscriptions = subscriptions.get(i);
-      if (snapshotSubscriptions.contains(requirement)) {
-        return snapshot.query(requirement);
-      }
+  public Object query(final ValueSpecification value) {
+    ArgumentChecker.notNull(value, "value");
+    final Pair<Integer, ValueSpecification> lookup = _valueMap.getUnderlyingAndSpecification(value);
+    if (lookup == null) {
+      return null;
     }
-    return null;
+    return _snapshots.get(lookup.getFirst()).query(lookup.getSecond());
   }
 
   /**
    * Returns the values from the underlying snapshots if they are available
-   * @param requirements the values required, not null
-   * @return The values from the underlying snapshots if they are available, values that aren't available will be
-   * missing from the results map
+   *
+   * @param values the values required, not null
+   * @return The values from the underlying snapshots if they are available, values that aren't available will be missing from the results map
    */
   @Override
-  public Map<ValueRequirement, ComputedValue> query(Set<ValueRequirement> requirements) {
-    ArgumentChecker.notNull(requirements, "requirements");
-    Map<ValueRequirement, ComputedValue> results = Maps.newHashMapWithExpectedSize(requirements.size());
-    List<Set<ValueRequirement>> subscriptions = _subscriptionSupplier.get();
+  public Map<ValueSpecification, Object> query(final Set<ValueSpecification> values) {
+    ArgumentChecker.notNull(values, "values");
+    final Map<ValueSpecification, Object> results = Maps.newHashMapWithExpectedSize(values.size());
+    final List<Set<ValueSpecification>> valuesBySnapshot = _valueMap.getUnderlyingSpecifications(values);
     for (int i = 0; i < _snapshots.size(); i++) {
-      MarketDataSnapshot snapshot = _snapshots.get(i);
-      Set<ValueRequirement> snapshotSubscriptions = subscriptions.get(i);
-      Set<ValueRequirement> snapshotRequirements = Sets.intersection(snapshotSubscriptions, requirements);
-      if (!snapshotRequirements.isEmpty()) {
-        Map<ValueRequirement, ComputedValue> snapshotValues = snapshot.query(snapshotRequirements);
-        results.putAll(snapshotValues);
+      final MarketDataSnapshot snapshot = _snapshots.get(i);
+      final Set<ValueSpecification> snapshotSubscriptions = valuesBySnapshot.get(i);
+      if (!snapshotSubscriptions.isEmpty()) {
+        final Map<ValueSpecification, Object> snapshotResults = snapshot.query(snapshotSubscriptions);
+        for (final Map.Entry<ValueSpecification, Object> snapshotResult : snapshotResults.entrySet()) {
+          results.put(_valueMap.convertUnderlyingSpecification(i, snapshotResult.getKey()), snapshotResult.getValue());
+        }
       }
     }
     return results;
   }
+
 }

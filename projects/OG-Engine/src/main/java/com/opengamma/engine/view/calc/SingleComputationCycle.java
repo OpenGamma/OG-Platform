@@ -38,6 +38,7 @@ import org.threeten.bp.Instant;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.depgraph.DependencyNodeFilter;
@@ -45,6 +46,7 @@ import com.opengamma.engine.function.MarketDataSourcingFunction;
 import com.opengamma.engine.function.blacklist.FunctionBlacklistQuery;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
 import com.opengamma.engine.marketdata.OverrideOperation;
+import com.opengamma.engine.marketdata.OverrideOperationCompiler;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ComputedValueResult;
@@ -404,6 +406,8 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
    */
   private Map<ViewComputationCache, OverrideOperation> getCacheMarketDataOperation() {
     final Map<ViewComputationCache, OverrideOperation> shifts = new HashMap<ViewComputationCache, OverrideOperation>();
+    OverrideOperationCompiler compiler = null;
+    ComputationTargetResolver.AtVersionCorrection resolver = null;
     for (final ViewCalculationConfiguration calcConfig : getCompiledViewDefinition().getViewDefinition().getAllCalculationConfigurations()) {
       final Set<String> marketDataShift = calcConfig.getDefaultProperties().getValues(MARKET_DATA_SHIFT_PROPERTY);
       OverrideOperation operation = null;
@@ -412,9 +416,13 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
           // This doesn't really mean much
           s_logger.error("Market data shift for {} not valid - {}", calcConfig.getName(), marketDataShift);
         } else {
+          if (compiler == null) {
+            compiler = getViewProcessContext().getOverrideOperationCompiler();
+            resolver = getViewProcessContext().getFunctionCompilationService().getFunctionCompilationContext().getRawComputationTargetResolver().atVersionCorrection(getVersionCorrection());
+          }
           final String shiftExpr = marketDataShift.iterator().next();
           try {
-            operation = getViewProcessContext().getOverrideOperationCompiler().compile(shiftExpr);
+            operation = compiler.compile(shiftExpr, resolver);
           } catch (final IllegalArgumentException e) {
             s_logger.error("Market data shift for  {} not valid - {}", calcConfig.getName(), shiftExpr);
             s_logger.info("Invalid market data shift", e);
@@ -428,19 +436,18 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
 
   private void prepareInputs(final MarketDataSnapshot snapshot) {
     final Set<ValueSpecification> missingMarketData = new HashSet<ValueSpecification>();
-    final Map<ValueRequirement, ValueSpecification> marketDataEntries = getCompiledViewDefinition().getMarketDataRequirements();
-    s_logger.debug("Populating {} market data items using snapshot {}", marketDataEntries.size(), snapshot);
+    final Set<ValueSpecification> requiredMarketData = getCompiledViewDefinition().getMarketDataRequirements();
+    s_logger.debug("Populating {} market data items using snapshot {}", requiredMarketData.size(), snapshot);
     final Map<ViewComputationCache, OverrideOperation> cacheMarketDataOperation = getCacheMarketDataOperation();
     final InMemoryViewComputationResultModel fragmentResultModel = constructTemplateResultModel();
     final InMemoryViewComputationResultModel fullResultModel = getResultModel();
-    final Map<ValueRequirement, ComputedValue> marketDataValues = snapshot.query(marketDataEntries.keySet());
-    for (final Map.Entry<ValueRequirement, ValueSpecification> marketDataEntry : marketDataEntries.entrySet()) {
-      final ValueRequirement marketDataRequirement = marketDataEntry.getKey();
-      final ValueSpecification marketDataSpec = marketDataEntry.getValue();
-      ComputedValue computedValue = marketDataValues.get(marketDataRequirement);
+    final Map<ValueSpecification, Object> marketDataValues = snapshot.query(requiredMarketData);
+    for (final ValueSpecification marketDataSpec : requiredMarketData) {
+      final Object marketDataValue = marketDataValues.get(marketDataSpec);
+      ComputedValue computedValue;
       ComputedValueResult computedValueResult;
-      if (computedValue == null) {
-        s_logger.debug("Unable to load market data value for {} from snapshot {}", marketDataRequirement, getValuationTime());
+      if (marketDataValue == null) {
+        s_logger.debug("Unable to load market data value for {} from snapshot {}", marketDataSpec, getValuationTime());
         missingMarketData.add(marketDataSpec);
         // TODO provide elevated logs if requested from market data providers
         final ExecutionLog executionLog = MutableExecutionLog.single(SimpleLogEvent.of(LogLevel.WARN, null), ExecutionLogMode.INDICATORS);
@@ -449,19 +456,13 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
         computedValue = new ComputedValue(marketDataSpec, MissingMarketDataSentinel.getInstance());
         computedValueResult = new ComputedValueResult(computedValue, aggregatedExecutionLog);
       } else {
-        if (!computedValue.getSpecification().equals(marketDataSpec)) {
-          // [PLAT-3044] Changing the snapshot query to return a computed value was wrong. The provider should return the strict value specification
-          // and that should be used to query the snapshot. The chaotic mapping of value requirements to/from value specifications to cross between
-          // the execution engine and market data subsystems will then be removed.
-          s_logger.warn("Requirement {} resolved to {}, but snapshot data is {}", new Object[] {marketDataRequirement, marketDataSpec, computedValue.getSpecification() });
-          computedValue = new ComputedValue(marketDataSpec, computedValue.getValue());
-        }
+        computedValue = new ComputedValue(marketDataSpec, marketDataValue);
         computedValueResult = new ComputedValueResult(computedValue, AggregatedExecutionLog.EMPTY);
         fragmentResultModel.addMarketData(computedValueResult);
         fullResultModel.addMarketData(computedValueResult);
       }
       addMarketDataToResults(marketDataSpec, computedValueResult, fragmentResultModel, getResultModel());
-      addToAllCaches(marketDataRequirement, computedValue, computedValueResult, cacheMarketDataOperation);
+      addToAllCaches(computedValue, computedValueResult, cacheMarketDataOperation);
     }
     if (!missingMarketData.isEmpty()) {
       // REVIEW jonathan 2012-11-01 -- probably need a cycle-level execution log for things like this
@@ -507,15 +508,17 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     }
   }
 
-  private void addToAllCaches(final ValueRequirement valueRequirement, final ComputedValue computedValue,
-      final ComputedValueResult computedValueResult, final Map<ViewComputationCache, OverrideOperation> cacheMarketDataInfo) {
+  private void addToAllCaches(final ComputedValue computedValue, final ComputedValueResult computedValueResult, final Map<ViewComputationCache, OverrideOperation> cacheMarketDataInfo) {
     for (final Map.Entry<ViewComputationCache, OverrideOperation> cacheMarketData : cacheMarketDataInfo.entrySet()) {
       final ViewComputationCache cache = cacheMarketData.getKey();
       final ComputedValue cacheValue;
       if ((computedValue.getValue() instanceof MissingInput) || (cacheMarketData.getValue() == null)) {
         cacheValue = computedValue;
       } else {
-        final Object newValue = cacheMarketData.getValue().apply(valueRequirement, computedValue.getValue());
+        // TODO: Converting a ValueSpecification to a ValueRequirement like this is probably wrong
+        final ValueSpecification valueSpec = computedValue.getSpecification();
+        final Object newValue = cacheMarketData.getValue().apply(new ValueRequirement(valueSpec.getValueName(), valueSpec.getTargetSpecification(), valueSpec.getProperties()),
+            computedValue.getValue());
         if (newValue != computedValue.getValue()) {
           cacheValue = new ComputedValue(computedValue.getSpecification(), newValue);
         } else {

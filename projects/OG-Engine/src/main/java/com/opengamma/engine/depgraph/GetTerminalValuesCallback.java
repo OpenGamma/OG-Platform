@@ -175,7 +175,7 @@ import com.opengamma.util.tuple.Pair;
   /**
    * Tests whether the union of value specifications would be mismatched; that is the two sets can't be composed. Given the intersection of common value names, the properties must be mutually
    * compatible.
-   *
+   * 
    * @param as the first set of values, not null
    * @param bs the second set of values, not null
    * @return true if the values can't be composed, false if they can
@@ -428,12 +428,14 @@ import com.opengamma.util.tuple.Pair;
       if (mismatchUnion(outputValues, resolvedValue.getFunctionOutputs())) {
         s_logger.debug("Can't reuse {} for {}", node, resolvedValue);
       } else {
-        s_logger.debug("Reusing {} for {}", node, resolvedValue);
+        s_logger.debug("Considering {} for {}", node, resolvedValue);
         // Update the output values for the node with the union. The input values will be dealt with by the caller.
         List<ValueSpecification> replacements = null;
+        boolean matched = false;
         for (final ValueSpecification output : resolvedValue.getFunctionOutputs()) {
           if (outputValues.contains(output)) {
             // Exact match found
+            matched = true;
             continue;
           }
           final String outputName = output.getValueName();
@@ -442,6 +444,7 @@ import com.opengamma.util.tuple.Pair;
             if (outputName == outputValue.getValueName()) {
               if (outputValue.getProperties().isSatisfiedBy(outputProperties)) {
                 // Found match
+                matched = true;
                 final ValueProperties composedProperties = outputValue.getProperties().compose(outputProperties);
                 if (!composedProperties.equals(outputValue.getProperties())) {
                   final ValueSpecification newOutputValue = MemoryUtils
@@ -456,6 +459,9 @@ import com.opengamma.util.tuple.Pair;
               }
             }
           }
+        }
+        if (!matched) {
+          continue;
         }
         if (replacements != null) {
           final Iterator<ValueSpecification> replacement = replacements.iterator();
@@ -576,7 +582,7 @@ import com.opengamma.util.tuple.Pair;
   /**
    * Returns the dependency graph nodes built by calls to {@link #resolved}. It is only valid to call this when there are no pending resolutions - that is all calls to {@link #resolved} have returned.
    * A copy of the internal structure is used so that it may be modified by the caller and this callback instance be used to process subsequent resolutions.
-   *
+   * 
    * @return the dependency graph nodes, not null
    */
   public synchronized Collection<DependencyNode> getGraphNodes() {
@@ -587,7 +593,7 @@ import com.opengamma.util.tuple.Pair;
    * Returns the map of top level requirements requested of the graph builder to the specifications it produced that are in the dependency graph. Failed resolutions are not reported here. It is only
    * valid to call this when there are no pending resolutions - that is all calls to {@link #resolved} have returned. A copy of the internal structure is used so that it may be modified by the caller
    * and this callback instance be used to process subsequent resolutions.
-   *
+   * 
    * @return the map of resolutions, not null
    */
   public synchronized Map<ValueRequirement, ValueSpecification> getTerminalValues() {

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.ircurve;
@@ -90,7 +90,7 @@ public class YieldCurveShiftFunction extends AbstractFunction.NonCompiledInvoker
       throw new IllegalStateException("No override operation compiler for " + shift + " in execution context");
     }
     s_logger.debug("Applying {} to yield curve {}", shift, curve);
-    final Object result = compiler.compile(shift).apply(desiredValue, curve);
+    final Object result = compiler.compile(shift, executionContext.getComputationTargetResolver()).apply(desiredValue, curve);
     s_logger.debug("Got result {}", result);
     return Collections.singleton(new ComputedValue(new ValueSpecification(inputSpec.getValueName(), inputSpec.getTargetSpecification(), properties.get()), result));
   }

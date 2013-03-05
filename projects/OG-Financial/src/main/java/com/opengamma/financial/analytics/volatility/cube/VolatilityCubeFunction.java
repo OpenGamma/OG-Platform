@@ -30,7 +30,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
@@ -92,8 +92,8 @@ public class VolatilityCubeFunction extends AbstractFunction {
         final VolatilityCubeData normalizedData = new VolatilityCubeData();
         final Map<VolatilityPoint, Double> volatilityPoints = data.getDataPoints();
         final Map<VolatilityPoint, Double> normalizedVolatilityPoints = new HashMap<VolatilityPoint, Double>();
-        final Map<VolatilityPoint, ExternalId> volatilityPointIds = data.getDataIds();
-        final Map<VolatilityPoint, ExternalId> normalizedVolatilityPointIds = new HashMap<VolatilityPoint, ExternalId>();
+        final Map<VolatilityPoint, ExternalIdBundle> volatilityPointIds = data.getDataIds();
+        final Map<VolatilityPoint, ExternalIdBundle> normalizedVolatilityPointIds = new HashMap<VolatilityPoint, ExternalIdBundle>();
         final Map<VolatilityPoint, Double> relativeStrikes = data.getRelativeStrikes();
         final Map<VolatilityPoint, Double> normalizedRelativeStrikes = new HashMap<VolatilityPoint, Double>();
         final Map<Pair<Tenor, Tenor>, Double> atmStrikes = data.getATMStrikes();
@@ -108,7 +108,7 @@ public class VolatilityCubeFunction extends AbstractFunction {
             final Pair<Tenor, Tenor> tenorPair = Pair.of(swapTenor, swaptionExpiry);
             final double absoluteStrike = atmStrikes.get(tenorPair) + relativeStrike / 10000;
             final double vol = entry.getValue();
-            final VolatilityPoint newPoint = new VolatilityPoint(swapTenor, swaptionExpiry, absoluteStrike);            
+            final VolatilityPoint newPoint = new VolatilityPoint(swapTenor, swaptionExpiry, absoluteStrike);
             if (Double.doubleToLongBits(relativeStrike) == 0) {
               if (normalizedATMStrikes.containsKey(tenorPair)) {
                 throw new OpenGammaRuntimeException("Normalized ATM strike data set already contains value for " + tenorPair);

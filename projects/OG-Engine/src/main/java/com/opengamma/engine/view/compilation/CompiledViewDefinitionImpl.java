@@ -70,29 +70,29 @@ public class CompiledViewDefinitionImpl implements CompiledViewDefinition {
   }
 
   @Override
-  public Map<ValueRequirement, ValueSpecification> getMarketDataRequirements() {
-    final Map<ValueRequirement, ValueSpecification> allRequirements = new HashMap<ValueRequirement, ValueSpecification>();
+  public Set<ValueSpecification> getMarketDataRequirements() {
+    final Set<ValueSpecification> allRequirements = new HashSet<ValueSpecification>();
     for (final CompiledViewCalculationConfiguration compiledCalcConfig : getCompiledCalculationConfigurations()) {
-      allRequirements.putAll(compiledCalcConfig.getMarketDataRequirements());
+      allRequirements.addAll(compiledCalcConfig.getMarketDataRequirements());
     }
-    return Collections.unmodifiableMap(allRequirements);
+    return Collections.unmodifiableSet(allRequirements);
   }
 
   /**
-   * Equivalent to getMarketDataRequirements().keySet().containsAny(requirements), but faster
-   * @param requirements The requirements to match
-   * @return Whether any of the provider requirements are market data requirements of this view definition
+   * Equivalent to getMarketDataRequirements().keySet().containsAny(specifications), but faster
+   * 
+   * @param specifications The values to match
+   * @return Whether any of the values are market data requirements of this view definition
    */
-  public boolean hasAnyMarketDataRequirements(final Collection<ValueRequirement> requirements)
-  {
+  public boolean hasAnyMarketDataRequirements(final Collection<ValueSpecification> specifications) {
     for (final CompiledViewCalculationConfiguration compiledCalcConfig : getCompiledCalculationConfigurations()) {
-      if (CollectionUtils.containsAny(compiledCalcConfig.getMarketDataRequirements().keySet(), requirements))
-      {
+      if (CollectionUtils.containsAny(compiledCalcConfig.getMarketDataRequirements(), specifications)) {
         return true;
       }
     }
     return false;
   }
+
   @Override
   public Map<ValueSpecification, Set<ValueRequirement>> getTerminalValuesRequirements() {
     final Map<ValueSpecification, Set<ValueRequirement>> allRequirements = new HashMap<ValueSpecification, Set<ValueRequirement>>();

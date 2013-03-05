@@ -13,6 +13,7 @@ import org.fudgemsg.FudgeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.financial.view.rest.RemoteViewProcessor;
 import com.opengamma.language.config.Configuration;
 import com.opengamma.language.context.ContextInitializationBean;
@@ -97,6 +98,8 @@ public class Loader extends ContextInitializationBean {
 
   @Override
   protected void initContext(final MutableGlobalContext globalContext) {
+    // TODO: Still not the right place to set this (was in the OG-Excel project only), but the ViewProcessor is loaded after all of the other sources
+    globalContext.setComputationTargetResolver(new DefaultComputationTargetResolver(globalContext.getSecuritySource(), globalContext.getPositionSource()));
     final URI uri = getConfiguration().getURIConfiguration(getConfigurationEntry());
     if (uri == null) {
       s_logger.warn("View processor support not available");

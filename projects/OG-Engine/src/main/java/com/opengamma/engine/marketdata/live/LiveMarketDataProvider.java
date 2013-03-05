@@ -7,25 +7,26 @@ package com.opengamma.engine.marketdata.live;
 
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.fudgemsg.FudgeMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.core.security.SecuritySource;
+import com.google.common.collect.Sets;
 import com.opengamma.engine.marketdata.AbstractMarketDataProvider;
 import com.opengamma.engine.marketdata.InMemoryLKVMarketDataProvider;
 import com.opengamma.engine.marketdata.MarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.MarketDataProvider;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
+import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityFilter;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
-import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.livedata.LiveDataClient;
 import com.opengamma.livedata.LiveDataListener;
 import com.opengamma.livedata.LiveDataSpecification;
@@ -46,94 +47,93 @@ public class LiveMarketDataProvider extends AbstractMarketDataProvider implement
 
   // Injected Inputs:
   private final LiveDataClient _liveDataClient;
-  private final SecuritySource _securitySource;
   private final MarketDataAvailabilityProvider _availabilityProvider;
-  private final LiveDataSpecificationLookup _liveDataLookup;
 
   // Runtime State:
   private final InMemoryLKVMarketDataProvider _underlyingProvider;
   private final MarketDataPermissionProvider _permissionProvider;
-  private final Map<LiveDataSpecification, Set<ValueRequirement>> _liveDataSpec2ValueRequirements =
-      new ConcurrentHashMap<LiveDataSpecification, Set<ValueRequirement>>();
-  private final Set<ValueRequirement> _failedRequirements = new CopyOnWriteArraySet<ValueRequirement>();
+  private final ConcurrentMap<LiveDataSpecification, Set<ValueSpecification>> _liveDataSpec2Subscriptions = new ConcurrentHashMap<LiveDataSpecification, Set<ValueSpecification>>();
+  private final Set<ValueSpecification> _failedSubscriptions = new CopyOnWriteArraySet<ValueSpecification>();
   private final UserPrincipal _marketDataUser;
 
-  public LiveMarketDataProvider(LiveDataClient liveDataClient,
-                                MarketDataAvailabilityProvider availabilityProvider,
-                                SecuritySource securitySource,
-                                UserPrincipal marketDataUser) {
-    this(liveDataClient,
-         securitySource,
-         availabilityProvider,
-         new LiveMarketDataPermissionProvider(liveDataClient, securitySource),
-         marketDataUser);
+  public LiveMarketDataProvider(final LiveDataClient liveDataClient,
+      final MarketDataAvailabilityFilter availabilityFilter,
+      final UserPrincipal marketDataUser) {
+    this(liveDataClient, availabilityFilter, new LiveMarketDataPermissionProvider(liveDataClient), marketDataUser);
   }
 
-  public LiveMarketDataProvider(LiveDataClient liveDataClient,
-                                SecuritySource securitySource,
-                                MarketDataAvailabilityProvider availabilityProvider,
-                                MarketDataPermissionProvider permissionProvider,
-                                UserPrincipal marketDataUser) {
+  public LiveMarketDataProvider(final LiveDataClient liveDataClient,
+      final MarketDataAvailabilityFilter availabilityFilter,
+      final MarketDataPermissionProvider permissionProvider,
+      final UserPrincipal marketDataUser) {
     ArgumentChecker.notNull(liveDataClient, "liveDataClient");
-    ArgumentChecker.notNull(securitySource, "securitySource");
-    ArgumentChecker.notNull(availabilityProvider, "availabilityProvider");
+    ArgumentChecker.notNull(availabilityFilter, "availabilityFilter");
     ArgumentChecker.notNull(permissionProvider, "permissionProvider");
     ArgumentChecker.notNull(marketDataUser, "marketDataUser");
     _liveDataClient = liveDataClient;
-    _liveDataLookup = new LiveDataSpecificationLookup(securitySource, StandardRules.getOpenGammaRuleSetId());
-    _securitySource = securitySource;
-    _availabilityProvider = availabilityProvider;
-    _underlyingProvider = new InMemoryLKVMarketDataProvider(securitySource);
+    // TODO: Should we use the default normalization rules from the live data client rather than hard code the standard rule set here?
+    _availabilityProvider = availabilityFilter.withProvider(new LiveMarketDataAvailabilityProvider(StandardRules.getOpenGammaRuleSetId()));
+    _underlyingProvider = new InMemoryLKVMarketDataProvider();
     _permissionProvider = permissionProvider;
     _marketDataUser = marketDataUser;
   }
 
-  private LiveDataSpecificationLookup getLiveDataSpecificationLookup() {
-    return _liveDataLookup;
+  @Override
+  public void subscribe(final ValueSpecification valueSpecification) {
+    subscribe(Collections.singleton(valueSpecification));
   }
 
   @Override
-  public void subscribe(ValueRequirement valueRequirement) {
-    subscribe(Collections.singleton(valueRequirement));
-  }
-
-  @Override
-  public void subscribe(Set<ValueRequirement> valueRequirements) {
-    for (ValueRequirement valueRequirement : valueRequirements) {
-      _failedRequirements.remove(valueRequirement); //Put these back to a waiting state so that we can try again
+  public void subscribe(final Set<ValueSpecification> valueSpecifications) {
+    final Set<LiveDataSpecification> liveDataSpecs = new HashSet<LiveDataSpecification>();
+    synchronized (_liveDataSpec2Subscriptions) {
+      _failedSubscriptions.removeAll(valueSpecifications); //Put these back to a waiting state so that we can try again
+      for (final ValueSpecification valueSpecification : valueSpecifications) {
+        final LiveDataSpecification liveDataSpec = LiveMarketDataAvailabilityProvider.getLiveDataSpecification(valueSpecification);
+        Set<ValueSpecification> subscriptions = _liveDataSpec2Subscriptions.get(liveDataSpec);
+        if (subscriptions == null) {
+          subscriptions = new CopyOnWriteArraySet<ValueSpecification>();
+          subscriptions.add(valueSpecification);
+          _liveDataSpec2Subscriptions.put(liveDataSpec, subscriptions);
+          liveDataSpecs.add(liveDataSpec);
+        } else {
+          if (subscriptions.isEmpty()) {
+            liveDataSpecs.add(liveDataSpec);
+          }
+          subscriptions.add(valueSpecification);
+        }
+      }
     }
-
-    Set<LiveDataSpecification> liveDataSpecs = new HashSet<LiveDataSpecification>();
-    for (ValueRequirement requirement : valueRequirements) {
-      LiveDataSpecification liveDataSpec = getLiveDataSpecificationLookup().getRequiredLiveData(requirement);
-      liveDataSpecs.add(liveDataSpec);
-      registerLiveDataSpec(requirement, liveDataSpec);
+    if (!liveDataSpecs.isEmpty()) {
+      _liveDataClient.subscribe(_marketDataUser, liveDataSpecs, this);
     }
-    _liveDataClient.subscribe(_marketDataUser, liveDataSpecs, this);
   }
 
   @Override
-  public void unsubscribe(ValueRequirement valueRequirement) {
-    unsubscribe(Collections.singleton(valueRequirement));
+  public void unsubscribe(final ValueSpecification valueSpecification) {
+    unsubscribe(Collections.singleton(valueSpecification));
   }
 
   @Override
-  public void unsubscribe(Set<ValueRequirement> valueRequirements) {
-    // TODO is there any reason not to unsubscribe from _liveDataClient
-    //Set<LiveDataSpecification> specs = Sets.newHashSet();
-    //for (ValueRequirement requirement : valueRequirements) {
-    //  // TODO need a map from req to spec
-    //}
-    //_liveDataClient.unsubscribe(_marketDataUser, , this);
-  }
-
-  private void registerLiveDataSpec(ValueRequirement requirement, LiveDataSpecification liveDataSpec) {
-    Set<ValueRequirement> requirementsForSpec = _liveDataSpec2ValueRequirements.get(liveDataSpec);
-    if (requirementsForSpec == null) {
-      requirementsForSpec = new HashSet<ValueRequirement>();
-      _liveDataSpec2ValueRequirements.put(liveDataSpec, requirementsForSpec);
+  public void unsubscribe(final Set<ValueSpecification> valueSpecifications) {
+    final Set<LiveDataSpecification> liveDataSpecs = Sets.newHashSetWithExpectedSize(valueSpecifications.size());
+    synchronized (_liveDataSpec2Subscriptions) {
+      _failedSubscriptions.removeAll(valueSpecifications);
+      for (final ValueSpecification valueSpecification : valueSpecifications) {
+        final LiveDataSpecification liveDataSpec = LiveMarketDataAvailabilityProvider.getLiveDataSpecification(valueSpecification);
+        final Set<ValueSpecification> subscriptions = _liveDataSpec2Subscriptions.get(liveDataSpec);
+        if (subscriptions != null) {
+          subscriptions.remove(valueSpecification);
+          if (subscriptions.isEmpty()) {
+            // This was the last subscription
+            liveDataSpecs.add(liveDataSpec);
+          }
+        }
+      }
     }
-    requirementsForSpec.add(requirement);
+    if (liveDataSpecs.isEmpty()) {
+      _liveDataClient.unsubscribe(_marketDataUser, liveDataSpecs, this);
+    }
   }
 
   //-------------------------------------------------------------------------
@@ -149,87 +149,86 @@ public class LiveMarketDataProvider extends AbstractMarketDataProvider implement
 
   //-------------------------------------------------------------------------
   @Override
-  public boolean isCompatible(MarketDataSpecification marketDataSpec) {
+  public boolean isCompatible(final MarketDataSpecification marketDataSpec) {
     // We don't look at the live data provider field at the moment
     return marketDataSpec instanceof LiveMarketDataSpecification;
   }
 
   @Override
-  public MarketDataSnapshot snapshot(MarketDataSpecification marketDataSpec) {
+  public MarketDataSnapshot snapshot(final MarketDataSpecification marketDataSpec) {
     return new LiveMarketDataSnapshot(_underlyingProvider.snapshot(marketDataSpec), this);
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public void subscriptionResultReceived(LiveDataSubscriptionResponse subscriptionResult) {
-    Set<ValueRequirement> valueRequirements = _liveDataSpec2ValueRequirements.remove(subscriptionResult.getRequestedSpecification());
-    if (valueRequirements == null) {
-      s_logger.warn("Received subscription result for which no corresponding set of value requirements was found: {}", subscriptionResult);
-      s_logger.debug("Current pending subscriptions: {}", _liveDataSpec2ValueRequirements);
-      return;
+  public void subscriptionResultReceived(final LiveDataSubscriptionResponse subscriptionResult) {
+    final Set<ValueSpecification> subscriptions;
+    synchronized (_liveDataSpec2Subscriptions) {
+      subscriptions = _liveDataSpec2Subscriptions.remove(subscriptionResult.getRequestedSpecification());
+      if (subscriptions == null) {
+        s_logger.warn("Received subscription result for which no subscription was requested: {}", subscriptionResult);
+        s_logger.debug("Current subscriptions: {}", _liveDataSpec2Subscriptions);
+        return;
+      }
+      if (subscriptionResult.getSubscriptionResult() == LiveDataSubscriptionResult.SUCCESS) {
+        final Set<ValueSpecification> existingSubscriptions = _liveDataSpec2Subscriptions.get(subscriptionResult.getFullyQualifiedSpecification());
+        if (existingSubscriptions != null) {
+          existingSubscriptions.addAll(subscriptions);
+        } else {
+          _liveDataSpec2Subscriptions.put(subscriptionResult.getFullyQualifiedSpecification(), subscriptions);
+        }
+        _failedSubscriptions.removeAll(subscriptions); // We expect a valueUpdate call for this later
+        s_logger.debug("Subscription made to {} resulted in fully qualified {}", subscriptionResult.getRequestedSpecification(), subscriptionResult.getFullyQualifiedSpecification());
+      } else {
+        _failedSubscriptions.addAll(subscriptions);
+        // TODO: could be more precise here, only those which weren't in _failedSpecifications
+        valuesChanged(subscriptions); // PLAT-1429: wake up the init call
+        if (subscriptionResult.getSubscriptionResult() == LiveDataSubscriptionResult.NOT_AUTHORIZED) {
+          s_logger.warn("Subscription to {} failed because user is not authorised: {}", subscriptionResult.getRequestedSpecification(), subscriptionResult);
+        } else {
+          s_logger.debug("Subscription to {} failed: {}", subscriptionResult.getRequestedSpecification(), subscriptionResult);
+        }
+      }
     }
     if (subscriptionResult.getSubscriptionResult() == LiveDataSubscriptionResult.SUCCESS) {
-      Set<ValueRequirement> existingSatisfiedRequirements = _liveDataSpec2ValueRequirements.get(subscriptionResult.getFullyQualifiedSpecification());
-      if (existingSatisfiedRequirements != null) {
-        existingSatisfiedRequirements.addAll(valueRequirements);
-      } else {
-        _liveDataSpec2ValueRequirements.put(subscriptionResult.getFullyQualifiedSpecification(), valueRequirements);
-      }
-      _failedRequirements.removeAll(valueRequirements); //We expect a valueUpdate call for this later
-      s_logger.debug("Subscription made to {} resulted in fully qualified {}", subscriptionResult.getRequestedSpecification(), subscriptionResult.getFullyQualifiedSpecification());
-
-      super.subscriptionSucceeded(valueRequirements);
+      subscriptionSucceeded(subscriptions);
     } else {
-      _failedRequirements.addAll(valueRequirements);
-      //TODO: could be more precise here, only those which weren't in _failedRequirements
-      valuesChanged(valueRequirements); //PLAT-1429: wake up the init call
-
-      if (subscriptionResult.getSubscriptionResult() == LiveDataSubscriptionResult.NOT_AUTHORIZED) {
-        s_logger.warn("Subscription to {} failed because user is not authorised: {}", subscriptionResult.getRequestedSpecification(), subscriptionResult);
-      } else {
-        s_logger.debug("Subscription to {} failed: {}", subscriptionResult.getRequestedSpecification(), subscriptionResult);
-      }
-
-      super.subscriptionFailed(valueRequirements, subscriptionResult.getUserMessage());
+      subscriptionFailed(subscriptions, subscriptionResult.getUserMessage());
     }
   }
 
-  /* package */ boolean isFailed(ValueRequirement requirement) {
-    return _failedRequirements.contains(requirement);
+  /* package */boolean isFailed(final ValueSpecification specification) {
+    return _failedSubscriptions.contains(specification);
   }
 
   @Override
-  public void subscriptionStopped(
-      LiveDataSpecification fullyQualifiedSpecification) {
+  public void subscriptionStopped(final LiveDataSpecification fullyQualifiedSpecification) {
     // This shouldn't really happen because there's no removeSubscription() method on this class...
     s_logger.warn("Subscription stopped " + fullyQualifiedSpecification);
   }
 
   @Override
-  public void valueUpdate(LiveDataValueUpdate valueUpdate) {
+  public void valueUpdate(final LiveDataValueUpdate valueUpdate) {
     s_logger.debug("Update received {}", valueUpdate);
-
-    Set<ValueRequirement> valueRequirements = _liveDataSpec2ValueRequirements.get(valueUpdate.getSpecification());
-    if (valueRequirements == null) {
-      s_logger.warn("Received value update for which no corresponding set of value requirements was found: {}", valueUpdate.getSpecification());
+    final Set<ValueSpecification> subscriptions = _liveDataSpec2Subscriptions.get(valueUpdate.getSpecification());
+    if (subscriptions == null) {
+      s_logger.warn("Received value update for which no subscriptions were found: {}", valueUpdate.getSpecification());
       return;
     }
-
-    s_logger.debug("Corresponding value requirements are {}", valueRequirements);
-    FudgeMsg msg = valueUpdate.getFields();
-
-    for (ValueRequirement valueRequirement : valueRequirements) {
+    s_logger.debug("Subscribed values are {}", subscriptions);
+    final FudgeMsg msg = valueUpdate.getFields();
+    for (final ValueSpecification subscription : subscriptions) {
       // We assume all market data can be represented as a Double. The request for the field as a Double also ensures
       // that we consistently provide a Double downstream, even if the value has been represented as a more efficient
       // type in the message.
-      Double value = msg.getDouble(valueRequirement.getValueName());
+      final Double value = msg.getDouble(subscription.getValueName());
       if (value == null) {
+        // TODO: Should we report this?
         continue;
       }
-      _underlyingProvider.addValue(valueRequirement, value);
+      _underlyingProvider.addValue(subscription, value);
     }
-
-    super.valuesChanged(valueRequirements);
+    valuesChanged(subscriptions);
   }
 
 }

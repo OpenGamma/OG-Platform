@@ -97,8 +97,8 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
 
   private ViewDefinition _viewDefinition;
   private CompiledViewDefinitionWithGraphsImpl _latestCompiledViewDefinition;
-  private final Set<ValueRequirement> _marketDataSubscriptions = new HashSet<ValueRequirement>();
-  private final Set<ValueRequirement> _pendingSubscriptions = Collections.newSetFromMap(new ConcurrentHashMap<ValueRequirement, Boolean>());
+  private final Set<ValueSpecification> _marketDataSubscriptions = new HashSet<ValueSpecification>();
+  private final Set<ValueSpecification> _pendingSubscriptions = Collections.newSetFromMap(new ConcurrentHashMap<ValueSpecification, Boolean>());
   private CountDownLatch _pendingSubscriptionLatch;
 
   private ChangeListener _viewDefinitionChangeListener;
@@ -279,7 +279,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
 
     try {
       if (getExecutionOptions().getFlags().contains(ViewExecutionFlags.AWAIT_MARKET_DATA)) {
-        marketDataSnapshot.init(compiledViewDefinition.getMarketDataRequirements().keySet(), MARKET_DATA_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
+        marketDataSnapshot.init(compiledViewDefinition.getMarketDataRequirements(), MARKET_DATA_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
       } else {
         marketDataSnapshot.init();
       }
@@ -942,7 +942,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
 
     // Update the market data subscriptions to whatever is now required, ensuring the computation cycle can find the
     // required input data when it is executed.
-    setMarketDataSubscriptions(compiledViewDefinition.getMarketDataRequirements().keySet());
+    setMarketDataSubscriptions(compiledViewDefinition.getMarketDataRequirements());
     return compiledViewDefinition;
   }
 
@@ -1038,22 +1038,22 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     }
   }
 
-  private void setMarketDataSubscriptions(final Set<ValueRequirement> requiredSubscriptions) {
-    final Set<ValueRequirement> currentSubscriptions = _marketDataSubscriptions;
-    final Set<ValueRequirement> unusedMarketData = Sets.difference(currentSubscriptions, requiredSubscriptions);
+  private void setMarketDataSubscriptions(final Set<ValueSpecification> requiredSubscriptions) {
+    final Set<ValueSpecification> currentSubscriptions = _marketDataSubscriptions;
+    final Set<ValueSpecification> unusedMarketData = Sets.difference(currentSubscriptions, requiredSubscriptions);
     if (!unusedMarketData.isEmpty()) {
       s_logger.debug("{} unused market data subscriptions: {}", unusedMarketData.size(), unusedMarketData);
-      removeMarketDataSubscriptions(new ArrayList<ValueRequirement>(unusedMarketData));
+      removeMarketDataSubscriptions(new ArrayList<ValueSpecification>(unusedMarketData));
     }
-    final Set<ValueRequirement> newMarketData = Sets.difference(requiredSubscriptions, currentSubscriptions);
+    final Set<ValueSpecification> newMarketData = Sets.difference(requiredSubscriptions, currentSubscriptions);
     if (!newMarketData.isEmpty()) {
       s_logger.debug("{} new market data requirements: {}", newMarketData.size(), newMarketData);
-      addMarketDataSubscriptions(new HashSet<ValueRequirement>(newMarketData));
+      addMarketDataSubscriptions(new HashSet<ValueSpecification>(newMarketData));
     }
   }
 
   //-------------------------------------------------------------------------
-  private void addMarketDataSubscriptions(final Set<ValueRequirement> requiredSubscriptions) {
+  private void addMarketDataSubscriptions(final Set<ValueSpecification> requiredSubscriptions) {
     final OperationTimer timer = new OperationTimer(s_logger, "Adding {} market data subscriptions", requiredSubscriptions.size());
     _pendingSubscriptions.addAll(requiredSubscriptions);
     _pendingSubscriptionLatch = new CountDownLatch(requiredSubscriptions.size());
@@ -1076,9 +1076,9 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     timer.finished();
   }
 
-  private void removePendingSubscription(final ValueRequirement requirement) {
+  private void removePendingSubscription(final ValueSpecification specification) {
     final CountDownLatch pendingSubscriptionLatch = _pendingSubscriptionLatch;
-    if (_pendingSubscriptions.remove(requirement) && pendingSubscriptionLatch != null) {
+    if (_pendingSubscriptions.remove(specification) && pendingSubscriptionLatch != null) {
       pendingSubscriptionLatch.countDown();
     }
   }
@@ -1087,7 +1087,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     removeMarketDataSubscriptions(_marketDataSubscriptions);
   }
 
-  private void removeMarketDataSubscriptions(final Collection<ValueRequirement> unusedSubscriptions) {
+  private void removeMarketDataSubscriptions(final Collection<ValueSpecification> unusedSubscriptions) {
     final OperationTimer timer = new OperationTimer(s_logger, "Removing {} market data subscriptions", unusedSubscriptions.size());
     _marketDataProvider.unsubscribe(_marketDataSubscriptions);
     _marketDataSubscriptions.removeAll(unusedSubscriptions);
@@ -1096,33 +1096,32 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
 
   //-------------------------------------------------------------------------
   @Override
-  public void subscriptionSucceeded(final ValueRequirement requirement) {
-    s_logger.debug("Subscription succeeded: {}", requirement);
-    removePendingSubscription(requirement);
+  public void subscriptionSucceeded(final ValueSpecification valueSpecification) {
+    s_logger.debug("Subscription succeeded: {}", valueSpecification);
+    removePendingSubscription(valueSpecification);
   }
 
   @Override
-  public void subscriptionFailed(final ValueRequirement requirement, final String msg) {
-    s_logger.debug("Market data subscription to {} failed. This market data may be missing from computation cycles.", requirement);
-    removePendingSubscription(requirement);
+  public void subscriptionFailed(final ValueSpecification valueSpecification, final String msg) {
+    s_logger.debug("Market data subscription to {} failed. This market data may be missing from computation cycles.", valueSpecification);
+    removePendingSubscription(valueSpecification);
   }
 
   @Override
-  public void subscriptionStopped(final ValueRequirement requirement) {
+  public void subscriptionStopped(final ValueSpecification valueSpecification) {
   }
 
   @Override
-  public void valuesChanged(final Collection<ValueRequirement> values) {
+  public void valuesChanged(final Collection<ValueSpecification> valueSpecifications) {
     if (!getExecutionOptions().getFlags().contains(ViewExecutionFlags.TRIGGER_CYCLE_ON_MARKET_DATA_CHANGED)) {
       return;
     }
-
     final CompiledViewDefinitionWithGraphsImpl compiledView = getCachedCompiledViewDefinition();
     if (compiledView == null) {
       return;
     }
     //Since this happens for every tick, for every job, we need to use the quick call here
-    if (compiledView.hasAnyMarketDataRequirements(values)) {
+    if (compiledView.hasAnyMarketDataRequirements(valueSpecifications)) {
       requestCycle();
     }
   }

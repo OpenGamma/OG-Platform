@@ -20,7 +20,6 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * A single node in a {@link DependencyGraph}. A node represents the need to execute a particular function at
@@ -308,12 +307,9 @@ public class DependencyNode {
    *
    * @return the market data requirement, or null if none
    */
-  public Pair<ValueRequirement, ValueSpecification> getRequiredMarketData() {
+  public ValueSpecification getRequiredMarketData() {
     if (_function.getFunction() instanceof MarketDataSourcingFunction) {
-      final MarketDataSourcingFunction ldsf = ((MarketDataSourcingFunction) _function.getFunction());
-      final ValueSpecification outputValue = getOutputValues().iterator().next();
-      final ValueRequirement inputValue = ldsf.getMarketDataRequirement(_function.getParameters(), outputValue);
-      return Pair.of(inputValue, outputValue);
+      return getOutputValues().iterator().next();
     }
     return null;
   }

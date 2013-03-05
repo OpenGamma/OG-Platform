@@ -8,9 +8,7 @@ package com.opengamma.engine.marketdata.historical;
 import org.threeten.bp.Instant;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
-import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
-import com.opengamma.engine.marketdata.spec.HistoricalMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.LatestHistoricalMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 
@@ -22,40 +20,35 @@ public class LatestHistoricalMarketDataProvider extends AbstractHistoricalMarket
   /**
    * Creates an instance.
    * 
-   * @param historicalTimeSeriesSource  the underlying source of historical data, not null
-   * @param securitySource  the source of securities, not null
-   * @param timeSeriesResolverKey  the source resolver key, or null to use the source default
+   * @param historicalTimeSeriesSource the underlying source of historical data, not null
+   * @param timeSeriesResolverKey the source resolver key, or null to use the source default
    */
-  protected LatestHistoricalMarketDataProvider(HistoricalTimeSeriesSource historicalTimeSeriesSource,
-                                               SecuritySource securitySource,
-                                               String timeSeriesResolverKey) {
-    super(historicalTimeSeriesSource, securitySource, timeSeriesResolverKey);
+  protected LatestHistoricalMarketDataProvider(final HistoricalTimeSeriesSource historicalTimeSeriesSource,
+      final String timeSeriesResolverKey) {
+    super(historicalTimeSeriesSource, timeSeriesResolverKey);
   }
-  
+
   /**
    * Creates an instance.
    * 
-   * @param historicalTimeSeriesSource  the underlying source of historical data, not null
-   * @param securitySource  the source of securities, not null
+   * @param historicalTimeSeriesSource the underlying source of historical data, not null
    */
-  public LatestHistoricalMarketDataProvider(HistoricalTimeSeriesSource historicalTimeSeriesSource, SecuritySource securitySource) {
-    super(historicalTimeSeriesSource, securitySource);
+  public LatestHistoricalMarketDataProvider(final HistoricalTimeSeriesSource historicalTimeSeriesSource) {
+    super(historicalTimeSeriesSource);
   }
-  
+
   //-------------------------------------------------------------------------
   @Override
-  public boolean isCompatible(MarketDataSpecification marketDataSpec) {
+  public boolean isCompatible(final MarketDataSpecification marketDataSpec) {
     if (!(marketDataSpec instanceof LatestHistoricalMarketDataSpecification)) {
       return false;
     }
     return super.isCompatible(marketDataSpec);
-  }  
-  
+  }
+
   @Override
-  public MarketDataSnapshot snapshot(MarketDataSpecification marketDataSpec) {
-    HistoricalMarketDataSpecification historicalSpec = (HistoricalMarketDataSpecification) marketDataSpec;
-    return new HistoricalMarketDataSnapshot(getTimeSeriesSource(), Instant.now(), null,
-                                            historicalSpec.getTimeSeriesResolverKey(), this);
+  public MarketDataSnapshot snapshot(final MarketDataSpecification marketDataSpec) {
+    return new HistoricalMarketDataSnapshot(getTimeSeriesSource(), Instant.now(), null);
   }
 
 }
