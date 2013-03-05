@@ -58,7 +58,7 @@
         <!-- EOM -->
         <endOfMonth>true</endOfMonth>
         <!-- must be false for now -->
-        <isIMM>true</isIMM>
+        <isIMM>false</isIMM>
 
 
         <paymentCalendars>

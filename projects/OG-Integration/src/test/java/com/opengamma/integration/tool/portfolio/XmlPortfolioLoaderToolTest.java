@@ -307,10 +307,9 @@ public class XmlPortfolioLoaderToolTest {
 
     ManageablePosition position = positions.get(0);
     List<ManageableTrade> trades = position.getTrades();
-    assertEquals(trades.size(), 2);
-    assertEquals(trades.get(0).getQuantity(), BigDecimal.valueOf(25000));
-    assertEquals(trades.get(1).getQuantity(), BigDecimal.valueOf(-10000));
-    assertEquals(position.getQuantity(), BigDecimal.valueOf(15000));
+    assertEquals(trades.size(), 1);
+    assertEquals(trades.get(0).getQuantity(), BigDecimal.valueOf(1000));
+    assertEquals(position.getQuantity(), BigDecimal.valueOf(1000));
 
     assertEquals(_securityMaster.search(new SecuritySearchRequest()).getSecurities().size(), 1);
   }
