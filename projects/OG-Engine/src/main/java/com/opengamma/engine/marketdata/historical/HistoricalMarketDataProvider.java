@@ -10,7 +10,6 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZoneOffset;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
-import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
 import com.opengamma.engine.marketdata.spec.FixedHistoricalMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
@@ -22,25 +21,22 @@ public class HistoricalMarketDataProvider extends AbstractHistoricalMarketDataPr
 
   /**
    * Creates an instance.
-   *
-   * @param historicalTimeSeriesSource  the underlying source of historical data, not null
-   * @param securitySource  the source of securities, not null
-   * @param timeSeriesResolverKey  the source resolver key, or null to use the source default
+   * 
+   * @param historicalTimeSeriesSource the underlying source of historical data, not null
+   * @param timeSeriesResolverKey the source resolver key, or null to use the source default
    */
   public HistoricalMarketDataProvider(final HistoricalTimeSeriesSource historicalTimeSeriesSource,
-                                      final SecuritySource securitySource,
-                                      final String timeSeriesResolverKey) {
-    super(historicalTimeSeriesSource, securitySource, timeSeriesResolverKey);
+      final String timeSeriesResolverKey) {
+    super(historicalTimeSeriesSource, timeSeriesResolverKey);
   }
 
   /**
    * Creates an instance.
-   *
-   * @param historicalTimeSeriesSource  the underlying source of historical data, not null
-   * @param securitySource  the source of securities, not null
+   * 
+   * @param historicalTimeSeriesSource the underlying source of historical data, not null
    */
-  public HistoricalMarketDataProvider(final HistoricalTimeSeriesSource historicalTimeSeriesSource, final SecuritySource securitySource) {
-    super(historicalTimeSeriesSource, securitySource);
+  public HistoricalMarketDataProvider(final HistoricalTimeSeriesSource historicalTimeSeriesSource) {
+    super(historicalTimeSeriesSource);
   }
 
   //-------------------------------------------------------------------------

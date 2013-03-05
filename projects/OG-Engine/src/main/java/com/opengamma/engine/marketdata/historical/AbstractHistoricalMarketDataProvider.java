@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
-import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.marketdata.AbstractMarketDataProvider;
@@ -47,21 +46,17 @@ public abstract class AbstractHistoricalMarketDataProvider extends AbstractMarke
    * Creates a new market data provider.
    * 
    * @param historicalTimeSeriesSource the underlying source of historical data, not null
-   * @param securitySource the source of securities, not null
    * @param timeSeriesResolverKey the source resolver key, or null to use the source default
    */
-  public AbstractHistoricalMarketDataProvider(final HistoricalTimeSeriesSource historicalTimeSeriesSource,
-      final SecuritySource securitySource,
-      final String timeSeriesResolverKey) {
+  public AbstractHistoricalMarketDataProvider(final HistoricalTimeSeriesSource historicalTimeSeriesSource, final String timeSeriesResolverKey) {
     ArgumentChecker.notNull(historicalTimeSeriesSource, "historicalTimeSeriesSource");
-    ArgumentChecker.notNull(securitySource, "securitySource");
     _historicalTimeSeriesSource = historicalTimeSeriesSource;
     _timeSeriesResolverKey = timeSeriesResolverKey;
     _permissionProvider = new PermissiveMarketDataPermissionProvider();
   }
 
-  public AbstractHistoricalMarketDataProvider(final HistoricalTimeSeriesSource historicalTimeSeriesSource, final SecuritySource securitySource) {
-    this(historicalTimeSeriesSource, securitySource, null);
+  public AbstractHistoricalMarketDataProvider(final HistoricalTimeSeriesSource historicalTimeSeriesSource) {
+    this(historicalTimeSeriesSource, null);
   }
 
   @Override
