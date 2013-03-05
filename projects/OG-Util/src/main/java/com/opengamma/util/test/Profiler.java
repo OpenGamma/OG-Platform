@@ -3,10 +3,14 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.language.debug;
+package com.opengamma.util.test;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -22,8 +26,6 @@ import com.google.common.collect.Sets;
  */
 public final class Profiler {
 
-  // TODO: This is in the wrong place; should it be in Util?
-
   private static final Logger s_logger = LoggerFactory.getLogger(Profiler.class);
   private static final Collection<Profiler> s_profilers = Sets.newSetFromMap(new MapMaker().weakKeys().<Profiler, Boolean>makeMap());
   private static volatile boolean s_enabled;
@@ -35,6 +37,10 @@ public final class Profiler {
   private volatile boolean _snapshotPending;
   private double _snapshotTime;
   private int _snapshotOperations;
+
+  static {
+    enable(5000); // Don't check in like this
+  }
 
   private Profiler(final String name) {
     _name = name;
@@ -75,6 +81,7 @@ public final class Profiler {
       // the object is now locked for a snapshot so clear the values.
       _time.set(0);
       _operations.set(0);
+      _lock.incrementAndGet();
     }
   }
 
@@ -129,9 +136,25 @@ public final class Profiler {
       final Object[] arg = new Object[] {profiler._name, profiler._snapshotOperations, profiler._snapshotTime };
       insertNoClash(report, arg, profiler._name.lastIndexOf('.'));
     }
-    for (Map.Entry<String, Object[]> entry : report.entrySet()) {
-      final Object[] values = entry.getValue();
-      values[0] = entry.getKey();
+    List<String> keys = new ArrayList<String>(report.keySet());
+    Collections.sort(keys, new Comparator<String>() {
+      @Override
+      public int compare(final String a, final String b) {
+        final Object[] as = report.get(a);
+        final Object[] bs = report.get(b);
+        double d = (Double) bs[2] - (Double) as[2]; // sort by total time consumed 
+        if (d < 0) {
+          return -1;
+        } else if (d > 0) {
+          return 1;
+        } else {
+          return 0;
+        }
+      }
+    });
+    for (String key : keys) {
+      final Object[] values = report.get(key);
+      values[0] = key;
       s_logger.info("{} - {} in {}ms", values);
     }
     s_logger.debug("{} active profiler instances", s_profilers.size());

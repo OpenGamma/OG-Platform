@@ -13,8 +13,8 @@ import com.opengamma.engine.view.compilation.PortfolioCompiler;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.language.context.GlobalContext;
-import com.opengamma.language.debug.Profiler;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.test.Profiler;
 
 /**
  * Common utilities for working with portfolios.
