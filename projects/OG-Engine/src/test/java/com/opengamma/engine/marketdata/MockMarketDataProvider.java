@@ -64,7 +64,7 @@ public class MockMarketDataProvider extends AbstractMarketDataProvider {
   }
 
   @Override
-  public MarketDataAvailabilityProvider getAvailabilityProvider() {
+  public MarketDataAvailabilityProvider getAvailabilityProvider(final MarketDataSpecification marketDataSpec) {
     return null;
   }
 

@@ -6,6 +6,7 @@
 package com.opengamma.engine.marketdata.historical;
 
 import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
@@ -37,7 +38,11 @@ public class LatestHistoricalMarketDataProvider extends AbstractHistoricalMarket
     super(historicalTimeSeriesSource);
   }
 
-  //-------------------------------------------------------------------------
+  @Override
+  protected LocalDate getHistoricalResolutionDate(final MarketDataSpecification marketDataSpec) {
+    return null;
+  }
+
   @Override
   public boolean isCompatible(final MarketDataSpecification marketDataSpec) {
     if (!(marketDataSpec instanceof LatestHistoricalMarketDataSpecification)) {

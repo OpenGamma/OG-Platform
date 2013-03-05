@@ -138,7 +138,7 @@ public class LiveMarketDataProvider extends AbstractMarketDataProvider implement
 
   //-------------------------------------------------------------------------
   @Override
-  public MarketDataAvailabilityProvider getAvailabilityProvider() {
+  public MarketDataAvailabilityProvider getAvailabilityProvider(final MarketDataSpecification marketDataSpec) {
     return _availabilityProvider;
   }
 

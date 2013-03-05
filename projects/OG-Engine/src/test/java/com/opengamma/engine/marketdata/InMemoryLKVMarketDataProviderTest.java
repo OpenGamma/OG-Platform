@@ -15,6 +15,7 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
+import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.engine.target.ComputationTargetRequirement;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -58,31 +59,33 @@ public class InMemoryLKVMarketDataProviderTest {
 
   public void testAvailabilityAndSnapshot() {
     final InMemoryLKVMarketDataProvider provider = new InMemoryLKVMarketDataProvider();
-    ValueSpecification fooNull = provider.getAvailabilityProvider().getAvailability(ComputationTargetSpecification.NULL, null, new ValueRequirement("Foo", ComputationTargetSpecification.NULL));
+    ValueSpecification fooNull = provider.getAvailabilityProvider(MarketData.live()).getAvailability(ComputationTargetSpecification.NULL, null,
+        new ValueRequirement("Foo", ComputationTargetSpecification.NULL));
     assertNull(fooNull);
     provider.addValue(new ValueRequirement("Foo", ComputationTargetSpecification.NULL), "FooValue1");
-    fooNull = provider.getAvailabilityProvider().getAvailability(ComputationTargetSpecification.NULL, null, new ValueRequirement("Foo", ComputationTargetSpecification.NULL));
+    fooNull = provider.getAvailabilityProvider(MarketData.live()).getAvailability(ComputationTargetSpecification.NULL, null, new ValueRequirement("Foo", ComputationTargetSpecification.NULL));
     assertNotNull(fooNull);
     provider.addValue(new ValueRequirement("Bar", ComputationTargetSpecification.NULL), "BarValue1");
-    final ValueSpecification barNull = provider.getAvailabilityProvider().getAvailability(ComputationTargetSpecification.NULL, null, new ValueRequirement("Bar", ComputationTargetSpecification.NULL));
+    final ValueSpecification barNull = provider.getAvailabilityProvider(MarketData.live()).getAvailability(ComputationTargetSpecification.NULL, null,
+        new ValueRequirement("Bar", ComputationTargetSpecification.NULL));
     assertNotNull(barNull);
     final ExternalIdBundle identifiers = ExternalIdBundle.of(ExternalId.of("A", "1"), ExternalId.of("B", "1"));
     provider.addValue(new ValueRequirement("Foo", ComputationTargetRequirement.of(identifiers)), "FooValue2");
-    final ValueSpecification foo = provider.getAvailabilityProvider().getAvailability(ComputationTargetSpecification.of(UniqueId.of("X", "1")), identifiers,
+    final ValueSpecification foo = provider.getAvailabilityProvider(MarketData.live()).getAvailability(ComputationTargetSpecification.of(UniqueId.of("X", "1")), identifiers,
         new ValueRequirement("Foo", ComputationTargetRequirement.of(identifiers)));
     assertNotNull(foo);
     assertEquals(provider.getAllValueKeys(), ImmutableSet.of(fooNull, barNull, foo));
     assertEquals(provider.getCurrentValue(fooNull), "FooValue1");
     assertEquals(provider.getCurrentValue(barNull), "BarValue1");
     assertEquals(provider.getCurrentValue(foo), "FooValue2");
-    MarketDataSnapshot snapshot = provider.snapshot(new LiveMarketDataSpecification());
+    MarketDataSnapshot snapshot = provider.snapshot(MarketData.live());
     snapshot.init();
     provider.addValue(fooNull, "FooValue3");
     assertEquals(provider.getCurrentValue(fooNull), "FooValue3");
     assertEquals(snapshot.query(fooNull), "FooValue1");
     assertEquals(snapshot.query(barNull), "BarValue1");
     assertEquals(snapshot.query(foo), "FooValue2");
-    snapshot = provider.snapshot(new LiveMarketDataSpecification());
+    snapshot = provider.snapshot(MarketData.live());
     snapshot.init();
     assertEquals(snapshot.query(fooNull), "FooValue3");
   }

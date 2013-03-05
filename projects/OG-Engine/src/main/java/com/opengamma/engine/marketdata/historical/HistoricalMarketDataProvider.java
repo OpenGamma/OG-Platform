@@ -39,7 +39,11 @@ public class HistoricalMarketDataProvider extends AbstractHistoricalMarketDataPr
     super(historicalTimeSeriesSource);
   }
 
-  //-------------------------------------------------------------------------
+  @Override
+  protected LocalDate getHistoricalResolutionDate(final MarketDataSpecification marketDataSpec) {
+    return ((FixedHistoricalMarketDataSpecification) marketDataSpec).getSnapshotDate();
+  }
+
   @Override
   public boolean isCompatible(final MarketDataSpecification marketDataSpec) {
     if (!(marketDataSpec instanceof FixedHistoricalMarketDataSpecification)) {

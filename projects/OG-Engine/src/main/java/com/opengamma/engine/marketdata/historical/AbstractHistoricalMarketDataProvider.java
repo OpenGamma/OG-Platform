@@ -10,6 +10,7 @@ import java.util.Set;
 import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
@@ -81,9 +82,11 @@ public abstract class AbstractHistoricalMarketDataProvider extends AbstractMarke
     s_logger.debug("Removed subscriptions from {}", valueSpecifications);
   }
 
-  //-------------------------------------------------------------------------
+  protected abstract LocalDate getHistoricalResolutionDate(final MarketDataSpecification marketDataSpec);
+
   @Override
-  public MarketDataAvailabilityProvider getAvailabilityProvider() {
+  public MarketDataAvailabilityProvider getAvailabilityProvider(final MarketDataSpecification marketDataSpec) {
+    final LocalDate date = getHistoricalResolutionDate(marketDataSpec);
     return new AbstractMarketDataAvailabilityProvider() {
 
       @Override
@@ -93,7 +96,7 @@ public abstract class AbstractHistoricalMarketDataProvider extends AbstractMarke
 
       @Override
       protected ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final ExternalIdBundle identifiers, final ValueRequirement desiredValue) {
-        final HistoricalTimeSeries hts = _historicalTimeSeriesSource.getHistoricalTimeSeries(desiredValue.getValueName(), identifiers, null, _timeSeriesResolverKey, null, true, null, true, 0);
+        final HistoricalTimeSeries hts = _historicalTimeSeriesSource.getHistoricalTimeSeries(desiredValue.getValueName(), identifiers, date, _timeSeriesResolverKey, null, true, null, true, 0);
         if (hts == null) {
           if (s_logger.isDebugEnabled() && desiredValue.getValueName().equals(MarketDataRequirementNames.MARKET_VALUE)) {
             s_logger.debug("Missing market data {}", desiredValue);

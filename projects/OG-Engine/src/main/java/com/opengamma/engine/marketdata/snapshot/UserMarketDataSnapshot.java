@@ -37,6 +37,7 @@ import com.opengamma.engine.marketdata.InMemoryLKVMarketDataProvider;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityFilter;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.availability.ProviderMarketDataAvailabilityFilter;
+import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.target.ComputationTargetRequirement;
 import com.opengamma.engine.target.ComputationTargetType;
@@ -452,10 +453,10 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
     }
   }
 
-  // MarketDataAvailabilityProvider
+  // MarketDataProvider
 
   public MarketDataAvailabilityProvider getAvailabilityProvider() {
-    final MarketDataAvailabilityProvider unstructured = _unstructured.getAvailabilityProvider();
+    final MarketDataAvailabilityProvider unstructured = _unstructured.getAvailabilityProvider(MarketData.live());
     return new MarketDataAvailabilityProvider() {
 
       @Override

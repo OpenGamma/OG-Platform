@@ -715,8 +715,8 @@ public class ViewClientTest {
     }
 
     @Override
-    public MarketDataAvailabilityProvider getAvailabilityProvider() {
-      final MarketDataAvailabilityProvider underlying = super.getAvailabilityProvider();
+    public MarketDataAvailabilityProvider getAvailabilityProvider(final MarketDataSpecification marketDataSpec) {
+      final MarketDataAvailabilityProvider underlying = super.getAvailabilityProvider(marketDataSpec);
       return new MarketDataAvailabilityProvider() {
         @Override
         public ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final Object target, final ValueRequirement desiredValue) {
