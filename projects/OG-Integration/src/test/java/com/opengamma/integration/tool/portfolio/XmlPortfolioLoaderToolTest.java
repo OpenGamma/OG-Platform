@@ -267,7 +267,10 @@ public class XmlPortfolioLoaderToolTest {
     assertEquals(trades.size(), 2);
     assertEquals(trades.get(0).getQuantity(), BigDecimal.valueOf(25000));
     assertEquals(trades.get(1).getQuantity(), BigDecimal.valueOf(-10000));
+
     assertEquals(position.getQuantity(), BigDecimal.valueOf(15000));
+    assertEquals(position.getAttributes().get("pos-attr1"), "pos-attr1-value");
+    assertEquals(position.getAttributes().get("pos-attr2"), "pos-attr2-value");
 
     assertEquals(_securityMaster.search(new SecuritySearchRequest()).getSecurities().size(), 1);
   }

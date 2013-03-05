@@ -198,6 +198,9 @@ public class PortfolioConverter {
     for (Trade trade : trades) {
       manageablePosition.addTrade(convertTrade(trade, security));
     }
+
+    manageablePosition.setAttributes(position.getAdditionalAttributes());
+
     return manageablePosition;
   }
 

@@ -102,6 +102,10 @@
         <trade ref="t1"/>
         <trade ref="t2"/>
       </trades>
+      <additionalAttributes>
+        <attribute name="pos-attr1">pos-attr1-value</attribute>
+        <attribute name="pos-attr2">pos-attr2-value</attribute>
+      </additionalAttributes>
     </position>
   </positions>
 

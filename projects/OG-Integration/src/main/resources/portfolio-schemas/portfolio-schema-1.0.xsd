@@ -304,6 +304,14 @@
           </xs:documentation>
         </xs:annotation>
       </xs:element>
+
+      <xs:element name="additionalAttributes" type="additionalAttributes" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>
+            Additional attributes for this position
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
     </xs:all>
 
     <xs:attribute name="id" type="xs:ID">
