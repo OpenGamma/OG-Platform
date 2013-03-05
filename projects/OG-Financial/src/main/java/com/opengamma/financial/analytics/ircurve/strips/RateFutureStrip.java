@@ -107,7 +107,7 @@ public class RateFutureStrip extends CurveStrip {
   }
 
   @Override
-  protected Object propertyGet(final String propertyName, final boolean quiet) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 1052030700:  // futureNumber
         return getFutureNumber();
@@ -126,7 +126,7 @@ public class RateFutureStrip extends CurveStrip {
   }
 
   @Override
-  protected void propertySet(final String propertyName, final Object newValue, final boolean quiet) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 1052030700:  // futureNumber
         setFutureNumber((Integer) newValue);
@@ -161,12 +161,12 @@ public class RateFutureStrip extends CurveStrip {
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      final RateFutureStrip other = (RateFutureStrip) obj;
+      RateFutureStrip other = (RateFutureStrip) obj;
       return JodaBeanUtils.equal(getFutureNumber(), other.getFutureNumber()) &&
           JodaBeanUtils.equal(getStartTenor(), other.getStartTenor()) &&
           JodaBeanUtils.equal(getFutureTenor(), other.getFutureTenor()) &&
@@ -203,7 +203,7 @@ public class RateFutureStrip extends CurveStrip {
    * Sets the future number.
    * @param futureNumber  the new value of the property
    */
-  public void setFutureNumber(final int futureNumber) {
+  public void setFutureNumber(int futureNumber) {
     this._futureNumber = futureNumber;
   }
 
@@ -228,7 +228,7 @@ public class RateFutureStrip extends CurveStrip {
    * Sets the start tenor.
    * @param startTenor  the new value of the property, not null
    */
-  public void setStartTenor(final Tenor startTenor) {
+  public void setStartTenor(Tenor startTenor) {
     JodaBeanUtils.notNull(startTenor, "startTenor");
     this._startTenor = startTenor;
   }
@@ -254,7 +254,7 @@ public class RateFutureStrip extends CurveStrip {
    * Sets the future tenor.
    * @param futureTenor  the new value of the property, not null
    */
-  public void setFutureTenor(final Tenor futureTenor) {
+  public void setFutureTenor(Tenor futureTenor) {
     JodaBeanUtils.notNull(futureTenor, "futureTenor");
     this._futureTenor = futureTenor;
   }
@@ -280,7 +280,7 @@ public class RateFutureStrip extends CurveStrip {
    * Sets the underlying tenor.
    * @param underlyingTenor  the new value of the property, not null
    */
-  public void setUnderlyingTenor(final Tenor underlyingTenor) {
+  public void setUnderlyingTenor(Tenor underlyingTenor) {
     JodaBeanUtils.notNull(underlyingTenor, "underlyingTenor");
     this._underlyingTenor = underlyingTenor;
   }
@@ -306,7 +306,7 @@ public class RateFutureStrip extends CurveStrip {
    * Sets the future convention.
    * @param futureConvention  the new value of the property, not null
    */
-  public void setFutureConvention(final ExternalId futureConvention) {
+  public void setFutureConvention(ExternalId futureConvention) {
     JodaBeanUtils.notNull(futureConvention, "futureConvention");
     this._futureConvention = futureConvention;
   }
@@ -332,7 +332,7 @@ public class RateFutureStrip extends CurveStrip {
    * Sets the underlying convention.
    * @param underlyingConvention  the new value of the property, not null
    */
-  public void setUnderlyingConvention(final ExternalId underlyingConvention) {
+  public void setUnderlyingConvention(ExternalId underlyingConvention) {
     JodaBeanUtils.notNull(underlyingConvention, "underlyingConvention");
     this._underlyingConvention = underlyingConvention;
   }
@@ -404,7 +404,7 @@ public class RateFutureStrip extends CurveStrip {
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
         case 1052030700:  // futureNumber
           return _futureNumber;
