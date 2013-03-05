@@ -115,7 +115,7 @@ public class ViewProcessorTestEnvironment {
     compiledFunctions.initialize();
     vpFactBean.setFunctionCompilationService(compiledFunctions);
 
-    final MarketDataProviderResolver marketDataProviderResolver = getMarketDataProviderResolver() != null ? getMarketDataProviderResolver() : generateMarketDataProviderResolver(securitySource);
+    final MarketDataProviderResolver marketDataProviderResolver = getMarketDataProviderResolver() != null ? getMarketDataProviderResolver() : generateMarketDataProviderResolver();
     vpFactBean.setMarketDataProviderResolver(marketDataProviderResolver);
 
     vpFactBean.setConfigSource(configSource);
@@ -204,7 +204,7 @@ public class ViewProcessorTestEnvironment {
     _marketDataProvider = marketDataProvider;
   }
 
-  private MarketDataProvider generateMarketDataProvider(final SecuritySource securitySource) {
+  private MarketDataProvider generateMarketDataProvider() {
     final InMemoryLKVMarketDataProvider provider = new InMemoryLKVMarketDataProvider();
     provider.addValue(getPrimitive1(), 0);
     provider.addValue(getPrimitive2(), 0);
@@ -221,8 +221,8 @@ public class ViewProcessorTestEnvironment {
     _marketDataProviderResolver = marketDataProviderResolver;
   }
 
-  private MarketDataProviderResolver generateMarketDataProviderResolver(final SecuritySource securitySource) {
-    final MarketDataProvider marketDataProvider = getMarketDataProvider() != null ? getMarketDataProvider() : generateMarketDataProvider(securitySource);
+  private MarketDataProviderResolver generateMarketDataProviderResolver() {
+    final MarketDataProvider marketDataProvider = getMarketDataProvider() != null ? getMarketDataProvider() : generateMarketDataProvider();
     final MarketDataProviderResolver resolver = new SingleMarketDataProviderResolver(marketDataProvider);
     setMarketDataProviderResolver(resolver);
     return resolver;

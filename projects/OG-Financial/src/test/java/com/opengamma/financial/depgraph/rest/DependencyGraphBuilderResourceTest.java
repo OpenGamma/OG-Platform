@@ -211,9 +211,9 @@ public class DependencyGraphBuilderResourceTest {
   public void testAddValue() {
     final DependencyGraphBuilderResource resource = createResource();
     final Collection<ValueRequirement> r1 = resource.getRequirements();
-    final DependencyGraphBuilderResource prime = resource.addValueRequirement("Foo", "PRIMITIVE", "Test~1");
+    final DependencyGraphBuilderResource prime = resource.addValueRequirementByUniqueId("Foo", "PRIMITIVE", "Test~1");
     final Collection<ValueRequirement> r2 = prime.getRequirements();
-    final DependencyGraphBuilderResource prime2 = prime.addValueRequirement("Bar", "PRIMITIVE", "Test~2");
+    final DependencyGraphBuilderResource prime2 = prime.addValueRequirementByUniqueId("Bar", "PRIMITIVE", "Test~2");
     final Collection<ValueRequirement> r3 = prime2.getRequirements();
     assertEquals(r1, resource.getRequirements()); // original unchanged
     assertEquals(r2, prime.getRequirements()); // unchanged
@@ -224,8 +224,8 @@ public class DependencyGraphBuilderResourceTest {
 
   public void testBuild_ok() {
     final DependencyGraphBuilderResource resource = createResource();
-    final FudgeMsgEnvelope env = resource.addValueRequirement(MarketDataRequirementNames.MARKET_VALUE, "PRIMITIVE", "Foo~1")
-        .addValueRequirement(MarketDataRequirementNames.MARKET_VALUE, "PRIMITIVE", "Foo~2").build();
+    final FudgeMsgEnvelope env = resource.addValueRequirementByExternalId(MarketDataRequirementNames.MARKET_VALUE, "PRIMITIVE", "Foo~1")
+        .addValueRequirementByExternalId(MarketDataRequirementNames.MARKET_VALUE, "PRIMITIVE", "Foo~2").build();
     final FudgeMsg msg = env.getMessage();
     s_logger.debug("testBuild_ok = {}", msg);
     assertTrue(msg.hasField("dependencyGraph"));
@@ -235,8 +235,8 @@ public class DependencyGraphBuilderResourceTest {
 
   public void testBuild_exceptions() {
     final DependencyGraphBuilderResource resource = createResource();
-    final FudgeMsgEnvelope env = resource.addValueRequirement(MarketDataRequirementNames.MARKET_VALUE, "PRIMITIVE", "Foo~1")
-        .addValueRequirement(ValueRequirementNames.FAIR_VALUE, "PRIMITIVE", "Foo~Bar").build();
+    final FudgeMsgEnvelope env = resource.addValueRequirementByExternalId(MarketDataRequirementNames.MARKET_VALUE, "PRIMITIVE", "Foo~1")
+        .addValueRequirementByUniqueId(ValueRequirementNames.FAIR_VALUE, "PRIMITIVE", "Foo~Bar").build();
     final FudgeMsg msg = env.getMessage();
     s_logger.debug("testBuild_exceptions = {}", msg);
     assertTrue(msg.hasField("dependencyGraph"));
@@ -246,8 +246,8 @@ public class DependencyGraphBuilderResourceTest {
 
   public void testBuild_failures() {
     final DependencyGraphBuilderResource resource = createResource();
-    final FudgeMsgEnvelope env = resource.addValueRequirement(MarketDataRequirementNames.MARKET_VALUE, "PRIMITIVE", "Bar~1")
-        .addValueRequirement(ValueRequirementNames.PRESENT_VALUE, "PRIMITIVE", "Bar~2").build();
+    final FudgeMsgEnvelope env = resource.addValueRequirementByExternalId(MarketDataRequirementNames.MARKET_VALUE, "PRIMITIVE", "Bar~1")
+        .addValueRequirementByUniqueId(ValueRequirementNames.PRESENT_VALUE, "PRIMITIVE", "Bar~2").build();
     final FudgeMsg msg = env.getMessage();
     s_logger.debug("testBuild_failures = {}", msg);
     assertTrue(msg.hasField("dependencyGraph"));

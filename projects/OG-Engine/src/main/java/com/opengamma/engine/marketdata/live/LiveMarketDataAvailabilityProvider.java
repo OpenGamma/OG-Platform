@@ -9,7 +9,6 @@ import java.util.Set;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.marketdata.availability.AbstractMarketDataAvailabilityProvider;
-import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -27,10 +26,9 @@ import com.opengamma.util.ArgumentChecker;
 
   private static final String IDENTIFIER_PROPERTY = "Id";
 
-  /**
-   * All specifications will use the same normalization rule set.
-   */
-  private final ComputationTargetSpecification _target;
+  private static final String NORMALIZATION_PROPERTY = "Normalization";
+
+  private final String _normalizationRules;
 
   /**
    * Constructs a new instance.
@@ -39,11 +37,11 @@ import com.opengamma.util.ArgumentChecker;
    */
   public LiveMarketDataAvailabilityProvider(final String normalizationRules) {
     ArgumentChecker.notNull(normalizationRules, "normalizationRules");
-    _target = new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueId.of("Data", normalizationRules));
+    _normalizationRules = normalizationRules;
   }
 
-  protected ComputationTargetSpecification getTarget() {
-    return _target;
+  protected String getNormalizationRules() {
+    return _normalizationRules;
   }
 
   protected String getSyntheticFunctionName() {
@@ -58,7 +56,7 @@ import com.opengamma.util.ArgumentChecker;
    * @return the original live data specification
    */
   public static LiveDataSpecification getLiveDataSpecification(final ValueSpecification valueSpec) {
-    final String normalizer = valueSpec.getTargetSpecification().getUniqueId().getValue();
+    final String normalizer = valueSpec.getProperty(NORMALIZATION_PROPERTY);
     final Set<String> identifierStrings = valueSpec.getProperties().getValues(IDENTIFIER_PROPERTY);
     final ExternalId[] identifiers = new ExternalId[identifierStrings.size()];
     int i = 0;
@@ -69,12 +67,12 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   protected ValueProperties.Builder createValueProperties() {
-    return ValueProperties.with(ValuePropertyNames.FUNCTION, getSyntheticFunctionName());
+    return ValueProperties.with(ValuePropertyNames.FUNCTION, getSyntheticFunctionName()).with(NORMALIZATION_PROPERTY, getNormalizationRules());
   }
 
   @Override
   protected ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final ExternalId identifier, final ValueRequirement desiredValue) {
-    return new ValueSpecification(desiredValue.getValueName(), getTarget(), createValueProperties().with(IDENTIFIER_PROPERTY, identifier.toString()).get());
+    return new ValueSpecification(desiredValue.getValueName(), targetSpec, createValueProperties().with(IDENTIFIER_PROPERTY, identifier.toString()).get());
   }
 
   @Override
@@ -84,7 +82,7 @@ import com.opengamma.util.ArgumentChecker;
     for (final ExternalId identifier : identifiers) {
       identifierStrings[i++] = identifier.toString();
     }
-    return new ValueSpecification(desiredValue.getValueName(), getTarget(), createValueProperties().with(IDENTIFIER_PROPERTY, identifierStrings).get());
+    return new ValueSpecification(desiredValue.getValueName(), targetSpec, createValueProperties().with(IDENTIFIER_PROPERTY, identifierStrings).get());
   }
 
   @Override

@@ -50,8 +50,6 @@ import com.opengamma.util.tuple.Pair;
  */
 /* package */class ViewComputationJobDataProvider {
 
-  private static final String PROVIDER_PROPERTY = "Provider";
-
   /** The underlying providers in priority order. */
   private final List<MarketDataProvider> _providers;
   /** The specs for the underlying providers in the same order as the providers. */
@@ -74,14 +72,14 @@ import com.opengamma.util.tuple.Pair;
     ArgumentChecker.notNull(resolver, "resolver");
     _specs = ImmutableList.copyOf(specs);
     _providers = Lists.newArrayListWithCapacity(specs.size());
-    final Listener listener = new Listener();
+    int index = 0;
     for (final MarketDataSpecification spec : specs) {
       final MarketDataProvider provider = resolver.resolve(user, spec);
       if (provider == null) {
         throw new IllegalArgumentException("Unable to resolve market data spec " + spec);
       }
       _providers.add(provider);
-      provider.addListener(listener);
+      provider.addListener(new Listener(index++));
     }
   }
 
@@ -117,12 +115,12 @@ import com.opengamma.util.tuple.Pair;
       result.add(Sets.<ValueSpecification>newHashSet());
     }
     for (final ValueSpecification specification : specifications) {
-      String provider = specification.getProperty(PROVIDER_PROPERTY);
+      String provider = specification.getProperty(ValuePropertyNames.DATA_PROVIDER);
       if (provider != null) {
-        final ValueProperties.Builder underlyingProperties = specification.getProperties().copy().withoutAny(PROVIDER_PROPERTY);
+        final ValueProperties.Builder underlyingProperties = specification.getProperties().copy().withoutAny(ValuePropertyNames.DATA_PROVIDER);
         final int slash = provider.indexOf('/');
         if (slash > 0) {
-          underlyingProperties.with(PROVIDER_PROPERTY, provider.substring(0, slash));
+          underlyingProperties.with(ValuePropertyNames.DATA_PROVIDER, provider.substring(0, slash));
           provider = provider.substring(slash + 1);
         }
         try {
@@ -143,12 +141,12 @@ import com.opengamma.util.tuple.Pair;
    * @return the provider index and the underlying's specification, or null if it could not be found
    */
   private static Pair<Integer, ValueSpecification> getProviderSpecification(final ValueSpecification specification) {
-    String provider = specification.getProperty(PROVIDER_PROPERTY);
+    String provider = specification.getProperty(ValuePropertyNames.DATA_PROVIDER);
     if (provider != null) {
-      final ValueProperties.Builder underlyingProperties = specification.getProperties().copy().withoutAny(PROVIDER_PROPERTY);
+      final ValueProperties.Builder underlyingProperties = specification.getProperties().copy().withoutAny(ValuePropertyNames.DATA_PROVIDER);
       final int slash = provider.indexOf('/');
       if (slash > 0) {
-        underlyingProperties.with(PROVIDER_PROPERTY, provider.substring(0, slash));
+        underlyingProperties.with(ValuePropertyNames.DATA_PROVIDER, provider.substring(0, slash));
         provider = provider.substring(slash + 1);
       }
       try {
@@ -246,34 +244,55 @@ import com.opengamma.util.tuple.Pair;
   }
 
   /**
-   * Listens for updates from the underlying providers and distributes them to the listeners. This is an inner class to avoid polluting the API with public listener methods that users of the class
-   * aren't interested in.
+   * Listens for updates from the underlying providers and distributes them to the listeners.
    */
   private class Listener implements MarketDataListener {
 
+    private final int _providerId;
+
+    public Listener(final int providerId) {
+      _providerId = providerId;
+    }
+
+    private ValueSpecification convertSpecification(final ValueSpecification valueSpecification) {
+      return convertUnderlyingSpecification(_providerId, valueSpecification);
+    }
+
+    private Collection<ValueSpecification> convertSpecifications(final Collection<ValueSpecification> valueSpecifications) {
+      final Collection<ValueSpecification> result = new ArrayList<ValueSpecification>(valueSpecifications.size());
+      for (final ValueSpecification valueSpecification : valueSpecifications) {
+        result.add(convertSpecification(valueSpecification));
+      }
+      return result;
+    }
+
     @Override
-    public void subscriptionSucceeded(final ValueSpecification valueSpecification) {
+    public void subscriptionSucceeded(ValueSpecification valueSpecification) {
+      valueSpecification = convertSpecification(valueSpecification);
       for (final MarketDataListener listener : _listeners) {
         listener.subscriptionSucceeded(valueSpecification);
       }
     }
 
     @Override
-    public void subscriptionFailed(final ValueSpecification valueSpecification, final String msg) {
+    public void subscriptionFailed(ValueSpecification valueSpecification, final String msg) {
+      valueSpecification = convertSpecification(valueSpecification);
       for (final MarketDataListener listener : _listeners) {
         listener.subscriptionFailed(valueSpecification, msg);
       }
     }
 
     @Override
-    public void subscriptionStopped(final ValueSpecification valueSpecification) {
+    public void subscriptionStopped(ValueSpecification valueSpecification) {
+      valueSpecification = convertSpecification(valueSpecification);
       for (final MarketDataListener listener : _listeners) {
         listener.subscriptionStopped(valueSpecification);
       }
     }
 
     @Override
-    public void valuesChanged(final Collection<ValueSpecification> valueSpecifications) {
+    public void valuesChanged(Collection<ValueSpecification> valueSpecifications) {
+      valueSpecifications = convertSpecifications(valueSpecifications);
       for (final MarketDataListener listener : _listeners) {
         listener.valuesChanged(valueSpecifications);
       }

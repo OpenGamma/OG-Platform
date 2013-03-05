@@ -31,6 +31,7 @@ import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
 import com.opengamma.engine.function.NoOpFunction;
+import com.opengamma.engine.function.RelabellingFunction;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
@@ -129,9 +130,10 @@ public class RepositoryFactoryTest {
     final InMemoryFunctionRepository repo = RepositoryFactory.constructRepository(configuration);
     assertNotNull(repo);
     assertEquals(repo.getAllFunctions().size(), RepositoryFactory.INTRINSIC_FUNCTION_COUNT);
-    final FunctionDefinition definition = repo.getAllFunctions().iterator().next();
-    assertTrue(definition instanceof NoOpFunction);
-    assertNotNull(definition.getUniqueId());
+    for (final FunctionDefinition definition : repo.getAllFunctions()) {
+      assertTrue((definition instanceof NoOpFunction) || (definition instanceof RelabellingFunction));
+      assertNotNull(definition.getUniqueId());
+    }
   }
 
   public void singleConfigurationNoArgs() {
@@ -183,7 +185,7 @@ public class RepositoryFactoryTest {
         final MockMultiArgumentFunctionIndividualParameterForm multi = (MockMultiArgumentFunctionIndividualParameterForm) definition;
         assertEquals("bar1", multi.getParam1());
         assertEquals("bar2", multi.getParam2());
-      } else if (definition instanceof NoOpFunction) {
+      } else if ((definition instanceof NoOpFunction) || (definition instanceof RelabellingFunction)) {
         // Ignore
       } else {
         Assert.fail("Unexpected type of definition " + definition);
