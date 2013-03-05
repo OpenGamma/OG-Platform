@@ -217,7 +217,7 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
   }
 
   private ValueRequirement getCurrencyConversion(final String fromCurrency, final String toCurrency) {
-    return CurrencyMatrixSourcingFunction.getConversionRequirement(fromCurrency, toCurrency);
+    return CurrencyMatrixSpotSourcingFunction.getConversionRequirement(fromCurrency, toCurrency);
   }
 
   @Override

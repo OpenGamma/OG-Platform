@@ -134,7 +134,7 @@ public class ConventionInstrumentTimeSeriesLoader {
       HistoricalTimeSeries hts = getHistoricalTimeSeriesSource().getHistoricalTimeSeries(ExternalIdBundle.of(externalId), getDataSource(), getDataProvider(), getDataField());
       if (hts == null) {
         s_logger.info("Adding time-series for {}", externalId);
-        getHistoricalTimeSeriesLoader().addTimeSeries(ImmutableSet.of(externalId), getDataProvider(), getDataField(), null, null);
+        getHistoricalTimeSeriesLoader().loadTimeSeries(ImmutableSet.of(externalId), getDataProvider(), getDataField(), null, null);
       } else if (isUpdateExisting()) {
         s_logger.info("Updating time-series for {} with identifier {}", externalId, hts.getUniqueId());
         getHistoricalTimeSeriesLoader().updateTimeSeries(hts.getUniqueId());

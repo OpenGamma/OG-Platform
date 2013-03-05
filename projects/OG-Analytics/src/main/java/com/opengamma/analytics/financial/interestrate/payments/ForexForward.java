@@ -43,7 +43,6 @@ public class ForexForward extends Forex {
     return visitor.visitForexForward(this);
   }
 
-
   @Override
   public int hashCode() {
     final int prime = 31;

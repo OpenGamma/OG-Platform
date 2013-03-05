@@ -8,9 +8,9 @@ package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.legac
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.PriceType;
-import com.opengamma.analytics.financial.credit.cds.ISDACurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyForwardStartingCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
+import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -38,7 +38,7 @@ public class PresentValueLegacyForwardStartingCreditDefaultSwap {
   public double getPresentValueLegacyForwardStartingCreditDefaultSwap(
       final ZonedDateTime valuationDate,
       final LegacyForwardStartingCreditDefaultSwapDefinition forwardStartingCDS,
-      final ISDACurve yieldCurve,
+      final ISDADateCurve yieldCurve,
       final HazardRateCurve hazardRateCurve,
       final PriceType priceType) {
 
@@ -69,7 +69,7 @@ public class PresentValueLegacyForwardStartingCreditDefaultSwap {
   public double getParSpreadLegacyForwardStartingCreditDefaultSwap(
       final ZonedDateTime valuationDate,
       final LegacyForwardStartingCreditDefaultSwapDefinition forwardStartingCDS,
-      final ISDACurve yieldCurve,
+      final ISDADateCurve yieldCurve,
       final HazardRateCurve hazardRateCurve,
       final PriceType priceType) {
 

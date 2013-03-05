@@ -134,7 +134,7 @@ $.register_module({
                 var premium, tradeDate, deal;
                 if (trade.premium) {
                     premium = trade.premium.toString().split(' ');
-                    trade.premium = premium[0].replace(/[,.]/g, '');
+                    trade.premium = premium[0].replace(/[,]/g, '');
                     if (premium[1]) trade.premiumCurrency = premium[1];
                 } else delete trade.premium;
                 if (trade.premium_date_time) {

@@ -25,7 +25,7 @@ public class RendlemanBartterBinomialOptionModelDefinition extends BinomialOptio
 
   @Override
   public RecombiningBinomialTree<Double> getUpProbabilityTree(final OptionDefinition option, final StandardOptionDataBundle data, final int n, final int j) {
-    return new ConstantRecombiningBinomialTree<Double>(0.5);
+    return new ConstantRecombiningBinomialTree<>(0.5);
   }
 
   @Override

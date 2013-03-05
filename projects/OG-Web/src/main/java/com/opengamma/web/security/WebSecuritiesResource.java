@@ -168,7 +168,7 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
     ExternalScheme scheme = ExternalScheme.of(idScheme);
     Collection<ExternalIdBundle> bundles = buildSecurityRequest(scheme, idValue);
     SecurityLoader securityLoader = data().getSecurityLoader();
-    Map<ExternalIdBundle, UniqueId> loadedSecurities = securityLoader.loadSecurity(bundles);
+    Map<ExternalIdBundle, UniqueId> loadedSecurities = securityLoader.loadSecurities(bundles);
     
     URI uri = null;
     if (bundles.size() == 1 && loadedSecurities.size() == 1) {
@@ -194,7 +194,7 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
     ExternalScheme scheme = ExternalScheme.of(idScheme);
     Collection<ExternalIdBundle> requestBundles = buildSecurityRequest(scheme, idValue);
     SecurityLoader securityLoader = data().getSecurityLoader();
-    Map<ExternalIdBundle, UniqueId> loadedSecurities = securityLoader.loadSecurity(requestBundles);
+    Map<ExternalIdBundle, UniqueId> loadedSecurities = securityLoader.loadSecurities(requestBundles);
     FlexiBean out = createPostJSONOutput(loadedSecurities, requestBundles, scheme);    
     return Response.ok(getFreemarker().build("securities/jsonsecurities-added.ftl", out)).build();
   }

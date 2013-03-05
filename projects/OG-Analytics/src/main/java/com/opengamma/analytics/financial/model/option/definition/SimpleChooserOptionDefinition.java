@@ -48,7 +48,7 @@ public class SimpleChooserOptionDefinition extends OptionDefinition {
     }
   };
   /** The exercise function */
-  private final OptionExerciseFunction<StandardOptionDataBundle> _exerciseFunction = new EuropeanExerciseFunction<StandardOptionDataBundle>();
+  private final OptionExerciseFunction<StandardOptionDataBundle> _exerciseFunction = new EuropeanExerciseFunction<>();
   /** The strike of the underlying option */
   private final double _underlyingStrike;
   /** The expiry of the underlying option */

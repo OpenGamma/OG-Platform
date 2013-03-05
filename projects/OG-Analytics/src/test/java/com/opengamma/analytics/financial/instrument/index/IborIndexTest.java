@@ -31,7 +31,7 @@ public class IborIndexTest {
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final boolean IS_EOM = true;
-  private static final Currency CUR = Currency.USD;
+  private static final Currency CUR = Currency.EUR;
   private static final IborIndex INDEX = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM);
   private static final String NAME = "USD LIBOR 3M";
   private static final IborIndex INDEX2 = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM, NAME);
@@ -90,7 +90,7 @@ public class IborIndexTest {
     IborIndex indexNoEOM1 = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY, !IS_EOM);
     IborIndex indexNoEOM2 = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY, !IS_EOM);
     assertEquals(indexNoEOM1.hashCode(), indexNoEOM2.hashCode());
-    Currency currencyModified = Currency.EUR;
+    Currency currencyModified = Currency.USD;
     IborIndex indexModified = new IborIndex(currencyModified, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY, !IS_EOM);
     assertFalse(INDEX.equals(indexModified));
     Period tenorModified = Period.of(2, MONTHS);
@@ -102,7 +102,7 @@ public class IborIndexTest {
     assertFalse(INDEX.equals(indexModified));
     indexModified = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), IS_EOM);
     assertFalse(INDEX.equals(indexModified));
-    Currency otherCurrency = Currency.EUR;
+    Currency otherCurrency = Currency.USD;
     indexModified = new IborIndex(otherCurrency, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM);
     assertFalse(INDEX.equals(indexModified));
     Period otherTenor = Period.of(6, MONTHS);

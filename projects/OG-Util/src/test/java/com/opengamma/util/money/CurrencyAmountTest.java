@@ -14,6 +14,7 @@ import org.testng.annotations.Test;
 /**
  * Test CurrencyAmount.
  */
+@Test(groups = "unit")
 public class CurrencyAmountTest {
 
   private static final Currency CCY1 = Currency.AUD;

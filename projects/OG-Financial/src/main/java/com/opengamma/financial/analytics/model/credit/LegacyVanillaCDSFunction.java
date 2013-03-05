@@ -27,10 +27,10 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.credit.PriceType;
-import com.opengamma.analytics.financial.credit.cds.ISDACurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.legacy.PresentValueLegacyCreditDefaultSwap;
 import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
+import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.engine.ComputationTarget;
@@ -93,7 +93,7 @@ public abstract class LegacyVanillaCDSFunction extends AbstractFunction.NonCompi
     if (hazardRateCurveObject == null) {
       throw new OpenGammaRuntimeException("Could not get hazard rate curve");
     }
-    final ISDACurve yieldCurve = (ISDACurve) yieldCurveObject;
+    final ISDADateCurve yieldCurve = (ISDADateCurve) yieldCurveObject;
     final HazardRateCurve hazardRateCurve = (HazardRateCurve) hazardRateCurveObject;
     final LegacyVanillaCDSSecurity security = (LegacyVanillaCDSSecurity) target.getSecurity();
     final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);

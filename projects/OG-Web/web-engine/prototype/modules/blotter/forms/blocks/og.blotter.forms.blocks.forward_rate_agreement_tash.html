@@ -42,14 +42,6 @@
       <col style="width: 30%">              
       <col style="width: 70%">              
     </colgroup>
-    <thead>
-      <tr>
-        <th>
-          <span><em>Details</em></span>
-        </th>
-        <th></th>
-      </tr>
-    </thead>
     <tbody>
       <tr>
         <td>
@@ -64,16 +56,6 @@
       <tr>
         <td>
           <label>
-            <span>Region</span>
-          </label>
-        </td>
-        <td>
-          <input name="security.regionId" type="text" value="{{region}}"/>
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <label>
             <span>Rate</span>
           </label>
         </td>
@@ -81,7 +63,17 @@
           <input name="security.rate" type="text" value="{{rate}}"/>
         </td>
       </tr>
-      {{{item_1}}}
+      <tr>
+        <td>
+          <label>
+            <span>Region</span>
+          </label>
+        </td>
+        <td>
+          {{{item_1}}}
+        </td>
+      </tr>
+      {{{item_2}}}
     </tbody>
   </table>
   <table class="OG-table">
@@ -97,7 +89,7 @@
           </label>
         </td>
         <td>
-          <input name="security.fixingDate" type="text" value="{{fixing}}"/>
+          <input class="blotter-date" name="security.fixingDate" type="text" value="{{fixing}}"/>
         </td>
       </tr>          
       <tr>
@@ -107,7 +99,7 @@
           </label>
         </td>
         <td>
-          <input name="security.startDate" type="text" value="{{start}}"/>
+          <input class="blotter-date" name="security.startDate" type="text" value="{{start}}"/>
         </td>
       </tr>
       <tr>
@@ -117,7 +109,7 @@
           </label>
         </td>
         <td>
-          <input name="security.endDate" type="text" value="{{end}}"/>
+          <input class="blotter-date" name="security.endDate" type="text" value="{{end}}"/>
         </td>
       </tr>
     </tbody>

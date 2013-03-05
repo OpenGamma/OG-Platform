@@ -7,7 +7,7 @@ package com.opengamma.analytics.financial.interestrate;
 
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuture;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureTransaction;
-import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
 
 /**
@@ -34,7 +34,7 @@ public class MarginedTransactionVisitor extends InstrumentDerivativeVisitorAdapt
   }
 
   @Override
-  public Boolean visitInterestRateFuture(final InterestRateFuture future, final YieldCurveBundle curves) {
+  public Boolean visitInterestRateFutureTransaction(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
     return true;
   }
 

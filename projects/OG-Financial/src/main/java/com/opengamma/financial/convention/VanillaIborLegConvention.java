@@ -17,6 +17,7 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 
 /**
@@ -29,11 +30,10 @@ public class VanillaIborLegConvention extends Convention {
   private static final long serialVersionUID = 1L;
 
   /**
-   * The name of the ibor index.
+   * The ibor index.
    */
-  //TODO is this the right type?
   @PropertyDefinition(validate = "notNull")
-  private String _iborIndexConvention;
+  private ExternalId _iborIndexConvention;
 
   /**
    * Is the fixing in advance (true) or in arrears (false).
@@ -60,7 +60,7 @@ public class VanillaIborLegConvention extends Convention {
     super();
   }
 
-  public VanillaIborLegConvention(final String name, final ExternalIdBundle externalIdBundle, final String iborIndexConvention, final boolean isAdvanceFixing,
+  public VanillaIborLegConvention(final String name, final ExternalIdBundle externalIdBundle, final ExternalId iborIndexConvention, final boolean isAdvanceFixing,
       final StubType stubType, final String interpolationMethod) {
     super(name, externalIdBundle);
     setIborIndexConvention(iborIndexConvention);
@@ -107,7 +107,7 @@ public class VanillaIborLegConvention extends Convention {
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -1542426233:  // iborIndexConvention
-        setIborIndexConvention((String) newValue);
+        setIborIndexConvention((ExternalId) newValue);
         return;
       case 1363941829:  // isAdvanceFixing
         setIsAdvanceFixing((Boolean) newValue);
@@ -158,18 +158,18 @@ public class VanillaIborLegConvention extends Convention {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the iborIndexConvention.
+   * Gets the ibor index.
    * @return the value of the property, not null
    */
-  public String getIborIndexConvention() {
+  public ExternalId getIborIndexConvention() {
     return _iborIndexConvention;
   }
 
   /**
-   * Sets the iborIndexConvention.
+   * Sets the ibor index.
    * @param iborIndexConvention  the new value of the property, not null
    */
-  public void setIborIndexConvention(String iborIndexConvention) {
+  public void setIborIndexConvention(ExternalId iborIndexConvention) {
     JodaBeanUtils.notNull(iborIndexConvention, "iborIndexConvention");
     this._iborIndexConvention = iborIndexConvention;
   }
@@ -178,7 +178,7 @@ public class VanillaIborLegConvention extends Convention {
    * Gets the the {@code iborIndexConvention} property.
    * @return the property, not null
    */
-  public final Property<String> iborIndexConvention() {
+  public final Property<ExternalId> iborIndexConvention() {
     return metaBean().iborIndexConvention().createProperty(this);
   }
 
@@ -272,8 +272,8 @@ public class VanillaIborLegConvention extends Convention {
     /**
      * The meta-property for the {@code iborIndexConvention} property.
      */
-    private final MetaProperty<String> _iborIndexConvention = DirectMetaProperty.ofReadWrite(
-        this, "iborIndexConvention", VanillaIborLegConvention.class, String.class);
+    private final MetaProperty<ExternalId> _iborIndexConvention = DirectMetaProperty.ofReadWrite(
+        this, "iborIndexConvention", VanillaIborLegConvention.class, ExternalId.class);
     /**
      * The meta-property for the {@code isAdvanceFixing} property.
      */
@@ -293,7 +293,7 @@ public class VanillaIborLegConvention extends Convention {
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "iborIndexConvention",
         "isAdvanceFixing",
         "stubType",
@@ -340,7 +340,7 @@ public class VanillaIborLegConvention extends Convention {
      * The meta-property for the {@code iborIndexConvention} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<String> iborIndexConvention() {
+    public final MetaProperty<ExternalId> iborIndexConvention() {
       return _iborIndexConvention;
     }
 

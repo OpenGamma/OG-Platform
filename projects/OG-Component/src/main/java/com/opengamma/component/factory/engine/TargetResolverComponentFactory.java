@@ -23,12 +23,15 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
+import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.CachingComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.DefaultCachingComputationTargetResolver;
 import com.opengamma.engine.DefaultComputationTargetResolver;
+import com.opengamma.financial.temptarget.ConfigItemTarget;
+import com.opengamma.financial.temptarget.ConfigItemTargetResolver;
 import com.opengamma.financial.temptarget.TempTarget;
 import com.opengamma.financial.temptarget.TempTargetResolver;
 import com.opengamma.financial.temptarget.TempTargetSource;
@@ -64,11 +67,19 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory {
    */
   @PropertyDefinition
   private CacheManager _cacheManager;
+  /**
+   * The configuration source.
+   */
+  @PropertyDefinition
+  private ConfigSource _configSource;
 
   protected ComputationTargetResolver createTargetResolver() {
     final DefaultComputationTargetResolver resolver = new DefaultComputationTargetResolver(getSecuritySource(), getPositionSource());
     if (getTempTargets() != null) {
       resolver.addResolver(TempTarget.TYPE, new TempTargetResolver(getTempTargets()));
+    }
+    if (_configSource != null) {
+      resolver.addResolver(ConfigItemTarget.TYPE, new ConfigItemTargetResolver(_configSource));
     }
     return resolver;
   }
@@ -117,6 +128,8 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory {
         return getTempTargets();
       case -1452875317:  // cacheManager
         return getCacheManager();
+      case 195157501:  // configSource
+        return getConfigSource();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -139,6 +152,9 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory {
       case -1452875317:  // cacheManager
         setCacheManager((CacheManager) newValue);
         return;
+      case 195157501:  // configSource
+        setConfigSource((ConfigSource) newValue);
+        return;
     }
     super.propertySet(propertyName, newValue, quiet);
   }
@@ -148,6 +164,7 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory {
     JodaBeanUtils.notNull(_classifier, "classifier");
     JodaBeanUtils.notNull(_securitySource, "securitySource");
     JodaBeanUtils.notNull(_positionSource, "positionSource");
+    JodaBeanUtils.notNull(_configSource, "configSource");
     super.validate();
   }
 
@@ -163,6 +180,7 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory {
           JodaBeanUtils.equal(getPositionSource(), other.getPositionSource()) &&
           JodaBeanUtils.equal(getTempTargets(), other.getTempTargets()) &&
           JodaBeanUtils.equal(getCacheManager(), other.getCacheManager()) &&
+          JodaBeanUtils.equal(getConfigSource(), other.getConfigSource()) &&
           super.equals(obj);
     }
     return false;
@@ -176,6 +194,7 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory {
     hash += hash * 31 + JodaBeanUtils.hashCode(getPositionSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getTempTargets());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getConfigSource());
     return hash ^ super.hashCode();
   }
 
@@ -309,6 +328,31 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the configuration source.
+   * @return the value of the property, not null
+   */
+  public ConfigSource getConfigSource() {
+    return _configSource;
+  }
+
+  /**
+   * Sets the configuration source.
+   * @param configSource  the new value of the property, not null
+   */
+  public void setConfigSource(ConfigSource configSource) {
+    this._configSource = configSource;
+  }
+
+  /**
+   * Gets the the {@code configSource} property.
+   * @return the property, not null
+   */
+  public final Property<ConfigSource> configSource() {
+    return metaBean().configSource().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code TargetResolverComponentFactory}.
    */
   public static class Meta extends AbstractComponentFactory.Meta {
@@ -343,15 +387,21 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<CacheManager> _cacheManager = DirectMetaProperty.ofReadWrite(
         this, "cacheManager", TargetResolverComponentFactory.class, CacheManager.class);
     /**
+     * The meta-property for the {@code configSource} property.
+     */
+    private final MetaProperty<ConfigSource> _configSource = DirectMetaProperty.ofReadWrite(
+        this, "configSource", TargetResolverComponentFactory.class, ConfigSource.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier",
         "securitySource",
         "positionSource",
         "tempTargets",
-        "cacheManager");
+        "cacheManager",
+        "configSource");
 
     /**
      * Restricted constructor.
@@ -372,6 +422,8 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory {
           return _tempTargets;
         case -1452875317:  // cacheManager
           return _cacheManager;
+        case 195157501:  // configSource
+          return _configSource;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -430,6 +482,14 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory {
      */
     public final MetaProperty<CacheManager> cacheManager() {
       return _cacheManager;
+    }
+
+    /**
+     * The meta-property for the {@code configSource} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ConfigSource> configSource() {
+      return _configSource;
     }
 
   }

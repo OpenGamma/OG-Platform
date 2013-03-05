@@ -15,6 +15,7 @@ import com.opengamma.financial.aggregation.AggregationFunctions;
 import com.opengamma.financial.analytics.AnalyticsFunctions;
 import com.opengamma.financial.currency.CurrencyFunctions;
 import com.opengamma.financial.property.PropertyFunctions;
+import com.opengamma.financial.target.TargetFunctions;
 import com.opengamma.financial.value.ValueFunctions;
 import com.opengamma.financial.view.ViewFunctions;
 
@@ -57,6 +58,10 @@ public class FinancialFunctions extends AbstractRepositoryConfigurationBean {
     return ValueFunctions.instance();
   }
 
+  protected RepositoryConfigurationSource targetFunctionConfiguration() {
+    return TargetFunctions.instance();
+  }
+
   protected RepositoryConfigurationSource viewFunctionConfiguration() {
     return ViewFunctions.instance();
   }
@@ -64,7 +69,7 @@ public class FinancialFunctions extends AbstractRepositoryConfigurationBean {
   @Override
   protected RepositoryConfigurationSource createObject() {
     return CombiningRepositoryConfigurationSource.of(super.createObject(), aggregationFunctionConfiguration(), analyticsFunctionConfiguration(), currencyFunctionConfiguration(),
-        propertyFunctionConfiguration(), valueFunctionConfiguration(), viewFunctionConfiguration());
+        propertyFunctionConfiguration(), valueFunctionConfiguration(), targetFunctionConfiguration(), viewFunctionConfiguration());
   }
 
 }

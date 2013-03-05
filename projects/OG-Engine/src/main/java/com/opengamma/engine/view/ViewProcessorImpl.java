@@ -192,7 +192,8 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
    * @param executionOptions  the view execution options, not null
    * @return the permission provider to be used for access control, not null
    */
-  public ViewPermissionProvider attachClientToSharedViewProcess(final UniqueId clientId, final ViewResultListener listener, final UniqueId viewDefinitionId, final ViewExecutionOptions executionOptions) {
+  public ViewPermissionProvider attachClientToSharedViewProcess(final UniqueId clientId,
+      final ViewResultListener listener, final UniqueId viewDefinitionId, final ViewExecutionOptions executionOptions) {
     ArgumentChecker.notNull(clientId, "clientId");
     ArgumentChecker.notNull(viewDefinitionId, "viewDefinitionId");
     ArgumentChecker.notNull(executionOptions, "executionOptions");
@@ -201,7 +202,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
     _processLock.lock();
     ViewProcessImpl process = null;
     try {
-      process = getOrCreateViewProcess(viewDefinitionId, executionOptions);
+      process = getOrCreateSharedViewProcess(viewDefinitionId, executionOptions);
       return attachClientToViewProcessCore(client, listener, process, false);
     } catch (final Exception e) {
       // Roll-back
@@ -224,7 +225,8 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
    * @param executionOptions  the view execution options, not null
    * @return the permission provider to be used for access control, not null
    */
-  public ViewPermissionProvider attachClientToPrivateViewProcess(final UniqueId clientId, final ViewResultListener listener, final UniqueId viewDefinitionId, final ViewExecutionOptions executionOptions) {
+  public ViewPermissionProvider attachClientToPrivateViewProcess(final UniqueId clientId,
+      final ViewResultListener listener, final UniqueId viewDefinitionId, final ViewExecutionOptions executionOptions) {
     ArgumentChecker.notNull(viewDefinitionId, "definitionID");
     ArgumentChecker.notNull(executionOptions, "executionOptions");
     final ViewClientImpl client = getViewClient(clientId);
@@ -232,12 +234,12 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
     ViewProcessImpl process = null;
     _processLock.lock();
     try {
-      process = createViewProcess(viewDefinitionId, executionOptions, true);
+      process = createViewProcess(viewDefinitionId, executionOptions);
       return attachClientToViewProcessCore(client, listener, process, true);
     } catch (final Exception e) {
       // Roll-back
       if (process != null) {
-        removeViewProcess(process);
+        shutdownViewProcess(process);
       }
       s_logger.error("Error attaching client to private view process", e);
       throw new OpenGammaRuntimeException("Error attaching client to private view process", e);
@@ -310,13 +312,13 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
     }
   }
 
-  private ViewProcessImpl getOrCreateViewProcess(final UniqueId viewDefinitionId, final ViewExecutionOptions executionOptions) {
+  private ViewProcessImpl getOrCreateSharedViewProcess(UniqueId viewDefinitionId, ViewExecutionOptions executionOptions) {
     _processLock.lock();
     try {
       final ViewProcessDescription viewDescription = new ViewProcessDescription(viewDefinitionId, executionOptions);
       ViewProcessImpl process = _sharedProcessesByDescription.get(viewDescription);
       if (process == null) {
-        process = createViewProcess(viewDefinitionId, executionOptions, false);
+        process = createViewProcess(viewDefinitionId, executionOptions);
         _sharedProcessesByDescription.put(viewDescription, process);
       }
       return process;
@@ -325,14 +327,14 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
     }
   }
 
-  private ViewProcessImpl createViewProcess(final UniqueId definitionId, final ViewExecutionOptions executionOptions, final boolean privateProcess) {
+  private ViewProcessImpl createViewProcess(UniqueId definitionId, ViewExecutionOptions executionOptions) {
     _processLock.lock();
     try {
       final String idValue = generateIdValue(_processIdSource);
       final UniqueId viewProcessId = UniqueId.of(PROCESS_SCHEME, idValue);
       final ObjectId cycleObjectId = ObjectId.of(CYCLE_SCHEME, idValue);
       final ViewProcessContext viewProcessContext = createViewProcessContext();
-      final ViewProcessImpl viewProcess = new ViewProcessImpl(viewProcessId, definitionId, executionOptions, viewProcessContext, getViewCycleManager(), cycleObjectId);
+      final ViewProcessImpl viewProcess = new ViewProcessImpl(viewProcessId, definitionId, executionOptions, viewProcessContext, this, getViewCycleManager(), cycleObjectId);
 
       // If executing in batch mode then attach a special listener to write incoming results into the batch db
       if (executionOptions.getFlags().contains(ViewExecutionFlags.BATCH)) {
@@ -361,12 +363,22 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
     }
   }
   
-  private void removeViewProcess(final ViewProcessImpl viewProcess) {
+  /**
+   * Forcibly shuts down a view process and cleans up all resources.
+   * 
+   * @param viewProcessId  the identifier of the view process
+   */
+  public void shutdownViewProcess(final UniqueId viewProcessId) {
+    ViewProcessImpl viewProcess = getViewProcess(viewProcessId);
+    shutdownViewProcess(viewProcess);
+  }
+  
+  private void shutdownViewProcess(final ViewProcessImpl viewProcess) {
     s_logger.info("Removing view process {}", viewProcess);
     _processLock.lock();
     try {
       // Ignored if the process has already terminated (e.g. naturally)
-      viewProcess.shutdown();
+      viewProcess.shutdownCore();
       
       _allProcessesById.remove(viewProcess.getUniqueId());
       final ViewProcessDescription description = new ViewProcessDescription(viewProcess.getDefinitionId(), viewProcess.getExecutionOptions());
@@ -381,12 +393,22 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
     _viewProcessorEventListenerRegistry.notifyViewProcessRemoved(viewProcess.getUniqueId());
   }
   
-  private void removeViewProcessIfUnused(final ViewProcessImpl process) {
+  private void removeViewProcessIfUnused(ViewProcessImpl process) {
+    if (process.getState() == ViewProcessState.RUNNING && isShared(process)) {
+      return;
+    }
     if (!process.hasExecutionDemand()) {
-      // REVIEW jonathan 2011-03-25 -- could have rules for keeping processes around for some time in case new clients
-      // come along, to avoid the overhead of reconstructing them. Batch and terminated processes would still want to 
-      // be torn down straight away.
-      removeViewProcess(process);
+      shutdownViewProcess(process);
+    }
+  }
+  
+  private boolean isShared(ViewProcessImpl process) {
+    ViewProcessDescription description = new ViewProcessDescription(process.getDefinitionId(), process.getExecutionOptions());
+    _processLock.lock();
+    try {
+      return _sharedProcessesByDescription.containsKey(description);
+    } finally {
+      _processLock.unlock();
     }
   }
   
@@ -637,7 +659,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
       s_logger.info("Stopping on lifecycle call - terminating all children");
       
       for (final ViewProcessImpl viewProcess : getViewProcesses()) {
-        removeViewProcess(viewProcess);
+        shutdownViewProcess(viewProcess);
       }
       s_logger.info("All view processes terminated.");
       

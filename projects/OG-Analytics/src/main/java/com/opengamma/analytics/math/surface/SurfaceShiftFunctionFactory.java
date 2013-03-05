@@ -30,7 +30,7 @@ public class SurfaceShiftFunctionFactory {
   public static final NodalSurfaceAdditiveShiftFunction NODAL_ADDITIVE = new NodalSurfaceAdditiveShiftFunction();
   /** Multiplicative shift function for {@link NodalDoublesSurface} */
   public static final NodalSurfaceMultiplicativeShiftFunction NODAL_MULTIPLICATIVE = new NodalSurfaceMultiplicativeShiftFunction();
-  private static final Map<Class<?>, SurfaceShiftFunction<?>> s_instances = new HashMap<Class<?>, SurfaceShiftFunction<?>>();
+  private static final Map<Class<?>, SurfaceShiftFunction<?>> s_instances = new HashMap<>();
 
   static {
     s_instances.put(ConstantSurfaceAdditiveShiftFunction.class, CONSTANT_ADDITIVE);
@@ -123,8 +123,8 @@ public class SurfaceShiftFunctionFactory {
   /**
    * For a surface Surface<Double, Double, Double>, return a parallel-shifted surface.
    * @param surface The original surface
-   * @param x An array of <i>x</i> values to shift 
-   * @param y An array of <i>y</i> values to shift 
+   * @param x An array of <i>x</i> values to shift
+   * @param y An array of <i>y</i> values to shift
    * @param shift The shifts
    * @param useAdditive true if the shift is additive, false if the shift is multiplicative (i.e. a percentage shift)
    * @return A shifted surface with an automatically-generated name
@@ -158,7 +158,7 @@ public class SurfaceShiftFunctionFactory {
    * @param shift The shift
    * @param newName The name of the shifted surface
    * @param useAdditive true if the shift is additive, false if the shift is multiplicative (i.e. a percentage shift)
-   * @return A shifted surface 
+   * @return A shifted surface
    * @throws IllegalArgumentException If the surface type is not constant, functional, interpolated, nodal or spread
    */
   public static Surface<Double, Double, Double> getShiftedSurface(final Surface<Double, Double, Double> surface, final double shift, final String newName,
@@ -221,12 +221,12 @@ public class SurfaceShiftFunctionFactory {
   /**
    * For a surface Surface<Double, Double, Double>, return a parallel-shifted surface.
    * @param surface The original surface
-   * @param x An array of <i>x</i> values to shift 
-   * @param y An array of <i>y</i> values to shift 
+   * @param x An array of <i>x</i> values to shift
+   * @param y An array of <i>y</i> values to shift
    * @param shift The shifts
    * @param newName The name of the shifted surface
    * @param useAdditive true if the shift is additive, false if the shift is multiplicative (i.e. a percentage shift)
-   * @return A shifted surface 
+   * @return A shifted surface
    * @throws IllegalArgumentException If the surface type is not constant, functional, interpolated, nodal or spread
    */
   public static Surface<Double, Double, Double> getShiftedSurface(final Surface<Double, Double, Double> surface, final double[] x, final double[] y,

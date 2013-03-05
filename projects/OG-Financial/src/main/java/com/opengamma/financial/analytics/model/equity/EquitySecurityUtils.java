@@ -66,7 +66,7 @@ public final class EquitySecurityUtils {
         final int length = value.length();
         return value.substring(length - 3, length).toUpperCase(); //TODO fix this
       }
-      s_logger.error("Can only use BUIDs for equity index options; have {}", security);
+      s_logger.info("Can only use BUIDs for equity index options; have {}", security);
       return null;
     } else if (scheme.equals(ExternalSchemes.BLOOMBERG_TICKER) || scheme.equals(ExternalSchemes.BLOOMBERG_TICKER_WEAK)) {
       final int lastSpace = value.lastIndexOf(" ");
@@ -202,7 +202,7 @@ public final class EquitySecurityUtils {
    */
   //TODO: This should be moved somewhere non equity specific
   public static ExternalScheme getTargetType(final String surfaceName) {
-    ExternalScheme target = SCHEME_MAPPING.get(surfaceName);
+    final ExternalScheme target = SCHEME_MAPPING.get(surfaceName);
     if (target == null) {
       s_logger.warn("Can't determine data scheme from surface/curve name: " + surfaceName);
       return null;
@@ -216,7 +216,7 @@ public final class EquitySecurityUtils {
    * @return the source scheme
    */
   public static ExternalScheme getRemappedScheme(final ExternalScheme scheme) {
-    ExternalScheme remappedScheme = SCHEME_REMAPPING.get(scheme);
+    final ExternalScheme remappedScheme = SCHEME_REMAPPING.get(scheme);
     if (remappedScheme == null) {
       return scheme; //no remapping
     }

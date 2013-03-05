@@ -14,9 +14,10 @@ import com.opengamma.analytics.financial.forex.derivative.ForexSwap;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
+import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositCounterpart;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositZero;
-import com.opengamma.analytics.financial.interestrate.fra.ForwardRateAgreement;
-import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
+import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRateAgreement;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
@@ -33,7 +34,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
- * Calculates the payment amounts due on the valuation date (|time to payment|<small). 
+ * Calculates the payment amounts due on the valuation date (|time to payment|<small).
  */
 public final class TodayPaymentCalculator extends InstrumentDerivativeVisitorAdapter<Object, MultipleCurrencyAmount> {
   /**
@@ -81,6 +82,8 @@ public final class TodayPaymentCalculator extends InstrumentDerivativeVisitorAda
     return (Math.abs(paymentTime) < Math.abs(_timeLimit) && _timeLimit * paymentTime >= 0);
   }
 
+  //     -----     Deposit     -----
+
   @Override
   public MultipleCurrencyAmount visitCash(final Cash deposit) {
     ArgumentChecker.notNull(deposit, "instrument");
@@ -108,13 +111,26 @@ public final class TodayPaymentCalculator extends InstrumentDerivativeVisitorAda
   }
 
   @Override
+  public MultipleCurrencyAmount visitDepositCounterpart(final DepositCounterpart deposit) {
+    ArgumentChecker.notNull(deposit, "instrument");
+    MultipleCurrencyAmount cash = MultipleCurrencyAmount.of(deposit.getCurrency(), 0.0);
+    if (isWithinLimit(deposit.getStartTime())) {
+      cash = cash.plus(deposit.getCurrency(), -deposit.getInitialAmount());
+    }
+    if (isWithinLimit(deposit.getEndTime())) {
+      cash = cash.plus(deposit.getCurrency(), deposit.getNotional() + deposit.getInterestAmount());
+    }
+    return cash;
+  }
+
+  @Override
   public MultipleCurrencyAmount visitForwardRateAgreement(final ForwardRateAgreement fra) {
     ArgumentChecker.notNull(fra, "instrument");
     return MultipleCurrencyAmount.of(fra.getCurrency(), 0.0);
   }
 
   @Override
-  public MultipleCurrencyAmount visitInterestRateFuture(final InterestRateFuture future) {
+  public MultipleCurrencyAmount visitInterestRateFutureTransaction(final InterestRateFutureTransaction future) {
     ArgumentChecker.notNull(future, "instrument");
     return MultipleCurrencyAmount.of(future.getCurrency(), 0.0);
   }

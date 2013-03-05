@@ -41,16 +41,9 @@ public class RectangularViewportDefinition extends ViewportDefinition {
     super(version, format);
     ArgumentChecker.notEmpty(rows, "rows");
     ArgumentChecker.notEmpty(columns, "columns");
+    // TODO PLAT-3132 remove the sorting and bounds checks
     List<Integer> sortedColumns = Lists.newArrayList(columns);
     List<Integer> sortedRows = Lists.newArrayList(rows);
-    Collections.sort(sortedColumns);
-    Collections.sort(sortedRows);
-    if (sortedRows.get(0) < 0) {
-      throw new IllegalArgumentException("All row indices must be non-negative: " + rows);
-    }
-    if (sortedColumns.get(0) < 0) {
-      throw new IllegalArgumentException("All column indices must be non-negative: " + sortedColumns);
-    }
     _rows = ImmutableList.copyOf(sortedRows);
     _columns = ImmutableList.copyOf(sortedColumns);
   }

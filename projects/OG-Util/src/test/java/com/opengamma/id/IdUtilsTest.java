@@ -15,7 +15,7 @@ import org.testng.annotations.Test;
 /**
  * Test {@link IdUtils}. 
  */
-@Test
+@Test(groups = "unit")
 public class IdUtilsTest {
 
   @SuppressWarnings("unchecked")

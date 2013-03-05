@@ -22,6 +22,10 @@ $.register_module({
                     new form.Block({module:'og.views.forms.currency_tash', 
                         extras:{name: leg + "notional.currency"}
                     }),
+                    new ui.Dropdown({
+                        form: form, resource: 'blotter.regions', index:  leg + 'regionId',
+                        value: data.regionId, placeholder: 'Select Region ID'
+                    }),
                     new og.blotter.forms.blocks.Security({
                         form: form, label: "Short Underlying ID", security: data.floatingReferenceRateId,
                         index: leg + "floatingReferenceRateId"

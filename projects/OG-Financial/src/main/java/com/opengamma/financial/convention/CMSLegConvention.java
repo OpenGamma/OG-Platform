@@ -1,26 +1,28 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.convention;
 
-import org.joda.beans.BeanDefinition;
-import org.joda.beans.PropertyDefinition;
-import org.threeten.bp.Period;
-
-import com.opengamma.id.ExternalIdBundle;
 import java.util.Map;
+
 import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.threeten.bp.Period;
+
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 
 /**
- * 
+ *
  */
 @BeanDefinition
 public class CMSLegConvention extends Convention {
@@ -32,7 +34,7 @@ public class CMSLegConvention extends Convention {
    * The swap index convention.
    */
   @PropertyDefinition(validate = "notNull")
-  private String _swapIndexConvention;
+  private ExternalId _swapIndexConvention;
 
   /**
    * The payment period.
@@ -53,7 +55,7 @@ public class CMSLegConvention extends Convention {
     super();
   }
 
-  public CMSLegConvention(final String name, final ExternalIdBundle externalIdBundle, final String swapIndexConvention, final Period paymentPeriod, final boolean isAdvanceFixing) {
+  public CMSLegConvention(final String name, final ExternalIdBundle externalIdBundle, final ExternalId swapIndexConvention, final Period paymentPeriod, final boolean isAdvanceFixing) {
     super(name, externalIdBundle);
     setSwapIndexConvention(swapIndexConvention);
     setPaymentPeriod(paymentPeriod);
@@ -94,7 +96,7 @@ public class CMSLegConvention extends Convention {
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -1606291504:  // swapIndexConvention
-        setSwapIndexConvention((String) newValue);
+        setSwapIndexConvention((ExternalId) newValue);
         return;
       case 1331459943:  // paymentPeriod
         setPaymentPeriod((Period) newValue);
@@ -142,7 +144,7 @@ public class CMSLegConvention extends Convention {
    * Gets the swap index convention.
    * @return the value of the property, not null
    */
-  public String getSwapIndexConvention() {
+  public ExternalId getSwapIndexConvention() {
     return _swapIndexConvention;
   }
 
@@ -150,7 +152,7 @@ public class CMSLegConvention extends Convention {
    * Sets the swap index convention.
    * @param swapIndexConvention  the new value of the property, not null
    */
-  public void setSwapIndexConvention(String swapIndexConvention) {
+  public void setSwapIndexConvention(ExternalId swapIndexConvention) {
     JodaBeanUtils.notNull(swapIndexConvention, "swapIndexConvention");
     this._swapIndexConvention = swapIndexConvention;
   }
@@ -159,7 +161,7 @@ public class CMSLegConvention extends Convention {
    * Gets the the {@code swapIndexConvention} property.
    * @return the property, not null
    */
-  public final Property<String> swapIndexConvention() {
+  public final Property<ExternalId> swapIndexConvention() {
     return metaBean().swapIndexConvention().createProperty(this);
   }
 
@@ -227,8 +229,8 @@ public class CMSLegConvention extends Convention {
     /**
      * The meta-property for the {@code swapIndexConvention} property.
      */
-    private final MetaProperty<String> _swapIndexConvention = DirectMetaProperty.ofReadWrite(
-        this, "swapIndexConvention", CMSLegConvention.class, String.class);
+    private final MetaProperty<ExternalId> _swapIndexConvention = DirectMetaProperty.ofReadWrite(
+        this, "swapIndexConvention", CMSLegConvention.class, ExternalId.class);
     /**
      * The meta-property for the {@code paymentPeriod} property.
      */
@@ -243,7 +245,7 @@ public class CMSLegConvention extends Convention {
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "swapIndexConvention",
         "paymentPeriod",
         "isAdvanceFixing");
@@ -287,7 +289,7 @@ public class CMSLegConvention extends Convention {
      * The meta-property for the {@code swapIndexConvention} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<String> swapIndexConvention() {
+    public final MetaProperty<ExternalId> swapIndexConvention() {
       return _swapIndexConvention;
     }
 

@@ -142,10 +142,12 @@ import com.opengamma.util.OpenGammaClock;
     ManageableTrade trade = buildTrade(tradeData);
     // TODO check if the ID is versioned?
     ManageablePosition position = getPositionMaster().get(positionId).getPosition();
-    if (!trade.getSecurityLink().equals(position.getSecurityLink())) {
+    // TODO this is a temporary workaround for a client bug. not sure what the correct behaviour is yet
+    trade.setUniqueId(null);
+    /*if (!trade.getSecurityLink().equals(position.getSecurityLink())) {
       throw new IllegalArgumentException("Cannot update a position's security. new version " + trade.getSecurityLink() +
                                              ", previous version: " + position.getSecurityLink());
-    }
+    }*/
     if (position.getTrades().size() != 0) {
       throw new IllegalArgumentException("Cannot directly update a position that contains trade. Update the trades");
     }

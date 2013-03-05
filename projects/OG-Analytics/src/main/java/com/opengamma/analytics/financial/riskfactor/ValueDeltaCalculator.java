@@ -9,6 +9,7 @@ import com.opengamma.analytics.financial.commodity.derivative.AgricultureFutureO
 import com.opengamma.analytics.financial.commodity.derivative.EnergyFutureOption;
 import com.opengamma.analytics.financial.commodity.derivative.MetalFutureOption;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
+import com.opengamma.analytics.financial.equity.option.EquityIndexFutureOption;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.equity.option.EquityOption;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
@@ -16,7 +17,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisito
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Calculates the value (or dollar) delta of an option given market data and the delta. The value delta is defined as the 
+ * Calculates the value (or dollar) delta of an option given market data and the delta. The value delta is defined as the
  * option delta multiplied by the spot and shares per option.
  */
 public final class ValueDeltaCalculator implements ValueGreekCalculator {
@@ -59,6 +60,11 @@ public final class ValueDeltaCalculator implements ValueGreekCalculator {
     @Override
     public Double visitEquityOption(final EquityOption option, final StaticReplicationDataBundle market) {
       return option.getUnitAmount() * market.getForwardCurve().getSpot();
+    }
+
+    @Override
+    public Double visitEquityIndexFutureOption(final EquityIndexFutureOption option, final StaticReplicationDataBundle market) {
+      return option.getPointValue() * market.getForwardCurve().getSpot();
     }
 
     @Override

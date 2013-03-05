@@ -36,7 +36,7 @@ import com.opengamma.financial.temptarget.rest.RemoteTempTargetRepository;
 import com.opengamma.financial.temptarget.rest.RemoteTempTargetSource;
 
 /**
- * Component factory for the temporary target repository
+ * Component factory providing the {@code TempTargetRepository} and {@code TempTargetSource}.
  */
 @BeanDefinition
 public class TempTargetRepositoryComponentFactory extends AbstractComponentFactory {
@@ -46,30 +46,31 @@ public class TempTargetRepositoryComponentFactory extends AbstractComponentFacto
    */
   @PropertyDefinition(validate = "notNull")
   private String _classifier;
-
   /**
    * The flag determining whether the component should be published by REST (default true).
    */
   @PropertyDefinition
   private boolean _publishRest = true;
-
   /**
-   * The path to use for storage if required and created locally. The folder will be created if it doesn't exist. If it does exist, any files or folders within it may be destroyed. If omitted a folder
-   * will be created with {@link Files#createTempDir}.
+   * The path to use for storage if required and created locally.
+   * The folder will be created if it doesn't exist. If it does exist, any files or folders within it may be destroyed.
+   * If omitted a folder will be created with {@link Files#createTempDir}.
    * <p>
    * Ignored if {@link #_remoteURL} is specified.
    */
   @PropertyDefinition
   private String _path;
-
   /**
-   * The URI of a remote repository to be used. When this is set, {@link #_publishRest} should normally be set to false - it is normally inefficient to "republish" a REST resource this way.
+   * The URI of a remote repository to be used.
+   * When this is set, {@link #_publishRest} should normally be set to false - it is normally
+   * inefficient to "republish" a REST resource this way.
    * <p>
    * If omitted, a local repository will be created.
    */
   @PropertyDefinition
   private String _remote;
 
+  //-------------------------------------------------------------------------
   protected void registerSource(final ComponentRepository repo, final TempTargetSource instance) {
     final ComponentInfo info = new ComponentInfo(TempTargetSource.class, getClassifier());
     info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
@@ -260,8 +261,9 @@ public class TempTargetRepositoryComponentFactory extends AbstractComponentFacto
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the path to use for storage if required and created locally. The folder will be created if it doesn't exist. If it does exist, any files or folders within it may be destroyed. If omitted a folder
-   * will be created with {@link Files#createTempDir}.
+   * Gets the path to use for storage if required and created locally.
+   * The folder will be created if it doesn't exist. If it does exist, any files or folders within it may be destroyed.
+   * If omitted a folder will be created with {@link Files#createTempDir}.
    * <p>
    * Ignored if {@link #_remoteURL} is specified.
    * @return the value of the property
@@ -271,8 +273,9 @@ public class TempTargetRepositoryComponentFactory extends AbstractComponentFacto
   }
 
   /**
-   * Sets the path to use for storage if required and created locally. The folder will be created if it doesn't exist. If it does exist, any files or folders within it may be destroyed. If omitted a folder
-   * will be created with {@link Files#createTempDir}.
+   * Sets the path to use for storage if required and created locally.
+   * The folder will be created if it doesn't exist. If it does exist, any files or folders within it may be destroyed.
+   * If omitted a folder will be created with {@link Files#createTempDir}.
    * <p>
    * Ignored if {@link #_remoteURL} is specified.
    * @param path  the new value of the property
@@ -283,7 +286,8 @@ public class TempTargetRepositoryComponentFactory extends AbstractComponentFacto
 
   /**
    * Gets the the {@code path} property.
-   * will be created with {@link Files#createTempDir}.
+   * The folder will be created if it doesn't exist. If it does exist, any files or folders within it may be destroyed.
+   * If omitted a folder will be created with {@link Files#createTempDir}.
    * <p>
    * Ignored if {@link #_remoteURL} is specified.
    * @return the property, not null
@@ -294,7 +298,9 @@ public class TempTargetRepositoryComponentFactory extends AbstractComponentFacto
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the URI of a remote repository to be used. When this is set, {@link #_publishRest} should normally be set to false - it is normally inefficient to "republish" a REST resource this way.
+   * Gets the URI of a remote repository to be used.
+   * When this is set, {@link #_publishRest} should normally be set to false - it is normally
+   * inefficient to "republish" a REST resource this way.
    * <p>
    * If omitted, a local repository will be created.
    * @return the value of the property
@@ -304,7 +310,9 @@ public class TempTargetRepositoryComponentFactory extends AbstractComponentFacto
   }
 
   /**
-   * Sets the URI of a remote repository to be used. When this is set, {@link #_publishRest} should normally be set to false - it is normally inefficient to "republish" a REST resource this way.
+   * Sets the URI of a remote repository to be used.
+   * When this is set, {@link #_publishRest} should normally be set to false - it is normally
+   * inefficient to "republish" a REST resource this way.
    * <p>
    * If omitted, a local repository will be created.
    * @param remote  the new value of the property
@@ -315,6 +323,8 @@ public class TempTargetRepositoryComponentFactory extends AbstractComponentFacto
 
   /**
    * Gets the the {@code remote} property.
+   * When this is set, {@link #_publishRest} should normally be set to false - it is normally
+   * inefficient to "republish" a REST resource this way.
    * <p>
    * If omitted, a local repository will be created.
    * @return the property, not null
@@ -357,7 +367,7 @@ public class TempTargetRepositoryComponentFactory extends AbstractComponentFacto
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier",
         "publishRest",
         "path",

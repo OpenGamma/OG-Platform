@@ -26,6 +26,7 @@ $.register_module({
             var add_handler = function (obj) {
                 add_row_handler(obj).html(function (html) {
                     menu.add_handler($(html));
+                    select_handler(menu.opts.length-1, true);
                 });
             };
 
@@ -58,7 +59,9 @@ $.register_module({
             };
 
             var serialize = function () {
-                return remove_orphans(), query.pluck('val');
+                return remove_orphans(), query.pluck('val').filter(function (entry) {
+                    return entry !== default_sel_txt;
+                });
             };
 
             var init = function () {
@@ -69,6 +72,7 @@ $.register_module({
                         menu.$dom.menu.on('click', 'input, button, div.og-icon-delete, a.OG-link-add', menu_handler)
                             .on('change', 'select', menu_handler);
                     }
+                    menu.opts.forEach(function (entry, idx) { select_handler(idx, true); });
                     og.common.events.on('aggregators:dropmenu:open', function() {menu.fire('dropmenu:open', this);});
                     og.common.events.on('aggregators:dropmenu:close', function() {menu.fire('dropmenu:close', this);});
                     og.common.events.on('aggregators:dropmenu:focus', function() {menu.fire('dropmenu:focus', this);});
@@ -91,7 +95,7 @@ $.register_module({
 
             var remove_entry = function (entry) {
                 if (query.length === 1) return query.length = 0;
-                query.splice(entry, 1);
+                if (~entry) query.splice(entry, 1);
             };
 
             var remove_orphans = function () {
@@ -114,12 +118,15 @@ $.register_module({
                 return init_menu_elems(0), reset_query();
             };
 
-            var select_handler = function (entry) {
-                if (sel_val === default_sel_txt) {
-                    remove_entry(entry);
-                    if (query.length === 0) return $query.html(default_query_text);
+            var select_handler = function (entry, preload) {
+                if (!menu.opts[entry]) return;
+                var sel_pos = menu.opts[entry].data('pos'), select = $(select_s, menu.opts[entry]),
+                    sel_val = select.val(), idx = query.pluck('pos').indexOf(sel_pos);
+                if (sel_val === default_sel_txt && !preload) {
+                    remove_entry(idx);
+                    if (query.length === 0) $query.html(default_sel_txt);
                 }
-                else if (~entry) query[entry].val = sel_val;
+                else if (~idx) query[entry].val = sel_val;
                 else query.splice(sel_pos, 0, {pos:sel_pos, val:sel_val, required_field:false});
             };
 

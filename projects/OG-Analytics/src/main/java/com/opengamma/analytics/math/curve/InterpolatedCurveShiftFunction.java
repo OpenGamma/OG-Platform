@@ -9,11 +9,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.commons.lang.Validate;
+import com.opengamma.util.ArgumentChecker;
 
 /**
- * Shifts an {@link InterpolatedDoublesCurve}. If the <i>x</i> value(s) of the shift(s) are not in the nodal points of the 
- * original curve, they are added (with shift) to the nodal points of the new curve. 
+ * Shifts an {@link InterpolatedDoublesCurve}. If the <i>x</i> value(s) of the shift(s) are not in the nodal points of the
+ * original curve, they are added (with shift) to the nodal points of the new curve.
  */
 public class InterpolatedCurveShiftFunction implements CurveShiftFunction<InterpolatedDoublesCurve> {
 
@@ -22,7 +22,7 @@ public class InterpolatedCurveShiftFunction implements CurveShiftFunction<Interp
    */
   @Override
   public InterpolatedDoublesCurve evaluate(final InterpolatedDoublesCurve curve, final double shift) {
-    Validate.notNull(curve, "curve");
+    ArgumentChecker.notNull(curve, "curve");
     return evaluate(curve, shift, "PARALLEL_SHIFT_" + curve.getName());
   }
 
@@ -31,7 +31,7 @@ public class InterpolatedCurveShiftFunction implements CurveShiftFunction<Interp
    */
   @Override
   public InterpolatedDoublesCurve evaluate(final InterpolatedDoublesCurve curve, final double shift, final String newName) {
-    Validate.notNull(curve, "curve");
+    ArgumentChecker.notNull(curve, "curve");
     final double[] xData = curve.getXDataAsPrimitive();
     final double[] yData = curve.getYDataAsPrimitive();
     final double[] shiftedY = new double[yData.length];
@@ -47,7 +47,7 @@ public class InterpolatedCurveShiftFunction implements CurveShiftFunction<Interp
    */
   @Override
   public InterpolatedDoublesCurve evaluate(final InterpolatedDoublesCurve curve, final double x, final double shift) {
-    Validate.notNull(curve, "curve");
+    ArgumentChecker.notNull(curve, "curve");
     return evaluate(curve, x, shift, "SINGLE_SHIFT_" + curve.getName());
   }
 
@@ -56,7 +56,7 @@ public class InterpolatedCurveShiftFunction implements CurveShiftFunction<Interp
    */
   @Override
   public InterpolatedDoublesCurve evaluate(final InterpolatedDoublesCurve curve, final double x, final double shift, final String newName) {
-    Validate.notNull(curve, "curve");
+    ArgumentChecker.notNull(curve, "curve");
     final double[] xData = curve.getXDataAsPrimitive();
     final double[] yData = curve.getYDataAsPrimitive();
     final int n = xData.length;
@@ -82,7 +82,7 @@ public class InterpolatedCurveShiftFunction implements CurveShiftFunction<Interp
    */
   @Override
   public InterpolatedDoublesCurve evaluate(final InterpolatedDoublesCurve curve, final double[] xShift, final double[] yShift) {
-    Validate.notNull(curve, "curve");
+    ArgumentChecker.notNull(curve, "curve");
     return evaluate(curve, xShift, yShift, "MULTIPLE_POINT_SHIFT_" + curve.getName());
   }
 
@@ -91,15 +91,15 @@ public class InterpolatedCurveShiftFunction implements CurveShiftFunction<Interp
    */
   @Override
   public InterpolatedDoublesCurve evaluate(final InterpolatedDoublesCurve curve, final double[] xShift, final double[] yShift, final String newName) {
-    Validate.notNull(curve, "curve");
-    Validate.notNull(xShift, "x shifts");
-    Validate.notNull(yShift, "y shifts");
-    Validate.isTrue(xShift.length == yShift.length);
+    ArgumentChecker.notNull(curve, "curve");
+    ArgumentChecker.notNull(xShift, "x shifts");
+    ArgumentChecker.notNull(yShift, "y shifts");
+    ArgumentChecker.isTrue(xShift.length == yShift.length, "number of x shifts {} must equal number of y shifts {}", xShift.length, yShift.length);
     if (xShift.length == 0) {
       return InterpolatedDoublesCurve.from(curve.getXDataAsPrimitive(), curve.getYDataAsPrimitive(), curve.getInterpolator(), newName);
     }
-    final List<Double> newX = new ArrayList<Double>(Arrays.asList(curve.getXData()));
-    final List<Double> newY = new ArrayList<Double>(Arrays.asList(curve.getYData()));
+    final List<Double> newX = new ArrayList<>(Arrays.asList(curve.getXData()));
+    final List<Double> newY = new ArrayList<>(Arrays.asList(curve.getYData()));
     for (int i = 0; i < xShift.length; i++) {
       final int index = newX.indexOf(xShift[i]);
       if (index >= 0) {

@@ -240,6 +240,10 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
       return null;
     }
     final String[] yieldCurveNames = curveCalculationConfig.getYieldCurveNames();
+    if (yieldCurveNames.length == 0) {
+      s_logger.error("Curve calculation configuration called {} did not contain any yield curve names", curveCalculationConfigName);
+      return null;
+    }
     final Set<ValueRequirement> requirements = new HashSet<>();
     final Currency currency = FinancialSecurityUtils.getCurrency(position.getSecurity());
     final String currencyString = currency.getCode();
@@ -303,7 +307,7 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
 
   @Override
   public boolean canHandleMissingRequirements() {
-    return true;
+    return false;
   }
 
   /**

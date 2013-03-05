@@ -42,4 +42,9 @@
     </dependency>
   </dependencies>
 
+  <properties>
+    <fudge.proto.equals>false</fudge.proto.equals>
+    <fudge.proto.hashCode>false</fudge.proto.hashCode>
+  </properties>
+
 </project>

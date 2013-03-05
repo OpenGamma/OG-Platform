@@ -176,7 +176,7 @@ public class EquityDerivativeSensitivityCalculator {
 
     final double settlement = derivative.accept(SETTLEMENT_CALCULATOR);
     final Double sens = calcDiscountRateSensitivity(derivative, market);
-    final Map<String, List<DoublesPair>> curveSensitivities = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> curveSensitivities = new HashMap<>();
     curveSensitivities.put(discCrvName, Lists.newArrayList(new DoublesPair(settlement, sens)));
 
     final NodeYieldSensitivityCalculator distributor = PresentValueNodeSensitivityCalculator.getDefaultInstance();
@@ -281,7 +281,7 @@ public class EquityDerivativeSensitivityCalculator {
       final Function1D<Double, Double>[] smileFitsBase = surfaceInterpolator.getIndependentSmileFits(volGrid);
 
       // Bump and reprice - loop over expiry and strike
-      final List<Triple<Double, Double, Double>> triplesExpiryStrikeVega = new ArrayList<Triple<Double, Double, Double>>();
+      final List<Triple<Double, Double, Double>> triplesExpiryStrikeVega = new ArrayList<>();
       // TODO: REVIEW: We can drastically reduce the time it takes to compute this if we are sensible about avoiding points which almost certainly won't have any sensitivity
       // Of course, this is all based upon the interpolor's scheme...
       final int expiryIndex = SurfaceArrayUtils.getLowerBoundIndex(volExpiries, option.getTimeToExpiry());
@@ -302,7 +302,7 @@ public class EquityDerivativeSensitivityCalculator {
 
           ArgumentChecker.notNull(pvScenario, "Null PV in shifted scenario, T = " + volExpiries[t] + ", k = " + strikes[t][k]);
           final Double vega = (pvScenario - pvBase) / -shift;
-          final Triple<Double, Double, Double> xyz = new Triple<Double, Double, Double>(volExpiries[t], strikes[t][k], vega);
+          final Triple<Double, Double, Double> xyz = new Triple<>(volExpiries[t], strikes[t][k], vega);
           triplesExpiryStrikeVega.add(xyz);
         }
       }

@@ -12,6 +12,7 @@ import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.model.futureoption.BarrierOptionDistanceDefaults;
+import com.opengamma.financial.analytics.model.futureoption.BarrierOptionDistanceFunction;
 
 /**
  * Function repository configuration source for the functions contained in this package.
@@ -59,7 +60,7 @@ public class OptionFunctions extends AbstractRepositoryConfigurationBean {
 
     private double _overhedge; /* = 0.0; */
     private double _callSpreadFullWidth = 0.001;
-    private String _barrierFormat = EquityVanillaBarrierOptionDistanceFunction.BARRIER_ABS;
+    private String _barrierFormat = BarrierOptionDistanceFunction.BARRIER_ABS;
 
     public void setOverhedge(final double overhedge) {
       _overhedge = overhedge;
@@ -139,7 +140,7 @@ public class OptionFunctions extends AbstractRepositoryConfigurationBean {
     functions.add(functionConfiguration(PositionGreeksFunction.class, ValueRequirementNames.POSITION_RHO, ValueRequirementNames.RHO));
     functions.add(functionConfiguration(PositionGreeksFunction.class, ValueRequirementNames.POSITION_THETA, ValueRequirementNames.THETA));
     functions.add(functionConfiguration(PositionGreeksFunction.class, ValueRequirementNames.POSITION_VEGA, ValueRequirementNames.VEGA));
-    functions.add(functionConfiguration(WeightedVegaFunction.class)); 
+    functions.add(functionConfiguration(WeightedVegaFunction.class));
     functions.add(functionConfiguration(EquityVanillaBarrierOptionDistanceFunction.class));
   }
 

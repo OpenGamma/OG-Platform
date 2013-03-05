@@ -20,7 +20,7 @@ import org.testng.annotations.Test;
 /**
  * Tests the various Fudge-specific conduit forms.
  */
-@Test
+@Test(groups = "integration")
 public class FudgeConduitTest {
 
   public void oneWayTest() {

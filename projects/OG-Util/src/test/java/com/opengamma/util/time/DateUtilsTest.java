@@ -19,7 +19,7 @@ import org.threeten.bp.ZonedDateTime;
 /**
  * Test DateUtils.
  */
-@Test
+@Test(groups = "unit")
 public class DateUtilsTest {
   private static final double EPS = 1e-9;
 

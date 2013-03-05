@@ -266,6 +266,23 @@ public class Obligor extends DirectBean {
   }
 
   @Override
+  protected void validate() {
+    JodaBeanUtils.notNull(_obligorTicker, "obligorTicker");
+    JodaBeanUtils.notNull(_obligorShortName, "obligorShortName");
+    JodaBeanUtils.notNull(_obligorREDCode, "obligorREDCode");
+    JodaBeanUtils.notNull(_compositeRating, "compositeRating");
+    JodaBeanUtils.notNull(_impliedRating, "impliedRating");
+    JodaBeanUtils.notNull(_moodysCreditRating, "moodysCreditRating");
+    JodaBeanUtils.notNull(_standardAndPoorsCreditRating, "standardAndPoorsCreditRating");
+    JodaBeanUtils.notNull(_fitchCreditRating, "fitchCreditRating");
+    JodaBeanUtils.notNull(_hasDefaulted, "hasDefaulted");
+    JodaBeanUtils.notNull(_sector, "sector");
+    JodaBeanUtils.notNull(_region, "region");
+    JodaBeanUtils.notNull(_country, "country");
+    super.validate();
+  }
+
+  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;
@@ -309,7 +326,7 @@ public class Obligor extends DirectBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the obligorTicker.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public String getObligorTicker() {
     return _obligorTicker;
@@ -326,7 +343,7 @@ public class Obligor extends DirectBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the obligorShortName.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public String getObligorShortName() {
     return _obligorShortName;
@@ -343,7 +360,7 @@ public class Obligor extends DirectBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the obligorREDCode.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public String getObligorREDCode() {
     return _obligorREDCode;
@@ -360,7 +377,7 @@ public class Obligor extends DirectBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the compositeRating.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public CreditRating getCompositeRating() {
     return _compositeRating;
@@ -377,7 +394,7 @@ public class Obligor extends DirectBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the impliedRating.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public CreditRating getImpliedRating() {
     return _impliedRating;
@@ -394,7 +411,7 @@ public class Obligor extends DirectBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the moodysCreditRating.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public CreditRatingMoodys getMoodysCreditRating() {
     return _moodysCreditRating;
@@ -411,7 +428,7 @@ public class Obligor extends DirectBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the standardAndPoorsCreditRating.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public CreditRatingStandardAndPoors getStandardAndPoorsCreditRating() {
     return _standardAndPoorsCreditRating;
@@ -428,7 +445,7 @@ public class Obligor extends DirectBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the fitchCreditRating.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public CreditRatingFitch getFitchCreditRating() {
     return _fitchCreditRating;
@@ -445,7 +462,7 @@ public class Obligor extends DirectBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the hasDefaulted.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public boolean isHasDefaulted() {
     return _hasDefaulted;
@@ -462,7 +479,7 @@ public class Obligor extends DirectBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the sector.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public Sector getSector() {
     return _sector;
@@ -479,7 +496,7 @@ public class Obligor extends DirectBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the region.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public Region getRegion() {
     return _region;
@@ -496,7 +513,7 @@ public class Obligor extends DirectBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the country.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public String getCountry() {
     return _country;

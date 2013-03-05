@@ -25,23 +25,23 @@ import org.testng.annotations.Test;
 
 import com.opengamma.util.timeseries.ObjectTimeSeries;
 
-@Test
+@Test(groups = "unit")
 public abstract class ObjectTimeSeriesTest<E, T> {
   
   @SuppressWarnings("unused")
   private static final Logger s_logger = LoggerFactory.getLogger(ObjectTimeSeriesTest.class);
    
-  public abstract ObjectTimeSeries<E, T> createEmptyTimeSeries();
-  public abstract ObjectTimeSeries<E, T> createTimeSeries(E[] times, T[] values);
-  public abstract ObjectTimeSeries<E, T> createTimeSeries(List<E> times, List<T> values);
-  public abstract ObjectTimeSeries<E, T> createTimeSeries(ObjectTimeSeries<E, T> dts);
+  protected abstract ObjectTimeSeries<E, T> createEmptyTimeSeries();
+  protected abstract ObjectTimeSeries<E, T> createTimeSeries(E[] times, T[] values);
+  protected abstract ObjectTimeSeries<E, T> createTimeSeries(List<E> times, List<T> values);
+  protected abstract ObjectTimeSeries<E, T> createTimeSeries(ObjectTimeSeries<E, T> dts);
 
-  public abstract E[] emptyTimes();
-  public abstract E[] testTimes();
-  public abstract E[] testTimes2();
+  protected abstract E[] emptyTimes();
+  protected abstract E[] testTimes();
+  protected abstract E[] testTimes2();
   
-  public abstract T[] emptyValues();
-  public abstract T[] testValues();
+  protected abstract T[] emptyValues();
+  protected abstract T[] testValues();
   
   public void testArrayConstructor() {
     ObjectTimeSeries<E, T> dts = createTimeSeries(emptyTimes(), emptyValues());

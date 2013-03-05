@@ -40,7 +40,7 @@ public final class CommodityFutureOptionBlackMethod {
     ArgumentChecker.notNull(marketData, "marketData");
     final double expiry = derivative.getExpiry();
     final double strike = derivative.getStrike();
-    final double notional = derivative.getUnderlying().getAmount();
+    final double notional = derivative.getUnderlying().getUnitAmount();
     final double forward = marketData.getForwardCurve().getForward(expiry);
     final double blackVol = marketData.getVolatilitySurface().getVolatility(expiry, strike);
     final double fwdPrice = BlackFormulaRepository.price(forward, strike, expiry, blackVol, derivative.isCall());

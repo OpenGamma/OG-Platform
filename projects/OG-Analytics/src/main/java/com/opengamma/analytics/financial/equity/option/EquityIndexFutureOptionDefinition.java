@@ -32,6 +32,8 @@ public class EquityIndexFutureOptionDefinition implements InstrumentDefinition<E
   private final ExerciseDecisionType _exerciseType;
   /** Is the option a put or call */
   private final boolean _isCall;
+  /** The point value */
+  private final double _pointValue;
 
   /**
    * @param expiryDate The expiry date, not null
@@ -39,9 +41,10 @@ public class EquityIndexFutureOptionDefinition implements InstrumentDefinition<E
    * @param strike The strike, greater than zero
    * @param exerciseType The exercise type, not null
    * @param isCall true if call, false if put
+   * @param pointValue The point value
    */
   public EquityIndexFutureOptionDefinition(final ZonedDateTime expiryDate, final EquityFutureDefinition underlying, final double strike, final ExerciseDecisionType exerciseType,
-      final boolean isCall) {
+      final boolean isCall, final double pointValue) {
     ArgumentChecker.notNull(expiryDate, "expiry date");
     ArgumentChecker.notNull(underlying, "underlying");
     ArgumentChecker.notNegativeOrZero(strike, "strike");
@@ -51,6 +54,7 @@ public class EquityIndexFutureOptionDefinition implements InstrumentDefinition<E
     _strike = strike;
     _exerciseType = exerciseType;
     _isCall = isCall;
+    _pointValue = pointValue;
   }
 
   /**
@@ -93,6 +97,14 @@ public class EquityIndexFutureOptionDefinition implements InstrumentDefinition<E
     return _isCall;
   }
 
+  /**
+   * Gets the point value.
+   * @return The point value
+   */
+  public double getPointValue() {
+    return _pointValue;
+  }
+
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -102,6 +114,8 @@ public class EquityIndexFutureOptionDefinition implements InstrumentDefinition<E
     result = prime * result + (_isCall ? 1231 : 1237);
     long temp;
     temp = Double.doubleToLongBits(_strike);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_pointValue);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     result = prime * result + _underlying.hashCode();
     return result;
@@ -125,6 +139,9 @@ public class EquityIndexFutureOptionDefinition implements InstrumentDefinition<E
     if (Double.compare(_strike, other._strike) != 0) {
       return false;
     }
+    if (Double.compare(_pointValue, other._pointValue) != 0) {
+      return false;
+    }
     if (!ObjectUtils.equals(_expiryDate, other._expiryDate)) {
       return false;
     }
@@ -144,7 +161,7 @@ public class EquityIndexFutureOptionDefinition implements InstrumentDefinition<E
     final Currency currency = _underlying.getCurrency();
     final double unitValue = _underlying.getUnitAmount();
     final EquityIndexFuture underlying = new EquityIndexFuture(timeToFutureFixing, timeToFutureDelivery, futureStrike, currency, unitValue);
-    return new EquityIndexFutureOption(timeToExpiry, underlying, _strike, _exerciseType, _isCall);
+    return new EquityIndexFutureOption(timeToExpiry, underlying, _strike, _exerciseType, _isCall, _pointValue);
   }
 
   @Override

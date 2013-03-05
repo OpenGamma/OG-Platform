@@ -53,8 +53,8 @@ public class BloombergTestUtils {
   private static SessionOptions getSessionOptions() {
     SessionOptions options = new SessionOptions();
     Properties properties = TestProperties.getTestProperties();
-    String serverHost = properties.getProperty("bloomberg.host");
-    String serverPort = properties.getProperty("bloomberg.port");
+    String serverHost = "bbg-lx-2.hq.opengamma.com";
+    String serverPort = "8194";
     
     if (StringUtils.isBlank(serverHost)) {
       throw new OpenGammaRuntimeException("bloomberg.host is missing in tests.properties");

@@ -235,7 +235,7 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
   }
 
   protected static Set<ValueRequirement> getCurveRequirements(final MultiCurveCalculationConfig curveConfig, final ConfigDBCurveCalculationConfigSource configSource) {
-    final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
+    final Set<ValueRequirement> requirements = new HashSet<>();
     if (curveConfig.getExogenousConfigData() != null) {
       final LinkedHashMap<String, String[]> exogenousCurves = curveConfig.getExogenousConfigData();
       for (final Map.Entry<String, String[]> entry : exogenousCurves.entrySet()) {

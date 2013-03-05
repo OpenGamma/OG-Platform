@@ -10,7 +10,7 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
-import com.opengamma.analytics.financial.instrument.future.InterestRateFutureDefinition;
+import com.opengamma.analytics.financial.instrument.future.InterestRateFutureSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.id.ExternalSchemes;
@@ -52,7 +52,7 @@ public class InterestRateFutureSecurityConverter extends FinancialSecurityVisito
   }
 
   @Override
-  public InterestRateFutureDefinition visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
+  public InterestRateFutureSecurityDefinition visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
     ArgumentChecker.notNull(security, "security");
     final ZonedDateTime lastTradeDate = security.getExpiry().getExpiry();
     final Currency currency = security.getCurrency();
@@ -64,8 +64,8 @@ public class InterestRateFutureSecurityConverter extends FinancialSecurityVisito
     final double paymentAccrualFactor = getAccrualFactor(iborConvention.getPeriod());
     final IborIndex iborIndex = new IborIndex(currency, iborConvention.getPeriod(), iborConvention.getSettlementDays(), calendar, iborConvention.getDayCount(),
         iborConvention.getBusinessDayConvention(), iborConvention.isEOMConvention());
-    final double notional = security.getUnitAmount() * 100.0 / paymentAccrualFactor; // Unit amount in percent
-    return new InterestRateFutureDefinition(lastTradeDate, 0.0, lastTradeDate, iborIndex, notional, paymentAccrualFactor, 1, security.getName());
+    final double notional = security.getUnitAmount() * 100.0 / paymentAccrualFactor; // Unit amount for one percent
+    return new InterestRateFutureSecurityDefinition(lastTradeDate, iborIndex, notional, paymentAccrualFactor, security.getName());
   }
 
   private double getAccrualFactor(final Period period) {

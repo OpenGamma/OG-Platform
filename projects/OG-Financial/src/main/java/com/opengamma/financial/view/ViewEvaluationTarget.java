@@ -10,122 +10,66 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
-import org.fudgemsg.types.secondary.ThreeTenLocalTimeFieldType;
-import org.fudgemsg.wire.types.FudgeWireType;
-import org.threeten.bp.Instant;
-import org.threeten.bp.LocalTime;
-import org.threeten.bp.ZoneId;
-import org.threeten.bp.ZoneOffset;
 
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.engine.view.execution.ViewCycleExecutionSequence;
 import com.opengamma.financial.temptarget.TempTarget;
 import com.opengamma.livedata.UserPrincipal;
-import com.opengamma.util.ArgumentChecker;
 
 /**
  * Target for functions which can create and manipulate a view client to perform one or more evaluations.
  */
 public class ViewEvaluationTarget extends TempTarget {
 
+  /**
+   * Fudge field containing the view definition.
+   */
+  protected static final String VIEW_DEFINITION_FIELD = "viewDefinition";
+  /**
+   * Fudge field containing the execution sequence.
+   */
+  protected static final String EXECUTION_SEQUENCE_FIELD = "executionSequence";
+  
   private final ViewDefinition _viewDefinition;
-  private String _firstValuationDate = "";
-  private boolean _includeFirstValuationDate = true;
-  private String _lastValuationDate = "";
-  private boolean _includeLastValuationDate = true;
-  private ZoneId _timeZone = ZoneOffset.UTC;
-  private LocalTime _valuationTime = LocalTime.NOON;
-  private Instant _correction;
+  private final ViewCycleExecutionSequence _executionSequence;
 
   /**
    * Creates a new target with an empty/default view definition.
    *
-   * @param user the market data user, for example taken from the parent/containing view definition, not null
+   * @param user  the market data user, for example taken from the parent/containing view definition, not null
+   * @param executionSequence  the execution sequence to evaluate, not null
    */
-  public ViewEvaluationTarget(final UserPrincipal user) {
+  public ViewEvaluationTarget(UserPrincipal user, ViewCycleExecutionSequence executionSequence) {
     super();
     _viewDefinition = new ViewDefinition("Temp", user);
+    _executionSequence = executionSequence;
   }
 
-  protected ViewEvaluationTarget(final FudgeDeserializer deserializer, final FudgeMsg message) {
+  protected ViewEvaluationTarget(FudgeDeserializer deserializer, FudgeMsg message) {
     super(deserializer, message);
-    _viewDefinition = deserializer.fieldValueToObject(ViewDefinition.class, message.getByName("viewDefinition"));
-    _firstValuationDate = message.getString("firstValuationDate");
-    _includeFirstValuationDate = message.getBoolean("includeFirstValuationDate");
-    _lastValuationDate = message.getString("lastValuationDate");
-    _includeLastValuationDate = message.getBoolean("includeLastValuationDate");
-    _timeZone = ZoneId.of(message.getString("timeZone"));
-    _valuationTime = message.getValue(LocalTime.class, "valuationTime");
-    _correction = message.getValue(Instant.class, "correction");
+    _viewDefinition = deserializer.fieldValueToObject(ViewDefinition.class, message.getByName(VIEW_DEFINITION_FIELD));
+    _executionSequence = deserializer.fieldValueToObject(ViewCycleExecutionSequence.class, message.getByName(EXECUTION_SEQUENCE_FIELD));
+  }
+  
+  protected ViewEvaluationTarget(FudgeDeserializer deserializer, FudgeMsg message, ViewCycleExecutionSequence executionSequence) {
+    super(deserializer, message);
+    _viewDefinition = deserializer.fieldValueToObject(ViewDefinition.class, message.getByName(VIEW_DEFINITION_FIELD));
+    _executionSequence = executionSequence;
   }
 
-  private ViewEvaluationTarget(final ViewDefinition viewDefinition) {
+  private ViewEvaluationTarget(ViewDefinition viewDefinition, ViewCycleExecutionSequence executionSequence) {
     super();
     _viewDefinition = viewDefinition;
+    _executionSequence = executionSequence;
   }
 
   public ViewDefinition getViewDefinition() {
     return _viewDefinition;
   }
 
-  public String getFirstValuationDate() {
-    return _firstValuationDate;
-  }
-
-  public void setFirstValuationDate(final String firstValuationDate) {
-    ArgumentChecker.notNull(firstValuationDate, "firstValuationDate");
-    _firstValuationDate = firstValuationDate;
-  }
-
-  public boolean isIncludeFirstValuationDate() {
-    return _includeFirstValuationDate;
-  }
-
-  public void setIncludeFirstValuationDate(final boolean includeFirstValuationDate) {
-    _includeFirstValuationDate = includeFirstValuationDate;
-  }
-
-  public String getLastValuationDate() {
-    return _lastValuationDate;
-  }
-
-  public void setLastValuationDate(final String lastValuationDate) {
-    ArgumentChecker.notNull(lastValuationDate, "lastValuationDate");
-    _lastValuationDate = lastValuationDate;
-  }
-
-  public boolean isIncludeLastValuationDate() {
-    return _includeLastValuationDate;
-  }
-
-  public void setIncludeLastValuationDate(final boolean includeLastValuationDate) {
-    _includeLastValuationDate = includeLastValuationDate;
-  }
-
-  public ZoneId getTimeZone() {
-    return _timeZone;
-  }
-
-  public void setTimeZone(final ZoneId timeZone) {
-    ArgumentChecker.notNull(timeZone, "timeZone");
-    _timeZone = timeZone;
-  }
-
-  public LocalTime getValuationTime() {
-    return _valuationTime;
-  }
-
-  public void setValuationTime(final LocalTime valuationTime) {
-    ArgumentChecker.notNull(valuationTime, "valuationTime");
-    _valuationTime = valuationTime;
-  }
-
-  public Instant getCorrection() {
-    return _correction;
-  }
-
-  public void setCorrection(final Instant correction) {
-    _correction = correction;
+  public ViewCycleExecutionSequence getExecutionSequence() {
+    return _executionSequence;
   }
 
   /**
@@ -134,15 +78,9 @@ public class ViewEvaluationTarget extends TempTarget {
    * @param other the other target, not null
    * @return null if the other target is not compatible, otherwise a new instance containing a view definition that is the union of the two participant view definitions
    */
-  public ViewEvaluationTarget union(final ViewEvaluationTarget other) {
+  public ViewEvaluationTarget union(ViewEvaluationTarget other) {
     // Check the valuation parameters are compatible
-    if (!getFirstValuationDate().equals(other.getFirstValuationDate())
-        || (isIncludeFirstValuationDate() != other.isIncludeFirstValuationDate())
-        || !getLastValuationDate().equals(other.getLastValuationDate())
-        || (isIncludeLastValuationDate() != other.isIncludeLastValuationDate())
-        || !getTimeZone().equals(other.getTimeZone())
-        || !getValuationTime().equals(other.getValuationTime())
-        || !ObjectUtils.equals(getCorrection(), other.getCorrection())) {
+    if (!getExecutionSequence().equals(other.getExecutionSequence())) {
       return null;
     }
     // Check the basic view definitions are compatible
@@ -179,62 +117,39 @@ public class ViewEvaluationTarget extends TempTarget {
         newConfig.addSpecificRequirements(otherConfig.getSpecificRequirements());
       }
     }
-    final ViewEvaluationTarget union = new ViewEvaluationTarget(newView);
-    union.setCorrection(getCorrection());
-    union.setFirstValuationDate(getFirstValuationDate());
-    union.setIncludeFirstValuationDate(isIncludeFirstValuationDate());
-    union.setIncludeLastValuationDate(isIncludeLastValuationDate());
-    union.setLastValuationDate(getLastValuationDate());
-    union.setTimeZone(getTimeZone());
-    union.setValuationTime(getValuationTime());
+    final ViewEvaluationTarget union = new ViewEvaluationTarget(newView, getExecutionSequence());
     return union;
   }
 
   // TempTarget
 
   @Override
-  protected boolean equalsImpl(final Object o) {
+  protected boolean equalsImpl(Object o) {
     final ViewEvaluationTarget other = (ViewEvaluationTarget) o;
-    return getFirstValuationDate().equals(other.getFirstValuationDate())
-        && (isIncludeFirstValuationDate() == other.isIncludeFirstValuationDate())
-        && getLastValuationDate().equals(other.getLastValuationDate())
-        && (isIncludeLastValuationDate() == other.isIncludeLastValuationDate())
-        && getTimeZone().equals(other.getTimeZone())
-        && getValuationTime().equals(other.getValuationTime())
-        && getViewDefinition().equals(other.getViewDefinition())
-        && ObjectUtils.equals(getCorrection(), other.getCorrection());
+    return getExecutionSequence().equals(other.getExecutionSequence())
+        && getViewDefinition().equals(other.getViewDefinition());
   }
 
   @Override
   protected int hashCodeImpl() {
     int hc = 1;
     hc += (hc << 4) + getViewDefinition().hashCode();
-    hc += (hc << 4) + getFirstValuationDate().hashCode();
-    hc += (hc << 4) + (isIncludeFirstValuationDate() ? -1 : 0);
-    hc += (hc << 4) + getLastValuationDate().hashCode();
-    hc += (hc << 4) + (isIncludeLastValuationDate() ? -1 : 0);
-    hc += (hc << 4) + getTimeZone().hashCode();
-    hc += (hc << 4) + getValuationTime().hashCode();
-    hc += (hc << 4) + ObjectUtils.hashCode(getCorrection());
+    hc += (hc << 4) + getExecutionSequence().hashCode();
     return hc;
   }
 
   @Override
-  protected void toFudgeMsgImpl(final FudgeSerializer serializer, final MutableFudgeMsg message) {
+  protected void toFudgeMsgImpl(FudgeSerializer serializer, MutableFudgeMsg message) {
     super.toFudgeMsgImpl(serializer, message);
-    serializer.addToMessageWithClassHeaders(message, "viewDefinition", null, getViewDefinition(), ViewDefinition.class);
-    message.add("firstValuationDate", null, FudgeWireType.STRING, getFirstValuationDate());
-    message.add("includeFirstValuationDate", null, FudgeWireType.BOOLEAN, isIncludeFirstValuationDate());
-    message.add("lastValuationDate", null, FudgeWireType.STRING, getLastValuationDate());
-    message.add("includeLastValuationDate", null, FudgeWireType.BOOLEAN, isIncludeLastValuationDate());
-    message.add("timeZone", null, FudgeWireType.STRING, getTimeZone().getId());
-    message.add("valuationTime", null, ThreeTenLocalTimeFieldType.INSTANCE, getValuationTime());
-    if (getCorrection() != null) {
-      message.add("correction", null, ThreeTenLocalTimeFieldType.INSTANCE, getCorrection());
-    }
+    serializer.addToMessageWithClassHeaders(message, VIEW_DEFINITION_FIELD, null, getViewDefinition(), ViewDefinition.class);
+    serializeExecutionSequence(serializer, message);
   }
 
-  public static ViewEvaluationTarget fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg message) {
+  protected void serializeExecutionSequence(FudgeSerializer serializer, MutableFudgeMsg message) {
+    serializer.addToMessageWithClassHeaders(message, EXECUTION_SEQUENCE_FIELD, null, getExecutionSequence());
+  }
+
+  public static ViewEvaluationTarget fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg message) {
     return new ViewEvaluationTarget(deserializer, message);
   }
 

@@ -12,7 +12,7 @@ import org.testng.annotations.Test;
 /**
  * Test.
  */
-@Test
+@Test(groups = "unit")
 public class InetAddressUtilsTest {
 
   public void test_strip() {

@@ -142,7 +142,7 @@ public class EquityBlackVolatilitySurfacePerExchangeDefaults extends DefaultProp
 
   @Override
   public String getMutualExclusionGroup() {
-    return OpenGammaFunctionExclusions.EQUITY_BLACK_VOLATILITY_SURFACE_DEFAULTS;
+    return OpenGammaFunctionExclusions.BLACK_VOLATILITY_SURFACE_DEFAULTS;
   }
 
 }

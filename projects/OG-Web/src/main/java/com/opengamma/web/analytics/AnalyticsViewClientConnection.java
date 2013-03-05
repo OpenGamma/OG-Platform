@@ -7,6 +7,10 @@ package com.opengamma.web.analytics;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.threeten.bp.Instant;
+
 import com.google.common.collect.Lists;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.marketdata.NamedMarketDataSpecificationRepository;
@@ -36,13 +40,16 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
  * Connects the engine to an {@link AnalyticsView}. Contains the logic for setting up a {@link ViewClient}, connecting it to a view process, handling events from the engine and forwarding data to the
  * {@code ViewClient}.
  */
-/* package */ class AnalyticsViewClientConnection {
+/* package */ class AnalyticsViewClientConnection /*implements ChangeListener*/ {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(AnalyticsViewClientConnection.class);
 
   private final AnalyticsView _view;
   private final ViewClient _viewClient;
   private final AggregatedViewDefinition _aggregatedViewDef;
   private final ViewExecutionOptions _executionOptions;
   private final NamedMarketDataSpecificationRepository _marketDataSpecRepo;
+  private final List<AutoCloseable> _listeners;
 
   private EngineResourceReference<? extends ViewCycle> _cycleReference = EmptyViewCycle.REFERENCE;
 
@@ -59,13 +66,15 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
                                               AnalyticsView view,
                                               NamedMarketDataSpecificationRepository marketDataSpecRepo,
                                               AggregatedViewDefinitionManager aggregatedViewDefManager,
-                                              MarketDataSnapshotMaster snapshotMaster) {
+                                              MarketDataSnapshotMaster snapshotMaster,
+                                              List<AutoCloseable> listeners) {
     ArgumentChecker.notNull(viewRequest, "viewRequest");
     ArgumentChecker.notNull(viewClient, "viewClient");
     ArgumentChecker.notNull(view, "view");
     ArgumentChecker.notNull(marketDataSpecRepo, "marketDataSpecRepo");
     ArgumentChecker.notNull(aggregatedViewDefManager, "aggregatedViewDefManager");
     ArgumentChecker.notNull(snapshotMaster, "snapshotMaster");
+    ArgumentChecker.notNull(listeners, "listeners");
     _view = view;
     _viewClient = viewClient;
     _aggregatedViewDef = new AggregatedViewDefinition(aggregatedViewDefManager, viewRequest);
@@ -75,6 +84,7 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
     ViewCycleExecutionOptions defaultOptions = ViewCycleExecutionOptions.builder().setValuationTime(viewRequest.getValuationTime()).setMarketDataSpecifications(actualMarketDataSpecs)
         .setResolverVersionCorrection(viewRequest.getPortfolioVersionCorrection()).create();
     _executionOptions = ExecutionOptions.of(new InfiniteViewCycleExecutionSequence(), defaultOptions, ExecutionFlags.triggersEnabled().get());
+    _listeners = listeners;
     // this recalcs periodically or when market data changes. might need to give
     // the user the option to specify the behaviour
   }
@@ -125,9 +135,17 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
   /* package */ void close() {
     try {
       _viewClient.detachFromViewProcess();
+      _viewClient.shutdown();
     } finally {
       _cycleReference.release();
       _aggregatedViewDef.close();
+      for (AutoCloseable listener : _listeners) {
+        try {
+          listener.close();
+        } catch (Exception e) {
+          s_logger.warn("Failed to close listener " + listener, e);
+        }
+      }
     }
   }
 
@@ -167,7 +185,12 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
 
     @Override
     public void viewDefinitionCompiled(CompiledViewDefinition compiledViewDefinition, boolean hasMarketDataPermissions) {
-      _view.updateStructure(compiledViewDefinition);
+      _view.updateColumns(compiledViewDefinition);
+    }
+
+    @Override
+    public void viewDefinitionCompilationFailed(Instant valuationTime, Exception exception) {
+      s_logger.warn("Compilation of the view definition failed", exception);
     }
   }
 

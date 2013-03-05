@@ -55,13 +55,11 @@ public class EquityVanillaBarrierOptionDefaults extends DefaultPropertyFunction 
   /**
    * @param barrierOverhedge The overhedge value, not null
    * @param callSpreadFullWidth The call spread width, not null
-   * @param barrierOutput the barrier output format, not null
    */
-  public EquityVanillaBarrierOptionDefaults(final String barrierOverhedge, final String callSpreadFullWidth, final String barrierOutput) {
+  public EquityVanillaBarrierOptionDefaults(final String barrierOverhedge, final String callSpreadFullWidth) {
     super(FinancialSecurityTypes.EQUITY_BARRIER_OPTION_SECURITY, true);
     ArgumentChecker.notNull(barrierOverhedge, "barrier overhedge");
     ArgumentChecker.notNull(callSpreadFullWidth, "call spread width");
-    ArgumentChecker.notNull(barrierOutput, "barrier output format");
     _barrierOverhedge = barrierOverhedge;
     _callSpreadFullWidth = callSpreadFullWidth;
   }

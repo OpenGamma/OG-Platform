@@ -7,20 +7,23 @@ package com.opengamma.util.timeseries.yearoffset;
 
 import com.opengamma.util.timeseries.DoubleTimeSeriesTest;
 
+/**
+ * Test.
+ */
 public abstract class YearOffsetDoubleTimeSeriesTest extends DoubleTimeSeriesTest<Double> {
 
   @Override
-  public Double[] testTimes() {
+  protected Double[] testTimes() {
     return new Double[] {1d, 2d, 3d, 4d, 5d, 6d };
   }
 
   @Override
-  public Double[] testTimes2() {
+  protected Double[] testTimes2() {
     return new Double[] {4d, 5d, 6d, 7d, 8d, 9d };
   }
 
   @Override
-  public Double[] emptyTimes() {
+  protected Double[] emptyTimes() {
     return new Double[] {};
   }
 

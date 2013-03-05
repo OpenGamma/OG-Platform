@@ -17,9 +17,12 @@ import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.analytics.financial.credit.bumpers.SpreadBumpType;
-import com.opengamma.analytics.financial.credit.cds.ISDACurve;
+import com.opengamma.analytics.financial.credit.calibratehazardratecurve.legacy.CalibrateHazardRateCurveLegacyCreditDefaultSwap;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.greeks.vanilla.CS01CreditDefaultSwap;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.legacy.PresentValueLegacyCreditDefaultSwap;
+import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
+import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
 import com.opengamma.analytics.financial.credit.obligor.CreditRating;
 import com.opengamma.analytics.financial.credit.obligor.CreditRatingFitch;
 import com.opengamma.analytics.financial.credit.obligor.CreditRatingMoodys;
@@ -28,7 +31,6 @@ import com.opengamma.analytics.financial.credit.obligor.Region;
 import com.opengamma.analytics.financial.credit.obligor.Sector;
 import com.opengamma.analytics.financial.credit.obligor.definition.Obligor;
 import com.opengamma.analytics.financial.credit.schedulegeneration.GenerateCreditDefaultSwapPremiumLegSchedule;
-import com.opengamma.analytics.financial.interestrate.PeriodicInterestRate;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -123,10 +125,10 @@ public class RMGridTest {
 
   private static final Calendar calendar = new MondayToFridayCalendar("TestCalendar");
 
-  private static final ZonedDateTime startDate = DateUtils.getUTCDate(2012, 12, 20);
-  private static final ZonedDateTime effectiveDate = DateUtils.getUTCDate(2012, 12, 20);
-  private static final ZonedDateTime maturityDate = DateUtils.getUTCDate(2014, 4, 21);
   private static final ZonedDateTime valuationDate = DateUtils.getUTCDate(2013, 1, 30);
+  private static final ZonedDateTime startDate = DateUtils.getUTCDate(2012, 12, 20);
+  private static final ZonedDateTime effectiveDate = valuationDate.plusDays(1); //DateUtils.getUTCDate(2013, 2, 1);
+  private static final ZonedDateTime maturityDate = DateUtils.getUTCDate(2023, 3, 20);
 
   private static final StubType stubType = StubType.FRONTSHORT;
   private static final PeriodFrequency couponFrequency = PeriodFrequency.QUARTERLY;
@@ -134,40 +136,523 @@ public class RMGridTest {
   private static final BusinessDayConvention businessdayAdjustmentConvention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
 
   private static final boolean immAdjustMaturityDate = false;
-  private static final boolean adjustEffectiveDate = true;
-  private static final boolean adjustMaturityDate = true;
+  private static final boolean adjustEffectiveDate = false;
+  private static final boolean adjustMaturityDate = false;
 
   private static final double notional = 1000000.0;
   private static final double recoveryRate = 0.25;
-  private static final boolean includeAccruedPremium = false;
+  private static final boolean includeAccruedPremium = true;
   private static final PriceType priceType = PriceType.CLEAN;
   private static final boolean protectionStart = true;
 
   private static final double parSpread = 100.0;
 
+  private static final double flatSpread = 324.01;
+
+  private static final double[] curveLevel = {
+      48.40,
+      50.36,
+      53.03,
+      55.33,
+      57.61,
+      59.72,
+      61.89,
+      64.04,
+      74.02,
+      83.00,
+      90.86,
+      99.13,
+      106.86,
+      113.52,
+      121.65,
+      128.84,
+      135.95,
+      142.17,
+      148.32,
+      154.53,
+      159.36,
+      164.47,
+      169.63,
+      173.98,
+      178.58,
+      183.07,
+      187.44,
+      191.88,
+      196.94,
+      200.34,
+      204.38,
+      209.10,
+      211.92,
+      215.56,
+      219.95,
+      222.41,
+      225.78,
+      229.92,
+      231.24,
+      233.54,
+      237.10,
+      237.98,
+      240.16,
+      243.65,
+      244.19,
+      246.18,
+      249.59,
+      249.91,
+      251.75,
+      255.05,
+      255.66,
+      257.87,
+      261.91,
+      262.13,
+      264.27,
+      268.40,
+      268.32,
+      270.35,
+      274.50,
+      274.24,
+      276.15,
+      280.26,
+      279.05,
+      280.18,
+      283.80,
+      282.38,
+      283.48,
+      287.17,
+      285.60,
+      286.63,
+      290.34,
+      288.65,
+      289.65,
+      293.34,
+      291.95,
+      293.26,
+      297.62,
+      295.89,
+      297.18,
+      301.69,
+      299.68,
+      300.91,
+      305.52,
+      303.29,
+      304.47,
+      309.19,
+      306.07,
+      306.55,
+      310.69,
+      307.52,
+      308.00,
+      312.14,
+      308.94,
+      309.40,
+      313.52,
+      310.30,
+      310.75,
+      314.84,
+      311.61,
+      312.04,
+      316.20,
+      312.92,
+      313.35,
+      317.52,
+      314.20,
+      314.62,
+      318.79,
+      315.44,
+      315.86,
+      320.00,
+      316.58,
+      316.91,
+      321.07,
+      317.58,
+      317.92,
+      322.09,
+      318.56,
+      318.89,
+      323.07,
+      319.51,
+      319.82,
+      324.01 };
+
   // ----------------------------------------------------------------------------------
 
-  final ZonedDateTime baseDate = zdt(2013, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC);
+  private static final ZonedDateTime baseDate = valuationDate; //.plusDays(1); //zdt(2013, 1, 31, 0, 0, 0, 0, ZoneOffset.UTC);
 
+  /*
   double[] times = {
       s_act365.getDayCountFraction(baseDate, baseDate.plusMonths(1)),
       s_act365.getDayCountFraction(baseDate, baseDate.plusMonths(2)),
       s_act365.getDayCountFraction(baseDate, baseDate.plusMonths(3)),
       s_act365.getDayCountFraction(baseDate, baseDate.plusMonths(6)),
-      s_act365.getDayCountFraction(baseDate, baseDate.plusMonths(9))
+      s_act365.getDayCountFraction(baseDate, baseDate.plusMonths(9)),
+      s_act365.getDayCountFraction(baseDate, baseDate.plusMonths(12))
+  };
+   */
+
+  /*
+  // 1/3/2013
+  ZonedDateTime[] yieldCurveDates = {
+      zdt(2013, 4, 1, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2013, 5, 1, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2013, 6, 3, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2013, 9, 2, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2013, 12, 2, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2014, 3, 3, 0, 0, 0, 0, ZoneOffset.UTC)
   };
 
-  //double[] rates = {0.0, 0.0, 0.0, 0.0, 0.0 };
+  double[] yieldCurveTimes = {
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[0]),     // 1M     
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[1]),     // 2M
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[2]),     // 3M
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[3]),     // 6M
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[4]),     // 9M
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[5])      // 1Y
+  };
+   */
+
+  // 30/1/2013
+  /*
+  ZonedDateTime[] yieldCurveDates = {
+      zdt(2013, 2, 28, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2013, 3, 29, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2013, 4, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2013, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2013, 10, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2014, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC)
+  };
+   */
+
+  ZonedDateTime[] yieldCurveDates = {
+      zdt(2013, 2, 28, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2013, 3, 29, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2013, 4, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2013, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2013, 10, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2014, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2014, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2015, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2015, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2016, 1, 29, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2016, 7, 29, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2017, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2017, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2018, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2018, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2019, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2019, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2020, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2020, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2021, 1, 29, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2021, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2022, 1, 31, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2022, 7, 29, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2023, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2023, 7, 31, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2024, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2024, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2025, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2025, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2026, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2026, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2027, 1, 29, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2027, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2028, 1, 31, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2028, 7, 31, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2029, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2029, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2030, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2030, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2031, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2031, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2032, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2032, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2033, 1, 31, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2033, 7, 29, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2034, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2034, 7, 31, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2035, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2035, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2036, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2036, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2037, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2037, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2038, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2038, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2039, 1, 31, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2039, 7, 29, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2040, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2040, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2041, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2041, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2042, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2042, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2043, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC)
+  };
+
+  double[] yieldCurveTimes = {
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[0]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[1]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[2]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[3]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[4]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[5]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[6]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[7]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[8]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[9]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[10]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[11]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[12]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[13]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[14]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[15]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[16]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[17]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[18]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[19]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[20]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[21]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[22]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[23]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[24]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[25]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[26]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[27]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[28]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[29]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[30]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[31]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[32]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[33]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[34]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[35]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[36]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[37]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[38]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[39]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[40]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[41]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[42]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[43]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[44]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[45]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[46]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[47]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[48]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[49]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[50]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[51]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[52]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[53]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[54]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[55]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[56]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[57]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[58]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[59]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[60]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[61]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[62]),
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[63])
+  };
+
+  /*
+  // 15/2/2013 
+  ZonedDateTime[] yieldCurveDates = {
+      zdt(2013, 3, 15, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2013, 4, 15, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2013, 5, 15, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2013, 8, 15, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2013, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2014, 2, 17, 0, 0, 0, 0, ZoneOffset.UTC)
+  };
+
+  double[] yieldCurveTimes = {
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[0]),     // 1M     
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[1]),     // 2M
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[2]),     // 3M
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[3]),     // 6M
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[4]),     // 9M
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[5])      // 1Y
+  };
+   */
+
+  /*
+  // 19/3/2013
+  ZonedDateTime[] yieldCurveDates = {
+      zdt(2013, 4, 19, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2013, 5, 20, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2013, 6, 19, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2013, 9, 19, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2013, 12, 19, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2014, 3, 19, 0, 0, 0, 0, ZoneOffset.UTC)
+  };
+
+  double[] yieldCurveTimes = {
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[0]),     // 1M     
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[1]),     // 2M
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[2]),     // 3M
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[3]),     // 6M
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[4]),     // 9M
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[5])      // 1Y
+  };
+   */
+
+  /*
+  // 20/3/2013
+  ZonedDateTime[] yieldCurveDates = {
+      zdt(2013, 4, 22, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2013, 5, 20, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2013, 6, 20, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2013, 9, 20, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2013, 12, 20, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2014, 3, 20, 0, 0, 0, 0, ZoneOffset.UTC)
+  };
+
+  double[] yieldCurveTimes = {
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[0]),     // 1M     
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[1]),     // 2M
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[2]),     // 3M
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[3]),     // 6M
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[4]),     // 9M
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[5])      // 1Y
+  };
+   */
+
+  /*
+  // 21/3/2013
+  ZonedDateTime[] yieldCurveDates = {
+      zdt(2013, 4, 22, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2013, 5, 21, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2013, 6, 21, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2013, 9, 23, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2013, 12, 23, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2014, 3, 20, 0, 0, 0, 0, ZoneOffset.UTC)
+  };
+
+  double[] yieldCurveTimes = {
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[0]),     // 1M     
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[1]),     // 2M
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[2]),     // 3M
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[3]),     // 6M
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[4]),     // 9M
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[5])      // 1Y
+  };
+   */
+
+  /*
+  // 10/6/2013
+  double[] times = {
+      s_act365.getDayCountFraction(baseDate, zdt(2013, 7, 10, 0, 0, 0, 0, ZoneOffset.UTC)),     // 1M     
+      s_act365.getDayCountFraction(baseDate, zdt(2013, 8, 12, 0, 0, 0, 0, ZoneOffset.UTC)),     // 2M
+      s_act365.getDayCountFraction(baseDate, zdt(2013, 9, 10, 0, 0, 0, 0, ZoneOffset.UTC)),     // 3M
+      s_act365.getDayCountFraction(baseDate, zdt(2013, 12, 10, 0, 0, 0, 0, ZoneOffset.UTC)),    // 6M
+      s_act365.getDayCountFraction(baseDate, zdt(2014, 3, 10, 0, 0, 0, 0, ZoneOffset.UTC)),     // 9M
+      s_act365.getDayCountFraction(baseDate, zdt(2014, 6, 10, 0, 0, 0, 0, ZoneOffset.UTC))      // 1Y
+  };
+   */
+
+  /*
+  // 15/9/2013
+  ZonedDateTime[] yieldCurveDates = {
+      zdt(2013, 10, 15, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2013, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2013, 12, 16, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2014, 3, 17, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2014, 6, 16, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2014, 9, 15, 0, 0, 0, 0, ZoneOffset.UTC)
+  };
+
+  double[] yieldCurveTimes = {
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[0]),     // 1M     
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[1]),     // 2M
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[2]),     // 3M
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[3]),     // 6M
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[4]),     // 9M
+      s_act365.getDayCountFraction(baseDate, yieldCurveDates[5])      // 1Y
+  };
+   */
+
+  //double[] rates = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 
   double[] rates = {
+      0.0020469398963709473,
+      0.002501864423114286,
+      0.0030502347816789843,
+      0.004829949174541159,
+      0.006522625025034312,
+      0.008065486111111131,
+      0.005629511430584877,
+      0.004393593770308283,
+      0.005251835895630608,
+      0.005831262552165626,
+      0.007009657447744511,
+      0.00790751215674671,
+      0.009285775302585675,
+      0.010395963833218537,
+      0.011788998281891505,
+      0.012970711608828876,
+      0.014279610037949197,
+      0.015421571541585745,
+      0.01658207458964589,
+      0.017604240836319698,
+      0.018669926523961378,
+      0.019633226952841705,
+      0.020569229333792682,
+      0.02144095801122866,
+      0.022301830509302345,
+      0.02308941586503166,
+      0.023805136016763262,
+      0.024468745526579464,
+      0.025078024702453794,
+      0.025650117661823568,
+      0.02617148723394913,
+      0.026661324750865356,
+      0.027115106275981793,
+      0.027545656339872937,
+      0.027886810280336016,
+      0.02820851780672462,
+      0.02850757614158117,
+      0.02879380095239914,
+      0.02905934751569972,
+      0.029314371920297067,
+      0.02955173975943559,
+      0.029780400828259612,
+      0.029994997820663727,
+      0.030202217081450364,
+      0.030357410307428667,
+      0.030510216400872148,
+      0.030653538858346208,
+      0.0307911211738785,
+      0.030921187940242012,
+      0.03104768086276155,
+      0.031167477211878625,
+      0.031283546549800034,
+      0.03139307749474618,
+      0.0314994147598717,
+      0.03159461239355821,
+      0.03168764827055548,
+      0.03177428791948356,
+      0.03186053357866836,
+      0.031942286759037986,
+      0.03202198665755751,
+      0.03209764335645926,
+      0.03217190908790313,
+      0.032242493745427314,
+      0.03231186272591617
+  };
+
+  /*
+  private static final double[] rates = {
       (new PeriodicInterestRate(0.002017, 1)).toContinuous().getRate(),
       (new PeriodicInterestRate(0.002465, 1)).toContinuous().getRate(),
       (new PeriodicInterestRate(0.003005, 1)).toContinuous().getRate(),
       (new PeriodicInterestRate(0.004758, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.006428, 1)).toContinuous().getRate()
+      (new PeriodicInterestRate(0.006428, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.007955, 1)).toContinuous().getRate()
   };
+   */
 
-  ISDACurve yieldCurve = new ISDACurve("IR_CURVE", times, rates, s_act365.getDayCountFraction(valuationDate, baseDate));
+  ISDADateCurve yieldCurve = new ISDADateCurve("IR_CURVE", yieldCurveDates, yieldCurveTimes, rates, s_act365.getDayCountFraction(valuationDate, baseDate));
 
   // ----------------------------------------------------------------------------------
 
@@ -245,6 +730,139 @@ public class RMGridTest {
 
   // ----------------------------------------------------------------------------------
 
+  //@Test
+  public void testGenerateDates() {
+
+    ZonedDateTime[] testDates = {
+        baseDate.plusMonths(1),
+        baseDate.plusMonths(2),
+        baseDate.plusMonths(3),
+        baseDate.plusMonths(6),
+        baseDate.plusMonths(9),
+        baseDate.plusMonths(12) };
+
+    final int nInstr = testDates.length;
+
+    final ZonedDateTime[] bdaTestDates = new ZonedDateTime[nInstr];
+
+    final ZonedDateTime curveBaseDate = valuationDate;
+
+    //System.out.println(baseDate);
+
+    for (int i = 0; i < testDates.length; i++) {
+      //System.out.println(testDates[i]);
+    }
+
+    //System.out.println();
+
+    final BusinessDayConvention conv = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("MF");
+
+    GenerateCreditDefaultSwapPremiumLegSchedule schedule = new GenerateCreditDefaultSwapPremiumLegSchedule();
+
+    for (int i = 0; i < testDates.length; i++) {
+      bdaTestDates[i] = schedule.businessDayAdjustDate(testDates[i], calendar, conv);
+    }
+
+    //System.out.println(baseDate);
+
+    for (int i = 0; i < testDates.length; i++) {
+      //System.out.println(bdaTestDates[i]);
+    }
+  }
+
+  // ----------------------------------------------------------------------------------
+
+  //@Test
+  public void testPVCalculation() {
+
+    if (outputResults) {
+      System.out.println("Running PV test ...");
+    }
+
+    // The number of CDS instruments used to calibrate against
+    final int numberOfCalibrationCDS = 14;
+
+    // The CDS tenors to calibrate to
+    final ZonedDateTime[] spreadCurveTenors = new ZonedDateTime[numberOfCalibrationCDS];
+
+    spreadCurveTenors[0] = DateUtils.getUTCDate(2013, 9, 20);
+    spreadCurveTenors[1] = DateUtils.getUTCDate(2014, 3, 20);
+    spreadCurveTenors[2] = DateUtils.getUTCDate(2015, 3, 20);
+    spreadCurveTenors[3] = DateUtils.getUTCDate(2016, 3, 20);
+    spreadCurveTenors[4] = DateUtils.getUTCDate(2017, 3, 20);
+    spreadCurveTenors[5] = DateUtils.getUTCDate(2018, 3, 20);
+    spreadCurveTenors[6] = DateUtils.getUTCDate(2019, 3, 20);
+    spreadCurveTenors[7] = DateUtils.getUTCDate(2020, 3, 20);
+    spreadCurveTenors[8] = DateUtils.getUTCDate(2021, 3, 20);
+    spreadCurveTenors[9] = DateUtils.getUTCDate(2022, 3, 20);
+    spreadCurveTenors[10] = DateUtils.getUTCDate(2023, 3, 20);
+    spreadCurveTenors[11] = DateUtils.getUTCDate(2028, 3, 20);
+    spreadCurveTenors[12] = DateUtils.getUTCDate(2033, 3, 20);
+    spreadCurveTenors[13] = DateUtils.getUTCDate(2043, 3, 20);
+
+    // The market observed par CDS spreads at these tenors
+    final double[] marketSpreads = new double[numberOfCalibrationCDS];
+
+    for (int i = 0; i < numberOfCalibrationCDS; i++) {
+      marketSpreads[i] = flatSpread;
+    }
+
+    // The recovery rate assumption used in the PV calculations when calibrating
+    final double calibrationRecoveryRate = 0.25;
+
+    // -------------------------------------------------------------------------------------
+
+    // Create a calibration CDS (will be a modified version of the baseline CDS)
+    LegacyVanillaCreditDefaultSwapDefinition calibrationCDS = cds;
+
+    LegacyVanillaCreditDefaultSwapDefinition valuationCDS = cds;
+
+    // Set the recovery rate of the calibration CDS used for the curve calibration (this appears in the calculation of the contingent leg)
+    calibrationCDS = calibrationCDS.withRecoveryRate(calibrationRecoveryRate);
+
+    valuationCDS = valuationCDS.withMaturityDate(maturityDate);
+
+    // -------------------------------------------------------------------------------------
+
+    // Create a calibrate survival curve object
+    final CalibrateHazardRateCurveLegacyCreditDefaultSwap hazardRateCurve = new CalibrateHazardRateCurveLegacyCreditDefaultSwap();
+
+    // Calibrate the hazard rate curve to the market observed par CDS spreads (returns calibrated hazard rates as a vector of doubles)
+    // Remember the ISDA model uses the clean price when it is calibrating the curve
+    final double[] calibratedHazardRates = hazardRateCurve.getCalibratedHazardRateTermStructure(valuationDate, calibrationCDS, spreadCurveTenors, marketSpreads, yieldCurve, PriceType.CLEAN);
+
+    final PresentValueLegacyCreditDefaultSwap creditDefaultSwap = new PresentValueLegacyCreditDefaultSwap();
+
+    // Vector of time nodes for the hazard rate curve
+    final double[] times = new double[spreadCurveTenors.length + 1];
+
+    times[0] = 0.0;
+    for (int m = 1; m <= spreadCurveTenors.length; m++) {
+      times[m] = ACT_365.getDayCountFraction(valuationDate, spreadCurveTenors[m - 1]);
+    }
+
+    double[] modifiedHazardRateCurve = new double[calibratedHazardRates.length + 1];
+
+    modifiedHazardRateCurve[0] = calibratedHazardRates[0];
+
+    for (int m = 1; m < modifiedHazardRateCurve.length; m++) {
+      modifiedHazardRateCurve[m] = calibratedHazardRates[m - 1];
+    }
+
+    // Build a hazard rate curve object based on the input market data
+    final HazardRateCurve calibratedHazardRateCurve = new HazardRateCurve(spreadCurveTenors, times, modifiedHazardRateCurve, 0.0);
+
+    final double presentValue = creditDefaultSwap.getPresentValueLegacyCreditDefaultSwap(valuationDate, valuationCDS, yieldCurve, calibratedHazardRateCurve, priceType);
+
+    for (int i = 0; i < calibratedHazardRates.length; i++) {
+      //System.out.println(spreadCurveTenors[i] + "\t" + calibratedHazardRates[i]);
+    }
+
+    //System.out.println(presentValue);
+  }
+
+  // ----------------------------------------------------------------------------------
+
   @Test
   public void testRMGrid() {
 
@@ -255,130 +873,6 @@ public class RMGridTest {
     final int numberOfMaturities = 122;
 
     final ZonedDateTime[] bdaMaturities = new ZonedDateTime[numberOfMaturities];
-
-    final double[] curveLevel = {
-        48.40,
-        50.36,
-        53.03,
-        55.33,
-        57.61,
-        59.72,
-        61.89,
-        64.04,
-        74.02,
-        83.00,
-        90.86,
-        99.13,
-        106.86,
-        113.52,
-        121.65,
-        128.84,
-        135.95,
-        142.17,
-        148.32,
-        154.53,
-        159.36,
-        164.47,
-        169.63,
-        173.98,
-        178.58,
-        183.07,
-        187.44,
-        191.88,
-        196.94,
-        200.34,
-        204.38,
-        209.10,
-        211.92,
-        215.56,
-        219.95,
-        222.41,
-        225.78,
-        229.92,
-        231.24,
-        233.54,
-        237.10,
-        237.98,
-        240.16,
-        243.65,
-        244.19,
-        246.18,
-        249.59,
-        249.91,
-        251.75,
-        255.05,
-        255.66,
-        257.87,
-        261.91,
-        262.13,
-        264.27,
-        268.40,
-        268.32,
-        270.35,
-        274.50,
-        274.24,
-        276.15,
-        280.26,
-        279.05,
-        280.18,
-        283.80,
-        282.38,
-        283.48,
-        287.17,
-        285.60,
-        286.63,
-        290.34,
-        288.65,
-        289.65,
-        293.34,
-        291.95,
-        293.26,
-        297.62,
-        295.89,
-        297.18,
-        301.69,
-        299.68,
-        300.91,
-        305.52,
-        303.29,
-        304.47,
-        309.19,
-        306.07,
-        306.55,
-        310.69,
-        307.52,
-        308.00,
-        312.14,
-        308.94,
-        309.40,
-        313.52,
-        310.30,
-        310.75,
-        314.84,
-        311.61,
-        312.04,
-        316.20,
-        312.92,
-        313.35,
-        317.52,
-        314.20,
-        314.62,
-        318.79,
-        315.44,
-        315.86,
-        320.00,
-        316.58,
-        316.91,
-        321.07,
-        317.58,
-        317.92,
-        322.09,
-        318.56,
-        318.89,
-        323.07,
-        319.51,
-        319.82,
-        324.01 };
 
     bdaMaturities[0] = DateUtils.getUTCDate(2013, 2, 20);
 
@@ -392,15 +886,8 @@ public class RMGridTest {
 
       maturities[i] = maturities[i - 1].plusMonths(1);
 
-      //System.out.print(bdaMaturities[i] + "\t");
-
       bdaMaturities[i] = schedule.businessDayAdjustDate(maturities[i], calendar, businessdayAdjustmentConvention);
-
-      //System.out.println(bdaMaturities[i]);
     }
-
-    // The type of spread bump to apply
-    final SpreadBumpType spreadBumpType = SpreadBumpType.ADDITIVE_BUCKETED;
 
     // The magnitude (but not direction) of bump to apply (in bps)
     final double spreadBump = 1.0;
@@ -433,7 +920,8 @@ public class RMGridTest {
     LegacyVanillaCreditDefaultSwapDefinition rollingCDS = cds;
 
     // Loop over each of the maturities
-    for (int i = 0; i < numberOfMaturities; i++) {
+    for (int i = 103; i < 104; i++) {
+      //for (int i = numberOfMaturities - 1; i < numberOfMaturities; i++) {
 
       final double[] marketSpreads = new double[numberOfCalibrationCDS];
 
@@ -446,17 +934,23 @@ public class RMGridTest {
       rollingCDS = rollingCDS.withMaturityDate(bdaMaturities[i]);
 
       // Compute the bucketed CS01 for this CDS
-      final double bucketedCS01[] = cs01.getCS01BucketedCreditDefaultSwap(valuationDate, rollingCDS, yieldCurve, tenors, marketSpreads, spreadBump, spreadBumpType, priceType);
+      final double bucketedCS01[] = cs01.getCS01BucketedCreditDefaultSwap(valuationDate, rollingCDS, yieldCurve, tenors, marketSpreads, spreadBump, SpreadBumpType.ADDITIVE_BUCKETED, priceType);
+
+      // Compute the parallel CS01 for this CDS
+      final double parallelCS01 = cs01.getCS01ParallelShiftCreditDefaultSwap(valuationDate, rollingCDS, yieldCurve, tenors, marketSpreads, spreadBump, SpreadBumpType.ADDITIVE_PARALLEL, priceType);
 
       // Output grid
       if (outputResults) {
 
-        System.out.print(marketSpreads[0] + "\t" + bdaMaturities[i] + "\t");
+        //System.out.print(marketSpreads[0] + "\t" + bdaMaturities[i] + "\t");
+
+        //System.out.println(marketSpreads[0] + "\t" + bdaMaturities[i] + "\t" + parallelCS01);
 
         for (int m = 0; m < numberOfCalibrationCDS; m++) {
-          System.out.print(/*"Tenor = " + tenors[m] + "\t" + "CDS bucketed CS01 = " + "\t" + */bucketedCS01[m] + "\t");
+          //System.out.print(/*"Tenor = " + tenors[m] + "\t" + "CDS bucketed CS01 = " + "\t" + */bucketedCS01[m] + "\t");
         }
-        System.out.println();
+        //System.out.println();
+
       }
     }
   }

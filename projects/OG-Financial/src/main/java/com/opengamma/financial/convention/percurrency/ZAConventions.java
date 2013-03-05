@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.convention.percurrency;
@@ -13,14 +13,13 @@ import static com.opengamma.financial.convention.percurrency.PerCurrencyConventi
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.getIds;
 
 import org.threeten.bp.LocalTime;
-import org.threeten.bp.Period;
-import org.threeten.bp.temporal.ChronoUnit;
 
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.convention.Convention;
 import com.opengamma.financial.convention.DepositConvention;
 import com.opengamma.financial.convention.IborIndexConvention;
+import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.financial.convention.InMemoryConventionMaster;
 import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.SwapFixedLegConvention;
@@ -31,9 +30,10 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.Tenor;
 
 /**
- * 
+ *
  */
 public class ZAConventions {
   private static final BusinessDayConvention FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
@@ -46,12 +46,13 @@ public class ZAConventions {
     final String depositConventionName = getConventionName(ZAR, DEPOSIT);
     final String fixedSwapLegConventionName = getConventionName(ZAR, FIXED_SWAP_LEG);
     final String vanillaIborLegConventionName = getConventionName(ZAR, VANILLA_IBOR_LEG);
+    final ExternalId jiborConventionId = InMemoryConventionBundleMaster.simpleNameSecurityId(jiborConventionName);
     final Convention jiborConvention = new IborIndexConvention(jiborConventionName, getIds(ZAR, IBOR), ACT_365, FOLLOWING, 0, false, ZAR, LocalTime.of(11, 00), ZA, ZA, "");
     final Convention depositConvention = new DepositConvention(depositConventionName, getIds(ZAR, DEPOSIT), ACT_365, FOLLOWING, 0, false, ZAR, ZA);
     final Convention fixedLegConvention = new SwapFixedLegConvention(fixedSwapLegConventionName, getIds(ZAR, FIXED_SWAP_LEG),
-        Period.of(3, ChronoUnit.MONTHS), ACT_365, FOLLOWING, 0, false, ZAR, ZA, StubType.NONE);
+        Tenor.THREE_MONTHS, ACT_365, FOLLOWING, 0, false, ZAR, ZA, StubType.NONE);
     final Convention vanillaIborLegConvention = new VanillaIborLegConvention(vanillaIborLegConventionName, getIds(ZAR, VANILLA_IBOR_LEG),
-        getConventionName(ZAR, IBOR), true, StubType.NONE, Interpolator1DFactory.LINEAR);
+        jiborConventionId, true, StubType.NONE, Interpolator1DFactory.LINEAR);
     conventionMaster.add(jiborConvention);
     conventionMaster.add(depositConvention);
     conventionMaster.add(fixedLegConvention);

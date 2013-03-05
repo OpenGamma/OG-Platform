@@ -26,7 +26,7 @@ import com.google.common.collect.Sets;
 /**
  * Test {@link ExternalIdBundle}.
  */
-@Test
+@Test(groups = "unit")
 public class ExternalIdBundleTest {
 
   private static final ExternalScheme SCHEME = ExternalScheme.of("Scheme");

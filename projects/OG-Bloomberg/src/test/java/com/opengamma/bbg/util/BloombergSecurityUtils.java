@@ -293,10 +293,6 @@ public final class BloombergSecurityUtils {
     return equitySecurity;
   }
 
-  private static void addSecurityAttribute(final Security security, final String attrName, final String attrValue) {
-    security.addAttribute(attrName, attrValue);
-  }
-
   //note this will roll over on 2010-12-18 and the expected Buid and Expiry
   // date will change
   public static EquityIndexOptionSecurity makeSPXIndexOptionSecurity() {

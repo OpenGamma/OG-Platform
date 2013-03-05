@@ -13,7 +13,7 @@ import org.testng.annotations.Test;
 /**
  * Test {@link UniqueId}. 
  */
-@Test
+@Test(groups = "unit")
 public class UniqueIdTest {
 
   public void test_factory_String_String() {
@@ -52,13 +52,13 @@ public class UniqueIdTest {
       for (String value : strs) {
         UniqueId testUID = UniqueId.of(scheme, value);
         String testStr = testUID.toString();
-        System.out.println("scheme = " + scheme + ", value = " + value + ", version = NULL, uid = " + testUID.toString());
+        // System.out.println("scheme = " + scheme + ", value = " + value + ", version = NULL, uid = " + testUID.toString());
         UniqueId uid = UniqueId.parse(testStr);
         assertEquals(testUID, uid);
         for (String version : strs) {
           testUID = UniqueId.of(scheme, value, version);
           testStr = testUID.toString();
-          System.out.println("scheme = " + scheme + ", value = " + value + ", version = " + version + ", uid = " + testUID.toString());
+          // System.out.println("scheme = " + scheme + ", value = " + value + ", version = " + version + ", uid = " + testUID.toString());
           uid = UniqueId.parse(testStr);
           assertEquals(testUID, uid);
         }

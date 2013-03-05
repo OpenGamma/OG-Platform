@@ -17,6 +17,7 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 
 /**
@@ -29,18 +30,16 @@ public class SwapConvention extends Convention {
   private static final long serialVersionUID = 1L;
 
   /**
-   * The fixed leg convention name.
+   * The fixed leg convention.
    */
-  //TODO is this the right type?
   @PropertyDefinition(validate = "notNull")
-  private String _payLegConvention;
+  private ExternalId _payLegConvention;
 
   /**
-   * The floating leg convention name.
+   * The floating leg convention.
    */
-  //TODO is this the right type?
   @PropertyDefinition(validate = "notNull")
-  private String _receiveLegConvention;
+  private ExternalId _receiveLegConvention;
 
   /**
    * For the builder
@@ -49,7 +48,7 @@ public class SwapConvention extends Convention {
     super();
   }
 
-  public SwapConvention(final String name, final ExternalIdBundle externalIdBundle, final String payLegConvention, final String receiveLegConvention) {
+  public SwapConvention(final String name, final ExternalIdBundle externalIdBundle, final ExternalId payLegConvention, final ExternalId receiveLegConvention) {
     super(name, externalIdBundle);
     setPayLegConvention(payLegConvention);
     setReceiveLegConvention(receiveLegConvention);
@@ -87,10 +86,10 @@ public class SwapConvention extends Convention {
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 774631511:  // payLegConvention
-        setPayLegConvention((String) newValue);
+        setPayLegConvention((ExternalId) newValue);
         return;
       case -560732676:  // receiveLegConvention
-        setReceiveLegConvention((String) newValue);
+        setReceiveLegConvention((ExternalId) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -127,18 +126,18 @@ public class SwapConvention extends Convention {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the payLegConvention.
+   * Gets the fixed leg convention.
    * @return the value of the property, not null
    */
-  public String getPayLegConvention() {
+  public ExternalId getPayLegConvention() {
     return _payLegConvention;
   }
 
   /**
-   * Sets the payLegConvention.
+   * Sets the fixed leg convention.
    * @param payLegConvention  the new value of the property, not null
    */
-  public void setPayLegConvention(String payLegConvention) {
+  public void setPayLegConvention(ExternalId payLegConvention) {
     JodaBeanUtils.notNull(payLegConvention, "payLegConvention");
     this._payLegConvention = payLegConvention;
   }
@@ -147,24 +146,24 @@ public class SwapConvention extends Convention {
    * Gets the the {@code payLegConvention} property.
    * @return the property, not null
    */
-  public final Property<String> payLegConvention() {
+  public final Property<ExternalId> payLegConvention() {
     return metaBean().payLegConvention().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the receiveLegConvention.
+   * Gets the floating leg convention.
    * @return the value of the property, not null
    */
-  public String getReceiveLegConvention() {
+  public ExternalId getReceiveLegConvention() {
     return _receiveLegConvention;
   }
 
   /**
-   * Sets the receiveLegConvention.
+   * Sets the floating leg convention.
    * @param receiveLegConvention  the new value of the property, not null
    */
-  public void setReceiveLegConvention(String receiveLegConvention) {
+  public void setReceiveLegConvention(ExternalId receiveLegConvention) {
     JodaBeanUtils.notNull(receiveLegConvention, "receiveLegConvention");
     this._receiveLegConvention = receiveLegConvention;
   }
@@ -173,7 +172,7 @@ public class SwapConvention extends Convention {
    * Gets the the {@code receiveLegConvention} property.
    * @return the property, not null
    */
-  public final Property<String> receiveLegConvention() {
+  public final Property<ExternalId> receiveLegConvention() {
     return metaBean().receiveLegConvention().createProperty(this);
   }
 
@@ -190,18 +189,18 @@ public class SwapConvention extends Convention {
     /**
      * The meta-property for the {@code payLegConvention} property.
      */
-    private final MetaProperty<String> _payLegConvention = DirectMetaProperty.ofReadWrite(
-        this, "payLegConvention", SwapConvention.class, String.class);
+    private final MetaProperty<ExternalId> _payLegConvention = DirectMetaProperty.ofReadWrite(
+        this, "payLegConvention", SwapConvention.class, ExternalId.class);
     /**
      * The meta-property for the {@code receiveLegConvention} property.
      */
-    private final MetaProperty<String> _receiveLegConvention = DirectMetaProperty.ofReadWrite(
-        this, "receiveLegConvention", SwapConvention.class, String.class);
+    private final MetaProperty<ExternalId> _receiveLegConvention = DirectMetaProperty.ofReadWrite(
+        this, "receiveLegConvention", SwapConvention.class, ExternalId.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "payLegConvention",
         "receiveLegConvention");
 
@@ -242,7 +241,7 @@ public class SwapConvention extends Convention {
      * The meta-property for the {@code payLegConvention} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<String> payLegConvention() {
+    public final MetaProperty<ExternalId> payLegConvention() {
       return _payLegConvention;
     }
 
@@ -250,7 +249,7 @@ public class SwapConvention extends Convention {
      * The meta-property for the {@code receiveLegConvention} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<String> receiveLegConvention() {
+    public final MetaProperty<ExternalId> receiveLegConvention() {
       return _receiveLegConvention;
     }
 

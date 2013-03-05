@@ -14,6 +14,8 @@ import org.springframework.beans.factory.InitializingBean;
 import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
+import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
+import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyNamesAndValues;
 import com.opengamma.financial.property.DefaultPropertyFunction.PriorityClass;
 import com.opengamma.util.ArgumentChecker;
 
@@ -46,8 +48,8 @@ public class FutureOptionFunctions extends AbstractRepositoryConfigurationBean {
       private String _surfaceName;
       private String _interpolationMethod = "Spline";
       private String _forwardCurveName;
-      private String _forwardCurveCalculationMethod;
-      private String _surfaceCalculationMethod;
+      private String _forwardCurveCalculationMethod = ForwardCurveValuePropertyNames.PROPERTY_FUTURE_PRICE_METHOD;
+      private String _surfaceCalculationMethod = BlackVolatilitySurfacePropertyNamesAndValues.INTERPOLATED_BLACK_LOGNORMAL;
 
       public String getCurveName() {
         return _curveName;
@@ -195,6 +197,17 @@ public class FutureOptionFunctions extends AbstractRepositoryConfigurationBean {
     functions.add(functionConfiguration(CommodityFutureOptionBjerksundStenslandGreeksFunction.class));
     functions.add(functionConfiguration(CommodityFutureOptionBjerksundStenslandValueDeltaFunction.class));
     functions.add(functionConfiguration(CommodityFutureOptionBjerksundStenslandValueGammaFunction.class));
+    functions.add(functionConfiguration(EquityFutureOptionBlackDeltaFunction.class));
+    functions.add(functionConfiguration(EquityFutureOptionBlackGammaFunction.class));
+    functions.add(functionConfiguration(EquityFutureOptionBlackPVFunction.class));
+    functions.add(functionConfiguration(EquityFutureOptionBlackThetaFunction.class));
+    functions.add(functionConfiguration(EquityFutureOptionBlackVegaFunction.class));
+    functions.add(functionConfiguration(EquityFutureOptionBlackValueDeltaFunction.class));
+    functions.add(functionConfiguration(EquityFutureOptionBlackValueGammaFunction.class));
+    functions.add(functionConfiguration(EquityFutureOptionBAWPVFunction.class));
+    functions.add(functionConfiguration(EquityFutureOptionBAWGreeksFunction.class));
+    functions.add(functionConfiguration(EquityFutureOptionBAWValueDeltaFunction.class));
+    functions.add(functionConfiguration(EquityFutureOptionBAWValueGammaFunction.class));
   }
 
 }

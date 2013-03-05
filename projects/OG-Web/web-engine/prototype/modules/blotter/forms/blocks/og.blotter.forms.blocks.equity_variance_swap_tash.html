@@ -44,18 +44,31 @@
         </label>
       </td>
       <td>
-        <input name="security.settlementDate" type="text" value="{{settlement}}"/>
+        <input class="blotter-date" name="security.settlementDate" type="text" value="{{settlement}}"/>
       </td>
     </tr>
     <tr>
       <td>
         <span>Observation</span>
       </td>
-      <td class="og-triple-cell">
-       <div><span>{{{item_3}}}
-       </span><span><input name="security.firstObservationDate" type="text" placeholder="First Date" value="{{first}}"/>
-       </span><span><input name="security.lastObservationDate" type="text" placeholder="Last Date" value="{{last}}"/>
-       </span></div>
+      <td>
+       {{{item_3}}}
+      </td> 
+    </tr>
+    <tr>
+      <td>
+        <span>First Observation Date</span>
+      </td>
+      <td>
+        <input class="blotter-date" name="security.firstObservationDate" type="text" value="{{first}}"/>
+      </td> 
+    </tr>
+    <tr>
+      <td>
+        <span>Last Observation Date</span>
+      </td>
+      <td>
+        <input class="blotter-date" name="security.lastObservationDate" type="text" value="{{last}}"/>
       </td> 
     </tr>
     <tr>
