@@ -6,6 +6,7 @@
 package com.opengamma.bbg.loader;
 
 import static com.opengamma.bbg.BloombergConstants.BLOOMBERG_EQUITY_INDEX_TYPE;
+import static com.opengamma.bbg.BloombergConstants.BBG_NON_EQUITY_INDEX_TYPE;
 import static com.opengamma.bbg.BloombergConstants.FIELD_CRNCY;
 import static com.opengamma.bbg.BloombergConstants.FIELD_FUTURES_CATEGORY;
 import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_LAST_TRADE_DT;
@@ -69,7 +70,7 @@ public class IndexFutureLoader extends SecurityLoader {
   /**
    * The valid Bloomberg future categories for Index Futures
    */
-  public static final Set<String> VALID_FUTURE_CATEGORIES = ImmutableSet.of(BLOOMBERG_EQUITY_INDEX_TYPE);
+  public static final Set<String> VALID_FUTURE_CATEGORIES = ImmutableSet.of(BLOOMBERG_EQUITY_INDEX_TYPE, BBG_NON_EQUITY_INDEX_TYPE);
 
   /**
    * Creates an instance.

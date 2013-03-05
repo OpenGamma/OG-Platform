@@ -32,6 +32,7 @@ import com.opengamma.engine.view.execution.ExecutionFlags;
 import com.opengamma.engine.view.execution.ExecutionOptions;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
+import com.opengamma.engine.view.listener.CycleCompletedCall;
 import com.opengamma.engine.view.listener.CycleFragmentCompletedCall;
 import com.opengamma.engine.view.listener.CycleStartedCall;
 import com.opengamma.engine.view.listener.ViewDefinitionCompiledCall;
@@ -206,6 +207,51 @@ public class ViewProcessTest {
     assertEquals(ViewProcessState.FINISHED, viewProcess.getState());
     assertTrue(computationJob.isTerminated());
     assertFalse(computationThread.isAlive());
+
+    vp.stop();
+  }
+  
+  @Test
+  public void testPersistentViewDefinition() throws InterruptedException {
+    final ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
+    env.init();
+    env.getViewDefinition().setPersistent(true);
+    final ViewProcessorImpl vp = env.getViewProcessor();
+    vp.start();
+
+    final ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
+    
+    final TestViewResultListener resultListener = new TestViewResultListener();
+    client.setResultListener(resultListener);
+    
+    client.attachToViewProcess(env.getViewDefinition().getUniqueId(), ExecutionOptions.infinite(MarketData.live(), ExecutionFlags.none().get()));
+    
+    final ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
+    assertEquals(ViewProcessState.RUNNING, viewProcess.getState());
+    
+    resultListener.expectNextCall(ViewDefinitionCompiledCall.class, Timeout.standardTimeoutMillis());
+    resultListener.expectNextCall(CycleCompletedCall.class, Timeout.standardTimeoutMillis());
+    resultListener.assertNoCalls(Timeout.standardTimeoutMillis());
+    
+    client.detachFromViewProcess();
+    assertEquals(ViewProcessState.RUNNING, viewProcess.getState());
+    
+    resultListener.assertNoCalls(Timeout.standardTimeoutMillis());
+    
+    client.attachToViewProcess(env.getViewDefinition().getUniqueId(), ExecutionOptions.infinite(MarketData.live(), ExecutionFlags.none().get()));
+    final ViewProcessImpl viewProcess2 = env.getViewProcess(vp, client.getUniqueId());
+    assertEquals(viewProcess, viewProcess2);
+    
+    resultListener.expectNextCall(ViewDefinitionCompiledCall.class, Timeout.standardTimeoutMillis());
+    resultListener.expectNextCall(CycleCompletedCall.class, Timeout.standardTimeoutMillis());
+    
+    client.detachFromViewProcess();
+    
+    // Still want to be able to shut down manually, e.g. through JMX
+    assertEquals(1, vp.getViewProcesses().size());
+    viewProcess.shutdown();
+    assertEquals(ViewProcessState.TERMINATED, viewProcess.getState());
+    assertEquals(0, vp.getViewProcesses().size());
 
     vp.stop();
   }

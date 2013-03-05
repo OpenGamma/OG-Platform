@@ -13,6 +13,7 @@ import com.opengamma.analytics.financial.commodity.definition.EnergyFutureDefini
 import com.opengamma.analytics.financial.commodity.definition.MetalFutureDefinition;
 import com.opengamma.analytics.financial.equity.future.definition.EquityFutureDefinition;
 import com.opengamma.analytics.financial.equity.future.definition.EquityIndexDividendFutureDefinition;
+import com.opengamma.analytics.financial.equity.future.definition.IndexFutureDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitorAdapter;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
 import com.opengamma.analytics.financial.instrument.future.BondFutureDefinition;
@@ -126,6 +127,11 @@ public class FutureTradeConverter {
           @Override
           public InstrumentDefinitionWithData<?, Double> visitInterestRateFutureSecurityDefinition(final InterestRateFutureSecurityDefinition futures) {
             return new InterestRateFutureTransactionDefinition(futures, tradeDate, tradePrice, 1);
+          }
+          
+          @Override
+          public InstrumentDefinitionWithData<?, Double> visitIndexFutureDefinition(final IndexFutureDefinition futures) {
+            return new IndexFutureDefinition(futures.getExpiryDate(), futures.getSettlementDate(), tradePrice, futures.getCurrency(), futures.getUnitAmount(), futures.getUnderlying());
           }
 
         };

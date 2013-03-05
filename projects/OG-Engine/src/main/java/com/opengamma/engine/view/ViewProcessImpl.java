@@ -49,6 +49,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
   private final UniqueId _viewDefinitionId;
   private final ViewExecutionOptions _executionOptions;
   private final ViewProcessContext _viewProcessContext;
+  private final ViewProcessorImpl _viewProcessor;
   private final ObjectId _cycleObjectId;
   private final EngineResourceManagerInternal<SingleComputationCycle> _cycleManager;
 
@@ -76,20 +77,22 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
   /**
    * Constructs an instance.
    *
-   * @param viewProcessId the unique identifier of the view process, not null
-   * @param viewDefinitionId the name of the view definition, not null
-   * @param executionOptions the view execution options, not null
-   * @param viewProcessContext the process context, not null
-   * @param cycleManager the view cycle manager, not null
-   * @param cycleObjectId the object identifier of cycles, not null
+   * @param viewProcessId  the unique identifier of the view process, not null
+   * @param viewDefinitionId  the name of the view definition, not null
+   * @param executionOptions  the view execution options, not null
+   * @param viewProcessContext  the process context, not null
+   * @param viewProcessor  the parent view processor, not null
+   * @param cycleManager  the view cycle manager, not null
+   * @param cycleObjectId  the object identifier of cycles, not null
    */
   public ViewProcessImpl(final UniqueId viewProcessId, final UniqueId viewDefinitionId, final ViewExecutionOptions executionOptions,
-                         final ViewProcessContext viewProcessContext,
+                         final ViewProcessContext viewProcessContext, final ViewProcessorImpl viewProcessor,
                          final EngineResourceManagerInternal<SingleComputationCycle> cycleManager, final ObjectId cycleObjectId) {
     ArgumentChecker.notNull(viewProcessId, "viewProcessId");
-    ArgumentChecker.notNull(viewDefinitionId, "viewDefinitionID");
+    ArgumentChecker.notNull(viewDefinitionId, "viewDefinitionId");
     ArgumentChecker.notNull(executionOptions, "executionOptions");
     ArgumentChecker.notNull(viewProcessContext, "viewProcessContext");
+    ArgumentChecker.notNull(viewProcessor, "viewProcessor");
     ArgumentChecker.notNull(cycleManager, "cycleManager");
     ArgumentChecker.notNull(cycleObjectId, "cycleObjectId");
 
@@ -97,6 +100,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
     _viewDefinitionId = viewDefinitionId;
     _executionOptions = executionOptions;
     _viewProcessContext = viewProcessContext;
+    _viewProcessor = viewProcessor;
     _cycleManager = cycleManager;
     _cycleObjectId = cycleObjectId;
   }
@@ -132,6 +136,11 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
     if (getState() == ViewProcessState.TERMINATED) {
       return;
     }
+    // Must go through the view processor to prevent a client being attached to the terminated view process
+    _viewProcessor.shutdownViewProcess(_viewProcessId);
+  }
+  
+  protected void shutdownCore() {
     // Caller MUST NOT hold the semaphore
     final boolean isInterrupting;
     final ViewResultListener[] listeners;
@@ -503,19 +512,18 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
       if (_listeners.add(listener)) {
         if (_listeners.size() == 1) {
           try {
-            startComputationJob();
+            startComputationJobIfRequired();
           } catch (final Exception e) {
             // Roll-back
             _listeners.remove(listener);
             s_logger.error("Failed to start computation job while adding listener for view process {}", this);
             throw new OpenGammaRuntimeException("Failed to start computation job while adding listener for view process " + toString(), e);
           }
-        } else {
-          // Push initial state to listener
-          latestCompilation = _latestCompiledViewDefinition.get();
-          if (latestCompilation != null) {
-            latestResult = _latestResult.get();
-          }
+        }
+        // Push any initial state to listener
+        latestCompilation = _latestCompiledViewDefinition.get();
+        if (latestCompilation != null) {
+          latestResult = _latestResult.get();
         }
       }
     } finally {
@@ -557,7 +565,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
     lock();
     try {
       if (_listeners.remove(listener) && _listeners.size() == 0) {
-        stopComputationJob();
+        stopComputationJobIfRequired();
       }
     } finally {
       unlock();
@@ -598,7 +606,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
   /**
    * Starts the background job responsible for running computation cycles for this view process.
    */
-  private void startComputationJob() {
+  private void startComputationJobIfRequired() {
     // Caller MUST hold the semaphore
     s_logger.info("Starting computation on view process {}...", this);
     switch (getState()) {
@@ -606,7 +614,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
         // Normal state of play. Continue as normal.
         break;
       case RUNNING:
-        throw new IllegalStateException("Already running.");
+        return;
       case FINISHED:
         throw new IllegalStateException("The computation job has already been run.");
       case TERMINATED:
@@ -621,8 +629,11 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
    * Instructs the background computation job to finish. The background job might actually terminate asynchronously, but any outstanding result will be discarded. A replacement background computation
    * job may be started immediately.
    */
-  private void stopComputationJob() {
+  private void stopComputationJobIfRequired() {
     // Caller MUST hold the semaphore
+    if (getLatestViewDefinition().isPersistent()) {
+      return;
+    }
     s_logger.info("Stopping computation on view process {}...", this);
     if (getState() != ViewProcessState.RUNNING) {
       return;

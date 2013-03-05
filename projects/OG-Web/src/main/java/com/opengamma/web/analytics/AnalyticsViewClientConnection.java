@@ -135,6 +135,7 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
   /* package */ void close() {
     try {
       _viewClient.detachFromViewProcess();
+      _viewClient.shutdown();
     } finally {
       _cycleReference.release();
       _aggregatedViewDef.close();

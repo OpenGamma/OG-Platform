@@ -15,8 +15,12 @@ import com.opengamma.analytics.financial.commodity.derivative.MetalForward;
 import com.opengamma.analytics.financial.commodity.derivative.MetalFuture;
 import com.opengamma.analytics.financial.commodity.derivative.MetalFutureOption;
 import com.opengamma.analytics.financial.credit.cds.ISDACDSDerivative;
+import com.opengamma.analytics.financial.equity.future.derivative.CashSettledFuture;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityFuture;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityIndexDividendFuture;
+import com.opengamma.analytics.financial.equity.future.derivative.EquityIndexFuture;
+import com.opengamma.analytics.financial.equity.future.derivative.IndexFuture;
+import com.opengamma.analytics.financial.equity.future.derivative.VolatilityIndexFuture;
 import com.opengamma.analytics.financial.equity.option.EquityIndexFutureOption;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.equity.option.EquityOption;
@@ -490,6 +494,17 @@ public abstract class InstrumentDerivativeVisitorAdapter<DATA_TYPE, RESULT_TYPE>
   // -----     Futures     -----
 
   @Override
+  public RESULT_TYPE visitCashSettledFuture(final CashSettledFuture  future, final DATA_TYPE data) {
+    return getException(future, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitCashSettledFuture(final CashSettledFuture future) {
+    return getException(future);
+  }
+  
+  
+  @Override
   public RESULT_TYPE visitBondFuture(final BondFuture bondFuture, final DATA_TYPE data) {
     return getException(bondFuture, data);
   }
@@ -832,12 +847,42 @@ public abstract class InstrumentDerivativeVisitorAdapter<DATA_TYPE, RESULT_TYPE>
   }
 
   @Override
+  public RESULT_TYPE visitIndexFuture(final IndexFuture future, final DATA_TYPE data) {
+    return getException(future, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitIndexFuture(final IndexFuture future) {
+    return getException(future);
+  }
+  
+  @Override
+  public RESULT_TYPE visitEquityIndexFuture(final EquityIndexFuture future, final DATA_TYPE data) {
+    return getException(future, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitEquityIndexFuture(final EquityIndexFuture future) {
+    return getException(future);
+  }
+  
+  @Override
   public RESULT_TYPE visitEquityIndexDividendFuture(final EquityIndexDividendFuture future, final DATA_TYPE data) {
     return getException(future, data);
   }
 
   @Override
   public RESULT_TYPE visitEquityIndexDividendFuture(final EquityIndexDividendFuture future) {
+    return getException(future);
+  }
+  
+  @Override
+  public RESULT_TYPE visitVolatilityIndexFuture(final VolatilityIndexFuture future, final DATA_TYPE data) {
+    return getException(future, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitVolatilityIndexFuture(final VolatilityIndexFuture future) {
     return getException(future);
   }
 
@@ -871,7 +916,7 @@ public abstract class InstrumentDerivativeVisitorAdapter<DATA_TYPE, RESULT_TYPE>
     return getException(option);
   }
 
-  //  -----     Equity     -----
+  //  -----     VarianceSwap     -----
 
   @Override
   public RESULT_TYPE visitVarianceSwap(final VarianceSwap varianceSwap, final DATA_TYPE data) {

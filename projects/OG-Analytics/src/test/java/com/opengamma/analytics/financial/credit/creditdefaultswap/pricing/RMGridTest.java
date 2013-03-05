@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing;
 
+import org.testng.annotations.Test;
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZoneOffset;
@@ -31,6 +32,7 @@ import com.opengamma.analytics.financial.credit.obligor.Sector;
 import com.opengamma.analytics.financial.credit.obligor.definition.Obligor;
 import com.opengamma.analytics.financial.credit.schedulegeneration.GenerateCreditDefaultSwapPremiumLegSchedule;
 import com.opengamma.analytics.financial.interestrate.PeriodicInterestRate;
+import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -54,12 +56,13 @@ public class RMGridTest {
   // ---------------------------------------------------------------------------------------
 
   private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
+  private static final DayCount ACT_360 = DayCountFactory.INSTANCE.getDayCount("ACT/360");
   protected static DayCount s_act365 = new ActualThreeSixtyFive();
 
   // ---------------------------------------------------------------------------------------
 
   // Flag to control if any test results are output to the console
-  private static final boolean outputResults = false;
+  private static final boolean outputResults = true;
 
   // ----------------------------------------------------------------------------------
 
@@ -126,9 +129,9 @@ public class RMGridTest {
   private static final Calendar calendar = new MondayToFridayCalendar("TestCalendar");
 
   private static final ZonedDateTime valuationDate = DateUtils.getUTCDate(2013, 1, 30);
-  private static final ZonedDateTime startDate = DateUtils.getUTCDate(2012, 12, 20);
+  private static final ZonedDateTime startDate = DateUtils.getUTCDate(2003, 7, 2);
   private static final ZonedDateTime effectiveDate = valuationDate.plusDays(1); //DateUtils.getUTCDate(2013, 2, 1);
-  private static final ZonedDateTime maturityDate = DateUtils.getUTCDate(2023, 3, 20);
+  private static final ZonedDateTime maturityDate = DateUtils.getUTCDate(2014, 9, 22);
 
   private static final StubType stubType = StubType.FRONTSHORT;
   private static final PeriodFrequency couponFrequency = PeriodFrequency.QUARTERLY;
@@ -147,7 +150,7 @@ public class RMGridTest {
 
   private static final double parSpread = 100.0;
 
-  private static final double flatSpread = 324.01;
+  private static final double flatSpread = 154.53;
 
   private static final double[] curveLevel = {
       48.40,
@@ -286,7 +289,7 @@ public class RMGridTest {
       s_act365.getDayCountFraction(baseDate, baseDate.plusMonths(9)),
       s_act365.getDayCountFraction(baseDate, baseDate.plusMonths(12))
   };
-  */
+   */
 
   /*
   // 1/3/2013
@@ -307,9 +310,10 @@ public class RMGridTest {
       s_act365.getDayCountFraction(baseDate, yieldCurveDates[4]),     // 9M
       s_act365.getDayCountFraction(baseDate, yieldCurveDates[5])      // 1Y
   };
-  */
+   */
 
   // 30/1/2013
+  /*
   ZonedDateTime[] yieldCurveDates = {
       zdt(2013, 2, 28, 0, 0, 0, 0, ZoneOffset.UTC),
       zdt(2013, 3, 29, 0, 0, 0, 0, ZoneOffset.UTC),
@@ -318,14 +322,140 @@ public class RMGridTest {
       zdt(2013, 10, 30, 0, 0, 0, 0, ZoneOffset.UTC),
       zdt(2014, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC)
   };
+   */
+
+  ZonedDateTime[] yieldCurveDates = {
+      zdt(2013, 2, 28, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2013, 3, 29, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2013, 4, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2013, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2013, 10, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2014, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2014, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2015, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2015, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2016, 1, 29, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2016, 7, 29, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2017, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2017, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2018, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2018, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2019, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2019, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2020, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2020, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2021, 1, 29, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2021, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2022, 1, 31, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2022, 7, 29, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2023, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2023, 7, 31, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2024, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2024, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2025, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2025, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2026, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2026, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2027, 1, 29, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2027, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2028, 1, 31, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2028, 7, 31, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2029, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2029, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2030, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2030, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2031, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2031, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2032, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2032, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2033, 1, 31, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2033, 7, 29, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2034, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2034, 7, 31, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2035, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2035, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2036, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2036, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2037, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2037, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2038, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2038, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2039, 1, 31, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2039, 7, 29, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2040, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2040, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2041, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2041, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2042, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2042, 7, 30, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2043, 1, 30, 0, 0, 0, 0, ZoneOffset.UTC)
+  };
 
   double[] yieldCurveTimes = {
-      s_act365.getDayCountFraction(baseDate, yieldCurveDates[0]),     // 1M     
-      s_act365.getDayCountFraction(baseDate, yieldCurveDates[1]),     // 2M
-      s_act365.getDayCountFraction(baseDate, yieldCurveDates[2]),     // 3M
-      s_act365.getDayCountFraction(baseDate, yieldCurveDates[3]),     // 6M
-      s_act365.getDayCountFraction(baseDate, yieldCurveDates[4]),     // 9M
-      s_act365.getDayCountFraction(baseDate, yieldCurveDates[5])      // 1Y
+      ACT_365.getDayCountFraction(baseDate, yieldCurveDates[0]),
+      ACT_365.getDayCountFraction(baseDate, yieldCurveDates[1]),
+      ACT_365.getDayCountFraction(baseDate, yieldCurveDates[2]),
+      ACT_365.getDayCountFraction(baseDate, yieldCurveDates[3]),
+      ACT_365.getDayCountFraction(baseDate, yieldCurveDates[4]),
+      ACT_365.getDayCountFraction(baseDate, yieldCurveDates[5]),
+      ACT_365.getDayCountFraction(baseDate, yieldCurveDates[6]),
+      ACT_365.getDayCountFraction(baseDate, yieldCurveDates[7]),
+      ACT_365.getDayCountFraction(baseDate, yieldCurveDates[8]),
+      ACT_365.getDayCountFraction(baseDate, yieldCurveDates[9]),
+      ACT_365.getDayCountFraction(baseDate, yieldCurveDates[10]),
+      ACT_365.getDayCountFraction(baseDate, yieldCurveDates[11]),
+      ACT_365.getDayCountFraction(baseDate, yieldCurveDates[12]),
+      ACT_365.getDayCountFraction(baseDate, yieldCurveDates[13]),
+      ACT_365.getDayCountFraction(baseDate, yieldCurveDates[14]),
+      ACT_365.getDayCountFraction(baseDate, yieldCurveDates[15]),
+      ACT_365.getDayCountFraction(baseDate, yieldCurveDates[16]),
+      ACT_365.getDayCountFraction(baseDate, yieldCurveDates[17]),
+      ACT_365.getDayCountFraction(baseDate, yieldCurveDates[18]),
+      ACT_365.getDayCountFraction(baseDate, yieldCurveDates[19]),
+      ACT_365.getDayCountFraction(baseDate, yieldCurveDates[20]),
+      ACT_365.getDayCountFraction(baseDate, yieldCurveDates[21]),
+      ACT_365.getDayCountFraction(baseDate, yieldCurveDates[22]),
+      ACT_365.getDayCountFraction(baseDate, yieldCurveDates[23]),
+      ACT_365.getDayCountFraction(baseDate, yieldCurveDates[24]),
+      ACT_365.getDayCountFraction(baseDate, yieldCurveDates[25]),
+      ACT_365.getDayCountFraction(baseDate, yieldCurveDates[26]),
+      ACT_365.getDayCountFraction(baseDate, yieldCurveDates[27]),
+      ACT_365.getDayCountFraction(baseDate, yieldCurveDates[28]),
+      ACT_365.getDayCountFraction(baseDate, yieldCurveDates[29]),
+      ACT_365.getDayCountFraction(baseDate, yieldCurveDates[30]),
+      ACT_365.getDayCountFraction(baseDate, yieldCurveDates[31]),
+      ACT_365.getDayCountFraction(baseDate, yieldCurveDates[32]),
+      ACT_365.getDayCountFraction(baseDate, yieldCurveDates[33]),
+      ACT_365.getDayCountFraction(baseDate, yieldCurveDates[34]),
+      ACT_365.getDayCountFraction(baseDate, yieldCurveDates[35]),
+      ACT_365.getDayCountFraction(baseDate, yieldCurveDates[36]),
+      ACT_365.getDayCountFraction(baseDate, yieldCurveDates[37]),
+      ACT_365.getDayCountFraction(baseDate, yieldCurveDates[38]),
+      ACT_365.getDayCountFraction(baseDate, yieldCurveDates[39]),
+      ACT_365.getDayCountFraction(baseDate, yieldCurveDates[40]),
+      ACT_365.getDayCountFraction(baseDate, yieldCurveDates[41]),
+      ACT_365.getDayCountFraction(baseDate, yieldCurveDates[42]),
+      ACT_365.getDayCountFraction(baseDate, yieldCurveDates[43]),
+      ACT_365.getDayCountFraction(baseDate, yieldCurveDates[44]),
+      ACT_365.getDayCountFraction(baseDate, yieldCurveDates[45]),
+      ACT_365.getDayCountFraction(baseDate, yieldCurveDates[46]),
+      ACT_365.getDayCountFraction(baseDate, yieldCurveDates[47]),
+      ACT_365.getDayCountFraction(baseDate, yieldCurveDates[48]),
+      ACT_365.getDayCountFraction(baseDate, yieldCurveDates[49]),
+      ACT_365.getDayCountFraction(baseDate, yieldCurveDates[50]),
+      ACT_365.getDayCountFraction(baseDate, yieldCurveDates[51]),
+      ACT_365.getDayCountFraction(baseDate, yieldCurveDates[52]),
+      ACT_365.getDayCountFraction(baseDate, yieldCurveDates[53]),
+      ACT_365.getDayCountFraction(baseDate, yieldCurveDates[54]),
+      ACT_365.getDayCountFraction(baseDate, yieldCurveDates[55]),
+      ACT_365.getDayCountFraction(baseDate, yieldCurveDates[56]),
+      ACT_365.getDayCountFraction(baseDate, yieldCurveDates[57]),
+      ACT_365.getDayCountFraction(baseDate, yieldCurveDates[58]),
+      ACT_365.getDayCountFraction(baseDate, yieldCurveDates[59]),
+      ACT_365.getDayCountFraction(baseDate, yieldCurveDates[60]),
+      ACT_365.getDayCountFraction(baseDate, yieldCurveDates[61]),
+      ACT_365.getDayCountFraction(baseDate, yieldCurveDates[62]),
+      ACT_365.getDayCountFraction(baseDate, yieldCurveDates[63])
   };
 
   /*
@@ -347,7 +477,7 @@ public class RMGridTest {
       s_act365.getDayCountFraction(baseDate, yieldCurveDates[4]),     // 9M
       s_act365.getDayCountFraction(baseDate, yieldCurveDates[5])      // 1Y
   };
-  */
+   */
 
   /*
   // 19/3/2013
@@ -368,7 +498,7 @@ public class RMGridTest {
       s_act365.getDayCountFraction(baseDate, yieldCurveDates[4]),     // 9M
       s_act365.getDayCountFraction(baseDate, yieldCurveDates[5])      // 1Y
   };
-  */
+   */
 
   /*
   // 20/3/2013
@@ -389,7 +519,7 @@ public class RMGridTest {
       s_act365.getDayCountFraction(baseDate, yieldCurveDates[4]),     // 9M
       s_act365.getDayCountFraction(baseDate, yieldCurveDates[5])      // 1Y
   };
-  */
+   */
 
   /*
   // 21/3/2013
@@ -410,7 +540,7 @@ public class RMGridTest {
       s_act365.getDayCountFraction(baseDate, yieldCurveDates[4]),     // 9M
       s_act365.getDayCountFraction(baseDate, yieldCurveDates[5])      // 1Y
   };
-  */
+   */
 
   /*
   // 10/6/2013
@@ -422,7 +552,7 @@ public class RMGridTest {
       s_act365.getDayCountFraction(baseDate, zdt(2014, 3, 10, 0, 0, 0, 0, ZoneOffset.UTC)),     // 9M
       s_act365.getDayCountFraction(baseDate, zdt(2014, 6, 10, 0, 0, 0, 0, ZoneOffset.UTC))      // 1Y
   };
-  */
+   */
 
   /*
   // 15/9/2013
@@ -443,17 +573,145 @@ public class RMGridTest {
       s_act365.getDayCountFraction(baseDate, yieldCurveDates[4]),     // 9M
       s_act365.getDayCountFraction(baseDate, yieldCurveDates[5])      // 1Y
   };
+   */
+
+  /*double[] rates = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+      0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 }; */
+
+  /*
+  double[] rates = {
+      0.0020469398963709473,
+      0.002501864423114286,
+      0.0030502347816789843,
+      0.004829949174541159,
+      0.006522625025034312,
+      0.008065486111111131,
+      0.005629511430584877,
+      0.004393593770308283,
+      0.005251835895630608,
+      0.005831262552165626,
+      0.007009657447744511,
+      0.00790751215674671,
+      0.009285775302585675,
+      0.010395963833218537,
+      0.011788998281891505,
+      0.012970711608828876,
+      0.014279610037949197,
+      0.015421571541585745,
+      0.01658207458964589,
+      0.017604240836319698,
+      0.018669926523961378,
+      0.019633226952841705,
+      0.020569229333792682,
+      0.02144095801122866,
+      0.022301830509302345,
+      0.02308941586503166,
+      0.023805136016763262,
+      0.024468745526579464,
+      0.025078024702453794,
+      0.025650117661823568,
+      0.02617148723394913,
+      0.026661324750865356,
+      0.027115106275981793,
+      0.027545656339872937,
+      0.027886810280336016,
+      0.02820851780672462,
+      0.02850757614158117,
+      0.02879380095239914,
+      0.02905934751569972,
+      0.029314371920297067,
+      0.02955173975943559,
+      0.029780400828259612,
+      0.029994997820663727,
+      0.030202217081450364,
+      0.030357410307428667,
+      0.030510216400872148,
+      0.030653538858346208,
+      0.0307911211738785,
+      0.030921187940242012,
+      0.03104768086276155,
+      0.031167477211878625,
+      0.031283546549800034,
+      0.03139307749474618,
+      0.0314994147598717,
+      0.03159461239355821,
+      0.03168764827055548,
+      0.03177428791948356,
+      0.03186053357866836,
+      0.031942286759037986,
+      0.03202198665755751,
+      0.03209764335645926,
+      0.03217190908790313,
+      0.032242493745427314,
+      0.03231186272591617
+  };
   */
 
-  //double[] rates = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-
-  private static final double[] rates = {
-      (new PeriodicInterestRate(0.002017, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.002465, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.003005, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.004758, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.006428, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.007955, 1)).toContinuous().getRate()
+  double rates[] = {
+      new PeriodicInterestRate(0.0020469398963709473, 1).toContinuous().getRate(),
+      new PeriodicInterestRate(0.002501864423114286, 1).toContinuous().getRate(),
+      new PeriodicInterestRate(0.0030502347816789843, 1).toContinuous().getRate(),
+      new PeriodicInterestRate(0.004829949174541159, 1).toContinuous().getRate(),
+      new PeriodicInterestRate(0.006522625025034312, 1).toContinuous().getRate(),
+      new PeriodicInterestRate(0.008065486111111131, 1).toContinuous().getRate(),
+      new PeriodicInterestRate(0.005629511430584877, 1).toContinuous().getRate(),
+      new PeriodicInterestRate(0.004393593770308283, 1).toContinuous().getRate(),
+      new PeriodicInterestRate(0.005251835895630608, 1).toContinuous().getRate(),
+      new PeriodicInterestRate(0.005831262552165626, 1).toContinuous().getRate(),
+      new PeriodicInterestRate(0.007009657447744511, 1).toContinuous().getRate(),
+      new PeriodicInterestRate(0.00790751215674671, 1).toContinuous().getRate(),
+      new PeriodicInterestRate(0.009285775302585675, 1).toContinuous().getRate(),
+      new PeriodicInterestRate(0.010395963833218537, 1).toContinuous().getRate(),
+      new PeriodicInterestRate(0.011788998281891505, 1).toContinuous().getRate(),
+      new PeriodicInterestRate(0.012970711608828876, 1).toContinuous().getRate(),
+      new PeriodicInterestRate(0.014279610037949197, 1).toContinuous().getRate(),
+      new PeriodicInterestRate(0.015421571541585745, 1).toContinuous().getRate(),
+      new PeriodicInterestRate(0.01658207458964589, 1).toContinuous().getRate(),
+      new PeriodicInterestRate(0.017604240836319698, 1).toContinuous().getRate(),
+      new PeriodicInterestRate(0.018669926523961378, 1).toContinuous().getRate(),
+      new PeriodicInterestRate(0.019633226952841705, 1).toContinuous().getRate(),
+      new PeriodicInterestRate(0.020569229333792682, 1).toContinuous().getRate(),
+      new PeriodicInterestRate(0.02144095801122866, 1).toContinuous().getRate(),
+      new PeriodicInterestRate(0.022301830509302345, 1).toContinuous().getRate(),
+      new PeriodicInterestRate(0.02308941586503166, 1).toContinuous().getRate(),
+      new PeriodicInterestRate(0.023805136016763262, 1).toContinuous().getRate(),
+      new PeriodicInterestRate(0.024468745526579464, 1).toContinuous().getRate(),
+      new PeriodicInterestRate(0.025078024702453794, 1).toContinuous().getRate(),
+      new PeriodicInterestRate(0.025650117661823568, 1).toContinuous().getRate(),
+      new PeriodicInterestRate(0.02617148723394913, 1).toContinuous().getRate(),
+      new PeriodicInterestRate(0.026661324750865356, 1).toContinuous().getRate(),
+      new PeriodicInterestRate(0.027115106275981793, 1).toContinuous().getRate(),
+      new PeriodicInterestRate(0.027545656339872937, 1).toContinuous().getRate(),
+      new PeriodicInterestRate(0.027886810280336016, 1).toContinuous().getRate(),
+      new PeriodicInterestRate(0.02820851780672462, 1).toContinuous().getRate(),
+      new PeriodicInterestRate(0.02850757614158117, 1).toContinuous().getRate(),
+      new PeriodicInterestRate(0.02879380095239914, 1).toContinuous().getRate(),
+      new PeriodicInterestRate(0.02905934751569972, 1).toContinuous().getRate(),
+      new PeriodicInterestRate(0.029314371920297067, 1).toContinuous().getRate(),
+      new PeriodicInterestRate(0.02955173975943559, 1).toContinuous().getRate(),
+      new PeriodicInterestRate(0.029780400828259612, 1).toContinuous().getRate(),
+      new PeriodicInterestRate(0.029994997820663727, 1).toContinuous().getRate(),
+      new PeriodicInterestRate(0.030202217081450364, 1).toContinuous().getRate(),
+      new PeriodicInterestRate(0.030357410307428667, 1).toContinuous().getRate(),
+      new PeriodicInterestRate(0.030510216400872148, 1).toContinuous().getRate(),
+      new PeriodicInterestRate(0.030653538858346208, 1).toContinuous().getRate(),
+      new PeriodicInterestRate(0.0307911211738785, 1).toContinuous().getRate(),
+      new PeriodicInterestRate(0.030921187940242012, 1).toContinuous().getRate(),
+      new PeriodicInterestRate(0.03104768086276155, 1).toContinuous().getRate(),
+      new PeriodicInterestRate(0.031167477211878625, 1).toContinuous().getRate(),
+      new PeriodicInterestRate(0.031283546549800034, 1).toContinuous().getRate(),
+      new PeriodicInterestRate(0.03139307749474618, 1).toContinuous().getRate(),
+      new PeriodicInterestRate(0.0314994147598717, 1).toContinuous().getRate(),
+      new PeriodicInterestRate(0.03159461239355821, 1).toContinuous().getRate(),
+      new PeriodicInterestRate(0.03168764827055548, 1).toContinuous().getRate(),
+      new PeriodicInterestRate(0.03177428791948356, 1).toContinuous().getRate(),
+      new PeriodicInterestRate(0.03186053357866836, 1).toContinuous().getRate(),
+      new PeriodicInterestRate(0.031942286759037986, 1).toContinuous().getRate(),
+      new PeriodicInterestRate(0.03202198665755751, 1).toContinuous().getRate(),
+      new PeriodicInterestRate(0.03209764335645926, 1).toContinuous().getRate(),
+      new PeriodicInterestRate(0.03217190908790313, 1).toContinuous().getRate(),
+      new PeriodicInterestRate(0.032242493745427314, 1).toContinuous().getRate(),
+      new PeriodicInterestRate(0.0323118627259161, 1).toContinuous().getRate()
   };
 
   ISDADateCurve yieldCurve = new ISDADateCurve("IR_CURVE", yieldCurveDates, yieldCurveTimes, rates, s_act365.getDayCountFraction(valuationDate, baseDate));
@@ -535,6 +793,32 @@ public class RMGridTest {
   // ----------------------------------------------------------------------------------
 
   //@Test
+  public void testDiscountFactors() {
+
+    //ZonedDateTime testDate = zdt(2013, 2, 28, 0, 0, 0, 0, ZoneOffset.UTC);
+
+    //final double t = TimeCalculator.getTimeBetween(valuationDate, testDate, ACT_365);
+
+    //final double Z = yieldCurve.getDiscountFactor(t);
+
+    //System.out.println(Z);
+
+    for (long i = 0; i < 3000; i++)
+    {
+      ZonedDateTime testDate = valuationDate.plusDays(i);
+
+      final double t = TimeCalculator.getTimeBetween(valuationDate, testDate, ACT_365);
+
+      final double Z = yieldCurve.getDiscountFactor(t);
+
+      System.out.println("i = " + "\t" + i + "\t" + testDate + "\t" + Z);
+    }
+
+  }
+
+  // ----------------------------------------------------------------------------------
+
+  //@Test
   public void testGenerateDates() {
 
     ZonedDateTime[] testDates = {
@@ -576,7 +860,7 @@ public class RMGridTest {
 
   // ----------------------------------------------------------------------------------
 
-  //@Test
+  @Test
   public void testPVCalculation() {
 
     if (outputResults) {
@@ -659,10 +943,10 @@ public class RMGridTest {
     final double presentValue = creditDefaultSwap.getPresentValueLegacyCreditDefaultSwap(valuationDate, valuationCDS, yieldCurve, calibratedHazardRateCurve, priceType);
 
     for (int i = 0; i < calibratedHazardRates.length; i++) {
-      //System.out.println(spreadCurveTenors[i] + "\t" + calibratedHazardRates[i]);
+      System.out.println(spreadCurveTenors[i] + "\t" + calibratedHazardRates[i]);
     }
 
-    //System.out.println(presentValue);
+    System.out.println(presentValue);
   }
 
   // ----------------------------------------------------------------------------------
@@ -692,10 +976,6 @@ public class RMGridTest {
 
       bdaMaturities[i] = schedule.businessDayAdjustDate(maturities[i], calendar, businessdayAdjustmentConvention);
     }
-
-    // The type of spread bump to apply
-    //final SpreadBumpType spreadBumpType = SpreadBumpType.ADDITIVE_BUCKETED;
-    //final SpreadBumpType spreadBumpType = SpreadBumpType.ADDITIVE_PARALLEL;
 
     // The magnitude (but not direction) of bump to apply (in bps)
     final double spreadBump = 1.0;
@@ -728,7 +1008,8 @@ public class RMGridTest {
     LegacyVanillaCreditDefaultSwapDefinition rollingCDS = cds;
 
     // Loop over each of the maturities
-    for (int i = 0; i < numberOfMaturities; i++) {
+    for (int i = 103; i < 104; i++) {
+      //for (int i = numberOfMaturities - 1; i < numberOfMaturities; i++) {
 
       final double[] marketSpreads = new double[numberOfCalibrationCDS];
 
@@ -736,15 +1017,6 @@ public class RMGridTest {
       for (int m = 0; m < numberOfCalibrationCDS; m++) {
         marketSpreads[m] = curveLevel[i];
       }
-
-      /*
-      if (schedule.isAnIMMDate(maturities[i])) {
-        rollingCDS = rollingCDS.withStartDate(startDate);
-      }
-      else {
-        rollingCDS = rollingCDS.withStartDate(valuationDate);
-      }
-       */
 
       // Set the maturity of the CDS to value
       rollingCDS = rollingCDS.withMaturityDate(bdaMaturities[i]);

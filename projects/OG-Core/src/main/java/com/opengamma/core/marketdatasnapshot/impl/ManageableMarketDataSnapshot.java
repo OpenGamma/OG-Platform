@@ -21,6 +21,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.Maps;
 import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
+import com.opengamma.core.marketdatasnapshot.UnstructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.VolatilityCubeKey;
 import com.opengamma.core.marketdatasnapshot.VolatilityCubeSnapshot;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceKey;
@@ -31,7 +32,7 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.util.PublicSPI;
 
 /**
- * A snapshot of market data potentially altered by hand
+ * A snapshot of market data potentially altered by hand.
  */
 @BeanDefinition
 @PublicSPI
@@ -90,16 +91,36 @@ public class ManageableMarketDataSnapshot extends DirectBean implements Structur
    * @param globalValues the snapshot for the global scope
    * @param yieldCurves the yield curves
    */
-  public ManageableMarketDataSnapshot(final String name, final ManageableUnstructuredMarketDataSnapshot globalValues,
+  public ManageableMarketDataSnapshot(final String name, final UnstructuredMarketDataSnapshot globalValues,
       final Map<YieldCurveKey, YieldCurveSnapshot> yieldCurves) {
     super();
     _name = name;
-    _globalValues = globalValues;
+    _globalValues = new ManageableUnstructuredMarketDataSnapshot(globalValues);
     _yieldCurves = yieldCurves;
   }
 
+  /**
+   * Creates a snapshot.
+   * 
+   * @param name the name of the snapshot
+   * @param globalValues the snapshot for the global scope
+   * @param yieldCurves the yield curves
+   * @param volatilitySurfaces the volatility surfaces
+   * @param volatilityCubes the volatility cubes
+   */
+  public ManageableMarketDataSnapshot(final String name, final UnstructuredMarketDataSnapshot globalValues,
+      final Map<YieldCurveKey, YieldCurveSnapshot> yieldCurves, final Map<VolatilitySurfaceKey,
+      VolatilitySurfaceSnapshot> volatilitySurfaces, final Map<VolatilityCubeKey, VolatilityCubeSnapshot> volatilityCubes) {
+    super();
+    _name = name;
+    _globalValues = new ManageableUnstructuredMarketDataSnapshot(globalValues);
+    _yieldCurves = yieldCurves;
+    _volatilitySurfaces = volatilitySurfaces;
+    _volatilityCubes = volatilityCubes;
+  }
+
   public ManageableMarketDataSnapshot(final StructuredMarketDataSnapshot copyFrom) {
-    this(copyFrom.getName(), new ManageableUnstructuredMarketDataSnapshot(copyFrom.getGlobalValues()), copyFrom.getYieldCurves());
+    this(copyFrom.getName(), copyFrom.getGlobalValues(), copyFrom.getYieldCurves(), copyFrom.getVolatilitySurfaces(), copyFrom.getVolatilityCubes());
     _basisViewName = copyFrom.getBasisViewName();
   }
 

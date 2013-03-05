@@ -80,6 +80,7 @@ public class CommodityFutureOptionLoader extends SecurityLoader {
 
   /**
    * The valid Bloomberg security types for Commodity Future Option
+   * These strings will often come up as 'FUTURES_CATEGORY'
    */
   public static final Set<String> VALID_SECURITY_TYPES = ImmutableSet.of(
       BBG_PRECIOUS_METAL_TYPE,

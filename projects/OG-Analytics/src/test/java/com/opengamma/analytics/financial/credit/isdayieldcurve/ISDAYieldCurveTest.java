@@ -45,10 +45,21 @@ public class ISDAYieldCurveTest {
       ISDAInstrumentTypes.MoneyMarket,
       ISDAInstrumentTypes.MoneyMarket,
       ISDAInstrumentTypes.MoneyMarket,
+      ISDAInstrumentTypes.Swap,
       ISDAInstrumentTypes.Swap /*,
                                ISDAInstrumentTypes.Swap,
                                ISDAInstrumentTypes.Swap,
+                               ISDAInstrumentTypes.Swap,
+                               ISDAInstrumentTypes.Swap,
+                               ISDAInstrumentTypes.Swap,
+                               ISDAInstrumentTypes.Swap,
+                               ISDAInstrumentTypes.Swap,
+                               ISDAInstrumentTypes.Swap,
+                               ISDAInstrumentTypes.Swap,
+                               ISDAInstrumentTypes.Swap,
+                               ISDAInstrumentTypes.Swap,
                                ISDAInstrumentTypes.Swap*/
+
   };
 
   private static final ISDAYieldCurveTenors[] instrumentTenors = {
@@ -58,16 +69,28 @@ public class ISDAYieldCurveTest {
       ISDAYieldCurveTenors._6M,
       ISDAYieldCurveTenors._9M,
       ISDAYieldCurveTenors._1Y,
-      ISDAYieldCurveTenors._2Y /*,
-                               ISDAYieldCurveTenors._3Y,
+      ISDAYieldCurveTenors._2Y,
+      ISDAYieldCurveTenors._3Y /*,
                                ISDAYieldCurveTenors._4Y,
-                               ISDAYieldCurveTenors._5Y*/
+                               ISDAYieldCurveTenors._5Y,
+                               ISDAYieldCurveTenors._6Y,
+                               ISDAYieldCurveTenors._7Y,
+                               ISDAYieldCurveTenors._8Y,
+                               ISDAYieldCurveTenors._9Y,
+                               ISDAYieldCurveTenors._10Y,
+                               ISDAYieldCurveTenors._12Y,
+                               ISDAYieldCurveTenors._15Y,
+                               ISDAYieldCurveTenors._20Y,
+                               ISDAYieldCurveTenors._25Y,
+                               ISDAYieldCurveTenors._30Y*/
   };
 
-  private static final double[] instrumentRates = {0.002017, 0.002465, 0.003005, 0.004758, 0.006428, 0.007955, 0.0043949999999999996 /*, 0.0, 0.0, 0.0*/};
+  private static final double[] instrumentRates = {0.002017, 0.002465, 0.003005, 0.004758, 0.006428, 0.007955, 0.0043949999999999996, 0.00582 /*, 0.0, 0.0, 0.0*/};
 
-  //private static final double flatRate = 0.2;
-  //private static final double[] instrumentRates = {flatRate, flatRate, flatRate, flatRate, flatRate, flatRate /*, 0.0010*/};
+  /*
+  private static final double flatRate = 0.2;
+  private static final double[] instrumentRates = {flatRate, flatRate, flatRate, flatRate, flatRate, flatRate, flatRate, flatRate, flatRate, flatRate, flatRate, flatRate, flatRate, flatRate,
+      flatRate, flatRate, flatRate, flatRate, flatRate, flatRate }; */
 
   private static final Calendar calendar = new MondayToFridayCalendar("TestCalendar");
   private static final BusinessDayConvention businessdayAdjustmentConvention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
@@ -90,8 +113,8 @@ public class ISDAYieldCurveTest {
       swapFloatingLegDaycountFractionConvention,
       swapFixedLegCouponFrequency,
       swapFloatingLegCouponFrequency,
-      businessdayAdjustmentConvention,
-      calendar);
+      businessdayAdjustmentConvention/*,
+                                     calendar*/);
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
