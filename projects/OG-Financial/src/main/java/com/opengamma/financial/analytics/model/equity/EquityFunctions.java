@@ -42,6 +42,7 @@ public class EquityFunctions extends AbstractRepositoryConfigurationBean {
     functions.add(functionConfiguration(EquitySecurityDeltaFunction.class));
     functions.add(functionConfiguration(EquitySecurityScenarioPnLFunction.class));
     functions.add(functionConfiguration(EquityVanillaBarrierOptionDistanceFunction.class));
+    functions.add(functionConfiguration(EquityOptionMonetizedVegaFunction.class));
   }
 
   protected RepositoryConfigurationSource futuresFunctionConfiguration() {
