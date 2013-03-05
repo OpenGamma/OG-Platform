@@ -32,6 +32,11 @@
         <currency>EUR</currency>
         <exchange>CME</exchange>
 
+        <additionalAttributes>
+          <attribute name="sec-attr1">sec-attr1-value</attribute>
+          <attribute name="sec-attr2">sec-attr2-value</attribute>
+        </additionalAttributes>
+
         <price>550</price>
         <futureExpiry>MAR15</futureExpiry>
 

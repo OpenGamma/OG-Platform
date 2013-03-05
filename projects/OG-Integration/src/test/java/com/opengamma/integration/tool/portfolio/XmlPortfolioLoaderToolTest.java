@@ -34,6 +34,7 @@ import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.position.PositionSearchRequest;
 import com.opengamma.master.position.impl.InMemoryPositionMaster;
+import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.impl.InMemorySecurityMaster;
@@ -297,8 +298,10 @@ public class XmlPortfolioLoaderToolTest {
     assertEquals(trades.get(0).getQuantity(), BigDecimal.valueOf(1000));
     assertEquals(position.getQuantity(), BigDecimal.valueOf(1000));
 
-    assertEquals(_securityMaster.search(new SecuritySearchRequest()).getSecurities().size(), 1);
-  }
+    List<ManageableSecurity> securities = _securityMaster.search(new SecuritySearchRequest()).getSecurities();
+    assertEquals(securities.size(), 1);
+    assertEquals(securities.get(0).getAttributes().get("sec-attr1"), "sec-attr1-value");
+    assertEquals(securities.get(0).getAttributes().get("sec-attr2"), "sec-attr2-value"); }
 
   @Test
   public void testSinglePortfolioNoPositionListedEquityIndexFutureOption() {

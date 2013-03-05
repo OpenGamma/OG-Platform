@@ -6,7 +6,6 @@
  */
 package com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb;
 
-import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.threeten.bp.ZoneOffset;
 
 import com.opengamma.OpenGammaRuntimeException;
@@ -19,29 +18,14 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.time.ExpiryAccuracy;
 
-public class ListedFutureOptionSecurityExtractor implements ListedSecurityExtractor {
-
-  private final FutureOptionSecurityDefinition _securityDefinition;
+public class ListedFutureOptionSecurityExtractor extends AbstractListedSecurityExtractor<FutureOptionSecurityDefinition> {
 
   public ListedFutureOptionSecurityExtractor(FutureOptionSecurityDefinition securityDefinition) {
-    _securityDefinition = securityDefinition;
+    super(securityDefinition);
   }
 
   @Override
-  public ManageableSecurity[] extract() {
-
-    ManageableSecurity security = createSecurity();
-
-    security.addExternalId(ExternalId.of("XML_LOADER", Integer.toHexString(
-        new HashCodeBuilder()
-            .append(security.getClass())
-            .append(security)
-            .toHashCode())));
-
-    return new ManageableSecurity[]{security};
-  }
-
-  private ManageableSecurity createSecurity() {
+  protected ManageableSecurity createSecurity() {
 
     ExternalId underlyingId = _securityDefinition.getUnderlyingId().toExternalId();
     Expiry expiry = new Expiry(_securityDefinition.getFutureExpiry().atDay(1).atStartOfDay(

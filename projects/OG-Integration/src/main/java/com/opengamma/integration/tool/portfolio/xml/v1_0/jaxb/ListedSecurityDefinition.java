@@ -8,11 +8,14 @@ package com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBean;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
 import com.opengamma.util.money.Currency;
 import java.util.Map;
 import org.joda.beans.BeanBuilder;
@@ -42,6 +45,15 @@ public abstract class ListedSecurityDefinition extends DirectBean {
   @XmlElement(name = "exchange", required = true)
   @PropertyDefinition
   private String _exchange;
+
+  @XmlJavaTypeAdapter(AttributeMapAdapter.class)
+  @XmlElement(name = "additionalAttributes")
+  @PropertyDefinition(get = "manual")
+  private Map<String, String> _additionalAttributes;
+
+  public Map<String, String> getAdditionalAttributes() {
+    return _additionalAttributes == null ? ImmutableMap.<String, String>of() : _additionalAttributes;
+  }
 
   public abstract ListedSecurityExtractor getSecurityExtractor();
 
@@ -74,10 +86,13 @@ public abstract class ListedSecurityDefinition extends DirectBean {
         return getCurrency();
       case 1989774883:  // exchange
         return getExchange();
+      case -1075726114:  // additionalAttributes
+        return getAdditionalAttributes();
     }
     return super.propertyGet(propertyName, quiet);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
@@ -93,6 +108,9 @@ public abstract class ListedSecurityDefinition extends DirectBean {
       case 1989774883:  // exchange
         setExchange((String) newValue);
         return;
+      case -1075726114:  // additionalAttributes
+        setAdditionalAttributes((Map<String, String>) newValue);
+        return;
     }
     super.propertySet(propertyName, newValue, quiet);
   }
@@ -107,7 +125,8 @@ public abstract class ListedSecurityDefinition extends DirectBean {
       return JodaBeanUtils.equal(getUnderlyingId(), other.getUnderlyingId()) &&
           JodaBeanUtils.equal(getPointValue(), other.getPointValue()) &&
           JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
-          JodaBeanUtils.equal(getExchange(), other.getExchange());
+          JodaBeanUtils.equal(getExchange(), other.getExchange()) &&
+          JodaBeanUtils.equal(getAdditionalAttributes(), other.getAdditionalAttributes());
     }
     return false;
   }
@@ -119,6 +138,7 @@ public abstract class ListedSecurityDefinition extends DirectBean {
     hash += hash * 31 + JodaBeanUtils.hashCode(getPointValue());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
     hash += hash * 31 + JodaBeanUtils.hashCode(getExchange());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getAdditionalAttributes());
     return hash;
   }
 
@@ -224,6 +244,23 @@ public abstract class ListedSecurityDefinition extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
+   * Sets the additionalAttributes.
+   * @param additionalAttributes  the new value of the property
+   */
+  public void setAdditionalAttributes(Map<String, String> additionalAttributes) {
+    this._additionalAttributes = additionalAttributes;
+  }
+
+  /**
+   * Gets the the {@code additionalAttributes} property.
+   * @return the property, not null
+   */
+  public final Property<Map<String, String>> additionalAttributes() {
+    return metaBean().additionalAttributes().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code ListedSecurityDefinition}.
    */
   public static class Meta extends DirectMetaBean {
@@ -253,6 +290,12 @@ public abstract class ListedSecurityDefinition extends DirectBean {
     private final MetaProperty<String> _exchange = DirectMetaProperty.ofReadWrite(
         this, "exchange", ListedSecurityDefinition.class, String.class);
     /**
+     * The meta-property for the {@code additionalAttributes} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<Map<String, String>> _additionalAttributes = DirectMetaProperty.ofReadWrite(
+        this, "additionalAttributes", ListedSecurityDefinition.class, (Class) Map.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -260,7 +303,8 @@ public abstract class ListedSecurityDefinition extends DirectBean {
         "underlyingId",
         "pointValue",
         "currency",
-        "exchange");
+        "exchange",
+        "additionalAttributes");
 
     /**
      * Restricted constructor.
@@ -279,6 +323,8 @@ public abstract class ListedSecurityDefinition extends DirectBean {
           return _currency;
         case 1989774883:  // exchange
           return _exchange;
+        case -1075726114:  // additionalAttributes
+          return _additionalAttributes;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -329,6 +375,14 @@ public abstract class ListedSecurityDefinition extends DirectBean {
      */
     public final MetaProperty<String> exchange() {
       return _exchange;
+    }
+
+    /**
+     * The meta-property for the {@code additionalAttributes} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Map<String, String>> additionalAttributes() {
+      return _additionalAttributes;
     }
 
   }

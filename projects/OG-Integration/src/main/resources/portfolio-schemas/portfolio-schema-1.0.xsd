@@ -444,8 +444,7 @@
 
   <xs:complexType name="additionalAttributes">
     <xs:sequence>
-      <xs:element maxOccurs="unbounded" minOccurs="0"
-                  name="attribute" nillable="true" type="attribute"/>
+      <xs:element name="attribute" type="attribute" minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>
   </xs:complexType>
 
@@ -1011,6 +1010,7 @@
       <xs:element name="pointValue" type="xs:int"/>
       <xs:element name="currency" type="xs:string"/>
       <xs:element name="exchange" type="xs:string"/>
+      <xs:element name="additionalAttributes" type="additionalAttributes" minOccurs="0"/>
     </xs:sequence>
   </xs:complexType>
 

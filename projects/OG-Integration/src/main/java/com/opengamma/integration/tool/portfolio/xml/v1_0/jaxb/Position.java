@@ -105,10 +105,10 @@ public class Position extends DirectBean {
         return getId();
       case -1924302699:  // externalSystemId
         return getExternalSystemId();
-      case -865715313:  // trades
-        return getTrades();
       case -1285004149:  // quantity
         return getQuantity();
+      case -865715313:  // trades
+        return getTrades();
       case 949122880:  // security
         return getSecurity();
       case -163631792:  // listedSecurityDefinition
@@ -129,11 +129,11 @@ public class Position extends DirectBean {
       case -1924302699:  // externalSystemId
         setExternalSystemId((IdWrapper) newValue);
         return;
-      case -865715313:  // trades
-        setTrades((List<Trade>) newValue);
-        return;
       case -1285004149:  // quantity
         setQuantity((BigDecimal) newValue);
+        return;
+      case -865715313:  // trades
+        setTrades((List<Trade>) newValue);
         return;
       case 949122880:  // security
         setSecurity((IdWrapper) newValue);
@@ -157,8 +157,8 @@ public class Position extends DirectBean {
       Position other = (Position) obj;
       return JodaBeanUtils.equal(getId(), other.getId()) &&
           JodaBeanUtils.equal(getExternalSystemId(), other.getExternalSystemId()) &&
-          JodaBeanUtils.equal(getTrades(), other.getTrades()) &&
           JodaBeanUtils.equal(getQuantity(), other.getQuantity()) &&
+          JodaBeanUtils.equal(getTrades(), other.getTrades()) &&
           JodaBeanUtils.equal(getSecurity(), other.getSecurity()) &&
           JodaBeanUtils.equal(getListedSecurityDefinition(), other.getListedSecurityDefinition()) &&
           JodaBeanUtils.equal(getAdditionalAttributes(), other.getAdditionalAttributes());
@@ -171,8 +171,8 @@ public class Position extends DirectBean {
     int hash = getClass().hashCode();
     hash += hash * 31 + JodaBeanUtils.hashCode(getId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getExternalSystemId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTrades());
     hash += hash * 31 + JodaBeanUtils.hashCode(getQuantity());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getTrades());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSecurity());
     hash += hash * 31 + JodaBeanUtils.hashCode(getListedSecurityDefinition());
     hash += hash * 31 + JodaBeanUtils.hashCode(getAdditionalAttributes());
@@ -231,31 +231,6 @@ public class Position extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the trades.
-   * @return the value of the property
-   */
-  public List<Trade> getTrades() {
-    return _trades;
-  }
-
-  /**
-   * Sets the trades.
-   * @param trades  the new value of the property
-   */
-  public void setTrades(List<Trade> trades) {
-    this._trades = trades;
-  }
-
-  /**
-   * Gets the the {@code trades} property.
-   * @return the property, not null
-   */
-  public final Property<List<Trade>> trades() {
-    return metaBean().trades().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Gets the quantity.
    * @return the value of the property
    */
@@ -277,6 +252,31 @@ public class Position extends DirectBean {
    */
   public final Property<BigDecimal> quantity() {
     return metaBean().quantity().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the trades.
+   * @return the value of the property
+   */
+  public List<Trade> getTrades() {
+    return _trades;
+  }
+
+  /**
+   * Sets the trades.
+   * @param trades  the new value of the property
+   */
+  public void setTrades(List<Trade> trades) {
+    this._trades = trades;
+  }
+
+  /**
+   * Gets the the {@code trades} property.
+   * @return the property, not null
+   */
+  public final Property<List<Trade>> trades() {
+    return metaBean().trades().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -367,16 +367,16 @@ public class Position extends DirectBean {
     private final MetaProperty<IdWrapper> _externalSystemId = DirectMetaProperty.ofReadWrite(
         this, "externalSystemId", Position.class, IdWrapper.class);
     /**
+     * The meta-property for the {@code quantity} property.
+     */
+    private final MetaProperty<BigDecimal> _quantity = DirectMetaProperty.ofReadWrite(
+        this, "quantity", Position.class, BigDecimal.class);
+    /**
      * The meta-property for the {@code trades} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
     private final MetaProperty<List<Trade>> _trades = DirectMetaProperty.ofReadWrite(
         this, "trades", Position.class, (Class) List.class);
-    /**
-     * The meta-property for the {@code quantity} property.
-     */
-    private final MetaProperty<BigDecimal> _quantity = DirectMetaProperty.ofReadWrite(
-        this, "quantity", Position.class, BigDecimal.class);
     /**
      * The meta-property for the {@code security} property.
      */
@@ -400,8 +400,8 @@ public class Position extends DirectBean {
         this, null,
         "id",
         "externalSystemId",
-        "trades",
         "quantity",
+        "trades",
         "security",
         "listedSecurityDefinition",
         "additionalAttributes");
@@ -419,10 +419,10 @@ public class Position extends DirectBean {
           return _id;
         case -1924302699:  // externalSystemId
           return _externalSystemId;
-        case -865715313:  // trades
-          return _trades;
         case -1285004149:  // quantity
           return _quantity;
+        case -865715313:  // trades
+          return _trades;
         case 949122880:  // security
           return _security;
         case -163631792:  // listedSecurityDefinition
@@ -466,19 +466,19 @@ public class Position extends DirectBean {
     }
 
     /**
-     * The meta-property for the {@code trades} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<List<Trade>> trades() {
-      return _trades;
-    }
-
-    /**
      * The meta-property for the {@code quantity} property.
      * @return the meta-property, not null
      */
     public final MetaProperty<BigDecimal> quantity() {
       return _quantity;
+    }
+
+    /**
+     * The meta-property for the {@code trades} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<List<Trade>> trades() {
+      return _trades;
     }
 
     /**

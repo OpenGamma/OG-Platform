@@ -8,7 +8,7 @@ package com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb;
 
 import com.opengamma.master.security.ManageableSecurity;
 
-public interface ListedSecurityExtractor<ListedSecurityDefinition> {
+public interface ListedSecurityExtractor {
 
   ManageableSecurity[] extract();
 }
