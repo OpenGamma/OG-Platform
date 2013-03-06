@@ -40,12 +40,9 @@ public class HistoricalTimeSeriesFunction extends AbstractFunction.NonCompiledIn
 
   protected static HistoricalTimeSeries executeImpl(final FunctionExecutionContext executionContext, final HistoricalTimeSeriesSource timeSeriesSource,
       final ComputationTargetSpecification targetSpec, final ValueRequirement desiredValue) {
-    final LocalDate startDate = DateConstraint.getLocalDate(executionContext, desiredValue.getConstraint(HistoricalTimeSeriesFunctionUtils.START_DATE_PROPERTY));
+    final LocalDate startDate = DateConstraint.evaluate(executionContext, desiredValue.getConstraint(HistoricalTimeSeriesFunctionUtils.START_DATE_PROPERTY));
     final boolean includeStart = HistoricalTimeSeriesFunctionUtils.parseBoolean(desiredValue.getConstraint(HistoricalTimeSeriesFunctionUtils.INCLUDE_START_PROPERTY));
-    LocalDate endDate = DateConstraint.getLocalDate(executionContext, desiredValue.getConstraint(HistoricalTimeSeriesFunctionUtils.END_DATE_PROPERTY));
-    if (endDate == null) {
-      endDate = LocalDate.now(executionContext.getValuationClock());
-    }
+    LocalDate endDate = DateConstraint.evaluate(executionContext, desiredValue.getConstraint(HistoricalTimeSeriesFunctionUtils.END_DATE_PROPERTY));
     final boolean includeEnd = HistoricalTimeSeriesFunctionUtils.parseBoolean(desiredValue.getConstraint(HistoricalTimeSeriesFunctionUtils.INCLUDE_END_PROPERTY));
     HistoricalTimeSeries hts = timeSeriesSource.getHistoricalTimeSeries(targetSpec.getUniqueId(), startDate, includeStart, endDate, includeEnd);
     final String adjusterString = desiredValue.getConstraint(HistoricalTimeSeriesFunctionUtils.ADJUST_PROPERTY);

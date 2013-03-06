@@ -93,7 +93,7 @@ public class CurrencyMatrixSeriesSourcingFunction extends AbstractCurrencyMatrix
     }
     // TODO: Requesting the whole time series isn't ideal but we don't know which points will be needed. Could the time series somehow be a lazy-fetch?
     // Is this really a problem - caching the whole time series at a calc node may be better than requesting different subsets each time?
-    return HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, MarketDataRequirementNames.MARKET_VALUE, DateConstraint.EARLIEST_START, true,
+    return HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, MarketDataRequirementNames.MARKET_VALUE, DateConstraint.NULL, true,
         DateConstraint.VALUATION_TIME, true);
   }
 

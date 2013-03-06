@@ -28,9 +28,9 @@ import com.opengamma.util.time.DateUtils;
  * 
  */
 public class TradeExchangeTradedDailyPnLFunction extends AbstractTradeOrDailyPositionPnLFunction {
-  
+
   private static final int MAX_DAYS_OLD = 7;
-  
+
   /**
    * @param resolutionKey the resolution key, not-null
    * @param markDataField the mark to market data field name, not-null
@@ -74,25 +74,22 @@ public class TradeExchangeTradedDailyPnLFunction extends AbstractTradeOrDailyPos
 
   @Override
   protected DateConstraint getTimeSeriesEndDate(final PositionOrTrade positionOrTrade) {
-    return DateConstraint.VALUATION_TIME.yesterday();
+    return DateConstraint.VALUATION_TIME.minus(DateUtils.periodOfDays(1));
   }
 
   @Override
   protected LocalDate checkAvailableData(LocalDate originalTradeDate, HistoricalTimeSeries markToMarketSeries, Security security, String markDataField, String resolutionKey) {
     if (markToMarketSeries.getTimeSeries().isEmpty() || markToMarketSeries.getTimeSeries().getLatestValue() == null) {
-      throw new NullPointerException("Could not get mark to market value for security " + 
-          security.getExternalIdBundle() + " for " + markDataField + " using " + resolutionKey + " for " + MAX_DAYS_OLD + " back from " + originalTradeDate);          
+      throw new NullPointerException("Could not get mark to market value for security " +
+          security.getExternalIdBundle() + " for " + markDataField + " using " + resolutionKey + " for " + MAX_DAYS_OLD + " back from " + originalTradeDate);
     } else {
       return markToMarketSeries.getTimeSeries().getLatestTime();
     }
   }
 
-
   @Override
   protected String getResultValueRequirementName() {
     return ValueRequirementNames.DAILY_PNL;
   }
-
-
 
 }
