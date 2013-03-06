@@ -5,37 +5,29 @@
  */
 package com.opengamma.engine.function;
 
-import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
 import org.threeten.bp.Instant;
 
-import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.id.UniqueId;
 
 /**
- * A no-op function that relabels an input as any of the desired outputs. This will be selected during graph construction to handle any mismatches between value specifications the market data provider
- * is capable of recognizing and the value specifications corresponding to the requirements of a function. The will typically mean that a target has become re-labelled - for example the market data is
- * keyed of a {@link UniqueId} that is not easily converted to/from the {@link ExternalIdBundle} for the actual target.
+ * A special case of function with special meaning to the engine.
  */
-public final class RelabellingFunction implements FunctionDefinition, CompiledFunctionDefinition, FunctionInvoker {
+/* package */abstract class IntrinsicFunction implements FunctionDefinition, CompiledFunctionDefinition, FunctionInvoker {
 
-  /**
-   * Singleton instance.
-   */
-  public static final RelabellingFunction INSTANCE = new RelabellingFunction();
+  private final String _uid;
 
-  /**
-   * Preferred identifier this function will be available in a repository as.
-   */
-  public static final String UNIQUE_ID = "Alias";
+  protected IntrinsicFunction(String uid) {
+    _uid = uid;
+  }
+
+  // FunctionDefinition
 
   @Override
   public void init(final FunctionCompilationContext context) {
@@ -49,50 +41,34 @@ public final class RelabellingFunction implements FunctionDefinition, CompiledFu
 
   @Override
   public String getUniqueId() {
-    return UNIQUE_ID;
+    return _uid;
   }
 
   @Override
   public String getShortName() {
-    return UNIQUE_ID;
+    return _uid;
   }
 
-  @Override
-  public FunctionParameters getDefaultParameters() {
-    return new EmptyFunctionParameters();
-  }
-
-  @Override
-  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-    final Collection<ComputedValue> values = inputs.getAllValues();
-    final Set<ComputedValue> result = Sets.newHashSetWithExpectedSize(desiredValues.size() * values.size());
-    for (final ValueRequirement desiredValueReq : desiredValues) {
-      final ValueSpecification desiredValue = new ValueSpecification(desiredValueReq.getValueName(), target.toSpecification(), desiredValueReq.getConstraints());
-      for (final ComputedValue value : values) {
-        result.add(new ComputedValue(desiredValue, value.getValue()));
-      }
-    }
-    return result;
-  }
-
-  @Override
-  public boolean canHandleMissingInputs() {
-    return true;
-  }
+  // CompiledFunctionDefinition
 
   @Override
   public FunctionDefinition getFunctionDefinition() {
     return this;
   }
 
+  /**
+   * Special case, always returns null.
+   * 
+   * @return null
+   */
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.NULL;
+    return null;
   }
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return false;
+    throw new UnsupportedOperationException();
   }
 
   @Override
@@ -134,6 +110,23 @@ public final class RelabellingFunction implements FunctionDefinition, CompiledFu
   @Override
   public FunctionInvoker getFunctionInvoker() {
     return this;
+  }
+
+  @Override
+  public FunctionParameters getDefaultParameters() {
+    return EmptyFunctionParameters.INSTANCE;
+  }
+
+  // FunctionInvoker
+
+  @Override
+  public boolean canHandleMissingInputs() {
+    return true;
+  }
+
+  @Override
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
+    throw new UnsupportedOperationException();
   }
 
 }

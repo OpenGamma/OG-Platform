@@ -18,7 +18,7 @@ import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.MarketDataSourcingFunction;
 import com.opengamma.engine.function.ParameterizedFunction;
-import com.opengamma.engine.function.RelabellingFunction;
+import com.opengamma.engine.function.MarketDataAliasingFunction;
 import com.opengamma.engine.marketdata.availability.MarketDataNotSatisfiableException;
 import com.opengamma.engine.target.ComputationTargetReferenceVisitor;
 import com.opengamma.engine.target.ComputationTargetRequirement;
@@ -35,7 +35,7 @@ import com.opengamma.util.tuple.Triple;
   private static final Logger s_logger = LoggerFactory.getLogger(GetFunctionsStep.class);
 
   private static final ParameterizedFunction MARKET_DATA_SOURCING_FUNCTION = createParameterizedFunction(MarketDataSourcingFunction.INSTANCE);
-  private static final ParameterizedFunction RELABELLING_FUNCTION = createParameterizedFunction(RelabellingFunction.INSTANCE);
+  private static final ParameterizedFunction RELABELLING_FUNCTION = createParameterizedFunction(MarketDataAliasingFunction.INSTANCE);
 
   private static ParameterizedFunction createParameterizedFunction(final CompiledFunctionDefinition function) {
     return new ParameterizedFunction(function, function.getFunctionDefinition().getDefaultParameters());
@@ -104,7 +104,7 @@ import com.opengamma.util.tuple.Triple;
           final Set<String> allProperties = constraints.getProperties();
           if ((allProperties == null) || !allProperties.isEmpty()) {
             // Requirement made no constraint on function identifier
-            properties = ValueProperties.with(ValuePropertyNames.FUNCTION, RelabellingFunction.UNIQUE_ID).get();
+            properties = ValueProperties.with(ValuePropertyNames.FUNCTION, MarketDataAliasingFunction.UNIQUE_ID).get();
           } else {
             // Requirement used a nearly infinite property bundle that omitted a function identifier
             properties = constraints.copy().withAny(ValuePropertyNames.FUNCTION).get();
@@ -117,7 +117,7 @@ import com.opengamma.util.tuple.Triple;
               properties = constraints;
             } else {
               // Requirement had a wild card for the function but is otherwise finite
-              properties = constraints.copy().withoutAny(ValuePropertyNames.FUNCTION).with(ValuePropertyNames.FUNCTION, RelabellingFunction.UNIQUE_ID).get();
+              properties = constraints.copy().withoutAny(ValuePropertyNames.FUNCTION).with(ValuePropertyNames.FUNCTION, MarketDataAliasingFunction.UNIQUE_ID).get();
             }
           } else if (functionNames.size() == 1) {
             // Requirement is fully specified 

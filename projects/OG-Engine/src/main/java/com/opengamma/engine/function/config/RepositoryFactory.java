@@ -16,8 +16,8 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
+import com.opengamma.engine.function.MarketDataAliasingFunction;
 import com.opengamma.engine.function.NoOpFunction;
-import com.opengamma.engine.function.RelabellingFunction;
 import com.opengamma.util.ReflectionUtils;
 
 /**
@@ -31,7 +31,7 @@ public class RepositoryFactory {
    * The number of functions that are always in a constructed repository regardless of the {@link RepositoryConfiguration} document used. For example:
    * <ul>
    * <li>The no-op function used for execution suppression ({@link NoOpFunction})</li>
-   * <li>The value aliasing function ({@link RelabellingFunction})</li>
+   * <li>The value aliasing function ({@link MarketDataAliasingFunction})</li>
    * </ul>
    * For exam
    */
@@ -45,8 +45,8 @@ public class RepositoryFactory {
    */
   public static InMemoryFunctionRepository constructRepository(final RepositoryConfiguration configuration) {
     final InMemoryFunctionRepository repository = new InMemoryFunctionRepository();
-    repository.addFunction(new NoOpFunction());
-    repository.addFunction(RelabellingFunction.INSTANCE);
+    repository.addFunction(NoOpFunction.INSTANCE);
+    repository.addFunction(MarketDataAliasingFunction.INSTANCE);
     if (configuration.getFunctions() != null) {
       for (final FunctionConfiguration functionConfig : configuration.getFunctions()) {
         if (functionConfig instanceof ParameterizedFunctionConfiguration) {
