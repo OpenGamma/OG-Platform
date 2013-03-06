@@ -7,20 +7,16 @@ $.register_module({
     dependencies: [],
     obj: function () {
         return function (config) {
-            var constructor = this, position_id = config.id, position_version = config.version, 
+            var constructor = this, position_id = config.id, position_version = config.version, trades,
             selector = config.selector, $selector, dependencies = ['id', 'node', 'version'], template_data,
             height = config.height || 400, editable = 'editable' in config ? config.editable : true;
             constructor.load = function () {
-                og.api.rest.positions.get({
-                    dependencies: dependencies, 
-                    id: position_id, 
-                    handler: display_trades, 
-                    cache_for: 500, 
-                    version: position_version
+                og.api.rest.positions.get({dependencies: dependencies, id: position_id, handler: display_trades, 
+                    cache_for: 500, version: position_version
                 });
             };
             display_trades = function (result) {
-                var trades, title, tash;
+                var title, tash;
                 trades = (result.data.trades || []).sort(sort_trades);
                 template_data = result.data.template_data;
                 title = config.child ? '' : '<span><em>Trades</em></span>';
@@ -28,25 +24,26 @@ $.register_module({
                     tash = Handlebars.compile(template);
                     $(selector).html(tash({title: title, trades: trades}));
                     row_sortability();
-                    row_editability(trades);
+                    row_editability();
                     new_trade_link();
                 });
             };
             new_trade_link = function () {
-                if (!editable || position_version) return;
-                $(selector).append('<a href="#" class="OG-link-add">add trade</a>').find('.OG-link-add').css({
-                    'position': 'relative', 'left': '2px', 'top': '3px', 'float': 'left'
-                }).unbind('click').bind('click', function (e) {
-                    e.preventDefault();
-                    //NEW TRADE
-                });
+                if (editable && !position_version && !trades.length) {
+                    $(selector).append('<a href="#" class="OG-link-add">add trade</a>').find('.OG-link-add').css({
+                        'position': 'relative', 'left': '2px', 'top': '3px', 'float': 'left'
+                    }).unbind('click').bind('click', function (e) {
+                        e.preventDefault();
+                        //NEW TRADE
+                    });
+                }
             };
             sort_trades = function (a, b) {
                 return a['trade_date_time'] > b['trade_date_time'] ? -1
                         : a['trade_date_time'] < b['trade_date_time'] ? 1
                             : 0;
             };
-            row_editability = function (trades) {
+            row_editability = function () {
                 if (position_version) return;
                 var swap_css = function (elm, css) {
                     $(elm).find('td').css(css);
@@ -89,9 +86,7 @@ $.register_module({
             };
             delete_trade = function (trade_id) {
                 og.common.util.ui.dialog({
-                    type: 'confirm',
-                    title: 'Delete trade?',
-                    width: 400, height: 190,
+                    type: 'confirm', title: 'Delete trade?', width: 400, height: 190,
                     message: 'Are you sure you want to permanently delete trade ' +
                         '<strong style="white-space: nowrap">' + trade_id + '</strong>?',
                     buttons: {
@@ -100,6 +95,7 @@ $.register_module({
                     }
                 });
             };
+            //remove temp_delete from here when delete endpoint is provided
             temp_delete = function () {
                 og.api.rest.positions.put({
                     trades: [], id: template_data.object_id, quantity: template_data.quantity,
