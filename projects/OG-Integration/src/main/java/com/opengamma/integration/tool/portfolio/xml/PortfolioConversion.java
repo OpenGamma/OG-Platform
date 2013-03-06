@@ -15,7 +15,6 @@ import javax.xml.validation.Schema;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
-import com.sun.xml.internal.bind.IDResolver;
 
 public abstract class PortfolioConversion {
 
@@ -64,7 +63,7 @@ public abstract class PortfolioConversion {
     // that have the same id. With this a trade and position can both have
     // id = 1 in the xml file, yet be resolved correctly based on context.
     // TODO can this be done without using a sun.internal class?
-    unmarshaller.setProperty(IDResolver.class.getName(), _idRefResolverFactory.create());
+    //unmarshaller.setProperty(IDResolver.class.getName(), _idRefResolverFactory.create());
     return unmarshaller;
   }
 }

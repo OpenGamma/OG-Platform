@@ -5,17 +5,9 @@
  */
 package com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb;
 
-import java.util.Map;
-import java.util.concurrent.Callable;
+public class IdRefResolver /*extends IDResolver*/ {
 
-import org.xml.sax.SAXException;
-
-import com.google.common.collect.Maps;
-import com.sun.xml.internal.bind.IDResolver;
-
-public class IdRefResolver extends IDResolver {
-
-  private final Map<String,Trade> _tradeIds = Maps.newHashMap();
+/*  private final Map<String,Trade> _tradeIds = Maps.newHashMap();
   private final Map<String, Position> _positionIds = Maps.newHashMap();
 
   @Override
@@ -45,6 +37,6 @@ public class IdRefResolver extends IDResolver {
         }
       }
     };
-  }
+  }*/
 
 }
