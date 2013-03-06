@@ -85,7 +85,7 @@ public class FRAStrip extends CurveStrip {
   }
 
   @Override
-  protected Object propertyGet(final String propertyName, final boolean quiet) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 270958773:  // fixingStart
         return getFixingStart();
@@ -98,7 +98,7 @@ public class FRAStrip extends CurveStrip {
   }
 
   @Override
-  protected void propertySet(final String propertyName, final Object newValue, final boolean quiet) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 270958773:  // fixingStart
         setFixingStart((Tenor) newValue);
@@ -122,12 +122,12 @@ public class FRAStrip extends CurveStrip {
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      final FRAStrip other = (FRAStrip) obj;
+      FRAStrip other = (FRAStrip) obj;
       return JodaBeanUtils.equal(getFixingStart(), other.getFixingStart()) &&
           JodaBeanUtils.equal(getFixingEnd(), other.getFixingEnd()) &&
           JodaBeanUtils.equal(getConvention(), other.getConvention()) &&
@@ -158,7 +158,7 @@ public class FRAStrip extends CurveStrip {
    * Sets the fixing start tenor.
    * @param fixingStart  the new value of the property, not null
    */
-  public void setFixingStart(final Tenor fixingStart) {
+  public void setFixingStart(Tenor fixingStart) {
     JodaBeanUtils.notNull(fixingStart, "fixingStart");
     this._fixingStart = fixingStart;
   }
@@ -184,7 +184,7 @@ public class FRAStrip extends CurveStrip {
    * Sets the fixing end tenor.
    * @param fixingEnd  the new value of the property, not null
    */
-  public void setFixingEnd(final Tenor fixingEnd) {
+  public void setFixingEnd(Tenor fixingEnd) {
     JodaBeanUtils.notNull(fixingEnd, "fixingEnd");
     this._fixingEnd = fixingEnd;
   }
@@ -210,7 +210,7 @@ public class FRAStrip extends CurveStrip {
    * Sets the convention.
    * @param convention  the new value of the property, not null
    */
-  public void setConvention(final ExternalId convention) {
+  public void setConvention(ExternalId convention) {
     JodaBeanUtils.notNull(convention, "convention");
     this._convention = convention;
   }
@@ -264,7 +264,7 @@ public class FRAStrip extends CurveStrip {
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
         case 270958773:  // fixingStart
           return _fixingStart;

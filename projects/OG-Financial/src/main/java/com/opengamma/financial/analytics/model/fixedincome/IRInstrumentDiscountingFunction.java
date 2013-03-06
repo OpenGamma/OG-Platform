@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.fixedincome;
@@ -10,8 +10,12 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Clock;
+import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
@@ -34,7 +38,10 @@ import com.opengamma.financial.analytics.conversion.FRASecurityConverter;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.analytics.conversion.InterestRateFutureSecurityConverter;
 import com.opengamma.financial.analytics.conversion.SwapSecurityConverter;
+import com.opengamma.financial.analytics.fixedincome.DiscountingMulticurveProviderUtils;
 import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
+import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
+import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
@@ -44,16 +51,16 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
 
 /**
- * 
+ *
  */
 public abstract class IRInstrumentDiscountingFunction extends AbstractFunction.NonCompiledInvoker {
-  private final String[] _valueRequirementNames;
   private static final Logger s_logger = LoggerFactory.getLogger(InterestRateInstrumentFunction.class);
+  private final String[] _valueRequirementNames;
   private FixedIncomeConverterDataProvider _definitionConverter;
   private FinancialSecurityVisitor<InstrumentDefinition<?>> _securityConverter;
 
   /**
-   * 
+   *
    */
   public IRInstrumentDiscountingFunction(final String... valueRequirementNames) {
     ArgumentChecker.noNulls(valueRequirementNames, "value requirement names");
@@ -82,7 +89,17 @@ public abstract class IRInstrumentDiscountingFunction extends AbstractFunction.N
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
-    return null;
+    final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
+    final Clock snapshotClock = executionContext.getValuationClock();
+    final ZonedDateTime valuationDate = ZonedDateTime.now(snapshotClock);
+    final MulticurveProviderDiscount curveProvider = DiscountingMulticurveProviderUtils.getCurveProvider(security);
+    final InstrumentDefinition<?> definition = security.accept(_securityConverter);
+    if (definition == null) {
+      throw new OpenGammaRuntimeException("InstrumentDefinition for security " + security + " was null");
+    }
+    final HistoricalTimeSeriesBundle timeSeries = HistoricalTimeSeriesFunctionUtils.getHistoricalTimeSeriesInputs(executionContext, inputs);
+    final InstrumentDerivative derivative = _definitionConverter.convert(security, definition, valuationDate, new String[] {"", "", ""}, timeSeries);
+    return getComputedValues(security, derivative, target, curveProvider);
   }
 
   @Override
@@ -103,10 +120,11 @@ public abstract class IRInstrumentDiscountingFunction extends AbstractFunction.N
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final ValueProperties properties = desiredValue.getConstraints();
-    return null;
+    final Set<ValueRequirement> requirements = new HashSet<>();
+    return requirements;
   }
 
-  protected abstract Set<ComputedValue> getComputedValues(FinancialSecurity security, ComputationTarget target, MulticurveProviderDiscount curveProvider);
+  protected abstract Set<ComputedValue> getComputedValues(FinancialSecurity security, InstrumentDerivative derivative, ComputationTarget target, MulticurveProviderDiscount curveProvider);
 
   protected FinancialSecurityVisitor<InstrumentDefinition<?>> getSecurityConverter() {
     return _securityConverter;

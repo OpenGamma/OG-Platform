@@ -196,7 +196,7 @@ public class HistoricalValuationFunction extends AbstractFunction.NonCompiledInv
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return context.getViewCalculationConfiguration() != null;
+    return !(target.getValue() instanceof HistoricalViewEvaluationTarget) && context.getViewCalculationConfiguration() != null;
   }
 
   @Override
@@ -214,21 +214,23 @@ public class HistoricalValuationFunction extends AbstractFunction.NonCompiledInv
     String includeEndConstraint = null;
     String periodConstraint = null; 
     
-    for (String constraintName : constraints.getProperties()) {
-      Set<String> constraintValues = constraints.getValues(constraintName);
-      if (constraintName.equals(HistoricalTimeSeriesFunctionUtils.START_DATE_PROPERTY)) {
-        startDateConstraint = Iterables.getOnlyElement(constraintValues);
-      } else if (constraintName.equals(HistoricalTimeSeriesFunctionUtils.END_DATE_PROPERTY)) {
-        endDateConstraint = Iterables.getOnlyElement(constraintValues);
-      } else if (constraintName.equals(HistoricalTimeSeriesFunctionUtils.INCLUDE_START_PROPERTY)) {
-        includeStartConstraint = Iterables.getOnlyElement(constraintValues);
-      } else if (constraintName.equals(HistoricalTimeSeriesFunctionUtils.INCLUDE_END_PROPERTY)) {
-        includeEndConstraint = Iterables.getOnlyElement(constraintValues);
-      } else if (constraintName.equals(PERIOD)) {
-        periodConstraint = Iterables.getOnlyElement(constraintValues);
-      } else if (!ValuePropertyNames.FUNCTION.equals(constraintName) && !constraints.isOptional(constraintName)) {
-        // getResults uses ValueProperties.all() so have to filter out invalid constraints here
-        return null;
+    if (!constraints.isEmpty()) {
+      for (String constraintName : constraints.getProperties()) {
+        Set<String> constraintValues = constraints.getValues(constraintName);
+        if (constraintName.equals(HistoricalTimeSeriesFunctionUtils.START_DATE_PROPERTY)) {
+          startDateConstraint = Iterables.getOnlyElement(constraintValues);
+        } else if (constraintName.equals(HistoricalTimeSeriesFunctionUtils.END_DATE_PROPERTY)) {
+          endDateConstraint = Iterables.getOnlyElement(constraintValues);
+        } else if (constraintName.equals(HistoricalTimeSeriesFunctionUtils.INCLUDE_START_PROPERTY)) {
+          includeStartConstraint = Iterables.getOnlyElement(constraintValues);
+        } else if (constraintName.equals(HistoricalTimeSeriesFunctionUtils.INCLUDE_END_PROPERTY)) {
+          includeEndConstraint = Iterables.getOnlyElement(constraintValues);
+        } else if (constraintName.equals(PERIOD)) {
+          periodConstraint = Iterables.getOnlyElement(constraintValues);
+        } else if (!ValuePropertyNames.FUNCTION.equals(constraintName) && !constraints.isOptional(constraintName)) {
+          // getResults uses ValueProperties.all() so have to filter out invalid constraints here
+          return null;
+        }
       }
     }
     
@@ -236,19 +238,21 @@ public class HistoricalValuationFunction extends AbstractFunction.NonCompiledInv
     boolean includeStart = includeStartConstraint == null || includeStartConstraint.equals(HistoricalTimeSeriesFunctionUtils.YES_VALUE) ? true : false;
     LocalDate endDate = endDateConstraint != null ? LocalDate.parse(endDateConstraint) : LocalDate.now();
     boolean includeEnd = includeEndConstraint == null || includeEndConstraint.equals(HistoricalTimeSeriesFunctionUtils.YES_VALUE) ? true : false;
-    
+    Period period;
     if (periodConstraint != null) {
-      Period period = Period.parse(periodConstraint);
+      period = Period.parse(periodConstraint);
       if (startDateConstraint != null) {
         endDate = startDate.plus(period);
       } else {
         // With no other constraints, just specifying the period will cause a run of that length, ending today
         startDate = endDate.minus(period);
       }
+    } else {
+      period = null;
     }
     
     ViewDefinition viewDefinition = context.getViewCalculationConfiguration().getViewDefinition();
-    final HistoricalViewEvaluationTarget tempTarget = new HistoricalViewEvaluationTarget(viewDefinition.getMarketDataUser(), startDate, includeStart, endDate, includeEnd);
+    final HistoricalViewEvaluationTarget tempTarget = new HistoricalViewEvaluationTarget(viewDefinition.getMarketDataUser(), startDate, includeStart, endDate, includeEnd, period);
     final ValueRequirement requirement = getNestedRequirement(context.getComputationTargetResolver(), target, desiredValue.getConstraints());
     if (requirement == null) {
       return null;
@@ -258,7 +262,7 @@ public class HistoricalValuationFunction extends AbstractFunction.NonCompiledInv
     tempTarget.getViewDefinition().addViewCalculationConfiguration(calcConfig);
     final TempTargetRepository targets = OpenGammaCompilationContext.getTempTargets(context);
     final UniqueId tempTargetId = targets.locateOrStore(tempTarget);
-    return Collections.singleton(new ValueRequirement(ValueRequirementNames.VALUE, new ComputationTargetSpecification(TempTarget.TYPE, tempTargetId), ValueProperties.none()));
+    return Collections.singleton(new ValueRequirement(ValueRequirementNames.HISTORICAL_TIME_SERIES, new ComputationTargetSpecification(TempTarget.TYPE, tempTargetId), ValueProperties.none()));
   }
 
   protected ValueProperties.Builder createValueProperties(final HistoricalViewEvaluationTarget target) {
@@ -269,6 +273,7 @@ public class HistoricalValuationFunction extends AbstractFunction.NonCompiledInv
     builder.with(HistoricalTimeSeriesFunctionUtils.END_DATE_PROPERTY, target.getEndDate().toString());
     builder.with(HistoricalTimeSeriesFunctionUtils.INCLUDE_END_PROPERTY, target.isIncludeEnd() ? HistoricalTimeSeriesFunctionUtils.YES_VALUE
         : HistoricalTimeSeriesFunctionUtils.NO_VALUE);
+    builder.with(PERIOD, target.getPeriod().toString());
     return builder;
   }
 
@@ -277,7 +282,7 @@ public class HistoricalValuationFunction extends AbstractFunction.NonCompiledInv
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
     final TempTarget tempTargetObject = OpenGammaCompilationContext.getTempTargets(context).get(inputs.keySet().iterator().next().getTargetSpecification().getUniqueId());
-    if (tempTargetObject instanceof ViewEvaluationTarget) {
+    if (tempTargetObject instanceof HistoricalViewEvaluationTarget) {
       final HistoricalViewEvaluationTarget historicalTarget = (HistoricalViewEvaluationTarget) tempTargetObject;
       final ViewCalculationConfiguration calcConfig = historicalTarget.getViewDefinition().getCalculationConfiguration(context.getViewCalculationConfiguration().getName());
       final ExternalIdBundle targetEids;
@@ -392,7 +397,7 @@ public class HistoricalValuationFunction extends AbstractFunction.NonCompiledInv
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-    final ViewEvaluationResult evaluationResult = (ViewEvaluationResult) inputs.getValue(ValueRequirementNames.VALUE);
+    final ViewEvaluationResult evaluationResult = (ViewEvaluationResult) inputs.getValue(ValueRequirementNames.HISTORICAL_TIME_SERIES);
     final Set<ComputedValue> results = Sets.newHashSetWithExpectedSize(desiredValues.size());
     final ComputationTargetSpecification targetSpec = target.toSpecification();
     for (final ValueRequirement desiredValue : desiredValues) {

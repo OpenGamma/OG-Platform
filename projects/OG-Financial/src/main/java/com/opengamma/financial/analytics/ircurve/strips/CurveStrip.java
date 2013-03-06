@@ -82,7 +82,7 @@ public abstract class CurveStrip extends DirectBean implements Serializable, Mut
   }
 
   @Override
-  protected Object propertyGet(final String propertyName, final boolean quiet) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
         return getUniqueId();
@@ -93,7 +93,7 @@ public abstract class CurveStrip extends DirectBean implements Serializable, Mut
   }
 
   @Override
-  protected void propertySet(final String propertyName, final Object newValue, final boolean quiet) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
         setUniqueId((UniqueId) newValue);
@@ -112,12 +112,12 @@ public abstract class CurveStrip extends DirectBean implements Serializable, Mut
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      final CurveStrip other = (CurveStrip) obj;
+      CurveStrip other = (CurveStrip) obj;
       return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
           JodaBeanUtils.equal(getCurveSpecificationName(), other.getCurveSpecificationName());
     }
@@ -145,8 +145,7 @@ public abstract class CurveStrip extends DirectBean implements Serializable, Mut
    * Sets the unique identifier of the strip.
    * @param uniqueId  the new value of the property
    */
-  @Override
-  public void setUniqueId(final UniqueId uniqueId) {
+  public void setUniqueId(UniqueId uniqueId) {
     this._uniqueId = uniqueId;
   }
 
@@ -171,7 +170,7 @@ public abstract class CurveStrip extends DirectBean implements Serializable, Mut
    * Sets the curve specification builder name.
    * @param curveSpecificationName  the new value of the property, not null
    */
-  public void setCurveSpecificationName(final String curveSpecificationName) {
+  public void setCurveSpecificationName(String curveSpecificationName) {
     JodaBeanUtils.notNull(curveSpecificationName, "curveSpecificationName");
     this._curveSpecificationName = curveSpecificationName;
   }
@@ -219,7 +218,7 @@ public abstract class CurveStrip extends DirectBean implements Serializable, Mut
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
         case -294460212:  // uniqueId
           return _uniqueId;
