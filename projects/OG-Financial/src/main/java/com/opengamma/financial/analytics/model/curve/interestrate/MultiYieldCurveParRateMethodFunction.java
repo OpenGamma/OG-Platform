@@ -15,6 +15,7 @@ import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -25,6 +26,7 @@ import java.util.Set;
 import org.threeten.bp.Clock;
 import org.threeten.bp.ZonedDateTime;
 
+import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
@@ -119,7 +121,7 @@ public class MultiYieldCurveParRateMethodFunction extends MultiYieldCurveFunctio
     final List<InstrumentDerivative> derivatives = new ArrayList<>();
     final DoubleArrayList marketValues = new DoubleArrayList();
     final DoubleArrayList initialRatesGuess = new DoubleArrayList();
-    final String[] curveNames = curveCalculationConfig.getYieldCurveNames();
+    final Collection<String> curveNames = Sets.newHashSet(curveCalculationConfig.getYieldCurveNames()); // curve names may be duplicated - loop over each once
     final LinkedHashMap<String, double[]> curveNodes = new LinkedHashMap<>();
     final LinkedHashMap<String, Interpolator1D> interpolators = new LinkedHashMap<>();
     final Map<String, Integer> nodesPerCurve = new HashMap<>();

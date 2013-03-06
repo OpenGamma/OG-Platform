@@ -69,7 +69,7 @@ import com.opengamma.util.timeseries.localdate.LocalDateObjectTimeSeries;
 
     @SuppressWarnings("rawtypes")
     public TimeSeries makeTimeSeries() {
-      if (_datedResultMap.size() > 1 && Iterables.get(_datedResultMap.values(), 0) instanceof Number) {
+      if (_datedResultMap.isEmpty() || Iterables.get(_datedResultMap.values(), 0) instanceof Number) {
         return makeDoubleTimeSeries();
       } else {
         return makeObjectTimeSeries();

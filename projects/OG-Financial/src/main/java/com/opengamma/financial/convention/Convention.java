@@ -46,7 +46,7 @@ public class Convention extends DirectBean implements Serializable, MutableUniqu
   private UniqueId _uniqueId;
 
   /**
-   * The bundle of external identifiers that define the convention.
+   * The bundle of external identifiers for which this convention applies.
    */
   @PropertyDefinition(validate = "notNull")
   private ExternalIdBundle _externalIdBundle = ExternalIdBundle.EMPTY;
@@ -189,7 +189,7 @@ public class Convention extends DirectBean implements Serializable, MutableUniqu
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the bundle of external identifiers that define the convention.
+   * Gets the bundle of external identifiers for which this convention applies.
    * @return the value of the property, not null
    */
   public ExternalIdBundle getExternalIdBundle() {
@@ -197,7 +197,7 @@ public class Convention extends DirectBean implements Serializable, MutableUniqu
   }
 
   /**
-   * Sets the bundle of external identifiers that define the convention.
+   * Sets the bundle of external identifiers for which this convention applies.
    * @param externalIdBundle  the new value of the property, not null
    */
   public void setExternalIdBundle(ExternalIdBundle externalIdBundle) {
