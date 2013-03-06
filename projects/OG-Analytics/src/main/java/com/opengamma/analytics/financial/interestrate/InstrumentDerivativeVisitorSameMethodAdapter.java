@@ -15,8 +15,12 @@ import com.opengamma.analytics.financial.commodity.derivative.MetalForward;
 import com.opengamma.analytics.financial.commodity.derivative.MetalFuture;
 import com.opengamma.analytics.financial.commodity.derivative.MetalFutureOption;
 import com.opengamma.analytics.financial.credit.cds.ISDACDSDerivative;
+import com.opengamma.analytics.financial.equity.future.derivative.CashSettledFuture;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityFuture;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityIndexDividendFuture;
+import com.opengamma.analytics.financial.equity.future.derivative.EquityIndexFuture;
+import com.opengamma.analytics.financial.equity.future.derivative.IndexFuture;
+import com.opengamma.analytics.financial.equity.future.derivative.VolatilityIndexFuture;
 import com.opengamma.analytics.financial.equity.option.EquityIndexFutureOption;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.equity.option.EquityOption;
@@ -898,4 +902,43 @@ public abstract class InstrumentDerivativeVisitorSameMethodAdapter<DATA_TYPE, RE
     return visit(varianceSwap, data);
   }
 
+  @Override
+  public RESULT_TYPE visitCashSettledFuture(CashSettledFuture future, DATA_TYPE data) {
+    return visit(future, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitCashSettledFuture(CashSettledFuture future) {
+    return visit(future);
+  }
+
+  @Override
+  public RESULT_TYPE visitIndexFuture(IndexFuture future, DATA_TYPE data) {
+    return visit(future, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitIndexFuture(IndexFuture future) {
+    return visit(future);
+  }
+
+  @Override
+  public RESULT_TYPE visitEquityIndexFuture(EquityIndexFuture future, DATA_TYPE data) {
+    return visit(future, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitEquityIndexFuture(EquityIndexFuture future) {
+    return visit(future);
+  }
+
+  @Override
+  public RESULT_TYPE visitVolatilityIndexFuture(VolatilityIndexFuture future, DATA_TYPE data) {
+    return visit(future, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitVolatilityIndexFuture(VolatilityIndexFuture future) {
+    return visit(future);
+  }
 }

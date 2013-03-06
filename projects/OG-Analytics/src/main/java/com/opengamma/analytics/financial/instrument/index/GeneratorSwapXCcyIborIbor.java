@@ -126,7 +126,8 @@ public class GeneratorSwapXCcyIborIbor extends GeneratorInstrument<GeneratorAttr
    * @param date The reference date (the effective date of the swap will be the spot lag of the generator after the reference date).
    * @param spread The spread above the index (is applied to the first leg).
    * @param notional The notional of the first leg. The second leg notional is that number multiplied by the FX rate (1 Ccy1 = x Ccy2).
-   * @param attribute The FX instrument attributes.
+   * @param attribute The FX instrument attributes. The start period is the date between the spot date and the effective period. 
+   *   The end period is the period between the effective date and the maturity.
    * @return The cross-currency swap.
    */
   @Override

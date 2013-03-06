@@ -30,7 +30,7 @@ $.register_module({
             var url = routes.prefix() + routes.hash(og.views.positions.rules.load_item, {
                 id: result.data.template_data.object_id
             });
-            return '<a href="' + url + '">' + $(this).text() + '</a>'
+            return '<a href="' + url + '">' + $(this).text() + '</a>';
         };
         return function (config) {
             var gadget = this, alive = og.common.id('gadget_position'),
@@ -102,6 +102,6 @@ $.register_module({
                 });
             };
             gadget.load();
-        }
+        };
     }
 });

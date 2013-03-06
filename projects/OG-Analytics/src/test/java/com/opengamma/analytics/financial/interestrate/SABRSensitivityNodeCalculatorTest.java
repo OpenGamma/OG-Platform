@@ -14,7 +14,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateParameters;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
-import com.opengamma.analytics.util.surface.SurfaceValue;
+import com.opengamma.analytics.util.amount.SurfaceValue;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**

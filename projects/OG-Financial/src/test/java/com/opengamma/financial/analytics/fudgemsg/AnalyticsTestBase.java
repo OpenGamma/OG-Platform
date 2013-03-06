@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.fudgemsg.WriteReplaceHelper;
 
 /**
  * Base class for testing OG-Analytics objects to and from Fudge messages.
@@ -41,7 +42,7 @@ public class AnalyticsTestBase {
     s_logger.info("object {}", object);
     final FudgeSerializer fudgeSerializationContext = new FudgeSerializer(getFudgeContext());
     final FudgeDeserializer fudgeDeserializationContext = new FudgeDeserializer(getFudgeContext());
-    FudgeMsg message = fudgeSerializationContext.objectToFudgeMsg(object);
+    FudgeMsg message = fudgeSerializationContext.objectToFudgeMsg(WriteReplaceHelper.writeReplace(object));
     assertNotNull(message);
     s_logger.info("message {}", message);
     message = cycleMessage(message);

@@ -62,6 +62,7 @@ public class WebHistoricalTimeSeriesResource extends AbstractWebHistoricalTimeSe
   @Produces("text/csv")
   public String getCSV() {
     StringWriter stringWriter  = new StringWriter();
+    @SuppressWarnings("resource")
     CSVWriter csvWriter = new CSVWriter(stringWriter);
     csvWriter.writeNext(new String[] {"Time", "Value"});
     for (Map.Entry<?, Double> entry : data().getTimeSeries().getTimeSeries()) {

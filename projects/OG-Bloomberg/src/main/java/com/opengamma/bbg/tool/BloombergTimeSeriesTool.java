@@ -82,6 +82,7 @@ public class BloombergTimeSeriesTool extends AbstractTool<ToolContext> {
     configureOptions(getCommandLine(), loader);
     loader.setUpdateDb(true);
     loader.setReload(getCommandLine().hasOption("reload"));
+    loader.setEndDate(LocalDate.MAX);
     loader.run();
   }
 

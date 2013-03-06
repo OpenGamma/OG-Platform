@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<og-portfolio schemaVersion="1.0">
+
+  <trades/>
+
+  <positions/>
+
+  <portfolios>
+    <portfolio name="missing_trade_portfolio">
+      <trades>
+        <!-- Trade ref is not present-->
+        <trade ref="1"/>
+      </trades>
+    </portfolio>
+  </portfolios>
+
+</og-portfolio>

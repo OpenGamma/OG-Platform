@@ -11,6 +11,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.opengamma.analytics.financial.provider.sensitivity.inflation.InflationSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.inflation.MultipleCurrencyInflationSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.cashflow.FixedPaymentMatrix;
@@ -69,9 +74,9 @@ public class SumUtils {
       final Map<String, List<DoublesPair>> previousMap = (Map<String, List<DoublesPair>>) currentTotal;
       @SuppressWarnings("unchecked")
       final Map<String, List<DoublesPair>> currentMap = (Map<String, List<DoublesPair>>) value;
-      final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
+      final Map<String, List<DoublesPair>> result = new HashMap<>();
       for (final String name : previousMap.keySet()) {
-        final List<DoublesPair> temp = new ArrayList<DoublesPair>();
+        final List<DoublesPair> temp = new ArrayList<>();
         for (final DoublesPair pair : previousMap.get(name)) {
           temp.add(pair);
         }
@@ -84,7 +89,7 @@ public class SumUtils {
       }
       for (final String name : currentMap.keySet()) {
         if (!result.containsKey(name)) {
-          final List<DoublesPair> temp = new ArrayList<DoublesPair>();
+          final List<DoublesPair> temp = new ArrayList<>();
           for (final DoublesPair pair : currentMap.get(name)) {
             temp.add(pair);
           }
@@ -107,10 +112,36 @@ public class SumUtils {
       final FloatingPaymentMatrix previousMatrix = (FloatingPaymentMatrix) currentTotal;
       final FloatingPaymentMatrix currentMatrix = (FloatingPaymentMatrix) value;
       return previousMatrix.add(currentMatrix);
+    } else if (value instanceof MulticurveSensitivity) {
+      final MulticurveSensitivity previousSensitivity = (MulticurveSensitivity) currentTotal;
+      final MulticurveSensitivity currentSensitivity = (MulticurveSensitivity) value;
+      return previousSensitivity.plus(currentSensitivity);
+    } else if (value instanceof MultipleCurrencyMulticurveSensitivity) {
+      final MultipleCurrencyMulticurveSensitivity previousSensitivity = (MultipleCurrencyMulticurveSensitivity) currentTotal;
+      final MultipleCurrencyMulticurveSensitivity currentSensitivity = (MultipleCurrencyMulticurveSensitivity) value;
+      return previousSensitivity.plus(currentSensitivity);
+    } else if (value instanceof MultipleCurrencyParameterSensitivity) {
+      final MultipleCurrencyParameterSensitivity previousSensitivity = (MultipleCurrencyParameterSensitivity) currentTotal;
+      final MultipleCurrencyParameterSensitivity currentSensitivity = (MultipleCurrencyParameterSensitivity) value;
+      return previousSensitivity.plus(currentSensitivity);
+    } else if (value instanceof InflationSensitivity) {
+      final InflationSensitivity previousSensitivity = (InflationSensitivity) currentTotal;
+      final InflationSensitivity currentSensitivity = (InflationSensitivity) value;
+      return previousSensitivity.plus(currentSensitivity);
+    } else if (value instanceof MultipleCurrencyInflationSensitivity) {
+      final MultipleCurrencyInflationSensitivity previousSensitivity = (MultipleCurrencyInflationSensitivity) currentTotal;
+      final MultipleCurrencyInflationSensitivity currentSensitivity = (MultipleCurrencyInflationSensitivity) value;
+      return previousSensitivity.plus(currentSensitivity);
     }
     throw new IllegalArgumentException("Cannot sum results of type " + value.getClass());
   }
 
+  /**
+   * Gets the intersection of two sets of properties.
+   * @param currentIntersection The current intersection of the properties
+   * @param properties The new set of properties
+   * @return The intersection of the two sets of properties
+   */
   public static ValueProperties addProperties(final ValueProperties currentIntersection, final ValueProperties properties) {
     if (currentIntersection == null) {
       return properties;

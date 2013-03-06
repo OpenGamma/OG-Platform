@@ -7,6 +7,7 @@ package com.opengamma.integration.tool.marketdata;
 
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.bbg.BloombergIdentifierProvider;
 import com.opengamma.bbg.loader.BloombergHistoricalLoader;
@@ -28,6 +29,7 @@ public class BloombergTimeSeriesUpdateTool extends AbstractTool<IntegrationToolC
         new BloombergIdentifierProvider(getToolContext().getBloombergReferenceDataProvider()));
     loader.setUpdateDb(true);
     loader.setReload(getCommandLine().hasOption("reload"));
+    loader.setEndDate(LocalDate.MAX);
     loader.run();
   }
   

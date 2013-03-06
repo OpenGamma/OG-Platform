@@ -10,8 +10,8 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.ExpiredException;
-import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
+import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
@@ -22,7 +22,8 @@ import com.opengamma.util.money.Currency;
 /**
  * Description of an interest rate future security.
  */
-public class InterestRateFutureSecurityDefinition implements InstrumentDefinition<InterestRateFutureSecurity> {
+public class InterestRateFutureSecurityDefinition implements InstrumentDefinitionWithData<InterestRateFutureSecurity, Double> {
+  // TODO: Change to InstrumentDefinition (not WithData).
 
   /**
    * Future last trading date. Usually the date for which the third Wednesday of the month is the spot date.
@@ -210,9 +211,7 @@ public class InterestRateFutureSecurityDefinition implements InstrumentDefinitio
     ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
     final LocalDate date = dateTime.getDate();
     ArgumentChecker.isTrue(yieldCurveNames.length > 1, "at least two curves required");
-    //    final LocalDate transactionDateLocal = _transactionDate.getDate();
     final LocalDate lastMarginDateLocal = getFixingPeriodStartDate().getDate();
-    //    final LocalDate lastMarginDateLocal = getFixingPeriodStartDate().toLocalDate();
     if (date.isAfter(lastMarginDateLocal)) {
       throw new ExpiredException("Valuation date, " + date + ", is after last margin date, " + lastMarginDateLocal);
     }
@@ -224,6 +223,11 @@ public class InterestRateFutureSecurityDefinition implements InstrumentDefinitio
     final InterestRateFutureSecurity future = new InterestRateFutureSecurity(lastTradingTime, _iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, _fixingPeriodAccrualFactor, _notional,
         _paymentAccrualFactor, _name, discountingCurveName, forwardCurveName);
     return future;
+  }
+
+  @Override
+  public InterestRateFutureSecurity toDerivative(ZonedDateTime date, Double data, String... yieldCurveNames) {
+    return toDerivative(date, yieldCurveNames); //TODO Should disappear.
   }
 
   @Override

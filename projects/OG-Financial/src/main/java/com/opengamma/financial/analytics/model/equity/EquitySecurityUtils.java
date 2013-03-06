@@ -14,8 +14,11 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityUtils;
+import com.opengamma.financial.security.FinancialSecurityVisitorSameValueAdapter;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
+import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.UniqueId;
@@ -28,9 +31,9 @@ public final class EquitySecurityUtils {
   /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(EquitySecurityUtils.class);
   /** mapping between surface names and data schemes */
-  private static final Map<String, ExternalScheme> SCHEME_MAPPING = new HashMap<String, ExternalScheme>();
+  private static final Map<String, ExternalScheme> SCHEME_MAPPING = new HashMap<>();
   /** mapping between source external schemes and destination schemes i.e. BBG_TICKER_WEAK -> BBG_TICKER */
-  private static final HashMap<ExternalScheme, ExternalScheme> SCHEME_REMAPPING = new HashMap<ExternalScheme, ExternalScheme>();
+  private static final HashMap<ExternalScheme, ExternalScheme> SCHEME_REMAPPING = new HashMap<>();
   static {
     SCHEME_MAPPING.put("DEFAULT", ExternalSchemes.BLOOMBERG_TICKER_WEAK);
     SCHEME_MAPPING.put("ACTIV", ExternalSchemes.ACTIVFEED_TICKER);
@@ -221,5 +224,25 @@ public final class EquitySecurityUtils {
       return scheme; //no remapping
     }
     return remappedScheme;
+  }
+
+  public static Double getPointValue(final Security security) {
+    if (security instanceof FinancialSecurity) {
+      final FinancialSecurity financialSecurity = (FinancialSecurity) security;
+      final Double pointValue = financialSecurity.accept(new FinancialSecurityVisitorSameValueAdapter<Double>(null) {
+
+        @Override
+        public Double visitEquityOptionSecurity(final EquityOptionSecurity equityOption) {
+          return equityOption.getPointValue();
+        }
+
+        @Override
+        public Double visitEquityIndexOptionSecurity(final EquityIndexOptionSecurity equityIndexOption) {
+          return equityIndexOption.getPointValue();
+        }
+      });
+      return pointValue;
+    }
+    return null;
   }
 }

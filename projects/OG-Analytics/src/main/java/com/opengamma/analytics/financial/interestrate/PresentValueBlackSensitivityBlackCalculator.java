@@ -5,7 +5,7 @@
  */
 package com.opengamma.analytics.financial.interestrate;
 
-import com.opengamma.analytics.util.surface.SurfaceValue;
+import com.opengamma.analytics.util.amount.SurfaceValue;
 
 /**
  * Present value sensitivity to SABR parameters calculator for interest rate instruments using SABR volatility formula.

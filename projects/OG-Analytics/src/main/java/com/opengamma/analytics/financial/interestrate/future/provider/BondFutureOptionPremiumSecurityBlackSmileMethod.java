@@ -14,7 +14,7 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Black
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackBondFuturesSmileProviderInterface;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
-import com.opengamma.analytics.util.surface.SurfaceValue;
+import com.opengamma.analytics.util.amount.SurfaceValue;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.DoublesPair;
 

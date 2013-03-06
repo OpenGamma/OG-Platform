@@ -37,7 +37,8 @@ public class FXForwardDefaults extends DefaultPropertyFunction {
     ValueRequirementNames.FX_CURVE_SENSITIVITIES,
     ValueRequirementNames.PV01,
     ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
-    ValueRequirementNames.VALUE_THETA
+    ValueRequirementNames.VALUE_THETA,
+    ValueRequirementNames.PRESENT_VALUE
   };
   private final Map<String, Pair<String, String>> _currencyCurveConfigAndDiscountingCurveNames;
 

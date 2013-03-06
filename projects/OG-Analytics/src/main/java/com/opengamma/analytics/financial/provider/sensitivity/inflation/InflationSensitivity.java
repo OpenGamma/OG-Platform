@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.provider.sensitivity.inflation;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +28,7 @@ public class InflationSensitivity {
    */
   private final MulticurveSensitivity _multicurveSensitivity;
   /**
-   * The map containing the sensitivity to the price index. 
+   * The map containing the sensitivity to the price index.
    * The map linked the curve (String) to a list of pairs (cash flow time, sensitivity value).
    */
   private final Map<String, List<DoublesPair>> _sensitivityPriceCurve;
@@ -37,7 +38,7 @@ public class InflationSensitivity {
    */
   public InflationSensitivity() {
     _multicurveSensitivity = new MulticurveSensitivity();
-    _sensitivityPriceCurve = new HashMap<String, List<DoublesPair>>();
+    _sensitivityPriceCurve = new HashMap<>();
   }
 
   private InflationSensitivity(final MulticurveSensitivity multicurveSensitivity, final Map<String, List<DoublesPair>> sensitivityPriceCurve) {
@@ -64,7 +65,8 @@ public class InflationSensitivity {
    * @return The sensitivity.
    */
   public static InflationSensitivity of(final MulticurveSensitivity multicurveSensitivity, final Map<String, List<DoublesPair>> sensitivityPriceCurve) {
-    ArgumentChecker.notNull(multicurveSensitivity, "multicurveSensitivity");
+
+    ArgumentChecker.notNull(multicurveSensitivity, "multicurve sensitivity");
     ArgumentChecker.notNull(sensitivityPriceCurve, "Sensitivity price index curve");
     return new InflationSensitivity(multicurveSensitivity, sensitivityPriceCurve);
   }
@@ -132,10 +134,10 @@ public class InflationSensitivity {
 
   /**
    * Gets the price index curve sensitivity map.
-   * @return The sensitivity map
+   * @return The sensitivity map wrapped in an unmodifiable map
    */
   public Map<String, List<DoublesPair>> getPriceCurveSensitivities() {
-    return _sensitivityPriceCurve;
+    return Collections.unmodifiableMap(_sensitivityPriceCurve);
   }
 
   /**
@@ -171,6 +173,14 @@ public class InflationSensitivity {
     return new InflationSensitivity(resultMulticurve, resultPrice);
   }
 
+  /**
+   * Gets the multicurve sensitivities
+   * @return The multicurve sensitivities
+   */
+  public MulticurveSensitivity getMulticurveSensitivities() {
+    return _multicurveSensitivity;
+  }
+
   @Override
   public String toString() {
     return _multicurveSensitivity.toString() + "\n" + "\n" + _sensitivityPriceCurve.toString();
@@ -186,7 +196,7 @@ public class InflationSensitivity {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -196,7 +206,7 @@ public class InflationSensitivity {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    InflationSensitivity other = (InflationSensitivity) obj;
+    final InflationSensitivity other = (InflationSensitivity) obj;
     if (!ObjectUtils.equals(_multicurveSensitivity, other._multicurveSensitivity)) {
       return false;
     }

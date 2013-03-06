@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<og-portfolio schemaVersion="1.0">
+
+  <!--The set of trades that we are managing in this file -->
+  <trades/>
+
+  <portfolios/>
+
+</og-portfolio>

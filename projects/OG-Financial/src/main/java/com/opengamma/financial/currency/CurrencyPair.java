@@ -108,6 +108,36 @@ public final class CurrencyPair {
     return new CurrencyPair(_counter, _base);
   }
 
+  /**
+   * Indicates if the currency pair contains the supplied currency as
+   * either its base or counter.
+   *
+   * @param currency the currency to check against the pair
+   * @return true if the currency is either the base or counter currency in the pair.
+   */
+  public boolean contains(Currency currency) {
+    return _base.equals(currency) || _counter.equals(currency);
+  }
+
+  /**
+   * Return the pair's complementing currency for the supplied currency. i.e. if the
+   * supplied currency is the pair's base, then the counter currency is returned.
+   *
+   * @param currency the currency to find the complement for
+   * @return the complementing currency
+   * @throws IllegalArgumentException if the supplied currency is not a member of the pair
+   */
+  public Currency getComplement(Currency currency) {
+
+    if (_base.equals(currency)) {
+      return _counter;
+    } else if (_counter.equals(currency)) {
+      return _base;
+    } else {
+      throw new IllegalArgumentException("Currency [" + currency + "] is not a member of " + this.toString());
+    }
+  }
+
   //-------------------------------------------------------------------------
   @Override
   public boolean equals(Object obj) {

@@ -15,8 +15,12 @@ import com.opengamma.analytics.financial.commodity.derivative.MetalForward;
 import com.opengamma.analytics.financial.commodity.derivative.MetalFuture;
 import com.opengamma.analytics.financial.commodity.derivative.MetalFutureOption;
 import com.opengamma.analytics.financial.credit.cds.ISDACDSDerivative;
+import com.opengamma.analytics.financial.equity.future.derivative.CashSettledFuture;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityFuture;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityIndexDividendFuture;
+import com.opengamma.analytics.financial.equity.future.derivative.EquityIndexFuture;
+import com.opengamma.analytics.financial.equity.future.derivative.IndexFuture;
+import com.opengamma.analytics.financial.equity.future.derivative.VolatilityIndexFuture;
 import com.opengamma.analytics.financial.equity.option.EquityIndexFutureOption;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.equity.option.EquityOption;
@@ -892,6 +896,46 @@ public class InstrumentDerivativeVisitorDelegate<DATA_TYPE, RESULT_TYPE> impleme
   @Override
   public RESULT_TYPE visitEquityVarianceSwap(final EquityVarianceSwap varianceSwap, final DATA_TYPE data) {
     return _delegate.visitEquityVarianceSwap(varianceSwap, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitCashSettledFuture(CashSettledFuture future, DATA_TYPE data) {
+    return _delegate.visitCashSettledFuture(future, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitCashSettledFuture(CashSettledFuture future) {
+    return _delegate.visitCashSettledFuture(future);
+  }
+
+  @Override
+  public RESULT_TYPE visitIndexFuture(IndexFuture future, DATA_TYPE data) {
+    return _delegate.visitIndexFuture(future, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitIndexFuture(IndexFuture future) {
+    return _delegate.visitIndexFuture(future);
+  }
+
+  @Override
+  public RESULT_TYPE visitEquityIndexFuture(EquityIndexFuture future, DATA_TYPE data) {
+    return _delegate.visitEquityIndexFuture(future, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitEquityIndexFuture(EquityIndexFuture future) {
+    return _delegate.visitEquityIndexFuture(future);
+  }
+
+  @Override
+  public RESULT_TYPE visitVolatilityIndexFuture(VolatilityIndexFuture future, DATA_TYPE data) {
+    return _delegate.visitVolatilityIndexFuture(future, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitVolatilityIndexFuture(VolatilityIndexFuture future) {
+    return _delegate.visitVolatilityIndexFuture(future);
   }
 
 }

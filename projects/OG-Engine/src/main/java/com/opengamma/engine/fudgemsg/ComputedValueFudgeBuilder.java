@@ -16,13 +16,14 @@ import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.util.fudgemsg.WriteReplaceHelper;
 
 /**
  * Fudge message builder for {@code ComputedValue}.
  */
 @FudgeBuilderFor(ComputedValue.class)
 public class ComputedValueFudgeBuilder implements FudgeBuilder<ComputedValue> {
-  
+
   /**
    * Fudge field name.
    */
@@ -39,14 +40,14 @@ public class ComputedValueFudgeBuilder implements FudgeBuilder<ComputedValue> {
     return msg;
   }
 
-  /*package*/ static void appendToMsg(final FudgeSerializer serializer, final ComputedValue object, final MutableFudgeMsg msg) {
+  /*package*/static void appendToMsg(final FudgeSerializer serializer, final ComputedValue object, final MutableFudgeMsg msg) {
     final ValueSpecification specification = object.getSpecification();
     if (specification != null) {
       serializer.addToMessage(msg, SPECIFICATION_KEY, null, specification);
     }
     final Object value = object.getValue();
     if (value != null) {
-      serializer.addToMessageWithClassHeaders(msg, VALUE_KEY, null, value);
+      serializer.addToMessageWithClassHeaders(msg, VALUE_KEY, null, WriteReplaceHelper.writeReplace(value));
     }
   }
 
@@ -57,14 +58,14 @@ public class ComputedValueFudgeBuilder implements FudgeBuilder<ComputedValue> {
     return new ComputedValue(valueSpec, valueObject);
   }
 
-  /*package*/ static ValueSpecification getValueSpecification(final FudgeDeserializer deserializer, final FudgeMsg msg) {
+  /*package*/static ValueSpecification getValueSpecification(final FudgeDeserializer deserializer, final FudgeMsg msg) {
     final FudgeField fudgeField = msg.getByName(SPECIFICATION_KEY);
     Validate.notNull(fudgeField, "Fudge message is not a ComputedValue - field 'specification' is not present");
     final ValueSpecification valueSpec = deserializer.fieldValueToObject(ValueSpecification.class, fudgeField);
     return valueSpec;
   }
-  
-  /*package*/ static Object getValueObject(final FudgeDeserializer deserializer, final FudgeMsg msg) {
+
+  /*package*/static Object getValueObject(final FudgeDeserializer deserializer, final FudgeMsg msg) {
     FudgeField fudgeField;
     fudgeField = msg.getByName(VALUE_KEY);
     Validate.notNull(fudgeField, "Fudge message is not a ComputedValue - field 'value' is not present");

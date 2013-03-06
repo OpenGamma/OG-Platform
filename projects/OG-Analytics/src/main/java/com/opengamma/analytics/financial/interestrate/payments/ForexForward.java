@@ -35,12 +35,12 @@ public class ForexForward extends Forex {
 
   @Override
   public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
-    return null;
+    return visitor.visitForexForward(this, data);
   }
 
   @Override
   public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
-    return null;
+    return visitor.visitForexForward(this);
   }
 
   @Override

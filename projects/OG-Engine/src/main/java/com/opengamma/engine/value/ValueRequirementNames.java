@@ -312,9 +312,9 @@ public final class ValueRequirementNames {
   public static final String BUCKETED_CS01 = "Bucketed CS01";
 
   /**
-   * The market spread in a bucket used for bucketed CS01 for CDS
+   * The bucketed (CS01) spreads for a credit default swap.
    */
-  public static final String MARKET_SPREAD = "Market Spread";
+  public static final String BUCKETED_SPREADS = "Bucketed Spreads";
 
   /**
    * The dividend yield of an equity or equity index.
@@ -791,6 +791,10 @@ public final class ValueRequirementNames {
    * The time derivative of the percentage gamma of an option.
    */
   public static final String ZOMMA_P = "ZommaP";
+  /**
+   * The monetized vega.
+   */
+  public static final String MONETIZED_VEGA = "Monetized Vega";
 
   ///// Series Analysis
 
@@ -1265,6 +1269,12 @@ public final class ValueRequirementNames {
    * The affine dividends of an index or equity
    */
   public static final String AFFINE_DIVIDENDS = "Affine Dividends";
+
+  /**
+   * A type which represents the function target. Can be used
+   * to load an item directly from the database and push it directly to a function as an input
+   */
+  public static final String TARGET_TYPE = "TargetType";
 
   ///// Externally-sourced values
   // Existing value requirement names with a suffix

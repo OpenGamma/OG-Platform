@@ -16,6 +16,9 @@ import com.opengamma.analytics.financial.commodity.definition.MetalFutureDefinit
 import com.opengamma.analytics.financial.commodity.definition.MetalFutureOptionDefinition;
 import com.opengamma.analytics.financial.equity.future.definition.EquityFutureDefinition;
 import com.opengamma.analytics.financial.equity.future.definition.EquityIndexDividendFutureDefinition;
+import com.opengamma.analytics.financial.equity.future.definition.EquityIndexFutureDefinition;
+import com.opengamma.analytics.financial.equity.future.definition.IndexFutureDefinition;
+import com.opengamma.analytics.financial.equity.future.definition.VolatilityIndexFutureDefinition;
 import com.opengamma.analytics.financial.equity.option.EquityIndexFutureOptionDefinition;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOptionDefinition;
 import com.opengamma.analytics.financial.equity.option.EquityOptionDefinition;
@@ -911,6 +914,36 @@ public class InstrumentDefinitionVisitorSameValueAdapter<DATA_TYPE, RESULT_TYPE>
 
   @Override
   public RESULT_TYPE visitEquityVarianceSwapDefinition(final EquityVarianceSwapDefinition varianceSwap, final DATA_TYPE data) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitIndexFutureDefinition(IndexFutureDefinition future, DATA_TYPE data) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitIndexFutureDefinition(IndexFutureDefinition future) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitEquityIndexFutureDefinition(EquityIndexFutureDefinition future, DATA_TYPE data) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitEquityIndexFutureDefinition(EquityIndexFutureDefinition future) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitVolatilityIndexFutureDefinition(VolatilityIndexFutureDefinition future, DATA_TYPE data) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitVolatilityIndexFutureDefinition(VolatilityIndexFutureDefinition future) {
     return _value;
   }
 

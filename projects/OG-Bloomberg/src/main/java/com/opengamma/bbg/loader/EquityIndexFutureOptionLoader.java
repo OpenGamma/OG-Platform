@@ -77,7 +77,7 @@ public class EquityIndexFutureOptionLoader extends SecurityLoader {
    * The valid Bloomberg security types for Equity Index Future Option
    * NOTE: THESE ARE ACTUALLY FUTURES_CATEGORY TYPES NOT SECURITY_TYP TYPES.
    */
-  public static final Set<String> VALID_SECURITY_TYPES = ImmutableSet.of("Equity Index");
+  public static final Set<String> VALID_SECURITY_TYPES = ImmutableSet.of("Equity Index", "Weekly Index Options");
 
   private static final FutureOptionMarginResolver MARGIN_RESOLVER = new FutureOptionMarginResolver();
 

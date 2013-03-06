@@ -31,7 +31,7 @@ static FILE *_OpenSettings (const TCHAR *pszSettingsLocation, const TCHAR *pszBa
 	StringCbPrintf (szPath, sizeof (szPath), TEXT ("%s%s%s"), pszBase, pszConfig, pszSettingsLocation);
 	FILE *f = fopen (szPath, TEXT ("rt"));
 	if (!f) {
-		LOGWARN (TEXT ("Couldn't open ") << szPath << TEXT (", error ") << GetLastError ());
+		LOGDEBUG (TEXT ("Couldn't open ") << szPath << TEXT (", error ") << GetLastError ());
 	} else {
 		LOGDEBUG (TEXT ("Reading from ") << szPath);
 	}
@@ -431,7 +431,7 @@ const TCHAR *CAbstractSettings::Get (const TCHAR *pszKey, const TCHAR *pszDefaul
 /// @return the value found or the default value, may be NULL
 const TCHAR *CAbstractSettings::Get (const TCHAR *pszKey, const CAbstractSettingProvider *poDefault) const {
 	const TCHAR *pszValue = Get (pszKey);
-	return pszValue ? pszValue : poDefault->GetString ();
+	return pszValue ? pszValue : poDefault->GetString (this);
 }
 
 /// Fetches a numeric setting or returns a default if none is defined. A string value is searched
@@ -538,13 +538,14 @@ CAbstractSettingProvider::~CAbstractSettingProvider () {
 
 /// Returns the string provided, calculating it if necessary.
 ///
+/// @param[in] poSettings the owning settings object, not NULL
 /// @return the setting value, possibly NULL
-const TCHAR *CAbstractSettingProvider::GetString () const {
+const TCHAR *CAbstractSettingProvider::GetString (const CAbstractSettings *poSettings) const {
 	s_oMutex.Enter ();
 	if (!m_bCalculated) {
 		LOGDEBUG (TEXT ("Calculating default setting value"));
 		s_oMutex.Leave ();
-		TCHAR *pszValue = CalculateString ();
+		TCHAR *pszValue = CalculateString (poSettings);
 		s_oMutex.Enter ();
 		if (!m_bCalculated) {
 			m_pszValue = pszValue;

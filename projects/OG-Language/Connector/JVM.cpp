@@ -107,6 +107,7 @@ static bool _KillJVMProcess (CProcess *poProcess, unsigned long lTimeout) {
 }
 
 #ifdef _WIN32
+
 /// Attempts to kill a hung service. The SCM signals are first used to wait for the service to terminate
 /// gracefully. If this does not happen the executable is identified and killed.
 ///
@@ -164,10 +165,8 @@ static bool _KillHungJVMService (SC_HANDLE hService, PCTSTR pszExecutable, DWORD
 	}
 	return bResult;
 }
-#endif /* ifdef _WIN32 */
 
-/// Attempts to start the service if the operating system supports a standard service manager, otherwise
-/// forks the executable.
+/// Attempts to start the service using the service control manager, otherwise launching the executable
 ///
 /// @param[in] pszServiceName name of the installed service, never NULL
 /// @param[in] pszExecutable full path to the executable, never NULL
@@ -177,7 +176,6 @@ static bool _KillHungJVMService (SC_HANDLE hService, PCTSTR pszExecutable, DWORD
 /// @return wrapper instance to manage the service, or NULL if there was a problem
 CClientJVM *CClientJVM::StartService (const TCHAR *pszServiceName, const TCHAR *pszExecutable, unsigned long lPollTimeout, unsigned long lStartTimeout, unsigned long lStopTimeout) {
 	LOGINFO (TEXT ("Starting service ") << pszServiceName);
-#ifdef _WIN32
 	SC_HANDLE hSCM = OpenSCManager (NULL, NULL, GENERIC_READ);
 	if (!hSCM) {
 		LOGWARN (TEXT ("Couldn't connect to service manager, error ") << GetLastError ());
@@ -255,13 +253,9 @@ retryStart:
 		}
 	}
 	return new CClientJVM (hService, bFirstConnection);
-#else /* ifdef _WIN32 */
-	// TODO: SysV service management (File a Jira for this)
-	__unused (lPollTimeout)
-	__unused (lStopTimeout)
-	return StartExecutable (pszExecutable, lStartTimeout);
-#endif /* ifdef _WIN32 */
 }
+
+#endif /* ifdef _WIN32 */
 
 /// Attempts to start the JVM host process.
 ///
@@ -269,12 +263,33 @@ retryStart:
 CClientJVM *CClientJVM::Start () {
 	LOGDEBUG (TEXT ("Starting JVM service"));
 	CSettings oSettings;
+#ifdef _WIN32
 	const TCHAR *pszServiceName = oSettings.GetServiceName ();
 	if (pszServiceName && pszServiceName[0]) {
 		return StartService (pszServiceName, oSettings.GetServiceExecutable (), oSettings.GetServicePoll (), oSettings.GetStartTimeout (), oSettings.GetStopTimeout ());
-	} else {
-		return StartExecutable (oSettings.GetServiceExecutable (), oSettings.GetStartTimeout ());
 	}
+#else /* ifdef _WIN32 */
+	const TCHAR *pszStartScript = oSettings.GetServiceStartCmd ();
+	if (pszStartScript) {
+		LOGDEBUG (TEXT ("Calling ") << pszStartScript);
+		int nRetVal = system (pszStartScript);
+		// The logic below corresponds to the Debian install. Other linuxes might have different return codes
+		// from the SysV service control.
+		switch (nRetVal) {
+		case 0 :
+			LOGINFO (TEXT ("Service was started"));
+			return new CClientJVM (NULL, true);
+		case 1 :
+			LOGINFO (TEXT ("Service is already running"));
+			return new CClientJVM (NULL, false);
+		default :
+			LOGWARN (TEXT ("Error ") << nRetVal << TEXT (" from service control script ") << pszStartScript);
+			// Fall through to starting the executable
+			break;
+		}
+	}
+#endif /* ifdef _WIN32 */
+	return StartExecutable (oSettings.GetServiceExecutable (), oSettings.GetStartTimeout ());
 }
 
 /// Attempts to stop the JVM host process.
@@ -299,7 +314,27 @@ bool CClientJVM::Stop () {
 		m_hService = NULL;
 	} else
 #else /* ifdef _WIN32 */
-	// TODO: SysV service management (File a Jira for this)
+	const TCHAR *pszStopScript = oSettings.GetServiceStopCmd ();
+	if (pszStopScript) {
+		LOGDEBUG (TEXT ("Calling ") << pszStopScript);
+		int nRetVal = system (pszStopScript);
+		// The logic below corresponds to the Debian install. Other linuxes might have different return codes
+		// from the SysV service control.
+		switch (nRetVal) {
+		case 0 :
+			LOGINFO (TEXT ("Daemon stopped"));
+			bResult = true;
+			break;
+		case 1 :
+			LOGINFO (TEXT ("Daemon already stopped"));
+			bResult = true;
+			break;
+		default :
+			LOGWARN (TEXT ("Couldn't stop daemon from ") << pszStopScript << TEXT (", error ") << nRetVal);
+			bResult = false;
+			break;
+		}
+	} else
 #endif /* ifdef _WIN32 */
 	if (m_poProcess) {
 		bResult = _KillJVMProcess (m_poProcess, oSettings.GetStopTimeout ());
@@ -342,9 +377,22 @@ bool CClientJVM::IsAlive () const {
 			LOGWARN (TEXT ("Service is not running"));
 			return false;
 		}
-	} else
+	}
 #else /* ifdef _WIN32 */
-	// TODO: SysV service management (File a Jira for this)
+	CSettings oSettings;
+	const TCHAR *pszQueryScript = oSettings.GetServiceQueryCmd ();
+	if (pszQueryScript) {
+		LOGDEBUG (TEXT ("Calling query script ") << pszQueryScript);
+		int nRetVal = system (pszQueryScript);
+		// The logic below corresponds to the Debian install. Other linuxes might have different return codes
+		// from the SysV service control
+		if (nRetVal == 0) {
+			return true;
+		} else {
+			LOGWARN (TEXT ("Service is not running, status ") << nRetVal);
+			return false;
+		}
+	}
 #endif /* ifdef _WIN32 */
 	if (m_poProcess) {
 		return m_poProcess->IsAlive ();
