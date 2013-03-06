@@ -167,4 +167,74 @@ public class GeneratorSwapFixedInflation extends GeneratorInstrument<GeneratorAt
     return getName();
   }
 
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    result = prime * result + ((_businessDayConvention == null) ? 0 : _businessDayConvention.hashCode());
+    result = prime * result + ((_calendar == null) ? 0 : _calendar.hashCode());
+    result = prime * result + (_endOfMonth ? 1231 : 1237);
+    result = prime * result + ((_indexPrice == null) ? 0 : _indexPrice.hashCode());
+    result = prime * result + (_isLinear ? 1231 : 1237);
+    result = prime * result + _monthLag;
+    result = prime * result + ((_priceIndexTimeSeries == null) ? 0 : _priceIndexTimeSeries.hashCode());
+    result = prime * result + _spotLag;
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!super.equals(obj)) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    GeneratorSwapFixedInflation other = (GeneratorSwapFixedInflation) obj;
+    if (_businessDayConvention == null) {
+      if (other._businessDayConvention != null) {
+        return false;
+      }
+    } else if (!_businessDayConvention.equals(other._businessDayConvention)) {
+      return false;
+    }
+    if (_calendar == null) {
+      if (other._calendar != null) {
+        return false;
+      }
+    } else if (!_calendar.equals(other._calendar)) {
+      return false;
+    }
+    if (_endOfMonth != other._endOfMonth) {
+      return false;
+    }
+    if (_indexPrice == null) {
+      if (other._indexPrice != null) {
+        return false;
+      }
+    } else if (!_indexPrice.equals(other._indexPrice)) {
+      return false;
+    }
+    if (_isLinear != other._isLinear) {
+      return false;
+    }
+    if (_monthLag != other._monthLag) {
+      return false;
+    }
+    if (_priceIndexTimeSeries == null) {
+      if (other._priceIndexTimeSeries != null) {
+        return false;
+      }
+    } else if (!_priceIndexTimeSeries.equals(other._priceIndexTimeSeries)) {
+      return false;
+    }
+    if (_spotLag != other._spotLag) {
+      return false;
+    }
+    return true;
+  }
+
 }

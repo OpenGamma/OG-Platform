@@ -11,6 +11,8 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.curve.inflation.generator.GeneratorPriceIndexCurveConstant;
 import com.opengamma.analytics.financial.curve.inflation.generator.GeneratorPriceIndexCurveInterpolatedNode;
+import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedInflation;
+import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedInflationMaster;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
@@ -24,7 +26,6 @@ import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 public class GeneratorInflationCurveTest {
 
   private static final String CURVE_NAME_1 = "EU CPI XT";
-  private static final String CURVE_NAME_2 = "UK RPI XT";
 
   private static final Interpolator1D LINEAR_FLAT = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
       Interpolator1DFactory.FLAT_EXTRAPOLATOR);
@@ -34,6 +35,8 @@ public class GeneratorInflationCurveTest {
 
   private static final double CST = 100;
   private static final GeneratorPriceIndexCurveConstant GENERATOR_PRICE_INDEX_CONSTANT = new GeneratorPriceIndexCurveConstant();
+
+  private static final GeneratorSwapFixedInflation GENERATOR_INFALTION_SWAP = GeneratorSwapFixedInflationMaster.getInstance().getGenerator("USCPI");
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullYieldNodes() {

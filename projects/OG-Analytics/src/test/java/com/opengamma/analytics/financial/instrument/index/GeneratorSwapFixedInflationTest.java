@@ -6,6 +6,8 @@
 package com.opengamma.analytics.financial.instrument.index;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
 import static org.threeten.bp.temporal.ChronoUnit.YEARS;
 
 import org.testng.annotations.Test;
@@ -33,6 +35,7 @@ public class GeneratorSwapFixedInflationTest {
 
   private static final IndexPrice[] PRICE_INDEXES = MulticurveProviderDiscountDataSets.getPriceIndexes();
   private static final IndexPrice PRICE_INDEX_EUR = PRICE_INDEXES[0];
+  private static final IndexPrice PRICE_INDEX_GPB = PRICE_INDEXES[1];
   private static final Currency CUR = PRICE_INDEX_EUR.getCurrency();
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
@@ -67,6 +70,91 @@ public class GeneratorSwapFixedInflationTest {
       SPOT_LAG, IS_LINEAR);
   private static final GeneratorSwapFixedInflation GENERATOR_SWAP_INFLATION_PIECEWISE = new GeneratorSwapFixedInflation("generator", PRICE_INDEX_EUR, HICPX_TS, BUSINESS_DAY, CALENDAR, EOM, MONTH_LAG,
       SPOT_LAG, IS_NOT_LINEAR);
+
+  @Test
+  /**
+   * Tests the getters.
+   */
+  public void getterLinear() {
+    assertEquals("GeneratorSwap: getter", BUSINESS_DAY, GENERATOR_SWAP_INFLATION_LINEAR.getBusinessDayConvention());
+    assertEquals("GeneratorSwap: getter", CALENDAR, GENERATOR_SWAP_INFLATION_LINEAR.getCalendar());
+    assertEquals("GeneratorSwap: getter", PRICE_INDEX_EUR, GENERATOR_SWAP_INFLATION_LINEAR.getIndexPrice());
+    String name = "generator";
+    assertTrue(name.equals(GENERATOR_SWAP_INFLATION_LINEAR.getName()));
+    assertEquals(GENERATOR_SWAP_INFLATION_LINEAR.getName(), GENERATOR_SWAP_INFLATION_LINEAR.toString());
+    assertEquals("GeneratorSwap: getter", MONTH_LAG, GENERATOR_SWAP_INFLATION_LINEAR.getMonthLag());
+    assertEquals("GeneratorSwap: getter", HICPX_TS, GENERATOR_SWAP_INFLATION_LINEAR.getPriceIndexTimeSeries());
+    assertTrue("GeneratorSwap: getter", EOM == GENERATOR_SWAP_INFLATION_LINEAR.isEndOfMonth());
+    assertEquals("GeneratorSwap: getter", SPOT_LAG, GENERATOR_SWAP_INFLATION_LINEAR.getSpotLag());
+  }
+
+  @Test
+  /**
+   * Tests the getters.
+   */
+  public void getterPiecewise() {
+    assertEquals("GeneratorSwap: getter", BUSINESS_DAY, GENERATOR_SWAP_INFLATION_PIECEWISE.getBusinessDayConvention());
+    assertEquals("GeneratorSwap: getter", CALENDAR, GENERATOR_SWAP_INFLATION_PIECEWISE.getCalendar());
+    assertEquals("GeneratorSwap: getter", PRICE_INDEX_EUR, GENERATOR_SWAP_INFLATION_PIECEWISE.getIndexPrice());
+    String name = "generator";
+    assertTrue(name.equals(GENERATOR_SWAP_INFLATION_PIECEWISE.getName()));
+    assertEquals(GENERATOR_SWAP_INFLATION_PIECEWISE.getName(), GENERATOR_SWAP_INFLATION_PIECEWISE.toString());
+    assertEquals("GeneratorSwap: getter", MONTH_LAG, GENERATOR_SWAP_INFLATION_PIECEWISE.getMonthLag());
+    assertEquals("GeneratorSwap: getter", HICPX_TS, GENERATOR_SWAP_INFLATION_PIECEWISE.getPriceIndexTimeSeries());
+    assertTrue("GeneratorSwap: getter", EOM == GENERATOR_SWAP_INFLATION_PIECEWISE.isEndOfMonth());
+    assertEquals("GeneratorSwap: getter", SPOT_LAG, GENERATOR_SWAP_INFLATION_PIECEWISE.getSpotLag());
+  }
+
+  @Test
+  /**
+   * Tests the equals.
+   */
+  public void equalHash() {
+    assertEquals(GENERATOR_SWAP_INFLATION_LINEAR, GENERATOR_SWAP_INFLATION_LINEAR);
+    GeneratorSwapFixedInflation generatorDuplicate = new GeneratorSwapFixedInflation("generator", PRICE_INDEX_EUR, HICPX_TS, BUSINESS_DAY, CALENDAR, EOM, MONTH_LAG,
+        SPOT_LAG, IS_LINEAR);
+    assertEquals(GENERATOR_SWAP_INFLATION_LINEAR, generatorDuplicate);
+    assertEquals(GENERATOR_SWAP_INFLATION_LINEAR.hashCode(), generatorDuplicate.hashCode());
+    GeneratorSwapFixedInflation generatorModified;
+    DoubleTimeSeries<ZonedDateTime> modifiedTimeSeries = MulticurveProviderDiscountDataSets.usCpiFrom2009();
+    generatorModified = new GeneratorSwapFixedInflation("generator", PRICE_INDEX_EUR, modifiedTimeSeries, BUSINESS_DAY, CALENDAR, EOM, MONTH_LAG,
+        SPOT_LAG, IS_LINEAR);
+    assertFalse(GENERATOR_SWAP_INFLATION_LINEAR.equals(generatorModified));
+
+    generatorModified = new GeneratorSwapFixedInflation("generator", PRICE_INDEX_GPB, HICPX_TS, BUSINESS_DAY, CALENDAR, EOM, MONTH_LAG,
+        SPOT_LAG, IS_LINEAR);
+    assertFalse(GENERATOR_SWAP_INFLATION_LINEAR.equals(generatorModified));
+
+    BusinessDayConvention modifiedBusinessDay = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+    generatorModified = new GeneratorSwapFixedInflation("generator", PRICE_INDEX_EUR, HICPX_TS, modifiedBusinessDay, CALENDAR, EOM, MONTH_LAG,
+        SPOT_LAG, IS_LINEAR);
+    assertFalse(GENERATOR_SWAP_INFLATION_LINEAR.equals(generatorModified));
+
+    Calendar modifiesCalendar = new MondayToFridayCalendar("B");
+    generatorModified = new GeneratorSwapFixedInflation("generator", PRICE_INDEX_EUR, HICPX_TS, BUSINESS_DAY, modifiesCalendar, EOM, MONTH_LAG,
+        SPOT_LAG, IS_LINEAR);
+    assertFalse(GENERATOR_SWAP_INFLATION_LINEAR.equals(generatorModified));
+
+    generatorModified = new GeneratorSwapFixedInflation("generator", PRICE_INDEX_EUR, HICPX_TS, BUSINESS_DAY, CALENDAR, false, MONTH_LAG,
+        SPOT_LAG, IS_LINEAR);
+    assertFalse(GENERATOR_SWAP_INFLATION_LINEAR.equals(generatorModified));
+
+    generatorModified = new GeneratorSwapFixedInflation("generator", PRICE_INDEX_EUR, HICPX_TS, BUSINESS_DAY, CALENDAR, EOM, 2,
+        SPOT_LAG, IS_LINEAR);
+    assertFalse(GENERATOR_SWAP_INFLATION_LINEAR.equals(generatorModified));
+
+    generatorModified = new GeneratorSwapFixedInflation("generator", PRICE_INDEX_EUR, HICPX_TS, BUSINESS_DAY, CALENDAR, EOM, MONTH_LAG,
+        1, IS_LINEAR);
+    assertFalse(GENERATOR_SWAP_INFLATION_LINEAR.equals(generatorModified));
+
+    generatorModified = new GeneratorSwapFixedInflation("generator", PRICE_INDEX_EUR, HICPX_TS, BUSINESS_DAY, CALENDAR, EOM, MONTH_LAG,
+        SPOT_LAG, false);
+    assertFalse(GENERATOR_SWAP_INFLATION_LINEAR.equals(generatorModified));
+
+    assertFalse(GENERATOR_SWAP_INFLATION_LINEAR.equals(generatorModified));
+    assertFalse(GENERATOR_SWAP_INFLATION_LINEAR.equals(null));
+    assertFalse(GENERATOR_SWAP_INFLATION_LINEAR.equals(CUR));
+  }
 
   @Test
   /**

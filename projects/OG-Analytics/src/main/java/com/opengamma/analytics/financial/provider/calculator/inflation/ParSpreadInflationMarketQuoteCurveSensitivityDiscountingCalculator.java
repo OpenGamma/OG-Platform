@@ -8,8 +8,10 @@ package com.opengamma.analytics.financial.provider.calculator.inflation;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedCompounding;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
+import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.inflation.InflationSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -36,6 +38,7 @@ public final class ParSpreadInflationMarketQuoteCurveSensitivityDiscountingCalcu
    */
   private static final PresentValueDiscountingInflationCalculator PVIC = PresentValueDiscountingInflationCalculator.getInstance();
   private static final PresentValueCurveSensitivityDiscountingInflationCalculator PVISC = PresentValueCurveSensitivityDiscountingInflationCalculator.getInstance();
+  private static final PresentValueCurveSensitivityDiscountingCalculator PVSC = PresentValueCurveSensitivityDiscountingCalculator.getInstance();
 
   //-----     Inflation Swaps     -----
 
@@ -54,14 +57,18 @@ public final class ParSpreadInflationMarketQuoteCurveSensitivityDiscountingCalcu
     ArgumentChecker.isTrue(swap.getFirstLeg().getNumberOfPayments() == 1, "the first leg of an inflation ZC swap should be a fixed compounded leg");
     ArgumentChecker.isTrue(swap.getFirstLeg().getNthPayment(0) instanceof CouponFixedCompounding, "the first leg of an inflation ZC swap should be a fixed compounded leg");
     final InflationSensitivity pvcis = swap.getSecondLeg().accept(PVISC, inflation).getSensitivity(swap.getSecondLeg().getCurrency());
-    final InflationSensitivity pvcs = swap.getFirstLeg().accept(PVISC, inflation).getSensitivity(swap.getFirstLeg().getCurrency());
+    final MulticurveSensitivity pvcs = swap.getFirstLeg().accept(PVSC, inflation.getMulticurveProvider()).getSensitivity(swap.getFirstLeg().getCurrency());
+
     CouponFixedCompounding cpn = (CouponFixedCompounding) swap.getFirstLeg().getNthPayment(0);
     final double pvInflationLeg = swap.getSecondLeg().accept(PVIC, inflation).getAmount(swap.getSecondLeg().getCurrency());
     final double discountFactor = inflation.getDiscountFactor(swap.getFirstLeg().getCurrency(), cpn.getPaymentTime());
     final double tenor = cpn.getPaymentAccrualFactors().length;
+
     final double intermediateVariable = (1 / tenor) * Math.pow(pvInflationLeg / discountFactor + 1, 1 / tenor - 1) / (discountFactor);
-    return pvcis.multipliedBy(intermediateVariable).plus(pvcs.multipliedBy(-intermediateVariable / discountFactor));
+    final MulticurveSensitivity modifiedpvcs = pvcs.multipliedBy(-pvInflationLeg * intermediateVariable / discountFactor);
+    final InflationSensitivity modifiedpvcis = pvcis.multipliedBy(intermediateVariable);
+
+    return InflationSensitivity.of(modifiedpvcs.plus(modifiedpvcis.getMulticurveSensitivity()), modifiedpvcis.getPriceCurveSensitivities());
 
   }
-
 }
