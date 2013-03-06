@@ -5,21 +5,30 @@
  */
 package com.opengamma.integration.tool.portfolio.xml.v1_0.conversion;
 
-import org.apache.commons.lang.builder.HashCodeBuilder;
-
 import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
-import com.opengamma.id.ExternalId;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.FxDigitalOptionTrade;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.money.Currency;
 
+/**
+ * Security extractor for fx digital option trades.
+ */
 public class FxDigitalOptionTradeSecurityExtractor extends TradeSecurityExtractor<FxDigitalOptionTrade> {
 
-  @Override
-  public ManageableSecurity[] extractSecurity(FxDigitalOptionTrade trade) {
+  /**
+   * Create a security extractor for the supplied trade.
+   *
+   * @param trade the trade to perform extraction on
+   */
+  public FxDigitalOptionTradeSecurityExtractor(FxDigitalOptionTrade trade) {
+    super(trade);
+  }
 
-    Currency payoutCurrency = trade.getPayoutCurrency();
-    FxOptionCalculator calculator = new FxOptionCalculator(trade, trade.getPayout(), payoutCurrency);
+  @Override
+  public ManageableSecurity[] extractSecurities() {
+
+    Currency payoutCurrency = _trade.getPayoutCurrency();
+    FxOptionCalculator calculator = new FxOptionCalculator(_trade, _trade.getPayout(), payoutCurrency);
 
     ManageableSecurity security = new FXDigitalOptionSecurity(calculator.getPutCurrency(),
                                                               calculator.getCallCurrency(),
@@ -29,21 +38,6 @@ public class FxDigitalOptionTradeSecurityExtractor extends TradeSecurityExtracto
                                                               calculator.getExpiry(),
                                                               calculator.getSettlementDate(),
                                                               calculator.isLong());
-
-    // Generate the loader SECURITY_ID (should be uniquely identifying)
-    security.addExternalId(ExternalId.of("XML_LOADER", Integer.toHexString(
-        new HashCodeBuilder()
-            .append(security.getClass())
-            .append(calculator.isLong())
-            .append(calculator.getCallCurrency())
-            .append(calculator.getCallAmount())
-            .append(calculator.getPutCurrency())
-            .append(calculator.getPutAmount())
-            .append(payoutCurrency)
-            .append(calculator.getExpiry())
-            .append(calculator.getSettlementDate()).toHashCode()
-    )));
-
-    return securityArray(security);
+    return securityArray(addIdentifier(security));
   }
 }

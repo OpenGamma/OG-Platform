@@ -6,58 +6,48 @@
  */
 package com.opengamma.integration.tool.portfolio.xml.v1_0.conversion;
 
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.threeten.bp.ZoneOffset;
-
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.BuySell;
-import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.ExerciseType;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.SettlementType;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.SwapLeg;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.SwapTrade;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.SwaptionTrade;
 import com.opengamma.master.security.ManageableSecurity;
-import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
 
+/**
+ * Security extractor for swaption trades.
+ */
 public class SwaptionTradeSecurityExtractor extends TradeSecurityExtractor<SwaptionTrade> {
 
-  @Override
-  public ManageableSecurity[] extractSecurity(SwaptionTrade trade) {
+  /**
+   * Create a security extractor for the supplied trade.
+   *
+   * @param trade the trade to perform extraction on
+   */
+  public SwaptionTradeSecurityExtractor(SwaptionTrade trade) {
+    super(trade);
+  }
 
-    SwapTrade swapTrade = trade.getUnderlyingSwapTrade();
-    ManageableSecurity underlying = new SwapTradeSecurityExtractor().extractSecurity(swapTrade)[0];
+  @Override
+  public ManageableSecurity[] extractSecurities() {
+
+    SwapTrade swapTrade = _trade.getUnderlyingSwapTrade();
+    ManageableSecurity underlying = swapTrade.getSecurityExtractor().extractSecurities()[0];
 
     ExternalId underlyingId = underlying.getExternalIdBundle().getExternalId(ExternalScheme.of("XML_LOADER"));
 
     boolean isPayer = swapTrade.getFixedLeg().getDirection() == SwapLeg.Direction.PAY;
-    Expiry expiry = new Expiry(trade.getExpirationDate().atStartOfDay(ZoneOffset.UTC));
+    Expiry expiry = new Expiry(convertLocalDate(_trade.getExpirationDate()));
 
-    Currency fixedLegCurrency = swapTrade.getFixedLeg().getCurrency();
+    ManageableSecurity security = new SwaptionSecurity(isPayer, underlyingId, _trade.getBuySell() == BuySell.BUY,
+                                                       expiry, _trade.getSettlementType() == SettlementType.CASH_SETTLED,
+                                                       swapTrade.getFixedLeg().getCurrency(),
+                                                       null, _trade.getExerciseType().convert(),
+                                                       convertLocalDate(_trade.getCashSettlementPaymentDate()));
 
-    ExerciseType exerciseType = trade.getExerciseType();
-
-    ManageableSecurity security = new SwaptionSecurity(isPayer, underlyingId, trade.getBuySell() == BuySell.BUY,
-                                                       expiry, trade.getSettlementType() == SettlementType.CASH_SETTLED,
-                                                       fixedLegCurrency,
-                                                       null, exerciseType.convert(),
-                                                       convertLocalDate(trade.getCashSettlementPaymentDate()));
-
-    security.addExternalId(ExternalId.of("XML_LOADER", Integer.toHexString(
-        new HashCodeBuilder()
-            .append(security.getClass())
-            .append(isPayer)
-            .append(underlyingId)
-            .append(trade.getBuySell())
-            .append(expiry)
-            .append(trade.getSettlementType())
-            .append(fixedLegCurrency)
-            .append(trade.getExerciseType())
-            .append(trade.getCashSettlementPaymentDate()).toHashCode()
-    )));
-
-    return securityArray(security, underlying);
+    return securityArray(addIdentifier(security), underlying);
   }
 }

@@ -36,15 +36,7 @@ public class OptionSecurityDefinition extends ListedSecurityDefinition {
     @XmlEnumValue(value = "equityIndexOption")
     EQUITY_INDEX_OPTION,
     @XmlEnumValue(value = "equityDividendOption")
-    EQUITY_DIVIDEND_OPTION/*,
-    @XmlEnumValue(value = "equityIndexFuture")
-    EQUITY_INDEX_FUTURE,
-    @XmlEnumValue(value = "equityDividendFuture")
-    EQUITY_DIVIDEND_FUTURE,
-    @XmlEnumValue(value = "equityIndexFutureOption")
-    EQUITY_INDEX_FUTURE_OPTION,
-    @XmlEnumValue(value = "equityDividendFutureOption")
-    EQUITY_DIVIDEND_FUTURE_OPTION  */
+    EQUITY_DIVIDEND_OPTION
   }
 
   @XmlAttribute(name = "type", required = true)
@@ -321,7 +313,7 @@ public class OptionSecurityDefinition extends ListedSecurityDefinition {
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "listedOptionType",
         "optionType",
         "strike",

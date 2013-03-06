@@ -37,11 +37,6 @@ public class FutureSecurityDefinition extends ListedSecurityDefinition {
     EQUITY_INDEX_FUTURE,
     @XmlEnumValue(value = "equityDividendFuture")
     EQUITY_DIVIDEND_FUTURE
-    /*,
-    @XmlEnumValue(value = "equityIndexFutureOption")
-    EQUITY_INDEX_FUTURE_OPTION,
-    @XmlEnumValue(value = "equityDividendFutureOption")
-    EQUITY_DIVIDEND_FUTURE_OPTION  */
   }
 
   @XmlAttribute(name = "type", required = true)
@@ -370,7 +365,7 @@ public class FutureSecurityDefinition extends ListedSecurityDefinition {
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "futureType",
         "price",
         "futureExpiry",

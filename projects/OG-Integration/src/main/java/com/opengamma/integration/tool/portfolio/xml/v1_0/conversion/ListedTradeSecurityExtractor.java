@@ -10,12 +10,25 @@ import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.ListedSecurityDefi
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.ListedSecurityTrade;
 import com.opengamma.master.security.ManageableSecurity;
 
+/**
+ * Security extractor for listed security trades.
+ */
 public class ListedTradeSecurityExtractor extends TradeSecurityExtractor<ListedSecurityTrade> {
 
-  @Override
-  public ManageableSecurity[] extractSecurity(ListedSecurityTrade trade) {
+  /**
+   * Create a security extractor for the supplied trade.
+   *
+   * @param trade the trade to perform extraction on
+   */
+  public ListedTradeSecurityExtractor(ListedSecurityTrade trade) {
+    super(trade);
+  }
 
-    ListedSecurityDefinition listedSecurity = trade.getListedSecurityDefinition();
+  @Override
+  public ManageableSecurity[] extractSecurities() {
+
+    // Security extraction is handled by the listed security definition
+    ListedSecurityDefinition listedSecurity = _trade.getListedSecurityDefinition();
     return listedSecurity.getSecurityExtractor().extract();
   }
 }

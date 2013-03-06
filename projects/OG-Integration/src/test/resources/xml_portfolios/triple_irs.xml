@@ -140,7 +140,7 @@
         <payReceive>Receive</payReceive>
         <currency>USD</currency>
         <!-- Notional could be array-valued -->
-        <notional>1000000</notional>
+        <notional>500000</notional>
         <!-- map to our InterestRateNotional where sign = Pay/Recieve flag -->
         <frequency>12m</frequency>
         <!-- use DayCountFactory -->
@@ -209,7 +209,7 @@
         <payReceive>Pay</payReceive>
         <currency>USD</currency>
         <!-- Notional could be array-valued? -->
-        <notional>1000000</notional>
+        <notional>100000</notional>
         <frequency>12m</frequency>
         <dayCount>Actual/365</dayCount>
         <interestCalculation>Adjusted</interestCalculation>
@@ -233,7 +233,7 @@
         <payReceive>Receive</payReceive>
         <currency>USD</currency>
         <!-- Notional could be array-valued -->
-        <notional>1000000</notional>
+        <notional>100000</notional>
         <!-- map to our InterestRateNotional where sign = Pay/Receive flag -->
         <frequency>12m</frequency>
         <!-- use DayCountFactory -->
