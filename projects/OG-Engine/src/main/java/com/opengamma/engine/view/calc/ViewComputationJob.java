@@ -917,7 +917,8 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
           _marketDataProviderDirty = false;
           // Invalidate any market data sourcing nodes that are no longer valid
           previousGraphs = getPreviousGraphs(previousGraphs, compiledViewDefinition);
-          filterPreviousGraphs(previousGraphs, new InvalidMarketDataDependencyNodeFilter(_marketDataProvider.getAvailabilityProvider()));
+          filterPreviousGraphs(previousGraphs, new InvalidMarketDataDependencyNodeFilter(getProcessContext().getFunctionCompilationService().getFunctionCompilationContext()
+              .getRawComputationTargetResolver().atVersionCorrection(versionCorrection), _marketDataProvider.getAvailabilityProvider()));
         }
         if (previousGraphs == null) {
           // Existing cached model is valid (an optimization for the common case of similar, increasing valuation times)
