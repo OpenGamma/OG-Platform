@@ -97,17 +97,20 @@
 }
 
 .OG-analytics-form .og-view input {
-    border: none;
+    border: 1px solid #e3e9ef;
+    border-top: 1px solid #abadb3;
     font-family: 'Open Sans', arial, serif;
     font-size: 18px;
     height: 22px;
     width: 100%;
+    padding-left: 5px;
+    outline: none;
 }
 
-.OG-analytics-form .og-view .og-icon-down{
+.OG-analytics-form .og-view .og-icon-down {
     height: 22px;
-    right:7px;
-    top:16px;
+    right: 2px;
+    top: 16px;
 }
 
 
