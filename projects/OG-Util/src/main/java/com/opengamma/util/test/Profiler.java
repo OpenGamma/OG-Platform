@@ -38,10 +38,6 @@ public final class Profiler {
   private double _snapshotTime;
   private int _snapshotOperations;
 
-  static {
-    enable(5000); // Don't check in like this
-  }
-
   private Profiler(final String name) {
     _name = name;
   }
