@@ -5,27 +5,49 @@
  */
 package com.opengamma.integration.tool.portfolio.xml;
 
-import java.util.Iterator;
-
-import com.opengamma.master.position.ManageablePosition;
-import com.opengamma.master.security.ManageableSecurity;
-import com.opengamma.util.tuple.ObjectsPair;
-
+/**
+ * The VersionedPortfolioHandler acts as a buffer between the version-specific
+ * xml parsing code and the rest of the system allowing a standard interface
+ * to be used across different versions of the xml schema. Note that
+ * as the class holds an iterator, it is stateful and not thread safe.
+ */
 public class VersionedPortfolioHandler {
 
-  private Iterator<PortfolioPosition> _positionIterator;
+  /**
+   * The portfolio positions, not null.
+   */
+  private Iterable<PortfolioPosition> _positions;
+
+  /**
+   * The portfolio name, may be null.
+   */
   private String _portfolioName;
 
-  public VersionedPortfolioHandler(String name,
-                                   Iterator<PortfolioPosition> iterator) {
+  /**
+   * Create a handler for the portfolio.
+   *
+   * @param name the name of the portfolio
+   * @param positions the positions to be handled
+   */
+  public VersionedPortfolioHandler(String name, Iterable<PortfolioPosition> positions) {
     _portfolioName = name;
-    _positionIterator = iterator;
+    _positions = positions;
   }
 
-  public Iterator<PortfolioPosition> getPositionIterator() {
-    return _positionIterator;
+  /**
+   * Get the positions for the portfolio, not null.
+   *
+   * @return the positions
+   */
+  public Iterable<PortfolioPosition> getPositions() {
+    return _positions;
   }
 
+  /**
+   * Get the name for the portfolio.
+   *
+   * @return the portfolio name, may be null
+   */
   public String getPortfolioName() {
     return _portfolioName;
   }

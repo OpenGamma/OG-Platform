@@ -3,28 +3,17 @@ package com.opengamma.integration.tool.portfolio;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.fail;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;
 
-import javax.xml.xpath.XPathExpressionException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.support.FileSystemXmlApplicationContext;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.tool.ToolContext;
-import com.opengamma.integration.tool.portfolio.xml.XmlPortfolioReader;
 import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.portfolio.PortfolioSearchRequest;
@@ -38,7 +27,6 @@ import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.impl.InMemorySecurityMaster;
-import com.opengamma.util.test.DbTest;
 
 /**
  * Test the portfolio loader tool behaves as expected. Data should be read from a file and

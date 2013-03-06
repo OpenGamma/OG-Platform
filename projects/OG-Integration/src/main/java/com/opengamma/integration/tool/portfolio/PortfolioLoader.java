@@ -15,7 +15,7 @@ import com.opengamma.integration.copier.portfolio.writer.PortfolioWriter;
 import com.opengamma.integration.copier.portfolio.writer.PrettyPrintingPortfolioWriter;
 import com.opengamma.integration.copier.sheet.SheetFormat;
 import com.opengamma.integration.tool.portfolio.xml.SchemaRegister;
-import com.opengamma.integration.tool.portfolio.xml.XmlPortfolioReader;
+import com.opengamma.integration.tool.portfolio.xml.XmlFileReader;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -30,9 +30,11 @@ public class PortfolioLoader {
   private final ToolContext _toolContext;
 
   /**
-   * The name for the portfolio - must not be null.
+   * The suggested name for the portfolio. Some portfolio readers will read the name from
+   * the data in the file. If the reader does not do this, or no valid name is supplied,
+   * then this suggested name will be used
    */
-  private final String _portfolioName;
+  private final String _suggestedPortfolioName;
 
   /**
    * The security type for the portfolio (if not a multi-asset portfolio).
@@ -98,7 +100,7 @@ public class PortfolioLoader {
 
     _toolContext = toolContext;
     _fileName = fileName;
-    _portfolioName = portfolioName;
+    _suggestedPortfolioName = portfolioName;
     _write = write;
     _overwrite = overwrite;
     _securityType = securityType;
@@ -109,16 +111,16 @@ public class PortfolioLoader {
   }
 
   /**
-   * Execute the portfolio load with the configured options.
+   * Execute the portfolio load(s) with the configured options.
    */
   public void execute() {
 
     for (PortfolioReader portfolioReader : constructPortfolioReaders(_fileName, _securityType, _ignoreVersion)) {
 
-      // Get the name from the portfolio reader if it supplies one
+      // Get the name of the portfolio from the reader if it supplies one
       String name = portfolioReader.getPortfolioName();
 
-      PortfolioWriter portfolioWriter = constructPortfolioWriter(_toolContext, name != null ? name : _portfolioName, _write, _overwrite,
+      PortfolioWriter portfolioWriter = constructPortfolioWriter(_toolContext, name != null ? name : _suggestedPortfolioName, _write, _overwrite,
                                                                  _mergePositions, _keepCurrentPositions);
       SimplePortfolioCopier portfolioCopier = new SimplePortfolioCopier();
 
@@ -162,8 +164,7 @@ public class PortfolioLoader {
 
   private Iterable<? extends PortfolioReader> constructPortfolioReaders(String filename, String securityType, boolean ignoreVersion) {
 
-    SheetFormat sheetFormat = SheetFormat.of(filename);
-    switch (sheetFormat) {
+    switch (SheetFormat.of(filename)) {
 
       case CSV:
       case XLS:
@@ -179,14 +180,14 @@ public class PortfolioLoader {
         }
       case XML:
         // XMl multi-asset portfolio
-        return new XmlPortfolioReader(filename, new SchemaRegister());
+        return new XmlFileReader(filename, new SchemaRegister());
 
       case ZIP:
         // Create zipped multi-asset class loader
         return ImmutableList.of(new ZippedPortfolioReader(filename, ignoreVersion));
 
       default:
-        throw new OpenGammaRuntimeException("Input filename should end in .CSV, .XLS or .ZIP");
+        throw new OpenGammaRuntimeException("Input filename should end in .CSV, .XLS, .XML or .ZIP");
     }
   }
 }

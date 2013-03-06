@@ -16,19 +16,29 @@ import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.Portfolio;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.PortfolioDocumentV1_0;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.Position;
 
-public class PortfolioDocumentConverterV1_0 implements PortfolioDocumentConverter {
+/**
+ *
+ * Converts version 1.0 portfolio data to a generic form that can be used
+ * to load data into the rest of the system.
+ */
+public class PortfolioDocumentConverterV1_0 implements PortfolioDocumentConverter<PortfolioDocumentV1_0> {
 
+  /**
+   * Convert the parsed xml content to a version-neutral form containing
+   * portfolios, positions, trades and securities.
+   *
+   * @param portfolioDocument the content which has been parsed.
+   * @return a collection of portfolios (with all their associated data)
+   */
   @Override
-  public Iterable<VersionedPortfolioHandler> convert(Object content) {
-
-    PortfolioDocumentV1_0 portfolioDocument = (PortfolioDocumentV1_0) content;
+  public Iterable<VersionedPortfolioHandler> convert(PortfolioDocumentV1_0 portfolioDocument) {
 
     Iterable<Portfolio> portfolios = extractPortfolios(portfolioDocument);
 
     return Iterables.transform(portfolios, new Function<Portfolio, VersionedPortfolioHandler>() {
       @Override
       public VersionedPortfolioHandler apply(final Portfolio portfolio) {
-        return new VersionedPortfolioHandler(portfolio.getName(), new PortfolioConverter(portfolio).getPositions().iterator());
+        return new VersionedPortfolioHandler(portfolio.getName(), new PortfolioConverter(portfolio).getPositions());
       }
     });
   }
@@ -43,6 +53,12 @@ public class PortfolioDocumentConverterV1_0 implements PortfolioDocumentConverte
             portfolios;
   }
 
+  /**
+   * Create a dummy portfolio for the case where no portfolio was specified in the file.
+   *
+   * @param portfolioDocument the portfolio document to create a dummy portfolio for
+   * @return the dummy portfolio
+   */
   private Portfolio createDummyPortfolio(PortfolioDocumentV1_0 portfolioDocument) {
 
     Portfolio pf = new Portfolio();
