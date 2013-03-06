@@ -29,10 +29,10 @@ public class ViewDeltaResultCalculator {
   /**
    * Computes the delta between and old and new results.
    * 
-   * @param viewDefinition  the view definition to which the results apply
-   * @param previousResult  the previous result
-   * @param result  the new result
-   * @return  the delta between the two results, not null
+   * @param viewDefinition the view definition to which the results apply
+   * @param previousResult the previous result
+   * @param result the new result
+   * @return the delta between the two results, not null
    */
   public static ViewDeltaResultModel computeDeltaModel(ViewDefinition viewDefinition, ViewResultModel previousResult, ViewResultModel result) {
     InMemoryViewDeltaResultModel deltaModel = new InMemoryViewDeltaResultModel();
@@ -42,7 +42,7 @@ public class ViewDeltaResultCalculator {
     deltaModel.setVersionCorrection(result.getVersionCorrection());
     deltaModel.setViewCycleId(result.getViewCycleId());
     deltaModel.setViewProcessId(result.getViewProcessId());
-    
+
     if (previousResult != null) {
       deltaModel.setPreviousCalculationTime(previousResult.getCalculationTime());
     }
@@ -51,13 +51,13 @@ public class ViewDeltaResultCalculator {
     }
     return deltaModel;
   }
-  
+
   private static void computeDeltaModel(ViewDefinition viewDefinition, InMemoryViewDeltaResultModel deltaModel, ComputationTargetSpecification targetSpec,
       ViewResultModel previousResult, ViewResultModel result) {
     for (String calcConfigName : result.getCalculationConfigurationNames()) {
       DeltaDefinition deltaDefinition = viewDefinition.getCalculationConfiguration(calcConfigName).getDeltaDefinition();
       ViewCalculationResultModel resultCalcModel = result.getCalculationResult(calcConfigName);
-      ViewCalculationResultModel previousCalcModel = previousResult != null ? previousResult.getCalculationResult(calcConfigName) : null;      
+      ViewCalculationResultModel previousCalcModel = previousResult != null ? previousResult.getCalculationResult(calcConfigName) : null;
       computeDeltaModel(deltaDefinition, deltaModel, targetSpec, calcConfigName, previousCalcModel, resultCalcModel);
     }
   }
@@ -89,8 +89,7 @@ public class ViewDeltaResultCalculator {
             // values after truncation to the required decimal place, rather than testing whether the difference of the
             // full values is greater than some threshold; this way, there will always be a point beyond which a change
             // is detected, even in the event of gradual creep.
-            if (!ObjectUtils.equals(previousValue.getAggregatedExecutionLog(), resultValue.getAggregatedExecutionLog())
-                || deltaDefinition.isDelta(previousValue, resultValue)) {
+            if (deltaDefinition.isDelta(previousValue, resultValue) || !ObjectUtils.equals(previousValue.getAggregatedExecutionLog(), resultValue.getAggregatedExecutionLog())) {
               deltaModel.addValue(calcConfigName, resultEntry.getValue());
             }
           }
@@ -98,5 +97,5 @@ public class ViewDeltaResultCalculator {
       }
     }
   }
-  
+
 }

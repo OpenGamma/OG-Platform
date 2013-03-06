@@ -149,12 +149,13 @@ public class FixedMarketDataAvailabilityProvider extends AbstractMarketDataAvail
   }
 
   protected ValueSpecification getAvailabilityImpl(final ComputationTargetSpecification targetSpec, final ValueRequirement desiredValue) {
-    final TargetData values = _strictIndex.get(targetSpec);
-    if (values != null) {
-      return values.getAvailability(desiredValue);
-    } else {
-      return null;
+    if (targetSpec != null) {
+      final TargetData values = _strictIndex.get(targetSpec);
+      if (values != null) {
+        return values.getAvailability(desiredValue);
+      }
     }
+    return null;
   }
 
   protected ValueSpecification getAvailabilityImpl(final ExternalId key, final ValueRequirement desiredValue) {

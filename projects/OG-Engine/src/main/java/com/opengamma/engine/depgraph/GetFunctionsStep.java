@@ -91,6 +91,10 @@ import com.opengamma.util.tuple.Triple;
     if (marketDataSpec != null) {
       s_logger.info("Found live data for {}", getValueRequirement());
       marketDataSpec = context.simplifyType(marketDataSpec);
+      if (targetSpec == null) {
+        // The system resolver did not produce a target that we can monitor, so use the MDAP supplied value
+        targetSpec = marketDataSpec.getTargetSpecification();
+      }
       ResolvedValue resolvedValue = createResult(marketDataSpec, MARKET_DATA_SOURCING_FUNCTION, Collections.<ValueSpecification>emptySet(), Collections.singleton(marketDataSpec));
       final ValueProperties constraints = getValueRequirement().getConstraints();
       if ((getValueRequirement().getValueName() != marketDataSpec.getValueName())

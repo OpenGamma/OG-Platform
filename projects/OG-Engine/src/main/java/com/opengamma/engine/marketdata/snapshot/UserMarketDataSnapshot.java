@@ -34,6 +34,7 @@ import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.marketdata.AbstractMarketDataSnapshot;
 import com.opengamma.engine.marketdata.InMemoryLKVMarketDataProvider;
+import com.opengamma.engine.marketdata.availability.DefaultMarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityFilter;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.availability.ProviderMarketDataAvailabilityFilter;
@@ -102,11 +103,14 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
       return resolve(target, desiredValue.getConstraints(), snapshot);
     }
 
-    public ValueSpecification resolve(final ComputationTargetSpecification targetSpec, final Object target, final ValueRequirement desiredValue, final StructuredMarketDataSnapshot snapshot) {
+    public ValueSpecification resolve(ComputationTargetSpecification targetSpec, final Object target, final ValueRequirement desiredValue, final StructuredMarketDataSnapshot snapshot) {
       if (isValidSnapshot(snapshot) && isValidTarget(target)) {
         final ValueProperties properties = resolve(target, desiredValue, snapshot);
         if (properties != null) {
           if (desiredValue.getConstraints().isSatisfiedBy(properties)) {
+            if (targetSpec == null) {
+              targetSpec = DefaultMarketDataAvailabilityProvider.createPrimitiveComputationTargetSpecification(target);
+            }
             return new ValueSpecification(desiredValue.getValueName(), targetSpec, properties.compose(desiredValue.getConstraints()));
           }
         }

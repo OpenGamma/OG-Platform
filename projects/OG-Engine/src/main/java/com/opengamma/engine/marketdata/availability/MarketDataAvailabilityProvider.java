@@ -34,7 +34,7 @@ public interface MarketDataAvailabilityProvider {
    * <p>
    * The {@code ValueSpecification} returned from this method will be the one used to establish the subscription from a relevant {@link MarketDataProvider} instance.
    * 
-   * @param targetSpec the resolved target specification from the data requirement, not null
+   * @param targetSpec the resolved target specification from the data requirement, null if the requirement target could not be resolved
    * @param target the resolved target the requirement corresponds to, not null (unless the target specification is {@link ComputationTargetSpecification#NULL})
    * @param desiredValue the market data requirement to test, not null
    * @return the satisfying value specification, or null if it cannot be satisfied
