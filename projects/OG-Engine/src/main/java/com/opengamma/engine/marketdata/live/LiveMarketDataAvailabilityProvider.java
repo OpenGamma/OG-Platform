@@ -9,6 +9,7 @@ import java.util.Set;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.marketdata.availability.AbstractMarketDataAvailabilityProvider;
+import com.opengamma.engine.marketdata.availability.DefaultMarketDataAvailabilityProvider;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -71,12 +72,18 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  protected ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final ExternalId identifier, final ValueRequirement desiredValue) {
+  protected ValueSpecification getAvailability(ComputationTargetSpecification targetSpec, final ExternalId identifier, final ValueRequirement desiredValue) {
+    if (targetSpec == null) {
+      targetSpec = DefaultMarketDataAvailabilityProvider.createPrimitiveComputationTargetSpecification(identifier);
+    }
     return new ValueSpecification(desiredValue.getValueName(), targetSpec, createValueProperties().with(IDENTIFIER_PROPERTY, identifier.toString()).get());
   }
 
   @Override
-  protected ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final ExternalIdBundle identifiers, final ValueRequirement desiredValue) {
+  protected ValueSpecification getAvailability(ComputationTargetSpecification targetSpec, final ExternalIdBundle identifiers, final ValueRequirement desiredValue) {
+    if (targetSpec == null) {
+      targetSpec = DefaultMarketDataAvailabilityProvider.createPrimitiveComputationTargetSpecification(identifiers);
+    }
     final String[] identifierStrings = new String[identifiers.size()];
     int i = 0;
     for (final ExternalId identifier : identifiers) {
