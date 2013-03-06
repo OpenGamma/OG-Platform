@@ -11,10 +11,8 @@ import com.opengamma.engine.function.FunctionDefinition;
 /**
  * Standard names used to refer to particular computed values.
  * <p>
- * These name are used as keys to define specific required values in the engine.
- * They should be used by a {@link FunctionDefinition} to state their required inputs
- * and their potential outputs.
- * These are a typical common set of names, which may be extended.
+ * These name are used as keys to define specific required values in the engine. They should be used by a {@link FunctionDefinition} to state their required inputs and their potential outputs. These
+ * are a typical common set of names, which may be extended.
  * <p>
  * For names used to refer to market data, see {@link MarketDataRequirementNames}.
  */
@@ -1111,7 +1109,6 @@ public final class ValueRequirementNames {
    */
   public static final String FX_PRESENT_VALUE = "FX Present Value";
 
-
   /**
    * The value vega of a digital option that is priced using call spread replication
    */
@@ -1267,10 +1264,9 @@ public final class ValueRequirementNames {
   public static final String AFFINE_DIVIDENDS = "Affine Dividends";
 
   /**
-   * A type which represents the function target. Can be used
-   * to load an item directly from the database and push it directly to a function as an input
+   * The object referenced by a target specification. Can be used to load an item, referenced by a target specification, directly from a database and receive it as an input to a function.
    */
-  public static final String TARGET_TYPE = "TargetType";
+  public static final String TARGET = "Target";
 
   ///// Externally-sourced values
   // Existing value requirement names with a suffix

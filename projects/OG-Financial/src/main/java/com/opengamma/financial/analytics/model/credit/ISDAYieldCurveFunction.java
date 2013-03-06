@@ -99,7 +99,7 @@ public class ISDAYieldCurveFunction extends AbstractFunction {
         final String curveDate = desiredValue.getConstraint(ISDAFunctionConstants.ISDA_CURVE_DATE);
         final String offsetString = desiredValue.getConstraint(ISDAFunctionConstants.ISDA_CURVE_OFFSET);
         final int offset = Integer.parseInt(offsetString);
-        final Object definitionObject = inputs.getValue(ValueRequirementNames.TARGET_TYPE);
+        final Object definitionObject = inputs.getValue(ValueRequirementNames.TARGET);
         if (definitionObject == null) {
           throw new OpenGammaRuntimeException("Couldn't get interpolated yield curve specification: " + curveName);
         }
@@ -191,7 +191,7 @@ public class ISDAYieldCurveFunction extends AbstractFunction {
         requirements.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_MARKET_DATA, targetSpec, properties));
         //        requirements.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, ComputationTargetType.of(YieldCurveDefinition.class), curveDefinition.getUniqueId(),
         //            properties));
-        requirements.add(new ValueRequirement(ValueRequirementNames.TARGET_TYPE, ComputationTargetType.of(YieldCurveDefinition.class), curveDefinition.getUniqueId()));
+        requirements.add(new ValueRequirement(ValueRequirementNames.TARGET, ComputationTargetType.of(YieldCurveDefinition.class), curveDefinition.getUniqueId()));
         //requirements.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_INSTRUMENT_CONVERSION_HISTORICAL_TIME_SERIES, targetSpec, properties));
         return requirements;
       }

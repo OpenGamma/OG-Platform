@@ -37,7 +37,10 @@ import com.opengamma.engine.function.blacklist.FunctionBlacklistedException;
 import com.opengamma.engine.target.ComputationTargetResolverUtils;
 import com.opengamma.engine.target.lazy.LazyComputationTargetResolver;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.cache.DeferredViewComputationCache;
@@ -70,7 +73,7 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
    * original method type. Instances of {@code Deferred} are not bound (tightly) to their original calculation node instance allowing them to run on another (for example if the original node is now
    * being reused for another job). Thus the caller must supply the node that will now host the deferred operation. The state from the original node must be preserved and then restored into the new
    * host node.
-   *
+   * 
    * @param <T> the original return type of the asynchronous method
    */
   public interface Deferred<T> {
@@ -151,7 +154,7 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
   /**
    * Sets whether to use a write-behind strategy when writing to the shared value cache. Write-behind can work well if the cost of writing is high (e.g. network overhead). If the write is cheap (e.g.
    * to an in-process, in-memory store) then the overheads of the write-behind become a burden. An executor service must be available if this is selected.
-   *
+   * 
    * @param writeBehind true to use write-behind on the shared value cache, false not to
    */
   public void setUseWriteBehindSharedCache(final boolean writeBehind) {
@@ -166,7 +169,7 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
   /**
    * Sets whether to use a write-behind strategy when writing to the private value cache. Write-behind can work well if the cost of writing is high (e.g. disk overhead). If the write is cheap (e.g. to
    * an in-process, in-memory store) then the overheads of the write-behind become a burden. An executor service must be available if this is selected.
-   *
+   * 
    * @param writeBehind true to use write-behind on the private value cache, false not to
    */
   public void setUseWriteBehindPrivateCache(final boolean writeBehind) {
@@ -201,7 +204,7 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
 
   /**
    * Sets a function blacklist to use for checking each job invocation. The blacklist(s) used may suppress particular functions on this node, the logical group of nodes or at all nodes.
-   *
+   * 
    * @param query the blacklist to query against, not null
    */
   public void setFunctionBlacklistQuery(final FunctionBlacklistQuery query) {
@@ -211,7 +214,7 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
 
   /**
    * Returns the function blacklist used for checking each job invocation.
-   *
+   * 
    * @return the blacklist queried, not null
    */
   public FunctionBlacklistQuery getFunctionBlacklistQuery() {
@@ -221,7 +224,7 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
   /**
    * Sets a maintenance policy for updating one or more blacklist(s) when a job item throws an exception. The application of a policy at this point will depend on the nature of the function library.
    * Issuing updates from the function's {@link FunctionInvoker} can allow more specific control over how a function failure should be reported.
-   *
+   * 
    * @param update the maintainer to notify of a job item that threw an exception
    */
   public void setFunctionBlacklistUpdate(final FunctionBlacklistMaintainer update) {
@@ -299,7 +302,7 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
    * central dispatcher until the cache has been flushed.
    * <p>
    * If a deferred result is returned, and this node will be used for other work, its state must be saved and then later restored into a node that will be used to complete the deferred action.
-   *
+   * 
    * @param job the job to execute
    * @return the job result
    * @throws AsynchronousExecution if the job is completing asynchronously
@@ -406,7 +409,7 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
   /**
    * Executes one or more items from the supplied iterator, populating the supplied list. If a job item starts running asynchronously, an exception will be thrown. At resumption of the operation,
    * another call to this method will occur with the same parameters allowing it to continue with the remaining items the iterator has.
-   *
+   * 
    * @param jobItemItr the job items to execute, not null
    * @param resultItems the list to populate with results, not null
    */
@@ -674,11 +677,6 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
       });
     } else {
       target = LazyComputationTargetResolver.resolve(getTargetResolver(), jobItem.getComputationTargetSpecification());
-      if (target == null) {
-        postEvaluationErrors(outputs, NotCalculatedSentinel.EVALUATION_ERROR);
-        resultItemBuilder.withException(ERROR_CANT_RESOLVE, "Unable to resolve target " + jobItem.getComputationTargetSpecification());
-        return;
-      }
     }
     final FunctionInvoker invoker = getFunctions().getInvoker(functionUniqueId);
     if (invoker == null) {
@@ -690,8 +688,19 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
     getFunctionExecutionContext().setFunctionParameters(jobItem.getFunctionParameters());
     // assemble inputs
     final Collection<ValueSpecification> inputValueSpecs = jobItem.getInputs();
-    final Collection<ComputedValue> inputs = new ArrayList<ComputedValue>(inputValueSpecs.size());
     final Set<ValueSpecification> missing = Sets.newHashSetWithExpectedSize(inputValueSpecs.size());
+    if (!isUseAsynchronousTargetResolve() && (target == null)) {
+      if (invoker.canHandleMissingInputs()) {
+        // A missing target is just a special case of missing input
+        missing
+            .add(new ValueSpecification(ValueRequirementNames.TARGET, jobItem.getComputationTargetSpecification(), ValueProperties.with(ValuePropertyNames.FUNCTION, "TargetSourcingFunction").get()));
+      } else {
+        postEvaluationErrors(outputs, NotCalculatedSentinel.EVALUATION_ERROR);
+        resultItemBuilder.withException(ERROR_CANT_RESOLVE, "Unable to resolve target " + jobItem.getComputationTargetSpecification());
+        return;
+      }
+    }
+    final Collection<ComputedValue> inputs = new ArrayList<ComputedValue>(inputValueSpecs.size());
     int inputBytes = 0;
     int inputSamples = 0;
     final DeferredViewComputationCache cache = getCache();
@@ -742,9 +751,15 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
         return;
       }
       if (target == null) {
-        postEvaluationErrors(outputs, NotCalculatedSentinel.EVALUATION_ERROR);
-        resultItemBuilder.withException(ERROR_CANT_RESOLVE, "Unable to resolve target " + jobItem.getComputationTargetSpecification());
-        return;
+        if (invoker.canHandleMissingInputs()) {
+          // A missing target is just a special case of missing input
+          missing.add(new ValueSpecification(ValueRequirementNames.TARGET, jobItem.getComputationTargetSpecification(), ValueProperties.with(ValuePropertyNames.FUNCTION, "TargetSourcingFunction")
+              .get()));
+        } else {
+          postEvaluationErrors(outputs, NotCalculatedSentinel.EVALUATION_ERROR);
+          resultItemBuilder.withException(ERROR_CANT_RESOLVE, "Unable to resolve target " + jobItem.getComputationTargetSpecification());
+          return;
+        }
       }
     }
     // Execute
