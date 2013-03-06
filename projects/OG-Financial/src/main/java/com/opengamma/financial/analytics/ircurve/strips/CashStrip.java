@@ -89,7 +89,7 @@ public class CashStrip extends CurveStrip {
   }
 
   @Override
-  protected Object propertyGet(final String propertyName, final boolean quiet) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -1583746178:  // startTenor
         return getStartTenor();
@@ -102,7 +102,7 @@ public class CashStrip extends CurveStrip {
   }
 
   @Override
-  protected void propertySet(final String propertyName, final Object newValue, final boolean quiet) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -1583746178:  // startTenor
         setStartTenor((Tenor) newValue);
@@ -126,12 +126,12 @@ public class CashStrip extends CurveStrip {
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      final CashStrip other = (CashStrip) obj;
+      CashStrip other = (CashStrip) obj;
       return JodaBeanUtils.equal(getStartTenor(), other.getStartTenor()) &&
           JodaBeanUtils.equal(getMaturityTenor(), other.getMaturityTenor()) &&
           JodaBeanUtils.equal(getConvention(), other.getConvention()) &&
@@ -162,7 +162,7 @@ public class CashStrip extends CurveStrip {
    * Sets the start tenor.
    * @param startTenor  the new value of the property, not null
    */
-  public void setStartTenor(final Tenor startTenor) {
+  public void setStartTenor(Tenor startTenor) {
     JodaBeanUtils.notNull(startTenor, "startTenor");
     this._startTenor = startTenor;
   }
@@ -188,7 +188,7 @@ public class CashStrip extends CurveStrip {
    * Sets the maturity tenor.
    * @param maturityTenor  the new value of the property, not null
    */
-  public void setMaturityTenor(final Tenor maturityTenor) {
+  public void setMaturityTenor(Tenor maturityTenor) {
     JodaBeanUtils.notNull(maturityTenor, "maturityTenor");
     this._maturityTenor = maturityTenor;
   }
@@ -214,7 +214,7 @@ public class CashStrip extends CurveStrip {
    * Sets the convention.
    * @param convention  the new value of the property, not null
    */
-  public void setConvention(final ExternalId convention) {
+  public void setConvention(ExternalId convention) {
     JodaBeanUtils.notNull(convention, "convention");
     this._convention = convention;
   }
@@ -268,7 +268,7 @@ public class CashStrip extends CurveStrip {
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
         case -1583746178:  // startTenor
           return _startTenor;

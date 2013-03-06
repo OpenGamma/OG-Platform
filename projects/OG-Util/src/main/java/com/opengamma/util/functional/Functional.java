@@ -5,7 +5,9 @@
  */
 package com.opengamma.util.functional;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -272,6 +274,14 @@ public final class Functional<S> implements Iterable<S> {
     return !isEmpty();
   }
 
+  public <T> T[] asArray(Class<T> clazz) {
+    return iterable2array(_collection, clazz);
+  }
+
+  public double[] asDoubleArray() {
+    return iterable2doubleArray(_collection);
+  }
+
   //-------------------------------------------------------------------------
 
   /**
@@ -386,6 +396,26 @@ public final class Functional<S> implements Iterable<S> {
       }
     }
     return collection;
+  }
+
+  static <T, K> K[] iterable2array(Iterable<T> iterable, Class<K> clazz) {
+    ArrayList<T> collection = iterable2collection(iterable);
+    K[] result = (K[]) Array.newInstance(clazz, collection.size());
+    int i = 0;
+    for (T t : collection) {
+      result[i++] = (K) t;
+    }
+    return result;
+  }
+
+  static <T> double[] iterable2doubleArray(Iterable<T> iterable) {
+    ArrayList<T> collection = iterable2collection(iterable);
+    double[] result = (double[]) Array.newInstance(double.class, collection.size());
+    int i = 0;
+    for (T t : collection) {
+      result[i++] = ((Double) t).doubleValue();
+    }
+    return result;
   }
 
   public Functional<S> sortBy(java.util.Comparator<? super S> comparator) {
