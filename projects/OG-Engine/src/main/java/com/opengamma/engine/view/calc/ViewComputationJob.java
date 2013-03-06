@@ -72,6 +72,7 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.TerminatableJob;
 import com.opengamma.util.monitor.OperationTimer;
+import com.opengamma.util.test.Profiler;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -109,20 +110,28 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
   private volatile boolean _cycleRequested;
   private volatile boolean _forceTriggerCycle;
   private volatile boolean _viewDefinitionDirty = true;
-  private volatile boolean _compilationDirty;
   private volatile Future<CompiledViewDefinitionWithGraphsImpl> _compilationTask;
 
   /**
-   * Nanoseconds
+   * Total time the job has spent "working". This does not include time spent waiting for a trigger. It is a real time spent on all I/O involved in a cycle (e.g. database accesses), graph compilation,
+   * market data subscription, graph execution, result dispatch, etc.
    */
   private double _totalTimeNanos;
 
+  /**
+   * The current market data provider(s).
+   */
   private ViewComputationJobDataProvider _marketDataProvider;
 
+  /**
+   * Flag indicating the market data provider has changed and any nodes sourcing market data into the dependency graph may now be invalid.
+   */
+  private boolean _marketDataProviderDirty;
+
   public ViewComputationJob(final ViewProcessImpl viewProcess,
-                            final ViewExecutionOptions executionOptions,
-                            final ViewProcessContext processContext,
-                            final EngineResourceManagerInternal<SingleComputationCycle> cycleManager) {
+      final ViewExecutionOptions executionOptions,
+      final ViewProcessContext processContext,
+      final EngineResourceManagerInternal<SingleComputationCycle> cycleManager) {
     ArgumentChecker.notNull(viewProcess, "viewProcess");
     ArgumentChecker.notNull(executionOptions, "executionOptions");
     ArgumentChecker.notNull(processContext, "processContext");
@@ -179,6 +188,13 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     return _compilationExpiryCycleTrigger;
   }
 
+  private static final Profiler s_waiting = Profiler.create(ViewComputationJob.class, "waiting");
+  private static final Profiler s_snapshot = Profiler.create(ViewComputationJob.class, "snapshot");
+  private static final Profiler s_compilation = Profiler.create(ViewComputationJob.class, "compilation");
+  private static final Profiler s_snapshotInit = Profiler.create(ViewComputationJob.class, "snapshotInit");
+  private static final Profiler s_createCycle = Profiler.create(ViewComputationJob.class, "createCycle");
+  private static final Profiler s_executeCycle = Profiler.create(ViewComputationJob.class, "executeCycle");
+
   /**
    * Determines whether to run, and runs if required, a single computation cycle using the following rules:
    * <ul>
@@ -193,11 +209,14 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     // Exception handling is important here to ensure that computation jobs do not just die quietly while consumers are
     // potentially blocked, waiting for results.
 
+    s_waiting.begin();
     ViewCycleType cycleType;
     try {
       cycleType = waitForNextCycle();
     } catch (final InterruptedException e) {
       return;
+    } finally {
+      s_waiting.end();
     }
 
     ViewCycleExecutionOptions executionOptions = null;
@@ -223,23 +242,23 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     }
 
     MarketDataSnapshot marketDataSnapshot;
+    s_snapshot.begin();
     try {
       if (_marketDataProvider == null ||
           !_marketDataProvider.getMarketDataSpecifications().equals(executionOptions.getMarketDataSpecifications())) {
-        // A different market data provider is required. We support this because we can, but changing provider is not the
-        // most efficient operation.
         if (_marketDataProvider != null) {
           s_logger.info("Replacing market data provider between cycles");
         }
         replaceMarketDataProvider(executionOptions.getMarketDataSpecifications());
       }
-
       // Obtain the snapshot in case it is needed, but don't explicitly initialise it until the data is required
       marketDataSnapshot = _marketDataProvider.snapshot();
     } catch (final Exception e) {
       s_logger.error("Error with market data provider", e);
       cycleExecutionFailed(executionOptions, new OpenGammaRuntimeException("Error with market data provider", e));
       return;
+    } finally {
+      s_snapshot.end();
     }
 
     Instant compilationValuationTime;
@@ -263,6 +282,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
 
     final VersionCorrection versionCorrection = getResolverVersionCorrection(executionOptions);
     final CompiledViewDefinitionWithGraphsImpl compiledViewDefinition;
+    s_compilation.begin();
     try {
       compiledViewDefinition = getCompiledViewDefinition(compilationValuationTime, versionCorrection);
       if (compiledViewDefinition == null) {
@@ -275,8 +295,11 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
       s_logger.error(message);
       cycleExecutionFailed(executionOptions, new OpenGammaRuntimeException(message, e));
       return;
+    } finally {
+      s_compilation.end();
     }
 
+    s_snapshotInit.begin();
     try {
       if (getExecutionOptions().getFlags().contains(ViewExecutionFlags.AWAIT_MARKET_DATA)) {
         marketDataSnapshot.init(compiledViewDefinition.getMarketDataRequirements(), MARKET_DATA_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
@@ -290,17 +313,23 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     } catch (final Exception e) {
       s_logger.error("Error initializing snapshot {}", marketDataSnapshot);
       cycleExecutionFailed(executionOptions, new OpenGammaRuntimeException("Error initializing snapshot" + marketDataSnapshot, e));
+    } finally {
+      s_snapshotInit.end();
     }
 
     EngineResourceReference<SingleComputationCycle> cycleReference;
+    s_createCycle.begin();
     try {
       cycleReference = createCycle(executionOptions, compiledViewDefinition, versionCorrection);
     } catch (final Exception e) {
       s_logger.error("Error creating next view cycle for view process " + getViewProcess(), e);
       return;
+    } finally {
+      s_createCycle.end();
     }
 
     if (_executeCycles) {
+      s_executeCycle.begin();
       try {
         final SingleComputationCycle singleComputationCycle = cycleReference.get();
         final HashMap<String, Collection<ComputationTargetSpecification>> configToComputationTargets = new HashMap<String, Collection<ComputationTargetSpecification>>();
@@ -330,6 +359,8 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
         cycleReference.release();
         cycleExecutionFailed(executionOptions, e);
         return;
+      } finally {
+        s_executeCycle.end();
       }
     }
 
@@ -360,6 +391,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     try {
       getViewProcess().cycleCompleted(cycle);
     } catch (final Exception e) {
+      e.printStackTrace();
       s_logger.error("Error notifying view process " + getViewProcess() + " of view cycle completion", e);
     }
   }
@@ -414,7 +446,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
         cycleEligibility = ViewCycleEligibility.FORCE;
         _forceTriggerCycle = false;
       }
-      if (cycleEligibility == ViewCycleEligibility.FORCE || cycleEligibility == ViewCycleEligibility.ELIGIBLE && _cycleRequested) {
+      if (cycleEligibility == ViewCycleEligibility.FORCE || (cycleEligibility == ViewCycleEligibility.ELIGIBLE && _cycleRequested)) {
         _cycleRequested = false;
         ViewCycleType cycleType = triggerResult.getCycleType();
         if (_previousCycleReference == null) {
@@ -460,8 +492,8 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
   }
 
   private void executeViewCycle(final ViewCycleType cycleType,
-                                final EngineResourceReference<SingleComputationCycle> cycleReference,
-                                final MarketDataSnapshot marketDataSnapshot) throws Exception {
+      final EngineResourceReference<SingleComputationCycle> cycleReference,
+      final MarketDataSnapshot marketDataSnapshot) throws Exception {
     SingleComputationCycle deltaCycle;
     if (cycleType == ViewCycleType.FULL) {
       s_logger.info("Performing full computation");
@@ -493,8 +525,8 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     _totalTimeNanos += durationNanos;
     _cycleCount += 1;
     s_logger.info("Last latency was {} ms, Average latency is {} ms",
-                  durationNanos / NANOS_PER_MILLISECOND,
-                  (_totalTimeNanos / _cycleCount) / NANOS_PER_MILLISECOND);
+        durationNanos / NANOS_PER_MILLISECOND,
+        (_totalTimeNanos / _cycleCount) / NANOS_PER_MILLISECOND);
   }
 
   @Override
@@ -528,20 +560,12 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
   }
 
   /**
-   * Indicates that the view definition itself has changed. It is not necessary to call {@link #dirtyCompilation()} as well.
+   * Indicates that the view definition itself has changed.
    */
   public void dirtyViewDefinition() {
     s_logger.info("Marking view definition as dirty for view process {}", getViewProcess());
     _viewDefinitionDirty = true;
     triggerCycle();
-  }
-
-  /**
-   * Indicates that changes have occurred which may affect the compilation, and the view definition should be recompiled at the earliest opportunity.
-   */
-  public void dirtyCompilation() {
-    s_logger.info("Marking compilation as dirty for view process {}", getViewProcess());
-    _compilationDirty = true;
   }
 
   /**
@@ -682,65 +706,72 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     }
   }
 
+  private static final Profiler s_getInvalidIdentifiers = Profiler.create(ViewComputationJob.class, "getInvalidIdentifiers");
+
   /**
    * Returns the set of unique identifiers that were previously used as targets in the dependency graph for object identifiers (or external identifiers) that now resolve differently.
-   *
+   * 
    * @param previousResolutions the previous cycle's resolution of identifiers, not null
    * @param versionCorrection the resolver version correction for this cycle, not null
    * @return the invalid identifier set, or null if none are invalid
    */
   private Set<UniqueId> getInvalidIdentifiers(final Map<ComputationTargetReference, UniqueId> previousResolutions, final VersionCorrection versionCorrection) {
-    long t = -System.nanoTime();
-    // TODO [PLAT-349] Checking all of these identifiers is costly. Can we fork this out as a "job"? Can we use existing infrastructure? Should the bulk resolver operations use a thread pool?
-    final Set<ComputationTargetReference> toCheck;
-    if (_changedTargets == null) {
-      // Change notifications aren't relevant for historical iteration; must recheck all of the resolutions
-      toCheck = previousResolutions.keySet();
-    } else {
-      // Subscribed to LATEST/LATEST so change manager notifications can filter the set to be checked
-      toCheck = Sets.newHashSetWithExpectedSize(previousResolutions.size());
-      final Set<ObjectId> allObjectIds = Sets.newHashSetWithExpectedSize(previousResolutions.size());
-      for (final Map.Entry<ComputationTargetReference, UniqueId> previousResolution : previousResolutions.entrySet()) {
-        final ObjectId oid = previousResolution.getValue().getObjectId();
-        if (_changedTargets.replace(oid, Boolean.TRUE, Boolean.FALSE)) {
-          // A change was seen on this target
-          s_logger.debug("Change observed on {}", oid);
-          toCheck.add(previousResolution.getKey());
-        } else if (_changedTargets.putIfAbsent(oid, Boolean.FALSE) == null) {
-          // We've not been monitoring this target for changes - better start doing so
-          s_logger.debug("Added {} to change observation set", oid);
-          toCheck.add(previousResolution.getKey());
-        }
-        allObjectIds.add(oid);
-      }
-      _changedTargets.keySet().retainAll(allObjectIds);
-      if (toCheck.isEmpty()) {
-        s_logger.debug("No resolutions (from {}) to check", previousResolutions.size());
-        return null;
+    s_getInvalidIdentifiers.begin();
+    try {
+      long t = -System.nanoTime();
+      // TODO [PLAT-349] Checking all of these identifiers is costly. Can we fork this out as a "job"? Can we use existing infrastructure? Should the bulk resolver operations use a thread pool?
+      final Set<ComputationTargetReference> toCheck;
+      if (_changedTargets == null) {
+        // Change notifications aren't relevant for historical iteration; must recheck all of the resolutions
+        toCheck = previousResolutions.keySet();
       } else {
-        s_logger.debug("Checking {} of {} resolutions for changed objects", toCheck.size(), previousResolutions.size());
-      }
-    }
-    final Map<ComputationTargetReference, ComputationTargetSpecification> specifications = getProcessContext().getFunctionCompilationService().getFunctionCompilationContext()
-        .getRawComputationTargetResolver().getSpecificationResolver().getTargetSpecifications(toCheck, versionCorrection);
-    t += System.nanoTime();
-    Set<UniqueId> invalidIdentifiers = null;
-    for (final Map.Entry<ComputationTargetReference, UniqueId> target : previousResolutions.entrySet()) {
-      final ComputationTargetSpecification resolved = specifications.get(target.getKey());
-      if ((resolved != null) && target.getValue().equals(resolved.getUniqueId())) {
-        // No change
-        s_logger.debug("No change resolving {}", target);
-      } else if (toCheck.contains(target.getKey())) {
-        // Identifier no longer resolved, or resolved differently
-        s_logger.info("New resolution of {} to {}", target, resolved);
-        if (invalidIdentifiers == null) {
-          invalidIdentifiers = new HashSet<UniqueId>();
+        // Subscribed to LATEST/LATEST so change manager notifications can filter the set to be checked
+        toCheck = Sets.newHashSetWithExpectedSize(previousResolutions.size());
+        final Set<ObjectId> allObjectIds = Sets.newHashSetWithExpectedSize(previousResolutions.size());
+        for (final Map.Entry<ComputationTargetReference, UniqueId> previousResolution : previousResolutions.entrySet()) {
+          final ObjectId oid = previousResolution.getValue().getObjectId();
+          if (_changedTargets.replace(oid, Boolean.TRUE, Boolean.FALSE)) {
+            // A change was seen on this target
+            s_logger.debug("Change observed on {}", oid);
+            toCheck.add(previousResolution.getKey());
+          } else if (_changedTargets.putIfAbsent(oid, Boolean.FALSE) == null) {
+            // We've not been monitoring this target for changes - better start doing so
+            s_logger.debug("Added {} to change observation set", oid);
+            toCheck.add(previousResolution.getKey());
+          }
+          allObjectIds.add(oid);
         }
-        invalidIdentifiers.add(target.getValue());
+        _changedTargets.keySet().retainAll(allObjectIds);
+        if (toCheck.isEmpty()) {
+          s_logger.debug("No resolutions (from {}) to check", previousResolutions.size());
+          return null;
+        } else {
+          s_logger.debug("Checking {} of {} resolutions for changed objects", toCheck.size(), previousResolutions.size());
+        }
       }
+      final Map<ComputationTargetReference, ComputationTargetSpecification> specifications = getProcessContext().getFunctionCompilationService().getFunctionCompilationContext()
+          .getRawComputationTargetResolver().getSpecificationResolver().getTargetSpecifications(toCheck, versionCorrection);
+      t += System.nanoTime();
+      Set<UniqueId> invalidIdentifiers = null;
+      for (final Map.Entry<ComputationTargetReference, UniqueId> target : previousResolutions.entrySet()) {
+        final ComputationTargetSpecification resolved = specifications.get(target.getKey());
+        if ((resolved != null) && target.getValue().equals(resolved.getUniqueId())) {
+          // No change
+          s_logger.debug("No change resolving {}", target);
+        } else if (toCheck.contains(target.getKey())) {
+          // Identifier no longer resolved, or resolved differently
+          s_logger.info("New resolution of {} to {}", target, resolved);
+          if (invalidIdentifiers == null) {
+            invalidIdentifiers = new HashSet<UniqueId>();
+          }
+          invalidIdentifiers.add(target.getValue());
+        }
+      }
+      s_logger.debug("{} resolutions checked in {}ms", toCheck.size(), t / 1e6);
+      return invalidIdentifiers;
+    } finally {
+      s_getInvalidIdentifiers.end();
     }
-    s_logger.debug("{} resolutions checked in {}ms", toCheck.size(), t / 1e6);
-    return invalidIdentifiers;
   }
 
   /**
@@ -749,7 +780,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
    * <p>
    * The {@link DependencyGraph#subGraph} operation doesn't work for us as it can leave nodes in the sub-graph that have inputs that aren't in the graph. Invalid nodes identified by the filter need to
    * remove all the graph up to the terminal output root so that we can rebuild it.
-   *
+   * 
    * @param include the map to build the result into
    * @param nodes the nodes to process
    * @param filter the filter to apply to the nodes
@@ -794,7 +825,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
   /**
    * Maintain the previously used dependency graphs by applying a node filter that identifies invalid nodes that must be recalculated (implying everything dependent on them must also be rebuilt). The
    * first call will extract the previously compiled graphs, subsequent calls will update the structure invalidating more nodes and increasing the number of missing requirements.
-   *
+   * 
    * @param previousGraphs the previously used graphs as a map from calculation configuration name to the graph and the value requirements that need to be recalculated, not null
    * @param filter the filter to identify invalid nodes, not null
    */
@@ -839,17 +870,15 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     }
   }
 
+  private static final Profiler s_graphBuild = Profiler.create(ViewComputationJob.class, "graphBuild");
+  private static final Profiler s_viewDefinitionCompiled = Profiler.create(ViewComputationJob.class, "viewDefinitionCompiled");
+  private static final Profiler s_subscribeToMarketData = Profiler.create(ViewComputationJob.class, "subscribeToMarketData");
+
   private CompiledViewDefinitionWithGraphsImpl getCompiledViewDefinition(final Instant valuationTime, final VersionCorrection versionCorrection) {
     final long functionInitId = getProcessContext().getFunctionCompilationService().getFunctionCompilationContext().getFunctionInitId();
     CompiledViewDefinitionWithGraphsImpl compiledViewDefinition;
     updateViewDefinitionIfRequired();
-    if (_compilationDirty) {
-      _compilationDirty = false;
-      invalidateCachedCompiledViewDefinition();
-      compiledViewDefinition = null;
-    } else {
-      compiledViewDefinition = getCachedCompiledViewDefinition();
-    }
+    compiledViewDefinition = getCachedCompiledViewDefinition();
     Map<String, Pair<DependencyGraph, Set<ValueRequirement>>> previousGraphs = null;
     ConcurrentMap<ComputationTargetReference, UniqueId> previousResolutions = null;
     boolean portfolioFull = false;
@@ -884,6 +913,12 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
           previousGraphs = getPreviousGraphs(previousGraphs, compiledViewDefinition);
           filterPreviousGraphs(previousGraphs, new InvalidFunctionDependencyNodeFilter(valuationTime));
         }
+        if (_marketDataProviderDirty) {
+          _marketDataProviderDirty = false;
+          // Invalidate any market data sourcing nodes that are no longer valid
+          previousGraphs = getPreviousGraphs(previousGraphs, compiledViewDefinition);
+          filterPreviousGraphs(previousGraphs, new InvalidMarketDataDependencyNodeFilter(_marketDataProvider.getAvailabilityProvider()));
+        }
         if (previousGraphs == null) {
           // Existing cached model is valid (an optimization for the common case of similar, increasing valuation times)
           return compiledViewDefinition;
@@ -893,6 +928,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
         }
       } while (false);
     }
+    s_graphBuild.begin();
     try {
       final MarketDataAvailabilityProvider availabilityProvider = _marketDataProvider.getAvailabilityProvider();
       final ViewCompilationServices compilationServices = getProcessContext().asCompilationServices(availabilityProvider);
@@ -914,6 +950,8 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
       final String message = MessageFormat.format("Error compiling view definition {0} for time {1}", getViewProcess().getDefinitionId(), valuationTime);
       viewDefinitionCompilationFailed(valuationTime, new OpenGammaRuntimeException(message, e));
       throw new OpenGammaRuntimeException(message, e);
+    } finally {
+      s_graphBuild.end();
     }
     setCachedCompiledViewDefinition(compiledViewDefinition);
     // [PLAT-984]
@@ -938,11 +976,21 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
 
     // Notify the view that a (re)compilation has taken place before going on to do any time-consuming work.
     // This might contain enough for clients to e.g. render an empty grid in which results will later appear.
-    viewDefinitionCompiled(compiledViewDefinition);
+    s_viewDefinitionCompiled.begin();
+    try {
+      viewDefinitionCompiled(compiledViewDefinition);
+    } finally {
+      s_viewDefinitionCompiled.end();
+    }
 
     // Update the market data subscriptions to whatever is now required, ensuring the computation cycle can find the
     // required input data when it is executed.
-    setMarketDataSubscriptions(compiledViewDefinition.getMarketDataRequirements());
+    s_subscribeToMarketData.begin();
+    try {
+      setMarketDataSubscriptions(compiledViewDefinition.getMarketDataRequirements());
+    } finally {
+      s_subscribeToMarketData.end();
+    }
     return compiledViewDefinition;
   }
 
@@ -950,7 +998,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
    * Gets the cached compiled view definition which may be re-used in subsequent computation cycles.
    * <p>
    * External visibility for tests.
-   *
+   * 
    * @return the cached compiled view definition, or null if nothing is currently cached
    */
   public CompiledViewDefinitionWithGraphsImpl getCachedCompiledViewDefinition() {
@@ -965,7 +1013,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
    * Replaces the cached compiled view definition.
    * <p>
    * External visibility for tests.
-   *
+   * 
    * @param latestCompiledViewDefinition the compiled view definition, may be null
    */
   public void setCachedCompiledViewDefinition(final CompiledViewDefinitionWithGraphsImpl latestCompiledViewDefinition) {
@@ -974,7 +1022,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
 
   /**
    * Gets the view definition currently in use by the computation job.
-   *
+   * 
    * @return the view definition, not null
    */
   public ViewDefinition getViewDefinition() {
@@ -984,6 +1032,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
   private void updateViewDefinitionIfRequired() {
     if (_viewDefinitionDirty) {
       _viewDefinition = getViewProcess().getLatestViewDefinition();
+      // TODO [PLAT-3215] Might not need to discard the entire view definition at this point
       invalidateCachedCompiledViewDefinition();
       if (_viewDefinition == null) {
         throw new DataNotFoundException("View definition " + getViewProcess().getDefinitionId() + " not found");
@@ -1010,8 +1059,6 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
 
   private void replaceMarketDataProvider(final List<MarketDataSpecification> marketDataSpecs) {
     removeMarketDataProvider();
-    // A different market data provider may change the availability of market data, altering the dependency graph
-    invalidateCachedCompiledViewDefinition();
     setMarketDataProvider(marketDataSpecs);
   }
 
@@ -1022,13 +1069,14 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     removeMarketDataSubscriptions();
     _marketDataProvider.removeListener(this);
     _marketDataProvider = null;
+    _marketDataProviderDirty = true;
   }
 
   private void setMarketDataProvider(final List<MarketDataSpecification> marketDataSpecs) {
     try {
       _marketDataProvider = new ViewComputationJobDataProvider(_viewDefinition.getMarketDataUser(),
-                                                               marketDataSpecs,
-                                                               _processContext.getMarketDataProviderResolver());
+          marketDataSpecs,
+          _processContext.getMarketDataProviderResolver());
     } catch (final Exception e) {
       s_logger.error("Failed to create data provider", e);
       _marketDataProvider = null;
@@ -1036,6 +1084,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     if (_marketDataProvider != null) {
       _marketDataProvider.addListener(this);
     }
+    _marketDataProviderDirty = true;
   }
 
   private void setMarketDataSubscriptions(final Set<ValueSpecification> requiredSubscriptions) {

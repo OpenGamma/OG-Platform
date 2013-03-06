@@ -78,6 +78,7 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.log.LogLevel;
 import com.opengamma.util.log.SimpleLogEvent;
+import com.opengamma.util.test.Profiler;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -183,7 +184,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
 
   /**
    * Gets the start time
-   *
+   * 
    * @return the start time
    */
   public Instant getStartTime() {
@@ -192,7 +193,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
 
   /**
    * Gets the end time.
-   *
+   * 
    * @return the end time
    */
   public Instant getEndTime() {
@@ -318,9 +319,16 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
   // REVIEW jonathan 2011-03-18 -- The following comment should be given some sort of 'listed' status for preservation :-)
   // REVIEW kirk 2009-11-03 -- This is a database kernel. Act accordingly.
 
+  private static final Profiler s_createAllCaches = Profiler.create(SingleComputationCycle.class, "createAllCaches");
+  private static final Profiler s_prepareInputs = Profiler.create(SingleComputationCycle.class, "prepareInput");
+  private static final Profiler s_computeDelta = Profiler.create(SingleComputationCycle.class, "computeDelta");
+  private static final Profiler s_createExecutableDependencyGraph = Profiler.create(SingleComputationCycle.class, "createExecutableDependencyGraph");
+  private static final Profiler s_graphExecution = Profiler.create(SingleComputationCycle.class, "graphExecution");
+  private static final Profiler s_completeResultModel = Profiler.create(SingleComputationCycle.class, "completeResultModel");
+
   /**
    * Synchronously runs the cycle.
-   *
+   * 
    * @param previousCycle the previous cycle from which a delta cycle should be performed, or null to perform a full cycle
    * @param marketDataSnapshot the market data snapshot with which to execute the cycle, not null
    * @param calcJobResultExecutorService the executor to use for streaming calculation job result consumption, not null
@@ -334,11 +342,26 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     _startTime = Instant.now();
     _state = ViewCycleState.EXECUTING;
 
-    createAllCaches();
-    prepareInputs(marketDataSnapshot);
+    s_createAllCaches.begin();
+    try {
+      createAllCaches();
+    } finally {
+      s_createAllCaches.end();
+    }
+    s_prepareInputs.begin();
+    try {
+      prepareInputs(marketDataSnapshot);
+    } finally {
+      s_prepareInputs.end();
+    }
 
     if (previousCycle != null) {
-      computeDelta(previousCycle);
+      s_computeDelta.begin();
+      try {
+        computeDelta(previousCycle);
+      } finally {
+        s_computeDelta.end();
+      }
     }
 
     final BlockingQueue<ExecutionResult> calcJobResultQueue = new LinkedBlockingQueue<ExecutionResult>();
@@ -351,34 +374,45 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
 
       for (final String calcConfigurationName : getAllCalculationConfigurationNames()) {
         s_logger.info("Executing plans for calculation configuration {}", calcConfigurationName);
-        final DependencyGraph depGraph = createExecutableDependencyGraph(calcConfigurationName);
+        final DependencyGraph depGraph;
+        s_createExecutableDependencyGraph.begin();
+        try {
+          depGraph = createExecutableDependencyGraph(calcConfigurationName);
+        } finally {
+          s_createExecutableDependencyGraph.end();
+        }
         s_logger.info("Submitting {} for execution by {}", depGraph, getDependencyGraphExecutor());
         final Future<?> future = getDependencyGraphExecutor().execute(depGraph, calcJobResultQueue, _statisticsGatherer, getLogModeSource());
         futures.add(future);
       }
 
-      while (!futures.isEmpty()) {
-        final Future<?> future = futures.poll();
-        try {
-          future.get(5, TimeUnit.SECONDS);
-        } catch (final TimeoutException e) {
-          s_logger.info("Waiting for " + future);
-          futures.add(future);
-        } catch (final InterruptedException e) {
-          Thread.interrupted();
-          // Cancel all outstanding jobs to free up resources
-          future.cancel(true);
-          for (final Future<?> incompleteFuture : futures) {
-            incompleteFuture.cancel(true);
+      s_graphExecution.begin();
+      try {
+        while (!futures.isEmpty()) {
+          final Future<?> future = futures.poll();
+          try {
+            future.get(5, TimeUnit.SECONDS);
+          } catch (final TimeoutException e) {
+            s_logger.info("Waiting for " + future);
+            futures.add(future);
+          } catch (final InterruptedException e) {
+            Thread.interrupted();
+            // Cancel all outstanding jobs to free up resources
+            future.cancel(true);
+            for (final Future<?> incompleteFuture : futures) {
+              incompleteFuture.cancel(true);
+            }
+            _state = ViewCycleState.EXECUTION_INTERRUPTED;
+            s_logger.info("Execution interrupted before completion.");
+            throw e;
+          } catch (final ExecutionException e) {
+            s_logger.error("Unable to execute dependency graph", e);
+            // Should we be swallowing this or not?
+            throw new OpenGammaRuntimeException("Unable to execute dependency graph", e);
           }
-          _state = ViewCycleState.EXECUTION_INTERRUPTED;
-          s_logger.info("Execution interrupted before completion.");
-          throw e;
-        } catch (final ExecutionException e) {
-          s_logger.error("Unable to execute dependency graph", e);
-          // Should we be swallowing this or not?
-          throw new OpenGammaRuntimeException("Unable to execute dependency graph", e);
         }
+      } finally {
+        s_graphExecution.end();
       }
 
       _endTime = Instant.now();
@@ -395,13 +429,18 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
       Thread.currentThread().interrupt();
     }
 
-    completeResultModel();
+    s_completeResultModel.begin();
+    try {
+      completeResultModel();
+    } finally {
+      s_completeResultModel.end();
+    }
     _state = ViewCycleState.EXECUTED;
   }
 
   /**
    * Creates a map containing the "shift" operations to apply to market data or each calculation configuration. If there is no operation to apply, the map contains null for that configuration.
-   *
+   * 
    * @return the map of computation cache to shift operations
    */
   private Map<ViewComputationCache, OverrideOperation> getCacheMarketDataOperation() {
@@ -539,7 +578,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
    * <li>Copy over all values that can be demonstrated to be the same from the previous iteration (because no input has changed)
    * <li>Only recompute the values that could have changed based on live data inputs
    * </ul>
-   *
+   * 
    * @param previousCycle Previous iteration. It must not have been cleaned yet ({@link #releaseResources()}).
    */
   private void computeDelta(final SingleComputationCycle previousCycle) {
@@ -620,12 +659,11 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
   /**
    * Processes the results from one or more calculation jobs.
    * <p>
-   * This generates a fragment result immediately from the given results, and also adds the values to the full result
-   * model.
-   *
-   * @param results  the execution results, not null
+   * This generates a fragment result immediately from the given results, and also adds the values to the full result model.
+   * 
+   * @param results the execution results, not null
    */
-  /*package*/ void calculationJobsCompleted(final List<ExecutionResult> results) {
+  /*package*/void calculationJobsCompleted(final List<ExecutionResult> results) {
     try {
       final ViewComputationResultModel fragmentResult = processExecutionResults(results);
       if (fragmentResult != null) {
@@ -708,18 +746,18 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     } else {
       final CalculationJobResultItem jobResultItem = jobExecutionResult.getJobResultItem();
       return new ComputedValueResult(valueSpec,
-                                     calculatedValue,
-                                     jobExecutionResult.getAggregatedExecutionLog(),
-                                     jobExecutionResult.getComputeNodeId(),
-                                     jobResultItem.getMissingInputs(),
-                                     jobResultItem.getResult());
+          calculatedValue,
+          jobExecutionResult.getAggregatedExecutionLog(),
+          jobExecutionResult.getComputeNodeId(),
+          jobResultItem.getMissingInputs(),
+          jobResultItem.getResult());
     }
   }
 
   //-------------------------------------------------------------------------
   /**
    * Returns the dependency graph used by this cycle for the given calculation configuration.
-   *
+   * 
    * @param calcConfName calculation configuration name
    * @return the dependency graph
    */
@@ -731,7 +769,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
    * Creates a subset of the dependency graph for execution. This will only include nodes that do are not dummy ones to source market data, have been considered executed by a delta from the previous
    * cycle, or are being suppressed by the execution blacklist. Note that this will update the cache with synthetic output values from suppressed nodes and alter the execution state of any nodes not
    * in the resultant subgraph.
-   *
+   * 
    * @param calcConfName calculation configuration name
    * @return a dependency graph with any nodes which have already been satisfied filtered out, not null See {@link #computeDelta} and how it calls {@link #markExecuted}.
    */
