@@ -72,4 +72,30 @@ public class EquityVarianceSwap extends VarianceSwap {
     return visitor.visitEquityVarianceSwap(this);
   }
 
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    result = prime * result + (_dividendsCorrected ? 1231 : 1237);
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!super.equals(obj)) {
+      return false;
+    }
+    if (!(obj instanceof EquityVarianceSwap)) {
+      return false;
+    }
+    final EquityVarianceSwap other = (EquityVarianceSwap) obj;
+    if (_dividendsCorrected != other._dividendsCorrected) {
+      return false;
+    }
+    return true;
+  }
+
 }
