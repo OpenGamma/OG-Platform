@@ -5,11 +5,11 @@
  */
 package com.opengamma.analytics.financial.model.interestrate.curve;
 
+import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import org.apache.commons.lang.ArrayUtils;
 
 import com.opengamma.util.ArgumentChecker;
 
@@ -52,7 +52,7 @@ public class YieldAndDiscountAddZeroSpreadCurve extends YieldAndDiscountCurve {
 
   @Override
   public double[] getInterestRateParameterSensitivity(final double time) {
-    final List<Double> result = new ArrayList<>();
+    final DoubleArrayList result = new DoubleArrayList();
     double[] temp;
     temp = _curves[0].getInterestRateParameterSensitivity(time);
     for (final double element : temp) {
@@ -64,7 +64,7 @@ public class YieldAndDiscountAddZeroSpreadCurve extends YieldAndDiscountCurve {
         result.add(element);
       }
     }
-    return ArrayUtils.toPrimitive(result.toArray(new Double[0]));
+    return result.toDoubleArray();
   }
 
   @Override

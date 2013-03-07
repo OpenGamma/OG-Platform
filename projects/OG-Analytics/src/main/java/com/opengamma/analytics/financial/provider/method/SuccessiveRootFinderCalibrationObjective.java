@@ -97,7 +97,7 @@ public abstract class SuccessiveRootFinderCalibrationObjective extends Function1
    * Gets the fxMatrix field.
    * @return the fxMatrix
    */
-  public FXMatrix getFxMatrix() {
+  public FXMatrix getFXMatrix() {
     return _fxMatrix;
   }
 

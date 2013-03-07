@@ -33,7 +33,6 @@ import com.opengamma.analytics.financial.provider.calculator.discounting.ParRate
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackSwaptionFlatProvider;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
-import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.math.function.Function1D;
@@ -52,8 +51,8 @@ public class SwaptionCashFixedIborBlackMethodTest {
 
   private static final BlackSwaptionParameters BLACK = TestsDataSetsBlack.createBlackSwaptionEUR6();
   private static final BlackSwaptionFlatProvider BLACK_MULTICURVES = new BlackSwaptionFlatProvider(MULTICURVES, BLACK);
-  public static final String NOT_USED = "Not used";
-  public static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
+  private static final String NOT_USED = "Not used";
+  private static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
   private static final GeneratorSwapFixedIborMaster GENERATOR_SWAP_MASTER = GeneratorSwapFixedIborMaster.getInstance();
   private static final GeneratorSwapFixedIbor GENERATOR_EUR1YEURIBOR6M = GENERATOR_SWAP_MASTER.getGenerator("EUR1YEURIBOR6M", CALENDAR);
 
@@ -132,7 +131,7 @@ public class SwaptionCashFixedIborBlackMethodTest {
       discTime.add(cpn.getPaymentTime());
     }
     final double[] nodeTimesDisc = discTime.toDoubleArray();
-    final MulticurveSensitivity sensitivityPvFwd = pvcsSwaption.getSensitivity(SWAPTION_LONG_REC.getCurrency());
+    //final MulticurveSensitivity sensitivityPvFwd = pvcsSwaption.getSensitivity(SWAPTION_LONG_REC.getCurrency());
     //final MulticurveSensitivity fdSensitivityPvFwd = getDiscountingCurveFiniteDifferenceSensitivities(SWAPTION_LONG_REC, BLACK_MULTICURVES, nodeTimesDisc, TOLERANCE_DELTA);
     //    assertEquals("Swaption Black method: curve sensitivities", sensitivityPvFwd, fdSensitivityPvFwd, TOLERANCE_DELTA);
     //    // 2. Discounting curve sensitivity

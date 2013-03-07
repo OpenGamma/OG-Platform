@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.model.volatility.surface;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
@@ -86,6 +87,32 @@ public class BlackVolatilitySurfaceMoneyness extends BlackVolatilitySurface<Mone
   @Override
   public <U> U accept(final BlackVolatilitySurfaceVisitor<?, U> visitor) {
     return visitor.visitMoneyness(this);
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    result = prime * result + _fc.hashCode();
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!super.equals(obj)) {
+      return false;
+    }
+    if (!(obj instanceof BlackVolatilitySurfaceMoneyness)) {
+      return false;
+    }
+    final BlackVolatilitySurfaceMoneyness other = (BlackVolatilitySurfaceMoneyness) obj;
+    if (!ObjectUtils.equals(_fc, other._fc)) {
+      return false;
+    }
+    return true;
   }
 
 }

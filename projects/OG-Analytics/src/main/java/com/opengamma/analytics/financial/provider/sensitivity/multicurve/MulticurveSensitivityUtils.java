@@ -37,11 +37,11 @@ public class MulticurveSensitivityUtils {
    */
   public static Map<String, List<DoublesPair>> cleaned(final Map<String, List<DoublesPair>> map) {
     //TODO: improve the sorting algorithm.
-    final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> result = new HashMap<>();
     for (final Map.Entry<String, List<DoublesPair>> entry : map.entrySet()) {
       final List<DoublesPair> list = entry.getValue();
-      final List<DoublesPair> listClean = new ArrayList<DoublesPair>();
-      final Set<Double> set = new TreeSet<Double>();
+      final List<DoublesPair> listClean = new ArrayList<>();
+      final Set<Double> set = new TreeSet<>();
       for (final DoublesPair pair : list) {
         set.add(pair.getFirst());
       }
@@ -67,11 +67,11 @@ public class MulticurveSensitivityUtils {
    */
   public static Map<String, List<DoublesPair>> cleaned(final Map<String, List<DoublesPair>> map, final double tolerance) {
     //TODO: improve the sorting algorithm.
-    final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> result = new HashMap<>();
     for (final Map.Entry<String, List<DoublesPair>> entry : map.entrySet()) {
       final List<DoublesPair> list = entry.getValue();
-      final List<DoublesPair> listClean = new ArrayList<DoublesPair>();
-      final Set<Double> set = new TreeSet<Double>();
+      final List<DoublesPair> listClean = new ArrayList<>();
+      final Set<Double> set = new TreeSet<>();
       for (final DoublesPair pair : list) {
         set.add(pair.getFirst());
       }
@@ -93,19 +93,19 @@ public class MulticurveSensitivityUtils {
 
   public static Map<String, List<ForwardSensitivity>> cleanedFwd(final Map<String, List<ForwardSensitivity>> map) {
     //TODO: improve the sorting algorithm.
-    final Map<String, List<ForwardSensitivity>> result = new HashMap<String, List<ForwardSensitivity>>();
+    final Map<String, List<ForwardSensitivity>> result = new HashMap<>();
     for (final Map.Entry<String, List<ForwardSensitivity>> entry : map.entrySet()) {
       final List<ForwardSensitivity> list = entry.getValue();
-      final List<ForwardSensitivity> listClean = new ArrayList<ForwardSensitivity>();
-      final Set<Triple<Double, Double, Double>> set = new TreeSet<Triple<Double, Double, Double>>();
+      final List<ForwardSensitivity> listClean = new ArrayList<>();
+      final Set<Triple<Double, Double, Double>> set = new TreeSet<>();
       for (final ForwardSensitivity pair : list) {
-        set.add(new Triple<Double, Double, Double>(pair.getStartTime(), pair.getEndTime(), pair.getAccrualFactor()));
+        set.add(new Triple<>(pair.getStartTime(), pair.getEndTime(), pair.getAccrualFactor()));
       }
       for (final Triple<Double, Double, Double> time : set) {
         double sensi = 0;
         for (int looplist = 0; looplist < list.size(); looplist++) {
           final ForwardSensitivity fwdSensitivity = list.get(looplist);
-          final Triple<Double, Double, Double> triple = new Triple<Double, Double, Double>(fwdSensitivity.getStartTime(), fwdSensitivity.getEndTime(), fwdSensitivity.getAccrualFactor());
+          final Triple<Double, Double, Double> triple = new Triple<>(fwdSensitivity.getStartTime(), fwdSensitivity.getEndTime(), fwdSensitivity.getAccrualFactor());
           if (triple.equals(time)) {
             sensi += list.get(looplist).getValue();
           }
@@ -119,19 +119,19 @@ public class MulticurveSensitivityUtils {
 
   public static Map<String, List<ForwardSensitivity>> cleanedFwd(final Map<String, List<ForwardSensitivity>> map, final double tolerance) {
     //TODO: improve the sorting algorithm.
-    final Map<String, List<ForwardSensitivity>> result = new HashMap<String, List<ForwardSensitivity>>();
+    final Map<String, List<ForwardSensitivity>> result = new HashMap<>();
     for (final Map.Entry<String, List<ForwardSensitivity>> entry : map.entrySet()) {
       final List<ForwardSensitivity> list = entry.getValue();
-      final List<ForwardSensitivity> listClean = new ArrayList<ForwardSensitivity>();
-      final Set<Triple<Double, Double, Double>> set = new TreeSet<Triple<Double, Double, Double>>();
+      final List<ForwardSensitivity> listClean = new ArrayList<>();
+      final Set<Triple<Double, Double, Double>> set = new TreeSet<>();
       for (final ForwardSensitivity pair : list) {
-        set.add(new Triple<Double, Double, Double>(pair.getStartTime(), pair.getEndTime(), pair.getAccrualFactor()));
+        set.add(new Triple<>(pair.getStartTime(), pair.getEndTime(), pair.getAccrualFactor()));
       }
       for (final Triple<Double, Double, Double> time : set) {
         double sensi = 0;
         for (int looplist = 0; looplist < list.size(); looplist++) {
           final ForwardSensitivity fwdSensitivity = list.get(looplist);
-          final Triple<Double, Double, Double> triple = new Triple<Double, Double, Double>(fwdSensitivity.getStartTime(), fwdSensitivity.getEndTime(), fwdSensitivity.getAccrualFactor());
+          final Triple<Double, Double, Double> triple = new Triple<>(fwdSensitivity.getStartTime(), fwdSensitivity.getEndTime(), fwdSensitivity.getAccrualFactor());
           if (triple.equals(time)) {
             sensi += list.get(looplist).getValue();
           }
@@ -153,7 +153,7 @@ public class MulticurveSensitivityUtils {
    * @return combined list
    */
   public static List<DoublesPair> plus(final List<DoublesPair> sensi1, final List<DoublesPair> sensi2) {
-    final List<DoublesPair> result = new ArrayList<DoublesPair>(sensi1);
+    final List<DoublesPair> result = new ArrayList<>(sensi1);
     result.addAll(sensi2);
     return result;
   }
@@ -169,7 +169,7 @@ public class MulticurveSensitivityUtils {
   public static Map<String, List<DoublesPair>> plus(final Map<String, List<DoublesPair>> sensi1, final Map<String, List<DoublesPair>> sensi2) {
     ArgumentChecker.notNull(sensi1, "sensitivity");
     ArgumentChecker.notNull(sensi2, "sensitivity");
-    final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> result = new HashMap<>();
     for (final Map.Entry<String, List<DoublesPair>> entry : sensi1.entrySet()) {
       final String name = entry.getKey();
       if (sensi2.containsKey(name)) {
@@ -197,7 +197,7 @@ public class MulticurveSensitivityUtils {
   public static Map<String, List<DoublesPair>> plus(final Map<String, List<DoublesPair>> sensi, final String curveName, final List<DoublesPair> list) {
     ArgumentChecker.notNull(sensi, "sensitivity");
     ArgumentChecker.notNull(list, "sensitivity");
-    final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> result = new HashMap<>();
     for (final Map.Entry<String, List<DoublesPair>> entry : sensi.entrySet()) {
       final String name = entry.getKey();
       if (name.equals(curveName)) {
@@ -219,9 +219,9 @@ public class MulticurveSensitivityUtils {
    * @return The sum.
    */
   public static Map<String, List<ForwardSensitivity>> plusFwd(final Map<String, List<ForwardSensitivity>> map1, final Map<String, List<ForwardSensitivity>> map2) {
-    final Map<String, List<ForwardSensitivity>> result = new HashMap<String, List<ForwardSensitivity>>();
+    final Map<String, List<ForwardSensitivity>> result = new HashMap<>();
     for (final Map.Entry<String, List<ForwardSensitivity>> entry : map1.entrySet()) {
-      final List<ForwardSensitivity> temp = new ArrayList<ForwardSensitivity>();
+      final List<ForwardSensitivity> temp = new ArrayList<>();
       final String name = entry.getKey();
       for (final ForwardSensitivity pair : entry.getValue()) {
         temp.add(pair);
@@ -236,7 +236,7 @@ public class MulticurveSensitivityUtils {
     for (final Map.Entry<String, List<ForwardSensitivity>> entry : map2.entrySet()) {
       final String name = entry.getKey();
       if (!result.containsKey(name)) {
-        final List<ForwardSensitivity> temp = new ArrayList<ForwardSensitivity>();
+        final List<ForwardSensitivity> temp = new ArrayList<>();
         for (final ForwardSensitivity pair : entry.getValue()) {
           temp.add(pair);
         }
@@ -255,7 +255,7 @@ public class MulticurveSensitivityUtils {
    */
   public static Map<String, List<DoublesPair>> multipliedBy(final Map<String, List<DoublesPair>> sensitivity, final double factor) {
     ArgumentChecker.notNull(sensitivity, "sensitivity");
-    final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> result = new HashMap<>();
     for (final Map.Entry<String, List<DoublesPair>> entry : sensitivity.entrySet()) {
       result.put(entry.getKey(), multipliedBy(entry.getValue(), factor));
     }
@@ -264,7 +264,7 @@ public class MulticurveSensitivityUtils {
 
   public static List<DoublesPair> multipliedBy(final List<DoublesPair> sensitivity, final double factor) {
     ArgumentChecker.notNull(sensitivity, "sensitivity");
-    final List<DoublesPair> curveSensi = new ArrayList<DoublesPair>();
+    final List<DoublesPair> curveSensi = new ArrayList<>();
     for (final DoublesPair pair : sensitivity) {
       curveSensi.add(new DoublesPair(pair.first, pair.second * factor));
     }
@@ -272,13 +272,13 @@ public class MulticurveSensitivityUtils {
   }
 
   public static Map<String, List<ForwardSensitivity>> multipliedByFwd(final Map<String, List<ForwardSensitivity>> map, final double factor) {
-    final Map<String, List<ForwardSensitivity>> result = new HashMap<String, List<ForwardSensitivity>>();
-    for (final String name : map.keySet()) {
-      final List<ForwardSensitivity> curveSensi = new ArrayList<ForwardSensitivity>();
-      for (final ForwardSensitivity pair : map.get(name)) {
+    final Map<String, List<ForwardSensitivity>> result = new HashMap<>();
+    for (final Map.Entry<String, List<ForwardSensitivity>> entry : map.entrySet()) {
+      final List<ForwardSensitivity> curveSensi = new ArrayList<>();
+      for (final ForwardSensitivity pair : entry.getValue()) {
         curveSensi.add(new ForwardSensitivity(pair.getStartTime(), pair.getEndTime(), pair.getAccrualFactor(), pair.getValue() * factor));
       }
-      result.put(name, curveSensi);
+      result.put(entry.getKey(), curveSensi);
     }
     return result;
   }

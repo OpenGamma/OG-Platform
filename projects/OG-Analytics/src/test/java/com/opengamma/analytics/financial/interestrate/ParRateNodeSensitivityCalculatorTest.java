@@ -53,8 +53,8 @@ public class ParRateNodeSensitivityCalculatorTest extends NodeSensitivityCalcula
   public void testParRateValue() {
     final InstrumentDerivativeVisitor<YieldCurveBundle, Double> valueCalculator = ParRateCalculator.getInstance();
     final InstrumentDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> senseCalculator = ParRateCurveSensitivityCalculator.getInstance();
-    final DoubleMatrix1D result = CALCULATOR.calculateSensitivities(SWAP, senseCalculator, null, CURVE_BUNDLE_YIELD);
-    final DoubleMatrix1D fdresult = finiteDiffNodeSensitivitiesYield(SWAP, valueCalculator, null, CURVE_BUNDLE_YIELD);
+    final DoubleMatrix1D result = CALCULATOR.calculateSensitivities(getSwap(), senseCalculator, null, getYieldCurve());
+    final DoubleMatrix1D fdresult = finiteDiffNodeSensitivitiesYield(getSwap(), valueCalculator, null, getYieldCurve());
     assertArrayEquals(result.getData(), fdresult.getData(), 1e-8);
   }
 }

@@ -236,7 +236,7 @@ public class PresentValueCalculatorTest {
   }
 
   @Test
-  public void ForwardLiborPayment() {
+  public void forwardLiborPayment() {
     final double time = 2.45;
     final double resetTime = 2.0;
     final double maturity = 2.5;

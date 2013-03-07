@@ -50,7 +50,7 @@ public abstract class SuccessiveLeastSquareCalibrationObjective extends Function
    * Gets the fxMatrix field.
    * @return the fxMatrix
    */
-  public FXMatrix getFxMatrix() {
+  public FXMatrix getFXMatrix() {
     return _fxMatrix;
   }
 

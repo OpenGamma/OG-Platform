@@ -136,7 +136,7 @@ public class GeneratorSwapXCcyIborIbor extends GeneratorInstrument<GeneratorAttr
     ArgumentChecker.notNull(attribute, "Attributes");
     final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, _spotLag, _iborIndex1.getCalendar());
     final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spot, attribute.getStartPeriod(), _iborIndex1);
-    final double fx = attribute.getFxMatrix().getFxRate(_iborIndex1.getCurrency(), _iborIndex2.getCurrency());
+    final double fx = attribute.getFXMatrix().getFxRate(_iborIndex1.getCurrency(), _iborIndex2.getCurrency());
     return SwapXCcyIborIborDefinition.from(startDate, attribute.getEndPeriod(), this, notional, fx * notional, spread, true);
   }
 

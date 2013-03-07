@@ -161,7 +161,7 @@ public class FixedPayCashFlowVisitorTest {
     assertEquals(1, mca.size());
     final CurrencyAmount ca = Iterables.getOnlyElement(mca);
     assertEquals(FIXED_INCOME_CURRENCY, ca.getCurrency());
-    assertEquals(Math.abs(CASH_NOTIONAL * CASH_RATE * 0.5), ca.getAmount());
+    assertEquals(CASH_NOTIONAL * CASH_RATE * 0.5, ca.getAmount());
     assertEquals(Collections.emptyMap(), RECEIVE_CASH.accept(VISITOR));
   }
 
@@ -174,7 +174,7 @@ public class FixedPayCashFlowVisitorTest {
     assertEquals(1, mca.size());
     final CurrencyAmount ca = Iterables.getOnlyElement(mca);
     assertEquals(FIXED_INCOME_CURRENCY, ca.getCurrency());
-    assertEquals(Math.abs(PAYMENT_AMOUNT), ca.getAmount());
+    assertEquals(PAYMENT_AMOUNT, ca.getAmount());
     assertEquals(Collections.emptyMap(), RECEIVE_FIXED_PAYMENT.accept(VISITOR));
   }
 
@@ -187,7 +187,7 @@ public class FixedPayCashFlowVisitorTest {
     assertEquals(1, mca.size());
     final CurrencyAmount ca = Iterables.getOnlyElement(mca);
     assertEquals(FIXED_INCOME_CURRENCY, ca.getCurrency());
-    assertEquals(Math.abs(FIXED_COUPON_NOTIONAL * FIXED_COUPON_RATE / 12), ca.getAmount(), 1e-15);
+    assertEquals(FIXED_COUPON_NOTIONAL * FIXED_COUPON_RATE / 12, ca.getAmount(), 1e-15);
     assertEquals(Collections.emptyMap(), RECEIVE_FIXED_COUPON.accept(VISITOR));
   }
 
@@ -200,7 +200,7 @@ public class FixedPayCashFlowVisitorTest {
     assertEquals(1, mca.size());
     CurrencyAmount ca = Iterables.getOnlyElement(mca);
     assertEquals(FIXED_INCOME_CURRENCY, ca.getCurrency());
-    assertEquals(Math.abs(FIXED_COUPON_NOTIONAL * FIXING_RATE / 2), ca.getAmount(), 1e-15);
+    assertEquals(FIXED_COUPON_NOTIONAL * FIXING_RATE / 2, ca.getAmount(), 1e-15);
     assertEquals(Collections.emptyMap(), RECEIVE_IBOR_COUPON.accept(VISITOR, IBOR_FIXING_SERIES));
     payment = PAY_IBOR_SPREAD_COUPON.accept(VISITOR, IBOR_FIXING_SERIES);
     assertEquals(1, payment.size());
@@ -209,7 +209,7 @@ public class FixedPayCashFlowVisitorTest {
     assertEquals(1, mca.size());
     ca = Iterables.getOnlyElement(mca);
     assertEquals(FIXED_INCOME_CURRENCY, ca.getCurrency());
-    assertEquals(Math.abs(FIXED_COUPON_NOTIONAL * (FIXING_RATE + IBOR_COUPON_SPREAD) / 2), ca.getAmount(), 1e-15);
+    assertEquals(FIXED_COUPON_NOTIONAL * (FIXING_RATE + IBOR_COUPON_SPREAD) / 2, ca.getAmount(), 1e-15);
     assertEquals(Collections.emptyMap(), RECEIVE_IBOR_SPREAD_COUPON.accept(VISITOR, IBOR_FIXING_SERIES));
   }
 

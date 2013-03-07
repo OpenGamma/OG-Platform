@@ -71,7 +71,7 @@ public class GeneratorAttributeFX extends GeneratorAttribute {
    * Gets the fxRate field.
    * @return the fxRate
    */
-  public FXMatrix getFxMatrix() {
+  public FXMatrix getFXMatrix() {
     return _fxMatrix;
   }
 

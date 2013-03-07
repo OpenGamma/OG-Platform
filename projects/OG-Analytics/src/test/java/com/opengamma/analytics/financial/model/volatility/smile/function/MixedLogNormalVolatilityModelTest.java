@@ -104,7 +104,7 @@ public class MixedLogNormalVolatilityModelTest {
 
     final double[] sense = modelAdjointFunc.evaluate(data);
     final double[] fdSense = fdModelAdjointFunc.evaluate(data);
-    final int nParms = data.getNumberOfparameters();
+    final int nParms = data.getNumberOfParameters();
     for (int i = 0; i < nParms; i++) {
       assertEquals(" : parameter " + i, fdSense[i], sense[i], 1e-6);
     }
@@ -126,7 +126,7 @@ public class MixedLogNormalVolatilityModelTest {
 
     final double[] sense = modelAdjointFunc.evaluate(data);
     final double[] fdSense = fdModelAdjointFunc.evaluate(data);
-    final int nParms = 3 + data.getNumberOfparameters();
+    final int nParms = 3 + data.getNumberOfParameters();
     for (int i = 0; i < nParms; i++) {
       assertEquals("parameter " + i, fdSense[i], sense[i], 1e-6);
     }

@@ -13,7 +13,7 @@ import com.opengamma.analytics.financial.simpleinstruments.derivative.SimpleFutu
  */
 public final class SimpleFutureConverter extends InstrumentDerivativeVisitorAdapter<Object, SimpleFuture> {
   /** The converter */
-  private static SimpleFutureConverter s_instance;
+  private static SimpleFutureConverter s_instance = new SimpleFutureConverter();
 
   /**
    * Class to convert between Commodity future objects and SimpleFuture objects
@@ -25,9 +25,6 @@ public final class SimpleFutureConverter extends InstrumentDerivativeVisitorAdap
    * @return A static instance of this converter
    */
   public static SimpleFutureConverter getInstance() {
-    if (s_instance == null) {
-      s_instance = new SimpleFutureConverter();
-    }
     return s_instance;
   }
 

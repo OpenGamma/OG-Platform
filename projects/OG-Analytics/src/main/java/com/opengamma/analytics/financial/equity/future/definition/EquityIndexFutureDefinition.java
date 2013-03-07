@@ -7,7 +7,6 @@ package com.opengamma.analytics.financial.equity.future.definition;
 
 import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.analytics.financial.commodity.definition.MetalFutureDefinition;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityIndexFuture;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.util.time.TimeCalculator;
@@ -31,7 +30,7 @@ public class EquityIndexFutureDefinition extends IndexFutureDefinition {
    * @param unitAmount  size of a unit
    * @param underlying  identifier of the underlying commodity
    */
-  public EquityIndexFutureDefinition(final ZonedDateTime expiryDate, final ZonedDateTime settlementDate, final double strikePrice, 
+  public EquityIndexFutureDefinition(final ZonedDateTime expiryDate, final ZonedDateTime settlementDate, final double strikePrice,
       final Currency currency, final double unitAmount, final ExternalId underlying) {
     super(expiryDate, settlementDate, strikePrice, currency, unitAmount, underlying);
   }
@@ -70,7 +69,7 @@ public class EquityIndexFutureDefinition extends IndexFutureDefinition {
     final EquityIndexFuture newDeriv = new EquityIndexFuture(timeToFixing, timeToDelivery, referencePrice, getCurrency(), getUnitAmount());
     return newDeriv;
   }
-  
+
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     ArgumentChecker.notNull(visitor, "visitor");
@@ -93,7 +92,7 @@ public class EquityIndexFutureDefinition extends IndexFutureDefinition {
     if (this == obj) {
       return true;
     }
-    if (!(obj instanceof MetalFutureDefinition)) {
+    if (!(obj instanceof EquityIndexFutureDefinition)) {
       return false;
     }
     return super.equals(obj);

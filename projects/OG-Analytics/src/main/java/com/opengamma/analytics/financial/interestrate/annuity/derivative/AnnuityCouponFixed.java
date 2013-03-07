@@ -123,7 +123,7 @@ public class AnnuityCouponFixed extends Annuity<CouponFixed> {
         list.add(payment);
       }
     }
-    return new AnnuityCouponFixed(list.toArray(new CouponFixed[0]));
+    return new AnnuityCouponFixed(list.toArray(new CouponFixed[list.size()]));
   }
 
   /**
@@ -139,7 +139,7 @@ public class AnnuityCouponFixed extends Annuity<CouponFixed> {
         list.add(payment);
       }
     }
-    return new AnnuityCouponFixed(list.toArray(new CouponFixed[0]));
+    return new AnnuityCouponFixed(list.toArray(new CouponFixed[list.size()]));
   }
 
   /**

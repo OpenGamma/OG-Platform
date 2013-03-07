@@ -37,17 +37,17 @@ public class SimpleParameterSensitivityParameterCalculator<DATA_TYPE extends Par
   public SimpleParameterSensitivity pointToParameterSensitivity(final MulticurveSensitivity sensitivity, final DATA_TYPE parameterMulticurves, final Set<String> curvesSet) {
     SimpleParameterSensitivity result = new SimpleParameterSensitivity();
     // YieldAndDiscount
-    Map<String, List<DoublesPair>> sensitivityDsc = sensitivity.getYieldDiscountingSensitivities();
-    for (final String name : sensitivityDsc.keySet()) {
-      if (curvesSet.contains(name)) {
-        result = result.plus(name, new DoubleMatrix1D(parameterMulticurves.getMulticurveProvider().parameterSensitivity(name, sensitivityDsc.get(name))));
+    final Map<String, List<DoublesPair>> sensitivityDsc = sensitivity.getYieldDiscountingSensitivities();
+    for (final Map.Entry<String, List<DoublesPair>> entry : sensitivityDsc.entrySet()) {
+      if (curvesSet.contains(entry.getKey())) {
+        result = result.plus(entry.getKey(), new DoubleMatrix1D(parameterMulticurves.getMulticurveProvider().parameterSensitivity(entry.getKey(), entry.getValue())));
       }
     }
     // Forward
-    Map<String, List<ForwardSensitivity>> sensitivityFwd = sensitivity.getForwardSensitivities();
-    for (final String name : sensitivityFwd.keySet()) {
-      if (curvesSet.contains(name)) {
-        result = result.plus(name, new DoubleMatrix1D(parameterMulticurves.getMulticurveProvider().parameterForwardSensitivity(name, sensitivityFwd.get(name))));
+    final Map<String, List<ForwardSensitivity>> sensitivityFwd = sensitivity.getForwardSensitivities();
+    for (final Map.Entry<String, List<ForwardSensitivity>> entry : sensitivityFwd.entrySet()) {
+      if (curvesSet.contains(entry.getKey())) {
+        result = result.plus(entry.getKey(), new DoubleMatrix1D(parameterMulticurves.getMulticurveProvider().parameterForwardSensitivity(entry.getKey(), entry.getValue())));
       }
     }
     return result;

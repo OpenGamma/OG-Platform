@@ -58,8 +58,8 @@ public class AnnuityCouponIborRatchetHullWhiteMethodTest {
   private static final Calendar CALENDAR = EURIBOR3M.getCalendar();
   private static final Currency CUR = EURIBOR3M.getCurrency();
 
-  public static final String NOT_USED = "Not used";
-  public static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
+  private static final String NOT_USED = "Not used";
+  private static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 9, 5);
 
