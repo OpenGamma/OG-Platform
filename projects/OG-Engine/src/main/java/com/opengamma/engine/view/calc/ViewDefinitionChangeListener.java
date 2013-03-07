@@ -15,16 +15,16 @@ import com.opengamma.id.UniqueId;
  */
 public class ViewDefinitionChangeListener implements ChangeListener {
 
-  private final ViewComputationJob _computationJob;
+  private final Runnable _dirtyViewDefinition;
   private final UniqueId _viewDefinitionId;
 
-  public ViewDefinitionChangeListener(ViewComputationJob computationJob, UniqueId viewDefinitionId) {
-    _computationJob = computationJob;
+  public ViewDefinitionChangeListener(Runnable dirtyViewDefinition, UniqueId viewDefinitionId) {
+    _dirtyViewDefinition = dirtyViewDefinition;
     _viewDefinitionId = viewDefinitionId;
   }
 
   @Override
-  public void entityChanged(ChangeEvent event) { 
+  public void entityChanged(ChangeEvent event) {
     if (getViewDefinitionId().isVersioned()) {
       // TODO: probably still interested in corrections, but would need to update the computation job with the new ID
       // Locked to a specific version
@@ -39,7 +39,7 @@ public class ViewDefinitionChangeListener implements ChangeListener {
       return;
     }
     if (event.getType().equals(ChangeType.CHANGED)) {
-      getViewComputationJob().dirtyViewDefinition();
+      getAction().run();
     }
   }
 
@@ -47,8 +47,8 @@ public class ViewDefinitionChangeListener implements ChangeListener {
     return _viewDefinitionId;
   }
 
-  private ViewComputationJob getViewComputationJob() {
-    return _computationJob;
+  private Runnable getAction() {
+    return _dirtyViewDefinition;
   }
 
 }

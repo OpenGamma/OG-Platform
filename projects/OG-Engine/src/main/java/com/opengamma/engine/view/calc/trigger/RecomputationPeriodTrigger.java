@@ -5,8 +5,8 @@
  */
 package com.opengamma.engine.view.calc.trigger;
 
+import com.google.common.base.Supplier;
 import com.opengamma.engine.view.ViewDefinition;
-import com.opengamma.engine.view.calc.ViewComputationJob;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -15,19 +15,19 @@ import com.opengamma.util.ArgumentChecker;
 public class RecomputationPeriodTrigger implements ViewCycleTrigger {
 
   private static final long NANOS_PER_MILLISECOND = 1000000;
-  
-  private final ViewComputationJob _viewComputationJob;
-  
+
+  private final Supplier<ViewDefinition> _viewDefinition;
+
   private long _eligibleForDeltaComputationFromNanos = Long.MIN_VALUE;
   private long _deltaComputationRequiredByNanos = Long.MIN_VALUE;
   private long _eligibleForFullComputationFromNanos = Long.MIN_VALUE;
   private long _fullComputationRequiredByNanos = Long.MIN_VALUE;
-  
-  public RecomputationPeriodTrigger(ViewComputationJob viewComputationJob) {
-    ArgumentChecker.notNull(viewComputationJob, "viewComputationJob");
-    _viewComputationJob = viewComputationJob;
+
+  public RecomputationPeriodTrigger(Supplier<ViewDefinition> viewDefinition) {
+    ArgumentChecker.notNull(viewDefinition, "viewComputationJob");
+    _viewDefinition = viewDefinition;
   }
-  
+
   @Override
   public ViewCycleTriggerResult query(long cycleTimeNanos) {
     if (_fullComputationRequiredByNanos < cycleTimeNanos) {
@@ -36,7 +36,7 @@ public class RecomputationPeriodTrigger implements ViewCycleTrigger {
     if (_deltaComputationRequiredByNanos < cycleTimeNanos) {
       return new ViewCycleTriggerResult(ViewCycleEligibility.FORCE, ViewCycleType.DELTA);
     }
-    
+
     long nanosWhenRequired = Math.min(_fullComputationRequiredByNanos, _deltaComputationRequiredByNanos);
     if (_eligibleForFullComputationFromNanos < cycleTimeNanos) {
       return new ViewCycleTriggerResult(ViewCycleEligibility.ELIGIBLE, ViewCycleType.FULL, nanosWhenRequired);
@@ -44,7 +44,7 @@ public class RecomputationPeriodTrigger implements ViewCycleTrigger {
     if (_eligibleForDeltaComputationFromNanos < cycleTimeNanos) {
       return new ViewCycleTriggerResult(ViewCycleEligibility.ELIGIBLE, ViewCycleType.DELTA, nanosWhenRequired);
     }
-    
+
     long nanosWhenEligible = Math.min(_eligibleForDeltaComputationFromNanos, _eligibleForFullComputationFromNanos);
     return ViewCycleTriggerResult.preventUntil(nanosWhenEligible);
   }
@@ -53,7 +53,7 @@ public class RecomputationPeriodTrigger implements ViewCycleTrigger {
   public void cycleTriggered(long cycleTimeNanos, ViewCycleType cycleType) {
     updateComputationTimes(cycleTimeNanos, cycleType == ViewCycleType.DELTA);
   }
-  
+
   @Override
   public String toString() {
     return "RecomputationPeriodTrigger[eligibleForDeltaFrom=" + _eligibleForDeltaComputationFromNanos +
@@ -63,19 +63,19 @@ public class RecomputationPeriodTrigger implements ViewCycleTrigger {
 
   //-------------------------------------------------------------------------
   private ViewDefinition getViewDefinition() {
-    return _viewComputationJob.getViewDefinition();
+    return _viewDefinition.get();
   }
-  
+
   private void updateComputationTimes(long currentNanos, boolean deltaOnly) {
     _eligibleForDeltaComputationFromNanos = getUpdatedTime(currentNanos, getViewDefinition().getMinDeltaCalculationPeriod(), 0);
     _deltaComputationRequiredByNanos = getUpdatedTime(currentNanos, getViewDefinition().getMaxDeltaCalculationPeriod(), Long.MAX_VALUE);
-    
+
     if (!deltaOnly) {
       _eligibleForFullComputationFromNanos = getUpdatedTime(currentNanos, getViewDefinition().getMinFullCalculationPeriod(), 0);
       _fullComputationRequiredByNanos = getUpdatedTime(currentNanos, getViewDefinition().getMaxFullCalculationPeriod(), Long.MAX_VALUE);
     }
   }
-  
+
   private long getUpdatedTime(long currentNanos, Long computationPeriod, long nullEquivalent) {
     if (computationPeriod == null) {
       return nullEquivalent;
@@ -84,5 +84,5 @@ public class RecomputationPeriodTrigger implements ViewCycleTrigger {
     // Check for overflow
     return result < currentNanos ? Long.MAX_VALUE : result;
   }
-  
+
 }

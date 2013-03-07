@@ -346,10 +346,6 @@ public class ViewProcessorTestEnvironment {
     return viewProcess.getComputationJob();
   }
 
-  public Thread getCurrentComputationThread(final ViewProcessImpl viewProcess) {
-    return viewProcess.getComputationThread();
-  }
-
   public static ComputationTargetSpecification getPrimitiveTarget() {
     return s_primitiveTarget;
   }

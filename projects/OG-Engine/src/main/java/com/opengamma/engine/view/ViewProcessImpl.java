@@ -23,6 +23,7 @@ import com.opengamma.engine.marketdata.MarketDataPermissionProvider;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.calc.EngineResourceManagerInternal;
 import com.opengamma.engine.view.calc.SingleComputationCycle;
+import com.opengamma.engine.view.calc.SingleThreadViewComputationJob;
 import com.opengamma.engine.view.calc.ViewComputationJob;
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.calc.ViewCycleMetadata;
@@ -66,7 +67,6 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
   private volatile ViewProcessState _state = ViewProcessState.STOPPED;
 
   private volatile ViewComputationJob _computationJob;
-  private volatile Thread _computationThread;
 
   private final ExecutionLogModeSource _executionLogModeSource = new ExecutionLogModeSource();
 
@@ -76,18 +76,18 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
 
   /**
    * Constructs an instance.
-   *
-   * @param viewProcessId  the unique identifier of the view process, not null
-   * @param viewDefinitionId  the name of the view definition, not null
-   * @param executionOptions  the view execution options, not null
-   * @param viewProcessContext  the process context, not null
-   * @param viewProcessor  the parent view processor, not null
-   * @param cycleManager  the view cycle manager, not null
-   * @param cycleObjectId  the object identifier of cycles, not null
+   * 
+   * @param viewProcessId the unique identifier of the view process, not null
+   * @param viewDefinitionId the name of the view definition, not null
+   * @param executionOptions the view execution options, not null
+   * @param viewProcessContext the process context, not null
+   * @param viewProcessor the parent view processor, not null
+   * @param cycleManager the view cycle manager, not null
+   * @param cycleObjectId the object identifier of cycles, not null
    */
   public ViewProcessImpl(final UniqueId viewProcessId, final UniqueId viewDefinitionId, final ViewExecutionOptions executionOptions,
-                         final ViewProcessContext viewProcessContext, final ViewProcessorImpl viewProcessor,
-                         final EngineResourceManagerInternal<SingleComputationCycle> cycleManager, final ObjectId cycleObjectId) {
+      final ViewProcessContext viewProcessContext, final ViewProcessorImpl viewProcessor,
+      final EngineResourceManagerInternal<SingleComputationCycle> cycleManager, final ObjectId cycleObjectId) {
     ArgumentChecker.notNull(viewProcessId, "viewProcessId");
     ArgumentChecker.notNull(viewDefinitionId, "viewDefinitionId");
     ArgumentChecker.notNull(executionOptions, "executionOptions");
@@ -139,7 +139,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
     // Must go through the view processor to prevent a client being attached to the terminated view process
     _viewProcessor.shutdownViewProcess(_viewProcessId);
   }
-  
+
   protected void shutdownCore() {
     // Caller MUST NOT hold the semaphore
     final boolean isInterrupting;
@@ -195,23 +195,17 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
     // Caller MUST NOT hold the semaphore
     s_logger.info("Suspending view process {}", getUniqueId());
     lock();
-    if (getComputationJob() != null) {
+    final ViewComputationJob job = getComputationJob();
+    if (job != null) {
       s_logger.debug("Suspending calculation job");
-      getComputationJob().terminate();
-      if (getComputationThread().getState() == Thread.State.TIMED_WAITING) {
-        // In this case it might be waiting on a recalculation pass. Interrupt it.
-        s_logger.debug("Interrupting calculation job thread");
-        getComputationThread().interrupt();
-      }
       setComputationJob(null);
+      job.terminate();
       try {
-        s_logger.debug("Waiting for calculation thread to finish");
-        getComputationThread().join();
+        s_logger.debug("Waiting for calculation thread(s) to finish");
+        job.join();
       } catch (final InterruptedException e) {
-        s_logger.warn("Interrupted waiting for calculation thread");
+        s_logger.warn("Interrupted waiting for calculation thread(s)");
         throw new OpenGammaRuntimeException("Couldn't suspend view process", e);
-      } finally {
-        setComputationThread(null);
       }
     }
     s_logger.info("View process {} suspended", getUniqueId());
@@ -238,7 +232,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
   //-------------------------------------------------------------------------
   /**
    * Gets the execution log mode source.
-   *
+   * 
    * @return the execution log mode source, not null
    */
   public ExecutionLogModeSource getExecutionLogModeSource() {
@@ -439,7 +433,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
 
   /**
    * Sets the current view process state.
-   *
+   * 
    * @param state the new view process state
    */
   private void setState(final ViewProcessState state) {
@@ -450,7 +444,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
    * Sets the current view computation job.
    * <p>
    * External visibility for testing.
-   *
+   * 
    * @return the current view computation job
    */
   public ViewComputationJob getComputationJob() {
@@ -459,31 +453,11 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
 
   /**
    * Sets the current computation job
-   *
+   * 
    * @param computationJob the current computation job
    */
   private void setComputationJob(final ViewComputationJob computationJob) {
     _computationJob = computationJob;
-  }
-
-  /**
-   * Gets the current computation job's thread
-   * <p>
-   * External visibility for testing.
-   *
-   * @return the current computation job thread
-   */
-  public Thread getComputationThread() {
-    return _computationThread;
-  }
-
-  /**
-   * Sets the current computation job's thread
-   *
-   * @param computationJobThread the current computation job thread
-   */
-  private void setComputationThread(final Thread computationJobThread) {
-    _computationThread = computationJobThread;
   }
 
   private ViewProcessContext getProcessContext() {
@@ -498,7 +472,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
    * Attaches a listener to the view process.
    * <p>
    * The method operates with set semantics, so duplicate notifications for the same listener have no effect.
-   *
+   * 
    * @param listener the listener, not null
    * @return the permission provider for the process, not null
    */
@@ -556,7 +530,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
    * Removes a listener from the view process. Removal of the last listener generating execution demand will cause the process to stop.
    * <p>
    * The method operates with set semantics, so duplicate notifications for the same listener have no effect.
-   *
+   * 
    * @param listener the listener, not null
    */
   public void detachListener(final ViewResultListener listener) {
@@ -589,12 +563,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
   private void startComputationJobImpl() {
     // Caller MUST hold the semaphore
     try {
-      final ViewComputationJob computationJob = new ViewComputationJob(this, _executionOptions, getProcessContext(), getCycleManager());
-      final Thread computationJobThread = new Thread(computationJob, "Computation job for " + this);
-
-      setComputationJob(computationJob);
-      setComputationThread(computationJobThread);
-      computationJobThread.start();
+      setComputationJob(new SingleThreadViewComputationJob(this, _executionOptions, getProcessContext(), getCycleManager()));
     } catch (final Exception e) {
       // Roll-back
       terminateComputationJob();
@@ -648,22 +617,16 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
   }
 
   private void terminateComputationJob() {
-    if (getComputationJob() == null) {
+    final ViewComputationJob job = getComputationJob();
+    if (job == null) {
       return;
     }
-
-    getComputationJob().terminate();
-    if (getComputationThread().getState() == Thread.State.TIMED_WAITING) {
-      // In this case it might be waiting for the next computation cycle to commence. Interrupt it.
-      getComputationThread().interrupt();
-    }
-
+    job.terminate();
     // Let go of the job/thread and allow it to die on its own. A computation cycle might be taking place on this
     // thread, but it will not update the view process with its result because it has been terminated. As far as the
     // view process is concerned, live computation has now stopped, and it may be started again immediately in a new
-    // thread. There is no need to slow things down by waiting for the thread to die.
+    // thread. There is no need to slow things down by attempting to join the job.
     setComputationJob(null);
-    setComputationThread(null);
   }
 
 }

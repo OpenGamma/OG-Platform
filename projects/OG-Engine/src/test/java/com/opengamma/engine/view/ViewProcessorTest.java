@@ -31,6 +31,7 @@ import org.threeten.bp.Instant;
 import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.engine.test.ViewProcessorTestEnvironment;
 import com.opengamma.engine.view.calc.EngineResourceReference;
+import com.opengamma.engine.view.calc.ViewComputationJob;
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.calc.ViewResultListenerFactory;
 import com.opengamma.engine.view.client.ViewClient;
@@ -94,9 +95,9 @@ public class ViewProcessorTest {
   private void waitForCompletionAndShutdown(final ViewProcessorImpl vp, final ViewClient client, final ViewProcessorTestEnvironment env) throws InterruptedException {
     client.waitForCompletion();
     // Note: notification of client completion happens before the client computation thread terminates and performs its postRunCycle - must wait for this to happen
-    final Thread computationThread = env.getCurrentComputationThread(env.getViewProcess(vp, client.getUniqueId()));
+    final ViewComputationJob job = env.getCurrentComputationJob(env.getViewProcess(vp, client.getUniqueId()));
     client.shutdown();
-    computationThread.join();
+    job.join();
   }
 
   @Test
@@ -169,10 +170,10 @@ public class ViewProcessorTest {
     listener.awaitCycles(10 * Timeout.standardTimeoutMillis());
 
     final ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
-    final Thread computationThread = env.getCurrentComputationThread(viewProcess);
+    final ViewComputationJob job = env.getCurrentComputationJob(viewProcess);
 
     client.shutdown();
-    computationThread.join();
+    job.join();
 
     assertEquals(0, vp.getViewCycleManager().getResourceCount());
   }

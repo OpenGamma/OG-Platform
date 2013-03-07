@@ -59,9 +59,9 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.test.Timeout;
 
 /**
- * Tests {@link ViewComputationJob}
+ * Tests {@link SingleThreadViewComputationJob}
  */
-public class ViewComputationJobTest {
+public class SingleThreadViewComputationJobTest {
 
   private static final long TIMEOUT = 5L * Timeout.standardTimeoutMillis();
 
@@ -102,13 +102,13 @@ public class ViewComputationJobTest {
     resultListener.assertCycleCompleted(TIMEOUT);
 
     final ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
-    final Thread recalcThread = env.getCurrentComputationThread(viewProcess);
+    final SingleThreadViewComputationJob job = (SingleThreadViewComputationJob) env.getCurrentComputationJob(viewProcess);
+    final Thread recalcThread = job.getThread();
     assertThreadReachesState(recalcThread, Thread.State.TIMED_WAITING);
 
     // We're now 'between cycles', waiting for the arrival of live data.
     // Interrupting should terminate the job gracefully
-    final ViewComputationJob job = env.getCurrentComputationJob(viewProcess);
-    job.terminate();
+    job.getJob().terminate();
     recalcThread.interrupt();
 
     recalcThread.join(TIMEOUT);
@@ -137,7 +137,7 @@ public class ViewComputationJobTest {
     resultListener.assertViewDefinitionCompiled(TIMEOUT);
 
     final ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
-    final Thread recalcThread = env.getCurrentComputationThread(viewProcess);
+    final Thread recalcThread = ((SingleThreadViewComputationJob) env.getCurrentComputationJob(viewProcess)).getThread();
     assertThreadReachesState(recalcThread, Thread.State.TIMED_WAITING);
 
     underlyingProvider.addValue(ViewProcessorTestEnvironment.getPrimitive1(), 123d);

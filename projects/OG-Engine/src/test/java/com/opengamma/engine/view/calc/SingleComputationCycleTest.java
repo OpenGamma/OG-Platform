@@ -36,75 +36,73 @@ import com.opengamma.util.test.Timeout;
 public class SingleComputationCycleTest {
 
   private static final long TIMEOUT = Timeout.standardTimeoutMillis();
-  
+
   public void testInterruptCycle() throws InterruptedException {
     ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
     BlockingDependencyGraphExecutorFactory dgef = new BlockingDependencyGraphExecutorFactory(TIMEOUT);
     env.setDependencyGraphExecutorFactory(dgef);
     env.init();
-    
+
     ViewProcessorImpl vp = env.getViewProcessor();
     vp.start();
-    
+
     ViewClient client = vp.createViewClient(UserPrincipal.getTestUser());
     client.attachToViewProcess(env.getViewDefinition().getUniqueId(), ExecutionOptions.infinite(MarketData.live()));
-    
+
     BlockingDependencyGraphExecutor executor = dgef.getExecutorInstance();
-    assertTrue (executor.awaitFirstRun(TIMEOUT));
-    
+    assertTrue(executor.awaitFirstRun(TIMEOUT));
+
     // We're now blocked in the execution of the initial cycle
     assertFalse(executor.wasInterrupted());
-    
+
     // Interrupting should cause everything to terminate gracefully
     ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
     ViewComputationJob recalcJob = env.getCurrentComputationJob(viewProcess);
-    Thread recalcThread = env.getCurrentComputationThread(viewProcess);
     recalcJob.terminate();
-    recalcThread.interrupt();
-    recalcThread.join(TIMEOUT);
-    for (int i = 0; (i < TIMEOUT / 10) && !executor.wasInterrupted (); i++) {
-      Thread.sleep (10);
+    recalcJob.join(TIMEOUT);
+    for (int i = 0; (i < TIMEOUT / 10) && !executor.wasInterrupted(); i++) {
+      Thread.sleep(10);
     }
     assertTrue(executor.wasInterrupted());
   }
-  
+
   private class BlockingDependencyGraphExecutorFactory implements DependencyGraphExecutorFactory<ExecutionResult> {
 
     private final BlockingDependencyGraphExecutor _instance;
-    
+
     public BlockingDependencyGraphExecutorFactory(long timeoutMillis) {
       _instance = new BlockingDependencyGraphExecutor(timeoutMillis);
     }
-    
+
     @Override
     public DependencyGraphExecutor<ExecutionResult> createExecutor(SingleComputationCycle cycle) {
       return _instance;
     }
-    
+
     public BlockingDependencyGraphExecutor getExecutorInstance() {
       return _instance;
     }
-    
+
   }
-  
+
   private class BlockingDependencyGraphExecutor implements DependencyGraphExecutor<ExecutionResult> {
 
     private final long _timeout;
     private final CountDownLatch _firstRunLatch = new CountDownLatch(1);
-    private final AtomicBoolean _wasInterrupted = new AtomicBoolean ();
-    
+    private final AtomicBoolean _wasInterrupted = new AtomicBoolean();
+
     public BlockingDependencyGraphExecutor(long timeoutMillis) {
       _timeout = timeoutMillis;
     }
-    
+
     public boolean awaitFirstRun(long timeoutMillis) throws InterruptedException {
       return _firstRunLatch.await(timeoutMillis, TimeUnit.MILLISECONDS);
     }
-    
+
     public boolean wasInterrupted() {
-      return _wasInterrupted.get ();
+      return _wasInterrupted.get();
     }
-    
+
     @Override
     public Future<ExecutionResult> execute(DependencyGraph graph, final Queue<ExecutionResult> calcJobResultQueue,
         GraphExecutorStatisticsGatherer statistics, ExecutionLogModeSource logModeSource) {
@@ -115,7 +113,7 @@ public class SingleComputationCycleTest {
           try {
             Thread.sleep(_timeout);
           } catch (InterruptedException e) {
-            _wasInterrupted.set (true);
+            _wasInterrupted.set(true);
           }
         }
       }, null);
@@ -123,7 +121,7 @@ public class SingleComputationCycleTest {
       new Thread(future).start();
       return future;
     }
-    
+
   }
-  
+
 }

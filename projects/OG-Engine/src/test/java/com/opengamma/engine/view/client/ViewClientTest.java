@@ -57,6 +57,7 @@ import com.opengamma.engine.view.ViewProcessImpl;
 import com.opengamma.engine.view.ViewProcessState;
 import com.opengamma.engine.view.ViewProcessorImpl;
 import com.opengamma.engine.view.ViewResultModel;
+import com.opengamma.engine.view.calc.SingleThreadViewComputationJob;
 import com.opengamma.engine.view.calc.ViewComputationJob;
 import com.opengamma.engine.view.execution.ExecutionOptions;
 import com.opengamma.engine.view.listener.CycleStartedCall;
@@ -494,27 +495,19 @@ public class ViewClientTest {
     final ViewProcessImpl viewProcess1 = env.getViewProcess(vp, client.getUniqueId());
 
     final ViewComputationJob recalcJob1 = env.getCurrentComputationJob(viewProcess1);
-    final Thread recalcThread1 = env.getCurrentComputationThread(viewProcess1);
     assertFalse(recalcJob1.isTerminated());
-    assertTrue(recalcThread1.isAlive());
 
     client.detachFromViewProcess();
     client.attachToViewProcess(env.getViewDefinition().getUniqueId(), ExecutionOptions.infinite(MarketData.live()));
     final ViewProcessImpl viewProcess2 = env.getViewProcess(vp, client.getUniqueId());
     final ViewComputationJob recalcJob2 = env.getCurrentComputationJob(viewProcess2);
-    final Thread recalcThread2 = env.getCurrentComputationThread(viewProcess2);
 
     assertFalse(viewProcess1 == viewProcess2);
-    assertTrue(recalcJob1.isTerminated());
-    assertFalse(recalcJob2.isTerminated());
-
-    recalcThread1.join(TIMEOUT);
-    assertFalse(recalcThread1.isAlive());
-    assertTrue(recalcThread2.isAlive());
+    assertTrue(recalcJob1.join(TIMEOUT));
 
     vp.stop();
 
-    assertTrue(recalcJob2.isTerminated());
+    assertTrue(recalcJob2.join(TIMEOUT));
   }
 
   //-------------------------------------------------------------------------
@@ -659,7 +652,8 @@ public class ViewClientTest {
     assertNotNull(log3.getLogs());
 
     // Force a full cycle - should *not* reuse any previous result, so back to indicators only
-    recalcJob.dirtyViewDefinition();
+    // TODO: [PLAT-3186] This is bad; it is coupled to the SingleThreadViewComputationJob and future optimizations will not mean a full cycle happens just because "dirty" got called.
+    ((SingleThreadViewComputationJob) recalcJob).dirtyViewDefinition();
     recalcJob.triggerCycle();
 
     resultListener.assertViewDefinitionCompiled(TIMEOUT);
