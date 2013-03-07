@@ -27,7 +27,7 @@ import com.opengamma.util.timeseries.localdate.LocalDateObjectTimeSeries;
  * Result object holding the time series bundles produced by {@link ViewEvaluationFunction}.
  */
 @SuppressWarnings("rawtypes")
-public final class ViewEvaluationResult implements Serializable {
+public final class HistoricalViewEvaluationResult implements Serializable {
 
   private static final long serialVersionUID = 1L;
 
@@ -83,8 +83,8 @@ public final class ViewEvaluationResult implements Serializable {
     return msg;
   }
 
-  public static ViewEvaluationResult fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
-    final ViewEvaluationResult result = new ViewEvaluationResult();
+  public static HistoricalViewEvaluationResult fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
+    final HistoricalViewEvaluationResult result = new HistoricalViewEvaluationResult();
     final Queue<Object> queue = new LinkedList<Object>();
     boolean requirements = false;
     for (final FudgeField field : msg) {

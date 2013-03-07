@@ -90,7 +90,8 @@ public class InflationDiscountBuildingRepository {
    */
   private Pair<InflationProviderDiscount, Double[]> makeUnit(InstrumentDerivative[] instruments, double[] initGuess, final InflationProviderDiscount knownData,
       final LinkedHashMap<String, IndexPrice[]> inflationMap, final LinkedHashMap<String, GeneratorPriceIndexCurve> generatorsMap,
-      final InstrumentDerivativeVisitor<InflationProviderInterface, Double> calculator, final InstrumentDerivativeVisitor<InflationProviderInterface, InflationSensitivity> sensitivityCalculator) {
+      final InstrumentDerivativeVisitor<InflationProviderInterface, Double> calculator, final InstrumentDerivativeVisitor<InflationProviderInterface, InflationSensitivity> sensitivityCalculator)
+  {
     final GeneratorInflationProviderDiscount generator = new GeneratorInflationProviderDiscount(knownData, inflationMap, generatorsMap);
     final InflationDiscountBuildingData data = new InflationDiscountBuildingData(instruments, generator);
     final Function1D<DoubleMatrix1D, DoubleMatrix1D> curveCalculator = new InflationDiscountFinderFunction(calculator, data);
@@ -98,7 +99,7 @@ public class InflationDiscountBuildingRepository {
         data);
     //    final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new MulticurveDiscountFinderJacobian(
     //                new ParameterSensitivityMatrixMulticurveCalculator(sensitivityCalculator), data); // TODO
-    final double[] parameters = _rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(initGuess)).getData();
+    final double[] parameters = _rootFinder.getRoot(curveCalculator, new DoubleMatrix1D(initGuess)).getData();
     final InflationProviderDiscount newCurves = data.getGeneratorMarket().evaluate(new DoubleMatrix1D(parameters));
     return new ObjectsPair<InflationProviderDiscount, Double[]>(newCurves, ArrayUtils.toObject(parameters));
   }
@@ -161,7 +162,9 @@ public class InflationDiscountBuildingRepository {
       String[][] curveNames,
       double[][] parametersGuess, InflationProviderDiscount knownData, final LinkedHashMap<String, IndexPrice[]> inflationMap,
       final InstrumentDerivativeVisitor<InflationProviderInterface, Double> calculator,
-      final InstrumentDerivativeVisitor<InflationProviderInterface, InflationSensitivity> sensitivityCalculator) {
+      final InstrumentDerivativeVisitor<InflationProviderInterface, InflationSensitivity> sensitivityCalculator)
+
+  {
     int nbUnits = curveGenerators.length;
     InflationProviderDiscount knownSoFarData = knownData.copy();
     List<InstrumentDerivative> instrumentsSoFar = new ArrayList<InstrumentDerivative>();
@@ -195,9 +198,11 @@ public class InflationDiscountBuildingRepository {
       }
       Pair<InflationProviderDiscount, Double[]> unitCal = makeUnit(instrumentsUnit, parametersGuess[loopunit], knownSoFarData, inflationMap, gen, calculator,
           sensitivityCalculator);
+
       parametersSoFar.addAll(Arrays.asList(unitCal.getSecond()));
       DoubleMatrix2D[] mat = makeCurveMatrix(instrumentsSoFarArray, startUnit, nbIns, parametersSoFar.toArray(new Double[0]), knownData, inflationMap, generatorsSoFar,
           sensitivityCalculator);
+
       for (int loopcurve = 0; loopcurve < curveGenerators[loopunit].length; loopcurve++) {
         unitBundleSoFar.put(curveNames[loopunit][loopcurve], new ObjectsPair<CurveBuildingBlock, DoubleMatrix2D>(new CurveBuildingBlock(unitMap), mat[loopcurve]));
       }

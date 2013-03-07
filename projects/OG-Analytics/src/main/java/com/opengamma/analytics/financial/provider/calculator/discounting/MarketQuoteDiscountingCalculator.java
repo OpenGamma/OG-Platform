@@ -45,6 +45,8 @@ public final class MarketQuoteDiscountingCalculator extends InstrumentDerivative
     return derivative.accept(this, multicurves);
   }
 
+  // TODO: Add FRA, IRS, FX forward, FX swap
+
   //     -----     Futures     -----
 
   @Override

@@ -137,8 +137,8 @@ import com.opengamma.util.timeseries.localdate.LocalDateObjectTimeSeries;
       }
     }
 
-    public ViewEvaluationResult makeResult() {
-      final ViewEvaluationResult results = new ViewEvaluationResult();
+    public HistoricalViewEvaluationResult makeResult() {
+      final HistoricalViewEvaluationResult results = new HistoricalViewEvaluationResult();
       for (final Map.Entry<ValueRequirement, TimeSeriesBuilder> result : _results.entrySet()) {
         results.addTimeSeries(result.getKey(), result.getValue().makeTimeSeries());
       }
@@ -175,8 +175,8 @@ import com.opengamma.util.timeseries.localdate.LocalDateObjectTimeSeries;
     }
   }
 
-  public Map<String, ViewEvaluationResult> getResults() {
-    final Map<String, ViewEvaluationResult> results = Maps.newHashMapWithExpectedSize(_results.size());
+  public Map<String, HistoricalViewEvaluationResult> getResults() {
+    final Map<String, HistoricalViewEvaluationResult> results = Maps.newHashMapWithExpectedSize(_results.size());
     for (final Map.Entry<String, ConfigurationResults> result : _results.entrySet()) {
       results.put(result.getKey(), result.getValue().makeResult());
     }

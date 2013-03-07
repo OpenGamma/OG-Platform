@@ -52,8 +52,7 @@ import com.opengamma.util.async.AsynchronousOperation;
 import com.opengamma.util.async.ResultCallback;
 
 /**
- * Runs an arbitrary execution sequence on a view definition to produce values for one or more targets. The job is encoded into a {@link ViewEvaluationTarget}. The results are written as a
- * {@link ViewEvaluationResult} for each configuration and dependent nodes in the graph will extract time series appropriate to their specific targets.
+ * Runs an arbitrary execution sequence on a view definition to produce values for one or more targets. The job is encoded into a {@link ViewEvaluationTarget}.
  * 
  * @param <TTarget> the computation target type
  * @param <TResultBuilder> the type of the result builder used throughout execution
