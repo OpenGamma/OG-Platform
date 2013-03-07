@@ -116,4 +116,15 @@ public interface HibernateSecurityMasterDao {
   DebtSeniorityBean getOrCreateDebtSeniorityBean(String name);
 
   RestructuringClauseBean getOrCreateRestructuringCleanBean(String name);
+
+  // CDSI family
+  CDSIndexFamilyBean getOrCreateCDSIFamilyBean(String family);
+  
+  List<CDSIndexFamilyBean> getCDSIFamilyBeans();
+  
+  //Tenors
+  TenorBean getOrCreateTenorBean(String tenor);
+  
+  List<TenorBean> getTenorBeans();
+  
 }
