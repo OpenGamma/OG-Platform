@@ -14,7 +14,6 @@ $.register_module({
              * @param {Function} config.handler the endopoint that the form submits too
              * @param {Function} config.complete fired when the form closes after a sucessful edit/create (optional) 
              */
-             console.log(config);
             var constructor = this, $selector, form_block = '.OG-blotter-form-block', form_wrapper, title, submit,
             blotter, error_block = '.OG-blotter-error-block', complete = config.complete || $.noop;
             var validation_handler = function (result) {
