@@ -42,8 +42,8 @@ import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.temptarget.TempTarget;
 import com.opengamma.financial.temptarget.TempTargetRepository;
+import com.opengamma.financial.view.HistoricalViewEvaluationResult;
 import com.opengamma.financial.view.HistoricalViewEvaluationTarget;
-import com.opengamma.financial.view.ViewEvaluationResult;
 import com.opengamma.financial.view.ViewEvaluationTarget;
 import com.opengamma.id.ExternalBundleIdentifiable;
 import com.opengamma.id.ExternalId;
@@ -397,7 +397,7 @@ public class HistoricalValuationFunction extends AbstractFunction.NonCompiledInv
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-    final ViewEvaluationResult evaluationResult = (ViewEvaluationResult) inputs.getValue(ValueRequirementNames.HISTORICAL_TIME_SERIES);
+    final HistoricalViewEvaluationResult evaluationResult = (HistoricalViewEvaluationResult) inputs.getValue(ValueRequirementNames.HISTORICAL_TIME_SERIES);
     final Set<ComputedValue> results = Sets.newHashSetWithExpectedSize(desiredValues.size());
     final ComputationTargetSpecification targetSpec = target.toSpecification();
     for (final ValueRequirement desiredValue : desiredValues) {
