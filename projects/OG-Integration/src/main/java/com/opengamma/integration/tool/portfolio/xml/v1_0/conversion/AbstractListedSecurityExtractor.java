@@ -4,11 +4,12 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb;
+package com.opengamma.integration.tool.portfolio.xml.v1_0.conversion;
 
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import com.opengamma.id.ExternalId;
+import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.ListedSecurityDefinition;
 import com.opengamma.master.security.ManageableSecurity;
 
 public abstract class AbstractListedSecurityExtractor<T extends ListedSecurityDefinition> implements ListedSecurityExtractor {

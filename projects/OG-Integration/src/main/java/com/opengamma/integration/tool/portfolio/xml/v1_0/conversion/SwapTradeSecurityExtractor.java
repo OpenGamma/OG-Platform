@@ -7,8 +7,6 @@ package com.opengamma.integration.tool.portfolio.xml.v1_0.conversion;
 
 import java.math.BigDecimal;
 
-import org.apache.commons.lang.builder.HashCodeBuilder;
-
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -30,12 +28,25 @@ import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.SwapLeg;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.SwapTrade;
 import com.opengamma.master.security.ManageableSecurity;
 
+/**
+ * Security extractor for swap trades.
+ */
 public class SwapTradeSecurityExtractor extends TradeSecurityExtractor<SwapTrade> {
 
+  /**
+   * Create a security extractor for the supplied trade.
+   *
+   * @param trade the trade to perform extraction on
+   */
+  public SwapTradeSecurityExtractor(SwapTrade trade) {
+    super(trade);
+  }
+
   @Override
-  public ManageableSecurity[] extractSecurity(SwapTrade swapTrade) {
-    FixedLeg fixedLeg = swapTrade.getFixedLeg();
-    FloatingLeg floatingLeg = swapTrade.getFloatingLeg();
+  public ManageableSecurity[] extractSecurities() {
+
+    FixedLeg fixedLeg = _trade.getFixedLeg();
+    FloatingLeg floatingLeg = _trade.getFloatingLeg();
 
     com.opengamma.financial.security.swap.SwapLeg payLeg = fixedLeg.getDirection() == SwapLeg.Direction.PAY ?
         convertFixedLeg(fixedLeg) : convertFloatingLeg(floatingLeg);
@@ -46,25 +57,14 @@ public class SwapTradeSecurityExtractor extends TradeSecurityExtractor<SwapTrade
       throw new OpenGammaRuntimeException("One leg should be Pay and one Receive");
     }
 
-    ManageableSecurity security = new SwapSecurity(convertLocalDate(swapTrade.getTradeDate()),
-                                             convertLocalDate(swapTrade.getEffectiveDate()),
-                                             convertLocalDate(swapTrade.getMaturityDate()),
-                                             swapTrade.getCounterparty().getExternalId().getId(),
+    ManageableSecurity security = new SwapSecurity(convertLocalDate(_trade.getTradeDate()),
+                                             convertLocalDate(_trade.getEffectiveDate()),
+                                             convertLocalDate(_trade.getMaturityDate()),
+                                             _trade.getCounterparty().getExternalId().getId(),
                                              payLeg,
                                              receiveLeg);
 
-    // Generate the loader SECURITY_ID (should be uniquely identifying)
-    security.addExternalId(ExternalId.of("XML_LOADER", Integer.toHexString(
-        new HashCodeBuilder()
-            .append(security.getClass())
-            .append(swapTrade.getTradeDate())
-            .append(swapTrade.getEffectiveDate())
-            .append(swapTrade.getMaturityDate())
-            .append(floatingLeg.getFixingIndex())
-            .append(fixedLeg.getRate())
-            .toHashCode())));
-
-    return securityArray(security);
+    return securityArray(addIdentifier(security));
   }
 
   private com.opengamma.financial.security.swap.SwapLeg convertFixedLeg(FixedLeg fixedLeg) {
@@ -79,19 +79,6 @@ public class SwapTradeSecurityExtractor extends TradeSecurityExtractor<SwapTrade
     boolean isEndOfMonth = fixedLeg.isEndOfMonth();
     return new FixedInterestRateLeg(dayCount, frequency, region, businessDayConvention, notional, isEndOfMonth,
                                     convertRate(fixedLeg.getRate()));
-  }
-
-
-  private Notional extractNotional(SwapLeg floatingLeg) {
-    return new InterestRateNotional(floatingLeg.getCurrency(), floatingLeg.getNotional().doubleValue());
-  }
-
-  private ExternalId extractRegion(SwapLeg floatingLeg) {
-    return extractRegion(floatingLeg.getPaymentCalendars());
-  }
-
-  private double convertRate(BigDecimal rate) {
-    return rate.divide(new BigDecimal(100)).doubleValue();
   }
 
   private com.opengamma.financial.security.swap.SwapLeg convertFloatingLeg(FloatingLeg floatingLeg) {
@@ -111,5 +98,17 @@ public class SwapTradeSecurityExtractor extends TradeSecurityExtractor<SwapTrade
 
     return new FloatingInterestRateLeg(dayCount, frequency, region, businessDayConvention, notional, isEndOfMonth,
                                        referenceRate, rateType);
+  }
+
+  private Notional extractNotional(SwapLeg floatingLeg) {
+    return new InterestRateNotional(floatingLeg.getCurrency(), floatingLeg.getNotional().doubleValue());
+  }
+
+  private ExternalId extractRegion(SwapLeg floatingLeg) {
+    return extractRegion(floatingLeg.getPaymentCalendars());
+  }
+
+  private double convertRate(BigDecimal rate) {
+    return rate.divide(new BigDecimal(100)).doubleValue();
   }
 }

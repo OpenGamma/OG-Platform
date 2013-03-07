@@ -15,7 +15,7 @@ import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBean;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
+import com.opengamma.integration.tool.portfolio.xml.v1_0.conversion.ListedSecurityExtractor;
 import com.opengamma.util.money.Currency;
 import java.util.Map;
 import org.joda.beans.BeanBuilder;

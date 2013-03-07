@@ -4,7 +4,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb;
+package com.opengamma.integration.tool.portfolio.xml.v1_0.conversion;
 
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
@@ -12,14 +12,16 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
 import com.opengamma.id.ExternalId;
+import com.opengamma.integration.tool.portfolio.xml.v1_0.conversion.AbstractListedSecurityExtractor;
+import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.FutureSecurityDefinition;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.time.ExpiryAccuracy;
 
-public class FutureSecurityExtractor extends AbstractListedSecurityExtractor<FutureSecurityDefinition> {
+public class ListedFutureSecurityExtractor extends AbstractListedSecurityExtractor<FutureSecurityDefinition> {
 
-  public FutureSecurityExtractor(FutureSecurityDefinition securityDefinition) {
+  public ListedFutureSecurityExtractor(FutureSecurityDefinition securityDefinition) {
     super(securityDefinition);
   }
 
