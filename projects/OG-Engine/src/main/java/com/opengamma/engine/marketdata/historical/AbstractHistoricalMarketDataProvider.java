@@ -12,7 +12,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.LocalDate;
 
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesAdjustment;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -39,7 +41,13 @@ public abstract class AbstractHistoricalMarketDataProvider extends AbstractMarke
 
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractHistoricalMarketDataProvider.class);
 
+  /**
+   * The property put onto the value specifications created.
+   */
+  protected static final String NORMALIZATION_PROPERTY = "Normalization";
+
   private final HistoricalTimeSeriesSource _historicalTimeSeriesSource;
+  private final HistoricalTimeSeriesResolver _historicalTimeSeriesResolver;
   private final String _timeSeriesResolverKey;
   private final MarketDataPermissionProvider _permissionProvider;
 
@@ -47,17 +55,21 @@ public abstract class AbstractHistoricalMarketDataProvider extends AbstractMarke
    * Creates a new market data provider.
    * 
    * @param historicalTimeSeriesSource the underlying source of historical data, not null
+   * @param historicalTimeSeriesResolver the resolver to identifier historical data, not null
    * @param timeSeriesResolverKey the source resolver key, or null to use the source default
    */
-  public AbstractHistoricalMarketDataProvider(final HistoricalTimeSeriesSource historicalTimeSeriesSource, final String timeSeriesResolverKey) {
+  public AbstractHistoricalMarketDataProvider(final HistoricalTimeSeriesSource historicalTimeSeriesSource, final HistoricalTimeSeriesResolver historicalTimeSeriesResolver,
+      final String timeSeriesResolverKey) {
     ArgumentChecker.notNull(historicalTimeSeriesSource, "historicalTimeSeriesSource");
+    ArgumentChecker.notNull(historicalTimeSeriesResolver, "historicalTimeSeriesResolver");
     _historicalTimeSeriesSource = historicalTimeSeriesSource;
+    _historicalTimeSeriesResolver = historicalTimeSeriesResolver;
     _timeSeriesResolverKey = timeSeriesResolverKey;
     _permissionProvider = new PermissiveMarketDataPermissionProvider();
   }
 
-  public AbstractHistoricalMarketDataProvider(final HistoricalTimeSeriesSource historicalTimeSeriesSource) {
-    this(historicalTimeSeriesSource, null);
+  public AbstractHistoricalMarketDataProvider(final HistoricalTimeSeriesSource historicalTimeSeriesSource, final HistoricalTimeSeriesResolver historicalTimeSeriesResolver) {
+    this(historicalTimeSeriesSource, historicalTimeSeriesResolver, null);
   }
 
   @Override
@@ -96,15 +108,20 @@ public abstract class AbstractHistoricalMarketDataProvider extends AbstractMarke
 
       @Override
       protected ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final ExternalIdBundle identifiers, final ValueRequirement desiredValue) {
-        final HistoricalTimeSeries hts = _historicalTimeSeriesSource.getHistoricalTimeSeries(desiredValue.getValueName(), identifiers, date, _timeSeriesResolverKey, null, true, null, true, 0);
-        if (hts == null) {
+        HistoricalTimeSeriesResolutionResult resolved = getTimeSeriesResolver().resolve(identifiers, date, null, null, desiredValue.getValueName(), _timeSeriesResolverKey);
+        if (resolved == null) {
           if (s_logger.isDebugEnabled() && desiredValue.getValueName().equals(MarketDataRequirementNames.MARKET_VALUE)) {
             s_logger.debug("Missing market data {}", desiredValue);
           }
           return null;
         } else {
-          return new ValueSpecification(desiredValue.getValueName(), ComputationTargetSpecification.of(hts.getUniqueId()), ValueProperties
-              .with(ValuePropertyNames.FUNCTION, getSyntheticFunctionName()).get());
+          final ValueProperties.Builder properties = ValueProperties.with(ValuePropertyNames.FUNCTION, getSyntheticFunctionName());
+          if (resolved.getAdjuster() != null) {
+            final ExternalIdBundle resolvedIdentifiers = resolved.getHistoricalTimeSeriesInfo().getExternalIdBundle().toBundle(date);
+            final HistoricalTimeSeriesAdjustment adjustment = resolved.getAdjuster().getAdjustment(resolvedIdentifiers);
+            properties.with(NORMALIZATION_PROPERTY, adjustment.toString());
+          }
+          return new ValueSpecification(desiredValue.getValueName(), ComputationTargetSpecification.of(resolved.getHistoricalTimeSeriesInfo().getUniqueId()), properties.get());
         }
       }
 
@@ -133,14 +150,18 @@ public abstract class AbstractHistoricalMarketDataProvider extends AbstractMarke
       return false;
     }
     final HistoricalMarketDataSpecification historicalSpec = (HistoricalMarketDataSpecification) marketDataSpec;
-    return ObjectUtils.equals(_timeSeriesResolverKey, historicalSpec.getTimeSeriesResolverKey());
+    return ObjectUtils.equals(getTimeSeriesResolverKey(), historicalSpec.getTimeSeriesResolverKey());
   }
 
   protected HistoricalTimeSeriesSource getTimeSeriesSource() {
     return _historicalTimeSeriesSource;
   }
 
-  public String getTimeSeriesResolverKey() {
+  protected HistoricalTimeSeriesResolver getTimeSeriesResolver() {
+    return _historicalTimeSeriesResolver;
+  }
+
+  protected String getTimeSeriesResolverKey() {
     return _timeSeriesResolverKey;
   }
 

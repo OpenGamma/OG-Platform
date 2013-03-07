@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.marketdata.historical;
 
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.SingletonFactoryBean;
@@ -15,6 +16,7 @@ import com.opengamma.util.SingletonFactoryBean;
 public class LatestHistoricalMarketDataProviderFactoryFactoryBean extends SingletonFactoryBean<LatestHistoricalMarketDataProviderFactory> {
 
   private HistoricalTimeSeriesSource _timeSeriesSource;
+  private HistoricalTimeSeriesResolver _timeSeriesResolver;
 
   public HistoricalTimeSeriesSource getTimeSeriesSource() {
     return _timeSeriesSource;
@@ -24,10 +26,19 @@ public class LatestHistoricalMarketDataProviderFactoryFactoryBean extends Single
     _timeSeriesSource = timeSeriesSource;
   }
 
+  public HistoricalTimeSeriesResolver getTimeSeriesResolver() {
+    return _timeSeriesResolver;
+  }
+
+  public void setTimeSeriesResolver(final HistoricalTimeSeriesResolver timeSeriesResolver) {
+    _timeSeriesResolver = timeSeriesResolver;
+  }
+
   @Override
   protected LatestHistoricalMarketDataProviderFactory createObject() {
     ArgumentChecker.notNullInjected(getTimeSeriesSource(), "timeSeriesSource");
-    return new LatestHistoricalMarketDataProviderFactory(getTimeSeriesSource());
+    ArgumentChecker.notNullInjected(getTimeSeriesResolver(), "timeSeriesResolver");
+    return new LatestHistoricalMarketDataProviderFactory(getTimeSeriesSource(), getTimeSeriesResolver());
   }
 
 }

@@ -164,7 +164,6 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory {
     JodaBeanUtils.notNull(_classifier, "classifier");
     JodaBeanUtils.notNull(_securitySource, "securitySource");
     JodaBeanUtils.notNull(_positionSource, "positionSource");
-    JodaBeanUtils.notNull(_configSource, "configSource");
     super.validate();
   }
 
@@ -329,7 +328,7 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets the configuration source.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public ConfigSource getConfigSource() {
     return _configSource;
@@ -337,7 +336,7 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets the configuration source.
-   * @param configSource  the new value of the property, not null
+   * @param configSource  the new value of the property
    */
   public void setConfigSource(ConfigSource configSource) {
     this._configSource = configSource;

@@ -8,6 +8,7 @@ package com.opengamma.engine.marketdata.historical;
 import org.threeten.bp.Instant;
 import org.threeten.bp.LocalDate;
 
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
 import com.opengamma.engine.marketdata.spec.LatestHistoricalMarketDataSpecification;
@@ -22,20 +23,22 @@ public class LatestHistoricalMarketDataProvider extends AbstractHistoricalMarket
    * Creates an instance.
    * 
    * @param historicalTimeSeriesSource the underlying source of historical data, not null
+   * @param historicalTimeSeriesResolver the time series resolver, not null
    * @param timeSeriesResolverKey the source resolver key, or null to use the source default
    */
   protected LatestHistoricalMarketDataProvider(final HistoricalTimeSeriesSource historicalTimeSeriesSource,
-      final String timeSeriesResolverKey) {
-    super(historicalTimeSeriesSource, timeSeriesResolverKey);
+      final HistoricalTimeSeriesResolver historicalTimeSeriesResolver, final String timeSeriesResolverKey) {
+    super(historicalTimeSeriesSource, historicalTimeSeriesResolver, timeSeriesResolverKey);
   }
 
   /**
    * Creates an instance.
    * 
    * @param historicalTimeSeriesSource the underlying source of historical data, not null
+   * @param historicalTimeSeriesResolver the time series resolver, not null
    */
-  public LatestHistoricalMarketDataProvider(final HistoricalTimeSeriesSource historicalTimeSeriesSource) {
-    super(historicalTimeSeriesSource);
+  public LatestHistoricalMarketDataProvider(final HistoricalTimeSeriesSource historicalTimeSeriesSource, final HistoricalTimeSeriesResolver historicalTimeSeriesResolver) {
+    super(historicalTimeSeriesSource, historicalTimeSeriesResolver);
   }
 
   @Override

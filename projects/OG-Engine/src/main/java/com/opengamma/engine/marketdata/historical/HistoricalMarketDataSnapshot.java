@@ -11,6 +11,7 @@ import org.threeten.bp.Instant;
 import org.threeten.bp.LocalDate;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesAdjustment;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.engine.marketdata.AbstractMarketDataSnapshot;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
@@ -68,7 +69,16 @@ public class HistoricalMarketDataSnapshot extends AbstractMarketDataSnapshot {
       s_logger.info("No time-series for {}", specification);
       return null;
     }
-    return (_snapshotDate != null) ? hts.getTimeSeries().getValue(_snapshotDate) : hts.getTimeSeries().getLatestValue();
+    final Double value = (_snapshotDate != null) ? hts.getTimeSeries().getValue(_snapshotDate) : hts.getTimeSeries().getLatestValue();
+    if (value == null) {
+      return null;
+    }
+    final String normalization = specification.getProperty(AbstractHistoricalMarketDataProvider.NORMALIZATION_PROPERTY);
+    if (normalization != null) {
+      return HistoricalTimeSeriesAdjustment.parse(normalization).adjust(value);
+    } else {
+      return value;
+    }
   }
 
   //-------------------------------------------------------------------------
