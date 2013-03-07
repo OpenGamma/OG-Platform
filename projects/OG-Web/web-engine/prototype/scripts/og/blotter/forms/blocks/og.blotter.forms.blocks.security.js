@@ -23,7 +23,7 @@ $.register_module({
                 processor: function (data) {
                     if (!config.edit) {
                         var path = config.index.split('.'), last = path.pop(), 
-                            merge = data[scheme_id] + "~" + data[sec_id];
+                            merge = data[scheme_id].trim() + "~" + data[sec_id].trim();
                         path.reduce(function (acc, val) {return acc[val];}, data)[last] = merge;                        
                     }
                     delete data[sec_id];

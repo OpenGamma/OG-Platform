@@ -34,8 +34,11 @@ $.register_module({
                         'position': 'relative', 'left': '2px', 'top': '3px', 'float': 'left'
                     }).unbind('click').bind('click', function (e) {
                         e.preventDefault();
-                        new og.blotter.Dialog({portfolio:{name: position_id, id: position_id}, 
-                            handler: function (data) {return og.api.rest.blotter.positions.put(data);}
+                        og.api.rest.blotter.positions.get({id: position_id}).pipe(function (data) {
+                            new og.blotter.Dialog({
+                                details: data, portfolio:{name: position_id, id: position_id},  
+                                handler: function (data){return og.api.rest.blotter.positions.put(data);}
+                            });
                         });
                     });
                 }
