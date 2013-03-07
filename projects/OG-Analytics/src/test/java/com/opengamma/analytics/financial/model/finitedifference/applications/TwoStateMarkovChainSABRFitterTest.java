@@ -156,8 +156,8 @@ public class TwoStateMarkovChainSABRFitterTest {
   }
 
   @Test
-      (enabled = false)
-      public void test() {
+  (enabled = false)
+  public void test() {
     final DoubleMatrix1D initialGuess = new DoubleMatrix1D(new double[] {0.2, 0.3, 0.2, 2.0, 0.95, 0.8 });
     final TwoStateMarkovChainFitter fitter = new TwoStateMarkovChainFitter();
     final LeastSquareResultsWithTransform res = fitter.fit(FORWARD_CURVE, SABR_VOLS, initialGuess);
@@ -166,8 +166,8 @@ public class TwoStateMarkovChainSABRFitterTest {
 
   //TODO this test does not work for the ConvectionDiffusionPDE1DStandardCoefficients case
   @Test
-      (enabled = false)
-      public void FokkerPlankTest() {
+  (enabled = false)
+  public void fokkerPlankTest() {
     final DupireLocalVolatilityCalculator cal = new DupireLocalVolatilityCalculator(1e-4);
 
     final BlackVolatilitySurfaceStrike volSurface = new BlackVolatilitySurfaceStrike(FunctionalDoublesSurface.from(SABR_VOL_FUNCTION));
@@ -203,8 +203,8 @@ public class TwoStateMarkovChainSABRFitterTest {
 
   //TODO need to have real tests here rather than print a lot of surfaces
   @Test
-      (enabled = false)
-      public void localVolFitTest() {
+  (enabled = false)
+  public void localVolFitTest() {
     final DoubleMatrix1D initialGuess = new DoubleMatrix1D(new double[] {0.2, 0.3, 0.2, 2.0, 0.95, 0.8 });
     final TwoStateMarkovChainLocalVolFitter fitter = new TwoStateMarkovChainLocalVolFitter(true);
     fitter.fit(FORWARD_CURVE, new BlackVolatilitySurfaceStrike(FunctionalDoublesSurface.from(SABR_VOL_FUNCTION)), SABR_VOLS, initialGuess);

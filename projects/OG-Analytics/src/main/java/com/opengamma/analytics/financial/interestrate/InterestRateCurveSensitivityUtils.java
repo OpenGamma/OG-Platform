@@ -87,7 +87,7 @@ public class InterestRateCurveSensitivityUtils {
   public static Map<String, List<DoublesPair>> clean(final Map<String, List<DoublesPair>> old, final double relTol, final double absTol) {
     final Map<String, List<DoublesPair>> res = new HashMap<String, List<DoublesPair>>();
     for (final Map.Entry<String, List<DoublesPair>> entry : old.entrySet()) {
-      List<DoublesPair> cleanList = clean(entry.getValue(), relTol, absTol);
+      final List<DoublesPair> cleanList = clean(entry.getValue(), relTol, absTol);
       if (!cleanList.isEmpty()) {
         res.put(entry.getKey(), cleanList);
       }
@@ -221,9 +221,9 @@ public class InterestRateCurveSensitivityUtils {
   public static boolean compare(final Map<String, List<DoublesPair>> sensi1, final Map<String, List<DoublesPair>> sensi2, final double tolerance) {
     ArgumentChecker.notNull(sensi1, "sensitivity");
     ArgumentChecker.notNull(sensi2, "sensitivity");
-    for (final String name : sensi1.keySet()) {
-      if (sensi2.containsKey(name)) {
-        if (!compare(sensi1.get(name), sensi2.get(name), tolerance)) {
+    for (final Map.Entry<String, List<DoublesPair>> entry : sensi1.entrySet()) {
+      if (sensi2.containsKey(entry.getKey())) {
+        if (!compare(entry.getValue(), sensi2.get(entry.getKey()), tolerance)) {
           return false;
         }
       } else {

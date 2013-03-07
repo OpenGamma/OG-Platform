@@ -104,7 +104,7 @@ public abstract class SmileModelFitterTest<T extends SmileModelData> {
 
       final int n = res.getNumberOfElements();
       T data = getModelData();
-      assertEquals(data.getNumberOfparameters(), n);
+      assertEquals(data.getNumberOfParameters(), n);
       for (int i = 0; i < n; i++) {
         assertEquals(data.getParameter(i), res.getEntry(i), _paramValueEps);
       }
@@ -135,7 +135,7 @@ public abstract class SmileModelFitterTest<T extends SmileModelData> {
       assertTrue(results.getChiSq() < 7);
       final int n = res.getNumberOfElements();
       T data = getModelData();
-      assertEquals(data.getNumberOfparameters(), n);
+      assertEquals(data.getNumberOfParameters(), n);
       for (int i = 0; i < n; i++) {
         assertEquals(data.getParameter(i), res.getEntry(i), eps);
       }
@@ -208,7 +208,7 @@ public abstract class SmileModelFitterTest<T extends SmileModelData> {
 
     T data = getModelData();
 
-    final int n = data.getNumberOfparameters();
+    final int n = data.getNumberOfParameters();
     final double[] temp = new double[n];
     for (int i = 0; i < n; i++) {
       temp[i] = data.getParameter(i);

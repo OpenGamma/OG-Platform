@@ -83,7 +83,7 @@ public class CouponIborSpreadDiscountingMethodTest {
   public void presentValueNoSpreadPositivNotional() {
     final MultipleCurrencyAmount pvComputed = METHOD_CPN_IBOR_SPREAD.presentValueNoSpreadPositiveNotional(CPN_IBOR_SPREAD, PROVIDER);
     final double forward = PROVIDER.getForwardRate(EURIBOR3M, CPN_IBOR_SPREAD.getFixingPeriodStartTime(), CPN_IBOR_SPREAD.getFixingPeriodEndTime(), CPN_IBOR_SPREAD.getFixingAccrualFactor());
-    final double pvExpected = Math.abs(NOTIONAL) * CPN_IBOR_SPREAD.getPaymentYearFraction() * forward * PROVIDER.getDiscountFactor(CPN_IBOR_SPREAD.getCurrency(), CPN_IBOR_SPREAD.getPaymentTime());
+    final double pvExpected = -NOTIONAL * CPN_IBOR_SPREAD.getPaymentYearFraction() * forward * PROVIDER.getDiscountFactor(CPN_IBOR_SPREAD.getCurrency(), CPN_IBOR_SPREAD.getPaymentTime());
     assertEquals("CouponIborSpreadDiscountingMethod: present value", pvExpected, pvComputed.getAmount(EUR), TOLERANCE_PV);
   }
 

@@ -249,10 +249,10 @@ public class LocalVolatilityBackwardsPDEPricer {
     // ensure the grids are consistent
     final double[] xNodes = grid[0].getSpaceNodes();
     ArgumentChecker.isTrue(grid[0].getTimeNode(0) == 0.0, "time nodes not starting from zero");
-    ArgumentChecker.isTrue(grid[n - 1].getTimeNode(grid[n - 1].getNumTimeNodes() - 1) == t, "time nodes not ending at t");
+    ArgumentChecker.isTrue(Double.compare(grid[n - 1].getTimeNode(grid[n - 1].getNumTimeNodes() - 1), t) == 0, "time nodes not ending at t");
     for (int ii = 1; ii < n; ii++) {
       ArgumentChecker.isTrue(Arrays.equals(grid[ii].getSpaceNodes(), xNodes), "different xNodes not supported");
-      ArgumentChecker.isTrue(grid[ii - 1].getTimeNode(grid[ii - 1].getNumTimeNodes() - 1) == grid[ii].getTimeNode(0), "time nodes not consistent");
+      ArgumentChecker.isTrue(Double.compare(grid[ii - 1].getTimeNode(grid[ii - 1].getNumTimeNodes() - 1), grid[ii].getTimeNode(0)) == 0, "time nodes not consistent");
     }
 
     final double sMin = xNodes[0];

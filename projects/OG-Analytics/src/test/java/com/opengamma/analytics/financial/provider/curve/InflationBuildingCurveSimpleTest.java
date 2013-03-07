@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import org.apache.commons.io.IOUtils;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 import org.threeten.bp.Period;
@@ -115,11 +116,11 @@ public class InflationBuildingCurveSimpleTest {
   public static final double[] DSC_USD_MARKET_QUOTES = new double[] {0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400 };
   /** Generators for the dsc USD curve */
   public static final GeneratorInstrument<? extends GeneratorAttribute>[] DSC_USD_GENERATORS = new GeneratorInstrument<?>[] {GENERATOR_DEPOSIT_ON_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD,
-      GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD };
+    GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD };
   /** Tenors for the dsc USD curve */
   public static final Period[] DSC_USD_TENOR = new Period[] {DateUtils.periodOfDays(0), DateUtils.periodOfMonths(1), DateUtils.periodOfMonths(2), DateUtils.periodOfMonths(3),
-      DateUtils.periodOfMonths(6), DateUtils.periodOfMonths(9), DateUtils.periodOfYears(1),
-      DateUtils.periodOfYears(2), DateUtils.periodOfYears(3), DateUtils.periodOfYears(4), DateUtils.periodOfYears(5), DateUtils.periodOfYears(10) };
+    DateUtils.periodOfMonths(6), DateUtils.periodOfMonths(9), DateUtils.periodOfYears(1),
+    DateUtils.periodOfYears(2), DateUtils.periodOfYears(3), DateUtils.periodOfYears(4), DateUtils.periodOfYears(5), DateUtils.periodOfYears(10) };
   public static final GeneratorAttributeIR[] DSC_USD_ATTR = new GeneratorAttributeIR[DSC_USD_TENOR.length];
   static {
     for (int loopins = 0; loopins < DSC_USD_TENOR.length; loopins++) {
@@ -131,11 +132,11 @@ public class InflationBuildingCurveSimpleTest {
   public static final double[] FWD3_USD_MARKET_QUOTES = new double[] {0.0420, 0.0420, 0.0420, 0.0430, 0.0470, 0.0540, 0.0570, 0.0600 };
   /** Generators for the Fwd 3M USD curve */
   public static final GeneratorInstrument<? extends GeneratorAttribute>[] FWD3_USD_GENERATORS = new GeneratorInstrument<?>[] {GENERATOR_USDLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M,
-      USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M };
+    USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M };
   /** Tenors for the Fwd 3M USD curve */
   public static final Period[] FWD3_USD_TENOR = new Period[] {DateUtils.periodOfMonths(0), DateUtils.periodOfMonths(6), DateUtils.periodOfYears(1), DateUtils.periodOfYears(2),
-      DateUtils.periodOfYears(3), DateUtils.periodOfYears(5), DateUtils.periodOfYears(7),
-      DateUtils.periodOfYears(10) };
+    DateUtils.periodOfYears(3), DateUtils.periodOfYears(5), DateUtils.periodOfYears(7),
+    DateUtils.periodOfYears(10) };
   public static final GeneratorAttributeIR[] FWD3_USD_ATTR = new GeneratorAttributeIR[FWD3_USD_TENOR.length];
   static {
     for (int loopins = 0; loopins < FWD3_USD_TENOR.length; loopins++) {
@@ -242,8 +243,9 @@ public class InflationBuildingCurveSimpleTest {
     ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(NOW, USDLIBOR3M.getSpotLag() + startIndex * jump, NYC);
     final double[] rateDsc = new double[nbDate];
     final double[] startTime = new double[nbDate];
+    FileWriter writer = null;
     try {
-      final FileWriter writer = new FileWriter("fwd-dsc.csv");
+      writer = new FileWriter("fwd-dsc.csv");
       for (int loopdate = 0; loopdate < nbDate; loopdate++) {
         startTime[loopdate] = TimeCalculator.getTimeBetween(NOW, startDate);
         final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, USDLIBOR3M);
@@ -257,6 +259,13 @@ public class InflationBuildingCurveSimpleTest {
       writer.close();
     } catch (final IOException e) {
       e.printStackTrace();
+      if (writer != null) {
+        IOUtils.closeQuietly(writer);
+      }
+    } finally {
+      if (writer != null) {
+        IOUtils.closeQuietly(writer);
+      }
     }
   }
 
@@ -326,6 +335,7 @@ public class InflationBuildingCurveSimpleTest {
 
   @SuppressWarnings("rawtypes")
   private static DoubleTimeSeries[] getTSSwapFixedIbor(final Boolean withToday, final Integer unit) {
+    //REVIEW is it intended that the first two branches of the switch statement do the same thing
     switch (unit) {
       case 0:
         return withToday ? TS_FIXED_IBOR_USD3M_WITH_TODAY : TS_FIXED_IBOR_USD3M_WITHOUT_TODAY;

@@ -417,6 +417,7 @@ public class MulticurveBuildingDiscountingDiscountUSD2Test {
 
   @SuppressWarnings("rawtypes")
   private static DoubleTimeSeries[] getTSSwapFixedIbor(final Boolean withToday, final Integer unit) {
+    //REVIEW is it intended that the first two branches of the switch statement do the same thing
     switch (unit) {
       case 0:
         return withToday ? TS_FIXED_IBOR_USD3M_WITH_TODAY : TS_FIXED_IBOR_USD3M_WITHOUT_TODAY;

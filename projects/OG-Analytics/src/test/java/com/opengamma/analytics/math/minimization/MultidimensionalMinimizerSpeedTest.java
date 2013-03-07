@@ -37,25 +37,25 @@ public class MultidimensionalMinimizerSpeedTest {
   private static QuasiNewtonVectorMinimizer QUASI_NEWTON_MINIMISER = new QuasiNewtonVectorMinimizer();
 
   @Test
-  public void TestWithoutGradientInfo1() {
+  public void testWithoutGradientInfo1() {
     final DoubleMatrix1D start = new DoubleMatrix1D(new double[] {-1.0, 1.0});
     doHotSpot(SIMPLEX_MINIMIZER, "Simplex - rosenbrock ", ROSENBROCK, null, start);
     doHotSpot(CONJUGATE_DIRECTION_MINIMIZER, "Conjugate direction - rosenbrock ", ROSENBROCK, null, start);
     doHotSpot(CONJUGATE_GRADIENT_MINIMIZER, "Conjugate Gradient - rosenbrock (no grad info)", ROSENBROCK, null, start);
 
-    //Quasi Newton not working without gradient 
+    //Quasi Newton not working without gradient
     //   doHotSpot(QUASI_NEWTON_MINIMISER, "Quasi Newton - rosenbrock (no grad info)", ROSENBROCK, null, start);
   }
 
   @Test
-  public void TestWithGradientInfo1() {
+  public void testWithGradientInfo1() {
     final DoubleMatrix1D start = new DoubleMatrix1D(new double[] {-1.0, 1.0});
     doHotSpot(CONJUGATE_GRADIENT_MINIMIZER, "Conjugate Gradient - rosenbrock", ROSENBROCK, ROSENBROCK_GRAD, start);
     doHotSpot(QUASI_NEWTON_MINIMISER, "Quasi Newton - rosenbrock", ROSENBROCK, ROSENBROCK_GRAD, start);
   }
 
   @Test
-  public void TestWithoutGradientInfo2() {
+  public void testWithoutGradientInfo2() {
     final DoubleMatrix1D start = new DoubleMatrix1D(new double[] {-1.0, 1.0, -1.0, 1.0, -1.0, 1.0, 1.0});
     doHotSpot(SIMPLEX_MINIMIZER, "Simplex - coupled rosenbrock ", COUPLED_ROSENBROCK, null, start);
 
@@ -65,12 +65,12 @@ public class MultidimensionalMinimizerSpeedTest {
     doHotSpot(CONJUGATE_GRADIENT_MINIMIZER, "Conjugate Gradient - coupled rosenbrock (no grad info)",
         COUPLED_ROSENBROCK, null, start);
 
-    //Quasi Newton not working without gradient 
+    //Quasi Newton not working without gradient
     //   doHotSpot(QUASI_NEWTON_MINIMISER, "Quasi Newton - rosenbrock (no grad info)",  COUPLED_ROSENBROCK, null, start);
   }
 
   @Test
-  public void TestWithGradientInfo2() {
+  public void testWithGradientInfo2() {
     final DoubleMatrix1D start = new DoubleMatrix1D(new double[] {-1.0, 1.0});
     doHotSpot(CONJUGATE_GRADIENT_MINIMIZER, "Conjugate Gradient - coupled rosenbrock", COUPLED_ROSENBROCK,
         COUPLED_ROSENBROCK_GRAD, start);

@@ -30,7 +30,7 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  */
 
 public class CouponInflationYearOnYearInterpolationDefinition extends CouponInflationDefinition implements
-    InstrumentDefinitionWithData<Payment, DoubleTimeSeries<ZonedDateTime>> {
+InstrumentDefinitionWithData<Payment, DoubleTimeSeries<ZonedDateTime>> {
 
   /**
    * The reference date for the index at the coupon start. May not be relevant as the index value is known.
@@ -190,7 +190,7 @@ public class CouponInflationYearOnYearInterpolationDefinition extends CouponInfl
   }
 
   @Override
-  public Coupon toDerivative(ZonedDateTime date, DoubleTimeSeries<ZonedDateTime> priceIndexTimeSeries, String... yieldCurveNames) {
+  public Coupon toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> priceIndexTimeSeries, final String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "date");
     ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
     ArgumentChecker.isTrue(yieldCurveNames.length > 0, "at least one curve required");
@@ -203,16 +203,14 @@ public class CouponInflationYearOnYearInterpolationDefinition extends CouponInfl
       final Double fixedEndIndex0 = priceIndexTimeSeries.getValue(getReferenceEndDate()[0]);
       final Double fixedEndIndex1 = priceIndexTimeSeries.getValue(getReferenceEndDate()[1]);
       final Double fixedEndIndex = getWeightEnd() * fixedEndIndex0 + (1 - getWeightEnd()) * fixedEndIndex1;
-      if (fixedEndIndex != null) {
-        final Double fixedStartIndex0 = priceIndexTimeSeries.getValue(getReferenceStartDate()[0]);
-        final Double fixedStartIndex1 = priceIndexTimeSeries.getValue(getReferenceStartDate()[1]);
-        final Double fixedStartIndex = getWeightStart() * fixedStartIndex0 + (1 - getWeightStart()) * fixedStartIndex1;
-        final Double fixedRate = (fixedEndIndex / fixedStartIndex - (payNotional() ? 0.0 : 1.0));
-        return new CouponFixed(getCurrency(), paymentTime, discountingCurveName, getPaymentYearFraction(), getNotional(), fixedRate);
-      }
+      final Double fixedStartIndex0 = priceIndexTimeSeries.getValue(getReferenceStartDate()[0]);
+      final Double fixedStartIndex1 = priceIndexTimeSeries.getValue(getReferenceStartDate()[1]);
+      final Double fixedStartIndex = getWeightStart() * fixedStartIndex0 + (1 - getWeightStart()) * fixedStartIndex1;
+      final Double fixedRate = (fixedEndIndex / fixedStartIndex - (payNotional() ? 0.0 : 1.0));
+      return new CouponFixed(getCurrency(), paymentTime, discountingCurveName, getPaymentYearFraction(), getNotional(), fixedRate);
     }
-    double[] referenceEndTime = new double[2];
-    double[] referenceStartTime = new double[2];
+    final double[] referenceEndTime = new double[2];
+    final double[] referenceStartTime = new double[2];
     referenceEndTime[0] = TimeCalculator.getTimeBetween(date, _referenceEndDate[0]);
     referenceEndTime[1] = TimeCalculator.getTimeBetween(date, _referenceEndDate[1]);
     referenceStartTime[0] = TimeCalculator.getTimeBetween(date, _referenceStartDate[0]);
@@ -248,7 +246,7 @@ public class CouponInflationYearOnYearInterpolationDefinition extends CouponInfl
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -258,7 +256,7 @@ public class CouponInflationYearOnYearInterpolationDefinition extends CouponInfl
     if (getClass() != obj.getClass()) {
       return false;
     }
-    CouponInflationYearOnYearInterpolationDefinition other = (CouponInflationYearOnYearInterpolationDefinition) obj;
+    final CouponInflationYearOnYearInterpolationDefinition other = (CouponInflationYearOnYearInterpolationDefinition) obj;
     if (!Arrays.equals(_referenceEndDate, other._referenceEndDate)) {
       return false;
     }

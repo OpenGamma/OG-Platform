@@ -54,7 +54,7 @@ public abstract class CommodityFutureOptionTestDefaults {
 
   protected static final StaticReplicationDataBundle MARKET = new StaticReplicationDataBundle(VOL_SURFACE, DISCOUNT, FORWARD_CURVE);
 
-  protected static double TOLERANCE = 1.0E-9;   // tolerance for equals()
+  protected static final double TOLERANCE = 1.0E-9;   // tolerance for equals()
 
   // future & option params
   protected final static ExternalId AN_UNDERLYING = ExternalId.of("Scheme", "value");

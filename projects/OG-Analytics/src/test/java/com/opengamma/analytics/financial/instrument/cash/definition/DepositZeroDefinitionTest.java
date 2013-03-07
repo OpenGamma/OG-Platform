@@ -73,7 +73,7 @@ public class DepositZeroDefinitionTest {
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void nullDaycount() {
+  public void nullDayCount() {
     DepositZeroDefinition.from(EUR, SPOT_DATE, END_DATE, null, RATE);
   }
 

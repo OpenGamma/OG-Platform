@@ -102,8 +102,8 @@ public class CouponIborGearingDiscountingMethodTest {
    * Test the present value curves sensitivity.
    */
   public void presentValueCurveSensitivity() {
-    final InterestRateCurveSensitivity pvsFuture = METHOD.presentValueCurveSensitivity(COUPON, CURVES_BUNDLE);
-    pvsFuture.cleaned();
+    InterestRateCurveSensitivity pvsFuture = METHOD.presentValueCurveSensitivity(COUPON, CURVES_BUNDLE);
+    pvsFuture = pvsFuture.cleaned();
     final double deltaTolerancePrice = 1.0E+2;
     //Testing note: Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move. Tolerance increased to cope with numerical imprecision of finite difference.
     final double deltaShift = 1.0E-6;

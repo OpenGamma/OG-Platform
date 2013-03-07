@@ -93,7 +93,7 @@ public class PresentValueSensitivityCalculatorTest {
     for (final DoublesPair pair : temp) {
       if (pair.getFirst() == 0.0) {
         assertEquals(0.0, pair.getSecond(), 1e-12);
-      } else if (pair.getFirst() == t) {
+      } else if (Double.compare(pair.getFirst(), t) == 0) {
         assertEquals(-t * df * (1 + r * t), pair.getSecond(), 1e-12);
       } else {
         assertFalse(true);
@@ -108,7 +108,7 @@ public class PresentValueSensitivityCalculatorTest {
     sense = cash.accept(PVSC, CURVES);
     temp = sense.get(FIVE_PC_CURVE_NAME);
     for (final DoublesPair pair : temp) {
-      if (pair.getFirst() == tradeTime) {
+      if (Double.compare(pair.getFirst(), tradeTime) == 0) {
         assertEquals(dfa * tradeTime, pair.getSecond(), 1e-12);
       } else if (pair.getFirst() == t) {
         assertEquals(-t * df * (1 + r * yearFrac), pair.getSecond(), 1e-12);

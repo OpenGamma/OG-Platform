@@ -30,7 +30,7 @@ public class ParameterSensitivityIssuerMatrixCalculator extends AbstractParamete
    * Constructor
    * @param curveSensitivityCalculator The curve sensitivity calculator.
    */
-  public ParameterSensitivityIssuerMatrixCalculator(InstrumentDerivativeVisitor<IssuerProviderInterface, MulticurveSensitivity> curveSensitivityCalculator) {
+  public ParameterSensitivityIssuerMatrixCalculator(final InstrumentDerivativeVisitor<IssuerProviderInterface, MulticurveSensitivity> curveSensitivityCalculator) {
     super(curveSensitivityCalculator);
   }
 
@@ -38,23 +38,23 @@ public class ParameterSensitivityIssuerMatrixCalculator extends AbstractParamete
   public DoubleMatrix1D pointToParameterSensitivity(final MulticurveSensitivity sensitivity, final IssuerProviderInterface issuer, final Set<String> curvesSet) {
     SimpleParameterSensitivity ps = new SimpleParameterSensitivity();
     // YieldAndDiscount
-    Map<String, List<DoublesPair>> sensitivityDsc = sensitivity.getYieldDiscountingSensitivities();
-    for (final String name : sensitivityDsc.keySet()) {
-      if (curvesSet.contains(name)) {
-        ps = ps.plus(name, new DoubleMatrix1D(issuer.parameterSensitivity(name, sensitivityDsc.get(name))));
+    final Map<String, List<DoublesPair>> sensitivityDsc = sensitivity.getYieldDiscountingSensitivities();
+    for (final Map.Entry<String, List<DoublesPair>> entry : sensitivityDsc.entrySet()) {
+      if (curvesSet.contains(entry.getKey())) {
+        ps = ps.plus(entry.getKey(), new DoubleMatrix1D(issuer.parameterSensitivity(entry.getKey(), entry.getValue())));
       }
     }
     // Forward
-    Map<String, List<ForwardSensitivity>> sensitivityFwd = sensitivity.getForwardSensitivities();
-    for (final String name : sensitivityFwd.keySet()) {
-      if (curvesSet.contains(name)) {
-        ps = ps.plus(name, new DoubleMatrix1D(issuer.parameterForwardSensitivity(name, sensitivityFwd.get(name))));
+    final Map<String, List<ForwardSensitivity>> sensitivityFwd = sensitivity.getForwardSensitivities();
+    for (final Map.Entry<String, List<ForwardSensitivity>> entry : sensitivityFwd.entrySet()) {
+      if (curvesSet.contains(entry.getKey())) {
+        ps = ps.plus(entry.getKey(), new DoubleMatrix1D(issuer.parameterForwardSensitivity(entry.getKey(), entry.getValue())));
       }
     }
     // By curve name in the curves set (to have the right order)
     double[] result = new double[0];
-    for (String name : curvesSet) {
-      DoubleMatrix1D sensi = ps.getSensitivity(name);
+    for (final String name : curvesSet) {
+      final DoubleMatrix1D sensi = ps.getSensitivity(name);
       if (sensi != null) {
         result = ArrayUtils.addAll(result, sensi.getData());
       } else {
