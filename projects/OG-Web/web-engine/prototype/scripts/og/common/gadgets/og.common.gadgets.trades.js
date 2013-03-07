@@ -34,7 +34,9 @@ $.register_module({
                         'position': 'relative', 'left': '2px', 'top': '3px', 'float': 'left'
                     }).unbind('click').bind('click', function (e) {
                         e.preventDefault();
-                        //NEW TRADE
+                        new og.blotter.Dialog({portfolio:{name: position_id, id: position_id}, 
+                            handler: function (data) {return og.api.rest.blotter.positions.put(data);}
+                        });
                     });
                 }
             };

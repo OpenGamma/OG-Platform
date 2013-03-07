@@ -50,7 +50,7 @@ $.register_module({
                         no_arrow: true,
                         select: function( event, ui ) {callback();},
                         value: scheme_value,
-                        disabled: false/*!!config.edit*/
+                        disabled: config.edit
                     });
                     menu.$input.autocomplete('widget').css('max-height', 500);
                     form.on('keyup', input_id(), function (event) {callback();});
