@@ -32,6 +32,7 @@ import com.opengamma.masterdb.security.hibernate.capfloor.CapFloorSecurityBeanOp
 import com.opengamma.masterdb.security.hibernate.cash.CashSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.cashflow.CashFlowSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.cds.CDSSecurityBeanOperation;
+import com.opengamma.masterdb.security.hibernate.cds.CreditDefaultSwapIndexSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.cds.LegacyFixedRecoveryCDSSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.cds.LegacyRecoveryLockCDSSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.cds.LegacyVanillaCDSSecurityBeanOperation;
@@ -192,6 +193,7 @@ public class HibernateSecurityMasterDetailProvider implements SecurityMasterDeta
     loadBeanOperation(StdRecoveryLockCDSSecurityBeanOperation.INSTANCE);
     loadBeanOperation(StdVanillaCDSSecurityBeanOperation.INSTANCE);
     loadBeanOperation(CashFlowSecurityBeanOperation.INSTANCE);
+    loadBeanOperation(CreditDefaultSwapIndexSecurityBeanOperation.INSTANCE);
   }
 
   //-------------------------------------------------------------------------
@@ -279,7 +281,9 @@ public class HibernateSecurityMasterDetailProvider implements SecurityMasterDeta
         final HibernateSecurityMasterDao secMasterSession = getHibernateSecurityMasterSession(session);
         final SecurityBeanOperation beanOperation = getBeanOperation(security);
         final Date now = new Date();
-        secMasterSession.createSecurityBean(getOperationContext(), beanOperation, now, security);
+        final OperationContext operationContext = getOperationContext();
+        operationContext.setSession(session);
+        secMasterSession.createSecurityBean(operationContext, beanOperation, now, security);
         return null;
       }
     });
