@@ -149,7 +149,6 @@ public abstract class RowParser {
     return 0;
   }
   
- 
   public static String getWithException(Map<String, String> fieldValueMap, String fieldName) {
     String result = fieldValueMap.get(fieldName);
     if (result == null) {

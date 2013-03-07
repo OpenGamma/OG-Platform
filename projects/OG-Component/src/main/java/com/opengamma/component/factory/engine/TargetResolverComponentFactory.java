@@ -8,8 +8,6 @@ package com.opengamma.component.factory.engine;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import net.sf.ehcache.CacheManager;
-
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -35,6 +33,8 @@ import com.opengamma.financial.temptarget.ConfigItemTargetResolver;
 import com.opengamma.financial.temptarget.TempTarget;
 import com.opengamma.financial.temptarget.TempTargetResolver;
 import com.opengamma.financial.temptarget.TempTargetSource;
+
+import net.sf.ehcache.CacheManager;
 
 /**
  * Component factory for the target resolver.
@@ -164,7 +164,6 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory {
     JodaBeanUtils.notNull(_classifier, "classifier");
     JodaBeanUtils.notNull(_securitySource, "securitySource");
     JodaBeanUtils.notNull(_positionSource, "positionSource");
-    JodaBeanUtils.notNull(_configSource, "configSource");
     super.validate();
   }
 
@@ -329,7 +328,7 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets the configuration source.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public ConfigSource getConfigSource() {
     return _configSource;
@@ -337,7 +336,7 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets the configuration source.
-   * @param configSource  the new value of the property, not null
+   * @param configSource  the new value of the property
    */
   public void setConfigSource(ConfigSource configSource) {
     this._configSource = configSource;

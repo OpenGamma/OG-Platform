@@ -30,6 +30,7 @@ import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.core.change.AggregatingChangeManager;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.ChangeProvider;
+import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTargetResolver;
@@ -137,6 +138,11 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
   @PropertyDefinition(validate = "notNull")
   private ConfigMaster _userConfigMaster;
   /**
+   * The combined config source.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private ConfigSource _combinedConfigSource;
+  /**
    * The view processor.
    */
   @PropertyDefinition(validate = "notNull")
@@ -197,7 +203,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
                                                                          getMarketDataSpecificationRepository(),
                                                                          blotterColumnMapper,
                                                                          getPositionSource(),
-                                                                         getConfigMaster(),
+                                                                         getCombinedConfigSource(),
                                                                          getSecuritySource(),
                                                                          getSecurityMaster(),
                                                                          getPositionMaster());
@@ -297,6 +303,8 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
         return getUserPortfolioMaster();
       case -763459665:  // userConfigMaster
         return getUserConfigMaster();
+      case -774734430:  // combinedConfigSource
+        return getCombinedConfigSource();
       case -1697555603:  // viewProcessor
         return getViewProcessor();
       case 940303425:  // portfolioAggregationFunctions
@@ -349,6 +357,9 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
       case -763459665:  // userConfigMaster
         setUserConfigMaster((ConfigMaster) newValue);
         return;
+      case -774734430:  // combinedConfigSource
+        setCombinedConfigSource((ConfigSource) newValue);
+        return;
       case -1697555603:  // viewProcessor
         setViewProcessor((ViewProcessor) newValue);
         return;
@@ -384,6 +395,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     JodaBeanUtils.notNull(_userPositionMaster, "userPositionMaster");
     JodaBeanUtils.notNull(_userPortfolioMaster, "userPortfolioMaster");
     JodaBeanUtils.notNull(_userConfigMaster, "userConfigMaster");
+    JodaBeanUtils.notNull(_combinedConfigSource, "combinedConfigSource");
     JodaBeanUtils.notNull(_viewProcessor, "viewProcessor");
     JodaBeanUtils.notNull(_portfolioAggregationFunctions, "portfolioAggregationFunctions");
     JodaBeanUtils.notNull(_marketDataSnapshotMaster, "marketDataSnapshotMaster");
@@ -411,6 +423,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
           JodaBeanUtils.equal(getUserPositionMaster(), other.getUserPositionMaster()) &&
           JodaBeanUtils.equal(getUserPortfolioMaster(), other.getUserPortfolioMaster()) &&
           JodaBeanUtils.equal(getUserConfigMaster(), other.getUserConfigMaster()) &&
+          JodaBeanUtils.equal(getCombinedConfigSource(), other.getCombinedConfigSource()) &&
           JodaBeanUtils.equal(getViewProcessor(), other.getViewProcessor()) &&
           JodaBeanUtils.equal(getPortfolioAggregationFunctions(), other.getPortfolioAggregationFunctions()) &&
           JodaBeanUtils.equal(getMarketDataSnapshotMaster(), other.getMarketDataSnapshotMaster()) &&
@@ -436,6 +449,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     hash += hash * 31 + JodaBeanUtils.hashCode(getUserPositionMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUserPortfolioMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUserConfigMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCombinedConfigSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getViewProcessor());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPortfolioAggregationFunctions());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataSnapshotMaster());
@@ -733,6 +747,32 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the combined config source.
+   * @return the value of the property, not null
+   */
+  public ConfigSource getCombinedConfigSource() {
+    return _combinedConfigSource;
+  }
+
+  /**
+   * Sets the combined config source.
+   * @param combinedConfigSource  the new value of the property, not null
+   */
+  public void setCombinedConfigSource(ConfigSource combinedConfigSource) {
+    JodaBeanUtils.notNull(combinedConfigSource, "combinedConfigSource");
+    this._combinedConfigSource = combinedConfigSource;
+  }
+
+  /**
+   * Gets the the {@code combinedConfigSource} property.
+   * @return the property, not null
+   */
+  public final Property<ConfigSource> combinedConfigSource() {
+    return metaBean().combinedConfigSource().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the view processor.
    * @return the value of the property, not null
    */
@@ -953,6 +993,11 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<ConfigMaster> _userConfigMaster = DirectMetaProperty.ofReadWrite(
         this, "userConfigMaster", WebsiteViewportsComponentFactory.class, ConfigMaster.class);
     /**
+     * The meta-property for the {@code combinedConfigSource} property.
+     */
+    private final MetaProperty<ConfigSource> _combinedConfigSource = DirectMetaProperty.ofReadWrite(
+        this, "combinedConfigSource", WebsiteViewportsComponentFactory.class, ConfigSource.class);
+    /**
      * The meta-property for the {@code viewProcessor} property.
      */
     private final MetaProperty<ViewProcessor> _viewProcessor = DirectMetaProperty.ofReadWrite(
@@ -998,6 +1043,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
         "userPositionMaster",
         "userPortfolioMaster",
         "userConfigMaster",
+        "combinedConfigSource",
         "viewProcessor",
         "portfolioAggregationFunctions",
         "marketDataSnapshotMaster",
@@ -1036,6 +1082,8 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
           return _userPortfolioMaster;
         case -763459665:  // userConfigMaster
           return _userConfigMaster;
+        case -774734430:  // combinedConfigSource
+          return _combinedConfigSource;
         case -1697555603:  // viewProcessor
           return _viewProcessor;
         case 940303425:  // portfolioAggregationFunctions
@@ -1154,6 +1202,14 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
      */
     public final MetaProperty<ConfigMaster> userConfigMaster() {
       return _userConfigMaster;
+    }
+
+    /**
+     * The meta-property for the {@code combinedConfigSource} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ConfigSource> combinedConfigSource() {
+      return _combinedConfigSource;
     }
 
     /**
