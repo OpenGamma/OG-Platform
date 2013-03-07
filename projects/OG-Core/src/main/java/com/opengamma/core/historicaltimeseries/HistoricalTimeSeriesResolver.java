@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.master.historicaltimeseries;
+package com.opengamma.core.historicaltimeseries;
 
 import org.threeten.bp.LocalDate;
 
@@ -14,7 +14,7 @@ import com.opengamma.util.PublicSPI;
  * Resolves identifiers, such as those of a security, together with a requested data field, to the appropriate historical time-series.
  */
 @PublicSPI
-public interface HistoricalTimeSeriesResolver extends com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesResolver {
+public interface HistoricalTimeSeriesResolver {
 
   /**
    * Resolves a time-series from a bundle of identifiers and a data field.
@@ -30,9 +30,6 @@ public interface HistoricalTimeSeriesResolver extends com.opengamma.core.histori
    * @param resolutionKey a key defining how the resolution is to occur, null for the default best match
    * @return a resolution result for the best match, null if unable to find a match
    */
-  @Override
   HistoricalTimeSeriesResolutionResult resolve(ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField, String resolutionKey);
-
-  // REVIEW 2012-07-10 Andrew -- Should this be in OG-Core rather than OG-Master? Should it be possible to obtain the resolver from the HistoricalTimeSeriesSource?
 
 }

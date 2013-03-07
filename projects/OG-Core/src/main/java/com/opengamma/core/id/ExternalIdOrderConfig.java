@@ -177,13 +177,11 @@ public class ExternalIdOrderConfig extends DirectBean {
   ///CLOVER:OFF
   /**
    * The meta-bean for {@code ExternalIdOrderConfig}.
-   * 
    * @return the meta-bean, not null
    */
   public static ExternalIdOrderConfig.Meta meta() {
     return ExternalIdOrderConfig.Meta.INSTANCE;
   }
-
   static {
     JodaBeanUtils.registerMetaBean(ExternalIdOrderConfig.Meta.INSTANCE);
   }
@@ -194,9 +192,9 @@ public class ExternalIdOrderConfig extends DirectBean {
   }
 
   @Override
-  protected Object propertyGet(final String propertyName, final boolean quiet) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case 983446620: // rateMap
+      case 983446620:  // rateMap
         return getRateMap();
     }
     return super.propertyGet(propertyName, quiet);
@@ -204,9 +202,9 @@ public class ExternalIdOrderConfig extends DirectBean {
 
   @SuppressWarnings("unchecked")
   @Override
-  protected void propertySet(final String propertyName, final Object newValue, final boolean quiet) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case 983446620: // rateMap
+      case 983446620:  // rateMap
         setRateMap((Map<ExternalScheme, Integer>) newValue);
         return;
     }
@@ -220,12 +218,12 @@ public class ExternalIdOrderConfig extends DirectBean {
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      final ExternalIdOrderConfig other = (ExternalIdOrderConfig) obj;
+      ExternalIdOrderConfig other = (ExternalIdOrderConfig) obj;
       return JodaBeanUtils.equal(getRateMap(), other.getRateMap());
     }
     return false;
@@ -241,7 +239,6 @@ public class ExternalIdOrderConfig extends DirectBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the rateMap.
-   * 
    * @return the value of the property, not null
    */
   public Map<ExternalScheme, Integer> getRateMap() {
@@ -250,17 +247,15 @@ public class ExternalIdOrderConfig extends DirectBean {
 
   /**
    * Sets the rateMap.
-   * 
-   * @param rateMap the new value of the property, not null
+   * @param rateMap  the new value of the property, not null
    */
-  public void setRateMap(final Map<ExternalScheme, Integer> rateMap) {
+  public void setRateMap(Map<ExternalScheme, Integer> rateMap) {
     JodaBeanUtils.notNull(rateMap, "rateMap");
     this._rateMap = rateMap;
   }
 
   /**
    * Gets the the {@code rateMap} property.
-   * 
    * @return the property, not null
    */
   public final Property<Map<ExternalScheme, Integer>> rateMap() {
@@ -297,9 +292,9 @@ public class ExternalIdOrderConfig extends DirectBean {
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 983446620: // rateMap
+        case 983446620:  // rateMap
           return _rateMap;
       }
       return super.metaPropertyGet(propertyName);
@@ -323,7 +318,6 @@ public class ExternalIdOrderConfig extends DirectBean {
     //-----------------------------------------------------------------------
     /**
      * The meta-property for the {@code rateMap} property.
-     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<Map<ExternalScheme, Integer>> rateMap() {

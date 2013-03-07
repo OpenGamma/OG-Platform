@@ -3,9 +3,8 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.master.historicaltimeseries;
+package com.opengamma.core.historicaltimeseries;
 
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesAdjuster;
 import com.opengamma.util.PublicSPI;
 
 /**
@@ -17,17 +16,18 @@ import com.opengamma.util.PublicSPI;
  * For example, an adjuster may be provided to apply normalization rules to a parent time-series that contains unnormalized data.
  */
 @PublicSPI
-public class HistoricalTimeSeriesResolutionResult extends com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesResolutionResult {
+public class HistoricalTimeSeriesResolutionResult {
 
-  private final ManageableHistoricalTimeSeriesInfo _historicalTimeSeriesInfo;
+  private final HistoricalTimeSeriesInfo _historicalTimeSeriesInfo;
+  private final HistoricalTimeSeriesAdjuster _adjuster;
 
-  public HistoricalTimeSeriesResolutionResult(ManageableHistoricalTimeSeriesInfo historicalTimeSeriesInfo) {
+  public HistoricalTimeSeriesResolutionResult(HistoricalTimeSeriesInfo historicalTimeSeriesInfo) {
     this(historicalTimeSeriesInfo, null);
   }
 
-  public HistoricalTimeSeriesResolutionResult(ManageableHistoricalTimeSeriesInfo historicalTimeSeriesInfo, HistoricalTimeSeriesAdjuster adjuster) {
-    super(historicalTimeSeriesInfo, adjuster);
+  public HistoricalTimeSeriesResolutionResult(HistoricalTimeSeriesInfo historicalTimeSeriesInfo, HistoricalTimeSeriesAdjuster adjuster) {
     _historicalTimeSeriesInfo = historicalTimeSeriesInfo;
+    _adjuster = adjuster;
   }
 
   /**
@@ -35,9 +35,17 @@ public class HistoricalTimeSeriesResolutionResult extends com.opengamma.core.his
    * 
    * @return the historical time-series information, not null
    */
-  @Override
-  public ManageableHistoricalTimeSeriesInfo getHistoricalTimeSeriesInfo() {
+  public HistoricalTimeSeriesInfo getHistoricalTimeSeriesInfo() {
     return _historicalTimeSeriesInfo;
+  }
+
+  /**
+   * Get the adjuster to be applied to the resolved historical time-series.
+   * 
+   * @return the adjuster, or null if no adjustment is required
+   */
+  public HistoricalTimeSeriesAdjuster getAdjuster() {
+    return _adjuster;
   }
 
 }

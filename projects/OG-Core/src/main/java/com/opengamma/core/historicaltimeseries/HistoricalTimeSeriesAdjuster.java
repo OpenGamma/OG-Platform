@@ -3,9 +3,8 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.master.historicaltimeseries;
+package com.opengamma.core.historicaltimeseries;
 
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.id.ExternalIdBundle;
 
 /**
@@ -16,9 +15,9 @@ public interface HistoricalTimeSeriesAdjuster {
   /**
    * Applies the adjustment to an historical time-series.
    * 
-   * @param securityIdBundle  the security identifiers associated with the time-series, not null
-   * @param timeSeries  the time-series, not null
-   * @return  the adjusted time-series, not null
+   * @param securityIdBundle the security identifiers associated with the time-series, not null
+   * @param timeSeries the time-series, not null
+   * @return the adjusted time-series, not null
    */
   HistoricalTimeSeries adjust(ExternalIdBundle securityIdBundle, HistoricalTimeSeries timeSeries);
 

@@ -3,11 +3,10 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.master.historicaltimeseries;
+package com.opengamma.core.historicaltimeseries;
 
 import java.util.Stack;
 
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.impl.SimpleHistoricalTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 

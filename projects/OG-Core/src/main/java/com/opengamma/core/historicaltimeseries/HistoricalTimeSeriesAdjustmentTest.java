@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.master.historicaltimeseries;
+package com.opengamma.core.historicaltimeseries;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
@@ -11,7 +11,6 @@ import static org.testng.Assert.assertTrue;
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.impl.SimpleHistoricalTimeSeries;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
