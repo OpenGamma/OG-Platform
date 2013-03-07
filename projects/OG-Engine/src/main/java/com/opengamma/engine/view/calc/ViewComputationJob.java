@@ -774,6 +774,37 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     }
   }
 
+  private void getInvalidMarketData(final DependencyGraph graph, final InvalidMarketDataDependencyNodeFilter filter) {
+    for (ValueSpecification marketData : graph.getAllRequiredMarketData()) {
+      final DependencyNode node = graph.getNodeProducing(marketData);
+      filter.visit(marketData, node);
+    }
+  }
+
+  /**
+   * Returns the set of value specifications from Market Data sourcing nodes that are not valid for the new data provider.
+   * <p>
+   * The cost of applying a filter can be quite high and in the historical simulation case seldom excludes nodes. To optimise this case we consider the market data sourcing nodes first to determine
+   * whether the filter should be applied.
+   * 
+   * @param previousGraphs the previous graphs that have already been part processed, null if no preprocessing has occurred
+   * @param compiledViewDefinition the cached compilation containing previous graphs if {@code previousGraphs} is null
+   * @param filter the filter to pass details of the nodes to
+   * @return the invalid specification set, or null if none are invalid
+   */
+  private void getInvalidMarketData(final Map<String, Pair<DependencyGraph, Set<ValueRequirement>>> previousGraphs,
+      final CompiledViewDefinitionWithGraphsImpl compiledViewDefinition, final InvalidMarketDataDependencyNodeFilter filter) {
+    if (previousGraphs != null) {
+      for (Pair<DependencyGraph, Set<ValueRequirement>> previousGraph : previousGraphs.values()) {
+        getInvalidMarketData(previousGraph.getKey(), filter);
+      }
+    } else {
+      for (DependencyGraph graph : compiledViewDefinition.getAllDependencyGraphs()) {
+        getInvalidMarketData(graph, filter);
+      }
+    }
+  }
+
   /**
    * Mark a set of nodes for inclusion (TRUE) or exclusion (FALSE) based on the filter. A node is included if the filter accepts it and all of its inputs are also marked for inclusion. A node is
    * excluded if the filter rejects it or any of its inputs are rejected. This will operate recursively, processing all nodes to the leaves of the graph.
@@ -873,6 +904,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
   private static final Profiler s_graphBuild = Profiler.create(ViewComputationJob.class, "graphBuild");
   private static final Profiler s_viewDefinitionCompiled = Profiler.create(ViewComputationJob.class, "viewDefinitionCompiled");
   private static final Profiler s_subscribeToMarketData = Profiler.create(ViewComputationJob.class, "subscribeToMarketData");
+  private static final Profiler s_invalidMarketData = Profiler.create(ViewComputationJob.class, "invalidMarketData");
 
   private CompiledViewDefinitionWithGraphsImpl getCompiledViewDefinition(final Instant valuationTime, final VersionCorrection versionCorrection) {
     final long functionInitId = getProcessContext().getFunctionCompilationService().getFunctionCompilationContext().getFunctionInitId();
@@ -916,9 +948,18 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
         if (_marketDataProviderDirty) {
           _marketDataProviderDirty = false;
           // Invalidate any market data sourcing nodes that are no longer valid
-          previousGraphs = getPreviousGraphs(previousGraphs, compiledViewDefinition);
-          filterPreviousGraphs(previousGraphs, new InvalidMarketDataDependencyNodeFilter(getProcessContext().getFunctionCompilationService().getFunctionCompilationContext()
-              .getRawComputationTargetResolver().atVersionCorrection(versionCorrection), _marketDataProvider.getAvailabilityProvider()));
+          s_invalidMarketData.begin();
+          try {
+            final InvalidMarketDataDependencyNodeFilter filter = new InvalidMarketDataDependencyNodeFilter(getProcessContext().getFunctionCompilationService().getFunctionCompilationContext()
+                .getRawComputationTargetResolver().atVersionCorrection(versionCorrection), _marketDataProvider.getAvailabilityProvider());
+            getInvalidMarketData(previousGraphs, compiledViewDefinition, filter);
+            if (filter.hasInvalidNodes()) {
+              previousGraphs = getPreviousGraphs(previousGraphs, compiledViewDefinition);
+              filterPreviousGraphs(previousGraphs, filter);
+            }
+          } finally {
+            s_invalidMarketData.end();
+          }
         }
         if (previousGraphs == null) {
           // Existing cached model is valid (an optimization for the common case of similar, increasing valuation times)
@@ -1059,6 +1100,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
   }
 
   private void replaceMarketDataProvider(final List<MarketDataSpecification> marketDataSpecs) {
+    // [PLAT-3186] Not a huge overhead, but we could check compatability with the new specs and keep the same provider
     removeMarketDataProvider();
     setMarketDataProvider(marketDataSpecs);
   }

@@ -5,6 +5,9 @@
  */
 package com.opengamma.engine.view.calc;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,18 +30,17 @@ import com.opengamma.engine.value.ValueSpecification;
 
   private final ComputationTargetResolver.AtVersionCorrection _targetResolver;
   private final MarketDataAvailabilityProvider _marketData;
+  private final Map<ValueSpecification, Boolean> _valid = new HashMap<ValueSpecification, Boolean>();
+  private int _invalidNodes;
 
   public InvalidMarketDataDependencyNodeFilter(final ComputationTargetResolver.AtVersionCorrection targetResolver, final MarketDataAvailabilityProvider marketData) {
     _targetResolver = targetResolver;
     _marketData = marketData;
   }
 
-  // DependencyNodeFilter
-
-  @Override
-  public boolean accept(final DependencyNode node) {
-    if (!(node.getFunction().getFunction() instanceof MarketDataSourcingFunction)) {
-      return true;
+  public void visit(final ValueSpecification marketData, final DependencyNode node) {
+    if (_valid.containsKey(marketData)) {
+      return;
     }
     boolean usedRaw = false;
     for (DependencyNode dependent : node.getDependentNodes()) {
@@ -48,23 +50,21 @@ import com.opengamma.engine.value.ValueSpecification;
           // This shouldn't normally happen (a default target specification will always be created that gives a stub Primitive instance) unless
           // the target specification cannot be resolved by the target resolver any more.
           s_logger.warn("Couldn't resolve {}", dependent.getComputationTarget());
-          return false;
+          _valid.put(marketData, Boolean.FALSE);
+          _invalidNodes++;
+          return;
         }
         final Object targetValue = target.getValue();
         for (ValueSpecification desiredOutput : dependent.getOutputValues()) {
           final ValueRequirement desiredValue = desiredOutput.toRequirementSpecification();
-          final ValueSpecification marketData = _marketData.getAvailability(dependent.getComputationTarget(), targetValue, desiredValue);
-          if (marketData != null) {
-            if (node.getOutputValues().contains(marketData)) {
-              s_logger.debug("Raw market data entry {} still available for {}", marketData, desiredOutput);
-            } else {
-              // TODO: This might not actually mean invalidating all downstream nodes - it may be possible to just swap out the MarketDataSourcingFunction
-              s_logger.debug("New raw market data of {} required for {}", marketData, desiredOutput);
-              return false;
-            }
+          final ValueSpecification requiredMarketData = _marketData.getAvailability(dependent.getComputationTarget(), targetValue, desiredValue);
+          if (marketData.equals(requiredMarketData)) {
+            s_logger.debug("Market data entry {} still available for {}", marketData, desiredValue);
           } else {
-            s_logger.debug("Indirect use of {} via {} no longer available from market data provider", node, desiredOutput);
-            return false;
+            s_logger.debug("New market data {} required for {}", requiredMarketData, desiredValue);
+            _valid.put(marketData, Boolean.FALSE);
+            _invalidNodes++;
+            return;
           }
         }
       } else {
@@ -77,23 +77,40 @@ import com.opengamma.engine.value.ValueSpecification;
         // This shouldn't normally happen (a default target specification will always be created that gives a stub Primitive instance) unless
         // the target specification cannot be resolved by the target resolver any more.
         s_logger.warn("Couldn't resolve {}", node.getComputationTarget());
-        return false;
+        _valid.put(marketData, Boolean.FALSE);
+        _invalidNodes++;
+        return;
       }
       final Object targetValue = target.getValue();
-      for (ValueSpecification desiredOutput : node.getOutputValues()) {
-        final ValueRequirement desiredValue = desiredOutput.toRequirementSpecification();
-        final ValueSpecification marketData = _marketData.getAvailability(node.getComputationTarget(), targetValue, desiredValue);
-        if (marketData != null) {
-          if (desiredOutput.equals(marketData)) {
-            s_logger.debug("Market data entry {} still available", desiredOutput);
-          } else {
-            s_logger.debug("New market data of {} required for {}", marketData, desiredOutput);
-            return false;
-          }
-        } else {
-          s_logger.debug("{} no longer available from market data provider", desiredOutput);
-          return false;
-        }
+      final ValueRequirement desiredValue = marketData.toRequirementSpecification();
+      final ValueSpecification requiredMarketData = _marketData.getAvailability(node.getComputationTarget(), targetValue, desiredValue);
+      if (marketData.equals(requiredMarketData)) {
+        s_logger.debug("Market data entry {} still available", marketData);
+      } else {
+        s_logger.debug("New market data of {} required for {}", requiredMarketData, desiredValue);
+        _valid.put(marketData, Boolean.FALSE);
+        _invalidNodes++;
+        return;
+      }
+    }
+    _valid.put(marketData, Boolean.TRUE);
+  }
+
+  public boolean hasInvalidNodes() {
+    s_logger.info("{} invalid market data values (of {})", _invalidNodes, _valid.size());
+    return _invalidNodes > 0;
+  }
+
+  // DependencyNodeFilter
+
+  @Override
+  public boolean accept(final DependencyNode node) {
+    if (!(node.getFunction().getFunction() instanceof MarketDataSourcingFunction)) {
+      return true;
+    }
+    for (ValueSpecification output : node.getOutputValues()) {
+      if (Boolean.TRUE != _valid.get(output)) {
+        return false;
       }
     }
     return true;
