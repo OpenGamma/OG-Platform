@@ -24,6 +24,7 @@ import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.B
 import com.opengamma.analytics.financial.model.volatility.VolatilityAndBucketedSensitivities;
 import com.opengamma.analytics.financial.model.volatility.surface.SmileDeltaTermStructureParametersStrikeInterpolation;
 import com.opengamma.analytics.financial.provider.calculator.blackforex.CurrencyExposureForexBlackSmileCalculator;
+import com.opengamma.analytics.financial.provider.calculator.blackforex.GammaSpotForexBlackSmileCalculator;
 import com.opengamma.analytics.financial.provider.calculator.blackforex.PresentValueCurveSensitivityForexBlackSmileCalculator;
 import com.opengamma.analytics.financial.provider.calculator.blackforex.PresentValueForexBlackSmileCalculator;
 import com.opengamma.analytics.financial.provider.calculator.blackforex.PresentValueForexVolatilitySensitivityForexBlackSmileCalculator;
@@ -60,7 +61,7 @@ public class ForexOptionVanillaBlackSmileMethodTest {
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountForexDataSets.createMulticurvesForex();
 
   public static final String NOT_USED = "Not used";
-  public static final String[] NOT_USED_2 = {NOT_USED, NOT_USED};
+  public static final String[] NOT_USED_2 = {NOT_USED, NOT_USED };
 
   private static final FXMatrix FX_MATRIX = MULTICURVES.getFxRates();
   private static final Currency EUR = Currency.EUR;
@@ -72,7 +73,7 @@ public class ForexOptionVanillaBlackSmileMethodTest {
   private static final int SETTLEMENT_DAYS = 2;
   // Smile data
   private static final Period[] EXPIRY_PERIOD = new Period[] {DateUtils.periodOfMonths(3), DateUtils.periodOfMonths(6), DateUtils.periodOfYears(1),
-      DateUtils.periodOfYears(2), DateUtils.periodOfYears(5)};
+      DateUtils.periodOfYears(2), DateUtils.periodOfYears(5) };
   private static final int NB_EXP = EXPIRY_PERIOD.length;
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 6, 13);
   private static final ZonedDateTime REFERENCE_SPOT = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, SETTLEMENT_DAYS, CALENDAR);
@@ -87,11 +88,11 @@ public class ForexOptionVanillaBlackSmileMethodTest {
       TIME_TO_EXPIRY[loopexp + 1] = TimeCalculator.getTimeBetween(REFERENCE_DATE, EXPIRY_DATE[loopexp]);
     }
   }
-  private static final double[] ATM = {0.175, 0.185, 0.18, 0.17, 0.16, 0.16};
-  private static final double[] DELTA = new double[] {0.10, 0.25};
-  private static final double[][] RISK_REVERSAL = new double[][] { {-0.010, -0.0050}, {-0.011, -0.0060}, {-0.012, -0.0070}, {-0.013, -0.0080}, {-0.014, -0.0090},
-      {-0.014, -0.0090}};
-  private static final double[][] STRANGLE = new double[][] { {0.0300, 0.0100}, {0.0310, 0.0110}, {0.0320, 0.0120}, {0.0330, 0.0130}, {0.0340, 0.0140}, {0.0340, 0.0140}};
+  private static final double[] ATM = {0.175, 0.185, 0.18, 0.17, 0.16, 0.16 };
+  private static final double[] DELTA = new double[] {0.10, 0.25 };
+  private static final double[][] RISK_REVERSAL = new double[][] { {-0.010, -0.0050 }, {-0.011, -0.0060 }, {-0.012, -0.0070 }, {-0.013, -0.0080 }, {-0.014, -0.0090 },
+      {-0.014, -0.0090 } };
+  private static final double[][] STRANGLE = new double[][] { {0.0300, 0.0100 }, {0.0310, 0.0110 }, {0.0320, 0.0120 }, {0.0330, 0.0130 }, {0.0340, 0.0140 }, {0.0340, 0.0140 } };
   private static final int NB_STRIKE = 2 * DELTA.length + 1;
   private static final SmileDeltaTermStructureParametersStrikeInterpolation SMILE_TERM = new SmileDeltaTermStructureParametersStrikeInterpolation(TIME_TO_EXPIRY, DELTA,
       ATM, RISK_REVERSAL, STRANGLE);
@@ -320,8 +321,8 @@ public class ForexOptionVanillaBlackSmileMethodTest {
     final ForexDefinition forexUSDEURDefinition = new ForexDefinition(USD, EUR, payDate, -notional * strike, 1.0 / strike);
     final ForexOptionVanillaDefinition callEURUSDDefinition = new ForexOptionVanillaDefinition(forexEURUSDDefinition, expDate, isCall, isLong);
     final ForexOptionVanillaDefinition putUSDEURDefinition = new ForexOptionVanillaDefinition(forexUSDEURDefinition, expDate, isCall, isLong);
-    final ForexOptionVanilla callEURUSD = callEURUSDDefinition.toDerivative(REFERENCE_DATE, new String[] {NOT_USED_2[0], NOT_USED_2[1]});
-    final ForexOptionVanilla putUSDEUR = putUSDEURDefinition.toDerivative(REFERENCE_DATE, new String[] {NOT_USED_2[1], NOT_USED_2[0]});
+    final ForexOptionVanilla callEURUSD = callEURUSDDefinition.toDerivative(REFERENCE_DATE, new String[] {NOT_USED_2[0], NOT_USED_2[1] });
+    final ForexOptionVanilla putUSDEUR = putUSDEURDefinition.toDerivative(REFERENCE_DATE, new String[] {NOT_USED_2[1], NOT_USED_2[0] });
     final MultipleCurrencyAmount pvCallEURUSD = METHOD_OPTION.currencyExposure(callEURUSD, SMILE_MULTICURVES);
     final MultipleCurrencyAmount pvPutUSDEUR = METHOD_OPTION.currencyExposure(putUSDEUR, SMILE_MULTICURVES);
     assertEquals("Forex vanilla option: currency exposure", pvCallEURUSD.getAmount(EUR), pvPutUSDEUR.getAmount(EUR), TOLERANCE_PV);
@@ -623,6 +624,8 @@ public class ForexOptionVanillaBlackSmileMethodTest {
   //      assertEquals("Forex: relative gamma", 1.0, gammaCalculator.getAmount() / gammaMethod.getAmount(), TOLERANCE_PV);
   //    }
 
+  private static final GammaSpotForexBlackSmileCalculator GSFBSC = GammaSpotForexBlackSmileCalculator.getInstance();
+
   @Test
   /**
    * Tests the gamma for Forex option.
@@ -641,6 +644,7 @@ public class ForexOptionVanillaBlackSmileMethodTest {
     final double gammaSpotExpected = gammaRelativeSpot * notional;
     final CurrencyAmount gammaSpotComputed = METHOD_OPTION.gammaSpot(forexOption, SMILE_MULTICURVES, true);
     assertEquals("Forex: relative gamma", 1.0, gammaSpotExpected / gammaSpotComputed.getAmount(), TOLERANCE_PV);
+    assertEquals("Forex: relative gamma", 1.0, gammaSpotExpected / forexOption.accept(GSFBSC, SMILE_MULTICURVES).getAmount(), TOLERANCE_PV);
     final double gammaSpotExpected2 = METHOD_OPTION.gamma(forexOption, SMILE_MULTICURVES, true).getAmount() * SPOT;
     assertEquals("Forex: relative gamma", 1.0, gammaSpotExpected2 / gammaSpotComputed.getAmount(), TOLERANCE_PV);
   }
@@ -666,26 +670,6 @@ public class ForexOptionVanillaBlackSmileMethodTest {
     final double gammaSpotExpected2 = METHOD_OPTION.gamma(forexOption, SMILE_MULTICURVES, false).getAmount() * SPOT;
     assertEquals("Forex: relative gamma", 1.0, gammaSpotExpected2 / gammaSpotComputed.getAmount(), TOLERANCE_PV);
   }
-
-  //    @Test
-  //    /**
-  //     * Tests the gamma for Forex option.
-  //     */
-  //    public void gammaSpotMethodVsCalculator() {
-  //      final double strike = 1.45;
-  //      final boolean isCall = true;
-  //      final boolean isLong = true;
-  //      final double notional = 100000000;
-  //      final ZonedDateTime payDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, DateUtils.periodOfMonths(9), BUSINESS_DAY, CALENDAR);
-  //      final ZonedDateTime expDate = ScheduleCalculator.getAdjustedDate(payDate, -SETTLEMENT_DAYS, CALENDAR);
-  //      final ForexDefinition forexUnderlyingDefinition = new ForexDefinition(EUR, USD, payDate, notional, strike);
-  //      final ForexOptionVanillaDefinition forexOptionDefinition = new ForexOptionVanillaDefinition(forexUnderlyingDefinition, expDate, isCall, isLong);
-  //      final ForexOptionVanilla forexOption = forexOptionDefinition.toDerivative(REFERENCE_DATE, NOT_USED_2);
-  //      final GammaSpotBlackForexCalculator calculator = GammaSpotBlackForexCalculator.getInstance();
-  //      final CurrencyAmount gammaSpotCalculator = forexOption.accept(calculator, SMILE_MULTICURVES);
-  //      final CurrencyAmount gammaSpotMethod = METHOD_OPTION.gammaSpot(forexOption, SMILE_MULTICURVES, true);
-  //      assertEquals("Forex: relative gamma", 1.0, gammaSpotCalculator.getAmount() / gammaSpotMethod.getAmount(), TOLERANCE_PV);
-  //    }
 
   @Test
   /**
