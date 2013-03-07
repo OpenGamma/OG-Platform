@@ -198,6 +198,8 @@ public final class BloombergConstants {
   //Bloomberg index future type
   public static final String BLOOMBERG_EQUITY_INDEX_TYPE = "Equity Index";
   public static final String BBG_NON_EQUITY_INDEX_TYPE = "Non-Equity Index";
+  public static final String BBG_WEEKLY_INDEX_OPTIONS_TYPE = "Weekly Index Options";
+  
   public static final String BLOOMBERG_INTEREST_RATE_TYPE = "Interest Rate";
   public static final String BLOOMBERG_FINANCIAL_COMMODITY_OPTION_TYPE = "Financial commodity option.";
   public static final String BLOOMBERG_CURRENCY_TYPE = "Currency";

@@ -84,7 +84,7 @@ public class BloombergIdResolver extends AbstractResolver<ExternalIdBundle, Exte
           result.put(bundle, ExternalSchemes.bloombergBuidSecurityId(bbgUniqueId));
         }
       } else {
-        s_logger.warn("Unable to identify any Bloomberg compatible identifier for {}", bundle);
+        s_logger.info("Unable to identify any Bloomberg compatible identifier for {}", bundle);
         result.put(bundle, null);
       }
     }

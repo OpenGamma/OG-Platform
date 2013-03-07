@@ -13,12 +13,15 @@ import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 import org.threeten.bp.LocalDate;
+import org.threeten.bp.Period;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.marketdata.spec.FixedHistoricalMarketDataSpecification;
 import com.opengamma.engine.view.execution.ArbitraryViewCycleExecutionSequence;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.execution.ViewCycleExecutionSequence;
 import com.opengamma.livedata.UserPrincipal;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Target for {@link HistoricalViewEvaluationFunction} which ensures that an execution sequence is constructed which
@@ -42,33 +45,49 @@ public class HistoricalViewEvaluationTarget extends ViewEvaluationTarget {
    * Fudge field containing whether the end date is inclusive.
    */
   protected static final String INCLUDE_END_FIELD = "includeEnd";
+  /**
+   * Fudge field containing the period.
+   */
+  protected static final String PERIOD_FIELD = "period";
   
   private final LocalDate _startDate;
   private final boolean _includeStart;
   private final LocalDate _endDate;
   private final boolean _includeEnd;
+  private final Period _period;
   
   public HistoricalViewEvaluationTarget(UserPrincipal user, LocalDate startDate, boolean includeStart,
-      LocalDate endDate, boolean includeEnd) {
+      LocalDate endDate, boolean includeEnd, Period period) {
     super(user, buildExecutionSequence(startDate, includeStart, endDate, includeEnd));
+    ArgumentChecker.notNull(startDate, "startDate");
+    ArgumentChecker.notNull(endDate, "endDate");
     _startDate = startDate;
     _includeStart = includeStart;
     _endDate = endDate;
     _includeEnd = includeEnd;
+    if (period != null) {
+      if (!startDate.plus(period).equals(endDate)) {
+        throw new OpenGammaRuntimeException("Period " + period + " is inconsistent with start date " + startDate + " and end date " + endDate);
+      }
+      _period = period;
+    } else {
+      _period = Period.between(startDate, endDate);
+    }
   }
   
   public HistoricalViewEvaluationTarget(FudgeDeserializer deserializer, FudgeMsg message) {
     this(deserializer, message, message.getValue(LocalDate.class, START_DATE_FIELD),
         message.getBoolean(INCLUDE_START_FIELD), message.getValue(LocalDate.class, END_DATE_FIELD),
-        message.getBoolean(INCLUDE_END_FIELD));
+        message.getBoolean(INCLUDE_END_FIELD), message.getValue(Period.class, PERIOD_FIELD));
   }
   
-  private HistoricalViewEvaluationTarget(FudgeDeserializer deserializer, FudgeMsg message, LocalDate startDate, boolean includeStart, LocalDate endDate, boolean includeEnd) {
+  private HistoricalViewEvaluationTarget(FudgeDeserializer deserializer, FudgeMsg message, LocalDate startDate, boolean includeStart, LocalDate endDate, boolean includeEnd, Period period) {
     super(deserializer, message, buildExecutionSequence(startDate, includeStart, endDate, includeEnd));
     _startDate = startDate;
     _includeStart = includeStart;
     _endDate = endDate;
     _includeEnd = includeEnd;
+    _period = period;
   }
   
   private static ViewCycleExecutionSequence buildExecutionSequence(LocalDate startDate, boolean includeStart,
@@ -108,6 +127,10 @@ public class HistoricalViewEvaluationTarget extends ViewEvaluationTarget {
   public boolean isIncludeEnd() {
     return _includeEnd;
   }
+  
+  public Period getPeriod() {
+    return _period;
+  }
 
   @Override
   protected void toFudgeMsgImpl(FudgeSerializer serializer, MutableFudgeMsg message) {
@@ -121,6 +144,7 @@ public class HistoricalViewEvaluationTarget extends ViewEvaluationTarget {
     message.add(INCLUDE_START_FIELD, isIncludeStart());
     message.add(END_DATE_FIELD, getEndDate());
     message.add(INCLUDE_END_FIELD, isIncludeEnd());
+    message.add(PERIOD_FIELD, getPeriod());
   }
 
   public static HistoricalViewEvaluationTarget fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg message) {
