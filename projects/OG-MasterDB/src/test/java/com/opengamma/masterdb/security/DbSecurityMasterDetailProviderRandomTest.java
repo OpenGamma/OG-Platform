@@ -281,4 +281,10 @@ public class DbSecurityMasterDetailProviderRandomTest extends DbTest implements 
   public void testCashFlowSecurity() {
     _testCase.testCashFlowSecurity();
   }
+
+  @Override
+  public void testCreditDefaultSwapIndexSecurity() {
+    _testCase.testCreditDefaultSwapIndexSecurity();
+  }
+  
 }
