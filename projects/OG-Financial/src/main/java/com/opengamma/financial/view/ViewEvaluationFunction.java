@@ -53,8 +53,7 @@ import com.opengamma.util.async.ResultCallback;
 
 /**
  * Runs an arbitrary execution sequence on a view definition to produce values for one or more targets. The job is
- * encoded into a {@link ViewEvaluationTarget}. The results are written as a {@link ViewEvaluationResult} for each
- * configuration and dependent nodes in the graph will extract time series appropriate to their specific targets.
+ * encoded into a {@link ViewEvaluationTarget}.
  * 
  * @param <TTarget>  the computation target type
  * @param <TResultBuilder>  the type of the result builder used throughout execution
@@ -145,7 +144,8 @@ public abstract class ViewEvaluationFunction<TTarget extends ViewEvaluationTarge
     final ViewClient viewClient = viewProcessor.createViewClient(viewEvaluation.getViewDefinition().getMarketDataUser());
     final UniqueId viewClientId = viewClient.getUniqueId();
     s_logger.info("Created view client {}, connecting to {}", viewClientId, viewId);
-    viewClient.attachToViewProcess(viewId, ExecutionOptions.of(viewEvaluation.getExecutionSequence(), getDefaultCycleOptions(executionContext), EnumSet.of(ViewExecutionFlags.WAIT_FOR_INITIAL_TRIGGER)), true);
+    viewClient.attachToViewProcess(viewId, ExecutionOptions.of(viewEvaluation.getExecutionSequence(),
+        getDefaultCycleOptions(executionContext), EnumSet.of(ViewExecutionFlags.WAIT_FOR_INITIAL_TRIGGER)), true);
     final TResultBuilder resultBuilder = createResultBuilder(viewEvaluation);
     final AsynchronousOperation<Set<ComputedValue>> async = AsynchronousOperation.createSet();
     final AtomicReference<ResultCallback<Set<ComputedValue>>> asyncResult = new AtomicReference<ResultCallback<Set<ComputedValue>>>(async.getCallback());

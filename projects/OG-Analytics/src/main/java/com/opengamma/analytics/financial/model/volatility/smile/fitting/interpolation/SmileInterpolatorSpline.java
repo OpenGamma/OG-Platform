@@ -69,8 +69,7 @@ public class SmileInterpolatorSpline implements GeneralSmileInterpolator {
     ArgumentChecker.isTrue(impliedVols.length == n, "#strikes {} does not match #vols {}", n, impliedVols.length);
     final double kL = strikes[0];
     final double kH = strikes[n - 1];
-    ArgumentChecker.isTrue(kL <= forward, "Cannot do left tail extrapolation when the lowest strike ({}) is greater than the forward ({})", kL, forward);
-    ArgumentChecker.isTrue(kH >= forward, "Cannot do right tail extrapolation when the highest strike ({}) is less than the forward ({})", kH, forward);
+
 
     final double[] x = new double[n];
     for (int i = 0; i < n; i++) {
@@ -107,10 +106,14 @@ public class SmileInterpolatorSpline implements GeneralSmileInterpolator {
 
     // The 'quiet' method reduces smile if the volatility gradient is either out of bounds of ShiftedLognormal model, or if root-finder fails to find solution
     if (_extrapolatorFailureBehaviour.equalsIgnoreCase(s_quiet)) {
+      ArgumentChecker.isTrue(kL <= forward, "Cannot do left tail extrapolation when the lowest strike ({}) is greater than the forward ({})", kL, forward);
+      ArgumentChecker.isTrue(kH >= forward, "Cannot do right tail extrapolation when the highest strike ({}) is less than the forward ({})", kH, forward);
       shiftLnVolHighTail = TAIL_FITTER.fitVolatilityAndGradRecursivelyByReducingSmile(forward, strikes[n - 1], impliedVols[n - 1], dSigmaDx.evaluate(kH), expiry);
       shiftLnVolLowTail = TAIL_FITTER.fitVolatilityAndGradRecursivelyByReducingSmile(forward, kL, impliedVols[0], dSigmaDx.evaluate(kL), expiry);
       // 'Exception' will throw an exception if it fails to fit to target vol and gradient provided by interpolating function at the boundary
     } else if (_extrapolatorFailureBehaviour.equalsIgnoreCase(s_exception)) {
+      ArgumentChecker.isTrue(kL <= forward, "Cannot do left tail extrapolation when the lowest strike ({}) is greater than the forward ({})", kL, forward);
+      ArgumentChecker.isTrue(kH >= forward, "Cannot do right tail extrapolation when the highest strike ({}) is less than the forward ({})", kH, forward);
       shiftLnVolHighTail = TAIL_FITTER.fitVolatilityAndGrad(forward, kH, impliedVols[n - 1], dSigmaDx.evaluate(kH), expiry);
       shiftLnVolLowTail = TAIL_FITTER.fitVolatilityAndGrad(forward, kL, impliedVols[0], dSigmaDx.evaluate(kL), expiry);
       // 'Flat' will simply return the target volatility at the boundary. Thus the target gradient is zero.

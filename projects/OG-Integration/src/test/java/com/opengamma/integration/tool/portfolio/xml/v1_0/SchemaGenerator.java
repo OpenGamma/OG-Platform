@@ -6,6 +6,7 @@
 package com.opengamma.integration.tool.portfolio.xml.v1_0;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.xml.bind.JAXBContext;
@@ -16,7 +17,6 @@ import javax.xml.transform.dom.DOMResult;
 
 import org.w3c.dom.Document;
 
-import com.beust.jcommander.internal.Sets;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.PortfolioDocumentV1_0;
 import com.sun.org.apache.xml.internal.serialize.OutputFormat;
 import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
@@ -44,7 +44,7 @@ public class SchemaGenerator {
 
   private static DOMResult extractSchemaResult(JAXBContext ctx) throws IOException {
 
-    final Set<DOMResult> resultWrapper = Sets.newHashSet();
+    final Set<DOMResult> resultWrapper = new HashSet<DOMResult>();
 
     ctx.generateSchema(new SchemaOutputResolver() {
       @Override

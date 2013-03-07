@@ -55,12 +55,12 @@ public class HistoricalViewEvaluationFunction extends ViewEvaluationFunction<His
 
   @Override
   protected Set<ComputedValue> buildResults(ComputationTarget target, HistoricalViewEvaluationResultBuilder resultBuilder) {
-    final Map<String, ViewEvaluationResult> viewResults = resultBuilder.getResults();
+    final Map<String, HistoricalViewEvaluationResult> viewResults = resultBuilder.getResults();
     final Set<ComputedValue> results = Sets.newHashSetWithExpectedSize(viewResults.size());
     final ComputationTargetSpecification targetSpec = target.toSpecification();
-    for (final Map.Entry<String, ViewEvaluationResult> viewResult : viewResults.entrySet()) {
+    for (final Map.Entry<String, HistoricalViewEvaluationResult> viewResult : viewResults.entrySet()) {
       String calcConfigName = viewResult.getKey();
-      ViewEvaluationResult value = viewResult.getValue();
+      HistoricalViewEvaluationResult value = viewResult.getValue();
       results.add(new ComputedValue(getResultSpec(calcConfigName, targetSpec), value));
     }
     return results;
