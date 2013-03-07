@@ -96,7 +96,7 @@ public class AnnuityCouponIborRatchet extends Annuity<Coupon> {
       default:
         break;
     }
-    return calibration.toArray(new InstrumentDerivative[0]);
+    return calibration.toArray(new InstrumentDerivative[calibration.size()]);
   }
 
   @Override

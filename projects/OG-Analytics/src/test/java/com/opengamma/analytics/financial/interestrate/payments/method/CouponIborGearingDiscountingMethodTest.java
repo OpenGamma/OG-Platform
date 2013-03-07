@@ -65,7 +65,7 @@ public class CouponIborGearingDiscountingMethodTest {
       FIXING_DATE, INDEX, SPREAD, FACTOR);
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 12, 27);
   private static final YieldCurveBundle CURVES_BUNDLE = TestsDataSetsSABR.createCurves1();
-  private static final String[] CURVES_NAMES = CURVES_BUNDLE.getAllNames().toArray(new String[0]);
+  private static final String[] CURVES_NAMES = CURVES_BUNDLE.getAllNames().toArray(new String[CURVES_BUNDLE.size()]);
   private static final CouponIborGearingDiscountingMethod METHOD = CouponIborGearingDiscountingMethod.getInstance();
   private static final CouponIborGearing COUPON = COUPON_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAMES);
   private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
