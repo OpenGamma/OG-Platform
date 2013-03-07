@@ -7,8 +7,16 @@ $.register_module({
     dependencies: [],
     obj: function () {
         return function (config) {
+            /**
+             * launches a trade entry dialog
+             * @param {Object} config.details the data of a current trade, places form in edit mode (optional)
+             * @param {Object} config.portfolio the data of a node, places form in create mode (optional)
+             * @param {Function} config.handler the endopoint that the form submits too
+             * @param {Function} config.complete fired when the form closes after a sucessful edit/create (optional) 
+             */
+             console.log(config);
             var constructor = this, $selector, form_block = '.OG-blotter-form-block', form_wrapper, title, submit,
-            blotter, error_block = '.OG-blotter-error-block';
+            blotter, error_block = '.OG-blotter-error-block', complete = config.complete || $.noop;
             var validation_handler = function (result) {
                 if(result.error) {
                     og.common.util.ui.message({css: {position: 'inherit', whiteSpace: 'normal'},
@@ -16,8 +24,10 @@ $.register_module({
                     return;
                 }
                 blotter.close();
+                complete();
             };
             constructor.load = function () {
+                // security type tells which type of form to load
                 if (config.details) {
                     title = 'Edit Trade', submit = 'Update';
                     og.api.text({module: 'og.blotter.forms.blocks.form_edit_tash'}).pipe(function (template){
@@ -66,7 +76,6 @@ $.register_module({
                 $(form_block).empty();
                 $('.ui-dialog-title').html("Add New Trade");
             };
-
             constructor.load();
         };
     }
