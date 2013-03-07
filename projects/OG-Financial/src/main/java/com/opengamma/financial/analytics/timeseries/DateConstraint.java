@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.timeseries;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 
@@ -122,6 +123,11 @@ public abstract class DateConstraint {
     }
 
     @Override
+    public DateConstraint nextWeekDay() {
+      throw new UnsupportedOperationException("Can't take next week day from NULL");
+    }
+
+    @Override
     public DateConstraint plus(final Period period) {
       throw new UnsupportedOperationException("Can't add a period to NULL");
     }
@@ -136,6 +142,16 @@ public abstract class DateConstraint {
       return NULL_STRING;
     }
 
+    @Override
+    public int hashCode() {
+      return 0;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+      return (o instanceof NullDateConstraint);
+    }
+
   }
 
   private static final class LiteralDateConstraint extends DateConstraint {
@@ -147,8 +163,42 @@ public abstract class DateConstraint {
     }
 
     @Override
+    public DateConstraint previousWeekDay() {
+      return new LiteralDateConstraint(DateUtils.previousWeekDay(_value));
+    }
+
+    @Override
+    public DateConstraint nextWeekDay() {
+      return new LiteralDateConstraint(DateUtils.nextWeekDay(_value));
+    }
+
+    @Override
+    public DateConstraint plus(Period period) {
+      return new LiteralDateConstraint(_value.plus(period));
+    }
+
+    @Override
+    public DateConstraint minus(Period period) {
+      return new LiteralDateConstraint(_value.minus(period));
+    }
+
+    @Override
     public String toString() {
       return _value.toString();
+    }
+
+    @Override
+    public int hashCode() {
+      return _value.hashCode();
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+      if (!(o instanceof LiteralDateConstraint)) {
+        return false;
+      }
+      LiteralDateConstraint other = (LiteralDateConstraint) o;
+      return _value.equals(other._value);
     }
 
   }
@@ -214,6 +264,22 @@ public abstract class DateConstraint {
       return sb.toString();
     }
 
+    @Override
+    public int hashCode() {
+      return ObjectUtils.hashCode(_underlying) + (_plus ? 1 : 0) + ObjectUtils.hashCode(_period);
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+      if (!(o instanceof PlusMinusPeriodDateConstraint)) {
+        return false;
+      }
+      final PlusMinusPeriodDateConstraint other = (PlusMinusPeriodDateConstraint) o;
+      return ObjectUtils.equals(_underlying, other._underlying)
+          && (_plus == other._plus)
+          && ObjectUtils.equals(_period, other._period);
+    }
+
   }
 
   private static final class WeekDayDateConstraint extends DateConstraint {
@@ -253,7 +319,7 @@ public abstract class DateConstraint {
     }
 
     private String expr(final int adjust, final String str) {
-      if (_adjust == 1) {
+      if (adjust == 1) {
         if (_underlying != null) {
           return str + "(" + _underlying + ")";
         } else {
@@ -271,6 +337,21 @@ public abstract class DateConstraint {
       } else {
         return expr(_adjust, NEXT_WEEK_DAY_STRING);
       }
+    }
+
+    @Override
+    public int hashCode() {
+      return ObjectUtils.hashCode(_underlying) + _adjust;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+      if (!(o instanceof WeekDayDateConstraint)) {
+        return false;
+      }
+      final WeekDayDateConstraint other = (WeekDayDateConstraint) o;
+      return ObjectUtils.equals(_underlying, other._underlying)
+          && (_adjust == other._adjust);
     }
 
   }
@@ -300,6 +381,16 @@ public abstract class DateConstraint {
     @Override
     public String toString() {
       return NOW_STRING;
+    }
+
+    @Override
+    public int hashCode() {
+      return Integer.MAX_VALUE;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+      return (o instanceof ValuationTime);
     }
 
   }
@@ -365,9 +456,13 @@ public abstract class DateConstraint {
       return null;
     }
     if (str.startsWith(NOW_STRING)) {
-      return parseRight(VALUATION_TIME, str.substring(NOW_STRING.length()));
+      if (str.length() == NOW_STRING.length()) {
+        return VALUATION_TIME;
+      } else {
+        return parseRight(VALUATION_TIME, str.substring(NOW_STRING.length()));
+      }
     } else if (str.startsWith(NULL_STRING)) {
-      return null;
+      return NULL;
     } else if (str.charAt(0) == '-') {
       return VALUATION_TIME.minus(Period.parse(str.substring(1)));
     } else if (str.charAt(0) == '+') {
