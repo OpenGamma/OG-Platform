@@ -6,6 +6,8 @@
 package com.opengamma.analytics.financial.provider.calculator.inflation;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationYearOnYearInterpolation;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationYearOnYearMonthly;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponInterpolation;
@@ -18,8 +20,13 @@ import com.opengamma.analytics.financial.interestrate.inflation.method.CouponInf
 import com.opengamma.analytics.financial.interestrate.inflation.method.CouponInflationZeroCouponInterpolationGearingDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.inflation.method.CouponInflationZeroCouponMonthlyDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.inflation.method.CouponInflationZeroCouponMonthlyGearingDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
+import com.opengamma.analytics.financial.interestrate.payments.provider.CouponFixedCompoundingDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
+import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.inflation.MultipleCurrencyInflationSensitivity;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Calculator of the present value curve sensitivity as multiple currency interest rate curve sensitivity.
@@ -70,6 +77,10 @@ public final class PresentValueCurveSensitivityDiscountingInflationCalculator ex
    * Pricing method for year on year coupon with interpolated reference index.
    */
   private static final CouponInflationYearOnYearInterpolationDiscountingMethod METHOD_YEAR_ON_YEAR_INTERPOLATION = new CouponInflationYearOnYearInterpolationDiscountingMethod();
+  /**
+   * Pricing method for year on year coupon fixed compounding.
+   */
+  private static final CouponFixedCompoundingDiscountingMethod METHOD_CPN_FIXED_COMPOUNDING = CouponFixedCompoundingDiscountingMethod.getInstance();
 
   // -----     Inflation Coupon     ------
 
@@ -102,6 +113,43 @@ public final class PresentValueCurveSensitivityDiscountingInflationCalculator ex
   @Override
   public MultipleCurrencyInflationSensitivity visitCouponInflationYearOnYearInterpolation(final CouponInflationYearOnYearInterpolation coupon, final InflationProviderInterface inflation) {
     return METHOD_YEAR_ON_YEAR_INTERPOLATION.presentValueCurveSensitivity(coupon, inflation);
+  }
+
+  /*@Override
+  public MultipleCurrencyInflationSensitivity visitCouponFixedCompounding(final CouponFixedCompounding payment, final InflationProviderInterface inflation) {
+    return METHOD_CPN_FIXED_COMPOUNDING.presentValueCurveSensitivity(payment, inflation);
+  }*/
+
+  //-----     Annuity     ------
+
+  @Override
+  public MultipleCurrencyInflationSensitivity visitGenericAnnuity(final Annuity<? extends Payment> annuity, final InflationProviderInterface inflation) {
+    ArgumentChecker.notNull(annuity, "Annuity");
+    ArgumentChecker.notNull(inflation, "inflation");
+    MultipleCurrencyInflationSensitivity cs = annuity.getNthPayment(0).accept(this, inflation);
+    for (int loopp = 1; loopp < annuity.getNumberOfPayments(); loopp++) {
+      cs = cs.plus(annuity.getNthPayment(loopp).accept(this, inflation));
+    }
+    return cs;
+  }
+
+  @Override
+  public MultipleCurrencyInflationSensitivity visitFixedCouponAnnuity(final AnnuityCouponFixed annuity, final InflationProviderInterface inflation) {
+    return visitGenericAnnuity(annuity, inflation);
+  }
+
+  // -----     Swap     ------
+
+  @Override
+  public MultipleCurrencyInflationSensitivity visitSwap(final Swap<?, ?> swap, final InflationProviderInterface inflation) {
+    final MultipleCurrencyInflationSensitivity sensitivity1 = swap.getFirstLeg().accept(this, inflation);
+    final MultipleCurrencyInflationSensitivity sensitivity2 = swap.getSecondLeg().accept(this, inflation);
+    return sensitivity1.plus(sensitivity2);
+  }
+
+  @Override
+  public MultipleCurrencyInflationSensitivity visitFixedCouponSwap(final SwapFixedCoupon<?> swap, final InflationProviderInterface multicurve) {
+    return visitSwap(swap, multicurve);
   }
 
 }

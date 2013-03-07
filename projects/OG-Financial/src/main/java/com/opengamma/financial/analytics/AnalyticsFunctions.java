@@ -183,12 +183,12 @@ public class AnalyticsFunctions extends AbstractRepositoryConfigurationBean {
     addScalingAndSummingFunction(functions, ValueRequirementNames.PNL);
     addSummingFunction(functions, ValueRequirementNames.PNL_SERIES);
     addSummingFunction(functions, ValueRequirementNames.POSITION_DELTA);
-    
+
     addSummingFunction(functions, ValueRequirementNames.POSITION_GAMMA);
     addSummingFunction(functions, ValueRequirementNames.POSITION_RHO);
     addSummingFunction(functions, ValueRequirementNames.POSITION_THETA);
-    addSummingFunction(functions, ValueRequirementNames.POSITION_VEGA);    
-    
+    addSummingFunction(functions, ValueRequirementNames.POSITION_VEGA);
+
     addScalingAndSummingFunction(functions, ValueRequirementNames.PRESENT_VALUE);
     addScalingAndSummingFunction(functions, ValueRequirementNames.PRESENT_VALUE_CURVE_SENSITIVITY);
     addScalingAndSummingFunction(functions, ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_NODE_SENSITIVITY);
@@ -247,6 +247,8 @@ public class AnalyticsFunctions extends AbstractRepositoryConfigurationBean {
     addUnitScalingFunction(functions, ValueRequirementNames.ZOMMA_P);
     addUnitScalingFunction(functions, ValueRequirementNames.BARRIER_DISTANCE);
     addUnitScalingFunction(functions, ValueRequirementNames.BUCKETED_CS01);
+    addScalingFunction(functions, ValueRequirementNames.MONETIZED_VEGA);
+    addSummingFunction(functions, ValueRequirementNames.MONETIZED_VEGA);
   }
 
   protected RepositoryConfigurationSource cashFlowFunctionConfiguration() {

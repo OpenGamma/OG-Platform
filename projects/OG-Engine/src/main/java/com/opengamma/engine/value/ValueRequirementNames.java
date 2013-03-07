@@ -791,6 +791,10 @@ public final class ValueRequirementNames {
    * The time derivative of the percentage gamma of an option.
    */
   public static final String ZOMMA_P = "ZommaP";
+  /**
+   * The monetized vega.
+   */
+  public static final String MONETIZED_VEGA = "Monetized Vega";
 
   ///// Series Analysis
 

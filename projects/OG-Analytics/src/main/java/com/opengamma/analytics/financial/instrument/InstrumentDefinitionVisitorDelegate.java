@@ -16,6 +16,9 @@ import com.opengamma.analytics.financial.commodity.definition.MetalFutureDefinit
 import com.opengamma.analytics.financial.commodity.definition.MetalFutureOptionDefinition;
 import com.opengamma.analytics.financial.equity.future.definition.EquityFutureDefinition;
 import com.opengamma.analytics.financial.equity.future.definition.EquityIndexDividendFutureDefinition;
+import com.opengamma.analytics.financial.equity.future.definition.EquityIndexFutureDefinition;
+import com.opengamma.analytics.financial.equity.future.definition.IndexFutureDefinition;
+import com.opengamma.analytics.financial.equity.future.definition.VolatilityIndexFutureDefinition;
 import com.opengamma.analytics.financial.equity.option.EquityIndexFutureOptionDefinition;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOptionDefinition;
 import com.opengamma.analytics.financial.equity.option.EquityOptionDefinition;
@@ -914,6 +917,36 @@ public class InstrumentDefinitionVisitorDelegate<DATA_TYPE, RESULT_TYPE> impleme
   @Override
   public RESULT_TYPE visitEquityVarianceSwapDefinition(final EquityVarianceSwapDefinition varianceSwap, final DATA_TYPE data) {
     return _delegate.visitEquityVarianceSwapDefinition(varianceSwap, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitIndexFutureDefinition(IndexFutureDefinition future, DATA_TYPE data) {
+    return _delegate.visitIndexFutureDefinition(future, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitIndexFutureDefinition(IndexFutureDefinition future) {
+    return _delegate.visitIndexFutureDefinition(future);
+  }
+
+  @Override
+  public RESULT_TYPE visitEquityIndexFutureDefinition(EquityIndexFutureDefinition future, DATA_TYPE data) {
+    return _delegate.visitEquityIndexFutureDefinition(future, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitEquityIndexFutureDefinition(EquityIndexFutureDefinition future) {
+    return _delegate.visitEquityIndexFutureDefinition(future);
+  }
+
+  @Override
+  public RESULT_TYPE visitVolatilityIndexFutureDefinition(VolatilityIndexFutureDefinition future, DATA_TYPE data) {
+    return _delegate.visitVolatilityIndexFutureDefinition(future, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitVolatilityIndexFutureDefinition(VolatilityIndexFutureDefinition future) {
+    return _delegate.visitVolatilityIndexFutureDefinition(future);
   }
 
 }

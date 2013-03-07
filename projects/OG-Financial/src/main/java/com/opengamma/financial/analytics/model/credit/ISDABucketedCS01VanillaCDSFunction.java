@@ -177,6 +177,7 @@ public class ISDABucketedCS01VanillaCDSFunction extends AbstractFunction.NonComp
         //.withAny(ValuePropertyNames.CURVE)
         .withAny(ISDAFunctionConstants.ISDA_CURVE_OFFSET)
         .withAny(ISDAFunctionConstants.ISDA_CURVE_DATE)
+        .withAny(ISDAFunctionConstants.ISDA_IMPLEMENTATION)
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, ISDAFunctionConstants.ISDA_METHOD_NAME)
         .get();
     return Collections.singleton(new ValueSpecification(ValueRequirementNames.BUCKETED_CS01, target.toSpecification(), properties));
@@ -200,12 +201,18 @@ public class ISDABucketedCS01VanillaCDSFunction extends AbstractFunction.NonComp
       return null;
     }
 
+    final String isdaCurveMethod = desiredValue.getConstraint(ISDAFunctionConstants.ISDA_IMPLEMENTATION);
+    if (isdaCurveMethod == null) {
+      return null;
+    }
+
     // isda curve
     final ValueProperties isdaProperties = ValueProperties.builder()
         .with(ValuePropertyNames.CURVE, "ISDA_" + curveIdentifier.toString())
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, ISDAFunctionConstants.ISDA_METHOD_NAME)
         .with(ISDAFunctionConstants.ISDA_CURVE_OFFSET, isdaOffset)
         .with(ISDAFunctionConstants.ISDA_CURVE_DATE, isdaCurveDate)
+        .with(ISDAFunctionConstants.ISDA_IMPLEMENTATION, isdaCurveMethod)
         .get();
     final ValueRequirement isdaRequirment = new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.CURRENCY, ccy.getUniqueId(), isdaProperties);
 

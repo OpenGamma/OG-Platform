@@ -59,6 +59,7 @@ public class CurrencyFunctions extends AbstractRepositoryConfigurationBean {
     addCurrencyConversionFunction(functions, ValueRequirementNames.VALUE_VEGA);
     addCurrencyConversionFunction(functions, ValueRequirementNames.VALUE_VOMMA);
     addCurrencyConversionFunction(functions, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES);
+    addCurrencyConversionFunction(functions, ValueRequirementNames.MONETIZED_VEGA);
   }
 
 }

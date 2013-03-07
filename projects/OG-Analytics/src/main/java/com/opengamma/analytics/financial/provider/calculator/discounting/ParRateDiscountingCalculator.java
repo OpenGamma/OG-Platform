@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.financial.provider.calculator.discounting;
 
+import com.opengamma.analytics.financial.forex.derivative.Forex;
+import com.opengamma.analytics.financial.forex.provider.ForexDiscountingProviderMethod;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
 import com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureSecurityDiscountingMethod;
@@ -44,6 +46,9 @@ public final class ParRateDiscountingCalculator extends InstrumentDerivativeVisi
 
   private static final SwapFixedCouponDiscountingMethod METHOD_SWAP = SwapFixedCouponDiscountingMethod.getInstance();
   private static final InterestRateFutureSecurityDiscountingMethod METHOD_IR_FUT = InterestRateFutureSecurityDiscountingMethod.getInstance();
+  private static final ForexDiscountingProviderMethod METHOD_FOREX = ForexDiscountingProviderMethod.getInstance();
+
+  // TODO: Add FRA
 
   /**
    * Computes the par rate of a swap with one fixed leg.
@@ -89,6 +94,13 @@ public final class ParRateDiscountingCalculator extends InstrumentDerivativeVisi
   @Override
   public Double visitInterestRateFutureSecurity(final InterestRateFutureSecurity futures, final MulticurveProviderInterface multicurves) {
     return METHOD_IR_FUT.parRate(futures, multicurves);
+  }
+
+  // -----     Forex     ------
+
+  @Override
+  public Double visitForex(final Forex derivative, final MulticurveProviderInterface multicurves) {
+    return METHOD_FOREX.forwardForexRate(derivative, multicurves);
   }
 
 }

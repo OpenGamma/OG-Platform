@@ -28,6 +28,9 @@ import com.opengamma.analytics.financial.commodity.definition.MetalFutureDefinit
 import com.opengamma.analytics.financial.commodity.definition.MetalFutureOptionDefinition;
 import com.opengamma.analytics.financial.equity.future.definition.EquityFutureDefinition;
 import com.opengamma.analytics.financial.equity.future.definition.EquityIndexDividendFutureDefinition;
+import com.opengamma.analytics.financial.equity.future.definition.EquityIndexFutureDefinition;
+import com.opengamma.analytics.financial.equity.future.definition.IndexFutureDefinition;
+import com.opengamma.analytics.financial.equity.future.definition.VolatilityIndexFutureDefinition;
 import com.opengamma.analytics.financial.equity.option.EquityIndexFutureOptionDefinition;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOptionDefinition;
 import com.opengamma.analytics.financial.equity.option.EquityOptionDefinition;
@@ -1088,6 +1091,36 @@ public class InstrumentDefinitionVisitorTest {
     @Override
     public String visitCouponFixedCompoundingDefinition(CouponFixedCompoundingDefinition payment) {
       return getValue(payment, false);
+    }
+
+    @Override
+    public String visitIndexFutureDefinition(IndexFutureDefinition future, T data) {
+      return getValue(future, true);
+    }
+
+    @Override
+    public String visitIndexFutureDefinition(IndexFutureDefinition future) {
+      return getValue(future, false);
+    }
+
+    @Override
+    public String visitEquityIndexFutureDefinition(EquityIndexFutureDefinition future, T data) {
+      return getValue(future, true);
+    }
+
+    @Override
+    public String visitEquityIndexFutureDefinition(EquityIndexFutureDefinition future) {
+      return getValue(future, false);
+    }
+
+    @Override
+    public String visitVolatilityIndexFutureDefinition(VolatilityIndexFutureDefinition future, T data) {
+      return getValue(future, true);
+    }
+
+    @Override
+    public String visitVolatilityIndexFutureDefinition(VolatilityIndexFutureDefinition future) {
+      return getValue(future, false);
     }
 
   }

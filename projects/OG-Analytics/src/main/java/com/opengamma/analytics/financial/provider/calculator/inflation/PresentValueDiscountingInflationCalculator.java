@@ -5,10 +5,9 @@
  */
 package com.opengamma.analytics.financial.provider.calculator.inflation;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorDelegate;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationYearOnYearInterpolation;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationYearOnYearMonthly;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponInterpolation;
@@ -22,8 +21,11 @@ import com.opengamma.analytics.financial.interestrate.inflation.method.CouponInf
 import com.opengamma.analytics.financial.interestrate.inflation.method.CouponInflationZeroCouponMonthlyDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.inflation.method.CouponInflationZeroCouponMonthlyGearingDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
+import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
+import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
@@ -77,16 +79,6 @@ public final class PresentValueDiscountingInflationCalculator extends Instrument
   private static final CouponInflationYearOnYearInterpolationDiscountingMethod METHOD_YEAR_ON_YEAR_INTERPOLATION = new CouponInflationYearOnYearInterpolationDiscountingMethod();
 
   @Override
-  public MultipleCurrencyAmount visitGenericAnnuity(final Annuity<? extends Payment> annuity, final InflationProviderInterface market) {
-    Validate.notNull(annuity);
-    MultipleCurrencyAmount pv = MultipleCurrencyAmount.of(annuity.getCurrency(), 0.0);
-    for (final Payment p : annuity.getPayments()) {
-      pv = pv.plus(p.accept(this, market));
-    }
-    return pv;
-  }
-
-  @Override
   public MultipleCurrencyAmount visitCouponInflationZeroCouponMonthly(final CouponInflationZeroCouponMonthly coupon, final InflationProviderInterface market) {
     return METHOD_ZC_MONTHLY.presentValue(coupon, market);
   }
@@ -114,6 +106,38 @@ public final class PresentValueDiscountingInflationCalculator extends Instrument
   @Override
   public MultipleCurrencyAmount visitCouponInflationYearOnYearInterpolation(final CouponInflationYearOnYearInterpolation coupon, final InflationProviderInterface market) {
     return METHOD_YEAR_ON_YEAR_INTERPOLATION.presentValue(coupon, market);
+  }
+
+  // -----     Annuity     ------
+
+  @Override
+  public MultipleCurrencyAmount visitGenericAnnuity(final Annuity<? extends Payment> annuity, final InflationProviderInterface market) {
+    ArgumentChecker.notNull(annuity, "Annuity");
+    ArgumentChecker.notNull(market, "market");
+    MultipleCurrencyAmount pv = annuity.getNthPayment(0).accept(this, market);
+    for (int loopp = 1; loopp < annuity.getNumberOfPayments(); loopp++) {
+      pv = pv.plus(annuity.getNthPayment(loopp).accept(this, market));
+    }
+    return pv;
+  }
+
+  @Override
+  public MultipleCurrencyAmount visitFixedCouponAnnuity(final AnnuityCouponFixed annuity, final InflationProviderInterface multicurve) {
+    return visitGenericAnnuity(annuity, multicurve);
+  }
+
+  // -----     Swap     ------
+
+  @Override
+  public MultipleCurrencyAmount visitSwap(final Swap<?, ?> swap, final InflationProviderInterface market) {
+    final MultipleCurrencyAmount pv1 = swap.getFirstLeg().accept(this, market);
+    final MultipleCurrencyAmount pv2 = swap.getSecondLeg().accept(this, market);
+    return pv1.plus(pv2);
+  }
+
+  @Override
+  public MultipleCurrencyAmount visitFixedCouponSwap(final SwapFixedCoupon<?> swap, final InflationProviderInterface market) {
+    return visitSwap(swap, market);
   }
 
 }
