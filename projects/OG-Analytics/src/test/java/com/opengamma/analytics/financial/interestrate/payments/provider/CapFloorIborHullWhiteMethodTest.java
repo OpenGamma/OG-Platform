@@ -47,8 +47,8 @@ public class CapFloorIborHullWhiteMethodTest {
   private static final Currency EUR = EURIBOR3M.getCurrency();
   //  private static final Calendar CALENDAR = EURIBOR3M.getCalendar();
   private static final HullWhiteOneFactorProviderDiscount HW_MULTICURVES = new HullWhiteOneFactorProviderDiscount(MULTICURVES, HW_PARAMETERS, EUR);
-  public static final String NOT_USED = "Not used";
-  public static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
+  private static final String NOT_USED = "Not used";
+  private static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
   // Cap/floor description
   private static final ZonedDateTime FIXING_DATE = DateUtils.getUTCDate(2011, 1, 3);
   private static final double NOTIONAL = 100000000; //100m

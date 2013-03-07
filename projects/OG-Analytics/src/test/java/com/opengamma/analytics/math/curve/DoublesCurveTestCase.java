@@ -27,28 +27,28 @@ import com.opengamma.util.tuple.FirstThenSecondDoublesPairComparator;
  * 
  */
 public class DoublesCurveTestCase {
-  protected static final String NAME1 = "a";
-  protected static final String NAME2 = "b";
-  protected static final double[] X_PRIMITIVE;
-  protected static final double[] Y_PRIMITIVE;
-  protected static final double[] X_PRIMITIVE_SORTED;
-  protected static final double[] Y_PRIMITIVE_SORTED;
-  protected static final Double[] X_OBJECT;
-  protected static final Double[] Y_OBJECT;
-  protected static final Double[] X_OBJECT_SORTED;
-  protected static final Double[] Y_OBJECT_SORTED;
-  protected static final Map<Double, Double> MAP;
-  protected static final Map<Double, Double> MAP_SORTED;
-  protected static final DoublesPair[] PAIR_ARRAY;
-  protected static final DoublesPair[] PAIR_ARRAY_SORTED;
-  protected static final Set<DoublesPair> PAIR_SET;
-  protected static final Set<DoublesPair> PAIR_SET_SORTED;
-  protected static final List<Double> X_LIST;
-  protected static final List<Double> Y_LIST;
-  protected static final List<Double> X_LIST_SORTED;
-  protected static final List<Double> Y_LIST_SORTED;
-  protected static final List<DoublesPair> PAIR_LIST;
-  protected static final List<DoublesPair> PAIR_LIST_SORTED;
+  static final String NAME1 = "a";
+  static final String NAME2 = "b";
+  static final double[] X_PRIMITIVE;
+  static final double[] Y_PRIMITIVE;
+  static final double[] X_PRIMITIVE_SORTED;
+  static final double[] Y_PRIMITIVE_SORTED;
+  static final Double[] X_OBJECT;
+  static final Double[] Y_OBJECT;
+  static final Double[] X_OBJECT_SORTED;
+  static final Double[] Y_OBJECT_SORTED;
+  static final Map<Double, Double> MAP;
+  static final Map<Double, Double> MAP_SORTED;
+  static final DoublesPair[] PAIR_ARRAY;
+  static final DoublesPair[] PAIR_ARRAY_SORTED;
+  static final Set<DoublesPair> PAIR_SET;
+  static final Set<DoublesPair> PAIR_SET_SORTED;
+  static final List<Double> X_LIST;
+  static final List<Double> Y_LIST;
+  static final List<Double> X_LIST_SORTED;
+  static final List<Double> Y_LIST_SORTED;
+  static final List<DoublesPair> PAIR_LIST;
+  static final List<DoublesPair> PAIR_LIST_SORTED;
 
   static {
     final int n = 10;

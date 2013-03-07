@@ -50,8 +50,8 @@ public class ForexSwapDiscountingProviderMethodTest {
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 5, 20);
 
-  public static final String NOT_USED = "Not used";
-  public static final String[] NOT_USED_2 = {NOT_USED, NOT_USED};
+  private static final String NOT_USED = "Not used";
+  private static final String[] NOT_USED_2 = {NOT_USED, NOT_USED};
   private static final ForexSwap FX_SWAP = (ForexSwap) FX_SWAP_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_2);
 
   private static final ForexSwapDiscountingProviderMethod METHOD_FX_SWAP = ForexSwapDiscountingProviderMethod.getInstance();

@@ -50,8 +50,8 @@ public class CapFloorIborLMMDDMethodTest {
   private static final Currency EUR = EURIBOR3M.getCurrency();
   private static final Calendar CALENDAR = EURIBOR3M.getCalendar();
 
-  public static final String NOT_USED = "Not used";
-  public static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
+  private static final String NOT_USED = "Not used";
+  private static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 7, 7);
 

@@ -11,10 +11,10 @@ import org.testng.annotations.Test;
  * 
  */
 public abstract class WeightingFunctionTestCase {
-  protected static final double[] STRIKES = new double[]{1, 1.1, 1.2, 1.3, 1.4, 1.5};
-  protected static final double STRIKE = 1.345;
-  protected static final int INDEX = 3;
-  protected static final double EPS = 1e-15;
+  static final double[] STRIKES = new double[]{1, 1.1, 1.2, 1.3, 1.4, 1.5};
+  static final double STRIKE = 1.345;
+  static final int INDEX = 3;
+  static final double EPS = 1e-15;
 
   protected abstract WeightingFunction getInstance();
 
