@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<og-portfolio schemaVersion="1.0">
+<og-portfolio schemaVersion="1.0"
+              xmlns="http://www.opengamma.com/portfolios"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://www.opengamma.com/portfolios">
 
   <positions>
     <position id="p1">
 
       <externalSystemId><id scheme="External">IdFromExternalSystem1</id></externalSystemId>
 
-      <quantity>25000</quantity>
+      <quantity>25</quantity>
 
       <futureSecurity type="equityDividendFuture">
 
@@ -21,7 +24,7 @@
 
         <settlementExchange>EX1</settlementExchange>
         <settlementDate>2014-09-21</settlementDate>
-        <futureCategory>SOME_VAL??</futureCategory>
+        <futureCategory>FUT_CAT</futureCategory>
 
       </futureSecurity>
 
@@ -36,7 +39,7 @@
 
       <externalSystemId><id scheme="External">IdFromExternalSystem2</id></externalSystemId>
 
-      <quantity>-5000</quantity>
+      <quantity>-50</quantity>
 
       <optionSecurity type="equityIndexOption">
 

@@ -26,6 +26,8 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.threeten.bp.YearMonth;
 
 import com.opengamma.financial.security.option.OptionType;
+import com.opengamma.integration.tool.portfolio.xml.v1_0.conversion.ListedFutureOptionSecurityExtractor;
+import com.opengamma.integration.tool.portfolio.xml.v1_0.conversion.ListedSecurityExtractor;
 
 @BeanDefinition
 @XmlRootElement(name = "futureOptionSecurity")
@@ -397,7 +399,7 @@ public class FutureOptionSecurityDefinition extends ListedSecurityDefinition {
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "listedFutureOptionType",
         "optionType",
         "strike",

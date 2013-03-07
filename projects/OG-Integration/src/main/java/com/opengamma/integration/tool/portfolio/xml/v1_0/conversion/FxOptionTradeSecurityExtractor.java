@@ -5,29 +5,35 @@
  */
 package com.opengamma.integration.tool.portfolio.xml.v1_0.conversion;
 
-import org.apache.commons.lang.builder.HashCodeBuilder;
-
-import com.opengamma.financial.security.option.AmericanExerciseType;
-import com.opengamma.financial.security.option.EuropeanExerciseType;
 import com.opengamma.financial.security.option.ExerciseType;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
-import com.opengamma.id.ExternalId;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.FxOptionTrade;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.SettlementType;
 import com.opengamma.master.security.ManageableSecurity;
 
+/**
+ * Security extractor for fx option trades.
+ */
 public class FxOptionTradeSecurityExtractor extends TradeSecurityExtractor<FxOptionTrade> {
 
+  /**
+   * Create a security extractor for the supplied trade.
+   *
+   * @param trade the trade to perform extraction on
+   */
+  public FxOptionTradeSecurityExtractor(FxOptionTrade trade) {
+    super(trade);
+  }
+
   @Override
-  public ManageableSecurity[] extractSecurity(FxOptionTrade fxOptionTrade) {
+  public ManageableSecurity[] extractSecurities() {
 
-    FxOptionCalculator calculator = new FxOptionCalculator(fxOptionTrade, fxOptionTrade.getNotional(), fxOptionTrade.getNotionalCurrency());
+    FxOptionCalculator calculator = new FxOptionCalculator(_trade, _trade.getNotional(), _trade.getNotionalCurrency());
 
-    ExerciseType exerciseType = fxOptionTrade.getExerciseType() == com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.ExerciseType.AMERICAN ?
-        new AmericanExerciseType() : new EuropeanExerciseType();
+    ExerciseType exerciseType = _trade.getExerciseType().convert();
 
-    ManageableSecurity security = fxOptionTrade.getSettlementType() == SettlementType.PHYSICAL ?
+    ManageableSecurity security = _trade.getSettlementType() == SettlementType.PHYSICAL ?
         new FXOptionSecurity(calculator.getPutCurrency(),
                              calculator.getCallCurrency(),
                              calculator.getPutAmount(),
@@ -44,22 +50,9 @@ public class FxOptionTradeSecurityExtractor extends TradeSecurityExtractor<FxOpt
                                            calculator.getSettlementDate(),
                                            calculator.isLong(),
                                            exerciseType,
-                                           fxOptionTrade.getSettlementCurrency().equals(calculator.getCallCurrency().getCode()));
+                                           _trade.getSettlementCurrency().equals(calculator.getCallCurrency().getCode()));
 
-    // Generate the loader SECURITY_ID (should be uniquely identifying)
-    security.addExternalId(ExternalId.of("XML_LOADER", Integer.toHexString(
-        new HashCodeBuilder()
-            .append(security.getClass())
-            .append(calculator.isLong())
-            .append(calculator.getCallCurrency())
-            .append(calculator.getCallAmount())
-            .append(calculator.getPutCurrency())
-            .append(calculator.getPutAmount())
-            .append(calculator.getExpiry())
-            .append(exerciseType).toHashCode()
-    )));
-
-    return securityArray(security);
+    return securityArray(addIdentifier(security));
   }
 
 }

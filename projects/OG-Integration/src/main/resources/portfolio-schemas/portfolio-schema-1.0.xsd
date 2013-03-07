@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xs:schema version="1.0" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://www.opengamma.com/portfolios"
+           xmlns="http://www.opengamma.com/portfolios"
+           elementFormDefault="qualified">
 
   <xs:element name="og-portfolio" type="ogPortfolio">
     <xs:annotation>
@@ -53,7 +56,6 @@
   <xs:element name="optionSecurity" type="optionSecurityDefinition"/>
   <xs:element name="futureSecurity" type="futureSecurityDefinition"/>
   <xs:element name="futureOptionSecurity" type="futureOptionSecurityDefinition"/>
-
 
   <xs:complexType name="ogPortfolio">
     <xs:all>

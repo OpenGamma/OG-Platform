@@ -3,6 +3,7 @@
  *
  * Please see distribution for license.
  */
+@XmlSchema(namespace = "http://www.opengamma.com/portfolios", elementFormDefault = XmlNsForm.QUALIFIED)
 @XmlJavaTypeAdapters({
     @XmlJavaTypeAdapter(value = LocalDateAdapter.class, type = LocalDate.class),
     @XmlJavaTypeAdapter(value = DerivativeExpiryDateAdapter.class, type = YearMonth.class),
@@ -11,6 +12,8 @@
 })
 package com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb;
 
+import javax.xml.bind.annotation.XmlNsForm;
+import javax.xml.bind.annotation.XmlSchema;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapters;
 
