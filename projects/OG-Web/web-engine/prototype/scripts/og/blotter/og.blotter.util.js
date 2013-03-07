@@ -30,9 +30,6 @@ $.register_module({
             get_checkbox : function (name) {
                 return $('input:checkbox[name="'+ name +'"]').is(':checked').toString();
             },
-            set_datetime : function (name, value){
-                $('input[name="'+ name +'"]').datetimepicker('setDate', value);
-            },
             get_attributes : function () {
                 var attributes = {};
                 $('.og-attributes-add-list li').each(function (i, elm) {
