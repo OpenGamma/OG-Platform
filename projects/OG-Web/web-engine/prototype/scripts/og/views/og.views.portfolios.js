@@ -289,7 +289,8 @@ $.register_module({
                        ui.dialog({type: 'input', action: 'close'});
                     };
                     $('.OG-js-add-position').click(function () {
-                        var nodeId = json.template_data.object_id;
+                        console.log(json.template_data);
+                        var nodeId = json.template_data.node;
                         new og.blotter.Dialog({portfolio:{name: nodeId, id: nodeId}, 
                             handler: function (data) {return og.api.rest.blotter.trades.put(data);}
                         });
