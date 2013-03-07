@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -775,9 +776,27 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
   }
 
   private void getInvalidMarketData(final DependencyGraph graph, final InvalidMarketDataDependencyNodeFilter filter) {
+    // 32 was chosen fairly arbitrarily. Before doing this 502 node checks was taking 700ms. After this it is taking 180ms. 
+    final int jobSize = 32;
+    InvalidMarketDataDependencyNodeFilter.VisitBatch visit = filter.visit(jobSize);
+    LinkedList<Future<?>> futures = new LinkedList<Future<?>>();
     for (ValueSpecification marketData : graph.getAllRequiredMarketData()) {
+      if (visit.isFull()) {
+        futures.add(getProcessContext().getFunctionCompilationService().getExecutorService().submit(visit));
+        visit = filter.visit(jobSize);
+      }
       final DependencyNode node = graph.getNodeProducing(marketData);
-      filter.visit(marketData, node);
+      visit.add(marketData, node);
+    }
+    visit.run();
+    Future<?> future = futures.poll();
+    while (future != null) {
+      try {
+        future.get();
+      } catch (Exception e) {
+        throw new OpenGammaRuntimeException("Interrupted", e);
+      }
+      future = futures.poll();
     }
   }
 

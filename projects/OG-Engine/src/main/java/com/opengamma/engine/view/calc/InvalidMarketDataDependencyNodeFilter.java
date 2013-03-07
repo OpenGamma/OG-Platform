@@ -5,8 +5,8 @@
  */
 package com.opengamma.engine.view.calc;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +30,7 @@ import com.opengamma.engine.value.ValueSpecification;
 
   private final ComputationTargetResolver.AtVersionCorrection _targetResolver;
   private final MarketDataAvailabilityProvider _marketData;
-  private final Map<ValueSpecification, Boolean> _valid = new HashMap<ValueSpecification, Boolean>();
+  private final Map<ValueSpecification, Boolean> _valid = new ConcurrentHashMap<ValueSpecification, Boolean>();
   private int _invalidNodes;
 
   public InvalidMarketDataDependencyNodeFilter(final ComputationTargetResolver.AtVersionCorrection targetResolver, final MarketDataAvailabilityProvider marketData) {
@@ -38,7 +38,7 @@ import com.opengamma.engine.value.ValueSpecification;
     _marketData = marketData;
   }
 
-  public void visit(final ValueSpecification marketData, final DependencyNode node) {
+  private void visit(final ValueSpecification marketData, final DependencyNode node) {
     if (_valid.containsKey(marketData)) {
       return;
     }
@@ -94,6 +94,40 @@ import com.opengamma.engine.value.ValueSpecification;
       }
     }
     _valid.put(marketData, Boolean.TRUE);
+  }
+
+  public final class VisitBatch implements Runnable {
+
+    private final DependencyNode[] _nodes;
+    private final ValueSpecification[] _specifications;
+    private int _index;
+
+    private VisitBatch(final int size) {
+      _nodes = new DependencyNode[size];
+      _specifications = new ValueSpecification[size];
+    }
+
+    public boolean isFull() {
+      return _index == _nodes.length;
+    }
+
+    public void add(final ValueSpecification specification, final DependencyNode node) {
+      final int i = _index++;
+      _nodes[i] = node;
+      _specifications[i] = specification;
+    }
+
+    @Override
+    public void run() {
+      for (int i = 0; i < _index; i++) {
+        visit(_specifications[i], _nodes[i]);
+      }
+    }
+
+  }
+
+  public VisitBatch visit(final int size) {
+    return new VisitBatch(size);
   }
 
   public boolean hasInvalidNodes() {
