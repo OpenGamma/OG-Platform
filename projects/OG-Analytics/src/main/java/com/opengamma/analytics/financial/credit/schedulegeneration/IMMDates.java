@@ -22,6 +22,10 @@ public class IMMDates {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
+  // NOTE : Note that we only check for an unadjusted IMM date i.e. one that falls on the 20th of the month
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
   // Private (final) member variables
 
   private final ZonedDateTime _immDatePreviousDecember;

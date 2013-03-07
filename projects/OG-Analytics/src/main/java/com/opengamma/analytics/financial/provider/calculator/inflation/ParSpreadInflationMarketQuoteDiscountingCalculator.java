@@ -63,6 +63,5 @@ public final class ParSpreadInflationMarketQuoteDiscountingCalculator extends In
     final double discountFactor = inflation.getDiscountFactor(swap.getFirstLeg().getCurrency(), cpn.getPaymentTime());
     final double tenor = cpn.getPaymentAccrualFactors().length;
     return Math.pow(pvInflationLeg / discountFactor + 1, 1 / tenor) - 1 - cpn.getRate();
-
   }
 }

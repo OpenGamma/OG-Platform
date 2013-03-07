@@ -302,6 +302,49 @@ public class MulticurveBuildingDiscountingDiscountXCcyTest {
     }
   }
 
+  /** Market values for the dsc EUR curve */
+  public static final double[] DSC_EUR_MARKET_QUOTES_3 = new double[] {0.0010, 0.0010, 0.0004, 0.0009, 0.0015, 0.0035, 0.0050, 0.0060, 0.0045, 0.0050, 0.0060, 0.0085, -0.0040 };
+  /** Generators for the dsc EUR curve */
+  public static final GeneratorInstrument<? extends GeneratorAttribute>[] DSC_EUR_GENERATORS_3 = new GeneratorInstrument<?>[] {GENERATOR_DEPOSIT_ON_EUR, GENERATOR_DEPOSIT_ON_EUR, GENERATOR_FX_EURUSD,
+      GENERATOR_FX_EURUSD, GENERATOR_FX_EURUSD, GENERATOR_FX_EURUSD, GENERATOR_FX_EURUSD, GENERATOR_FX_EURUSD, EUR1YEURIBOR3M, EUR1YEURIBOR3M, EUR1YEURIBOR3M, EUR1YEURIBOR3M, EURIBOR3MUSDLIBOR3M };
+  /** Tenors for the dsc EUR curve */
+  public static final Period[] DSC_EUR_TENOR_3 = new Period[] {DateUtils.periodOfDays(0), DateUtils.periodOfDays(1), DateUtils.periodOfMonths(1), DateUtils.periodOfMonths(2),
+      DateUtils.periodOfMonths(3), DateUtils.periodOfMonths(6), DateUtils.periodOfMonths(9), DateUtils.periodOfYears(1), DateUtils.periodOfYears(2), DateUtils.periodOfYears(3),
+      DateUtils.periodOfYears(4), DateUtils.periodOfYears(5), DateUtils.periodOfYears(10) };
+  public static final GeneratorAttribute[] DSC_EUR_ATTR_3 = new GeneratorAttribute[DSC_EUR_TENOR_3.length];
+  static {
+    for (int loopins = 0; loopins < 2; loopins++) {
+      DSC_EUR_ATTR_3[loopins] = new GeneratorAttributeIR(DSC_EUR_TENOR_3[loopins], Period.ZERO);
+    }
+    for (int loopins = 2; loopins < 8; loopins++) {
+      DSC_EUR_ATTR_3[loopins] = new GeneratorAttributeFX(DSC_EUR_TENOR_3[loopins], FX_MATRIX);
+    }
+    for (int loopins = 8; loopins < DSC_EUR_TENOR_3.length - 1; loopins++) {
+      DSC_EUR_ATTR_3[loopins] = new GeneratorAttributeIR(DSC_EUR_TENOR_3[loopins]);
+    }
+    DSC_EUR_ATTR_3[DSC_EUR_TENOR_3.length - 1] = new GeneratorAttributeFX(DSC_EUR_TENOR_3[DSC_EUR_TENOR_3.length - 1], FX_MATRIX);
+  }
+
+  /** Market values for the Fwd 3M EUR curve */
+  public static final double[] FWD3_EUR_MARKET_QUOTES_3 = new double[] {0.0045, 0.0045, 0.0045, -0.0050, -0.0050, -0.0050, -0.0045, 0.0160 };
+  /** Generators for the Fwd 3M USD curve */
+  public static final GeneratorInstrument<? extends GeneratorAttribute>[] FWD3_EUR_GENERATORS_3 = new GeneratorInstrument<?>[] {GENERATOR_EURIBOR3M, EUR1YEURIBOR3M, EUR1YEURIBOR3M,
+      EURIBOR3MUSDLIBOR3M, EURIBOR3MUSDLIBOR3M, EURIBOR3MUSDLIBOR3M, EURIBOR3MUSDLIBOR3M, EUR1YEURIBOR3M };
+  /** Tenors for the Fwd 3M USD curve */
+  public static final Period[] FWD3_EUR_TENOR_3 = new Period[] {DateUtils.periodOfMonths(0), DateUtils.periodOfMonths(6), DateUtils.periodOfYears(1), DateUtils.periodOfYears(2),
+      DateUtils.periodOfYears(3), DateUtils.periodOfYears(4), DateUtils.periodOfYears(5),
+      DateUtils.periodOfYears(10) };
+  public static final GeneratorAttribute[] FWD3_EUR_ATTR_3 = new GeneratorAttribute[FWD3_EUR_TENOR_3.length];
+  static {
+    for (int loopins = 0; loopins < 3; loopins++) {
+      FWD3_EUR_ATTR_3[loopins] = new GeneratorAttributeIR(FWD3_EUR_TENOR_3[loopins]);
+    }
+    for (int loopins = 3; loopins < FWD3_EUR_TENOR_3.length - 1; loopins++) {
+      FWD3_EUR_ATTR_3[loopins] = new GeneratorAttributeFX(FWD3_EUR_TENOR_3[loopins], FX_MATRIX);
+    }
+    FWD3_EUR_ATTR_3[FWD3_EUR_TENOR_3.length - 1] = new GeneratorAttributeIR(FWD3_EUR_TENOR_3[FWD3_EUR_TENOR_3.length - 1]);
+  }
+
   /** Market values for the dsc JPY curve */
   public static final double[] DSC_JPY_MARKET_QUOTES = new double[] {0.0005, 0.0005, -0.0004, -0.0008, -0.0012, -0.0024, -0.0036, -0.0048, -0.0030, -0.0040, -0.0040, -0.0045, -0.0050 };
   /** Generators for the dsc EUR curve */
@@ -365,6 +408,10 @@ public class MulticurveBuildingDiscountingDiscountXCcyTest {
   public static final InstrumentDefinition<?>[] DEFINITIONS_DSC_EUR_2;
   /** Standard EUR Forward 3M curve instrument definitions */
   public static final InstrumentDefinition<?>[] DEFINITIONS_FWD3_EUR_2;
+  /** Standard EUR discounting curve instrument definitions */
+  public static final InstrumentDefinition<?>[] DEFINITIONS_DSC_EUR_3;
+  /** Standard EUR Forward 3M curve instrument definitions */
+  public static final InstrumentDefinition<?>[] DEFINITIONS_FWD3_EUR_3;
   /** Standard JPY discounting curve instrument definitions */
   public static final InstrumentDefinition<?>[] DEFINITIONS_DSC_JPY;
   /** Standard JPY Forward 3M curve instrument definitions */
@@ -373,7 +420,7 @@ public class MulticurveBuildingDiscountingDiscountXCcyTest {
   public static final InstrumentDefinition<?>[] DEFINITIONS_FWD6_JPY;
 
   /** Units of curves */
-  public static final int[] NB_UNITS = new int[] {3, 3, 1, 3 };
+  public static final int[] NB_UNITS = new int[] {3, 3, 1, 3, 3 };
   public static final int NB_BLOCKS = NB_UNITS.length;
   public static final InstrumentDefinition<?>[][][][] DEFINITIONS_UNITS = new InstrumentDefinition<?>[NB_BLOCKS][][][];
   public static final GeneratorYDCurve[][][] GENERATORS_UNITS = new GeneratorYDCurve[NB_BLOCKS][][];
@@ -392,6 +439,8 @@ public class MulticurveBuildingDiscountingDiscountXCcyTest {
     DEFINITIONS_FWD3_EUR = getDefinitions(FWD3_EUR_MARKET_QUOTES, FWD3_EUR_GENERATORS, FWD3_EUR_ATTR);
     DEFINITIONS_DSC_EUR_2 = getDefinitions(DSC_EUR_MARKET_QUOTES_2, DSC_EUR_GENERATORS_2, DSC_EUR_ATTR_2);
     DEFINITIONS_FWD3_EUR_2 = getDefinitions(FWD3_EUR_MARKET_QUOTES_2, FWD3_EUR_GENERATORS_2, FWD3_EUR_ATTR_2);
+    DEFINITIONS_DSC_EUR_3 = getDefinitions(DSC_EUR_MARKET_QUOTES_3, DSC_EUR_GENERATORS_3, DSC_EUR_ATTR_3);
+    DEFINITIONS_FWD3_EUR_3 = getDefinitions(FWD3_EUR_MARKET_QUOTES_3, FWD3_EUR_GENERATORS_3, FWD3_EUR_ATTR_3);
     DEFINITIONS_DSC_JPY = getDefinitions(DSC_JPY_MARKET_QUOTES, DSC_JPY_GENERATORS, DSC_JPY_ATTR);
     DEFINITIONS_FWD3_JPY = getDefinitions(FWD3_JPY_MARKET_QUOTES, FWD3_JPY_GENERATORS, FWD3_JPY_ATTR);
     DEFINITIONS_FWD6_JPY = getDefinitions(FWD6_JPY_MARKET_QUOTES, FWD6_JPY_GENERATORS, FWD6_JPY_ATTR);
@@ -405,6 +454,7 @@ public class MulticurveBuildingDiscountingDiscountXCcyTest {
     DEFINITIONS_UNITS[1] = new InstrumentDefinition<?>[NB_UNITS[1]][][];
     DEFINITIONS_UNITS[2] = new InstrumentDefinition<?>[NB_UNITS[2]][][];
     DEFINITIONS_UNITS[3] = new InstrumentDefinition<?>[NB_UNITS[3]][][];
+    DEFINITIONS_UNITS[4] = new InstrumentDefinition<?>[NB_UNITS[3]][][];
     DEFINITIONS_UNITS[0][0] = new InstrumentDefinition<?>[][] {DEFINITIONS_DSC_USD };
     DEFINITIONS_UNITS[0][1] = new InstrumentDefinition<?>[][] {DEFINITIONS_FWD3_USD };
     DEFINITIONS_UNITS[0][2] = new InstrumentDefinition<?>[][] {DEFINITIONS_DSC_EUR, DEFINITIONS_FWD3_EUR };
@@ -415,11 +465,15 @@ public class MulticurveBuildingDiscountingDiscountXCcyTest {
     DEFINITIONS_UNITS[3][0] = new InstrumentDefinition<?>[][] {DEFINITIONS_DSC_USD };
     DEFINITIONS_UNITS[3][1] = new InstrumentDefinition<?>[][] {DEFINITIONS_FWD3_USD };
     DEFINITIONS_UNITS[3][2] = new InstrumentDefinition<?>[][] {DEFINITIONS_DSC_EUR_2, DEFINITIONS_FWD3_EUR_2 };
+    DEFINITIONS_UNITS[4][0] = new InstrumentDefinition<?>[][] {DEFINITIONS_DSC_USD };
+    DEFINITIONS_UNITS[4][1] = new InstrumentDefinition<?>[][] {DEFINITIONS_FWD3_USD };
+    DEFINITIONS_UNITS[4][2] = new InstrumentDefinition<?>[][] {DEFINITIONS_DSC_EUR_3, DEFINITIONS_FWD3_EUR_3 };
     final GeneratorYDCurve genIntLin = new GeneratorCurveYieldInterpolated(MATURITY_CALCULATOR, INTERPOLATOR_LINEAR);
     GENERATORS_UNITS[0] = new GeneratorYDCurve[NB_UNITS[0]][];
     GENERATORS_UNITS[1] = new GeneratorYDCurve[NB_UNITS[1]][];
     GENERATORS_UNITS[2] = new GeneratorYDCurve[NB_UNITS[2]][];
     GENERATORS_UNITS[3] = new GeneratorYDCurve[NB_UNITS[3]][];
+    GENERATORS_UNITS[4] = new GeneratorYDCurve[NB_UNITS[4]][];
     GENERATORS_UNITS[0][0] = new GeneratorYDCurve[] {genIntLin };
     GENERATORS_UNITS[0][1] = new GeneratorYDCurve[] {genIntLin };
     GENERATORS_UNITS[0][2] = new GeneratorYDCurve[] {genIntLin, genIntLin };
@@ -430,10 +484,14 @@ public class MulticurveBuildingDiscountingDiscountXCcyTest {
     GENERATORS_UNITS[3][0] = new GeneratorYDCurve[] {genIntLin };
     GENERATORS_UNITS[3][1] = new GeneratorYDCurve[] {genIntLin };
     GENERATORS_UNITS[3][2] = new GeneratorYDCurve[] {genIntLin, genIntLin };
+    GENERATORS_UNITS[4][0] = new GeneratorYDCurve[] {genIntLin };
+    GENERATORS_UNITS[4][1] = new GeneratorYDCurve[] {genIntLin };
+    GENERATORS_UNITS[4][2] = new GeneratorYDCurve[] {genIntLin, genIntLin };
     NAMES_UNITS[0] = new String[NB_UNITS[0]][];
     NAMES_UNITS[1] = new String[NB_UNITS[1]][];
     NAMES_UNITS[2] = new String[NB_UNITS[2]][];
     NAMES_UNITS[3] = new String[NB_UNITS[3]][];
+    NAMES_UNITS[4] = new String[NB_UNITS[4]][];
     NAMES_UNITS[0][0] = new String[] {CURVE_NAME_DSC_USD };
     NAMES_UNITS[0][1] = new String[] {CURVE_NAME_FWD3_USD };
     NAMES_UNITS[0][2] = new String[] {CURVE_NAME_DSC_EUR, CURVE_NAME_FWD3_EUR };
@@ -444,6 +502,9 @@ public class MulticurveBuildingDiscountingDiscountXCcyTest {
     NAMES_UNITS[3][0] = new String[] {CURVE_NAME_DSC_USD };
     NAMES_UNITS[3][1] = new String[] {CURVE_NAME_FWD3_USD };
     NAMES_UNITS[3][2] = new String[] {CURVE_NAME_DSC_EUR, CURVE_NAME_FWD3_EUR };
+    NAMES_UNITS[4][0] = new String[] {CURVE_NAME_DSC_USD };
+    NAMES_UNITS[4][1] = new String[] {CURVE_NAME_FWD3_USD };
+    NAMES_UNITS[4][2] = new String[] {CURVE_NAME_DSC_EUR, CURVE_NAME_FWD3_EUR };
     // Note: the sensitivity is computed in the order of the curve names. The names order should be in line with the units definition order.
     DSC_MAP.put(CURVE_NAME_DSC_USD, USD);
     DSC_MAP.put(CURVE_NAME_DSC_EUR, EUR);
@@ -575,19 +636,19 @@ public class MulticurveBuildingDiscountingDiscountXCcyTest {
     }
   }
 
-  @Test(enabled = false)
+  @Test(enabled = true)
   /**
    * Analyzes the shape of the forward curve.
    */
   public void marketQuoteSensitivityAnalysis() {
     // Create a 3 currencies provider
-    int indexEur = 3;
+    int indexEur = 4;
     MulticurveProviderDiscount multicurves7 = CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(indexEur).getFirst();
     multicurves7.setAll(CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(1).getFirst());
     CurveBuildingBlockBundle blocks7 = CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(indexEur).getSecond();
     blocks7.addAll(CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(1).getSecond());
     double spreadJPYEUR = 0.0010; // 10bps
-    GeneratorAttributeFX attr6Mx5Y = new GeneratorAttributeFX(DateUtils.periodOfMonths(7), DateUtils.periodOfYears(5), FX_MATRIX); //TODO Check dates swap
+    GeneratorAttributeFX attr6Mx5Y = new GeneratorAttributeFX(DateUtils.periodOfMonths(6), DateUtils.periodOfYears(5), FX_MATRIX); //TODO Check dates swap
     double notional = 100000;
     SwapDefinition swapDefinition = JPYLIBOR3MEURIBOR3M.generateInstrument(NOW, spreadJPYEUR, notional, attr6Mx5Y);
     InstrumentDerivative swap = swapDefinition.toDerivative(NOW, NOT_USED_A);
@@ -595,8 +656,8 @@ public class MulticurveBuildingDiscountingDiscountXCcyTest {
     MarketQuoteSensitivityBlockCalculator<MulticurveProviderInterface> MQSC = new MarketQuoteSensitivityBlockCalculator<MulticurveProviderInterface>(PSC);
     @SuppressWarnings("unused")
     MultipleCurrencyParameterSensitivity mqs = MQSC.fromInstrument(swap, multicurves7, blocks7);
-    //    int t = 0;
-    //    t++;
+    int t = 0;
+    t++;
   }
 
   @Test(enabled = false)
