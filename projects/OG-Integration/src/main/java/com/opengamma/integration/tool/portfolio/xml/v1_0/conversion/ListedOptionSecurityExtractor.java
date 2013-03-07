@@ -4,13 +4,14 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb;
+package com.opengamma.integration.tool.portfolio.xml.v1_0.conversion;
 
 import org.threeten.bp.ZoneOffset;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.id.ExternalId;
+import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.OptionSecurityDefinition;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.time.ExpiryAccuracy;

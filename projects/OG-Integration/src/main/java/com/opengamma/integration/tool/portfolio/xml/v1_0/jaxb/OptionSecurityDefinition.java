@@ -20,6 +20,9 @@ import org.joda.beans.PropertyDefinition;
 import org.threeten.bp.YearMonth;
 
 import com.opengamma.financial.security.option.OptionType;
+import com.opengamma.integration.tool.portfolio.xml.v1_0.conversion.ListedOptionSecurityExtractor;
+import com.opengamma.integration.tool.portfolio.xml.v1_0.conversion.ListedSecurityExtractor;
+
 import java.util.Map;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.JodaBeanUtils;

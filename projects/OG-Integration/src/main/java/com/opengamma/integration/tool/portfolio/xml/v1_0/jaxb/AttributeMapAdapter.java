@@ -21,7 +21,7 @@ public class AttributeMapAdapter extends XmlAdapter<AdditionalAttributes, Map<St
 
     Map<String, String> map = Maps.newHashMap();
 
-    for (AdditionalAttributes.Attribute attribute : attrs.getAttributes()) {
+    for (Attribute attribute : attrs.getAttributes()) {
       map.put(attribute.getName(), attribute.getValue());
     }
     return map;
@@ -30,10 +30,10 @@ public class AttributeMapAdapter extends XmlAdapter<AdditionalAttributes, Map<St
   @Override
   public AdditionalAttributes marshal(Map<String, String> map) throws Exception {
 
-    List<AdditionalAttributes.Attribute> attrs = Lists.newArrayList();
+    List<Attribute> attrs = Lists.newArrayList();
 
     for (Map.Entry<String, String> entry : map.entrySet()) {
-      AdditionalAttributes.Attribute attribute = new AdditionalAttributes.Attribute();
+      Attribute attribute = new Attribute();
       attribute.setName(entry.getKey());
       attribute.setValue(entry.getValue());
       attrs.add(attribute);

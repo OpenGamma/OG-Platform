@@ -4,15 +4,17 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb;
+package com.opengamma.integration.tool.portfolio.xml.v1_0.conversion;
 
 import org.threeten.bp.ZoneOffset;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexFutureOptionSecurity;
+import com.opengamma.financial.security.option.ExerciseType;
 import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.id.ExternalId;
+import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.FutureOptionSecurityDefinition;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
@@ -36,7 +38,7 @@ public class ListedFutureOptionSecurityExtractor extends AbstractListedSecurityE
     boolean isMargined = _securityDefinition.isIsMargined();
     double strike = _securityDefinition.getStrike().doubleValue();
     OptionType optionType = _securityDefinition.getOptionType();
-    com.opengamma.financial.security.option.ExerciseType exerciseType = _securityDefinition.getExerciseType().convert();
+    ExerciseType exerciseType = _securityDefinition.getExerciseType().convert();
 
     switch (_securityDefinition.getListedFutureOptionType()) {
 
