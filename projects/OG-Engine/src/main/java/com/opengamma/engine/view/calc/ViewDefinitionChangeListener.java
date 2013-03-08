@@ -38,7 +38,7 @@ public class ViewDefinitionChangeListener implements ChangeListener {
       // View definition could have been deleted - do we want to stop the process?
       return;
     }
-    if (event.getType().equals(ChangeType.CHANGED)) {
+    if (event.getType().equals(ChangeType.CHANGED) && getViewDefinitionId().equalObjectId(event.getObjectId())) {
       getViewComputationJob().dirtyViewDefinition();
     }
   }
