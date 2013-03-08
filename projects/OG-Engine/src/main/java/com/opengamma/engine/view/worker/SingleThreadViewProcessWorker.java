@@ -85,14 +85,14 @@ import com.opengamma.util.tuple.Pair;
 /**
  * The job which schedules and executes computation cycles for a view process.
  */
-public class SingleThreadViewComputationJob implements MarketDataListener, ViewComputationJob {
+public class SingleThreadViewProcessWorker implements MarketDataListener, ViewProcessWorker {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(SingleThreadViewComputationJob.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(SingleThreadViewProcessWorker.class);
 
   private static final long NANOS_PER_MILLISECOND = 1000000;
   private static final long MARKET_DATA_TIMEOUT_MILLIS = 10000;
 
-  private final ViewComputationJobContext _context;
+  private final ViewProcessWorkerContext _context;
   private final ViewExecutionOptions _executionOptions;
   private final ViewCycleTrigger _masterCycleTrigger;
   private final FixedTimeTrigger _compilationExpiryCycleTrigger;
@@ -148,7 +148,7 @@ public class SingleThreadViewComputationJob implements MarketDataListener, ViewC
    */
   private final Thread _thread;
 
-  public SingleThreadViewComputationJob(final ViewComputationJobContext context, final ViewExecutionOptions executionOptions, final ViewDefinition viewDefinition) {
+  public SingleThreadViewProcessWorker(final ViewProcessWorkerContext context, final ViewExecutionOptions executionOptions, final ViewDefinition viewDefinition) {
     ArgumentChecker.notNull(context, "context");
     ArgumentChecker.notNull(executionOptions, "executionOptions");
     ArgumentChecker.notNull(viewDefinition, "viewDefinition");
@@ -184,7 +184,7 @@ public class SingleThreadViewComputationJob implements MarketDataListener, ViewC
     return trigger;
   }
 
-  private ViewComputationJobContext getJobContext() {
+  private ViewProcessWorkerContext getWorkerContext() {
     return _context;
   }
 
@@ -193,7 +193,7 @@ public class SingleThreadViewComputationJob implements MarketDataListener, ViewC
   }
 
   private ViewProcessContext getProcessContext() {
-    return getJobContext().getProcessContext();
+    return getWorkerContext().getProcessContext();
   }
 
   private ViewCycleTrigger getMasterCycleTrigger() {
@@ -212,12 +212,12 @@ public class SingleThreadViewComputationJob implements MarketDataListener, ViewC
     return _job;
   }
 
-  private static final Profiler s_waiting = Profiler.create(SingleThreadViewComputationJob.class, "waiting");
-  private static final Profiler s_snapshot = Profiler.create(SingleThreadViewComputationJob.class, "snapshot");
-  private static final Profiler s_compilation = Profiler.create(SingleThreadViewComputationJob.class, "compilation");
-  private static final Profiler s_snapshotInit = Profiler.create(SingleThreadViewComputationJob.class, "snapshotInit");
-  private static final Profiler s_createCycle = Profiler.create(SingleThreadViewComputationJob.class, "createCycle");
-  private static final Profiler s_executeCycle = Profiler.create(SingleThreadViewComputationJob.class, "executeCycle");
+  private static final Profiler s_waiting = Profiler.create(SingleThreadViewProcessWorker.class, "waiting");
+  private static final Profiler s_snapshot = Profiler.create(SingleThreadViewProcessWorker.class, "snapshot");
+  private static final Profiler s_compilation = Profiler.create(SingleThreadViewProcessWorker.class, "compilation");
+  private static final Profiler s_snapshotInit = Profiler.create(SingleThreadViewProcessWorker.class, "snapshotInit");
+  private static final Profiler s_createCycle = Profiler.create(SingleThreadViewProcessWorker.class, "createCycle");
+  private static final Profiler s_executeCycle = Profiler.create(SingleThreadViewProcessWorker.class, "executeCycle");
 
   private final class Job extends TerminatableJob {
 
@@ -257,7 +257,7 @@ public class SingleThreadViewComputationJob implements MarketDataListener, ViewC
           return;
         }
       } catch (final Exception e) {
-        s_logger.error("Error obtaining next view cycle execution options from sequence for " + getJobContext(), e);
+        s_logger.error("Error obtaining next view cycle execution options from sequence for " + getWorkerContext(), e);
         return;
       }
 
@@ -364,7 +364,7 @@ public class SingleThreadViewComputationJob implements MarketDataListener, ViewC
       try {
         cycleReference = createCycle(executionOptions, compiledViewDefinition, versionCorrection);
       } catch (final Exception e) {
-        s_logger.error("Error creating next view cycle for " + getJobContext(), e);
+        s_logger.error("Error creating next view cycle for " + getWorkerContext(), e);
         return;
       } finally {
         s_createCycle.end();
@@ -392,12 +392,12 @@ public class SingleThreadViewComputationJob implements MarketDataListener, ViewC
           executeViewCycle(cycleType, cycleReference, marketDataSnapshot);
         } catch (final InterruptedException e) {
           // Execution interrupted - don't propagate as failure
-          s_logger.info("View cycle execution interrupted for {}", getJobContext());
+          s_logger.info("View cycle execution interrupted for {}", getWorkerContext());
           cycleReference.release();
           return;
         } catch (final Exception e) {
           // Execution failed
-          s_logger.error("View cycle execution failed for " + getJobContext(), e);
+          s_logger.error("View cycle execution failed for " + getWorkerContext(), e);
           cycleReference.release();
           cycleExecutionFailed(executionOptions, e);
           return;
@@ -452,49 +452,49 @@ public class SingleThreadViewComputationJob implements MarketDataListener, ViewC
 
   private void cycleCompleted(final ViewCycle cycle) {
     try {
-      getJobContext().cycleCompleted(cycle);
+      getWorkerContext().cycleCompleted(cycle);
     } catch (final Exception e) {
-      s_logger.error("Error notifying " + getJobContext() + " of view cycle completion", e);
+      s_logger.error("Error notifying " + getWorkerContext() + " of view cycle completion", e);
     }
   }
 
   private void cycleStarted(final ViewCycleMetadata cycleMetadata) {
     try {
-      getJobContext().cycleStarted(cycleMetadata);
+      getWorkerContext().cycleStarted(cycleMetadata);
     } catch (final Exception e) {
-      s_logger.error("Error notifying " + getJobContext() + " of view cycle starting", e);
+      s_logger.error("Error notifying " + getWorkerContext() + " of view cycle starting", e);
     }
   }
 
   private void cycleFragmentCompleted(final ViewComputationResultModel result) {
     try {
-      getJobContext().cycleFragmentCompleted(result, _viewDefinition);
+      getWorkerContext().cycleFragmentCompleted(result, _viewDefinition);
     } catch (final Exception e) {
-      s_logger.error("Error notifying " + getJobContext() + " of cycle fragment completion", e);
+      s_logger.error("Error notifying " + getWorkerContext() + " of cycle fragment completion", e);
     }
   }
 
   private void cycleExecutionFailed(final ViewCycleExecutionOptions executionOptions, final Exception exception) {
     try {
-      getJobContext().cycleExecutionFailed(executionOptions, exception);
+      getWorkerContext().cycleExecutionFailed(executionOptions, exception);
     } catch (final Exception vpe) {
-      s_logger.error("Error notifying " + getJobContext() + " of the cycle execution error", vpe);
+      s_logger.error("Error notifying " + getWorkerContext() + " of the cycle execution error", vpe);
     }
   }
 
   private void viewDefinitionCompiled(final ViewCycleExecutionOptions executionOptions, final CompiledViewDefinitionWithGraphsImpl compiledViewDefinition) {
     try {
-      getJobContext().viewDefinitionCompiled(_marketDataProvider, compiledViewDefinition);
+      getWorkerContext().viewDefinitionCompiled(_marketDataProvider, compiledViewDefinition);
     } catch (final Exception vpe) {
-      s_logger.error("Error notifying " + getJobContext() + " of view definition compilation");
+      s_logger.error("Error notifying " + getWorkerContext() + " of view definition compilation");
     }
   }
 
   private void viewDefinitionCompilationFailed(final Instant compilationTime, final Exception e) {
     try {
-      getJobContext().viewDefinitionCompilationFailed(compilationTime, e);
+      getWorkerContext().viewDefinitionCompilationFailed(compilationTime, e);
     } catch (final Exception vpe) {
-      s_logger.error("Error notifying " + getJobContext() + " of the view definition compilation failure", vpe);
+      s_logger.error("Error notifying " + getWorkerContext() + " of the view definition compilation failure", vpe);
     }
   }
 
@@ -592,11 +592,11 @@ public class SingleThreadViewComputationJob implements MarketDataListener, ViewC
   }
 
   private void jobCompleted() {
-    s_logger.info("Computation job completed for {}", getJobContext());
+    s_logger.info("Computation job completed for {}", getWorkerContext());
     try {
-      getJobContext().jobCompleted();
+      getWorkerContext().jobCompleted();
     } catch (final Exception e) {
-      s_logger.error("Error notifying " + getJobContext() + " of computation job completion", e);
+      s_logger.error("Error notifying " + getWorkerContext() + " of computation job completion", e);
     }
     getJob().terminate();
   }
@@ -713,7 +713,7 @@ public class SingleThreadViewComputationJob implements MarketDataListener, ViewC
     }
   }
 
-  private static final Profiler s_getInvalidIdentifiers = Profiler.create(SingleThreadViewComputationJob.class, "getInvalidIdentifiers");
+  private static final Profiler s_getInvalidIdentifiers = Profiler.create(SingleThreadViewProcessWorker.class, "getInvalidIdentifiers");
 
   /**
    * Returns the set of unique identifiers that were previously used as targets in the dependency graph for object identifiers (or external identifiers) that now resolve differently.
@@ -926,10 +926,10 @@ public class SingleThreadViewComputationJob implements MarketDataListener, ViewC
     }
   }
 
-  private static final Profiler s_graphBuild = Profiler.create(SingleThreadViewComputationJob.class, "graphBuild");
-  private static final Profiler s_viewDefinitionCompiled = Profiler.create(SingleThreadViewComputationJob.class, "viewDefinitionCompiled");
-  private static final Profiler s_subscribeToMarketData = Profiler.create(SingleThreadViewComputationJob.class, "subscribeToMarketData");
-  private static final Profiler s_invalidMarketData = Profiler.create(SingleThreadViewComputationJob.class, "invalidMarketData");
+  private static final Profiler s_graphBuild = Profiler.create(SingleThreadViewProcessWorker.class, "graphBuild");
+  private static final Profiler s_viewDefinitionCompiled = Profiler.create(SingleThreadViewProcessWorker.class, "viewDefinitionCompiled");
+  private static final Profiler s_subscribeToMarketData = Profiler.create(SingleThreadViewProcessWorker.class, "subscribeToMarketData");
+  private static final Profiler s_invalidMarketData = Profiler.create(SingleThreadViewProcessWorker.class, "invalidMarketData");
 
   private CompiledViewDefinitionWithGraphsImpl getCompiledViewDefinition(final Instant valuationTime, final VersionCorrection versionCorrection) {
     final long functionInitId = getProcessContext().getFunctionCompilationService().getFunctionCompilationContext().getFunctionInitId();

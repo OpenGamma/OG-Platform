@@ -26,8 +26,8 @@ import com.opengamma.engine.marketdata.resolver.MarketDataProviderResolver;
 import com.opengamma.engine.view.impl.ViewProcessorImpl;
 import com.opengamma.engine.view.listener.ViewResultListenerFactory;
 import com.opengamma.engine.view.permission.ViewPermissionProvider;
-import com.opengamma.engine.view.worker.SingleThreadViewComputationJobFactory;
-import com.opengamma.engine.view.worker.ViewComputationJobFactory;
+import com.opengamma.engine.view.worker.SingleThreadViewProcessWorkerFactory;
+import com.opengamma.engine.view.worker.ViewProcessWorkerFactory;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.SingletonFactoryBean;
 
@@ -46,7 +46,7 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
   private MarketDataProviderResolver _marketDataProviderResolver;
   private ViewComputationCacheSource _computationCacheSource;
   private JobDispatcher _computationJobDispatcher;
-  private ViewComputationJobFactory _viewComputationJobFactory = new SingleThreadViewComputationJobFactory();
+  private ViewProcessWorkerFactory _viewProcessWorkerFactory = new SingleThreadViewProcessWorkerFactory();
   private DependencyGraphBuilderFactory _dependencyGraphBuilderFactory = new DependencyGraphBuilderFactory();
   private DependencyGraphExecutorFactory<?> _dependencyGraphExecutorFactory = new SingleNodeExecutorFactory();
   private GraphExecutorStatisticsGathererProvider _graphExecutionStatistics = new DiscardingGraphStatisticsGathererProvider();
@@ -127,12 +127,12 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
     _computationJobDispatcher = computationJobDispatcher;
   }
 
-  public ViewComputationJobFactory getViewComputationJobFactory() {
-    return _viewComputationJobFactory;
+  public ViewProcessWorkerFactory getViewProcessWorkerFactory() {
+    return _viewProcessWorkerFactory;
   }
 
-  public void setViewComputationJobFactory(final ViewComputationJobFactory viewComputationJobFactory) {
-    _viewComputationJobFactory = viewComputationJobFactory;
+  public void setViewProcessWorkerFactory(final ViewProcessWorkerFactory viewProcessWorkerFactory) {
+    _viewProcessWorkerFactory = viewProcessWorkerFactory;
   }
 
   public DependencyGraphExecutorFactory<?> getDependencyGraphExecutorFactory() {
@@ -179,7 +179,7 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
     ArgumentChecker.notNullInjected(getMarketDataProviderResolver(), "marketDataProviderResolver");
     ArgumentChecker.notNullInjected(getComputationCacheSource(), "computationCacheSource");
     ArgumentChecker.notNullInjected(getComputationJobDispatcher(), "computationJobDispatcher");
-    ArgumentChecker.notNullInjected(getViewComputationJobFactory(), "viewComputationJobFactory");
+    ArgumentChecker.notNullInjected(getViewProcessWorkerFactory(), "viewComputationJobFactory");
     ArgumentChecker.notNullInjected(getViewPermissionProvider(), "viewPermissionProvider");
   }
 
@@ -201,7 +201,7 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
         getViewPermissionProvider(),
         getOverrideOperationCompiler(),
         getViewResultListenerFactory(),
-        getViewComputationJobFactory());
+        getViewProcessWorkerFactory());
   }
 
   public void setViewResultListenerFactory(final ViewResultListenerFactory viewResultListenerFactory) {

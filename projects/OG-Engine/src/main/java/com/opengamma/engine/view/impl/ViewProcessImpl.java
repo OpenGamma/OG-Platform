@@ -35,9 +35,9 @@ import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.engine.view.permission.ViewPermissionProvider;
-import com.opengamma.engine.view.worker.ViewComputationJob;
-import com.opengamma.engine.view.worker.ViewComputationJobContext;
 import com.opengamma.engine.view.worker.ViewExecutionDataProvider;
+import com.opengamma.engine.view.worker.ViewProcessWorker;
+import com.opengamma.engine.view.worker.ViewProcessWorkerContext;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
@@ -47,7 +47,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Default implementation of {@link ViewProcess}.
  */
-public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewComputationJobContext {
+public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProcessWorkerContext {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ViewProcess.class);
 
@@ -68,7 +68,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewComp
 
   private volatile ViewProcessState _state = ViewProcessState.STOPPED;
 
-  private volatile ViewComputationJob _computationJob;
+  private volatile ViewProcessWorker _worker;
 
   private final AtomicReference<Pair<CompiledViewDefinitionWithGraphs, MarketDataPermissionProvider>> _latestCompiledViewDefinition =
       new AtomicReference<Pair<CompiledViewDefinitionWithGraphs, MarketDataPermissionProvider>>();
@@ -141,9 +141,9 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewComp
   private void viewDefinitionChanged() {
     final ViewDefinition viewDefinition = getProcessContext().getConfigSource().getConfig(ViewDefinition.class, getDefinitionId());
     _currentViewDefinition = viewDefinition;
-    ViewComputationJob job = getComputationJob();
-    if (job != null) {
-      job.updateViewDefinition(viewDefinition);
+    ViewProcessWorker worker = getWorker();
+    if (worker != null) {
+      worker.updateViewDefinition(viewDefinition);
     }
   }
 
@@ -193,7 +193,10 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewComp
   }
 
   public void triggerCycle() {
-    getComputationJob().triggerCycle();
+    final ViewProcessWorker worker = getWorker();
+    if (worker != null) {
+      worker.triggerCycle();
+    }
   }
 
   //-------------------------------------------------------------------------
@@ -221,14 +224,14 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewComp
     // Caller MUST NOT hold the semaphore
     s_logger.info("Suspending view process {}", getUniqueId());
     lock();
-    final ViewComputationJob job = getComputationJob();
-    if (job != null) {
+    final ViewProcessWorker worker = getWorker();
+    if (worker != null) {
       s_logger.debug("Suspending calculation job");
-      setComputationJob(null);
-      job.terminate();
+      setWorker(null);
+      worker.terminate();
       try {
         s_logger.debug("Waiting for calculation thread(s) to finish");
-        job.join();
+        worker.join();
       } catch (final InterruptedException e) {
         s_logger.warn("Interrupted waiting for calculation thread(s)");
         throw new OpenGammaRuntimeException("Couldn't suspend view process", e);
@@ -469,23 +472,24 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewComp
   }
 
   /**
-   * Sets the current view computation job.
+   * Sets the current view process worker. This is the component responsible for coordinating the execution of the process, for example this might be a single local thread, a pool of local threads or
+   * a proxy to remotely executing code.
    * <p>
    * External visibility for testing.
    * 
-   * @return the current view computation job
+   * @return the current view process worker.
    */
-  public ViewComputationJob getComputationJob() {
-    return _computationJob;
+  public ViewProcessWorker getWorker() {
+    return _worker;
   }
 
   /**
-   * Sets the current computation job
+   * Sets the current worker
    * 
-   * @param computationJob the current computation job
+   * @param computationJob the current worker
    */
-  private void setComputationJob(final ViewComputationJob computationJob) {
-    _computationJob = computationJob;
+  private void setWorker(final ViewProcessWorker worker) {
+    _worker = worker;
   }
 
   @Override
@@ -593,8 +597,8 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewComp
     final ViewDefinition viewDefinition = getLatestViewDefinition();
     boolean rollback = true;
     try {
-      final ViewComputationJob job = getProcessContext().getViewComputationJobFactory().createJob(this, getExecutionOptions(), viewDefinition);
-      setComputationJob(job);
+      final ViewProcessWorker worker = getProcessContext().getViewProcessWorkerFactory().createWorker(this, getExecutionOptions(), viewDefinition);
+      setWorker(worker);
       rollback = false;
     } catch (final Exception e) {
       s_logger.error("Failed to start computation job for view process " + toString(), e);
@@ -651,19 +655,19 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewComp
   }
 
   private void terminateComputationJob() {
-    final ViewComputationJob job = getComputationJob();
-    if (job == null) {
+    final ViewProcessWorker worker = getWorker();
+    if (worker == null) {
       return;
     }
     if (_viewDefinitionChangeListener != null) {
       getProcessContext().getConfigSource().changeManager().removeChangeListener(_viewDefinitionChangeListener);
     }
-    job.terminate();
-    // Let go of the job/thread and allow it to die on its own. A computation cycle might be taking place on this
-    // thread, but it will not update the view process with its result because it has been terminated. As far as the
-    // view process is concerned, live computation has now stopped, and it may be started again immediately in a new
-    // thread. There is no need to slow things down by attempting to join the job.
-    setComputationJob(null);
+    worker.terminate();
+    // Let go of the worker and allow it to die on its own. A computation cycle might be taking place, but it will
+    // not update the view process with its result because it has been terminated. As far as the view process is
+    // concerned, live computation has now stopped, and it may be started again immediately in a new thread.
+    // There is no need to slow things down by attempting to join the job.
+    setWorker(null);
   }
 
 }

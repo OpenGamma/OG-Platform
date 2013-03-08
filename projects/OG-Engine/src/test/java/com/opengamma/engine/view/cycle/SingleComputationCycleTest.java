@@ -25,12 +25,11 @@ import com.opengamma.engine.exec.stats.GraphExecutorStatisticsGatherer;
 import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.engine.test.ViewProcessorTestEnvironment;
 import com.opengamma.engine.view.client.ViewClient;
-import com.opengamma.engine.view.cycle.SingleComputationCycle;
 import com.opengamma.engine.view.execution.ExecutionOptions;
 import com.opengamma.engine.view.impl.ExecutionLogModeSource;
 import com.opengamma.engine.view.impl.ViewProcessImpl;
 import com.opengamma.engine.view.impl.ViewProcessorImpl;
-import com.opengamma.engine.view.worker.ViewComputationJob;
+import com.opengamma.engine.view.worker.ViewProcessWorker;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.test.Timeout;
 
@@ -62,9 +61,9 @@ public class SingleComputationCycleTest {
 
     // Interrupting should cause everything to terminate gracefully
     ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
-    ViewComputationJob recalcJob = env.getCurrentComputationJob(viewProcess);
-    recalcJob.terminate();
-    recalcJob.join(TIMEOUT);
+    ViewProcessWorker worker = env.getCurrentWorker(viewProcess);
+    worker.terminate();
+    worker.join(TIMEOUT);
     for (int i = 0; (i < TIMEOUT / 10) && !executor.wasInterrupted(); i++) {
       Thread.sleep(10);
     }

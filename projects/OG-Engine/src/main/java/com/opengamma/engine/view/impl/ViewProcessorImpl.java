@@ -53,7 +53,7 @@ import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.engine.view.listener.ViewResultListenerFactory;
 import com.opengamma.engine.view.permission.ViewPermissionProvider;
-import com.opengamma.engine.view.worker.ViewComputationJobFactory;
+import com.opengamma.engine.view.worker.ViewProcessWorkerFactory;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionedUniqueIdSupplier;
 import com.opengamma.livedata.UserPrincipal;
@@ -96,7 +96,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
   private final ViewPermissionProvider _viewPermissionProvider;
   private final OverrideOperationCompiler _overrideOperationCompiler;
   private final ViewResultListenerFactory _viewResultListenerFactory;
-  private final ViewComputationJobFactory _viewComputationJobFactory;
+  private final ViewProcessWorkerFactory _viewProcessWorkerFactory;
 
   // State
   /**
@@ -132,7 +132,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
       final ViewPermissionProvider viewPermissionProvider,
       final OverrideOperationCompiler overrideOperationCompiler,
       final ViewResultListenerFactory viewResultListenerFactory,
-      final ViewComputationJobFactory jobFactory) {
+      final ViewProcessWorkerFactory workerFactory) {
     _name = name;
     _configSource = configSource;
     _namedMarketDataSpecificationRepository = namedMarketDataSpecificationRepository;
@@ -147,7 +147,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
     _viewPermissionProvider = viewPermissionProvider;
     _overrideOperationCompiler = overrideOperationCompiler;
     _viewResultListenerFactory = viewResultListenerFactory;
-    _viewComputationJobFactory = jobFactory;
+    _viewProcessWorkerFactory = workerFactory;
   }
 
   //-------------------------------------------------------------------------
@@ -556,7 +556,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
         _functionResolver,
         _computationCacheSource,
         _computationJobDispatcher,
-        _viewComputationJobFactory,
+        _viewProcessWorkerFactory,
         _dependencyGraphBuilderFactory,
         _dependencyGraphExecutorFactory,
         _graphExecutionStatistics,

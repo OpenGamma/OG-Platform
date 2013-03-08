@@ -11,7 +11,7 @@ import com.opengamma.engine.view.ViewDefinition;
  * Abstraction of a "job" that will perform work as part of a {@link ViewProcess}. A job implementation may be a dedicated thread that executes the view, a proxy to a pool of threads that share the
  * view execution, or a proxy to a worker on a remote node.
  */
-public interface ViewComputationJob {
+public interface ViewProcessWorker {
 
   /**
    * Triggers the next cycle in the execution sequence. The cycle will always be triggered regardless of the time since the previous one. To throttle cycle rates according to the view definition use
@@ -34,7 +34,6 @@ public interface ViewComputationJob {
    * This will be called from the change notification callback so must complete quickly. If the update operation required is slow and performed out of thread it is important that the order of update
    * messages is preserved, this may be by discarding superceded calls.
    * 
-   * @param version the version lock count. A job must ignore this update if it has already seen a higher version lock number
    * @param viewDefinition the new view definition, not null
    */
   void updateViewDefinition(ViewDefinition viewDefinition);

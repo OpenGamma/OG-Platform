@@ -42,12 +42,10 @@ import com.opengamma.engine.view.execution.InfiniteViewCycleExecutionSequence;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.execution.ViewCycleExecutionSequence;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
-import com.opengamma.engine.view.impl.ViewProcessImpl;
-import com.opengamma.engine.view.impl.ViewProcessorImpl;
 import com.opengamma.engine.view.listener.AbstractViewResultListener;
 import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.engine.view.listener.ViewResultListenerFactory;
-import com.opengamma.engine.view.worker.ViewComputationJob;
+import com.opengamma.engine.view.worker.ViewProcessWorker;
 import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.test.Timeout;
@@ -99,9 +97,9 @@ public class ViewProcessorTest {
   private void waitForCompletionAndShutdown(final ViewProcessorImpl vp, final ViewClient client, final ViewProcessorTestEnvironment env) throws InterruptedException {
     client.waitForCompletion();
     // Note: notification of client completion happens before the client computation thread terminates and performs its postRunCycle - must wait for this to happen
-    final ViewComputationJob job = env.getCurrentComputationJob(env.getViewProcess(vp, client.getUniqueId()));
+    final ViewProcessWorker worker = env.getCurrentWorker(env.getViewProcess(vp, client.getUniqueId()));
     client.shutdown();
-    job.join();
+    worker.join();
   }
 
   @Test
@@ -174,10 +172,10 @@ public class ViewProcessorTest {
     listener.awaitCycles(10 * Timeout.standardTimeoutMillis());
 
     final ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
-    final ViewComputationJob job = env.getCurrentComputationJob(viewProcess);
+    final ViewProcessWorker worker = env.getCurrentWorker(viewProcess);
 
     client.shutdown();
-    job.join();
+    worker.join();
 
     assertEquals(0, vp.getViewCycleManager().getResourceCount());
   }

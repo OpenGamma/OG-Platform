@@ -24,7 +24,7 @@ import com.opengamma.engine.resource.EngineResourceManagerInternal;
 import com.opengamma.engine.view.compilation.ViewCompilationServices;
 import com.opengamma.engine.view.cycle.SingleComputationCycle;
 import com.opengamma.engine.view.permission.ViewPermissionProvider;
-import com.opengamma.engine.view.worker.ViewComputationJobFactory;
+import com.opengamma.engine.view.worker.ViewProcessWorkerFactory;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 
@@ -40,7 +40,7 @@ public class ViewProcessContext {
   private final FunctionResolver _functionResolver;
   private final ViewComputationCacheSource _computationCacheSource;
   private final JobDispatcher _computationJobDispatcher;
-  private final ViewComputationJobFactory _viewComputationJobFactory;
+  private final ViewProcessWorkerFactory _viewProcessWorkerFactory;
   private final DependencyGraphBuilderFactory _dependencyGraphBuilderFactory;
   private final DependencyGraphExecutorFactory<?> _dependencyGraphExecutorFactory;
   private final GraphExecutorStatisticsGathererProvider _graphExecutorStatisticsGathererProvider;
@@ -71,7 +71,7 @@ public class ViewProcessContext {
       final FunctionResolver functionResolver,
       final ViewComputationCacheSource computationCacheSource,
       final JobDispatcher computationJobDispatcher,
-      final ViewComputationJobFactory viewComputationJobFactory,
+      final ViewProcessWorkerFactory viewProcessWorkerFactory,
       final DependencyGraphBuilderFactory dependencyGraphBuilderFactory,
       final DependencyGraphExecutorFactory<?> dependencyGraphExecutorFactory,
       final GraphExecutorStatisticsGathererProvider graphExecutorStatisticsProvider,
@@ -86,7 +86,7 @@ public class ViewProcessContext {
     ArgumentChecker.notNull(functionResolver, "functionResolver");
     ArgumentChecker.notNull(computationCacheSource, "computationCacheSource");
     ArgumentChecker.notNull(computationJobDispatcher, "computationJobDispatcher");
-    ArgumentChecker.notNull(viewComputationJobFactory, "viewComputationJobFactory");
+    ArgumentChecker.notNull(viewProcessWorkerFactory, "viewProcessWorkerFactory");
     ArgumentChecker.notNull(dependencyGraphBuilderFactory, "dependencyGraphBuilderFactory");
     ArgumentChecker.notNull(dependencyGraphExecutorFactory, "dependencyGraphExecutorFactory");
     ArgumentChecker.notNull(graphExecutorStatisticsProvider, "graphExecutorStatisticsProvider");
@@ -103,7 +103,7 @@ public class ViewProcessContext {
     _functionResolver = functionResolver;
     _computationCacheSource = computationCacheSource;
     _computationJobDispatcher = computationJobDispatcher;
-    _viewComputationJobFactory = viewComputationJobFactory;
+    _viewProcessWorkerFactory = viewProcessWorkerFactory;
     _dependencyGraphBuilderFactory = dependencyGraphBuilderFactory;
     _dependencyGraphExecutorFactory = dependencyGraphExecutorFactory;
     _graphExecutorStatisticsGathererProvider = graphExecutorStatisticsProvider;
@@ -192,8 +192,8 @@ public class ViewProcessContext {
     return _computationJobDispatcher;
   }
 
-  public ViewComputationJobFactory getViewComputationJobFactory() {
-    return _viewComputationJobFactory;
+  public ViewProcessWorkerFactory getViewProcessWorkerFactory() {
+    return _viewProcessWorkerFactory;
   }
 
   /**

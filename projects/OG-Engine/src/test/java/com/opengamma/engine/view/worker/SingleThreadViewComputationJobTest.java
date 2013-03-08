@@ -49,7 +49,6 @@ import com.opengamma.engine.view.execution.ViewExecutionFlags;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.impl.ViewProcessImpl;
 import com.opengamma.engine.view.impl.ViewProcessorImpl;
-import com.opengamma.engine.view.worker.SingleThreadViewComputationJob;
 import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.LiveDataClient;
 import com.opengamma.livedata.LiveDataListener;
@@ -103,13 +102,13 @@ public class SingleThreadViewComputationJobTest {
     resultListener.assertCycleCompleted(TIMEOUT);
 
     final ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
-    final SingleThreadViewComputationJob job = (SingleThreadViewComputationJob) env.getCurrentComputationJob(viewProcess);
-    final Thread recalcThread = job.getThread();
+    final SingleThreadViewProcessWorker worker = (SingleThreadViewProcessWorker) env.getCurrentWorker(viewProcess);
+    final Thread recalcThread = worker.getThread();
     assertThreadReachesState(recalcThread, Thread.State.TIMED_WAITING);
 
     // We're now 'between cycles', waiting for the arrival of live data.
     // Interrupting should terminate the job gracefully
-    job.getJob().terminate();
+    worker.getJob().terminate();
     recalcThread.interrupt();
 
     recalcThread.join(TIMEOUT);
@@ -138,7 +137,7 @@ public class SingleThreadViewComputationJobTest {
     resultListener.assertViewDefinitionCompiled(TIMEOUT);
 
     final ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
-    final Thread recalcThread = ((SingleThreadViewComputationJob) env.getCurrentComputationJob(viewProcess)).getThread();
+    final Thread recalcThread = ((SingleThreadViewProcessWorker) env.getCurrentWorker(viewProcess)).getThread();
     assertThreadReachesState(recalcThread, Thread.State.TIMED_WAITING);
 
     underlyingProvider.addValue(ViewProcessorTestEnvironment.getPrimitive1(), 123d);
@@ -273,11 +272,11 @@ public class SingleThreadViewComputationJobTest {
     final ViewExecutionOptions viewExecutionOptions = ExecutionOptions.infinite(MarketData.live(), flags);
     client.attachToViewProcess(env.getViewDefinition().getUniqueId(), viewExecutionOptions);
 
-    final ViewComputationJob computationJob = env.getCurrentComputationJob(env.getViewProcess(vp, client.getUniqueId()));
+    final ViewProcessWorker worker = env.getCurrentWorker(env.getViewProcess(vp, client.getUniqueId()));
 
     resultListener.assertViewDefinitionCompiled(TIMEOUT);
     resultListener.assertCycleCompleted(TIMEOUT);
-    computationJob.triggerCycle();
+    worker.triggerCycle();
     resultListener.assertCycleCompleted(TIMEOUT);
 
     client.shutdown();
@@ -299,17 +298,17 @@ public class SingleThreadViewComputationJobTest {
     final UniqueId viewDefinitionId = env.getViewDefinition().getUniqueId();
     client.attachToViewProcess(viewDefinitionId, viewExecutionOptions);
 
-    final ViewComputationJob computationJob = env.getCurrentComputationJob(env.getViewProcess(vp, client.getUniqueId()));
+    final ViewProcessWorker worker = env.getCurrentWorker(env.getViewProcess(vp, client.getUniqueId()));
 
     resultListener.assertViewDefinitionCompiled(TIMEOUT);
     resultListener.assertCycleCompleted(TIMEOUT);
-    computationJob.triggerCycle();
+    worker.triggerCycle();
     resultListener.assertCycleCompleted(TIMEOUT);
     env.getConfigSource().changeManager().entityChanged(ChangeType.CHANGED, viewDefinitionId.getObjectId(), null, null, Instant.now());
-    computationJob.triggerCycle();
+    worker.triggerCycle();
     resultListener.assertViewDefinitionCompiled(TIMEOUT);
     resultListener.assertCycleCompleted(TIMEOUT);
-    computationJob.triggerCycle();
+    worker.triggerCycle();
     resultListener.assertCycleCompleted(TIMEOUT);
 
     client.shutdown();

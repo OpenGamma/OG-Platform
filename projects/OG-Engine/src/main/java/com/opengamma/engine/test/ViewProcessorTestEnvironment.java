@@ -53,7 +53,7 @@ import com.opengamma.engine.view.impl.ViewProcessImpl;
 import com.opengamma.engine.view.impl.ViewProcessorImpl;
 import com.opengamma.engine.view.listener.ViewResultListenerFactory;
 import com.opengamma.engine.view.permission.DefaultViewPermissionProvider;
-import com.opengamma.engine.view.worker.ViewComputationJob;
+import com.opengamma.engine.view.worker.ViewProcessWorker;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.UserPrincipal;
@@ -342,8 +342,8 @@ public class ViewProcessorTestEnvironment {
     return viewProcessor.getViewProcessForClient(viewClientId);
   }
 
-  public ViewComputationJob getCurrentComputationJob(final ViewProcessImpl viewProcess) {
-    return viewProcess.getComputationJob();
+  public ViewProcessWorker getCurrentWorker(final ViewProcessImpl viewProcess) {
+    return viewProcess.getWorker();
   }
 
   public static ComputationTargetSpecification getPrimitiveTarget() {

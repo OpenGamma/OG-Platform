@@ -59,7 +59,7 @@ import com.opengamma.engine.view.execution.ExecutionOptions;
 import com.opengamma.engine.view.impl.ViewProcessImpl;
 import com.opengamma.engine.view.impl.ViewProcessorImpl;
 import com.opengamma.engine.view.listener.CycleStartedCall;
-import com.opengamma.engine.view.worker.ViewComputationJob;
+import com.opengamma.engine.view.worker.ViewProcessWorker;
 import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.log.LogBridge;
@@ -189,7 +189,7 @@ public class ViewClientTest {
     marketDataProvider.addValue(ViewProcessorTestEnvironment.getPrimitive1(), (byte) 3);
     marketDataProvider.addValue(ViewProcessorTestEnvironment.getPrimitive2(), (byte) 4);
 
-    env.getCurrentComputationJob(viewProcess).requestCycle();
+    env.getCurrentWorker(viewProcess).requestCycle();
 
     // Should have been merging results received in the meantime
     client.resume();
@@ -250,7 +250,7 @@ public class ViewClientTest {
 
     assertEquals(0, resultListener.getQueueSize());
     final ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
-    env.getCurrentComputationJob(viewProcess).requestCycle();
+    env.getCurrentWorker(viewProcess).requestCycle();
 
     // Should have been merging results received in the meantime
     client.resume();
@@ -311,7 +311,7 @@ public class ViewClientTest {
 
     // Now client 1 is paused, so any changes should be batched.
     marketDataProvider.addValue(ViewProcessorTestEnvironment.getPrimitive1(), (byte) 1);
-    env.getCurrentComputationJob(viewProcess1).requestCycle();
+    env.getCurrentWorker(viewProcess1).requestCycle();
     client2ResultListener.assertCycleStarted(TIMEOUT);
     client2ResultListener.assertCycleFragmentCompleted(TIMEOUT);
     client2ResultListener.assertCycleCompleted(TIMEOUT);
@@ -319,7 +319,7 @@ public class ViewClientTest {
     client1ResultListener.assertNoCalls(TIMEOUT);
 
     marketDataProvider.addValue(ViewProcessorTestEnvironment.getPrimitive1(), (byte) 2);
-    env.getCurrentComputationJob(viewProcess1).requestCycle();
+    env.getCurrentWorker(viewProcess1).requestCycle();
     client2ResultListener.assertCycleStarted(TIMEOUT);
     client2ResultListener.assertCycleFragmentCompleted(TIMEOUT);
     client2ResultListener.assertCycleCompleted(TIMEOUT);
@@ -339,7 +339,7 @@ public class ViewClientTest {
 
     // Changes should now propagate straight away to both listeners
     marketDataProvider.addValue(ViewProcessorTestEnvironment.getPrimitive1(), (byte) 3);
-    env.getCurrentComputationJob(viewProcess1).requestCycle();
+    env.getCurrentWorker(viewProcess1).requestCycle();
     client1ResultListener.assertCycleStarted(TIMEOUT);
     client2ResultListener.assertCycleStarted(TIMEOUT);
     client2ResultListener.assertCycleFragmentCompleted(TIMEOUT);
@@ -358,7 +358,7 @@ public class ViewClientTest {
     client1ResultListener.assertNoCalls(TIMEOUT);
 
     marketDataProvider.addValue(ViewProcessorTestEnvironment.getPrimitive2(), (byte) 1);
-    env.getCurrentComputationJob(viewProcess1).requestCycle();
+    env.getCurrentWorker(viewProcess1).requestCycle();
     client2ResultListener.assertCycleStarted(TIMEOUT);
     client2ResultListener.assertCycleFragmentCompleted(TIMEOUT);
     client2ResultListener.assertCycleCompleted(TIMEOUT);
@@ -366,7 +366,7 @@ public class ViewClientTest {
     client1ResultListener.assertNoCalls(TIMEOUT);
 
     marketDataProvider.addValue(ViewProcessorTestEnvironment.getPrimitive2(), (byte) 2);
-    env.getCurrentComputationJob(viewProcess1).requestCycle();
+    env.getCurrentWorker(viewProcess1).requestCycle();
     client2ResultListener.assertCycleStarted(TIMEOUT);
     client2ResultListener.assertCycleFragmentCompleted(TIMEOUT);
     client2ResultListener.assertCycleCompleted(TIMEOUT);
@@ -442,7 +442,7 @@ public class ViewClientTest {
     final ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
     assertEquals(ViewProcessState.RUNNING, viewProcess.getState());
 
-    final ViewComputationJob recalcJob = env.getCurrentComputationJob(viewProcess);
+    final ViewProcessWorker worker = env.getCurrentWorker(viewProcess);
     resultListener1.assertViewDefinitionCompiled(TIMEOUT);
     resultListener1.assertCycleStarted(TIMEOUT);
     resultListener1.assertCycleFragmentCompleted(TIMEOUT);
@@ -451,7 +451,7 @@ public class ViewClientTest {
 
     // Push through a second result
     marketDataProvider.addValue(ViewProcessorTestEnvironment.getPrimitive1(), 3);
-    recalcJob.requestCycle();
+    worker.requestCycle();
     resultListener1.assertCycleStarted(TIMEOUT);
     resultListener1.assertCycleFragmentCompleted(TIMEOUT);
     resultListener1.assertCycleCompleted(TIMEOUT);
@@ -462,7 +462,7 @@ public class ViewClientTest {
     client.setResultListener(resultListener2);
 
     // Push through a result which should arrive at the new listeners
-    recalcJob.requestCycle();
+    worker.requestCycle();
     resultListener2.assertCycleStarted(TIMEOUT);
     resultListener2.assertCycleFragmentCompleted(TIMEOUT);
     resultListener2.assertCycleCompleted(TIMEOUT);
@@ -493,20 +493,20 @@ public class ViewClientTest {
     client.attachToViewProcess(env.getViewDefinition().getUniqueId(), ExecutionOptions.infinite(MarketData.live()));
     final ViewProcessImpl viewProcess1 = env.getViewProcess(vp, client.getUniqueId());
 
-    final ViewComputationJob recalcJob1 = env.getCurrentComputationJob(viewProcess1);
-    assertFalse(recalcJob1.isTerminated());
+    final ViewProcessWorker worker1 = env.getCurrentWorker(viewProcess1);
+    assertFalse(worker1.isTerminated());
 
     client.detachFromViewProcess();
     client.attachToViewProcess(env.getViewDefinition().getUniqueId(), ExecutionOptions.infinite(MarketData.live()));
     final ViewProcessImpl viewProcess2 = env.getViewProcess(vp, client.getUniqueId());
-    final ViewComputationJob recalcJob2 = env.getCurrentComputationJob(viewProcess2);
+    final ViewProcessWorker worker2 = env.getCurrentWorker(viewProcess2);
 
     assertFalse(viewProcess1 == viewProcess2);
-    assertTrue(recalcJob1.join(TIMEOUT));
+    assertTrue(worker1.join(TIMEOUT));
 
     vp.stop();
 
-    assertTrue(recalcJob2.join(TIMEOUT));
+    assertTrue(worker2.join(TIMEOUT));
   }
 
   //-------------------------------------------------------------------------
@@ -588,8 +588,8 @@ public class ViewClientTest {
     client.setMinimumLogMode(ExecutionLogMode.FULL, ImmutableSet.of(resultSpec));
 
     final ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
-    final ViewComputationJob recalcJob = env.getCurrentComputationJob(viewProcess);
-    recalcJob.triggerCycle();
+    final ViewProcessWorker worker = env.getCurrentWorker(viewProcess);
+    worker.triggerCycle();
 
     final ViewComputationResultModel result2 = resultListener.getCycleCompleted(TIMEOUT).getFullResult();
     assertEquals(0, resultListener.getQueueSize());
@@ -636,7 +636,7 @@ public class ViewClientTest {
     assertNull(result1Log.getExceptionStackTrace());
 
     client.setMinimumLogMode(ExecutionLogMode.INDICATORS, ImmutableSet.of(resultSpec));
-    recalcJob.triggerCycle();
+    worker.triggerCycle();
 
     final ViewComputationResultModel result3 = resultListener.getCycleCompleted(TIMEOUT).getFullResult();
     assertEquals(0, resultListener.getQueueSize());
@@ -652,8 +652,8 @@ public class ViewClientTest {
 
     // Force a full cycle - should *not* reuse any previous result, so back to indicators only
     // TODO: [PLAT-3215] This is bad; future optimizations will not necessarily mean a full cycle happens just because a new view definition got posted
-    recalcJob.updateViewDefinition(vd);
-    recalcJob.triggerCycle();
+    worker.updateViewDefinition(vd);
+    worker.triggerCycle();
 
     resultListener.assertViewDefinitionCompiled(TIMEOUT);
     final ViewComputationResultModel result4 = resultListener.getCycleCompleted(TIMEOUT).getFullResult();

@@ -33,14 +33,12 @@ import com.opengamma.engine.view.execution.ExecutionFlags;
 import com.opengamma.engine.view.execution.ExecutionOptions;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
-import com.opengamma.engine.view.impl.ViewProcessImpl;
-import com.opengamma.engine.view.impl.ViewProcessorImpl;
 import com.opengamma.engine.view.listener.CycleCompletedCall;
 import com.opengamma.engine.view.listener.CycleFragmentCompletedCall;
 import com.opengamma.engine.view.listener.CycleStartedCall;
 import com.opengamma.engine.view.listener.ViewDefinitionCompiledCall;
-import com.opengamma.engine.view.worker.SingleThreadViewComputationJob;
-import com.opengamma.engine.view.worker.ViewComputationJob;
+import com.opengamma.engine.view.worker.SingleThreadViewProcessWorker;
+import com.opengamma.engine.view.worker.ViewProcessWorker;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.test.Timeout;
 
@@ -132,14 +130,14 @@ public class ViewProcessTest {
     client.attachToViewProcess(env.getViewDefinition().getUniqueId(), executionOptions);
 
     final ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
-    final ViewComputationJob computationJob = env.getCurrentComputationJob(viewProcess);
+    final ViewProcessWorker worker = env.getCurrentWorker(viewProcess);
 
     final CompiledViewDefinitionWithGraphsImpl compilationModel1 = (CompiledViewDefinitionWithGraphsImpl) resultListener.getViewDefinitionCompiled(Timeout.standardTimeoutMillis())
         .getCompiledViewDefinition();
 
     assertEquals(time0, resultListener.getCycleCompleted(10 * Timeout.standardTimeoutMillis()).getFullResult().getViewCycleExecutionOptions().getValuationTime());
 
-    computationJob.requestCycle();
+    worker.requestCycle();
     assertEquals(time0.plusMillis(10), resultListener.getCycleCompleted(10 * Timeout.standardTimeoutMillis()).getFullResult().getViewCycleExecutionOptions().getValuationTime());
     resultListener.assertNoCalls(Timeout.standardTimeoutMillis());
 
@@ -153,15 +151,15 @@ public class ViewProcessTest {
         return time0.plusMillis(20);
       }
     };
-    ((SingleThreadViewComputationJob) computationJob).setCachedCompiledViewDefinition(compiledViewDefinition);
+    ((SingleThreadViewProcessWorker) worker).setCachedCompiledViewDefinition(compiledViewDefinition);
 
     // Running at time0 + 20 doesn't require a rebuild - should still use our dummy
-    computationJob.requestCycle();
+    worker.requestCycle();
     assertEquals(time0.plusMillis(20), resultListener.getCycleCompleted(10 * Timeout.standardTimeoutMillis()).getFullResult().getViewCycleExecutionOptions().getValuationTime());
     resultListener.assertNoCalls();
 
     // time0 + 30 requires a rebuild
-    computationJob.requestCycle();
+    worker.requestCycle();
     final CompiledViewDefinition compilationModel2 = resultListener.getViewDefinitionCompiled(Timeout.standardTimeoutMillis()).getCompiledViewDefinition();
     assertNotSame(compilationModel1, compilationModel2);
     assertNotSame(compiledViewDefinition, compilationModel2);
@@ -174,7 +172,7 @@ public class ViewProcessTest {
 
     // Job should have terminated automatically with no further evaluation times
     assertEquals(ViewProcessState.FINISHED, viewProcess.getState());
-    assertTrue(computationJob.isTerminated());
+    assertTrue(worker.isTerminated());
 
     vp.stop();
   }
@@ -198,7 +196,7 @@ public class ViewProcessTest {
     client.attachToViewProcess(env.getViewDefinition().getUniqueId(), executionOptions);
 
     final ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
-    final ViewComputationJob computationJob = env.getCurrentComputationJob(viewProcess);
+    final ViewProcessWorker worker = env.getCurrentWorker(viewProcess);
 
     resultListener.expectNextCall(ViewDefinitionCompiledCall.class, 10 * Timeout.standardTimeoutMillis());
     resultListener.expectNextCall(CycleStartedCall.class, 10 * Timeout.standardTimeoutMillis());
@@ -211,7 +209,7 @@ public class ViewProcessTest {
 
     // Job should have terminated automatically with no further evaluation times
     assertEquals(ViewProcessState.FINISHED, viewProcess.getState());
-    assertTrue(computationJob.isTerminated());
+    assertTrue(worker.isTerminated());
 
     vp.stop();
   }

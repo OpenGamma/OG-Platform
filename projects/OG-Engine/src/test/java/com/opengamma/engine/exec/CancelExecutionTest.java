@@ -44,10 +44,6 @@ import com.opengamma.engine.calcnode.stats.FunctionInvocationStatisticsGatherer;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyGraphBuilderFactory;
 import com.opengamma.engine.depgraph.DependencyNode;
-import com.opengamma.engine.exec.DependencyGraphExecutorFactory;
-import com.opengamma.engine.exec.ExecutionResult;
-import com.opengamma.engine.exec.MultipleNodeExecutorFactory;
-import com.opengamma.engine.exec.SingleNodeExecutorFactory;
 import com.opengamma.engine.exec.stats.DiscardingGraphStatisticsGathererProvider;
 import com.opengamma.engine.exec.stats.GraphExecutorStatisticsGathererProvider;
 import com.opengamma.engine.function.CachingFunctionRepositoryCompiler;
@@ -80,7 +76,7 @@ import com.opengamma.engine.view.impl.ViewProcessContext;
 import com.opengamma.engine.view.listener.ComputationResultListener;
 import com.opengamma.engine.view.permission.DefaultViewPermissionProvider;
 import com.opengamma.engine.view.permission.ViewPermissionProvider;
-import com.opengamma.engine.view.worker.SingleThreadViewComputationJobFactory;
+import com.opengamma.engine.view.worker.SingleThreadViewProcessWorkerFactory;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.id.VersionedUniqueIdSupplier;
@@ -172,7 +168,7 @@ public class CancelExecutionTest {
     final MockConfigSource configSource = new MockConfigSource();
     configSource.put(viewDefinition);
     final ViewProcessContext vpc = new ViewProcessContext(UniqueId.of("Process", "Test"), configSource, viewPermissionProvider, marketDataProviderResolver, compilationService, functionResolver,
-        computationCacheSource, jobDispatcher, new SingleThreadViewComputationJobFactory(), new DependencyGraphBuilderFactory(), factory, graphExecutorStatisticsProvider,
+        computationCacheSource, jobDispatcher, new SingleThreadViewProcessWorkerFactory(), new DependencyGraphBuilderFactory(), factory, graphExecutorStatisticsProvider,
         new DummyOverrideOperationCompiler(), new EngineResourceManagerImpl<SingleComputationCycle>(), new VersionedUniqueIdSupplier("Test", "1"));
     final DependencyGraph graph = new DependencyGraph("Default");
     DependencyNode previous = null;

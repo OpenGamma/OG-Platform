@@ -23,7 +23,7 @@ import com.opengamma.engine.view.impl.ViewProcessImpl;
  * Some of the callback methods can have very large parameters (for example dependency graphs, or result models) when called remotely. Any callbacks that are not required by the receiver (for example
  * the process has no active listeners for that event) should be silently discarded at the earliest opportunity and not sent over the network.
  */
-public interface ViewComputationJobContext {
+public interface ViewProcessWorkerContext {
 
   /**
    * Returns the context for the owning process. The process context may contain both shared, immutable, state and configurable items. In the case where the job is spawned remotely, the remote host
