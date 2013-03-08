@@ -8,6 +8,8 @@ package com.opengamma.analytics.util.serialization;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
@@ -29,7 +31,7 @@ public final class InvokedSerializedForm implements Serializable {
 
   private static final Object[] EMPTY_ARRAY = new Object[0];
 
-  private static final String[] s_methodPrefixes = new String[] {"as", "get", "to", "from"};
+  private static final String[] s_methodPrefixes = new String[] {"as", "get", "to", "from", "with"};
 
   private final Class<?> _outerClass;
   private final Object _outerInstance;
@@ -92,6 +94,17 @@ public final class InvokedSerializedForm implements Serializable {
         if ((_replacementInstance == null) && !Modifier.isStatic(method.getModifiers())) {
           _replacementInstance = getOuterClass().newInstance();
         }
+        if (!Modifier.isPublic(method.getModifiers())) {
+          AccessController.doPrivileged(new PrivilegedAction<Void>() {
+
+            @Override
+            public Void run() {
+              method.setAccessible(true);
+              return null;
+            }
+
+          });
+        }
         return method.invoke(_replacementInstance, params);
       } catch (final Exception e) {
         throw new OpenGammaRuntimeException("Couldn't replace " + toString(), e);
@@ -101,13 +114,25 @@ public final class InvokedSerializedForm implements Serializable {
   }
 
   public Object readReplace() {
-    final Class<?> clazz = (getOuterInstance() != null) ? getOuterInstance().getClass() : getOuterClass();
-    final Method[] methods = clazz.getMethods();
-    if (Character.isUpperCase(getMethod().charAt(0))) {
-      for (final String prefix : s_methodPrefixes) {
-        final String methodName = prefix + getMethod();
+    Class<?> clazz = (getOuterInstance() != null) ? getOuterInstance().getClass() : getOuterClass();
+    do {
+      final Method[] methods = clazz.getDeclaredMethods();
+      if (Character.isUpperCase(getMethod().charAt(0))) {
+        for (final String prefix : s_methodPrefixes) {
+          final String methodName = prefix + getMethod();
+          for (final Method method : methods) {
+            if (methodName.equals(method.getName())) {
+              final Object r = tryMethod(method);
+              if (r != null) {
+                return r;
+              }
+            }
+          }
+        }
+      } else {
+        clazz.getMethods();
         for (final Method method : methods) {
-          if (methodName.equals(method.getName())) {
+          if (getMethod().equals(method.getName())) {
             final Object r = tryMethod(method);
             if (r != null) {
               return r;
@@ -115,17 +140,8 @@ public final class InvokedSerializedForm implements Serializable {
           }
         }
       }
-    } else {
-      clazz.getMethods();
-      for (final Method method : methods) {
-        if (getMethod().equals(method.getName())) {
-          final Object r = tryMethod(method);
-          if (r != null) {
-            return r;
-          }
-        }
-      }
-    }
+      clazz = clazz.getSuperclass();
+    } while (clazz != null);
     throw new OpenGammaRuntimeException("Couldn't replace " + toString());
   }
 
