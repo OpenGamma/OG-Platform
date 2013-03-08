@@ -44,7 +44,7 @@ public class ModelVolatilitySurfaceTest extends AnalyticsTestBase {
     final double sigma = 0.4;
     final Interpolator1D linear = new LinearInterpolator1D();
     final Interpolator2D interpolator = new GridInterpolator2D(linear, linear);
-    final Map<DoublesPair, Double> data = new HashMap<DoublesPair, Double>();
+    final Map<DoublesPair, Double> data = new HashMap<>();
     data.put(Pair.of(0., 1.), sigma);
     data.put(Pair.of(1., 0.), sigma);
     data.put(Pair.of(0., 0.), sigma);
