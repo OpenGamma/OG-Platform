@@ -101,6 +101,29 @@ import com.opengamma.util.ArgumentChecker;
       }
     }
   }
+  
+  @Override
+  public boolean isInitialized() {
+    for (MarketDataSnapshot snapshot : _snapshots) {
+      if (!snapshot.isInitialized()) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  @Override
+  public boolean isEmpty() {
+    if (!isInitialized()) {
+      throw new IllegalStateException("Market data snapshot is not initialized");
+    }
+    for (MarketDataSnapshot snapshot : _snapshots) {
+      if (!snapshot.isEmpty()) {
+        return false;
+      }
+    }
+    return true;
+  }
 
   /**
    * @return The first non-null snapshot time from the underlying snapshots
@@ -158,4 +181,5 @@ import com.opengamma.util.ArgumentChecker;
     }
     return results;
   }
+
 }
