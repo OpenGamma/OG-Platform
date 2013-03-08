@@ -1,0 +1,266 @@
+/**
+ * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
+package com.opengamma.engine.view.calc;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
+
+import org.threeten.bp.Duration;
+import org.threeten.bp.Instant;
+
+import com.google.common.collect.Lists;
+import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.marketdata.MarketDataListener;
+import com.opengamma.engine.marketdata.MarketDataProvider;
+import com.opengamma.engine.marketdata.MarketDataSnapshot;
+import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityFilter;
+import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
+import com.opengamma.engine.marketdata.availability.MarketDataNotSatisfiableException;
+import com.opengamma.engine.marketdata.availability.UnionMarketDataAvailability;
+import com.opengamma.engine.marketdata.resolver.MarketDataProviderResolver;
+import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
+import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.livedata.UserPrincipal;
+import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.Pair;
+
+/**
+ * A source of market data that aggregates data from multiple underlying {@link MarketDataProvider}s. Each request for market data is handled by one of the underlying providers. When a subscription is
+ * made the underlying providers are checked in priority order until one of them is able to provide the data.
+ * <p>
+ * All notifications of market data updates and subscription changes are delivered to all listeners. Therefore instances of this class shouldn't be shared between multiple view processes.
+ */
+public class SnapshottingExecutionCycleDataProvider extends ExecutionCycleDataProvider {
+
+  private final MarketDataAvailabilityProvider _availabilityProvider;
+  private final CopyOnWriteArraySet<MarketDataListener> _listeners = new CopyOnWriteArraySet<MarketDataListener>();
+
+  /**
+   * @param user The user requesting the data, not null
+   * @param specs Specifications of the underlying providers in priority order, not empty
+   * @param resolver For resolving market data specifications into providers, not null
+   * @throws IllegalArgumentException If any of the data providers in {@code specs} can't be resolved
+   */
+  public SnapshottingExecutionCycleDataProvider(final UserPrincipal user,
+      final List<MarketDataSpecification> specs,
+      final MarketDataProviderResolver resolver) {
+    super(user, specs, resolver);
+    int index = 0;
+    for (MarketDataProvider provider : getProviders()) {
+      provider.addListener(new Listener(index++));
+    }
+    _availabilityProvider = new AvailabilityProvider(getProviders(), getSpecifications());
+  }
+
+  /**
+   * Adds a listener that will be notified of market data updates and subscription changes.
+   * 
+   * @param listener The listener, not null
+   */
+  public void addListener(final MarketDataListener listener) {
+    ArgumentChecker.notNull(listener, "listener");
+    _listeners.add(listener);
+  }
+
+  /**
+   * Removes a listener.
+   * 
+   * @param listener The listener, not null
+   */
+  public void removeListener(final MarketDataListener listener) {
+    _listeners.remove(listener);
+  }
+
+  /**
+   * Sets up subscriptions for market data
+   * 
+   * @param specifications The market data items, not null
+   */
+  public void subscribe(final Set<ValueSpecification> specifications) {
+    ArgumentChecker.notNull(specifications, "specifications");
+    final List<Set<ValueSpecification>> specificationsByProvider = partitionSpecificationsByProvider(getProviders().size(), specifications);
+    for (int i = 0; i < specificationsByProvider.size(); i++) {
+      final Set<ValueSpecification> subscribe = specificationsByProvider.get(i);
+      if (!subscribe.isEmpty()) {
+        getProviders().get(i).subscribe(subscribe);
+      }
+    }
+  }
+
+  /**
+   * Unsubscribes from market data.
+   * 
+   * @param specifications The subscriptions that should be removed, not null
+   */
+  public void unsubscribe(final Set<ValueSpecification> specifications) {
+    ArgumentChecker.notNull(specifications, "requirements");
+    final List<Set<ValueSpecification>> specificationsByProvider = partitionSpecificationsByProvider(getProviders().size(), specifications);
+    for (int i = 0; i < specificationsByProvider.size(); i++) {
+      final Set<ValueSpecification> unsubscribe = specificationsByProvider.get(i);
+      if (!unsubscribe.isEmpty()) {
+        getProviders().get(i).unsubscribe(unsubscribe);
+      }
+    }
+  }
+
+  /**
+   * @return An availability provider backed by the availability providers of the underlying market data providers
+   */
+  public MarketDataAvailabilityProvider getAvailabilityProvider() {
+    return _availabilityProvider;
+  }
+
+  /**
+   * @return A snapshot of market data backed by snapshots from the underlying providers.
+   */
+  public MarketDataSnapshot snapshot() {
+    final int providers = getProviders().size();
+    final List<MarketDataSnapshot> snapshots = Lists.newArrayListWithCapacity(providers);
+    for (int i = 0; i < providers; i++) {
+      final MarketDataSnapshot snapshot = getProviders().get(i).snapshot(getSpecifications().get(i));
+      snapshots.add(snapshot);
+    }
+    return new CompositeMarketDataSnapshot(snapshots, new ValueSpecificationProvider(providers));
+  }
+
+  public Duration getRealTimeDuration(final Instant fromInstant, final Instant toInstant) {
+    return Duration.between(fromInstant, toInstant);
+  }
+
+  /**
+   * Listens for updates from the underlying providers and distributes them to the listeners.
+   */
+  private class Listener implements MarketDataListener {
+
+    private final int _providerId;
+
+    public Listener(final int providerId) {
+      _providerId = providerId;
+    }
+
+    private ValueSpecification convertSpecification(final ValueSpecification valueSpecification) {
+      return convertUnderlyingSpecification(_providerId, valueSpecification);
+    }
+
+    private Collection<ValueSpecification> convertSpecifications(final Collection<ValueSpecification> valueSpecifications) {
+      final Collection<ValueSpecification> result = new ArrayList<ValueSpecification>(valueSpecifications.size());
+      for (final ValueSpecification valueSpecification : valueSpecifications) {
+        result.add(convertSpecification(valueSpecification));
+      }
+      return result;
+    }
+
+    @Override
+    public void subscriptionSucceeded(ValueSpecification valueSpecification) {
+      valueSpecification = convertSpecification(valueSpecification);
+      for (final MarketDataListener listener : _listeners) {
+        listener.subscriptionSucceeded(valueSpecification);
+      }
+    }
+
+    @Override
+    public void subscriptionFailed(ValueSpecification valueSpecification, final String msg) {
+      valueSpecification = convertSpecification(valueSpecification);
+      for (final MarketDataListener listener : _listeners) {
+        listener.subscriptionFailed(valueSpecification, msg);
+      }
+    }
+
+    @Override
+    public void subscriptionStopped(ValueSpecification valueSpecification) {
+      valueSpecification = convertSpecification(valueSpecification);
+      for (final MarketDataListener listener : _listeners) {
+        listener.subscriptionStopped(valueSpecification);
+      }
+    }
+
+    @Override
+    public void valuesChanged(Collection<ValueSpecification> valueSpecifications) {
+      valueSpecifications = convertSpecifications(valueSpecifications);
+      for (final MarketDataListener listener : _listeners) {
+        listener.valuesChanged(valueSpecifications);
+      }
+    }
+  }
+
+  /**
+   * {@link MarketDataAvailabilityProvider} that checks the underlying providers for availability. If the data is available from any underlying provider then it is available. If it isn't available but
+   * is missing from any of the underlying providers then it is missing. Otherwise it is unavailable.
+   */
+  private static final class AvailabilityProvider implements MarketDataAvailabilityProvider {
+
+    private final List<MarketDataAvailabilityProvider> _providers;
+
+    public AvailabilityProvider(final List<MarketDataProvider> providers, final List<MarketDataSpecification> specs) {
+      _providers = new ArrayList<MarketDataAvailabilityProvider>(providers.size());
+      for (int i = 0; i < providers.size(); i++) {
+        _providers.add(providers.get(i).getAvailabilityProvider(specs.get(i)));
+      }
+    }
+
+    /**
+     * @param desiredValue the market data requirement, not null
+     * @return The satisfaction of the requirement from the underlying providers.
+     */
+    @Override
+    public ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final Object target, final ValueRequirement desiredValue) {
+      MarketDataNotSatisfiableException missing = null;
+      for (int i = 0; i < _providers.size(); i++) {
+        final MarketDataAvailabilityProvider provider = _providers.get(i);
+        try {
+          final ValueSpecification underlying = provider.getAvailability(targetSpec, target, desiredValue);
+          if (underlying != null) {
+            return convertUnderlyingSpecification(i, underlying);
+          }
+        } catch (final MarketDataNotSatisfiableException e) {
+          missing = e;
+        }
+      }
+      if (missing != null) {
+        throw missing;
+      } else {
+        return null;
+      }
+    }
+
+    @Override
+    public MarketDataAvailabilityFilter getAvailabilityFilter() {
+      final List<MarketDataAvailabilityFilter> union = new ArrayList<MarketDataAvailabilityFilter>(_providers.size());
+      for (MarketDataAvailabilityProvider provider : _providers) {
+        union.add(provider.getAvailabilityFilter());
+      }
+      return new UnionMarketDataAvailability.Filter(union);
+    }
+
+  }
+
+  /* package */static class ValueSpecificationProvider {
+
+    private final int _numProviders;
+
+    /* package */ValueSpecificationProvider(final int numProviders) {
+      _numProviders = numProviders;
+    }
+
+    public Pair<Integer, ValueSpecification> getUnderlyingAndSpecification(final ValueSpecification specification) {
+      return SnapshottingExecutionCycleDataProvider.getProviderSpecification(specification);
+    }
+
+    public List<Set<ValueSpecification>> getUnderlyingSpecifications(final Set<ValueSpecification> specifications) {
+      return SnapshottingExecutionCycleDataProvider.partitionSpecificationsByProvider(_numProviders, specifications);
+    }
+
+    public ValueSpecification convertUnderlyingSpecification(final int providerId, final ValueSpecification specification) {
+      return SnapshottingExecutionCycleDataProvider.convertUnderlyingSpecification(providerId, specification);
+    }
+
+  }
+
+}

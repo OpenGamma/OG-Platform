@@ -27,12 +27,12 @@ import com.opengamma.util.tuple.Pair;
   /** The underlying snapshots. */
   private final List<MarketDataSnapshot> _snapshots;
   /** The object that can map the value specifications to/from an underlying provider. */
-  private final ViewComputationJobDataProvider.ValueSpecificationProvider _valueMap;
+  private final SnapshottingExecutionCycleDataProvider.ValueSpecificationProvider _valueMap;
 
   /**
    * @param snapshots The underlying snapshots
    */
-  /* package */CompositeMarketDataSnapshot(final List<MarketDataSnapshot> snapshots, final ViewComputationJobDataProvider.ValueSpecificationProvider valueMap) {
+  /* package */CompositeMarketDataSnapshot(final List<MarketDataSnapshot> snapshots, final SnapshottingExecutionCycleDataProvider.ValueSpecificationProvider valueMap) {
     ArgumentChecker.notEmpty(snapshots, "snapshots");
     ArgumentChecker.notNull(valueMap, "valueMap");
     _snapshots = snapshots;
@@ -72,7 +72,7 @@ import com.opengamma.util.tuple.Pair;
 
   /**
    * Initializes the underlying snapshots.
-   *
+   * 
    * @param values the values required in the snapshot, not null
    * @param timeout the maximum time to wait for the required values
    * @param unit the timeout unit, not null
@@ -112,7 +112,7 @@ import com.opengamma.util.tuple.Pair;
 
   /**
    * Returns the value from one of the underlying snapshots or null if it isn't available in any of them
-   *
+   * 
    * @param value the value required, not null
    * @return The value from one of the underlying snapshots or null if it isn't available in any of them
    */
@@ -128,7 +128,7 @@ import com.opengamma.util.tuple.Pair;
 
   /**
    * Returns the values from the underlying snapshots if they are available
-   *
+   * 
    * @param values the values required, not null
    * @return The values from the underlying snapshots if they are available, values that aren't available will be missing from the results map
    */

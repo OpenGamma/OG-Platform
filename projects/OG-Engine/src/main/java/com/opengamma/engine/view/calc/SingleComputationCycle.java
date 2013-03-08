@@ -112,11 +112,9 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
 
   // Injected inputs
   private final UniqueId _cycleId;
-  private final UniqueId _viewProcessId;
   private final ViewProcessContext _viewProcessContext;
   private final CompiledViewDefinitionWithGraphsImpl _compiledViewDefinition;
   private final ViewCycleExecutionOptions _executionOptions;
-  private final ExecutionLogModeSource _logModeSource;
   private final VersionCorrection _versionCorrection;
 
   private final ComputationResultListener _cycleFragmentResultListener;
@@ -135,25 +133,20 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
   // Output
   private final InMemoryViewComputationResultModel _resultModel;
 
-  public SingleComputationCycle(final UniqueId cycleId, final UniqueId viewProcessId,
-      final ComputationResultListener cycleFragmentResultListener, final ViewProcessContext viewProcessContext,
+  public SingleComputationCycle(final UniqueId cycleId, final ComputationResultListener cycleFragmentResultListener, final ViewProcessContext viewProcessContext,
       final CompiledViewDefinitionWithGraphsImpl compiledViewDefinition, final ViewCycleExecutionOptions executionOptions,
-      final ExecutionLogModeSource logModeSource, final VersionCorrection versionCorrection) {
+      final VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(cycleId, "cycleId");
-    ArgumentChecker.notNull(viewProcessId, "viewProcessId");
     ArgumentChecker.notNull(cycleFragmentResultListener, "cycleFragmentResultListener");
     ArgumentChecker.notNull(viewProcessContext, "viewProcessContext");
     ArgumentChecker.notNull(compiledViewDefinition, "compiledViewDefinition");
     ArgumentChecker.notNull(executionOptions, "executionOptions");
-    ArgumentChecker.notNull(logModeSource, "logModeSource");
     ArgumentChecker.isFalse(versionCorrection.containsLatest(), "versionCorrection must be fully-resolved");
     _cycleId = cycleId;
-    _viewProcessId = viewProcessId;
     _viewProcessContext = viewProcessContext;
     _compiledViewDefinition = compiledViewDefinition;
     _cycleFragmentResultListener = cycleFragmentResultListener;
     _executionOptions = executionOptions;
-    _logModeSource = logModeSource;
     _versionCorrection = versionCorrection;
     _resultModel = constructTemplateResultModel();
     _dependencyGraphExecutor = getViewProcessContext().getDependencyGraphExecutorFactory().createExecutor(this);
@@ -241,7 +234,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
   }
 
   private ExecutionLogModeSource getLogModeSource() {
-    return _logModeSource;
+    return _viewProcessContext.getExecutionLogModeSource();
   }
 
   //-------------------------------------------------------------------------
@@ -252,7 +245,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
 
   @Override
   public UniqueId getViewProcessId() {
-    return _viewProcessId;
+    return _viewProcessContext.getProcessId();
   }
 
   @Override

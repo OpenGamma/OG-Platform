@@ -8,7 +8,6 @@ package com.opengamma.engine.view;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.Semaphore;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -18,17 +17,18 @@ import org.springframework.context.Lifecycle;
 import org.threeten.bp.Instant;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.change.ChangeEvent;
+import com.opengamma.core.change.ChangeListener;
 import com.opengamma.engine.marketdata.MarketDataInjector;
 import com.opengamma.engine.marketdata.MarketDataPermissionProvider;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.calc.EngineResourceManagerInternal;
-import com.opengamma.engine.view.calc.SingleComputationCycle;
-import com.opengamma.engine.view.calc.SingleThreadViewComputationJob;
+import com.opengamma.engine.view.calc.ExecutionCycleDataProvider;
 import com.opengamma.engine.view.calc.ViewComputationJob;
+import com.opengamma.engine.view.calc.ViewComputationJobContext;
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.calc.ViewCycleMetadata;
 import com.opengamma.engine.view.client.ViewDeltaResultCalculator;
-import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphsImpl;
+import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.listener.ViewResultListener;
@@ -42,19 +42,14 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Default implementation of {@link ViewProcess}.
  */
-public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
+public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewComputationJobContext {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ViewProcess.class);
 
-  private final UniqueId _viewProcessId;
   private final UniqueId _viewDefinitionId;
   private final ViewExecutionOptions _executionOptions;
   private final ViewProcessContext _viewProcessContext;
   private final ViewProcessorImpl _viewProcessor;
-  private final ObjectId _cycleObjectId;
-  private final EngineResourceManagerInternal<SingleComputationCycle> _cycleManager;
-
-  private final AtomicLong _cycleVersion = new AtomicLong();
 
   /**
    * Manages access to critical regions of the process. Note that the use of {@link Semaphore} rather than, for example, {@link ReentrantLock} allows one thread to acquire the lock and another thread
@@ -64,51 +59,65 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
 
   private final Set<ViewResultListener> _listeners = new HashSet<ViewResultListener>();
 
+  private volatile ViewDefinition _currentViewDefinition;
+
   private volatile ViewProcessState _state = ViewProcessState.STOPPED;
 
   private volatile ViewComputationJob _computationJob;
 
-  private final ExecutionLogModeSource _executionLogModeSource = new ExecutionLogModeSource();
+  private final AtomicReference<Pair<CompiledViewDefinitionWithGraphs, MarketDataPermissionProvider>> _latestCompiledViewDefinition =
+      new AtomicReference<Pair<CompiledViewDefinitionWithGraphs, MarketDataPermissionProvider>>();
 
-  private final AtomicReference<Pair<CompiledViewDefinitionWithGraphsImpl, MarketDataPermissionProvider>> _latestCompiledViewDefinition =
-      new AtomicReference<Pair<CompiledViewDefinitionWithGraphsImpl, MarketDataPermissionProvider>>();
   private final AtomicReference<ViewComputationResultModel> _latestResult = new AtomicReference<ViewComputationResultModel>();
+
+  private final ChangeListener _viewDefinitionChangeListener;
 
   /**
    * Constructs an instance.
    * 
-   * @param viewProcessId the unique identifier of the view process, not null
    * @param viewDefinitionId the name of the view definition, not null
    * @param executionOptions the view execution options, not null
    * @param viewProcessContext the process context, not null
    * @param viewProcessor the parent view processor, not null
-   * @param cycleManager the view cycle manager, not null
-   * @param cycleObjectId the object identifier of cycles, not null
    */
-  public ViewProcessImpl(final UniqueId viewProcessId, final UniqueId viewDefinitionId, final ViewExecutionOptions executionOptions,
-      final ViewProcessContext viewProcessContext, final ViewProcessorImpl viewProcessor,
-      final EngineResourceManagerInternal<SingleComputationCycle> cycleManager, final ObjectId cycleObjectId) {
-    ArgumentChecker.notNull(viewProcessId, "viewProcessId");
+  public ViewProcessImpl(final UniqueId viewDefinitionId, final ViewExecutionOptions executionOptions,
+      final ViewProcessContext viewProcessContext, final ViewProcessorImpl viewProcessor) {
     ArgumentChecker.notNull(viewDefinitionId, "viewDefinitionId");
     ArgumentChecker.notNull(executionOptions, "executionOptions");
     ArgumentChecker.notNull(viewProcessContext, "viewProcessContext");
     ArgumentChecker.notNull(viewProcessor, "viewProcessor");
-    ArgumentChecker.notNull(cycleManager, "cycleManager");
-    ArgumentChecker.notNull(cycleObjectId, "cycleObjectId");
-
-    _viewProcessId = viewProcessId;
     _viewDefinitionId = viewDefinitionId;
     _executionOptions = executionOptions;
     _viewProcessContext = viewProcessContext;
     _viewProcessor = viewProcessor;
-    _cycleManager = cycleManager;
-    _cycleObjectId = cycleObjectId;
+    if (_viewDefinitionId.isVersioned()) {
+      _viewDefinitionChangeListener = null;
+    } else {
+      final ObjectId viewDefinitionObject = viewDefinitionId.getObjectId();
+      _viewDefinitionChangeListener = new ChangeListener() {
+        @SuppressWarnings("incomplete-switch")
+        @Override
+        public void entityChanged(ChangeEvent event) {
+          if (viewDefinitionObject.equals(event.getObjectId())) {
+            switch (event.getType()) {
+              case REMOVED:
+                s_logger.error("Shutting down view process after removal of view definition {}", viewDefinitionObject);
+                shutdown();
+                break;
+              case CHANGED:
+                viewDefinitionChanged();
+                break;
+            }
+          }
+        }
+      };
+    }
   }
 
   //-------------------------------------------------------------------------
   @Override
   public UniqueId getUniqueId() {
-    return _viewProcessId;
+    return getProcessContext().getProcessId();
   }
 
   @Override
@@ -118,7 +127,19 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
 
   @Override
   public ViewDefinition getLatestViewDefinition() {
-    return getProcessContext().getConfigSource().getConfig(ViewDefinition.class, getDefinitionId());
+    if (_currentViewDefinition == null) {
+      _currentViewDefinition = getProcessContext().getConfigSource().getConfig(ViewDefinition.class, getDefinitionId());
+    }
+    return _currentViewDefinition;
+  }
+
+  private void viewDefinitionChanged() {
+    final ViewDefinition viewDefinition = getProcessContext().getConfigSource().getConfig(ViewDefinition.class, getDefinitionId());
+    _currentViewDefinition = viewDefinition;
+    ViewComputationJob job = getComputationJob();
+    if (job != null) {
+      job.updateViewDefinition(viewDefinition);
+    }
   }
 
   @Override
@@ -137,7 +158,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
       return;
     }
     // Must go through the view processor to prevent a client being attached to the terminated view process
-    _viewProcessor.shutdownViewProcess(_viewProcessId);
+    _viewProcessor.shutdownViewProcess(getUniqueId());
   }
 
   protected void shutdownCore() {
@@ -236,18 +257,14 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
    * @return the execution log mode source, not null
    */
   public ExecutionLogModeSource getExecutionLogModeSource() {
-    return _executionLogModeSource;
+    return getProcessContext().getExecutionLogModeSource();
   }
 
-  //-------------------------------------------------------------------------
-  public UniqueId generateCycleId() {
-    final String cycleVersion = Long.toString(_cycleVersion.getAndIncrement());
-    return UniqueId.of(_cycleObjectId, cycleVersion);
-  }
-
-  public void viewDefinitionCompiled(final CompiledViewDefinitionWithGraphsImpl compiledViewDefinition, final MarketDataPermissionProvider permissionProvider) {
+  @Override
+  public void viewDefinitionCompiled(final ExecutionCycleDataProvider dataProvider, final CompiledViewDefinitionWithGraphs compiledViewDefinition) {
     // Caller MUST NOT hold the semaphore
     final ViewResultListener[] listeners;
+    final MarketDataPermissionProvider permissionProvider = dataProvider.getPermissionProvider();
     lock();
     try {
       _latestCompiledViewDefinition.set(Pair.of(compiledViewDefinition, permissionProvider));
@@ -268,9 +285,10 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
         logListenerError(listener, e);
       }
     }
-    _executionLogModeSource.viewDefinitionCompiled(compiledViewDefinition);
+    getExecutionLogModeSource().viewDefinitionCompiled(compiledViewDefinition);
   }
 
+  @Override
   public void viewDefinitionCompilationFailed(final Instant valuationTime, final Exception exception) {
     // Caller MUST NOT hold the semaphore
     s_logger.error("View definition compilation failed for " + valuationTime + ": ", exception);
@@ -293,6 +311,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
     }
   }
 
+  @Override
   public void cycleCompleted(final ViewCycle cycle) {
     // Caller MUST NOT hold the semaphore
     s_logger.debug("View cycle {} completed on view process {}", cycle.getUniqueId(), getUniqueId());
@@ -322,6 +341,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
     }
   }
 
+  @Override
   public void cycleStarted(final ViewCycleMetadata cycleInfo) {
     // Caller MUST NOT hold the semaphore
     s_logger.debug("View cycle {} initiated on view process {}", cycleInfo, getUniqueId());
@@ -344,7 +364,8 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
     }
   }
 
-  public void cycleFragmentCompleted(final ViewComputationResultModel fullFragment, final ViewDefinition viewDefinition) {
+  @Override
+  public void cycleFragmentCompleted(final ViewComputationResultModel fullFragment, ViewDefinition viewDefinition) {
     // Caller MUST NOT hold the semaphore
     s_logger.debug("Result fragment from cycle {} received on view process {}", fullFragment.getViewCycleId(), getUniqueId());
     final ViewDeltaResultModel deltaFragment;
@@ -370,6 +391,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
     }
   }
 
+  @Override
   public void cycleExecutionFailed(final ViewCycleExecutionOptions executionOptions, final Exception exception) {
     // Caller MUST NOT hold the semaphore
     s_logger.error("Cycle execution failed for " + executionOptions + ": ", exception);
@@ -392,7 +414,8 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
     }
   }
 
-  public void processCompleted() {
+  @Override
+  public void jobCompleted() {
     // Caller MUST NOT hold the semaphore
     s_logger.debug("Computation job completed on view {}. No further cycles to run.", this);
     final ViewResultListener[] listeners;
@@ -460,12 +483,9 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
     _computationJob = computationJob;
   }
 
-  private ViewProcessContext getProcessContext() {
+  @Override
+  public ViewProcessContext getProcessContext() {
     return _viewProcessContext;
-  }
-
-  private EngineResourceManagerInternal<SingleComputationCycle> getCycleManager() {
-    return _cycleManager;
   }
 
   /**
@@ -479,7 +499,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
   public ViewPermissionProvider attachListener(final ViewResultListener listener) {
     ArgumentChecker.notNull(listener, "listener");
     // Caller MUST NOT hold the semaphore
-    Pair<CompiledViewDefinitionWithGraphsImpl, MarketDataPermissionProvider> latestCompilation = null;
+    Pair<CompiledViewDefinitionWithGraphs, MarketDataPermissionProvider> latestCompilation = null;
     ViewComputationResultModel latestResult = null;
     lock();
     try {
@@ -508,7 +528,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
       // block for completion which was the thing PLAT-1158 was trying to avoid. This is because the contracts for the order in which
       // notifications can be received is unclear and I don't want to risk introducing a change at this moment in time.
       try {
-        final CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = latestCompilation.getFirst();
+        final CompiledViewDefinitionWithGraphs compiledViewDefinition = latestCompilation.getFirst();
         final MarketDataPermissionProvider permissionProvider = latestCompilation.getSecond();
         final Set<ValueSpecification> marketData = compiledViewDefinition.getMarketDataRequirements();
         final Set<ValueSpecification> deniedRequirements =
@@ -562,13 +582,22 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
 
   private void startComputationJobImpl() {
     // Caller MUST hold the semaphore
+    if (_viewDefinitionChangeListener != null) {
+      getProcessContext().getConfigSource().changeManager().addChangeListener(_viewDefinitionChangeListener);
+    }
+    final ViewDefinition viewDefinition = getLatestViewDefinition();
+    boolean rollback = true;
     try {
-      setComputationJob(new SingleThreadViewComputationJob(this, _executionOptions, getProcessContext(), getCycleManager()));
+      final ViewComputationJob job = getProcessContext().getViewComputationJobFactory().createJob(this, getExecutionOptions(), viewDefinition);
+      setComputationJob(job);
+      rollback = false;
     } catch (final Exception e) {
-      // Roll-back
-      terminateComputationJob();
       s_logger.error("Failed to start computation job for view process " + toString(), e);
       throw new OpenGammaRuntimeException("Failed to start computation job for view process " + toString(), e);
+    } finally {
+      if (rollback && (_viewDefinitionChangeListener != null)) {
+        getProcessContext().getConfigSource().changeManager().removeChangeListener(_viewDefinitionChangeListener);
+      }
     }
   }
 
@@ -620,6 +649,9 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
     final ViewComputationJob job = getComputationJob();
     if (job == null) {
       return;
+    }
+    if (_viewDefinitionChangeListener != null) {
+      getProcessContext().getConfigSource().changeManager().removeChangeListener(_viewDefinitionChangeListener);
     }
     job.terminate();
     // Let go of the job/thread and allow it to die on its own. A computation cycle might be taking place on this

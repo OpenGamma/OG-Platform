@@ -76,16 +76,16 @@ public class ViewClientImpl implements ViewClient {
   private final RateLimitingMergingViewProcessListener _mergingViewProcessListener;
 
   private final AtomicReference<ViewResultListener> _userResultListener = new AtomicReference<ViewResultListener>();
-  
+
   private final Set<Pair<String, ValueSpecification>> _elevatedLogSpecs = new HashSet<Pair<String, ValueSpecification>>();
 
   /**
    * Constructs an instance.
-   *
-   * @param id  the unique identifier assigned to this view client
-   * @param viewProcessor  the parent view processor to which this client belongs
-   * @param user  the user who owns this client
-   * @param timer  the timer to use for scheduled tasks
+   * 
+   * @param id the unique identifier assigned to this view client
+   * @param viewProcessor the parent view processor to which this client belongs
+   * @param user the user who owns this client
+   * @param timer the timer to use for scheduled tasks
    */
   public ViewClientImpl(UniqueId id, ViewProcessorImpl viewProcessor, UserPrincipal user, Timer timer) {
     ArgumentChecker.notNull(id, "id");
@@ -459,7 +459,7 @@ public class ViewClientImpl implements ViewClient {
     }
     return _viewProcessor.getViewCycleManager().createReference(cycleId);
   }
-  
+
   //-------------------------------------------------------------------------
   @Override
   public void setMinimumLogMode(ExecutionLogMode minimumLogMode, Set<Pair<String, ValueSpecification>> resultSpecifications) {
@@ -535,8 +535,8 @@ public class ViewClientImpl implements ViewClient {
 
   /**
    * Updates the latest result.
-   *
-   * @param result  the new result
+   * 
+   * @param result the new result
    * @return true if the new result was the first
    */
   private boolean updateLatestResult(ViewComputationResultModel result) {

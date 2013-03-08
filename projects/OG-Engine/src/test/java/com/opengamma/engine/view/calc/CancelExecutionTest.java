@@ -5,9 +5,6 @@
  */
 package com.opengamma.engine.view.calc;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
@@ -58,8 +55,6 @@ import com.opengamma.engine.test.MockConfigSource;
 import com.opengamma.engine.test.MockFunction;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.view.ExecutionLogMode;
-import com.opengamma.engine.view.ExecutionLogModeSource;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
@@ -81,6 +76,7 @@ import com.opengamma.engine.view.permission.DefaultViewPermissionProvider;
 import com.opengamma.engine.view.permission.ViewPermissionProvider;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.id.VersionedUniqueIdSupplier;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.log.ThreadLocalLogEventListener;
 import com.opengamma.util.test.Timeout;
@@ -168,8 +164,9 @@ public class CancelExecutionTest {
     viewDefinition.addViewCalculationConfiguration(new ViewCalculationConfiguration(viewDefinition, "default"));
     final MockConfigSource configSource = new MockConfigSource();
     configSource.put(viewDefinition);
-    final ViewProcessContext vpc = new ViewProcessContext(configSource, viewPermissionProvider, marketDataProviderResolver, compilationService, functionResolver, computationCacheSource,
-        jobDispatcher, new DependencyGraphBuilderFactory(), factory, graphExecutorStatisticsProvider, new DummyOverrideOperationCompiler());
+    final ViewProcessContext vpc = new ViewProcessContext(UniqueId.of("Process", "Test"), configSource, viewPermissionProvider, marketDataProviderResolver, compilationService, functionResolver,
+        computationCacheSource, jobDispatcher, new SingleThreadViewComputationJobFactory(), new DependencyGraphBuilderFactory(), factory, graphExecutorStatisticsProvider,
+        new DummyOverrideOperationCompiler(), new EngineResourceManagerImpl<SingleComputationCycle>(), new VersionedUniqueIdSupplier("Test", "1"));
     final DependencyGraph graph = new DependencyGraph("Default");
     DependencyNode previous = null;
     for (int i = 0; i < JOB_SIZE; i++) {
@@ -186,11 +183,9 @@ public class CancelExecutionTest {
     final CompiledViewDefinitionWithGraphsImpl viewEvaluationModel = new CompiledViewDefinitionWithGraphsImpl(viewDefinition, graphs, Collections.<ComputationTargetReference, UniqueId>emptyMap(),
         new SimplePortfolio("Test Portfolio"), 0);
     final ViewCycleExecutionOptions cycleOptions = ViewCycleExecutionOptions.builder().setValuationTime(Instant.ofEpochMilli(1)).setMarketDataSpecification(new MarketDataSpecification()).create();
-    final ExecutionLogModeSource logModeSource = mock(ExecutionLogModeSource.class);
-    when(logModeSource.getLogMode(any(DependencyNode.class))).thenReturn(ExecutionLogMode.INDICATORS);
-    final SingleComputationCycle cycle = new SingleComputationCycle(UniqueId.of("Test", "Cycle1"), UniqueId.of("Test", "ViewProcess1"), computationCycleResultListener, vpc, viewEvaluationModel,
-        cycleOptions, logModeSource, VersionCorrection.of(Instant.ofEpochMilli(1), Instant.ofEpochMilli(1)));
-    return cycle.getDependencyGraphExecutor().execute(graph, new LinkedBlockingQueue<ExecutionResult>(), cycle.getStatisticsGatherer(), logModeSource);
+    final SingleComputationCycle cycle = new SingleComputationCycle(UniqueId.of("Test", "Cycle1"), computationCycleResultListener, vpc, viewEvaluationModel,
+        cycleOptions, VersionCorrection.of(Instant.ofEpochMilli(1), Instant.ofEpochMilli(1)));
+    return cycle.getDependencyGraphExecutor().execute(graph, new LinkedBlockingQueue<ExecutionResult>(), cycle.getStatisticsGatherer(), vpc.getExecutionLogModeSource());
   }
 
   private boolean jobFinished() {

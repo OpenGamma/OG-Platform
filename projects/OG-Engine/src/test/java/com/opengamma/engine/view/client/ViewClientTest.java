@@ -57,7 +57,6 @@ import com.opengamma.engine.view.ViewProcessImpl;
 import com.opengamma.engine.view.ViewProcessState;
 import com.opengamma.engine.view.ViewProcessorImpl;
 import com.opengamma.engine.view.ViewResultModel;
-import com.opengamma.engine.view.calc.SingleThreadViewComputationJob;
 import com.opengamma.engine.view.calc.ViewComputationJob;
 import com.opengamma.engine.view.execution.ExecutionOptions;
 import com.opengamma.engine.view.listener.CycleStartedCall;
@@ -652,8 +651,8 @@ public class ViewClientTest {
     assertNotNull(log3.getLogs());
 
     // Force a full cycle - should *not* reuse any previous result, so back to indicators only
-    // TODO: [PLAT-3186] This is bad; it is coupled to the SingleThreadViewComputationJob and future optimizations will not mean a full cycle happens just because "dirty" got called.
-    ((SingleThreadViewComputationJob) recalcJob).dirtyViewDefinition();
+    // TODO: [PLAT-3215] This is bad; future optimizations will not necessarily mean a full cycle happens just because a new view definition got posted
+    recalcJob.updateViewDefinition(vd);
     recalcJob.triggerCycle();
 
     resultListener.assertViewDefinitionCompiled(TIMEOUT);

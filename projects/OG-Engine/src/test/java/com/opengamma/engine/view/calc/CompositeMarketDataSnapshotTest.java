@@ -59,7 +59,7 @@ public class CompositeMarketDataSnapshotTest {
   public void setUp() throws Exception {
     _delegate1 = mock(MarketDataSnapshot.class);
     _delegate2 = mock(MarketDataSnapshot.class);
-    _snapshot = new CompositeMarketDataSnapshot(Lists.newArrayList(_delegate1, _delegate2), new ViewComputationJobDataProvider.ValueSpecificationProvider(2));
+    _snapshot = new CompositeMarketDataSnapshot(Lists.newArrayList(_delegate1, _delegate2), new SnapshottingExecutionCycleDataProvider.ValueSpecificationProvider(2));
     stub(_delegate1.query(SPECIFICATION1)).toReturn(VALUE1);
     stub(_delegate2.query(SPECIFICATION2)).toReturn(VALUE2);
     stub(_delegate1.query(Sets.newHashSet(SPECIFICATION1))).toReturn(ImmutableMap.of(SPECIFICATION1, VALUE1));

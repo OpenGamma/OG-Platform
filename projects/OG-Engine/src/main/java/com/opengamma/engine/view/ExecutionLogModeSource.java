@@ -14,7 +14,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphsImpl;
+import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -25,17 +25,16 @@ public class ExecutionLogModeSource {
   private final ReentrantLock _lock = new ReentrantLock();
   private final Map<Pair<String, ValueSpecification>, Integer> _elevatedLogTargets = new HashMap<Pair<String, ValueSpecification>, Integer>();
   private final Map<DependencyNode, Integer> _elevatedLogNodes = new ConcurrentHashMap<DependencyNode, Integer>();
-  private CompiledViewDefinitionWithGraphsImpl _compiledViewDefinition;
-  
+  private CompiledViewDefinitionWithGraphs _compiledViewDefinition;
+  private Map<String, DependencyGraph> _graphs = new HashMap<String, DependencyGraph>();
+
   /**
-   * Ensures at least a minimum level of logging output is present in the results for the given value specifications.
-   * Changes will take effect from the next computation cycle.
+   * Ensures at least a minimum level of logging output is present in the results for the given value specifications. Changes will take effect from the next computation cycle.
    * <p>
-   * Each call to elevate the minimum level of logging output for a result must be paired with exactly one call to
-   * reduce the level of logging output, if required.
+   * Each call to elevate the minimum level of logging output for a result must be paired with exactly one call to reduce the level of logging output, if required.
    * 
-   * @param minimumLogMode  the minimum log mode to ensure, not null
-   * @param targets  the targets affected, not null or empty
+   * @param minimumLogMode the minimum log mode to ensure, not null
+   * @param targets the targets affected, not null or empty
    */
   public void setMinimumLogMode(ExecutionLogMode minimumLogMode, Set<Pair<String, ValueSpecification>> targets) {
     // Synchronization ensures only one writer, while getLogMode is allowed to read from the ConcurrentHashMap
@@ -67,19 +66,19 @@ public class ExecutionLogModeSource {
         break;
     }
   }
-  
+
   /**
    * Gets the log mode for a dependency node.
-   *
-   * @param dependencyNode  the dependency node, not null
+   * 
+   * @param dependencyNode the dependency node, not null
    * @return the log mode, not null
    */
   public ExecutionLogMode getLogMode(DependencyNode dependencyNode) {
     return _elevatedLogNodes.containsKey(dependencyNode) ? ExecutionLogMode.FULL : ExecutionLogMode.INDICATORS;
   }
-  
+
   //-------------------------------------------------------------------------
-  /*package*/ void viewDefinitionCompiled(CompiledViewDefinitionWithGraphsImpl compiledViewDefinition) {
+  /*package*/void viewDefinitionCompiled(CompiledViewDefinitionWithGraphs compiledViewDefinition) {
     _lock.lock();
     try {
       _compiledViewDefinition = compiledViewDefinition;
@@ -88,12 +87,12 @@ public class ExecutionLogModeSource {
       _lock.unlock();
     }
   }
-  
+
   private void addElevatedNode(Pair<String, ValueSpecification> target) {
     // Must be called while holding the lock
     incrementNodeRefCount(getNodeProducing(target));
   }
-  
+
   private void incrementNodeRefCount(DependencyNode node) {
     if (node == null) {
       return;
@@ -103,12 +102,12 @@ public class ExecutionLogModeSource {
       incrementNodeRefCount(inputNode);
     }
   }
-  
+
   private void removeElevatedNode(Pair<String, ValueSpecification> target) {
     // Must be called while holding the lock
     decrementNodeRefCount(getNodeProducing(target));
   }
-  
+
   private void decrementNodeRefCount(DependencyNode node) {
     if (node == null) {
       return;
@@ -118,21 +117,27 @@ public class ExecutionLogModeSource {
       decrementNodeRefCount(inputNode);
     }
   }
-  
+
   private DependencyNode getNodeProducing(Pair<String, ValueSpecification> target) {
     if (_compiledViewDefinition == null) {
       return null;
     }
     String calcConfigName = target.getFirst();
     ValueSpecification valueSpec = target.getSecond();
-    DependencyGraph depGraph = _compiledViewDefinition.getDependencyGraph(calcConfigName);
+    DependencyGraph depGraph = _graphs.get(calcConfigName);
     if (depGraph == null) {
-      return null;
+      try {
+        depGraph = _compiledViewDefinition.getDependencyGraphExplorer(calcConfigName).getWholeGraph();
+      } catch (Exception e) {
+        // No graph available - an empty one will return null for any of the value specifications
+        depGraph = new DependencyGraph(calcConfigName);
+      }
+      _graphs.put(calcConfigName, depGraph);
     }
     DependencyNode node = depGraph.getNodeProducing(valueSpec);
     return node;
   }
-  
+
   private void rebuildNodeLogModes() {
     // Must be called while holding the lock
     _elevatedLogNodes.clear();
@@ -140,7 +145,7 @@ public class ExecutionLogModeSource {
       addElevatedNode(target);
     }
   }
-  
+
   //-------------------------------------------------------------------------
   private <T> boolean incrementRefCount(T key, Map<T, Integer> refMap) {
     Integer refCount = refMap.get(key);
@@ -152,7 +157,7 @@ public class ExecutionLogModeSource {
       return false;
     }
   }
-  
+
   private <T> boolean decrementRefCount(T key, Map<T, Integer> refMap) {
     Integer value = refMap.get(key);
     if (value == null) {
@@ -166,5 +171,5 @@ public class ExecutionLogModeSource {
       return false;
     }
   }
-  
+
 }

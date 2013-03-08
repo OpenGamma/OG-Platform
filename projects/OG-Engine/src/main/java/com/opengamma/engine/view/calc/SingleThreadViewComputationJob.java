@@ -23,6 +23,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +33,6 @@ import org.threeten.bp.Instant;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.change.ChangeEvent;
 import com.opengamma.core.change.ChangeListener;
@@ -51,7 +51,6 @@ import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessContext;
-import com.opengamma.engine.view.ViewProcessImpl;
 import com.opengamma.engine.view.calc.trigger.CombinedViewCycleTrigger;
 import com.opengamma.engine.view.calc.trigger.FixedTimeTrigger;
 import com.opengamma.engine.view.calc.trigger.RecomputationPeriodTrigger;
@@ -87,10 +86,8 @@ public class SingleThreadViewComputationJob implements MarketDataListener, ViewC
   private static final long NANOS_PER_MILLISECOND = 1000000;
   private static final long MARKET_DATA_TIMEOUT_MILLIS = 10000;
 
-  private final ViewProcessImpl _viewProcess;
+  private final ViewComputationJobContext _context;
   private final ViewExecutionOptions _executionOptions;
-  private final ViewProcessContext _processContext;
-  private final EngineResourceManagerInternal<SingleComputationCycle> _cycleManager;
   private final ViewCycleTrigger _masterCycleTrigger;
   private final FixedTimeTrigger _compilationExpiryCycleTrigger;
   private final boolean _executeCycles;
@@ -105,14 +102,18 @@ public class SingleThreadViewComputationJob implements MarketDataListener, ViewC
   private final Set<ValueSpecification> _pendingSubscriptions = Collections.newSetFromMap(new ConcurrentHashMap<ValueSpecification, Boolean>());
   private CountDownLatch _pendingSubscriptionLatch;
 
-  private ChangeListener _viewDefinitionChangeListener;
   private ConcurrentMap<ObjectId, Boolean> _changedTargets;
   private ChangeListener _targetResolverChangeListener;
 
   private volatile boolean _wakeOnCycleRequest;
   private volatile boolean _cycleRequested;
   private volatile boolean _forceTriggerCycle;
-  private volatile boolean _viewDefinitionDirty = true;
+
+  /**
+   * An updated view definition pushed in by the execution coordinator. When the next cycle runs, this should be used instead of the previous one.
+   */
+  private final AtomicReference<ViewDefinition> _newViewDefinition = new AtomicReference<ViewDefinition>();
+
   private volatile Future<CompiledViewDefinitionWithGraphsImpl> _compilationTask;
 
   /**
@@ -122,9 +123,9 @@ public class SingleThreadViewComputationJob implements MarketDataListener, ViewC
   private double _totalTimeNanos;
 
   /**
-   * The current market data provider(s).
+   * The market data provider(s) for the current cycles.
    */
-  private ViewComputationJobDataProvider _marketDataProvider;
+  private SnapshottingExecutionCycleDataProvider _marketDataProvider;
 
   /**
    * Flag indicating the market data provider has changed and any nodes sourcing market data into the dependency graph may now be invalid.
@@ -141,26 +142,19 @@ public class SingleThreadViewComputationJob implements MarketDataListener, ViewC
    */
   private final Thread _thread;
 
-  public SingleThreadViewComputationJob(final ViewProcessImpl viewProcess,
-      final ViewExecutionOptions executionOptions,
-      final ViewProcessContext processContext,
-      final EngineResourceManagerInternal<SingleComputationCycle> cycleManager) {
-    ArgumentChecker.notNull(viewProcess, "viewProcess");
+  public SingleThreadViewComputationJob(final ViewComputationJobContext context, final ViewExecutionOptions executionOptions, final ViewDefinition viewDefinition) {
+    ArgumentChecker.notNull(context, "context");
     ArgumentChecker.notNull(executionOptions, "executionOptions");
-    ArgumentChecker.notNull(processContext, "processContext");
-    ArgumentChecker.notNull(cycleManager, "cycleManager");
-    _viewProcess = viewProcess;
+    ArgumentChecker.notNull(viewDefinition, "viewDefinition");
+    _context = context;
     _executionOptions = executionOptions;
-    _processContext = processContext;
-    _cycleManager = cycleManager;
     _cycleRequested = !executionOptions.getFlags().contains(ViewExecutionFlags.WAIT_FOR_INITIAL_TRIGGER);
     _compilationExpiryCycleTrigger = new FixedTimeTrigger();
     _masterCycleTrigger = createViewCycleTrigger(executionOptions);
     _executeCycles = !getExecutionOptions().getFlags().contains(ViewExecutionFlags.COMPILE_ONLY);
-    updateViewDefinitionIfRequired();
-    subscribeToViewDefinition();
+    _viewDefinition = viewDefinition;
     _job = new Job();
-    _thread = new Thread(_job, "Computation Job for " + viewProcess);
+    _thread = new Thread(_job, "Computation Job for " + context);
     _thread.start();
   }
 
@@ -184,9 +178,8 @@ public class SingleThreadViewComputationJob implements MarketDataListener, ViewC
     return trigger;
   }
 
-  // TODO get rid of the private getters
-  private ViewProcessImpl getViewProcess() {
-    return _viewProcess;
+  private ViewComputationJobContext getJobContext() {
+    return _context;
   }
 
   private ViewExecutionOptions getExecutionOptions() {
@@ -194,11 +187,7 @@ public class SingleThreadViewComputationJob implements MarketDataListener, ViewC
   }
 
   private ViewProcessContext getProcessContext() {
-    return _processContext;
-  }
-
-  private EngineResourceManagerInternal<SingleComputationCycle> getCycleManager() {
-    return _cycleManager;
+    return getJobContext().getProcessContext();
   }
 
   private ViewCycleTrigger getMasterCycleTrigger() {
@@ -258,11 +247,11 @@ public class SingleThreadViewComputationJob implements MarketDataListener, ViewC
         }
         if (executionOptions == null) {
           s_logger.info("No more view cycle execution options");
-          processCompleted();
+          jobCompleted();
           return;
         }
       } catch (final Exception e) {
-        s_logger.error("Error obtaining next view cycle execution options from sequence for view process " + getViewProcess(), e);
+        s_logger.error("Error obtaining next view cycle execution options from sequence for " + getJobContext(), e);
         return;
       }
 
@@ -276,7 +265,7 @@ public class SingleThreadViewComputationJob implements MarketDataListener, ViewC
       s_snapshot.begin();
       try {
         if (_marketDataProvider == null ||
-            !_marketDataProvider.getMarketDataSpecifications().equals(executionOptions.getMarketDataSpecifications())) {
+            !_marketDataProvider.getSpecifications().equals(executionOptions.getMarketDataSpecifications())) {
           if (_marketDataProvider != null) {
             s_logger.info("Replacing market data provider between cycles");
           }
@@ -315,14 +304,24 @@ public class SingleThreadViewComputationJob implements MarketDataListener, ViewC
       final CompiledViewDefinitionWithGraphsImpl compiledViewDefinition;
       s_compilation.begin();
       try {
+        final CompiledViewDefinitionWithGraphsImpl previous = getCachedCompiledViewDefinition();
         compiledViewDefinition = getCompiledViewDefinition(compilationValuationTime, versionCorrection);
         if (compiledViewDefinition == null) {
           s_logger.warn("Job terminated during view compilation");
           return;
         }
+        if (previous != compiledViewDefinition) {
+          s_viewDefinitionCompiled.begin();
+          try {
+            setCachedCompiledViewDefinition(compiledViewDefinition);
+            viewDefinitionCompiled(executionOptions, compiledViewDefinition);
+          } finally {
+            s_viewDefinitionCompiled.end();
+          }
+        }
       } catch (final Exception e) {
-        final String message = MessageFormat.format("Error obtaining compiled view definition {0} for time {1} at version-correction {2}",
-            getViewProcess().getDefinitionId(), compilationValuationTime, versionCorrection);
+        final String message = MessageFormat.format("Error obtaining compiled view definition {0} for time {1} at version-correction {2}", getViewDefinition().getUniqueId(), compilationValuationTime,
+            versionCorrection);
         s_logger.error(message);
         cycleExecutionFailed(executionOptions, new OpenGammaRuntimeException(message, e));
         return;
@@ -330,6 +329,12 @@ public class SingleThreadViewComputationJob implements MarketDataListener, ViewC
         s_compilation.end();
       }
 
+      s_subscribeToMarketData.begin();
+      try {
+        setMarketDataSubscriptions(compiledViewDefinition.getMarketDataRequirements());
+      } finally {
+        s_subscribeToMarketData.end();
+      }
       s_snapshotInit.begin();
       try {
         if (getExecutionOptions().getFlags().contains(ViewExecutionFlags.AWAIT_MARKET_DATA)) {
@@ -353,7 +358,7 @@ public class SingleThreadViewComputationJob implements MarketDataListener, ViewC
       try {
         cycleReference = createCycle(executionOptions, compiledViewDefinition, versionCorrection);
       } catch (final Exception e) {
-        s_logger.error("Error creating next view cycle for view process " + getViewProcess(), e);
+        s_logger.error("Error creating next view cycle for " + getJobContext(), e);
         return;
       } finally {
         s_createCycle.end();
@@ -381,12 +386,12 @@ public class SingleThreadViewComputationJob implements MarketDataListener, ViewC
           executeViewCycle(cycleType, cycleReference, marketDataSnapshot);
         } catch (final InterruptedException e) {
           // Execution interrupted - don't propagate as failure
-          s_logger.info("View cycle execution interrupted for view process {}", getViewProcess());
+          s_logger.info("View cycle execution interrupted for {}", getJobContext());
           cycleReference.release();
           return;
         } catch (final Exception e) {
           // Execution failed
-          s_logger.error("View cycle execution failed for view process " + getViewProcess(), e);
+          s_logger.error("View cycle execution failed for " + getJobContext(), e);
           cycleReference.release();
           cycleExecutionFailed(executionOptions, e);
           return;
@@ -407,7 +412,7 @@ public class SingleThreadViewComputationJob implements MarketDataListener, ViewC
       }
 
       if (getExecutionOptions().getExecutionSequence().isEmpty()) {
-        processCompleted();
+        jobCompleted();
       }
 
       if (_executeCycles) {
@@ -423,7 +428,6 @@ public class SingleThreadViewComputationJob implements MarketDataListener, ViewC
       if (_previousCycleReference != null) {
         _previousCycleReference.release();
       }
-      unsubscribeFromViewDefinition();
       unsubscribeFromTargetResolverChanges();
       removeMarketDataProvider();
       invalidateCachedCompiledViewDefinition();
@@ -442,50 +446,49 @@ public class SingleThreadViewComputationJob implements MarketDataListener, ViewC
 
   private void cycleCompleted(final ViewCycle cycle) {
     try {
-      getViewProcess().cycleCompleted(cycle);
+      getJobContext().cycleCompleted(cycle);
     } catch (final Exception e) {
-      e.printStackTrace();
-      s_logger.error("Error notifying view process " + getViewProcess() + " of view cycle completion", e);
+      s_logger.error("Error notifying " + getJobContext() + " of view cycle completion", e);
     }
   }
 
   private void cycleStarted(final ViewCycleMetadata cycleMetadata) {
     try {
-      getViewProcess().cycleStarted(cycleMetadata);
+      getJobContext().cycleStarted(cycleMetadata);
     } catch (final Exception e) {
-      s_logger.error("Error notifying view process " + getViewProcess() + " of view cycle starting", e);
+      s_logger.error("Error notifying " + getJobContext() + " of view cycle starting", e);
     }
   }
 
   private void cycleFragmentCompleted(final ViewComputationResultModel result) {
     try {
-      getViewProcess().cycleFragmentCompleted(result, _viewDefinition);
+      getJobContext().cycleFragmentCompleted(result, _viewDefinition);
     } catch (final Exception e) {
-      s_logger.error("Error notifying view process " + getViewProcess() + " of cycle fragment completion", e);
+      s_logger.error("Error notifying " + getJobContext() + " of cycle fragment completion", e);
     }
   }
 
   private void cycleExecutionFailed(final ViewCycleExecutionOptions executionOptions, final Exception exception) {
     try {
-      getViewProcess().cycleExecutionFailed(executionOptions, exception);
+      getJobContext().cycleExecutionFailed(executionOptions, exception);
     } catch (final Exception vpe) {
-      s_logger.error("Error notifying the view process " + getViewProcess() + " of the cycle execution error", vpe);
+      s_logger.error("Error notifying " + getJobContext() + " of the cycle execution error", vpe);
     }
   }
 
-  private void viewDefinitionCompiled(final CompiledViewDefinitionWithGraphsImpl compiledViewDefinition) {
+  private void viewDefinitionCompiled(final ViewCycleExecutionOptions executionOptions, final CompiledViewDefinitionWithGraphsImpl compiledViewDefinition) {
     try {
-      getViewProcess().viewDefinitionCompiled(compiledViewDefinition, _marketDataProvider.getPermissionProvider());
+      getJobContext().viewDefinitionCompiled(_marketDataProvider, compiledViewDefinition);
     } catch (final Exception vpe) {
-      s_logger.error("Error notifying view process " + getViewProcess() + " of view definition compilation");
+      s_logger.error("Error notifying " + getJobContext() + " of view definition compilation");
     }
   }
 
   private void viewDefinitionCompilationFailed(final Instant compilationTime, final Exception e) {
     try {
-      getViewProcess().viewDefinitionCompilationFailed(compilationTime, e);
+      getJobContext().viewDefinitionCompilationFailed(compilationTime, e);
     } catch (final Exception vpe) {
-      s_logger.error("Error notifying the view process " + getViewProcess() + " of the view definition compilation failure", vpe);
+      s_logger.error("Error notifying " + getJobContext() + " of the view definition compilation failure", vpe);
     }
   }
 
@@ -582,23 +585,14 @@ public class SingleThreadViewComputationJob implements MarketDataListener, ViewC
         (_totalTimeNanos / _cycleCount) / NANOS_PER_MILLISECOND);
   }
 
-  private void processCompleted() {
-    s_logger.info("Computation job completed for view process {}", getViewProcess());
+  private void jobCompleted() {
+    s_logger.info("Computation job completed for {}", getJobContext());
     try {
-      getViewProcess().processCompleted();
+      getJobContext().jobCompleted();
     } catch (final Exception e) {
-      s_logger.error("Error notifying view process " + getViewProcess() + " of computation job completion", e);
+      s_logger.error("Error notifying " + getJobContext() + " of computation job completion", e);
     }
     getJob().terminate();
-  }
-
-  /**
-   * Indicates that the view definition itself has changed.
-   */
-  public void dirtyViewDefinition() {
-    s_logger.info("Marking view definition as dirty for view process {}", getViewProcess());
-    _viewDefinitionDirty = true;
-    triggerCycle();
   }
 
   private EngineResourceReference<SingleComputationCycle> createCycle(final ViewCycleExecutionOptions executionOptions,
@@ -608,7 +602,7 @@ public class SingleThreadViewComputationJob implements MarketDataListener, ViewC
     if (!compiledViewDefinition.isValidFor(executionOptions.getValuationTime())) {
       throw new OpenGammaRuntimeException("Compiled view definition " + compiledViewDefinition + " not valid for execution options " + executionOptions);
     }
-    final UniqueId cycleId = getViewProcess().generateCycleId();
+    final UniqueId cycleId = getProcessContext().getCycleIdentifiers().get();
 
     final ComputationResultListener streamingResultListener = new ComputationResultListener() {
       @Override
@@ -616,9 +610,8 @@ public class SingleThreadViewComputationJob implements MarketDataListener, ViewC
         cycleFragmentCompleted(result);
       }
     };
-    final SingleComputationCycle cycle = new SingleComputationCycle(cycleId, getViewProcess().getUniqueId(),
-        streamingResultListener, getProcessContext(), compiledViewDefinition, executionOptions, getViewProcess().getExecutionLogModeSource(), versionCorrection);
-    return getCycleManager().manage(cycle);
+    final SingleComputationCycle cycle = new SingleComputationCycle(cycleId, streamingResultListener, getProcessContext(), compiledViewDefinition, executionOptions, versionCorrection);
+    return getProcessContext().getCycleManager().manage(cycle);
   }
 
   private void subscribeToTargetResolverChanges() {
@@ -1015,13 +1008,12 @@ public class SingleThreadViewComputationJob implements MarketDataListener, ViewC
         _compilationTask = null;
       }
     } catch (final Exception e) {
-      final String message = MessageFormat.format("Error compiling view definition {0} for time {1}", getViewProcess().getDefinitionId(), valuationTime);
+      final String message = MessageFormat.format("Error compiling view definition {0} for time {1}", getViewDefinition().getUniqueId(), valuationTime);
       viewDefinitionCompilationFailed(valuationTime, new OpenGammaRuntimeException(message, e));
       throw new OpenGammaRuntimeException(message, e);
     } finally {
       s_graphBuild.end();
     }
-    setCachedCompiledViewDefinition(compiledViewDefinition);
     // [PLAT-984]
     // Assume that valuation times are increasing in real-time towards the expiry of the view definition, so that we
     // can predict the time to expiry. If this assumption is wrong then the worst we do is trigger an unnecessary
@@ -1035,29 +1027,6 @@ public class SingleThreadViewComputationJob implements MarketDataListener, ViewC
       // long the compilation took). If we are running through historical data then this is quite a meaningless trigger.
     } else {
       _compilationExpiryCycleTrigger.reset();
-    }
-
-    // TODO reorder the next two calls so the subscriptions are known before the compilation callback?
-    // this would mean the actual subscriptions are known before the permissions provider is queried
-    // so the provider that will be providing each piece of data is queried for its permissions.
-    // otherwise there's there possibility that a provider will
-
-    // Notify the view that a (re)compilation has taken place before going on to do any time-consuming work.
-    // This might contain enough for clients to e.g. render an empty grid in which results will later appear.
-    s_viewDefinitionCompiled.begin();
-    try {
-      viewDefinitionCompiled(compiledViewDefinition);
-    } finally {
-      s_viewDefinitionCompiled.end();
-    }
-
-    // Update the market data subscriptions to whatever is now required, ensuring the computation cycle can find the
-    // required input data when it is executed.
-    s_subscribeToMarketData.begin();
-    try {
-      setMarketDataSubscriptions(compiledViewDefinition.getMarketDataRequirements());
-    } finally {
-      s_subscribeToMarketData.end();
     }
     return compiledViewDefinition;
   }
@@ -1098,36 +1067,18 @@ public class SingleThreadViewComputationJob implements MarketDataListener, ViewC
   }
 
   private void updateViewDefinitionIfRequired() {
-    if (_viewDefinitionDirty) {
-      _viewDefinition = getViewProcess().getLatestViewDefinition();
+    final ViewDefinition newViewDefinition = _newViewDefinition.getAndSet(null);
+    if (newViewDefinition != null) {
+      _viewDefinition = newViewDefinition;
       // TODO [PLAT-3215] Might not need to discard the entire view definition at this point
       invalidateCachedCompiledViewDefinition();
-      if (_viewDefinition == null) {
-        throw new DataNotFoundException("View definition " + getViewProcess().getDefinitionId() + " not found");
+      // A change in view definition might mean a change in market data user which could invalidate the resolutions
+      if (_marketDataProvider != null) {
+        if (!_marketDataProvider.getMarketDataUser().equals(newViewDefinition.getMarketDataUser())) {
+          replaceMarketDataProvider(_marketDataProvider.getSpecifications());
+        }
       }
-      _viewDefinitionDirty = false;
     }
-  }
-
-  private void subscribeToViewDefinition() {
-    if (_viewDefinitionChangeListener != null) {
-      return;
-    }
-    _viewDefinitionChangeListener = new ViewDefinitionChangeListener(new Runnable() {
-      @Override
-      public void run() {
-        dirtyViewDefinition();
-      }
-    }, getViewProcess().getDefinitionId());
-    getProcessContext().getConfigSource().changeManager().addChangeListener(_viewDefinitionChangeListener);
-  }
-
-  private void unsubscribeFromViewDefinition() {
-    if (_viewDefinitionChangeListener == null) {
-      return;
-    }
-    getProcessContext().getConfigSource().changeManager().removeChangeListener(_viewDefinitionChangeListener);
-    _viewDefinitionChangeListener = null;
   }
 
   private void replaceMarketDataProvider(final List<MarketDataSpecification> marketDataSpecs) {
@@ -1148,9 +1099,8 @@ public class SingleThreadViewComputationJob implements MarketDataListener, ViewC
 
   private void setMarketDataProvider(final List<MarketDataSpecification> marketDataSpecs) {
     try {
-      _marketDataProvider = new ViewComputationJobDataProvider(_viewDefinition.getMarketDataUser(),
-          marketDataSpecs,
-          _processContext.getMarketDataProviderResolver());
+      _marketDataProvider = new SnapshottingExecutionCycleDataProvider(_viewDefinition.getMarketDataUser(),
+          marketDataSpecs, getProcessContext().getMarketDataProviderResolver());
     } catch (final Exception e) {
       s_logger.error("Failed to create data provider", e);
       _marketDataProvider = null;
@@ -1271,6 +1221,12 @@ public class SingleThreadViewComputationJob implements MarketDataListener, ViewC
       return;
     }
     notifyAll();
+  }
+
+  @Override
+  public void updateViewDefinition(final ViewDefinition viewDefinition) {
+    s_logger.debug("Received new view definition {} for next cycle", viewDefinition.getUniqueId());
+    _newViewDefinition.getAndSet(viewDefinition);
   }
 
   @Override
