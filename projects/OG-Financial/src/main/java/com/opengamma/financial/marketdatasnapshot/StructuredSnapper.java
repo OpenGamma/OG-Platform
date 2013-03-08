@@ -29,9 +29,9 @@ import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewComputationResultModel;
-import com.opengamma.engine.view.calc.ComputationCacheResponse;
-import com.opengamma.engine.view.calc.ComputationCycleQuery;
-import com.opengamma.engine.view.calc.ViewCycle;
+import com.opengamma.engine.view.cycle.ComputationCacheResponse;
+import com.opengamma.engine.view.cycle.ComputationCycleQuery;
+import com.opengamma.engine.view.cycle.ViewCycle;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.tuple.Pair;
 

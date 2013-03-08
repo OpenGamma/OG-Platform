@@ -7,9 +7,9 @@ package com.opengamma.web.analytics;
 
 import java.util.Collection;
 
+import com.opengamma.engine.calcnode.MissingInput;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.AggregatedExecutionLog;
-import com.opengamma.engine.view.calcnode.MissingInput;
 
 /**
  * A single grid cell in a set of results, including the cell's value, value specification and history.

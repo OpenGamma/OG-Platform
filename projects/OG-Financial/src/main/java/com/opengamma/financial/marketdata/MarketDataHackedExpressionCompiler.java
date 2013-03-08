@@ -14,6 +14,7 @@ import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.cache.MissingMarketDataSentinel;
 import com.opengamma.engine.marketdata.OverrideOperation;
 import com.opengamma.engine.marketdata.OverrideOperationCompiler;
 import com.opengamma.engine.target.ComputationTargetReference;
@@ -21,8 +22,7 @@ import com.opengamma.engine.target.ComputationTargetReferenceVisitor;
 import com.opengamma.engine.target.ComputationTargetRequirement;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.view.cache.MissingMarketDataSentinel;
-import com.opengamma.engine.view.calc.SingleComputationCycle;
+import com.opengamma.engine.view.cycle.SingleComputationCycle;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
 

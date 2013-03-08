@@ -9,10 +9,10 @@ import java.util.Set;
 
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.cache.NotCalculatedSentinel;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.cache.NotCalculatedSentinel;
 
 /**
  * A no-op function. This will never be selected during graph construction, but can be present in an execution plan as a placeholder for a suppressed function.

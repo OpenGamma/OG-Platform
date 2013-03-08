@@ -12,7 +12,7 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.engine.view.ViewProcessorInternal;
+import com.opengamma.engine.view.impl.ViewProcessorInternal;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 

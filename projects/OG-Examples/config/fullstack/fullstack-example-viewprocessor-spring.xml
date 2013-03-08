@@ -40,21 +40,21 @@
   </bean>
   
   <!-- Calculation node management -->
-  <bean id="mainComputationCacheSource" class="com.opengamma.engine.view.cache.InMemoryViewComputationCacheSource">
+  <bean id="mainComputationCacheSource" class="com.opengamma.engine.cache.InMemoryViewComputationCacheSource">
     <constructor-arg ref="standardFudgeContext" />
   </bean>
-  <bean id="jobDispatchStatistics" class="com.opengamma.engine.view.calcnode.stats.TotallingNodeStatisticsGatherer" />
-  <bean id="functionCosts" class="com.opengamma.engine.view.calcnode.stats.FunctionCosts">
+  <bean id="jobDispatchStatistics" class="com.opengamma.engine.calcnode.stats.TotallingNodeStatisticsGatherer" />
+  <bean id="functionCosts" class="com.opengamma.engine.calcnode.stats.FunctionCosts">
     <constructor-arg ref="centralFunctionCostsMaster" />
   </bean>
-  <bean id="mainJobDispatcher" class="com.opengamma.engine.view.calcnode.JobDispatcher">
+  <bean id="mainJobDispatcher" class="com.opengamma.engine.calcnode.JobDispatcher">
     <!-- Maximum execution time (5 minutes) useful to keep going, but not if you're testing large/long running jobs --> 
     <property name="maxJobExecutionTime" value="300000" />
     <property name="statisticsGatherer" ref="jobDispatchStatistics" />
   </bean>
   <bean id="calcNodeCacheServer" class="com.opengamma.transport.socket.ServerSocketFudgeConnectionReceiver" init-method="start" destroy-method="stop">
     <constructor-arg>
-      <bean class="com.opengamma.engine.view.cache.ViewComputationCacheServer">
+      <bean class="com.opengamma.engine.cache.ViewComputationCacheServer">
         <constructor-arg ref="mainComputationCacheSource" />
       </bean>
     </constructor-arg>
@@ -64,7 +64,7 @@
   <bean id="calcNodeJobServer" class="com.opengamma.transport.socket.ServerSocketFudgeConnectionReceiver" init-method="start" destroy-method="stop">
     <constructor-arg ref="standardFudgeContext" />
     <constructor-arg>
-      <bean class="com.opengamma.engine.view.calcnode.RemoteNodeServer">
+      <bean class="com.opengamma.engine.calcnode.RemoteNodeServer">
         <constructor-arg ref="mainJobDispatcher" />
         <constructor-arg>
           <bean factory-bean="mainComputationCacheSource" factory-method="getIdentifierMap" />
@@ -75,21 +75,21 @@
     </constructor-arg>
     <property name="portNumber" value="${vp.main.job.port}" />
   </bean>
-  <bean id="mainCalcNodeSocketConfiguration" class="com.opengamma.engine.view.calcnode.CalcNodeSocketConfiguration">
+  <bean id="mainCalcNodeSocketConfiguration" class="com.opengamma.engine.calcnode.CalcNodeSocketConfiguration">
     <property name="cacheServer" ref="calcNodeCacheServer" />
     <property name="jobServer" ref="calcNodeJobServer" />
   </bean>
   
   <!-- Demo View Processor -->
-  <bean id="graphExecutionStatistics" class="com.opengamma.engine.view.calc.stats.TotallingGraphStatisticsGathererProvider" />
-  <bean id="graphExecutor" class="com.opengamma.engine.view.calc.MultipleNodeExecutorFactory">
+  <bean id="graphExecutionStatistics" class="com.opengamma.engine.exec.stats.TotallingGraphStatisticsGathererProvider" />
+  <bean id="graphExecutor" class="com.opengamma.engine.exec.MultipleNodeExecutorFactory">
     <property name="minimumJobItems" value="5" />
     <property name="maximumJobItems" value="1000" />
     <property name="minimumJobCost" value="10000000" />
     <property name="maximumJobCost" value="10000000000" />
     <property name="functionCosts" ref="functionCosts" />
   </bean>
-  <bean id="graphExecutorTuner" class="com.opengamma.engine.view.calc.MultipleNodeExecutorTuner">
+  <bean id="graphExecutorTuner" class="com.opengamma.engine.exec.MultipleNodeExecutorTuner">
     <constructor-arg ref="graphExecutor" />
     <property name="jobDispatcher" ref="mainJobDispatcher" />
     <property name="jobDispatchStatistics" ref="jobDispatchStatistics" />
@@ -165,16 +165,16 @@
   </bean>
 
   <!-- Local calculation nodes -->  
-  <bean id="localNodeFactory" class="com.opengamma.engine.view.calcnode.SimpleCalculationNodeFactory">
+  <bean id="localNodeFactory" class="com.opengamma.engine.calcnode.SimpleCalculationNodeFactory">
     <property name="viewComputationCache" ref="mainComputationCacheSource" />
     <property name="functionCompilationService" ref="mainCompiledFunctionService" />
     <property name="functionExecutionContext" ref="mainFunctionExecutionContext" />
     <property name="nodeIdentifier" value="local" />
     <property name="statisticsGatherer" ref="functionCosts" />
   </bean>
-  <bean id="localNodeInvoker" class="com.opengamma.engine.view.calcnode.LocalNodeJobInvokerFactoryBean">
+  <bean id="localNodeInvoker" class="com.opengamma.engine.calcnode.LocalNodeJobInvokerFactoryBean">
     <property name="nodes">
-      <bean class="com.opengamma.engine.view.calcnode.SimpleCalculationNodeSet">
+      <bean class="com.opengamma.engine.calcnode.SimpleCalculationNodeSet">
         <property name="nodeFactory" ref="localNodeFactory" />
         <property name="nodesPerCore" value="1" />
       </bean>
@@ -260,7 +260,7 @@
   <!-- ============================================================================== -->
   <!-- JMX instrumentation -->
   <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-    <property name="staticMethod" value="com.opengamma.engine.view.calc.jmx.MultipleNodeExecutor.registerMBeans" />
+    <property name="staticMethod" value="com.opengamma.engine.exec.jmx.MultipleNodeExecutor.registerMBeans" />
     <property name="arguments">
       <list>
         <ref bean="graphExecutor" />
@@ -279,7 +279,7 @@
     </property>
   </bean>
   <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-    <property name="staticMethod" value="com.opengamma.engine.view.calcnode.jmx.SimpleCalculationNodeInvocationContainer.registerMBeans" />
+    <property name="staticMethod" value="com.opengamma.engine.calcnode.jmx.SimpleCalculationNodeInvocationContainer.registerMBeans" />
     <property name="arguments">
       <list>
         <ref bean="localNodeInvoker" />

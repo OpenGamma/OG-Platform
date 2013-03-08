@@ -25,7 +25,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
-import com.opengamma.engine.view.calcnode.CalcNodeSocketConfiguration;
+import com.opengamma.engine.calcnode.CalcNodeSocketConfiguration;
 import com.opengamma.transport.jaxrs.UriEndPointDescriptionProvider;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.rest.DataConfigurationResource;

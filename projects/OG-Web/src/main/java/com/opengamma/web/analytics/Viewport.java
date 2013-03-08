@@ -5,7 +5,7 @@
  */
 package com.opengamma.web.analytics;
 
-import com.opengamma.engine.view.calc.ViewCycle;
+import com.opengamma.engine.view.cycle.ViewCycle;
 
 /**
  * Base class for viewports on grids displaying analytics data. A viewport represents the visible part of a grid.

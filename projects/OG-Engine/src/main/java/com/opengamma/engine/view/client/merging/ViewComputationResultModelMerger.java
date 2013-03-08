@@ -6,9 +6,9 @@
 package com.opengamma.engine.view.client.merging;
 
 import com.opengamma.engine.value.ComputedValue;
-import com.opengamma.engine.view.InMemoryViewComputationResultModel;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewResultModel;
+import com.opengamma.engine.view.impl.InMemoryViewComputationResultModel;
 
 /**
  * Provides the ability to merge {@link ViewResultModel} instances.

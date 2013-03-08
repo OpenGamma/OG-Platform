@@ -34,16 +34,16 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.AggregatedExecutionLog;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
-import com.opengamma.engine.view.ViewProcessImpl;
 import com.opengamma.engine.view.ViewProcessState;
-import com.opengamma.engine.view.ViewProcessorImpl;
-import com.opengamma.engine.view.calc.ViewCycleMetadata;
-import com.opengamma.engine.view.calc.ViewResultListenerFactory;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.client.ViewResultMode;
+import com.opengamma.engine.view.cycle.ViewCycleMetadata;
 import com.opengamma.engine.view.execution.ExecutionOptions;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
+import com.opengamma.engine.view.impl.ViewProcessImpl;
+import com.opengamma.engine.view.impl.ViewProcessorImpl;
 import com.opengamma.engine.view.listener.ViewResultListener;
+import com.opengamma.engine.view.listener.ViewResultListenerFactory;
 import com.opengamma.id.UniqueId;
 
 public class ViewClientTest {

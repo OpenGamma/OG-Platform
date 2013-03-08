@@ -11,9 +11,9 @@ import java.util.List;
 
 import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
 import com.opengamma.engine.marketdata.snapshot.MarketDataSnapshotter;
-import com.opengamma.engine.view.calc.EngineResourceReference;
-import com.opengamma.engine.view.calc.ViewCycle;
+import com.opengamma.engine.resource.EngineResourceReference;
 import com.opengamma.engine.view.client.ViewClient;
+import com.opengamma.engine.view.cycle.ViewCycle;
 import com.opengamma.financial.marketdatasnapshot.MarketDataSnapshotterImpl;
 import com.opengamma.language.context.SessionContext;
 import com.opengamma.language.definition.Categories;

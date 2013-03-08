@@ -22,10 +22,10 @@ import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.component.factory.ComponentInfoAttributes;
-import com.opengamma.engine.view.calcnode.stats.DataFunctionCostsMasterResource;
-import com.opengamma.engine.view.calcnode.stats.FunctionCostsMaster;
-import com.opengamma.engine.view.calcnode.stats.InMemoryFunctionCostsMaster;
-import com.opengamma.engine.view.calcnode.stats.RemoteFunctionCostsMaster;
+import com.opengamma.engine.calcnode.stats.DataFunctionCostsMasterResource;
+import com.opengamma.engine.calcnode.stats.FunctionCostsMaster;
+import com.opengamma.engine.calcnode.stats.InMemoryFunctionCostsMaster;
+import com.opengamma.engine.calcnode.stats.RemoteFunctionCostsMaster;
 
 /**
  * Component factory for an in-memory function blacklist provider.
