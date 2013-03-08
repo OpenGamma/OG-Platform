@@ -57,18 +57,7 @@ public class ForwardCurve {
    */
   public ForwardCurve(final double spot, final double drift) {
     _drift = ConstantDoublesCurve.from(drift);
-    final Function1D<Double, Double> fwd = new Function1D<Double, Double>() {
-
-      @Override
-      public Double evaluate(final Double t) {
-        return spot * Math.exp(drift * t);
-      }
-
-      public Object writeReplace() {
-        return new InvokedSerializedForm(new InvokedSerializedForm(this, "getForwardCurve"), "getFunction");
-      }
-    };
-    _fwdCurve = new FunctionalDoublesCurve(fwd);
+    _fwdCurve = getForwardCurve(spot, drift);
     _spot = spot;
   }
 
@@ -81,33 +70,7 @@ public class ForwardCurve {
   public ForwardCurve(final double spot, final Curve<Double, Double> driftCurve) {
     ArgumentChecker.notNull(driftCurve, "null driftCurve");
     _drift = driftCurve;
-    final Function1D<Double, Double> driftFunc = new Function1D<Double, Double>() {
-
-      @Override
-      public Double evaluate(final Double t) {
-        return driftCurve.getYValue(t);
-      }
-
-      public Object writeReplace() {
-        return new InvokedSerializedForm(new InvokedSerializedForm(this, "getDriftCurve"), "getFunction");
-      }
-    };
-
-    //TODO cache integration results. REVIEW emcleod 22-6-2011 There's no point in thinking about caching until we know that this is a bottleneck
-    final Function1D<Double, Double> fwd = new Function1D<Double, Double>() {
-
-      @Override
-      public Double evaluate(final Double t) {
-        @SuppressWarnings("synthetic-access")
-        final double temp = INTEGRATOR.integrate(driftFunc, 0.0, t);
-        return spot * Math.exp(temp);
-      }
-
-      public Object writeReplace() {
-        return new InvokedSerializedForm(new InvokedSerializedForm(this, "getForwardCurve"), "getFunction");
-      }
-    };
-    _fwdCurve = new FunctionalDoublesCurve(fwd);
+    _fwdCurve = getForwardCurve(spot, driftCurve);
     _spot = spot;
   }
 
@@ -150,13 +113,55 @@ public class ForwardCurve {
         return spot * costOfCarryCurve.getDiscountFactor(t) / riskFreeCurve.getDiscountFactor(t);
       }
 
-      public Object writeReplace() {
-        return new InvokedSerializedForm(ForwardCurve.class, "getFunction", spot, riskFreeCurve, costOfCarryCurve);
-      }
     };
     return new FunctionalDoublesCurve(f) {
       public Object writeReplace() {
         return new InvokedSerializedForm(ForwardCurve.class, "getForwardCurve", spot, riskFreeCurve, costOfCarryCurve);
+      }
+    };
+  }
+
+  protected static Curve<Double, Double> getForwardCurve(final Double spot, final Double drift) {
+    final Function1D<Double, Double> fwd = new Function1D<Double, Double>() {
+
+      @Override
+      public Double evaluate(final Double t) {
+        return spot * Math.exp(drift * t);
+      }
+
+    };
+
+    return new FunctionalDoublesCurve(fwd) {
+
+      public Object writeReplace() {
+        return new InvokedSerializedForm(ForwardCurve.class, "getForwardCurve", spot, drift);
+      }
+    };
+  }
+
+  protected static Curve<Double, Double> getForwardCurve(final Double spot, final Curve<Double, Double> driftCurve) {
+    final Function1D<Double, Double> fwd = new Function1D<Double, Double>() {
+
+      @Override
+      public Double evaluate(final Double t) {
+        final Function1D<Double, Double> driftFunc = new Function1D<Double, Double>() {
+
+          @Override
+          public Double evaluate(final Double y) {
+            return driftCurve.getYValue(y);
+          }
+
+        };
+        @SuppressWarnings("synthetic-access")
+        final double temp = INTEGRATOR.integrate(driftFunc, 0.0, t);
+        return spot * Math.exp(temp);
+      }
+
+    };
+    return new FunctionalDoublesCurve(fwd) {
+
+      public Object writeReplace() {
+        return new InvokedSerializedForm(ForwardCurve.class, "getForwardCurve", spot, driftCurve);
       }
     };
   }
@@ -176,10 +181,6 @@ public class ForwardCurve {
         }
         final double down = Math.log(fwdCurve.getYValue(t - _eps));
         return (up - down) / 2 / _eps;
-      }
-
-      public Object writeReplace() {
-        return new InvokedSerializedForm(Function1D.class, "getFunction");
       }
 
     };
