@@ -49,7 +49,7 @@ public class WebConfigVersionsResource extends AbstractWebConfigResource {
     FlexiBean out = createRootData();
     out.put("versionsResult", result);
     out.put("versions", result.getValues());
-    return getFreemarker().build("configs/configversions.ftl", out);
+    return getFreemarker().build(HTML_DIR + "configversions.ftl", out);
   }
 
   @GET
@@ -68,7 +68,7 @@ public class WebConfigVersionsResource extends AbstractWebConfigResource {
     out.put("versionsResult", result);
     out.put("versions", result.getValues());
     out.put("paging", new WebPaging(result.getPaging(), data().getUriInfo()));
-    String json = getFreemarker().build("configs/jsonconfigversions.ftl", out);
+    String json = getFreemarker().build(JSON_DIR + "configversions.ftl", out);
     return Response.ok(json).build();
   }
 
