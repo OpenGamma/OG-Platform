@@ -22,22 +22,29 @@ $.register_module({
                 stripped = data.timeseries.data.reduce(function (a, b){return a.concat(b[1]);}, []);
             };
             var histogram_data = function (data) {
-                var max_buckets = 50, bucket_calc = Math.ceil(Math.sqrt(data.timeseries.data.length)),
+                var length = stripped.length, count = [], maxcount = 0, i = 0, label,
+                    max_buckets = 50, bucket_calc = Math.ceil(Math.sqrt(length)),
                     buckets = bucket_calc < max_buckets ? bucket_calc : max_buckets,
-                    count = [], maxcount = 0, i = 0, label,
                     max = Math.max.apply(Math, stripped), min = Math.min.apply(Math, stripped),
                     range = max - min, interval = range / buckets;
+                // 2D count array, 1D is the label made up of the lower bound of the bucket
                 for (; i < buckets; i++) {
-                    label = min + (interval * i);
+                    label = (min + (interval * i))/length;
                     count[i] = [label, 0];
                 }
+                // 2D count array, 2D is the number of occurances in [bound, next bound)
                 $.each(stripped, function (index, value) {
                     if (value == max) return maxcount++;
                     var p = Math.floor((value - min) / interval);
                     count[p][1] = count[p][1] + 1;
                 });
+                // all values which match the max in the dataset are ignored above and added to the final bucket
                 count[buckets - 1][1] = count[buckets - 1][1] + maxcount;
-                return {histogram_data: count, interval: interval};
+                /* test to ensure no data is lost - sum of all items in buckets must match dataset length
+                if (count.map(function(v) { return v[1]; }).reduce(function(a,b) { return a + b; }) != length)
+                    og.dev.warn('bucket totals to not match dataset length');
+                */
+                return {histogram_data: count, interval: interval/length};
             };
             /*normpdf = function (x, mu, sigma, constant) {
                 var diff = x-mu;

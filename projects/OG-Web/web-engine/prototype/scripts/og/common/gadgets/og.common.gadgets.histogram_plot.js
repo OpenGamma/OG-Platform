@@ -41,12 +41,12 @@ $.register_module({
                         hoverable: true,
                         data: config.histogram_data,
                         bars: {
-                             show: true,
+                            show: true,
                             barWidth: config.interval,
-                             fill: true,
-                             lineWidth: 1,
-                             order: 1,
-                             fillColor: '#42669a'
+                            fill: true,
+                            lineWidth: 1,
+                            order: 1,
+                            fillColor: '#42669a'
                          },
                          color: '#fff'
                     }/*,
