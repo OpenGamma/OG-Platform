@@ -76,7 +76,8 @@ public class PortfolioLoaderTool extends AbstractTool<ToolContext> {
                         getCommandLine().hasOption(VERBOSE_OPT),
                         getCommandLine().hasOption(MERGE_POSITIONS_OPT),
                         getCommandLine().hasOption(KEEP_CURRENT_POSITIONS_OPT),
-                        getCommandLine().hasOption(IGNORE_VERSION_OPT)).execute();
+                        getCommandLine().hasOption(IGNORE_VERSION_OPT),
+                        true).execute();
   }
 
 

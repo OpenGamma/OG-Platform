@@ -51,7 +51,8 @@ public class ListedFutureOptionSecurityExtractor extends AbstractListedSecurityE
                                                            isMargined, currency, strike, optionType);
 
       default:
-        throw new OpenGammaRuntimeException("Unrecognised listed option type: " + _securityDefinition.getListedFutureOptionType());
+        // The xml validation should prevent this from happening
+        throw new PortfolioParsingException("Unrecognised listed option type: " + _securityDefinition.getListedFutureOptionType());
     }
   }
 }

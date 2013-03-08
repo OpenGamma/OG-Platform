@@ -10,6 +10,7 @@ import org.threeten.bp.ZoneOffset;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
+import com.opengamma.financial.security.option.ExerciseType;
 import com.opengamma.id.ExternalId;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.OptionSecurityDefinition;
 import com.opengamma.master.security.ManageableSecurity;
@@ -28,11 +29,11 @@ public class ListedOptionSecurityExtractor extends AbstractListedSecurityExtract
     switch (_securityDefinition.getListedOptionType()) {
 
       case EQUITY_DIVIDEND_OPTION:
-        throw new OpenGammaRuntimeException("EquityIndexDividendOption is not yet supported");
+        throw new PortfolioParsingException("EquityIndexDividendOption is not yet supported");
 
       case EQUITY_INDEX_OPTION:
         ExternalId underlyingId = _securityDefinition.getUnderlyingId().toExternalId();
-        com.opengamma.financial.security.option.ExerciseType exerciseType = _securityDefinition.getExerciseType().convert();
+        ExerciseType exerciseType = _securityDefinition.getExerciseType().convert();
 
         // We are only give month/year (e.g. MAR13) so arbitrarily use the first day of
         // the month but set the accuracy to reflect that
@@ -49,7 +50,8 @@ public class ListedOptionSecurityExtractor extends AbstractListedSecurityExtract
                                              _securityDefinition.getExchange());
 
       default:
-        throw new OpenGammaRuntimeException("Unrecognised listed option type: " + _securityDefinition.getListedOptionType());
+        // Should be prevented by XML parsing
+        throw new PortfolioParsingException("Unrecognised listed option type: " + _securityDefinition.getListedOptionType());
     }
   }
 }
