@@ -6,7 +6,6 @@
 package com.opengamma.web.security;
 
 import java.net.URI;
-import java.util.Map;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -28,7 +27,6 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchR
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchResult;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityLoaderRequest;
-import com.opengamma.master.security.SecurityLoaderResult;
 import com.opengamma.web.FreemarkerCustomRenderer;
 
 /**
@@ -50,14 +48,14 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
   @Produces(MediaType.TEXT_HTML)
   public String getHTML() {
     FlexiBean out = createRootData();
-    return getFreemarker().build("securities/security.ftl", out);
+    return getFreemarker().build(HTML_DIR + "security.ftl", out);
   }
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public String getJSON() {
     FlexiBean out = createRootData();
-    return getFreemarker().build("securities/jsonsecurity.ftl", out);
+    return getFreemarker().build(JSON_DIR + "security.ftl", out);
   }
 
   //-------------------------------------------------------------------------

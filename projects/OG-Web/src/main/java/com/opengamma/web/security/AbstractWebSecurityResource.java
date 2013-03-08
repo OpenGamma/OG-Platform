@@ -77,6 +77,15 @@ public abstract class AbstractWebSecurityResource extends AbstractPerRequestWebR
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractWebSecurityResource.class);
+  
+  /**
+   * HTML ftl directory
+   */
+  protected static final String HTML_DIR = "securities/html/";
+  /**
+   * JSON ftl directory
+   */
+  protected static final String JSON_DIR = "securities/json/";
 
   /**
    * The backing bean.

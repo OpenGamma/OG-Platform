@@ -64,7 +64,7 @@ import com.sun.jersey.api.client.ClientResponse.Status;
  */
 @Path("/securities")
 public class WebSecuritiesResource extends AbstractWebSecurityResource {
-
+  
   /**
    * Creates the resource.
    * @param securityMaster  the security master, not null
@@ -93,7 +93,7 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
     PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
     SecuritySearchSortOrder so = buildSortOrder(sort, SecuritySearchSortOrder.NAME_ASC);
     FlexiBean out = createSearchResultData(pr, so, name, identifier, type, securityIdStrs, uriInfo);
-    return getFreemarker().build("securities/securities.ftl", out);
+    return getFreemarker().build(HTML_DIR + "securities.ftl", out);
   }
 
   @GET
@@ -112,7 +112,7 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
     PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
     SecuritySearchSortOrder so = buildSortOrder(sort, SecuritySearchSortOrder.NAME_ASC);
     FlexiBean out = createSearchResultData(pr, so, name, identifier, type, securityIdStrs, uriInfo);
-    return getFreemarker().build("securities/jsonsecurities.ftl", out);
+    return getFreemarker().build(JSON_DIR + "securities.ftl", out);
   }
 
   private FlexiBean createSearchResultData(PagingRequest pr, SecuritySearchSortOrder so, String name, String identifier,
@@ -162,7 +162,7 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
       }
       out.put("idscheme", idScheme);
       out.put("idvalue", idValue);
-      String html = getFreemarker().build("securities/securities-add.ftl", out);
+      String html = getFreemarker().build(HTML_DIR + "securities-add.ftl", out);
       return Response.ok(html).build();
     }
     ExternalScheme scheme = ExternalScheme.of(idScheme);
@@ -196,7 +196,7 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
     SecurityLoader securityLoader = data().getSecurityLoader();
     Map<ExternalIdBundle, UniqueId> loadedSecurities = securityLoader.loadSecurities(requestBundles);
     FlexiBean out = createPostJSONOutput(loadedSecurities, requestBundles, scheme);    
-    return Response.ok(getFreemarker().build("securities/jsonsecurities-added.ftl", out)).build();
+    return Response.ok(getFreemarker().build(JSON_DIR + "securities-added.ftl", out)).build();
   }
 
   private FlexiBean createPostJSONOutput(Map<ExternalIdBundle, UniqueId> loadedSecurities, Collection<ExternalIdBundle> requestBundles, ExternalScheme scheme) {
@@ -241,7 +241,7 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
   @Produces(MediaType.APPLICATION_JSON)
   public String getMetaDataJSON() {
     FlexiBean out = createRootData();
-    return getFreemarker().build("securities/jsonmetadata.ftl", out);
+    return getFreemarker().build(JSON_DIR + "metadata.ftl", out);
   }
 
   //-------------------------------------------------------------------------
