@@ -62,7 +62,6 @@ import com.opengamma.util.tuple.Pair;
 
 /**
  * Build of curve in several blocks with relevant Jacobian matrices.
- * @author marc
  */
 public class MulticurveBuildingDiscountingForwardTest {
 

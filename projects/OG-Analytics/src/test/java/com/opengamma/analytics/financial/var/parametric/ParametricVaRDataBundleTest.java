@@ -12,6 +12,7 @@ import static org.testng.AssertJUnit.assertNull;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
@@ -71,7 +72,7 @@ public class ParametricVaRDataBundleTest {
 
       @Override
       public double[] getEntry(final int... indices) {
-        return null;
+        return ArrayUtils.EMPTY_DOUBLE_ARRAY;
       }
 
     };

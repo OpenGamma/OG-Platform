@@ -19,7 +19,7 @@ import com.opengamma.analytics.math.minimization.UncoupledParameterTransforms;
 /**
  * 
  */
-public class SABRModelFitterConstained extends SmileModelFitter<SABRFormulaData> {
+public class SABRModelFitterConstrained extends SmileModelFitter<SABRFormulaData> {
   private static final ParameterLimitsTransform[] DEFAULT_TRANSFORMS;
 
   static {
@@ -30,8 +30,8 @@ public class SABRModelFitterConstained extends SmileModelFitter<SABRFormulaData>
     DEFAULT_TRANSFORMS[3] = new NullTransform();
   }
 
-  public SABRModelFitterConstained(final double forward, final double[] strikes, final double timeToExpiry, final double[] impliedVols,
-      final double[] error, VolatilityFunctionProvider<SABRFormulaData> model) {
+  public SABRModelFitterConstrained(final double forward, final double[] strikes, final double timeToExpiry, final double[] impliedVols,
+      final double[] error, final VolatilityFunctionProvider<SABRFormulaData> model) {
     super(forward, strikes, timeToExpiry, impliedVols, error, model);
   }
 
@@ -41,13 +41,13 @@ public class SABRModelFitterConstained extends SmileModelFitter<SABRFormulaData>
   }
 
   @Override
-  protected NonLinearParameterTransforms getTransform(DoubleMatrix1D start) {
-    BitSet fixed = new BitSet();
+  protected NonLinearParameterTransforms getTransform(final DoubleMatrix1D start) {
+    final BitSet fixed = new BitSet();
     return new UncoupledParameterTransforms(start, DEFAULT_TRANSFORMS, fixed);
   }
 
   @Override
-  protected NonLinearParameterTransforms getTransform(DoubleMatrix1D start, final BitSet fixed) {
+  protected NonLinearParameterTransforms getTransform(final DoubleMatrix1D start, final BitSet fixed) {
     return new UncoupledParameterTransforms(start, DEFAULT_TRANSFORMS, fixed);
   }
 
@@ -56,8 +56,8 @@ public class SABRModelFitterConstained extends SmileModelFitter<SABRFormulaData>
     return new Function1D<DoubleMatrix1D, Boolean>() {
 
       @Override
-      public Boolean evaluate(DoubleMatrix1D y) {
-        DoubleMatrix1D x = t.inverseTransform(y);
+      public Boolean evaluate(final DoubleMatrix1D y) {
+        final DoubleMatrix1D x = t.inverseTransform(y);
         final double alpha = x.getEntry(0);
         final double beta = x.getEntry(1);
         final double rho = x.getEntry(2);
@@ -65,6 +65,11 @@ public class SABRModelFitterConstained extends SmileModelFitter<SABRFormulaData>
         return (alpha >= 0 && beta >= 0.0 && rho >= -1.0 && rho <= 1.0 && nu >= 0.0);
       }
     };
+  }
+
+  @Override
+  protected DoubleMatrix1D getMaximumStep() {
+    return null;
   }
 
 }
