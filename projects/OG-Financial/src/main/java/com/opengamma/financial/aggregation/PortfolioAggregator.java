@@ -191,6 +191,7 @@ public final class PortfolioAggregator {
         SimplePortfolioNode root = new SimplePortfolioNode("root");
         root.addChildNode(portfolioNode);
         Portfolio splitPortfolio = new SimplePortfolio(splitPortfolioName, root);
+        splitPortfolio.setAttributes(aggregatedPortfolio.getAttributes());
         s_logger.info("Saving split portfolio " + portfolioName + "...");
         savePortfolio.savePortfolio(splitPortfolio, true);
       }

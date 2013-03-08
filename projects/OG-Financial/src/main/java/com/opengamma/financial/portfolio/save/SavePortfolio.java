@@ -214,6 +214,7 @@ public class SavePortfolio {
     final ManageablePortfolio manageablePortfolio = new ManageablePortfolio();
     manageablePortfolio.setName(getPortfolioName(portfolio));
     manageablePortfolio.setRootNode(createManageablePortfolioNode(portfolio.getRootNode()));
+    manageablePortfolio.setAttributes(portfolio.getAttributes());
     return manageablePortfolio;
   }
 
