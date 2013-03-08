@@ -238,7 +238,7 @@ public class MixedLogNormalModelData implements SmileModelData {
   }
 
   @Override
-  public int getNumberOfparameters() {
+  public int getNumberOfParameters() {
     return _nParams;
   }
 

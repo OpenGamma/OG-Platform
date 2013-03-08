@@ -64,7 +64,7 @@ public class SimpleParameterSensitivityTest {
   public void addWrongSize() {
     SimpleParameterSensitivity sensitivity1 = new SimpleParameterSensitivity();
     sensitivity1 = sensitivity1.plus(NAME_1, SENSITIVITY_1_1);
-    sensitivity1 = sensitivity1.plus(NAME_1, SENSITIVITY_2_1);
+    sensitivity1.plus(NAME_1, SENSITIVITY_2_1);
   }
 
   @Test(expectedExceptions = UnsupportedOperationException.class)

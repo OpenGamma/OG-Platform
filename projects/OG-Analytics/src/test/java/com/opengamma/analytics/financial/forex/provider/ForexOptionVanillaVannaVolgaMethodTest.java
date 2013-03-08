@@ -50,8 +50,8 @@ public class ForexOptionVanillaVannaVolgaMethodTest {
 
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountForexDataSets.createMulticurvesForex();
 
-  public static final String NOT_USED = "Not used";
-  public static final String[] NOT_USED_2 = {NOT_USED, NOT_USED};
+  private static final String NOT_USED = "Not used";
+  private static final String[] NOT_USED_2 = {NOT_USED, NOT_USED};
 
   private static final FXMatrix FX_MATRIX = MULTICURVES.getFxRates();
   private static final Currency EUR = Currency.EUR;
@@ -63,7 +63,7 @@ public class ForexOptionVanillaVannaVolgaMethodTest {
   private static final int SETTLEMENT_DAYS = 2;
   // Smile data
   private static final Period[] EXPIRY_PERIOD = new Period[] {DateUtils.periodOfMonths(3), DateUtils.periodOfMonths(6), DateUtils.periodOfYears(1),
-      DateUtils.periodOfYears(2), DateUtils.periodOfYears(5)};
+    DateUtils.periodOfYears(2), DateUtils.periodOfYears(5)};
   private static final int NB_EXP = EXPIRY_PERIOD.length;
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 6, 13);
   private static final ZonedDateTime REFERENCE_SPOT = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, SETTLEMENT_DAYS, CALENDAR);

@@ -43,16 +43,16 @@ public class TransformedInterpolator1D extends Interpolator1D {
   }
 
   @Override
-  public Double interpolate(Interpolator1DDataBundle data, Double value) {
+  public Double interpolate(final Interpolator1DDataBundle data, final Double value) {
     return _transform.inverseTransform(_base.interpolate(data, value));
   }
 
   @Override
-  public double[] getNodeSensitivitiesForValue(Interpolator1DDataBundle data, Double value) {
+  public double[] getNodeSensitivitiesForValue(final Interpolator1DDataBundle data, final Double value) {
 
-    double yStar = _base.interpolate(data, value);
-    double grad = _transform.inverseTransformGradient(yStar);
-    double[] temp = _base.getNodeSensitivitiesForValue(data, value);
+    final double yStar = _base.interpolate(data, value);
+    final double grad = _transform.inverseTransformGradient(yStar);
+    final double[] temp = _base.getNodeSensitivitiesForValue(data, value);
 
     final int n = temp.length;
     for (int i = 0; i < n; i++) {
@@ -68,7 +68,7 @@ public class TransformedInterpolator1D extends Interpolator1D {
    * @return a data bundle
    */
   @Override
-  public Interpolator1DDataBundle getDataBundle(double[] x, double[] y) {
+  public Interpolator1DDataBundle getDataBundle(final double[] x, final double[] y) {
     return _base.getDataBundle(x, y);
   }
 
@@ -79,7 +79,7 @@ public class TransformedInterpolator1D extends Interpolator1D {
    * @return a data bundle
    */
   @Override
-  public Interpolator1DDataBundle getDataBundleFromSortedArrays(double[] x, double[] y) {
+  public Interpolator1DDataBundle getDataBundleFromSortedArrays(final double[] x, final double[] y) {
     return _base.getDataBundleFromSortedArrays(x, y);
   }
 

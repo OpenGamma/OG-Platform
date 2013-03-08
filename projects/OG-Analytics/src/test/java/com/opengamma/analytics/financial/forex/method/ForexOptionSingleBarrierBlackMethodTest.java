@@ -87,7 +87,7 @@ public class ForexOptionSingleBarrierBlackMethodTest {
   private static final SmileDeltaTermStructureParametersStrikeInterpolation SMILE_TERM = new SmileDeltaTermStructureParametersStrikeInterpolation(TIME_TO_EXPIRY, DELTA, ATM, RISK_REVERSAL, STRANGLE);
   // Methods and curves
   private static final YieldCurveBundle CURVES = TestsDataSetsForex.createCurvesForex();
-  private static final String[] CURVES_NAME = CURVES.getAllNames().toArray(new String[0]);
+  private static final String[] CURVES_NAME = CURVES.getAllNames().toArray(new String[CURVES.size()]);
   private static final SmileDeltaTermStructureDataBundle SMILE_BUNDLE = new SmileDeltaTermStructureDataBundle(CURVES, SMILE_TERM, Pair.of(CUR_1, CUR_2));
   private static final ForexOptionVanillaBlackSmileMethod METHOD_VANILLA = ForexOptionVanillaBlackSmileMethod.getInstance();
   private static final ForexOptionSingleBarrierBlackMethod METHOD_BARRIER = ForexOptionSingleBarrierBlackMethod.getInstance();
@@ -132,7 +132,7 @@ public class ForexOptionSingleBarrierBlackMethodTest {
 
   @Test
   /**
-   * In-Out Parity. To get this exact, we must set the payment date equal to expiry date. 
+   * In-Out Parity. To get this exact, we must set the payment date equal to expiry date.
    * The treatment of the vanilla is: Z(t,T_pay) * FwdPrice(t,T_exp) where as
    * the treatment of the barrier is: Price(t,T_exp) (roughly :))
    */
@@ -513,12 +513,12 @@ public class ForexOptionSingleBarrierBlackMethodTest {
    * This works well for the one-dimensional sensitivities above, but not well at all for the cross-derivative, Vanna. Comparison below, and in test above.
    * 
    */
-  public void TestOfFiniteDifferenceMethods() {
+  public void testOfFiniteDifferenceMethods() {
     final ForexOptionSingleBarrier optionForex = OPTION_BARRIER;
     final SmileDeltaTermStructureDataBundle smile = SMILE_BUNDLE;
     final double bp10 = 0.001;
     final double relShift = 0.001;
-    // repackage for calls to BARRIER_FUNCTION 
+    // repackage for calls to BARRIER_FUNCTION
     final String domesticCurveName = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentCurrency2().getFundingCurveName();
     final String foreignCurveName = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentCurrency1().getFundingCurveName();
     final double payTime = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentTime();

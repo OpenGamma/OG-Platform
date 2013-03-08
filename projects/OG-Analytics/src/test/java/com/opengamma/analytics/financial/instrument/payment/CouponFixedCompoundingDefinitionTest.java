@@ -7,6 +7,7 @@ package com.opengamma.analytics.financial.instrument.payment;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
 
 import org.testng.annotations.Test;
@@ -81,16 +82,16 @@ public class CouponFixedCompoundingDefinitionTest {
   /**
    * Tests the getters.
    */
-  public void testgetters() {
+  public void testGetters() {
     assertEquals(COUPON.getPaymentDate(), PAYMENT_DATE);
     assertEquals(COUPON.getAccrualStartDate(), ACCRUAL_START_DATES[0]);
     assertEquals(COUPON.getAccrualEndDate(), ACCRUAL_END_DATES[NB_SUB_PERIOD - 1]);
     assertEquals(COUPON.getPaymentYearFraction(), PAYMENT_ACCRUAL_FACTOR, 1E-10);
     assertEquals(COUPON.getNotional(), NOTIONAL, 1E-2);
     assertEquals(COUPON.getRate(), FIXED_RATE, 1E-10);
-    assertEquals(COUPON.getAccrualStartDates(), ACCRUAL_START_DATES);
-    assertEquals(COUPON.getAccrualEndDates(), ACCRUAL_END_DATES);
-    assertEquals(COUPON.getPaymentAccrualFactors(), PAYMENT_ACCRUAL_FACTORS);
+    assertArrayEquals(COUPON.getAccrualStartDates(), ACCRUAL_START_DATES);
+    assertArrayEquals(COUPON.getAccrualEndDates(), ACCRUAL_END_DATES);
+    assertArrayEquals(COUPON.getPaymentAccrualFactors(), PAYMENT_ACCRUAL_FACTORS, 0);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -117,7 +118,7 @@ public class CouponFixedCompoundingDefinitionTest {
    */
   public void testEqualHash() {
     assertEquals("CouponIbor: equal-hash", COUPON, COUPON);
-    CouponFixedCompoundingDefinition other = CouponFixedCompoundingDefinition.from(CURRENCY, PAYMENT_DATE, ACCRUAL_START_DATES[0], ACCRUAL_END_DATES[NB_SUB_PERIOD - 1],
+    final CouponFixedCompoundingDefinition other = CouponFixedCompoundingDefinition.from(CURRENCY, PAYMENT_DATE, ACCRUAL_START_DATES[0], ACCRUAL_END_DATES[NB_SUB_PERIOD - 1],
         PAYMENT_ACCRUAL_FACTOR, NOTIONAL, FIXED_RATE, ACCRUAL_START_DATES, ACCRUAL_END_DATES, PAYMENT_ACCRUAL_FACTORS);
     assertEquals("CouponFixedCompoundingDefinition: equal-hash", other, COUPON);
     assertEquals("CouponFixedCompoundingDefinition: equal-hash", other.hashCode(), COUPON.hashCode());

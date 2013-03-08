@@ -37,7 +37,7 @@ public class EquityVarianceSwapPricerTest {
   private static final String[] EXPIRY_LABELS = new String[] {"1W", "2W", "1M", "3M", "6M", "1Y", "2Y"};
   private static final double[] EXPIRIES = new double[] {1. / 52, 2. / 52, 1. / 12, 3. / 12, 6. / 12, 1.0, 2.0};
   private static final double[][] STRIKES = new double[][] { {50, 55, 60, 65, 70, 75, 80}, {50, 55, 60, 65, 70, 75, 80}, {50, 55, 60, 65, 70, 75, 80},
-      {40, 50, 60, 70, 80, 90}, {40, 50, 60, 70, 80, 90, 100}, {30, 50, 60, 70, 80, 90, 100}, {20, 40, 55, 65, 75, 90, 105, 125}};
+    {40, 50, 60, 70, 80, 90}, {40, 50, 60, 70, 80, 90, 100}, {30, 50, 60, 70, 80, 90, 100}, {20, 40, 55, 65, 75, 90, 105, 125}};
   //  private static final double[][] OTM_PRICES_FLAT;
   //  private static final double[][] OTM_PRICES;
   //  private static final SmileSurfaceDataBundle MARKET_VOLS_FLAT_NODIVS;
@@ -49,7 +49,7 @@ public class EquityVarianceSwapPricerTest {
   private static final double[] ALPHA = new double[] {3.0, 2.0, 1.0, 0.0, 0.0};
   private static final double[] BETA = new double[] {0.0, 0.02, 0.03, 0.04, 0.05};
   private static final AffineDividends NULL_DIVIDENDS = AffineDividends.noDividends();
-  private static final AffineDividends ZERO_DIVIDENDS = new AffineDividends(TAU, new double[5], new double[5]);
+  //private static final AffineDividends ZERO_DIVIDENDS = new AffineDividends(TAU, new double[5], new double[5]);
   private static final AffineDividends DIVIDENDS = new AffineDividends(TAU, ALPHA, BETA);
 
   private static final double R = 0.07;
@@ -329,37 +329,37 @@ public class EquityVarianceSwapPricerTest {
     }
   }
 
-  /**
-   * Compute actual option (i.e. as would be observed in the market) from a hypothetical <b>pure</b> implied volatility surface and dividend assumptions
-   * @param spot The current level of the stock or index
-   * @param expiries expiries of option strips
-   * @param strikes strikes at each expiry
-   * @param discountCurve The discount curve
-   * @param dividends dividend assumptions
-   * @param surf hypothetical <b>pure</b> implied volatility surface
-   * @return Market observed option prices
-   */
-  private static double[][] getOptionPrices(final double spot, final double[] expiries, final double[][] strikes, final YieldAndDiscountCurve discountCurve,
-      final AffineDividends dividends, final PureImpliedVolatilitySurface surf) {
-    final int nExp = expiries.length;
-    final double[][] prices = new double[nExp][];
-    final EquityDividendsCurvesBundle divCurves = new EquityDividendsCurvesBundle(spot, discountCurve, dividends);
-    for (int i = 0; i < nExp; i++) {
-      final int n = strikes[i].length;
-      prices[i] = new double[n];
-      final double t = expiries[i];
-      final double f = divCurves.getF(t);
-      final double d = divCurves.getD(t);
-      final double p = discountCurve.getDiscountFactor(t);
-      for (int j = 0; j < n; j++) {
-        final double x = (strikes[i][j] - d) / (f - d);
-        final boolean isCall = x >= 1.0;
-        final double vol = surf.getVolatility(t, x);
-        prices[i][j] = p * (f - d) * BlackFormulaRepository.price(1.0, x, t, vol, isCall);
-      }
-    }
-    return prices;
-  }
+  //  /**
+  //   * Compute actual option (i.e. as would be observed in the market) from a hypothetical <b>pure</b> implied volatility surface and dividend assumptions
+  //   * @param spot The current level of the stock or index
+  //   * @param expiries expiries of option strips
+  //   * @param strikes strikes at each expiry
+  //   * @param discountCurve The discount curve
+  //   * @param dividends dividend assumptions
+  //   * @param surf hypothetical <b>pure</b> implied volatility surface
+  //   * @return Market observed option prices
+  //   */
+  //  private static double[][] getOptionPrices(final double spot, final double[] expiries, final double[][] strikes, final YieldAndDiscountCurve discountCurve,
+  //      final AffineDividends dividends, final PureImpliedVolatilitySurface surf) {
+  //    final int nExp = expiries.length;
+  //    final double[][] prices = new double[nExp][];
+  //    final EquityDividendsCurvesBundle divCurves = new EquityDividendsCurvesBundle(spot, discountCurve, dividends);
+  //    for (int i = 0; i < nExp; i++) {
+  //      final int n = strikes[i].length;
+  //      prices[i] = new double[n];
+  //      final double t = expiries[i];
+  //      final double f = divCurves.getF(t);
+  //      final double d = divCurves.getD(t);
+  //      final double p = discountCurve.getDiscountFactor(t);
+  //      for (int j = 0; j < n; j++) {
+  //        final double x = (strikes[i][j] - d) / (f - d);
+  //        final boolean isCall = x >= 1.0;
+  //        final double vol = surf.getVolatility(t, x);
+  //        prices[i][j] = p * (f - d) * BlackFormulaRepository.price(1.0, x, t, vol, isCall);
+  //      }
+  //    }
+  //    return prices;
+  //  }
 
   private static SmileSurfaceDataBundle getMarketVols(final double spot, final double[] expiries, final double[][] strikes, final YieldAndDiscountCurve discountCurve,
       final AffineDividends dividends, final PureImpliedVolatilitySurface surf) {

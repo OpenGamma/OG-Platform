@@ -5,8 +5,10 @@
  */
 package com.opengamma.analytics.math.interpolation.data;
 
+import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.math.function.Function1D;
@@ -97,6 +99,48 @@ public class RadialBasisFunctionInterpolatorDataBundle extends InterpolatorNDDat
     final DoubleMatrix1D res = _decompRes.solve(new DoubleMatrix1D(y));
 
     return res.toArray();
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    result = prime * result + _basisFunction.hashCode();
+    result = prime * result + _decomp.hashCode();
+    result = prime * result + _decompRes.hashCode();
+    result = prime * result + (_useNormalized ? 1231 : 1237);
+    result = prime * result + Arrays.hashCode(_weights);
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!super.equals(obj)) {
+      return false;
+    }
+    if (!(obj instanceof RadialBasisFunctionInterpolatorDataBundle)) {
+      return false;
+    }
+    final RadialBasisFunctionInterpolatorDataBundle other = (RadialBasisFunctionInterpolatorDataBundle) obj;
+    if (_useNormalized != other._useNormalized) {
+      return false;
+    }
+    if (!Arrays.equals(_weights, other._weights)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_basisFunction, other._basisFunction)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_decomp, other._decomp)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_decompRes, other._decompRes)) {
+      return false;
+    }
+    return true;
   }
 
 }

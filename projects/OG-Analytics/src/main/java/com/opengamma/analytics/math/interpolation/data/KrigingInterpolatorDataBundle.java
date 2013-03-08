@@ -5,8 +5,10 @@
  */
 package com.opengamma.analytics.math.interpolation.data;
 
+import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.math.function.Function1D;
@@ -27,7 +29,7 @@ public class KrigingInterpolatorDataBundle extends InterpolatorNDDataBundle {
   private final double[] _weights;
 
   /**
-   * @param data The data 
+   * @param data The data
    * @param beta The beta
    */
   public KrigingInterpolatorDataBundle(final List<Pair<double[], Double>> data, final double beta) {
@@ -125,6 +127,40 @@ public class KrigingInterpolatorDataBundle extends InterpolatorNDDataBundle {
     final DecompositionResult decompRes = decomp.evaluate(new DoubleMatrix2D(v));
     final DoubleMatrix1D res = decompRes.solve(new DoubleMatrix1D(y));
     return res.getData();
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    result = prime * result + _decomp.hashCode();
+    result = prime * result + _variogram.hashCode();
+    result = prime * result + Arrays.hashCode(_weights);
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!super.equals(obj)) {
+      return false;
+    }
+    if (!(obj instanceof KrigingInterpolatorDataBundle)) {
+      return false;
+    }
+    final KrigingInterpolatorDataBundle other = (KrigingInterpolatorDataBundle) obj;
+    if (!ObjectUtils.equals(_decomp, other._decomp)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_variogram, other._variogram)) {
+      return false;
+    }
+    if (!Arrays.equals(_weights, other._weights)) {
+      return false;
+    }
+    return true;
   }
 
 }

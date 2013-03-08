@@ -18,7 +18,6 @@ import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
-import com.opengamma.analytics.math.curve.DoublesCurve;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
@@ -124,7 +123,7 @@ public class InflationProviderDiscount implements InflationProviderInterface {
 
   @Override
   public InflationProviderDiscount copy() {
-    MulticurveProviderDiscount multicurveProvider = _multicurveProvider.copy();
+    final MulticurveProviderDiscount multicurveProvider = _multicurveProvider.copy();
     final LinkedHashMap<IndexPrice, PriceIndexCurve> priceIndexCurves = new LinkedHashMap<IndexPrice, PriceIndexCurve>(_priceIndexCurves);
     return new InflationProviderDiscount(multicurveProvider, priceIndexCurves);
   }
@@ -320,7 +319,7 @@ public class InflationProviderDiscount implements InflationProviderInterface {
    * Replaces the discounting curve for a given currency.
    * @param ccy The currency.
    * @param curve The yield curve used for discounting.
-   *  @throws IllegalArgumentException if curve name NOT already present 
+   *  @throws IllegalArgumentException if curve name NOT already present
    */
   public void replaceCurve(final Currency ccy, final YieldAndDiscountCurve curve) {
     _multicurveProvider.replaceCurve(ccy, curve);
@@ -330,7 +329,7 @@ public class InflationProviderDiscount implements InflationProviderInterface {
    * Replaces the forward curve for a given index.
    * @param index The index.
    * @param curve The yield curve used for forward.
-   *  @throws IllegalArgumentException if curve name NOT already present 
+   *  @throws IllegalArgumentException if curve name NOT already present
    */
   public void replaceCurve(final IborIndex index, final YieldAndDiscountCurve curve) {
     _multicurveProvider.replaceCurve(index, curve);
@@ -340,7 +339,7 @@ public class InflationProviderDiscount implements InflationProviderInterface {
    * Replaces the discounting curve for a price index.
    * @param index The price index.
    * @param curve The price curve for the index.
-   *  @throws IllegalArgumentException if curve name NOT already present 
+   *  @throws IllegalArgumentException if curve name NOT already present
    */
   public void replaceCurve(final IndexPrice index, final PriceIndexCurve curve) {
     ArgumentChecker.notNull(index, "Price index");
@@ -352,16 +351,9 @@ public class InflationProviderDiscount implements InflationProviderInterface {
   }
 
   @Override
-  public Integer getNumberOfParameters(String name) {
-    final Object curveObject = _allCurves.get(name);
-    if (curveObject instanceof PriceIndexCurve) {
-      return ((PriceIndexCurve) curveObject).getNumberOfParameters();
-    } else if (curveObject instanceof YieldAndDiscountCurve) {
-      return ((YieldAndDiscountCurve) curveObject).getNumberOfParameters();
-    } else {
-      ArgumentChecker.isTrue(curveObject instanceof DoublesCurve, "Curve not a DoublesCurve, can not computed sensitivity");
-      return ((DoublesCurve) curveObject).size();
-    }
+  public Integer getNumberOfParameters(final String name) {
+    final PriceIndexCurve curve = _allCurves.get(name);
+    return curve.getNumberOfParameters();
   }
 
   @Override
@@ -384,25 +376,25 @@ public class InflationProviderDiscount implements InflationProviderInterface {
   }
 
   @Override
-  public InflationProviderDiscount withDiscountFactor(Currency ccy, YieldAndDiscountCurve replacement) {
-    MulticurveProviderDiscount decoratedMulticurve = _multicurveProvider.withDiscountFactor(ccy, replacement);
+  public InflationProviderDiscount withDiscountFactor(final Currency ccy, final YieldAndDiscountCurve replacement) {
+    final MulticurveProviderDiscount decoratedMulticurve = _multicurveProvider.withDiscountFactor(ccy, replacement);
     return new InflationProviderDiscount(decoratedMulticurve, _priceIndexCurves);
   }
 
   @Override
-  public InflationProviderDiscount withForward(final IborIndex index, YieldAndDiscountCurve replacement) {
-    MulticurveProviderDiscount decoratedMulticurve = _multicurveProvider.withForward(index, replacement);
+  public InflationProviderDiscount withForward(final IborIndex index, final YieldAndDiscountCurve replacement) {
+    final MulticurveProviderDiscount decoratedMulticurve = _multicurveProvider.withForward(index, replacement);
     return new InflationProviderDiscount(decoratedMulticurve, _priceIndexCurves);
   }
 
   @Override
-  public InflationProviderDiscount withForward(final IndexON index, YieldAndDiscountCurve replacement) {
-    MulticurveProviderDiscount decoratedMulticurve = _multicurveProvider.withForward(index, replacement);
+  public InflationProviderDiscount withForward(final IndexON index, final YieldAndDiscountCurve replacement) {
+    final MulticurveProviderDiscount decoratedMulticurve = _multicurveProvider.withForward(index, replacement);
     return new InflationProviderDiscount(decoratedMulticurve, _priceIndexCurves);
   }
 
   @Override
-  public double[] parameterInflationSensitivity(String name, List<DoublesPair> pointSensitivity) {
+  public double[] parameterInflationSensitivity(final String name, final List<DoublesPair> pointSensitivity) {
     final PriceIndexCurve curve = _allCurves.get(name);
     final int nbParameters = curve.getNumberOfParameters();
     final double[] result = new double[nbParameters];

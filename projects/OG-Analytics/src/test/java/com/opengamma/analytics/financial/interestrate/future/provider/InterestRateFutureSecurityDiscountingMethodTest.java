@@ -40,8 +40,8 @@ public class InterestRateFutureSecurityDiscountingMethodTest {
   private static final IborIndex[] IBOR_INDEXES = MulticurveProviderDiscountDataSets.getIndexesIborMulticurveEurUsd();
   private static final IborIndex EURIBOR3M = IBOR_INDEXES[0];
 
-  public static final String NOT_USED = "Not used";
-  public static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
+  private static final String NOT_USED = "Not used";
+  private static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
   //EURIBOR 3M Index
   private static final Period TENOR = DateUtils.periodOfMonths(3);
   private static final int SETTLEMENT_DAYS = 2;

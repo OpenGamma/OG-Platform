@@ -73,7 +73,7 @@ public class PiecewiseMixLogNormalFitterTest {
 
   @Test
   (enabled = false)
-  public void FlatTest() {
+  public void flatTest() {
     final int n = STRIKES.length;
     final double[] vols = new double[n];
     Arrays.fill(vols, 0.2);

@@ -175,7 +175,7 @@ public class CouponCMSTest {
     assertEquals(priceHagan, pricePaulot, 15);
   }
 
-  private class CMSIntegrant extends Function1D<Double, Double> {
+  private static class CMSIntegrant extends Function1D<Double, Double> {
 
     private final static double EPS = 1E-10;
     private final int _nbFixedPeriod;
@@ -209,7 +209,7 @@ public class CouponCMSTest {
     @Override
     public Double evaluate(final Double x) {//evaluate(Double x)
       final double[] kD = kpkpp(x);
-      // Implementation note: kD[0] contains the first derivative of k; kD[1] the second derivative of k. 
+      // Implementation note: kD[0] contains the first derivative of k; kD[1] the second derivative of k.
       return (kD[1] * (x - _strike) + 2.0 * kD[0]) * bs(x, _forward);
     }
 

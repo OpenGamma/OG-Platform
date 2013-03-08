@@ -59,8 +59,8 @@ public class ForexOptionVanillaBlackSmileMethodTest {
 
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountForexDataSets.createMulticurvesForex();
 
-  public static final String NOT_USED = "Not used";
-  public static final String[] NOT_USED_2 = {NOT_USED, NOT_USED};
+  private static final String NOT_USED = "Not used";
+  private static final String[] NOT_USED_2 = {NOT_USED, NOT_USED};
 
   private static final FXMatrix FX_MATRIX = MULTICURVES.getFxRates();
   private static final Currency EUR = Currency.EUR;
@@ -72,7 +72,7 @@ public class ForexOptionVanillaBlackSmileMethodTest {
   private static final int SETTLEMENT_DAYS = 2;
   // Smile data
   private static final Period[] EXPIRY_PERIOD = new Period[] {DateUtils.periodOfMonths(3), DateUtils.periodOfMonths(6), DateUtils.periodOfYears(1),
-      DateUtils.periodOfYears(2), DateUtils.periodOfYears(5)};
+    DateUtils.periodOfYears(2), DateUtils.periodOfYears(5)};
   private static final int NB_EXP = EXPIRY_PERIOD.length;
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 6, 13);
   private static final ZonedDateTime REFERENCE_SPOT = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, SETTLEMENT_DAYS, CALENDAR);
@@ -90,7 +90,7 @@ public class ForexOptionVanillaBlackSmileMethodTest {
   private static final double[] ATM = {0.175, 0.185, 0.18, 0.17, 0.16, 0.16};
   private static final double[] DELTA = new double[] {0.10, 0.25};
   private static final double[][] RISK_REVERSAL = new double[][] { {-0.010, -0.0050}, {-0.011, -0.0060}, {-0.012, -0.0070}, {-0.013, -0.0080}, {-0.014, -0.0090},
-      {-0.014, -0.0090}};
+    {-0.014, -0.0090}};
   private static final double[][] STRANGLE = new double[][] { {0.0300, 0.0100}, {0.0310, 0.0110}, {0.0320, 0.0120}, {0.0330, 0.0130}, {0.0340, 0.0140}, {0.0340, 0.0140}};
   private static final int NB_STRIKE = 2 * DELTA.length + 1;
   private static final SmileDeltaTermStructureParametersStrikeInterpolation SMILE_TERM = new SmileDeltaTermStructureParametersStrikeInterpolation(TIME_TO_EXPIRY, DELTA,
@@ -881,7 +881,7 @@ public class ForexOptionVanillaBlackSmileMethodTest {
   //      final MultipleCurrencyAmount thetaExpected = pvTomorrow.plus(pvToday.multipliedBy(-1.0));
   //      assertEquals("ThetaCalculator: forex option", thetaExpected.getAmount(USD), theta.getAmount(USD), TOLERANCE_PV);
   //    }
-  //  
+  //
   //    @Test
   //    /**
   //     * Tests the theoretical Theta (derivative with respect to time in Black formula).

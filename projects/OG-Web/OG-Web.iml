@@ -112,35 +112,22 @@
           <root url="jar://$USER_HOME$/.ivy2/cache/org.junit/junit/jars/junit-dep-4.8.2.jar!/" />
         </CLASSES>
         <JAVADOC>
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.eclipse/jetty/javadocs/jetty-continuation-7.0.1.v20091125.zip!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.eclipse/jetty/javadocs/jetty-webapp-7.0.1.v20091125.zip!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.eclipse/jetty/javadocs/jetty-http-7.0.1.v20091125.zip!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.eclipse/jetty/javadocs/jetty-xml-7.0.1.v20091125.zip!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.eclipse/jetty/javadocs/jetty-servlets-7.0.1.v20091125.zip!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.eclipse/jetty/javadocs/jetty-start-7.0.1.v20091125.zip!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.eclipse/jetty/javadocs/jetty-util-7.0.1.v20091125.zip!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.eclipse/jetty/javadocs/jetty-server-7.0.1.v20091125.zip!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.eclipse/jetty/javadocs/jetty-io-7.0.1.v20091125.zip!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.eclipse/jetty/javadocs/jetty-security-7.0.1.v20091125.zip!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.eclipse/jetty/javadocs/jetty-client-7.0.1.v20091125.zip!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.eclipse/jetty/javadocs/jetty-servlet-7.0.1.v20091125.zip!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.commons/commons-logging/javadocs/commons-logging-javadoc-1.1.1.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.aopalliance/aopalliance/javadocs/aopalliance-javadoc-1.0.zip!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.eclipse/jetty/javadocs/jetty-start-javadoc-7.0.1.v20091125.zip!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.eclipse/jetty/javadocs/jetty-server-javadoc-7.0.1.v20091125.zip!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.eclipse/jetty/javadocs/jetty-http-javadoc-7.0.1.v20091125.zip!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.eclipse/jetty/javadocs/jetty-continuation-javadoc-7.0.1.v20091125.zip!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.eclipse/jetty/javadocs/jetty-webapp-javadoc-7.0.1.v20091125.zip!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.eclipse/jetty/javadocs/jetty-io-javadoc-7.0.1.v20091125.zip!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.eclipse/jetty/javadocs/jetty-servlet-javadoc-7.0.1.v20091125.zip!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.eclipse/jetty/javadocs/jetty-client-javadoc-7.0.1.v20091125.zip!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.eclipse/jetty/javadocs/jetty-servlets-javadoc-7.0.1.v20091125.zip!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.eclipse/jetty/javadocs/jetty-security-javadoc-7.0.1.v20091125.zip!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.eclipse/jetty/javadocs/jetty-util-javadoc-7.0.1.v20091125.zip!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.eclipse/jetty/javadocs/jetty-xml-javadoc-7.0.1.v20091125.zip!/" />
         </JAVADOC>
         <SOURCES>
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.eclipse/jetty/sources/jetty-http-7.0.1.v20091125.zip!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.eclipse/jetty/sources/jetty-security-7.0.1.v20091125.zip!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.eclipse/jetty/sources/jetty-continuation-7.0.1.v20091125.zip!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.eclipse/jetty/sources/jetty-xml-7.0.1.v20091125.zip!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.eclipse/jetty/sources/jetty-start-7.0.1.v20091125.zip!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.eclipse/jetty/sources/jetty-client-7.0.1.v20091125.zip!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.eclipse/jetty/sources/jetty-servlets-7.0.1.v20091125.zip!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.eclipse/jetty/sources/jetty-servlet-7.0.1.v20091125.zip!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.eclipse/jetty/sources/jetty-webapp-7.0.1.v20091125.zip!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.eclipse/jetty/sources/jetty-util-7.0.1.v20091125.zip!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.eclipse/jetty/sources/jetty-server-7.0.1.v20091125.zip!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.eclipse/jetty/sources/jetty-io-7.0.1.v20091125.zip!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/javax.servlet/servletapi/sources/source-2.5.zip!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.slf4j/slf4j/sources/slf4j-api-src-1.5.11.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.springframework/spring/sources/spring-context-src-3.0.4.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.springframework/spring/sources/spring-expression-src-3.0.4.jar!/" />
@@ -157,6 +144,19 @@
           <root url="jar://$USER_HOME$/.ivy2/cache/org.cometd/cometd-java/sources/cometd-java-server-src-1.0.1.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.cometd/cometd-java/sources/cometd-java-client-src-1.0.1.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.junit/junit/sources/junit-src-4.8.2.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.eclipse/jetty/sources/jetty-io-source-7.0.1.v20091125.zip!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.eclipse/jetty/sources/jetty-security-source-7.0.1.v20091125.zip!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.eclipse/jetty/sources/jetty-client-source-7.0.1.v20091125.zip!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.eclipse/jetty/sources/jetty-webapp-source-7.0.1.v20091125.zip!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.eclipse/jetty/sources/jetty-servlet-source-7.0.1.v20091125.zip!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.eclipse/jetty/sources/jetty-util-source-7.0.1.v20091125.zip!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.eclipse/jetty/sources/jetty-xml-source-7.0.1.v20091125.zip!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.eclipse/jetty/sources/jetty-http-source-7.0.1.v20091125.zip!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.eclipse/jetty/sources/jetty-server-source-7.0.1.v20091125.zip!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.eclipse/jetty/sources/jetty-servlets-source-7.0.1.v20091125.zip!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.eclipse/jetty/sources/jetty-continuation-source-7.0.1.v20091125.zip!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.eclipse/jetty/sources/jetty-start-source-7.0.1.v20091125.zip!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/javax.servlet/servletapi/sources/servletapi-source-2.5.zip!/" />
         </SOURCES>
       </library>
     </orderEntry>

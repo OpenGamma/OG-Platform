@@ -30,11 +30,9 @@ import com.opengamma.engine.view.execution.InfiniteViewCycleExecutionSequence;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.listener.AbstractViewResultListener;
-import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.web.server.AggregatedViewDefinitionManager;
 
 /**
  * Connects the engine to an {@link AnalyticsView}. Contains the logic for setting up a {@link ViewClient}, connecting it to a view process, handling events from the engine and forwarding data to the
@@ -55,29 +53,27 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
 
   /**
    * @param viewRequest Defines the view that should be created
+   * @param aggregatedViewDef The view definition including any aggregation
    * @param viewClient Connects this class to the calculation engine
    * @param view The object that encapsulates the state of the view user interface
    * @param marketDataSpecRepo For looking up sources of market data
-   * @param aggregatedViewDefManager For looking up view definitions
    * @param snapshotMaster For looking up snapshots
    */
   /* package */ AnalyticsViewClientConnection(ViewRequest viewRequest,
-                                              ViewClient viewClient,
+                                              AggregatedViewDefinition aggregatedViewDef, ViewClient viewClient,
                                               AnalyticsView view,
                                               NamedMarketDataSpecificationRepository marketDataSpecRepo,
-                                              AggregatedViewDefinitionManager aggregatedViewDefManager,
                                               MarketDataSnapshotMaster snapshotMaster,
                                               List<AutoCloseable> listeners) {
     ArgumentChecker.notNull(viewRequest, "viewRequest");
     ArgumentChecker.notNull(viewClient, "viewClient");
     ArgumentChecker.notNull(view, "view");
     ArgumentChecker.notNull(marketDataSpecRepo, "marketDataSpecRepo");
-    ArgumentChecker.notNull(aggregatedViewDefManager, "aggregatedViewDefManager");
     ArgumentChecker.notNull(snapshotMaster, "snapshotMaster");
     ArgumentChecker.notNull(listeners, "listeners");
     _view = view;
     _viewClient = viewClient;
-    _aggregatedViewDef = new AggregatedViewDefinition(aggregatedViewDefManager, viewRequest);
+    _aggregatedViewDef = aggregatedViewDef;
     _marketDataSpecRepo = marketDataSpecRepo;
     List<MarketDataSpecification> requestedMarketDataSpecs = viewRequest.getMarketDataSpecs();
     List<MarketDataSpecification> actualMarketDataSpecs = fixMarketDataSpecs(requestedMarketDataSpecs);
@@ -191,39 +187,6 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
     @Override
     public void viewDefinitionCompilationFailed(Instant valuationTime, Exception exception) {
       s_logger.warn("Compilation of the view definition failed", exception);
-    }
-  }
-
-  /**
-   * Wrapper that hides a bit of the ugliness of {@link AggregatedViewDefinitionManager}.
-   */
-  private static final class AggregatedViewDefinition {
-
-    private final AggregatedViewDefinitionManager _aggregatedViewDefManager;
-    private final UniqueId _baseViewDefId;
-    private final List<String> _aggregatorNames;
-    private final UniqueId _id;
-
-    private AggregatedViewDefinition(AggregatedViewDefinitionManager aggregatedViewDefManager, ViewRequest viewRequest) {
-      ArgumentChecker.notNull(aggregatedViewDefManager, "aggregatedViewDefManager");
-      ArgumentChecker.notNull(viewRequest, "viewRequest");
-      _aggregatedViewDefManager = aggregatedViewDefManager;
-      _baseViewDefId = viewRequest.getViewDefinitionId();
-      _aggregatorNames = viewRequest.getAggregators();
-      try {
-        _id = _aggregatedViewDefManager.getViewDefinitionId(_baseViewDefId, _aggregatorNames);
-      } catch (Exception e) {
-        close();
-        throw new OpenGammaRuntimeException("Failed to get aggregated view definition", e);
-      }
-    }
-
-    private UniqueId getUniqueId() {
-      return _id;
-    }
-
-    private void close() {
-      _aggregatedViewDefManager.releaseViewDefinition(_baseViewDefId, _aggregatorNames);
     }
   }
 }

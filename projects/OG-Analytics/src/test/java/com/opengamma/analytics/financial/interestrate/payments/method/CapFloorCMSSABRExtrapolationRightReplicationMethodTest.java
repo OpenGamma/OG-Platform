@@ -134,7 +134,7 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethodTest {
   /**
    * Tests the price of CMS coupon and cap/floor using replication in the SABR framework.  Comparison with hard-coded value.
    */
-  public void presentValueHardcoded() {
+  public void presentValueHardCoded() {
     final double pvComputed = METHOD_EXTRAPOLATION_CAP.presentValue(CMS_CAP_LONG, SABR_BUNDLE).getAmount();
     final double pvComparison = 6627.971;
     assertEquals("Extrapolation: CMS Cap present value", pvComparison, pvComputed, TOLERANCE_PRICE);

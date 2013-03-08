@@ -387,14 +387,12 @@ public class ScheduleCalculatorTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFrequency1() {
-    final PeriodFrequency nullfrequency = null;
-    ScheduleCalculator.getUnadjustedDateSchedule(DateUtils.getUTCDate(2010, 6, 1), DateUtils.getUTCDate(2010, 7, 1), nullfrequency);
+    ScheduleCalculator.getUnadjustedDateSchedule(DateUtils.getUTCDate(2010, 6, 1), DateUtils.getUTCDate(2010, 7, 1), null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFrequency2() {
-    final PeriodFrequency nullfrequency = null;
-    ScheduleCalculator.getUnadjustedDateSchedule(DateUtils.getUTCDate(2010, 6, 1), DateUtils.getUTCDate(2010, 7, 1), DateUtils.getUTCDate(2010, 8, 1), nullfrequency);
+    ScheduleCalculator.getUnadjustedDateSchedule(DateUtils.getUTCDate(2010, 6, 1), DateUtils.getUTCDate(2010, 7, 1), DateUtils.getUTCDate(2010, 8, 1), (PeriodFrequency) null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -490,33 +488,33 @@ public class ScheduleCalculatorTest {
     assertDateArray(
         ScheduleCalculator.getAdjustedDateSchedule(unadjusted, new ModifiedFollowingBusinessDayConvention(), WEEKEND),
         new ZonedDateTime[] {DateUtils.getUTCDate(2010, 2, 1), DateUtils.getUTCDate(2010, 3, 1), DateUtils.getUTCDate(2010, 4, 1), DateUtils.getUTCDate(2010, 5, 3), DateUtils.getUTCDate(2010, 6, 1),
-            DateUtils.getUTCDate(2010, 7, 1), DateUtils.getUTCDate(2010, 8, 2), DateUtils.getUTCDate(2010, 9, 1), DateUtils.getUTCDate(2010, 10, 1), DateUtils.getUTCDate(2010, 11, 1),
-            DateUtils.getUTCDate(2010, 12, 1), DateUtils.getUTCDate(2011, 1, 3) });
+          DateUtils.getUTCDate(2010, 7, 1), DateUtils.getUTCDate(2010, 8, 2), DateUtils.getUTCDate(2010, 9, 1), DateUtils.getUTCDate(2010, 10, 1), DateUtils.getUTCDate(2010, 11, 1),
+          DateUtils.getUTCDate(2010, 12, 1), DateUtils.getUTCDate(2011, 1, 3) });
     assertDateArray(
         ScheduleCalculator.getAdjustedDateSchedule(unadjusted, new FollowingBusinessDayConvention(), WEEKEND),
         new ZonedDateTime[] {DateUtils.getUTCDate(2010, 2, 1), DateUtils.getUTCDate(2010, 3, 1), DateUtils.getUTCDate(2010, 4, 1), DateUtils.getUTCDate(2010, 5, 3), DateUtils.getUTCDate(2010, 6, 1),
-            DateUtils.getUTCDate(2010, 7, 1), DateUtils.getUTCDate(2010, 8, 2), DateUtils.getUTCDate(2010, 9, 1), DateUtils.getUTCDate(2010, 10, 1), DateUtils.getUTCDate(2010, 11, 1),
-            DateUtils.getUTCDate(2010, 12, 1), DateUtils.getUTCDate(2011, 1, 3) });
+          DateUtils.getUTCDate(2010, 7, 1), DateUtils.getUTCDate(2010, 8, 2), DateUtils.getUTCDate(2010, 9, 1), DateUtils.getUTCDate(2010, 10, 1), DateUtils.getUTCDate(2010, 11, 1),
+          DateUtils.getUTCDate(2010, 12, 1), DateUtils.getUTCDate(2011, 1, 3) });
     assertDateArray(
         ScheduleCalculator.getAdjustedDateSchedule(unadjusted, new PrecedingBusinessDayConvention(), WEEKEND),
         new ZonedDateTime[] {DateUtils.getUTCDate(2010, 2, 1), DateUtils.getUTCDate(2010, 3, 1), DateUtils.getUTCDate(2010, 4, 1), DateUtils.getUTCDate(2010, 4, 30), DateUtils.getUTCDate(2010, 6, 1),
-            DateUtils.getUTCDate(2010, 7, 1), DateUtils.getUTCDate(2010, 7, 30), DateUtils.getUTCDate(2010, 9, 1), DateUtils.getUTCDate(2010, 10, 1), DateUtils.getUTCDate(2010, 11, 1),
-            DateUtils.getUTCDate(2010, 12, 1), DateUtils.getUTCDate(2010, 12, 31) });
+          DateUtils.getUTCDate(2010, 7, 1), DateUtils.getUTCDate(2010, 7, 30), DateUtils.getUTCDate(2010, 9, 1), DateUtils.getUTCDate(2010, 10, 1), DateUtils.getUTCDate(2010, 11, 1),
+          DateUtils.getUTCDate(2010, 12, 1), DateUtils.getUTCDate(2010, 12, 31) });
     assertDateArray(
         ScheduleCalculator.getAdjustedDateSchedule(unadjusted, new ModifiedFollowingBusinessDayConvention(), FIRST),
         new ZonedDateTime[] {DateUtils.getUTCDate(2010, 2, 2), DateUtils.getUTCDate(2010, 3, 2), DateUtils.getUTCDate(2010, 4, 2), DateUtils.getUTCDate(2010, 5, 3), DateUtils.getUTCDate(2010, 6, 2),
-            DateUtils.getUTCDate(2010, 7, 2), DateUtils.getUTCDate(2010, 8, 2), DateUtils.getUTCDate(2010, 9, 2), DateUtils.getUTCDate(2010, 10, 4), DateUtils.getUTCDate(2010, 11, 2),
-            DateUtils.getUTCDate(2010, 12, 2), DateUtils.getUTCDate(2011, 1, 3) });
+          DateUtils.getUTCDate(2010, 7, 2), DateUtils.getUTCDate(2010, 8, 2), DateUtils.getUTCDate(2010, 9, 2), DateUtils.getUTCDate(2010, 10, 4), DateUtils.getUTCDate(2010, 11, 2),
+          DateUtils.getUTCDate(2010, 12, 2), DateUtils.getUTCDate(2011, 1, 3) });
     assertDateArray(
         ScheduleCalculator.getAdjustedDateSchedule(unadjusted, new FollowingBusinessDayConvention(), FIRST),
         new ZonedDateTime[] {DateUtils.getUTCDate(2010, 2, 2), DateUtils.getUTCDate(2010, 3, 2), DateUtils.getUTCDate(2010, 4, 2), DateUtils.getUTCDate(2010, 5, 3), DateUtils.getUTCDate(2010, 6, 2),
-            DateUtils.getUTCDate(2010, 7, 2), DateUtils.getUTCDate(2010, 8, 2), DateUtils.getUTCDate(2010, 9, 2), DateUtils.getUTCDate(2010, 10, 4), DateUtils.getUTCDate(2010, 11, 2),
-            DateUtils.getUTCDate(2010, 12, 2), DateUtils.getUTCDate(2011, 1, 3) });
+          DateUtils.getUTCDate(2010, 7, 2), DateUtils.getUTCDate(2010, 8, 2), DateUtils.getUTCDate(2010, 9, 2), DateUtils.getUTCDate(2010, 10, 4), DateUtils.getUTCDate(2010, 11, 2),
+          DateUtils.getUTCDate(2010, 12, 2), DateUtils.getUTCDate(2011, 1, 3) });
     assertDateArray(
         ScheduleCalculator.getAdjustedDateSchedule(unadjusted, new PrecedingBusinessDayConvention(), FIRST),
         new ZonedDateTime[] {DateUtils.getUTCDate(2010, 1, 29), DateUtils.getUTCDate(2010, 2, 26), DateUtils.getUTCDate(2010, 3, 31), DateUtils.getUTCDate(2010, 4, 30),
-            DateUtils.getUTCDate(2010, 5, 31), DateUtils.getUTCDate(2010, 6, 30), DateUtils.getUTCDate(2010, 7, 30), DateUtils.getUTCDate(2010, 8, 31), DateUtils.getUTCDate(2010, 9, 30),
-            DateUtils.getUTCDate(2010, 10, 29), DateUtils.getUTCDate(2010, 11, 30), DateUtils.getUTCDate(2010, 12, 31) });
+          DateUtils.getUTCDate(2010, 5, 31), DateUtils.getUTCDate(2010, 6, 30), DateUtils.getUTCDate(2010, 7, 30), DateUtils.getUTCDate(2010, 8, 31), DateUtils.getUTCDate(2010, 9, 30),
+          DateUtils.getUTCDate(2010, 10, 29), DateUtils.getUTCDate(2010, 11, 30), DateUtils.getUTCDate(2010, 12, 31) });
     // End date is modified
     assertDateArray(ScheduleCalculator.getAdjustedDateSchedule(SETTLEMENT_DATE, ANNUITY_TENOR, PAYMENT_TENOR, BUSINESS_DAY, CALENDAR, IS_EOM, SHORT_STUB),
         new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 19), DateUtils.getUTCDate(2012, 3, 19), DateUtils.getUTCDate(2012, 9, 17), DateUtils.getUTCDate(2013, 3, 18) });
@@ -533,7 +531,7 @@ public class ScheduleCalculatorTest {
     assertDateArray(
         ScheduleCalculator.getAdjustedDateSchedule(SETTLEMENT_DATE, tenorLong, PAYMENT_TENOR, BUSINESS_DAY, CALENDAR, IS_EOM, SHORT_STUB),
         new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 19), DateUtils.getUTCDate(2012, 3, 19), DateUtils.getUTCDate(2012, 9, 17), DateUtils.getUTCDate(2013, 3, 18),
-            DateUtils.getUTCDate(2013, 6, 17) });
+          DateUtils.getUTCDate(2013, 6, 17) });
     // Stub: long-last
     assertDateArray(ScheduleCalculator.getAdjustedDateSchedule(SETTLEMENT_DATE, tenorLong, PAYMENT_TENOR, BUSINESS_DAY, CALENDAR, IS_EOM, !SHORT_STUB),
         new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 19), DateUtils.getUTCDate(2012, 3, 19), DateUtils.getUTCDate(2012, 9, 17), DateUtils.getUTCDate(2013, 6, 17) });

@@ -48,8 +48,8 @@ public class CapFloorIborInArrearsReplicationMethodTest {
   private static final SABRInterestRateParameters SABR_PARAMETER = TestsDataSetsSABR.createSABR1();
   private static final SABRCapProviderDiscount SABR_MULTICURVES = new SABRCapProviderDiscount(MULTICURVES, SABR_PARAMETER, EURIBOR6M);
 
-  public static final String NOT_USED = "Not used";
-  public static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
+  private static final String NOT_USED = "Not used";
+  private static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
 
   // Dates
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 6, 7);
@@ -173,7 +173,7 @@ public class CapFloorIborInArrearsReplicationMethodTest {
   /**
    * Inner class to implement the integration used in price replication.
    */
-  private class InArrearsIntegrant extends Function1D<Double, Double> {
+  private static class InArrearsIntegrant extends Function1D<Double, Double> {
 
     /**
      * The base method for the pricing of standard cap/floors.

@@ -15,7 +15,7 @@ import org.apache.commons.lang.Validate;
 public class HestonModelData implements SmileModelData {
   private static final int NUM_PARAMETERS = 5;
 
-  private double[] _parameters;
+  private final double[] _parameters;
 
   public HestonModelData(final double kappa, final double theta, final double vol0, final double omega, final double rho) {
     this(new double[] {kappa, theta, vol0, omega, rho });
@@ -30,18 +30,16 @@ public class HestonModelData implements SmileModelData {
     Validate.isTrue(parameters[3] >= 0.0, "omega must be >= 0");
     Validate.isTrue(parameters[4] >= -1.0 && parameters[4] <= 1.0, "rho must be >= -1 && <= 1");
 
-    _parameters = parameters;
+    _parameters = new double[NUM_PARAMETERS];
+    System.arraycopy(parameters, 0, _parameters, 0, NUM_PARAMETERS);
   }
 
   @Override
-  public boolean isAllowed(int index, double value) {
+  public boolean isAllowed(final int index, final double value) {
     switch (index) {
       case 0:
-        return value >= 0;
       case 1:
-        return value >= 0;
       case 2:
-        return value >= 0;
       case 3:
         return value >= 0;
       case 4:
@@ -92,18 +90,18 @@ public class HestonModelData implements SmileModelData {
   }
 
   @Override
-  public int getNumberOfparameters() {
+  public int getNumberOfParameters() {
     return NUM_PARAMETERS;
   }
 
   @Override
-  public double getParameter(int index) {
+  public double getParameter(final int index) {
     return _parameters[index];
   }
 
   @Override
-  public HestonModelData with(int index, double value) {
-    double[] temp = new double[NUM_PARAMETERS];
+  public HestonModelData with(final int index, final double value) {
+    final double[] temp = new double[NUM_PARAMETERS];
     System.arraycopy(_parameters, 0, temp, 0, NUM_PARAMETERS);
     temp[index] = value;
     return new HestonModelData(temp);
@@ -123,7 +121,7 @@ public class HestonModelData implements SmileModelData {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -133,7 +131,7 @@ public class HestonModelData implements SmileModelData {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    HestonModelData other = (HestonModelData) obj;
+    final HestonModelData other = (HestonModelData) obj;
     if (!Arrays.equals(_parameters, other._parameters)) {
       return false;
     }

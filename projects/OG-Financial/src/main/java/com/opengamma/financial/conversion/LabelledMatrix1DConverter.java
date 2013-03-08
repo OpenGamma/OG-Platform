@@ -20,11 +20,10 @@ public class LabelledMatrix1DConverter implements ResultConverter<LabelledMatrix
     Map<String, Double> returnValue = new HashMap<String, Double>();
     Object[] keys = value.getKeys();
     double[] values = value.getValues();
-
     for (int i = 0; i < values.length; i++) {
       Object k = keys[i];
       double v = values[i];
-      returnValue.put(k.toString(), v);
+      returnValue.put(valueName + "[" + k.toString() + "]", v);
     }
     return returnValue;
   }

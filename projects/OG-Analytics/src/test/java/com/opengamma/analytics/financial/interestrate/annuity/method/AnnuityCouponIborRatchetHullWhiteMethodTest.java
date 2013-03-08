@@ -84,7 +84,7 @@ public class AnnuityCouponIborRatchetHullWhiteMethodTest {
   private static final double[] CAP_COEF = new double[] {1.00, 0.00, 0.0300};
   private static final double FIRST_CPN_RATE = 0.04;
   private static final YieldCurveBundle CURVES = TestsDataSetsSABR.createCurves1();
-  private static final String[] CURVES_NAMES = CURVES.getAllNames().toArray(new String[0]);
+  private static final String[] CURVES_NAMES = CURVES.getAllNames().toArray(new String[CURVES.size()]);
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 9, 5);
 
   private static final AnnuityCouponIborRatchetDefinition ANNUITY_RATCHET_FIXED_DEFINITION = AnnuityCouponIborRatchetDefinition.withFirstCouponFixed(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL,

@@ -52,8 +52,8 @@ public class ForexOptionDigitalCallSpreadMethodTest {
 
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountForexDataSets.createMulticurvesForex();
 
-  public static final String NOT_USED = "Not used";
-  public static final String[] NOT_USED_2 = {NOT_USED, NOT_USED};
+  private static final String NOT_USED = "Not used";
+  private static final String[] NOT_USED_2 = {NOT_USED, NOT_USED};
 
   private static final Currency EUR = Currency.EUR;
   private static final Currency USD = Currency.USD;

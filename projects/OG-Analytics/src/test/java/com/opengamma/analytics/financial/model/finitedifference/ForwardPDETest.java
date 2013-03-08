@@ -26,9 +26,9 @@ import com.opengamma.analytics.math.surface.Surface;
 /**
  * Test the forward parabolic PDE for a option price - i.e. gives an option price surface for maturity and strike (for a fixed "now" time and
  * spot). Since all strikes and maturities are priced with a single pass of the solver, this is very useful for calibrating to market prices.
- * By contrast the backwards PDE gives the price surface for time-to-maturity and spot (for a fixed maturity and strike), so a separate solver 
+ * By contrast the backwards PDE gives the price surface for time-to-maturity and spot (for a fixed maturity and strike), so a separate solver
  * will need to be run for each maturity and strike. However the greeks (in particular, delta, gamma and theta) can be read straight off
- * the backwards PDE. 
+ * the backwards PDE.
  */
 public class ForwardPDETest {
 
@@ -95,7 +95,7 @@ public class ForwardPDETest {
 
     final PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
 
-    PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> db = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(PDE, INT_COND, LOWER, UPPER, grid);
+    final PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> db = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(PDE, INT_COND, LOWER, UPPER, grid);
     final PDEFullResults1D res = (PDEFullResults1D) solver.solve(db);
 
     double t, x;
@@ -145,8 +145,8 @@ public class ForwardPDETest {
   }
 
   @Test
-      (enabled = false)
-      public void debugTest() {
+  (enabled = false)
+  public void debugTest() {
 
     final Function<Double, Double> lvFunc = new Function<Double, Double>() {
       @Override
@@ -162,30 +162,30 @@ public class ForwardPDETest {
         }
       }
     };
-    LocalVolatilitySurfaceMoneyness lv = new LocalVolatilitySurfaceMoneyness(FunctionalDoublesSurface.from(lvFunc), new ForwardCurve(1.0));
+    final LocalVolatilitySurfaceMoneyness lv = new LocalVolatilitySurfaceMoneyness(FunctionalDoublesSurface.from(lvFunc), new ForwardCurve(1.0));
 
     final Function1D<Double, Double> initCon = new Function1D<Double, Double>() {
       @Override
-      public Double evaluate(Double x) {
+      public Double evaluate(final Double x) {
         return Math.max(0, 1 - Math.exp(x));
       }
     };
 
     final ConvectionDiffusionPDESolver solver = new ThetaMethodFiniteDifference(0.50, true);
-    ConvectionDiffusionPDE1DStandardCoefficients pde = getForwardLocalVol(lv);
-    double xMin = -2.5;
-    double xMax = 2.5;
+    final ConvectionDiffusionPDE1DStandardCoefficients pde = getForwardLocalVol(lv);
+    final double xMin = -2.5;
+    final double xMax = 2.5;
 
     PDEUtilityTools.printSurface("lv", lv.getSurface(), 0, 2.0, Math.exp(xMin), Math.exp(xMax));
 
-    DirichletBoundaryCondition lower = new DirichletBoundaryCondition(initCon.evaluate(xMin), xMin);
-    DirichletBoundaryCondition upper = new DirichletBoundaryCondition(initCon.evaluate(xMax), xMax);
+    final DirichletBoundaryCondition lower = new DirichletBoundaryCondition(initCon.evaluate(xMin), xMin);
+    final DirichletBoundaryCondition upper = new DirichletBoundaryCondition(initCon.evaluate(xMax), xMax);
     final MeshingFunction timeMesh = new ExponentialMeshing(0, 2.0, 12, 0.0);
     final MeshingFunction spaceMesh = new ExponentialMeshing(xMin, xMax, 17, 0.0);
     final PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
-    PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> db = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(pde, initCon, lower, upper, grid);
+    final PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> db = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(pde, initCon, lower, upper, grid);
 
-    PDEFullResults1D prices = (PDEFullResults1D) solver.solve(db);
+    final PDEFullResults1D prices = (PDEFullResults1D) solver.solve(db);
     PDEUtilityTools.printSurface("prices", prices);
   }
 
@@ -205,11 +205,11 @@ public class ForwardPDETest {
     final int tNodes = 51;
     final int xNodes = 101;
 
-    ConvectionDiffusionPDE1DStandardCoefficients pde = PDE_DATA_PROVIDER.getForwardBlackSholes(r, y, vol);
-    Function1D<Double, Double> intCon = INITIAL_COND_PROVIDER.getForwardCallPut(spot, true);
+    final ConvectionDiffusionPDE1DStandardCoefficients pde = PDE_DATA_PROVIDER.getForwardBlackSholes(r, y, vol);
+    final Function1D<Double, Double> intCon = INITIAL_COND_PROVIDER.getForwardCallPut(spot, true);
     //only true if y =0
-    BoundaryCondition lower = new DirichletBoundaryCondition(spot, 0);
-    BoundaryCondition upper = new DirichletBoundaryCondition(0, mult * spot);
+    final BoundaryCondition lower = new DirichletBoundaryCondition(spot, 0);
+    final BoundaryCondition upper = new DirichletBoundaryCondition(0, mult * spot);
 
     final MeshingFunction timeMesh = new ExponentialMeshing(0, expiry, tNodes, 3.0);
     //final MeshingFunction spaceMesh = new ExponentialMeshing(0, 5 * spot, xNodes, 0.0);
@@ -217,14 +217,14 @@ public class ForwardPDETest {
 
     final PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
 
-    PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> db = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(pde, intCon, lower, upper, grid);
-    final PDEFullResults1D res = (PDEFullResults1D) solver.solve(db);
+    //    final PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> db = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(pde, intCon, lower, upper, grid);
+    //    final PDEFullResults1D res = (PDEFullResults1D) solver.solve(db);
 
-    double[][] price = new double[tNodes][xNodes];
+    final double[][] price = new double[tNodes][xNodes];
     for (int i = 0; i < tNodes; i++) {
-      double t = grid.getTimeNode(i);
-      double df = Math.exp(-r * t);
-      double fwd = spot * Math.exp((r - y) * t);
+      final double t = grid.getTimeNode(i);
+      final double df = Math.exp(-r * t);
+      final double fwd = spot * Math.exp((r - y) * t);
       for (int j = 0; j < xNodes; j++) {
         price[i][j] = df * BlackFormulaRepository.price(fwd, grid.getSpaceNode(j), t, vol, true);
       }

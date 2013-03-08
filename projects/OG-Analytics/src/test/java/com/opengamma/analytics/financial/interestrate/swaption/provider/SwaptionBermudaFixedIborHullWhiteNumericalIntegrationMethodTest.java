@@ -42,8 +42,8 @@ public class SwaptionBermudaFixedIborHullWhiteNumericalIntegrationMethodTest {
   private static final Calendar CALENDAR = EURIBOR3M.getCalendar();
   private static final Currency CUR = EURIBOR3M.getCurrency();
 
-  public static final String NOT_USED = "Not used";
-  public static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
+  private static final String NOT_USED = "Not used";
+  private static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
   // General
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 7, 22);
   // Total swap - 5Y semi bond vs quarterly money

@@ -70,8 +70,8 @@ public class CouponOISDefinition extends CouponDefinition implements InstrumentD
     ArgumentChecker.isTrue(currency.equals(index.getCurrency()), "Coupon and index currencies are not compatible. Expected to be the same");
     _index = index;
 
-    final List<ZonedDateTime> fixingDateList = new ArrayList<ZonedDateTime>();
-    final List<Double> fixingAccrualFactorList = new ArrayList<Double>();
+    final List<ZonedDateTime> fixingDateList = new ArrayList<>();
+    final List<Double> fixingAccrualFactorList = new ArrayList<>();
 
     ZonedDateTime currentDate = fixingPeriodStartDate;
     fixingDateList.add(currentDate);
@@ -82,8 +82,8 @@ public class CouponOISDefinition extends CouponDefinition implements InstrumentD
       fixingAccrualFactorList.add(index.getDayCount().getDayCountFraction(currentDate, nextDate));
       currentDate = nextDate;
     }
-    _fixingPeriodDate = fixingDateList.toArray(new ZonedDateTime[0]);
-    _fixingPeriodAccrualFactor = fixingAccrualFactorList.toArray(new Double[0]);
+    _fixingPeriodDate = fixingDateList.toArray(new ZonedDateTime[fixingDateList.size()]);
+    _fixingPeriodAccrualFactor = fixingAccrualFactorList.toArray(new Double[fixingAccrualFactorList.size()]);
   }
 
   /**

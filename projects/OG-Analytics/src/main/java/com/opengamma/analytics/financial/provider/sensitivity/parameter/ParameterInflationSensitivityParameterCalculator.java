@@ -42,34 +42,34 @@ public class ParameterInflationSensitivityParameterCalculator<DATA_TYPE extends 
     MultipleCurrencyParameterSensitivity result = new MultipleCurrencyParameterSensitivity();
 
     // YieldAndDiscount
-    for (Currency ccySensi : sensitivity.getCurrencies()) {
-      Map<String, List<DoublesPair>> sensitivityDsc = sensitivity.getSensitivity(ccySensi).getYieldDiscountingSensitivities();
-      for (final String name : sensitivityDsc.keySet()) {
-        if (curvesSet.contains(name)) {
+    for (final Currency ccySensi : sensitivity.getCurrencies()) {
+      final Map<String, List<DoublesPair>> sensitivityDsc = sensitivity.getSensitivity(ccySensi).getYieldDiscountingSensitivities();
+      for (final Map.Entry<String, List<DoublesPair>> entry : sensitivityDsc.entrySet()) {
+        if (curvesSet.contains(entry.getKey())) {
           result = result
-              .plus(new ObjectsPair<String, Currency>(name, ccySensi), new DoubleMatrix1D(parameterMulticurves.getMulticurveProvider().parameterSensitivity(name, sensitivityDsc.get(name))));
+              .plus(new ObjectsPair<>(entry.getKey(), ccySensi), new DoubleMatrix1D(parameterMulticurves.getMulticurveProvider().parameterSensitivity(entry.getKey(), entry.getValue())));
         }
       }
     }
     // Forward
-    for (Currency ccySensi : sensitivity.getCurrencies()) {
-      Map<String, List<ForwardSensitivity>> sensitivityFwd = sensitivity.getSensitivity(ccySensi).getForwardSensitivities();
-      for (final String name : sensitivityFwd.keySet()) {
-        if (curvesSet.contains(name)) {
-          result = result.plus(new ObjectsPair<String, Currency>(name, ccySensi),
-              new DoubleMatrix1D(parameterMulticurves.getMulticurveProvider().parameterForwardSensitivity(name, sensitivityFwd.get(name))));
+    for (final Currency ccySensi : sensitivity.getCurrencies()) {
+      final Map<String, List<ForwardSensitivity>> sensitivityFwd = sensitivity.getSensitivity(ccySensi).getForwardSensitivities();
+      for (final Map.Entry<String, List<ForwardSensitivity>> entry : sensitivityFwd.entrySet()) {
+        if (curvesSet.contains(entry.getKey())) {
+          result = result.plus(new ObjectsPair<>(entry.getKey(), ccySensi),
+              new DoubleMatrix1D(parameterMulticurves.getMulticurveProvider().parameterForwardSensitivity(entry.getKey(), entry.getValue())));
         }
       }
     }
 
     // IndexPrice
-    for (Currency ccySensi : sensitivity.getCurrencies()) {
-      Map<String, List<DoublesPair>> sensitivityPriceIndex = sensitivity.getSensitivity(ccySensi).getPriceCurveSensitivities();
-      InflationProviderInterface inflationProviderInterface = (InflationProviderInterface) parameterMulticurves;
-      for (final String name : sensitivityPriceIndex.keySet()) {
-        if (curvesSet.contains(name)) {
-          result = result.plus(new ObjectsPair<String, Currency>(name, ccySensi),
-              new DoubleMatrix1D(inflationProviderInterface.parameterInflationSensitivity(name, sensitivityPriceIndex.get(name))));
+    for (final Currency ccySensi : sensitivity.getCurrencies()) {
+      final Map<String, List<DoublesPair>> sensitivityPriceIndex = sensitivity.getSensitivity(ccySensi).getPriceCurveSensitivities();
+      final InflationProviderInterface inflationProviderInterface = (InflationProviderInterface) parameterMulticurves;
+      for (final Map.Entry<String, List<DoublesPair>> entry : sensitivityPriceIndex.entrySet()) {
+        if (curvesSet.contains(entry.getKey())) {
+          result = result.plus(new ObjectsPair<>(entry.getKey(), ccySensi),
+              new DoubleMatrix1D(inflationProviderInterface.parameterInflationSensitivity(entry.getKey(), entry.getValue())));
         }
       }
     }

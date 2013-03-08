@@ -49,7 +49,7 @@ public class ParameterSensitivityCalculator extends AbstractParameterSensitivity
         result.addAll(oneCurveSensitivity);
       }
     }
-    return new DoubleMatrix1D(result.toArray(new Double[0]));
+    return new DoubleMatrix1D(result.toArray(new Double[result.size()]));
   }
 
 }
