@@ -43,9 +43,12 @@ class FxOptionCalculator {
     Currency optionCurrency = trade.getOptionCurrency();
     Currency notionalCurrency = currency;
 
-    ArgumentChecker.isTrue(cp.contains(optionCurrency), "Option currency must appear in the currency pair");
-    ArgumentChecker.isTrue(cp.contains(notionalCurrency), "Notional currency must appear in the currency pair");
-    ArgumentChecker.notNull(trade.getOptionType(), "Option type");
+    if (!cp.contains(optionCurrency)) {
+      throw new PortfolioParsingException("Option currency must appear in the currency pair");
+    }
+    if (!cp.contains(notionalCurrency)) {
+      throw new PortfolioParsingException("Notional currency must appear in the currency pair");
+    }
 
     boolean isCall = trade.getOptionType() == OptionType.CALL;
     Currency other = cp.getComplement(optionCurrency);

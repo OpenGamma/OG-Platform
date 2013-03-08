@@ -7,7 +7,6 @@ package com.opengamma.integration.tool.portfolio.xml.v1_0.conversion;
 
 import java.math.BigDecimal;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -54,7 +53,7 @@ public class SwapTradeSecurityExtractor extends TradeSecurityExtractor<SwapTrade
         convertFixedLeg(fixedLeg) : convertFloatingLeg(floatingLeg);
 
     if (payLeg == receiveLeg) {
-      throw new OpenGammaRuntimeException("One leg should be Pay and one Receive");
+      throw new PortfolioParsingException("One leg should be Pay and one Receive");
     }
 
     ManageableSecurity security = new SwapSecurity(convertLocalDate(_trade.getTradeDate()),

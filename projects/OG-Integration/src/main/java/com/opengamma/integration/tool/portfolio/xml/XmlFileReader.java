@@ -28,16 +28,18 @@ public class XmlFileReader implements Iterable<PortfolioReader> {
   private final Iterable<PortfolioReader> _readers;
 
   /**
-   * Constructs the reader from the supplied location. The following validation steps are performed:
+   * Constructs the reader from the supplied location. The following validation
+   * steps are performed:
    * <ul>
-   *   <li>Check the file is valid xml and contains a schemaVersion attribute</li>
-   *   <li>Check that a converter is available for the schema version</li>
-   *   <li>Check the file validates against the required schema</li>
-   *   <li>Check the portfolio, position, trade, security details are valid</li>
+   * <li>Check the file is valid xml and contains a schemaVersion attribute</li>
+   * <li>Check that a converter is available for the schema version</li>
+   * <li>Check the file validates against the required schema</li>
+   * <li>Check the portfolio, position, trade, security details are valid</li>
    * </ul>
    *
    * @param fileLocation the location of the file to load, must not be null
-   * @param schemaRegister the schema register, use to determine what xml versions can be handled
+   * @param schemaRegister the schema register, use to determine what xml
+   * versions can be handled
    */
   public XmlFileReader(String fileLocation, SchemaRegister schemaRegister) {
 
@@ -47,13 +49,14 @@ public class XmlFileReader implements Iterable<PortfolioReader> {
 
     if (converter != null) {
 
-      Iterable<VersionedPortfolioHandler> handlers =  converter.convertPortfolio(new File(fileLocation));
+      Iterable<VersionedPortfolioHandler> handlers = converter.convertPortfolio(new File(fileLocation));
       _readers = Iterables.transform(handlers, new Function<VersionedPortfolioHandler, PortfolioReader>() {
         @Override
         public PortfolioReader apply(final VersionedPortfolioHandler vph) {
           return new XmlPortfolioReader(vph);
         }
       });
+
     } else {
       throw new OpenGammaRuntimeException("Unable to process schema version: " + version + " as no converter is available");
     }

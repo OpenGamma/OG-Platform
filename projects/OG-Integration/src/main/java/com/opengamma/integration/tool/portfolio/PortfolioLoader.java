@@ -75,6 +75,7 @@ public class PortfolioLoader {
    * Should positions in the previous portfolio version be kept, otherwise start from scratch.
    */
   private final boolean _keepCurrentPositions;
+  private final boolean _logToSystemOut;
 
   /**
    * Constructs a new portfolio loader ready to load a portfolio from file.
@@ -89,10 +90,11 @@ public class PortfolioLoader {
    * @param mergePositions should positions in the same security and within the same portfolio node be merged into one
    * @param keepCurrentPositions should positions in the previous portfolio version be kept, otherwise start from scratch
    * @param ignoreVersion should the version hashes in the multi-asset zip file be ignored
+   * @param logToSystemOut should logging go to system out or standard logger
    */
   public PortfolioLoader(ToolContext toolContext, String portfolioName, String securityType, String fileName,
                          boolean write, boolean overwrite, boolean verbose, boolean mergePositions,
-                         boolean keepCurrentPositions, boolean ignoreVersion) {
+                         boolean keepCurrentPositions, boolean ignoreVersion, boolean logToSystemOut) {
 
     ArgumentChecker.notNull(toolContext, "toolContext ");
     ArgumentChecker.isTrue(!write || portfolioName != null, "Portfolio name must be specified if writing to a master");
@@ -108,6 +110,7 @@ public class PortfolioLoader {
     _mergePositions = mergePositions;
     _keepCurrentPositions = keepCurrentPositions;
     _ignoreVersion = ignoreVersion;
+    _logToSystemOut = logToSystemOut;
   }
 
   /**

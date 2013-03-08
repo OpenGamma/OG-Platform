@@ -52,10 +52,11 @@ public class ListedFutureSecurityExtractor extends AbstractListedSecurityExtract
             _securityDefinition.getFutureCategory());
 
       case EQUITY_INDEX_FUTURE:
-        throw new OpenGammaRuntimeException("EquityIndexFuture is not yet supported");
+        throw new PortfolioParsingException("EquityIndexFuture is not yet supported");
 
       default:
-        throw new OpenGammaRuntimeException("Unrecognised listed option type: " + _securityDefinition.getFutureType());
+        // The xml validation should prevent this from happening
+        throw new PortfolioParsingException("Unrecognised listed option type: " + _securityDefinition.getFutureType());
     }
   }
 }
