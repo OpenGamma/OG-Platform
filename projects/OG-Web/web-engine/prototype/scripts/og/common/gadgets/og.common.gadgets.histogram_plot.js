@@ -14,9 +14,12 @@ $.register_module({
             };
             show_tooltip = function (x, y, contents){
                 $('<div id="tooltip">' + contents + '</div>').css( {
-                    position: 'absolute', display: 'none', top: y + 5, left: x + 5,
+                    position: 'absolute', display: 'none', top: y - 70, left: x - 20,
                     padding: '2px', backgroundColor: '#000', opacity: 0.50, zIndex: 6, color: '#fff'
                 }).appendTo("body").fadeIn(200);
+            };
+            percentage = function (val, points) {
+                return (val*100).toFixed(points || 2) +"%";  
             };
             load_plots = function () {
                 var previousPoint = null;
@@ -33,7 +36,8 @@ $.register_module({
                         fill: true,
                         align: 'left', // or "center"
                         horizontal: false
-                    }
+                    },
+                    xaxis: {tickFormatter: function (val, axis) {return percentage(val);}}
                 };
                 var data = [
                     {
@@ -64,14 +68,15 @@ $.register_module({
                     }*/
                 ];
                 $plot = $.plot($(selector), data, options);
-                $(selector).bind("plothover", function (event, pos, item) {
+                $(selector).bind('plothover', function (event, pos, item) {
                     if (item) {
                         if (previousPoint != item.dataIndex) {
                             var x = item.datapoint[0], y = item.datapoint[1], delta = x+config.interval,
-                                msg = y + " occurrences in range<br/>" + x.toFixed(5) + " to " + delta.toFixed(5);
+                                occur = y == 1 ? ' occurrence ' : ' occurrences ',
+                                msg = y + occur + 'in range<br/>' + percentage(x, 5) + ' to ' + percentage(delta,5);
                                 previousPoint = item.dataIndex;
-                            $("#tooltip").remove();
-                            show_tooltip(item.pageX, item.pageY, msg);
+                            $('#tooltip').remove();
+                            show_tooltip(pos.pageX, pos.pageY, msg);
                         }
                     }
                     else {
