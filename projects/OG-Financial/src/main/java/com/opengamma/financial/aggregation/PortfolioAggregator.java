@@ -77,6 +77,7 @@ public final class PortfolioAggregator {
     final SimplePortfolioNode root = new SimplePortfolioNode(createSyntheticIdentifier(), buildPortfolioName("Portfolio"));
     SimplePortfolio aggPortfolio = new SimplePortfolio(aggId, aggPortfolioName, root);
     aggregate(root, flattenedPortfolio, new ArrayDeque<AggregationFunction<?>>(_aggregationFunctions));
+    aggPortfolio.setAttributes(inputPortfolio.getAttributes());
     return aggPortfolio;
   }
   
