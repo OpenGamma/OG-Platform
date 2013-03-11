@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.model.option.definition;
+package com.opengamma.analytics.financial.model.option.parameters;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
@@ -16,7 +16,7 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * Class describing the Black volatility surface used in swaption modeling.
  */
-public class BlackSwaptionParameters implements VolatilityModel<double[]> {
+public class BlackFlatSwaptionParameters implements VolatilityModel<double[]> {
 
   /**
    * The volatility surface. The first dimension is the expiration and the second the tenor.
@@ -32,7 +32,7 @@ public class BlackSwaptionParameters implements VolatilityModel<double[]> {
    * @param volatility The Black volatility surface.
    * @param generatorSwap The standard swap generator for which the volatility surface is valid.
    */
-  public BlackSwaptionParameters(final Surface<Double, Double, Double> volatility, final GeneratorSwapFixedIbor generatorSwap) {
+  public BlackFlatSwaptionParameters(final Surface<Double, Double, Double> volatility, final GeneratorSwapFixedIbor generatorSwap) {
     Validate.notNull(volatility, "volatility surface");
     Validate.notNull(generatorSwap, "Swap generator");
     _volatility = volatility;
@@ -106,7 +106,7 @@ public class BlackSwaptionParameters implements VolatilityModel<double[]> {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final BlackSwaptionParameters other = (BlackSwaptionParameters) obj;
+    final BlackFlatSwaptionParameters other = (BlackFlatSwaptionParameters) obj;
     if (!ObjectUtils.equals(_generatorSwap, other._generatorSwap)) {
       return false;
     }
