@@ -21,7 +21,6 @@ import com.opengamma.util.ArgumentChecker;
   private final PositionSource _positionSource;
 
   /* package */ PortfolioListener(ObjectId portfolioId, AnalyticsView view, PositionSource positionSource) {
-    ArgumentChecker.notNull(portfolioId, "portfolioId");
     ArgumentChecker.notNull(view, "view");
     ArgumentChecker.notNull(positionSource, "positionSource");
     _portfolioId = portfolioId;
