@@ -74,7 +74,7 @@ public class WebExchangesResource extends AbstractWebExchangeResource {
     PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
     ExchangeSearchSortOrder so = buildSortOrder(sort, ExchangeSearchSortOrder.NAME_ASC);
     FlexiBean out = createSearchResultData(pr, so, name, exchangeIdStrs, uriInfo);
-    return getFreemarker().build("exchanges/exchanges.ftl", out);
+    return getFreemarker().build(HTML_DIR + "exchanges.ftl", out);
   }
 
   @GET
@@ -90,7 +90,7 @@ public class WebExchangesResource extends AbstractWebExchangeResource {
     PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
     ExchangeSearchSortOrder so = buildSortOrder(sort, ExchangeSearchSortOrder.NAME_ASC);
     FlexiBean out = createSearchResultData(pr, so, name, exchangeIdStrs, uriInfo);
-    return getFreemarker().build("exchanges/jsonexchanges.ftl", out);
+    return getFreemarker().build(JSON_DIR + "exchanges.ftl", out);
   }
 
   private FlexiBean createSearchResultData(PagingRequest pr, ExchangeSearchSortOrder so, String name,
@@ -151,7 +151,7 @@ public class WebExchangesResource extends AbstractWebExchangeResource {
       if (regionValue == null) {
         out.put("err_regionvalueMissing", true);
       }
-      String html = getFreemarker().build("exchanges/exchanges-add.ftl", out);
+      String html = getFreemarker().build(HTML_DIR + "exchanges-add.ftl", out);
       return Response.ok(html).build();
     }
     URI uri = createExchange(name, idScheme, idValue, regionScheme, regionValue);

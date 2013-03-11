@@ -74,7 +74,7 @@ public class WebHolidaysResource extends AbstractWebHolidayResource {
     PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
     HolidaySearchSortOrder so = buildSortOrder(sort, HolidaySearchSortOrder.NAME_ASC);
     FlexiBean out = createSearchResultData(pr, so, name, type, currencyISO, holidayIdStrs, uriInfo);
-    return getFreemarker().build("holidays/holidays.ftl", out);
+    return getFreemarker().build(HTML_DIR + "holidays.ftl", out);
   }
 
   @GET
@@ -92,7 +92,7 @@ public class WebHolidaysResource extends AbstractWebHolidayResource {
     PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
     HolidaySearchSortOrder so = buildSortOrder(sort, HolidaySearchSortOrder.NAME_ASC);
     FlexiBean out = createSearchResultData(pr, so, name, type, currencyISO, holidayIdStrs, uriInfo);
-    return getFreemarker().build("holidays/jsonholidays.ftl", out);
+    return getFreemarker().build(JSON_DIR + "holidays.ftl", out);
   }
 
   private FlexiBean createSearchResultData(PagingRequest pr, HolidaySearchSortOrder sort, String name, String type, String currencyISO,
@@ -130,49 +130,6 @@ public class WebHolidaysResource extends AbstractWebHolidayResource {
     }
     return out;
   }
-
-//  //-------------------------------------------------------------------------
-//  @POST
-//  @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-//  public Response post(
-//      @FormParam("name") String name,
-//      @FormParam("idscheme") String idScheme,
-//      @FormParam("idvalue") String idValue,
-//      @FormParam("regionscheme") String regionScheme,
-//      @FormParam("regionvalue") String regionValue) {
-//    name = StringUtils.trimToNull(name);
-//    idScheme = StringUtils.trimToNull(idScheme);
-//    idValue = StringUtils.trimToNull(idValue);
-//    regionScheme = StringUtils.trimToNull(regionScheme);
-//    regionValue = StringUtils.trimToNull(regionValue);
-//    if (name == null || idScheme == null || idValue == null) {
-//      FlexiBean out = createRootData();
-//      if (name == null) {
-//        out.put("err_nameMissing", true);
-//      }
-//      if (idScheme == null) {
-//        out.put("err_idschemeMissing", true);
-//      }
-//      if (idValue == null) {
-//        out.put("err_idvalueMissing", true);
-//      }
-//      if (regionScheme == null) {
-//        out.put("err_regionschemeMissing", true);
-//      }
-//      if (regionValue == null) {
-//        out.put("err_regionvalueMissing", true);
-//      }
-//      String html = getFreemarker().build("holidays/holidays-add.ftl", out);
-//      return Response.ok(html).build();
-//    }
-//    Identifier id = Identifier.of(idScheme, idValue);
-//    Identifier region = Identifier.of(regionScheme, regionValue);
-//    Holiday holiday = new Holiday(ExternalIdBundle.of(id), name, region);
-//    HolidayDocument doc = new HolidayDocument(holiday);
-//    HolidayDocument added = data().getHolidayMaster().addHoliday(doc);
-//    URI uri = data().getUriInfo().getAbsolutePathBuilder().path(added.getHolidayId().toLatest().toString()).build();
-//    return Response.seeOther(uri).build();
-//  }
 
   //-------------------------------------------------------------------------
   @GET

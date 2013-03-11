@@ -73,8 +73,9 @@ public class IndexFutureLoader extends SecurityLoader {
    */
   public static final Set<String> VALID_FUTURE_CATEGORIES = ImmutableSet.of(
       BLOOMBERG_EQUITY_INDEX_TYPE, 
-      BBG_NON_EQUITY_INDEX_TYPE, 
-      BBG_WEEKLY_INDEX_OPTIONS_TYPE); // THIS IS IFFY - 2EH3 INDEX, FOR EXAMPLE, HAS A FUTURE CATEGORY OF WEEKLY INDEX OPTIONS, THOUGH IT JUST AN ALIAS FOR ESH3 INDEX WHICH IS EQUITY INDEX
+      BBG_NON_EQUITY_INDEX_TYPE); 
+      // BBG_WEEKLY_INDEX_OPTIONS_TYPE); // THIS IS IFFY - 2EH3 INDEX, FOR EXAMPLE, HAS A FUTURE CATEGORY OF WEEKLY INDEX OPTIONS, THOUGH IT JUST AN ALIAS FOR ESH3 INDEX WHICH IS EQUITY INDEX
+      // TODO: Answer this: Are Equity Index Futures EquityFutureSecurity or IndexFutureSecurity? - See EquityFutureLoader, too
 
   /**
    * Creates an instance.
