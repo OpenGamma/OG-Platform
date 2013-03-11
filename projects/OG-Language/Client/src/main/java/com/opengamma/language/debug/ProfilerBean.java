@@ -9,6 +9,7 @@ import org.springframework.beans.factory.InitializingBean;
 
 import com.opengamma.language.connector.Conditional;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.test.Profiler;
 
 /**
  * Spring bean for configuring the debug profiler.

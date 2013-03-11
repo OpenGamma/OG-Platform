@@ -32,7 +32,7 @@ public abstract class UserExpression {
 
     /**
      * Returns the value of the variable, or NA if not defined.
-     * 
+     *
      * @param name name of the variable
      * @return the value, or NA if not defined
      */
@@ -47,7 +47,7 @@ public abstract class UserExpression {
 
     /**
      * Returns the value of an attribute, or NA if not defined.
-     * 
+     *
      * @param object object the attribute is declared on
      * @param name name of the attribute
      * @return the value, or NA if not defined
@@ -109,7 +109,7 @@ public abstract class UserExpression {
      * Evaluates a variable's value. If the variable has been explicitly set, the set value is
      * used. If it is unset and a dynamic variable provider is registered, that is queried. Otherwise
      * NA is returned.
-     * 
+     *
      * @param var name of the variable
      * @return the value or NA if undefined
      */
@@ -172,7 +172,7 @@ public abstract class UserExpression {
     return new Evaluator();
   }
 
-  protected Object createContext(Evaluator evaluator) {
+  protected Object createContext(final Evaluator evaluator) {
     return null;
   }
 

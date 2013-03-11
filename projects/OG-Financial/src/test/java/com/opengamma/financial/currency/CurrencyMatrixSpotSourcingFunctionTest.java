@@ -18,6 +18,7 @@ import org.testng.annotations.Test;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.function.EmptyFunctionInputs;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
@@ -25,7 +26,6 @@ import com.opengamma.engine.function.FunctionInputsImpl;
 import com.opengamma.engine.target.ComputationTargetRequirement;
 import com.opengamma.engine.target.ComputationTargetSpecificationResolver;
 import com.opengamma.engine.target.ComputationTargetType;
-import com.opengamma.engine.target.DefaultComputationTargetSpecificationResolver;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -96,7 +96,7 @@ public class CurrencyMatrixSpotSourcingFunctionTest {
   @Test
   public void testGetRequirementsAndExecute() {
     final ValueProperties properties = ValueProperties.with(ValuePropertyNames.FUNCTION, "liveDataSourcing").get();
-    final ComputationTargetSpecificationResolver resolver = new DefaultComputationTargetSpecificationResolver();
+    final ComputationTargetSpecificationResolver resolver = new DefaultComputationTargetResolver().getSpecificationResolver();
 
     // Require value the "right" way up
     ComputationTarget outTarget = new ComputationTarget(ComputationTargetType.PRIMITIVE, UniqueId.of(AbstractCurrencyMatrixSourcingFunction.TARGET_IDENTIFIER_SCHEME, "USDGBP"));
@@ -108,7 +108,7 @@ public class CurrencyMatrixSpotSourcingFunctionTest {
     ValueRequirement inRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, inRequirementTarget);
     assertTrue(inRequirements.contains(inRequirement));
     Set<ComputedValue> outputs = _function.execute(_functionExecutionContext, new FunctionInputsImpl(resolver.atVersionCorrection(VersionCorrection.LATEST), new ComputedValue(new ValueSpecification(
-        inRequirement.getValueName(), ComputationTargetSpecification.of(UniqueId.of("LiveData", "USD_GBP")), properties), _rateUSD_GBP)), outTarget, Collections.singleton(outRequirement));
+        inRequirement.getValueName(), ComputationTargetSpecification.of(UniqueId.of("ExternalId-LiveData", "USD_GBP")), properties), _rateUSD_GBP)), outTarget, Collections.singleton(outRequirement));
     assertEquals(1, outputs.size());
     ComputedValue output = outputs.iterator().next();
     assertTrue(output.getValue() instanceof Double);
@@ -124,7 +124,7 @@ public class CurrencyMatrixSpotSourcingFunctionTest {
     assertTrue(inRequirements.contains(inRequirement));
     outputs = _function.execute(_functionExecutionContext,
         new FunctionInputsImpl(resolver.atVersionCorrection(VersionCorrection.LATEST), new ComputedValue(new ValueSpecification(inRequirement.getValueName(),
-            ComputationTargetSpecification.of(UniqueId.of("LiveData", "USD_GBP")), properties), _rateUSD_GBP)), outTarget, Collections.singleton(outRequirement));
+            ComputationTargetSpecification.of(UniqueId.of("ExternalId-LiveData", "USD_GBP")), properties), _rateUSD_GBP)), outTarget, Collections.singleton(outRequirement));
     assertEquals(1, outputs.size());
     output = outputs.iterator().next();
     assertTrue(output.getValue() instanceof Double);
@@ -152,7 +152,7 @@ public class CurrencyMatrixSpotSourcingFunctionTest {
     assertTrue(inRequirements.contains(inRequirement));
     outputs = _function.execute(_functionExecutionContext,
         new FunctionInputsImpl(resolver.atVersionCorrection(VersionCorrection.LATEST), new ComputedValue(new ValueSpecification(inRequirement.getValueName(),
-            ComputationTargetSpecification.of(UniqueId.of("LiveData", "USD_GBP")), properties), _rateUSD_GBP)), outTarget, Collections.singleton(outRequirement));
+            ComputationTargetSpecification.of(UniqueId.of("ExternalId-LiveData", "USD_GBP")), properties), _rateUSD_GBP)), outTarget, Collections.singleton(outRequirement));
     assertEquals(1, outputs.size());
     output = outputs.iterator().next();
     assertTrue(output.getValue() instanceof Double);

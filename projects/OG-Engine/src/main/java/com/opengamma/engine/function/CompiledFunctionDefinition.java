@@ -30,11 +30,15 @@ public interface CompiledFunctionDefinition {
   FunctionDefinition getFunctionDefinition();
 
   /**
-   * Obtain the most restrictive {@link ComputationTargetType} that this function instance is configured to support. It is always valid to return {@link ComputationTargetType#PRIMITIVE} as any object
+   * Obtain the most restrictive {@link ComputationTargetType} that this function instance is configured to support. It is always valid to return {@link ComputationTargetType#ANYTHING} as any object
    * can be cast down to a primitive, however returning more restrictive types allows functions to be grouped and improves the performance of the dependency graph build as only the subset supporting a
    * given type need be considered.
+   * <p>
+   * Some intrinsic functions used in dependency graphs with special meaning to the engine may return null from this method. Any function which returns null here (not the
+   * {@link ComputationTargetType#NULL} type) will never be considered as a valid application to satisfy a value requirement but will exist in the repository for cases where it gets selected into a
+   * graph by other means.
    * 
-   * @return the target type to which this instance can apply, not null
+   * @return the target type to which this instance can apply, should not be null
    */
   ComputationTargetType getTargetType();
 

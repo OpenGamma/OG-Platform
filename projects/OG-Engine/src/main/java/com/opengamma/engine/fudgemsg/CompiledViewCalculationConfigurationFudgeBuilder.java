@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.engine.fudgemsg;
@@ -131,63 +131,21 @@ public class CompiledViewCalculationConfigurationFudgeBuilder implements FudgeBu
     return result;
   }
 
-  protected void encodeMarketDataRequirements(final FudgeSerializer serializer, final MutableFudgeMsg msg, final Map<ValueRequirement, ValueSpecification> marketData) {
+  protected void encodeMarketDataRequirements(final FudgeSerializer serializer, final MutableFudgeMsg msg, final Set<ValueSpecification> marketData) {
     final MutableFudgeMsg submsg = msg.addSubMessage(MARKET_DATA_REQUIREMENTS_FIELD, null);
-    for (final Map.Entry<ValueRequirement, ValueSpecification> requirement : marketData.entrySet()) {
-      serializer.addToMessage(submsg, null, 1, requirement.getKey());
-      serializer.addToMessage(submsg, null, 2, requirement.getValue());
+    for (final ValueSpecification requirement : marketData) {
+      serializer.addToMessage(submsg, null, null, requirement);
     }
   }
 
-  protected Map<ValueRequirement, ValueSpecification> decodeMarketDataRequirements(final FudgeDeserializer deserializer, final FudgeMsg msg) {
+  protected Set<ValueSpecification> decodeMarketDataRequirements(final FudgeDeserializer deserializer, final FudgeMsg msg) {
     final FudgeMsg submsg = msg.getMessage(MARKET_DATA_REQUIREMENTS_FIELD);
     if (submsg == null) {
-      return Collections.emptyMap();
+      return Collections.emptySet();
     }
-    final Map<ValueRequirement, ValueSpecification> result = Maps.newHashMapWithExpectedSize(submsg.getNumFields() / 2);
-    LinkedList<Object> overflow = null;
-    ValueRequirement key = null;
-    ValueSpecification value = null;
+    final Set<ValueSpecification> result = Sets.newHashSetWithExpectedSize(submsg.getNumFields());
     for (final FudgeField field : submsg) {
-      if (MAP_KEY.equals(field.getOrdinal())) {
-        final ValueRequirement fieldValue = deserializer.fieldValueToObject(ValueRequirement.class, field);
-        if (key == null) {
-          if (value == null) {
-            key = fieldValue;
-          } else {
-            result.put(fieldValue, value);
-            if (overflow != null) {
-              value = overflow.isEmpty() ? null : (ValueSpecification) overflow.removeFirst();
-            } else {
-              value = null;
-            }
-          }
-        } else {
-          if (overflow == null) {
-            overflow = new LinkedList<Object>();
-          }
-          overflow.add(fieldValue);
-        }
-      } else if (MAP_VALUE.equals(field.getOrdinal())) {
-        final ValueSpecification fieldValue = deserializer.fieldValueToObject(ValueSpecification.class, field);
-        if (value == null) {
-          if (key == null) {
-            value = fieldValue;
-          } else {
-            result.put(key, fieldValue);
-            if (overflow != null) {
-              key = overflow.isEmpty() ? null : (ValueRequirement) overflow.removeFirst();
-            } else {
-              key = null;
-            }
-          }
-        } else {
-          if (overflow == null) {
-            overflow = new LinkedList<Object>();
-          }
-          overflow.add(fieldValue);
-        }
-      }
+      result.add(deserializer.fieldValueToObject(ValueSpecification.class, field));
     }
     return result;
   }
@@ -207,7 +165,7 @@ public class CompiledViewCalculationConfigurationFudgeBuilder implements FudgeBu
     final String name = message.getString(NAME_FIELD);
     final Set<ComputationTargetSpecification> computationTargets = decodeComputationTargets(deserializer, message);
     final Map<ValueSpecification, Set<ValueRequirement>> terminalOutputSpecifications = decodeTerminalOutputSpecifications(deserializer, message);
-    final Map<ValueRequirement, ValueSpecification> marketDataRequirements = decodeMarketDataRequirements(deserializer, message);
+    final Set<ValueSpecification> marketDataRequirements = decodeMarketDataRequirements(deserializer, message);
     return new CompiledViewCalculationConfigurationImpl(name, computationTargets, terminalOutputSpecifications, marketDataRequirements);
   }
 

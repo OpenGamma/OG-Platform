@@ -125,11 +125,7 @@ public class ConfigureViewClientProcedure extends AbstractProcedureInvoker.NoRes
             throw new UnsupportedOperationException(marketDataOverride.getOperation().toString());
         }
       }
-      if (marketDataOverride.getValueRequirement() != null) {
-        injector.addValue(marketDataOverride.getValueRequirement(), value);
-      } else {
-        injector.addValue(marketDataOverride.getIdentifier(), marketDataOverride.getValueName(), value);
-      }
+      injector.addValue(marketDataOverride.getValueRequirement(), value);
       return Boolean.TRUE;
     }
 
@@ -152,11 +148,7 @@ public class ConfigureViewClientProcedure extends AbstractProcedureInvoker.NoRes
     public Boolean visitMarketDataOverride(final MarketDataOverride marketDataOverride) {
       s_logger.debug("Removing {}", marketDataOverride);
       final MarketDataInjector injector = getViewClient().getViewClient().getLiveDataOverrideInjector();
-      if (marketDataOverride.getValueRequirement() != null) {
-        injector.removeValue(marketDataOverride.getValueRequirement());
-      } else {
-        injector.removeValue(marketDataOverride.getIdentifier(), marketDataOverride.getValueName());
-      }
+      injector.removeValue(marketDataOverride.getValueRequirement());
       return Boolean.TRUE;
     }
 
@@ -168,16 +160,16 @@ public class ConfigureViewClientProcedure extends AbstractProcedureInvoker.NoRes
     int itemsAdded = 0;
     int itemsRemoved = 0;
     if (delta.hasChanged()) {
-      //NOTE: order is important 
+      //NOTE: order is important
       final RemoveConfiguration removeVisitor = new RemoveConfiguration(viewClient);
-      for (ConfigurationItem item : delta.getRemoved()) {
+      for (final ConfigurationItem item : delta.getRemoved()) {
         if (item.accept(removeVisitor) == Boolean.TRUE) {
           itemsRemoved++;
         }
       }
-      
+
       final AddConfiguration addVisitor = new AddConfiguration(viewClient);
-      for (ConfigurationItem item : delta.getAdded()) {
+      for (final ConfigurationItem item : delta.getAdded()) {
         if (item.accept(addVisitor) == Boolean.TRUE) {
           itemsAdded++;
         }

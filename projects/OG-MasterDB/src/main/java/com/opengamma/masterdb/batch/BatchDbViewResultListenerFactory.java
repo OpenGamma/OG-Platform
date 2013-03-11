@@ -6,8 +6,8 @@
 package com.opengamma.masterdb.batch;
 
 import com.opengamma.batch.BatchRunWriter;
-import com.opengamma.engine.view.calc.ViewResultListenerFactory;
 import com.opengamma.engine.view.listener.ViewResultListener;
+import com.opengamma.engine.view.listener.ViewResultListenerFactory;
 
 /**
  * 

@@ -8,8 +8,8 @@ package com.opengamma.web.analytics.formatting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.engine.calcnode.MissingInput;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.calcnode.MissingInput;
 import com.opengamma.util.ClassMap;
 import com.opengamma.web.analytics.ValueTypes;
 

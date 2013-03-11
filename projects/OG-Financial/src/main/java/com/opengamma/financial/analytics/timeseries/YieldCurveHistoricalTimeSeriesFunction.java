@@ -53,13 +53,9 @@ public class YieldCurveHistoricalTimeSeriesFunction extends AbstractFunction.Non
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final String dataField = desiredValue.getConstraint(HistoricalTimeSeriesFunctionUtils.DATA_FIELD_PROPERTY);
     final String resolutionKey = parseString(desiredValue.getConstraint(HistoricalTimeSeriesFunctionUtils.RESOLUTION_KEY_PROPERTY));
-    final LocalDate startDate = DateConstraint.getLocalDate(executionContext, desiredValue.getConstraint(HistoricalTimeSeriesFunctionUtils.START_DATE_PROPERTY));
+    final LocalDate startDate = DateConstraint.evaluate(executionContext, desiredValue.getConstraint(HistoricalTimeSeriesFunctionUtils.START_DATE_PROPERTY));
     final boolean includeStart = HistoricalTimeSeriesFunctionUtils.parseBoolean(desiredValue.getConstraint(HistoricalTimeSeriesFunctionUtils.INCLUDE_START_PROPERTY));
-    LocalDate endDate = DateConstraint.getLocalDate(executionContext, desiredValue.getConstraint(HistoricalTimeSeriesFunctionUtils.END_DATE_PROPERTY));
-    if (endDate == null) {
-      // If end date was not specified, use the context valuation time, rather than the real "up to present day" we'd get from passing null
-      endDate = LocalDate.now(executionContext.getValuationClock());
-    }
+    LocalDate endDate = DateConstraint.evaluate(executionContext, desiredValue.getConstraint(HistoricalTimeSeriesFunctionUtils.END_DATE_PROPERTY));
     final boolean includeEnd = HistoricalTimeSeriesFunctionUtils.parseBoolean(desiredValue.getConstraint(HistoricalTimeSeriesFunctionUtils.INCLUDE_END_PROPERTY));
     final InterpolatedYieldCurveSpecificationWithSecurities yieldCurve = (InterpolatedYieldCurveSpecificationWithSecurities) inputs.getAllValues().iterator().next().getValue();
     final HistoricalTimeSeriesBundle bundle = new HistoricalTimeSeriesBundle();
@@ -124,7 +120,7 @@ public class YieldCurveHistoricalTimeSeriesFunction extends AbstractFunction.Non
       if (constraints == null) {
         constraints = desiredValue.getConstraints().copy();
       }
-      constraints.with(HistoricalTimeSeriesFunctionUtils.START_DATE_PROPERTY, "");
+      constraints.with(HistoricalTimeSeriesFunctionUtils.START_DATE_PROPERTY, "Null");
     }
     values = desiredValue.getConstraints().getValues(HistoricalTimeSeriesFunctionUtils.INCLUDE_START_PROPERTY);
     if ((values == null) || (values.size() != 1)) {
@@ -138,7 +134,7 @@ public class YieldCurveHistoricalTimeSeriesFunction extends AbstractFunction.Non
       if (constraints == null) {
         constraints = desiredValue.getConstraints().copy();
       }
-      constraints.with(HistoricalTimeSeriesFunctionUtils.END_DATE_PROPERTY, "");
+      constraints.with(HistoricalTimeSeriesFunctionUtils.END_DATE_PROPERTY, "Now");
     }
     values = desiredValue.getConstraints().getValues(HistoricalTimeSeriesFunctionUtils.INCLUDE_END_PROPERTY);
     if ((values == null) || (values.size() != 1)) {

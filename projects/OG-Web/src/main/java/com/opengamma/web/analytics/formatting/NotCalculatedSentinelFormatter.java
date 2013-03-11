@@ -5,8 +5,8 @@
  */
 package com.opengamma.web.analytics.formatting;
 
+import com.opengamma.engine.cache.NotCalculatedSentinel;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.cache.NotCalculatedSentinel;
 
 /**
  * Formats instances of {@link NotCalculatedSentinel} which are placeholders in the analytics results for values

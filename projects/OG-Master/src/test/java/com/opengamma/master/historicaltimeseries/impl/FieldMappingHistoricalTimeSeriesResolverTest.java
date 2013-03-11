@@ -18,8 +18,8 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesAdjuster;
 import com.opengamma.id.ExternalIdBundleWithDates;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesAdjuster;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;

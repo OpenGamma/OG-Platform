@@ -9,12 +9,12 @@ import java.util.Queue;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 
+import com.opengamma.engine.calcnode.CalculationJobResult;
 import com.opengamma.engine.depgraph.DependencyGraph;
-import com.opengamma.engine.view.ExecutionLogModeSource;
-import com.opengamma.engine.view.calc.DependencyGraphExecutor;
-import com.opengamma.engine.view.calc.ExecutionResult;
-import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
-import com.opengamma.engine.view.calcnode.CalculationJobResult;
+import com.opengamma.engine.exec.DependencyGraphExecutor;
+import com.opengamma.engine.exec.ExecutionResult;
+import com.opengamma.engine.exec.stats.GraphExecutorStatisticsGatherer;
+import com.opengamma.engine.view.impl.ExecutionLogModeSource;
 
 /**
  * 

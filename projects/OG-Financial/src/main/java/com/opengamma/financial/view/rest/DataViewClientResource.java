@@ -19,12 +19,12 @@ import javax.ws.rs.core.Response;
 
 import org.fudgemsg.FudgeMsg;
 
+import com.opengamma.engine.resource.EngineResourceReference;
 import com.opengamma.engine.view.ViewDefinition;
-import com.opengamma.engine.view.calc.EngineResourceReference;
-import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.client.ViewClientState;
 import com.opengamma.engine.view.client.ViewResultMode;
+import com.opengamma.engine.view.cycle.ViewCycle;
 import com.opengamma.financial.livedata.rest.DataLiveDataInjectorResource;
 import com.opengamma.financial.rest.AbstractRestfulJmsResultPublisher;
 import com.opengamma.id.UniqueId;

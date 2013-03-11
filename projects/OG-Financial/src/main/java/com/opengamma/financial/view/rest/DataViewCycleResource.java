@@ -10,10 +10,10 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 
-import com.opengamma.engine.view.calc.ComputationCycleQuery;
-import com.opengamma.engine.view.calc.ComputationCacheResponse;
-import com.opengamma.engine.view.calc.ComputationResultsResponse;
-import com.opengamma.engine.view.calc.ViewCycle;
+import com.opengamma.engine.view.cycle.ComputationCacheResponse;
+import com.opengamma.engine.view.cycle.ComputationCycleQuery;
+import com.opengamma.engine.view.cycle.ComputationResultsResponse;
+import com.opengamma.engine.view.cycle.ViewCycle;
 import com.opengamma.util.rest.AbstractDataResource;
 
 /**
@@ -79,7 +79,7 @@ public class DataViewCycleResource extends AbstractDataResource {
     ComputationCacheResponse response = _cycle.queryComputationCaches(query);
     return responseOkFudge(response);
   }
-  
+
   @POST
   @Path(PATH_QUERY_RESULTS)
   public Response queryResults(ComputationCycleQuery query) {

@@ -25,7 +25,7 @@ import com.opengamma.analytics.math.curve.DoublesCurve;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.marketdatasnapshot.VolatilityCubeData;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
-import com.opengamma.engine.view.cache.MissingMarketDataSentinel;
+import com.opengamma.engine.cache.MissingMarketDataSentinel;
 import com.opengamma.financial.analytics.LabelledMatrix1D;
 import com.opengamma.financial.analytics.LabelledMatrix2D;
 import com.opengamma.financial.analytics.LabelledMatrix3D;

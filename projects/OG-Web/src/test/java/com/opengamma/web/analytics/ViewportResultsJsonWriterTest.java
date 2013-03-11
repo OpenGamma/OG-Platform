@@ -16,12 +16,12 @@ import org.threeten.bp.Duration;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.cache.NotCalculatedSentinel;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.cache.NotCalculatedSentinel;
 import com.opengamma.id.UniqueId;
 import com.opengamma.web.analytics.formatting.ResultsFormatter;
 import com.opengamma.web.analytics.formatting.TypeFormatter;

@@ -19,7 +19,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
-import com.opengamma.engine.view.calcnode.stats.FunctionCostsDocument;
+import com.opengamma.engine.calcnode.stats.FunctionCostsDocument;
 import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.util.test.DbTest;
 

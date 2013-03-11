@@ -36,75 +36,75 @@ public class RemoteCompiledViewDefinitionWithGraphs implements CompiledViewDefin
 
   private final URI _baseUri;
   private final FudgeRestClient _client;
-  
-  public RemoteCompiledViewDefinitionWithGraphs(URI baseUri) {
+
+  public RemoteCompiledViewDefinitionWithGraphs(final URI baseUri) {
     _baseUri = baseUri;
     _client = FudgeRestClient.create();
   }
 
   @Override
   public ViewDefinition getViewDefinition() {
-    URI uri = UriBuilder.fromUri(_baseUri).path(DataCompiledViewDefinitionResource.PATH_VIEW_DEFINITION).build();
+    final URI uri = UriBuilder.fromUri(_baseUri).path(DataCompiledViewDefinitionResource.PATH_VIEW_DEFINITION).build();
     return _client.accessFudge(uri).get(ViewDefinition.class);
   }
 
   @Override
   public Portfolio getPortfolio() {
-    URI uri = UriBuilder.fromUri(_baseUri).path(DataCompiledViewDefinitionResource.PATH_PORTFOLIO).build();
+    final URI uri = UriBuilder.fromUri(_baseUri).path(DataCompiledViewDefinitionResource.PATH_PORTFOLIO).build();
     return _client.accessFudge(uri).get(Portfolio.class);
   }
-  
+
   @Override
-  public CompiledViewCalculationConfiguration getCompiledCalculationConfiguration(String viewCalculationConfiguration) {
-    URI baseUri = UriBuilder.fromUri(_baseUri).path(DataCompiledViewDefinitionResource.PATH_COMPILED_CALCULATION_CONFIGURATIONS).build();
-    URI uri = DataCompiledViewDefinitionResource.uriCompiledCalculationConfiguration(baseUri, viewCalculationConfiguration);
+  public CompiledViewCalculationConfiguration getCompiledCalculationConfiguration(final String viewCalculationConfiguration) {
+    final URI baseUri = UriBuilder.fromUri(_baseUri).path(DataCompiledViewDefinitionResource.PATH_COMPILED_CALCULATION_CONFIGURATIONS).build();
+    final URI uri = DataCompiledViewDefinitionResource.uriCompiledCalculationConfiguration(baseUri, viewCalculationConfiguration);
     return _client.accessFudge(uri).get(CompiledViewCalculationConfiguration.class);
   }
 
   @SuppressWarnings("unchecked")
   @Override
   public Collection<CompiledViewCalculationConfiguration> getCompiledCalculationConfigurations() {
-    URI uri = UriBuilder.fromUri(_baseUri).path(DataCompiledViewDefinitionResource.PATH_COMPILED_CALCULATION_CONFIGURATIONS).build();
+    final URI uri = UriBuilder.fromUri(_baseUri).path(DataCompiledViewDefinitionResource.PATH_COMPILED_CALCULATION_CONFIGURATIONS).build();
     return _client.accessFudge(uri).get(List.class);
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  public Map<ValueRequirement, ValueSpecification> getMarketDataRequirements() {
-    URI uri = UriBuilder.fromUri(_baseUri).path(DataCompiledViewDefinitionResource.PATH_MARKET_DATA_REQUIREMENTS).build();
-    return _client.accessFudge(uri).get(Map.class);
+  public Set<ValueSpecification> getMarketDataRequirements() {
+    final URI uri = UriBuilder.fromUri(_baseUri).path(DataCompiledViewDefinitionResource.PATH_MARKET_DATA_REQUIREMENTS).build();
+    return _client.accessFudge(uri).get(Set.class);
   }
 
   @SuppressWarnings("unchecked")
   @Override
   public Set<ComputationTargetSpecification> getComputationTargets() {
-    URI uri = UriBuilder.fromUri(_baseUri).path(DataCompiledViewDefinitionResource.PATH_COMPUTATION_TARGETS).build();
+    final URI uri = UriBuilder.fromUri(_baseUri).path(DataCompiledViewDefinitionResource.PATH_COMPUTATION_TARGETS).build();
     return _client.accessFudge(uri).get(Set.class);
   }
 
   @Override
   public Instant getValidFrom() {
-    URI uri = UriBuilder.fromUri(_baseUri).path(DataCompiledViewDefinitionResource.PATH_VALID_FROM).build();
+    final URI uri = UriBuilder.fromUri(_baseUri).path(DataCompiledViewDefinitionResource.PATH_VALID_FROM).build();
     return _client.accessFudge(uri).get(Instant.class);
   }
 
   @Override
   public Instant getValidTo() {
-    URI uri = UriBuilder.fromUri(_baseUri).path(DataCompiledViewDefinitionResource.PATH_VALID_TO).build();
+    final URI uri = UriBuilder.fromUri(_baseUri).path(DataCompiledViewDefinitionResource.PATH_VALID_TO).build();
     return _client.accessFudge(uri).get(Instant.class);
   }
 
   @Override
-  public DependencyGraphExplorer getDependencyGraphExplorer(String calcConfig) {
-    URI uri = UriBuilder.fromUri(_baseUri).path(DataCompiledViewDefinitionResource.PATH_GRAPHS).path(calcConfig).build();
+  public DependencyGraphExplorer getDependencyGraphExplorer(final String calcConfig) {
+    final URI uri = UriBuilder.fromUri(_baseUri).path(DataCompiledViewDefinitionResource.PATH_GRAPHS).path(calcConfig).build();
     return new RemoteDependencyGraphExplorer(uri);
   }
 
   @Override
   public Map<ValueSpecification, Set<ValueRequirement>> getTerminalValuesRequirements() {
-    Map<ValueSpecification, Set<ValueRequirement>> terminalValuesRequirements = new HashMap<ValueSpecification, Set<ValueRequirement>>();
-    Collection<CompiledViewCalculationConfiguration> compiledCalculationConfigurations =  getCompiledCalculationConfigurations();
-    for (CompiledViewCalculationConfiguration compiledCalculationConfiguration : compiledCalculationConfigurations) {
+    final Map<ValueSpecification, Set<ValueRequirement>> terminalValuesRequirements = new HashMap<ValueSpecification, Set<ValueRequirement>>();
+    final Collection<CompiledViewCalculationConfiguration> compiledCalculationConfigurations =  getCompiledCalculationConfigurations();
+    for (final CompiledViewCalculationConfiguration compiledCalculationConfiguration : compiledCalculationConfigurations) {
       merge(terminalValuesRequirements, compiledCalculationConfiguration.getTerminalOutputSpecifications());
     }
     return terminalValuesRequirements;

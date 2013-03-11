@@ -5,7 +5,7 @@
  */
 package com.opengamma.integration.server;
 
-import com.opengamma.engine.view.calcnode.CalculationNodeProcess;
+import com.opengamma.engine.calcnode.CalculationNodeProcess;
 import com.opengamma.util.PlatformConfigUtils;
 
 /**

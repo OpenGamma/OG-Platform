@@ -23,6 +23,7 @@ import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.target.ComputationTargetTypeMap;
 import com.opengamma.engine.target.ComputationTargetTypeVisitor;
 import com.opengamma.engine.target.ObjectComputationTargetType;
+import com.opengamma.engine.target.PrimitiveComputationTargetType;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
@@ -61,6 +62,18 @@ public class ComputationTarget implements Serializable {
    * The cached hash code.
    */
   private transient volatile int _hashCode;
+
+  /**
+   * Creates a target for computation. The type is a primitive type that is capable of converting the unique identifier form of the value to its {@link UniqueIdentifiable} form without any resolution
+   * services. This is intended for creating test cases only. Code requiring resolution of a type/unique identifier pair to a target should use a {@link ComputationTargetResolver} instance.
+   * 
+   * @param type the type of the target, not null
+   * @param value the target itself, not null
+   * @throws IllegalArgumentException if the value is invalid for the type
+   */
+  public ComputationTarget(final PrimitiveComputationTargetType<?> type, final UniqueId value) {
+    this(type, type.resolve(value));
+  }
 
   /**
    * Creates a target for computation.
@@ -127,7 +140,7 @@ public class ComputationTarget implements Serializable {
     assert types.size() == uids.size() + 1;
     ComputationTargetSpecification result = null;
     final Iterator<ComputationTargetType> itrType = types.iterator();
-    for (UniqueId uid : uids) {
+    for (final UniqueId uid : uids) {
       final ComputationTargetType type = itrType.next();
       if (result == null) {
         result = new ComputationTargetSpecification(type, uid);

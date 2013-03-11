@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.config.ConfigSource;
@@ -50,7 +51,12 @@ public class MockConfigSource implements ConfigSource {
 
   @Override
   public ConfigItem<?> get(final UniqueId uniqueId) {
-    return _store.get(uniqueId.getObjectId());
+    final ConfigItem<?> item = _store.get(uniqueId.getObjectId());
+    if (item != null) {
+      return item;
+    } else {
+      throw new DataNotFoundException(uniqueId.toString());
+    }
   }
 
   @Override
