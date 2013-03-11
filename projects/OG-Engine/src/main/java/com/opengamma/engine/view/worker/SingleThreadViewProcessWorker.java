@@ -594,7 +594,7 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
   private void jobCompleted() {
     s_logger.info("Computation job completed for {}", getWorkerContext());
     try {
-      getWorkerContext().jobCompleted();
+      getWorkerContext().workerCompleted();
     } catch (final Exception e) {
       s_logger.error("Error notifying " + getWorkerContext() + " of computation job completion", e);
     }

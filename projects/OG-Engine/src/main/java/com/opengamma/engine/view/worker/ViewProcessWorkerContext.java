@@ -87,8 +87,8 @@ public interface ViewProcessWorkerContext {
   void cycleExecutionFailed(ViewCycleExecutionOptions options, Exception exception);
 
   /**
-   * Notifies of job completion - all the requested cycles have been executed.
+   * Notifies of worker completion - all the requested cycles have been executed.
    */
-  void jobCompleted();
+  void workerCompleted();
 
 }

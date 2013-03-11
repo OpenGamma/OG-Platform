@@ -423,7 +423,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
   }
 
   @Override
-  public void jobCompleted() {
+  public void workerCompleted() {
     // Caller MUST NOT hold the semaphore
     s_logger.debug("Computation job completed on view {}. No further cycles to run.", this);
     final ViewResultListener[] listeners;
