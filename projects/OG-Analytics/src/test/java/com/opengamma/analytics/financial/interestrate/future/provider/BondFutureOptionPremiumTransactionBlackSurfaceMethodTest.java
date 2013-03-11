@@ -48,8 +48,8 @@ public class BondFutureOptionPremiumTransactionBlackSurfaceMethodTest {
 
   private final static IssuerProviderDiscount ISSUER_MULTICURVES = IssuerProviderDiscountDataSets.createIssuerProvider();
   private final static String ISSUER_NAME = IssuerProviderDiscountDataSets.getIssuerNames()[0]; // US GOVT
-  public static final String NOT_USED = "Not used";
-  public static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
+  private static final String NOT_USED = "Not used";
+  private static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
 
   private static final InterpolatedDoublesSurface BLACK_PARAMETERS = TestsDataSetsBlack.createBlackSurfaceExpiryTenor();
 

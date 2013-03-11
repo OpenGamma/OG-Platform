@@ -14,10 +14,13 @@ $.register_module({
             'Surface': 'Surface',
             'Timeseries': 'Time Series',
             'Histogram' : 'Histogram',
-            'ExpandedPositions': 'Position'
+            'ExpandedPositions': 'Position',
+            'Text' : 'Text'
         };
         return mapping = {
-            gadgets: ['Depgraph', 'Data', 'Surface', 'Curve', 'Timeseries', 'ExpandedPositions', 'Log', 'Histogram'],
+            gadgets: [
+                'Depgraph', 'Data', 'Surface', 'Curve', 'Timeseries', 'ExpandedPositions', 'Log', 'Histogram', 'Text'
+            ],
             panel_preference: {
                 'south'      : [0, 2, 4, 3, 1, 5, 6],
                 'dock-north' : [2, 4, 3, 1, 0, 5, 6],
@@ -72,7 +75,7 @@ $.register_module({
                 MATRIX_2D               : [0, 1, 6],
                 OTC_TRADE               : [5],
                 POSITION                : [5],
-                STRING                  : [0, 6],
+                STRING                  : [0, 6, 8],
                 SURFACE_DATA            : [2, 1, 0, 6],
                 UNPLOTTABLE_SURFACE_DATA: [1, 6, 0],
                 TENOR                   : [0, 6],

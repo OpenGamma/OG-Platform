@@ -48,7 +48,7 @@ public class WebExchangeVersionsResource extends AbstractWebExchangeResource {
     FlexiBean out = createRootData();
     out.put("versionsResult", result);
     out.put("versions", result.getExchanges());
-    return getFreemarker().build("exchanges/exchangeversions.ftl", out);
+    return getFreemarker().build(HTML_DIR + "exchangeversions.ftl", out);
   }
 
   @GET
@@ -66,7 +66,7 @@ public class WebExchangeVersionsResource extends AbstractWebExchangeResource {
     out.put("versionsResult", result);
     out.put("versions", result.getExchanges());
     out.put("paging", new WebPaging(result.getPaging(), data().getUriInfo()));
-    String json = getFreemarker().build("exchanges/jsonexchangeversions.ftl", out);
+    String json = getFreemarker().build(JSON_DIR + "exchangeversions.ftl", out);
     return Response.ok(json).build();
   }
 

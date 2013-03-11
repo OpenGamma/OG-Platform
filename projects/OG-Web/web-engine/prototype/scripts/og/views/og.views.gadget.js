@@ -10,7 +10,7 @@ $.register_module({
             gadgets = common.gadgets, content = '.OG-gadget-container', $content = $(content);
         return view = {
             init: function () {
-                for (var rule in view.rules) 
+                for (var rule in view.rules)
                     routes.add(view.rules[rule]);
             },
             block: function (args) {
@@ -21,7 +21,12 @@ $.register_module({
             },
             gadgetscontainer: function (args) {
                 og.api.rest.compressor.get({content: args.data}).pipe(function (result) {
-                    new og.common.gadgets.GadgetsContainer('.OG-gadgets-container-', 'center').add(result.data.data);
+                    var gadgets = new og.common.gadgets.GadgetsContainer('.OG-gadgets-container-', 'center');
+                    gadgets.add(result.data.data);
+                    $(window).off('unload.gadgetscontainer').on('unload.gadgets.container', function () {
+                        $('.OG-gadgets-container-center').remove();
+                        gadgets.alive();
+                    });
                 });
             },
             grid: function (args) {

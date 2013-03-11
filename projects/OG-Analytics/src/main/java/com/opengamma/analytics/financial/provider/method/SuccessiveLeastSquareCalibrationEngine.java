@@ -23,7 +23,7 @@ public abstract class SuccessiveLeastSquareCalibrationEngine<DATA_TYPE extends P
    * @param calibrationObjective The calibration objective.
    */
   public SuccessiveLeastSquareCalibrationEngine(final SuccessiveLeastSquareCalibrationObjective calibrationObjective) {
-    super(calibrationObjective.getFxMatrix(), calibrationObjective.getCcy());
+    super(calibrationObjective.getFXMatrix(), calibrationObjective.getCcy());
     _calibrationObjective = calibrationObjective;
   }
 

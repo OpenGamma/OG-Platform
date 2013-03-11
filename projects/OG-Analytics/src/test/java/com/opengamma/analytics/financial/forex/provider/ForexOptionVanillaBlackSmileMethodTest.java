@@ -60,8 +60,8 @@ public class ForexOptionVanillaBlackSmileMethodTest {
 
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountForexDataSets.createMulticurvesForex();
 
-  public static final String NOT_USED = "Not used";
-  public static final String[] NOT_USED_2 = {NOT_USED, NOT_USED };
+  private static final String NOT_USED = "Not used";
+  private static final String[] NOT_USED_2 = {NOT_USED, NOT_USED };
 
   private static final FXMatrix FX_MATRIX = MULTICURVES.getFxRates();
   private static final Currency EUR = Currency.EUR;
@@ -865,7 +865,7 @@ public class ForexOptionVanillaBlackSmileMethodTest {
   //      final MultipleCurrencyAmount thetaExpected = pvTomorrow.plus(pvToday.multipliedBy(-1.0));
   //      assertEquals("ThetaCalculator: forex option", thetaExpected.getAmount(USD), theta.getAmount(USD), TOLERANCE_PV);
   //    }
-  //  
+  //
   //    @Test
   //    /**
   //     * Tests the theoretical Theta (derivative with respect to time in Black formula).

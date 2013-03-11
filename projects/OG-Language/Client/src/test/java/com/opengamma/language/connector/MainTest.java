@@ -5,6 +5,7 @@
  */
 package com.opengamma.language.connector;
 
+import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.BeforeClass;
@@ -13,8 +14,7 @@ import org.testng.annotations.Test;
 import com.opengamma.util.test.TestProperties;
 
 /**
- * Simulates the Main class being loaded up within the JVM service wrapper. This is
- * equivalent to JVMTest.cpp/TestStartStop
+ * Simulates the Main class being loaded up within the JVM service wrapper. This is equivalent to JVMTest.cpp/TestStartStop
  */
 public class MainTest {
 
@@ -26,7 +26,7 @@ public class MainTest {
 
   @Test
   public void testStartStop() {
-    assertTrue(Main.svcStart());
+    assertNull(Main.svcStart());
     assertTrue(Main.svcAccept("TestUser", "Foo", "Bar", "test", false));
     assertTrue(Main.svcAccept("TestUser", "Foo", "Bar", "test", true));
     assertTrue(Main.svcStop());

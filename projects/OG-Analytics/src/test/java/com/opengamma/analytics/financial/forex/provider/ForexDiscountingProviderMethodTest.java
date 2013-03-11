@@ -34,8 +34,8 @@ public class ForexDiscountingProviderMethodTest {
 
   private static final MulticurveProviderInterface MULTICURVES = MulticurveProviderDiscountForexDataSets.createMulticurvesForex();
 
-  public static final String NOT_USED = "Not used";
-  public static final String[] NOT_USED_2 = {NOT_USED, NOT_USED };
+  private static final String NOT_USED = "Not used";
+  private static final String[] NOT_USED_2 = {NOT_USED, NOT_USED };
 
   private static final Currency CUR_1 = Currency.EUR;
   private static final Currency CUR_2 = Currency.USD;

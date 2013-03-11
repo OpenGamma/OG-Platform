@@ -26,6 +26,9 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.integration.tool.portfolio.xml.v1_0.conversion.ListedTradeSecurityExtractor;
+import com.opengamma.integration.tool.portfolio.xml.v1_0.conversion.TradeSecurityExtractor;
+
 @XmlRootElement
 @BeanDefinition
 public class ListedSecurityTrade extends Trade {
@@ -50,6 +53,11 @@ public class ListedSecurityTrade extends Trade {
   @Override
   public boolean canBePositionAggregated() {
     return true;
+  }
+
+  @Override
+  public TradeSecurityExtractor getSecurityExtractor() {
+    return new ListedTradeSecurityExtractor(this);
   }
 
   @Override
@@ -282,7 +290,7 @@ public class ListedSecurityTrade extends Trade {
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "buySell",
         "numContracts",
         "brokers",

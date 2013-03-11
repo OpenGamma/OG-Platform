@@ -67,12 +67,12 @@ public class MulticurveDiscountBuildingRepository {
    * @param toleranceRel The relative tolerance for the root finder.
    * @param stepMaximum The maximum number of step for the root finder.
    */
-  public MulticurveDiscountBuildingRepository(double toleranceAbs, double toleranceRel, int stepMaximum) {
+  public MulticurveDiscountBuildingRepository(final double toleranceAbs, final double toleranceRel, final int stepMaximum) {
     _toleranceAbs = toleranceAbs;
     _toleranceRel = toleranceRel;
     _stepMaximum = stepMaximum;
     _rootFinder = new BroydenVectorRootFinder(_toleranceAbs, _toleranceRel, _stepMaximum, DecompositionFactory.getDecomposition(DecompositionFactory.SV_COLT_NAME));
-    // TODO: make the root finder flexible. 
+    // TODO: make the root finder flexible.
     // TODO: create a way to select the SensitivityMatrixMulticurve calculator (with underlying curve or not)
   }
 
@@ -89,7 +89,7 @@ public class MulticurveDiscountBuildingRepository {
    * @param sensitivityCalculator The parameter sensitivity calculator.
    * @return The new curves and the calibrated parameters.
    */
-  private Pair<MulticurveProviderDiscount, Double[]> makeUnit(InstrumentDerivative[] instruments, double[] initGuess, final MulticurveProviderDiscount knownData,
+  private Pair<MulticurveProviderDiscount, Double[]> makeUnit(final InstrumentDerivative[] instruments, final double[] initGuess, final MulticurveProviderDiscount knownData,
       final LinkedHashMap<String, Currency> discountingMap, final LinkedHashMap<String, IborIndex[]> forwardIborMap, final LinkedHashMap<String, IndexON[]> forwardONMap,
       final LinkedHashMap<String, GeneratorYDCurve> generatorsMap, final InstrumentDerivativeVisitor<MulticurveProviderInterface, Double> calculator,
       final InstrumentDerivativeVisitor<MulticurveProviderInterface, MulticurveSensitivity> sensitivityCalculator) {
@@ -102,7 +102,7 @@ public class MulticurveDiscountBuildingRepository {
     //                new ParameterSensitivityMatrixMulticurveCalculator(sensitivityCalculator), data); // TODO
     final double[] parameters = _rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(initGuess)).getData();
     final MulticurveProviderDiscount newCurves = data.getGeneratorMarket().evaluate(new DoubleMatrix1D(parameters));
-    return new ObjectsPair<MulticurveProviderDiscount, Double[]>(newCurves, ArrayUtils.toObject(parameters));
+    return new ObjectsPair<>(newCurves, ArrayUtils.toObject(parameters));
   }
 
   /**
@@ -116,15 +116,16 @@ public class MulticurveDiscountBuildingRepository {
    * @param forwardIborMap The forward curves names map.
    * @param forwardONMap The forward curves names map.
    * @param generatorsMap The generators map.
-   * @param sensitivityCalculator The parameter sensitivity calculator for the value on which the calibration is done 
+   * @param sensitivityCalculator The parameter sensitivity calculator for the value on which the calibration is done
   (usually ParSpreadMarketQuoteDiscountingProviderCalculator (recommended) or converted present value).
-   * @return The part of the inverse Jacobian matrix associated to each curve. 
+   * @return The part of the inverse Jacobian matrix associated to each curve.
    * The Jacobian matrix is the transition matrix between the curve parameters and the par spread.
    * TODO: Currently only for the ParSpreadMarketQuoteDiscountingProviderCalculator.
    */
-  private DoubleMatrix2D[] makeCurveMatrix(InstrumentDerivative[] instruments, int startBlock, int[] nbParameters, Double[] parameters, final MulticurveProviderDiscount knownData,
-      final LinkedHashMap<String, Currency> discountingMap, final LinkedHashMap<String, IborIndex[]> forwardIborMap, final LinkedHashMap<String, IndexON[]> forwardONMap,
-      final LinkedHashMap<String, GeneratorYDCurve> generatorsMap, final InstrumentDerivativeVisitor<MulticurveProviderInterface, MulticurveSensitivity> sensitivityCalculator) {
+  private DoubleMatrix2D[] makeCurveMatrix(final InstrumentDerivative[] instruments, final int startBlock, final int[] nbParameters, final Double[] parameters,
+      final MulticurveProviderDiscount knownData, final LinkedHashMap<String, Currency> discountingMap, final LinkedHashMap<String, IborIndex[]> forwardIborMap,
+      final LinkedHashMap<String, IndexON[]> forwardONMap, final LinkedHashMap<String, GeneratorYDCurve> generatorsMap,
+      final InstrumentDerivativeVisitor<MulticurveProviderInterface, MulticurveSensitivity> sensitivityCalculator) {
     final GeneratorMulticurveProviderDiscount generator = new GeneratorMulticurveProviderDiscount(knownData, discountingMap, forwardIborMap, forwardONMap, generatorsMap);
     final MulticurveDiscountBuildingData data = new MulticurveDiscountBuildingData(instruments, generator);
     final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new MulticurveDiscountFinderJacobian(new ParameterSensitivityMulticurveUnderlyingMatrixCalculator(sensitivityCalculator),
@@ -133,11 +134,11 @@ public class MulticurveDiscountBuildingRepository {
     //                new MulticurveDiscountFinderJacobian(new ParameterSensitivityMatrixMulticurveCalculator(sensitivityCalculator), data); // TODO
     final DoubleMatrix2D jacobian = jacobianCalculator.evaluate(new DoubleMatrix1D(parameters));
     final DoubleMatrix2D inverseJacobian = MATRIX_ALGEBRA.getInverse(jacobian);
-    double[][] matrixTotal = inverseJacobian.getData();
-    DoubleMatrix2D[] result = new DoubleMatrix2D[nbParameters.length];
+    final double[][] matrixTotal = inverseJacobian.getData();
+    final DoubleMatrix2D[] result = new DoubleMatrix2D[nbParameters.length];
     int startCurve = 0;
     for (int loopmat = 0; loopmat < nbParameters.length; loopmat++) {
-      double[][] matrixCurve = new double[nbParameters[loopmat]][matrixTotal.length];
+      final double[][] matrixCurve = new double[nbParameters[loopmat]][matrixTotal.length];
       for (int loopparam = 0; loopparam < nbParameters[loopmat]; loopparam++) {
         matrixCurve[loopparam] = matrixTotal[startBlock + startCurve + loopparam].clone();
       }
@@ -161,23 +162,23 @@ public class MulticurveDiscountBuildingRepository {
    * @param sensitivityCalculator The parameter sensitivity calculator.
    * @return A pair with the calibrated yield curve bundle (including the known data) and the CurveBuildingBlckBundle with the relevant inverse Jacobian Matrix.
    */
-  public Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> makeCurvesFromDerivatives(final InstrumentDerivative[][][] instruments, GeneratorYDCurve[][] curveGenerators,
-      String[][] curveNames, double[][] parametersGuess, MulticurveProviderDiscount knownData, final LinkedHashMap<String, Currency> discountingMap,
+  public Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> makeCurvesFromDerivatives(final InstrumentDerivative[][][] instruments, final GeneratorYDCurve[][] curveGenerators,
+      final String[][] curveNames, final double[][] parametersGuess, final MulticurveProviderDiscount knownData, final LinkedHashMap<String, Currency> discountingMap,
       final LinkedHashMap<String, IborIndex[]> forwardIborMap, final LinkedHashMap<String, IndexON[]> forwardONMap, final InstrumentDerivativeVisitor<MulticurveProviderInterface, Double> calculator,
       final InstrumentDerivativeVisitor<MulticurveProviderInterface, MulticurveSensitivity> sensitivityCalculator) {
-    int nbUnits = curveGenerators.length;
-    MulticurveProviderDiscount knownSoFarData = knownData.copy();
-    List<InstrumentDerivative> instrumentsSoFar = new ArrayList<InstrumentDerivative>();
-    LinkedHashMap<String, GeneratorYDCurve> generatorsSoFar = new LinkedHashMap<String, GeneratorYDCurve>();
-    LinkedHashMap<String, Pair<CurveBuildingBlock, DoubleMatrix2D>> unitBundleSoFar = new LinkedHashMap<String, Pair<CurveBuildingBlock, DoubleMatrix2D>>();
-    List<Double> parametersSoFar = new ArrayList<Double>();
-    LinkedHashMap<String, Pair<Integer, Integer>> unitMap = new LinkedHashMap<String, Pair<Integer, Integer>>();
+    final int nbUnits = curveGenerators.length;
+    final MulticurveProviderDiscount knownSoFarData = knownData.copy();
+    final List<InstrumentDerivative> instrumentsSoFar = new ArrayList<>();
+    final LinkedHashMap<String, GeneratorYDCurve> generatorsSoFar = new LinkedHashMap<>();
+    final LinkedHashMap<String, Pair<CurveBuildingBlock, DoubleMatrix2D>> unitBundleSoFar = new LinkedHashMap<>();
+    final List<Double> parametersSoFar = new ArrayList<>();
+    final LinkedHashMap<String, Pair<Integer, Integer>> unitMap = new LinkedHashMap<>();
     int startUnit = 0;
     for (int loopunit = 0; loopunit < nbUnits; loopunit++) {
-      int nbCurve = curveGenerators[loopunit].length;
-      int[] startCurve = new int[nbCurve]; // First parameter index of the curve in the unit. 
-      LinkedHashMap<String, GeneratorYDCurve> gen = new LinkedHashMap<String, GeneratorYDCurve>();
-      int[] nbIns = new int[curveGenerators[loopunit].length];
+      final int nbCurve = curveGenerators[loopunit].length;
+      final int[] startCurve = new int[nbCurve]; // First parameter index of the curve in the unit.
+      final LinkedHashMap<String, GeneratorYDCurve> gen = new LinkedHashMap<>();
+      final int[] nbIns = new int[curveGenerators[loopunit].length];
       int nbInsUnit = 0; // Number of instruments in the unit.
       for (int loopcurve = 0; loopcurve < nbCurve; loopcurve++) {
         startCurve[loopcurve] = nbInsUnit;
@@ -185,30 +186,30 @@ public class MulticurveDiscountBuildingRepository {
         nbInsUnit += nbIns[loopcurve];
         instrumentsSoFar.addAll(Arrays.asList(instruments[loopunit][loopcurve]));
       }
-      InstrumentDerivative[] instrumentsUnit = new InstrumentDerivative[nbInsUnit];
-      InstrumentDerivative[] instrumentsSoFarArray = instrumentsSoFar.toArray(new InstrumentDerivative[0]);
+      final InstrumentDerivative[] instrumentsUnit = new InstrumentDerivative[nbInsUnit];
+      final InstrumentDerivative[] instrumentsSoFarArray = instrumentsSoFar.toArray(new InstrumentDerivative[instrumentsSoFar.size()]);
       for (int loopcurve = 0; loopcurve < nbCurve; loopcurve++) {
         System.arraycopy(instruments[loopunit][loopcurve], 0, instrumentsUnit, startCurve[loopcurve], nbIns[loopcurve]);
       }
       for (int loopcurve = 0; loopcurve < nbCurve; loopcurve++) {
-        GeneratorYDCurve tmp = curveGenerators[loopunit][loopcurve].finalGenerator(instruments[loopunit][loopcurve]);
+        final GeneratorYDCurve tmp = curveGenerators[loopunit][loopcurve].finalGenerator(instruments[loopunit][loopcurve]);
         gen.put(curveNames[loopunit][loopcurve], tmp);
         generatorsSoFar.put(curveNames[loopunit][loopcurve], tmp);
-        unitMap.put(curveNames[loopunit][loopcurve], new ObjectsPair<Integer, Integer>(startUnit + startCurve[loopcurve], nbIns[loopcurve]));
+        unitMap.put(curveNames[loopunit][loopcurve], new ObjectsPair<>(startUnit + startCurve[loopcurve], nbIns[loopcurve]));
       }
-      Pair<MulticurveProviderDiscount, Double[]> unitCal = makeUnit(instrumentsUnit, parametersGuess[loopunit], knownSoFarData, discountingMap, forwardIborMap, forwardONMap, gen, calculator,
+      final Pair<MulticurveProviderDiscount, Double[]> unitCal = makeUnit(instrumentsUnit, parametersGuess[loopunit], knownSoFarData, discountingMap, forwardIborMap, forwardONMap, gen, calculator,
           sensitivityCalculator);
       parametersSoFar.addAll(Arrays.asList(unitCal.getSecond()));
-      DoubleMatrix2D[] mat = makeCurveMatrix(instrumentsSoFarArray, startUnit, nbIns, parametersSoFar.toArray(new Double[0]), knownData, discountingMap, forwardIborMap, forwardONMap, generatorsSoFar,
-          sensitivityCalculator);
+      final DoubleMatrix2D[] mat = makeCurveMatrix(instrumentsSoFarArray, startUnit, nbIns, parametersSoFar.toArray(new Double[parametersSoFar.size()]), knownData, discountingMap,
+          forwardIborMap, forwardONMap, generatorsSoFar, sensitivityCalculator);
       // TODO: should curve matrix be computed only once at the end? To save time
       for (int loopcurve = 0; loopcurve < curveGenerators[loopunit].length; loopcurve++) {
-        unitBundleSoFar.put(curveNames[loopunit][loopcurve], new ObjectsPair<CurveBuildingBlock, DoubleMatrix2D>(new CurveBuildingBlock(unitMap), mat[loopcurve]));
+        unitBundleSoFar.put(curveNames[loopunit][loopcurve], new ObjectsPair<>(new CurveBuildingBlock(unitMap), mat[loopcurve]));
       }
       knownSoFarData.setAll(unitCal.getFirst());
       startUnit = startUnit + nbInsUnit;
     }
-    return new ObjectsPair<MulticurveProviderDiscount, CurveBuildingBlockBundle>(knownSoFarData, new CurveBuildingBlockBundle(unitBundleSoFar));
+    return new ObjectsPair<>(knownSoFarData, new CurveBuildingBlockBundle(unitBundleSoFar));
   }
 
 }

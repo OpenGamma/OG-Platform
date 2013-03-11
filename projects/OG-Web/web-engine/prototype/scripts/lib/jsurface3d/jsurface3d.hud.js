@@ -59,6 +59,7 @@
                 html = tmpl.replace(/\{\{(?:max|min)\}\}/g, function (m) {return m === '{{min}}' ? min : max;}),
                 $html = $(html).appendTo($selector);
             hud.vol_canvas_height = js3d.height / 2;
+            if (!js3d.settings.log_function) $html.find('.j-o').hide();
             if (js3d.webgl) hud.volatility($html.find('canvas')[0]);
             else $html.find('.j-v').hide();
             hud.form();

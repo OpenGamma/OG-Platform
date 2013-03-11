@@ -61,8 +61,8 @@ public class SwapFixedIborSpreadDiscountingMethodTest {
   private static final AnnuityCouponFixedDefinition ANNUITY_SPREAD_DEFINITION = AnnuityCouponFixedDefinition.from(EUR, START_DATE, SWAP_TENOR, EURIBOR3M.getTenor(), TARGET, EURIBOR3M.getDayCount(),
       EURIBOR3M.getBusinessDayConvention(), EURIBOR3M.isEndOfMonth(), NOTIONAL, SPREAD, !IS_PAYER);
 
-  public static final String NOT_USED = "Not used";
-  public static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED };
+  private static final String NOT_USED = "Not used";
+  private static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED };
 
   private static final SwapFixedCoupon<Coupon> SWAP_SPREAD_EUR1Y3M = SWAP_SPREAD_EUR1Y3M_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
   private static final SwapFixedCoupon<Coupon> SWAP_SPREAD_EUR3M3M = SWAP_SPREAD_EUR3M3M_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);

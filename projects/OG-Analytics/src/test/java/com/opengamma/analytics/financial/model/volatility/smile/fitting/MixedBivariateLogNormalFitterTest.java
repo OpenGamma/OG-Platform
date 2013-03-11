@@ -31,7 +31,7 @@ public class MixedBivariateLogNormalFitterTest {
    * EPS_1 =EPS_2 = 1.E-14 should be chosen for this test
    */
   @Test
-  public void RecoveryTest() {
+  public void recoveryTest() {
     final int nNorms = 2;
     final int nParams = 5 * nNorms - 3;
     final int nDataPts = 10;
@@ -43,42 +43,41 @@ public class MixedBivariateLogNormalFitterTest {
     final double fwdY = 1.;
     final double time = 1.0;
 
-    double[] xx = new double[nDataPts];
-    double[] yy = new double[nDataPts];
+    final double[] yy = new double[nDataPts];
     double[] aaGuess1 = new double[nParams];
-    double[] aaGuess1X = new double[nParamsX];
-    double[] aaGuess1Y = new double[nParamsY];
+    final double[] aaGuess1X = new double[nParamsX];
+    final double[] aaGuess1Y = new double[nParamsY];
 
-    double[] inRelativePartialForwardsX = {1., 1. };
-    double[] inRelativePartialForwardsY = {Math.exp(-0.2), (1. - Math.exp(-0.2) * 0.7) / 0.3 };
+    final double[] inRelativePartialForwardsX = {1., 1. };
+    final double[] inRelativePartialForwardsY = {Math.exp(-0.2), (1. - Math.exp(-0.2) * 0.7) / 0.3 };
 
-    double[] inSigmasX = {0.25, 0.7 };
-    double[] inSigmasY = {0.3, 0.5 };
+    final double[] inSigmasX = {0.25, 0.7 };
+    final double[] inSigmasY = {0.3, 0.5 };
 
-    double[] inWeights = {0.7, 0.3 };
+    final double[] inWeights = {0.7, 0.3 };
 
     final MixedLogNormalModelData inObjX = new MixedLogNormalModelData(inWeights, inSigmasX, inRelativePartialForwardsX);
     final MixedLogNormalModelData inObjY = new MixedLogNormalModelData(inWeights, inSigmasY, inRelativePartialForwardsY);
 
-    xx = new double[] {0.9, 0.95, 1.0, 1.05, 1.1, 0.9, 0.95, 1.0, 1.05, 1.15 };
+    final double[] xx = new double[] {0.9, 0.95, 1.0, 1.05, 1.1, 0.9, 0.95, 1.0, 1.05, 1.15 };
 
     final MixedLogNormalVolatilityFunction volfunc = MixedLogNormalVolatilityFunction.getInstance();
     Arrays.fill(yy, 0.);
 
     for (int j = 0; j < nDataPtsX; ++j) {
-      EuropeanVanillaOption option = new EuropeanVanillaOption(xx[j], time, true);
+      final EuropeanVanillaOption option = new EuropeanVanillaOption(xx[j], time, true);
       yy[j] = volfunc.getVolatility(option, fwdX, inObjX);
     }
 
     for (int j = nDataPtsX; j < nDataPts; ++j) {
-      EuropeanVanillaOption option = new EuropeanVanillaOption(xx[j], time, true);
+      final EuropeanVanillaOption option = new EuropeanVanillaOption(xx[j], time, true);
       yy[j] = volfunc.getVolatility(option, fwdY, inObjY);
     }
 
     for (int i = 0; i < nParams; ++i) {
       aaGuess1[i] = 0.5;
     }
-    MixedBivariateLogNormalFitter fitter1 = new MixedBivariateLogNormalFitter();
+    final MixedBivariateLogNormalFitter fitter1 = new MixedBivariateLogNormalFitter();
 
     for (int i = 0; i < nNorms; ++i) {
       aaGuess1X[i] = aaGuess1[i];
@@ -144,19 +143,19 @@ public class MixedBivariateLogNormalFitterTest {
       assertEquals(relativePartialForwardsY[i], inRelativePartialForwardsY[i], Math.abs((inRelativePartialForwardsY[0] + inRelativePartialForwardsY[1]) / 2.) * 1e-11);
     }
 
-    double[] ansVolsX = new double[100];
-    double[] ansVolsY = new double[100];
+    final double[] ansVolsX = new double[100];
+    final double[] ansVolsY = new double[100];
     for (int i = 0; i < 100; i++) {
-      double k = fwdX * (0.1 + 2. * i / 100.);
+      final double k = fwdX * (0.1 + 2. * i / 100.);
       final EuropeanVanillaOption option = new EuropeanVanillaOption(k, time, true);
       ansVolsX[i] = volfunc.getVolatility(option, fwdX, objAns1X);
       ansVolsY[i] = volfunc.getVolatility(option, fwdY, objAns1Y);
     }
 
-    double[] trueVolsX = new double[100];
-    double[] trueVolsY = new double[100];
+    final double[] trueVolsX = new double[100];
+    final double[] trueVolsY = new double[100];
     for (int i = 0; i < 100; i++) {
-      double k = fwdY * (0.1 + 2. * i / 100.);
+      final double k = fwdY * (0.1 + 2. * i / 100.);
       final EuropeanVanillaOption option = new EuropeanVanillaOption(k, time, true);
       trueVolsX[i] = volfunc.getVolatility(option, fwdX, inObjX);
       trueVolsY[i] = volfunc.getVolatility(option, fwdY, inObjY);
@@ -167,12 +166,12 @@ public class MixedBivariateLogNormalFitterTest {
       assertEquals(ansVolsY[i], trueVolsY[i], Math.abs((inSigmasY[0] + inSigmasY[1]) / 2.) * 1e-9);
     }
 
-    double[] ansDensityX = new double[100];
-    double[] ansDensityY = new double[100];
-    double[] trueDensityX = new double[100];
-    double[] trueDensityY = new double[100];
+    final double[] ansDensityX = new double[100];
+    final double[] ansDensityY = new double[100];
+    final double[] trueDensityX = new double[100];
+    final double[] trueDensityY = new double[100];
     for (int i = 0; i < 100; i++) {
-      double k = fwdX * (0.01 + 2. * i / 100.);
+      final double k = fwdX * (0.01 + 2. * i / 100.);
       final EuropeanVanillaOption option = new EuropeanVanillaOption(k, time, true);
       ansDensityX[i] = getDualGamma(option, fwdX, objAns1X);
       trueDensityX[i] = getDualGamma(option, fwdX, inObjX);
@@ -180,7 +179,7 @@ public class MixedBivariateLogNormalFitterTest {
     }
 
     for (int i = 0; i < 100; i++) {
-      double k = fwdY * (0.01 + 2. * i / 100.);
+      final double k = fwdY * (0.01 + 2. * i / 100.);
       final EuropeanVanillaOption option = new EuropeanVanillaOption(k, time, true);
       ansDensityY[i] = getDualGamma(option, fwdY, objAns1Y);
       trueDensityY[i] = getDualGamma(option, fwdY, inObjY);
@@ -188,7 +187,7 @@ public class MixedBivariateLogNormalFitterTest {
     }
 
     for (int i = 0; i < 100; i++) {
-      double k = fwdY * (0.01 + 2. * i / 100.);
+      final double k = fwdY * (0.01 + 2. * i / 100.);
       final EuropeanVanillaOption optionCall = new EuropeanVanillaOption(k, time, true);
       final EuropeanVanillaOption optionPut = new EuropeanVanillaOption(k, time, false);
       final double callPrice = getPrice(optionCall, fwdX, objAns1X);
@@ -197,7 +196,7 @@ public class MixedBivariateLogNormalFitterTest {
     }
 
     for (int i = 0; i < 100; i++) {
-      double k = fwdY * (0.01 + 2. * i / 100.);
+      final double k = fwdY * (0.01 + 2. * i / 100.);
       final EuropeanVanillaOption optionCall = new EuropeanVanillaOption(k, time, true);
       final EuropeanVanillaOption optionPut = new EuropeanVanillaOption(k, time, false);
       final double callPrice = getPrice(optionCall, fwdY, objAns1Y);
@@ -211,24 +210,19 @@ public class MixedBivariateLogNormalFitterTest {
    * 
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void NullaaGuessTest() {
+  public void nullaaGuessTest() {
     final int nNorms = 2;
-    final int nParams = 5 * nNorms - 3;
-    final int nDataPts = 10;
     final int nDataPtsX = 5;
 
     final double fwdX = 1.;
     final double fwdY = 1.;
     final double time = 1.0;
 
-    double[] aaGuess1 = new double[nParams];
-    aaGuess1 = null;
-    double[] xx = new double[nDataPts];
-    xx = new double[] {0.9, 0.95, 1.0, 1.05, 1.1, 0.9, 0.95, 1.0, 1.05, 1.15 };
-    double[] yy = new double[nDataPts];
-    yy = new double[] {0.09, 0.085, 0.08, 0.03105, 0.091, 0.09, 0.075, 0.066, 0.705, 0.115 };
+    final double[] aaGuess1 = null;
+    final double[] xx = new double[] {0.9, 0.95, 1.0, 1.05, 1.1, 0.9, 0.95, 1.0, 1.05, 1.15 };
+    final double[] yy = new double[] {0.09, 0.085, 0.08, 0.03105, 0.091, 0.09, 0.075, 0.066, 0.705, 0.115 };
 
-    MixedBivariateLogNormalFitter fitter1 = new MixedBivariateLogNormalFitter();
+    final MixedBivariateLogNormalFitter fitter1 = new MixedBivariateLogNormalFitter();
     fitter1.doFit(aaGuess1, xx, yy, time, fwdX, fwdY, nNorms, nDataPtsX, 1);
   }
 
@@ -236,24 +230,19 @@ public class MixedBivariateLogNormalFitterTest {
    * 
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void NullxxTest() {
+  public void nullxxTest() {
     final int nNorms = 2;
-    final int nParams = 5 * nNorms - 3;
-    final int nDataPts = 10;
     final int nDataPtsX = 5;
 
     final double fwdX = 1.;
     final double fwdY = 1.;
     final double time = 1.0;
 
-    double[] aaGuess1 = new double[nParams];
-    aaGuess1 = new double[] {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7 };
-    double[] xx = new double[nDataPts];
-    xx = null;
-    double[] yy = new double[nDataPts];
-    yy = new double[] {0.09, 0.085, 0.08, 0.03105, 0.091, 0.09, 0.075, 0.066, 0.705, 0.115 };
+    final double[] aaGuess1 = new double[] {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7 };
+    final double[] xx = null;
+    final double[] yy = new double[] {0.09, 0.085, 0.08, 0.03105, 0.091, 0.09, 0.075, 0.066, 0.705, 0.115 };
 
-    MixedBivariateLogNormalFitter fitter1 = new MixedBivariateLogNormalFitter();
+    final MixedBivariateLogNormalFitter fitter1 = new MixedBivariateLogNormalFitter();
     fitter1.doFit(aaGuess1, xx, yy, time, fwdX, fwdY, nNorms, nDataPtsX, 1);
   }
 
@@ -261,24 +250,19 @@ public class MixedBivariateLogNormalFitterTest {
    * 
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void NullyyTest() {
+  public void nullyyTest() {
     final int nNorms = 2;
-    final int nParams = 5 * nNorms - 3;
-    final int nDataPts = 10;
     final int nDataPtsX = 5;
 
     final double fwdX = 1.;
     final double fwdY = 1.;
     final double time = 1.0;
 
-    double[] aaGuess1 = new double[nParams];
-    aaGuess1 = new double[] {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7 };
-    double[] xx = new double[nDataPts];
-    xx = new double[] {0.9, 0.95, 1.0, 1.05, 1.1, 0.9, 0.95, 1.0, 1.05, 1.15 };
-    double[] yy = new double[nDataPts];
-    yy = null;
+    final double[] aaGuess1 = new double[] {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7 };
+    final double[] xx = new double[] {0.9, 0.95, 1.0, 1.05, 1.1, 0.9, 0.95, 1.0, 1.05, 1.15 };
+    final double[] yy = null;
 
-    MixedBivariateLogNormalFitter fitter1 = new MixedBivariateLogNormalFitter();
+    final MixedBivariateLogNormalFitter fitter1 = new MixedBivariateLogNormalFitter();
     fitter1.doFit(aaGuess1, xx, yy, time, fwdX, fwdY, nNorms, nDataPtsX, 1);
   }
 
@@ -286,24 +270,19 @@ public class MixedBivariateLogNormalFitterTest {
    * 
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void NaNaaGuessTest() {
+  public void naNaaGuessTest() {
     final int nNorms = 2;
-    final int nParams = 5 * nNorms - 3;
-    final int nDataPts = 10;
     final int nDataPtsX = 5;
 
     final double fwdX = 1.;
     final double fwdY = 1.;
     final double time = 1.0;
 
-    double[] aaGuess1 = new double[nParams];
-    aaGuess1 = new double[] {Double.NaN, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7 };
-    double[] xx = new double[nDataPts];
-    xx = new double[] {0.9, 0.95, 1.0, 1.05, 1.1, 0.9, 0.95, 1.0, 1.05, 1.15 };
-    double[] yy = new double[nDataPts];
-    yy = new double[] {0.09, 0.085, 0.08, 0.03105, 0.091, 0.09, 0.075, 0.066, 0.705, 0.115 };
+    final double[] aaGuess1 = new double[] {Double.NaN, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7 };
+    final double[] xx = new double[] {0.9, 0.95, 1.0, 1.05, 1.1, 0.9, 0.95, 1.0, 1.05, 1.15 };
+    final double[] yy = new double[] {0.09, 0.085, 0.08, 0.03105, 0.091, 0.09, 0.075, 0.066, 0.705, 0.115 };
 
-    MixedBivariateLogNormalFitter fitter1 = new MixedBivariateLogNormalFitter();
+    final MixedBivariateLogNormalFitter fitter1 = new MixedBivariateLogNormalFitter();
     fitter1.doFit(aaGuess1, xx, yy, time, fwdX, fwdY, nNorms, nDataPtsX, 1);
   }
 
@@ -311,24 +290,19 @@ public class MixedBivariateLogNormalFitterTest {
    * 
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void NaNxxTest() {
+  public void naNxxTest() {
     final int nNorms = 2;
-    final int nParams = 5 * nNorms - 3;
-    final int nDataPts = 10;
     final int nDataPtsX = 5;
 
     final double fwdX = 1.;
     final double fwdY = 1.;
     final double time = 1.0;
 
-    double[] aaGuess1 = new double[nParams];
-    aaGuess1 = new double[] {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7 };
-    double[] xx = new double[nDataPts];
-    xx = new double[] {Double.NaN, 0.95, 1.0, 1.05, 1.1, 0.9, 0.95, 1.0, 1.05, 1.15 };
-    double[] yy = new double[nDataPts];
-    yy = new double[] {0.09, 0.085, 0.08, 0.03105, 0.091, 0.09, 0.075, 0.066, 0.705, 0.115 };
+    final double[] aaGuess1 = new double[] {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7 };
+    final double[] xx = new double[] {Double.NaN, 0.95, 1.0, 1.05, 1.1, 0.9, 0.95, 1.0, 1.05, 1.15 };
+    final double[] yy = new double[] {0.09, 0.085, 0.08, 0.03105, 0.091, 0.09, 0.075, 0.066, 0.705, 0.115 };
 
-    MixedBivariateLogNormalFitter fitter1 = new MixedBivariateLogNormalFitter();
+    final MixedBivariateLogNormalFitter fitter1 = new MixedBivariateLogNormalFitter();
     fitter1.doFit(aaGuess1, xx, yy, time, fwdX, fwdY, nNorms, nDataPtsX, 1);
   }
 
@@ -336,24 +310,19 @@ public class MixedBivariateLogNormalFitterTest {
    * 
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void NaNyyTest() {
+  public void naNyyTest() {
     final int nNorms = 2;
-    final int nParams = 5 * nNorms - 3;
-    final int nDataPts = 10;
     final int nDataPtsX = 5;
 
     final double fwdX = 1.;
     final double fwdY = 1.;
     final double time = 1.0;
 
-    double[] aaGuess1 = new double[nParams];
-    aaGuess1 = new double[] {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7 };
-    double[] xx = new double[nDataPts];
-    xx = new double[] {0.9, 0.95, 1.0, 1.05, 1.1, 0.9, 0.95, 1.0, 1.05, 1.15 };
-    double[] yy = new double[nDataPts];
-    yy = new double[] {Double.NaN, 0.085, 0.08, 0.03105, 0.091, 0.09, 0.075, 0.066, 0.705, 0.115 };
+    final double[] aaGuess1 = new double[] {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7 };
+    final double[] xx = new double[] {0.9, 0.95, 1.0, 1.05, 1.1, 0.9, 0.95, 1.0, 1.05, 1.15 };
+    final double[] yy = new double[] {Double.NaN, 0.085, 0.08, 0.03105, 0.091, 0.09, 0.075, 0.066, 0.705, 0.115 };
 
-    MixedBivariateLogNormalFitter fitter1 = new MixedBivariateLogNormalFitter();
+    final MixedBivariateLogNormalFitter fitter1 = new MixedBivariateLogNormalFitter();
     fitter1.doFit(aaGuess1, xx, yy, time, fwdX, fwdY, nNorms, nDataPtsX, 1);
   }
 
@@ -361,24 +330,19 @@ public class MixedBivariateLogNormalFitterTest {
    * 
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void NaNtimeTest() {
+  public void naNtimeTest() {
     final int nNorms = 2;
-    final int nParams = 5 * nNorms - 3;
-    final int nDataPts = 10;
     final int nDataPtsX = 5;
 
     final double fwdX = 1.;
     final double fwdY = 1.;
     final double time = Double.NaN;
 
-    double[] aaGuess1 = new double[nParams];
-    aaGuess1 = new double[] {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7 };
-    double[] xx = new double[nDataPts];
-    xx = new double[] {0.9, 0.95, 1.0, 1.05, 1.1, 0.9, 0.95, 1.0, 1.05, 1.15 };
-    double[] yy = new double[nDataPts];
-    yy = new double[] {0.09, 0.085, 0.08, 0.03105, 0.091, 0.09, 0.075, 0.066, 0.705, 0.115 };
+    final double[] aaGuess1 = new double[] {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7 };
+    final double[] xx = new double[] {0.9, 0.95, 1.0, 1.05, 1.1, 0.9, 0.95, 1.0, 1.05, 1.15 };
+    final double[] yy = new double[] {0.09, 0.085, 0.08, 0.03105, 0.091, 0.09, 0.075, 0.066, 0.705, 0.115 };
 
-    MixedBivariateLogNormalFitter fitter1 = new MixedBivariateLogNormalFitter();
+    final MixedBivariateLogNormalFitter fitter1 = new MixedBivariateLogNormalFitter();
     fitter1.doFit(aaGuess1, xx, yy, time, fwdX, fwdY, nNorms, nDataPtsX, 1);
   }
 
@@ -386,24 +350,19 @@ public class MixedBivariateLogNormalFitterTest {
    * 
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void NaNfwdXTest() {
+  public void naNfwdXTest() {
     final int nNorms = 2;
-    final int nParams = 5 * nNorms - 3;
-    final int nDataPts = 10;
     final int nDataPtsX = 5;
 
     final double fwdX = Double.NaN;
     final double fwdY = 1.;
     final double time = 1.0;
 
-    double[] aaGuess1 = new double[nParams];
-    aaGuess1 = new double[] {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7 };
-    double[] xx = new double[nDataPts];
-    xx = new double[] {0.9, 0.95, 1.0, 1.05, 1.1, 0.9, 0.95, 1.0, 1.05, 1.15 };
-    double[] yy = new double[nDataPts];
-    yy = new double[] {0.09, 0.085, 0.08, 0.03105, 0.091, 0.09, 0.075, 0.066, 0.705, 0.115 };
+    final double[] aaGuess1 = new double[] {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7 };
+    final double[] xx = new double[] {0.9, 0.95, 1.0, 1.05, 1.1, 0.9, 0.95, 1.0, 1.05, 1.15 };
+    final double[] yy = new double[] {0.09, 0.085, 0.08, 0.03105, 0.091, 0.09, 0.075, 0.066, 0.705, 0.115 };
 
-    MixedBivariateLogNormalFitter fitter1 = new MixedBivariateLogNormalFitter();
+    final MixedBivariateLogNormalFitter fitter1 = new MixedBivariateLogNormalFitter();
     fitter1.doFit(aaGuess1, xx, yy, time, fwdX, fwdY, nNorms, nDataPtsX, 1);
   }
 
@@ -411,24 +370,19 @@ public class MixedBivariateLogNormalFitterTest {
    * 
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void NaNfwdYTest() {
+  public void naNfwdYTest() {
     final int nNorms = 2;
-    final int nParams = 5 * nNorms - 3;
-    final int nDataPts = 10;
     final int nDataPtsX = 5;
 
     final double fwdX = 1.;
     final double fwdY = Double.NaN;
     final double time = 1.0;
 
-    double[] aaGuess1 = new double[nParams];
-    aaGuess1 = new double[] {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7 };
-    double[] xx = new double[nDataPts];
-    xx = new double[] {0.9, 0.95, 1.0, 1.05, 1.1, 0.9, 0.95, 1.0, 1.05, 1.15 };
-    double[] yy = new double[nDataPts];
-    yy = new double[] {0.09, 0.085, 0.08, 0.03105, 0.091, 0.09, 0.075, 0.066, 0.705, 0.115 };
+    final double[] aaGuess1 = new double[] {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7 };
+    final double[] xx = new double[] {0.9, 0.95, 1.0, 1.05, 1.1, 0.9, 0.95, 1.0, 1.05, 1.15 };
+    final double[] yy = new double[] {0.09, 0.085, 0.08, 0.03105, 0.091, 0.09, 0.075, 0.066, 0.705, 0.115 };
 
-    MixedBivariateLogNormalFitter fitter1 = new MixedBivariateLogNormalFitter();
+    final MixedBivariateLogNormalFitter fitter1 = new MixedBivariateLogNormalFitter();
     fitter1.doFit(aaGuess1, xx, yy, time, fwdX, fwdY, nNorms, nDataPtsX, 1);
   }
 
@@ -436,10 +390,8 @@ public class MixedBivariateLogNormalFitterTest {
    * 
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void NaNparamsGuessCorrectionTest() {
+  public void naNparamsGuessCorrectionTest() {
     final int nNorms = 2;
-    final int nParams = 5 * nNorms - 3;
-    final int nDataPts = 10;
     final int nDataPtsX = 5;
     final double paramsGuessCorrection = Double.NaN;
 
@@ -447,14 +399,11 @@ public class MixedBivariateLogNormalFitterTest {
     final double fwdY = 1.;
     final double time = 1.0;
 
-    double[] aaGuess1 = new double[nParams];
-    aaGuess1 = new double[] {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7 };
-    double[] xx = new double[nDataPts];
-    xx = new double[] {0.9, 0.95, 1.0, 1.05, 1.1, 0.9, 0.95, 1.0, 1.05, 1.15 };
-    double[] yy = new double[nDataPts];
-    yy = new double[] {0.09, 0.085, 0.08, 0.03105, 0.091, 0.09, 0.075, 0.066, 0.705, 0.115 };
+    final double[] aaGuess1 = new double[] {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7 };
+    final double[] xx = new double[] {0.9, 0.95, 1.0, 1.05, 1.1, 0.9, 0.95, 1.0, 1.05, 1.15 };
+    final double[] yy = new double[] {0.09, 0.085, 0.08, 0.03105, 0.091, 0.09, 0.075, 0.066, 0.705, 0.115 };
 
-    MixedBivariateLogNormalFitter fitter1 = new MixedBivariateLogNormalFitter();
+    final MixedBivariateLogNormalFitter fitter1 = new MixedBivariateLogNormalFitter();
     fitter1.doFit(aaGuess1, xx, yy, time, fwdX, fwdY, nNorms, nDataPtsX, paramsGuessCorrection);
   }
 
@@ -462,24 +411,19 @@ public class MixedBivariateLogNormalFitterTest {
    * 
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void INFaaGuessTest() {
+  public void iNFaaGuessTest() {
     final int nNorms = 2;
-    final int nParams = 5 * nNorms - 3;
-    final int nDataPts = 10;
     final int nDataPtsX = 5;
 
     final double fwdX = 1.;
     final double fwdY = 1.;
     final double time = 1.0;
 
-    double[] aaGuess1 = new double[nParams];
-    aaGuess1 = new double[] {INF, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7 };
-    double[] xx = new double[nDataPts];
-    xx = new double[] {0.9, 0.95, 1.0, 1.05, 1.1, 0.9, 0.95, 1.0, 1.05, 1.15 };
-    double[] yy = new double[nDataPts];
-    yy = new double[] {0.09, 0.085, 0.08, 0.03105, 0.091, 0.09, 0.075, 0.066, 0.705, 0.115 };
+    final double[] aaGuess1 = new double[] {INF, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7 };
+    final double[] xx = new double[] {0.9, 0.95, 1.0, 1.05, 1.1, 0.9, 0.95, 1.0, 1.05, 1.15 };
+    final double[] yy = new double[] {0.09, 0.085, 0.08, 0.03105, 0.091, 0.09, 0.075, 0.066, 0.705, 0.115 };
 
-    MixedBivariateLogNormalFitter fitter1 = new MixedBivariateLogNormalFitter();
+    final MixedBivariateLogNormalFitter fitter1 = new MixedBivariateLogNormalFitter();
     fitter1.doFit(aaGuess1, xx, yy, time, fwdX, fwdY, nNorms, nDataPtsX, 1);
   }
 
@@ -487,24 +431,19 @@ public class MixedBivariateLogNormalFitterTest {
    * 
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void INFxxTest() {
+  public void iNFxxTest() {
     final int nNorms = 2;
-    final int nParams = 5 * nNorms - 3;
-    final int nDataPts = 10;
     final int nDataPtsX = 5;
 
     final double fwdX = 1.;
     final double fwdY = 1.;
     final double time = 1.0;
 
-    double[] aaGuess1 = new double[nParams];
-    aaGuess1 = new double[] {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7 };
-    double[] xx = new double[nDataPts];
-    xx = new double[] {INF, 0.95, 1.0, 1.05, 1.1, 0.9, 0.95, 1.0, 1.05, 1.15 };
-    double[] yy = new double[nDataPts];
-    yy = new double[] {0.09, 0.085, 0.08, 0.03105, 0.091, 0.09, 0.075, 0.066, 0.705, 0.115 };
+    final double[] aaGuess1 = new double[] {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7 };
+    final double[] xx = new double[] {INF, 0.95, 1.0, 1.05, 1.1, 0.9, 0.95, 1.0, 1.05, 1.15 };
+    final double[] yy = new double[] {0.09, 0.085, 0.08, 0.03105, 0.091, 0.09, 0.075, 0.066, 0.705, 0.115 };
 
-    MixedBivariateLogNormalFitter fitter1 = new MixedBivariateLogNormalFitter();
+    final MixedBivariateLogNormalFitter fitter1 = new MixedBivariateLogNormalFitter();
     fitter1.doFit(aaGuess1, xx, yy, time, fwdX, fwdY, nNorms, nDataPtsX, 1);
   }
 
@@ -512,24 +451,19 @@ public class MixedBivariateLogNormalFitterTest {
    * 
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void INFyyTest() {
+  public void iNFyyTest() {
     final int nNorms = 2;
-    final int nParams = 5 * nNorms - 3;
-    final int nDataPts = 10;
     final int nDataPtsX = 5;
 
     final double fwdX = 1.;
     final double fwdY = 1.;
     final double time = 1.0;
 
-    double[] aaGuess1 = new double[nParams];
-    aaGuess1 = new double[] {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7 };
-    double[] xx = new double[nDataPts];
-    xx = new double[] {0.9, 0.95, 1.0, 1.05, 1.1, 0.9, 0.95, 1.0, 1.05, 1.15 };
-    double[] yy = new double[nDataPts];
-    yy = new double[] {INF, 0.085, 0.08, 0.03105, 0.091, 0.09, 0.075, 0.066, 0.705, 0.115 };
+    final double[] aaGuess1 = new double[] {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7 };
+    final double[] xx = new double[] {0.9, 0.95, 1.0, 1.05, 1.1, 0.9, 0.95, 1.0, 1.05, 1.15 };
+    final double[] yy = new double[] {INF, 0.085, 0.08, 0.03105, 0.091, 0.09, 0.075, 0.066, 0.705, 0.115 };
 
-    MixedBivariateLogNormalFitter fitter1 = new MixedBivariateLogNormalFitter();
+    final MixedBivariateLogNormalFitter fitter1 = new MixedBivariateLogNormalFitter();
     fitter1.doFit(aaGuess1, xx, yy, time, fwdX, fwdY, nNorms, nDataPtsX, 1);
   }
 
@@ -537,24 +471,19 @@ public class MixedBivariateLogNormalFitterTest {
    * 
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void INFtimeTest() {
+  public void iNFtimeTest() {
     final int nNorms = 2;
-    final int nParams = 5 * nNorms - 3;
-    final int nDataPts = 10;
     final int nDataPtsX = 5;
 
     final double fwdX = 1.;
     final double fwdY = 1.;
     final double time = INF;
 
-    double[] aaGuess1 = new double[nParams];
-    aaGuess1 = new double[] {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7 };
-    double[] xx = new double[nDataPts];
-    xx = new double[] {0.9, 0.95, 1.0, 1.05, 1.1, 0.9, 0.95, 1.0, 1.05, 1.15 };
-    double[] yy = new double[nDataPts];
-    yy = new double[] {0.09, 0.085, 0.08, 0.03105, 0.091, 0.09, 0.075, 0.066, 0.705, 0.115 };
+    final double[] aaGuess1 = new double[] {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7 };
+    final double[] xx = new double[] {0.9, 0.95, 1.0, 1.05, 1.1, 0.9, 0.95, 1.0, 1.05, 1.15 };
+    final double[] yy = new double[] {0.09, 0.085, 0.08, 0.03105, 0.091, 0.09, 0.075, 0.066, 0.705, 0.115 };
 
-    MixedBivariateLogNormalFitter fitter1 = new MixedBivariateLogNormalFitter();
+    final MixedBivariateLogNormalFitter fitter1 = new MixedBivariateLogNormalFitter();
     fitter1.doFit(aaGuess1, xx, yy, time, fwdX, fwdY, nNorms, nDataPtsX, 1);
   }
 
@@ -562,24 +491,19 @@ public class MixedBivariateLogNormalFitterTest {
    * 
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void INFfwdXTest() {
+  public void iNFfwdXTest() {
     final int nNorms = 2;
-    final int nParams = 5 * nNorms - 3;
-    final int nDataPts = 10;
     final int nDataPtsX = 5;
 
     final double fwdX = INF;
     final double fwdY = 1.;
     final double time = 1.0;
 
-    double[] aaGuess1 = new double[nParams];
-    aaGuess1 = new double[] {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7 };
-    double[] xx = new double[nDataPts];
-    xx = new double[] {0.9, 0.95, 1.0, 1.05, 1.1, 0.9, 0.95, 1.0, 1.05, 1.15 };
-    double[] yy = new double[nDataPts];
-    yy = new double[] {0.09, 0.085, 0.08, 0.03105, 0.091, 0.09, 0.075, 0.066, 0.705, 0.115 };
+    final double[] aaGuess1 = new double[] {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7 };
+    final double[] xx = new double[] {0.9, 0.95, 1.0, 1.05, 1.1, 0.9, 0.95, 1.0, 1.05, 1.15 };
+    final double[] yy = new double[] {0.09, 0.085, 0.08, 0.03105, 0.091, 0.09, 0.075, 0.066, 0.705, 0.115 };
 
-    MixedBivariateLogNormalFitter fitter1 = new MixedBivariateLogNormalFitter();
+    final MixedBivariateLogNormalFitter fitter1 = new MixedBivariateLogNormalFitter();
     fitter1.doFit(aaGuess1, xx, yy, time, fwdX, fwdY, nNorms, nDataPtsX, 1);
   }
 
@@ -587,24 +511,19 @@ public class MixedBivariateLogNormalFitterTest {
    * 
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void INFfwdYTest() {
+  public void iNFfwdYTest() {
     final int nNorms = 2;
-    final int nParams = 5 * nNorms - 3;
-    final int nDataPts = 10;
     final int nDataPtsX = 5;
 
     final double fwdX = 1.;
     final double fwdY = INF;
     final double time = 1.0;
 
-    double[] aaGuess1 = new double[nParams];
-    aaGuess1 = new double[] {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7 };
-    double[] xx = new double[nDataPts];
-    xx = new double[] {0.9, 0.95, 1.0, 1.05, 1.1, 0.9, 0.95, 1.0, 1.05, 1.15 };
-    double[] yy = new double[nDataPts];
-    yy = new double[] {0.09, 0.085, 0.08, 0.03105, 0.091, 0.09, 0.075, 0.066, 0.705, 0.115 };
+    final double[] aaGuess1 = new double[] {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7 };
+    final double[] xx = new double[] {0.9, 0.95, 1.0, 1.05, 1.1, 0.9, 0.95, 1.0, 1.05, 1.15 };
+    final double[] yy = new double[] {0.09, 0.085, 0.08, 0.03105, 0.091, 0.09, 0.075, 0.066, 0.705, 0.115 };
 
-    MixedBivariateLogNormalFitter fitter1 = new MixedBivariateLogNormalFitter();
+    final MixedBivariateLogNormalFitter fitter1 = new MixedBivariateLogNormalFitter();
     fitter1.doFit(aaGuess1, xx, yy, time, fwdX, fwdY, nNorms, nDataPtsX, 1);
   }
 
@@ -612,10 +531,8 @@ public class MixedBivariateLogNormalFitterTest {
    * 
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void INFparamsGuessCorrectionTest() {
+  public void iNFparamsGuessCorrectionTest() {
     final int nNorms = 2;
-    final int nParams = 5 * nNorms - 3;
-    final int nDataPts = 10;
     final int nDataPtsX = 5;
     final double paramsGuessCorrection = INF;
 
@@ -623,14 +540,11 @@ public class MixedBivariateLogNormalFitterTest {
     final double fwdY = 1.;
     final double time = 1.0;
 
-    double[] aaGuess1 = new double[nParams];
-    aaGuess1 = new double[] {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7 };
-    double[] xx = new double[nDataPts];
-    xx = new double[] {0.9, 0.95, 1.0, 1.05, 1.1, 0.9, 0.95, 1.0, 1.05, 1.15 };
-    double[] yy = new double[nDataPts];
-    yy = new double[] {0.09, 0.085, 0.08, 0.03105, 0.091, 0.09, 0.075, 0.066, 0.705, 0.115 };
+    final double[] aaGuess1 = new double[] {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7 };
+    final double[] xx = new double[] {0.9, 0.95, 1.0, 1.05, 1.1, 0.9, 0.95, 1.0, 1.05, 1.15 };
+    final double[] yy = new double[] {0.09, 0.085, 0.08, 0.03105, 0.091, 0.09, 0.075, 0.066, 0.705, 0.115 };
 
-    MixedBivariateLogNormalFitter fitter1 = new MixedBivariateLogNormalFitter();
+    final MixedBivariateLogNormalFitter fitter1 = new MixedBivariateLogNormalFitter();
     fitter1.doFit(aaGuess1, xx, yy, time, fwdX, fwdY, nNorms, nDataPtsX, paramsGuessCorrection);
   }
 
@@ -638,24 +552,19 @@ public class MixedBivariateLogNormalFitterTest {
    * 
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void WrongnDataPtsXTest() {
+  public void wrongnDataPtsXTest() {
     final int nNorms = 2;
-    final int nParams = 5 * nNorms - 3;
-    final int nDataPts = 10;
     final int nDataPtsX = 11;
 
     final double fwdX = 1.;
     final double fwdY = 1.;
     final double time = 1.0;
 
-    double[] aaGuess1 = new double[nParams];
-    aaGuess1 = new double[] {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7 };
-    double[] xx = new double[nDataPts];
-    xx = new double[] {0.9, 0.95, 1.0, 1.05, 1.1, 0.9, 0.95, 1.0, 1.05, 1.15 };
-    double[] yy = new double[nDataPts];
-    yy = new double[] {0.09, 0.085, 0.08, 0.03105, 0.091, 0.09, 0.075, 0.066, 0.705, 0.115 };
+    final double[] aaGuess1 = new double[] {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7 };
+    final double[] xx = new double[] {0.9, 0.95, 1.0, 1.05, 1.1, 0.9, 0.95, 1.0, 1.05, 1.15 };
+    final double[] yy = new double[] {0.09, 0.085, 0.08, 0.03105, 0.091, 0.09, 0.075, 0.066, 0.705, 0.115 };
 
-    MixedBivariateLogNormalFitter fitter1 = new MixedBivariateLogNormalFitter();
+    final MixedBivariateLogNormalFitter fitter1 = new MixedBivariateLogNormalFitter();
     fitter1.doFit(aaGuess1, xx, yy, time, fwdX, fwdY, nNorms, nDataPtsX, 1);
   }
 
@@ -663,21 +572,19 @@ public class MixedBivariateLogNormalFitterTest {
    * 
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void WrongYYlengthTest() {
+  public void wrongYYlengthTest() {
     final int nNorms = 2;
-    final int nParams = 5 * nNorms - 3;
     final int nDataPtsX = 5;
 
     final double fwdX = 1.;
     final double fwdY = 1.;
     final double time = 1.0;
 
-    double[] aaGuess1 = new double[nParams];
-    aaGuess1 = new double[] {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7 };
-    double[] xx = new double[] {0.9, 0.95, 1.0, 1.05, 1.1, 0.9, 0.95, 1.0, 1.05, 1.15 };
-    double[] yy = new double[] {0.09, 0.085, 0.08, 0.03105, 0.091, 0.09, 0.075 };
+    final double[] aaGuess1 = new double[] {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7 };
+    final double[] xx = new double[] {0.9, 0.95, 1.0, 1.05, 1.1, 0.9, 0.95, 1.0, 1.05, 1.15 };
+    final double[] yy = new double[] {0.09, 0.085, 0.08, 0.03105, 0.091, 0.09, 0.075 };
 
-    MixedBivariateLogNormalFitter fitter1 = new MixedBivariateLogNormalFitter();
+    final MixedBivariateLogNormalFitter fitter1 = new MixedBivariateLogNormalFitter();
     fitter1.doFit(aaGuess1, xx, yy, time, fwdX, fwdY, nNorms, nDataPtsX, 1);
   }
 
@@ -685,24 +592,19 @@ public class MixedBivariateLogNormalFitterTest {
    * 
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void WrongParamLengthTest() {
+  public void wrongParamLengthTest() {
     final int nNorms = 6;
-    final int nParams = 7;
-    final int nDataPts = 10;
     final int nDataPtsX = 5;
 
     final double fwdX = 1.;
     final double fwdY = 1.;
     final double time = 1.0;
 
-    double[] aaGuess1 = new double[nParams];
-    aaGuess1 = new double[] {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7 };
-    double[] xx = new double[nDataPts];
-    xx = new double[] {0.9, 0.95, 1.0, 1.05, 1.1, 0.9, 0.95, 1.0, 1.05, 1.15 };
-    double[] yy = new double[nDataPts];
-    yy = new double[] {0.09, 0.085, 0.08, 0.03105, 0.091, 0.09, 0.075, 0.066, 0.705, 0.115 };
+    final double[] aaGuess1 = new double[] {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7 };
+    final double[] xx = new double[] {0.9, 0.95, 1.0, 1.05, 1.1, 0.9, 0.95, 1.0, 1.05, 1.15 };
+    final double[] yy = new double[] {0.09, 0.085, 0.08, 0.03105, 0.091, 0.09, 0.075, 0.066, 0.705, 0.115 };
 
-    MixedBivariateLogNormalFitter fitter1 = new MixedBivariateLogNormalFitter();
+    final MixedBivariateLogNormalFitter fitter1 = new MixedBivariateLogNormalFitter();
     fitter1.doFit(aaGuess1, xx, yy, time, fwdX, fwdY, nNorms, nDataPtsX, 1);
   }
 
@@ -710,24 +612,19 @@ public class MixedBivariateLogNormalFitterTest {
    * 
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void NegativeTimeTest() {
+  public void negativeTimeTest() {
     final int nNorms = 2;
-    final int nParams = 5 * nNorms - 3;
-    final int nDataPts = 10;
     final int nDataPtsX = 5;
 
     final double fwdX = 1.;
     final double fwdY = 1.;
     final double time = -1.0;
 
-    double[] aaGuess1 = new double[nParams];
-    aaGuess1 = new double[] {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7 };
-    double[] xx = new double[nDataPts];
-    xx = new double[] {0.9, 0.95, 1.0, 1.05, 1.1, 0.9, 0.95, 1.0, 1.05, 1.15 };
-    double[] yy = new double[nDataPts];
-    yy = new double[] {0.09, 0.085, 0.08, 0.03105, 0.091, 0.09, 0.075, 0.066, 0.705, 0.115 };
+    final double[] aaGuess1 = new double[] {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7 };
+    final double[] xx = new double[] {0.9, 0.95, 1.0, 1.05, 1.1, 0.9, 0.95, 1.0, 1.05, 1.15 };
+    final double[] yy = new double[] {0.09, 0.085, 0.08, 0.03105, 0.091, 0.09, 0.075, 0.066, 0.705, 0.115 };
 
-    MixedBivariateLogNormalFitter fitter1 = new MixedBivariateLogNormalFitter();
+    final MixedBivariateLogNormalFitter fitter1 = new MixedBivariateLogNormalFitter();
     fitter1.doFit(aaGuess1, xx, yy, time, fwdX, fwdY, nNorms, nDataPtsX, 1);
   }
 
@@ -735,24 +632,19 @@ public class MixedBivariateLogNormalFitterTest {
    * 
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void NegativeFwdXTest() {
+  public void negativeFwdXTest() {
     final int nNorms = 2;
-    final int nParams = 5 * nNorms - 3;
-    final int nDataPts = 10;
     final int nDataPtsX = 5;
 
     final double fwdX = 1.;
     final double fwdY = -1.;
     final double time = 1.0;
 
-    double[] aaGuess1 = new double[nParams];
-    aaGuess1 = new double[] {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7 };
-    double[] xx = new double[nDataPts];
-    xx = new double[] {0.9, 0.95, 1.0, 1.05, 1.1, 0.9, 0.95, 1.0, 1.05, 1.15 };
-    double[] yy = new double[nDataPts];
-    yy = new double[] {0.09, 0.085, 0.08, 0.03105, 0.091, 0.09, 0.075, 0.066, 0.705, 0.115 };
+    final double[] aaGuess1 = new double[] {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7 };
+    final double[] xx = new double[] {0.9, 0.95, 1.0, 1.05, 1.1, 0.9, 0.95, 1.0, 1.05, 1.15 };
+    final double[] yy = new double[] {0.09, 0.085, 0.08, 0.03105, 0.091, 0.09, 0.075, 0.066, 0.705, 0.115 };
 
-    MixedBivariateLogNormalFitter fitter1 = new MixedBivariateLogNormalFitter();
+    final MixedBivariateLogNormalFitter fitter1 = new MixedBivariateLogNormalFitter();
     fitter1.doFit(aaGuess1, xx, yy, time, fwdX, fwdY, nNorms, nDataPtsX, 1);
   }
 
@@ -760,24 +652,19 @@ public class MixedBivariateLogNormalFitterTest {
    * 
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void NegativeFwdYTest() {
+  public void negativeFwdYTest() {
     final int nNorms = 2;
-    final int nParams = 5 * nNorms - 3;
-    final int nDataPts = 10;
     final int nDataPtsX = 5;
 
     final double fwdX = 1.;
     final double fwdY = -1.;
     final double time = 1.0;
 
-    double[] aaGuess1 = new double[nParams];
-    aaGuess1 = new double[] {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7 };
-    double[] xx = new double[nDataPts];
-    xx = new double[] {0.9, 0.95, 1.0, 1.05, 1.1, 0.9, 0.95, 1.0, 1.05, 1.15 };
-    double[] yy = new double[nDataPts];
-    yy = new double[] {0.09, 0.085, 0.08, 0.03105, 0.091, 0.09, 0.075, 0.066, 0.705, 0.115 };
+    final double[] aaGuess1 = new double[] {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7 };
+    final double[] xx = new double[] {0.9, 0.95, 1.0, 1.05, 1.1, 0.9, 0.95, 1.0, 1.05, 1.15 };
+    final double[] yy = new double[] {0.09, 0.085, 0.08, 0.03105, 0.091, 0.09, 0.075, 0.066, 0.705, 0.115 };
 
-    MixedBivariateLogNormalFitter fitter1 = new MixedBivariateLogNormalFitter();
+    final MixedBivariateLogNormalFitter fitter1 = new MixedBivariateLogNormalFitter();
     fitter1.doFit(aaGuess1, xx, yy, time, fwdX, fwdY, nNorms, nDataPtsX, 1);
   }
 
@@ -785,24 +672,19 @@ public class MixedBivariateLogNormalFitterTest {
    * 
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void NegativeParamsGuessCorrectionTest() {
+  public void negativeParamsGuessCorrectionTest() {
     final int nNorms = 2;
-    final int nParams = 5 * nNorms - 3;
-    final int nDataPts = 10;
     final int nDataPtsX = 5;
 
     final double fwdX = 1.;
     final double fwdY = 1.;
     final double time = 1.0;
 
-    double[] aaGuess1 = new double[nParams];
-    aaGuess1 = new double[] {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7 };
-    double[] xx = new double[nDataPts];
-    xx = new double[] {0.9, 0.95, 1.0, 1.05, 1.1, 0.9, 0.95, 1.0, 1.05, 1.15 };
-    double[] yy = new double[nDataPts];
-    yy = new double[] {0.09, 0.085, 0.08, 0.03105, 0.091, 0.09, 0.075, 0.066, 0.705, 0.115 };
+    final double[] aaGuess1 = new double[] {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7 };
+    final double[] xx = new double[] {0.9, 0.95, 1.0, 1.05, 1.1, 0.9, 0.95, 1.0, 1.05, 1.15 };
+    final double[] yy = new double[] {0.09, 0.085, 0.08, 0.03105, 0.091, 0.09, 0.075, 0.066, 0.705, 0.115 };
 
-    MixedBivariateLogNormalFitter fitter1 = new MixedBivariateLogNormalFitter();
+    final MixedBivariateLogNormalFitter fitter1 = new MixedBivariateLogNormalFitter();
     fitter1.doFit(aaGuess1, xx, yy, time, fwdX, fwdY, nNorms, nDataPtsX, -1);
   }
 
@@ -810,8 +692,8 @@ public class MixedBivariateLogNormalFitterTest {
    * Tests below are for debugging or application to forex cross
    */
   @Test
-      (enabled = false)
-      public void FittingTestManyDataPts() {
+  (enabled = false)
+  public void fittingTestManyDataPts() {
 
     final int nNorms = 2;
     final int nParams = 5 * nNorms - 3;
@@ -823,14 +705,12 @@ public class MixedBivariateLogNormalFitterTest {
     final double fwdY = 0.9;
     final double time = 0.6;
 
-    double[] xx = new double[nDataPts];
-    double[] yy = new double[nDataPts];
-    double[] aa = new double[nParams];
+    final double[] xx = new double[nDataPts];
+    final double[] aa = new double[nParams];
     double[] aaGuess1 = new double[nParams];
     double[] aaGuess2 = new double[nParams];
-    double[] aaGuess3 = new double[nParams];
-    double[] aaX = new double[nParamsX];
-    double[] aaGuessX = new double[nParamsX];
+    final double[] aaX = new double[nParamsX];
+    final double[] aaGuessX = new double[nParamsX];
 
     //  Random objRand = new Random();
 
@@ -838,8 +718,8 @@ public class MixedBivariateLogNormalFitterTest {
       aa[i] = 1. + 0.0125 * i;
     }
 
-    double rateX = 1. / nDataPtsX;
-    double rateY = 1. / (nDataPts - nDataPtsX);
+    final double rateX = 1. / nDataPtsX;
+    final double rateY = 1. / (nDataPts - nDataPtsX);
     for (int i = 0; i < nDataPtsX; ++i) {
       xx[i] = fwdX * (0.5 + rateX * i);
     }
@@ -847,7 +727,7 @@ public class MixedBivariateLogNormalFitterTest {
       xx[i] = fwdY * (0.5 + rateY * i);
     }
 
-    yy = getFunctionValues(aa, xx, fwdX, fwdY, time, nNorms, nDataPts, nDataPtsX);
+    final double[] yy = getFunctionValues(aa, xx, fwdX, fwdY, time, nNorms, nDataPts, nDataPtsX);
 
     for (int i = 0; i < nParams; ++i) {
       aaGuess1[i] = 0.9;
@@ -864,7 +744,7 @@ public class MixedBivariateLogNormalFitterTest {
     System.out.println("true value: " + aa[0] + "\t" + aa[1]);
     System.out.println("\n");
 
-    MixedBivariateLogNormalFitter fitter1 = new MixedBivariateLogNormalFitter();
+    final MixedBivariateLogNormalFitter fitter1 = new MixedBivariateLogNormalFitter();
     System.out.println("guess: " + aaGuess1[0] + "\t" + aaGuess1[1]);
     fitter1.doFit(aaGuess1, xx, yy, time, fwdX, fwdY, nNorms, nDataPtsX, 1);
     aaGuess1 = fitter1.getParams();
@@ -873,7 +753,7 @@ public class MixedBivariateLogNormalFitterTest {
     System.out.println("sq: " + fitter1.getFinalSq());
     System.out.println("\n");
 
-    MixedBivariateLogNormalFitter fitter2 = new MixedBivariateLogNormalFitter();
+    final MixedBivariateLogNormalFitter fitter2 = new MixedBivariateLogNormalFitter();
     System.out.println("guess: " + aaGuess2[0] + "\t" + aaGuess2[1]);
     fitter2.doFit(aaGuess2, xx, yy, time, fwdX, fwdY, nNorms, nDataPtsX, 1);
     System.out.println("inintial sq: " + fitter2.getInitialSq());
@@ -882,11 +762,11 @@ public class MixedBivariateLogNormalFitterTest {
     System.out.println("sq: " + fitter2.getFinalSq());
     System.out.println("\n");
 
-    MixedBivariateLogNormalFitter fitter3 = new MixedBivariateLogNormalFitter();
+    final MixedBivariateLogNormalFitter fitter3 = new MixedBivariateLogNormalFitter();
     System.out.println("guess: " + aa[0] + "\t" + aa[1]);
     fitter3.doFit(aa, xx, yy, time, fwdX, fwdY, nNorms, nDataPtsX, 1);
     System.out.println("inintial sq: " + fitter3.getInitialSq());
-    aaGuess3 = fitter3.getParams();
+    final double[] aaGuess3 = fitter3.getParams();
     System.out.println("answer: " + aaGuess3[0] + "\t" + aaGuess3[1]);
     System.out.println("sq: " + fitter3.getFinalSq());
     System.out.println("\n");
@@ -914,7 +794,7 @@ public class MixedBivariateLogNormalFitterTest {
     final MixedLogNormalVolatilityFunction volfunc = MixedLogNormalVolatilityFunction.getInstance();
 
     for (int i = 0; i < 100; i++) {
-      double k = fwdX * (0.5 + 1. * i / 100.);
+      final double k = fwdX * (0.5 + 1. * i / 100.);
       final EuropeanVanillaOption option = new EuropeanVanillaOption(k, time, true);
       final double vol2 = volfunc.getVolatility(option, fwdX, objAns1);
       final double vol3 = volfunc.getVolatility(option, fwdX, objAns2);
@@ -927,8 +807,8 @@ public class MixedBivariateLogNormalFitterTest {
    * 
    */
   @Test
-      (enabled = false)
-      public void TestDerivingZ1() {
+  (enabled = false)
+  public void testDerivingZ1() {
 
     final int nNorms = 2;
     final int nParams = 5 * nNorms - 3;
@@ -943,21 +823,21 @@ public class MixedBivariateLogNormalFitterTest {
     final double time = 1.0;
 
     double[] xx = new double[nDataPts];
-    double[] yy = new double[nDataPts];
+    final double[] yy = new double[nDataPts];
     double[] aaGuess1 = new double[nParams];
-    double[] aaGuess1X = new double[nParamsX];
-    double[] aaGuess1Y = new double[nParamsY];
-    double[] rhos = new double[nNorms];
+    final double[] aaGuess1X = new double[nParamsX];
+    final double[] aaGuess1Y = new double[nParamsY];
+    final double[] rhos = new double[nNorms];
 
-    Random obj = new Random();
+    final Random obj = new Random();
 
-    double[] inRelativePartialForwardsX = {1., 1. };
-    double[] inRelativePartialForwardsY = {Math.exp(-0.2), (1. - Math.exp(-0.2) * 0.7) / 0.3 };
+    final double[] inRelativePartialForwardsX = {1., 1. };
+    final double[] inRelativePartialForwardsY = {Math.exp(-0.2), (1. - Math.exp(-0.2) * 0.7) / 0.3 };
 
-    double[] inSigmasX = {0.25, 0.7 };
-    double[] inSigmasY = {0.3, 0.5 };
+    final double[] inSigmasX = {0.25, 0.7 };
+    final double[] inSigmasY = {0.3, 0.5 };
 
-    double[] inWeights = {0.7, 0.3 };
+    final double[] inWeights = {0.7, 0.3 };
 
     final MixedLogNormalModelData inObjX = new MixedLogNormalModelData(inWeights, inSigmasX, inRelativePartialForwardsX);
     final MixedLogNormalModelData inObjY = new MixedLogNormalModelData(inWeights, inSigmasY, inRelativePartialForwardsY);
@@ -968,12 +848,12 @@ public class MixedBivariateLogNormalFitterTest {
     Arrays.fill(yy, 0.);
 
     for (int j = 0; j < nDataPtsX; ++j) {
-      EuropeanVanillaOption option = new EuropeanVanillaOption(xx[j], time, true);
+      final EuropeanVanillaOption option = new EuropeanVanillaOption(xx[j], time, true);
       yy[j] = volfunc.getVolatility(option, fwdX, inObjX);
     }
 
     for (int j = nDataPtsX; j < nDataPts; ++j) {
-      EuropeanVanillaOption option = new EuropeanVanillaOption(xx[j], time, true);
+      final EuropeanVanillaOption option = new EuropeanVanillaOption(xx[j], time, true);
       yy[j] = volfunc.getVolatility(option, fwdY, inObjY);
     }
 
@@ -1110,11 +990,11 @@ public class MixedBivariateLogNormalFitterTest {
     System.out.println("\n");
     System.out.println("Imp Vols XYZ from fitting");
 
-    double[] ansVolsX = new double[100];
-    double[] ansVolsY = new double[100];
-    double[] ansVolsZ = new double[100];
+    final double[] ansVolsX = new double[100];
+    final double[] ansVolsY = new double[100];
+    final double[] ansVolsZ = new double[100];
     for (int i = 0; i < 100; i++) {
-      double k = fwdX * (0.1 + 2. * i / 100.);
+      final double k = fwdX * (0.1 + 2. * i / 100.);
       final EuropeanVanillaOption option = new EuropeanVanillaOption(k, time, true);
       ansVolsX[i] = volfunc.getVolatility(option, fwdX, objAns1X);
       ansVolsY[i] = volfunc.getVolatility(option, fwdY, objAns1Y);
@@ -1125,11 +1005,11 @@ public class MixedBivariateLogNormalFitterTest {
     System.out.println("\n");
     System.out.println("True Imp Vols XYZ");
 
-    double[] trueVolsX = new double[100];
-    double[] trueVolsY = new double[100];
-    double[] trueVolsZ = new double[100];
+    final double[] trueVolsX = new double[100];
+    final double[] trueVolsY = new double[100];
+    final double[] trueVolsZ = new double[100];
     for (int i = 0; i < 100; i++) {
-      double k = fwdY * (0.1 + 2. * i / 100.);
+      final double k = fwdY * (0.1 + 2. * i / 100.);
       final EuropeanVanillaOption option = new EuropeanVanillaOption(k, time, true);
       trueVolsX[i] = volfunc.getVolatility(option, fwdX, inObjX);
       trueVolsY[i] = volfunc.getVolatility(option, fwdY, inObjY);
@@ -1140,7 +1020,7 @@ public class MixedBivariateLogNormalFitterTest {
 
     System.out.println("\n");
     final double[] kDataSet = {0.5, 0.7, 0.9, 1.0, 1.2, 1.5, 1.8 };
-    for (double k : kDataSet) {
+    for (final double k : kDataSet) {
       final EuropeanVanillaOption option = new EuropeanVanillaOption(k, time, true);
       final double trueVol = objTrueZ.getImpliedVolatilityZ(option, fwdZ);
       System.out.println(k + "\t" + trueVol);
@@ -1159,14 +1039,14 @@ public class MixedBivariateLogNormalFitterTest {
     System.out.println("\n");
     System.out.println("Density X (1e-6)");
 
-    double[] ansDensityX = new double[100];
-    double[] ansDensityY = new double[100];
-    double[] ansDensityZ = new double[100];
-    double[] trueDensityX = new double[100];
-    double[] trueDensityY = new double[100];
-    double[] trueDensityZ = new double[100];
+    final double[] ansDensityX = new double[100];
+    final double[] ansDensityY = new double[100];
+    final double[] ansDensityZ = new double[100];
+    final double[] trueDensityX = new double[100];
+    final double[] trueDensityY = new double[100];
+    final double[] trueDensityZ = new double[100];
     for (int i = 0; i < 100; i++) {
-      double k = fwdX * (0.01 + 2. * i / 100.);
+      final double k = fwdX * (0.01 + 2. * i / 100.);
       final EuropeanVanillaOption option = new EuropeanVanillaOption(k, time, true);
       ansDensityX[i] = getDualGamma(option, fwdX, objAns1X);
       trueDensityX[i] = getDualGamma(option, fwdX, inObjX);
@@ -1178,7 +1058,7 @@ public class MixedBivariateLogNormalFitterTest {
     System.out.println("Density Y (1e-6)");
 
     for (int i = 0; i < 100; i++) {
-      double k = fwdY * (0.01 + 2. * i / 100.);
+      final double k = fwdY * (0.01 + 2. * i / 100.);
       final EuropeanVanillaOption option = new EuropeanVanillaOption(k, time, true);
       ansDensityY[i] = getDualGamma(option, fwdY, objAns1Y);
       trueDensityY[i] = getDualGamma(option, fwdY, inObjY);
@@ -1190,7 +1070,7 @@ public class MixedBivariateLogNormalFitterTest {
     System.out.println("Density Z (1e-6)");
 
     for (int i = 0; i < 100; i++) {
-      double k = fwdY * (0.01 + 2. * i / 100.);
+      final double k = fwdY * (0.01 + 2. * i / 100.);
       final EuropeanVanillaOption option = new EuropeanVanillaOption(k, time, true);
       ansDensityZ[i] = getDualGammaZ(option, fwdZ, objZ);
       trueDensityZ[i] = getDualGammaZ(option, fwdZ, objTrueZ);
@@ -1202,7 +1082,7 @@ public class MixedBivariateLogNormalFitterTest {
     System.out.println("Density(exp)");
 
     for (int i = 0; i < 100; i++) {
-      double k = fwdX * (0.1 + 9. * i / 100.);
+      final double k = fwdX * (0.1 + 9. * i / 100.);
       final double denValueX = getDensity(weights, sigmasX, relativePartialForwardsX, k);
       final double denValueY = getDensity(weights, sigmasY, relativePartialForwardsY, k);
       final double denValueZ = getDensity(weights, sigmasZ, relativePartialForwardsZ, k);
@@ -1213,7 +1093,7 @@ public class MixedBivariateLogNormalFitterTest {
     System.out.println("Put-Call Parity X (1e-10)");
 
     for (int i = 0; i < 100; i++) {
-      double k = fwdY * (0.01 + 2. * i / 100.);
+      final double k = fwdY * (0.01 + 2. * i / 100.);
       final EuropeanVanillaOption optionCall = new EuropeanVanillaOption(k, time, true);
       final EuropeanVanillaOption optionPut = new EuropeanVanillaOption(k, time, false);
       final double callPrice = getPrice(optionCall, fwdX, objAns1X);
@@ -1226,7 +1106,7 @@ public class MixedBivariateLogNormalFitterTest {
     System.out.println("Put-Call Parity Y (1e-10)");
 
     for (int i = 0; i < 100; i++) {
-      double k = fwdY * (0.01 + 2. * i / 100.);
+      final double k = fwdY * (0.01 + 2. * i / 100.);
       final EuropeanVanillaOption optionCall = new EuropeanVanillaOption(k, time, true);
       final EuropeanVanillaOption optionPut = new EuropeanVanillaOption(k, time, false);
       final double callPrice = getPrice(optionCall, fwdY, objAns1Y);
@@ -1239,7 +1119,7 @@ public class MixedBivariateLogNormalFitterTest {
     System.out.println("Put-Call Parity Z (1e-8)");
 
     for (int i = 0; i < 100; i++) {
-      double k = fwdZ * (0.01 + 2. * i / 100.);
+      final double k = fwdZ * (0.01 + 2. * i / 100.);
       final EuropeanVanillaOption optionCall = new EuropeanVanillaOption(k, time, true);
       final EuropeanVanillaOption optionPut = new EuropeanVanillaOption(k, time, false);
       final double callPrice = objZ.getPriceZ(optionCall, fwdZ);
@@ -1254,8 +1134,8 @@ public class MixedBivariateLogNormalFitterTest {
    * 
    */
   @Test
-      (enabled = false)
-      public void TestError() {
+  (enabled = false)
+  public void testError() {
 
     final int nNorms = 2;
     final int nParams = 5 * nNorms - 3;
@@ -1269,21 +1149,21 @@ public class MixedBivariateLogNormalFitterTest {
     final double time = 1.0;
 
     double[] xx = new double[nDataPts];
-    double[] yy = new double[nDataPts];
+    final double[] yy = new double[nDataPts];
     double[] aaGuess1 = new double[nParams];
-    double[] aaGuess1X = new double[nParamsX];
-    double[] aaGuess1Y = new double[nParamsY];
-    double[] rhos = new double[nNorms];
+    final double[] aaGuess1X = new double[nParamsX];
+    final double[] aaGuess1Y = new double[nParamsY];
+    final double[] rhos = new double[nNorms];
 
-    Random obj = new Random();
+    final Random obj = new Random();
 
-    double[] inRelativePartialForwardsX = {1., 1. };
-    double[] inRelativePartialForwardsY = {Math.exp(-0.2), (1. - Math.exp(-0.2) * 0.7) / 0.3 };
+    final double[] inRelativePartialForwardsX = {1., 1. };
+    final double[] inRelativePartialForwardsY = {Math.exp(-0.2), (1. - Math.exp(-0.2) * 0.7) / 0.3 };
 
-    double[] inSigmasX = {0.25, 0.7 };
-    double[] inSigmasY = {0.3, 0.5 };
+    final double[] inSigmasX = {0.25, 0.7 };
+    final double[] inSigmasY = {0.3, 0.5 };
 
-    double[] inWeights = {0.7, 0.3 };
+    final double[] inWeights = {0.7, 0.3 };
 
     final MixedLogNormalModelData inObjX = new MixedLogNormalModelData(inWeights, inSigmasX, inRelativePartialForwardsX);
     final MixedLogNormalModelData inObjY = new MixedLogNormalModelData(inWeights, inSigmasY, inRelativePartialForwardsY);
@@ -1294,12 +1174,12 @@ public class MixedBivariateLogNormalFitterTest {
     Arrays.fill(yy, 0.);
 
     for (int j = 0; j < nDataPtsX; ++j) {
-      EuropeanVanillaOption option = new EuropeanVanillaOption(xx[j], time, true);
+      final EuropeanVanillaOption option = new EuropeanVanillaOption(xx[j], time, true);
       yy[j] = volfunc.getVolatility(option, fwdX, inObjX);
     }
 
     for (int j = nDataPtsX; j < nDataPts; ++j) {
-      EuropeanVanillaOption option = new EuropeanVanillaOption(xx[j], time, true);
+      final EuropeanVanillaOption option = new EuropeanVanillaOption(xx[j], time, true);
       yy[j] = volfunc.getVolatility(option, fwdY, inObjY);
     }
 
@@ -1319,7 +1199,7 @@ public class MixedBivariateLogNormalFitterTest {
 
     MixedBivariateLogNormalFitter fitter1 = new MixedBivariateLogNormalFitter();
 
-    boolean fitDone = false;
+    final boolean fitDone = false;
     int counter = 0;
 
     while (fitDone == false && counter <= 100000) {
@@ -1448,7 +1328,7 @@ public class MixedBivariateLogNormalFitterTest {
    * 
    */
   @Test(enabled = false)
-  public void TestAccuracy() {
+  public void testAccuracy() {
 
     final int nNorms = 2;
     final int nParams = 5 * nNorms - 3;
@@ -1462,38 +1342,37 @@ public class MixedBivariateLogNormalFitterTest {
     final double fwdZ = fwdX / fwdY;
     final double time = 1.0;
 
-    double[] xx = new double[nDataPts];
-    double[] yy = new double[nDataPts];
+    final double[] yy = new double[nDataPts];
     double[] aaGuess1 = new double[nParams];
-    double[] aaGuess1X = new double[nParamsX];
-    double[] aaGuess1Y = new double[nParamsY];
-    double[] rhos = new double[nNorms];
+    final double[] aaGuess1X = new double[nParamsX];
+    final double[] aaGuess1Y = new double[nParamsY];
+    final double[] rhos = new double[nNorms];
 
-    Random obj = new Random();
+    final Random obj = new Random();
 
-    double[] inRelativePartialForwardsX = {1., 1. };
-    double[] inRelativePartialForwardsY = {Math.exp(-0.2), (1. - Math.exp(-0.2) * 0.7) / 0.3 };
+    final double[] inRelativePartialForwardsX = {1., 1. };
+    final double[] inRelativePartialForwardsY = {Math.exp(-0.2), (1. - Math.exp(-0.2) * 0.7) / 0.3 };
 
-    double[] inSigmasX = {0.25, 0.7 };
-    double[] inSigmasY = {0.3, 0.5 };
+    final double[] inSigmasX = {0.25, 0.7 };
+    final double[] inSigmasY = {0.3, 0.5 };
 
-    double[] inWeights = {0.7, 0.3 };
+    final double[] inWeights = {0.7, 0.3 };
 
     final MixedLogNormalModelData inObjX = new MixedLogNormalModelData(inWeights, inSigmasX, inRelativePartialForwardsX);
     final MixedLogNormalModelData inObjY = new MixedLogNormalModelData(inWeights, inSigmasY, inRelativePartialForwardsY);
 
-    xx = new double[] {0.5, 0.7, 0.9, 1.0, 1.2, 1.5, 1.8, 0.5, 0.7, 0.9, 1.0, 1.2, 1.5, 1.8 };
+    final double[] xx = new double[] {0.5, 0.7, 0.9, 1.0, 1.2, 1.5, 1.8, 0.5, 0.7, 0.9, 1.0, 1.2, 1.5, 1.8 };
 
     final MixedLogNormalVolatilityFunction volfunc = MixedLogNormalVolatilityFunction.getInstance();
     Arrays.fill(yy, 0.);
 
     for (int j = 0; j < nDataPtsX; ++j) {
-      EuropeanVanillaOption option = new EuropeanVanillaOption(xx[j], time, true);
+      final EuropeanVanillaOption option = new EuropeanVanillaOption(xx[j], time, true);
       yy[j] = volfunc.getVolatility(option, fwdX, inObjX);
     }
 
     for (int j = nDataPtsX; j < nDataPts; ++j) {
-      EuropeanVanillaOption option = new EuropeanVanillaOption(xx[j], time, true);
+      final EuropeanVanillaOption option = new EuropeanVanillaOption(xx[j], time, true);
       yy[j] = volfunc.getVolatility(option, fwdY, inObjY);
     }
 
@@ -1585,11 +1464,11 @@ public class MixedBivariateLogNormalFitterTest {
     final MixedBivariateLogNormalModelVolatility objZ = new MixedBivariateLogNormalModelVolatility(weights, sigmasX,
         sigmasY, relativePartialForwardsX, relativePartialForwardsY, rhos);
 
-    double[] ansVolsX = new double[100];
-    double[] ansVolsY = new double[100];
-    double[] ansVolsZ = new double[100];
+    final double[] ansVolsX = new double[100];
+    final double[] ansVolsY = new double[100];
+    final double[] ansVolsZ = new double[100];
     for (int i = 0; i < 100; i++) {
-      double k = fwdX * (0.1 + 2. * i / 100.);
+      final double k = fwdX * (0.1 + 2. * i / 100.);
       final EuropeanVanillaOption option = new EuropeanVanillaOption(k, time, true);
       ansVolsX[i] = volfunc.getVolatility(option, fwdX, objAns1X);
       ansVolsY[i] = volfunc.getVolatility(option, fwdY, objAns1Y);
@@ -1600,11 +1479,11 @@ public class MixedBivariateLogNormalFitterTest {
     final MixedBivariateLogNormalModelVolatility objTrueZ = new MixedBivariateLogNormalModelVolatility(inWeights, inSigmasX,
         inSigmasY, inRelativePartialForwardsX, inRelativePartialForwardsY, rhos);
 
-    double[] trueVolsX = new double[100];
-    double[] trueVolsY = new double[100];
-    double[] trueVolsZ = new double[100];
+    final double[] trueVolsX = new double[100];
+    final double[] trueVolsY = new double[100];
+    final double[] trueVolsZ = new double[100];
     for (int i = 0; i < 100; i++) {
-      double k = fwdY * (0.1 + 2. * i / 100.);
+      final double k = fwdY * (0.1 + 2. * i / 100.);
       final EuropeanVanillaOption option = new EuropeanVanillaOption(k, time, true);
       trueVolsX[i] = volfunc.getVolatility(option, fwdX, inObjX);
       trueVolsY[i] = volfunc.getVolatility(option, fwdY, inObjY);
@@ -1628,8 +1507,8 @@ public class MixedBivariateLogNormalFitterTest {
    * 
    */
   @Test
-      (enabled = false)
-      public void TestAccuracy2() {
+  (enabled = false)
+  public void testAccuracy2() {
 
     final int nNorms = 2;
     final int nParams = 5 * nNorms - 3;
@@ -1644,21 +1523,21 @@ public class MixedBivariateLogNormalFitterTest {
     final double time = 1.0;
 
     double[] xx = new double[nDataPts];
-    double[] yy = new double[nDataPts];
+    final double[] yy = new double[nDataPts];
     double[] aaGuess1 = new double[nParams];
-    double[] aaGuess1X = new double[nParamsX];
-    double[] aaGuess1Y = new double[nParamsY];
-    double[] rhos = new double[nNorms];
+    final double[] aaGuess1X = new double[nParamsX];
+    final double[] aaGuess1Y = new double[nParamsY];
+    final double[] rhos = new double[nNorms];
 
-    Random obj = new Random();
+    final Random obj = new Random();
 
-    double[] inRelativePartialForwardsX = {1., 1. };
-    double[] inRelativePartialForwardsY = {Math.exp(-0.2), (1. - Math.exp(-0.2) * 0.7) / 0.3 };
+    final double[] inRelativePartialForwardsX = {1., 1. };
+    final double[] inRelativePartialForwardsY = {Math.exp(-0.2), (1. - Math.exp(-0.2) * 0.7) / 0.3 };
 
-    double[] inSigmasX = {0.25, 0.7 };
-    double[] inSigmasY = {0.3, 0.5 };
+    final double[] inSigmasX = {0.25, 0.7 };
+    final double[] inSigmasY = {0.3, 0.5 };
 
-    double[] inWeights = {0.7, 0.3 };
+    final double[] inWeights = {0.7, 0.3 };
 
     final MixedLogNormalModelData inObjX = new MixedLogNormalModelData(inWeights, inSigmasX, inRelativePartialForwardsX);
     final MixedLogNormalModelData inObjY = new MixedLogNormalModelData(inWeights, inSigmasY, inRelativePartialForwardsY);
@@ -1669,12 +1548,12 @@ public class MixedBivariateLogNormalFitterTest {
     Arrays.fill(yy, 0.);
 
     for (int j = 0; j < nDataPtsX; ++j) {
-      EuropeanVanillaOption option = new EuropeanVanillaOption(xx[j], time, true);
+      final EuropeanVanillaOption option = new EuropeanVanillaOption(xx[j], time, true);
       yy[j] = volfunc.getVolatility(option, fwdX, inObjX);
     }
 
     for (int j = nDataPtsX; j < nDataPts; ++j) {
-      EuropeanVanillaOption option = new EuropeanVanillaOption(xx[j], time, true);
+      final EuropeanVanillaOption option = new EuropeanVanillaOption(xx[j], time, true);
       yy[j] = volfunc.getVolatility(option, fwdY, inObjY);
     }
 
@@ -1768,10 +1647,10 @@ public class MixedBivariateLogNormalFitterTest {
     final MixedBivariateLogNormalModelVolatility objTrueZ = new MixedBivariateLogNormalModelVolatility(inWeights, inSigmasX,
         inSigmasY, inRelativePartialForwardsX, inRelativePartialForwardsY, rhos);
 
-    double[] xxZ = new double[nDataPtsX];
-    double[] yyZ = new double[nDataPtsX];
+    final double[] xxZ = new double[nDataPtsX];
+    final double[] yyZ = new double[nDataPtsX];
     for (int j = 0; j < nDataPtsX; ++j) {
-      EuropeanVanillaOption option = new EuropeanVanillaOption(xx[j], time, true);
+      final EuropeanVanillaOption option = new EuropeanVanillaOption(xx[j], time, true);
       xxZ[j] = xx[j];
       yyZ[j] = objTrueZ.getImpliedVolatilityZ(option, fwdZ);
     }
@@ -1819,11 +1698,11 @@ public class MixedBivariateLogNormalFitterTest {
     final MixedBivariateLogNormalModelVolatility objZ = new MixedBivariateLogNormalModelVolatility(weights, sigmasX,
         sigmasY, relativePartialForwardsX, relativePartialForwardsY, rhosGuess);
 
-    double[] ansVolsX = new double[100];
-    double[] ansVolsY = new double[100];
-    double[] ansVolsZ = new double[100];
+    final double[] ansVolsX = new double[100];
+    final double[] ansVolsY = new double[100];
+    final double[] ansVolsZ = new double[100];
     for (int i = 0; i < 100; i++) {
-      double k = fwdX * (0.1 + 2. * i / 100.);
+      final double k = fwdX * (0.1 + 2. * i / 100.);
       final EuropeanVanillaOption option = new EuropeanVanillaOption(k, time, true);
       ansVolsX[i] = volfunc.getVolatility(option, fwdX, objAns1X);
       ansVolsY[i] = volfunc.getVolatility(option, fwdY, objAns1Y);
@@ -1831,11 +1710,11 @@ public class MixedBivariateLogNormalFitterTest {
       //   System.out.println(k + "\t" + ansVolsX[i] + "\t" + ansVolsY[i] + "\t" + ansVolsZ[i]);
     }
 
-    double[] trueVolsX = new double[100];
-    double[] trueVolsY = new double[100];
-    double[] trueVolsZ = new double[100];
+    final double[] trueVolsX = new double[100];
+    final double[] trueVolsY = new double[100];
+    final double[] trueVolsZ = new double[100];
     for (int i = 0; i < 100; i++) {
-      double k = fwdY * (0.1 + 2. * i / 100.);
+      final double k = fwdY * (0.1 + 2. * i / 100.);
       final EuropeanVanillaOption option = new EuropeanVanillaOption(k, time, true);
       trueVolsX[i] = volfunc.getVolatility(option, fwdX, inObjX);
       trueVolsY[i] = volfunc.getVolatility(option, fwdY, inObjY);
@@ -1859,8 +1738,8 @@ public class MixedBivariateLogNormalFitterTest {
    * 
    */
   @Test
-      (enabled = false)
-      public void TestNoise() {
+  (enabled = false)
+  public void testNoise() {
 
     final int nNorms = 2;
     final int nParams = 5 * nNorms - 3;
@@ -1874,43 +1753,41 @@ public class MixedBivariateLogNormalFitterTest {
     final double fwdZ = fwdX / fwdY;
     final double time = 1.0;
 
-    double[] xx = new double[nDataPts];
-    double[] yy = new double[nDataPts];
-    double[] yyNoRand = new double[nDataPts];
+    final double[] yy = new double[nDataPts];
+    final double[] yyNoRand = new double[nDataPts];
     double[] aaGuess1 = new double[nParams];
-    double[] aaGuess1X = new double[nParamsX];
-    double[] aaGuess1Y = new double[nParamsY];
-    double[] rhos = new double[nNorms];
+    final double[] aaGuess1X = new double[nParamsX];
+    final double[] aaGuess1Y = new double[nParamsY];
 
-    Random objRand = new Random();
-    NormalRandomNumberGenerator objRandNorm = new NormalRandomNumberGenerator(0, 5e-3);
+    final Random objRand = new Random();
+    final NormalRandomNumberGenerator objRandNorm = new NormalRandomNumberGenerator(0, 5e-3);
 
-    double[] inRelativePartialForwardsX = {1., 1. };
-    double[] inRelativePartialForwardsY = {Math.exp(-0.2), (1. - Math.exp(-0.2) * 0.7) / 0.3 };
+    final double[] inRelativePartialForwardsX = {1., 1. };
+    final double[] inRelativePartialForwardsY = {Math.exp(-0.2), (1. - Math.exp(-0.2) * 0.7) / 0.3 };
 
-    double[] inSigmasX = {0.25, 0.7 };
-    double[] inSigmasY = {0.3, 0.5 };
+    final double[] inSigmasX = {0.25, 0.7 };
+    final double[] inSigmasY = {0.3, 0.5 };
 
-    double[] inWeights = {0.7, 0.3 };
+    final double[] inWeights = {0.7, 0.3 };
 
     final MixedLogNormalModelData inObjX = new MixedLogNormalModelData(inWeights, inSigmasX, inRelativePartialForwardsX);
     final MixedLogNormalModelData inObjY = new MixedLogNormalModelData(inWeights, inSigmasY, inRelativePartialForwardsY);
 
-    xx = new double[] {0.5, 0.7, 0.9, 1.0, 1.2, 1.5, 1.8, 0.5, 0.7, 0.9, 1.0, 1.2, 1.5, 1.8 };
+    final double[] xx = new double[] {0.5, 0.7, 0.9, 1.0, 1.2, 1.5, 1.8, 0.5, 0.7, 0.9, 1.0, 1.2, 1.5, 1.8 };
 
     final MixedLogNormalVolatilityFunction volfunc = MixedLogNormalVolatilityFunction.getInstance();
     Arrays.fill(yy, 0.);
 
     for (int j = 0; j < nDataPtsX; ++j) {
-      EuropeanVanillaOption option = new EuropeanVanillaOption(xx[j], time, true);
-      double[] tmpRandNorm = objRandNorm.getVector(1);
+      final EuropeanVanillaOption option = new EuropeanVanillaOption(xx[j], time, true);
+      final double[] tmpRandNorm = objRandNorm.getVector(1);
       yyNoRand[j] = volfunc.getVolatility(option, fwdX, inObjX);
       yy[j] = yyNoRand[j] * (1. + tmpRandNorm[0]);
     }
 
     for (int j = nDataPtsX; j < nDataPts; ++j) {
-      EuropeanVanillaOption option = new EuropeanVanillaOption(xx[j], time, true);
-      double[] tmpRandNorm = objRandNorm.getVector(1);
+      final EuropeanVanillaOption option = new EuropeanVanillaOption(xx[j], time, true);
+      final double[] tmpRandNorm = objRandNorm.getVector(1);
       yyNoRand[j] = volfunc.getVolatility(option, fwdY, inObjY);
       yy[j] = yyNoRand[j] * (1. + tmpRandNorm[0]);
     }
@@ -1919,7 +1796,7 @@ public class MixedBivariateLogNormalFitterTest {
       System.out.println(yy[j] + "\t" + yyNoRand[j]);
     }
 
-    rhos = new double[] {0.4, 0.4 };
+    final double[] rhos = new double[] {0.4, 0.4 };
 
     final MixedBivariateLogNormalModelVolatility objTrueZ = new MixedBivariateLogNormalModelVolatility(inWeights, inSigmasX,
         inSigmasY, inRelativePartialForwardsX, inRelativePartialForwardsY, rhos);
@@ -2050,11 +1927,11 @@ public class MixedBivariateLogNormalFitterTest {
     System.out.println("\n");
     System.out.println("Imp Vols XYZ from fitting");
 
-    double[] ansVolsX = new double[100];
-    double[] ansVolsY = new double[100];
-    double[] ansVolsZ = new double[100];
+    final double[] ansVolsX = new double[100];
+    final double[] ansVolsY = new double[100];
+    final double[] ansVolsZ = new double[100];
     for (int i = 0; i < 100; i++) {
-      double k = fwdX * (0.1 + 2. * i / 100.);
+      final double k = fwdX * (0.1 + 2. * i / 100.);
       final EuropeanVanillaOption option = new EuropeanVanillaOption(k, time, true);
       ansVolsX[i] = volfunc.getVolatility(option, fwdX, objAns1X);
       ansVolsY[i] = volfunc.getVolatility(option, fwdY, objAns1Y);
@@ -2065,11 +1942,11 @@ public class MixedBivariateLogNormalFitterTest {
     System.out.println("\n");
     System.out.println("True Imp Vols XYZ");
 
-    double[] trueVolsX = new double[100];
-    double[] trueVolsY = new double[100];
-    double[] trueVolsZ = new double[100];
+    final double[] trueVolsX = new double[100];
+    final double[] trueVolsY = new double[100];
+    final double[] trueVolsZ = new double[100];
     for (int i = 0; i < 100; i++) {
-      double k = fwdY * (0.1 + 2. * i / 100.);
+      final double k = fwdY * (0.1 + 2. * i / 100.);
       final EuropeanVanillaOption option = new EuropeanVanillaOption(k, time, true);
       trueVolsX[i] = volfunc.getVolatility(option, fwdX, inObjX);
       trueVolsY[i] = volfunc.getVolatility(option, fwdY, inObjY);
@@ -2084,8 +1961,8 @@ public class MixedBivariateLogNormalFitterTest {
    * 
    */
   @Test
-      (enabled = false)
-      public void TestMarketData() {
+  (enabled = false)
+  public void testMarketData() {
 
     final double[] deltas = new double[] {0.15, 0.25 };
     final double[] expiries = new double[] {7. / 365, 14 / 365., 21 / 365., 1 / 12., 3 / 12., 0.5, 0.75, 1, 5 };
@@ -2130,12 +2007,12 @@ public class MixedBivariateLogNormalFitterTest {
       fwdEURUSD[i] = spotEURUSD * Math.exp(fwdRateEURUSD[i] * expiries[i]);
     }
 
-    double[][] strikeGBPUSD = new double[nExpiries][];
-    double[][] volGBPUSD = new double[nExpiries][];
-    double[][] strikeEURGBP = new double[nExpiries][];
-    double[][] volEURGBP = new double[nExpiries][];
-    double[][] strikeEURUSD = new double[nExpiries][];
-    double[][] volEURUSD = new double[nExpiries][];
+    final double[][] strikeGBPUSD = new double[nExpiries][];
+    final double[][] volGBPUSD = new double[nExpiries][];
+    final double[][] strikeEURGBP = new double[nExpiries][];
+    final double[][] volEURGBP = new double[nExpiries][];
+    final double[][] strikeEURUSD = new double[nExpiries][];
+    final double[][] volEURUSD = new double[nExpiries][];
 
     for (int i = 0; i < nExpiries; i++) {
       final double[] rr1 = new double[nDeltas];
@@ -2172,14 +2049,14 @@ public class MixedBivariateLogNormalFitterTest {
     final int nParamsX = 3 * nNorms - 2;
     final int nParamsY = 3 * nNorms - 2;
 
-    double[] xx = new double[nDataPts];
-    double[] yy = new double[nDataPts];
+    final double[] xx = new double[nDataPts];
+    final double[] yy = new double[nDataPts];
     double[] aaGuess = new double[nParams];
-    double[] aaGuessX = new double[nParamsX];
-    double[] aaGuessY = new double[nParamsY];
+    final double[] aaGuessX = new double[nParamsX];
+    final double[] aaGuessY = new double[nParamsY];
     double[] rhos = new double[nNorms];
 
-    Random objRand = new Random();
+    final Random objRand = new Random();
 
     final int choiceOfExpiry = 8;
     final double fwdX = fwdEURUSD[choiceOfExpiry];
@@ -2316,9 +2193,9 @@ public class MixedBivariateLogNormalFitterTest {
 
     //  double[] ansVolsX = new double[100];
     //  double[] ansVolsY = new double[100];
-    double[] ansVolsZ = new double[100];
+    final double[] ansVolsZ = new double[100];
     for (int i = 0; i < 100; i++) {
-      double k = fwdZ * (0.98 + .4 * i / 1000.);
+      final double k = fwdZ * (0.98 + .4 * i / 1000.);
       final EuropeanVanillaOption option = new EuropeanVanillaOption(k, time, true);
       //ansVolsX[i] = volfunc.getVolatility(option, fwdX, objAns1X);
       // ansVolsY[i] = volfunc.getVolatility(option, fwdY, objAns1Y);
@@ -2354,7 +2231,7 @@ public class MixedBivariateLogNormalFitterTest {
    * 
    */
   @Test(enabled = false)
-  public void TestXYfitterZfitter() {
+  public void testXYfitterZfitter() {
 
     final double[] deltas = new double[] {0.15, 0.25 };
     final double[] expiries = new double[] {7. / 365, 14 / 365., 21 / 365., 1 / 12., 3 / 12., 0.5, 0.75, 1, 5 };
@@ -2399,12 +2276,12 @@ public class MixedBivariateLogNormalFitterTest {
       fwdEURUSD[i] = spotEURUSD * Math.exp(fwdRateEURUSD[i] * expiries[i]);
     }
 
-    double[][] strikeGBPUSD = new double[nExpiries][];
-    double[][] volGBPUSD = new double[nExpiries][];
-    double[][] strikeEURGBP = new double[nExpiries][];
-    double[][] volEURGBP = new double[nExpiries][];
-    double[][] strikeEURUSD = new double[nExpiries][];
-    double[][] volEURUSD = new double[nExpiries][];
+    final double[][] strikeGBPUSD = new double[nExpiries][];
+    final double[][] volGBPUSD = new double[nExpiries][];
+    final double[][] strikeEURGBP = new double[nExpiries][];
+    final double[][] volEURGBP = new double[nExpiries][];
+    final double[][] strikeEURUSD = new double[nExpiries][];
+    final double[][] volEURUSD = new double[nExpiries][];
 
     for (int i = 0; i < nExpiries; i++) {
       final double[] rr1 = new double[nDeltas];
@@ -2441,14 +2318,14 @@ public class MixedBivariateLogNormalFitterTest {
     final int nParamsX = 3 * nNorms - 2;
     final int nParamsY = 3 * nNorms - 2;
 
-    double[] xx = new double[nDataPts];
-    double[] yy = new double[nDataPts];
+    final double[] xx = new double[nDataPts];
+    final double[] yy = new double[nDataPts];
     double[] aaGuess = new double[nParams];
-    double[] aaGuessX = new double[nParamsX];
-    double[] aaGuessY = new double[nParamsY];
+    final double[] aaGuessX = new double[nParamsX];
+    final double[] aaGuessY = new double[nParamsY];
     double[] rhosGuess = new double[nNorms];
 
-    Random objRand = new Random();
+    final Random objRand = new Random();
 
     final int choiceOfExpiry = 3;
     final double fwdX = fwdEURUSD[choiceOfExpiry];
@@ -2632,11 +2509,11 @@ public class MixedBivariateLogNormalFitterTest {
     System.out.println("\n");
     System.out.println("Imp Vols Z from fitting");
 
-    double[] ansVolsX = new double[100];
-    double[] ansVolsY = new double[100];
-    double[] ansVolsZ = new double[100];
+    final double[] ansVolsX = new double[100];
+    final double[] ansVolsY = new double[100];
+    final double[] ansVolsZ = new double[100];
     for (int i = 0; i < 100; i++) {
-      double k = fwdZ * (0.9 + choiceOfExpiry * 0.01 + (.2 - choiceOfExpiry * 0.02) * i / 100.); //The range should be appropriately chosen depending on expiry
+      final double k = fwdZ * (0.9 + choiceOfExpiry * 0.01 + (.2 - choiceOfExpiry * 0.02) * i / 100.); //The range should be appropriately chosen depending on expiry
       final EuropeanVanillaOption option = new EuropeanVanillaOption(k, time, true);
       ansVolsZ[i] = objZ.getImpliedVolatilityZ(option, fwdZ);
       System.out.println(k + "\t" + ansVolsZ[i]);
@@ -2645,7 +2522,7 @@ public class MixedBivariateLogNormalFitterTest {
     System.out.println("\n");
     System.out.println("Imp Vols X from fitting");
     for (int i = 0; i < 100; i++) {
-      double k = fwdX * (0.9 + .2 * i / 100.); //The range should be appropriately chosen depending on expiry
+      final double k = fwdX * (0.9 + .2 * i / 100.); //The range should be appropriately chosen depending on expiry
       final EuropeanVanillaOption option = new EuropeanVanillaOption(k, time, true);
       ansVolsX[i] = volfunc.getVolatility(option, fwdX, objAns1X);
       System.out.println(k + "\t" + ansVolsX[i]);
@@ -2654,7 +2531,7 @@ public class MixedBivariateLogNormalFitterTest {
     System.out.println("\n");
     System.out.println("Imp Vols Y from fitting");
     for (int i = 0; i < 100; i++) {
-      double k = fwdY * (0.9 + .2 * i / 100.); //The range should be appropriately chosen depending on expiry
+      final double k = fwdY * (0.9 + .2 * i / 100.); //The range should be appropriately chosen depending on expiry
       final EuropeanVanillaOption option = new EuropeanVanillaOption(k, time, true);
       ansVolsY[i] = volfunc.getVolatility(option, fwdY, objAns1Y);
       System.out.println(k + "\t" + ansVolsY[i]);
@@ -2686,26 +2563,18 @@ public class MixedBivariateLogNormalFitterTest {
    * 
    */
   @Test
-      (enabled = false)
-      public void CheckingModelParams() {
+  (enabled = false)
+  public void checkingModelParams() {
 
     final int nNorms = 2;
     final int nDataPts = 14;
     final int nParamsX = 3 * nNorms - 2;
     final int nParamsY = 3 * nNorms - 2;
 
-    double[] yy = new double[nDataPts];
-    double[] params = {0.03411550042789113, 0.0483524833777188, 0.2580039977762099, 0.4351726013225261, 0.8361207722192964, 0.7153215152466372, 0.7286439693179121 };
-    double[] paramsX = new double[nParamsX];
-    double[] paramsY = new double[nParamsY];
-
-    double[] relativePartialForwardsX = new double[nNorms];
-    double[] relativePartialForwardsY = new double[nNorms];
-
-    double[] sigmasX = new double[nNorms];
-    double[] sigmasY = new double[nNorms];
-
-    double[] weights = new double[nNorms];
+    final double[] yy = new double[nDataPts];
+    final double[] params = {0.03411550042789113, 0.0483524833777188, 0.2580039977762099, 0.4351726013225261, 0.8361207722192964, 0.7153215152466372, 0.7286439693179121 };
+    final double[] paramsX = new double[nParamsX];
+    final double[] paramsY = new double[nParamsY];
 
     for (int i = 0; i < nNorms; ++i) {
       paramsX[i] = params[i];
@@ -2721,13 +2590,13 @@ public class MixedBivariateLogNormalFitterTest {
     final MixedLogNormalModelData inObjX = new MixedLogNormalModelData(paramsX, true);
     final MixedLogNormalModelData inObjY = new MixedLogNormalModelData(paramsY, true);
 
-    relativePartialForwardsX = inObjX.getRelativeForwards();
-    sigmasX = inObjX.getVolatilities();
+    final double[] relativePartialForwardsX = inObjX.getRelativeForwards();
+    final double[] sigmasX = inObjX.getVolatilities();
 
-    relativePartialForwardsY = inObjY.getRelativeForwards();
-    sigmasY = inObjY.getVolatilities();
+    final double[] relativePartialForwardsY = inObjY.getRelativeForwards();
+    final double[] sigmasY = inObjY.getVolatilities();
 
-    weights = inObjX.getWeights();
+    final double[] weights = inObjX.getWeights();
 
     Arrays.fill(yy, 0.);
 
@@ -2805,8 +2674,8 @@ public class MixedBivariateLogNormalFitterTest {
 
     final int dof = 3 * nNormals - 2;
 
-    double[] paramsX = new double[dof];
-    double[] paramsY = new double[dof];
+    final double[] paramsX = new double[dof];
+    final double[] paramsY = new double[dof];
 
     for (int i = 0; i < nNormals; ++i) {
       paramsX[i] = params[i];
@@ -2824,19 +2693,19 @@ public class MixedBivariateLogNormalFitterTest {
       paramsY[i + 2 * nNormals - 1] = params[i + 4 * nNormals - 2];
     }
 
-    MixedLogNormalModelData dataX = new MixedLogNormalModelData(paramsX, true);
-    MixedLogNormalModelData dataY = new MixedLogNormalModelData(paramsY, true);
+    final MixedLogNormalModelData dataX = new MixedLogNormalModelData(paramsX, true);
+    final MixedLogNormalModelData dataY = new MixedLogNormalModelData(paramsY, true);
 
-    double[] res = new double[nData];
+    final double[] res = new double[nData];
     Arrays.fill(res, 0.);
 
     for (int j = 0; j < nDataX; ++j) {
-      EuropeanVanillaOption option = new EuropeanVanillaOption(dataStrikes[j], timeToExpiry, true);
+      final EuropeanVanillaOption option = new EuropeanVanillaOption(dataStrikes[j], timeToExpiry, true);
       res[j] = volfunc.getVolatility(option, forwardX, dataX);
     }
 
     for (int j = nDataX; j < nData; ++j) {
-      EuropeanVanillaOption option = new EuropeanVanillaOption(dataStrikes[j], timeToExpiry, true);
+      final EuropeanVanillaOption option = new EuropeanVanillaOption(dataStrikes[j], timeToExpiry, true);
       res[j] = volfunc.getVolatility(option, forwardY, dataY);
     }
 

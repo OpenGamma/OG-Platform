@@ -10,6 +10,7 @@ import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  *
@@ -21,6 +22,7 @@ import com.opengamma.id.VersionCorrection;
   private final PositionSource _positionSource;
 
   /* package */ PortfolioSupplier(ObjectId portfolioId, VersionCorrection versionCorrection, PositionSource positionSource) {
+    ArgumentChecker.notNull(positionSource, "positionSource");
     _positionSource = positionSource;
     _portfolioId = portfolioId;
     _versionCorrection = versionCorrection;
@@ -28,6 +30,10 @@ import com.opengamma.id.VersionCorrection;
 
   @Override
   public Portfolio get() {
-    return _positionSource.getPortfolio(_portfolioId, _versionCorrection);
+    if (_portfolioId != null) {
+      return _positionSource.getPortfolio(_portfolioId, _versionCorrection);
+    } else {
+      return null;
+    }
   }
 }

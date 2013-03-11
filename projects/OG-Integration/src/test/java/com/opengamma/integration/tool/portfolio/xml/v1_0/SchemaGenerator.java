@@ -44,7 +44,7 @@ public class SchemaGenerator {
 
   private static DOMResult extractSchemaResult(JAXBContext ctx) throws IOException {
 
-    final Set<DOMResult> resultWrapper = new HashSet<DOMResult>();
+    final Set<DOMResult> resultWrapper = new HashSet<>();
 
     ctx.generateSchema(new SchemaOutputResolver() {
       @Override

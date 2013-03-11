@@ -7,7 +7,6 @@ package com.opengamma.analytics.financial.equity.future.definition;
 
 import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.analytics.financial.commodity.definition.MetalFutureDefinition;
 import com.opengamma.analytics.financial.equity.future.derivative.VolatilityIndexFuture;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.util.time.TimeCalculator;
@@ -17,7 +16,7 @@ import com.opengamma.util.money.Currency;
 
 /**
  * Volatility index future definition. An IndexFuture is always cash-settled.
- * eg UXH5 Index, http://cfe.cboe.com/products/Products_VIX.aspx 
+ * eg UXH5 Index, http://cfe.cboe.com/products/Products_VIX.aspx
  * @author casey
  */
 public class VolatilityIndexFutureDefinition extends IndexFutureDefinition {
@@ -32,7 +31,7 @@ public class VolatilityIndexFutureDefinition extends IndexFutureDefinition {
    * @param unitAmount  size of a unit
    * @param underlying  identifier of the underlying commodity
    */
-  public VolatilityIndexFutureDefinition(final ZonedDateTime expiryDate, final ZonedDateTime settlementDate, final double strikePrice, 
+  public VolatilityIndexFutureDefinition(final ZonedDateTime expiryDate, final ZonedDateTime settlementDate, final double strikePrice,
       final Currency currency, final double unitAmount, final ExternalId underlying) {
     super(expiryDate, settlementDate, strikePrice, currency, unitAmount, underlying);
   }
@@ -71,7 +70,7 @@ public class VolatilityIndexFutureDefinition extends IndexFutureDefinition {
     final VolatilityIndexFuture newDeriv = new VolatilityIndexFuture(timeToFixing, timeToDelivery, referencePrice, getCurrency(), getUnitAmount());
     return newDeriv;
   }
-  
+
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     ArgumentChecker.notNull(visitor, "visitor");
@@ -94,7 +93,7 @@ public class VolatilityIndexFutureDefinition extends IndexFutureDefinition {
     if (this == obj) {
       return true;
     }
-    if (!(obj instanceof MetalFutureDefinition)) {
+    if (!(obj instanceof VolatilityIndexFutureDefinition)) {
       return false;
     }
     return super.equals(obj);

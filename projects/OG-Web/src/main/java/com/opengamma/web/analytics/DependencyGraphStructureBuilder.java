@@ -59,7 +59,7 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
     if (!(compiledViewDef instanceof CompiledViewDefinitionWithGraphs)) {
       s_logger.warn("Compiled view definition is not an instance of CompiledViewDefinitionWithGraphs, class={}." +
                         " Dependency graphs not supported");
-      _structure = new DependencyGraphGridStructure(AnalyticsNode.emptyRoot(),
+      _structure = new DependencyGraphGridStructure(null,
                                                     null,
                                                     Collections.<ValueSpecification>emptyList(),
                                                     Collections.<String>emptyList(),

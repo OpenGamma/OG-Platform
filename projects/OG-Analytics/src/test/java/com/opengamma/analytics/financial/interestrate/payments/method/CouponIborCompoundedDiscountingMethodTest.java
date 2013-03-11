@@ -117,7 +117,7 @@ public class CouponIborCompoundedDiscountingMethodTest {
     pscsComputed = pscsComputed.cleaned();
     assertEquals("CouponIborCompounded Discounting: present value curve sensitivity", 2, pscsComputed.getSensitivities().size()); // 2 curves
     assertEquals("CouponIborCompounded Discounting: present value curve sensitivity", 1, pscsComputed.getSensitivities().get(CURVES_NAMES[0]).size()); // 1 discounting
-    //Testing note: Sensitivity is for a movement of 1. 1E+2 = 0.01 unit for a 1 bp move. 
+    //Testing note: Sensitivity is for a movement of 1. 1E+2 = 0.01 unit for a 1 bp move.
     final double deltaShift = 1.0E-6;
     // Credit curve sensitivity
     final String bumpedCurveName = "Bumped Curve";
@@ -126,7 +126,7 @@ public class CouponIborCompoundedDiscountingMethodTest {
     final List<DoublesPair> sensiDscFD = FDCurveSensitivityCalculator.curveSensitvityFDCalculator(CPN_BEFORE, PVC, CURVES_BUNDLE, CURVES_NAMES[0], nodeTimesDsc, deltaShift);
     final List<DoublesPair> sensiDscComputed = pscsComputed.getSensitivities().get(CURVES_NAMES[0]);
     assertTrue("parSpread: curve sensitivity - dsc", InterestRateCurveSensitivityUtils.compare(sensiDscFD, sensiDscComputed, TOLERANCE_SENSI_2));
-    final Set<Double> nodeTimesFwdSet = new TreeSet<Double>();
+    final Set<Double> nodeTimesFwdSet = new TreeSet<>();
     final int nbSub = CPN_BEFORE.getFixingTimes().length;
     nodeTimesFwdSet.add(CPN_BEFORE.getFixingPeriodStartTimes()[0]);
     for (int loopsub = 1; loopsub < nbSub; loopsub++) {
@@ -134,7 +134,7 @@ public class CouponIborCompoundedDiscountingMethodTest {
       nodeTimesFwdSet.add(CPN_BEFORE.getFixingPeriodStartTimes()[loopsub]);
     }
     nodeTimesFwdSet.add(CPN_BEFORE.getFixingPeriodEndTimes()[nbSub - 1]);
-    final double[] nodeTimesFwd = ArrayUtils.toPrimitive(nodeTimesFwdSet.toArray(new Double[0]));
+    final double[] nodeTimesFwd = ArrayUtils.toPrimitive(nodeTimesFwdSet.toArray(new Double[nodeTimesFwdSet.size()]));
     final List<DoublesPair> sensiFwdFD = FDCurveSensitivityCalculator.curveSensitvityFDCalculator(CPN_BEFORE, PVC, CURVES_BUNDLE, CURVES_NAMES[1], nodeTimesFwd, deltaShift);
     final List<DoublesPair> sensiFwdComputed = pscsComputed.getSensitivities().get(CURVES_NAMES[1]);
     assertTrue("parSpread: curve sensitivity - fwd", InterestRateCurveSensitivityUtils.compare(sensiFwdFD, sensiFwdComputed, TOLERANCE_SENSI_2));

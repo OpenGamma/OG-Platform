@@ -96,7 +96,7 @@ public class BondIborSecurityTest {
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullDISCOUNTING() {
+  public void testNullDiscounting() {
     new BondIborSecurity(NOMINAL, COUPON, STANDARD_SETTLEMENT_TIME, null);
   }
 

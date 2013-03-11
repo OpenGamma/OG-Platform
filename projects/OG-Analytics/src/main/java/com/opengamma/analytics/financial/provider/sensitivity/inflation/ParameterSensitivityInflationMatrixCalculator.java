@@ -26,7 +26,7 @@ public class ParameterSensitivityInflationMatrixCalculator extends ParameterSens
    * Constructor
    * @param inflationSensitivityCalculator The curve sensitivity calculator.
    */
-  public ParameterSensitivityInflationMatrixCalculator(InstrumentDerivativeVisitor<InflationProviderInterface, InflationSensitivity> inflationSensitivityCalculator) {
+  public ParameterSensitivityInflationMatrixCalculator(final InstrumentDerivativeVisitor<InflationProviderInterface, InflationSensitivity> inflationSensitivityCalculator) {
     super(inflationSensitivityCalculator);
   }
 
@@ -41,17 +41,17 @@ public class ParameterSensitivityInflationMatrixCalculator extends ParameterSens
   public DoubleMatrix1D pointToParameterSensitivity(final InflationSensitivity sensitivity, final InflationProviderInterface inflation, final Set<String> curvesSet) {
     SimpleParameterSensitivity ps = new SimpleParameterSensitivity();
 
-    Map<String, List<DoublesPair>> sensitivityPriceCurve = sensitivity.getPriceCurveSensitivities();
-    for (final String name : sensitivityPriceCurve.keySet()) {
-      if (curvesSet.contains(name)) {
-        ps = ps.plus(name, new DoubleMatrix1D(inflation.parameterInflationSensitivity(name, sensitivityPriceCurve.get(name))));
+    final Map<String, List<DoublesPair>> sensitivityPriceCurve = sensitivity.getPriceCurveSensitivities();
+    for (final Map.Entry<String, List<DoublesPair>> entry : sensitivityPriceCurve.entrySet()) {
+      if (curvesSet.contains(entry.getKey())) {
+        ps = ps.plus(entry.getKey(), new DoubleMatrix1D(inflation.parameterInflationSensitivity(entry.getKey(), entry.getValue())));
       }
     }
 
     // By curve name in the curves set (to have the right order)
     double[] result = new double[0];
-    for (String name : curvesSet) {
-      DoubleMatrix1D sensi = ps.getSensitivity(name);
+    for (final String name : curvesSet) {
+      final DoubleMatrix1D sensi = ps.getSensitivity(name);
       if (sensi != null) {
         result = ArrayUtils.addAll(result, sensi.getData());
       } else {

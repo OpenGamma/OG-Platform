@@ -21,6 +21,14 @@ import com.opengamma.web.WebHomeUris;
  * Abstract base class for RESTful historical time-series resources.
  */
 public abstract class AbstractWebHistoricalTimeSeriesResource extends AbstractPerRequestWebResource {
+  /**
+   * HTML ftl directory
+   */
+  protected static final String HTML_DIR = "timeseries/html/";
+  /**
+   * JSON ftl directory
+   */
+  protected static final String JSON_DIR = "timeseries/json/";
 
   /**
    * The backing bean.

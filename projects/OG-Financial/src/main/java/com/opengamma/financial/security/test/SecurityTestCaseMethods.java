@@ -95,5 +95,7 @@ public interface SecurityTestCaseMethods {
   void testLegacyVanillaCDSSecurity();
 
   void testCashFlowSecurity();
+  
+  void testCreditDefaultSwapIndexSecurity();
 
 }

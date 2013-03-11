@@ -70,10 +70,10 @@ public class CapletStrippingTest {
 
   private static Function1D<Double, Double> ALPHA = new Function1D<Double, Double>() {
 
-    private final double a = -0.01;
-    private final double b = 0.05;
-    private final double c = 0.3;
-    private final double d = 0.04;
+    private static final double a = -0.01;
+    private static final double b = 0.05;
+    private static final double c = 0.3;
+    private static final double d = 0.04;
 
     @Override
     public Double evaluate(final Double t) {
@@ -91,10 +91,10 @@ public class CapletStrippingTest {
 
   private static Function1D<Double, Double> RHO = new Function1D<Double, Double>() {
 
-    private final double a = -0.7;
-    private final double b = 0.0;
-    private final double c = 0.1;
-    private final double d = 0.0;
+    private static final double a = -0.7;
+    private static final double b = 0.0;
+    private static final double c = 0.1;
+    private static final double d = 0.0;
 
     @Override
     public Double evaluate(final Double t) {
@@ -104,10 +104,10 @@ public class CapletStrippingTest {
 
   private static Function1D<Double, Double> NU = new Function1D<Double, Double>() {
 
-    private final double a = 0.8;
-    private final double b = 0.0;
-    private final double c = 0.1;
-    private final double d = 0.4;
+    private static final double a = 0.8;
+    private static final double b = 0.0;
+    private static final double c = 0.1;
+    private static final double d = 0.4;
 
     @Override
     public Double evaluate(final Double t) {

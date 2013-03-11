@@ -40,9 +40,9 @@ import com.opengamma.util.time.DateUtils;
 public class CouponInflationYearOnYearInterpolationDiscountingMethodTest {
 
   private static final InflationIssuerProviderDiscount MARKET = MulticurveProviderDiscountDataSets.createMarket1();
-  private static final IndexPrice[] PRICE_INDEXES = MARKET.getPriceIndexes().toArray(new IndexPrice[0]);
+  private static final IndexPrice[] PRICE_INDEXES = MARKET.getPriceIndexes().toArray(new IndexPrice[MARKET.getPriceIndexes().size()]);
   private static final IndexPrice PRICE_INDEX_EUR = PRICE_INDEXES[0];
-  private static final IborIndex[] IBOR_INDEXES = MARKET.getIndexesIbor().toArray(new IborIndex[0]);
+  private static final IborIndex[] IBOR_INDEXES = MARKET.getIndexesIbor().toArray(new IborIndex[MARKET.getIndexesIbor().size()]);
   private static final IborIndex EURIBOR3M = IBOR_INDEXES[0];
   private static final Calendar CALENDAR_EUR = EURIBOR3M.getCalendar();
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
@@ -53,8 +53,8 @@ public class CouponInflationYearOnYearInterpolationDiscountingMethodTest {
   private static final double NOTIONAL = 98765432;
   private static final int MONTH_LAG = 3;
   private static final ZonedDateTime PRICING_DATE = DateUtils.getUTCDate(2011, 8, 3);
-  private static final double WEIGHT_START = 1.0 - (PAYMENT_DATE.getDayOfMonth() - 1) / PAYMENT_DATE.getDate().lengthOfMonth();
-  private static final double WEIGHT_END = 1.0 - (PAYMENT_DATE.getDayOfMonth() - 1) / PAYMENT_DATE.getDate().lengthOfMonth();
+  private static final double WEIGHT_START = 1.0 - (PAYMENT_DATE.getDayOfMonth() - 1.) / PAYMENT_DATE.getDate().lengthOfMonth();
+  private static final double WEIGHT_END = 1.0 - (PAYMENT_DATE.getDayOfMonth() - 1.) / PAYMENT_DATE.getDate().lengthOfMonth();
 
   private static final double SHIFT_FD = 1.0E-7;
   private static final double TOLERANCE_PV = 1.0E-2;
@@ -71,7 +71,7 @@ public class CouponInflationYearOnYearInterpolationDiscountingMethodTest {
   private static final PresentValueDiscountingInflationCalculator PVIC = PresentValueDiscountingInflationCalculator.getInstance();
   private static final NetAmountInflationCalculator NAIC = NetAmountInflationCalculator.getInstance();
   private static final PresentValueCurveSensitivityDiscountingInflationCalculator PVCSDC = PresentValueCurveSensitivityDiscountingInflationCalculator.getInstance();
-  private static final ParameterInflationSensitivityParameterCalculator<InflationProviderInterface> PSC = new ParameterInflationSensitivityParameterCalculator<InflationProviderInterface>(PVCSDC);
+  private static final ParameterInflationSensitivityParameterCalculator<InflationProviderInterface> PSC = new ParameterInflationSensitivityParameterCalculator<>(PVCSDC);
   private static final ParameterSensitivityInflationMulticurveDiscountInterpolatedFDCalculator PS_PV_FDC = new ParameterSensitivityInflationMulticurveDiscountInterpolatedFDCalculator(PVIC, SHIFT_FD);
 
   @Test
@@ -121,7 +121,7 @@ public class CouponInflationYearOnYearInterpolationDiscountingMethodTest {
   /**
    * Tests the net amount: Method vs Calculator.
    */
-  public void netamountMethodVsCalculator() {
+  public void netAmountMethodVsCalculator() {
     final MultipleCurrencyAmount naMethod = METHOD.netAmount(YEAR_ON_YEAR_NO, MARKET.getInflationProvider());
     final MultipleCurrencyAmount naCalculator = YEAR_ON_YEAR_NO.accept(NAIC, MARKET.getInflationProvider());
     assertEquals("Year on year coupon inflation DiscountingMethod: Net amount", naMethod, naCalculator);
@@ -164,7 +164,7 @@ public class CouponInflationYearOnYearInterpolationDiscountingMethodTest {
   @Test
   /**
    * Test the present value curves sensitivity.
-  */
+   */
   public void presentValueCurveSensitivityWithNotional() {
 
     final MultipleCurrencyParameterSensitivity pvicsFD = PS_PV_FDC.calculateSensitivity(YEAR_ON_YEAR_WITH, MARKET.getInflationProvider());
@@ -176,7 +176,7 @@ public class CouponInflationYearOnYearInterpolationDiscountingMethodTest {
 
   @Test
   /**
-    * Test the present value curves sensitivity.
+   * Test the present value curves sensitivity.
    */
   public void presentValueCurveSensitivityNoNotional() {
 

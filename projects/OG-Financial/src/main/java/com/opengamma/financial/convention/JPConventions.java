@@ -167,4 +167,12 @@ public class JPConventions {
     //TODO check this
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("JPY_IBOR_INDEX")), "JPY_IBOR_INDEX", act360, following, 2, false);
   }
+
+  public static void addTreasuryBondConvention(final ConventionBundleMaster conventionMaster) {
+    ArgumentChecker.notNull(conventionMaster, "convention master");
+    final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
+    utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("JP_TREASURY_BOND_CONVENTION")), "JP_TREASURY_BOND_CONVENTION", true,
+        true, 0, 3, true);
+
+  }
 }

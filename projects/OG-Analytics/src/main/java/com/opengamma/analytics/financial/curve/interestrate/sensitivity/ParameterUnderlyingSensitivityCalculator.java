@@ -5,12 +5,12 @@
  */
 package com.opengamma.analytics.financial.curve.interestrate.sensitivity;
 
-import java.util.ArrayList;
+import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
-
-import org.apache.commons.lang.ArrayUtils;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
@@ -66,7 +66,7 @@ public class ParameterUnderlyingSensitivityCalculator extends AbstractParameterS
       final YieldAndDiscountCurve curve = bundle.getCurve(name);
       final List<String> underlyingCurveNames = curve.getUnderlyingCurvesNames();
       nbNewParameters[loopname] = curve.getNumberOfParameters();
-      final List<Integer> indexOtherList = new ArrayList<>();
+      final IntArrayList indexOtherList = new IntArrayList();
       for (final String u : underlyingCurveNames) {
         final Integer i = curveNum.get(u);
         if (i != null) {
@@ -74,7 +74,7 @@ public class ParameterUnderlyingSensitivityCalculator extends AbstractParameterS
           nbNewParameters[loopname] -= nbNewParameters[i];
         }
       }
-      indexOther[loopname] = ArrayUtils.toPrimitive(indexOtherList.toArray(new Integer[0]));
+      indexOther[loopname] = indexOtherList.toIntArray();
       loopname++;
     }
     int nbSensiCurve = 0;
@@ -98,7 +98,7 @@ public class ParameterUnderlyingSensitivityCalculator extends AbstractParameterS
       if (!fixedCurves.contains(name)) {
         final int num = curveNum.get(name);
         final YieldAndDiscountCurve curve = bundle.getCurve(name);
-        final List<Integer> startDirtyParameterList = new ArrayList<>();
+        final IntArrayList startDirtyParameterList = new IntArrayList();
         final List<String> underlyingCurveNames = curve.getUnderlyingCurvesNames();
         for (final String u : underlyingCurveNames) {
           final Integer i = curveNum.get(u);
@@ -109,7 +109,7 @@ public class ParameterUnderlyingSensitivityCalculator extends AbstractParameterS
         }
         startDirtyParameterList.add(currentDirtyStart);
         currentDirtyStart += nbNewParameters[nbSensitivityCurve];
-        startDirtyParameter[nbSensitivityCurve] = ArrayUtils.toPrimitive(startDirtyParameterList.toArray(new Integer[0]));
+        startDirtyParameter[nbSensitivityCurve] = startDirtyParameterList.toIntArray();
         nbNewParamSensiCurve[nbSensitivityCurve] = nbNewParameters[num];
         indexOtherSensiCurve[nbSensitivityCurve] = indexOther[num];
         startCleanParameter[nbSensitivityCurve] = nbCleanParameters;
@@ -117,7 +117,7 @@ public class ParameterUnderlyingSensitivityCalculator extends AbstractParameterS
         nbSensitivityCurve++;
       }
     }
-    final List<Double> sensiDirtyList = new ArrayList<>();
+    final DoubleArrayList sensiDirtyList = new DoubleArrayList();
     for (final String name : curveNamesSet) { // loop over all curves (by name)
       if (!fixedCurves.contains(name)) {
         final YieldAndDiscountCurve curve = bundle.getCurve(name);
@@ -125,7 +125,7 @@ public class ParameterUnderlyingSensitivityCalculator extends AbstractParameterS
         sensiDirtyList.addAll(oneCurveSensitivity);
       }
     }
-    final double[] sensiDirty = ArrayUtils.toPrimitive(sensiDirtyList.toArray(new Double[0]));
+    final double[] sensiDirty = sensiDirtyList.toDoubleArray();
     final double[] sensiClean = new double[nbCleanParameters];
     for (int loopcurve = 0; loopcurve < nbSensiCurve; loopcurve++) {
       for (int loopo = 0; loopo < indexOtherSensiCurve[loopcurve].length; loopo++) {

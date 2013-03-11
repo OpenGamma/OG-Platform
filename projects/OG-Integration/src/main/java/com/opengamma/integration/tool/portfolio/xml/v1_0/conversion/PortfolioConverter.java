@@ -8,51 +8,37 @@ package com.opengamma.integration.tool.portfolio.xml.v1_0.conversion;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.security.Security;
-import com.opengamma.id.ExternalId;
 import com.opengamma.integration.tool.portfolio.xml.PortfolioPosition;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.AdditionalCashflow;
-import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.EquityVarianceSwapTrade;
-import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.FxDigitalOptionTrade;
-import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.FxForwardTrade;
-import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.FxOptionTrade;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.IdWrapper;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.ListedSecurityDefinition;
-import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.ListedSecurityTrade;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.MonetaryAmount;
-import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.OtcEquityIndexOptionTrade;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.Portfolio;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.Position;
-import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.SwapTrade;
-import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.SwaptionTrade;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.Trade;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.security.ManageableSecurity;
-import com.opengamma.util.ArgumentChecker;
 
+/**
+ * Converts a portfolio from the JAXB extracted objects to the standard
+ * system objects.
+ */
 public class PortfolioConverter {
 
-  private final Portfolio _portfolio;
+  private static final Logger s_logger = LoggerFactory.getLogger(PortfolioConverter.class);
 
-  // todo - this would be better using a visitor implementation
-  private static final Map<Class<? extends Trade>, TradeSecurityExtractor<? extends Trade>> _extractors =
-      ImmutableMap.<Class<? extends Trade>, TradeSecurityExtractor<? extends Trade>>builder()
-        .put(FxOptionTrade.class, new FxOptionTradeSecurityExtractor())
-        .put(FxDigitalOptionTrade.class, new FxDigitalOptionTradeSecurityExtractor())
-        .put(SwapTrade.class, new SwapTradeSecurityExtractor())
-        .put(EquityVarianceSwapTrade.class, new EquityVarianceSwapTradeSecurityExtractor())
-        .put(FxForwardTrade.class, new FxForwardTradeSecurityExtractor())
-        .put(SwaptionTrade.class, new SwaptionTradeSecurityExtractor())
-        .put(OtcEquityIndexOptionTrade.class, new OtcEquityIndexOptionTradeSecurityExtractor())
-        .put(ListedSecurityTrade.class, new ListedTradeSecurityExtractor())
-        .build();
+  /**
+   * The portfolio to be converted.
+   */
+  private final Portfolio _portfolio;
 
   public PortfolioConverter(Portfolio portfolio) {
     _portfolio = portfolio;
@@ -64,7 +50,7 @@ public class PortfolioConverter {
    * positions, each trade will be added to a new position.
    */
   public Iterable<PortfolioPosition> getPositions() {
-
+    s_logger.info("Starting to process root portfolio: {}", _portfolio.getName());
     return processPortfolio(_portfolio, true, null);
   }
 
@@ -88,9 +74,10 @@ public class PortfolioConverter {
    */
   private List<PortfolioPosition> processPortfolio(Portfolio portfolio, boolean isRoot, String[] parentPath) {
 
+    s_logger.info("Processing portfolio: {}", portfolio.getName());
     List<PortfolioPosition> managedPositions = Lists.newArrayList();
 
-    // This is needed as we never want the name of the root portfolio to appear in the path. So for
+    // This is needed as we don't want the name of the root portfolio to appear in the path. So for
     // a root portfolio we want an empty path, for a child of the root we want just the portfolio name etc.
     String[] portfolioPath = isRoot ? new String[0] : extendPath(parentPath, portfolio.getName());
 
@@ -101,15 +88,20 @@ public class PortfolioConverter {
 
     for (Position position : nullCheckIterable(portfolio.getPositions())) {
 
+      IdWrapper positionExternalId = position.getExternalSystemId();
+      String positionId = positionExternalId != null ? positionExternalId.toExternalId().toString() : "AUTO-CREATED";
+      s_logger.debug("Extracting position: [{}]", positionId);
+
       List<Trade> trades = position.getTrades();
       BigDecimal tradeTotalQuantity = BigDecimal.ZERO;
 
       // If we have a security defined on the position then we need to
       // check it matches the one from the trades (if there was one)
-      ManageableSecurity[] positionSecurity = extractSecurityFromPosition(position.getListedSecurityDefinition());;
+      ManageableSecurity[] positionSecurity = extractSecurityFromPosition(position.getListedSecurityDefinition());
 
       for (Trade trade : nullCheckIterable(trades)) {
 
+        s_logger.debug("Extracting trade: {} for position {}", trade.getExternalSystemId().getExternalId(), positionId);
         ManageableSecurity[] tradeSecurity = extractSecurityFromTrade(trade, trades.size());
         if (positionSecurity == null) {
 
@@ -117,7 +109,7 @@ public class PortfolioConverter {
 
         } else if (!Arrays.equals(positionSecurity, tradeSecurity)) {
 
-          throw new OpenGammaRuntimeException("Security must be the same for all trades grouped into a position - " +
+          throw new PortfolioParsingException("Security must be the same for all trades grouped into a position - " +
                                                   "position has security: [" + positionSecurity[0] +
                                                   "] but found trade with: [" + tradeSecurity[0] + "]");
         }
@@ -128,7 +120,7 @@ public class PortfolioConverter {
       if (positionSecurity != null) {
         managedPositions.add(createPortfolioPosition(position, positionSecurity, portfolioPath, tradeTotalQuantity));
       } else {
-        throw new OpenGammaRuntimeException("No security specified on either trades or position");
+        throw new PortfolioParsingException("No security specified on either trades or position");
       }
     }
 
@@ -139,6 +131,7 @@ public class PortfolioConverter {
       ManageableSecurity[] security = extractSecurityFromTrade(trade, 1);
       managedPositions.add(createPortfolioPosition(trade, security, portfolioPath));
     }
+
     return managedPositions;
   }
 
@@ -160,27 +153,30 @@ public class PortfolioConverter {
 
   private ManageableSecurity[] extractSecurityFromPosition(ListedSecurityDefinition listedSecurityDefinition) {
 
-    return listedSecurityDefinition != null ? listedSecurityDefinition.getSecurityExtractor().extract() : null;
+    if (listedSecurityDefinition != null) {
+      s_logger.debug("Extracting securities for position");
+      return listedSecurityDefinition.getSecurityExtractor().extract();
+    } else {
+      return null;
+    }
   }
 
   private ManageableSecurity[] extractSecurityFromTrade(Trade trade, int tradesSize) {
 
-    ArgumentChecker.isFalse(tradesSize > 1 && !trade.canBePositionAggregated(), "Trade type cannot be aggregated in positions");
 
-    if (_extractors.containsKey(trade.getClass())) {
-
-      TradeSecurityExtractor extractor = _extractors.get(trade.getClass());
-      return extractor.extractSecurity(trade);
-
-    } else {
-      throw new OpenGammaRuntimeException("Unable to handle trade with type [" + trade.getClass().getName() + "] - [" + trade + "]");
+    if (tradesSize > 1 && !trade.canBePositionAggregated()) {
+      throw new PortfolioParsingException("Trade type [" + trade.getClass() +
+                                              "] cannot be aggregated into positions");
     }
+
+    s_logger.debug("Extracting securities for trade: [{}]", trade.getExternalSystemId().toExternalId());
+    TradeSecurityExtractor extractor = trade.getSecurityExtractor();
+    return extractor.extractSecurities();
   }
 
   private <T> Iterable<T> nullCheckIterable(Iterable<T> iterable) {
     return iterable == null ? ImmutableList.<T>of() : iterable;
   }
-
 
   private PortfolioPosition createPortfolioPosition(Position position,
                                                     ManageableSecurity[] security,

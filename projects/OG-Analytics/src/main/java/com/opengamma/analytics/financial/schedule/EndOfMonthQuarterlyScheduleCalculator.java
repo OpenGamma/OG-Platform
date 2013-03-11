@@ -18,7 +18,6 @@ import com.opengamma.util.ArgumentChecker;
  * 
  */
 public class EndOfMonthQuarterlyScheduleCalculator extends Schedule {
-  private static final EndOfMonthScheduleCalculator EOM_CALCULATOR = ScheduleCalculatorFactory.END_OF_MONTH_CALCULATOR;
 
   @Override
   public LocalDate[] getSchedule(final LocalDate startDate, final LocalDate endDate, final boolean fromEnd, final boolean generateRecursive) {
@@ -28,7 +27,7 @@ public class EndOfMonthQuarterlyScheduleCalculator extends Schedule {
   public LocalDate[] getSchedule(final LocalDate startDate, final LocalDate endDate, final boolean fromEnd) {
     ArgumentChecker.notNull(startDate, "start date");
     ArgumentChecker.notNull(endDate, "end date");
-    final LocalDate[] monthly = EOM_CALCULATOR.getSchedule(startDate, endDate);
+    final LocalDate[] monthly = ScheduleCalculatorFactory.END_OF_MONTH_CALCULATOR.getSchedule(startDate, endDate);
     final List<LocalDate> result = new ArrayList<>();
     if (fromEnd) {
       for (int i = monthly.length - 1; i >= 0; i -= 3) {
@@ -51,7 +50,7 @@ public class EndOfMonthQuarterlyScheduleCalculator extends Schedule {
   public ZonedDateTime[] getSchedule(final ZonedDateTime startDate, final ZonedDateTime endDate, final boolean fromEnd) {
     ArgumentChecker.notNull(startDate, "start date");
     ArgumentChecker.notNull(endDate, "end date");
-    final ZonedDateTime[] monthly = EOM_CALCULATOR.getSchedule(startDate, endDate);
+    final ZonedDateTime[] monthly = ScheduleCalculatorFactory.END_OF_MONTH_CALCULATOR.getSchedule(startDate, endDate);
     final List<ZonedDateTime> result = new ArrayList<>();
     if (fromEnd) {
       for (int i = monthly.length - 1; i >= 0; i -= 3) {

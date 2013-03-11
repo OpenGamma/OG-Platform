@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.fudgemsg;
@@ -10,7 +10,6 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.curve.Curve;
@@ -21,7 +20,7 @@ import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 
 /**
- * 
+ *
  */
 public class ModelForwardCurveTest extends AnalyticsTestBase {
   private static final double[] EXPIRIES = new double[] {1, 2, 3, 4, 5};
@@ -29,22 +28,6 @@ public class ModelForwardCurveTest extends AnalyticsTestBase {
   private static final Interpolator1D INTERPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
   private static final double EPS = 1e-12;
 
-  //Test in so that it will break when the drift curve is serialized
-  @Test(expectedExceptions = OpenGammaRuntimeException.class)
-  public void testDriftCurveNotSerialized1() {
-    final double spot = 100;
-    final Curve<Double, Double> driftCurve = InterpolatedDoublesCurve.from(EXPIRIES, FORWARD, INTERPOLATOR);
-    final ForwardCurve curve = new ForwardCurve(spot, driftCurve);
-    cycleObject(ForwardCurve.class, curve);
-  }
-
-  @Test(expectedExceptions = OpenGammaRuntimeException.class)
-  public void testDriftCurveNotSerialized2() {
-    final double spot = 100;
-    final double drift = 1.5;
-    final ForwardCurve curve = new ForwardCurve(spot, drift);
-    cycleObject(ForwardCurve.class, curve);
-  }
 
   @Test
   public void testCurve1() {
@@ -53,7 +36,7 @@ public class ModelForwardCurveTest extends AnalyticsTestBase {
     final ForwardCurve curve2 = cycleObject(ForwardCurve.class, curve1);
     assertEquals(curve1.getSpot(), curve2.getSpot(), EPS);
     assertTrue(curve2.getForwardCurve() instanceof ConstantDoublesCurve);
-    assertTrue(curve2.getDriftCurve() instanceof FunctionalDoublesCurve);
+    assertTrue(curve2.getDriftCurve() instanceof ConstantDoublesCurve);
     assertCurveEquals(curve1.getForwardCurve(), curve2.getForwardCurve());
     assertCurveEquals(curve1.getDriftCurve(), curve2.getDriftCurve());
   }
@@ -63,7 +46,43 @@ public class ModelForwardCurveTest extends AnalyticsTestBase {
     final ForwardCurve curve1 = new ForwardCurve(InterpolatedDoublesCurve.from(EXPIRIES, FORWARD, INTERPOLATOR));
     final ForwardCurve curve2 = cycleObject(ForwardCurve.class, curve1);
     assertEquals(curve1.getSpot(), curve2.getSpot(), EPS);
+    assertTrue(curve2.getForwardCurve() instanceof InterpolatedDoublesCurve);
     assertTrue(curve2.getDriftCurve() instanceof FunctionalDoublesCurve);
+    assertCurveEquals(curve1.getForwardCurve(), curve2.getForwardCurve());
+    assertCurveEquals(curve1.getDriftCurve(), curve2.getDriftCurve());
+  }
+
+  @Test
+  public void testCurve3() {
+    final double spot = 100;
+    final Curve<Double, Double> driftCurve = InterpolatedDoublesCurve.from(EXPIRIES, FORWARD, INTERPOLATOR);
+    final ForwardCurve curve1 = new ForwardCurve(spot, driftCurve);
+    final ForwardCurve curve2 = cycleObject(ForwardCurve.class, curve1);
+    assertTrue(curve2.getForwardCurve() instanceof FunctionalDoublesCurve);
+    assertTrue(curve2.getDriftCurve() instanceof InterpolatedDoublesCurve);
+    assertCurveEquals(curve1.getForwardCurve(), curve2.getForwardCurve());
+    assertCurveEquals(curve1.getDriftCurve(), curve2.getDriftCurve());
+  }
+
+  @Test
+  public void testCurve4() {
+    final double spot = 100;
+    final double drift = 1.5;
+    final ForwardCurve curve1 = new ForwardCurve(spot, drift);
+    final ForwardCurve curve2 = cycleObject(ForwardCurve.class, curve1);
+    assertTrue(curve2.getForwardCurve() instanceof FunctionalDoublesCurve);
+    assertTrue(curve2.getDriftCurve() instanceof ConstantDoublesCurve);
+    assertCurveEquals(curve1.getForwardCurve(), curve2.getForwardCurve());
+    assertCurveEquals(curve1.getDriftCurve(), curve2.getDriftCurve());
+  }
+
+  @Test
+  public void testCurve5() {
+    final ForwardCurve curve1 = new ForwardCurve(InterpolatedDoublesCurve.from(EXPIRIES, FORWARD, INTERPOLATOR), InterpolatedDoublesCurve.from(FORWARD, EXPIRIES, INTERPOLATOR));
+    final ForwardCurve curve2 = cycleObject(ForwardCurve.class, curve1);
+    assertEquals(curve1.getSpot(), curve2.getSpot(), EPS);
+    assertTrue(curve2.getForwardCurve() instanceof InterpolatedDoublesCurve);
+    assertTrue(curve2.getDriftCurve() instanceof InterpolatedDoublesCurve);
     assertCurveEquals(curve1.getForwardCurve(), curve2.getForwardCurve());
     assertCurveEquals(curve1.getDriftCurve(), curve2.getDriftCurve());
   }

@@ -98,7 +98,7 @@ public abstract class AbstractParameterSensitivityBlockCalculator {
         result.add(0.0);
       }
     }
-    return result.toArray(new Double[0]);
+    return result.toArray(new Double[result.size()]);
   }
 
   @Override

@@ -42,7 +42,7 @@ public class WebPositionVersionResource extends AbstractWebPositionResource {
   @GET
   public String getHTML() {
     FlexiBean out = createRootData();
-    return getFreemarker().build("positions/positionversion.ftl", out);
+    return getFreemarker().build(HTML_DIR + "positionversion.ftl", out);
   }
 
   @GET
@@ -55,7 +55,7 @@ public class WebPositionVersionResource extends AbstractWebPositionResource {
     }
     data().getVersioned().getPosition().getSecurityLink().resolveQuiet(data().getSecuritySource());
     FlexiBean out = createRootData();
-    String json = getFreemarker().build("positions/jsonposition.ftl", out);
+    String json = getFreemarker().build(JSON_DIR + "position.ftl", out);
     return Response.ok(json).tag(etag).build();
   }
 

@@ -14,6 +14,7 @@ import com.opengamma.analytics.financial.model.interestrate.definition.HullWhite
 import com.opengamma.analytics.financial.provider.calculator.discounting.CashFlowEquivalentCalculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.HullWhiteOneFactorProviderInterface;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.analytics.math.MathException;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.integration.RungeKuttaIntegrator1D;
 import com.opengamma.util.ArgumentChecker;
@@ -66,9 +67,9 @@ public final class CouponCMSHullWhiteNumericalIntegrationMethod {
   public MultipleCurrencyAmount presentValue(final CouponCMS cms, final HullWhiteOneFactorProviderInterface hwMulticurves) {
     ArgumentChecker.notNull(cms, "CMS");
     ArgumentChecker.notNull(hwMulticurves, "Hull-White provider");
-    Currency ccy = cms.getCurrency();
-    HullWhiteOneFactorPiecewiseConstantParameters parameters = hwMulticurves.getHullWhiteParameters();
-    MulticurveProviderInterface multicurves = hwMulticurves.getMulticurveProvider();
+    final Currency ccy = cms.getCurrency();
+    final HullWhiteOneFactorPiecewiseConstantParameters parameters = hwMulticurves.getHullWhiteParameters();
+    final MulticurveProviderInterface multicurves = hwMulticurves.getMulticurveProvider();
     final double expiryTime = cms.getFixingTime();
     final SwapFixedCoupon<? extends Payment> swap = cms.getUnderlyingSwap();
     final int nbFixed = cms.getUnderlyingSwap().getFixedLeg().getNumberOfPayments();
@@ -101,7 +102,7 @@ public final class CouponCMSHullWhiteNumericalIntegrationMethod {
     try {
       pv = 1.0 / Math.sqrt(2.0 * Math.PI) * integrator.integrate(integrant, -limit, limit) * dfPayment * cms.getNotional() * cms.getPaymentYearFraction();
     } catch (final Exception e) {
-      throw new RuntimeException(e);
+      throw new MathException(e);
     }
     return MultipleCurrencyAmount.of(cms.getCurrency(), pv);
   }

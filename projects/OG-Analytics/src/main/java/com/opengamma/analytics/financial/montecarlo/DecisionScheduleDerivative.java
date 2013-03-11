@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.ObjectUtils;
+
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
 
 /**
@@ -51,6 +53,32 @@ public class DecisionScheduleDerivative extends DecisionSchedule {
    */
   public List<Map<Double, InterestRateCurveSensitivity>> getImpactAmountDerivative() {
     return _impactAmountDerivative;
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    result = prime * result + _impactAmountDerivative.hashCode();
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!super.equals(obj)) {
+      return false;
+    }
+    if (!(obj instanceof DecisionScheduleDerivative)) {
+      return false;
+    }
+    final DecisionScheduleDerivative other = (DecisionScheduleDerivative) obj;
+    if (!ObjectUtils.equals(_impactAmountDerivative, other._impactAmountDerivative)) {
+      return false;
+    }
+    return true;
   }
 
   //  /**

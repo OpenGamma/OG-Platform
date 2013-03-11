@@ -44,7 +44,7 @@ public class GeneratorCurveAddYieldTest {
   private static final GeneratorCurveAddYield GENERATOR_ADD = new GeneratorCurveAddYield(new GeneratorYDCurve[] {GENERATOR_YIELD_INTERPOLATED_NODE_1, GENERATOR_YIELD_INTERPOLATED_NODE_2}, false);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void ConstructorNullGenerators() {
+  public void constructorNullGenerators() {
     new GeneratorCurveAddYield(null, false);
   }
 
@@ -55,16 +55,16 @@ public class GeneratorCurveAddYieldTest {
 
   @Test
   public void getNumberOfParameter() {
-    int nbParamAdd = GENERATOR_ADD.getNumberOfParameter();
+    final int nbParamAdd = GENERATOR_ADD.getNumberOfParameter();
     assertEquals("GeneratorCurveAddYield: getNumberOfParameter()", GENERATOR_YIELD_INTERPOLATED_NODE_1.getNumberOfParameter() + GENERATOR_YIELD_INTERPOLATED_NODE_2.getNumberOfParameter(), nbParamAdd);
   }
 
   @Test
   public void generateCurve() {
-    YieldAndDiscountCurve curveAdd = GENERATOR_ADD.generateCurve(CURVE_NAME, RATE);
-    YieldAndDiscountCurve curve1 = GENERATOR_YIELD_INTERPOLATED_NODE_1.generateCurve(CURVE_NAME_0, RATE_0);
-    YieldAndDiscountCurve curve2 = GENERATOR_YIELD_INTERPOLATED_NODE_2.generateCurve(CURVE_NAME_1, RATE_1);
-    YieldAndDiscountCurve curveExpected = new YieldAndDiscountAddZeroSpreadCurve(CURVE_NAME, false, new YieldAndDiscountCurve[] {curve1, curve2});
+    final YieldAndDiscountCurve curveAdd = GENERATOR_ADD.generateCurve(CURVE_NAME, RATE);
+    final YieldAndDiscountCurve curve1 = GENERATOR_YIELD_INTERPOLATED_NODE_1.generateCurve(CURVE_NAME_0, RATE_0);
+    final YieldAndDiscountCurve curve2 = GENERATOR_YIELD_INTERPOLATED_NODE_2.generateCurve(CURVE_NAME_1, RATE_1);
+    final YieldAndDiscountCurve curveExpected = new YieldAndDiscountAddZeroSpreadCurve(CURVE_NAME, false, new YieldAndDiscountCurve[] {curve1, curve2});
     assertEquals("GeneratorCurveAddYield: generateCurve()", curveExpected, curveAdd);
   }
 

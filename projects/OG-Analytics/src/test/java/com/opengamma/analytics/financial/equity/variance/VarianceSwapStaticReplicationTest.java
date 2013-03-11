@@ -44,31 +44,31 @@ public class VarianceSwapStaticReplicationTest {
   // Setup ------------------------------------------
 
   // The derivative
-  final double varStrike = 0.05;
-  final double varNotional = 3150;
-  final double now = 0;
-  final double aYearAgo = -1;
-  final double expiry6M = 0.5;
-  final double expiry1 = 1;
-  final double expiry2 = 2;
-  final double expiry5 = 5;
-  final double expiry10 = 10;
-  final int nObsExpected = 750;
-  final int nObsDisrupted = 0;
-  final double annualization = 252;
+  private static final double varStrike = 0.05;
+  private static final double varNotional = 3150;
+  private static final double now = 0;
+  private static final double aYearAgo = -1;
+  private static final double expiry6M = 0.5;
+  private static final double expiry1 = 1;
+  private static final double expiry2 = 2;
+  private static final double expiry5 = 5;
+  private static final double expiry10 = 10;
+  private static final int nObsExpected = 750;
+  private static final int nObsDisrupted = 0;
+  private static final double annualization = 252;
 
-  final double[] observations = {};
-  final double[] obsWeights = {};
+  private static final double[] observations = {};
+  private static final double[] obsWeights = {};
 
-  final VarianceSwap swap0 = new VarianceSwap(aYearAgo, now, now, varStrike, varNotional, Currency.EUR, annualization, nObsExpected, nObsDisrupted, observations, obsWeights);
-  final VarianceSwap swap6M = new VarianceSwap(now, expiry6M, expiry6M, varStrike, varNotional, Currency.EUR, annualization, nObsExpected, nObsDisrupted, observations, obsWeights);
-  final VarianceSwap swap1 = new VarianceSwap(now, expiry1, expiry1, varStrike, varNotional, Currency.EUR, annualization, nObsExpected, nObsDisrupted, observations, obsWeights);
-  final VarianceSwap swap2 = new VarianceSwap(now, expiry2, expiry2, varStrike, varNotional, Currency.EUR, annualization, nObsExpected, nObsDisrupted, observations, obsWeights);
-  final VarianceSwap swap5 = new VarianceSwap(now, expiry5, expiry5, varStrike, varNotional, Currency.EUR, annualization, nObsExpected, nObsDisrupted, observations, obsWeights);
-  final VarianceSwap swap10 = new VarianceSwap(now, expiry10, expiry10, varStrike, varNotional, Currency.EUR, annualization, nObsExpected, nObsDisrupted, observations, obsWeights);
-  final VarianceSwap swapExpired = new VarianceSwap(now, now - 1, now - 1, varStrike, varNotional, Currency.EUR, annualization, nObsExpected, nObsDisrupted, observations, obsWeights);
+  private static final VarianceSwap swap0 = new VarianceSwap(aYearAgo, now, now, varStrike, varNotional, Currency.EUR, annualization, nObsExpected, nObsDisrupted, observations, obsWeights);
+  private static final VarianceSwap swap6M = new VarianceSwap(now, expiry6M, expiry6M, varStrike, varNotional, Currency.EUR, annualization, nObsExpected, nObsDisrupted, observations, obsWeights);
+  private static final VarianceSwap swap1 = new VarianceSwap(now, expiry1, expiry1, varStrike, varNotional, Currency.EUR, annualization, nObsExpected, nObsDisrupted, observations, obsWeights);
+  private static final VarianceSwap swap2 = new VarianceSwap(now, expiry2, expiry2, varStrike, varNotional, Currency.EUR, annualization, nObsExpected, nObsDisrupted, observations, obsWeights);
+  private static final VarianceSwap swap5 = new VarianceSwap(now, expiry5, expiry5, varStrike, varNotional, Currency.EUR, annualization, nObsExpected, nObsDisrupted, observations, obsWeights);
+  private static final VarianceSwap swap10 = new VarianceSwap(now, expiry10, expiry10, varStrike, varNotional, Currency.EUR, annualization, nObsExpected, nObsDisrupted, observations, obsWeights);
+  //  private static final VarianceSwap swapExpired = new VarianceSwap(now, now - 1, now - 1, varStrike, varNotional, Currency.EUR, annualization, nObsExpected, nObsDisrupted, observations, obsWeights);
 
-  final VarianceSwap swap5x10 = new VarianceSwap(expiry5, expiry10, expiry10, varStrike, varNotional, Currency.EUR, annualization, nObsExpected, nObsDisrupted, observations, obsWeights);
+  private static final VarianceSwap swap5x10 = new VarianceSwap(expiry5, expiry10, expiry10, varStrike, varNotional, Currency.EUR, annualization, nObsExpected, nObsDisrupted, observations, obsWeights);
   // Market data
   private static final double SPOT = 80;
   private static final double DRIFT = 0.05;
@@ -91,7 +91,7 @@ public class VarianceSwapStaticReplicationTest {
   private static final CombinedInterpolatorExtrapolator INTERPOLATOR_1D_STRIKE = getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC,
       Interpolator1DFactory.LINEAR_EXTRAPOLATOR, Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
 
-  final static CombinedInterpolatorExtrapolator INTERPOLATOR_1D_EXPIRY = getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.LINEAR_EXTRAPOLATOR,
+  private static final CombinedInterpolatorExtrapolator INTERPOLATOR_1D_EXPIRY = getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.LINEAR_EXTRAPOLATOR,
       Interpolator1DFactory.FLAT_EXTRAPOLATOR);
 
   private static final Interpolator2D INTERPOLATOR_2D = new GridInterpolator2D(INTERPOLATOR_1D_EXPIRY, INTERPOLATOR_1D_STRIKE);
@@ -239,7 +239,7 @@ public class VarianceSwapStaticReplicationTest {
     final double compVarLimits = PRICER.expectedVariance(swap1, marketStrike);
     final double expected = w * sigma1 * sigma1 + (1 - w) * sigma2 * sigma2;
     assertEquals(expected, compVar, TEST_TOL);
-    assertEquals(expected, compVarLimits, 2e-4); //The substitution of shifted log-normal below the cutoff introduced some error 
+    assertEquals(expected, compVarLimits, 2e-4); //The substitution of shifted log-normal below the cutoff introduced some error
 
     //test a forward start
     final double compVar2 = PRICER.expectedVariance(swap5x10, marketStrike);

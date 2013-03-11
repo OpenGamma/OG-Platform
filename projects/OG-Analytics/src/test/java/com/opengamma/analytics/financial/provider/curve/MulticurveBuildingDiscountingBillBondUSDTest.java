@@ -122,14 +122,14 @@ public class MulticurveBuildingDiscountingBillBondUSDTest {
   private static final String CURVE_NAME_GOVTUS_USD = "USD GOVT US";
 
   /** Market values for the dsc USD curve */
-  public static final double[] DSC_USD_MARKET_QUOTES = new double[] {0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400};
+  private static final double[] DSC_USD_MARKET_QUOTES = new double[] {0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400};
   /** Generators for the dsc USD curve */
-  public static final GeneratorInstrument<? extends GeneratorAttribute>[] DSC_USD_GENERATORS = new GeneratorInstrument<?>[] {GENERATOR_DEPOSIT_ON_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD,
+  private static final GeneratorInstrument<? extends GeneratorAttribute>[] DSC_USD_GENERATORS = new GeneratorInstrument<?>[] {GENERATOR_DEPOSIT_ON_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD,
     GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD};
   /** Tenors for the dsc USD curve */
-  public static final Period[] DSC_USD_TENOR = new Period[] {DateUtils.periodOfDays(0), DateUtils.periodOfMonths(1), DateUtils.periodOfMonths(2), DateUtils.periodOfMonths(3), DateUtils.periodOfMonths(6), DateUtils.periodOfMonths(9), DateUtils.periodOfYears(1),
+  private static final Period[] DSC_USD_TENOR = new Period[] {DateUtils.periodOfDays(0), DateUtils.periodOfMonths(1), DateUtils.periodOfMonths(2), DateUtils.periodOfMonths(3), DateUtils.periodOfMonths(6), DateUtils.periodOfMonths(9), DateUtils.periodOfYears(1),
     DateUtils.periodOfYears(2), DateUtils.periodOfYears(3), DateUtils.periodOfYears(4), DateUtils.periodOfYears(5), DateUtils.periodOfYears(10)};
-  public static final GeneratorAttributeIR[] DSC_USD_ATTR = new GeneratorAttributeIR[DSC_USD_TENOR.length];
+  private static final GeneratorAttributeIR[] DSC_USD_ATTR = new GeneratorAttributeIR[DSC_USD_TENOR.length];
   static {
     for (int loopins = 0; loopins < DSC_USD_TENOR.length; loopins++) {
       DSC_USD_ATTR[loopins] = new GeneratorAttributeIR(DSC_USD_TENOR[loopins]);
@@ -137,13 +137,13 @@ public class MulticurveBuildingDiscountingBillBondUSDTest {
   }
 
   /** Market values for the govt USD curve */
-  public static final double[] GOVTUS_USD_MARKET_QUOTES = new double[] {0.0010, 0.0015, 0.0020, 0.0015};
+  private static final double[] GOVTUS_USD_MARKET_QUOTES = new double[] {0.0010, 0.0015, 0.0020, 0.0015};
   /** Generators for the govt USD curve */
-  public static final GeneratorInstrument<? extends GeneratorAttribute>[] GOVTUS_USD_GENERATORS = new GeneratorInstrument<?>[] {GENERATOR_DEPOSIT_ON_USGOVT, GENERATOR_BILL[0], GENERATOR_BILL[1],
+  private static final GeneratorInstrument<? extends GeneratorAttribute>[] GOVTUS_USD_GENERATORS = new GeneratorInstrument<?>[] {GENERATOR_DEPOSIT_ON_USGOVT, GENERATOR_BILL[0], GENERATOR_BILL[1],
     GENERATOR_BILL[2]};
   /** Tenors for the govt USD curve */
-  public static final Period[] GOVTUS_USD_TENOR = new Period[] {DateUtils.periodOfDays(0), DateUtils.periodOfDays(0), DateUtils.periodOfDays(0), DateUtils.periodOfDays(0)};
-  public static final GeneratorAttributeIR[] GOVTUS_USD_ATTR = new GeneratorAttributeIR[GOVTUS_USD_TENOR.length];
+  private static final Period[] GOVTUS_USD_TENOR = new Period[] {DateUtils.periodOfDays(0), DateUtils.periodOfDays(0), DateUtils.periodOfDays(0), DateUtils.periodOfDays(0)};
+  private static final GeneratorAttributeIR[] GOVTUS_USD_ATTR = new GeneratorAttributeIR[GOVTUS_USD_TENOR.length];
   static {
     for (int loopins = 0; loopins < GOVTUS_USD_TENOR.length; loopins++) {
       GOVTUS_USD_ATTR[loopins] = new GeneratorAttributeIR(GOVTUS_USD_TENOR[loopins]);
@@ -151,23 +151,23 @@ public class MulticurveBuildingDiscountingBillBondUSDTest {
   }
 
   /** Standard USD discounting curve instrument definitions */
-  public static final InstrumentDefinition<?>[] DEFINITIONS_DSC_USD;
+  private static final InstrumentDefinition<?>[] DEFINITIONS_DSC_USD;
   /** Standard USD Forward 3M curve instrument definitions */
-  public static final InstrumentDefinition<?>[] DEFINITIONS_GOVTUS_USD;
+  private static final InstrumentDefinition<?>[] DEFINITIONS_GOVTUS_USD;
 
   /** Units of curves */
   /** Units of curves */
-  public static final int[] NB_UNITS = new int[] {2};
-  public static final int NB_BLOCKS = NB_UNITS.length;
-  public static final InstrumentDefinition<?>[][][][] DEFINITIONS_UNITS = new InstrumentDefinition<?>[NB_BLOCKS][][][];
-  public static final GeneratorYDCurve[][][] GENERATORS_UNITS = new GeneratorYDCurve[NB_BLOCKS][][];
-  public static final String[][][] NAMES_UNITS = new String[NB_BLOCKS][][];
-  public static final MulticurveProviderDiscount KNOWN_MULTICURVES = new MulticurveProviderDiscount(FX_MATRIX);
-  public static final IssuerProviderDiscount KNOWN_DATA = new IssuerProviderDiscount(KNOWN_MULTICURVES, new HashMap<Pair<String, Currency>, YieldAndDiscountCurve>());
-  public static final LinkedHashMap<String, Currency> DSC_MAP = new LinkedHashMap<String, Currency>();
-  public static final LinkedHashMap<String, IndexON[]> FWD_ON_MAP = new LinkedHashMap<String, IndexON[]>();
-  public static final LinkedHashMap<String, IborIndex[]> FWD_IBOR_MAP = new LinkedHashMap<String, IborIndex[]>();
-  public static final LinkedHashMap<String, Pair<String, Currency>> DSC_ISS_MAP = new LinkedHashMap<String, Pair<String, Currency>>();
+  private static final int[] NB_UNITS = new int[] {2};
+  private static final int NB_BLOCKS = NB_UNITS.length;
+  private static final InstrumentDefinition<?>[][][][] DEFINITIONS_UNITS = new InstrumentDefinition<?>[NB_BLOCKS][][][];
+  private static final GeneratorYDCurve[][][] GENERATORS_UNITS = new GeneratorYDCurve[NB_BLOCKS][][];
+  private static final String[][][] NAMES_UNITS = new String[NB_BLOCKS][][];
+  private static final MulticurveProviderDiscount KNOWN_MULTICURVES = new MulticurveProviderDiscount(FX_MATRIX);
+  private static final IssuerProviderDiscount KNOWN_DATA = new IssuerProviderDiscount(KNOWN_MULTICURVES, new HashMap<Pair<String, Currency>, YieldAndDiscountCurve>());
+  private static final LinkedHashMap<String, Currency> DSC_MAP = new LinkedHashMap<String, Currency>();
+  private static final LinkedHashMap<String, IndexON[]> FWD_ON_MAP = new LinkedHashMap<String, IndexON[]>();
+  private static final LinkedHashMap<String, IborIndex[]> FWD_IBOR_MAP = new LinkedHashMap<String, IborIndex[]>();
+  private static final LinkedHashMap<String, Pair<String, Currency>> DSC_ISS_MAP = new LinkedHashMap<String, Pair<String, Currency>>();
 
   static {
     DEFINITIONS_DSC_USD = getDefinitions(DSC_USD_MARKET_QUOTES, DSC_USD_GENERATORS, DSC_USD_ATTR);
@@ -189,8 +189,8 @@ public class MulticurveBuildingDiscountingBillBondUSDTest {
     DSC_ISS_MAP.put(CURVE_NAME_GOVTUS_USD, US_USD);
   }
 
-  public static final String NOT_USED = "Not used";
-  public static final String[] NOT_USED_2 = {NOT_USED, NOT_USED};
+  private static final String NOT_USED = "Not used";
+  private static final String[] NOT_USED_2 = {NOT_USED, NOT_USED};
 
   public static InstrumentDefinition<?>[] getDefinitions(final double[] marketQuotes, final GeneratorInstrument[] generators, final GeneratorAttribute[] attribute) {
     final InstrumentDefinition<?>[] definitions = new InstrumentDefinition<?>[marketQuotes.length];

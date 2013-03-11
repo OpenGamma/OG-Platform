@@ -45,6 +45,9 @@ public class AnalyticsNodeJsonWriter {
    * @return <pre>[startRow,endRow,[childNode1,childNode2,...],isFungiblePosition]</pre>
    */
   private static Object[] createNodeArray(AnalyticsNode node) {
+    if (node == null) {
+      return new Object[0];
+    }
     Object[] nodeArray;
     if (node.isFungiblePosition()) {
       nodeArray = new Object[4];

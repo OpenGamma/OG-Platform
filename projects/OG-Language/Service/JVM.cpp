@@ -295,19 +295,58 @@ static void JNICALL _writeProperty (JNIEnv *pEnv, jclass cls, jstring jstrProper
 
 /// Creates a new JVM instance.
 ///
+/// @param[in] poFeedback the feedback reporting mechansim for errors, never NULL
 /// @return the JVM, or NULL if there was a problem
-CJVM *CJVM::Create () {
+CJVM *CJVM::Create (CErrorFeedback *poFeedback) {
 	CSettings oSettings;
 	const TCHAR *pszLibrary = oSettings.GetJvmLibrary ();
 	LOGDEBUG (TEXT ("Loading library ") << pszLibrary << TEXT (" and creating JVM"));
 	CLibrary *poLibrary = _LoadJVMLibrary (pszLibrary);
 	if (!poLibrary) {
-		LOGWARN (TEXT ("Couldn't load ") << pszLibrary << TEXT (", error ") << GetLastError ());
+		int ec = GetLastError ();
+		LOGWARN (TEXT ("Couldn't load ") << pszLibrary << TEXT (", error ") << ec);
+		TCHAR *psz = new TCHAR[1024];
+		if (psz) {
+			StringCchPrintf (psz, 1024,
+				TEXT ("Couldn't load the Java virtual machine - %s, error %d.")
+				TEXT ("\nPlease check that a suitable version of Java is installed. If Java is installed and you are seeing this message, please refer to the OpenGamma documentation for instructions on how to update the configuration to locate your Java version.")
+#ifdef _WIN32
+#ifdef _WIN64
+				TEXT ("\nThis is a 64-bit installation.")
+#else /* ifdef _WIN64 */
+				TEXT ("\nThis is a 32-bit installation.")
+#endif /* ifdef _WIN64 */
+#endif /* ifdef _WIN32 */
+				, pszLibrary, ec);
+			poFeedback->Write (psz);
+			delete psz;
+		} else {
+			LOGFATAL (TEXT ("Out of memory"));
+		}
 		return NULL;
 	}
 	JNI_CREATEJAVAVMPROC procCreateVM = (JNI_CREATEJAVAVMPROC)poLibrary->GetAddress ("JNI_CreateJavaVM");
 	if (!procCreateVM) {
-		LOGWARN (TEXT ("Couldn't find JNI_CreateJavaVM, error ") << GetLastError ());
+		int ec = GetLastError ();
+		LOGWARN (TEXT ("Couldn't find JNI_CreateJavaVM, error ") << ec);
+		TCHAR *psz = new TCHAR[1024];
+		if (psz) {
+			StringCchPrintf (psz, 1024,
+				TEXT ("Invalid Java virtual machine - %s, error %d.")
+				TEXT ("\nPlease check that a suitable version of Java is installed. If Java is installed and you are seeing this message, please refer to the OpenGamma documentation for instructions on how to update the configuration to locate your Java version.")
+#ifdef _WIN32
+#ifdef _WIN64
+				TEXT ("\nThis is a 64-bit installation.")
+#else /* ifdef _WIN64 */
+				TEXT ("\tThis is a 32-bit installation.")
+#endif /* ifdef _WIN64 */
+#endif /* ifdef _WIN32 */
+				, pszLibrary, ec);
+			poFeedback->Write (psz);
+			delete psz;
+		} else {
+			LOGFATAL (TEXT ("Out of memory"));
+		}
 		delete poLibrary;
 		return NULL;
 	}
@@ -331,6 +370,15 @@ CJVM *CJVM::Create () {
 	}
 	if (err) {
 		LOGWARN (TEXT ("Couldn't create JVM, error ") << err);
+		TCHAR *psz = new TCHAR[1024];
+		if (psz) {
+			StringCchPrintf (psz, 1024,
+				TEXT ("Couldn't create the Java virtual machine, error %d.")
+				TEXT ("\nThe Java library being used is %s"),
+				err, pszLibrary);
+			poFeedback->Write (psz);
+			delete psz;
+		}
 		delete poLibrary;
 		return NULL;
 	}
@@ -340,6 +388,7 @@ CJVM *CJVM::Create () {
 	if (!pJvm) {
 		LOGFATAL (TEXT ("Out of memory"));
 		delete poLibrary;
+		poFeedback->Write (TEXT ("Out of memory"));
 		return NULL;
 	}
 	LOGDEBUG (TEXT ("Registering native methods"));
@@ -351,12 +400,19 @@ CJVM *CJVM::Create () {
 	jclass cls = pEnv->FindClass (MAIN_CLASS);
 	if (!cls) {
 		LOGWARN (TEXT ("Couldn't find class ") << TEXT (MAIN_CLASS));
+		poFeedback->Write (TEXT ("One or more class files could not be found.\nPlease refer to the OpenGamma documentation for instructions on how to set the classpath for this service correctly."));
 		delete pJvm;
 		return NULL;
 	}
 	err = pEnv->RegisterNatives (cls, methods, 3);
 	if (err) {
 		LOGWARN (TEXT ("Couldn't register native methods, error ") << err);
+		TCHAR *psz = new TCHAR[1024];
+		if (psz) {
+			StringCchPrintf (psz, 1024, TEXT ("Couldn't register native methods, error %d"), err);
+			poFeedback->Write (psz);
+			delete psz;
+		}
 		delete pJvm;
 		return NULL;
 	}
@@ -401,7 +457,7 @@ void CJVM::CProperties::SetProperties (const CSettings *poSettings) const {
 /// @param[in] pszMethodName name of the method to invoke, never NULL
 /// @param[in] pszSignature method signature to invoke, never NULL
 /// @return the method result, or FALSE if it could not be invoked
-bool CJVM::Invoke (JNIEnv *pEnv, const char *pszMethodName, const char *pszSignature, ...) {
+bool CJVM::InvokeBool (JNIEnv *pEnv, const char *pszMethodName, const char *pszSignature, ...) {
 	LOGDEBUG ("Invoking " << pszMethodName << " on " << MAIN_CLASS);
 	jclass cls = pEnv->FindClass (MAIN_CLASS);
 	if (!cls) {
@@ -420,24 +476,108 @@ bool CJVM::Invoke (JNIEnv *pEnv, const char *pszMethodName, const char *pszSigna
 	return res != 0;
 }
 
-/// Attaches the calling thread to the JVM and calls the no-arg static method on the Main class.
+/// Calls a static method on the Main class that returns a string value. The string (from Java)
+/// will be duplicated and a copy allocated on the heap. The caller must release this memory
+/// when done.
 ///
-/// @param[in] pszMethodName name of the method to invoke
-/// @return boolean result of the method, or FALSE if it could not be invoked
-bool CJVM::Invoke (const char *pszMethodName) {
+/// @param[in] pEnv the JNI environment, never NULL
+/// @param[in] pszMethodName name of the method to invoke, never NULL
+/// @param[in] pszSignature method signature of psMethodName, never NULL
+/// @return the method result, duplicated onto the heap if not NULL
+TCHAR *CJVM::InvokeString (JNIEnv *pEnv, const char *pszMethodName, const char *pszSignature, ...) {
+	LOGDEBUG ("Invoking " << pszMethodName << " on " << MAIN_CLASS);
+	jclass cls = pEnv->FindClass (MAIN_CLASS);
+	if (!cls) {
+		LOGWARN (TEXT ("Couldn't find class ") << TEXT (MAIN_CLASS));
+		return false;
+	}
+	jmethodID mtd = pEnv->GetStaticMethodID (cls, pszMethodName, pszSignature);
+	if (!mtd) {
+		LOGWARN ("Couldn't find method " << pszMethodName << " on " << MAIN_CLASS);
+		return false;
+	}
+	va_list args;
+	va_start (args, pszSignature);
+	jstring jstrResult = (jstring)pEnv->CallStaticObjectMethodV (cls, mtd, args);
+	if (jstrResult) {
+		TCHAR *pszResult;
+#ifdef _UNICODE
+		jsize cchResult = pEnv->GetStringLength (jstrResult);
+#else /* ifdef _UNICODE */
+		jsize cchResult = pEnv->GetStringUTFLength (jstrResult);
+#endif /* ifdef _UNICODE */
+		pszResult = new TCHAR[cchResult + 1];
+		if (pszResult) {
+			jboolean bCopy;
+#ifdef _UNICODE
+			const jchar *pszResultChars = pEnv->GetStringChars (jstrResult, &bCopy);
+#else /* ifdef _UNICODE */
+			const char *pszResultChars = pEnv->GetStringUTFChars (jstrResult, &bCopy);
+#endif /* ifdef_ UNICODE */
+			memcpy (pszResult, pszResultChars, cchResult);
+			pszResult[cchResult] = 0;
+#ifdef _UNICODE
+			pEnv->ReleaseStringChars (jstrResult, pszResultChars);
+#else /* ifdef _UNICODE */
+			pEnv->ReleaseStringUTFChars (jstrResult, pszResultChars);
+#endif /* ifdef _UNICODE */
+			LOGDEBUG ("String returned from " << pszMethodName);
+			LOGDEBUG (pszResult);
+		} else {
+			LOGFATAL (TEXT ("Out of memory"));
+		}
+		pEnv->DeleteLocalRef (jstrResult);
+		return pszResult;
+	}  else {
+		LOGDEBUG (pszMethodName << " returned NULL");
+		return NULL;
+	}
+}
+
+/// Attaches the calling thread to the JVM and return the thread's Java context/environment.
+///
+/// @param[in] pvm the Java VM
+/// @return the Java environment
+static JNIEnv *_AttachThread (JavaVM *pvm) {
 	JNIEnv *pEnv;
 	JavaVMAttachArgs args;
 	memset (&args, 0, sizeof (args));
 	args.version = JNI_VERSION_1_6;
 	args.name = (char*)"Asynchronous SCM thread";
-	jint err = m_pJVM->AttachCurrentThread ((void**)&pEnv, &args);
+	jint err = pvm->AttachCurrentThread ((void**)&pEnv, &args);
 	if (err) {
 		LOGWARN (TEXT ("Couldn't attach thread to JVM, error ") << err);
+		return NULL;
+	}
+	return pEnv;
+}
+
+/// Attaches the calling thread to the JVM and calls the no-arg static method on the Main class.
+///
+/// @param[in] pszMethodName name of the method to invoke
+/// @return boolean result of the method, or FALSE if it could not be invoked
+bool CJVM::InvokeBool (const char *pszMethodName) {
+	JNIEnv *pEnv = _AttachThread (m_pJVM);
+	if (!pEnv) {
 		return false;
 	}
-	jboolean res = Invoke (pEnv, pszMethodName, "()Z");
+	jboolean res = InvokeBool (pEnv, pszMethodName, "()Z");
 	m_pJVM->DetachCurrentThread ();
 	return res != 0;
+}
+
+/// Attaches the calling thread to the JVM and calls the no-arg static method on the Main class.
+///
+/// @param[in] pszMethodName name of the method to invoke
+/// @return the string result of the method, or NULL if there was none.
+TCHAR *CJVM::InvokeString (const char *pszMethodName) {
+	JNIEnv *pEnv = _AttachThread (m_pJVM);
+	if (!pEnv) {
+		return _tcsdup (TEXT ("Internal Java error"));
+	}
+	TCHAR *psz = InvokeString (pEnv, pszMethodName, "()Ljava/lang/String;");
+	m_pJVM->DetachCurrentThread ();
+	return psz;
 }
 
 #ifdef _UNICODE
@@ -470,7 +610,7 @@ void CJVM::CProperties::Setting (const TCHAR *pszKey, const TCHAR *pszValue) con
 	jstring jsKey = m_pEnv->NewStringUTF (pszKey);
 	jstring jsValue = m_pEnv->NewStringUTF (pszValue);
 #endif /* ifdef _UNICODE */
-	bool bResult = Invoke (m_pEnv, "setProperty", "(Ljava/lang/String;Ljava/lang/String;)Z", jsKey, jsValue);
+	bool bResult = InvokeBool (m_pEnv, "setProperty", "(Ljava/lang/String;Ljava/lang/String;)Z", jsKey, jsValue);
 	m_pEnv->PopLocalFrame (NULL);
 	if (bResult) {
 		LOGDEBUG (TEXT ("Set property ") << pszKey << TEXT (" = ") << pszValue);
@@ -483,6 +623,9 @@ void CJVM::CProperties::Setting (const TCHAR *pszKey, const TCHAR *pszValue) con
 class CBusyTask : public CThread {
 private:
 
+	/// Feedback instance
+	CErrorFeedback *m_poFeedback;
+
 	/// JVM instance to invoke the method on
 	CJVM *m_pJVM;
 
@@ -493,16 +636,18 @@ public:
 	/// Creates a new slave thread
 	///
 	/// @param[in] pJVM JVM instance to invoke the method in
+	/// @param[in] poFeedback the feedback instance
 	/// @param[in] bStart TRUE to invoke Start, FALSE to invoke Stop
-	CBusyTask (CJVM *pJVM, bool bStart) {
+	CBusyTask (CJVM *pJVM, CErrorFeedback *poFeedback, bool bStart) {
 		m_pJVM = pJVM;
+		m_poFeedback = poFeedback;
 		m_bStart = bStart;
 	}
 
 	// Invokes either Start or Stop on the JVM instance
 	void Run () {
 		if (m_bStart) {
-			m_pJVM->Start (false);
+			m_pJVM->Start (m_poFeedback, false);
 		} else {
 			m_pJVM->Stop (false);
 		}
@@ -513,13 +658,13 @@ public:
 ///
 /// @param[in] bAsync TRUE to return immediately and use a slave thread to start the Java stack, FALSE
 /// to start it from the calling thread.
-void CJVM::Start (bool bAsync) {
+void CJVM::Start (CErrorFeedback *poFeedback, bool bAsync) {
 	if (bAsync) {
 		m_oMutex.Enter ();
 		if (m_poBusyTask) {
 			LOGERROR (TEXT ("Already a busy task running"));
 		} else {
-			m_poBusyTask = new CBusyTask (this, true);
+			m_poBusyTask = new CBusyTask (this, poFeedback, true);
 			if (m_poBusyTask->Start ()) {
 				LOGINFO (TEXT ("Created startup thread ") << m_poBusyTask->GetThreadId ());
 			} else {
@@ -530,11 +675,14 @@ void CJVM::Start (bool bAsync) {
 		}
 		m_oMutex.Leave ();
 	} else {
-		if (Invoke ("svcStart")) {
+		TCHAR *pszStartupError = InvokeString ("svcStart");
+		if (pszStartupError) {
+			LOGERROR (TEXT ("Couldn't start service"));
+			poFeedback->Write (pszStartupError);
+			free (pszStartupError);
+		} else {
 			LOGINFO (TEXT ("Service started"));
 			m_bRunning = true;
-		} else {
-			LOGERROR (TEXT ("Couldn't start service"));
 		}
 	}
 }
@@ -549,7 +697,7 @@ void CJVM::Stop (bool bAsync) {
 		if (m_poBusyTask) {
 			LOGERROR (TEXT ("Already a busy task running"));
 		} else {
-			m_poBusyTask = new CBusyTask (this, false);
+			m_poBusyTask = new CBusyTask (this, NULL, false);
 			if (m_poBusyTask->Start ()) {
 				LOGINFO (TEXT ("Created stop thread ") << m_poBusyTask->GetThreadId ());
 			} else {
@@ -560,7 +708,7 @@ void CJVM::Stop (bool bAsync) {
 		}
 		m_oMutex.Leave ();
 	} else {
-		if (Invoke ("svcStop")) {
+		if (InvokeBool ("svcStop")) {
 			LOGINFO (TEXT ("Service stopped"));
 			m_bRunning = false;
 		} else {
@@ -635,7 +783,7 @@ void CJVM::UserConnection (const TCHAR *pszUserName, const TCHAR *pszInputPipe, 
 #else /* ifdef _DEBUG */
 #define DEBUG_FLAG false
 #endif /* ifdef _DEBUG */
-		if (Invoke (m_pEnv, "svcAccept", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Z)Z", jsUserName, jsInputPipe, jsOutputPipe, jsLanguageID, DEBUG_FLAG)) {
+		if (InvokeBool (m_pEnv, "svcAccept", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Z)Z", jsUserName, jsInputPipe, jsOutputPipe, jsLanguageID, DEBUG_FLAG)) {
 #undef DEBUG_FLAG
 			LOGINFO (TEXT ("Connection from ") << pszUserName << TEXT (" accepted"));
 		} else {
@@ -653,7 +801,7 @@ void CJVM::UserConnection (const TCHAR *pszUserName, const TCHAR *pszInputPipe, 
 ///
 /// @return TRUE if it is stopped, FALSE if not or if the method couldn't be invoked
 bool CJVM::IsStopped () const {
-	return Invoke (m_pEnv, "svcIsStopped", "()Z");
+	return InvokeBool (m_pEnv, "svcIsStopped", "()Z");
 }
 
 /// Runs the configuration task. If the configuration was changed and the service should be
@@ -662,7 +810,7 @@ bool CJVM::IsStopped () const {
 /// @return TRUE if the service configuration was changed, FALSE otherwise
 bool CJVM::Configure () {
 	g_nWriteProperty = 0;
-	if (Invoke ("svcConfigure")) {
+	if (InvokeBool ("svcConfigure")) {
 		LOGINFO (TEXT ("Configuration callback updated ") << g_nWriteProperty << TEXT (" setting(s)"));
 		return g_nWriteProperty > 0;
 	} else {

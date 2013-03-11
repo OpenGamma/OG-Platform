@@ -5,7 +5,6 @@
  */
 package com.opengamma.integration.tool.portfolio.xml.v1_0.conversion;
 
-import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
@@ -16,37 +15,39 @@ import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.FxForwardTrade;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.money.Currency;
 
+/**
+ * Security extractor for fx forward trades.
+ */
 public class FxForwardTradeSecurityExtractor extends TradeSecurityExtractor<FxForwardTrade> {
 
+  /**
+   * Create a security extractor for the supplied trade.
+   *
+   * @param trade the trade to perform extraction on
+   */
+  public FxForwardTradeSecurityExtractor(FxForwardTrade trade) {
+    super(trade);
+  }
+
   @Override
-  public ManageableSecurity[] extractSecurity(FxForwardTrade trade) {
+  public ManageableSecurity[] extractSecurities() {
 
-    ExternalId region = extractRegion(trade.getPaymentCalendars());
-    boolean nonDeliverable = checkNonDeliverable(trade);
+    ExternalId region = extractRegion(_trade.getPaymentCalendars());
+    boolean nonDeliverable = checkNonDeliverable(_trade);
 
-    Currency payCurrency = trade.getPayCurrency();
-    double payAmount = trade.getPayAmount().doubleValue();
-    Currency receiveCurrency = trade.getReceiveCurrency();
-    double receiveAmount = trade.getReceiveAmount().doubleValue();
-    ZonedDateTime forwardDate = convertLocalDate(trade.getMaturityDate());
+    Currency payCurrency = _trade.getPayCurrency();
+    double payAmount = _trade.getPayAmount().doubleValue();
+    Currency receiveCurrency = _trade.getReceiveCurrency();
+    double receiveAmount = _trade.getReceiveAmount().doubleValue();
+    ZonedDateTime forwardDate = convertLocalDate(_trade.getMaturityDate());
 
     ManageableSecurity security = nonDeliverable ?
         // todo - expiry should be used in construction of NonDeliverableFXForwardSecurity
         new NonDeliverableFXForwardSecurity(payCurrency, payAmount, receiveCurrency, receiveAmount, forwardDate,
-                                            region, trade.getSettlementCurrency().equals(trade.getReceiveCurrency())) :
+                                            region, _trade.getSettlementCurrency().equals(_trade.getReceiveCurrency())) :
         new FXForwardSecurity(payCurrency, payAmount, receiveCurrency, receiveAmount, forwardDate, region);
 
-    security.addExternalId(ExternalId.of("XML_LOADER", Integer.toHexString(
-        new HashCodeBuilder()
-            .append(security.getClass())
-            .append(payCurrency)
-            .append(trade.getPayAmount())
-            .append(trade.getReceiveCurrency())
-            .append(trade.getReceiveAmount())
-            .append(trade.getMaturityDate())
-            .append(region).toHashCode()
-    )));
-    return securityArray(security);
+    return securityArray(addIdentifier(security));
   }
 
   private boolean checkNonDeliverable(FxForwardTrade trade) {
@@ -56,7 +57,7 @@ public class FxForwardTradeSecurityExtractor extends TradeSecurityExtractor<FxFo
     } else if (trade.getSettlementCurrency() == null && trade.getFxExpiry() == null) {
       return false;
     } else {
-      throw new OpenGammaRuntimeException(
+      throw new PortfolioParsingException(
           "Either both settlementCurrency and fxExpiry elements must be present, or neither");
     }
   }

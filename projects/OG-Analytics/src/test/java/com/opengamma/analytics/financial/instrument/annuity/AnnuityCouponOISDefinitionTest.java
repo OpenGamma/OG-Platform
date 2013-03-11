@@ -62,12 +62,12 @@ public class AnnuityCouponOISDefinitionTest {
   private static final ZonedDateTime FINAL_PAYMENT_DATE = DEFINITION.getNthPayment(NUM_PAYMENTS - 1).getPaymentDate();
 
   private static final YieldCurveBundle CURVES = TestsDataSetsSABR.createCurves1();
-  private static final String[] CURVES_NAMES = CURVES.getAllNames().toArray(new String[0]);
+  private static final String[] CURVES_NAMES = CURVES.getAllNames().toArray(new String[CURVES.size()]);
 
   private static final ZonedDateTime DATE = DateUtils.getUTCDate(2012, 3, 15);
 
   // Utility to create a time series of fixings
-  static ArrayZonedDateTimeDoubleTimeSeries createFixingSeries(ZonedDateTime startDate, ZonedDateTime endDate) {
+  static ArrayZonedDateTimeDoubleTimeSeries createFixingSeries(final ZonedDateTime startDate, final ZonedDateTime endDate) {
     final List<ZonedDateTime> dates = new ArrayList<ZonedDateTime>();
     final List<Double> data = new ArrayList<Double>();
     ZonedDateTime dt = startDate;
@@ -90,13 +90,13 @@ public class AnnuityCouponOISDefinitionTest {
    */
   public void toDerivativeOnDateOfFinalPayment() {
 
-    ZonedDateTime valuationTimeIsNoon = FINAL_PAYMENT_DATE.with(LocalTime.NOON);
+    final ZonedDateTime valuationTimeIsNoon = FINAL_PAYMENT_DATE.with(LocalTime.NOON);
     assertTrue("valuationTimeIsNoon usedn        to be after paymentDate, which was midnight. Confirm behaviour", valuationTimeIsNoon.isAfter(FINAL_PAYMENT_DATE));
-    Annuity<? extends Coupon> derivative = DEFINITION.toDerivative(valuationTimeIsNoon, FIXING_TS, CURVES_NAMES);
+    final Annuity<? extends Coupon> derivative = DEFINITION.toDerivative(valuationTimeIsNoon, FIXING_TS, CURVES_NAMES);
     assertEquals("On the payment date, we expect the derivative to have the same number of payments as its definition", 1, derivative.getNumberOfPayments());
     assertTrue("CouponOIS should be of type CouponFixed on the payment date", derivative.getNthPayment(0) instanceof CouponFixed);
 
-    CurrencyAmount pv = CouponFixedDiscountingMethod.getInstance().presentValue((CouponFixed) derivative.getNthPayment(0), CURVES);
+    final CurrencyAmount pv = CouponFixedDiscountingMethod.getInstance().presentValue((CouponFixed) derivative.getNthPayment(0), CURVES);
     assertEquals("CouponOIS definition: toDerivative", pv, CurrencyAmount.of(CCY, -2571693.2212814568));
 
   }

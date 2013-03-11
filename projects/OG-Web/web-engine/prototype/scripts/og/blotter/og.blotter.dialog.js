@@ -7,8 +7,15 @@ $.register_module({
     dependencies: [],
     obj: function () {
         return function (config) {
+            /**
+             * launches a trade entry dialog
+             * @param {Object} config.details the data of a current trade, places form in edit mode (optional)
+             * @param {Object} config.portfolio the data of a node, places form in create mode (optional)
+             * @param {Function} config.handler the endopoint that the form submits too
+             * @param {Function} config.complete fired when the form closes after a sucessful edit/create (optional) 
+             */
             var constructor = this, $selector, form_block = '.OG-blotter-form-block', form_wrapper, title, submit,
-            blotter, error_block = '.OG-blotter-error-block';
+            blotter, error_block = '.OG-blotter-error-block', complete = config.complete || $.noop;
             var validation_handler = function (result) {
                 if(result.error) {
                     og.common.util.ui.message({css: {position: 'inherit', whiteSpace: 'normal'},
@@ -16,8 +23,10 @@ $.register_module({
                     return;
                 }
                 blotter.close();
+                complete();
             };
             constructor.load = function () {
+                // security type tells which type of form to load
                 if (config.details) {
                     title = 'Edit Trade', submit = 'Update';
                     og.api.text({module: 'og.blotter.forms.blocks.form_edit_tash'}).pipe(function (template){
@@ -56,7 +65,7 @@ $.register_module({
                         'Save as new' : function () {form_wrapper.submit_new(validation_handler);},
                         'Cancel': function () {$(this).dialog('close');}
                     };
-                if (!config.details) delete buttons['Save as new'];
+                if (!config.details || !config.portfolio) delete buttons['Save as new'];
                 blotter = new og.common.util.ui.dialog({
                     type: 'input', title: title, width: 530, height: 700, custom: $selector,
                     buttons: buttons
@@ -66,7 +75,6 @@ $.register_module({
                 $(form_block).empty();
                 $('.ui-dialog-title').html("Add New Trade");
             };
-
             constructor.load();
         };
     }

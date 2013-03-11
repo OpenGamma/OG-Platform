@@ -27,7 +27,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * Class used to compute the price and sensitivity of a physical delivery swaption with SABR model and extrapolation to the right. 
+ * Class used to compute the price and sensitivity of a physical delivery swaption with SABR model and extrapolation to the right.
  * Implemented only for the SABRHaganVolatilityFunction.
  * OpenGamma implementation note for the extrapolation: Smile extrapolation, version 1.2, May 2011.
  */
@@ -116,7 +116,6 @@ public class SwaptionPhysicalFixedIborSABRExtrapolationRightMethod {
     final MulticurveSensitivity forwardModifiedDr = PRCSDC.visitFixedCouponSwap(swaption.getUnderlyingSwap(), dayCountModification, multicurves);
     // Implementation note: option required to pass the strike (in case the swap has non-constant coupon).
     final EuropeanVanillaOption option = new EuropeanVanillaOption(strikeModified, swaption.getTimeToExpiry(), swaption.isCall());
-    MulticurveSensitivity result = new MulticurveSensitivity();
 
     // With extrapolation
     final DoublesPair expiryMaturity = new DoublesPair(swaption.getTimeToExpiry(), maturity);
@@ -126,7 +125,7 @@ public class SwaptionPhysicalFixedIborSABRExtrapolationRightMethod {
     final double nu = sabrData.getSABRParameter().getNu(expiryMaturity);
     final SABRFormulaData sabrParam = new SABRFormulaData(alpha, beta, rho, nu);
     final SABRExtrapolationRightFunction sabrExtrapolation = new SABRExtrapolationRightFunction(forwardModified, sabrParam, _cutOffStrike, swaption.getTimeToExpiry(), _mu);
-    result = pvbpModifiedDr.multipliedBy(sabrExtrapolation.price(option));
+    MulticurveSensitivity result = pvbpModifiedDr.multipliedBy(sabrExtrapolation.price(option));
     final double priceDF = sabrExtrapolation.priceDerivativeForward(option);
     result = result.plus(forwardModifiedDr.multipliedBy(pvbpModified * priceDF));
     if (!swaption.isLong()) {

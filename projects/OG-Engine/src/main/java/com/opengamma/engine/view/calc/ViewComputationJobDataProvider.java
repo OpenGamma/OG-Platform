@@ -15,6 +15,7 @@ import org.threeten.bp.Instant;
 
 import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.opengamma.engine.marketdata.MarketDataListener;
@@ -170,6 +171,10 @@ import com.opengamma.util.ArgumentChecker;
    * @return A snapshot of market data backed by snapshots from the underlying providers.
    */
   /* package */ MarketDataSnapshot snapshot() {
+    if (_providers.size() == 1) {
+      MarketDataSpecification spec = Iterables.getOnlyElement(_specs);
+      return Iterables.getOnlyElement(_providers).snapshot(spec);
+    }
     List<MarketDataSnapshot> snapshots = Lists.newArrayListWithCapacity(_providers.size());
     for (int i = 0; i < _providers.size(); i++) {
       MarketDataSnapshot snapshot = _providers.get(i).snapshot(_specs.get(i));

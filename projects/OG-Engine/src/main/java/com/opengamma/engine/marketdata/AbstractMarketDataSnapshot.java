@@ -52,5 +52,11 @@ public abstract class AbstractMarketDataSnapshot implements MarketDataSnapshot {
     }
     return results;
   }
+  
+  protected void assertInitialized() {
+    if (!isInitialized()) {
+      throw new IllegalStateException("Market data snapshot is not initialized");
+    }
+  }
 
 }

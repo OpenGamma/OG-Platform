@@ -55,14 +55,14 @@ public class WebPositionResource extends AbstractWebPositionResource {
   @Produces(MediaType.TEXT_HTML)
   public String getHTML() {
     FlexiBean out = createRootData();
-    return getFreemarker().build("positions/position.ftl", out);
+    return getFreemarker().build(HTML_DIR + "position.ftl", out);
   }
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public String getJSON() {
     FlexiBean out = createRootData();
-    return getFreemarker().build("positions/jsonposition.ftl", out);
+    return getFreemarker().build(JSON_DIR + "position.ftl", out);
   }
 
   //-------------------------------------------------------------------------
@@ -85,7 +85,7 @@ public class WebPositionResource extends AbstractWebPositionResource {
       if (quantity == null) {
         out.put("err_quantityNotNumeric", true);
       }
-      String html = getFreemarker().build("positions/position-update.ftl", out);
+      String html = getFreemarker().build(HTML_DIR + "position-update.ftl", out);
       return Response.ok(html).build();
     }
     URI uri = updatePosition(doc, quantity, null);

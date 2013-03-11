@@ -9,7 +9,7 @@ $.register_module({
         var module = this, Block = og.common.util.ui.Block;
         var Floatingleg = function (config) {
             var block = this, id = og.common.id('attributes'), form = config.form,leg = config.leg,
-                ui = og.common.util.ui, type = config.type, gear = ~type.indexOf('Gearing'),
+                ui = og.common.util.ui, type = config.type, gear = ~type.indexOf('Gearing'), security_block,
                 spre = ~type.indexOf('Spread'), leg_path = (leg.slice(0,leg.length-1)).split('.'),
                 data = leg_path.reduce(function (acc, val) {return acc[val];},config.data) || {notional:{}};
             form.Block.call(block, {
@@ -26,7 +26,7 @@ $.register_module({
                         form: form, resource: 'blotter.regions', index:  leg + 'regionId',
                         value: data.regionId, placeholder: 'Select Region ID'
                     }),
-                    new og.blotter.forms.blocks.Security({
+                    security_block = new og.blotter.forms.blocks.Security({
                         form: form, label: "Short Underlying ID", security: data.floatingReferenceRateId,
                         index: leg + "floatingReferenceRateId"
                     }),    
@@ -57,6 +57,10 @@ $.register_module({
                 processor: function (data) {
                     leg_path.reduce(function (acc, val) {return acc[val];},data)['eom'] = 
                         og.blotter.util.get_checkbox(leg + 'eom');
+                },
+                generator: function (handler, tmpl, data) {
+                    handler(tmpl(data));
+                    security_block.create_autocomplete();
                 }
             });
         };

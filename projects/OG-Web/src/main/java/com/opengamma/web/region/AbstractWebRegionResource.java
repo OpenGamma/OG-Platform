@@ -19,6 +19,14 @@ import com.opengamma.web.WebHomeUris;
  * Abstract base class for RESTful region resources.
  */
 public abstract class AbstractWebRegionResource extends AbstractPerRequestWebResource {
+  /**
+   * HTML ftl directory
+   */
+  protected static final String HTML_DIR = "regions/html/";
+  /**
+   * JSON ftl directory
+   */
+  protected static final String JSON_DIR = "regions/json/";
 
   /**
    * The backing bean.

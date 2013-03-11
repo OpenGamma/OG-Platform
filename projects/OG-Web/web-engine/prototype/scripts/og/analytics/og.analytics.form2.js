@@ -52,7 +52,7 @@ $.register_module({
                 dom.menus[entry] = $('.'+selectors.menus[entry], dom.form_container);
                 dom.form_controls[entry] = $(selectors.form_controls, dom.menus[entry]);
             });
-            dom.menus.portfolios.find('input').select();
+            dom.menus.views.find('input').select();
         };
 
         var load_form = function (data) {

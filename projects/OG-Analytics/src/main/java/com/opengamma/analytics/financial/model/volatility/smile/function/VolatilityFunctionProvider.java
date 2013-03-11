@@ -83,11 +83,11 @@ public abstract class VolatilityFunctionProvider<T extends SmileModelData> {
       @Override
       public final double[] evaluate(final T data) {
         Validate.notNull(data, "data");
-        final double[] x = new double[3 + data.getNumberOfparameters()]; //vol, fwd, strike, the model parameters
+        final double[] x = new double[3 + data.getNumberOfParameters()]; //vol, fwd, strike, the model parameters
         x[0] = func.evaluate(data);
         x[1] = forwardBar(option, forward, data);
         x[2] = strikeBar(option, forward, data);
-        System.arraycopy(paramBar(func, data), 0, x, 3, data.getNumberOfparameters());
+        System.arraycopy(paramBar(func, data), 0, x, 3, data.getNumberOfParameters());
         return x;
       }
     };
@@ -133,7 +133,7 @@ public abstract class VolatilityFunctionProvider<T extends SmileModelData> {
       @Override
       public double[][] evaluate(final T data) {
         Validate.notNull(data, "data");
-        final double[][] res = new double[3 + data.getNumberOfparameters()][n];
+        final double[][] res = new double[3 + data.getNumberOfParameters()][n];
         res[0] = func.evaluate(data);
         res[1] = forwardBar(strikes, timeToExpiry, forward, data);
         res[2] = strikeBar(strikes, timeToExpiry, forward, data);
@@ -268,7 +268,7 @@ public abstract class VolatilityFunctionProvider<T extends SmileModelData> {
   }
 
   private double[] paramBar(final Function1D<T, Double> func, final T data) {
-    final int n = data.getNumberOfparameters();
+    final int n = data.getNumberOfParameters();
     final double[] res = new double[n];
     for (int i = 0; i < n; i++) {
       res[i] = paramBar(func, data, i);
@@ -302,7 +302,7 @@ public abstract class VolatilityFunctionProvider<T extends SmileModelData> {
   }
 
   private double[][] paramBarSet(final Function1D<T, double[]> func, final T data) {
-    final int n = data.getNumberOfparameters();
+    final int n = data.getNumberOfParameters();
     final double[][] res = new double[n][];
     for (int i = 0; i < n; i++) {
       res[i] = paramBarSet(func, data, i);

@@ -22,7 +22,10 @@ import com.opengamma.util.PublicSPI;
 @PublicSPI
 public interface MarketDataSnapshot {
 
-  static final String MARKET_DATA_SNAPSHOT_ID_SCHEME = "Mds";
+  /**
+   * The ID scheme used for market data snapshots which do not have an alternative identifier.
+   */
+  String MARKET_DATA_SNAPSHOT_ID_SCHEME = "Mds";
 
   /**
    * Gets unique id of the market data snapshot.
@@ -57,6 +60,24 @@ public interface MarketDataSnapshot {
    * @param unit  the timeout unit, not null
    */
   void init(Set<ValueRequirement> valuesRequired, long timeout, TimeUnit unit);
+  
+  /**
+   * Gets whether this market data snapshot has been initialized.
+   * 
+   * @return true if this market data snapshot has been initialized, false otherwise
+   */
+  boolean isInitialized();
+  
+  /**
+   * Gets whether this market data snapshot is empty.
+   * <p>
+   * This may be used to ignore the snapshot, so implementations may return false for efficiency even if the snapshot
+   * may in fact be empty. 
+   * 
+   * @return true if this market data snapshot is empty, false otherwise
+   * @throws IllegalStateException  if the snapshot has not been initialized by calling {@link #init(Set, long, TimeUnit)}
+   */
+  boolean isEmpty();
 
   /**
    * Gets the time associated with the snapshot.

@@ -29,6 +29,16 @@ public class MockMarketDataSnapshot extends AbstractMarketDataSnapshot {
   }
   
   @Override
+  public boolean isInitialized() {
+    return true;
+  }
+
+  @Override
+  public boolean isEmpty() {
+    return false;
+  }
+  
+  @Override
   public Instant getSnapshotTimeIndication() {
     return _snapshotTime;
   }

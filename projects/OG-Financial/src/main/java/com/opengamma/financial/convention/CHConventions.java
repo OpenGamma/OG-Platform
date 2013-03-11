@@ -199,7 +199,7 @@ public class CHConventions {
   public static void addTreasuryBondConvention(final ConventionBundleMaster conventionMaster) {
     ArgumentChecker.notNull(conventionMaster, "convention master");
     final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
-    utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("CH_TREASURY_BOND_CONVENTION")), "HU_TREASURY_BOND_CONVENTION", true,
+    utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("CH_TREASURY_BOND_CONVENTION")), "CH_TREASURY_BOND_CONVENTION", true,
         true, 0, 3, true);
   }
 
@@ -210,7 +210,7 @@ public class CHConventions {
   public static void addCorporateBondConvention(final ConventionBundleMaster conventionMaster) {
     ArgumentChecker.notNull(conventionMaster, "conventionMaster");
     final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
-    utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("CH_CORPORATE_BOND_CONVENTION")), "HU_CORPORATE_BOND_CONVENTION", true,
+    utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("CH_CORPORATE_BOND_CONVENTION")), "CH_CORPORATE_BOND_CONVENTION", true,
         true, 0, 3, true);
   }
 
