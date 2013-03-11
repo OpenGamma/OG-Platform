@@ -11,7 +11,7 @@ $.register_module({
             if(config.details) {data = config.details.data; data.id = config.details.data.trade.uniqueId;}
             else {data = {security: {type: "FXForwardSecurity", externalIdBundle: "", attributes: {}}, 
                 trade: og.blotter.util.otc_trade};}
-            data.nodeId = config.portfolio.id;
+            data.nodeId = config.portfolio ? config.portfolio.id : null;
             constructor.load = function () {
                 constructor.title = 'FX Forward';
                 form = new og.common.util.ui.Form({
@@ -28,7 +28,8 @@ $.register_module({
                         portfolio: data.nodeId, trade: data.trade}),
                     new form.Block({
                         module: 'og.blotter.forms.blocks.fx_forward_tash',
-                        extras: {pay: data.security.payAmount, receive: data.security.receiveAmount},
+                        extras: {pay: data.security.payAmount, receive: data.security.receiveAmount, 
+                            date: data.security.forwardDate},
                         children: [
                             new form.Block({module:'og.views.forms.currency_tash',
                                 extras:{name: 'security.payCurrency'}}),
@@ -47,7 +48,6 @@ $.register_module({
                     if(data.security.length) return;
                     og.blotter.util.set_select("security.receiveCurrency", data.security.receiveCurrency);
                     og.blotter.util.set_select("security.payCurrency", data.security.payCurrency);
-                    og.blotter.util.set_datetime("security.forwardDate", data.security.forwardDate);
                 });
                 form.on('form:submit', function (result){
                     $.when(config.handler(result.data)).then(validate);

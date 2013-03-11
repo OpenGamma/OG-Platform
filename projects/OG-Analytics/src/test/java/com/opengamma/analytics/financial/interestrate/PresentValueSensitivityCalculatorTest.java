@@ -93,7 +93,7 @@ public class PresentValueSensitivityCalculatorTest {
     for (final DoublesPair pair : temp) {
       if (pair.getFirst() == 0.0) {
         assertEquals(0.0, pair.getSecond(), 1e-12);
-      } else if (pair.getFirst() == t) {
+      } else if (Double.compare(pair.getFirst(), t) == 0) {
         assertEquals(-t * df * (1 + r * t), pair.getSecond(), 1e-12);
       } else {
         assertFalse(true);
@@ -108,9 +108,9 @@ public class PresentValueSensitivityCalculatorTest {
     sense = cash.accept(PVSC, CURVES);
     temp = sense.get(FIVE_PC_CURVE_NAME);
     for (final DoublesPair pair : temp) {
-      if (pair.getFirst() == tradeTime) {
+      if (Double.compare(pair.getFirst(), tradeTime) == 0) {
         assertEquals(dfa * tradeTime, pair.getSecond(), 1e-12);
-      } else if (pair.getFirst() == t) {
+      } else if (Double.compare(pair.getFirst(), t) == 0) {
         assertEquals(-t * df * (1 + r * yearFrac), pair.getSecond(), 1e-12);
       } else {
         assertFalse(true);
@@ -213,14 +213,14 @@ public class PresentValueSensitivityCalculatorTest {
     final Annuity<? extends Payment> iborAnnuity = iborAnnuityDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
 
     //produce a array of strictly ascending times
-    final Set<Double> times = new TreeSet<Double>();
+    final Set<Double> times = new TreeSet<>();
     for (int i = 0; i < iborAnnuity.getNumberOfPayments(); i++) {
       final CouponIbor coupon = (CouponIbor) iborAnnuity.getNthPayment(i);
       times.add(coupon.getPaymentTime());
       times.add(coupon.getFixingPeriodStartTime());
       times.add(coupon.getFixingPeriodEndTime());
     }
-    final Double[] tArray = times.toArray(new Double[] {});
+    final Double[] tArray = times.toArray(new Double[times.size()]);
     final double[] t = new double[times.size()];
     for (int i = 0; i < times.size(); i++) {
       t[i] = tArray[i];
@@ -257,7 +257,7 @@ public class PresentValueSensitivityCalculatorTest {
       payments[i] = new PaymentFixed(CUR, times[i], amounts[i], curveNames[i]);
     }
 
-    final Annuity<Payment> annuity = new Annuity<Payment>(payments);
+    final Annuity<Payment> annuity = new Annuity<>(payments);
     final Map<String, List<DoublesPair>> sense = annuity.accept(PVSC, CURVES);
     final List<DoublesPair> sense0FD = curveSensitvityFDCalculator(annuity, PVC, CURVES, ZERO_PC_CURVE_NAME, times, eps);
     final List<DoublesPair> sense5FD = curveSensitvityFDCalculator(annuity, PVC, CURVES, FIVE_PC_CURVE_NAME, times, eps);
@@ -372,7 +372,7 @@ public class PresentValueSensitivityCalculatorTest {
       times.add(coupon.getFixingPeriodStartTime());
       times.add(coupon.getFixingPeriodEndTime());
     }
-    final Double[] tArray = times.toArray(new Double[] {});
+    final Double[] tArray = times.toArray(new Double[times.size()]);
     final double[] t = new double[times.size()];
     for (int i = 0; i < times.size(); i++) {
       t[i] = tArray[i];

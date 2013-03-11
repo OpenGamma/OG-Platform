@@ -4,30 +4,29 @@
  */
 $.register_module({
     name: 'og.blotter.contextmenu',
-    dependencies: ['og.analytics.url'],
+    dependencies: [],
     obj: function () {
         return function (cell, event) {
             var module = this;
             module.context_items = function (cell) {
-                //console.log(cell);
                 var items = [];
-                if (og.analytics.url.last.main.aggregators.length) {
+                // when aggregated the portfolio node structure is not shown so edit/add is not possible
+                if (og.analytics.url && og.analytics.url.last.main.aggregators.length) {
                      items.push({name: 'Unable to add/edit trades whilst aggregated', handler: $.noop});
                      return items;
                 }
+                // positions with no trades first need a trade created based on the position 
                 var position_edit = function () {
-                    //console.log("position edit");
                     var arr = cell.row_value.positionId.split('~'), id = arr[0] + '~' + arr[1];
                     og.api.rest.blotter.positions.get({id: id}).pipe(function (data) {
-                        // console.log(data);
                         new og.blotter.Dialog({
                             details: data, portfolio:{name: id, id: id}, 
                             handler: function (data) {return og.api.rest.blotter.positions.put(data);}
                         });
                     });
                 };
+                // editing a trade just needs trade details
                 var trade_edit = function () {
-                    //console.log("trade edit");
                     og.api.rest.blotter.trades.get({id: cell.row_value.tradeId}).pipe(function (data) {
                         new og.blotter.Dialog({
                             details: data, portfolio:{name: cell.row_value.nodeId, id: cell.row_value.nodeId},
@@ -35,6 +34,7 @@ $.register_module({
                         });
                     });
                 };
+                // addding a new trade needs a node id to append to
                 var trade_insert = function () {
                     new og.blotter.Dialog({portfolio:{name: cell.row_value.nodeId, id: cell.row_value.nodeId}, 
                         handler: function (data) {return og.api.rest.blotter.trades.put(data);}
@@ -53,9 +53,11 @@ $.register_module({
                     });
                 };
                 items.push({name: 'Add Trade', handler: trade_insert});
+                // if a row is a node only the add new trade option is relevant
                 if (cell.row in og.analytics.grid.state.nodes || cell.type === "NODE") {
                     return items;
                 }
+                // if a cell has a tradeId then edit the trade otherwise it is an empty position
                 if (cell.row_value.tradeId) {
                     items.push({name: 'Edit Trade', handler: trade_edit}); 
                 } 

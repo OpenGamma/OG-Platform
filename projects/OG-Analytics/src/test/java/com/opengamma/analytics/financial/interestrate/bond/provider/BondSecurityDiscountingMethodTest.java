@@ -48,8 +48,8 @@ public class BondSecurityDiscountingMethodTest {
 
   private final static IssuerProviderDiscount ISSUER_MULTICURVES = IssuerProviderDiscountDataSets.createIssuerProvider();
   private final static String[] ISSUER_NAMES = IssuerProviderDiscountDataSets.getIssuerNames();
-  public static final String NOT_USED = "Not used";
-  public static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
+  private static final String NOT_USED = "Not used";
+  private static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
   // T 4 5/8 11/15/16 - ISIN - US912828FY19
   private static final String ISSUER = ISSUER_NAMES[0];
   private static final Currency CUR = Currency.USD;

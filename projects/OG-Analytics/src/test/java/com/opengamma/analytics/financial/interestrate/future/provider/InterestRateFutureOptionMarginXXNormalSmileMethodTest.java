@@ -47,8 +47,8 @@ public class InterestRateFutureOptionMarginXXNormalSmileMethodTest {
   private static final InterpolatedDoublesSurface NORMAL_PARAMETERS = NormalDataSets.createNormalSurfaceFuturesPrices();
   private static final NormalSTIRFuturesSmileProviderDiscount NORMAL_MULTICURVES = new NormalSTIRFuturesSmileProviderDiscount(MULTICURVES, NORMAL_PARAMETERS, EURIBOR3M);
 
-  public static final String NOT_USED = "Not used";
-  public static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
+  private static final String NOT_USED = "Not used";
+  private static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
   // Future
   private static final ZonedDateTime SPOT_LAST_TRADING_DATE = DateUtils.getUTCDate(2012, 9, 19);
   private static final ZonedDateTime LAST_TRADING_DATE = ScheduleCalculator.getAdjustedDate(SPOT_LAST_TRADING_DATE, -EURIBOR3M.getSpotLag(), TARGET);
@@ -59,7 +59,7 @@ public class InterestRateFutureOptionMarginXXNormalSmileMethodTest {
   private static final InterestRateFutureSecurityDefinition ERU2_DEFINITION = new InterestRateFutureSecurityDefinition(LAST_TRADING_DATE, EURIBOR3M, NOTIONAL, FUTURE_FACTOR, NAME);
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 8, 18);
   private static final InterestRateFutureSecurity ERU2 = ERU2_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
-  // Option 
+  // Option
   private static final ZonedDateTime EXPIRATION_DATE = DateUtils.getUTCDate(2011, 9, 16);
   private static final boolean IS_CALL = true;
 

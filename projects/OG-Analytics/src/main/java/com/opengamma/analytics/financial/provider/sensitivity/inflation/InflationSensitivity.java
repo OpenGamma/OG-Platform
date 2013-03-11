@@ -59,12 +59,13 @@ public class InflationSensitivity {
   }
 
   /**
-   * Constructor from multicurve sensitivities and sensitivities to price curves. The map is used directly.
-   * @param multicurveSensitivity The multicurve sensitivities.
+   * Constructor from a multicurveSensitivity and a sensitivityPriceCurve. The maps are used directly.
+   * @param multicurveSensitivity The multicurveSensitivity.
    * @param sensitivityPriceCurve The map.
    * @return The sensitivity.
    */
   public static InflationSensitivity of(final MulticurveSensitivity multicurveSensitivity, final Map<String, List<DoublesPair>> sensitivityPriceCurve) {
+
     ArgumentChecker.notNull(multicurveSensitivity, "multicurve sensitivity");
     ArgumentChecker.notNull(sensitivityPriceCurve, "Sensitivity price index curve");
     return new InflationSensitivity(multicurveSensitivity, sensitivityPriceCurve);
@@ -105,6 +106,14 @@ public class InflationSensitivity {
     ArgumentChecker.notNull(sensitivityYieldDiscounting, "Sensitivity yield curve");
     ArgumentChecker.notNull(sensitivityPriceCurve, "Sensitivity price index curve");
     return new InflationSensitivity(sensitivityYieldDiscounting, new HashMap<String, List<ForwardSensitivity>>(), sensitivityPriceCurve);
+  }
+
+  /**
+   * Gets the MulticurveSensitivity.
+   * @return The sensitivity map
+   */
+  public MulticurveSensitivity getMulticurveSensitivity() {
+    return _multicurveSensitivity;
   }
 
   /**

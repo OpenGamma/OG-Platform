@@ -72,7 +72,7 @@ public class SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationObjective exten
    * Gets the LMM curve bundle.
    * @return The LMM curve bundle.
    */
-  public LiborMarketModelDisplacedDiffusionDataBundle getLmmBundle() {
+  public LiborMarketModelDisplacedDiffusionDataBundle getLMMBundle() {
     return _lmmBundle;
   }
 

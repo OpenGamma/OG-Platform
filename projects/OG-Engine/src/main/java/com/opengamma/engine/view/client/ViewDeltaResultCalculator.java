@@ -89,8 +89,8 @@ public class ViewDeltaResultCalculator {
             // values after truncation to the required decimal place, rather than testing whether the difference of the
             // full values is greater than some threshold; this way, there will always be a point beyond which a change
             // is detected, even in the event of gradual creep.
-            if (!ObjectUtils.equals(previousValue.getAggregatedExecutionLog(), resultValue.getAggregatedExecutionLog())
-                || deltaDefinition.isDelta(previousValue, resultValue)) {
+            if (deltaDefinition.isDelta(previousValue, resultValue)
+                || !ObjectUtils.equals(previousValue.getAggregatedExecutionLog(), resultValue.getAggregatedExecutionLog())) {
               deltaModel.addValue(calcConfigName, resultEntry.getValue());
             }
           }

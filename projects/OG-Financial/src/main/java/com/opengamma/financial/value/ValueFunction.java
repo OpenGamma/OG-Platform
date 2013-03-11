@@ -22,7 +22,7 @@ public class ValueFunction extends ValueRenamingFunction {
       ValueRequirementNames.FAIR_VALUE);
   
   public ValueFunction() {
-    super(VALUE_NAMES, ValueRequirementNames.VALUE, ComputationTargetType.POSITION.or(ComputationTargetType.SECURITY));
+    super(VALUE_NAMES, ValueRequirementNames.VALUE, ComputationTargetType.POSITION.or(ComputationTargetType.SECURITY).or(ComputationTargetType.TRADE));
   }
 
 }

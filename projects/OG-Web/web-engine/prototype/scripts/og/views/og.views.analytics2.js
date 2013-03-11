@@ -17,6 +17,14 @@ $.register_module({
                 view.check_state({args: args, conditions: [
                     {new_page: function () {new_page = true; og.analytics.containers.initialize();}}
                 ]});
+                og.api.text({module: 'og.views.analytics.default', handler: function (template) {
+                    var layout = og.views.common.layout,
+                        $html = $.tmpl(template, {
+                            recent_list: og.common.util.history.get_html('history.analytics.recent') ||
+                                'no recently viewed views'
+                        });
+                    $('.OG-layout-analytics-center').html($html);
+                }});
                 og.analytics.resize({
                     selector: '.OG-layout-analytics-center',
                     tmpl: '<div class="OG-analytics-resize og-resizer" title="Drag (resize) / Right click (menu)" />',

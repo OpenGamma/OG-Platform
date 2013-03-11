@@ -40,6 +40,7 @@ import com.opengamma.analytics.financial.model.volatility.smile.function.SABRHag
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRPaulotVolatilityFunction;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
+import com.opengamma.analytics.math.MathException;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.integration.RungeKuttaIntegrator1D;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
@@ -118,7 +119,7 @@ public class CouponCMSTest {
     final double forward = SWAP.accept(PRC, curves);
     final double discountFactor = curves.getCurve(FUNDING_CURVE_NAME).getDiscountFactor(CMS_COUPON_RECEIVER.getPaymentTime());
     final CMSIntegrant integrant = new CMSIntegrant(CMS_COUPON_RECEIVER, sabrParameter, forward);
-    final double factor = discountFactor / integrant.h(forward) * integrant.G(forward);
+    final double factor = discountFactor / integrant.h(forward) * integrant.g(forward);
     final double strike = 0; //CMS swap is equivalent to CMS cap with strike 0 (when rates are always positive).
     final double strikePart = integrant.k(strike) * integrant.bs(strike, forward);
     final double absoluteTolerance = 1E+2;
@@ -130,7 +131,7 @@ public class CouponCMSTest {
     try {
       integralPart = integratorOG.integrate(integrant, strike, strike + integrationInterval);
     } catch (final Exception e) {
-      throw new RuntimeException(e);
+      throw new MathException(e);
     }
     final double priceCMS = factor * (strikePart + integralPart) * CMS_COUPON_RECEIVER.getNotional() * CMS_COUPON_RECEIVER.getPaymentYearFraction();
     assertEquals(8854.551, priceCMS, 1E-2);
@@ -175,7 +176,7 @@ public class CouponCMSTest {
     assertEquals(priceHagan, pricePaulot, 15);
   }
 
-  private class CMSIntegrant extends Function1D<Double, Double> {
+  private static class CMSIntegrant extends Function1D<Double, Double> {
 
     private final static double EPS = 1E-10;
     private final int _nbFixedPeriod;
@@ -209,7 +210,7 @@ public class CouponCMSTest {
     @Override
     public Double evaluate(final Double x) {//evaluate(Double x)
       final double[] kD = kpkpp(x);
-      // Implementation note: kD[0] contains the first derivative of k; kD[1] the second derivative of k. 
+      // Implementation note: kD[0] contains the first derivative of k; kD[1] the second derivative of k.
       return (kD[1] * (x - _strike) + 2.0 * kD[0]) * bs(x, _forward);
     }
 
@@ -217,7 +218,7 @@ public class CouponCMSTest {
       return Math.pow(1.0 + _tau * x, _eta);
     }
 
-    public double G(final double x) {
+    public double g(final double x) {
       if (x >= EPS) {
         final double periodFactor = 1 + x / _nbFixedPaymentYear;
         final double nPeriodDiscount = Math.pow(periodFactor, -_nbFixedPeriod);

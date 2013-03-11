@@ -54,7 +54,7 @@ public class LiveMarketDataSnapshot extends AbstractMarketDataSnapshot {
   public void init() {
     _underlyingSnapshot.init();
   }
-
+  
   @Override
   public void init(Set<ValueRequirement> valuesRequired, long timeout, TimeUnit unit) {
     if (valuesRequired != null && !valuesRequired.isEmpty()) {     
@@ -112,6 +112,17 @@ public class LiveMarketDataSnapshot extends AbstractMarketDataSnapshot {
     }
     _underlyingSnapshot.init(valuesRequired, timeout, unit);
   }
+  
+  @Override
+  public boolean isInitialized() {
+    return _underlyingSnapshot.isInitialized();
+  }
+  
+  @Override
+  public boolean isEmpty() {
+    assertInitialized();
+    return _underlyingSnapshot.isEmpty();
+  }
 
   @Override
   public Instant getSnapshotTime() {
@@ -123,4 +134,5 @@ public class LiveMarketDataSnapshot extends AbstractMarketDataSnapshot {
     //TODO: return useful error message if failed
     return _underlyingSnapshot.query(requirement);
   }
+
 }

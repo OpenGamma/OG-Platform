@@ -16,6 +16,9 @@ $.register_module({
                         .rules.load_item, {data: result.data.data});
                 if (current.hash === hash) return url.process(current.args);
                 routes.go(hash);
+                og.common.util.history.put({
+                    name: $('.OG-analytics-form .og-view input').val(), item: 'history.analytics.recent', value: hash
+                });
             });
         };
         return url = {
@@ -45,7 +48,10 @@ $.register_module({
                 .then(function (result) {
                     var config = result ? result.data.data : {};
                     if (config.main && !Object.equals(config.main, last.main)) {
-                        new og.analytics.Form2({callback: og.analytics.url.main, data: config.main});
+                        new og.analytics.Form2({
+                            callback: og.analytics.url.main,
+                            data: config.main
+                        });
                         if (og.analytics.grid) og.analytics.grid.kill();
                         last.main = config.main;
                         og.analytics.grid = new og.analytics.Grid({

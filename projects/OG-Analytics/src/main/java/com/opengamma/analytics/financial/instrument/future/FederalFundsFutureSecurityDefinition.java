@@ -119,13 +119,13 @@ public class FederalFundsFutureSecurityDefinition implements InstrumentDefinitio
     final ZonedDateTime periodFirstDate = BUSINESS_DAY_FOLLOWING.adjustDate(index.getCalendar(), monthDate.withDayOfMonth(1));
     final ZonedDateTime periodLastDate = BUSINESS_DAY_FOLLOWING.adjustDate(index.getCalendar(), monthDate.withDayOfMonth(1).plusMonths(1));
     final ZonedDateTime last = BUSINESS_DAY_PRECEDING.adjustDate(index.getCalendar(), periodLastDate.minusDays(1));
-    final List<ZonedDateTime> fixingList = new ArrayList<ZonedDateTime>();
+    final List<ZonedDateTime> fixingList = new ArrayList<>();
     ZonedDateTime date = periodFirstDate;
     while (!date.isAfter(periodLastDate)) {
       fixingList.add(date);
       date = BUSINESS_DAY_FOLLOWING.adjustDate(index.getCalendar(), date.plusDays(1));
     }
-    final ZonedDateTime[] fixingDate = fixingList.toArray(new ZonedDateTime[0]);
+    final ZonedDateTime[] fixingDate = fixingList.toArray(new ZonedDateTime[fixingList.size()]);
     final double[] fixingAccrualFactor = new double[fixingDate.length - 1];
     for (int loopfix = 0; loopfix < fixingDate.length - 1; loopfix++) {
       fixingAccrualFactor[loopfix] = index.getDayCount().getDayCountFraction(fixingDate[loopfix], fixingDate[loopfix + 1]);

@@ -62,6 +62,16 @@ public class HistoricalMarketDataSnapshot extends AbstractMarketDataSnapshot {
   public UniqueId getUniqueId() {
     return UniqueId.of(MARKET_DATA_SNAPSHOT_ID_SCHEME, "HistoricalMarketDataSnapshot:" + getSnapshotTime());
   }
+  
+  @Override
+  public boolean isInitialized() {
+    return true;
+  }
+  
+  @Override
+  public boolean isEmpty() {
+    return false;
+  }
 
   @Override
   public Instant getSnapshotTimeIndication() {

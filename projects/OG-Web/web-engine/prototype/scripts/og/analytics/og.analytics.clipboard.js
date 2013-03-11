@@ -29,6 +29,11 @@ $.register_module({
                     .map(function (row, idx) {return rows[idx] + tab + row.join(tab);}).join(line);
             },
             LABELLED_MATRIX_3D: function (value, single) {return '**3D MATRIX**';},
+            MATRIX_2D: function (value, single) {
+                if (!single) return value.v || '**2D MATRIX**';
+                value = value.v || value;
+                return  value.map(function (row, idx) {return row.join(tab);}).join(line);
+            },
             NODE: function (value) {return value.v && value.v.name || '';},
             OTC_TRADE: function (value) {return value.v && value.v.name || '';},
             POSITION: function (value) {return value.v && value.v.name || '';},

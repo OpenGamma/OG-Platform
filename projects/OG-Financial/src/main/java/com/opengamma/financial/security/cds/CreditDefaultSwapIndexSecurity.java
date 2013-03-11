@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.security.cds;
 
-import java.util.List;
 import java.util.Map;
 
 import org.joda.beans.BeanBuilder;
@@ -18,11 +17,9 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.google.common.collect.Lists;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.Tenor;
 
 /**
  * A security for Credit Default Swap Indices.
@@ -60,13 +57,12 @@ public class CreditDefaultSwapIndexSecurity extends FinancialSecurity {
    * The terms.
    */
   @PropertyDefinition(validate = "notNull")
-  private final List<Tenor> _terms = Lists.newArrayList();
+  private CDSIndexTerms _terms;
   /**
    * The index components.
    */
   @PropertyDefinition(validate = "notNull")
-  private final List<CreditDefaultSwapIndexComponent> _components = Lists.newArrayList();
-  
+  private CDSIndexComponentBundle _components;
   
   /**
    * Creates an instance
@@ -75,6 +71,26 @@ public class CreditDefaultSwapIndexSecurity extends FinancialSecurity {
     super(SECURITY_TYPE);
   }
   
+  /**
+   * Creates an instance.
+   * 
+   * @param version  the version, not null
+   * @param series  the series, not null
+   * @param family  the family, not null
+   * @param currency  the currency, not null
+   * @param terms the terms, not null
+   * @param components the components, not null
+   */
+  public CreditDefaultSwapIndexSecurity(String version, String series, String family, Currency currency, CDSIndexTerms terms, CDSIndexComponentBundle components) {
+    super(SECURITY_TYPE);
+    setVersion(version);
+    setSeries(series);
+    setFamily(family);
+    setCurrency(currency);
+    setTerms(terms);
+    setComponents(components);
+  }
+    
   @Override
   public <T> T accept(FinancialSecurityVisitor<T> visitor) {
     return visitor.visitCreditDefaultSwapIndexSecurity(this);
@@ -117,7 +133,6 @@ public class CreditDefaultSwapIndexSecurity extends FinancialSecurity {
     return super.propertyGet(propertyName, quiet);
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
@@ -134,10 +149,10 @@ public class CreditDefaultSwapIndexSecurity extends FinancialSecurity {
         setCurrency((Currency) newValue);
         return;
       case 110250375:  // terms
-        setTerms((List<Tenor>) newValue);
+        setTerms((CDSIndexTerms) newValue);
         return;
       case -447446250:  // components
-        setComponents((List<CreditDefaultSwapIndexComponent>) newValue);
+        setComponents((CDSIndexComponentBundle) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -293,24 +308,24 @@ public class CreditDefaultSwapIndexSecurity extends FinancialSecurity {
    * Gets the terms.
    * @return the value of the property, not null
    */
-  public List<Tenor> getTerms() {
+  public CDSIndexTerms getTerms() {
     return _terms;
   }
 
   /**
    * Sets the terms.
-   * @param terms  the new value of the property
+   * @param terms  the new value of the property, not null
    */
-  public void setTerms(List<Tenor> terms) {
-    this._terms.clear();
-    this._terms.addAll(terms);
+  public void setTerms(CDSIndexTerms terms) {
+    JodaBeanUtils.notNull(terms, "terms");
+    this._terms = terms;
   }
 
   /**
    * Gets the the {@code terms} property.
    * @return the property, not null
    */
-  public final Property<List<Tenor>> terms() {
+  public final Property<CDSIndexTerms> terms() {
     return metaBean().terms().createProperty(this);
   }
 
@@ -319,24 +334,24 @@ public class CreditDefaultSwapIndexSecurity extends FinancialSecurity {
    * Gets the index components.
    * @return the value of the property, not null
    */
-  public List<CreditDefaultSwapIndexComponent> getComponents() {
+  public CDSIndexComponentBundle getComponents() {
     return _components;
   }
 
   /**
    * Sets the index components.
-   * @param components  the new value of the property
+   * @param components  the new value of the property, not null
    */
-  public void setComponents(List<CreditDefaultSwapIndexComponent> components) {
-    this._components.clear();
-    this._components.addAll(components);
+  public void setComponents(CDSIndexComponentBundle components) {
+    JodaBeanUtils.notNull(components, "components");
+    this._components = components;
   }
 
   /**
    * Gets the the {@code components} property.
    * @return the property, not null
    */
-  public final Property<List<CreditDefaultSwapIndexComponent>> components() {
+  public final Property<CDSIndexComponentBundle> components() {
     return metaBean().components().createProperty(this);
   }
 
@@ -373,15 +388,13 @@ public class CreditDefaultSwapIndexSecurity extends FinancialSecurity {
     /**
      * The meta-property for the {@code terms} property.
      */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<Tenor>> _terms = DirectMetaProperty.ofReadWrite(
-        this, "terms", CreditDefaultSwapIndexSecurity.class, (Class) List.class);
+    private final MetaProperty<CDSIndexTerms> _terms = DirectMetaProperty.ofReadWrite(
+        this, "terms", CreditDefaultSwapIndexSecurity.class, CDSIndexTerms.class);
     /**
      * The meta-property for the {@code components} property.
      */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<CreditDefaultSwapIndexComponent>> _components = DirectMetaProperty.ofReadWrite(
-        this, "components", CreditDefaultSwapIndexSecurity.class, (Class) List.class);
+    private final MetaProperty<CDSIndexComponentBundle> _components = DirectMetaProperty.ofReadWrite(
+        this, "components", CreditDefaultSwapIndexSecurity.class, CDSIndexComponentBundle.class);
     /**
      * The meta-properties.
      */
@@ -471,7 +484,7 @@ public class CreditDefaultSwapIndexSecurity extends FinancialSecurity {
      * The meta-property for the {@code terms} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<List<Tenor>> terms() {
+    public final MetaProperty<CDSIndexTerms> terms() {
       return _terms;
     }
 
@@ -479,7 +492,7 @@ public class CreditDefaultSwapIndexSecurity extends FinancialSecurity {
      * The meta-property for the {@code components} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<List<CreditDefaultSwapIndexComponent>> components() {
+    public final MetaProperty<CDSIndexComponentBundle> components() {
       return _components;
     }
 

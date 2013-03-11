@@ -24,12 +24,12 @@ public class RealizedVarianceTest {
   final RealizedVariance realVariance = new RealizedVariance();
 
   // The derivative
-  final double varStrike = 0.05;
-  final double varNotional = 3150;
-  final double expiry = 5;
-  final int nObsExpected = 750;
-  final int noMktDisruptions = 0;
-  final double annualizationFactor = 252;
+  private static final double varStrike = 0.05;
+  private static final double varNotional = 3150;
+  private static final double expiry = 5;
+  private static final int nObsExpected = 750;
+  private static final int noMktDisruptions = 0;
+  private static final double annualizationFactor = 252;
 
   double[] noObs = {};
   double[] defaultWeights = {};
@@ -43,8 +43,8 @@ public class RealizedVarianceTest {
   double[] threeObs = {100.0, 150.0, 100.0 };
   final VarianceSwap swapThreeObs = new VarianceSwap(0, expiry, expiry, varStrike, varNotional, Currency.EUR, annualizationFactor, 2, noMktDisruptions, threeObs, defaultWeights);
 
-  double[] ObsWithZero = {100.0, 150.0, 0.0 };
-  final VarianceSwap swapWithZeroObs = new VarianceSwap(0, expiry, expiry, varStrike, varNotional, Currency.EUR, annualizationFactor, 2, noMktDisruptions, ObsWithZero, defaultWeights);
+  double[] obsWithZero = {100.0, 150.0, 0.0 };
+  final VarianceSwap swapWithZeroObs = new VarianceSwap(0, expiry, expiry, varStrike, varNotional, Currency.EUR, annualizationFactor, 2, noMktDisruptions, obsWithZero, defaultWeights);
 
   // -------------------------------- TESTS ------------------------------------------
 

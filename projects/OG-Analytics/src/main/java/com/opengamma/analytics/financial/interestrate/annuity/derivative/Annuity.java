@@ -122,7 +122,7 @@ public class Annuity<P extends Payment> implements InstrumentDerivative {
         list.add(payment);
       }
     }
-    return new Annuity<>(list.toArray((P[]) new Payment[0]));
+    return new Annuity<>(list.toArray((P[]) new Payment[list.size()]));
   }
 
   /**
@@ -138,7 +138,7 @@ public class Annuity<P extends Payment> implements InstrumentDerivative {
         list.add(payment);
       }
     }
-    return new Annuity<>(list.toArray((P[]) new Payment[0]));
+    return new Annuity<>(list.toArray((P[]) new Payment[list.size()]));
   }
 
   @Override

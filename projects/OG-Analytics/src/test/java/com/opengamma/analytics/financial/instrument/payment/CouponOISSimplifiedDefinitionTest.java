@@ -60,7 +60,7 @@ public class CouponOISSimplifiedDefinitionTest {
       NOTIONAL, EUR_OIS, START_ACCRUAL_DATE, END_ACCRUAL_DATE, FIXING_YEAR_FRACTION);
 
   private static final YieldCurveBundle CURVES = TestsDataSetsSABR.createCurves1();
-  private static final String[] CURVES_NAMES = CURVES.getAllNames().toArray(new String[0]);
+  private static final String[] CURVES_NAMES = CURVES.getAllNames().toArray(new String[CURVES.size()]);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullIndex() {
@@ -95,7 +95,7 @@ public class CouponOISSimplifiedDefinitionTest {
    * Tests the builder from financial details.
    */
   public void from1() {
-    CouponOISSimplifiedDefinition cpnFrom = CouponOISSimplifiedDefinition.from(EUR_OIS, SPOT_DATE, EUR_CPN_TENOR, NOTIONAL, EUR_SETTLEMENT_DAYS, EUR_BUSINESS_DAY, EUR_IS_EOM);
+    final CouponOISSimplifiedDefinition cpnFrom = CouponOISSimplifiedDefinition.from(EUR_OIS, SPOT_DATE, EUR_CPN_TENOR, NOTIONAL, EUR_SETTLEMENT_DAYS, EUR_BUSINESS_DAY, EUR_IS_EOM);
     assertEquals("CouponOISSimplified definition: from", cpnFrom, EONIA_COUPON_DEFINITION);
   }
 
@@ -104,7 +104,7 @@ public class CouponOISSimplifiedDefinitionTest {
    * Tests the builder from financial details.
    */
   public void from2() {
-    CouponOISSimplifiedDefinition cpnFrom = CouponOISSimplifiedDefinition.from(EUR_OIS, SPOT_DATE, END_ACCRUAL_DATE, NOTIONAL, EUR_SETTLEMENT_DAYS);
+    final CouponOISSimplifiedDefinition cpnFrom = CouponOISSimplifiedDefinition.from(EUR_OIS, SPOT_DATE, END_ACCRUAL_DATE, NOTIONAL, EUR_SETTLEMENT_DAYS);
     assertEquals("CouponOISSimplified definition: from", cpnFrom, EONIA_COUPON_DEFINITION);
   }
 
@@ -114,7 +114,7 @@ public class CouponOISSimplifiedDefinitionTest {
    */
   public void equalHash() {
     assertEquals("CouponOISSimplified definition: equal/hash code", EONIA_COUPON_DEFINITION, EONIA_COUPON_DEFINITION);
-    CouponOISSimplifiedDefinition other = new CouponOISSimplifiedDefinition(EUR_CUR, PAYMENT_DATE, START_ACCRUAL_DATE, END_ACCRUAL_DATE, PAYMENT_YEAR_FRACTION, NOTIONAL, EUR_OIS, START_ACCRUAL_DATE,
+    final CouponOISSimplifiedDefinition other = new CouponOISSimplifiedDefinition(EUR_CUR, PAYMENT_DATE, START_ACCRUAL_DATE, END_ACCRUAL_DATE, PAYMENT_YEAR_FRACTION, NOTIONAL, EUR_OIS, START_ACCRUAL_DATE,
         END_ACCRUAL_DATE, FIXING_YEAR_FRACTION);
     assertEquals("CouponOISSimplified definition: equal/hash code", EONIA_COUPON_DEFINITION, other);
     assertEquals("CouponOISSimplified definition: equal/hash code", EONIA_COUPON_DEFINITION.hashCode(), other.hashCode());
@@ -137,11 +137,11 @@ public class CouponOISSimplifiedDefinitionTest {
    * Tests the toDerivative method.
    */
   public void toDerivative() {
-    CouponOIS cpnConverted = EONIA_COUPON_DEFINITION.toDerivative(TRADE_DATE, CURVES_NAMES);
-    double paymentTime = TimeCalculator.getTimeBetween(TRADE_DATE, PAYMENT_DATE);
-    double fixingStartTime = TimeCalculator.getTimeBetween(TRADE_DATE, START_ACCRUAL_DATE);
-    double fixingEndTime = TimeCalculator.getTimeBetween(TRADE_DATE, END_ACCRUAL_DATE);
-    CouponOIS cpnExpected = new CouponOIS(EUR_CUR, paymentTime, CURVES_NAMES[0], PAYMENT_YEAR_FRACTION, NOTIONAL, EUR_OIS, fixingStartTime, fixingEndTime, FIXING_YEAR_FRACTION, NOTIONAL,
+    final CouponOIS cpnConverted = EONIA_COUPON_DEFINITION.toDerivative(TRADE_DATE, CURVES_NAMES);
+    final double paymentTime = TimeCalculator.getTimeBetween(TRADE_DATE, PAYMENT_DATE);
+    final double fixingStartTime = TimeCalculator.getTimeBetween(TRADE_DATE, START_ACCRUAL_DATE);
+    final double fixingEndTime = TimeCalculator.getTimeBetween(TRADE_DATE, END_ACCRUAL_DATE);
+    final CouponOIS cpnExpected = new CouponOIS(EUR_CUR, paymentTime, CURVES_NAMES[0], PAYMENT_YEAR_FRACTION, NOTIONAL, EUR_OIS, fixingStartTime, fixingEndTime, FIXING_YEAR_FRACTION, NOTIONAL,
         CURVES_NAMES[1]);
     assertEquals("CouponOISSimplified definition: toDerivative", cpnExpected, cpnConverted);
   }

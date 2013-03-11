@@ -74,7 +74,7 @@ public class CapFloorIborLMMDDMethodTest {
   private static final SwapFixedIborDefinition SWAP_PAYER_DEFINITION = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, NOTIONAL, STRIKE, FIXED_IS_PAYER);
   //to derivatives
   private static final YieldCurveBundle CURVES = TestsDataSetsSABR.createCurves1();
-  private static final String[] CURVES_NAME = CURVES.getAllNames().toArray(new String[0]);
+  private static final String[] CURVES_NAME = CURVES.getAllNames().toArray(new String[CURVES.size()]);
 
   private static final SwapFixedCoupon<Coupon> SWAP_PAYER = SWAP_PAYER_DEFINITION.toDerivative(REFERENCE_DATE, new String[] {CURVES_NAME[0], CURVES_NAME[1]});
   private static final int NB_CPN_IBOR = SWAP_PAYER.getSecondLeg().getNumberOfPayments();

@@ -78,10 +78,7 @@ public class PortfolioHedgingCalculator {
    */
   public static DoubleMatrix1D toMatrix(final MultipleCurrencyParameterSensitivity sensi, final LinkedHashSet<Pair<String, Integer>> order) {
     double[] psArray = new double[0];
-    Currency ccy = Currency.AUD;
-    if (sensi.getSensitivities() != null) {
-      ccy = sensi.getAllNamesCurrency().iterator().next().getSecond();
-    }
+    final Currency ccy = sensi.getAllNamesCurrency().iterator().next().getSecond();
     // Implementation note: all the currencies are supposed to be the same, we choose any of them.
     for (final Pair<String, Integer> nameSize : order) {
       if (sensi.getSensitivities().containsKey(new ObjectsPair<>(nameSize.getFirst(), ccy))) {

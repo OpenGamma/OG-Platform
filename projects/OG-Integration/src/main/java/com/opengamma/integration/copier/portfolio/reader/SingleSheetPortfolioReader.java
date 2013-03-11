@@ -29,5 +29,9 @@ public abstract class SingleSheetPortfolioReader implements PortfolioReader {
     ArgumentChecker.notNull(sheet, "sheet");
     _sheet = sheet;
   }
-  
+
+  @Override
+  public String getPortfolioName() {
+    return null;
+  }
 }

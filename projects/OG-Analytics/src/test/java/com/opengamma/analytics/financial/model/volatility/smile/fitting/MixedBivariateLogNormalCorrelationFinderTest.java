@@ -34,7 +34,7 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
     final double[] relativePartialForwardsX = {0.9997760696332433, 1.0001351642647986 };
     final double[] relativePartialForwardsY = {1.0002606663941294, 0.999842661886235 };
 
-    double[] rhosTrue = new double[] {0.66, 0.71 };
+    final double[] rhosTrue = new double[] {0.66, 0.71 };
 
     double[] rhosGuess = new double[] {0.6, 0.6 };
 
@@ -47,14 +47,14 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
     final int nData = dataStrikes.length;
     final double[] dataVols = new double[nData];
 
-    MixedBivariateLogNormalModelVolatility objTrueZ = new MixedBivariateLogNormalModelVolatility(weights, sigmasX, sigmasY, relativePartialForwardsX, relativePartialForwardsY, rhosTrue);
+    final MixedBivariateLogNormalModelVolatility objTrueZ = new MixedBivariateLogNormalModelVolatility(weights, sigmasX, sigmasY, relativePartialForwardsX, relativePartialForwardsY, rhosTrue);
 
     for (int i = 0; i < nData; ++i) {
       final EuropeanVanillaOption option = new EuropeanVanillaOption(dataStrikes[i], timeToExpiry, true);
       dataVols[i] = objTrueZ.getImpliedVolatilityZ(option, forwardZ);
     }
 
-    MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
+    final MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
 
     fitter.doFit(rhosGuess, dataStrikes, dataVols, timeToExpiry, weights, sigmasX, sigmasY, relativePartialForwardsX,
         relativePartialForwardsY, forwardX, forwardY);
@@ -64,10 +64,10 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
     final MixedBivariateLogNormalModelVolatility objFitZ = new MixedBivariateLogNormalModelVolatility(weights, sigmasX,
         sigmasY, relativePartialForwardsX, relativePartialForwardsY, rhosGuess);
 
-    double[] fitVolsZ = new double[100];
-    double[] trueVolsZ = new double[100];
+    final double[] fitVolsZ = new double[100];
+    final double[] trueVolsZ = new double[100];
     for (int i = 0; i < 100; i++) {
-      double k = forwardZ * (0.97 + .6 * i / 1000.);
+      final double k = forwardZ * (0.97 + .6 * i / 1000.);
       final EuropeanVanillaOption option = new EuropeanVanillaOption(k, timeToExpiry, true);
       fitVolsZ[i] = objFitZ.getImpliedVolatilityZ(option, forwardZ);
       trueVolsZ[i] = objTrueZ.getImpliedVolatilityZ(option, forwardZ);
@@ -81,7 +81,7 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
   }
 
   //  /**
-  //   * 
+  //   *
   //   */
   //  @Test
   //  public void NullTest() {
@@ -111,10 +111,9 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
    * 
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void NullweightsTest() {
+  public void nullweightsTest() {
 
-    double[] weights = new double[2];
-    weights = null;
+    final double[] weights = null;
     final double[] sigmasX = {0.06354423944935964, 0.10361640830108385 };
     final double[] sigmasY = {0.03794692512570427, 0.07364831519062784 };
     final double[] relativePartialForwardsX = {0.9997760696332433, 1.0001351642647986 };
@@ -127,9 +126,9 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
     final double[] dataStrikes = {0.8276533748061506, 0.830544004818981, 0.8356246758244018, 0.8408571903798175, 0.8438972913060586 };
     final double[] dataVols = {0.0668, 0.0653, 0.06465, 0.0668, 0.0686 };
 
-    double[] rhosGuess = new double[] {0.65, 0.65 };
+    final double[] rhosGuess = new double[] {0.65, 0.65 };
 
-    MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
+    final MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
 
     fitter.doFit(rhosGuess, dataStrikes, dataVols, timeToExpiry, weights, sigmasX, sigmasY, relativePartialForwardsX,
         relativePartialForwardsY, forwardX, forwardY);
@@ -139,11 +138,10 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
    * 
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void NullsigmasXTest() {
+  public void nullsigmasXTest() {
 
     final double[] weights = {0.37640291143644194, 0.623597088563558 };
-    double[] sigmasX = new double[2];
-    sigmasX = null;
+    final double[] sigmasX = null;
     final double[] sigmasY = {0.03794692512570427, 0.07364831519062784 };
     final double[] relativePartialForwardsX = {0.9997760696332433, 1.0001351642647986 };
     final double[] relativePartialForwardsY = {1.0002606663941294, 0.999842661886235 };
@@ -155,9 +153,9 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
     final double[] dataStrikes = {0.8276533748061506, 0.830544004818981, 0.8356246758244018, 0.8408571903798175, 0.8438972913060586 };
     final double[] dataVols = {0.0668, 0.0653, 0.06465, 0.0668, 0.0686 };
 
-    double[] rhosGuess = new double[] {0.65, 0.65 };
+    final double[] rhosGuess = new double[] {0.65, 0.65 };
 
-    MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
+    final MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
 
     fitter.doFit(rhosGuess, dataStrikes, dataVols, timeToExpiry, weights, sigmasX, sigmasY, relativePartialForwardsX,
         relativePartialForwardsY, forwardX, forwardY);
@@ -167,12 +165,11 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
    * 
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void NullsigmasYTest() {
+  public void nullsigmasYTest() {
 
     final double[] weights = {0.37640291143644194, 0.623597088563558 };
     final double[] sigmasX = {0.06354423944935964, 0.10361640830108385 };
-    double[] sigmasY = new double[2];
-    sigmasY = null;
+    final double[] sigmasY = null;
     final double[] relativePartialForwardsX = {0.9997760696332433, 1.0001351642647986 };
     final double[] relativePartialForwardsY = {1.0002606663941294, 0.999842661886235 };
 
@@ -183,9 +180,9 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
     final double[] dataStrikes = {0.8276533748061506, 0.830544004818981, 0.8356246758244018, 0.8408571903798175, 0.8438972913060586 };
     final double[] dataVols = {0.0668, 0.0653, 0.06465, 0.0668, 0.0686 };
 
-    double[] rhosGuess = new double[] {0.65, 0.65 };
+    final double[] rhosGuess = new double[] {0.65, 0.65 };
 
-    MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
+    final MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
 
     fitter.doFit(rhosGuess, dataStrikes, dataVols, timeToExpiry, weights, sigmasX, sigmasY, relativePartialForwardsX,
         relativePartialForwardsY, forwardX, forwardY);
@@ -195,13 +192,12 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
    * 
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void NullrelativePartialForwardsXTest() {
+  public void nullrelativePartialForwardsXTest() {
 
     final double[] weights = {0.37640291143644194, 0.623597088563558 };
     final double[] sigmasX = {0.06354423944935964, 0.10361640830108385 };
     final double[] sigmasY = {0.03794692512570427, 0.07364831519062784 };
-    double[] relativePartialForwardsX = new double[2];
-    relativePartialForwardsX = null;
+    final double[] relativePartialForwardsX = null;
     final double[] relativePartialForwardsY = {1.0002606663941294, 0.999842661886235 };
 
     final double forwardX = 1.3364015890354652;
@@ -211,9 +207,9 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
     final double[] dataStrikes = {0.8276533748061506, 0.830544004818981, 0.8356246758244018, 0.8408571903798175, 0.8438972913060586 };
     final double[] dataVols = {0.0668, 0.0653, 0.06465, 0.0668, 0.0686 };
 
-    double[] rhosGuess = new double[] {0.65, 0.65 };
+    final double[] rhosGuess = new double[] {0.65, 0.65 };
 
-    MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
+    final MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
 
     fitter.doFit(rhosGuess, dataStrikes, dataVols, timeToExpiry, weights, sigmasX, sigmasY, relativePartialForwardsX,
         relativePartialForwardsY, forwardX, forwardY);
@@ -223,14 +219,13 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
    * 
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void NullrelativePartialForwardsYTest() {
+  public void nullrelativePartialForwardsYTest() {
 
     final double[] weights = {0.37640291143644194, 0.623597088563558 };
     final double[] sigmasX = {0.06354423944935964, 0.10361640830108385 };
     final double[] sigmasY = {0.03794692512570427, 0.07364831519062784 };
     final double[] relativePartialForwardsX = {0.9997760696332433, 1.0001351642647986 };
-    double[] relativePartialForwardsY = new double[2];
-    relativePartialForwardsY = null;
+    final double[] relativePartialForwardsY = null;
 
     final double forwardX = 1.3364015890354652;
     final double forwardY = 1.5992978529959616;
@@ -239,9 +234,9 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
     final double[] dataStrikes = {0.8276533748061506, 0.830544004818981, 0.8356246758244018, 0.8408571903798175, 0.8438972913060586 };
     final double[] dataVols = {0.0668, 0.0653, 0.06465, 0.0668, 0.0686 };
 
-    double[] rhosGuess = new double[] {0.65, 0.65 };
+    final double[] rhosGuess = new double[] {0.65, 0.65 };
 
-    MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
+    final MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
 
     fitter.doFit(rhosGuess, dataStrikes, dataVols, timeToExpiry, weights, sigmasX, sigmasY, relativePartialForwardsX,
         relativePartialForwardsY, forwardX, forwardY);
@@ -251,7 +246,7 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
    * 
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void NulldataStrikesTest() {
+  public void nulldataStrikesTest() {
 
     final double[] weights = {0.37640291143644194, 0.623597088563558 };
     final double[] sigmasX = {0.06354423944935964, 0.10361640830108385 };
@@ -263,13 +258,12 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
     final double forwardY = 1.5992978529959616;
     final double timeToExpiry = 0.019178082191780823;
 
-    double[] dataStrikes = new double[5];
-    dataStrikes = null;
+    final double[] dataStrikes = null;
     final double[] dataVols = {0.0668, 0.0653, 0.06465, 0.0668, 0.0686 };
 
-    double[] rhosGuess = new double[] {0.65, 0.65 };
+    final double[] rhosGuess = new double[] {0.65, 0.65 };
 
-    MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
+    final MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
 
     fitter.doFit(rhosGuess, dataStrikes, dataVols, timeToExpiry, weights, sigmasX, sigmasY, relativePartialForwardsX,
         relativePartialForwardsY, forwardX, forwardY);
@@ -279,7 +273,7 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
    * 
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void NulldataVolsTest() {
+  public void nulldataVolsTest() {
 
     final double[] weights = {0.37640291143644194, 0.623597088563558 };
     final double[] sigmasX = {0.06354423944935964, 0.10361640830108385 };
@@ -292,12 +286,11 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
     final double timeToExpiry = 0.019178082191780823;
 
     final double[] dataStrikes = {0.8276533748061506, 0.830544004818981, 0.8356246758244018, 0.8408571903798175, 0.8438972913060586 };
-    double[] dataVols = new double[5];
-    dataVols = null;
+    final double[] dataVols = null;
 
-    double[] rhosGuess = new double[] {0.65, 0.65 };
+    final double[] rhosGuess = new double[] {0.65, 0.65 };
 
-    MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
+    final MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
 
     fitter.doFit(rhosGuess, dataStrikes, dataVols, timeToExpiry, weights, sigmasX, sigmasY, relativePartialForwardsX,
         relativePartialForwardsY, forwardX, forwardY);
@@ -307,7 +300,7 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
    * 
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void WrongLengthsigmasXTest() {
+  public void wrongLengthsigmasXTest() {
 
     final double[] weights = {0.37640291143644194, 0.623597088563558 };
     final double[] sigmasX = {0.06354423944935964, 0.10361640830108385, 0.2 };
@@ -322,9 +315,9 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
     final double[] dataStrikes = {0.8276533748061506, 0.830544004818981, 0.8356246758244018, 0.8408571903798175, 0.8438972913060586 };
     final double[] dataVols = {0.0668, 0.0653, 0.06465, 0.0668, 0.0686 };
 
-    double[] rhosGuess = new double[] {0.65, 0.65 };
+    final double[] rhosGuess = new double[] {0.65, 0.65 };
 
-    MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
+    final MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
 
     fitter.doFit(rhosGuess, dataStrikes, dataVols, timeToExpiry, weights, sigmasX, sigmasY, relativePartialForwardsX,
         relativePartialForwardsY, forwardX, forwardY);
@@ -334,7 +327,7 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
    * 
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void WrongLengthsigmasYTest() {
+  public void wrongLengthsigmasYTest() {
 
     final double[] weights = {0.37640291143644194, 0.623597088563558 };
     final double[] sigmasX = {0.06354423944935964, 0.10361640830108385 };
@@ -349,9 +342,9 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
     final double[] dataStrikes = {0.8276533748061506, 0.830544004818981, 0.8356246758244018, 0.8408571903798175, 0.8438972913060586 };
     final double[] dataVols = {0.0668, 0.0653, 0.06465, 0.0668, 0.0686 };
 
-    double[] rhosGuess = new double[] {0.65, 0.65 };
+    final double[] rhosGuess = new double[] {0.65, 0.65 };
 
-    MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
+    final MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
 
     fitter.doFit(rhosGuess, dataStrikes, dataVols, timeToExpiry, weights, sigmasX, sigmasY, relativePartialForwardsX,
         relativePartialForwardsY, forwardX, forwardY);
@@ -361,7 +354,7 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
    * 
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void WrongLengthrelativePartialForwardsXTest() {
+  public void wrongLengthrelativePartialForwardsXTest() {
 
     final double[] weights = {0.37640291143644194, 0.623597088563558 };
     final double[] sigmasX = {0.06354423944935964, 0.10361640830108385 };
@@ -376,9 +369,9 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
     final double[] dataStrikes = {0.8276533748061506, 0.830544004818981, 0.8356246758244018, 0.8408571903798175, 0.8438972913060586 };
     final double[] dataVols = {0.0668, 0.0653, 0.06465, 0.0668, 0.0686 };
 
-    double[] rhosGuess = new double[] {0.65, 0.65 };
+    final double[] rhosGuess = new double[] {0.65, 0.65 };
 
-    MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
+    final MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
 
     fitter.doFit(rhosGuess, dataStrikes, dataVols, timeToExpiry, weights, sigmasX, sigmasY, relativePartialForwardsX,
         relativePartialForwardsY, forwardX, forwardY);
@@ -388,7 +381,7 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
    * 
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void WrongLengthweightsrelativePartialForwardsYTest() {
+  public void wrongLengthweightsrelativePartialForwardsYTest() {
 
     final double[] weights = {0.37640291143644194, 0.623597088563558 };
     final double[] sigmasX = {0.06354423944935964, 0.10361640830108385 };
@@ -403,9 +396,9 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
     final double[] dataStrikes = {0.8276533748061506, 0.830544004818981, 0.8356246758244018, 0.8408571903798175, 0.8438972913060586 };
     final double[] dataVols = {0.0668, 0.0653, 0.06465, 0.0668, 0.0686 };
 
-    double[] rhosGuess = new double[] {0.65, 0.65 };
+    final double[] rhosGuess = new double[] {0.65, 0.65 };
 
-    MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
+    final MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
 
     fitter.doFit(rhosGuess, dataStrikes, dataVols, timeToExpiry, weights, sigmasX, sigmasY, relativePartialForwardsX,
         relativePartialForwardsY, forwardX, forwardY);
@@ -415,7 +408,7 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
    * 
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void WrongDataLengthTest() {
+  public void wrongDataLengthTest() {
 
     final double[] weights = {0.37640291143644194, 0.623597088563558 };
     final double[] sigmasX = {0.06354423944935964, 0.10361640830108385 };
@@ -430,9 +423,9 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
     final double[] dataStrikes = {0.8276533748061506, 0.830544004818981, 0.8356246758244018, 0.8408571903798175, 0.8438972913060586 };
     final double[] dataVols = {0.0668, 0.0653, 0.06465, 0.0668, 0.0686, 0.05 };
 
-    double[] rhosGuess = new double[] {0.65, 0.65 };
+    final double[] rhosGuess = new double[] {0.65, 0.65 };
 
-    MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
+    final MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
 
     fitter.doFit(rhosGuess, dataStrikes, dataVols, timeToExpiry, weights, sigmasX, sigmasY, relativePartialForwardsX,
         relativePartialForwardsY, forwardX, forwardY);
@@ -442,7 +435,7 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
    * 
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void NegativeForwardXTest() {
+  public void negativeForwardXTest() {
 
     final double[] weights = {0.37640291143644194, 0.623597088563558 };
     final double[] sigmasX = {0.06354423944935964, 0.10361640830108385 };
@@ -457,9 +450,9 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
     final double[] dataStrikes = {0.8276533748061506, 0.830544004818981, 0.8356246758244018, 0.8408571903798175, 0.8438972913060586 };
     final double[] dataVols = {0.0668, 0.0653, 0.06465, 0.0668, 0.0686 };
 
-    double[] rhosGuess = new double[] {0.65, 0.65 };
+    final double[] rhosGuess = new double[] {0.65, 0.65 };
 
-    MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
+    final MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
 
     fitter.doFit(rhosGuess, dataStrikes, dataVols, timeToExpiry, weights, sigmasX, sigmasY, relativePartialForwardsX,
         relativePartialForwardsY, forwardX, forwardY);
@@ -469,7 +462,7 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
    * 
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void NegativeForwardYTest() {
+  public void negativeForwardYTest() {
 
     final double[] weights = {0.37640291143644194, 0.623597088563558 };
     final double[] sigmasX = {0.06354423944935964, 0.10361640830108385 };
@@ -484,9 +477,9 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
     final double[] dataStrikes = {0.8276533748061506, 0.830544004818981, 0.8356246758244018, 0.8408571903798175, 0.8438972913060586 };
     final double[] dataVols = {0.0668, 0.0653, 0.06465, 0.0668, 0.0686 };
 
-    double[] rhosGuess = new double[] {0.65, 0.65 };
+    final double[] rhosGuess = new double[] {0.65, 0.65 };
 
-    MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
+    final MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
 
     fitter.doFit(rhosGuess, dataStrikes, dataVols, timeToExpiry, weights, sigmasX, sigmasY, relativePartialForwardsX,
         relativePartialForwardsY, forwardX, forwardY);
@@ -496,7 +489,7 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
    * 
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void NegativeTimeToExpiryTest() {
+  public void negativeTimeToExpiryTest() {
 
     final double[] weights = {0.37640291143644194, 0.623597088563558 };
     final double[] sigmasX = {0.06354423944935964, 0.10361640830108385 };
@@ -511,9 +504,9 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
     final double[] dataStrikes = {0.8276533748061506, 0.830544004818981, 0.8356246758244018, 0.8408571903798175, 0.8438972913060586 };
     final double[] dataVols = {0.0668, 0.0653, 0.06465, 0.0668, 0.0686 };
 
-    double[] rhosGuess = new double[] {0.65, 0.65 };
+    final double[] rhosGuess = new double[] {0.65, 0.65 };
 
-    MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
+    final MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
 
     fitter.doFit(rhosGuess, dataStrikes, dataVols, timeToExpiry, weights, sigmasX, sigmasY, relativePartialForwardsX,
         relativePartialForwardsY, forwardX, forwardY);
@@ -523,7 +516,7 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
    * 
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void INFweightsTest() {
+  public void iNFweightsTest() {
 
     final double[] weights = {INF, 0.623597088563558 };
     final double[] sigmasX = {0.06354423944935964, 0.10361640830108385 };
@@ -538,9 +531,9 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
     final double[] dataStrikes = {0.8276533748061506, 0.830544004818981, 0.8356246758244018, 0.8408571903798175, 0.8438972913060586 };
     final double[] dataVols = {0.0668, 0.0653, 0.06465, 0.0668, 0.0686 };
 
-    double[] rhosGuess = new double[] {0.65, 0.65 };
+    final double[] rhosGuess = new double[] {0.65, 0.65 };
 
-    MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
+    final MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
 
     fitter.doFit(rhosGuess, dataStrikes, dataVols, timeToExpiry, weights, sigmasX, sigmasY, relativePartialForwardsX,
         relativePartialForwardsY, forwardX, forwardY);
@@ -550,7 +543,7 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
    * 
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void INFsigmasXTest() {
+  public void iNFsigmasXTest() {
 
     final double[] weights = {0.37640291143644194, 0.623597088563558 };
     final double[] sigmasX = {INF, 0.10361640830108385 };
@@ -565,9 +558,9 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
     final double[] dataStrikes = {0.8276533748061506, 0.830544004818981, 0.8356246758244018, 0.8408571903798175, 0.8438972913060586 };
     final double[] dataVols = {0.0668, 0.0653, 0.06465, 0.0668, 0.0686 };
 
-    double[] rhosGuess = new double[] {0.65, 0.65 };
+    final double[] rhosGuess = new double[] {0.65, 0.65 };
 
-    MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
+    final MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
 
     fitter.doFit(rhosGuess, dataStrikes, dataVols, timeToExpiry, weights, sigmasX, sigmasY, relativePartialForwardsX,
         relativePartialForwardsY, forwardX, forwardY);
@@ -577,7 +570,7 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
    * 
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void INFsigmasYTest() {
+  public void iNFsigmasYTest() {
 
     final double[] weights = {0.37640291143644194, 0.623597088563558 };
     final double[] sigmasX = {0.06354423944935964, 0.10361640830108385 };
@@ -592,9 +585,9 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
     final double[] dataStrikes = {0.8276533748061506, 0.830544004818981, 0.8356246758244018, 0.8408571903798175, 0.8438972913060586 };
     final double[] dataVols = {0.0668, 0.0653, 0.06465, 0.0668, 0.0686 };
 
-    double[] rhosGuess = new double[] {0.65, 0.65 };
+    final double[] rhosGuess = new double[] {0.65, 0.65 };
 
-    MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
+    final MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
 
     fitter.doFit(rhosGuess, dataStrikes, dataVols, timeToExpiry, weights, sigmasX, sigmasY, relativePartialForwardsX,
         relativePartialForwardsY, forwardX, forwardY);
@@ -604,7 +597,7 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
    * 
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void INFrelativePartialForwardsXTest() {
+  public void iNFrelativePartialForwardsXTest() {
 
     final double[] weights = {0.37640291143644194, 0.623597088563558 };
     final double[] sigmasX = {0.06354423944935964, 0.10361640830108385 };
@@ -619,9 +612,9 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
     final double[] dataStrikes = {0.8276533748061506, 0.830544004818981, 0.8356246758244018, 0.8408571903798175, 0.8438972913060586 };
     final double[] dataVols = {0.0668, 0.0653, 0.06465, 0.0668, 0.0686 };
 
-    double[] rhosGuess = new double[] {0.65, 0.65 };
+    final double[] rhosGuess = new double[] {0.65, 0.65 };
 
-    MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
+    final MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
 
     fitter.doFit(rhosGuess, dataStrikes, dataVols, timeToExpiry, weights, sigmasX, sigmasY, relativePartialForwardsX,
         relativePartialForwardsY, forwardX, forwardY);
@@ -631,7 +624,7 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
    * 
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void INFrelativePartialForwardsYTest() {
+  public void iNFrelativePartialForwardsYTest() {
 
     final double[] weights = {0.37640291143644194, 0.623597088563558 };
     final double[] sigmasX = {0.06354423944935964, 0.10361640830108385 };
@@ -646,9 +639,9 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
     final double[] dataStrikes = {0.8276533748061506, 0.830544004818981, 0.8356246758244018, 0.8408571903798175, 0.8438972913060586 };
     final double[] dataVols = {0.0668, 0.0653, 0.06465, 0.0668, 0.0686 };
 
-    double[] rhosGuess = new double[] {0.65, 0.65 };
+    final double[] rhosGuess = new double[] {0.65, 0.65 };
 
-    MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
+    final MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
 
     fitter.doFit(rhosGuess, dataStrikes, dataVols, timeToExpiry, weights, sigmasX, sigmasY, relativePartialForwardsX,
         relativePartialForwardsY, forwardX, forwardY);
@@ -658,7 +651,7 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
    * 
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void INFforwardXTest() {
+  public void iNFforwardXTest() {
 
     final double[] weights = {0.37640291143644194, 0.623597088563558 };
     final double[] sigmasX = {0.06354423944935964, 0.10361640830108385 };
@@ -673,9 +666,9 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
     final double[] dataStrikes = {0.8276533748061506, 0.830544004818981, 0.8356246758244018, 0.8408571903798175, 0.8438972913060586 };
     final double[] dataVols = {0.0668, 0.0653, 0.06465, 0.0668, 0.0686 };
 
-    double[] rhosGuess = new double[] {0.65, 0.65 };
+    final double[] rhosGuess = new double[] {0.65, 0.65 };
 
-    MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
+    final MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
 
     fitter.doFit(rhosGuess, dataStrikes, dataVols, timeToExpiry, weights, sigmasX, sigmasY, relativePartialForwardsX,
         relativePartialForwardsY, forwardX, forwardY);
@@ -685,7 +678,7 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
    * 
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void INFforwardYTest() {
+  public void iNFforwardYTest() {
 
     final double[] weights = {0.37640291143644194, 0.623597088563558 };
     final double[] sigmasX = {0.06354423944935964, 0.10361640830108385 };
@@ -700,9 +693,9 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
     final double[] dataStrikes = {0.8276533748061506, 0.830544004818981, 0.8356246758244018, 0.8408571903798175, 0.8438972913060586 };
     final double[] dataVols = {0.0668, 0.0653, 0.06465, 0.0668, 0.0686 };
 
-    double[] rhosGuess = new double[] {0.65, 0.65 };
+    final double[] rhosGuess = new double[] {0.65, 0.65 };
 
-    MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
+    final MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
 
     fitter.doFit(rhosGuess, dataStrikes, dataVols, timeToExpiry, weights, sigmasX, sigmasY, relativePartialForwardsX,
         relativePartialForwardsY, forwardX, forwardY);
@@ -712,7 +705,7 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
    * 
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void INFtimeToExpiryTest() {
+  public void iNFtimeToExpiryTest() {
 
     final double[] weights = {0.37640291143644194, 0.623597088563558 };
     final double[] sigmasX = {0.06354423944935964, 0.10361640830108385 };
@@ -727,9 +720,9 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
     final double[] dataStrikes = {0.8276533748061506, 0.830544004818981, 0.8356246758244018, 0.8408571903798175, 0.8438972913060586 };
     final double[] dataVols = {0.0668, 0.0653, 0.06465, 0.0668, 0.0686 };
 
-    double[] rhosGuess = new double[] {0.65, 0.65 };
+    final double[] rhosGuess = new double[] {0.65, 0.65 };
 
-    MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
+    final MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
 
     fitter.doFit(rhosGuess, dataStrikes, dataVols, timeToExpiry, weights, sigmasX, sigmasY, relativePartialForwardsX,
         relativePartialForwardsY, forwardX, forwardY);
@@ -739,7 +732,7 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
    * 
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void INFdataStrikesTest() {
+  public void iNFdataStrikesTest() {
 
     final double[] weights = {0.37640291143644194, 0.623597088563558 };
     final double[] sigmasX = {0.06354423944935964, 0.10361640830108385 };
@@ -754,9 +747,9 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
     final double[] dataStrikes = {INF, 0.830544004818981, 0.8356246758244018, 0.8408571903798175, 0.8438972913060586 };
     final double[] dataVols = {0.0668, 0.0653, 0.06465, 0.0668, 0.0686 };
 
-    double[] rhosGuess = new double[] {0.65, 0.65 };
+    final double[] rhosGuess = new double[] {0.65, 0.65 };
 
-    MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
+    final MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
 
     fitter.doFit(rhosGuess, dataStrikes, dataVols, timeToExpiry, weights, sigmasX, sigmasY, relativePartialForwardsX,
         relativePartialForwardsY, forwardX, forwardY);
@@ -766,7 +759,7 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
    * 
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void INFdataVolsTest() {
+  public void iNFdataVolsTest() {
 
     final double[] weights = {0.37640291143644194, 0.623597088563558 };
     final double[] sigmasX = {0.06354423944935964, 0.10361640830108385 };
@@ -781,9 +774,9 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
     final double[] dataStrikes = {0.8276533748061506, 0.830544004818981, 0.8356246758244018, 0.8408571903798175, 0.8438972913060586 };
     final double[] dataVols = {0.0668, 0.0653, INF, 0.0668, 0.0686 };
 
-    double[] rhosGuess = new double[] {0.65, 0.65 };
+    final double[] rhosGuess = new double[] {0.65, 0.65 };
 
-    MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
+    final MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
 
     fitter.doFit(rhosGuess, dataStrikes, dataVols, timeToExpiry, weights, sigmasX, sigmasY, relativePartialForwardsX,
         relativePartialForwardsY, forwardX, forwardY);
@@ -793,7 +786,7 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
    * 
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void INFrhosGuessTest() {
+  public void iNFrhosGuessTest() {
 
     final double[] weights = {0.37640291143644194, 0.623597088563558 };
     final double[] sigmasX = {0.06354423944935964, 0.10361640830108385 };
@@ -808,9 +801,9 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
     final double[] dataStrikes = {0.8276533748061506, 0.830544004818981, 0.8356246758244018, 0.8408571903798175, 0.8438972913060586 };
     final double[] dataVols = {0.0668, 0.0653, 0.06465, 0.0668, 0.0686 };
 
-    double[] rhosGuess = new double[] {INF, 0.65 };
+    final double[] rhosGuess = new double[] {INF, 0.65 };
 
-    MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
+    final MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
 
     fitter.doFit(rhosGuess, dataStrikes, dataVols, timeToExpiry, weights, sigmasX, sigmasY, relativePartialForwardsX,
         relativePartialForwardsY, forwardX, forwardY);
@@ -820,7 +813,7 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
    * 
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void NaNweightsTest() {
+  public void naNweightsTest() {
 
     final double[] weights = {Double.NaN, 0.623597088563558 };
     final double[] sigmasX = {0.06354423944935964, 0.10361640830108385 };
@@ -835,9 +828,9 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
     final double[] dataStrikes = {0.8276533748061506, 0.830544004818981, 0.8356246758244018, 0.8408571903798175, 0.8438972913060586 };
     final double[] dataVols = {0.0668, 0.0653, 0.06465, 0.0668, 0.0686 };
 
-    double[] rhosGuess = new double[] {0.65, 0.65 };
+    final double[] rhosGuess = new double[] {0.65, 0.65 };
 
-    MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
+    final MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
 
     fitter.doFit(rhosGuess, dataStrikes, dataVols, timeToExpiry, weights, sigmasX, sigmasY, relativePartialForwardsX,
         relativePartialForwardsY, forwardX, forwardY);
@@ -847,7 +840,7 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
    * 
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void NaNsigmasXTest() {
+  public void naNsigmasXTest() {
 
     final double[] weights = {0.37640291143644194, 0.623597088563558 };
     final double[] sigmasX = {Double.NaN, 0.10361640830108385 };
@@ -862,9 +855,9 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
     final double[] dataStrikes = {0.8276533748061506, 0.830544004818981, 0.8356246758244018, 0.8408571903798175, 0.8438972913060586 };
     final double[] dataVols = {0.0668, 0.0653, 0.06465, 0.0668, 0.0686 };
 
-    double[] rhosGuess = new double[] {0.65, 0.65 };
+    final double[] rhosGuess = new double[] {0.65, 0.65 };
 
-    MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
+    final MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
 
     fitter.doFit(rhosGuess, dataStrikes, dataVols, timeToExpiry, weights, sigmasX, sigmasY, relativePartialForwardsX,
         relativePartialForwardsY, forwardX, forwardY);
@@ -874,7 +867,7 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
    * 
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void NaNsigmasYTest() {
+  public void naNsigmasYTest() {
 
     final double[] weights = {0.37640291143644194, 0.623597088563558 };
     final double[] sigmasX = {0.06354423944935964, 0.10361640830108385 };
@@ -889,9 +882,9 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
     final double[] dataStrikes = {0.8276533748061506, 0.830544004818981, 0.8356246758244018, 0.8408571903798175, 0.8438972913060586 };
     final double[] dataVols = {0.0668, 0.0653, 0.06465, 0.0668, 0.0686 };
 
-    double[] rhosGuess = new double[] {0.65, 0.65 };
+    final double[] rhosGuess = new double[] {0.65, 0.65 };
 
-    MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
+    final MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
 
     fitter.doFit(rhosGuess, dataStrikes, dataVols, timeToExpiry, weights, sigmasX, sigmasY, relativePartialForwardsX,
         relativePartialForwardsY, forwardX, forwardY);
@@ -901,7 +894,7 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
    * 
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void NaNrelativePartialForwardsXTest() {
+  public void naNrelativePartialForwardsXTest() {
 
     final double[] weights = {0.37640291143644194, 0.623597088563558 };
     final double[] sigmasX = {0.06354423944935964, 0.10361640830108385 };
@@ -916,9 +909,9 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
     final double[] dataStrikes = {0.8276533748061506, 0.830544004818981, 0.8356246758244018, 0.8408571903798175, 0.8438972913060586 };
     final double[] dataVols = {0.0668, 0.0653, 0.06465, 0.0668, 0.0686 };
 
-    double[] rhosGuess = new double[] {0.65, 0.65 };
+    final double[] rhosGuess = new double[] {0.65, 0.65 };
 
-    MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
+    final MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
 
     fitter.doFit(rhosGuess, dataStrikes, dataVols, timeToExpiry, weights, sigmasX, sigmasY, relativePartialForwardsX,
         relativePartialForwardsY, forwardX, forwardY);
@@ -928,7 +921,7 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
    * 
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void NaNrelativePartialForwardsYTest() {
+  public void naNrelativePartialForwardsYTest() {
 
     final double[] weights = {0.37640291143644194, 0.623597088563558 };
     final double[] sigmasX = {0.06354423944935964, 0.10361640830108385 };
@@ -943,9 +936,9 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
     final double[] dataStrikes = {0.8276533748061506, 0.830544004818981, 0.8356246758244018, 0.8408571903798175, 0.8438972913060586 };
     final double[] dataVols = {0.0668, 0.0653, 0.06465, 0.0668, 0.0686 };
 
-    double[] rhosGuess = new double[] {0.65, 0.65 };
+    final double[] rhosGuess = new double[] {0.65, 0.65 };
 
-    MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
+    final MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
 
     fitter.doFit(rhosGuess, dataStrikes, dataVols, timeToExpiry, weights, sigmasX, sigmasY, relativePartialForwardsX,
         relativePartialForwardsY, forwardX, forwardY);
@@ -955,7 +948,7 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
    * 
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void NaNforwardXTest() {
+  public void naNforwardXTest() {
 
     final double[] weights = {0.37640291143644194, 0.623597088563558 };
     final double[] sigmasX = {0.06354423944935964, 0.10361640830108385 };
@@ -970,9 +963,9 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
     final double[] dataStrikes = {0.8276533748061506, 0.830544004818981, 0.8356246758244018, 0.8408571903798175, 0.8438972913060586 };
     final double[] dataVols = {0.0668, 0.0653, 0.06465, 0.0668, 0.0686 };
 
-    double[] rhosGuess = new double[] {0.65, 0.65 };
+    final double[] rhosGuess = new double[] {0.65, 0.65 };
 
-    MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
+    final MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
 
     fitter.doFit(rhosGuess, dataStrikes, dataVols, timeToExpiry, weights, sigmasX, sigmasY, relativePartialForwardsX,
         relativePartialForwardsY, forwardX, forwardY);
@@ -982,7 +975,7 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
    * 
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void NaNforwardYTest() {
+  public void naNforwardYTest() {
 
     final double[] weights = {0.37640291143644194, 0.623597088563558 };
     final double[] sigmasX = {0.06354423944935964, 0.10361640830108385 };
@@ -997,9 +990,9 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
     final double[] dataStrikes = {0.8276533748061506, 0.830544004818981, 0.8356246758244018, 0.8408571903798175, 0.8438972913060586 };
     final double[] dataVols = {0.0668, 0.0653, 0.06465, 0.0668, 0.0686 };
 
-    double[] rhosGuess = new double[] {0.65, 0.65 };
+    final double[] rhosGuess = new double[] {0.65, 0.65 };
 
-    MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
+    final MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
 
     fitter.doFit(rhosGuess, dataStrikes, dataVols, timeToExpiry, weights, sigmasX, sigmasY, relativePartialForwardsX,
         relativePartialForwardsY, forwardX, forwardY);
@@ -1009,7 +1002,7 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
    * 
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void NaNtimeToExpiryTest() {
+  public void naNtimeToExpiryTest() {
 
     final double[] weights = {0.37640291143644194, 0.623597088563558 };
     final double[] sigmasX = {0.06354423944935964, 0.10361640830108385 };
@@ -1024,9 +1017,9 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
     final double[] dataStrikes = {0.8276533748061506, 0.830544004818981, 0.8356246758244018, 0.8408571903798175, 0.8438972913060586 };
     final double[] dataVols = {0.0668, 0.0653, 0.06465, 0.0668, 0.0686 };
 
-    double[] rhosGuess = new double[] {0.65, 0.65 };
+    final double[] rhosGuess = new double[] {0.65, 0.65 };
 
-    MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
+    final MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
 
     fitter.doFit(rhosGuess, dataStrikes, dataVols, timeToExpiry, weights, sigmasX, sigmasY, relativePartialForwardsX,
         relativePartialForwardsY, forwardX, forwardY);
@@ -1036,7 +1029,7 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
    * 
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void NaNdataStrikesTest() {
+  public void naNdataStrikesTest() {
 
     final double[] weights = {0.37640291143644194, 0.623597088563558 };
     final double[] sigmasX = {0.06354423944935964, 0.10361640830108385 };
@@ -1051,9 +1044,9 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
     final double[] dataStrikes = {0.8276533748061506, Double.NaN, 0.8356246758244018, 0.8408571903798175, 0.8438972913060586 };
     final double[] dataVols = {0.0668, 0.0653, 0.06465, 0.0668, 0.0686 };
 
-    double[] rhosGuess = new double[] {0.65, 0.65 };
+    final double[] rhosGuess = new double[] {0.65, 0.65 };
 
-    MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
+    final MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
 
     fitter.doFit(rhosGuess, dataStrikes, dataVols, timeToExpiry, weights, sigmasX, sigmasY, relativePartialForwardsX,
         relativePartialForwardsY, forwardX, forwardY);
@@ -1063,7 +1056,7 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
    * 
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void NaNdataVolsTest() {
+  public void naNdataVolsTest() {
 
     final double[] weights = {0.37640291143644194, 0.623597088563558 };
     final double[] sigmasX = {0.06354423944935964, 0.10361640830108385 };
@@ -1078,9 +1071,9 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
     final double[] dataStrikes = {0.8276533748061506, 0.830544004818981, 0.8356246758244018, 0.8408571903798175, 0.8438972913060586 };
     final double[] dataVols = {0.0668, Double.NaN, 0.06465, 0.0668, 0.0686 };
 
-    double[] rhosGuess = new double[] {0.65, 0.65 };
+    final double[] rhosGuess = new double[] {0.65, 0.65 };
 
-    MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
+    final MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
 
     fitter.doFit(rhosGuess, dataStrikes, dataVols, timeToExpiry, weights, sigmasX, sigmasY, relativePartialForwardsX,
         relativePartialForwardsY, forwardX, forwardY);
@@ -1090,7 +1083,7 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
    * 
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void NaNrhosGuessTest() {
+  public void naNrhosGuessTest() {
 
     final double[] weights = {0.37640291143644194, 0.623597088563558 };
     final double[] sigmasX = {0.06354423944935964, 0.10361640830108385 };
@@ -1105,20 +1098,20 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
     final double[] dataStrikes = {0.8276533748061506, 0.830544004818981, 0.8356246758244018, 0.8408571903798175, 0.8438972913060586 };
     final double[] dataVols = {0.0668, 0.0653, 0.06465, 0.0668, 0.0686 };
 
-    double[] rhosGuess = new double[] {0.65, Double.NaN };
+    final double[] rhosGuess = new double[] {0.65, Double.NaN };
 
-    MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
+    final MixedBivariateLogNormalCorrelationFinder fitter = new MixedBivariateLogNormalCorrelationFinder();
 
     fitter.doFit(rhosGuess, dataStrikes, dataVols, timeToExpiry, weights, sigmasX, sigmasY, relativePartialForwardsX,
         relativePartialForwardsY, forwardX, forwardY);
   }
 
   /**
-   * Test below is for debugging 
+   * Test below is for debugging
    */
   @Test
-      (enabled = false)
-      public void printTest() {
+  (enabled = false)
+  public void printTest() {
 
     final int nNormals = 2;
     final double[] weights = {0.37640291143644194, 0.623597088563558 };
@@ -1174,9 +1167,9 @@ public class MixedBivariateLogNormalCorrelationFinderTest {
     final MixedBivariateLogNormalModelVolatility objZ = new MixedBivariateLogNormalModelVolatility(weights, sigmasX,
         sigmasY, relativePartialForwardsX, relativePartialForwardsY, rhosGuess);
 
-    double[] ansVolsZ = new double[100];
+    final double[] ansVolsZ = new double[100];
     for (int i = 0; i < 100; i++) {
-      double k = fwdZ * (0.97 + .6 * i / 1000.);
+      final double k = fwdZ * (0.97 + .6 * i / 1000.);
       final EuropeanVanillaOption option = new EuropeanVanillaOption(k, timeToExpiry, true);
       ansVolsZ[i] = objZ.getImpliedVolatilityZ(option, fwdZ);
       System.out.println(k + "\t" + ansVolsZ[i]);

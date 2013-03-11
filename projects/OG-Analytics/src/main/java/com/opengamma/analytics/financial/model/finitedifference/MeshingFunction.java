@@ -28,7 +28,7 @@ public abstract class MeshingFunction extends Function1D<Integer, Double> {
   }
 
   public double[] getPoints() {
-    double[] res = new double[_nPoints];
+    final double[] res = new double[_nPoints];
     for (int i = 0; i < _nPoints; i++) {
       res[i] = evaluate(i);
     }
@@ -36,18 +36,18 @@ public abstract class MeshingFunction extends Function1D<Integer, Double> {
   }
 
   /**
-   * Same behaviour as mathlab unique 
+   * Same behaviour as mathlab unique
    * @param in input array
-   * @return a sorted array with no duplicates values 
+   * @return a sorted array with no duplicates values
    */
   protected double[] unique(final double[] in) {
     Arrays.sort(in);
     final int n = in.length;
-    double[] temp = new double[n];
+    final double[] temp = new double[n];
     temp[0] = in[0];
     int count = 1;
     for (int i = 1; i < n; i++) {
-      if (in[i] != in[i - 1]) {
+      if (Double.compare(in[i], in[i - 1]) != 0) {
         temp[count++] = in[i];
       }
     }
@@ -58,14 +58,14 @@ public abstract class MeshingFunction extends Function1D<Integer, Double> {
   }
 
   /**
-   * Same behaviour as mathlab unique 
+   * Same behaviour as mathlab unique
    * @param in input array
-   * @return a sorted array with no duplicates values 
+   * @return a sorted array with no duplicates values
    */
   protected int[] unique(final int[] in) {
     Arrays.sort(in);
     final int n = in.length;
-    int[] temp = new int[n];
+    final int[] temp = new int[n];
     temp[0] = in[0];
     int count = 1;
     for (int i = 1; i < n; i++) {

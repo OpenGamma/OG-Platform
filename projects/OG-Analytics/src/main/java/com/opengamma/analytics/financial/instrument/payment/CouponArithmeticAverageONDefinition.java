@@ -28,8 +28,8 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * Class describing a Fed Fund swap-like floating coupon (arithmetic average on overnight rates).
- * FIXME: Class under construction, don't use yet.
  */
+// * FIXME: Class under construction, don't use yet.
 public class CouponArithmeticAverageONDefinition extends CouponDefinition implements InstrumentDefinitionWithData<Payment, DoubleTimeSeries<ZonedDateTime>> {
 
   /**
@@ -67,8 +67,8 @@ public class CouponArithmeticAverageONDefinition extends CouponDefinition implem
     ArgumentChecker.notNull(fixingPeriodEndDate, "CouponOISDefinition: fixingPeriodEndDate");
     ArgumentChecker.isTrue(currency.equals(index.getCurrency()), "Coupon and index currencies are not compatible. Expected to be the same");
     _index = index;
-    final List<ZonedDateTime> fixingDateList = new ArrayList<ZonedDateTime>();
-    final List<Double> fixingAccrualFactorList = new ArrayList<Double>();
+    final List<ZonedDateTime> fixingDateList = new ArrayList<>();
+    final List<Double> fixingAccrualFactorList = new ArrayList<>();
     ZonedDateTime currentDate = fixingPeriodStartDate;
     fixingDateList.add(currentDate);
     ZonedDateTime nextDate;
@@ -78,8 +78,8 @@ public class CouponArithmeticAverageONDefinition extends CouponDefinition implem
       fixingAccrualFactorList.add(index.getDayCount().getDayCountFraction(currentDate, nextDate));
       currentDate = nextDate;
     }
-    _fixingPeriodDate = fixingDateList.toArray(new ZonedDateTime[0]);
-    _fixingPeriodAccrualFactor = fixingAccrualFactorList.toArray(new Double[0]);
+    _fixingPeriodDate = fixingDateList.toArray(new ZonedDateTime[fixingDateList.size()]);
+    _fixingPeriodAccrualFactor = fixingAccrualFactorList.toArray(new Double[fixingAccrualFactorList.size()]);
   }
 
   /**
@@ -144,8 +144,8 @@ public class CouponArithmeticAverageONDefinition extends CouponDefinition implem
   @Override
   public CouponArithmeticAverageON toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.isTrue(!_fixingPeriodDate[0].plusDays(_index.getPublicationLag()).isBefore(date), "First fixing publication strictly before reference date");
-    double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
-    double[] fixingPeriodTimes = TimeCalculator.getTimeBetween(date, _fixingPeriodDate);
+    final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
+    final double[] fixingPeriodTimes = TimeCalculator.getTimeBetween(date, _fixingPeriodDate);
     return CouponArithmeticAverageON.from(paymentTime, getPaymentYearFraction(), getNotional(), _index, fixingPeriodTimes, _fixingPeriodAccrualFactor, 0);
   }
 

@@ -54,6 +54,17 @@ public class InMemoryLKVMarketDataSnapshot extends AbstractMarketDataSnapshot {
     _snapshotTime = Instant.now();
     s_logger.debug("Snapshotted at {}", _snapshotTime);
   }
+  
+  @Override
+  public boolean isInitialized() {
+    return _snapshot != null;
+  }
+  
+  @Override
+  public boolean isEmpty() {
+    assertInitialized();
+    return _snapshot.isEmpty();
+  }
 
   @Override
   public Instant getSnapshotTime() {

@@ -80,8 +80,8 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
   private static final SABRInterestRateCorrelationParameters SABR_CORRELATION = SABRInterestRateCorrelationParameters.from(SABR_PARAMETER, CORRELATION_FUNCTION);
   private static final SABRSwaptionProviderDiscount SABR_MULTICURVES = new SABRSwaptionProviderDiscount(MULTICURVES, SABR_CORRELATION, EUR1YEURIBOR6M);
 
-  public static final String NOT_USED = "Not used";
-  public static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
+  private static final String NOT_USED = "Not used";
+  private static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2008, 8, 18);
 

@@ -28,6 +28,7 @@ import com.opengamma.analytics.financial.provider.description.interestrate.SABRC
 import com.opengamma.analytics.financial.provider.description.interestrate.SABRCapProviderInterface;
 import com.opengamma.analytics.financial.provider.method.CapFloorIborSABRCapMethodInterface;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
+import com.opengamma.analytics.math.MathException;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.integration.RungeKuttaIntegrator1D;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -48,8 +49,8 @@ public class CapFloorIborInArrearsReplicationMethodTest {
   private static final SABRInterestRateParameters SABR_PARAMETER = TestsDataSetsSABR.createSABR1();
   private static final SABRCapProviderDiscount SABR_MULTICURVES = new SABRCapProviderDiscount(MULTICURVES, SABR_PARAMETER, EURIBOR6M);
 
-  public static final String NOT_USED = "Not used";
-  public static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
+  private static final String NOT_USED = "Not used";
+  private static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
 
   // Dates
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 6, 7);
@@ -108,7 +109,7 @@ public class CapFloorIborInArrearsReplicationMethodTest {
     try {
       integralPart = integrator.integrate(integrant, STRIKE, STRIKE + 2.0);
     } catch (final Exception e) {
-      throw new RuntimeException(e);
+      throw new MathException(e);
     }
     integralPart *= 2.0 * CAP_LONG.getFixingAccrualFactor();
     final MultipleCurrencyAmount price = METHOD_SABREXTRA_CAP_IA.presentValue(CAP_LONG, SABR_MULTICURVES);
@@ -173,7 +174,7 @@ public class CapFloorIborInArrearsReplicationMethodTest {
   /**
    * Inner class to implement the integration used in price replication.
    */
-  private class InArrearsIntegrant extends Function1D<Double, Double> {
+  private static class InArrearsIntegrant extends Function1D<Double, Double> {
 
     /**
      * The base method for the pricing of standard cap/floors.

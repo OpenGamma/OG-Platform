@@ -17,13 +17,14 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Paymen
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.model.interestrate.HullWhiteOneFactorPiecewiseConstantInterestRateModel;
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantDataBundle;
+import com.opengamma.analytics.math.MathException;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.integration.RungeKuttaIntegrator1D;
 import com.opengamma.util.money.CurrencyAmount;
 
 /**
  * Pricing method of a CMS cap/floor in the Hull-White (extended Vasicek) model by approximation.
- * <P> Reference: M. Henrard. CMS Swaps and Caps in One-Factor Gaussian Models, SSRN working paper 985551, February 2008. 
+ * <P> Reference: M. Henrard. CMS Swaps and Caps in One-Factor Gaussian Models, SSRN working paper 985551, February 2008.
  * Available at http://ssrn.com/abstract=985551
  */
 public final class CapFloorCMSHullWhiteNumericalIntegrationMethod implements PricingMethod {
@@ -97,7 +98,7 @@ public final class CapFloorCMSHullWhiteNumericalIntegrationMethod implements Pri
     try {
       pv = 1.0 / Math.sqrt(2.0 * Math.PI) * integrator.integrate(integrant, -limit, limit) * dfPayment * cms.getNotional() * cms.getPaymentYearFraction();
     } catch (final Exception e) {
-      throw new RuntimeException(e);
+      throw new MathException(e);
     }
     return CurrencyAmount.of(cms.getCurrency(), pv);
   }

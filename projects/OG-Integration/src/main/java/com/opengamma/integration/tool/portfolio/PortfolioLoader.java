@@ -1,5 +1,6 @@
 package com.opengamma.integration.tool.portfolio;
 
+import com.google.common.collect.ImmutableList;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.integration.copier.portfolio.PortfolioCopierVisitor;
@@ -13,6 +14,8 @@ import com.opengamma.integration.copier.portfolio.writer.MasterPortfolioWriter;
 import com.opengamma.integration.copier.portfolio.writer.PortfolioWriter;
 import com.opengamma.integration.copier.portfolio.writer.PrettyPrintingPortfolioWriter;
 import com.opengamma.integration.copier.sheet.SheetFormat;
+import com.opengamma.integration.tool.portfolio.xml.SchemaRegister;
+import com.opengamma.integration.tool.portfolio.xml.XmlFileReader;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -27,9 +30,11 @@ public class PortfolioLoader {
   private final ToolContext _toolContext;
 
   /**
-   * The name for the portfolio - must not be null.
+   * The suggested name for the portfolio. Some portfolio readers will read the name from
+   * the data in the file. If the reader does not do this, or no valid name is supplied,
+   * then this suggested name will be used
    */
-  private final String _portfolioName;
+  private final String _suggestedPortfolioName;
 
   /**
    * The security type for the portfolio (if not a multi-asset portfolio).
@@ -70,6 +75,7 @@ public class PortfolioLoader {
    * Should positions in the previous portfolio version be kept, otherwise start from scratch.
    */
   private final boolean _keepCurrentPositions;
+  private final boolean _logToSystemOut;
 
   /**
    * Constructs a new portfolio loader ready to load a portfolio from file.
@@ -84,10 +90,11 @@ public class PortfolioLoader {
    * @param mergePositions should positions in the same security and within the same portfolio node be merged into one
    * @param keepCurrentPositions should positions in the previous portfolio version be kept, otherwise start from scratch
    * @param ignoreVersion should the version hashes in the multi-asset zip file be ignored
+   * @param logToSystemOut should logging go to system out or standard logger
    */
   public PortfolioLoader(ToolContext toolContext, String portfolioName, String securityType, String fileName,
                          boolean write, boolean overwrite, boolean verbose, boolean mergePositions,
-                         boolean keepCurrentPositions, boolean ignoreVersion) {
+                         boolean keepCurrentPositions, boolean ignoreVersion, boolean logToSystemOut) {
 
     ArgumentChecker.notNull(toolContext, "toolContext ");
     ArgumentChecker.isTrue(!write || portfolioName != null, "Portfolio name must be specified if writing to a master");
@@ -95,7 +102,7 @@ public class PortfolioLoader {
 
     _toolContext = toolContext;
     _fileName = fileName;
-    _portfolioName = portfolioName;
+    _suggestedPortfolioName = portfolioName;
     _write = write;
     _overwrite = overwrite;
     _securityType = securityType;
@@ -103,28 +110,34 @@ public class PortfolioLoader {
     _mergePositions = mergePositions;
     _keepCurrentPositions = keepCurrentPositions;
     _ignoreVersion = ignoreVersion;
+    _logToSystemOut = logToSystemOut;
   }
 
   /**
-   * Execute the portfolio load with the configured options.
+   * Execute the portfolio load(s) with the configured options.
    */
   public void execute() {
 
-    PortfolioWriter portfolioWriter = constructPortfolioWriter(_toolContext, _portfolioName, _write, _overwrite,
-                                                               _mergePositions, _keepCurrentPositions);
-    PortfolioReader portfolioReader = constructPortfolioReader(_fileName, _securityType, _ignoreVersion);
-    SimplePortfolioCopier portfolioCopier = new SimplePortfolioCopier();
+    for (PortfolioReader portfolioReader : constructPortfolioReaders(_fileName, _securityType, _ignoreVersion)) {
 
-    // Create visitor for verbose/quiet mode
-    PortfolioCopierVisitor portfolioCopierVisitor =
-        _verbose ? new VerbosePortfolioCopierVisitor() : new QuietPortfolioCopierVisitor();
+      // Get the name of the portfolio from the reader if it supplies one
+      String name = portfolioReader.getPortfolioName();
 
-    // Call the portfolio loader with the supplied arguments
-    portfolioCopier.copy(portfolioReader, portfolioWriter, portfolioCopierVisitor);
+      PortfolioWriter portfolioWriter = constructPortfolioWriter(_toolContext, name != null ? name : _suggestedPortfolioName, _write, _overwrite,
+                                                                 _mergePositions, _keepCurrentPositions);
+      SimplePortfolioCopier portfolioCopier = new SimplePortfolioCopier();
 
-    // close stuff
-    portfolioReader.close();
-    portfolioWriter.close();
+      // Create visitor for verbose/quiet mode
+      PortfolioCopierVisitor portfolioCopierVisitor =
+          _verbose ? new VerbosePortfolioCopierVisitor() : new QuietPortfolioCopierVisitor();
+
+      // Call the portfolio loader with the supplied arguments
+      portfolioCopier.copy(portfolioReader, portfolioWriter, portfolioCopierVisitor);
+
+      // close stuff
+      portfolioReader.close();
+      portfolioWriter.close();
+    }
   }
 
   private PortfolioWriter constructPortfolioWriter(ToolContext toolContext, String portfolioName, boolean write,
@@ -152,10 +165,9 @@ public class PortfolioLoader {
     }
   }
 
-  private PortfolioReader constructPortfolioReader(String filename, String securityType, boolean ignoreVersion) {
+  private Iterable<? extends PortfolioReader> constructPortfolioReaders(String filename, String securityType, boolean ignoreVersion) {
 
-    SheetFormat sheetFormat = SheetFormat.of(filename);
-    switch (sheetFormat) {
+    switch (SheetFormat.of(filename)) {
 
       case CSV:
       case XLS:
@@ -166,16 +178,19 @@ public class PortfolioLoader {
 //          if (securityType.equalsIgnoreCase("exchangetraded")) {
 //            return new SingleSheetSimplePortfolioReader(filename, new ExchangeTradedRowParser(s_context.getBloombergSecuritySource()));
 //          } else {
-          return new SingleSheetSimplePortfolioReader(filename, securityType);
+          return ImmutableList.of(new SingleSheetSimplePortfolioReader(filename, securityType));
 //          }
         }
+      case XML:
+        // XMl multi-asset portfolio
+        return new XmlFileReader(filename, new SchemaRegister());
 
       case ZIP:
         // Create zipped multi-asset class loader
-        return new ZippedPortfolioReader(filename, ignoreVersion);
+        return ImmutableList.of(new ZippedPortfolioReader(filename, ignoreVersion));
 
       default:
-        throw new OpenGammaRuntimeException("Input filename should end in .CSV, .XLS or .ZIP");
+        throw new OpenGammaRuntimeException("Input filename should end in .CSV, .XLS, .XML or .ZIP");
     }
   }
 }

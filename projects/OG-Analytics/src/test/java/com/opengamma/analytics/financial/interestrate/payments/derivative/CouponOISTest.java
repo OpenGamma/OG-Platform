@@ -68,7 +68,7 @@ public class CouponOISTest {
       NOTIONAL, EUR_OIS, START_ACCRUAL_DATE, END_ACCRUAL_DATE, FIXING_YEAR_FRACTION);
 
   private static final YieldCurveBundle CURVES = TestsDataSetsSABR.createCurves1();
-  private static final String[] CURVES_NAMES = CURVES.getAllNames().toArray(new String[0]);
+  private static final String[] CURVES_NAMES = CURVES.getAllNames().toArray(new String[CURVES.size()]);
 
   private static final ZonedDateTime REFERENCE_DATE_1 = DateUtils.getUTCDate(2011, 9, 7);
   private static final double PAYMENT_TIME_1 = TimeCalculator.getTimeBetween(REFERENCE_DATE_1, PAYMENT_DATE);
@@ -116,7 +116,7 @@ public class CouponOISTest {
    */
   public void equalHash() {
     assertEquals("CouponOIS derivative: equal/hash code", EONIA_COUPON_STARTED, EONIA_COUPON_STARTED);
-    CouponOIS other = new CouponOIS(EUR_CUR, PAYMENT_TIME_2, CURVES_NAMES[0], PAYMENT_YEAR_FRACTION, NOTIONAL, EUR_OIS, START_FIXING_TIME_2, END_FIXING_TIME_2, FIXING_YEAR_FRACTION_2,
+    final CouponOIS other = new CouponOIS(EUR_CUR, PAYMENT_TIME_2, CURVES_NAMES[0], PAYMENT_YEAR_FRACTION, NOTIONAL, EUR_OIS, START_FIXING_TIME_2, END_FIXING_TIME_2, FIXING_YEAR_FRACTION_2,
         NOTIONAL_WITH_ACCRUED, CURVES_NAMES[1]);
     assertEquals("CouponOIS derivative: equal/hash code", EONIA_COUPON_STARTED, other);
     assertEquals("CouponOIS derivative: equal/hash code", EONIA_COUPON_STARTED.hashCode(), other.hashCode());

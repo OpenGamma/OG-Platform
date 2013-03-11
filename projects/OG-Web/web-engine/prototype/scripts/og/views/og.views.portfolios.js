@@ -289,38 +289,10 @@ $.register_module({
                        ui.dialog({type: 'input', action: 'close'});
                     };
                     $('.OG-js-add-position').click(function () {
-                        ui.dialog({
-                            type: 'input',
-                            title: 'Add Position',
-                            width: 400, height: 190,
-                            fields: [{type: 'input', name: 'Identifier', id: 'name'}],
-                            buttons: {
-                                'OK': function () {
-                                    if (ui.dialog({return_field_value: 'name'}) === '') return;
-                                    do_update();
-                                    $(this).dialog('close');
-                                },
-                                'Cancel': function () {$(this).dialog('close');}
-                            }
+                        var nodeId = json.template_data.node;
+                        new og.blotter.Dialog({portfolio:{name: nodeId, id: nodeId}, 
+                            handler: function (data) {return og.api.rest.blotter.trades.put(data);}
                         });
-                        $('#og-js-dialog-name').autocomplete({
-                            source: function (obj, handler) {
-                                api.rest.positions.get({
-                                    handler: function (result) {
-                                        var arr = result.data.data.map(function (val) {
-                                            var arr = val.split('|');
-                                            return {value: arr[0], label: arr[1], id: arr[0], node: arr[1]};
-                                        });
-                                        handler(arr);
-                                    },
-                                    loading: '', page_size: 10, page: 1,
-                                    identifier: '*' + obj.term.replace(/\s/g, '*') + '*'
-                                });
-                            },
-                            minLength: 1,
-                            select: function (e, ui) {do_update(e, ui);}
-                        });
-                        return false;
                     });
                 }());
             };
@@ -333,9 +305,9 @@ $.register_module({
                             return routes.prefix() + routes.hash(rule, args, node ?
                                 {add: {node: node}, del: ['position']} : {del: ['node', 'position']});
                         },
-                        title: function (name) {return name.length > 30 ? name : ''},
+                        title: function (name) {return name.length > 30 ? name : '';},
                         short_name: function (name) {
-                            return name.length > 30 ? name.slice(0, 27) + '...' : name
+                            return name.length > 30 ? name.slice(0, 27) + '...' : name;
                         }
                     }));
                     ui.content_editable();

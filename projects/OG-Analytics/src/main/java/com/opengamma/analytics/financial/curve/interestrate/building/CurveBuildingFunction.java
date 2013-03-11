@@ -162,7 +162,7 @@ public class CurveBuildingFunction {
         instrumentsSoFar.addAll(Arrays.asList(instruments[loopunit][loopcurve]));
       }
       final InstrumentDerivative[] instrumentsUnit = new InstrumentDerivative[nbInsUnit];
-      final InstrumentDerivative[] instrumentsSoFarArray = instrumentsSoFar.toArray(new InstrumentDerivative[0]);
+      final InstrumentDerivative[] instrumentsSoFarArray = instrumentsSoFar.toArray(new InstrumentDerivative[instrumentsSoFar.size()]);
       for (int loopcurve = 0; loopcurve < nbCurve; loopcurve++) {
         System.arraycopy(instruments[loopunit][loopcurve], 0, instrumentsUnit, startCurve[loopcurve], nbIns[loopcurve]);
       }
@@ -174,7 +174,8 @@ public class CurveBuildingFunction {
       }
       final Pair<YieldCurveBundle, Double[]> unitCal = makeUnit(instrumentsUnit, parametersGuess[loopunit], gen, knownSoFarData, calculator, sensitivityCalculator);
       parametersSoFar.addAll(Arrays.asList(unitCal.getSecond()));
-      final DoubleMatrix2D[] mat = makeCurveMatrix(instrumentsSoFarArray, generatorsSoFar, startUnit, nbIns, parametersSoFar.toArray(new Double[0]), knownData, sensitivityCalculator);
+      final DoubleMatrix2D[] mat = makeCurveMatrix(instrumentsSoFarArray, generatorsSoFar, startUnit, nbIns, parametersSoFar.toArray(new Double[parametersSoFar.size()]),
+          knownData, sensitivityCalculator);
       for (int loopcurve = 0; loopcurve < curveGenerators[loopunit].length; loopcurve++) {
         unitBundleSoFar.put(curveNames[loopunit][loopcurve], new ObjectsPair<>(new CurveBuildingBlock(unitMap), mat[loopcurve]));
       }

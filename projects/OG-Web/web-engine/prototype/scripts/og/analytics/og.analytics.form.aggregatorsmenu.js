@@ -59,9 +59,10 @@ $.register_module({
             };
 
             var serialize = function () {
-                return remove_orphans(), query.pluck('val').filter(function (entry) {
+                var q = query.pluck('val').filter(function (entry) {
                     return entry !== default_sel_txt;
                 });
+                return remove_orphans(), q;
             };
 
             var init = function () {

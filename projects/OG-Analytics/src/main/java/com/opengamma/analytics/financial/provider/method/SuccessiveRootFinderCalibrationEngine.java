@@ -23,7 +23,7 @@ public abstract class SuccessiveRootFinderCalibrationEngine<DATA_TYPE extends Pa
    * @param calibrationObjective The calibration objective.
    */
   public SuccessiveRootFinderCalibrationEngine(final SuccessiveRootFinderCalibrationObjective calibrationObjective) {
-    super(calibrationObjective.getFxMatrix(), calibrationObjective.getCcy());
+    super(calibrationObjective.getFXMatrix(), calibrationObjective.getCcy());
     _calibrationObjective = calibrationObjective;
   }
 

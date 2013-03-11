@@ -437,7 +437,7 @@ public class ISDAApproxCDSPricingMethod {
     if (hazardRateCurve != null) {
       final double[] hazardRateCurveTimePoints = hazardRateCurve.getTimePoints();
       for (int i = 0; i < hazardRateCurveTimePoints.length; ++i) {
-        allTimePoints.add(new Double(hazardRateCurveTimePoints[i]));
+        allTimePoints.add(Double.valueOf(hazardRateCurveTimePoints[i]));
       }
     } else {
       allTimePoints.add(new Double(cds.getMaturity()));

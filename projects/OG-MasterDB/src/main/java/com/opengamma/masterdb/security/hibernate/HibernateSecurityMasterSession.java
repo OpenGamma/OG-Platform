@@ -665,7 +665,41 @@ public class HibernateSecurityMasterSession implements HibernateSecurityMasterDa
     }
     return bean;
   }
+
+  //CDSI Family
+  @Override
+  public CDSIndexFamilyBean getOrCreateCDSIFamilyBean(String family) {
+    Query query = getSession().getNamedQuery("CDSIndexFamilyBean.one");
+    query.setString("name", family);
+    CDSIndexFamilyBean familyBean = (CDSIndexFamilyBean) query.uniqueResult();
+    if (familyBean == null) {
+      familyBean = persistBean(new CDSIndexFamilyBean(family));
+    }
+    return familyBean;
+  }
   
+  @SuppressWarnings("unchecked")
+  @Override
+  public List<CDSIndexFamilyBean> getCDSIFamilyBeans() {
+    return getBeansFromNamedQuery("CDSIndexFamilyBean.all");
+  }
   
+  //Tenors
+  @Override
+  public TenorBean getOrCreateTenorBean(final String tenor) {
+    final Query query = getSession().getNamedQuery("TenorBean.one");
+    query.setString("name", tenor);
+    TenorBean bean = (TenorBean) query.uniqueResult();
+    if (bean == null) {
+      bean = persistBean(new TenorBean(tenor));
+    }
+    return bean;
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public List<TenorBean> getTenorBeans() {
+    return getBeansFromNamedQuery("TenorBean.all");
+  }
   
 }

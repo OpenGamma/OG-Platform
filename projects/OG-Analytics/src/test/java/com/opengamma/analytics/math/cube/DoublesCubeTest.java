@@ -19,19 +19,19 @@ import com.opengamma.util.tuple.Triple;
  * 
  */
 public class DoublesCubeTest {
-  protected static final String NAME = "a";
-  protected static final double[] X_PRIMITIVE;
-  protected static final double[] Y_PRIMITIVE;
-  protected static final double[] Z_PRIMITIVE;
-  protected static final double[] DATA_PRIMITIVE;
-  protected static final Double[] X_OBJECT;
-  protected static final Double[] Y_OBJECT;
-  protected static final Double[] Z_OBJECT;
-  protected static final Double[] DATA_OBJECT;
-  protected static final List<Double> X_LIST;
-  protected static final List<Double> Y_LIST;
-  protected static final List<Double> Z_LIST;
-  protected static final List<Double> DATA_LIST;
+  static final String NAME = "a";
+  static final double[] X_PRIMITIVE;
+  static final double[] Y_PRIMITIVE;
+  static final double[] Z_PRIMITIVE;
+  static final double[] DATA_PRIMITIVE;
+  static final Double[] X_OBJECT;
+  static final Double[] Y_OBJECT;
+  static final Double[] Z_OBJECT;
+  static final Double[] DATA_OBJECT;
+  static final List<Double> X_LIST;
+  static final List<Double> Y_LIST;
+  static final List<Double> Z_LIST;
+  static final List<Double> DATA_LIST;
 
   static {
     final int n = 125;

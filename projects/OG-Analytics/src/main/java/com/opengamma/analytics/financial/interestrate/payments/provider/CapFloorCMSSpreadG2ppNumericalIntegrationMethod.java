@@ -12,6 +12,7 @@ import com.opengamma.analytics.financial.model.interestrate.definition.G2ppPiece
 import com.opengamma.analytics.financial.provider.calculator.discounting.CashFlowEquivalentCalculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.G2ppProviderInterface;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.analytics.math.MathException;
 import com.opengamma.analytics.math.function.Function2D;
 import com.opengamma.analytics.math.integration.IntegratorRepeated2D;
 import com.opengamma.analytics.math.integration.RungeKuttaIntegrator1D;
@@ -69,10 +70,10 @@ public final class CapFloorCMSSpreadG2ppNumericalIntegrationMethod {
   public MultipleCurrencyAmount presentValue(final CapFloorCMSSpread cmsSpread, final G2ppProviderInterface g2Data) {
     ArgumentChecker.notNull(cmsSpread, "CMS spread");
     ArgumentChecker.notNull(g2Data, "Yield curves and G2++ parameters");
-    Currency ccy = cmsSpread.getCurrency();
+    final Currency ccy = cmsSpread.getCurrency();
     ArgumentChecker.isTrue(g2Data.getG2ppCurrency().equals(ccy), "CMS spread currency incompatible with data");
-    MulticurveProviderInterface multicurves = g2Data.getMulticurveProvider();
-    G2ppPiecewiseConstantParameters parameters = g2Data.getG2ppParameters();
+    final MulticurveProviderInterface multicurves = g2Data.getMulticurveProvider();
+    final G2ppPiecewiseConstantParameters parameters = g2Data.getG2ppParameters();
     final double strike = cmsSpread.getStrike();
     final double theta = cmsSpread.getFixingTime();
     final double tp = cmsSpread.getPaymentTime();
@@ -160,7 +161,7 @@ public final class CapFloorCMSSpreadG2ppNumericalIntegrationMethod {
       pv = 1.0 / (2.0 * Math.PI * Math.sqrt(1 - rhobar * rhobar))
           * integrator2D.integrate(integrant, new Double[] {-INTEGRATION_LIMIT, -INTEGRATION_LIMIT}, new Double[] {INTEGRATION_LIMIT, INTEGRATION_LIMIT});
     } catch (final Exception e) {
-      throw new RuntimeException(e);
+      throw new MathException(e);
     }
     return MultipleCurrencyAmount.of(cmsSpread.getCurrency(), dftp * pv * cmsSpread.getNotional() * cmsSpread.getPaymentYearFraction());
   }

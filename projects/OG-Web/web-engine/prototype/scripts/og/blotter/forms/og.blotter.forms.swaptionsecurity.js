@@ -10,12 +10,14 @@ $.register_module({
             var constructor = this, form, ui = og.common.util.ui, data, pay_block, receive_block, pay_select, 
                 receive_select, pay_index = og.common.id('pay'), receive_index = og.common.id('receive'), validate, 
                 pay_leg = 'underlying.payLeg.', receive_leg = 'underlying.receiveLeg.', $pay_select, $receive_select;
-            if(config.details) {data = config.details.data; data.id = config.details.data.trade.uniqueId;}
-            else { data = {underlying: {type: "SwapSecurity", externalIdBundle: "", attributes: {}}, 
-                trade: og.blotter.util.otc_trade, security: {type: "SwaptionSecurity", name: "SwaptionSecurity ABC", 
-                externalIdBundle: ""}};
+            if (config.details) {
+                data = config.details.data; data.id = config.details.data.trade.uniqueId;
+            } else { 
+                data = {underlying: {type: "SwapSecurity", externalIdBundle: "", attributes: {}}, 
+                    trade: og.blotter.util.otc_trade, security: {type: "SwaptionSecurity", name: "SwaptionSecurity ABC", 
+                    externalIdBundle: ""}};
             }
-            data.nodeId = config.portfolio.id;
+            data.nodeId = config.portfolio ? config.portfolio.id : null;
             constructor.load = function () {
                 constructor.title = 'Swaption';
                 form = new og.common.util.ui.Form({

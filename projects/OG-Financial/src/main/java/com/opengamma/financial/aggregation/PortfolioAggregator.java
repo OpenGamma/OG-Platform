@@ -77,6 +77,7 @@ public final class PortfolioAggregator {
     final SimplePortfolioNode root = new SimplePortfolioNode(createSyntheticIdentifier(), buildPortfolioName("Portfolio"));
     SimplePortfolio aggPortfolio = new SimplePortfolio(aggId, aggPortfolioName, root);
     aggregate(root, flattenedPortfolio, new ArrayDeque<AggregationFunction<?>>(_aggregationFunctions));
+    aggPortfolio.setAttributes(inputPortfolio.getAttributes());
     return aggPortfolio;
   }
   
@@ -191,6 +192,7 @@ public final class PortfolioAggregator {
         SimplePortfolioNode root = new SimplePortfolioNode("root");
         root.addChildNode(portfolioNode);
         Portfolio splitPortfolio = new SimplePortfolio(splitPortfolioName, root);
+        splitPortfolio.setAttributes(aggregatedPortfolio.getAttributes());
         s_logger.info("Saving split portfolio " + portfolioName + "...");
         savePortfolio.savePortfolio(splitPortfolio, true);
       }

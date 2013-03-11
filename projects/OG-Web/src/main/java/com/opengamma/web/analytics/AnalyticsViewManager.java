@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Lists;
 import com.opengamma.DataNotFoundException;
+import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
@@ -25,10 +26,10 @@ import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.compilation.PortfolioCompiler;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.UserPrincipal;
-import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.SecurityMaster;
@@ -59,7 +60,7 @@ public class AnalyticsViewManager {
   private final NamedMarketDataSpecificationRepository _marketDataSpecificationRepository;
   private final BlotterColumnMapper _blotterColumnMapper;
   private final PositionSource _positionSource;
-  private final ConfigMaster _configMaster;
+  private final ConfigSource _configSource;
   private final SecuritySource _securitySource;
   private final SecurityMaster _securityMaster;
   private final PositionMaster _positionMaster;
@@ -71,7 +72,7 @@ public class AnalyticsViewManager {
                               NamedMarketDataSpecificationRepository marketDataSpecificationRepository,
                               BlotterColumnMapper blotterColumnMapper,
                               PositionSource positionSource,
-                              ConfigMaster configMaster,
+                              ConfigSource configSource,
                               SecuritySource securitySource,
                               SecurityMaster securityMaster,
                               PositionMaster positionMaster) {
@@ -82,12 +83,12 @@ public class AnalyticsViewManager {
     ArgumentChecker.notNull(marketDataSpecificationRepository, "marketDataSpecificationRepository");
     ArgumentChecker.notNull(blotterColumnMapper, "blotterColumnMapper");
     ArgumentChecker.notNull(positionSource, "positionSource");
-    ArgumentChecker.notNull(configMaster, "configMaster");
+    ArgumentChecker.notNull(configSource, "configMaster");
     ArgumentChecker.notNull(securitySource, "securitySource");
     ArgumentChecker.notNull(securityMaster, "securityMaster");
     ArgumentChecker.notNull(positionMaster, "positionMaster");
     _positionSource = positionSource;
-    _configMaster = configMaster;
+    _configSource = configSource;
     _securitySource = securitySource;
     _blotterColumnMapper = blotterColumnMapper;
     _targetResolver = targetResolver;
@@ -121,19 +122,31 @@ public class AnalyticsViewManager {
     if (_viewConnections.containsKey(viewId)) {
       throw new IllegalArgumentException("View ID " + viewId + " is already in use");
     }
-    ViewDefinition viewDef = (ViewDefinition) _configMaster.get(request.getViewDefinitionId()).getConfig().getValue();
+    AggregatedViewDefinition aggregatedViewDef = new AggregatedViewDefinition(_aggregatedViewDefManager, request);
+    ViewDefinition viewDef = (ViewDefinition) _configSource.get(aggregatedViewDef.getUniqueId()).getValue();
+    VersionCorrection versionCorrection = request.getPortfolioVersionCorrection();
+    // this can be null for a primitives-only view
     UniqueId portfolioId = viewDef.getPortfolioId();
-    // TODO confirm the correct versioning behaviour
-    Portfolio portfolio = _positionSource.getPortfolio(portfolioId.getObjectId(), VersionCorrection.LATEST);
+    Portfolio portfolio;
+    Supplier<Portfolio> portfolioSupplier;
+    ObjectId portfolioObjectId;
+    Portfolio resolvedPortfolio;
+    if (portfolioId != null) {
+      portfolioObjectId = portfolioId.getObjectId();
+      // TODO confirm the correct versioning behaviour
+      portfolio = _positionSource.getPortfolio(portfolioObjectId, VersionCorrection.LATEST);
+      resolvedPortfolio = PortfolioCompiler.resolvePortfolio(portfolio,
+                                                             Executors.newSingleThreadExecutor(),
+                                                             _securitySource);
+    } else {
+      portfolioObjectId = null;
+      resolvedPortfolio = null;
+    }
+    portfolioSupplier = new PortfolioSupplier(portfolioObjectId, versionCorrection, _positionSource);
     // TODO something a bit more sophisticated with the executor
-    Portfolio resolvedPortfolio =
-        PortfolioCompiler.resolvePortfolio(portfolio, Executors.newSingleThreadExecutor(), _securitySource);
     ViewClient viewClient = _viewProcessor.createViewClient(user);
     s_logger.debug("Client ID {} creating new view with ID {}", clientId, viewId);
     ViewportListener viewportListener = new LoggingViewportListener(viewClient);
-    VersionCorrection versionCorrection = request.getPortfolioVersionCorrection();
-    Supplier<Portfolio> portfolioSupplier =
-        new PortfolioSupplier(portfolioId.getObjectId(), versionCorrection, _positionSource);
     PortfolioEntityExtractor entityExtractor = new PortfolioEntityExtractor(versionCorrection, _securityMaster);
     // TODO add filtering change listener to portfolio master which calls portfolioChanged() on the outer view
     AnalyticsView view = new SimpleAnalyticsView(resolvedPortfolio,
@@ -152,15 +165,15 @@ public class AnalyticsViewManager {
     AnalyticsView notifyingView = new NotifyingAnalyticsView(lockingView, clientConnection);
     AutoCloseable securityListener = new MasterNotificationListener<>(_securityMaster, lockingView);
     AutoCloseable positionListener = new MasterNotificationListener<>(_positionMaster, lockingView);
-    AutoCloseable portfolioListener = new PortfolioListener(portfolioId.getObjectId(), lockingView, _positionSource);
+    AutoCloseable portfolioListener = new PortfolioListener(portfolioObjectId, lockingView, _positionSource);
     List<AutoCloseable> listeners = Lists.newArrayList(securityListener, positionListener, portfolioListener);
     AnalyticsViewClientConnection connection = new AnalyticsViewClientConnection(request,
-                                                                                 viewClient,
+                                                                                 aggregatedViewDef, viewClient,
                                                                                  notifyingView,
                                                                                  _marketDataSpecificationRepository,
-                                                                                 _aggregatedViewDefManager,
                                                                                  _snapshotMaster,
-                                                                                 listeners);
+                                                                                 listeners
+    );
     _viewConnections.put(viewId, connection);
     // need to notify the listener that the view has been created
     // TODO would it be neater to leave this to the constructor of NotifyingAnalyticsView

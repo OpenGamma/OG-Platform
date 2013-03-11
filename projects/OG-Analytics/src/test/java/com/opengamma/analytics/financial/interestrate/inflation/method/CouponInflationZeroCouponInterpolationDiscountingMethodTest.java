@@ -112,7 +112,7 @@ public class CouponInflationZeroCouponInterpolationDiscountingMethodTest {
   /**
    * Tests the net amount: Method vs Calculator.
    */
-  public void netamountMethodVsCalculator() {
+  public void netAmountMethodVsCalculator() {
     final MultipleCurrencyAmount naMethod = METHOD.netAmount(ZERO_COUPON_1, MARKET.getInflationProvider());
     final MultipleCurrencyAmount naCalculator = ZERO_COUPON_1.accept(NAIC, MARKET.getInflationProvider());
     assertEquals("Zero-coupon inflation DiscountingMethod: Net amount", naMethod, naCalculator);
@@ -121,7 +121,7 @@ public class CouponInflationZeroCouponInterpolationDiscountingMethodTest {
   @Test
   /**
    * Test the present value curves sensitivity.
-  */
+   */
   public void presentValueCurveSensitivityWithNotional() {
 
     final MultipleCurrencyParameterSensitivity pvicsFD = PS_PV_FDC.calculateSensitivity(ZERO_COUPON_1, MARKET.getInflationProvider());

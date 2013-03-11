@@ -6,6 +6,7 @@
 package com.opengamma.analytics.financial.interestrate.annuity.derivative;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.apache.commons.lang.Validate;
 
@@ -96,7 +97,7 @@ public class AnnuityCouponIborRatchet extends Annuity<Coupon> {
       default:
         break;
     }
-    return calibration.toArray(new InstrumentDerivative[0]);
+    return calibration.toArray(new InstrumentDerivative[calibration.size()]);
   }
 
   @Override
@@ -107,6 +108,32 @@ public class AnnuityCouponIborRatchet extends Annuity<Coupon> {
   @Override
   public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
     return visitor.visitAnnuityCouponIborRatchet(this);
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    result = prime * result + Arrays.hashCode(_isFixed);
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!super.equals(obj)) {
+      return false;
+    }
+    if (!(obj instanceof AnnuityCouponIborRatchet)) {
+      return false;
+    }
+    final AnnuityCouponIborRatchet other = (AnnuityCouponIborRatchet) obj;
+    if (!Arrays.equals(_isFixed, other._isFixed)) {
+      return false;
+    }
+    return true;
   }
 
 }
