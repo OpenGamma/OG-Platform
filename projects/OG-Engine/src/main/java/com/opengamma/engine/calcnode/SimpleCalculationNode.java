@@ -82,9 +82,9 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
 
   }
 
-  private static final String ERROR_CANT_RESOLVE = "com.opengamma.engine.view.calcnode.InvalidTargetException";
-  private static final String ERROR_BAD_FUNCTION = "com.opengamma.engine.view.calcnode.InvalidFunctionException";
-  private static final String ERROR_INVOKING = "com.opengamma.engine.view.calcnode.InvalidInvocationException";
+  private static final String ERROR_CANT_RESOLVE = "com.opengamma.engine.calcnode.InvalidTargetException";
+  private static final String ERROR_BAD_FUNCTION = "com.opengamma.engine.calcnode.InvalidFunctionException";
+  private static final String ERROR_INVOKING = "com.opengamma.engine.calcnode.InvalidInvocationException";
 
   private static final Logger s_logger = LoggerFactory.getLogger(SimpleCalculationNode.class);
   private static int s_nodeUniqueID;

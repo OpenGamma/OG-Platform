@@ -84,7 +84,6 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.log.LogLevel;
 import com.opengamma.util.log.SimpleLogEvent;
-import com.opengamma.util.test.Profiler;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -318,13 +317,6 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
   // REVIEW jonathan 2011-03-18 -- The following comment should be given some sort of 'listed' status for preservation :-)
   // REVIEW kirk 2009-11-03 -- This is a database kernel. Act accordingly.
 
-  private static final Profiler s_createAllCaches = Profiler.create(SingleComputationCycle.class, "createAllCaches");
-  private static final Profiler s_prepareInputs = Profiler.create(SingleComputationCycle.class, "prepareInput");
-  private static final Profiler s_computeDelta = Profiler.create(SingleComputationCycle.class, "computeDelta");
-  private static final Profiler s_createExecutableDependencyGraph = Profiler.create(SingleComputationCycle.class, "createExecutableDependencyGraph");
-  private static final Profiler s_graphExecution = Profiler.create(SingleComputationCycle.class, "graphExecution");
-  private static final Profiler s_completeResultModel = Profiler.create(SingleComputationCycle.class, "completeResultModel");
-
   /**
    * Synchronously runs the cycle.
    * 
@@ -341,26 +333,11 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     _startTime = Instant.now();
     _state = ViewCycleState.EXECUTING;
 
-    s_createAllCaches.begin();
-    try {
-      createAllCaches();
-    } finally {
-      s_createAllCaches.end();
-    }
-    s_prepareInputs.begin();
-    try {
-      prepareInputs(marketDataSnapshot);
-    } finally {
-      s_prepareInputs.end();
-    }
+    createAllCaches();
+    prepareInputs(marketDataSnapshot);
 
     if (previousCycle != null) {
-      s_computeDelta.begin();
-      try {
-        computeDelta(previousCycle);
-      } finally {
-        s_computeDelta.end();
-      }
+      computeDelta(previousCycle);
     }
 
     final BlockingQueue<ExecutionResult> calcJobResultQueue = new LinkedBlockingQueue<ExecutionResult>();
@@ -374,44 +351,34 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
       for (final String calcConfigurationName : getAllCalculationConfigurationNames()) {
         s_logger.info("Executing plans for calculation configuration {}", calcConfigurationName);
         final DependencyGraph depGraph;
-        s_createExecutableDependencyGraph.begin();
-        try {
-          depGraph = createExecutableDependencyGraph(calcConfigurationName);
-        } finally {
-          s_createExecutableDependencyGraph.end();
-        }
+        depGraph = createExecutableDependencyGraph(calcConfigurationName);
         s_logger.info("Submitting {} for execution by {}", depGraph, getDependencyGraphExecutor());
         final Future<?> future = getDependencyGraphExecutor().execute(depGraph, calcJobResultQueue, _statisticsGatherer, getLogModeSource());
         futures.add(future);
       }
 
-      s_graphExecution.begin();
-      try {
-        while (!futures.isEmpty()) {
-          final Future<?> future = futures.poll();
-          try {
-            future.get(5, TimeUnit.SECONDS);
-          } catch (final TimeoutException e) {
-            s_logger.info("Waiting for " + future);
-            futures.add(future);
-          } catch (final InterruptedException e) {
-            Thread.interrupted();
-            // Cancel all outstanding jobs to free up resources
-            future.cancel(true);
-            for (final Future<?> incompleteFuture : futures) {
-              incompleteFuture.cancel(true);
-            }
-            _state = ViewCycleState.EXECUTION_INTERRUPTED;
-            s_logger.info("Execution interrupted before completion.");
-            throw e;
-          } catch (final ExecutionException e) {
-            s_logger.error("Unable to execute dependency graph", e);
-            // Should we be swallowing this or not?
-            throw new OpenGammaRuntimeException("Unable to execute dependency graph", e);
+      while (!futures.isEmpty()) {
+        final Future<?> future = futures.poll();
+        try {
+          future.get(5, TimeUnit.SECONDS);
+        } catch (final TimeoutException e) {
+          s_logger.info("Waiting for " + future);
+          futures.add(future);
+        } catch (final InterruptedException e) {
+          Thread.interrupted();
+          // Cancel all outstanding jobs to free up resources
+          future.cancel(true);
+          for (final Future<?> incompleteFuture : futures) {
+            incompleteFuture.cancel(true);
           }
+          _state = ViewCycleState.EXECUTION_INTERRUPTED;
+          s_logger.info("Execution interrupted before completion.");
+          throw e;
+        } catch (final ExecutionException e) {
+          s_logger.error("Unable to execute dependency graph", e);
+          // Should we be swallowing this or not?
+          throw new OpenGammaRuntimeException("Unable to execute dependency graph", e);
         }
-      } finally {
-        s_graphExecution.end();
       }
 
       _endTime = Instant.now();
@@ -428,12 +395,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
       Thread.currentThread().interrupt();
     }
 
-    s_completeResultModel.begin();
-    try {
-      completeResultModel();
-    } finally {
-      s_completeResultModel.end();
-    }
+    completeResultModel();
     _state = ViewCycleState.EXECUTED;
   }
 
