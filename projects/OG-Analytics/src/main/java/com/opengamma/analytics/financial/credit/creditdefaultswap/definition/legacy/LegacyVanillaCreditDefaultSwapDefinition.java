@@ -170,6 +170,44 @@ public class LegacyVanillaCreditDefaultSwapDefinition extends LegacyCreditDefaul
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
+  // Builder method to allow the effective date of a Legacy CDS object to be modified
+
+  @Override
+  public LegacyVanillaCreditDefaultSwapDefinition withEffectiveDate(final ZonedDateTime effectiveDate) {
+
+    ArgumentChecker.notNull(effectiveDate, "start date");
+    //ArgumentChecker.isTrue(!getEffectiveDate().isAfter(maturityDate), "Effective date {} must be on or before maturity date {} (calibration error)", getEffectiveDate(), maturityDate);
+
+    final LegacyVanillaCreditDefaultSwapDefinition modifiedCDS = new LegacyVanillaCreditDefaultSwapDefinition(
+        getBuySellProtection(),
+        getProtectionBuyer(),
+        getProtectionSeller(),
+        getReferenceEntity(),
+        getCurrency(),
+        getDebtSeniority(),
+        getRestructuringClause(),
+        getCalendar(),
+        getStartDate(),                                        // This is the field that this builder method modifies
+        effectiveDate,
+        getMaturityDate(),
+        getStubType(),
+        getCouponFrequency(),
+        getDayCountFractionConvention(),
+        getBusinessDayAdjustmentConvention(),
+        getIMMAdjustMaturityDate(),
+        getAdjustEffectiveDate(),
+        getAdjustMaturityDate(),
+        getNotional(),
+        getRecoveryRate(),
+        getIncludeAccruedPremium(),
+        getProtectionStart(),
+        getParSpread());
+
+    return modifiedCDS;
+  }
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
   // Builder method to allow the premium leg coupon of a Legacy CDS object to be modified (used during calibration of the hazard rate curve)
 
   @Override
@@ -231,6 +269,41 @@ public class LegacyVanillaCreditDefaultSwapDefinition extends LegacyCreditDefaul
         getAdjustMaturityDate(),
         getNotional(),
         recoveryRate,                         // This is the field that this builder method modifies
+        getIncludeAccruedPremium(),
+        getProtectionStart(),
+        getParSpread());
+
+    return modifiedCDS;
+  }
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  // Builder method to allow the coupon frequency of a Legacy CDS object to be modified
+
+  @Override
+  public LegacyVanillaCreditDefaultSwapDefinition withCouponFrequency(final PeriodFrequency couponFrequency) {
+
+    final LegacyVanillaCreditDefaultSwapDefinition modifiedCDS = new LegacyVanillaCreditDefaultSwapDefinition(
+        getBuySellProtection(),
+        getProtectionBuyer(),
+        getProtectionSeller(),
+        getReferenceEntity(),
+        getCurrency(),
+        getDebtSeniority(),
+        getRestructuringClause(),
+        getCalendar(),
+        getStartDate(),
+        getEffectiveDate(),
+        getMaturityDate(),
+        getStubType(),
+        couponFrequency,                              // This is the field that this builder method modifies
+        getDayCountFractionConvention(),
+        getBusinessDayAdjustmentConvention(),
+        getIMMAdjustMaturityDate(),
+        getAdjustEffectiveDate(),
+        getAdjustMaturityDate(),
+        getNotional(),
+        getRecoveryRate(),
         getIncludeAccruedPremium(),
         getProtectionStart(),
         getParSpread());
