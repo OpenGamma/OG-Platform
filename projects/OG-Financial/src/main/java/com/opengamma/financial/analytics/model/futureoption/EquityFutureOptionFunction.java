@@ -9,6 +9,8 @@ import java.util.Set;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
+import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -25,6 +27,7 @@ import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVol
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
+import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.option.EquityIndexFutureOptionSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -87,8 +90,21 @@ public abstract class EquityFutureOptionFunction extends FutureOptionFunction {
     }
     final ExternalIdBundle underlyingFutureId = ExternalIdBundle.of(security.getUnderlyingId());
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
-    final EquityFutureSecurity underlyingFuture = (EquityFutureSecurity) securitySource.getSingle(underlyingFutureId); //TODO version correction
-    final ExternalId underlyingIndexId = underlyingFuture.getUnderlyingId();
+    
+    final ExternalId underlyingIndexId;
+    Security underlyingFuture = securitySource.getSingle(underlyingFutureId);
+    if (underlyingFuture == null) {
+      throw new OpenGammaRuntimeException("The underlying (" + underlyingFutureId.toString() + ") of EquityIndexFutureOption (" + security.getName() + 
+          ") was not found in security source. Please try to reload.");
+    } else if (underlyingFuture instanceof EquityFutureSecurity) {
+      underlyingIndexId = ((EquityFutureSecurity) underlyingFuture).getUnderlyingId();
+    } else if (underlyingFuture instanceof IndexFutureSecurity) {
+      underlyingIndexId = ((IndexFutureSecurity) underlyingFuture).getUnderlyingId();
+    } else {
+      throw new OpenGammaRuntimeException("The Security type of the future underlying the Index Future Option must be added to this function: " 
+              + underlyingFuture.getClass());
+    }
+    
     final String forwardCurveCalculationMethod = Iterables.getOnlyElement(forwardCurveCalculationMethods);
     final String forwardCurveName = Iterables.getOnlyElement(forwardCurveNames);
     final ValueRequirement volReq = getVolatilitySurfaceRequirement(desiredValue, volSurfaceName, forwardCurveName, surfaceCalculationMethod, underlyingIndexId);
