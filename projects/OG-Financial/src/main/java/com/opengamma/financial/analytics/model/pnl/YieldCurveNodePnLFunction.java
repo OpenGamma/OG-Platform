@@ -256,12 +256,23 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
     }
     final Set<String> resultCurrencies = constraints.getValues(ValuePropertyNames.CURRENCY);
     if (resultCurrencies != null && resultCurrencies.size() == 1) {
+      final ValueRequirement ccyConversionTSRequirement = getCurrencyConversionTSRequirement(position, currencyString, resultCurrencies);
+      if (ccyConversionTSRequirement != null) {
+        requirements.add(getCurrencyConversionTSRequirement(position, currencyString, resultCurrencies));
+      }
+    }
+    return requirements;
+  }
+
+  protected ValueRequirement getCurrencyConversionTSRequirement(final Position position, final String currencyString, final Set<String> resultCurrencies) {
+    final String resultCurrency = Iterables.getOnlyElement(resultCurrencies);
+    if (!resultCurrency.equals(currencyString)) {
       final ValueProperties.Builder properties = ValueProperties.builder();
       properties.with(ValuePropertyNames.CURRENCY, resultCurrencies);
       final ComputationTargetSpecification targetSpec = ComputationTargetSpecification.of(position.getSecurity());
-      requirements.add(new ValueRequirement(ValueRequirementNames.HISTORICAL_FX_TIME_SERIES, targetSpec, properties.get()));
+      return new ValueRequirement(ValueRequirementNames.HISTORICAL_FX_TIME_SERIES, targetSpec, properties.get());
     }
-    return requirements;
+    return null;
   }
 
   @Override

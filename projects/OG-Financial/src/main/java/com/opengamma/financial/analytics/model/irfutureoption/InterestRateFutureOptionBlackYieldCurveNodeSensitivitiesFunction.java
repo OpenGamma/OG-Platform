@@ -164,7 +164,7 @@ public class InterestRateFutureOptionBlackYieldCurveNodeSensitivitiesFunction ex
           curves, configSource, localNow, getResultSpec(target, currency.getCode(), curveCalculationConfigName, surfaceName, fullCurveName));
     }
     return YieldCurveNodeSensitivitiesHelper.getInstrumentLabelledSensitivitiesForCurve(fullCurveName, data, sensitivities, curveSpec,
-        getResultSpec(target, currency.getCode(), curveCalculationConfigName, surfaceName, fullCurveName));
+        getResultSpec(target, currency.getCode(), curveCalculationConfigName, surfaceName, curveName));
   }
 
   @Override

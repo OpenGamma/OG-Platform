@@ -32,28 +32,21 @@ import com.opengamma.util.ArgumentChecker;
   private final boolean _fungiblePosition;
 
   /* package */ AnalyticsNode(int startRow, int endRow, List<AnalyticsNode> children, boolean fungiblePosition) {
-    _fungiblePosition = fungiblePosition;
     ArgumentChecker.notNull(children, "children");
+    _fungiblePosition = fungiblePosition;
     _startRow = startRow;
     _endRow = endRow;
     _children = children;
   }
 
   /**
-   * @return An empty root node that starts and ends at row zero and has no children.
-   */
-  /* package */ static AnalyticsNode emptyRoot() {
-    return new AnalyticsNode(0, 0, Collections.<AnalyticsNode>emptyList(), false);
-  }
-
-  /**
    * Factory method that creates a node structure from a portfolio and returns the root node.
    * @param portfolio The portfolio
-   * @return The root node of the portfolio's node structure
+   * @return The root node of the portfolio's node structure, null if the portfolio is null
    */
   /* package */ static AnalyticsNode portoflioRoot(Portfolio portfolio) {
     if (portfolio == null) {
-      return new AnalyticsNode(0, 0, Collections.<AnalyticsNode>emptyList(), false);
+      return null;
     }
     PortfolioNode root = portfolio.getRootNode();
     return new PortfolioNodeBuilder(root).getRoot();

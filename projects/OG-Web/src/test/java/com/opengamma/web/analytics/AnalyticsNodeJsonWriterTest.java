@@ -22,8 +22,8 @@ public class AnalyticsNodeJsonWriterTest {
 
   @Test
   public void emptyPortfolio() throws JSONException {
-    String json = AnalyticsNodeJsonWriter.getJson(AnalyticsNode.emptyRoot());
-    assertTrue(JsonTestUtils.equal(new JSONArray("[0,0,[]]"), new JSONArray(json)));
+    String json = AnalyticsNodeJsonWriter.getJson(null);
+    assertTrue(JsonTestUtils.equal(new JSONArray("[]"), new JSONArray(json)));
   }
 
   @Test
