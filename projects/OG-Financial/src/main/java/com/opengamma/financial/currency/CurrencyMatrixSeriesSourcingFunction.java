@@ -165,13 +165,15 @@ public class CurrencyMatrixSeriesSourcingFunction extends AbstractCurrencyMatrix
         if (marketValue instanceof DoubleTimeSeries) {
           //TODO is this branch ever reached?
           DoubleTimeSeries<?> fxRate = (DoubleTimeSeries<?>) marketValue;
-          if (valueRequirement.isReciprocal()) {
+          //TODO not sure why the inverse is needed, but it's obvious that something is wrong here
+          if (!valueRequirement.isReciprocal()) {
             fxRate = fxRate.reciprocal();
           }
           return fxRate;
         } else if (marketValue instanceof HistoricalTimeSeries) {
           DoubleTimeSeries<?> fxRate = ((HistoricalTimeSeries) marketValue).getTimeSeries();
-          if (valueRequirement.isReciprocal()) {
+          //TODO not sure why the inverse is needed, but it's obvious that something is wrong here
+          if (!valueRequirement.isReciprocal()) {
             fxRate = fxRate.reciprocal();
           }
           return fxRate;
