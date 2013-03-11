@@ -36,6 +36,11 @@ public class MarketDataSnapshotWithOverride extends AbstractMarketDataSnapshot {
 
   @Override
   public UniqueId getUniqueId() {
+    assertInitialized();
+    if (_override.isEmpty()) {
+      // NOTE jonathan 2013-03-08 -- important for batch to have access to the real underlying snapshot ID when possible
+      return _underlying.getUniqueId();
+    }
     return UniqueId.of(MARKET_DATA_SNAPSHOT_ID_SCHEME, "MarketDataSnapshotWithOverride:" + getSnapshotTime());
   }
 
@@ -54,6 +59,17 @@ public class MarketDataSnapshotWithOverride extends AbstractMarketDataSnapshot {
   public void init(final Set<ValueRequirement> valuesRequired, final long timeout, final TimeUnit unit) {
     getUnderlying().init(valuesRequired, timeout, unit);
     getOverride().init();
+  }
+  
+  @Override
+  public boolean isInitialized() {
+    return getUnderlying().isInitialized() && getOverride().isInitialized();
+  }
+  
+  @Override
+  public boolean isEmpty() {
+    assertInitialized();
+    return getUnderlying().isEmpty() && getOverride().isEmpty();
   }
 
   @Override

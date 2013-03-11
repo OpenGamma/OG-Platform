@@ -46,7 +46,7 @@ public class SABRModelFitterConstainedTest extends SmileModelFitterTest<SABRForm
 
   @Override
   SmileModelFitter<SABRFormulaData> getFitter(double forward, double[] strikes, double timeToExpiry, double[] impliedVols, double[] error, VolatilityFunctionProvider<SABRFormulaData> model) {
-    return new SABRModelFitterConstained(forward, strikes, timeToExpiry, impliedVols, error, model);
+    return new SABRModelFitterConstrained(forward, strikes, timeToExpiry, impliedVols, error, model);
   }
 
   @Override

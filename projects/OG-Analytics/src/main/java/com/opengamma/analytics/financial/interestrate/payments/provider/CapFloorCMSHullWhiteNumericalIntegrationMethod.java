@@ -14,6 +14,7 @@ import com.opengamma.analytics.financial.model.interestrate.definition.HullWhite
 import com.opengamma.analytics.financial.provider.calculator.discounting.CashFlowEquivalentCalculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.HullWhiteOneFactorProviderInterface;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.analytics.math.MathException;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.integration.RungeKuttaIntegrator1D;
 import com.opengamma.util.ArgumentChecker;
@@ -22,7 +23,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
  * Pricing method of a CMS cap/floor in the Hull-White (extended Vasicek) model by approximation.
- * <P> Reference: M. Henrard. CMS Swaps and Caps in One-Factor Gaussian Models, SSRN working paper 985551, February 2008. 
+ * <P> Reference: M. Henrard. CMS Swaps and Caps in One-Factor Gaussian Models, SSRN working paper 985551, February 2008.
  * Available at http://ssrn.com/abstract=985551
  */
 public final class CapFloorCMSHullWhiteNumericalIntegrationMethod {
@@ -62,9 +63,9 @@ public final class CapFloorCMSHullWhiteNumericalIntegrationMethod {
   public MultipleCurrencyAmount presentValue(final CapFloorCMS cms, final HullWhiteOneFactorProviderInterface hullWhite) {
     ArgumentChecker.notNull(cms, "CMS");
     ArgumentChecker.notNull(hullWhite, "Hull-White provider");
-    Currency ccy = cms.getCurrency();
-    HullWhiteOneFactorPiecewiseConstantParameters parameters = hullWhite.getHullWhiteParameters();
-    MulticurveProviderInterface multicurves = hullWhite.getMulticurveProvider();
+    final Currency ccy = cms.getCurrency();
+    final HullWhiteOneFactorPiecewiseConstantParameters parameters = hullWhite.getHullWhiteParameters();
+    final MulticurveProviderInterface multicurves = hullWhite.getMulticurveProvider();
     final double expiryTime = cms.getFixingTime();
     final SwapFixedCoupon<? extends Payment> swap = cms.getUnderlyingSwap();
     final int nbFixed = cms.getUnderlyingSwap().getFixedLeg().getNumberOfPayments();
@@ -99,7 +100,7 @@ public final class CapFloorCMSHullWhiteNumericalIntegrationMethod {
     try {
       pv = 1.0 / Math.sqrt(2.0 * Math.PI) * integrator.integrate(integrant, -limit, limit) * dfPayment * cms.getNotional() * cms.getPaymentYearFraction();
     } catch (final Exception e) {
-      throw new RuntimeException(e);
+      throw new MathException(e);
     }
     return MultipleCurrencyAmount.of(cms.getCurrency(), pv);
   }

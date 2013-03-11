@@ -57,7 +57,7 @@ public class FxForwardTradeSecurityExtractor extends TradeSecurityExtractor<FxFo
     } else if (trade.getSettlementCurrency() == null && trade.getFxExpiry() == null) {
       return false;
     } else {
-      throw new OpenGammaRuntimeException(
+      throw new PortfolioParsingException(
           "Either both settlementCurrency and fxExpiry elements must be present, or neither");
     }
   }

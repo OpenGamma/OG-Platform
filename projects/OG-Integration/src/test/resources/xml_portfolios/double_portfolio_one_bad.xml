@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<og-portfolio schemaVersion="1.0"
+              xmlns="http://www.opengamma.com/portfolios"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://www.opengamma.com/portfolios">
+
+  <trades>
+    <listedSecurityTrade id="t1">
+
+      <externalSystemId><id scheme="External">IdFromExternalSystem1</id></externalSystemId>
+
+      <tradeDate>2013-01-20</tradeDate>
+
+      <additionalCashflows>
+        <additionalCashflow type="clearingFee">
+          <counterparty><id scheme="Broker">ClearingHouse</id></counterparty>
+          <monetaryAmount currency="EUR">150</monetaryAmount>
+          <cashflowDate>2013-09-12</cashflowDate>
+        </additionalCashflow>
+      </additionalCashflows>
+
+      <buySell>Buy</buySell>
+      <numContracts>1000</numContracts>
+
+      <brokers>
+        <broker type="executingBroker"><id scheme="BROKER">executingbrokerId</id></broker>
+        <broker type="clearingBroker"><id scheme="BROKER">clearingbrokerId</id></broker>
+      </brokers>
+
+      <!-- This type is not supported so portfolio containing it should be rejected -->
+      <futureSecurity type="equityIndexFuture">
+
+        <underlyingId><id scheme="BLOOMBERG_TICKER">EI09SPX</id></underlyingId>
+
+        <pointValue>100</pointValue>
+        <currency>EUR</currency>
+        <exchange>CME</exchange>
+
+        <price>550</price>
+        <futureExpiry>MAR15</futureExpiry>
+
+        <settlementExchange>EX1</settlementExchange>
+        <settlementDate>2014-09-21</settlementDate>
+        <futureCategory>SOME_VAL??</futureCategory>
+
+      </futureSecurity>
+    </listedSecurityTrade>
+
+    <listedSecurityTrade id="t2">
+
+      <externalSystemId><id scheme="External">IdFromExternalSystem2</id></externalSystemId>
+
+      <tradeDate>2013-01-20</tradeDate>
+
+      <additionalCashflows>
+        <additionalCashflow type="clearingFee">
+          <counterparty><id scheme="Broker">ClearingHouse</id></counterparty>
+          <monetaryAmount currency="EUR">150</monetaryAmount>
+          <cashflowDate>2013-09-12</cashflowDate>
+        </additionalCashflow>
+
+        <additionalCashflow type="premium">
+          <counterparty><id scheme="Cpty">xyz</id></counterparty>
+          <monetaryAmount currency="EUR">250</monetaryAmount>
+          <cashflowDate>2013-01-22</cashflowDate>
+        </additionalCashflow>
+      </additionalCashflows>
+
+      <additionalAttributes>
+        <attribute name="attr1">attr1-value</attribute>
+        <attribute name="attr2">attr2-value</attribute>
+      </additionalAttributes>
+
+      <buySell>Buy</buySell>
+      <numContracts>1000</numContracts>
+
+      <brokers>
+        <broker type="executingBroker"><id scheme="BROKER">executingbrokerId</id></broker>
+        <broker type="clearingBroker"><id scheme="BROKER">clearingbrokerId</id></broker>
+      </brokers>
+
+      <futureOptionSecurity type="equityIndexFutureOption">
+
+        <underlyingId><id scheme="BLOOMBERG_TICKER">EI09SPX</id></underlyingId>
+        <pointValue>100</pointValue>
+        <currency>EUR</currency>
+        <exchange>CME</exchange>
+
+        <optionType>Put</optionType>
+        <strike>600</strike>
+        <futureExpiry>MAR15</futureExpiry>
+        <!--
+        At some point we may want to allow mid curve future options where
+        option expiry is significantly earlier than the underlying future
+        -->
+        <optionExpiry>MAR14</optionExpiry>
+        <exerciseType>European</exerciseType>
+        <margined>false</margined>
+      </futureOptionSecurity>
+
+    </listedSecurityTrade>
+
+  </trades>
+
+  <portfolios>
+
+    <portfolio name="portfolio1">
+      <trades>
+        <trade ref="t1"/>
+      </trades>
+    </portfolio>
+
+    <portfolio name="portfolio2">
+      <trades>
+        <trade ref="t2"/>
+      </trades>
+    </portfolio>
+
+  </portfolios>
+
+</og-portfolio>

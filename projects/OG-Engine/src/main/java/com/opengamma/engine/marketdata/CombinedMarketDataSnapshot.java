@@ -58,6 +58,23 @@ public class CombinedMarketDataSnapshot extends AbstractMarketDataSnapshot {
       snapshot.init(entry.getValue(), timeout, unit);
     }
   }
+  
+  @Override
+  public boolean isInitialized() {
+    return _preferredSnapshot.isInitialized();
+  }
+  
+  @Override
+  public boolean isEmpty() {
+    assertInitialized();
+    for (MarketDataSnapshot snapshot : _snapshotByProvider.values()) {
+      if (!snapshot.isEmpty()) {
+        return false;
+      }
+    }
+    return true;
+  }
+
 
   @Override
   public Instant getSnapshotTime() {

@@ -262,7 +262,7 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot implement
 
   @Override
   public UniqueId getUniqueId() {
-    return UniqueId.of(MARKET_DATA_SNAPSHOT_ID_SCHEME, "UserMarketDataSnapshot:" + getSnapshotTime());
+    return _snapshotId;
   }
 
   @Override
@@ -283,6 +283,17 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot implement
   @Override
   public void init(final Set<ValueRequirement> valuesRequired, final long timeout, final TimeUnit unit) {
     init();
+  }
+  
+  @Override
+  public boolean isInitialized() {
+    return _snapshot != null;
+  }
+
+  @Override
+  public boolean isEmpty() {
+    assertInitialized();
+    return false;
   }
 
   @Override
@@ -402,9 +413,7 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot implement
   }
 
   private StructuredMarketDataSnapshot getSnapshot() {
-    if (_snapshot == null) {
-      throw new IllegalStateException("Snapshot has not been initialised");
-    }
+    assertInitialized();
     return _snapshot;
   }
 

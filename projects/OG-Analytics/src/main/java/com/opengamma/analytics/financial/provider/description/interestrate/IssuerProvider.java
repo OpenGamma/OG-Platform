@@ -39,11 +39,11 @@ public class IssuerProvider implements IssuerProviderInterface {
   /**
    * The set of all curves names. If contains the names of the multi-curves provider curves names and the issuer curves names.
    */
-  private final Set<String> _allNames = new TreeSet<String>();
+  private final Set<String> _allNames = new TreeSet<>();
   /**
    * The map between the curves names and the curves themselves.
    */
-  private final Map<String, YieldAndDiscountCurve> _issuerCurvesNames = new LinkedHashMap<String, YieldAndDiscountCurve>();
+  private final Map<String, YieldAndDiscountCurve> _issuerCurvesNames = new LinkedHashMap<>();
 
   /**
    * Constructor from exiting multicurveProvider and issuer map. The given provider and map are used for the new provider (the same maps are used, not copied).
@@ -68,7 +68,7 @@ public class IssuerProvider implements IssuerProviderInterface {
 
   @Override
   public IssuerProvider copy() {
-    Map<Pair<String, Currency>, YieldAndDiscountCurve> issuerCurvesNew = new HashMap<Pair<String, Currency>, YieldAndDiscountCurve>(_issuerCurves);
+    final Map<Pair<String, Currency>, YieldAndDiscountCurve> issuerCurvesNew = new HashMap<>(_issuerCurves);
     return new IssuerProvider(_multicurveProvider.copy(), issuerCurvesNew);
   }
 
@@ -81,13 +81,13 @@ public class IssuerProvider implements IssuerProviderInterface {
     }
     final Set<Pair<String, Currency>> icSet = _issuerCurves.keySet();
     for (final Pair<String, Currency> ic : icSet) {
-      String name = _issuerCurves.get(ic).getName();
+      final String name = _issuerCurves.get(ic).getName();
       _issuerCurvesNames.put(name, _issuerCurves.get(ic));
     }
   }
 
   @Override
-  public double getDiscountFactor(Pair<String, Currency> issuerCcy, Double time) {
+  public double getDiscountFactor(final Pair<String, Currency> issuerCcy, final Double time) {
     if (_issuerCurves.containsKey(issuerCcy)) {
       return _issuerCurves.get(issuerCcy).getDiscountFactor(time);
     }
@@ -108,7 +108,7 @@ public class IssuerProvider implements IssuerProviderInterface {
   }
 
   @Override
-  public double[] parameterSensitivity(String name, List<DoublesPair> pointSensitivity) {
+  public double[] parameterSensitivity(final String name, final List<DoublesPair> pointSensitivity) {
     if (_multicurvesNames.contains(name)) {
       return _multicurveProvider.parameterSensitivity(name, pointSensitivity);
     }
@@ -116,7 +116,7 @@ public class IssuerProvider implements IssuerProviderInterface {
     final YieldAndDiscountCurve curve = _issuerCurvesNames.get(name);
     final int nbParameters = curve.getNumberOfParameters();
     final double[] result = new double[nbParameters];
-    if (pointSensitivity != null && pointSensitivity.size() > 0) {
+    if (pointSensitivity != null && !pointSensitivity.isEmpty()) {
       for (final DoublesPair timeAndS : pointSensitivity) {
         final double[] sensi1Point = curve.getInterestRateParameterSensitivity(timeAndS.getFirst());
         for (int loopparam = 0; loopparam < nbParameters; loopparam++) {
@@ -128,12 +128,12 @@ public class IssuerProvider implements IssuerProviderInterface {
   }
 
   @Override
-  public double[] parameterForwardSensitivity(String name, List<ForwardSensitivity> pointSensitivity) {
+  public double[] parameterForwardSensitivity(final String name, final List<ForwardSensitivity> pointSensitivity) {
     return _multicurveProvider.parameterForwardSensitivity(name, pointSensitivity);
   }
 
   @Override
-  public Integer getNumberOfParameters(String name) {
+  public Integer getNumberOfParameters(final String name) {
     if (_multicurvesNames.contains(name)) {
       return _multicurveProvider.getNumberOfParameters(name);
     }
@@ -141,7 +141,7 @@ public class IssuerProvider implements IssuerProviderInterface {
   }
 
   @Override
-  public List<String> getUnderlyingCurvesNames(String name) {
+  public List<String> getUnderlyingCurvesNames(final String name) {
     if (_multicurvesNames.contains(name)) {
       return _multicurveProvider.getUnderlyingCurvesNames(name);
     }
@@ -177,10 +177,9 @@ public class IssuerProvider implements IssuerProviderInterface {
   }
 
   public IssuerProvider withIssuerCurrency(final Pair<String, Currency> ic, final YieldAndDiscountCurve replacement) {
-    Map<Pair<String, Currency>, YieldAndDiscountCurve> newIssuerCurves = new LinkedHashMap<Pair<String, Currency>, YieldAndDiscountCurve>(_issuerCurves);
+    final Map<Pair<String, Currency>, YieldAndDiscountCurve> newIssuerCurves = new LinkedHashMap<Pair<String, Currency>, YieldAndDiscountCurve>(_issuerCurves);
     newIssuerCurves.put(ic, replacement);
-    IssuerProvider decorated = new IssuerProvider(_multicurveProvider, newIssuerCurves);
-    return decorated;
+    return new IssuerProvider(_multicurveProvider, newIssuerCurves);
   }
 
 }

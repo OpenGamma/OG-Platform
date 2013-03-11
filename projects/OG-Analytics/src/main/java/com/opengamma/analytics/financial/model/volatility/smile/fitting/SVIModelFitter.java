@@ -54,4 +54,9 @@ public class SVIModelFitter extends SmileModelFitter<SVIFormulaData> {
     return new SVIFormulaData(modelParameters.getData());
   }
 
+  @Override
+  protected DoubleMatrix1D getMaximumStep() {
+    return null;
+  }
+
 }

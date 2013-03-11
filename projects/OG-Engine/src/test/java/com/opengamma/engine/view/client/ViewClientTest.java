@@ -808,6 +808,16 @@ public class ViewClientTest {
     public UniqueId getUniqueId() {
       return UniqueId.of(MARKET_DATA_SNAPSHOT_ID_SCHEME, "SynchronousInMemoryLKVSnapshot:"+getSnapshotTime());
     }
+    
+    @Override
+    public boolean isInitialized() {
+      return true;
+    }
+
+    @Override
+    public boolean isEmpty() {
+      return _snapshot.isEmpty();
+    }
 
     @Override
     public Instant getSnapshotTimeIndication() {

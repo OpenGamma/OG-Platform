@@ -13,6 +13,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFlo
 import com.opengamma.analytics.financial.model.interestrate.G2ppPiecewiseConstantModel;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.definition.G2ppPiecewiseConstantDataBundle;
+import com.opengamma.analytics.math.MathException;
 import com.opengamma.analytics.math.function.Function2D;
 import com.opengamma.analytics.math.integration.IntegratorRepeated2D;
 import com.opengamma.analytics.math.integration.RungeKuttaIntegrator1D;
@@ -137,7 +138,7 @@ public class CapFloorCMSSpreadG2ppNumericalIntegrationMethod {
       pv = 1.0 / (2.0 * Math.PI * Math.sqrt(1 - rhobar * rhobar))
           * integrator2D.integrate(integrant, new Double[] {-INTEGRATION_LIMIT, -INTEGRATION_LIMIT }, new Double[] {INTEGRATION_LIMIT, INTEGRATION_LIMIT });
     } catch (final Exception e) {
-      throw new RuntimeException(e);
+      throw new MathException(e);
     }
     return CurrencyAmount.of(cmsSpread.getCurrency(), dftp * pv * cmsSpread.getNotional() * cmsSpread.getPaymentYearFraction());
   }
