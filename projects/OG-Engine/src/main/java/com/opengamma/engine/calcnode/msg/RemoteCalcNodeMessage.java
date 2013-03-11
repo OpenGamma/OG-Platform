@@ -22,7 +22,7 @@ public class RemoteCalcNodeMessage implements java.io.Serializable {
     final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
     for (org.fudgemsg.FudgeField field : types) {
       final String className = (String)field.getValue ();
-      if ("com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeMessage".equals (className)) break;
+      if ("com.opengamma.engine.calcnode.msg.RemoteCalcNodeMessage".equals (className)) break;
       try {
         return (com.opengamma.engine.calcnode.msg.RemoteCalcNodeMessage)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializer.class, org.fudgemsg.FudgeMsg.class).invoke (null, deserializer, fudgeMsg);
       }

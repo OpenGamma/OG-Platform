@@ -3,7 +3,7 @@
 package com.opengamma.engine.calcnode.msg;
 public class Failure extends com.opengamma.engine.calcnode.msg.RemoteCalcNodeMessage implements java.io.Serializable {
   public void accept (RemoteCalcNodeMessageVisitor visitor) { visitor.visitFailureMessage (this); }
-  private static final long serialVersionUID = 1032075112779165725l;
+  private static final long serialVersionUID = 626330341754401411l;
   private com.opengamma.engine.calcnode.CalculationJobSpecification _job;
   public static final String JOB_KEY = "job";
   private String _errorMessage;
@@ -119,7 +119,7 @@ public class Failure extends com.opengamma.engine.calcnode.msg.RemoteCalcNodeMes
     final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
     for (org.fudgemsg.FudgeField field : types) {
       final String className = (String)field.getValue ();
-      if ("com.opengamma.engine.view.calcnode.msg.Failure".equals (className)) break;
+      if ("com.opengamma.engine.calcnode.msg.Failure".equals (className)) break;
       try {
         return (com.opengamma.engine.calcnode.msg.Failure)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializer.class, org.fudgemsg.FudgeMsg.class).invoke (null, deserializer, fudgeMsg);
       }

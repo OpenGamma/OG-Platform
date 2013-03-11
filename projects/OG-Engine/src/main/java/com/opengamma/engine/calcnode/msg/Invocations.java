@@ -3,9 +3,9 @@
 package com.opengamma.engine.calcnode.msg;
 public class Invocations extends com.opengamma.engine.calcnode.msg.RemoteCalcNodeMessage implements java.io.Serializable {
   public void accept (RemoteCalcNodeMessageVisitor visitor) { visitor.visitInvocationsMessage (this); }
-  private static final long serialVersionUID = 61190450818l;
+  private static final long serialVersionUID = 61775777385l;
   public static class PerConfiguration implements java.io.Serializable {
-    private static final long serialVersionUID = 55883427781428l;
+    private static final long serialVersionUID = 55882320992411l;
     public static class PerFunction implements java.io.Serializable {
       private static final long serialVersionUID = -2696372187157615071l;
       private String _identifier;
@@ -99,7 +99,7 @@ public class Invocations extends com.opengamma.engine.calcnode.msg.RemoteCalcNod
         final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
         for (org.fudgemsg.FudgeField field : types) {
           final String className = (String)field.getValue ();
-          if ("com.opengamma.engine.view.calcnode.msg.Invocations.PerConfiguration.PerFunction".equals (className)) break;
+          if ("com.opengamma.engine.calcnode.msg.Invocations.PerConfiguration.PerFunction".equals (className)) break;
           try {
             return (com.opengamma.engine.calcnode.msg.Invocations.PerConfiguration.PerFunction)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializer.class, org.fudgemsg.FudgeMsg.class).invoke (null, deserializer, fudgeMsg);
           }
@@ -226,7 +226,7 @@ public class Invocations extends com.opengamma.engine.calcnode.msg.RemoteCalcNod
       final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
       for (org.fudgemsg.FudgeField field : types) {
         final String className = (String)field.getValue ();
-        if ("com.opengamma.engine.view.calcnode.msg.Invocations.PerConfiguration".equals (className)) break;
+        if ("com.opengamma.engine.calcnode.msg.Invocations.PerConfiguration".equals (className)) break;
         try {
           return (com.opengamma.engine.calcnode.msg.Invocations.PerConfiguration)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializer.class, org.fudgemsg.FudgeMsg.class).invoke (null, deserializer, fudgeMsg);
         }
@@ -343,7 +343,7 @@ public class Invocations extends com.opengamma.engine.calcnode.msg.RemoteCalcNod
     final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
     for (org.fudgemsg.FudgeField field : types) {
       final String className = (String)field.getValue ();
-      if ("com.opengamma.engine.view.calcnode.msg.Invocations".equals (className)) break;
+      if ("com.opengamma.engine.calcnode.msg.Invocations".equals (className)) break;
       try {
         return (com.opengamma.engine.calcnode.msg.Invocations)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializer.class, org.fudgemsg.FudgeMsg.class).invoke (null, deserializer, fudgeMsg);
       }

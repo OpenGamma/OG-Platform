@@ -3,7 +3,7 @@
 package com.opengamma.engine.calcnode.msg;
 public class Execute extends com.opengamma.engine.calcnode.msg.RemoteCalcNodeMessage implements java.io.Serializable {
   public void accept (RemoteCalcNodeMessageVisitor visitor) { visitor.visitExecuteMessage (this); }
-  private static final long serialVersionUID = 2017509716l;
+  private static final long serialVersionUID = 2079613825l;
   private com.opengamma.engine.calcnode.CalculationJob _job;
   public static final String JOB_KEY = "job";
   public Execute (com.opengamma.engine.calcnode.CalculationJob job) {
@@ -51,7 +51,7 @@ public class Execute extends com.opengamma.engine.calcnode.msg.RemoteCalcNodeMes
     final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
     for (org.fudgemsg.FudgeField field : types) {
       final String className = (String)field.getValue ();
-      if ("com.opengamma.engine.view.calcnode.msg.Execute".equals (className)) break;
+      if ("com.opengamma.engine.calcnode.msg.Execute".equals (className)) break;
       try {
         return (com.opengamma.engine.calcnode.msg.Execute)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializer.class, org.fudgemsg.FudgeMsg.class).invoke (null, deserializer, fudgeMsg);
       }

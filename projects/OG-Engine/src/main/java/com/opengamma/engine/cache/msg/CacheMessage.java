@@ -45,7 +45,7 @@ public class CacheMessage implements java.io.Serializable {
     final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
     for (org.fudgemsg.FudgeField field : types) {
       final String className = (String)field.getValue ();
-      if ("com.opengamma.engine.view.cache.msg.CacheMessage".equals (className)) break;
+      if ("com.opengamma.engine.cache.msg.CacheMessage".equals (className)) break;
       try {
         return (com.opengamma.engine.cache.msg.CacheMessage)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializer.class, org.fudgemsg.FudgeMsg.class).invoke (null, deserializer, fudgeMsg);
       }

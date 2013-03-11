@@ -59,7 +59,7 @@ public class Ready extends com.opengamma.engine.calcnode.msg.RemoteCalcNodeMessa
     final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
     for (org.fudgemsg.FudgeField field : types) {
       final String className = (String)field.getValue ();
-      if ("com.opengamma.engine.view.calcnode.msg.Ready".equals (className)) break;
+      if ("com.opengamma.engine.calcnode.msg.Ready".equals (className)) break;
       try {
         return (com.opengamma.engine.calcnode.msg.Ready)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializer.class, org.fudgemsg.FudgeMsg.class).invoke (null, deserializer, fudgeMsg);
       }

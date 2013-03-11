@@ -43,7 +43,7 @@ public class Init extends com.opengamma.engine.calcnode.msg.RemoteCalcNodeMessag
     final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
     for (org.fudgemsg.FudgeField field : types) {
       final String className = (String)field.getValue ();
-      if ("com.opengamma.engine.view.calcnode.msg.Init".equals (className)) break;
+      if ("com.opengamma.engine.calcnode.msg.Init".equals (className)) break;
       try {
         return (com.opengamma.engine.calcnode.msg.Init)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializer.class, org.fudgemsg.FudgeMsg.class).invoke (null, deserializer, fudgeMsg);
       }

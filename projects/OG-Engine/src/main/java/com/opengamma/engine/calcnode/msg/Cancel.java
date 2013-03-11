@@ -3,7 +3,7 @@
 package com.opengamma.engine.calcnode.msg;
 public class Cancel extends com.opengamma.engine.calcnode.msg.RemoteCalcNodeMessage implements java.io.Serializable {
   public void accept (RemoteCalcNodeMessageVisitor visitor) { visitor.visitCancelMessage (this); }
-  private static final long serialVersionUID = -469850935l;
+  private static final long serialVersionUID = 597340290l;
   private java.util.List<com.opengamma.engine.calcnode.CalculationJobSpecification> _job;
   public static final String JOB_KEY = "job";
   public Cancel (java.util.Collection<? extends com.opengamma.engine.calcnode.CalculationJobSpecification> job) {
@@ -70,7 +70,7 @@ public class Cancel extends com.opengamma.engine.calcnode.msg.RemoteCalcNodeMess
     final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
     for (org.fudgemsg.FudgeField field : types) {
       final String className = (String)field.getValue ();
-      if ("com.opengamma.engine.view.calcnode.msg.Cancel".equals (className)) break;
+      if ("com.opengamma.engine.calcnode.msg.Cancel".equals (className)) break;
       try {
         return (com.opengamma.engine.calcnode.msg.Cancel)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializer.class, org.fudgemsg.FudgeMsg.class).invoke (null, deserializer, fudgeMsg);
       }
