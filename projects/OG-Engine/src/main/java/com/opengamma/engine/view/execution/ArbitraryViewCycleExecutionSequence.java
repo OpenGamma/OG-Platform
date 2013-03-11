@@ -90,7 +90,12 @@ public class ArbitraryViewCycleExecutionSequence extends MergingViewCycleExecuti
 
   @Override
   public ViewCycleExecutionOptions getNext(ViewCycleExecutionOptions defaultExecutionOptions) {
-    return merge(_executionSequence.poll(), defaultExecutionOptions);
+    final ViewCycleExecutionOptions cycleOptions = _executionSequence.poll();
+    if (cycleOptions != null) {
+      return merge(cycleOptions, defaultExecutionOptions);
+    } else {
+      return null;
+    }
   }
 
   @Override

@@ -19,13 +19,6 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.cache.CacheSelectHint;
-import com.opengamma.engine.cache.DefaultFudgeMessageStore;
-import com.opengamma.engine.cache.DefaultViewComputationCache;
-import com.opengamma.engine.cache.FudgeMessageStore;
-import com.opengamma.engine.cache.IdentifierMap;
-import com.opengamma.engine.cache.InMemoryBinaryDataStore;
-import com.opengamma.engine.cache.InMemoryIdentifierMap;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -129,7 +122,7 @@ public class DefaultViewComputationCacheTest {
     final Bean bean = new Bean();
     bean.setFoo(42.0);
     bean.setBar(-1.0);
-    assertPutGetCycle(bean, 101, CacheSelectHint.allShared());
+    assertPutGetCycle(bean, 96, CacheSelectHint.allShared());
   }
 
   @Test
@@ -139,7 +132,7 @@ public class DefaultViewComputationCacheTest {
     bean.setFoo(42.0);
     bean.setBar(-1.0);
     list.add(bean);
-    assertPutGetCycle(list, 104, CacheSelectHint.allPrivate());
+    assertPutGetCycle(list, 99, CacheSelectHint.allPrivate());
   }
 
   private void assertPutValues(int type, final CacheSelectHint correctHint, final CacheSelectHint incorrectHint) {

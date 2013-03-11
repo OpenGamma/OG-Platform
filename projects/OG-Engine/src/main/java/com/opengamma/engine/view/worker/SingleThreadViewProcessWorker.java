@@ -1250,7 +1250,7 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
   @Override
   public boolean join(final long timeout) throws InterruptedException {
     getThread().join(timeout);
-    return getThread().isAlive();
+    return !getThread().isAlive();
   }
 
   @Override

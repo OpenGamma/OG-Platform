@@ -44,6 +44,7 @@ public class SequencePartitioningViewProcessWorker implements ViewProcessWorker,
   private boolean _terminated;
   private int _spawnedWorkerCount;
   private int _spawnedCycleCount;
+  private int _spawnedWorkers;
 
   public SequencePartitioningViewProcessWorker(final ViewProcessWorkerFactory delegate, final ViewProcessWorkerContext context, final ViewExecutionOptions executionOptions,
       final ViewDefinition viewDefinition, final int partition, final int maxWorkers) {
@@ -106,6 +107,7 @@ public class SequencePartitioningViewProcessWorker implements ViewProcessWorker,
       s_logger.info("Spawning worker {} for {} cycles {} - {}", new Object[] {++_spawnedWorkerCount, getWorkerContext(), firstCycle, _spawnedCycleCount });
       ViewProcessWorker delegate = getDelegate().createWorker(this, getExecutionOptions(new ArbitraryViewCycleExecutionSequence(partition)), getViewDefinition());
       _workers.add(delegate);
+      _spawnedWorkers++;
     }
   }
 
@@ -126,7 +128,13 @@ public class SequencePartitioningViewProcessWorker implements ViewProcessWorker,
     // This is not a good state of affairs as the caller has little or no control or knowledge over the sequence we're working on
     s_logger.warn("View definition updated on run-as-fast-as-possible sequence");
     _viewDefinition = viewDefinition;
-    throw new UnsupportedOperationException("TODO: update the view definition of the delegate workers");
+    Collection<ViewProcessWorker> delegates;
+    synchronized (this) {
+      delegates = new ArrayList<ViewProcessWorker>(_workers);
+    }
+    for (ViewProcessWorker delegate : delegates) {
+      delegate.updateViewDefinition(_viewDefinition);
+    }
   }
 
   @Override
@@ -143,14 +151,46 @@ public class SequencePartitioningViewProcessWorker implements ViewProcessWorker,
 
   @Override
   public void join() throws InterruptedException {
-    throw new UnsupportedOperationException("TODO: join the delegate workers");
+    Collection<ViewProcessWorker> delegates;
+    synchronized (this) {
+      delegates = new ArrayList<ViewProcessWorker>(_workers);
+    }
+    for (ViewProcessWorker delegate : delegates) {
+      delegate.join();
+    }
   }
 
   @Override
   public boolean join(long timeout) throws InterruptedException {
-    throw new UnsupportedOperationException("TODO: join the delegate workers");
+    Collection<ViewProcessWorker> delegates;
+    final long maxTime = System.nanoTime() + (timeout * 1000000);
+    long time;
+    do {
+      synchronized (this) {
+        delegates = new ArrayList<ViewProcessWorker>(_workers);
+      }
+      for (ViewProcessWorker delegate : delegates) {
+        time = (maxTime - System.nanoTime()) / 1000000;
+        if (time <= 0) {
+          return false;
+        }
+        if (!delegate.join(time)) {
+          return false;
+        }
+      }
+      if (isTerminated()) {
+        return true;
+      }
+      time = (maxTime - System.nanoTime()) / 1000000;
+    } while (time > 0);
+    return false;
   }
 
+  /**
+   * Tests whether at least one of the workers in the buffer is still active. This will also housekeep the buffer of workers, removing any that have terminated.
+   * 
+   * @return true if the worker buffer is empty, or all return true from {@code isTerminated} (which leaves the buffer empty)
+   */
   @Override
   public boolean isTerminated() {
     ViewProcessWorker worker;
@@ -166,8 +206,11 @@ public class SequencePartitioningViewProcessWorker implements ViewProcessWorker,
         if (worker2 == worker) {
           s_logger.debug("Removing completed worker from head of queue");
           worker = worker2;
+        } else if (worker2 == null) {
+          s_logger.debug("Completed worker already removed from queue");
+          break;
         } else {
-          s_logger.warn("Concurrent worker queue access");
+          s_logger.debug("Concurrent worker queue access");
           _workers.add(worker2);
           worker = _workers.peek();
         }
@@ -222,13 +265,16 @@ public class SequencePartitioningViewProcessWorker implements ViewProcessWorker,
   @Override
   public void workerCompleted() {
     s_logger.debug("Worker completed");
+    final boolean finished;
     synchronized (this) {
+      finished = (--_spawnedWorkers) == 0;
       if (!_terminated) {
         spawnWorker();
       }
     }
-    if (isTerminated()) {
-      s_logger.info("All workers completed");
+    // isTerminated will housekeep the queue for us, but may not return TRUE as the worker that called us might not be considered terminated yet
+    isTerminated();
+    if (finished) {
       getWorkerContext().workerCompleted();
     }
   }

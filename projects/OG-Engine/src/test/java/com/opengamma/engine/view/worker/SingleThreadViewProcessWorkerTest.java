@@ -17,6 +17,7 @@ import org.testng.annotations.Test;
 import org.threeten.bp.Duration;
 import org.threeten.bp.Instant;
 
+import com.google.common.collect.ImmutableMap;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.change.ChangeType;
 import com.opengamma.engine.cache.MissingMarketDataSentinel;
@@ -59,14 +60,15 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.test.Timeout;
 
 /**
- * Tests {@link SingleThreadViewComputationJob}
+ * Tests {@link SingleThreadViewProcessWorker}
  */
-public class SingleThreadViewComputationJobTest {
+public class SingleThreadViewProcessWorkerTest {
 
   private static final long TIMEOUT = 5L * Timeout.standardTimeoutMillis();
 
   private static final String SOURCE_1_NAME = "source1";
   private static final String SOURCE_2_NAME = "source2";
+  private static final String SOURCE_3_NAME = "source3";
 
   @Test(expectedExceptions = OpenGammaRuntimeException.class)
   public void testAttachToUnknownView() {
@@ -196,16 +198,13 @@ public class SingleThreadViewComputationJobTest {
   @Test
   public void testChangeMarketDataProviderBetweenCycles() throws InterruptedException {
     final ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
-    final InMemoryLKVMarketDataProvider underlyingProvider1 = new InMemoryLKVMarketDataProvider();
-    final MarketDataProvider provider1 = new TestLiveMarketDataProvider(SOURCE_1_NAME, underlyingProvider1);
-    final InMemoryLKVMarketDataProvider underlyingProvider2 = new InMemoryLKVMarketDataProvider();
-    final MarketDataProvider provider2 = new TestLiveMarketDataProvider(SOURCE_2_NAME, underlyingProvider2);
-    env.setMarketDataProviderResolver(new DualLiveMarketDataProviderResolver(SOURCE_1_NAME, provider1, SOURCE_2_NAME, provider2));
+    final MarketDataProvider provider1 = new TestLiveMarketDataProvider(SOURCE_1_NAME, new InMemoryLKVMarketDataProvider());
+    final MarketDataProvider provider2 = new TestLiveMarketDataProvider(SOURCE_2_NAME, new InMemoryLKVMarketDataProvider());
+    final MarketDataProvider provider3 = new TestLiveMarketDataProvider(SOURCE_3_NAME, new InMemoryLKVMarketDataProvider(), new FixedMarketDataAvailabilityProvider());
+    env.setMarketDataProviderResolver(new MockMarketDataProviderResolver(SOURCE_1_NAME, provider1, SOURCE_2_NAME, provider2, SOURCE_3_NAME, provider3));
     env.init();
-
     final ViewProcessorImpl vp = env.getViewProcessor();
     vp.start();
-
     final ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
     final TestViewResultListener resultListener = new TestViewResultListener();
     client.setResultListener(resultListener);
@@ -213,14 +212,16 @@ public class SingleThreadViewComputationJobTest {
     final ViewCycleExecutionOptions.Builder builder = ViewCycleExecutionOptions.builder().setValuationTime(valuationTime);
     final ViewCycleExecutionOptions cycle1 = builder.setMarketDataSpecification(MarketData.live(SOURCE_1_NAME)).create();
     final ViewCycleExecutionOptions cycle2 = builder.setMarketDataSpecification(MarketData.live(SOURCE_2_NAME)).create();
+    final ViewCycleExecutionOptions cycle3 = builder.setMarketDataSpecification(MarketData.live(SOURCE_3_NAME)).create();
     final EnumSet<ViewExecutionFlags> flags = ExecutionFlags.none().runAsFastAsPossible().get();
-    final ViewExecutionOptions executionOptions = ExecutionOptions.of(ArbitraryViewCycleExecutionSequence.of(cycle1, cycle2), flags);
+    final ViewExecutionOptions executionOptions = ExecutionOptions.of(ArbitraryViewCycleExecutionSequence.of(cycle1, cycle2, cycle3), flags);
     client.attachToViewProcess(env.getViewDefinition().getUniqueId(), executionOptions);
-
     resultListener.assertViewDefinitionCompiled(TIMEOUT);
     resultListener.assertCycleCompleted(TIMEOUT);
+    // The providers have the same data availability - shouldn't recompile the view
+    resultListener.assertCycleCompleted(TIMEOUT);
+    // The third provider doesn't - expect a recompilation
     resultListener.assertViewDefinitionCompiled(TIMEOUT);
-    // Change of market data provider should cause a further compilation
     resultListener.assertCycleCompleted(TIMEOUT);
     resultListener.assertProcessCompleted(TIMEOUT);
   }
@@ -228,16 +229,13 @@ public class SingleThreadViewComputationJobTest {
   @Test
   public void testChangeMarketDataProviderBetweenCyclesWithCycleFragmentCompletedCalls() throws InterruptedException {
     final ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
-    final InMemoryLKVMarketDataProvider underlyingProvider1 = new InMemoryLKVMarketDataProvider();
-    final MarketDataProvider provider1 = new TestLiveMarketDataProvider(SOURCE_1_NAME, underlyingProvider1);
-    final InMemoryLKVMarketDataProvider underlyingProvider2 = new InMemoryLKVMarketDataProvider();
-    final MarketDataProvider provider2 = new TestLiveMarketDataProvider(SOURCE_2_NAME, underlyingProvider2);
-    env.setMarketDataProviderResolver(new DualLiveMarketDataProviderResolver(SOURCE_1_NAME, provider1, SOURCE_2_NAME, provider2));
+    final MarketDataProvider provider1 = new TestLiveMarketDataProvider(SOURCE_1_NAME, new InMemoryLKVMarketDataProvider());
+    final MarketDataProvider provider2 = new TestLiveMarketDataProvider(SOURCE_2_NAME, new InMemoryLKVMarketDataProvider());
+    final MarketDataProvider provider3 = new TestLiveMarketDataProvider(SOURCE_3_NAME, new InMemoryLKVMarketDataProvider(), new FixedMarketDataAvailabilityProvider());
+    env.setMarketDataProviderResolver(new MockMarketDataProviderResolver(SOURCE_1_NAME, provider1, SOURCE_2_NAME, provider2, SOURCE_3_NAME, provider3));
     env.init();
-
     final ViewProcessorImpl vp = env.getViewProcessor();
     vp.start();
-
     final ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
     final TestViewResultListener resultListener = new TestViewResultListener();
     client.setResultListener(resultListener);
@@ -245,14 +243,16 @@ public class SingleThreadViewComputationJobTest {
     final ViewCycleExecutionOptions.Builder builder = ViewCycleExecutionOptions.builder().setValuationTime(valuationTime);
     final ViewCycleExecutionOptions cycle1 = builder.setMarketDataSpecification(MarketData.live(SOURCE_1_NAME)).create();
     final ViewCycleExecutionOptions cycle2 = builder.setMarketDataSpecification(MarketData.live(SOURCE_2_NAME)).create();
+    final ViewCycleExecutionOptions cycle3 = builder.setMarketDataSpecification(MarketData.live(SOURCE_3_NAME)).create();
     final EnumSet<ViewExecutionFlags> flags = ExecutionFlags.none().runAsFastAsPossible().get();
-    final ViewExecutionOptions executionOptions = ExecutionOptions.of(ArbitraryViewCycleExecutionSequence.of(cycle1, cycle2), flags);
+    final ViewExecutionOptions executionOptions = ExecutionOptions.of(ArbitraryViewCycleExecutionSequence.of(cycle1, cycle2, cycle3), flags);
     client.attachToViewProcess(env.getViewDefinition().getUniqueId(), executionOptions);
-
     resultListener.assertViewDefinitionCompiled(TIMEOUT);
     resultListener.assertCycleCompleted(TIMEOUT);
+    // The providers have the same data availability - shouldn't recompile the view
+    resultListener.assertCycleCompleted(TIMEOUT);
+    // The third provider doesn't - expect a recompilation
     resultListener.assertViewDefinitionCompiled(TIMEOUT);
-    // Change of market data provider should cause a further compilation
     resultListener.assertCycleCompleted(TIMEOUT);
     resultListener.assertProcessCompleted(TIMEOUT);
   }
@@ -328,7 +328,7 @@ public class SingleThreadViewComputationJobTest {
 
     private final String _sourceName;
     private final InMemoryLKVMarketDataProvider _underlyingProvider;
-    private final FixedMarketDataAvailabilityProvider _availability;
+    private final MarketDataAvailabilityProvider _availability;
     private final LiveDataClient _dummyLiveDataClient = new LiveDataClient() {
 
       @Override
@@ -379,12 +379,21 @@ public class SingleThreadViewComputationJobTest {
     };
 
     public TestLiveMarketDataProvider(final String sourceName, final InMemoryLKVMarketDataProvider underlyingProvider) {
+      this(sourceName, underlyingProvider, defaultAvailability());
+    }
+
+    private static MarketDataAvailabilityProvider defaultAvailability() {
+      final FixedMarketDataAvailabilityProvider availability = new FixedMarketDataAvailabilityProvider();
+      availability.addAvailableData(availability.resolveRequirement(ViewProcessorTestEnvironment.getPrimitive1()));
+      availability.addAvailableData(availability.resolveRequirement(ViewProcessorTestEnvironment.getPrimitive2()));
+      return availability;
+    }
+
+    public TestLiveMarketDataProvider(final String sourceName, final InMemoryLKVMarketDataProvider underlyingProvider, final MarketDataAvailabilityProvider availability) {
       ArgumentChecker.notNull(sourceName, "sourceName");
       _sourceName = sourceName;
       _underlyingProvider = underlyingProvider;
-      _availability = new FixedMarketDataAvailabilityProvider();
-      _availability.addAvailableData(_availability.resolveRequirement(ViewProcessorTestEnvironment.getPrimitive1()));
-      _availability.addAvailableData(_availability.resolveRequirement(ViewProcessorTestEnvironment.getPrimitive2()));
+      _availability = availability;
     }
 
     @Override
@@ -449,31 +458,28 @@ public class SingleThreadViewComputationJobTest {
 
   }
 
-  private static class DualLiveMarketDataProviderResolver implements MarketDataProviderResolver {
+  private static class MockMarketDataProviderResolver implements MarketDataProviderResolver {
 
-    private final String _provider1SourceName;
-    private final MarketDataProvider _provider1;
-    private final String _provider2SourceName;
-    private final MarketDataProvider _provider2;
+    private final Map<String, MarketDataProvider> _providers;
 
-    public DualLiveMarketDataProviderResolver(final String provider1SourceName, final MarketDataProvider provider1, final String provider2SourceName, final MarketDataProvider provider2) {
-      _provider1SourceName = provider1SourceName;
-      _provider1 = provider1;
-      _provider2SourceName = provider2SourceName;
-      _provider2 = provider2;
+    public MockMarketDataProviderResolver(final String provider1SourceName, final MarketDataProvider provider1, final String provider2SourceName, final MarketDataProvider provider2) {
+      _providers = ImmutableMap.of(provider1SourceName, provider1, provider2SourceName, provider2);
+    }
+
+    public MockMarketDataProviderResolver(final String provider1SourceName, final MarketDataProvider provider1, final String provider2SourceName, final MarketDataProvider provider2,
+        final String provider3SourceName, final MarketDataProvider provider3) {
+      _providers = ImmutableMap.of(provider1SourceName, provider1, provider2SourceName, provider2, provider3SourceName, provider3);
     }
 
     @Override
     public MarketDataProvider resolve(final UserPrincipal user, final MarketDataSpecification snapshotSpec) {
-      if (_provider1SourceName.equals(((LiveMarketDataSpecification) snapshotSpec).getDataSource())) {
-        return _provider1;
+      final String dataSourceName = ((LiveMarketDataSpecification) snapshotSpec).getDataSource();
+      final MarketDataProvider provider = _providers.get(dataSourceName);
+      if (provider == null) {
+        throw new IllegalArgumentException("Unknown data source name - " + dataSourceName);
       }
-      if (_provider2SourceName.equals(((LiveMarketDataSpecification) snapshotSpec).getDataSource())) {
-        return _provider2;
-      }
-      throw new IllegalArgumentException("Unknown data source name");
+      return provider;
     }
-
   }
 
 }

@@ -27,16 +27,17 @@ import com.opengamma.util.ArgumentChecker;
  */
 public final class CalculationJobResultItem implements IdentifierEncodedValueSpecifications {
 
-  /*package*/ static final String MISSING_INPUTS_FAILURE_CLASS = "com.opengamma.engine.view.calcnode.MissingInputException";
-  
-  /*package*/ static final String EXECUTION_SUPPRESSED_CLASS = "com.opengamma.engine.view.calcnode.ExecutionSuppressedException";
-  /*package*/ static final String EXECUTION_SUPPRESSED_MESSAGE = "Unable to execute because of function blacklisting entry";
+  /*package*/static final String MISSING_INPUTS_FAILURE_CLASS = "com.opengamma.engine.calcnode.MissingInputException";
+
+  /*package*/static final String EXECUTION_SUPPRESSED_CLASS = "com.opengamma.engine.calcnode.ExecutionSuppressedException";
+
+  /*package*/static final String EXECUTION_SUPPRESSED_MESSAGE = "Unable to execute because of function blacklisting entry";
 
   private Set<ValueSpecification> _missingOutputs;
   private long[] _missingOutputIdentifiers;
   private Set<ValueSpecification> _missingInputs;
   private long[] _missingInputIdentifiers;
-  
+
   private final ExecutionLog _executionLog;
 
   public CalculationJobResultItem(Set<ValueSpecification> missingInputs, Set<ValueSpecification> missingOutputs, final ExecutionLog executionLog) {
@@ -50,13 +51,13 @@ public final class CalculationJobResultItem implements IdentifierEncodedValueSpe
     _missingOutputs = missingOutputs;
     _executionLog = executionLog;
   }
-  
+
   public CalculationJobResultItem(long[] missingInputIdentifiers, long[] missingOutputIdentifiers, ExecutionLog executionLog) {
     _missingInputIdentifiers = missingInputIdentifiers;
     _missingOutputIdentifiers = missingOutputIdentifiers;
     _executionLog = executionLog;
   }
-  
+
   //-------------------------------------------------------------------------
   /**
    * Returns an immutable result item representing success, containing no additional data.
@@ -66,12 +67,12 @@ public final class CalculationJobResultItem implements IdentifierEncodedValueSpe
   public static CalculationJobResultItem success() {
     return new CalculationJobResultItem(ImmutableSet.<ValueSpecification>of(), ImmutableSet.<ValueSpecification>of(), ExecutionLog.EMPTY);
   }
-  
+
   /**
    * Returns an immutable result item representing a simple failure.
    * 
-   * @param exceptionClass  the exception class, not null
-   * @param exceptionMessage  the exception message
+   * @param exceptionClass the exception class, not null
+   * @param exceptionMessage the exception message
    * @return a result item representing a simple failure, not null
    */
   public static CalculationJobResultItem failure(String exceptionClass, String exceptionMessage) {
@@ -124,7 +125,7 @@ public final class CalculationJobResultItem implements IdentifierEncodedValueSpe
   public ExecutionLog getExecutionLog() {
     return _executionLog;
   }
-  
+
   @Override
   public void convertIdentifiers(final Long2ObjectMap<ValueSpecification> identifiers) {
     if (_missingInputs == null) {

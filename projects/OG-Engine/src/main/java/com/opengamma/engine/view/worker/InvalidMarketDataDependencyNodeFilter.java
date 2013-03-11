@@ -18,6 +18,7 @@ import com.opengamma.engine.depgraph.DependencyNodeFilter;
 import com.opengamma.engine.function.MarketDataAliasingFunction;
 import com.opengamma.engine.function.MarketDataSourcingFunction;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 
@@ -38,11 +39,15 @@ import com.opengamma.engine.value.ValueSpecification;
     _marketData = marketData;
   }
 
+  private ValueRequirement inferValueRequirement(final ValueSpecification outputValue) {
+    return new ValueRequirement(outputValue.getValueName(), outputValue.getTargetSpecification(), outputValue.getProperties().withoutAny(ValuePropertyNames.DATA_PROVIDER));
+  }
+
   private void visit(final ValueSpecification marketData, final DependencyNode node) {
     if (_valid.containsKey(marketData)) {
       return;
     }
-    boolean usedRaw = false;
+    boolean usedRaw = !node.getTerminalOutputValues().isEmpty();
     for (DependencyNode dependent : node.getDependentNodes()) {
       if (dependent.getFunction().getFunction() instanceof MarketDataAliasingFunction) {
         final ComputationTarget target = _targetResolver.resolve(dependent.getComputationTarget());
@@ -56,7 +61,7 @@ import com.opengamma.engine.value.ValueSpecification;
         }
         final Object targetValue = target.getValue();
         for (ValueSpecification desiredOutput : dependent.getOutputValues()) {
-          final ValueRequirement desiredValue = desiredOutput.toRequirementSpecification();
+          final ValueRequirement desiredValue = inferValueRequirement(desiredOutput);
           final ValueSpecification requiredMarketData = _marketData.getAvailability(dependent.getComputationTarget(), targetValue, desiredValue);
           if (marketData.equals(requiredMarketData)) {
             s_logger.debug("Market data entry {} still available for {}", marketData, desiredValue);
@@ -82,7 +87,7 @@ import com.opengamma.engine.value.ValueSpecification;
         return;
       }
       final Object targetValue = target.getValue();
-      final ValueRequirement desiredValue = marketData.toRequirementSpecification();
+      final ValueRequirement desiredValue = inferValueRequirement(marketData);
       final ValueSpecification requiredMarketData = _marketData.getAvailability(node.getComputationTarget(), targetValue, desiredValue);
       if (marketData.equals(requiredMarketData)) {
         s_logger.debug("Market data entry {} still available", marketData);

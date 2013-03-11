@@ -22,6 +22,8 @@ public interface ViewCycleExecutionSequence {
    */
   ViewCycleExecutionOptions getNext(ViewCycleExecutionOptions defaultExecutionOptions);
 
+  // REVIEW 2013-03-11 Andrew -- the name "poll" would be more consistent with other Java APIs and better reflect the destructive nature of "getNext" 
+
   /**
    * Gets whether there are no more cycles in the execution sequence.
    * 
