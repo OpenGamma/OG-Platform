@@ -91,7 +91,12 @@ import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
     _targetResolver = targetResolver;
     _portfolioSupplier = portfolioSupplier;
     _portfolioEntityExtractor = portfolioEntityExtractor;
-    List<UniqueIdentifiable> entities = PortfolioMapper.flatMap(portfolio.getRootNode(), _portfolioEntityExtractor);
+    List<UniqueIdentifiable> entities;
+    if (portfolio != null) {
+      entities = PortfolioMapper.flatMap(portfolio.getRootNode(), _portfolioEntityExtractor);
+    } else {
+      entities = Collections.emptyList();
+    }
     _cache.put(entities);
     if (showBlotterColumns) {
       _portfolioGrid = PortfolioAnalyticsGrid.forBlotter(portoflioCallbackId,
@@ -273,7 +278,9 @@ import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
             _cache.put(trade);
           }
         }
-        return _portfolioGrid.updateEntities(_cache, entityIds);
+        List<String> ids = _portfolioGrid.updateEntities(_cache, entityIds);
+        s_logger.debug("Entity changed {}, firing updates for viewports {}", notification.getEntity().getUniqueId(), ids);
+        return ids;
       }
     } else {
       return Collections.emptyList();

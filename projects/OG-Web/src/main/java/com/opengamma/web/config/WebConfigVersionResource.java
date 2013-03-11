@@ -49,7 +49,7 @@ public class WebConfigVersionResource extends AbstractWebConfigResource {
   @GET
   public String getHTML() {
     FlexiBean out = createRootData();
-    return getFreemarker().build("configs/configversion.ftl", out);
+    return getFreemarker().build(HTML_DIR + "configversion.ftl", out);
   }
 
   @GET
@@ -69,7 +69,7 @@ public class WebConfigVersionResource extends AbstractWebConfigResource {
       out.put("configXML", StringEscapeUtils.escapeJavaScript(createXML(doc)));
     }
     out.put("type", data().getTypeMap().inverse().get(doc.getType()));
-    String json = getFreemarker().build("configs/jsonconfig.ftl", out);
+    String json = getFreemarker().build(JSON_DIR + "config.ftl", out);
     return Response.ok(json).tag(etag).build();
   }
 

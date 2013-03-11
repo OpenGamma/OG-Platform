@@ -1,6 +1,5 @@
 /**
- * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma
- group of companies
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -13,11 +12,11 @@ package com.opengamma.integration.tool.portfolio.xml.v1_0.conversion;
  */
 public class PortfolioParsingException extends RuntimeException {
 
-  public PortfolioParsingException(String message) {
+  public PortfolioParsingException(final String message) {
     super(message);
   }
 
-  public PortfolioParsingException(String message, Throwable cause) {
+  public PortfolioParsingException(final String message, final Throwable cause) {
     super(message, cause);
   }
 }

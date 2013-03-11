@@ -64,6 +64,14 @@ import com.opengamma.web.json.YieldCurveDefinitionJSONBuilder;
  * 
  */
 public abstract class AbstractWebConfigResource extends AbstractPerRequestWebResource {
+  /**
+   * HTML ftl directory
+   */
+  protected static final String HTML_DIR = "configs/html/";
+  /**
+   * JSON ftl directory
+   */
+  protected static final String JSON_DIR = "configs/json/";
   
   private static final int INDENTATION_SIZE = 4;
   

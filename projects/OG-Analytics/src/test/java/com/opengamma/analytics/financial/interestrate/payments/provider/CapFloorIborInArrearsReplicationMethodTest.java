@@ -28,6 +28,7 @@ import com.opengamma.analytics.financial.provider.description.interestrate.SABRC
 import com.opengamma.analytics.financial.provider.description.interestrate.SABRCapProviderInterface;
 import com.opengamma.analytics.financial.provider.method.CapFloorIborSABRCapMethodInterface;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
+import com.opengamma.analytics.math.MathException;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.integration.RungeKuttaIntegrator1D;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -108,7 +109,7 @@ public class CapFloorIborInArrearsReplicationMethodTest {
     try {
       integralPart = integrator.integrate(integrant, STRIKE, STRIKE + 2.0);
     } catch (final Exception e) {
-      throw new RuntimeException(e);
+      throw new MathException(e);
     }
     integralPart *= 2.0 * CAP_LONG.getFixingAccrualFactor();
     final MultipleCurrencyAmount price = METHOD_SABREXTRA_CAP_IA.presentValue(CAP_LONG, SABR_MULTICURVES);

@@ -34,24 +34,29 @@ public class HestonModelFitter extends SmileModelFitter<HestonModelData> {
     DEFAULT_TRANSFORMS[4] = new DoubleRangeLimitTransform(-1.0 , 1.0); // -1 <= rho <= 1
   }
 
-  public HestonModelFitter(double forward, double[] strikes, double timeToExpiry, double[] impliedVols, double[] error, VolatilityFunctionProvider<HestonModelData> model) {
+  public HestonModelFitter(final double forward, final double[] strikes, final double timeToExpiry, final double[] impliedVols, final double[] error,
+      final VolatilityFunctionProvider<HestonModelData> model) {
     super(forward, strikes, timeToExpiry, impliedVols, error, model);
   }
 
   @Override
-  protected NonLinearParameterTransforms getTransform(DoubleMatrix1D start) {
-    BitSet fixed = new BitSet();
+  protected NonLinearParameterTransforms getTransform(final DoubleMatrix1D start) {
+    final BitSet fixed = new BitSet();
     return new UncoupledParameterTransforms(start, DEFAULT_TRANSFORMS, fixed);
   }
 
   @Override
-  protected NonLinearParameterTransforms getTransform(DoubleMatrix1D start, BitSet fixed) {
+  protected NonLinearParameterTransforms getTransform(final DoubleMatrix1D start, final BitSet fixed) {
     return new UncoupledParameterTransforms(start, DEFAULT_TRANSFORMS, fixed);
   }
 
   @Override
-  protected HestonModelData toSmileModelData(DoubleMatrix1D modelParameters) {
+  protected HestonModelData toSmileModelData(final DoubleMatrix1D modelParameters) {
     return new HestonModelData(modelParameters.getData());
   }
 
+  @Override
+  protected DoubleMatrix1D getMaximumStep() {
+    return null;
+  }
 }

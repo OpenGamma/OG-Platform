@@ -32,7 +32,7 @@ public class SABRModelFitter extends SmileModelFitter<SABRFormulaData> {
   }
 
   public SABRModelFitter(final double forward, final double[] strikes, final double timeToExpiry, final double[] impliedVols,
-      final double[] error, VolatilityFunctionProvider<SABRFormulaData> model) {
+      final double[] error, final VolatilityFunctionProvider<SABRFormulaData> model) {
     super(forward, strikes, timeToExpiry, impliedVols, error, model);
   }
 
@@ -42,14 +42,19 @@ public class SABRModelFitter extends SmileModelFitter<SABRFormulaData> {
   }
 
   @Override
-  protected NonLinearParameterTransforms getTransform(DoubleMatrix1D start) {
-    BitSet fixed = new BitSet();
+  protected NonLinearParameterTransforms getTransform(final DoubleMatrix1D start) {
+    final BitSet fixed = new BitSet();
     return new UncoupledParameterTransforms(start, DEFAULT_TRANSFORMS, fixed);
   }
 
   @Override
-  protected NonLinearParameterTransforms getTransform(DoubleMatrix1D start, final BitSet fixed) {
+  protected NonLinearParameterTransforms getTransform(final DoubleMatrix1D start, final BitSet fixed) {
     return new UncoupledParameterTransforms(start, DEFAULT_TRANSFORMS, fixed);
+  }
+
+  @Override
+  protected DoubleMatrix1D getMaximumStep() {
+    return null;
   }
 
 }

@@ -13,16 +13,14 @@ import com.opengamma.language.context.NullSessionContextEventHandler;
 import com.opengamma.language.context.SessionContext;
 
 /**
- * Base class for a main method as part of a utility that requires a session context,
- * for example to produce documentation.
+ * Base class for a main method as part of a utility that requires a session context, for example to produce documentation.
  */
 public abstract class AbstractMain {
 
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractMain.class);
 
   /**
-   * Implementation of a client factory that allows the session context to be
-   * grabbed during the svcAccept all.
+   * Implementation of a client factory that allows the session context to be grabbed during the svcAccept all.
    */
   public static final class DummyClientFactory extends ClientFactory {
 
@@ -59,7 +57,7 @@ public abstract class AbstractMain {
   private boolean main(final String languageId, final String[] args) {
     s_logger.debug("Starting infrastructure");
     System.setProperty(LanguageSpringContext.CLIENT_FACTORY_CLASS_PROPERTY, DummyClientFactory.class.getName());
-    if (!Main.svcStart()) {
+    if (Main.svcStart() != null) {
       s_logger.error("Couldn't start infrastructure");
       return false;
     }

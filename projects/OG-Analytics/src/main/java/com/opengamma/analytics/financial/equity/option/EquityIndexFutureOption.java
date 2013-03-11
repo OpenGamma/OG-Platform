@@ -7,11 +7,13 @@ package com.opengamma.analytics.financial.equity.option;
 
 import org.apache.commons.lang.ObjectUtils;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.ExerciseDecisionType;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityIndexFuture;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * An equity index future option.
@@ -40,7 +42,7 @@ public class EquityIndexFutureOption implements InstrumentDerivative {
    */
   public EquityIndexFutureOption(final double expiry, final EquityIndexFuture underlying, final double strike, final ExerciseDecisionType exerciseType, final boolean isCall,
       final double pointValue) {
-    ArgumentChecker.notNegativeOrZero(expiry, "expiry");
+    if (expiry < 0.0) { throw new OpenGammaRuntimeException("Expired"); }
     ArgumentChecker.notNull(underlying, "underlying");
     ArgumentChecker.notNegativeOrZero(strike, "strike");
     ArgumentChecker.notNull(exerciseType, "exercise type");

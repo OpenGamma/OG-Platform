@@ -50,7 +50,7 @@ public class WebExchangeResource extends AbstractWebExchangeResource {
   @Produces(MediaType.TEXT_HTML)
   public String getHTML() {
     FlexiBean out = createRootData();
-    return getFreemarker().build("exchanges/exchange.ftl", out);
+    return getFreemarker().build(HTML_DIR + "exchange.ftl", out);
   }
 
   @GET
@@ -62,7 +62,7 @@ public class WebExchangeResource extends AbstractWebExchangeResource {
       return builder.build();
     }
     FlexiBean out = createRootData();
-    String json = getFreemarker().build("exchanges/jsonexchange.ftl", out);
+    String json = getFreemarker().build(JSON_DIR + "exchange.ftl", out);
     return Response.ok(json).tag(etag).build();
   }
 
@@ -100,7 +100,7 @@ public class WebExchangeResource extends AbstractWebExchangeResource {
       if (regionValue == null) {
         out.put("err_regionvalueMissing", true);
       }
-      String html = getFreemarker().build("exchanges/exchange-update.ftl", out);
+      String html = getFreemarker().build(HTML_DIR + "exchange-update.ftl", out);
       return Response.ok(html).build();
     }
     URI uri = updateExchange(name, idScheme, idValue, regionScheme, regionValue);

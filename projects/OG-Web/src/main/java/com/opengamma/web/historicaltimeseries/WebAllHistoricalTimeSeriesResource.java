@@ -101,7 +101,7 @@ public class WebAllHistoricalTimeSeriesResource extends AbstractWebHistoricalTim
       @Context UriInfo uriInfo) {
     PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
     FlexiBean out = createSearchResultData(pr, identifier, dataSource, dataProvider, dataField, observationTime, name, uriInfo);
-    return getFreemarker().build("timeseries/alltimeseries.ftl", out);
+    return getFreemarker().build(HTML_DIR + "alltimeseries.ftl", out);
   }
 
   @GET
@@ -120,7 +120,7 @@ public class WebAllHistoricalTimeSeriesResource extends AbstractWebHistoricalTim
       @Context UriInfo uriInfo) {
     PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
     FlexiBean out = createSearchResultData(pr, identifier, dataSource, dataProvider, dataField, observationTime, name, uriInfo);
-    return getFreemarker().build("timeseries/jsonalltimeseries.ftl", out);
+    return getFreemarker().build(JSON_DIR + "alltimeseries.ftl", out);
   }
 
   private FlexiBean createSearchResultData(PagingRequest pr, String identifier, String dataSource, String dataProvider, String dataField, String observationTime, String name, UriInfo uriInfo) {
@@ -210,7 +210,7 @@ public class WebAllHistoricalTimeSeriesResource extends AbstractWebHistoricalTim
       if (idValue == null) {
         out.put("err_idvalueMissing", true);
       } 
-      String html = getFreemarker().build("timeseries/timeseries-add.ftl", out);
+      String html = getFreemarker().build(HTML_DIR + "timeseries-add.ftl", out);
       return Response.ok(html).build();
     }
     
@@ -284,7 +284,7 @@ public class WebAllHistoricalTimeSeriesResource extends AbstractWebHistoricalTim
     Map<ExternalId, UniqueId> added = addTimeSeries(dataProvider, dataField, identifiers, startDate, endDate);
 
     FlexiBean out = createPostJSONOutput(added, identifiers, scheme, dataProvider, dataField, startDate, endDate);    
-    Response response = Response.ok(getFreemarker().build("timeseries/jsontimeseries-added.ftl", out)).build();
+    Response response = Response.ok(getFreemarker().build(JSON_DIR + "timeseries-added.ftl", out)).build();
     return response;
   }
 

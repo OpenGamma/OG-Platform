@@ -79,7 +79,7 @@ public class WebPortfoliosResource extends AbstractWebPortfolioResource {
     PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
     PortfolioSearchSortOrder so = buildSortOrder(sort, PortfolioSearchSortOrder.NAME_ASC);
     FlexiBean out = createSearchResultData(pr, so, name, portfolioIdStrs, nodeIdStrs, includeHidden);
-    return getFreemarker().build("portfolios/portfolios.ftl", out);
+    return getFreemarker().build(HTML_DIR + "portfolios.ftl", out);
   }
 
   @GET
@@ -97,7 +97,7 @@ public class WebPortfoliosResource extends AbstractWebPortfolioResource {
     PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
     PortfolioSearchSortOrder so = buildSortOrder(sort, PortfolioSearchSortOrder.NAME_ASC);
     FlexiBean out = createSearchResultData(pr, so, name, portfolioIdStrs, nodeIdStrs, includeHidden);
-    return getFreemarker().build("portfolios/jsonportfolios.ftl", out);
+    return getFreemarker().build(JSON_DIR + "portfolios.ftl", out);
   }
 
   private FlexiBean createSearchResultData(PagingRequest pr, PortfolioSearchSortOrder sort, String name, 
@@ -138,7 +138,7 @@ public class WebPortfoliosResource extends AbstractWebPortfolioResource {
     if (name == null) {
       FlexiBean out = createRootData();
       out.put("err_nameMissing", true);
-      String html = getFreemarker().build("portfolios/portfolios-add.ftl", out);
+      String html = getFreemarker().build(HTML_DIR + "portfolios-add.ftl", out);
       return Response.ok(html).build();
     }
     URI uri = createPortfolio(name);

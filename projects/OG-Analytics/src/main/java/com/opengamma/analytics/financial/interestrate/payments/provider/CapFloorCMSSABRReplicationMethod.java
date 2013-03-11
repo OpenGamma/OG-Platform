@@ -27,6 +27,7 @@ import com.opengamma.analytics.financial.provider.calculator.discounting.ParRate
 import com.opengamma.analytics.financial.provider.description.interestrate.SABRSwaptionProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
+import com.opengamma.analytics.math.MathException;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.integration.RungeKuttaIntegrator1D;
 import com.opengamma.util.ArgumentChecker;
@@ -111,7 +112,7 @@ public class CapFloorCMSSABRReplicationMethod extends CapFloorCMSSABRReplication
         integralPart = discountFactor * integrator.integrate(integrant, 0.0, strike);
       }
     } catch (final Exception e) {
-      throw new RuntimeException(e);
+      throw new MathException(e);
     }
     final double priceCMS = (strikePart + integralPart) * cmsCapFloor.getNotional() * cmsCapFloor.getPaymentYearFraction();
     return MultipleCurrencyAmount.of(cmsCapFloor.getCurrency(), priceCMS);

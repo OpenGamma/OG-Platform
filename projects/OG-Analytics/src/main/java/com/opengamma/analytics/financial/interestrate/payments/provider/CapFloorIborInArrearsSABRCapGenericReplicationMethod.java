@@ -9,6 +9,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFlo
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.financial.provider.description.interestrate.SABRCapProviderInterface;
 import com.opengamma.analytics.financial.provider.method.CapFloorIborSABRCapMethodInterface;
+import com.opengamma.analytics.math.MathException;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.integration.RungeKuttaIntegrator1D;
 import com.opengamma.util.ArgumentChecker;
@@ -16,7 +17,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
- *  Class used to compute the price and sensitivity of a Ibor cap/floor in arrears. 
+ *  Class used to compute the price and sensitivity of a Ibor cap/floor in arrears.
  *  The cap/floor are supposed to be exactly in arrears. The payment date is ignored and the start fixing period date is used instead.
  */
 //TODO: Add a reference to Libor-with-delay pricing method documentation  when available.
@@ -53,11 +54,11 @@ public class CapFloorIborInArrearsSABRCapGenericReplicationMethod {
   public MultipleCurrencyAmount presentValue(final CapFloorIbor cap, final SABRCapProviderInterface sabr) {
     ArgumentChecker.notNull(cap, "The cap/floor shoud not be null");
     ArgumentChecker.notNull(sabr, "SABR cap provider");
-    Currency ccy = cap.getCurrency();
-    MulticurveProviderInterface multicurves = sabr.getMulticurveProvider();
+    final Currency ccy = cap.getCurrency();
+    final MulticurveProviderInterface multicurves = sabr.getMulticurveProvider();
     final CapFloorIbor capStandard = new CapFloorIbor(cap.getCurrency(), cap.getFixingPeriodEndTime(), cap.getFundingCurveName(), cap.getPaymentYearFraction(), cap.getNotional(), cap.getFixingTime(),
         cap.getIndex(), cap.getFixingPeriodStartTime(), cap.getFixingPeriodEndTime(), cap.getFixingAccrualFactor(), cap.getForwardCurveName(), cap.getStrike(), cap.isCap());
-    double forward = multicurves.getForwardRate(cap.getIndex(), cap.getFixingPeriodStartTime(), cap.getFixingPeriodEndTime(), cap.getFixingAccrualFactor());
+    final double forward = multicurves.getForwardRate(cap.getIndex(), cap.getFixingPeriodStartTime(), cap.getFixingPeriodEndTime(), cap.getFixingAccrualFactor());
     final double beta = (1.0 + cap.getFixingAccrualFactor() * forward) * multicurves.getDiscountFactor(ccy, cap.getFixingPeriodEndTime())
         / multicurves.getDiscountFactor(ccy, cap.getFixingPeriodStartTime());
     final double strikePart = (1.0 + cap.getFixingAccrualFactor() * cap.getStrike()) * _baseMethod.presentValue(capStandard, sabr).getAmount(ccy);
@@ -73,7 +74,7 @@ public class CapFloorIborInArrearsSABRCapGenericReplicationMethod {
         integralPart = integrator.integrate(integrant, 0.0, cap.getStrike());
       }
     } catch (final Exception e) {
-      throw new RuntimeException(e);
+      throw new MathException(e);
     }
     integralPart *= 2.0 * cap.getFixingAccrualFactor();
     final double pv = (strikePart + integralPart) / beta;

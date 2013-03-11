@@ -55,7 +55,7 @@ public class WebConfigResource extends AbstractWebConfigResource {
     final FlexiBean out = createRootData();
     final ConfigDocument doc = data().getConfig();
     out.put("configXml", createXML(doc));
-    return getFreemarker().build("configs/config.ftl", out);
+    return getFreemarker().build(HTML_DIR + "config.ftl", out);
   }
 
   @GET
@@ -74,7 +74,7 @@ public class WebConfigResource extends AbstractWebConfigResource {
     }
     out.put("configXML", StringEscapeUtils.escapeJava(createXML(doc)));
     out.put("type", doc.getType().getName());
-    final String json = getFreemarker().build("configs/jsonconfig.ftl", out);
+    final String json = getFreemarker().build(JSON_DIR + "config.ftl", out);
     return Response.ok(json).tag(etag).build();
   }
 
@@ -111,7 +111,7 @@ public class WebConfigResource extends AbstractWebConfigResource {
       if (xml == null) {
         out.put("err_xmlMissing", true);
       }
-      final String html = getFreemarker().build("configs/config-update.ftl", out);
+      final String html = getFreemarker().build(HTML_DIR + "config-update.ftl", out);
       return Response.ok(html).build();
     }
 

@@ -26,6 +26,7 @@ import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.compilation.PortfolioCompiler;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.UserPrincipal;
@@ -123,18 +124,29 @@ public class AnalyticsViewManager {
     }
     AggregatedViewDefinition aggregatedViewDef = new AggregatedViewDefinition(_aggregatedViewDefManager, request);
     ViewDefinition viewDef = (ViewDefinition) _configSource.get(aggregatedViewDef.getUniqueId()).getValue();
+    VersionCorrection versionCorrection = request.getPortfolioVersionCorrection();
+    // this can be null for a primitives-only view
     UniqueId portfolioId = viewDef.getPortfolioId();
-    // TODO confirm the correct versioning behaviour
-    Portfolio portfolio = _positionSource.getPortfolio(portfolioId.getObjectId(), VersionCorrection.LATEST);
+    Portfolio portfolio;
+    Supplier<Portfolio> portfolioSupplier;
+    ObjectId portfolioObjectId;
+    Portfolio resolvedPortfolio;
+    if (portfolioId != null) {
+      portfolioObjectId = portfolioId.getObjectId();
+      // TODO confirm the correct versioning behaviour
+      portfolio = _positionSource.getPortfolio(portfolioObjectId, VersionCorrection.LATEST);
+      resolvedPortfolio = PortfolioCompiler.resolvePortfolio(portfolio,
+                                                             Executors.newSingleThreadExecutor(),
+                                                             _securitySource);
+    } else {
+      portfolioObjectId = null;
+      resolvedPortfolio = null;
+    }
+    portfolioSupplier = new PortfolioSupplier(portfolioObjectId, versionCorrection, _positionSource);
     // TODO something a bit more sophisticated with the executor
-    Portfolio resolvedPortfolio =
-        PortfolioCompiler.resolvePortfolio(portfolio, Executors.newSingleThreadExecutor(), _securitySource);
     ViewClient viewClient = _viewProcessor.createViewClient(user);
     s_logger.debug("Client ID {} creating new view with ID {}", clientId, viewId);
     ViewportListener viewportListener = new LoggingViewportListener(viewClient);
-    VersionCorrection versionCorrection = request.getPortfolioVersionCorrection();
-    Supplier<Portfolio> portfolioSupplier =
-        new PortfolioSupplier(portfolioId.getObjectId(), versionCorrection, _positionSource);
     PortfolioEntityExtractor entityExtractor = new PortfolioEntityExtractor(versionCorrection, _securityMaster);
     // TODO add filtering change listener to portfolio master which calls portfolioChanged() on the outer view
     AnalyticsView view = new SimpleAnalyticsView(resolvedPortfolio,
@@ -151,17 +163,16 @@ public class AnalyticsViewManager {
     AnalyticsView lockingView = new LockingAnalyticsView(view);
     //AnalyticsView timingView = new TimingAnalyticsView(lockingView);
     AnalyticsView notifyingView = new NotifyingAnalyticsView(lockingView, clientConnection);
-    AutoCloseable securityListener = new MasterNotificationListener<>(_securityMaster, lockingView);
-    AutoCloseable positionListener = new MasterNotificationListener<>(_positionMaster, lockingView);
-    AutoCloseable portfolioListener = new PortfolioListener(portfolioId.getObjectId(), lockingView, _positionSource);
+    AutoCloseable securityListener = new MasterNotificationListener<>(_securityMaster, notifyingView);
+    AutoCloseable positionListener = new MasterNotificationListener<>(_positionMaster, notifyingView);
+    AutoCloseable portfolioListener = new PortfolioListener(portfolioObjectId, notifyingView, _positionSource);
     List<AutoCloseable> listeners = Lists.newArrayList(securityListener, positionListener, portfolioListener);
     AnalyticsViewClientConnection connection = new AnalyticsViewClientConnection(request,
                                                                                  aggregatedViewDef, viewClient,
                                                                                  notifyingView,
                                                                                  _marketDataSpecificationRepository,
                                                                                  _snapshotMaster,
-                                                                                 listeners
-    );
+                                                                                 listeners);
     _viewConnections.put(viewId, connection);
     // need to notify the listener that the view has been created
     // TODO would it be neater to leave this to the constructor of NotifyingAnalyticsView

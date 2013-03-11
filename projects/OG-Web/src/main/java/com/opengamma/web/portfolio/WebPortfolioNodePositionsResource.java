@@ -53,7 +53,7 @@ public class WebPortfolioNodePositionsResource extends AbstractWebPortfolioResou
     if (positionUrlStr == null) {
       FlexiBean out = createRootData();
       out.put("err_positionUrlMissing", true);
-      String html = getFreemarker().build("portfolios/portfolionodepositions-add.ftl", out);
+      String html = getFreemarker().build(HTML_DIR + "portfolionodepositions-add.ftl", out);
       return Response.ok(html).build();
     }
     UniqueId positionId = null;
@@ -66,7 +66,7 @@ public class WebPortfolioNodePositionsResource extends AbstractWebPortfolioResou
     } catch (Exception ex) {
       FlexiBean out = createRootData();
       out.put("err_positionUrlInvalid", true);
-      String html = getFreemarker().build("portfolios/portfolionodepositions-add.ftl", out);
+      String html = getFreemarker().build(HTML_DIR + "portfolionodepositions-add.ftl", out);
       return Response.ok(html).build();
     }
     URI uri = addPosition(doc, positionId);
