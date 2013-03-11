@@ -10,17 +10,16 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Substitution representation of an inner class that is created as an invocation on the containing
- * class. Call with an object instance if a specific instance is needed for the invocation. If the
- * method is static or the containing object has no state pass the containing class. If an instance
- * is passed, care must be taken in its serialized form such that it does not include the contained
- * form (e.g. as an attribute) - doing so will create a loop in the graph which may prevent
- * {@link #readReplace} from executing correctly.
+ * Substitution representation of an inner class that is created as an invocation on the containing class. Call with an object instance if a specific instance is needed for the invocation. If the
+ * method is static or the containing object has no state pass the containing class. If an instance is passed, care must be taken in its serialized form such that it does not include the contained
+ * form (e.g. as an attribute) - doing so will create a loop in the graph which may prevent {@link #readReplace} from executing correctly.
  */
 public final class InvokedSerializedForm implements Serializable {
 
@@ -31,7 +30,22 @@ public final class InvokedSerializedForm implements Serializable {
 
   private static final Object[] EMPTY_ARRAY = new Object[0];
 
-  private static final String[] s_methodPrefixes = new String[] {"as", "get", "to", "from", "with"};
+  private static final String[] s_methodPrefixes = new String[] {"as", "get", "to", "from", "with" };
+
+  private static final Map<Class<?>, Class<?>> s_primitives = createPrimitiveMap();
+
+  private static Map<Class<?>, Class<?>> createPrimitiveMap() {
+    final Map<Class<?>, Class<?>> map = new HashMap<Class<?>, Class<?>>();
+    map.put(Boolean.TYPE, Boolean.class);
+    map.put(Byte.TYPE, Byte.class);
+    map.put(Character.TYPE, Character.class);
+    map.put(Float.TYPE, Float.class);
+    map.put(Double.TYPE, Double.class);
+    map.put(Integer.TYPE, Integer.class);
+    map.put(Long.TYPE, Long.class);
+    map.put(Short.TYPE, Short.class);
+    return map;
+  }
 
   private final Class<?> _outerClass;
   private final Object _outerInstance;
@@ -86,8 +100,14 @@ public final class InvokedSerializedForm implements Serializable {
     final Object[] params = getParameters();
     if (args.length == params.length) {
       for (int i = 0; i < params.length; i++) {
-        if (!args[i].isAssignableFrom(params[i].getClass())) {
-          return null;
+        if (args[i].isPrimitive()) {
+          if (!s_primitives.get(args[i]).isAssignableFrom(params[i].getClass())) {
+            return null;
+          }
+        } else {
+          if (!args[i].isAssignableFrom(params[i].getClass())) {
+            return null;
+          }
         }
       }
       try {
@@ -95,6 +115,7 @@ public final class InvokedSerializedForm implements Serializable {
           _replacementInstance = getOuterClass().newInstance();
         }
         if (!Modifier.isPublic(method.getModifiers())) {
+          // REVIEW 2013-03-11 Andrew -- This might benefit from a cache (see readReplaceHelper) rather than run the privileged action each time
           AccessController.doPrivileged(new PrivilegedAction<Void>() {
 
             @Override
@@ -130,7 +151,6 @@ public final class InvokedSerializedForm implements Serializable {
           }
         }
       } else {
-        clazz.getMethods();
         for (final Method method : methods) {
           if (getMethod().equals(method.getName())) {
             final Object r = tryMethod(method);
