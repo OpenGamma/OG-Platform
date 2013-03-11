@@ -7,6 +7,34 @@ $.register_module({
     dependencies: ['og.api.rest'],
     obj: function () {
         var module = this;
+        var ConnectionPool = new function () {
+            var pool = this, children = [], parents = [];
+            pool.add = function (data) {children.push(data);};
+            pool.parent = function (data) {
+                var parent, source;
+                if (data.pool) return null;
+                source = JSON.parse(JSON.stringify(data.source)); // make a copy
+                ['col', 'depgraph', 'row', 'type'].forEach(function (key) {delete source[key]}); // normalize sources
+                parent = parents.filter(function (parent) {return Object.equals(parent.source, source);});
+                if (parent.length && (parent = parent[0])) return parent.refcount.push(data.id), parent;
+                parent = new Data(source, {pool: true, label: 'pool'});
+                parent.refcount = [data.id];
+                return parents.push(parent), parent;
+            };
+            pool.remove = function (data) {
+                children = children.filter(function (child) {return child.id !== data.id;});
+                if (!data.parent) return; else if (data.parent.refcount) {
+                    data.parent.refcount = data.parent.refcount.filter(function (id) {return id !== data.id;});
+                    if (data.parent.refcount.length) return;
+                }
+                data.parent.kill();
+                parents = parents.filter(function (parent) {return parent.id !== data.parent.id;});
+            };
+            $(window).on('unload', function () {
+                children.forEach(function (child) {try {child.kill();} catch (error) {}});  // should be no parents left
+                parents.forEach(function (parent) {try {parent.kill();} catch (error) {}}); // but just in case
+            });
+        };
         var Data = function (source, config) {
             var data = this, api = og.api.rest.views, meta, label = config.label ? config.label + '-' : '',
                 viewport = null, viewport_id, viewport_cache, prefix, view_id = config.view_id, viewport_version,
@@ -170,7 +198,7 @@ $.register_module({
             data.meta = meta = {columns: {}};
             data.source = source;
             data.pool = config.pool;
-            data.parent = config.parent || Pool.parent(data);
+            data.parent = config.parent || ConnectionPool.parent(data);
             data.prefix = prefix = module.name + ' (' + label + 'undefined' + '):\n';
             data.viewport = function (new_viewport) {
                 var promise, viewports = (depgraph ? api.grid.depgraphs : api.grid).viewports;
@@ -208,40 +236,11 @@ $.register_module({
         Data.prototype.kill = function () {
             var data = this;
             data.disconnect.apply(data, Array.prototype.slice.call(arguments));
-            Pool.remove(data);
-            if (!data.parent)
-                og.api.rest.off('disconnect', disconnect_handler).off('reconnect', reconnect_handler);
+            ConnectionPool.remove(data);
+            if (!data.parent) og.api.rest.off('disconnect', disconnect_handler).off('reconnect', reconnect_handler);
         };
         Data.prototype.off = og.common.events.off;
         Data.prototype.on = og.common.events.on;
-        var Pool = new function () {
-            var pool = this, children = [], parents = [];
-            pool.add = function (data) {children.push(data);};
-            pool.parent = function (data) {
-                var parent, source;
-                if (data.pool) return null;
-                source = JSON.parse(JSON.stringify(data.source)); // make a copy
-                ['col', 'depgraph', 'row', 'type'].forEach(function (key) {delete source[key]}); // normalize sources
-                parent = parents.filter(function (candidate) {return Object.equals(candidate.source, source);});
-                if (parent.length && (parent = parent[0])) return parent.refcount.push(data.id), parent;
-                parent = new Data(source, {pool: true, label: 'pool'});
-                parent.refcount = [data.id];
-                return parents.push(parent), parent;
-            };
-            pool.remove = function (data) {
-                children = children.filter(function (child) {return child.id !== data.id;});
-                if (data.parent && data.parent.refcount) {
-                    data.parent.refcount = data.parent.refcount.filter(function (id) {return id !== data.id;});
-                    if (data.parent.refcount.length) return;
-                }
-                data.parent.kill();
-                parents = parents.filter(function (parent) {return parent.id !== data.parent.id;});
-            };
-            $(window).on('unload', function () {
-                children.forEach(function (child) {try {child.kill();} catch (error) {}});
-                parents.forEach(function (child) {try {parent.kill();} catch (error) {}});
-            });
-        };
         return Data;
     }
 });
