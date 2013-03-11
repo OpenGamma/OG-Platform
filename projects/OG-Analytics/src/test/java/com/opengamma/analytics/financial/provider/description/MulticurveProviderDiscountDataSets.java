@@ -202,12 +202,17 @@ public class MulticurveProviderDiscountDataSets {
   // US : CPI-U 2009-2011
   private static final double[] USCPI_VALUE_2009 = new double[] {211.143, 212.193, 212.709, 213.240, 213.856, 215.693, 215.351, 215.834, 215.969, 216.177, 216.330, 215.949, 214.537 };
   private static final double[] USCPI_VALUE_2010 = new double[] {216.687, 216.741, 217.631, 218.009, 218.178, 217.965, 218.011, 218.312, 218.439, 218.711, 218.803, 219.179, 218.056 };
-  private static final double[] USCPI_VALUE_2011 = new double[] {220.223, 221.309, 223.467, 224.906, 225.964, 225.722 };
-  private static final double[] USCPI_VALUE = new double[2 * 12 + USCPI_VALUE_2011.length];
+  private static final double[] USCPI_VALUE_2011 = new double[] {220.223, 221.309, 223.467, 224.906, 225.964, 225.722, 225.922, 226.545, 226.889, 226.421, 226.230, 225.672, 224.939 };
+  private static final double[] USCPI_VALUE_2012 = new double[] {226.655, 227.663, 229.392, 230.085, 229.815, 229.478, 229.104, 230.379, 231.407, 231.317, 230.221, 229.601, 229.594 };
+  private static final double[] USCPI_VALUE_2013 = new double[] {230.280 };
+  private static final double[] USCPI_VALUE = new double[4 * 12 + USCPI_VALUE_2013.length];
   static {
     System.arraycopy(USCPI_VALUE_2009, 0, USCPI_VALUE, 0, 12);
     System.arraycopy(USCPI_VALUE_2010, 0, USCPI_VALUE, 12, 12);
-    System.arraycopy(USCPI_VALUE_2011, 0, USCPI_VALUE, 24, USCPI_VALUE_2011.length);
+    System.arraycopy(USCPI_VALUE_2011, 0, USCPI_VALUE, 24, 12);
+    System.arraycopy(USCPI_VALUE_2012, 0, USCPI_VALUE, 36, 12);
+    System.arraycopy(USCPI_VALUE_2013, 0, USCPI_VALUE, 48, USCPI_VALUE_2013.length);
+
   }
   private static final ZonedDateTime[] USCPI_DATE = new ZonedDateTime[] {DateUtils.getUTCDate(2009, 1, 1), DateUtils.getUTCDate(2009, 2, 1), DateUtils.getUTCDate(2009, 3, 1),
       DateUtils.getUTCDate(2009, 4, 1), DateUtils.getUTCDate(2009, 5, 1), DateUtils.getUTCDate(2009, 6, 1), DateUtils.getUTCDate(2009, 7, 1), DateUtils.getUTCDate(2009, 8, 1),
@@ -215,7 +220,11 @@ public class MulticurveProviderDiscountDataSets {
       DateUtils.getUTCDate(2010, 2, 1), DateUtils.getUTCDate(2010, 3, 1), DateUtils.getUTCDate(2010, 4, 1), DateUtils.getUTCDate(2010, 5, 1), DateUtils.getUTCDate(2010, 6, 1),
       DateUtils.getUTCDate(2010, 7, 1), DateUtils.getUTCDate(2010, 8, 1), DateUtils.getUTCDate(2010, 9, 1), DateUtils.getUTCDate(2010, 10, 1), DateUtils.getUTCDate(2010, 11, 1),
       DateUtils.getUTCDate(2010, 12, 1), DateUtils.getUTCDate(2011, 1, 1), DateUtils.getUTCDate(2011, 2, 1), DateUtils.getUTCDate(2011, 3, 1), DateUtils.getUTCDate(2011, 4, 1),
-      DateUtils.getUTCDate(2011, 5, 1), DateUtils.getUTCDate(2011, 6, 1) };
+      DateUtils.getUTCDate(2011, 5, 1), DateUtils.getUTCDate(2011, 6, 1), DateUtils.getUTCDate(2011, 7, 1), DateUtils.getUTCDate(2011, 8, 1), DateUtils.getUTCDate(2011, 9, 1),
+      DateUtils.getUTCDate(2011, 10, 1), DateUtils.getUTCDate(2011, 11, 1), DateUtils.getUTCDate(2011, 12, 1), DateUtils.getUTCDate(2012, 1, 1), DateUtils.getUTCDate(2012, 2, 1),
+      DateUtils.getUTCDate(2012, 3, 1), DateUtils.getUTCDate(2012, 4, 1), DateUtils.getUTCDate(2012, 5, 1), DateUtils.getUTCDate(2012, 6, 1), DateUtils.getUTCDate(2012, 7, 1),
+      DateUtils.getUTCDate(2012, 8, 1), DateUtils.getUTCDate(2012, 9, 1), DateUtils.getUTCDate(2012, 10, 1), DateUtils.getUTCDate(2012, 11, 1), DateUtils.getUTCDate(2012, 12, 1),
+      DateUtils.getUTCDate(2013, 1, 1) };
   private static final ArrayZonedDateTimeDoubleTimeSeries USCPI_TIME_SERIES = new ArrayZonedDateTimeDoubleTimeSeries(USCPI_DATE, USCPI_VALUE);
 
   // Europe : EURO HICP-X 2009-2011
@@ -223,12 +232,12 @@ public class MulticurveProviderDiscountDataSets {
   private static final double[] EUROHICPX_VALUE_2009 = new double[] {106.98, 107.42, 107.82, 108.21, 108.27, 108.48, 107.77, 108.14, 108.16, 108.41, 108.54, 108.88 };
   private static final double[] EUROHICPX_VALUE_2010 = new double[] {107.99, 108.33, 109.53, 109.98, 110.10, 110.10, 109.63, 109.85, 110.19, 110.52, 110.62, 111.29 };
   private static final double[] EUROHICPX_VALUE_2011 = new double[] {110.50, 110.96, 112.47, 113.10, 113.11, 113.10 };
-  private static final double[] EUROHICPX_VALUE = new double[3 * 12 + USCPI_VALUE_2011.length];
+  private static final double[] EUROHICPX_VALUE = new double[3 * 12 + EUROHICPX_VALUE_2011.length];
   static {
     System.arraycopy(EUROHICPX_VALUE_2008, 0, EUROHICPX_VALUE, 0, 12);
     System.arraycopy(EUROHICPX_VALUE_2009, 0, EUROHICPX_VALUE, 12, 12);
     System.arraycopy(EUROHICPX_VALUE_2010, 0, EUROHICPX_VALUE, 24, 12);
-    System.arraycopy(EUROHICPX_VALUE_2011, 0, EUROHICPX_VALUE, 36, USCPI_VALUE_2011.length);
+    System.arraycopy(EUROHICPX_VALUE_2011, 0, EUROHICPX_VALUE, 36, EUROHICPX_VALUE_2011.length);
   }
   private static final ZonedDateTime[] EUROHICPX_DATE = new ZonedDateTime[] {DateUtils.getUTCDate(2008, 1, 1), DateUtils.getUTCDate(2008, 2, 1), DateUtils.getUTCDate(2008, 3, 1),
       DateUtils.getUTCDate(2008, 4, 1), DateUtils.getUTCDate(2008, 5, 1), DateUtils.getUTCDate(2008, 6, 1), DateUtils.getUTCDate(2008, 7, 1), DateUtils.getUTCDate(2008, 8, 1),
@@ -299,7 +308,7 @@ public class MulticurveProviderDiscountDataSets {
   public static InflationIssuerProviderDiscount createMarket2(final ZonedDateTime pricingDate) {
     final InflationIssuerProviderDiscount market = createMarket1(pricingDate);
     final DoublesCurve curveNoAdj = market.getCurve(PRICE_INDEX_USD).getCurve();
-    final DoublesCurve adj = new SeasonalCurve(curveNoAdj.getXData()[0], SEASONAL_FACTOR_USD);
+    final DoublesCurve adj = new SeasonalCurve(curveNoAdj.getXData()[0], SEASONAL_FACTOR_USD, false);
     final DoublesCurve[] curveSet = new DoublesCurve[] {curveNoAdj, adj };
     final DoublesCurve curveAdj = new SpreadDoublesCurve(new MultiplyCurveSpreadFunction(), curveSet);
     market.replaceCurve(PRICE_INDEX_USD, new PriceIndexCurve(curveAdj));
