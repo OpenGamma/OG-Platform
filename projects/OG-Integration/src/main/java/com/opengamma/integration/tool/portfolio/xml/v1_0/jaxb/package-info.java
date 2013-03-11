@@ -21,4 +21,6 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.YearMonth;
 
 import com.opengamma.financial.security.option.OptionType;
+import com.opengamma.util.jaxb.CurrencyAdapter;
+import com.opengamma.util.jaxb.LocalDateAdapter;
 import com.opengamma.util.money.Currency;
