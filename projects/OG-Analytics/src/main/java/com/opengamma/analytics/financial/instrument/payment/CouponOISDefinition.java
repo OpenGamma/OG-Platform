@@ -185,14 +185,21 @@ public class CouponOISDefinition extends CouponDefinition implements InstrumentD
     while (valDate.isAfter(_fixingPeriodDate[fixedPeriod + _index.getPublicationLag()].getDate()) && (fixedPeriod < _fixingPeriodDate.length - 1)) {
 
       final LocalDate currentDate = _fixingPeriodDate[fixedPeriod].getDate();
-      final Double fixedRate = indexFixingDateSeries.getValue(currentDate);
+      Double fixedRate = indexFixingDateSeries.getValue(currentDate);
 
       if (fixedRate == null) {
         final LocalDate latestDate = indexFixingDateSeries.getLatestTime();
         if (currentDate.isAfter(latestDate)) {
           throw new OpenGammaRuntimeException("Could not get fixing value of index " + _index.getName() + " for date " + currentDate + ". The last data is available on " + latestDate);
         }
-        throw new OpenGammaRuntimeException("Could not get fixing value of index " + _index.getName() + " for date " + currentDate);
+        // Don't remove this until we've worked out what's going on with INR calendars
+        for (int i = 0; i < 7; i++) {
+          final LocalDate previousDate = currentDate.minusDays(1);
+          fixedRate = indexFixingDateSeries.getValue(previousDate);
+        }
+        if (fixedRate == null) {
+          throw new OpenGammaRuntimeException("Could not get fixing value of index " + _index.getName() + " for date " + currentDate);
+        }
       }
       accruedNotional *= 1 + _fixingPeriodAccrualFactor[fixedPeriod] * fixedRate;
       fixedPeriod++;
