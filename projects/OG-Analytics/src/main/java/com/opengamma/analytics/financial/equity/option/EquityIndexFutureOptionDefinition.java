@@ -156,6 +156,7 @@ public class EquityIndexFutureOptionDefinition implements InstrumentDefinition<E
 
   @Override
   public EquityIndexFutureOption toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
+    ArgumentChecker.notNull(date, "date");
     ArgumentChecker.inOrderOrEqual(date.getDateTime().getDate(), _expiryDate.getDateTime().getDate(), "valuation date", "expiry");
     double timeToExpiry = TimeCalculator.getTimeBetween(date, getExpiryDate());
     if (timeToExpiry == 0) { // Day of expiration: Still time value if option has not expired.

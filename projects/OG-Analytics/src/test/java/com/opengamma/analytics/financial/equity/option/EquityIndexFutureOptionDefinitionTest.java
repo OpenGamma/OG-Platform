@@ -62,7 +62,7 @@ public class EquityIndexFutureOptionDefinitionTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testValuationAfterExpiry() {
-    AMERICAN_PUT.toDerivative(EXPIRY.plusNanos(1), (String[]) null);
+    AMERICAN_PUT.toDerivative(EXPIRY.plusDays(1), (String[]) null);
   }
 
   @Test
