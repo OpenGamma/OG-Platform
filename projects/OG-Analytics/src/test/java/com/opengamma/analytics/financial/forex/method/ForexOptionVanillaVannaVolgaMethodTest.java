@@ -53,7 +53,7 @@ public class ForexOptionVanillaVannaVolgaMethodTest {
   // Smile data
   private static final Currency EUR = Currency.EUR;
   private static final Currency USD = Currency.USD;
-  private static final Period[] EXPIRY_PERIOD = new Period[] {Period.of(3, MONTHS), Period.of(6, MONTHS), Period.of(1, YEARS), Period.of(2, YEARS), Period.of(5, YEARS)};
+  private static final Period[] EXPIRY_PERIOD = new Period[] {Period.ofMonths(3), Period.ofMonths(6), Period.ofYears(1), Period.ofYears(2), Period.ofYears(5)};
   private static final int NB_EXP = EXPIRY_PERIOD.length;
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 6, 13);
   private static final ZonedDateTime REFERENCE_SPOT = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, SETTLEMENT_DAYS, CALENDAR);
@@ -111,7 +111,7 @@ public class ForexOptionVanillaVannaVolgaMethodTest {
     final boolean isCall = true;
     final boolean isLong = true;
     final double notional = 100000000;
-    final ZonedDateTime optionExpiry = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.of(18, MONTHS), BUSINESS_DAY, CALENDAR);
+    final ZonedDateTime optionExpiry = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.ofMonths(18), BUSINESS_DAY, CALENDAR);
     final ZonedDateTime optionPay = ScheduleCalculator.getAdjustedDate(optionExpiry, SETTLEMENT_DAYS, CALENDAR);
     final ForexOptionVanilla[] call = new ForexOptionVanilla[nbStrike + 1];
     final ForexOptionVanilla[] put = new ForexOptionVanilla[nbStrike + 1];
@@ -167,7 +167,7 @@ public class ForexOptionVanillaVannaVolgaMethodTest {
     final boolean isCall = true;
     final boolean isLong = true;
     final double notional = 100000000;
-    final ZonedDateTime optionExpiry = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.of(18, MONTHS), BUSINESS_DAY, CALENDAR);
+    final ZonedDateTime optionExpiry = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.ofMonths(18), BUSINESS_DAY, CALENDAR);
     final ZonedDateTime optionPay = ScheduleCalculator.getAdjustedDate(optionExpiry, SETTLEMENT_DAYS, CALENDAR);
     final ForexOptionVanilla[] forexOption = new ForexOptionVanilla[nbStrike + 1];
     for (int loopstrike = 0; loopstrike <= nbStrike; loopstrike++) {
@@ -222,7 +222,7 @@ public class ForexOptionVanillaVannaVolgaMethodTest {
     final boolean isCall = true;
     final boolean isLong = true;
     final double notional = 100000000;
-    final ZonedDateTime optionExpiry = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.of(18, MONTHS), BUSINESS_DAY, CALENDAR);
+    final ZonedDateTime optionExpiry = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.ofMonths(18), BUSINESS_DAY, CALENDAR);
     final ZonedDateTime optionPay = ScheduleCalculator.getAdjustedDate(optionExpiry, SETTLEMENT_DAYS, CALENDAR);
     final ForexOptionVanilla[] forexOption = new ForexOptionVanilla[nbStrike + 1];
     for (int loopstrike = 0; loopstrike <= nbStrike; loopstrike++) {
@@ -246,7 +246,7 @@ public class ForexOptionVanillaVannaVolgaMethodTest {
     final boolean isCall = true;
     final boolean isLong = true;
     final double notional = 100000000;
-    final ZonedDateTime optionExpiry = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.of(18, MONTHS), BUSINESS_DAY, CALENDAR);
+    final ZonedDateTime optionExpiry = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.ofMonths(18), BUSINESS_DAY, CALENDAR);
     final ZonedDateTime optionPay = ScheduleCalculator.getAdjustedDate(optionExpiry, SETTLEMENT_DAYS, CALENDAR);
     final ForexDefinition forexUnderlyingSpotDefinition = new ForexDefinition(EUR, USD, optionPay, notional, SPOT);
     final ForexOptionVanillaDefinition forexOptionSpotDefinition = new ForexOptionVanillaDefinition(forexUnderlyingSpotDefinition, optionExpiry, isCall, isLong);
@@ -282,7 +282,7 @@ public class ForexOptionVanillaVannaVolgaMethodTest {
     final boolean isCall = true;
     final boolean isLong = true;
     final double notional = 100000000;
-    final ZonedDateTime optionExpiry = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.of(18, MONTHS), BUSINESS_DAY, CALENDAR);
+    final ZonedDateTime optionExpiry = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.ofMonths(18), BUSINESS_DAY, CALENDAR);
     final ZonedDateTime optionPay = ScheduleCalculator.getAdjustedDate(optionExpiry, SETTLEMENT_DAYS, CALENDAR);
     final ForexOptionVanilla[] forexOption = new ForexOptionVanilla[nbStrike + 1];
     for (int loopstrike = 0; loopstrike <= nbStrike; loopstrike++) {
@@ -341,7 +341,7 @@ public class ForexOptionVanillaVannaVolgaMethodTest {
     final boolean isCall = true;
     final boolean isLong = true;
     final double notional = 100000000;
-    final ZonedDateTime optionExpiry = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.of(18, MONTHS), BUSINESS_DAY, CALENDAR);
+    final ZonedDateTime optionExpiry = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.ofMonths(18), BUSINESS_DAY, CALENDAR);
     final ZonedDateTime optionPay = ScheduleCalculator.getAdjustedDate(optionExpiry, SETTLEMENT_DAYS, CALENDAR);
     final ForexOptionVanilla[] forexOption = new ForexOptionVanilla[nbStrike + 1];
     for (int loopstrike = 0; loopstrike <= nbStrike; loopstrike++) {
@@ -390,7 +390,7 @@ public class ForexOptionVanillaVannaVolgaMethodTest {
     final boolean isCall = true;
     final boolean isLong = true;
     final double notional = 100000000;
-    final ZonedDateTime optionExpiry = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.of(18, MONTHS), BUSINESS_DAY, CALENDAR);
+    final ZonedDateTime optionExpiry = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.ofMonths(18), BUSINESS_DAY, CALENDAR);
     final ZonedDateTime optionPay = ScheduleCalculator.getAdjustedDate(optionExpiry, SETTLEMENT_DAYS, CALENDAR);
     final ForexOptionVanilla[] forexOption = new ForexOptionVanilla[nbStrike + 1];
     for (int loopstrike = 0; loopstrike <= nbStrike; loopstrike++) {
@@ -428,7 +428,7 @@ public class ForexOptionVanillaVannaVolgaMethodTest {
     final boolean isCall = true;
     final boolean isLong = true;
     final double notional = 1000000;
-    final ZonedDateTime optionExpiry = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.of(18, MONTHS), BUSINESS_DAY, CALENDAR);
+    final ZonedDateTime optionExpiry = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.ofMonths(18), BUSINESS_DAY, CALENDAR);
     final ZonedDateTime optionPay = ScheduleCalculator.getAdjustedDate(optionExpiry, SETTLEMENT_DAYS, CALENDAR);
     final ForexOptionVanilla[] forexOption = new ForexOptionVanilla[nbStrike + 1];
     for (int loopstrike = 0; loopstrike <= nbStrike; loopstrike++) {
@@ -464,7 +464,7 @@ public class ForexOptionVanillaVannaVolgaMethodTest {
     final boolean isCall = true;
     final boolean isLong = true;
     final double notional = 100000000;
-    final ZonedDateTime optionExpiry = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.of(18, MONTHS), BUSINESS_DAY, CALENDAR);
+    final ZonedDateTime optionExpiry = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.ofMonths(18), BUSINESS_DAY, CALENDAR);
     final ZonedDateTime optionPay = ScheduleCalculator.getAdjustedDate(optionExpiry, SETTLEMENT_DAYS, CALENDAR);
     final ForexDefinition forexUnderlyingSpotDefinition = new ForexDefinition(EUR, USD, optionPay, notional, SPOT);
     final ForexOptionVanillaDefinition forexOptionSpotDefinition = new ForexOptionVanillaDefinition(forexUnderlyingSpotDefinition, optionExpiry, isCall, isLong);
@@ -509,7 +509,7 @@ public class ForexOptionVanillaVannaVolgaMethodTest {
     final boolean isCall = true;
     final boolean isLong = true;
     final double notional = 100000000;
-    final ZonedDateTime optionExpiry = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.of(18, MONTHS), BUSINESS_DAY, CALENDAR);
+    final ZonedDateTime optionExpiry = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.ofMonths(18), BUSINESS_DAY, CALENDAR);
     final ZonedDateTime optionPay = ScheduleCalculator.getAdjustedDate(optionExpiry, SETTLEMENT_DAYS, CALENDAR);
     final ForexOptionVanilla[] forexOption = new ForexOptionVanilla[nbStrike + 1];
     final ForexOptionVanillaDefinition[] forexOptionDefinition = new ForexOptionVanillaDefinition[nbStrike + 1];

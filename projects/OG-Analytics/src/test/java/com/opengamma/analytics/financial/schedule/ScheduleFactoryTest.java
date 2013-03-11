@@ -148,7 +148,7 @@ public class ScheduleFactoryTest {
     assertArrayEquals(schedule2, ScheduleFactory.getSchedule(START2, END2, PeriodFrequency.DAILY, false, true, true));
     assertEquals(schedule1.length, schedule2.length);
     for (int i = 0; i < schedule1.length; i++) {
-      assertEquals(schedule1[i], schedule2[i].getDate());
+      assertEquals(schedule1[i], schedule2[i].toLocalDate());
     }
   }
 
@@ -174,7 +174,7 @@ public class ScheduleFactoryTest {
     assertArrayEquals(schedule4, ScheduleFactory.getSchedule(START2, END2, PeriodFrequency.WEEKLY, false, false, false));
     assertEquals(schedule1.length, schedule2.length);
     for (int i = 0; i < schedule1.length; i++) {
-      assertEquals(schedule1[i], schedule3[i].getDate());
+      assertEquals(schedule1[i], schedule3[i].toLocalDate());
     }
   }
 }

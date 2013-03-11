@@ -11,6 +11,7 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
@@ -115,7 +116,7 @@ public abstract class FuturesFunction<T> extends AbstractFunction.NonCompiledInv
     final InstrumentDefinitionWithData<?, Double> tradeDefinition = _tradeConverter.convert(trade);
     double referencePrice = lastMarginPrice; // TODO: Decide if this logic should be here or in toDerivative. 
     if (trade.getTradeDate() != null) {
-      if (trade.getTradeDate().isEqual(valuationTime.getDate())) { // Transaction is on pricing date.if (trade.getPremium() != null) {
+      if (trade.getTradeDate().isEqual(valuationTime.toLocalDate())) { // Transaction is on pricing date.if (trade.getPremium() != null) {
         if (trade.getPremium() != null) {
           referencePrice = trade.getPremium(); // TODO: The trade price is stored in the trade premium. This has to be corrected.
         }
@@ -239,7 +240,7 @@ public abstract class FuturesFunction<T> extends AbstractFunction.NonCompiledInv
       return null;
     }
     return HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, MarketDataRequirementNames.MARKET_VALUE,
-        DateConstraint.VALUATION_TIME.minus(DateUtils.periodOfDays(7)), true, DateConstraint.VALUATION_TIME, true);
+        DateConstraint.VALUATION_TIME.minus(Period.ofDays(7)), true, DateConstraint.VALUATION_TIME, true);
   }
 
 }

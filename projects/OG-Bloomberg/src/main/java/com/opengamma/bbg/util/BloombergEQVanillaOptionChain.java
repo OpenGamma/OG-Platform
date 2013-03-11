@@ -399,8 +399,8 @@ public class BloombergEQVanillaOptionChain {
   private double calcDayDiff(LocalDate thirdSaturdayOfTargetMonth, LocalDate expiry) {
     ZonedDateTime dummyNow = ZonedDateTime.now(OpenGammaClock.getInstance()); // "now()" is just to get dummy time of day and zone
     
-    ZonedDateTime zonedThirdSaturdayOfTargetMonth = thirdSaturdayOfTargetMonth.atTime(dummyNow.getTime()).atZone(dummyNow.getZone());
-    ZonedDateTime zonedExpiry = expiry.atTime(dummyNow.getTime()).atZone(dummyNow.getZone());
+    ZonedDateTime zonedThirdSaturdayOfTargetMonth = thirdSaturdayOfTargetMonth.atTime(dummyNow.toLocalTime()).atZone(dummyNow.getZone());
+    ZonedDateTime zonedExpiry = expiry.atTime(dummyNow.toLocalTime()).atZone(dummyNow.getZone());
     if (expiry.isAfter(thirdSaturdayOfTargetMonth)) {
       return _dayCount.getDayCountFraction(zonedThirdSaturdayOfTargetMonth, zonedExpiry);  
     } else {

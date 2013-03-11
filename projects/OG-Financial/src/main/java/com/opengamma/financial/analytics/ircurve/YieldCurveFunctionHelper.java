@@ -75,7 +75,7 @@ public class YieldCurveFunctionHelper {
       final FunctionCompilationContext context, final Instant atInstant) {
     //TODO: avoid doing this compile twice all the time
     final ZonedDateTime atInstantZDT = ZonedDateTime.ofInstant(atInstant, ZoneOffset.UTC);
-    final LocalDate curveDate = atInstantZDT.getDate();
+    final LocalDate curveDate = atInstantZDT.toLocalDate();
     final InterpolatedYieldCurveSpecification specification = buildCurve(curveDate);
     final Instant expiry = findCurveExpiryDate(context.getSecuritySource(), atInstant, specification, atInstantZDT.with(LocalTime.MIDNIGHT).plusDays(1).minusNanos(1000000).toInstant());
     return new Triple<Instant, Instant, InterpolatedYieldCurveSpecification>((expiry != null) ? atInstantZDT.with(LocalTime.MIDNIGHT).toInstant() : null, expiry, specification);

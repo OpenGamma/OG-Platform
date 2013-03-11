@@ -67,10 +67,10 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethodTest {
   //Swap 5Y
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final boolean IS_EOM = true;
-  private static final Period ANNUITY_TENOR = DateUtils.periodOfYears(5);
+  private static final Period ANNUITY_TENOR = Period.ofYears(5);
   private static final ZonedDateTime SETTLEMENT_DATE = DateUtils.getUTCDate(2020, 4, 28);
   //Fixed leg: Semi-annual bond
-  private static final Period FIXED_PAYMENT_PERIOD = DateUtils.periodOfMonths(6);
+  private static final Period FIXED_PAYMENT_PERIOD = Period.ofMonths(6);
   private static final DayCount FIXED_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("30/360");
   private static final double RATE = 0.0325;
   private static final boolean FIXED_IS_PAYER = true;

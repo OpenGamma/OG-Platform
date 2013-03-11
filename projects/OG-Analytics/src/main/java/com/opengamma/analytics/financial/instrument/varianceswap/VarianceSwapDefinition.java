@@ -71,7 +71,7 @@ public class VarianceSwapDefinition implements InstrumentDefinitionWithData<Vari
     // TODO CASE Extend to periods longer than daily.
     _currency = currency;
     _calendar = calendar;
-    _nObsExpected = countExpectedGoodDays(obsStartDate.getDate(), obsEndDate.getDate(), calendar, obsFreq);
+    _nObsExpected = countExpectedGoodDays(obsStartDate.toLocalDate(), obsEndDate.toLocalDate(), calendar, obsFreq);
     _annualizationFactor = annualizationFactor;
     _volStrike = volStrike;
     _volNotional = volNotional;
@@ -164,11 +164,11 @@ public class VarianceSwapDefinition implements InstrumentDefinitionWithData<Vari
     if (timeToObsStart > 0) {
       realizedTS = ArrayLocalDateDoubleTimeSeries.EMPTY_SERIES;
     } else {
-      realizedTS = underlyingTimeSeries.subSeries(_obsStartDate.getDate(), true, valueDate.getDate(), false);
+      realizedTS = underlyingTimeSeries.subSeries(_obsStartDate.toLocalDate(), true, valueDate.toLocalDate(), false);
     }
     final double[] observations = realizedTS.toFastIntDoubleTimeSeries().valuesArrayFast();
     final double[] observationWeights = {}; // TODO Case 2011-06-29 Calendar Add functionality for non-trivial weighting of observations
-    final int nGoodBusinessDays = countExpectedGoodDays(_obsStartDate.getDate(), valueDate.getDate(), _calendar, _obsFreq);
+    final int nGoodBusinessDays = countExpectedGoodDays(_obsStartDate.toLocalDate(), valueDate.toLocalDate(), _calendar, _obsFreq);
     final int nObsDisrupted = nGoodBusinessDays - observations.length;
     ArgumentChecker.isTrue(nObsDisrupted >= 0, "Have more observations {} than good business days {}", observations.length, nGoodBusinessDays);
     return new VarianceSwap(timeToObsStart, timeToObsEnd, timeToSettlement, _varStrike, _varNotional, _currency, _annualizationFactor, _nObsExpected, nObsDisrupted,

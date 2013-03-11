@@ -81,7 +81,7 @@ public class DependencyGraphViewport implements Viewport {
     query.setValueSpecifications(_gridStructure.getValueSpecifications());
     ComputationResultsResponse resultsResponse = cycle.queryResults(query);
     cache.put(_calcConfigName, resultsResponse.getResults(), cycle.getDuration());
-    Pair<ViewportResults,State> resultsAndState = _gridStructure.createResults(_viewportDefinition, cache, _latestResults);
+    Pair<ViewportResults, State> resultsAndState = _gridStructure.createResults(_viewportDefinition, cache, _latestResults);
     _latestResults = resultsAndState.getFirst();
     _state = resultsAndState.getSecond();
   }

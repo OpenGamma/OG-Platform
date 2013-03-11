@@ -29,7 +29,7 @@ public class ThirtyEThreeSixtyISDA extends ThirtyThreeSixtyTypeDayCount {
   }
 
   public double getAccruedInterest(final ZonedDateTime previousCouponDate, final ZonedDateTime date, final double coupon, final boolean isMaturity) {
-    return coupon * getDayCountFraction(previousCouponDate.getDate(), date.getDate(), isMaturity);
+    return coupon * getDayCountFraction(previousCouponDate.toLocalDate(), date.toLocalDate(), isMaturity);
   }
 
   public double getAccruedInterest(final LocalDate previousCouponDate, final LocalDate date, final double coupon, final boolean isMaturity) {
@@ -39,7 +39,7 @@ public class ThirtyEThreeSixtyISDA extends ThirtyThreeSixtyTypeDayCount {
   public double getDayCountFraction(final ZonedDateTime firstDate, final ZonedDateTime secondDate, final boolean isMaturity) {
     Validate.notNull(firstDate);
     Validate.notNull(secondDate);
-    return getDayCountFraction(firstDate.getDate(), secondDate.getDate(), isMaturity);
+    return getDayCountFraction(firstDate.toLocalDate(), secondDate.toLocalDate(), isMaturity);
   }
 
   public double getDayCountFraction(final LocalDate firstDate, final LocalDate secondDate, final boolean isMaturity) {

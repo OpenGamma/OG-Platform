@@ -178,7 +178,7 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
     final Map<Pair<Double, Double>, Double> volatilityValues = new HashMap<Pair<Double, Double>, Double>();
     final DoubleArrayList tList = new DoubleArrayList();
     final DoubleArrayList kList = new DoubleArrayList();
-    final LocalDate today = now.getDate();
+    final LocalDate today = now.toLocalDate();
     for (final Number x : optionVolatilities.getXs()) {
       final Double t = FutureOptionUtils.getIRFutureOptionTtm(x.intValue(), today, calendar);
       for (final Double y : optionVolatilities.getYs()) {
@@ -205,7 +205,7 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
     final Map<Pair<Double, Double>, Double> volatilityValues = new HashMap<Pair<Double, Double>, Double>();
     final DoubleArrayList txList = new DoubleArrayList();
     final DoubleArrayList kList = new DoubleArrayList();
-    final LocalDate today = now.getDate();
+    final LocalDate today = now.toLocalDate();
     for (final Number x : optionPrices.getXs()) {
       // Loop over option expiries
       final Double optionTtm = FutureOptionUtils.getIRFutureOptionTtm(x.intValue(), today, calendar);

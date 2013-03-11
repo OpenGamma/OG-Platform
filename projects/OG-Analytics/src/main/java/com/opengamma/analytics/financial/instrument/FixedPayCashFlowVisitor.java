@@ -57,7 +57,7 @@ public final class FixedPayCashFlowVisitor extends InstrumentDefinitionVisitorSa
     if (cash.getNotional() > 0) {
       return Collections.emptyMap();
     }
-    final LocalDate endDate = cash.getEndDate().getDate();
+    final LocalDate endDate = cash.getEndDate().toLocalDate();
     return Collections.singletonMap(endDate, MultipleCurrencyAmount.of(cash.getCurrency(), -cash.getInterestAmount()));
   }
 
@@ -86,7 +86,7 @@ public final class FixedPayCashFlowVisitor extends InstrumentDefinitionVisitorSa
     if (payment.getReferenceAmount() > 0) {
       return Collections.emptyMap();
     }
-    final LocalDate endDate = payment.getPaymentDate().getDate();
+    final LocalDate endDate = payment.getPaymentDate().toLocalDate();
     return Collections.singletonMap(endDate, MultipleCurrencyAmount.of(payment.getCurrency(), -payment.getReferenceAmount()));
   }
 
@@ -115,7 +115,7 @@ public final class FixedPayCashFlowVisitor extends InstrumentDefinitionVisitorSa
     if (coupon.getNotional() > 0) {
       return Collections.emptyMap();
     }
-    final LocalDate endDate = coupon.getPaymentDate().getDate();
+    final LocalDate endDate = coupon.getPaymentDate().toLocalDate();
     return Collections.singletonMap(endDate, MultipleCurrencyAmount.of(coupon.getCurrency(), -coupon.getAmount()));
   }
 
@@ -153,9 +153,9 @@ public final class FixedPayCashFlowVisitor extends InstrumentDefinitionVisitorSa
       return Collections.emptyMap();
     }
     ArgumentChecker.notNull(indexFixingTimeSeries, "index fixing time series");
-    final LocalDate fixingDate = coupon.getFixingDate().getDate();
+    final LocalDate fixingDate = coupon.getFixingDate().toLocalDate();
     if (!indexFixingTimeSeries.getLatestTime().isBefore(fixingDate)) {
-      final LocalDate endDate = coupon.getPaymentDate().getDate();
+      final LocalDate endDate = coupon.getPaymentDate().toLocalDate();
       if (indexFixingTimeSeries.getValue(fixingDate) != null) {
         final double fixedRate = indexFixingTimeSeries.getValue(fixingDate);
         final double payment = -coupon.getNotional() * coupon.getPaymentYearFraction() * fixedRate;
@@ -187,9 +187,9 @@ public final class FixedPayCashFlowVisitor extends InstrumentDefinitionVisitorSa
       return Collections.emptyMap();
     }
     ArgumentChecker.notNull(indexFixingTimeSeries, "index fixing time series");
-    final LocalDate fixingDate = coupon.getFixingDate().getDate();
+    final LocalDate fixingDate = coupon.getFixingDate().toLocalDate();
     if (!indexFixingTimeSeries.getLatestTime().isBefore(fixingDate)) {
-      final LocalDate endDate = coupon.getPaymentDate().getDate();
+      final LocalDate endDate = coupon.getPaymentDate().toLocalDate();
       if (indexFixingTimeSeries.getValue(fixingDate) != null) {
         final double fixedRate = indexFixingTimeSeries.getValue(fixingDate);
         final double payment = -coupon.getNotional() * coupon.getPaymentYearFraction() * (fixedRate + coupon.getSpread());
@@ -223,10 +223,10 @@ public final class FixedPayCashFlowVisitor extends InstrumentDefinitionVisitorSa
   public Map<LocalDate, MultipleCurrencyAmount> visitForwardRateAgreementDefinition(final ForwardRateAgreementDefinition forwardRateAgreement,
       final DoubleTimeSeries<LocalDate> indexFixingTimeSeries) {
     ArgumentChecker.notNull(forwardRateAgreement, "FRA");
-    final LocalDate endDate = forwardRateAgreement.getPaymentDate().getDate();
+    final LocalDate endDate = forwardRateAgreement.getPaymentDate().toLocalDate();
     if (forwardRateAgreement.getNotional() < 0) {
       ArgumentChecker.notNull(indexFixingTimeSeries, "index fixing time series");
-      final LocalDate fixingDate = forwardRateAgreement.getFixingDate().getDate();
+      final LocalDate fixingDate = forwardRateAgreement.getFixingDate().toLocalDate();
       if (!indexFixingTimeSeries.getLatestTime().isBefore(fixingDate)) {
         if (indexFixingTimeSeries.getValue(fixingDate) != null) {
           final double fixedRate = indexFixingTimeSeries.getValue(fixingDate);
@@ -351,7 +351,7 @@ public final class FixedPayCashFlowVisitor extends InstrumentDefinitionVisitorSa
     if (ndf.getNotional() > 0) {
       return Collections.emptyMap();
     }
-    final LocalDate endDate = ndf.getPaymentDate().getDate();
+    final LocalDate endDate = ndf.getPaymentDate().toLocalDate();
     return Collections.singletonMap(endDate, MultipleCurrencyAmount.of(ndf.getCurrency2(), -ndf.getNotional()));
   }
 

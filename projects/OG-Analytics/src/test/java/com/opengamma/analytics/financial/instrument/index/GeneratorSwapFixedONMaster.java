@@ -8,6 +8,8 @@ package com.opengamma.analytics.financial.instrument.index;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.threeten.bp.Period;
+
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -51,10 +53,10 @@ public final class GeneratorSwapFixedONMaster {
     final BusinessDayConvention modFol = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
     _generatorSwap = new HashMap<>();
     final IndexON fedFund = indexONMaster.getIndex("FED FUND", baseCalendar);
-    _generatorSwap.put("USD1YFEDFUND", new GeneratorSwapFixedON("USD1YFEDFUND", fedFund, DateUtils.periodOfMonths(12), act360, modFol, true, 2, 2));
-    _generatorSwap.put("EUR1YEONIA", new GeneratorSwapFixedON("EUR1YEONIA", indexONMaster.getIndex("EONIA", baseCalendar), DateUtils.periodOfMonths(12), act360, modFol, true, 2, 2));
-    _generatorSwap.put("AUD1YRBAON", new GeneratorSwapFixedON("AUD1YRBAON", indexONMaster.getIndex("RBA ON", baseCalendar), DateUtils.periodOfMonths(12), act365, modFol, true, 2, 1));
-    _generatorSwap.put("JPY1YTONAR", new GeneratorSwapFixedON("JPY1YTONAR", indexONMaster.getIndex("TONAR", baseCalendar), DateUtils.periodOfMonths(12), act365, modFol, true, 2, 1));
+    _generatorSwap.put("USD1YFEDFUND", new GeneratorSwapFixedON("USD1YFEDFUND", fedFund, Period.ofMonths(12), act360, modFol, true, 2, 2));
+    _generatorSwap.put("EUR1YEONIA", new GeneratorSwapFixedON("EUR1YEONIA", indexONMaster.getIndex("EONIA", baseCalendar), Period.ofMonths(12), act360, modFol, true, 2, 2));
+    _generatorSwap.put("AUD1YRBAON", new GeneratorSwapFixedON("AUD1YRBAON", indexONMaster.getIndex("RBA ON", baseCalendar), Period.ofMonths(12), act365, modFol, true, 2, 1));
+    _generatorSwap.put("JPY1YTONAR", new GeneratorSwapFixedON("JPY1YTONAR", indexONMaster.getIndex("TONAR", baseCalendar), Period.ofMonths(12), act365, modFol, true, 2, 1));
   }
 
   public GeneratorSwapFixedON getGenerator(final String name, final Calendar cal) {

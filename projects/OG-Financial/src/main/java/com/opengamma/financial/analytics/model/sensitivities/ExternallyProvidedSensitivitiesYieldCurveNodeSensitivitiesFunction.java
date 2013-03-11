@@ -247,7 +247,7 @@ public class ExternallyProvidedSensitivitiesYieldCurveNodeSensitivitiesFunction 
       if (exposure.getFactorType().equals(FactorType.YIELD) && exposure.getFactorName().contains(SWAP_TEXT)) {
         if (exposure.getNode() != null && exposure.getNode().length() > 0) {
           final Period nodePeriod = Period.parse("P" + exposure.getNode());
-          if (DateUtils.totalMonths(strip.getTenor().getPeriod()) == DateUtils.totalMonths(nodePeriod)) {
+          if (strip.getTenor().getPeriod().toTotalMonths() == nodePeriod.toTotalMonths()) {
             return exposure;
           }
         }
@@ -261,7 +261,7 @@ public class ExternallyProvidedSensitivitiesYieldCurveNodeSensitivitiesFunction 
       if (exposure.getFactorType().equals(FactorType.YIELD) && exposure.getFactorName().contains(BOND_TEXT)) {
         if (exposure.getNode() != null && exposure.getNode().length() > 0) {
           final Period nodePeriod = Period.parse("P" + exposure.getNode());
-          if (DateUtils.totalMonths(strip.getTenor().getPeriod()) == DateUtils.totalMonths(nodePeriod)) {
+          if (strip.getTenor().getPeriod().toTotalMonths() == nodePeriod.toTotalMonths()) {
             return exposure;
           }
         }

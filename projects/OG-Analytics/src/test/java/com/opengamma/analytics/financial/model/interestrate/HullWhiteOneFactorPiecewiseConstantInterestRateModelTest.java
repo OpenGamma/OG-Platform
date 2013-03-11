@@ -89,7 +89,7 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
    */
   public void futureConvexityFactor() {
     //EURIBOR 3M Index
-    final Period TENOR = Period.of(3, MONTHS);
+    final Period TENOR = Period.ofMonths(3);
     final int SETTLEMENT_DAYS = 2;
     final Calendar CALENDAR = new MondayToFridayCalendar("A");
     final DayCount DAY_COUNT_INDEX = DayCountFactory.INSTANCE.getDayCount("Actual/360");

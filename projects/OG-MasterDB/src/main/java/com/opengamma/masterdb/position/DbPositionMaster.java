@@ -268,7 +268,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
           .addValue("position_oid", positionOid)
           .addValue("quantity", trade.getQuantity())
           .addDate("trade_date", trade.getTradeDate())
-          .addTimeAllowNull("trade_time", trade.getTradeTime() != null ? trade.getTradeTime().getTime() : null)
+          .addTimeAllowNull("trade_time", trade.getTradeTime() != null ? trade.getTradeTime().toLocalTime() : null)
           .addValue("zone_offset",
               trade.getTradeTime() != null ? trade.getTradeTime().getOffset().getTotalSeconds() : null,
                   Types.INTEGER)
@@ -285,7 +285,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
                                       trade.getPremiumCurrency() != null ? trade.getPremiumCurrency().getCode() : null,
                                           Types.VARCHAR)
                                           .addDateAllowNull("premium_date", trade.getPremiumDate())
-                                          .addTimeAllowNull("premium_time", (trade.getPremiumTime() != null ? trade.getPremiumTime().getTime() : null))
+                                          .addTimeAllowNull("premium_time", (trade.getPremiumTime() != null ? trade.getPremiumTime().toLocalTime() : null))
                                           .addValue("premium_zone_offset",
                                               trade.getPremiumTime() != null ? trade.getPremiumTime().getOffset().getTotalSeconds() : null,
                                                   Types.INTEGER);

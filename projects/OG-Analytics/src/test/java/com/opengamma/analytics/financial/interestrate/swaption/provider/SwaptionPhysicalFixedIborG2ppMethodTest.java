@@ -55,8 +55,8 @@ public class SwaptionPhysicalFixedIborG2ppMethodTest {
   private static final GeneratorSwapFixedIborMaster GENERATOR_SWAP_MASTER = GeneratorSwapFixedIborMaster.getInstance();
   private static final int SPOT_LAG = IBOR_INDEX.getSpotLag();
   private static final int SWAP_TENOR_YEAR = 5;
-  private static final Period SWAP_TENOR = DateUtils.periodOfYears(SWAP_TENOR_YEAR);
-  private static final Period FIXED_PAYMENT_PERIOD = DateUtils.periodOfMonths(6);
+  private static final Period SWAP_TENOR = Period.ofYears(SWAP_TENOR_YEAR);
+  private static final Period FIXED_PAYMENT_PERIOD = Period.ofMonths(6);
   private static final DayCount FIXED_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("30/360");
   private static final IndexSwap CMS_INDEX = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, IBOR_INDEX, SWAP_TENOR);
   private static final ZonedDateTime EXPIRY_DATE = DateUtils.getUTCDate(2016, 7, 7);
@@ -194,9 +194,9 @@ public class SwaptionPhysicalFixedIborG2ppMethodTest {
     final G2ppPiecewiseConstantParameters parametersG2pp = TestsDataSetG2pp.createG2ppParameters3();
     final G2ppProviderDiscount bundleG2pp = new G2ppProviderDiscount(MULTICURVES, parametersG2pp, CUR);
     final GeneratorSwapFixedIbor generator = GENERATOR_SWAP_MASTER.getGenerator("EUR1YEURIBOR6M", CALENDAR);
-    final Period[] expiry = new Period[] {DateUtils.periodOfMonths(6), DateUtils.periodOfYears(1), DateUtils.periodOfYears(2), DateUtils.periodOfYears(5), DateUtils.periodOfYears(10), DateUtils.periodOfYears(25)};
+    final Period[] expiry = new Period[] {Period.ofMonths(6), Period.ofYears(1), Period.ofYears(2), Period.ofYears(5), Period.ofYears(10), Period.ofYears(25)};
     final int nbExpiry = expiry.length;
-    final Period[] tenor = new Period[] {DateUtils.periodOfYears(2), DateUtils.periodOfYears(5), DateUtils.periodOfYears(10), DateUtils.periodOfYears(25)};
+    final Period[] tenor = new Period[] {Period.ofYears(2), Period.ofYears(5), Period.ofYears(10), Period.ofYears(25)};
     final int nbTenor = tenor.length;
     final double[] fixedRate = new double[] {0.01, 0.02, 0.025, 0.03, 0.04};
     final int nbStrike = fixedRate.length;

@@ -277,16 +277,16 @@ public final class CouponIborCompoundingSpreadDefinition extends CouponDefinitio
 
   @Override
   public Coupon toDerivative(final ZonedDateTime dateTime, final DoubleTimeSeries<ZonedDateTime> indexFixingTimeSeries, final String... yieldCurveNames) {
-    final LocalDate dateConversion = dateTime.getDate();
+    final LocalDate dateConversion = dateTime.toLocalDate();
     ArgumentChecker.notNull(indexFixingTimeSeries, "Index fixing time series");
     ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
-    ArgumentChecker.isTrue(!dateConversion.isAfter(getPaymentDate().getDate()), "date is after payment date");
+    ArgumentChecker.isTrue(!dateConversion.isAfter(getPaymentDate().toLocalDate()), "date is after payment date");
     final double paymentTime = TimeCalculator.getTimeBetween(dateTime, getPaymentDate());
     final int nbSubPeriods = _fixingDates.length;
     int nbFixed = 0;
     double ratioAccrued = 1.0;
-    while ((nbFixed < nbSubPeriods) && (dateConversion.isAfter(_fixingDates[nbFixed].getDate()))) {
-      final ZonedDateTime rezonedFixingDate = ZonedDateTime.of(LocalDateTime.of(_fixingDates[nbFixed].getDate(), LocalTime.of(0, 0)), ZoneOffset.UTC);
+    while ((nbFixed < nbSubPeriods) && (dateConversion.isAfter(_fixingDates[nbFixed].toLocalDate()))) {
+      final ZonedDateTime rezonedFixingDate = ZonedDateTime.of(LocalDateTime.of(_fixingDates[nbFixed].toLocalDate(), LocalTime.of(0, 0)), ZoneOffset.UTC);
       final Double fixedRate = indexFixingTimeSeries.getValue(rezonedFixingDate);
       if (fixedRate == null) {
         throw new OpenGammaRuntimeException("Could not get fixing value for date " + rezonedFixingDate);
@@ -294,8 +294,8 @@ public final class CouponIborCompoundingSpreadDefinition extends CouponDefinitio
       ratioAccrued *= 1.0 + _paymentAccrualFactors[nbFixed] * (fixedRate + _spread);
       nbFixed++;
     }
-    if ((nbFixed < nbSubPeriods) && dateConversion.equals(_fixingDates[nbFixed].getDate())) {
-      final ZonedDateTime rezonedFixingDate = ZonedDateTime.of(LocalDateTime.of(_fixingDates[nbFixed].getDate(), LocalTime.of(0, 0)), ZoneOffset.UTC);
+    if ((nbFixed < nbSubPeriods) && dateConversion.equals(_fixingDates[nbFixed].toLocalDate())) {
+      final ZonedDateTime rezonedFixingDate = ZonedDateTime.of(LocalDateTime.of(_fixingDates[nbFixed].toLocalDate(), LocalTime.of(0, 0)), ZoneOffset.UTC);
       final Double fixedRate = indexFixingTimeSeries.getValue(rezonedFixingDate);
       if (fixedRate != null) {
         // Implementation note: on the fixing date and fixing already known.
@@ -326,8 +326,8 @@ public final class CouponIborCompoundingSpreadDefinition extends CouponDefinitio
 
   @Override
   public CouponIborCompoundingSpread toDerivative(final ZonedDateTime dateTime, final String... yieldCurveNames) {
-    final LocalDate dateConversion = dateTime.getDate();
-    ArgumentChecker.isTrue(!dateConversion.isAfter(_fixingDates[0].getDate()), "toDerivative without time series should have a date before the first fixing date.");
+    final LocalDate dateConversion = dateTime.toLocalDate();
+    ArgumentChecker.isTrue(!dateConversion.isAfter(_fixingDates[0].toLocalDate()), "toDerivative without time series should have a date before the first fixing date.");
     final double paymentTime = TimeCalculator.getTimeBetween(dateTime, getPaymentDate());
     final double[] fixingTimes = TimeCalculator.getTimeBetween(dateTime, _fixingDates);
     final double[] fixingPeriodStartTimes = TimeCalculator.getTimeBetween(dateTime, _fixingPeriodStartDates);

@@ -70,7 +70,7 @@ public class DbDateUtils {
   public static Timestamp toSqlTimestamp(Instant instant) {
     ArgumentChecker.notNull(instant, "instant");
     OffsetDateTime utc = OffsetDateTime.ofInstant(instant, ZoneOffset.UTC);
-    return toSqlDateTime(utc.getDateTime());
+    return toSqlDateTime(utc.toLocalDateTime());
   }
 
   /**

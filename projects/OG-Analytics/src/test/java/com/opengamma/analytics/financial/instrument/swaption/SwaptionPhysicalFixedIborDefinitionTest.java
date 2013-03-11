@@ -45,18 +45,18 @@ public class SwaptionPhysicalFixedIborDefinitionTest {
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final boolean IS_EOM = true;
-  private static final Period ANNUITY_TENOR = Period.of(2, YEARS);
+  private static final Period ANNUITY_TENOR = Period.ofYears(2);
   private static final ZonedDateTime SETTLEMENT_DATE = DateUtils.getUTCDate(2011, 3, 30);
   private static final double NOTIONAL = 1000000; //1m
   //Fixed leg: Semi-annual bond
-  private static final Period FIXED_PAYMENT_PERIOD = Period.of(6, MONTHS);
+  private static final Period FIXED_PAYMENT_PERIOD = Period.ofMonths(6);
   private static final DayCount FIXED_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("30/360");
   private static final double RATE = 0.0325;
   private static final boolean FIXED_IS_PAYER = true;
   private static final AnnuityCouponFixedDefinition FIXED_ANNUITY = AnnuityCouponFixedDefinition.from(CUR, SETTLEMENT_DATE, ANNUITY_TENOR, FIXED_PAYMENT_PERIOD, CALENDAR, FIXED_DAY_COUNT,
       BUSINESS_DAY, IS_EOM, NOTIONAL, RATE, FIXED_IS_PAYER);
   //Ibor leg: quarterly money
-  private static final Period INDEX_TENOR = Period.of(3, MONTHS);
+  private static final Period INDEX_TENOR = Period.ofMonths(3);
   private static final int SETTLEMENT_DAYS = 2;
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final IborIndex INDEX = new IborIndex(CUR, INDEX_TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM);
@@ -88,7 +88,7 @@ public class SwaptionPhysicalFixedIborDefinitionTest {
   @Test
   public void testToDerivative() {
     final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
-    final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.of(REFERENCE_DATE.getDate(), LocalTime.MIDNIGHT), ZoneOffset.UTC);
+    final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.of(REFERENCE_DATE.toLocalDate(), LocalTime.MIDNIGHT), ZoneOffset.UTC);
     final double expiryTime = actAct.getDayCountFraction(zonedDate, EXPIRY_DATE);
     final String fundingCurve = "Funding";
     final String forwardCurve = "Forward";

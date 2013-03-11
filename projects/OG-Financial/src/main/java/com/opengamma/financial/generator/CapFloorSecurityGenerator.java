@@ -73,12 +73,12 @@ public class CapFloorSecurityGenerator extends SecurityGenerator<CapFloorSecurit
     ExternalId underlyingIdentifier = null;
     Tenor tenor = ibor ? getRandom(IBOR_TENORS) : getRandom(TENORS);
     try {
-      underlyingIdentifier = getUnderlying(currency, startDate.getDate(), tenor, ibor);
+      underlyingIdentifier = getUnderlying(currency, startDate.toLocalDate(), tenor, ibor);
       if (underlyingIdentifier == null) {
         return null;
       }
     } catch (Exception ex) {
-      s_logger.warn("Unable to obtain underlying id for " + currency + " " + startDate.getDate() + " " + tenor, ex);
+      s_logger.warn("Unable to obtain underlying id for " + currency + " " + startDate.toLocalDate() + " " + tenor, ex);
       return null;
     }
     final double strike = 0.01 + (double) getRandom(6) / 200;

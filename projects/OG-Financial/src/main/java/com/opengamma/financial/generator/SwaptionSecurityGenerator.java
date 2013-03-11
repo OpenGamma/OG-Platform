@@ -7,7 +7,6 @@ package com.opengamma.financial.generator;
 
 import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
 
-import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.financial.security.FinancialSecurityUtils;
@@ -60,7 +59,7 @@ public class SwaptionSecurityGenerator extends SecurityGenerator<SwaptionSecurit
     SwapSecurity security;
     do {
       do {
-        getUnderlyingGenerator().setSwationExpiry(swaptionExpiry.getDate());
+        getUnderlyingGenerator().setSwationExpiry(swaptionExpiry.toLocalDate());
         security = getUnderlyingGenerator().createSecurity();
       } while (security == null);
     } while ((FinancialSecurityUtils.getCurrency(security) == null) || security.getMaturityDate().isBefore(earliestMaturity));
@@ -164,7 +163,7 @@ public class SwaptionSecurityGenerator extends SecurityGenerator<SwaptionSecurit
     }
     final SwaptionSecurity security = new SwaptionSecurity(isPayer, getSecurityPersister().storeSecurity(underlying).iterator().next(), isLong, new Expiry(expiry), isCashSettled, currency, notional,
         new EuropeanExerciseType(), settlementDate);
-    security.setName(createName(currency, optionLength, (int) MONTHS.between(underlying.getEffectiveDate(), underlying.getMaturityDate()).getAmount(), notional, rate));
+    security.setName(createName(currency, optionLength, (int) MONTHS.between(underlying.getEffectiveDate(), underlying.getMaturityDate()), notional, rate));
     return security;
   }
 

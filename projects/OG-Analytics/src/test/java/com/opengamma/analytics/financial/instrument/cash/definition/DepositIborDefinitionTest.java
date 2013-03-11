@@ -32,7 +32,7 @@ public class DepositIborDefinitionTest {
 
   private static final double NOTIONAL = 100000000;
   private static final double RATE = 0.0250;
-  //  private static final Period DEPOSIT_PERIOD = Period.of(6, MONTHS);
+  //  private static final Period DEPOSIT_PERIOD = Period.ofMonths(6);
   private static final ZonedDateTime END_DATE = ScheduleCalculator.getAdjustedDate(SPOT_DATE, INDEX);
   private static final double DEPOSIT_AF = INDEX.getDayCount().getDayCountFraction(SPOT_DATE, END_DATE);
   private static final DepositIborDefinition DEPOSIT_IBOR_DEFINITION = new DepositIborDefinition(EUR, SPOT_DATE, END_DATE, NOTIONAL, RATE, DEPOSIT_AF, INDEX);

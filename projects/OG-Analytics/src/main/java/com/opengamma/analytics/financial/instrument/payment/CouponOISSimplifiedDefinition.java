@@ -181,7 +181,7 @@ public class CouponOISSimplifiedDefinition extends CouponDefinition {
   @Override
   public CouponOIS toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "date");
-    ArgumentChecker.isTrue(!date.isAfter(_fixingPeriodStartDate) || date.getDate().equals(_fixingPeriodStartDate.getDate()),
+    ArgumentChecker.isTrue(!date.isAfter(_fixingPeriodStartDate) || date.toLocalDate().equals(_fixingPeriodStartDate.toLocalDate()),
         "Simplified Coupon OIS only valid for dates where the fixing has not taken place yet.");
     ArgumentChecker.isTrue(yieldCurveNames.length > 1, "at least two curves required");
     final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());

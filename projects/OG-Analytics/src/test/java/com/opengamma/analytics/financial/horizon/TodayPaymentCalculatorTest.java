@@ -36,7 +36,7 @@ public class TodayPaymentCalculatorTest {
   private static final Calendar CALENDAR_USD = new MondayToFridayCalendar("USD Calendar");
   private static final GeneratorSwapFixedIborMaster GENERATOR_SWAP_MASTER = GeneratorSwapFixedIborMaster.getInstance();
   private static final GeneratorSwapFixedIbor USD6MLIBOR3M = GENERATOR_SWAP_MASTER.getGenerator("USD6MLIBOR3M", CALENDAR_USD);
-  private static final Period SWAP_TENOR = Period.of(5, YEARS);
+  private static final Period SWAP_TENOR = Period.ofYears(5);
   private static final ZonedDateTime SETTLEMENT_DATE = DateUtils.getUTCDate(2012, 5, 17);
   private static final double NOTIONAL = 100000000; //100m
   private static final double RATE_FIXED = 0.025;

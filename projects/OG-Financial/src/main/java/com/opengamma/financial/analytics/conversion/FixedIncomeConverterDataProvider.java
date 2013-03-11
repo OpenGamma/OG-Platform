@@ -12,6 +12,7 @@ import java.util.Set;
 import org.apache.commons.lang.Validate;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalTime;
+import org.threeten.bp.Period;
 import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
@@ -198,7 +199,7 @@ public class FixedIncomeConverterDataProvider {
         return null;
       }
       return Collections.singleton(HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, MarketDataRequirementNames.MARKET_VALUE,
-          DateConstraint.VALUATION_TIME.minus(DateUtils.periodOfDays(7)).previousWeekDay(), true, DateConstraint.VALUATION_TIME, false));
+          DateConstraint.VALUATION_TIME.minus(Period.ofDays(7)).previousWeekDay(), true, DateConstraint.VALUATION_TIME, false));
     }
 
     @SuppressWarnings("synthetic-access")
@@ -236,7 +237,7 @@ public class FixedIncomeConverterDataProvider {
         return null;
       }
       return Collections.singleton(HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, MarketDataRequirementNames.MARKET_VALUE,
-          DateConstraint.VALUATION_TIME.minus(DateUtils.periodOfDays(7)).previousWeekDay(), true, DateConstraint.VALUATION_TIME, false));
+          DateConstraint.VALUATION_TIME.minus(Period.ofDays(7)).previousWeekDay(), true, DateConstraint.VALUATION_TIME, false));
     }
 
     @Override
@@ -265,7 +266,7 @@ public class FixedIncomeConverterDataProvider {
     public Set<ValueRequirement> getTimeSeriesRequirements(final CapFloorSecurity security) {
       final ExternalId id = security.getUnderlyingId();
       final ZonedDateTime capStartDate = security.getStartDate();
-      final LocalDate startDate = capStartDate.getDate().minusDays(7); // To catch first fixing. SwapSecurity does not have this date.
+      final LocalDate startDate = capStartDate.toLocalDate().minusDays(7); // To catch first fixing. SwapSecurity does not have this date.
       final ValueRequirement requirement = getIndexTimeSeriesRequirement(getIndexIdBundle(id), startDate);
       if (requirement == null) {
         return null;
@@ -293,7 +294,7 @@ public class FixedIncomeConverterDataProvider {
         return null;
       }
       return Collections.singleton(HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, MarketDataRequirementNames.MARKET_VALUE,
-          DateConstraint.VALUATION_TIME.minus(DateUtils.periodOfMonths(1)).previousWeekDay(), true, DateConstraint.VALUATION_TIME, true));
+          DateConstraint.VALUATION_TIME.minus(Period.ofMonths(1)).previousWeekDay(), true, DateConstraint.VALUATION_TIME, true));
     }
 
     @Override
@@ -326,7 +327,7 @@ public class FixedIncomeConverterDataProvider {
         return null;
       }
       return Collections.singleton(HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, MarketDataRequirementNames.MARKET_VALUE,
-          DateConstraint.VALUATION_TIME.minus(DateUtils.periodOfMonths(1)).previousWeekDay(), true, DateConstraint.VALUATION_TIME, true));
+          DateConstraint.VALUATION_TIME.minus(Period.ofMonths(1)).previousWeekDay(), true, DateConstraint.VALUATION_TIME, true));
     }
 
     @Override
@@ -359,7 +360,7 @@ public class FixedIncomeConverterDataProvider {
         return null;
       }
       return Collections.singleton(HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, MarketDataRequirementNames.MARKET_VALUE,
-          DateConstraint.VALUATION_TIME.minus(DateUtils.periodOfMonths(1)).previousWeekDay(), true, DateConstraint.VALUATION_TIME, false));
+          DateConstraint.VALUATION_TIME.minus(Period.ofMonths(1)).previousWeekDay(), true, DateConstraint.VALUATION_TIME, false));
     }
 
     @Override
@@ -388,7 +389,7 @@ public class FixedIncomeConverterDataProvider {
       final SwapLeg payLeg = security.getPayLeg();
       final SwapLeg receiveLeg = security.getReceiveLeg();
       final ZonedDateTime swapStartDate = security.getEffectiveDate();
-      final ZonedDateTime swapStartLocalDate = swapStartDate.getDate().atStartOfDay(ZoneOffset.UTC);
+      final ZonedDateTime swapStartLocalDate = swapStartDate.toLocalDate().atStartOfDay(ZoneOffset.UTC);
       final ValueRequirement payLegTS = getIndexTimeSeriesRequirement(InterestRateInstrumentType.getInstrumentTypeFromSecurity(security), payLeg, swapStartLocalDate);
       final ValueRequirement receiveLegTS = getIndexTimeSeriesRequirement(InterestRateInstrumentType.getInstrumentTypeFromSecurity(security), receiveLeg, swapStartLocalDate);
       final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
@@ -411,7 +412,7 @@ public class FixedIncomeConverterDataProvider {
       final SwapLeg payLeg = security.getPayLeg();
       final SwapLeg receiveLeg = security.getReceiveLeg();
       final ZonedDateTime fixingSeriesStartDate = security.getEffectiveDate().isBefore(now) ? security.getEffectiveDate() : now;
-      final ZonedDateTime fixingSeriesStartLocalDate = fixingSeriesStartDate.getDate().atStartOfDay(ZoneOffset.UTC);
+      final ZonedDateTime fixingSeriesStartLocalDate = fixingSeriesStartDate.toLocalDate().atStartOfDay(ZoneOffset.UTC);
       final boolean includeCurrentDatesFixing = true;
       final DoubleTimeSeries<ZonedDateTime> payLegTS = getIndexTimeSeries(payLeg, fixingSeriesStartLocalDate, now, includeCurrentDatesFixing, timeSeries);
       final DoubleTimeSeries<ZonedDateTime> receiveLegTS = getIndexTimeSeries(receiveLeg, fixingSeriesStartLocalDate, now, includeCurrentDatesFixing, timeSeries);
@@ -463,7 +464,7 @@ public class FixedIncomeConverterDataProvider {
       final ExternalId longId = security.getLongId();
       final ExternalId shortId = security.getShortId();
       final ZonedDateTime capStartDate = security.getStartDate();
-      final LocalDate startDate = capStartDate.getDate().minusDays(7); // To catch first fixing. SwapSecurity does not have this date.
+      final LocalDate startDate = capStartDate.toLocalDate().minusDays(7); // To catch first fixing. SwapSecurity does not have this date.
       final ValueRequirement indexLongTS = getIndexTimeSeriesRequirement(getIndexIdBundle(longId), startDate);
       if (indexLongTS == null) {
         return null;
@@ -511,7 +512,7 @@ public class FixedIncomeConverterDataProvider {
     if (leg instanceof FloatingInterestRateLeg) {
       final FloatingInterestRateLeg floatingLeg = (FloatingInterestRateLeg) leg;
       final ExternalIdBundle id = getIndexIdForSwap(floatingLeg);
-      final LocalDate startDate = swapEffectiveDate.getDate().minusDays(360);
+      final LocalDate startDate = swapEffectiveDate.toLocalDate().minusDays(360);
       // Implementation note: To catch first fixing. SwapSecurity does not have this date.
       final HistoricalTimeSeriesResolutionResult ts = getTimeSeriesResolver().resolve(id, null, null, null, MarketDataRequirementNames.MARKET_VALUE, null);
       if (ts == null) {

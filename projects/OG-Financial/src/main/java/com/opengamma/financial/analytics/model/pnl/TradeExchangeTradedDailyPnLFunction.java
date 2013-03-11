@@ -7,6 +7,7 @@ package com.opengamma.financial.analytics.model.pnl;
 
 import org.threeten.bp.Clock;
 import org.threeten.bp.LocalDate;
+import org.threeten.bp.Period;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.position.PositionOrTrade;
@@ -69,7 +70,7 @@ public class TradeExchangeTradedDailyPnLFunction extends AbstractTradeOrDailyPos
 
   @Override
   protected DateConstraint getTimeSeriesStartDate(final PositionOrTrade positionOrTrade) {
-    return DateConstraint.VALUATION_TIME.minus(DateUtils.periodOfDays(MAX_DAYS_OLD + 1)); // yesterday - MAX_DAYS_OLD
+    return DateConstraint.VALUATION_TIME.minus(Period.ofDays(MAX_DAYS_OLD + 1)); // yesterday - MAX_DAYS_OLD
   }
 
   @Override

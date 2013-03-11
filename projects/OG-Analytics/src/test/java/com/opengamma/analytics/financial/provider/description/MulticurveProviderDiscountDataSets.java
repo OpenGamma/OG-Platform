@@ -5,8 +5,6 @@
  */
 package com.opengamma.analytics.financial.provider.description;
 
-import static org.threeten.bp.temporal.ChronoUnit.YEARS;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -285,8 +283,8 @@ public class MulticurveProviderDiscountDataSets {
     final ZonedDateTime[] maturityDateUs = new ZonedDateTime[2 * yearUs.length];
     //    double[] maturityTimeUs = new double[yearUs.length];
     for (int loopus = 0; loopus < yearUs.length; loopus++) {
-      maturityDateUs[2 * loopus] = ScheduleCalculator.getAdjustedDate(referenceDate[0], Period.of(yearUs[loopus], YEARS), BUSINESS_DAY_USD, CALENDAR_USD);
-      maturityDateUs[2 * loopus + 1] = ScheduleCalculator.getAdjustedDate(referenceDate[1], Period.of(yearUs[loopus], YEARS), BUSINESS_DAY_USD, CALENDAR_USD);
+      maturityDateUs[2 * loopus] = ScheduleCalculator.getAdjustedDate(referenceDate[0], Period.ofYears(yearUs[loopus]), BUSINESS_DAY_USD, CALENDAR_USD);
+      maturityDateUs[2 * loopus + 1] = ScheduleCalculator.getAdjustedDate(referenceDate[1], Period.ofYears(yearUs[loopus]), BUSINESS_DAY_USD, CALENDAR_USD);
       timeValueUs[2 + 2 * loopus] = TimeCalculator.getTimeBetween(pricingDate, maturityDateUs[2 * loopus]);
       timeValueUs[2 + 2 * loopus + 1] = TimeCalculator.getTimeBetween(pricingDate, maturityDateUs[2 * loopus + 1]);
       indexValueUs[2 + 2 * loopus] = indexValueUs[0] * Math.pow(1 + 0.02, yearUs[loopus]); // 2% inflation a year.

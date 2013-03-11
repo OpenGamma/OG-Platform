@@ -28,7 +28,6 @@ import org.threeten.bp.Instant;
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
-import org.threeten.bp.format.DateTimeFormatters;
 
 import com.opengamma.component.tool.AbstractComponentTool;
 import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
@@ -74,7 +73,7 @@ public class MarketDataSnapshotTool extends AbstractComponentTool {
   /** Valuation time command line option. */
   private static final String VALUATION_TIME_OPTION = "t";
   /** Time format: yyyyMMdd */
-  private static final DateTimeFormatter VALUATION_TIME_FORMATTER = DateTimeFormatters.pattern("HH:mm:ss");
+  private static final DateTimeFormatter VALUATION_TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm:ss");
 
   private static final List<String> DEFAULT_PREFERRED_CLASSIFIERS = Arrays.asList("central", "main", "default", "shared", "combined");
   //-------------------------------------------------------------------------

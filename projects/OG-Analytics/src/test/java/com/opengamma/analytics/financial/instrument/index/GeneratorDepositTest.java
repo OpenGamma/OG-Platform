@@ -105,7 +105,7 @@ public class GeneratorDepositTest {
   @Test
   public void generateInstrument() {
     ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 7, 17);
-    Period tenor = Period.of(6, MONTHS);
+    Period tenor = Period.ofMonths(6);
     double rate = 0.01;
     double notional = 12345;
     GeneratorAttributeIR attribute = new GeneratorAttributeIR(tenor);

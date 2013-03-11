@@ -145,21 +145,21 @@ public class MulticurveBuildingDiscountingDiscountAUDTest {
   //  /** Generators for the dsc USD curve */
   //  private static final GeneratorInstrument[] DSC_USD_GENERATORS = new GeneratorInstrument[] {GENERATOR_DEPOSIT_ON_AUD, GENERATOR_OIS_AUD, GENERATOR_OIS_AUD, GENERATOR_OIS_AUD, GENERATOR_OIS_AUD};
   //  /** Tenors for the dsc USD curve */
-  //  private static final Period[] DSC_AUD_TENOR = new Period[] {DateUtils.periodOfDays(0), DateUtils.periodOfMonths(1), DateUtils.periodOfMonths(6), DateUtils.periodOfYears(1), DateUtils.periodOfYears(5)};
+  //  private static final Period[] DSC_AUD_TENOR = new Period[] {Period.ofDays(0), Period.ofMonths(1), Period.ofMonths(6), Period.ofYears(1), Period.ofYears(5)};
   //
   //  /** Market values for the Fwd 3M USD curve */
   //  private static final double[] FWD3_AUD_MARKET_QUOTES = new double[] {0.0420, 0.0420, 0.0470, 0.0020};
   //  /** Generators for the Fwd 3M USD curve */
   //  private static final GeneratorInstrument[] FWD3_AUD_GENERATORS = new GeneratorInstrument[] {GENERATOR_AUDBB3M, GENERATOR_FRA_3M, AUD3MBBSW3M, AUDBBSW3MBBSW6M};
   //  /** Tenors for the Fwd 3M USD curve */
-  //  private static final Period[] FWD3_AUD_TENOR = new Period[] {DateUtils.periodOfMonths(0), DateUtils.periodOfMonths(6), DateUtils.periodOfYears(1), DateUtils.periodOfYears(5)};
+  //  private static final Period[] FWD3_AUD_TENOR = new Period[] {Period.ofMonths(0), Period.ofMonths(6), Period.ofYears(1), Period.ofYears(5)};
   //
   //  /** Market values for the Fwd 3M USD curve */
   //  private static final double[] FWD6_AUD_MARKET_QUOTES = new double[] {0.0440, 0.0020, 0.0560};
   //  /** Generators for the Fwd 3M USD curve */
   //  private static final GeneratorInstrument[] FWD6_AUD_GENERATORS = new GeneratorInstrument[] {GENERATOR_AUDBB6M, AUDBBSW3MBBSW6M, AUD6MBBSW6M};
   //  /** Tenors for the Fwd 3M USD curve */
-  //  private static final Period[] FWD6_AUD_TENOR = new Period[] {DateUtils.periodOfMonths(0), DateUtils.periodOfYears(1), DateUtils.periodOfYears(5)};
+  //  private static final Period[] FWD6_AUD_TENOR = new Period[] {Period.ofMonths(0), Period.ofYears(1), Period.ofYears(5)};
 
   /** Market values for the dsc USD curve */
   private static final double[] DSC_AUD_MARKET_QUOTES = new double[] {0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400};
@@ -167,8 +167,8 @@ public class MulticurveBuildingDiscountingDiscountAUDTest {
   private static final GeneratorInstrument<? extends GeneratorAttribute>[] DSC_USD_GENERATORS = new GeneratorInstrument<?>[] {GENERATOR_DEPOSIT_ON_AUD, GENERATOR_OIS_AUD, GENERATOR_OIS_AUD,
     GENERATOR_OIS_AUD, GENERATOR_OIS_AUD, GENERATOR_OIS_AUD, GENERATOR_OIS_AUD, GENERATOR_OIS_AUD, GENERATOR_OIS_AUD, GENERATOR_OIS_AUD, GENERATOR_OIS_AUD, GENERATOR_OIS_AUD};
   /** Tenors for the dsc USD curve */
-  private static final Period[] DSC_AUD_TENOR = new Period[] {DateUtils.periodOfDays(0), DateUtils.periodOfMonths(1), DateUtils.periodOfMonths(2), DateUtils.periodOfMonths(3), DateUtils.periodOfMonths(6), DateUtils.periodOfMonths(9), DateUtils.periodOfYears(1),
-    DateUtils.periodOfYears(2), DateUtils.periodOfYears(3), DateUtils.periodOfYears(4), DateUtils.periodOfYears(5), DateUtils.periodOfYears(10)};
+  private static final Period[] DSC_AUD_TENOR = new Period[] {Period.ofDays(0), Period.ofMonths(1), Period.ofMonths(2), Period.ofMonths(3), Period.ofMonths(6), Period.ofMonths(9), Period.ofYears(1),
+    Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5), Period.ofYears(10)};
   private static final GeneratorAttributeIR[] DSC_AUD_ATTR = new GeneratorAttributeIR[DSC_AUD_TENOR.length];
   static {
     for (int loopins = 0; loopins < DSC_AUD_TENOR.length; loopins++) {
@@ -182,8 +182,8 @@ public class MulticurveBuildingDiscountingDiscountAUDTest {
   private static final GeneratorInstrument<? extends GeneratorAttribute>[] FWD3_AUD_GENERATORS = new GeneratorInstrument<?>[] {GENERATOR_AUDBB3M, GENERATOR_FRA_3M, GENERATOR_FRA_3M, AUD3MBBSW3M,
     AUD3MBBSW3M, AUD3MBBSW3M, AUDBBSW3MBBSW6M, AUDBBSW3MBBSW6M, AUDBBSW3MBBSW6M};
   /** Tenors for the Fwd 3M USD curve */
-  private static final Period[] FWD3_AUD_TENOR = new Period[] {DateUtils.periodOfMonths(0), DateUtils.periodOfMonths(6), DateUtils.periodOfMonths(9), DateUtils.periodOfYears(1), DateUtils.periodOfYears(2), DateUtils.periodOfYears(3), DateUtils.periodOfYears(5),
-    DateUtils.periodOfYears(7), DateUtils.periodOfYears(10)};
+  private static final Period[] FWD3_AUD_TENOR = new Period[] {Period.ofMonths(0), Period.ofMonths(6), Period.ofMonths(9), Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(5),
+    Period.ofYears(7), Period.ofYears(10)};
   private static final GeneratorAttributeIR[] FWD3_AUD_ATTR = new GeneratorAttributeIR[FWD3_AUD_TENOR.length];
   static {
     for (int loopins = 0; loopins < FWD3_AUD_TENOR.length; loopins++) {
@@ -197,7 +197,7 @@ public class MulticurveBuildingDiscountingDiscountAUDTest {
   private static final GeneratorInstrument<? extends GeneratorAttribute>[] FWD6_AUD_GENERATORS = new GeneratorInstrument<?>[] {GENERATOR_AUDBB6M, AUDBBSW3MBBSW6M, AUDBBSW3MBBSW6M, AUDBBSW3MBBSW6M,
     AUD6MBBSW6M, AUD6MBBSW6M, AUD6MBBSW6M};
   /** Tenors for the Fwd 3M USD curve */
-  private static final Period[] FWD6_AUD_TENOR = new Period[] {DateUtils.periodOfMonths(0), DateUtils.periodOfYears(1), DateUtils.periodOfYears(2), DateUtils.periodOfYears(3), DateUtils.periodOfYears(5), DateUtils.periodOfYears(7), DateUtils.periodOfYears(10)};
+  private static final Period[] FWD6_AUD_TENOR = new Period[] {Period.ofMonths(0), Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(5), Period.ofYears(7), Period.ofYears(10)};
   private static final GeneratorAttributeIR[] FWD6_AUD_ATTR = new GeneratorAttributeIR[FWD6_AUD_TENOR.length];
   static {
     for (int loopins = 0; loopins < FWD6_AUD_TENOR.length; loopins++) {

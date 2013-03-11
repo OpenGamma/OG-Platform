@@ -23,7 +23,6 @@ import org.threeten.bp.Period;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
-import org.threeten.bp.format.DateTimeFormatters;
 import org.threeten.bp.temporal.TemporalAdjuster;
 
 import com.opengamma.analytics.financial.instrument.Convention;
@@ -76,7 +75,7 @@ public class ISDATestGridHarness {
     selectedUnitTestGrids.put("corporate", new String[] { "CAD_20090501.xls", "CHF_20090507.xls", "EUR_20090525.xls", "GBP_20090512.xls", "JPY_20090526.xls", "USD_20090528.xls" } );
   }
   
-  private static final DateTimeFormatter formatter = DateTimeFormatters.pattern("dd/MM/yyyy");
+  private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
   private static final DayCount dayCount = new ActualThreeSixtyFive();
   private static final ISDAApproxCDSPricingMethod calculator = new ISDAApproxCDSPricingMethod();
   
@@ -348,7 +347,7 @@ public class ISDATestGridHarness {
       : pricingDate.plusDays(1).with(adjuster).plusDays(1).with(adjuster).plusDays(1).with(adjuster);
     
     // If start date is not supplied, construct one that is before the pricing date
-    final Period yearsToMaturity = Period.ZERO.plusYears(YEARS.between(pricingDate, maturity).getAmount());
+    final Period yearsToMaturity = Period.ZERO.plusYears(YEARS.between(pricingDate, maturity));
     final ZonedDateTime startDate = testCase.getStartDate() != null
       ? testCase.getStartDate().atStartOfDay(ZoneOffset.UTC)
       : maturity.minusYears(yearsToMaturity.getYears() + 1).with(adjuster);

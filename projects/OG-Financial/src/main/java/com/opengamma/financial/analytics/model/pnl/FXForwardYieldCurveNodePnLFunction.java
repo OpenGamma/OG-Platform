@@ -91,7 +91,7 @@ public class FXForwardYieldCurveNodePnLFunction extends AbstractFunction.NonComp
     final Currency receiveCurrency = security.accept(ForexVisitors.getReceiveCurrencyVisitor());
     final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(executionContext);
     final Clock snapshotClock = executionContext.getValuationClock();
-    final LocalDate now = ZonedDateTime.now(snapshotClock).getDate();
+    final LocalDate now = ZonedDateTime.now(snapshotClock).toLocalDate();
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final String payCurveCalculationConfigName = desiredValue.getConstraint(ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG);
     final String receiveCurveCalculationConfigName = desiredValue.getConstraint(ValuePropertyNames.RECEIVE_CURVE_CALCULATION_CONFIG);

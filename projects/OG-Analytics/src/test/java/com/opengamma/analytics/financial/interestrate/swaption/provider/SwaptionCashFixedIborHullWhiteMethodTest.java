@@ -59,8 +59,8 @@ public class SwaptionCashFixedIborHullWhiteMethodTest {
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 7, 7);
 
   private static final int SWAP_TENOR_YEAR = 5;
-  private static final Period SWAP_TENOR = DateUtils.periodOfYears(SWAP_TENOR_YEAR);
-  private static final Period FIXED_PAYMENT_PERIOD = DateUtils.periodOfMonths(12);
+  private static final Period SWAP_TENOR = Period.ofYears(SWAP_TENOR_YEAR);
+  private static final Period FIXED_PAYMENT_PERIOD = Period.ofMonths(12);
   private static final DayCount FIXED_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("30/360");
   private static final IndexSwap CMS_INDEX = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, EURIBOR6M, SWAP_TENOR);
   private static final ZonedDateTime EXPIRY_DATE = DateUtils.getUTCDate(2016, 7, 7);

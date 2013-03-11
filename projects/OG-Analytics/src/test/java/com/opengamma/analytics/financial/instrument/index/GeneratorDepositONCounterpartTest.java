@@ -70,7 +70,7 @@ public class GeneratorDepositONCounterpartTest {
   @Test
   public void generateInstrument() {
     ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 7, 17);
-    Period tenor = Period.of(2, DAYS);
+    Period tenor = Period.ofDays(2);
     double rate = 0.01;
     double notional = 12345;
     GeneratorAttributeIR attribute = new GeneratorAttributeIR(tenor, tenor);

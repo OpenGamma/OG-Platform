@@ -16,6 +16,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.Clock;
+import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
@@ -181,7 +182,7 @@ public class InterestRateFutureOptionConstantSpreadThetaFunction extends Abstrac
       return null;
     }
     requirements.add(HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, MarketDataRequirementNames.MARKET_VALUE,
-        DateConstraint.VALUATION_TIME.minus(DateUtils.periodOfMonths(1)).previousWeekDay(), true, DateConstraint.VALUATION_TIME, false));
+        DateConstraint.VALUATION_TIME.minus(Period.ofMonths(1)).previousWeekDay(), true, DateConstraint.VALUATION_TIME, false));
     return requirements;
   }
 

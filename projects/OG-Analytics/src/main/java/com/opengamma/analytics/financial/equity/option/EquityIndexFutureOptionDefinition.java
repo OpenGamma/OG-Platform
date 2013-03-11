@@ -7,9 +7,7 @@ package com.opengamma.analytics.financial.equity.option;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.threeten.bp.ZonedDateTime;
-import org.threeten.bp.temporal.ChronoUnit;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.ExerciseDecisionType;
 import com.opengamma.analytics.financial.equity.future.definition.EquityFutureDefinition;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityIndexFuture;
@@ -18,7 +16,6 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.DateUtils;
 
 /**
  * 
@@ -157,7 +154,7 @@ public class EquityIndexFutureOptionDefinition implements InstrumentDefinition<E
   @Override
   public EquityIndexFutureOption toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "date");
-    ArgumentChecker.inOrderOrEqual(date.getDateTime().getDate(), _expiryDate.getDateTime().getDate(), "valuation date", "expiry");
+    ArgumentChecker.inOrderOrEqual(date.toLocalDate(), _expiryDate.toLocalDate(), "valuation date", "expiry");
     double timeToExpiry = TimeCalculator.getTimeBetween(date, getExpiryDate());
     if (timeToExpiry == 0) { // Day of expiration: Still time value if option has not expired.
       // REVIEW Stephen and Casey - This essentially assumes an Expiry with accuracy of 1 day.

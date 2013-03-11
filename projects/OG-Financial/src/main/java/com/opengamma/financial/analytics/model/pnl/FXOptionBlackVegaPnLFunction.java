@@ -96,7 +96,7 @@ public class FXOptionBlackVegaPnLFunction extends AbstractFunction.NonCompiledIn
     final DoubleLabelledMatrix2D vegaMatrix = (DoubleLabelledMatrix2D) vegaMatrixObject;
     final HistoricalTimeSeriesBundle timeSeriesBundle = (HistoricalTimeSeriesBundle) volatilityHTSObject;
     final Clock snapshotClock = executionContext.getValuationClock();
-    final LocalDate now = ZonedDateTime.now(snapshotClock).getDate();
+    final LocalDate now = ZonedDateTime.now(snapshotClock).toLocalDate();
     final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
     final String surfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
     final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(executionContext);

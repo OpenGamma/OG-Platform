@@ -11,6 +11,7 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Period;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
@@ -265,7 +266,7 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
   }
   
   protected DateConstraint getTimeSeriesStartDate() {
-    return DateConstraint.VALUATION_TIME.minus(DateUtils.periodOfDays(s_historyLookbackDays + 1)); // yesterday - HISTORY_LOOKBACK_DAYS
+    return DateConstraint.VALUATION_TIME.minus(Period.ofDays(s_historyLookbackDays + 1)); // yesterday - HISTORY_LOOKBACK_DAYS
   }
   
   protected DateConstraint getTimeSeriesEndDate() {

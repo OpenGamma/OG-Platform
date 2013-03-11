@@ -26,7 +26,6 @@ import org.threeten.bp.Instant;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.OffsetDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
-import org.threeten.bp.format.DateTimeFormatters;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.marketdata.spec.HistoricalMarketDataSpecification;
@@ -52,7 +51,7 @@ public class BatchJobRunner {
   /**
    * Date-time format: yyyyMMdd
    */
-  private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatters.pattern("yyyyMMdd");
+  private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd");
 
   static LocalDate parseDate(String date) {
     return LocalDate.parse(date, DATE_FORMATTER);

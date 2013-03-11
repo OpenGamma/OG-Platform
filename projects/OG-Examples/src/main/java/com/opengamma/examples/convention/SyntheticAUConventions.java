@@ -9,6 +9,7 @@ import static com.opengamma.core.id.ExternalSchemes.syntheticSecurityId;
 import static com.opengamma.financial.convention.InMemoryConventionBundleMaster.simpleNameSecurityId;
 
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.Period;
 
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.analytics.ircurve.IndexType;
@@ -44,25 +45,25 @@ public class SyntheticAUConventions {
 
     final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
 
-    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("AUDCASHP1D")), "AUDCASHP1D", act365, following, DateUtils.periodOfDays(1), 0, false, au);
-    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("AUDCASHP1M")), "AUDCASHP1M", act365, modified, DateUtils.periodOfMonths(1), 2, false, au);
-    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("AUDCASHP2M")), "AUDCASHP2M", act365, modified, DateUtils.periodOfMonths(2), 2, false, au);
-    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("AUDCASHP3M")), "AUDCASHP3M", act365, modified, DateUtils.periodOfMonths(3), 2, false, au);
-    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("AUDCASHP4M")), "AUDCASHP4M", act365, modified, DateUtils.periodOfMonths(4), 2, false, au);
-    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("AUDCASHP5M")), "AUDCASHP5M", act365, modified, DateUtils.periodOfMonths(5), 2, false, au);
-    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("AUDCASHP6M")), "AUDCASHP6M", act365, modified, DateUtils.periodOfMonths(6), 2, false, au);
-    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("AUDCASHP7M")), "AUDCASHP7M", act365, modified, DateUtils.periodOfMonths(7), 2, false, au);
-    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("AUDCASHP8M")), "AUDCASHP8M", act365, modified, DateUtils.periodOfMonths(8), 2, false, au);
-    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("AUDCASHP9M")), "AUDCASHP9M", act365, modified, DateUtils.periodOfMonths(9), 2, false, au);
-    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("AUDCASHP10M")), "AUDCASHP10M", act365, modified, DateUtils.periodOfMonths(10), 2, false, au);
-    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("AUDCASHP11M")), "AUDCASHP11M", act365, modified, DateUtils.periodOfMonths(1), 2, false, au);
-    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("AUDCASHP12M")), "AUDCASHP12M", act365, modified, DateUtils.periodOfMonths(12), 2, false, au);
+    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("AUDCASHP1D")), "AUDCASHP1D", act365, following, Period.ofDays(1), 0, false, au);
+    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("AUDCASHP1M")), "AUDCASHP1M", act365, modified, Period.ofMonths(1), 2, false, au);
+    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("AUDCASHP2M")), "AUDCASHP2M", act365, modified, Period.ofMonths(2), 2, false, au);
+    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("AUDCASHP3M")), "AUDCASHP3M", act365, modified, Period.ofMonths(3), 2, false, au);
+    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("AUDCASHP4M")), "AUDCASHP4M", act365, modified, Period.ofMonths(4), 2, false, au);
+    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("AUDCASHP5M")), "AUDCASHP5M", act365, modified, Period.ofMonths(5), 2, false, au);
+    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("AUDCASHP6M")), "AUDCASHP6M", act365, modified, Period.ofMonths(6), 2, false, au);
+    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("AUDCASHP7M")), "AUDCASHP7M", act365, modified, Period.ofMonths(7), 2, false, au);
+    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("AUDCASHP8M")), "AUDCASHP8M", act365, modified, Period.ofMonths(8), 2, false, au);
+    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("AUDCASHP9M")), "AUDCASHP9M", act365, modified, Period.ofMonths(9), 2, false, au);
+    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("AUDCASHP10M")), "AUDCASHP10M", act365, modified, Period.ofMonths(10), 2, false, au);
+    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("AUDCASHP11M")), "AUDCASHP11M", act365, modified, Period.ofMonths(1), 2, false, au);
+    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("AUDCASHP12M")), "AUDCASHP12M", act365, modified, Period.ofMonths(12), 2, false, au);
 
-    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("AUDLIBORP3M"), simpleNameSecurityId("AUD LIBOR 3m")), "AUD LIBOR 3m", act365, following, DateUtils.periodOfMonths(3), 2, false, au);
-    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("AUDLIBORP6M"), simpleNameSecurityId("AUD LIBOR 6m")), "AUD LIBOR 6m", act365, following, DateUtils.periodOfMonths(6), 2, false, au);
-    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("AUDLIBORP12M"), simpleNameSecurityId("AUD LIBOR 12m")), "AUD LIBOR 12m", act365, following, DateUtils.periodOfMonths(12), 2, false, au);
+    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("AUDLIBORP3M"), simpleNameSecurityId("AUD LIBOR 3m")), "AUD LIBOR 3m", act365, following, Period.ofMonths(3), 2, false, au);
+    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("AUDLIBORP6M"), simpleNameSecurityId("AUD LIBOR 6m")), "AUD LIBOR 6m", act365, following, Period.ofMonths(6), 2, false, au);
+    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("AUDLIBORP12M"), simpleNameSecurityId("AUD LIBOR 12m")), "AUD LIBOR 12m", act365, following, Period.ofMonths(12), 2, false, au);
     utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("AUDON"), simpleNameSecurityId("RBA OVERNIGHT CASH RATE")),
-        "RBA OVERNIGHT CASH RATE", act365, following, DateUtils.periodOfDays(1), 0, false, au, overnightPublicationLag);
+        "RBA OVERNIGHT CASH RATE", act365, following, Period.ofDays(1), 0, false, au, overnightPublicationLag);
 
     final DayCount swapFixedDayCount = act365;
     final BusinessDayConvention swapFixedBusinessDay = modified;
@@ -76,9 +77,9 @@ public class SyntheticAUConventions {
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("AUD_OIS_SWAP")), "AUD_OIS_SWAP", act365, modified, annual, 0, au, act365,
         modified, annual, 0, simpleNameSecurityId("RBA OVERNIGHT CASH RATE"), au, true, overnightPublicationLag);
     utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("AUDBBP3M"), simpleNameSecurityId(IndexType.BBSW  + "_AUD_P3M")),
-        "AUD Bank Bill 3m", act365, modified, DateUtils.periodOfMonths(3), 0, true, au); // "AUD Bank Bill 3m"
+        "AUD Bank Bill 3m", act365, modified, Period.ofMonths(3), 0, true, au); // "AUD Bank Bill 3m"
     utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("AUDBBP6M"), simpleNameSecurityId(IndexType.BBSW + "_AUD_P6M")),
-        "AUD Bank Bill 6m", act365, modified, DateUtils.periodOfMonths(6), 0, true, au); // "AUD Bank Bill 6m"
+        "AUD Bank Bill 6m", act365, modified, Period.ofMonths(6), 0, true, au); // "AUD Bank Bill 6m"
   }
 
 }

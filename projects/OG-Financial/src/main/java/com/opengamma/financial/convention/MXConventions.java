@@ -9,6 +9,8 @@ import static com.opengamma.core.id.ExternalSchemes.bloombergTickerSecurityId;
 import static com.opengamma.core.id.ExternalSchemes.tullettPrebonSecurityId;
 import static com.opengamma.financial.convention.InMemoryConventionBundleMaster.simpleNameSecurityId;
 
+import org.threeten.bp.Period;
+
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -45,8 +47,8 @@ public class MXConventions {
       final String weekDepositName = "MXN DEPOSIT " + i + "w";
       final ExternalId weekBbgDeposit = bloombergTickerSecurityId("MPDR" + i + "Z Curncy");
       final ExternalId weekSimpleDeposit = simpleNameSecurityId(weekDepositName);
-      utils.addConventionBundle(ExternalIdBundle.of(dayBbgDeposit, daySimpleDeposit), dayDepositName, dc, following, DateUtils.periodOfDays(i), 0, false, mx);
-      utils.addConventionBundle(ExternalIdBundle.of(weekBbgDeposit, weekSimpleDeposit), weekDepositName, dc, following, DateUtils.periodOfDays(i * 7), 0, false, mx);
+      utils.addConventionBundle(ExternalIdBundle.of(dayBbgDeposit, daySimpleDeposit), dayDepositName, dc, following, Period.ofDays(i), 0, false, mx);
+      utils.addConventionBundle(ExternalIdBundle.of(weekBbgDeposit, weekSimpleDeposit), weekDepositName, dc, following, Period.ofDays(i * 7), 0, false, mx);
     }
 
     for (int i = 1; i < 12; i++) {
@@ -56,15 +58,15 @@ public class MXConventions {
       final String impliedDepositName = "MXN IMPLIED DEPOSIT " + i + "m";
       final ExternalId tullettImpliedDeposit = tullettPrebonSecurityId("LMIDPMXNSPT" + (i < 10 ? "0" : "") + i + "M");
       final ExternalId simpleImpliedDeposit = simpleNameSecurityId(impliedDepositName);
-      utils.addConventionBundle(ExternalIdBundle.of(bbgDeposit, simpleDeposit), depositName, dc, following, DateUtils.periodOfMonths(i), 0, false, mx);
-      utils.addConventionBundle(ExternalIdBundle.of(tullettImpliedDeposit, simpleImpliedDeposit), impliedDepositName, dc, following, DateUtils.periodOfMonths(i), 0, false, mx);
+      utils.addConventionBundle(ExternalIdBundle.of(bbgDeposit, simpleDeposit), depositName, dc, following, Period.ofMonths(i), 0, false, mx);
+      utils.addConventionBundle(ExternalIdBundle.of(tullettImpliedDeposit, simpleImpliedDeposit), impliedDepositName, dc, following, Period.ofMonths(i), 0, false, mx);
     }
 
     for (int i = 1; i < 2; i++) {
       final String depositName = "MXN DEPOSIT " + i + "y";
       final ExternalId bbgDeposit = bloombergTickerSecurityId("MPDR" + i + " Curncy");
       final ExternalId simpleDeposit = simpleNameSecurityId(depositName);
-      utils.addConventionBundle(ExternalIdBundle.of(bbgDeposit, simpleDeposit), depositName, dc, following, DateUtils.periodOfYears(i), 0, false, mx);
+      utils.addConventionBundle(ExternalIdBundle.of(bbgDeposit, simpleDeposit), depositName, dc, following, Period.ofYears(i), 0, false, mx);
     }
   }
 }

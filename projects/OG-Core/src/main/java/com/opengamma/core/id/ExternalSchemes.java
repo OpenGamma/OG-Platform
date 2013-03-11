@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.threeten.bp.DateTimeException;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZoneId;
-import org.threeten.bp.format.DateTimeFormatters;
+import org.threeten.bp.format.DateTimeFormatter;
 
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalScheme;
@@ -293,7 +293,7 @@ public class ExternalSchemes {
     }
     if (s_logger.isDebugEnabled()) {
       try {
-        LocalDate.parse(maturity, DateTimeFormatters.pattern("MM/dd/YY"));
+        LocalDate.parse(maturity, DateTimeFormatter.ofPattern("MM/dd/YY"));
       } catch (final UnsupportedOperationException uoe) {
         s_logger.warn("Problem parsing maturity " + maturity + " ticker=" + tickerWithoutSector + ", coupon=" + coupon);
       } catch (final DateTimeException ex) {

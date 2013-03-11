@@ -47,7 +47,7 @@ public class BondCapitalIndexedTransactionDefinitionTest {
   private static final double INDEX_START_GILT_1 = 173.60; // November 2001 
   private static final double NOTIONAL_GILT_1 = 1.00;
   private static final double REAL_RATE_GILT_1 = 0.02;
-  private static final Period COUPON_PERIOD_GILT_1 = Period.of(6, MONTHS);
+  private static final Period COUPON_PERIOD_GILT_1 = Period.ofMonths(6);
   private static final int SETTLEMENT_DAYS_GILT_1 = 2;
   private static final String ISSUER_UK = "UK GOVT";
   private static final BondCapitalIndexedSecurityDefinition<CouponInflationZeroCouponMonthlyGearingDefinition> BOND_GILT_1_SECURITY_DEFINITION = BondCapitalIndexedSecurityDefinition.fromMonthly(
@@ -80,7 +80,7 @@ public class BondCapitalIndexedTransactionDefinitionTest {
 
   // 2% 10-YEAR TREASURY INFLATION-PROTECTED SECURITIES (TIPS) Due January 15, 2016 - US912828ET33
   //  private static final String NAME_INDEX_US = "US CPI-U";
-  //  private static final Period LAG_INDEX_US = Period.of(14, DAYS);
+  //  private static final Period LAG_INDEX_US = Period.ofDays(14);
   //  private static final PriceIndex PRICE_INDEX_USCPI = new PriceIndex(NAME_INDEX_US, Currency.USD, Currency.USD, LAG_INDEX_US);
   //  private static final Calendar CALENDAR_USD = new MondayToFridayCalendar("USD");
   //  private static final BusinessDayConvention BUSINESS_DAY_USD = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
@@ -93,7 +93,7 @@ public class BondCapitalIndexedTransactionDefinitionTest {
   //  private static final double INDEX_START_TIPS_1 = 198.47742; // Date: 
   //  private static final double NOTIONAL_TIPS_1 = 100.00;
   //  private static final double REAL_RATE_TIPS_1 = 0.02;
-  //  private static final Period COUPON_PERIOD_TIPS_1 = Period.of(6, MONTHS);
+  //  private static final Period COUPON_PERIOD_TIPS_1 = Period.ofMonths(6);
   //  private static final int SETTLEMENT_DAYS_TIPS_1 = 2;
   //  private static final String ISSUER_US = "US GOVT";
   //  private static final BondCapitalIndexedSecurityDefinition<CouponInflationZeroCouponInterpolationGearingDefinition> BOND_TIPS_1_SECURITY_DEFINITION = BondCapitalIndexedSecurityDefinition

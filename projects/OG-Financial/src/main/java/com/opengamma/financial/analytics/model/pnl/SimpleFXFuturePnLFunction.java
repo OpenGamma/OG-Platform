@@ -77,7 +77,7 @@ public class SimpleFXFuturePnLFunction extends AbstractFunction.NonCompiledInvok
     final FXFutureSecurity security = (FXFutureSecurity) position.getSecurity();
     final Currency currency = security.getCurrency();
     final Clock snapshotClock = executionContext.getValuationClock();
-    final LocalDate now = ZonedDateTime.now(snapshotClock).getDate();
+    final LocalDate now = ZonedDateTime.now(snapshotClock).toLocalDate();
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final Set<String> samplingPeriodName = desiredValue.getConstraints().getValues(ValuePropertyNames.SAMPLING_PERIOD);
     final Set<String> scheduleCalculatorName = desiredValue.getConstraints().getValues(ValuePropertyNames.SCHEDULE_CALCULATOR);

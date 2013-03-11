@@ -175,7 +175,7 @@ public class BondFutureOptionVolatilitySurfaceDataFunction extends AbstractFunct
     final Map<Pair<Double, Double>, Double> volatilityValues = new HashMap<Pair<Double, Double>, Double>();
     final DoubleArrayList tList = new DoubleArrayList();
     final DoubleArrayList kList = new DoubleArrayList();
-    final LocalDate today = now.getDate();
+    final LocalDate today = now.toLocalDate();
     for (final Number x : optionVolatilities.getXs()) {
       final Double t = TimeCalculator.getTimeBetween(today, expiryCalculator.getExpiryDate(x.intValue(), today, calendar));
       for (final Double y : optionVolatilities.getYs()) {
@@ -202,7 +202,7 @@ public class BondFutureOptionVolatilitySurfaceDataFunction extends AbstractFunct
     final Map<Pair<Double, Double>, Double> volatilityValues = new HashMap<Pair<Double, Double>, Double>();
     final DoubleArrayList txList = new DoubleArrayList();
     final DoubleArrayList kList = new DoubleArrayList();
-    final LocalDate today = now.getDate();
+    final LocalDate today = now.toLocalDate();
     final Double[] futureExpiries = futurePrices.getXData();
     final int nFutures = futureExpiries.length;
     if (nFutures == 0) {

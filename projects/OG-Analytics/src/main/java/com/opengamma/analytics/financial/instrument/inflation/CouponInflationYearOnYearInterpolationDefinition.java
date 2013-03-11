@@ -195,10 +195,10 @@ InstrumentDefinitionWithData<Payment, DoubleTimeSeries<ZonedDateTime>> {
     ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
     ArgumentChecker.isTrue(yieldCurveNames.length > 0, "at least one curve required");
     ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
-    final LocalDate dayConversion = date.getDate();
+    final LocalDate dayConversion = date.toLocalDate();
     final String discountingCurveName = yieldCurveNames[0];
     final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
-    final LocalDate dayFixing = getReferenceEndDate()[1].getDate();
+    final LocalDate dayFixing = getReferenceEndDate()[1].toLocalDate();
     if (dayConversion.isAfter(dayFixing)) {
       final Double fixedEndIndex0 = priceIndexTimeSeries.getValue(getReferenceEndDate()[0]);
       final Double fixedEndIndex1 = priceIndexTimeSeries.getValue(getReferenceEndDate()[1]);

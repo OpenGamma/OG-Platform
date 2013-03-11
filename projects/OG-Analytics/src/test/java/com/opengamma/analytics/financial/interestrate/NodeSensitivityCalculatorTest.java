@@ -62,7 +62,7 @@ public abstract class NodeSensitivityCalculatorTest {
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");
   private static final GeneratorSwapFixedIbor USD6MLIBOR3M = GeneratorSwapFixedIborMaster.getInstance().getGenerator("USD6MLIBOR3M", NYC);
   private static final IborIndex USDLIBOR6M = USD6MLIBOR3M.getIborIndex();
-  private static final Period SWAP_TENOR = Period.of(5, YEARS);
+  private static final Period SWAP_TENOR = Period.ofYears(5);
   private static final double SWAP_RATE = 0.05;
   private static final double SWAP_NOTIONAL = 1.0;
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2012, 6, 29);

@@ -104,7 +104,7 @@ public class ForwardSwapCurveMarketDataFunction extends AbstractFunction {
         final ForwardSwapCurveInstrumentProvider provider = (ForwardSwapCurveInstrumentProvider) specification.getCurveInstrumentProvider();
         final Tenor forwardTenor = new Tenor(Period.parse(forwardTenorName));
         for (final Tenor tenor : definition.getTenors()) {
-          final ExternalId identifier = provider.getInstrument(atZDT.getDate(), tenor, forwardTenor);
+          final ExternalId identifier = provider.getInstrument(atZDT.toLocalDate(), tenor, forwardTenor);
           requirements.add(new ValueRequirement(provider.getDataFieldName(), ComputationTargetType.PRIMITIVE, identifier));
         }
         requirements.add(new ValueRequirement(provider.getDataFieldName(), ComputationTargetType.PRIMITIVE, provider.getSpotInstrument(forwardTenor)));
@@ -136,7 +136,7 @@ public class ForwardSwapCurveMarketDataFunction extends AbstractFunction {
         final Double spot = (Double) inputs.getValue(spotRequirement);
         final Map<ExternalId, Double> data = new HashMap<ExternalId, Double>();
         for (final Tenor tenor : definition.getTenors()) {
-          final ExternalId identifier = provider.getInstrument(now.getDate(), tenor, forwardTenor);
+          final ExternalId identifier = provider.getInstrument(now.toLocalDate(), tenor, forwardTenor);
           final ValueRequirement requirement = new ValueRequirement(provider.getDataFieldName(), ComputationTargetType.PRIMITIVE, identifier);
           if (inputs.getValue(requirement) != null) {
             final Double spread = (Double) inputs.getValue(requirement);

@@ -81,7 +81,7 @@ public class CouponInflationZeroCouponInterpolationDefinition extends CouponInfl
     this._referenceStartDate = referenceStartDate;
     this._indexStartValue = indexStartValue;
     this._referenceEndDate = referenceEndDate;
-    _weight = 1.0 - (getPaymentDate().getDayOfMonth() - 1.0) / getPaymentDate().getDate().lengthOfMonth();
+    _weight = 1.0 - (getPaymentDate().getDayOfMonth() - 1.0) / getPaymentDate().toLocalDate().lengthOfMonth();
     _payNotional = payNotional;
     _monthLag = monthLag;
   }
@@ -146,7 +146,7 @@ public class CouponInflationZeroCouponInterpolationDefinition extends CouponInfl
     final ZonedDateTime[] referenceStartDate = new ZonedDateTime[2];
     referenceStartDate[0] = refInterpolatedDate.withDayOfMonth(1);
     referenceStartDate[1] = referenceStartDate[0].plusMonths(1);
-    final double weightStart = 1.0 - (accrualStartDate.getDayOfMonth() - 1.0) / accrualStartDate.getDate().lengthOfMonth();
+    final double weightStart = 1.0 - (accrualStartDate.getDayOfMonth() - 1.0) / accrualStartDate.toLocalDate().lengthOfMonth();
     final Double[] knownIndex = new Double[] {priceIndexTimeSeries.getValue(referenceStartDate[0]), priceIndexTimeSeries.getValue(referenceStartDate[1]) };
     double indexStartValue = 0;
     if ((knownIndex[0] != null) && (knownIndex[1] != null)) { // Fixing fully known
@@ -236,10 +236,10 @@ public class CouponInflationZeroCouponInterpolationDefinition extends CouponInfl
     ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
     ArgumentChecker.isTrue(yieldCurveNames.length > 0, "at least one curve required");
     ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
-    final LocalDate dayConversion = date.getDate();
+    final LocalDate dayConversion = date.toLocalDate();
     final String discountingCurveName = yieldCurveNames[0];
     final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
-    final LocalDate dayFixing = getReferenceEndDate()[1].getDate();
+    final LocalDate dayFixing = getReferenceEndDate()[1].toLocalDate();
     if (dayConversion.isAfter(dayFixing)) {
       final Double fixedEndIndex1 = priceIndexTimeSeries.getValue(getReferenceEndDate()[1]);
 

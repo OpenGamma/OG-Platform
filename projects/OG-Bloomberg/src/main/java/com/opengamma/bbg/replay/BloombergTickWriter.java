@@ -352,7 +352,7 @@ public class BloombergTickWriter extends TerminatableJob {
   private File buildSecurityDirectory(String buid, long receivedTS) {
     Instant instant = Instant.ofEpochMilli(receivedTS);
     ZonedDateTime dateTime = ZonedDateTime.ofInstant(instant, ZoneOffset.UTC);
-    LocalDate today = dateTime.getDate();
+    LocalDate today = dateTime.toLocalDate();
     StringBuilder buf = new StringBuilder();
     buf.append(_rootDir).append(File.separator);
     buf.append(buid).append(File.separator).append(today.getYear()).append(File.separator);

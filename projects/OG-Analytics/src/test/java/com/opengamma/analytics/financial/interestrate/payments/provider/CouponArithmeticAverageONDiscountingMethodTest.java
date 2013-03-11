@@ -37,7 +37,7 @@ public class CouponArithmeticAverageONDiscountingMethodTest {
   private static final IborIndex USDLIBOR3M = IndexIborMaster.getInstance().getIndex("USDLIBOR3M", NYC);
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 5, 23);
-  private static final Period TENOR_3M = Period.of(3, MONTHS);
+  private static final Period TENOR_3M = Period.ofMonths(3);
   private static final double NOTIONAL = 100000000; // 100m
 
   private static final String NOT_USED = "NOT USED";
@@ -55,7 +55,7 @@ public class CouponArithmeticAverageONDiscountingMethodTest {
     double[] rateLevel = {0.01, 0.05, 0.10};
     int nbLevel = rateLevel.length;
     int nbStart = 36;
-    Period step = Period.of(1, MONTHS);
+    Period step = Period.ofMonths(1);
     ZonedDateTime[] effectiveDate = new ZonedDateTime[nbStart];
     effectiveDate[0] = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, GENERATOR_SWAP_EONIA.getSpotLag(), NYC);
 

@@ -112,8 +112,8 @@ public class InterestRateFutureOptionConstantSpreadThetaFunctionDeprecated exten
     final InstrumentDefinition<?> irFutureOptionDefinition = _converter.convert(trade);
     final String[] yieldCurveNames = new String[] {fundingCurveName, forwardCurveName };
     final ExternalIdBundle id = security.getExternalIdBundle();
-    final LocalDate startDate = DateUtils.previousWeekDay(now.getDate().minusMonths(1));
-    final HistoricalTimeSeries ts = dataSource.getHistoricalTimeSeries(MarketDataRequirementNames.MARKET_VALUE, id, null, null, startDate, true, now.getDate(), false);
+    final LocalDate startDate = DateUtils.previousWeekDay(now.toLocalDate().minusMonths(1));
+    final HistoricalTimeSeries ts = dataSource.getHistoricalTimeSeries(MarketDataRequirementNames.MARKET_VALUE, id, null, null, startDate, true, now.toLocalDate(), false);
     if (ts == null) {
       throw new OpenGammaRuntimeException("Could not get price time series for " + security);
     }

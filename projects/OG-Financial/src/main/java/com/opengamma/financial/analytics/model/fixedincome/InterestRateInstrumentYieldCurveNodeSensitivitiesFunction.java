@@ -72,7 +72,7 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends I
     final Currency currency = FinancialSecurityUtils.getCurrency(security);
     final Clock snapshotClock = executionContext.getValuationClock();
     final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
-    final LocalDate localNow = now.getDate();
+    final LocalDate localNow = now.toLocalDate();
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final String curveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
     final HistoricalTimeSeriesBundle timeSeries = HistoricalTimeSeriesFunctionUtils.getHistoricalTimeSeriesInputs(executionContext, inputs);

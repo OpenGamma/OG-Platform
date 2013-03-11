@@ -17,7 +17,7 @@ import com.opengamma.analytics.math.rootfinding.CubicRealRootFinder;
 public class FunctionExample {
     // @export "polyDerivativeDemo"
     public static RealPolynomialFunction1D getFunction() {
-        double[] coefficients = {-125,75,-15,1};
+        double[] coefficients = {-125, 75, -15, 1};
         return new RealPolynomialFunction1D(coefficients);
     }
 
@@ -43,7 +43,7 @@ public class FunctionExample {
     public static void brentSingleRootFinderDemo(PrintStream out) {
         RealPolynomialFunction1D f = getFunction();
         BrentSingleRootFinder brent = new BrentSingleRootFinder();
-        java.lang.Double root = brent.getRoot(f,-10.0,10.0);
+        java.lang.Double root = brent.getRoot(f, -10.0, 10.0);
         out.println(root);
     }
 

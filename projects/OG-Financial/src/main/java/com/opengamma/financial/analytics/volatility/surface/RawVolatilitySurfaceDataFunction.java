@@ -136,7 +136,7 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
     final SurfaceInstrumentProvider<X, Y> provider = (SurfaceInstrumentProvider<X, Y>) specification.getSurfaceInstrumentProvider();
     for (final X x : definition.getXs()) {
       for (final Y y : definition.getYs()) {
-        final ExternalId identifier = provider.getInstrument(x, y, atInstant.getDate());
+        final ExternalId identifier = provider.getInstrument(x, y, atInstant.toLocalDate());
         result.add(new ValueRequirement(provider.getDataFieldName(), ComputationTargetType.PRIMITIVE, identifier));
       }
     }

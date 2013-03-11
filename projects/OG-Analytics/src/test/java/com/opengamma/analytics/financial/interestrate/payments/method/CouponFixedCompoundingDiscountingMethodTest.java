@@ -35,7 +35,7 @@ import com.opengamma.util.time.DateUtils;
 public class CouponFixedCompoundingDiscountingMethodTest {
 
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
-  private static final Period Y1 = Period.of(1, YEARS);
+  private static final Period Y1 = Period.ofYears(1);
   private static final double NOTIONAL = 123000000;
   private static final ZonedDateTime ACCRUAL_START_DATE = DateUtils.getUTCDate(2012, 8, 24);
   private static final ZonedDateTime ACCRUAL_END_DATE = DateUtils.getUTCDate(2022, 8, 24);
