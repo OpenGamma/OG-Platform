@@ -163,17 +163,16 @@ public class AnalyticsViewManager {
     AnalyticsView lockingView = new LockingAnalyticsView(view);
     //AnalyticsView timingView = new TimingAnalyticsView(lockingView);
     AnalyticsView notifyingView = new NotifyingAnalyticsView(lockingView, clientConnection);
-    AutoCloseable securityListener = new MasterNotificationListener<>(_securityMaster, lockingView);
-    AutoCloseable positionListener = new MasterNotificationListener<>(_positionMaster, lockingView);
-    AutoCloseable portfolioListener = new PortfolioListener(portfolioObjectId, lockingView, _positionSource);
+    AutoCloseable securityListener = new MasterNotificationListener<>(_securityMaster, notifyingView);
+    AutoCloseable positionListener = new MasterNotificationListener<>(_positionMaster, notifyingView);
+    AutoCloseable portfolioListener = new PortfolioListener(portfolioObjectId, notifyingView, _positionSource);
     List<AutoCloseable> listeners = Lists.newArrayList(securityListener, positionListener, portfolioListener);
     AnalyticsViewClientConnection connection = new AnalyticsViewClientConnection(request,
                                                                                  aggregatedViewDef, viewClient,
                                                                                  notifyingView,
                                                                                  _marketDataSpecificationRepository,
                                                                                  _snapshotMaster,
-                                                                                 listeners
-    );
+                                                                                 listeners);
     _viewConnections.put(viewId, connection);
     // need to notify the listener that the view has been created
     // TODO would it be neater to leave this to the constructor of NotifyingAnalyticsView
