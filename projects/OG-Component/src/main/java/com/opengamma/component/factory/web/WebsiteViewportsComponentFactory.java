@@ -187,7 +187,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     AggregatedViewDefinitionManager aggregatedViewDefManager = new AggregatedViewDefinitionManager(
         getPositionSource(),
         getSecuritySource(),
-        configSource, 
+        getCombinedConfigSource(),
         getUserConfigMaster(),
         getUserPortfolioMaster(),
         getUserPositionMaster(),
