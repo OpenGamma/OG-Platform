@@ -10,8 +10,10 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotChangeListener;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
+import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
 import com.opengamma.engine.marketdata.AbstractMarketDataProvider;
 import com.opengamma.engine.marketdata.ExternalIdBundleLookup;
 import com.opengamma.engine.marketdata.MarketDataListener;
@@ -35,13 +37,17 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class UserMarketDataProvider extends AbstractMarketDataProvider {
 
-  private final UniqueId _snapshotId;
-  private final CopyOnWriteArraySet<ValueRequirement> _listeningValueRequirements = new CopyOnWriteArraySet<ValueRequirement>();
   private final MarketDataSnapshotSource _snapshotSource;
+  private final UniqueId _snapshotId;
+  private final ExternalIdBundleLookup _identifierLookup;
+  
+  private final CopyOnWriteArraySet<ValueRequirement> _listeningValueRequirements = new CopyOnWriteArraySet<ValueRequirement>();
   private final MarketDataPermissionProvider _permissionProvider;
   private final MarketDataSnapshotChangeListener _snapshotSourceChangeListener;
-  private final ExternalIdBundleLookup _identifierLookup;
   private final Object _listenerLock = new Object();
+  private final Object _initSnapshotLock = new Object();
+  
+  private MarketDataSnapshot _snapshot;
   
   private MarketDataAvailabilityProvider _baseMarketDataAvailabilityProvider;
 
@@ -51,15 +57,35 @@ public class UserMarketDataProvider extends AbstractMarketDataProvider {
     ArgumentChecker.notNull(identifierLookup, "identifierLookup");
     _snapshotSource = snapshotSource;
     _snapshotId = snapshotId;
+    _identifierLookup = identifierLookup;
     // Assume no permission issues
     _permissionProvider = new PermissiveMarketDataPermissionProvider();
     _snapshotSourceChangeListener = new MarketDataSnapshotChangeListener() {
       @Override
       public void objectChanged(ObjectId oid) {
+        if (!oid.equals(getSnapshotId().getObjectId())) {
+          return;
+        }
+        synchronized (_initSnapshotLock) {
+          _snapshot = null;          
+        }
         valuesChanged(_listeningValueRequirements);
       }
     };
-    _identifierLookup = identifierLookup;
+  }
+
+  private MarketDataSnapshot getSnapshot() {
+    MarketDataSnapshot snapshot = _snapshot;
+    if (snapshot != null) {
+      return snapshot;
+    }
+    synchronized (_initSnapshotLock) {
+      if (_snapshot == null) {
+        StructuredMarketDataSnapshot structuredSnapshot = getSnapshotSource().get(getSnapshotId());
+        _snapshot = new UserMarketDataSnapshot(structuredSnapshot, getIdentifierLookup());
+      }
+      return _snapshot;
+    }
   }
   
   //-------------------------------------------------------------------------
@@ -108,10 +134,7 @@ public class UserMarketDataProvider extends AbstractMarketDataProvider {
   //-------------------------------------------------------------------------
   @Override
   public MarketDataAvailabilityProvider getAvailabilityProvider() {
-    MarketDataSnapshot snapshot = snapshot();
-    snapshot.init();
-    MarketDataSnapshotAvailabilityProvider snapshotAvailabilityProvider = new MarketDataSnapshotAvailabilityProvider(snapshot);
-    
+    MarketDataSnapshotAvailabilityProvider snapshotAvailabilityProvider = new MarketDataSnapshotAvailabilityProvider(_snapshot);
     if (getBaseMarketDataAvailabilityProvider() == null) {
       return snapshotAvailabilityProvider;
     } else {
@@ -139,20 +162,28 @@ public class UserMarketDataProvider extends AbstractMarketDataProvider {
 
   @Override
   public MarketDataSnapshot snapshot(MarketDataSpecification marketDataSpec) {
-    return snapshot();
+    if (!isCompatible(marketDataSpec)) {
+      throw new OpenGammaRuntimeException("Market data specification " + marketDataSpec + " is incompatible with " +
+          UserMarketDataProvider.class.getSimpleName() + " for snapshot " + getSnapshotId());
+    }
+    return getSnapshot();
   }
 
   //-------------------------------------------------------------------------
   private MarketDataSnapshot snapshot() {
-    return new UserMarketDataSnapshot(getSnapshotSource(), getSnapshotId(), _identifierLookup);
+    return getSnapshot();
+  }
+  
+  private UniqueId getSnapshotId() {
+    return _snapshotId;
   }
   
   private MarketDataSnapshotSource getSnapshotSource() {
     return _snapshotSource;
   }
   
-  private UniqueId getSnapshotId() {
-    return _snapshotId;
+  private ExternalIdBundleLookup getIdentifierLookup() {
+    return _identifierLookup;
   }
 
   //-------------------------------------------------------------------------

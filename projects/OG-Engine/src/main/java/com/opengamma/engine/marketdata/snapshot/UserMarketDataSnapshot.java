@@ -14,7 +14,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.threeten.bp.Instant;
 
-import com.opengamma.DataNotFoundException;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.core.marketdatasnapshot.MarketDataValueSpecification;
 import com.opengamma.core.marketdatasnapshot.MarketDataValueType;
@@ -72,10 +71,8 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot implement
   private static final ComputationTargetSpecificationResolver.AtVersionCorrection s_targetSpecificationResolver = new DefaultComputationTargetSpecificationResolver()
       .atVersionCorrection(VersionCorrection.LATEST);
 
-  private final MarketDataSnapshotSource _snapshotSource;
   private final ExternalIdBundleLookup _identifierLookup;
-  private final UniqueId _snapshotId;
-  private StructuredMarketDataSnapshot _snapshot;
+  private final StructuredMarketDataSnapshot _snapshot;
 
   /**
    * Factory for {@link StructuredMarketDataKey} instances.
@@ -252,9 +249,8 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot implement
     });
   }
 
-  public UserMarketDataSnapshot(final MarketDataSnapshotSource snapshotSource, final UniqueId snapshotId, final ExternalIdBundleLookup identifierLookup) {
-    _snapshotSource = snapshotSource;
-    _snapshotId = snapshotId;
+  public UserMarketDataSnapshot(StructuredMarketDataSnapshot snapshot, final ExternalIdBundleLookup identifierLookup) {
+    _snapshot = snapshot;
     _identifierLookup = identifierLookup;
   }
 
@@ -262,37 +258,31 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot implement
 
   @Override
   public UniqueId getUniqueId() {
-    return _snapshotId;
+    return _snapshot.getUniqueId();
   }
 
   @Override
   public Instant getSnapshotTimeIndication() {
-    init();
     return getSnapshotTime();
   }
 
   @Override
   public void init() {
-    try {
-      _snapshot = getSnapshotSource().get(getSnapshotId());
-    } catch (final DataNotFoundException ex) {
-      _snapshot = null;
-    }
+    // No-op
   }
 
   @Override
   public void init(final Set<ValueRequirement> valuesRequired, final long timeout, final TimeUnit unit) {
-    init();
+    // No-op
   }
   
   @Override
   public boolean isInitialized() {
-    return _snapshot != null;
+    return true;
   }
 
   @Override
   public boolean isEmpty() {
-    assertInitialized();
     return false;
   }
 
@@ -413,18 +403,9 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot implement
   }
 
   private StructuredMarketDataSnapshot getSnapshot() {
-    assertInitialized();
     return _snapshot;
   }
-
-  private MarketDataSnapshotSource getSnapshotSource() {
-    return _snapshotSource;
-  }
-
-  private UniqueId getSnapshotId() {
-    return _snapshotId;
-  }
-
+  
   private Double query(final ValueSnapshot valueSnapshot) {
     if (valueSnapshot == null) {
       return null;
