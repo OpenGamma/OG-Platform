@@ -15,7 +15,6 @@ import java.util.Map;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.core.marketdatasnapshot.MarketDataValueSpecification;
 import com.opengamma.core.marketdatasnapshot.MarketDataValueType;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
@@ -33,7 +32,6 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.id.ExternalId;
-import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -44,10 +42,6 @@ public class UserMarketDataSnapshotTest {
   @Test
   public void testQuerySnapshot() {
     StructuredMarketDataSnapshot snapshot = mock(StructuredMarketDataSnapshot.class);
-
-    MarketDataSnapshotSource snapshotSource = mock(MarketDataSnapshotSource.class);
-    UniqueId snapshotId = UniqueId.of("TestSnapshot", "1");
-    when(snapshotSource.get(snapshotId)).thenReturn(snapshot);
     
     ExternalId testValueId = ExternalId.of("TestScheme", "Value1");
 
@@ -55,8 +49,7 @@ public class UserMarketDataSnapshotTest {
     when(globalValues.getValues()).thenReturn(generateGlobalValuesMap(testValueId, 234d));
     when(snapshot.getGlobalValues()).thenReturn(globalValues);
     
-    UserMarketDataSnapshot userSnapshot = new UserMarketDataSnapshot(snapshotSource, snapshotId, new ExternalIdBundleLookup(null));
-    userSnapshot.init();
+    UserMarketDataSnapshot userSnapshot = new UserMarketDataSnapshot(snapshot, new ExternalIdBundleLookup(null));
     
     UnstructuredMarketDataSnapshot yieldCurveValues = mock(UnstructuredMarketDataSnapshot.class);
     
