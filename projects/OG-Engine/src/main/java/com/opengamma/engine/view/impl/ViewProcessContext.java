@@ -225,6 +225,21 @@ public class ViewProcessContext {
     return _executionLogModeSource;
   }
 
+  /**
+   * Returns a lock that a worker should hold for the duration of a graph build.
+   * <p>
+   * This can either be set so that all workers owned by a single process use graph building resources exclusively (that is, all use the same lock) to avoid vast memory requirements during historical
+   * runs that are optimized by parallel worker threads. For this case, the {@link ViewProcessContext} object instance can be used.
+   * <p>
+   * An alternative strategy could be to make the graph builder completely exclusive by returning a static object from here. Doing so would lower memory requirements but could adversely impact on the
+   * performance of a system that runs a large number of relatively simple view processes concurrently.
+   * 
+   * @return the object a worker should lock while it is performing is graph building phase
+   */
+  public Object getGraphBuildingLock() {
+    return this;
+  }
+
   // -------------------------------------------------------------------------
   /**
    * Uses this context to form a {@code ViewCompliationServices} instance.

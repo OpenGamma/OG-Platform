@@ -143,9 +143,10 @@ public abstract class ViewEvaluationFunction<TTarget extends ViewEvaluationTarge
     final ViewClient viewClient = viewProcessor.createViewClient(viewEvaluation.getViewDefinition().getMarketDataUser());
     final UniqueId viewClientId = viewClient.getUniqueId();
     s_logger.info("Created view client {}, connecting to {}", viewClientId, viewId);
-    viewClient.attachToViewProcess(viewId,
-        ExecutionOptions.of(viewEvaluation.getExecutionSequence().createSequence(executionContext), getDefaultCycleOptions(executionContext), EnumSet.of(ViewExecutionFlags.WAIT_FOR_INITIAL_TRIGGER)),
-        true);
+    viewClient.attachToViewProcess(
+        viewId,
+        ExecutionOptions.of(viewEvaluation.getExecutionSequence().createSequence(executionContext), getDefaultCycleOptions(executionContext),
+            EnumSet.of(ViewExecutionFlags.WAIT_FOR_INITIAL_TRIGGER, ViewExecutionFlags.RUN_AS_FAST_AS_POSSIBLE)), true);
     final TResultBuilder resultBuilder = createResultBuilder(viewEvaluation);
     final AsynchronousOperation<Set<ComputedValue>> async = AsynchronousOperation.createSet();
     final AtomicReference<ResultCallback<Set<ComputedValue>>> asyncResult = new AtomicReference<ResultCallback<Set<ComputedValue>>>(async.getCallback());
@@ -214,7 +215,6 @@ public abstract class ViewEvaluationFunction<TTarget extends ViewEvaluationTarge
       public void cycleCompleted(final ViewComputationResultModel fullResult, final ViewDeltaResultModel deltaResult) {
         s_logger.debug("Cycle completed for {}", viewClientId);
         try {
-          viewClient.triggerCycle();
           store(fullResult, resultBuilder);
         } catch (final RuntimeException e) {
           s_logger.error("Caught exception during cycle completed callback", e);

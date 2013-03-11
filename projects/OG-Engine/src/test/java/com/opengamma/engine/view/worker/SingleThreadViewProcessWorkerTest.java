@@ -50,6 +50,7 @@ import com.opengamma.engine.view.execution.ViewExecutionFlags;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.impl.ViewProcessImpl;
 import com.opengamma.engine.view.impl.ViewProcessorImpl;
+import com.opengamma.engine.view.worker.SingleThreadViewProcessWorker.BorrowedThread;
 import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.LiveDataClient;
 import com.opengamma.livedata.LiveDataListener;
@@ -105,7 +106,7 @@ public class SingleThreadViewProcessWorkerTest {
 
     final ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
     final SingleThreadViewProcessWorker worker = (SingleThreadViewProcessWorker) env.getCurrentWorker(viewProcess);
-    final Thread recalcThread = worker.getThread();
+    final BorrowedThread recalcThread = worker.getThread();
     assertThreadReachesState(recalcThread, Thread.State.TIMED_WAITING);
 
     // We're now 'between cycles', waiting for the arrival of live data.
@@ -139,7 +140,7 @@ public class SingleThreadViewProcessWorkerTest {
     resultListener.assertViewDefinitionCompiled(TIMEOUT);
 
     final ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
-    final Thread recalcThread = ((SingleThreadViewProcessWorker) env.getCurrentWorker(viewProcess)).getThread();
+    final BorrowedThread recalcThread = ((SingleThreadViewProcessWorker) env.getCurrentWorker(viewProcess)).getThread();
     assertThreadReachesState(recalcThread, Thread.State.TIMED_WAITING);
 
     underlyingProvider.addValue(ViewProcessorTestEnvironment.getPrimitive1(), 123d);
@@ -314,7 +315,7 @@ public class SingleThreadViewProcessWorkerTest {
     client.shutdown();
   }
 
-  private void assertThreadReachesState(final Thread recalcThread, final Thread.State state) throws InterruptedException {
+  private void assertThreadReachesState(final BorrowedThread recalcThread, final Thread.State state) throws InterruptedException {
     final long startTime = System.currentTimeMillis();
     while (recalcThread.getState() != state) {
       Thread.sleep(50);

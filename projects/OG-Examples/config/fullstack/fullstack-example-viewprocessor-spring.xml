@@ -103,7 +103,13 @@
   <bean id="viewResultListenerFactory" class="com.opengamma.masterdb.batch.BatchDbViewResultListenerFactory">
     <property name="batchRunMaster" ref="dbBatchMaster" />
   </bean>
-
+  
+  <bean id="viewProcessWorkerFactory" class="com.opengamma.engine.view.worker.StaticSequencePartitioningViewProcessWorkerFactory">
+    <constructor-arg>
+      <bean class="com.opengamma.engine.view.worker.SingleThreadViewProcessWorkerFactory" />
+    </constructor-arg>
+    <property name="saturation" value="2" />
+  </bean>
   <bean id="mainViewProcessor" class="com.opengamma.engine.view.ViewProcessorFactoryBean">
     <property name="name" value="main" />
     <property name="configSource" ref="combinedConfigSource" />
@@ -129,6 +135,7 @@
     </property>
     <property name="overrideOperationCompiler" ref="mainOverrideOperationCompiler" />
     <property name="viewResultListenerFactory" ref="viewResultListenerFactory" />
+    <property name="viewProcessWorkerFactory" ref="viewProcessWorkerFactory" />
   </bean>
   <bean id="setViewProcessorIntoContext" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
     <property name="targetClass" value="com.opengamma.financial.OpenGammaExecutionContext" />
@@ -284,6 +291,15 @@
       <list>
         <ref bean="localNodeInvoker" />
         <ref bean="localNodeFactory" />
+        <ref bean="standardMBeanServer" />
+      </list>
+    </property>
+  </bean>
+  <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+    <property name="staticMethod" value="com.opengamma.engine.view.worker.jmx.StaticSequencePartitioningViewProcessWorkerFactory.registerMBeans" />
+    <property name="arguments">
+      <list>
+        <ref bean="viewProcessWorkerFactory" />
         <ref bean="standardMBeanServer" />
       </list>
     </property>

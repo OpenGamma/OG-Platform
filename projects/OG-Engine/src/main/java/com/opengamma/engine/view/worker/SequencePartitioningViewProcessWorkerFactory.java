@@ -16,7 +16,7 @@ import com.opengamma.util.ArgumentChecker;
  * For example in the case of a historical simulation, requesting an evaluation on each day for a year might run faster overall if we do each month in parallel. Within each of those twelve jobs the
  * successive days allow for delta operations.
  */
-public class SequencePartitioningViewProcessWorkerFactory implements ViewProcessWorkerFactory {
+public abstract class SequencePartitioningViewProcessWorkerFactory implements ViewProcessWorkerFactory {
 
   private final ViewProcessWorkerFactory _delegate;
 
@@ -38,10 +38,7 @@ public class SequencePartitioningViewProcessWorkerFactory implements ViewProcess
    * @param viewDefinition the view as passed to {@link #createWorker}
    * @return the estimate
    */
-  protected int estimateSaturation(final ViewProcessWorkerContext context, final ViewExecutionOptions executionOptions, final ViewDefinition viewDefinition) {
-    // TODO: do something based on what we know of the environment
-    return 4;
-  }
+  protected abstract int estimateSaturation(final ViewProcessWorkerContext context, final ViewExecutionOptions executionOptions, final ViewDefinition viewDefinition);
 
   /**
    * Estimate the minimum number of cycles to execute in a worker batch. This should be the smallest number such that running two, or more, workers with subsets of the cycles will be slower overall
@@ -52,10 +49,7 @@ public class SequencePartitioningViewProcessWorkerFactory implements ViewProcess
    * @param viewDefinition the view as passed to {@link #createWorker}
    * @return the estimate
    */
-  protected int estimateMinimumCycles(final ViewProcessWorkerContext context, final ViewExecutionOptions executionOptions, final ViewDefinition viewDefinition) {
-    // TODO: do something based on the complexity of the view definition and environment performance
-    return 8;
-  }
+  protected abstract int estimateMinimumCycles(final ViewProcessWorkerContext context, final ViewExecutionOptions executionOptions, final ViewDefinition viewDefinition);
 
   /**
    * Estimate the maximum number of cycles to execute in a worker batch. This should be decided based on a reasonable throughput to have each worker complete within a shortish time so that timeouts
@@ -66,10 +60,7 @@ public class SequencePartitioningViewProcessWorkerFactory implements ViewProcess
    * @param viewDefinition the view as passed to {@link #createWorker}
    * @return the estimate
    */
-  protected int estimateMaximumCycles(final ViewProcessWorkerContext context, final ViewExecutionOptions executionOptions, final ViewDefinition viewDefinition) {
-    // TODO: do something based on the complexity of the view definition and environment performance
-    return 32;
-  }
+  protected abstract int estimateMaximumCycles(final ViewProcessWorkerContext context, final ViewExecutionOptions executionOptions, final ViewDefinition viewDefinition);
 
   @Override
   public ViewProcessWorker createWorker(ViewProcessWorkerContext context, ViewExecutionOptions executionOptions, ViewDefinition viewDefinition) {

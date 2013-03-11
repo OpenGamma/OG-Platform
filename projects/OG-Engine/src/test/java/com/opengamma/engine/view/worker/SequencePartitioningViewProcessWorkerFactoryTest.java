@@ -44,9 +44,17 @@ public class SequencePartitioningViewProcessWorkerFactoryTest {
 
   }
 
+  private SequencePartitioningViewProcessWorkerFactory createFactory(final ViewProcessWorkerFactory underlying) {
+    final StaticSequencePartitioningViewProcessWorkerFactory test = new StaticSequencePartitioningViewProcessWorkerFactory(underlying);
+    test.setSaturation(4);
+    test.setMinimumCycles(8);
+    test.setMaximumCycles(32);
+    return test;
+  }
+
   public void testPassthrough() {
     final ViewProcessWorkerFactoryMock underlying = new ViewProcessWorkerFactoryMock();
-    final SequencePartitioningViewProcessWorkerFactory test = new SequencePartitioningViewProcessWorkerFactory(underlying);
+    final SequencePartitioningViewProcessWorkerFactory test = createFactory(underlying);
     final ViewExecutionOptions options = ExecutionOptions.infinite(MarketData.live());
     test.createWorker(Mockito.mock(ViewProcessWorkerContext.class), options, Mockito.mock(ViewDefinition.class));
     assertEquals(underlying._executionOptions.size(), 1);
@@ -55,7 +63,7 @@ public class SequencePartitioningViewProcessWorkerFactoryTest {
 
   public void testShortSequence() {
     final ViewProcessWorkerFactoryMock underlying = new ViewProcessWorkerFactoryMock();
-    final SequencePartitioningViewProcessWorkerFactory test = new SequencePartitioningViewProcessWorkerFactory(underlying);
+    final SequencePartitioningViewProcessWorkerFactory test = createFactory(underlying);
     final Instant t = Instant.now();
     final ViewCycleExecutionSequence sequence = ArbitraryViewCycleExecutionSequence.of(t, t.plusSeconds(1), t.plusSeconds(2));
     final ViewExecutionOptions options = ExecutionOptions.of(sequence, EnumSet.of(ViewExecutionFlags.RUN_AS_FAST_AS_POSSIBLE));
@@ -66,7 +74,7 @@ public class SequencePartitioningViewProcessWorkerFactoryTest {
 
   public void testSequence() {
     final ViewProcessWorkerFactoryMock underlying = new ViewProcessWorkerFactoryMock();
-    final SequencePartitioningViewProcessWorkerFactory test = new SequencePartitioningViewProcessWorkerFactory(underlying);
+    final SequencePartitioningViewProcessWorkerFactory test = createFactory(underlying);
     final Instant t = Instant.now();
     final List<ViewCycleExecutionOptions> cycles = new ArrayList<ViewCycleExecutionOptions>(20);
     for (int i = 0; i < 20; i++) {
@@ -88,7 +96,7 @@ public class SequencePartitioningViewProcessWorkerFactoryTest {
 
   public void testInfiniteSequence() {
     final ViewProcessWorkerFactoryMock underlying = new ViewProcessWorkerFactoryMock();
-    final SequencePartitioningViewProcessWorkerFactory test = new SequencePartitioningViewProcessWorkerFactory(underlying);
+    final SequencePartitioningViewProcessWorkerFactory test = createFactory(underlying);
     final ViewCycleExecutionSequence sequence = new InfiniteViewCycleExecutionSequence();
     final ViewExecutionOptions options = ExecutionOptions.of(sequence, EnumSet.of(ViewExecutionFlags.RUN_AS_FAST_AS_POSSIBLE));
     test.createWorker(Mockito.mock(ViewProcessWorkerContext.class), options, Mockito.mock(ViewDefinition.class));

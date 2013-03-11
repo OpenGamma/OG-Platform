@@ -77,17 +77,86 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.NamedThreadPoolFactory;
 import com.opengamma.util.TerminatableJob;
 import com.opengamma.util.monitor.OperationTimer;
 import com.opengamma.util.test.Profiler;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * The job which schedules and executes computation cycles for a view process.
+ * The job which schedules and executes computation cycles for a view process. See {@link SingleThreadViewProcessWorkerFactory} for a more detailed description.
  */
 public class SingleThreadViewProcessWorker implements MarketDataListener, ViewProcessWorker {
 
   private static final Logger s_logger = LoggerFactory.getLogger(SingleThreadViewProcessWorker.class);
+
+  private static final ExecutorService s_executor = Executors.newCachedThreadPool(new NamedThreadPoolFactory("LocalViewProcessWorker"));
+
+  /**
+   * Wrapper that allows a thread to be "borrowed" from an executor service.
+   */
+  /* package*/static final class BorrowedThread implements Runnable {
+
+    private final String _name;
+    private final Runnable _job;
+    private Thread _thread;
+    private String _originalName;
+
+    public BorrowedThread(final String name, final Runnable job) {
+      _name = name;
+      _job = job;
+    }
+
+    public synchronized Thread.State getState() {
+      if (_thread != null) {
+        return _thread.getState();
+      } else {
+        return (_originalName != null) ? Thread.State.TERMINATED : Thread.State.NEW;
+      }
+    }
+
+    public synchronized void join() throws InterruptedException {
+      if (_thread != null) {
+        _thread.join();
+      }
+    }
+
+    public synchronized void join(long timeout) throws InterruptedException {
+      if (_thread != null) {
+        _thread.join(timeout);
+      }
+    }
+
+    public synchronized void interrupt() {
+      if (_thread != null) {
+        _thread.interrupt();
+      }
+    }
+
+    public synchronized boolean isAlive() {
+      return _thread != null;
+    }
+
+    // Runnable
+
+    @Override
+    public void run() {
+      synchronized (this) {
+        _thread = Thread.currentThread();
+        _originalName = _thread.getName();
+      }
+      try {
+        _thread.setName(_name);
+        _job.run();
+      } finally {
+        _thread.setName(_originalName);
+        synchronized (this) {
+          _thread = null;
+        }
+      }
+    }
+
+  }
 
   private static final long NANOS_PER_MILLISECOND = 1000000;
   private static final long MARKET_DATA_TIMEOUT_MILLIS = 10000;
@@ -97,7 +166,6 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
   private final ViewCycleTrigger _masterCycleTrigger;
   private final FixedTimeTrigger _compilationExpiryCycleTrigger;
   private final boolean _executeCycles;
-  private final ExecutorService _calcJobResultExecutor = Executors.newSingleThreadExecutor();
 
   private int _cycleCount;
   private EngineResourceReference<SingleComputationCycle> _previousCycleReference;
@@ -146,7 +214,7 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
   /**
    * The thread running this job.
    */
-  private final Thread _thread;
+  private final BorrowedThread _thread;
 
   public SingleThreadViewProcessWorker(final ViewProcessWorkerContext context, final ViewExecutionOptions executionOptions, final ViewDefinition viewDefinition) {
     ArgumentChecker.notNull(context, "context");
@@ -160,8 +228,8 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
     _executeCycles = !getExecutionOptions().getFlags().contains(ViewExecutionFlags.COMPILE_ONLY);
     _viewDefinition = viewDefinition;
     _job = new Job();
-    _thread = new Thread(_job, "Computation Job for " + context);
-    _thread.start();
+    _thread = new BorrowedThread("Computation Job for " + context, _job);
+    s_executor.submit(_thread);
   }
 
   private ViewCycleTrigger createViewCycleTrigger(final ViewExecutionOptions executionOptions) {
@@ -204,7 +272,7 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
     return _compilationExpiryCycleTrigger;
   }
 
-  protected Thread getThread() {
+  protected BorrowedThread getThread() {
     return _thread;
   }
 
@@ -570,7 +638,7 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
     }
 
     try {
-      cycleReference.get().execute(deltaCycle, marketDataSnapshot, _calcJobResultExecutor);
+      cycleReference.get().execute(deltaCycle, marketDataSnapshot, s_executor);
     } catch (final InterruptedException e) {
       Thread.interrupted();
       // In reality this means that the job has been terminated, and it will end as soon as we return from this method.
@@ -995,30 +1063,32 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
         }
       } while (false);
     }
-    s_graphBuild.begin();
-    try {
-      final MarketDataAvailabilityProvider availabilityProvider = _marketDataProvider.getAvailabilityProvider();
-      final ViewCompilationServices compilationServices = getProcessContext().asCompilationServices(availabilityProvider);
-      if (previousGraphs != null) {
-        _compilationTask = ViewDefinitionCompiler.incrementalCompileTask(_viewDefinition, compilationServices, valuationTime, versionCorrection, previousGraphs, previousResolutions, portfolioFull);
-      } else {
-        _compilationTask = ViewDefinitionCompiler.fullCompileTask(_viewDefinition, compilationServices, valuationTime, versionCorrection);
-      }
+    synchronized (getProcessContext().getGraphBuildingLock()) {
+      s_graphBuild.begin();
       try {
-        if (!getJob().isTerminated()) {
-          compiledViewDefinition = _compilationTask.get();
+        final MarketDataAvailabilityProvider availabilityProvider = _marketDataProvider.getAvailabilityProvider();
+        final ViewCompilationServices compilationServices = getProcessContext().asCompilationServices(availabilityProvider);
+        if (previousGraphs != null) {
+          _compilationTask = ViewDefinitionCompiler.incrementalCompileTask(_viewDefinition, compilationServices, valuationTime, versionCorrection, previousGraphs, previousResolutions, portfolioFull);
         } else {
-          return null;
+          _compilationTask = ViewDefinitionCompiler.fullCompileTask(_viewDefinition, compilationServices, valuationTime, versionCorrection);
         }
+        try {
+          if (!getJob().isTerminated()) {
+            compiledViewDefinition = _compilationTask.get();
+          } else {
+            return null;
+          }
+        } finally {
+          _compilationTask = null;
+        }
+      } catch (final Exception e) {
+        final String message = MessageFormat.format("Error compiling view definition {0} for time {1}", getViewDefinition().getUniqueId(), valuationTime);
+        viewDefinitionCompilationFailed(valuationTime, new OpenGammaRuntimeException(message, e));
+        throw new OpenGammaRuntimeException(message, e);
       } finally {
-        _compilationTask = null;
+        s_graphBuild.end();
       }
-    } catch (final Exception e) {
-      final String message = MessageFormat.format("Error compiling view definition {0} for time {1}", getViewDefinition().getUniqueId(), valuationTime);
-      viewDefinitionCompilationFailed(valuationTime, new OpenGammaRuntimeException(message, e));
-      throw new OpenGammaRuntimeException(message, e);
-    } finally {
-      s_graphBuild.end();
     }
     // [PLAT-984]
     // Assume that valuation times are increasing in real-time towards the expiry of the view definition, so that we
