@@ -56,7 +56,7 @@ public class WebPortfolioVersionsResource extends AbstractWebPortfolioResource {
     out.put("versionsResult", result);
     out.put("versions", result.getPortfolios());
     out.put("paging", new WebPaging(result.getPaging(), data().getUriInfo()));
-    String json = getFreemarker().build("portfolios/jsonportfolioversions.ftl", out);
+    String json = getFreemarker().build(JSON_DIR + "portfolioversions.ftl", out);
     return Response.ok(json).build();
   }
 
