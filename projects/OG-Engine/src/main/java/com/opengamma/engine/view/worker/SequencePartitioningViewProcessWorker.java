@@ -283,7 +283,7 @@ public class SequencePartitioningViewProcessWorker implements ViewProcessWorker,
 
   @Override
   public String toString() {
-    return "partitioned sequence " + getWorkerContext();
+    return "Partition[" + getWorkerContext() + "]";
   }
 
 }

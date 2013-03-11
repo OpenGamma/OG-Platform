@@ -89,7 +89,7 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
 
   private static final Logger s_logger = LoggerFactory.getLogger(SingleThreadViewProcessWorker.class);
 
-  private static final ExecutorService s_executor = Executors.newCachedThreadPool(new NamedThreadPoolFactory("LocalViewProcessWorker"));
+  private static final ExecutorService s_executor = Executors.newCachedThreadPool(new NamedThreadPoolFactory("Worker"));
 
   /**
    * Wrapper that allows a thread to be "borrowed" from an executor service.
@@ -145,7 +145,7 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
         _originalName = _thread.getName();
       }
       try {
-        _thread.setName(_name);
+        _thread.setName(_originalName + "-" + _name);
         _job.run();
       } finally {
         _thread.setName(_originalName);
@@ -227,7 +227,7 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
     _executeCycles = !getExecutionOptions().getFlags().contains(ViewExecutionFlags.COMPILE_ONLY);
     _viewDefinition = viewDefinition;
     _job = new Job();
-    _thread = new BorrowedThread("Computation Job for " + context, _job);
+    _thread = new BorrowedThread(context.toString(), _job);
     s_executor.submit(_thread);
   }
 
