@@ -150,8 +150,10 @@ public class InterestRateFutureYieldCurveNodeSensitivitiesFunction extends Abstr
       return YieldCurveNodeSensitivitiesHelper.getInstrumentLabelledSensitivitiesForCurve(sensitivities, domesticCurrency, foreignCurrency, fullCurveNames,
           curves, configSource, localNow, getResultSpec(target, currency, fullCurveName, curveCalculationConfigName));
     }
+    final Object temp = YieldCurveNodeSensitivitiesHelper.getInstrumentLabelledSensitivitiesForCurve(fullCurveName, bundle, sensitivities, curveSpec,
+        getResultSpec(target, currency, curveName, curveCalculationConfigName));
     return YieldCurveNodeSensitivitiesHelper.getInstrumentLabelledSensitivitiesForCurve(fullCurveName, bundle, sensitivities, curveSpec,
-        getResultSpec(target, currency, fullCurveName, curveCalculationConfigName));
+        getResultSpec(target, currency, curveName, curveCalculationConfigName));
   }
 
   @Override
