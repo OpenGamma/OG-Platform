@@ -47,7 +47,7 @@ public class InterestRateFutureOptionBlackYieldCurveNodePnLFunction extends Yiel
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
-    final Set<String> curveNames = new HashSet<String>();
+    final Set<String> curveNames = new HashSet<>();
     for (final Map.Entry<ValueSpecification, ValueRequirement> entry : inputs.entrySet()) {
       if (entry.getKey().getValueName().equals(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES)) {
         curveNames.add(entry.getValue().getConstraint(ValuePropertyNames.CURVE));
