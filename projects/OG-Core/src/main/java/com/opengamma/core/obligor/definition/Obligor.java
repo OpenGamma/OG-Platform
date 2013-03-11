@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.core.obligor.definition;
@@ -12,18 +12,19 @@ import com.opengamma.core.obligor.CreditRatingStandardAndPoors;
 import com.opengamma.core.obligor.Region;
 import com.opengamma.core.obligor.Sector;
 import com.opengamma.util.ArgumentChecker;
-import org.joda.beans.BeanDefinition;
-import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectBean;
-import java.util.Map;
 import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+
+import java.util.Map;
 
 /**
  * Class for defining the characteristics of an obligor in a derivative contract
@@ -45,62 +46,62 @@ public class Obligor extends DirectBean {
   // Private member variables
 
   // The obligor identifiers
-  @PropertyDefinition(set = "", validate = "notNull")
-  private  String _obligorTicker;
-  @PropertyDefinition(set = "", validate = "notNull")
-  private  String _obligorShortName;
-  @PropertyDefinition(set = "", validate = "notNull")
-  private  String _obligorREDCode;
+  @PropertyDefinition(validate = "notNull")
+  private String _obligorTicker;
+  @PropertyDefinition(validate = "notNull")
+  private String _obligorShortName;
+  @PropertyDefinition(validate = "notNull")
+  private String _obligorREDCode;
 
   // The obligor credit rating (MarkIt fields)
-  @PropertyDefinition(set = "", validate = "notNull")
-  private  CreditRating _compositeRating;
-  @PropertyDefinition(set = "", validate = "notNull")
-  private  CreditRating _impliedRating;
+  @PropertyDefinition(validate = "notNull")
+  private CreditRating _compositeRating;
+  @PropertyDefinition(validate = "notNull")
+  private CreditRating _impliedRating;
 
   // The obligor credit rating (Moodys, S&P and Fitch classifications)
-  @PropertyDefinition(set = "", validate = "notNull")
-  private  CreditRatingMoodys _moodysCreditRating;
-  @PropertyDefinition(set = "", validate = "notNull")
-  private  CreditRatingStandardAndPoors _standardAndPoorsCreditRating;
-  @PropertyDefinition(set = "", validate = "notNull")
-  private  CreditRatingFitch _fitchCreditRating;
+  @PropertyDefinition(validate = "notNull")
+  private CreditRatingMoodys _moodysCreditRating;
+  @PropertyDefinition(validate = "notNull")
+  private CreditRatingStandardAndPoors _standardAndPoorsCreditRating;
+  @PropertyDefinition(validate = "notNull")
+  private CreditRatingFitch _fitchCreditRating;
 
   // Explicit flag to determine if the obligor has already defaulted prior to the current time
-  @PropertyDefinition(set = "", validate = "notNull")
-  private  boolean _hasDefaulted;
+  @PropertyDefinition(validate = "notNull")
+  private boolean _hasDefaulted;
 
   // The obligor industrial sector classification
-  @PropertyDefinition(set = "", validate = "notNull")
-  private  Sector _sector;
+  @PropertyDefinition(validate = "notNull")
+  private Sector _sector;
 
   // The regional domicile of the obligor
-  @PropertyDefinition(set = "", validate = "notNull")
-  private  Region _region;
+  @PropertyDefinition(validate = "notNull")
+  private Region _region;
 
   // The country of domicile of the obligor
-  @PropertyDefinition(set = "", validate = "notNull")
-  private  String _country;
+  @PropertyDefinition(validate = "notNull")
+  private String _country;
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Obligor constructor
 
-  private Obligor(){    
+  private Obligor() {
   }
-  
+
   public Obligor(final String obligorTicker,
-      final String obligorShortName,
-      final String obligorREDCode,
-      final CreditRating compositeRating,
-      final CreditRating impliedRating,
-      final CreditRatingMoodys moodysCreditRating,
-      final CreditRatingStandardAndPoors standardAndPoorsCreditRating,
-      final CreditRatingFitch fitchCreditRating,
-      final boolean hasDefaulted,
-      final Sector sector,
-      final Region region,
-      final String country) {
+                 final String obligorShortName,
+                 final String obligorREDCode,
+                 final CreditRating compositeRating,
+                 final CreditRating impliedRating,
+                 final CreditRatingMoodys moodysCreditRating,
+                 final CreditRatingStandardAndPoors standardAndPoorsCreditRating,
+                 final CreditRatingFitch fitchCreditRating,
+                 final boolean hasDefaulted,
+                 final Sector sector,
+                 final Region region,
+                 final String country) {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -202,65 +203,41 @@ public class Obligor extends DirectBean {
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 896190372:  // obligorTicker
-        if (quiet) {
-          return;
-        }
-        throw new UnsupportedOperationException("Property cannot be written: obligorTicker");
+        setObligorTicker((String) newValue);
+        return;
       case -1066272179:  // obligorShortName
-        if (quiet) {
-          return;
-        }
-        throw new UnsupportedOperationException("Property cannot be written: obligorShortName");
+        setObligorShortName((String) newValue);
+        return;
       case -823370556:  // obligorREDCode
-        if (quiet) {
-          return;
-        }
-        throw new UnsupportedOperationException("Property cannot be written: obligorREDCode");
+        setObligorREDCode((String) newValue);
+        return;
       case 957861636:  // compositeRating
-        if (quiet) {
-          return;
-        }
-        throw new UnsupportedOperationException("Property cannot be written: compositeRating");
+        setCompositeRating((CreditRating) newValue);
+        return;
       case 1421672549:  // impliedRating
-        if (quiet) {
-          return;
-        }
-        throw new UnsupportedOperationException("Property cannot be written: impliedRating");
+        setImpliedRating((CreditRating) newValue);
+        return;
       case 1016935655:  // moodysCreditRating
-        if (quiet) {
-          return;
-        }
-        throw new UnsupportedOperationException("Property cannot be written: moodysCreditRating");
+        setMoodysCreditRating((CreditRatingMoodys) newValue);
+        return;
       case 1963211373:  // standardAndPoorsCreditRating
-        if (quiet) {
-          return;
-        }
-        throw new UnsupportedOperationException("Property cannot be written: standardAndPoorsCreditRating");
+        setStandardAndPoorsCreditRating((CreditRatingStandardAndPoors) newValue);
+        return;
       case 1612838220:  // fitchCreditRating
-        if (quiet) {
-          return;
-        }
-        throw new UnsupportedOperationException("Property cannot be written: fitchCreditRating");
+        setFitchCreditRating((CreditRatingFitch) newValue);
+        return;
       case 1706701094:  // hasDefaulted
-        if (quiet) {
-          return;
-        }
-        throw new UnsupportedOperationException("Property cannot be written: hasDefaulted");
+        setHasDefaulted((Boolean) newValue);
+        return;
       case -906274970:  // sector
-        if (quiet) {
-          return;
-        }
-        throw new UnsupportedOperationException("Property cannot be written: sector");
+        setSector((Sector) newValue);
+        return;
       case -934795532:  // region
-        if (quiet) {
-          return;
-        }
-        throw new UnsupportedOperationException("Property cannot be written: region");
+        setRegion((Region) newValue);
+        return;
       case 957831062:  // country
-        if (quiet) {
-          return;
-        }
-        throw new UnsupportedOperationException("Property cannot be written: country");
+        setCountry((String) newValue);
+        return;
     }
     super.propertySet(propertyName, newValue, quiet);
   }
@@ -333,6 +310,15 @@ public class Obligor extends DirectBean {
   }
 
   /**
+   * Sets the obligorTicker.
+   * @param obligorTicker  the new value of the property, not null
+   */
+  public void setObligorTicker(String obligorTicker) {
+    JodaBeanUtils.notNull(obligorTicker, "obligorTicker");
+    this._obligorTicker = obligorTicker;
+  }
+
+  /**
    * Gets the the {@code obligorTicker} property.
    * @return the property, not null
    */
@@ -347,6 +333,15 @@ public class Obligor extends DirectBean {
    */
   public String getObligorShortName() {
     return _obligorShortName;
+  }
+
+  /**
+   * Sets the obligorShortName.
+   * @param obligorShortName  the new value of the property, not null
+   */
+  public void setObligorShortName(String obligorShortName) {
+    JodaBeanUtils.notNull(obligorShortName, "obligorShortName");
+    this._obligorShortName = obligorShortName;
   }
 
   /**
@@ -367,6 +362,15 @@ public class Obligor extends DirectBean {
   }
 
   /**
+   * Sets the obligorREDCode.
+   * @param obligorREDCode  the new value of the property, not null
+   */
+  public void setObligorREDCode(String obligorREDCode) {
+    JodaBeanUtils.notNull(obligorREDCode, "obligorREDCode");
+    this._obligorREDCode = obligorREDCode;
+  }
+
+  /**
    * Gets the the {@code obligorREDCode} property.
    * @return the property, not null
    */
@@ -381,6 +385,15 @@ public class Obligor extends DirectBean {
    */
   public CreditRating getCompositeRating() {
     return _compositeRating;
+  }
+
+  /**
+   * Sets the compositeRating.
+   * @param compositeRating  the new value of the property, not null
+   */
+  public void setCompositeRating(CreditRating compositeRating) {
+    JodaBeanUtils.notNull(compositeRating, "compositeRating");
+    this._compositeRating = compositeRating;
   }
 
   /**
@@ -401,6 +414,15 @@ public class Obligor extends DirectBean {
   }
 
   /**
+   * Sets the impliedRating.
+   * @param impliedRating  the new value of the property, not null
+   */
+  public void setImpliedRating(CreditRating impliedRating) {
+    JodaBeanUtils.notNull(impliedRating, "impliedRating");
+    this._impliedRating = impliedRating;
+  }
+
+  /**
    * Gets the the {@code impliedRating} property.
    * @return the property, not null
    */
@@ -415,6 +437,15 @@ public class Obligor extends DirectBean {
    */
   public CreditRatingMoodys getMoodysCreditRating() {
     return _moodysCreditRating;
+  }
+
+  /**
+   * Sets the moodysCreditRating.
+   * @param moodysCreditRating  the new value of the property, not null
+   */
+  public void setMoodysCreditRating(CreditRatingMoodys moodysCreditRating) {
+    JodaBeanUtils.notNull(moodysCreditRating, "moodysCreditRating");
+    this._moodysCreditRating = moodysCreditRating;
   }
 
   /**
@@ -435,6 +466,15 @@ public class Obligor extends DirectBean {
   }
 
   /**
+   * Sets the standardAndPoorsCreditRating.
+   * @param standardAndPoorsCreditRating  the new value of the property, not null
+   */
+  public void setStandardAndPoorsCreditRating(CreditRatingStandardAndPoors standardAndPoorsCreditRating) {
+    JodaBeanUtils.notNull(standardAndPoorsCreditRating, "standardAndPoorsCreditRating");
+    this._standardAndPoorsCreditRating = standardAndPoorsCreditRating;
+  }
+
+  /**
    * Gets the the {@code standardAndPoorsCreditRating} property.
    * @return the property, not null
    */
@@ -449,6 +489,15 @@ public class Obligor extends DirectBean {
    */
   public CreditRatingFitch getFitchCreditRating() {
     return _fitchCreditRating;
+  }
+
+  /**
+   * Sets the fitchCreditRating.
+   * @param fitchCreditRating  the new value of the property, not null
+   */
+  public void setFitchCreditRating(CreditRatingFitch fitchCreditRating) {
+    JodaBeanUtils.notNull(fitchCreditRating, "fitchCreditRating");
+    this._fitchCreditRating = fitchCreditRating;
   }
 
   /**
@@ -469,6 +518,15 @@ public class Obligor extends DirectBean {
   }
 
   /**
+   * Sets the hasDefaulted.
+   * @param hasDefaulted  the new value of the property, not null
+   */
+  public void setHasDefaulted(boolean hasDefaulted) {
+    JodaBeanUtils.notNull(hasDefaulted, "hasDefaulted");
+    this._hasDefaulted = hasDefaulted;
+  }
+
+  /**
    * Gets the the {@code hasDefaulted} property.
    * @return the property, not null
    */
@@ -483,6 +541,15 @@ public class Obligor extends DirectBean {
    */
   public Sector getSector() {
     return _sector;
+  }
+
+  /**
+   * Sets the sector.
+   * @param sector  the new value of the property, not null
+   */
+  public void setSector(Sector sector) {
+    JodaBeanUtils.notNull(sector, "sector");
+    this._sector = sector;
   }
 
   /**
@@ -503,6 +570,15 @@ public class Obligor extends DirectBean {
   }
 
   /**
+   * Sets the region.
+   * @param region  the new value of the property, not null
+   */
+  public void setRegion(Region region) {
+    JodaBeanUtils.notNull(region, "region");
+    this._region = region;
+  }
+
+  /**
    * Gets the the {@code region} property.
    * @return the property, not null
    */
@@ -517,6 +593,15 @@ public class Obligor extends DirectBean {
    */
   public String getCountry() {
     return _country;
+  }
+
+  /**
+   * Sets the country.
+   * @param country  the new value of the property, not null
+   */
+  public void setCountry(String country) {
+    JodaBeanUtils.notNull(country, "country");
+    this._country = country;
   }
 
   /**
@@ -540,62 +625,62 @@ public class Obligor extends DirectBean {
     /**
      * The meta-property for the {@code obligorTicker} property.
      */
-    private final MetaProperty<String> _obligorTicker = DirectMetaProperty.ofReadOnly(
+    private final MetaProperty<String> _obligorTicker = DirectMetaProperty.ofReadWrite(
         this, "obligorTicker", Obligor.class, String.class);
     /**
      * The meta-property for the {@code obligorShortName} property.
      */
-    private final MetaProperty<String> _obligorShortName = DirectMetaProperty.ofReadOnly(
+    private final MetaProperty<String> _obligorShortName = DirectMetaProperty.ofReadWrite(
         this, "obligorShortName", Obligor.class, String.class);
     /**
      * The meta-property for the {@code obligorREDCode} property.
      */
-    private final MetaProperty<String> _obligorREDCode = DirectMetaProperty.ofReadOnly(
+    private final MetaProperty<String> _obligorREDCode = DirectMetaProperty.ofReadWrite(
         this, "obligorREDCode", Obligor.class, String.class);
     /**
      * The meta-property for the {@code compositeRating} property.
      */
-    private final MetaProperty<CreditRating> _compositeRating = DirectMetaProperty.ofReadOnly(
+    private final MetaProperty<CreditRating> _compositeRating = DirectMetaProperty.ofReadWrite(
         this, "compositeRating", Obligor.class, CreditRating.class);
     /**
      * The meta-property for the {@code impliedRating} property.
      */
-    private final MetaProperty<CreditRating> _impliedRating = DirectMetaProperty.ofReadOnly(
+    private final MetaProperty<CreditRating> _impliedRating = DirectMetaProperty.ofReadWrite(
         this, "impliedRating", Obligor.class, CreditRating.class);
     /**
      * The meta-property for the {@code moodysCreditRating} property.
      */
-    private final MetaProperty<CreditRatingMoodys> _moodysCreditRating = DirectMetaProperty.ofReadOnly(
+    private final MetaProperty<CreditRatingMoodys> _moodysCreditRating = DirectMetaProperty.ofReadWrite(
         this, "moodysCreditRating", Obligor.class, CreditRatingMoodys.class);
     /**
      * The meta-property for the {@code standardAndPoorsCreditRating} property.
      */
-    private final MetaProperty<CreditRatingStandardAndPoors> _standardAndPoorsCreditRating = DirectMetaProperty.ofReadOnly(
+    private final MetaProperty<CreditRatingStandardAndPoors> _standardAndPoorsCreditRating = DirectMetaProperty.ofReadWrite(
         this, "standardAndPoorsCreditRating", Obligor.class, CreditRatingStandardAndPoors.class);
     /**
      * The meta-property for the {@code fitchCreditRating} property.
      */
-    private final MetaProperty<CreditRatingFitch> _fitchCreditRating = DirectMetaProperty.ofReadOnly(
+    private final MetaProperty<CreditRatingFitch> _fitchCreditRating = DirectMetaProperty.ofReadWrite(
         this, "fitchCreditRating", Obligor.class, CreditRatingFitch.class);
     /**
      * The meta-property for the {@code hasDefaulted} property.
      */
-    private final MetaProperty<Boolean> _hasDefaulted = DirectMetaProperty.ofReadOnly(
+    private final MetaProperty<Boolean> _hasDefaulted = DirectMetaProperty.ofReadWrite(
         this, "hasDefaulted", Obligor.class, Boolean.TYPE);
     /**
      * The meta-property for the {@code sector} property.
      */
-    private final MetaProperty<Sector> _sector = DirectMetaProperty.ofReadOnly(
+    private final MetaProperty<Sector> _sector = DirectMetaProperty.ofReadWrite(
         this, "sector", Obligor.class, Sector.class);
     /**
      * The meta-property for the {@code region} property.
      */
-    private final MetaProperty<Region> _region = DirectMetaProperty.ofReadOnly(
+    private final MetaProperty<Region> _region = DirectMetaProperty.ofReadWrite(
         this, "region", Obligor.class, Region.class);
     /**
      * The meta-property for the {@code country} property.
      */
-    private final MetaProperty<String> _country = DirectMetaProperty.ofReadOnly(
+    private final MetaProperty<String> _country = DirectMetaProperty.ofReadWrite(
         this, "country", Obligor.class, String.class);
     /**
      * The meta-properties.
