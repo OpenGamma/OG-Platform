@@ -199,7 +199,7 @@ public class SABRNonLinearLeastSquaresSwaptionCubeFittingFunction extends Abstra
 
   private double getTime(final Tenor tenor) {
     final Period period = tenor.getPeriod();
-    final double months = DateUtils.totalMonths(period);
+    final double months = period.toTotalMonths();
     return months / 12.;
   }
 

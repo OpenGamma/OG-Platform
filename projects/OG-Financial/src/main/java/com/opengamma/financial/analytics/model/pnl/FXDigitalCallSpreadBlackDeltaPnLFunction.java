@@ -81,7 +81,7 @@ public class FXDigitalCallSpreadBlackDeltaPnLFunction extends AbstractFunction.N
     final String samplingFunction = desiredValue.getConstraint(ValuePropertyNames.SAMPLING_FUNCTION);
     final MultipleCurrencyAmount mca = (MultipleCurrencyAmount) inputs.getValue(ValueRequirementNames.FX_CURRENCY_EXPOSURE);
     final FinancialSecurity security = (FinancialSecurity) position.getSecurity();
-    final LocalDate startDate = now.getDate().minus(Period.parse(samplingPeriod));
+    final LocalDate startDate = now.toLocalDate().minus(Period.parse(samplingPeriod));
     final Schedule schedule = ScheduleCalculatorFactory.getScheduleCalculator(scheduleCalculator);
     final TimeSeriesSamplingFunction sampling = TimeSeriesSamplingFunctionFactory.getFunction(samplingFunction);
     final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
@@ -93,7 +93,7 @@ public class FXDigitalCallSpreadBlackDeltaPnLFunction extends AbstractFunction.N
     final Currency currencyNonBase = currencyPair.getCounter(); // The non-base currency
     final double delta = mca.getAmount(currencyNonBase);
     final HistoricalTimeSeries timeSeries = (HistoricalTimeSeries) inputs.getValue(CurrencySeriesConversionFunction.SPOT_RATE);
-    DoubleTimeSeries<?> result = getPnLSeries(startDate, now.getDate(), schedule, sampling, timeSeries);
+    DoubleTimeSeries<?> result = getPnLSeries(startDate, now.toLocalDate(), schedule, sampling, timeSeries);
     result = result.multiply(position.getQuantity().doubleValue() * delta);
     final Currency currencyBase = currencyPair.getBase(); // The base currency
     final ValueProperties resultProperties = createValueProperties()

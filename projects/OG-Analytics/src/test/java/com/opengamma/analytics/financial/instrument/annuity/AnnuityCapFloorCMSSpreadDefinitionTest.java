@@ -33,25 +33,25 @@ public class AnnuityCapFloorCMSSpreadDefinitionTest {
   // Ibor index
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final boolean IS_EOM = true;
-  private static final Period IBOR_TENOR = Period.of(3, MONTHS);
+  private static final Period IBOR_TENOR = Period.ofMonths(3);
   private static final int IBOR_SETTLEMENT_DAYS = 2;
   private static final DayCount IBOR_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final IborIndex IBOR_INDEX = new IborIndex(CUR, IBOR_TENOR, IBOR_SETTLEMENT_DAYS, CALENDAR, IBOR_DAY_COUNT, BUSINESS_DAY, IS_EOM);
   // CMS Index
-  private static final Period FIXED_PAYMENT_PERIOD = Period.of(6, MONTHS);
+  private static final Period FIXED_PAYMENT_PERIOD = Period.ofMonths(6);
   private static final DayCount FIXED_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("30/360");
   //CMS 10Y
-  private static final Period CMS_TENOR_10 = Period.of(10, YEARS);
+  private static final Period CMS_TENOR_10 = Period.ofYears(10);
   private static final IndexSwap CMS_INDEX_10 = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, IBOR_INDEX, CMS_TENOR_10);
   //CMS 2Y
-  private static final Period CMS_TENOR_2 = Period.of(2, YEARS);
+  private static final Period CMS_TENOR_2 = Period.ofYears(2);
   private static final IndexSwap CMS_INDEX_2 = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, IBOR_INDEX, CMS_TENOR_2);
   // Annuity
   private static final ZonedDateTime START_DATE = DateUtils.getUTCDate(2011, 3, 17);
-  private static final Period ANNUITY_TENOR = Period.of(5, YEARS);
+  private static final Period ANNUITY_TENOR = Period.ofYears(5);
   private static final ZonedDateTime MATURITY_DATE = START_DATE.plus(ANNUITY_TENOR);
   private static final double NOTIONAL = 100000000; //100m
-  private static final Period LEG_PAYMENT_PERIOD = Period.of(12, MONTHS);
+  private static final Period LEG_PAYMENT_PERIOD = Period.ofMonths(12);
   private static final DayCount LEG_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/365");
   private static final boolean IS_PAYER = true;
   private static final double STRIKE = 0.0050;

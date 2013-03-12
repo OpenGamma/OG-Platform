@@ -50,71 +50,71 @@ public final class IndexIborMaster {
     _ibor = new HashMap<String, IborIndex>();
     _ibor.put(
         "AUDBB3M",
-        new IborIndex(Currency.AUD, Period.of(3, MONTHS), 1, baseCalendar, DayCountFactory.INSTANCE.getDayCount("Actual/365"), BusinessDayConventionFactory.INSTANCE
+        new IborIndex(Currency.AUD, Period.ofMonths(3), 1, baseCalendar, DayCountFactory.INSTANCE.getDayCount("Actual/365"), BusinessDayConventionFactory.INSTANCE
             .getBusinessDayConvention("Modified Following"), true, "AUDBB3M"));
     _ibor.put(
         "AUDBB6M",
-        new IborIndex(Currency.AUD, Period.of(6, MONTHS), 1, baseCalendar, DayCountFactory.INSTANCE.getDayCount("Actual/365"), BusinessDayConventionFactory.INSTANCE
+        new IborIndex(Currency.AUD, Period.ofMonths(6), 1, baseCalendar, DayCountFactory.INSTANCE.getDayCount("Actual/365"), BusinessDayConventionFactory.INSTANCE
             .getBusinessDayConvention("Modified Following"), true, "AUDBB6M"));
     _ibor.put(
         "CADCDOR3M",
-        new IborIndex(Currency.CAD, Period.of(3, MONTHS), 0, baseCalendar, DayCountFactory.INSTANCE.getDayCount("Actual/365"), BusinessDayConventionFactory.INSTANCE
+        new IborIndex(Currency.CAD, Period.ofMonths(3), 0, baseCalendar, DayCountFactory.INSTANCE.getDayCount("Actual/365"), BusinessDayConventionFactory.INSTANCE
             .getBusinessDayConvention("Modified Following"), true, "CADCDOR3M"));
     _ibor.put(
         "EURIBOR1M",
-        new IborIndex(Currency.EUR, Period.of(1, MONTHS), 2, baseCalendar, DayCountFactory.INSTANCE.getDayCount("Actual/360"), BusinessDayConventionFactory.INSTANCE
+        new IborIndex(Currency.EUR, Period.ofMonths(1), 2, baseCalendar, DayCountFactory.INSTANCE.getDayCount("Actual/360"), BusinessDayConventionFactory.INSTANCE
             .getBusinessDayConvention("Modified Following"), true, "EURIBOR1M"));
     _ibor.put(
         "EURIBOR3M",
-        new IborIndex(Currency.EUR, Period.of(3, MONTHS), 2, baseCalendar, DayCountFactory.INSTANCE.getDayCount("Actual/360"), BusinessDayConventionFactory.INSTANCE
+        new IborIndex(Currency.EUR, Period.ofMonths(3), 2, baseCalendar, DayCountFactory.INSTANCE.getDayCount("Actual/360"), BusinessDayConventionFactory.INSTANCE
             .getBusinessDayConvention("Modified Following"), true, "EURIBOR3M"));
     _ibor.put(
         "EURIBOR6M",
-        new IborIndex(Currency.EUR, Period.of(6, MONTHS), 2, baseCalendar, DayCountFactory.INSTANCE.getDayCount("Actual/360"), BusinessDayConventionFactory.INSTANCE
+        new IborIndex(Currency.EUR, Period.ofMonths(6), 2, baseCalendar, DayCountFactory.INSTANCE.getDayCount("Actual/360"), BusinessDayConventionFactory.INSTANCE
             .getBusinessDayConvention("Modified Following"), true, "EURIBOR6M"));
     _ibor.put(
         "EURIBOR12M",
-        new IborIndex(Currency.EUR, Period.of(12, MONTHS), 2, baseCalendar, DayCountFactory.INSTANCE.getDayCount("Actual/360"), BusinessDayConventionFactory.INSTANCE
+        new IborIndex(Currency.EUR, Period.ofMonths(12), 2, baseCalendar, DayCountFactory.INSTANCE.getDayCount("Actual/360"), BusinessDayConventionFactory.INSTANCE
             .getBusinessDayConvention("Modified Following"), true, "EURIBOR12M"));
     _ibor.put(
         "USDLIBOR1M",
-        new IborIndex(Currency.USD, Period.of(1, MONTHS), 2, baseCalendar, DayCountFactory.INSTANCE.getDayCount("Actual/360"), BusinessDayConventionFactory.INSTANCE
+        new IborIndex(Currency.USD, Period.ofMonths(1), 2, baseCalendar, DayCountFactory.INSTANCE.getDayCount("Actual/360"), BusinessDayConventionFactory.INSTANCE
             .getBusinessDayConvention("Modified Following"), true, "USDLIBOR1M"));
     _ibor.put(
         "USDLIBOR3M",
-        new IborIndex(Currency.USD, Period.of(3, MONTHS), 2, baseCalendar, DayCountFactory.INSTANCE.getDayCount("Actual/360"), BusinessDayConventionFactory.INSTANCE
+        new IborIndex(Currency.USD, Period.ofMonths(3), 2, baseCalendar, DayCountFactory.INSTANCE.getDayCount("Actual/360"), BusinessDayConventionFactory.INSTANCE
             .getBusinessDayConvention("Modified Following"), true, "USDLIBOR3M"));
     _ibor.put(
         "USDLIBOR6M",
-        new IborIndex(Currency.USD, Period.of(6, MONTHS), 2, baseCalendar, DayCountFactory.INSTANCE.getDayCount("Actual/360"), BusinessDayConventionFactory.INSTANCE
+        new IborIndex(Currency.USD, Period.ofMonths(6), 2, baseCalendar, DayCountFactory.INSTANCE.getDayCount("Actual/360"), BusinessDayConventionFactory.INSTANCE
             .getBusinessDayConvention("Modified Following"), true, "USDLIBOR6M"));
     _ibor.put(
         "USDLIBOR12M",
-        new IborIndex(Currency.USD, Period.of(12, MONTHS), 2, baseCalendar, DayCountFactory.INSTANCE.getDayCount("Actual/360"), BusinessDayConventionFactory.INSTANCE
+        new IborIndex(Currency.USD, Period.ofMonths(12), 2, baseCalendar, DayCountFactory.INSTANCE.getDayCount("Actual/360"), BusinessDayConventionFactory.INSTANCE
             .getBusinessDayConvention("Modified Following"), true, "USDLIBOR12M"));
     _ibor.put(
         "GBPLIBOR3M",
-        new IborIndex(Currency.GBP, Period.of(3, MONTHS), 0, baseCalendar, DayCountFactory.INSTANCE.getDayCount("Actual/365"), BusinessDayConventionFactory.INSTANCE
+        new IborIndex(Currency.GBP, Period.ofMonths(3), 0, baseCalendar, DayCountFactory.INSTANCE.getDayCount("Actual/365"), BusinessDayConventionFactory.INSTANCE
             .getBusinessDayConvention("Modified Following"), true, "GBPLIBOR3M"));
     _ibor.put(
         "GBPLIBOR6M",
-        new IborIndex(Currency.GBP, Period.of(6, MONTHS), 0, baseCalendar, DayCountFactory.INSTANCE.getDayCount("Actual/365"), BusinessDayConventionFactory.INSTANCE
+        new IborIndex(Currency.GBP, Period.ofMonths(6), 0, baseCalendar, DayCountFactory.INSTANCE.getDayCount("Actual/365"), BusinessDayConventionFactory.INSTANCE
             .getBusinessDayConvention("Modified Following"), true, "GBPLIBOR6M"));
     _ibor.put(
         "DKKCIBOR3M",
-        new IborIndex(Currency.DKK, Period.of(3, MONTHS), 2, baseCalendar, DayCountFactory.INSTANCE.getDayCount("Actual/360"), BusinessDayConventionFactory.INSTANCE
+        new IborIndex(Currency.DKK, Period.ofMonths(3), 2, baseCalendar, DayCountFactory.INSTANCE.getDayCount("Actual/360"), BusinessDayConventionFactory.INSTANCE
             .getBusinessDayConvention("Modified Following"), true, "DKKCIBOR3M"));
     _ibor.put(
         "DKKCIBOR6M",
-        new IborIndex(Currency.DKK, Period.of(6, MONTHS), 2, baseCalendar, DayCountFactory.INSTANCE.getDayCount("Actual/360"), BusinessDayConventionFactory.INSTANCE
+        new IborIndex(Currency.DKK, Period.ofMonths(6), 2, baseCalendar, DayCountFactory.INSTANCE.getDayCount("Actual/360"), BusinessDayConventionFactory.INSTANCE
             .getBusinessDayConvention("Modified Following"), true, "DKKCIBOR6M"));
     _ibor.put(
         "JPYLIBOR3M",
-        new IborIndex(Currency.JPY, Period.of(3, MONTHS), 2, baseCalendar, DayCountFactory.INSTANCE.getDayCount("Actual/365"), BusinessDayConventionFactory.INSTANCE
+        new IborIndex(Currency.JPY, Period.ofMonths(3), 2, baseCalendar, DayCountFactory.INSTANCE.getDayCount("Actual/365"), BusinessDayConventionFactory.INSTANCE
             .getBusinessDayConvention("Modified Following"), true, "JPYLIBOR3M"));
     _ibor.put(
         "JPYLIBOR6M",
-        new IborIndex(Currency.JPY, Period.of(6, MONTHS), 2, baseCalendar, DayCountFactory.INSTANCE.getDayCount("Actual/365"), BusinessDayConventionFactory.INSTANCE
+        new IborIndex(Currency.JPY, Period.ofMonths(6), 2, baseCalendar, DayCountFactory.INSTANCE.getDayCount("Actual/365"), BusinessDayConventionFactory.INSTANCE
             .getBusinessDayConvention("Modified Following"), true, "JPYLIBOR6M"));
   }
 

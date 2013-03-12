@@ -3,6 +3,7 @@ package com.opengamma.analytics.financial.interestrate.payments.provider;
 import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.GeneratorDeposit;
@@ -41,17 +42,17 @@ public class CapFloorCMSSpreadG2ppMethodTest {
 
   private static final GeneratorSwapFixedIbor EUR1YEURIBOR6M = GeneratorSwapFixedIborMaster.getInstance().getGenerator("EUR1YEURIBOR6M", CALENDAR);
   private static final GeneratorDeposit GEN_EUR_DEPOSIT = new EURDeposit(CALENDAR);
-  private static final IndexSwap SWAP_EUR10Y = new IndexSwap(EUR1YEURIBOR6M, DateUtils.periodOfYears(10));
-  private static final IndexSwap SWAP_EUR2Y = new IndexSwap(EUR1YEURIBOR6M, DateUtils.periodOfYears(2));
+  private static final IndexSwap SWAP_EUR10Y = new IndexSwap(EUR1YEURIBOR6M, Period.ofYears(10));
+  private static final IndexSwap SWAP_EUR2Y = new IndexSwap(EUR1YEURIBOR6M, Period.ofYears(2));
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2008, 8, 18);
-  private static final ZonedDateTime FIXING_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, DateUtils.periodOfMonths(60), GEN_EUR_DEPOSIT);
+  private static final ZonedDateTime FIXING_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.ofMonths(60), GEN_EUR_DEPOSIT);
 
   // CMS spread coupon
   private static final double NOTIONAL = 100000000;
   //  private static final double BP1 = 1.0E-4; // 1 basis point
   private static final ZonedDateTime ACCRUAL_START_DATE = ScheduleCalculator.getAdjustedDate(FIXING_DATE, EUR1YEURIBOR6M.getSpotLag(), CALENDAR);
-  private static final ZonedDateTime ACCRUAL_END_DATE = ScheduleCalculator.getAdjustedDate(ACCRUAL_START_DATE, DateUtils.periodOfMonths(6), GEN_EUR_DEPOSIT);
+  private static final ZonedDateTime ACCRUAL_END_DATE = ScheduleCalculator.getAdjustedDate(ACCRUAL_START_DATE, Period.ofMonths(6), GEN_EUR_DEPOSIT);
   private static final ZonedDateTime PAYMENT_DATE = ACCRUAL_END_DATE;
   private static final DayCount PAYMENT_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final double PAYMENT_ACCRUAL_FACTOR = PAYMENT_DAY_COUNT.getDayCountFraction(ACCRUAL_START_DATE, ACCRUAL_END_DATE);

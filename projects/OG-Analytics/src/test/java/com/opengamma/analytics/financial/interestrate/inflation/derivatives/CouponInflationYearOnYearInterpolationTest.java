@@ -33,7 +33,7 @@ public class CouponInflationYearOnYearInterpolationTest {
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final ZonedDateTime START_DATE = DateUtils.getUTCDate(2008, 8, 18);
-  private static final Period COUPON_TENOR = DateUtils.periodOfYears(10);
+  private static final Period COUPON_TENOR = Period.ofYears(10);
   private static final ZonedDateTime PAYMENT_DATE = ScheduleCalculator.getAdjustedDate(START_DATE, COUPON_TENOR, BUSINESS_DAY, CALENDAR);
   private static final double NOTIONAL = 98765432;
   private static final int MONTH_LAG = 3;
@@ -61,8 +61,8 @@ public class CouponInflationYearOnYearInterpolationTest {
     REFERENCE_END_TIME[0] = ACT_ACT.getDayCountFraction(REFERENCE_DATE, REFERENCE_END_DATE[0]);
     REFERENCE_END_TIME[1] = ACT_ACT.getDayCountFraction(REFERENCE_DATE, REFERENCE_END_DATE[1]);
   }
-  private static final double WEIGHT_START = 1.0 - (PAYMENT_DATE.getDayOfMonth() - 1) / PAYMENT_DATE.getDate().lengthOfMonth();
-  private static final double WEIGHT_END = 1.0 - (PAYMENT_DATE.getDayOfMonth() - 1) / PAYMENT_DATE.getDate().lengthOfMonth();
+  private static final double WEIGHT_START = 1.0 - (PAYMENT_DATE.getDayOfMonth() - 1) / PAYMENT_DATE.toLocalDate().lengthOfMonth();
+  private static final double WEIGHT_END = 1.0 - (PAYMENT_DATE.getDayOfMonth() - 1) / PAYMENT_DATE.toLocalDate().lengthOfMonth();
   private static final CouponInflationYearOnYearInterpolation YoY_COUPON = new CouponInflationYearOnYearInterpolation(CUR, PAYMENT_TIME, 1.0, NOTIONAL, PRICE_INDEX, REFERENCE_START_TIME,
       REFERENCE_END_TIME, false, WEIGHT_START, WEIGHT_END);
 

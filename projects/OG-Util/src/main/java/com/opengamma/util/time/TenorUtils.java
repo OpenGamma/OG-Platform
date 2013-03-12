@@ -30,7 +30,7 @@ public class TenorUtils {
    * @return the number of days
    */
   public static double getDaysInTenor(final Tenor tenor) {
-    return tenor.getPeriod().normalizedDaysToHours().getHours() / 24d;
+    return tenor.getPeriod().getDays();
   }
 
   /**

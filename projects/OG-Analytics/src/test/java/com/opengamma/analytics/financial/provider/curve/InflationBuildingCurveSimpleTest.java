@@ -100,10 +100,10 @@ public class InflationBuildingCurveSimpleTest {
     GENERATOR_INFALTION_SWAP, GENERATOR_INFALTION_SWAP, GENERATOR_INFALTION_SWAP, GENERATOR_INFALTION_SWAP, GENERATOR_INFALTION_SWAP, GENERATOR_INFALTION_SWAP,
     GENERATOR_INFALTION_SWAP, GENERATOR_INFALTION_SWAP, GENERATOR_INFALTION_SWAP, GENERATOR_INFALTION_SWAP, GENERATOR_INFALTION_SWAP, GENERATOR_INFALTION_SWAP };
   /** Tenors for the CPI USD curve */
-  private static final Period[] CPI_USD_TENOR = new Period[] {DateUtils.periodOfYears(1),
-    DateUtils.periodOfYears(2), DateUtils.periodOfYears(3), DateUtils.periodOfYears(4), DateUtils.periodOfYears(5), DateUtils.periodOfYears(6), DateUtils.periodOfYears(7),
-    DateUtils.periodOfYears(8), DateUtils.periodOfYears(9), DateUtils.periodOfYears(10), DateUtils.periodOfYears(12), DateUtils.periodOfYears(15), DateUtils.periodOfYears(20),
-    DateUtils.periodOfYears(25), DateUtils.periodOfYears(30) };
+  private static final Period[] CPI_USD_TENOR = new Period[] {Period.ofYears(1),
+    Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5), Period.ofYears(6), Period.ofYears(7),
+    Period.ofYears(8), Period.ofYears(9), Period.ofYears(10), Period.ofYears(12), Period.ofYears(15), Period.ofYears(20),
+    Period.ofYears(25), Period.ofYears(30) };
   private static final GeneratorAttributeIR[] CPI_USD_ATTR = new GeneratorAttributeIR[CPI_USD_TENOR.length];
   static {
     for (int loopins = 0; loopins < CPI_USD_TENOR.length; loopins++) {

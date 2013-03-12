@@ -10,7 +10,6 @@ import static org.threeten.bp.temporal.ChronoField.MONTH_OF_YEAR;
 import static org.threeten.bp.temporal.ChronoField.YEAR;
 import static org.threeten.bp.temporal.ChronoUnit.DAYS;
 import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
-import static org.threeten.bp.temporal.ChronoUnit.YEARS;
 
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
@@ -21,8 +20,6 @@ import org.threeten.bp.Duration;
 import org.threeten.bp.Instant;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalDateTime;
-import org.threeten.bp.OffsetDateTime;
-import org.threeten.bp.OffsetTime;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZoneOffset;
@@ -351,7 +348,7 @@ public final class DateUtils {
     if (endDate == null) {
       throw new IllegalArgumentException("End date was null");
     }
-    int daysBetween = (int) Math.abs(DAYS.between(startDate, endDate).getAmount());
+    int daysBetween = (int) Math.abs(DAYS.between(startDate, endDate));
     if (includeStart && includeEnd) {
       daysBetween++;
     } else if (!includeStart && !includeEnd) {
@@ -370,7 +367,7 @@ public final class DateUtils {
     if (date == null) {
       throw new IllegalArgumentException("date was null");
     }
-    return YYYYMMDD_LOCAL_DATE.print(date);
+    return YYYYMMDD_LOCAL_DATE.format(date);
   }
 
   /**
@@ -383,7 +380,7 @@ public final class DateUtils {
     if (date == null) {
       throw new IllegalArgumentException("date was null");
     }
-    return MM_DD_LOCAL_DATE.print(date);
+    return MM_DD_LOCAL_DATE.format(date);
   }
 
   /**
@@ -549,63 +546,11 @@ public final class DateUtils {
    * @param period  the period to estimate the duration of, not null
    * @return the estimated duration, not null
    */
-  public static Duration estimatedDuration(Period period) {  // TODO: JSR-310
-    return MONTHS.getDuration().multipliedBy(totalMonths(period)).plus(period.normalizedDaysToHours().toTimeOnly().toDuration());
+  public static Duration estimatedDuration(Period period) {
+    Duration monthsDuration = MONTHS.getDuration().multipliedBy(period.toTotalMonths());
+    Duration daysDuration = DAYS.getDuration().multipliedBy(period.getDays());
+    return monthsDuration.plus(daysDuration);
   }
-
-  /**
-   * Gets the total months of the period.
-   * 
-   * @param period  the period to query, not null
-   * @return the total months, not null
-   */
-  public static long totalMonths(Period period) {  // TODO: JSR-310
-    return period.getYears() * 12L + period.getMonths();
-  }
-
-  /**
-   * Creates a period.
-   * 
-   * @param years  the years, not null
-   * @return the period, not null
-   */
-  public static Period periodOfYears(int years) {  // TODO: JSR-310
-    return Period.of(years, YEARS);
-  }
-
-  /**
-   * Creates a period.
-   * 
-   * @param months  the months, not null
-   * @return the period, not null
-   */
-  public static Period periodOfMonths(int months) {  // TODO: JSR-310
-    return Period.of(months, MONTHS);
-  }
-
-  /**
-   * Creates a period.
-   * 
-   * @param days  the days, not null
-   * @return the period, not null
-   */
-  public static Period periodOfDays(int days) {  // TODO: JSR-310
-    return Period.of(days, DAYS);
-  }
-
-  /**
-   * Creates am OffsetDateTime.
-   * 
-   * @param date  the date, not null
-   * @param time  the time, not null
-   * @return the date-time, not null
-   */
-  public static OffsetDateTime offsetDateTime(LocalDate date, OffsetTime time) {  // TODO: JSR-310
-    return date.atTime(time.getTime()).atOffset(time.getOffset());
-  }
-
-  // TODO useful to have methods such as # weeks between.
-
 
   /**
    * Converts GregorianCalendar to ZonedDateTime

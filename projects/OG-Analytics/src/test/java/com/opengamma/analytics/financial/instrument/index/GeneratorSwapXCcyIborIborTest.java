@@ -60,7 +60,7 @@ public class GeneratorSwapXCcyIborIborTest {
   @Test
   public void generateInstrument() {
     ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 7, 17);
-    Period tenor = Period.of(6, MONTHS);
+    Period tenor = Period.ofMonths(6);
     double spread = -0.0050;
     double notional = 12345;
     double fxRateEURUSD = 1.25;

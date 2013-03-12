@@ -291,10 +291,10 @@ public class CouponIborAverageDefinition extends CouponFloatingDefinition {
   @Override
   public Coupon toDerivative(final ZonedDateTime dateTime, final String... yieldCurveNames) {
     ArgumentChecker.notNull(dateTime, "date");
-    final LocalDate dayConversion = dateTime.getDate();
-    ArgumentChecker.isTrue(!dayConversion.isAfter(getFixingDate().getDate()), "Do not have any fixing data but are asking for a derivative at " + dateTime
+    final LocalDate dayConversion = dateTime.toLocalDate();
+    ArgumentChecker.isTrue(!dayConversion.isAfter(getFixingDate().toLocalDate()), "Do not have any fixing data but are asking for a derivative at " + dateTime
         + " which is after fixing date " + getFixingDate());
-    ArgumentChecker.isTrue(!dayConversion.isAfter(getPaymentDate().getDate()), "date is after payment date");
+    ArgumentChecker.isTrue(!dayConversion.isAfter(getPaymentDate().toLocalDate()), "date is after payment date");
     final double paymentTime = TimeCalculator.getTimeBetween(dateTime, getPaymentDate());
     final double fixingTime = TimeCalculator.getTimeBetween(dateTime, getFixingDate());
     final double fixingPeriodStartTime1 = TimeCalculator.getTimeBetween(dateTime, getFixingPeriodStartDate1());
@@ -315,11 +315,11 @@ public class CouponIborAverageDefinition extends CouponFloatingDefinition {
    */
   public Coupon toDerivative(final ZonedDateTime dateTime, final DoubleTimeSeries<ZonedDateTime> indexFixingTimeSeries, final String... yieldCurveNames) {
     ArgumentChecker.notNull(dateTime, "date");
-    final LocalDate dayConversion = dateTime.getDate();
+    final LocalDate dayConversion = dateTime.toLocalDate();
     ArgumentChecker.notNull(indexFixingTimeSeries, "Index fixing time series");
-    ArgumentChecker.isTrue(!dayConversion.isAfter(getPaymentDate().getDate()), "date is after payment date");
+    ArgumentChecker.isTrue(!dayConversion.isAfter(getPaymentDate().toLocalDate()), "date is after payment date");
     final double paymentTime = TimeCalculator.getTimeBetween(dateTime, getPaymentDate());
-    final LocalDate dayFixing = getFixingDate().getDate();
+    final LocalDate dayFixing = getFixingDate().toLocalDate();
     if (dayConversion.equals(dayFixing)) { // The fixing is on the reference date; if known the fixing is used and if not, the floating coupon is created.
       final Double fixedRate = indexFixingTimeSeries.getValue(getFixingDate());
       if (fixedRate != null) {
@@ -327,7 +327,7 @@ public class CouponIborAverageDefinition extends CouponFloatingDefinition {
       }
     }
     if (dayConversion.isAfter(dayFixing)) { // The fixing is required
-      final ZonedDateTime rezonedFixingDate = ZonedDateTime.of(LocalDateTime.of(getFixingDate().getDate(), LocalTime.of(0, 0)), ZoneOffset.UTC);
+      final ZonedDateTime rezonedFixingDate = ZonedDateTime.of(LocalDateTime.of(getFixingDate().toLocalDate(), LocalTime.of(0, 0)), ZoneOffset.UTC);
       final Double fixedRate = indexFixingTimeSeries.getValue(rezonedFixingDate); // TODO: remove time from fixing date.
       if (fixedRate == null) {
         throw new OpenGammaRuntimeException("Could not get fixing value for date " + getFixingDate());

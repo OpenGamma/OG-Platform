@@ -67,7 +67,7 @@ public class VolatilityCubeFunctionHelper {
     final FunctionCompilationContext context, final Instant atInstant) {
     //TODO: avoid doing this compile twice all the time
     final ZonedDateTime atZDT = ZonedDateTime.ofInstant(atInstant, ZoneOffset.UTC);
-    final LocalDate curveDate = atZDT.getDate();
+    final LocalDate curveDate = atZDT.toLocalDate();
     final VolatilityCubeSpecification specification = buildSpecification(curveDate);
 
     // ENG-252 expiry logic is wrong so make it valid for the current day only

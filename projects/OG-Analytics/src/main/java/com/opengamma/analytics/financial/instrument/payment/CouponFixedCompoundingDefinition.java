@@ -6,8 +6,6 @@
 
 package com.opengamma.analytics.financial.instrument.payment;
 
-import static org.threeten.bp.temporal.ChronoUnit.YEARS;
-
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
@@ -157,7 +155,7 @@ public final class CouponFixedCompoundingDefinition extends CouponDefinition {
    */
   public static CouponFixedCompoundingDefinition from(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final double notional,
       final int tenor, final double rate) {
-    final ZonedDateTime[] accrualEndDates = ScheduleCalculator.getUnadjustedDateSchedule(accrualStartDate, accrualStartDate.plus(Period.of(tenor, YEARS)), Period.of(tenor, YEARS), true, false);
+    final ZonedDateTime[] accrualEndDates = ScheduleCalculator.getUnadjustedDateSchedule(accrualStartDate, accrualStartDate.plus(Period.ofYears(tenor)), Period.ofYears(tenor), true, false);
     final int nbSubPeriod = accrualEndDates.length;
     final ZonedDateTime[] accrualStartDates = new ZonedDateTime[nbSubPeriod];
     accrualStartDates[0] = accrualStartDate;
@@ -193,8 +191,8 @@ public final class CouponFixedCompoundingDefinition extends CouponDefinition {
   @Override
   public CouponFixedCompounding toDerivative(ZonedDateTime date, String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "date");
-    final LocalDate dayConversion = date.getDate();
-    ArgumentChecker.isTrue(!dayConversion.isAfter(getPaymentDate().getDate()), "date is after payment date");
+    final LocalDate dayConversion = date.toLocalDate();
+    ArgumentChecker.isTrue(!dayConversion.isAfter(getPaymentDate().toLocalDate()), "date is after payment date");
     final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
     return new CouponFixedCompounding(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(),
         getPaymentAccrualFactors(), getRate());

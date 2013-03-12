@@ -594,7 +594,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
     }
 
     // Adjust the input date until it falls on a business day
-    while (!calendar.isWorkingDay(adjustedDate.getDate())) {
+    while (!calendar.isWorkingDay(adjustedDate.toLocalDate())) {
       adjustedDate = adjustedDate.plusDays(deltaDays);
     }
 

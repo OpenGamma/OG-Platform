@@ -86,7 +86,7 @@ public class TestsDataSetsForex {
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   //  private static final int SETTLEMENT_DAYS = 2;
-  private static final Period[] EXPIRY_PERIOD = new Period[] {Period.of(3, MONTHS), Period.of(6, MONTHS), Period.of(1, YEARS), Period.of(2, YEARS), Period.of(5, YEARS)};
+  private static final Period[] EXPIRY_PERIOD = new Period[] {Period.ofMonths(3), Period.ofMonths(6), Period.ofYears(1), Period.ofYears(2), Period.ofYears(5)};
   private static final int NB_EXP = EXPIRY_PERIOD.length;
   private static final double[] ATM = {0.185, 0.18, 0.17, 0.16, 0.16};
 

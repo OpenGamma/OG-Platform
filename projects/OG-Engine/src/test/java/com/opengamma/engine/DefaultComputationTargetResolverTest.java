@@ -89,7 +89,7 @@ public class DefaultComputationTargetResolverTest {
     MockPositionSource posSource = new MockPositionSource();
     SimplePortfolio portfolio = new SimplePortfolio(UniqueId.of("Test", "1"), "Name");
     SimplePosition position = new SimplePosition(UniqueId.of("Test", "1"), new BigDecimal(1), ExternalIdBundle.EMPTY);
-    SimpleTrade trade = new SimpleTrade(new SimpleSecurityLink(), new BigDecimal(1), new SimpleCounterparty(ExternalId.of("CPARTY", "C100")), now.getDate(), now.toOffsetTime());
+    SimpleTrade trade = new SimpleTrade(new SimpleSecurityLink(), new BigDecimal(1), new SimpleCounterparty(ExternalId.of("CPARTY", "C100")), now.toLocalDate(), now.toOffsetTime());
     trade.setUniqueId(UniqueId.of("TradeScheme", "1"));
     position.addTrade(trade);
     portfolio.getRootNode().addPosition(position);

@@ -46,7 +46,7 @@ public final class FloatingPayCashFlowVisitor extends InstrumentDefinitionVisito
   @Override
   public Map<LocalDate, MultipleCurrencyAmount> visitDepositIborDefinition(final DepositIborDefinition deposit) {
     ArgumentChecker.notNull(deposit, "deposit");
-    final LocalDate endDate = deposit.getEndDate().getDate();
+    final LocalDate endDate = deposit.getEndDate().toLocalDate();
     if (deposit.getNotional() > 0) {
       return Collections.emptyMap();
     }
@@ -77,7 +77,7 @@ public final class FloatingPayCashFlowVisitor extends InstrumentDefinitionVisito
   @Override
   public Map<LocalDate, MultipleCurrencyAmount> visitCouponIborDefinition(final CouponIborDefinition coupon) {
     ArgumentChecker.notNull(coupon, "coupon");
-    final LocalDate endDate = coupon.getPaymentDate().getDate();
+    final LocalDate endDate = coupon.getPaymentDate().toLocalDate();
     if (coupon.getNotional() > 0) {
       return Collections.emptyMap();
     }
@@ -108,7 +108,7 @@ public final class FloatingPayCashFlowVisitor extends InstrumentDefinitionVisito
   @Override
   public Map<LocalDate, MultipleCurrencyAmount> visitCouponIborSpreadDefinition(final CouponIborSpreadDefinition coupon) {
     ArgumentChecker.notNull(coupon, "coupon");
-    final LocalDate endDate = coupon.getPaymentDate().getDate();
+    final LocalDate endDate = coupon.getPaymentDate().toLocalDate();
     if (coupon.getNotional() > 0) {
       return Collections.emptyMap();
     }
@@ -139,7 +139,7 @@ public final class FloatingPayCashFlowVisitor extends InstrumentDefinitionVisito
   @Override
   public Map<LocalDate, MultipleCurrencyAmount> visitCouponIborGearingDefinition(final CouponIborGearingDefinition coupon) {
     ArgumentChecker.notNull(coupon, "coupon");
-    final LocalDate endDate = coupon.getPaymentDate().getDate();
+    final LocalDate endDate = coupon.getPaymentDate().toLocalDate();
     if (coupon.getNotional() > 0) {
       return Collections.emptyMap();
     }
@@ -169,7 +169,7 @@ public final class FloatingPayCashFlowVisitor extends InstrumentDefinitionVisito
   @Override
   public Map<LocalDate, MultipleCurrencyAmount> visitForwardRateAgreementDefinition(final ForwardRateAgreementDefinition forwardRateAgreement) {
     ArgumentChecker.notNull(forwardRateAgreement, "FRA");
-    final LocalDate endDate = forwardRateAgreement.getPaymentDate().getDate();
+    final LocalDate endDate = forwardRateAgreement.getPaymentDate().toLocalDate();
     if (forwardRateAgreement.getNotional() > 0) {
       return Collections.emptyMap();
     }

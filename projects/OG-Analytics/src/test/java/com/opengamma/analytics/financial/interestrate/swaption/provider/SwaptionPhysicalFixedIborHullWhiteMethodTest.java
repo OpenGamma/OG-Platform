@@ -78,7 +78,7 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
   // Swaption 5Yx5Y
   private static final int SPOT_LAG = EURIBOR6M.getSpotLag();
   private static final int SWAP_TENOR_YEAR = 5;
-  private static final Period SWAP_TENOR = DateUtils.periodOfYears(SWAP_TENOR_YEAR);
+  private static final Period SWAP_TENOR = Period.ofYears(SWAP_TENOR_YEAR);
   private static final GeneratorSwapFixedIbor EUR1YEURIBOR6M = GeneratorSwapFixedIborMaster.getInstance().getGenerator("EUR1YEURIBOR6M", CALENDAR);
   private static final ZonedDateTime EXPIRY_DATE = DateUtils.getUTCDate(2016, 7, 7);
   private static final boolean IS_LONG = true;
@@ -360,7 +360,7 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
       eps[loopshift + 1] = eps[loopshift] / ratio;
     }
     // 1Mx5Y
-    final Period expirationPeriod = DateUtils.periodOfDays(1); // DateUtils.periodOfDays(1); DateUtils.periodOfDays(7); DateUtils.periodOfMonths(1); DateUtils.periodOfYears(1); DateUtils.periodOfYears(10);
+    final Period expirationPeriod = Period.ofDays(1); // Period.ofDays(1); Period.ofDays(7); Period.ofMonths(1); Period.ofYears(1); Period.ofYears(10);
     final ZonedDateTime expiryDateExp = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, expirationPeriod, EURIBOR6M);
     final ZonedDateTime settlementDateExp = ScheduleCalculator.getAdjustedDate(expiryDateExp, SPOT_LAG, CALENDAR);
     final double ATM = 0.0151; //  1W: 1.52% - 1M: 1.52% - 1Y: 1.51% - 10Y: 1.51%

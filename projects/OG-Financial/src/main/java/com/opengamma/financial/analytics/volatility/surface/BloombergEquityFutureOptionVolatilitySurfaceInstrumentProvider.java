@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import org.threeten.bp.DayOfWeek;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.format.DateTimeFormatter;
-import org.threeten.bp.format.DateTimeFormatters;
 
 import com.opengamma.financial.analytics.ircurve.NextExpiryAdjuster;
 import com.opengamma.financial.analytics.model.FutureOptionExpiries;
@@ -26,7 +25,7 @@ public class BloombergEquityFutureOptionVolatilitySurfaceInstrumentProvider exte
   /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergEquityFutureOptionVolatilitySurfaceInstrumentProvider.class);
   /** The date-time formatter */
-  private static final DateTimeFormatter FORMAT = DateTimeFormatters.pattern("MM/dd/yy");
+  private static final DateTimeFormatter FORMAT = DateTimeFormatter.ofPattern("MM/dd/yy");
   /** The expiry rules */
   private static final HashMap<String, FutureOptionExpiries> EXPIRY_RULES;
   static {
@@ -97,7 +96,7 @@ public class BloombergEquityFutureOptionVolatilitySurfaceInstrumentProvider exte
       expiryRule = EXPIRY_RULES.get("DEFAULT");
     }
     final LocalDate expiry = expiryRule.getCMEEquityFutureOptionExpiry(futureOptionNumber.intValue(), surfaceDate);
-    ticker.append(FORMAT.print(expiry));
+    ticker.append(FORMAT.format(expiry));
     ticker.append(" ");
     ticker.append(strike > useCallAboveStrike() ? "C" : "P");
     ticker.append(strike);

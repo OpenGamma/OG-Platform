@@ -32,8 +32,8 @@ import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeS
 
 public class CouponIborAverageDefinitionTest {
 
-  private static final Period TENOR_1 = DateUtils.periodOfMonths(3);
-  private static final Period TENOR_2 = DateUtils.periodOfMonths(6);
+  private static final Period TENOR_1 = Period.ofMonths(3);
+  private static final Period TENOR_2 = Period.ofMonths(6);
   private static final int SETTLEMENT_DAYS = 2;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final DayCount DAY_COUNT_INDEX = DayCountFactory.INSTANCE.getDayCount("Actual/360");

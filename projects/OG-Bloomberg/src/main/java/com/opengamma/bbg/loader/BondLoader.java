@@ -241,7 +241,7 @@ public class BondLoader extends SecurityLoader {
       ZonedDateTime settlementDate = validateAndGetNullableDateField(fieldData, FIELD_SETTLE_DT);
       ZonedDateTime firstCouponDate = validateAndGetNullableDateField(fieldData, FIELD_FIRST_CPN_DT);
       if (currencyStr.equals("GBP")) {
-        if (announcementDate.getDate().isAfter(LocalDate.of(1998, 11, 1)) && dayCountString.equals("ACT/ACT")) {
+        if (announcementDate.toLocalDate().isAfter(LocalDate.of(1998, 11, 1)) && dayCountString.equals("ACT/ACT")) {
           dayCountString = "Actual/Actual ICMA";
         } else if (dayCountString.equals("ACT/365")) {
           dayCountString = "Actual/365";

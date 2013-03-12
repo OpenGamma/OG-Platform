@@ -7,7 +7,6 @@ package com.opengamma.analytics.financial.instrument.swap;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
-import static org.threeten.bp.temporal.ChronoUnit.YEARS;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.Period;
@@ -43,7 +42,7 @@ public class SwapFixedInflationZeroCouponDefinitionTest {
   private static final boolean EOM = true;
   private static final ZonedDateTime START_DATE = DateUtils.getUTCDate(2008, 8, 18);
   private static final int COUPON_TENOR_YEAR = 10;
-  private static final Period COUPON_TENOR = Period.of(COUPON_TENOR_YEAR, YEARS);
+  private static final Period COUPON_TENOR = Period.ofYears(COUPON_TENOR_YEAR);
   private static final ZonedDateTime PAYMENT_DATE = ScheduleCalculator.getAdjustedDate(START_DATE, COUPON_TENOR, BUSINESS_DAY, CALENDAR, EOM);
   private static final double NOTIONAL = 98765432;
   private static final int MONTH_LAG = 3;

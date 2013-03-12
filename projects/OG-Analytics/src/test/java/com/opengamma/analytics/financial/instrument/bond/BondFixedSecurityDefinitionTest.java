@@ -41,14 +41,14 @@ public class BondFixedSecurityDefinitionTest {
 
   //Semi-annual 2Y
   private static final Currency CUR = Currency.EUR;
-  private static final Period PAYMENT_TENOR = Period.of(6, MONTHS);
+  private static final Period PAYMENT_TENOR = Period.ofMonths(6);
   private static final int COUPON_PER_YEAR = 2;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final String ISSUER_NAME = "Issuer";
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
   private static final boolean IS_EOM = false;
-  private static final Period BOND_TENOR = Period.of(2, YEARS);
+  private static final Period BOND_TENOR = Period.ofYears(2);
   private static final int SETTLEMENT_DAYS = 2;
   private static final ZonedDateTime START_ACCRUAL_DATE = DateUtils.getUTCDate(2011, 7, 13);
   private static final ZonedDateTime MATURITY_DATE = START_ACCRUAL_DATE.plus(BOND_TENOR);
@@ -198,13 +198,13 @@ public class BondFixedSecurityDefinitionTest {
   private static final String ISSUER = "UK";
   private static final String REPO_TYPE = "General collateral";
   private static final Currency CUR_G = Currency.GBP;
-  private static final Period PAYMENT_TENOR_G = Period.of(6, MONTHS);
+  private static final Period PAYMENT_TENOR_G = Period.ofMonths(6);
   private static final int COUPON_PER_YEAR_G = 2;
   private static final Calendar CALENDAR_G = new MondayToFridayCalendar("A");
   private static final DayCount DAY_COUNT_G = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA"); // To check
   private static final BusinessDayConvention BUSINESS_DAY_G = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
   private static final boolean IS_EOM_G = false;
-  private static final Period BOND_TENOR_G = Period.of(12, YEARS);
+  private static final Period BOND_TENOR_G = Period.ofYears(12);
   private static final int SETTLEMENT_DAYS_G = 2;
   private static final int EX_DIVIDEND_DAYS_G = 7;
   private static final ZonedDateTime START_ACCRUAL_DATE_G = DateUtils.getUTCDate(2002, 9, 7);

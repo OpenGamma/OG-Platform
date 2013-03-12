@@ -93,7 +93,7 @@ public class InterestRateFutureYieldCurveNodeSensitivitiesFunction extends Abstr
     final Currency currency = FinancialSecurityUtils.getCurrency(security);
     final Clock snapshotClock = executionContext.getValuationClock();
     final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
-    final LocalDate localNow = now.getDate();
+    final LocalDate localNow = now.toLocalDate();
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final ValueProperties constraints = desiredValues.iterator().next().getConstraints();
     final String curveName = constraints.getValues(ValuePropertyNames.CURVE).iterator().next();
@@ -150,8 +150,10 @@ public class InterestRateFutureYieldCurveNodeSensitivitiesFunction extends Abstr
       return YieldCurveNodeSensitivitiesHelper.getInstrumentLabelledSensitivitiesForCurve(sensitivities, domesticCurrency, foreignCurrency, fullCurveNames,
           curves, configSource, localNow, getResultSpec(target, currency, fullCurveName, curveCalculationConfigName));
     }
+    final Object temp = YieldCurveNodeSensitivitiesHelper.getInstrumentLabelledSensitivitiesForCurve(fullCurveName, bundle, sensitivities, curveSpec,
+        getResultSpec(target, currency, curveName, curveCalculationConfigName));
     return YieldCurveNodeSensitivitiesHelper.getInstrumentLabelledSensitivitiesForCurve(fullCurveName, bundle, sensitivities, curveSpec,
-        getResultSpec(target, currency, fullCurveName, curveCalculationConfigName));
+        getResultSpec(target, currency, curveName, curveCalculationConfigName));
   }
 
   @Override

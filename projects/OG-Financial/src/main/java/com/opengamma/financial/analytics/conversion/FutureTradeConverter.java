@@ -70,8 +70,8 @@ public class FutureTradeConverter {
         tradePremium = trade.getPremium(); // TODO: The trade price is stored in the trade premium. This has to be corrected.
       }
       ZonedDateTime tradeDate = DateUtils.getUTCDate(1900, 1, 1);
-      if ((trade.getTradeDate() != null) && (trade.getTradeTime().getTime() != null)) {
-        tradeDate = trade.getTradeDate().atTime(trade.getTradeTime().getTime()).atZone(ZoneOffset.UTC); //TODO get the real time zone
+      if ((trade.getTradeDate() != null) && (trade.getTradeTime().toLocalTime() != null)) {
+        tradeDate = trade.getTradeDate().atTime(trade.getTradeTime().toLocalTime()).atZone(ZoneOffset.UTC); //TODO get the real time zone
       }
       InstrumentDefinitionWithData<?, Double> tradeDefinition = securityToTrade(securityDefinition, tradePremium, tradeDate);
       return tradeDefinition;

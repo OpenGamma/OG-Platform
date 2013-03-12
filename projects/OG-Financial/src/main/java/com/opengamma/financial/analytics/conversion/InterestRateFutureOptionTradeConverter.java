@@ -44,7 +44,7 @@ public class InterestRateFutureOptionTradeConverter {
     //TODO trade time or premium time?
     //    final ZonedDateTime tradeDate = ZonedDateTime.of(trade.getPremiumDate().atTime(trade.getPremiumTime()),
     //        ZoneOffset.UTC); //TODO get the real time zone
-    final ZonedDateTime tradeDate = trade.getTradeDate().atTime(trade.getTradeTime().getTime()).atZone(ZoneOffset.UTC); //TODO get the real time zone
+    final ZonedDateTime tradeDate = trade.getTradeDate().atTime(trade.getTradeTime().toLocalTime()).atZone(ZoneOffset.UTC); //TODO get the real time zone
 
     final Double tradePrice = trade.getPremium();
     ArgumentChecker.notNull(tradePrice, "IRFutureOption trade must have a premium set. The interpretation of premium is the market price, without unit, i.e. not %");

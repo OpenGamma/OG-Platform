@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.threeten.bp.LocalDate;
-import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.Period;
 
 import com.google.common.collect.ImmutableSet;
@@ -60,9 +59,9 @@ public class HistoricalTimeSeriesLatestValueFunction extends AbstractFunction.No
       return true;
     }
     if (ageLimit != null) {
-      LocalDateTime now = LocalDateTime.now(executionContext.getValuationClock());
+      LocalDate now = LocalDate.now(executionContext.getValuationClock());
       Period difference = ageLimit.minus(Period.between(latestDataPoint.getFirst(), now));
-      if (!(difference.isPositive() || difference.isZero())) {
+      if (difference.isNegative()) {
         return true;
       }
     }

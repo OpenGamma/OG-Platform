@@ -60,7 +60,7 @@ public class DepositZeroDiscountingMethodTest {
   private static final double NOTIONAL = 100000000;
   private static final double RATE_FIGURE = 0.0250;
   private static final InterestRate RATE = new PeriodicInterestRate(RATE_FIGURE, 1);
-  private static final Period DEPOSIT_PERIOD = Period.of(6, MONTHS);
+  private static final Period DEPOSIT_PERIOD = Period.ofMonths(6);
   private static final ZonedDateTime END_DATE = ScheduleCalculator.getAdjustedDate(SPOT_DATE, DEPOSIT_PERIOD, GENERATOR);
   private static final double DEPOSIT_AF = GENERATOR.getDayCount().getDayCountFraction(SPOT_DATE, END_DATE);
   private static final DepositZeroDefinition DEPOSIT_DEFINITION = new DepositZeroDefinition(EUR, SPOT_DATE, END_DATE, NOTIONAL, DEPOSIT_AF, RATE);

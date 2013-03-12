@@ -25,7 +25,7 @@ import com.opengamma.util.money.Currency;
  */
 public class IborIndexTest {
   //Libor3m
-  private static final Period TENOR = Period.of(3, MONTHS);
+  private static final Period TENOR = Period.ofMonths(3);
   private static final int SETTLEMENT_DAYS = 2;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
@@ -93,7 +93,7 @@ public class IborIndexTest {
     Currency currencyModified = Currency.USD;
     IborIndex indexModified = new IborIndex(currencyModified, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY, !IS_EOM);
     assertFalse(INDEX.equals(indexModified));
-    Period tenorModified = Period.of(2, MONTHS);
+    Period tenorModified = Period.ofMonths(2);
     indexModified = new IborIndex(CUR, tenorModified, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM);
     assertFalse(INDEX.equals(indexModified));
     indexModified = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS + 1, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM);
@@ -105,7 +105,7 @@ public class IborIndexTest {
     Currency otherCurrency = Currency.USD;
     indexModified = new IborIndex(otherCurrency, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM);
     assertFalse(INDEX.equals(indexModified));
-    Period otherTenor = Period.of(6, MONTHS);
+    Period otherTenor = Period.ofMonths(6);
     indexModified = new IborIndex(CUR, otherTenor, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM);
     assertFalse(INDEX.equals(indexModified));
     assertFalse(INDEX.equals(null));

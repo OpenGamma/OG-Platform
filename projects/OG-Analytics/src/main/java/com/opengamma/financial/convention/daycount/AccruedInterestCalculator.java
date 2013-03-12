@@ -59,7 +59,7 @@ public final class AccruedInterestCalculator {
     final double accruedInterest = getAccruedInterest(dayCount, index, length, nominalDates[index], settlementDate, nominalDates[index + 1], coupon, paymentsPerYear, isEndOfMonthConvention);
     ZonedDateTime exDividendDate = nominalDates[index + 1];
     for (int j = 0; j < exDividendDays; j++) {
-      while (!calendar.isWorkingDay(exDividendDate.getDate())) {
+      while (!calendar.isWorkingDay(exDividendDate.toLocalDate())) {
         exDividendDate = exDividendDate.minusDays(1);
       }
       exDividendDate = exDividendDate.minusDays(1);
@@ -97,7 +97,7 @@ public final class AccruedInterestCalculator {
     final double accruedInterest = getAccruedInterest(dayCount, index, length, nominalDates[index], settlementDate, nominalDates[index + 1], coupon, paymentsPerYear, isEndOfMonthConvention);
     ZonedDateTime exDividendDate = nominalDates[index + 1];
     for (int i = 0; i < exDividendDays; i++) {
-      while (!calendar.isWorkingDay(exDividendDate.getDate())) {
+      while (!calendar.isWorkingDay(exDividendDate.toLocalDate())) {
         exDividendDate = exDividendDate.minusDays(1);
       }
       exDividendDate = exDividendDate.minusDays(1);
@@ -298,11 +298,11 @@ public final class AccruedInterestCalculator {
       final boolean isEndOfMonthConvention) {
     StubType stubType;
     if (index == 0) {
-      LocalDate[] schedule = new LocalDate[] {previousCouponDate.getDate(), nextCouponDate.getDate()};
+      LocalDate[] schedule = new LocalDate[] {previousCouponDate.toLocalDate(), nextCouponDate.toLocalDate()};
       stubType = StubCalculator.getStartStubType(schedule, paymentsPerYear, isEndOfMonthConvention);
 
     } else if (index == length - 2) {
-      LocalDate[] schedule = new LocalDate[] {previousCouponDate.getDate(), nextCouponDate.getDate()};
+      LocalDate[] schedule = new LocalDate[] {previousCouponDate.toLocalDate(), nextCouponDate.toLocalDate()};
       stubType = StubCalculator.getEndStubType(schedule, paymentsPerYear, isEndOfMonthConvention);
 
     } else {

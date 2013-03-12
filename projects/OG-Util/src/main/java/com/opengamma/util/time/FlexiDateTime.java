@@ -90,7 +90,7 @@ public final class FlexiDateTime implements Serializable {
    */
   public static FlexiDateTime of(LocalDateTime dateTime) {
     ArgumentChecker.notNull(dateTime, "dateTime");
-    return new FlexiDateTime(dateTime.getDate(), dateTime.getTime(), null);
+    return new FlexiDateTime(dateTime.toLocalDate(), dateTime.toLocalTime(), null);
   }
 
   /**
@@ -103,7 +103,7 @@ public final class FlexiDateTime implements Serializable {
    */
   public static FlexiDateTime of(OffsetDateTime dateTime) {
     ArgumentChecker.notNull(dateTime, "dateTime");
-    return new FlexiDateTime(dateTime.getDate(), dateTime.getTime(), dateTime.getOffset());
+    return new FlexiDateTime(dateTime.toLocalDate(), dateTime.toLocalTime(), dateTime.getOffset());
   }
 
   /**
@@ -116,7 +116,7 @@ public final class FlexiDateTime implements Serializable {
    */
   public static FlexiDateTime of(ZonedDateTime dateTime) {
     ArgumentChecker.notNull(dateTime, "dateTime");
-    return new FlexiDateTime(dateTime.getDate(), dateTime.getTime(), dateTime.getZone());
+    return new FlexiDateTime(dateTime.toLocalDate(), dateTime.toLocalTime(), dateTime.getZone());
   }
 
   /**
@@ -152,7 +152,7 @@ public final class FlexiDateTime implements Serializable {
   public static FlexiDateTime ofLenient(LocalDate date, OffsetTime time) {
     ArgumentChecker.notNull(date, "date");
     if (time != null) {
-      return new FlexiDateTime(date, time.getTime(), time.getOffset());
+      return new FlexiDateTime(date, time.toLocalTime(), time.getOffset());
     }
     return new FlexiDateTime(date, null, null);
   }

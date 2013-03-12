@@ -75,7 +75,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     for (final FixedIncomeStripWithIdentifier strip : curveSpecification.getStrips()) {
       final Security security = getSecurity(curveSpecification, marketValues, strip);
       final ZonedDateTime maturity = getMaturity(curveDate, strip, security);
-      final Tenor resolvedTenor = new Tenor(Period.between(curveDate, maturity.getDate()));
+      final Tenor resolvedTenor = new Tenor(Period.between(curveDate, maturity.toLocalDate()));
       securityStrips.add(new FixedIncomeStripWithSecurity(strip.getStrip(), resolvedTenor, maturity, strip.getSecurity(), security));
     }
     return new InterpolatedYieldCurveSpecificationWithSecurities(curveDate, curveSpecification.getName(), curveSpecification.getCurrency(), curveSpecification.getInterpolator(),
@@ -339,7 +339,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     final ZonedDateTime spotDate = ScheduleCalculator.getAdjustedDate(curveDate, iborConvention.getSettlementDays(), calendar);
     final Period endPeriod = strip.getMaturity().getPeriod();
     final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(spotDate, endPeriod, businessDayConvention, calendar, eom);
-    final Period startPeriod = endPeriod.minus(fraPeriod).normalizedMonthsISO(); // TODO: check period >0?
+    final Period startPeriod = endPeriod.minus(fraPeriod).normalized(); // TODO: check period >0?
     final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spotDate, startPeriod, businessDayConvention, calendar, eom);
     final ZonedDateTime fixingDate = ScheduleCalculator.getAdjustedDate(startDate, -iborConvention.getSettlementDays(), calendar);
     if (marketValues.get(strip.getSecurity()) == null) {

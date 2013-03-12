@@ -84,7 +84,7 @@ public class DemoEquityOptionCollarPortfolioLoader extends AbstractTool<Integrat
   private static final Map<String, String> INDEXES_TO_EXCHANGE = getIndexToExchangeMap();
   private static final Set<String> EXCLUDED_SECTORS = Sets.newHashSet("Financials");
 
-  private static final Period[] MEMBER_OPTION_PERIODS = new Period[] {DateUtils.periodOfMonths(3), DateUtils.periodOfMonths(6) };
+  private static final Period[] MEMBER_OPTION_PERIODS = new Period[] {Period.ofMonths(3), Period.ofMonths(6) };
 
   private BigDecimal _numContracts;
   private int _numOptions;

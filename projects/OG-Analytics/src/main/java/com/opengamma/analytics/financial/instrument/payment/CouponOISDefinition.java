@@ -149,8 +149,8 @@ public class CouponOISDefinition extends CouponDefinition implements InstrumentD
   @Override
   public CouponOIS toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "date");
-    final LocalDate firstPublicationDate = _fixingPeriodDate[_index.getPublicationLag()].getDate(); // This is often one business day following the first fixing date
-    ArgumentChecker.isTrue(date.getDate().isBefore(firstPublicationDate),
+    final LocalDate firstPublicationDate = _fixingPeriodDate[_index.getPublicationLag()].toLocalDate(); // This is often one business day following the first fixing date
+    ArgumentChecker.isTrue(date.toLocalDate().isBefore(firstPublicationDate),
         "toDerivative method without time series as argument is only valid at dates where the first fixing has not yet been published.");
     ArgumentChecker.isTrue(yieldCurveNames.length > 1, "at least two curves required");
     final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
@@ -169,9 +169,9 @@ public class CouponOISDefinition extends CouponDefinition implements InstrumentD
   public Coupon toDerivative(final ZonedDateTime valZdt, final DoubleTimeSeries<ZonedDateTime> indexFixingTimeSeries, final String... yieldCurveNames) {
     ArgumentChecker.isTrue(yieldCurveNames.length > 1, "at least two curves required");
     ArgumentChecker.notNull(valZdt, "valZdt - valuation date as ZonedDateTime");
-    final LocalDate valDate = valZdt.getDate();
-    ArgumentChecker.isTrue(!valDate.isAfter(getPaymentDate().getDate()), "valuation date is after payment date");
-    final LocalDate firstPublicationDate = _fixingPeriodDate[_index.getPublicationLag()].getDate(); // This is often one business day following the first fixing date
+    final LocalDate valDate = valZdt.toLocalDate();
+    ArgumentChecker.isTrue(!valDate.isAfter(getPaymentDate().toLocalDate()), "valuation date is after payment date");
+    final LocalDate firstPublicationDate = _fixingPeriodDate[_index.getPublicationLag()].toLocalDate(); // This is often one business day following the first fixing date
     if (valDate.isBefore(firstPublicationDate)) {
       return toDerivative(valZdt, yieldCurveNames);
     }
@@ -182,17 +182,24 @@ public class CouponOISDefinition extends CouponDefinition implements InstrumentD
     // Accrue notional for fixings before today; up to and including yesterday
     int fixedPeriod = 0;
     double accruedNotional = getNotional();
-    while (valDate.isAfter(_fixingPeriodDate[fixedPeriod + _index.getPublicationLag()].getDate()) && (fixedPeriod < _fixingPeriodDate.length - 1)) {
+    while (valDate.isAfter(_fixingPeriodDate[fixedPeriod + _index.getPublicationLag()].toLocalDate()) && (fixedPeriod < _fixingPeriodDate.length - 1)) {
 
-      final LocalDate currentDate = _fixingPeriodDate[fixedPeriod].getDate();
-      final Double fixedRate = indexFixingDateSeries.getValue(currentDate);
+      final LocalDate currentDate = _fixingPeriodDate[fixedPeriod].toLocalDate();
+      Double fixedRate = indexFixingDateSeries.getValue(currentDate);
 
       if (fixedRate == null) {
         final LocalDate latestDate = indexFixingDateSeries.getLatestTime();
         if (currentDate.isAfter(latestDate)) {
           throw new OpenGammaRuntimeException("Could not get fixing value of index " + _index.getName() + " for date " + currentDate + ". The last data is available on " + latestDate);
         }
-        throw new OpenGammaRuntimeException("Could not get fixing value of index " + _index.getName() + " for date " + currentDate);
+        // Don't remove this until we've worked out what's going on with INR calendars
+        for (int i = 0; i < 7; i++) {
+          final LocalDate previousDate = currentDate.minusDays(1);
+          fixedRate = indexFixingDateSeries.getValue(previousDate);
+        }
+        if (fixedRate == null) {
+          throw new OpenGammaRuntimeException("Could not get fixing value of index " + _index.getName() + " for date " + currentDate);
+        }
       }
       accruedNotional *= 1 + _fixingPeriodAccrualFactor[fixedPeriod] * fixedRate;
       fixedPeriod++;
@@ -201,7 +208,7 @@ public class CouponOISDefinition extends CouponDefinition implements InstrumentD
     final double paymentTime = TimeCalculator.getTimeBetween(valZdt, getPaymentDate());
     if (fixedPeriod < _fixingPeriodDate.length - 1) { // Some OIS period left
       // Check to see if a fixing is available on current date
-      final Double fixedRate = indexFixingDateSeries.getValue(_fixingPeriodDate[fixedPeriod].getDate());
+      final Double fixedRate = indexFixingDateSeries.getValue(_fixingPeriodDate[fixedPeriod].toLocalDate());
       if (fixedRate != null) { // There is!
         accruedNotional *= 1 + _fixingPeriodAccrualFactor[fixedPeriod] * fixedRate;
         fixedPeriod++;

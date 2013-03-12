@@ -95,7 +95,7 @@ public class InterestRateFutureOptionBlackYieldCurveNodeSensitivitiesFunction ex
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Clock snapshotClock = executionContext.getValuationClock();
     final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
-    final LocalDate localNow = now.getDate();
+    final LocalDate localNow = now.toLocalDate();
     final HistoricalTimeSeriesBundle timeSeries = HistoricalTimeSeriesFunctionUtils.getHistoricalTimeSeriesInputs(executionContext, inputs);
     final Trade trade = target.getTrade();
     final IRFutureOptionSecurity security = (IRFutureOptionSecurity) trade.getSecurity();
@@ -164,7 +164,7 @@ public class InterestRateFutureOptionBlackYieldCurveNodeSensitivitiesFunction ex
           curves, configSource, localNow, getResultSpec(target, currency.getCode(), curveCalculationConfigName, surfaceName, fullCurveName));
     }
     return YieldCurveNodeSensitivitiesHelper.getInstrumentLabelledSensitivitiesForCurve(fullCurveName, data, sensitivities, curveSpec,
-        getResultSpec(target, currency.getCode(), curveCalculationConfigName, surfaceName, fullCurveName));
+        getResultSpec(target, currency.getCode(), curveCalculationConfigName, surfaceName, curveName));
   }
 
   @Override

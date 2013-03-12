@@ -65,7 +65,7 @@ public class CouponOISDiscountingMethodTest {
   // Coupon EONIA 3m
   private static final ZonedDateTime TRADE_DATE = DateUtils.getUTCDate(2011, 9, 7);
   private static final ZonedDateTime SPOT_DATE = ScheduleCalculator.getAdjustedDate(TRADE_DATE, EUR_SETTLEMENT_DAYS, EUR_CALENDAR);
-  private static final Period EUR_CPN_TENOR = Period.of(3, MONTHS);
+  private static final Period EUR_CPN_TENOR = Period.ofMonths(3);
   private static final ZonedDateTime START_ACCRUAL_DATE = SPOT_DATE;
   private static final ZonedDateTime END_ACCRUAL_DATE = ScheduleCalculator.getAdjustedDate(START_ACCRUAL_DATE, EUR_CPN_TENOR, EUR_BUSINESS_DAY, EUR_CALENDAR, EUR_IS_EOM);
   private static ZonedDateTime LAST_FIXING_DATE = ScheduleCalculator.getAdjustedDate(END_ACCRUAL_DATE, -1, EUR_CALENDAR); // Overnight
@@ -287,13 +287,13 @@ public class CouponOISDiscountingMethodTest {
   // Swap EONIA 3M
   private static final double EUR_FIXED_RATE = 0.01;
   private static final boolean IS_PAYER = true;
-  private static final Period EUR_SWAP_3M_TENOR = Period.of(3, MONTHS);
+  private static final Period EUR_SWAP_3M_TENOR = Period.ofMonths(3);
   private static final SwapFixedONSimplifiedDefinition EONIA_SWAP_3M_DEFINITION = SwapFixedONSimplifiedDefinition.from(SPOT_DATE, EUR_SWAP_3M_TENOR, EUR_SWAP_3M_TENOR, NOTIONAL, EUR_OIS,
       EUR_FIXED_RATE, IS_PAYER, EUR_SETTLEMENT_DAYS, EUR_BUSINESS_DAY, EUR_DAY_COUNT, EUR_IS_EOM);
   private static final Swap<? extends Payment, ? extends Payment> EONIA_SWAP_3M = EONIA_SWAP_3M_DEFINITION.toDerivative(REFERENCE_DATE_1, CURVES_NAMES);
   //Swap EONIA 3Y
-  private static final Period EUR_SWAP_3Y_TENOR = Period.of(3, YEARS);
-  private static final Period EUR_COUPON_TENOR = Period.of(12, MONTHS);
+  private static final Period EUR_SWAP_3Y_TENOR = Period.ofYears(3);
+  private static final Period EUR_COUPON_TENOR = Period.ofMonths(12);
   private static final SwapFixedONSimplifiedDefinition EONIA_SWAP_3Y_DEFINITION = SwapFixedONSimplifiedDefinition.from(SPOT_DATE, EUR_SWAP_3Y_TENOR, EUR_COUPON_TENOR, NOTIONAL, EUR_OIS,
       EUR_FIXED_RATE, IS_PAYER, EUR_SETTLEMENT_DAYS, EUR_BUSINESS_DAY, EUR_DAY_COUNT, EUR_IS_EOM);
   private static final Swap<? extends Payment, ? extends Payment> EONIA_SWAP_3Y = EONIA_SWAP_3Y_DEFINITION.toDerivative(REFERENCE_DATE_1, CURVES_NAMES);
@@ -326,7 +326,7 @@ public class CouponOISDiscountingMethodTest {
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");
   private static final GeneratorSwapFixedON OIS_USD_GENERATOR = GeneratorSwapFixedONMaster.getInstance().getGenerator("USD1YFEDFUND", NYC);
   private static final double USD_FIXED_RATE = 0.0050;
-  private static final Period TENOR_6M = Period.of(6, MONTHS);
+  private static final Period TENOR_6M = Period.ofMonths(6);
   private static final SwapFixedONDefinition OIS_DEFINITION = SwapFixedONDefinition.from(START_ACCRUAL_DATE, TENOR_6M, NOTIONAL, OIS_USD_GENERATOR, USD_FIXED_RATE, IS_PAYER);
   private static final YieldCurveBundle CURVES_2 = TestsDataSetsSABR.createCurves2();
   private static final String[] CURVES_NAMES_2 = TestsDataSetsSABR.curves2Names();
@@ -385,7 +385,7 @@ public class CouponOISDiscountingMethodTest {
     final int nbTest = 100;
 
     final ZonedDateTime referenceDate = TRADE_DATE;
-    final Period tenor = Period.of(50, YEARS);
+    final Period tenor = Period.ofYears(50);
     SwapFixedONDefinition oidUsd5YDefinition;
     Swap<? extends Payment, ? extends Payment> ois;
 

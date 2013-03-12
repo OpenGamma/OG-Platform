@@ -69,7 +69,7 @@ public class GeneratorForexSwapTest {
   @Test
   public void generateInstrument() {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 7, 17);
-    final Period tenor = DateUtils.periodOfMonths(6);
+    final Period tenor = Period.ofMonths(6);
     final double pts = 0.01;
     final double eurUsd = 1.25;
     final double notional = 123000000;

@@ -15,7 +15,7 @@ import javax.servlet.ServletContext;
 import org.joda.beans.impl.flexi.FlexiBean;
 import org.joda.beans.integrate.freemarker.FreemarkerObjectWrapper;
 import org.threeten.bp.ZonedDateTime;
-import org.threeten.bp.format.DateTimeFormatters;
+import org.threeten.bp.format.DateTimeFormatter;
 
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.OpenGammaClock;
@@ -140,8 +140,8 @@ public class FreemarkerOutputter {
   public FlexiBean createRootData() {
     FlexiBean data = new FlexiBean();
     data.put("now", ZonedDateTime.now(OpenGammaClock.getInstance()));
-    data.put("timeFormatter", DateTimeFormatters.pattern("HH:mm:ss"));
-    data.put("offsetFormatter", DateTimeFormatters.pattern("Z"));
+    data.put("timeFormatter", DateTimeFormatter.ofPattern("HH:mm:ss"));
+    data.put("offsetFormatter", DateTimeFormatter.ofPattern("Z"));
     return data;
   }
 

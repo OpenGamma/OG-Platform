@@ -53,7 +53,6 @@ import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
 import org.threeten.bp.format.DateTimeFormatterBuilder;
-import org.threeten.bp.format.DateTimeFormatters;
 import org.threeten.bp.format.DateTimeParseException;
 import org.threeten.bp.temporal.TemporalAdjuster;
 
@@ -109,7 +108,6 @@ import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.position.PositionSearchRequest;
 import com.opengamma.master.position.impl.PositionSearchIterator;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.tuple.Pair;
 
@@ -735,7 +733,7 @@ public final class BloombergDataUtils {
     ArgumentChecker.notNull(expiry, "expiry");
     ArgumentChecker.notNull(optionType, "optionType");
     Pair<String, String> tickerMarketSectorPair = splitTickerAtMarketSector(underlyingTicker);
-    DateTimeFormatter expiryFormatter = DateTimeFormatters.pattern("MM/dd/yy");
+    DateTimeFormatter expiryFormatter = DateTimeFormatter.ofPattern("MM/dd/yy");
     DecimalFormat strikeFormat = new DecimalFormat("0.###");
     String strikeString = strikeFormat.format(strike);
     StringBuilder sb = new StringBuilder();
@@ -779,7 +777,7 @@ public final class BloombergDataUtils {
   }
   
   public static ExternalId futureBundleToGenericFutureTicker(ExternalIdBundle bundle, ZonedDateTime now, OffsetTime futureExpiryTime, ZoneId futureExpiryTimeZone) {
-    ZonedDateTime nextExpiry = now.getDate().with(s_monthlyExpiryAdjuster).atTime(now.getTime()).atZone(now.getZone());
+    ZonedDateTime nextExpiry = now.toLocalDate().with(s_monthlyExpiryAdjuster).atTime(now.toLocalTime()).atZone(now.getZone());
     ExternalId bbgTicker = bundle.getExternalId(ExternalSchemes.BLOOMBERG_TICKER);
     if (bbgTicker == null) {
       throw new OpenGammaRuntimeException("Could not find a Bloomberg Ticker in the supplied bundle " + bundle.toString());
@@ -807,7 +805,7 @@ public final class BloombergDataUtils {
             throw new OpenGammaRuntimeException("Invalid month code " + monthCode);
           }
           LocalDate nextExpiryIfThisYear = LocalDate.of((((thisYear / 10) * 10) + year), month, 1).with(s_monthlyExpiryAdjuster);
-          ZonedDateTime nextExpiryDateTimeIfThisYear = DateUtils.offsetDateTime(nextExpiryIfThisYear, futureExpiryTime).atZoneSimilarLocal(futureExpiryTimeZone);
+          ZonedDateTime nextExpiryDateTimeIfThisYear = nextExpiryIfThisYear.atTime(futureExpiryTime).atZoneSimilarLocal(futureExpiryTimeZone);
           if (now.isAfter(nextExpiryDateTimeIfThisYear)) {
             year = ((thisYear / 10) * 10) + 10 + year;
           } else {
@@ -835,7 +833,7 @@ public final class BloombergDataUtils {
       // now we generate the expiry of the future from the code:
       // Again, note that we're not taking into account exchange trading hours.
       LocalDate expiryDate = LocalDate.of(year, s_monthCode.inverse().get(monthCode), 1).with(s_monthlyExpiryAdjuster);
-      ZonedDateTime expiry = DateUtils.offsetDateTime(expiryDate, futureExpiryTime).atZoneSimilarLocal(futureExpiryTimeZone);
+      ZonedDateTime expiry = expiryDate.atTime(futureExpiryTime).atZoneSimilarLocal(futureExpiryTimeZone);
       int quarters = (int) nextExpiry.periodUntil(expiry, MONTHS) / 3;
       int genericFutureNumber = quarters + 1;
       StringBuilder sb = new StringBuilder();

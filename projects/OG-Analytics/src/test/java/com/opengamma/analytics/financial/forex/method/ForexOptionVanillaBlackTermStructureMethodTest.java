@@ -59,7 +59,7 @@ public class ForexOptionVanillaBlackTermStructureMethodTest {
   private static final Pair<Currency, Currency> CURRENCY_PAIR = Pair.of(EUR, USD);
   private static final double SPOT = 1.40;
   private static final FXMatrix FX_MATRIX = new FXMatrix(EUR, USD, SPOT);
-  private static final Period[] EXPIRY_PERIOD = new Period[] {Period.of(3, MONTHS), Period.of(6, MONTHS), Period.of(1, YEARS), Period.of(2, YEARS), Period.of(5, YEARS) };
+  private static final Period[] EXPIRY_PERIOD = new Period[] {Period.ofMonths(3), Period.ofMonths(6), Period.ofYears(1), Period.ofYears(2), Period.ofYears(5) };
   private static final double[] VOL = new double[] {0.20, 0.25, 0.20, 0.15, 0.20 };
   private static final int NB_EXP = EXPIRY_PERIOD.length;
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 6, 13);
@@ -106,7 +106,7 @@ public class ForexOptionVanillaBlackTermStructureMethodTest {
   private static final boolean IS_CALL = true;
   private static final boolean IS_LONG = true;
   private static final double NOTIONAL_EUR = 100000000;
-  private static final ZonedDateTime OPT_PAY_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.of(9, MONTHS), BUSINESS_DAY, CALENDAR);
+  private static final ZonedDateTime OPT_PAY_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.ofMonths(9), BUSINESS_DAY, CALENDAR);
   private static final ZonedDateTime OPT_EXP_DATE = ScheduleCalculator.getAdjustedDate(OPT_PAY_DATE, -SETTLEMENT_DAYS, CALENDAR);
   private static final ForexDefinition FX_DEFINITION = new ForexDefinition(EUR, USD, OPT_PAY_DATE, NOTIONAL_EUR, STRIKE);
   private static final ForexOptionVanillaDefinition CALL_LONG_DEFINITION = new ForexOptionVanillaDefinition(FX_DEFINITION, OPT_EXP_DATE, IS_CALL, IS_LONG);
