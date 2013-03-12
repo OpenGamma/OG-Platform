@@ -1008,7 +1008,7 @@ public class ForexOptionVanillaBlackSmileMethodTest {
     final double df = CURVES.getCurve(CURVES_NAME[1]).getDiscountFactor(TimeCalculator.getTimeBetween(REFERENCE_DATE, payDate));
     final double forward = SPOT * CURVES.getCurve(CURVES_NAME[0]).getDiscountFactor(TimeCalculator.getTimeBetween(REFERENCE_DATE, payDate)) / df;
     final double volatility = SMILE_TERM.getVolatility(timeToExpiry, strike, forward);
-    final double thetaUnit = BlackFormulaRepository.theta(forward, strike, timeToExpiry, volatility);
+    final double thetaUnit = BlackFormulaRepository.driftlessTheta(forward, strike, timeToExpiry, volatility);
     final double thetaExpected = thetaUnit * notional;
     final CurrencyAmount thetaCallComputed = METHOD_OPTION.thetaTheoretical(call, SMILE_BUNDLE);
     assertEquals("Theta theoretical: forex option", thetaExpected, thetaCallComputed.getAmount(), TOLERANCE_PV);

@@ -211,6 +211,9 @@ public class HistoricalValuationFunction extends AbstractFunction.NonCompiledInv
     }
   }
 
+  // TODO: Create function with properties of START_DATE + SAMPLING_PERIOD that backs onto this
+  // TODO: Create function with properties of END_DATE + SAMPLING_PERIOD that backs onto this
+
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     ValueProperties constraints = desiredValue.getConstraints();

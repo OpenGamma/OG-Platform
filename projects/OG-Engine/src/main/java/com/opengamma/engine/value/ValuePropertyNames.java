@@ -166,8 +166,9 @@ public final class ValuePropertyNames {
   public static final String OUTPUT_RESERVED_PREFIX = ".";
 
   /**
-   * A general name for a property describing the sampling period for a time series (e.g. daily, weekly)
+   * A general name for a property describing the period of time over which a time-series applies (e.g. P2Y).
    */
+  // NOTE jonathan 2013-03-12 -- PERIOD would be a better name
   public static final String SAMPLING_PERIOD = "SamplingPeriod";
 
   /**

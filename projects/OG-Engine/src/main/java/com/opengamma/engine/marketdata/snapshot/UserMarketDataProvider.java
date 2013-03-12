@@ -10,8 +10,10 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotChangeListener;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
+import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
 import com.opengamma.engine.marketdata.AbstractMarketDataProvider;
 import com.opengamma.engine.marketdata.MarketDataListener;
 import com.opengamma.engine.marketdata.MarketDataPermissionProvider;
@@ -32,12 +34,14 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class UserMarketDataProvider extends AbstractMarketDataProvider {
 
+  private final MarketDataSnapshotSource _snapshotSource;
   private final UniqueId _snapshotId;
   private final CopyOnWriteArraySet<ValueSpecification> _listeningValueSpecifications = new CopyOnWriteArraySet<ValueSpecification>();
-  private final MarketDataSnapshotSource _snapshotSource;
   private final MarketDataPermissionProvider _permissionProvider;
   private final MarketDataSnapshotChangeListener _snapshotSourceChangeListener;
   private final Object _listenerLock = new Object();
+  private final Object _initSnapshotLock = new Object();
+  private volatile UserMarketDataSnapshot _snapshot;
 
   private MarketDataAvailabilityProvider _baseMarketDataAvailabilityProvider;
 
@@ -50,10 +54,30 @@ public class UserMarketDataProvider extends AbstractMarketDataProvider {
     _permissionProvider = new PermissiveMarketDataPermissionProvider();
     _snapshotSourceChangeListener = new MarketDataSnapshotChangeListener() {
       @Override
-      public void objectChanged(final ObjectId oid) {
+      public void objectChanged(ObjectId oid) {
+        if (!oid.equals(getSnapshotId().getObjectId())) {
+          return;
+        }
+        synchronized (_initSnapshotLock) {
+          _snapshot = null;
+        }
         valuesChanged(_listeningValueSpecifications);
       }
     };
+  }
+
+  private UserMarketDataSnapshot getSnapshot() {
+    UserMarketDataSnapshot snapshot = _snapshot;
+    if (snapshot != null) {
+      return snapshot;
+    }
+    synchronized (_initSnapshotLock) {
+      if (_snapshot == null) {
+        StructuredMarketDataSnapshot structuredSnapshot = getSnapshotSource().get(getSnapshotId());
+        _snapshot = new UserMarketDataSnapshot(structuredSnapshot, getSnapshotId());
+      }
+      return _snapshot;
+    }
   }
 
   //-------------------------------------------------------------------------
@@ -102,7 +126,7 @@ public class UserMarketDataProvider extends AbstractMarketDataProvider {
   //-------------------------------------------------------------------------
   @Override
   public MarketDataAvailabilityProvider getAvailabilityProvider(final MarketDataSpecification marketDataSpec) {
-    final UserMarketDataSnapshot snapshot = snapshot();
+    final UserMarketDataSnapshot snapshot = getSnapshot();
     snapshot.init();
     if (getBaseMarketDataAvailabilityProvider() == null) {
       return snapshot.getAvailabilityProvider();
@@ -130,21 +154,20 @@ public class UserMarketDataProvider extends AbstractMarketDataProvider {
   }
 
   @Override
-  public MarketDataSnapshot snapshot(final MarketDataSpecification marketDataSpec) {
-    return snapshot();
-  }
-
-  //-------------------------------------------------------------------------
-  private UserMarketDataSnapshot snapshot() {
-    return new UserMarketDataSnapshot(getSnapshotSource(), getSnapshotId());
-  }
-
-  private MarketDataSnapshotSource getSnapshotSource() {
-    return _snapshotSource;
+  public MarketDataSnapshot snapshot(MarketDataSpecification marketDataSpec) {
+    if (!isCompatible(marketDataSpec)) {
+      throw new OpenGammaRuntimeException("Market data specification " + marketDataSpec + " is incompatible with " +
+          UserMarketDataProvider.class.getSimpleName() + " for snapshot " + getSnapshotId());
+    }
+    return getSnapshot();
   }
 
   private UniqueId getSnapshotId() {
     return _snapshotId;
+  }
+
+  private MarketDataSnapshotSource getSnapshotSource() {
+    return _snapshotSource;
   }
 
   //-------------------------------------------------------------------------

@@ -16,7 +16,6 @@ import java.util.Map;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.UnstructuredMarketDataSnapshot;
@@ -49,12 +48,10 @@ public class UserMarketDataSnapshotTest {
 
   private UserMarketDataSnapshot createSnapshot() {
     final StructuredMarketDataSnapshot snapshot = mock(StructuredMarketDataSnapshot.class);
-    final MarketDataSnapshotSource snapshotSource = mock(MarketDataSnapshotSource.class);
     final UniqueId snapshotId = UniqueId.of("TestSnapshot", "1");
-    when(snapshotSource.get(snapshotId)).thenReturn(snapshot);
     final ExternalId testValueId = ExternalId.of("TestScheme", "Value1");
     when(snapshot.getGlobalValues()).thenReturn(generateUnstructured(testValueId, 234d));
-    final UserMarketDataSnapshot userSnapshot = new UserMarketDataSnapshot(snapshotSource, snapshotId);
+    final UserMarketDataSnapshot userSnapshot = new UserMarketDataSnapshot(snapshot, snapshotId);
     userSnapshot.init();
     final YieldCurveSnapshot yieldCurveSnapshot = mock(YieldCurveSnapshot.class);
     when(yieldCurveSnapshot.getValues()).thenReturn(generateUnstructured(testValueId, 123d));

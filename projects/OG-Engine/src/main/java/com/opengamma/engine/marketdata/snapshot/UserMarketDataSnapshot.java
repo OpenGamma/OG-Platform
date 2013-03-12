@@ -14,7 +14,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.threeten.bp.Instant;
 
-import com.opengamma.DataNotFoundException;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
@@ -29,7 +28,6 @@ import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceKey;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceSnapshot;
 import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
 import com.opengamma.core.marketdatasnapshot.YieldCurveSnapshot;
-import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.marketdata.AbstractMarketDataSnapshot;
@@ -39,9 +37,6 @@ import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityFilter
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.availability.ProviderMarketDataAvailabilityFilter;
 import com.opengamma.engine.marketdata.spec.MarketData;
-import com.opengamma.engine.target.ComputationTargetReference;
-import com.opengamma.engine.target.ComputationTargetRequirement;
-import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -68,10 +63,9 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
 
   private static final Map<String, StructuredMarketDataHandler> s_structuredDataHandler = new HashMap<String, StructuredMarketDataHandler>();
 
-  private final MarketDataSnapshotSource _snapshotSource;
-  private final UniqueId _snapshotId;
   private final InMemoryLKVMarketDataProvider _unstructured = new InMemoryLKVMarketDataProvider();
-  private StructuredMarketDataSnapshot _snapshot;
+  private final StructuredMarketDataSnapshot _snapshot;
+  private final UniqueId _snapshotId;
 
   /**
    * Handler for a type of structured market data.
@@ -285,8 +279,8 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
     });
   }
 
-  public UserMarketDataSnapshot(final MarketDataSnapshotSource snapshotSource, final UniqueId snapshotId) {
-    _snapshotSource = snapshotSource;
+  public UserMarketDataSnapshot(final StructuredMarketDataSnapshot snapshot, final UniqueId snapshotId) {
+    _snapshot = snapshot;
     _snapshotId = snapshotId;
   }
 
@@ -295,16 +289,7 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
   }
 
   private StructuredMarketDataSnapshot getSnapshot() {
-    assertInitialized();
     return _snapshot;
-  }
-
-  private MarketDataSnapshotSource getSnapshotSource() {
-    return _snapshotSource;
-  }
-
-  private UniqueId getSnapshotId() {
-    return _snapshotId;
   }
 
   private static Double query(final ValueSnapshot valueSnapshot) {
@@ -395,45 +380,26 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
 
   @Override
   public Instant getSnapshotTimeIndication() {
-    init();
     return getSnapshotTime();
   }
 
   @Override
   public void init() {
-    if (!isInitialized()) {
-      try {
-        _snapshot = getSnapshotSource().get(getSnapshotId());
-      } catch (final DataNotFoundException ex) {
-        // Can't leave as null or there will be errors about an uninitialized snapshot. Throwing an exception here might be better than assuming
-        // an empty snapshot.
-        _snapshot = new ManageableMarketDataSnapshot();
-      }
-      final UnstructuredMarketDataSnapshot globalValues = _snapshot.getGlobalValues();
-      if (globalValues != null) {
-        for (final ExternalIdBundle target : globalValues.getTargets()) {
-          final ComputationTargetReference targetRef = new ComputationTargetRequirement(ComputationTargetType.PRIMITIVE, target);
-          for (final Map.Entry<String, ValueSnapshot> valuePair : globalValues.getTargetValues(target).entrySet()) {
-            _unstructured.addValue(new ValueRequirement(valuePair.getKey(), targetRef), query(valuePair.getValue()));
-          }
-        }
-      }
-    }
+    // No-op
   }
 
   @Override
   public void init(final Set<ValueSpecification> valuesRequired, final long timeout, final TimeUnit unit) {
-    init();
+    // No-op
   }
 
   @Override
   public boolean isInitialized() {
-    return _snapshot != null;
+    return true;
   }
 
   @Override
   public boolean isEmpty() {
-    assertInitialized();
     return false;
   }
 
