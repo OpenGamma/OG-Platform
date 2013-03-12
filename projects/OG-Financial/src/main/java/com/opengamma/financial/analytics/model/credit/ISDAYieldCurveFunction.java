@@ -125,7 +125,6 @@ public class ISDAYieldCurveFunction extends AbstractFunction.NonCompiledInvoker 
         .with(ValuePropertyNames.CURVE, curveName)
         .with(ISDAFunctionConstants.ISDA_CURVE_OFFSET, offsetString)
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfig)
-        //.with(ISDAFunctionConstants.ISDA_CURVE_DATE, curveDate)
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, ISDAFunctionConstants.ISDA_METHOD_NAME)
         .with(ISDAFunctionConstants.ISDA_IMPLEMENTATION, ISDAFunctionConstants.ISDA_IMPLEMENTATION_APPROX).get();
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.YIELD_CURVE, target.toSpecification(), properties);
@@ -148,7 +147,6 @@ public class ISDAYieldCurveFunction extends AbstractFunction.NonCompiledInvoker 
         .withAny(ValuePropertyNames.CURVE)
         .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
         .withAny(ISDAFunctionConstants.ISDA_CURVE_OFFSET)
-        //.withAny(ISDAFunctionConstants.ISDA_CURVE_DATE)
         .with(ISDAFunctionConstants.ISDA_IMPLEMENTATION, ISDAFunctionConstants.ISDA_IMPLEMENTATION_APPROX)
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, ISDAFunctionConstants.ISDA_METHOD_NAME)
         .get();
