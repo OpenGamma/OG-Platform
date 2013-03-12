@@ -5,7 +5,12 @@
  */
 package com.opengamma.financial.currency;
 
+import org.threeten.bp.Clock;
+import org.threeten.bp.Instant;
+import org.threeten.bp.temporal.ChronoUnit;
+
 import com.opengamma.core.config.ConfigSource;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
@@ -39,7 +44,8 @@ public class ConfigDBCurrencyPairsSource implements CurrencyPairsSource {
     if (name == null) {
       name = CurrencyPairs.DEFAULT_CURRENCY_PAIRS;
     }
-    return _configSource.getLatestByName(CurrencyPairs.class, name);
+    Instant oneHourOn = Clock.systemDefaultZone().instant().plus(1, ChronoUnit.HOURS).truncatedTo(ChronoUnit.HOURS);
+    return _configSource.getSingle(CurrencyPairs.class, name, VersionCorrection.of(oneHourOn, oneHourOn));
   }
 
   @Override

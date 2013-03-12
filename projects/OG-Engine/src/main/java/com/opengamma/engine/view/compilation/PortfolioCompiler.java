@@ -29,10 +29,9 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 
 /**
- * Resolves the specified portfolio's securities and adds value requirements (targets) to the graph builder in the
- * compilation context, thus triggering the compilation of the dependency graphs. The identification of value
- * requirements is done through a parallel traversal on the portfolio nodes using PortfolioCompilerTraversalCallback,
- * which actually produces the value requirements and adds them to the graph builder.
+ * Resolves the specified portfolio's securities and adds value requirements (targets) to the graph builder in the compilation context, thus triggering the compilation of the dependency graphs. The
+ * identification of value requirements is done through a parallel traversal on the portfolio nodes using PortfolioCompilerTraversalCallback, which actually produces the value requirements and adds
+ * them to the graph builder.
  */
 public final class PortfolioCompiler {
 
@@ -41,28 +40,28 @@ public final class PortfolioCompiler {
 
   /**
    * Resolves the securities in the portfolio at the latest version-correction.
-   *
-   * @param portfolio  the portfolio to resolve, not null
-   * @param executorService  the threading service, not null
-   * @param securitySource  the security source, not null
+   * 
+   * @param portfolio the portfolio to resolve, not null
+   * @param executorService the threading service, not null
+   * @param securitySource the security source, not null
    * @return the resolved portfolio, not null
    */
   public static Portfolio resolvePortfolio(final Portfolio portfolio, final ExecutorService executorService,
-                                           final SecuritySource securitySource) {
+      final SecuritySource securitySource) {
     return resolvePortfolio(portfolio, executorService, securitySource, VersionCorrection.LATEST);
   }
 
   /**
    * Resolves the securities in the portfolio at the given version-correction.
-   *
-   * @param portfolio  the portfolio to resolve, not null
-   * @param executorService  the threading service, not null
-   * @param securitySource  the security source, not null
-   * @param versionCorrection  the version-correction for security resolution, not null
+   * 
+   * @param portfolio the portfolio to resolve, not null
+   * @param executorService the threading service, not null
+   * @param securitySource the security source, not null
+   * @param versionCorrection the version-correction for security resolution, not null
    * @return the resolved portfolio, not null
    */
   public static Portfolio resolvePortfolio(final Portfolio portfolio, final ExecutorService executorService,
-                                           final SecuritySource securitySource, final VersionCorrection versionCorrection) {
+      final SecuritySource securitySource, final VersionCorrection versionCorrection) {
     final Portfolio cloned = new SimplePortfolio(portfolio);
     new SecurityLinkResolver(executorService, securitySource, versionCorrection).resolveSecurities(cloned.getRootNode());
     return cloned;
@@ -71,7 +70,7 @@ public final class PortfolioCompiler {
   // --------------------------------------------------------------------------
   /**
    * Adds portfolio targets to the dependency graphs as required by a full compilation, and fully resolves the portfolio structure.
-   *
+   * 
    * @param compilationContext the context of the view definition compilation
    * @param resolutions the resolutions within the portfolio structure (for example the position object identifiers and underlying security references)
    * @return the fully-resolved portfolio structure if any portfolio targets were required, null otherwise.
@@ -104,6 +103,7 @@ public final class PortfolioCompiler {
 
       // Add portfolio requirements to the dependency graph
       final DependencyGraphBuilder builder = compilationContext.getBuilder(calcConfig.getName());
+      builder.getCompilationContext().setPortfolio(portfolio);
       final PortfolioCompilerTraversalCallback traversalCallback = new PortfolioCompilerTraversalCallback(calcConfig, builder, resolutions);
       PortfolioNodeTraverser.parallel(traversalCallback, compilationContext.getServices().getExecutorService()).traverse(portfolio.getRootNode());
 
@@ -122,7 +122,7 @@ public final class PortfolioCompiler {
 
   /**
    * Adds portfolio targets to dependency graphs as required by an incremental compilation (nothing), and fully resolved the portfolio structure.
-   *
+   * 
    * @param compilationContext the context of the view definition compiler
    * @param resolutions the resolutions within the portfolio structure (for example the position object identifiers and underlying security references)
    * @return the fully-resolved portfolio structure if any portfolio targets are required, null otherwise
@@ -147,8 +147,8 @@ public final class PortfolioCompiler {
 
   /**
    * Tests whether the view has portfolio outputs enabled.
-   *
-   * @param viewDefinition  the view definition
+   * 
+   * @param viewDefinition the view definition
    * @return true if there is at least one portfolio target
    */
   private static boolean isPortfolioOutputEnabled(final ViewDefinition viewDefinition) {
@@ -159,7 +159,7 @@ public final class PortfolioCompiler {
   /**
    * Fully resolves the portfolio structure for a view. A fully resolved structure has resolved {@link Security} objects for each {@link Position} within the portfolio. Note however that any
    * underlying or related data referenced by a security will not be resolved at this stage.
-   *
+   * 
    * @param compilationContext the compilation context containing the view being compiled, not null
    * @return the resolved portfolio, not null
    */

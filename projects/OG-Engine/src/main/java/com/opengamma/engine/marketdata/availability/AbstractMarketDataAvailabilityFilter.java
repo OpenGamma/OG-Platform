@@ -141,12 +141,21 @@ public abstract class AbstractMarketDataAvailabilityFilter implements MarketData
   @Override
   public final boolean isAvailable(final ComputationTargetSpecification targetSpec, final Object target, final ValueRequirement desiredValue) {
     if (target instanceof ExternalBundleIdentifiable) {
-      return isAvailable(targetSpec, ((ExternalBundleIdentifiable) target).getExternalIdBundle(), desiredValue);
-    } else if (target instanceof ExternalIdentifiable) {
-      return isAvailable(targetSpec, ((ExternalIdentifiable) target).getExternalId(), desiredValue);
-    } else if (target instanceof UniqueIdentifiable) {
-      return isAvailable(targetSpec, ((UniqueIdentifiable) target).getUniqueId(), desiredValue);
-    } else if (target == null) {
+      if (isAvailable(targetSpec, ((ExternalBundleIdentifiable) target).getExternalIdBundle(), desiredValue)) {
+        return true;
+      }
+    }
+    if (target instanceof ExternalIdentifiable) {
+      if (isAvailable(targetSpec, ((ExternalIdentifiable) target).getExternalId(), desiredValue)) {
+        return true;
+      }
+    }
+    if (target instanceof UniqueIdentifiable) {
+      if (isAvailable(targetSpec, ((UniqueIdentifiable) target).getUniqueId(), desiredValue)) {
+        return true;
+      }
+    }
+    if (target == null) {
       return isAvailable(targetSpec, desiredValue);
     } else {
       return false;
