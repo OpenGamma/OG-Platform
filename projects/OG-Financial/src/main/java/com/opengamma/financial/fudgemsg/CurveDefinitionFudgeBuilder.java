@@ -28,7 +28,7 @@ import com.opengamma.id.UniqueId;
 public class CurveDefinitionFudgeBuilder implements FudgeBuilder<CurveDefinition> {
   private static final String UNIQUE_ID_FIELD = "uniqueId";
   private static final String NAME_FIELD = "name";
-  private static final String STRIPS_FIELD = "strips";
+  private static final String STRIP_FIELD = "strip";
 
   @Override
   public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final CurveDefinition object) {
@@ -36,7 +36,7 @@ public class CurveDefinitionFudgeBuilder implements FudgeBuilder<CurveDefinition
     message.add(UNIQUE_ID_FIELD, object.getUniqueId());
     message.add(NAME_FIELD, object.getName());
     for (final CurveStrip strip : object.getStrips()) {
-      serializer.addToMessage(message, STRIPS_FIELD, null, strip);
+      serializer.addToMessage(message, STRIP_FIELD, null, strip);
     }
     return message;
   }
@@ -45,7 +45,7 @@ public class CurveDefinitionFudgeBuilder implements FudgeBuilder<CurveDefinition
   public CurveDefinition buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
     final String name = message.getString(NAME_FIELD);
     final Set<CurveStrip> strips = new HashSet<>();
-    final List<FudgeField> stripFields = message.getAllByName(STRIPS_FIELD);
+    final List<FudgeField> stripFields = message.getAllByName(STRIP_FIELD);
     for (final FudgeField stripField : stripFields) {
       final CurveStrip strip = (CurveStrip) stripField.getValue();
       strips.add(strip);
