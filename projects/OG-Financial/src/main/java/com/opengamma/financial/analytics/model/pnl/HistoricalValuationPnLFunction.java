@@ -8,9 +8,6 @@ package com.opengamma.financial.analytics.model.pnl;
 import java.util.Map;
 import java.util.Set;
 
-import org.threeten.bp.LocalDate;
-import org.threeten.bp.Period;
-
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculatorFactory;
@@ -27,6 +24,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.timeseries.DateConstraint;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.util.async.AsynchronousExecution;
@@ -50,18 +48,22 @@ public class HistoricalValuationPnLFunction extends AbstractFunction.NonCompiled
   public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
     return ImmutableSet.of(new ValueSpecification(ValueRequirementNames.PNL_SERIES, target.toSpecification(), ValueProperties.all()));
   }
-  
+
   @Override
   public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
-    ValueProperties outputConstraints = desiredValue.getConstraints().copy()
+    final ValueProperties outputConstraints = desiredValue.getConstraints();
+    ValueProperties.Builder requirementConstraints = outputConstraints.copy()
         .withoutAny(ValuePropertyNames.CURRENCY)
         .withoutAny(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS)
         .withoutAny(ValuePropertyNames.SCHEDULE_CALCULATOR)
         .withoutAny(ValuePropertyNames.SAMPLING_FUNCTION)
-        .get();
-    ValueProperties.Builder builder = outputConstraints.copy();
-    adjustStartDate(outputConstraints, builder, 1);
-    return ImmutableSet.of(new ValueRequirement(ValueRequirementNames.HISTORICAL_TIME_SERIES, target.toSpecification(), builder.get()));
+        .withoutAny(ValuePropertyNames.SAMPLING_PERIOD);
+    Set<String> samplingPeriodValues = outputConstraints.getValues(ValuePropertyNames.SAMPLING_PERIOD);
+    if ((samplingPeriodValues != null) && !samplingPeriodValues.isEmpty()) {
+      requirementConstraints.with(HistoricalTimeSeriesFunctionUtils.START_DATE_PROPERTY, DateConstraint.VALUATION_TIME.minus(samplingPeriodValues.iterator().next()).toString());
+      requirementConstraints.with(HistoricalTimeSeriesFunctionUtils.END_DATE_PROPERTY, DateConstraint.VALUATION_TIME.toString());
+    }
+    return ImmutableSet.of(new ValueRequirement(ValueRequirementNames.HISTORICAL_TIME_SERIES, target.toSpecification(), requirementConstraints.get()));
   }
 
   @Override
@@ -97,25 +99,13 @@ public class HistoricalValuationPnLFunction extends AbstractFunction.NonCompiled
         .with(ValuePropertyNames.FUNCTION, getUniqueId())
         .with(ValuePropertyNames.CURRENCY, currency.getCode())
         .with(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS, "Full")
+        .withoutAny(HistoricalTimeSeriesFunctionUtils.START_DATE_PROPERTY)
+        .withoutAny(HistoricalTimeSeriesFunctionUtils.END_DATE_PROPERTY)
         .with(ValuePropertyNames.SCHEDULE_CALCULATOR, ScheduleCalculatorFactory.DAILY)
         .with(ValuePropertyNames.SAMPLING_FUNCTION, TimeSeriesSamplingFunctionFactory.NO_PADDING);
-    adjustStartDate(valueTsProperties, builder, -1);
+    final DateConstraint startDate = DateConstraint.parse(valueTsProperties.getValues(HistoricalTimeSeriesFunctionUtils.START_DATE_PROPERTY).iterator().next());
+    builder.with(ValuePropertyNames.SAMPLING_PERIOD, startDate.periodUntil(DateConstraint.VALUATION_TIME).toString());
     return new ValueSpecification(ValueRequirementNames.PNL_SERIES, target.toSpecification(), builder.get());
   }
-  
-  private void adjustStartDate(ValueProperties baseConstraints, ValueProperties.Builder builder, int expansionDays) {
-    Set<String> desiredPeriod = baseConstraints.getValues(ValuePropertyNames.SAMPLING_PERIOD);
-    if (desiredPeriod != null) {
-      Period valuationPeriod = Period.parse(Iterables.getOnlyElement(desiredPeriod));
-      valuationPeriod = valuationPeriod.plusDays(expansionDays);
-      builder.withoutAny(ValuePropertyNames.SAMPLING_PERIOD).with(ValuePropertyNames.SAMPLING_PERIOD, valuationPeriod.toString());
-    }
-    Set<String> desiredStartDate = baseConstraints.getValues(HistoricalTimeSeriesFunctionUtils.START_DATE_PROPERTY);
-    if (desiredStartDate != null) {
-      LocalDate valuationStartDate = LocalDate.parse(Iterables.getOnlyElement(desiredStartDate));
-      valuationStartDate = valuationStartDate.minusDays(expansionDays);
-      builder.withoutAny(HistoricalTimeSeriesFunctionUtils.START_DATE_PROPERTY).with(HistoricalTimeSeriesFunctionUtils.START_DATE_PROPERTY, valuationStartDate.toString());
-    }
-  }
-  
+
 }

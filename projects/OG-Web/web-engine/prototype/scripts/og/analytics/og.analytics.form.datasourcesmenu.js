@@ -77,7 +77,7 @@ $.register_module({
                             }) : obj.type === 'Historical' ? resp.data.data.map(
                                 function (entry) {
                                     var arr = entry.split('|');
-                                    return { text: arr[1], value: arr[0], selected: obj.source === arr[0]};
+                                    return { text: arr[1], value: arr[1], selected: obj.source === arr[1]};
                             }) : {};
                             if (obj.type === 'Historical') data.historical = {
                                     fixed: obj.date ? true : false,
@@ -150,11 +150,11 @@ $.register_module({
                 if(query.length) {
                     var i = 0, arr = [];
                     query.sort(menu.sort_opts).forEach(function (entry) { // revisit the need for sorting this..
-                        if (i > 0) arr[i++] = menu.$dom.toggle_infix.html() + " ";
+                        if (i > 0) arr[i++] = menu.$dom.toggle_infix.html() + ' ';
                         arr[i++] = entry;
                     });
                     $query.html(arr.reduce(function (a, v) {
-                        return a += v.type ? menu.capitalize(v.type) + ":" + v.txt : menu.capitalize(v);
+                        return a += v.type ? menu.capitalize(v.type) + ':' + v.txt : menu.capitalize(v);
                     }, ''));
                 } else $query.text(default_sel_txt);
             };
@@ -268,7 +268,7 @@ $.register_module({
                     type_val = $(type_s, menu.opts[entry]).val().toLowerCase(),
                     source_select = $(source_s, menu.opts[entry]),
                     source_val = source_select.val(),
-                    source_txt = source_select.find("option:selected").text();
+                    source_txt = source_select.find('option:selected').text();
                     idx = query.pluck('pos').indexOf(sel_pos),
                     date = $('.extra-opts .custom', menu.opts[entry]).val();
                     date = date !== 'Custom' ? date : null;

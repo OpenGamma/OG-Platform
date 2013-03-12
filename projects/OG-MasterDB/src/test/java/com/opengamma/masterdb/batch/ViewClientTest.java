@@ -100,7 +100,7 @@ public class ViewClientTest {
     verify(viewResultListenerMock).cycleFragmentCompleted(fullFragment.capture(), deltaFragment.capture());
 
     assertEquals(UniqueId.of("ViewProcess", client.getUniqueId().getValue()), fullFragment.getValue().getViewProcessId());
-    assertEquals(UniqueId.of("ViewCycle", client.getUniqueId().getValue(), "0"), fullFragment.getValue().getViewCycleId());
+    assertEquals(UniqueId.of("ViewCycle", client.getUniqueId().getValue(), "1"), fullFragment.getValue().getViewCycleId());
 
     assertEquals(
         newHashSet(

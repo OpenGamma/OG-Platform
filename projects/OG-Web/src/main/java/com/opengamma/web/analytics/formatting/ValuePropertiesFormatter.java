@@ -42,7 +42,7 @@ import com.opengamma.engine.value.ValueSpecification;
         Map<String, Object> output = Maps.newHashMap();
         output.put(LabelledMatrix2DFormatter.MATRIX, matrix);
         // TODO it would be good if the UI could handle a label for the first column: "Property"
-        output.put(LabelledMatrix2DFormatter.X_LABELS, Lists.newArrayList("Value", "Optional"));
+        output.put(LabelledMatrix2DFormatter.X_LABELS, Lists.newArrayList("Property", "Value", "Optional"));
         output.put(LabelledMatrix2DFormatter.Y_LABELS, yLabels);
         return output;
       }

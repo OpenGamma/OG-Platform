@@ -58,7 +58,7 @@ public class AddValueRequest extends DirectBean {
   }
 
   @Override
-  protected Object propertyGet(final String propertyName, final boolean quiet) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -755281390:  // valueRequirement
         return getValueRequirement();
@@ -71,7 +71,7 @@ public class AddValueRequest extends DirectBean {
   }
 
   @Override
-  protected void propertySet(final String propertyName, final Object newValue, final boolean quiet) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -755281390:  // valueRequirement
         setValueRequirement((ValueRequirement) newValue);
@@ -80,19 +80,19 @@ public class AddValueRequest extends DirectBean {
         setValueSpecification((ValueSpecification) newValue);
         return;
       case 111972721:  // value
-        setValue(newValue);
+        setValue((Object) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      final AddValueRequest other = (AddValueRequest) obj;
+      AddValueRequest other = (AddValueRequest) obj;
       return JodaBeanUtils.equal(getValueRequirement(), other.getValueRequirement()) &&
           JodaBeanUtils.equal(getValueSpecification(), other.getValueSpecification()) &&
           JodaBeanUtils.equal(getValue(), other.getValue());
@@ -122,7 +122,7 @@ public class AddValueRequest extends DirectBean {
    * Sets the valueRequirement.
    * @param valueRequirement  the new value of the property
    */
-  public void setValueRequirement(final ValueRequirement valueRequirement) {
+  public void setValueRequirement(ValueRequirement valueRequirement) {
     this._valueRequirement = valueRequirement;
   }
 
@@ -147,7 +147,7 @@ public class AddValueRequest extends DirectBean {
    * Sets the valueSpecification.
    * @param valueSpecification  the new value of the property
    */
-  public void setValueSpecification(final ValueSpecification valueSpecification) {
+  public void setValueSpecification(ValueSpecification valueSpecification) {
     this._valueSpecification = valueSpecification;
   }
 
@@ -172,7 +172,7 @@ public class AddValueRequest extends DirectBean {
    * Sets the value.
    * @param value  the new value of the property
    */
-  public void setValue(final Object value) {
+  public void setValue(Object value) {
     this._value = value;
   }
 
@@ -225,7 +225,7 @@ public class AddValueRequest extends DirectBean {
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
         case -755281390:  // valueRequirement
           return _valueRequirement;

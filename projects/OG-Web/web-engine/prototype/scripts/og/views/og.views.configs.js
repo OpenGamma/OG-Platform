@@ -24,15 +24,16 @@ $.register_module({
             search, suppress_update = false, ui = common.util.ui,
             module = this, view,
             page_name = module.name.split('.').pop(),
-            config_types = [], // used to populate the dropdown in the new button
+            current_type, config_types = [], // used to populate the dropdown in the new button
             toolbar_buttons = {
                 'new': function () {ui.dialog({
                     type: 'input',
                     title: 'Add configuration',
                     width: 400, height: 190,
-                    fields: [
-                        {type: 'select', name: 'Configuration Type', id: 'config_type', options: config_types}
-                    ],
+                    fields: [{
+                        type: 'select', name: 'Configuration Type', id: 'config_type', options: config_types,
+                        value: function () {return current_type;}
+                    }],
                     buttons: {
                         'OK': function () {
                             var config_type = ui.dialog({return_field_value: 'config_type'});
@@ -84,7 +85,8 @@ $.register_module({
                     var details_json = result.data, too_large = result.meta.content_length > 0.75 * 1024 * 1024,
                         config_type, render_type, render_options;
                     if (result.error) return view.notify(null), view.error(result.message);
-                    config_type = details_json.template_data.type.toLowerCase().split('.').reverse()[0];
+                    current_type = details_json.template_data.type.split('.').reverse()[0];
+                    config_type = current_type.toLowerCase();
                     if (is_new) {
                         if (!result.data) return view.error('No template for: ' + new_config_type);
                         if (!result.data.template_data.configJSON) result.data.template_data.configJSON = {};

@@ -52,11 +52,18 @@ public class SnapshottingViewExecutionDataProvider extends ViewExecutionDataProv
       final List<MarketDataSpecification> specs,
       final MarketDataProviderResolver resolver) {
     super(user, specs, resolver);
-    int index = 0;
-    for (MarketDataProvider provider : getProviders()) {
-      provider.addListener(new Listener(index++));
+    final MarketDataListener listener = new Listener();
+    if (getSpecifications().size() == 1) {
+      final MarketDataProvider provider = getProviders().get(0);
+      provider.addListener(listener);
+      _availabilityProvider = provider.getAvailabilityProvider(getSpecifications().get(0));
+    } else {
+      int index = 0;
+      for (MarketDataProvider provider : getProviders()) {
+        provider.addListener(new CompositeListener(index++, listener));
+      }
+      _availabilityProvider = new CompositeAvailabilityProvider(getProviders(), getSpecifications());
     }
-    _availabilityProvider = new AvailabilityProvider(getProviders(), getSpecifications());
   }
 
   /**
@@ -122,7 +129,9 @@ public class SnapshottingViewExecutionDataProvider extends ViewExecutionDataProv
    */
   public MarketDataSnapshot snapshot() {
     final int providers = getProviders().size();
-    // [PLAT-3231] Have a more efficient form when there is only one provider.
+    if (providers == 1) {
+      return getProviders().get(0).snapshot(getSpecifications().get(0));
+    }
     final List<MarketDataSnapshot> snapshots = Lists.newArrayListWithCapacity(providers);
     for (int i = 0; i < providers; i++) {
       final MarketDataSnapshot snapshot = getProviders().get(i).snapshot(getSpecifications().get(i));
@@ -136,14 +145,51 @@ public class SnapshottingViewExecutionDataProvider extends ViewExecutionDataProv
   }
 
   /**
-   * Listens for updates from the underlying providers and distributes them to the listeners.
+   * Distributes the updates to the listeners.
    */
   private class Listener implements MarketDataListener {
 
-    private final int _providerId;
+    @Override
+    public void subscriptionSucceeded(ValueSpecification valueSpecification) {
+      for (final MarketDataListener listener : _listeners) {
+        listener.subscriptionSucceeded(valueSpecification);
+      }
+    }
 
-    public Listener(final int providerId) {
+    @Override
+    public void subscriptionFailed(ValueSpecification valueSpecification, final String msg) {
+      for (final MarketDataListener listener : _listeners) {
+        listener.subscriptionFailed(valueSpecification, msg);
+      }
+    }
+
+    @Override
+    public void subscriptionStopped(ValueSpecification valueSpecification) {
+      for (final MarketDataListener listener : _listeners) {
+        listener.subscriptionStopped(valueSpecification);
+      }
+    }
+
+    @Override
+    public void valuesChanged(Collection<ValueSpecification> valueSpecifications) {
+      for (final MarketDataListener listener : _listeners) {
+        listener.valuesChanged(valueSpecifications);
+      }
+    }
+
+  }
+
+  /**
+   * Listens for updates from the underlying providers and distributes them to the listeners.
+   */
+  private static class CompositeListener implements MarketDataListener {
+
+    private final int _providerId;
+    private final MarketDataListener _underlying;
+
+    public CompositeListener(final int providerId, final MarketDataListener underlying) {
       _providerId = providerId;
+      _underlying = underlying;
     }
 
     private ValueSpecification convertSpecification(final ValueSpecification valueSpecification) {
@@ -160,46 +206,35 @@ public class SnapshottingViewExecutionDataProvider extends ViewExecutionDataProv
 
     @Override
     public void subscriptionSucceeded(ValueSpecification valueSpecification) {
-      valueSpecification = convertSpecification(valueSpecification);
-      for (final MarketDataListener listener : _listeners) {
-        listener.subscriptionSucceeded(valueSpecification);
-      }
+      _underlying.subscriptionSucceeded(convertSpecification(valueSpecification));
     }
 
     @Override
     public void subscriptionFailed(ValueSpecification valueSpecification, final String msg) {
-      valueSpecification = convertSpecification(valueSpecification);
-      for (final MarketDataListener listener : _listeners) {
-        listener.subscriptionFailed(valueSpecification, msg);
-      }
+      _underlying.subscriptionFailed(convertSpecification(valueSpecification), msg);
     }
 
     @Override
     public void subscriptionStopped(ValueSpecification valueSpecification) {
-      valueSpecification = convertSpecification(valueSpecification);
-      for (final MarketDataListener listener : _listeners) {
-        listener.subscriptionStopped(valueSpecification);
-      }
+      _underlying.subscriptionStopped(convertSpecification(valueSpecification));
     }
 
     @Override
     public void valuesChanged(Collection<ValueSpecification> valueSpecifications) {
-      valueSpecifications = convertSpecifications(valueSpecifications);
-      for (final MarketDataListener listener : _listeners) {
-        listener.valuesChanged(valueSpecifications);
-      }
+      _underlying.valuesChanged(convertSpecifications(valueSpecifications));
     }
+
   }
 
   /**
    * {@link MarketDataAvailabilityProvider} that checks the underlying providers for availability. If the data is available from any underlying provider then it is available. If it isn't available but
    * is missing from any of the underlying providers then it is missing. Otherwise it is unavailable.
    */
-  private static final class AvailabilityProvider implements MarketDataAvailabilityProvider {
+  private static final class CompositeAvailabilityProvider implements MarketDataAvailabilityProvider {
 
     private final List<MarketDataAvailabilityProvider> _providers;
 
-    public AvailabilityProvider(final List<MarketDataProvider> providers, final List<MarketDataSpecification> specs) {
+    public CompositeAvailabilityProvider(final List<MarketDataProvider> providers, final List<MarketDataSpecification> specs) {
       _providers = new ArrayList<MarketDataAvailabilityProvider>(providers.size());
       for (int i = 0; i < providers.size(); i++) {
         _providers.add(providers.get(i).getAvailabilityProvider(specs.get(i)));

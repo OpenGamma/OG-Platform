@@ -361,4 +361,11 @@ public class LegacyCreditDefaultSwapDefinition extends CreditDefaultSwapDefiniti
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
+
+  @Override
+  public String toString() {
+    return "LegacyCreditDefaultSwapDefinition{" +
+        "_parSpread=" + _parSpread +
+        '}';
+  }
 }

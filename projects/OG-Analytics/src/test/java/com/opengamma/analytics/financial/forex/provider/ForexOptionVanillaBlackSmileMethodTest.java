@@ -91,7 +91,7 @@ public class ForexOptionVanillaBlackSmileMethodTest {
   private static final double[] ATM = {0.175, 0.185, 0.18, 0.17, 0.16, 0.16 };
   private static final double[] DELTA = new double[] {0.10, 0.25 };
   private static final double[][] RISK_REVERSAL = new double[][] { {-0.010, -0.0050 }, {-0.011, -0.0060 }, {-0.012, -0.0070 }, {-0.013, -0.0080 }, {-0.014, -0.0090 },
-      {-0.014, -0.0090 } };
+    {-0.014, -0.0090 } };
   private static final double[][] STRANGLE = new double[][] { {0.0300, 0.0100 }, {0.0310, 0.0110 }, {0.0320, 0.0120 }, {0.0330, 0.0130 }, {0.0340, 0.0140 }, {0.0340, 0.0140 } };
   private static final int NB_STRIKE = 2 * DELTA.length + 1;
   private static final SmileDeltaTermStructureParametersStrikeInterpolation SMILE_TERM = new SmileDeltaTermStructureParametersStrikeInterpolation(TIME_TO_EXPIRY, DELTA,
