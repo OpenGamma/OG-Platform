@@ -34,10 +34,10 @@ import com.opengamma.analytics.financial.instrument.swap.SwapFixedInflationZeroC
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedONDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
+import com.opengamma.analytics.financial.interestrate.LastTimeCalculator;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
-import com.opengamma.analytics.financial.provider.calculator.generic.LastTimeCalculator;
 import com.opengamma.analytics.financial.provider.calculator.inflation.ParSpreadInflationMarketQuoteCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.inflation.ParSpreadInflationMarketQuoteDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.inflation.PresentValueDiscountingInflationCalculator;
@@ -59,9 +59,9 @@ import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeS
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Build of inflation curves in several blocks with relevant Jacobian matrices.
+ * 
  */
-public class InflationBuildingCurveSimpleTest {
+public class InflationBuildingCurveTestEUR {
 
   private static final Interpolator1D INTERPOLATOR_LINEAR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LOG_LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
       Interpolator1DFactory.FLAT_EXTRAPOLATOR);
@@ -70,13 +70,13 @@ public class InflationBuildingCurveSimpleTest {
   private static final double TOLERANCE_ROOT = 1.0E-10;
   private static final int STEP_MAX = 100;
 
-  private static final Currency USD = Currency.USD;
+  private static final Currency EUR = Currency.EUR;
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");
 
   private static final double NOTIONAL = 1.0;
 
-  private static final GeneratorSwapFixedInflation GENERATOR_INFALTION_SWAP = GeneratorSwapFixedInflationMaster.getInstance().getGenerator("USCPI");
-  private static final IndexPrice US_CPI = GENERATOR_INFALTION_SWAP.getIndexPrice();
+  private static final GeneratorSwapFixedInflation GENERATOR_INFALTION_SWAP = GeneratorSwapFixedInflationMaster.getInstance().getGenerator("EUR HICP");
+  private static final IndexPrice EUR_HICP = GENERATOR_INFALTION_SWAP.getIndexPrice();
 
   private static final ZonedDateTime NOW = DateUtils.getUTCDate(2012, 9, 28);
 
@@ -92,62 +92,65 @@ public class InflationBuildingCurveSimpleTest {
   @SuppressWarnings("rawtypes")
   private static final DoubleTimeSeries[] TS_FIXED_PRICE_INDEX_USD_WITHOUT_TODAY = new DoubleTimeSeries[] {TS_PRICE_INDEX_USD_WITHOUT_TODAY };
 
-  private static final String CURVE_NAME_CPI_USD = "USD CPI";
+  private static final String CURVE_NAME_HICP_EUR = "EUR HICP";
 
-  /** Market values for the CPI USD curve */
-  public static final double[] CPI_USD_MARKET_QUOTES = new double[] {0.0200, 0.0200, 0.0200, 0.0200, 0.0200, 0.0200, 0.0200, 0.0200, 0.0200, 0.0200, 0.0200, 0.0200, 0.0200, 0.0200, 0.0200 };
-  /** Generators for the CPI USD curve */
-  public static final GeneratorInstrument<? extends GeneratorAttribute>[] CPI_USD_GENERATORS = new GeneratorInstrument<?>[] {GENERATOR_INFALTION_SWAP, GENERATOR_INFALTION_SWAP,
+  /** Market values for the HICP EUR curve */
+
+  public static final double[] HICP_EUR_MARKET_QUOTES = new double[] {0.0200, 0.0200, 0.0200, 0.0200, 0.0200, 0.0200, 0.0200, 0.0200, 0.0200, 0.0200, 0.0200, 0.0200, 0.0200, 0.0200, 0.0200 };
+
+  /** Generators for the HICP EUR curve */
+  private static final GeneratorInstrument<? extends GeneratorAttribute>[] HICP_EUR_GENERATORS = new GeneratorInstrument<?>[] {GENERATOR_INFALTION_SWAP, GENERATOR_INFALTION_SWAP,
       GENERATOR_INFALTION_SWAP,
       GENERATOR_INFALTION_SWAP, GENERATOR_INFALTION_SWAP, GENERATOR_INFALTION_SWAP, GENERATOR_INFALTION_SWAP, GENERATOR_INFALTION_SWAP, GENERATOR_INFALTION_SWAP,
       GENERATOR_INFALTION_SWAP, GENERATOR_INFALTION_SWAP, GENERATOR_INFALTION_SWAP, GENERATOR_INFALTION_SWAP, GENERATOR_INFALTION_SWAP, GENERATOR_INFALTION_SWAP };
-  /** Tenors for the CPI USD curve */
-  public static final Period[] CPI_USD_TENOR = new Period[] {Period.ofYears(1),
+  /** Tenors for the HICP EUR curve */
+  private static final Period[] HICP_EUR_TENOR = new Period[] {Period.ofYears(1),
       Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5), Period.ofYears(6), Period.ofYears(7),
       Period.ofYears(8), Period.ofYears(9), Period.ofYears(10), Period.ofYears(12), Period.ofYears(15), Period.ofYears(20),
       Period.ofYears(25), Period.ofYears(30) };
-  public static final GeneratorAttributeIR[] CPI_USD_ATTR = new GeneratorAttributeIR[CPI_USD_TENOR.length];
+  private static final GeneratorAttributeIR[] HICP_EUR_ATTR = new GeneratorAttributeIR[HICP_EUR_TENOR.length];
   static {
-    for (int loopins = 0; loopins < CPI_USD_TENOR.length; loopins++) {
-      CPI_USD_ATTR[loopins] = new GeneratorAttributeIR(CPI_USD_TENOR[loopins]);
+    for (int loopins = 0; loopins < HICP_EUR_TENOR.length; loopins++) {
+      HICP_EUR_ATTR[loopins] = new GeneratorAttributeIR(HICP_EUR_TENOR[loopins]);
     }
   }
 
-  /** Standard USD CPI curve instrument definitions */
-  public static final InstrumentDefinition<?>[] DEFINITIONS_CPI_USD;
+  /** Standard EUR HICP curve instrument definitions */
+
+  private static final InstrumentDefinition<?>[] DEFINITIONS_HICP_EUR;
 
   /** Units of curves */
-  public static final int[] NB_UNITS = new int[] {1 };
-  public static final int NB_BLOCKS = NB_UNITS.length;
-  public static final InstrumentDefinition<?>[][][][] DEFINITIONS_UNITS = new InstrumentDefinition<?>[NB_BLOCKS][][][];
-  public static final GeneratorPriceIndexCurve[][][] GENERATORS_UNITS = new GeneratorPriceIndexCurve[NB_BLOCKS][][];
-  public static final String[][][] NAMES_UNITS = new String[NB_BLOCKS][][];
+  private static final int[] NB_UNITS = new int[] {1 };
+  private static final int NB_BLOCKS = NB_UNITS.length;
+  private static final InstrumentDefinition<?>[][][][] DEFINITIONS_UNITS = new InstrumentDefinition<?>[NB_BLOCKS][][][];
+  private static final GeneratorPriceIndexCurve[][][] GENERATORS_UNITS = new GeneratorPriceIndexCurve[NB_BLOCKS][][];
+  private static final String[][][] NAMES_UNITS = new String[NB_BLOCKS][][];
 
-  public static final MulticurveProviderDiscount usMulticurveProviderDiscount = MulticurveProviderDiscountDataSets.createMulticurveEurUsd().copy();
-  public static final InflationProviderDiscount KNOWN_DATA = new InflationProviderDiscount(usMulticurveProviderDiscount);
+  private static final MulticurveProviderDiscount eurMulticurveProviderDiscount = MulticurveProviderDiscountDataSets.createMulticurveEurUsd().copy();
+  private static final InflationProviderDiscount KNOWN_DATA = new InflationProviderDiscount(eurMulticurveProviderDiscount);
 
-  public static final LinkedHashMap<String, IndexPrice[]> US_CPI_MAP = new LinkedHashMap<String, IndexPrice[]>();
+  private static final LinkedHashMap<String, IndexPrice[]> EUR_HICP_MAP = new LinkedHashMap<>();
 
   static {
-    DEFINITIONS_CPI_USD = getDefinitions(CPI_USD_MARKET_QUOTES, CPI_USD_GENERATORS, CPI_USD_ATTR);
+    DEFINITIONS_HICP_EUR = getDefinitions(HICP_EUR_MARKET_QUOTES, HICP_EUR_GENERATORS, HICP_EUR_ATTR);
 
     for (int loopblock = 0; loopblock < NB_BLOCKS; loopblock++) {
       DEFINITIONS_UNITS[loopblock] = new InstrumentDefinition<?>[NB_UNITS[loopblock]][][];
       GENERATORS_UNITS[loopblock] = new GeneratorPriceIndexCurve[NB_UNITS[loopblock]][];
       NAMES_UNITS[loopblock] = new String[NB_UNITS[loopblock]][];
     }
-    DEFINITIONS_UNITS[0][0] = new InstrumentDefinition<?>[][] {DEFINITIONS_CPI_USD };
+    DEFINITIONS_UNITS[0][0] = new InstrumentDefinition<?>[][] {DEFINITIONS_HICP_EUR };
 
     final GeneratorPriceIndexCurve genIntLin = new GeneratorPriceIndexCurveInterpolated(MATURITY_CALCULATOR, INTERPOLATOR_LINEAR);
     GENERATORS_UNITS[0][0] = new GeneratorPriceIndexCurve[] {genIntLin };
 
-    NAMES_UNITS[0][0] = new String[] {CURVE_NAME_CPI_USD };
+    NAMES_UNITS[0][0] = new String[] {CURVE_NAME_HICP_EUR };
 
-    US_CPI_MAP.put(CURVE_NAME_CPI_USD, new IndexPrice[] {US_CPI });
+    EUR_HICP_MAP.put(CURVE_NAME_HICP_EUR, new IndexPrice[] {EUR_HICP });
   }
 
-  public static final String NOT_USED = "Not used";
-  public static final String[] NOT_USED_2 = {NOT_USED, NOT_USED };
+  private static final String NOT_USED = "Not used";
+  private static final String[] NOT_USED_2 = {NOT_USED, NOT_USED };
 
   public static InstrumentDefinition<?>[] getDefinitions(final double[] marketQuotes, final GeneratorInstrument[] generators, final GeneratorAttribute[] attribute) {
     final InstrumentDefinition<?>[] definitions = new InstrumentDefinition<?>[marketQuotes.length];
@@ -190,43 +193,12 @@ public class InflationBuildingCurveSimpleTest {
       for (int loopcurve = 0; loopcurve < instruments.length; loopcurve++) {
         pv[loopcurve] = new double[instruments[loopcurve].length];
         for (int loopins = 0; loopins < instruments[loopcurve].length; loopins++) {
-          pv[loopcurve][loopins] = curves.getFxRates().convert(instruments[loopcurve][loopins].accept(PVIC, curves), USD).getAmount();
+          pv[loopcurve][loopins] = curves.getFxRates().convert(instruments[loopcurve][loopins].accept(PVIC, curves), EUR).getAmount();
           assertEquals("Curve construction: block " + block + ", unit " + loopblock + " - instrument " + loopins, 0, pv[loopcurve][loopins], TOLERANCE_CAL);
         }
       }
     }
   }
-
-  /*  @Test(enabled = true)
-    *//**
-      * Analyzes the shape of the  curve.
-      */
-
-  /* public void forwardAnalysis() {
-   final InflationProviderInterface marketDsc = CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(0).getFirst();
-   final int jump = 1;
-   final int startIndex = 0;
-   final int nbDate = 2750;
-   ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(NOW,2, NYC);
-   final double[] rateDsc = new double[nbDate];
-   final double[] startTime = new double[nbDate];
-   try {
-   final FileWriter writer = new FileWriter("fwd-dsc.csv");
-   for (int loopdate = 0; loopdate < nbDate; loopdate++) {
-   startTime[loopdate] = TimeCalculator.getTimeBetween(NOW, startDate);
-   final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, US_CPI);
-   final double endTime = TimeCalculator.getTimeBetween(NOW, endDate);
-   final double accrualFactor = USDLIBOR3M.getDayCount().getDayCountFraction(startDate, endDate);
-   rateDsc[loopdate] = marketDsc.getForwardRate(USDLIBOR3M, startTime[loopdate], endTime, accrualFactor);
-   startDate = ScheduleCalculator.getAdjustedDate(startDate, jump, NYC);
-   writer.append(0.0 + "," + startTime[loopdate] + "," + rateDsc[loopdate] + "\n");
-   }
-   writer.flush();
-   writer.close();
-   } catch (final IOException e) {
-   e.printStackTrace();
-   }
-   }*/
 
   private static Pair<InflationProviderDiscount, CurveBuildingBlockBundle> makeCurvesFromDefinitions(final InstrumentDefinition<?>[][][] definitions,
       final GeneratorPriceIndexCurve[][] curveGenerators,
@@ -253,7 +225,7 @@ public class InflationBuildingCurveSimpleTest {
         startCurve += instruments[loopunit][loopcurve].length;
       }
     }
-    return CURVE_BUILDING_REPOSITORY.makeCurvesFromDerivatives(instruments, generatorFinal, curveNames, parametersGuess, knownData, US_CPI_MAP, calculator,
+    return CURVE_BUILDING_REPOSITORY.makeCurvesFromDerivatives(instruments, generatorFinal, curveNames, parametersGuess, knownData, EUR_HICP_MAP, calculator,
         sensitivityCalculator);
 
   }
@@ -274,7 +246,7 @@ public class InflationBuildingCurveSimpleTest {
           /* ird = ((SwapFixedInflationZeroCouponDefinition) instrument).toDerivative(NOW, getTSSwapFixedInflation(withToday, unit), NOT_USED_2);*/
           final Annuity<? extends Payment> ird1 = ((SwapFixedInflationZeroCouponDefinition) instrument).getFirstLeg().toDerivative(NOW, NOT_USED_2);
           final Annuity<? extends Payment> ird2 = ((SwapFixedInflationZeroCouponDefinition) instrument).getSecondLeg().toDerivative(NOW, TS_PRICE_INDEX_USD_WITH_TODAY, NOT_USED_2);
-          ird = new Swap(ird1, ird2);
+          ird = new Swap<>(ird1, ird2);
         }
         else {
           ird = instrument.toDerivative(NOW, NOT_USED_2);
