@@ -1,14 +1,15 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.marketdatasnapshot;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -16,18 +17,8 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Function;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ImmutableListMultimap;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.Multimaps;
-import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.marketdatasnapshot.MarketDataValueSpecification;
 import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
-import com.opengamma.core.marketdatasnapshot.UnstructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.ValueSnapshot;
 import com.opengamma.core.marketdatasnapshot.VolatilityCubeKey;
 import com.opengamma.core.marketdatasnapshot.VolatilityCubeSnapshot;
@@ -37,12 +28,11 @@ import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
 import com.opengamma.core.marketdatasnapshot.YieldCurveSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableUnstructuredMarketDataSnapshot;
+import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
-import com.opengamma.engine.marketdata.ExternalIdBundleLookup;
-import com.opengamma.engine.marketdata.MarketDataUtils;
+import com.opengamma.engine.marketdata.ExternalIdBundleResolver;
 import com.opengamma.engine.marketdata.snapshot.MarketDataSnapshotter;
-import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -50,12 +40,13 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewComputationResultModel;
-import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.compilation.CompiledViewCalculationConfiguration;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
+import com.opengamma.engine.view.cycle.ViewCycle;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Default implementation of {@link MarketDataSnapshotter}.
@@ -65,8 +56,8 @@ public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
 
   private static final Logger s_logger = LoggerFactory.getLogger(MarketDataSnapshotterImpl.class);
 
+  private final ComputationTargetResolver _resolver;
   private final VolatilityCubeDefinitionSource _cubeDefinitionSource;
-  private final ExternalIdBundleLookup _identifierLookup;
   private final YieldCurveSnapper _yieldCurveSnapper = new YieldCurveSnapper();
   private final VolatilitySurfaceSnapper _volatilitySurfaceSnapper = new VolatilitySurfaceSnapper();
   private final VolatilityCubeSnapper _volatilityCubeSnapper;
@@ -74,41 +65,43 @@ public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
   private final StructuredSnapper[] _structuredSnappers;
 
   /**
-   * @param identifierLookup the lookup mechanism for resolved target specifications to orginal data identifiers
+   * @param resolver the target resolver, not null
    * @param cubeDefinitionSource The source of vol cube defns ( used to fill out the cube snapshots with nulls )
    */
-  public MarketDataSnapshotterImpl(final ExternalIdBundleLookup identifierLookup, final VolatilityCubeDefinitionSource cubeDefinitionSource) {
+  public MarketDataSnapshotterImpl(final ComputationTargetResolver resolver, final VolatilityCubeDefinitionSource cubeDefinitionSource) {
+    ArgumentChecker.notNull(resolver, "resolver");
+    _resolver = resolver;
     _cubeDefinitionSource = cubeDefinitionSource;
     _volatilityCubeSnapper = new VolatilityCubeSnapper(_cubeDefinitionSource);
     _structuredSnappers = new StructuredSnapper[] {_yieldCurveSnapper, _volatilitySurfaceSnapper, _volatilityCubeSnapper };
-    _identifierLookup = identifierLookup;
   }
 
   @Override
-  public StructuredMarketDataSnapshot createSnapshot(ViewClient client, ViewCycle cycle) {
-    CompiledViewDefinitionWithGraphs defn = cycle.getCompiledViewDefinition();
-    return createSnapshot(cycle.getResultModel(), getGraphs(defn), cycle, defn.getViewDefinition().getName());
+  public StructuredMarketDataSnapshot createSnapshot(final ViewClient client, final ViewCycle cycle) {
+    final CompiledViewDefinitionWithGraphs defn = cycle.getCompiledViewDefinition();
+    final ComputationTargetResolver.AtVersionCorrection resolver = _resolver.atVersionCorrection(cycle.getResultModel().getVersionCorrection());
+    return createSnapshot(new ExternalIdBundleResolver(resolver), cycle.getResultModel(), getGraphs(defn), cycle, defn.getViewDefinition().getName());
   }
 
-  private Map<String, DependencyGraph> getGraphs(CompiledViewDefinitionWithGraphs defn) {
-    HashMap<String, DependencyGraph> ret = new HashMap<String, DependencyGraph>();
-    for (CompiledViewCalculationConfiguration config : defn.getCompiledCalculationConfigurations()) {
-      String configName = config.getName();
-      DependencyGraph graph = defn.getDependencyGraphExplorer(configName).getWholeGraph();
+  private Map<String, DependencyGraph> getGraphs(final CompiledViewDefinitionWithGraphs defn) {
+    final HashMap<String, DependencyGraph> ret = new HashMap<String, DependencyGraph>();
+    for (final CompiledViewCalculationConfiguration config : defn.getCompiledCalculationConfigurations()) {
+      final String configName = config.getName();
+      final DependencyGraph graph = defn.getDependencyGraphExplorer(configName).getWholeGraph();
       ret.put(configName, graph);
     }
     return ret;
   }
 
-  public StructuredMarketDataSnapshot createSnapshot(ViewComputationResultModel results,
-      Map<String, DependencyGraph> graphs, ViewCycle viewCycle, String basisViewName) {
-    UnstructuredMarketDataSnapshot globalValues = getGlobalValues(results, graphs);
+  public StructuredMarketDataSnapshot createSnapshot(final ExternalIdBundleResolver resolver, final ViewComputationResultModel results,
+      final Map<String, DependencyGraph> graphs, final ViewCycle viewCycle, final String basisViewName) {
+    final ManageableUnstructuredMarketDataSnapshot globalValues = getGlobalValues(resolver, results, graphs);
 
-    Map<YieldCurveKey, YieldCurveSnapshot> yieldCurves = _yieldCurveSnapper.getValues(results, graphs, viewCycle);
-    Map<VolatilitySurfaceKey, VolatilitySurfaceSnapshot> surfaces = _volatilitySurfaceSnapper.getValues(results, graphs, viewCycle);
-    Map<VolatilityCubeKey, VolatilityCubeSnapshot> cubes = _volatilityCubeSnapper.getValues(results, graphs, viewCycle);
+    final Map<YieldCurveKey, YieldCurveSnapshot> yieldCurves = _yieldCurveSnapper.getValues(results, graphs, viewCycle);
+    final Map<VolatilitySurfaceKey, VolatilitySurfaceSnapshot> surfaces = _volatilitySurfaceSnapper.getValues(results, graphs, viewCycle);
+    final Map<VolatilityCubeKey, VolatilityCubeSnapshot> cubes = _volatilityCubeSnapper.getValues(results, graphs, viewCycle);
 
-    ManageableMarketDataSnapshot ret = new ManageableMarketDataSnapshot();
+    final ManageableMarketDataSnapshot ret = new ManageableMarketDataSnapshot();
     ret.setBasisViewName(basisViewName);
     ret.setGlobalValues(globalValues);
     ret.setYieldCurves(yieldCurves);
@@ -117,50 +110,38 @@ public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
     return ret;
   }
 
-  private UnstructuredMarketDataSnapshot getGlobalValues(ViewComputationResultModel results, Map<String, DependencyGraph> graphs) {
-    Set<ComputedValue> data = results.getAllMarketData();
-    Multimap<MarketDataValueSpecification, ComputedValue> indexedData = identifyGlobalValues(data, graphs);
-    Map<MarketDataValueSpecification, Map<String, ValueSnapshot>> dict = getGlobalValues(indexedData);
-    ManageableUnstructuredMarketDataSnapshot snapshot = new ManageableUnstructuredMarketDataSnapshot();
-    snapshot.setValues(dict);
-    return snapshot;
-  }
-
-  private Multimap<MarketDataValueSpecification, ComputedValue> identifyGlobalValues(Set<ComputedValue> data, Map<String, DependencyGraph> graphs) {
-    final Multimap<MarketDataValueSpecification, ComputedValue> indexedData = ArrayListMultimap.create();
-    final Set<ComputedValue> dataFound = new HashSet<ComputedValue>();
-    Set<ComputedValue> dataRemaining = null;
-    for (Entry<String, DependencyGraph> entry : graphs.entrySet()) {
-      if (dataRemaining == null) {
-        dataRemaining = data;
-      } else {
-        dataRemaining = Sets.difference(dataRemaining, dataFound);
-      }
-      final DependencyGraph graph = entry.getValue();
-      for (ComputedValue computedValue : dataRemaining) {
-        final DependencyNode nodeProducing = graph.getNodeProducing(computedValue.getSpecification());
-        if (nodeProducing != null && isTerminalUnstructuredOutput(nodeProducing, graph)) {
-          dataFound.add(computedValue);
-          final ComputationTargetReference target = nodeProducing.getRequiredMarketData().getFirst().getTargetReference();
-          final ExternalIdBundle identifiers = _identifierLookup.getExternalIds(target);
-          if (identifiers != null) {
-            // TODO: should use the order config to prioritise which scheme to select
-            // TODO: we could add the config to the lookup to avoid passing two objects around
-            indexedData.put(new MarketDataValueSpecification(MarketDataUtils.getMarketDataValueType(target.getType()), identifiers.iterator().next()), computedValue);
+  private ManageableUnstructuredMarketDataSnapshot getGlobalValues(final ExternalIdBundleResolver resolver, final ViewComputationResultModel results, final Map<String, DependencyGraph> graphs) {
+    final ManageableUnstructuredMarketDataSnapshot snapshot = new ManageableUnstructuredMarketDataSnapshot();
+    final Collection<ComputedValue> data = new ArrayList<ComputedValue>(results.getAllMarketData());
+    for (final Entry<String, DependencyGraph> graphEntry : graphs.entrySet()) {
+      final DependencyGraph graph = graphEntry.getValue();
+      final Iterator<ComputedValue> itrData = data.iterator();
+      while (itrData.hasNext()) {
+        final ComputedValue computedValue = itrData.next();
+        if (computedValue.getValue() instanceof Double) {
+          final DependencyNode nodeProducing = graph.getNodeProducing(computedValue.getSpecification());
+          if ((nodeProducing != null) && isTerminalUnstructuredOutput(nodeProducing, graph)) {
+            itrData.remove();
+            final ExternalIdBundle identifiers = resolver.visitComputationTargetSpecification(nodeProducing.getRequiredMarketData().getTargetSpecification());
+            if (identifiers != null) {
+              snapshot.putValue(identifiers, computedValue.getSpecification().getValueName(), new ValueSnapshot((Double) computedValue.getValue()));
+            }
           }
+        } else {
+          itrData.remove();
         }
       }
     }
-    return indexedData;
+    return snapshot;
   }
 
-  private boolean isTerminalUnstructuredOutput(DependencyNode node, DependencyGraph graph) {
+  private boolean isTerminalUnstructuredOutput(DependencyNode node, final DependencyGraph graph) {
     //This relies on two things in order to not suck
     // market data nodes are immediately fed into structured data nodes (so we only have to recurse 1 layer)
     // Whilst branching factor may be high, only a few of those paths will be to structured nodes, so we don't have to iterate too much
     // Chains from live data to each output are quite short
 
-    ArrayDeque<DependencyNode> remainingCandidates = new ArrayDeque<DependencyNode>(); //faster than Stack
+    final ArrayDeque<DependencyNode> remainingCandidates = new ArrayDeque<DependencyNode>(); //faster than Stack
     remainingCandidates.add(node);
 
     while (!remainingCandidates.isEmpty()) {
@@ -172,7 +153,7 @@ public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
       if (graph.getRootNodes().contains(node)) {
         return true;
       }
-      for (ValueSpecification output : node.getOutputValues()) {
+      for (final ValueSpecification output : node.getOutputValues()) {
         if (graph.getTerminalOutputSpecifications().contains(output)) {
           return true;
         }
@@ -183,11 +164,11 @@ public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
   }
 
   @SuppressWarnings("rawtypes")
-  private boolean isStructuredNode(DependencyNode node) {
-    Set<ValueSpecification> outputValues = node.getOutputValues();
+  private boolean isStructuredNode(final DependencyNode node) {
+    final Set<ValueSpecification> outputValues = node.getOutputValues();
 
-    for (ValueSpecification output : outputValues) {
-      for (StructuredSnapper snapper : _structuredSnappers) {
+    for (final ValueSpecification output : outputValues) {
+      for (final StructuredSnapper snapper : _structuredSnappers) {
         if (output.getValueName() == snapper.getRequirementName()) {
           if (outputValues.size() != 1) {
             //TODO this is a bit fragile, but if this isn't true all sorts of things are broken
@@ -202,47 +183,22 @@ public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
     return false;
   }
 
-  private Map<MarketDataValueSpecification, Map<String, ValueSnapshot>> getGlobalValues(Multimap<MarketDataValueSpecification, ComputedValue> dataByTarget) {
-    return Maps.transformValues(dataByTarget.asMap(),
-        new Function<Collection<ComputedValue>, Map<String, ValueSnapshot>>() {
-
-          @Override
-          public Map<String, ValueSnapshot> apply(Collection<ComputedValue> from) {
-            ImmutableListMultimap<String, ComputedValue> indexed = Multimaps.index(from, new Function<ComputedValue, String>() {
-              @Override
-              public String apply(ComputedValue from) {
-                return from.getSpecification().getValueName();
-              }
-            });
-            return Maps.transformValues(indexed.asMap(), new Function<Collection<ComputedValue>, ValueSnapshot>() {
-
-              @Override
-              public ValueSnapshot apply(Collection<ComputedValue> from) {
-                ComputedValue computedValue = Iterables.get(from, 0);
-                return new ValueSnapshot((Double) computedValue.getValue());
-              }
-
-            });
-          }
-        });
-  }
-
   // TODO: snapshot should be holding value specifications not value requirements
 
   @Override
-  public Map<YieldCurveKey, Map<String, ValueRequirement>> getYieldCurveSpecifications(ViewClient client, ViewCycle cycle) {
-    CompiledViewDefinitionWithGraphs defn = cycle.getCompiledViewDefinition();
-    Map<String, DependencyGraph> graphs = getGraphs(defn);
+  public Map<YieldCurveKey, Map<String, ValueRequirement>> getYieldCurveSpecifications(final ViewClient client, final ViewCycle cycle) {
+    final CompiledViewDefinitionWithGraphs defn = cycle.getCompiledViewDefinition();
+    final Map<String, DependencyGraph> graphs = getGraphs(defn);
 
-    Map<YieldCurveKey, Map<String, ValueRequirement>> ret = new HashMap<YieldCurveKey, Map<String, ValueRequirement>>();
-    for (Entry<String, DependencyGraph> entry : graphs.entrySet()) {
-      DependencyGraph graph = entry.getValue();
-      for (DependencyNode node : graph.getDependencyNodes()) {
-        for (ValueSpecification outputValue : node.getOutputValues()) {
+    final Map<YieldCurveKey, Map<String, ValueRequirement>> ret = new HashMap<YieldCurveKey, Map<String, ValueRequirement>>();
+    for (final Entry<String, DependencyGraph> entry : graphs.entrySet()) {
+      final DependencyGraph graph = entry.getValue();
+      for (final DependencyNode node : graph.getDependencyNodes()) {
+        for (final ValueSpecification outputValue : node.getOutputValues()) {
           if (outputValue.getValueName().equals(ValueRequirementNames.YIELD_CURVE)) {
             addAll(ret, outputValue);
           } else if (outputValue.getValueName().equals(ValueRequirementNames.YIELD_CURVE_SPEC)) {
-            YieldCurveKey key = _yieldCurveSnapper.getKey(outputValue);
+            final YieldCurveKey key = _yieldCurveSnapper.getKey(outputValue);
             add(ret, key, outputValue.toRequirementSpecification());
           }
         }
@@ -251,19 +207,19 @@ public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
     return ret;
   }
 
-  private void addAll(Map<YieldCurveKey, Map<String, ValueRequirement>> ret, ValueSpecification yieldCurveSpec) {
-    YieldCurveKey key = _yieldCurveSnapper.getKey(yieldCurveSpec);
+  private void addAll(final Map<YieldCurveKey, Map<String, ValueRequirement>> ret, final ValueSpecification yieldCurveSpec) {
+    final YieldCurveKey key = _yieldCurveSnapper.getKey(yieldCurveSpec);
 
     add(ret, key, yieldCurveSpec.toRequirementSpecification());
 
     //We know how the properties of this relate
-    ValueRequirement interpolatedSpec = new ValueRequirement(
+    final ValueRequirement interpolatedSpec = new ValueRequirement(
         ValueRequirementNames.YIELD_CURVE_INTERPOLATED, yieldCurveSpec.getTargetSpecification(),
         getCurveProperties(yieldCurveSpec));
     add(ret, key, interpolatedSpec);
   }
 
-  private void add(Map<YieldCurveKey, Map<String, ValueRequirement>> ret, YieldCurveKey key, ValueRequirement outputValue) {
+  private void add(final Map<YieldCurveKey, Map<String, ValueRequirement>> ret, final YieldCurveKey key, final ValueRequirement outputValue) {
     Map<String, ValueRequirement> ycMap = ret.get(key);
     if (ycMap == null) {
       ycMap = new HashMap<String, ValueRequirement>();
@@ -272,7 +228,7 @@ public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
     ycMap.put(outputValue.getValueName(), outputValue);
   }
 
-  private ValueProperties getCurveProperties(ValueSpecification curveSpec) {
+  private ValueProperties getCurveProperties(final ValueSpecification curveSpec) {
     return ValueProperties.builder().with(ValuePropertyNames.CURVE, curveSpec.getProperty(ValuePropertyNames.CURVE)).get();
   }
 }

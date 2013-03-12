@@ -58,7 +58,7 @@ public class CapFloorIborLMMDDMethodTest {
   // Swaption 5Yx5Y
 
   private static final int SWAP_TENOR_YEAR = 4;
-  private static final Period SWAP_TENOR = DateUtils.periodOfYears(SWAP_TENOR_YEAR);
+  private static final Period SWAP_TENOR = Period.ofYears(SWAP_TENOR_YEAR);
 
   private static final GeneratorSwapFixedIbor EUR3MEURIBOR3M = new GeneratorSwapFixedIbor(NOT_USED, EURIBOR3M.getTenor(), EURIBOR3M.getDayCount(), EURIBOR3M);
   private static final IndexSwap SWAP_INDEX = new IndexSwap(EUR3MEURIBOR3M, SWAP_TENOR);

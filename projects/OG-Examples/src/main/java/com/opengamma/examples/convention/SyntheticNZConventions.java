@@ -9,6 +9,7 @@ import static com.opengamma.core.id.ExternalSchemes.syntheticSecurityId;
 import static com.opengamma.financial.convention.InMemoryConventionBundleMaster.simpleNameSecurityId;
 
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.Period;
 
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.convention.ConventionBundleMaster;
@@ -39,23 +40,23 @@ public class SyntheticNZConventions {
 
     final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
 
-    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("NZDLIBORP3M"), simpleNameSecurityId("NZD LIBOR 3m")), "NZD LIBOR 3m", act365, following, DateUtils.periodOfMonths(3), 2, false, nz);
-    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("NZDLIBORP6M")), "NZD LIBOR 6m", act365, following, DateUtils.periodOfMonths(6), 2, false, nz);
-    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("NZDLIBORP12M")), "NZD LIBOR 12m", act365, following, DateUtils.periodOfMonths(12), 2, false, nz);
+    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("NZDLIBORP3M"), simpleNameSecurityId("NZD LIBOR 3m")), "NZD LIBOR 3m", act365, following, Period.ofMonths(3), 2, false, nz);
+    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("NZDLIBORP6M")), "NZD LIBOR 6m", act365, following, Period.ofMonths(6), 2, false, nz);
+    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("NZDLIBORP12M")), "NZD LIBOR 12m", act365, following, Period.ofMonths(12), 2, false, nz);
 
-    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("NZDCASHP1D")), "NZDCASHP1D", act365, following, DateUtils.periodOfDays(1), 0, false, nz);
-    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("NZDCASHP1M")), "NZDCASHP1M", act365, modified, DateUtils.periodOfMonths(1), 2, false, nz);
-    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("NZDCASHP2M")), "NZDCASHP2M", act365, modified, DateUtils.periodOfMonths(2), 2, false, nz);
-    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("NZDCASHP3M")), "NZDCASHP3M", act365, modified, DateUtils.periodOfMonths(3), 2, false, nz);
-    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("NZDCASHP4M")), "NZDCASHP4M", act365, modified, DateUtils.periodOfMonths(4), 2, false, nz);
-    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("NZDCASHP5M")), "NZDCASHP5M", act365, modified, DateUtils.periodOfMonths(5), 2, false, nz);
-    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("NZDCASHP6M")), "NZDCASHP6M", act365, modified, DateUtils.periodOfMonths(6), 2, false, nz);
-    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("NZDCASHP7M")), "NZDCASHP7M", act365, modified, DateUtils.periodOfMonths(7), 2, false, nz);
-    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("NZDCASHP8M")), "NZDCASHP8M", act365, modified, DateUtils.periodOfMonths(8), 2, false, nz);
-    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("NZDCASHP9M")), "NZDCASHP9M", act365, modified, DateUtils.periodOfMonths(9), 2, false, nz);
-    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("NZDCASHP10M")), "NZDCASHP10M", act365, modified, DateUtils.periodOfMonths(10), 2, false, nz);
-    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("NZDCASHP11M")), "NZDCASHP11M", act365, modified, DateUtils.periodOfMonths(1), 2, false, nz);
-    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("NZDCASHP12M")), "NZDCASHP12M", act365, modified, DateUtils.periodOfMonths(12), 2, false, nz);
+    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("NZDCASHP1D")), "NZDCASHP1D", act365, following, Period.ofDays(1), 0, false, nz);
+    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("NZDCASHP1M")), "NZDCASHP1M", act365, modified, Period.ofMonths(1), 2, false, nz);
+    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("NZDCASHP2M")), "NZDCASHP2M", act365, modified, Period.ofMonths(2), 2, false, nz);
+    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("NZDCASHP3M")), "NZDCASHP3M", act365, modified, Period.ofMonths(3), 2, false, nz);
+    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("NZDCASHP4M")), "NZDCASHP4M", act365, modified, Period.ofMonths(4), 2, false, nz);
+    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("NZDCASHP5M")), "NZDCASHP5M", act365, modified, Period.ofMonths(5), 2, false, nz);
+    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("NZDCASHP6M")), "NZDCASHP6M", act365, modified, Period.ofMonths(6), 2, false, nz);
+    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("NZDCASHP7M")), "NZDCASHP7M", act365, modified, Period.ofMonths(7), 2, false, nz);
+    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("NZDCASHP8M")), "NZDCASHP8M", act365, modified, Period.ofMonths(8), 2, false, nz);
+    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("NZDCASHP9M")), "NZDCASHP9M", act365, modified, Period.ofMonths(9), 2, false, nz);
+    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("NZDCASHP10M")), "NZDCASHP10M", act365, modified, Period.ofMonths(10), 2, false, nz);
+    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("NZDCASHP11M")), "NZDCASHP11M", act365, modified, Period.ofMonths(1), 2, false, nz);
+    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("NZDCASHP12M")), "NZDCASHP12M", act365, modified, Period.ofMonths(12), 2, false, nz);
     
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("NZD_SWAP")), "NZD_SWAP", act365, modified, semiAnnual, 2, nz, act365,
         modified, quarterly, 2, simpleNameSecurityId("NZD LIBOR 3m"), nz, true);

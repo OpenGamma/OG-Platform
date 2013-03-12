@@ -71,7 +71,7 @@ public class BondCouponPaymentDiaryFunction extends NonCompiledInvoker {
     final double[] payments = new double[n];
     for (int i = 0; i < n; i++) {
       final CouponFixedDefinition coupon = coupons.getNthPayment(i);
-      dates[i] = coupon.getPaymentDate().getDate();
+      dates[i] = coupon.getPaymentDate().toLocalDate();
       payments[i] = coupon.getAmount() * coupon.getNotional();
     }
     payments[n - 1] += coupons.getNthPayment(n - 1).getNotional();

@@ -171,7 +171,7 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
     final String fullForeignCurveName = foreignCurveName + "_" + foreignCurrency.getCode();
     final List<InstrumentDerivative> derivatives = new ArrayList<InstrumentDerivative>();
     for (final Tenor tenor : definition.getTenors()) {
-      final ExternalId identifier = provider.getInstrument(now.getDate(), tenor);
+      final ExternalId identifier = provider.getInstrument(now.toLocalDate(), tenor);
       if (fxForwardData.containsKey(identifier)) {
         final double paymentTime = TimeCalculator.getTimeBetween(now, now.plus(tenor.getPeriod())); //TODO
         final double forwardFX = invertFXQuotes ? 1 / fxForwardData.get(identifier) : fxForwardData.get(identifier);

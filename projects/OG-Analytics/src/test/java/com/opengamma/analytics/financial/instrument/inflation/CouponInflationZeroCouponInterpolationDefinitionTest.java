@@ -7,7 +7,6 @@ package com.opengamma.analytics.financial.instrument.inflation;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
-import static org.threeten.bp.temporal.ChronoUnit.YEARS;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.Period;
@@ -41,7 +40,7 @@ public class CouponInflationZeroCouponInterpolationDefinitionTest {
   private static final boolean EOM = true;
   private static final ZonedDateTime START_DATE = DateUtils.getUTCDate(2008, 8, 18);
   private static final int COUPON_TENOR_YEAR = 10;
-  private static final Period COUPON_TENOR = Period.of(COUPON_TENOR_YEAR, YEARS);
+  private static final Period COUPON_TENOR = Period.ofYears(COUPON_TENOR_YEAR);
   private static final ZonedDateTime PAYMENT_DATE = ScheduleCalculator.getAdjustedDate(START_DATE, COUPON_TENOR, BUSINESS_DAY, CALENDAR, EOM);
   private static final ZonedDateTime ACCRUAL_END_DATE = PAYMENT_DATE.minusDays(1); // For getter test
   private static final double NOTIONAL = 98765432;
@@ -118,7 +117,7 @@ public class CouponInflationZeroCouponInterpolationDefinitionTest {
     assertEquals("Inflation Zero-coupon: getter", REFERENCE_START_DATE, ZERO_COUPON_DEFINITION.getReferenceStartDate());
     assertEquals("Inflation Zero-coupon: getter", REFERENCE_END_DATE, ZERO_COUPON_DEFINITION.getReferenceEndDate());
     assertEquals("Inflation Zero-coupon: getter", INDEX_MAY_2008, ZERO_COUPON_DEFINITION.getIndexStartValue());
-    final double weight = 1.0 - (PAYMENT_DATE.getDayOfMonth() - 1.0) / PAYMENT_DATE.getDate().lengthOfMonth();
+    final double weight = 1.0 - (PAYMENT_DATE.getDayOfMonth() - 1.0) / PAYMENT_DATE.toLocalDate().lengthOfMonth();
     assertEquals("Inflation Zero-coupon: getter", weight, ZERO_COUPON_DEFINITION.getWeight());
   }
 
@@ -224,7 +223,7 @@ public class CouponInflationZeroCouponInterpolationDefinitionTest {
         INDEX_MAY_2008, MONTH_LAG, false);
     final Coupon zeroCouponConverted = zeroCouponInterpolated.toDerivative(pricingDate, priceIndexTS, CURVE_NAMES);
     final double paymentTime = TimeCalculator.getTimeBetween(pricingDate, PAYMENT_DATE);
-    final double endIndex = 128.23 + (PAYMENT_DATE.getDayOfMonth() - 1.0) / (PAYMENT_DATE.getDate().lengthOfMonth()) * (128.43 - 128.23);
+    final double endIndex = 128.23 + (PAYMENT_DATE.getDayOfMonth() - 1.0) / (PAYMENT_DATE.toLocalDate().lengthOfMonth()) * (128.43 - 128.23);
     final CouponFixed zeroCoupon = new CouponFixed(CUR, paymentTime, DISCOUNTING_CURVE_NAME, 1.0, NOTIONAL, endIndex / INDEX_MAY_2008 - 1.0);
     assertEquals("Inflation zero-coupon: toDerivative", zeroCoupon, zeroCouponConverted);
   }

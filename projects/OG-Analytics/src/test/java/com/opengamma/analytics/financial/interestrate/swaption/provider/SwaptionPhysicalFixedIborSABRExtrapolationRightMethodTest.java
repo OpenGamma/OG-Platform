@@ -65,7 +65,7 @@ public class SwaptionPhysicalFixedIborSABRExtrapolationRightMethodTest {
   private static final boolean IS_LONG = true;
   // Swap 5Y description
   private static final int ANNUITY_TENOR_YEAR = 5;
-  private static final Period ANNUITY_TENOR = DateUtils.periodOfYears(ANNUITY_TENOR_YEAR);
+  private static final Period ANNUITY_TENOR = Period.ofYears(ANNUITY_TENOR_YEAR);
   private static final ZonedDateTime SETTLEMENT_DATE = ScheduleCalculator.getAdjustedDate(EXPIRY_DATE, EURIBOR6M.getSpotLag(), CALENDAR);
   private static final double NOTIONAL = 100000000; //100m
   //  Fixed leg: Semi-annual bond

@@ -8,6 +8,8 @@ package com.opengamma.financial.convention;
 import static com.opengamma.core.id.ExternalSchemes.bloombergTickerSecurityId;
 import static com.opengamma.financial.convention.InMemoryConventionBundleMaster.simpleNameSecurityId;
 
+import org.threeten.bp.Period;
+
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -34,25 +36,25 @@ public class PLConventions {
       final String name = "PLN Deposit " + i + "d";
       final ExternalId bbgId = bloombergTickerSecurityId("PZDR" + i + BBG_DAY_CODE + " Curncy");
       final ExternalId simpleId = simpleNameSecurityId(name);
-      utils.addConventionBundle(ExternalIdBundle.of(bbgId, simpleId), name, ACT_360, FOLLOWING, DateUtils.periodOfDays(i), 0, false, PL);
+      utils.addConventionBundle(ExternalIdBundle.of(bbgId, simpleId), name, ACT_360, FOLLOWING, Period.ofDays(i), 0, false, PL);
     }
     for (int i = 1; i < 4; i++) {
       final String name = "PLN Deposit " + i + "w";
       final ExternalId bbgId = bloombergTickerSecurityId("PZDR" + i + BBG_WEEK_CODE + " Curncy");
       final ExternalId simpleId = simpleNameSecurityId(name);
-      utils.addConventionBundle(ExternalIdBundle.of(bbgId, simpleId), name, ACT_360, FOLLOWING, DateUtils.periodOfDays(i * 7), 0, false, PL);
+      utils.addConventionBundle(ExternalIdBundle.of(bbgId, simpleId), name, ACT_360, FOLLOWING, Period.ofDays(i * 7), 0, false, PL);
     }
     for (int i = 1; i < 12; i++) {
       final String name = "PLN Deposit " + i + "m";
       final ExternalId bbgId = bloombergTickerSecurityId("PZDR" + BBG_MONTH_CODES[i - 1] + " Curncy");
       final ExternalId simpleId = simpleNameSecurityId(name);
-      utils.addConventionBundle(ExternalIdBundle.of(bbgId, simpleId), name, ACT_360, FOLLOWING, DateUtils.periodOfMonths(i), 0, false, PL);
+      utils.addConventionBundle(ExternalIdBundle.of(bbgId, simpleId), name, ACT_360, FOLLOWING, Period.ofMonths(i), 0, false, PL);
     }
     for (int i = 1; i < 5; i++) {
       final String name = "PLN Deposit " + i + "y";
       final ExternalId bbgId = bloombergTickerSecurityId("PZDR" + i + " Curncy");
       final ExternalId simpleId = simpleNameSecurityId(name);
-      utils.addConventionBundle(ExternalIdBundle.of(bbgId, simpleId), name, ACT_360, FOLLOWING, DateUtils.periodOfYears(i), 0, false, PL);
+      utils.addConventionBundle(ExternalIdBundle.of(bbgId, simpleId), name, ACT_360, FOLLOWING, Period.ofYears(i), 0, false, PL);
     }
 
   }

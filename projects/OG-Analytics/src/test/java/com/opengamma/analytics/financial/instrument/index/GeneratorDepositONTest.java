@@ -73,7 +73,7 @@ public class GeneratorDepositONTest {
   @Test
   public void generateInstrument() {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 7, 17);
-    final Period tenor = DateUtils.periodOfDays(2);
+    final Period tenor = Period.ofDays(2);
     final double rate = 0.01;
     final double notional = 12345;
     final GeneratorAttributeIR attribute = new GeneratorAttributeIR(tenor, tenor);

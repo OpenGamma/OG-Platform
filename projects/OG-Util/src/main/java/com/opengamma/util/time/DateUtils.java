@@ -10,7 +10,6 @@ import static org.threeten.bp.temporal.ChronoField.MONTH_OF_YEAR;
 import static org.threeten.bp.temporal.ChronoField.YEAR;
 import static org.threeten.bp.temporal.ChronoUnit.DAYS;
 import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
-import static org.threeten.bp.temporal.ChronoUnit.YEARS;
 
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
@@ -21,8 +20,6 @@ import org.threeten.bp.Duration;
 import org.threeten.bp.Instant;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalDateTime;
-import org.threeten.bp.OffsetDateTime;
-import org.threeten.bp.OffsetTime;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZoneOffset;
@@ -79,10 +76,10 @@ public final class DateUtils {
   private static final DateTimeFormatter YYYYMMDD_LOCAL_DATE;
   static {
     YYYYMMDD_LOCAL_DATE = new DateTimeFormatterBuilder()
-          .appendValue(YEAR, 4, 10, SignStyle.EXCEEDS_PAD)
-          .appendValue(MONTH_OF_YEAR, 2)
-          .appendValue(DAY_OF_MONTH, 2)
-          .toFormatter();
+        .appendValue(YEAR, 4, 10, SignStyle.EXCEEDS_PAD)
+        .appendValue(MONTH_OF_YEAR, 2)
+        .appendValue(DAY_OF_MONTH, 2)
+        .toFormatter();
   }
   /**
    * A formatter for MM-dd
@@ -124,8 +121,8 @@ public final class DateUtils {
   /**
    * Returns endDate - startDate in years, where a year is defined as 365.25 days.
    * 
-   * @param startDate  the start date, not null
-   * @param endDate  the end date, not null
+   * @param startDate the start date, not null
+   * @param endDate the end date, not null
    * @return the difference in years
    * @throws IllegalArgumentException if either date is null
    */
@@ -142,8 +139,8 @@ public final class DateUtils {
   /**
    * Returns endDate - startDate in years, where a year is defined as 365.25 days.
    * 
-   * @param startDate  the start date, not null
-   * @param endDate  the end date, not null
+   * @param startDate the start date, not null
+   * @param endDate the end date, not null
    * @return the difference in years
    * @throws IllegalArgumentException if either date is null
    */
@@ -160,8 +157,8 @@ public final class DateUtils {
   /**
    * Returns endDate - startDate in years, where a year is defined as 365.25 days.
    * 
-   * @param startDate  the start date, not null
-   * @param endDate  the end date, not null
+   * @param startDate the start date, not null
+   * @param endDate the end date, not null
    * @return the difference in years
    * @throws IllegalArgumentException if either date is null
    */
@@ -179,9 +176,9 @@ public final class DateUtils {
   /**
    * Returns endDate - startDate in years, where a year-length is specified.
    * 
-   * @param startDate  the start date, not null
-   * @param endDate  the end date, not null
-   * @param daysPerYear  the number of days in the year for calculation
+   * @param startDate the start date, not null
+   * @param endDate the end date, not null
+   * @param daysPerYear the number of days in the year for calculation
    * @return the difference in years
    * @throws IllegalArgumentException if either date is null
    */
@@ -197,13 +194,11 @@ public final class DateUtils {
 
   //-------------------------------------------------------------------------
   /**
-   * Method that allows a fraction of a year to be added to a date. If the
-   * yearFraction that is used does not give an integer number of seconds, it is
-   * rounded to the nearest nanosecond. Note that the number of days in a year
-   * is defined to be 365.25.
+   * Method that allows a fraction of a year to be added to a date. If the yearFraction that is used does not give an integer number of seconds, it is rounded to the nearest nanosecond. Note that the
+   * number of days in a year is defined to be 365.25.
    * 
-   * @param startDate  the start date, not null
-   * @param yearFraction  the fraction of a year
+   * @param startDate the start date, not null
+   * @param yearFraction the fraction of a year
    * @return the calculated instant, not null
    * @throws IllegalArgumentException if the date is null
    */
@@ -216,13 +211,11 @@ public final class DateUtils {
   }
 
   /**
-   * Method that allows a fraction of a year to be added to a date. If the
-   * yearFraction that is used does not give an integer number of seconds, it is
-   * rounded to the nearest nanosecond. Note that the number of days in a year
-   * is defined to be 365.25.
+   * Method that allows a fraction of a year to be added to a date. If the yearFraction that is used does not give an integer number of seconds, it is rounded to the nearest nanosecond. Note that the
+   * number of days in a year is defined to be 365.25.
    * 
-   * @param startDate  the start date, not null
-   * @param yearFraction  the fraction of a year
+   * @param startDate the start date, not null
+   * @param yearFraction the fraction of a year
    * @return the calculated date-time, not null
    * @throws IllegalArgumentException if the date is null
    */
@@ -236,13 +229,11 @@ public final class DateUtils {
   }
 
   /**
-   * Method that allows a fraction of a year to be added to a date. If the
-   * yearFraction that is used does not give an integer number of seconds, it is
-   * rounded to the nearest nanosecond.
+   * Method that allows a fraction of a year to be added to a date. If the yearFraction that is used does not give an integer number of seconds, it is rounded to the nearest nanosecond.
    * 
-   * @param startDate  the start date, not null
-   * @param yearFraction  the fraction of a year
-   * @param daysPerYear  the number of days in the year for calculation
+   * @param startDate the start date, not null
+   * @param yearFraction the fraction of a year
+   * @param daysPerYear the number of days in the year for calculation
    * @return the calculated instant, not null
    * @throws IllegalArgumentException if the date is null
    */
@@ -255,13 +246,11 @@ public final class DateUtils {
   }
 
   /**
-   * Method that allows a fraction of a year to be added to a date. If the
-   * yearFraction that is used does not give an integer number of seconds, it is
-   * rounded to the nearest nanosecond.
+   * Method that allows a fraction of a year to be added to a date. If the yearFraction that is used does not give an integer number of seconds, it is rounded to the nearest nanosecond.
    * 
-   * @param startDate  the start date, not null
-   * @param yearFraction  the fraction of a year
-   * @param daysPerYear  the number of days in the year for calculation
+   * @param startDate the start date, not null
+   * @param yearFraction the fraction of a year
+   * @param daysPerYear the number of days in the year for calculation
    * @return the calculated date-time, not null
    * @throws IllegalArgumentException if the date is null
    */
@@ -278,9 +267,9 @@ public final class DateUtils {
   /**
    * Returns a UTC date given year, month, day with the time set to midnight (UTC).
    * 
-   * @param year  the year
-   * @param month  the month
-   * @param day  the day of month
+   * @param year the year
+   * @param month the month
+   * @param day the day of month
    * @return the date-time, not null
    */
   public static ZonedDateTime getUTCDate(final int year, final int month, final int day) {
@@ -290,11 +279,11 @@ public final class DateUtils {
   /**
    * Returns a UTC date given year, month, day, hour and minutes.
    * 
-   * @param year  the year
-   * @param month  the month
-   * @param day  the day of month
-   * @param hour  the hour
-   * @param minute  the minute
+   * @param year the year
+   * @param month the month
+   * @param day the day of month
+   * @param hour the hour
+   * @param minute the minute
    * @return the date-time, not null
    */
   public static ZonedDateTime getUTCDate(final int year, final int month, final int day, final int hour, final int minute) {
@@ -303,11 +292,10 @@ public final class DateUtils {
 
   //-------------------------------------------------------------------------
   /**
-   * Calculates the exact number of 24 hour days in between two dates.
-   * Accounts for dates being in different time zones.
+   * Calculates the exact number of 24 hour days in between two dates. Accounts for dates being in different time zones.
    * 
-   * @param startDate  the start date, not null
-   * @param endDate  the end date, not null
+   * @param startDate the start date, not null
+   * @param endDate the end date, not null
    * @return the exact fraction of days between two dates
    * @throws IllegalArgumentException if the date is null
    */
@@ -325,8 +313,8 @@ public final class DateUtils {
   /**
    * Calculates the number of days in between two dates.
    * 
-   * @param startDate  the start date, not null
-   * @param endDate  the end date, not null
+   * @param startDate the start date, not null
+   * @param endDate the end date, not null
    * @return the number of days between two dates
    * @throws IllegalArgumentException if the date is null
    */
@@ -337,10 +325,10 @@ public final class DateUtils {
   /**
    * Calculates the number of days in between two dates.
    * 
-   * @param startDate  the start date, not null
-   * @param includeStart  whether to include the start
-   * @param endDate  the end date, not null
-   * @param includeEnd  whether to include the end
+   * @param startDate the start date, not null
+   * @param includeStart whether to include the start
+   * @param endDate the end date, not null
+   * @param includeEnd whether to include the end
    * @return the number of days between two dates
    * @throws IllegalArgumentException if the date is null
    */
@@ -351,7 +339,7 @@ public final class DateUtils {
     if (endDate == null) {
       throw new IllegalArgumentException("End date was null");
     }
-    int daysBetween = (int) Math.abs(DAYS.between(startDate, endDate).getAmount());
+    int daysBetween = (int) Math.abs(DAYS.between(startDate, endDate));
     if (includeStart && includeEnd) {
       daysBetween++;
     } else if (!includeStart && !includeEnd) {
@@ -362,7 +350,8 @@ public final class DateUtils {
 
   /**
    * Prints the date in yyyyMMdd format.
-   * @param date  the date, not null
+   * 
+   * @param date the date, not null
    * @return the date as a string, not null
    * @throws IllegalArgumentException if the date is null
    */
@@ -370,12 +359,13 @@ public final class DateUtils {
     if (date == null) {
       throw new IllegalArgumentException("date was null");
     }
-    return YYYYMMDD_LOCAL_DATE.print(date);
+    return YYYYMMDD_LOCAL_DATE.format(date);
   }
 
   /**
    * Prints the date in MM-dd format.
-   * @param date  the date, not null
+   * 
+   * @param date the date, not null
    * @return the date as a string, not null
    * @throws IllegalArgumentException if the date is null
    */
@@ -383,11 +373,12 @@ public final class DateUtils {
     if (date == null) {
       throw new IllegalArgumentException("date was null");
     }
-    return MM_DD_LOCAL_DATE.print(date);
+    return MM_DD_LOCAL_DATE.format(date);
   }
 
   /**
    * Gets the previous Monday to Friday week-day before now.
+   * 
    * @return the date, not null
    */
   public static LocalDate previousWeekDay() {
@@ -397,6 +388,7 @@ public final class DateUtils {
 
   /**
    * Gets the next Monday to Friday week-day after now.
+   * 
    * @return the date, not null
    */
   public static LocalDate nextWeekDay() {
@@ -406,7 +398,8 @@ public final class DateUtils {
 
   /**
    * Gets the next Monday to Friday week-day after now.
-   * @param startDate  the date to start from
+   * 
+   * @param startDate the date to start from
    * @return the date, not null
    */
   public static LocalDate nextWeekDay(LocalDate startDate) {
@@ -437,7 +430,8 @@ public final class DateUtils {
 
   /**
    * Gets the previous Monday to Friday week-day before now.
-   * @param startDate  the date to start from
+   * 
+   * @param startDate the date to start from
    * @return the date, not null
    */
   public static LocalDate previousWeekDay(LocalDate startDate) {
@@ -468,6 +462,7 @@ public final class DateUtils {
 
   /**
    * Converts a date in integer YYYYMMDD representation to epoch millis.
+   * 
    * @param date in integer YYYYMMDD representation
    * @return the epoch millis
    */
@@ -478,6 +473,7 @@ public final class DateUtils {
 
   /**
    * Converts a date in integer YYYYMMDD representation to a UTC date-time.
+   * 
    * @param date in integer YYYYMMDD representation
    * @return the date-time, not null
    */
@@ -489,6 +485,7 @@ public final class DateUtils {
 
   /**
    * Converts a date in integer YYYYMMDD representation to a date.
+   * 
    * @param date in integer YYYYMMDD representation
    * @return the date, not null
    */
@@ -498,6 +495,7 @@ public final class DateUtils {
 
   /**
    * Converts a date in string YYYYMMDD representation to epoch millis.
+   * 
    * @param date in YYYYMMDD representation, not null
    * @return the date
    */
@@ -505,16 +503,13 @@ public final class DateUtils {
     ArgumentChecker.notNull(date, "date");
     return LocalDate.parse(date, YYYYMMDD_LOCAL_DATE);
   }
-  
+
   /**
-   * Constructs a LocalDate from a <code>java.util.Date</code>
-   * using exactly the same field values.
+   * Constructs a LocalDate from a <code>java.util.Date</code> using exactly the same field values.
    * <p>
-   * Each field is queried from the Date and assigned to the LocalDate.
-   * This is useful if you have been using the Date as a local date,
-   * ignoring the zone.
-   *
-   * @param date  the Date to extract fields from
+   * Each field is queried from the Date and assigned to the LocalDate. This is useful if you have been using the Date as a local date, ignoring the zone.
+   * 
+   * @param date the Date to extract fields from
    * @return the created LocalDate
    * @throws IllegalArgumentException if the calendar is null
    * @throws IllegalArgumentException if the date is invalid for the ISO chronology
@@ -528,14 +523,14 @@ public final class DateUtils {
         date.getYear() + 1900,
         date.getMonth() + 1,
         date.getDate()
-    );
+        );
   }
 
   //-------------------------------------------------------------------------
   /**
    * Creates a clock with a fixed time-source and UTC time-zone.
    * 
-   * @param instant  the instant to be provided by the clock, not null
+   * @param instant the instant to be provided by the clock, not null
    * @return the clock, not null
    */
   public static Clock fixedClockUTC(Instant instant) {
@@ -546,70 +541,18 @@ public final class DateUtils {
   /**
    * Gets the estimated duration of the period.
    * 
-   * @param period  the period to estimate the duration of, not null
+   * @param period the period to estimate the duration of, not null
    * @return the estimated duration, not null
    */
-  public static Duration estimatedDuration(Period period) {  // TODO: JSR-310
-    return MONTHS.getDuration().multipliedBy(totalMonths(period)).plus(period.normalizedDaysToHours().toTimeOnly().toDuration());
+  public static Duration estimatedDuration(Period period) {
+    Duration monthsDuration = MONTHS.getDuration().multipliedBy(period.toTotalMonths());
+    Duration daysDuration = DAYS.getDuration().multipliedBy(period.getDays());
+    return monthsDuration.plus(daysDuration);
   }
-
-  /**
-   * Gets the total months of the period.
-   * 
-   * @param period  the period to query, not null
-   * @return the total months, not null
-   */
-  public static long totalMonths(Period period) {  // TODO: JSR-310
-    return period.getYears() * 12L + period.getMonths();
-  }
-
-  /**
-   * Creates a period.
-   * 
-   * @param years  the years, not null
-   * @return the period, not null
-   */
-  public static Period periodOfYears(int years) {  // TODO: JSR-310
-    return Period.of(years, YEARS);
-  }
-
-  /**
-   * Creates a period.
-   * 
-   * @param months  the months, not null
-   * @return the period, not null
-   */
-  public static Period periodOfMonths(int months) {  // TODO: JSR-310
-    return Period.of(months, MONTHS);
-  }
-
-  /**
-   * Creates a period.
-   * 
-   * @param days  the days, not null
-   * @return the period, not null
-   */
-  public static Period periodOfDays(int days) {  // TODO: JSR-310
-    return Period.of(days, DAYS);
-  }
-
-  /**
-   * Creates am OffsetDateTime.
-   * 
-   * @param date  the date, not null
-   * @param time  the time, not null
-   * @return the date-time, not null
-   */
-  public static OffsetDateTime offsetDateTime(LocalDate date, OffsetTime time) {  // TODO: JSR-310
-    return date.atTime(time.getTime()).atOffset(time.getOffset());
-  }
-
-  // TODO useful to have methods such as # weeks between.
-
 
   /**
    * Converts GregorianCalendar to ZonedDateTime
-   *
+   * 
    * @param calendar the calendar, not null
    * @return the zoned-date-time, not null
    */
@@ -617,6 +560,22 @@ public final class DateUtils {
     ZoneId zone = ZoneId.of(calendar.getTimeZone().getID());
     Instant instant = Instant.ofEpochMilli(calendar.getTimeInMillis());
     return ZonedDateTime.ofInstant(instant, zone);
+  }
+
+  /**
+   * Converts a string to a period, allowing the old format of {@code PT0S} for {@code P0D}.
+   * 
+   * @param period the period to parse, not null
+   * @return the parsed period, not null
+   * @deprecated Don't rely on this, fix the source of data where the PT0S values are coming from
+   */
+  @Deprecated
+  public static Period toPeriod(final String period) {
+    if ("PT0S".equals(period)) {
+      return Period.ZERO;
+    } else {
+      return Period.parse(period);
+    }
   }
 
 }

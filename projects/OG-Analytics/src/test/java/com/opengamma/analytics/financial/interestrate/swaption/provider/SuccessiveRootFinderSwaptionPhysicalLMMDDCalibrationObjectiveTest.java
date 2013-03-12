@@ -8,6 +8,7 @@ package com.opengamma.analytics.financial.interestrate.swaption.provider;
 import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
@@ -61,14 +62,14 @@ public class SuccessiveRootFinderSwaptionPhysicalLMMDDCalibrationObjectiveTest {
   private static final int[] SWAP_TENOR_YEAR = {1, 2, 3, 4, 5};
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 8, 18);
   private static final int EXPIRY_TENOR = 5;
-  private static final ZonedDateTime EXPIRY_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, DateUtils.periodOfYears(EXPIRY_TENOR), EURIBOR3M);
+  private static final ZonedDateTime EXPIRY_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.ofYears(EXPIRY_TENOR), EURIBOR3M);
   private static final ZonedDateTime SETTLEMENT_DATE = ScheduleCalculator.getAdjustedDate(EXPIRY_DATE, EURIBOR3M.getSpotLag(), CALENDAR);
   private static final SwapFixedIborDefinition[] SWAP_PAYER_DEFINITION = new SwapFixedIborDefinition[SWAP_TENOR_YEAR.length];
   private static final SwaptionPhysicalFixedIborDefinition[] SWAPTION_LONG_PAYER_DEFINITION = new SwaptionPhysicalFixedIborDefinition[SWAP_TENOR_YEAR.length];
   private static final IndexSwap[] SWAP_INDEX = new IndexSwap[SWAP_TENOR_YEAR.length];
   static {
     for (int loopexp = 0; loopexp < SWAP_TENOR_YEAR.length; loopexp++) {
-      SWAP_INDEX[loopexp] = new IndexSwap(EUR1YEURIBOR3M, DateUtils.periodOfYears(SWAP_TENOR_YEAR[loopexp]));
+      SWAP_INDEX[loopexp] = new IndexSwap(EUR1YEURIBOR3M, Period.ofYears(SWAP_TENOR_YEAR[loopexp]));
       SWAP_PAYER_DEFINITION[loopexp] = SwapFixedIborDefinition.from(SETTLEMENT_DATE, SWAP_INDEX[loopexp], NOTIONAL, RATE, FIXED_IS_PAYER);
       SWAPTION_LONG_PAYER_DEFINITION[loopexp] = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, SWAP_PAYER_DEFINITION[loopexp], IS_LONG);
     }

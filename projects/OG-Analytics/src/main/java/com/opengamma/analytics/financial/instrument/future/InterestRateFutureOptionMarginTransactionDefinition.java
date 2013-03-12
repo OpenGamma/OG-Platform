@@ -98,13 +98,13 @@ public class InterestRateFutureOptionMarginTransactionDefinition implements Inst
   public InterestRateFutureOptionMarginTransaction toDerivative(final ZonedDateTime dateTime, final Double lastMarginPrice, final String... yieldCurveNames) {
     ArgumentChecker.notNull(dateTime, "date");
     ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
-    final LocalDate date = dateTime.getDate();
-    ArgumentChecker.isTrue(!date.isAfter(_underlyingOption.getUnderlyingFuture().getFixingPeriodStartDate().getDate()), "Date is after last margin date");
-    final LocalDate tradeDateLocal = _tradeDate.getDate();
+    final LocalDate date = dateTime.toLocalDate();
+    ArgumentChecker.isTrue(!date.isAfter(_underlyingOption.getUnderlyingFuture().getFixingPeriodStartDate().toLocalDate()), "Date is after last margin date");
+    final LocalDate tradeDateLocal = _tradeDate.toLocalDate();
     ArgumentChecker.isTrue(!date.isBefore(tradeDateLocal), "Valuation date {} is before the trade date {} ", date, tradeDateLocal);
     final InterestRateFutureOptionMarginSecurity underlyingOption = _underlyingOption.toDerivative(dateTime, yieldCurveNames);
     double referencePrice;
-    if (tradeDateLocal.isBefore(dateTime.getDate())) { // Transaction was before last margining.
+    if (tradeDateLocal.isBefore(dateTime.toLocalDate())) { // Transaction was before last margining.
       referencePrice = lastMarginPrice;
     } else { // Transaction is today
       referencePrice = _tradePrice;

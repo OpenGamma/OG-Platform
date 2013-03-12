@@ -45,7 +45,7 @@ public class CouponOISSimplifiedDefinitionTest {
   // Coupon EONIA 3m
   private static final ZonedDateTime TRADE_DATE = DateUtils.getUTCDate(2011, 9, 7);
   private static final ZonedDateTime SPOT_DATE = ScheduleCalculator.getAdjustedDate(TRADE_DATE, EUR_SETTLEMENT_DAYS, EUR_CALENDAR);
-  private static final Period EUR_CPN_TENOR = Period.of(3, MONTHS);
+  private static final Period EUR_CPN_TENOR = Period.ofMonths(3);
   private static final ZonedDateTime START_ACCRUAL_DATE = SPOT_DATE;
   private static final ZonedDateTime END_ACCRUAL_DATE = ScheduleCalculator.getAdjustedDate(START_ACCRUAL_DATE, EUR_CPN_TENOR, EUR_BUSINESS_DAY, EUR_CALENDAR, EUR_IS_EOM);
   private static ZonedDateTime LAST_FIXING_DATE = ScheduleCalculator.getAdjustedDate(END_ACCRUAL_DATE, -1, EUR_CALENDAR); // Overnight

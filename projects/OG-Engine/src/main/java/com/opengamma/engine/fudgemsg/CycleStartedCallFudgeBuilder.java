@@ -13,7 +13,7 @@ import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
-import com.opengamma.engine.view.calc.ViewCycleMetadata;
+import com.opengamma.engine.view.cycle.ViewCycleMetadata;
 import com.opengamma.engine.view.listener.CycleStartedCall;
 
 /**

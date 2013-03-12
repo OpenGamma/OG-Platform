@@ -9,7 +9,6 @@ import java.math.BigDecimal;
 
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.format.DateTimeFormatter;
-import org.threeten.bp.format.DateTimeFormatters;
 
 import com.opengamma.financial.analytics.volatility.surface.BloombergFXOptionVolatilitySurfaceInstrumentProvider.FXVolQuoteType;
 import com.opengamma.util.time.Tenor;
@@ -61,10 +60,10 @@ public class LabelFormatter {
     return o.toString();
   }
   
-  private static final DateTimeFormatter s_isoLocalDate = DateTimeFormatters.isoLocalDate();
+  private static final DateTimeFormatter s_isoLocalDate = DateTimeFormatter.ISO_LOCAL_DATE;
   
   private static String formatDate(LocalDate o) {
-    return s_isoLocalDate.print(o);
+    return s_isoLocalDate.format(o);
   }
 
   private static String formatTenor(Tenor o) {

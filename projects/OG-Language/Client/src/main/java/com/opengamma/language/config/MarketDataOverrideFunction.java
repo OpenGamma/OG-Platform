@@ -13,6 +13,7 @@ import java.util.List;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.target.ComputationTargetRequirement;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.id.ExternalId;
@@ -95,7 +96,7 @@ public class MarketDataOverrideFunction extends AbstractFunctionInvoker implemen
 
   private static Collection<Object> convertLinear(final Value[] value) {
     final Collection<Object> result = new ArrayList<Object>(value.length);
-    for (Value v : value) {
+    for (final Value v : value) {
       result.add(convertSingle(v));
     }
     return result;
@@ -103,7 +104,7 @@ public class MarketDataOverrideFunction extends AbstractFunctionInvoker implemen
 
   private static Collection<Collection<Object>> convertMatrix(final Value[][] value) {
     final Collection<Collection<Object>> result = new ArrayList<Collection<Object>>(value.length);
-    for (Value[] v : value) {
+    for (final Value[] v : value) {
       result.add(convertLinear(v));
     }
     return result;
@@ -124,7 +125,7 @@ public class MarketDataOverrideFunction extends AbstractFunctionInvoker implemen
   // end of code which shouldn't be here
 
   public static MarketDataOverride invoke(final Object value, final ValueRequirement valueRequirement, final Operation operation) {
-    return new MarketDataOverride(valueRequirement, null, null, value, operation);
+    return new MarketDataOverride(valueRequirement, value, operation);
   }
 
   public static MarketDataOverride invoke(final Object value, final String valueName, final UniqueId identifier, final ComputationTargetType type, final Operation operation) {
@@ -132,7 +133,7 @@ public class MarketDataOverrideFunction extends AbstractFunctionInvoker implemen
   }
 
   public static MarketDataOverride invoke(final Object value, final String valueName, final ExternalId identifier, final Operation operation) {
-    return new MarketDataOverride(null, valueName, identifier, value, operation);
+    return invoke(value, new ValueRequirement(valueName, new ComputationTargetRequirement(ComputationTargetType.PRIMITIVE, identifier)), operation);
   }
 
   // AbstractFunctionInvoker

@@ -8,6 +8,7 @@ package com.opengamma.analytics.financial.interestrate.swaption.provider;
 import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
@@ -62,7 +63,7 @@ public class SuccessiveRootFinderSwaptionPhysicalHullWhiteCalibrationObjectiveTe
   private static final boolean FIXED_IS_PAYER = true;
   //  Ibor leg: quarterly money
   private static final int SWAP_TENOR_YEAR = 9;
-  private static final IndexSwap SWAP_INDEX = new IndexSwap(EUR1YEURIBOR3M, DateUtils.periodOfYears(SWAP_TENOR_YEAR));
+  private static final IndexSwap SWAP_INDEX = new IndexSwap(EUR1YEURIBOR3M, Period.ofYears(SWAP_TENOR_YEAR));
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 8, 18);
   private static final int[] EXPIRY_TENOR = new int[] {1, 2, 3, 4, 5};
   private static final ZonedDateTime[] EXPIRY_DATE = new ZonedDateTime[EXPIRY_TENOR.length];
@@ -71,7 +72,7 @@ public class SuccessiveRootFinderSwaptionPhysicalHullWhiteCalibrationObjectiveTe
   private static final SwaptionPhysicalFixedIborDefinition[] SWAPTION_LONG_PAYER_DEFINITION = new SwaptionPhysicalFixedIborDefinition[EXPIRY_TENOR.length];
   static {
     for (int loopexp = 0; loopexp < EXPIRY_TENOR.length; loopexp++) {
-      EXPIRY_DATE[loopexp] = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, DateUtils.periodOfYears(EXPIRY_TENOR[loopexp]), BUSINESS_DAY, CALENDAR);
+      EXPIRY_DATE[loopexp] = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.ofYears(EXPIRY_TENOR[loopexp]), BUSINESS_DAY, CALENDAR);
       SETTLEMENT_DATE[loopexp] = ScheduleCalculator.getAdjustedDate(EXPIRY_DATE[loopexp], EURIBOR3M.getSpotLag(), CALENDAR);
       SWAP_PAYER_DEFINITION[loopexp] = SwapFixedIborDefinition.from(SETTLEMENT_DATE[loopexp], SWAP_INDEX, NOTIONAL, RATE, FIXED_IS_PAYER);
       SWAPTION_LONG_PAYER_DEFINITION[loopexp] = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE[loopexp], SWAP_PAYER_DEFINITION[loopexp], IS_LONG);

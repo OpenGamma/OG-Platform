@@ -202,7 +202,7 @@ public class ForwardRateAgreementDefinition extends CouponFloatingDefinition {
     final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
     final String fundingCurveName = yieldCurveNames[0];
     final String forwardCurveName = yieldCurveNames[1];
-    final ZonedDateTime zonedDate = date.getDate().atStartOfDay(ZoneOffset.UTC);
+    final ZonedDateTime zonedDate = date.toLocalDate().atStartOfDay(ZoneOffset.UTC);
     final double paymentTime = actAct.getDayCountFraction(zonedDate, getPaymentDate());
     // Ibor is not fixed yet, all the details are required.
     final double fixingTime = actAct.getDayCountFraction(zonedDate, getFixingDate());
@@ -221,7 +221,7 @@ public class ForwardRateAgreementDefinition extends CouponFloatingDefinition {
     final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
     final String fundingCurveName = yieldCurveNames[0];
     final String forwardCurveName = yieldCurveNames[1];
-    final ZonedDateTime zonedDate = date.getDate().atStartOfDay(ZoneOffset.UTC);
+    final ZonedDateTime zonedDate = date.toLocalDate().atStartOfDay(ZoneOffset.UTC);
     final double paymentTime = actAct.getDayCountFraction(zonedDate, getPaymentDate());
     if (date.isAfter(getFixingDate()) || (date.equals(getFixingDate()))) {
       Double fixedRate = indexFixingTimeSeries.getValue(getFixingDate());

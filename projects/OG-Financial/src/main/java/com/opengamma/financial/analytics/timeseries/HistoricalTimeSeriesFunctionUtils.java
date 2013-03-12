@@ -6,6 +6,7 @@
 package com.opengamma.financial.analytics.timeseries;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesAdjuster;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.function.FunctionExecutionContext;
@@ -20,7 +21,6 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesAdjuster;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;

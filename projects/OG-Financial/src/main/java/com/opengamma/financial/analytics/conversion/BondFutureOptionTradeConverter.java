@@ -14,7 +14,6 @@ import com.opengamma.analytics.financial.instrument.future.BondFutureOptionPremi
 import com.opengamma.core.position.Trade;
 import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.time.DateUtils;
 
 /**
  *
@@ -36,7 +35,7 @@ public class BondFutureOptionTradeConverter {
     //TODO fix the next two lines - it's here to avoid double-multiplying when stuff is scaled at the position level
     final int quantity = 1;
     final double premium = -trade.getPremium() * Math.signum(trade.getQuantity().doubleValue());
-    final ZonedDateTime tradeDate = DateUtils.offsetDateTime(trade.getTradeDate(), trade.getTradeTime()).atZoneSameInstant(ZoneOffset.UTC); //TODO get the real time zone
+    final ZonedDateTime tradeDate = trade.getTradeDate().atTime(trade.getTradeTime()).atZoneSameInstant(ZoneOffset.UTC); //TODO get the real time zone
     final BondFutureOptionPremiumSecurityDefinition underlyingOption = (BondFutureOptionPremiumSecurityDefinition) securityDefinition;
     return new BondFutureOptionPremiumTransactionDefinition(underlyingOption, quantity, tradeDate, premium);
   }

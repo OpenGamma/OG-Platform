@@ -53,9 +53,9 @@ public class InstrumentTestHelper {
   public static final DayCount QUARTERLY_DAY_COUNT = new QuarterlyDayCount();
   public static final BusinessDayConvention NONE = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("None");
   public static final Currency FIXED_INCOME_CURRENCY = Currency.EUR;
-  public static final IborIndex USD_IBOR_INDEX1 = new IborIndex(FIXED_INCOME_CURRENCY, DateUtils.periodOfMonths(6), 0, NO_HOLIDAY, SEMI_ANNUAL_DAY_COUNT, NONE, false,
+  public static final IborIndex USD_IBOR_INDEX1 = new IborIndex(FIXED_INCOME_CURRENCY, Period.ofMonths(6), 0, NO_HOLIDAY, SEMI_ANNUAL_DAY_COUNT, NONE, false,
       "f");
-  public static final IborIndex USD_IBOR_INDEX2 = new IborIndex(FIXED_INCOME_CURRENCY, DateUtils.periodOfMonths(3), 0, NO_HOLIDAY, QUARTERLY_DAY_COUNT, NONE, false, "f");
+  public static final IborIndex USD_IBOR_INDEX2 = new IborIndex(FIXED_INCOME_CURRENCY, Period.ofMonths(3), 0, NO_HOLIDAY, QUARTERLY_DAY_COUNT, NONE, false, "f");
   public static final ZonedDateTime CASH_START = ZonedDateTime.of(LocalDateTime.of(2012, 6, 1, 11, 0, 0, 0), ZoneOffset.UTC);
   public static final ZonedDateTime CASH_MATURITY = ZonedDateTime.of(LocalDateTime.of(2012, 12, 1, 11, 0, 0, 0), ZoneOffset.UTC);
   public static final double CASH_NOTIONAL = 234000;
@@ -73,7 +73,7 @@ public class InstrumentTestHelper {
   public static final double FRA_RATE = 0.004;
   public static final ZonedDateTime SWAP_START = zdt(2001, 1, 1, 11, 0, 0, 0, ZoneOffset.UTC);
   public static final ZonedDateTime SWAP_MATURITY = zdt(2031, 1, 1, 11, 0, 0, 0, ZoneOffset.UTC);
-  public static final GeneratorSwapFixedIbor SWAP_GENERATOR = new GeneratorSwapFixedIbor("a", Period.of(6, MONTHS), SEMI_ANNUAL_DAY_COUNT, USD_IBOR_INDEX1);
+  public static final GeneratorSwapFixedIbor SWAP_GENERATOR = new GeneratorSwapFixedIbor("a", Period.ofMonths(6), SEMI_ANNUAL_DAY_COUNT, USD_IBOR_INDEX1);
   public static final double SWAP_NOTIONAL = 789000;
   public static final double SWAP_FIXED_RATE = 0.04;
   public static final double IBOR_SPREAD = 0.01;
@@ -121,9 +121,9 @@ public class InstrumentTestHelper {
       SWAP_NOTIONAL, SWAP_FIXED_RATE, IBOR_SPREAD, true);
   public static final SwapFixedIborSpreadDefinition RECEIVER_SWAP_WITH_SPREAD = SwapFixedIborSpreadDefinition.from(SWAP_START, SWAP_MATURITY, SWAP_GENERATOR,
       SWAP_NOTIONAL, SWAP_NOTIONAL, SWAP_FIXED_RATE, IBOR_SPREAD, false);
-  public static final SwapIborIborDefinition PAY_SPREAD_IBOR_IBOR_SWAP = SwapIborIborDefinition.from(SWAP_START, Period.of(50, YEARS), IBOR_IBOR_GENERATOR,
+  public static final SwapIborIborDefinition PAY_SPREAD_IBOR_IBOR_SWAP = SwapIborIborDefinition.from(SWAP_START, Period.ofYears(50), IBOR_IBOR_GENERATOR,
       SWAP_NOTIONAL, IBOR_SPREAD, true);
-  public static final SwapIborIborDefinition RECEIVE_SPREAD_IBOR_IBOR_SWAP = SwapIborIborDefinition.from(SWAP_START, Period.of(50, YEARS), IBOR_IBOR_GENERATOR,
+  public static final SwapIborIborDefinition RECEIVE_SPREAD_IBOR_IBOR_SWAP = SwapIborIborDefinition.from(SWAP_START, Period.ofYears(50), IBOR_IBOR_GENERATOR,
       SWAP_NOTIONAL, IBOR_SPREAD, false);
   public static final DoubleTimeSeries<LocalDate> IBOR_FIXING_SERIES;
   public static final double FIXING_RATE = 0.03;

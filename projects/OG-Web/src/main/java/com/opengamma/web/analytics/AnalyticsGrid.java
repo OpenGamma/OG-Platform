@@ -9,7 +9,7 @@ import java.util.Map;
 
 import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
-import com.opengamma.engine.view.calc.ViewCycle;
+import com.opengamma.engine.view.cycle.ViewCycle;
 import com.opengamma.util.ArgumentChecker;
 
 /**

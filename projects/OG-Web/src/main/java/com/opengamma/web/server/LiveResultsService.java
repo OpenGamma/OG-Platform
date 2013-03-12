@@ -29,7 +29,6 @@ import org.threeten.bp.Instant;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
-import org.threeten.bp.format.DateTimeFormatters;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
@@ -73,7 +72,7 @@ import com.opengamma.web.server.conversion.ResultConverterCache;
 public class LiveResultsService extends BayeuxService implements ClientBayeuxListener {
   
   private static final Logger s_logger = LoggerFactory.getLogger(LiveResultsService.class);
-  private static final DateTimeFormatter s_snapshotDateTimeFormatter = DateTimeFormatters.pattern("yyyy-MM-dd HH:mm:ss");
+  private static final DateTimeFormatter s_snapshotDateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
   private static final Pattern s_guidPattern = Pattern.compile("(\\{?([0-9a-fA-F]){8}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){12}\\}?)");
   
   private final Map<String, WebView> _clientViews = new HashMap<String, WebView>();

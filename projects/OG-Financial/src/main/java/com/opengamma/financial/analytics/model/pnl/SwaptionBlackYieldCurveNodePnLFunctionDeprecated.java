@@ -73,7 +73,7 @@ public class SwaptionBlackYieldCurveNodePnLFunctionDeprecated extends AbstractFu
     final ComputationTargetSpecification positionSpec = target.toSpecification();
     final HistoricalTimeSeriesSource historicalSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
     final Clock snapshotClock = executionContext.getValuationClock();
-    final LocalDate now = ZonedDateTime.now(snapshotClock).getDate();
+    final LocalDate now = ZonedDateTime.now(snapshotClock).toLocalDate();
     final Currency currency = FinancialSecurityUtils.getCurrency(position.getSecurity());
     final String currencyString = currency.getCode();
     final ValueRequirement desiredValue = desiredValues.iterator().next();

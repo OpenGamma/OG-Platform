@@ -13,7 +13,6 @@ import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
-import com.opengamma.engine.view.execution.ViewCycleExecutionSequence;
 import com.opengamma.financial.temptarget.TempTarget;
 import com.opengamma.livedata.UserPrincipal;
 
@@ -30,18 +29,17 @@ public class ViewEvaluationTarget extends TempTarget {
    * Fudge field containing the execution sequence.
    */
   protected static final String EXECUTION_SEQUENCE_FIELD = "executionSequence";
-  
+
   private final ViewDefinition _viewDefinition;
-  private final ViewCycleExecutionSequence _executionSequence;
+  private final ViewCycleExecutionSequenceDescriptor _executionSequence;
 
   /**
    * Creates a new target with an empty/default view definition.
-   *
-   * @param user  the market data user, for example taken from the parent/containing view definition, not null
-   * @param executionSequence  the execution sequence to evaluate, not null
+   * 
+   * @param user the market data user, for example taken from the parent/containing view definition, not null
+   * @param executionSequence the execution sequence to evaluate, not null
    */
-  public ViewEvaluationTarget(UserPrincipal user, ViewCycleExecutionSequence executionSequence) {
-    super();
+  public ViewEvaluationTarget(UserPrincipal user, ViewCycleExecutionSequenceDescriptor executionSequence) {
     _viewDefinition = new ViewDefinition("Temp", user);
     _executionSequence = executionSequence;
   }
@@ -49,17 +47,16 @@ public class ViewEvaluationTarget extends TempTarget {
   protected ViewEvaluationTarget(FudgeDeserializer deserializer, FudgeMsg message) {
     super(deserializer, message);
     _viewDefinition = deserializer.fieldValueToObject(ViewDefinition.class, message.getByName(VIEW_DEFINITION_FIELD));
-    _executionSequence = deserializer.fieldValueToObject(ViewCycleExecutionSequence.class, message.getByName(EXECUTION_SEQUENCE_FIELD));
+    _executionSequence = deserializer.fieldValueToObject(ViewCycleExecutionSequenceDescriptor.class, message.getByName(EXECUTION_SEQUENCE_FIELD));
   }
-  
-  protected ViewEvaluationTarget(FudgeDeserializer deserializer, FudgeMsg message, ViewCycleExecutionSequence executionSequence) {
+
+  protected ViewEvaluationTarget(FudgeDeserializer deserializer, FudgeMsg message, ViewCycleExecutionSequenceDescriptor executionSequence) {
     super(deserializer, message);
     _viewDefinition = deserializer.fieldValueToObject(ViewDefinition.class, message.getByName(VIEW_DEFINITION_FIELD));
     _executionSequence = executionSequence;
   }
 
-  private ViewEvaluationTarget(ViewDefinition viewDefinition, ViewCycleExecutionSequence executionSequence) {
-    super();
+  protected ViewEvaluationTarget(ViewDefinition viewDefinition, ViewCycleExecutionSequenceDescriptor executionSequence) {
     _viewDefinition = viewDefinition;
     _executionSequence = executionSequence;
   }
@@ -68,13 +65,13 @@ public class ViewEvaluationTarget extends TempTarget {
     return _viewDefinition;
   }
 
-  public ViewCycleExecutionSequence getExecutionSequence() {
+  public ViewCycleExecutionSequenceDescriptor getExecutionSequence() {
     return _executionSequence;
   }
 
   /**
    * Creates a target which is the union of this and another. The other target must have compatible valuation parameters.
-   *
+   * 
    * @param other the other target, not null
    * @return null if the other target is not compatible, otherwise a new instance containing a view definition that is the union of the two participant view definitions
    */
@@ -117,8 +114,11 @@ public class ViewEvaluationTarget extends TempTarget {
         newConfig.addSpecificRequirements(otherConfig.getSpecificRequirements());
       }
     }
-    final ViewEvaluationTarget union = new ViewEvaluationTarget(newView, getExecutionSequence());
-    return union;
+    return createUnion(newView);
+  }
+
+  protected ViewEvaluationTarget createUnion(final ViewDefinition newViewDefinition) {
+    return new ViewEvaluationTarget(newViewDefinition, getExecutionSequence());
   }
 
   // TempTarget

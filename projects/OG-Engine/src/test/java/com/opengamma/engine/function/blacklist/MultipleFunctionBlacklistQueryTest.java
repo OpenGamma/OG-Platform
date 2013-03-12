@@ -17,6 +17,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.calcnode.CalculationJobItem;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.EmptyFunctionParameters;
 import com.opengamma.engine.function.FunctionParameters;
@@ -25,7 +26,6 @@ import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.test.MockFunction;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ExecutionLogMode;
-import com.opengamma.engine.view.calcnode.CalculationJobItem;
 import com.opengamma.id.UniqueId;
 
 /**

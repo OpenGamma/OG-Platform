@@ -151,11 +151,12 @@ public class DepGraphTestHelper {
   }
 
   public void make2AvailableFromLiveData() {
-    _liveDataAvailabilityProvider.addAvailableRequirement(_req2);
+    _liveDataAvailabilityProvider.addAvailableData(new ValueSpecification(_req2.getValueName(), _req2.getTargetReference().getSpecification(), ValueProperties.with(ValuePropertyNames.FUNCTION,
+        "LiveData").get()));
   }
 
   public void make2MissingFromLiveData() {
-    _liveDataAvailabilityProvider.addMissingRequirement(_req2);
+    _liveDataAvailabilityProvider.addMissingData(_req2.getTargetReference().getSpecification().getUniqueId(), _req2.getValueName());
   }
 
   public DependencyGraphBuilder createBuilder(final FunctionPriority prioritizer) {

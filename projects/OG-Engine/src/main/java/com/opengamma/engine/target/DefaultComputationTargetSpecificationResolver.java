@@ -12,16 +12,12 @@ import java.util.Map;
 import java.util.Set;
 
 import com.google.common.collect.Sets;
-import com.opengamma.core.id.ExternalIdOrderConfig;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.marketdata.MarketDataUtils;
 import com.opengamma.engine.target.resolver.IdentifierResolver;
-import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.util.ArgumentChecker;
 
 /**
  * Standard implementation of a {@link ComputationTargetSpecificationResolver}.
@@ -33,16 +29,6 @@ import com.opengamma.util.ArgumentChecker;
 public class DefaultComputationTargetSpecificationResolver implements ComputationTargetSpecificationResolver {
 
   private final ComputationTargetTypeMap<IdentifierResolver> _resolve = new ComputationTargetTypeMap<IdentifierResolver>();
-  private final ExternalIdOrderConfig _externalIdOrderConfig;
-
-  public DefaultComputationTargetSpecificationResolver() {
-    this(ExternalIdOrderConfig.DEFAULT_CONFIG);
-  }
-
-  public DefaultComputationTargetSpecificationResolver(final ExternalIdOrderConfig externalIdOrderConfig) {
-    ArgumentChecker.notNull(externalIdOrderConfig, "externalIdOrderConfig");
-    _externalIdOrderConfig = externalIdOrderConfig;
-  }
 
   public void addResolver(final ComputationTargetType type, final IdentifierResolver strategy) {
     _resolve.put(type, strategy);
@@ -76,8 +62,7 @@ public class DefaultComputationTargetSpecificationResolver implements Computatio
                   return null;
                 }
               } else {
-                final ExternalId id = MarketDataUtils.getPreferredIdentifier(getExternalIdOrderConfig(), requirement.getIdentifiers());
-                return requirement.replaceIdentifier(UniqueId.of(id.getScheme().getName(), id.getValue()));
+                return null;
               }
             }
 
@@ -127,16 +112,10 @@ public class DefaultComputationTargetSpecificationResolver implements Computatio
               } else {
                 // No resolver for this type
                 requirementByType.put(requirement.getType(), Collections.<ComputationTargetRequirement>emptySet());
-                final ExternalId id = MarketDataUtils.getPreferredIdentifier(getExternalIdOrderConfig(), requirement.getIdentifiers());
-                result.put(requirement, requirement.replaceIdentifier(UniqueId.of(id.getScheme().getName(), id.getValue())));
               }
             } else {
-              if (requirements.isEmpty()) {
-                // No resolver for this type
-                final ExternalId id = MarketDataUtils.getPreferredIdentifier(getExternalIdOrderConfig(), requirement.getIdentifiers());
-                result.put(requirement, requirement.replaceIdentifier(UniqueId.of(id.getScheme().getName(), id.getValue())));
-              } else {
-                // Add to the bulk resolution set
+              if (!requirements.isEmpty()) {
+                // Add to the bulk resolution set. If the set is empty, we've cached the "no resolver" status
                 requirements.add(requirement);
               }
             }
@@ -245,10 +224,6 @@ public class DefaultComputationTargetSpecificationResolver implements Computatio
       }
 
     };
-  }
-
-  private ExternalIdOrderConfig getExternalIdOrderConfig() {
-    return _externalIdOrderConfig;
   }
 
 }

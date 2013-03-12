@@ -6,7 +6,6 @@
 package com.opengamma.analytics.financial.interestrate.bond.provider;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.Period;
@@ -78,7 +77,7 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
   private static final double INDEX_START_GILT_1 = 173.60; // November 2001
   private static final double NOTIONAL_GILT_1 = 1.00;
   private static final double REAL_RATE_GILT_1 = 0.02;
-  private static final Period COUPON_PERIOD_GILT_1 = Period.of(6, MONTHS);
+  private static final Period COUPON_PERIOD_GILT_1 = Period.ofMonths(6);
   private static final int SETTLEMENT_DAYS_GILT_1 = 2;
   // TODO: ex-coupon 7 days
   private static final BondCapitalIndexedSecurityDefinition<CouponInflationZeroCouponMonthlyGearingDefinition> BOND_SECURITY_GILT_1_DEFINITION = BondCapitalIndexedSecurityDefinition.fromMonthly(
@@ -127,7 +126,7 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
   private static final double INDEX_START_TIPS_1 = 198.47742; // Date:
   private static final double NOTIONAL_TIPS_1 = 100.00;
   private static final double REAL_RATE_TIPS_1 = 0.02;
-  private static final Period COUPON_PERIOD_TIPS_1 = Period.of(6, MONTHS);
+  private static final Period COUPON_PERIOD_TIPS_1 = Period.ofMonths(6);
   private static final int SETTLEMENT_DAYS_TIPS_1 = 1;
 
   private static final BondCapitalIndexedSecurityDefinition<CouponInflationZeroCouponInterpolationGearingDefinition> BOND_SECURITY_TIPS_1_DEFINITION = BondCapitalIndexedSecurityDefinition
@@ -174,7 +173,7 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
     referenceEndTime[1] = TimeCalculator.getTimeBetween(PRICING_DATE, referenceEndDate[1]);
     final double estimatedIndexMonth0 = MARKET.getPriceIndex(PRICE_INDEX_USCPI, referenceEndTime[0]);
     final double estimatedIndexMonth1 = MARKET.getPriceIndex(PRICE_INDEX_USCPI, referenceEndTime[1]);
-    final double weight = 1.0 - (spot.getDayOfMonth() - 1.0) / spot.getDate().lengthOfMonth();
+    final double weight = 1.0 - (spot.getDayOfMonth() - 1.0) / spot.toLocalDate().lengthOfMonth();
     final double estimatedIndex = weight * estimatedIndexMonth0 + (1 - weight) * estimatedIndexMonth1;
     final double pvAtSettle = dirtyReal * estimatedIndex / BOND_SECURITY_TIPS_1.getIndexStartValue() * NOTIONAL_TIPS_1;
     final double dfSettle = MARKET.getDiscountFactor(BOND_SECURITY_TIPS_1.getCurrency(), BOND_SECURITY_TIPS_1.getSettlementTime());

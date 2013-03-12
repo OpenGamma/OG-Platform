@@ -1,6 +1,5 @@
 /**
- * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma
- group of companies
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -10,9 +9,12 @@ import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 import org.threeten.bp.format.DateTimeFormatter;
 import org.threeten.bp.format.DateTimeFormatterBuilder;
-import org.threeten.bp.format.DateTimeFormatters;
 import org.threeten.bp.temporal.TemporalAccessor;
 
+/**
+ * 
+ * @param <DT>  date-time type
+ */
 public abstract class AbstractDateAdapter<DT extends TemporalAccessor> extends XmlAdapter<String, DT> {
 
   protected final DateTimeFormatter _formatter = buildFormatter();
@@ -23,13 +25,13 @@ public abstract class AbstractDateAdapter<DT extends TemporalAccessor> extends X
     // form MAR15 can be parsed to March 2015
     return new DateTimeFormatterBuilder()
         .parseCaseInsensitive()
-        .append(DateTimeFormatters.pattern(getDatePattern()))
+        .append(DateTimeFormatter.ofPattern(getDatePattern()))
         .toFormatter();
   }
 
   @Override
   public String marshal(DT v) throws Exception {
-    return _formatter.print(v);
+    return _formatter.format(v);
   }
 
   protected abstract String getDatePattern();

@@ -56,7 +56,7 @@ public abstract class DayCount {
   public double getDayCountFraction(final ZonedDateTime firstDate, final ZonedDateTime secondDate) {
     ArgumentChecker.notNull(firstDate, "first date");
     ArgumentChecker.notNull(secondDate, "second date");
-    return getDayCountFraction(firstDate.getDate(), secondDate.getDate());
+    return getDayCountFraction(firstDate.toLocalDate(), secondDate.toLocalDate());
   }
 
   /**
@@ -73,7 +73,7 @@ public abstract class DayCount {
   public double getDayCountFraction(final ZonedDateTime firstDate, final ZonedDateTime secondDate, final Calendar calendar) {
     ArgumentChecker.notNull(firstDate, "first date");
     ArgumentChecker.notNull(secondDate, "second date");
-    return getDayCountFraction(firstDate.getDate(), secondDate.getDate());
+    return getDayCountFraction(firstDate.toLocalDate(), secondDate.toLocalDate());
   }
 
   /**
@@ -102,7 +102,7 @@ public abstract class DayCount {
     ArgumentChecker.notNull(previousCouponDate, "previous coupon date");
     ArgumentChecker.notNull(date, "date");
     ArgumentChecker.notNull(nextCouponDate, "next coupon date");
-    return getAccruedInterest(previousCouponDate.getDate(), date.getDate(), nextCouponDate.getDate(), coupon, paymentsPerYear);
+    return getAccruedInterest(previousCouponDate.toLocalDate(), date.toLocalDate(), nextCouponDate.toLocalDate(), coupon, paymentsPerYear);
   }
 
   /**

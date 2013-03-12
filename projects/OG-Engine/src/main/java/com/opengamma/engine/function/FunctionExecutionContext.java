@@ -10,7 +10,6 @@ import org.threeten.bp.Instant;
 
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTargetResolver;
-import com.opengamma.engine.marketdata.ExternalIdLookup;
 import com.opengamma.util.PublicAPI;
 
 /**
@@ -73,24 +72,6 @@ public class FunctionExecutionContext extends AbstractFunctionContext {
 
   public void setComputationTargetResolver(final ComputationTargetResolver.AtVersionCorrection targetResolver) {
     put(COMPUTATION_TARGET_RESOLVER_NAME, targetResolver);
-  }
-
-  /**
-   * Gets the service for selecting a preferred external identifier from a target.
-   *
-   * @return the lookup service, not null
-   */
-  public ExternalIdLookup getExternalIdLookup() {
-    return (ExternalIdLookup) get(EXTERNAL_IDENTIFIER_LOOKUP);
-  }
-
-  /**
-   * Sets the service for selecting a preferred external identifier from a target.
-   *
-   * @param lookup the service to set, not null
-   */
-  public void setExternalIdLookup(final ExternalIdLookup lookup) {
-    put(EXTERNAL_IDENTIFIER_LOOKUP, lookup);
   }
 
   /**

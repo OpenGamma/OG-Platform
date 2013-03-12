@@ -1,12 +1,11 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.engine.view.compilation;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -27,11 +26,11 @@ public class CompiledViewCalculationConfigurationImpl implements CompiledViewCal
   private final String _name;
   private final Set<ComputationTargetSpecification> _computationTargets;
   private final Map<ValueSpecification, Set<ValueRequirement>> _terminalOutputSpecifications;
-  private final Map<ValueRequirement, ValueSpecification> _marketDataRequirements;
+  private final Set<ValueSpecification> _marketDataRequirements;
 
   /**
    * Constructs an instance
-   * 
+   *
    * @param name  the name of the view calculation configuration, not null
    * @param computationTargets  the computation targets, not null
    * @param terminalOutputSpecifications  the output specifications, not null
@@ -39,7 +38,7 @@ public class CompiledViewCalculationConfigurationImpl implements CompiledViewCal
    */
   public CompiledViewCalculationConfigurationImpl(final String name, final Set<ComputationTargetSpecification> computationTargets,
       final Map<ValueSpecification, Set<ValueRequirement>> terminalOutputSpecifications,
-      final Map<ValueRequirement, ValueSpecification> marketDataRequirements) {
+      final Set<ValueSpecification> marketDataRequirements) {
     ArgumentChecker.notNull(name, "name");
     ArgumentChecker.notNull(computationTargets, "computationTargets");
     ArgumentChecker.notNull(terminalOutputSpecifications, "terminalOutputSpecifications");
@@ -52,7 +51,7 @@ public class CompiledViewCalculationConfigurationImpl implements CompiledViewCal
 
   /**
    * Constructs an instance from a dependency graph
-   * 
+   *
    * @param dependencyGraph  the dependency graph, not null
    */
   public CompiledViewCalculationConfigurationImpl(final DependencyGraph dependencyGraph) {
@@ -86,18 +85,14 @@ public class CompiledViewCalculationConfigurationImpl implements CompiledViewCal
   }
 
   @Override
-  public Map<ValueRequirement, ValueSpecification> getMarketDataRequirements() {
+  public Set<ValueSpecification> getMarketDataRequirements() {
     return _marketDataRequirements;
   }
 
   //-------------------------------------------------------------------------
-  private static Map<ValueRequirement, ValueSpecification> processMarketDataRequirements(final DependencyGraph dependencyGraph) {
+  private static Set<ValueSpecification> processMarketDataRequirements(final DependencyGraph dependencyGraph) {
     ArgumentChecker.notNull(dependencyGraph, "dependencyGraph");
-    final Map<ValueRequirement, ValueSpecification> result = new HashMap<ValueRequirement, ValueSpecification>();
-    for (final Pair<ValueRequirement, ValueSpecification> marketData : dependencyGraph.getAllRequiredMarketData()) {
-      result.put(marketData.getFirst(), marketData.getSecond());
-    }
-    return result;
+    return dependencyGraph.getAllRequiredMarketData();
   }
 
   private static Map<ValueSpecification, Set<ValueRequirement>> processTerminalOutputSpecifications(final DependencyGraph dependencyGraph) {

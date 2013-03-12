@@ -10,8 +10,8 @@ import java.util.List;
 import com.google.common.collect.Lists;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
+import com.opengamma.engine.view.cycle.ViewCycle;
 import com.opengamma.util.ArgumentChecker;
 
 /**

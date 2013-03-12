@@ -50,8 +50,8 @@ public class SwaptionPhysicalFixedIborSpreadBlackMethodTest {
   private static final GeneratorSwapFixedIbor EUR3MEURIBOR3M = new GeneratorSwapFixedIbor("EUR3MEURIBOR3M", EURIBOR3M.getTenor(), EURIBOR3M.getDayCount(), EURIBOR3M);
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2012, 8, 31);
-  private static final Period START_TENOR = Period.of(6, MONTHS);
-  private static final Period SWAP_TENOR = Period.of(5, YEARS);
+  private static final Period START_TENOR = Period.ofMonths(6);
+  private static final Period SWAP_TENOR = Period.ofYears(5);
   private static final ZonedDateTime START_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, START_TENOR, EURIBOR3M);
   private static final double NOTIONAL = 123000000;
   private static final double SPREAD = 0.0010;

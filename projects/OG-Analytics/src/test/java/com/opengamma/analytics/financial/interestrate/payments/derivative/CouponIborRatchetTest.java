@@ -33,7 +33,7 @@ public class CouponIborRatchetTest {
   private static final Currency CUR = Currency.EUR;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
 
-  private static final Period TENOR_IBOR = Period.of(3, MONTHS);
+  private static final Period TENOR_IBOR = Period.ofMonths(3);
   private static final int SETTLEMENT_DAYS = 2;
   private static final DayCount DAY_COUNT_INDEX = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");

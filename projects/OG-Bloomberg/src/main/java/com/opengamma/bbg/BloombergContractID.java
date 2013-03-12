@@ -25,7 +25,6 @@ import org.slf4j.LoggerFactory;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Month;
 import org.threeten.bp.format.DateTimeFormatter;
-import org.threeten.bp.format.DateTimeFormatters;
 
 import com.google.common.base.Strings;
 import com.opengamma.bbg.util.BloombergDataUtils;
@@ -42,7 +41,7 @@ public class BloombergContractID extends DirectBean {
   
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergContractID.class);
   
-  private static final DateTimeFormatter MONTH_YEAR_FORMATTER = DateTimeFormatters.pattern("MM/yyyy");
+  private static final DateTimeFormatter MONTH_YEAR_FORMATTER = DateTimeFormatter.ofPattern("MM/yyyy");
   
   /**
    * The prefix in classic bloomberg ticker

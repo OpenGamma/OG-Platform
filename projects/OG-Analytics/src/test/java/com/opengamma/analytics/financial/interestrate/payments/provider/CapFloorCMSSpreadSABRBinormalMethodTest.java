@@ -86,18 +86,18 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2008, 8, 18);
 
   //Swaps
-  private static final Period FIXED_PAYMENT_PERIOD = DateUtils.periodOfMonths(6);
+  private static final Period FIXED_PAYMENT_PERIOD = Period.ofMonths(6);
   private static final DayCount FIXED_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("30/360");
   private static final boolean FIXED_IS_PAYER = true; // Irrelevant for the underlying
   private static final double RATE = 0.0; // Irrelevant for the underlying
   private static final ZonedDateTime FIXING_DATE = DateUtils.getUTCDate(2010, 12, 30);
   private static final ZonedDateTime SETTLEMENT_DATE = ScheduleCalculator.getAdjustedDate(FIXING_DATE, EURIBOR6M.getSpotLag(), CALENDAR);
   // Swap 10Y
-  private static final Period ANNUITY_TENOR_1 = DateUtils.periodOfYears(10);
+  private static final Period ANNUITY_TENOR_1 = Period.ofYears(10);
   private static final IndexSwap CMS_INDEX_1 = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, EURIBOR6M, ANNUITY_TENOR_1);
   private static final SwapFixedIborDefinition SWAP_DEFINITION_1 = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX_1, 1.0, RATE, FIXED_IS_PAYER);
   // Swap 2Y
-  private static final Period ANNUITY_TENOR_2 = DateUtils.periodOfYears(2);
+  private static final Period ANNUITY_TENOR_2 = Period.ofYears(2);
   private static final IndexSwap CMS_INDEX_2 = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, EURIBOR6M, ANNUITY_TENOR_2);
   private static final SwapFixedIborDefinition SWAP_DEFINITION_2 = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX_2, 1.0, RATE, FIXED_IS_PAYER);
   // CMS spread coupon
@@ -113,7 +113,7 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
   private static final SwapFixedCoupon<? extends Payment> SWAP_1 = SWAP_DEFINITION_1.toDerivative(REFERENCE_DATE, NOT_USED_A);
   private static final SwapFixedCoupon<? extends Payment> SWAP_2 = SWAP_DEFINITION_2.toDerivative(REFERENCE_DATE, NOT_USED_A);
   private static final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
-  private static final ZonedDateTime REFERENCE_DATE_ZONED = ZonedDateTime.of(LocalDateTime.of(REFERENCE_DATE.getDate(), LocalTime.of(0, 0)), ZoneOffset.UTC);
+  private static final ZonedDateTime REFERENCE_DATE_ZONED = ZonedDateTime.of(LocalDateTime.of(REFERENCE_DATE.toLocalDate(), LocalTime.of(0, 0)), ZoneOffset.UTC);
   private static final double PAYMENT_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE_ZONED, PAYMENT_DATE);
   private static final double FIXING_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE_ZONED, FIXING_DATE);
   private static final double SETTLEMENT_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE_ZONED, SWAP_DEFINITION_1.getFixedLeg().getNthPayment(0).getAccrualStartDate());

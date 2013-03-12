@@ -1,13 +1,14 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.engine.marketdata;
 
+import java.util.Collections;
 import java.util.Set;
 
-import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.livedata.UserPrincipal;
 
 /**
@@ -16,8 +17,8 @@ import com.opengamma.livedata.UserPrincipal;
 public class PermissiveMarketDataPermissionProvider implements MarketDataPermissionProvider {
 
   @Override
-  public Set<ValueRequirement> checkMarketDataPermissions(UserPrincipal user, Set<ValueRequirement> requirements) {
-    return requirements;
+  public Set<ValueSpecification> checkMarketDataPermissions(final UserPrincipal user, final Set<ValueSpecification> specifications) {
+    return Collections.emptySet();
   }
 
 }

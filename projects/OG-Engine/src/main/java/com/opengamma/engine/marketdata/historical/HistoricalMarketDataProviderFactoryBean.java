@@ -5,8 +5,8 @@
  */
 package com.opengamma.engine.marketdata.historical;
 
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
-import com.opengamma.core.security.SecuritySource;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.SingletonFactoryBean;
 
@@ -16,28 +16,29 @@ import com.opengamma.util.SingletonFactoryBean;
 public class HistoricalMarketDataProviderFactoryBean extends SingletonFactoryBean<AbstractHistoricalMarketDataProvider> {
 
   private HistoricalTimeSeriesSource _historicalTimeSeriesSource;
-  private SecuritySource _securitySource;
-  
+  private HistoricalTimeSeriesResolver _historicalTimeSeriesResolver;
+
   public HistoricalTimeSeriesSource getHistoricalTimeSeriesSource() {
     return _historicalTimeSeriesSource;
   }
 
-  public void setHistoricalTimeSeriesSource(HistoricalTimeSeriesSource historicalTimeSeriesSource) {
+  public void setHistoricalTimeSeriesSource(final HistoricalTimeSeriesSource historicalTimeSeriesSource) {
     _historicalTimeSeriesSource = historicalTimeSeriesSource;
   }
-  
-  public SecuritySource getSecuritySource() {
-    return _securitySource;
+
+  public HistoricalTimeSeriesResolver getHistoricalTimeSeriesResolver() {
+    return _historicalTimeSeriesResolver;
   }
 
-  public void setSecuritySource(SecuritySource securitySource) {
-    _securitySource = securitySource;
+  public void setHistoricalTimeSeriesResolver(final HistoricalTimeSeriesResolver historicalTimeSeriesResolver) {
+    _historicalTimeSeriesResolver = historicalTimeSeriesResolver;
   }
 
   @Override
   protected AbstractHistoricalMarketDataProvider createObject() {
     ArgumentChecker.notNullInjected(getHistoricalTimeSeriesSource(), "historicalTimeSeriesSource");
-    return new HistoricalMarketDataProvider(getHistoricalTimeSeriesSource(), getSecuritySource());
+    ArgumentChecker.notNullInjected(getHistoricalTimeSeriesResolver(), "historicalTimeSeriesResolver");
+    return new HistoricalMarketDataProvider(getHistoricalTimeSeriesSource(), getHistoricalTimeSeriesResolver());
   }
 
 }

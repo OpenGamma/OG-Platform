@@ -52,7 +52,7 @@ public final class EquityOptionBlackThetaCalculator extends InstrumentDerivative
   public Double visitEquityIndexFutureOption(final EquityIndexFutureOption option, final StaticReplicationDataBundle data) {
     ArgumentChecker.notNull(option, "option");
     ArgumentChecker.notNull(data, "data");
-    final Double thetaBlack = EquityIndexFutureOptionBlackMethod.getInstance().spotTheta(option, data);
+    final Double thetaBlack = EquityIndexFutureOptionBlackMethod.getInstance().theta(option, data);
     return thetaBlack;
   }
 }

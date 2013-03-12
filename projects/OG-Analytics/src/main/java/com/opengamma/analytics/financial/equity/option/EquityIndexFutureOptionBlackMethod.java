@@ -323,14 +323,15 @@ public final class EquityIndexFutureOptionBlackMethod {
    * @return Spot theta, ie the sensitivity of the present value to the time to expiration,
    *          $\frac{\partial (PV)}{\partial t}$
    */
-  public double spotTheta(final EquityIndexFutureOption derivative, final StaticReplicationDataBundle marketData) {
+  public double theta(final EquityIndexFutureOption derivative, final StaticReplicationDataBundle marketData) {
     ArgumentChecker.notNull(derivative, "derivative was null. Expecting EquityIndexFutureOption");
     ArgumentChecker.notNull(marketData, "market was null. Expecting StaticReplicationDataBundle");
     final double expiry = derivative.getExpiry();
     final double strike = derivative.getStrike();
     final double forward = marketData.getForwardCurve().getForward(expiry);
+    final double interestRate = marketData.getDiscountCurve().getInterestRate(expiry);
     final double blackVol = marketData.getVolatilitySurface().getVolatility(expiry, strike);
-    final double theta = BlackFormulaRepository.theta(forward, strike, expiry, blackVol);
+    final double theta = BlackFormulaRepository.theta(forward, strike, expiry, blackVol,derivative.isCall(), interestRate);
     return theta;
   }
 

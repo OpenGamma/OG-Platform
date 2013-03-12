@@ -54,7 +54,7 @@ public class ParRateParallelSensitivityCalculatorTest {
   private static YieldCurveBundle CURVES;
   private static final Currency CUR = Currency.EUR;
 
-  private static final Period TENOR = Period.of(6, MONTHS);
+  private static final Period TENOR = Period.ofMonths(6);
   private static final int SETTLEMENT_DAYS = 2;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final DayCount DAY_COUNT_INDEX = DayCountFactory.INSTANCE.getDayCount("Actual/360");
@@ -79,7 +79,7 @@ public class ParRateParallelSensitivityCalculatorTest {
 
   @Test
   public void testFRA() {
-    final IborIndex index = new IborIndex(CUR, Period.of(1, MONTHS), 2, new MondayToFridayCalendar("A"), DayCountFactory.INSTANCE.getDayCount("Actual/365"),
+    final IborIndex index = new IborIndex(CUR, Period.ofMonths(1), 2, new MondayToFridayCalendar("A"), DayCountFactory.INSTANCE.getDayCount("Actual/365"),
         BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), true);
     final double paymentTime = 0.5;
     final double fixingTime = paymentTime - 2.0 / 365.0;

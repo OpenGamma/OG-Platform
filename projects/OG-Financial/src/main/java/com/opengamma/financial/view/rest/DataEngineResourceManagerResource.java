@@ -25,8 +25,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
 
-import com.opengamma.engine.view.calc.EngineResourceManager;
-import com.opengamma.engine.view.calc.EngineResourceReference;
+import com.opengamma.engine.resource.EngineResourceManager;
+import com.opengamma.engine.resource.EngineResourceReference;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.transport.jaxrs.FudgeRest;

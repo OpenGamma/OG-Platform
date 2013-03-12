@@ -91,13 +91,13 @@ public class CapFloorSecurityConverter extends FinancialSecurityVisitorAdapter<I
   private Period getTenor(final Frequency freq) {
     Period tenor;
     if (Frequency.ANNUAL_NAME.equals(freq.getConventionName())) {
-      tenor = DateUtils.periodOfMonths(12);
+      tenor = Period.ofMonths(12);
     } else if (Frequency.SEMI_ANNUAL_NAME.equals(freq.getConventionName())) {
-      tenor = DateUtils.periodOfMonths(6);
+      tenor = Period.ofMonths(6);
     } else if (Frequency.QUARTERLY_NAME.equals(freq.getConventionName())) {
-      tenor = DateUtils.periodOfMonths(3);
+      tenor = Period.ofMonths(3);
     } else if (Frequency.MONTHLY_NAME.equals(freq.getConventionName())) {
-      tenor = DateUtils.periodOfMonths(1);
+      tenor = Period.ofMonths(1);
     } else {
       throw new OpenGammaRuntimeException("Can only handle annual, semi-annual, quarterly and monthly frequencies for cap/floors");
     }

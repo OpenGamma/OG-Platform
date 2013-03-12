@@ -5,7 +5,7 @@
  */
 package com.opengamma.web.analytics;
 
-import com.opengamma.engine.view.calc.ViewCycle;
+import com.opengamma.engine.view.cycle.ViewCycle;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 

@@ -5,10 +5,9 @@
       <!-- No publications needed from Ivy -->
     </publications>
     <dependencies>
-      <dependency name="og-util" rev="latest.integration" />
+      <dependency name="og-utildb" rev="latest.integration" />
     
       <dependency org="org.apache.maven" name="maven-plugin-api" rev="3.0.4" />
       <dependency org="org.apache.maven" name="maven-project" rev="2.2.1" />
     </dependencies>
 </ivy-module>
-

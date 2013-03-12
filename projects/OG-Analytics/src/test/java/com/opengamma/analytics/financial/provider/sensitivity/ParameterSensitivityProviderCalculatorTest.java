@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponFixedDefinition;
@@ -62,7 +63,7 @@ public class ParameterSensitivityProviderCalculatorTest {
   private static final ZonedDateTime EFFECTIVE_DATE = DateUtils.getUTCDate(2012, 10, 29);
   private static final double NOTIONAL = 100000000;
 
-  private static final SwapFixedIborDefinition SWAP_DEFINITION = SwapFixedIborDefinition.from(EFFECTIVE_DATE, DateUtils.periodOfYears(2), USD6MLIBOR3M, NOTIONAL, 0.05, false);
+  private static final SwapFixedIborDefinition SWAP_DEFINITION = SwapFixedIborDefinition.from(EFFECTIVE_DATE, Period.ofYears(2), USD6MLIBOR3M, NOTIONAL, 0.05, false);
   private static final AnnuityCouponFixedDefinition ANNUITY_DEFINITION = SWAP_DEFINITION.getFixedLeg();
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2012, 9, 26);
   private static final String NOT_USED = "Not used";
@@ -71,7 +72,7 @@ public class ParameterSensitivityProviderCalculatorTest {
 
   private static final GeneratorSwapFixedON USD1YFEDFUND = GeneratorSwapFixedONMaster.getInstance().getGenerator("USD1YFEDFUND", NYC);
   private static final IndexON FEDFUND = USD1YFEDFUND.getIndex();
-  private static final SwapFixedONDefinition OIS_DEFINITION = SwapFixedONDefinition.from(EFFECTIVE_DATE, DateUtils.periodOfMonths(6), NOTIONAL, USD1YFEDFUND, 0.02, false);
+  private static final SwapFixedONDefinition OIS_DEFINITION = SwapFixedONDefinition.from(EFFECTIVE_DATE, Period.ofMonths(6), NOTIONAL, USD1YFEDFUND, 0.02, false);
   private static final SwapFixedCoupon<Coupon> OIS = OIS_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED, NOT_USED);
 
   private static final double[] TIME = {0.25, 0.50, 1.0, 2.0, 5.0};

@@ -156,7 +156,6 @@ public class CachingFunctionRepositoryCompiler implements FunctionRepositoryComp
         final CompiledFunctionDefinition compiledFunction = future.get();
         compiled.addFunction(compiledFunction);
       } catch (final Exception e) {
-        e.printStackTrace();
         // Don't propagate the error outwards; it just won't be in the compiled repository
         s_logger.debug("Error compiling function definition", e);
         failures.incrementAndGet();

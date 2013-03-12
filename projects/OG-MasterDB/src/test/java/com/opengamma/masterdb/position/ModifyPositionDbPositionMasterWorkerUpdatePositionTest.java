@@ -133,7 +133,7 @@ public class ModifyPositionDbPositionMasterWorkerUpdatePositionTest extends Abst
     PositionDocument base = _posMaster.get(UniqueId.of("DbPos", "121", "0"));
     ManageablePosition pos = new ManageablePosition(BigDecimal.TEN, ExternalId.of("A", "B"));
     pos.setUniqueId(UniqueId.of("DbPos", "121", "0"));
-    pos.addTrade(new ManageableTrade(BigDecimal.TEN, ExternalId.of("C", "D"), _now.getDate(), _now.toOffsetTime().minusSeconds(500), ExternalId.of("CPS2", "CPV2")));
+    pos.addTrade(new ManageableTrade(BigDecimal.TEN, ExternalId.of("C", "D"), _now.toLocalDate(), _now.toOffsetTime().minusSeconds(500), ExternalId.of("CPS2", "CPV2")));
     PositionDocument input = new PositionDocument(pos);
     
     PositionDocument updated = _posMaster.update(input);
@@ -165,7 +165,7 @@ public class ModifyPositionDbPositionMasterWorkerUpdatePositionTest extends Abst
   public void test_updateTradeAttributes() {
     ManageablePosition pos1 = new ManageablePosition(BigDecimal.TEN, ExternalId.of("A", "B"));
     
-    LocalDate tradeDate = _now.getDate();
+    LocalDate tradeDate = _now.toLocalDate();
     OffsetTime tradeTime = _now.toOffsetTime().minusSeconds(500);
     
     ManageableTrade tradeA = new ManageableTrade(BigDecimal.TEN, ExternalId.of("A", "B"), tradeDate, tradeTime, ExternalId.of("CPS", "CPV"));
@@ -215,7 +215,7 @@ public class ModifyPositionDbPositionMasterWorkerUpdatePositionTest extends Abst
     pos1.addAttribute("A11", "V11");
     pos1.addAttribute("A12", "V12");
 
-    LocalDate tradeDate = _now.getDate();
+    LocalDate tradeDate = _now.toLocalDate();
     OffsetTime tradeTime = _now.toOffsetTime().minusSeconds(500);
 
     ManageableTrade tradeA = new ManageableTrade(BigDecimal.TEN, ExternalId.of("A", "B"), tradeDate, tradeTime, ExternalId.of("CPS", "CPV"));

@@ -1,13 +1,12 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.engine.marketdata.snapshot;
 
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
-import com.opengamma.engine.marketdata.ExternalIdBundleLookup;
-import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
+import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityFilter;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.SingletonFactoryBean;
 
@@ -17,37 +16,28 @@ import com.opengamma.util.SingletonFactoryBean;
 public class UserMarketDataProviderFactoryFactoryBean extends SingletonFactoryBean<UserMarketDataProviderFactory> {
 
   private MarketDataSnapshotSource _snapshotSource;
-  private ExternalIdBundleLookup _identifierLookup = new ExternalIdBundleLookup(null);
-  private MarketDataAvailabilityProvider _baseMarketDataAvailabilityProvider;
-  
+  private MarketDataAvailabilityFilter _baseMarketDataAvailability;
+
   public MarketDataSnapshotSource getSnapshotSource() {
     return _snapshotSource;
   }
-  
-  public void setSnapshotSource(MarketDataSnapshotSource snapshotSource) {
+
+  public void setSnapshotSource(final MarketDataSnapshotSource snapshotSource) {
     _snapshotSource = snapshotSource;
   }
-  
-  public ExternalIdBundleLookup getIdentifierLookup() {
-    return _identifierLookup;
+
+  public MarketDataAvailabilityFilter getBaseMarketDataAvailability() {
+    return _baseMarketDataAvailability;
   }
 
-  public void setIdentifierLookup(final ExternalIdBundleLookup identifierLookup) {
-    _identifierLookup = identifierLookup;
-  }
-
-  public MarketDataAvailabilityProvider getBaseMarketDataAvailabilityProvider() {
-    return _baseMarketDataAvailabilityProvider;
-  }
-
-  public void setBaseMarketDataAvailabilityProvider(MarketDataAvailabilityProvider baseMarketDataAvailabilityProvider) {
-    _baseMarketDataAvailabilityProvider = baseMarketDataAvailabilityProvider;
+  public void setBaseMarketDataAvailability(final MarketDataAvailabilityFilter baseMarketDataAvailability) {
+    _baseMarketDataAvailability = baseMarketDataAvailability;
   }
 
   @Override
   protected UserMarketDataProviderFactory createObject() {
     ArgumentChecker.notNullInjected(getSnapshotSource(), "snapshotSource");
-    return new UserMarketDataProviderFactory(getSnapshotSource(), getIdentifierLookup(), getBaseMarketDataAvailabilityProvider());
+    return new UserMarketDataProviderFactory(getSnapshotSource(), getBaseMarketDataAvailability());
   }
 
 }

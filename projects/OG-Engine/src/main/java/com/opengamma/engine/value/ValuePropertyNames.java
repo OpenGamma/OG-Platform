@@ -6,6 +6,7 @@
 package com.opengamma.engine.value;
 
 import com.opengamma.engine.function.FunctionDefinition;
+import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.util.PublicAPI;
 
 /**
@@ -76,6 +77,12 @@ public final class ValuePropertyNames {
    * of the output value.
    */
   public static final String CURVE_CURRENCY = "CurveCurrency";
+
+  /**
+   * The data provider used to source external values into the view cycle. This may be used by {@link MarketDataAvailabilityProvider} instances that work with multiple underlying providers to indicate
+   * which data provider should be queried for the value. In the case of a "route" of nested data providers existing, the {@code /} character can be used as a separator between elements.
+   */
+  public static final String DATA_PROVIDER = "DataProvider";
 
   /**
    * The function identifier that produced a value.
@@ -159,8 +166,9 @@ public final class ValuePropertyNames {
   public static final String OUTPUT_RESERVED_PREFIX = ".";
 
   /**
-   * A general name for a property describing the sampling period for a time series (e.g. daily, weekly)
+   * A general name for a property describing the period of time over which a time-series applies (e.g. P2Y).
    */
+  // NOTE jonathan 2013-03-12 -- PERIOD would be a better name
   public static final String SAMPLING_PERIOD = "SamplingPeriod";
 
   /**

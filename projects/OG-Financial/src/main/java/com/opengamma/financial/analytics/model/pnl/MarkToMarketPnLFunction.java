@@ -11,6 +11,7 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Period;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
@@ -45,12 +46,12 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.DateUtils;
 
 /**
- * FIXME PROTOTYPE
- * Function that computes the profit or loss since previous close. <p>
+ * FIXME PROTOTYPE Function that computes the profit or loss since previous close.
+ * <p>
  * As the name MarkToMarket implies, this simple Function applies to Trades on Exchange-Traded Securities.
+ * 
  * @author casey
  */
 public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker {
@@ -58,11 +59,11 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
   private static String s_valReqPriceLive = MarketDataRequirementNames.MARKET_VALUE;
   private static String s_valReqPriceHistory = ValueRequirementNames.HISTORICAL_TIME_SERIES_LATEST;
   private static int s_historyLookbackDays = 45;
-  
+
   private final String _closingPriceField;
   private final String _costOfCarryField;
   private final String _resolutionKey;
-  
+
   public MarkToMarketPnLFunction(String resolutionKey, String closingPriceField, String costOfCarryField) {
     super();
     ArgumentChecker.notNull(resolutionKey, "resolutionKey");
@@ -72,22 +73,22 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
     _closingPriceField = closingPriceField;
     _costOfCarryField = costOfCarryField;
   }
-  
+
   public MarkToMarketPnLFunction() {
     _closingPriceField = "PX_LAST";
     _costOfCarryField = "COST_OF_CARRY";
     _resolutionKey = "DEFAULT_TSS_CONFIG";
   }
-  
+
   protected String getValueRequirementName() {
     return ValueRequirementNames.MTM_PNL;
   }
-  
+
   @Override
   public ComputationTargetType getTargetType() {
     return ComputationTargetType.TRADE;
   }
-  
+
   @Override
   public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
 
@@ -97,20 +98,20 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
     }
     return FinancialSecurityUtils.isExchangeTraded(security) || (security instanceof BondSecurity);
   }
-  
+
   @Override
   public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
     final Security security = target.getPositionOrTrade().getSecurity();
-    
+
     // 1. Get inputs
     Double livePrice = null;
     Double closingPrice = null;
     Double costOfCarry = 0.0;
-    
+
     for (final ComputedValue input : inputs.getAllValues()) {
       if (s_valReqPriceLive.equals(input.getSpecification().getValueName())) {
         livePrice = ((Double) input.getValue());
-        
+
       } else if (s_valReqPriceHistory.equals(input.getSpecification().getValueName())) {
         final String field = input.getSpecification().getProperty(HistoricalTimeSeriesFunctionUtils.DATA_FIELD_PROPERTY);
         if (_costOfCarryField.equals(field)) {
@@ -126,7 +127,7 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
           Object value = input.getValue();
           if (value == null) {
             throw new NullPointerException("Did not satisfy time series latest requirement," + _closingPriceField + ", for security, " + security.getExternalIdBundle());
-          }      
+          }
           closingPrice = (Double) value;
         }
       }
@@ -134,14 +135,14 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
     if (livePrice == null) {
       throw new OpenGammaRuntimeException(MarketDataRequirementNames.MARKET_VALUE + " not available," + security.getName());
     }
-    
+
     // Move in the marked prices: Live - Previous Close 
     final Double dailyPriceMove = livePrice - closingPrice;
     // Total move := Value
     Double dailyValueMove = dailyPriceMove - costOfCarry;
-   
+
     // 2. Scale by Trade Notionals and Quantity 
-    
+
     // Some SecurityType's have Notional values built-in. Scale by these if required.
     if (security instanceof FutureSecurity) {
       final FutureSecurity futureSecurity = (FutureSecurity) security;
@@ -167,7 +168,7 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
   public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
     return Collections.singleton(new ValueSpecification(getValueRequirementName(), target.toSpecification(), createValueProperties(target).get()));
   }
-  
+
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
     if (inputs.isEmpty()) {
@@ -193,14 +194,14 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
       propertiesBuilder.with("MarkToMarketTimeSeries", uidMarkToMarket.toString());
     }
     if (uidCostOfCarry != null) {
-      propertiesBuilder.with("CostOfCarryTimeSeries",  uidCostOfCarry.toString());
+      propertiesBuilder.with("CostOfCarryTimeSeries", uidCostOfCarry.toString());
     }
     return Collections.singleton(new ValueSpecification(getValueRequirementName(), target.toSpecification(), propertiesBuilder.get()));
   }
-  
+
   @Override
   public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
-    
+
     // Security's Market Value. We scale up by Notionals and Quantities during execute()
     final Security security = target.getPositionOrTrade().getSecurity();
     final ValueRequirement securityValue = new ValueRequirement(s_valReqPriceLive, ComputationTargetType.SECURITY, security.getUniqueId());
@@ -212,11 +213,11 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
     final DateConstraint endDate = getTimeSeriesEndDate();
     final ValueRequirement markToMarketValue = getClosingPriceSeriesRequirement(resolver, bundle, startDate, endDate);
     final ValueRequirement costOfCarryValue = getCostOfCarrySeriesRequirement(resolver, bundle, startDate, endDate);
-    
+
     if (markToMarketValue == null && costOfCarryValue == null) {
       return null;
     }
-    
+
     if (markToMarketValue != null) {
       requirements.add(markToMarketValue);
     }
@@ -225,17 +226,16 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
     }
     return requirements;
   }
-  
-  
+
   // TODO - Add endDate to properties
   // TODO - Create a Function that getBothOfThese SeriesLast Requirements and place in HistoricalTimeSeriesFunctionUtils
   private ValueRequirement getClosingPriceSeriesRequirement(final HistoricalTimeSeriesResolver resolver, final ExternalIdBundle bundle, final DateConstraint startDate, final DateConstraint endDate) {
-    
+
     final HistoricalTimeSeriesResolutionResult timeSeries = resolver.resolve(bundle, null, null, null, _closingPriceField, _resolutionKey);
     if (timeSeries == null) {
       return null;
     }
-    
+
     final UniqueId htsId = timeSeries.getHistoricalTimeSeriesInfo().getUniqueId();
     ValueProperties properties = ValueProperties.builder()
         .with(HistoricalTimeSeriesFunctionUtils.DATA_FIELD_PROPERTY, _closingPriceField)
@@ -243,16 +243,16 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
         //.with("IncludeEnd", "Yes")
         .get();
     return new ValueRequirement(ValueRequirementNames.HISTORICAL_TIME_SERIES_LATEST, ComputationTargetType.PRIMITIVE, htsId, properties);
-    
+
     //return HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, _closingPriceField, startDate, true, endDate, true);
   }
-   
+
   private ValueRequirement getCostOfCarrySeriesRequirement(final HistoricalTimeSeriesResolver resolver, final ExternalIdBundle bundle, final DateConstraint startDate, final DateConstraint endDate) {
     final HistoricalTimeSeriesResolutionResult timeSeries = resolver.resolve(bundle, null, null, null, _costOfCarryField, _resolutionKey);
     if (timeSeries == null) {
       return null;
     }
-    
+
     final UniqueId htsId = timeSeries.getHistoricalTimeSeriesInfo().getUniqueId();
     ValueProperties properties = ValueProperties.builder()
         .with(HistoricalTimeSeriesFunctionUtils.DATA_FIELD_PROPERTY, _costOfCarryField)
@@ -260,18 +260,18 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
         //.with("IncludeEnd", "Yes")
         .get();
     return new ValueRequirement(ValueRequirementNames.HISTORICAL_TIME_SERIES_LATEST, ComputationTargetType.PRIMITIVE, htsId, properties);
-    
+
     //return HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, _costOfCarryField, startDate, true, endDate, true);
   }
-  
+
   protected DateConstraint getTimeSeriesStartDate() {
-    return DateConstraint.VALUATION_TIME.minus(DateUtils.periodOfDays(s_historyLookbackDays + 1)); // yesterday - HISTORY_LOOKBACK_DAYS
+    return DateConstraint.VALUATION_TIME.minus(Period.ofDays(s_historyLookbackDays + 1)); // yesterday - HISTORY_LOOKBACK_DAYS
   }
-  
+
   protected DateConstraint getTimeSeriesEndDate() {
-    return DateConstraint.VALUATION_TIME.yesterday();
+    return DateConstraint.VALUATION_TIME.minus(Period.ofDays(1));
   }
-  
+
   protected ValueProperties.Builder createValueProperties(final ComputationTarget target) {
     final ValueProperties.Builder properties = createValueProperties();
     final Currency ccy = FinancialSecurityUtils.getCurrency(target.getPositionOrTrade().getSecurity());
@@ -280,7 +280,7 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
     }
     return properties;
   }
-  
+
   private static final Logger s_logger = LoggerFactory.getLogger(MarkToMarketPnLFunction.class);
 
 }

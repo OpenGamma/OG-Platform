@@ -16,11 +16,11 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.google.common.collect.Sets;
+import com.opengamma.engine.calcnode.InvocationResult;
+import com.opengamma.engine.exec.DefaultAggregatedExecutionLog;
 import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.AggregatedExecutionLog;
-import com.opengamma.engine.view.calc.DefaultAggregatedExecutionLog;
-import com.opengamma.engine.view.calcnode.InvocationResult;
 
 /**
  * Fudge message builder for {@link ComputedValueResult}.

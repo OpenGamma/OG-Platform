@@ -10,6 +10,7 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Period;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
@@ -181,7 +182,7 @@ public class EquityDividendYieldFuturesFunction<T> extends FuturesFunction<T> {
       return null;
     }
     return HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, MarketDataRequirementNames.DIVIDEND_YIELD,
-        DateConstraint.VALUATION_TIME.minus(DateUtils.periodOfDays(7)), true, DateConstraint.VALUATION_TIME, true);
+        DateConstraint.VALUATION_TIME.minus(Period.ofDays(7)), true, DateConstraint.VALUATION_TIME, true);
   }
 
 }

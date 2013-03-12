@@ -128,10 +128,10 @@ public class ExampleEquityOptionVolatilitySurfaceDataFunction extends AbstractFu
       // don't care what these are
       for (final Y y : definition.getYs()) {
         provider.init(true); // generate puts
-        final ExternalId putIdentifier = provider.getInstrument((LocalDate) x, (Double) y, atInstant.getDate());
+        final ExternalId putIdentifier = provider.getInstrument((LocalDate) x, (Double) y, atInstant.toLocalDate());
         result.add(new ValueRequirement(provider.getDataFieldName(), ComputationTargetType.PRIMITIVE, putIdentifier));
         provider.init(false);
-        final ExternalId callIdentifier = provider.getInstrument((LocalDate) x, (Double) y, atInstant.getDate());
+        final ExternalId callIdentifier = provider.getInstrument((LocalDate) x, (Double) y, atInstant.toLocalDate());
         result.add(new ValueRequirement(provider.getDataFieldName(), ComputationTargetType.PRIMITIVE, callIdentifier));
       }
     }
@@ -201,7 +201,7 @@ public class ExampleEquityOptionVolatilitySurfaceDataFunction extends AbstractFu
             } else {
               provider.init(true); // generate identifiers for put options
             }
-            final ExternalId identifier = provider.getInstrument(expiry, strike, now.getDate());
+            final ExternalId identifier = provider.getInstrument(expiry, strike, now.toLocalDate());
             final ValueRequirement requirement = new ValueRequirement(provider.getDataFieldName(), ComputationTargetType.PRIMITIVE, identifier);
             if (inputs.getValue(requirement) != null) {
               final Double volatility = (Double) inputs.getValue(requirement);

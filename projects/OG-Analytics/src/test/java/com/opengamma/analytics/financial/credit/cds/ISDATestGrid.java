@@ -16,7 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.format.DateTimeFormatter;
-import org.threeten.bp.format.DateTimeFormatters;
 
 /**
  * The class holds the data for one of the test grids and the associated
@@ -69,8 +68,7 @@ public class ISDATestGrid {
 	private String _currency;
 	private static TreeMap<ISDATestGridFields, Integer> headingIndex;
 
-	private static DateTimeFormatter formatter = DateTimeFormatters
-			.pattern("yyyyMMdd");
+	private static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
 
 	static TreeMap<ISDATestGridFields, Integer> getHeadingIndex()
 	{

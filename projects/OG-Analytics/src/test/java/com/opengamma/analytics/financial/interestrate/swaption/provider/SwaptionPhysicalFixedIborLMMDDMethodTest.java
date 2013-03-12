@@ -93,7 +93,7 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
 
   // Swaption 5Yx5Y
   private static final int SWAP_TENOR_YEAR = 5;
-  private static final Period SWAP_TENOR = DateUtils.periodOfYears(SWAP_TENOR_YEAR);
+  private static final Period SWAP_TENOR = Period.ofYears(SWAP_TENOR_YEAR);
   private static final ZonedDateTime EXPIRY_DATE = DateUtils.getUTCDate(2016, 7, 7);
   private static final ZonedDateTime SETTLEMENT_DATE = ScheduleCalculator.getAdjustedDate(EXPIRY_DATE, EURIBOR6M.getSpotLag(), TARGET);
   private static final double NOTIONAL = 100000000; //100m
@@ -261,8 +261,8 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
   public void performance() {
     long startTime, endTime;
     final int nbTest = 1000;
-    final Period swapTenor = DateUtils.periodOfYears(10);
-    final Period expTenor = DateUtils.periodOfYears(10);
+    final Period swapTenor = Period.ofYears(10);
+    final Period expTenor = Period.ofYears(10);
     final ZonedDateTime expiryDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, expTenor, EURIBOR6M);
     final ZonedDateTime settleDate = ScheduleCalculator.getAdjustedDate(expiryDate, EURIBOR6M.getSpotLag(), TARGET);
     final LiborMarketModelDisplacedDiffusionParameters parametersLMM = TestsDataSetLiborMarketModelDisplacedDiffusion.createLMMParameters(REFERENCE_DATE,
@@ -326,7 +326,7 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
     final SwaptionPhysicalFixedIborDefinition[] swaptionCalibrationDefinition = new SwaptionPhysicalFixedIborDefinition[swapTenorYear.length];
     final SwaptionPhysicalFixedIbor[] swaptionCalibration = new SwaptionPhysicalFixedIbor[swapTenorYear.length];
     for (int loopexp = 0; loopexp < swapTenorYear.length; loopexp++) {
-      swapCalibrationDefinition[loopexp] = SwapFixedIborDefinition.from(SETTLEMENT_DATE, DateUtils.periodOfYears(loopexp + 1), EUR1YEURIBOR6M, NOTIONAL, RATE, FIXED_IS_PAYER);
+      swapCalibrationDefinition[loopexp] = SwapFixedIborDefinition.from(SETTLEMENT_DATE, Period.ofYears(loopexp + 1), EUR1YEURIBOR6M, NOTIONAL, RATE, FIXED_IS_PAYER);
       swaptionCalibrationDefinition[loopexp] = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, swapCalibrationDefinition[loopexp], IS_LONG);
       swaptionCalibration[loopexp] = swaptionCalibrationDefinition[loopexp].toDerivative(REFERENCE_DATE, NOT_USED_A);
     }
@@ -478,7 +478,7 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
   public void calibrateAtBestPriceAmortized() {
     final double[] amortization = new double[] {1.00, 0.80, 0.60, 0.40, 0.20}; // For 5Y amortization
     final int nbPeriods = amortization.length;
-    final SwapFixedIborDefinition swapDefinition = SwapFixedIborDefinition.from(SETTLEMENT_DATE, DateUtils.periodOfYears(nbPeriods), EUR1YEURIBOR6M, NOTIONAL, RATE, FIXED_IS_PAYER);
+    final SwapFixedIborDefinition swapDefinition = SwapFixedIborDefinition.from(SETTLEMENT_DATE, Period.ofYears(nbPeriods), EUR1YEURIBOR6M, NOTIONAL, RATE, FIXED_IS_PAYER);
     //    SwapFixedCoupon<Coupon> swap = swapDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
     final CouponFixedDefinition[] cpnFixed = new CouponFixedDefinition[nbPeriods];
     final AnnuityCouponFixedDefinition legFixed = swapDefinition.getFixedLeg();

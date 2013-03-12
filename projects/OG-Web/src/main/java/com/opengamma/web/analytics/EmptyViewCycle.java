@@ -9,31 +9,30 @@ import org.threeten.bp.Duration;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.engine.resource.EngineResourceReference;
 import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.InMemoryViewComputationResultModel;
 import com.opengamma.engine.view.ViewComputationResultModel;
-import com.opengamma.engine.view.calc.ComputationCacheResponse;
-import com.opengamma.engine.view.calc.ComputationCycleQuery;
-import com.opengamma.engine.view.calc.ComputationResultsResponse;
-import com.opengamma.engine.view.calc.EngineResourceReference;
-import com.opengamma.engine.view.calc.ViewCycle;
-import com.opengamma.engine.view.calc.ViewCycleState;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
+import com.opengamma.engine.view.cycle.ComputationCacheResponse;
+import com.opengamma.engine.view.cycle.ComputationCycleQuery;
+import com.opengamma.engine.view.cycle.ComputationResultsResponse;
+import com.opengamma.engine.view.cycle.ViewCycle;
+import com.opengamma.engine.view.cycle.ViewCycleState;
+import com.opengamma.engine.view.impl.InMemoryViewComputationResultModel;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * {@link ViewCycle} implementation that acts as a placeholder when a calculation cycle hasn't completed and there
- * isn't a cycle available. This is cleaner than using a null cycle reference and being forced to do a null check
- * everywhere it's used. Only a single instance of this class should ever exist.
+ * {@link ViewCycle} implementation that acts as a placeholder when a calculation cycle hasn't completed and there isn't a cycle available. This is cleaner than using a null cycle reference and being
+ * forced to do a null check everywhere it's used. Only a single instance of this class should ever exist.
  */
-/*package*/ final class EmptyViewCycle implements ViewCycle {
+/*package*/final class EmptyViewCycle implements ViewCycle {
 
   /** Reference to the empty cycle. */
-  /* package */ static final EngineResourceReference<ViewCycle> REFERENCE = new EmptyViewCycleReference();
+  /* package */static final EngineResourceReference<ViewCycle> REFERENCE = new EmptyViewCycleReference();
   /** Single empty cycle instance. */
-  /* package */ static final ViewCycle INSTANCE = new EmptyViewCycle();
+  /* package */static final ViewCycle INSTANCE = new EmptyViewCycle();
 
   /** Empty set of analytics results. */
   private static final InMemoryViewComputationResultModel EMPTY_RESULTS = new InMemoryViewComputationResultModel();
@@ -86,13 +85,13 @@ import com.opengamma.util.tuple.Pair;
   public ComputationCacheResponse queryComputationCaches(ComputationCycleQuery computationCacheQuery) {
     return EMPTY_CACHE_RESPONSE;
   }
-  
+
   @Override
   public ComputationResultsResponse queryResults(ComputationCycleQuery query) {
     return EMPTY_RESULTS_RESPONSE;
   }
 
-  /*package*/ static final class EmptyViewCycleReference implements EngineResourceReference<ViewCycle> {
+  /*package*/static final class EmptyViewCycleReference implements EngineResourceReference<ViewCycle> {
 
     private EmptyViewCycleReference() {
     }

@@ -10,7 +10,7 @@ import java.util.Collection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.view.calcnode.CalculationJobItem;
+import com.opengamma.engine.calcnode.CalculationJobItem;
 
 /**
  * Dummy implementation of {@link FunctionBlacklistMaintainer} that just logs at info level.

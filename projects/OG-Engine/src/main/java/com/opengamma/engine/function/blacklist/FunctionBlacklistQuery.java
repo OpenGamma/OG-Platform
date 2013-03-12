@@ -8,12 +8,12 @@ package com.opengamma.engine.function.blacklist;
 import java.util.Set;
 
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.calcnode.CalculationJobItem;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.function.FunctionParameters;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.calcnode.CalculationJobItem;
 
 /**
  * Querying interface to a blacklist resource to test whether items are matched by the blacklisting rules on that resource. Using a query instance is likely to be faster than fetching the rules from a

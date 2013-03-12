@@ -13,6 +13,7 @@ import java.util.Map;
 
 import com.opengamma.core.marketdatasnapshot.ValueSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableYieldCurveSnapshot;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.language.Value;
 import com.opengamma.language.ValueUtils;
 import com.opengamma.language.context.SessionContext;
@@ -53,9 +54,10 @@ public class GetYieldCurveTensorFunction extends AbstractFunctionInvoker impleme
   }
 
   public static Value[] invoke(final ManageableYieldCurveSnapshot snapshot, final Boolean marketValue, final Boolean overrideValue) {
-    List<Value> values = new LinkedList<Value>();
-    for (Map<String, ValueSnapshot> entries : snapshot.getValues().getValues().values()) {
-      for (ValueSnapshot entry : entries.values()) {
+    final List<Value> values = new LinkedList<Value>();
+    for (final ExternalIdBundle target : snapshot.getValues().getTargets()) {
+      final Map<String, ValueSnapshot> entries = snapshot.getValues().getTargetValues(target);
+      for (final ValueSnapshot entry : entries.values()) {
         if (Boolean.TRUE.equals(overrideValue) && (entry.getOverrideValue() != null)) {
           values.add(ValueUtils.of(entry.getOverrideValue()));
           continue;

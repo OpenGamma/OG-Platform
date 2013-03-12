@@ -7,7 +7,6 @@ package com.opengamma.web.analytics.formatting;
 
 import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
-import org.threeten.bp.format.DateTimeFormatters;
 
 import com.opengamma.engine.value.ValueSpecification;
 
@@ -16,7 +15,7 @@ import com.opengamma.engine.value.ValueSpecification;
  */
 /* package */ class ZonedDateTimeFormatter extends AbstractFormatter<ZonedDateTime> {
 
-  private static final DateTimeFormatter s_formatter = DateTimeFormatters.isoLocalDate();
+  private static final DateTimeFormatter s_formatter = DateTimeFormatter.ISO_LOCAL_DATE;
 
   /* package */ ZonedDateTimeFormatter() {
     super(ZonedDateTime.class);
@@ -24,7 +23,7 @@ import com.opengamma.engine.value.ValueSpecification;
 
   @Override
   public Object formatCell(ZonedDateTime value, ValueSpecification valueSpec) {
-    return s_formatter.print(value);
+    return s_formatter.format(value);
   }
 
   @Override

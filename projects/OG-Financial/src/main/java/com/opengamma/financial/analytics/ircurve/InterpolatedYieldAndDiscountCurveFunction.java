@@ -27,6 +27,7 @@ import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolat
 import com.opengamma.analytics.math.interpolation.FlatExtrapolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
+import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
@@ -42,7 +43,6 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
-import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Triple;
@@ -157,21 +157,20 @@ public class InterpolatedYieldAndDiscountCurveFunction extends AbstractFunction 
 
       @Override
       public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-        final Map<ExternalId, Double> marketDataMap = _helper.getMarketDataMap(inputs);
-
+        final SnapshotDataBundle marketData = _helper.getMarketDataMap(inputs);
         // Gather market data rates
         // Note that this assumes that all strips are priced in decimal percent. We need to resolve
         // that ultimately in OG-LiveData normalization and pull out the OGRate key rather than
         // the crazy IndicativeValue name.
         final FixedIncomeStripIdentifierAndMaturityBuilder builder = new FixedIncomeStripIdentifierAndMaturityBuilder(OpenGammaExecutionContext.getRegionSource(executionContext),
             OpenGammaExecutionContext.getConventionBundleSource(executionContext), executionContext.getSecuritySource(), OpenGammaExecutionContext.getHolidaySource(executionContext));
-        final InterpolatedYieldCurveSpecificationWithSecurities specWithSecurities = builder.resolveToSecurity(specification, marketDataMap);
+        final InterpolatedYieldCurveSpecificationWithSecurities specWithSecurities = builder.resolveToSecurity(specification, marketData);
         final Clock snapshotClock = executionContext.getValuationClock();
         final ZonedDateTime today = ZonedDateTime.now(snapshotClock); // TODO: change to times
         final Map<Double, Double> timeInYearsToRates = new TreeMap<Double, Double>();
         boolean isFirst = true;
         for (final FixedIncomeStripWithSecurity strip : specWithSecurities.getStrips()) {
-          Double price = marketDataMap.get(strip.getSecurityIdentifier());
+          Double price = marketData.getDataPoint(strip.getSecurityIdentifier());
           if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
             price = 100d - price;
           }
