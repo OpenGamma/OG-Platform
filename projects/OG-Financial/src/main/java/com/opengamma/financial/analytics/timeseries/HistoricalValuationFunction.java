@@ -65,11 +65,6 @@ public class HistoricalValuationFunction extends AbstractFunction.NonCompiledInv
    * {@code FairValue[]}.
    */
   public static final String VALUE_PROPERTY = "Value";
-  
-  /**
-   * Property specifying a period over which the historical valuation should take place. For example {@code P5Y} to evaluate the target over a 5-year period. May be used in conjunction with {@link HistoricalTimeSeriesFunctionUtils#START_DATE_PROPERTY} or {@link HistoricalTimeSeriesFunctionUtils#END_DATE_PROPERTY}, otherwise the period ending today is used.
-   */
-  public static final String PERIOD = "Period";
 
   /**
    * Prefix on properties corresponding the the underlying production on the target. For example {@code Historical Series[Value=FairValue, Value_Foo=Bar]} will produce a time series based on
@@ -225,7 +220,7 @@ public class HistoricalValuationFunction extends AbstractFunction.NonCompiledInv
           includeStartConstraint = Iterables.getOnlyElement(constraintValues);
         } else if (constraintName.equals(HistoricalTimeSeriesFunctionUtils.INCLUDE_END_PROPERTY)) {
           includeEndConstraint = Iterables.getOnlyElement(constraintValues);
-        } else if (constraintName.equals(PERIOD)) {
+        } else if (constraintName.equals(ValuePropertyNames.SAMPLING_PERIOD)) {
           periodConstraint = Iterables.getOnlyElement(constraintValues);
         } else if (!ValuePropertyNames.FUNCTION.equals(constraintName) && !constraints.isOptional(constraintName)) {
           // getResults uses ValueProperties.all() so have to filter out invalid constraints here
@@ -273,7 +268,7 @@ public class HistoricalValuationFunction extends AbstractFunction.NonCompiledInv
     builder.with(HistoricalTimeSeriesFunctionUtils.END_DATE_PROPERTY, target.getEndDate().toString());
     builder.with(HistoricalTimeSeriesFunctionUtils.INCLUDE_END_PROPERTY, target.isIncludeEnd() ? HistoricalTimeSeriesFunctionUtils.YES_VALUE
         : HistoricalTimeSeriesFunctionUtils.NO_VALUE);
-    builder.with(PERIOD, target.getPeriod().toString());
+    builder.with(ValuePropertyNames.SAMPLING_PERIOD, target.getPeriod().toString());
     return builder;
   }
 
