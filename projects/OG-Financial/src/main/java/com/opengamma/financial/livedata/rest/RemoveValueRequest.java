@@ -55,7 +55,7 @@ public class RemoveValueRequest extends DirectBean {
   }
 
   @Override
-  protected Object propertyGet(final String propertyName, final boolean quiet) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -755281390:  // valueRequirement
         return getValueRequirement();
@@ -66,7 +66,7 @@ public class RemoveValueRequest extends DirectBean {
   }
 
   @Override
-  protected void propertySet(final String propertyName, final Object newValue, final boolean quiet) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -755281390:  // valueRequirement
         setValueRequirement((ValueRequirement) newValue);
@@ -79,12 +79,12 @@ public class RemoveValueRequest extends DirectBean {
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      final RemoveValueRequest other = (RemoveValueRequest) obj;
+      RemoveValueRequest other = (RemoveValueRequest) obj;
       return JodaBeanUtils.equal(getValueRequirement(), other.getValueRequirement()) &&
           JodaBeanUtils.equal(getValueSpecification(), other.getValueSpecification());
     }
@@ -112,7 +112,7 @@ public class RemoveValueRequest extends DirectBean {
    * Sets the valueRequirement.
    * @param valueRequirement  the new value of the property
    */
-  public void setValueRequirement(final ValueRequirement valueRequirement) {
+  public void setValueRequirement(ValueRequirement valueRequirement) {
     this._valueRequirement = valueRequirement;
   }
 
@@ -137,7 +137,7 @@ public class RemoveValueRequest extends DirectBean {
    * Sets the valueSpecification.
    * @param valueSpecification  the new value of the property
    */
-  public void setValueSpecification(final ValueSpecification valueSpecification) {
+  public void setValueSpecification(ValueSpecification valueSpecification) {
     this._valueSpecification = valueSpecification;
   }
 
@@ -184,7 +184,7 @@ public class RemoveValueRequest extends DirectBean {
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
         case -755281390:  // valueRequirement
           return _valueRequirement;

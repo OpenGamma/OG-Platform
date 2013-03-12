@@ -1,15 +1,9 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.credit.isdayieldcurve;
-
-import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.FLAT_EXTRAPOLATOR;
-import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.ISDA_EXTRAPOLATOR;
-import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.ISDA_INTERPOLATOR;
-
-import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.interestrate.PeriodicInterestRate;
@@ -20,9 +14,16 @@ import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolat
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
+import org.threeten.bp.ZonedDateTime;
+
+import java.util.Arrays;
+
+import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.FLAT_EXTRAPOLATOR;
+import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.ISDA_EXTRAPOLATOR;
+import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.ISDA_INTERPOLATOR;
 
 /**
- * 
+ *
  */
 public class ISDADateCurve {
 
@@ -159,4 +160,17 @@ public class ISDADateCurve {
   }
 
   // ------------------------------------------------------------------------------------------------------------------------------------
+
+
+  @Override
+  public String toString() {
+    return "ISDADateCurve{" +
+        "_name='" + _name + '\'' +
+        ", _offset=" + _offset +
+        ", _curveTenors=" + (_curveTenors == null ? null : Arrays.asList(_curveTenors)) +
+        ", _curve=" + _curve +
+        ", _shiftedTimePoints=" + _shiftedTimePoints +
+        ", _zeroDiscountFactor=" + _zeroDiscountFactor +
+        '}';
+  }
 }

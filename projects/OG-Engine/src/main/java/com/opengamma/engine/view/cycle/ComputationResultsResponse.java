@@ -40,13 +40,11 @@ public class ComputationResultsResponse extends DirectBean {
   ///CLOVER:OFF
   /**
    * The meta-bean for {@code ComputationResultsResponse}.
-   * 
    * @return the meta-bean, not null
    */
   public static ComputationResultsResponse.Meta meta() {
     return ComputationResultsResponse.Meta.INSTANCE;
   }
-
   static {
     JodaBeanUtils.registerMetaBean(ComputationResultsResponse.Meta.INSTANCE);
   }
@@ -59,7 +57,7 @@ public class ComputationResultsResponse extends DirectBean {
   @Override
   protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case 1097546742: // results
+      case 1097546742:  // results
         return getResults();
     }
     return super.propertyGet(propertyName, quiet);
@@ -69,7 +67,7 @@ public class ComputationResultsResponse extends DirectBean {
   @Override
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case 1097546742: // results
+      case 1097546742:  // results
         setResults((Map<ValueSpecification, ComputedValueResult>) newValue);
         return;
     }
@@ -98,7 +96,6 @@ public class ComputationResultsResponse extends DirectBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the results obtained from the query.
-   * 
    * @return the value of the property
    */
   public Map<ValueSpecification, ComputedValueResult> getResults() {
@@ -107,8 +104,7 @@ public class ComputationResultsResponse extends DirectBean {
 
   /**
    * Sets the results obtained from the query.
-   * 
-   * @param results the new value of the property
+   * @param results  the new value of the property
    */
   public void setResults(Map<ValueSpecification, ComputedValueResult> results) {
     this._results = results;
@@ -116,7 +112,6 @@ public class ComputationResultsResponse extends DirectBean {
 
   /**
    * Gets the the {@code results} property.
-   * 
    * @return the property, not null
    */
   public final Property<Map<ValueSpecification, ComputedValueResult>> results() {
@@ -155,7 +150,7 @@ public class ComputationResultsResponse extends DirectBean {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 1097546742: // results
+        case 1097546742:  // results
           return _results;
       }
       return super.metaPropertyGet(propertyName);
@@ -179,7 +174,6 @@ public class ComputationResultsResponse extends DirectBean {
     //-----------------------------------------------------------------------
     /**
      * The meta-property for the {@code results} property.
-     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<Map<ValueSpecification, ComputedValueResult>> results() {

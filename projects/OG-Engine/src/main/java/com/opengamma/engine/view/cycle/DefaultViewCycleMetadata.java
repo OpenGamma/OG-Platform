@@ -89,13 +89,11 @@ public class DefaultViewCycleMetadata extends DirectBean implements ViewCycleMet
   ///CLOVER:OFF
   /**
    * The meta-bean for {@code DefaultViewCycleMetadata}.
-   * 
    * @return the meta-bean, not null
    */
   public static DefaultViewCycleMetadata.Meta meta() {
     return DefaultViewCycleMetadata.Meta.INSTANCE;
   }
-
   static {
     JodaBeanUtils.registerMetaBean(DefaultViewCycleMetadata.Meta.INSTANCE);
   }
@@ -108,21 +106,21 @@ public class DefaultViewCycleMetadata extends DirectBean implements ViewCycleMet
   @Override
   protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case 1217858108: // viewCycleId
+      case 1217858108:  // viewCycleId
         return getViewCycleId();
-      case -41253723: // marketDataSnapshotId
+      case -41253723:  // marketDataSnapshotId
         return getMarketDataSnapshotId();
-      case -545262317: // viewDefinitionId
+      case -545262317:  // viewDefinitionId
         return getViewDefinitionId();
-      case -2031293866: // versionCorrection
+      case -2031293866:  // versionCorrection
         return getVersionCorrection();
-      case 113591406: // valuationTime
+      case 113591406:  // valuationTime
         return getValuationTime();
-      case 197622906: // allCalculationConfigurationNames
+      case 197622906:  // allCalculationConfigurationNames
         return getAllCalculationConfigurationNames();
-      case -1677286775: // computationTargetsByCalcConfig
+      case -1677286775:  // computationTargetsByCalcConfig
         return getComputationTargetsByCalcConfig();
-      case -351004092: // terminalOutputsByCalcConfig
+      case -351004092:  // terminalOutputsByCalcConfig
         return getTerminalOutputsByCalcConfig();
     }
     return super.propertyGet(propertyName, quiet);
@@ -132,28 +130,28 @@ public class DefaultViewCycleMetadata extends DirectBean implements ViewCycleMet
   @Override
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case 1217858108: // viewCycleId
+      case 1217858108:  // viewCycleId
         setViewCycleId((UniqueId) newValue);
         return;
-      case -41253723: // marketDataSnapshotId
+      case -41253723:  // marketDataSnapshotId
         setMarketDataSnapshotId((UniqueId) newValue);
         return;
-      case -545262317: // viewDefinitionId
+      case -545262317:  // viewDefinitionId
         setViewDefinitionId((UniqueId) newValue);
         return;
-      case -2031293866: // versionCorrection
+      case -2031293866:  // versionCorrection
         setVersionCorrection((VersionCorrection) newValue);
         return;
-      case 113591406: // valuationTime
+      case 113591406:  // valuationTime
         setValuationTime((Instant) newValue);
         return;
-      case 197622906: // allCalculationConfigurationNames
+      case 197622906:  // allCalculationConfigurationNames
         setAllCalculationConfigurationNames((Collection<String>) newValue);
         return;
-      case -1677286775: // computationTargetsByCalcConfig
+      case -1677286775:  // computationTargetsByCalcConfig
         setComputationTargetsByCalcConfig((Map<String, Collection<ComputationTargetSpecification>>) newValue);
         return;
-      case -351004092: // terminalOutputsByCalcConfig
+      case -351004092:  // terminalOutputsByCalcConfig
         setTerminalOutputsByCalcConfig((Map<String, Map<ValueSpecification, Set<ValueRequirement>>>) newValue);
         return;
     }
@@ -196,18 +194,15 @@ public class DefaultViewCycleMetadata extends DirectBean implements ViewCycleMet
   //-----------------------------------------------------------------------
   /**
    * Gets the viewCycleId.
-   * 
    * @return the value of the property
    */
-  @Override
   public UniqueId getViewCycleId() {
     return _viewCycleId;
   }
 
   /**
    * Sets the viewCycleId.
-   * 
-   * @param viewCycleId the new value of the property
+   * @param viewCycleId  the new value of the property
    */
   public void setViewCycleId(UniqueId viewCycleId) {
     this._viewCycleId = viewCycleId;
@@ -215,7 +210,6 @@ public class DefaultViewCycleMetadata extends DirectBean implements ViewCycleMet
 
   /**
    * Gets the the {@code viewCycleId} property.
-   * 
    * @return the property, not null
    */
   public final Property<UniqueId> viewCycleId() {
@@ -225,18 +219,15 @@ public class DefaultViewCycleMetadata extends DirectBean implements ViewCycleMet
   //-----------------------------------------------------------------------
   /**
    * Gets the marketDataSnapshotId.
-   * 
    * @return the value of the property
    */
-  @Override
   public UniqueId getMarketDataSnapshotId() {
     return _marketDataSnapshotId;
   }
 
   /**
    * Sets the marketDataSnapshotId.
-   * 
-   * @param marketDataSnapshotId the new value of the property
+   * @param marketDataSnapshotId  the new value of the property
    */
   public void setMarketDataSnapshotId(UniqueId marketDataSnapshotId) {
     this._marketDataSnapshotId = marketDataSnapshotId;
@@ -244,7 +235,6 @@ public class DefaultViewCycleMetadata extends DirectBean implements ViewCycleMet
 
   /**
    * Gets the the {@code marketDataSnapshotId} property.
-   * 
    * @return the property, not null
    */
   public final Property<UniqueId> marketDataSnapshotId() {
@@ -254,18 +244,15 @@ public class DefaultViewCycleMetadata extends DirectBean implements ViewCycleMet
   //-----------------------------------------------------------------------
   /**
    * Gets the viewDefinitionId.
-   * 
    * @return the value of the property
    */
-  @Override
   public UniqueId getViewDefinitionId() {
     return _viewDefinitionId;
   }
 
   /**
    * Sets the viewDefinitionId.
-   * 
-   * @param viewDefinitionId the new value of the property
+   * @param viewDefinitionId  the new value of the property
    */
   public void setViewDefinitionId(UniqueId viewDefinitionId) {
     this._viewDefinitionId = viewDefinitionId;
@@ -273,7 +260,6 @@ public class DefaultViewCycleMetadata extends DirectBean implements ViewCycleMet
 
   /**
    * Gets the the {@code viewDefinitionId} property.
-   * 
    * @return the property, not null
    */
   public final Property<UniqueId> viewDefinitionId() {
@@ -283,18 +269,15 @@ public class DefaultViewCycleMetadata extends DirectBean implements ViewCycleMet
   //-----------------------------------------------------------------------
   /**
    * Gets the versionCorrection.
-   * 
    * @return the value of the property
    */
-  @Override
   public VersionCorrection getVersionCorrection() {
     return _versionCorrection;
   }
 
   /**
    * Sets the versionCorrection.
-   * 
-   * @param versionCorrection the new value of the property
+   * @param versionCorrection  the new value of the property
    */
   public void setVersionCorrection(VersionCorrection versionCorrection) {
     this._versionCorrection = versionCorrection;
@@ -302,7 +285,6 @@ public class DefaultViewCycleMetadata extends DirectBean implements ViewCycleMet
 
   /**
    * Gets the the {@code versionCorrection} property.
-   * 
    * @return the property, not null
    */
   public final Property<VersionCorrection> versionCorrection() {
@@ -312,18 +294,15 @@ public class DefaultViewCycleMetadata extends DirectBean implements ViewCycleMet
   //-----------------------------------------------------------------------
   /**
    * Gets the valuationTime.
-   * 
    * @return the value of the property
    */
-  @Override
   public Instant getValuationTime() {
     return _valuationTime;
   }
 
   /**
    * Sets the valuationTime.
-   * 
-   * @param valuationTime the new value of the property
+   * @param valuationTime  the new value of the property
    */
   public void setValuationTime(Instant valuationTime) {
     this._valuationTime = valuationTime;
@@ -331,7 +310,6 @@ public class DefaultViewCycleMetadata extends DirectBean implements ViewCycleMet
 
   /**
    * Gets the the {@code valuationTime} property.
-   * 
    * @return the property, not null
    */
   public final Property<Instant> valuationTime() {
@@ -341,18 +319,15 @@ public class DefaultViewCycleMetadata extends DirectBean implements ViewCycleMet
   //-----------------------------------------------------------------------
   /**
    * Gets the allCalculationConfigurationNames.
-   * 
    * @return the value of the property
    */
-  @Override
   public Collection<String> getAllCalculationConfigurationNames() {
     return _allCalculationConfigurationNames;
   }
 
   /**
    * Sets the allCalculationConfigurationNames.
-   * 
-   * @param allCalculationConfigurationNames the new value of the property
+   * @param allCalculationConfigurationNames  the new value of the property
    */
   public void setAllCalculationConfigurationNames(Collection<String> allCalculationConfigurationNames) {
     this._allCalculationConfigurationNames = allCalculationConfigurationNames;
@@ -360,7 +335,6 @@ public class DefaultViewCycleMetadata extends DirectBean implements ViewCycleMet
 
   /**
    * Gets the the {@code allCalculationConfigurationNames} property.
-   * 
    * @return the property, not null
    */
   public final Property<Collection<String>> allCalculationConfigurationNames() {
@@ -370,7 +344,6 @@ public class DefaultViewCycleMetadata extends DirectBean implements ViewCycleMet
   //-----------------------------------------------------------------------
   /**
    * Gets the computationTargetsByCalcConfig.
-   * 
    * @return the value of the property
    */
   public Map<String, Collection<ComputationTargetSpecification>> getComputationTargetsByCalcConfig() {
@@ -379,8 +352,7 @@ public class DefaultViewCycleMetadata extends DirectBean implements ViewCycleMet
 
   /**
    * Sets the computationTargetsByCalcConfig.
-   * 
-   * @param computationTargetsByCalcConfig the new value of the property
+   * @param computationTargetsByCalcConfig  the new value of the property
    */
   public void setComputationTargetsByCalcConfig(Map<String, Collection<ComputationTargetSpecification>> computationTargetsByCalcConfig) {
     this._computationTargetsByCalcConfig = computationTargetsByCalcConfig;
@@ -388,7 +360,6 @@ public class DefaultViewCycleMetadata extends DirectBean implements ViewCycleMet
 
   /**
    * Gets the the {@code computationTargetsByCalcConfig} property.
-   * 
    * @return the property, not null
    */
   public final Property<Map<String, Collection<ComputationTargetSpecification>>> computationTargetsByCalcConfig() {
@@ -398,7 +369,6 @@ public class DefaultViewCycleMetadata extends DirectBean implements ViewCycleMet
   //-----------------------------------------------------------------------
   /**
    * Gets the terminalOutputsByCalcConfig.
-   * 
    * @return the value of the property
    */
   public Map<String, Map<ValueSpecification, Set<ValueRequirement>>> getTerminalOutputsByCalcConfig() {
@@ -407,8 +377,7 @@ public class DefaultViewCycleMetadata extends DirectBean implements ViewCycleMet
 
   /**
    * Sets the terminalOutputsByCalcConfig.
-   * 
-   * @param terminalOutputsByCalcConfig the new value of the property
+   * @param terminalOutputsByCalcConfig  the new value of the property
    */
   public void setTerminalOutputsByCalcConfig(Map<String, Map<ValueSpecification, Set<ValueRequirement>>> terminalOutputsByCalcConfig) {
     this._terminalOutputsByCalcConfig = terminalOutputsByCalcConfig;
@@ -416,7 +385,6 @@ public class DefaultViewCycleMetadata extends DirectBean implements ViewCycleMet
 
   /**
    * Gets the the {@code terminalOutputsByCalcConfig} property.
-   * 
    * @return the property, not null
    */
   public final Property<Map<String, Map<ValueSpecification, Set<ValueRequirement>>>> terminalOutputsByCalcConfig() {
@@ -499,21 +467,21 @@ public class DefaultViewCycleMetadata extends DirectBean implements ViewCycleMet
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 1217858108: // viewCycleId
+        case 1217858108:  // viewCycleId
           return _viewCycleId;
-        case -41253723: // marketDataSnapshotId
+        case -41253723:  // marketDataSnapshotId
           return _marketDataSnapshotId;
-        case -545262317: // viewDefinitionId
+        case -545262317:  // viewDefinitionId
           return _viewDefinitionId;
-        case -2031293866: // versionCorrection
+        case -2031293866:  // versionCorrection
           return _versionCorrection;
-        case 113591406: // valuationTime
+        case 113591406:  // valuationTime
           return _valuationTime;
-        case 197622906: // allCalculationConfigurationNames
+        case 197622906:  // allCalculationConfigurationNames
           return _allCalculationConfigurationNames;
-        case -1677286775: // computationTargetsByCalcConfig
+        case -1677286775:  // computationTargetsByCalcConfig
           return _computationTargetsByCalcConfig;
-        case -351004092: // terminalOutputsByCalcConfig
+        case -351004092:  // terminalOutputsByCalcConfig
           return _terminalOutputsByCalcConfig;
       }
       return super.metaPropertyGet(propertyName);
@@ -537,7 +505,6 @@ public class DefaultViewCycleMetadata extends DirectBean implements ViewCycleMet
     //-----------------------------------------------------------------------
     /**
      * The meta-property for the {@code viewCycleId} property.
-     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<UniqueId> viewCycleId() {
@@ -546,7 +513,6 @@ public class DefaultViewCycleMetadata extends DirectBean implements ViewCycleMet
 
     /**
      * The meta-property for the {@code marketDataSnapshotId} property.
-     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<UniqueId> marketDataSnapshotId() {
@@ -555,7 +521,6 @@ public class DefaultViewCycleMetadata extends DirectBean implements ViewCycleMet
 
     /**
      * The meta-property for the {@code viewDefinitionId} property.
-     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<UniqueId> viewDefinitionId() {
@@ -564,7 +529,6 @@ public class DefaultViewCycleMetadata extends DirectBean implements ViewCycleMet
 
     /**
      * The meta-property for the {@code versionCorrection} property.
-     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<VersionCorrection> versionCorrection() {
@@ -573,7 +537,6 @@ public class DefaultViewCycleMetadata extends DirectBean implements ViewCycleMet
 
     /**
      * The meta-property for the {@code valuationTime} property.
-     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<Instant> valuationTime() {
@@ -582,7 +545,6 @@ public class DefaultViewCycleMetadata extends DirectBean implements ViewCycleMet
 
     /**
      * The meta-property for the {@code allCalculationConfigurationNames} property.
-     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<Collection<String>> allCalculationConfigurationNames() {
@@ -591,7 +553,6 @@ public class DefaultViewCycleMetadata extends DirectBean implements ViewCycleMet
 
     /**
      * The meta-property for the {@code computationTargetsByCalcConfig} property.
-     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<Map<String, Collection<ComputationTargetSpecification>>> computationTargetsByCalcConfig() {
@@ -600,7 +561,6 @@ public class DefaultViewCycleMetadata extends DirectBean implements ViewCycleMet
 
     /**
      * The meta-property for the {@code terminalOutputsByCalcConfig} property.
-     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<Map<String, Map<ValueSpecification, Set<ValueRequirement>>>> terminalOutputsByCalcConfig() {
