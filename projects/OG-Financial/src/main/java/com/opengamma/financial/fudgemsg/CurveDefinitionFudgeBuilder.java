@@ -36,7 +36,7 @@ public class CurveDefinitionFudgeBuilder implements FudgeBuilder<CurveDefinition
     message.add(UNIQUE_ID_FIELD, object.getUniqueId());
     message.add(NAME_FIELD, object.getName());
     for (final CurveStrip strip : object.getStrips()) {
-      serializer.addToMessage(message, STRIP_FIELD, null, strip);
+      serializer.addToMessageWithClassHeaders(message, STRIP_FIELD, null, strip);
     }
     return message;
   }
@@ -47,7 +47,7 @@ public class CurveDefinitionFudgeBuilder implements FudgeBuilder<CurveDefinition
     final Set<CurveStrip> strips = new HashSet<>();
     final List<FudgeField> stripFields = message.getAllByName(STRIP_FIELD);
     for (final FudgeField stripField : stripFields) {
-      final CurveStrip strip = (CurveStrip) stripField.getValue();
+      final CurveStrip strip = (CurveStrip) deserializer.fieldValueToObject(stripField);
       strips.add(strip);
     }
     final CurveDefinition curveDefinition = new CurveDefinition(name, strips);
