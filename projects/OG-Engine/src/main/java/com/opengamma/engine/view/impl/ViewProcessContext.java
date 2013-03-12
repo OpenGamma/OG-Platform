@@ -235,7 +235,9 @@ public class ViewProcessContext {
    * performance of a system that runs a large number of relatively simple view processes concurrently.
    * 
    * @return the object a worker should lock while it is performing is graph building phase
+   * @deprecated This doesn't belong here; PLAT-3190 will introduce execution digests which the exclusion should be based around
    */
+  @Deprecated
   public Object getGraphBuildingLock() {
     return this;
   }

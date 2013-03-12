@@ -1010,6 +1010,7 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
         }
       } while (false);
     }
+    // [PLAT-3190] Use the execution digest for exclusions. Lock at cache check through to compile and cache post, unlock during compatability testing
     synchronized (getProcessContext().getGraphBuildingLock()) {
       try {
         final MarketDataAvailabilityProvider availabilityProvider = _marketDataProvider.getAvailabilityProvider();
