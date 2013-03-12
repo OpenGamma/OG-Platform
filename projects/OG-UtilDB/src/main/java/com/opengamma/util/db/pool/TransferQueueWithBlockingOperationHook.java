@@ -3,11 +3,13 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.util.async;
+package com.opengamma.util.db.pool;
 
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
+
+import com.opengamma.util.async.BlockingOperation;
 
 import jsr166y.TransferQueue;
 

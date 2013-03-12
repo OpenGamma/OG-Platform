@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.util.async;
+package com.opengamma.util.db.pool;
 
 import java.lang.reflect.Method;
 import java.sql.SQLException;
@@ -22,6 +22,7 @@ import com.jolbox.bonecp.StatementHandle;
 import com.jolbox.bonecp.hooks.AcquireFailConfig;
 import com.jolbox.bonecp.hooks.ConnectionHook;
 import com.jolbox.bonecp.hooks.ConnectionState;
+import com.opengamma.util.async.BlockingOperation;
 
 /**
  * Hacks a call to {@link BlockingOperation#wouldBlock} into {@link BoneCP} when it would wait for a connection to become available.
