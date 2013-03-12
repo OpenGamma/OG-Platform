@@ -6,7 +6,7 @@ $.register_module({
     name: 'og.analytics.form.DatasourcesMenu',
     dependencies: [],
     obj: function () {
-        var module = this, Block = og.common.util.ui.Block;
+        var Block = og.common.util.ui.Block;
         var DatasourcesMenu = function (config) {
             if (!config) return og.dev.warn('og.analytics.DatasourcesMenu: Missing param [config] to constructor.');
 
@@ -14,12 +14,13 @@ $.register_module({
                 return og.dev.warn('og.analytics.DatasourcesMenu: Missing param key [config.form] to constructor.');
 
             // Private
-            var block = this, form = config.form, menu, query = [], resolver_keys = [], snapshots = {}, $query,
+            var block = this, initialized = false, form = config.form, menu, query = [], $query,
                 default_type_txt = 'select type...', default_sel_txt = 'select data source...',
                 del_s = '.og-icon-delete', parent_s = '.OG-dropmenu-options', type_s = '.type', source_s = '.source',
                 extra_opts_s = '.extra-opts', latest_s = '.latest', custom_s = '.custom', custom_val = 'Custom',
                 date_selected_s = 'date-selected', active_s = 'active', versions_s = '.versions',
-                corrections_s = '.corrections', initialized = false, datasources,
+                corrections_s = '.corrections', types = [], avail_types = ['Live', 'Snapshot', 'Historical'],
+                datasources, default_source,
                 sources = {
                     live: {
                         type:'Live',
@@ -55,8 +56,8 @@ $.register_module({
                     module: 'og.analytics.form_datasources_row_tash',
                     extras: {
                         type: obj.type.toLowerCase(),
-                        type_list: ['Live', 'Snapshot', 'Historical'].map(function (entry) {
-                            return {text: entry, selected: obj.type === entry};
+                        type_list: types.map(function (entry) {
+                            return {text: entry.type, selected: obj.type === entry.type};
                         })
                     },
                     children: [add_source_dropdown(obj)]
@@ -72,16 +73,16 @@ $.register_module({
                             if (resp.error) return og.dev.warn('og.analytics.DatasourcesMenu: ' + resp.error);
                             data.source = obj.type === 'Live' ? resp.data.map(function (entry) {
                                 return { text: entry, value: entry, selected: obj.source === entry };
-                            }) : obj.type === 'Snapshot' ? resp.data[0].snapshots.map(function (entry) {
-                                return { text: entry.name, value: entry.id, selected: obj.source === entry.id };
                             }) : obj.type === 'Historical' ? resp.data.data.map(
                                 function (entry) {
                                     var arr = entry.split('|');
                                     return { text: arr[1], value: arr[1], selected: obj.source === arr[1]};
+                            }) : obj.type === 'Snapshot' ? resp.data[0].snapshots.map(function (entry) {
+                                return { text: entry.name, value: entry.id, selected: obj.source === entry.id };
                             }) : {};
                             if (obj.type === 'Historical') data.historical = {
                                     fixed: obj.date ? true : false,
-                                    latest: obj.date === '' ? true : false
+                                    latest: !!(obj.date === '')
                                 };
                             if (data.historical && data.historical.fixed) data.historical.date = obj.date;
                             handler(tmpl(data));
@@ -122,7 +123,7 @@ $.register_module({
                         case 'latestHistorical':
                             obj = $.extend({}, sources['historical'], { source: entry.resolverKey }); break;
                         case 'fixedHistorical':
-                            obj = $.extend({}, sources['historical'], {source: entry.resolverKey, date: entry.date});
+                            obj = $.extend({}, sources['historical'], { source: entry.resolverKey, date: entry.date });
                             break;
                         //no default
                     }
@@ -141,7 +142,7 @@ $.register_module({
                     }
                 });
                 custom_dp.datepicker('show');
-                widget = custom_dp.datepicker('widget').on('mouseup.prevent_blurkill', function(event) {
+                widget = custom_dp.datepicker('widget').on('mouseup.prevent_blurkill', function() {
                     menu.fire('dropmenu:open');
                 });
             };
@@ -198,8 +199,8 @@ $.register_module({
 
             var remove_date = function (entry) {
                 if (!menu.opts[entry]) return;
-                var custom = $(custom_s, menu.opts[entry]).removeClass(active_s+ ' ' +date_selected_s).val(custom_val),
-                    latest = $(latest_s, menu.opts[entry]).addClass(active_s);
+                var custom = $(custom_s, menu.opts[entry]).removeClass(active_s+ ' ' +date_selected_s).val(custom_val);
+                $(latest_s, menu.opts[entry]).addClass(active_s);
                 if (custom.parent().is(versions_s)) delete query[entry].version_date;
                 else if (custom.parent().is(corrections_s)) delete query[entry].correction_date;
                 else delete query[entry].date;
@@ -264,11 +265,11 @@ $.register_module({
 
             var source_handler = function (entry, preload) {
                 if (!menu.opts[entry]) return;
-                var val, src, option, sel_pos = menu.opts[entry].data('pos'),
+                var option, sel_pos = menu.opts[entry].data('pos'),
                     type_val = $(type_s, menu.opts[entry]).val().toLowerCase(),
                     source_select = $(source_s, menu.opts[entry]),
                     source_val = source_select.val(),
-                    source_txt = source_select.find('option:selected').text();
+                    source_txt = source_select.find('option:selected').text(),
                     idx = query.pluck('pos').indexOf(sel_pos),
                     date = $('.extra-opts .custom', menu.opts[entry]).val();
                     date = date !== 'Custom' ? date : null;
@@ -300,20 +301,34 @@ $.register_module({
                 });
             };
 
-            default_source = $.extend({}, sources.live);
-            default_source.source = 'Bloomberg';
-            datasources = config.source ? deserialize(config.source) : [default_source];
-
-            form.Block.call(block, {
-                data: { providers: [] },
-                module: 'og.analytics.form_datasources_tash',
-                children: datasources.map(add_row_handler),
-                processor: function (data) {
-                    data.providers = serialize();
-                }
+            avail_types.forEach(function (entry, idx) {
+                sources[entry.toLowerCase()].datasource.split('.')
+                .reduce(function (api, key) { return api[key]; }, og.api.rest)
+                .get(sources[entry.toLowerCase()].api_opts)
+                .pipe(function (resp) {
+                    if (entry === 'Live' && resp.data.length) {
+                        types.push({type: entry, source: resp.data[0]});
+                    } else if (entry === 'Snapshot' && resp.data[0].snapshots.length) {
+                        types.push({type: entry, source: resp.data[0].snapshots[0]});
+                    } else if (entry === 'Historical') {
+                        if (resp.data.data.length)
+                            types.push({type: entry, source: resp.data.data[0].split('|')[1]});
+                        default_source = $.extend({}, sources[types[0].type.toLowerCase()]);
+                        default_source.source = types[0].source;
+                        datasources = config.source ? deserialize(config.source) : [default_source];
+                        form.Block.call(block, {
+                            data: { providers: [] },
+                            module: 'og.analytics.form_datasources_tash',
+                            children: datasources.map(add_row_handler),
+                            processor: function (data) {
+                                data.providers = serialize();
+                            }
+                        });
+                        form.on('form:load', init);
+                        form.dom();
+                    }
+                });
             });
-
-            form.on('form:load', init);
         };
 
         DatasourcesMenu.prototype = new Block;
