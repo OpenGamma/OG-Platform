@@ -73,7 +73,7 @@ public class ForexOptionVanillaBlackSmileMethodTest {
   private static final int SETTLEMENT_DAYS = 2;
   // Smile data
   private static final Period[] EXPIRY_PERIOD = new Period[] {Period.ofMonths(3), Period.ofMonths(6), Period.ofYears(1),
-    Period.ofYears(2), Period.ofYears(5)};
+      Period.ofYears(2), Period.ofYears(5) };
   private static final int NB_EXP = EXPIRY_PERIOD.length;
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 6, 13);
   private static final ZonedDateTime REFERENCE_SPOT = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, SETTLEMENT_DAYS, CALENDAR);
@@ -671,8 +671,6 @@ public class ForexOptionVanillaBlackSmileMethodTest {
     assertEquals("Forex: relative gamma", 1.0, gammaSpotExpected2 / gammaSpotComputed.getAmount(), TOLERANCE_PV);
   }
 
-<<<<<<< HEAD
-=======
   //    @Test
   //    /**
   //     * Tests the gamma for Forex option.
@@ -693,7 +691,6 @@ public class ForexOptionVanillaBlackSmileMethodTest {
   //      assertEquals("Forex: relative gamma", 1.0, gammaSpotCalculator.getAmount() / gammaSpotMethod.getAmount(), TOLERANCE_PV);
   //    }
 
->>>>>>> a57de5af0f147d516010b657470cd84dcdf7a297
   @Test
   /**
    * Tests the present value curve sensitivity.
