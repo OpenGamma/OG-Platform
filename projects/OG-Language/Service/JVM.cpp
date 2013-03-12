@@ -514,7 +514,7 @@ TCHAR *CJVM::InvokeString (JNIEnv *pEnv, const char *pszMethodName, const char *
 #else /* ifdef _UNICODE */
 			const char *pszResultChars = pEnv->GetStringUTFChars (jstrResult, &bCopy);
 #endif /* ifdef_ UNICODE */
-			memcpy (pszResult, pszResultChars, cchResult);
+			memcpy (pszResult, pszResultChars, cchResult * sizeof (TCHAR));
 			pszResult[cchResult] = 0;
 #ifdef _UNICODE
 			pEnv->ReleaseStringChars (jstrResult, pszResultChars);
