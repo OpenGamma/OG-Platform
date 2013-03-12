@@ -15,6 +15,7 @@ import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.B
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackSmileCapProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
@@ -82,10 +83,11 @@ public final class CapFloorIborBlackSmileMethod {
   public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final CapFloorIbor cap, final BlackSmileCapProviderInterface black) {
     ArgumentChecker.notNull(cap, "The cap/floor shoud not be null");
     ArgumentChecker.notNull(black, "Black provider");
+    MulticurveProviderInterface multicurve = black.getMulticurveProvider();
     final EuropeanVanillaOption option = new EuropeanVanillaOption(cap.getStrike(), cap.getFixingTime(), cap.isCap());
-    final double forward = black.getMulticurveProvider().getForwardRate(cap.getIndex(), cap.getFixingPeriodStartTime(), cap.getFixingPeriodEndTime(), cap.getFixingAccrualFactor());
-    final double df = black.getMulticurveProvider().getDiscountFactor(cap.getCurrency(), cap.getPaymentTime());
-    final MulticurveSensitivity forwardDr = MulticurveSensitivity.ofForward(black.getMulticurveProvider().getName(cap.getIndex()),
+    final double forward = multicurve.getForwardRate(cap.getIndex(), cap.getFixingPeriodStartTime(), cap.getFixingPeriodEndTime(), cap.getFixingAccrualFactor());
+    final double df = multicurve.getDiscountFactor(cap.getCurrency(), cap.getPaymentTime());
+    final MulticurveSensitivity forwardDr = MulticurveSensitivity.ofForward(multicurve.getName(cap.getIndex()),
         new ForwardSensitivity(cap.getFixingPeriodStartTime(), cap.getFixingPeriodEndTime(), cap.getFixingAccrualFactor(), 1.0));
     final double dfDr = -cap.getPaymentTime() * df;
     final double volatility = black.getBlackParameters().getVolatility(cap.getFixingTime(), cap.getStrike());
@@ -94,7 +96,7 @@ public final class CapFloorIborBlackSmileMethod {
     final List<DoublesPair> list = new ArrayList<DoublesPair>();
     list.add(new DoublesPair(cap.getPaymentTime(), dfDr));
     final Map<String, List<DoublesPair>> resultMap = new HashMap<String, List<DoublesPair>>();
-    resultMap.put(cap.getFundingCurveName(), list);
+    resultMap.put(multicurve.getName(cap.getCurrency()), list);
     MulticurveSensitivity result = MulticurveSensitivity.ofYieldDiscounting(resultMap);
     result = result.multipliedBy(bsAdjoint[0]);
     result = result.plus(forwardDr.multipliedBy(df * bsAdjoint[1]));
