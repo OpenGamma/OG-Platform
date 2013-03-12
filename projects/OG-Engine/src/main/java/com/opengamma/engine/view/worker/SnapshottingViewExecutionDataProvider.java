@@ -122,9 +122,7 @@ public class SnapshottingViewExecutionDataProvider extends ViewExecutionDataProv
    */
   public MarketDataSnapshot snapshot() {
     final int providers = getProviders().size();
-    if (providers == 1) {
-      return getProviders().get(0).snapshot(getSpecifications().get(0));
-    }
+    // [PLAT-3231] Have a more efficient form when there is only one provider.
     final List<MarketDataSnapshot> snapshots = Lists.newArrayListWithCapacity(providers);
     for (int i = 0; i < providers; i++) {
       final MarketDataSnapshot snapshot = getProviders().get(i).snapshot(getSpecifications().get(i));
