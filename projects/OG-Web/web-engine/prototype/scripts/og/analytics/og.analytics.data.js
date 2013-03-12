@@ -195,6 +195,11 @@ $.register_module({
                 data.connection = view_id = graph_id = viewport_id = subscribed = null;
             };
             data.id = og.common.id('data');
+            data.kill = function () {
+                data.disconnect.apply(data, Array.prototype.slice.call(arguments));
+                ConnectionPool.remove(data);
+                if (!data.parent) og.api.rest.off('disconnect', disconnect_handler).off('reconnect', reconnect_handler);
+            };
             data.meta = meta = {columns: {}};
             data.source = source;
             data.pool = config.pool;
@@ -232,12 +237,6 @@ $.register_module({
                 og.api.rest.on('disconnect', disconnect_handler).on('reconnect', reconnect_handler);
                 setTimeout(initialize); // allow events to be attached
             }
-        };
-        Data.prototype.kill = function () {
-            var data = this;
-            data.disconnect.apply(data, Array.prototype.slice.call(arguments));
-            ConnectionPool.remove(data);
-            if (!data.parent) og.api.rest.off('disconnect', disconnect_handler).off('reconnect', reconnect_handler);
         };
         Data.prototype.off = og.common.events.off;
         Data.prototype.on = og.common.events.on;
