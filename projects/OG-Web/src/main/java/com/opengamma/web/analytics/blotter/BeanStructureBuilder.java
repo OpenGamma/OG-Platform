@@ -219,7 +219,7 @@ import com.opengamma.util.OpenGammaClock;
                                                     String actualType,
                                                     String endpoint,
                                                     boolean isBeanType) {
-    Map<String,Object> results = Maps.newHashMap();
+    Map<String, Object> results = Maps.newHashMap();
     results.put("expectedType", expectedType);
     results.put("actualType", actualType);
     results.put("endpoint", endpoint);

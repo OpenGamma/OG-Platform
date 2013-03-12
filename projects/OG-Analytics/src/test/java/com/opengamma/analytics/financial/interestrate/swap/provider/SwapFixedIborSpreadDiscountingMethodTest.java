@@ -46,8 +46,8 @@ public class SwapFixedIborSpreadDiscountingMethodTest {
   private static final GeneratorSwapFixedIbor EUR1YEURIBOR3M = GeneratorSwapFixedIborMaster.getInstance().getGenerator("EUR1YEURIBOR3M", TARGET);
   private static final GeneratorSwapFixedIbor EUR3MEURIBOR3M = new GeneratorSwapFixedIbor("EUR3MEURIBOR3M", EURIBOR3M.getTenor(), EURIBOR3M.getDayCount(), EURIBOR3M);
 
-  private static final Period START_TENOR = DateUtils.periodOfMonths(6);
-  private static final Period SWAP_TENOR = DateUtils.periodOfYears(5);
+  private static final Period START_TENOR = Period.ofMonths(6);
+  private static final Period SWAP_TENOR = Period.ofYears(5);
   private static final ZonedDateTime START_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, START_TENOR, EURIBOR3M);
   private static final double NOTIONAL = 123000000;
   private static final double SPREAD = 0.0010;
@@ -121,7 +121,7 @@ public class SwapFixedIborSpreadDiscountingMethodTest {
     long startTime, endTime;
     final double strikeMin = 0.01;
     final double strikeMax = 0.02;
-    final Period tenor = DateUtils.periodOfYears(10);
+    final Period tenor = Period.ofYears(10);
     final SwapFixedIborSpreadDefinition[] swapDefinition = new SwapFixedIborSpreadDefinition[nbSwap + 1];
     final double[] pv = new double[nbSwap + 1];
 

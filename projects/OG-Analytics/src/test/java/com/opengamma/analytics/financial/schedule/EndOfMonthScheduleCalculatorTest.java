@@ -142,7 +142,7 @@ public class EndOfMonthScheduleCalculatorTest extends ScheduleCalculatorTestCase
       } else {
         assertEquals(d1.getMonthValue() - forward[i - 1].getMonthValue(), -11);
       }
-      assertEquals(d1.getDayOfMonth(), d1.getDate().lengthOfMonth());
+      assertEquals(d1.getDayOfMonth(), d1.toLocalDate().lengthOfMonth());
     }
     assertArrayEquals(CALCULATOR.getSchedule(startDate, endDate, true, false), forward);
     assertArrayEquals(CALCULATOR.getSchedule(startDate, endDate, true, true), forward);

@@ -298,7 +298,7 @@ public class DupireLocalVolatilityCalculator {
         final double divM = getFirstStrikeDev(impliedVolatilitySurface.getSurface(), t, m, vol, 1.0);
         final double divM2 = getSecondStrikeDev(impliedVolatilitySurface.getSurface(), t, m, vol, 1.0);
 
-        final double bTheta = -BlackFormulaRepository.theta(1.0, m, t, vol);
+        final double bTheta = -BlackFormulaRepository.driftlessTheta(1.0, m, t, vol);
         final double vega = BlackFormulaRepository.vega(1.0, m, t, vol);
         final double theta = bTheta + vega * divT;
         final double dg = BlackFormulaRepository.dualGamma(1.0, m, t, vol);
@@ -346,7 +346,7 @@ public class DupireLocalVolatilityCalculator {
 
         final double divT = getFirstTimeDev(impliedVolatilitySurface.getSurface(), t, m, vol);
 
-        final double bTheta = -BlackFormulaRepository.theta(1.0, m, t, vol);
+        final double bTheta = -BlackFormulaRepository.driftlessTheta(1.0, m, t, vol);
         final double vega = BlackFormulaRepository.vega(1.0, m, t, vol);
         return bTheta + vega * divT;
       }

@@ -209,9 +209,9 @@ public class InterestRateFutureSecurityDefinition implements InstrumentDefinitio
   public InterestRateFutureSecurity toDerivative(final ZonedDateTime dateTime, final String... yieldCurveNames) {
     ArgumentChecker.notNull(dateTime, "date");
     ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
-    final LocalDate date = dateTime.getDate();
+    final LocalDate date = dateTime.toLocalDate();
     ArgumentChecker.isTrue(yieldCurveNames.length > 1, "at least two curves required");
-    final LocalDate lastMarginDateLocal = getFixingPeriodStartDate().getDate();
+    final LocalDate lastMarginDateLocal = getFixingPeriodStartDate().toLocalDate();
     if (date.isAfter(lastMarginDateLocal)) {
       throw new ExpiredException("Valuation date, " + date + ", is after last margin date, " + lastMarginDateLocal);
     }

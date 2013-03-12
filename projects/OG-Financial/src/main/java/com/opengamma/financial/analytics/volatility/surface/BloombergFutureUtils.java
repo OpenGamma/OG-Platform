@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Month;
+import org.threeten.bp.Period;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
@@ -94,9 +95,9 @@ public class BloombergFutureUtils {
     final LocalDate twoDigitYearSwitch;
     final LocalDate today = LocalDate.now(OpenGammaClock.getInstance());
     if (futurePrefix.equals("ED")) {
-      twoDigitYearSwitch = today.minus(DateUtils.periodOfDays(2));
+      twoDigitYearSwitch = today.minus(Period.ofDays(2));
     } else {
-      twoDigitYearSwitch = today.minus(DateUtils.periodOfMonths(11)).minus(DateUtils.periodOfDays(2));
+      twoDigitYearSwitch = today.minus(Period.ofMonths(11)).minus(Period.ofDays(2));
     }
     return getQuarterlyExpiryMonthYearCode(nthFuture, curveDate, twoDigitYearSwitch);
   }

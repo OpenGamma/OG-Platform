@@ -85,7 +85,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
 
   @Test
   public void test_addWithOneTrade_add() {
-    LocalDate tradeDate = _now.getDate();
+    LocalDate tradeDate = _now.toLocalDate();
     OffsetTime tradeTime = _now.toOffsetTime().minusSeconds(500);
     
     ManageablePosition position = new ManageablePosition(BigDecimal.TEN, ExternalId.of("A", "B"));
@@ -128,7 +128,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
   @Test
   public void test_addWithOnePremiumTrade_add() {
     
-    LocalDate tradeDate = _now.getDate();
+    LocalDate tradeDate = _now.toLocalDate();
     OffsetTime tradeTime = _now.toOffsetTime().minusSeconds(500);
     
     ManageablePosition position = new ManageablePosition(BigDecimal.TEN, ExternalId.of("A", "B"));
@@ -181,7 +181,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
   public void test_addWithOnePremiumTrade_addThenGet() {
     ManageablePosition position = new ManageablePosition(BigDecimal.TEN, ExternalId.of("A", "B"));
     
-    LocalDate tradeDate = _now.getDate();
+    LocalDate tradeDate = _now.toLocalDate();
     OffsetTime tradeTime = _now.toOffsetTime().minusSeconds(500);
     
     ManageableTrade trade = new ManageableTrade(BigDecimal.TEN, ExternalId.of("A", "B"), tradeDate, tradeTime, ExternalId.of("CPS", "CPV"));
@@ -212,8 +212,8 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     OffsetDateTime offsetDateTime = OffsetDateTime.now();
     
     ManageablePosition position = new ManageablePosition(BigDecimal.TEN, ExternalId.of("A", "B"));
-    position.getTrades().add(new ManageableTrade(BigDecimal.TEN, ExternalId.of("A", "C"), offsetDateTime.getDate(), offsetDateTime.minusSeconds(600).toOffsetTime(), ExternalId.of("CPS", "CPV")));
-    position.getTrades().add(new ManageableTrade(BigDecimal.TEN, ExternalId.of("A", "D"), offsetDateTime.getDate(), offsetDateTime.minusSeconds(500).toOffsetTime(), ExternalId.of("CPS", "CPV")));
+    position.getTrades().add(new ManageableTrade(BigDecimal.TEN, ExternalId.of("A", "C"), offsetDateTime.toLocalDate(), offsetDateTime.minusSeconds(600).toOffsetTime(), ExternalId.of("CPS", "CPV")));
+    position.getTrades().add(new ManageableTrade(BigDecimal.TEN, ExternalId.of("A", "D"), offsetDateTime.toLocalDate(), offsetDateTime.minusSeconds(500).toOffsetTime(), ExternalId.of("CPS", "CPV")));
     
     PositionDocument doc = new PositionDocument();
     doc.setPosition(position);
@@ -272,7 +272,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     position.addAttribute("PA1", "A");
     position.addAttribute("PA2", "B");
     
-    LocalDate tradeDate = _now.getDate();
+    LocalDate tradeDate = _now.toLocalDate();
     OffsetTime tradeTime = _now.toOffsetTime().minusSeconds(500);
     ManageableTrade trade1 = new ManageableTrade(BigDecimal.TEN, ExternalId.of("A", "B"), tradeDate, tradeTime, ExternalId.of("CPS", "CPV"));
     trade1.addAttribute("TA11", "C");
@@ -304,7 +304,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
   public void test_addWithOneTrade_addThenGet() {
     ManageablePosition position = new ManageablePosition(BigDecimal.TEN, ExternalId.of("A", "B"));
     
-    LocalDate tradeDate = _now.getDate();
+    LocalDate tradeDate = _now.toLocalDate();
     OffsetTime tradeTime = _now.toOffsetTime().minusSeconds(500);
     
     position.getTrades().add(new ManageableTrade(BigDecimal.TEN, ExternalId.of("A", "B"), tradeDate, tradeTime, ExternalId.of("CPS", "CPV")));
@@ -328,8 +328,8 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     
     OffsetDateTime offsetDateTime = OffsetDateTime.now();
     
-    position.getTrades().add(new ManageableTrade(BigDecimal.TEN, ExternalId.of("A", "B"), offsetDateTime.getDate(), offsetDateTime.minusSeconds(600).toOffsetTime(), ExternalId.of("CPS", "CPV")));
-    position.getTrades().add(new ManageableTrade(BigDecimal.TEN, ExternalId.of("A", "C"), offsetDateTime.getDate(), offsetDateTime.minusSeconds(500).toOffsetTime(), ExternalId.of("CPS", "CPV")));
+    position.getTrades().add(new ManageableTrade(BigDecimal.TEN, ExternalId.of("A", "B"), offsetDateTime.toLocalDate(), offsetDateTime.minusSeconds(600).toOffsetTime(), ExternalId.of("CPS", "CPV")));
+    position.getTrades().add(new ManageableTrade(BigDecimal.TEN, ExternalId.of("A", "C"), offsetDateTime.toLocalDate(), offsetDateTime.minusSeconds(500).toOffsetTime(), ExternalId.of("CPS", "CPV")));
     
     PositionDocument doc = new PositionDocument();
     doc.setPosition(position);
@@ -350,7 +350,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     
     ManageablePosition position = new ManageablePosition(BigDecimal.TEN, ExternalId.of("A", "B"));
         
-    LocalDate tradeDate = _now.getDate();
+    LocalDate tradeDate = _now.toLocalDate();
     OffsetTime tradeTime = _now.toOffsetTime().minusSeconds(500);
     ManageableTrade trade = new ManageableTrade(BigDecimal.TEN, ExternalId.of("A", "B"), tradeDate, tradeTime, ExternalId.of("CPS", "CPV"));
     trade.addAttribute("TA1", "C");
@@ -395,7 +395,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
   public void test_addTradeDeal_addThenGet() {
     ManageablePosition position = new ManageablePosition(BigDecimal.TEN, ExternalId.of("A", "B"));
     
-    LocalDate tradeDate = _now.getDate();
+    LocalDate tradeDate = _now.toLocalDate();
     OffsetTime tradeTime = _now.toOffsetTime().minusSeconds(500);
     ManageableTrade trade = new ManageableTrade(BigDecimal.TEN, ExternalId.of("A", "B"), tradeDate, tradeTime, ExternalId.of("CPS", "CPV"));
     trade.addAttribute("TA1", "C");
@@ -448,7 +448,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     ManageablePosition position = new ManageablePosition();
     position.setQuantity(BigDecimal.ONE);
     ManageableTrade trade = new ManageableTrade();
-    trade.setTradeDate(_now.getDate());
+    trade.setTradeDate(_now.toLocalDate());
     trade.setQuantity(BigDecimal.ONE);
     position.addTrade(trade);
     PositionDocument doc = new PositionDocument(position);
@@ -460,7 +460,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     ManageablePosition position = new ManageablePosition();
     position.setQuantity(BigDecimal.ONE);
     ManageableTrade trade = new ManageableTrade();
-    trade.setTradeDate(_now.getDate());
+    trade.setTradeDate(_now.toLocalDate());
     trade.setCounterpartyExternalId(ExternalId.of("ABC", "DEF"));
     position.addTrade(trade);
     PositionDocument doc = new PositionDocument(position);
@@ -472,7 +472,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     ManageablePosition position = new ManageablePosition();
     position.setQuantity(BigDecimal.ONE);
     ManageableTrade trade = new ManageableTrade();
-    trade.setTradeDate(_now.getDate());
+    trade.setTradeDate(_now.toLocalDate());
     trade.setCounterpartyExternalId(ExternalId.of("ABC", "DEF"));
     trade.setQuantity(BigDecimal.ONE);
     position.addTrade(trade);

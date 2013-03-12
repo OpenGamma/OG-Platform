@@ -66,7 +66,7 @@ public class SecurityPriceSeriesFunction extends AbstractFunction.NonCompiledInv
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Security security = target.getSecurity();
     final Clock snapshotClock = executionContext.getValuationClock();
-    final LocalDate now = ZonedDateTime.now(snapshotClock).getDate();
+    final LocalDate now = ZonedDateTime.now(snapshotClock).toLocalDate();
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final Set<String> samplingPeriodName = desiredValue.getConstraints().getValues(ValuePropertyNames.SAMPLING_PERIOD);
     final Set<String> scheduleCalculatorName = desiredValue.getConstraints().getValues(ValuePropertyNames.SCHEDULE_CALCULATOR);

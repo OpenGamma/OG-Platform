@@ -33,9 +33,9 @@ import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.ViewProcessor;
-import com.opengamma.engine.view.calc.ViewCycleMetadata;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
+import com.opengamma.engine.view.cycle.ViewCycleMetadata;
 import com.opengamma.engine.view.execution.ExecutionOptions;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.execution.ViewExecutionFlags;
@@ -52,11 +52,10 @@ import com.opengamma.util.async.AsynchronousOperation;
 import com.opengamma.util.async.ResultCallback;
 
 /**
- * Runs an arbitrary execution sequence on a view definition to produce values for one or more targets. The job is
- * encoded into a {@link ViewEvaluationTarget}.
+ * Runs an arbitrary execution sequence on a view definition to produce values for one or more targets. The job is encoded into a {@link ViewEvaluationTarget}.
  * 
- * @param <TTarget>  the computation target type
- * @param <TResultBuilder>  the type of the result builder used throughout execution
+ * @param <TTarget> the computation target type
+ * @param <TResultBuilder> the type of the result builder used throughout execution
  */
 public abstract class ViewEvaluationFunction<TTarget extends ViewEvaluationTarget, TResultBuilder> extends AbstractFunction.NonCompiledInvoker {
 
@@ -66,7 +65,7 @@ public abstract class ViewEvaluationFunction<TTarget extends ViewEvaluationTarge
   public static final String PROPERTY_CALC_CONFIG = "config";
 
   private static final Logger s_logger = LoggerFactory.getLogger(ViewEvaluationFunction.class);
-  
+
   private final String _valueRequirementName;
   private final Class<TTarget> _targetType;
 
@@ -76,7 +75,7 @@ public abstract class ViewEvaluationFunction<TTarget extends ViewEvaluationTarge
   }
 
   // CompiledFunctionDefinition
-  
+
   @Override
   public ComputationTargetType getTargetType() {
     return ComputationTargetType.of(_targetType);
@@ -144,8 +143,10 @@ public abstract class ViewEvaluationFunction<TTarget extends ViewEvaluationTarge
     final ViewClient viewClient = viewProcessor.createViewClient(viewEvaluation.getViewDefinition().getMarketDataUser());
     final UniqueId viewClientId = viewClient.getUniqueId();
     s_logger.info("Created view client {}, connecting to {}", viewClientId, viewId);
-    viewClient.attachToViewProcess(viewId, ExecutionOptions.of(viewEvaluation.getExecutionSequence(),
-        getDefaultCycleOptions(executionContext), EnumSet.of(ViewExecutionFlags.WAIT_FOR_INITIAL_TRIGGER)), true);
+    viewClient.attachToViewProcess(
+        viewId,
+        ExecutionOptions.of(viewEvaluation.getExecutionSequence().createSequence(executionContext), getDefaultCycleOptions(executionContext),
+            EnumSet.of(ViewExecutionFlags.WAIT_FOR_INITIAL_TRIGGER, ViewExecutionFlags.RUN_AS_FAST_AS_POSSIBLE)), true);
     final TResultBuilder resultBuilder = createResultBuilder(viewEvaluation);
     final AsynchronousOperation<Set<ComputedValue>> async = AsynchronousOperation.createSet();
     final AtomicReference<ResultCallback<Set<ComputedValue>>> asyncResult = new AtomicReference<ResultCallback<Set<ComputedValue>>>(async.getCallback());
@@ -214,7 +215,6 @@ public abstract class ViewEvaluationFunction<TTarget extends ViewEvaluationTarge
       public void cycleCompleted(final ViewComputationResultModel fullResult, final ViewDeltaResultModel deltaResult) {
         s_logger.debug("Cycle completed for {}", viewClientId);
         try {
-          viewClient.triggerCycle();
           store(fullResult, resultBuilder);
         } catch (final RuntimeException e) {
           s_logger.error("Caught exception during cycle completed callback", e);
@@ -268,7 +268,7 @@ public abstract class ViewEvaluationFunction<TTarget extends ViewEvaluationTarge
     viewClient.triggerCycle();
     return async.getResult();
   }
-  
+
   //-------------------------------------------------------------------------
   protected ValueSpecification getResultSpec(String calcConfigName, ComputationTargetSpecification targetSpec) {
     ValueProperties.Builder properties = createValueProperties().withoutAny(PROPERTY_CALC_CONFIG).with(PROPERTY_CALC_CONFIG, calcConfigName);
@@ -276,13 +276,13 @@ public abstract class ViewEvaluationFunction<TTarget extends ViewEvaluationTarge
   }
 
   protected abstract ViewCycleExecutionOptions getDefaultCycleOptions(FunctionExecutionContext context);
-  
+
   protected abstract TResultBuilder createResultBuilder(ViewEvaluationTarget viewEvaluation);
-  
+
   protected abstract void store(ViewComputationResultModel results, TResultBuilder resultBuilder);
-  
+
   protected abstract void store(CompiledViewDefinition compiledViewDefinition, TResultBuilder resultBuilder);
 
   protected abstract Set<ComputedValue> buildResults(ComputationTarget target, TResultBuilder resultBuilder);
-  
+
 }

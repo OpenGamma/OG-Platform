@@ -21,13 +21,13 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.opengamma.engine.exec.stats.TotallingGraphStatisticsGathererProvider;
 import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.engine.test.ViewProcessorTestEnvironment;
 import com.opengamma.engine.view.ViewDefinition;
-import com.opengamma.engine.view.ViewProcessorImpl;
-import com.opengamma.engine.view.calc.stats.TotallingGraphStatisticsGathererProvider;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.execution.ExecutionOptions;
+import com.opengamma.engine.view.impl.ViewProcessorImpl;
 import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 

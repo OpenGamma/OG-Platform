@@ -97,7 +97,7 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
     final Position position = target.getPosition();
     final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(executionContext);
     final Clock snapshotClock = executionContext.getValuationClock();
-    final LocalDate now = ZonedDateTime.now(snapshotClock).getDate();
+    final LocalDate now = ZonedDateTime.now(snapshotClock).toLocalDate();
     final Currency currency = FinancialSecurityUtils.getCurrency(position.getSecurity());
     final String currencyString = currency.getCode();
     final ValueRequirement desiredValue = desiredValues.iterator().next();

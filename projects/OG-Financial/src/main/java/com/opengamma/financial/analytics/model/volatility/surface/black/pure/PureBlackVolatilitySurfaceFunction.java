@@ -64,7 +64,7 @@ public abstract class PureBlackVolatilitySurfaceFunction extends AbstractFunctio
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
-    final LocalDate date = ZonedDateTime.now(executionContext.getValuationClock()).getDate();
+    final LocalDate date = ZonedDateTime.now(executionContext.getValuationClock()).toLocalDate();
     final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
     final Object spotObject = inputs.getValue(MarketDataRequirementNames.MARKET_VALUE);
     if (spotObject == null) {

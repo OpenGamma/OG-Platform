@@ -154,10 +154,10 @@ public class CouponInflationYearOnYearMonthlyDefinition extends CouponInflationD
     ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
     ArgumentChecker.isTrue(yieldCurveNames.length > 0, "at least one curve required");
     ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
-    final LocalDate dayConversion = date.getDate();
+    final LocalDate dayConversion = date.toLocalDate();
     final String discountingCurveName = yieldCurveNames[0];
     final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
-    final LocalDate dayFixing = getReferenceEndDate().getDate();
+    final LocalDate dayFixing = getReferenceEndDate().toLocalDate();
     if (dayConversion.isAfter(dayFixing)) {
       final Double fixedEndIndex = priceIndexTimeSeries.getValue(getReferenceEndDate());
       if (fixedEndIndex != null) {

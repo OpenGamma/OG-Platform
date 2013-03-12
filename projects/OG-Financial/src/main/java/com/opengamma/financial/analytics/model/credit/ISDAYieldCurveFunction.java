@@ -6,7 +6,6 @@
 package com.opengamma.financial.analytics.model.credit;
 
 import java.util.Collections;
-import java.util.Map;
 import java.util.Set;
 
 import org.threeten.bp.Clock;
@@ -61,7 +60,6 @@ import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
-import com.opengamma.id.ExternalId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.money.Currency;
@@ -101,7 +99,7 @@ public class ISDAYieldCurveFunction extends AbstractFunction {
         final String curveDate = desiredValue.getConstraint(ISDAFunctionConstants.ISDA_CURVE_DATE);
         final String offsetString = desiredValue.getConstraint(ISDAFunctionConstants.ISDA_CURVE_OFFSET);
         final int offset = Integer.parseInt(offsetString);
-        final Object definitionObject = inputs.getValue(ValueRequirementNames.TARGET_TYPE);
+        final Object definitionObject = inputs.getValue(ValueRequirementNames.TARGET);
         if (definitionObject == null) {
           throw new OpenGammaRuntimeException("Couldn't get interpolated yield curve specification: " + curveName);
         }
@@ -110,8 +108,7 @@ public class ISDAYieldCurveFunction extends AbstractFunction {
         if (dataObject == null) {
           throw new OpenGammaRuntimeException("Couldn't get yield curve data for " + curveName);
         }
-        final SnapshotDataBundle data = (SnapshotDataBundle) dataObject;
-        final Map<ExternalId, Double> marketData = data.getDataPoints();
+        final SnapshotDataBundle marketData = (SnapshotDataBundle) dataObject;
         final InterpolatedYieldCurveSpecification specification = getCurveSpecification(curveDefinition, LocalDate.parse(curveDate));
         final InterpolatedYieldCurveSpecificationWithSecurities specificationWithSecurities = getCurveWithSecurities(specification, executionContext, marketData);
         final int n = marketData.size();
@@ -125,7 +122,7 @@ public class ISDAYieldCurveFunction extends AbstractFunction {
           if (!(securityType.equals(CashSecurity.SECURITY_TYPE) || securityType.equals(SwapSecurity.SECURITY_TYPE))) {
             throw new OpenGammaRuntimeException("ISDA curves should only use Libor and swap rates");
           }
-          final Double marketValue = marketData.get(strip.getSecurityIdentifier());
+          final Double marketValue = marketData.getDataPoint(strip.getSecurityIdentifier());
           if (marketValue == null) {
             throw new OpenGammaRuntimeException("Could not get market data for " + strip);
           }
@@ -196,22 +193,22 @@ public class ISDAYieldCurveFunction extends AbstractFunction {
         requirements.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_MARKET_DATA, targetSpec, properties));
         //        requirements.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, ComputationTargetType.of(YieldCurveDefinition.class), curveDefinition.getUniqueId(),
         //            properties));
-        requirements.add(new ValueRequirement(ValueRequirementNames.TARGET_TYPE, ComputationTargetType.of(YieldCurveDefinition.class), curveDefinition.getUniqueId()));
+        requirements.add(new ValueRequirement(ValueRequirementNames.TARGET, ComputationTargetType.of(YieldCurveDefinition.class), curveDefinition.getUniqueId()));
         //requirements.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_INSTRUMENT_CONVERSION_HISTORICAL_TIME_SERIES, targetSpec, properties));
         return requirements;
       }
 
       private InterpolatedYieldCurveSpecificationWithSecurities getCurveWithSecurities(final InterpolatedYieldCurveSpecification curveSpec, final FunctionExecutionContext executionContext,
-          final Map<ExternalId, Double> marketDataMap) {
+          final SnapshotDataBundle marketData) {
         //TODO: Move this to a seperate function
         final FixedIncomeStripIdentifierAndMaturityBuilder builder = new FixedIncomeStripIdentifierAndMaturityBuilder(OpenGammaExecutionContext.getRegionSource(executionContext),
             OpenGammaExecutionContext.getConventionBundleSource(executionContext), executionContext.getSecuritySource(), OpenGammaExecutionContext.getHolidaySource(executionContext));
-        final InterpolatedYieldCurveSpecificationWithSecurities curveSpecificationWithSecurities = builder.resolveToSecurity(curveSpec, marketDataMap);
+        final InterpolatedYieldCurveSpecificationWithSecurities curveSpecificationWithSecurities = builder.resolveToSecurity(curveSpec, marketData);
         return curveSpecificationWithSecurities;
       }
 
       private InterpolatedYieldCurveSpecification getCurveSpecification(final YieldCurveDefinition curveDefinition, final LocalDate curveDate) {
-        InterpolatedYieldCurveSpecification curveSpec = curveSpecBuilder.buildCurve(curveDate, curveDefinition);
+        final InterpolatedYieldCurveSpecification curveSpec = curveSpecBuilder.buildCurve(curveDate, curveDefinition);
         return curveSpec;
       }
 

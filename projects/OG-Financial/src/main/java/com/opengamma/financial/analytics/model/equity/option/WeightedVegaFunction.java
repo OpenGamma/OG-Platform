@@ -80,7 +80,7 @@ public class WeightedVegaFunction extends AbstractFunction.NonCompiledInvoker {
       s_logger.error("If applicable, please add the following SecurityType to WeightedVegaFunction, " + security.getSecurityType());
     }
     
-    LocalDate expiryDt = expiry.getExpiry().getDate();
+    LocalDate expiryDt = expiry.getExpiry().toLocalDate();
     LocalDate valDt = LocalDate.now(executionContext.getValuationClock());
     final long daysToExpiry = expiryDt.get(JulianFields.MODIFIED_JULIAN_DAY) - valDt.get(JulianFields.MODIFIED_JULIAN_DAY);
     // Or perhaps something like: Period.of(Duration.between(expiry.getExpiry(), executionContext.getValuationClock().zonedDateTimeToMinute())).totalDaysWith24HourDays();

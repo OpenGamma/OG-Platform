@@ -13,8 +13,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Duration;
 import org.threeten.bp.Instant;
-import org.threeten.bp.Period;
 
 /**
  * A manager of users that provide access to underlying services which are managed.
@@ -140,8 +140,8 @@ public class FinancialUserManager {
    * @param scheduler  the scheduler, not null
    * @param clientTimeOut  the time out for clients, not null
    */
-  public void createDeleteTask(ScheduledExecutorService scheduler, Period clientTimeOut) {
-    long timeOutMillis = clientTimeOut.normalizedDaysToHours().getTimeNanos() / 1000000L;
+  public void createDeleteTask(ScheduledExecutorService scheduler, Duration clientTimeOut) {
+    long timeOutMillis = clientTimeOut.toMillis();
     DeleteClientsRunnable runnable = new DeleteClientsRunnable(timeOutMillis);
     scheduler.scheduleWithFixedDelay(runnable, timeOutMillis, timeOutMillis, TimeUnit.MILLISECONDS);
   }

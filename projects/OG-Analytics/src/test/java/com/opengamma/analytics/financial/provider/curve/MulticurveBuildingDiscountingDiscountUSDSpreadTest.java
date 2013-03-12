@@ -149,8 +149,8 @@ public class MulticurveBuildingDiscountingDiscountUSDSpreadTest {
   private static final GeneratorInstrument<? extends GeneratorAttribute>[] DSC_USD_GENERATORS = new GeneratorInstrument<?>[] {GENERATOR_DEPOSIT_ON_USD, GENERATOR_DEPOSIT_ON_USD, GENERATOR_OIS_USD,
     GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD};
   /** Tenors for the dsc USD curve */
-  private static final Period[] DSC_USD_TENOR = new Period[] {DateUtils.periodOfDays(0), DateUtils.periodOfDays(1), DateUtils.periodOfMonths(1), DateUtils.periodOfMonths(2), DateUtils.periodOfMonths(3), DateUtils.periodOfMonths(6), DateUtils.periodOfMonths(9),
-    DateUtils.periodOfYears(1), DateUtils.periodOfYears(2), DateUtils.periodOfYears(3), DateUtils.periodOfYears(4), DateUtils.periodOfYears(5), DateUtils.periodOfYears(10)};
+  private static final Period[] DSC_USD_TENOR = new Period[] {Period.ofDays(0), Period.ofDays(1), Period.ofMonths(1), Period.ofMonths(2), Period.ofMonths(3), Period.ofMonths(6), Period.ofMonths(9),
+    Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5), Period.ofYears(10)};
   private static final GeneratorAttributeIR[] DSC_USD_ATTR = new GeneratorAttributeIR[DSC_USD_TENOR.length];
   static {
     for (int loopins = 0; loopins < 2; loopins++) {
@@ -167,8 +167,8 @@ public class MulticurveBuildingDiscountingDiscountUSDSpreadTest {
   private static final GeneratorInstrument<? extends GeneratorAttribute>[] FWD3_USD_GENERATORS = new GeneratorInstrument<?>[] {USD6MLIBOR3M, GENERATOR_USDLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M,
     USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M};
   /** Tenors for the Fwd 3M USD curve */
-  private static final Period[] FWD3_USD_TENOR = new Period[] {DateUtils.periodOfYears(1), DateUtils.periodOfMonths(0), DateUtils.periodOfMonths(6), DateUtils.periodOfYears(2), DateUtils.periodOfYears(3), DateUtils.periodOfYears(4), DateUtils.periodOfYears(5),
-    DateUtils.periodOfYears(10)};
+  private static final Period[] FWD3_USD_TENOR = new Period[] {Period.ofYears(1), Period.ofMonths(0), Period.ofMonths(6), Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5),
+    Period.ofYears(10)};
   private static final GeneratorAttributeIR[] FWD3_USD_ATTR = new GeneratorAttributeIR[FWD3_USD_TENOR.length];
   static {
     for (int loopins = 0; loopins < FWD3_USD_TENOR.length; loopins++) {
@@ -182,8 +182,8 @@ public class MulticurveBuildingDiscountingDiscountUSDSpreadTest {
   private static final GeneratorInstrument<? extends GeneratorAttribute>[] FWD3_USD_GENERATORS_2 = new GeneratorInstrument<?>[] {GENERATOR_USDLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M,
     USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M};
   /** Tenors for the Fwd 3M USD curve */
-  private static final Period[] FWD3_USD_TENOR_2 = new Period[] {DateUtils.periodOfMonths(0), DateUtils.periodOfMonths(6), DateUtils.periodOfYears(1), DateUtils.periodOfYears(2), DateUtils.periodOfYears(3), DateUtils.periodOfYears(4), DateUtils.periodOfYears(5),
-    DateUtils.periodOfYears(7), DateUtils.periodOfYears(10)};
+  private static final Period[] FWD3_USD_TENOR_2 = new Period[] {Period.ofMonths(0), Period.ofMonths(6), Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5),
+    Period.ofYears(7), Period.ofYears(10)};
   private static final GeneratorAttributeIR[] FWD3_USD_ATTR_2 = new GeneratorAttributeIR[FWD3_USD_TENOR_2.length];
   static {
     for (int loopins = 0; loopins < FWD3_USD_TENOR_2.length; loopins++) {
@@ -197,8 +197,8 @@ public class MulticurveBuildingDiscountingDiscountUSDSpreadTest {
   private static final GeneratorInstrument<? extends GeneratorAttribute>[] FWD3_USD_GENERATORS_3 = new GeneratorInstrument<?>[] {GENERATOR_USDLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M,
     USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M};
   /** Tenors for the Fwd 3M USD curve */
-  private static final Period[] FWD3_USD_TENOR_3 = new Period[] {DateUtils.periodOfMonths(0), DateUtils.periodOfMonths(6), DateUtils.periodOfYears(1), DateUtils.periodOfYears(2), DateUtils.periodOfYears(3), DateUtils.periodOfYears(4), DateUtils.periodOfYears(5),
-    DateUtils.periodOfYears(7), DateUtils.periodOfYears(10), DateUtils.periodOfYears(15), DateUtils.periodOfYears(20)};
+  private static final Period[] FWD3_USD_TENOR_3 = new Period[] {Period.ofMonths(0), Period.ofMonths(6), Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5),
+    Period.ofYears(7), Period.ofYears(10), Period.ofYears(15), Period.ofYears(20)};
   private static final GeneratorAttributeIR[] FWD3_USD_ATTR_3 = new GeneratorAttributeIR[FWD3_USD_TENOR_3.length];
   static {
     for (int loopins = 0; loopins < FWD3_USD_TENOR_3.length; loopins++) {
@@ -212,8 +212,8 @@ public class MulticurveBuildingDiscountingDiscountUSDSpreadTest {
   private static final GeneratorInstrument<? extends GeneratorAttribute>[] FWD3_USD_GENERATORS_4 = new GeneratorInstrument<?>[] {GENERATOR_USDLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M,
     USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M};
   /** Tenors for the Fwd 3M USD curve */
-  private static final Period[] FWD3_USD_TENOR_4 = new Period[] {DateUtils.periodOfMonths(0), DateUtils.periodOfYears(1), DateUtils.periodOfYears(5), DateUtils.periodOfYears(10), DateUtils.periodOfMonths(6), DateUtils.periodOfYears(2), DateUtils.periodOfYears(3),
-    DateUtils.periodOfYears(4), DateUtils.periodOfYears(7), DateUtils.periodOfYears(15)};
+  private static final Period[] FWD3_USD_TENOR_4 = new Period[] {Period.ofMonths(0), Period.ofYears(1), Period.ofYears(5), Period.ofYears(10), Period.ofMonths(6), Period.ofYears(2), Period.ofYears(3),
+    Period.ofYears(4), Period.ofYears(7), Period.ofYears(15)};
   private static final GeneratorAttributeIR[] FWD3_USD_ATTR_4 = new GeneratorAttributeIR[FWD3_USD_TENOR_4.length];
   static {
     for (int loopins = 0; loopins < FWD3_USD_TENOR_4.length; loopins++) {
@@ -226,7 +226,7 @@ public class MulticurveBuildingDiscountingDiscountUSDSpreadTest {
   /** Generators for the Fwd 6M USD curve */
   private static final GeneratorInstrument<? extends GeneratorAttribute>[] FWD6_USD_GENERATORS = new GeneratorInstrument<?>[] {GENERATOR_USDLIBOR6M, USD6MLIBOR6M, USD6MLIBOR6M, USD6MLIBOR6M};
   /** Tenors for the Fwd 6M USD curve */
-  private static final Period[] FWD6_USD_TENOR = new Period[] {DateUtils.periodOfMonths(0), DateUtils.periodOfYears(2), DateUtils.periodOfYears(5), DateUtils.periodOfYears(10)};
+  private static final Period[] FWD6_USD_TENOR = new Period[] {Period.ofMonths(0), Period.ofYears(2), Period.ofYears(5), Period.ofYears(10)};
   private static final GeneratorAttributeIR[] FWD6_USD_ATTR = new GeneratorAttributeIR[FWD6_USD_TENOR.length];
   static {
     for (int loopins = 0; loopins < FWD6_USD_TENOR.length; loopins++) {

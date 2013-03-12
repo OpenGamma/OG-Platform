@@ -5,9 +5,9 @@
  */
 package com.opengamma.web.analytics;
 
-import com.opengamma.engine.view.calc.ComputationCycleQuery;
-import com.opengamma.engine.view.calc.ComputationResultsResponse;
-import com.opengamma.engine.view.calc.ViewCycle;
+import com.opengamma.engine.view.cycle.ComputationCycleQuery;
+import com.opengamma.engine.view.cycle.ComputationResultsResponse;
+import com.opengamma.engine.view.cycle.ViewCycle;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
@@ -38,12 +38,12 @@ public class DependencyGraphViewport implements Viewport {
    * @param cycle The view cycle from the previous calculation cycle
    * @param cache The current results
    */
-  /* package */ DependencyGraphViewport(String calcConfigName,
-                                        DependencyGraphGridStructure gridStructure,
-                                        String callbackId,
-                                        ViewportDefinition viewportDefinition,
-                                        ViewCycle cycle,
-                                        ResultsCache cache) {
+  /* package */DependencyGraphViewport(String calcConfigName,
+      DependencyGraphGridStructure gridStructure,
+      String callbackId,
+      ViewportDefinition viewportDefinition,
+      ViewCycle cycle,
+      ResultsCache cache) {
     ArgumentChecker.notEmpty(calcConfigName, "calcConfigName");
     ArgumentChecker.notNull(gridStructure, "gridStructure");
     ArgumentChecker.notEmpty(callbackId, "callbackId");
@@ -55,6 +55,7 @@ public class DependencyGraphViewport implements Viewport {
 
   /**
    * Updates the viewport, e.g. in response to the user scrolling the grid.
+   * 
    * @param cycle The cycle used to calculate the latest set of results
    * @param cache Cache of results for the grid
    */
@@ -65,7 +66,7 @@ public class DependencyGraphViewport implements Viewport {
     ArgumentChecker.notNull(cache, "cache");
     if (!viewportDefinition.isValidFor(_gridStructure)) {
       throw new IllegalArgumentException("Viewport contains cells outside the bounds of the grid. Viewport: " +
-                                             viewportDefinition + ", grid: " + _gridStructure);
+          viewportDefinition + ", grid: " + _gridStructure);
     }
     _viewportDefinition = viewportDefinition;
     updateResults(cycle, cache);
@@ -73,15 +74,16 @@ public class DependencyGraphViewport implements Viewport {
 
   /**
    * Updates the data in the viewport when a new set of results arrives from the calculation engine.
+   * 
    * @param cache Cache of results
    */
-  /* package */ void updateResults(ViewCycle cycle, ResultsCache cache) {
+  /* package */void updateResults(ViewCycle cycle, ResultsCache cache) {
     ComputationCycleQuery query = new ComputationCycleQuery();
     query.setCalculationConfigurationName(_calcConfigName);
     query.setValueSpecifications(_gridStructure.getValueSpecifications());
     ComputationResultsResponse resultsResponse = cycle.queryResults(query);
     cache.put(_calcConfigName, resultsResponse.getResults(), cycle.getDuration());
-    Pair<ViewportResults,State> resultsAndState = _gridStructure.createResults(_viewportDefinition, cache, _latestResults);
+    Pair<ViewportResults, State> resultsAndState = _gridStructure.createResults(_viewportDefinition, cache, _latestResults);
     _latestResults = resultsAndState.getFirst();
     _state = resultsAndState.getSecond();
   }
@@ -96,6 +98,7 @@ public class DependencyGraphViewport implements Viewport {
     return _viewportDefinition;
   }
 
+  @Override
   public String getCallbackId() {
     return _callbackId;
   }

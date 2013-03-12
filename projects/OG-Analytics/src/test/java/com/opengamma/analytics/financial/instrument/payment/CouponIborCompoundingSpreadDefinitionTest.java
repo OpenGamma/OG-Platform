@@ -34,7 +34,7 @@ public class CouponIborCompoundingSpreadDefinitionTest {
   private static final IndexIborMaster MASTER_IBOR = IndexIborMaster.getInstance();
   private static final IborIndex USDLIBOR1M = MASTER_IBOR.getIndex("USDLIBOR1M", NYC);
 
-  private static final Period TENOR_3M = DateUtils.periodOfMonths(3);
+  private static final Period TENOR_3M = Period.ofMonths(3);
   private static final ZonedDateTime START_DATE = DateUtils.getUTCDate(2012, 8, 24);
   private static final double NOTIONAL = 123454321;
   private static final double SPREAD = 0.0010; // 10 bps

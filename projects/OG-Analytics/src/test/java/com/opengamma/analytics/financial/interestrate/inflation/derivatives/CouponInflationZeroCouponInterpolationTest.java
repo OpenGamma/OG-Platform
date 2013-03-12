@@ -35,7 +35,7 @@ public class CouponInflationZeroCouponInterpolationTest {
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final ZonedDateTime START_DATE = DateUtils.getUTCDate(2008, 8, 18);
-  private static final Period COUPON_TENOR = Period.of(10, YEARS);
+  private static final Period COUPON_TENOR = Period.ofYears(10);
   private static final ZonedDateTime PAYMENT_DATE = ScheduleCalculator.getAdjustedDate(START_DATE, COUPON_TENOR, BUSINESS_DAY, CALENDAR);
   private static final double NOTIONAL = 98765432;
   private static final int MONTH_LAG = 3;
@@ -54,7 +54,7 @@ public class CouponInflationZeroCouponInterpolationTest {
     REFERENCE_END_TIME[1] = ACT_ACT.getDayCountFraction(PRICING_DATE, REFERENCE_END_DATE[1]);
   }
 
-  private static final double WEIGHT = 1.0 - (PAYMENT_DATE.getDayOfMonth() - 1) / PAYMENT_DATE.getDate().lengthOfMonth();
+  private static final double WEIGHT = 1.0 - (PAYMENT_DATE.getDayOfMonth() - 1) / PAYMENT_DATE.toLocalDate().lengthOfMonth();
   private static final CouponInflationZeroCouponInterpolation ZERO_COUPON = new CouponInflationZeroCouponInterpolation(CUR, PAYMENT_TIME, 1.0, NOTIONAL, PRICE_INDEX, INDEX_APRIL_2008,
       REFERENCE_END_TIME, WEIGHT, false);
 

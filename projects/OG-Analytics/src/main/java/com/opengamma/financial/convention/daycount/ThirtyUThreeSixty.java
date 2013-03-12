@@ -22,7 +22,7 @@ public class ThirtyUThreeSixty extends ThirtyThreeSixtyTypeDayCount {
   }
 
   public double getDayCountFraction(final ZonedDateTime firstDate, final ZonedDateTime secondDate, final boolean isEOMConvention) {
-    return getDayCountFraction(firstDate.getDate(), secondDate.getDate(), isEOMConvention);
+    return getDayCountFraction(firstDate.toLocalDate(), secondDate.toLocalDate(), isEOMConvention);
   }
 
   public double getDayCountFraction(final LocalDate firstDate, final LocalDate secondDate, final boolean isEOMConvention) {

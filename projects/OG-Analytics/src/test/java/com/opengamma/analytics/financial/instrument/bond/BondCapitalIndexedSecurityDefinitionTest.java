@@ -57,7 +57,7 @@ public class BondCapitalIndexedSecurityDefinitionTest {
   private static final double INDEX_START_GILT_1 = 173.60; // November 2001
   private static final double NOTIONAL_GILT_1 = 1.00;
   private static final double REAL_RATE_GILT_1 = 0.02;
-  private static final Period COUPON_PERIOD_GILT_1 = Period.of(6, MONTHS);
+  private static final Period COUPON_PERIOD_GILT_1 = Period.ofMonths(6);
   private static final int COUPON_PER_YEAR_GILT_1 = 2;
   private static final int SETTLEMENT_DAYS_GILT_1 = 2;
   private static final String ISSUER_UK = "UK GOVT";
@@ -195,7 +195,7 @@ public class BondCapitalIndexedSecurityDefinitionTest {
   private static final double INDEX_START_TIPS_1 = 198.47742; // Date:
   private static final double NOTIONAL_TIPS_1 = 100.00;
   private static final double REAL_RATE_TIPS_1 = 0.02;
-  private static final Period COUPON_PERIOD_TIPS_1 = Period.of(6, MONTHS);
+  private static final Period COUPON_PERIOD_TIPS_1 = Period.ofMonths(6);
   private static final int SETTLEMENT_DAYS_TIPS_1 = 2;
   private static final String ISSUER_US = "US GOVT";
 

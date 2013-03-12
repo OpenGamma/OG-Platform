@@ -65,7 +65,7 @@ public class ForwardSwapSecurityGenerator extends SecurityGenerator<ForwardSwapS
     }
     final ExternalId swapSecurity;
     final Tenor tenor;
-    final int months = (int) DateUtils.totalMonths(maturityTenor.getPeriod()) + (int) DateUtils.totalMonths(forwardTenor.getPeriod());
+    final int months = (int) maturityTenor.getPeriod().toTotalMonths() + (int) forwardTenor.getPeriod().toTotalMonths();
     if (months < 12) {
       tenor = Tenor.ofMonths(months);
     } else {
@@ -108,22 +108,22 @@ public class ForwardSwapSecurityGenerator extends SecurityGenerator<ForwardSwapS
     // look up the rate timeseries identifier out of the bundle
     final ExternalId tsIdentifier = getTimeSeriesIdentifier(liborConvention);
     // look up the value on our chosen trade date
-    final HistoricalTimeSeries initialRateSeries = getHistoricalSource().getHistoricalTimeSeries(MarketDataRequirementNames.MARKET_VALUE, tsIdentifier.toBundle(), null, tradeDate.getDate(),
-        true, tradeDate.getDate(), true);
+    final HistoricalTimeSeries initialRateSeries = getHistoricalSource().getHistoricalTimeSeries(MarketDataRequirementNames.MARKET_VALUE, tsIdentifier.toBundle(), null, tradeDate.toLocalDate(),
+        true, tradeDate.toLocalDate(), true);
     if (initialRateSeries == null || initialRateSeries.getTimeSeries().isEmpty()) {
       s_logger.error("couldn't get series for {} on {}", tsIdentifier, tradeDate);
       return null;
     }
     Double initialRate = initialRateSeries.getTimeSeries().getEarliestValue();
     // get the identifier for the swap rate for the maturity we're interested in (assuming the fixed rate will be =~ swap rate)
-    final ExternalId swapRateForMaturityIdentifier = getSwapRateFor(ccy, tradeDate.getDate(), maturity, forward);
+    final ExternalId swapRateForMaturityIdentifier = getSwapRateFor(ccy, tradeDate.toLocalDate(), maturity, forward);
     if (swapRateForMaturityIdentifier == null) {
       s_logger.error("Couldn't get swap rate identifier for {} [{}] from {}", new Object[] {ccy, maturity, tradeDate });
       return null;
     }
     final HistoricalTimeSeries fixedRateSeries = getHistoricalSource().getHistoricalTimeSeries(MarketDataRequirementNames.MARKET_VALUE, swapRateForMaturityIdentifier.toBundle(),
-        null, tradeDate.getDate(), true,
-        tradeDate.getDate(), true);
+        null, tradeDate.toLocalDate(), true,
+        tradeDate.toLocalDate(), true);
     if (fixedRateSeries == null) {
       s_logger.error("can't find time series for {} on {}", swapRateForMaturityIdentifier, tradeDate);
       return null;
@@ -174,7 +174,7 @@ public class ForwardSwapSecurityGenerator extends SecurityGenerator<ForwardSwapS
   public ManageableTrade createSecurityTrade(final QuantityGenerator quantity, final SecurityPersister persister, final NameGenerator counterPartyGenerator) {
     final ForwardSwapSecurity swap = createSecurity();
     if (swap != null) {
-      return new ManageableTrade(quantity.createQuantity(), persister.storeSecurity(swap), swap.getTradeDate().getDate(), swap.getTradeDate().toOffsetDateTime().toOffsetTime(), 
+      return new ManageableTrade(quantity.createQuantity(), persister.storeSecurity(swap), swap.getTradeDate().toLocalDate(), swap.getTradeDate().toOffsetDateTime().toOffsetTime(), 
           ExternalId.of(Counterparty.DEFAULT_SCHEME, counterPartyGenerator.createName()));
     } else {
       return null;

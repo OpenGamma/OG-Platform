@@ -32,6 +32,7 @@ import com.opengamma.core.position.Counterparty;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
@@ -39,8 +40,7 @@ import com.opengamma.engine.function.DummyFunctionReinitializer;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputsImpl;
-import com.opengamma.engine.marketdata.ExternalIdBundleLookup;
-import com.opengamma.engine.target.ComputationTargetSpecificationResolver;
+import com.opengamma.engine.marketdata.ExternalIdBundleResolver;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
@@ -300,23 +300,24 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
     return result.iterator().next();
   }
 
-  private ComputedValue findMarketData(final ExternalIdBundleLookup lookup, final ComputationTargetSpecificationResolver.AtVersionCorrection resolver, final ValueRequirement requirement) {
-    final Pair<LocalDate, Double> value = getHistoricalSource().getLatestDataPoint(MarketDataRequirementNames.MARKET_VALUE, lookup.getExternalIds(requirement.getTargetReference()), null);
+  private ComputedValue findMarketData(final ExternalIdBundleResolver resolver, final ValueRequirement requirement) {
+    final ComputationTargetSpecification targetSpec = resolver.getTargetSpecification(requirement.getTargetReference());
+    // TODO: What to do if the targetSpec can't be resolved. We can still get an identifier bundle, but the spec for the CV will be wrong
+    final Pair<LocalDate, Double> value = getHistoricalSource().getLatestDataPoint(MarketDataRequirementNames.MARKET_VALUE, resolver.getExternalIdBundle(targetSpec), null);
     if (value == null) {
       return null;
     }
-    return new ComputedValue(new ValueSpecification(requirement.getValueName(), resolver.getTargetSpecification(requirement.getTargetReference()),
+    return new ComputedValue(new ValueSpecification(requirement.getValueName(), targetSpec,
         ValueProperties.with(ValuePropertyNames.FUNCTION, "MARKET_DATA").get()), value.getSecond());
   }
 
   private ComputedValue[] findMarketData(final FunctionCompilationContext compilationContext, final Collection<ValueRequirement> requirements) {
     s_logger.debug("Resolving {}", requirements);
-    final ExternalIdBundleLookup lookup = new ExternalIdBundleLookup(compilationContext.getSecuritySource());
-    final ComputationTargetSpecificationResolver.AtVersionCorrection resolver = compilationContext.getComputationTargetResolver().getSpecificationResolver();
+    final ExternalIdBundleResolver lookup = new ExternalIdBundleResolver(compilationContext.getComputationTargetResolver());
     final ComputedValue[] values = new ComputedValue[requirements.size()];
     int i = 0;
     for (final ValueRequirement requirement : requirements) {
-      final ComputedValue value = findMarketData(lookup, resolver, requirement);
+      final ComputedValue value = findMarketData(lookup, requirement);
       if (value == null) {
         s_logger.debug("Couldn't resolve {}", requirement);
         return null;
@@ -452,7 +453,7 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
    */
   // TODO: replace this with a date adjuster
   protected ZonedDateTime nextWorkingDay(ZonedDateTime zdt, final Currency currency) {
-    while (!isWorkday(zdt.getDayOfWeek(), currency) || isHoliday(zdt.getDate(), currency)) {
+    while (!isWorkday(zdt.getDayOfWeek(), currency) || isHoliday(zdt.toLocalDate(), currency)) {
       zdt = zdt.plusDays(1);
     }
     return zdt;
@@ -462,7 +463,7 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
     ArgumentChecker.isTrue(currencies.length > 0, "currencies");
     do {
       for (final Currency currency : currencies) {
-        if (!isWorkday(zdt.getDayOfWeek(), currency) || isHoliday(zdt.getDate(), currency)) {
+        if (!isWorkday(zdt.getDayOfWeek(), currency) || isHoliday(zdt.toLocalDate(), currency)) {
           zdt = zdt.plusDays(1);
           continue;
         }
@@ -480,7 +481,7 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
    */
   // TODO: replace this with a date adjuster
   protected ZonedDateTime previousWorkingDay(ZonedDateTime zdt, final Currency currency) {
-    while (!isWorkday(zdt.getDayOfWeek(), currency) || isHoliday(zdt.getDate(), currency)) {
+    while (!isWorkday(zdt.getDayOfWeek(), currency) || isHoliday(zdt.toLocalDate(), currency)) {
       zdt = zdt.minusDays(1);
     }
     return zdt;
@@ -490,7 +491,7 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
     ArgumentChecker.isTrue(currencies.length > 0, "currencies");
     do {
       for (final Currency currency : currencies) {
-        if (!isWorkday(zdt.getDayOfWeek(), currency) || isHoliday(zdt.getDate(), currency)) {
+        if (!isWorkday(zdt.getDayOfWeek(), currency) || isHoliday(zdt.toLocalDate(), currency)) {
           zdt = zdt.minusDays(1);
           continue;
         }
@@ -519,7 +520,7 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
     final T security = createSecurity();
     if (security != null) {
       final ZonedDateTime tradeDate = previousWorkingDay(ZonedDateTime.now().minusDays(getRandom(30)), getRandomCurrency());
-      trade = new ManageableTrade(quantityGenerator.createQuantity(), securityPersister.storeSecurity(security), tradeDate.getDate(), tradeDate.toOffsetDateTime().toOffsetTime(),
+      trade = new ManageableTrade(quantityGenerator.createQuantity(), securityPersister.storeSecurity(security), tradeDate.toLocalDate(), tradeDate.toOffsetDateTime().toOffsetTime(),
           ExternalId.of(Counterparty.DEFAULT_SCHEME, counterPartyGenerator.createName()));
     }
     return trade;

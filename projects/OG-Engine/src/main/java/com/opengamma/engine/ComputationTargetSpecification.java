@@ -127,7 +127,7 @@ public final class ComputationTargetSpecification extends ComputationTargetRefer
    * @return the target specification, not null
    */
   public static ComputationTargetSpecification of(final UniqueId uniqueId) {
-    return ComputationTargetType.PRIMITIVE.specification(uniqueId);
+    return new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, uniqueId);
   }
 
   /**
@@ -164,7 +164,7 @@ public final class ComputationTargetSpecification extends ComputationTargetRefer
       return true;
     }
     if (obj instanceof ComputationTargetSpecification) {
-      ComputationTargetSpecification other = (ComputationTargetSpecification) obj;
+      final ComputationTargetSpecification other = (ComputationTargetSpecification) obj;
       return super.equals(obj) && ObjectUtils.equals(_uniqueId, other._uniqueId);
     }
     return false;

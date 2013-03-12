@@ -69,9 +69,9 @@ public class InterestRateFutureSecurityConverter extends FinancialSecurityVisito
   }
 
   private double getAccrualFactor(final Period period) {
-    if (period.equals(DateUtils.periodOfMonths(3))) {
+    if (period.equals(Period.ofMonths(3))) {
       return 0.25;
-    } else if (period.equals(DateUtils.periodOfMonths(1))) {
+    } else if (period.equals(Period.ofMonths(1))) {
       return 1. / 12;
     }
     throw new OpenGammaRuntimeException("Can only handle 1M and 3M interest rate futures");

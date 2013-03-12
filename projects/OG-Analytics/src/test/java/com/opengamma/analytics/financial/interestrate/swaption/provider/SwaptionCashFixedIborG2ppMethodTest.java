@@ -51,7 +51,7 @@ public class SwaptionCashFixedIborG2ppMethodTest {
   private static final GeneratorSwapFixedIborMaster GENERATOR_SWAP_MASTER = GeneratorSwapFixedIborMaster.getInstance();
   private static final int SPOT_LAG = EURIBOR3M.getSpotLag();
   private static final int SWAP_TENOR_YEAR = 5;
-  private static final Period SWAP_TENOR = DateUtils.periodOfYears(SWAP_TENOR_YEAR);
+  private static final Period SWAP_TENOR = Period.ofYears(SWAP_TENOR_YEAR);
   private static final GeneratorSwapFixedIbor EUR1YEURIBOR6M = GENERATOR_SWAP_MASTER.getGenerator("EUR1YEURIBOR6M", CALENDAR);
   private static final IndexSwap CMS_INDEX = new IndexSwap(EUR1YEURIBOR6M, SWAP_TENOR);
   private static final ZonedDateTime EXPIRY_DATE = DateUtils.getUTCDate(2016, 7, 7);

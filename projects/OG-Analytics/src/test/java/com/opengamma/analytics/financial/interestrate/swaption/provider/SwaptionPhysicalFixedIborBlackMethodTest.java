@@ -65,12 +65,12 @@ public class SwaptionPhysicalFixedIborBlackMethodTest {
   private static final BlackFlatSwaptionParameters BLACK = TestsDataSetsBlack.createBlackSwaptionEUR6();
   private static final BlackSwaptionFlatProviderDiscount BLACK_MULTICURVES = new BlackSwaptionFlatProviderDiscount(MULTICURVES, BLACK);
   // Swaption
-  private static final Period EXPIRY_TENOR = DateUtils.periodOfMonths(26); // To be between nodes.
+  private static final Period EXPIRY_TENOR = Period.ofMonths(26); // To be between nodes.
   private static final ZonedDateTime EXPIRY_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, EXPIRY_TENOR, GENERATOR_EUR1YEURIBOR6M.getBusinessDayConvention(), CALENDAR,
       GENERATOR_EUR1YEURIBOR6M.isEndOfMonth());
   private static final ZonedDateTime SETTLE_DATE = ScheduleCalculator.getAdjustedDate(EXPIRY_DATE, GENERATOR_EUR1YEURIBOR6M.getSpotLag(), CALENDAR);
   private static final int SWAP_TENOR_YEAR = 5;
-  private static final Period SWAP_TENOR = DateUtils.periodOfYears(SWAP_TENOR_YEAR);
+  private static final Period SWAP_TENOR = Period.ofYears(SWAP_TENOR_YEAR);
   private static final double NOTIONAL = 123456789.0;
   private static final double RATE = 0.02;
   private static final SwapFixedIborDefinition SWAP_DEFINITION_REC = SwapFixedIborDefinition.from(SETTLE_DATE, SWAP_TENOR, GENERATOR_EUR1YEURIBOR6M, NOTIONAL, RATE, false);

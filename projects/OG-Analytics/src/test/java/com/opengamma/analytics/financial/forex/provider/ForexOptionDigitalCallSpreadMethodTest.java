@@ -9,6 +9,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
@@ -85,7 +86,7 @@ public class ForexOptionDigitalCallSpreadMethodTest {
   private static final boolean IS_CALL = true;
   private static final boolean IS_LONG = true;
   private static final double NOTIONAL = 100000000;
-  private static final ZonedDateTime OPTION_PAY_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, DateUtils.periodOfMonths(9), BUSINESS_DAY, CALENDAR);
+  private static final ZonedDateTime OPTION_PAY_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.ofMonths(9), BUSINESS_DAY, CALENDAR);
   private static final ZonedDateTime OPTION_EXP_DATE = ScheduleCalculator.getAdjustedDate(OPTION_PAY_DATE, -SETTLEMENT_DAYS, CALENDAR);
   private static final ForexDefinition FOREX_DEFINITION = new ForexDefinition(EUR, USD, OPTION_PAY_DATE, NOTIONAL, STRIKE);
   private static final Forex FOREX = FOREX_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_2);
@@ -162,7 +163,7 @@ public class ForexOptionDigitalCallSpreadMethodTest {
     final boolean isCall = true;
     final boolean isLong = true;
     final double notional = 100000000;
-    final ZonedDateTime payDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, DateUtils.periodOfMonths(9), BUSINESS_DAY, CALENDAR);
+    final ZonedDateTime payDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.ofMonths(9), BUSINESS_DAY, CALENDAR);
     final ZonedDateTime expDate = ScheduleCalculator.getAdjustedDate(payDate, -SETTLEMENT_DAYS, CALENDAR);
     final ForexDefinition forexUnderlyingDefinition = new ForexDefinition(EUR, USD, payDate, notional, strike);
     final ForexOptionDigitalDefinition callDefinition = new ForexOptionDigitalDefinition(forexUnderlyingDefinition, expDate, isCall, isLong);
@@ -184,7 +185,7 @@ public class ForexOptionDigitalCallSpreadMethodTest {
     final boolean isCall = true;
     final boolean isLong = true;
     final double notional = 100000000;
-    final ZonedDateTime payDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, DateUtils.periodOfMonths(9), BUSINESS_DAY, CALENDAR);
+    final ZonedDateTime payDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.ofMonths(9), BUSINESS_DAY, CALENDAR);
     final ZonedDateTime expDate = ScheduleCalculator.getAdjustedDate(payDate, -SETTLEMENT_DAYS, CALENDAR);
     final ForexDefinition forexUnderlyingDefinition = new ForexDefinition(EUR, USD, payDate, notional, strike);
     final ForexOptionDigitalDefinition callDefinition = new ForexOptionDigitalDefinition(forexUnderlyingDefinition, expDate, isCall, isLong, false);
@@ -309,7 +310,7 @@ public class ForexOptionDigitalCallSpreadMethodTest {
     final boolean isCall = true;
     final boolean isLong = true;
     final double notional = 100000000;
-    final ZonedDateTime payDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, DateUtils.periodOfMonths(9), BUSINESS_DAY, CALENDAR);
+    final ZonedDateTime payDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.ofMonths(9), BUSINESS_DAY, CALENDAR);
     final ZonedDateTime expDate = ScheduleCalculator.getAdjustedDate(payDate, -SETTLEMENT_DAYS, CALENDAR);
     final ForexDefinition forexUnderlyingDefinition = new ForexDefinition(EUR, USD, payDate, notional, strike);
     final ForexOptionDigitalDefinition forexOptionDefinitionCall = new ForexOptionDigitalDefinition(forexUnderlyingDefinition, expDate, isCall, isLong);
@@ -334,7 +335,7 @@ public class ForexOptionDigitalCallSpreadMethodTest {
     final boolean isCall = true;
     final boolean isLong = true;
     final double notional = 100000000;
-    final ZonedDateTime payDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, DateUtils.periodOfMonths(9), BUSINESS_DAY, CALENDAR);
+    final ZonedDateTime payDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.ofMonths(9), BUSINESS_DAY, CALENDAR);
     final ZonedDateTime expDate = ScheduleCalculator.getAdjustedDate(payDate, -SETTLEMENT_DAYS, CALENDAR);
     final ForexDefinition forexUnderlyingDefinition = new ForexDefinition(EUR, USD, payDate, notional, strike);
     final ForexOptionDigitalDefinition forexOptionDefinitionCall = new ForexOptionDigitalDefinition(forexUnderlyingDefinition, expDate, isCall, isLong, false);

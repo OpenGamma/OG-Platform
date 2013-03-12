@@ -14,11 +14,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesAdjuster;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesAdjustment;
 import com.opengamma.core.historicaltimeseries.impl.SimpleHistoricalTimeSeries;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesAdjuster;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesAdjustment;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**

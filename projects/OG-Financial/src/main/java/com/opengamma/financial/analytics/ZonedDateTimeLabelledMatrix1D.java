@@ -5,8 +5,6 @@
  */
 package com.opengamma.financial.analytics;
 
-import static org.threeten.bp.temporal.ChronoUnit.NANOS;
-
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
@@ -14,7 +12,7 @@ import org.threeten.bp.ZonedDateTime;
  * 
  */
 public class ZonedDateTimeLabelledMatrix1D extends LabelledMatrix1D<ZonedDateTime, Period> {
-  private static final Period TOLERANCE = Period.of(1, NANOS);
+  private static final Period TOLERANCE = Period.ofDays(1);
 
   public ZonedDateTimeLabelledMatrix1D(final ZonedDateTime[] keys, final double[] values) {
     super(keys, values, TOLERANCE);

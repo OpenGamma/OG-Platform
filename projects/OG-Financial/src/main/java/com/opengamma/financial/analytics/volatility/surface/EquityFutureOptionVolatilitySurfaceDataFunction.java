@@ -61,7 +61,7 @@ public class EquityFutureOptionVolatilitySurfaceDataFunction extends AbstractFun
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
 
     final ZonedDateTime valTime = ZonedDateTime.now(executionContext.getValuationClock());
-    final LocalDate valDate = valTime.getDate();
+    final LocalDate valDate = valTime.toLocalDate();
 
     final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
 

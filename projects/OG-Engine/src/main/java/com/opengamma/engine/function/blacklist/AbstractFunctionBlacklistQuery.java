@@ -8,10 +8,10 @@ package com.opengamma.engine.function.blacklist;
 import java.util.Set;
 
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.calcnode.CalculationJobItem;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.calcnode.CalculationJobItem;
 
 /**
  * Partial implementation of {@link FunctionBlacklistQuery}.

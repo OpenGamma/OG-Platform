@@ -30,7 +30,7 @@ import com.opengamma.core.change.ChangeEvent;
 import com.opengamma.core.change.ChangeListener;
 import com.opengamma.core.change.ChangeProvider;
 import com.opengamma.engine.function.CompiledFunctionService;
-import com.opengamma.engine.view.ViewProcessorInternal;
+import com.opengamma.engine.view.impl.ViewProcessorInternal;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.VersionedSource;

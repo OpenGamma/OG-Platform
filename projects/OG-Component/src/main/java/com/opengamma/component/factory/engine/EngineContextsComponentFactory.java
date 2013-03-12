@@ -34,7 +34,6 @@ import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.PortfolioStructure;
 import com.opengamma.engine.function.blacklist.DefaultFunctionBlacklistQuery;
 import com.opengamma.engine.function.blacklist.FunctionBlacklist;
-import com.opengamma.engine.marketdata.ExternalIdLookup;
 import com.opengamma.engine.marketdata.OverrideOperationCompiler;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.financial.OpenGammaCompilationContext;
@@ -215,8 +214,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
   }
 
   protected OverrideOperationCompiler initOverrideOperationCompiler(final ComponentRepository repo, final LinkedHashMap<String, String> configuration) {
-    final OverrideOperationCompiler ooc = new MarketDataELCompiler(getSecuritySource());
-
+    final OverrideOperationCompiler ooc = new MarketDataELCompiler();
     final ComponentInfo info = new ComponentInfo(OverrideOperationCompiler.class, getClassifier());
     repo.registerComponent(info, ooc);
     return ooc;
@@ -235,7 +233,6 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
     }
     OpenGammaExecutionContext.setOverrideOperationCompiler(context, ooc);
     context.setSecuritySource(getSecuritySource());
-    context.setExternalIdLookup(new ExternalIdLookup(null, getSecuritySource()));
     context.setPortfolioStructure(new PortfolioStructure(getPositionSource()));
     if (getViewProcessor() != null) {
       OpenGammaExecutionContext.setViewProcessor(context, getViewProcessor());

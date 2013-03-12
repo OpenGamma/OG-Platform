@@ -35,7 +35,7 @@ public class CompiledViewDefinitionWithGraphsImpl extends CompiledViewDefinition
 
   /**
    * Constructs an instance.
-   *
+   * 
    * @param viewDefinition the view definition, not null
    * @param graphsByConfiguration the dependency graphs by calculation configuration name, not null
    * @param resolutions the resolution mappings used to create the dependency graphs, not null
@@ -49,7 +49,8 @@ public class CompiledViewDefinitionWithGraphsImpl extends CompiledViewDefinition
         processValidityRange(graphsByConfiguration), graphsByConfiguration, resolutions, functionInitId);
   }
 
-  private CompiledViewDefinitionWithGraphsImpl(final ViewDefinition viewDefinition, final Portfolio portfolio, final Collection<CompiledViewCalculationConfiguration> compiledCalculationConfigurations,
+  private CompiledViewDefinitionWithGraphsImpl(final ViewDefinition viewDefinition, final Portfolio portfolio,
+      final Collection<CompiledViewCalculationConfiguration> compiledCalculationConfigurations,
       final Pair<Instant, Instant> validityRange, final Map<String, DependencyGraph> graphsByConfiguration, final Map<ComputationTargetReference, UniqueId> resolutions, final long functionInitId) {
     super(viewDefinition, portfolio, compiledCalculationConfigurations, validityRange.getFirst(), validityRange.getSecond());
     ArgumentChecker.notNull(resolutions, "resolutions");
@@ -61,7 +62,7 @@ public class CompiledViewDefinitionWithGraphsImpl extends CompiledViewDefinition
   //--------------------------------------------------------------------------
   /**
    * Gets a map of dependency graphs by configuration name.
-   *
+   * 
    * @return an unmodifiable map of dependency graphs by configuration name, not null
    */
   public Map<String, DependencyGraph> getDependencyGraphsByConfiguration() {
@@ -70,8 +71,8 @@ public class CompiledViewDefinitionWithGraphsImpl extends CompiledViewDefinition
 
   /**
    * Gets the dependency graphs for every calculation configuration.
-   *
-   * @return  an unmodifiable collection of the dependency graphs for every calculation configuration, not null
+   * 
+   * @return an unmodifiable collection of the dependency graphs for every calculation configuration, not null
    */
   public Collection<DependencyGraph> getAllDependencyGraphs() {
     return _graphsByConfiguration.values();
@@ -79,10 +80,9 @@ public class CompiledViewDefinitionWithGraphsImpl extends CompiledViewDefinition
 
   /**
    * Gets the dependency graph for a specified calculation configuration.
-   *
-   * @param calcConfigName  the calculation configuration name, not null
-   * @return the dependency graph for the specified calculation configuration, or null if no dependency graph
-   *         was found.
+   * 
+   * @param calcConfigName the calculation configuration name, not null
+   * @return the dependency graph for the specified calculation configuration, or null if no dependency graph was found.
    */
   public DependencyGraph getDependencyGraph(final String calcConfigName) {
     ArgumentChecker.notNull(calcConfigName, "calcConfigName");
@@ -92,7 +92,7 @@ public class CompiledViewDefinitionWithGraphsImpl extends CompiledViewDefinition
   //-------------------------------------------------------------------------
   /**
    * Gets the function init ID that was used when creating the dependency graphs
-   *
+   * 
    * @return the function init ID that was used when creating the dependency graphs
    */
   public long getFunctionInitId() {
@@ -103,7 +103,7 @@ public class CompiledViewDefinitionWithGraphsImpl extends CompiledViewDefinition
    * Gets the object and external identifiers that were resolved as part of the view compilation. The graphs contained in this instance are only valid when the mapping returned here holds. For
    * example, a different version/correction used for target resolution might make one or more references resolve to a different target specification. Anything using the original specification will
    * not longer be valid.
-   *
+   * 
    * @return the map of target references containing object identifiers (unversioned unique identifiers) or external identifiers to the resolved unique identifiers
    */
   public Map<ComputationTargetReference, UniqueId> getResolvedIdentifiers() {

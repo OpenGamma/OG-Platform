@@ -143,10 +143,10 @@ public class AnnuityCouponOISDefinition extends AnnuityCouponDefinition<CouponOI
     final List<Coupon> resultList = new ArrayList<Coupon>();
     final CouponOISDefinition[] payments = getPayments();
     ZonedDateTime valZdtInPaymentZone = valZdt.withZoneSameInstant(payments[0].getPaymentDate().getZone());
-    LocalDate valDate = valZdtInPaymentZone.getDate();
+    LocalDate valDate = valZdtInPaymentZone.toLocalDate();
 
     for (int loopcoupon = 0; loopcoupon < payments.length; loopcoupon++) {
-      if (!valDate.isAfter(payments[loopcoupon].getPaymentDate().getDate())) {
+      if (!valDate.isAfter(payments[loopcoupon].getPaymentDate().toLocalDate())) {
         resultList.add(payments[loopcoupon].toDerivative(valZdt, indexFixingTS, yieldCurveNames));
       }
     }

@@ -70,8 +70,8 @@ public class CapFloorCMSSpreadSecurityGenerator extends SecurityGenerator<CapFlo
     } while (tenor1.compareTo(tenor2) >= 0);
     final int length = getRandom(tenor2.getPeriod().getYears() - 5) + 3;
     final ZonedDateTime maturityDate = nextWorkingDay(startDate.plusYears(length), currency);
-    final ExternalId shortIdentifier = getUnderlying(currency, startDate.getDate(), tenor1);
-    final ExternalId longIdentifier = getUnderlying(currency, startDate.getDate(), tenor2);
+    final ExternalId shortIdentifier = getUnderlying(currency, startDate.toLocalDate(), tenor1);
+    final ExternalId longIdentifier = getUnderlying(currency, startDate.toLocalDate(), tenor2);
     final double strike = getRandom(STRIKES);
     final Frequency frequency = getRandom(FREQUENCY);
     final DayCount dayCount = getRandom(DAY_COUNT);

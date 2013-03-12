@@ -345,7 +345,7 @@ public final class EquityIndexOptionBlackMethod {
     final double strike = derivative.getStrike();
     final double forward = marketData.getForwardCurve().getForward(expiry);
     final double blackVol = marketData.getVolatilitySurface().getVolatility(expiry, strike);
-    final double theta = BlackFormulaRepository.theta(forward, strike, expiry, blackVol);
+    final double theta = BlackFormulaRepository.driftlessTheta(forward, strike, expiry, blackVol);
     return theta;
   }
   

@@ -76,7 +76,7 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
   //  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   //  private static final boolean IS_EOM = true;
   private static final int ANNUITY_TENOR_YEAR = 5;
-  private static final Period ANNUITY_TENOR = DateUtils.periodOfYears(ANNUITY_TENOR_YEAR);
+  private static final Period ANNUITY_TENOR = Period.ofYears(ANNUITY_TENOR_YEAR);
   private static final double NOTIONAL = 100000000; //100m
   private static final double RATE = 0.0325;
   private static final SwapFixedIborDefinition SWAP_PAYER_DEFINITION = SwapFixedIborDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, EUR1YEURIBOR6M, NOTIONAL, RATE, true);
@@ -266,8 +266,8 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
   //   */
   //  public void analysisSensitivities() {
   //    IborIndex USDLIBOR3M = IndexIborMaster.getInstance().getIndex("USDLIBOR3M", CALENDAR);
-  //    Period expiryTenor = DateUtils.periodOfYears(5);
-  //    Period underlyingTenor = DateUtils.periodOfYears(10);
+  //    Period expiryTenor = Period.ofYears(5);
+  //    Period underlyingTenor = Period.ofYears(10);
   //    ZonedDateTime expiryDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, expiryTenor, USDLIBOR3M);
   //    ZonedDateTime settleDate = ScheduleCalculator.getAdjustedDate(expiryDate, USDLIBOR3M.getSpotLag(), CALENDAR);
   //    GeneratorSwapFixedIbor USD6MLIBOR3M = GeneratorSwapFixedIborMaster.getInstance().getGenerator("USD6MLIBOR3M", CALENDAR);

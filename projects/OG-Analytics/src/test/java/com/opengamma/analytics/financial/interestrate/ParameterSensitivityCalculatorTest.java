@@ -66,7 +66,7 @@ public abstract class ParameterSensitivityCalculatorTest {
   private static final Currency USD = USDLIBOR6M.getCurrency();
   private static final FXMatrix FX_MATRIX = new FXMatrix(USD);
   private static final HashMap<String, Currency> CCY_MAP = new HashMap<String, Currency>();
-  private static final Period SWAP_TENOR = Period.of(5, YEARS);
+  private static final Period SWAP_TENOR = Period.ofYears(5);
   private static final double SWAP_RATE = 0.05;
   private static final double SWAP_NOTIONAL = 1.0;
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2012, 6, 29);

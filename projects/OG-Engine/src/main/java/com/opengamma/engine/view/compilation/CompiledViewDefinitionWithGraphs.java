@@ -15,9 +15,9 @@ public interface CompiledViewDefinitionWithGraphs extends CompiledViewDefinition
   /**
    * Gets a dependency graph explorer for a calculation configuration.
    * 
-   * @param calcConfig  the calculation configuration, not null
+   * @param calcConfig the calculation configuration, not null
    * @return the dependency graph explorer, not null
    */
   DependencyGraphExplorer getDependencyGraphExplorer(String calcConfig);
-  
+
 }

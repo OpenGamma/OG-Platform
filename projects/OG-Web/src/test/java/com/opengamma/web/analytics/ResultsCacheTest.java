@@ -18,14 +18,14 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.Lists;
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.cache.NotCalculatedSentinel;
 import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.AggregatedExecutionLog;
-import com.opengamma.engine.view.InMemoryViewComputationResultModel;
-import com.opengamma.engine.view.cache.NotCalculatedSentinel;
+import com.opengamma.engine.view.impl.InMemoryViewComputationResultModel;
 import com.opengamma.id.UniqueId;
 
 public class ResultsCacheTest {

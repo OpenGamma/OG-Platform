@@ -37,7 +37,7 @@ public class DepositCounterpartTest {
 
   private static final double NOTIONAL = 100000000;
   private static final double RATE = 0.0250;
-  private static final Period DEPOSIT_PERIOD = Period.of(6, MONTHS);
+  private static final Period DEPOSIT_PERIOD = Period.ofMonths(6);
   private static final ZonedDateTime END_DATE = ScheduleCalculator.getAdjustedDate(SPOT_DATE, DEPOSIT_PERIOD, GENERATOR);
   private static final double DEPOSIT_AF = GENERATOR.getDayCount().getDayCountFraction(SPOT_DATE, END_DATE);
   private static final String COUNTERPART_NAME = "Ctp";

@@ -14,9 +14,11 @@ import org.slf4j.LoggerFactory;
 import org.threeten.bp.LocalDate;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesAdjustment;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.cache.MissingMarketDataSentinel;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
@@ -27,9 +29,7 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.cache.MissingMarketDataSentinel;
 import com.opengamma.financial.OpenGammaExecutionContext;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesAdjustment;
 
 /**
  * Function to source time series data from a {@link HistoricalTimeSeriesSource} attached to the execution context.
@@ -40,12 +40,9 @@ public class HistoricalTimeSeriesFunction extends AbstractFunction.NonCompiledIn
 
   protected static HistoricalTimeSeries executeImpl(final FunctionExecutionContext executionContext, final HistoricalTimeSeriesSource timeSeriesSource,
       final ComputationTargetSpecification targetSpec, final ValueRequirement desiredValue) {
-    final LocalDate startDate = DateConstraint.getLocalDate(executionContext, desiredValue.getConstraint(HistoricalTimeSeriesFunctionUtils.START_DATE_PROPERTY));
+    final LocalDate startDate = DateConstraint.evaluate(executionContext, desiredValue.getConstraint(HistoricalTimeSeriesFunctionUtils.START_DATE_PROPERTY));
     final boolean includeStart = HistoricalTimeSeriesFunctionUtils.parseBoolean(desiredValue.getConstraint(HistoricalTimeSeriesFunctionUtils.INCLUDE_START_PROPERTY));
-    LocalDate endDate = DateConstraint.getLocalDate(executionContext, desiredValue.getConstraint(HistoricalTimeSeriesFunctionUtils.END_DATE_PROPERTY));
-    if (endDate == null) {
-      endDate = LocalDate.now(executionContext.getValuationClock());
-    }
+    LocalDate endDate = DateConstraint.evaluate(executionContext, desiredValue.getConstraint(HistoricalTimeSeriesFunctionUtils.END_DATE_PROPERTY));
     final boolean includeEnd = HistoricalTimeSeriesFunctionUtils.parseBoolean(desiredValue.getConstraint(HistoricalTimeSeriesFunctionUtils.INCLUDE_END_PROPERTY));
     HistoricalTimeSeries hts = timeSeriesSource.getHistoricalTimeSeries(targetSpec.getUniqueId(), startDate, includeStart, endDate, includeEnd);
     final String adjusterString = desiredValue.getConstraint(HistoricalTimeSeriesFunctionUtils.ADJUST_PROPERTY);

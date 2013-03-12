@@ -46,7 +46,7 @@ public class SwapFixedCouponMethodTest {
   private static final double RATE = 0.0250; // 2.5%
 
   private static final int ANNUITY_TENOR_YEAR = 5;
-  private static final Period ANNUITY_TENOR = DateUtils.periodOfYears(ANNUITY_TENOR_YEAR);
+  private static final Period ANNUITY_TENOR = Period.ofYears(ANNUITY_TENOR_YEAR);
   private static final SwapFixedIborDefinition SWAP_PAYER_DEFINITION = SwapFixedIborDefinition.from(START_DATE, ANNUITY_TENOR, EUR1YEURIBOR6M, NOTIONAL, RATE, true);
   private static final SwapFixedIborDefinition SWAP_RECEIVER_DEFINITION = SwapFixedIborDefinition.from(START_DATE, ANNUITY_TENOR, EUR1YEURIBOR6M, NOTIONAL, RATE, false);
 

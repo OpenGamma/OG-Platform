@@ -179,8 +179,8 @@ public class TicksLoaderJob extends TerminatableJob {
 
   @Override
   protected void preStart() {
-    LocalDate startDate = _startTime.getDate();
-    LocalDate endDate = _endTime.getDate();
+    LocalDate startDate = _startTime.toLocalDate();
+    LocalDate endDate = _endTime.toLocalDate();
 
     LocalDate current = endDate;
     List<String> reverseOrder = new ArrayList<String>();

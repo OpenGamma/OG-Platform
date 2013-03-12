@@ -50,7 +50,7 @@ public class ActualTwoFiveTwo extends StatelessDayCount {
   public double getDayCountFraction(final ZonedDateTime firstDate, final ZonedDateTime secondDate, final Calendar calendar) {
     ArgumentChecker.notNull(firstDate, "first date");
     ArgumentChecker.notNull(secondDate, "second date");
-    return getDayCountFraction(firstDate.getDate(), secondDate.getDate(), calendar);
+    return getDayCountFraction(firstDate.toLocalDate(), secondDate.toLocalDate(), calendar);
   }
 
   @Override

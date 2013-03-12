@@ -47,12 +47,12 @@ public class SwaptionBermudaFixedIborHullWhiteNumericalIntegrationMethodTest {
   // General
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 7, 22);
   // Total swap - 5Y semi bond vs quarterly money
-  private static final Period FORWARD_TENOR = DateUtils.periodOfYears(1);
+  private static final Period FORWARD_TENOR = Period.ofYears(1);
   private static final ZonedDateTime SETTLEMENT_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, FORWARD_TENOR, EURIBOR3M);
-  private static final Period SWAP_TENOR = DateUtils.periodOfYears(5);
+  private static final Period SWAP_TENOR = Period.ofYears(5);
   private static final double NOTIONAL = 123000000;
   private static final boolean FIXED_IS_PAYER = true;
-  private static final Period FIXED_PAYMENT_PERIOD = DateUtils.periodOfMonths(6);
+  private static final Period FIXED_PAYMENT_PERIOD = Period.ofMonths(6);
   private static final DayCount FIXED_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("30/360");
   private static final IndexSwap CMS_INDEX = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, EURIBOR3M, SWAP_TENOR);
   private static final double RATE = 0.0200;

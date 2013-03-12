@@ -83,7 +83,7 @@ public class EquityFuturePriceCurveFunction extends FuturePriceCurveFunction {
     final Set<ValueRequirement> result = new HashSet<>();
     final FuturePriceCurveInstrumentProvider<Object> futurePriceCurveProvider = (FuturePriceCurveInstrumentProvider<Object>) futurePriceCurveSpecification.getCurveInstrumentProvider();
     for (final Object x : futurePriceCurveDefinition.getXs()) {
-      final ExternalId identifier = futurePriceCurveProvider.getInstrument(x, atInstant.getDate());
+      final ExternalId identifier = futurePriceCurveProvider.getInstrument(x, atInstant.toLocalDate());
       result.add(new ValueRequirement(futurePriceCurveProvider.getDataFieldName(), ComputationTargetType.PRIMITIVE, identifier));
     }
     return result;
@@ -176,7 +176,7 @@ public class EquityFuturePriceCurveFunction extends FuturePriceCurveFunction {
         final DoubleArrayList xList = new DoubleArrayList();
         final DoubleArrayList prices = new DoubleArrayList();
         final FuturePriceCurveInstrumentProvider<Number> futurePriceCurveProvider = (FuturePriceCurveInstrumentProvider<Number>) priceCurveSpecification.getCurveInstrumentProvider();
-        final LocalDate valDate = now.getDate();
+        final LocalDate valDate = now.toLocalDate();
         if (inputs.getAllValues().isEmpty()) {
           throw new OpenGammaRuntimeException("Could not get any data for future price curve called " + curveSpecificationName);
         }

@@ -103,7 +103,7 @@ public class FXForwardCurveMarketDataFunction extends AbstractFunction {
         final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
         final FXForwardCurveInstrumentProvider provider = specification.getCurveInstrumentProvider();
         for (final Tenor tenor : definition.getTenors()) {
-          final ExternalId identifier = provider.getInstrument(atZDT.getDate(), tenor);
+          final ExternalId identifier = provider.getInstrument(atZDT.toLocalDate(), tenor);
           requirements.add(new ValueRequirement(provider.getDataFieldName(), ComputationTargetType.PRIMITIVE, identifier));
         }
         requirements.add(new ValueRequirement(provider.getDataFieldName(), ComputationTargetType.PRIMITIVE, provider.getSpotInstrument()));
@@ -135,7 +135,7 @@ public class FXForwardCurveMarketDataFunction extends AbstractFunction {
         final Map<ExternalId, Double> data = new HashMap<ExternalId, Double>();
         boolean isRegular = specification.isMarketQuoteConvention();
         for (final Tenor tenor : definition.getTenors()) {
-          final ExternalId identifier = provider.getInstrument(now.getDate(), tenor);
+          final ExternalId identifier = provider.getInstrument(now.toLocalDate(), tenor);
           final ValueRequirement requirement = new ValueRequirement(provider.getDataFieldName(), ComputationTargetType.PRIMITIVE, identifier);
           if (inputs.getValue(requirement) != null) {
             final Double value = (Double) inputs.getValue(requirement);

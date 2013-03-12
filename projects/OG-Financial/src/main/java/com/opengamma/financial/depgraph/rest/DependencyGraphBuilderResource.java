@@ -33,11 +33,14 @@ import com.opengamma.engine.marketdata.MarketDataProvider;
 import com.opengamma.engine.marketdata.resolver.MarketDataProviderResolver;
 import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
+import com.opengamma.engine.target.ComputationTargetReference;
+import com.opengamma.engine.target.ComputationTargetRequirement;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.UserPrincipal;
@@ -139,9 +142,7 @@ public final class DependencyGraphBuilderResource extends AbstractDataResource {
     return resource;
   }
 
-  @Path("value/{valueName}/{targetType}/{targetId}")
-  public DependencyGraphBuilderResource addValueRequirement(@PathParam("valueName") final String valueName, @PathParam("targetType") final String targetType,
-      @PathParam("targetId") final String targetId) {
+  protected DependencyGraphBuilderResource addValueRequirement(final String valueName, final ComputationTargetReference target) {
     final DependencyGraphBuilderResource resource = new DependencyGraphBuilderResource(this);
     final String name;
     final ValueProperties constraints;
@@ -153,10 +154,21 @@ public final class DependencyGraphBuilderResource extends AbstractDataResource {
       name = valueName;
       constraints = ValueProperties.none();
     }
-    final ValueRequirement requirement = new ValueRequirement(name, new ComputationTargetSpecification(ComputationTargetType.parse(targetType.replace('-', '/')), UniqueId.parse(targetId)),
-        constraints);
+    final ValueRequirement requirement = new ValueRequirement(name, target, constraints);
     resource.getRequirements().add(requirement);
     return resource;
+  }
+
+  @Path("value/{valueName}/{targetType}/{targetId}")
+  public DependencyGraphBuilderResource addValueRequirementByUniqueId(@PathParam("valueName") final String valueName, @PathParam("targetType") final String targetType,
+      @PathParam("targetId") final String targetId) {
+    return addValueRequirement(valueName, new ComputationTargetSpecification(ComputationTargetType.parse(targetType.replace('-', '/')), UniqueId.parse(targetId)));
+  }
+
+  @Path("requirement/{valueName}/{targetType}/{targetId}")
+  public DependencyGraphBuilderResource addValueRequirementByExternalId(@PathParam("valueName") final String valueName, @PathParam("targetType") final String targetType,
+      @PathParam("targetId") final String targetId) {
+    return addValueRequirement(valueName, new ComputationTargetRequirement(ComputationTargetType.parse(targetType.replace('-', '/')), ExternalId.parse(targetId)));
   }
 
   @Path("marketDataSnapshot/{snapshotId}")
@@ -188,7 +200,7 @@ public final class DependencyGraphBuilderResource extends AbstractDataResource {
     final UserPrincipal marketDataUser = UserPrincipal.getLocalUser();
     final MarketDataProviderResolver resolver = _builderContext.getMarketDataProviderResolver();
     final MarketDataProvider marketDataProvider = resolver.resolve(marketDataUser, _marketData);
-    builder.setMarketDataAvailabilityProvider(marketDataProvider.getAvailabilityProvider());
+    builder.setMarketDataAvailabilityProvider(marketDataProvider.getAvailabilityProvider(_marketData));
     final FudgeContext fudgeContext = _fudgeContext;
     final ResolutionFailureGatherer<MutableFudgeMsg> failures = new ResolutionFailureGatherer<MutableFudgeMsg>(new ResolutionFailureFudgeBuilder.Visitor(
         _fudgeContext));

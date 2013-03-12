@@ -167,9 +167,10 @@ public final class CommodityFutureOptionBlackMethod {
   /**
    * @param derivative the OG-Analytics form of the derivative
    * @param marketData the data bundle containing a BlackVolatilitySurface, forward commodity and funding curves
-   * @return the gamma wrt the forward underlying
+   * @return the forward gamma wrt the forward underlying, ie the 2nd order sensitivity of the undiscounted price to the forward value of the underlying,
+   *          $\frac{\partial^2 (PV/Z)}{\partial F^2}$
    */
-  public double gamma(final CommodityFutureOption<?> derivative, final StaticReplicationDataBundle marketData) {
+  public double forwardGamma(final CommodityFutureOption<?> derivative, final StaticReplicationDataBundle marketData) {
     ArgumentChecker.notNull(derivative, "derivative");
     ArgumentChecker.notNull(marketData, "marketData");
     final double expiry = derivative.getExpiry();
@@ -177,19 +178,6 @@ public final class CommodityFutureOptionBlackMethod {
     final double forward = marketData.getForwardCurve().getForward(expiry);
     final double blackVol = marketData.getVolatilitySurface().getVolatility(expiry, strike);
     final double forwardGamma = BlackFormulaRepository.gamma(forward, strike, expiry, blackVol);
-    return forwardGamma;
-  }
-
-  /**
-   * @param derivative the OG-Analytics form of the derivative
-   * @param marketData the data bundle containing a BlackVolatilitySurface, forward commodity and funding curves
-   * @return the forward gamma wrt the forward underlying, ie the 2nd order sensitivity of the undiscounted price to the forward value of the underlying,
-   *          $\frac{\partial^2 (PV/Z)}{\partial F^2}$
-   */
-  public double forwardGamma(final CommodityFutureOption<?> derivative, final StaticReplicationDataBundle marketData) {
-    ArgumentChecker.notNull(derivative, "derivative");
-    ArgumentChecker.notNull(marketData, "marketData");
-    final double forwardGamma = gamma(derivative, marketData);
     return forwardGamma;
   }
 
@@ -347,7 +335,8 @@ public final class CommodityFutureOptionBlackMethod {
   /**
    * @param derivative the OG-Analytics form of the derivative
    * @param marketData the data bundle containing a BlackVolatilitySurface, forward commodity and funding curves
-   * @return the forward (i.e. driftless) theta
+   * @return Spot theta, ie the sensitivity of the present value to the time to expiration,
+   *          $\frac{\partial (PV)}{\partial t}$
    */
   public double theta(final CommodityFutureOption<?> derivative, final StaticReplicationDataBundle marketData) {
     ArgumentChecker.notNull(derivative, "derivative");
@@ -373,7 +362,7 @@ public final class CommodityFutureOptionBlackMethod {
     final double forward = marketData.getForwardCurve().getForward(expiry);
     final double strike = derivative.getStrike();
     final double blackVol = marketData.getVolatilitySurface().getVolatility(expiry, strike);
-    final double forwardTheta = BlackFormulaRepository.theta(forward, strike, expiry, blackVol);
+    final double forwardTheta = BlackFormulaRepository.driftlessTheta(forward, strike, expiry, blackVol);
     return forwardTheta;
   }
 }

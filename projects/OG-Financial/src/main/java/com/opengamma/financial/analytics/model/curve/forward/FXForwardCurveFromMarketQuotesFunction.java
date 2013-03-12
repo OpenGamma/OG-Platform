@@ -138,7 +138,7 @@ public class FXForwardCurveFromMarketQuotesFunction extends AbstractFunction {
         final String leftExtrapolatorName = desiredValue.getConstraint(PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR);
         final String rightExtrapolatorName = desiredValue.getConstraint(PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR);
         for (final Tenor tenor : definition.getTenors()) {
-          final ExternalId identifier = provider.getInstrument(now.getDate(), tenor);
+          final ExternalId identifier = provider.getInstrument(now.toLocalDate(), tenor);
           if (data.containsKey(identifier)) {
             expiries.add(TimeCalculator.getTimeBetween(now, now.plus(tenor.getPeriod())));
             forwards.add(data.get(identifier));

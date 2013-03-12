@@ -13,12 +13,12 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.threeten.bp.Instant;
 
 import com.google.common.base.Function;
+import com.opengamma.engine.resource.EngineResourceManagerInternal;
+import com.opengamma.engine.resource.EngineResourceRetainer;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
-import com.opengamma.engine.view.calc.EngineResourceManagerInternal;
-import com.opengamma.engine.view.calc.EngineResourceRetainer;
-import com.opengamma.engine.view.calc.ViewCycleMetadata;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
+import com.opengamma.engine.view.cycle.ViewCycleMetadata;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.listener.CycleCompletedCall;
 import com.opengamma.engine.view.listener.CycleExecutionFailedCall;

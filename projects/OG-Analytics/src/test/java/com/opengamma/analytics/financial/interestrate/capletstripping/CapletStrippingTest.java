@@ -60,7 +60,7 @@ public class CapletStrippingTest {
   private static final LinkedHashMap<String, Function1D<Double, Double>> PARAMETER_FUNCTIONS = new LinkedHashMap<String, Function1D<Double, Double>>();
 
   protected static final Currency CUR = Currency.EUR;
-  private static final Period TENOR = Period.of(6, MONTHS);
+  private static final Period TENOR = Period.ofMonths(6);
   private static final int SETTLEMENT_DAYS = 2;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final DayCount DAY_COUNT_INDEX = DayCountFactory.INSTANCE.getDayCount("Actual/360");

@@ -41,7 +41,7 @@ public class EndOfMonthScheduleCalculator extends Schedule {
     LocalDate date = startDate.with(TemporalAdjusters.lastDayOfMonth());
     while (!date.isAfter(endDate)) {
       dates.add(date);
-      date = date.plus(Period.of(1, MONTHS)).with(TemporalAdjusters.lastDayOfMonth());
+      date = date.plus(Period.ofMonths(1)).with(TemporalAdjusters.lastDayOfMonth());
     }
     return dates.toArray(EMPTY_LOCAL_DATE_ARRAY);
   }
@@ -56,7 +56,7 @@ public class EndOfMonthScheduleCalculator extends Schedule {
     ArgumentChecker.notNull(endDate, "end date");
     ArgumentChecker.isFalse(startDate.isAfter(endDate), "start date must not be after end date");
     if (startDate.equals(endDate)) {
-      if (startDate.getDayOfMonth() == startDate.getDate().lengthOfMonth()) {
+      if (startDate.getDayOfMonth() == startDate.toLocalDate().lengthOfMonth()) {
         return new ZonedDateTime[] {startDate};
       }
       throw new IllegalArgumentException("Start date and end date were the same but neither was the last day of the month");
@@ -65,7 +65,7 @@ public class EndOfMonthScheduleCalculator extends Schedule {
     ZonedDateTime date = startDate.with(TemporalAdjusters.lastDayOfMonth());
     while (!date.isAfter(endDate)) {
       dates.add(date);
-      date = date.plus(Period.of(1, MONTHS)).with(TemporalAdjusters.lastDayOfMonth());
+      date = date.plus(Period.ofMonths(1)).with(TemporalAdjusters.lastDayOfMonth());
     }
     return dates.toArray(EMPTY_ZONED_DATE_TIME_ARRAY);
   }

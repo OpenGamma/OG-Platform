@@ -80,7 +80,7 @@ public class FXForwardCurrencyExposurePnLFunction extends AbstractFunction.NonCo
     if (timeSeries == null) {
       throw new OpenGammaRuntimeException("Could not get spot FX series for " + payCurrency + " / " + receiveCurrency);
     }
-    final LocalDate startDate = now.getDate().minus(Period.parse(samplingPeriod));
+    final LocalDate startDate = now.toLocalDate().minus(Period.parse(samplingPeriod));
     final Schedule schedule = ScheduleCalculatorFactory.getScheduleCalculator(scheduleCalculator);
     final TimeSeriesSamplingFunction sampling = TimeSeriesSamplingFunctionFactory.getFunction(samplingFunction);
     final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(executionContext);
@@ -89,7 +89,7 @@ public class FXForwardCurrencyExposurePnLFunction extends AbstractFunction.NonCo
     final CurrencyPair currencyPair = currencyPairs.getCurrencyPair(payCurrency, receiveCurrency);
     final Currency currencyNonBase = currencyPair.getCounter(); // The non-base currency
     final double exposure = mca.getAmount(currencyNonBase);
-    DoubleTimeSeries<?> result = getPnLSeries(startDate, now.getDate(), schedule, sampling, timeSeries);
+    DoubleTimeSeries<?> result = getPnLSeries(startDate, now.toLocalDate(), schedule, sampling, timeSeries);
     result = result.multiply(position.getQuantity().doubleValue() * exposure); // The P/L time series is in the base currency
     final Currency currencyBase = currencyPair.getBase(); // The base currency
     final ValueProperties resultProperties = createValueProperties()

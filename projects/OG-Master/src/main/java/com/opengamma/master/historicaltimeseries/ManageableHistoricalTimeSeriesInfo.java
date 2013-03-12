@@ -20,74 +20,65 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesInfo;
 import com.opengamma.id.ExternalIdBundleWithDates;
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
-import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.PublicSPI;
 
 /**
  * The information about a historical time-series.
  * <p>
- * This is used to hold the information about a time-series in the master.
- * The actual time-series is held separately.
+ * This is used to hold the information about a time-series in the master. The actual time-series is held separately.
  * <p>
  * This class is mutable and not thread-safe.
  */
 @PublicSPI
 @BeanDefinition
 public class ManageableHistoricalTimeSeriesInfo extends DirectBean
-  implements UniqueIdentifiable, MutableUniqueIdentifiable, Serializable {
+    implements HistoricalTimeSeriesInfo, MutableUniqueIdentifiable, Serializable {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
 
   /**
-   * The historical time-series unique identifier.
-   * This field is managed by the master but must be set for updates.
+   * The historical time-series unique identifier. This field is managed by the master but must be set for updates.
    */
   @PropertyDefinition
   private UniqueId _uniqueId;
   /**
-   * The external identifier bundle with valid dates if available.
-   * The key of the specific series, such as the equity identifiers.
+   * The external identifier bundle with valid dates if available. The key of the specific series, such as the equity identifiers.
    */
   @PropertyDefinition
   private ExternalIdBundleWithDates _externalIdBundle;
   /**
-   * The name of the historical time-series intended for display purposes.
-   * This field must not be null for the object to be valid.
+   * The name of the historical time-series intended for display purposes. This field must not be null for the object to be valid.
    */
   @PropertyDefinition
   private String _name;
   /**
-   * The data field.
-   * This defines the type of data that the series represents.
+   * The data field. This defines the type of data that the series represents.
    */
   @PropertyDefinition
   private String _dataField;
   /**
-   * The data source.
-   * The source of the data, typically a major financial data supplier.
+   * The data source. The source of the data, typically a major financial data supplier.
    */
   @PropertyDefinition
   private String _dataSource;
   /**
-   * The data provider.
-   * The underlying data provider, such as an individual exchange.
+   * The data provider. The underlying data provider, such as an individual exchange.
    */
   @PropertyDefinition
   private String _dataProvider;
   /**
-   * The descriptive observation time key.
-   * This defines, textually, the time of day, such as LONDON_CLOSE.
+   * The descriptive observation time key. This defines, textually, the time of day, such as LONDON_CLOSE.
    */
   @PropertyDefinition
   private String _observationTime;
   /**
-   * The object identifier of the historical time-series data points.
-   * This must be separately looked up using the master.
+   * The object identifier of the historical time-series data points. This must be separately looked up using the master.
    */
   @PropertyDefinition
   private ObjectId _timeSeriesObjectId;
@@ -205,8 +196,7 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the historical time-series unique identifier.
-   * This field is managed by the master but must be set for updates.
+   * Gets the historical time-series unique identifier. This field is managed by the master but must be set for updates.
    * @return the value of the property
    */
   public UniqueId getUniqueId() {
@@ -214,8 +204,7 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
   }
 
   /**
-   * Sets the historical time-series unique identifier.
-   * This field is managed by the master but must be set for updates.
+   * Sets the historical time-series unique identifier. This field is managed by the master but must be set for updates.
    * @param uniqueId  the new value of the property
    */
   public void setUniqueId(UniqueId uniqueId) {
@@ -224,7 +213,6 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
 
   /**
    * Gets the the {@code uniqueId} property.
-   * This field is managed by the master but must be set for updates.
    * @return the property, not null
    */
   public final Property<UniqueId> uniqueId() {
@@ -233,8 +221,7 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the external identifier bundle with valid dates if available.
-   * The key of the specific series, such as the equity identifiers.
+   * Gets the external identifier bundle with valid dates if available. The key of the specific series, such as the equity identifiers.
    * @return the value of the property
    */
   public ExternalIdBundleWithDates getExternalIdBundle() {
@@ -242,8 +229,7 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
   }
 
   /**
-   * Sets the external identifier bundle with valid dates if available.
-   * The key of the specific series, such as the equity identifiers.
+   * Sets the external identifier bundle with valid dates if available. The key of the specific series, such as the equity identifiers.
    * @param externalIdBundle  the new value of the property
    */
   public void setExternalIdBundle(ExternalIdBundleWithDates externalIdBundle) {
@@ -252,7 +238,6 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
 
   /**
    * Gets the the {@code externalIdBundle} property.
-   * The key of the specific series, such as the equity identifiers.
    * @return the property, not null
    */
   public final Property<ExternalIdBundleWithDates> externalIdBundle() {
@@ -261,8 +246,7 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the name of the historical time-series intended for display purposes.
-   * This field must not be null for the object to be valid.
+   * Gets the name of the historical time-series intended for display purposes. This field must not be null for the object to be valid.
    * @return the value of the property
    */
   public String getName() {
@@ -270,8 +254,7 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
   }
 
   /**
-   * Sets the name of the historical time-series intended for display purposes.
-   * This field must not be null for the object to be valid.
+   * Sets the name of the historical time-series intended for display purposes. This field must not be null for the object to be valid.
    * @param name  the new value of the property
    */
   public void setName(String name) {
@@ -280,7 +263,6 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
 
   /**
    * Gets the the {@code name} property.
-   * This field must not be null for the object to be valid.
    * @return the property, not null
    */
   public final Property<String> name() {
@@ -289,8 +271,7 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the data field.
-   * This defines the type of data that the series represents.
+   * Gets the data field. This defines the type of data that the series represents.
    * @return the value of the property
    */
   public String getDataField() {
@@ -298,8 +279,7 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
   }
 
   /**
-   * Sets the data field.
-   * This defines the type of data that the series represents.
+   * Sets the data field. This defines the type of data that the series represents.
    * @param dataField  the new value of the property
    */
   public void setDataField(String dataField) {
@@ -308,7 +288,6 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
 
   /**
    * Gets the the {@code dataField} property.
-   * This defines the type of data that the series represents.
    * @return the property, not null
    */
   public final Property<String> dataField() {
@@ -317,8 +296,7 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the data source.
-   * The source of the data, typically a major financial data supplier.
+   * Gets the data source. The source of the data, typically a major financial data supplier.
    * @return the value of the property
    */
   public String getDataSource() {
@@ -326,8 +304,7 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
   }
 
   /**
-   * Sets the data source.
-   * The source of the data, typically a major financial data supplier.
+   * Sets the data source. The source of the data, typically a major financial data supplier.
    * @param dataSource  the new value of the property
    */
   public void setDataSource(String dataSource) {
@@ -336,7 +313,6 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
 
   /**
    * Gets the the {@code dataSource} property.
-   * The source of the data, typically a major financial data supplier.
    * @return the property, not null
    */
   public final Property<String> dataSource() {
@@ -345,8 +321,7 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the data provider.
-   * The underlying data provider, such as an individual exchange.
+   * Gets the data provider. The underlying data provider, such as an individual exchange.
    * @return the value of the property
    */
   public String getDataProvider() {
@@ -354,8 +329,7 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
   }
 
   /**
-   * Sets the data provider.
-   * The underlying data provider, such as an individual exchange.
+   * Sets the data provider. The underlying data provider, such as an individual exchange.
    * @param dataProvider  the new value of the property
    */
   public void setDataProvider(String dataProvider) {
@@ -364,7 +338,6 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
 
   /**
    * Gets the the {@code dataProvider} property.
-   * The underlying data provider, such as an individual exchange.
    * @return the property, not null
    */
   public final Property<String> dataProvider() {
@@ -373,8 +346,7 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the descriptive observation time key.
-   * This defines, textually, the time of day, such as LONDON_CLOSE.
+   * Gets the descriptive observation time key. This defines, textually, the time of day, such as LONDON_CLOSE.
    * @return the value of the property
    */
   public String getObservationTime() {
@@ -382,8 +354,7 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
   }
 
   /**
-   * Sets the descriptive observation time key.
-   * This defines, textually, the time of day, such as LONDON_CLOSE.
+   * Sets the descriptive observation time key. This defines, textually, the time of day, such as LONDON_CLOSE.
    * @param observationTime  the new value of the property
    */
   public void setObservationTime(String observationTime) {
@@ -392,7 +363,6 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
 
   /**
    * Gets the the {@code observationTime} property.
-   * This defines, textually, the time of day, such as LONDON_CLOSE.
    * @return the property, not null
    */
   public final Property<String> observationTime() {
@@ -401,8 +371,7 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the object identifier of the historical time-series data points.
-   * This must be separately looked up using the master.
+   * Gets the object identifier of the historical time-series data points. This must be separately looked up using the master.
    * @return the value of the property
    */
   public ObjectId getTimeSeriesObjectId() {
@@ -410,8 +379,7 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
   }
 
   /**
-   * Sets the object identifier of the historical time-series data points.
-   * This must be separately looked up using the master.
+   * Sets the object identifier of the historical time-series data points. This must be separately looked up using the master.
    * @param timeSeriesObjectId  the new value of the property
    */
   public void setTimeSeriesObjectId(ObjectId timeSeriesObjectId) {
@@ -420,7 +388,6 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
 
   /**
    * Gets the the {@code timeSeriesObjectId} property.
-   * This must be separately looked up using the master.
    * @return the property, not null
    */
   public final Property<ObjectId> timeSeriesObjectId() {

@@ -43,7 +43,7 @@ public class InterestRateFutureSecurityDiscountingMethodTest {
   private static final String NOT_USED = "Not used";
   private static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
   //EURIBOR 3M Index
-  private static final Period TENOR = DateUtils.periodOfMonths(3);
+  private static final Period TENOR = Period.ofMonths(3);
   private static final int SETTLEMENT_DAYS = 2;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final DayCount DAY_COUNT_INDEX = DayCountFactory.INSTANCE.getDayCount("Actual/360");

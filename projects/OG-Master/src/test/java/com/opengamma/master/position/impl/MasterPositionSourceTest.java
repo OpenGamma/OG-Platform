@@ -203,7 +203,7 @@ public class MasterPositionSourceTest {
     final PortfolioMaster mockPortfolio = mock(PortfolioMaster.class);
     final PositionMaster mockPosition = mock(PositionMaster.class);
     final OffsetDateTime now = OffsetDateTime.now();
-    final ManageableTrade doc = new ManageableTrade(BigDecimal.TEN, ExternalId.of("B", "C"), now.getDate(), now.toOffsetTime().minusSeconds(100), ExternalId.of("CPARTY", "C100"));
+    final ManageableTrade doc = new ManageableTrade(BigDecimal.TEN, ExternalId.of("B", "C"), now.toLocalDate(), now.toOffsetTime().minusSeconds(100), ExternalId.of("CPARTY", "C100"));
     doc.setUniqueId(UID);
     when(mockPosition.getTrade(UID)).thenReturn(doc);
     MasterPositionSource test = new MasterPositionSource(mockPortfolio, mockPosition);

@@ -188,7 +188,7 @@ public class SwaptionParityPortfolioGeneratorTool extends AbstractPortfolioGener
     public PortfolioNode createPortfolioNode() {
       final SimplePortfolioNode node = new SimplePortfolioNode(_name);
       for (int i = 0; i < _securities.length; i++) {
-        final ManageableTrade trade = new ManageableTrade(BigDecimal.ONE, getSecurityPersister().storeSecurity(_securities[i]), _tradeDates[i].getDate(),
+        final ManageableTrade trade = new ManageableTrade(BigDecimal.ONE, getSecurityPersister().storeSecurity(_securities[i]), _tradeDates[i].toLocalDate(),
             _tradeDates[i].toOffsetDateTime().toOffsetTime(), ExternalId.of(Counterparty.DEFAULT_SCHEME, COUNTERPARTY));
         trade.setPremium(0.);
         trade.setPremiumCurrency(CURRENCY);

@@ -32,16 +32,16 @@ public class AnnuityCapFloorIborDefinitionTest {
   // Ibor index
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final boolean IS_EOM = true;
-  private static final Period IBOR_TENOR = Period.of(3, MONTHS);
+  private static final Period IBOR_TENOR = Period.ofMonths(3);
   private static final int IBOR_SETTLEMENT_DAYS = 2;
   private static final DayCount IBOR_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final IborIndex IBOR_INDEX = new IborIndex(CUR, IBOR_TENOR, IBOR_SETTLEMENT_DAYS, CALENDAR, IBOR_DAY_COUNT, BUSINESS_DAY, IS_EOM);
   // Annuity
   private static final ZonedDateTime START_DATE = DateUtils.getUTCDate(2011, 3, 17);
-  private static final Period ANNUITY_TENOR = Period.of(5, YEARS);
+  private static final Period ANNUITY_TENOR = Period.ofYears(5);
   private static final ZonedDateTime MATURITY_DATE = START_DATE.plus(ANNUITY_TENOR);
   private static final double NOTIONAL = 100000000; //100m
-  private static final Period LEG_PAYMENT_PERIOD = Period.of(12, MONTHS);
+  private static final Period LEG_PAYMENT_PERIOD = Period.ofMonths(12);
   private static final DayCount LEG_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/365");
   private static final boolean IS_PAYER = true;
   private static final double STRIKE = 0.04;

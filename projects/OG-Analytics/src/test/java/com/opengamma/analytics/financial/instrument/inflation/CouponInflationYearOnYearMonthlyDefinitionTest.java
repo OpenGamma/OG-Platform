@@ -40,7 +40,7 @@ public class CouponInflationYearOnYearMonthlyDefinitionTest {
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final ZonedDateTime START_DATE = DateUtils.getUTCDate(2008, 8, 18);
-  private static final Period COUPON_TENOR = Period.of(10, YEARS);
+  private static final Period COUPON_TENOR = Period.ofYears(10);
   private static final ZonedDateTime PAYMENT_DATE = ScheduleCalculator.getAdjustedDate(START_DATE, COUPON_TENOR, BUSINESS_DAY, CALENDAR);
   private static final ZonedDateTime ACCRUAL_END_DATE = PAYMENT_DATE.minusDays(1); // For getter test
   private static final ZonedDateTime ACCRUAL_START_DATE = ACCRUAL_END_DATE.minusMonths(12);

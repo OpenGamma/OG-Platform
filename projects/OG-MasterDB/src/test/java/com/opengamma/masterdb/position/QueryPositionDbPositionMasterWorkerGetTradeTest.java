@@ -60,7 +60,7 @@ public class QueryPositionDbPositionMasterWorkerGetTradeTest extends AbstractDbP
     final ManageableTrade test = _posMaster.getTrade(uniqueId);
 
     final ExternalIdBundle secKey = ExternalIdBundle.of(ExternalId.of("NASDAQ", "ORCL135"), ExternalId.of("TICKER", "ORCL134"));
-    final ManageableTrade expected = new ManageableTrade(BigDecimal.valueOf(100.987), secKey, _now.getDate(), _now.toOffsetTime().minusSeconds(404), ExternalId.of("CPARTY", "C104"));
+    final ManageableTrade expected = new ManageableTrade(BigDecimal.valueOf(100.987), secKey, _now.toLocalDate(), _now.toOffsetTime().minusSeconds(404), ExternalId.of("CPARTY", "C104"));
     expected.setUniqueId(uniqueId);
     expected.setProviderId(ExternalId.of("B", "404"));
     expected.setParentPositionId(UniqueId.of("DbPos", "123", "0"));
@@ -73,7 +73,7 @@ public class QueryPositionDbPositionMasterWorkerGetTradeTest extends AbstractDbP
     final ManageableTrade test = _posMaster.getTrade(uniqueId);
 
     final ExternalIdBundle secKey = ExternalIdBundle.of(ExternalId.of("NASDAQ", "ORCL135"), ExternalId.of("TICKER", "ORCL134"));
-    final ManageableTrade expected = new ManageableTrade(BigDecimal.valueOf(200.987), secKey, _now.getDate(), _now.toOffsetTime().minusSeconds(405), ExternalId.of("CPARTY", "C105"));
+    final ManageableTrade expected = new ManageableTrade(BigDecimal.valueOf(200.987), secKey, _now.toLocalDate(), _now.toOffsetTime().minusSeconds(405), ExternalId.of("CPARTY", "C105"));
     expected.setUniqueId(uniqueId);
     expected.setProviderId(ExternalId.of("B", "405"));
     expected.setParentPositionId(UniqueId.of("DbPos", "123", "0"));
@@ -86,7 +86,7 @@ public class QueryPositionDbPositionMasterWorkerGetTradeTest extends AbstractDbP
     final ManageableTrade test = _posMaster.getTrade(uniqueId);
 
     final ExternalIdBundle secKey = ExternalIdBundle.of("TICKER", "IBMC");
-    final ManageableTrade expected = new ManageableTrade(BigDecimal.valueOf(221.987), secKey, _now.getDate(), _now.toOffsetTime().minusSeconds(407), ExternalId.of("CPARTY", "C221"));
+    final ManageableTrade expected = new ManageableTrade(BigDecimal.valueOf(221.987), secKey, _now.toLocalDate(), _now.toOffsetTime().minusSeconds(407), ExternalId.of("CPARTY", "C221"));
     expected.setUniqueId(uniqueId);
     expected.setProviderId(ExternalId.of("B", "407"));
     expected.setParentPositionId(UniqueId.of("DbPos", "221", "0"));
@@ -99,7 +99,7 @@ public class QueryPositionDbPositionMasterWorkerGetTradeTest extends AbstractDbP
     final ManageableTrade test = _posMaster.getTrade(uniqueId);
 
     final ExternalIdBundle secKey = ExternalIdBundle.of("TICKER", "IBMC");
-    final ManageableTrade expected = new ManageableTrade(BigDecimal.valueOf(222.987), secKey, _now.getDate(), _now.toOffsetTime().minusSeconds(408), ExternalId.of("CPARTY", "C222"));
+    final ManageableTrade expected = new ManageableTrade(BigDecimal.valueOf(222.987), secKey, _now.toLocalDate(), _now.toOffsetTime().minusSeconds(408), ExternalId.of("CPARTY", "C222"));
     expected.setUniqueId(uniqueId);
     expected.setProviderId(ExternalId.of("B", "408"));
     expected.setParentPositionId(UniqueId.of("DbPos", "221", "1"));
@@ -119,7 +119,7 @@ public class QueryPositionDbPositionMasterWorkerGetTradeTest extends AbstractDbP
     final ManageableTrade test = _posMaster.getTrade(oid);
 
     final ExternalIdBundle secKey = ExternalIdBundle.of("TICKER", "IBMC");
-    final ManageableTrade expected = new ManageableTrade(BigDecimal.valueOf(222.987), secKey, _now.getDate(), _now.toOffsetTime().minusSeconds(408), ExternalId.of("CPARTY", "C222"));
+    final ManageableTrade expected = new ManageableTrade(BigDecimal.valueOf(222.987), secKey, _now.toLocalDate(), _now.toOffsetTime().minusSeconds(408), ExternalId.of("CPARTY", "C222"));
     expected.setUniqueId(UniqueId.of("DbPos", "407", "1"));
     expected.setProviderId(ExternalId.of("B", "408"));
     expected.setParentPositionId(UniqueId.of("DbPos", "221", "1"));
@@ -130,7 +130,7 @@ public class QueryPositionDbPositionMasterWorkerGetTradeTest extends AbstractDbP
   public void test_getTradePosition_withPremium() {
     final ManageablePosition position = new ManageablePosition(BigDecimal.TEN, ExternalId.of("A", "B"));
 
-    final LocalDate tradeDate = _now.getDate();
+    final LocalDate tradeDate = _now.toLocalDate();
     final OffsetTime tradeTime = _now.toOffsetTime().minusSeconds(500);
 
     final ManageableTrade trade1 = new ManageableTrade(BigDecimal.TEN, ExternalId.of("A", "B"), tradeDate, tradeTime, ExternalId.of("CPS", "CPV"));
@@ -169,7 +169,7 @@ public class QueryPositionDbPositionMasterWorkerGetTradeTest extends AbstractDbP
   public void test_getTradePosition_withAttributes() {
     final ManageablePosition position = new ManageablePosition(BigDecimal.TEN, ExternalId.of("A", "B"));
 
-    final LocalDate tradeDate = _now.getDate();
+    final LocalDate tradeDate = _now.toLocalDate();
     final OffsetTime tradeTime = _now.toOffsetTime().minusSeconds(500);
 
     final ManageableTrade trade1 = new ManageableTrade(BigDecimal.TEN, ExternalId.of("A", "B"), tradeDate, tradeTime, ExternalId.of("CPS", "CPV"));

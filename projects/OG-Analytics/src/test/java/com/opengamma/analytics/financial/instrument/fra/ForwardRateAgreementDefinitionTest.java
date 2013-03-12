@@ -8,7 +8,6 @@ package com.opengamma.analytics.financial.instrument.fra;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
-import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDateTime;
@@ -39,7 +38,7 @@ import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeS
 public class ForwardRateAgreementDefinitionTest {
 
   // Index
-  private static final Period TENOR = Period.of(3, MONTHS);
+  private static final Period TENOR = Period.ofMonths(3);
   private static final int SETTLEMENT_DAYS = 2;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final DayCount DAY_COUNT_INDEX = DayCountFactory.INSTANCE.getDayCount("Actual/360");
@@ -135,9 +134,9 @@ public class ForwardRateAgreementDefinitionTest {
   @Test
   public void fromTrade() {
     final ZonedDateTime tradeDate = DateUtils.getUTCDate(2011, 1, 3);
-    final Period startPeriod = Period.of(6, MONTHS);
+    final Period startPeriod = Period.ofMonths(6);
     final ForwardRateAgreementDefinition fraFromTrade = ForwardRateAgreementDefinition.fromTrade(tradeDate, startPeriod, NOTIONAL, INDEX, FRA_RATE);
-    final Period endPeriod = Period.of(9, MONTHS);
+    final Period endPeriod = Period.ofMonths(9);
     final ZonedDateTime spotDate = ScheduleCalculator.getAdjustedDate(tradeDate, SETTLEMENT_DAYS, CALENDAR);
     final ZonedDateTime accrualStartDate = ScheduleCalculator.getAdjustedDate(spotDate, startPeriod, INDEX);
     final ZonedDateTime accrualEndDate = ScheduleCalculator.getAdjustedDate(spotDate, endPeriod, INDEX);
@@ -179,7 +178,7 @@ public class ForwardRateAgreementDefinitionTest {
   @Test
   public void toDerivativeNotFixed() {
     final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
-    final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.of(REFERENCE_DATE.getDate(), LocalTime.MIDNIGHT), ZoneOffset.UTC);
+    final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.of(REFERENCE_DATE.toLocalDate(), LocalTime.MIDNIGHT), ZoneOffset.UTC);
     final double paymentTime = actAct.getDayCountFraction(zonedDate, PAYMENT_DATE);
     final double fixingTime = actAct.getDayCountFraction(zonedDate, FIXING_DATE);
     final double fixingPeriodStartTime = actAct.getDayCountFraction(zonedDate, FRA_DEFINITION_1.getFixingPeriodStartDate());
@@ -206,7 +205,7 @@ public class ForwardRateAgreementDefinitionTest {
     final double shift = 0.01;
     final DoubleTimeSeries<ZonedDateTime> fixingTS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {FIXING_DATE}, new double[] {FRA_RATE + shift});
     final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
-    final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.of(referenceFixed.getDate(), LocalTime.MIDNIGHT), ZoneOffset.UTC);
+    final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.of(referenceFixed.toLocalDate(), LocalTime.MIDNIGHT), ZoneOffset.UTC);
     final double paymentTime = actAct.getDayCountFraction(zonedDate, PAYMENT_DATE);
     final String fundingCurve = "Funding";
     final String forwardCurve = "Forward";

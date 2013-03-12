@@ -197,7 +197,7 @@ public class EquityOptionVolatilitySurfaceDataFunctionDeprecated extends Abstrac
       final ZonedDateTime atInstant) {
     final Set<ValueRequirement> result = new HashSet<ValueRequirement>();
     final BloombergEquityOptionVolatilitySurfaceInstrumentProvider provider = (BloombergEquityOptionVolatilitySurfaceInstrumentProvider) specification.getSurfaceInstrumentProvider();
-    Object[] expiries = getExpirySet(atInstant.getDate()).toArray();
+    Object[] expiries = getExpirySet(atInstant.toLocalDate()).toArray();
     
     // !!!!!!!!! SUPPOSE We have some value in the definition that provides us with an estimate of the center strike
     Double strikeCenter = 131.3;
@@ -205,10 +205,10 @@ public class EquityOptionVolatilitySurfaceDataFunctionDeprecated extends Abstrac
     for (final Object x : expiries) { // // FIXME Was: definition.getXs()
       for (final Object y : strikes) { // FIXME Was: definition.getYs()) {
         provider.init(true); // generate puts
-        final ExternalId putIdentifier = provider.getInstrument((LocalDate) x, (Double) y, atInstant.getDate());
+        final ExternalId putIdentifier = provider.getInstrument((LocalDate) x, (Double) y, atInstant.toLocalDate());
         result.add(new ValueRequirement(provider.getDataFieldName(), ComputationTargetType.PRIMITIVE, putIdentifier));
         provider.init(false);
-        final ExternalId callIdentifier = provider.getInstrument((LocalDate) x, (Double) y, atInstant.getDate());
+        final ExternalId callIdentifier = provider.getInstrument((LocalDate) x, (Double) y, atInstant.toLocalDate());
         result.add(new ValueRequirement(provider.getDataFieldName(), ComputationTargetType.PRIMITIVE, callIdentifier));
       }
     }
@@ -268,7 +268,7 @@ public class EquityOptionVolatilitySurfaceDataFunctionDeprecated extends Abstrac
         final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
         final Map<Pair<Object, Object>, Double> volatilityValues = new HashMap<Pair<Object, Object>, Double>();
 
-        Object[] expiries = getExpirySet(atZDT.getDate()).toArray();
+        Object[] expiries = getExpirySet(atZDT.toLocalDate()).toArray();
         for (final Object x : _definition.getXs()) { 
           for (final Object y : _definition.getYs()) { 
             final double strike = (Double) y;
@@ -279,7 +279,7 @@ public class EquityOptionVolatilitySurfaceDataFunctionDeprecated extends Abstrac
             } else {
               provider.init(true); // generate identifiers for put options
             }
-            final ExternalId identifier = provider.getInstrument(expiry, strike, now.getDate());
+            final ExternalId identifier = provider.getInstrument(expiry, strike, now.toLocalDate());
             final ValueRequirement requirement = new ValueRequirement(provider.getDataFieldName(), ComputationTargetType.PRIMITIVE, identifier);
             if (inputs.getValue(requirement) != null) {
               final Double volatility = (Double) inputs.getValue(requirement);

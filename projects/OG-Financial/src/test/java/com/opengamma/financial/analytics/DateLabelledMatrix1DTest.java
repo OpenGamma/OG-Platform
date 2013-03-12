@@ -32,7 +32,7 @@ public class DateLabelledMatrix1DTest {
   private static final double[] V1 = new double[] {1, 2, 3, 4 };
   private static final double[] V2 = new double[] {5, 6, 7, 8 };
   private static final double[] V3 = new double[] {9, 10, 11, 12 };
-  private static final Period TOLERANCE = DateUtils.periodOfDays(2);
+  private static final Period TOLERANCE = Period.ofDays(2);
   private static final LocalDateLabelledMatrix1D LD1 = new LocalDateLabelledMatrix1D(D1, V1);
   private static final LocalDateLabelledMatrix1D LD2 = new LocalDateLabelledMatrix1D(D1, V2);
   private static final LocalDateLabelledMatrix1D LD3 = new LocalDateLabelledMatrix1D(D2, V3);

@@ -81,7 +81,7 @@ public class BloombergSecurityFXHistoricalTimeSeriesFunction extends AbstractSec
     if (resolutionResult == null) {
       return null;
     }
-    return HistoricalTimeSeriesFunctionUtils.createHTSRequirement(resolutionResult, MarketDataRequirementNames.MARKET_VALUE, DateConstraint.EARLIEST_START, true, DateConstraint.VALUATION_TIME, true);
+    return HistoricalTimeSeriesFunctionUtils.createHTSRequirement(resolutionResult, MarketDataRequirementNames.MARKET_VALUE, DateConstraint.NULL, true, DateConstraint.VALUATION_TIME, true);
   }
 
   private ExternalId getBBGId(final CurrencyPair baseQuotePair) {

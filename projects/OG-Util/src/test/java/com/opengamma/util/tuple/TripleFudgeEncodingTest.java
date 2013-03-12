@@ -34,7 +34,7 @@ public class TripleFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
   }
 
   public void test_TypeWithSecondaryTypeAndBuilderEncoding() {
-    Triple<Tenor, Tenor, Expiry> object = Triple.of(Tenor.DAY, Tenor.WORKING_DAYS_IN_MONTH, new Expiry(ZonedDateTime.now(), ExpiryAccuracy.DAY_MONTH_YEAR));
+    Triple<Tenor, Tenor, Expiry> object = Triple.of(Tenor.DAY, Tenor.TEN_MONTHS, new Expiry(ZonedDateTime.now(), ExpiryAccuracy.DAY_MONTH_YEAR));
     assertEncodeDecodeCycle(Triple.class, object);
   }
 

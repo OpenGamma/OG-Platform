@@ -29,6 +29,8 @@ import com.opengamma.financial.temptarget.ConfigItemTarget;
  */
 public class TargetReturningFunction extends AbstractFunction.NonCompiledInvoker {
 
+  // REVIEW 2013-03-06 Andrew -- Candidate to move into OG-Engine as "TargetSourcingFunction"
+
   /**
    *
    */
@@ -39,7 +41,7 @@ public class TargetReturningFunction extends AbstractFunction.NonCompiledInvoker
   public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) {
     //final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.YIELD_CURVE, target.toSpecification(), properties);
     ValueProperties outputProperties = createValueProperties().get();
-    ValueSpecification spec = new ValueSpecification(ValueRequirementNames.TARGET_TYPE, target.toSpecification(), outputProperties);
+    ValueSpecification spec = new ValueSpecification(ValueRequirementNames.TARGET, target.toSpecification(), outputProperties);
     //return new ValueSpecification(_newValueName, inputSpec.getTargetSpecification(), outputProperties);
     return ImmutableSet.of(new ComputedValue(spec, target.getValue()));
   }
@@ -56,7 +58,7 @@ public class TargetReturningFunction extends AbstractFunction.NonCompiledInvoker
 
   @Override
   public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
-    return ImmutableSet.of(new ValueSpecification(ValueRequirementNames.TARGET_TYPE, target.toSpecification(), ValueProperties.all()));
+    return ImmutableSet.of(new ValueSpecification(ValueRequirementNames.TARGET, target.toSpecification(), ValueProperties.all()));
   }
 
   @Override
@@ -70,7 +72,7 @@ public class TargetReturningFunction extends AbstractFunction.NonCompiledInvoker
       return null;
     }
     ValueProperties outputProperties = createValueProperties().get();
-    ValueSpecification spec = new ValueSpecification(ValueRequirementNames.TARGET_TYPE, target.toSpecification(), outputProperties);
+    ValueSpecification spec = new ValueSpecification(ValueRequirementNames.TARGET, target.toSpecification(), outputProperties);
     return ImmutableSet.of(spec);
     //ValueSpecification inputSpec = Iterables.getOnlyElement(inputs.keySet());
     //return ImmutableSet.of(getOutputSpec(inputSpec));
@@ -80,7 +82,7 @@ public class TargetReturningFunction extends AbstractFunction.NonCompiledInvoker
     ValueProperties outputProperties = inputSpec.getProperties().copy()
         .withoutAny(ValuePropertyNames.FUNCTION)
         .with(ValuePropertyNames.FUNCTION, getUniqueId()).get();
-    return new ValueSpecification(ValueRequirementNames.TARGET_TYPE, inputSpec.getTargetSpecification(), outputProperties);
+    return new ValueSpecification(ValueRequirementNames.TARGET, inputSpec.getTargetSpecification(), outputProperties);
   }
 
 }

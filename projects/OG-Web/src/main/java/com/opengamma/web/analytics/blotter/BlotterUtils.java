@@ -296,7 +296,7 @@ import com.opengamma.util.time.Expiry;
 
   @Override
   public String convertToString(ZonedDateTime dateTime) {
-    return dateTime.getDate().toString();
+    return dateTime.toLocalDate().toString();
   }
 }
 
@@ -317,7 +317,7 @@ import com.opengamma.util.time.Expiry;
 
   @Override
   public String convertToString(OffsetTime time) {
-    return time.getTime().toString();
+    return time.toLocalTime().toString();
   }
 }
 
@@ -334,7 +334,7 @@ import com.opengamma.util.time.Expiry;
 
   @Override
   public String convertToString(Expiry expiry) {
-    return expiry.getExpiry().getDate().toString();
+    return expiry.getExpiry().toLocalDate().toString();
   }
 }
 

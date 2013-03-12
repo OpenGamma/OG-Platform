@@ -21,10 +21,10 @@ import org.threeten.bp.Instant;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ComputedValueResult;
-import com.opengamma.engine.view.InMemoryViewResultModel;
 import com.opengamma.engine.view.ViewCalculationResultModel;
 import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
+import com.opengamma.engine.view.impl.InMemoryViewResultModel;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 
