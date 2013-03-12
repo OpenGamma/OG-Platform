@@ -195,6 +195,8 @@ public class ISDAYieldCurveFunction extends AbstractFunction {
         //            properties));
         requirements.add(new ValueRequirement(ValueRequirementNames.TARGET, ComputationTargetType.of(YieldCurveDefinition.class), curveDefinition.getUniqueId()));
         //requirements.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_INSTRUMENT_CONVERSION_HISTORICAL_TIME_SERIES, targetSpec, properties));
+        //requirements.add(new ValueRequirement(ValueRequirementNames.TARGET_TYPE, ComputationTargetType.of(YieldCurveDefinition.class), curveDefinition.getUniqueId()));
+        //requirements.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_INSTRUMENT_CONVERSION_HISTORICAL_TIME_SERIES, targetSpec, properties));
         return requirements;
       }
 
