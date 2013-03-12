@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.view.worker;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -33,7 +34,7 @@ public class ViewExecutionDataProvider {
   private final List<MarketDataProvider> _providers;
   /** The market data specifications in priority order. */
   private final List<MarketDataSpecification> _specs;
-  private final PermissionsProvider _permissionsProvider = new PermissionsProvider();
+  private final MarketDataPermissionProvider _permissionsProvider;
 
   /**
    * @param user The user requesting the data, not null
@@ -48,14 +49,24 @@ public class ViewExecutionDataProvider {
     ArgumentChecker.notEmpty(specs, "specs");
     ArgumentChecker.notNull(resolver, "resolver");
     _user = user;
-    _providers = Lists.newArrayListWithCapacity(specs.size());
     _specs = ImmutableList.copyOf(specs);
-    for (final MarketDataSpecification spec : specs) {
-      final MarketDataProvider provider = resolver.resolve(user, spec);
+    if (_specs.size() == 1) {
+      final MarketDataProvider provider = resolver.resolve(user, _specs.get(0));
       if (provider == null) {
-        throw new IllegalArgumentException("Unable to resolve market data spec " + spec);
+        throw new IllegalArgumentException("Unable to resolve market data spec " + _specs.get(0));
       }
-      _providers.add(provider);
+      _providers = Collections.singletonList(provider);
+      _permissionsProvider = provider.getPermissionProvider();
+    } else {
+      _providers = Lists.newArrayListWithCapacity(_specs.size());
+      for (final MarketDataSpecification spec : _specs) {
+        final MarketDataProvider provider = resolver.resolve(user, spec);
+        if (provider == null) {
+          throw new IllegalArgumentException("Unable to resolve market data spec " + spec);
+        }
+        _providers.add(provider);
+      }
+      _permissionsProvider = new CompositePermissionProvider();
     }
   }
 
@@ -87,27 +98,31 @@ public class ViewExecutionDataProvider {
    * @return A set of specifications for each underlying provider, in the same order as the providers
    */
   protected static List<Set<ValueSpecification>> partitionSpecificationsByProvider(final int numProviders, final Set<ValueSpecification> specifications) {
-    final List<Set<ValueSpecification>> result = Lists.newArrayListWithCapacity(numProviders);
-    for (int i = 0; i < numProviders; i++) {
-      result.add(Sets.<ValueSpecification>newHashSet());
-    }
-    for (final ValueSpecification specification : specifications) {
-      String provider = specification.getProperty(ValuePropertyNames.DATA_PROVIDER);
-      if (provider != null) {
-        final ValueProperties.Builder underlyingProperties = specification.getProperties().copy().withoutAny(ValuePropertyNames.DATA_PROVIDER);
-        final int slash = provider.indexOf('/');
-        if (slash > 0) {
-          underlyingProperties.with(ValuePropertyNames.DATA_PROVIDER, provider.substring(0, slash));
-          provider = provider.substring(slash + 1);
-        }
-        try {
-          result.get(Integer.parseInt(provider)).add(new ValueSpecification(specification.getValueName(), specification.getTargetSpecification(), underlyingProperties.get()));
-        } catch (final NumberFormatException e) {
-          // Ignore
+    if (numProviders == 1) {
+      return Collections.singletonList(specifications);
+    } else {
+      final List<Set<ValueSpecification>> result = Lists.newArrayListWithCapacity(numProviders);
+      for (int i = 0; i < numProviders; i++) {
+        result.add(Sets.<ValueSpecification>newHashSet());
+      }
+      for (final ValueSpecification specification : specifications) {
+        String provider = specification.getProperty(ValuePropertyNames.DATA_PROVIDER);
+        if (provider != null) {
+          final ValueProperties.Builder underlyingProperties = specification.getProperties().copy().withoutAny(ValuePropertyNames.DATA_PROVIDER);
+          final int slash = provider.indexOf('/');
+          if (slash > 0) {
+            underlyingProperties.with(ValuePropertyNames.DATA_PROVIDER, provider.substring(0, slash));
+            provider = provider.substring(slash + 1);
+          }
+          try {
+            result.get(Integer.parseInt(provider)).add(new ValueSpecification(specification.getValueName(), specification.getTargetSpecification(), underlyingProperties.get()));
+          } catch (final NumberFormatException e) {
+            // Ignore
+          }
         }
       }
+      return result;
     }
-    return result;
   }
 
   /**
@@ -158,7 +173,7 @@ public class ViewExecutionDataProvider {
    * {@link MarketDataPermissionProvider} that checks the permissions using the underlying {@link MarketDataProvider}s. The underlying provider will be the one that returned the original availability
    * of the data.
    */
-  private class PermissionsProvider implements MarketDataPermissionProvider {
+  private class CompositePermissionProvider implements MarketDataPermissionProvider {
 
     /**
      * Checks permissions with the underlying providers and returns any requirements for which the user has no permissions with any provider.
