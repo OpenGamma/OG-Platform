@@ -12,6 +12,7 @@ $.register_module({
                 return (is_array(value) ? value : value.v || []).map(function (row) {return row.join(tab);}).join(line);
             },
             DOUBLE: function (value) {return value.v || '';},
+            DOUBLE_GADGET: function (value) {return value.v || '';},
             FUNGIBLE_TRADE: function (value) {return value.v && value.v.name || '';},
             LABELLED_MATRIX_1D: function (value, single) {
                 if (!single) return value.v || '**1D MATRIX**';

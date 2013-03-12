@@ -6,7 +6,7 @@ $.register_module({
     name: 'og.common.gadgets.Data',
     dependencies: ['og.common.gadgets.manager', 'og.common.events', 'og.analytics.Grid'],
     obj: function () {
-        var module = this, Grid = og.analytics.Grid, loading_template, formatters, char_width = 9,
+        var module = this, Grid = og.analytics.Grid, loading_template, formatters, char_width = 8,
             DOUBLE = 'DOUBLE_GADGET', STRING = 'STRING';
         var cell_value = function (v) {return {v: v + ''};};
         var col_names = (function () {
@@ -71,9 +71,9 @@ $.register_module({
             LABELLED_MATRIX_2D: function (dataman, data) {
                 if (!data || !data.matrix || !data.matrix.length) return;
                 var cols = data.xLabels, rows = data.yLabels.map(cell_value),
-                    fixed_width = data.yLabels[rows.length - 1].length * char_width;
+                    fixed_width = Math.max.apply(null, data.yLabels.pluck('length')) * char_width;
                 return {
-                    meta: meta(dataman, rows.length, cols, fixed_width),
+                    meta: meta(dataman, rows.length, cols, fixed_width, cols.length === 1 + data.matrix[0].length),
                     data: data.matrix
                         .reduce(function (acc, val, idx) {return acc.concat(rows[idx], val.map(cell_value));}, []),
                 };
