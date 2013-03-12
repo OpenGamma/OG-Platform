@@ -112,6 +112,23 @@ public abstract class DateConstraint {
     return minus(Period.parse(period));
   }
 
+  /**
+   * Approximates the period difference between two constraints, that is the period that must be added to this contraint to get the same value as the other one.
+   * 
+   * @param other the other constraint, not null
+   * @return the difference as a period, not null
+   * @throws IllegalArgumentException if the constraints are not sufficiently compatible
+   */
+  public Period periodUntil(DateConstraint other) {
+    if (equals(other)) {
+      return Period.ZERO;
+    } else if (other instanceof PlusMinusPeriodDateConstraint) {
+      return ((PlusMinusPeriodDateConstraint) other).periodUntil(this).negated();
+    } else {
+      throw new IllegalArgumentException(other + " - " + this);
+    }
+  }
+
   @Override
   public abstract String toString();
 
@@ -183,6 +200,15 @@ public abstract class DateConstraint {
     }
 
     @Override
+    public Period periodUntil(DateConstraint other) {
+      if (other instanceof LiteralDateConstraint) {
+        return _value.periodUntil(((LiteralDateConstraint) other)._value);
+      } else {
+        return super.periodUntil(other);
+      }
+    }
+
+    @Override
     public String toString() {
       return _value.toString();
     }
@@ -251,6 +277,25 @@ public abstract class DateConstraint {
       } else {
         return new PlusMinusPeriodDateConstraint(_underlying, _plus, newPeriod);
       }
+    }
+
+    @Override
+    public Period periodUntil(DateConstraint o) {
+      if (o instanceof PlusMinusPeriodDateConstraint) {
+        final PlusMinusPeriodDateConstraint other = (PlusMinusPeriodDateConstraint) o;
+        if (ObjectUtils.equals(_underlying, other._underlying)) {
+          Period a = _plus ? _period : _period.negated();
+          Period b = other._plus ? other._period : other._period.negated();
+          return b.minus(a);
+        }
+      } else if (o.equals((_underlying == null) ? DateConstraint.VALUATION_TIME : _underlying)) {
+        if (_plus) {
+          return _period.negated();
+        } else {
+          return _period;
+        }
+      }
+      throw new IllegalArgumentException();
     }
 
     @Override
