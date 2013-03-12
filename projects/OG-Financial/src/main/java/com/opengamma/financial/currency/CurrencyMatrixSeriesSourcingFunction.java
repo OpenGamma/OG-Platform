@@ -87,6 +87,9 @@ public class CurrencyMatrixSeriesSourcingFunction extends AbstractCurrencyMatrix
     final ValueRequirement requirement = valueRequirement.getValueRequirement();
     // TODO: PLAT-2813 Don't perform the resolution here; request the time series directly
     final ExternalIdBundle targetIdentifiers = resolver.getExternalIdBundle(requirement.getTargetReference());
+    if (targetIdentifiers == null) {
+      return null;
+    }
     final HistoricalTimeSeriesResolutionResult timeSeries = getHistoricalTimeSeriesResolver().resolve(targetIdentifiers, null, null, null, MarketDataRequirementNames.MARKET_VALUE, null);
     if (timeSeries == null) {
       return null;
@@ -167,15 +170,13 @@ public class CurrencyMatrixSeriesSourcingFunction extends AbstractCurrencyMatrix
         if (marketValue instanceof DoubleTimeSeries) {
           //TODO is this branch ever reached?
           DoubleTimeSeries<?> fxRate = (DoubleTimeSeries<?>) marketValue;
-          //TODO not sure why the inverse is needed, but it's obvious that something is wrong here
-          if (!valueRequirement.isReciprocal()) {
+          if (valueRequirement.isReciprocal()) {
             fxRate = fxRate.reciprocal();
           }
           return fxRate;
         } else if (marketValue instanceof HistoricalTimeSeries) {
           DoubleTimeSeries<?> fxRate = ((HistoricalTimeSeries) marketValue).getTimeSeries();
-          //TODO not sure why the inverse is needed, but it's obvious that something is wrong here
-          if (!valueRequirement.isReciprocal()) {
+          if (valueRequirement.isReciprocal()) {
             fxRate = fxRate.reciprocal();
           }
           return fxRate;
