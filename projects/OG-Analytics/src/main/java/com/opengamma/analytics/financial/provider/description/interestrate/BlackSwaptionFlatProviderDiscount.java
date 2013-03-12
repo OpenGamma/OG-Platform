@@ -8,7 +8,7 @@ package com.opengamma.analytics.financial.provider.description.interestrate;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.analytics.financial.model.option.definition.BlackSwaptionParameters;
+import com.opengamma.analytics.financial.model.option.parameters.BlackFlatSwaptionParameters;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
@@ -23,7 +23,7 @@ public class BlackSwaptionFlatProviderDiscount extends BlackSwaptionFlatProvider
    * @param multicurves The multi-curves provider.
    * @param parameters The Black swaption parameters.
    */
-  public BlackSwaptionFlatProviderDiscount(final MulticurveProviderDiscount multicurves, BlackSwaptionParameters parameters) {
+  public BlackSwaptionFlatProviderDiscount(final MulticurveProviderDiscount multicurves, BlackFlatSwaptionParameters parameters) {
     super(multicurves, parameters);
   }
 

@@ -122,13 +122,11 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
   ///CLOVER:OFF
   /**
    * The meta-bean for {@code ExampleMarketDataComponentFactory}.
-   * 
    * @return the meta-bean, not null
    */
   public static ExampleMarketDataComponentFactory.Meta meta() {
     return ExampleMarketDataComponentFactory.Meta.INSTANCE;
   }
-
   static {
     JodaBeanUtils.registerMetaBean(ExampleMarketDataComponentFactory.Meta.INSTANCE);
   }
@@ -139,28 +137,28 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
   }
 
   @Override
-  protected Object propertyGet(final String propertyName, final boolean quiet) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case -281470431: // classifier
+      case -281470431:  // classifier
         return getClassifier();
-      case -187029565: // serverMetaDataProvider
+      case -187029565:  // serverMetaDataProvider
         return getServerMetaDataProvider();
-      case -1495762275: // jmsConnector
+      case -1495762275:  // jmsConnector
         return getJmsConnector();
     }
     return super.propertyGet(propertyName, quiet);
   }
 
   @Override
-  protected void propertySet(final String propertyName, final Object newValue, final boolean quiet) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case -281470431: // classifier
+      case -281470431:  // classifier
         setClassifier((String) newValue);
         return;
-      case -187029565: // serverMetaDataProvider
+      case -187029565:  // serverMetaDataProvider
         setServerMetaDataProvider((LiveDataMetaDataProvider) newValue);
         return;
-      case -1495762275: // jmsConnector
+      case -1495762275:  // jmsConnector
         setJmsConnector((JmsConnector) newValue);
         return;
     }
@@ -176,12 +174,12 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      final ExampleMarketDataComponentFactory other = (ExampleMarketDataComponentFactory) obj;
+      ExampleMarketDataComponentFactory other = (ExampleMarketDataComponentFactory) obj;
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
           JodaBeanUtils.equal(getServerMetaDataProvider(), other.getServerMetaDataProvider()) &&
           JodaBeanUtils.equal(getJmsConnector(), other.getJmsConnector()) &&
@@ -202,7 +200,6 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
   //-----------------------------------------------------------------------
   /**
    * Gets the classifier under which to publish.
-   * 
    * @return the value of the property, not null
    */
   public String getClassifier() {
@@ -211,17 +208,15 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
 
   /**
    * Sets the classifier under which to publish.
-   * 
-   * @param classifier the new value of the property, not null
+   * @param classifier  the new value of the property, not null
    */
-  public void setClassifier(final String classifier) {
+  public void setClassifier(String classifier) {
     JodaBeanUtils.notNull(classifier, "classifier");
     this._classifier = classifier;
   }
 
   /**
    * Gets the the {@code classifier} property.
-   * 
    * @return the property, not null
    */
   public final Property<String> classifier() {
@@ -231,7 +226,6 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
   //-----------------------------------------------------------------------
   /**
    * Gets the meta-data about the server.
-   * 
    * @return the value of the property, not null
    */
   public LiveDataMetaDataProvider getServerMetaDataProvider() {
@@ -240,17 +234,15 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
 
   /**
    * Sets the meta-data about the server.
-   * 
-   * @param serverMetaDataProvider the new value of the property, not null
+   * @param serverMetaDataProvider  the new value of the property, not null
    */
-  public void setServerMetaDataProvider(final LiveDataMetaDataProvider serverMetaDataProvider) {
+  public void setServerMetaDataProvider(LiveDataMetaDataProvider serverMetaDataProvider) {
     JodaBeanUtils.notNull(serverMetaDataProvider, "serverMetaDataProvider");
     this._serverMetaDataProvider = serverMetaDataProvider;
   }
 
   /**
    * Gets the the {@code serverMetaDataProvider} property.
-   * 
    * @return the property, not null
    */
   public final Property<LiveDataMetaDataProvider> serverMetaDataProvider() {
@@ -260,7 +252,6 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
   //-----------------------------------------------------------------------
   /**
    * Gets the JMS connector.
-   * 
    * @return the value of the property, not null
    */
   public JmsConnector getJmsConnector() {
@@ -269,17 +260,15 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
 
   /**
    * Sets the JMS connector.
-   * 
-   * @param jmsConnector the new value of the property, not null
+   * @param jmsConnector  the new value of the property, not null
    */
-  public void setJmsConnector(final JmsConnector jmsConnector) {
+  public void setJmsConnector(JmsConnector jmsConnector) {
     JodaBeanUtils.notNull(jmsConnector, "jmsConnector");
     this._jmsConnector = jmsConnector;
   }
 
   /**
    * Gets the the {@code jmsConnector} property.
-   * 
    * @return the property, not null
    */
   public final Property<JmsConnector> jmsConnector() {
@@ -327,13 +316,13 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case -281470431: // classifier
+        case -281470431:  // classifier
           return _classifier;
-        case -187029565: // serverMetaDataProvider
+        case -187029565:  // serverMetaDataProvider
           return _serverMetaDataProvider;
-        case -1495762275: // jmsConnector
+        case -1495762275:  // jmsConnector
           return _jmsConnector;
       }
       return super.metaPropertyGet(propertyName);
@@ -357,7 +346,6 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
     //-----------------------------------------------------------------------
     /**
      * The meta-property for the {@code classifier} property.
-     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<String> classifier() {
@@ -366,7 +354,6 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
 
     /**
      * The meta-property for the {@code serverMetaDataProvider} property.
-     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<LiveDataMetaDataProvider> serverMetaDataProvider() {
@@ -375,7 +362,6 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
 
     /**
      * The meta-property for the {@code jmsConnector} property.
-     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<JmsConnector> jmsConnector() {

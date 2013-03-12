@@ -1,11 +1,9 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.credit.creditdefaultswap.greeks.vanilla;
-
-import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.bumpers.CreditSpreadBumpers;
@@ -15,6 +13,8 @@ import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanill
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
 import com.opengamma.analytics.financial.credit.marketdatachecker.SpreadTermStructureDataChecker;
 import com.opengamma.util.ArgumentChecker;
+import org.threeten.bp.ZonedDateTime;
+import org.threeten.bp.format.DateTimeFormatterBuilder;
 
 /**
  * Class containing methods for the computation of CS01 for a vanilla Legacy CDS (parallel and bucketed bumps)
@@ -113,6 +113,15 @@ public class CS01CreditDefaultSwap {
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Check input objects are not null
+
+    System.out.println(
+        valuationDate.toString(new DateTimeFormatterBuilder().appendPattern("yyyyMMdd").toFormatter()) + "\n"
+            + cds + "\n"
+            + yieldCurve
+            + "\n" + marketTenors
+            + "\n" + spreadBump + "\n"
+            + spreadBumpType + "\n"
+            + priceType);
 
     ArgumentChecker.notNull(valuationDate, "Valuation date");
     ArgumentChecker.notNull(cds, "LegacyCreditDefaultSwapDefinition");

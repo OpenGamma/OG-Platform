@@ -73,7 +73,7 @@ public class ConstantSpreadHorizonThetaCalculatorIRFutureOptionTest {
   // Market Data
   private static final YieldCurveBundle CURVES = TestsDataSetsBlack.createCurvesEUR();
   private static final String[] CURVE_NAMES = TestsDataSetsBlack.curvesEURNames();
-  private static final InterpolatedDoublesSurface BLACK_PARAMETER = TestsDataSetsBlack.createBlackSurface();
+  private static final InterpolatedDoublesSurface BLACK_PARAMETER = TestsDataSetsBlack.createBlackSurfaceExpiryTenor();
   private static final YieldCurveWithBlackCubeBundle BLACK_BUNDLE = new YieldCurveWithBlackCubeBundle(BLACK_PARAMETER, CURVES);
 
   // constants

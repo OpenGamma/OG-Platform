@@ -8,7 +8,6 @@ package com.opengamma.util.time;
 import org.fudgemsg.types.FudgeSecondaryType;
 import org.fudgemsg.types.SecondaryFieldType;
 import org.fudgemsg.wire.types.FudgeWireType;
-import org.threeten.bp.Period;
 
 /**
  * Fudge secondary type for {@code Tenor} converting to a string.
@@ -39,7 +38,7 @@ public final class TenorFudgeSecondaryType extends SecondaryFieldType<Tenor, Str
 
   @Override
   public Tenor primaryToSecondary(final String string) {
-    return new Tenor(Period.parse(string));
+    return new Tenor(DateUtils.toPeriod(string));
   }
 
 }

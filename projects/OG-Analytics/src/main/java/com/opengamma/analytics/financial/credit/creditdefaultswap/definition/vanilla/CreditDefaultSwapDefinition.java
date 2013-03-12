@@ -459,4 +459,35 @@ public abstract class CreditDefaultSwapDefinition {
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
+
+
+  @Override
+  public String toString() {
+    return "CreditDefaultSwapDefinition{" +
+        "_buySellProtection=" + _buySellProtection +
+        ", _protectionBuyer=" + _protectionBuyer +
+        ", _protectionSeller=" + _protectionSeller +
+        ", _referenceEntity=" + _referenceEntity +
+        ", _currency=" + _currency +
+        ", _debtSeniority=" + _debtSeniority +
+        ", _restructuringClause=" + _restructuringClause +
+        ", _calendar=" + _calendar +
+        ", _startDate=" + _startDate +
+        ", _effectiveDate=" + _effectiveDate +
+        ", _maturityDate=" + _maturityDate +
+        ", _stubType=" + _stubType +
+        ", _couponFrequency=" + _couponFrequency +
+        ", _daycountFractionConvention=" + _daycountFractionConvention +
+        ", _businessdayAdjustmentConvention=" + _businessdayAdjustmentConvention +
+        ", _immAdjustMaturityDate=" + _immAdjustMaturityDate +
+        ", _adjustEffectiveDate=" + _adjustEffectiveDate +
+        ", _adjustMaturityDate=" + _adjustMaturityDate +
+        ", _notional=" + _notional +
+        ", _recoveryRate=" + _recoveryRate +
+        ", _includeAccruedPremium=" + _includeAccruedPremium +
+        ", _protectionStart=" + _protectionStart +
+        ", _creditKey='" + _creditKey + '\'' +
+        ", _protectionOffset=" + _protectionOffset +
+        '}';
+  }
 }

@@ -110,13 +110,11 @@ public class BloombergLiveDataClientComponentFactory extends AbstractComponentFa
   ///CLOVER:OFF
   /**
    * The meta-bean for {@code BloombergLiveDataClientComponentFactory}.
-   * 
    * @return the meta-bean, not null
    */
   public static BloombergLiveDataClientComponentFactory.Meta meta() {
     return BloombergLiveDataClientComponentFactory.Meta.INSTANCE;
   }
-
   static {
     JodaBeanUtils.registerMetaBean(BloombergLiveDataClientComponentFactory.Meta.INSTANCE);
   }
@@ -127,28 +125,28 @@ public class BloombergLiveDataClientComponentFactory extends AbstractComponentFa
   }
 
   @Override
-  protected Object propertyGet(final String propertyName, final boolean quiet) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case -281470431: // classifier
+      case -281470431:  // classifier
         return getClassifier();
-      case -1495762275: // jmsConnector
+      case -1495762275:  // jmsConnector
         return getJmsConnector();
-      case -1210045765: // bloombergMetaDataProvider
+      case -1210045765:  // bloombergMetaDataProvider
         return getBloombergMetaDataProvider();
     }
     return super.propertyGet(propertyName, quiet);
   }
 
   @Override
-  protected void propertySet(final String propertyName, final Object newValue, final boolean quiet) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case -281470431: // classifier
+      case -281470431:  // classifier
         setClassifier((String) newValue);
         return;
-      case -1495762275: // jmsConnector
+      case -1495762275:  // jmsConnector
         setJmsConnector((JmsConnector) newValue);
         return;
-      case -1210045765: // bloombergMetaDataProvider
+      case -1210045765:  // bloombergMetaDataProvider
         setBloombergMetaDataProvider((LiveDataMetaDataProvider) newValue);
         return;
     }
@@ -163,12 +161,12 @@ public class BloombergLiveDataClientComponentFactory extends AbstractComponentFa
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      final BloombergLiveDataClientComponentFactory other = (BloombergLiveDataClientComponentFactory) obj;
+      BloombergLiveDataClientComponentFactory other = (BloombergLiveDataClientComponentFactory) obj;
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
           JodaBeanUtils.equal(getJmsConnector(), other.getJmsConnector()) &&
           JodaBeanUtils.equal(getBloombergMetaDataProvider(), other.getBloombergMetaDataProvider()) &&
@@ -189,7 +187,6 @@ public class BloombergLiveDataClientComponentFactory extends AbstractComponentFa
   //-----------------------------------------------------------------------
   /**
    * Gets the classifier under which to publish.
-   * 
    * @return the value of the property, not null
    */
   public String getClassifier() {
@@ -198,17 +195,15 @@ public class BloombergLiveDataClientComponentFactory extends AbstractComponentFa
 
   /**
    * Sets the classifier under which to publish.
-   * 
-   * @param classifier the new value of the property, not null
+   * @param classifier  the new value of the property, not null
    */
-  public void setClassifier(final String classifier) {
+  public void setClassifier(String classifier) {
     JodaBeanUtils.notNull(classifier, "classifier");
     this._classifier = classifier;
   }
 
   /**
    * Gets the the {@code classifier} property.
-   * 
    * @return the property, not null
    */
   public final Property<String> classifier() {
@@ -218,7 +213,6 @@ public class BloombergLiveDataClientComponentFactory extends AbstractComponentFa
   //-----------------------------------------------------------------------
   /**
    * Gets the JMS connector.
-   * 
    * @return the value of the property, not null
    */
   public JmsConnector getJmsConnector() {
@@ -227,17 +221,15 @@ public class BloombergLiveDataClientComponentFactory extends AbstractComponentFa
 
   /**
    * Sets the JMS connector.
-   * 
-   * @param jmsConnector the new value of the property, not null
+   * @param jmsConnector  the new value of the property, not null
    */
-  public void setJmsConnector(final JmsConnector jmsConnector) {
+  public void setJmsConnector(JmsConnector jmsConnector) {
     JodaBeanUtils.notNull(jmsConnector, "jmsConnector");
     this._jmsConnector = jmsConnector;
   }
 
   /**
    * Gets the the {@code jmsConnector} property.
-   * 
    * @return the property, not null
    */
   public final Property<JmsConnector> jmsConnector() {
@@ -247,7 +239,6 @@ public class BloombergLiveDataClientComponentFactory extends AbstractComponentFa
   //-----------------------------------------------------------------------
   /**
    * Gets the Bloomberg live data meta-data.
-   * 
    * @return the value of the property
    */
   public LiveDataMetaDataProvider getBloombergMetaDataProvider() {
@@ -256,16 +247,14 @@ public class BloombergLiveDataClientComponentFactory extends AbstractComponentFa
 
   /**
    * Sets the Bloomberg live data meta-data.
-   * 
-   * @param bloombergMetaDataProvider the new value of the property
+   * @param bloombergMetaDataProvider  the new value of the property
    */
-  public void setBloombergMetaDataProvider(final LiveDataMetaDataProvider bloombergMetaDataProvider) {
+  public void setBloombergMetaDataProvider(LiveDataMetaDataProvider bloombergMetaDataProvider) {
     this._bloombergMetaDataProvider = bloombergMetaDataProvider;
   }
 
   /**
    * Gets the the {@code bloombergMetaDataProvider} property.
-   * 
    * @return the property, not null
    */
   public final Property<LiveDataMetaDataProvider> bloombergMetaDataProvider() {
@@ -313,13 +302,13 @@ public class BloombergLiveDataClientComponentFactory extends AbstractComponentFa
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case -281470431: // classifier
+        case -281470431:  // classifier
           return _classifier;
-        case -1495762275: // jmsConnector
+        case -1495762275:  // jmsConnector
           return _jmsConnector;
-        case -1210045765: // bloombergMetaDataProvider
+        case -1210045765:  // bloombergMetaDataProvider
           return _bloombergMetaDataProvider;
       }
       return super.metaPropertyGet(propertyName);
@@ -343,7 +332,6 @@ public class BloombergLiveDataClientComponentFactory extends AbstractComponentFa
     //-----------------------------------------------------------------------
     /**
      * The meta-property for the {@code classifier} property.
-     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<String> classifier() {
@@ -352,7 +340,6 @@ public class BloombergLiveDataClientComponentFactory extends AbstractComponentFa
 
     /**
      * The meta-property for the {@code jmsConnector} property.
-     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<JmsConnector> jmsConnector() {
@@ -361,7 +348,6 @@ public class BloombergLiveDataClientComponentFactory extends AbstractComponentFa
 
     /**
      * The meta-property for the {@code bloombergMetaDataProvider} property.
-     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<LiveDataMetaDataProvider> bloombergMetaDataProvider() {

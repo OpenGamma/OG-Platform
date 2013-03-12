@@ -16,7 +16,7 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Multi
 import com.opengamma.financial.convention.daycount.DayCount;
 
 /**
- * Get the single fixed rate that makes the PV of the instrument zero.
+ * Computes the par rate for different instrument. The meaning of "par rate" is instrument dependent.
  */
 public final class ParRateDiscountingCalculator extends InstrumentDerivativeVisitorAdapter<MulticurveProviderInterface, Double> {
 
@@ -98,9 +98,15 @@ public final class ParRateDiscountingCalculator extends InstrumentDerivativeVisi
 
   // -----     Forex     ------
 
+  /**
+   * Computes the forward forex rate.
+   * @param forex The forex instrument.
+   * @param multicurves The multicurves provider.
+   * @return The forward forex rate. 
+   */
   @Override
-  public Double visitForex(final Forex derivative, final MulticurveProviderInterface multicurves) {
-    return METHOD_FOREX.forwardForexRate(derivative, multicurves);
+  public Double visitForex(final Forex forex, final MulticurveProviderInterface multicurves) {
+    return METHOD_FOREX.forwardForexRate(forex, multicurves);
   }
 
 }

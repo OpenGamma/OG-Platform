@@ -5,7 +5,7 @@
  */
 package com.opengamma.analytics.financial.provider.description.interestrate;
 
-import com.opengamma.analytics.financial.model.option.definition.BlackSwaptionParameters;
+import com.opengamma.analytics.financial.model.option.parameters.BlackFlatSwaptionParameters;
 
 /**
  * Interface for pricing swaptions using the Black method.
@@ -22,6 +22,6 @@ public interface BlackSwaptionFlatProviderInterface extends ParameterProviderInt
    * Returns the Black parameters.
    * @return The parameters
    */
-  BlackSwaptionParameters getBlackParameters();
+  BlackFlatSwaptionParameters getBlackParameters();
 
 }

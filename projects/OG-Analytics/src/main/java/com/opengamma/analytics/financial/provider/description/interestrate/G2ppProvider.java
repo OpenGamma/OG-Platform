@@ -10,7 +10,6 @@ import com.opengamma.util.money.Currency;
 
 /**
  * Class describing a provider with discounting, forward and G2++ parameters.
- * The forward rate are computed as the ratio of discount factors stored in YieldAndDiscountCurve.
  */
 public class G2ppProvider implements G2ppProviderInterface {
 
