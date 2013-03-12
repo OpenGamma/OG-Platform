@@ -311,7 +311,7 @@
           <dependency>
             <groupId>org.fudgemsg</groupId>
             <artifactId>fudge-proto</artifactId>
-            <version>0.3.9.5</version>
+            <version>0.3.9.6</version>
           </dependency>
         </dependencies>
       </plugin>
@@ -405,7 +405,7 @@
       <dependency>
         <groupId>org.fudgemsg</groupId>
         <artifactId>fudge-java</artifactId>
-        <version>0.3.9.6</version>
+        <version>0.3.9.7</version>
         <exclusions>
           <exclusion>
             <groupId>commons-logging</groupId>
@@ -416,7 +416,7 @@
       <dependency>
         <groupId>org.fudgemsg</groupId>
         <artifactId>fudge-proto</artifactId>
-        <version>0.3.9.5</version>
+        <version>0.3.9.6</version>
       </dependency>
       <dependency>
         <groupId>org.threeten</groupId>
