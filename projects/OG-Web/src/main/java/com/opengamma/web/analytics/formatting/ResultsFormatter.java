@@ -74,7 +74,8 @@ public class ResultsFormatter {
                   new BlackVolatilitySurfaceMoneynessFcnBackedByGridFormatter(),
                   new FrequencyFormatter(),
                   new FXAmountsFormatter(doubleFormatter),
-                  new ExpiryFormatter(zonedDateTimeFormatter));
+                  new ExpiryFormatter(zonedDateTimeFormatter),
+                  new ValuePropertiesFormatter());
   }
 
   private void addFormatters(TypeFormatter<?>... formatters) {
