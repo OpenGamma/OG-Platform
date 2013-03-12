@@ -155,7 +155,7 @@ public final class CouponFixedCompoundingDefinition extends CouponDefinition {
    */
   public static CouponFixedCompoundingDefinition from(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final double notional,
       final int tenor, final double rate) {
-    final ZonedDateTime[] accrualEndDates = ScheduleCalculator.getUnadjustedDateSchedule(accrualStartDate, accrualStartDate.plus(Period.ofYears(tenor), Period.ofYears(1), true, false);
+    final ZonedDateTime[] accrualEndDates = ScheduleCalculator.getUnadjustedDateSchedule(accrualStartDate, accrualStartDate.plus(Period.ofYears(tenor)), Period.ofYears(1), true, false);
 
     final int nbSubPeriod = accrualEndDates.length;
     final ZonedDateTime[] accrualStartDates = new ZonedDateTime[nbSubPeriod];
