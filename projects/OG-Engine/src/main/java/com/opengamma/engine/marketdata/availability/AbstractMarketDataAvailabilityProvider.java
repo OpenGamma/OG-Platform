@@ -70,12 +70,24 @@ public abstract class AbstractMarketDataAvailabilityProvider implements MarketDa
   @Override
   public final ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final Object target, final ValueRequirement desiredValue) {
     if (target instanceof ExternalBundleIdentifiable) {
-      return getAvailability(targetSpec, ((ExternalBundleIdentifiable) target).getExternalIdBundle(), desiredValue);
-    } else if (target instanceof ExternalIdentifiable) {
-      return getAvailability(targetSpec, ((ExternalIdentifiable) target).getExternalId(), desiredValue);
-    } else if (target instanceof UniqueIdentifiable) {
-      return getAvailability(targetSpec, ((UniqueIdentifiable) target).getUniqueId(), desiredValue);
-    } else if (target == null) {
+      final ValueSpecification availability = getAvailability(targetSpec, ((ExternalBundleIdentifiable) target).getExternalIdBundle(), desiredValue);
+      if (availability != null) {
+        return availability;
+      }
+    }
+    if (target instanceof ExternalIdentifiable) {
+      final ValueSpecification availability = getAvailability(targetSpec, ((ExternalIdentifiable) target).getExternalId(), desiredValue);
+      if (availability != null) {
+        return availability;
+      }
+    }
+    if (target instanceof UniqueIdentifiable) {
+      final ValueSpecification availability = getAvailability(targetSpec, ((UniqueIdentifiable) target).getUniqueId(), desiredValue);
+      if (availability != null) {
+        return availability;
+      }
+    }
+    if (target == null) {
       return getAvailability(targetSpec, desiredValue);
     } else {
       return null;
