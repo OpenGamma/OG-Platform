@@ -6,27 +6,27 @@
 package com.opengamma.financial.analytics.curve;
 
 import java.io.Serializable;
+import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBean;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaBean;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.financial.analytics.ircurve.strips.CurveStrip;
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
-import java.util.Map;
-import org.joda.beans.BeanBuilder;
-import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaProperty;
-import org.joda.beans.Property;
-import org.joda.beans.impl.direct.DirectBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaBean;
-import org.joda.beans.impl.direct.DirectMetaProperty;
-import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 /**
  *
@@ -61,8 +61,7 @@ public class CurveDefinition extends DirectBean implements Serializable, UniqueI
   public CurveDefinition() {
   }
 
-  public CurveDefinition(final UniqueId uniqueId, final String name, final Set<CurveStrip> strips) {
-    setUniqueId(uniqueId);
+  public CurveDefinition(final String name, final Set<CurveStrip> strips) {
     setName(name);
     setStrips(new TreeSet<>(strips));
   }
