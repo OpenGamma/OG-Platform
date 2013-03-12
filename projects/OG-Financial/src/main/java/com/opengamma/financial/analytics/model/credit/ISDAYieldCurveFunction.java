@@ -156,6 +156,21 @@ public class ISDAYieldCurveFunction extends AbstractFunction.NonCompiledInvoker 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final ValueProperties constraints = desiredValue.getConstraints();
+    final Set<String> curveCalculationMethod = constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_METHOD);
+    if (curveCalculationMethod == null) {
+      return null;
+    }
+    if (curveCalculationMethod.size() == 1) {
+      if (!ISDAFunctionConstants.ISDA_METHOD_NAME.equals(Iterables.getOnlyElement(curveCalculationMethod))) {
+        return null;
+      }
+      final Set<String> implementationMethod = constraints.getValues(ISDAFunctionConstants.ISDA_IMPLEMENTATION);
+      if (implementationMethod != null && implementationMethod.size() == 1) {
+        if (!ISDAFunctionConstants.ISDA_IMPLEMENTATION_APPROX.equals(Iterables.getOnlyElement(implementationMethod))) {
+          return null;
+        }
+      }
+    }
     final Set<String> curveNames = constraints.getValues(ValuePropertyNames.CURVE);
     if (curveNames == null || curveNames.size() != 1) {
       return null;
