@@ -27,6 +27,8 @@ import com.opengamma.analytics.financial.instrument.index.GeneratorInstrument;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedInflation;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedInflationMaster;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
+import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZeroCouponInterpolationDefinition;
+import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZeroCouponMonthlyDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedInflationZeroCouponDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedONDefinition;
@@ -61,7 +63,7 @@ import com.opengamma.util.tuple.Pair;
  */
 public class InflationBuildingCurveSimpleTest {
 
-  private static final Interpolator1D INTERPOLATOR_LINEAR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
+  private static final Interpolator1D INTERPOLATOR_LINEAR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LOG_LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
       Interpolator1DFactory.FLAT_EXTRAPOLATOR);
 
   private static final LastTimeCalculator MATURITY_CALCULATOR = LastTimeCalculator.getInstance();
@@ -76,7 +78,7 @@ public class InflationBuildingCurveSimpleTest {
   private static final GeneratorSwapFixedInflation GENERATOR_INFALTION_SWAP = GeneratorSwapFixedInflationMaster.getInstance().getGenerator("USCPI");
   private static final IndexPrice US_CPI = GENERATOR_INFALTION_SWAP.getIndexPrice();
 
-  private static final ZonedDateTime NOW = DateUtils.getUTCDate(2011, 9, 28);
+  private static final ZonedDateTime NOW = DateUtils.getUTCDate(2012, 9, 28);
 
   private static final ArrayZonedDateTimeDoubleTimeSeries TS_EMPTY = new ArrayZonedDateTimeDoubleTimeSeries();
 
@@ -93,17 +95,19 @@ public class InflationBuildingCurveSimpleTest {
   private static final String CURVE_NAME_CPI_USD = "USD CPI";
 
   /** Market values for the CPI USD curve */
-  private static final double[] CPI_USD_MARKET_QUOTES = new double[] {0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400 };
+
+  public static final double[] CPI_USD_MARKET_QUOTES = new double[] {0.0200, 0.0200, 0.0200, 0.0200, 0.0200, 0.0200, 0.0200, 0.0200, 0.0200, 0.0200, 0.0200, 0.0200, 0.0200, 0.0200, 0.0200 };
+
   /** Generators for the CPI USD curve */
   private static final GeneratorInstrument<? extends GeneratorAttribute>[] CPI_USD_GENERATORS = new GeneratorInstrument<?>[] {GENERATOR_INFALTION_SWAP, GENERATOR_INFALTION_SWAP,
-    GENERATOR_INFALTION_SWAP,
-    GENERATOR_INFALTION_SWAP, GENERATOR_INFALTION_SWAP, GENERATOR_INFALTION_SWAP, GENERATOR_INFALTION_SWAP, GENERATOR_INFALTION_SWAP, GENERATOR_INFALTION_SWAP,
-    GENERATOR_INFALTION_SWAP, GENERATOR_INFALTION_SWAP, GENERATOR_INFALTION_SWAP, GENERATOR_INFALTION_SWAP, GENERATOR_INFALTION_SWAP, GENERATOR_INFALTION_SWAP };
+      GENERATOR_INFALTION_SWAP,
+      GENERATOR_INFALTION_SWAP, GENERATOR_INFALTION_SWAP, GENERATOR_INFALTION_SWAP, GENERATOR_INFALTION_SWAP, GENERATOR_INFALTION_SWAP, GENERATOR_INFALTION_SWAP,
+      GENERATOR_INFALTION_SWAP, GENERATOR_INFALTION_SWAP, GENERATOR_INFALTION_SWAP, GENERATOR_INFALTION_SWAP, GENERATOR_INFALTION_SWAP, GENERATOR_INFALTION_SWAP };
   /** Tenors for the CPI USD curve */
   private static final Period[] CPI_USD_TENOR = new Period[] {Period.ofYears(1),
-    Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5), Period.ofYears(6), Period.ofYears(7),
-    Period.ofYears(8), Period.ofYears(9), Period.ofYears(10), Period.ofYears(12), Period.ofYears(15), Period.ofYears(20),
-    Period.ofYears(25), Period.ofYears(30) };
+      Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5), Period.ofYears(6), Period.ofYears(7),
+      Period.ofYears(8), Period.ofYears(9), Period.ofYears(10), Period.ofYears(12), Period.ofYears(15), Period.ofYears(20),
+      Period.ofYears(25), Period.ofYears(30) };
   private static final GeneratorAttributeIR[] CPI_USD_ATTR = new GeneratorAttributeIR[CPI_USD_TENOR.length];
   static {
     for (int loopins = 0; loopins < CPI_USD_TENOR.length; loopins++) {
@@ -195,42 +199,11 @@ public class InflationBuildingCurveSimpleTest {
     }
   }
 
-  /*  @Test(enabled = true)
-   *//**
-   * Analyzes the shape of the  curve.
-   */
-  /*
-
-  public void forwardAnalysis() {
-  final InflationProviderInterface marketDsc = CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(0).getFirst();
-  final int jump = 1;
-  final int startIndex = 0;
-  final int nbDate = 2750;
-  ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(NOW,2, NYC);
-  final double[] rateDsc = new double[nbDate];
-  final double[] startTime = new double[nbDate];
-  try {
-  final FileWriter writer = new FileWriter("fwd-dsc.csv");
-  for (int loopdate = 0; loopdate < nbDate; loopdate++) {
-  startTime[loopdate] = TimeCalculator.getTimeBetween(NOW, startDate);
-  final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, US_CPI);
-  final double endTime = TimeCalculator.getTimeBetween(NOW, endDate);
-  final double accrualFactor = USDLIBOR3M.getDayCount().getDayCountFraction(startDate, endDate);
-  rateDsc[loopdate] = marketDsc.getForwardRate(USDLIBOR3M, startTime[loopdate], endTime, accrualFactor);
-  startDate = ScheduleCalculator.getAdjustedDate(startDate, jump, NYC);
-  writer.append(0.0 + "," + startTime[loopdate] + "," + rateDsc[loopdate] + "\n");
-  }
-  writer.flush();
-  writer.close();
-  } catch (final IOException e) {
-  e.printStackTrace();
-  }
-  }*/
   private static Pair<InflationProviderDiscount, CurveBuildingBlockBundle> makeCurvesFromDefinitions(final InstrumentDefinition<?>[][][] definitions,
       final GeneratorPriceIndexCurve[][] curveGenerators,
       final String[][] curveNames, final InflationProviderDiscount knownData, final InstrumentDerivativeVisitor<InflationProviderInterface, Double> calculator,
       final InstrumentDerivativeVisitor<InflationProviderInterface, InflationSensitivity> sensitivityCalculator, final boolean withToday)
-      {
+  {
     final int nbUnits = curveGenerators.length;
     final double[][] parametersGuess = new double[nbUnits][];
     final GeneratorPriceIndexCurve[][] generatorFinal = new GeneratorPriceIndexCurve[nbUnits][];
@@ -254,7 +227,7 @@ public class InflationBuildingCurveSimpleTest {
     return CURVE_BUILDING_REPOSITORY.makeCurvesFromDerivatives(instruments, generatorFinal, curveNames, parametersGuess, knownData, US_CPI_MAP, calculator,
         sensitivityCalculator);
 
-      }
+  }
 
   @SuppressWarnings("unchecked")
   private static InstrumentDerivative[][] convert(final InstrumentDefinition<?>[][] definitions, final int unit, final boolean withToday) {
@@ -311,13 +284,23 @@ public class InflationBuildingCurveSimpleTest {
     if (instrument instanceof SwapFixedIborDefinition) {
       return ((SwapFixedIborDefinition) instrument).getFixedLeg().getNthPayment(0).getRate();
     }
+    if (instrument instanceof SwapFixedInflationZeroCouponDefinition) {
+
+      if (((SwapFixedInflationZeroCouponDefinition) instrument).getFirstLeg().getNthPayment(0) instanceof CouponInflationZeroCouponMonthlyDefinition) {
+        return ((CouponInflationZeroCouponMonthlyDefinition) ((SwapFixedInflationZeroCouponDefinition) instrument).getFirstLeg().getNthPayment(0)).getIndexStartValue();
+      }
+      if (((SwapFixedInflationZeroCouponDefinition) instrument).getFirstLeg().getNthPayment(0) instanceof CouponInflationZeroCouponInterpolationDefinition) {
+        return ((CouponInflationZeroCouponInterpolationDefinition) ((SwapFixedInflationZeroCouponDefinition) instrument).getFirstLeg().getNthPayment(0)).getIndexStartValue();
+      }
+      return 100;
+    }
     if (instrument instanceof ForwardRateAgreementDefinition) {
       return ((ForwardRateAgreementDefinition) instrument).getRate();
     }
     if (instrument instanceof CashDefinition) {
       return ((CashDefinition) instrument).getRate();
     }
-    return 200;
+    return 1;
   }
 
 }

@@ -27,6 +27,11 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
+      <groupId>com.opengamma</groupId>
+      <artifactId>og-utildb</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-core</artifactId>
     </dependency>

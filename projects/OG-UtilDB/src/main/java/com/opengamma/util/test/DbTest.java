@@ -72,7 +72,7 @@ public abstract class DbTest implements TableCreationCallback {
   protected DbTest(String databaseType, String targetVersion, String createVersion) {
     ArgumentChecker.notNull(databaseType, "databaseType");
     _databaseType = databaseType;
-    _dbtool = TestProperties.getDbTool(databaseType);
+    _dbtool = DbTestProperties.getDbTool(databaseType);
     _dbtool.setJdbcUrl(getDbTool().getTestDatabaseUrl());
     _targetVersion = targetVersion;
     _createVersion = createVersion;
@@ -140,10 +140,10 @@ public abstract class DbTest implements TableCreationCallback {
     if (databaseType == null) {
       databaseType = "all";
     }
-    Collection<String> databaseTypes = TestProperties.getDatabaseTypes(databaseType);
+    Collection<String> databaseTypes = DbTestProperties.getDatabaseTypes(databaseType);
     ArrayList<Object[]> parameters = new ArrayList<Object[]>();
     for (String dbType : databaseTypes) {
-      DbTool dbtool = TestProperties.getDbTool(dbType);
+      DbTool dbtool = DbTestProperties.getDbTool(dbType);
       dbtool.setJdbcUrl(dbtool.getTestDatabaseUrl());
       if (isScriptPublished()) {
         dbtool.addDbScriptDirectory(SCRIPT_INSTALL_DIR.getAbsolutePath());
@@ -169,7 +169,7 @@ public abstract class DbTest implements TableCreationCallback {
     if (databaseType == null) {
       databaseType = "all";
     }
-    Collection<String> databaseTypes = TestProperties.getDatabaseTypes(databaseType);
+    Collection<String> databaseTypes = DbTestProperties.getDatabaseTypes(databaseType);
     ArrayList<Object[]> parameters = new ArrayList<Object[]>();
     for (String dbType : databaseTypes) {
       parameters.add(new Object[]{dbType, "latest"});
@@ -181,7 +181,7 @@ public abstract class DbTest implements TableCreationCallback {
 
   public static Object[][] getParametersForDatabase(final String databaseType) {
     ArrayList<Object[]> parameters = new ArrayList<Object[]>();
-    for (String db : TestProperties.getDatabaseTypes(databaseType)) {
+    for (String db : DbTestProperties.getDatabaseTypes(databaseType)) {
       parameters.add(new Object[]{db, "latest"});
     }
     Object[][] array = new Object[parameters.size()][];

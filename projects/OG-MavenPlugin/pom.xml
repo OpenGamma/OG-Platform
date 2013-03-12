@@ -23,7 +23,7 @@
   <dependencies>
     <dependency>
       <groupId>com.opengamma</groupId>
-      <artifactId>og-util</artifactId>
+      <artifactId>og-utildb</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

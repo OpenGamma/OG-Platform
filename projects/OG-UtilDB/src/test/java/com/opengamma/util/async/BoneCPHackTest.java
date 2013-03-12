@@ -18,6 +18,7 @@ import org.testng.annotations.Test;
 
 import com.jolbox.bonecp.BoneCP;
 import com.jolbox.bonecp.BoneCPConfig;
+import com.opengamma.util.db.pool.BoneCPHack;
 import com.opengamma.util.test.Timeout;
 
 /**
