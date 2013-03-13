@@ -66,7 +66,7 @@ public class CashStrip extends CurveStrip {
   }
 
   @Override
-  protected Tenor getResolvedMaturity() {
+  public Tenor getResolvedMaturity() {
     return _maturityTenor;
   }
 

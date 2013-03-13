@@ -67,7 +67,7 @@ public class SwapStrip extends CurveStrip {
   }
 
   @Override
-  protected Tenor getResolvedMaturity() {
+  public Tenor getResolvedMaturity() {
     return _maturityTenor;
   }
 
