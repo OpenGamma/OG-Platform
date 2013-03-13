@@ -14,7 +14,10 @@ import org.springframework.beans.factory.InitializingBean;
 import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
-import com.opengamma.financial.analytics.model.credit.standard.StandardVanillaCS01CDSFunction;
+import com.opengamma.financial.analytics.model.credit.standard.StandardVanillaBucketedCS01CDSFunction;
+import com.opengamma.financial.analytics.model.credit.standard.StandardVanillaDV01CDSFunction;
+import com.opengamma.financial.analytics.model.credit.standard.StandardVanillaParallelCS01CDSFunction;
+import com.opengamma.financial.analytics.model.credit.standard.StandardVanillaParallelGammaCDSFunction;
 import com.opengamma.financial.property.DefaultPropertyFunction.PriorityClass;
 import com.opengamma.util.ArgumentChecker;
 
@@ -176,7 +179,11 @@ public class CreditFunctions extends AbstractRepositoryConfigurationBean {
     functions.add(functionConfiguration(ISDAYieldCurveFunction.class));
     functions.add(functionConfiguration(BucketedSpreadCurveFunction.class));
     functions.add(functionConfiguration(ISDABucketedCS01VanillaCDSFunction.class));
-    functions.add(functionConfiguration(StandardVanillaCS01CDSFunction.class));
+    functions.add(functionConfiguration(StandardVanillaParallelCS01CDSFunction.class));
+    functions.add(functionConfiguration(StandardVanillaBucketedCS01CDSFunction.class));
+    functions.add(functionConfiguration(StandardVanillaParallelGammaCDSFunction.class));
+    functions.add(functionConfiguration(StandardVanillaBucketedCS01CDSFunction.class));
+    functions.add(functionConfiguration(StandardVanillaDV01CDSFunction.class));
   }
 
 }

@@ -34,7 +34,7 @@ public class RecRate01CreditDefaultSwap {
   // TODO : Lots of ongoing work to do in this class - Work In Progress
 
   // TODO : Further checks on efficacy of input arguments
-  // TODO : Need to consider more sophisticated sensitivity calculations e.g. algorithmic differentiation 
+  // TODO : Need to consider more sophisticated sensitivity calculations e.g. algorithmic differentiation
 
   // NOTE : The recovery rate is computed according to the following procedure
   // NOTE : 1. Calibrate the hazard rate term structure to the market input data
@@ -54,7 +54,7 @@ public class RecRate01CreditDefaultSwap {
   public double getRecoveryRate01CreditDefaultSwap(
       final ZonedDateTime valuationDate,
       final LegacyVanillaCreditDefaultSwapDefinition cds,
-      final ISDADateCurve/*ISDACurve*/yieldCurve,
+      final ISDADateCurve yieldCurve,
       final ZonedDateTime[] marketTenors,
       final double[] marketSpreads,
       final double recoveryRateBump,
@@ -85,7 +85,7 @@ public class RecRate01CreditDefaultSwap {
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Compute the bumped recovery rate
-    double bumpedRecoveryRate = getBumpedRecoveryRate(cds, recoveryRateBump, recoveryRateBumpType);
+    final double bumpedRecoveryRate = getBumpedRecoveryRate(cds, recoveryRateBump, recoveryRateBumpType);
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -102,7 +102,7 @@ public class RecRate01CreditDefaultSwap {
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Create a new CDS identical to the input CDS except for the recovery rate
-    LegacyVanillaCreditDefaultSwapDefinition bumpedCDS = cds.withRecoveryRate(bumpedRecoveryRate);
+    final LegacyVanillaCreditDefaultSwapDefinition bumpedCDS = cds.withRecoveryRate(bumpedRecoveryRate);
 
     // Create a CDS PV calculator
     final PresentValueLegacyCreditDefaultSwap creditDefaultSwap = new PresentValueLegacyCreditDefaultSwap();

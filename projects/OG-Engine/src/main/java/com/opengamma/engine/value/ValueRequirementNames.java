@@ -314,6 +314,16 @@ public final class ValueRequirementNames {
   public static final String BUCKETED_CS01 = "Bucketed CS01";
 
   /**
+   * The second-order change in the value of an instrument if the credit curve is moved by 1 basis point.
+   */
+  public static final String GAMMA_CS01 = "Gamma CS01";
+  
+  /** 
+   * The bucketed second-order changes in the value of an instrument if the credit curve is moved by 1 basis point. 
+   */
+  public static final String BUCKETED_GAMMA_CS01 = "Bucketed Gamma CS01";
+  
+  /**
    * The bucketed (CS01) spreads for a credit default swap.
    */
   public static final String BUCKETED_SPREADS = "Bucketed Spreads";

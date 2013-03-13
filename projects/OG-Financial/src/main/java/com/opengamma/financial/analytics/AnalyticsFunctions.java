@@ -107,7 +107,6 @@ public class AnalyticsFunctions extends AbstractRepositoryConfigurationBean {
     addSummingFunction(functions, ValueRequirementNames.CREDIT_SENSITIVITIES);
     addUnitScalingFunction(functions, ValueRequirementNames.CLEAN_PRICE);
     addUnitScalingFunction(functions, ValueRequirementNames.CONVEXITY);
-    addSummingFunction(functions, ValueRequirementNames.CS01);
     addLastHistoricalValueFunction(functions, ValueRequirementNames.DAILY_APPLIED_BETA);
     addLastHistoricalValueFunction(functions, ValueRequirementNames.DAILY_MARKET_CAP);
     addLastHistoricalValueFunction(functions, ValueRequirementNames.DAILY_PRICE);
@@ -246,7 +245,14 @@ public class AnalyticsFunctions extends AbstractRepositoryConfigurationBean {
     addUnitScalingFunction(functions, ValueRequirementNames.ZOMMA);
     addUnitScalingFunction(functions, ValueRequirementNames.ZOMMA_P);
     addUnitScalingFunction(functions, ValueRequirementNames.BARRIER_DISTANCE);
+    addSummingFunction(functions, ValueRequirementNames.CS01);
+    addSummingFunction(functions, ValueRequirementNames.BUCKETED_CS01);
+    addSummingFunction(functions, ValueRequirementNames.GAMMA_CS01);
+    addSummingFunction(functions, ValueRequirementNames.BUCKETED_GAMMA_CS01);
+    addUnitScalingFunction(functions, ValueRequirementNames.CS01);
     addUnitScalingFunction(functions, ValueRequirementNames.BUCKETED_CS01);
+    addUnitScalingFunction(functions, ValueRequirementNames.GAMMA_CS01);
+    addUnitScalingFunction(functions, ValueRequirementNames.BUCKETED_GAMMA_CS01);
     addScalingFunction(functions, ValueRequirementNames.MONETIZED_VEGA);
     addSummingFunction(functions, ValueRequirementNames.MONETIZED_VEGA);
   }
