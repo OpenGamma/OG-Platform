@@ -64,7 +64,7 @@ public class WebPortfolioNodeResource extends AbstractWebPortfolioResource {
       return Response.status(Status.NOT_FOUND).build();
     }
     
-    String s = getFreemarker().build(JSON_DIR + "jsonportfolionode.ftl", out);
+    String s = getFreemarker().build(JSON_DIR + "portfolionode.ftl", out);
     return Response.ok(s).build();
   }
 
