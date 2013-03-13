@@ -113,6 +113,7 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
     addResolver(ComputationTargetType.CURRENCY);
     addResolver(ComputationTargetType.PRIMITIVE);
     addResolver(ComputationTargetType.UNORDERED_CURRENCY_PAIR);
+    addResolver(ComputationTargetType.CREDIT_CURVE_IDENTIFIER);
     _lazyResolveContext = new LazyResolveContext(securitySource, null);
   }
 
@@ -204,69 +205,69 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
   private static final ComputationTargetTypeVisitor<ComputationTargetTypeMap<ComputationTargetType>, ComputationTargetType> s_simplifyType =
       new ComputationTargetTypeVisitor<ComputationTargetTypeMap<ComputationTargetType>, ComputationTargetType>() {
 
-        @Override
-        public ComputationTargetType visitMultipleComputationTargetTypes(final Set<ComputationTargetType> types, final ComputationTargetTypeMap<ComputationTargetType> data) {
-          ComputationTargetType result = null;
-          boolean changed = false;
-          for (final ComputationTargetType type : types) {
-            final ComputationTargetType newType = type.accept(this, data);
-            if ((newType != null) && (newType != type)) {
-              if (result == null) {
-                result = newType;
-              } else {
-                result = result.or(newType);
-              }
-              changed = true;
-            } else {
-              if (result == null) {
-                result = type;
-              } else {
-                result = result.or(type);
-              }
-            }
+    @Override
+    public ComputationTargetType visitMultipleComputationTargetTypes(final Set<ComputationTargetType> types, final ComputationTargetTypeMap<ComputationTargetType> data) {
+      ComputationTargetType result = null;
+      boolean changed = false;
+      for (final ComputationTargetType type : types) {
+        final ComputationTargetType newType = type.accept(this, data);
+        if ((newType != null) && (newType != type)) {
+          if (result == null) {
+            result = newType;
+          } else {
+            result = result.or(newType);
           }
-          return changed ? result : null;
-        }
-
-        @Override
-        public ComputationTargetType visitNestedComputationTargetTypes(final List<ComputationTargetType> types, final ComputationTargetTypeMap<ComputationTargetType> data) {
-          final int length = types.size();
-          for (int i = 0; i < length; i++) {
-            ComputationTargetType type = types.get(i);
-            ComputationTargetType newType = type.accept(this, data);
-            if ((newType != null) && (newType != type)) {
-              ComputationTargetType result;
-              if (i > 0) {
-                result = types.get(0);
-                for (int j = 1; j < i; j++) {
-                  result = result.containing(types.get(j));
-                }
-                result = result.containing(newType);
-              } else {
-                result = newType;
-              }
-              for (int j = i + 1; j < length; j++) {
-                type = types.get(j);
-                newType = type.accept(this, data);
-                result = result.containing((newType == null) ? type : newType);
-              }
-              return result;
-            }
+          changed = true;
+        } else {
+          if (result == null) {
+            result = type;
+          } else {
+            result = result.or(type);
           }
-          return null;
         }
+      }
+      return changed ? result : null;
+    }
 
-        @Override
-        public ComputationTargetType visitNullComputationTargetType(final ComputationTargetTypeMap<ComputationTargetType> data) {
-          return null;
+    @Override
+    public ComputationTargetType visitNestedComputationTargetTypes(final List<ComputationTargetType> types, final ComputationTargetTypeMap<ComputationTargetType> data) {
+      final int length = types.size();
+      for (int i = 0; i < length; i++) {
+        ComputationTargetType type = types.get(i);
+        ComputationTargetType newType = type.accept(this, data);
+        if ((newType != null) && (newType != type)) {
+          ComputationTargetType result;
+          if (i > 0) {
+            result = types.get(0);
+            for (int j = 1; j < i; j++) {
+              result = result.containing(types.get(j));
+            }
+            result = result.containing(newType);
+          } else {
+            result = newType;
+          }
+          for (int j = i + 1; j < length; j++) {
+            type = types.get(j);
+            newType = type.accept(this, data);
+            result = result.containing((newType == null) ? type : newType);
+          }
+          return result;
         }
+      }
+      return null;
+    }
 
-        @Override
-        public ComputationTargetType visitClassComputationTargetType(final Class<? extends UniqueIdentifiable> type, final ComputationTargetTypeMap<ComputationTargetType> data) {
-          return data.get(type);
-        }
+    @Override
+    public ComputationTargetType visitNullComputationTargetType(final ComputationTargetTypeMap<ComputationTargetType> data) {
+      return null;
+    }
 
-      };
+    @Override
+    public ComputationTargetType visitClassComputationTargetType(final Class<? extends UniqueIdentifiable> type, final ComputationTargetTypeMap<ComputationTargetType> data) {
+      return data.get(type);
+    }
+
+  };
 
   @Override
   public ComputationTargetType simplifyType(final ComputationTargetType type) {

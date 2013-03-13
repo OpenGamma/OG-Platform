@@ -15,6 +15,7 @@ import com.opengamma.core.position.PositionOrTrade;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.fudgemsg.ComputationTargetTypeFudgeBuilder;
+import com.opengamma.engine.target.resolver.CreditCurveIdentifierResolver;
 import com.opengamma.engine.target.resolver.CurrencyResolver;
 import com.opengamma.engine.target.resolver.ObjectResolver;
 import com.opengamma.engine.target.resolver.PrimitiveResolver;
@@ -23,6 +24,7 @@ import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
 import com.opengamma.util.WeakInstanceCache;
+import com.opengamma.util.credit.CreditCurveIdentifier;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 
@@ -75,6 +77,12 @@ public abstract class ComputationTargetType implements Serializable {
    */
   public static final PrimitiveComputationTargetType<UnorderedCurrencyPair> UNORDERED_CURRENCY_PAIR = defaultPrimitive(UnorderedCurrencyPair.class, "UNORDERED_CURRENCY_PAIR",
       new UnorderedCurrencyPairResolver());
+
+  /**
+   * A credit curve identifier.
+   */
+  public static final PrimitiveComputationTargetType<CreditCurveIdentifier> CREDIT_CURVE_IDENTIFIER = defaultPrimitive(CreditCurveIdentifier.class, "CREDIT_CURVE_IDENTIFIER",
+      new CreditCurveIdentifierResolver());
 
   /**
    * A wildcard type. This may be used when declaring the target type of a function. It should not be used as part of a target reference as the lack of specific type details will prevent a resolver
