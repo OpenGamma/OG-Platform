@@ -22,10 +22,10 @@ $.register_module({
             });
         };
         return url = {
-            add: function (container, params, silent) {
+            add: function (container, params) {
                 var new_params = $.extend({}, last);
-                new_params[container] = (last[container] || []).concat(params);
-                return (!silent && go(new_params)), url;
+                new_params[container] = (new_params[container] || []).concat(params);
+                return go(new_params), url;
             },
             clear_main: function () {
                 if (og.analytics.grid) og.analytics.grid.kill();
@@ -42,6 +42,14 @@ $.register_module({
                 url.clear_main();
                 $(main_selector).html('requesting...');
                 return go($.extend({}, last, {main: params})), url;
+            },
+            move: function (from, to) {
+                var new_params = $.extend({}, last);
+                new_params[to.panel] = (new_params[to.panel] || []).concat(to.params);
+                if (new_params[from.panel] && new_params[from.panel].length)
+                    new_params[from.panel].splice(from.index, 1);
+                if (!new_params[from.panel].length) delete new_params[from.panel];
+                return go(new_params), url;
             },
             process: function (args, handler) {
                 $.when(args.data ? og.api.rest.compressor.get({content: args.data, dependencies: ['data']}) : void 0)
@@ -70,7 +78,7 @@ $.register_module({
                         if (!last[panel]) last[panel] = [];
                         last[panel] = gadgets.map(function (gadget, index) {
                             if (Object.equals(gadget, last[panel][index])) return gadget;
-                            new_gadgets.push(gadget);
+                            new_gadgets.push($.extend({}, gadget));
                             if (typeof new_gadgets.add_index === 'undefined') new_gadgets.add_index = index;
                             return gadget;
                         });
@@ -84,11 +92,11 @@ $.register_module({
                 });
                 return url;
             },
-            remove: function (container, index, silent) {
+            remove: function (container, index) {
                 if (!last[container] || !last[container].length) return;
                 last[container].splice(index, 1);
                 if (!last[container].length) delete last[container];
-                return (!silent && go()), url;
+                return go(), url;
             },
             swap: function (container, params, index) {
                 return (last[container][index] = params), go(), url;
