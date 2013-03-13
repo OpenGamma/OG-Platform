@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.marketdata;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -40,30 +41,47 @@ public class CombinedMarketDataProvider extends AbstractMarketDataProvider {
   private final MarketDataProvider _preferred;
   private final MarketDataProvider _fallBack;
 
-  private final MarketDataListener _listener = new MarketDataListener() {
-
+  private final class Listener implements MarketDataListener {
+    
+    private final String _provider;
+    
+    public Listener (final String provider) {
+      _provider = provider;
+    }
+    
+    private ValueSpecification createValueSpecification (final ValueSpecification specification) {
+      return CombinedMarketDataProvider.this.createValueSpecification (specification, _provider);
+    }
+    
+    private Collection<ValueSpecification> createValueSpecifications (final Collection<ValueSpecification> specifications) {
+      return CombinedMarketDataProvider.this.createValueSpecifications (specifications, _provider);
+    }
+    
     @Override
     public void subscriptionSucceeded(final ValueSpecification specification) {
-      CombinedMarketDataProvider.this.subscriptionSucceeded(specification);
+      CombinedMarketDataProvider.this.subscriptionSucceeded (createValueSpecification(specification));
     }
 
     @Override
     public void subscriptionFailed(final ValueSpecification specification, final String msg) {
-      CombinedMarketDataProvider.this.subscriptionFailed(specification, msg);
+      CombinedMarketDataProvider.this.subscriptionFailed(createValueSpecification(specification), msg);
     }
 
     @Override
     public void subscriptionStopped(final ValueSpecification specification) {
-      CombinedMarketDataProvider.this.subscriptionStopped(specification);
+      CombinedMarketDataProvider.this.subscriptionStopped(createValueSpecification(specification));
     }
 
     @Override
     public void valuesChanged(final Collection<ValueSpecification> specifications) {
-      CombinedMarketDataProvider.this.valuesChanged(specifications);
+      CombinedMarketDataProvider.this.valuesChanged(createValueSpecifications(specifications));
     }
 
   };
 
+  private final Listener _preferredListener = new Listener (PREFERRED_PROVIDER);
+  private final Listener _fallbackListener = new Listener (FALLBACK_PROVIDER);
+  
   private boolean _listenerAttached;
 
   public CombinedMarketDataProvider(final MarketDataProvider preferred, final MarketDataProvider fallBack) {
@@ -85,15 +103,15 @@ public class CombinedMarketDataProvider extends AbstractMarketDataProvider {
 
   private void checkListenerAttach() {
     //TODO: dedupe with CombinedMarketDataProvider
-    synchronized (_listener) {
+    synchronized (_preferredListener) {
       final boolean anyListeners = getListeners().size() > 0;
       if (anyListeners && !_listenerAttached) {
-        _preferred.addListener(_listener);
-        _fallBack.addListener(_listener);
+        _preferred.addListener (_preferredListener);
+        _fallBack.addListener (_fallbackListener);
         _listenerAttached = true;
       } else if (!anyListeners && _listenerAttached) {
-        _preferred.removeListener(_listener);
-        _fallBack.removeListener(_listener);
+        _preferred.removeListener (_preferredListener);
+        _fallBack.removeListener (_fallbackListener);
         _listenerAttached = false;
       }
     }
@@ -108,6 +126,14 @@ public class CombinedMarketDataProvider extends AbstractMarketDataProvider {
       properties.with(ValuePropertyNames.DATA_PROVIDER, provider);
     }
     return new ValueSpecification(underlying.getValueName(), underlying.getTargetSpecification(), properties.get());
+  }
+  
+  private Collection<ValueSpecification> createValueSpecifications (final Collection<ValueSpecification> underlyings, final String provider) {
+    final Collection<ValueSpecification> result = new ArrayList<ValueSpecification> (underlyings.size());
+    for (ValueSpecification underlying : underlyings) {
+      result.add (createValueSpecification (underlying, provider));
+    }
+    return result;
   }
 
   /**
@@ -267,6 +293,27 @@ public class CombinedMarketDataProvider extends AbstractMarketDataProvider {
         result.put(provider, set);
       }
       set.add(new ValueSpecification(specification.getValueName(), specification.getTargetSpecification(), underlyingProperties.get()));
+    }
+    return result;
+  }
+  
+  /**
+   * Returns the specifications per provider.
+   * 
+   * @param specifications the specification to convert
+   * @return the map of provider to specification. The specifications returned a
+   */
+  protected Map<MarketDataProvider, Map<ValueSpecification, ValueSpecification>> getProvidersAsMap(final Collection<ValueSpecification> specifications) {
+    final Map<MarketDataProvider, Map<ValueSpecification, ValueSpecification>> result = new HashMap<MarketDataProvider, Map<ValueSpecification, ValueSpecification>>();
+    for (final ValueSpecification specification : specifications) {
+      final ValueProperties.Builder underlyingProperties = specification.getProperties().copy();
+      final MarketDataProvider provider = getDataProvider(specification, underlyingProperties);
+      Map<ValueSpecification, ValueSpecification> map = result.get(provider);
+      if (map == null) {
+        map = new HashMap<ValueSpecification, ValueSpecification>();
+        result.put(provider, map);
+      }
+      map.put(new ValueSpecification(specification.getValueName(), specification.getTargetSpecification(), underlyingProperties.get()), specification);
     }
     return result;
   }

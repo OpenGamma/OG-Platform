@@ -93,10 +93,11 @@ public class CombinedMarketDataSnapshot extends AbstractMarketDataSnapshot {
   @Override
   public Map<ValueSpecification, Object> query(final Set<ValueSpecification> values) {
     final Map<ValueSpecification, Object> result = Maps.newHashMapWithExpectedSize(values.size());
-    final Map<MarketDataProvider, Set<ValueSpecification>> groupByProvider = _combinedMarketDataProvider.getProviders(values);
-    for (final Entry<MarketDataProvider, Set<ValueSpecification>> entry : groupByProvider.entrySet()) {
-      final Map<ValueSpecification, Object> innerResult = _snapshotByProvider.get(entry.getKey()).query(entry.getValue());
-      result.putAll(innerResult);
+    final Map<MarketDataProvider, Map<ValueSpecification, ValueSpecification>> groupByProvider = _combinedMarketDataProvider.getProvidersAsMap(values);
+    for (final Entry<MarketDataProvider, Map<ValueSpecification, ValueSpecification>> entry : groupByProvider.entrySet()) {
+      for (Map.Entry<ValueSpecification, Object> innerResult : _snapshotByProvider.get(entry.getKey()).query(entry.getValue().keySet()).entrySet()) {
+        result.put(entry.getValue().get(innerResult.getKey()), innerResult.getValue());
+      }
     }
     return result;
   }
