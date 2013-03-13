@@ -306,9 +306,9 @@ $.register_module({
                 og.api.rest.marketdatasnapshots.get({})
             ).pipe(function (live, historical, snapshot) {
                 if (live.data.length) types.push({type: 'Live', source: live.data[0]});
-                if (historical.data.data.length)
+                if (historical.data.length && historical.data.data.length)
                     types.push({type: 'Historical', source: historical.data.data[0].split('|')[1]});
-                if (snapshot.data[0].snapshots.length)
+                if (snapshot.data.length && snapshot.data[0].snapshots.length)
                     types.push({type: 'Snapshot', source: snapshot.data[0].snapshots[0].id});
                 default_source = $.extend({}, sources[types[0].type.toLowerCase()]);
                 default_source.source = types[0].source;
