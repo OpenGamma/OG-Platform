@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
@@ -42,6 +43,10 @@ import com.opengamma.financial.analytics.model.FutureOptionExpiries;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
 import com.opengamma.financial.analytics.model.equity.EquitySecurityUtils;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdentifiable;
+import com.opengamma.id.ExternalScheme;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -50,6 +55,8 @@ import com.opengamma.util.tuple.Pair;
 public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction.NonCompiledInvoker {
   /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(EquityOptionVolatilitySurfaceDataFunction.class);
+
+  private static final Set<ExternalScheme> s_validSchemes = ImmutableSet.of(ExternalSchemes.BLOOMBERG_TICKER, ExternalSchemes.BLOOMBERG_TICKER_WEAK, ExternalSchemes.ACTIVFEED_TICKER);
 
   @Override
   /**
@@ -108,10 +115,11 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction.
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    final String targetScheme = target.getUniqueId().getScheme();
-    return targetScheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER.getName()) ||
-        targetScheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName()) ||
-        targetScheme.equalsIgnoreCase(ExternalSchemes.ACTIVFEED_TICKER.getName());
+    if (target.getValue() instanceof ExternalIdentifiable) {
+      final ExternalId identifier = ((ExternalIdentifiable) target.getValue()).getExternalId();
+      return s_validSchemes.contains(identifier.getScheme());
+    }
+    return false;
   }
 
   @Override
@@ -139,7 +147,8 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction.
       return null;
     }
     final String givenName = Iterables.getOnlyElement(surfaceNames);
-    final String fullName = givenName + "_" + EquitySecurityUtils.getTrimmedTarget(target.getUniqueId());
+    //FIXME: Modify to take ExternalId to avoid incorrect cast to UniqueId
+    final String fullName = givenName + "_" + EquitySecurityUtils.getTrimmedTarget(UniqueId.parse(target.getValue().toString()));
 
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
     final ConfigDBVolatilitySurfaceSpecificationSource volSpecSource = new ConfigDBVolatilitySurfaceSpecificationSource(configSource);

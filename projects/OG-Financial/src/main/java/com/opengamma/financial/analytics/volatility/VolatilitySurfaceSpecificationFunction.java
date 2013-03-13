@@ -33,6 +33,7 @@ import com.opengamma.financial.analytics.model.equity.EquitySecurityUtils;
 import com.opengamma.financial.analytics.volatility.surface.ConfigDBVolatilitySurfaceSpecificationSource;
 import com.opengamma.financial.analytics.volatility.surface.SurfaceAndCubePropertyNames;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceSpecification;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 
 /**
@@ -68,7 +69,7 @@ public class VolatilitySurfaceSpecificationFunction extends AbstractFunction {
             }
           }
         } else if (instrumentType.equals(InstrumentTypeProperties.EQUITY_OPTION) || instrumentType.equals(InstrumentTypeProperties.EQUITY_FUTURE_OPTION)) {
-          final String fullSpecificationName = surfaceName + "_" + EquitySecurityUtils.getTrimmedTarget(target.getUniqueId()); //EquitySecurityUtils.getIndexOrEquityName(target.getUniqueId());
+          final String fullSpecificationName = surfaceName + "_" + EquitySecurityUtils.getIndexOrEquityName(UniqueId.parse(target.getValue().toString()));
           specification = source.getSpecification(fullSpecificationName, instrumentType);
           if (specification == null) {
             throw new OpenGammaRuntimeException("Could not get volatility surface specification named " + fullSpecificationName + " for instrument type " + instrumentType);

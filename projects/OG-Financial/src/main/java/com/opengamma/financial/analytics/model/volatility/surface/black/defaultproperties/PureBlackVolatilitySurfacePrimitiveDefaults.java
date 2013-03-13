@@ -22,7 +22,8 @@ public class PureBlackVolatilitySurfacePrimitiveDefaults extends PureBlackVolati
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    final UniqueId uniqueId = target.getUniqueId();
+    final UniqueId uniqueId = UniqueId.parse(target.getValue().toString());
+    //FIXME: Modify to take ExternalId to avoid incorrect cast to UniqueId
     final String ticker = EquitySecurityUtils.getIndexOrEquityName(uniqueId);
     if (getAllTickers().contains(ticker)) {
       return true;
