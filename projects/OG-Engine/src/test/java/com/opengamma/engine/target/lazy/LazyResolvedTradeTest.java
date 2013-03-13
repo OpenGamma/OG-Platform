@@ -32,7 +32,7 @@ import com.opengamma.util.ehcache.EHCacheUtils;
 /**
  * Tests the {@link LazyResolvedTrade} class
  */
-@Test(groups = {"unit", "ehcache"})
+@Test(groups = {"unit", "ehcache" })
 public class LazyResolvedTradeTest {
 
   private CacheManager _cacheManager;

@@ -58,7 +58,7 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ehcache.EHCacheUtils;
 
-@Test(groups = {"unit", "ehcache"})
+@Test(groups = {"unit", "ehcache" })
 public class ViewDefinitionCompilerTest {
 
   private CacheManager _cacheManager;

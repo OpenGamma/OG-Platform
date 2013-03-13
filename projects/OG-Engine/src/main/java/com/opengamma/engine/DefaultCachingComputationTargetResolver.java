@@ -77,7 +77,7 @@ public class DefaultCachingComputationTargetResolver extends DelegatingComputati
 
   /**
    * Creates an instance using the specified cache manager.
-   *
+   * 
    * @param underlying the underlying resolver, not null
    * @param cacheManager the cache manager, not null
    */
@@ -97,6 +97,9 @@ public class DefaultCachingComputationTargetResolver extends DelegatingComputati
     }
   }
 
+  /**
+   * Empties the cache. This is provided for test/diagnostics only and should not be called in a production system.
+   */
   public void clear() {
     _frontObjectCache.clear();
     _frontTargetCache.clear();
@@ -109,7 +112,7 @@ public class DefaultCachingComputationTargetResolver extends DelegatingComputati
 
   /**
    * Gets the cache manager.
-   *
+   * 
    * @return the cache manager, not null
    */
   protected CacheManager getCacheManager() {
@@ -292,7 +295,7 @@ public class DefaultCachingComputationTargetResolver extends DelegatingComputati
 
   /**
    * Returns a string suitable for debugging.
-   *
+   * 
    * @return the string, not null
    */
   @Override
