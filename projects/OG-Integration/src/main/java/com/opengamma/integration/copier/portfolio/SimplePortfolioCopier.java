@@ -5,6 +5,8 @@
  */
 package com.opengamma.integration.copier.portfolio;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 import com.opengamma.integration.copier.portfolio.reader.PortfolioReader;
@@ -18,6 +20,8 @@ import com.opengamma.util.tuple.ObjectsPair;
  * A simple portfolio copier that copies positions from readers to the specified writer.
  */
 public class SimplePortfolioCopier implements PortfolioCopier {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(PortfolioCopier.class);
 
   private boolean _flatten;
 
@@ -41,9 +45,21 @@ public class SimplePortfolioCopier implements PortfolioCopier {
     
     ObjectsPair<ManageablePosition, ManageableSecurity[]> next;
 
-    // Read in next row, checking for EOF
-    while ((next = portfolioReader.readNext()) != null) {
-      
+    while (true) {
+
+      // Read in next row, checking for errors and EOF
+      try {
+        next = portfolioReader.readNext();
+      } catch (Exception e) {
+        // skip to next row on uncaught exception while parsing row
+        s_logger.error("Unable to parse row: " + e.getMessage());
+        continue;
+      }
+      if (next == null) {
+        // stop loading on EOF
+        break;
+      }
+
       // Is position and security data is available for the current row?
       if (next.getFirst() != null && next.getSecond() != null) {
         
