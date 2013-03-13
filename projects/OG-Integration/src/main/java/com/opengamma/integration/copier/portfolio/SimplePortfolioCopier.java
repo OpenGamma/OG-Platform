@@ -23,14 +23,16 @@ public class SimplePortfolioCopier implements PortfolioCopier {
 
   private static final Logger s_logger = LoggerFactory.getLogger(PortfolioCopier.class);
 
-  private boolean _flatten;
+  private String[] _structure;
 
   public SimplePortfolioCopier() {
-    _flatten = false;
+    _structure = null;
   }
 
-  public SimplePortfolioCopier(boolean flatten) {
-    _flatten = flatten;
+
+  public SimplePortfolioCopier(String[] structure) {
+    ArgumentChecker.notNull(structure, "structure");
+    _structure = structure;
   }
 
   @Override
@@ -61,25 +63,37 @@ public class SimplePortfolioCopier implements PortfolioCopier {
       }
 
       // Is position and security data is available for the current row?
-      if (next.getFirst() != null && next.getSecond() != null) {
-        
+      ManageablePosition position = next.getFirst();
+      ManageableSecurity[] securities = next.getSecond();
+
+      // Is position and security data available for the current row?
+      if (position != null && securities != null) {
+
         // Set current path
-        String[] path = _flatten ? new String[0] : portfolioReader.getCurrentPath();
+        String[] path;
+        if (_structure == null) {
+          path = portfolioReader.getCurrentPath();
+        } else {
+          path = new String[_structure.length];
+          for (int i = 0; i < _structure.length; i++) {
+            path[i] = position.getAttributes().get(_structure[i]);
+          }
+        }
         portfolioWriter.setPath(path);
-        
+
         // Write position and security data
         ObjectsPair<ManageablePosition, ManageableSecurity[]> written = 
-            portfolioWriter.writePosition(next.getFirst(), next.getSecond());
+            portfolioWriter.writePosition(position, securities);
         
         if (visitor != null && written != null) {
           visitor.info(StringUtils.arrayToDelimitedString(path, "/"), written.getFirst(), written.getSecond());
         }
       } else {
         if (visitor != null) {
-          if (next.getFirst() == null) {
+          if (position == null) {
             visitor.error("Could not load position");
           }
-          if (next.getSecond() == null) {
+          if (securities == null) {
             visitor.error("Could not load security(ies)");
           }
         }
