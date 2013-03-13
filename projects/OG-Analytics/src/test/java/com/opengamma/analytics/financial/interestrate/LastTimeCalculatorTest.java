@@ -6,7 +6,6 @@
 package com.opengamma.analytics.financial.interestrate;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.Period;
@@ -78,7 +77,8 @@ public class LastTimeCalculatorTest {
     final double fixingPeriodAccrualFactor = 0.267;
     final double paymentAccrualFactor = 0.25;
     final double refrencePrice = 0.0;
-    final InterestRateFutureTransaction ir = new InterestRateFutureTransaction(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor, refrencePrice, 1, paymentAccrualFactor, 1,
+    final InterestRateFutureTransaction ir = new InterestRateFutureTransaction(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor, refrencePrice, 1,
+        paymentAccrualFactor, 1,
         "S", "Funding", "Forward");
     assertEquals(fixingPeriodEndTime, ir.accept(LDC), 1e-12);
   }
