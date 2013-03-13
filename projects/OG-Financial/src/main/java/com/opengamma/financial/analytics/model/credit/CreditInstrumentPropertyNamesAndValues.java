@@ -27,6 +27,9 @@ public class CreditInstrumentPropertyNamesAndValues {
   /** Property name for the range multiplier to use when fitting the hazard rate curve */
   public static final String PROPERTY_HAZARD_RATE_CURVE_RANGE_MULTIPLIER = "HazardRateCurveRangeMultiplier";
 
+  /** Property name for the spread curve */
+  public static final String PROPERTY_SPREAD_CURVE = "CreditSpreadCurve";
+
   /** Property name for number of integration points to use when valuing a CDS */
   public static final String PROPERTY_N_INTEGRATION_POINTS = "IntegrationPoints";
 }
