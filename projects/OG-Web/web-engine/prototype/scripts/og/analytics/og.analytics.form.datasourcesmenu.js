@@ -321,8 +321,8 @@ $.register_module({
                         data.providers = serialize();
                     }
                 });
+                og.common.events.fire('analytics:form:blockinitialized', block);
                 form.on('form:load', init);
-                form.dom();
             });
 
         };

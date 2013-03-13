@@ -139,7 +139,7 @@ $.register_module({
                     data.aggregators = serialize();
                 }
             });
-
+            og.common.events.fire('analytics:form:blockinitialized', block);
             form.on('form:load', init);
         };
 
