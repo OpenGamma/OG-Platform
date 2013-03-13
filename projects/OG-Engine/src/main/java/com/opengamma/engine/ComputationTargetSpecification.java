@@ -20,6 +20,7 @@ import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
+import com.opengamma.util.credit.CreditCurveIdentifier;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -121,6 +122,17 @@ public final class ComputationTargetSpecification extends ComputationTargetRefer
   }
 
   /**
+   * Creates a specification that describes a credit curve identifier. A credit curve identifier may be used as an arbitrary parameter to a function,
+   * for example one that provides spread curve definitions or other meta data that is keyed by id.
+   * 
+   * @param creditCurveIdentifier the credit curve identifier described, not null
+   * @return the target specification, not null
+   */
+  public static ComputationTargetSpecification of(final CreditCurveIdentifier creditCurveIdentifier) {
+    return ComputationTargetType.CREDIT_CURVE_IDENTIFIER.specification(creditCurveIdentifier);
+  }
+
+  /**
    * Creates a specification that describes an arbitrary target. The unique identifier is not resolved to a target but will be presented as an arbitrary parameter to a function.
    * 
    * @param uniqueId the identifier to hold, not null
@@ -183,12 +195,12 @@ public final class ComputationTargetSpecification extends ComputationTargetRefer
   @Override
   public String toString() {
     return new StrBuilder()
-        .append("CTSpec[")
-        .append(getType())
-        .append(", ")
-        .append(getUniqueId())
-        .append(']')
-        .toString();
+      .append("CTSpec[")
+      .append(getType())
+      .append(", ")
+      .append(getUniqueId())
+      .append(']')
+      .toString();
   }
 
   private Object readResolve() throws ObjectStreamException {
