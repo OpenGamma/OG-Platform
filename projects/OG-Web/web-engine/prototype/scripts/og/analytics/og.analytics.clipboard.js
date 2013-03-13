@@ -23,9 +23,10 @@ $.register_module({
                 if (!single) return value.v || '**2D MATRIX**';
                 var rows, cols, matrix;
                 value = value.v || value;
-                cols = [''].concat(value['xLabels']);
                 rows = value['yLabels'];
                 matrix = value.matrix;
+                cols = value['xLabels'].length === 1 + matrix[0].length ? value['xLabels']
+                    : [''].concat(value['xLabels']);
                 return cols.join(tab) + line + matrix
                     .map(function (row, idx) {return rows[idx] + tab + row.join(tab);}).join(line);
             },
