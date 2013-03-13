@@ -301,7 +301,7 @@ $.register_module({
                 });
             };
 
-            avail_types.forEach(function (entry, idx) {
+            avail_types.forEach(function (entry) {
                 sources[entry.toLowerCase()].datasource.split('.')
                 .reduce(function (api, key) { return api[key]; }, og.api.rest)
                 .get(sources[entry.toLowerCase()].api_opts)
@@ -309,7 +309,7 @@ $.register_module({
                     if (entry === 'Live' && resp.data.length) {
                         types.push({type: entry, source: resp.data[0]});
                     } else if (entry === 'Snapshot' && resp.data[0].snapshots.length) {
-                        types.push({type: entry, source: resp.data[0].snapshots[0]});
+                        types.push({type: entry, source: resp.data[0].snapshots[0].id});
                     } else if (entry === 'Historical') {
                         if (resp.data.data.length)
                             types.push({type: entry, source: resp.data.data[0].split('|')[1]});
