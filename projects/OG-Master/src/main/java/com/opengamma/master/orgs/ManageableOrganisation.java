@@ -11,6 +11,7 @@ import com.opengamma.core.obligor.CreditRatingMoodys;
 import com.opengamma.core.obligor.CreditRatingStandardAndPoors;
 import com.opengamma.core.obligor.Sector;
 import com.opengamma.core.obligor.definition.Obligor;
+import com.opengamma.core.organization.Organization;
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
@@ -36,7 +37,7 @@ import java.util.Map;
  */
 @PublicSPI
 @BeanDefinition
-public class ManageableOrganisation extends DirectBean implements MutableUniqueIdentifiable, UniqueIdentifiable {
+public class ManageableOrganisation extends DirectBean implements Organization, MutableUniqueIdentifiable, UniqueIdentifiable {
 
   /**
    * The organisation unique identifier.
@@ -47,7 +48,6 @@ public class ManageableOrganisation extends DirectBean implements MutableUniqueI
 
   @PropertyDefinition
   private Obligor _obligor;
-
 
   /**
    * Creates an empty organisation.
