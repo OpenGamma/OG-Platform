@@ -3,14 +3,13 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.credit;
+package com.opengamma.util.credit;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
@@ -53,7 +52,7 @@ public class CreditCurveIdentifierTest {
     assertEquals(id.hashCode(), other.hashCode());
     assertFalse(id.equals(null));
     assertFalse(id.equals(UnorderedCurrencyPair.of(Currency.AUD, Currency.CAD)));
-    other = CreditCurveIdentifier.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DEF"), CURRENCY, TERM, SENIORITY, RESTRUCTURING_CLAUSE);
+    other = CreditCurveIdentifier.of(ExternalId.of("Scheme", "DEF"), CURRENCY, TERM, SENIORITY, RESTRUCTURING_CLAUSE);
     assertFalse(other.equals(id));
     other = CreditCurveIdentifier.of(RED_CODE, CURRENCY, TERM, RESTRUCTURING_CLAUSE, RESTRUCTURING_CLAUSE);
     assertFalse(other.equals(id));
