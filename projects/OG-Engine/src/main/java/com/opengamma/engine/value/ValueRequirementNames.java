@@ -155,6 +155,10 @@ public final class ValueRequirementNames {
    */
   public static final String HAZARD_RATE_CURVE = "HazardRateCurve";
   /**
+   * Credit spread curves.
+   */
+  public static final String CREDIT_SPREAD_CURVE = "CreditSpreadCurve";
+  /**
    * The bundle of historical time series objects for instruments on a curve.
    */
   public static final String YIELD_CURVE_HISTORICAL_TIME_SERIES = "Yield Curve Historical Time Series";

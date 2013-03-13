@@ -5,33 +5,22 @@
  */
 package com.opengamma.financial.analytics.model.credit;
 
-import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_HAZARD_RATE_CURVE_N_ITERATIONS;
-import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_HAZARD_RATE_CURVE_RANGE_MULTIPLIER;
-import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_HAZARD_RATE_CURVE_TOLERANCE;
-import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_YIELD_CURVE;
-import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_YIELD_CURVE_CALCULATION_CONFIG;
-import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_YIELD_CURVE_CALCULATION_METHOD;
-
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Sets;
-import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.analytics.financial.credit.PriceType;
-import com.opengamma.analytics.financial.credit.calibratehazardratecurve.legacy.CalibrateHazardRateCurveLegacyCreditDefaultSwap;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
-import com.opengamma.core.holiday.HolidaySource;
-import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
-import com.opengamma.core.region.RegionSource;
+import com.opengamma.analytics.math.curve.NodalObjectsCurve;
+import com.opengamma.core.config.ConfigSource;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -45,29 +34,24 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.financial.analytics.conversion.CreditDefaultSwapSecurityConverter;
-import com.opengamma.financial.analytics.ircurve.FixedIncomeStripWithSecurity;
-import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
-import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
-import com.opengamma.financial.security.FinancialSecurityTypes;
-import com.opengamma.financial.security.FinancialSecurityUtils;
-import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
+import com.opengamma.financial.OpenGammaExecutionContext;
+import com.opengamma.financial.analytics.curve.ConfigDBCurveSpecificationBuilder;
+import com.opengamma.financial.analytics.curve.CurveDefinition;
+import com.opengamma.financial.analytics.curve.CurveSpecification;
+import com.opengamma.financial.analytics.curve.credit.ConfigDBCurveDefinitionSource;
+import com.opengamma.financial.analytics.curve.credit.CurveDefinitionSource;
+import com.opengamma.financial.analytics.curve.credit.CurveSpecificationBuilder;
+import com.opengamma.financial.analytics.ircurve.strips.CurveStripWithIdentifier;
 import com.opengamma.util.async.AsynchronousExecution;
-import com.opengamma.util.money.Currency;
+import com.opengamma.util.credit.CreditCurveIdentifier;
+import com.opengamma.util.time.Tenor;
 
 /**
  *
  */
-public class ISDALegacyCDSHazardCurveFunction extends AbstractFunction {
-  private CreditDefaultSwapSecurityConverter _converter;
-
-  @Override
-  public void init(final FunctionCompilationContext context) {
-    final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
-    final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
-    _converter = new CreditDefaultSwapSecurityConverter(holidaySource, regionSource);
-  }
-
+public class ISDACreditSpreadCurveFunction extends AbstractFunction {
+  private static final Logger s_logger = LoggerFactory.getLogger(ISDACreditSpreadCurveFunction.class);
+      
   @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext compilationContext, final Instant atInstant) {
     final ZonedDateTime atZDT = ZonedDateTime.ofInstant(atInstant, ZoneOffset.UTC);
@@ -77,69 +61,43 @@ public class ISDALegacyCDSHazardCurveFunction extends AbstractFunction {
       @Override
       public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
           final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
-        final Object yieldCurveObject = inputs.getValue(ValueRequirementNames.YIELD_CURVE);
-        if (yieldCurveObject == null) {
-          throw new OpenGammaRuntimeException("Could not get yield curve");
-        }
-        final Object yieldCurveSpecObject = inputs.getValue(ValueRequirementNames.YIELD_CURVE_SPEC);
-        if (yieldCurveSpecObject == null) {
-          throw new OpenGammaRuntimeException("Could not get yield curve specification");
-        }
-        final Object dataObject = inputs.getValue(ValueRequirementNames.YIELD_CURVE_MARKET_DATA);
-        if (dataObject == null) {
-          throw new OpenGammaRuntimeException("Could not get yield curve data");
-        }
-        final SnapshotDataBundle marketData = (SnapshotDataBundle) dataObject;
-        final InterpolatedYieldCurveSpecificationWithSecurities yieldCurveSpec = (InterpolatedYieldCurveSpecificationWithSecurities) yieldCurveSpecObject;
-        final ISDADateCurve yieldCurve = (ISDADateCurve) yieldCurveObject;
         final ZonedDateTime now = ZonedDateTime.now(executionContext.getValuationClock());
-        final LegacyVanillaCDSSecurity security = (LegacyVanillaCDSSecurity) target.getSecurity();
-        final LegacyVanillaCreditDefaultSwapDefinition cds = _converter.visitLegacyVanillaCDSSecurity(security);
+        final CreditCurveIdentifier creditCurveId = (CreditCurveIdentifier) target.getValue();
         final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
         final String curveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
-        final String nIterationsName = desiredValue.getConstraint(PROPERTY_HAZARD_RATE_CURVE_N_ITERATIONS);
-        final String toleranceName = desiredValue.getConstraint(PROPERTY_HAZARD_RATE_CURVE_TOLERANCE);
-        final String rangeMultiplierName = desiredValue.getConstraint(PROPERTY_HAZARD_RATE_CURVE_RANGE_MULTIPLIER);
-        final int maxIterations = Integer.parseInt(nIterationsName);
-        final double tolerance = Double.parseDouble(toleranceName);
-        final double rangeMultiplier = Double.parseDouble(rangeMultiplierName);
-        final CalibrateHazardRateCurveLegacyCreditDefaultSwap calibrationCalculator = new CalibrateHazardRateCurveLegacyCreditDefaultSwap(maxIterations, tolerance, rangeMultiplier);
-        final Set<FixedIncomeStripWithSecurity> strips = yieldCurveSpec.getStrips();
-        final int nStrips = strips.size();
-        final ZonedDateTime[] tenors = new ZonedDateTime[nStrips];
-        final double[] marketSpreads = new double[nStrips];
+        final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(executionContext);
+        final CurveSpecification curveSpecification = getCurveSpecification(configSource, now.toLocalDate(), curveName, creditCurveId);
+        final int nStrips = curveSpecification.getStrips().size();
+        final Tenor[] tenors = new Tenor[nStrips];
+        final Double[] marketSpreads = new Double[nStrips];
         int i = 0;
-        for (final FixedIncomeStripWithSecurity strip : strips) {
-          if (strip.getInstrumentType() != StripInstrumentType.SIMPLE_ZERO_DEPOSIT) {
-            throw new OpenGammaRuntimeException("Strips for hazard curve must be of type " + StripInstrumentType.SIMPLE_ZERO_DEPOSIT);
-          }
-          tenors[i] = strip.getMaturity();
-          marketSpreads[i++] = marketData.getDataPoint(strip.getSecurityIdentifier());
+        for (final CurveStripWithIdentifier strip : curveSpecification.getStrips()) {
+          //final Object marketSpreadObject = inputs.getValue(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, strip.getIdentifier()));
+          //if (marketSpreadObject != null) {
+          tenors[i] = strip.getCurveStrip().getResolvedMaturity();
+          marketSpreads[i++] = 0.05; //(Double) marketSpreadObject;
+          //}
         }
-        final double[] curve = calibrationCalculator.getCalibratedHazardRateTermStructure(now, cds, tenors, marketSpreads, yieldCurve, PriceType.CLEAN);
+        final NodalObjectsCurve<Tenor, Double> curve = NodalObjectsCurve.from(tenors, marketSpreads);
         final ValueProperties properties = createValueProperties()
             .with(ValuePropertyNames.CURVE, curveName)
-            .with(PROPERTY_HAZARD_RATE_CURVE_N_ITERATIONS, nIterationsName)
-            .with(PROPERTY_HAZARD_RATE_CURVE_TOLERANCE, toleranceName)
-            .with(PROPERTY_HAZARD_RATE_CURVE_RANGE_MULTIPLIER, rangeMultiplierName).get();
-        final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.HAZARD_RATE_CURVE, target.toSpecification(), properties);
+            .get();
+        final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.CREDIT_SPREAD_CURVE, target.toSpecification(), properties);
         return Collections.singleton(new ComputedValue(spec, curve));
       }
 
       @Override
       public ComputationTargetType getTargetType() {
-        return FinancialSecurityTypes.LEGACY_VANILLA_CDS_SECURITY;
+        return ComputationTargetType.CREDIT_CURVE_IDENTIFIER;
       }
 
       @Override
       public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
         @SuppressWarnings("synthetic-access")
         final ValueProperties properties = createValueProperties()
-            .withAny(ValuePropertyNames.CURVE)
-            .withAny(PROPERTY_HAZARD_RATE_CURVE_N_ITERATIONS)
-            .withAny(PROPERTY_HAZARD_RATE_CURVE_TOLERANCE)
-            .withAny(PROPERTY_HAZARD_RATE_CURVE_RANGE_MULTIPLIER).get();
-        return Collections.singleton(new ValueSpecification(ValueRequirementNames.HAZARD_RATE_CURVE, target.toSpecification(), properties));
+          .withAny(ValuePropertyNames.CURVE)
+          .get();
+        return Collections.singleton(new ValueSpecification(ValueRequirementNames.CREDIT_SPREAD_CURVE, target.toSpecification(), properties));
       }
 
       @Override
@@ -149,49 +107,41 @@ public class ISDALegacyCDSHazardCurveFunction extends AbstractFunction {
         if (curveNames == null || curveNames.size() != 1) {
           return null;
         }
-        final Set<String> yieldCurveNames = constraints.getValues(PROPERTY_YIELD_CURVE);
-        if (yieldCurveNames == null || yieldCurveNames.size() != 1) {
-          return null;
-        }
-        final Set<String> yieldCurveCalculationConfigs = constraints.getValues(PROPERTY_YIELD_CURVE_CALCULATION_CONFIG);
-        if (yieldCurveCalculationConfigs == null || yieldCurveCalculationConfigs.size() != 1) {
-          return null;
-        }
-        final Set<String> yieldCurveCalculationMethods = constraints.getValues(PROPERTY_YIELD_CURVE_CALCULATION_METHOD);
-        if (yieldCurveCalculationMethods == null || yieldCurveCalculationMethods.size() != 1) {
-          return null;
-        }
-        final Set<String> nIterationsName = constraints.getValues(PROPERTY_HAZARD_RATE_CURVE_N_ITERATIONS);
-        if (nIterationsName == null || nIterationsName.size() != 1) {
-          return null;
-        }
-        final Set<String> tolerances = constraints.getValues(PROPERTY_HAZARD_RATE_CURVE_TOLERANCE);
-        if (tolerances == null || tolerances.size() != 1) {
-          return null;
-        }
-        final Set<String> rangeMultipliers = constraints.getValues(PROPERTY_HAZARD_RATE_CURVE_RANGE_MULTIPLIER);
-        if (rangeMultipliers == null || rangeMultipliers.size() != 1) {
-          return null;
-        }
         final String curveName = Iterables.getOnlyElement(curveNames);
-        final String yieldCurveName = Iterables.getOnlyElement(yieldCurveNames);
-        final String yieldCurveCalculationConfig = Iterables.getOnlyElement(yieldCurveCalculationConfigs);
-        final String yieldCurveCalculationMethod = Iterables.getOnlyElement(yieldCurveCalculationMethods);
-        final Currency currency = FinancialSecurityUtils.getCurrency(target.getSecurity());
-        final ValueProperties curveDefinitionProperties = ValueProperties.builder()
-            .with(ValuePropertyNames.CURVE, curveName).get();
-        final ValueProperties yieldCurveProperties = ValueProperties.builder()
-            .with(ValuePropertyNames.CURVE, yieldCurveName)
-            .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, yieldCurveCalculationConfig)
-            .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, yieldCurveCalculationMethod).get();
-        final Set<ValueRequirement> requirements = Sets.newHashSetWithExpectedSize(3);
-        final ComputationTargetSpecification targetSpec = target.toSpecification();
-        requirements.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_MARKET_DATA, targetSpec, curveDefinitionProperties));
-        requirements.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, targetSpec, curveDefinitionProperties));
-        requirements.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetSpecification.of(currency), yieldCurveProperties));
-        return requirements;
+        final CreditCurveIdentifier identifier = (CreditCurveIdentifier) target.getValue();
+        final Set<ValueRequirement> requirements = new HashSet<>();
+        final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
+        try {
+          final CurveSpecification specification = getCurveSpecification(configSource, atZDT.toLocalDate(), curveName, identifier);
+//        for (final CurveStripWithIdentifier strip : specification.getStrips()) {
+//          if (strip.getCurveStrip() instanceof CreditSpreadStrip) {
+//            requirements.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, strip.getIdentifier()));
+//          }
+//        }
+          return requirements;
+        } catch (Exception e) {
+          s_logger.error(e.getMessage());
+          return null;
+        }
       }
 
+      @Override
+      public boolean canHandleMissingRequirements() {
+        return true;
+      }
+
+      @Override
+      public boolean canHandleMissingInputs() {
+        return true;
+      }
+
+      private CurveSpecification getCurveSpecification(final ConfigSource configSource, final LocalDate curveDate, final String curveName,
+          final CreditCurveIdentifier identifier) {
+        final CurveDefinitionSource curveDefinitionSource = new ConfigDBCurveDefinitionSource(configSource);
+        final CurveDefinition curveDefinition = curveDefinitionSource.getCurveDefinition(curveName, identifier);
+        final CurveSpecificationBuilder curveSpecificationBuilder = new ConfigDBCurveSpecificationBuilder(configSource);
+        return curveSpecificationBuilder.buildCurve(curveDate, curveDefinition);
+      }
     };
   }
 

@@ -153,20 +153,6 @@ public class CreditFunctions extends AbstractRepositoryConfigurationBean {
       functions.add(functionConfiguration(ISDAYieldCurveDefaults.class, args));
     }
 
-    protected void addISDALegacyCDSHazardCurveDefaults(final List<FunctionConfiguration> functions) {
-      final String[] args = new String[3 + getPerCurrencyInfo().size() * 4];
-      int i = 0;
-      args[i++] = Integer.toString(getNIterations());
-      args[i++] = Double.toString(getTolerance());
-      args[i++] = Double.toString(getRangeMultiplier());
-      for (final Map.Entry<String, CurrencyInfo> e : getPerCurrencyInfo().entrySet()) {
-        args[i++] = e.getKey();
-        args[i++] = e.getValue().getCurveName();
-        args[i++] = e.getValue().getCurveCalculationConfig();
-        args[i++] = e.getValue().getCurveCalculationMethod();
-      }
-      functions.add(functionConfiguration(ISDALegacyCDSHazardCurveDefaults.class, args));
-    }
 
     protected void addISDALegacyVanillaCDSDefaults(final List<FunctionConfiguration> functions) {
       functions.add(functionConfiguration(ISDALegacyVanillaCDSDefaults.class, Integer.toString(getNIntegrationPoints())));
@@ -176,16 +162,14 @@ public class CreditFunctions extends AbstractRepositoryConfigurationBean {
     protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
       if (!getPerCurrencyInfo().isEmpty()) {
         addISDAYieldCurveDefaults(functions);
-        addISDALegacyCDSHazardCurveDefaults(functions);
       }
       addISDALegacyVanillaCDSDefaults(functions);
     }
-
   }
 
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
-    functions.add(functionConfiguration(ISDALegacyCDSHazardCurveFunction.class));
+    functions.add(functionConfiguration(ISDACreditSpreadCurveFunction.class));
     functions.add(functionConfiguration(ISDALegacyVanillaCDSCleanPriceFunction.class));
     functions.add(functionConfiguration(ISDALegacyVanillaCDSDirtyPriceFunction.class));
     functions.add(functionConfiguration(ISDAYieldCurveFunction.class));
