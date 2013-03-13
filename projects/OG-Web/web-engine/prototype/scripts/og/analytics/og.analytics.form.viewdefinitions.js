@@ -41,7 +41,6 @@ $.register_module({
 
         var ViewDefinitions = function (config, callback) {
             var block = this, menu, form = config.form;
-
             form.Block.call(block, {
                 content: tmpl_header,
                 processor: function (data) {
@@ -74,7 +73,6 @@ $.register_module({
         };
 
         ViewDefinitions.prototype = new Block;
-
         return ViewDefinitions;
     }
 });

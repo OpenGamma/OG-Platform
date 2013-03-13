@@ -19,8 +19,7 @@ $.register_module({
                 del_s = '.og-icon-delete', parent_s = '.OG-dropmenu-options', type_s = '.type', source_s = '.source',
                 extra_opts_s = '.extra-opts', latest_s = '.latest', custom_s = '.custom', custom_val = 'Custom',
                 date_selected_s = 'date-selected', active_s = 'active', versions_s = '.versions',
-                corrections_s = '.corrections', types = [], avail_types = ['Live', 'Snapshot', 'Historical'],
-                datasources, default_source,
+                corrections_s = '.corrections', types = [], datasources, default_source,
                 sources = {
                     live: {
                         type:'Live',
@@ -301,34 +300,31 @@ $.register_module({
                 });
             };
 
-            avail_types.forEach(function (entry) {
-                sources[entry.toLowerCase()].datasource.split('.')
-                .reduce(function (api, key) { return api[key]; }, og.api.rest)
-                .get(sources[entry.toLowerCase()].api_opts)
-                .pipe(function (resp) {
-                    if (entry === 'Live' && resp.data.length) {
-                        types.push({type: entry, source: resp.data[0]});
-                    } else if (entry === 'Snapshot' && resp.data[0].snapshots.length) {
-                        types.push({type: entry, source: resp.data[0].snapshots[0].id});
-                    } else if (entry === 'Historical') {
-                        if (resp.data.data.length)
-                            types.push({type: entry, source: resp.data.data[0].split('|')[1]});
-                        default_source = $.extend({}, sources[types[0].type.toLowerCase()]);
-                        default_source.source = types[0].source;
-                        datasources = config.source ? deserialize(config.source) : [default_source];
-                        form.Block.call(block, {
-                            data: { providers: [] },
-                            module: 'og.analytics.form_datasources_tash',
-                            children: datasources.map(add_row_handler),
-                            processor: function (data) {
-                                data.providers = serialize();
-                            }
-                        });
-                        form.on('form:load', init);
-                        form.dom();
+            $.when(
+                og.api.rest.livedatasources.get({}),
+                og.api.rest.configs.get({type: 'HistoricalTimeSeriesRating'}),
+                og.api.rest.marketdatasnapshots.get({})
+            ).pipe(function (live, historical, snapshot) {
+                if (live.data.length) types.push({type: 'Live', source: live.data[0]});
+                if (historical.data.data.length)
+                    types.push({type: 'Historical', source: historical.data.data[0].split('|')[1]});
+                if (snapshot.data[0].snapshots.length)
+                    types.push({type: 'Snapshot', source: snapshot.data[0].snapshots[0].id});
+                default_source = $.extend({}, sources[types[0].type.toLowerCase()]);
+                default_source.source = types[0].source;
+                datasources = config.source ? deserialize(config.source) : [default_source];
+                form.Block.call(block, {
+                    data: { providers: [] },
+                    module: 'og.analytics.form_datasources_tash',
+                    children: datasources.map(add_row_handler),
+                    processor: function (data) {
+                        data.providers = serialize();
                     }
                 });
+                form.on('form:load', init);
+                form.dom();
             });
+
         };
 
         DatasourcesMenu.prototype = new Block;

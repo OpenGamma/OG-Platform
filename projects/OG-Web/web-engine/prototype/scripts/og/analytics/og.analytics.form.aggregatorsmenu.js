@@ -144,7 +144,6 @@ $.register_module({
         };
 
         AggregatorsMenu.prototype = new Block;
-
         return AggregatorsMenu;
     }
 });
