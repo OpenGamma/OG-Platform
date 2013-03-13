@@ -75,7 +75,11 @@ public class PortfolioLoader {
    * Should positions in the previous portfolio version be kept, otherwise start from scratch.
    */
   private final boolean _keepCurrentPositions;
+
   private final boolean _logToSystemOut;
+
+
+  private final String[] _structure;
 
   /**
    * Constructs a new portfolio loader ready to load a portfolio from file.
@@ -91,10 +95,13 @@ public class PortfolioLoader {
    * @param keepCurrentPositions should positions in the previous portfolio version be kept, otherwise start from scratch
    * @param ignoreVersion should the version hashes in the multi-asset zip file be ignored
    * @param logToSystemOut should logging go to system out or standard logger
+   * @param structure the portfolio structure, preserve existing structure if null, flatten if zero-length array,
+   *                  otherwise use position attributes with the specified names to structure portfolio
    */
   public PortfolioLoader(ToolContext toolContext, String portfolioName, String securityType, String fileName,
                          boolean write, boolean overwrite, boolean verbose, boolean mergePositions,
-                         boolean keepCurrentPositions, boolean ignoreVersion, boolean logToSystemOut) {
+                         boolean keepCurrentPositions, boolean ignoreVersion, boolean logToSystemOut,
+                         String[] structure) {
 
     ArgumentChecker.notNull(toolContext, "toolContext ");
     ArgumentChecker.isTrue(!write || portfolioName != null, "Portfolio name must be specified if writing to a master");
@@ -111,6 +118,7 @@ public class PortfolioLoader {
     _keepCurrentPositions = keepCurrentPositions;
     _ignoreVersion = ignoreVersion;
     _logToSystemOut = logToSystemOut;
+    _structure = structure;
   }
 
   /**
@@ -125,7 +133,7 @@ public class PortfolioLoader {
 
       PortfolioWriter portfolioWriter = constructPortfolioWriter(_toolContext, name != null ? name : _suggestedPortfolioName, _write, _overwrite,
                                                                  _mergePositions, _keepCurrentPositions);
-      SimplePortfolioCopier portfolioCopier = new SimplePortfolioCopier();
+      SimplePortfolioCopier portfolioCopier = new SimplePortfolioCopier(_structure);
 
       // Create visitor for verbose/quiet mode
       PortfolioCopierVisitor portfolioCopierVisitor =
