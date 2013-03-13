@@ -6,6 +6,7 @@
 package com.opengamma.language.view;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -58,16 +59,16 @@ public class ConfigureViewClientProcedureTest {
     final UserViewClient client = createViewClient(injector);
     ConfigureViewClientProcedure.invoke(client, createLesserConfiguration());
     final Map<ValueSpecification, Object> i = injector.getAddByValueSpecification();
-    assertEquals(1, i.size());
-    assertEquals(1, i.values().iterator().next());
+    assertTrue(i.isEmpty());
     final Map<ValueRequirement, Object> j = injector.getAddByValueRequirement();
-    assertEquals(1, j.size());
-    assertEquals(new MarketDataAddOperation(2), j.values().iterator().next());
+    assertEquals(2, j.size());
+    assertTrue(j.values().contains(1));
+    assertTrue(j.values().contains(new MarketDataAddOperation(2)));
     assertEquals(0, injector.getRemoveByValueRequirement().size());
     assertEquals(0, injector.getRemoveByValueSpecification().size());
     ConfigureViewClientProcedure.invoke(client, createExtraConfiguration());
-    assertEquals(1, injector.getAddByValueRequirement().size());
-    assertEquals(1, injector.getAddByValueSpecification().size());
+    assertEquals(2, injector.getAddByValueRequirement().size());
+    assertEquals(0, injector.getAddByValueSpecification().size());
     assertEquals(0, injector.getRemoveByValueRequirement().size());
     assertEquals(0, injector.getRemoveByValueSpecification().size());
   }
@@ -76,15 +77,15 @@ public class ConfigureViewClientProcedureTest {
     final MockMarketDataInjector injector = new MockMarketDataInjector();
     final UserViewClient client = createViewClient(injector);
     ConfigureViewClientProcedure.invoke(client, createExtraConfiguration());
-    assertEquals(2, injector.getAddByValueRequirement().size());
-    assertEquals(2, injector.getAddByValueSpecification().size());
+    assertEquals(4, injector.getAddByValueRequirement().size());
+    assertEquals(0, injector.getAddByValueSpecification().size());
     assertEquals(0, injector.getRemoveByValueRequirement().size());
     assertEquals(0, injector.getRemoveByValueSpecification().size());
     ConfigureViewClientProcedure.invoke(client, createLesserConfiguration());
     assertEquals(0, injector.getAddByValueRequirement().size());
     assertEquals(0, injector.getAddByValueSpecification().size());
-    assertEquals(1, injector.getRemoveByValueRequirement().size());
-    assertEquals(1, injector.getRemoveByValueSpecification().size());
+    assertEquals(2, injector.getRemoveByValueRequirement().size());
+    assertEquals(0, injector.getRemoveByValueSpecification().size());
   }
 
 }

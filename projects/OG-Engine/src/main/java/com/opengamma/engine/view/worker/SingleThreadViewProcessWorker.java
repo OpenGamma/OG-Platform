@@ -98,6 +98,7 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
 
     private final String _name;
     private final Runnable _job;
+    private final CountDownLatch _join = new CountDownLatch(1);
     private Thread _thread;
     private String _originalName;
 
@@ -114,16 +115,12 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
       }
     }
 
-    public synchronized void join() throws InterruptedException {
-      if (_thread != null) {
-        _thread.join();
-      }
+    public void join() throws InterruptedException {
+      _join.await();
     }
 
-    public synchronized void join(long timeout) throws InterruptedException {
-      if (_thread != null) {
-        _thread.join(timeout);
-      }
+    public void join(long timeout) throws InterruptedException {
+      _join.await(timeout, TimeUnit.MILLISECONDS);
     }
 
     public synchronized void interrupt() {
@@ -152,6 +149,7 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
         synchronized (this) {
           _thread = null;
         }
+        _join.countDown();
       }
     }
 

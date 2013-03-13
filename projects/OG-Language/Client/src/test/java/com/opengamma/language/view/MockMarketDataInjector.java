@@ -44,20 +44,32 @@ import com.opengamma.engine.value.ValueSpecification;
     _removeByValueRequirement.add(valueRequirement);
   }
 
+  private static <K, V> Map<K, V> getAndClear(final Map<K, V> map) {
+    final HashMap<K, V> result = new HashMap<K, V>(map);
+    map.clear();
+    return result;
+  }
+
+  private static <T> Set<T> getAndClear(final Set<T> set) {
+    final HashSet<T> result = new HashSet<T>(set);
+    set.clear();
+    return result;
+  }
+
   public Map<ValueSpecification, Object> getAddByValueSpecification() {
-    return _addByValueSpecification;
+    return getAndClear(_addByValueSpecification);
   }
 
   public Map<ValueRequirement, Object> getAddByValueRequirement() {
-    return _addByValueRequirement;
+    return getAndClear(_addByValueRequirement);
   }
 
   public Set<ValueSpecification> getRemoveByValueSpecification() {
-    return _removeByValueSpecification;
+    return getAndClear(_removeByValueSpecification);
   }
 
   public Set<ValueRequirement> getRemoveByValueRequirement() {
-    return _removeByValueRequirement;
+    return getAndClear(_removeByValueRequirement);
   }
 
 }

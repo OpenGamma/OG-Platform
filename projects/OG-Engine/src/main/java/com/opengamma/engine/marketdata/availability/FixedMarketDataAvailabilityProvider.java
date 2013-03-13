@@ -17,6 +17,7 @@ import com.opengamma.engine.function.MarketDataSourcingFunction;
 import com.opengamma.engine.target.ComputationTargetReferenceVisitor;
 import com.opengamma.engine.target.ComputationTargetRequirement;
 import com.opengamma.engine.target.ComputationTargetType;
+import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -53,8 +54,9 @@ public class FixedMarketDataAvailabilityProvider extends AbstractMarketDataAvail
       }
       final Set<ValueSpecification> specs = get(desiredValue.getValueName());
       if (specs != null) {
+        final ValueProperties constraints = desiredValue.getConstraints().withoutAny(ValuePropertyNames.FUNCTION);
         for (final ValueSpecification spec : specs) {
-          if (desiredValue.getConstraints().isSatisfiedBy(spec.getProperties())) {
+          if (constraints.isSatisfiedBy(spec.getProperties())) {
             return spec;
           }
         }
