@@ -69,7 +69,7 @@ public class VolatilitySurfaceDefinitionFunction extends AbstractFunction {
           }
         } else if (instrumentType.equals(InstrumentTypeProperties.EQUITY_OPTION) || instrumentType.equals(InstrumentTypeProperties.EQUITY_FUTURE_OPTION)) {
           //FIXME: Modify to take ExternalId to avoid incorrect cast to UniqueId
-          final String fullDefinitionName = surfaceName + "_" + EquitySecurityUtils.getIndexOrEquityName(UniqueId.parse(target.getValue().toString()));
+          final String fullDefinitionName = surfaceName + "_" + EquitySecurityUtils.getTrimmedTarget(UniqueId.parse(target.getValue().toString()));
           definition = source.getDefinition(fullDefinitionName, instrumentType);
           if (definition == null) {
             throw new OpenGammaRuntimeException("Could not get volatility surface definition named " + fullDefinitionName + " for instrument type " + instrumentType);
