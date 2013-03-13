@@ -544,6 +544,10 @@ public final class ValueRequirementNames {
    */
   public static final String POSITION_VEGA_P = "PositionVegaP";
   /**
+   * The aggregate vega of an option with a weighting factor related to square root of time to expiry
+   */
+  public static final String POSITION_WEIGHTED_VEGA = "PositionWeightedVega";
+  /**
    * The aggregate vomma of an option (second order derivative of price with respect to the volatility).
    */
   public static final String POSITION_VOMMA = "PositionVomma";
@@ -768,7 +772,7 @@ public final class ValueRequirementNames {
    */
   public static final String VEGA_P = "VegaP";
   /**
-   * The vega an option with some weighting factor
+   * The vega of an option with a weighting factor related to square root of time to expiry
    */
   public static final String WEIGHTED_VEGA = "Weighted Vega";
   /**

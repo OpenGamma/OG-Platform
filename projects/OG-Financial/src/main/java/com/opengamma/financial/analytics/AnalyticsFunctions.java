@@ -187,6 +187,7 @@ public class AnalyticsFunctions extends AbstractRepositoryConfigurationBean {
     addSummingFunction(functions, ValueRequirementNames.POSITION_RHO);
     addSummingFunction(functions, ValueRequirementNames.POSITION_THETA);
     addSummingFunction(functions, ValueRequirementNames.POSITION_VEGA);
+    addSummingFunction(functions, ValueRequirementNames.POSITION_WEIGHTED_VEGA);
 
     addScalingAndSummingFunction(functions, ValueRequirementNames.PRESENT_VALUE);
     addScalingAndSummingFunction(functions, ValueRequirementNames.PRESENT_VALUE_CURVE_SENSITIVITY);
