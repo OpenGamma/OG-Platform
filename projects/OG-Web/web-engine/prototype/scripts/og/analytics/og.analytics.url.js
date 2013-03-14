@@ -61,10 +61,9 @@ $.register_module({
                             data: config.main
                         });
                         if (og.analytics.grid) og.analytics.grid.kill();
-                        last.main = config.main;
                         og.analytics.grid = new og.analytics.Grid({
                             selector: main_selector, cellmenu: true, show_save: og.analytics.blotter,
-                            source: $.extend({blotter: og.analytics.blotter}, last.main)
+                            source: $.extend({blotter: og.analytics.blotter}, config.main)
                         }).on('viewchange', function (view) {
                             url.main($.extend({}, og.analytics.grid.source, {type: view}));
                         }).on('fatal', url.clear_main);
@@ -72,6 +71,7 @@ $.register_module({
                             if (cell) return og.blotter.contextmenu(cell, event);
                         });
                     } else if (!config.main) {new og.analytics.Form2({callback: og.analytics.url.main});}
+                    last.main = config.main;
                     panels.forEach(function (panel) {
                         var gadgets = config[panel], new_gadgets = [];
                         if (!gadgets || !gadgets.length) return last[panel] = [];
