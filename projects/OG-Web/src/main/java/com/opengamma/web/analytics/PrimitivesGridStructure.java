@@ -12,14 +12,16 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.target.ComputationTargetReference;
+import com.opengamma.engine.target.ComputationTargetReferenceVisitor;
+import com.opengamma.engine.target.ComputationTargetRequirement;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
-import com.opengamma.engine.view.compilation.CompiledViewCalculationConfiguration;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
+import com.opengamma.id.ExternalId;
 
 /**
  *
@@ -28,10 +30,33 @@ public final class PrimitivesGridStructure extends MainGridStructure {
 
   /** Target type for anything that isn't part of a portoflio structure. */
   private static final ComputationTargetType NON_PRIMITIVE =
-      ComputationTargetType.PORTFOLIO_NODE.or(
-      ComputationTargetType.POSITION).or(
-      ComputationTargetType.TRADE).or(
-      ComputationTargetType.SECURITY);
+      ComputationTargetType.PORTFOLIO_NODE
+          .or(ComputationTargetType.POSITION)
+          .or(ComputationTargetType.TRADE)
+          .or(ComputationTargetType.SECURITY);
+  
+  private static final ComputationTargetReferenceVisitor<String> s_computationTargetDisplayNameVisitor = new ComputationTargetReferenceVisitor<String>() {
+
+    @Override
+    public String visitComputationTargetRequirement(ComputationTargetRequirement requirement) {
+      StringBuilder sb = new StringBuilder();
+      boolean first = true;
+      for (ExternalId externalId : requirement.getIdentifiers()) {
+        if (!first) {
+          sb.append(", ");
+        }
+        sb.append(externalId.toString());
+        first = false;
+      }
+      return sb.toString();
+    }
+
+    @Override
+    public String visitComputationTargetSpecification(ComputationTargetSpecification specification) {
+      return specification.getUniqueId().toString();
+    }
+    
+  };
 
   private PrimitivesGridStructure() {
   }
@@ -76,18 +101,15 @@ public final class PrimitivesGridStructure extends MainGridStructure {
   }
 
   private static List<MainGridStructure.Row> rows(CompiledViewDefinition compiledViewDef) {
-    Set<ComputationTargetSpecification> specs = Sets.newLinkedHashSet();
-    for (CompiledViewCalculationConfiguration compiledCalcConfig : compiledViewDef.getCompiledCalculationConfigurations()) {
-      for (ValueSpecification valueSpec : compiledCalcConfig.getTerminalOutputSpecifications().keySet()) {
-        ComputationTargetSpecification targetSpec = valueSpec.getTargetSpecification();
-        if (!targetSpec.getType().isTargetType(NON_PRIMITIVE)) {
-          specs.add(targetSpec);
-        }
+    Set<ComputationTargetReference> targetRefs = Sets.newLinkedHashSet();
+    for (ViewCalculationConfiguration calcConfig : compiledViewDef.getViewDefinition().getAllCalculationConfigurations()) {
+      for (ValueRequirement specificRequirement : calcConfig.getSpecificRequirements()) {
+        targetRefs.add(specificRequirement.getTargetReference());
       }
     }
     List<MainGridStructure.Row> rows = Lists.newArrayList();
-    for (ComputationTargetSpecification spec : specs) {
-      rows.add(new Row(spec, spec.getUniqueId().toString()));
+    for (ComputationTargetReference targetRef : targetRefs) {
+      rows.add(new Row(targetRef, targetRef.accept(s_computationTargetDisplayNameVisitor)));
     }
     return rows;
   }
