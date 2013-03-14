@@ -5,16 +5,24 @@
  */
 package com.opengamma.web.security;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.security.Security;
 import com.opengamma.financial.security.FinancialSecurityVisitorSameValueAdapter;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
+import com.opengamma.financial.security.cds.CreditDefaultSwapIndexComponent;
+import com.opengamma.financial.security.cds.CreditDefaultSwapIndexSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.BondFutureDeliverable;
@@ -44,6 +52,7 @@ import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.util.time.Tenor;
 
 /**
  * Builds the model object used in the security freemarker templates
@@ -212,6 +221,21 @@ import com.opengamma.master.security.SecurityMaster;
   @Override
   public Void visitDeliverableSwapFutureSecurity(DeliverableSwapFutureSecurity security) {
     addFutureSecurityType("DeliverableSwapFuture");
+    return null;
+  }
+  
+  @Override
+  public Void visitCreditDefaultSwapIndexSecurity(CreditDefaultSwapIndexSecurity security) {
+    List<String> tenors = Lists.newArrayList();
+    for (Tenor tenor : security.getTerms()) {
+      tenors.add(tenor.getPeriod().toString());
+    }
+    _out.put("terms", ImmutableList.copyOf(tenors));
+    Set<CreditDefaultSwapIndexComponent> components = new TreeSet<>(Collections.reverseOrder());
+    for (CreditDefaultSwapIndexComponent component : security.getComponents()) {
+      components.add(component);
+    }
+    _out.put("components", ImmutableList.copyOf(components));
     return null;
   }
 
