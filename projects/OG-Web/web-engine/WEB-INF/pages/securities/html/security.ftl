@@ -21,22 +21,22 @@
       <#case "FRA">
         <@rowout label="Amount">${security.amount}</@rowout>
         <@rowout label="Currency">${security.currency}</@rowout>
-        <@rowout label="StartDate">${security.startDate.getDate()} - ${security.startDate.zone}</@rowout>
-        <@rowout label="EndDate">${security.endDate.getDate()} - ${security.endDate.zone}</@rowout>
+        <@rowout label="StartDate">${security.startDate.toLocalDate()} - ${security.startDate.zone}</@rowout>
+        <@rowout label="EndDate">${security.endDate.toLocalDate()} - ${security.endDate.zone}</@rowout>
         <@rowout label="Rate">${security.rate}</@rowout>
         <@rowout label="Region">${security.regionId?replace("_", " ")}</@rowout>
       <#break>
       <#case "CASH">
         <@rowout label="Amount">${security.amount}</@rowout>
         <@rowout label="Currency">${security.currency}</@rowout>
-        <@rowout label="Maturity">${security.maturity.getDate()} - ${security.maturity.zone}</@rowout>
+        <@rowout label="Maturity">${security.maturity.toLocalDate()} - ${security.maturity.zone}</@rowout>
         <@rowout label="Rate">${security.rate}</@rowout>
         <@rowout label="Region">${security.regionId?replace("_", " ")}</@rowout>
         <#break>
       <#case "CASHFLOW">
         <@rowout label="Amount">${security.amount}</@rowout>
         <@rowout label="Currency">${security.currency}</@rowout>
-        <@rowout label="Settlement">${security.settlement.getDate()} - ${security.settlement.zone}</@rowout>
+        <@rowout label="Settlement">${security.settlement.toLocalDate()} - ${security.settlement.zone}</@rowout>
         <#break>
       <#case "EQUITY">
         <@rowout label="Short name">${security.shortName}</@rowout>
@@ -75,13 +75,13 @@
           <@rowout label="Announcement date">${security.announcementDate}</@rowout>
         </#if>
         <#if security.interestAccrualDate?has_content>
-            <@rowout label="Interest accrual date">${security.interestAccrualDate.getDate()} - ${security.interestAccrualDate.zone}</@rowout>
+            <@rowout label="Interest accrual date">${security.interestAccrualDate.toLocalDate()} - ${security.interestAccrualDate.zone}</@rowout>
         </#if>
         <#if security.settlementDate?has_content>
-          <@rowout label="Settlement date">${security.settlementDate.getDate()} - ${security.settlementDate.zone}</@rowout>
+          <@rowout label="Settlement date">${security.settlementDate.toLocalDate()} - ${security.settlementDate.zone}</@rowout>
         </#if>
         <#if security.firstCouponDate?has_content>
-            <@rowout label="First coupon date">${security.firstCouponDate.getDate()} - ${security.firstCouponDate.zone}</@rowout>
+            <@rowout label="First coupon date">${security.firstCouponDate.toLocalDate()} - ${security.firstCouponDate.zone}</@rowout>
         </#if>
         <#if security.issuancePrice?has_content>
           <@rowout label="Issuance price">${security.issuancePrice}</@rowout>
@@ -117,7 +117,7 @@
         <@rowout label="Currency">${security.currency}</@rowout>
         <@rowout label="Exchange">${security.exchange}</@rowout>
         <@rowout label="Exercise type">${customRenderer.printExerciseType(security.exerciseType)}</@rowout>
-        <@rowout label="Expiry">${security.expiry.expiry.getDate()} - ${security.expiry.expiry.zone}</@rowout>
+        <@rowout label="Expiry">${security.expiry.expiry.toLocalDate()} - ${security.expiry.expiry.zone}</@rowout>
         <@rowout label="Option type">${security.optionType}</@rowout>
         <@rowout label="Point Value">${security.pointValue}</@rowout>
         <@rowout label="Strike">${security.strike}</@rowout>
@@ -131,7 +131,7 @@
         <@rowout label="Currency">${security.currency}</@rowout>
         <@rowout label="Exchange">${security.exchange}</@rowout>
         <@rowout label="Exercise type">${customRenderer.printExerciseType(security.exerciseType)}</@rowout>
-        <@rowout label="Expiry">${security.expiry.expiry.getDate()} - ${security.expiry.expiry.zone}</@rowout>
+        <@rowout label="Expiry">${security.expiry.expiry.toLocalDate()} - ${security.expiry.expiry.zone}</@rowout>
         <@rowout label="Option type">${security.optionType}</@rowout>
         <@rowout label="Point Value">${security.pointValue}</@rowout>
         <@rowout label="Strike">${security.strike}</@rowout>
@@ -149,9 +149,9 @@
         
         <#break>
       <#case "SWAP">
-        <@rowout label="Trade date">${security.tradeDate.getDate()} - ${security.tradeDate.zone}</@rowout>
-        <@rowout label="Effective date">${security.effectiveDate.getDate()} - ${security.effectiveDate.zone}</@rowout>
-        <@rowout label="Maturity date">${security.maturityDate.getDate()} - ${security.maturityDate.zone}</@rowout>
+        <@rowout label="Trade date">${security.tradeDate.toLocalDate()} - ${security.tradeDate.zone}</@rowout>
+        <@rowout label="Effective date">${security.effectiveDate.toLocalDate()} - ${security.effectiveDate.zone}</@rowout>
+        <@rowout label="Maturity date">${security.maturityDate.toLocalDate()} - ${security.maturityDate.zone}</@rowout>
         <@rowout label="Counterparty">${security.counterparty}</@rowout>
         <@subsection title="Pay leg">
           <@rowout label="Day count">${security.payLeg.dayCount.conventionName}</@rowout>
@@ -207,12 +207,12 @@
         </@subsection>
         <#break>
       <#case "FX FORWARD">
-        <@rowout label="Forward Date">${security.forwardDate.getDate()} - ${security.forwardDate.zone}</@rowout>
+        <@rowout label="Forward Date">${security.forwardDate.toLocalDate()} - ${security.forwardDate.zone}</@rowout>
         <@rowout label="Region Identifier">${security.regionId.scheme.name?replace("_", " ")} - ${security.regionId.value}</@rowout>
         <@rowout label="Underlying Identifier">${security.underlyingId.scheme.name?replace("_", " ")} - ${security.underlyingId.value}</@rowout>
         <#break>
       <#case "NONDELIVERABLE_FX FORWARD">
-        <@rowout label="Forward Date">${security.forwardDate.getDate()} - ${security.forwardDate.zone}</@rowout>
+        <@rowout label="Forward Date">${security.forwardDate.toLocalDate()} - ${security.forwardDate.zone}</@rowout>
         <@rowout label="Region Identifier">${security.regionId.scheme.name?replace("_", " ")} - ${security.regionId.value}</@rowout>
         <@rowout label="Underlying Identifier">${security.underlyingId.scheme.name?replace("_", " ")} - ${security.underlyingId.value}</@rowout>
         <#break>        
@@ -229,38 +229,38 @@
         <@rowout label="Barrier Type">${security.barrierType}</@rowout>
         <@rowout label="Call Amount">${security.callAmount}</@rowout>
         <@rowout label="Call Currency">${security.callCurrency}</@rowout>
-        <@rowout label="Expiry">${security.expiry.expiry.getDate()} - ${security.expiry.expiry.zone}</@rowout>
+        <@rowout label="Expiry">${security.expiry.expiry.toLocalDate()} - ${security.expiry.expiry.zone}</@rowout>
         <@rowout label="IsLong">${security.isLong?string?upper_case}</@rowout>
         <@rowout label="Monitoring Type">${security.monitoringType}</@rowout>
         <@rowout label="Put Amount">${security.putAmount}</@rowout>
         <@rowout label="Put Currency">${security.putCurrency}</@rowout>
         <@rowout label="Sampling Frequency">${security.samplingFrequency}</@rowout>
-        <@rowout label="Settlement Date">${security.settlementDate.getDate()} - ${security.settlementDate.zone}</@rowout>
+        <@rowout label="Settlement Date">${security.settlementDate.toLocalDate()} - ${security.settlementDate.zone}</@rowout>
         <#break>
       <#case "FX_OPTION">
         <@rowout label="Call Amount">${security.callAmount}</@rowout>
         <@rowout label="Call Currency">${security.callCurrency}</@rowout>
-        <@rowout label="Expiry">${security.expiry.expiry.getDate()} - ${security.expiry.expiry.zone}</@rowout>
+        <@rowout label="Expiry">${security.expiry.expiry.toLocalDate()} - ${security.expiry.expiry.zone}</@rowout>
         <@rowout label="IsLong">${security.long?string?upper_case}</@rowout>
         <@rowout label="Put Amount">${security.putAmount}</@rowout>
         <@rowout label="Put Currency">${security.putCurrency}</@rowout>
-        <@rowout label="Settlement Date">${security.settlementDate.getDate()} - ${security.settlementDate.zone}</@rowout>
+        <@rowout label="Settlement Date">${security.settlementDate.toLocalDate()} - ${security.settlementDate.zone}</@rowout>
         <#break>
       <#case "NONDELIVERABLE_FX_OPTION">
         <@rowout label="Call Amount">${security.callAmount}</@rowout>
         <@rowout label="Call Currency">${security.callCurrency}</@rowout>
-        <@rowout label="Expiry">${security.expiry.expiry.getDate()} - ${security.expiry.expiry.zone}</@rowout>
+        <@rowout label="Expiry">${security.expiry.expiry.toLocalDate()} - ${security.expiry.expiry.zone}</@rowout>
         <@rowout label="IsLong">${security.long?string?upper_case}</@rowout>
         <@rowout label="Put Amount">${security.putAmount}</@rowout>
         <@rowout label="Put Currency">${security.putCurrency}</@rowout>
-        <@rowout label="Settlement Date">${security.settlementDate.getDate()} - ${security.settlementDate.zone}</@rowout>
+        <@rowout label="Settlement Date">${security.settlementDate.toLocalDate()} - ${security.settlementDate.zone}</@rowout>
         <@rowout label="Delivery Currency">${security.deliveryCurrency}</@rowout>
         <#break>        
       <#case "EQUITY_INDEX_OPTION">
         <@rowout label="Currency">${security.currency}</@rowout>
         <@rowout label="Exchange">${security.exchange}</@rowout>
         <@rowout label="Exercise Type">${customRenderer.printExerciseType(security.exerciseType)}</@rowout>
-        <@rowout label="Expiry">${security.expiry.expiry.getDate()} - ${security.expiry.expiry.zone}</@rowout>
+        <@rowout label="Expiry">${security.expiry.expiry.toLocalDate()} - ${security.expiry.expiry.zone}</@rowout>
         <@rowout label="Option Type">${security.optionType}</@rowout>
         <@rowout label="Point Value">${security.pointValue}</@rowout>
         <@rowout label="Strike">${security.strike}</@rowout>
@@ -268,7 +268,7 @@
         <#break>
       <#case "SWAPTION">
         <@rowout label="Currency">${security.currency}</@rowout>
-        <@rowout label="Expiry">${security.expiry.expiry.getDate()} - ${security.expiry.expiry.zone}</@rowout>
+        <@rowout label="Expiry">${security.expiry.expiry.toLocalDate()} - ${security.expiry.expiry.zone}</@rowout>
         <@rowout label="Is Cash Settled">${security.cashSettled?string?upper_case}</@rowout>
         <@rowout label="Is Long">${security.long?string?upper_case}</@rowout>
         <@rowout label="Is Payer">${security.payer?string?upper_case}</@rowout>
@@ -278,7 +278,7 @@
         <@rowout label="Currency">${security.currency}</@rowout>
         <@rowout label="Exchange">${security.exchange}</@rowout>
         <@rowout label="Exercise Type">${customRenderer.printExerciseType(security.exerciseType)}</@rowout>
-        <@rowout label="Expiry">${security.expiry.expiry.getDate()} - ${security.expiry.expiry.zone}</@rowout>
+        <@rowout label="Expiry">${security.expiry.expiry.toLocalDate()} - ${security.expiry.expiry.zone}</@rowout>
         <@rowout label="Is Margined">${security.margined?string?upper_case}</@rowout>
         <@rowout label="Option Type">${security.optionType}</@rowout>
         <@rowout label="Point Value">${security.pointValue}</@rowout>
@@ -290,7 +290,7 @@
         <@rowout label="Trading Exchange">${security.tradingExchange}</@rowout>
         <@rowout label="Settlement Exchange">${security.settlementExchange}</@rowout>
         <@rowout label="Exercise Type">${customRenderer.printExerciseType(security.exerciseType)}</@rowout>
-        <@rowout label="Expiry">${security.expiry.expiry.getDate()} - ${security.expiry.expiry.zone}</@rowout>
+        <@rowout label="Expiry">${security.expiry.expiry.toLocalDate()} - ${security.expiry.expiry.zone}</@rowout>
         <@rowout label="Option Type">${security.optionType}</@rowout>
         <@rowout label="Point Value">${security.pointValue}</@rowout>
         <@rowout label="Strike">${security.strike}</@rowout>
@@ -301,7 +301,7 @@
         <@rowout label="Trading Exchange">${security.tradingExchange}</@rowout>
         <@rowout label="Settlement Exchange">${security.settlementExchange}</@rowout>
         <@rowout label="Exercise Type">${customRenderer.printExerciseType(security.exerciseType)}</@rowout>
-        <@rowout label="Expiry">${security.expiry.expiry.getDate()} - ${security.expiry.expiry.zone}</@rowout>
+        <@rowout label="Expiry">${security.expiry.expiry.toLocalDate()} - ${security.expiry.expiry.zone}</@rowout>
         <@rowout label="Option Type">${security.optionType}</@rowout>
         <@rowout label="Point Value">${security.pointValue}</@rowout>
         <@rowout label="Strike">${security.strike}</@rowout>
@@ -312,7 +312,7 @@
         <@rowout label="Trading Exchange">${security.tradingExchange}</@rowout>
         <@rowout label="Settlement Exchange">${security.settlementExchange}</@rowout>
         <@rowout label="Exercise Type">${customRenderer.printExerciseType(security.exerciseType)}</@rowout>
-        <@rowout label="Expiry">${security.expiry.expiry.getDate()} - ${security.expiry.expiry.zone}</@rowout>
+        <@rowout label="Expiry">${security.expiry.expiry.toLocalDate()} - ${security.expiry.expiry.zone}</@rowout>
         <@rowout label="Option Type">${security.optionType}</@rowout>
         <@rowout label="Point Value">${security.pointValue}</@rowout>
         <@rowout label="Strike">${security.strike}</@rowout>
@@ -322,7 +322,7 @@
         <@rowout label="Currency">${security.currency}</@rowout>
         <@rowout label="Exchange">${security.exchange}</@rowout>
         <@rowout label="Exercise Type">${customRenderer.printExerciseType(security.exerciseType)}</@rowout>
-        <@rowout label="Expiry">${security.expiry.expiry.getDate()} - ${security.expiry.expiry.zone}</@rowout>
+        <@rowout label="Expiry">${security.expiry.expiry.toLocalDate()} - ${security.expiry.expiry.zone}</@rowout>
         <@rowout label="Is Margined">${security.margined?string?upper_case}</@rowout>
         <@rowout label="Option Type">${security.optionType}</@rowout>
         <@rowout label="Point Value">${security.pointValue}</@rowout>
@@ -333,7 +333,7 @@
         <@rowout label="Currency">${security.currency}</@rowout>
         <@rowout label="Exchange">${security.exchange}</@rowout>
         <@rowout label="Exercise Type">${customRenderer.printExerciseType(security.exerciseType)}</@rowout>
-        <@rowout label="Expiry">${security.expiry.expiry.getDate()} - ${security.expiry.expiry.zone}</@rowout>
+        <@rowout label="Expiry">${security.expiry.expiry.toLocalDate()} - ${security.expiry.expiry.zone}</@rowout>
         <@rowout label="Is Margined">${security.margined?string?upper_case}</@rowout>
         <@rowout label="Option Type">${security.optionType}</@rowout>
         <@rowout label="Point Value">${security.pointValue}</@rowout>

@@ -5,8 +5,8 @@
  */
 package com.opengamma.web.analytics.formatting;
 
+import com.opengamma.engine.cache.MissingMarketDataSentinel;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.cache.MissingMarketDataSentinel;
 
 /* package */ class MissingMarketDataSentinelFormatter extends AbstractFormatter<MissingMarketDataSentinel> {
 

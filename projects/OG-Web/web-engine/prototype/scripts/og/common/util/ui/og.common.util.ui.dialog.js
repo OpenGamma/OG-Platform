@@ -89,7 +89,7 @@ $.register_module({
                 if (obj.fields) {
                     $obj.append(obj.fields.reduce(function (acc, val) {
                         return acc + (function () {
-                            var str;
+                            var str, value;
                             if (val.type === 'input') {
                                 if (!val.name) throw new Error('val.name is required for an input field');
                                 if (!val.id) throw new Error('val.id is required for an input field');
@@ -106,13 +106,15 @@ $.register_module({
                                 str = str.replace(/\[PLACEHOLDER\]/g, 'og-js-dialog-' + val.id);
                             }
                             if (val.type === 'select') {
+                                value = typeof val.value === 'function' ? val.value() : val.value;
                                 if (!val.name) throw new Error('val.name is required for a select');
                                 if (!val.id) throw new Error('val.id is required for a select');
                                 if (!val.options) throw new Error('val.options is required for a select');
                                 str = '<label for="[PLACEHOLDER]">' + val.name + '</label>';
                                 str += '<select id="[PLACEHOLDER]" name="[PLACEHOLDER]">';
                                 $.each(val.options, function (i, v) {
-                                    str += '<option value=' + v.value + '>'+ v.name +'</option>';
+                                    var selected = value === v.value ? ' selected="selected"' : '';
+                                    str += '<option value="' + v.value + '"' + selected + '>'+ v.name +'</option>';
                                 });
                                 str += '</select>';
                                 str = str.replace(/\[PLACEHOLDER\]/g, 'og-js-dialog-' + val.id);

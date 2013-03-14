@@ -25,6 +25,7 @@ import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.marketdata.ExternalIdBundleResolver;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -32,6 +33,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.ObjectsPair;
@@ -106,7 +108,6 @@ public class VolatilityCubeMarketDataFunction extends AbstractFunction {
     return pointsById;
   }
 
-
   private Map<ExternalId, Pair<Tenor, Tenor>> getStrikesById() {
     final Map<ExternalId, Pair<Tenor, Tenor>> strikesById = new HashMap<ExternalId, Pair<Tenor, Tenor>>();
 
@@ -125,7 +126,6 @@ public class VolatilityCubeMarketDataFunction extends AbstractFunction {
     }
     return strikesById;
   }
-
 
   private Set<ValueRequirement> getOtherRequirements() {
     //TODO this
@@ -200,30 +200,37 @@ public class VolatilityCubeMarketDataFunction extends AbstractFunction {
 
     private VolatilityCubeData buildMarketDataMap(final FunctionExecutionContext context, final FunctionInputs inputs) {
       final HashMap<VolatilityPoint, Double> dataPoints = new HashMap<VolatilityPoint, Double>();
-      final HashMap<VolatilityPoint, ExternalId> dataIds = new HashMap<VolatilityPoint, ExternalId>();
+      final HashMap<VolatilityPoint, ExternalIdBundle> dataIds = new HashMap<VolatilityPoint, ExternalIdBundle>();
       final HashMap<VolatilityPoint, Double> relativeStrikes = new HashMap<VolatilityPoint, Double>();
       final HashMap<Pair<Tenor, Tenor>, Double> strikes = new HashMap<Pair<Tenor, Tenor>, Double>();
-
-      final HashMap<ExternalId, Double> otherData = new HashMap<ExternalId, Double>();
-
+      final SnapshotDataBundle otherData = new SnapshotDataBundle();
+      final ExternalIdBundleResolver resolver = new ExternalIdBundleResolver(context.getComputationTargetResolver());
       for (final ComputedValue value : inputs.getAllValues()) {
         if (!(value.getValue() instanceof Double)) {
           continue;
         }
         final Double dValue = (Double) value.getValue();
-        final VolatilityPoint volatilityPoint = getVolatilityPoint(context, value.getSpecification());
-        final Pair<Tenor, Tenor> strikePoint = getStrikePoint(context, value.getSpecification());
+        final ExternalIdBundle identifiers = value.getSpecification().getTargetSpecification().accept(resolver);
+        final VolatilityPoint volatilityPoint;
+        final Pair<Tenor, Tenor> strikePoint;
+        if (value.getSpecification().getValueName() != MarketDataRequirementNames.MARKET_VALUE) {
+          volatilityPoint = getByIdentifier(_pointsById, identifiers);
+          strikePoint = getByIdentifier(_strikesById, identifiers);
+        } else {
+          volatilityPoint = null;
+          strikePoint = null;
+        }
         if (volatilityPoint == null && strikePoint == null) {
-          otherData.put(context.getExternalIdLookup().getIdentifier(value.getSpecification().getTargetSpecification()), dValue);
+          otherData.setDataPoint(identifiers, dValue);
         } else if (volatilityPoint != null && strikePoint == null) {
           if (volatilityPoint.getRelativeStrike() > -50) {
             final Double previous = dataPoints.put(volatilityPoint, dValue);
-            final ExternalId previousId = dataIds.put(volatilityPoint, context.getExternalIdLookup().getIdentifier(value.getSpecification().getTargetSpecification()));
+            final ExternalIdBundle previousIds = dataIds.put(volatilityPoint, identifiers);
             final Double previousRelativeStrike = relativeStrikes.put(volatilityPoint, volatilityPoint.getRelativeStrike());
             if (previous != null && previous > dValue) {
               //TODO: this is a hack because we don't understand which tickers are for straddles, so we presume that the straddle has lower vol
               dataPoints.put(volatilityPoint, previous);
-              dataIds.put(volatilityPoint, previousId);
+              dataIds.put(volatilityPoint, previousIds);
               relativeStrikes.put(volatilityPoint, previousRelativeStrike);
             }
           }
@@ -239,29 +246,23 @@ public class VolatilityCubeMarketDataFunction extends AbstractFunction {
 
       final VolatilityCubeData volatilityCubeData = new VolatilityCubeData();
       volatilityCubeData.setDataPoints(dataPoints);
-      final SnapshotDataBundle bundle = new SnapshotDataBundle();
-      bundle.setDataPoints(otherData);
-      volatilityCubeData.setOtherData(bundle);
+      volatilityCubeData.setOtherData(otherData);
       volatilityCubeData.setDataIds(dataIds);
       volatilityCubeData.setRelativeStrikes(relativeStrikes);
       volatilityCubeData.setATMStrikes(strikes);
       return volatilityCubeData;
     }
 
-    private VolatilityPoint getVolatilityPoint(final FunctionExecutionContext context, final ValueSpecification spec) {
-      if (spec.getValueName() != MarketDataRequirementNames.MARKET_VALUE) {
-        return null;
-      }
-      return _pointsById.get(context.getExternalIdLookup().getIdentifier(spec.getTargetSpecification()));
-    }
+  }
 
-    private Pair<Tenor, Tenor> getStrikePoint(final FunctionExecutionContext context, final ValueSpecification spec) {
-      if (spec.getValueName() != MarketDataRequirementNames.MARKET_VALUE) {
-        return null;
+  private static <T> T getByIdentifier(final Map<ExternalId, T> data, final ExternalIdBundle identifiers) {
+    for (final ExternalId identifier : identifiers) {
+      final T value = data.get(identifier);
+      if (value != null) {
+        return value;
       }
-      return _strikesById.get(context.getExternalIdLookup().getIdentifier(spec.getTargetSpecification()));
     }
-
+    return null;
   }
 
 }

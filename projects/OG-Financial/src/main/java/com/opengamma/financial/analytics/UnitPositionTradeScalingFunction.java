@@ -95,7 +95,7 @@ public class UnitPositionTradeScalingFunction extends AbstractFunction.NonCompil
     // intersection of properties is required for the result
     for (ComputedValue value : inputs.getAllValues()) {
       common = SumUtils.addProperties(common, value.getSpecification().getProperties());
-      scaledValue = value.getValue();
+      scaledValue = SumUtils.addValue(scaledValue, value.getValue(), _requirementName);
     }
     common = common.copy().withoutAny(ValuePropertyNames.FUNCTION).with(ValuePropertyNames.FUNCTION, getUniqueId()).get();
     final ValueSpecification specification = new ValueSpecification(_requirementName, target.toSpecification(), common);

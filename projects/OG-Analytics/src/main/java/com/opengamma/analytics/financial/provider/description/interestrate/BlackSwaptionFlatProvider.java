@@ -7,7 +7,7 @@ package com.opengamma.analytics.financial.provider.description.interestrate;
 
 import org.apache.commons.lang.ObjectUtils;
 
-import com.opengamma.analytics.financial.model.option.definition.BlackSwaptionParameters;
+import com.opengamma.analytics.financial.model.option.parameters.BlackFlatSwaptionParameters;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -23,14 +23,14 @@ public class BlackSwaptionFlatProvider implements BlackSwaptionFlatProviderInter
   /**
    * The Black volatility surface for swaption.
    */
-  private final BlackSwaptionParameters _blackParameters;
+  private final BlackFlatSwaptionParameters _blackParameters;
 
   /**
    * Constructor.
    * @param multicurves The multi-curves provider.
    * @param blackParameters The Black parameters, not null
    */
-  public BlackSwaptionFlatProvider(final MulticurveProviderInterface multicurves, final BlackSwaptionParameters blackParameters) {
+  public BlackSwaptionFlatProvider(final MulticurveProviderInterface multicurves, final BlackFlatSwaptionParameters blackParameters) {
     ArgumentChecker.notNull(multicurves, "multi-curve provider");
     ArgumentChecker.notNull(blackParameters, "Black parameters");
     _multiCurveProvider = multicurves;
@@ -40,12 +40,12 @@ public class BlackSwaptionFlatProvider implements BlackSwaptionFlatProviderInter
   @Override
   public BlackSwaptionFlatProviderInterface copy() {
     final MulticurveProviderInterface curves = _multiCurveProvider.copy();
-    final BlackSwaptionParameters black = _blackParameters; //TODO copy these parameters
+    final BlackFlatSwaptionParameters black = _blackParameters; //TODO copy these parameters
     return new BlackSwaptionFlatProvider(curves, black);
   }
 
   @Override
-  public BlackSwaptionParameters getBlackParameters() {
+  public BlackFlatSwaptionParameters getBlackParameters() {
     return _blackParameters;
   }
 

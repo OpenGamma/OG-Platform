@@ -287,7 +287,7 @@ public class PresentValueCreditDefaultSwap {
 
     // TODO : Check this calculation - maybe move it out of this routine and into the PV calculation routine?
     // TODO : Note the cash settlement date is hardcoded at 3 days
-    final double tSett = TimeCalculator.getTimeBetween(valuationDate, valuationDate.plusDays(5));
+    final double tSett = TimeCalculator.getTimeBetween(valuationDate, valuationDate.plusDays(0));
     final double valueDatePV = yieldCurve.getDiscountFactor(tSett);
 
     presentValuePremiumLeg /= valueDatePV;
@@ -554,6 +554,8 @@ public class PresentValueCreditDefaultSwap {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
+    // TODO : Remember that the start date for protection to begin is MAX(today, startDate)
+
     // Local variable definitions
     double presentValueContingentLeg = 0.0;
 
@@ -567,6 +569,7 @@ public class PresentValueCreditDefaultSwap {
     ZonedDateTime clStartDate = valuationDate;
     ZonedDateTime clEndDate = cds.getMaturityDate();
 
+    // NOTE : 
     if (cds.getProtectionStart()) {
       clStartDate = valuationDate.minusDays(1);
     }
@@ -643,7 +646,9 @@ public class PresentValueCreditDefaultSwap {
 
     // TODO : Check this calculation - maybe move it out of this routine and into the PV calculation routine?
     // TODO : Note the cash settlement date is hardcoded at 3 days
-    final double t = TimeCalculator.getTimeBetween(valuationDate, valuationDate.plusDays(5));
+
+    final ZonedDateTime cashSettleDate = valuationDate.plusDays(0);
+    final double t = TimeCalculator.getTimeBetween(valuationDate, cashSettleDate, ACT_365);
     final double valueDatePV = yieldCurve.getDiscountFactor(t);
 
     return cds.getNotional() * presentValueContingentLeg / valueDatePV;
@@ -743,7 +748,7 @@ public class PresentValueCreditDefaultSwap {
     final LegacyVanillaCreditDefaultSwapDefinition calibrationCDS = cds;
 
     // Create a CDS for valuation
-    final LegacyVanillaCreditDefaultSwapDefinition valuationCDS = cds;
+    LegacyVanillaCreditDefaultSwapDefinition valuationCDS = cds;
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -770,6 +775,9 @@ public class PresentValueCreditDefaultSwap {
     final HazardRateCurve calibratedHazardRateCurve = new HazardRateCurve(marketTenors, times, modifiedHazardRateCurve/*calibratedHazardRates*/, 0.0);
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
+
+    // TODO : Remember to take this out - just used for testing purposes
+    //valuationCDS = valuationCDS.withRecoveryRate(1.0);
 
     // Calculate the CDS PV using the just calibrated hazard rate term structure
     final double presentValue = creditDefaultSwap.getPresentValueLegacyCreditDefaultSwap(valuationDate, valuationCDS, yieldCurve, calibratedHazardRateCurve, priceType);

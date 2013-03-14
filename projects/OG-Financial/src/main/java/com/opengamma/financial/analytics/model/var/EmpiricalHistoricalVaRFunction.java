@@ -34,8 +34,14 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  * 
  */
 public class EmpiricalHistoricalVaRFunction extends AbstractFunction.NonCompiledInvoker {
-  /** The name for the empirical historical VaR calculation method */
+  /**
+   * The name for the empirical historical VaR calculation method.
+   */
   public static final String EMPIRICAL_VAR = "Empirical";
+  /**
+   * The default PnLContribution property value.
+   */
+  public static final String DEFAULT_PNL_CONTRIBUTIONS = "Delta";
   private static final EmpiricalDistributionVaRCalculator CALCULATOR = new EmpiricalDistributionVaRCalculator();
 
   @Override
@@ -80,6 +86,7 @@ public class EmpiricalHistoricalVaRFunction extends AbstractFunction.NonCompiled
         .withAny(ValuePropertyNames.CONFIDENCE_LEVEL)
         .withAny(ValuePropertyNames.HORIZON)
         .withAny(ValuePropertyNames.AGGREGATION)
+        .withAny(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS)
         .with(PROPERTY_VAR_DISTRIBUTION, EMPIRICAL_VAR).get();
     return Sets.newHashSet(new ValueSpecification(ValueRequirementNames.HISTORICAL_VAR, target.toSpecification(), properties));
   }
@@ -99,12 +106,17 @@ public class EmpiricalHistoricalVaRFunction extends AbstractFunction.NonCompiled
     if (samplingFunctionName == null || samplingFunctionName.size() != 1) {
       return null;
     }
+    final Set<String> pnlContributionNames = constraints.getValues(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS);
+    if (pnlContributionNames != null && pnlContributionNames.size() != 1) {
+      return null;
+    }
+    String pnlContributionName = pnlContributionNames != null ? pnlContributionNames.iterator().next() : DEFAULT_PNL_CONTRIBUTIONS;
     final Set<String> aggregationStyle = constraints.getValues(ValuePropertyNames.AGGREGATION);
     final ValueProperties.Builder properties = ValueProperties.builder()
         .with(ValuePropertyNames.SAMPLING_PERIOD, samplingPeriodName.iterator().next())
         .with(ValuePropertyNames.SCHEDULE_CALCULATOR, scheduleCalculatorName.iterator().next())
         .with(ValuePropertyNames.SAMPLING_FUNCTION, samplingFunctionName.iterator().next())
-        .with(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS, "Delta"); //TODO
+        .with(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS, pnlContributionName); //TODO
     final Set<String> desiredCurrencyValues = desiredValue.getConstraints().getValues(ValuePropertyNames.CURRENCY);
     if (desiredCurrencyValues == null || desiredCurrencyValues.isEmpty()) {
       properties.withAny(ValuePropertyNames.CURRENCY);
@@ -132,11 +144,11 @@ public class EmpiricalHistoricalVaRFunction extends AbstractFunction.NonCompiled
     if (currency == null) {
       return null;
     }
-    final ValueProperties properties = getResultProperties(currency, input.getProperty(ValuePropertyNames.AGGREGATION));
+    final ValueProperties properties = getResultProperties(currency, input.getProperty(ValuePropertyNames.AGGREGATION), input.getProperty(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS));
     return Sets.newHashSet(new ValueSpecification(ValueRequirementNames.HISTORICAL_VAR, target.toSpecification(), properties));
   }
 
-  private ValueProperties getResultProperties(final String currency, final String aggregationStyle) {
+  private ValueProperties getResultProperties(final String currency, final String aggregationStyle, final String pnlContribution) {
     final ValueProperties.Builder properties = createValueProperties()
         .with(ValuePropertyNames.CURRENCY, currency)
         .withAny(ValuePropertyNames.SAMPLING_PERIOD)
@@ -144,7 +156,8 @@ public class EmpiricalHistoricalVaRFunction extends AbstractFunction.NonCompiled
         .withAny(ValuePropertyNames.SAMPLING_FUNCTION)
         .withAny(ValuePropertyNames.CONFIDENCE_LEVEL)
         .withAny(ValuePropertyNames.HORIZON)
-        .with(PROPERTY_VAR_DISTRIBUTION, EMPIRICAL_VAR);
+        .with(PROPERTY_VAR_DISTRIBUTION, EMPIRICAL_VAR)
+        .with(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS, pnlContribution);
     if (aggregationStyle != null) {
       properties.with(ValuePropertyNames.AGGREGATION, aggregationStyle);
     }
@@ -159,6 +172,7 @@ public class EmpiricalHistoricalVaRFunction extends AbstractFunction.NonCompiled
         .with(ValuePropertyNames.SAMPLING_FUNCTION, desiredValue.getConstraint(ValuePropertyNames.SAMPLING_FUNCTION))
         .with(ValuePropertyNames.CONFIDENCE_LEVEL, desiredValue.getConstraint(ValuePropertyNames.CONFIDENCE_LEVEL))
         .with(ValuePropertyNames.HORIZON, desiredValue.getConstraint(ValuePropertyNames.HORIZON))
+        .with(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS, desiredValue.getConstraint(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS))
         .with(PROPERTY_VAR_DISTRIBUTION, EMPIRICAL_VAR);
     final String aggregationStyle = desiredValue.getConstraint(ValuePropertyNames.AGGREGATION);
     if (aggregationStyle != null) {

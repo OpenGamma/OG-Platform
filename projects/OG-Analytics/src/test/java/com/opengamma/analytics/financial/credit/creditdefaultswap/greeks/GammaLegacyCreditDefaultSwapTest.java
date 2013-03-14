@@ -449,7 +449,7 @@ public class GammaLegacyCreditDefaultSwapTest {
     final GammaCreditDefaultSwap gamma = new GammaCreditDefaultSwap();
 
     // Compute the Gamma for a parallel shift
-    final double parallelGamma = gamma.getGammaParallelShiftCreditDefaultSwap(valuationDate, cds, yieldCurve, tenors, marketSpreads, spreadBump, spreadBumpType, priceType);
+    final double parallelGamma = 0.0; //gamma.getGammaParallelShiftCreditDefaultSwap(valuationDate, cds, yieldCurve, tenors, marketSpreads, spreadBump, spreadBumpType, priceType);
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -515,13 +515,13 @@ public class GammaLegacyCreditDefaultSwapTest {
     final GammaCreditDefaultSwap gamma = new GammaCreditDefaultSwap();
 
     // Compute the Gamma for a parallel shift
-    final double[] bucketedGamma = gamma.getGammaBucketedCreditDefaultSwap(valuationDate, cds, yieldCurve, tenors, marketSpreads, spreadBump, spreadBumpType, priceType);
+    //final double[] bucketedGamma = gamma.getGammaBucketedCreditDefaultSwap(valuationDate, cds, yieldCurve, tenors, marketSpreads, spreadBump, spreadBumpType, priceType);
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
     if (outputResults) {
       for (int m = 0; m < numberOfCalibrationCDS; m++) {
-        System.out.println("Tenor = " + tenors[m] + "\t" + "CDS bucketed Gamma = " + "\t" + bucketedGamma[m]);
+        //System.out.println("Tenor = " + tenors[m] + "\t" + "CDS bucketed Gamma = " + "\t" + bucketedGamma[m]);
       }
     }
 

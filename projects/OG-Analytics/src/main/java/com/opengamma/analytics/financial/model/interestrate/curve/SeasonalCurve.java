@@ -18,12 +18,13 @@ public final class SeasonalCurve extends FunctionalDoublesCurve {
   /**
    * Construct a seasonal curve from a reference time and the monthly factors.
    * @param referenceTime The reference time for with there is no seasonal adjustment.
-   * @param monthlyFactors The monthly seasonal factors from one month to the next. The size of the array is 11 (the 12th factor is deduced from the 11 other 
+   * @param monthlyFactors The monthly seasonal factors from one month to the next. The size of the array is 11 (the 12th factor is deduced from the 11 other
+   * @param isAdditive 
    * as the cumulative yearly adjustment is 1). The factors represent the multiplicative factor from one month to the next. The reference time represent the initial month
    * for which there is no adjustment.
    */
-  public SeasonalCurve(double referenceTime, double[] monthlyFactors) {
-    super(new SeasonalFunction(referenceTime, monthlyFactors));
+  public SeasonalCurve(double referenceTime, double[] monthlyFactors, boolean isAdditive) {
+    super(new SeasonalFunction(referenceTime, monthlyFactors, isAdditive));
   }
 
 }
@@ -39,19 +40,33 @@ class SeasonalFunction extends Function1D<Double, Double> {
    */
   private final double[] _monthlyCumulativeFactors;
   /**
+   * The flag: true if the seasonality is additive, false if it is multiplicative.
+   */
+  private final boolean _isAdditive;
+
+  /**
    * The number of month in a year.
    */
   private static final int NB_MONTH = 12;
 
-  public SeasonalFunction(double referenceTime, double[] monthlyFactors) {
+  public SeasonalFunction(double referenceTime, double[] monthlyFactors, boolean isAdditive) {
     Validate.notNull(monthlyFactors, "Monthly factors");
     Validate.isTrue(monthlyFactors.length == 11, "Monthly factors with incorrect length; should be 11");
+    Validate.notNull(isAdditive, "isAdditive");
     _monthlyCumulativeFactors = new double[NB_MONTH];
     _monthlyCumulativeFactors[0] = 1.0;
+
     for (int loopmonth = 1; loopmonth < NB_MONTH; loopmonth++) {
-      _monthlyCumulativeFactors[loopmonth] = _monthlyCumulativeFactors[loopmonth - 1] * monthlyFactors[loopmonth - 1];
+      if (isAdditive) {
+        _monthlyCumulativeFactors[loopmonth] = _monthlyCumulativeFactors[loopmonth - 1] + monthlyFactors[loopmonth - 1];
+      }
+      else {
+        _monthlyCumulativeFactors[loopmonth] = _monthlyCumulativeFactors[loopmonth - 1] * monthlyFactors[loopmonth - 1];
+      }
     }
+
     _referenceTime = referenceTime;
+    _isAdditive = isAdditive;
   }
 
   @Override

@@ -20,6 +20,7 @@ import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.curve.FunctionalDoublesCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.curve.NodalDoublesCurve;
+import com.opengamma.analytics.math.curve.NodalObjectsCurve;
 import com.opengamma.analytics.math.curve.NodalTenorDoubleCurve;
 import com.opengamma.analytics.math.function.Function;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
@@ -34,7 +35,7 @@ final class MathCurve {
   }
 
   /**
-   * Fudge builder for {@code ConstantDoublesCurve}
+   * Fudge builder for {@link ConstantDoublesCurve}
    */
   @FudgeBuilderFor(ConstantDoublesCurve.class)
   public static final class ConstantDoublesCurveBuilder extends AbstractFudgeBuilder<ConstantDoublesCurve> {
@@ -54,7 +55,7 @@ final class MathCurve {
   }
 
   /**
-   * Fudge builder for {@code InterpolatedDoublesCurve}
+   * Fudge builder for {@link InterpolatedDoublesCurve}
    */
   @FudgeBuilderFor(InterpolatedDoublesCurve.class)
   public static final class InterpolatedDoublesCurveBuilder extends AbstractFudgeBuilder<InterpolatedDoublesCurve> {
@@ -82,7 +83,7 @@ final class MathCurve {
   }
 
   /**
-   * Fudge builder for {@code FunctionalDoublesCurve}
+   * Fudge builder for {@link FunctionalDoublesCurve}
    */
   @FudgeBuilderFor(FunctionalDoublesCurve.class)
   public static final class FunctionalDoublesCurveBuilder extends AbstractFudgeBuilder<FunctionalDoublesCurve> {
@@ -109,7 +110,7 @@ final class MathCurve {
   }
 
   /**
-   * Fudge builder for {@code NodalDoublesCurve}
+   * Fudge builder for {@link NodalDoublesCurve}
    */
   @FudgeBuilderFor(NodalDoublesCurve.class)
   public static final class NodalDoublesCurveBuilder extends AbstractFudgeBuilder<NodalDoublesCurve> {
@@ -134,7 +135,7 @@ final class MathCurve {
   }
 
   /**
-   * Fudge builder for {@code NodalObjectsCurve}
+   * Fudge builder for {@link NodalTenorDoubleCurve}
    */
   @FudgeBuilderFor(NodalTenorDoubleCurve.class)
   public static final class NodalTenorDoubleCurveBuilder extends AbstractFudgeBuilder<NodalTenorDoubleCurve> {
@@ -166,5 +167,34 @@ final class MathCurve {
       final String name = deserializer.fieldValueToObject(String.class, message.getByName(CURVE_NAME_FIELD_NAME));
       return NodalTenorDoubleCurve.fromSorted(tenors.toArray(new Tenor[tenors.size()]), yObjects, name);
     }
+  }
+  
+  /**
+   * Fudge builder for {@link NodalObjectCurve}
+   */
+  @FudgeBuilderFor(NodalObjectsCurve.class)
+  public static final class NodalObjectsCurveBuilder extends AbstractFudgeBuilder<NodalObjectsCurve<?, ?>> {
+    private static final String X_DATA_FIELD_NAME = "x data";
+    private static final String Y_DATA_FIELD_NAME = "y data";
+    private static final String CURVE_NAME_FIELD_NAME = "curve name";
+    
+    @Override
+    public NodalObjectsCurve<?, ?> buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
+      Comparable[] xs = deserializer.fieldValueToObject(Comparable[].class, message.getByName(X_DATA_FIELD_NAME));
+      Object[] ys = deserializer.fieldValueToObject(Object[].class, message.getByName(Y_DATA_FIELD_NAME));
+      String curveName = message.getString(CURVE_NAME_FIELD_NAME);
+      return NodalObjectsCurve.from(xs, ys, curveName);
+    }
+
+    @Override
+    protected void buildMessage(FudgeSerializer serializer, MutableFudgeMsg message, NodalObjectsCurve<?, ?> object) {
+      Comparable<?>[] xs = object.getXData();
+      Object[] ys = object.getYData();
+      String curveName = object.getName();
+      serializer.addToMessage(message, X_DATA_FIELD_NAME, null, xs);
+      serializer.addToMessage(message, Y_DATA_FIELD_NAME, null, ys);
+      message.add(CURVE_NAME_FIELD_NAME, curveName);
+    }
+    
   }
 }

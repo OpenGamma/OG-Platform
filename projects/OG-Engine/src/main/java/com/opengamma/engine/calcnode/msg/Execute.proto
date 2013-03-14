@@ -1,0 +1,24 @@
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
+ 
+namespace com.opengamma.engine.calcnode {
+
+  extern message CalculationJob;
+  
+  namespace msg {
+  
+    message Execute extends RemoteCalcNodeMessage {
+      required CalculationJob job;
+
+      binding Java {
+        body "public void accept (RemoteCalcNodeMessageVisitor visitor) { visitor.visitExecuteMessage (this); }";
+      }
+
+    }
+    
+  }
+
+}

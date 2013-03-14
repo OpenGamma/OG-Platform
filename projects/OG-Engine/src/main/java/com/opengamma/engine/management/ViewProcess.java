@@ -10,8 +10,8 @@ import javax.management.ObjectName;
 
 import net.sf.ehcache.CacheException;
 
-import com.opengamma.engine.view.ViewProcessInternal;
 import com.opengamma.engine.view.ViewProcessState;
+import com.opengamma.engine.view.impl.ViewProcessInternal;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 

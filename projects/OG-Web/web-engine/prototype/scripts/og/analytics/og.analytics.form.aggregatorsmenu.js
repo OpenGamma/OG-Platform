@@ -139,12 +139,10 @@ $.register_module({
                     data.aggregators = serialize();
                 }
             });
-
             form.on('form:load', init);
         };
 
         AggregatorsMenu.prototype = new Block;
-
         return AggregatorsMenu;
     }
 });

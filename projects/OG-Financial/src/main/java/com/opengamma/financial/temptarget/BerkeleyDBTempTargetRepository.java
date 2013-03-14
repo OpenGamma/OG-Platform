@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.engine.view.cache.BerkeleyDBViewComputationCacheSource;
+import com.opengamma.engine.cache.BerkeleyDBViewComputationCacheSource;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.sleepycat.bind.tuple.LongBinding;

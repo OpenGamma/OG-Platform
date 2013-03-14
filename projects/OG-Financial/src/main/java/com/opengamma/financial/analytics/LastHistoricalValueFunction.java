@@ -5,8 +5,6 @@
  */
 package com.opengamma.financial.analytics;
 
-import static org.threeten.bp.temporal.ChronoUnit.DAYS;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Set;
@@ -68,7 +66,7 @@ public class LastHistoricalValueFunction extends AbstractFunction.NonCompiledInv
     }
     // TODO - Can we do something more efficient than getting the whole series?
     return Collections.singleton(HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, fieldName,
-        null, true, DateConstraint.VALUATION_TIME.yesterday(), true));
+        null, true, DateConstraint.VALUATION_TIME.minus(Period.ofDays(1)), true));
   }
 
   @Override

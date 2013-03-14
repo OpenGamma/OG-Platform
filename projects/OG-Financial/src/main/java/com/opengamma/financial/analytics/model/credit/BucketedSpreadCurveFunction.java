@@ -7,6 +7,7 @@ package com.opengamma.financial.analytics.model.credit;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 
 import org.threeten.bp.Clock;
@@ -15,6 +16,7 @@ import org.threeten.bp.LocalTime;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
+import org.threeten.bp.format.DateTimeParseException;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
@@ -34,9 +36,10 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.credit.CreditCurveIdentifier;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.async.AsynchronousExecution;
+import com.opengamma.util.credit.CreditCurveIdentifier;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
 
@@ -61,13 +64,26 @@ public class BucketedSpreadCurveFunction extends AbstractFunction {
           throw new OpenGammaRuntimeException("Could not get spread curve bucket data");
         }
         final SnapshotDataBundle data = (SnapshotDataBundle) dataObject;
-
         final ArrayList<Tenor> times = new ArrayList<>();
         final ArrayList<Double> rates = new ArrayList<>();
-        for (ExternalId id : data.getDataPoints().keySet()) {
-          final Period period = Period.parse(id.getValue());
+        for (final Map.Entry<ExternalIdBundle, Double> dataEntry : data.getDataPointSet()) {
+          // TODO: The original code here was based on there just being one external ID per point and that having a value which is a period. It would
+          // be better to use an id-scheme to tag such values just in case there are any other arbitrary tickers thrown into the bundle. The safest
+          // interim approach is to use the first parseable one 
+          Period period = null;
+          for (final ExternalId id : dataEntry.getKey()) {
+            try {
+              period = Period.parse(id.getValue());
+              break;
+            } catch (final DateTimeParseException e) {
+              // ignore
+            }
+          }
+          if (period == null) {
+            throw new IllegalArgumentException(dataEntry.toString());
+          }
           times.add(new Tenor(period));
-          rates.add(data.getDataPoints().get(id));
+          rates.add(dataEntry.getValue());
         }
         final NodalTenorDoubleCurve curve = new NodalTenorDoubleCurve(times.toArray(new Tenor[times.size()]), rates.toArray(new Double[rates.size()]), false);
 

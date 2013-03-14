@@ -12,6 +12,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import net.sf.ehcache.CacheManager;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
@@ -28,8 +30,6 @@ import com.opengamma.util.timeseries.localdate.ListLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.MutableLocalDateDoubleTimeSeries;
 import com.opengamma.util.tuple.Pair;
-
-import net.sf.ehcache.CacheManager;
 
 /**
  * Test.
@@ -158,8 +158,9 @@ public class HistoricalTimeSeriesSourceTest {
 
   //-------------------------------------------------------------------------
   public void testEHCachingHistoricalTimeSeriesSource() {
-    CacheManager cacheManager = EHCacheUtils.createCacheManager();
+    CacheManager cacheManager = EHCacheUtils.createTestCacheManager(HistoricalTimeSeriesSourceTest.class);
     doTestCaching(cacheManager);
+    EHCacheUtils.shutdownQuiet(cacheManager);
   }
 
   private void doTestCaching(CacheManager cacheManager) {

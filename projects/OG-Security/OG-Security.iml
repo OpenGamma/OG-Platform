@@ -40,6 +40,7 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="inheritedJdk" />
     <orderEntry type="module" module-name="OG-Util" exported="" />
+    <orderEntry type="module" module-name="OG-UtilDB" exported="" />
     <orderEntry type="module-library">
       <library name="IvyIDEA-OG-Security-default">
         <CLASSES>

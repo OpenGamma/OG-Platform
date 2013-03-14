@@ -12,14 +12,14 @@ import javax.management.ObjectName;
 
 import net.sf.ehcache.CacheException;
 
+import com.opengamma.engine.exec.stats.TotallingGraphStatisticsGathererProvider;
+import com.opengamma.engine.exec.stats.TotallingGraphStatisticsGathererProvider.Statistics;
 import com.opengamma.engine.view.ViewProcess;
-import com.opengamma.engine.view.calc.stats.TotallingGraphStatisticsGathererProvider;
-import com.opengamma.engine.view.calc.stats.TotallingGraphStatisticsGathererProvider.Statistics;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * An MBean implementation for those attributes and operations we wish to expose on a {@link com.opengamma.engine.view.calc.stats.GraphExecutionStatistics}.
+ * An MBean implementation for those attributes and operations we wish to expose on a {@link com.opengamma.engine.exec.stats.GraphExecutionStatistics}.
  */
 public class GraphExecutionStatistics implements GraphExecutionStatisticsMBean {
   
@@ -84,14 +84,14 @@ public class GraphExecutionStatistics implements GraphExecutionStatisticsMBean {
 
   @Override
   public Long getProcessedGraphs() {
-    com.opengamma.engine.view.calc.stats.GraphExecutionStatistics graphExecutionStatistics = getGraphExecutionStatistics();
+    com.opengamma.engine.exec.stats.GraphExecutionStatistics graphExecutionStatistics = getGraphExecutionStatistics();
     return graphExecutionStatistics != null ? graphExecutionStatistics.getProcessedGraphs() : 0; 
   }
   
-  private com.opengamma.engine.view.calc.stats.GraphExecutionStatistics getGraphExecutionStatistics() {
+  private com.opengamma.engine.exec.stats.GraphExecutionStatistics getGraphExecutionStatistics() {
     Statistics statisticsGatherer = _statisticsProvider.getStatisticsGatherer(_viewProcessId);
-    List<com.opengamma.engine.view.calc.stats.GraphExecutionStatistics> executionStatistics = statisticsGatherer.getExecutionStatistics();
-    for (com.opengamma.engine.view.calc.stats.GraphExecutionStatistics graphExecutionStatistics : executionStatistics) {
+    List<com.opengamma.engine.exec.stats.GraphExecutionStatistics> executionStatistics = statisticsGatherer.getExecutionStatistics();
+    for (com.opengamma.engine.exec.stats.GraphExecutionStatistics graphExecutionStatistics : executionStatistics) {
       if (graphExecutionStatistics.getCalcConfigName().equals(_calcConfigName) && graphExecutionStatistics.getViewProcessId().equals(_viewProcessId)) {
         return graphExecutionStatistics;
       }
@@ -101,67 +101,67 @@ public class GraphExecutionStatistics implements GraphExecutionStatisticsMBean {
 
   @Override
   public Long getExecutedGraphs() {
-    com.opengamma.engine.view.calc.stats.GraphExecutionStatistics graphExecutionStatistics = getGraphExecutionStatistics();
+    com.opengamma.engine.exec.stats.GraphExecutionStatistics graphExecutionStatistics = getGraphExecutionStatistics();
     return graphExecutionStatistics != null ? graphExecutionStatistics.getExecutedGraphs() : null; 
   }
 
   @Override
   public Long getExecutedNodes() {
-    com.opengamma.engine.view.calc.stats.GraphExecutionStatistics graphExecutionStatistics = getGraphExecutionStatistics();
+    com.opengamma.engine.exec.stats.GraphExecutionStatistics graphExecutionStatistics = getGraphExecutionStatistics();
     return graphExecutionStatistics != null ? graphExecutionStatistics.getExecutedNodes() : null; 
   }
 
   @Override
   public Long getExecutionTime() {
-    com.opengamma.engine.view.calc.stats.GraphExecutionStatistics graphExecutionStatistics = getGraphExecutionStatistics();
+    com.opengamma.engine.exec.stats.GraphExecutionStatistics graphExecutionStatistics = getGraphExecutionStatistics();
     return graphExecutionStatistics != null ? graphExecutionStatistics.getExecutionTime() : null;  
   }
 
   @Override
   public Long getActualTime() {
-    com.opengamma.engine.view.calc.stats.GraphExecutionStatistics graphExecutionStatistics = getGraphExecutionStatistics();
+    com.opengamma.engine.exec.stats.GraphExecutionStatistics graphExecutionStatistics = getGraphExecutionStatistics();
     return graphExecutionStatistics != null ? graphExecutionStatistics.getActualTime() : 0;  
   }
 
   @Override
   public Long getProcessedJobs() {
-    com.opengamma.engine.view.calc.stats.GraphExecutionStatistics graphExecutionStatistics = getGraphExecutionStatistics();
+    com.opengamma.engine.exec.stats.GraphExecutionStatistics graphExecutionStatistics = getGraphExecutionStatistics();
     return graphExecutionStatistics != null ? graphExecutionStatistics.getProcessedJobs() : null; 
   }
 
   @Override
   public Long getProcessedJobSize() {
-    com.opengamma.engine.view.calc.stats.GraphExecutionStatistics graphExecutionStatistics = getGraphExecutionStatistics();
+    com.opengamma.engine.exec.stats.GraphExecutionStatistics graphExecutionStatistics = getGraphExecutionStatistics();
     return graphExecutionStatistics != null ? graphExecutionStatistics.getProcessedJobSize() : null;    
   }
 
   @Override
   public Long getProcessedJobCycleCost() {
-    com.opengamma.engine.view.calc.stats.GraphExecutionStatistics graphExecutionStatistics = getGraphExecutionStatistics();
+    com.opengamma.engine.exec.stats.GraphExecutionStatistics graphExecutionStatistics = getGraphExecutionStatistics();
     return graphExecutionStatistics != null ? graphExecutionStatistics.getProcessedJobCycleCost() : null;
   }
 
   @Override
   public Long getProcessedJobDataCost() {
-    com.opengamma.engine.view.calc.stats.GraphExecutionStatistics graphExecutionStatistics = getGraphExecutionStatistics();
+    com.opengamma.engine.exec.stats.GraphExecutionStatistics graphExecutionStatistics = getGraphExecutionStatistics();
     return graphExecutionStatistics != null ? graphExecutionStatistics.getProcessedJobDataCost() : null;
   }
 
   @Override
   public String getLastProcessedTime() {
-    com.opengamma.engine.view.calc.stats.GraphExecutionStatistics graphExecutionStatistics = getGraphExecutionStatistics();
+    com.opengamma.engine.exec.stats.GraphExecutionStatistics graphExecutionStatistics = getGraphExecutionStatistics();
     return graphExecutionStatistics != null ? graphExecutionStatistics.getLastProcessedTime().toString() : null;
   }
 
   @Override
   public String getLastExecutedTime() {
-    com.opengamma.engine.view.calc.stats.GraphExecutionStatistics graphExecutionStatistics = getGraphExecutionStatistics();
+    com.opengamma.engine.exec.stats.GraphExecutionStatistics graphExecutionStatistics = getGraphExecutionStatistics();
     return graphExecutionStatistics != null ? graphExecutionStatistics.getLastExecutedTime().toString() : null;
   }
 
   @Override
   public void reset() {
-    com.opengamma.engine.view.calc.stats.GraphExecutionStatistics graphExecutionStatistics = getGraphExecutionStatistics();
+    com.opengamma.engine.exec.stats.GraphExecutionStatistics graphExecutionStatistics = getGraphExecutionStatistics();
     if (graphExecutionStatistics != null) {
       graphExecutionStatistics.reset();
     }

@@ -14,8 +14,6 @@ import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.StandardCDSCoupon;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.standard.StandardVanillaCreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.obligor.CreditRating;
 import com.opengamma.analytics.financial.credit.obligor.CreditRatingFitch;
 import com.opengamma.analytics.financial.credit.obligor.CreditRatingMoodys;
@@ -43,7 +41,7 @@ import com.opengamma.util.money.Currency;
 /**
  *
  */
-public class CreditDefaultSwapSecurityConverter extends FinancialSecurityVisitorAdapter<CreditDefaultSwapDefinition> {
+public class CreditDefaultSwapSecurityConverter extends FinancialSecurityVisitorAdapter<LegacyVanillaCreditDefaultSwapDefinition> {
   private static final Obligor DUMMY_OBLIGOR_A = new Obligor(
       "Dummy_A",
       "Dummy_A",
@@ -94,7 +92,7 @@ public class CreditDefaultSwapSecurityConverter extends FinancialSecurityVisitor
   }
 
   @Override
-  public StandardVanillaCreditDefaultSwapDefinition visitStandardVanillaCDSSecurity(final StandardVanillaCDSSecurity security) {
+  public LegacyVanillaCreditDefaultSwapDefinition visitStandardVanillaCDSSecurity(final StandardVanillaCDSSecurity security) {
     ArgumentChecker.notNull(security, "security");
     final BuySellProtection buySellProtection = security.isBuy() ? BuySellProtection.BUY : BuySellProtection.SELL;
     final ExternalId regionId = security.getRegionId();
@@ -122,11 +120,11 @@ public class CreditDefaultSwapSecurityConverter extends FinancialSecurityVisitor
     final StubType stubType = security.getStubType().toAnalyticsType();
     final ZonedDateTime cashSettlementDate = security.getCashSettlementDate();
     final boolean adjustCashSettlementDate = security.isAdjustCashSettlementDate();
-    return new StandardVanillaCreditDefaultSwapDefinition(buySellProtection, DUMMY_OBLIGOR_A, DUMMY_OBLIGOR_B, DUMMY_OBLIGOR_C, currency,
-        debtSeniority, restructuringClause, calendar, startDate, effectiveDate, maturityDate, stubType, couponFrequency,
-        dayCount, businessDayConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, amount,
-        recoveryRate, includeAccruedPremium, protectionStart, quotedSpread, premiumLegCoupon, upFrontAmount, cashSettlementDate,
-        adjustCashSettlementDate);
+    final double coupon = security.getCoupon();
+    return new LegacyVanillaCreditDefaultSwapDefinition(buySellProtection, DUMMY_OBLIGOR_A, DUMMY_OBLIGOR_B, DUMMY_OBLIGOR_C, currency,
+        debtSeniority, restructuringClause, calendar, startDate, effectiveDate, maturityDate, stubType,
+        couponFrequency, dayCount, businessDayConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate,
+        amount, recoveryRate, includeAccruedPremium, protectionStart, coupon);
   }
 
   @Override

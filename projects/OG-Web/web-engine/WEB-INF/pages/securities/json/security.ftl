@@ -14,7 +14,7 @@
         "amount":"${security.amount}",
         "currency":"${security.currency}",
         "endDate": {
-              "date": "${security.endDate.getDateTime().getDate()}",
+              "date": "${security.endDate.toLocalDate()}",
               "zone": "${security.endDate.zone}"
           },
         "rate":"${security.rate}",
@@ -22,7 +22,7 @@
         "underlyingId":"${security.underlyingId?replace("_", " ")}",
         "underlyingExternalId":"${security.underlyingId.scheme}-${security.underlyingId.value}",
         "startDate": {
-              "date": "${security.startDate.getDateTime().getDate()}",
+              "date": "${security.startDate.toLocalDate()}",
               "zone": "${security.startDate.zone}"
          },
          <#if underlyingSecurity??>
@@ -34,7 +34,7 @@
         "amount":"${security.amount}",
         "currency":"${security.currency}",
         "maturity": {
-              "date": "${security.maturity.getDateTime().getDate()}",
+              "date": "${security.maturity.toLocalDate()}",
               "zone": "${security.maturity.zone}"
           },
         "rate":"${security.rate}",
@@ -44,7 +44,7 @@
         "amount":"${security.amount}",
         "currency":"${security.currency}",
         "maturity": {
-              "date": "${security.settlement.getDateTime().getDate()}",
+              "date": "${security.settlement.toLocalDate()}",
               "zone": "${security.settlement.zone}"
           },
       <#break>
@@ -72,13 +72,13 @@
         "guaranteeType":"${security.guaranteeType}",
         "businessDayConvention":"${security.businessDayConvention}",
         <#if security.announcementDate?has_content>
-          "announcementDate": "${security.announcementDate.getDateTime().getDate()}",
+          "announcementDate": "${security.announcementDate.toLocalDate()}",
         <#else>
           "announcementDate": "-",
         </#if>
         <#if security.interestAccrualDate?has_content>
           "interestAccrualDate": {
-              "date": "${security.interestAccrualDate.getDateTime().getDate()}",
+              "date": "${security.interestAccrualDate.toLocalDate()}",
               "zone": "${security.interestAccrualDate.zone}"
           },
         <#else>
@@ -86,7 +86,7 @@
         </#if>
         <#if security.settlementDate?has_content>
           "settlementDate": {
-              "date": "${security.settlementDate.getDateTime().getDate()}",
+              "date": "${security.settlementDate.toLocalDate()}",
               "zone": "${security.settlementDate.zone}"
           },
         <#else>
@@ -94,7 +94,7 @@
         </#if>
         <#if security.firstCouponDate?has_content>
           "firstCouponDate": {
-              "date": "${security.firstCouponDate.getDateTime().getDate()}",
+              "date": "${security.firstCouponDate.toLocalDate()}",
               "zone": "${security.firstCouponDate.zone}"
           },
         <#else>
@@ -136,7 +136,7 @@
         "currency":"${security.currency}",
         "exchange":"${security.exchange}",
         "exerciseType":"${customRenderer.printExerciseType(security.exerciseType)}",
-        "expiry":"${security.expiry.expiry.getDateTime().getDate()} - ${security.expiry.expiry.zone}",
+        "expiry":"${security.expiry.expiry.toLocalDate()} - ${security.expiry.expiry.zone}",
         "optionType":"${security.optionType}",
         "pointValue":"${security.pointValue}",
         "strike":"${security.strike}",
@@ -150,7 +150,7 @@
         "currency":"${security.currency}",
         "exchange":"${security.exchange}",
         "exerciseType":"${customRenderer.printExerciseType(security.exerciseType)}",
-        "expiry":"${security.expiry.expiry.getDateTime().getDate()} - ${security.expiry.expiry.zone}",
+        "expiry":"${security.expiry.expiry.toLocalDate()} - ${security.expiry.expiry.zone}",
         "optionType":"${security.optionType}",
         "pointValue":"${security.pointValue}",
         "strike":"${security.strike}",
@@ -167,15 +167,15 @@
         <#break>
       <#case "SWAP">
         "tradeDate": {
-            "date": "${security.tradeDate.getDateTime().getDate()}",
+            "date": "${security.tradeDate.toLocalDate()}",
             "zone": "${security.tradeDate.zone}"
         },
         "effectiveDate": {
-            "date": "${security.effectiveDate.getDateTime().getDate()}",
+            "date": "${security.effectiveDate.toLocalDate()}",
             "zone": "${security.effectiveDate.zone}"
         },
         "maturityDate": {
-            "date": "${security.maturityDate.getDateTime().getDate()}",
+            "date": "${security.maturityDate.toLocalDate()}",
             "zone": "${security.maturityDate.zone}"
         },
         "counterparty":"${security.counterparty}",
@@ -245,7 +245,7 @@
         },
       <#break>
       <#case "FX_FORWARD">
-        "forwardDate":"${security.forwardDate.getDateTime().getDate()} - ${security.forwardDate.zone}",
+        "forwardDate":"${security.forwardDate.toLocalDate()} - ${security.forwardDate.zone}",
         "region":"${security.regionId.scheme}-${security.regionId.value}",
         "payCurrency":"${security.payCurrency}",
         "payAmount":"${security.payAmount}",
@@ -253,7 +253,7 @@
         "receiveAmount":"${security.receiveAmount}",
       <#break>
       <#case "NON_DELIVERABLE_FX_FORWARD">
-        "forwardDate":"${security.forwardDate.getDateTime().getDate()} - ${security.forwardDate.zone}",
+        "forwardDate":"${security.forwardDate.toLocalDate()} - ${security.forwardDate.zone}",
         "region":"${security.regionId.scheme}-${security.regionId.value}",
         "payCurrency":"${security.payCurrency}",
         "payAmount":"${security.payAmount}",
@@ -266,59 +266,59 @@
         "barrierType":"${security.barrierType}",
         "callAmount":"${security.callAmount}",
         "callCurrency":"${security.callCurrency}",
-        "expiry":"${security.expiry.expiry.getDateTime().getDate()} - ${security.expiry.expiry.zone}",
+        "expiry":"${security.expiry.expiry.toLocalDate()} - ${security.expiry.expiry.zone}",
         "isLong":"${security.long?string?upper_case}",
         "monitoringType":"${security.monitoringType}",
         "putAmount":"${security.putAmount}",
         "putCurrency":"${security.putCurrency}",
         "samplingFrequency":"${security.samplingFrequency}",
-        "settlementDate":"${security.settlementDate.getDateTime().getDate()} - ${security.settlementDate.zone}",
+        "settlementDate":"${security.settlementDate.toLocalDate()} - ${security.settlementDate.zone}",
       <#break>
       <#case "FX_OPTION">
         "callAmount":"${security.callAmount}",
         "callCurrency":"${security.callCurrency}",
-        "expiry":"${security.expiry.expiry.getDateTime().getDate()} - ${security.expiry.expiry.zone}",
+        "expiry":"${security.expiry.expiry.toLocalDate()} - ${security.expiry.expiry.zone}",
         "isLong":"${security.long?string?upper_case}",
         "putAmount":"${security.putAmount}",
         "putCurrency":"${security.putCurrency}",
-        "settlementDate":"${security.settlementDate.getDateTime().getDate()} - ${security.settlementDate.zone}",
+        "settlementDate":"${security.settlementDate.toLocalDate()} - ${security.settlementDate.zone}",
         "exerciseType":"${security.exerciseType.name}",
       <#break>
       <#case "NONDELIVERABLE_FX_OPTION">
         "callAmount":"${security.callAmount}",
         "callCurrency":"${security.callCurrency}",
-        "expiry":"${security.expiry.expiry.getDateTime().getDate()} - ${security.expiry.expiry.zone}",
+        "expiry":"${security.expiry.expiry.toLocalDate()} - ${security.expiry.expiry.zone}",
         "isLong":"${security.long?string?upper_case}",
         "putAmount":"${security.putAmount}",
         "putCurrency":"${security.putCurrency}",
-        "settlementDate":"${security.settlementDate.getDateTime().getDate()} - ${security.settlementDate.zone}",
+        "settlementDate":"${security.settlementDate.toLocalDate()} - ${security.settlementDate.zone}",
         "deliveryCurrency":"${security.deliveryCurrency}",
         "exerciseType":"${security.exerciseType.name}",
       <#break>
       <#case "FX_DIGITAL_OPTION">
         "callAmount":"${security.callAmount}",
         "callCurrency":"${security.callCurrency}",
-        "expiry":"${security.expiry.expiry.getDateTime().getDate()} - ${security.expiry.expiry.zone}",
+        "expiry":"${security.expiry.expiry.toLocalDate()} - ${security.expiry.expiry.zone}",
         "isLong":"${security.long?string?upper_case}",
         "putAmount":"${security.putAmount}",
         "putCurrency":"${security.putCurrency}",
-        "settlementDate":"${security.settlementDate.getDateTime().getDate()} - ${security.settlementDate.zone}",
+        "settlementDate":"${security.settlementDate.toLocalDate()} - ${security.settlementDate.zone}",
       <#break>
       <#case "NONDELIVERABLE_FX_DIGITAL_OPTION">
         "callAmount":"${security.callAmount}",
         "callCurrency":"${security.callCurrency}",
-        "expiry":"${security.expiry.expiry.getDateTime().getDate()} - ${security.expiry.expiry.zone}",
+        "expiry":"${security.expiry.expiry.toLocalDate()} - ${security.expiry.expiry.zone}",
         "isLong":"${security.long?string?upper_case}",
         "putAmount":"${security.putAmount}",
         "putCurrency":"${security.putCurrency}",
-        "settlementDate":"${security.settlementDate.getDateTime().getDate()} - ${security.settlementDate.zone}",
+        "settlementDate":"${security.settlementDate.toLocalDate()} - ${security.settlementDate.zone}",
         "deliveryCurrency":"${security.deliveryCurrency}",
       <#break>
       <#case "EQUITY_INDEX_OPTION">
         "currency":"${security.currency}",
         "exchange":"${security.exchange}",
         "exerciseType":"${customRenderer.printExerciseType(security.exerciseType)}",
-        "expiry":"${security.expiry.expiry.getDateTime().getDate()} - ${security.expiry.expiry.zone}",
+        "expiry":"${security.expiry.expiry.toLocalDate()} - ${security.expiry.expiry.zone}",
         "optionType":"${security.optionType}",
         "pointValue":"${security.pointValue}",
         "strike":"${security.strike}",
@@ -330,7 +330,7 @@
       <#break>
       <#case "SWAPTION">
         "currency":"${security.currency}",
-        "expiry":"${security.expiry.expiry.getDateTime().getDate()} - ${security.expiry.expiry.zone}",
+        "expiry":"${security.expiry.expiry.toLocalDate()} - ${security.expiry.expiry.zone}",
         "isCashSettled":"${security.cashSettled?string?upper_case}",
         "isLong":"${security.long?string?upper_case}",
         "isPayer":"${security.payer?string?upper_case}",
@@ -345,7 +345,7 @@
         "currency":"${security.currency}",
        	"exchange":"${security.exchange}",
         "exerciseType":"${customRenderer.printExerciseType(security.exerciseType)}",
-        "expiry":"${security.expiry.expiry.getDateTime().getDate()} - ${security.expiry.expiry.zone}",
+        "expiry":"${security.expiry.expiry.toLocalDate()} - ${security.expiry.expiry.zone}",
         "isMargined":"${security.margined?string?upper_case}",
         "optionType":"${security.optionType}",
         "pointValue":"${security.pointValue}",
@@ -362,7 +362,7 @@
        	"tradingExchange":"${security.tradingExchange}",
        	"settlementExchange":"${security.settlementExchange}",
         "exerciseType":"${customRenderer.printExerciseType(security.exerciseType)}",
-        "expiry":"${security.expiry.expiry.getDateTime().getDate()} - ${security.expiry.expiry.zone}",
+        "expiry":"${security.expiry.expiry.toLocalDate()} - ${security.expiry.expiry.zone}",
         "optionType":"${security.optionType}",
         "pointValue":"${security.pointValue}",
         "strike":"${security.strike}",
@@ -378,7 +378,7 @@
        	"tradingExchange":"${security.tradingExchange}",
        	"settlementExchange":"${security.settlementExchange}",
         "exerciseType":"${customRenderer.printExerciseType(security.exerciseType)}",
-        "expiry":"${security.expiry.expiry.getDateTime().getDate()} - ${security.expiry.expiry.zone}",
+        "expiry":"${security.expiry.expiry.toLocalDate()} - ${security.expiry.expiry.zone}",
         "optionType":"${security.optionType}",
         "pointValue":"${security.pointValue}",
         "strike":"${security.strike}",
@@ -394,7 +394,7 @@
         "tradingExchange":"${security.tradingExchange}",
         "settlementExchange":"${security.settlementExchange}",
         "exerciseType":"${customRenderer.printExerciseType(security.exerciseType)}",
-        "expiry":"${security.expiry.expiry.getDateTime().getDate()} - ${security.expiry.expiry.zone}",
+        "expiry":"${security.expiry.expiry.toLocalDate()} - ${security.expiry.expiry.zone}",
         "optionType":"${security.optionType}",
         "pointValue":"${security.pointValue}",
         "strike":"${security.strike}",
@@ -409,7 +409,7 @@
         "currency":"${security.currency}",
        	"exchange":"${security.exchange}",
         "exerciseType":"${customRenderer.printExerciseType(security.exerciseType)}",
-        "expiry":"${security.expiry.expiry.getDateTime().getDate()} - ${security.expiry.expiry.zone}",
+        "expiry":"${security.expiry.expiry.toLocalDate()} - ${security.expiry.expiry.zone}",
         "isMargined":"${security.margined?string?upper_case}",
         "optionType":"${security.optionType}",
         "pointValue":"${security.pointValue}",
@@ -425,7 +425,7 @@
         "currency":"${security.currency}",
        	"exchange":"${security.exchange}",
         "exerciseType":"${customRenderer.printExerciseType(security.exerciseType)}",
-        "expiry":"${security.expiry.expiry.getDateTime().getDate()} - ${security.expiry.expiry.zone}",
+        "expiry":"${security.expiry.expiry.toLocalDate()} - ${security.expiry.expiry.zone}",
         "isMargined":"${security.margined?string?upper_case}",
         "optionType":"${security.optionType}",
         "pointValue":"${security.pointValue}",
@@ -438,8 +438,8 @@
         </#if>
       <#break>
       <#case "CAP-FLOOR">
-        "startDate":"${security.startDate.getDateTime().getDate()} - ${security.startDate.zone}",
-        "maturityDate":"${security.maturityDate.getDateTime().getDate()} - ${security.maturityDate.zone}",
+        "startDate":"${security.startDate.toLocalDate()} - ${security.startDate.zone}",
+        "maturityDate":"${security.maturityDate.toLocalDate()} - ${security.maturityDate.zone}",
         "notional":"${security.notional}",
         "underlyingId":"${security.underlyingId.scheme}-${security.underlyingId.value}",
         <#if underlyingSecurity??>
@@ -467,8 +467,8 @@
         </#if>
       <#break>
       <#case "CAP-FLOOR CMS SPREAD">
-        "startDate":"${security.startDate.getDateTime().getDate()} - ${security.startDate.zone}",
-        "maturityDate":"${security.maturityDate.getDateTime().getDate()} - ${security.maturityDate.zone}",
+        "startDate":"${security.startDate.toLocalDate()} - ${security.startDate.zone}",
+        "maturityDate":"${security.maturityDate.toLocalDate()} - ${security.maturityDate.zone}",
         "notional":"${security.notional}",
         "longId":"${security.longId.scheme}-${security.longId.value}",
         <#if longSecurity??>
@@ -502,9 +502,9 @@
         "notional":"${security.notional}",
         "parameterizedAsVariance":"${security.parameterizedAsVariance?string?upper_case}",
         "annualizationFactor":"${security.annualizationFactor}",
-        "firstObservationDate":"${security.firstObservationDate.getDateTime().getDate()} - ${security.firstObservationDate.zone}",
-        "lastObservationDate":"${security.lastObservationDate.getDateTime().getDate()} - ${security.lastObservationDate.zone}",
-        "settlementDate":"${security.settlementDate.getDateTime().getDate()} - ${security.settlementDate.zone}",
+        "firstObservationDate":"${security.firstObservationDate.toLocalDate()} - ${security.firstObservationDate.zone}",
+        "lastObservationDate":"${security.lastObservationDate.toLocalDate()} - ${security.lastObservationDate.zone}",
+        "settlementDate":"${security.settlementDate.toLocalDate()} - ${security.settlementDate.zone}",
         "regionId":"${security.regionId.scheme} - ${security.regionId.value}",
         "observationFrequency":"${security.observationFrequency.conventionName}",
       <#break>

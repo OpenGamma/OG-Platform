@@ -1,0 +1,22 @@
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
+ 
+namespace com.opengamma.engine.cache.msg {
+
+  // [ENG-256] Don't need this if we work at the releaseCaches level
+
+  message DeleteRequest extends CacheMessage {
+  
+    required id.UniqueId viewCycleId;
+    required string calculationConfigurationName;
+    
+    binding Java {
+      body "public CacheMessage accept (CacheMessageVisitor visitor) { return visitor.visitDeleteRequest (this); }";
+    }
+  
+  }
+
+}

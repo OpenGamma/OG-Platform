@@ -6,7 +6,7 @@ $.register_module({
     name: 'og.analytics.Form2',
     dependencies: [],
     obj: function () {
-        var constructor, callback,
+        var constructor, callback, avail_blocks = 0,
             tashes = { form_container:  'og.analytics.form_tash' },
             selectors = {
                 form_container: 'OG-analytics-form',

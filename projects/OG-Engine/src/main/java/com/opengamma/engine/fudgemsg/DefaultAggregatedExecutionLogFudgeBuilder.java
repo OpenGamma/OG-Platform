@@ -19,8 +19,8 @@ import org.fudgemsg.mapping.FudgeSerializer;
 import org.fudgemsg.types.IndicatorType;
 import org.fudgemsg.wire.types.FudgeWireType;
 
+import com.opengamma.engine.exec.DefaultAggregatedExecutionLog;
 import com.opengamma.engine.view.ExecutionLogWithContext;
-import com.opengamma.engine.view.calc.DefaultAggregatedExecutionLog;
 import com.opengamma.util.log.LogLevel;
 
 /**

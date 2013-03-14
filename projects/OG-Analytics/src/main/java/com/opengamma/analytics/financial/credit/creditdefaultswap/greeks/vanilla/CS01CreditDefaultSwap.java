@@ -1,11 +1,12 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.credit.creditdefaultswap.greeks.vanilla;
 
 import org.threeten.bp.ZonedDateTime;
+import org.threeten.bp.format.DateTimeFormatterBuilder;
 
 import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.bumpers.CreditSpreadBumpers;
@@ -96,6 +97,34 @@ public class CS01CreditDefaultSwap {
     return parallelCS01;
   }
 
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  // Compute the beta adjusted CS01 by a parallel bump of each point on the spread curve
+
+  public double getBetaAdjustedCS01ParallelShiftCreditDefaultSwap(
+      final ZonedDateTime valuationDate,
+      final LegacyVanillaCreditDefaultSwapDefinition cds,
+      final ISDADateCurve yieldCurve,
+      final ZonedDateTime[] marketTenors,
+      final double[] marketSpreads,
+      final double spreadBump,
+      final double beta,
+      final SpreadBumpType spreadBumpType,
+      final PriceType priceType) {
+
+    // ----------------------------------------------------------------------------------------------------------------------------------------
+
+    // TODO : Check that beta is in the range [-100%, +100%]
+
+    // Compute the unadjusted parallel CS01
+    final double parallelCS01 = getCS01ParallelShiftCreditDefaultSwap(valuationDate, cds, yieldCurve, marketTenors, marketSpreads, spreadBump, spreadBumpType, priceType);
+
+    // beta adjust the parallel CS01
+    final double betaAdjustedParallelCS01 = beta * parallelCS01;
+
+    return betaAdjustedParallelCS01;
+  }
+
   // ------------------------------------------------------------------------------------------------------------------------------------------
 
   // Compute the CS01 by bumping each point on the spread curve individually by spreadBump (bump is same for all tenors)
@@ -113,6 +142,15 @@ public class CS01CreditDefaultSwap {
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Check input objects are not null
+
+    System.out.println(
+        valuationDate.toString(new DateTimeFormatterBuilder().appendPattern("yyyyMMdd").toFormatter()) + "\n"
+            + cds + "\n"
+            + yieldCurve
+            + "\n" + marketTenors
+            + "\n" + spreadBump + "\n"
+            + spreadBumpType + "\n"
+            + priceType);
 
     ArgumentChecker.notNull(valuationDate, "Valuation date");
     ArgumentChecker.notNull(cds, "LegacyCreditDefaultSwapDefinition");

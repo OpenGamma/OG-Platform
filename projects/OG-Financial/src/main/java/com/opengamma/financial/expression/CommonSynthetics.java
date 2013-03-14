@@ -1,17 +1,15 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.expression;
 
 import com.google.common.base.Function;
 import com.opengamma.core.security.Security;
-import com.opengamma.core.security.SecuritySource;
+import com.opengamma.engine.ComputationTargetResolver;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.financial.security.FinancialSecurityUtils;
-import com.opengamma.id.ExternalId;
-import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.id.UniqueId;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.money.Currency;
 
@@ -20,7 +18,17 @@ import com.opengamma.util.money.Currency;
  */
 public final class CommonSynthetics {
 
+  private static final ThreadLocal<ComputationTargetResolver.AtVersionCorrection> s_resolver = new ThreadLocal<ComputationTargetResolver.AtVersionCorrection>();
+
   private CommonSynthetics() {
+  }
+
+  protected static ComputationTargetResolver.AtVersionCorrection getResolver() {
+    return s_resolver.get();
+  }
+
+  protected static void setResolver(final ComputationTargetResolver.AtVersionCorrection resolver) {
+    s_resolver.set(resolver);
   }
 
   public static Function<Security, Currency> securityCurrency() {
@@ -45,33 +53,22 @@ public final class CommonSynthetics {
     };
   }
 
-  public static Function<ManageableSecurity, Security> securityUnderlying(final SecuritySource source) {
+  public static Function<ManageableSecurity, Security> securityUnderlying() {
     return new Function<ManageableSecurity, Security>() {
 
       @Override
       public Security apply(final ManageableSecurity security) {
         final Object underlying = security.property("underlyingId").get();
-        if (underlying == null) {
-          return null;
-        }
-        if (underlying instanceof ExternalId) {
-          return source.getSingle(ExternalIdBundle.of((ExternalId) underlying));
-        } else if (underlying instanceof UniqueId) {
-          return source.get((UniqueId) underlying);
-        } else if (underlying instanceof ExternalIdBundle) {
-          return source.getSingle((ExternalIdBundle) underlying);
-        } else {
-          throw new IllegalArgumentException("Bad underlying id - " + underlying);
-        }
+        return UserExpressionParser.resolve(ComputationTargetType.SECURITY, underlying);
       }
 
     };
   }
 
-  public static void configureParser(final UserExpressionParser parser, final SecuritySource securitySource) {
+  public static void configureParser(final UserExpressionParser parser) {
     parser.setSynthetic(Security.class, Currency.class, "currency", securityCurrency());
     parser.setSynthetic(Security.class, String.class, "type", securityType());
-    parser.setSynthetic(ManageableSecurity.class, Security.class, "underlying", securityUnderlying(securitySource));
+    parser.setSynthetic(ManageableSecurity.class, Security.class, "underlying", securityUnderlying());
   }
 
 }

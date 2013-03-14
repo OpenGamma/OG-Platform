@@ -21,6 +21,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
 import com.opengamma.financial.property.DefaultPropertyFunction;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Triple;
 
@@ -60,7 +61,8 @@ public class EquityForwardCurvePerTickerDefaults extends DefaultPropertyFunction
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    final String equityId = EquitySecurityUtils.getIndexOrEquityName(target.getUniqueId());
+    UniqueId id = UniqueId.parse(target.getValue().toString());
+    final String equityId = EquitySecurityUtils.getIndexOrEquityName(id);
     if (equityId == null) {
       return false;
     }

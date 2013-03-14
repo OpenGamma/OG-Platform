@@ -143,7 +143,7 @@ public class EHCachingHolidaySource implements HolidaySource {
   /**
     * Call this at the end of a unit test run to clear the state of EHCache. It should not be part of a generic lifecycle method.
     */
-   protected void shutdown() {
-     _cache.getCacheManager().removeCache(CACHE_NAME);
-   }
+  protected void shutdown() {
+    _cache.getCacheManager().removeCache(CACHE_NAME);
+  }
 }

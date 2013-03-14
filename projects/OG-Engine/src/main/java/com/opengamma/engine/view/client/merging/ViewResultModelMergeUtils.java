@@ -9,9 +9,9 @@ import java.util.Collection;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ComputedValueResult;
-import com.opengamma.engine.view.InMemoryViewResultModel;
 import com.opengamma.engine.view.ViewCalculationResultModel;
 import com.opengamma.engine.view.ViewResultModel;
+import com.opengamma.engine.view.impl.InMemoryViewResultModel;
 
 /**
  * 

@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="JAVA_MODULE" version="4">
+  <component name="FacetManager">
+    <facet type="IvyIDEA" name="IvyIDEA">
+      <configuration ivyFile="$MODULE_DIR$/ivy.xml" useProjectSettings="true" useCustomIvySettings="true" ivySettingsFile="" onlyResolveSelectedConfigs="false">
+        <propertiesSettings>
+          <propertiesFiles includeProjectLevelPropertiesFiles="true" />
+        </propertiesSettings>
+      </configuration>
+    </facet>
+  </component>
+  <component name="NewModuleRootManager" inherit-compiler-output="true">
+    <exclude-output />
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/src/main/java" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/test/java" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/config" isTestSource="false" />
+      <excludeFolder url="file://$MODULE_DIR$/target" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module" module-name="OG-Util" />
+    <orderEntry type="module-library" exported="">
+      <library name="IvyIDEA-OG-UtilDB-default">
+        <CLASSES>
+          <root url="jar://$USER_HOME$/.ivy2/cache/com.opengamma/elsql/jars/elsql-0.7.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/com.jolbox/bonecp/jars/bonecp-0.7.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.springframework/spring/jars/spring-transaction-3.0.4.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.springframework/spring/jars/spring-test-3.0.4.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.springframework/spring/jars/spring-core-3.0.4.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.springframework/spring/jars/spring-jms-3.0.4.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.springframework/spring/jars/spring-aop-3.0.4.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.springframework/spring/jars/spring-asm-3.0.4.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.springframework/spring/jars/spring-orm-3.0.4.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.springframework/spring/jars/spring-beans-3.0.4.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.springframework/spring/jars/spring-expression-3.0.4.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.springframework/spring/jars/spring-context-3.0.4.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.springframework/spring/jars/spring-web-3.0.4.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.springframework/spring/jars/spring-context.support-3.0.4.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.springframework/spring/jars/spring-jdbc-3.0.4.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.commons/commons-logging/jars/commons-logging-1.1.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.aopalliance/aopalliance/jars/aopalliance-1.0.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/javax.jms/jms/jars/jms-1.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.hibernate/hibernate/jars/hibernate-3.5.2.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/javax.transaction/jta/jars/jta-1.1.zip!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.antlr/antlr/jars/antlr-2.7.7.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.dom4j/dom4j/jars/dom4j-1.6.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.commons/commons-collections/jars/commons-collections-3.2.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.jboss/javassist/jars/javassist-3.9.0.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/net.sourceforge.ehcache/ehcache/jars/ehcache-core-2.6.3.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.slf4j/slf4j/jars/slf4j-api-1.5.11.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.derby/derby/jars/derbyclient-10.6.1.0.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.derby/derby/jars/derbyLocale_cs-10.6.1.0.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.derby/derby/jars/derbyLocale_ru-10.6.1.0.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.derby/derby/jars/derbyLocale_fr-10.6.1.0.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.derby/derby/jars/derbyLocale_ja_JP-10.6.1.0.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.derby/derby/jars/derbyLocale_zh_CN-10.6.1.0.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.derby/derby/jars/derby-10.6.1.0.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.derby/derby/jars/derbyLocale_pt_BR-10.6.1.0.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.derby/derby/jars/derbyLocale_zh_TW-10.6.1.0.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.derby/derby/jars/derby-10.6.1.0.war!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.derby/derby/jars/derbyLocale_pl-10.6.1.0.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.derby/derby/jars/derbyLocale_de_DE-10.6.1.0.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.derby/derby/jars/derbyLocale_hu-10.6.1.0.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.derby/derby/jars/derbyLocale_it-10.6.1.0.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.derby/derby/jars/derbyrun-10.6.1.0.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.derby/derby/jars/derbyLocale_ko_KR-10.6.1.0.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.derby/derby/jars/derbytools-10.6.1.0.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.derby/derby/jars/derbynet-10.6.1.0.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.derby/derby/jars/derbyLocale_es-10.6.1.0.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.postgresql/postgresql-jdbc/jars/postgresql-jdbc4-9.1-901.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.postgresql/postgresql-jdbc/jars/postgresql-jdbc3-9.1-901.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/com.microsoft/sqljdbc/jars/sqljdbc4-4.0.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.hsqldb/hsqldb/jars/hsqldb-2.2.9.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.mongodb/mongo-java-driver/jars/mongo-java-driver-2.7.3.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/redis/jedis/jars/jedis-2.1.0.jar!/" />
+        </CLASSES>
+        <JAVADOC>
+          <root url="jar://$USER_HOME$/.ivy2/cache/com.opengamma/elsql/javadocs/elsql-javadoc-0.7.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.commons/commons-logging/javadocs/commons-logging-javadoc-1.1.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.aopalliance/aopalliance/javadocs/aopalliance-javadoc-1.0.zip!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/javax.jms/jms/javadocs/jms-javadoc-1.1.zip!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.hibernate/hibernate/javadocs/hibernate-javadoc-3.5.2.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/javax.transaction/jta/javadocs/jta-docs-1.1.zip!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.dom4j/dom4j/javadocs/dom4j-javadoc-1.6.1.zip!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.commons/commons-collections/javadocs/commons-collections-javadoc-3.2.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/net.sourceforge.ehcache/ehcache/javadocs/ehcache-core-javadoc-2.6.3.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.mongodb/mongo-java-driver/javadocs/mongo-java-driver-javadoc-2.7.3.jar!/" />
+        </JAVADOC>
+        <SOURCES>
+          <root url="jar://$USER_HOME$/.ivy2/cache/com.opengamma/elsql/sources/elsql-sources-0.7.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/com.jolbox/bonecp/sources/bonecp-sources-0.7.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.springframework/spring/sources/spring-core-src-3.0.4.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.springframework/spring/sources/spring-beans-src-3.0.4.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.springframework/spring/sources/spring-context-src-3.0.4.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.springframework/spring/sources/spring-expression-src-3.0.4.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.springframework/spring/sources/spring-jms-src-3.0.4.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.springframework/spring/sources/spring-context.support-src-3.0.4.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.springframework/spring/sources/spring-orm-src-3.0.4.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.springframework/spring/sources/spring-web-src-3.0.4.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.springframework/spring/sources/spring-jdbc-src-3.0.4.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.springframework/spring/sources/spring-test-src-3.0.4.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.springframework/spring/sources/spring-aop-src-3.0.4.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.springframework/spring/sources/spring-asm-src-3.0.4.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.springframework/spring/sources/spring-transaction-src-3.0.4.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.commons/commons-logging/sources/commons-logging-src-1.1.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/javax.jms/jms/sources/jms-src-1.1.zip!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.hibernate/hibernate/sources/hibernate-ehcache-src-3.5.2.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.hibernate/hibernate/sources/hibernate-core-src-3.5.2.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.antlr/antlr/sources/antlr-src-2.7.7.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.dom4j/dom4j/sources/dom4j-src-1.6.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.commons/commons-collections/sources/commons-collections-src-3.2.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.jboss/javassist/sources/javassist-src-3.9.0.zip!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/net.sourceforge.ehcache/ehcache/sources/ehcache-core-source-2.6.3.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.slf4j/slf4j/sources/slf4j-api-src-1.5.11.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.postgresql/postgresql-jdbc/sources/postgresql-9.1-901.zip!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.hsqldb/hsqldb/sources/hsqldb-src-2.2.9.zip!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.mongodb/mongo-java-driver/sources/mongo-java-driver-sources-2.7.3.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/redis/jedis/sources/jedis-src-2.1.0.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+  </component>
+</module>
+

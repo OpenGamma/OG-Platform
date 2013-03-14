@@ -19,8 +19,8 @@ import org.threeten.bp.Clock;
 import org.threeten.bp.Instant;
 
 import com.opengamma.elsql.ElSqlBundle;
-import com.opengamma.engine.view.calcnode.stats.FunctionCostsDocument;
-import com.opengamma.engine.view.calcnode.stats.FunctionCostsMaster;
+import com.opengamma.engine.calcnode.stats.FunctionCostsDocument;
+import com.opengamma.engine.calcnode.stats.FunctionCostsMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.db.DbDateUtils;

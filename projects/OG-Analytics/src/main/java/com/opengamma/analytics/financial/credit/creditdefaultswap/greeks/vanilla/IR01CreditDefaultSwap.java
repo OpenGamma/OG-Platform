@@ -12,6 +12,7 @@ import com.opengamma.analytics.financial.credit.bumpers.SpreadBumpType;
 import com.opengamma.analytics.financial.credit.cds.ISDACurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.legacy.PresentValueLegacyCreditDefaultSwap;
+import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.InterestRateBumpType;
 import com.opengamma.analytics.financial.credit.marketdatachecker.SpreadTermStructureDataChecker;
 import com.opengamma.financial.convention.daycount.ActualThreeSixtyFive;
@@ -35,7 +36,7 @@ public class IR01CreditDefaultSwap {
 
   // TODO : Further checks on efficacy of input arguments
   // TODO : Need to get the times[] calculation correct
-  // TODO : Need to consider more sophisticated sensitivity calculations e.g. algorithmic differentiation 
+  // TODO : Need to consider more sophisticated sensitivity calculations e.g. algorithmic differentiation
 
   // NOTE : We enforce rateBump > 0, therefore if the marketSpreads > 0 (an exception is thrown if this is not the case) then bumpedMarketSpreads > 0 by construction
 
@@ -46,7 +47,7 @@ public class IR01CreditDefaultSwap {
   public double getIR01ParallelShiftCreditDefaultSwap(
       final ZonedDateTime valuationDate,
       final LegacyVanillaCreditDefaultSwapDefinition cds,
-      final ISDACurve yieldCurve,
+      final ISDADateCurve yieldCurve,
       final ZonedDateTime[] marketTenors,
       final double[] marketSpreads,
       final double interestRateBump,
@@ -96,7 +97,7 @@ public class IR01CreditDefaultSwap {
     for (int m = 0; m < yieldCurve.getNumberOfCurvePoints(); m++) {
       System.out.println(yieldCurve.getTimenode(m) + "\t" + yieldCurve.getTimenode(m));
     }
-    */
+     */
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -153,7 +154,7 @@ public class IR01CreditDefaultSwap {
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Vector of bucketed CS01 sensitivities (per tenor)
-    final double[] bucketedCS01 = new double[marketSpreads.length];
+    final double[] bucketedIR01 = new double[marketSpreads.length];
 
     // Vector to hold the bumped market spreads
     final double[] bumpedMarketSpreads = new double[marketSpreads.length];
@@ -171,6 +172,9 @@ public class IR01CreditDefaultSwap {
     // Loop through and bump each of the spreads at each tenor
     for (int m = 0; m < marketSpreads.length; m++) {
 
+      // TODO : Add the calculation for bumping the interest rate curve
+
+      /*
       // Reset the bumpedMarketSpreads vector to the original marketSpreads
       for (int n = 0; n < marketTenors.length; n++) {
         bumpedMarketSpreads[n] = marketSpreads[n];
@@ -184,16 +188,17 @@ public class IR01CreditDefaultSwap {
       if (spreadBumpType == SpreadBumpType.MULTIPLICATIVE_BUCKETED) {
         bumpedMarketSpreads[m] = marketSpreads[m] * (1 + spreadBump);
       }
+      */
 
       // Calculate the bumped CDS PV
       final double bumpedPresentValue = 0; //creditDefaultSwap.calibrateAndGetPresentValue(valuationDate, cds, marketTenors, bumpedMarketSpreads, yieldCurve, priceType);
 
-      bucketedCS01[m] = (bumpedPresentValue - presentValue) / spreadBump;
+      bucketedIR01[m] = (bumpedPresentValue - presentValue) / spreadBump;
     }
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
-    return bucketedCS01;
+    return bucketedIR01;
   }
 
   // ------------------------------------------------------------------------------------------------------------------------------------------

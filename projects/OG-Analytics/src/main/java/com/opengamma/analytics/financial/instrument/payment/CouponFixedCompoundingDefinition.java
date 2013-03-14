@@ -124,7 +124,7 @@ public final class CouponFixedCompoundingDefinition extends CouponDefinition {
    * @param accrualStartDate The first accrual date. 
    * @param accrualEndDate The last accrual date.
    * @param notional The coupon notional.
-   * @param tenorPeriod The total coupon tenor.
+   * @param tenorPeriod Perriod between two consecutive accrual dates(usually 1 year).
    * @param rate The fixed rate.
    * @return The compounded coupon.
    */
@@ -155,7 +155,8 @@ public final class CouponFixedCompoundingDefinition extends CouponDefinition {
    */
   public static CouponFixedCompoundingDefinition from(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final double notional,
       final int tenor, final double rate) {
-    final ZonedDateTime[] accrualEndDates = ScheduleCalculator.getUnadjustedDateSchedule(accrualStartDate, accrualStartDate.plus(Period.ofYears(tenor)), Period.ofYears(tenor), true, false);
+    final ZonedDateTime[] accrualEndDates = ScheduleCalculator.getUnadjustedDateSchedule(accrualStartDate, accrualStartDate.plus(Period.ofYears(tenor)), Period.ofYears(1), true, false);
+
     final int nbSubPeriod = accrualEndDates.length;
     final ZonedDateTime[] accrualStartDates = new ZonedDateTime[nbSubPeriod];
     accrualStartDates[0] = accrualStartDate;

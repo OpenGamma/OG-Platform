@@ -106,6 +106,7 @@ public final class EquitySecurityUtils {
    * @return The equity or index name, null if the underlying id is not a BUID or Bloomberg ticker
    */
   public static String getIndexOrEquityName(final UniqueId uniqueId) {
+    //FIXME: Modify to take ExternalId to avoid incorrect cast to UniqueId
     ArgumentChecker.notNull(uniqueId, "unique id");
     final String value = uniqueId.getValue();
     final String scheme = uniqueId.getScheme();
@@ -131,6 +132,7 @@ public final class EquitySecurityUtils {
    * @return The ticker without postfix
    */
   public static String getTrimmedTarget(final UniqueId uid) {
+    //FIXME: Modify to take ExternalId to avoid incorrect cast to UniqueId
     ArgumentChecker.notNull(uid, "unique id");
     final String value = uid.getValue();
     if (uid.getScheme().equals(ExternalSchemes.BLOOMBERG_TICKER.getName()) || uid.getScheme().equals(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName())) {

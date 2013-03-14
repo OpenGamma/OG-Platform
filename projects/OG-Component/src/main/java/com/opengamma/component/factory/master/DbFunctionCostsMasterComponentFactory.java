@@ -21,9 +21,9 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.ComponentInfoAttributes;
-import com.opengamma.engine.view.calcnode.stats.DataFunctionCostsMasterResource;
-import com.opengamma.engine.view.calcnode.stats.FunctionCostsMaster;
-import com.opengamma.engine.view.calcnode.stats.RemoteFunctionCostsMaster;
+import com.opengamma.engine.calcnode.stats.DataFunctionCostsMasterResource;
+import com.opengamma.engine.calcnode.stats.FunctionCostsMaster;
+import com.opengamma.engine.calcnode.stats.RemoteFunctionCostsMaster;
 import com.opengamma.masterdb.engine.stats.DbFunctionCostsMaster;
 import com.opengamma.util.db.DbConnector;
 

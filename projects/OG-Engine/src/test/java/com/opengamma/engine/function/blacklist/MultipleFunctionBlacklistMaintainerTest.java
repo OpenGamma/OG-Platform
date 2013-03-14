@@ -12,10 +12,10 @@ import org.mockito.Mockito;
 import org.testng.annotations.Test;
 
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.calcnode.CalculationJobItem;
 import com.opengamma.engine.function.EmptyFunctionParameters;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ExecutionLogMode;
-import com.opengamma.engine.view.calcnode.CalculationJobItem;
 
 /**
  * Tests the {@link MultipleFunctionBlacklistMaintainer} class.

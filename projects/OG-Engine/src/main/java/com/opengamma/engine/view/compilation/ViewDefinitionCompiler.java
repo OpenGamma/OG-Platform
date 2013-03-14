@@ -342,13 +342,13 @@ public final class ViewDefinitionCompiler {
     final StringBuilder sb = new StringBuilder();
     for (final Map.Entry<String, DependencyGraph> entry : graphsByConfiguration.entrySet()) {
       final String configName = entry.getKey();
-      final Collection<Pair<ValueRequirement, ValueSpecification>> requiredLiveData = entry.getValue().getAllRequiredMarketData();
+      final Collection<ValueSpecification> requiredLiveData = entry.getValue().getAllRequiredMarketData();
       if (requiredLiveData.isEmpty()) {
         sb.append(configName).append(" requires no live data.\n");
       } else {
         sb.append("Live data for ").append(configName).append("\n");
-        for (final Pair<ValueRequirement, ValueSpecification> liveRequirement : requiredLiveData) {
-          sb.append("\t").append(liveRequirement.getFirst()).append("\n");
+        for (final ValueSpecification liveRequirement : requiredLiveData) {
+          sb.append("\t").append(liveRequirement).append("\n");
         }
       }
     }

@@ -23,7 +23,6 @@ import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
-import com.opengamma.util.time.DateUtils;
 
 /**
  * 
@@ -31,7 +30,7 @@ import com.opengamma.util.time.DateUtils;
 public class PositionExchangeTradedDailyPnLFunction extends AbstractTradeOrDailyPositionPnLFunction {
 
   private static final int MAX_DAYS_OLD = 70;
-  
+
   /**
    * @param resolutionKey the resolution key, not-null
    * @param markDataField the mark to market data field name, not-null
@@ -75,25 +74,22 @@ public class PositionExchangeTradedDailyPnLFunction extends AbstractTradeOrDaily
 
   @Override
   protected DateConstraint getTimeSeriesEndDate(final PositionOrTrade positionOrTrade) {
-    return DateConstraint.VALUATION_TIME.yesterday();
+    return DateConstraint.VALUATION_TIME.minus(Period.ofDays(1));
   }
 
   @Override
   protected LocalDate checkAvailableData(LocalDate originalTradeDate, HistoricalTimeSeries markToMarketSeries, Security security, String markDataField, String resolutionKey) {
     if (markToMarketSeries.getTimeSeries().isEmpty() || markToMarketSeries.getTimeSeries().getLatestValue() == null) {
-      throw new NullPointerException("Could not get mark to market value for security " + 
-          security.getExternalIdBundle() + " for " + markDataField + " using " + resolutionKey + " for " + MAX_DAYS_OLD + " back from " + originalTradeDate);          
+      throw new NullPointerException("Could not get mark to market value for security " +
+          security.getExternalIdBundle() + " for " + markDataField + " using " + resolutionKey + " for " + MAX_DAYS_OLD + " back from " + originalTradeDate);
     } else {
       return markToMarketSeries.getTimeSeries().getLatestTime();
     }
   }
 
-
   @Override
   protected String getResultValueRequirementName() {
     return ValueRequirementNames.DAILY_PNL;
   }
-
-
 
 }

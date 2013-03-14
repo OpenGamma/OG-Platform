@@ -13,7 +13,7 @@ import javax.ws.rs.core.Response;
 
 import org.threeten.bp.Instant;
 
-import com.opengamma.engine.view.calc.EngineResourceReference;
+import com.opengamma.engine.resource.EngineResourceReference;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.rest.AbstractDataResource;
 

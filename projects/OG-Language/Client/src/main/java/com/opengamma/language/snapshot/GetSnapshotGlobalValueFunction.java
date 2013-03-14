@@ -9,6 +9,7 @@ package com.opengamma.language.snapshot;
 import java.util.Arrays;
 import java.util.List;
 
+import com.opengamma.core.marketdatasnapshot.ValueSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
 import com.opengamma.id.ExternalId;
 import com.opengamma.language.context.SessionContext;
@@ -50,11 +51,11 @@ public class GetSnapshotGlobalValueFunction extends AbstractFunctionInvoker impl
   }
 
   public static List<Double> invoke(final ManageableMarketDataSnapshot snapshot, final String valueName, final ExternalId identifier) {
-    final List<Double> result = UnstructuredMarketDataSnapshotUtil.getValue(snapshot.getGlobalValues(), valueName, identifier);
-    if (result == null) {
+    final ValueSnapshot values = snapshot.getGlobalValues().getValue(identifier, valueName);
+    if (values == null) {
       throw new InvokeInvalidArgumentException(0, "Snapshot does not contain value");
     }
-    return result;
+    return Arrays.asList(values.getOverrideValue(), values.getMarketValue());
   }
 
   // AbstractFunctionInvoker

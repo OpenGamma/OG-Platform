@@ -42,7 +42,7 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
 import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
-import com.opengamma.engine.marketdata.InMemoryLKVMarketDataProvider;
+import com.opengamma.engine.marketdata.availability.FixedMarketDataAvailabilityProvider;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.test.MockFunction;
 import com.opengamma.engine.view.ResultOutputMode;
@@ -75,7 +75,6 @@ public class ViewDefinitionCompilerTest {
     defSec.addExternalId(secIdentifier);
     final InMemorySecuritySource securitySource = new InMemorySecuritySource();
     securitySource.addSecurity(defSec);
-    final InMemoryLKVMarketDataProvider snapshotProvider = new InMemoryLKVMarketDataProvider();
     final InMemoryFunctionRepository functionRepo = new InMemoryFunctionRepository();
     final FunctionCompilationContext functionCompilationContext = new FunctionCompilationContext();
     functionCompilationContext.setFunctionInitId(123);
@@ -85,7 +84,7 @@ public class ViewDefinitionCompilerTest {
     cfs.initialize();
     final DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(cfs);
     final ExecutorService executorService = Executors.newSingleThreadExecutor();
-    final ViewCompilationServices vcs = new ViewCompilationServices(snapshotProvider, functionResolver, functionCompilationContext, executorService,
+    final ViewCompilationServices vcs = new ViewCompilationServices(new FixedMarketDataAvailabilityProvider(), functionResolver, functionCompilationContext, executorService,
         new DependencyGraphBuilderFactory());
     final ViewDefinition viewDefinition = new ViewDefinition("My View", UniqueId.of("FOO", "BAR"), "kirk");
     final CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, vcs, Instant.now(), VersionCorrection.LATEST);
@@ -107,7 +106,6 @@ public class ViewDefinitionCompilerTest {
     defSec.addExternalId(secIdentifier);
     final InMemorySecuritySource securitySource = new InMemorySecuritySource();
     securitySource.addSecurity(defSec);
-    final InMemoryLKVMarketDataProvider snapshotProvider = new InMemoryLKVMarketDataProvider();
     // This function doesn't actually require anything, so it can compute at the node level without anything else.
     // Hence, the only target will be the node.
     final MockFunction fn1 = MockFunction.getMockFunction(new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE, pn), 14.2);
@@ -123,7 +121,7 @@ public class ViewDefinitionCompilerTest {
         EHCacheUtils.createCacheManager());
     functionCompilationContext.setRawComputationTargetResolver(computationTargetResolver);
     final ExecutorService executorService = Executors.newSingleThreadExecutor();
-    final ViewCompilationServices vcs = new ViewCompilationServices(snapshotProvider, functionResolver, functionCompilationContext, executorService,
+    final ViewCompilationServices vcs = new ViewCompilationServices(new FixedMarketDataAvailabilityProvider(), functionResolver, functionCompilationContext, executorService,
         new DependencyGraphBuilderFactory());
     final ViewDefinition viewDefinition = new ViewDefinition("My View", UniqueId.of("FOO", "BAR"), "kirk");
     // We've not provided a function that targets the position level, so we can't ask for it.
@@ -155,7 +153,6 @@ public class ViewDefinitionCompilerTest {
     final InMemorySecuritySource securitySource = new InMemorySecuritySource();
     securitySource.addSecurity(sec1);
     securitySource.addSecurity(sec2);
-    final InMemoryLKVMarketDataProvider snapshotProvider = new InMemoryLKVMarketDataProvider();
     final MockFunction fn2 = MockFunction.getMockFunction("fn2", new ComputationTarget(ComputationTargetType.SECURITY, sec2), 14.2);
     final MockFunction fn1 = MockFunction.getMockFunction("fn1", new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE, pn), 14.2, fn2);
     final InMemoryFunctionRepository functionRepo = new InMemoryFunctionRepository();
@@ -166,11 +163,12 @@ public class ViewDefinitionCompilerTest {
     final CompiledFunctionService cfs = new CompiledFunctionService(functionRepo, new CachingFunctionRepositoryCompiler(), functionCompilationContext);
     cfs.initialize();
     final DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(cfs);
-    final DefaultCachingComputationTargetResolver computationTargetResolver = new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource, positionSource), EHCacheUtils
-        .createCacheManager());
+    final DefaultCachingComputationTargetResolver computationTargetResolver = new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource, positionSource),
+        EHCacheUtils
+            .createCacheManager());
     functionCompilationContext.setRawComputationTargetResolver(computationTargetResolver);
     final ExecutorService executorService = Executors.newSingleThreadExecutor();
-    final ViewCompilationServices vcs = new ViewCompilationServices(snapshotProvider, functionResolver, functionCompilationContext, executorService,
+    final ViewCompilationServices vcs = new ViewCompilationServices(new FixedMarketDataAvailabilityProvider(), functionResolver, functionCompilationContext, executorService,
         new DependencyGraphBuilderFactory());
     final ViewDefinition viewDefinition = new ViewDefinition("My View", UniqueId.of("FOO", "BAR"), "kirk");
     viewDefinition.getResultModelDefinition().setPositionOutputMode(ResultOutputMode.NONE);
@@ -194,7 +192,6 @@ public class ViewDefinitionCompilerTest {
     final ViewCalculationConfiguration calcConfig = new ViewCalculationConfiguration(viewDefinition, "Config1");
     viewDefinition.addViewCalculationConfiguration(calcConfig);
     final UniqueId t1 = UniqueId.of("TestScheme", "t1");
-    final InMemoryLKVMarketDataProvider snapshotProvider = new InMemoryLKVMarketDataProvider();
     final InMemoryFunctionRepository functionRepo = new InMemoryFunctionRepository();
     final MockFunction f1 = MockFunction.getMockFunction(new ComputationTarget(ComputationTargetType.PRIMITIVE, t1), 42);
     functionRepo.addFunction(f1);
@@ -206,7 +203,7 @@ public class ViewDefinitionCompilerTest {
     final DefaultCachingComputationTargetResolver computationTargetResolver = new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(), EHCacheUtils.createCacheManager());
     compilationContext.setRawComputationTargetResolver(computationTargetResolver);
     final ExecutorService executorService = Executors.newSingleThreadExecutor();
-    final ViewCompilationServices compilationServices = new ViewCompilationServices(snapshotProvider, functionResolver, compilationContext, executorService,
+    final ViewCompilationServices compilationServices = new ViewCompilationServices(new FixedMarketDataAvailabilityProvider(), functionResolver, compilationContext, executorService,
         new DependencyGraphBuilderFactory());
     // We'll require r1 which can be satisfied by f1
     calcConfig.addSpecificRequirement(f1.getResultSpec().toRequirementSpecification());
@@ -227,7 +224,6 @@ public class ViewDefinitionCompilerTest {
     final InMemorySecuritySource securitySource = new InMemorySecuritySource();
     securitySource.addSecurity(sec1);
     final UniqueId t1 = UniqueId.of("TestScheme", "t1");
-    final InMemoryLKVMarketDataProvider snapshotProvider = new InMemoryLKVMarketDataProvider();
     final InMemoryFunctionRepository functionRepo = new InMemoryFunctionRepository();
     final MockFunction f1 = MockFunction.getMockFunction("f1", new ComputationTarget(ComputationTargetType.PRIMITIVE, t1), 42);
     final MockFunction f2 = MockFunction.getMockFunction("f2", new ComputationTarget(ComputationTargetType.SECURITY, sec1), 60, f1);
@@ -242,7 +238,7 @@ public class ViewDefinitionCompilerTest {
         .createCacheManager());
     compilationContext.setRawComputationTargetResolver(computationTargetResolver);
     final ExecutorService executorService = Executors.newSingleThreadExecutor();
-    final ViewCompilationServices compilationServices = new ViewCompilationServices(snapshotProvider, functionResolver, compilationContext, executorService,
+    final ViewCompilationServices compilationServices = new ViewCompilationServices(new FixedMarketDataAvailabilityProvider(), functionResolver, compilationContext, executorService,
         new DependencyGraphBuilderFactory());
     // We'll require r2 which can be satisfied by f2, which in turn requires the output of f1
     // Additionally, the security should be resolved through the ComputationTargetResolver, which only has a security
@@ -269,7 +265,6 @@ public class ViewDefinitionCompilerTest {
     final ViewDefinition viewDefinition = new ViewDefinition("Test", "jonathan");
     final ViewCalculationConfiguration calcConfig = new ViewCalculationConfiguration(viewDefinition, "Config1");
     viewDefinition.addViewCalculationConfiguration(calcConfig);
-    final InMemoryLKVMarketDataProvider snapshotProvider = new InMemoryLKVMarketDataProvider();
     final FunctionRepository functionRepo = new InMemoryFunctionRepository();
     final FunctionCompilationContext compilationContext = new FunctionCompilationContext();
     final CompiledFunctionService cfs = new CompiledFunctionService(functionRepo, new CachingFunctionRepositoryCompiler(), compilationContext);
@@ -280,9 +275,8 @@ public class ViewDefinitionCompilerTest {
         EHCacheUtils.createCacheManager());
     compilationContext.setRawComputationTargetResolver(computationTargetResolver);
     final ExecutorService executorService = Executors.newSingleThreadExecutor();
-    final Future<CompiledViewDefinitionWithGraphsImpl> future = ViewDefinitionCompiler.fullCompileTask(viewDefinition, new ViewCompilationServices(snapshotProvider, functionResolver,
-        compilationContext,
-        executorService, new DependencyGraphBuilderFactory()), Instant.now(), VersionCorrection.LATEST);
+    final Future<CompiledViewDefinitionWithGraphsImpl> future = ViewDefinitionCompiler.fullCompileTask(viewDefinition, new ViewCompilationServices(new FixedMarketDataAvailabilityProvider(),
+        functionResolver, compilationContext, executorService, new DependencyGraphBuilderFactory()), Instant.now(), VersionCorrection.LATEST);
     assertFalse(future.isDone());
     assertFalse(future.isCancelled());
     assertTrue(future.cancel(true));

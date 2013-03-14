@@ -11,10 +11,8 @@ import com.opengamma.engine.function.FunctionDefinition;
 /**
  * Standard names used to refer to particular computed values.
  * <p>
- * These name are used as keys to define specific required values in the engine.
- * They should be used by a {@link FunctionDefinition} to state their required inputs
- * and their potential outputs.
- * These are a typical common set of names, which may be extended.
+ * These name are used as keys to define specific required values in the engine. They should be used by a {@link FunctionDefinition} to state their required inputs and their potential outputs. These
+ * are a typical common set of names, which may be extended.
  * <p>
  * For names used to refer to market data, see {@link MarketDataRequirementNames}.
  */
@@ -156,6 +154,10 @@ public final class ValueRequirementNames {
    * Hazard rate curve for credit instruments.
    */
   public static final String HAZARD_RATE_CURVE = "HazardRateCurve";
+  /**
+   * Credit spread curves.
+   */
+  public static final String CREDIT_SPREAD_CURVE = "CreditSpreadCurve";
   /**
    * The bundle of historical time series objects for instruments on a curve.
    */
@@ -311,6 +313,16 @@ public final class ValueRequirementNames {
    */
   public static final String BUCKETED_CS01 = "Bucketed CS01";
 
+  /**
+   * The second-order change in the value of an instrument if the credit curve is moved by 1 basis point.
+   */
+  public static final String GAMMA_CS01 = "Gamma CS01";
+  
+  /** 
+   * The bucketed second-order changes in the value of an instrument if the credit curve is moved by 1 basis point. 
+   */
+  public static final String BUCKETED_GAMMA_CS01 = "Bucketed Gamma CS01";
+  
   /**
    * The bucketed (CS01) spreads for a credit default swap.
    */
@@ -531,6 +543,10 @@ public final class ValueRequirementNames {
    * The aggregate percentage vega of an option.
    */
   public static final String POSITION_VEGA_P = "PositionVegaP";
+  /**
+   * The aggregate vega of an option with a weighting factor related to square root of time to expiry
+   */
+  public static final String POSITION_WEIGHTED_VEGA = "PositionWeightedVega";
   /**
    * The aggregate vomma of an option (second order derivative of price with respect to the volatility).
    */
@@ -756,7 +772,7 @@ public final class ValueRequirementNames {
    */
   public static final String VEGA_P = "VegaP";
   /**
-   * The vega an option with some weighting factor
+   * The vega of an option with a weighting factor related to square root of time to expiry
    */
   public static final String WEIGHTED_VEGA = "Weighted Vega";
   /**
@@ -1115,7 +1131,6 @@ public final class ValueRequirementNames {
    */
   public static final String FX_PRESENT_VALUE = "FX Present Value";
 
-
   /**
    * The value vega of a digital option that is priced using call spread replication
    */
@@ -1271,10 +1286,9 @@ public final class ValueRequirementNames {
   public static final String AFFINE_DIVIDENDS = "Affine Dividends";
 
   /**
-   * A type which represents the function target. Can be used
-   * to load an item directly from the database and push it directly to a function as an input
+   * The object referenced by a target specification. Can be used to load an item, referenced by a target specification, directly from a database and receive it as an input to a function.
    */
-  public static final String TARGET_TYPE = "TargetType";
+  public static final String TARGET = "Target";
 
   ///// Externally-sourced values
   // Existing value requirement names with a suffix

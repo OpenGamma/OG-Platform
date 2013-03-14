@@ -44,7 +44,7 @@ public class InterestRateFutureOptionMarginXXBlackSmileMethodTest {
   private static final Currency EUR = EURIBOR3M.getCurrency();
   private static final Calendar TARGET = EURIBOR3M.getCalendar();
 
-  private static final InterpolatedDoublesSurface BLACK_PARAMETERS = TestsDataSetsBlack.createBlackSurface();
+  private static final InterpolatedDoublesSurface BLACK_PARAMETERS = TestsDataSetsBlack.createBlackSurfaceExpiryTenor();
   private static final BlackSTIRFuturesSmileProviderDiscount BLACK_MULTICURVES = new BlackSTIRFuturesSmileProviderDiscount(MULTICURVES, BLACK_PARAMETERS, EURIBOR3M);
 
   private static final String NOT_USED = "Not used";
@@ -147,8 +147,8 @@ public class InterestRateFutureOptionMarginXXBlackSmileMethodTest {
    * Test the option price Black sensitivity
    */
   public void priceBlackSensitivity() {
-    final InterpolatedDoublesSurface blackParameterPlus = TestsDataSetsBlack.createBlackSurfaceShift(VOL_SHIFT);
-    final InterpolatedDoublesSurface blackParameterMinus = TestsDataSetsBlack.createBlackSurfaceShift(-VOL_SHIFT);
+    final InterpolatedDoublesSurface blackParameterPlus = TestsDataSetsBlack.createBlackSurfaceExpiryTenorShift(VOL_SHIFT);
+    final InterpolatedDoublesSurface blackParameterMinus = TestsDataSetsBlack.createBlackSurfaceExpiryTenorShift(-VOL_SHIFT);
     final BlackSTIRFuturesSmileProviderDiscount blackPlus = new BlackSTIRFuturesSmileProviderDiscount(MULTICURVES, blackParameterPlus, EURIBOR3M);
     final BlackSTIRFuturesSmileProviderDiscount blackMinus = new BlackSTIRFuturesSmileProviderDiscount(MULTICURVES, blackParameterMinus, EURIBOR3M);
     final double pricePlus = METHOD_SECURITY_OPTION_BLACK.price(OPTION_ERU2, blackPlus);

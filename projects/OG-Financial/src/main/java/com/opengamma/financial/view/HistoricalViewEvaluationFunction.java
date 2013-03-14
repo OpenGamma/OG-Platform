@@ -32,12 +32,12 @@ public class HistoricalViewEvaluationFunction extends ViewEvaluationFunction<His
   public HistoricalViewEvaluationFunction() {
     super(ValueRequirementNames.HISTORICAL_TIME_SERIES, HistoricalViewEvaluationTarget.class);
   }
-  
+
   @Override
   protected ViewCycleExecutionOptions getDefaultCycleOptions(FunctionExecutionContext context) {
-    return ViewCycleExecutionOptions.builder().setValuationTime(context.getValuationTime()).create();
+    return ViewCycleExecutionOptions.builder().setValuationTime(context.getValuationTime()).setResolverVersionCorrection(context.getComputationTargetResolver().getVersionCorrection()).create();
   }
-  
+
   @Override
   protected HistoricalViewEvaluationResultBuilder createResultBuilder(ViewEvaluationTarget target) {
     return new HistoricalViewEvaluationResultBuilder(target.getViewDefinition());
@@ -65,7 +65,7 @@ public class HistoricalViewEvaluationFunction extends ViewEvaluationFunction<His
     }
     return results;
   }
-  
+
   //-------------------------------------------------------------------------
   private LocalDate getResultsDate(ViewCycleExecutionOptions cycleExecutionOptions) {
     // NOTE jonathan 2013-02-28 -- could imagine using constraints
@@ -81,5 +81,4 @@ public class HistoricalViewEvaluationFunction extends ViewEvaluationFunction<His
     return ((FixedHistoricalMarketDataSpecification) marketDataSpec).getSnapshotDate();
   }
 
-  
 }

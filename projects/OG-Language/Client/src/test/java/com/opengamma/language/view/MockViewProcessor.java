@@ -9,11 +9,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.engine.marketdata.NamedMarketDataSpecificationRepository;
+import com.opengamma.engine.resource.EngineResourceManager;
 import com.opengamma.engine.view.ViewProcess;
 import com.opengamma.engine.view.ViewProcessor;
-import com.opengamma.engine.view.calc.EngineResourceManager;
-import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.client.ViewClient;
+import com.opengamma.engine.view.cycle.ViewCycle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 
