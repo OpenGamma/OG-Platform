@@ -300,6 +300,20 @@ $.register_module({
                 });
             };
 
+            form.Block.call(block, {
+                data: { providers: [] },
+                content: '<div class="datasource-load og-menu-toggle og-option-title">'+
+                          '<header class="OG-background-05">data sources:</header>'+
+                          '<ul>'+
+                            '<li class="datasources-query">Loading data sources...</li>'+
+                          '</ul>'+
+                          '<div class="OG-icon og-icon-down"></div>'+
+                         '</div>',
+                processor: function (data) {
+                    data.providers = serialize();
+                }
+            });
+
             $.when( //TODO AG: Automate this process when an endpoint is available for datasource types
                 og.api.rest.livedatasources.get({}),
                 og.api.rest.configs.get({type: 'HistoricalTimeSeriesRating'}),
@@ -313,16 +327,13 @@ $.register_module({
                 default_source = $.extend({}, sources[types[0].type.toLowerCase()]);
                 default_source.source = types[0].source;
                 datasources = config.source ? deserialize(config.source) : [default_source];
-                form.Block.call(block, {
-                    data: { providers: [] },
+                new form.Block({
                     module: 'og.analytics.form_datasources_tash',
-                    children: datasources.map(add_row_handler),
-                    processor: function (data) {
-                        data.providers = serialize();
-                    }
+                    children: datasources.map(add_row_handler)
+                }).html(function (html) {
+                    $('.datasource-load').replaceWith(html);
+                    init();
                 });
-                form.on('form:load', init);
-                form.dom();
             });
 
         };
