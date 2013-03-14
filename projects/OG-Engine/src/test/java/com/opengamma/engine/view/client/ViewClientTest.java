@@ -655,6 +655,7 @@ public class ViewClientTest {
 
     // Force a full cycle - should *not* reuse any previous result, so back to indicators only
     // TODO: [PLAT-3215] This is bad; future optimizations will not necessarily mean a full cycle happens just because a new view definition got posted
+    vd.setUniqueId(UniqueId.of(vd.getUniqueId().getScheme(), vd.getUniqueId().getValue(), "PLAT-3215"));
     worker.updateViewDefinition(vd);
     worker.triggerCycle();
 
