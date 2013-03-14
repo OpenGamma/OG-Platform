@@ -15,8 +15,9 @@ $.register_module({
                      items.push({name: 'Unable to add/edit trades whilst aggregated', handler: $.noop});
                      return items;
                 }
-                // positions with no trades first need a trade created based on the position 
-                var position_edit = function () {
+                // positions with no trades first need a trade created based on the position
+                // trades added to positions need to be locked in to the same trade/security type 
+                var position_edit_insert = function () {
                     var arr = cell.row_value.positionId.split('~'), id = arr[0] + '~' + arr[1];
                     og.api.rest.blotter.positions.get({id: id}).pipe(function (data) {
                         new og.blotter.Dialog({
@@ -36,15 +37,7 @@ $.register_module({
                 };
                 // addding a new trade needs a node id to append to
                 var trade_insert_node = function () {
-                    console.log(cell);
                     new og.blotter.Dialog({portfolio:{name: cell.row_value.nodeId, id: cell.row_value.nodeId}, 
-                        handler: function (data) {return og.api.rest.blotter.trades.put(data);}
-                    });
-                };
-                // addding a new trade to an exisiting position needs a position id to append to
-                var trade_insert_position = function () {
-                    console.log(cell);
-                    new og.blotter.Dialog({portfolio:{name: cell.row_value.positionId, id: cell.row_value.positionId}, 
                         handler: function (data) {return og.api.rest.blotter.trades.put(data);}
                     });
                 };
@@ -60,20 +53,22 @@ $.register_module({
                         }
                     });
                 };
-                if (cell.type === "POSITION")
-                    items.push({name: 'Add Trade', handler: position_edit});
-                else    
-                    items.push({name: 'Add Trade', handler: trade_insert_node});
-                // if a row is a node only the add new trade option is relevant
-                if (cell.row in og.analytics.grid.state.nodes || cell.type === "NODE") {
+                // if a row is a node AND the cell is a position only the position insert option is relevant
+                // if a row is a node OR the cell is a node only the add new trade option is relevant
+                if (cell.row in og.analytics.grid.state.nodes && cell.type === 'POSITION') {
+                    items.push({name: 'Add Trade', handler: position_edit_insert});
                     return items;
+                }
+                else if (cell.row in og.analytics.grid.state.nodes || cell.type === 'NODE') {  
+                    items.push({name: 'Add Trade', handler: trade_insert_node});
+                    return items;  
                 }
                 // if a cell has a tradeId then edit the trade otherwise it is an empty position
                 if (cell.row_value.tradeId) {
                     items.push({name: 'Edit Trade', handler: trade_edit}); 
                 } 
                 else {
-                    items.push({name: 'Edit Trade', handler: position_edit}); 
+                    items.push({name: 'Edit Trade', handler: position_edit_insert}); 
                 }
                 //items.push({name: 'Delete', handler: trade_delete});
                 return items;
