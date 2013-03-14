@@ -66,7 +66,6 @@ public final class CDSIndexComponentBundle implements Iterable<CreditDefaultSwap
    * @return the cdsIndex components bundle, not null
    */
   public static CDSIndexComponentBundle of(Iterable<CreditDefaultSwapIndexComponent> components) {
-    ArgumentChecker.noNulls(components, "components");
     return create(components);
   }
   
@@ -77,7 +76,6 @@ public final class CDSIndexComponentBundle implements Iterable<CreditDefaultSwap
    * @return the cdsIndex components bundle, not null
    */
   public static CDSIndexComponentBundle of(CreditDefaultSwapIndexComponent... components) {
-    ArgumentChecker.noNulls(components, "components");
     return create(Arrays.asList(components));
   }
   
@@ -88,6 +86,8 @@ public final class CDSIndexComponentBundle implements Iterable<CreditDefaultSwap
    * @return the cdsIndex terms, not null
    */
   private static CDSIndexComponentBundle create(Iterable<CreditDefaultSwapIndexComponent> components) {
+    ArgumentChecker.notEmpty(components, "components");
+    ArgumentChecker.noNulls(components, "components");
     return new CDSIndexComponentBundle(ImmutableSortedSet.copyOf(s_obligorComparator, components));
   }
   
