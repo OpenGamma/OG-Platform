@@ -39,15 +39,15 @@ public class ConfigDBCurveSpecificationBuilder implements CurveSpecificationBuil
     final Map<String, CurveNodeIdMapper> cache = new HashMap<>();
     final Collection<CurveNodeWithIdentifier> securities = new ArrayList<>();
     final String curveName = curveDefinition.getName();
-    for (final CurveNode strip : curveDefinition.getStrips()) {
-      final String curveSpecificationName = strip.getCurveSpecificationName();
+    for (final CurveNode nodes : curveDefinition.getNodes()) {
+      final String curveSpecificationName = nodes.getCurveSpecificationName();
       final CurveNodeIdMapper builderConfig = getBuilderConfig(cache, curveSpecificationName);
       if (builderConfig == null) {
-        throw new OpenGammaRuntimeException("Could not get specification builder configuration for curve named " + curveName);
+        throw new OpenGammaRuntimeException("Could not get curve node id mapper for curve named " + curveName);
       }
-      if (strip instanceof CreditSpreadNode) {
-        final ExternalId identifier = builderConfig.getCreditSpreadId(curveDate, ((CreditSpreadNode) strip).getTenor());
-        securities.add(new CurveNodeWithIdentifier(strip, identifier));
+      if (nodes instanceof CreditSpreadNode) {
+        final ExternalId identifier = builderConfig.getCreditSpreadId(curveDate, ((CreditSpreadNode) nodes).getTenor());
+        securities.add(new CurveNodeWithIdentifier(nodes, identifier));
       } else {
         throw new OpenGammaRuntimeException("Can currently only use this code for credit spread strips");
       }
