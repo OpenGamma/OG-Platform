@@ -84,7 +84,7 @@ public class CurveDefinition extends DirectBean implements Serializable, UniqueI
   }
 
   @Override
-  protected Object propertyGet(final String propertyName, final boolean quiet) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
         return getUniqueId();
@@ -98,7 +98,7 @@ public class CurveDefinition extends DirectBean implements Serializable, UniqueI
 
   @SuppressWarnings("unchecked")
   @Override
-  protected void propertySet(final String propertyName, final Object newValue, final boolean quiet) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
         setUniqueId((UniqueId) newValue);
@@ -121,12 +121,12 @@ public class CurveDefinition extends DirectBean implements Serializable, UniqueI
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      final CurveDefinition other = (CurveDefinition) obj;
+      CurveDefinition other = (CurveDefinition) obj;
       return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
           JodaBeanUtils.equal(getName(), other.getName()) &&
           JodaBeanUtils.equal(getNodes(), other.getNodes());
@@ -148,7 +148,6 @@ public class CurveDefinition extends DirectBean implements Serializable, UniqueI
    * Gets the unique identifier of the curve.
    * @return the value of the property
    */
-  @Override
   public UniqueId getUniqueId() {
     return _uniqueId;
   }
@@ -157,8 +156,7 @@ public class CurveDefinition extends DirectBean implements Serializable, UniqueI
    * Sets the unique identifier of the curve.
    * @param uniqueId  the new value of the property
    */
-  @Override
-  public void setUniqueId(final UniqueId uniqueId) {
+  public void setUniqueId(UniqueId uniqueId) {
     this._uniqueId = uniqueId;
   }
 
@@ -183,7 +181,7 @@ public class CurveDefinition extends DirectBean implements Serializable, UniqueI
    * Sets the name of the curve.
    * @param name  the new value of the property, not null
    */
-  public void setName(final String name) {
+  public void setName(String name) {
     JodaBeanUtils.notNull(name, "name");
     this._name = name;
   }
@@ -209,7 +207,7 @@ public class CurveDefinition extends DirectBean implements Serializable, UniqueI
    * Sets the constituents of the curve.
    * @param nodes  the new value of the property, not null
    */
-  public void setNodes(final SortedSet<CurveNode> nodes) {
+  public void setNodes(SortedSet<CurveNode> nodes) {
     JodaBeanUtils.notNull(nodes, "nodes");
     this._nodes = nodes;
   }
@@ -264,7 +262,7 @@ public class CurveDefinition extends DirectBean implements Serializable, UniqueI
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
         case -294460212:  // uniqueId
           return _uniqueId;
