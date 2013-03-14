@@ -186,8 +186,7 @@ public class ViewDefinitionCompilerTest {
     cfs.initialize();
     final DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(cfs);
     final DefaultCachingComputationTargetResolver computationTargetResolver = new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource, positionSource),
-        EHCacheUtils
-            .createCacheManager());
+        _cacheManager);
     functionCompilationContext.setRawComputationTargetResolver(computationTargetResolver);
     final ExecutorService executorService = Executors.newSingleThreadExecutor();
     final ViewCompilationServices vcs = new ViewCompilationServices(new FixedMarketDataAvailabilityProvider(), functionResolver, functionCompilationContext, executorService,
@@ -256,8 +255,7 @@ public class ViewDefinitionCompilerTest {
     final CompiledFunctionService cfs = new CompiledFunctionService(functionRepo, new CachingFunctionRepositoryCompiler(), compilationContext);
     cfs.initialize();
     final DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(cfs);
-    final DefaultCachingComputationTargetResolver computationTargetResolver = new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource), EHCacheUtils
-        .createCacheManager());
+    final DefaultCachingComputationTargetResolver computationTargetResolver = new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource), _cacheManager);
     compilationContext.setRawComputationTargetResolver(computationTargetResolver);
     final ExecutorService executorService = Executors.newSingleThreadExecutor();
     final ViewCompilationServices compilationServices = new ViewCompilationServices(new FixedMarketDataAvailabilityProvider(), functionResolver, compilationContext, executorService,
