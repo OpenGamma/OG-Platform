@@ -189,6 +189,14 @@ public abstract class AbstractLiveDataClient implements LiveDataClient {
     }
 
     @Override
+    public void subscriptionResultsReceived(Collection<LiveDataSubscriptionResponse> subscriptionResults) {
+      _responses.addAll(subscriptionResults);
+      for (int i = 0; i < subscriptionResults.size(); i++) {
+        _responsesReceived.countDown();
+      }
+    }
+
+    @Override
     public void subscriptionStopped(
         LiveDataSpecification fullyQualifiedSpecification) {
       // should never go here      
@@ -235,7 +243,7 @@ public abstract class AbstractLiveDataClient implements LiveDataClient {
     if (success) {
       return listener._responses;
     } else {
-      throw new OpenGammaRuntimeException("Timeout " + timeout + " ms reached when obtaining snapshot " + subscriptionHandles);
+      throw new OpenGammaRuntimeException("Timeout " + timeout + " ms reached when obtaining snapshot of " + subscriptionHandles.size() + " handles");
     }
   }
 

@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.marketdata.live;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -53,7 +54,7 @@ public class LiveMarketDataProvider extends AbstractMarketDataProvider implement
   private final InMemoryLKVMarketDataProvider _underlyingProvider;
   private final MarketDataPermissionProvider _permissionProvider;
   private final ConcurrentMap<LiveDataSpecification, Set<ValueSpecification>> _liveDataSpec2Subscriptions = new ConcurrentHashMap<LiveDataSpecification, Set<ValueSpecification>>();
-  private final Set<ValueSpecification> _failedSubscriptions = new CopyOnWriteArraySet<ValueSpecification>();
+  private volatile Set<ValueSpecification> _failedSubscriptions = new HashSet<ValueSpecification>();
   private final UserPrincipal _marketDataUser;
 
   public LiveMarketDataProvider(final LiveDataClient liveDataClient,
@@ -87,7 +88,9 @@ public class LiveMarketDataProvider extends AbstractMarketDataProvider implement
   public void subscribe(final Set<ValueSpecification> valueSpecifications) {
     final Set<LiveDataSpecification> liveDataSpecs = new HashSet<LiveDataSpecification>();
     synchronized (_liveDataSpec2Subscriptions) {
-      _failedSubscriptions.removeAll(valueSpecifications); //Put these back to a waiting state so that we can try again
+      final Set<ValueSpecification> failedSubscriptions = new HashSet<ValueSpecification>(_failedSubscriptions);
+      failedSubscriptions.removeAll(valueSpecifications); //Put these back to a waiting state so that we can try again
+      _failedSubscriptions = failedSubscriptions;
       for (final ValueSpecification valueSpecification : valueSpecifications) {
         final LiveDataSpecification liveDataSpec = LiveMarketDataAvailabilityProvider.getLiveDataSpecification(valueSpecification);
         Set<ValueSpecification> subscriptions = _liveDataSpec2Subscriptions.get(liveDataSpec);
@@ -118,7 +121,9 @@ public class LiveMarketDataProvider extends AbstractMarketDataProvider implement
   public void unsubscribe(final Set<ValueSpecification> valueSpecifications) {
     final Set<LiveDataSpecification> liveDataSpecs = Sets.newHashSetWithExpectedSize(valueSpecifications.size());
     synchronized (_liveDataSpec2Subscriptions) {
-      _failedSubscriptions.removeAll(valueSpecifications);
+      final Set<ValueSpecification> failedSubscriptions = new HashSet<ValueSpecification>(_failedSubscriptions);
+      failedSubscriptions.removeAll(valueSpecifications); //Put these back to a waiting state so that we can try again
+      _failedSubscriptions = failedSubscriptions;
       for (final ValueSpecification valueSpecification : valueSpecifications) {
         final LiveDataSpecification liveDataSpec = LiveMarketDataAvailabilityProvider.getLiveDataSpecification(valueSpecification);
         final Set<ValueSpecification> subscriptions = _liveDataSpec2Subscriptions.get(liveDataSpec);
@@ -177,10 +182,14 @@ public class LiveMarketDataProvider extends AbstractMarketDataProvider implement
         } else {
           _liveDataSpec2Subscriptions.put(subscriptionResult.getFullyQualifiedSpecification(), subscriptions);
         }
-        _failedSubscriptions.removeAll(subscriptions); // We expect a valueUpdate call for this later
+        final Set<ValueSpecification> failedSubscriptions = new HashSet<ValueSpecification>(_failedSubscriptions);
+        failedSubscriptions.removeAll(subscriptions); // We expect a valueUpdate call for this later
+        _failedSubscriptions = failedSubscriptions;
         s_logger.debug("Subscription made to {} resulted in fully qualified {}", subscriptionResult.getRequestedSpecification(), subscriptionResult.getFullyQualifiedSpecification());
       } else {
-        _failedSubscriptions.addAll(subscriptions);
+        final Set<ValueSpecification> failedSubscriptions = new HashSet<ValueSpecification>(_failedSubscriptions);
+        failedSubscriptions.addAll(subscriptions);
+        _failedSubscriptions = failedSubscriptions;
         // TODO: could be more precise here, only those which weren't in _failedSpecifications
         valuesChanged(subscriptions); // PLAT-1429: wake up the init call
         if (subscriptionResult.getSubscriptionResult() == LiveDataSubscriptionResult.NOT_AUTHORIZED) {
@@ -194,6 +203,52 @@ public class LiveMarketDataProvider extends AbstractMarketDataProvider implement
       subscriptionSucceeded(subscriptions);
     } else {
       subscriptionFailed(subscriptions, subscriptionResult.getUserMessage());
+    }
+  }
+
+  @Override
+  public void subscriptionResultsReceived(final Collection<LiveDataSubscriptionResponse> subscriptionResults) {
+    final Set<ValueSpecification> successfulSubscriptions = new HashSet<ValueSpecification>();
+    final Set<ValueSpecification> failedSubscriptions = new HashSet<ValueSpecification>();
+    synchronized (_liveDataSpec2Subscriptions) {
+      for (LiveDataSubscriptionResponse subscriptionResult : subscriptionResults) {
+        final Set<ValueSpecification> subscriptions = _liveDataSpec2Subscriptions.remove(subscriptionResult.getRequestedSpecification());
+        if (subscriptions == null) {
+          s_logger.warn("Received subscription result for which no subscription was requested: {}", subscriptionResult);
+          s_logger.debug("Current subscriptions: {}", _liveDataSpec2Subscriptions);
+          return;
+        }
+        if (subscriptionResult.getSubscriptionResult() == LiveDataSubscriptionResult.SUCCESS) {
+          final Set<ValueSpecification> existingSubscriptions = _liveDataSpec2Subscriptions.get(subscriptionResult.getFullyQualifiedSpecification());
+          if (existingSubscriptions != null) {
+            existingSubscriptions.addAll(subscriptions);
+          } else {
+            _liveDataSpec2Subscriptions.put(subscriptionResult.getFullyQualifiedSpecification(), subscriptions);
+          }
+          successfulSubscriptions.addAll(subscriptions);
+          s_logger.debug("Subscription made to {} resulted in fully qualified {}", subscriptionResult.getRequestedSpecification(), subscriptionResult.getFullyQualifiedSpecification());
+        } else {
+          failedSubscriptions.addAll(subscriptions);
+          if (subscriptionResult.getSubscriptionResult() == LiveDataSubscriptionResult.NOT_AUTHORIZED) {
+            s_logger.warn("Subscription to {} failed because user is not authorised: {}", subscriptionResult.getRequestedSpecification(), subscriptionResult);
+          } else {
+            s_logger.debug("Subscription to {} failed: {}", subscriptionResult.getRequestedSpecification(), subscriptionResult);
+          }
+        }
+      }
+      final Set<ValueSpecification> newFailedSubscriptions = new HashSet<ValueSpecification>(_failedSubscriptions);
+      newFailedSubscriptions.removeAll(successfulSubscriptions); // We expect a valueUpdate call for this later
+      newFailedSubscriptions.addAll(failedSubscriptions);
+      _failedSubscriptions = newFailedSubscriptions;
+    }
+    s_logger.error("{} success, {} failures", successfulSubscriptions.size(), failedSubscriptions.size()); //info
+    if (!failedSubscriptions.isEmpty()) {
+      // TODO: could be more precise here, only those which weren't in _failedSpecifications
+      valuesChanged(failedSubscriptions); // PLAT-1429: wake up the init call
+      subscriptionFailed(failedSubscriptions, "TODO: get/concat message(s) from " + failedSubscriptions.size() + " failures"/*subscriptionResult.getUserMessage()*/);
+    }
+    if (!successfulSubscriptions.isEmpty()) {
+      subscriptionSucceeded(successfulSubscriptions);
     }
   }
 
