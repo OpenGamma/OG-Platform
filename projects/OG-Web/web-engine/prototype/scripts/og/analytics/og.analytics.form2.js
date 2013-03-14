@@ -50,7 +50,6 @@ $.register_module({
             dom.form_controls = {};
             Object.keys(selectors.menus).map(function (entry) {
                 dom.menus[entry] = $('.'+selectors.menus[entry], dom.form_container);
-                dom.form_controls[entry] = $(selectors.form_controls, dom.menus[entry]);
             });
             dom.menus.views.find('input').select();
         };
@@ -69,6 +68,11 @@ $.register_module({
 
         var keydown_handler = function (event) {
             if (event.keyCode !== 9) return;
+            if (!Object.keys(dom.form_controls).length) {
+                Object.keys(dom.menus).forEach(function (entry) {
+                    dom.form_controls[entry] = $(selectors.form_controls, dom.menus[entry]);
+                });
+            }
             var $elem = $(event.srcElement || event.target), shift = event.shiftKey, menus = dom.menus,
                 controls = dom.form_controls, menu_toggle = '.'+selectors.menu_toggle,
                 load_btn = '.'+selectors.load_btn, idx,
