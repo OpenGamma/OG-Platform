@@ -64,7 +64,7 @@ $.register_module({
                 else {
                     items.push({name: 'Edit Trade', handler: position_edit}); 
                 }
-                items.push({name: 'Delete', handler: trade_delete});
+                //items.push({name: 'Delete', handler: trade_delete});
                 return items;
             }; 
             return og.common.util.ui.contextmenu({
