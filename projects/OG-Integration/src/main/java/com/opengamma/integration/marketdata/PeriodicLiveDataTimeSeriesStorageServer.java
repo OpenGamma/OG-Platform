@@ -14,6 +14,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -192,6 +193,11 @@ public class PeriodicLiveDataTimeSeriesStorageServer implements Lifecycle {
       @Override
       public void subscriptionResultReceived(LiveDataSubscriptionResponse subscriptionResult) {
         s_logger.warn("Subscription result of {}", subscriptionResult);
+      }
+
+      @Override
+      public void subscriptionResultsReceived(Collection<LiveDataSubscriptionResponse> subscriptionResults) {
+        s_logger.warn("Sub result {}", subscriptionResults);
       }
 
       @Override

@@ -34,7 +34,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Test.
  */
-@Test
+@Test(groups = {"ehcache"})
 public class HistoricalTimeSeriesSourceTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(HistoricalTimeSeriesSourceTest.class);

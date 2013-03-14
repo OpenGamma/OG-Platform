@@ -30,6 +30,7 @@ import com.opengamma.util.test.Timeout;
 /**
  * Test.
  */
+@Test(groups = {"ehcache"})
 public class EHCachingExchangeSourceTest {
 
   private CacheManager _cacheManager;

@@ -466,7 +466,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     }
     if (!missingMarketData.isEmpty()) {
       // REVIEW jonathan 2012-11-01 -- probably need a cycle-level execution log for things like this
-      s_logger.info("Missing {} market data elements: {}", missingMarketData.size(), formatMissingMarketData(missingMarketData));
+      s_logger.info("Missing {} market data elements", missingMarketData.size()/*, formatMissingMarketData(missingMarketData)*/);
     }
     notifyFragmentCompleted(fragmentResultModel);
   }

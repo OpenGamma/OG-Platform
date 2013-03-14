@@ -32,7 +32,7 @@ import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 /**
  * Test.
  */
-@Test
+@Test(groups = {"ehcache"})
 public class EHCachingHistoricalTimeSeriesSourceTest {
 
   private static final UniqueId UID = UniqueId.of("A", "B");
