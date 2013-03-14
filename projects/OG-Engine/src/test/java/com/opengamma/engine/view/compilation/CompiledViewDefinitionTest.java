@@ -32,6 +32,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 
 /**
  * Tests {@link CompiledViewDefinitionWithGraphsImpl}.
@@ -173,7 +174,7 @@ public class CompiledViewDefinitionTest {
   }
 
   private CompiledViewDefinitionWithGraphsImpl buildCompiledViewDefinition(final DependencyGraph... graphs) {
-    return new CompiledViewDefinitionWithGraphsImpl(mock(ViewDefinition.class), Arrays.asList(graphs), Collections.<ComputationTargetReference, UniqueId>emptyMap(), null, 0);
+    return new CompiledViewDefinitionWithGraphsImpl(VersionCorrection.LATEST, mock(ViewDefinition.class), Arrays.asList(graphs), Collections.<ComputationTargetReference, UniqueId>emptyMap(), null, 0);
   }
 
   @Test
