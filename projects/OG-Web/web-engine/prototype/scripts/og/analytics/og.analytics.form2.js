@@ -6,7 +6,7 @@ $.register_module({
     name: 'og.analytics.Form2',
     dependencies: [],
     obj: function () {
-        var constructor, callback, avail_blocks = 0,
+        var constructor, callback, form,
             tashes = { form_container:  'og.analytics.form_tash' },
             selectors = {
                 form_container: 'OG-analytics-form',
@@ -27,7 +27,7 @@ $.register_module({
 
         var init = function (data) {
             dom.form_container = $('.' + selectors.form_container);
-            var form = new og.common.util.ui.Form({
+            form = new og.common.util.ui.Form({
                 module: tashes.form_container,
                 selector: '.' + selectors.form_container
             });
@@ -40,8 +40,9 @@ $.register_module({
                 //new og.analytics.form.FiltersMenu({form:form, index:'filters', filters:  data.filters || null})
             );
             form.on('form:load', load_handler);
-            form.on('form:submit', function (result) {load_form(result.data);});
+            form.on('form:submit', function (result) { load_form(result.data); });
             form.on('keydown', selectors.form_controls, keydown_handler);
+            form.on('keypress', 'input[type=text], select, button', keypress_handler);
             form.dom();
         };
 
@@ -64,6 +65,10 @@ $.register_module({
             };
             callback(query);
             $('.'+selectors.load_btn).focus(0);
+        };
+
+        var keypress_handler = function (event) {
+            if (event.keyCode === 13) form.submit();
         };
 
         var keydown_handler = function (event) {
