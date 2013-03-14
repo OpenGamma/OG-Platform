@@ -5,11 +5,13 @@
  */
 package com.opengamma.financial.analytics.model.pnl;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculatorFactory;
 import com.opengamma.analytics.financial.schedule.TimeSeriesSamplingFunctionFactory;
 import com.opengamma.engine.ComputationTarget;
@@ -26,6 +28,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.timeseries.DateConstraint;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
+import com.opengamma.financial.analytics.timeseries.HistoricalValuationFunction;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.money.Currency;
@@ -51,9 +54,18 @@ public class HistoricalValuationPnLFunction extends AbstractFunction.NonCompiled
 
   @Override
   public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
+    ValueProperties outputConstraints = desiredValue.getConstraints().copy()
     final ValueProperties outputConstraints = desiredValue.getConstraints();
     ValueProperties.Builder requirementConstraints = outputConstraints.copy()
+    Set<String> desiredCurrencies = desiredValue.getConstraints().getValues(ValuePropertyNames.CURRENCY);
+    if (desiredCurrencies == null || desiredCurrencies.isEmpty()) {
+      Collection<Currency> targetCurrencies = FinancialSecurityUtils.getCurrencies(target.getPosition().getSecurity(), context.getSecuritySource());
+      // REVIEW jonathan 2013-03-12 -- should we pass through all the currencies and see what it wants to produce?
+      desiredCurrencies = ImmutableSet.of(Iterables.get(targetCurrencies, 0).getCode());
+    }
+    ValueProperties outputConstraints = desiredValue.getConstraints().copy()
         .withoutAny(ValuePropertyNames.CURRENCY)
+        .with(HistoricalValuationFunction.PASSTHROUGH_PREFIX + ValuePropertyNames.CURRENCY, desiredCurrencies)
         .withoutAny(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS)
         .withoutAny(ValuePropertyNames.SCHEDULE_CALCULATOR)
         .withoutAny(ValuePropertyNames.SAMPLING_FUNCTION)
@@ -93,11 +105,14 @@ public class HistoricalValuationPnLFunction extends AbstractFunction.NonCompiled
   }
 
   private ValueSpecification getResultSpec(ComputationTarget target, ValueProperties valueTsProperties) {
-    Currency currency = FinancialSecurityUtils.getCurrency(target.getPosition().getSecurity());
+    Set<String> currencies = valueTsProperties.getValues(HistoricalValuationFunction.PASSTHROUGH_PREFIX + ValuePropertyNames.CURRENCY);
+    if (currencies == null || currencies.size() == 1) {
+      throw new OpenGammaRuntimeException("Expected a single currency for historical valuation series but got " + currencies);
+    }
     ValueProperties.Builder builder = valueTsProperties.copy()
         .withoutAny(ValuePropertyNames.FUNCTION)
         .with(ValuePropertyNames.FUNCTION, getUniqueId())
-        .with(ValuePropertyNames.CURRENCY, currency.getCode())
+        .with(ValuePropertyNames.CURRENCY, currencies)
         .with(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS, "Full")
         .withoutAny(HistoricalTimeSeriesFunctionUtils.START_DATE_PROPERTY)
         .withoutAny(HistoricalTimeSeriesFunctionUtils.END_DATE_PROPERTY)
