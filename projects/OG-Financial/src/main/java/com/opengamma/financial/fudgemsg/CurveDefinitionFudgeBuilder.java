@@ -33,6 +33,7 @@ public class CurveDefinitionFudgeBuilder implements FudgeBuilder<CurveDefinition
   @Override
   public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final CurveDefinition object) {
     final MutableFudgeMsg message = serializer.newMessage();
+    message.add(null, 0, object.getClass().getName());
     message.add(UNIQUE_ID_FIELD, object.getUniqueId());
     message.add(NAME_FIELD, object.getName());
     for (final CurveNode node : object.getNodes()) {
