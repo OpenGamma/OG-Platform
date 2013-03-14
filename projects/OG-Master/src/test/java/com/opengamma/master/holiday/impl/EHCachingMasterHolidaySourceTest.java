@@ -37,7 +37,7 @@ import com.opengamma.util.money.Currency;
 /**
  * Test.
  */
-@Test
+@Test(groups = {"ehcache"})
 public class EHCachingMasterHolidaySourceTest {
 
   private static final LocalDate DATE_MONDAY = LocalDate.of(2010, 10, 25);

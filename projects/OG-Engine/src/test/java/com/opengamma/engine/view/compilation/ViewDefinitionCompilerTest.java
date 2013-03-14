@@ -20,6 +20,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import net.sf.ehcache.CacheManager;
+
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.threeten.bp.Instant;
 
@@ -53,8 +58,25 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ehcache.EHCacheUtils;
 
-@Test
+@Test(groups = {"unit", "ehcache"})
 public class ViewDefinitionCompilerTest {
+
+  private CacheManager _cacheManager;
+
+  @BeforeClass
+  public void setUpClass() {
+    _cacheManager = EHCacheUtils.createTestCacheManager(getClass());
+  }
+
+  @AfterClass
+  public void tearDownClass() {
+    EHCacheUtils.shutdownQuiet(_cacheManager);
+  }
+
+  @BeforeMethod
+  public void setUp() {
+    EHCacheUtils.clear(_cacheManager);
+  }
 
   //-------------------------------------------------------------------------
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -79,7 +101,7 @@ public class ViewDefinitionCompilerTest {
     final FunctionCompilationContext functionCompilationContext = new FunctionCompilationContext();
     functionCompilationContext.setFunctionInitId(123);
     functionCompilationContext.setRawComputationTargetResolver(new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource, positionSource),
-        EHCacheUtils.createCacheManager()));
+        _cacheManager));
     final CompiledFunctionService cfs = new CompiledFunctionService(functionRepo, new CachingFunctionRepositoryCompiler(), functionCompilationContext);
     cfs.initialize();
     final DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(cfs);
@@ -118,7 +140,7 @@ public class ViewDefinitionCompilerTest {
     cfs.initialize();
     final DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(cfs);
     final DefaultCachingComputationTargetResolver computationTargetResolver = new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource, positionSource),
-        EHCacheUtils.createCacheManager());
+        _cacheManager);
     functionCompilationContext.setRawComputationTargetResolver(computationTargetResolver);
     final ExecutorService executorService = Executors.newSingleThreadExecutor();
     final ViewCompilationServices vcs = new ViewCompilationServices(new FixedMarketDataAvailabilityProvider(), functionResolver, functionCompilationContext, executorService,
@@ -200,7 +222,7 @@ public class ViewDefinitionCompilerTest {
     final CompiledFunctionService cfs = new CompiledFunctionService(functionRepo, new CachingFunctionRepositoryCompiler(), compilationContext);
     cfs.initialize();
     final DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(cfs);
-    final DefaultCachingComputationTargetResolver computationTargetResolver = new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(), EHCacheUtils.createCacheManager());
+    final DefaultCachingComputationTargetResolver computationTargetResolver = new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(), _cacheManager);
     compilationContext.setRawComputationTargetResolver(computationTargetResolver);
     final ExecutorService executorService = Executors.newSingleThreadExecutor();
     final ViewCompilationServices compilationServices = new ViewCompilationServices(new FixedMarketDataAvailabilityProvider(), functionResolver, compilationContext, executorService,
@@ -272,7 +294,7 @@ public class ViewDefinitionCompilerTest {
     final DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(cfs);
     final SecuritySource securitySource = new InMemorySecuritySource();
     final DefaultCachingComputationTargetResolver computationTargetResolver = new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource),
-        EHCacheUtils.createCacheManager());
+        _cacheManager);
     compilationContext.setRawComputationTargetResolver(computationTargetResolver);
     final ExecutorService executorService = Executors.newSingleThreadExecutor();
     final Future<CompiledViewDefinitionWithGraphsImpl> future = ViewDefinitionCompiler.fullCompileTask(viewDefinition, new ViewCompilationServices(new FixedMarketDataAvailabilityProvider(),

@@ -42,7 +42,7 @@ import com.opengamma.util.money.Currency;
 /**
  * Test EHCachingRegionSource
  */
-@Test
+@Test(groups = {"ehcache"})
 public class EHCachingRegionSourceTest {
 
   private static final ObjectId OID = ObjectId.of("A", "B");

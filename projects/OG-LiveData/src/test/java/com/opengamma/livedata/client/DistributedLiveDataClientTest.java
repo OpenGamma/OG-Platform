@@ -12,10 +12,14 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.sf.ehcache.CacheManager;
+
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -31,12 +35,13 @@ import com.opengamma.livedata.normalization.StandardRules;
 import com.opengamma.livedata.server.MockLiveDataServer;
 import com.opengamma.livedata.test.CollectingLiveDataListener;
 import com.opengamma.livedata.test.LiveDataClientTestUtils;
+import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * Test.
  */
-@Test(groups = "unit")
+@Test(groups = {"unit", "ehcache"})
 public class DistributedLiveDataClientTest {
 
   public static final ExternalScheme TEST_IDENTIFICATION_SCHEME = ExternalScheme.of("bar");
@@ -49,6 +54,17 @@ public class DistributedLiveDataClientTest {
   private MockLiveDataServer _server;
   private DistributedLiveDataClient _client;
   private MutableFudgeMsg[] _testMsgs; 
+  private CacheManager _cacheManager;
+
+  @BeforeClass
+  public void setUpClass() {
+    _cacheManager = EHCacheUtils.createTestCacheManager(getClass());
+  }
+
+  @AfterClass
+  public void tearDownClass() {
+    EHCacheUtils.shutdownQuiet(_cacheManager);
+  }
 
   @BeforeMethod
   public void initialize() {
@@ -66,7 +82,7 @@ public class DistributedLiveDataClientTest {
     uniqueId2TestMsg.put(TEST_ID_1, testMsg1);
     uniqueId2TestMsg.put(TEST_ID_2, testMsg2);
     
-    _server = new MockLiveDataServer(TEST_IDENTIFICATION_SCHEME, uniqueId2TestMsg);
+    _server = new MockLiveDataServer(TEST_IDENTIFICATION_SCHEME, uniqueId2TestMsg, _cacheManager);
     _client = LiveDataClientTestUtils.getInMemoryConduitClient(_server);
   }
 
