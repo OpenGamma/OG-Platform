@@ -35,8 +35,16 @@ $.register_module({
                     });
                 };
                 // addding a new trade needs a node id to append to
-                var trade_insert = function () {
+                var trade_insert_node = function () {
+                    console.log(cell);
                     new og.blotter.Dialog({portfolio:{name: cell.row_value.nodeId, id: cell.row_value.nodeId}, 
+                        handler: function (data) {return og.api.rest.blotter.trades.put(data);}
+                    });
+                };
+                // addding a new trade to an exisiting position needs a position id to append to
+                var trade_insert_position = function () {
+                    console.log(cell);
+                    new og.blotter.Dialog({portfolio:{name: cell.row_value.positionId, id: cell.row_value.positionId}, 
                         handler: function (data) {return og.api.rest.blotter.trades.put(data);}
                     });
                 };
@@ -52,7 +60,10 @@ $.register_module({
                         }
                     });
                 };
-                items.push({name: 'Add Trade', handler: trade_insert});
+                if (cell.type === "POSITION")
+                    items.push({name: 'Add Trade', handler: position_edit});
+                else    
+                    items.push({name: 'Add Trade', handler: trade_insert_node});
                 // if a row is a node only the add new trade option is relevant
                 if (cell.row in og.analytics.grid.state.nodes || cell.type === "NODE") {
                     return items;
