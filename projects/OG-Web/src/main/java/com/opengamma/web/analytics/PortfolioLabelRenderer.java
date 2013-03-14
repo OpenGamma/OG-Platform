@@ -8,7 +8,7 @@ package com.opengamma.web.analytics;
 import java.util.List;
 
 import com.opengamma.core.security.Security;
-import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.id.UniqueId;
@@ -30,7 +30,7 @@ import com.opengamma.util.ArgumentChecker;
   @Override
   public ResultsCell getResults(int rowIndex, ResultsCache cache, Class<?> columnType) {
     PortfolioGridRow row = _rows.get(rowIndex);
-    ComputationTargetSpecification target = row.getTarget();
+    ComputationTargetReference target = row.getTarget();
     ComputationTargetType targetType = target.getType();
     // TODO do I need to use the target type to figure out the row type? can I just have different row types?
     if (targetType.isTargetType(ComputationTargetType.POSITION)) {

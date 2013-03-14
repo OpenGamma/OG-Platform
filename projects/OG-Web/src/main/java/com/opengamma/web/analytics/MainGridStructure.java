@@ -9,7 +9,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.google.common.collect.Lists;
-import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
@@ -115,18 +115,18 @@ import com.opengamma.util.tuple.Pair;
   /* package */ static class Row {
 
     /** The row's target. */
-    private final ComputationTargetSpecification _target;
+    private final ComputationTargetReference _target;
     /** The row label. */
     private final String _name;
 
-    /* package */ Row(ComputationTargetSpecification target, String name) {
+    /* package */ Row(ComputationTargetReference target, String name) {
       ArgumentChecker.notNull(target, "target");
       ArgumentChecker.notNull(name, "name");
       _target = target;
       _name = name;
     }
 
-    /* package */ ComputationTargetSpecification getTarget() {
+    /* package */ ComputationTargetReference getTarget() {
       return _target;
     }
 
