@@ -17,7 +17,7 @@ import com.opengamma.core.config.ConfigSource;
 import com.opengamma.financial.analytics.curve.credit.CurveSpecificationBuilder;
 import com.opengamma.financial.analytics.ircurve.strips.CreditSpreadNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
-import com.opengamma.financial.analytics.ircurve.strips.CurveStripWithIdentifier;
+import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 
@@ -37,7 +37,7 @@ public class ConfigDBCurveSpecificationBuilder implements CurveSpecificationBuil
     ArgumentChecker.notNull(curveDate, "curve date");
     ArgumentChecker.notNull(curveDefinition, "curve definition");
     final Map<String, CurveNodeIdMapper> cache = new HashMap<>();
-    final Collection<CurveStripWithIdentifier> securities = new ArrayList<>();
+    final Collection<CurveNodeWithIdentifier> securities = new ArrayList<>();
     final String curveName = curveDefinition.getName();
     for (final CurveNode strip : curveDefinition.getStrips()) {
       final String curveSpecificationName = strip.getCurveSpecificationName();
@@ -47,7 +47,7 @@ public class ConfigDBCurveSpecificationBuilder implements CurveSpecificationBuil
       }
       if (strip instanceof CreditSpreadNode) {
         final ExternalId identifier = builderConfig.getCreditSpreadId(curveDate, ((CreditSpreadNode) strip).getTenor());
-        securities.add(new CurveStripWithIdentifier(strip, identifier));
+        securities.add(new CurveNodeWithIdentifier(strip, identifier));
       } else {
         throw new OpenGammaRuntimeException("Can currently only use this code for credit spread strips");
       }

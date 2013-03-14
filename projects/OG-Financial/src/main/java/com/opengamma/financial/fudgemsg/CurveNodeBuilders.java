@@ -15,7 +15,7 @@ import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.financial.analytics.ircurve.strips.CreditSpreadNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
-import com.opengamma.financial.analytics.ircurve.strips.CurveStripWithIdentifier;
+import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.time.Tenor;
 
@@ -27,13 +27,13 @@ import com.opengamma.util.time.Tenor;
   private CurveNodeBuilders() {
   }
 
-  @FudgeBuilderFor(CurveStripWithIdentifier.class)
-  public static class CurveNodeWithIdentifierBuilder implements FudgeBuilder<CurveStripWithIdentifier> {
+  @FudgeBuilderFor(CurveNodeWithIdentifier.class)
+  public static class CurveNodeWithIdentifierBuilder implements FudgeBuilder<CurveNodeWithIdentifier> {
     private static final String CURVE_STRIP_FIELD = "curveStrip";
     private static final String ID_FIELD = "id";
 
     @Override
-    public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final CurveStripWithIdentifier object) {
+    public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final CurveNodeWithIdentifier object) {
       final MutableFudgeMsg message = serializer.newMessage();
       serializer.addToMessageWithClassHeaders(message, CURVE_STRIP_FIELD, null, object.getCurveStrip());
       serializer.addToMessage(message, ID_FIELD, null, object.getIdentifier());
@@ -41,16 +41,16 @@ import com.opengamma.util.time.Tenor;
     }
 
     @Override
-    public CurveStripWithIdentifier buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+    public CurveNodeWithIdentifier buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
       final CurveNode curveStrip = (CurveNode) deserializer.fieldValueToObject(message.getByName(CURVE_STRIP_FIELD));
       final ExternalId id = deserializer.fieldValueToObject(ExternalId.class, message.getByName(ID_FIELD));
-      return new CurveStripWithIdentifier(curveStrip, id);
+      return new CurveNodeWithIdentifier(curveStrip, id);
     }
 
   }
 
   @FudgeBuilderFor(CreditSpreadNode.class)
-  public static class CreditSpreadStripBuilder implements FudgeBuilder<CreditSpreadNode> {
+  public static class CreditSpreadNodeBuilder implements FudgeBuilder<CreditSpreadNode> {
     private static final String CURVE_SPECIFICATION_FIELD = "curveSpecification";
     private static final String TENOR_FIELD = "tenor";
 

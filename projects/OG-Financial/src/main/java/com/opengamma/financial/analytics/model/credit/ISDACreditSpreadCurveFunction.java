@@ -41,7 +41,7 @@ import com.opengamma.financial.analytics.curve.CurveSpecification;
 import com.opengamma.financial.analytics.curve.credit.ConfigDBCurveDefinitionSource;
 import com.opengamma.financial.analytics.curve.credit.CurveDefinitionSource;
 import com.opengamma.financial.analytics.curve.credit.CurveSpecificationBuilder;
-import com.opengamma.financial.analytics.ircurve.strips.CurveStripWithIdentifier;
+import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.time.Tenor;
 
@@ -69,7 +69,7 @@ public class ISDACreditSpreadCurveFunction extends AbstractFunction {
         final Tenor[] tenors = new Tenor[nStrips];
         final Double[] marketSpreads = new Double[nStrips];
         int i = 0;
-        for (final CurveStripWithIdentifier strip : curveSpecification.getStrips()) {
+        for (final CurveNodeWithIdentifier strip : curveSpecification.getStrips()) {
           //final Object marketSpreadObject = inputs.getValue(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, strip.getIdentifier()));
           //if (marketSpreadObject != null) {
           tenors[i] = strip.getCurveStrip().getResolvedMaturity();
