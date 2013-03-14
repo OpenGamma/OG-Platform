@@ -154,7 +154,7 @@ public class IR01CreditDefaultSwap {
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Vector of bucketed CS01 sensitivities (per tenor)
-    final double[] bucketedCS01 = new double[marketSpreads.length];
+    final double[] bucketedIR01 = new double[marketSpreads.length];
 
     // Vector to hold the bumped market spreads
     final double[] bumpedMarketSpreads = new double[marketSpreads.length];
@@ -172,6 +172,9 @@ public class IR01CreditDefaultSwap {
     // Loop through and bump each of the spreads at each tenor
     for (int m = 0; m < marketSpreads.length; m++) {
 
+      // TODO : Add the calculation for bumping the interest rate curve
+
+      /*
       // Reset the bumpedMarketSpreads vector to the original marketSpreads
       for (int n = 0; n < marketTenors.length; n++) {
         bumpedMarketSpreads[n] = marketSpreads[n];
@@ -185,16 +188,17 @@ public class IR01CreditDefaultSwap {
       if (spreadBumpType == SpreadBumpType.MULTIPLICATIVE_BUCKETED) {
         bumpedMarketSpreads[m] = marketSpreads[m] * (1 + spreadBump);
       }
+      */
 
       // Calculate the bumped CDS PV
       final double bumpedPresentValue = 0; //creditDefaultSwap.calibrateAndGetPresentValue(valuationDate, cds, marketTenors, bumpedMarketSpreads, yieldCurve, priceType);
 
-      bucketedCS01[m] = (bumpedPresentValue - presentValue) / spreadBump;
+      bucketedIR01[m] = (bumpedPresentValue - presentValue) / spreadBump;
     }
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
-    return bucketedCS01;
+    return bucketedIR01;
   }
 
   // ------------------------------------------------------------------------------------------------------------------------------------------

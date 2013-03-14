@@ -31,10 +31,6 @@ $.register_module({
                 module: tashes.form_container,
                 selector: '.' + selectors.form_container
             });
-            og.common.events.on('analytics:form:blockinitialized', function (block) {
-                avail_blocks += 1;
-                if (avail_blocks === form.children.length) return avail_blocks = 0, form.dom();
-            })
             form.children.push(
                 //new og.analytics.form.Portfolios({form:form, val: data.portfolio || null}),
                 new og.analytics.form.ViewDefinitions({form:form, val: data.viewdefinition || null}),
@@ -46,6 +42,7 @@ $.register_module({
             form.on('form:load', load_handler);
             form.on('form:submit', function (result) {load_form(result.data);});
             form.on('keydown', selectors.form_controls, keydown_handler);
+            form.dom();
         };
 
         var load_handler = function () {
