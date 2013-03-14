@@ -250,10 +250,10 @@ public class BlotterResource {
     ManageablePosition position = _positionMaster.get(positionId).getPosition();
     ManageableSecurityLink securityLink = position.getSecurityLink();
     ManageableTrade trade = new ManageableTrade();
-    trade.setTradeDate(LocalDate.now());
-    trade.setCounterpartyExternalId(ExternalId.of(AbstractTradeBuilder.CPTY_SCHEME, AbstractTradeBuilder.DEFAULT_COUNTERPARTY));
     trade.setSecurityLink(securityLink);
     if (position.getTrades().size() == 0) {
+      trade.setTradeDate(LocalDate.now());
+      trade.setCounterpartyExternalId(ExternalId.of(AbstractTradeBuilder.CPTY_SCHEME, AbstractTradeBuilder.DEFAULT_COUNTERPARTY));
       trade.setQuantity(position.getQuantity());
     }
     return buildTradeJSON(trade, securityLink);
