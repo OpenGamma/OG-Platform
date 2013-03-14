@@ -54,16 +54,14 @@ public class HistoricalValuationPnLFunction extends AbstractFunction.NonCompiled
 
   @Override
   public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
-    ValueProperties outputConstraints = desiredValue.getConstraints().copy()
     final ValueProperties outputConstraints = desiredValue.getConstraints();
-    ValueProperties.Builder requirementConstraints = outputConstraints.copy()
     Set<String> desiredCurrencies = desiredValue.getConstraints().getValues(ValuePropertyNames.CURRENCY);
     if (desiredCurrencies == null || desiredCurrencies.isEmpty()) {
       Collection<Currency> targetCurrencies = FinancialSecurityUtils.getCurrencies(target.getPosition().getSecurity(), context.getSecuritySource());
       // REVIEW jonathan 2013-03-12 -- should we pass through all the currencies and see what it wants to produce?
       desiredCurrencies = ImmutableSet.of(Iterables.get(targetCurrencies, 0).getCode());
     }
-    ValueProperties outputConstraints = desiredValue.getConstraints().copy()
+    ValueProperties.Builder requirementConstraints = desiredValue.getConstraints().copy()
         .withoutAny(ValuePropertyNames.CURRENCY)
         .with(HistoricalValuationFunction.PASSTHROUGH_PREFIX + ValuePropertyNames.CURRENCY, desiredCurrencies)
         .withoutAny(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS)
@@ -106,7 +104,7 @@ public class HistoricalValuationPnLFunction extends AbstractFunction.NonCompiled
 
   private ValueSpecification getResultSpec(ComputationTarget target, ValueProperties valueTsProperties) {
     Set<String> currencies = valueTsProperties.getValues(HistoricalValuationFunction.PASSTHROUGH_PREFIX + ValuePropertyNames.CURRENCY);
-    if (currencies == null || currencies.size() == 1) {
+    if (currencies == null || currencies.size() != 1) {
       throw new OpenGammaRuntimeException("Expected a single currency for historical valuation series but got " + currencies);
     }
     ValueProperties.Builder builder = valueTsProperties.copy()
