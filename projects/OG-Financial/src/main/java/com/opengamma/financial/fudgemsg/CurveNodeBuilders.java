@@ -63,14 +63,19 @@ import com.opengamma.util.time.Tenor;
       message.add(null, 0, object.getClass().getName());
       message.add(START_TENOR_FIELD, object.getStartTenor());
       message.add(MATURITY_TENOR_FIELD, object.getMaturityTenor());
-      return null;
+      message.add(CONVENTION_ID_FIELD, object.getConvention());
+      message.add(CURVE_MAPPER_ID_FIELD, object.getCurveNodeIdMapperName());
+      return message;
     }
 
     @Override
     public CashNode buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
-      return null;
+      final Tenor startTenor = deserializer.fieldValueToObject(Tenor.class, message.getByName(START_TENOR_FIELD));
+      final Tenor maturityTenor = deserializer.fieldValueToObject(Tenor.class, message.getByName(MATURITY_TENOR_FIELD));
+      final ExternalId conventionId = deserializer.fieldValueToObject(ExternalId.class, message.getByName(CONVENTION_ID_FIELD));
+      final String curveNodeIdMapperName = message.getString(CURVE_MAPPER_ID_FIELD);
+      return new CashNode(startTenor, maturityTenor, conventionId, curveNodeIdMapperName);
     }
-
   }
 
   @FudgeBuilderFor(CreditSpreadNode.class)
@@ -88,9 +93,9 @@ import com.opengamma.util.time.Tenor;
 
     @Override
     public CreditSpreadNode buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
-      final String curveSpecificationName = message.getString(CURVE_MAPPER_ID_FIELD);
+      final String curveNodeIdMapperName = message.getString(CURVE_MAPPER_ID_FIELD);
       final Tenor tenor = deserializer.fieldValueToObject(Tenor.class, message.getByName(TENOR_FIELD));
-      final CreditSpreadNode strip = new CreditSpreadNode(curveSpecificationName, tenor);
+      final CreditSpreadNode strip = new CreditSpreadNode(curveNodeIdMapperName, tenor);
       return strip;
     }
   }
