@@ -31,7 +31,6 @@ public class SimplePortfolioCopier implements PortfolioCopier {
 
 
   public SimplePortfolioCopier(String[] structure) {
-    ArgumentChecker.notNull(structure, "structure");
     _structure = structure;
   }
 
