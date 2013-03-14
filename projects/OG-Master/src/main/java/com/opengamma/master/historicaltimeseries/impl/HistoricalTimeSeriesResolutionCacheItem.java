@@ -5,11 +5,11 @@
  */
 package com.opengamma.master.historicaltimeseries.impl;
 
-import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.threeten.bp.LocalDate;
@@ -19,7 +19,6 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdWithDates;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * Represents a cache item for storing {@link HistoricalTimeSeriesResolutionResult} instances for the same
@@ -30,7 +29,7 @@ public class HistoricalTimeSeriesResolutionCacheItem {
   private final ExternalId _externalId;
   private final AtomicBoolean _allInvalid = new AtomicBoolean();
   private final Set<LocalDate> _invalidDates = Collections.newSetFromMap(new ConcurrentHashMap<LocalDate, Boolean>());
-  private final Collection<Pair<ExternalIdWithDates, HistoricalTimeSeriesResolutionResult>> _results = new ConcurrentLinkedQueue<>();
+  private final ConcurrentMap<ExternalIdWithDates, HistoricalTimeSeriesResolutionResult> _results = new ConcurrentHashMap<>();
   
   public HistoricalTimeSeriesResolutionCacheItem(ExternalId externalId) {
     _externalId = externalId;
@@ -61,9 +60,9 @@ public class HistoricalTimeSeriesResolutionCacheItem {
   
   //-------------------------------------------------------------------------
   public HistoricalTimeSeriesResolutionResult get(LocalDate validityDate) {
-    for (Pair<ExternalIdWithDates, HistoricalTimeSeriesResolutionResult> result : _results) {
-      if (result.getFirst().isValidOn(validityDate)) {
-        return result.getSecond();
+    for (Map.Entry<ExternalIdWithDates, HistoricalTimeSeriesResolutionResult> result : _results.entrySet()) {
+      if (result.getKey().isValidOn(validityDate)) {
+        return result.getValue();
       }
     }
     return null;
@@ -78,7 +77,7 @@ public class HistoricalTimeSeriesResolutionCacheItem {
     if (!result.getHistoricalTimeSeriesInfo().getExternalIdBundle().contains(externalIdWithDates)) {
       throw new IllegalArgumentException("Result " + result + " does not contain " + externalIdWithDates);
     }
-    _results.add(Pair.of(externalIdWithDates, result));
+    _results.putIfAbsent(externalIdWithDates, result);
   }
   
 }
