@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.fudgemsg;
 
-import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
@@ -35,6 +34,7 @@ import com.opengamma.util.time.Tenor;
     @Override
     public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final CurveNodeWithIdentifier object) {
       final MutableFudgeMsg message = serializer.newMessage();
+      message.add(null, 0, object.getClass().getName());
       serializer.addToMessageWithClassHeaders(message, CURVE_STRIP_FIELD, null, object.getCurveStrip());
       serializer.addToMessage(message, ID_FIELD, null, object.getIdentifier());
       return message;
@@ -57,16 +57,16 @@ import com.opengamma.util.time.Tenor;
     @Override
     public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final CreditSpreadNode object) {
       final MutableFudgeMsg message = serializer.newMessage();
+      message.add(null, 0, object.getClass().getName());
       message.add(CURVE_SPECIFICATION_FIELD, object.getCurveSpecificationName());
-      serializer.addToMessageWithClassHeaders(message, TENOR_FIELD, null, object.getTenor());
+      message.add(TENOR_FIELD, object.getTenor());
       return message;
     }
 
     @Override
     public CreditSpreadNode buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
       final String curveSpecificationName = message.getString(CURVE_SPECIFICATION_FIELD);
-      final FudgeField tenorField = message.getByName(TENOR_FIELD);
-      final Tenor tenor = deserializer.fieldValueToObject(Tenor.class, tenorField);
+      final Tenor tenor = deserializer.fieldValueToObject(Tenor.class, message.getByName(TENOR_FIELD));
       final CreditSpreadNode strip = new CreditSpreadNode(curveSpecificationName, tenor);
       return strip;
     }
