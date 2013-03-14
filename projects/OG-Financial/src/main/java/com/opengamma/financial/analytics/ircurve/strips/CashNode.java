@@ -56,10 +56,10 @@ public class CashNode extends CurveNode {
    * @param startTenor The start tenor, not null
    * @param maturityTenor The maturity tenor, not null
    * @param convention The convention, not null
-   * @param curveSpecificationName The name of the curve specification, not null
+   * @param curveNodeIdMapperName The name of the curve specification, not null
    */
-  public CashNode(final Tenor startTenor, final Tenor maturityTenor, final ExternalId convention, final String curveSpecificationName) {
-    super(curveSpecificationName);
+  public CashNode(final Tenor startTenor, final Tenor maturityTenor, final ExternalId convention, final String curveNodeIdMapperName) {
+    super(curveNodeIdMapperName);
     setStartTenor(startTenor);
     setMaturityTenor(maturityTenor);
     setConvention(convention);

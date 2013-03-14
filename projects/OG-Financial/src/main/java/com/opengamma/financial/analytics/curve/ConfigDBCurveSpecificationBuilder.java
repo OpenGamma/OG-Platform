@@ -40,7 +40,7 @@ public class ConfigDBCurveSpecificationBuilder implements CurveSpecificationBuil
     final Collection<CurveNodeWithIdentifier> securities = new ArrayList<>();
     final String curveName = curveDefinition.getName();
     for (final CurveNode nodes : curveDefinition.getNodes()) {
-      final String curveSpecificationName = nodes.getCurveSpecificationName();
+      final String curveSpecificationName = nodes.getCurveNodeIdMapperName();
       final CurveNodeIdMapper builderConfig = getBuilderConfig(cache, curveSpecificationName);
       if (builderConfig == null) {
         throw new OpenGammaRuntimeException("Could not get curve node id mapper for curve named " + curveName);

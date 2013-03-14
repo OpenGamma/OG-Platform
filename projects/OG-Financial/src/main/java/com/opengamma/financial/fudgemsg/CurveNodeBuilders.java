@@ -12,6 +12,7 @@ import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
+import com.opengamma.financial.analytics.ircurve.strips.CashNode;
 import com.opengamma.financial.analytics.ircurve.strips.CreditSpreadNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
@@ -22,6 +23,7 @@ import com.opengamma.util.time.Tenor;
  * 
  */
 /* package */ final class CurveNodeBuilders {
+  private static final String CURVE_MAPPER_ID_FIELD = "curveNodeIdMapper";
 
   private CurveNodeBuilders() {
   }
@@ -49,23 +51,44 @@ import com.opengamma.util.time.Tenor;
 
   }
 
+  @FudgeBuilderFor(CashNode.class)
+  public static class CashNodeBuilder implements FudgeBuilder<CashNode> {
+    private static final String START_TENOR_FIELD = "startTenor";
+    private static final String MATURITY_TENOR_FIELD = "maturityTenor";
+    private static final String CONVENTION_ID_FIELD = "conventionId";
+
+    @Override
+    public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final CashNode object) {
+      final MutableFudgeMsg message = serializer.newMessage();
+      message.add(null, 0, object.getClass().getName());
+      message.add(START_TENOR_FIELD, object.getStartTenor());
+      message.add(MATURITY_TENOR_FIELD, object.getMaturityTenor());
+      return null;
+    }
+
+    @Override
+    public CashNode buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+      return null;
+    }
+
+  }
+
   @FudgeBuilderFor(CreditSpreadNode.class)
   public static class CreditSpreadNodeBuilder implements FudgeBuilder<CreditSpreadNode> {
-    private static final String CURVE_SPECIFICATION_FIELD = "curveSpecification";
     private static final String TENOR_FIELD = "tenor";
 
     @Override
     public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final CreditSpreadNode object) {
       final MutableFudgeMsg message = serializer.newMessage();
       message.add(null, 0, object.getClass().getName());
-      message.add(CURVE_SPECIFICATION_FIELD, object.getCurveSpecificationName());
+      message.add(CURVE_MAPPER_ID_FIELD, object.getCurveNodeIdMapperName());
       message.add(TENOR_FIELD, object.getTenor());
       return message;
     }
 
     @Override
     public CreditSpreadNode buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
-      final String curveSpecificationName = message.getString(CURVE_SPECIFICATION_FIELD);
+      final String curveSpecificationName = message.getString(CURVE_MAPPER_ID_FIELD);
       final Tenor tenor = deserializer.fieldValueToObject(Tenor.class, message.getByName(TENOR_FIELD));
       final CreditSpreadNode strip = new CreditSpreadNode(curveSpecificationName, tenor);
       return strip;

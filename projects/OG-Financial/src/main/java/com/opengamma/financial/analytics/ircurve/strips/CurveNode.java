@@ -19,7 +19,6 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.id.UniqueId;
 import com.opengamma.util.time.Tenor;
 
 /**
@@ -32,17 +31,17 @@ public abstract class CurveNode extends DirectBean implements Serializable, Comp
   private static final long serialVersionUID = 1L;
 
   /**
-   * The curve specification builder name.
+   * The curve node id mapper name.
    */
   @PropertyDefinition(validate = "notNull")
-  private String _curveSpecificationName;
+  private String _curveNodeIdMapperName;
 
   /* package */CurveNode() {
     super();
   }
 
-  public CurveNode(final String curveSpecificationName) {
-    setCurveSpecificationName(curveSpecificationName);
+  public CurveNode(final String curveNodeIdMapperName) {
+    setCurveNodeIdMapperName(curveNodeIdMapperName);
   }
 
   public abstract Tenor getResolvedMaturity();
@@ -77,8 +76,8 @@ public abstract class CurveNode extends DirectBean implements Serializable, Comp
   @Override
   protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case 264065279:  // curveSpecificationName
-        return getCurveSpecificationName();
+      case 305053208:  // curveNodeIdMapperName
+        return getCurveNodeIdMapperName();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -86,8 +85,8 @@ public abstract class CurveNode extends DirectBean implements Serializable, Comp
   @Override
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case 264065279:  // curveSpecificationName
-        setCurveSpecificationName((String) newValue);
+      case 305053208:  // curveNodeIdMapperName
+        setCurveNodeIdMapperName((String) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -95,7 +94,7 @@ public abstract class CurveNode extends DirectBean implements Serializable, Comp
 
   @Override
   protected void validate() {
-    JodaBeanUtils.notNull(_curveSpecificationName, "curveSpecificationName");
+    JodaBeanUtils.notNull(_curveNodeIdMapperName, "curveNodeIdMapperName");
     super.validate();
   }
 
@@ -106,7 +105,7 @@ public abstract class CurveNode extends DirectBean implements Serializable, Comp
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       CurveNode other = (CurveNode) obj;
-      return JodaBeanUtils.equal(getCurveSpecificationName(), other.getCurveSpecificationName());
+      return JodaBeanUtils.equal(getCurveNodeIdMapperName(), other.getCurveNodeIdMapperName());
     }
     return false;
   }
@@ -114,34 +113,34 @@ public abstract class CurveNode extends DirectBean implements Serializable, Comp
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurveSpecificationName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCurveNodeIdMapperName());
     return hash;
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the curve specification builder name.
+   * Gets the curve node id mapper name.
    * @return the value of the property, not null
    */
-  public String getCurveSpecificationName() {
-    return _curveSpecificationName;
+  public String getCurveNodeIdMapperName() {
+    return _curveNodeIdMapperName;
   }
 
   /**
-   * Sets the curve specification builder name.
-   * @param curveSpecificationName  the new value of the property, not null
+   * Sets the curve node id mapper name.
+   * @param curveNodeIdMapperName  the new value of the property, not null
    */
-  public void setCurveSpecificationName(String curveSpecificationName) {
-    JodaBeanUtils.notNull(curveSpecificationName, "curveSpecificationName");
-    this._curveSpecificationName = curveSpecificationName;
+  public void setCurveNodeIdMapperName(String curveNodeIdMapperName) {
+    JodaBeanUtils.notNull(curveNodeIdMapperName, "curveNodeIdMapperName");
+    this._curveNodeIdMapperName = curveNodeIdMapperName;
   }
 
   /**
-   * Gets the the {@code curveSpecificationName} property.
+   * Gets the the {@code curveNodeIdMapperName} property.
    * @return the property, not null
    */
-  public final Property<String> curveSpecificationName() {
-    return metaBean().curveSpecificationName().createProperty(this);
+  public final Property<String> curveNodeIdMapperName() {
+    return metaBean().curveNodeIdMapperName().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -155,16 +154,16 @@ public abstract class CurveNode extends DirectBean implements Serializable, Comp
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code curveSpecificationName} property.
+     * The meta-property for the {@code curveNodeIdMapperName} property.
      */
-    private final MetaProperty<String> _curveSpecificationName = DirectMetaProperty.ofReadWrite(
-        this, "curveSpecificationName", CurveNode.class, String.class);
+    private final MetaProperty<String> _curveNodeIdMapperName = DirectMetaProperty.ofReadWrite(
+        this, "curveNodeIdMapperName", CurveNode.class, String.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "curveSpecificationName");
+        "curveNodeIdMapperName");
 
     /**
      * Restricted constructor.
@@ -175,8 +174,8 @@ public abstract class CurveNode extends DirectBean implements Serializable, Comp
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 264065279:  // curveSpecificationName
-          return _curveSpecificationName;
+        case 305053208:  // curveNodeIdMapperName
+          return _curveNodeIdMapperName;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -198,11 +197,11 @@ public abstract class CurveNode extends DirectBean implements Serializable, Comp
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code curveSpecificationName} property.
+     * The meta-property for the {@code curveNodeIdMapperName} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<String> curveSpecificationName() {
-      return _curveSpecificationName;
+    public final MetaProperty<String> curveNodeIdMapperName() {
+      return _curveNodeIdMapperName;
     }
 
   }
