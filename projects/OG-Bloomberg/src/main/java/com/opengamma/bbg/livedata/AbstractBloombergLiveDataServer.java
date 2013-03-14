@@ -18,7 +18,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.bbg.util.BloombergDataUtils;
 import com.opengamma.core.id.ExternalSchemes;
@@ -39,7 +38,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 public abstract class AbstractBloombergLiveDataServer extends StandardLiveDataServer {
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractBloombergLiveDataServer.class);
-  private NormalizationRuleResolver _normalizationRules;
+  private NormalizationRuleResolver _normalizationRules;  
   private IdResolver _idResolver;
   private DistributionSpecificationResolver _defaultDistributionSpecificationResolver;
 
