@@ -15,11 +15,11 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-public class CurveStripWithIdentifier implements Comparable<CurveStripWithIdentifier> {
+public class CurveNodeWithIdentifier implements Comparable<CurveNodeWithIdentifier> {
   private final CurveNode _strip;
   private final ExternalId _id;
 
-  public CurveStripWithIdentifier(final CurveNode strip, final ExternalId id) {
+  public CurveNodeWithIdentifier(final CurveNode strip, final ExternalId id) {
     ArgumentChecker.notNull(strip, "strip");
     ArgumentChecker.notNull(id, "id");
     _strip = strip;
@@ -35,7 +35,7 @@ public class CurveStripWithIdentifier implements Comparable<CurveStripWithIdenti
   }
 
   @Override
-  public int compareTo(final CurveStripWithIdentifier o) {
+  public int compareTo(final CurveNodeWithIdentifier o) {
     final int result = _strip.compareTo(o._strip);
     if (result != 0) {
       return result;
@@ -65,10 +65,10 @@ public class CurveStripWithIdentifier implements Comparable<CurveStripWithIdenti
     if (obj == null) {
       return false;
     }
-    if (!(obj instanceof CurveStripWithIdentifier)) {
+    if (!(obj instanceof CurveNodeWithIdentifier)) {
       return false;
     }
-    final CurveStripWithIdentifier other = (CurveStripWithIdentifier) obj;
+    final CurveNodeWithIdentifier other = (CurveNodeWithIdentifier) obj;
     if (!ObjectUtils.equals(_id, other._id)) {
       return false;
     }

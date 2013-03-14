@@ -17,7 +17,7 @@ import com.opengamma.core.config.ConfigSource;
 import com.opengamma.financial.analytics.curve.credit.CurveSpecificationBuilder;
 import com.opengamma.financial.analytics.ircurve.strips.CreditSpreadNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
-import com.opengamma.financial.analytics.ircurve.strips.CurveStripWithIdentifier;
+import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 
@@ -37,17 +37,17 @@ public class ConfigDBCurveSpecificationBuilder implements CurveSpecificationBuil
     ArgumentChecker.notNull(curveDate, "curve date");
     ArgumentChecker.notNull(curveDefinition, "curve definition");
     final Map<String, CurveNodeIdMapper> cache = new HashMap<>();
-    final Collection<CurveStripWithIdentifier> securities = new ArrayList<>();
+    final Collection<CurveNodeWithIdentifier> securities = new ArrayList<>();
     final String curveName = curveDefinition.getName();
-    for (final CurveNode strip : curveDefinition.getStrips()) {
-      final String curveSpecificationName = strip.getCurveSpecificationName();
+    for (final CurveNode nodes : curveDefinition.getNodes()) {
+      final String curveSpecificationName = nodes.getCurveSpecificationName();
       final CurveNodeIdMapper builderConfig = getBuilderConfig(cache, curveSpecificationName);
       if (builderConfig == null) {
-        throw new OpenGammaRuntimeException("Could not get specification builder configuration for curve named " + curveName);
+        throw new OpenGammaRuntimeException("Could not get curve node id mapper for curve named " + curveName);
       }
-      if (strip instanceof CreditSpreadNode) {
-        final ExternalId identifier = builderConfig.getCreditSpreadId(curveDate, ((CreditSpreadNode) strip).getTenor());
-        securities.add(new CurveStripWithIdentifier(strip, identifier));
+      if (nodes instanceof CreditSpreadNode) {
+        final ExternalId identifier = builderConfig.getCreditSpreadId(curveDate, ((CreditSpreadNode) nodes).getTenor());
+        securities.add(new CurveNodeWithIdentifier(nodes, identifier));
       } else {
         throw new OpenGammaRuntimeException("Can currently only use this code for credit spread strips");
       }

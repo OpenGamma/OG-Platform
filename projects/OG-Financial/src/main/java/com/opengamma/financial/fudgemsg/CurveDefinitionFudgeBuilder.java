@@ -33,10 +33,11 @@ public class CurveDefinitionFudgeBuilder implements FudgeBuilder<CurveDefinition
   @Override
   public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final CurveDefinition object) {
     final MutableFudgeMsg message = serializer.newMessage();
+    message.add(null, 0, object.getClass().getName());
     message.add(UNIQUE_ID_FIELD, object.getUniqueId());
     message.add(NAME_FIELD, object.getName());
-    for (final CurveNode strip : object.getStrips()) {
-      serializer.addToMessage(message, NODE_FIELD, null, strip);
+    for (final CurveNode node : object.getNodes()) {
+      serializer.addToMessage(message, NODE_FIELD, null, node);
     }
     return message;
   }
@@ -46,10 +47,10 @@ public class CurveDefinitionFudgeBuilder implements FudgeBuilder<CurveDefinition
     final String name = message.getString(NAME_FIELD);
     final Set<CurveNode> nodes = new TreeSet<>();
     final List<FudgeField> nodesFields = message.getAllByName(NODE_FIELD);
-    //    for (final FudgeField nodeField : nodesFields) {
-    //      final Object obj = deserializer.fieldValueToObject(nodeField);
-    //      nodes.add((CurveStrip) obj);
-    //    }
+    for (final FudgeField nodeField : nodesFields) {
+      final Object obj = deserializer.fieldValueToObject(nodeField);
+      nodes.add((CurveNode) obj);
+    }
     final CurveDefinition curveDefinition = new CurveDefinition(name, nodes);
     final FudgeField uniqueId = message.getByName(UNIQUE_ID_FIELD);
     if (uniqueId != null) {

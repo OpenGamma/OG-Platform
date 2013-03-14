@@ -18,7 +18,7 @@ import org.fudgemsg.mapping.FudgeSerializer;
 import org.threeten.bp.LocalDate;
 
 import com.opengamma.financial.analytics.curve.CurveSpecification;
-import com.opengamma.financial.analytics.ircurve.strips.CurveStripWithIdentifier;
+import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.id.UniqueIdentifiable;
 
 /**
@@ -37,7 +37,7 @@ public class CurveSpecificationBuilder implements FudgeBuilder<CurveSpecificatio
     serializer.addToMessage(message, CURVE_DATE_FIELD, null, object.getCurveDate());
     message.add(NAME_FIELD, object.getName());
     serializer.addToMessage(message, ID_FIELD, null, object.getIdentifier());
-    for (final CurveStripWithIdentifier resolvedStrip : object.getStrips()) {
+    for (final CurveNodeWithIdentifier resolvedStrip : object.getStrips()) {
       serializer.addToMessage(message, RESOLVED_STRIPS_FIELD, null, resolvedStrip);
     }
     return message;
@@ -49,9 +49,9 @@ public class CurveSpecificationBuilder implements FudgeBuilder<CurveSpecificatio
     final String name = message.getString(NAME_FIELD);
     final UniqueIdentifiable id = deserializer.fieldValueToObject(UniqueIdentifiable.class, message.getByName(ID_FIELD));
     final List<FudgeField> resolvedStripFields = message.getAllByName(RESOLVED_STRIPS_FIELD);
-    final List<CurveStripWithIdentifier> resolvedStrips = new ArrayList<>();
+    final List<CurveNodeWithIdentifier> resolvedStrips = new ArrayList<>();
     for (final FudgeField resolvedStripField : resolvedStripFields) {
-      resolvedStrips.add(deserializer.fieldValueToObject(CurveStripWithIdentifier.class, resolvedStripField));
+      resolvedStrips.add(deserializer.fieldValueToObject(CurveNodeWithIdentifier.class, resolvedStripField));
     }
     return new CurveSpecification(curveDate, name, id, resolvedStrips);
   }
