@@ -65,6 +65,7 @@
     right: 0;
     border-top: 5px solid transparent;
     border-left: 5px solid transparent;
+    -moz-transform: scale(.9999); /* Temporary fix for FF until mozilla patch bug */
 }
 
 .OG-g-cell.og-log-ERROR:after {
