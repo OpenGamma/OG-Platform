@@ -10,6 +10,7 @@ import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
 import org.testng.annotations.DataProvider;
@@ -67,6 +68,11 @@ public class UnionMarketDataAvailabilityTest {
       };
     }
 
+    @Override
+    public Serializable getAvailabilityHintKey() {
+      return getClass();
+    }
+
   }
 
   protected MarketDataAvailabilityProvider createProvider1() {
@@ -97,6 +103,11 @@ public class UnionMarketDataAvailabilityTest {
       @Override
       public MarketDataAvailabilityFilter getAvailabilityFilter() {
         return filter;
+      }
+
+      @Override
+      public Serializable getAvailabilityHintKey() {
+        return getClass();
       }
 
     });

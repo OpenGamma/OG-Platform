@@ -5,6 +5,8 @@
  */
 package com.opengamma.engine.marketdata.live;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Set;
 
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -102,6 +104,14 @@ import com.opengamma.util.ArgumentChecker;
   protected ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final ValueRequirement desiredValue) {
     // Can't provide any live data for the NULL target
     return null;
+  }
+
+  @Override
+  public Serializable getAvailabilityHintKey() {
+    final ArrayList<Serializable> key = new ArrayList<Serializable>(3);
+    key.add(getClass().getName());
+    key.add(getNormalizationRules());
+    return key;
   }
 
 }

@@ -145,13 +145,14 @@ public class ViewProcessTest {
 
     // Trick the compilation job into thinking it needs to rebuilt after time0 + 20
     final CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = new CompiledViewDefinitionWithGraphsImpl(compilationModel1.getViewDefinition(),
-        compilationModel1.getDependencyGraphsByConfiguration(), Collections.<ComputationTargetReference, UniqueId>emptyMap(), compilationModel1.getPortfolio(), compilationModel1.getFunctionInitId()) {
+        CompiledViewDefinitionWithGraphsImpl.getDependencyGraphs(compilationModel1), Collections.<ComputationTargetReference, UniqueId>emptyMap(), compilationModel1.getPortfolio(),
+        compilationModel1.getFunctionInitId()) {
       @Override
       public Instant getValidTo() {
         return time0.plusMillis(20);
       }
     };
-    ((SingleThreadViewProcessWorker) worker).setCachedCompiledViewDefinition(compiledViewDefinition);
+    ((SingleThreadViewProcessWorker) worker).setLastCompiledViewDefinition(compiledViewDefinition);
 
     // Running at time0 + 20 doesn't require a rebuild - should still use our dummy
     worker.requestCycle();

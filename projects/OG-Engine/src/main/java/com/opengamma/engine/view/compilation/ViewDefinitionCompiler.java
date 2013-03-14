@@ -5,8 +5,8 @@
  */
 package com.opengamma.engine.view.compilation;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -41,12 +41,10 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Ultimately produces a set of {@link DependencyGraph}s from a {@link ViewDefinition}, one for each
- * {@link ViewCalculationConfiguration}. Additional information, such as the live data requirements, is collected
- * along the way and exposed after compilation.
+ * Ultimately produces a set of {@link DependencyGraph}s from a {@link ViewDefinition}, one for each {@link ViewCalculationConfiguration}. Additional information, such as the live data requirements,
+ * is collected along the way and exposed after compilation.
  * <p>
- * The compiled graphs are guaranteed to be calculable for at least the requested timestamp. One or more of the
- * referenced functions may not be valid at other timestamps.
+ * The compiled graphs are guaranteed to be calculable for at least the requested timestamp. One or more of the referenced functions may not be valid at other timestamps.
  */
 public final class ViewDefinitionCompiler {
 
@@ -61,15 +59,14 @@ public final class ViewDefinitionCompiler {
   //-------------------------------------------------------------------------
 
   /**
-   * Compiles the specified view definition wrt the supplied compilation context, valuation time and version
-   * correction and returns the compiled view. This method wraps the compileTask method, waiting for completion
-   * of the async compilation task and returning the resulting CompiledViewDefinitionWithGraphsImpl, rather than a
-   * future reference to it.
-   * @param viewDefinition        the view definition to compile
-   * @param compilationServices   the compilation context (market data availability provider, graph builder factory, etc.)
-   * @param valuationTime         the effective valuation time against which to compile
-   * @param versionCorrection     the version correction to use
-   * @return  the CompiledViewDefinitionWithGraphsImpl that results from the compilation
+   * Compiles the specified view definition wrt the supplied compilation context, valuation time and version correction and returns the compiled view. This method wraps the compileTask method, waiting
+   * for completion of the async compilation task and returning the resulting CompiledViewDefinitionWithGraphsImpl, rather than a future reference to it.
+   * 
+   * @param viewDefinition the view definition to compile
+   * @param compilationServices the compilation context (market data availability provider, graph builder factory, etc.)
+   * @param valuationTime the effective valuation time against which to compile
+   * @param versionCorrection the version correction to use
+   * @return the CompiledViewDefinitionWithGraphsImpl that results from the compilation
    */
   protected static final class CompilationCompletionEstimate implements Housekeeper.Callback<Supplier<Double>> {
 
@@ -149,12 +146,12 @@ public final class ViewDefinitionCompiler {
 
     protected abstract Portfolio compile();
 
-    private void removeUnusedResolutions(final Map<String, DependencyGraph> graphsByConfiguration, final Portfolio portfolio) {
+    private void removeUnusedResolutions(final Collection<DependencyGraph> graphs, final Portfolio portfolio) {
       final Set<UniqueId> validIdentifiers = new HashSet<UniqueId>();
       if (portfolio != null) {
         validIdentifiers.add(portfolio.getUniqueId());
       }
-      for (final DependencyGraph graph : graphsByConfiguration.values()) {
+      for (DependencyGraph graph : graphs) {
         for (final ComputationTargetSpecification target : graph.getAllComputationTargets()) {
           validIdentifiers.add(target.getUniqueId());
         }
@@ -203,17 +200,17 @@ public final class ViewDefinitionCompiler {
       }
       long t = -System.nanoTime();
       final Portfolio portfolio = compile();
-      final Map<String, DependencyGraph> graphsByConfiguration = processDependencyGraphs(getContext());
+      final Collection<DependencyGraph> graphs = processDependencyGraphs(getContext());
       t += System.nanoTime();
       s_logger.info("Processed dependency graphs after {}ms", t / 1e6);
-      removeUnusedResolutions(graphsByConfiguration, portfolio);
-      _result = new CompiledViewDefinitionWithGraphsImpl(getContext().getViewDefinition(), graphsByConfiguration, getResolutions(), portfolio, getContext().getServices()
+      removeUnusedResolutions(graphs, portfolio);
+      _result = new CompiledViewDefinitionWithGraphsImpl(getContext().getViewDefinition(), graphs, getResolutions(), portfolio, getContext().getServices()
           .getFunctionCompilationContext().getFunctionInitId());
       if (OUTPUT_DEPENDENCY_GRAPHS) {
-        outputDependencyGraphs(graphsByConfiguration);
+        outputDependencyGraphs(graphs);
       }
       if (OUTPUT_LIVE_DATA_REQUIREMENTS) {
-        outputLiveDataRequirements(graphsByConfiguration);
+        outputLiveDataRequirements(graphs);
       }
       if (OUTPUT_FAILURE_REPORTS) {
         outputFailureReports(_viewCompilationContext.getBuilders());
@@ -303,19 +300,19 @@ public final class ViewDefinitionCompiler {
   }
 
   /**
-   * Returns all the dependency graphs built by the graph builders in the specified view compilation context. There is
-   * one dependency graph per configuration, and the list of configurations and their dep graph builders is found in the
-   * supplied view compilation context. This method waits for their compilation to complete if necessary, and removes
-   * all unnecessary values in each graph.
+   * Returns all the dependency graphs built by the graph builders in the specified view compilation context. This method waits for their compilation to complete if necessary, and removes all
+   * unnecessary values in each graph.
+   * 
    * @param context the view compilation context containing the dep graph builders to query for dep graphs
-   * @return        the map from config names to dependency graphs
+   * @return the map from config names to dependency graphs
    */
-  private static Map<String, DependencyGraph> processDependencyGraphs(final ViewCompilationContext context) {
-    final Map<String, DependencyGraph> result = new HashMap<String, DependencyGraph>();
-    for (final DependencyGraphBuilder builder : context.getBuilders()) {
+  private static Collection<DependencyGraph> processDependencyGraphs(final ViewCompilationContext context) {
+    final Collection<DependencyGraphBuilder> builders = context.getBuilders();
+    final Collection<DependencyGraph> result = new ArrayList<DependencyGraph>(builders.size());
+    for (DependencyGraphBuilder builder : builders) {
       final DependencyGraph graph = builder.getDependencyGraph();
       graph.removeUnnecessaryValues();
-      result.put(builder.getCalculationConfigurationName(), graph);
+      result.add(graph);
       // TODO: do we want to do anything with the ValueRequirement to resolved ValueSpecification data? I don't like it being in the graph
       // as it's more specific to how the graph is used. Having it in the graph with the terminal outputs data is convenient for taking
       // sub-graphs to initialise an incremental graph builder with though.
@@ -323,26 +320,25 @@ public final class ViewDefinitionCompiler {
     return result;
   }
 
-  private static void outputDependencyGraphs(final Map<String, DependencyGraph> graphsByConfiguration) {
+  private static void outputDependencyGraphs(final Collection<DependencyGraph> graphs) {
     final StringBuilder sb = new StringBuilder();
-    for (final Map.Entry<String, DependencyGraph> entry : graphsByConfiguration.entrySet()) {
-      final String configName = entry.getKey();
+    for (DependencyGraph graph : graphs) {
+      final String configName = graph.getCalculationConfigurationName();
       sb.append("DepGraph for ").append(configName);
 
-      final DependencyGraph depGraph = entry.getValue();
-      sb.append("\tProducing values ").append(depGraph.getOutputSpecifications());
-      for (final DependencyNode depNode : depGraph.getDependencyNodes()) {
+      sb.append("\tProducing values ").append(graph.getOutputSpecifications());
+      for (final DependencyNode depNode : graph.getDependencyNodes()) {
         sb.append("\t\tNode:\n").append(DependencyNodeFormatter.toString(depNode));
       }
     }
     s_logger.warn("Dependency Graphs -- \n{}", sb);
   }
 
-  private static void outputLiveDataRequirements(final Map<String, DependencyGraph> graphsByConfiguration) {
+  private static void outputLiveDataRequirements(final Collection<DependencyGraph> graphs) {
     final StringBuilder sb = new StringBuilder();
-    for (final Map.Entry<String, DependencyGraph> entry : graphsByConfiguration.entrySet()) {
-      final String configName = entry.getKey();
-      final Collection<ValueSpecification> requiredLiveData = entry.getValue().getAllRequiredMarketData();
+    for (DependencyGraph graph : graphs) {
+      final String configName = graph.getCalculationConfigurationName();
+      final Collection<ValueSpecification> requiredLiveData = graph.getAllRequiredMarketData();
       if (requiredLiveData.isEmpty()) {
         sb.append(configName).append(" requires no live data.\n");
       } else {

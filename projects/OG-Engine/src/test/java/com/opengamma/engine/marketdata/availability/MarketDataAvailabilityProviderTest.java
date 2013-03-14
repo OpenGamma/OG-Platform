@@ -8,6 +8,8 @@ package com.opengamma.engine.marketdata.availability;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertSame;
 
+import java.io.Serializable;
+
 import org.mockito.Mockito;
 import org.testng.annotations.Test;
 
@@ -55,6 +57,11 @@ public class MarketDataAvailabilityProviderTest {
     @Override
     protected ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final ValueRequirement desiredValue) {
       return new ValueSpecification(desiredValue.getValueName(), targetSpec, ValueProperties.with(ValuePropertyNames.FUNCTION, "null").get());
+    }
+
+    @Override
+    public Serializable getAvailabilityHintKey() {
+      return getClass();
     }
 
   }
@@ -110,6 +117,11 @@ public class MarketDataAvailabilityProviderTest {
       @Override
       public MarketDataAvailabilityFilter getAvailabilityFilter() {
         return filter;
+      }
+
+      @Override
+      public Serializable getAvailabilityHintKey() {
+        return getClass();
       }
 
     };

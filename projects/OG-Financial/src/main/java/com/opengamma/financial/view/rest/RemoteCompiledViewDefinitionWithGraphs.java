@@ -8,6 +8,7 @@ package com.opengamma.financial.view.rest;
 import static com.opengamma.util.functional.Functional.merge;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -21,12 +22,14 @@ import org.threeten.bp.Instant;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.depgraph.DependencyGraphExplorer;
+import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.compilation.CompiledViewCalculationConfiguration;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.rest.FudgeRestClient;
 
 /**
@@ -95,15 +98,30 @@ public class RemoteCompiledViewDefinitionWithGraphs implements CompiledViewDefin
   }
 
   @Override
+  public Collection<DependencyGraphExplorer> getDependencyGraphExplorers() {
+    final Collection<CompiledViewCalculationConfiguration> configurations = getCompiledCalculationConfigurations();
+    final List<DependencyGraphExplorer> explorers = new ArrayList<DependencyGraphExplorer>(configurations.size());
+    for (CompiledViewCalculationConfiguration configuration : configurations) {
+      explorers.add(getDependencyGraphExplorer(configuration.getName()));
+    }
+    return explorers;
+  }
+
+  @Override
   public DependencyGraphExplorer getDependencyGraphExplorer(final String calcConfig) {
     final URI uri = UriBuilder.fromUri(_baseUri).path(DataCompiledViewDefinitionResource.PATH_GRAPHS).path(calcConfig).build();
     return new RemoteDependencyGraphExplorer(uri);
   }
 
   @Override
+  public Map<ComputationTargetReference, UniqueId> getResolvedIdentifiers() {
+    throw new UnsupportedOperationException("TODO: Implement this method over REST");
+  }
+
+  @Override
   public Map<ValueSpecification, Set<ValueRequirement>> getTerminalValuesRequirements() {
     final Map<ValueSpecification, Set<ValueRequirement>> terminalValuesRequirements = new HashMap<ValueSpecification, Set<ValueRequirement>>();
-    final Collection<CompiledViewCalculationConfiguration> compiledCalculationConfigurations =  getCompiledCalculationConfigurations();
+    final Collection<CompiledViewCalculationConfiguration> compiledCalculationConfigurations = getCompiledCalculationConfigurations();
     for (final CompiledViewCalculationConfiguration compiledCalculationConfiguration : compiledCalculationConfigurations) {
       merge(terminalValuesRequirements, compiledCalculationConfiguration.getTerminalOutputSpecifications());
     }

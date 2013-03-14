@@ -5,6 +5,8 @@
  */
 package com.opengamma.engine.marketdata.availability;
 
+import java.io.Serializable;
+
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.marketdata.MarketDataProvider;
 import com.opengamma.engine.value.ValueRequirement;
@@ -48,5 +50,17 @@ public interface MarketDataAvailabilityProvider {
    * @return a {@link MarketDataAvailabilityFilter} instance.
    */
   MarketDataAvailabilityFilter getAvailabilityFilter();
+
+  /**
+   * Returns an opaque descriptor that approximately describes the availability. This is intended to support the caching of data that has been derived from the availability returned by a market data
+   * provider.
+   * <p>
+   * For example if there is a cached dependency graph build based on the results of one availability provider, then it may be possible to take that as the seed for an incremental build, or share the
+   * whole graph, when another provider that returns the same descriptor is used. Note that this is only an approximate indication; any resolutions must be tested to confirm that the cached object is
+   * valid for the new provider.
+   * 
+   * @return a key that could be used for caching objects derived from this provider's availability
+   */
+  Serializable getAvailabilityHintKey();
 
 }

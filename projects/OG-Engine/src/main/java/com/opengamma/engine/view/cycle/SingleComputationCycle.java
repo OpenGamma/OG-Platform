@@ -47,6 +47,7 @@ import com.opengamma.engine.calcnode.CalculationJobResultItem;
 import com.opengamma.engine.calcnode.MissingInput;
 import com.opengamma.engine.calcnode.MutableExecutionLog;
 import com.opengamma.engine.depgraph.DependencyGraph;
+import com.opengamma.engine.depgraph.DependencyGraphExplorer;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.depgraph.DependencyNodeFilter;
 import com.opengamma.engine.exec.DefaultAggregatedExecutionLog;
@@ -73,6 +74,7 @@ import com.opengamma.engine.view.ExecutionLogWithContext;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphsImpl;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.impl.ExecutionLogModeSource;
@@ -118,7 +120,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
   // Injected inputs
   private final UniqueId _cycleId;
   private final ViewProcessContext _viewProcessContext;
-  private final CompiledViewDefinitionWithGraphsImpl _compiledViewDefinition;
+  private final CompiledViewDefinitionWithGraphs _compiledViewDefinition;
   private final ViewCycleExecutionOptions _executionOptions;
   private final VersionCorrection _versionCorrection;
 
@@ -139,7 +141,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
   private final InMemoryViewComputationResultModel _resultModel;
 
   public SingleComputationCycle(final UniqueId cycleId, final ComputationResultListener cycleFragmentResultListener, final ViewProcessContext viewProcessContext,
-      final CompiledViewDefinitionWithGraphsImpl compiledViewDefinition, final ViewCycleExecutionOptions executionOptions,
+      final CompiledViewDefinitionWithGraphs compiledViewDefinition, final ViewCycleExecutionOptions executionOptions,
       final VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(cycleId, "cycleId");
     ArgumentChecker.notNull(cycleFragmentResultListener, "cycleFragmentResultListener");
@@ -176,8 +178,14 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     return _executionOptions;
   }
 
+  /**
+   * @return the function initialization identifier
+   * @deprecated this needs to go
+   */
+  @Deprecated
   public long getFunctionInitId() {
-    return getCompiledViewDefinition().getFunctionInitId();
+    // The cast is only temporary until we've got rid of the function initialisation id
+    return ((CompiledViewDefinitionWithGraphsImpl) getCompiledViewDefinition()).getFunctionInitId();
   }
 
   /**
@@ -268,7 +276,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
   }
 
   @Override
-  public CompiledViewDefinitionWithGraphsImpl getCompiledViewDefinition() {
+  public CompiledViewDefinitionWithGraphs getCompiledViewDefinition() {
     return _compiledViewDefinition;
   }
 
@@ -474,7 +482,8 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
   private void addMarketDataToResults(final ValueSpecification valueSpec, final ComputedValueResult computedValueResult,
       final InMemoryViewComputationResultModel fragmentResultModel, final InMemoryViewComputationResultModel fullResultModel) {
     // REVIEW jonathan 2011-11-17 -- do we really need to include all market data in the results?
-    for (final DependencyGraph depGraph : getCompiledViewDefinition().getAllDependencyGraphs()) {
+    for (final DependencyGraphExplorer depGraphExplorer : getCompiledViewDefinition().getDependencyGraphExplorers()) {
+      final DependencyGraph depGraph = depGraphExplorer.getWholeGraph();
       if (depGraph.getTerminalOutputSpecifications().contains(valueSpec)
           && getViewDefinition().getResultModelDefinition().shouldOutputResult(valueSpec, depGraph)) {
         fragmentResultModel.addValue(depGraph.getCalculationConfigurationName(), computedValueResult);
@@ -548,16 +557,16 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     }
     final InMemoryViewComputationResultModel fragmentResultModel = constructTemplateResultModel();
     final InMemoryViewComputationResultModel fullResultModel = getResultModel();
-    for (final String calcConfigurationName : getAllCalculationConfigurationNames()) {
-      final DependencyGraph depGraph = getCompiledViewDefinition().getDependencyGraph(calcConfigurationName);
-      final ViewComputationCache cache = getComputationCache(calcConfigurationName);
-      final ViewComputationCache previousCache = previousCycle.getComputationCache(calcConfigurationName);
-      final DependencyNodeJobExecutionResultCache jobExecutionResultCache = getJobExecutionResultCache(calcConfigurationName);
-      final DependencyNodeJobExecutionResultCache previousJobExecutionResultCache = previousCycle.getJobExecutionResultCache(calcConfigurationName);
+    for (final DependencyGraphExplorer depGraphExplorer : getCompiledViewDefinition().getDependencyGraphExplorers()) {
+      final DependencyGraph depGraph = depGraphExplorer.getWholeGraph();
+      final ViewComputationCache cache = getComputationCache(depGraph.getCalculationConfigurationName());
+      final ViewComputationCache previousCache = previousCycle.getComputationCache(depGraph.getCalculationConfigurationName());
+      final DependencyNodeJobExecutionResultCache jobExecutionResultCache = getJobExecutionResultCache(depGraph.getCalculationConfigurationName());
+      final DependencyNodeJobExecutionResultCache previousJobExecutionResultCache = previousCycle.getJobExecutionResultCache(depGraph.getCalculationConfigurationName());
       final LiveDataDeltaCalculator deltaCalculator = new LiveDataDeltaCalculator(depGraph, cache, previousCache);
       deltaCalculator.computeDelta();
       s_logger.info("Computed delta for calculation configuration '{}'. {} nodes out of {} require recomputation.",
-          new Object[] {calcConfigurationName, deltaCalculator.getChangedNodes().size(), depGraph.getSize() });
+          new Object[] {depGraph.getCalculationConfigurationName(), deltaCalculator.getChangedNodes().size(), depGraph.getSize() });
       final Collection<ValueSpecification> specsToCopy = new LinkedList<ValueSpecification>();
       final Collection<ComputedValue> errors = new LinkedList<ComputedValue>();
       for (final DependencyNode unchangedNode : deltaCalculator.getUnchangedNodes()) {
@@ -585,7 +594,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
       }
       if (!specsToCopy.isEmpty()) {
         final ComputationCycleQuery reusableResultsQuery = new ComputationCycleQuery();
-        reusableResultsQuery.setCalculationConfigurationName(calcConfigurationName);
+        reusableResultsQuery.setCalculationConfigurationName(depGraph.getCalculationConfigurationName());
         reusableResultsQuery.setValueSpecifications(specsToCopy);
         final ComputationResultsResponse reusableResultsQueryResponse = previousCycle.queryResults(reusableResultsQuery);
         final Map<ValueSpecification, ComputedValueResult> resultsToReuse = reusableResultsQueryResponse.getResults();
@@ -594,8 +603,8 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
           final ValueSpecification valueSpec = computedValueResult.getSpecification();
           if (depGraph.getTerminalOutputSpecifications().contains(valueSpec)
               && getViewDefinition().getResultModelDefinition().shouldOutputResult(valueSpec, depGraph)) {
-            fragmentResultModel.addValue(calcConfigurationName, computedValueResult);
-            fullResultModel.addValue(calcConfigurationName, computedValueResult);
+            fragmentResultModel.addValue(depGraph.getCalculationConfigurationName(), computedValueResult);
+            fullResultModel.addValue(depGraph.getCalculationConfigurationName(), computedValueResult);
           }
           final Object previousValue = computedValueResult.getValue() != null ? computedValueResult.getValue() : NotCalculatedSentinel.EVALUATION_ERROR;
           newValues.add(new ComputedValue(valueSpec, previousValue));
@@ -657,7 +666,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
 
   private void processExecutionResult(final ExecutionResult executionResult, final InMemoryViewComputationResultModel fragmentResultModel, final InMemoryViewComputationResultModel fullResultModel) {
     final String calcConfigurationName = executionResult.getResult().getSpecification().getCalcConfigName();
-    final DependencyGraph depGraph = getCompiledViewDefinition().getDependencyGraph(calcConfigurationName);
+    final DependencyGraph depGraph = getDependencyGraph(calcConfigurationName);
     final ViewComputationCache computationCache = getComputationCache(calcConfigurationName);
     final DependencyNodeJobExecutionResultCache jobExecutionResultCache = getJobExecutionResultCache(calcConfigurationName);
     final Iterator<CalculationJobResultItem> itrResultItem = executionResult.getResult().getResultItems().iterator();
@@ -727,7 +736,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
    * @return the dependency graph
    */
   protected DependencyGraph getDependencyGraph(final String calcConfName) {
-    return getCompiledViewDefinition().getDependencyGraph(calcConfName);
+    return getCompiledViewDefinition().getDependencyGraphExplorer(calcConfName).getWholeGraph();
   }
 
   private boolean isMarketDataNode(final DependencyNode node) {

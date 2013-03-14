@@ -10,8 +10,6 @@ import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -181,9 +179,8 @@ public class CancelExecutionTest {
       graph.addDependencyNode(node);
       previous = node;
     }
-    final Map<String, DependencyGraph> graphs = new HashMap<String, DependencyGraph>();
-    graphs.put(graph.getCalculationConfigurationName(), graph);
-    final CompiledViewDefinitionWithGraphsImpl viewEvaluationModel = new CompiledViewDefinitionWithGraphsImpl(viewDefinition, graphs, Collections.<ComputationTargetReference, UniqueId>emptyMap(),
+    final CompiledViewDefinitionWithGraphsImpl viewEvaluationModel = new CompiledViewDefinitionWithGraphsImpl(viewDefinition, Collections.singleton(graph),
+        Collections.<ComputationTargetReference, UniqueId>emptyMap(),
         new SimplePortfolio("Test Portfolio"), 0);
     final ViewCycleExecutionOptions cycleOptions = ViewCycleExecutionOptions.builder().setValuationTime(Instant.ofEpochMilli(1)).setMarketDataSpecification(new MarketDataSpecification()).create();
     final SingleComputationCycle cycle = new SingleComputationCycle(UniqueId.of("Test", "Cycle1"), computationCycleResultListener, vpc, viewEvaluationModel,

@@ -5,7 +5,9 @@
  */
 package com.opengamma.engine.marketdata.availability;
 
+import java.io.Serializable;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
@@ -41,6 +43,11 @@ public class ValueNameMarketDataAvailabilityFilter extends AbstractMarketDataAva
   @Override
   public boolean isAvailable(final ComputationTargetSpecification targetSpec, final UniqueId identifier, final ValueRequirement desiredValue) {
     return _validMarketDataRequirementNames.contains(desiredValue.getValueName());
+  }
+
+  @Override
+  protected void populateAvailabilityHintKey(final Collection<Serializable> key) {
+    key.add(new HashSet<String>(_validMarketDataRequirementNames));
   }
 
 }

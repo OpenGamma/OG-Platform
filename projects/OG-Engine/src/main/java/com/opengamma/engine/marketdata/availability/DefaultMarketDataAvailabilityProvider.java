@@ -5,6 +5,8 @@
  */
 package com.opengamma.engine.marketdata.availability;
 
+import java.io.Serializable;
+
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.MarketDataSourcingFunction;
 import com.opengamma.engine.target.ComputationTargetType;
@@ -64,6 +66,11 @@ public class DefaultMarketDataAvailabilityProvider implements MarketDataAvailabi
   @Override
   public MarketDataAvailabilityFilter getAvailabilityFilter() {
     return new ProviderMarketDataAvailabilityFilter(this);
+  }
+
+  @Override
+  public Serializable getAvailabilityHintKey() {
+    return getClass();
   }
 
 }
