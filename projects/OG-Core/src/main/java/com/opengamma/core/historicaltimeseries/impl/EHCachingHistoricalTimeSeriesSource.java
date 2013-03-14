@@ -10,6 +10,10 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Element;
+
 import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,10 +38,6 @@ import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
 
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Element;
-
 /**
  * A cache decorating a {@code HistoricalTimeSeriesSource}.
  * <p>
@@ -51,13 +51,13 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
   /**
    * The cache prefix.
    */
-  /*package*/ static final String CACHE_PREFIX = "HistoricalTimeSeries";
-  
+  /*package*/static final String CACHE_PREFIX = "HistoricalTimeSeries";
+
   /**
    * The cache name.
    */
   private static final String DATA_CACHE_NAME = CACHE_PREFIX + "DataCache";
-  
+
   /**
    * Id bundle cache name.
    */
@@ -125,8 +125,8 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
   /**
    * Creates an instance.
    * 
-   * @param underlying  the underlying source, not null
-   * @param cacheManager  the cache manager, not null
+   * @param underlying the underlying source, not null
+   * @param cacheManager the cache manager, not null
    */
   public EHCachingHistoricalTimeSeriesSource(HistoricalTimeSeriesSource underlying, CacheManager cacheManager) {
     ArgumentChecker.notNull(underlying, "underlying");
@@ -148,7 +148,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
       @Override
       public void entityChanged(ChangeEvent event) {
         cleanCaches(event.getObjectId());
-        changeManager().entityChanged(event.getType(), event.getObjectId(), event.getVersionFrom(), event.getVersionTo(), event.getVersionInstant());        
+        changeManager().entityChanged(event.getType(), event.getObjectId(), event.getVersionFrom(), event.getVersionTo(), event.getVersionInstant());
       }
 
     };
@@ -233,7 +233,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
     } else {
       return new ObjectsPair<LocalDate, Double>(hts.getTimeSeries().getLatestTime(), hts.getTimeSeries().getLatestValue());
     }
-  }  
+  }
 
   @Override
   public Pair<LocalDate, Double> getLatestDataPoint(UniqueId uniqueId, LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
@@ -247,7 +247,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
 
   private HistoricalTimeSeries doGetHistoricalTimeSeries(
       UniqueId uniqueId, LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd, Integer maxPoints) {
-    SubSeriesKey subseriesKey = new SubSeriesKey(start, includeStart, end, includeEnd, maxPoints);
+    SubSeriesKey subseriesKey = new SubSeriesKey(start, end, maxPoints);
     ObjectsPair<UniqueId, SubSeriesKey> key = Pair.of(uniqueId, subseriesKey);
     Element element = _dataCache.get(key);
     HistoricalTimeSeries hts;
@@ -255,6 +255,10 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
       hts = (HistoricalTimeSeries) element.getObjectValue();
       if (MISS.equals(hts)) {
         hts = null;
+      } else if (!ObjectUtils.equals(start, subseriesKey._start) || !ObjectUtils.equals(end, subseriesKey._end)
+          || !includeStart || includeEnd || !ObjectUtils.equals(maxPoints, subseriesKey._maxPoints)) {
+        // Pick out the sub-series requested
+        hts = getSubSeries(hts, start, includeStart, end, includeEnd, maxPoints);
       }
     } else {
       // If we have the full series cached computing a sub-series could be faster
@@ -263,13 +267,18 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
         hts = getSubSeries((HistoricalTimeSeries) fullHtsElement.getObjectValue(), start, includeStart, end, includeEnd, maxPoints);
       } else {
         if (maxPoints == null) {
-          hts = _underlying.getHistoricalTimeSeries(uniqueId, start, includeStart, end, includeEnd);
+          hts = _underlying.getHistoricalTimeSeries(uniqueId, subseriesKey._start, true, subseriesKey._end, false);
         } else {
-          hts = _underlying.getHistoricalTimeSeries(uniqueId, start, includeStart, end, includeEnd, maxPoints);
+          hts = _underlying.getHistoricalTimeSeries(uniqueId, subseriesKey._start, true, subseriesKey._end, false, subseriesKey._maxPoints);
         }
         if (hts != null) {
           s_logger.debug("Caching sub time-series {}", hts);
           _dataCache.put(new Element(key, hts));
+          if (!ObjectUtils.equals(start, subseriesKey._start) || !ObjectUtils.equals(end, subseriesKey._end)
+              || !includeStart || includeEnd || !ObjectUtils.equals(maxPoints, subseriesKey._maxPoints)) {
+            // Pick out the sub-series requested
+            hts = getSubSeries(hts, start, includeStart, end, includeEnd, maxPoints);
+          }
         } else {
           s_logger.debug("Caching miss {}", key);
           _dataCache.put(new Element(key, MISS));
@@ -280,7 +289,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
   }
 
   //-------------------------------------------------------------------------
-  
+
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
       ExternalIdBundle identifiers, String dataSource, String dataProvider, String dataField) {
@@ -313,7 +322,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
 
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
-      ExternalIdBundle identifiers, String dataSource, String dataProvider, String dataField, 
+      ExternalIdBundle identifiers, String dataSource, String dataProvider, String dataField,
       LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
     return getHistoricalTimeSeries(
         identifiers, LocalDate.now(getClock()), dataSource, dataProvider, dataField,
@@ -336,7 +345,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
 
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
-      ExternalIdBundle identifiers, LocalDate currentDate, String dataSource, String dataProvider, String dataField, 
+      ExternalIdBundle identifiers, LocalDate currentDate, String dataSource, String dataProvider, String dataField,
       LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd, int maxPoints) {
     return doGetHistoricalTimeSeries(identifiers, currentDate, dataSource, dataProvider, dataField, start, includeStart, end, includeEnd, maxPoints);
   }
@@ -354,7 +363,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
 
   @Override
   public Pair<LocalDate, Double> getLatestDataPoint(
-      ExternalIdBundle identifiers, LocalDate currentDate, String dataSource, String dataProvider, String dataField, 
+      ExternalIdBundle identifiers, LocalDate currentDate, String dataSource, String dataProvider, String dataField,
       LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
     HistoricalTimeSeries hts = doGetHistoricalTimeSeries(identifiers, currentDate, dataSource, dataProvider, dataField, start, includeStart, end, includeEnd, -1);
     if (hts == null || hts.getTimeSeries() == null || hts.getTimeSeries().isEmpty()) {
@@ -372,7 +381,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
 
   @Override
   public Pair<LocalDate, Double> getLatestDataPoint(
-      ExternalIdBundle identifierBundle, String dataSource, String dataProvider, String dataField, 
+      ExternalIdBundle identifierBundle, String dataSource, String dataProvider, String dataField,
       LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
     return getLatestDataPoint(identifierBundle, LocalDate.now(getClock()), dataSource, dataProvider, dataField,
         start, includeStart, end, includeEnd);
@@ -382,7 +391,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
       ExternalIdBundle identifiers, LocalDate currentDate, String dataSource, String dataProvider, String dataField,
       LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd, Integer maxPoints) {
     HistoricalTimeSeriesKey seriesKey = new HistoricalTimeSeriesKey(null, currentDate, identifiers, dataSource, dataProvider, dataField);
-    SubSeriesKey subseriesKey = new SubSeriesKey(start, includeStart, end, includeEnd, maxPoints);
+    SubSeriesKey subseriesKey = new SubSeriesKey(start, end, maxPoints);
     ObjectsPair<HistoricalTimeSeriesKey, SubSeriesKey> key = Pair.of(seriesKey, subseriesKey);
     Element element = _dataCache.get(key);
     HistoricalTimeSeries hts;
@@ -390,6 +399,10 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
       hts = (HistoricalTimeSeries) element.getObjectValue();
       if (MISS.equals(hts)) {
         hts = null;
+      } else if (!ObjectUtils.equals(start, subseriesKey._start) || !ObjectUtils.equals(end, subseriesKey._end) || !includeStart || includeEnd ||
+          !ObjectUtils.equals(maxPoints, subseriesKey._maxPoints)) {
+        // Pick out the sub-series requested
+        hts = getSubSeries(hts, start, includeStart, end, includeEnd, maxPoints);
       }
     } else {
       // If we have the full series cached computing a sub-series could be faster
@@ -398,15 +411,20 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
         hts = getSubSeries((HistoricalTimeSeries) fullHtsElement.getObjectValue(), start, includeStart, end, includeEnd, maxPoints);
       } else {
         if (maxPoints == null) {
-          hts = _underlying.getHistoricalTimeSeries(identifiers, currentDate, dataSource, dataProvider, dataField, 
-              start, includeStart, end, includeEnd);
+          hts = _underlying.getHistoricalTimeSeries(identifiers, currentDate, dataSource, dataProvider, dataField,
+              subseriesKey._start, true, subseriesKey._end, false);
         } else {
-          hts = _underlying.getHistoricalTimeSeries(identifiers, currentDate, dataSource, dataProvider, dataField, 
-              start, includeStart, end, includeEnd, maxPoints);
+          hts = _underlying.getHistoricalTimeSeries(identifiers, currentDate, dataSource, dataProvider, dataField,
+              subseriesKey._start, true, subseriesKey._end, false, subseriesKey._maxPoints);
         }
         if (hts != null) {
           s_logger.debug("Caching sub time-series {}", hts);
           _dataCache.put(new Element(key, hts));
+          if (!ObjectUtils.equals(start, subseriesKey._start) || !ObjectUtils.equals(end, subseriesKey._end)
+              || !includeStart || includeEnd || !ObjectUtils.equals(maxPoints, subseriesKey._maxPoints)) {
+            // Pick out the sub-series requested
+            hts = getSubSeries(hts, start, includeStart, end, includeEnd, maxPoints);
+          }
         } else {
           s_logger.debug("Caching miss {}", key);
           _dataCache.put(new Element(key, MISS));
@@ -415,7 +433,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
     }
     return hts;
   }
-  
+
   //-------------------------------------------------------------------------
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
@@ -450,47 +468,41 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
 
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
-      String dataField, ExternalIdBundle identifierBundle, String resolutionKey, 
+      String dataField, ExternalIdBundle identifierBundle, String resolutionKey,
       LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
     return doGetHistoricalTimeSeries(
         dataField, identifierBundle, LocalDate.now(getClock()), resolutionKey, start, includeStart, end, includeEnd, null);
   }
-  
+
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
-      String dataField, ExternalIdBundle identifierBundle, String resolutionKey, 
+      String dataField, ExternalIdBundle identifierBundle, String resolutionKey,
       LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd, int maxPoints) {
     return doGetHistoricalTimeSeries(
         dataField, identifierBundle, LocalDate.now(getClock()), resolutionKey, start, includeStart, end, includeEnd, maxPoints);
   }
-  
+
   /*
    * PLAT-1589
    */
   private static final class SubSeriesKey implements Serializable {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
     private final LocalDate _start;
-    private final boolean _includeStart;
     private final LocalDate _end;
-    private final boolean _includeEnd;
     private final Integer _maxPoints;
-    
-    public SubSeriesKey(LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd, Integer maxPoints) {
+
+    public SubSeriesKey(LocalDate start, LocalDate end, Integer maxPoints) {
       super();
-      this._start = start;
-      this._includeStart = includeStart;
-      this._end = end;
-      this._includeEnd = includeEnd;
-      this._maxPoints = maxPoints;
+      this._start = (start != null) ? start.withDayOfMonth(1).withMonth(1) : null;
+      this._end = (end != null) ? end.plusYears(1).withMonth(1).withDayOfMonth(1) : null;
+      this._maxPoints = (maxPoints != null) ? (maxPoints + 1024 - (maxPoints & 1023)) : null;
     }
-    
+
     @Override
     public int hashCode() {
       final int prime = 31;
       int result = 1;
       result = prime * result + ObjectUtils.hashCode(_end);
-      result = prime * result + (_includeEnd ? 1231 : 1237);
-      result = prime * result + (_includeStart ? 1231 : 1237);
       result = prime * result + ObjectUtils.hashCode(_start);
       result = prime * result + ObjectUtils.hashCode(_maxPoints);
       return result;
@@ -505,12 +517,6 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
         return false;
       }
       SubSeriesKey other = (SubSeriesKey) obj;
-      if (_includeEnd != other._includeEnd) {
-        return false;
-      }
-      if (_includeStart != other._includeStart) {
-        return false;
-      }
       if (!ObjectUtils.equals(_end, other._end)) {
         return false;
       }
@@ -519,7 +525,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
       }
       if (!ObjectUtils.equals(_maxPoints, other._maxPoints)) {
         return false;
-      }      
+      }
       return true;
     }
   }
@@ -548,7 +554,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
 
   @Override
   public Pair<LocalDate, Double> getLatestDataPoint(
-      String dataField, ExternalIdBundle identifierBundle, String resolutionKey, 
+      String dataField, ExternalIdBundle identifierBundle, String resolutionKey,
       LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
     return getLatestDataPoint(dataField, identifierBundle, LocalDate.now(getClock()), resolutionKey,
         start, includeStart, end, includeEnd);
@@ -563,10 +569,10 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
 
   @Override
   public Pair<LocalDate, Double> getLatestDataPoint(
-      String dataField, ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String resolutionKey, 
+      String dataField, ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String resolutionKey,
       LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
     HistoricalTimeSeries hts = getHistoricalTimeSeries(
-        dataField, identifierBundle, identifierValidityDate, resolutionKey, 
+        dataField, identifierBundle, identifierValidityDate, resolutionKey,
         start, includeStart, end, includeEnd, -1);
     if (hts == null || hts.getTimeSeries() == null || hts.getTimeSeries().isEmpty()) {
       return null;
@@ -576,10 +582,10 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
   }
 
   private HistoricalTimeSeries doGetHistoricalTimeSeries(String dataField, ExternalIdBundle identifierBundle,
-        LocalDate identifierValidityDate, String resolutionKey,
-        LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd, Integer maxPoints) {
+      LocalDate identifierValidityDate, String resolutionKey,
+      LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd, Integer maxPoints) {
     HistoricalTimeSeriesKey seriesKey = new HistoricalTimeSeriesKey(resolutionKey, identifierValidityDate, identifierBundle, null, null, dataField);
-    SubSeriesKey subseriesKey = new SubSeriesKey(start, includeStart, end, includeEnd, maxPoints);
+    SubSeriesKey subseriesKey = new SubSeriesKey(start, end, maxPoints);
     ObjectsPair<HistoricalTimeSeriesKey, SubSeriesKey> key = Pair.of(seriesKey, subseriesKey);
     Element element = _dataCache.get(key);
     HistoricalTimeSeries hts;
@@ -587,6 +593,10 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
       hts = (HistoricalTimeSeries) element.getObjectValue();
       if (MISS.equals(hts)) {
         hts = null;
+      } else if (!ObjectUtils.equals(start, subseriesKey._start) || !ObjectUtils.equals(end, subseriesKey._end) || !includeStart || includeEnd ||
+          !ObjectUtils.equals(maxPoints, subseriesKey._maxPoints)) {
+        // Pick out the sub-series requested
+        hts = getSubSeries(hts, start, includeStart, end, includeEnd, maxPoints);
       }
     } else {
       // If we have the full series cached computing a sub-series could be faster
@@ -595,19 +605,24 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
         hts = getSubSeries((HistoricalTimeSeries) fullHtsElement.getObjectValue(), start, includeStart, end, includeEnd, maxPoints);
       } else {
         if (maxPoints == null) {
-          hts = _underlying.getHistoricalTimeSeries(dataField, identifierBundle, identifierValidityDate, resolutionKey, start, includeStart, end, includeEnd);
+          hts = _underlying.getHistoricalTimeSeries(dataField, identifierBundle, identifierValidityDate, resolutionKey, subseriesKey._start, true, subseriesKey._end, false);
         } else {
-          hts = _underlying.getHistoricalTimeSeries(dataField, identifierBundle, identifierValidityDate, resolutionKey, start, includeStart, end, includeEnd, maxPoints);          
+          hts = _underlying.getHistoricalTimeSeries(dataField, identifierBundle, identifierValidityDate, resolutionKey, subseriesKey._start, true, subseriesKey._end, false, subseriesKey._maxPoints);
         }
         if (hts != null) {
           s_logger.debug("Caching sub time-series {}", hts);
           _dataCache.put(new Element(key, hts));
-          _dataCache.put(new Element(new ObjectsPair<UniqueId, SubSeriesKey>(hts.getUniqueId(), subseriesKey), hts)); 
+          _dataCache.put(new Element(new ObjectsPair<UniqueId, SubSeriesKey>(hts.getUniqueId(), subseriesKey), hts));
+          if (!ObjectUtils.equals(start, subseriesKey._start) || !ObjectUtils.equals(end, subseriesKey._end)
+              || !includeStart || includeEnd || !ObjectUtils.equals(maxPoints, subseriesKey._maxPoints)) {
+            // Pick out the sub-series requested
+            hts = getSubSeries(hts, start, includeStart, end, includeEnd, maxPoints);
+          }
         } else {
           s_logger.debug("Caching miss {}", key);
           _dataCache.put(new Element(key, MISS));
         }
-      }      
+      }
     }
     return hts;
   }
@@ -637,7 +652,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
     }
     if (remainingIds.size() > 0) {
       Map<ExternalIdBundle, HistoricalTimeSeries> remainingTsResults =
-        _underlying.getHistoricalTimeSeries(remainingIds, dataSource, dataProvider, dataField, start, includeStart, end, includeEnd);
+          _underlying.getHistoricalTimeSeries(remainingIds, dataSource, dataProvider, dataField, start, includeStart, end, includeEnd);
       for (Map.Entry<ExternalIdBundle, HistoricalTimeSeries> tsResult : remainingTsResults.entrySet()) {
         ExternalIdBundle identifiers = tsResult.getKey();
         HistoricalTimeSeries hts = tsResult.getValue();
@@ -661,7 +676,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
   /**
    * Attempts to retrieve the time-series with the given key from the cache.
    * 
-   * @param key  the key, not null
+   * @param key the key, not null
    * @return the time-series, null if no match
    */
   private HistoricalTimeSeries getFromDataCache(HistoricalTimeSeriesKey key) {
@@ -677,7 +692,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
   /**
    * Attempts to retrieve the time-series with the given unique identifier from the cache.
    * 
-   * @param uniqueId  the unique identifier, not null
+   * @param uniqueId the unique identifier, not null
    * @return the time-series, null if no match
    */
   private HistoricalTimeSeries getFromDataCache(UniqueId uniqueId) {
@@ -693,21 +708,21 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
   /**
    * Gets a sub-series based on the supplied dates.
    * 
-   * @param hts  the time-series, null returns null
-   * @param start  the start date, null will load the earliest date 
-   * @param includeStart  whether or not the start date is included in the result
-   * @param end  the end date, null will load the latest date
-   * @param includeEnd  whether or not the end date is included in the result
+   * @param hts the time-series, null returns null
+   * @param start the start date, null will load the earliest date
+   * @param includeStart whether or not the start date is included in the result
+   * @param end the end date, null will load the latest date
+   * @param includeEnd whether or not the end date is included in the result
    * @return the historical time-series, null if null input
    */
   private HistoricalTimeSeries getSubSeries(
       HistoricalTimeSeries hts, LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd, Integer maxPoints) {
-    
+
     if (hts == null) {
       return null;
     }
     LocalDateDoubleTimeSeries timeSeries = (LocalDateDoubleTimeSeries) hts.getTimeSeries();
-    if (timeSeries == null || timeSeries.isEmpty()) { 
+    if (timeSeries == null || timeSeries.isEmpty()) {
       return hts;
     }
     if (start == null || start.isBefore(timeSeries.getEarliestTime())) {
@@ -725,8 +740,6 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
     }
     return new SimpleHistoricalTimeSeries(hts.getUniqueId(), timeSeries);
   }
-  
-  
 
   //-------------------------------------------------------------------------
   @Override
