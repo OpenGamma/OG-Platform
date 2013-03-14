@@ -31,6 +31,10 @@
     position: absolute;
 }
 
+.OG-analytics-inplace .OG-gadget-container {
+    border: 1px solid #ccc;
+}
+
 .OG-analytics-inplace .OG-gadget-tabs {
     border-top: none;
 }
