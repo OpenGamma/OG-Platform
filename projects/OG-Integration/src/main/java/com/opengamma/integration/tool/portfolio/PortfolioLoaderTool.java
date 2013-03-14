@@ -36,6 +36,8 @@ public class PortfolioLoaderTool extends AbstractTool<ToolContext> {
   private static final String KEEP_CURRENT_POSITIONS_OPT = "k";
   /** Ignore versioning flag */
   private static final String IGNORE_VERSION_OPT = "i";
+  /** Structure by attributes option */
+  private static final String STRUCTURE_OPT = "t";
 
   //-------------------------------------------------------------------------
   /**
@@ -77,7 +79,8 @@ public class PortfolioLoaderTool extends AbstractTool<ToolContext> {
                         getCommandLine().hasOption(MERGE_POSITIONS_OPT),
                         getCommandLine().hasOption(KEEP_CURRENT_POSITIONS_OPT),
                         getCommandLine().hasOption(IGNORE_VERSION_OPT),
-                        true).execute();
+                        true,
+                        getCommandLine().getOptionValues(STRUCTURE_OPT)).execute();
   }
 
 
@@ -127,6 +130,11 @@ public class PortfolioLoaderTool extends AbstractTool<ToolContext> {
         VERBOSE_OPT, "verbose", false, 
         "Displays progress messages on the terminal");
     options.addOption(verboseOption);
+
+    Option structureOption = new Option(
+        STRUCTURE_OPT, "structure", true,
+        "A /-separated sequence of position attributes used to structure the portfolio(s) (e.g. trade-group/strategy");
+    options.addOption(structureOption);
 
     return options;
   }

@@ -17,21 +17,21 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 import org.threeten.bp.Period;
 
-import com.opengamma.financial.analytics.curve.CurveIdMapper;
+import com.opengamma.financial.analytics.curve.CurveNodeIdMapper;
 import com.opengamma.financial.analytics.ircurve.CurveInstrumentProvider;
 import com.opengamma.util.time.Tenor;
 
 /**
  * 
  */
-@FudgeBuilderFor(CurveIdMapper.class)
-public class CurveIdMapperBuilder implements FudgeBuilder<CurveIdMapper> {
+@FudgeBuilderFor(CurveNodeIdMapper.class)
+public class CurveNodeIdMapperBuilder implements FudgeBuilder<CurveNodeIdMapper> {
   private static final String CREDIT_SPREAD = "creditSpreadIds";
 
   @Override
-  public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final CurveIdMapper object) {
+  public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final CurveNodeIdMapper object) {
     final MutableFudgeMsg message = serializer.newMessage();
-    FudgeSerializer.addClassHeader(message, CurveIdMapper.class);
+    FudgeSerializer.addClassHeader(message, CurveNodeIdMapper.class);
 
     if (object.getCreditSpreadIds() != null) {
       final MutableFudgeMsg creditSpreadIdsMessage = serializer.newMessage();
@@ -44,7 +44,7 @@ public class CurveIdMapperBuilder implements FudgeBuilder<CurveIdMapper> {
   }
 
   @Override
-  public CurveIdMapper buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+  public CurveNodeIdMapper buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
     Map<Tenor, CurveInstrumentProvider> creditSpreadIds = null;
     if (message.hasField(CREDIT_SPREAD)) {
       creditSpreadIds = new HashMap<>();
@@ -53,7 +53,7 @@ public class CurveIdMapperBuilder implements FudgeBuilder<CurveIdMapper> {
         creditSpreadIds.put(new Tenor(Period.parse(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
       }
     }
-    return new CurveIdMapper(creditSpreadIds);
+    return new CurveNodeIdMapper(creditSpreadIds);
   }
 
 }

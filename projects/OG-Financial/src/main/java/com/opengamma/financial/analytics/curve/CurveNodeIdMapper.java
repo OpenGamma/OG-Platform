@@ -27,12 +27,12 @@ import com.opengamma.util.time.Tenor;
 /**
  * 
  */
-public class CurveIdMapper {
+public class CurveNodeIdMapper {
   public static final List<String> s_curveIdMapperNames = getCurveIdMapperNames();
 
   private final Map<Tenor, CurveInstrumentProvider> _creditSpreadIds;
 
-  public CurveIdMapper(final Map<Tenor, CurveInstrumentProvider> creditSpreadIds) {
+  public CurveNodeIdMapper(final Map<Tenor, CurveInstrumentProvider> creditSpreadIds) {
     _creditSpreadIds = creditSpreadIds;
   }
 
@@ -84,10 +84,10 @@ public class CurveIdMapper {
     if (this == o) {
       return true;
     }
-    if (!(o instanceof CurveIdMapper)) {
+    if (!(o instanceof CurveNodeIdMapper)) {
       return false;
     }
-    final CurveIdMapper other = (CurveIdMapper) o;
+    final CurveNodeIdMapper other = (CurveNodeIdMapper) o;
     return ObjectUtils.equals(_creditSpreadIds, other._creditSpreadIds);
   }
 

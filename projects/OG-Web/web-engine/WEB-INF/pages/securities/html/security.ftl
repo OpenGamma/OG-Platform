@@ -206,6 +206,25 @@
           </#switch>
         </@subsection>
         <#break>
+      <#case "CDS_INDEX">
+        <@rowout label="Version">${security.version}</@rowout>
+        <@rowout label="Series">${security.series}</@rowout>
+        <@rowout label="Family">${security.family}</@rowout>
+        <@rowout label="Currency">${security.currency}</@rowout>
+        <@rowout label="Terms"><#list terms as tenor>${tenor}<#if tenor_has_next>,</#if></#list></@rowout>
+        <@subsection title="Components">
+          <#list components as component>
+            <@subsection title="${component.name}">
+              <@rowout label="Name">${component.name}</@rowout>
+              <@rowout label="Obligor Identifier">${component.obligorRedCode.scheme.name?replace("_", " ")} - ${component.obligorRedCode.value}</@rowout>
+              <@rowout label="Weight">${component.weight}</@rowout>
+              <#if component.bondId??>
+              <@rowout label="Bond Identifier">${component.bondId.scheme.name?replace("_", " ")} - ${component.bondId.value}</@rowout>
+              </#if>
+            </@subsection>
+          </#list>
+        </@subsection>
+        <#break>
       <#case "FX FORWARD">
         <@rowout label="Forward Date">${security.forwardDate.toLocalDate()} - ${security.forwardDate.zone}</@rowout>
         <@rowout label="Region Identifier">${security.regionId.scheme.name?replace("_", " ")} - ${security.regionId.value}</@rowout>
