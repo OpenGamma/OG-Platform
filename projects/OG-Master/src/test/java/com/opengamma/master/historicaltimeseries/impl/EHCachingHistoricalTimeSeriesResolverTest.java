@@ -16,6 +16,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import net.sf.ehcache.CacheManager;
 
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 
@@ -64,7 +66,17 @@ public class EHCachingHistoricalTimeSeriesResolverTest {
   private final String _key1 = "K1";
   private final String _key2 = "K2";
 
-  private CacheManager _cacheManager = EHCacheUtils.createCacheManager();
+  private CacheManager _cacheManager;
+
+  @BeforeClass
+  public void setUpClass() {
+    _cacheManager = EHCacheUtils.createTestCacheManager(EHCachingHistoricalTimeSeriesResolverTest.class);
+  }
+
+  @AfterClass
+  public void tearDownClass() {
+    EHCacheUtils.shutdownQuiet(_cacheManager);
+  }
 
   //-------------------------------------------------------------------------
   private HistoricalTimeSeriesResolver createUnderlying(final AtomicInteger hits) {

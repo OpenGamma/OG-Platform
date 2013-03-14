@@ -17,7 +17,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.threeten.bp.LocalDate;
 
-import com.opengamma.financial.analytics.ircurve.strips.CurveStripWithIdentifier;
+import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.ArgumentChecker;
 
@@ -32,9 +32,9 @@ public class CurveSpecification implements Serializable {
   private final LocalDate _curveDate;
   private final String _name;
   private final UniqueIdentifiable _id;
-  private final SortedSet<CurveStripWithIdentifier> _strips;
+  private final SortedSet<CurveNodeWithIdentifier> _strips;
 
-  public CurveSpecification(final LocalDate curveDate, final String name, final UniqueIdentifiable id, final Collection<CurveStripWithIdentifier> strips) {
+  public CurveSpecification(final LocalDate curveDate, final String name, final UniqueIdentifiable id, final Collection<CurveNodeWithIdentifier> strips) {
     ArgumentChecker.notNull(curveDate, "curve date");
     ArgumentChecker.notNull(name, "name");
     ArgumentChecker.notNull(id, "id");
@@ -45,7 +45,7 @@ public class CurveSpecification implements Serializable {
     _strips = new TreeSet<>(strips);
   }
 
-  public void addStrip(final CurveStripWithIdentifier strip) {
+  public void addStrip(final CurveNodeWithIdentifier strip) {
     ArgumentChecker.notNull(strip, "strip");
     _strips.add(strip);
   }
@@ -62,7 +62,7 @@ public class CurveSpecification implements Serializable {
     return _id;
   }
 
-  public Set<CurveStripWithIdentifier> getStrips() {
+  public Set<CurveNodeWithIdentifier> getStrips() {
     return Collections.unmodifiableSet(_strips);
   }
 

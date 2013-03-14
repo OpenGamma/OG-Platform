@@ -7,7 +7,6 @@ package com.opengamma.financial.analytics.curve.credit;
 
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
-import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 
@@ -23,18 +22,16 @@ public class ConfigDBCurveDefinitionSource implements CurveDefinitionSource {
   }
 
   @Override
-  public CurveDefinition getCurveDefinition(final String name, final UniqueIdentifiable identifier) {
+  public CurveDefinition getCurveDefinition(final String name) {
     ArgumentChecker.notNull(name, "name");
-    ArgumentChecker.notNull(identifier, "identifier");
-    return _configSource.getLatestByName(CurveDefinition.class, name + "_" + identifier.getUniqueId().getValue());
+    return _configSource.getLatestByName(CurveDefinition.class, name);
   }
 
   @Override
-  public CurveDefinition getCurveDefinition(final String name, final UniqueIdentifiable identifier, final VersionCorrection versionCorrection) {
+  public CurveDefinition getCurveDefinition(final String name, final VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(name, "name");
-    ArgumentChecker.notNull(identifier, "identifier");
     ArgumentChecker.notNull(versionCorrection, "version correction");
-    return _configSource.getSingle(CurveDefinition.class, name + "_" + identifier.getUniqueId().getValue(), versionCorrection);
+    return _configSource.getSingle(CurveDefinition.class, name, versionCorrection);
   }
 
 }
