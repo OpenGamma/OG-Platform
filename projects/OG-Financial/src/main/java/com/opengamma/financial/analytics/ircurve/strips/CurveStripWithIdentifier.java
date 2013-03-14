@@ -16,17 +16,17 @@ import com.opengamma.util.ArgumentChecker;
  * 
  */
 public class CurveStripWithIdentifier implements Comparable<CurveStripWithIdentifier> {
-  private final CurveStrip _strip;
+  private final CurveNode _strip;
   private final ExternalId _id;
 
-  public CurveStripWithIdentifier(final CurveStrip strip, final ExternalId id) {
+  public CurveStripWithIdentifier(final CurveNode strip, final ExternalId id) {
     ArgumentChecker.notNull(strip, "strip");
     ArgumentChecker.notNull(id, "id");
     _strip = strip;
     _id = id;
   }
 
-  public CurveStrip getCurveStrip() {
+  public CurveNode getCurveStrip() {
     return _strip;
   }
 

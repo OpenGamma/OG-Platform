@@ -23,7 +23,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.financial.analytics.ircurve.strips.CurveStrip;
+import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
@@ -44,12 +44,6 @@ public class CurveDefinition extends DirectBean implements Serializable, UniqueI
   private UniqueId _uniqueId;
 
   /**
-   * The identifier of the curve.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private UniqueIdentifiable _id;
-  
-  /**
    * The name of the curve.
    */
   @PropertyDefinition(validate = "notNull")
@@ -59,7 +53,7 @@ public class CurveDefinition extends DirectBean implements Serializable, UniqueI
    * The constituents of the curve.
    */
   @PropertyDefinition(validate = "notNull")
-  private SortedSet<CurveStrip> _strips = new TreeSet<>();
+  private SortedSet<CurveNode> _strips = new TreeSet<>();
 
   /**
    *
@@ -67,8 +61,7 @@ public class CurveDefinition extends DirectBean implements Serializable, UniqueI
   public CurveDefinition() {
   }
 
-  public CurveDefinition(final UniqueIdentifiable id, final String name, final Set<CurveStrip> strips) {
-    setId(id);
+  public CurveDefinition(final String name, final Set<CurveNode> strips) {
     setName(name);
     setStrips(new TreeSet<>(strips));
   }
@@ -95,8 +88,6 @@ public class CurveDefinition extends DirectBean implements Serializable, UniqueI
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
         return getUniqueId();
-      case 3355:  // id
-        return getId();
       case 3373707:  // name
         return getName();
       case -891985829:  // strips
@@ -112,14 +103,11 @@ public class CurveDefinition extends DirectBean implements Serializable, UniqueI
       case -294460212:  // uniqueId
         setUniqueId((UniqueId) newValue);
         return;
-      case 3355:  // id
-        setId((UniqueIdentifiable) newValue);
-        return;
       case 3373707:  // name
         setName((String) newValue);
         return;
       case -891985829:  // strips
-        setStrips((SortedSet<CurveStrip>) newValue);
+        setStrips((SortedSet<CurveNode>) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -127,7 +115,6 @@ public class CurveDefinition extends DirectBean implements Serializable, UniqueI
 
   @Override
   protected void validate() {
-    JodaBeanUtils.notNull(_id, "id");
     JodaBeanUtils.notNull(_name, "name");
     JodaBeanUtils.notNull(_strips, "strips");
     super.validate();
@@ -141,7 +128,6 @@ public class CurveDefinition extends DirectBean implements Serializable, UniqueI
     if (obj != null && obj.getClass() == this.getClass()) {
       CurveDefinition other = (CurveDefinition) obj;
       return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
-          JodaBeanUtils.equal(getId(), other.getId()) &&
           JodaBeanUtils.equal(getName(), other.getName()) &&
           JodaBeanUtils.equal(getStrips(), other.getStrips());
     }
@@ -152,7 +138,6 @@ public class CurveDefinition extends DirectBean implements Serializable, UniqueI
   public int hashCode() {
     int hash = getClass().hashCode();
     hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getName());
     hash += hash * 31 + JodaBeanUtils.hashCode(getStrips());
     return hash;
@@ -181,32 +166,6 @@ public class CurveDefinition extends DirectBean implements Serializable, UniqueI
    */
   public final Property<UniqueId> uniqueId() {
     return metaBean().uniqueId().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the identifier of the curve.
-   * @return the value of the property, not null
-   */
-  public UniqueIdentifiable getId() {
-    return _id;
-  }
-
-  /**
-   * Sets the identifier of the curve.
-   * @param id  the new value of the property, not null
-   */
-  public void setId(UniqueIdentifiable id) {
-    JodaBeanUtils.notNull(id, "id");
-    this._id = id;
-  }
-
-  /**
-   * Gets the the {@code id} property.
-   * @return the property, not null
-   */
-  public final Property<UniqueIdentifiable> id() {
-    return metaBean().id().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -240,7 +199,7 @@ public class CurveDefinition extends DirectBean implements Serializable, UniqueI
    * Gets the constituents of the curve.
    * @return the value of the property, not null
    */
-  public SortedSet<CurveStrip> getStrips() {
+  public SortedSet<CurveNode> getStrips() {
     return _strips;
   }
 
@@ -248,7 +207,7 @@ public class CurveDefinition extends DirectBean implements Serializable, UniqueI
    * Sets the constituents of the curve.
    * @param strips  the new value of the property, not null
    */
-  public void setStrips(SortedSet<CurveStrip> strips) {
+  public void setStrips(SortedSet<CurveNode> strips) {
     JodaBeanUtils.notNull(strips, "strips");
     this._strips = strips;
   }
@@ -257,7 +216,7 @@ public class CurveDefinition extends DirectBean implements Serializable, UniqueI
    * Gets the the {@code strips} property.
    * @return the property, not null
    */
-  public final Property<SortedSet<CurveStrip>> strips() {
+  public final Property<SortedSet<CurveNode>> strips() {
     return metaBean().strips().createProperty(this);
   }
 
@@ -277,11 +236,6 @@ public class CurveDefinition extends DirectBean implements Serializable, UniqueI
     private final MetaProperty<UniqueId> _uniqueId = DirectMetaProperty.ofReadWrite(
         this, "uniqueId", CurveDefinition.class, UniqueId.class);
     /**
-     * The meta-property for the {@code id} property.
-     */
-    private final MetaProperty<UniqueIdentifiable> _id = DirectMetaProperty.ofReadWrite(
-        this, "id", CurveDefinition.class, UniqueIdentifiable.class);
-    /**
      * The meta-property for the {@code name} property.
      */
     private final MetaProperty<String> _name = DirectMetaProperty.ofReadWrite(
@@ -290,7 +244,7 @@ public class CurveDefinition extends DirectBean implements Serializable, UniqueI
      * The meta-property for the {@code strips} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<SortedSet<CurveStrip>> _strips = DirectMetaProperty.ofReadWrite(
+    private final MetaProperty<SortedSet<CurveNode>> _strips = DirectMetaProperty.ofReadWrite(
         this, "strips", CurveDefinition.class, (Class) SortedSet.class);
     /**
      * The meta-properties.
@@ -298,7 +252,6 @@ public class CurveDefinition extends DirectBean implements Serializable, UniqueI
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "uniqueId",
-        "id",
         "name",
         "strips");
 
@@ -313,8 +266,6 @@ public class CurveDefinition extends DirectBean implements Serializable, UniqueI
       switch (propertyName.hashCode()) {
         case -294460212:  // uniqueId
           return _uniqueId;
-        case 3355:  // id
-          return _id;
         case 3373707:  // name
           return _name;
         case -891985829:  // strips
@@ -348,14 +299,6 @@ public class CurveDefinition extends DirectBean implements Serializable, UniqueI
     }
 
     /**
-     * The meta-property for the {@code id} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<UniqueIdentifiable> id() {
-      return _id;
-    }
-
-    /**
      * The meta-property for the {@code name} property.
      * @return the meta-property, not null
      */
@@ -367,7 +310,7 @@ public class CurveDefinition extends DirectBean implements Serializable, UniqueI
      * The meta-property for the {@code strips} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<SortedSet<CurveStrip>> strips() {
+    public final MetaProperty<SortedSet<CurveNode>> strips() {
       return _strips;
     }
 
