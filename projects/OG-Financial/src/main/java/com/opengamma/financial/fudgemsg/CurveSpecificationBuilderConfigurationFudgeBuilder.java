@@ -342,7 +342,7 @@ public class CurveSpecificationBuilderConfigurationFudgeBuilder implements Fudge
     }
 
     if (message.hasField(SWAP) && message.hasField(SWAP_6M)) {
-      throw new OpenGammaRuntimeException("Have message with old SWAp field and new SWAP_6M field: should not happen");
+      throw new OpenGammaRuntimeException("Have message with old SWAP field and new SWAP_6M field: should not happen");
     }
 
     Map<Tenor, CurveInstrumentProvider> swap6MInstrumentProviders = null;

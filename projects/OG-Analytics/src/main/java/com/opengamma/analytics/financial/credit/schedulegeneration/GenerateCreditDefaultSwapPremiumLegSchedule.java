@@ -474,16 +474,16 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
   // -------------------------------------------------------------------------------------------
 
   // Method to adjust the specified maturity date to the next IMM date
-  private ZonedDateTime immAdjustDate(final ZonedDateTime maturityDate) {
+  private ZonedDateTime immAdjustDate(final ZonedDateTime date) {
 
     // Check that the input date is not null
-    ArgumentChecker.notNull(maturityDate, "Maturity date");
+    ArgumentChecker.notNull(date, "Maturity date");
 
     // Start at the current maturityDate
-    ZonedDateTime immAdjustedMaturityDate = maturityDate;
+    ZonedDateTime immAdjustedDate = date;
 
     // Get the year of the contract maturity
-    final int year = maturityDate.getYear();
+    final int year = date.getYear();
 
     // Construct an IMM object with the IMM dates for 'year'
     final IMMDates immDates = new IMMDates(year);
@@ -492,32 +492,32 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
 
     // First of all check that the maturity date isn't one of the IMM dates for 'year'
 
-    if (maturityDate.equals(immDates.getImmDateMarch())) {
+    if (date.equals(immDates.getImmDateMarch())) {
 
-      immAdjustedMaturityDate = immDates.getImmDateMarch();
+      immAdjustedDate = immDates.getImmDateMarch();
 
-      return immAdjustedMaturityDate;
+      return immAdjustedDate;
     }
 
-    if (maturityDate.equals(immDates.getImmDateJune())) {
+    if (date.equals(immDates.getImmDateJune())) {
 
-      immAdjustedMaturityDate = immDates.getImmDateJune();
+      immAdjustedDate = immDates.getImmDateJune();
 
-      return immAdjustedMaturityDate;
+      return immAdjustedDate;
     }
 
-    if (maturityDate.equals(immDates.getImmDateSeptember())) {
+    if (date.equals(immDates.getImmDateSeptember())) {
 
-      immAdjustedMaturityDate = immDates.getImmDateSeptember();
+      immAdjustedDate = immDates.getImmDateSeptember();
 
-      return immAdjustedMaturityDate;
+      return immAdjustedDate;
     }
 
-    if (maturityDate.equals(immDates.getImmDateDecember())) {
+    if (date.equals(immDates.getImmDateDecember())) {
 
-      immAdjustedMaturityDate = immDates.getImmDateDecember();
+      immAdjustedDate = immDates.getImmDateDecember();
 
-      return immAdjustedMaturityDate;
+      return immAdjustedDate;
     }
 
     // -------------------------------------------------------------------
@@ -525,48 +525,48 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
     // Determine where the maturity date is in relation to the IMM dates
 
     // Is the maturity date between 20/12 of the previous year and 20/3 of the current year
-    if (maturityDate.isAfter(immDates.getImmDatePreviousDecember()) && maturityDate.isBefore(immDates.getImmDateMarch())) {
+    if (date.isAfter(immDates.getImmDatePreviousDecember()) && date.isBefore(immDates.getImmDateMarch())) {
 
-      immAdjustedMaturityDate = immDates.getImmDateMarch();
+      immAdjustedDate = immDates.getImmDateMarch();
 
-      return immAdjustedMaturityDate;
+      return immAdjustedDate;
     }
 
     // Is the maturity date between 20/3 of the current year and 20/6 of the current year
-    if (maturityDate.isAfter(immDates.getImmDateMarch()) && maturityDate.isBefore(immDates.getImmDateJune())) {
+    if (date.isAfter(immDates.getImmDateMarch()) && date.isBefore(immDates.getImmDateJune())) {
 
-      immAdjustedMaturityDate = immDates.getImmDateJune();
+      immAdjustedDate = immDates.getImmDateJune();
 
-      return immAdjustedMaturityDate;
+      return immAdjustedDate;
     }
 
     // Is the maturity date between 20/6 of the current year and 20/9 of the current year
-    if (maturityDate.isAfter(immDates.getImmDateJune()) && maturityDate.isBefore(immDates.getImmDateSeptember())) {
+    if (date.isAfter(immDates.getImmDateJune()) && date.isBefore(immDates.getImmDateSeptember())) {
 
-      immAdjustedMaturityDate = immDates.getImmDateSeptember();
+      immAdjustedDate = immDates.getImmDateSeptember();
 
-      return immAdjustedMaturityDate;
+      return immAdjustedDate;
     }
 
     // Is the maturity date between 20/9 of the current year and 20/12 of the current year
-    if (maturityDate.isAfter(immDates.getImmDateSeptember()) && maturityDate.isBefore(immDates.getImmDateDecember())) {
+    if (date.isAfter(immDates.getImmDateSeptember()) && date.isBefore(immDates.getImmDateDecember())) {
 
-      immAdjustedMaturityDate = immDates.getImmDateDecember();
+      immAdjustedDate = immDates.getImmDateDecember();
 
-      return immAdjustedMaturityDate;
+      return immAdjustedDate;
     }
 
     // Is the maturity date between 20/12 of the current year and 20/3 of the next year
-    if (maturityDate.isAfter(immDates.getImmDateDecember()) && maturityDate.isBefore(immDates.getImmDateNextMarch())) {
+    if (date.isAfter(immDates.getImmDateDecember()) && date.isBefore(immDates.getImmDateNextMarch())) {
 
-      immAdjustedMaturityDate = immDates.getImmDateNextMarch();
+      immAdjustedDate = immDates.getImmDateNextMarch();
 
-      return immAdjustedMaturityDate;
+      return immAdjustedDate;
     }
 
     // -------------------------------------------------------------------
 
-    return immAdjustedMaturityDate;
+    return immAdjustedDate;
   }
 
   // -------------------------------------------------------------------------------------------

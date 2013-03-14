@@ -198,7 +198,7 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
             subscriptionRequestFailed(handle, new LiveDataSubscriptionResponse(
                 handle.getRequestedSpecification(), 
                 LiveDataSubscriptionResult.INTERNAL_ERROR, 
-                e.getMessage(),
+                e.toString(),
                 null,
                 null,
                 null));          
@@ -296,7 +296,7 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
         // This is unexpected. Fail everything.
         for (LiveDataSubscriptionResponse response : getSuccessResponses().values()) {
           response.setSubscriptionResult(LiveDataSubscriptionResult.INTERNAL_ERROR);          
-          response.setUserMessage(e.getMessage());
+          response.setUserMessage(e.toString());
         }
         
         getFailedResponses().putAll(getSuccessResponses());

@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.credit;
+package com.opengamma.util.credit;
 
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ObjectId;

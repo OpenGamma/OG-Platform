@@ -52,7 +52,7 @@ public abstract class CurveStrip extends DirectBean implements Serializable, Mut
     setCurveSpecificationName(curveSpecificationName);
   }
 
-  protected abstract Tenor getResolvedMaturity();
+  public abstract Tenor getResolvedMaturity();
 
   @Override
   public int compareTo(final CurveStrip other) {

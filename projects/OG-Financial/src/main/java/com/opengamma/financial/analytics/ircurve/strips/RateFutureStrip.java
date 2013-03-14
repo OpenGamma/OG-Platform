@@ -83,7 +83,7 @@ public class RateFutureStrip extends CurveStrip {
   }
 
   @Override
-  protected Tenor getResolvedMaturity() {
+  public Tenor getResolvedMaturity() {
     final int m = getFutureTenor().getPeriod().getMonths(); //TODO this is not right
     return new Tenor(getStartTenor().getPeriod().plusMonths(m * getFutureNumber()));
   }

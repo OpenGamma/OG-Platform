@@ -12,6 +12,7 @@ import com.opengamma.analytics.financial.credit.bumpers.SpreadBumpType;
 import com.opengamma.analytics.financial.credit.cds.ISDACurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.legacy.PresentValueLegacyCreditDefaultSwap;
+import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.InterestRateBumpType;
 import com.opengamma.analytics.financial.credit.marketdatachecker.SpreadTermStructureDataChecker;
 import com.opengamma.financial.convention.daycount.ActualThreeSixtyFive;
@@ -35,7 +36,7 @@ public class IR01CreditDefaultSwap {
 
   // TODO : Further checks on efficacy of input arguments
   // TODO : Need to get the times[] calculation correct
-  // TODO : Need to consider more sophisticated sensitivity calculations e.g. algorithmic differentiation 
+  // TODO : Need to consider more sophisticated sensitivity calculations e.g. algorithmic differentiation
 
   // NOTE : We enforce rateBump > 0, therefore if the marketSpreads > 0 (an exception is thrown if this is not the case) then bumpedMarketSpreads > 0 by construction
 
@@ -46,7 +47,7 @@ public class IR01CreditDefaultSwap {
   public double getIR01ParallelShiftCreditDefaultSwap(
       final ZonedDateTime valuationDate,
       final LegacyVanillaCreditDefaultSwapDefinition cds,
-      final ISDACurve yieldCurve,
+      final ISDADateCurve yieldCurve,
       final ZonedDateTime[] marketTenors,
       final double[] marketSpreads,
       final double interestRateBump,
@@ -96,7 +97,7 @@ public class IR01CreditDefaultSwap {
     for (int m = 0; m < yieldCurve.getNumberOfCurvePoints(); m++) {
       System.out.println(yieldCurve.getTimenode(m) + "\t" + yieldCurve.getTimenode(m));
     }
-    */
+     */
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
