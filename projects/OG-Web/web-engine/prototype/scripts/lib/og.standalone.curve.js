@@ -25,7 +25,7 @@
     css.reset_container = {
         background: '#fff', padding: '3px 5px', border: '1px solid #ddd',
         boxShadow: '0 3px 5px rgba(0, 0, 0, 0.1)', zIndex: 1, position: 'absolute',
-        top: 0, left: 0
+        top: '-1px', left: '-1px'
     };
     // reset
     css.reset = {
