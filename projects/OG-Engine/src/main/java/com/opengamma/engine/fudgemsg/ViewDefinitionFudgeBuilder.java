@@ -137,6 +137,9 @@ public class ViewDefinitionFudgeBuilder implements FudgeBuilder<ViewDefinition> 
     if (valueRequirement.getTargetReference() instanceof ComputationTargetSpecification) {
       final ComputationTargetSpecification targetSpec = valueRequirement.getTargetReference().getSpecification();
       final ComputationTargetType type;
+      if (targetSpec.getUniqueId() == null) {
+        return valueRequirement;
+      }
       if (Currency.OBJECT_SCHEME.equals(targetSpec.getUniqueId().getScheme())) {
         type = ComputationTargetType.CURRENCY;
       } else if (UnorderedCurrencyPair.OBJECT_SCHEME.equals(targetSpec.getUniqueId().getScheme())) {

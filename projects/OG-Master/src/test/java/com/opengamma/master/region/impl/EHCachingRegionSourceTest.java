@@ -15,7 +15,11 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
+import net.sf.ehcache.CacheManager;
+
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.threeten.bp.Instant;
@@ -35,13 +39,11 @@ import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
 
-import net.sf.ehcache.CacheManager;
-
 /**
  * Test EHCachingRegionSource
  */
 @Test
-public class EhCachingRegionSourceTest {
+public class EHCachingRegionSourceTest {
 
   private static final ObjectId OID = ObjectId.of("A", "B");
   private static final UniqueId UID = UniqueId.of("A", "B", "V");
@@ -53,18 +55,26 @@ public class EhCachingRegionSourceTest {
 
   private EHCachingRegionSource _cachingRegionSource;
   private TestRegionSource _underlying;
-  private CacheManager _cacheManager = EHCacheUtils.createCacheManager();
+  private CacheManager _cacheManager;
+
+  @BeforeClass
+  public void setUpClass() {
+    _cacheManager = EHCacheUtils.createTestCacheManager(EHCachingRegionSourceTest.class);
+  }
+
+  @AfterClass
+  public void tearDownClass() {
+    EHCacheUtils.shutdownQuiet(_cacheManager);
+  }
 
   @BeforeMethod
   public void setUp() {
-    //_cacheManager = EHCacheUtils.createCacheManager();
     _underlying = new TestRegionSource(TEST_REGION);
     _cachingRegionSource = new EHCachingRegionSource(_underlying, _cacheManager);
   }
 
   @AfterMethod
   public void tearDown() {
-    //_cacheManager = EHCacheUtils.shutdownQuiet(_cacheManager);
     _cachingRegionSource.shutdown();
   }
 
@@ -289,3 +299,4 @@ public class EhCachingRegionSourceTest {
   }
   
 }
+

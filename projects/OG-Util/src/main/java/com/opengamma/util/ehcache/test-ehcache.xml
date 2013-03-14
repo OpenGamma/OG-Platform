@@ -1,0 +1,15 @@
+<ehcache>
+
+  <defaultCache
+    maxElementsInMemory="10000"
+    eternal="false"
+    timeToIdleSeconds="86400"
+    timeToLiveSeconds="86400"
+    overflowToDisk="false"
+    maxElementsOnDisk="1"
+    diskPersistent="false"
+    diskExpiryThreadIntervalSeconds="120"
+    memoryStoreEvictionPolicy="LRU"
+    />
+    
+</ehcache>

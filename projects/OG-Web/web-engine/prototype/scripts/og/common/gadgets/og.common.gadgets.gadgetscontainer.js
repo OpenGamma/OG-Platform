@@ -202,14 +202,14 @@ $.register_module({
                 if (!selector) throw new TypeError('GadgetsContainer has not been initialized');
                 new_gadgets = data.map(function (obj, idx) {
                     var id, gadget_class = 'OG-gadget-' + (id = counter++), gadget,
-                        options = $
-                            .extend(true, {}, obj.options || {}, {selector: panel_container + ' .' + gadget_class}),
+                        options = JSON.parse(JSON.stringify(obj.options)), // make a copy
                         constructor = obj.gadget.split('.').reduce(function (acc, val) {return acc[val];}, window),
                         type = obj.gadget.replace(/^[a-z0-9.-_]+\.([a-z0-9.-_]+?)$/, '$1').toLowerCase();
                     $(panel_container).append('<div class="' + gadget_class + '" />').find('.' + gadget_class).css({
                         position: 'absolute', top: 0, bottom: 0, left: 0, right: 0,
                         display: idx === data.length - 1 ? 'block' : 'none'
                     });
+                    options.selector = panel_container + ' .' + gadget_class;
                     gadget = {id: id, config: obj, type: type, gadget: new constructor(options)};
                     if (typeof index === 'number') {
                         if (gadgets[index]) {
@@ -296,16 +296,13 @@ $.register_module({
                             var has_ancestor = function (elm, sel) {return $(elm).closest('.' + sel).length;},
                                 pane_class = class_prefix + pane,
                                 overflow_class = 'og-js-overflow-' + pane,
-                                data = ui.draggable.data(),
-                                gadget = data.gadget().config.options,
-                                re = new RegExp(selector_prefix + '(.*?)\\s');
+                                data = ui.draggable.data();
                             if (has_ancestor(ui.draggable, pane_class) || has_ancestor(ui.draggable, overflow_class)) {
                                 ui.draggable.draggable('option', 'revert', true);
                             } else {
                                 ui.draggable.draggable('option', 'revert', false);
-                                gadget.selector = gadget.selector.replace(re, selector_prefix + pane + ' ');
                                 if (false !== container.fire('drop', data.gadget().config, data.source))
-                                    container.add([data.gadget.config]);
+                                    container.add([data.gadget().config]);
                                 setTimeout(data.handler); // setTimeout to ensure handler is called after drag evt ends
                             }
                         }

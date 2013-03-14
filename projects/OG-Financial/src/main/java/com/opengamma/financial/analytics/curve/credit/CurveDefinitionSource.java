@@ -6,7 +6,6 @@
 package com.opengamma.financial.analytics.curve.credit;
 
 import com.opengamma.financial.analytics.curve.CurveDefinition;
-import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.VersionCorrection;
 
 /**
@@ -14,7 +13,7 @@ import com.opengamma.id.VersionCorrection;
  */
 public interface CurveDefinitionSource {
 
-  CurveDefinition getCurveDefinition(String name, UniqueIdentifiable identifier);
+  CurveDefinition getCurveDefinition(String name);
 
-  CurveDefinition getCurveDefinition(String name, UniqueIdentifiable identifier, VersionCorrection versionCorrection);
+  CurveDefinition getCurveDefinition(String name, VersionCorrection versionCorrection);
 }
