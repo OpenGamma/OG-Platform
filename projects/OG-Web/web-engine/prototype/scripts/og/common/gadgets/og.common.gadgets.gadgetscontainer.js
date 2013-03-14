@@ -202,7 +202,8 @@ $.register_module({
                 if (!selector) throw new TypeError('GadgetsContainer has not been initialized');
                 new_gadgets = data.map(function (obj, idx) {
                     var id, gadget_class = 'OG-gadget-' + (id = counter++), gadget,
-                        options = $.extend({}, obj.options || {}, {selector: panel_container + ' .' + gadget_class}),
+                        options = $
+                            .extend(true, {}, obj.options || {}, {selector: panel_container + ' .' + gadget_class}),
                         constructor = obj.gadget.split('.').reduce(function (acc, val) {return acc[val];}, window),
                         type = obj.gadget.replace(/^[a-z0-9.-_]+\.([a-z0-9.-_]+?)$/, '$1').toLowerCase();
                     $(panel_container).append('<div class="' + gadget_class + '" />').find('.' + gadget_class).css({
