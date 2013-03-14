@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 import org.threeten.bp.Period;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetResolver;
@@ -102,14 +101,6 @@ public class HistoricalValuationFunction extends AbstractFunction.NonCompiledInv
     ComputationTargetReference requirementTarget = null;
     final ValueProperties.Builder requirementConstraints = ValueProperties.builder();
     if (constraints.getProperties() != null) {
-      Set<String> values = constraints.getValues(VALUE_PROPERTY);
-      if (values == null || values.isEmpty()) {
-        valueName = ValueRequirementNames.VALUE;
-      } else if (values.size() > 1) {
-        return null;
-      } else {
-        valueName = Iterables.getOnlyElement(values);
-      }
       for (final String constraintName : constraints.getProperties()) {
         final Set<String> constraintValues = constraints.getValues(constraintName);
         if (VALUE_PROPERTY.equals(constraintName)) {
@@ -153,20 +144,20 @@ public class HistoricalValuationFunction extends AbstractFunction.NonCompiledInv
             } else {
               requirementTarget = target.getContextSpecification().containing(resolver.simplifyType(target.getLeafSpecification().getType()), identifiers);
             }
-          } else if (constraintName.startsWith(PASSTHROUGH_PREFIX)) {
-            final String name = constraintName.substring(PASSTHROUGH_PREFIX.length());
-            if (constraintValues.isEmpty()) {
-              requirementConstraints.withAny(name);
-            } else {
-              requirementConstraints.with(name, constraintValues);
-            }
-            if (constraints.isOptional(constraintName)) {
-              requirementConstraints.withOptional(name);
-            }
-          } else if (!constraints.isOptional(constraintName) && !s_ignoreConstraints.contains(constraintName)) {
-            // Not an optional constraint, not one recognized here, and not one ignored by the main getRequirements method
-            return null;
           }
+        } else if (constraintName.startsWith(PASSTHROUGH_PREFIX)) {
+          final String name = constraintName.substring(PASSTHROUGH_PREFIX.length());
+          if (constraintValues.isEmpty()) {
+            requirementConstraints.withAny(name);
+          } else {
+            requirementConstraints.with(name, constraintValues);
+          }
+          if (constraints.isOptional(constraintName)) {
+            requirementConstraints.withOptional(name);
+          }
+        } else if (!constraints.isOptional(constraintName) && !s_ignoreConstraints.contains(constraintName)) {
+          // Not an optional constraint, not one recognized here, and not one ignored by the main getRequirements method
+          return null;
         }
       }
     }
