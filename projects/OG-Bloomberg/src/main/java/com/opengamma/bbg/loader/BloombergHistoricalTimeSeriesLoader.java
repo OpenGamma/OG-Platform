@@ -114,7 +114,7 @@ public class BloombergHistoricalTimeSeriesLoader extends AbstractHistoricalTimeS
       startDate = DEFAULT_START_DATE;
     }
     if (endDate == null) {
-      endDate = LocalDate.now();
+      endDate = LocalDate.MAX;
     }
     
     // finds the time-series that need loading
@@ -138,14 +138,15 @@ public class BloombergHistoricalTimeSeriesLoader extends AbstractHistoricalTimeS
    * @param result  the result map of identifiers, updated if already in database, not null
    * @return the missing identifiers, not null
    */
-  protected Set<ExternalId> findTimeSeries(
-      Set<ExternalId> externalIds, String dataProvider, String dataField, Map<ExternalId, UniqueId> result) {
-    
-    
+  protected Set<ExternalId> findTimeSeries(final Set<ExternalId> externalIds, final String dataProvider, final String dataField, final Map<ExternalId, UniqueId> result) {
     HistoricalTimeSeriesInfoSearchRequest searchRequest = new HistoricalTimeSeriesInfoSearchRequest();
     searchRequest.addExternalIds(externalIds);
     searchRequest.setDataField(dataField);
-    searchRequest.setDataProvider(dataProvider);
+    if (dataProvider == null) {
+      searchRequest.setDataProvider(BloombergConstants.DEFAULT_DATA_PROVIDER);
+    } else {
+      searchRequest.setDataProvider(dataProvider);
+    }
     searchRequest.setDataSource(BLOOMBERG_DATA_SOURCE_NAME);
     HistoricalTimeSeriesInfoSearchResult searchResult = _htsMaster.search(searchRequest);
     
