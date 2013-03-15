@@ -18,6 +18,7 @@ import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.ircurve.strips.FRANode;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
+import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.time.Tenor;
 
@@ -163,6 +164,37 @@ import com.opengamma.util.time.Tenor;
       final ExternalId underlyingConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(UNDERLYING_CONVENTION_FIELD));
       final String curveNodeIdMapperName = message.getString(CURVE_MAPPER_ID_FIELD);
       return new RateFutureNode(futureNumber, startTenor, futureTenor, underlyingTenor, futureConvention, underlyingConvention, curveNodeIdMapperName);
+    }
+
+  }
+
+  @FudgeBuilderFor(SwapNode.class)
+  public static final class SwapNodeBuilder implements FudgeBuilder<SwapNode> {
+    private static final String START_TENOR_FIELD = "startTenor";
+    private static final String MATURITY_TENOR_FIELD = "maturityTenor";
+    private static final String PAY_LEG_CONVENTION_FIELD = "payLegConvention";
+    private static final String RECEIVE_LEG_CONVENTION_FIELD = "receiveLegConvention";
+
+    @Override
+    public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final SwapNode object) {
+      final MutableFudgeMsg message = serializer.newMessage();
+      message.add(null, 0, object.getClass().getName());
+      message.add(START_TENOR_FIELD, object.getStartTenor());
+      message.add(MATURITY_TENOR_FIELD, object.getMaturityTenor());
+      message.add(PAY_LEG_CONVENTION_FIELD, object.getPayLegConvention());
+      message.add(RECEIVE_LEG_CONVENTION_FIELD, object.getReceiveLegConvention());
+      message.add(CURVE_MAPPER_ID_FIELD, object.getCurveNodeIdMapperName());
+      return message;
+    }
+
+    @Override
+    public SwapNode buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+      final Tenor startTenor = deserializer.fieldValueToObject(Tenor.class, message.getByName(START_TENOR_FIELD));
+      final Tenor maturityTenor = deserializer.fieldValueToObject(Tenor.class, message.getByName(MATURITY_TENOR_FIELD));
+      final ExternalId payLegConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(PAY_LEG_CONVENTION_FIELD));
+      final ExternalId receiveLegConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(RECEIVE_LEG_CONVENTION_FIELD));
+      final String curveNodeIdMapperName = message.getString(CURVE_MAPPER_ID_FIELD);
+      return new SwapNode(startTenor, maturityTenor, payLegConvention, receiveLegConvention, curveNodeIdMapperName);
     }
 
   }
