@@ -17,6 +17,7 @@ import com.opengamma.financial.analytics.ircurve.strips.CreditSpreadNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.ircurve.strips.FRANode;
+import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.time.Tenor;
 
@@ -115,7 +116,7 @@ import com.opengamma.util.time.Tenor;
       message.add(FIXING_END_FIELD, object.getFixingEnd());
       message.add(CONVENTION_ID_FIELD, object.getConvention());
       message.add(CURVE_MAPPER_ID_FIELD, object.getCurveNodeIdMapperName());
-      return null;
+      return message;
     }
 
     @Override
@@ -129,4 +130,40 @@ import com.opengamma.util.time.Tenor;
 
   }
 
+  @FudgeBuilderFor(RateFutureNode.class)
+  public static class RateFutureNodeBuilder implements FudgeBuilder<RateFutureNode> {
+    private static final String FUTURE_NUMBER_FIELD = "futureNumber";
+    private static final String START_TENOR_FIELD = "startTenor";
+    private static final String FUTURE_TENOR_FIELD = "futureTenor";
+    private static final String UNDERLYING_TENOR_FIELD = "underlyingTenor";
+    private static final String FUTURE_CONVENTION_FIELD = "futureConvention";
+    private static final String UNDERLYING_CONVENTION_FIELD = "underlyingConvention";
+
+    @Override
+    public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final RateFutureNode object) {
+      final MutableFudgeMsg message = serializer.newMessage();
+      message.add(null, 0, object.getClass().getName());
+      message.add(FUTURE_NUMBER_FIELD, object.getFutureNumber());
+      message.add(START_TENOR_FIELD, object.getStartTenor());
+      message.add(FUTURE_TENOR_FIELD, object.getFutureTenor());
+      message.add(UNDERLYING_TENOR_FIELD, object.getUnderlyingTenor());
+      message.add(FUTURE_CONVENTION_FIELD, object.getFutureConvention());
+      message.add(UNDERLYING_CONVENTION_FIELD, object.getUnderlyingConvention());
+      message.add(CURVE_MAPPER_ID_FIELD, object.getCurveNodeIdMapperName());
+      return message;
+    }
+
+    @Override
+    public RateFutureNode buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+      final int futureNumber = message.getInt(FUTURE_NUMBER_FIELD);
+      final Tenor startTenor = deserializer.fieldValueToObject(Tenor.class, message.getByName(START_TENOR_FIELD));
+      final Tenor futureTenor = deserializer.fieldValueToObject(Tenor.class, message.getByName(FUTURE_TENOR_FIELD));
+      final Tenor underlyingTenor = deserializer.fieldValueToObject(Tenor.class, message.getByName(UNDERLYING_TENOR_FIELD));
+      final ExternalId futureConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(FUTURE_CONVENTION_FIELD));
+      final ExternalId underlyingConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(UNDERLYING_CONVENTION_FIELD));
+      final String curveNodeIdMapperName = message.getString(CURVE_MAPPER_ID_FIELD);
+      return new RateFutureNode(futureNumber, startTenor, futureTenor, underlyingTenor, futureConvention, underlyingConvention, curveNodeIdMapperName);
+    }
+
+  }
 }

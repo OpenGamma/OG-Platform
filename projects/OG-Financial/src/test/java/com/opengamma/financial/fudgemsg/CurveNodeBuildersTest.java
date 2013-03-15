@@ -15,6 +15,7 @@ import com.opengamma.financial.analytics.ircurve.strips.CashNode;
 import com.opengamma.financial.analytics.ircurve.strips.CreditSpreadNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.ircurve.strips.FRANode;
+import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.time.Tenor;
 
@@ -39,6 +40,12 @@ public class CurveNodeBuildersTest extends AnalyticsTestBase {
   public void testFRANodeBuilder() {
     final FRANode node = new FRANode(Tenor.SIX_MONTHS, Tenor.NINE_MONTHS, ExternalId.of("convention", "name"), "TEST");
     assertEquals(node, cycleObject(FRANode.class, node));
+  }
+
+  @Test
+  public void testRateFutureNodeBuilder() {
+    final RateFutureNode node = new RateFutureNode(2, Tenor.ONE_DAY, Tenor.THREE_MONTHS, Tenor.ONE_MONTH, ExternalId.of("convention", "future"), ExternalId.of("convention", "underlying"), "TEST");
+    assertEquals(node, cycleObject(RateFutureNode.class, node));
   }
 
   @Test
