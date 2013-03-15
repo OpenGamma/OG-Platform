@@ -54,8 +54,8 @@ public class FRANode extends CurveNode {
     super();
   }
 
-  public FRANode(final Tenor fixingStart, final Tenor fixingEnd, final ExternalId convention, final String curveSpecificationName) {
-    super(curveSpecificationName);
+  public FRANode(final Tenor fixingStart, final Tenor fixingEnd, final ExternalId convention, final String curveNodeIdMapperName) {
+    super(curveNodeIdMapperName);
     setFixingStart(fixingStart);
     setFixingEnd(fixingEnd);
     setConvention(convention);

@@ -16,6 +16,7 @@ import com.opengamma.financial.analytics.ircurve.strips.CashNode;
 import com.opengamma.financial.analytics.ircurve.strips.CreditSpreadNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
+import com.opengamma.financial.analytics.ircurve.strips.FRANode;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.time.Tenor;
 
@@ -98,6 +99,34 @@ import com.opengamma.util.time.Tenor;
       final CreditSpreadNode strip = new CreditSpreadNode(curveNodeIdMapperName, tenor);
       return strip;
     }
+  }
+
+  @FudgeBuilderFor(FRANode.class)
+  public static class FRANodeBuilder implements FudgeBuilder<FRANode> {
+    private static final String FIXING_START_FIELD = "fixingStart";
+    private static final String FIXING_END_FIELD = "fixingEnd";
+    private static final String CONVENTION_ID_FIELD = "conventionId";
+
+    @Override
+    public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final FRANode object) {
+      final MutableFudgeMsg message = serializer.newMessage();
+      message.add(null, 0, object.getClass().getName());
+      message.add(FIXING_START_FIELD, object.getFixingStart());
+      message.add(FIXING_END_FIELD, object.getFixingEnd());
+      message.add(CONVENTION_ID_FIELD, object.getConvention());
+      message.add(CURVE_MAPPER_ID_FIELD, object.getCurveNodeIdMapperName());
+      return null;
+    }
+
+    @Override
+    public FRANode buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+      final String curveNodeIdMapperName = message.getString(CURVE_MAPPER_ID_FIELD);
+      final Tenor fixingStart = deserializer.fieldValueToObject(Tenor.class, message.getByName(FIXING_START_FIELD));
+      final Tenor fixingEnd = deserializer.fieldValueToObject(Tenor.class, message.getByName(FIXING_END_FIELD));
+      final ExternalId conventionId = deserializer.fieldValueToObject(ExternalId.class, message.getByName(CONVENTION_ID_FIELD));
+      return new FRANode(fixingStart, fixingEnd, conventionId, curveNodeIdMapperName);
+    }
+
   }
 
 }
