@@ -6,7 +6,6 @@
 package com.opengamma.analytics.financial.credit.creditdefaultswap.greeks.vanilla;
 
 import org.threeten.bp.ZonedDateTime;
-import org.threeten.bp.format.DateTimeFormatterBuilder;
 
 import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.bumpers.CreditSpreadBumpers;
@@ -143,6 +142,7 @@ public class CS01CreditDefaultSwap {
 
     // Check input objects are not null
 
+    /*
     System.out.println(
         valuationDate.toString(new DateTimeFormatterBuilder().appendPattern("yyyyMMdd").toFormatter()) + "\n"
             + cds + "\n"
@@ -151,6 +151,7 @@ public class CS01CreditDefaultSwap {
             + "\n" + spreadBump + "\n"
             + spreadBumpType + "\n"
             + priceType);
+            */
 
     ArgumentChecker.notNull(valuationDate, "Valuation date");
     ArgumentChecker.notNull(cds, "LegacyCreditDefaultSwapDefinition");
