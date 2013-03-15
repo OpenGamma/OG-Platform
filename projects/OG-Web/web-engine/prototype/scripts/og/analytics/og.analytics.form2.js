@@ -42,7 +42,6 @@ $.register_module({
             form.on('form:load', load_handler);
             form.on('form:submit', function (result) { load_form(result.data); });
             form.on('keydown', selectors.form_controls, keydown_handler);
-            form.on('keypress', 'input[type=text], select, button', keypress_handler);
             form.dom();
         };
 
@@ -65,10 +64,6 @@ $.register_module({
             };
             callback(query);
             $('.'+selectors.load_btn).focus(0);
-        };
-
-        var keypress_handler = function (event) {
-            if (event.keyCode === 13) form.submit();
         };
 
         var keydown_handler = function (event) {

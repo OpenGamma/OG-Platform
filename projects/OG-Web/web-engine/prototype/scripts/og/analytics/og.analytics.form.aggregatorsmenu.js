@@ -69,10 +69,13 @@ $.register_module({
                 menu = new og.analytics.form.DropMenu({cntr: $('.OG-analytics-form .og-aggregation')});
                 if (menu.$dom) {
                     $query = $('.aggregation-selection', menu.$dom.toggle);
-                    if (menu.$dom.menu) {
-                        menu.$dom.menu.on('click', 'input, button, div.og-icon-delete, a.OG-link-add', menu_handler)
-                            .on('change', 'select', menu_handler);
-                    }
+                    if (menu.$dom.menu)
+                        menu.$dom.menu
+                            .on('click', 'input, button, div.og-icon-delete, a.OG-link-add', menu_handler)
+                            .on('change','select', menu_handler)
+                            .on('keypress', 'select.source', function (event) {
+                                if (event.keyCode === 13) return form.submit();
+                            });
                     menu.opts.forEach(function (entry, idx) { select_handler(idx, true); });
                     og.common.events.on('aggregators:dropmenu:open', function() {menu.fire('dropmenu:open', this);});
                     og.common.events.on('aggregators:dropmenu:close', function() {menu.fire('dropmenu:close', this);});

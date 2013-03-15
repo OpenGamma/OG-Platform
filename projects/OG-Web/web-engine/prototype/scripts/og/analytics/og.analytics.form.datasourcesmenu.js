@@ -173,8 +173,12 @@ $.register_module({
                 if (menu.$dom) {
                     $query = $('.datasources-query', menu.$dom.toggle);
                     if (menu.$dom.menu)
-                        menu.$dom.menu.on('click', 'input, button, div.og-icon-delete, a.OG-link-add', menu_handler)
-                            .on('change', 'select', menu_handler);
+                        menu.$dom.menu
+                            .on('click', 'input, button, div.og-icon-delete, a.OG-link-add', menu_handler)
+                            .on('change', 'select', menu_handler)
+                            .on('keypress', 'select.source', function (event) {
+                                if (event.keyCode === 13) return form.submit();
+                            });
                     menu.opts.forEach(function (entry, idx) { source_handler(idx, true); });
                     og.common.events.on('datasources:dropmenu:open', function() {menu.fire('dropmenu:open', this);});
                     og.common.events.on('datasources:dropmenu:close', function() {menu.fire('dropmenu:close', this);});
@@ -302,13 +306,7 @@ $.register_module({
 
             form.Block.call(block, {
                 data: { providers: [] },
-                content: '<div class="datasource-load og-menu-toggle og-option-title">'+
-                          '<header class="OG-background-05">data sources:</header>'+
-                          '<ul>'+
-                            '<li class="datasources-query">Loading data sources...</li>'+
-                          '</ul>'+
-                          '<div class="OG-icon og-icon-down"></div>'+
-                         '</div>',
+                module: 'og.analytics.form_datasources_loading_tash',
                 processor: function (data) {
                     data.providers = serialize();
                 }
