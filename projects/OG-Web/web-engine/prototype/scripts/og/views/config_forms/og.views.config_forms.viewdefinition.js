@@ -101,6 +101,10 @@ $.register_module({
                             if (set[SPEC])
                                 set[SPEC] = arr(set[SPEC]).filter(function (spec) {return spec !== void 0;});
                         });
+                        ['maxDeltaCalcPeriod', 'maxFullCalcPeriod',
+                         'minDeltaCalcPeriod', 'minFullCalcPeriod'].forEach(function (exeparam) {
+                            if (data[exeparam] === '') delete data[exeparam];
+                        });
                     }
                 }),
                 form_id = '#' + form.id,
