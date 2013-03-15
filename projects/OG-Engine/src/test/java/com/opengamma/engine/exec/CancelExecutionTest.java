@@ -179,9 +179,8 @@ public class CancelExecutionTest {
       graph.addDependencyNode(node);
       previous = node;
     }
-    final CompiledViewDefinitionWithGraphsImpl viewEvaluationModel = new CompiledViewDefinitionWithGraphsImpl(viewDefinition, Collections.singleton(graph),
-        Collections.<ComputationTargetReference, UniqueId>emptyMap(),
-        new SimplePortfolio("Test Portfolio"), 0);
+    final CompiledViewDefinitionWithGraphsImpl viewEvaluationModel = new CompiledViewDefinitionWithGraphsImpl(VersionCorrection.LATEST, viewDefinition, Collections.singleton(graph),
+        Collections.<ComputationTargetReference, UniqueId>emptyMap(), new SimplePortfolio("Test Portfolio"), 0);
     final ViewCycleExecutionOptions cycleOptions = ViewCycleExecutionOptions.builder().setValuationTime(Instant.ofEpochMilli(1)).setMarketDataSpecification(new MarketDataSpecification()).create();
     final SingleComputationCycle cycle = new SingleComputationCycle(UniqueId.of("Test", "Cycle1"), computationCycleResultListener, vpc, viewEvaluationModel,
         cycleOptions, VersionCorrection.of(Instant.ofEpochMilli(1), Instant.ofEpochMilli(1)));

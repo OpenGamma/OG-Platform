@@ -345,15 +345,10 @@ public class MasterPortfolioWriter implements PortfolioWriter {
 
     if (!Arrays.equals(newPath, _currentPath)) {
 
-      if (newPath.length == 0) {
-        _currentNode = _portfolioDocument.getPortfolio().getRootNode();
-        _originalNode = _originalRoot;
-      } else {
-        if (_originalRoot != null) {
-          _originalNode = findNode(newPath, _originalRoot);
-        }
-        _currentNode = createNode(newPath, _portfolioDocument.getPortfolio().getRootNode());
+      if (_originalRoot != null) {
+        _originalNode = findNode(newPath, _originalRoot);
       }
+      _currentNode = getOrCreateNode(newPath, _portfolioDocument.getPortfolio().getRootNode());
 
       // Reset position map
       _securityIdToPosition = new HashMap<ObjectId, ManageablePosition>();
@@ -391,29 +386,24 @@ public class MasterPortfolioWriter implements PortfolioWriter {
   }
   
   private ManageablePortfolioNode findNode(String[] path, ManageablePortfolioNode startNode) {
-    
+
     // Degenerate case
-    if (path.length == 1) {
-      if (startNode.getName().equals(path[0])) {
-        return startNode;
-      } else {
-        return null;
-      }
-    
-    // Recursive case, traverse all child nodes
-    } else {
-      for (ManageablePortfolioNode childNode : startNode.getChildNodes()) {
-        String[] newPath = (String[]) ArrayUtils.subarray(path, 1, path.length - 1);
-        ManageablePortfolioNode result = findNode(newPath, childNode);
+    if (path.length == 0) {
+      return startNode;
+    }
+
+    for (ManageablePortfolioNode childNode : startNode.getChildNodes()) {
+      if (path[0].equals(childNode.getName())) {
+        ManageablePortfolioNode result = findNode((String[]) ArrayUtils.subarray(path, 1, path.length - 1), childNode);
         if (result != null) {
           return result;
         }
       }
-      return null;
     }
+    return null;
   }
   
-  private ManageablePortfolioNode createNode(String[] path, ManageablePortfolioNode startNode) {
+  private ManageablePortfolioNode getOrCreateNode(String[] path, ManageablePortfolioNode startNode) {
     ManageablePortfolioNode node = startNode;
     for (String p : path) {
       ManageablePortfolioNode foundNode = null;

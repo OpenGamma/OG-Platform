@@ -21,6 +21,7 @@ import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -28,6 +29,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class CompiledViewDefinitionImpl implements CompiledViewDefinition {
 
+  private final VersionCorrection _versionCorrection;
   private final ViewDefinition _viewDefinition;
   private final Portfolio _portfolio;
   private final Map<String, CompiledViewCalculationConfiguration> _compiledCalculationConfigurations;
@@ -35,9 +37,9 @@ public class CompiledViewDefinitionImpl implements CompiledViewDefinition {
   private final Instant _latestValidity;
   private volatile Set<ValueSpecification> _marketDataRequirements;
 
-  public CompiledViewDefinitionImpl(final ViewDefinition viewDefinition, final Portfolio portfolio,
-      final Collection<CompiledViewCalculationConfiguration> compiledCalculationConfigurations,
-      final Instant earliestValidity, final Instant latestValidity) {
+  public CompiledViewDefinitionImpl(final VersionCorrection versionCorrection, final ViewDefinition viewDefinition, final Portfolio portfolio,
+      final Collection<CompiledViewCalculationConfiguration> compiledCalculationConfigurations, final Instant earliestValidity, final Instant latestValidity) {
+    _versionCorrection = versionCorrection;
     _viewDefinition = viewDefinition;
     _portfolio = portfolio;
     _compiledCalculationConfigurations = new HashMap<String, CompiledViewCalculationConfiguration>();
@@ -46,6 +48,11 @@ public class CompiledViewDefinitionImpl implements CompiledViewDefinition {
     }
     _earliestValidity = earliestValidity;
     _latestValidity = latestValidity;
+  }
+
+  @Override
+  public VersionCorrection getResolverVersionCorrection() {
+    return _versionCorrection;
   }
 
   @Override

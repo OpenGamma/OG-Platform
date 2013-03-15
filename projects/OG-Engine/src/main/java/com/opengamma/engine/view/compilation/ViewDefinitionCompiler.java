@@ -204,7 +204,7 @@ public final class ViewDefinitionCompiler {
       t += System.nanoTime();
       s_logger.info("Processed dependency graphs after {}ms", t / 1e6);
       removeUnusedResolutions(graphs, portfolio);
-      _result = new CompiledViewDefinitionWithGraphsImpl(getContext().getViewDefinition(), graphs, getResolutions(), portfolio, getContext().getServices()
+      _result = new CompiledViewDefinitionWithGraphsImpl(getContext().getResolverVersionCorrection(), getContext().getViewDefinition(), graphs, getResolutions(), portfolio, getContext().getServices()
           .getFunctionCompilationContext().getFunctionInitId());
       if (OUTPUT_DEPENDENCY_GRAPHS) {
         outputDependencyGraphs(graphs);

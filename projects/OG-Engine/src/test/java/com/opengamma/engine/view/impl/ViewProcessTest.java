@@ -40,6 +40,7 @@ import com.opengamma.engine.view.listener.ViewDefinitionCompiledCall;
 import com.opengamma.engine.view.worker.SingleThreadViewProcessWorker;
 import com.opengamma.engine.view.worker.ViewProcessWorker;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.test.Timeout;
 
 /**
@@ -144,7 +145,7 @@ public class ViewProcessTest {
     // TODO: This test doesn't belong here; it is specific to the SingleThreadViewComputationJob.
 
     // Trick the compilation job into thinking it needs to rebuilt after time0 + 20
-    final CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = new CompiledViewDefinitionWithGraphsImpl(compilationModel1.getViewDefinition(),
+    final CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = new CompiledViewDefinitionWithGraphsImpl(VersionCorrection.LATEST, compilationModel1.getViewDefinition(),
         CompiledViewDefinitionWithGraphsImpl.getDependencyGraphs(compilationModel1), Collections.<ComputationTargetReference, UniqueId>emptyMap(), compilationModel1.getPortfolio(),
         compilationModel1.getFunctionInitId()) {
       @Override

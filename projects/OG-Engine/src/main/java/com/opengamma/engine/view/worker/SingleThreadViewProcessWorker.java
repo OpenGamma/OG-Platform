@@ -392,8 +392,8 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
           viewDefinitionCompiled(executionOptions, compiledViewDefinition);
         }
       } catch (final Exception e) {
-        final String message = MessageFormat.format("Error obtaining compiled view definition {0} for time {1} at version-correction {2}", getViewDefinition().getUniqueId(), compilationValuationTime,
-            versionCorrection);
+        final String message = MessageFormat.format("Error obtaining compiled view definition {0} for time {1} at version-correction {2}", getViewDefinition().getUniqueId(),
+            compilationValuationTime, versionCorrection);
         s_logger.error(message);
         cycleExecutionFailed(executionOptions, new OpenGammaRuntimeException(message, e));
         return;
@@ -996,21 +996,25 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
             break;
           }
           final Map<ComputationTargetReference, UniqueId> resolvedIdentifiers = compiledViewDefinition.getResolvedIdentifiers();
-          final Set<UniqueId> invalidIdentifiers = getInvalidIdentifiers(resolvedIdentifiers, versionCorrection);
-          if (invalidIdentifiers != null) {
-            previousGraphs = getPreviousGraphs(previousGraphs, compiledViewDefinition);
-            if (invalidIdentifiers.contains(compiledViewDefinition.getPortfolio().getUniqueId())) {
-              // The portfolio resolution is different, invalidate all PORTFOLIO and PORTFOLIO_NODE nodes in the graph
-              removePortfolioTerminalOutputs(previousGraphs, compiledViewDefinition);
-              filterPreviousGraphs(previousGraphs, new InvalidPortfolioDependencyNodeFilter());
-              portfolioFull = true;
-            }
-            // Invalidate any dependency graph nodes on the invalid targets
-            filterPreviousGraphs(previousGraphs, new InvalidTargetDependencyNodeFilter(invalidIdentifiers));
-            previousResolutions = new ConcurrentHashMap<ComputationTargetReference, UniqueId>(resolvedIdentifiers.size());
-            for (final Map.Entry<ComputationTargetReference, UniqueId> resolvedIdentifier : resolvedIdentifiers.entrySet()) {
-              if (!invalidIdentifiers.contains(resolvedIdentifier.getValue())) {
-                previousResolutions.put(resolvedIdentifier.getKey(), resolvedIdentifier.getValue());
+          // TODO: The check below works well for the historical valuation case, but if the resolver v/c is different for two workers in the 
+          // group for anotherwise identical cache key then including it in the caching detail may become necessary to handle those cases.
+          if (!versionCorrection.equals(compiledViewDefinition.getResolverVersionCorrection())) {
+            final Set<UniqueId> invalidIdentifiers = getInvalidIdentifiers(resolvedIdentifiers, versionCorrection);
+            if (invalidIdentifiers != null) {
+              previousGraphs = getPreviousGraphs(previousGraphs, compiledViewDefinition);
+              if (invalidIdentifiers.contains(compiledViewDefinition.getPortfolio().getUniqueId())) {
+                // The portfolio resolution is different, invalidate all PORTFOLIO and PORTFOLIO_NODE nodes in the graph
+                removePortfolioTerminalOutputs(previousGraphs, compiledViewDefinition);
+                filterPreviousGraphs(previousGraphs, new InvalidPortfolioDependencyNodeFilter());
+                portfolioFull = true;
+              }
+              // Invalidate any dependency graph nodes on the invalid targets
+              filterPreviousGraphs(previousGraphs, new InvalidTargetDependencyNodeFilter(invalidIdentifiers));
+              previousResolutions = new ConcurrentHashMap<ComputationTargetReference, UniqueId>(resolvedIdentifiers.size());
+              for (final Map.Entry<ComputationTargetReference, UniqueId> resolvedIdentifier : resolvedIdentifiers.entrySet()) {
+                if (!invalidIdentifiers.contains(resolvedIdentifier.getValue())) {
+                  previousResolutions.put(resolvedIdentifier.getKey(), resolvedIdentifier.getValue());
+                }
               }
             }
           }

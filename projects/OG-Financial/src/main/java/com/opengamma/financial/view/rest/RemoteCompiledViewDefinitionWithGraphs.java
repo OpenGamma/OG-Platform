@@ -30,6 +30,7 @@ import com.opengamma.engine.view.compilation.CompiledViewCalculationConfiguratio
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.rest.FudgeRestClient;
 
 /**
@@ -43,6 +44,11 @@ public class RemoteCompiledViewDefinitionWithGraphs implements CompiledViewDefin
   public RemoteCompiledViewDefinitionWithGraphs(final URI baseUri) {
     _baseUri = baseUri;
     _client = FudgeRestClient.create();
+  }
+
+  @Override
+  public VersionCorrection getResolverVersionCorrection() {
+    throw new UnsupportedOperationException("TODO: Implement this method over REST");
   }
 
   @Override

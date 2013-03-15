@@ -33,6 +33,7 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.OpenGammaClock;
 import com.opengamma.util.ehcache.EHCacheUtils;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.timeseries.localdate.ListLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.tuple.ObjectsPair;
@@ -255,8 +256,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
       hts = (HistoricalTimeSeries) element.getObjectValue();
       if (MISS.equals(hts)) {
         hts = null;
-      } else if (!ObjectUtils.equals(start, subseriesKey._start) || !ObjectUtils.equals(end, subseriesKey._end)
-          || !includeStart || includeEnd || !ObjectUtils.equals(maxPoints, subseriesKey._maxPoints)) {
+      } else if (!subseriesKey.isMatch(start, includeStart, end, includeEnd, maxPoints)) {
         // Pick out the sub-series requested
         hts = getSubSeries(hts, start, includeStart, end, includeEnd, maxPoints);
       }
@@ -267,15 +267,15 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
         hts = getSubSeries((HistoricalTimeSeries) fullHtsElement.getObjectValue(), start, includeStart, end, includeEnd, maxPoints);
       } else {
         if (maxPoints == null) {
-          hts = _underlying.getHistoricalTimeSeries(uniqueId, subseriesKey._start, true, subseriesKey._end, false);
+          hts = _underlying.getHistoricalTimeSeries(uniqueId, subseriesKey.getStart(), true, subseriesKey.getEnd(), subseriesKey.getIncludeEnd());
         } else {
-          hts = _underlying.getHistoricalTimeSeries(uniqueId, subseriesKey._start, true, subseriesKey._end, false, subseriesKey._maxPoints);
+          hts = _underlying
+              .getHistoricalTimeSeries(uniqueId, subseriesKey.getStart(), true, subseriesKey.getEnd(), subseriesKey.getIncludeEnd(), subseriesKey.getMaxPoints());
         }
         if (hts != null) {
           s_logger.debug("Caching sub time-series {}", hts);
           _dataCache.put(new Element(key, hts));
-          if (!ObjectUtils.equals(start, subseriesKey._start) || !ObjectUtils.equals(end, subseriesKey._end)
-              || !includeStart || includeEnd || !ObjectUtils.equals(maxPoints, subseriesKey._maxPoints)) {
+          if (!subseriesKey.isMatch(start, includeStart, end, includeEnd, maxPoints)) {
             // Pick out the sub-series requested
             hts = getSubSeries(hts, start, includeStart, end, includeEnd, maxPoints);
           }
@@ -399,8 +399,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
       hts = (HistoricalTimeSeries) element.getObjectValue();
       if (MISS.equals(hts)) {
         hts = null;
-      } else if (!ObjectUtils.equals(start, subseriesKey._start) || !ObjectUtils.equals(end, subseriesKey._end) || !includeStart || includeEnd ||
-          !ObjectUtils.equals(maxPoints, subseriesKey._maxPoints)) {
+      } else if (!subseriesKey.isMatch(start, includeStart, end, includeEnd, maxPoints)) {
         // Pick out the sub-series requested
         hts = getSubSeries(hts, start, includeStart, end, includeEnd, maxPoints);
       }
@@ -412,16 +411,15 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
       } else {
         if (maxPoints == null) {
           hts = _underlying.getHistoricalTimeSeries(identifiers, currentDate, dataSource, dataProvider, dataField,
-              subseriesKey._start, true, subseriesKey._end, false);
+              subseriesKey.getStart(), true, subseriesKey.getEnd(), subseriesKey.getIncludeEnd());
         } else {
           hts = _underlying.getHistoricalTimeSeries(identifiers, currentDate, dataSource, dataProvider, dataField,
-              subseriesKey._start, true, subseriesKey._end, false, subseriesKey._maxPoints);
+              subseriesKey.getStart(), true, subseriesKey.getEnd(), subseriesKey.getIncludeEnd(), subseriesKey.getMaxPoints());
         }
         if (hts != null) {
           s_logger.debug("Caching sub time-series {}", hts);
           _dataCache.put(new Element(key, hts));
-          if (!ObjectUtils.equals(start, subseriesKey._start) || !ObjectUtils.equals(end, subseriesKey._end)
-              || !includeStart || includeEnd || !ObjectUtils.equals(maxPoints, subseriesKey._maxPoints)) {
+          if (!subseriesKey.isMatch(start, includeStart, end, includeEnd, maxPoints)) {
             // Pick out the sub-series requested
             hts = getSubSeries(hts, start, includeStart, end, includeEnd, maxPoints);
           }
@@ -495,7 +493,54 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
       super();
       this._start = (start != null) ? start.withDayOfMonth(1).withMonth(1) : null;
       this._end = (end != null) ? end.plusYears(1).withMonth(1).withDayOfMonth(1) : null;
-      this._maxPoints = (maxPoints != null) ? (maxPoints + 1024 - (maxPoints & 1023)) : null;
+      if (maxPoints != null) {
+        int mp = maxPoints;
+        if (mp < 0) {
+          int amp = -mp;
+          if (end != null) {
+            amp += DateUtils.getDaysBetween(end, _end);
+          }
+          this._maxPoints = -(amp + 1024 - (amp & 1023));
+        } else if (mp > 0) {
+          if (start != null) {
+            mp += DateUtils.getDaysBetween(_start, start);
+          }
+          this._maxPoints = mp + 1024 - (mp & 1023);
+        } else {
+          this._maxPoints = maxPoints;
+        }
+      } else {
+        this._maxPoints = null;
+      }
+    }
+
+    public LocalDate getStart() {
+      return _start;
+    }
+
+    public LocalDate getEnd() {
+      return _end;
+    }
+
+    public Integer getMaxPoints() {
+      return _maxPoints;
+    }
+
+    public boolean getIncludeEnd() {
+      return getEnd() == null;
+    }
+
+    /**
+     * Tests whether this key exactly matches the user request, or if it would be a larger time-series that needs to be cut down to match.
+     * 
+     * @param true if an exact match, false if it needs trimming
+     */
+    public boolean isMatch(final LocalDate start, final boolean includeStart, final LocalDate end, final boolean includeEnd, final Integer maxPoints) {
+      return ObjectUtils.equals(start, _start)
+          && ObjectUtils.equals(end, _end)
+          && includeStart
+          && (includeEnd == getIncludeEnd())
+          && ObjectUtils.equals(maxPoints, _maxPoints);
     }
 
     @Override
@@ -593,8 +638,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
       hts = (HistoricalTimeSeries) element.getObjectValue();
       if (MISS.equals(hts)) {
         hts = null;
-      } else if (!ObjectUtils.equals(start, subseriesKey._start) || !ObjectUtils.equals(end, subseriesKey._end) || !includeStart || includeEnd ||
-          !ObjectUtils.equals(maxPoints, subseriesKey._maxPoints)) {
+      } else if (!subseriesKey.isMatch(start, includeStart, end, includeEnd, maxPoints)) {
         // Pick out the sub-series requested
         hts = getSubSeries(hts, start, includeStart, end, includeEnd, maxPoints);
       }
@@ -605,16 +649,17 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
         hts = getSubSeries((HistoricalTimeSeries) fullHtsElement.getObjectValue(), start, includeStart, end, includeEnd, maxPoints);
       } else {
         if (maxPoints == null) {
-          hts = _underlying.getHistoricalTimeSeries(dataField, identifierBundle, identifierValidityDate, resolutionKey, subseriesKey._start, true, subseriesKey._end, false);
+          hts = _underlying.getHistoricalTimeSeries(dataField, identifierBundle, identifierValidityDate, resolutionKey, subseriesKey.getStart(), true, subseriesKey.getEnd(),
+              subseriesKey.getIncludeEnd());
         } else {
-          hts = _underlying.getHistoricalTimeSeries(dataField, identifierBundle, identifierValidityDate, resolutionKey, subseriesKey._start, true, subseriesKey._end, false, subseriesKey._maxPoints);
+          hts = _underlying.getHistoricalTimeSeries(dataField, identifierBundle, identifierValidityDate, resolutionKey, subseriesKey.getStart(), true, subseriesKey.getEnd(),
+              subseriesKey.getIncludeEnd(), subseriesKey.getMaxPoints());
         }
         if (hts != null) {
           s_logger.debug("Caching sub time-series {}", hts);
           _dataCache.put(new Element(key, hts));
           _dataCache.put(new Element(new ObjectsPair<UniqueId, SubSeriesKey>(hts.getUniqueId(), subseriesKey), hts));
-          if (!ObjectUtils.equals(start, subseriesKey._start) || !ObjectUtils.equals(end, subseriesKey._end)
-              || !includeStart || includeEnd || !ObjectUtils.equals(maxPoints, subseriesKey._maxPoints)) {
+          if (!subseriesKey.isMatch(start, includeStart, end, includeEnd, maxPoints)) {
             // Pick out the sub-series requested
             hts = getSubSeries(hts, start, includeStart, end, includeEnd, maxPoints);
           }
@@ -725,16 +770,30 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
     if (timeSeries == null || timeSeries.isEmpty()) {
       return hts;
     }
-    if (start == null || start.isBefore(timeSeries.getEarliestTime())) {
+    if (start == null) {
       start = timeSeries.getEarliestTime();
+    } else {
+      if (!includeStart) {
+        start = start.plusDays(1);
+      }
+      if (start.isBefore(timeSeries.getEarliestTime())) {
+        start = timeSeries.getEarliestTime();
+      }
     }
-    if (end == null || end.isAfter(timeSeries.getLatestTime())) {
+    if (end == null) {
       end = timeSeries.getLatestTime();
+    } else {
+      if (!includeEnd) {
+        end = end.minusDays(1);
+      }
+      if (end.isAfter(timeSeries.getLatestTime())) {
+        end = timeSeries.getLatestTime();
+      }
     }
     if (start.isAfter(timeSeries.getLatestTime()) || end.isBefore(timeSeries.getEarliestTime())) {
       return new SimpleHistoricalTimeSeries(hts.getUniqueId(), new ListLocalDateDoubleTimeSeries());
     }
-    timeSeries = timeSeries.subSeries(start, includeStart, end, includeEnd);
+    timeSeries = timeSeries.subSeries(start, true, end, true);
     if (((maxPoints != null) && (Math.abs(maxPoints) < timeSeries.size()))) {
       timeSeries = maxPoints >= 0 ? timeSeries.head(maxPoints) : timeSeries.tail(-maxPoints);
     }
