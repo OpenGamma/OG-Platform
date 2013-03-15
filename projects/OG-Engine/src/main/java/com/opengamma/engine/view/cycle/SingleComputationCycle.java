@@ -44,7 +44,6 @@ import com.opengamma.engine.cache.MissingMarketDataSentinel;
 import com.opengamma.engine.cache.NotCalculatedSentinel;
 import com.opengamma.engine.cache.ViewComputationCache;
 import com.opengamma.engine.calcnode.CalculationJobResultItem;
-import com.opengamma.engine.calcnode.MissingInput;
 import com.opengamma.engine.calcnode.MutableExecutionLog;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyGraphExplorer;
@@ -62,7 +61,6 @@ import com.opengamma.engine.marketdata.MarketDataSnapshot;
 import com.opengamma.engine.marketdata.OverrideOperation;
 import com.opengamma.engine.marketdata.OverrideOperationCompiler;
 import com.opengamma.engine.resource.EngineResource;
-import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.engine.value.ValueRequirement;
@@ -71,9 +69,12 @@ import com.opengamma.engine.view.AggregatedExecutionLog;
 import com.opengamma.engine.view.ExecutionLog;
 import com.opengamma.engine.view.ExecutionLogMode;
 import com.opengamma.engine.view.ExecutionLogWithContext;
+import com.opengamma.engine.view.ResultModelDefinition;
+import com.opengamma.engine.view.ResultOutputMode;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.engine.view.compilation.CompiledViewCalculationConfiguration;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphsImpl;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
@@ -408,101 +409,89 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
   }
 
   /**
-   * Creates a map containing the "shift" operations to apply to market data or each calculation configuration. If there is no operation to apply, the map contains null for that configuration.
+   * Fetches the override operation to apply to market data in the given configuration. If there is no operation to apply, returns null.
    * 
-   * @return the map of computation cache to shift operations
+   * @return the shift operation, or null for non
    */
-  private Map<ViewComputationCache, OverrideOperation> getCacheMarketDataOperation() {
-    final Map<ViewComputationCache, OverrideOperation> shifts = new HashMap<ViewComputationCache, OverrideOperation>();
+  private OverrideOperation getCacheMarketDataOperation(ViewCalculationConfiguration calcConfig) {
     OverrideOperationCompiler compiler = null;
     ComputationTargetResolver.AtVersionCorrection resolver = null;
-    for (final ViewCalculationConfiguration calcConfig : getCompiledViewDefinition().getViewDefinition().getAllCalculationConfigurations()) {
-      final Set<String> marketDataShift = calcConfig.getDefaultProperties().getValues(MARKET_DATA_SHIFT_PROPERTY);
-      OverrideOperation operation = null;
-      if (marketDataShift != null) {
-        if (marketDataShift.size() != 1) {
-          // This doesn't really mean much
-          s_logger.error("Market data shift for {} not valid - {}", calcConfig.getName(), marketDataShift);
-        } else {
-          if (compiler == null) {
-            compiler = getViewProcessContext().getOverrideOperationCompiler();
-            resolver = getViewProcessContext().getFunctionCompilationService().getFunctionCompilationContext().getRawComputationTargetResolver().atVersionCorrection(getVersionCorrection());
-          }
-          final String shiftExpr = marketDataShift.iterator().next();
-          try {
-            operation = compiler.compile(shiftExpr, resolver);
-          } catch (final IllegalArgumentException e) {
-            s_logger.error("Market data shift for  {} not valid - {}", calcConfig.getName(), shiftExpr);
-            s_logger.info("Invalid market data shift", e);
-          }
+    final Set<String> marketDataShift = calcConfig.getDefaultProperties().getValues(MARKET_DATA_SHIFT_PROPERTY);
+    OverrideOperation operation = null;
+    if (marketDataShift != null) {
+      if (marketDataShift.size() != 1) {
+        // This doesn't really mean much
+        s_logger.error("Market data shift for {} not valid - {}", calcConfig.getName(), marketDataShift);
+      } else {
+        if (compiler == null) {
+          compiler = getViewProcessContext().getOverrideOperationCompiler();
+          resolver = getViewProcessContext().getFunctionCompilationService().getFunctionCompilationContext().getRawComputationTargetResolver().atVersionCorrection(getVersionCorrection());
+        }
+        final String shiftExpr = marketDataShift.iterator().next();
+        try {
+          operation = compiler.compile(shiftExpr, resolver);
+        } catch (final IllegalArgumentException e) {
+          s_logger.error("Market data shift for  {} not valid - {}", calcConfig.getName(), shiftExpr);
+          s_logger.info("Invalid market data shift", e);
         }
       }
-      shifts.put(getComputationCache(calcConfig.getName()), operation);
     }
-    return shifts;
+    return operation;
   }
 
   private void prepareInputs(final MarketDataSnapshot snapshot) {
-    final Set<ValueSpecification> missingMarketData = new HashSet<ValueSpecification>();
-    final Set<ValueSpecification> requiredMarketData = getCompiledViewDefinition().getMarketDataRequirements();
-    s_logger.debug("Populating {} market data items using snapshot {}", requiredMarketData.size(), snapshot);
-    final Map<ViewComputationCache, OverrideOperation> cacheMarketDataOperation = getCacheMarketDataOperation();
+    int missingMarketData = 0;
+    final Set<ValueSpecification> allRequiredMarketData = getCompiledViewDefinition().getMarketDataRequirements();
+    s_logger.debug("Populating {} market data items using snapshot {}", allRequiredMarketData.size(), snapshot);
     final InMemoryViewComputationResultModel fragmentResultModel = constructTemplateResultModel();
     final InMemoryViewComputationResultModel fullResultModel = getResultModel();
-    final Map<ValueSpecification, Object> marketDataValues = snapshot.query(requiredMarketData);
-    for (final ValueSpecification marketDataSpec : requiredMarketData) {
-      final Object marketDataValue = marketDataValues.get(marketDataSpec);
-      ComputedValue computedValue;
-      ComputedValueResult computedValueResult;
-      if (marketDataValue == null) {
-        s_logger.debug("Unable to load market data value for {} from snapshot {}", marketDataSpec, getValuationTime());
-        missingMarketData.add(marketDataSpec);
-        // TODO provide elevated logs if requested from market data providers
-        final ExecutionLog executionLog = MutableExecutionLog.single(SimpleLogEvent.of(LogLevel.WARN, null), ExecutionLogMode.INDICATORS);
-        final ExecutionLogWithContext executionLogWithContext = ExecutionLogWithContext.of("Market Data", marketDataSpec.getTargetSpecification(), executionLog);
-        final AggregatedExecutionLog aggregatedExecutionLog = new DefaultAggregatedExecutionLog(executionLogWithContext, null, ExecutionLogMode.INDICATORS);
-        computedValue = new ComputedValue(marketDataSpec, MissingMarketDataSentinel.getInstance());
-        computedValueResult = new ComputedValueResult(computedValue, aggregatedExecutionLog);
-      } else {
-        computedValue = new ComputedValue(marketDataSpec, marketDataValue);
-        computedValueResult = new ComputedValueResult(computedValue, AggregatedExecutionLog.EMPTY);
-        fragmentResultModel.addMarketData(computedValueResult);
-        fullResultModel.addMarketData(computedValueResult);
+    final Map<ValueSpecification, Object> marketDataValues = snapshot.query(allRequiredMarketData);
+    final ResultModelDefinition resultModel = getViewDefinition().getResultModelDefinition();
+    for (CompiledViewCalculationConfiguration calcConfig : getCompiledViewDefinition().getCompiledCalculationConfigurations()) {
+      final OverrideOperation operation = getCacheMarketDataOperation(getViewDefinition().getCalculationConfiguration(calcConfig.getName()));
+      final ViewComputationCache cache = getComputationCache(calcConfig.getName());
+      final Collection<ValueSpecification> marketDataRequirements = calcConfig.getMarketDataRequirements();
+      final Set<ValueSpecification> terminalOutputs = calcConfig.getTerminalOutputSpecifications().keySet();
+      final Collection<ComputedValueResult> valuesToLoad = new ArrayList<ComputedValueResult>(marketDataRequirements.size());
+      for (ValueSpecification marketDataSpec : marketDataRequirements) {
+        Object marketDataValue = marketDataValues.get(marketDataSpec);
+        ComputedValueResult computedValueResult;
+        if (operation != null) {
+          if (marketDataValue != null) {
+            marketDataValue = operation.apply(marketDataSpec.toRequirementSpecification(), marketDataValue);
+            if (marketDataValue == null) {
+              s_logger.debug("Market data {} discarded by override operation", marketDataSpec);
+            }
+          }
+        }
+        if (marketDataValue == null) {
+          s_logger.debug("Unable to load market data value for {} from snapshot {}", marketDataSpec, getValuationTime());
+          missingMarketData++;
+          // TODO provide elevated logs if requested from market data providers
+          final ExecutionLog executionLog = MutableExecutionLog.single(SimpleLogEvent.of(LogLevel.WARN, null), ExecutionLogMode.INDICATORS);
+          final ExecutionLogWithContext executionLogWithContext = ExecutionLogWithContext.of("Market Data", marketDataSpec.getTargetSpecification(), executionLog);
+          final AggregatedExecutionLog aggregatedExecutionLog = new DefaultAggregatedExecutionLog(executionLogWithContext, null, ExecutionLogMode.INDICATORS);
+          computedValueResult = new ComputedValueResult(marketDataSpec, MissingMarketDataSentinel.getInstance(), aggregatedExecutionLog);
+        } else {
+          computedValueResult = new ComputedValueResult(marketDataSpec, marketDataValue, AggregatedExecutionLog.EMPTY);
+          fragmentResultModel.addMarketData(computedValueResult);
+          fullResultModel.addMarketData(computedValueResult);
+        }
+        if (terminalOutputs.contains(marketDataSpec) && (resultModel.getOutputMode(marketDataSpec.getTargetSpecification().getType()) != ResultOutputMode.NONE)) {
+          fragmentResultModel.addValue(calcConfig.getName(), computedValueResult);
+          fullResultModel.addValue(calcConfig.getName(), computedValueResult);
+        }
+        valuesToLoad.add(computedValueResult);
       }
-      addMarketDataToResults(marketDataSpec, computedValueResult, fragmentResultModel, getResultModel());
-      addToAllCaches(computedValue, computedValueResult, cacheMarketDataOperation);
+      if (!valuesToLoad.isEmpty()) {
+        cache.putSharedValues(valuesToLoad);
+      }
     }
-    if (!missingMarketData.isEmpty()) {
+    if (missingMarketData > 0) {
       // REVIEW jonathan 2012-11-01 -- probably need a cycle-level execution log for things like this
-      s_logger.info("Missing {} market data elements", missingMarketData.size()/*, formatMissingMarketData(missingMarketData)*/);
+      s_logger.info("Missing {} market data elements", missingMarketData);
     }
     notifyFragmentCompleted(fragmentResultModel);
-  }
-
-  private void addMarketDataToResults(final ValueSpecification valueSpec, final ComputedValueResult computedValueResult,
-      final InMemoryViewComputationResultModel fragmentResultModel, final InMemoryViewComputationResultModel fullResultModel) {
-    // REVIEW jonathan 2011-11-17 -- do we really need to include all market data in the results?
-    for (final DependencyGraphExplorer depGraphExplorer : getCompiledViewDefinition().getDependencyGraphExplorers()) {
-      final DependencyGraph depGraph = depGraphExplorer.getWholeGraph();
-      if (depGraph.getTerminalOutputSpecifications().contains(valueSpec)
-          && getViewDefinition().getResultModelDefinition().shouldOutputResult(valueSpec, depGraph)) {
-        fragmentResultModel.addValue(depGraph.getCalculationConfigurationName(), computedValueResult);
-        fullResultModel.addValue(depGraph.getCalculationConfigurationName(), computedValueResult);
-      }
-    }
-  }
-
-  private static String formatMissingMarketData(final Set<ValueSpecification> missingLiveData) {
-    final StringBuilder sb = new StringBuilder();
-    for (final ValueSpecification spec : missingLiveData) {
-      sb.append("[").append(spec.getValueName()).append(" on ");
-      sb.append(spec.getTargetSpecification().getType());
-      if (spec.getTargetSpecification().getType().isTargetType(ComputationTargetType.PRIMITIVE)) {
-        sb.append("-").append(spec.getTargetSpecification().getUniqueId().getScheme());
-      }
-      sb.append(":").append(spec.getTargetSpecification().getUniqueId().getValue()).append("] ");
-    }
-    return sb.toString();
   }
 
   /**
@@ -514,27 +503,6 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
           .getCache(getUniqueId(), calcConfigurationName);
       _cachesByCalculationConfiguration.put(calcConfigurationName, cache);
       _jobResultCachesByCalculationConfiguration.put(calcConfigurationName, new DependencyNodeJobExecutionResultCache());
-    }
-  }
-
-  private void addToAllCaches(final ComputedValue computedValue, final ComputedValueResult computedValueResult, final Map<ViewComputationCache, OverrideOperation> cacheMarketDataInfo) {
-    for (final Map.Entry<ViewComputationCache, OverrideOperation> cacheMarketData : cacheMarketDataInfo.entrySet()) {
-      final ViewComputationCache cache = cacheMarketData.getKey();
-      final ComputedValue cacheValue;
-      if ((computedValue.getValue() instanceof MissingInput) || (cacheMarketData.getValue() == null)) {
-        cacheValue = computedValue;
-      } else {
-        // TODO: Converting a ValueSpecification to a ValueRequirement like this is probably wrong
-        final ValueSpecification valueSpec = computedValue.getSpecification();
-        final Object newValue = cacheMarketData.getValue().apply(new ValueRequirement(valueSpec.getValueName(), valueSpec.getTargetSpecification(), valueSpec.getProperties()),
-            computedValue.getValue());
-        if (newValue != computedValue.getValue()) {
-          cacheValue = new ComputedValue(computedValue.getSpecification(), newValue);
-        } else {
-          cacheValue = computedValue;
-        }
-      }
-      cache.putSharedValue(cacheValue);
     }
   }
 

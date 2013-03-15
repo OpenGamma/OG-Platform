@@ -330,7 +330,7 @@ public class DefaultViewComputationCache implements ViewComputationCache,
     AbstractViewComputationCache.putValue(this, value, filter);
   }
 
-  protected void putValues(final Collection<ComputedValue> values, final FudgeMessageStore dataStore) {
+  protected void putValues(final Collection<? extends ComputedValue> values, final FudgeMessageStore dataStore) {
     ArgumentChecker.notNull(values, "values");
     final Collection<ValueSpecification> specifications = new ArrayList<ValueSpecification>(values.size());
     for (final ComputedValue value : values) {
@@ -349,17 +349,17 @@ public class DefaultViewComputationCache implements ViewComputationCache,
   }
 
   @Override
-  public void putPrivateValues(final Collection<ComputedValue> values) {
+  public void putPrivateValues(final Collection<? extends ComputedValue> values) {
     putValues(values, getPrivateDataStore());
   }
 
   @Override
-  public void putSharedValues(final Collection<ComputedValue> values) {
+  public void putSharedValues(final Collection<? extends ComputedValue> values) {
     putValues(values, getSharedDataStore());
   }
 
   @Override
-  public void putValues(final Collection<ComputedValue> values, final CacheSelectHint filter) {
+  public void putValues(final Collection<? extends ComputedValue> values, final CacheSelectHint filter) {
     ArgumentChecker.notNull(values, "values");
     final Collection<ValueSpecification> specifications = new ArrayList<ValueSpecification>(values.size());
     for (final ComputedValue value : values) {

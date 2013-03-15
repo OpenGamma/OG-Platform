@@ -14,8 +14,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Partial implementation of {@link ViewComputationCache}. A real implementation should
- * handle the multiple value operations more efficiently whenever possible.
+ * Partial implementation of {@link ViewComputationCache}. A real implementation should handle the multiple value operations more efficiently whenever possible.
  */
 public abstract class AbstractViewComputationCache implements ViewComputationCache {
 
@@ -56,29 +55,29 @@ public abstract class AbstractViewComputationCache implements ViewComputationCac
   }
 
   @Override
-  public void putSharedValues(Collection<ComputedValue> values) {
+  public void putSharedValues(Collection<? extends ComputedValue> values) {
     putSharedValues(this, values);
   }
 
-  public static void putSharedValues(final ViewComputationCache cache, final Collection<ComputedValue> values) {
+  public static void putSharedValues(final ViewComputationCache cache, final Collection<? extends ComputedValue> values) {
     for (ComputedValue value : values) {
       cache.putSharedValue(value);
     }
   }
 
   @Override
-  public void putPrivateValues(Collection<ComputedValue> values) {
+  public void putPrivateValues(Collection<? extends ComputedValue> values) {
     putPrivateValues(this, values);
   }
 
-  public static void putPrivateValues(final ViewComputationCache cache, final Collection<ComputedValue> values) {
+  public static void putPrivateValues(final ViewComputationCache cache, final Collection<? extends ComputedValue> values) {
     for (ComputedValue value : values) {
       cache.putPrivateValue(value);
     }
   }
 
   @Override
-  public void putValues(final Collection<ComputedValue> values, final CacheSelectHint filter) {
+  public void putValues(final Collection<? extends ComputedValue> values, final CacheSelectHint filter) {
     putValuesBatched(this, values, filter);
   }
 
@@ -89,7 +88,7 @@ public abstract class AbstractViewComputationCache implements ViewComputationCac
    * @param values values to put
    * @param filter cache select filter
    */
-  public static void putValuesBatched(final ViewComputationCache cache, final Collection<ComputedValue> values, final CacheSelectHint filter) {
+  public static void putValuesBatched(final ViewComputationCache cache, final Collection<? extends ComputedValue> values, final CacheSelectHint filter) {
     List<ComputedValue> privateValues = null;
     List<ComputedValue> sharedValues = null;
     for (ComputedValue value : values) {
