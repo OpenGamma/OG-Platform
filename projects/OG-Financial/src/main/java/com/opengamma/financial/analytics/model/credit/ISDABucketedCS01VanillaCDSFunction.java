@@ -15,9 +15,11 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Month;
 import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZonedDateTime;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -48,6 +50,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.conversion.CreditDefaultSwapSecurityConverter;
 import com.opengamma.financial.analytics.model.cds.ISDAFunctionConstants;
 import com.opengamma.financial.security.FinancialSecurityTypes;
+import com.opengamma.financial.security.cds.CreditDefaultSwapSecurity;
 import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -55,15 +58,13 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.region.ManageableRegion;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.credit.CreditCurveIdentifier;
 import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Tenor;
-
-//TODO: This is a temporary version which looks for data to assemble curves and spreads in a very particular fashion
-// this will be made more generic i.e. pulling isda curves via yield curve data bundle asap.
 
 /**
  * Function to calculate the bucketed CS01 for a given CDS instrument.
@@ -76,6 +77,7 @@ public class ISDABucketedCS01VanillaCDSFunction extends AbstractFunction.NonComp
 
   // should this be pulled in from somewhere else?
   private static final Collection<ZonedDateTime> BUCKET_DATES = new ArrayList<>();
+  private static Set<Month> s_imm_MONTHS = ImmutableSet.of(Month.MARCH, Month.JUNE, Month.SEPTEMBER, Month.DECEMBER);
 
   //FIXME: Derive these instead of hardcoding
   static {
@@ -120,29 +122,8 @@ public class ISDABucketedCS01VanillaCDSFunction extends AbstractFunction.NonComp
 
     // get the market spread bump to apply to all tenors
     final Object spreadObject = inputs.getValue(ValueRequirementNames.BUCKETED_SPREADS);
-    if (spreadObject == null) {
-      throw new OpenGammaRuntimeException("Couldn't get input spreads");
-    } else if (!(spreadObject instanceof NodalTenorDoubleCurve)) {
-      throw new OpenGammaRuntimeException("Unexpected spread curve object type " + spreadObject.getClass().getName());
-    }
     final NodalTenorDoubleCurve spreadCurve = (NodalTenorDoubleCurve) spreadObject;
-    if (spreadCurve.size() == 0) {
-      throw new OpenGammaRuntimeException("No bucket spreads");
-    }
-    // find index of bucket this cds maturity is in - should really implement a custom comparator and do a binary search
-    Double spreadRate = Double.valueOf(0.0);
-    for (final Tenor tenor : spreadCurve.getXData()) {
-      final ZonedDateTime bucketDate = cds.getStartDate().plus(tenor.getPeriod());
-      if (!bucketDate.isAfter(security.getMaturityDate())) {
-        spreadRate = spreadCurve.getYValue(tenor);
-      } else {
-        break; // stop when we find desired bucket
-      }
-    }
-
-    // set all spreads to desired spread
-    final double[] spreads = new double[BUCKET_DATES.size()];
-    Arrays.fill(spreads, spreadRate.doubleValue());
+    final double[] spreads = getSpreadCurve(cds, spreadCurve); // get spread for this cds
 
     // get the isda curve
     final Object isdaObject = inputs.getValue(ValueRequirementNames.YIELD_CURVE);
@@ -166,6 +147,60 @@ public class ISDABucketedCS01VanillaCDSFunction extends AbstractFunction.NonComp
     return Collections.singleton(new ComputedValue(spec, bucketedCS01));
   }
 
+  /**
+   * Format the spread curve for a given cds.
+   * For IMM dates set all spreads to bucket maturity is in.
+   * For non-IMM dates take subset of spreads that correspond to buckets.
+   *
+   * @param cds the cds security
+   * @param spreadCurve the spread curve
+   * @return the spread curve for the given cds
+   */
+  private double[] getSpreadCurve(final LegacyVanillaCreditDefaultSwapDefinition cds, final NodalTenorDoubleCurve spreadCurve) {
+    ArgumentChecker.notNull(spreadCurve, "spread curve");
+    ArgumentChecker.isTrue(spreadCurve.size() > 0, "spread curve had no values");
+    final double[] spreads = new double[BUCKET_DATES.size()];
+
+    // if IMM date take flat spread from imm curve (all values set to single bucket spread)
+    if (isIMMDate((cds.getMaturityDate()))) {
+      // find index of bucket this cds maturity is in - should really implement a custom comparator and do a binary search
+      Double spreadRate = Double.valueOf(0.0);
+      for (final Tenor tenor : spreadCurve.getXData()) {
+        final ZonedDateTime startDate = DateUtils.getUTCDate(cds.getStartDate().getYear(), cds.getStartDate().getMonth().getValue(), cds.getStartDate().getDayOfMonth());
+        final ZonedDateTime bucketDate = startDate.plus(tenor.getPeriod());
+        if (!bucketDate.isAfter(cds.getMaturityDate())) {
+          spreadRate = spreadCurve.getYValue(tenor);
+        } else {
+          break; // stop when we find desired bucket
+        }
+      }
+      // set all spreads to desired spread
+      Arrays.fill(spreads, spreadRate.doubleValue());
+      return spreads;
+    }
+
+    // non-IMM date take spread from subset of dates that we want
+    int i = 0;
+    for (final Tenor tenor : spreadCurve.getXData()) {
+      final ZonedDateTime startDate = DateUtils.getUTCDate(cds.getStartDate().getYear(), cds.getStartDate().getMonth().getValue(), cds.getStartDate().getDayOfMonth());
+      final ZonedDateTime bucketDate = startDate.plus(tenor.getPeriod());
+      final int index = Arrays.binarySearch(BUCKET_DATES_ARRAY, bucketDate);
+      if (index >= 0) {
+        spreads[i++] = spreadCurve.getYValue(tenor).doubleValue();
+      }
+    }
+    // if spread curve ends before required buckets take last spread entry
+    for (int j = spreads.length - 1; j >= 0; j--) {
+      double lastspread = spreadCurve.getYData()[spreadCurve.getYData().length - 1].doubleValue();
+      if (spreads[j] == 0) {
+        spreads[j] = lastspread;
+      } else {
+        break;
+      }
+    }
+    return spreads;
+  }
+
   @Override
   public ComputationTargetType getTargetType() {
     return FinancialSecurityTypes.LEGACY_VANILLA_CDS_SECURITY;
@@ -174,7 +209,6 @@ public class ISDABucketedCS01VanillaCDSFunction extends AbstractFunction.NonComp
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final ValueProperties properties = createValueProperties()
-        //.withAny(ValuePropertyNames.CURVE)
         .withAny(ISDAFunctionConstants.ISDA_CURVE_OFFSET)
         .withAny(ISDAFunctionConstants.ISDA_CURVE_DATE)
         .withAny(ISDAFunctionConstants.ISDA_IMPLEMENTATION)
@@ -189,7 +223,8 @@ public class ISDABucketedCS01VanillaCDSFunction extends AbstractFunction.NonComp
                                                final ValueRequirement desiredValue) {
     final LegacyVanillaCDSSecurity cds = (LegacyVanillaCDSSecurity) target.getSecurity();
     final Currency ccy = cds.getNotional().getCurrency();
-    final CreditCurveIdentifier curveIdentifier = getCreditCurveIdentifier(cds);
+    final CreditCurveIdentifier isdaIdentifier = getISDACurveIdentifier(cds);
+    final CreditCurveIdentifier spreadIdentifier = getSpreadCurveIdentifier(cds);
 
     final String isdaOffset = desiredValue.getConstraint(ISDAFunctionConstants.ISDA_CURVE_OFFSET);
     if (isdaOffset == null) {
@@ -208,7 +243,7 @@ public class ISDABucketedCS01VanillaCDSFunction extends AbstractFunction.NonComp
 
     // isda curve
     final ValueProperties isdaProperties = ValueProperties.builder()
-        .with(ValuePropertyNames.CURVE, "ISDA_" + curveIdentifier.toString())
+        .with(ValuePropertyNames.CURVE, isdaIdentifier.toString())
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, ISDAFunctionConstants.ISDA_METHOD_NAME)
         .with(ISDAFunctionConstants.ISDA_CURVE_OFFSET, isdaOffset)
         .with(ISDAFunctionConstants.ISDA_CURVE_DATE, isdaCurveDate)
@@ -217,22 +252,35 @@ public class ISDABucketedCS01VanillaCDSFunction extends AbstractFunction.NonComp
     final ValueRequirement isdaRequirment = new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.CURRENCY, ccy.getUniqueId(), isdaProperties);
 
     // market spreads
-    final ValueRequirement spreadRequirment = new ValueRequirement(ValueRequirementNames.BUCKETED_SPREADS, ComputationTargetType.PRIMITIVE, curveIdentifier.getUniqueId());
+    final ValueRequirement spreadRequirment = new ValueRequirement(ValueRequirementNames.BUCKETED_SPREADS, ComputationTargetType.PRIMITIVE, spreadIdentifier.getUniqueId());
 
     return Sets.newHashSet(isdaRequirment, spreadRequirment);
   }
 
 
+  private static boolean isIMMDate(final ZonedDateTime date) {
+    return s_imm_MONTHS.contains(date.getMonth());
+  }
+
+  private static CreditCurveIdentifier getSpreadCurveIdentifier(final CreditDefaultSwapSecurity cds) {
+    return getCreditCurveIdentifier(cds, "");
+  }
+
+  private static CreditCurveIdentifier getISDACurveIdentifier(final CreditDefaultSwapSecurity cds) {
+    return getCreditCurveIdentifier(cds, "ISDA_");
+  }
+
   /**
-   * Get the CreditCurveIdentifier
+   * Get the CreditCurveIdentifier with name appended
    *
    * @param security
    */
-  private static CreditCurveIdentifier getCreditCurveIdentifier(final LegacyVanillaCDSSecurity security) {
-    final CreditCurveIdentifier curveIdentifier = CreditCurveIdentifier.of(security.getReferenceEntity(), security.getNotional().getCurrency(),
+  private static CreditCurveIdentifier getCreditCurveIdentifier(final CreditDefaultSwapSecurity security, final String name) {
+    final CreditCurveIdentifier curveIdentifier = CreditCurveIdentifier.of(name + security.getReferenceEntity().getValue(), security.getNotional().getCurrency(),
         security.getDebtSeniority().toString(), security.getRestructuringClause().toString());
     return curveIdentifier;
   }
+
 
   private class TestRegionSource implements RegionSource {
 
