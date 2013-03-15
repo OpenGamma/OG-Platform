@@ -51,10 +51,10 @@ import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
  * <p>
  * This loads missing historical time-series data from Bloomberg.
  */
-public class BloombergHistoricalLoader {
+public class BloombergHTSMasterUpdater {
 
   /** Logger. */
-  private static final Logger s_logger = LoggerFactory.getLogger(BloombergHistoricalLoader.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(BloombergHTSMasterUpdater.class);
 
   private static final LocalDate DEFAULT_START_DATE = LocalDate.of(1900, Month.JANUARY, 1);
 
@@ -66,7 +66,7 @@ public class BloombergHistoricalLoader {
   private boolean _reload;
 
 
-  public BloombergHistoricalLoader(final HistoricalTimeSeriesMaster htsMaster, 
+  public BloombergHTSMasterUpdater(final HistoricalTimeSeriesMaster htsMaster, 
       final HistoricalTimeSeriesProvider underlyingHtsProvider, 
       final ExternalIdResolver identifierProvider) {
     ArgumentChecker.notNull(htsMaster, "htsMaster");

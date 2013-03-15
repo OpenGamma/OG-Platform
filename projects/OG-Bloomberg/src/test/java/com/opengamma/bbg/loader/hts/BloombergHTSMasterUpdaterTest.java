@@ -63,9 +63,10 @@ import com.opengamma.util.tuple.Pair;
  * Test.
  */
 @Test(groups = TestGroup.INTEGRATION)
-public class BloombergHistoricalLoaderTest extends DbTest {
+public class BloombergHTSMasterUpdaterTest extends DbTest {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(BloombergHistoricalLoaderTest.class);
+
+  private static final Logger s_logger = LoggerFactory.getLogger(BloombergHTSMasterUpdaterTest.class);
 
   private static final String[] DATA_FIELDS = new String[] {"PX_LAST", "VOLUME"};
   private static final String[] DATA_PROVIDERS = new String[] {"UNKNOWN", "CMPL", "CMPT"};
@@ -74,7 +75,7 @@ public class BloombergHistoricalLoaderTest extends DbTest {
   private static final String LCLOSE_OBSERVATION_TIME = "LCLOSE";
 
   private HistoricalTimeSeriesMaster _master;
-  private BloombergHistoricalLoader _tool;
+  private BloombergHTSMasterUpdater _tool;
   private BloombergHistoricalTimeSeriesLoader _loader;
   private TestBulkHistoricalTimeSeriesProvider _historicalTimeSeriesProvider;
 
@@ -84,7 +85,7 @@ public class BloombergHistoricalLoaderTest extends DbTest {
    * @param databaseVersion  the database version
    */
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
-  public BloombergHistoricalLoaderTest(String databaseType, String databaseVersion) {
+  public BloombergHTSMasterUpdaterTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion, databaseVersion);
     s_logger.debug("running test for database = {}", databaseType);
   }
@@ -103,7 +104,7 @@ public class BloombergHistoricalLoaderTest extends DbTest {
     
     BloombergIdentifierProvider idProvider = new BloombergIdentifierProvider(dataProvider);
     
-    BloombergHistoricalLoader tool = new BloombergHistoricalLoader(_master, _historicalTimeSeriesProvider, idProvider);
+    BloombergHTSMasterUpdater tool = new BloombergHTSMasterUpdater(_master, _historicalTimeSeriesProvider, idProvider);
     _tool = tool;
     _loader = new BloombergHistoricalTimeSeriesLoader(_master, _historicalTimeSeriesProvider, idProvider);
   }

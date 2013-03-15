@@ -13,7 +13,7 @@ import org.threeten.bp.LocalDate;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.BloombergIdentifierProvider;
-import com.opengamma.bbg.loader.hts.BloombergHistoricalLoader;
+import com.opengamma.bbg.loader.hts.BloombergHTSMasterUpdater;
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.util.generate.scripts.Scriptable;
@@ -25,7 +25,7 @@ import com.opengamma.util.time.DateUtils;
  * This loads missing historical time-series data from Bloomberg.
  */
 @Scriptable
-public class BloombergTimeSeriesTool extends AbstractTool<ToolContext> {
+public class BloombergHTSMasterUpdaterTool extends AbstractTool<ToolContext> {
 
   /** Command line option. */
   private static final String RELOAD_OPTION = "reload";
@@ -48,14 +48,14 @@ public class BloombergTimeSeriesTool extends AbstractTool<ToolContext> {
    * @param args the command line arguments
    */
   public static void main(String[] args) {   // CSIGNORE
-    boolean success = new BloombergTimeSeriesTool().initAndRun(args, ToolContext.class);
+    boolean success = new BloombergHTSMasterUpdaterTool().initAndRun(args, ToolContext.class);
     System.exit(success ? 0 : 1);
   }
 
   //-------------------------------------------------------------------------
   @Override
   protected void doRun() throws Exception {
-    BloombergHistoricalLoader loader = new BloombergHistoricalLoader(
+    BloombergHTSMasterUpdater loader = new BloombergHTSMasterUpdater(
         getToolContext().getHistoricalTimeSeriesMaster(),
         getToolContext().getHistoricalTimeSeriesProvider(),
         new BloombergIdentifierProvider(((BloombergToolContext) getToolContext()).getBloombergReferenceDataProvider()));
@@ -64,7 +64,7 @@ public class BloombergTimeSeriesTool extends AbstractTool<ToolContext> {
     loader.run();
   }
 
-  private static void configureOptions(CommandLine line, BloombergHistoricalLoader dataLoader) {
+  private static void configureOptions(CommandLine line, BloombergHTSMasterUpdater dataLoader) {
     if (line.hasOption(START_OPTION)) {
       String startOption = line.getOptionValue(START_OPTION);
       try {
