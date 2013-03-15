@@ -279,8 +279,8 @@ public class BloombergHistoricalLoader {
   }
   
   private void load(Set<ExternalId> identifiers) {
-    LocalDate startDate = _startDate == null ? DEFAULT_START_DATE : _startDate;
-    LocalDate endDate = _endDate == null ? LocalDate.now() : _endDate;
+    LocalDate startDate = resolveStartDate();
+    LocalDate endDate = resolveEndDate();
     if (_dataProviders.isEmpty()) {
       _dataProviders.add(DEFAULT_DATA_PROVIDER);
     }
@@ -289,6 +289,14 @@ public class BloombergHistoricalLoader {
         _loader.loadTimeSeries(identifiers, dataProvider, dataField, startDate, endDate);
       }
     }
+  }
+
+  private LocalDate resolveEndDate() {
+    return _endDate == null ? LocalDate.MAX : _endDate;
+  }
+
+  private LocalDate resolveStartDate() {
+    return _startDate == null ? DEFAULT_START_DATE : _startDate;
   }
 
   private Set<ExternalId> readBasicFiles() {
@@ -317,8 +325,8 @@ public class BloombergHistoricalLoader {
   }
 
   private void processCsvFiles() {
-    LocalDate startDate = _startDate == null ? DEFAULT_START_DATE : _startDate;
-    LocalDate endDate = _endDate == null ? LocalDate.now() : _endDate;
+    LocalDate startDate = resolveStartDate();
+    LocalDate endDate = resolveEndDate();
     Map<Pair<String, String>, Set<ExternalId>> providerFieldRequestsMap = readCsvFiles();
     for (Entry<Pair<String, String>, Set<ExternalId>> providerFieldRequests : providerFieldRequestsMap.entrySet()) {
       String dataProvider = providerFieldRequests.getKey().getFirst();
