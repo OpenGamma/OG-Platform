@@ -11,6 +11,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdentifiable;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.credit.CreditCurveIdentifier;
 import com.opengamma.util.money.Currency;
 
 /**
