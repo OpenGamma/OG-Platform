@@ -108,7 +108,7 @@ public class UserMarketDataProvider extends AbstractMarketDataProvider {
   @Override
   public void subscribe(final Set<ValueSpecification> valueSpecifications) {
     _listeningValueSpecifications.addAll(valueSpecifications);
-    subscriptionSucceeded(valueSpecifications);
+    subscriptionsSucceeded(valueSpecifications);
   }
 
   @Override

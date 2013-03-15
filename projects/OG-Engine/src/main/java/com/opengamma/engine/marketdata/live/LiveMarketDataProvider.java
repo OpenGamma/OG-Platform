@@ -200,7 +200,7 @@ public class LiveMarketDataProvider extends AbstractMarketDataProvider implement
       }
     }
     if (subscriptionResult.getSubscriptionResult() == LiveDataSubscriptionResult.SUCCESS) {
-      subscriptionSucceeded(subscriptions);
+      subscriptionsSucceeded(subscriptions);
     } else {
       subscriptionFailed(subscriptions, subscriptionResult.getUserMessage());
     }
@@ -248,7 +248,7 @@ public class LiveMarketDataProvider extends AbstractMarketDataProvider implement
       subscriptionFailed(failedSubscriptions, "TODO: get/concat message(s) from " + failedSubscriptions.size() + " failures"/*subscriptionResult.getUserMessage()*/);
     }
     if (!successfulSubscriptions.isEmpty()) {
-      subscriptionSucceeded(successfulSubscriptions);
+      subscriptionsSucceeded(successfulSubscriptions);
     }
   }
 

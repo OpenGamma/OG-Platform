@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.marketdata;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -17,7 +18,6 @@ import org.apache.commons.lang.StringUtils;
 import org.threeten.bp.Duration;
 import org.threeten.bp.Instant;
 
-import com.opengamma.engine.marketdata.PendingCombinedMarketDataSubscription.PendingCombinedSubscriptionState;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.value.ValueSpecification;
@@ -46,13 +46,21 @@ public class MarketDataProviderWithOverride implements MarketDataProvider {
       _provider = provider;
     }
 
+    @SuppressWarnings("incomplete-switch")
     @Override
     public void subscriptionFailed(final ValueSpecification specification, final String msg) {
       final PendingCombinedMarketDataSubscription pendingSubscription = _pendingSubscriptions.get(specification);
       if (pendingSubscription == null) {
         return;
       }
-      processState(pendingSubscription.subscriptionFailed(_provider, msg), pendingSubscription, specification);
+      switch (pendingSubscription.subscriptionFailed(_provider, msg)) {
+        case FAILURE:
+          failureState(pendingSubscription, specification);
+          break;
+        case SUCCESS:
+          MarketDataProviderWithOverride.this.subscriptionsSucceeded(Collections.singleton(specification));
+          break;
+      }
     }
 
     @Override
@@ -60,13 +68,27 @@ public class MarketDataProviderWithOverride implements MarketDataProvider {
       MarketDataProviderWithOverride.this.subscriptionStopped(specification);
     }
 
+    @SuppressWarnings("incomplete-switch")
     @Override
-    public void subscriptionSucceeded(final ValueSpecification specification) {
-      final PendingCombinedMarketDataSubscription pendingSubscription = _pendingSubscriptions.get(specification);
-      if (pendingSubscription == null) {
-        return;
+    public void subscriptionsSucceeded(final Collection<ValueSpecification> specifications) {
+      Collection<ValueSpecification> success = new ArrayList<ValueSpecification>(specifications.size());
+      for (ValueSpecification specification : specifications) {
+        final PendingCombinedMarketDataSubscription pendingSubscription = _pendingSubscriptions.get(specification);
+        if (pendingSubscription == null) {
+          continue;
+        }
+        switch (pendingSubscription.subscriptionSucceeded(_provider)) {
+          case FAILURE:
+            failureState(pendingSubscription, specification);
+            break;
+          case SUCCESS:
+            success.add(specification);
+            break;
+        }
       }
-      processState(pendingSubscription.subscriptionSucceeded(_provider), pendingSubscription, specification);
+      if (!success.isEmpty()) {
+        MarketDataProviderWithOverride.this.subscriptionsSucceeded(success);
+      }
     }
 
     @Override
@@ -74,16 +96,9 @@ public class MarketDataProviderWithOverride implements MarketDataProvider {
       MarketDataProviderWithOverride.this.valuesChanged(specifications);
     }
 
-    private void processState(final PendingCombinedSubscriptionState state, final PendingCombinedMarketDataSubscription pendingSubscription, final ValueSpecification specification) {
-      switch (state) {
-        case FAILURE:
-          final String msg = StringUtils.join(pendingSubscription.getFailureMessages(), ", ");
-          MarketDataProviderWithOverride.this.subscriptionFailed(specification, msg);
-          break;
-        case SUCCESS:
-          MarketDataProviderWithOverride.this.subscriptionSucceeded(specification);
-          break;
-      }
+    private void failureState(final PendingCombinedMarketDataSubscription pendingSubscription, final ValueSpecification specification) {
+      final String msg = StringUtils.join(pendingSubscription.getFailureMessages(), ", ");
+      MarketDataProviderWithOverride.this.subscriptionFailed(specification, msg);
     }
 
   }
@@ -190,9 +205,9 @@ public class MarketDataProviderWithOverride implements MarketDataProvider {
   }
 
   //--------------------------------------------------------------------------
-  private void subscriptionSucceeded(final ValueSpecification specification) {
+  private void subscriptionsSucceeded(final Collection<ValueSpecification> specifications) {
     for (final MarketDataListener listener : _listeners) {
-      listener.subscriptionSucceeded(specification);
+      listener.subscriptionsSucceeded(specifications);
     }
   }
 

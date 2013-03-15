@@ -48,7 +48,7 @@ public class InMemoryLKVMarketDataProvider extends AbstractMarketDataProvider im
   public void subscribe(final Set<ValueSpecification> valueSpecifications) {
     // No actual subscription to make, but we still need to acknowledge it.
     s_logger.debug("Added subscriptions to {}", valueSpecifications);
-    subscriptionSucceeded(valueSpecifications);
+    subscriptionsSucceeded(valueSpecifications);
   }
 
   @Override

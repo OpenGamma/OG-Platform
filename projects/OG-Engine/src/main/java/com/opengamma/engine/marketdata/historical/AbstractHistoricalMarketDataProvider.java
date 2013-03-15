@@ -83,7 +83,7 @@ public abstract class AbstractHistoricalMarketDataProvider extends AbstractMarke
   @Override
   public void subscribe(final Set<ValueSpecification> valueSpecifications) {
     s_logger.debug("Added subscriptions to {}", valueSpecifications);
-    subscriptionSucceeded(valueSpecifications);
+    subscriptionsSucceeded(valueSpecifications);
   }
 
   @Override

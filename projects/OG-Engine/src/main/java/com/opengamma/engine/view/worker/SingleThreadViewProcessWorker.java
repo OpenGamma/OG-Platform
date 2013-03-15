@@ -190,7 +190,6 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
 
   private final Set<ValueSpecification> _marketDataSubscriptions = new HashSet<ValueSpecification>();
   private final Set<ValueSpecification> _pendingSubscriptions = Collections.newSetFromMap(new ConcurrentHashMap<ValueSpecification, Boolean>());
-  private CountDownLatch _pendingSubscriptionLatch;
 
   private ConcurrentMap<ObjectId, Boolean> _changedTargets;
   private ChangeListener _targetResolverChangeListener;
@@ -997,8 +996,8 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
           }
           final Map<ComputationTargetReference, UniqueId> resolvedIdentifiers = compiledViewDefinition.getResolvedIdentifiers();
           // TODO: The check below works well for the historical valuation case, but if the resolver v/c is different for two workers in the 
-          // group for anotherwise identical cache key then including it in the caching detail may become necessary to handle those cases.
-          if (!versionCorrection.equals(compiledViewDefinition.getResolverVersionCorrection())) {
+          // group for an otherwise identical cache key then including it in the caching detail may become necessary to handle those cases.
+          if (versionCorrection.equals(compiledViewDefinition.getResolverVersionCorrection())) {
             final Set<UniqueId> invalidIdentifiers = getInvalidIdentifiers(resolvedIdentifiers, versionCorrection);
             if (invalidIdentifiers != null) {
               previousGraphs = getPreviousGraphs(previousGraphs, compiledViewDefinition);
@@ -1196,30 +1195,56 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
   private void addMarketDataSubscriptions(final Set<ValueSpecification> requiredSubscriptions) {
     final OperationTimer timer = new OperationTimer(s_logger, "Adding {} market data subscriptions", requiredSubscriptions.size());
     _pendingSubscriptions.addAll(requiredSubscriptions);
-    _pendingSubscriptionLatch = new CountDownLatch(requiredSubscriptions.size());
     _marketDataProvider.subscribe(requiredSubscriptions);
     _marketDataSubscriptions.addAll(requiredSubscriptions);
     try {
-      if (!_pendingSubscriptionLatch.await(MARKET_DATA_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)) {
-        final long remainingCount = _pendingSubscriptionLatch.getCount();
-        s_logger.warn("Timed out after {} ms waiting for market data subscriptions to be made. The market data " +
-            "snapshot used in the computation cycle could be incomplete. Still waiting for {} out of {} market data " +
-            "subscriptions",
-            new Object[] {MARKET_DATA_TIMEOUT_MILLIS, remainingCount, _marketDataSubscriptions.size() });
+      synchronized (_pendingSubscriptions) {
+        if (!_pendingSubscriptions.isEmpty()) {
+          final long finish = System.currentTimeMillis() + MARKET_DATA_TIMEOUT_MILLIS;
+          _pendingSubscriptions.wait(MARKET_DATA_TIMEOUT_MILLIS);
+          do {
+            int remainingCount = _pendingSubscriptions.size();
+            if (remainingCount == 0) {
+              break;
+            }
+            final long remainingWait = finish - System.currentTimeMillis();
+            if (remainingWait > 0) {
+              _pendingSubscriptions.wait(remainingWait);
+            } else {
+              s_logger.warn("Timed out after {} ms waiting for market data subscriptions to be made. The market data " +
+                  "snapshot used in the computation cycle could be incomplete. Still waiting for {} out of {} market data " +
+                  "subscriptions",
+                  new Object[] {MARKET_DATA_TIMEOUT_MILLIS, remainingCount, _marketDataSubscriptions.size() });
+              break;
+            }
+          } while (true);
+        }
       }
     } catch (final InterruptedException ex) {
       s_logger.info("Interrupted while waiting for subscription results.");
     } finally {
       _pendingSubscriptions.clear();
-      _pendingSubscriptionLatch = null;
     }
     timer.finished();
   }
 
   private void removePendingSubscription(final ValueSpecification specification) {
-    final CountDownLatch pendingSubscriptionLatch = _pendingSubscriptionLatch;
-    if (_pendingSubscriptions.remove(specification) && pendingSubscriptionLatch != null) {
-      pendingSubscriptionLatch.countDown();
+    if (_pendingSubscriptions.remove(specification) && _pendingSubscriptions.isEmpty()) {
+      synchronized (_pendingSubscriptions) {
+        if (_pendingSubscriptions.isEmpty()) {
+          _pendingSubscriptions.notifyAll();
+        }
+      }
+    }
+  }
+
+  private void removePendingSubscriptions(final Collection<ValueSpecification> specifications) {
+    if (_pendingSubscriptions.removeAll(specifications) && _pendingSubscriptions.isEmpty()) {
+      synchronized (_pendingSubscriptions) {
+        if (_pendingSubscriptions.isEmpty()) {
+          _pendingSubscriptions.notifyAll();
+        }
+      }
     }
   }
 
@@ -1237,9 +1262,9 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
   // MarketDataListener
 
   @Override
-  public void subscriptionSucceeded(final ValueSpecification valueSpecification) {
-    s_logger.debug("Subscription succeeded: {}", valueSpecification);
-    removePendingSubscription(valueSpecification);
+  public void subscriptionsSucceeded(final Collection<ValueSpecification> valueSpecifications) {
+    s_logger.debug("Subscription succeeded: {}", valueSpecifications.size());
+    removePendingSubscriptions(valueSpecifications);
   }
 
   @Override

@@ -34,7 +34,7 @@ public class LiveMarketDataSnapshot extends AbstractMarketDataSnapshot {
   private final LiveMarketDataProvider _liveMarketDataProvider;
 
   public LiveMarketDataSnapshot(final InMemoryLKVMarketDataSnapshot underlyingSnapshot,
-                                final LiveMarketDataProvider liveMarketDataProvider) {
+      final LiveMarketDataProvider liveMarketDataProvider) {
     _underlyingSnapshot = underlyingSnapshot;
     _liveMarketDataProvider = liveMarketDataProvider;
   }
@@ -53,7 +53,7 @@ public class LiveMarketDataSnapshot extends AbstractMarketDataSnapshot {
   public void init() {
     _underlyingSnapshot.init();
   }
-  
+
   @Override
   public void init(final Set<ValueSpecification> values, final long timeout, final TimeUnit unit) {
     if (values != null && !values.isEmpty()) {
@@ -64,7 +64,7 @@ public class LiveMarketDataSnapshot extends AbstractMarketDataSnapshot {
       final MarketDataListener listener = new MarketDataListener() {
 
         @Override
-        public void subscriptionSucceeded(final ValueSpecification valueSpecification) {
+        public void subscriptionsSucceeded(final Collection<ValueSpecification> valueSpecifications) {
         }
 
         @Override
@@ -111,12 +111,12 @@ public class LiveMarketDataSnapshot extends AbstractMarketDataSnapshot {
     }
     _underlyingSnapshot.init(values, timeout, unit);
   }
-  
+
   @Override
   public boolean isInitialized() {
     return _underlyingSnapshot.isInitialized();
   }
-  
+
   @Override
   public boolean isEmpty() {
     assertInitialized();
