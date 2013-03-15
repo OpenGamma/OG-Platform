@@ -535,7 +535,7 @@ $.register_module({
                 state.col_override = new Array(meta.fixed_length + meta.scroll_length);
                 state.col_reorder = [];
             }
-            if (JSON.stringify(meta.structure) !== JSON.stringify(state.structure)) unravel_structure.call(grid);
+            if (!Object.equals(meta.structure, state.structure)) unravel_structure.call(grid);
         };
         var viewport = function (handler) {
             var grid = this, meta = grid.meta, viewport = meta.viewport, inner = meta.inner, elements = grid.elements,
