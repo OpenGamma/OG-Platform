@@ -59,8 +59,8 @@ public class CombinedMarketDataProvider extends AbstractMarketDataProvider {
     }
 
     @Override
-    public void subscriptionSucceeded(final ValueSpecification specification) {
-      CombinedMarketDataProvider.this.subscriptionSucceeded(createValueSpecification(specification));
+    public void subscriptionsSucceeded(final Collection<ValueSpecification> specifications) {
+      CombinedMarketDataProvider.this.subscriptionsSucceeded(createValueSpecifications(specifications));
     }
 
     @Override

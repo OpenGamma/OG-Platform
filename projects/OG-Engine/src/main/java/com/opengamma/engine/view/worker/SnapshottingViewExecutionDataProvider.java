@@ -151,9 +151,9 @@ public class SnapshottingViewExecutionDataProvider extends ViewExecutionDataProv
   private class Listener implements MarketDataListener {
 
     @Override
-    public void subscriptionSucceeded(ValueSpecification valueSpecification) {
+    public void subscriptionsSucceeded(Collection<ValueSpecification> valueSpecifications) {
       for (final MarketDataListener listener : _listeners) {
-        listener.subscriptionSucceeded(valueSpecification);
+        listener.subscriptionsSucceeded(valueSpecifications);
       }
     }
 
@@ -206,8 +206,8 @@ public class SnapshottingViewExecutionDataProvider extends ViewExecutionDataProv
     }
 
     @Override
-    public void subscriptionSucceeded(ValueSpecification valueSpecification) {
-      _underlying.subscriptionSucceeded(convertSpecification(valueSpecification));
+    public void subscriptionsSucceeded(Collection<ValueSpecification> valueSpecifications) {
+      _underlying.subscriptionsSucceeded(convertSpecifications(valueSpecifications));
     }
 
     @Override
