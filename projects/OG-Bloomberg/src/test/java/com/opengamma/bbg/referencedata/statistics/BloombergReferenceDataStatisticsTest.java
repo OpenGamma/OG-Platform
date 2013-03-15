@@ -82,7 +82,7 @@ public class BloombergReferenceDataStatisticsTest {
     }, 10 * 1024 * 1024, "Stats");
   }
 
-  @Test(groups = {"unit", "slow"})
+  @Test(groups = {"integration", "slow"})  // mark as integration because its a bit random
   public void bigIncrementTest() throws InterruptedException {
     final MapBloombergReferenceDataStatistics stats = getBigStats();
     assertSmall(new Supplier<Object>() {
@@ -94,7 +94,7 @@ public class BloombergReferenceDataStatisticsTest {
     }, 1 * 1024 * 1024, "Increment");
   }
 
-  @Test(groups = {"unit", "slow"})
+  @Test(groups = {"integration", "slow"})  // mark as integration because its a bit random
   public void bigSnapshotTest() throws InterruptedException {
     final MapBloombergReferenceDataStatistics stats = getBigStats();
     assertSmall(new Supplier<Snapshot>() {

@@ -99,24 +99,24 @@ public class PortfolioLoaderToolTest extends DbTest{
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testToolContextMustBeProvided() {
     new PortfolioLoader(null, "My portfolio", "Equity", _tempFile.getAbsolutePath(), true, true, false, false, false, true,
-                        true);
+                        true, null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testPortfolioNameMustBeProvided() {
     new PortfolioLoader(_toolContext, null, "Equity", _tempFile.getAbsolutePath(), true, true, false, false, false, true,
-                        true);
+                        true, null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testFilenameMustBeProvided() {
-    new PortfolioLoader(_toolContext, "My portfolio", "Equity", null, true, true, false, false, false, true, true);
+    new PortfolioLoader(_toolContext, "My portfolio", "Equity", null, true, true, false, false, false, true, true, null);
   }
 
   @Test(expectedExceptions = OpenGammaRuntimeException.class)
   public void testFileMustHaveRecognisedExtension() {
     new PortfolioLoader(_toolContext, "My portfolio", "Equity", "some_file.goobledygook", true, true, false, false, false, true,
-                        true).execute();
+                        true, null).execute();
   }
 
   @Test
@@ -181,7 +181,7 @@ public class PortfolioLoaderToolTest extends DbTest{
     populateFileWithData(data);
 
     new PortfolioLoader(_toolContext, portfolioName, securityType, _tempFile.getAbsolutePath(), true, true, false, false, false, true,
-                        true).execute();
+                        true, null).execute();
 
     assertEquals(_portfolioMaster.search(new PortfolioSearchRequest()).getPortfolios().size(), expectedPortfolios);
     assertEquals(_positionMaster.search(new PositionSearchRequest()).getPositions().size(), expectedPositions);

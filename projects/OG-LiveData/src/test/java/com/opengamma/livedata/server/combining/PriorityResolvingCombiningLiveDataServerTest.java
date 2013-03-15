@@ -4,9 +4,13 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.Collections;
 
+import net.sf.ehcache.CacheManager;
+
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.MutableFudgeMsg;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -33,7 +37,7 @@ import com.opengamma.util.ehcache.EHCacheUtils;
 /**
  * Test.
  */
-@Test(groups = "unit")
+@Test(groups = {"unit", "ehcache"})
 public class PriorityResolvingCombiningLiveDataServerTest {
 
   private static final UserPrincipal unauthorizedUser = new UserPrincipal("unauthorized", "127.0.0.1");
@@ -45,22 +49,33 @@ public class PriorityResolvingCombiningLiveDataServerTest {
   private MockLiveDataServer _serverB;
   private MockLiveDataServer _serverC;
   private PriorityResolvingCombiningLiveDataServer _combiningServer;
+  private CacheManager _cacheManager;
+
+  @BeforeClass
+  public void setUpClass() {
+    _cacheManager = EHCacheUtils.createTestCacheManager(getClass());
+  }
+
+  @AfterClass
+  public void tearDownClass() {
+    EHCacheUtils.shutdownQuiet(_cacheManager);
+  }
 
   @BeforeMethod
   public void setUp() {
     _domainB = ExternalScheme.of("B");
-    _serverB = new MockLiveDataServer(_domainB);
+    _serverB = new MockLiveDataServer(_domainB, _cacheManager);
     _serverB.setDistributionSpecificationResolver(new MockDistributionSpecificationResolver(_domainB));
     setEntitlementChecker(_serverB);
     _serverB.connect();
     
     _domainC = ExternalScheme.of("C");
-    _serverC = new MockLiveDataServer(_domainC);
+    _serverC = new MockLiveDataServer(_domainC, _cacheManager);
     _serverC.setDistributionSpecificationResolver(new MockDistributionSpecificationResolver(_domainC));
     setEntitlementChecker(_serverC);
     _serverC.connect();
     
-    _combiningServer = new PriorityResolvingCombiningLiveDataServer(Lists.newArrayList(_serverB, _serverC), EHCacheUtils.createCacheManager());
+    _combiningServer = new PriorityResolvingCombiningLiveDataServer(Lists.newArrayList(_serverB, _serverC), _cacheManager);
     _combiningServer.start();
     
     assertEquals(StandardLiveDataServer.ConnectionStatus.CONNECTED, _combiningServer.getConnectionStatus());

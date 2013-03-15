@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.marketdata.availability;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -81,6 +82,15 @@ public abstract class UnionMarketDataAvailability<T> {
         union.add(underlying.getAvailabilityFilter());
       }
       return new Filter(union);
+    }
+
+    @Override
+    public Serializable getAvailabilityHintKey() {
+      final ArrayList<Serializable> key = new ArrayList<Serializable>(getUnderlyings().size());
+      for (MarketDataAvailabilityProvider underlying : getUnderlyings()) {
+        key.add(underlying.getAvailabilityHintKey());
+      }
+      return key;
     }
 
   }

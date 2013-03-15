@@ -40,6 +40,7 @@ import com.opengamma.engine.view.listener.ViewDefinitionCompiledCall;
 import com.opengamma.engine.view.worker.SingleThreadViewProcessWorker;
 import com.opengamma.engine.view.worker.ViewProcessWorker;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.test.Timeout;
 
 /**
@@ -144,14 +145,15 @@ public class ViewProcessTest {
     // TODO: This test doesn't belong here; it is specific to the SingleThreadViewComputationJob.
 
     // Trick the compilation job into thinking it needs to rebuilt after time0 + 20
-    final CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = new CompiledViewDefinitionWithGraphsImpl(compilationModel1.getViewDefinition(),
-        compilationModel1.getDependencyGraphsByConfiguration(), Collections.<ComputationTargetReference, UniqueId>emptyMap(), compilationModel1.getPortfolio(), compilationModel1.getFunctionInitId()) {
+    final CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = new CompiledViewDefinitionWithGraphsImpl(VersionCorrection.LATEST, compilationModel1.getViewDefinition(),
+        CompiledViewDefinitionWithGraphsImpl.getDependencyGraphs(compilationModel1), Collections.<ComputationTargetReference, UniqueId>emptyMap(), compilationModel1.getPortfolio(),
+        compilationModel1.getFunctionInitId()) {
       @Override
       public Instant getValidTo() {
         return time0.plusMillis(20);
       }
     };
-    ((SingleThreadViewProcessWorker) worker).setCachedCompiledViewDefinition(compiledViewDefinition);
+    ((SingleThreadViewProcessWorker) worker).setLastCompiledViewDefinition(compiledViewDefinition);
 
     // Running at time0 + 20 doesn't require a rebuild - should still use our dummy
     worker.requestCycle();

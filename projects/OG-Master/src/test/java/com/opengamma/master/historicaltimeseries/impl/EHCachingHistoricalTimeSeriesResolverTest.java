@@ -33,7 +33,7 @@ import com.opengamma.util.ehcache.EHCacheUtils;
 /**
  * Test.
  */
-@Test
+@Test(groups = {"ehcache"})
 public class EHCachingHistoricalTimeSeriesResolverTest {
 
   private final LocalDate _date1 = LocalDate.now();
@@ -220,8 +220,8 @@ public class EHCachingHistoricalTimeSeriesResolverTest {
   public void testResolve_dates_opt() {
     List<EHCachingHistoricalTimeSeriesResolver> resolvers = new LinkedList<EHCachingHistoricalTimeSeriesResolver>();
     try {
-      testResolve_dates(true, null, null, null, true, 0x3C21D, resolvers);
-      testResolve_dates(true, null, null, _key1, true, 0x3C21D, resolvers);
+      testResolve_dates(true, null, null, null, true, 0x3D215, resolvers);
+      testResolve_dates(true, null, null, _key1, true, 0x3D215, resolvers);
       testResolve_dates(true, null, null, _key2, false, 0x3C01D, resolvers);
       testResolve_dates(true, null, _provider1, null, true, 0x3C214, resolvers);
       testResolve_dates(true, null, _provider1, _key1, true, 0x3C214, resolvers);
@@ -257,8 +257,8 @@ public class EHCachingHistoricalTimeSeriesResolverTest {
   public void testResolve_dates_pess() {
     List<EHCachingHistoricalTimeSeriesResolver> resolvers = new LinkedList<EHCachingHistoricalTimeSeriesResolver>();
     try {
-      testResolve_dates(false, null, null, null, true, 0x1420E, resolvers);
-      testResolve_dates(false, null, null, _key1, true, 0x14209, resolvers);
+      testResolve_dates(false, null, null, null, true, 0x15206, resolvers);
+      testResolve_dates(false, null, null, _key1, true, 0x15201, resolvers);
       testResolve_dates(false, null, null, _key2, false, 0x14009, resolvers);
       testResolve_dates(false, null, _provider1, null, true, 0x14404, resolvers);
       testResolve_dates(false, null, _provider1, _key1, true, 0x14200, resolvers);

@@ -35,7 +35,7 @@ import com.opengamma.util.ehcache.EHCacheUtils;
 /**
  * Test.
  */
-@Test
+@Test(groups = {"ehcache"})
 public class EHCachingMasterConfigSourceTest {
 
   private static final VersionCorrection VC = VersionCorrection.LATEST;

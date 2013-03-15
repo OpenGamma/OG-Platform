@@ -29,7 +29,7 @@ public class DependencyGraphBuilderTest extends AbstractFudgeBuilderTestCase {
     final ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
     env.init();
     final CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = env.compileViewDefinition(Instant.now(), VersionCorrection.LATEST);
-    final DependencyGraph graph = compiledViewDefinition.getDependencyGraph(ViewProcessorTestEnvironment.TEST_CALC_CONFIG_NAME);
+    final DependencyGraph graph = compiledViewDefinition.getDependencyGraphExplorer(ViewProcessorTestEnvironment.TEST_CALC_CONFIG_NAME).getWholeGraph();
     final DependencyGraph cycledGraph = cycleObject(DependencyGraph.class, graph);
 
     assertEquals(graph.getCalculationConfigurationName(), cycledGraph.getCalculationConfigurationName());

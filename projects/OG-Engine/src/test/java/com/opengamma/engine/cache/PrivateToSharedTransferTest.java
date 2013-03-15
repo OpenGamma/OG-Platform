@@ -17,22 +17,16 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import net.sf.ehcache.CacheManager;
+
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.cache.DefaultFudgeMessageStoreFactory;
-import com.opengamma.engine.cache.DefaultViewComputationCacheSource;
-import com.opengamma.engine.cache.FudgeMessageStoreFactory;
-import com.opengamma.engine.cache.IdentifierMap;
-import com.opengamma.engine.cache.InMemoryBinaryDataStoreFactory;
-import com.opengamma.engine.cache.InMemoryIdentifierMap;
-import com.opengamma.engine.cache.RemoteCacheClient;
-import com.opengamma.engine.cache.RemoteViewComputationCacheSource;
-import com.opengamma.engine.cache.ViewComputationCache;
-import com.opengamma.engine.cache.ViewComputationCacheKey;
-import com.opengamma.engine.cache.ViewComputationCacheServer;
 import com.opengamma.engine.cache.DefaultViewComputationCacheSource.MissingValueLoader;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
@@ -46,9 +40,27 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.Timeout;
 import com.opengamma.util.tuple.Pair;
 
-@Test
+@Test(groups = {"integration", "ehcache"})
 public class PrivateToSharedTransferTest {
 
+  private CacheManager _cacheManager;
+
+  @BeforeClass
+  public void setUpClass() {
+    _cacheManager = EHCacheUtils.createTestCacheManager(getClass());
+  }
+
+  @AfterClass
+  public void tearDownClass() {
+    EHCacheUtils.shutdownQuiet(_cacheManager);
+  }
+
+  @BeforeMethod
+  public void setUp() {
+    EHCacheUtils.clear(_cacheManager);
+  }
+
+  //-------------------------------------------------------------------------
   private static ValueSpecification[] createValueSpecifications(final int count) {
     final ValueSpecification[] specs = new ValueSpecification[count];
     final ComputationTargetSpecification target = ComputationTargetSpecification.of(Currency.USD);
@@ -167,14 +179,11 @@ public class PrivateToSharedTransferTest {
     final DirectFudgeConnection conduit3 = new DirectFudgeConnection(fudgeContext);
     conduit3.connectEnd1(server);
     final RemoteViewComputationCacheSource remoteCacheSource1 = new RemoteViewComputationCacheSource(
-        new RemoteCacheClient(conduit1.getEnd2()), createInMemoryFudgeMessageStoreFactory(fudgeContext), EHCacheUtils
-            .createCacheManager());
+        new RemoteCacheClient(conduit1.getEnd2()), createInMemoryFudgeMessageStoreFactory(fudgeContext), _cacheManager);
     final RemoteViewComputationCacheSource remoteCacheSource2 = new RemoteViewComputationCacheSource(
-        new RemoteCacheClient(conduit2.getEnd2()), createInMemoryFudgeMessageStoreFactory(fudgeContext), EHCacheUtils
-            .createCacheManager());
+        new RemoteCacheClient(conduit2.getEnd2()), createInMemoryFudgeMessageStoreFactory(fudgeContext), _cacheManager);
     final RemoteViewComputationCacheSource remoteCacheSource3 = new RemoteViewComputationCacheSource(
-        new RemoteCacheClient(conduit3.getEnd2()), createInMemoryFudgeMessageStoreFactory(fudgeContext), EHCacheUtils
-            .createCacheManager());
+        new RemoteCacheClient(conduit3.getEnd2()), createInMemoryFudgeMessageStoreFactory(fudgeContext), _cacheManager);
     // Populate the test caches
     final ValueSpecification[] specs = createValueSpecifications(10);
     UniqueId viewCycleId = UniqueId.of("Test", "ViewCycle");

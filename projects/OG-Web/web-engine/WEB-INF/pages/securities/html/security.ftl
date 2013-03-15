@@ -214,14 +214,13 @@
         <@rowout label="Terms"><#list terms as tenor>${tenor}<#if tenor_has_next>,</#if></#list></@rowout>
         <@subsection title="Components">
           <#list components as component>
-            <@subsection title="${component.name}">
               <@rowout label="Name">${component.name}</@rowout>
               <@rowout label="Obligor Identifier">${component.obligorRedCode.scheme.name?replace("_", " ")} - ${component.obligorRedCode.value}</@rowout>
               <@rowout label="Weight">${component.weight}</@rowout>
               <#if component.bondId??>
               <@rowout label="Bond Identifier">${component.bondId.scheme.name?replace("_", " ")} - ${component.bondId.value}</@rowout>
               </#if>
-            </@subsection>
+              <#if component_has_next><@space /></#if>
           </#list>
         </@subsection>
         <#break>

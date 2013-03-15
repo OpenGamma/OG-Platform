@@ -30,7 +30,7 @@ import com.opengamma.util.ehcache.EHCacheUtils;
 /**
  * Tests the {@link EHCachingPositionSource} class.
  */
-@Test
+@Test(groups = {"ehcache"})
 public class EHCachingPositionSourceTest {
 
   private CacheManager _cacheManager;

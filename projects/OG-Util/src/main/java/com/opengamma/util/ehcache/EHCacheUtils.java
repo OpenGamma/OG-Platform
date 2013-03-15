@@ -13,14 +13,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.apache.commons.io.IOUtils;
-
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.ConfigurationFactory;
+
+import org.apache.commons.io.IOUtils;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
@@ -157,7 +157,17 @@ public final class EHCacheUtils {
   public static void clearAll() {
     CacheManager.create().clearAll();
   }
-  
+
+  /**
+   * Clears the contents of a cache manager.
+   * 
+   * @param cacheManager  the cache manager, not null
+   */
+  public static void clear(CacheManager cacheManager) {
+    ArgumentChecker.notNull(cacheManager, "cacheManager");
+    cacheManager.clearAll();
+  }
+
   /**
    * Clears the contents of a named cache, if that cache exists, without deleting the cache itself.
    * 

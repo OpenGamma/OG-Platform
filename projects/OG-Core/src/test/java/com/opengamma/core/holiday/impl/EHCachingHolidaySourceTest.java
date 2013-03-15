@@ -28,7 +28,7 @@ import com.opengamma.util.ehcache.EHCacheUtils;
 /**
  * Test {@link EHCachingHolidaySource}.
  */
-@Test
+@Test(groups = {"ehcache"})
 public class EHCachingHolidaySourceTest {
 
   private static final UniqueId UID = UniqueId.of("A", "B");
