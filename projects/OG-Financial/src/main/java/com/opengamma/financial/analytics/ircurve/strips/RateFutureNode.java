@@ -71,8 +71,8 @@ public class RateFutureNode extends CurveNode {
   }
 
   public RateFutureNode(final int futureNumber, final Tenor startTenor, final Tenor futureTenor, final Tenor underlyingTenor, final ExternalId futureConvention,
-      final ExternalId underlyingConvention, final String curveSpecificationName) {
-    super(curveSpecificationName);
+      final ExternalId underlyingConvention, final String curveNodeIdMapperName) {
+    super(curveNodeIdMapperName);
     ArgumentChecker.notNegativeOrZero(futureNumber, "future number");
     setFutureNumber(futureNumber);
     setStartTenor(startTenor);

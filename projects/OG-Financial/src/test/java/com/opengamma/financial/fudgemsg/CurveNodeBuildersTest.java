@@ -14,6 +14,8 @@ import com.opengamma.financial.analytics.fudgemsg.AnalyticsTestBase;
 import com.opengamma.financial.analytics.ircurve.strips.CashNode;
 import com.opengamma.financial.analytics.ircurve.strips.CreditSpreadNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
+import com.opengamma.financial.analytics.ircurve.strips.FRANode;
+import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.time.Tenor;
 
@@ -35,9 +37,22 @@ public class CurveNodeBuildersTest extends AnalyticsTestBase {
   }
 
   @Test
+  public void testFRANodeBuilder() {
+    final FRANode node = new FRANode(Tenor.SIX_MONTHS, Tenor.NINE_MONTHS, ExternalId.of("convention", "name"), "TEST");
+    assertEquals(node, cycleObject(FRANode.class, node));
+  }
+
+  @Test
+  public void testRateFutureNodeBuilder() {
+    final RateFutureNode node = new RateFutureNode(2, Tenor.ONE_DAY, Tenor.THREE_MONTHS, Tenor.ONE_MONTH, ExternalId.of("convention", "future"), ExternalId.of("convention", "underlying"), "TEST");
+    assertEquals(node, cycleObject(RateFutureNode.class, node));
+  }
+
+  @Test
   public void testCurveNodeWithIdentifiers() {
     final CreditSpreadNode node = new CreditSpreadNode("TEST", Tenor.EIGHT_YEARS);
     final CurveNodeWithIdentifier nodeWithId = new CurveNodeWithIdentifier(node, ExternalSchemes.bloombergTickerSecurityId("AAA"));
     assertEquals(nodeWithId, cycleObject(CurveNodeWithIdentifier.class, nodeWithId));
   }
+
 }
