@@ -58,8 +58,8 @@ public class SwapNode extends CurveNode {
   }
 
   public SwapNode(final Tenor startTenor, final Tenor maturityTenor, final ExternalId payLegConvention, final ExternalId receiveLegConvention,
-      final String curveSpecificationName) {
-    super(curveSpecificationName);
+      final String curveNodeIdMapperName) {
+    super(curveNodeIdMapperName);
     setStartTenor(startTenor);
     setMaturityTenor(maturityTenor);
     setPayLegConvention(payLegConvention);
@@ -90,7 +90,7 @@ public class SwapNode extends CurveNode {
   }
 
   @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
+  protected Object propertyGet(final String propertyName, final boolean quiet) {
     switch (propertyName.hashCode()) {
       case -1583746178:  // startTenor
         return getStartTenor();
@@ -105,7 +105,7 @@ public class SwapNode extends CurveNode {
   }
 
   @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
+  protected void propertySet(final String propertyName, final Object newValue, final boolean quiet) {
     switch (propertyName.hashCode()) {
       case -1583746178:  // startTenor
         setStartTenor((Tenor) newValue);
@@ -133,12 +133,12 @@ public class SwapNode extends CurveNode {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      SwapNode other = (SwapNode) obj;
+      final SwapNode other = (SwapNode) obj;
       return JodaBeanUtils.equal(getStartTenor(), other.getStartTenor()) &&
           JodaBeanUtils.equal(getMaturityTenor(), other.getMaturityTenor()) &&
           JodaBeanUtils.equal(getPayLegConvention(), other.getPayLegConvention()) &&
@@ -171,7 +171,7 @@ public class SwapNode extends CurveNode {
    * Sets the start tenor.
    * @param startTenor  the new value of the property, not null
    */
-  public void setStartTenor(Tenor startTenor) {
+  public void setStartTenor(final Tenor startTenor) {
     JodaBeanUtils.notNull(startTenor, "startTenor");
     this._startTenor = startTenor;
   }
@@ -197,7 +197,7 @@ public class SwapNode extends CurveNode {
    * Sets the maturity tenor.
    * @param maturityTenor  the new value of the property, not null
    */
-  public void setMaturityTenor(Tenor maturityTenor) {
+  public void setMaturityTenor(final Tenor maturityTenor) {
     JodaBeanUtils.notNull(maturityTenor, "maturityTenor");
     this._maturityTenor = maturityTenor;
   }
@@ -223,7 +223,7 @@ public class SwapNode extends CurveNode {
    * Sets the pay leg convention.
    * @param payLegConvention  the new value of the property, not null
    */
-  public void setPayLegConvention(ExternalId payLegConvention) {
+  public void setPayLegConvention(final ExternalId payLegConvention) {
     JodaBeanUtils.notNull(payLegConvention, "payLegConvention");
     this._payLegConvention = payLegConvention;
   }
@@ -249,7 +249,7 @@ public class SwapNode extends CurveNode {
    * Sets the receive leg convention.
    * @param receiveLegConvention  the new value of the property, not null
    */
-  public void setReceiveLegConvention(ExternalId receiveLegConvention) {
+  public void setReceiveLegConvention(final ExternalId receiveLegConvention) {
     JodaBeanUtils.notNull(receiveLegConvention, "receiveLegConvention");
     this._receiveLegConvention = receiveLegConvention;
   }
@@ -309,7 +309,7 @@ public class SwapNode extends CurveNode {
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
       switch (propertyName.hashCode()) {
         case -1583746178:  // startTenor
           return _startTenor;
