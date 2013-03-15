@@ -5,6 +5,8 @@
  */
 package com.opengamma.engine.marketdata.availability;
 
+import java.io.Serializable;
+
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -128,6 +130,11 @@ public abstract class AbstractMarketDataAvailabilityProvider implements MarketDa
         @Override
         protected ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final ValueRequirement desiredValue) {
           return provider.getAvailability(targetSpec, null, desiredValue);
+        }
+
+        @Override
+        public Serializable getAvailabilityHintKey() {
+          return provider.getAvailabilityHintKey();
         }
 
       };

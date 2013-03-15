@@ -58,6 +58,9 @@ public final class Converters {
   }
 
   public static ExternalIdBean externalIdToExternalIdBean(final ExternalId identifier) {
+    if (identifier == null) {
+      return null;
+    }
     return new ExternalIdBean(identifier.getScheme().getName(), identifier.getValue());
   }
   

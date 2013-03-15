@@ -11,6 +11,7 @@ import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -55,6 +56,7 @@ import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.ViewProcess;
 import com.opengamma.engine.view.ViewProcessState;
 import com.opengamma.engine.view.ViewResultModel;
+import com.opengamma.engine.view.execution.ExecutionFlags;
 import com.opengamma.engine.view.execution.ExecutionOptions;
 import com.opengamma.engine.view.impl.ViewProcessImpl;
 import com.opengamma.engine.view.impl.ViewProcessorImpl;
@@ -88,7 +90,7 @@ public class ViewClientTest {
     final ViewClient client1 = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
     assertNotNull(client1.getUniqueId());
 
-    client1.attachToViewProcess(env.getViewDefinition().getUniqueId(), ExecutionOptions.infinite(MarketData.live()));
+    client1.attachToViewProcess(env.getViewDefinition().getUniqueId(), ExecutionOptions.infinite(MarketData.live(), ExecutionFlags.none().get()));
     final ViewProcessImpl client1Process = env.getViewProcess(vp, client1.getUniqueId());
     assertTrue(client1Process.getState() == ViewProcessState.RUNNING);
 
@@ -96,7 +98,7 @@ public class ViewClientTest {
     assertNotNull(client2.getUniqueId());
     assertFalse(client1.getUniqueId().equals(client2.getUniqueId()));
 
-    client2.attachToViewProcess(env.getViewDefinition().getUniqueId(), ExecutionOptions.infinite(MarketData.live()));
+    client2.attachToViewProcess(env.getViewDefinition().getUniqueId(), ExecutionOptions.infinite(MarketData.live(), ExecutionFlags.none().get()));
     final ViewProcessImpl client2Process = env.getViewProcess(vp, client2.getUniqueId());
     assertEquals(client1Process, client2Process);
     assertTrue(client2Process.getState() == ViewProcessState.RUNNING);
@@ -119,10 +121,10 @@ public class ViewClientTest {
     vp.start();
 
     final ViewClient client1 = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
-    client1.attachToViewProcess(env.getViewDefinition().getUniqueId(), ExecutionOptions.infinite(MarketData.live()));
+    client1.attachToViewProcess(env.getViewDefinition().getUniqueId(), ExecutionOptions.infinite(MarketData.live(), ExecutionFlags.none().get()));
 
     final ViewClient client2 = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
-    client2.attachToViewProcess(env.getViewDefinition().getUniqueId(), ExecutionOptions.infinite(MarketData.live()));
+    client2.attachToViewProcess(env.getViewDefinition().getUniqueId(), ExecutionOptions.infinite(MarketData.live(), ExecutionFlags.none().get()));
 
     final ViewProcessImpl view = env.getViewProcess(vp, client1.getUniqueId());
 
@@ -164,7 +166,7 @@ public class ViewClientTest {
 
     assertEquals(0, resultListener.getQueueSize());
 
-    client.attachToViewProcess(env.getViewDefinition().getUniqueId(), ExecutionOptions.infinite(MarketData.live()));
+    client.attachToViewProcess(env.getViewDefinition().getUniqueId(), ExecutionOptions.infinite(MarketData.live(), ExecutionFlags.none().get()));
 
     final ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
     assertTrue(viewProcess.getState() == ViewProcessState.RUNNING);
@@ -231,7 +233,7 @@ public class ViewClientTest {
 
     assertEquals(0, resultListener.getQueueSize());
 
-    client.attachToViewProcess(env.getViewDefinition().getUniqueId(), ExecutionOptions.infinite(MarketData.live()));
+    client.attachToViewProcess(env.getViewDefinition().getUniqueId(), ExecutionOptions.infinite(MarketData.live(), ExecutionFlags.none().get()));
     resultListener.assertViewDefinitionCompiled(TIMEOUT);
     resultListener.assertCycleStarted(TIMEOUT);
     resultListener.assertCycleFragmentCompleted(TIMEOUT);
@@ -253,6 +255,7 @@ public class ViewClientTest {
     env.getCurrentWorker(viewProcess).requestCycle();
 
     // Should have been merging results received in the meantime
+    resultListener.assertNoCalls(TIMEOUT);
     client.resume();
     resultListener.assertCycleStarted(TIMEOUT);
     resultListener.assertCycleFragmentCompleted(TIMEOUT);
@@ -282,7 +285,7 @@ public class ViewClientTest {
 
     assertEquals(0, client1ResultListener.getQueueSize());
 
-    client1.attachToViewProcess(env.getViewDefinition().getUniqueId(), ExecutionOptions.infinite(MarketData.live()));
+    client1.attachToViewProcess(env.getViewDefinition().getUniqueId(), ExecutionOptions.infinite(MarketData.live(), ExecutionFlags.none().get()));
 
     // Wait for first computation cycle
     client1ResultListener.assertViewDefinitionCompiled(TIMEOUT);
@@ -296,7 +299,7 @@ public class ViewClientTest {
     client2.setResultListener(client2ResultListener);
 
     assertEquals(0, client2ResultListener.getQueueSize());
-    client2.attachToViewProcess(env.getViewDefinition().getUniqueId(), ExecutionOptions.infinite(MarketData.live()));
+    client2.attachToViewProcess(env.getViewDefinition().getUniqueId(), ExecutionOptions.infinite(MarketData.live(), ExecutionFlags.none().get()));
 
     // Initial result should be pushed through
     client2ResultListener.assertViewDefinitionCompiled(TIMEOUT);
@@ -407,7 +410,7 @@ public class ViewClientTest {
     vp.start();
 
     final ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
-    client.attachToViewProcess(env.getViewDefinition().getUniqueId(), ExecutionOptions.infinite(MarketData.live()));
+    client.attachToViewProcess(env.getViewDefinition().getUniqueId(), ExecutionOptions.infinite(MarketData.live(), ExecutionFlags.none().get()));
 
     final ViewProcess viewProcess = env.getViewProcess(vp, client.getUniqueId());
 
@@ -438,7 +441,7 @@ public class ViewClientTest {
     // Start live computation and collect the initial result
     marketDataProvider.addValue(ViewProcessorTestEnvironment.getPrimitive1(), 2);
 
-    client.attachToViewProcess(env.getViewDefinition().getUniqueId(), ExecutionOptions.infinite(MarketData.live()));
+    client.attachToViewProcess(env.getViewDefinition().getUniqueId(), ExecutionOptions.infinite(MarketData.live(), ExecutionFlags.none().get()));
     final ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
     assertEquals(ViewProcessState.RUNNING, viewProcess.getState());
 
@@ -461,7 +464,7 @@ public class ViewClientTest {
     final TestViewResultListener resultListener2 = new TestViewResultListener();
     client.setResultListener(resultListener2);
 
-    // Push through a result which should arrive at the new listeners
+    // Push through a result which should arrive at the new listener
     worker.requestCycle();
     resultListener2.assertCycleStarted(TIMEOUT);
     resultListener2.assertCycleFragmentCompleted(TIMEOUT);
@@ -490,14 +493,14 @@ public class ViewClientTest {
 
     final ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
 
-    client.attachToViewProcess(env.getViewDefinition().getUniqueId(), ExecutionOptions.infinite(MarketData.live()));
+    client.attachToViewProcess(env.getViewDefinition().getUniqueId(), ExecutionOptions.infinite(MarketData.live(), ExecutionFlags.none().get()));
     final ViewProcessImpl viewProcess1 = env.getViewProcess(vp, client.getUniqueId());
 
     final ViewProcessWorker worker1 = env.getCurrentWorker(viewProcess1);
     assertFalse(worker1.isTerminated());
 
     client.detachFromViewProcess();
-    client.attachToViewProcess(env.getViewDefinition().getUniqueId(), ExecutionOptions.infinite(MarketData.live()));
+    client.attachToViewProcess(env.getViewDefinition().getUniqueId(), ExecutionOptions.infinite(MarketData.live(), ExecutionFlags.none().get()));
     final ViewProcessImpl viewProcess2 = env.getViewProcess(vp, client.getUniqueId());
     final ViewProcessWorker worker2 = env.getCurrentWorker(viewProcess2);
 
@@ -567,7 +570,7 @@ public class ViewClientTest {
     final TestViewResultListener resultListener = new TestViewResultListener();
     client.setResultListener(resultListener);
 
-    client.attachToViewProcess(env.getViewDefinition().getUniqueId(), ExecutionOptions.infinite(MarketData.live()));
+    client.attachToViewProcess(env.getViewDefinition().getUniqueId(), ExecutionOptions.infinite(MarketData.live(), ExecutionFlags.none().get()));
 
     resultListener.assertViewDefinitionCompiled(TIMEOUT);
     final ViewComputationResultModel result1 = resultListener.getCycleCompleted(TIMEOUT).getFullResult();
@@ -652,6 +655,7 @@ public class ViewClientTest {
 
     // Force a full cycle - should *not* reuse any previous result, so back to indicators only
     // TODO: [PLAT-3215] This is bad; future optimizations will not necessarily mean a full cycle happens just because a new view definition got posted
+    vd.setUniqueId(UniqueId.of(vd.getUniqueId().getScheme(), vd.getUniqueId().getValue(), "PLAT-3215"));
     worker.updateViewDefinition(vd);
     worker.triggerCycle();
 
@@ -711,6 +715,7 @@ public class ViewClientTest {
     public MarketDataAvailabilityProvider getAvailabilityProvider(final MarketDataSpecification marketDataSpec) {
       final MarketDataAvailabilityProvider underlying = super.getAvailabilityProvider(marketDataSpec);
       return new MarketDataAvailabilityProvider() {
+
         @Override
         public ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final Object target, final ValueRequirement desiredValue) {
           synchronized (SynchronousInMemoryLKVSnapshotProvider.this) {
@@ -721,6 +726,11 @@ public class ViewClientTest {
         @Override
         public MarketDataAvailabilityFilter getAvailabilityFilter() {
           throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Serializable getAvailabilityHintKey() {
+          return underlying.getAvailabilityHintKey();
         }
 
       };

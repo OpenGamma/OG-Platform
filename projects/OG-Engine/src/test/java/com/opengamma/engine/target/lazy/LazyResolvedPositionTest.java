@@ -31,7 +31,7 @@ import com.opengamma.util.ehcache.EHCacheUtils;
 /**
  * Tests the {@link LazyResolvedPosition} class
  */
-@Test(groups = {"unit", "ehcache"})
+@Test(groups = {"unit", "ehcache" })
 public class LazyResolvedPositionTest {
 
   private CacheManager _cacheManager;

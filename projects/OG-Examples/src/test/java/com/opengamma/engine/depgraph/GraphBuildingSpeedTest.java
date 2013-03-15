@@ -122,7 +122,7 @@ public class GraphBuildingSpeedTest {
         final long tStop = System.nanoTime();
         s_logger.info("Compilation {} of view in {}ms", i, (tStop - tStart) / 1e6);
         _report.add("Compilation " + j + "/" + i + " of " + view.getName() + " in " + ((tStop - tStart) / 1e6) + "ms");
-        for (final DependencyGraph graph : compiled.getAllDependencyGraphs()) {
+        for (final DependencyGraph graph : CompiledViewDefinitionWithGraphsImpl.getDependencyGraphs(compiled)) {
           if (graph.getTerminalOutputSpecifications().isEmpty()) {
             s_logger.warn("Didn't compile any terminal output specifications into the graph for {}", graph.getCalculationConfigurationName());
             fail();

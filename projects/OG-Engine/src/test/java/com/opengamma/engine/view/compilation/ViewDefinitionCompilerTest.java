@@ -58,7 +58,7 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ehcache.EHCacheUtils;
 
-@Test(groups = {"unit", "ehcache"})
+@Test(groups = {"unit", "ehcache" })
 public class ViewDefinitionCompilerTest {
 
   private CacheManager _cacheManager;
@@ -81,7 +81,7 @@ public class ViewDefinitionCompilerTest {
   //-------------------------------------------------------------------------
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDependencyGraphs() {
-    new CompiledViewDefinitionWithGraphsImpl(null, null, null, null, 0);
+    new CompiledViewDefinitionWithGraphsImpl(null, null, null, null, null, 0);
   }
 
   public void testEmptyView() {
@@ -111,7 +111,7 @@ public class ViewDefinitionCompilerTest {
     final ViewDefinition viewDefinition = new ViewDefinition("My View", UniqueId.of("FOO", "BAR"), "kirk");
     final CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, vcs, Instant.now(), VersionCorrection.LATEST);
     assertTrue(compiledViewDefinition.getMarketDataRequirements().isEmpty());
-    assertTrue(compiledViewDefinition.getDependencyGraphsByConfiguration().isEmpty());
+    assertTrue(compiledViewDefinition.getDependencyGraphExplorers().isEmpty());
     assertEquals(0, compiledViewDefinition.getComputationTargets().size());
   }
 
@@ -153,8 +153,8 @@ public class ViewDefinitionCompilerTest {
     viewDefinition.addViewCalculationConfiguration(calcConfig);
     final CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, vcs, Instant.now(), VersionCorrection.LATEST);
     assertTrue(compiledViewDefinition.getMarketDataRequirements().isEmpty());
-    assertEquals(1, compiledViewDefinition.getAllDependencyGraphs().size());
-    assertNotNull(compiledViewDefinition.getDependencyGraph("Fibble"));
+    assertEquals(1, compiledViewDefinition.getDependencyGraphExplorers().size());
+    assertNotNull(compiledViewDefinition.getDependencyGraphExplorer("Fibble"));
     assertTargets(compiledViewDefinition, pn.getUniqueId());
   }
 
@@ -198,8 +198,8 @@ public class ViewDefinitionCompilerTest {
     viewDefinition.addViewCalculationConfiguration(calcConfig);
     final CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, vcs, Instant.now(), VersionCorrection.LATEST);
     assertTrue(compiledViewDefinition.getMarketDataRequirements().isEmpty());
-    assertEquals(1, compiledViewDefinition.getAllDependencyGraphs().size());
-    final DependencyGraph dg = compiledViewDefinition.getDependencyGraph("Fibble");
+    assertEquals(1, compiledViewDefinition.getDependencyGraphExplorers().size());
+    final DependencyGraph dg = compiledViewDefinition.getDependencyGraphExplorer("Fibble").getWholeGraph();
     assertNotNull(dg);
     assertTrue(dg.getAllRequiredMarketData().isEmpty());
     assertEquals(2, dg.getDependencyNodes().size());
@@ -230,8 +230,8 @@ public class ViewDefinitionCompilerTest {
     calcConfig.addSpecificRequirement(f1.getResultSpec().toRequirementSpecification());
     final CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, compilationServices, Instant.now(), VersionCorrection.LATEST);
     assertTrue(compiledViewDefinition.getMarketDataRequirements().isEmpty());
-    assertEquals(1, compiledViewDefinition.getAllDependencyGraphs().size());
-    assertNotNull(compiledViewDefinition.getDependencyGraph("Config1"));
+    assertEquals(1, compiledViewDefinition.getDependencyGraphExplorers().size());
+    assertNotNull(compiledViewDefinition.getDependencyGraphExplorer("Config1"));
     assertTargets(compiledViewDefinition, t1);
   }
 
@@ -266,8 +266,8 @@ public class ViewDefinitionCompilerTest {
     calcConfig.addSpecificRequirement(f2.getResultSpec().toRequirementSpecification());
     CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, compilationServices, Instant.now(), VersionCorrection.LATEST);
     assertTrue(compiledViewDefinition.getMarketDataRequirements().isEmpty());
-    assertEquals(1, compiledViewDefinition.getAllDependencyGraphs().size());
-    assertNotNull(compiledViewDefinition.getDependencyGraph("Config1"));
+    assertEquals(1, compiledViewDefinition.getDependencyGraphExplorers().size());
+    assertNotNull(compiledViewDefinition.getDependencyGraphExplorer("Config1"));
     assertTargets(compiledViewDefinition, sec1.getUniqueId(), t1);
     // Turning off primitive outputs should not affect the dep graph since the primitive is needed for the security
     viewDefinition.getResultModelDefinition().setPrimitiveOutputMode(ResultOutputMode.NONE);

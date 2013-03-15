@@ -31,7 +31,7 @@ import com.opengamma.util.ehcache.EHCacheUtils;
 /**
  * Tests the {@link LazyResolvedPortfolioNode} class
  */
-@Test(groups = {"unit", "ehcache"})
+@Test(groups = {"unit", "ehcache" })
 public class LazyResolvedPortfolioNodeTest {
 
   private CacheManager _cacheManager;

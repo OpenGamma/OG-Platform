@@ -14,7 +14,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.threeten.bp.Instant;
 
 import com.opengamma.core.position.Portfolio;
@@ -22,6 +21,7 @@ import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -29,15 +29,17 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class CompiledViewDefinitionImpl implements CompiledViewDefinition {
 
+  private final VersionCorrection _versionCorrection;
   private final ViewDefinition _viewDefinition;
   private final Portfolio _portfolio;
   private final Map<String, CompiledViewCalculationConfiguration> _compiledCalculationConfigurations;
   private final Instant _earliestValidity;
   private final Instant _latestValidity;
+  private volatile Set<ValueSpecification> _marketDataRequirements;
 
-  public CompiledViewDefinitionImpl(final ViewDefinition viewDefinition, final Portfolio portfolio,
-      final Collection<CompiledViewCalculationConfiguration> compiledCalculationConfigurations,
-      final Instant earliestValidity, final Instant latestValidity) {
+  public CompiledViewDefinitionImpl(final VersionCorrection versionCorrection, final ViewDefinition viewDefinition, final Portfolio portfolio,
+      final Collection<CompiledViewCalculationConfiguration> compiledCalculationConfigurations, final Instant earliestValidity, final Instant latestValidity) {
+    _versionCorrection = versionCorrection;
     _viewDefinition = viewDefinition;
     _portfolio = portfolio;
     _compiledCalculationConfigurations = new HashMap<String, CompiledViewCalculationConfiguration>();
@@ -46,6 +48,11 @@ public class CompiledViewDefinitionImpl implements CompiledViewDefinition {
     }
     _earliestValidity = earliestValidity;
     _latestValidity = latestValidity;
+  }
+
+  @Override
+  public VersionCorrection getResolverVersionCorrection() {
+    return _versionCorrection;
   }
 
   @Override
@@ -71,26 +78,14 @@ public class CompiledViewDefinitionImpl implements CompiledViewDefinition {
 
   @Override
   public Set<ValueSpecification> getMarketDataRequirements() {
-    final Set<ValueSpecification> allRequirements = new HashSet<ValueSpecification>();
-    for (final CompiledViewCalculationConfiguration compiledCalcConfig : getCompiledCalculationConfigurations()) {
-      allRequirements.addAll(compiledCalcConfig.getMarketDataRequirements());
-    }
-    return Collections.unmodifiableSet(allRequirements);
-  }
-
-  /**
-   * Equivalent to getMarketDataRequirements().keySet().containsAny(specifications), but faster
-   * 
-   * @param specifications The values to match
-   * @return Whether any of the values are market data requirements of this view definition
-   */
-  public boolean hasAnyMarketDataRequirements(final Collection<ValueSpecification> specifications) {
-    for (final CompiledViewCalculationConfiguration compiledCalcConfig : getCompiledCalculationConfigurations()) {
-      if (CollectionUtils.containsAny(compiledCalcConfig.getMarketDataRequirements(), specifications)) {
-        return true;
+    if (_marketDataRequirements == null) {
+      final Set<ValueSpecification> allRequirements = new HashSet<ValueSpecification>();
+      for (final CompiledViewCalculationConfiguration compiledCalcConfig : getCompiledCalculationConfigurations()) {
+        allRequirements.addAll(compiledCalcConfig.getMarketDataRequirements());
       }
+      _marketDataRequirements = Collections.unmodifiableSet(allRequirements);
     }
-    return false;
+    return _marketDataRequirements;
   }
 
   @Override
@@ -123,16 +118,20 @@ public class CompiledViewDefinitionImpl implements CompiledViewDefinition {
 
   //-------------------------------------------------------------------------
   /**
-   * Checks whether the compilation results encapsulated in this instance are valid for a specific cycle. Note that
-   * this does not ensure that the view definition used for compilation is still up-to-date.
-   *
-   * @param valuationTime  the valuation time, not null
+   * Checks whether the compilation results encapsulated in an instance are valid for a specific cycle. Note that this does not ensure that the view definition used for compilation is still
+   * up-to-date.
+   * 
+   * @param viewDefinition the compiled view definition instance, not null
+   * @param valuationTime the valuation time, not null
    * @return true if the compilation results are valid for the valuation time
    */
-  public boolean isValidFor(final Instant valuationTime) {
-    ArgumentChecker.notNull(valuationTime, "valuationTime");
-    return (getValidFrom() == null || !valuationTime.isBefore(getValidFrom()))
-        && (getValidTo() == null || !valuationTime.isAfter(getValidTo()));
+  public static boolean isValidFor(final CompiledViewDefinition viewDefinition, final Instant valuationTime) {
+    final Instant validFrom = viewDefinition.getValidFrom();
+    if ((validFrom != null) && valuationTime.isBefore(validFrom)) {
+      return false;
+    }
+    final Instant validTo = viewDefinition.getValidTo();
+    return (validTo == null) || !valuationTime.isAfter(validTo);
   }
 
   //-------------------------------------------------------------------------

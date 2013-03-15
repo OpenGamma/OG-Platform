@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.view.worker;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -233,12 +234,17 @@ public class SnapshottingViewExecutionDataProvider extends ViewExecutionDataProv
   private static final class CompositeAvailabilityProvider implements MarketDataAvailabilityProvider {
 
     private final List<MarketDataAvailabilityProvider> _providers;
+    private final Serializable _cacheHint;
 
     public CompositeAvailabilityProvider(final List<MarketDataProvider> providers, final List<MarketDataSpecification> specs) {
       _providers = new ArrayList<MarketDataAvailabilityProvider>(providers.size());
+      final ArrayList<Serializable> cacheHints = new ArrayList<Serializable>(providers.size());
       for (int i = 0; i < providers.size(); i++) {
-        _providers.add(providers.get(i).getAvailabilityProvider(specs.get(i)));
+        final MarketDataAvailabilityProvider availabilityProvider = providers.get(i).getAvailabilityProvider(specs.get(i));
+        _providers.add(availabilityProvider);
+        cacheHints.add(availabilityProvider.getAvailabilityHintKey());
       }
+      _cacheHint = cacheHints;
     }
 
     /**
@@ -273,6 +279,11 @@ public class SnapshottingViewExecutionDataProvider extends ViewExecutionDataProv
         union.add(provider.getAvailabilityFilter());
       }
       return new UnionMarketDataAvailability.Filter(union);
+    }
+
+    @Override
+    public Serializable getAvailabilityHintKey() {
+      return _cacheHint;
     }
 
   }

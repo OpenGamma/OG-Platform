@@ -5,6 +5,8 @@
  */
 package com.opengamma.engine.marketdata.snapshot;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -376,7 +378,7 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
 
   @Override
   public UniqueId getUniqueId() {
-    return _snapshot.getUniqueId();
+    return getSnapshot().getUniqueId();
   }
 
   @Override
@@ -464,6 +466,14 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
       @Override
       public MarketDataAvailabilityFilter getAvailabilityFilter() {
         return new ProviderMarketDataAvailabilityFilter(this);
+      }
+
+      @Override
+      public Serializable getAvailabilityHintKey() {
+        final ArrayList<Serializable> key = new ArrayList<Serializable>();
+        key.add(getClass().getName());
+        key.add(getUniqueId());
+        return key;
       }
 
     };

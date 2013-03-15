@@ -5,6 +5,8 @@
  */
 package com.opengamma.engine.marketdata.historical;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
@@ -108,7 +110,7 @@ public abstract class AbstractHistoricalMarketDataProvider extends AbstractMarke
 
       @Override
       protected ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final ExternalIdBundle identifiers, final ValueRequirement desiredValue) {
-        HistoricalTimeSeriesResolutionResult resolved = getTimeSeriesResolver().resolve(identifiers, date, null, null, desiredValue.getValueName(), _timeSeriesResolverKey);
+        HistoricalTimeSeriesResolutionResult resolved = getTimeSeriesResolver().resolve(identifiers, date, null, null, desiredValue.getValueName(), getTimeSeriesResolverKey());
         if (resolved == null) {
           if (s_logger.isDebugEnabled() && desiredValue.getValueName().equals(MarketDataRequirementNames.MARKET_VALUE)) {
             s_logger.debug("Missing market data {}", desiredValue);
@@ -133,6 +135,14 @@ public abstract class AbstractHistoricalMarketDataProvider extends AbstractMarke
       @Override
       protected ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final ValueRequirement desiredValue) {
         return null;
+      }
+
+      @Override
+      public Serializable getAvailabilityHintKey() {
+        final ArrayList<Serializable> key = new ArrayList<Serializable>(2);
+        key.add(getClass().getName());
+        key.add(getTimeSeriesResolverKey());
+        return key;
       }
 
     };

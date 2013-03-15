@@ -5,7 +5,9 @@
  */
 package com.opengamma.engine.marketdata.availability;
 
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -162,6 +164,14 @@ public abstract class AbstractMarketDataAvailabilityFilter implements MarketData
     }
   }
 
+  /**
+   * Updates a collection containing keys that will be used to form the cache hint when this is used to construct an availability provider. A sub-class should put any construction parameters into the
+   * key that distinguish its behavior from other filters of the same class.
+   * 
+   * @param key the key to update
+   */
+  protected abstract void populateAvailabilityHintKey(Collection<Serializable> key);
+
   @Override
   public MarketDataAvailabilityProvider withProvider(final MarketDataAvailabilityProvider provider) {
     final AbstractMarketDataAvailabilityProvider underlying = AbstractMarketDataAvailabilityProvider.of(provider);
@@ -190,6 +200,16 @@ public abstract class AbstractMarketDataAvailabilityFilter implements MarketData
       @Override
       protected ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final ValueRequirement desiredValue) {
         return AbstractMarketDataAvailabilityFilter.this.getAvailability(targetSpec, desiredValue, underlying);
+      }
+
+      @Override
+      public Serializable getAvailabilityHintKey() {
+        final ArrayList<Serializable> key = new ArrayList<Serializable>(5);
+        key.add(getClass().getName());
+        key.add(AbstractMarketDataAvailabilityFilter.this.getClass().getName());
+        key.add(provider.getAvailabilityHintKey());
+        key.trimToSize();
+        return key;
       }
 
     };

@@ -9,6 +9,9 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
+import java.io.Serializable;
+import java.util.Collection;
+
 import org.mockito.Mockito;
 import org.testng.annotations.Test;
 
@@ -44,6 +47,11 @@ public class MarketDataAvailabilityFilterTest {
         return true;
       }
 
+      @Override
+      protected void populateAvailabilityHintKey(final Collection<Serializable> key) {
+        // Don't care
+      }
+
     };
     final Object target = new ExternalIdentifiablePrimitive(targetSpec.getUniqueId(), identifier);
     assertTrue(filter.isAvailable(targetSpec, target, desiredValue));
@@ -65,6 +73,11 @@ public class MarketDataAvailabilityFilterTest {
         assertEquals(i, identifier);
         assertEquals(dv, desiredValue);
         return false;
+      }
+
+      @Override
+      protected void populateAvailabilityHintKey(final Collection<Serializable> key) {
+        // Don't care
       }
 
     };
@@ -89,6 +102,11 @@ public class MarketDataAvailabilityFilterTest {
         assertEquals(dv, desiredValue);
         assertTrue(i.equals(identifier1) || i.equals(identifier2));
         return true;
+      }
+
+      @Override
+      protected void populateAvailabilityHintKey(final Collection<Serializable> key) {
+        // Don't care
       }
 
     };
@@ -116,6 +134,11 @@ public class MarketDataAvailabilityFilterTest {
         return i.equals(identifier1);
       }
 
+      @Override
+      protected void populateAvailabilityHintKey(final Collection<Serializable> key) {
+        // Don't care
+      }
+
     };
     final Object target = identifiers;
     assertTrue(filter.isAvailable(targetSpec, target, desiredValue));
@@ -141,6 +164,11 @@ public class MarketDataAvailabilityFilterTest {
         return false;
       }
 
+      @Override
+      protected void populateAvailabilityHintKey(final Collection<Serializable> key) {
+        // Don't care
+      }
+
     };
     final Object target = identifiers;
     assertFalse(filter.isAvailable(targetSpec, target, desiredValue));
@@ -160,6 +188,11 @@ public class MarketDataAvailabilityFilterTest {
         assertEquals(i, targetSpec.getUniqueId());
         assertEquals(dv, desiredValue);
         return true;
+      }
+
+      @Override
+      protected void populateAvailabilityHintKey(final Collection<Serializable> key) {
+        // Don't care
       }
 
     };
@@ -184,6 +217,11 @@ public class MarketDataAvailabilityFilterTest {
         return false;
       }
 
+      @Override
+      protected void populateAvailabilityHintKey(final Collection<Serializable> key) {
+        // Don't care
+      }
+
     };
     final Object target = targetSpec.getUniqueId();
     assertFalse(filter.isAvailable(targetSpec, target, desiredValue));
@@ -203,6 +241,11 @@ public class MarketDataAvailabilityFilterTest {
         return true;
       }
 
+      @Override
+      protected void populateAvailabilityHintKey(final Collection<Serializable> key) {
+        // Don't care
+      }
+
     };
     assertTrue(filter.isAvailable(ComputationTargetSpecification.NULL, null, desiredValue));
     final AbstractMarketDataAvailabilityProvider provider = Mockito.mock(AbstractMarketDataAvailabilityProvider.class);
@@ -220,6 +263,11 @@ public class MarketDataAvailabilityFilterTest {
         assertEquals(ts, ComputationTargetSpecification.NULL);
         assertEquals(dv, desiredValue);
         return false;
+      }
+
+      @Override
+      protected void populateAvailabilityHintKey(final Collection<Serializable> key) {
+        // Don't care
       }
 
     };

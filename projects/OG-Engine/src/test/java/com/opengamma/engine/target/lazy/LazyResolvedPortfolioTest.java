@@ -33,7 +33,7 @@ import com.opengamma.util.ehcache.EHCacheUtils;
 /**
  * Tests the {@link LazyResolvedPortfolio} class
  */
-@Test(groups = {"unit", "ehcache"})
+@Test(groups = {"unit", "ehcache" })
 public class LazyResolvedPortfolioTest {
 
   private CacheManager _cacheManager;
@@ -112,5 +112,5 @@ public class LazyResolvedPortfolioTest {
     assertEquals(portfolio.getRootNode().getUniqueId(), underlying.getRootNode().getUniqueId());
     assertEquals(portfolio.getRootNode().getChildNodes().size(), underlying.getRootNode().getChildNodes().size());
   }
-  
+
 }

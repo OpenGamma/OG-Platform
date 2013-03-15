@@ -25,6 +25,9 @@ import com.opengamma.engine.view.compilation.ViewCompilationServices;
 import com.opengamma.engine.view.cycle.SingleComputationCycle;
 import com.opengamma.engine.view.permission.ViewPermissionProvider;
 import com.opengamma.engine.view.worker.ViewProcessWorkerFactory;
+import com.opengamma.engine.view.worker.cache.InMemoryViewExecutionCache;
+import com.opengamma.engine.view.worker.cache.ViewExecutionCache;
+import com.opengamma.engine.view.worker.cache.ViewExecutionCacheLock;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 
@@ -61,6 +64,12 @@ public class ViewProcessContext {
   // TODO: Need to rethink this for distribution if the workers for the process are remote. Workers only need to read the log settings. The original
   // process is the one that updates them.
   private final ExecutionLogModeSource _executionLogModeSource = new ExecutionLogModeSource();
+
+  // TODO: [PLAT-3190] Need to inject this from the view processor so that processes in a group can share data
+  private final ViewExecutionCache _executionCache = new InMemoryViewExecutionCache();
+
+  // TODO: [PLAT-3190] Might need to inject this from the view processor so that all workers in the process group can share work
+  private final ViewExecutionCacheLock _executionCacheLock = new ViewExecutionCacheLock();
 
   public ViewProcessContext(
       final UniqueId processId,
@@ -225,21 +234,12 @@ public class ViewProcessContext {
     return _executionLogModeSource;
   }
 
-  /**
-   * Returns a lock that a worker should hold for the duration of a graph build.
-   * <p>
-   * This can either be set so that all workers owned by a single process use graph building resources exclusively (that is, all use the same lock) to avoid vast memory requirements during historical
-   * runs that are optimized by parallel worker threads. For this case, the {@link ViewProcessContext} object instance can be used.
-   * <p>
-   * An alternative strategy could be to make the graph builder completely exclusive by returning a static object from here. Doing so would lower memory requirements but could adversely impact on the
-   * performance of a system that runs a large number of relatively simple view processes concurrently.
-   * 
-   * @return the object a worker should lock while it is performing is graph building phase
-   * @deprecated This doesn't belong here; PLAT-3190 will introduce execution digests which the exclusion should be based around
-   */
-  @Deprecated
-  public Object getGraphBuildingLock() {
-    return this;
+  public ViewExecutionCache getExecutionCache() {
+    return _executionCache;
+  }
+
+  public ViewExecutionCacheLock getExecutionCacheLock() {
+    return _executionCacheLock;
   }
 
   // -------------------------------------------------------------------------

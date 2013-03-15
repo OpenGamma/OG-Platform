@@ -18,13 +18,11 @@ public interface MarketDataProviderFactory {
   /**
    * Creates a {@link MarketDataProvider} instance that is compatible with a given specification.
    * 
-   *
-   *
-   * @param marketDataUser
-   * @param marketDataSpec  the market data specification, not null
+   * @param marketDataUser the market data user
+   * @param marketDataSpec the market data specification, not null
    * @return a market data provider, not null
    */
   MarketDataProvider create(UserPrincipal marketDataUser,
-                            MarketDataSpecification marketDataSpec);
+      MarketDataSpecification marketDataSpec);
 
 }
