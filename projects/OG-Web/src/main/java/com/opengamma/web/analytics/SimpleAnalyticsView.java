@@ -118,7 +118,8 @@ import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
   public List<String> updateColumns(CompiledViewDefinition compiledViewDefinition) {
     _compiledViewDefinition = compiledViewDefinition;
     // TODO this loses all dependency graphs. new grid needs to rebuild graphs from old grid. need stable IDs to do that
-    _portfolioGrid = _portfolioGrid.withUpdatedColumns(_compiledViewDefinition);
+    Portfolio portfolio = compiledViewDefinition.getPortfolio();
+    _portfolioGrid = _portfolioGrid.withUpdatedColumns(_compiledViewDefinition).withUpdatedRows(portfolio);
     _primitivesGrid = new PrimitivesAnalyticsGrid(_compiledViewDefinition,
                                                   _primitivesGrid.getCallbackId(),
                                                   _targetResolver,
