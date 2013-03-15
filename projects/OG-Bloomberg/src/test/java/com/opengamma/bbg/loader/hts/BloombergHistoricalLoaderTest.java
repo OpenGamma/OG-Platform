@@ -11,16 +11,12 @@ import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
@@ -38,30 +34,22 @@ import com.opengamma.bbg.BloombergConnector;
 import com.opengamma.bbg.BloombergConstants;
 import com.opengamma.bbg.BloombergIdentifierProvider;
 import com.opengamma.bbg.loader.BloombergHistoricalTimeSeriesLoader;
-import com.opengamma.bbg.loader.hts.BloombergHistoricalLoader;
 import com.opengamma.bbg.referencedata.impl.BloombergReferenceDataProvider;
 import com.opengamma.bbg.test.BloombergTestUtils;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.id.ExternalSchemes;
-import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalIdBundleWithDates;
 import com.opengamma.id.ExternalIdWithDates;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesGetFilter;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchRequest;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
-import com.opengamma.master.position.PositionMaster;
 import com.opengamma.masterdb.historicaltimeseries.DbHistoricalTimeSeriesMaster;
-import com.opengamma.masterdb.position.DbPositionMaster;
 import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProviderGetRequest;
 import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProviderGetResult;
 import com.opengamma.provider.historicaltimeseries.impl.AbstractHistoricalTimeSeriesProvider;
-import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.test.DbTest;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
@@ -78,7 +66,6 @@ import com.opengamma.util.tuple.Pair;
 public class BloombergHistoricalLoaderTest extends DbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergHistoricalLoaderTest.class);
-  private static final String SECURITIES_FILE_NAME = "test-securities.txt";
 
   private static final String[] DATA_FIELDS = new String[] {"PX_LAST", "VOLUME"};
   private static final String[] DATA_PROVIDERS = new String[] {"UNKNOWN", "CMPL", "CMPT"};
@@ -90,7 +77,6 @@ public class BloombergHistoricalLoaderTest extends DbTest {
   private BloombergHistoricalLoader _tool;
   private BloombergHistoricalTimeSeriesLoader _loader;
   private TestBulkHistoricalTimeSeriesProvider _historicalTimeSeriesProvider;
-  private PositionMaster _positionMaster;
 
   /**
    * Creates an instance specifying the database to run.
@@ -110,8 +96,6 @@ public class BloombergHistoricalLoaderTest extends DbTest {
     
     _master = setUpTimeSeriesMaster(transactionManager);
     _historicalTimeSeriesProvider = new TestBulkHistoricalTimeSeriesProvider();
-    PositionMaster positionMaster = setUpPositionMaster();
-    _positionMaster = positionMaster;
     
     BloombergConnector connector = BloombergTestUtils.getBloombergConnector();
     BloombergReferenceDataProvider dataProvider = new BloombergReferenceDataProvider(connector);
@@ -120,15 +104,8 @@ public class BloombergHistoricalLoaderTest extends DbTest {
     BloombergIdentifierProvider idProvider = new BloombergIdentifierProvider(dataProvider);
     
     BloombergHistoricalLoader tool = new BloombergHistoricalLoader(_master, _historicalTimeSeriesProvider, idProvider);
-    tool.setPositionMaster(_positionMaster);
     _tool = tool;
     _loader = new BloombergHistoricalTimeSeriesLoader(_master, _historicalTimeSeriesProvider, idProvider);
-  }
-
-  private PositionMaster setUpPositionMaster() {
-    DbConnector dbConnector = getDbConnector();
-    DbPositionMaster positionMaster = new DbPositionMaster(dbConnector);
-    return positionMaster;
   }
 
   private HistoricalTimeSeriesMaster setUpTimeSeriesMaster(DataSourceTransactionManager transactionManager) {
@@ -146,7 +123,6 @@ public class BloombergHistoricalLoaderTest extends DbTest {
   @Test
   public void updateDB() throws Exception {
     List<Pair<HistoricalTimeSeriesInfoDocument, HistoricalTimeSeries>> timeseriesDocs = addAndTestTimeSeries();
-    _tool.setUpdateDb(true);
     _tool.run();
     LocalDate previousWeekDay = DateUtils.previousWeekDay();
     for (Pair<HistoricalTimeSeriesInfoDocument, HistoricalTimeSeries> original : timeseriesDocs) {
@@ -170,7 +146,6 @@ public class BloombergHistoricalLoaderTest extends DbTest {
   @Test
   public void loadGivenDates() throws Exception {
     List<Pair<HistoricalTimeSeriesInfoDocument, HistoricalTimeSeries>> timeseriesDocs = addAndTestTimeSeries();
-    _tool.setUpdateDb(true);
     LocalDate previousWeekDay = DateUtils.previousWeekDay();
     _tool.setStartDate(previousWeekDay);
     LocalDate endDate = previousWeekDay.plusDays(7);
@@ -210,53 +185,6 @@ public class BloombergHistoricalLoaderTest extends DbTest {
         assertTrue(!original.getSecond().getTimeSeries().equals(latestHTS.getTimeSeries()));
       } else {
         assertEquals(original.getSecond().getTimeSeries(), latestHTS.getTimeSeries());
-      }
-    }
-  }
-
-  @Test
-  public void loadInputFile() throws Exception {
-    String inputFile = BloombergHistoricalLoaderTest.class.getResource(SECURITIES_FILE_NAME).getPath();
-    _tool.setFiles(Collections.singletonList(inputFile));
-    String[] dataFields = new String[] {"PX_LAST", "VOLUME"};
-    _tool.setDataFields(Arrays.asList(dataFields));
-    _tool.setDataProviders(Collections.singleton("CMPL"));
-    LocalDate end = DateUtils.previousWeekDay();
-    LocalDate start = end.minusDays(7);
-    //set dates
-    _tool.setStartDate(start);
-    _tool.setEndDate(end);
-    _tool.run();
-
-    List<String> readLines = FileUtils.readLines(new File(inputFile));
-    List<ExternalId> identifiers = new ArrayList<ExternalId>();
-    for (String line : readLines) {
-      if (_tool.isBbgUniqueId()) {
-        identifiers.add(ExternalSchemes.bloombergBuidSecurityId(line.trim()));
-      } else {
-        identifiers.add(ExternalSchemes.bloombergTickerSecurityId(line.trim()));
-      }
-    }
-
-    for (String dataProvider : _tool.getDataProviders()) {
-      for (String dataField : _tool.getDataFields()) {
-        for (ExternalId identifier : identifiers) {
-          HistoricalTimeSeriesInfoSearchRequest request = new HistoricalTimeSeriesInfoSearchRequest(identifier);
-          request.setDataField(dataField);
-          request.setDataProvider(dataProvider);
-          request.setDataSource(BLOOMBERG_DATA_SOURCE_NAME);
-          HistoricalTimeSeriesInfoSearchResult searchResult = _master.search(request);
-          assertNotNull(searchResult);
-          List<HistoricalTimeSeriesInfoDocument> documents = searchResult.getDocuments();
-          assertNotNull(documents);
-          assertTrue(documents.size() == 1);
-          HistoricalTimeSeries hts = _master.getTimeSeries(documents.get(0).getInfo().getTimeSeriesObjectId(), VersionCorrection.LATEST, 
-              HistoricalTimeSeriesGetFilter.ofRange(start, end));
-          assertNotNull(hts);
-          assertNotNull(hts.getTimeSeries());
-          assertEquals(start, hts.getTimeSeries().getEarliestTime());
-          assertEquals(end, hts.getTimeSeries().getLatestTime());
-        }
       }
     }
   }

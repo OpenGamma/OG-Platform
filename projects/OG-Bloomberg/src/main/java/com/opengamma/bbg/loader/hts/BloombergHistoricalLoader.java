@@ -6,13 +6,7 @@
 package com.opengamma.bbg.loader.hts;
 
 import static com.opengamma.bbg.BloombergConstants.BLOOMBERG_DATA_SOURCE_NAME;
-import static com.opengamma.bbg.BloombergConstants.DEFAULT_DATA_PROVIDER;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -20,8 +14,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.slf4j.Logger;
@@ -29,19 +21,13 @@ import org.slf4j.LoggerFactory;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Month;
 
-import au.com.bytecode.opencsv.CSVReader;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.BloombergConstants;
-import com.opengamma.bbg.loader.BloombergHistoricalTimeSeriesLoader;
 import com.opengamma.bbg.util.BloombergDataUtils;
-import com.opengamma.bbg.util.BloombergDomainIdentifierResolver;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesConstants;
-import com.opengamma.core.id.ExternalSchemes;
-import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalIdWithDates;
 import com.opengamma.id.ObjectId;
@@ -53,17 +39,15 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchR
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
 import com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesInfoSearchIterator;
-import com.opengamma.master.position.PositionMaster;
 import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProvider;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.MapUtils;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.LocalDateRange;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
-import com.opengamma.util.tuple.Pair;
 
 /**
- * Loader that manages the process of loading time-series information from Bloomberg.
+ * Updates the Bloomberg timeseries for a given timeSeries master or database
  * <p>
  * This loads missing historical time-series data from Bloomberg.
  */
@@ -76,19 +60,11 @@ public class BloombergHistoricalLoader {
 
   private final HistoricalTimeSeriesMaster _timeSeriesMaster;
   private final HistoricalTimeSeriesProvider _historicalTimeSeriesProvider;
-  private final BloombergHistoricalTimeSeriesLoader _loader;
-  private PositionMaster _positionMaster;
 
-  private boolean _updateDb;
   private LocalDate _startDate;
   private LocalDate _endDate;
-  private Set<String> _files = new HashSet<String>();
-  private Set<String> _dataProviders = new HashSet<String>();
-  private Set<String> _dataFields = new HashSet<String>();
-  private boolean _loadPositionMaster;
   private boolean _reload;
-  private boolean _bbgUniqueId;
-  private boolean _isCsv;
+
 
   public BloombergHistoricalLoader(final HistoricalTimeSeriesMaster htsMaster, 
       final HistoricalTimeSeriesProvider underlyingHtsProvider, 
@@ -98,115 +74,6 @@ public class BloombergHistoricalLoader {
     ArgumentChecker.notNull(identifierProvider, "identifierProvider");
     _timeSeriesMaster = htsMaster;
     _historicalTimeSeriesProvider = underlyingHtsProvider;
-    _loader = new BloombergHistoricalTimeSeriesLoader(htsMaster, underlyingHtsProvider, identifierProvider);
-  }
-
-  /**
-   * Gets the positionMaster field.
-   * @return the positionMaster
-   */
-  public PositionMaster getPositionMaster() {
-    return _positionMaster;
-  }
-
-  /**
-   * Sets the positionMaster field.
-   * @param positionMaster  the positionMaster
-   */
-  public void setPositionMaster(PositionMaster positionMaster) {
-    _positionMaster = positionMaster;
-  }
-
-  /**
-   * Gets the bbgUniqueId field.
-   * @return the bbgUniqueId
-   */
-  public boolean isBbgUniqueId() {
-    return _bbgUniqueId;
-  }
-
-  /**
-   * Sets the bbgUniqueId field.
-   * @param bbgUniqueId  the bbgUniqueId
-   */
-  public void setBbgUniqueId(boolean bbgUniqueId) {
-    _bbgUniqueId = bbgUniqueId;
-  }
-
-  /**
-   * Gets the csv field.
-   * @return the csv
-   */
-  public boolean isCsv() {
-    return _isCsv;
-  }
-
-  /**
-   * Sets whether the files are in CSV format including the data provider for each identifier as a second column.
-   * 
-   * @param isCsv  <code>true</code> if the files are in CSV format
-   */
-  public void setCsv(boolean isCsv) {
-    _isCsv = isCsv;
-  }
-
-  /**
-   * Sets the dataProviders field.
-   * @param dataProviders  the dataProviders
-   */
-  public void setDataProviders(Collection<String> dataProviders) {
-    ArgumentChecker.notNull(dataProviders, "dataProviders");
-    _dataProviders = new HashSet<String>(dataProviders);
-  }
-
-  /**
-   * Gets the dataProviders field.
-   * @return the dataProviders
-   */
-  public Set<String> getDataProviders() {
-    return Collections.unmodifiableSet(_dataProviders);
-  }
-
-  /**
-   * Gets the dataFields field.
-   * @return the dataFields
-   */
-  public Set<String> getDataFields() {
-    return Collections.unmodifiableSet(_dataFields);
-  }
-
-  /**
-   * Sets the dataFields field.
-   * @param dataFields  the dataFields
-   */
-  public void setDataFields(Collection<String> dataFields) {
-    ArgumentChecker.notNull(dataFields, "dataFields");
-    _dataFields = new HashSet<String>(dataFields);
-  }
-
-  /**
-   * Sets the files field.
-   * @param files  the files
-   */
-  public void setFiles(Collection<String> files) {
-    ArgumentChecker.notNull(files, "files");
-    _files = new HashSet<String>(files);
-  }
-  
-  /**
-   * Sets the loadPositionMaster field.
-   * @param loadPositionMaster  the loadPositionMaster
-   */
-  public void setLoadPositionMaster(boolean loadPositionMaster) {
-    _loadPositionMaster = loadPositionMaster;
-  }
-  
-  /**
-   * Sets the updateDb field.
-   * @param updateDb  the updateDb
-   */
-  public void setUpdateDb(boolean updateDb) {
-    _updateDb = updateDb;
   }
   
   /**
@@ -234,160 +101,15 @@ public class BloombergHistoricalLoader {
   }
 
   public void run() {
-    //update/reload current timeseries in datastore
-    if (_updateDb || _reload) {
-      if (_reload) {
-        _startDate = DEFAULT_START_DATE;
-        _endDate = LocalDate.MAX;
-      }
-      updateTimeSeriesInDB();
-      return;
+    if (_reload) {
+      _startDate = DEFAULT_START_DATE;
+      _endDate = LocalDate.MAX;
     }
-    //load timeseries from input files
-    if (!_files.isEmpty()) {
-      if (isCsv()) {
-        processCsvFiles();
-      } else {
-        processBasicFiles();
-      }
-      return;
-    }
-    //load missing data from position master
-    if (_loadPositionMaster) {
-      processMissingDataInPositionMaster();
-      return;
-    }
-    
+    updateTimeSeries();
   }
   
-  private void processMissingDataInPositionMaster() {
-    Set<ExternalId> preferredIdentifiers = new HashSet<ExternalId>();
-    for (ExternalIdBundle identifierBundle : BloombergDataUtils.getCurrentIdentifiers(_positionMaster)) {
-      ExternalId preferredIdentifier = BloombergDomainIdentifierResolver.resolvePreferredIdentifier(identifierBundle);
-      if (preferredIdentifier != null) {
-        preferredIdentifiers.add(preferredIdentifier);
-      } else {
-        s_logger.warn("No preferred identifier for {}", identifierBundle);
-      }      
-    }
-    load(preferredIdentifiers);
-  }
-
-  private void processBasicFiles() {
-    Set<ExternalId> identifiers = readBasicFiles();
-    load(identifiers);
-  }
-  
-  private void load(Set<ExternalId> identifiers) {
-    LocalDate startDate = resolveStartDate();
-    LocalDate endDate = resolveEndDate();
-    if (_dataProviders.isEmpty()) {
-      _dataProviders.add(DEFAULT_DATA_PROVIDER);
-    }
-    for (String dataProvider : _dataProviders) {
-      for (String dataField : _dataFields) {
-        _loader.loadTimeSeries(identifiers, dataProvider, dataField, startDate, endDate);
-      }
-    }
-  }
-
-  private LocalDate resolveEndDate() {
-    return _endDate == null ? LocalDate.MAX : _endDate;
-  }
-
-  private LocalDate resolveStartDate() {
-    return _startDate == null ? DEFAULT_START_DATE : _startDate;
-  }
-
-  private Set<ExternalId> readBasicFiles() {
-    Set<String> securities = new HashSet<String>();
-    if (_files != null) {
-      for (String file : _files) {
-        try {
-          securities.addAll(FileUtils.readLines(new File(file)));
-        } catch (IOException e) {
-          s_logger.warn("Problem reading from input file={}", file);
-          throw new OpenGammaRuntimeException("Problem reading from " + file, e);
-        }
-      }
-    }
-    Set<ExternalId> result = new HashSet<ExternalId>();
-    for (String secDes : securities) {
-      if (!StringUtils.isBlank(secDes)) {
-        if (_bbgUniqueId) {
-          result.add(ExternalSchemes.bloombergBuidSecurityId(secDes.trim()));
-        } else {
-          result.add(ExternalSchemes.bloombergTickerSecurityId(secDes.trim()));
-        }
-      }
-    }
-    return result;
-  }
-
-  private void processCsvFiles() {
-    LocalDate startDate = resolveStartDate();
-    LocalDate endDate = resolveEndDate();
-    Map<Pair<String, String>, Set<ExternalId>> providerFieldRequestsMap = readCsvFiles();
-    for (Entry<Pair<String, String>, Set<ExternalId>> providerFieldRequests : providerFieldRequestsMap.entrySet()) {
-      String dataProvider = providerFieldRequests.getKey().getFirst();
-      String dataField = providerFieldRequests.getKey().getSecond();
-      Set<ExternalId> identifiers = providerFieldRequests.getValue();
-      _loader.loadTimeSeries(identifiers, dataProvider, dataField, startDate, endDate);
-    }
-  }
-  
-  private Map<Pair<String, String>, Set<ExternalId>> readCsvFiles() {
-    Map<Pair<String, String>, Set<ExternalId>> result = new HashMap<Pair<String, String>, Set<ExternalId>>();
-    if (_files != null) {
-      int total = 0;
-      for (String file : _files) {
-        try {
-          CSVReader reader = new CSVReader(new FileReader(file));
-          String[] line;
-          while ((line = reader.readNext()) != null) {
-            if (line.length != 4) {
-              throw new OpenGammaRuntimeException("Expected 4 columns in CSV file '" + file + "', found a line with " + line.length);
-            }
-            String provider = line[0];
-            String field = line[1];
-            String idScheme = line[2];
-            String idValue = line[3];
-            if (StringUtils.isBlank(provider)) {
-              // Perfectly fine - we'll resolve the provider later
-              provider = DEFAULT_DATA_PROVIDER;
-            }
-            if (StringUtils.isBlank(field)) {
-              s_logger.warn("Blank field value found in CSV file {} for identifier {}. This line will be ignored.", file, idValue);
-              continue;
-            }
-            if (StringUtils.isBlank(idScheme)) {
-              idScheme = _bbgUniqueId ? ExternalSchemes.BLOOMBERG_BUID.getName() : ExternalSchemes.BLOOMBERG_TICKER.getName();
-            }
-            if (StringUtils.isBlank(idValue)) {
-              s_logger.warn("Blank identifier value found in CSV file {}. This line will be ignored.", file);
-              continue;
-            }
-            Pair<String, String> providerFieldPair = Pair.of(provider, field);
-            Set<ExternalId> providerRequests = result.get(providerFieldPair);
-            if (providerRequests == null) {
-              providerRequests = new HashSet<ExternalId>();
-              result.put(providerFieldPair, providerRequests);
-            }
-            providerRequests.add(ExternalId.of(idScheme, idValue));
-            total++;
-          }
-          reader.close();
-        } catch (Exception e) {
-          throw new OpenGammaRuntimeException("Problem reading from input file '" + file + "'", e);
-        }
-      }
-      System.out.println(total);
-    }
-    return result;
-  }
-
   //-------------------------------------------------------------------------
-  private void updateTimeSeriesInDB() {
+  private void updateTimeSeries() {
     // load the info documents for all Bloomberg series that can be updated
     s_logger.info("Loading all time series information...");
     List<HistoricalTimeSeriesInfoDocument> documents = getCurrentTimeSeriesDocuments();
@@ -445,11 +167,15 @@ public class BloombergHistoricalLoader {
     }
     
     // select end date
-    LocalDate endDate = (_endDate == null ? LocalDate.MAX : _endDate);
+    LocalDate endDate = resolveEndDate();
     
     s_logger.info("Updating {} time series to {}", toUpdate, endDate);
     // load from Bloomberg and store in database
     getAndUpdateHistoricalData(bbgTSRequest, metaDataKeyMap, endDate);
+  }
+
+  private LocalDate resolveEndDate() {
+    return _endDate == null ? LocalDate.MAX : _endDate;
   }
 
   private LocalDate getLatestDate(UniqueId htsId) {
@@ -535,13 +261,13 @@ public class BloombergHistoricalLoader {
           if (bbgLoadedTS.size() < identifiers.size()) {
             s_logger.error("Failed to load time series for {}", Sets.difference(identifiers, bbgLoadedTS.keySet()));
           }
-          storeUpdatedSeriesInDb(bbgLoadedTS, metaDataKeyMap, dataProvider, dataField);
+          updateTimeSeriesMaster(bbgLoadedTS, metaDataKeyMap, dataProvider, dataField);
         }
       }
     }
   }
 
-  private void storeUpdatedSeriesInDb(Map<ExternalIdBundle, LocalDateDoubleTimeSeries> bbgLoadedTS, Map<MetaDataKey, ObjectId> metaDataKeyMap, String dataProvider, String dataField) {
+  private void updateTimeSeriesMaster(Map<ExternalIdBundle, LocalDateDoubleTimeSeries> bbgLoadedTS, Map<MetaDataKey, ObjectId> metaDataKeyMap, String dataProvider, String dataField) {
     for (Entry<ExternalIdBundle, LocalDateDoubleTimeSeries> identifierTS : bbgLoadedTS.entrySet()) {
       // ensure data points are after the last stored data point
       LocalDateDoubleTimeSeries timeSeries = identifierTS.getValue();
