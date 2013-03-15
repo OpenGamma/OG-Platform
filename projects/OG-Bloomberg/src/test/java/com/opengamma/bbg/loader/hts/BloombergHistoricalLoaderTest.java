@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.bbg.loader;
+package com.opengamma.bbg.loader.hts;
 
 import static com.opengamma.bbg.BloombergConstants.BLOOMBERG_DATA_SOURCE_NAME;
 import static org.testng.AssertJUnit.assertEquals;
@@ -37,6 +37,8 @@ import com.google.common.collect.Sets;
 import com.opengamma.bbg.BloombergConnector;
 import com.opengamma.bbg.BloombergConstants;
 import com.opengamma.bbg.BloombergIdentifierProvider;
+import com.opengamma.bbg.loader.BloombergHistoricalTimeSeriesLoader;
+import com.opengamma.bbg.loader.hts.BloombergHistoricalLoader;
 import com.opengamma.bbg.referencedata.impl.BloombergReferenceDataProvider;
 import com.opengamma.bbg.test.BloombergTestUtils;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;

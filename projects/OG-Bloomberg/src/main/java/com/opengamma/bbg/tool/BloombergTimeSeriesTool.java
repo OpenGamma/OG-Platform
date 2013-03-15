@@ -15,7 +15,7 @@ import org.threeten.bp.LocalDate;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.BloombergIdentifierProvider;
-import com.opengamma.bbg.loader.BloombergHistoricalLoader;
+import com.opengamma.bbg.loader.hts.BloombergHistoricalLoader;
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.util.generate.scripts.Scriptable;
@@ -82,7 +82,6 @@ public class BloombergTimeSeriesTool extends AbstractTool<ToolContext> {
     configureOptions(getCommandLine(), loader);
     loader.setUpdateDb(true);
     loader.setReload(getCommandLine().hasOption("reload"));
-    loader.setEndDate(LocalDate.MAX);
     loader.run();
   }
 

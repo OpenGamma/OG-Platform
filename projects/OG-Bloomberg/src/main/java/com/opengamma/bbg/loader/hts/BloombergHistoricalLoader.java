@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.bbg.loader;
+package com.opengamma.bbg.loader.hts;
 
 import static com.opengamma.bbg.BloombergConstants.BLOOMBERG_DATA_SOURCE_NAME;
 import static com.opengamma.bbg.BloombergConstants.DEFAULT_DATA_PROVIDER;
@@ -36,6 +36,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.BloombergConstants;
+import com.opengamma.bbg.loader.BloombergHistoricalTimeSeriesLoader;
 import com.opengamma.bbg.util.BloombergDataUtils;
 import com.opengamma.bbg.util.BloombergDomainIdentifierResolver;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesConstants;
