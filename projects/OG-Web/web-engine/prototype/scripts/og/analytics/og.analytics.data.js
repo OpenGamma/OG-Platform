@@ -231,7 +231,8 @@ $.register_module({
             data.on('fatal', function (message) {data.kill(message);});
             if (data.parent) { // use parent's connection information
                 if (data.parent.connection) parent_meta_handler(null, data.parent.connection);
-                data.parent.on('meta', parent_meta_handler);
+                data.parent.on('meta', parent_meta_handler)
+                    .on('fatal', function (message) {fire('fatal', data.prefix + ' caught fatal error: ' + message);});
             } else {
                 og.api.rest.on('disconnect', disconnect_handler).on('reconnect', reconnect_handler);
                 setTimeout(initialize); // allow events to be attached
