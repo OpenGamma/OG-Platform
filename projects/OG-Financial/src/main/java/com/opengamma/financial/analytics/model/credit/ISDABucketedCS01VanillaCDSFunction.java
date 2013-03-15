@@ -117,7 +117,7 @@ public class ISDABucketedCS01VanillaCDSFunction extends AbstractFunction.NonComp
     final ZonedDateTime now = ZonedDateTime.now(executionContext.getValuationClock());
 
     final LegacyVanillaCDSSecurity security = (LegacyVanillaCDSSecurity) target.getSecurity();
-    final LegacyVanillaCreditDefaultSwapDefinition cds = _converter.visitLegacyVanillaCDSSecurity(security);
+    LegacyVanillaCreditDefaultSwapDefinition cds = _converter.visitLegacyVanillaCDSSecurity(security);
     final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
 
     // get the market spread bump to apply to all tenors
@@ -132,6 +132,8 @@ public class ISDABucketedCS01VanillaCDSFunction extends AbstractFunction.NonComp
     }
     final ISDADateCurve isdaCurve = (ISDADateCurve) isdaObject;
 
+    cds = modifyIfNonIMM(now, cds);
+
     // Compute the bucketed CS01 for this CDS
     double[] bucketedCS01;
     try {
@@ -145,6 +147,19 @@ public class ISDABucketedCS01VanillaCDSFunction extends AbstractFunction.NonComp
     final ValueProperties properties = desiredValue.getConstraints().copy().get();
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.BUCKETED_CS01, target.toSpecification(), properties);
     return Collections.singleton(new ComputedValue(spec, bucketedCS01));
+  }
+
+  /**
+   * @param now
+   * @param cds
+   * @param spreadCurve
+   * @return
+   */
+  private LegacyVanillaCreditDefaultSwapDefinition modifyIfNonIMM(final ZonedDateTime now, LegacyVanillaCreditDefaultSwapDefinition cds) {
+    if (!isIMMDate(cds.getMaturityDate())) {
+      cds = cds.withStartDate(now);
+    }
+    return cds;
   }
 
   /**
