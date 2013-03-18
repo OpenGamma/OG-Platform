@@ -24,11 +24,13 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.master.region.ManageableRegion;
 import com.opengamma.master.region.RegionDocument;
 import com.opengamma.master.region.RegionMaster;
+import com.opengamma.util.test.TestGroup;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**
  * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class DataRegionMasterResourceTest {
 
   private static final UniqueId UID = UniqueId.of("Test", "A", "B");

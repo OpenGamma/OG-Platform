@@ -34,13 +34,14 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.rest.UniformInterfaceException404NotFound;
+import com.opengamma.util.test.TestGroup;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.UniformInterface;
 
 /**
  * Tests the {@link RemoteHistoricalTimeSeriesResolver} and {@link DataHistoricalTimeSeriesResolverResource} classes.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class RemoteHistoricalTimeSeriesResolverTest {
 
   private static class MockResolver implements HistoricalTimeSeriesResolver {

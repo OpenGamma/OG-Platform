@@ -30,11 +30,12 @@ import com.opengamma.master.region.RegionSearchResult;
 import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.paging.PagingRequest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test {@link MasterRegionSource}.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class MasterRegionSourceTest {
 
   private static final ObjectId OID = ObjectId.of("A", "B");

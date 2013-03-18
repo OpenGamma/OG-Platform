@@ -28,11 +28,12 @@ import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test {@link MasterSecuritySource}.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class MasterSecuritySourceTest {
 
   private static final ObjectId OID = ObjectId.of("A", "B");

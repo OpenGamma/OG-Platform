@@ -10,11 +10,12 @@ import org.testng.annotations.Test;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test Fudge encoding.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class ManageableSecurityFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
 
   public void test_basic() {

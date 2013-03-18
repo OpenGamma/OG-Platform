@@ -27,11 +27,12 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdSupplier;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.position.impl.InMemoryPositionMaster;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests {@link InMemoryPositionMaster}.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class InMemoryPositionMasterTest {
 
   private static final ExternalId SEC1 = ExternalId.of ("Test", "sec1");
