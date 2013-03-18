@@ -19,10 +19,12 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.config.ConfigMetaDataRequest;
 import com.opengamma.master.config.ConfigMetaDataResult;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test metaData() in DbConfigMaster
  */
+@Test(groups = TestGroup.UNIT_DB)
 public class QueryConfigDbConfigMasterWorkerMetaDataTest extends AbstractDbConfigMasterWorkerTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(QueryConfigDbConfigMasterWorkerMetaDataTest.class);

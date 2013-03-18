@@ -23,10 +23,12 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests DbHistoricalTimeSeriesMaster.
  */
+@Test(groups = TestGroup.UNIT_DB)
 public class DbHistoricalTimeSeriesMasterWorkerAddTest extends AbstractDbHistoricalTimeSeriesMasterWorkerTest {
   // superclass sets up dummy database
 

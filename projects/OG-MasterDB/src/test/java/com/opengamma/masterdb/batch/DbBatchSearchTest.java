@@ -22,11 +22,13 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.paging.Paging;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Tests DbBatchGetTest.
+ * Test.
  */
+@Test(groups = TestGroup.UNIT_DB)
 public class DbBatchSearchTest extends AbstractDbBatchMasterTest {
   // superclass sets up dummy database
 

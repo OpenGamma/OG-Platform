@@ -33,10 +33,12 @@ import com.opengamma.master.exchange.ExchangeSearchRequest;
 import com.opengamma.master.exchange.ExchangeSearchResult;
 import com.opengamma.master.exchange.ManageableExchange;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests ModifyExchangeDbExchangeMasterWorker.
  */
+@Test(groups = TestGroup.UNIT_DB)
 public class ModifyExchangeDbExchangeMasterWorkerReplaceVersionTest extends AbstractDbExchangeMasterWorkerTest {
   // superclass sets up dummy database
 

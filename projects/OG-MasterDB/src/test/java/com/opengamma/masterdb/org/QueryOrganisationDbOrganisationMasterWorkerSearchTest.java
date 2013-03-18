@@ -14,17 +14,18 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
-import com.opengamma.id.ExternalIdSearch;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.orgs.OrganisationSearchRequest;
 import com.opengamma.master.orgs.OrganisationSearchResult;
 import com.opengamma.util.paging.PagingRequest;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests QueryOrganisationDbOrganisationMasterWorker.
  */
+@Test(groups = TestGroup.UNIT_DB)
 public class QueryOrganisationDbOrganisationMasterWorkerSearchTest extends AbstractDbOrganisationMasterWorkerTest {
   // superclass sets up dummy database
 

@@ -23,10 +23,12 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test DbConfigMaster.
  */
+@Test(groups = TestGroup.UNIT_DB)
 public class DbConfigMasterTest extends DbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DbConfigMasterTest.class);

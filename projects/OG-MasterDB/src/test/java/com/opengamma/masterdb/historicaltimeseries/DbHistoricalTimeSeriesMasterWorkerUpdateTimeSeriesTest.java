@@ -19,12 +19,14 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesGetFilter;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeries;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * Tests DbHistoricalTimeSeriesMaster.
  */
+@Test(groups = TestGroup.UNIT_DB)
 public class DbHistoricalTimeSeriesMasterWorkerUpdateTimeSeriesTest extends AbstractDbHistoricalTimeSeriesMasterWorkerTest {
   // superclass sets up dummy database
 

@@ -19,10 +19,12 @@ import com.opengamma.master.config.ConfigHistoryRequest;
 import com.opengamma.master.config.ConfigHistoryResult;
 import com.opengamma.util.paging.PagingRequest;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests QueryConfigDbConfigMasterWorker.
  */
+@Test(groups = TestGroup.UNIT_DB)
 public class QueryConfigDbConfigMasterWorkerHistoryTest extends AbstractDbConfigMasterWorkerTest {
   // superclass sets up dummy database
 

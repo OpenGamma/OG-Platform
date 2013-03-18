@@ -21,10 +21,12 @@ import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityHistoryRequest;
 import com.opengamma.master.security.SecurityHistoryResult;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests ModifySecurityDbSecurityMasterWorker.
  */
+@Test(groups = TestGroup.UNIT_DB)
 public class ModifySecurityDbSecurityMasterWorkerCorrectTest extends AbstractDbSecurityMasterWorkerTest {
   // superclass sets up dummy database
 

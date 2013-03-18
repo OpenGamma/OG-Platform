@@ -16,10 +16,12 @@ import org.testng.annotations.Test;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.ObjectId;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * Tests DbBatchGetTest.
+ * Test.
  */
+@Test(groups = TestGroup.UNIT_DB)
 public class DbBatchGetTest extends AbstractDbBatchMasterTest {
   // superclass sets up dummy database
 
