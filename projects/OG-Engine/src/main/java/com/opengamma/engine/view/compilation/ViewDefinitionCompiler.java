@@ -151,6 +151,8 @@ public final class ViewDefinitionCompiler {
       if (portfolio != null) {
         validIdentifiers.add(portfolio.getUniqueId());
       }
+      // TODO: The resolution map must contain an entry for all structural nodes; just in case there are no nodes in the graph form them
+      // E.g. if TRADE level values are on, then it must contain all POSITION oid->uid references regardless of whether there are position level aggregates
       for (DependencyGraph graph : graphs) {
         for (final ComputationTargetSpecification target : graph.getAllComputationTargets()) {
           validIdentifiers.add(target.getUniqueId());
