@@ -18,7 +18,6 @@ import java.util.Map;
 import java.util.Random;
 
 import org.json.JSONArray;
-import org.junit.Ignore;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Lists;
@@ -78,7 +77,6 @@ public class CompressorTest {
     return array;
   }
 
-  @Ignore
   public static void main(String[] args) throws IOException {
     InputStream source1 = new ByteArrayInputStream(new JSONArray(randomObjects()).toString().getBytes());
     ByteArrayOutputStream sink1 = new ByteArrayOutputStream();
