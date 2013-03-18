@@ -18,10 +18,12 @@ import com.opengamma.integration.tool.IntegrationToolContext;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.portfolio.PortfolioSearchRequest;
 import com.opengamma.master.portfolio.PortfolioSearchResult;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test example database population
  */
+@Test(groups = TestGroup.INTEGRATION)
 public class ExampleDatabasePopulatorTest {
 
   private static final String CONFIG_RESOURCE_LOCATION = "classpath:toolcontext/toolcontext-bloombergexample.properties";
