@@ -14,6 +14,10 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
+/**
+ * Test.
+ */
+@Test(groups = "unit")
 public class GridCellTest {
 
   @Test

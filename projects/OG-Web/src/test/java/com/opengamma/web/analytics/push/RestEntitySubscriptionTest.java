@@ -23,8 +23,9 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.util.tuple.Pair;
 
 /**
- *
+ * Test.
  */
+@Test(groups = "unit")
 public class RestEntitySubscriptionTest {
 
   private final String _uidStr = "Tst~101";

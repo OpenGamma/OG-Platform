@@ -52,8 +52,9 @@ import com.opengamma.master.security.impl.InMemorySecurityMaster;
 import com.opengamma.util.money.Currency;
 
 /**
- *
+ * Test.
  */
+@Test(groups = "unit")
 public class OtcTradeBuilderTest {
 
   private static final ImmutableMap<String,String> ATTRIBUTES = ImmutableMap.of("attr1", "val1", "attr2", "val2");

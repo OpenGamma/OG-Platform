@@ -21,6 +21,10 @@ import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.UserMarketDataSpecification;
 import com.opengamma.id.UniqueId;
 
+/**
+ * Test.
+ */
+@Test(groups = "unit")
 public class MarketDataSpecificationJsonReaderTest {
 
   private static final String LIVE_JSON = "{\"marketDataType\": \"live\", \"source\": \"Bloomberg\"}";

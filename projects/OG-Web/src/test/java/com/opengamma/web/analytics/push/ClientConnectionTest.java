@@ -27,7 +27,7 @@ import com.opengamma.web.analytics.rest.MasterType;
  * is no need to fire any more events for that URL until the client resubscribes.  So when any event fires for
  * a URL all other subscriptions for that URL should be cleared.
  */
-@SuppressWarnings("unchecked")
+@Test(groups = "unit")
 public class ClientConnectionTest {
 
   private static final String USER_ID = "USER_ID";

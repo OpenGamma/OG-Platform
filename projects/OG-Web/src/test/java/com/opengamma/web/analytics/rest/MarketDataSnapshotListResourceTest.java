@@ -34,6 +34,10 @@ import com.opengamma.master.marketdatasnapshot.impl.InMemorySnapshotMaster;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.analytics.push.WebPushTestUtils;
 
+/**
+ * Test.
+ */
+@Test(groups = "unit")
 public class MarketDataSnapshotListResourceTest {
 
   private static MarketDataSnapshotDocument createSnapshot(String basisViewName, String name, UniqueId uid) {

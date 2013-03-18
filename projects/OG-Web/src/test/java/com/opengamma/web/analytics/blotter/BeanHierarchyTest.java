@@ -17,8 +17,9 @@ import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.master.security.ManageableSecurity;
 
 /**
- *
+ * Test.
  */
+@Test(groups = "unit")
 public class BeanHierarchyTest {
 
   @Test

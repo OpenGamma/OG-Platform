@@ -17,6 +17,10 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.analytics.rest.AggregatorNamesResource;
 
+/**
+ * Test.
+ */
+@Test(groups = "unit")
 public class AggregatorNamesResourceTest {
 
   private static final String AGGREGATOR1 = "aggregator1";

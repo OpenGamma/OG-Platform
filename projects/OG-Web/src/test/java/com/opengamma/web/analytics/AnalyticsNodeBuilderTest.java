@@ -24,6 +24,7 @@ import com.opengamma.util.money.Currency;
 /**
  * Tests that {@link AnalyticsNode.PortfolioNodeBuilder} creates nodes that match a portfolio structure.
  */
+@Test(groups = "unit")
 public class AnalyticsNodeBuilderTest {
 
   @Test

@@ -20,7 +20,7 @@ import org.testng.annotations.Test;
 /**
  * Test {@link WebSecuritiesResource}.
  */
-@Test
+@Test(groups = "unit")
 public class WebSecuritiesResourceTest extends AbstractWebSecurityResourceTestCase {
 
   public void testGetMetaDataJSON() throws Exception {

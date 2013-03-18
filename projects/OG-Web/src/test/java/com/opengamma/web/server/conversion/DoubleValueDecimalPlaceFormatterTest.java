@@ -16,6 +16,7 @@ import org.testng.annotations.Test;
 /**
  * Tests {@link DoubleValueDecimalPlaceFormatter}
  */
+@Test(groups = "unit")
 public class DoubleValueDecimalPlaceFormatterTest {
 
   @Test

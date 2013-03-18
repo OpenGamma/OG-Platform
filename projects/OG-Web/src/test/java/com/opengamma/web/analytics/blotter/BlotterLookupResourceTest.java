@@ -16,8 +16,9 @@ import com.opengamma.financial.conversion.JodaBeanConverters;
 import com.opengamma.web.analytics.JsonTestUtils;
 
 /**
- *
+ * Test.
  */
+@Test(groups = "unit")
 public class BlotterLookupResourceTest {
 
   private final BlotterLookupResource _resource = new BlotterLookupResource(BlotterUtils.getStringConvert());

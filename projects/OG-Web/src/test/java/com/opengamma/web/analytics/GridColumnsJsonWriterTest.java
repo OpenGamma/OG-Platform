@@ -14,6 +14,10 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.web.analytics.formatting.ResultsFormatter;
 
+/**
+ * Test.
+ */
+@Test(groups = "unit")
 public class GridColumnsJsonWriterTest {
 
   @Test

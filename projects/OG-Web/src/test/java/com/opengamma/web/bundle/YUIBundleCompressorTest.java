@@ -22,7 +22,7 @@ import org.testng.annotations.Test;
 /**
  * Test YUI Compression.
  */
-@Test
+@Test(groups = "unit")
 public class YUIBundleCompressorTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(YUIBundleCompressorTest.class);

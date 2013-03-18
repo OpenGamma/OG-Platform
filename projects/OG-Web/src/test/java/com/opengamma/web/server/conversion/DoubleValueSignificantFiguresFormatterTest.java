@@ -16,6 +16,7 @@ import org.testng.annotations.Test;
 /**
  * Tests {@link DoubleValueSignificantFiguresFormatter}
  */
+@Test(groups = "unit")
 public class DoubleValueSignificantFiguresFormatterTest {
 
   @Test

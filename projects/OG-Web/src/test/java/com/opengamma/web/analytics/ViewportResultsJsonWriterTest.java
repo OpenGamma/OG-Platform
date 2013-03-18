@@ -26,6 +26,10 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.web.analytics.formatting.ResultsFormatter;
 import com.opengamma.web.analytics.formatting.TypeFormatter;
 
+/**
+ * Test.
+ */
+@Test(groups = "unit")
 public class ViewportResultsJsonWriterTest {
 
   private static final Duration DURATION = Duration.ofMillis(1234);

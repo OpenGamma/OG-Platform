@@ -26,8 +26,9 @@ import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.master.security.ManageableSecurity;
 
 /**
- *
+ * Test.
  */
+@Test(groups = "unit")
 @SuppressWarnings("unchecked")
 public class BeanBuildingVisitorTest {
 

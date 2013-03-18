@@ -32,6 +32,7 @@ import com.opengamma.util.money.Currency;
 /**
  * Test {@link WebPositionResource}.
  */
+@Test(groups = "unit")
 public class WebPositionResourceTest extends AbstractWebPositionResourceTestCase {
 
   @Test

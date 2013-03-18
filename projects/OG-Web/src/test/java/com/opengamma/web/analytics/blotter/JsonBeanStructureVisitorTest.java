@@ -20,8 +20,9 @@ import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
 
 /**
- *
+ * Test.
  */
+@Test(groups = "unit")
 public class JsonBeanStructureVisitorTest {
 
   static {

@@ -22,7 +22,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Tests pushing results to a long polling HTTP connection.
  */
-@Test
+@Test(groups = "unit")
 public class LongPollingTest {
 
   public static final String CLIENT_ID = "CLIENT_ID";

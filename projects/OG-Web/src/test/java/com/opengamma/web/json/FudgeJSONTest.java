@@ -33,6 +33,7 @@ import org.testng.annotations.Test;
 /**
  * Test Fudge JSON.
  */
+@Test(groups = "unit")
 public class FudgeJSONTest {
   
   private final FudgeContext _fudgeContext;

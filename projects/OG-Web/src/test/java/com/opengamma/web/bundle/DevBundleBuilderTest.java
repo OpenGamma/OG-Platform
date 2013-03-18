@@ -17,7 +17,7 @@ import org.testng.annotations.Test;
 /**
  * Test DevBundleBuilder.
  */
-@Test
+@Test(groups = "unit")
 public class DevBundleBuilderTest {
 
   public void test_builder() throws Exception {
