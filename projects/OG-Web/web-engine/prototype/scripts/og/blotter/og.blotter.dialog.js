@@ -66,7 +66,6 @@ $.register_module({
                         'Save as new' : function () {form_wrapper.submit_new(validation_handler);},
                         'Cancel': function () {$(this).dialog('close');}
                     };
-                console.log(config);
                 if (!config.save_as) delete buttons['Save as new'];
                 blotter = new og.common.util.ui.dialog({
                     type: 'input', title: title, width: 530, height: 700, custom: $selector,

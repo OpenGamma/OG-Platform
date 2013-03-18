@@ -22,7 +22,7 @@ $.register_module({
                         new og.blotter.Dialog({
                             details: data, portfolio:{name: id, id: id}, 
                             handler: function (data) {return og.api.rest.blotter.positions.put(data);},
-                            complete : complete_handler, save_as: true 
+                            complete : complete_handler
                         });
                     });
                 };
