@@ -11,11 +11,12 @@ import java.util.List;
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.timeseries.ObjectTimeSeries;
 import com.opengamma.util.timeseries.localdate.ListLocalDateObjectTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateObjectTimeSeries;
 
-@Test(groups = "unit")
+@Test(groups = TestGroup.UNIT)
 public class ListLocalDateObjectTimeSeriesTest extends LocalDateObjectTimeSeriesTest {
 
   @Override

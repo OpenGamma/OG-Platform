@@ -11,10 +11,12 @@ import java.math.RoundingMode;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Test.
  */
-@Test(groups = "unit")
+@Test(groups = TestGroup.UNIT)
 public class EnumUtilsTest {
 
   public void test_safeValueOf() {

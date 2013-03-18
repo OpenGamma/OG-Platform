@@ -29,7 +29,6 @@ import com.opengamma.util.test.BuilderTestProxyFactory.BuilderTestProxy;
 /**
  * Base class for builder tests.
  */
-@Test(groups = "unit")
 public abstract class AbstractFudgeBuilderTestCase {
 
   /** Logger. */

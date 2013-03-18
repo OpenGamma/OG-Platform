@@ -16,10 +16,12 @@ import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Test.
  */
-@Test(groups = "unit")
+@Test(groups = TestGroup.UNIT)
 public class VirtualFireHoseLiveDataTest {
 
   private static class Impl extends AbstractFireHoseLiveData {

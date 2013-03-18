@@ -14,10 +14,12 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Test ObjectsPair.
  */
-@Test(groups = "unit")
+@Test(groups = TestGroup.UNIT)
 public class ObjectsPairTest {
 
   public void test_Pair_Of_String_String() {

@@ -26,11 +26,12 @@ import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.normalization.StandardRules;
 import com.opengamma.livedata.server.DistributionSpecification;
 import com.opengamma.util.ehcache.EHCacheUtils;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test.
  */
-@Test(groups = {"unit", "ehcache"})
+@Test(groups = {TestGroup.UNIT, "ehcache"})
 public class EHCachingDistributionSpecificationResolverTest {
 
   private CacheManager _cacheManager;

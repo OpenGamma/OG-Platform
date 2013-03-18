@@ -37,10 +37,11 @@ import com.opengamma.transport.DirectFudgeConnection;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.test.Timeout;
 import com.opengamma.util.tuple.Pair;
 
-@Test(groups = {"integration", "ehcache"})
+@Test(groups = {TestGroup.INTEGRATION, "ehcache"})
 public class PrivateToSharedTransferTest {
 
   private CacheManager _cacheManager;

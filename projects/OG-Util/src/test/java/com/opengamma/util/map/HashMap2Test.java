@@ -11,12 +11,13 @@ import static org.testng.Assert.assertTrue;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
 
 /**
  * Tests the {@link HashMap2} implementation.
  */
-@Test(groups = "unit")
+@Test(groups = TestGroup.UNIT)
 public class HashMap2Test {
 
   public void testBasicOperations() {

@@ -20,12 +20,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.test.Timeout;
 
 /**
  * Tests.
  */
-@Test(groups = {"unit", "slow"})
+@Test(groups = TestGroup.UNIT_SLOW)
 public class ConnectorJobTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ConnectorJobTest.class);

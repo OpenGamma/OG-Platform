@@ -26,11 +26,12 @@ import com.google.common.collect.Sets;
 import com.opengamma.bbg.livedata.LoggedReferenceDataProvider;
 import com.opengamma.bbg.util.MockReferenceDataProvider;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test.
  */
-@Test(groups = "unit")
+@Test(groups = TestGroup.UNIT)
 public class BloombergRefDataCollectorTest {
 
   private static final String WATCH_LIST_FILE = "watchListTest.txt";

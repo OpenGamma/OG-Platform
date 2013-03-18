@@ -23,12 +23,13 @@ import org.testng.annotations.Test;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test the FudgeXXXProducer and FudgeXXXConsumer pairs by cycling
  * a Fudge message through them.
  */
-@Test(groups = "unit")
+@Test(groups = TestGroup.UNIT)
 public class FudgeProvidersTest {
 
   @SuppressWarnings({"rawtypes", "unchecked" })

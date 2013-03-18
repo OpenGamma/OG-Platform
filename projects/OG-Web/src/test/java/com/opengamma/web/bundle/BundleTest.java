@@ -16,11 +16,12 @@ import java.util.List;
 import org.testng.annotations.Test;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test Bundle.
  */
-@Test(groups = "unit")
+@Test(groups = TestGroup.UNIT)
 public class BundleTest {
 
   static final String JS_BUNDLE_COMMON_JS = "jsBundleCommon.js";

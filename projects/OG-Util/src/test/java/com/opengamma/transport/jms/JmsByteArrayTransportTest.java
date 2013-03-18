@@ -21,12 +21,13 @@ import org.testng.annotations.Test;
 import com.opengamma.transport.ByteArrayRequestReceiver;
 import com.opengamma.transport.CollectingByteArrayMessageReceiver;
 import com.opengamma.util.test.ActiveMQTestUtils;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.test.Timeout;
 
 /**
  * Test.
  */
-@Test(groups = {"integration"})
+@Test(groups = TestGroup.INTEGRATION)
 public class JmsByteArrayTransportTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(JmsByteArrayTransportTest.class);

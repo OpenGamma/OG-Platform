@@ -15,12 +15,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.testng.annotations.Test;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.test.Timeout;
 
 /**
  * Tests the {@link AsynchronousOperation} and related classes.
  */
-@Test(groups = "integration")
+@Test(groups = TestGroup.INTEGRATION)
 public class AsynchronousOperationTest {
 
   private static final String RESULT = "Foo";

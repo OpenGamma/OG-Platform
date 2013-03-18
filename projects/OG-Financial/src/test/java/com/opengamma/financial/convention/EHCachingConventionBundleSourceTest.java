@@ -19,11 +19,12 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ehcache.EHCacheUtils;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the {@link EHCachingConventionBundleSource} class
  */
-@Test(groups = {"unit", "ehcache"}, singleThreaded = true)
+@Test(groups = {TestGroup.UNIT, "ehcache"}, singleThreaded = true)
 public class EHCachingConventionBundleSourceTest {
 
   private CacheManager _cacheManager;

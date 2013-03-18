@@ -9,11 +9,12 @@ import org.testng.annotations.Test;
 import org.threeten.bp.Instant;
 
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test Fudge encoding.
  */
-@Test(groups = "unit")
+@Test(groups = TestGroup.UNIT)
 public class VersionCorrectionFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
 
   private static final Instant INSTANT1 = Instant.ofEpochSecond(1);

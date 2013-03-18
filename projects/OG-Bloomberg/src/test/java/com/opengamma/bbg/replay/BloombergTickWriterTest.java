@@ -41,11 +41,12 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.replay.BloombergTicksReplayer.Mode;
 import com.opengamma.bbg.test.BloombergTestUtils;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test.
  */
-@Test(groups = {"unit", "slow"})
+@Test(groups = TestGroup.UNIT_SLOW)
 public class BloombergTickWriterTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergTickWriterTest.class);

@@ -13,10 +13,12 @@ import java.util.Locale;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Tests {@link DoubleValueSignificantFiguresFormatter}
  */
-@Test(groups = "unit")
+@Test(groups = TestGroup.UNIT)
 public class DoubleValueSignificantFiguresFormatterTest {
 
   @Test

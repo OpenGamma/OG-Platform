@@ -9,11 +9,12 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.IntDoubleTimeSeriesTest;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
 
-@Test(groups = "unit")
+@Test(groups = TestGroup.UNIT)
 public class FastArrayIntDoubleTimeSeriesTest extends IntDoubleTimeSeriesTest {
 
   @Override

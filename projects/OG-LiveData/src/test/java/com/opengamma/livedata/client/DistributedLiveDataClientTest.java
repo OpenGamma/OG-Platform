@@ -37,11 +37,12 @@ import com.opengamma.livedata.test.CollectingLiveDataListener;
 import com.opengamma.livedata.test.LiveDataClientTestUtils;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test.
  */
-@Test(groups = {"unit", "ehcache"})
+@Test(groups = {TestGroup.UNIT, "ehcache"})
 public class DistributedLiveDataClientTest {
 
   public static final ExternalScheme TEST_IDENTIFICATION_SCHEME = ExternalScheme.of("bar");

@@ -6,7 +6,6 @@
 package com.opengamma.util.time;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.threeten.bp.temporal.ChronoUnit.DAYS;
 
 import org.fudgemsg.UnmodifiableFudgeField;
 import org.fudgemsg.wire.types.FudgeWireType;
@@ -14,11 +13,12 @@ import org.testng.annotations.Test;
 import org.threeten.bp.Period;
 
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test Period Fudge support.
  */
-@Test(groups = "unit")
+@Test(groups = TestGroup.UNIT)
 public class PeriodFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
 
   private static final Period s_ref = Period.ofDays(2);

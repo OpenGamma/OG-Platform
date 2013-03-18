@@ -11,10 +11,12 @@ import static org.testng.AssertJUnit.assertTrue;
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Test {@link SimpleMapTimeSeries}.
  */
-@Test(groups = "unit")
+@Test(groups = TestGroup.UNIT)
 public class SimpleMapTimeSeriesTest {
 
   private static final LocalDate DATE1 = LocalDate.of(2011, 6, 1);

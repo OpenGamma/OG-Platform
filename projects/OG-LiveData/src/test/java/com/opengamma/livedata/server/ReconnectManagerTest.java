@@ -16,11 +16,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.util.ehcache.EHCacheUtils;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test.
  */
-@Test(groups = {"unit", "ehcache"})
+@Test(groups = {TestGroup.UNIT, "ehcache"})
 public class ReconnectManagerTest {
 
   private CacheManager _cacheManager;

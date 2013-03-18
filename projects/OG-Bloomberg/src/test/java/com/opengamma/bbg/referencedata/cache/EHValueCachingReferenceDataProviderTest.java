@@ -14,11 +14,12 @@ import org.testng.annotations.Test;
 import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test.
  */
-@Test(groups= {"unit", "ehcache"})
+@Test(groups= {TestGroup.UNIT, "ehcache"})
 public class EHValueCachingReferenceDataProviderTest extends AbstractValueCachingReferenceDataProviderTestCase {
 
   private CacheManager _cacheManager;

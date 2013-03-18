@@ -29,11 +29,12 @@ import com.opengamma.livedata.LiveDataSpecificationFudgeBuilder;
 import com.opengamma.livedata.test.CollectingLiveDataListener;
 import com.opengamma.transport.CollectingByteArrayMessageSender;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test.
  */
-@Test(groups = "unit")
+@Test(groups = TestGroup.UNIT)
 public class HeartbeatSenderTest {
 
   private Timer _timer = null;

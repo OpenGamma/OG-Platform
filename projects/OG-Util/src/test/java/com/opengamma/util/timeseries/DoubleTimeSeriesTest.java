@@ -24,8 +24,9 @@ import org.testng.annotations.Test;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.CompareUtils;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.test.TestGroup;
 
-@Test(groups = "unit")
+@Test(groups = TestGroup.UNIT)
 public abstract class DoubleTimeSeriesTest<E> {
 
   @SuppressWarnings("unused")
