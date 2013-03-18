@@ -17,13 +17,16 @@ import org.springframework.jdbc.core.SqlParameterValue;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import org.threeten.bp.Instant;
 
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
+@Test(groups = TestGroup.UNIT_DB)
 public abstract class AbstractDbBatchMasterTest extends DbTest {
 
 

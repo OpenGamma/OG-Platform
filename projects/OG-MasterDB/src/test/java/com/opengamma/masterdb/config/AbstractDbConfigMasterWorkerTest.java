@@ -31,6 +31,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import org.threeten.bp.Clock;
 import org.threeten.bp.Instant;
 import org.threeten.bp.ZoneOffset;
@@ -44,10 +45,12 @@ import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Base tests for DbConfigMasterWorker via DbConfigMaster.
  */
+@Test(groups = TestGroup.UNIT_DB)
 public abstract class AbstractDbConfigMasterWorkerTest extends DbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractDbConfigMasterWorkerTest.class);
