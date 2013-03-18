@@ -45,18 +45,18 @@ public class BlotterGridStructure extends PortfolioGridStructure {
   }
 
 
-  private GridColumnGroup buildBlotterColumns() {
+  private static GridColumnGroup buildBlotterColumns(BlotterColumnMapper columnMapper, List<PortfolioGridRow> rows) {
     List<GridColumn> columns = Lists.newArrayList(
-        blotterColumn(BlotterColumn.TYPE, _columnMapper, getRows()),
-        blotterColumn(BlotterColumn.PRODUCT, _columnMapper, getRows()),
-        blotterColumn(BlotterColumn.QUANTITY, _columnMapper, getRows()),
-        blotterColumn(BlotterColumn.DIRECTION, _columnMapper, getRows()),
-        blotterColumn(BlotterColumn.START, _columnMapper, getRows()),
-        blotterColumn(BlotterColumn.MATURITY, _columnMapper, getRows()),
-        blotterColumn(BlotterColumn.RATE, _columnMapper, getRows()),
-        blotterColumn(BlotterColumn.INDEX, _columnMapper, getRows()),
-        blotterColumn(BlotterColumn.FREQUENCY, _columnMapper, getRows()),
-        blotterColumn(BlotterColumn.FLOAT_FREQUENCY, _columnMapper, getRows()));
+        blotterColumn(BlotterColumn.TYPE, columnMapper, rows),
+        blotterColumn(BlotterColumn.PRODUCT, columnMapper, rows),
+        blotterColumn(BlotterColumn.QUANTITY, columnMapper, rows),
+        blotterColumn(BlotterColumn.DIRECTION, columnMapper, rows),
+        blotterColumn(BlotterColumn.START, columnMapper, rows),
+        blotterColumn(BlotterColumn.MATURITY, columnMapper, rows),
+        blotterColumn(BlotterColumn.RATE, columnMapper, rows),
+        blotterColumn(BlotterColumn.INDEX, columnMapper, rows),
+        blotterColumn(BlotterColumn.FREQUENCY, columnMapper, rows),
+        blotterColumn(BlotterColumn.FLOAT_FREQUENCY, columnMapper, rows));
     return new GridColumnGroup("Blotter", columns, false);
   }
 
@@ -66,8 +66,9 @@ public class BlotterGridStructure extends PortfolioGridStructure {
     return new GridColumn(column.getName(), "", String.class, new BlotterColumnRenderer(column, columnMappings, rows));
   }
 
+  // TODO get rid of this, not sure it works
   @Override
-  BlotterGridStructure withUpdatedRows(Portfolio portfolio) {
+  /* package */ BlotterGridStructure withUpdatedRows(Portfolio portfolio) {
     AnalyticsNode rootNode = AnalyticsNode.portoflioRoot(portfolio);
     List<PortfolioGridRow> rows = buildRows(portfolio);
     TargetLookup targetLookup = new TargetLookup(getValueMappings(), rows);
@@ -75,16 +76,23 @@ public class BlotterGridStructure extends PortfolioGridStructure {
   }
 
   @Override
-  BlotterGridStructure withUpdatedColumns(CompiledViewDefinition compiledViewDef) {
-    GridColumnGroup fixedColumns = buildFixedColumns(getRows());
-    GridColumnGroup blotterColumns = buildBlotterColumns();
+  /* package */ BlotterGridStructure withUpdatedStructure(CompiledViewDefinition compiledViewDef) {
+    Portfolio portfolio = compiledViewDef.getPortfolio();
+    AnalyticsNode rootNode = AnalyticsNode.portoflioRoot(portfolio);
+    List<PortfolioGridRow> rows = buildRows(portfolio);
     ValueMappings valueMappings = new ValueMappings(compiledViewDef);
-    TargetLookup targetLookup = new TargetLookup(valueMappings, getRows());
+    TargetLookup targetLookup = new TargetLookup(valueMappings, rows);
     List<GridColumnGroup> analyticsColumns = buildAnalyticsColumns(compiledViewDef.getViewDefinition(), targetLookup);
+    GridColumnGroup fixedColumns = buildFixedColumns(rows);
+    GridColumnGroup blotterColumns = buildBlotterColumns(_columnMapper, rows);
     List<GridColumnGroup> groups = Lists.newArrayList(fixedColumns);
     groups.add(blotterColumns);
     groups.addAll(analyticsColumns);
     GridColumnGroups columnGroups = new GridColumnGroups(groups);
-    return new BlotterGridStructure(columnGroups, getRootNode(), getRows(), targetLookup, _columnMapper, valueMappings);
+    return new BlotterGridStructure(columnGroups, rootNode, rows, targetLookup, _columnMapper, valueMappings);
   }
+
+  /* package */ /*BlotterGridStructure withUpdatedStructure(Portfolio portfolio) {
+
+  }*/
 }

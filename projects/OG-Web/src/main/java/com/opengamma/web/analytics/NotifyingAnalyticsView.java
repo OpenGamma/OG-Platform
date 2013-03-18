@@ -34,8 +34,8 @@ import com.opengamma.web.analytics.push.UpdateListener;
   }
 
   @Override
-  public List<String> updateColumns(CompiledViewDefinition compiledViewDefinition) {
-    List<String> callbackIds = _delegate.updateColumns(compiledViewDefinition);
+  public List<String> updateStructure(CompiledViewDefinition compiledViewDefinition) {
+    List<String> callbackIds = _delegate.updateStructure(compiledViewDefinition);
     _listener.itemsUpdated(callbackIds);
     return callbackIds;
   }

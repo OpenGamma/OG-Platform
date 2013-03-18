@@ -5,12 +5,10 @@
  */
 package com.opengamma.web.analytics;
 
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.analytics.formatting.TypeFormatter;
 
@@ -41,11 +39,9 @@ public class RectangularViewportDefinition extends ViewportDefinition {
     super(version, format);
     ArgumentChecker.notEmpty(rows, "rows");
     ArgumentChecker.notEmpty(columns, "columns");
-    // TODO PLAT-3132 remove the sorting and bounds checks
-    List<Integer> sortedColumns = Lists.newArrayList(columns);
-    List<Integer> sortedRows = Lists.newArrayList(rows);
-    _rows = ImmutableList.copyOf(sortedRows);
-    _columns = ImmutableList.copyOf(sortedColumns);
+    // TODO bounds checking
+    _rows = ImmutableList.copyOf(rows);
+    _columns = ImmutableList.copyOf(columns);
   }
 
   @Override
@@ -68,6 +64,10 @@ public class RectangularViewportDefinition extends ViewportDefinition {
       }
     }
     return true;
+  }
+
+  /* package */ List<Integer> getColumns() {
+    return _columns;
   }
 
   /**
