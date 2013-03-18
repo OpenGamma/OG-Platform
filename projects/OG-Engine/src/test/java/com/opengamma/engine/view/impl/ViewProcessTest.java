@@ -41,12 +41,13 @@ import com.opengamma.engine.view.worker.SingleThreadViewProcessWorker;
 import com.opengamma.engine.view.worker.ViewProcessWorker;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.test.Timeout;
 
 /**
  * Tests {@link ViewProcess}
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class ViewProcessTest {
 
   public void testLifecycle() {

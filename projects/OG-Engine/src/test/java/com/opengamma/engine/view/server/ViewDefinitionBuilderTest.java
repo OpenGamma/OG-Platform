@@ -20,11 +20,12 @@ import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests ViewDefinitionBuilder, which is particularly complex.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class ViewDefinitionBuilderTest {
 
   private FudgeContext _fudgeContext;

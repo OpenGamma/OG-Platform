@@ -18,11 +18,12 @@ import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.worker.cache.ViewExecutionCacheKey;
 import com.opengamma.engine.view.worker.cache.ViewExecutionCacheLock;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the {@link ViewExecutionCacheLock} class.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class ViewExecutionCacheLockTest {
 
   private ViewDefinition viewDefinition() {

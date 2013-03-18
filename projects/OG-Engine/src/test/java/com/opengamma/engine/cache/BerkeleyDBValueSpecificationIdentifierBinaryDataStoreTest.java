@@ -24,12 +24,13 @@ import org.testng.annotations.Test;
 import com.opengamma.engine.cache.BerkeleyDBBinaryDataStore;
 import com.opengamma.engine.cache.BerkeleyDBViewComputationCacheSource;
 import com.opengamma.util.monitor.OperationTimer;
+import com.opengamma.util.test.TestGroup;
 import com.sleepycat.je.Environment;
 
 /**
  * 
  */
-@Test
+@Test(groups = TestGroup.INTEGRATION)
 public class BerkeleyDBValueSpecificationIdentifierBinaryDataStoreTest {
   private static final Logger s_logger = LoggerFactory.getLogger(BerkeleyDBValueSpecificationIdentifierBinaryDataStoreTest.class);
 

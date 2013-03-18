@@ -17,11 +17,12 @@ import com.opengamma.engine.target.Primitive.ExternalIdentifiablePrimitive;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the {@link OptimisticMarketDataAvailabilityFilter} class.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class OptimisticMarketDataAvailabilityFilterTest {
 
   protected MarketDataAvailabilityFilter create() {

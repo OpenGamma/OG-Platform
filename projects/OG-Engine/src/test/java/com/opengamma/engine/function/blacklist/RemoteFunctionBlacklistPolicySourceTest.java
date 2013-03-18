@@ -24,13 +24,14 @@ import org.testng.annotations.Test;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.rest.UniformInterfaceException404NotFound;
+import com.opengamma.util.test.TestGroup;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.UniformInterface;
 
 /**
  * Tests the {@link RemoteFunctionBlacklistPolicySource} and {@link DataFunctionBlacklistPolicySourceResource} classes.
  */
-@Test
+@Test(groups = TestGroup.INTEGRATION)
 public class RemoteFunctionBlacklistPolicySourceTest {
 
   public void testGetPolicyByUniqueId() {

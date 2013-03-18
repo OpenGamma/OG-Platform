@@ -16,10 +16,12 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test {@link DependencyNodeFudgeBuilder}
  */
+@Test(groups = TestGroup.UNIT)
 public class DependencyNodeFudgeBuilderTest extends AbstractFudgeBuilderTestCase {
   
   /**

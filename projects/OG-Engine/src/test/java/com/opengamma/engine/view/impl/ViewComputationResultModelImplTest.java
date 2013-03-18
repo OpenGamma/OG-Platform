@@ -24,12 +24,13 @@ import com.opengamma.engine.view.ViewCalculationResultModel;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.impl.InMemoryViewComputationResultModel;
 import com.opengamma.engine.view.impl.InMemoryViewResultModel;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
 
 /**
  * 
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class ViewComputationResultModelImplTest {
   
   public void test() {

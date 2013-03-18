@@ -26,11 +26,12 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test the {@link PositionSource} based resolvers
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class PositionSourceResolverTest {
 
   private final SimplePortfolioNode NODE = new SimplePortfolioNode("Root");

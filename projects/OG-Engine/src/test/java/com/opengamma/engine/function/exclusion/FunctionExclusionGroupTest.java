@@ -16,11 +16,12 @@ import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.engine.function.FunctionParameters;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the function exclusion group class.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class FunctionExclusionGroupTest {
 
   private static class Function implements FunctionDefinition {

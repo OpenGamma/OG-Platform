@@ -17,11 +17,12 @@ import com.opengamma.engine.exec.stats.GraphExecutionStatistics;
 import com.opengamma.engine.exec.stats.TotallingGraphStatisticsGathererProvider;
 import com.opengamma.engine.exec.stats.TotallingGraphStatisticsGathererProvider.Statistics;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * 
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class TotallingGraphStatisticsGathererProviderTest {
   
   private TotallingGraphStatisticsGathererProvider _provider = new TotallingGraphStatisticsGathererProvider();

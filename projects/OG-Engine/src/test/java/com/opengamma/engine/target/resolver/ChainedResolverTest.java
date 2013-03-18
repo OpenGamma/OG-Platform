@@ -13,11 +13,12 @@ import org.testng.annotations.Test;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test the {@link ChainedResolver} class
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class ChainedResolverTest {
 
   @SuppressWarnings("unchecked")

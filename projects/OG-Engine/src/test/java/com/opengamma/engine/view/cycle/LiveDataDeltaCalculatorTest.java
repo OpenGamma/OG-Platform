@@ -31,11 +31,12 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.cycle.LiveDataDeltaCalculator;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.test.TestGroup;
 
 /**
  *
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class LiveDataDeltaCalculatorTest {
 
   FunctionCompilationContext _context = new FunctionCompilationContext();

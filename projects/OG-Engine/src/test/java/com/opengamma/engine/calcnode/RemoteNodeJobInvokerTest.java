@@ -33,12 +33,13 @@ import com.opengamma.transport.DirectFudgeConnection;
 import com.opengamma.transport.FudgeConnection;
 import com.opengamma.transport.FudgeMessageReceiver;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.test.Timeout;
 
 /**
  * Tests the RemoteNodeJobInvoker
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class RemoteNodeJobInvokerTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(RemoteNodeJobInvokerTest.class);

@@ -80,11 +80,13 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.id.VersionedUniqueIdSupplier;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.log.ThreadLocalLogEventListener;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.test.Timeout;
 
 /**
  * Test.
  */
+@Test(groups = TestGroup.INTEGRATION)
 public class CancelExecutionTest {
 
   private static final int JOB_SIZE = 100;

@@ -14,11 +14,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.engine.calcnode.stats.FunctionCostsDocument;
 import com.opengamma.engine.calcnode.stats.InMemoryFunctionCostsMaster;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the function statistics gatherer.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class InMemoryFunctionCostsMasterTest {
 
   public void test_master() {

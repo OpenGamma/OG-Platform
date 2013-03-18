@@ -19,11 +19,12 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test the primitive resolvers.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class PrimitiveResolverTest {
 
   public void testCurrencyResolver() {
