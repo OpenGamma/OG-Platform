@@ -5,6 +5,6 @@
  */
 
 /**
- * Position master API providing the ability to query and update organisations.
+ * Organization master API providing the ability to query and update organisations.
  */
 package com.opengamma.master.orgs;

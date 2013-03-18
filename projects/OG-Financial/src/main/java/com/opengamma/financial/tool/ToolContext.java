@@ -37,6 +37,7 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesLoader;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.holiday.HolidayMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
+import com.opengamma.master.orgs.OrganisationMaster;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.region.RegionMaster;
@@ -102,6 +103,11 @@ public class ToolContext extends DirectBean implements Closeable {
    */
   @PropertyDefinition
   private PortfolioMaster _portfolioMaster;
+  /**
+   * The portfolio master.
+   */
+  @PropertyDefinition
+  private OrganisationMaster _organisationMaster;
   /**
    * The historical time-series master.
    */
@@ -258,6 +264,8 @@ public class ToolContext extends DirectBean implements Closeable {
         return getPositionMaster();
       case -772274742:  // portfolioMaster
         return getPortfolioMaster();
+      case -2062316580:  // organisationMaster
+        return getOrganisationMaster();
       case 173967376:  // historicalTimeSeriesMaster
         return getHistoricalTimeSeriesMaster();
       case 2090650860:  // marketDataSnapshotMaster
@@ -323,6 +331,9 @@ public class ToolContext extends DirectBean implements Closeable {
         return;
       case -772274742:  // portfolioMaster
         setPortfolioMaster((PortfolioMaster) newValue);
+        return;
+      case -2062316580:  // organisationMaster
+        setOrganisationMaster((OrganisationMaster) newValue);
         return;
       case 173967376:  // historicalTimeSeriesMaster
         setHistoricalTimeSeriesMaster((HistoricalTimeSeriesMaster) newValue);
@@ -392,6 +403,7 @@ public class ToolContext extends DirectBean implements Closeable {
           JodaBeanUtils.equal(getSecurityMaster(), other.getSecurityMaster()) &&
           JodaBeanUtils.equal(getPositionMaster(), other.getPositionMaster()) &&
           JodaBeanUtils.equal(getPortfolioMaster(), other.getPortfolioMaster()) &&
+          JodaBeanUtils.equal(getOrganisationMaster(), other.getOrganisationMaster()) &&
           JodaBeanUtils.equal(getHistoricalTimeSeriesMaster(), other.getHistoricalTimeSeriesMaster()) &&
           JodaBeanUtils.equal(getMarketDataSnapshotMaster(), other.getMarketDataSnapshotMaster()) &&
           JodaBeanUtils.equal(getConfigSource(), other.getConfigSource()) &&
@@ -424,6 +436,7 @@ public class ToolContext extends DirectBean implements Closeable {
     hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPositionMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPortfolioMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getOrganisationMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataSnapshotMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getConfigSource());
@@ -660,6 +673,31 @@ public class ToolContext extends DirectBean implements Closeable {
    */
   public final Property<PortfolioMaster> portfolioMaster() {
     return metaBean().portfolioMaster().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the portfolio master.
+   * @return the value of the property
+   */
+  public OrganisationMaster getOrganisationMaster() {
+    return _organisationMaster;
+  }
+
+  /**
+   * Sets the portfolio master.
+   * @param organisationMaster  the new value of the property
+   */
+  public void setOrganisationMaster(OrganisationMaster organisationMaster) {
+    this._organisationMaster = organisationMaster;
+  }
+
+  /**
+   * Gets the the {@code organisationMaster} property.
+   * @return the property, not null
+   */
+  public final Property<OrganisationMaster> organisationMaster() {
+    return metaBean().organisationMaster().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -1118,6 +1156,11 @@ public class ToolContext extends DirectBean implements Closeable {
     private final MetaProperty<PortfolioMaster> _portfolioMaster = DirectMetaProperty.ofReadWrite(
         this, "portfolioMaster", ToolContext.class, PortfolioMaster.class);
     /**
+     * The meta-property for the {@code organisationMaster} property.
+     */
+    private final MetaProperty<OrganisationMaster> _organisationMaster = DirectMetaProperty.ofReadWrite(
+        this, "organisationMaster", ToolContext.class, OrganisationMaster.class);
+    /**
      * The meta-property for the {@code historicalTimeSeriesMaster} property.
      */
     private final MetaProperty<HistoricalTimeSeriesMaster> _historicalTimeSeriesMaster = DirectMetaProperty.ofReadWrite(
@@ -1211,6 +1254,7 @@ public class ToolContext extends DirectBean implements Closeable {
         "securityMaster",
         "positionMaster",
         "portfolioMaster",
+        "organisationMaster",
         "historicalTimeSeriesMaster",
         "marketDataSnapshotMaster",
         "configSource",
@@ -1255,6 +1299,8 @@ public class ToolContext extends DirectBean implements Closeable {
           return _positionMaster;
         case -772274742:  // portfolioMaster
           return _portfolioMaster;
+        case -2062316580:  // organisationMaster
+          return _organisationMaster;
         case 173967376:  // historicalTimeSeriesMaster
           return _historicalTimeSeriesMaster;
         case 2090650860:  // marketDataSnapshotMaster
@@ -1377,6 +1423,14 @@ public class ToolContext extends DirectBean implements Closeable {
      */
     public final MetaProperty<PortfolioMaster> portfolioMaster() {
       return _portfolioMaster;
+    }
+
+    /**
+     * The meta-property for the {@code organisationMaster} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<OrganisationMaster> organisationMaster() {
+      return _organisationMaster;
     }
 
     /**
