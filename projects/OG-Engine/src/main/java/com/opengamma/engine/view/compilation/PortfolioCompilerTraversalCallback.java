@@ -73,6 +73,8 @@ import com.opengamma.util.tuple.Pair;
   /**
    * Store details of the security link in the resolution cache. The link is assumed to be a record of the link to the object, for example is it held by strong (object id) or weak (external id)
    * reference.
+   * <p>
+   * Securities are already resolved when the functions see the positions, so the logging target resolver will not capture any uses of the security.
    * 
    * @param link the link to store - the identifier is taken from this along with the resolved unique identifier
    */
@@ -91,6 +93,15 @@ import com.opengamma.util.tuple.Pair;
       final UniqueId existing = _resolutions.putIfAbsent(MemoryUtils.instance(key), uid);
       assert (existing == null) || existing.equals(uid);
     }
+  }
+
+  /**
+   * Store details of the position lookup in the resolution cache. Positions are referenced from portfolio nodes by object identifier.
+   * 
+   * @param
+   */
+  private void store(final Position position) {
+    _resolutions.putIfAbsent(MemoryUtils.instance(new ComputationTargetSpecification(ComputationTargetType.POSITION, position.getUniqueId().toLatest())), position.getUniqueId());
   }
 
   /**
@@ -143,6 +154,7 @@ import com.opengamma.util.tuple.Pair;
     if (security == null) {
       return;
     }
+    store(position);
     store(position.getSecurityLink());
 
     // Identify this position's security type

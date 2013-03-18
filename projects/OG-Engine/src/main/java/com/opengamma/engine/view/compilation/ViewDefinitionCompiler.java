@@ -8,6 +8,7 @@ package com.opengamma.engine.view.compilation;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -23,6 +24,9 @@ import org.threeten.bp.Instant;
 import com.google.common.base.Supplier;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.Portfolio;
+import com.opengamma.core.position.Position;
+import com.opengamma.core.security.Security;
+import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.depgraph.DependencyGraph;
@@ -32,8 +36,11 @@ import com.opengamma.engine.depgraph.DependencyNodeFormatter;
 import com.opengamma.engine.depgraph.Housekeeper;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.target.ComputationTargetReference;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.ResultModelDefinition;
+import com.opengamma.engine.view.ResultOutputMode;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.id.UniqueId;
@@ -125,6 +132,7 @@ public final class ViewDefinitionCompiler {
     private final ViewCompilationContext _viewCompilationContext;
     private volatile CompiledViewDefinitionWithGraphsImpl _result;
     private final ConcurrentMap<ComputationTargetReference, UniqueId> _resolutions;
+    private boolean _portfolioOutputs;
 
     protected CompilationTask(final ViewDefinition viewDefinition, final ViewCompilationServices compilationServices, final Instant valuationTime,
         final VersionCorrection versionCorrection, final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions) {
@@ -134,6 +142,8 @@ public final class ViewDefinitionCompiler {
       if (s_logger.isDebugEnabled()) {
         new CompilationCompletionEstimate(_viewCompilationContext);
       }
+      final ResultModelDefinition resultModelDefinition = viewDefinition.getResultModelDefinition();
+      _portfolioOutputs = (resultModelDefinition.getPositionOutputMode() != ResultOutputMode.NONE) || (resultModelDefinition.getAggregatePositionOutputMode() != ResultOutputMode.NONE);
     }
 
     protected ViewCompilationContext getContext() {
@@ -146,22 +156,61 @@ public final class ViewDefinitionCompiler {
 
     protected abstract void compile();
 
-    // TODO: [PLAT-3250] Remove this in favour of "compile"
-    protected abstract Portfolio resolveAndCompile();
-
     private void removeUnusedResolutions(final Collection<DependencyGraph> graphs, final Portfolio portfolio) {
-      final Set<UniqueId> validIdentifiers = new HashSet<UniqueId>();
+      final Set<UniqueId> validIdentifiers = new HashSet<UniqueId>(getResolutions().size());
       if (portfolio != null) {
         validIdentifiers.add(portfolio.getUniqueId());
       }
-      // TODO: The resolution map must contain an entry for all structural nodes; just in case there are no nodes in the graph form them
-      // E.g. if TRADE level values are on, then it must contain all POSITION oid->uid references regardless of whether there are position level aggregates
       for (DependencyGraph graph : graphs) {
         for (final ComputationTargetSpecification target : graph.getAllComputationTargets()) {
           validIdentifiers.add(target.getUniqueId());
         }
       }
-      getResolutions().values().retainAll(validIdentifiers);
+      final Iterator<Map.Entry<ComputationTargetReference, UniqueId>> itrResolutions = getResolutions().entrySet().iterator();
+      while (itrResolutions.hasNext()) {
+        final Map.Entry<ComputationTargetReference, UniqueId> resolution = itrResolutions.next();
+        if (resolution.getKey().getType().isTargetType(ComputationTargetType.POSITION)) {
+          // Keep all positions; they'll be in our graph. It's a naughty function that could start requesting items for positions outside of the portfolio!
+          continue;
+        }
+        if (validIdentifiers.contains(resolution.getValue())) {
+          // Keep any resolutions relating to nodes in the graph
+          continue;
+        }
+        // Delete anything else; legacy from failed resolutions
+        itrResolutions.remove();
+      }
+    }
+
+    /**
+     * Fully resolves the portfolio structure for a view. A fully resolved structure has resolved {@link Security} objects for each {@link Position} within the portfolio. Note however that any
+     * underlying or related data referenced by a security will not be resolved at this stage.
+     * 
+     * @param compilationContext the compilation context containing the view being compiled, not null
+     * @return the resolved portfolio, not null
+     */
+    private Portfolio getPortfolio() {
+      final UniqueId portfolioId = getContext().getViewDefinition().getPortfolioId();
+      if (portfolioId == null) {
+        throw new OpenGammaRuntimeException("The view definition '" + getContext().getViewDefinition().getName()
+            + "' contains required portfolio outputs, but it does not reference a portfolio.");
+      }
+      final ComputationTargetResolver resolver = getContext().getServices().getFunctionCompilationContext().getRawComputationTargetResolver();
+      final ComputationTargetResolver.AtVersionCorrection versioned = resolver.atVersionCorrection(getContext().getResolverVersionCorrection());
+      final ComputationTargetSpecification specification = versioned.getSpecificationResolver()
+          .getTargetSpecification(new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO, portfolioId));
+      if (specification == null) {
+        throw new OpenGammaRuntimeException("Unable to identify portfolio '" + portfolioId + "' for view '" + getContext().getViewDefinition().getName() + "'");
+      }
+      final ComputationTarget target = versioned.resolve(specification);
+      if (target == null) {
+        throw new OpenGammaRuntimeException("Unable to resolve '" + specification + "' for view '" + getContext().getViewDefinition().getName() + "'");
+      }
+      return target.getValue(ComputationTargetType.PORTFOLIO);
+    }
+
+    protected boolean isPortfolioOutputs() {
+      return _portfolioOutputs;
     }
 
     /**
@@ -198,14 +247,21 @@ public final class ViewDefinitionCompiler {
 
     @Override
     public CompiledViewDefinitionWithGraphsImpl get() {
+      Portfolio portfolio = null;
       for (final DependencyGraphBuilder builder : getContext().getBuilders()) {
         final FunctionCompilationContext functionContext = builder.getCompilationContext();
         final ComputationTargetResolver.AtVersionCorrection resolver = functionContext.getComputationTargetResolver();
         functionContext.setComputationTargetResolver(TargetResolutionLogger.of(resolver, getResolutions()));
+        if (isPortfolioOutputs() && !functionContext.getViewCalculationConfiguration().getAllPortfolioRequirements().isEmpty()) {
+          if (portfolio == null) {
+            portfolio = getPortfolio();
+            getResolutions().putIfAbsent(new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO, getContext().getViewDefinition().getPortfolioId()), portfolio.getUniqueId());
+          }
+          functionContext.setPortfolio(portfolio);
+        }
       }
       long t = -System.nanoTime();
       compile();
-      final Portfolio portfolio = resolveAndCompile();
       final Collection<DependencyGraph> graphs = processDependencyGraphs(getContext());
       t += System.nanoTime();
       s_logger.info("Processed dependency graphs after {}ms", t / 1e6);
@@ -242,11 +298,7 @@ public final class ViewDefinitionCompiler {
     protected void compile() {
       s_logger.info("Performing full compilation");
       SpecificRequirementsCompiler.execute(getContext());
-    }
-
-    @Override
-    protected Portfolio resolveAndCompile() {
-      return PortfolioCompiler.executeFull(getContext(), getResolutions());
+      PortfolioCompiler.executeFull(getContext(), getResolutions());
     }
 
   }
@@ -289,8 +341,9 @@ public final class ViewDefinitionCompiler {
     }
 
     @Override
-    protected Portfolio resolveAndCompile() {
-      return PortfolioCompiler.executeFull(getContext(), getResolutions());
+    public void compile() {
+      super.compile();
+      PortfolioCompiler.executeFull(getContext(), getResolutions());
     }
 
   }
@@ -307,8 +360,9 @@ public final class ViewDefinitionCompiler {
     }
 
     @Override
-    protected Portfolio resolveAndCompile() {
-      return PortfolioCompiler.executeIncremental(getContext(), getResolutions(), _changedPositions);
+    public void compile() {
+      super.compile();
+      PortfolioCompiler.executeIncremental(getContext(), getResolutions(), _changedPositions);
     }
 
   }

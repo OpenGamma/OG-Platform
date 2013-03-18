@@ -193,7 +193,27 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
   private final Set<ValueSpecification> _marketDataSubscriptions = new HashSet<ValueSpecification>();
   private final Set<ValueSpecification> _pendingSubscriptions = Collections.newSetFromMap(new ConcurrentHashMap<ValueSpecification, Boolean>());
 
-  private ConcurrentMap<ObjectId, Boolean> _changedTargets;
+  /**
+   * Marker for the state of watched targets.
+   */
+  private static enum TargetState {
+    /**
+     * Notification of changes to the target are required, but it must be checked for any changes between when it was last queried and this state was stored. After such a check, the state may be
+     * changed to {@link #WAITING}.
+     */
+    REQUIRED,
+    /**
+     * Notification of changes to the target are required, none have been received, and it will not be checked unless notified. After a change is received, the state may be changed to {@link #CHANGED}
+     * .
+     */
+    WAITING,
+    /**
+     * Notification of changes to the target are required, at least one is pending, and it must now be checked. Before the check is made, the state may be changed to {@link #WAITING}.
+     */
+    CHANGED
+  }
+
+  private ConcurrentMap<ObjectId, TargetState> _changedTargets;
   private ChangeListener _targetResolverChangeListener;
 
   private volatile boolean _wakeOnCycleRequest;
@@ -391,6 +411,21 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
           return;
         }
         if (previous != compiledViewDefinition) {
+          if (_changedTargets != null) {
+            // We'll try to register for changes that will wake us up for a cycle if market data is not ticking
+            if (previous != null) {
+              final Set<UniqueId> subscribedIds = new HashSet<UniqueId>(previous.getResolvedIdentifiers().values());
+              for (UniqueId uid : compiledViewDefinition.getResolvedIdentifiers().values()) {
+                if (!subscribedIds.contains(uid)) {
+                  _changedTargets.putIfAbsent(uid.getObjectId(), TargetState.REQUIRED);
+                }
+              }
+            } else {
+              for (UniqueId uid : compiledViewDefinition.getResolvedIdentifiers().values()) {
+                _changedTargets.putIfAbsent(uid.getObjectId(), TargetState.REQUIRED);
+              }
+            }
+          }
           viewDefinitionCompiled(executionOptions, compiledViewDefinition);
         }
       } catch (final Exception e) {
@@ -677,15 +712,24 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
   private void subscribeToTargetResolverChanges() {
     if (_changedTargets == null) {
       assert _targetResolverChangeListener == null;
-      final ConcurrentMap<ObjectId, Boolean> changed = new ConcurrentHashMap<ObjectId, Boolean>();
+      final ConcurrentMap<ObjectId, TargetState> changed = new ConcurrentHashMap<ObjectId, TargetState>();
       _changedTargets = changed;
       _targetResolverChangeListener = new ChangeListener() {
         @Override
         public void entityChanged(final ChangeEvent event) {
           final ObjectId oid = event.getObjectId();
-          if (changed.replace(oid, Boolean.FALSE, Boolean.TRUE)) {
-            s_logger.info("Received change notification for {}", event.getObjectId());
-            requestCycle();
+          TargetState state = changed.get(oid);
+          if (state == null) {
+            return;
+          }
+          if ((state == TargetState.WAITING) || (state == TargetState.REQUIRED)) {
+            if (changed.replace(oid, state, TargetState.CHANGED)) {
+              // If the state changed to anything else, we either don't need the notification or another change message overtook
+              // this one and a cycle has already been triggered.
+              s_logger.info("Received change notification for {}", event.getObjectId());
+              requestCycle();
+              return;
+            }
           }
         }
       };
@@ -787,11 +831,11 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
       final Set<ObjectId> allObjectIds = Sets.newHashSetWithExpectedSize(previousResolutions.size());
       for (final Map.Entry<ComputationTargetReference, UniqueId> previousResolution : previousResolutions.entrySet()) {
         final ObjectId oid = previousResolution.getValue().getObjectId();
-        if (_changedTargets.replace(oid, Boolean.TRUE, Boolean.FALSE)) {
+        if (_changedTargets.replace(oid, TargetState.CHANGED, TargetState.WAITING)) {
           // A change was seen on this target
           s_logger.debug("Change observed on {}", oid);
           toCheck.add(previousResolution.getKey());
-        } else if (_changedTargets.putIfAbsent(oid, Boolean.FALSE) == null) {
+        } else if (_changedTargets.putIfAbsent(oid, TargetState.WAITING) == null) {
           // We've not been monitoring this target for changes - better start doing so
           s_logger.debug("Added {} to change observation set", oid);
           toCheck.add(previousResolution.getKey());
