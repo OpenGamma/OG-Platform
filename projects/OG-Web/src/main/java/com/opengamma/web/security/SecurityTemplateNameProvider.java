@@ -15,6 +15,7 @@ import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.cds.CreditDefaultSwapIndexSecurity;
 import com.opengamma.financial.security.cds.StandardFixedRecoveryCDSSecurity;
+import com.opengamma.financial.security.cds.StandardRecoveryLockCDSSecurity;
 import com.opengamma.financial.security.cds.StandardVanillaCDSSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
@@ -266,6 +267,11 @@ import com.opengamma.financial.security.swap.SwapSecurity;
   @Override
   public String visitStandardVanillaCDSSecurity(StandardVanillaCDSSecurity security) {
     return "standard-vanilla-cds.ftl";
+  }
+
+  @Override
+  public String visitStandardRecoveryLockCDSSecurity(StandardRecoveryLockCDSSecurity security) {
+    return "standard-recovery-lock-cds.ftl";
   }
 
   private String getBond() {
