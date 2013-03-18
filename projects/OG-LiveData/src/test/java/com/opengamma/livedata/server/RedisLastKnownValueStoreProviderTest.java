@@ -19,11 +19,12 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
  * A full unit test for {@link RedisLastKnownValueStoreProvider} and
  * also {@link RedisLastKnownValueStore}. 
  */
+@Test(groups = "integration")
 public class RedisLastKnownValueStoreProviderTest {
   // TODO kirk 2012-07-18 -- This needs to be moved to external properties.
   private static final String REDIS_SERVER = "redis-lx-1";
   
-  public static String generatePrefix(String testName) {
+  static String generatePrefix(String testName) {
     StringBuilder sb = new StringBuilder();
     sb.append(System.getProperty("user.name"));
     sb.append("-");
