@@ -286,6 +286,11 @@ import com.opengamma.financial.security.swap.SwapSecurity;
   public String visitLegacyFixedRecoveryCDSSecurity(LegacyFixedRecoveryCDSSecurity security) {
     return "legacy-fixed-recovery-cds.ftl";
   }
+  
+  @Override
+  public String visitLegacyRecoveryLockCDSSecurity(LegacyRecoveryLockCDSSecurity security) {
+    return "legacy-recovery-lock-cds.ftl";
+  }
 
   private String getBond() {
     return "bond.ftl";
