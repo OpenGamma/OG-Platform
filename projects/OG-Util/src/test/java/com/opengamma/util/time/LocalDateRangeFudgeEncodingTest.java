@@ -25,5 +25,9 @@ public class LocalDateRangeFudgeEncodingTest extends AbstractFudgeBuilderTestCas
     LocalDateRange range = LocalDateRange.of(LocalDate.of(2010, 7, 1), LocalDate.of(2010, 8, 1), false);
     assertEncodeDecodeCycle(LocalDateRange.class, range);
   }
-
+  
+  public void test_all() {
+    assertEncodeDecodeCycle(LocalDateRange.class, LocalDateRange.ALL);
+  }
+  
 }
