@@ -33,7 +33,12 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.portfolio.PortfolioSearchRequest;
 import com.opengamma.master.portfolio.PortfolioSearchResult;
+import com.opengamma.util.test.TestGroup;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.INTEGRATION)
 public class AvailablePortfolioOutputsTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(AvailablePortfolioOutputsTest.class);

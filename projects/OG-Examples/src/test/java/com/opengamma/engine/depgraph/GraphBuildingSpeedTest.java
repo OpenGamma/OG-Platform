@@ -46,12 +46,14 @@ import com.opengamma.engine.view.compilation.ViewCompilationServices;
 import com.opengamma.engine.view.compilation.ViewDefinitionCompiler;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ehcache.EHCacheUtils;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Times the building of dependency graphs for all views in the system; that is if they can be built.
  * <p>
  * Although timings can be reported, the repeated attempts to build the graph are more useful to detect faults with the graph building algorithm - for example inconsistent behaviors.
  */
+@Test(groups = TestGroup.INTEGRATION)
 public class GraphBuildingSpeedTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(GraphBuildingSpeedTest.class);
