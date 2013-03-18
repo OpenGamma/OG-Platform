@@ -22,7 +22,6 @@ import com.opengamma.util.tuple.Triple;
 /**
  * Tests the creation + upgrade sequence results in the same structure as a pure create.
  */
-@Test(groups = TestGroup.UNIT_DB)
 public abstract class AbstractDbUpgradeTest extends DbTest {
 
   private static final Map<String, Map<String, String>> s_targetSchema = Maps.newHashMap();
@@ -38,7 +37,7 @@ public abstract class AbstractDbUpgradeTest extends DbTest {
     return versionSchema;
   }
 
-  @BeforeMethod
+  @BeforeMethod(groups = TestGroup.UNIT_DB)
   public void setUp() throws Exception {
     DbTool dbTool = getDbTool();
     dbTool.setTargetVersion(getTargetVersion());
@@ -56,7 +55,7 @@ public abstract class AbstractDbUpgradeTest extends DbTest {
     _masterDB = masterDB;
   }
 
-  @Test
+  @Test(groups = TestGroup.UNIT_DB)
   public void testDatabaseUpgrade() {
     for (Triple<String, String, String> comparison : _comparisons) {
       /*

@@ -10,12 +10,10 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
 
 /**
  * DB test involving Hibernate and transactions.
  */
-@Test(groups = TestGroup.UNIT_DB)
 public abstract class TransactionalHibernateTest extends HibernateTest {
 
   private HibernateTransactionManager _transactionManager;
@@ -25,7 +23,7 @@ public abstract class TransactionalHibernateTest extends HibernateTest {
     super(databaseType, databaseVersion);
   }
 
-  @BeforeMethod
+  @BeforeMethod(groups = TestGroup.UNIT_DB)
   public void setUp() throws Exception {
     super.setUp();
     startNewTransaction();
@@ -42,7 +40,7 @@ public abstract class TransactionalHibernateTest extends HibernateTest {
     }        
   }
 
-  @AfterMethod
+  @AfterMethod(groups = TestGroup.UNIT_DB)
   public void tearDown() throws Exception {
     commit();
     super.tearDown();

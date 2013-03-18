@@ -9,7 +9,6 @@ import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
 
 import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.db.DbConnectorFactoryBean;
@@ -17,7 +16,6 @@ import com.opengamma.util.db.DbConnectorFactoryBean;
 /**
  * DB test involving Hibernate.
  */
-@Test(groups = TestGroup.UNIT_DB)
 public abstract class HibernateTest extends DbTest {
   
   private SessionFactory _sessionFactory;
@@ -36,7 +34,7 @@ public abstract class HibernateTest extends DbTest {
   
   public abstract Class<?>[] getHibernateMappingClasses();
 
-  @BeforeMethod
+  @BeforeMethod(groups = TestGroup.UNIT_DB)
   public void setUp() throws Exception {
     super.setUp();
     
@@ -49,7 +47,7 @@ public abstract class HibernateTest extends DbTest {
     setSessionFactory(sessionFactory);
   }
 
-  @AfterMethod
+  @AfterMethod(groups = TestGroup.UNIT_DB)
   public void tearDown() throws Exception {
     if (_sessionFactory != null) {
       _sessionFactory.close();
