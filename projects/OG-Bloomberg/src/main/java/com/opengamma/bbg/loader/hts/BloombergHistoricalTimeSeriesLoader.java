@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.bbg.loader;
+package com.opengamma.bbg.loader.hts;
 
 import static com.opengamma.bbg.BloombergConstants.BLOOMBERG_DATA_SOURCE_NAME;
 
