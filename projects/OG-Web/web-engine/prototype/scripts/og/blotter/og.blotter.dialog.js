@@ -23,7 +23,7 @@ $.register_module({
                     return;
                 }
                 blotter.close();
-                complete();
+                complete(result);
             };
             constructor.load = function () {
                 // security type tells which type of form to load
