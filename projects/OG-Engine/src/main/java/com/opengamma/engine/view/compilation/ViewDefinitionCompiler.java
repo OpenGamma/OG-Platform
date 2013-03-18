@@ -144,7 +144,10 @@ public final class ViewDefinitionCompiler {
       return _resolutions;
     }
 
-    protected abstract Portfolio compile();
+    protected abstract void compile();
+
+    // TODO: [PLAT-3250] Remove this in favour of "compile"
+    protected abstract Portfolio resolveAndCompile();
 
     private void removeUnusedResolutions(final Collection<DependencyGraph> graphs, final Portfolio portfolio) {
       final Set<UniqueId> validIdentifiers = new HashSet<UniqueId>();
@@ -201,7 +204,8 @@ public final class ViewDefinitionCompiler {
         functionContext.setComputationTargetResolver(TargetResolutionLogger.of(resolver, getResolutions()));
       }
       long t = -System.nanoTime();
-      final Portfolio portfolio = compile();
+      compile();
+      final Portfolio portfolio = resolveAndCompile();
       final Collection<DependencyGraph> graphs = processDependencyGraphs(getContext());
       t += System.nanoTime();
       s_logger.info("Processed dependency graphs after {}ms", t / 1e6);
@@ -235,29 +239,31 @@ public final class ViewDefinitionCompiler {
     }
 
     @Override
-    protected Portfolio compile() {
+    protected void compile() {
       s_logger.info("Performing full compilation");
       SpecificRequirementsCompiler.execute(getContext());
+    }
+
+    @Override
+    protected Portfolio resolveAndCompile() {
       return PortfolioCompiler.executeFull(getContext(), getResolutions());
     }
 
   }
 
-  private static class IncrementalCompilationTask extends CompilationTask {
+  private abstract static class IncrementalCompilationTask extends CompilationTask {
 
     private final Map<String, Pair<DependencyGraph, Set<ValueRequirement>>> _previousGraphs;
-    private final boolean _portfolioFull;
 
     protected IncrementalCompilationTask(final ViewDefinition viewDefinition, final ViewCompilationServices compilationServices, final Instant valuationTime,
         final VersionCorrection versionCorrection, final Map<String, Pair<DependencyGraph, Set<ValueRequirement>>> previousGraphs,
-        final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions, final boolean portfolioFull) {
+        final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions) {
       super(viewDefinition, compilationServices, valuationTime, versionCorrection, resolutions);
       _previousGraphs = previousGraphs;
-      _portfolioFull = portfolioFull;
     }
 
     @Override
-    public Portfolio compile() {
+    public void compile() {
       for (final DependencyGraphBuilder builder : getContext().getBuilders()) {
         final Pair<DependencyGraph, Set<ValueRequirement>> graph = _previousGraphs.get(builder.getCalculationConfigurationName());
         if (graph != null) {
@@ -270,11 +276,39 @@ public final class ViewDefinitionCompiler {
           }
         }
       }
-      if (_portfolioFull) {
-        return PortfolioCompiler.executeFull(getContext(), getResolutions());
-      } else {
-        return PortfolioCompiler.executeIncremental(getContext(), getResolutions());
-      }
+    }
+
+  }
+
+  private static class IncrementalCompilationTaskFullResolve extends IncrementalCompilationTask {
+
+    protected IncrementalCompilationTaskFullResolve(final ViewDefinition viewDefinition, final ViewCompilationServices compilationServices, final Instant valuationTime,
+        final VersionCorrection versionCorrection, final Map<String, Pair<DependencyGraph, Set<ValueRequirement>>> previousGraphs,
+        final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions) {
+      super(viewDefinition, compilationServices, valuationTime, versionCorrection, previousGraphs, resolutions);
+    }
+
+    @Override
+    protected Portfolio resolveAndCompile() {
+      return PortfolioCompiler.executeFull(getContext(), getResolutions());
+    }
+
+  }
+
+  private static class IncrementalCompilationTaskPartialResolve extends IncrementalCompilationTask {
+
+    private final Set<UniqueId> _changedPositions;
+
+    protected IncrementalCompilationTaskPartialResolve(final ViewDefinition viewDefinition, final ViewCompilationServices compilationServices, final Instant valuationTime,
+        final VersionCorrection versionCorrection, final Map<String, Pair<DependencyGraph, Set<ValueRequirement>>> previousGraphs,
+        final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions, final Set<UniqueId> changedPositions) {
+      super(viewDefinition, compilationServices, valuationTime, versionCorrection, previousGraphs, resolutions);
+      _changedPositions = changedPositions;
+    }
+
+    @Override
+    protected Portfolio resolveAndCompile() {
+      return PortfolioCompiler.executeIncremental(getContext(), getResolutions(), _changedPositions);
     }
 
   }
@@ -286,8 +320,14 @@ public final class ViewDefinitionCompiler {
 
   public static Future<CompiledViewDefinitionWithGraphsImpl> incrementalCompileTask(final ViewDefinition viewDefinition, final ViewCompilationServices compilationServices,
       final Instant valuationTime, final VersionCorrection versionCorrection, final Map<String, Pair<DependencyGraph, Set<ValueRequirement>>> previousGraphs,
-      final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions, final boolean portfolioFull) {
-    return new IncrementalCompilationTask(viewDefinition, compilationServices, valuationTime, versionCorrection, previousGraphs, resolutions, portfolioFull);
+      final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions, final Set<UniqueId> changedPositions) {
+    return new IncrementalCompilationTaskPartialResolve(viewDefinition, compilationServices, valuationTime, versionCorrection, previousGraphs, resolutions, changedPositions);
+  }
+
+  public static Future<CompiledViewDefinitionWithGraphsImpl> incrementalCompileTask(final ViewDefinition viewDefinition, final ViewCompilationServices compilationServices,
+      final Instant valuationTime, final VersionCorrection versionCorrection, final Map<String, Pair<DependencyGraph, Set<ValueRequirement>>> previousGraphs,
+      final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions) {
+    return new IncrementalCompilationTaskFullResolve(viewDefinition, compilationServices, valuationTime, versionCorrection, previousGraphs, resolutions);
   }
 
   public static CompiledViewDefinitionWithGraphsImpl compile(final ViewDefinition viewDefinition, final ViewCompilationServices compilationServices,

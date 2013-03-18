@@ -772,9 +772,9 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
    * 
    * @param previousResolutions the previous cycle's resolution of identifiers, not null
    * @param versionCorrection the resolver version correction for this cycle, not null
-   * @return the invalid identifier set, or null if none are invalid
+   * @return the invalid identifier set, or null if none are invalid, this is a map from the old unique identifier to the new resolution
    */
-  private Set<UniqueId> getInvalidIdentifiers(final Map<ComputationTargetReference, UniqueId> previousResolutions, final VersionCorrection versionCorrection) {
+  private Map<UniqueId, ComputationTargetSpecification> getInvalidIdentifiers(final Map<ComputationTargetReference, UniqueId> previousResolutions, final VersionCorrection versionCorrection) {
     long t = -System.nanoTime();
     // TODO [PLAT-349] Checking all of these identifiers is costly. Can we fork this out as a "job"? Can we use existing infrastructure? Should the bulk resolver operations use a thread pool?
     final Set<ComputationTargetReference> toCheck;
@@ -809,7 +809,7 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
     final Map<ComputationTargetReference, ComputationTargetSpecification> specifications = getProcessContext().getFunctionCompilationService().getFunctionCompilationContext()
         .getRawComputationTargetResolver().getSpecificationResolver().getTargetSpecifications(toCheck, versionCorrection);
     t += System.nanoTime();
-    Set<UniqueId> invalidIdentifiers = null;
+    Map<UniqueId, ComputationTargetSpecification> invalidIdentifiers = null;
     for (final Map.Entry<ComputationTargetReference, UniqueId> target : previousResolutions.entrySet()) {
       final ComputationTargetSpecification resolved = specifications.get(target.getKey());
       if ((resolved != null) && target.getValue().equals(resolved.getUniqueId())) {
@@ -819,9 +819,9 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
         // Identifier no longer resolved, or resolved differently
         s_logger.info("New resolution of {} to {}", target, resolved);
         if (invalidIdentifiers == null) {
-          invalidIdentifiers = new HashSet<UniqueId>();
+          invalidIdentifiers = new HashMap<UniqueId, ComputationTargetSpecification>();
         }
-        invalidIdentifiers.add(target.getValue());
+        invalidIdentifiers.put(target.getValue(), resolved);
       }
     }
     s_logger.debug("{} resolutions checked in {}ms", toCheck.size(), t / 1e6);
@@ -986,6 +986,7 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
       Map<String, Pair<DependencyGraph, Set<ValueRequirement>>> previousGraphs = null;
       ConcurrentMap<ComputationTargetReference, UniqueId> previousResolutions = null;
       boolean portfolioFull = false;
+      Set<UniqueId> changedPositions = null;
       boolean marketDataProviderDirty = _marketDataProviderDirty;
       _marketDataProviderDirty = false;
       if (compiledViewDefinition != null) {
@@ -1002,24 +1003,29 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
           // TODO: The check below works well for the historical valuation case, but if the resolver v/c is different for two workers in the 
           // group for an otherwise identical cache key then including it in the caching detail may become necessary to handle those cases.
           if (!versionCorrection.equals(compiledViewDefinition.getResolverVersionCorrection())) {
-            final Set<UniqueId> invalidIdentifiers = getInvalidIdentifiers(resolvedIdentifiers, versionCorrection);
+            final Map<UniqueId, ComputationTargetSpecification> invalidIdentifiers = getInvalidIdentifiers(resolvedIdentifiers, versionCorrection);
             if (invalidIdentifiers != null) {
               previousGraphs = getPreviousGraphs(previousGraphs, compiledViewDefinition);
-              if (invalidIdentifiers.contains(compiledViewDefinition.getPortfolio().getUniqueId())) {
+              if (invalidIdentifiers.containsKey(compiledViewDefinition.getPortfolio().getUniqueId())) {
                 // The portfolio resolution is different, invalidate all PORTFOLIO and PORTFOLIO_NODE nodes in the graph
                 removePortfolioTerminalOutputs(previousGraphs, compiledViewDefinition);
                 filterPreviousGraphs(previousGraphs, new InvalidPortfolioDependencyNodeFilter());
                 portfolioFull = true;
               }
               // Invalidate any dependency graph nodes on the invalid targets
-              filterPreviousGraphs(previousGraphs, new InvalidTargetDependencyNodeFilter(invalidIdentifiers));
+              filterPreviousGraphs(previousGraphs, new InvalidTargetDependencyNodeFilter(invalidIdentifiers.keySet()));
               previousResolutions = new ConcurrentHashMap<ComputationTargetReference, UniqueId>(resolvedIdentifiers.size());
               for (final Map.Entry<ComputationTargetReference, UniqueId> resolvedIdentifier : resolvedIdentifiers.entrySet()) {
-                if (invalidIdentifiers.contains(resolvedIdentifier.getValue())) {
+                if (invalidIdentifiers.containsKey(resolvedIdentifier.getValue())) {
                   if (!portfolioFull && resolvedIdentifier.getKey().getType().isTargetType(ComputationTargetType.POSITION)) {
                     // At least one position has changed, add all portfolio targets
-                    // TODO: This is very heavy handed, we only REALLY need to add the targets for TRADEs underneath the affected POSITION if TRADE level outputs are enabled.
-                    portfolioFull = true;
+                    ComputationTargetSpecification ctspec = invalidIdentifiers.get(resolvedIdentifier.getValue());
+                    if (ctspec != null) {
+                      if (changedPositions == null) {
+                        changedPositions = new HashSet<UniqueId>();
+                      }
+                      changedPositions.add(ctspec.getUniqueId());
+                    }
                   }
                 } else {
                   previousResolutions.put(resolvedIdentifier.getKey(), resolvedIdentifier.getValue());
@@ -1056,9 +1062,14 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
       final MarketDataAvailabilityProvider availabilityProvider = getMarketDataProvider().getAvailabilityProvider();
       final ViewCompilationServices compilationServices = getProcessContext().asCompilationServices(availabilityProvider);
       if (previousGraphs != null) {
-        s_logger.info(portfolioFull ? "Performing incremental graph compilation with full portfolio resolution" : "Performing incremental graph compilation");
-        _compilationTask = ViewDefinitionCompiler
-            .incrementalCompileTask(getViewDefinition(), compilationServices, valuationTime, versionCorrection, previousGraphs, previousResolutions, portfolioFull);
+        if (portfolioFull) {
+          s_logger.info("Performing incremental graph compilation with portfolio resolution");
+          _compilationTask = ViewDefinitionCompiler.incrementalCompileTask(getViewDefinition(), compilationServices, valuationTime, versionCorrection, previousGraphs, previousResolutions);
+        } else {
+          s_logger.info("Performing incremental graph compilation");
+          _compilationTask = ViewDefinitionCompiler.incrementalCompileTask(getViewDefinition(), compilationServices, valuationTime, versionCorrection, previousGraphs, previousResolutions,
+              changedPositions);
+        }
       } else {
         s_logger.info("Performing full graph compilation");
         _compilationTask = ViewDefinitionCompiler.fullCompileTask(getViewDefinition(), compilationServices, valuationTime, versionCorrection);

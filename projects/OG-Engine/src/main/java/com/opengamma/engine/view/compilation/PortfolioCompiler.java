@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.view.compilation;
 
+import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 
@@ -76,6 +77,10 @@ public final class PortfolioCompiler {
    * @return the fully-resolved portfolio structure if any portfolio targets were required, null otherwise.
    */
   protected static Portfolio executeFull(final ViewCompilationContext compilationContext, final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions) {
+    return execute(compilationContext, resolutions, null);
+  }
+
+  private static Portfolio execute(final ViewCompilationContext compilationContext, final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions, final Set<UniqueId> limitEvents) {
     // Everything we do here is geared towards the avoidance of resolution (of portfolios, positions, securities)
     // wherever possible, to prevent needless dependencies (on a position master, security master) when a view never
     // really has them.
@@ -104,7 +109,7 @@ public final class PortfolioCompiler {
       // Add portfolio requirements to the dependency graph
       final DependencyGraphBuilder builder = compilationContext.getBuilder(calcConfig.getName());
       builder.getCompilationContext().setPortfolio(portfolio);
-      final PortfolioCompilerTraversalCallback traversalCallback = new PortfolioCompilerTraversalCallback(calcConfig, builder, resolutions);
+      final PortfolioCompilerTraversalCallback traversalCallback = new PortfolioCompilerTraversalCallback(calcConfig, builder, resolutions, limitEvents);
       PortfolioNodeTraverser.parallel(traversalCallback, compilationContext.getServices().getExecutorService()).traverse(portfolio.getRootNode());
 
       // TODO: Use a heuristic to decide whether to let the graph builds run in parallel, or sequentially. We will force sequential builds for the time being.
@@ -125,10 +130,14 @@ public final class PortfolioCompiler {
    * 
    * @param compilationContext the context of the view definition compiler
    * @param resolutions the resolutions within the portfolio structure (for example the position object identifiers and underlying security references)
+   * @param changedPositions the identifiers of positions that have changed, or null if none
    * @return the fully-resolved portfolio structure if any portfolio targets are required, null otherwise
    */
-  protected static Portfolio executeIncremental(final ViewCompilationContext compilationContext, final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions) {
-    if (isPortfolioOutputEnabled(compilationContext.getViewDefinition())) {
+  protected static Portfolio executeIncremental(final ViewCompilationContext compilationContext, final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions,
+      final Set<UniqueId> changedPositions) {
+    if (changedPositions != null) {
+      return execute(compilationContext, resolutions, changedPositions);
+    } else if (isPortfolioOutputEnabled(compilationContext.getViewDefinition())) {
       Portfolio portfolio = null;
       for (final ViewCalculationConfiguration calcConfig : compilationContext.getViewDefinition().getAllCalculationConfigurations()) {
         if (!calcConfig.getAllPortfolioRequirements().isEmpty()) {

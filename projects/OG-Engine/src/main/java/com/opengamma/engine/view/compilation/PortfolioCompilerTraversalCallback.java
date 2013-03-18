@@ -32,40 +32,38 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Portfolio tree traversal callback methods that construct value requirements for the specified portfolio's nodes,
- * positions and trades (as per options specified in the result model definition).
- *
- * The value requirements are added to the specified dependency graph builder, possibly triggering the background
- * compilation of dependency graphs for each stage in a portfolio tree while this traversal is still ongoing.
- *
- * The pre-order method for a portfolio node sets up an empty requirements container for that node, which is filled
- * up as its children are traversed (if aggregation is specified in the result model definition), and then added
- * to the dependency graph's list of targets in the post-order method for that portfolio node.
+ * Portfolio tree traversal callback methods that construct value requirements for the specified portfolio's nodes, positions and trades (as per options specified in the result model definition). The
+ * value requirements are added to the specified dependency graph builder, possibly triggering the background compilation of dependency graphs for each stage in a portfolio tree while this traversal
+ * is still ongoing. The pre-order method for a portfolio node sets up an empty requirements container for that node, which is filled up as its children are traversed (if aggregation is specified in
+ * the result model definition), and then added to the dependency graph's list of targets in the post-order method for that portfolio node.
  */
 /* package */class PortfolioCompilerTraversalCallback extends AbstractPortfolioNodeTraversalCallback {
 
+  private final Set<UniqueId> _limitEvents;
   private final ViewCalculationConfiguration _calculationConfiguration;
   private final ResultModelDefinition _resultModelDefinition;
   private final DependencyGraphBuilder _builder;
   private final ConcurrentMap<ComputationTargetReference, UniqueId> _resolutions;
 
   /**
-   * This map persists gathered requirements for each portfolio node and position across multiple traversal steps,
-   * thus allowing child nodes/positions to insert aggregate requirements into their parent node.
+   * This map persists gathered requirements for each portfolio node and position across multiple traversal steps, thus allowing child nodes/positions to insert aggregate requirements into their
+   * parent node.
    */
   private final ConcurrentMap<UniqueId, Set<Pair<String, ValueProperties>>> _nodeRequirements =
       new ConcurrentHashMap<UniqueId, Set<Pair<String, ValueProperties>>>();
 
   public PortfolioCompilerTraversalCallback(final ViewCalculationConfiguration calculationConfiguration, final DependencyGraphBuilder builder,
-      final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions) {
+      final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions, final Set<UniqueId> limitEvents) {
     _calculationConfiguration = calculationConfiguration;
     _resultModelDefinition = calculationConfiguration.getViewDefinition().getResultModelDefinition();
     _builder = builder;
     _resolutions = resolutions;
+    _limitEvents = limitEvents;
   }
 
   /**
    * Add the specified value requirement to the dep graph builder, triggering graph building by background threads
+   * 
    * @param valueRequirement the value requirement to add
    */
   protected void addValueRequirement(final ValueRequirement valueRequirement) {
@@ -75,7 +73,7 @@ import com.opengamma.util.tuple.Pair;
   /**
    * Store details of the security link in the resolution cache. The link is assumed to be a record of the link to the object, for example is it held by strong (object id) or weak (external id)
    * reference.
-   *
+   * 
    * @param link the link to store - the identifier is taken from this along with the resolved unique identifier
    */
   private void store(final SecurityLink link) {
@@ -128,14 +126,18 @@ import com.opengamma.util.tuple.Pair;
   }
 
   /**
-   * The pre-order operation for a position in a portfolio. which adds the value requirements for the current position
-   * and/or its trades to the graph builder's set of value requirements (if the result model specifies it), and also
-   * adds aggregate value requirements to the parent's requirements (again, if the result model specifies it) to be
-   * reaped post-order.
-   * @param position  the position being traversed
+   * The pre-order operation for a position in a portfolio. which adds the value requirements for the current position and/or its trades to the graph builder's set of value requirements (if the result
+   * model specifies it), and also adds aggregate value requirements to the parent's requirements (again, if the result model specifies it) to be reaped post-order.
+   * 
+   * @param position the position being traversed
    */
   @Override
   public void preOrderOperation(final PortfolioNode parentNode, final Position position) {
+    // If a sub-set of positions is to be considered, fail/return quickly
+    if ((_limitEvents != null) && !_limitEvents.contains(position.getUniqueId())) {
+      return;
+    }
+
     // Get this position's security or return immediately if not available
     final Security security = position.getSecurity();
     if (security == null) {
@@ -209,10 +211,10 @@ import com.opengamma.util.tuple.Pair;
   }
 
   /**
-   * The post-order operation for a portfolio node, which adds the value requirements gathered while traversing
-   * this portfolio node's children to the graph builder's set of value requirements. This portfolio node's requirements
-   * are also passed up into its own parent node's requirments.
-   * @param node  the portfolio node being traversed
+   * The post-order operation for a portfolio node, which adds the value requirements gathered while traversing this portfolio node's children to the graph builder's set of value requirements. This
+   * portfolio node's requirements are also passed up into its own parent node's requirments.
+   * 
+   * @param node the portfolio node being traversed
    */
   @Override
   public void postOrderOperation(final PortfolioNode node) {
