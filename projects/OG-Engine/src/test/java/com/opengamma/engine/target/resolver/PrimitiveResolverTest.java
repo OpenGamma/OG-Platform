@@ -41,14 +41,18 @@ public class PrimitiveResolverTest {
   public void testPrimitiveResolver() {
     final Resolver<?> resolver = new PrimitiveResolver();
     assertEquals(resolver.resolveObject(UniqueId.of("Foo", "Bar"), VersionCorrection.LATEST), new Primitive(UniqueId.of("Foo", "Bar")));
-    UniqueId uid = resolver.resolveExternalId(ExternalId.of("Foo", "Bar").toBundle(), VersionCorrection.LATEST);
-    Object o = resolver.resolveObject(uid, VersionCorrection.LATEST);
-    assertTrue(o instanceof ExternalIdentifiable);
-    assertEquals(((ExternalIdentifiable) o).getExternalId(), ExternalId.of("Foo", "Bar"));
-    uid = resolver.resolveExternalId(ExternalIdBundle.of(ExternalId.of("Foo-", "A"), ExternalId.of("Bar\\", "B")), VersionCorrection.LATEST);
-    o = resolver.resolveObject(uid, VersionCorrection.LATEST);
+    final ExternalId[] eids = new ExternalId[] {ExternalId.of("Foo", "A"), ExternalId.of("Foo-", "A"), ExternalId.of("Foo\\", "A"), ExternalId.of("Foo", "A-B"), ExternalId.of("Foo-Bar", "A"),
+        ExternalId.of("Foo-Bar", "A-B"), ExternalId.of("Foo\\-Bar", "A\\B"), ExternalId.of("Foo\\\\Bar", "A\\\\B") };
+    for (ExternalId eid : eids) {
+      final UniqueId uid = resolver.resolveExternalId(eid.toBundle(), VersionCorrection.LATEST);
+      final Object o = resolver.resolveObject(uid, VersionCorrection.LATEST);
+      assertTrue(o instanceof ExternalIdentifiable);
+      assertEquals(((ExternalIdentifiable) o).getExternalId(), eid);
+    }
+    final UniqueId uid = resolver.resolveExternalId(ExternalIdBundle.of(eids), VersionCorrection.LATEST);
+    final Object o = resolver.resolveObject(uid, VersionCorrection.LATEST);
     assertTrue(o instanceof ExternalBundleIdentifiable);
-    assertEquals(((ExternalBundleIdentifiable) o).getExternalIdBundle(), ExternalIdBundle.of(ExternalId.of("Foo-", "A"), ExternalId.of("Bar\\", "B")));
+    assertEquals(((ExternalBundleIdentifiable) o).getExternalIdBundle(), ExternalIdBundle.of(eids));
   }
 
 }

@@ -50,15 +50,17 @@ public class PrimitiveResolver implements Resolver<Primitive> {
   private static String[] unescape(final String str, final int i) {
     final int l = str.length();
     int count = 1;
+    boolean backslash = false;
     for (int j = i; j < l; j++) {
       final char c = str.charAt(j);
       if (c == '-') {
         count++;
       } else if (c == '\\') {
         j++;
+        backslash = true;
       }
     }
-    if (count == 1) {
+    if ((count == 1) && !backslash) {
       return new String[] {str.substring(i) };
     }
     final String[] result = new String[count];
