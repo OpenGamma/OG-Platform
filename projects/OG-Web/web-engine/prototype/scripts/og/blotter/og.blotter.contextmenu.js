@@ -22,7 +22,7 @@ $.register_module({
                         new og.blotter.Dialog({
                             details: data, portfolio:{name: id, id: id}, 
                             handler: function (data) {return og.api.rest.blotter.positions.put(data);},
-                            complete : complete_handler 
+                            complete : complete_handler, save_as: true 
                         });
                     });
                 };
@@ -34,7 +34,7 @@ $.register_module({
                         new og.blotter.Dialog({
                             details: data, portfolio:{name: nodeId, id: nodeId}, 
                             handler: function (data) {return og.api.rest.blotter.trades.put(data);},
-                            complete : complete_handler 
+                            complete : complete_handler
                         });
                     });
                 };
@@ -44,7 +44,7 @@ $.register_module({
                         new og.blotter.Dialog({
                             details: data, portfolio:{name: cell.row_value.nodeId, id: cell.row_value.nodeId},
                             handler: function (data) {return og.api.rest.blotter.trades.put(data);},
-                            complete : complete_handler 
+                            complete : complete_handler, save_as: true
                         });
                     });
                 };
@@ -52,7 +52,7 @@ $.register_module({
                 var trade_insert_node = function () {
                     new og.blotter.Dialog({portfolio:{name: cell.row_value.nodeId, id: cell.row_value.nodeId}, 
                         handler: function (data) {return og.api.rest.blotter.trades.put(data);},
-                        complete : complete_handler   
+                        complete : complete_handler
                     });
                 };
                 var trade_delete = function () {

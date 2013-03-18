@@ -84,7 +84,7 @@ $.register_module({
             edit_trade = function (trade_id) {
                 og.api.rest.blotter.trades.get({id: trade_id}).pipe(function (data) {
                     new og.blotter.Dialog({
-                        details: data,
+                        details: data, save_as: true, 
                         handler: function (data) {return og.api.rest.blotter.trades.put(data);}
                     });
                 });
