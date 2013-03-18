@@ -14,6 +14,8 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: org.apache.ant:ant:1.7.1" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: org.apache.ant:ant-launcher:1.7.1" level="project" />
     <orderEntry type="module" module-name="OG-Financial" />
     <orderEntry type="module" module-name="OG-Master" />
     <orderEntry type="module" module-name="OG-Core" />

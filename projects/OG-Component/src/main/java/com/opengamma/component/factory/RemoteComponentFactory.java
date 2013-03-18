@@ -27,6 +27,8 @@ import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.holiday.impl.RemoteHolidaySource;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.core.marketdatasnapshot.impl.RemoteMarketDataSnapshotSource;
+import com.opengamma.core.organization.OrganizationSource;
+import com.opengamma.core.organization.impl.RemoteOrganizationSource;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.position.impl.RemotePositionSource;
 import com.opengamma.core.region.RegionSource;
@@ -60,6 +62,7 @@ import com.opengamma.master.holiday.HolidayMaster;
 import com.opengamma.master.holiday.impl.RemoteHolidayMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.marketdatasnapshot.impl.RemoteMarketDataSnapshotMaster;
+import com.opengamma.master.orgs.OrganisationMaster;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.region.RegionMaster;
@@ -67,6 +70,7 @@ import com.opengamma.master.region.impl.RemoteRegionMaster;
 import com.opengamma.master.security.SecurityLoader;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.impl.RemoteSecurityLoader;
+import com.opengamma.masterdb.orgs.RemoteDbOrganisationMaster;
 import com.opengamma.masterdb.portfolio.RemoteDbPortfolioMaster;
 import com.opengamma.masterdb.position.RemoteDbPositionMaster;
 import com.opengamma.masterdb.security.RemoteDbSecurityMaster;
@@ -353,6 +357,67 @@ public class RemoteComponentFactory {
     Map<String, SecurityMaster> result = new LinkedHashMap<String, SecurityMaster>();
     for (ComponentInfo info : getComponentServer().getComponentInfos(SecurityMaster.class)) {
       result.put(info.getClassifier(), new RemoteDbSecurityMaster(info.getUri()));
+    }
+    return result;
+  }
+
+  //-------------------------------------------------------------------------
+  // Organisations/Obligors
+  /**
+   * @param name the classifier name of the object you want to retrieve
+   * @return the interface requested, or null if not present
+   */
+  public OrganizationSource getOrganizationSource(final String name) {
+    URI uri = getComponentServer().getComponentInfo(OrganizationSource.class, name).getUri();
+    return new RemoteOrganizationSource(uri);
+  }
+
+  /**
+   * @param preferredClassifiers a list of names of classifiers in order of preference (most preferred first), or null
+   * @return the best matching interface available
+   */
+  public OrganizationSource getOrganizationSource(final List<String> preferredClassifiers) {
+    URI uri = getTopLevelComponent(preferredClassifiers, OrganizationSource.class).getUri();
+    return new RemoteOrganizationSource(uri);
+  }
+
+  /**
+   * @return a map of classifier names to requested interface type
+   */
+  public Map<String, OrganizationSource> getOrganizationSources() {
+    Map<String, OrganizationSource> result = new LinkedHashMap<>();
+    for (ComponentInfo info : getComponentServer().getComponentInfos(OrganizationSource.class)) {
+      result.put(info.getClassifier(), new RemoteOrganizationSource(info.getUri()));
+    }
+    return result;
+  }
+  //-------------------------------------------------------------------------
+
+  /**
+   * @param name the classifier name of the object you want to retrieve
+   * @return the interface requested, or null if not present
+   */
+  public OrganisationMaster getOrganisationMaster(final String name) {
+    URI uri = getComponentServer().getComponentInfo(OrganisationMaster.class, name).getUri();
+    return new RemoteDbOrganisationMaster(uri);
+  }
+
+  /**
+   * @param preferredClassifiers a list of names of classifiers in order of preference (most preferred first), or null
+   * @return the best matching interface available
+   */
+  public OrganisationMaster getOrganisationMaster(final List<String> preferredClassifiers) {
+    URI uri = getTopLevelComponent(preferredClassifiers, OrganisationMaster.class).getUri();
+    return new RemoteDbOrganisationMaster(uri);
+  }
+
+  /**
+   * @return a map of classifier names to requested interface type
+   */
+  public Map<String, OrganisationMaster> getOrganisationMasters() {
+    Map<String, OrganisationMaster> result = new LinkedHashMap<>();
+    for (ComponentInfo info : getComponentServer().getComponentInfos(OrganisationMaster.class)) {
+      result.put(info.getClassifier(), new RemoteDbOrganisationMaster(info.getUri()));
     }
     return result;
   }

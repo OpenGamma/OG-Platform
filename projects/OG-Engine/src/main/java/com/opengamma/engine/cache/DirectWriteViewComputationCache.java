@@ -65,17 +65,17 @@ public class DirectWriteViewComputationCache implements DeferredViewComputationC
   }
 
   @Override
-  public void putSharedValues(final Collection<ComputedValue> values) {
+  public void putSharedValues(final Collection<? extends ComputedValue> values) {
     getUnderlying().putSharedValues(values);
   }
 
   @Override
-  public void putPrivateValues(final Collection<ComputedValue> values) {
+  public void putPrivateValues(final Collection<? extends ComputedValue> values) {
     getUnderlying().putPrivateValues(values);
   }
 
   @Override
-  public void putValues(final Collection<ComputedValue> values, final CacheSelectHint filter) {
+  public void putValues(final Collection<? extends ComputedValue> values, final CacheSelectHint filter) {
     getUnderlying().putValues(values, filter);
   }
 
@@ -106,26 +106,26 @@ public class DirectWriteViewComputationCache implements DeferredViewComputationC
     invocationStatistics(value, statistics);
   }
 
-  protected void statistics(final Collection<ComputedValue> values, final DeferredStatistics statistics) {
+  protected void statistics(final Collection<? extends ComputedValue> values, final DeferredStatistics statistics) {
     for (ComputedValue value : values) {
       statistics.reportEstimatedSize(value, estimateValueSize(value));
     }
   }
 
   @Override
-  public void putSharedValues(final Collection<ComputedValue> values, final DeferredStatistics statistics) {
+  public void putSharedValues(final Collection<? extends ComputedValue> values, final DeferredStatistics statistics) {
     putSharedValues(values);
     statistics(values, statistics);
   }
 
   @Override
-  public void putPrivateValues(final Collection<ComputedValue> values, final DeferredStatistics statistics) {
+  public void putPrivateValues(final Collection<? extends ComputedValue> values, final DeferredStatistics statistics) {
     putPrivateValues(values);
     statistics(values, statistics);
   }
 
   @Override
-  public void putValues(final Collection<ComputedValue> values, final CacheSelectHint filter, final DeferredStatistics statistics) {
+  public void putValues(final Collection<? extends ComputedValue> values, final CacheSelectHint filter, final DeferredStatistics statistics) {
     putValues(values, filter);
     statistics(values, statistics);
   }

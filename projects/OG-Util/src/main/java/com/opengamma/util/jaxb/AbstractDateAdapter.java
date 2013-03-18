@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb;
+package com.opengamma.util.jaxb;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 

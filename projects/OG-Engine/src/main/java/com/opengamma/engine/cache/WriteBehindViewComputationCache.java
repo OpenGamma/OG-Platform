@@ -504,17 +504,17 @@ public class WriteBehindViewComputationCache implements DeferredViewComputationC
   }
 
   @Override
-  public void putSharedValues(final Collection<ComputedValue> values) {
+  public void putSharedValues(final Collection<? extends ComputedValue> values) {
     putSharedValues(values, null);
   }
 
   @Override
-  public void putPrivateValues(final Collection<ComputedValue> values) {
+  public void putPrivateValues(final Collection<? extends ComputedValue> values) {
     putPrivateValues(values, null);
   }
 
   @Override
-  public void putValues(final Collection<ComputedValue> values, final CacheSelectHint filter) {
+  public void putValues(final Collection<? extends ComputedValue> values, final CacheSelectHint filter) {
     putValues(values, filter, null);
   }
 
@@ -561,7 +561,7 @@ public class WriteBehindViewComputationCache implements DeferredViewComputationC
   }
 
   @Override
-  public void putSharedValues(final Collection<ComputedValue> values, final DeferredStatistics statistics) {
+  public void putSharedValues(final Collection<? extends ComputedValue> values, final DeferredStatistics statistics) {
     if (_pendingSharedValues != null) {
       final PendingLock lock = pending(values.size());
       for (final ComputedValue value : values) {
@@ -581,7 +581,7 @@ public class WriteBehindViewComputationCache implements DeferredViewComputationC
   }
 
   @Override
-  public void putPrivateValues(final Collection<ComputedValue> values, final DeferredStatistics statistics) {
+  public void putPrivateValues(final Collection<? extends ComputedValue> values, final DeferredStatistics statistics) {
     if (_pendingPrivateValues != null) {
       final PendingLock lock = pending(values.size());
       for (final ComputedValue value : values) {
@@ -601,7 +601,7 @@ public class WriteBehindViewComputationCache implements DeferredViewComputationC
   }
 
   @Override
-  public void putValues(final Collection<ComputedValue> values, final CacheSelectHint filter, final DeferredStatistics statistics) {
+  public void putValues(final Collection<? extends ComputedValue> values, final CacheSelectHint filter, final DeferredStatistics statistics) {
     final PendingLock lock = pending(values.size());
     int undo = 0;
     for (final ComputedValue value : values) {

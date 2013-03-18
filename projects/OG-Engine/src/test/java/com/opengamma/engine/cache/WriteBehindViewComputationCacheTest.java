@@ -28,9 +28,6 @@ import org.testng.annotations.Test;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.cache.AbstractViewComputationCache;
-import com.opengamma.engine.cache.CacheSelectHint;
-import com.opengamma.engine.cache.WriteBehindViewComputationCache;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
@@ -47,8 +44,8 @@ public class WriteBehindViewComputationCacheTest {
   @DataProvider(name = "cacheHints")
   public static Object[][] data_cacheHints() {
     return new Object[][] {
-        {CacheSelectHint.allPrivate()},
-        {CacheSelectHint.allShared()},
+        {CacheSelectHint.allPrivate() },
+        {CacheSelectHint.allShared() },
     };
   }
 
@@ -99,7 +96,7 @@ public class WriteBehindViewComputationCacheTest {
       putValueImpl(value);
     }
 
-    private void putValuesImpl(final Collection<ComputedValue> values) {
+    private void putValuesImpl(final Collection<? extends ComputedValue> values) {
       try {
         _allowPutValues.await(Timeout.standardTimeoutMillis(), TimeUnit.MILLISECONDS);
       } catch (final InterruptedException ex) {
@@ -112,12 +109,12 @@ public class WriteBehindViewComputationCacheTest {
     }
 
     @Override
-    public void putPrivateValues(final Collection<ComputedValue> values) {
+    public void putPrivateValues(final Collection<? extends ComputedValue> values) {
       putValuesImpl(values);
     }
 
     @Override
-    public void putSharedValues(final Collection<ComputedValue> values) {
+    public void putSharedValues(final Collection<? extends ComputedValue> values) {
       putValuesImpl(values);
     }
 

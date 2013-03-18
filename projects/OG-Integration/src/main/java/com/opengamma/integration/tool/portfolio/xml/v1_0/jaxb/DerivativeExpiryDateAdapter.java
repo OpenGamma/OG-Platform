@@ -8,6 +8,8 @@ package com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb;
 
 import org.threeten.bp.YearMonth;
 
+import com.opengamma.util.jaxb.AbstractDateAdapter;
+
 public class DerivativeExpiryDateAdapter extends AbstractDateAdapter<YearMonth> {
 
   @Override

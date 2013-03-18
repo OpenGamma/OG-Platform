@@ -5,9 +5,8 @@
  */
 package com.opengamma.master.orgs;
 
-import com.opengamma.core.change.ChangeProvider;
 import com.opengamma.id.UniqueId;
-import com.opengamma.master.AbstractMaster;
+import com.opengamma.master.AbstractChangeProvidingMaster;
 import com.opengamma.util.PublicSPI;
 
 /**
@@ -17,7 +16,7 @@ import com.opengamma.util.PublicSPI;
  * This interface provides methods that allow the master to be searched and updated.
  */
 @PublicSPI
-public interface OrganisationMaster extends AbstractMaster<OrganisationDocument>, ChangeProvider {
+public interface OrganisationMaster extends AbstractChangeProvidingMaster<OrganisationDocument> {
 
   /**
    * Searches for organisations matching the specified search criteria.

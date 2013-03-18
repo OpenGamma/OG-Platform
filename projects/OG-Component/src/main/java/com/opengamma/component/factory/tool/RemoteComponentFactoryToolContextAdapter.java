@@ -47,6 +47,7 @@ public class RemoteComponentFactoryToolContextAdapter extends ToolContext {
     setSecurityMaster(remoteComponentFactory.getSecurityMaster(classifierPreferences));
     setPositionMaster(remoteComponentFactory.getPositionMaster(classifierPreferences));
     setPortfolioMaster(remoteComponentFactory.getPortfolioMaster(classifierPreferences));
+    setOrganisationMaster(remoteComponentFactory.getOrganisationMaster(classifierPreferences));
     setHistoricalTimeSeriesMaster(remoteComponentFactory.getHistoricalTimeSeriesMaster(classifierPreferences));
     setMarketDataSnapshotMaster(remoteComponentFactory.getMarketDataSnapshotMaster(classifierPreferences));
     
