@@ -19,15 +19,14 @@ import com.opengamma.transport.ByteArrayFudgeMessageSender;
 import com.opengamma.transport.CollectingByteArrayMessageSender;
 
 /**
- * 
+ * Test.
  */
-@Test
+@Test(groups = "unit")
 public class DistributedAuditLoggerTest {
-  
+
   private static final FudgeContext s_fudgeContext = new FudgeContext ();
-  
+
   public void testClientServerAuditLogging() {
-    
     CollectingByteArrayMessageSender msgStore = new CollectingByteArrayMessageSender();
     assertEquals(0, msgStore.getMessages().size());
     

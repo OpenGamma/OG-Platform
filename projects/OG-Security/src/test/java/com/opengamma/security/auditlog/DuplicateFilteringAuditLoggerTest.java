@@ -10,9 +10,9 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 
 /**
- * 
+ * Test.
  */
-@Test(invocationCount = 4)
+@Test(groups = "integration", invocationCount = 4)
 public class DuplicateFilteringAuditLoggerTest {
 
   public void testDuplicateFiltering() throws InterruptedException {

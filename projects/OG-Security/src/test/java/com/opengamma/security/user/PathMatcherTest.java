@@ -11,13 +11,12 @@ import static org.testng.AssertJUnit.assertTrue;
 import org.testng.annotations.Test;
 
 /**
- * 
+ * Test.
  */
-@Test
+@Test(groups = "unit")
 public class PathMatcherTest {
-  
+
   public void testMatching() {
-    
     assertTrue(PathMatcher.matches("/MarketData/Bloomberg/AAPL/View", "/MarketData/Bloomberg/*/View"));
     assertFalse(PathMatcher.matches("/MarketData2/Bloomberg/AAPL/View", "/MarketData/Bloomberg/*/View"));
     
