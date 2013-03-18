@@ -18,6 +18,7 @@ import javax.ws.rs.core.UriInfo;
 import org.springframework.core.io.FileSystemResourceLoader;
 import org.springframework.mock.web.MockServletContext;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.OffsetTime;
@@ -64,6 +65,7 @@ import freemarker.template.Configuration;
 /**
  * Test base class for WebPositionResource tests
  */
+@Test
 public abstract class AbstractWebPositionResourceTestCase {
 
   protected static final ExternalId COUNTER_PARTY = ExternalId.of(Counterparty.DEFAULT_SCHEME, "BACS");
