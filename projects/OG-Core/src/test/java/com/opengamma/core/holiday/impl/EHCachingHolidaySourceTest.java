@@ -24,11 +24,12 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ehcache.EHCacheUtils;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test {@link EHCachingHolidaySource}.
  */
-@Test(groups = {"ehcache"})
+@Test(groups = {TestGroup.UNIT, "ehcache"})
 public class EHCachingHolidaySourceTest {
 
   private static final UniqueId UID = UniqueId.of("A", "B");

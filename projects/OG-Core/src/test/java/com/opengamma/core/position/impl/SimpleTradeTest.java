@@ -27,11 +27,12 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test {@link SimpleTrade}.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class SimpleTradeTest {
 
   private static final Counterparty COUNTERPARTY = new SimpleCounterparty(ExternalId.of("CPARTY", "C100"));

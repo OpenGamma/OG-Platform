@@ -25,11 +25,12 @@ import com.opengamma.core.security.impl.SimpleSecurityLink;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test {@link SimplePosition}.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class SimplePositionTest {
   
   private static final Counterparty COUNTERPARTY = new SimpleCounterparty(ExternalId.of("CPARTY", "C100"));

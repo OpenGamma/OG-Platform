@@ -27,11 +27,13 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.transport.jaxrs.FudgeResponse;
+import com.opengamma.util.test.TestGroup;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**
  * Tests DataPositionSourceResource.
  */
+@Test(groups = TestGroup.UNIT)
 public class DataPositionSourceResourceTest {
 
   private static final ObjectId OID = ObjectId.of("Test", "A");

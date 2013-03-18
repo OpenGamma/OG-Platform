@@ -29,11 +29,13 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.fudgemsg.FudgeListWrapper;
+import com.opengamma.util.test.TestGroup;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**
  * Tests DataRegionSourceResource.
  */
+@Test(groups = TestGroup.UNIT)
 public class DataRegionSourceResourceTest {
 
   private static final ObjectId OID = ObjectId.of("Test", "A");

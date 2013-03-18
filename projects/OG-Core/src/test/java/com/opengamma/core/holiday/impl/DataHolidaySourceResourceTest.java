@@ -26,11 +26,13 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.util.test.TestGroup;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**
  * Tests DataHolidaySourceResource.
  */
+@Test(groups = TestGroup.UNIT)
 public class DataHolidaySourceResourceTest {
 
   private static final ObjectId OID = ObjectId.of("Test", "A");

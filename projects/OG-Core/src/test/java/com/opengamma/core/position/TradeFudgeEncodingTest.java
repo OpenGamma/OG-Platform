@@ -19,11 +19,12 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test {@link TradeFudgeBuilder}.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class TradeFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
 
   public void testEmpty() {

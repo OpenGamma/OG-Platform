@@ -12,11 +12,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test {@link SimpleSecurity}.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class SimpleSecurityTest {
 
   private static final UniqueId UID = UniqueId.of("P", "A");

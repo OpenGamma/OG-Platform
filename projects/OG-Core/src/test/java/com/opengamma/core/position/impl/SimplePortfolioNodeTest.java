@@ -17,11 +17,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test {@link SimplePortfolioNode}.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class SimplePortfolioNodeTest {
 
   public void test_construction() {
