@@ -25,6 +25,7 @@ import com.opengamma.util.test.TransactionalHibernateTest;
 /**
  * Test HibernateUserManager.
  */
+@Test(groups = "unitdb")
 public class HibernateUserManagerTest extends TransactionalHibernateTest {
 
   private HibernateUserManager _userManager;
@@ -53,6 +54,7 @@ public class HibernateUserManagerTest extends TransactionalHibernateTest {
     super.tearDown();
   }
 
+  //-------------------------------------------------------------------------
   @Test
   public void testUserManagement() {
     // Try to get non-existent

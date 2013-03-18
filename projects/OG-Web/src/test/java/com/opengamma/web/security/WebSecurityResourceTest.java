@@ -20,6 +20,7 @@ import com.opengamma.financial.security.test.SecurityTestCaseMethods;
 /**
  * Test {@link WebSecurityResource}.
  */
+@Test(groups = "unit")
 public class WebSecurityResourceTest extends AbstractWebSecurityResourceTestCase implements SecurityTestCaseMethods {
  
   @Test

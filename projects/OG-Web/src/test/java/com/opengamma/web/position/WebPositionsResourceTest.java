@@ -22,6 +22,7 @@ import org.testng.annotations.Test;
 /**
  * Test {@link WebPositionsResource}.
  */
+@Test(groups = "unit")
 public class WebPositionsResourceTest extends AbstractWebPositionResourceTestCase {
   
   @Test

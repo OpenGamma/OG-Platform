@@ -14,7 +14,7 @@ import org.testng.annotations.Test;
 /**
  * Test WebHomeUris.
  */
-@Test
+@Test(groups = "unit")
 public class WebHomeUrisTest {
 
   public void test_constructable() {

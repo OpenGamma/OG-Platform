@@ -19,6 +19,10 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
 
+/**
+ * Test.
+ */
+@Test(groups = "unit")
 public class VolatilitySurfaceDataFormatterTest {
 
   @SuppressWarnings("unchecked")

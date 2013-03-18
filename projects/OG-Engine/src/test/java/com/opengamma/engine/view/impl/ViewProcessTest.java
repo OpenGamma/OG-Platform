@@ -153,7 +153,7 @@ public class ViewProcessTest {
         return time0.plusMillis(20);
       }
     };
-    ((SingleThreadViewProcessWorker) worker).setLastCompiledViewDefinition(compiledViewDefinition);
+    ((SingleThreadViewProcessWorker) worker).cacheCompiledViewDefinition(compiledViewDefinition);
 
     // Running at time0 + 20 doesn't require a rebuild - should still use our dummy
     worker.requestCycle();

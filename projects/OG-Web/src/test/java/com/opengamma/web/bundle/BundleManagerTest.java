@@ -32,7 +32,7 @@ import com.google.common.collect.Lists;
 /**
  * Test BundleManager.
  */
-@Test
+@Test(groups = "unit")
 public class BundleManagerTest {
 
   private static List<Fragment> EXPECTED_JS_BUNDLE_COMMON = Lists.newArrayList(CORE_JS, INIT_JS, JQUERY_JS);

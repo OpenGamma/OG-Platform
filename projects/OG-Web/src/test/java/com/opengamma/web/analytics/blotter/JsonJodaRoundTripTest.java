@@ -42,6 +42,10 @@ import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
 
+/**
+ * Test.
+ */
+@Test(groups = "unit")
 @SuppressWarnings("unchecked")
 public class JsonJodaRoundTripTest {
 

@@ -18,6 +18,10 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.util.test.Timeout;
 import com.opengamma.web.analytics.rest.MasterType;
 
+/**
+ * Test.
+ */
+@Test(groups = "unit")
 public class ConnectionManagerImplTest {
 
   @Test(expectedExceptions = DataNotFoundException.class)

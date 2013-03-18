@@ -32,8 +32,9 @@ import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.analytics.formatting.TypeFormatter;
 
 /**
- *
+ * Test.
  */
+@Test(groups = "unit")
 public class LoggingViewportListenerTest {
 
   private final GridCell _cell1 = new GridCell(0, 1);
@@ -116,12 +117,8 @@ public class LoggingViewportListenerTest {
     listener.viewportDeleted(viewportDef2, _gridStructure);
     verify(viewClient).setMinimumLogMode(ExecutionLogMode.INDICATORS, resultSpecs(_cell2, _cell3));
   }
-// -----------------------------------------------------------------------------------
 
-  private static ViewportDefinition viewportDef(final boolean enableLogging, final GridCell... cells) {
-    return viewportDef(enableLogging, Arrays.asList(cells));
-  }
-
+  //-------------------------------------------------------------------------
   private static ViewportDefinition viewportDef(final boolean enableLogging, final List<GridCell> cells) {
     return new ArbitraryViewportDefinition(0, cells, TypeFormatter.Format.CELL, enableLogging);
   }

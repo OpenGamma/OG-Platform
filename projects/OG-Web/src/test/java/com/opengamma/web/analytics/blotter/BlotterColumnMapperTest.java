@@ -28,8 +28,9 @@ import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.money.Currency;
 
 /**
- *
+ * Test.
  */
+@Test(groups = "unit")
 public class BlotterColumnMapperTest {
 
   private static final CurrencyPairs s_currencyPairs = CurrencyPairs.of(ImmutableSet.of(CurrencyPair.of(Currency.GBP,

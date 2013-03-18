@@ -34,8 +34,9 @@ import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.money.Currency;
 
 /**
- *
+ * Test.
  */
+@Test(groups = "unit")
 public class ExternalIdVisitorTest {
 
   // TODO use test data from BlotterTestUtils

@@ -23,6 +23,10 @@ import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.master.security.ManageableSecurity;
 
+/**
+ * Test.
+ */
+@Test(groups = "unit")
 public class BlotterResourceTest {
 
   private final StringConvert _stringConvert = BlotterUtils.getStringConvert();

@@ -18,6 +18,10 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.web.analytics.formatting.TypeFormatter;
 
+/**
+ * Test.
+ */
+@Test(groups = "unit")
 public class RectangularViewportDefinitionTest {
 
   @Test

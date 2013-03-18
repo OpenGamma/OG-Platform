@@ -21,7 +21,7 @@ import com.opengamma.OpenGammaRuntimeException;
 /**
  * Test BundleParser.
  */
-@Test
+@Test(groups = "unit")
 public class BundleParserTest {
 
   public void testParser() throws Exception {

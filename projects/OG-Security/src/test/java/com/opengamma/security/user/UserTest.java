@@ -14,7 +14,7 @@ import org.testng.annotations.Test;
 /**
  * 
  */
-@Test
+@Test(groups = "unit")
 public class UserTest {
 
   public void testPermissioning() {
@@ -36,7 +36,7 @@ public class UserTest {
     assertFalse(user.hasPermission("/Portfolio/Foo/Read"));
   }
 
-  public void password() {
+  public void testPassword() {
     String password = "crpty&@\uFFFD9,3 % (4/10)";
     User user = new User();
     user.setPassword(password);

@@ -25,6 +25,10 @@ import com.opengamma.master.position.PositionDocument;
 import com.opengamma.util.money.Currency;
 import com.opengamma.web.WebResourceTestUtils;
 
+/**
+ * Test.
+ */
+@Test(groups = "unit")
 public class CreateAndUpdateTradesWithAttributesTest extends AbstractWebPositionResourceTestCase {
   
   private static final OffsetTime TRADE_TIME = OffsetTime.parse("19:04+02:00");

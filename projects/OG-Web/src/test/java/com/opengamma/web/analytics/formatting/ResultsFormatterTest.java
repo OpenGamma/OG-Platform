@@ -15,8 +15,9 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.UniqueId;
 
 /**
- *
+ * Test.
  */
+@Test(groups = "unit")
 public class ResultsFormatterTest {
 
   /**

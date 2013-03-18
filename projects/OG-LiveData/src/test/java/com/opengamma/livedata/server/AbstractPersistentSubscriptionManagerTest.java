@@ -21,7 +21,7 @@ import com.opengamma.livedata.normalization.StandardRules;
 import com.opengamma.livedata.server.distribution.MarketDataDistributor;
 import com.opengamma.util.ehcache.EHCacheUtils;
 
-@Test(groups = {"ehcache"})
+@Test(groups = {"unit", "ehcache"})
 public class AbstractPersistentSubscriptionManagerTest {
   
   //TODO test async logic

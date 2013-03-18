@@ -18,6 +18,7 @@ import com.google.common.collect.ImmutableList;
 /**
  * Tests that {@link AnalyticsNodeJsonWriter} creates the expected JSON.
  */
+@Test(groups = "unit")
 public class AnalyticsNodeJsonWriterTest {
 
   @Test

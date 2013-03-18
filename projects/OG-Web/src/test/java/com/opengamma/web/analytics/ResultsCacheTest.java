@@ -28,6 +28,10 @@ import com.opengamma.engine.view.AggregatedExecutionLog;
 import com.opengamma.engine.view.impl.InMemoryViewComputationResultModel;
 import com.opengamma.id.UniqueId;
 
+/**
+ * Test.
+ */
+@Test(groups = "unit")
 public class ResultsCacheTest {
 
   private static final String CALC_CONFIG = "calcConfig";
