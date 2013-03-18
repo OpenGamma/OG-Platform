@@ -11,10 +11,12 @@ import static org.testng.Assert.assertNull;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Test the {@link ValueDecoration} and {@link ValueDecorator} utility classes.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class ValueDecorationTest {
 
   private static final class Decoration extends ValueDecoration {

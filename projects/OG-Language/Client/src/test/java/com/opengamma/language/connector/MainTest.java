@@ -11,11 +11,13 @@ import static org.testng.AssertJUnit.assertTrue;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.test.TestProperties;
 
 /**
  * Simulates the Main class being loaded up within the JVM service wrapper. This is equivalent to JVMTest.cpp/TestStartStop
  */
+@Test(groups = TestGroup.INTEGRATION)
 public class MainTest {
 
   @BeforeClass

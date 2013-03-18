@@ -10,10 +10,12 @@ import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Tests the {@link CompositeStringUtil} class.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class CompositeStringUtilTest {
 
   private static void cycle(final CompositeStringUtil util, final String composite, final String... components) {

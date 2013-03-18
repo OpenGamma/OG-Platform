@@ -17,10 +17,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.language.definition.Parameter;
 import com.opengamma.language.object.ObjectFunctionProvider;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the {@link ObjectFunctionProvider} class to check it can load its definitions.
  */
+@Test(groups = TestGroup.UNIT)
 public class ObjectFunctionProviderTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ObjectFunctionProviderTest.class);

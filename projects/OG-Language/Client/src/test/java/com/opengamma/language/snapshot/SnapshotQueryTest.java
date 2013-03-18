@@ -23,11 +23,12 @@ import com.opengamma.language.test.TestUtils;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.marketdatasnapshot.impl.InMemorySnapshotMaster;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the snapshot querying functions
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class SnapshotQueryTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(SnapshotQueryTest.class);

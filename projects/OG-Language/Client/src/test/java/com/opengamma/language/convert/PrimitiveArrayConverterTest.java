@@ -10,10 +10,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.language.definition.JavaTypeInfo;
 import com.opengamma.language.test.AbstractConverterTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the {@link PrimitiveArrayConverter} class.
  */
+@Test(groups = TestGroup.UNIT)
 public class PrimitiveArrayConverterTest extends AbstractConverterTest {
 
   private final PrimitiveArrayConverter _converter = new PrimitiveArrayConverter();

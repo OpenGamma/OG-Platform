@@ -25,11 +25,12 @@ import com.opengamma.language.config.ConfigurationItem;
 import com.opengamma.language.config.MarketDataOverride;
 import com.opengamma.language.config.MarketDataOverride.Operation;
 import com.opengamma.language.config.ValueProperty;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the core logic of the {@link ConfigureViewClientProcedure} class.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class ConfigureViewClientProcedureTest {
 
   private Set<ConfigurationItem> createLesserConfiguration() {
