@@ -15,11 +15,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.transport.socket.AbstractServerSocketProcess;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test.
  */
-@Test(groups = "unit")
+@Test(groups = TestGroup.UNIT)
 public class RecordNetworkStreamTest {
 
   public void testCreateFile () {

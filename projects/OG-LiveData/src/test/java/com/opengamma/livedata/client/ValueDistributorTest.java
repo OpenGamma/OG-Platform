@@ -21,11 +21,12 @@ import com.opengamma.livedata.LiveDataValueUpdate;
 import com.opengamma.livedata.LiveDataValueUpdateBean;
 import com.opengamma.livedata.test.CollectingLiveDataListener;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test.
  */
-@Test(groups = "unit")
+@Test(groups = TestGroup.UNIT)
 public class ValueDistributorTest {
 
   private final FudgeContext _fudgeContext = OpenGammaFudgeContext.getInstance();

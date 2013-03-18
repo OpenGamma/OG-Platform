@@ -30,12 +30,13 @@ import com.opengamma.livedata.server.StandardLiveDataServer;
 import com.opengamma.livedata.server.distribution.MarketDataDistributor;
 import com.opengamma.livedata.server.distribution.MarketDataSender;
 import com.opengamma.livedata.server.distribution.MarketDataSenderFactory;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.test.Timeout;
 
 /**
  * Test.
  */
-@Test(groups = {"unit", "slow"})
+@Test(groups = TestGroup.UNIT_SLOW)
 public class FireHoseLiveDataServerTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(FireHoseLiveDataServerTest.class);

@@ -16,10 +16,12 @@ import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Test DateUtils.
  */
-@Test(groups = "unit")
+@Test(groups = TestGroup.UNIT)
 public class DateUtilsTest {
   private static final double EPS = 1e-9;
 

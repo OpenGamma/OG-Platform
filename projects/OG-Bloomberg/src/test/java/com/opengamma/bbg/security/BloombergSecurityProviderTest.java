@@ -69,12 +69,13 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.provider.security.SecurityProvider;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.Expiry;
 
 /**
  * Base case for testing BloombergSecuritySource.
  */
-@Test(groups = "integration")
+@Test(groups = TestGroup.INTEGRATION)
 public class BloombergSecurityProviderTest {
 
   private static final EquitySecurity EXPECTED_AAPL_EQUITY_SEC = makeExpectedAAPLEquitySecurity();

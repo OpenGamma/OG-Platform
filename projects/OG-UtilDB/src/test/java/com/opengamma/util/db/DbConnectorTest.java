@@ -15,11 +15,12 @@ import org.springframework.transaction.support.TransactionTemplate;
 import org.testng.annotations.Test;
 
 import com.jolbox.bonecp.BoneCPDataSource;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test.
  */
-@Test(groups = "unit")
+@Test(groups = TestGroup.UNIT)
 public class DbConnectorTest {
 
   //-------------------------------------------------------------------------

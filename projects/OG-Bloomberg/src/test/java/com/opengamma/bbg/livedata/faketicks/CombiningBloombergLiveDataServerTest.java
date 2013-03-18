@@ -41,11 +41,12 @@ import com.opengamma.livedata.server.Subscription;
 import com.opengamma.livedata.server.SubscriptionListener;
 import com.opengamma.livedata.test.CollectingLiveDataListener;
 import com.opengamma.livedata.test.LiveDataClientTestUtils;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test.
  */
-@Test(groups = "integration")
+@Test(groups = TestGroup.INTEGRATION)
 public class CombiningBloombergLiveDataServerTest {
 
   private static final UserPrincipal TEST_USER = UserPrincipal.getTestUser();

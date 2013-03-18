@@ -13,10 +13,12 @@ import static org.threeten.bp.Month.JANUARY;
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Test {@link ExternalIdWithDates}. 
  */
-@Test(groups = "unit")
+@Test(groups = TestGroup.UNIT)
 public class ExternalIdWithDatesTest {
 
   private static final ExternalScheme SCHEME = ExternalScheme.of("Scheme");

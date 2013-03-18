@@ -11,12 +11,13 @@ import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 
 /**
  * Test Fudge encoding.
  */
-@Test(groups = "unit")
+@Test(groups = TestGroup.UNIT)
 public class ArrayLocalDateDoubleTimeSeriesFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
 
   private ArrayLocalDateDoubleTimeSeriesTest test = new ArrayLocalDateDoubleTimeSeriesTest();

@@ -18,11 +18,11 @@ import java.util.Map;
 import java.util.Random;
 
 import org.json.JSONArray;
-import org.junit.Ignore;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test.
@@ -37,7 +37,7 @@ public class CompressorTest {
       "{\"baz\":0.02826,\"foo\":0.17644,\"bar\":[0.55885,0.15773,0.28012,0.28148]}," +
       "{\"baz\":0.45569,\"foo\":0.97938,\"bar\":[0.9911,0.07979,0.51428,0.502,0.77578,0.56551,0.04773]}]";
 
-  @Test(groups = "unit")
+  @Test(groups = TestGroup.UNIT)
   public void roundTrip() throws IOException {
     System.out.println(s_json);
     InputStream source1 = new ByteArrayInputStream(s_json.getBytes());
@@ -78,7 +78,6 @@ public class CompressorTest {
     return array;
   }
 
-  @Ignore
   public static void main(String[] args) throws IOException {
     InputStream source1 = new ByteArrayInputStream(new JSONArray(randomObjects()).toString().getBytes());
     ByteArrayOutputStream sink1 = new ByteArrayOutputStream();

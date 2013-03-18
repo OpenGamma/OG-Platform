@@ -10,11 +10,12 @@ import java.util.Arrays;
 import org.testng.annotations.Test;
 
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test Fudge encoding.
  */
-@Test(groups = "unit")
+@Test(groups = TestGroup.UNIT)
 public class ExternalIdSearchFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
 
   public void test_empty() {

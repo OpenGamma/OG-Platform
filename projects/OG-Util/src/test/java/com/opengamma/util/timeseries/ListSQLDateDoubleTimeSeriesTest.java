@@ -10,10 +10,11 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.timeseries.sqldate.ListSQLDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.sqldate.SQLDateDoubleTimeSeries;
 
-@Test(groups = "unit")
+@Test(groups = TestGroup.UNIT)
 public class ListSQLDateDoubleTimeSeriesTest extends SQLDateDoubleTimeSeriesTest {
 
   @Override

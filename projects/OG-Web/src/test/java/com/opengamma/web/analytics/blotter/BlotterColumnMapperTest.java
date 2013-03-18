@@ -26,11 +26,12 @@ import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test.
  */
-@Test(groups = "unit")
+@Test(groups = TestGroup.UNIT)
 public class BlotterColumnMapperTest {
 
   private static final CurrencyPairs s_currencyPairs = CurrencyPairs.of(ImmutableSet.of(CurrencyPair.of(Currency.GBP,

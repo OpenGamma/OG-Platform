@@ -13,10 +13,12 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Test Triple.
  */
-@Test(groups = "unit")
+@Test(groups = TestGroup.UNIT)
 public class TripleTest {
 
   public void testOf_Object_Object() {

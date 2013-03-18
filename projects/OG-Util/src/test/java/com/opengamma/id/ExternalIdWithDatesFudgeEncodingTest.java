@@ -12,11 +12,12 @@ import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test Fudge encoding.
  */
-@Test(groups = "unit")
+@Test(groups = TestGroup.UNIT)
 public class ExternalIdWithDatesFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
 
   private static final LocalDate VALID_FROM = LocalDate.of(2010, JANUARY, 1);

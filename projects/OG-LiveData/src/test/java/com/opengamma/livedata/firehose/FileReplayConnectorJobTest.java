@@ -16,10 +16,12 @@ import java.util.Queue;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Test.
  */
-@Test(groups = {"unit", "slow"})
+@Test(groups = TestGroup.UNIT_SLOW)
 public class FileReplayConnectorJobTest {
 
   public void testFileReplay() {

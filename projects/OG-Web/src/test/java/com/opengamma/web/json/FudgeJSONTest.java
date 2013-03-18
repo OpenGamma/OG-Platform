@@ -30,10 +30,12 @@ import org.fudgemsg.test.FudgeUtils;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Test Fudge JSON.
  */
-@Test(groups = "unit")
+@Test(groups = TestGroup.UNIT)
 public class FudgeJSONTest {
   
   private final FudgeContext _fudgeContext;

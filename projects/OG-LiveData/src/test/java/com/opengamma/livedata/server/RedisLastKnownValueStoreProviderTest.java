@@ -14,12 +14,13 @@ import org.testng.annotations.Test;
 
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * A full unit test for {@link RedisLastKnownValueStoreProvider} and
  * also {@link RedisLastKnownValueStore}. 
  */
-@Test(groups = "integration")
+@Test(groups = TestGroup.INTEGRATION)
 public class RedisLastKnownValueStoreProviderTest {
   // TODO kirk 2012-07-18 -- This needs to be moved to external properties.
   private static final String REDIS_SERVER = "redis-lx-1";

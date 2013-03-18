@@ -21,11 +21,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.util.test.DbTest;
 import com.opengamma.util.test.HibernateTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test HibernateAuditLogger.
  */
-@Test(groups = "unitdb")
+@Test(groups = TestGroup.UNIT_DB)
 public class HibernateAuditLoggerTest extends HibernateTest {
 
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)

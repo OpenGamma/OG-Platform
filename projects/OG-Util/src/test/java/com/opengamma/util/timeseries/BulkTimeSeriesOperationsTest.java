@@ -15,10 +15,11 @@ import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Month;
 
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
-@Test(groups = "unit")
+@Test(groups = TestGroup.UNIT)
 public class BulkTimeSeriesOperationsTest {
 
   private Logger s_logger = LoggerFactory.getLogger(BulkTimeSeriesOperationsTest.class);

@@ -11,6 +11,7 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.timeseries.ObjectTimeSeries;
 import com.opengamma.util.timeseries.sqldate.ArraySQLDateObjectTimeSeries;
 import com.opengamma.util.timeseries.sqldate.SQLDateObjectTimeSeries;
@@ -18,7 +19,7 @@ import com.opengamma.util.timeseries.sqldate.SQLDateObjectTimeSeries;
 /**
  * Test.
  */
-@Test(groups = "unit")
+@Test(groups = TestGroup.UNIT)
 public class ArraySQLDateObjectTimeSeriesTest extends SQLDateObjectTimeSeriesTest {
 
   @Override

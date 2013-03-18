@@ -61,6 +61,7 @@ import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProviderG
 import com.opengamma.provider.historicaltimeseries.impl.AbstractHistoricalTimeSeriesProvider;
 import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.LocalDateRange;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
@@ -71,7 +72,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Test.
  */
-@Test(groups = "integration")
+@Test(groups = TestGroup.INTEGRATION)
 public class BloombergHistoricalLoaderTest extends DbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergHistoricalLoaderTest.class);

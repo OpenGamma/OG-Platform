@@ -27,11 +27,12 @@ import com.opengamma.bbg.test.BloombergTestUtils;
 import com.opengamma.bbg.util.BloombergDataUtils;
 import com.opengamma.bbg.util.BloombergDomainIdentifierResolver;
 import com.opengamma.id.ExternalId;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test.
  */
-@Test(groups = "integration")
+@Test(groups = TestGroup.INTEGRATION)
 public class BloombergReferenceDataProviderTest {
 
   private BloombergReferenceDataProvider _refDataProvider;

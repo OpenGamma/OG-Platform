@@ -45,6 +45,7 @@ import com.opengamma.transport.socket.SocketFudgeConnection;
 import com.opengamma.util.ThreadUtils;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
 
 import net.sf.ehcache.CacheManager;
@@ -55,7 +56,7 @@ import net.sf.ehcache.config.Configuration;
  * A test of the remote View Computation Cache Source infrastucture operating
  * over proper sockets.
  */
-@Test(groups = {"integration", "ehcache"})
+@Test(groups = {TestGroup.INTEGRATION, "ehcache"})
 public class ServerSocketRemoteViewComputationCacheTest {
   private static final Logger s_logger = LoggerFactory.getLogger(ServerSocketRemoteViewComputationCacheTest.class);
   private static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();

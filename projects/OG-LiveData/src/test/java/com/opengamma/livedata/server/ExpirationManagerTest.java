@@ -24,11 +24,12 @@ import com.opengamma.livedata.test.CollectingLiveDataListener;
 import com.opengamma.transport.DirectInvocationByteArrayMessageSender;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test.
  */
-@Test(groups = {"integration", "ehcache"})
+@Test(groups = {TestGroup.INTEGRATION, "ehcache"})
 public class ExpirationManagerTest {
 
   private CacheManager _cacheManager;

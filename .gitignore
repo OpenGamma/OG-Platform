@@ -57,3 +57,6 @@ docs.sqlite3
 *.pid
 *.pyc
 .settings/
+.idea/libraries
+.idea/workspace.xml
+.idea/dictionaries
