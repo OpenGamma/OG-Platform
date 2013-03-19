@@ -31,6 +31,7 @@ import com.opengamma.financial.security.forward.MetalForwardSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
+import com.opengamma.financial.security.future.DeliverableSwapFutureSecurity;
 import com.opengamma.financial.security.future.EnergyFutureSecurity;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
 import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
@@ -286,12 +287,12 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
   public T visitLegacyRecoveryLockCDSSecurity(final LegacyRecoveryLockCDSSecurity security) {
     throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
   }
-  
+
   @Override
-  public T visitCreditDefaultSwapIndexSecurity(CreditDefaultSwapIndexSecurity security) {
+  public T visitCreditDefaultSwapIndexSecurity(final CreditDefaultSwapIndexSecurity security) {
     throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
   }
-  
+
   /**
    * Generic message for unsupported methods in FinancialSecurityVisitor implementations
    * 
@@ -1376,7 +1377,7 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
         }
 
         @Override
-        public T visitCashFlowSecurity(CashFlowSecurity security) {
+        public T visitCashFlowSecurity(final CashFlowSecurity security) {
           return value;
         }
 
@@ -1539,6 +1540,47 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
         public T visitCDSSecurity(final CDSSecurity security) {
           return value;
         }
+
+        @Override
+        public T visitStandardVanillaCDSSecurity(final StandardVanillaCDSSecurity security) {
+          return value;
+        }
+
+        @Override
+        public T visitStandardFixedRecoveryCDSSecurity(final StandardFixedRecoveryCDSSecurity security) {
+          return value;
+        }
+
+        @Override
+        public T visitStandardRecoveryLockCDSSecurity(final StandardRecoveryLockCDSSecurity security) {
+          return value;
+        }
+
+        @Override
+        public T visitLegacyVanillaCDSSecurity(final LegacyVanillaCDSSecurity security) {
+          return value;
+        }
+
+        @Override
+        public T visitLegacyFixedRecoveryCDSSecurity(final LegacyFixedRecoveryCDSSecurity security) {
+          return value;
+        }
+
+        @Override
+        public T visitLegacyRecoveryLockCDSSecurity(final LegacyRecoveryLockCDSSecurity security) {
+          return value;
+        }
+
+        @Override
+        public T visitDeliverableSwapFutureSecurity(final DeliverableSwapFutureSecurity security) {
+          return value;
+        }
+
+        @Override
+        public T visitCreditDefaultSwapIndexSecurity(final CreditDefaultSwapIndexSecurity security) {
+          return value;
+        }
+
       };
       return this;
     }

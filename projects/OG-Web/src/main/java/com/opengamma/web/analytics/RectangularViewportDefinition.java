@@ -31,12 +31,14 @@ public class RectangularViewportDefinition extends ViewportDefinition {
    * @param rows Indices of rows in the viewport, not empty
    * @param columns Indices of columns in the viewport, not empty
    * @param format
+   * @param enableLogging
    */
   /* package */ RectangularViewportDefinition(int version,
                                               List<Integer> rows,
                                               List<Integer> columns,
-                                              TypeFormatter.Format format) {
-    super(version, format);
+                                              TypeFormatter.Format format,
+                                              Boolean enableLogging) {
+    super(version, format, enableLogging);
     ArgumentChecker.notEmpty(rows, "rows");
     ArgumentChecker.notEmpty(columns, "columns");
     // TODO bounds checking
@@ -68,14 +70,6 @@ public class RectangularViewportDefinition extends ViewportDefinition {
 
   /* package */ List<Integer> getColumns() {
     return _columns;
-  }
-
-  /**
-   * @return false
-   */
-  @Override
-  boolean enableLogging() {
-    return false;
   }
 
   @Override

@@ -47,7 +47,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.conversion.CreditDefaultSwapSecurityConverter;
+import com.opengamma.financial.analytics.conversion.CreditDefaultSwapSecurityConverterDeprecated;
 import com.opengamma.financial.analytics.model.cds.ISDAFunctionConstants;
 import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.cds.CreditDefaultSwapSecurity;
@@ -71,7 +71,7 @@ import com.opengamma.util.time.Tenor;
  */
 public class ISDABucketedCS01VanillaCDSFunction extends AbstractFunction.NonCompiledInvoker {
 
-  private CreditDefaultSwapSecurityConverter _converter;
+  private CreditDefaultSwapSecurityConverterDeprecated _converter;
   private static final CS01CreditDefaultSwap CALCULATOR = new CS01CreditDefaultSwap(); // the calculator
   private static final Logger s_logger = LoggerFactory.getLogger(ISDABucketedCS01VanillaCDSFunction.class);
 
@@ -108,7 +108,7 @@ public class ISDABucketedCS01VanillaCDSFunction extends AbstractFunction.NonComp
     final HolidaySource holidaySource = new WeekendHolidaySource(); //OpenGammaCompilationContext.getHolidaySource(context);
     @SuppressWarnings("synthetic-access")
     final RegionSource regionSource = new TestRegionSource(getTestRegion()); //OpenGammaCompilationContext.getRegionSource(context);
-    _converter = new CreditDefaultSwapSecurityConverter(holidaySource, regionSource);
+    _converter = new CreditDefaultSwapSecurityConverterDeprecated(holidaySource, regionSource);
   }
 
   @Override
@@ -139,7 +139,7 @@ public class ISDABucketedCS01VanillaCDSFunction extends AbstractFunction.NonComp
     try {
       bucketedCS01 = CALCULATOR.getCS01BucketedCreditDefaultSwap(now, cds, isdaCurve, BUCKET_DATES_ARRAY, spreads, 1.0, SpreadBumpType.ADDITIVE_BUCKETED,
           PriceType.CLEAN); // take values from requirements
-    } catch (Exception ex) {
+    } catch (final Exception ex) {
       s_logger.error("Exception thrown during calculation: " + ex.getClass().getSimpleName() + ": " + ex.getMessage());
       throw ex;
     }
@@ -206,7 +206,7 @@ public class ISDABucketedCS01VanillaCDSFunction extends AbstractFunction.NonComp
     }
     // if spread curve ends before required buckets take last spread entry
     for (int j = spreads.length - 1; j >= 0; j--) {
-      double lastspread = spreadCurve.getYData()[spreadCurve.getYData().length - 1].doubleValue();
+      final double lastspread = spreadCurve.getYData()[spreadCurve.getYData().length - 1].doubleValue();
       if (spreads[j] == 0) {
         spreads[j] = lastspread;
       } else {
@@ -234,8 +234,8 @@ public class ISDABucketedCS01VanillaCDSFunction extends AbstractFunction.NonComp
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context,
-                                               final ComputationTarget target,
-                                               final ValueRequirement desiredValue) {
+      final ComputationTarget target,
+      final ValueRequirement desiredValue) {
     final LegacyVanillaCDSSecurity cds = (LegacyVanillaCDSSecurity) target.getSecurity();
     final Currency ccy = cds.getNotional().getCurrency();
     final CreditCurveIdentifier isdaIdentifier = getISDACurveIdentifier(cds);
@@ -302,12 +302,12 @@ public class ISDABucketedCS01VanillaCDSFunction extends AbstractFunction.NonComp
     private final AtomicLong _count = new AtomicLong(0);
     private final Region _testRegion;
 
-    private TestRegionSource(Region testRegion) {
+    private TestRegionSource(final Region testRegion) {
       _testRegion = testRegion;
     }
 
     @Override
-    public Collection<? extends Region> get(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
+    public Collection<? extends Region> get(final ExternalIdBundle bundle, final VersionCorrection versionCorrection) {
       _count.getAndIncrement();
       Collection<? extends Region> result = Collections.emptyList();
       if (_testRegion.getExternalIdBundle().equals(bundle) && versionCorrection.equals(VersionCorrection.LATEST)) {
@@ -317,7 +317,7 @@ public class ISDABucketedCS01VanillaCDSFunction extends AbstractFunction.NonComp
     }
 
     @Override
-    public Region get(ObjectId objectId, VersionCorrection versionCorrection) {
+    public Region get(final ObjectId objectId, final VersionCorrection versionCorrection) {
       _count.getAndIncrement();
       Region result = null;
       if (_testRegion.getUniqueId().getObjectId().equals(objectId) && versionCorrection.equals(VersionCorrection.LATEST)) {
@@ -327,7 +327,7 @@ public class ISDABucketedCS01VanillaCDSFunction extends AbstractFunction.NonComp
     }
 
     @Override
-    public Region get(UniqueId uniqueId) {
+    public Region get(final UniqueId uniqueId) {
       _count.getAndIncrement();
       Region result = null;
       if (_testRegion.getUniqueId().equals(uniqueId)) {
@@ -337,7 +337,7 @@ public class ISDABucketedCS01VanillaCDSFunction extends AbstractFunction.NonComp
     }
 
     @Override
-    public Region getHighestLevelRegion(ExternalIdBundle bundle) {
+    public Region getHighestLevelRegion(final ExternalIdBundle bundle) {
       _count.getAndIncrement();
       Region result = null;
       if (_testRegion.getExternalIdBundle().equals(bundle)) {
@@ -347,7 +347,7 @@ public class ISDABucketedCS01VanillaCDSFunction extends AbstractFunction.NonComp
     }
 
     @Override
-    public Region getHighestLevelRegion(ExternalId externalId) {
+    public Region getHighestLevelRegion(final ExternalId externalId) {
       _count.getAndIncrement();
       Region result = null;
       if (_testRegion.getExternalIdBundle().contains(externalId)) {
@@ -366,13 +366,13 @@ public class ISDABucketedCS01VanillaCDSFunction extends AbstractFunction.NonComp
     }
 
     @Override
-    public Map<UniqueId, Region> get(Collection<UniqueId> uniqueIds) {
-      Map<UniqueId, Region> result = Maps.newHashMap();
-      for (UniqueId uniqueId : uniqueIds) {
+    public Map<UniqueId, Region> get(final Collection<UniqueId> uniqueIds) {
+      final Map<UniqueId, Region> result = Maps.newHashMap();
+      for (final UniqueId uniqueId : uniqueIds) {
         try {
-          Region security = get(uniqueId);
+          final Region security = get(uniqueId);
           result.put(uniqueId, security);
-        } catch (DataNotFoundException ex) {
+        } catch (final DataNotFoundException ex) {
           // do nothing
         }
       }
@@ -381,7 +381,7 @@ public class ISDABucketedCS01VanillaCDSFunction extends AbstractFunction.NonComp
   }
 
   private static ManageableRegion getTestRegion() {
-    ManageableRegion region = new ManageableRegion();
+    final ManageableRegion region = new ManageableRegion();
     region.setUniqueId(UniqueId.parse("Dummy~region"));
     region.setName("United States");
     region.setCurrency(Currency.USD);
