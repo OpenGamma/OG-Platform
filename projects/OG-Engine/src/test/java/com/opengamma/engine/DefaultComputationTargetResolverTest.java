@@ -34,11 +34,12 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test DefaultComputationTargetResolver.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class DefaultComputationTargetResolverTest {
 
   private static final SimplePortfolioNode NODE = new SimplePortfolioNode(UniqueId.of("A", "B"), "Name");

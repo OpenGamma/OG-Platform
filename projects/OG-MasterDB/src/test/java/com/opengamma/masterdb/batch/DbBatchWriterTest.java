@@ -61,10 +61,12 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.util.paging.PagingRequest;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * Test DbBatchWriter.
+ * Test.
  */
+@Test(groups = TestGroup.UNIT_DB)
 public class DbBatchWriterTest extends DbTest {
 
   private DbBatchMaster _batchMaster;
@@ -78,7 +80,6 @@ public class DbBatchWriterTest extends DbTest {
   public DbBatchWriterTest(final String databaseType, final String databaseVersion) {
     super(databaseType, databaseVersion, databaseVersion);
   }
-
 
   @Override
   @BeforeMethod

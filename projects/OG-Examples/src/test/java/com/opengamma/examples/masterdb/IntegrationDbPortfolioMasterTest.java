@@ -8,10 +8,12 @@ package com.opengamma.examples.masterdb;
 import org.testng.annotations.Test;
 
 import com.opengamma.integration.masterdb.AbstractIntegrationDbPortfolioMasterTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test DbPortfolioMaster.
  */
+@Test(groups = TestGroup.INTEGRATION)
 public class IntegrationDbPortfolioMasterTest extends AbstractIntegrationDbPortfolioMasterTest {
 
   @Test

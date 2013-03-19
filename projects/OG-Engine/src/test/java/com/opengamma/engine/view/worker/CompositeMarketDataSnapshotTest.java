@@ -37,7 +37,9 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.worker.CompositeMarketDataSnapshot;
 import com.opengamma.engine.view.worker.SnapshottingViewExecutionDataProvider;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.test.TestGroup;
 
+@Test(groups = TestGroup.UNIT)
 public class CompositeMarketDataSnapshotTest {
 
   private static final ComputationTargetSpecification TARGET = new ComputationTargetSpecification(ComputationTargetType.SECURITY, UniqueId.of("scheme", "value"));

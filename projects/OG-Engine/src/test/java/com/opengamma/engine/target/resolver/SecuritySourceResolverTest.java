@@ -21,11 +21,12 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test the {@link SecuritySource} based resolvers
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class SecuritySourceResolverTest {
 
   private final InMemorySecuritySource SECURITY_SOURCE = new InMemorySecuritySource();

@@ -8,10 +8,12 @@ package com.opengamma.examples.masterdb;
 import org.testng.annotations.Test;
 
 import com.opengamma.integration.masterdb.AbstractIntegrationDbPositionMasterTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test DbPositionMaster.
  */
+@Test(groups = TestGroup.INTEGRATION)
 public class IntegrationDbPositionMasterTest extends AbstractIntegrationDbPositionMasterTest {
 
   @Test

@@ -20,11 +20,12 @@ import org.threeten.bp.Instant;
 import com.opengamma.engine.calcnode.CalculationJobSpecification;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * 
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class CalculationJobSpecificationTest {
   
   public void testHashCode() {

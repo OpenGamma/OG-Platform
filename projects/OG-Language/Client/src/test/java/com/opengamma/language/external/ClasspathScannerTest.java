@@ -15,11 +15,12 @@ import org.testng.annotations.Test;
 import org.threeten.bp.Instant;
 
 import com.opengamma.lang.annotation.ExternalFunction;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the {@link ClasspathScanner} class.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class ClasspathScannerTest {
 
   @ExternalFunction

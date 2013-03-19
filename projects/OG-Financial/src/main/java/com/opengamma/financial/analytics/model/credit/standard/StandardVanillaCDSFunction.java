@@ -36,12 +36,10 @@ import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.conversion.CreditDefaultSwapSecurityConverter;
 import com.opengamma.financial.analytics.model.YieldCurveFunctionUtils;
 import com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues;
-import com.opengamma.financial.analytics.model.credit.CreditSecurityToIdentifierVisitor;
 import com.opengamma.financial.analytics.model.credit.IMMDateGenerator;
-import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.FinancialSecurityUtils;
-import com.opengamma.financial.security.cds.StandardVanillaCDSSecurity;
+import com.opengamma.financial.security.cds.CreditDefaultSwapSecurity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.time.Tenor;
@@ -69,7 +67,7 @@ public abstract class StandardVanillaCDSFunction extends AbstractFunction.NonCom
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
     final ZonedDateTime valuationTime = ZonedDateTime.now(executionContext.getValuationClock());
-    final StandardVanillaCDSSecurity security = (StandardVanillaCDSSecurity) target.getSecurity();
+    final CreditDefaultSwapSecurity security = (CreditDefaultSwapSecurity) target.getSecurity();
     final LegacyVanillaCreditDefaultSwapDefinition definition = security.accept(_converter);
     final Object yieldCurveObject = inputs.getValue(ValueRequirementNames.YIELD_CURVE);
     if (yieldCurveObject == null) {
@@ -130,9 +128,7 @@ public abstract class StandardVanillaCDSFunction extends AbstractFunction.NonCom
     if (spreadCurveNames == null || spreadCurveNames.size() != 1) {
       return null;
     }
-    final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final ComputationTargetSpecification currencyTarget = ComputationTargetSpecification.of(FinancialSecurityUtils.getCurrency(target.getSecurity()));
-    final ComputationTargetSpecification spreadCurveTarget = ComputationTargetSpecification.of(security.accept(CreditSecurityToIdentifierVisitor.getInstance()));
     final String yieldCurveName = Iterables.getOnlyElement(yieldCurveNames);
     final String yieldCurveCalculationConfigName = Iterables.getOnlyElement(yieldCurveCalculationConfigNames);
     final String yieldCurveCalculationMethodName = Iterables.getOnlyElement(yieldCurveCalculationMethodNames);
@@ -142,7 +138,7 @@ public abstract class StandardVanillaCDSFunction extends AbstractFunction.NonCom
     final ValueProperties spreadCurveProperties = ValueProperties.builder()
         .with(ValuePropertyNames.CURVE, spreadCurveName)
         .get();
-    final ValueRequirement creditSpreadCurveRequirement = new ValueRequirement(ValueRequirementNames.CREDIT_SPREAD_CURVE, spreadCurveTarget, spreadCurveProperties);
+    final ValueRequirement creditSpreadCurveRequirement = new ValueRequirement(ValueRequirementNames.CREDIT_SPREAD_CURVE, ComputationTargetSpecification.NULL, spreadCurveProperties);
     return Sets.newHashSet(yieldCurveRequirement, creditSpreadCurveRequirement);
   }
 

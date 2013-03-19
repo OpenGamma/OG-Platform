@@ -17,11 +17,12 @@ import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.target.Primitive;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the {@link DefaultMarketDataAvailabilityProvider} class.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class DefaultMarketDataAvailabilityProviderTest {
 
   protected MarketDataAvailabilityProvider create() {

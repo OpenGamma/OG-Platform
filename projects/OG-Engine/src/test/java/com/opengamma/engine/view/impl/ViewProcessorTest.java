@@ -48,12 +48,13 @@ import com.opengamma.engine.view.listener.ViewResultListenerFactory;
 import com.opengamma.engine.view.worker.ViewProcessWorker;
 import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.test.Timeout;
 
 /**
  * Tests ViewProcessor
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class ViewProcessorTest {
 
   @Mock

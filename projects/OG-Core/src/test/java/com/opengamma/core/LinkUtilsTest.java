@@ -13,11 +13,12 @@ import org.testng.annotations.Test;
 import com.opengamma.core.security.impl.SimpleSecurityLink;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test {@link LinkUtils}.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class LinkUtilsTest {
 
   private static final ObjectId OBJECT_ID = ObjectId.of("A", "B");

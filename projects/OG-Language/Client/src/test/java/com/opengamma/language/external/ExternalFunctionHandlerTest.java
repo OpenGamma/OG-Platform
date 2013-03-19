@@ -36,11 +36,12 @@ import com.opengamma.language.definition.Parameter;
 import com.opengamma.language.function.MetaFunction;
 import com.opengamma.language.function.Result;
 import com.opengamma.language.test.TestUtils;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the {@link ExternalFunctionHandler} class
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class ExternalFunctionHandlerTest {
   
   private static final Logger s_logger=LoggerFactory.getLogger(ExternalFunctionHandlerTest.class);

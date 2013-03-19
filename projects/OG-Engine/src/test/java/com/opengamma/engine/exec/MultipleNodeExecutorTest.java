@@ -52,11 +52,12 @@ import com.opengamma.engine.view.impl.ExecutionLogModeSource;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.async.Cancelable;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the graph partitioning logic in MultipleNodeExecutor.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class MultipleNodeExecutorTest {
 
   private static final boolean PRINT_GRAPHS = false;

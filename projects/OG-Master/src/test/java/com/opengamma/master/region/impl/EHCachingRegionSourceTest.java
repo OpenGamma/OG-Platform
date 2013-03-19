@@ -38,11 +38,12 @@ import com.opengamma.master.region.ManageableRegion;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test EHCachingRegionSource
  */
-@Test(groups = {"ehcache"})
+@Test(groups = {TestGroup.UNIT, "ehcache"})
 public class EHCachingRegionSourceTest {
 
   private static final ObjectId OID = ObjectId.of("A", "B");

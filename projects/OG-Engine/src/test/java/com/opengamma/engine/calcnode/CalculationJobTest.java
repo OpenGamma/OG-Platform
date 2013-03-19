@@ -35,11 +35,12 @@ import com.opengamma.engine.view.ExecutionLogMode;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
+import com.opengamma.util.test.TestGroup;
 
 /**
  *
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class CalculationJobTest extends AbstractFudgeBuilderTestCase {
 
   public void fudgeEncodingNoInputsOutputs() {

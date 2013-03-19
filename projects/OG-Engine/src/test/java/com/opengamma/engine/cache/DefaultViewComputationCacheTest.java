@@ -23,9 +23,10 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
 
-@Test
+@Test(groups = TestGroup.UNIT)
 public class DefaultViewComputationCacheTest {
 
   private DefaultViewComputationCache _viewComputationCache;

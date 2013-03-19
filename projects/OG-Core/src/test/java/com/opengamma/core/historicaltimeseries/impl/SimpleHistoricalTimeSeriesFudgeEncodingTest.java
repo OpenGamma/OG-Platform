@@ -17,6 +17,7 @@ import org.threeten.bp.Month;
 
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.ListLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.MapLocalDateDoubleTimeSeries;
@@ -24,6 +25,7 @@ import com.opengamma.util.timeseries.localdate.MapLocalDateDoubleTimeSeries;
 /**
  * Test SimpleHistoricalTimeSeries Fudge support.
  */
+@Test(groups = TestGroup.UNIT)
 public class SimpleHistoricalTimeSeriesFudgeEncodingTest {
   
   private static final UniqueId UID = UniqueId.of("A", "B", "V");

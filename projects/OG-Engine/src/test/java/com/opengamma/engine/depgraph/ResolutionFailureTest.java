@@ -23,11 +23,12 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the support classes for {@link ResolutionFailure}
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class ResolutionFailureTest {
 
   private int _count;

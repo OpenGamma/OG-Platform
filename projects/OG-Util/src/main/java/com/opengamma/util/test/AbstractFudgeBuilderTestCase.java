@@ -21,7 +21,6 @@ import org.fudgemsg.mapping.FudgeSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
 
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.test.BuilderTestProxyFactory.BuilderTestProxy;
@@ -39,7 +38,7 @@ public abstract class AbstractFudgeBuilderTestCase {
   private FudgeDeserializer _deserializer;
   private BuilderTestProxy _proxy;
 
-  @BeforeMethod
+  @BeforeMethod(groups = TestGroup.UNIT)
   public void createContexts() {
     _context = OpenGammaFudgeContext.getInstance();
     _serializer = new FudgeSerializer(_context);

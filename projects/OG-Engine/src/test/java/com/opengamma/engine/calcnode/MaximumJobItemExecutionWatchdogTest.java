@@ -25,12 +25,13 @@ import com.opengamma.engine.calcnode.MaximumJobItemExecutionWatchdog;
 import com.opengamma.engine.function.EmptyFunctionParameters;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ExecutionLogMode;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.test.Timeout;
 
 /**
  * Tests the {@link MaximumJobItemExecutionWatchdogTest}.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class MaximumJobItemExecutionWatchdogTest {
 
   private final CalculationJobItem JOB = new CalculationJobItem("", new EmptyFunctionParameters(), ComputationTargetSpecification.NULL,

@@ -25,10 +25,12 @@ import com.opengamma.master.holiday.ManageableHoliday;
 import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test DbHolidayMaster.
  */
+@Test(groups = TestGroup.UNIT_DB)
 public class DbHolidayMasterTest extends DbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DbHolidayMasterTest.class);

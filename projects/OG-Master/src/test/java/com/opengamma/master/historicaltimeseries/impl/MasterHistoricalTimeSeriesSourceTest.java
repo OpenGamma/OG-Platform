@@ -30,6 +30,7 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionR
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeries;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
@@ -37,7 +38,7 @@ import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
  * Test {@link MasterHistoricalTimeSeriesSource}.
  * Ensure it makes the right method calls to the underlying master and resolver.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class MasterHistoricalTimeSeriesSourceTest {
 
   private static final String TEST_CONFIG = "TEST_CONFIG";

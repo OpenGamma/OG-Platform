@@ -41,8 +41,13 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.util.paging.Paging;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT_DB)
 public class DbBatchMasterTest extends DbTest {
 
   private DbBatchMaster _batchMaster;

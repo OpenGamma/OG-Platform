@@ -30,10 +30,12 @@ import com.opengamma.master.config.ConfigHistoryResult;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests ModifyConfigDbConfigMasterWorker.
  */
+@Test(groups = TestGroup.UNIT_DB)
 public class ModifyConfigDbConfigMasterWorkerReplaceVersionsTest extends AbstractDbConfigMasterWorkerTest {
   // superclass sets up dummy database
 

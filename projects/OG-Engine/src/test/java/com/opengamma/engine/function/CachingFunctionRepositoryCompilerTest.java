@@ -19,8 +19,9 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.util.test.TestGroup;
 
-@Test
+@Test(groups = TestGroup.UNIT)
 public class CachingFunctionRepositoryCompilerTest {
   
   private static class MockFunction extends AbstractFunction {

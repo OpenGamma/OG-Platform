@@ -11,11 +11,12 @@ import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the {@link ComputationTargetTypeFudgeBuilder} class.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class ComputationTargetTypeFudgeBuilderTest extends AbstractFudgeBuilderTestCase {
 
   private static final class Foo implements UniqueIdentifiable {

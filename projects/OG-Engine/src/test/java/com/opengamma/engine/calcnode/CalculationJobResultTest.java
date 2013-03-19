@@ -32,11 +32,12 @@ import com.opengamma.engine.view.ExecutionLogMode;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.log.LogLevel;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * 
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class CalculationJobResultTest {
   private static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();
   

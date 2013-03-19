@@ -17,11 +17,12 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphsImpl;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests {@link DependencyGraphFudgeBuilder}
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class DependencyGraphBuilderTest extends AbstractFudgeBuilderTestCase {
 
   @Test

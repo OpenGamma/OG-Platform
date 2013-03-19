@@ -23,11 +23,12 @@ import com.opengamma.engine.calcnode.stats.FunctionCosts;
 import com.opengamma.engine.calcnode.stats.FunctionInvocationStatisticsReceiver;
 import com.opengamma.engine.calcnode.stats.FunctionInvocationStatisticsSender;
 import com.opengamma.transport.FudgeMessageSender;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the function statistics sender.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class FunctionInvocationStatisticsSenderTest {
   
   private static final Logger s_logger = LoggerFactory.getLogger(FunctionInvocationStatisticsSenderTest.class);

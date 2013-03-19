@@ -37,11 +37,12 @@ import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.position.PositionSearchRequest;
 import com.opengamma.master.position.PositionSearchResult;
 import com.opengamma.master.security.ManageableSecurityLink;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test {@link MasterPositionSource}.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class MasterPositionSourceTest {
 
   private static final UniqueId UID = UniqueId.of("A", "B");

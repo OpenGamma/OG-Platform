@@ -14,11 +14,12 @@ import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the {@link ComputationTargetReferenceFudgeBuilder} class.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class ComputationTargetReferenceFudgeBuilderTest extends AbstractFudgeBuilderTestCase {
 
   public void testRequirement() {

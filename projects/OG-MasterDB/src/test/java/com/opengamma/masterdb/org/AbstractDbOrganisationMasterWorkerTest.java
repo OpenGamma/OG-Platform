@@ -18,6 +18,8 @@ import com.opengamma.master.orgs.OrganisationDocument;
 import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.masterdb.orgs.DbOrganisationMaster;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -27,6 +29,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import org.threeten.bp.Clock;
 import org.threeten.bp.Instant;
 import org.threeten.bp.ZoneId;
@@ -39,6 +42,7 @@ import static org.testng.AssertJUnit.assertNotNull;
 /**
  * Base tests for DbOrganisationMasterWorker via DbOrganisationMaster.
  */
+@Test(groups = TestGroup.UNIT_DB)
 public abstract class AbstractDbOrganisationMasterWorkerTest extends DbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractDbOrganisationMasterWorkerTest.class);

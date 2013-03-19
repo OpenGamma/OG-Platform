@@ -16,10 +16,12 @@ import com.opengamma.language.Value;
 import com.opengamma.language.ValueUtils;
 import com.opengamma.language.definition.JavaTypeInfo;
 import com.opengamma.language.test.AbstractConverterTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the {@link DataConverter} class.
  */
+@Test(groups = TestGroup.UNIT)
 public class DataConverterTest extends AbstractConverterTest {
 
   private final DataConverter _dataConverter = new DataConverter();

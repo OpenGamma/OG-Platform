@@ -45,11 +45,12 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the {@link ComputationTargetResults} class.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class ComputationTargetResultsTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ComputationTargetResultsTest.class);

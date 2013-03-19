@@ -38,11 +38,13 @@ import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.Expiry;
 
 /**
  * Test DbSecurityMaster.
  */
+@Test(groups = TestGroup.UNIT_DB)
 public class DbSecurityMasterTest extends DbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DbSecurityMasterTest.class);

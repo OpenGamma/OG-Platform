@@ -25,11 +25,12 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the {@link AbstractMarketDataAvailabilityProvider} class.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class MarketDataAvailabilityProviderTest {
 
   private static class Impl extends AbstractMarketDataAvailabilityProvider {

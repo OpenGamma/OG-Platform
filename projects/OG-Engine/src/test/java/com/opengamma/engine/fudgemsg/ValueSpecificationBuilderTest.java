@@ -13,8 +13,12 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
+import com.opengamma.util.test.TestGroup;
 
-@Test
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class ValueSpecificationBuilderTest extends AbstractFudgeBuilderTestCase {
 
   public void testEncoding() {

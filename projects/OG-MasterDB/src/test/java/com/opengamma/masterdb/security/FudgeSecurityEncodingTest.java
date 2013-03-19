@@ -17,11 +17,12 @@ import org.testng.annotations.Test;
 import com.opengamma.core.security.Security;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test the Fudge encoding of securities.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class FudgeSecurityEncodingTest extends SecurityTestCase {
 
   /** Logger. */

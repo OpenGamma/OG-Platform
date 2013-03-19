@@ -12,7 +12,6 @@ import static org.threeten.bp.temporal.ChronoUnit.MINUTES;
 import static org.threeten.bp.temporal.ChronoUnit.SECONDS;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,10 +28,12 @@ import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigHistoryRequest;
 import com.opengamma.master.config.ConfigHistoryResult;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests ModifyConfigDbConfigMasterWorker.
  */
+@Test(groups = TestGroup.UNIT_DB)
 public class ModifyConfigDbConfigMasterWorkerReplaceAllVersionsTest extends AbstractDbConfigMasterWorkerTest {
   // superclass sets up dummy database
 

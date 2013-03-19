@@ -88,7 +88,7 @@ public abstract class DbTest implements TableCreationCallback {
    * in a static map to avoid duplicate DB operations on bigger test classes. This might not be
    * such a good idea.
    */
-  @BeforeMethod
+  @BeforeMethod(groups = TestGroup.UNIT_DB)
   public void setUp() throws Exception {
     String prevVersion = s_databaseTypeVersion.get(getDatabaseType());
     if ((prevVersion == null) || !prevVersion.equals(getTargetVersion())) {
@@ -120,17 +120,17 @@ public abstract class DbTest implements TableCreationCallback {
     }
   }
 
-  @AfterMethod
+  @AfterMethod(groups = TestGroup.UNIT_DB)
   public void tearDown() throws Exception {
     _dbtool.resetTestCatalog(); // avoids locking issues with Derby
   }
 
-  @AfterClass
+  @AfterClass(groups = TestGroup.UNIT_DB)
   public void tearDownClass() throws Exception {
     _dbtool.close();
   }
 
-  @AfterSuite
+  @AfterSuite(groups = TestGroup.UNIT_DB)
   public static void cleanUp() {
     FileUtils.deleteQuietly(SCRIPT_INSTALL_DIR);
   }

@@ -37,7 +37,7 @@ public abstract class AbstractDbUpgradeTest extends DbTest {
     return versionSchema;
   }
 
-  @BeforeMethod
+  @BeforeMethod(groups = TestGroup.UNIT_DB)
   public void setUp() throws Exception {
     DbTool dbTool = getDbTool();
     dbTool.setTargetVersion(getTargetVersion());
@@ -55,7 +55,7 @@ public abstract class AbstractDbUpgradeTest extends DbTest {
     _masterDB = masterDB;
   }
 
-  @Test
+  @Test(groups = TestGroup.UNIT_DB)
   public void testDatabaseUpgrade() {
     for (Triple<String, String, String> comparison : _comparisons) {
       /*

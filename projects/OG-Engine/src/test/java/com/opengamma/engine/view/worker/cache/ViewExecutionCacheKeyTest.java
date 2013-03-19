@@ -19,11 +19,12 @@ import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvid
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.worker.cache.ViewExecutionCacheKey;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the {@link ViewExecutionCacheKey} class.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class ViewExecutionCacheKeyTest {
 
   private ViewDefinition viewDefinition1() {

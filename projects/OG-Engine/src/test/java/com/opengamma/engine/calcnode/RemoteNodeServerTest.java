@@ -44,11 +44,12 @@ import com.opengamma.engine.function.blacklist.ManageableFunctionBlacklistProvid
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ExecutionLogMode;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the {@link RemoteNodeServer} class.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class RemoteNodeServerTest {
 
   private final CalculationJobItem JOB_ITEM = new CalculationJobItem("1", new EmptyFunctionParameters(), ComputationTargetSpecification.NULL,

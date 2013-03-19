@@ -69,13 +69,14 @@ import com.opengamma.util.log.LogEvent;
 import com.opengamma.util.log.LogLevel;
 import com.opengamma.util.log.SimpleLogEvent;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.test.Timeout;
 import com.opengamma.util.tuple.Pair;
 
 /**
  * Tests ViewClient
  */
-@Test
+@Test(groups = TestGroup.INTEGRATION)
 public class ViewClientTest {
 
   private static final long TIMEOUT = Timeout.standardTimeoutMillis();

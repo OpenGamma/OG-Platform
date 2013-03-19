@@ -25,10 +25,12 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.master.user.ManageableOGUser;
 import com.opengamma.master.user.UserDocument;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests ModifyUserDbUserMasterWorker.
  */
+@Test(groups = TestGroup.UNIT_DB)
 public class ModifyUserDbUserMasterWorkerAddTest extends AbstractDbUserMasterWorkerTest {
   // superclass sets up dummy database
 

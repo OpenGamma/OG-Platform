@@ -22,11 +22,12 @@ import com.opengamma.language.context.SessionContext;
 import com.opengamma.language.context.SessionContextEventHandler;
 import com.opengamma.language.context.UserContextEventHandler;
 import com.opengamma.language.test.TestUtils;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the {@link ViewClients} class and its subclasses.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class ViewClientsTest {
 
   private static final UniqueId VIEW_ID = UniqueId.of("abc", "def");

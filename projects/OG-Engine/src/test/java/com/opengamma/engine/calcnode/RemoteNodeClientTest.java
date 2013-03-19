@@ -44,12 +44,13 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.transport.CollectingFudgeMessageReceiver;
 import com.opengamma.transport.DirectFudgeConnection;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.test.Timeout;
 
 /**
  * Tests RemoteNodeClient
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class RemoteNodeClientTest {
 
   private static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();
