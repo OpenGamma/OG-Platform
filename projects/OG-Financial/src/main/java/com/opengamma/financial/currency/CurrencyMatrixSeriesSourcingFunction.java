@@ -20,7 +20,6 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.marketdata.ExternalIdBundleResolver;
-import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
@@ -32,7 +31,6 @@ import com.opengamma.financial.currency.CurrencyMatrixValue.CurrencyMatrixCross;
 import com.opengamma.financial.currency.CurrencyMatrixValue.CurrencyMatrixFixed;
 import com.opengamma.financial.currency.CurrencyMatrixValue.CurrencyMatrixValueRequirement;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.id.UniqueId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.timeseries.DoubleTimeSeries;
@@ -140,9 +138,10 @@ public class CurrencyMatrixSeriesSourcingFunction extends AbstractCurrencyMatrix
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    final Pair<Currency, Currency> currencies = parse(target.getUniqueId());
+    final CurrencyPair currencies = target.getValue(CurrencyPair.TYPE);
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-    if (!getSeriesConversionRequirements(new ExternalIdBundleResolver(context.getComputationTargetResolver()), requirements, new HashSet<Pair<Currency, Currency>>(), currencies)) {
+    if (!getSeriesConversionRequirements(new ExternalIdBundleResolver(context.getComputationTargetResolver()), requirements, new HashSet<Pair<Currency, Currency>>(),
+        Pair.of(currencies.getCounter(), currencies.getBase()))) {
       return null;
     }
     return requirements;
@@ -195,19 +194,19 @@ public class CurrencyMatrixSeriesSourcingFunction extends AbstractCurrencyMatrix
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-    final Pair<Currency, Currency> currencies = parse(target.getUniqueId());
+    final CurrencyPair currencies = target.getValue(CurrencyPair.TYPE);
     final ComputationTargetSpecification targetSpec = target.toSpecification();
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     return Collections.singleton(new ComputedValue(new ValueSpecification(desiredValue.getValueName(), targetSpec, desiredValue.getConstraints()),
-        getSeriesConversionRate(new ExternalIdBundleResolver(executionContext.getComputationTargetResolver()), inputs, currencies.getFirst(), currencies.getSecond())));
+        getSeriesConversionRate(new ExternalIdBundleResolver(executionContext.getComputationTargetResolver()), inputs, currencies.getCounter(), currencies.getBase())));
   }
 
   public static ValueRequirement getConversionRequirement(final Currency source, final Currency target) {
-    return getConversionRequirement(source.getCode(), target.getCode());
+    return new ValueRequirement(CurrencySeriesConversionFunction.SPOT_RATE, CurrencyPair.TYPE.specification(CurrencyPair.of(target, source)));
   }
 
   public static ValueRequirement getConversionRequirement(final String source, final String target) {
-    return new ValueRequirement(CurrencySeriesConversionFunction.SPOT_RATE, ComputationTargetType.PRIMITIVE, UniqueId.of(TARGET_IDENTIFIER_SCHEME, source + target));
+    return getConversionRequirement(Currency.of(source), Currency.of(target));
   }
 
 }

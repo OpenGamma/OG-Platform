@@ -8,6 +8,8 @@ package com.opengamma.component.factory.engine;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import net.sf.ehcache.CacheManager;
+
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -28,13 +30,12 @@ import com.opengamma.engine.CachingComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.DefaultCachingComputationTargetResolver;
 import com.opengamma.engine.DefaultComputationTargetResolver;
+import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.temptarget.ConfigItemTarget;
 import com.opengamma.financial.temptarget.ConfigItemTargetResolver;
 import com.opengamma.financial.temptarget.TempTarget;
 import com.opengamma.financial.temptarget.TempTargetResolver;
 import com.opengamma.financial.temptarget.TempTargetSource;
-
-import net.sf.ehcache.CacheManager;
 
 /**
  * Component factory for the target resolver.
@@ -75,13 +76,18 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory {
 
   protected ComputationTargetResolver createTargetResolver() {
     final DefaultComputationTargetResolver resolver = new DefaultComputationTargetResolver(getSecuritySource(), getPositionSource());
+    initDefaultResolver(resolver);
+    return resolver;
+  }
+
+  protected void initDefaultResolver(final DefaultComputationTargetResolver resolver) {
     if (getTempTargets() != null) {
       resolver.addResolver(TempTarget.TYPE, new TempTargetResolver(getTempTargets()));
     }
+    resolver.addResolver(CurrencyPair.TYPE);
     if (_configSource != null) {
       resolver.addResolver(ConfigItemTarget.TYPE, new ConfigItemTargetResolver(_configSource));
     }
-    return resolver;
   }
 
   protected CachingComputationTargetResolver createCachedTargetResolver(final ComputationTargetResolver underlying) {
@@ -101,11 +107,13 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory {
   ///CLOVER:OFF
   /**
    * The meta-bean for {@code TargetResolverComponentFactory}.
+   * 
    * @return the meta-bean, not null
    */
   public static TargetResolverComponentFactory.Meta meta() {
     return TargetResolverComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(TargetResolverComponentFactory.Meta.INSTANCE);
   }
@@ -118,17 +126,17 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory {
   @Override
   protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
+      case -281470431: // classifier
         return getClassifier();
-      case -702456965:  // securitySource
+      case -702456965: // securitySource
         return getSecuritySource();
-      case -1655657820:  // positionSource
+      case -1655657820: // positionSource
         return getPositionSource();
-      case 1942609550:  // tempTargets
+      case 1942609550: // tempTargets
         return getTempTargets();
-      case -1452875317:  // cacheManager
+      case -1452875317: // cacheManager
         return getCacheManager();
-      case 195157501:  // configSource
+      case 195157501: // configSource
         return getConfigSource();
     }
     return super.propertyGet(propertyName, quiet);
@@ -137,22 +145,22 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory {
   @Override
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
+      case -281470431: // classifier
         setClassifier((String) newValue);
         return;
-      case -702456965:  // securitySource
+      case -702456965: // securitySource
         setSecuritySource((SecuritySource) newValue);
         return;
-      case -1655657820:  // positionSource
+      case -1655657820: // positionSource
         setPositionSource((PositionSource) newValue);
         return;
-      case 1942609550:  // tempTargets
+      case 1942609550: // tempTargets
         setTempTargets((TempTargetSource) newValue);
         return;
-      case -1452875317:  // cacheManager
+      case -1452875317: // cacheManager
         setCacheManager((CacheManager) newValue);
         return;
-      case 195157501:  // configSource
+      case 195157501: // configSource
         setConfigSource((ConfigSource) newValue);
         return;
     }
@@ -200,6 +208,7 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets the classifier that the factory should publish under.
+   * 
    * @return the value of the property, not null
    */
   public String getClassifier() {
@@ -208,7 +217,8 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets the classifier that the factory should publish under.
-   * @param classifier  the new value of the property, not null
+   * 
+   * @param classifier the new value of the property, not null
    */
   public void setClassifier(String classifier) {
     JodaBeanUtils.notNull(classifier, "classifier");
@@ -217,6 +227,7 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory {
 
   /**
    * Gets the the {@code classifier} property.
+   * 
    * @return the property, not null
    */
   public final Property<String> classifier() {
@@ -226,6 +237,7 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets the security source.
+   * 
    * @return the value of the property, not null
    */
   public SecuritySource getSecuritySource() {
@@ -234,7 +246,8 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets the security source.
-   * @param securitySource  the new value of the property, not null
+   * 
+   * @param securitySource the new value of the property, not null
    */
   public void setSecuritySource(SecuritySource securitySource) {
     JodaBeanUtils.notNull(securitySource, "securitySource");
@@ -243,6 +256,7 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory {
 
   /**
    * Gets the the {@code securitySource} property.
+   * 
    * @return the property, not null
    */
   public final Property<SecuritySource> securitySource() {
@@ -252,6 +266,7 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets the position source.
+   * 
    * @return the value of the property, not null
    */
   public PositionSource getPositionSource() {
@@ -260,7 +275,8 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets the position source.
-   * @param positionSource  the new value of the property, not null
+   * 
+   * @param positionSource the new value of the property, not null
    */
   public void setPositionSource(PositionSource positionSource) {
     JodaBeanUtils.notNull(positionSource, "positionSource");
@@ -269,6 +285,7 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory {
 
   /**
    * Gets the the {@code positionSource} property.
+   * 
    * @return the property, not null
    */
   public final Property<PositionSource> positionSource() {
@@ -278,6 +295,7 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets the temporary targets.
+   * 
    * @return the value of the property
    */
   public TempTargetSource getTempTargets() {
@@ -286,7 +304,8 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets the temporary targets.
-   * @param tempTargets  the new value of the property
+   * 
+   * @param tempTargets the new value of the property
    */
   public void setTempTargets(TempTargetSource tempTargets) {
     this._tempTargets = tempTargets;
@@ -294,6 +313,7 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory {
 
   /**
    * Gets the the {@code tempTargets} property.
+   * 
    * @return the property, not null
    */
   public final Property<TempTargetSource> tempTargets() {
@@ -303,6 +323,7 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets the cache manager. If set a caching target resolver will be created, omit to not cache.
+   * 
    * @return the value of the property
    */
   public CacheManager getCacheManager() {
@@ -311,7 +332,8 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets the cache manager. If set a caching target resolver will be created, omit to not cache.
-   * @param cacheManager  the new value of the property
+   * 
+   * @param cacheManager the new value of the property
    */
   public void setCacheManager(CacheManager cacheManager) {
     this._cacheManager = cacheManager;
@@ -319,6 +341,7 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory {
 
   /**
    * Gets the the {@code cacheManager} property.
+   * 
    * @return the property, not null
    */
   public final Property<CacheManager> cacheManager() {
@@ -328,6 +351,7 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets the configuration source.
+   * 
    * @return the value of the property
    */
   public ConfigSource getConfigSource() {
@@ -336,7 +360,8 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets the configuration source.
-   * @param configSource  the new value of the property
+   * 
+   * @param configSource the new value of the property
    */
   public void setConfigSource(ConfigSource configSource) {
     this._configSource = configSource;
@@ -344,6 +369,7 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory {
 
   /**
    * Gets the the {@code configSource} property.
+   * 
    * @return the property, not null
    */
   public final Property<ConfigSource> configSource() {
@@ -411,17 +437,17 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case -281470431:  // classifier
+        case -281470431: // classifier
           return _classifier;
-        case -702456965:  // securitySource
+        case -702456965: // securitySource
           return _securitySource;
-        case -1655657820:  // positionSource
+        case -1655657820: // positionSource
           return _positionSource;
-        case 1942609550:  // tempTargets
+        case 1942609550: // tempTargets
           return _tempTargets;
-        case -1452875317:  // cacheManager
+        case -1452875317: // cacheManager
           return _cacheManager;
-        case 195157501:  // configSource
+        case 195157501: // configSource
           return _configSource;
       }
       return super.metaPropertyGet(propertyName);
@@ -445,6 +471,7 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory {
     //-----------------------------------------------------------------------
     /**
      * The meta-property for the {@code classifier} property.
+     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<String> classifier() {
@@ -453,6 +480,7 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory {
 
     /**
      * The meta-property for the {@code securitySource} property.
+     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<SecuritySource> securitySource() {
@@ -461,6 +489,7 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory {
 
     /**
      * The meta-property for the {@code positionSource} property.
+     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<PositionSource> positionSource() {
@@ -469,6 +498,7 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory {
 
     /**
      * The meta-property for the {@code tempTargets} property.
+     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<TempTargetSource> tempTargets() {
@@ -477,6 +507,7 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory {
 
     /**
      * The meta-property for the {@code cacheManager} property.
+     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<CacheManager> cacheManager() {
@@ -485,6 +516,7 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory {
 
     /**
      * The meta-property for the {@code configSource} property.
+     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<ConfigSource> configSource() {

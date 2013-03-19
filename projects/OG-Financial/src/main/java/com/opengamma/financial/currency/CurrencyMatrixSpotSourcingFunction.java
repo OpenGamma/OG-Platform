@@ -18,7 +18,6 @@ import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
-import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
@@ -27,7 +26,6 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.currency.CurrencyMatrixValue.CurrencyMatrixCross;
 import com.opengamma.financial.currency.CurrencyMatrixValue.CurrencyMatrixFixed;
 import com.opengamma.financial.currency.CurrencyMatrixValue.CurrencyMatrixValueRequirement;
-import com.opengamma.id.UniqueId;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
@@ -91,9 +89,9 @@ public class CurrencyMatrixSpotSourcingFunction extends AbstractCurrencyMatrixSo
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    final Pair<Currency, Currency> currencies = parse(target.getUniqueId());
+    final CurrencyPair currencies = target.getValue(CurrencyPair.TYPE);
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-    if (!getValueConversionRequirements(requirements, new HashSet<Pair<Currency, Currency>>(), currencies)) {
+    if (!getValueConversionRequirements(requirements, new HashSet<Pair<Currency, Currency>>(), Pair.of(currencies.getCounter(), currencies.getBase()))) {
       return null;
     }
     return requirements;
@@ -148,34 +146,33 @@ public class CurrencyMatrixSpotSourcingFunction extends AbstractCurrencyMatrixSo
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-    final Pair<Currency, Currency> currencies = parse(target.getUniqueId());
+    final CurrencyPair currencies = target.getValue(CurrencyPair.TYPE);
     final ComputationTargetSpecification targetSpec = target.toSpecification();
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     return Collections.singleton(new ComputedValue(new ValueSpecification(desiredValue.getValueName(), targetSpec, desiredValue.getConstraints()),
-        getValueConversionRate(inputs, currencies.getFirst(), currencies.getSecond())));
+        getValueConversionRate(inputs, currencies.getCounter(), currencies.getBase())));
   }
 
   /**
    * Creates a requirement that will supply a value which gives the number of units of the source currency for each unit of the target currency.
-   *
+   * 
    * @param source the source currency to convert from
    * @param target the target currency to convert to
    * @return the requirement, not null
    */
   public static ValueRequirement getConversionRequirement(final Currency source, final Currency target) {
-    return getConversionRequirement(source.getCode(), target.getCode());
+    return new ValueRequirement(ValueRequirementNames.SPOT_RATE, CurrencyPair.TYPE.specification(CurrencyPair.of(target, source)));
   }
 
   /**
    * Creates a requirement that will supply a value which gives the number of units of the source currency for each unit of the target currency.
-   *
+   * 
    * @param source the source currency to convert from
    * @param target the target currency to convert to
    * @return the requirement, not null
    */
   public static ValueRequirement getConversionRequirement(final String source, final String target) {
-    return new ValueRequirement(ValueRequirementNames.SPOT_RATE, ComputationTargetType.PRIMITIVE, UniqueId.of(TARGET_IDENTIFIER_SCHEME, source + target));
+    return getConversionRequirement(Currency.of(source), Currency.of(target));
   }
 
 }
-
