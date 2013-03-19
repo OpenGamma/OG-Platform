@@ -18,11 +18,12 @@ import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyGraphBuilder;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.view.ResultOutputMode;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests ResultOutputMode
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class ResultOutputModeTest {
 
   public void testOutputModes() {

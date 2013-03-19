@@ -19,10 +19,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test DbPositionMaster.
  */
+@Test(groups = TestGroup.UNIT_DB)
 public class DbPositionMasterTest extends DbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DbPositionMasterTest.class);

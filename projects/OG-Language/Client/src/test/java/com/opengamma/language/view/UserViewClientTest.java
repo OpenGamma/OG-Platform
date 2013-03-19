@@ -18,11 +18,12 @@ import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the {@link UserViewClient} class.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class UserViewClientTest {
 
   private static class CustomData extends UserViewClientData {

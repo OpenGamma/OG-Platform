@@ -25,12 +25,13 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ehcache.EHCacheUtils;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.test.Timeout;
 
 /**
  * Test.
  */
-@Test(groups = {"ehcache"})
+@Test(groups = {TestGroup.UNIT, "ehcache"})
 public class EHCachingExchangeSourceTest {
 
   private CacheManager _cacheManager;

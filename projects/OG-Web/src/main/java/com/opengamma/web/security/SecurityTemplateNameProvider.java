@@ -14,6 +14,12 @@ import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.cds.CreditDefaultSwapIndexSecurity;
+import com.opengamma.financial.security.cds.LegacyFixedRecoveryCDSSecurity;
+import com.opengamma.financial.security.cds.LegacyRecoveryLockCDSSecurity;
+import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
+import com.opengamma.financial.security.cds.StandardFixedRecoveryCDSSecurity;
+import com.opengamma.financial.security.cds.StandardRecoveryLockCDSSecurity;
+import com.opengamma.financial.security.cds.StandardVanillaCDSSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
@@ -254,6 +260,36 @@ import com.opengamma.financial.security.swap.SwapSecurity;
   @Override
   public String visitCreditDefaultSwapIndexSecurity(CreditDefaultSwapIndexSecurity security) {
     return "cds-index.ftl";
+  }
+  
+  @Override
+  public String visitStandardFixedRecoveryCDSSecurity(StandardFixedRecoveryCDSSecurity security) {
+    return "standard-fixed-recovery-cds.ftl";
+  }
+  
+  @Override
+  public String visitStandardVanillaCDSSecurity(StandardVanillaCDSSecurity security) {
+    return "standard-vanilla-cds.ftl";
+  }
+
+  @Override
+  public String visitStandardRecoveryLockCDSSecurity(StandardRecoveryLockCDSSecurity security) {
+    return "standard-recovery-lock-cds.ftl";
+  }
+  
+  @Override
+  public String visitLegacyVanillaCDSSecurity(LegacyVanillaCDSSecurity security) {
+    return "legacy-vanilla-cds.ftl";
+  }
+ 
+  @Override
+  public String visitLegacyFixedRecoveryCDSSecurity(LegacyFixedRecoveryCDSSecurity security) {
+    return "legacy-fixed-recovery-cds.ftl";
+  }
+  
+  @Override
+  public String visitLegacyRecoveryLockCDSSecurity(LegacyRecoveryLockCDSSecurity security) {
+    return "legacy-recovery-lock-cds.ftl";
   }
 
   private String getBond() {

@@ -19,11 +19,12 @@ import com.opengamma.core.security.impl.SimpleSecurity;
 import com.opengamma.provider.security.SecurityEnhancer;
 import com.opengamma.provider.security.SecurityEnhancerRequest;
 import com.opengamma.provider.security.SecurityEnhancerResult;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test.
  */
-@Test(groups="unit")
+@Test(groups = TestGroup.UNIT)
 public class SecurityEnhancerTest {
 
   private static final SimpleSecurity SECURITY1 = new SimpleSecurity("A1");

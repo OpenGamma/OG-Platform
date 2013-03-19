@@ -13,10 +13,12 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
 import com.opengamma.financial.expression.UserExpression;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * Test the {@link ExpressionParser} class.
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class ExpressionParserTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ExpressionParserTest.class);

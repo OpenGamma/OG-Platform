@@ -18,11 +18,12 @@ import java.util.Random;
 import org.testng.annotations.Test;
 
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test Fudge encoding.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class InnerClassEncodingTest extends AbstractFudgeBuilderTestCase {
 
   Random generator = new Random(System.currentTimeMillis());

@@ -20,11 +20,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.transport.BatchByteArrayMessageReceiver;
 import com.opengamma.util.test.ActiveMQTestUtils;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test.
  */
-@Test(groups = "integration")
+@Test(groups = TestGroup.INTEGRATION)
 public class JmsBatchMessageDispatcherTest {
 
   @Test(invocationCount = 5, successPercentage = 19)

@@ -10,11 +10,12 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.id.ExternalId;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test {@link ExternalSchemes}.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class ExternalSchemesTest {
 
   public void test_constants() {

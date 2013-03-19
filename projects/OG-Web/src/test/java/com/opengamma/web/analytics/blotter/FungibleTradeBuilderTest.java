@@ -38,10 +38,12 @@ import com.opengamma.master.position.impl.InMemoryPositionMaster;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.impl.InMemorySecurityMaster;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class FungibleTradeBuilderTest {
 
 

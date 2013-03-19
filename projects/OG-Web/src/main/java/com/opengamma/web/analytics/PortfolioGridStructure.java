@@ -36,25 +36,26 @@ import com.opengamma.util.tuple.Pair;
 /**
  * The structure of the grid that displays portfolio data and analytics. Contains the column definitions and
  * the portfolio tree structure.
- * TODO subclass for the blotter?
  */
 public class PortfolioGridStructure extends MainGridStructure {
 
   /** The root node of the portfolio structure. */
   private final AnalyticsNode _rootNode;
-  /** Rows in the grid. */
-  private final List<PortfolioGridRow> _rows;
+  /** For mapping cells to values in the results. */
   private final ValueMappings _valueMappings;
+  /** Definition of the view driving the grid. */
+  private final ViewDefinition _viewDef;
 
-  /* package */  PortfolioGridStructure(GridColumnGroups columnGroups,
-                                        AnalyticsNode rootNode,
-                                        List<PortfolioGridRow> rows,
-                                        TargetLookup targetLookup,
-                                        ValueMappings valueMappings) {
-    super(columnGroups, targetLookup);
+  /* package */ PortfolioGridStructure(GridColumnGroup fixedColumns,
+                                       GridColumnGroups nonFixedColumns,
+                                       AnalyticsNode rootNode,
+                                       TargetLookup targetLookup,
+                                       ValueMappings valueMappings,
+                                       ViewDefinition viewDef) {
+    super(fixedColumns, nonFixedColumns, targetLookup);
     _rootNode = rootNode;
-    _rows = rows;
     _valueMappings = valueMappings;
+    _viewDef = viewDef;
   }
 
   /* package */ static PortfolioGridStructure create(Portfolio portfolio, ValueMappings valueMappings) {
@@ -62,7 +63,12 @@ public class PortfolioGridStructure extends MainGridStructure {
     List<PortfolioGridRow> rows = buildRows(portfolio);
     TargetLookup targetLookup = new TargetLookup(valueMappings, rows);
     AnalyticsNode rootNode = AnalyticsNode.portoflioRoot(portfolio);
-    return new PortfolioGridStructure(GridColumnGroups.empty(), rootNode, rows, targetLookup, valueMappings);
+    return new PortfolioGridStructure(GridColumnGroup.empty(),
+                                      GridColumnGroups.empty(),
+                                      rootNode,
+                                      targetLookup,
+                                      valueMappings,
+                                      new ViewDefinition("empty", "dummy"));
   }
 
   /**
@@ -73,26 +79,26 @@ public class PortfolioGridStructure extends MainGridStructure {
   }
 
   /* package */ PortfolioGridStructure withUpdatedRows(Portfolio portfolio) {
+    AnalyticsNode rootNode = AnalyticsNode.portoflioRoot(portfolio);
     List<PortfolioGridRow> rows = buildRows(portfolio);
+    GridColumnGroup fixedColumns = buildFixedColumns(rows);
     TargetLookup targetLookup = new TargetLookup(_valueMappings, rows);
-    GridColumnGroup fixedColumns = buildFixedColumns(_rows);
-    ViewDefinition viewDefinition = null; // TODO
-    List<GridColumnGroup> analyticsColumns = buildAnalyticsColumns(viewDefinition, targetLookup);
-    List<GridColumnGroup> groups = Lists.newArrayList(fixedColumns);
-    groups.addAll(analyticsColumns);
-    GridColumnGroups columnGroups = new GridColumnGroups(groups);
-    return new PortfolioGridStructure(columnGroups, _rootNode, rows, targetLookup, _valueMappings);
+    List<GridColumnGroup> analyticsColumns = buildAnalyticsColumns(_viewDef, targetLookup);
+    GridColumnGroups nonFixedColumns = new GridColumnGroups(analyticsColumns);
+    return new PortfolioGridStructure(fixedColumns, nonFixedColumns, rootNode, targetLookup, _valueMappings, _viewDef);
   }
 
-  /* package */ PortfolioGridStructure withUpdatedColumns(CompiledViewDefinition compiledViewDef) {
-    GridColumnGroup fixedColumns = buildFixedColumns(_rows);
+  /* package */ PortfolioGridStructure withUpdatedStructure(CompiledViewDefinition compiledViewDef) {
+    Portfolio portfolio = compiledViewDef.getPortfolio();
+    AnalyticsNode rootNode = AnalyticsNode.portoflioRoot(portfolio);
+    List<PortfolioGridRow> rows = buildRows(portfolio);
+    GridColumnGroup fixedColumns = buildFixedColumns(rows);
     ValueMappings valueMappings = new ValueMappings(compiledViewDef);
-    TargetLookup targetLookup = new TargetLookup(valueMappings, _rows);
-    List<GridColumnGroup> analyticsColumns = buildAnalyticsColumns(compiledViewDef.getViewDefinition(), targetLookup);
-    List<GridColumnGroup> groups = Lists.newArrayList(fixedColumns);
-    groups.addAll(analyticsColumns);
-    GridColumnGroups columnGroups = new GridColumnGroups(groups);
-    return new PortfolioGridStructure(columnGroups, _rootNode, _rows, targetLookup, valueMappings);
+    TargetLookup targetLookup = new TargetLookup(valueMappings, rows);
+    ViewDefinition viewDef = compiledViewDef.getViewDefinition();
+    List<GridColumnGroup> analyticsColumns = buildAnalyticsColumns(viewDef, targetLookup);
+    GridColumnGroups nonFixedColumns = new GridColumnGroups(analyticsColumns);
+    return new PortfolioGridStructure(fixedColumns, nonFixedColumns, rootNode, targetLookup, valueMappings, viewDef);
   }
 
   /* package */ static GridColumnGroup buildFixedColumns(List<PortfolioGridRow> rows) {
@@ -197,11 +203,6 @@ public class PortfolioGridStructure extends MainGridStructure {
     } else {
       return false;
     }
-  }
-
-  /** Rows in the grid. */
-  /* package */ List<PortfolioGridRow> getRows() {
-    return _rows;
   }
 
   /* package */ ValueMappings getValueMappings() {

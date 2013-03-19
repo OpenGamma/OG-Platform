@@ -15,10 +15,12 @@ import com.google.common.collect.Sets;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.util.test.TestGroup;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class BeanHierarchyTest {
 
   @Test

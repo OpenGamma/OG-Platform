@@ -27,11 +27,12 @@ import com.opengamma.engine.target.MockComputationTargetResolver;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ehcache.EHCacheUtils;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the {@link LazyResolvedPosition} class
  */
-@Test(groups = {"unit", "ehcache" })
+@Test(groups = {TestGroup.UNIT, "ehcache" })
 public class LazyResolvedPositionTest {
 
   private CacheManager _cacheManager;

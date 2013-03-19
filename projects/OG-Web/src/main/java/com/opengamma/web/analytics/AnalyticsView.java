@@ -31,7 +31,7 @@ public interface AnalyticsView {
    * @param compiledViewDefinition The compiled view definition whose data will be displayed in the grids
    * @return Callback IDs of grids that were updated
    */
-  List<String> updateColumns(CompiledViewDefinition compiledViewDefinition);
+  List<String> updateStructure(CompiledViewDefinition compiledViewDefinition);
 
   /**
    * Updates the data in the grids when a cycle completes in the calculation engine.

@@ -11,10 +11,12 @@ import java.util.Comparator;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Test MagnitudeDoublesPairComparator.
  */
-@Test(groups = "unit")
+@Test(groups = TestGroup.UNIT)
 public class MagnitudeDoublesPairComparatorTest {
 
   public void testCompare_differentQuadrants() {

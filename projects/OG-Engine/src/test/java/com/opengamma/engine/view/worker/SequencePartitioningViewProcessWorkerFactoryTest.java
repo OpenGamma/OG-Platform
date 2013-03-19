@@ -25,11 +25,12 @@ import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.execution.ViewCycleExecutionSequence;
 import com.opengamma.engine.view.execution.ViewExecutionFlags;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the {@link SequencePartitioningViewProcessWorkerFactory} class
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class SequencePartitioningViewProcessWorkerFactoryTest {
 
   private class ViewProcessWorkerFactoryMock implements ViewProcessWorkerFactory {

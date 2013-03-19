@@ -20,8 +20,9 @@ import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.normalization.StandardRules;
 import com.opengamma.livedata.server.distribution.MarketDataDistributor;
 import com.opengamma.util.ehcache.EHCacheUtils;
+import com.opengamma.util.test.TestGroup;
 
-@Test(groups = {"ehcache"})
+@Test(groups = {TestGroup.UNIT, "ehcache"})
 public class AbstractPersistentSubscriptionManagerTest {
   
   //TODO test async logic

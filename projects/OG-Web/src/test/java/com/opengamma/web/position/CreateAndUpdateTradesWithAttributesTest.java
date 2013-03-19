@@ -23,8 +23,13 @@ import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.web.WebResourceTestUtils;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class CreateAndUpdateTradesWithAttributesTest extends AbstractWebPositionResourceTestCase {
   
   private static final OffsetTime TRADE_TIME = OffsetTime.parse("19:04+02:00");

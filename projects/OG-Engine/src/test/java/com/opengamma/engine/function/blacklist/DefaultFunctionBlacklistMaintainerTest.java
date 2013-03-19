@@ -28,11 +28,12 @@ import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ExecutionLogMode;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the {@link DefaultFunctionBlacklistMaintainer} class.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class DefaultFunctionBlacklistMaintainerTest {
 
   private final String _functionIdentifier1 = "F1";

@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.integration.tool.portfolio;
 
 import static org.testng.Assert.assertEquals;
@@ -26,19 +31,19 @@ import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.impl.InMemorySecurityMaster;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test the portfolio loader tool behaves as expected. Data should be read from a file and
  * inserted into the correct database masters.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class XmlPortfolioLoaderToolTest {
 
   private ToolContext _toolContext;
   private PortfolioMaster _portfolioMaster;
   private PositionMaster _positionMaster;
   private SecurityMaster _securityMaster;
-
 
   @BeforeMethod
   public void setUp() throws Exception {
@@ -54,7 +59,6 @@ public class XmlPortfolioLoaderToolTest {
 
   @AfterMethod
   public void tearDown() throws Exception {
-
     _toolContext = null;
     _positionMaster = null;
     _portfolioMaster = null;

@@ -22,6 +22,7 @@ import com.opengamma.util.ArgumentChecker;
   /** The rows in the grid. */
   private final List<PortfolioGridRow> _rows;
 
+  // TODO it would be better to pass in an interface so the renderers don't have to be rebuilt when the rows change
   /* package */ PortfolioLabelRenderer(List<PortfolioGridRow> rows) {
     ArgumentChecker.notNull(rows, "rows");
     _rows = rows;

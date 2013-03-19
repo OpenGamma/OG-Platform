@@ -26,11 +26,12 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ehcache.EHCacheUtils;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the {@link EHCachingPositionSource} class.
  */
-@Test(groups = {"ehcache"})
+@Test(groups = {TestGroup.UNIT, "ehcache"})
 public class EHCachingPositionSourceTest {
 
   private CacheManager _cacheManager;

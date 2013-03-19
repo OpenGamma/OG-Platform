@@ -13,10 +13,12 @@ import org.threeten.bp.LocalDate;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
 import com.opengamma.financial.analytics.LocalDateLabelledMatrix1D;
 import com.opengamma.financial.analytics.StringLabelledMatrix1D;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * 
  */
+@Test(groups = TestGroup.UNIT)
 public class LabelledMatrix1DBuilderTest extends AnalyticsTestBase {
 
   @Test

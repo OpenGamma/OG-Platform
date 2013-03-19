@@ -44,12 +44,13 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ExecutionLogMode;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Triple;
 
 /**
  * Tests the implementation of watched jobs.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class WatchedJobTest {
 
   private final ValueSpecification VS_A = new ValueSpecification("A", ComputationTargetSpecification.NULL, ValueProperties.with(ValuePropertyNames.FUNCTION, "A").get());

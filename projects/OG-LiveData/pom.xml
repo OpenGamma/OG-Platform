@@ -56,6 +56,8 @@
   <properties>
     <fudge.proto.equals>false</fudge.proto.equals>
     <fudge.proto.hashCode>false</fudge.proto.hashCode>
+    <tests.testng.includedgroups>unit</tests.testng.includedgroups>
+    <tests.testng.excludedgroups>integration, unitslow</tests.testng.excludedgroups>
   </properties>
 
 </project>

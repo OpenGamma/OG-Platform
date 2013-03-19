@@ -25,11 +25,12 @@ import com.opengamma.transport.jms.JmsByteArrayMessageDispatcher;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.jms.JmsConnector;
 import com.opengamma.util.test.ActiveMQTestUtils;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * 
  */
-@Test(groups = "integration")
+@Test(groups = TestGroup.INTEGRATION)
 // PL 24.6.2010: Putting on ignore as it's failing intermittently on Bamboo and I can't figure out why
 public class JmsSenderTest {
 

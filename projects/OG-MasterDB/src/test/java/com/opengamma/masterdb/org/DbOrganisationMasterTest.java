@@ -28,10 +28,12 @@ import com.opengamma.master.orgs.OrganisationDocument;
 import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.masterdb.orgs.DbOrganisationMaster;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test DbOrganisationMaster.
  */
+@Test(groups = TestGroup.UNIT_DB)
 public class DbOrganisationMasterTest extends DbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DbOrganisationMasterTest.class);

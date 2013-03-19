@@ -10,14 +10,15 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
- * 
+ * Test.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class PathMatcherTest {
-  
+
   public void testMatching() {
-    
     assertTrue(PathMatcher.matches("/MarketData/Bloomberg/AAPL/View", "/MarketData/Bloomberg/*/View"));
     assertFalse(PathMatcher.matches("/MarketData2/Bloomberg/AAPL/View", "/MarketData/Bloomberg/*/View"));
     

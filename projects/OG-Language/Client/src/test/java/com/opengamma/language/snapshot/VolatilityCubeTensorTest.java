@@ -17,12 +17,13 @@ import com.opengamma.core.marketdatasnapshot.VolatilityPoint;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableVolatilityCubeSnapshot;
 import com.opengamma.language.Value;
 import com.opengamma.language.ValueUtils;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.Tenor;
 
 /**
  * Tests the volatility cube tensor functions.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class VolatilityCubeTensorTest {
 
   private ManageableVolatilityCubeSnapshot createSnapshot() {

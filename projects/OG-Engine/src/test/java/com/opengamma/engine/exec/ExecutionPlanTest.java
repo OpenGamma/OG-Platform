@@ -54,12 +54,13 @@ import com.opengamma.engine.view.impl.ExecutionLogModeSource;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.async.Cancelable;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.test.Timeout;
 
 /**
  * Tests the {@link ExecutionPlan} class.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class ExecutionPlanTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ExecutionPlanTest.class);

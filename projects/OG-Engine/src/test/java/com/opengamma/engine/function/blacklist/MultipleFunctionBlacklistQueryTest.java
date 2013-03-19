@@ -27,11 +27,12 @@ import com.opengamma.engine.test.MockFunction;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ExecutionLogMode;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the {@link MultipleFunctionBlacklistQuery} class.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class MultipleFunctionBlacklistQueryTest {
 
   private final String _functionIdentifier = "Func";

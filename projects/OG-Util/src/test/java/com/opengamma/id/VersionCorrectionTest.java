@@ -12,10 +12,12 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.threeten.bp.Instant;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Test {@link VersionCorrection}. 
  */
-@Test(groups = "unit")
+@Test(groups = TestGroup.UNIT)
 public class VersionCorrectionTest {
 
   private static final Instant INSTANT1 = Instant.ofEpochSecond(1);

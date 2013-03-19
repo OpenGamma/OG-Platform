@@ -20,11 +20,13 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.test.TransactionalHibernateTest;
 
 /**
  * Test HibernateUserManager.
  */
+@Test(groups = TestGroup.UNIT_DB)
 public class HibernateUserManagerTest extends TransactionalHibernateTest {
 
   private HibernateUserManager _userManager;
@@ -53,6 +55,7 @@ public class HibernateUserManagerTest extends TransactionalHibernateTest {
     super.tearDown();
   }
 
+  //-------------------------------------------------------------------------
   @Test
   public void testUserManagement() {
     // Try to get non-existent

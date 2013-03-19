@@ -22,11 +22,13 @@ import com.opengamma.analytics.math.function.Function;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.Tenor;
 
 /**
  * 
  */
+@Test(groups = TestGroup.UNIT)
 public class MathCurveTest extends AnalyticsTestBase {
 
   @SuppressWarnings("unchecked")

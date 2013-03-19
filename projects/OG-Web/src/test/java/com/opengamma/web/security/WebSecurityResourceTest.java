@@ -16,10 +16,12 @@ import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.financial.security.test.SecurityTestCaseMethods;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test {@link WebSecurityResource}.
  */
+@Test(groups = TestGroup.UNIT)
 public class WebSecurityResourceTest extends AbstractWebSecurityResourceTestCase implements SecurityTestCaseMethods {
  
   @Test

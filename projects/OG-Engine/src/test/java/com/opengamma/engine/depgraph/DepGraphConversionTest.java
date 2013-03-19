@@ -36,11 +36,12 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the dependency graph building with functions that implement conversion strategies (e.g. for currency)
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class DepGraphConversionTest extends AbstractDependencyGraphBuilderTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DepGraphConversionTest.class);

@@ -18,11 +18,12 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.ManageableHoliday;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test {@link InMemoryHolidayMaster}.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class InMemoryHolidayMasterTest {
 
   private static final LocalDate DATE_MONDAY = LocalDate.of(2010, 10, 25);

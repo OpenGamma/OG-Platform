@@ -33,11 +33,12 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests {@link CompiledViewDefinitionWithGraphsImpl}.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class CompiledViewDefinitionTest {
 
   private final Instant _time0 = Instant.now();

@@ -28,11 +28,12 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test ComputationTargetType.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class ComputationTargetTypeTest {
 
   private static final SimplePortfolioNode NODE = new SimplePortfolioNode();

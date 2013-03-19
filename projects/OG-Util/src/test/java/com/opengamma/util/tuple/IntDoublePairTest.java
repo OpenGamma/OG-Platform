@@ -10,10 +10,12 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Test IntDoublePair.
  */
-@Test(groups = "unit")
+@Test(groups = TestGroup.UNIT)
 public class IntDoublePairTest {
 
   public void test_IntDoublePair_of() {

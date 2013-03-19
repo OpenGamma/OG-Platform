@@ -46,8 +46,9 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.test.TestGroup;
 
-@Test
+@Test(groups = TestGroup.UNIT)
 public class AvailablePortfolioOutputsTest {
 
   private static final String SECURITY_TYPE_1 = "Bond";

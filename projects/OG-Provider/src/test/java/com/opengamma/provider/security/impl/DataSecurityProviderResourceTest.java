@@ -23,12 +23,13 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.provider.security.SecurityProvider;
 import com.opengamma.provider.security.SecurityProviderRequest;
 import com.opengamma.provider.security.SecurityProviderResult;
+import com.opengamma.util.test.TestGroup;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**
  * Test.
  */
-@Test(groups="unit")
+@Test(groups = TestGroup.UNIT)
 public class DataSecurityProviderResourceTest {
 
   private SecurityProvider _underlying;

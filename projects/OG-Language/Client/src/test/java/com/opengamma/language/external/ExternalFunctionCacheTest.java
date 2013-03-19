@@ -17,10 +17,12 @@ import java.util.Collection;
 import org.testng.annotations.Test;
 import org.threeten.bp.Instant;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Tests the {@link ExternalFunctionCache} class.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class ExternalFunctionCacheTest {
 
   private File createTempFolder() {

@@ -12,11 +12,12 @@ import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZoneOffset;
 
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test Fudge encoding.
  */
-@Test(groups = "unit")
+@Test(groups = TestGroup.UNIT)
 public class FlexiDateTimeFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
 
   public void test_LD() {

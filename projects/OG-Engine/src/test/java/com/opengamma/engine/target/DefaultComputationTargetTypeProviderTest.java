@@ -13,11 +13,12 @@ import java.util.Set;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableSet;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the {@link DefaultComputationTargetTypeProvider} class.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class DefaultComputationTargetTypeProviderTest {
 
   public void testGetSimpleTypes() {

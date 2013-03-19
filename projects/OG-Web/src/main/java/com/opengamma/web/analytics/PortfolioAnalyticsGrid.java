@@ -34,9 +34,8 @@ import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
     return new PortfolioAnalyticsGrid(updatedStructure, getCallbackId(), getTargetResolver(), getViewportListener());
   }
 
-  // TODO don't the value mappings change when the columns are updated?
-  /* package */ PortfolioAnalyticsGrid withUpdatedColumns(CompiledViewDefinition compiledViewDef) {
-    PortfolioGridStructure updatedStructure = _gridStructure.withUpdatedColumns(compiledViewDef);
+  /* package */ PortfolioAnalyticsGrid withUpdatedStructure(CompiledViewDefinition compiledViewDef) {
+    PortfolioGridStructure updatedStructure = _gridStructure.withUpdatedStructure(compiledViewDef);
     return new PortfolioAnalyticsGrid(updatedStructure, getCallbackId(), getTargetResolver(), getViewportListener());
   }
 

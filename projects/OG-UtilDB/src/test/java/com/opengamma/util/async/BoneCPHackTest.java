@@ -19,12 +19,13 @@ import org.testng.annotations.Test;
 import com.jolbox.bonecp.BoneCP;
 import com.jolbox.bonecp.BoneCPConfig;
 import com.opengamma.util.db.pool.BoneCPHack;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.test.Timeout;
 
 /**
  * Tests the {@link BoneCPHack} class.
  */
-@Test(groups = "integration")
+@Test(groups = TestGroup.INTEGRATION)
 public class BoneCPHackTest {
 
   private BoneCPConfig createConfig() {

@@ -29,11 +29,12 @@ import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the dependency graph building when two targets can be merged to create a composite equivalent to both.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class DepGraphTargetMergingTest extends AbstractDependencyGraphBuilderTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DepGraphTargetMergingTest.class);

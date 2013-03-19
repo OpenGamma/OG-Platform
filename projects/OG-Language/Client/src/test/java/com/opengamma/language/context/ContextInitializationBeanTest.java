@@ -9,10 +9,12 @@ import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 import com.opengamma.language.connector.Conditional;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the {@link ContextInitializationBean} class.
  */
+@Test(groups = TestGroup.UNIT)
 public class ContextInitializationBeanTest {
 
   private static final String CONTEXT_VALUE = "TEST";

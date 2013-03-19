@@ -12,11 +12,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.language.definition.JavaTypeInfo;
 import com.opengamma.language.test.AbstractConverterTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the {@link EnumConverter} class.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class EnumConverterTest extends AbstractConverterTest {
 
   private final EnumConverter _converter = new EnumConverter();

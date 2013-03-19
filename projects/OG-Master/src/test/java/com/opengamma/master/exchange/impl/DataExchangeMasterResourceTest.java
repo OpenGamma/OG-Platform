@@ -26,11 +26,13 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.master.exchange.ExchangeDocument;
 import com.opengamma.master.exchange.ExchangeMaster;
 import com.opengamma.master.exchange.ManageableExchange;
+import com.opengamma.util.test.TestGroup;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**
  * Tests DataExchangesResource.
  */
+@Test(groups = TestGroup.UNIT)
 public class DataExchangeMasterResourceTest {
 
   private static final UniqueId UID = UniqueId.of("Test", "A", "B");

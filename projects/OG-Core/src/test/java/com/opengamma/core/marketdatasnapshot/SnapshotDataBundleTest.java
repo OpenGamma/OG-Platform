@@ -15,11 +15,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the {@link SnapshotDataBundle} class.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class SnapshotDataBundleTest {
 
   private SnapshotDataBundle createObject() {

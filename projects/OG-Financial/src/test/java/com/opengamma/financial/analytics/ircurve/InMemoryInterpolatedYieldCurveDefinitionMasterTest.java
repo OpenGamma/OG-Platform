@@ -19,10 +19,12 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class InMemoryInterpolatedYieldCurveDefinitionMasterTest {
 
   private InMemoryInterpolatedYieldCurveDefinitionMaster _master;

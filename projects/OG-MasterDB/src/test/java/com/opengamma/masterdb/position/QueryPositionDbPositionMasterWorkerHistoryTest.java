@@ -18,10 +18,12 @@ import com.opengamma.master.position.PositionHistoryRequest;
 import com.opengamma.master.position.PositionHistoryResult;
 import com.opengamma.util.paging.PagingRequest;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests QueryPositionDbPositionMasterWorker.
  */
+@Test(groups = TestGroup.UNIT_DB)
 public class QueryPositionDbPositionMasterWorkerHistoryTest extends AbstractDbPositionMasterWorkerTest {
   // superclass sets up dummy database
 

@@ -14,11 +14,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the {@link ConfigDBFunctionBlacklistPolicySource} class.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class ConfigDBFunctionBlacklistPolicySourceTest {
 
   public void testByName() {

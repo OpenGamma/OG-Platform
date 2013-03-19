@@ -33,11 +33,12 @@ import com.opengamma.livedata.msg.SubscriptionType;
 import com.opengamma.livedata.normalization.StandardRules;
 import com.opengamma.livedata.server.distribution.MarketDataDistributor;
 import com.opengamma.util.ehcache.EHCacheUtils;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test.
  */
-@Test(groups = {"unit", "ehcache"})
+@Test(groups = {TestGroup.UNIT, "ehcache"})
 public class MockLiveDataServerTest {
 
   private ExternalScheme _domain;

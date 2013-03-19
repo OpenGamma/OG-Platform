@@ -65,6 +65,7 @@ $.register_module({
                     $receive_select = $('#' + receive_select.id);
                     og.blotter.util.add_date_picker('.blotter-date');
                     og.blotter.util.add_time_picker('.blotter-time');
+                    og.blotter.util.set_initial_focus();
                     if(typeof data.security.payLeg != 'undefined') {
                         swap_leg({type: data.security.payLeg.type, index: pay_index, leg: pay_leg, child: 4,
                             pay_edit: true});

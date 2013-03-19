@@ -10,10 +10,12 @@ import static org.testng.AssertJUnit.assertSame;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Test {@link ExternalScheme}.
  */
-@Test(groups = "unit")
+@Test(groups = TestGroup.UNIT)
 public class ExternalSchemeTest {
 
   public void test_factory() {

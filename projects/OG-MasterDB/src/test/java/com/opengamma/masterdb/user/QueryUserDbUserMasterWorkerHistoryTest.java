@@ -18,10 +18,12 @@ import com.opengamma.master.user.UserHistoryRequest;
 import com.opengamma.master.user.UserHistoryResult;
 import com.opengamma.util.paging.PagingRequest;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests QueryUserDbUserMasterWorker.
  */
+@Test(groups = TestGroup.UNIT_DB)
 public class QueryUserDbUserMasterWorkerHistoryTest extends AbstractDbUserMasterWorkerTest {
   // superclass sets up dummy database
 

@@ -9,11 +9,12 @@ import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test Fudge encoding.
  */
-@Test(groups = "unit")
+@Test(groups = TestGroup.UNIT)
 public class LocalDateRangeFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
 
   public void test_inclusive() {
@@ -25,5 +26,9 @@ public class LocalDateRangeFudgeEncodingTest extends AbstractFudgeBuilderTestCas
     LocalDateRange range = LocalDateRange.of(LocalDate.of(2010, 7, 1), LocalDate.of(2010, 8, 1), false);
     assertEncodeDecodeCycle(LocalDateRange.class, range);
   }
-
+  
+  public void test_all() {
+    assertEncodeDecodeCycle(LocalDateRange.class, LocalDateRange.ALL);
+  }
+  
 }

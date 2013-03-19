@@ -26,7 +26,12 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.log.LogEvent;
 import com.opengamma.util.log.LogLevel;
 import com.opengamma.util.log.SimpleLogEvent;
+import com.opengamma.util.test.TestGroup;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class ExecutionLogFudgeBuilderTest {
 
   @Test

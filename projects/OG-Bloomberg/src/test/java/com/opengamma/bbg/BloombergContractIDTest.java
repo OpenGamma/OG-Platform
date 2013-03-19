@@ -11,11 +11,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.security.option.OptionType;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests {@link BloombergContractID} 
  */
-@Test(groups="unit")
+@Test(groups = TestGroup.UNIT)
 public class BloombergContractIDTest {
   
   private static final Integer[] YEARS = {1, 11, 2011};

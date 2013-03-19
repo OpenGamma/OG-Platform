@@ -22,11 +22,12 @@ import com.opengamma.engine.function.MarketDataSourcingFunction;
 import com.opengamma.engine.test.MockFunction;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the dependency graph building with trivial constructions.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class DepGraphBasicTest extends AbstractDependencyGraphBuilderTest {
 
   public void singleOutputSingleFunctionNode() {

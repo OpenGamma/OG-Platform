@@ -3,7 +3,6 @@
  *
  * Please see distribution for license.
  */
-
 package com.opengamma.web.json;
 
 import org.fudgemsg.FudgeContext;

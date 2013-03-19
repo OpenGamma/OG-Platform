@@ -21,7 +21,8 @@ $.register_module({
                     og.api.rest.blotter.positions.get({id: id}).pipe(function (data) {
                         new og.blotter.Dialog({
                             details: data, portfolio:{name: id, id: id}, 
-                            handler: function (data) {return og.api.rest.blotter.positions.put(data);}
+                            handler: function (data) {return og.api.rest.blotter.positions.put(data);},
+                            complete : complete_handler
                         });
                     });
                 };
@@ -32,7 +33,8 @@ $.register_module({
                     og.api.rest.blotter.positions.get({id: id}).pipe(function (data) {
                         new og.blotter.Dialog({
                             details: data, portfolio:{name: nodeId, id: nodeId}, 
-                            handler: function (data) {return og.api.rest.blotter.trades.put(data);}
+                            handler: function (data) {return og.api.rest.blotter.trades.put(data);},
+                            complete : complete_handler
                         });
                     });
                 };
@@ -41,14 +43,16 @@ $.register_module({
                     og.api.rest.blotter.trades.get({id: cell.row_value.tradeId}).pipe(function (data) {
                         new og.blotter.Dialog({
                             details: data, portfolio:{name: cell.row_value.nodeId, id: cell.row_value.nodeId},
-                            handler: function (data) {return og.api.rest.blotter.trades.put(data);}
+                            handler: function (data) {return og.api.rest.blotter.trades.put(data);},
+                            complete : complete_handler, save_as: true
                         });
                     });
                 };
                 // addding a new trade needs a node id to append to
                 var trade_insert_node = function () {
                     new og.blotter.Dialog({portfolio:{name: cell.row_value.nodeId, id: cell.row_value.nodeId}, 
-                        handler: function (data) {return og.api.rest.blotter.trades.put(data);}
+                        handler: function (data) {return og.api.rest.blotter.trades.put(data);},
+                        complete : complete_handler
                     });
                 };
                 var trade_delete = function () {
@@ -62,6 +66,12 @@ $.register_module({
                             'Cancel': function () {$(this).dialog('close');}
                         }
                     });
+                };
+                var complete_handler = function (result) {
+                    var msg, id = result.meta.id;
+                    if (id) msg = "Trade " + result.meta.id + " successfully added";
+                    else msg = "Trade successfully updated";
+                    og.common.util.ui.message({location: '.OG-layout-analytics-center', message: msg, live_for: 6000});
                 };
                 // if a row is a node AND the cell is a position only the position insert option is relevant
                 // if a row is a node OR the cell is a node only the add new trade option is relevant

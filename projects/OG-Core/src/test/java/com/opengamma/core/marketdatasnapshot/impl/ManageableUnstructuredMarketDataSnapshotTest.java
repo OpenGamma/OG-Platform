@@ -18,11 +18,12 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.core.marketdatasnapshot.ValueSnapshot;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the {@link ManageableUnstructuredMarketDataSnapshot} class.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class ManageableUnstructuredMarketDataSnapshotTest {
 
   private final ExternalId _eid1 = ExternalId.of("Foo", "1");

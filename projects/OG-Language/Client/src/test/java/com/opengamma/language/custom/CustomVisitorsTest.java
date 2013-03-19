@@ -11,9 +11,12 @@ import static org.testng.AssertJUnit.assertNotNull;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Tests the mapping of message classes to visitor implementations.
  */
+@Test(groups = TestGroup.UNIT)
 public class CustomVisitorsTest {
 
   private class CustomMessage extends com.opengamma.language.connector.Custom {

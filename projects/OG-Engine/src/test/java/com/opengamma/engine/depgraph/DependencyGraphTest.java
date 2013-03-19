@@ -17,11 +17,12 @@ import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.test.MockFunction;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test {@link DependencyGraph}.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class DependencyGraphTest {
 
   public void testSubgraphFilter() {

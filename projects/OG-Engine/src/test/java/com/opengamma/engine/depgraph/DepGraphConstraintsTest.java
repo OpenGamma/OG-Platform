@@ -21,11 +21,12 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the dependency graph building with requirement constraints
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class DepGraphConstraintsTest extends AbstractDependencyGraphBuilderTest {
 
   public void functionByName1() {

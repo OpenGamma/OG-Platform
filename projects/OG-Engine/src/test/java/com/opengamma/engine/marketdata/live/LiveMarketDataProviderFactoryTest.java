@@ -15,7 +15,9 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.engine.marketdata.MarketDataProvider;
 import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
 import com.opengamma.livedata.UserPrincipal;
+import com.opengamma.util.test.TestGroup;
 
+@Test(groups = TestGroup.UNIT)
 public class LiveMarketDataProviderFactoryTest {
 
   private final LiveMarketDataProviderFactory _factory;

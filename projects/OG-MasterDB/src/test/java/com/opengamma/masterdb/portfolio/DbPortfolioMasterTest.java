@@ -24,10 +24,12 @@ import com.opengamma.master.portfolio.PortfolioSearchRequest;
 import com.opengamma.master.portfolio.PortfolioSearchResult;
 import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test DbPortfolioMaster.
  */
+@Test(groups = TestGroup.UNIT_DB)
 public class DbPortfolioMasterTest extends DbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DbPortfolioMasterTest.class);

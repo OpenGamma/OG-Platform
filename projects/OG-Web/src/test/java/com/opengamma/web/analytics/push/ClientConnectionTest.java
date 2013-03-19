@@ -19,6 +19,7 @@ import com.google.common.collect.Lists;
 import com.opengamma.core.change.ChangeEvent;
 import com.opengamma.core.change.ChangeType;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.web.analytics.rest.MasterType;
 
 /**
@@ -27,7 +28,7 @@ import com.opengamma.web.analytics.rest.MasterType;
  * is no need to fire any more events for that URL until the client resubscribes.  So when any event fires for
  * a URL all other subscriptions for that URL should be cleared.
  */
-@SuppressWarnings("unchecked")
+@Test(groups = TestGroup.UNIT)
 public class ClientConnectionTest {
 
   private static final String USER_ID = "USER_ID";

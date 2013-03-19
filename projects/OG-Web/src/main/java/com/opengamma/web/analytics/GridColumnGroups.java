@@ -17,7 +17,9 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class GridColumnGroups {
 
+  /** The columns from all the groups. */
   private final List<GridColumn> _columns = Lists.newArrayList();
+  /** The column groups. */
   private final List<GridColumnGroup> _columnGroups;
 
   /* package */ GridColumnGroups(List<GridColumnGroup> columnGroups) {
@@ -27,6 +29,10 @@ public class GridColumnGroups {
       _columns.addAll(group.getColumns());
     }
     _columnGroups = ImmutableList.copyOf(columnGroups);
+  }
+
+  /* package */ GridColumnGroups(GridColumnGroup columnGroup) {
+    this(Lists.newArrayList(columnGroup));
   }
 
   /**

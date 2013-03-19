@@ -13,7 +13,12 @@ import java.util.concurrent.TimeUnit;
 import org.testng.annotations.Test;
 
 import com.opengamma.engine.cache.ThreadPerThreadExecutor;
+import com.opengamma.util.test.TestGroup;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT_SLOW)
 public class ThreadPerThreadExecutorTests {
 
   @Test

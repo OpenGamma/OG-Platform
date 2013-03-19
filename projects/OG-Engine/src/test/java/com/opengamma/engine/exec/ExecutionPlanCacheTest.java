@@ -42,11 +42,12 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ehcache.EHCacheUtils;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test.
  */
-@Test(groups = {"ehcache"})
+@Test(groups = {TestGroup.UNIT, "ehcache"})
 public class ExecutionPlanCacheTest {
 
   private CacheManager _cacheManager;

@@ -18,13 +18,14 @@ import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 
 import com.google.common.collect.Sets;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
 
 /**
  * Test ArgumentChecker.
  */
-@Test(groups = "unit")
+@Test(groups = TestGroup.UNIT)
 public class ArgumentCheckerTest {
 
   //-------------------------------------------------------------------------

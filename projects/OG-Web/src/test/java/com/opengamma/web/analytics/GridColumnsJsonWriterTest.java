@@ -12,8 +12,13 @@ import org.json.JSONException;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.web.analytics.formatting.ResultsFormatter;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class GridColumnsJsonWriterTest {
 
   @Test

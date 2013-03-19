@@ -19,10 +19,12 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Test YUI Compression.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class YUIBundleCompressorTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(YUIBundleCompressorTest.class);

@@ -33,11 +33,12 @@ import com.opengamma.livedata.server.MockDistributionSpecificationResolver;
 import com.opengamma.livedata.server.MockLiveDataServer;
 import com.opengamma.livedata.server.StandardLiveDataServer;
 import com.opengamma.util.ehcache.EHCacheUtils;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test.
  */
-@Test(groups = {"unit", "ehcache"})
+@Test(groups = {TestGroup.UNIT, "ehcache"})
 public class PriorityResolvingCombiningLiveDataServerTest {
 
   private static final UserPrincipal unauthorizedUser = new UserPrincipal("unauthorized", "127.0.0.1");

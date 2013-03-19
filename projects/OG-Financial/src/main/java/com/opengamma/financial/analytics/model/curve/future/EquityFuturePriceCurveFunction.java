@@ -48,6 +48,7 @@ import com.opengamma.financial.analytics.volatility.surface.FuturePriceCurveInst
 import com.opengamma.financial.analytics.volatility.surface.FuturePriceCurveSpecification;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdentifiable;
 
 //TODO: Take account of holidays
 //TODO: Modify parent class to handle most of this logic
@@ -66,18 +67,31 @@ public class EquityFuturePriceCurveFunction extends FuturePriceCurveFunction {
     return InstrumentTypeProperties.EQUITY_FUTURE_PRICE;
   }
 
+  @SuppressWarnings("unchecked")
   private FuturePriceCurveDefinition<Object> getCurveDefinition(final ConfigDBFuturePriceCurveDefinitionSource source, final ComputationTarget target,
       final String definitionName) {
-    final String fullDefinitionName = definitionName + "_" + EquitySecurityUtils.getIndexOrEquityName(target.getUniqueId());
+    
+    if (!(target.getValue() instanceof ExternalIdentifiable)) {
+      return null;
+    }
+    ExternalId id = ((ExternalIdentifiable) target.getValue()).getExternalId();
+    final String ticker = EquitySecurityUtils.getIndexOrEquityName(id);
+    final String fullDefinitionName = definitionName + "_" + ticker;
     return (FuturePriceCurveDefinition<Object>) source.getDefinition(fullDefinitionName, getInstrumentType());
   }
 
   private FuturePriceCurveSpecification getCurveSpecification(final ConfigDBFuturePriceCurveSpecificationSource source, final ComputationTarget target,
       final String specificationName) {
-    final String fullSpecificationName = specificationName + "_" + EquitySecurityUtils.getIndexOrEquityName(target.getUniqueId());
+    if (!(target.getValue() instanceof ExternalIdentifiable)) {
+      return null;
+    }
+    ExternalId id = ((ExternalIdentifiable) target.getValue()).getExternalId();
+    final String ticker = EquitySecurityUtils.getIndexOrEquityName(id);
+    final String fullSpecificationName = specificationName + "_" + ticker;
     return source.getSpecification(fullSpecificationName, getInstrumentType());
   }
 
+  @SuppressWarnings("unchecked")
   public static Set<ValueRequirement> buildRequirements(final FuturePriceCurveSpecification futurePriceCurveSpecification, final FuturePriceCurveDefinition<Object> futurePriceCurveDefinition,
       final ZonedDateTime atInstant) {
     final Set<ValueRequirement> result = new HashSet<>();

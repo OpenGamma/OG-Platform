@@ -24,11 +24,12 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the {@link DefaultComputationTargetSpecificationResolver} class.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class DefaultComputationTargetSpecificationResolverTest {
 
   private static class Foo implements UniqueIdentifiable {

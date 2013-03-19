@@ -18,11 +18,12 @@ import com.opengamma.master.region.RegionMaster;
 import com.opengamma.master.region.RegionSearchRequest;
 import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test {@link RegionFileReader}.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class RegionFileReaderTest {
 
   private static RegionMaster _regionMaster;

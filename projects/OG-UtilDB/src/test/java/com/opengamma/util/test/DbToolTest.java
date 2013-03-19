@@ -24,7 +24,7 @@ import com.opengamma.OpenGammaRuntimeException;
 /**
  * Test DbTool.
  */
-@Test(groups = {"integration", "sqldb"})
+@Test(groups = TestGroup.INTEGRATION)
 public class DbToolTest {
 
   private static final String TEST_TABLE = "db_tool_unit_test_table";

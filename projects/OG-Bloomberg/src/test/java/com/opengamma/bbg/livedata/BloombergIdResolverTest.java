@@ -16,11 +16,12 @@ import com.opengamma.bbg.util.MockReferenceDataProvider;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test.
  */
-@Test(groups = "unit")
+@Test(groups = TestGroup.UNIT)
 public class BloombergIdResolverTest {
 
   static final String AAPL_BB_ID_UNIQUE = "EQ0010169500001000";

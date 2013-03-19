@@ -23,11 +23,12 @@ import com.opengamma.master.exchange.ExchangeSearchRequest;
 import com.opengamma.master.exchange.ExchangeSearchResult;
 import com.opengamma.master.exchange.ManageableExchange;
 import com.opengamma.util.i18n.Country;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test {@link InMemoryExchangeMaster}.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class InMemoryExchangeMasterTest {
 
   private static String NAME = "LIFFE";

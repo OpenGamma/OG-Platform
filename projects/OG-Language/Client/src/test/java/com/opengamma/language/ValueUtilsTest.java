@@ -12,9 +12,12 @@ import org.testng.annotations.Test;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Tests the methods in the {@link ValueUtils} class.
  */
+@Test(groups = TestGroup.UNIT)
 public class ValueUtilsTest {
 
   @Test

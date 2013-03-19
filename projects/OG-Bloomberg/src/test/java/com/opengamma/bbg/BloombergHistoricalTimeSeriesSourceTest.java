@@ -32,12 +32,13 @@ import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * Test.
  */
-@Test(groups = "integration")
+@Test(groups = TestGroup.INTEGRATION)
 public class BloombergHistoricalTimeSeriesSourceTest {
   
   private BloombergHistoricalTimeSeriesProvider _provider;

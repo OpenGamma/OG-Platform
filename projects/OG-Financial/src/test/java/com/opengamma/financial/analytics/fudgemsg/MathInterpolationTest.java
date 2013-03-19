@@ -18,11 +18,14 @@ import com.opengamma.analytics.math.interpolation.LinearExtrapolator1D;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
 import com.opengamma.analytics.math.interpolation.NaturalCubicSplineInterpolator1D;
 import com.opengamma.analytics.math.interpolation.StepInterpolator1D;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * 
  */
+@Test(groups = TestGroup.UNIT)
 public class MathInterpolationTest extends AnalyticsTestBase {
+
   private static final StepInterpolator1D STEP = new StepInterpolator1D();
   private static final LinearInterpolator1D LINEAR = new LinearInterpolator1D();
   private static final NaturalCubicSplineInterpolator1D CUBIC_SPLINE = new NaturalCubicSplineInterpolator1D();

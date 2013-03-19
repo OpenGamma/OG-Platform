@@ -12,6 +12,7 @@ import org.testng.annotations.Test;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.timeseries.ObjectTimeSeries;
 import com.opengamma.util.timeseries.zoneddatetime.MapZonedDateTimeObjectTimeSeries;
 import com.opengamma.util.timeseries.zoneddatetime.ZonedDateTimeObjectTimeSeries;
@@ -19,7 +20,7 @@ import com.opengamma.util.timeseries.zoneddatetime.ZonedDateTimeObjectTimeSeries
 /**
  * Test.
  */
-@Test(groups = "unit")
+@Test(groups = TestGroup.UNIT)
 public class MapZonedDateTimeObjectTimeSeriesTest extends ZonedDateTimeObjectTimeSeriesTest {
 
   @Override

@@ -9,10 +9,12 @@ import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Tests the {@link ComputationTargetReference} class
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class ComputationTargetReferenceTest {
 
   public void testGetTypeDepth() {

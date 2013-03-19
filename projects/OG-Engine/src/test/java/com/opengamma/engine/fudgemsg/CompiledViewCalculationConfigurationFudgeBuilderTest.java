@@ -25,11 +25,12 @@ import com.opengamma.engine.view.compilation.CompiledViewCalculationConfiguratio
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the {@link CompiledViewCalculationConfigurationFudgeBuilder} class.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class CompiledViewCalculationConfigurationFudgeBuilderTest extends AbstractFudgeBuilderTestCase {
 
   public void testEmpty() {

@@ -28,10 +28,12 @@ import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests ModifyPositionDbPositionMasterWorker.
  */
+@Test(groups = TestGroup.UNIT_DB)
 public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends AbstractDbPositionMasterWorkerTest {
   // superclass sets up dummy database
 

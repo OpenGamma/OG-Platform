@@ -20,10 +20,12 @@ import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests that {@link AnalyticsNode.PortfolioNodeBuilder} creates nodes that match a portfolio structure.
  */
+@Test(groups = TestGroup.UNIT)
 public class AnalyticsNodeBuilderTest {
 
   @Test

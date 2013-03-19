@@ -136,6 +136,13 @@
     <property name="overrideOperationCompiler" ref="mainOverrideOperationCompiler" />
     <property name="viewResultListenerFactory" ref="viewResultListenerFactory" />
     <property name="viewProcessWorkerFactory" ref="viewProcessWorkerFactory" />
+    <property name="viewExecutionCache">
+      <bean class="com.opengamma.engine.view.worker.cache.EHCacheViewExecutionCache">
+        <constructor-arg ref="standardCacheManager" />
+        <constructor-arg ref="combinedConfigSource" />
+        <constructor-arg ref="mainCompiledFunctionService" />
+      </bean>
+    </property>
   </bean>
   <bean id="setViewProcessorIntoContext" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
     <property name="targetClass" value="com.opengamma.financial.OpenGammaExecutionContext" />

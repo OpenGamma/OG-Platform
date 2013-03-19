@@ -14,10 +14,12 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Test InMemoryBatchMessageDispatcher.
  */
-@Test(groups = "integration")
+@Test(groups = TestGroup.INTEGRATION)
 public class InMemoryBatchMessageDispatcherTest {
   
   public void testBaseUsage() throws Exception {

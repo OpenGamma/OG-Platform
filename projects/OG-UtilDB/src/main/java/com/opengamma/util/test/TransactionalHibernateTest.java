@@ -14,7 +14,7 @@ import org.testng.annotations.BeforeMethod;
 /**
  * DB test involving Hibernate and transactions.
  */
-abstract public class TransactionalHibernateTest extends HibernateTest {
+public abstract class TransactionalHibernateTest extends HibernateTest {
 
   private HibernateTransactionManager _transactionManager;
   private TransactionStatus _transaction;
@@ -23,7 +23,7 @@ abstract public class TransactionalHibernateTest extends HibernateTest {
     super(databaseType, databaseVersion);
   }
 
-  @BeforeMethod
+  @BeforeMethod(groups = {TestGroup.UNIT_DB, TestGroup.INTEGRATION})
   public void setUp() throws Exception {
     super.setUp();
     startNewTransaction();
@@ -40,7 +40,7 @@ abstract public class TransactionalHibernateTest extends HibernateTest {
     }        
   }
 
-  @AfterMethod
+  @AfterMethod(groups = {TestGroup.UNIT_DB, TestGroup.INTEGRATION})
   public void tearDown() throws Exception {
     commit();
     super.tearDown();

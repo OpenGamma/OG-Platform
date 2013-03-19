@@ -57,11 +57,13 @@ import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.test.Timeout;
 
 /**
  * Tests {@link SingleThreadViewProcessWorker}
  */
+@Test(groups = TestGroup.UNIT)
 public class SingleThreadViewProcessWorkerTest {
 
   private static final long TIMEOUT = 5L * Timeout.standardTimeoutMillis();

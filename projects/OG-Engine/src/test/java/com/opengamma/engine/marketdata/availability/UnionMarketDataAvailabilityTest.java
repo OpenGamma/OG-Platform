@@ -27,11 +27,12 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.async.BlockingOperation;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the {@link UnionMarketDataAvailability} class.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class UnionMarketDataAvailabilityTest {
 
   private static class BlockingDataProvider implements MarketDataAvailabilityProvider {

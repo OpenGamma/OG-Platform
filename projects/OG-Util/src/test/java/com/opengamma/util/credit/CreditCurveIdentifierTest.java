@@ -13,11 +13,14 @@ import org.testng.annotations.Test;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
+import com.opengamma.util.test.TestGroup;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class CreditCurveIdentifierTest {
+
   private static final String RED_CODE = "ABC";
   private static final Currency CURRENCY = Currency.of("USD");
   private static final String TERM = "1Y";

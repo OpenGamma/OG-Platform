@@ -13,11 +13,12 @@ import org.testng.annotations.Test;
 import org.threeten.bp.Instant;
 
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class BasicChangeManagerTest {
 
   private static final Instant NOW = Instant.now();

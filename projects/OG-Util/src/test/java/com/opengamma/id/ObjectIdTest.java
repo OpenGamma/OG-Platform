@@ -10,10 +10,12 @@ import static org.testng.AssertJUnit.assertSame;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Test {@link ObjectId}. 
  */
-@Test(groups = "unit")
+@Test(groups = TestGroup.UNIT)
 public class ObjectIdTest {
 
   public void test_factory_String_String() {

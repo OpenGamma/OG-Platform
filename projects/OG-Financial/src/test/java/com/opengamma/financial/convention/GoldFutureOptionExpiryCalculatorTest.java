@@ -12,7 +12,12 @@ import org.threeten.bp.LocalDate;
 
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.util.test.TestGroup;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class GoldFutureOptionExpiryCalculatorTest {
   private static final GoldFutureOptionExpiryCalculator EXPIRY_CALC = GoldFutureOptionExpiryCalculator.getInstance();
 

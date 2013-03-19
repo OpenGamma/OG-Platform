@@ -78,6 +78,10 @@ public class ViewportResults {
     return _calculationDuration;
   }
 
+  /* package */ ViewportDefinition getViewportDefinition() {
+    return _viewportDefinition;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {

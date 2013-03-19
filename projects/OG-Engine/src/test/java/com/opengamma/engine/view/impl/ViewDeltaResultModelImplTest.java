@@ -11,11 +11,12 @@ import org.testng.annotations.Test;
 import org.threeten.bp.Instant;
 
 import com.opengamma.engine.view.impl.InMemoryViewDeltaResultModel;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * 
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class ViewDeltaResultModelImplTest {
   
   public void test() {

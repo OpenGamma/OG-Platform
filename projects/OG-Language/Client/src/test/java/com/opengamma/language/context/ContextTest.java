@@ -16,9 +16,12 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Tests the extension points for chaining custom information and behaviors to the contexts.
  */
+@Test(groups = TestGroup.UNIT)
 public class ContextTest {
 
   @Test

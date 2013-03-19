@@ -14,6 +14,8 @@ import javax.servlet.ServletContext;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 import freemarker.cache.FileTemplateLoader;
 import freemarker.cache.TemplateLoader;
 import freemarker.cache.WebappTemplateLoader;
@@ -21,6 +23,7 @@ import freemarker.cache.WebappTemplateLoader;
 /**
  * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class FreemarkerConfigurationComponentFactoryTest {
 
   @Test

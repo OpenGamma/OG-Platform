@@ -19,11 +19,12 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the Fudge builder for {@link ResolutionFailure}
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class ResolutionFailureFudgeBuilderTest extends AbstractFudgeBuilderTestCase {
 
   private int _count;

@@ -10,10 +10,11 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.timeseries.date.ArrayDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.date.DateDoubleTimeSeries;
 
-@Test(groups = "unit")
+@Test(groups = TestGroup.UNIT)
 public class ArrayDateDoubleTimeSeriesTest extends DateDoubleTimeSeriesTest {
 
   @Override

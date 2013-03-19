@@ -29,11 +29,12 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionR
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
 import com.opengamma.util.ehcache.EHCacheUtils;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test.
  */
-@Test(groups = {"ehcache"})
+@Test(groups = {TestGroup.UNIT, "ehcache"})
 public class EHCachingHistoricalTimeSeriesResolverTest {
 
   private final LocalDate _date1 = LocalDate.now();

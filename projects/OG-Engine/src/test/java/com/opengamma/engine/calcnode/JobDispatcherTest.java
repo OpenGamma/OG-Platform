@@ -41,12 +41,13 @@ import com.opengamma.engine.calcnode.JobInvokerRegister;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.async.Cancelable;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.test.Timeout;
 
 /**
  * 
  */
-@Test
+@Test(groups = TestGroup.INTEGRATION)
 public class JobDispatcherTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(JobDispatcherTest.class);

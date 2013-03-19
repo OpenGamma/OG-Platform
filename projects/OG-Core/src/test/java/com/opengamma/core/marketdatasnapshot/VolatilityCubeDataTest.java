@@ -11,12 +11,14 @@ import java.util.SortedMap;
 import org.testng.annotations.Test;
 
 import com.opengamma.id.ExternalId;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
 
 /**
  * Test {@link VolatilityCubeData}.
  */
+@Test(groups = TestGroup.UNIT)
 public class VolatilityCubeDataTest {
 
   @Test

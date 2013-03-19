@@ -11,10 +11,14 @@ import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalDateTime;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class HMUZAdjusterTest {
+
   private static final HMUZAdjuster ADJUSTER = HMUZAdjuster.getInstance();
 
   @Test(expectedExceptions = IllegalArgumentException.class)

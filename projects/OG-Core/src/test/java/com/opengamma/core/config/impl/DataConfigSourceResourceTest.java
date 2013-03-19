@@ -27,11 +27,13 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.test.TestGroup;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**
  * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class DataConfigSourceResourceTest {
 
   private static final ObjectId OID = ObjectId.of("Test", "A");

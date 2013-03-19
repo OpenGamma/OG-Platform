@@ -23,11 +23,12 @@ import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 
 import com.google.common.collect.Sets;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test {@link ExternalIdBundleWithDates}.
  */
-@Test(groups = "unit")
+@Test(groups = TestGroup.UNIT)
 public class ExternalIdBundleWithDatesTest {
 
   private final ExternalId _id11 = ExternalId.of("D1", "V1");

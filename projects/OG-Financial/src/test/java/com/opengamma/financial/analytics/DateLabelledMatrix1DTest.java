@@ -13,12 +13,15 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * 
  */
+@Test(groups = TestGroup.UNIT)
 public class DateLabelledMatrix1DTest {
+
   private static final LocalDate[] D1 = new LocalDate[] {LocalDate.of(2011, 1, 1), LocalDate.of(2011, 3, 1), LocalDate.of(2011, 5, 1), LocalDate.of(2011, 7, 1) };
   private static final Object[] D1_LABELS = new Object[] {"2011-01-01", "2011-03-01", "2011-05-01", "2011-07-01" };
   private static final ZonedDateTime[] Z1 = new ZonedDateTime[] {DateUtils.getUTCDate(2011, 1, 1), DateUtils.getUTCDate(2011, 3, 1), DateUtils.getUTCDate(2011, 5, 1), DateUtils.getUTCDate(2011, 7, 1) };

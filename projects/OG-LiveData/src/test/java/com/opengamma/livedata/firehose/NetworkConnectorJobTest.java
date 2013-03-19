@@ -24,12 +24,13 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
 import com.opengamma.transport.socket.AbstractServerSocketProcess;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.test.Timeout;
 
 /**
  * Test.
  */
-@Test(groups = "unit")
+@Test(groups = TestGroup.UNIT)
 public class NetworkConnectorJobTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(NetworkConnectorJobTest.class);

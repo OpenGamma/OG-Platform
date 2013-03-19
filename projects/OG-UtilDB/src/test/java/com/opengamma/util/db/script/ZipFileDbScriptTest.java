@@ -20,11 +20,12 @@ import java.util.zip.ZipOutputStream;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableSet;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests {@link ZipFileDbScript} and {@link ZipFileDbScriptDirectory}.
  */
-@Test(groups = "unit")
+@Test(groups = TestGroup.UNIT)
 public class ZipFileDbScriptTest {
 
   public void test_traverse() throws IOException {
