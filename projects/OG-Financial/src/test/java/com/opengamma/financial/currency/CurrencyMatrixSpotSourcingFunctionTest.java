@@ -37,10 +37,12 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * Test the {@link CurrencyMatrixSpotSourcingFunction}.
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class CurrencyMatrixSpotSourcingFunctionTest {
 
   private final Currency _currencyUSD = Currency.USD;

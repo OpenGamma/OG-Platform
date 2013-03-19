@@ -10,10 +10,12 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * 
  */
+@Test(groups = TestGroup.UNIT)
 public class LabelledMatrix2DBuilderTest extends AnalyticsTestBase {
 
   @Test

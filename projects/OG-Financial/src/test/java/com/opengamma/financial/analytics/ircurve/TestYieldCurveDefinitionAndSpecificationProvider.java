@@ -12,7 +12,7 @@ import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.util.time.Tenor;
 
 /**
- *
+ * Helper.
  */
 public class TestYieldCurveDefinitionAndSpecificationProvider {
 

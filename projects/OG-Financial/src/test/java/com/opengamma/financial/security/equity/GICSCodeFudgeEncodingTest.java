@@ -12,10 +12,12 @@ import org.fudgemsg.wire.types.FudgeWireType;
 import org.testng.annotations.Test;
 
 import com.opengamma.financial.fudgemsg.FinancialTestBase;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * Test GICSCode Fudge support.
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class GICSCodeFudgeEncodingTest extends FinancialTestBase {
 
   private static final GICSCode GICS = GICSCode.of("10203040");

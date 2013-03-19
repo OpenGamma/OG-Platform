@@ -39,6 +39,8 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
   // TODO : Remove one of the overloaded convertdatesToDoubles methods
   // TODO : Rewrite and integrate constructISDACompliantCashflowSchedule into the code better
 
+  // TODO : Add WORKDAY equivalent function
+
   // -------------------------------------------------------------------------------------------
 
   public ZonedDateTime[] constructISDACompliantCreditDefaultSwapPremiumLegSchedule(final CreditDefaultSwapDefinition cds) {
@@ -135,7 +137,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
 
     // ------------------------------------------------
 
-    return cashflowSchedule;
+    return bdaCashflowSchedule;
   }
 
   // -------------------------------------------------------------------------------------------

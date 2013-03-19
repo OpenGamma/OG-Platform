@@ -11,7 +11,12 @@ import static org.testng.Assert.assertTrue;
 import org.testng.annotations.Test;
 
 import com.opengamma.integration.tool.portfolio.xml.SchemaVersion;
+import com.opengamma.util.test.TestGroup;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class SchemaVersionTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)

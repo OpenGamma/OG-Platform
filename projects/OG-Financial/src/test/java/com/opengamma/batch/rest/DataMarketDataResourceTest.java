@@ -29,12 +29,14 @@ import com.opengamma.batch.domain.MarketDataValue;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.paging.Paging;
 import com.opengamma.util.paging.PagingRequest;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**
  * Tests BatchRunResource.
  */
+@Test(groups = TestGroup.UNIT)
 public class DataMarketDataResourceTest {
 
   private UniqueId _baseMarketDataUid = UniqueId.of("Test", "BaseMarketData");

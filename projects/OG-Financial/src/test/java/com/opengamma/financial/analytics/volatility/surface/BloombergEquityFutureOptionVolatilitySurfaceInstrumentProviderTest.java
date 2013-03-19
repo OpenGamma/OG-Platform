@@ -17,13 +17,16 @@ import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.financial.fudgemsg.FinancialTestBase;
 import com.opengamma.id.ExternalId;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class BloombergEquityFutureOptionVolatilitySurfaceInstrumentProviderTest extends FinancialTestBase {
+
   private static final String PREFIX = "SP";
   private static final String POSTFIX = "Index";
   private static final LocalDate DATE = LocalDate.of(2013, 2, 28);

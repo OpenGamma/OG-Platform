@@ -37,7 +37,7 @@ import com.opengamma.util.test.Timeout;
 /**
  * Tests the {@link CoalescingSecuritySource} class.
  */
-@Test(groups = TestGroup.UNIT)
+@Test(groups = TestGroup.INTEGRATION)
 public class CoalescingSecuritySourceTest {
 
   private static void join(final CyclicBarrier barrier) {

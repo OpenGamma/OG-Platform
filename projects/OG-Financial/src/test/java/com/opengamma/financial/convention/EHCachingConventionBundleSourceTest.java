@@ -22,7 +22,7 @@ import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.test.TestGroup;
 
 /**
- * Tests the {@link EHCachingConventionBundleSource} class
+ * Test.
  */
 @Test(groups = {TestGroup.UNIT, "ehcache"}, singleThreaded = true)
 public class EHCachingConventionBundleSourceTest {

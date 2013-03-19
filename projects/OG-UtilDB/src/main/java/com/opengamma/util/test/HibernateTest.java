@@ -34,7 +34,7 @@ public abstract class HibernateTest extends DbTest {
   
   public abstract Class<?>[] getHibernateMappingClasses();
 
-  @BeforeMethod(groups = TestGroup.UNIT_DB)
+  @BeforeMethod(groups = {TestGroup.UNIT_DB, TestGroup.INTEGRATION})
   public void setUp() throws Exception {
     super.setUp();
     
@@ -47,7 +47,7 @@ public abstract class HibernateTest extends DbTest {
     setSessionFactory(sessionFactory);
   }
 
-  @AfterMethod(groups = TestGroup.UNIT_DB)
+  @AfterMethod(groups = {TestGroup.UNIT_DB, TestGroup.INTEGRATION})
   public void tearDown() throws Exception {
     if (_sessionFactory != null) {
       _sessionFactory.close();

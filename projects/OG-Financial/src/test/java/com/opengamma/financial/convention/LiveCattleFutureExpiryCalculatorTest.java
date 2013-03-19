@@ -12,8 +12,14 @@ import org.threeten.bp.LocalDate;
 
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.util.test.TestGroup;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class LiveCattleFutureExpiryCalculatorTest {
+
   private static final LiveCattleFutureExpiryCalculator EXPIRY_CALC = LiveCattleFutureExpiryCalculator.getInstance();
 
   static final Calendar WEEKEND_CALENDAR = new MondayToFridayCalendar("weekday");

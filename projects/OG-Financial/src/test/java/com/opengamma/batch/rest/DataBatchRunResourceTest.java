@@ -35,12 +35,14 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.transport.jaxrs.FudgeResponse;
 import com.opengamma.util.paging.Paging;
 import com.opengamma.util.paging.PagingRequest;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**
  * Tests BatchRunResource.
  */
+@Test(groups = TestGroup.UNIT)
 public class DataBatchRunResourceTest {
 
   private RiskRun _riskRun;

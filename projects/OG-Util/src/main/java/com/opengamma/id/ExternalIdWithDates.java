@@ -54,6 +54,15 @@ public final class ExternalIdWithDates
   public static ExternalIdWithDates of(ExternalId identifier, LocalDate validFrom, LocalDate validTo) {
     return new ExternalIdWithDates(identifier, validFrom, validTo);
   }
+  
+  /**
+   * Obtains an {@code ExternalIdWithDates} from an {@code ExternalId}.
+   * @param identifier the identifier, not empty, not null
+   * @return the identifier, not null
+   */
+  public static ExternalIdWithDates of(ExternalId identifier) {
+    return ExternalIdWithDates.of(identifier, null, null);
+  }
 
   /**
    * Parses an {@code ExternalIdWithDates} from a formatted scheme and value.

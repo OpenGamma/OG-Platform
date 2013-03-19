@@ -30,6 +30,8 @@ public class GammaCreditDefaultSwap {
 
   // TODO : Lots of ongoing work to do in this class - Work In Progress
 
+  // TODO : Add beta adjusted variants of these sensitivities
+
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Compute the Gamma by a parallel bump of each point on the spread curve

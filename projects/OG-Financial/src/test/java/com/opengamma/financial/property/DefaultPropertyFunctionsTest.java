@@ -83,11 +83,12 @@ import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the functions used to inject default constraints into the dependency graph.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class DefaultPropertyFunctionsTest {
 
   public class TradeScalingFunction extends PropertyPreservingFunction {

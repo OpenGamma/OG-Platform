@@ -17,7 +17,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.integration.tool.portfolio.xml.FilesystemPortfolioSchemaLocator;
 import com.opengamma.integration.tool.portfolio.xml.SchemaVersion;
+import com.opengamma.util.test.TestGroup;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class FilesystemPortfolioSchemaLocatorTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)

@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.analytics.ircurve;
 
 import static org.testng.AssertJUnit.assertTrue;
@@ -11,8 +16,13 @@ import com.google.common.collect.Lists;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.curve.NodalDoublesCurve;
 import com.opengamma.analytics.math.interpolation.DoubleQuadraticInterpolator1D;
+import com.opengamma.util.test.TestGroup;
 
-public class YieldCurveInterpolatingFunctionTests {
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
+public class YieldCurveInterpolatingFunctionTest {
 
   @Test
   public void simpleTest() {
@@ -42,4 +52,5 @@ public class YieldCurveInterpolatingFunctionTests {
       assertTrue(prevX < x);
     }
   }
+
 }

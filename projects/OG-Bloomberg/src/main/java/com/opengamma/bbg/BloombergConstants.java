@@ -7,6 +7,9 @@ package com.opengamma.bbg;
 
 import java.util.Set;
 
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Month;
+
 import com.bloomberglp.blpapi.Name;
 import com.google.common.collect.ImmutableSet;
 
@@ -45,6 +48,10 @@ public final class BloombergConstants {
    * Future chain
    */
   public static final String FIELD_FUT_CHAIN = "FUT_CHAIN";
+  /**
+   * Default start date for timeseries and securities
+   */
+  public static final LocalDate DEFAULT_START_DATE = LocalDate.of(1900, Month.JANUARY, 1);
 
   // CSOFF: TODO: actually write the docs
   public static final String MARKET_SECTOR_GOVT = "Govt";
