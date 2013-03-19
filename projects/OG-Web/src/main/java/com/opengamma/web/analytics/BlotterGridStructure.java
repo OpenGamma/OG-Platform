@@ -34,7 +34,7 @@ public class BlotterGridStructure extends PortfolioGridStructure {
                                      BlotterColumnMapper columnMapper,
                                      ValueMappings valueMappings,
                                      ViewDefinition viewDef) {
-    super(fixedColumns, createGroups(blotterColumns, analyticsColumns), rootNode, targetLookup, valueMappings);
+    super(fixedColumns, createGroups(blotterColumns, analyticsColumns), rootNode, targetLookup, valueMappings, viewDef);
     ArgumentChecker.notNull(columnMapper, "columnMapper");
     ArgumentChecker.notNull(viewDef, "viewDef");
     _viewDef = viewDef;
@@ -86,11 +86,6 @@ public class BlotterGridStructure extends PortfolioGridStructure {
   // TODO combine with the method below
   @Override
   /* package */ BlotterGridStructure withUpdatedRows(Portfolio portfolio) {
-    /*AnalyticsNode rootNode = AnalyticsNode.portoflioRoot(portfolio);
-    List<PortfolioGridRow> rows = buildRows(portfolio);
-    TargetLookup targetLookup = new TargetLookup(getValueMappings(), rows);
-    // TODO this won't work, blotter columns need a ref to the rows too. need to rebuild those
-    return new BlotterGridStructure(buildFixedColumns(rows), getNonFixedColumns(), rootNode, targetLookup, _columnMapper, getValueMappings());*/
     AnalyticsNode rootNode = AnalyticsNode.portoflioRoot(portfolio);
     List<PortfolioGridRow> rows = buildRows(portfolio);
     TargetLookup targetLookup = new TargetLookup(getValueMappings(), rows);
