@@ -46,6 +46,8 @@ public class CurrencyFunctions extends AbstractRepositoryConfigurationBean {
     addCurrencyConversionFunction(functions, ValueRequirementNames.DV01);
     addCurrencyConversionFunction(functions, ValueRequirementNames.CS01);
     addCurrencyConversionFunction(functions, ValueRequirementNames.GAMMA_CS01);
+    addCurrencyConversionFunction(functions, ValueRequirementNames.RR01);
+    addCurrencyConversionFunction(functions, ValueRequirementNames.JUMP_TO_DEFAULT);
     addCurrencyConversionFunction(functions, ValueRequirementNames.FAIR_VALUE);
     addCurrencySeriesConversionFunction(functions, ValueRequirementNames.PNL_SERIES);
     addCurrencyConversionFunction(functions, ValueRequirementNames.PRESENT_VALUE);

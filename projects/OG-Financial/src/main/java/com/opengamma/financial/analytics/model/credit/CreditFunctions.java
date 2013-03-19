@@ -12,6 +12,7 @@ import java.util.Map;
 import org.springframework.beans.factory.InitializingBean;
 
 import com.opengamma.analytics.financial.credit.PriceType;
+import com.opengamma.analytics.financial.credit.bumpers.RecoveryRateBumpType;
 import com.opengamma.analytics.financial.credit.bumpers.SpreadBumpType;
 import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
@@ -22,9 +23,13 @@ import com.opengamma.financial.analytics.model.credit.standard.StandardVanillaCD
 import com.opengamma.financial.analytics.model.credit.standard.StandardVanillaCDSCS01Defaults;
 import com.opengamma.financial.analytics.model.credit.standard.StandardVanillaCDSCurveDefaults;
 import com.opengamma.financial.analytics.model.credit.standard.StandardVanillaCDSDV01Defaults;
+import com.opengamma.financial.analytics.model.credit.standard.StandardVanillaCDSJtDDefaults;
+import com.opengamma.financial.analytics.model.credit.standard.StandardVanillaCDSRR01Defaults;
 import com.opengamma.financial.analytics.model.credit.standard.StandardVanillaDV01CDSFunction;
+import com.opengamma.financial.analytics.model.credit.standard.StandardVanillaJumpToDefaultCDSFunction;
 import com.opengamma.financial.analytics.model.credit.standard.StandardVanillaParallelCS01CDSFunction;
 import com.opengamma.financial.analytics.model.credit.standard.StandardVanillaParallelGammaCDSFunction;
+import com.opengamma.financial.analytics.model.credit.standard.StandardVanillaRR01CDSFunction;
 import com.opengamma.financial.property.DefaultPropertyFunction.PriorityClass;
 import com.opengamma.util.ArgumentChecker;
 
@@ -111,6 +116,10 @@ public class CreditFunctions extends AbstractRepositoryConfigurationBean {
     private SpreadBumpType _yieldBumpCurveType = SpreadBumpType.ADDITIVE_PARALLEL;
     private SpreadBumpType _bucketedYieldBumpCurveType = SpreadBumpType.ADDITIVE;
     private PriceType _dv01PriceType = PriceType.CLEAN;
+    private double _recoveryRateBump = 0.0001;
+    private RecoveryRateBumpType _recoveryRateCurveType = RecoveryRateBumpType.ADDITIVE;
+    private PriceType _rr01PriceType = PriceType.CLEAN;
+    private PriceType _jumpToDefaultPriceType = PriceType.CLEAN;
 
     public void setPerCurrencyInfo(final Map<String, CurrencyInfo> perCurrencyInfo) {
       _perCurrencyInfo.clear();
@@ -225,6 +234,38 @@ public class CreditFunctions extends AbstractRepositoryConfigurationBean {
       return _dv01PriceType;
     }
 
+    public void setRecoveryRateBump(final double recoveryRateBump) {
+      _recoveryRateBump = recoveryRateBump;
+    }
+
+    public double getRecoveryRateBump() {
+      return _recoveryRateBump;
+    }
+
+    public void setRecoveryRateBumpType(final RecoveryRateBumpType recoveryRateCurveType) {
+      _recoveryRateCurveType = recoveryRateCurveType;
+    }
+
+    public RecoveryRateBumpType getRecoveryRateBumpType() {
+      return _recoveryRateCurveType;
+    }
+
+    public void setRR01PriceType(final PriceType rr01PriceType) {
+      _rr01PriceType = rr01PriceType;
+    }
+
+    public PriceType getRR01PriceType() {
+      return _rr01PriceType;
+    }
+
+    public void setJumpToDefaultPriceType(final PriceType jumpToDefaultPriceType) {
+      _jumpToDefaultPriceType = jumpToDefaultPriceType;
+    }
+
+    public PriceType getJumpToDefaultPriceType() {
+      return _jumpToDefaultPriceType;
+    }
+
     protected void addISDAYieldCurveDefaults(final List<FunctionConfiguration> functions) {
       final String[] args = new String[1 + getPerCurrencyInfo().size() * 2];
       int i = 0;
@@ -294,6 +335,30 @@ public class CreditFunctions extends AbstractRepositoryConfigurationBean {
       functions.add(functionConfiguration(StandardVanillaCDSCS01Defaults.class, args));
     }
 
+    protected void addStandardVanillaRR01Defaults(final List<FunctionConfiguration> functions) {
+      final String[] args = new String[1 + getPerCurrencyInfo().size() * 4];
+      int i = 0;
+      args[i++] = PriorityClass.NORMAL.name();
+      for (final Map.Entry<String, CurrencyInfo> entry : getPerCurrencyInfo().entrySet()) {
+        args[i++] = entry.getKey();
+        args[i++] = Double.toString(getRecoveryRateBump());
+        args[i++] = getRecoveryRateBumpType().name();
+        args[i++] = getRR01PriceType().name();
+      }
+      functions.add(functionConfiguration(StandardVanillaCDSRR01Defaults.class, args));
+    }
+
+    protected void addStandardVanillaJtDDefaults(final List<FunctionConfiguration> functions) {
+      final String[] args = new String[1 + getPerCurrencyInfo().size() * 2];
+      int i = 0;
+      args[i++] = PriorityClass.NORMAL.name();
+      for (final Map.Entry<String, CurrencyInfo> entry : getPerCurrencyInfo().entrySet()) {
+        args[i++] = entry.getKey();
+        args[i++] = getJumpToDefaultPriceType().name();
+      }
+      functions.add(functionConfiguration(StandardVanillaCDSJtDDefaults.class, args));
+    }
+
     @Override
     protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
       if (!getPerCurrencyInfo().isEmpty()) {
@@ -304,6 +369,8 @@ public class CreditFunctions extends AbstractRepositoryConfigurationBean {
       addStandardVanillaCS01Defaults(functions);
       addStandardVanillaBucketedCS01Defaults(functions);
       addStandardVanillaDV01Defaults(functions);
+      addStandardVanillaRR01Defaults(functions);
+      addStandardVanillaJtDDefaults(functions);
     }
   }
 
@@ -320,6 +387,8 @@ public class CreditFunctions extends AbstractRepositoryConfigurationBean {
     functions.add(functionConfiguration(StandardVanillaParallelGammaCDSFunction.class));
     functions.add(functionConfiguration(StandardVanillaBucketedGammaCDSFunction.class));
     functions.add(functionConfiguration(StandardVanillaDV01CDSFunction.class));
+    functions.add(functionConfiguration(StandardVanillaRR01CDSFunction.class));
+    functions.add(functionConfiguration(StandardVanillaJumpToDefaultCDSFunction.class));
   }
 
 }

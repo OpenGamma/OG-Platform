@@ -29,7 +29,9 @@ public class StandardVanillaCDSCurveDefaults extends DefaultPropertyFunction {
     ValueRequirementNames.BUCKETED_CS01,
     ValueRequirementNames.GAMMA_CS01,
     ValueRequirementNames.BUCKETED_GAMMA_CS01,
-    ValueRequirementNames.DV01
+    ValueRequirementNames.DV01,
+    ValueRequirementNames.RR01,
+    ValueRequirementNames.JUMP_TO_DEFAULT
   };
   private final PriorityClass _priority;
   private final Map<String, String> _currencyToYieldCurveName;

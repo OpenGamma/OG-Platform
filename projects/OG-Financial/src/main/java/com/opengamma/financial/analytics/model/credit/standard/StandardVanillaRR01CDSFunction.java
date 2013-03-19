@@ -12,10 +12,10 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Iterables;
 import com.opengamma.analytics.financial.credit.PriceType;
+import com.opengamma.analytics.financial.credit.bumpers.RecoveryRateBumpType;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.greeks.vanilla.IR01CreditDefaultSwap;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.greeks.vanilla.RecRate01CreditDefaultSwap;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
-import com.opengamma.analytics.financial.credit.isdayieldcurve.InterestRateBumpType;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ComputedValue;
@@ -28,24 +28,24 @@ import com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNa
 /**
  * 
  */
-public class StandardVanillaDV01CDSFunction extends StandardVanillaCDSFunction {
-  private static final IR01CreditDefaultSwap CALCULATOR = new IR01CreditDefaultSwap();
+public class StandardVanillaRR01CDSFunction extends StandardVanillaCDSFunction {
+  private static final RecRate01CreditDefaultSwap CALCULATOR = new RecRate01CreditDefaultSwap();
 
-  public StandardVanillaDV01CDSFunction() {
-    super(ValueRequirementNames.DV01);
+  public StandardVanillaRR01CDSFunction() {
+    super(ValueRequirementNames.RR01);
   }
 
   @Override
   protected Set<ComputedValue> getComputedValue(final LegacyVanillaCreditDefaultSwapDefinition definition, final ISDADateCurve yieldCurve, final ZonedDateTime[] times,
       final double[] marketSpreads, final ZonedDateTime valuationDate, final ComputationTarget target, final ValueProperties properties) {
-    final Double interestRateCurveBump = Double.valueOf(Iterables.getOnlyElement(properties.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_INTEREST_RATE_CURVE_BUMP)));
-    final InterestRateBumpType interestRateBumpType =
-        InterestRateBumpType.valueOf(Iterables.getOnlyElement(properties.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_INTEREST_RATE_BUMP_TYPE)));
+    final Double recoveryRateCurveBump = Double.valueOf(Iterables.getOnlyElement(properties.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_RECOVERY_RATE_CURVE_BUMP)));
+    final RecoveryRateBumpType recoveryRateBumpType =
+        RecoveryRateBumpType.valueOf(Iterables.getOnlyElement(properties.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_RECOVERY_RATE_BUMP_TYPE)));
     final PriceType priceType = PriceType.valueOf(Iterables.getOnlyElement(properties.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_CDS_PRICE_TYPE)));
-    final double dv01 = CALCULATOR.getIR01ParallelShiftCreditDefaultSwap(valuationDate, definition, yieldCurve, times, marketSpreads, interestRateCurveBump,
-        interestRateBumpType, priceType);
-    final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.DV01, target.toSpecification(), properties);
-    return Collections.singleton(new ComputedValue(spec, dv01));
+    final double rr01 = CALCULATOR.getRecoveryRate01CreditDefaultSwap(valuationDate, definition, yieldCurve, times, marketSpreads, recoveryRateCurveBump,
+        recoveryRateBumpType, priceType);
+    final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.RR01, target.toSpecification(), properties);
+    return Collections.singleton(new ComputedValue(spec, rr01));
   }
 
   @Override
@@ -55,12 +55,12 @@ public class StandardVanillaDV01CDSFunction extends StandardVanillaCDSFunction {
       return null;
     }
     final ValueProperties constraints = desiredValue.getConstraints();
-    final Set<String> yieldCurveBumps = constraints.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_INTEREST_RATE_CURVE_BUMP);
-    if (yieldCurveBumps == null || yieldCurveBumps.size() != 1) {
+    final Set<String> recoveryRateBumps = constraints.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_RECOVERY_RATE_CURVE_BUMP);
+    if (recoveryRateBumps == null || recoveryRateBumps.size() != 1) {
       return null;
     }
-    final Set<String> yieldCurveBumpTypes = constraints.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_INTEREST_RATE_BUMP_TYPE);
-    if (yieldCurveBumpTypes == null || yieldCurveBumpTypes.size() != 1) {
+    final Set<String> recoveryRateBumpTypes = constraints.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_RECOVERY_RATE_BUMP_TYPE);
+    if (recoveryRateBumpTypes == null || recoveryRateBumpTypes.size() != 1) {
       return null;
     }
     final Set<String> cdsPriceTypes = constraints.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_CDS_PRICE_TYPE);
@@ -73,8 +73,8 @@ public class StandardVanillaDV01CDSFunction extends StandardVanillaCDSFunction {
   @Override
   protected ValueProperties.Builder getCommonResultProperties() {
     return createValueProperties()
-        .withAny(CreditInstrumentPropertyNamesAndValues.PROPERTY_INTEREST_RATE_CURVE_BUMP)
-        .withAny(CreditInstrumentPropertyNamesAndValues.PROPERTY_INTEREST_RATE_BUMP_TYPE)
+        .withAny(CreditInstrumentPropertyNamesAndValues.PROPERTY_RECOVERY_RATE_CURVE_BUMP)
+        .withAny(CreditInstrumentPropertyNamesAndValues.PROPERTY_RECOVERY_RATE_BUMP_TYPE)
         .withAny(CreditInstrumentPropertyNamesAndValues.PROPERTY_CDS_PRICE_TYPE);
   }
 
