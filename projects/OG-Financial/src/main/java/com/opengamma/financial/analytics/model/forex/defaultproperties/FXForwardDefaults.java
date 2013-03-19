@@ -47,7 +47,7 @@ public class FXForwardDefaults extends DefaultPropertyFunction {
     ArgumentChecker.notNull(currencyCurveConfigAndDiscountingCurveNames, "currency and curve config names");
     final int nPairs = currencyCurveConfigAndDiscountingCurveNames.length;
     ArgumentChecker.isTrue(nPairs % 3 == 0, "Must have one curve config and discounting curve name per currency");
-    _currencyCurveConfigAndDiscountingCurveNames = new HashMap<String, Pair<String, String>>();
+    _currencyCurveConfigAndDiscountingCurveNames = new HashMap<>();
     for (int i = 0; i < currencyCurveConfigAndDiscountingCurveNames.length; i += 3) {
       final Pair<String, String> pair = Pair.of(currencyCurveConfigAndDiscountingCurveNames[i + 1], currencyCurveConfigAndDiscountingCurveNames[i + 2]);
       _currencyCurveConfigAndDiscountingCurveNames.put(currencyCurveConfigAndDiscountingCurveNames[i], pair);
