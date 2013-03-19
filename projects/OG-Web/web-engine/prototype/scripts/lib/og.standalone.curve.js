@@ -90,7 +90,7 @@
                 $init_msg = $('<div />').css(css.reset_container).html(html.init_msg);
                 $plot = $('<div />').css(css.plot);
                 $flot = $.plot($plot, data.data, data.options);
-                $flot.pan({left: -10, top: 10});
+                $flot.zoom({amount:0.90});
                 return $('<div />').html([$reset[0], $init_msg[0], $plot[0]]);
             }()));
             /**
@@ -121,7 +121,7 @@
          */
         curve.reload = function () {
             $flot = $.plot($plot, data.data, data.options);
-            $flot.pan({left: -10, top: 10});
+            $flot.zoom({amount:0.90});
             $reset.hide();
         };
         /**
