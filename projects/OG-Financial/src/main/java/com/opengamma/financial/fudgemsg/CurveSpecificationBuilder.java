@@ -37,7 +37,7 @@ public class CurveSpecificationBuilder implements FudgeBuilder<CurveSpecificatio
     serializer.addToMessage(message, CURVE_DATE_FIELD, null, object.getCurveDate());
     message.add(NAME_FIELD, object.getName());
     serializer.addToMessage(message, ID_FIELD, null, object.getIdentifier());
-    for (final CurveNodeWithIdentifier resolvedStrip : object.getStrips()) {
+    for (final CurveNodeWithIdentifier resolvedStrip : object.getNodes()) {
       serializer.addToMessage(message, RESOLVED_STRIPS_FIELD, null, resolvedStrip);
     }
     return message;

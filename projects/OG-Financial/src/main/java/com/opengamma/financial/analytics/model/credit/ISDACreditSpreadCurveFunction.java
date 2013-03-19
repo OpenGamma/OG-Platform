@@ -5,8 +5,10 @@
  */
 package com.opengamma.financial.analytics.model.credit;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -18,8 +20,10 @@ import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Iterables;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.math.curve.NodalObjectsCurve;
 import com.opengamma.core.config.ConfigSource;
+import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
@@ -41,6 +45,7 @@ import com.opengamma.financial.analytics.curve.CurveSpecification;
 import com.opengamma.financial.analytics.curve.credit.ConfigDBCurveDefinitionSource;
 import com.opengamma.financial.analytics.curve.credit.CurveDefinitionSource;
 import com.opengamma.financial.analytics.curve.credit.CurveSpecificationBuilder;
+import com.opengamma.financial.analytics.ircurve.strips.CreditSpreadNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.time.Tenor;
@@ -65,16 +70,17 @@ public class ISDACreditSpreadCurveFunction extends AbstractFunction {
         final String curveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
         final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(executionContext);
         final CurveSpecification curveSpecification = getCurveSpecification(configSource, now.toLocalDate(), curveName);
-        final int nStrips = curveSpecification.getStrips().size();
-        final Tenor[] tenors = new Tenor[nStrips];
-        final Double[] marketSpreads = new Double[nStrips];
-        int i = 0;
-        for (final CurveNodeWithIdentifier strip : curveSpecification.getStrips()) {
-          //final Object marketSpreadObject = inputs.getValue(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, strip.getIdentifier()));
-          //if (marketSpreadObject != null) {
-          tenors[i] = strip.getCurveStrip().getResolvedMaturity();
-          marketSpreads[i++] = 0.05; //(Double) marketSpreadObject;
-          //}
+        final List<Tenor> tenors = new ArrayList<>();
+        final List<Double> marketSpreads = new ArrayList<>();
+        for (final CurveNodeWithIdentifier strip : curveSpecification.getNodes()) {
+          final Object marketSpreadObject = inputs.getValue(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, strip.getIdentifier()));
+          if (marketSpreadObject != null) {
+            tenors.add(strip.getCurveNode().getResolvedMaturity());
+            marketSpreads.add((Double) marketSpreadObject);
+          }
+        }
+        if (tenors.size() == 0) {
+          throw new OpenGammaRuntimeException("Could not get any credit spread data for curve called " + curveName);
         }
         final NodalObjectsCurve<Tenor, Double> curve = NodalObjectsCurve.from(tenors, marketSpreads);
         final ValueProperties properties = createValueProperties()
@@ -110,11 +116,11 @@ public class ISDACreditSpreadCurveFunction extends AbstractFunction {
         final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
         try {
           final CurveSpecification specification = getCurveSpecification(configSource, atZDT.toLocalDate(), curveName);
-          //        for (final CurveStripWithIdentifier strip : specification.getStrips()) {
-          //          if (strip.getCurveStrip() instanceof CreditSpreadStrip) {
-          //            requirements.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, strip.getIdentifier()));
-          //          }
-          //        }
+          for (final CurveNodeWithIdentifier strip : specification.getNodes()) {
+            if (strip.getCurveNode() instanceof CreditSpreadNode) {
+              requirements.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, strip.getIdentifier()));
+            }
+          }
           return requirements;
         } catch (final Exception e) {
           s_logger.error(e.getMessage());
@@ -135,6 +141,9 @@ public class ISDACreditSpreadCurveFunction extends AbstractFunction {
       private CurveSpecification getCurveSpecification(final ConfigSource configSource, final LocalDate curveDate, final String curveName) {
         final CurveDefinitionSource curveDefinitionSource = new ConfigDBCurveDefinitionSource(configSource);
         final CurveDefinition curveDefinition = curveDefinitionSource.getCurveDefinition(curveName);
+        if (curveDefinition == null) {
+          throw new OpenGammaRuntimeException("Could not get curve definition called " + curveName);
+        }
         final CurveSpecificationBuilder curveSpecificationBuilder = new ConfigDBCurveSpecificationBuilder(configSource);
         return curveSpecificationBuilder.buildCurve(curveDate, curveDefinition);
       }

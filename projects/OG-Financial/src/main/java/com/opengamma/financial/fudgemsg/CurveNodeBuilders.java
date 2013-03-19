@@ -40,7 +40,7 @@ import com.opengamma.util.time.Tenor;
     public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final CurveNodeWithIdentifier object) {
       final MutableFudgeMsg message = serializer.newMessage();
       message.add(null, 0, object.getClass().getName());
-      serializer.addToMessageWithClassHeaders(message, CURVE_STRIP_FIELD, null, object.getCurveStrip());
+      serializer.addToMessageWithClassHeaders(message, CURVE_STRIP_FIELD, null, object.getCurveNode());
       serializer.addToMessage(message, ID_FIELD, null, object.getIdentifier());
       return message;
     }

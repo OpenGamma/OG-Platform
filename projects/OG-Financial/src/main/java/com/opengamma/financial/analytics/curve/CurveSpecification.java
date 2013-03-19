@@ -32,22 +32,22 @@ public class CurveSpecification implements Serializable {
   private final LocalDate _curveDate;
   private final String _name;
   private final UniqueIdentifiable _id;
-  private final SortedSet<CurveNodeWithIdentifier> _strips;
+  private final SortedSet<CurveNodeWithIdentifier> _nodes;
 
-  public CurveSpecification(final LocalDate curveDate, final String name, final UniqueIdentifiable id, final Collection<CurveNodeWithIdentifier> strips) {
+  public CurveSpecification(final LocalDate curveDate, final String name, final UniqueIdentifiable id, final Collection<CurveNodeWithIdentifier> nodes) {
     ArgumentChecker.notNull(curveDate, "curve date");
     ArgumentChecker.notNull(name, "name");
     ArgumentChecker.notNull(id, "id");
-    ArgumentChecker.notNull(strips, "strips");
+    ArgumentChecker.notNull(nodes, "nodes");
     _curveDate = curveDate;
     _name = name;
     _id = id;
-    _strips = new TreeSet<>(strips);
+    _nodes = new TreeSet<>(nodes);
   }
 
-  public void addStrip(final CurveNodeWithIdentifier strip) {
-    ArgumentChecker.notNull(strip, "strip");
-    _strips.add(strip);
+  public void addNode(final CurveNodeWithIdentifier node) {
+    ArgumentChecker.notNull(node, "nodes");
+    _nodes.add(node);
   }
 
   public LocalDate getCurveDate() {
@@ -62,8 +62,8 @@ public class CurveSpecification implements Serializable {
     return _id;
   }
 
-  public Set<CurveNodeWithIdentifier> getStrips() {
-    return Collections.unmodifiableSet(_strips);
+  public Set<CurveNodeWithIdentifier> getNodes() {
+    return Collections.unmodifiableSet(_nodes);
   }
 
   @Override
@@ -78,7 +78,7 @@ public class CurveSpecification implements Serializable {
     result = prime * result + _curveDate.hashCode();
     result = prime * result + _id.hashCode();
     result = prime * result + _name.hashCode();
-    result = prime * result + _strips.hashCode();
+    result = prime * result + _nodes.hashCode();
     return result;
   }
 
@@ -103,7 +103,7 @@ public class CurveSpecification implements Serializable {
     if (!ObjectUtils.equals(_id, other._id)) {
       return false;
     }
-    if (!ObjectUtils.equals(_strips, other._strips)) {
+    if (!ObjectUtils.equals(_nodes, other._nodes)) {
       return false;
     }
     return true;
