@@ -17,7 +17,12 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 import com.opengamma.integration.tool.portfolio.xml.TradePositionResolver;
+import com.opengamma.util.test.TestGroup;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class TradePositionResolverTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
