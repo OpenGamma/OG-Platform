@@ -321,20 +321,20 @@ public class DependencyGraph {
    * @param specifications the outputs to mark as terminals
    */
   public void addTerminalOutputs(final Map<ValueSpecification, Set<ValueRequirement>> specifications) {
-    for (final ValueSpecification specification : specifications.keySet()) {
+    for (Map.Entry<ValueSpecification, Set<ValueRequirement>> specification : specifications.entrySet()) {
       // Register it with the node responsible for producing it - informs the node that the output is required
-      final DependencyNode node = _outputValues.get(specification);
+      final DependencyNode node = _outputValues.get(specification.getKey());
       if (node == null) {
-        throw new IllegalArgumentException("No node produces " + specification);
+        throw new IllegalArgumentException("No node produces " + specification.getKey());
       }
-      node.addTerminalOutputValue(specification);
+      node.addTerminalOutputValue(specification.getKey());
       // Maintain a cache of all terminal outputs at the graph level
-      Set<ValueRequirement> requirements = _terminalOutputs.get(specification);
+      Set<ValueRequirement> requirements = _terminalOutputs.get(specification.getKey());
       if (requirements == null) {
         requirements = new HashSet<ValueRequirement>();
-        _terminalOutputs.put(specification, requirements);
+        _terminalOutputs.put(specification.getKey(), requirements);
       }
-      requirements.addAll(specifications.get(specification));
+      requirements.addAll(specification.getValue());
     }
   }
 

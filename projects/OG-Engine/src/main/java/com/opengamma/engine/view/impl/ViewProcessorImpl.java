@@ -54,6 +54,7 @@ import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.engine.view.listener.ViewResultListenerFactory;
 import com.opengamma.engine.view.permission.ViewPermissionProvider;
 import com.opengamma.engine.view.worker.ViewProcessWorkerFactory;
+import com.opengamma.engine.view.worker.cache.ViewExecutionCache;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionedUniqueIdSupplier;
 import com.opengamma.livedata.UserPrincipal;
@@ -97,6 +98,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
   private final OverrideOperationCompiler _overrideOperationCompiler;
   private final ViewResultListenerFactory _viewResultListenerFactory;
   private final ViewProcessWorkerFactory _viewProcessWorkerFactory;
+  private final ViewExecutionCache _executionCache;
 
   // State
   /**
@@ -132,7 +134,8 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
       final ViewPermissionProvider viewPermissionProvider,
       final OverrideOperationCompiler overrideOperationCompiler,
       final ViewResultListenerFactory viewResultListenerFactory,
-      final ViewProcessWorkerFactory workerFactory) {
+      final ViewProcessWorkerFactory workerFactory,
+      final ViewExecutionCache executionCache) {
     _name = name;
     _configSource = configSource;
     _namedMarketDataSpecificationRepository = namedMarketDataSpecificationRepository;
@@ -148,6 +151,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
     _overrideOperationCompiler = overrideOperationCompiler;
     _viewResultListenerFactory = viewResultListenerFactory;
     _viewProcessWorkerFactory = workerFactory;
+    _executionCache = executionCache;
   }
 
   //-------------------------------------------------------------------------
@@ -562,7 +566,8 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
         _graphExecutionStatistics,
         _overrideOperationCompiler,
         _cycleManager,
-        cycleIds);
+        cycleIds,
+        _executionCache);
   }
 
   private String generateIdValue(final AtomicLong source) {
