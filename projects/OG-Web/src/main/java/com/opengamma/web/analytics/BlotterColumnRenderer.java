@@ -18,9 +18,11 @@ import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
  */
 /* package */ class BlotterColumnRenderer implements GridColumn.CellRenderer {
 
-  /** Maps  */
+  /** Maps the shared blotter columns to the fields of each different security type. */
   private final BlotterColumnMapper _columnMappings;
+  /** The column whose values are handled by this renderer. */
   private final BlotterColumn _column;
+  /** The rows in the grid. */
   private final List<PortfolioGridRow> _rows;
 
   public BlotterColumnRenderer(BlotterColumn column,

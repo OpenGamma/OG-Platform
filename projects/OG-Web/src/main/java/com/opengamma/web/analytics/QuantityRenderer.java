@@ -21,7 +21,7 @@ import com.opengamma.util.ArgumentChecker;
   /** The rows in the grid. */
   private final List<PortfolioGridRow> _rows;
 
-  /* package */ QuantityRenderer(List<PortfolioGridRow> rows) {
+/* package */ QuantityRenderer(List<PortfolioGridRow> rows) {
     ArgumentChecker.notNull(rows, "rows");
     _rows = rows;
   }

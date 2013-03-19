@@ -34,11 +34,14 @@ public final class PrimitivesGridStructure extends MainGridStructure {
           .or(ComputationTargetType.POSITION)
           .or(ComputationTargetType.TRADE)
           .or(ComputationTargetType.SECURITY);
-  
-  private static final ComputationTargetReferenceVisitor<String> s_computationTargetDisplayNameVisitor = new ComputationTargetReferenceVisitor<String>() {
+
+  /** Creates names for the label column in the grid. */
+  private static final ComputationTargetReferenceVisitor<String> s_computationTargetDisplayNameVisitor =
+      new ComputationTargetReferenceVisitor<String>() {
 
     @Override
     public String visitComputationTargetRequirement(ComputationTargetRequirement requirement) {
+      // TODO can't this just be done with StringUtils.join(requirement.getIdentifiers(), ", ")
       StringBuilder sb = new StringBuilder();
       boolean first = true;
       for (ExternalId externalId : requirement.getIdentifiers()) {
@@ -61,8 +64,10 @@ public final class PrimitivesGridStructure extends MainGridStructure {
   private PrimitivesGridStructure() {
   }
 
-  private PrimitivesGridStructure(GridColumnGroups columnGroups, TargetLookup targetLookup) {
-    super(columnGroups, targetLookup);
+  private PrimitivesGridStructure(GridColumnGroup fixedColumns,
+                                  GridColumnGroups nonFixedColumns,
+                                  TargetLookup targetLookup) {
+    super(fixedColumns, nonFixedColumns, targetLookup);
   }
 
   /* package */static PrimitivesGridStructure create(CompiledViewDefinition compiledViewDef) {
@@ -71,9 +76,8 @@ public final class PrimitivesGridStructure extends MainGridStructure {
     GridColumnGroup fixedColumns = new GridColumnGroup("fixed", ImmutableList.of(labelColumn), false);
     TargetLookup targetLookup = new TargetLookup(new ValueMappings(compiledViewDef), rows);
     List<GridColumnGroup> analyticsColumns = buildAnalyticsColumns(compiledViewDef.getViewDefinition(), targetLookup);
-    List<GridColumnGroup> groups = Lists.newArrayList(fixedColumns);
-    groups.addAll(analyticsColumns);
-    return new PrimitivesGridStructure(new GridColumnGroups(groups), targetLookup);
+    List<GridColumnGroup> groups = Lists.newArrayList(analyticsColumns);
+    return new PrimitivesGridStructure(fixedColumns, new GridColumnGroups(groups), targetLookup);
   }
 
   private static List<GridColumnGroup> buildAnalyticsColumns(ViewDefinition viewDef, TargetLookup targetLookup) {
