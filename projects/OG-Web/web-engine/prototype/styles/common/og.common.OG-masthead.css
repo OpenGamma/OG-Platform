@@ -159,3 +159,11 @@
     .OG-masthead .og-menu a:hover {
         border-bottom: 1px solid #fff;
     }
+
+    .OG-masthead .og-menu header {
+        margin-top: 20px;
+    }
+
+    .OG-masthead .og-menu tr:first-child header {
+        margin-top: 0;
+    }

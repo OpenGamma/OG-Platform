@@ -46,7 +46,7 @@
             </tr>
             <tr>
               <td>
-                <header style="margin-top:20px">Static Data</header>
+                <header>Static Data</header>
                 <ul>
                   <li><a href="admin.ftl#/configs/filter=true/type=BloombergSecurityTypeDefinition">Bloomberg Security Type Definition</a></li>
                   <li><a href="admin.ftl#/holidays">Calendars</a></li>
@@ -55,7 +55,7 @@
                 </ul>
               </td>
               <td>
-                <header style="margin-top:20px">Market Data</header>
+                <header>Market Data</header>
                 <ul>
                   <li><a href="admin.ftl#/configs/filter=true/type=CurrencyMatrix">Currency Matrix</a></li>
                   <li><a href="admin.ftl#/configs/filter=true/type=HistoricalTimeSeriesRating">Historical Timeseries Rating</a></li>
@@ -65,7 +65,7 @@
             </tr>
             <tr>
               <td>
-                <header style="margin-top:20px">Vol</header>
+                <header>Vol</header>
                 <ul>
                   <li><a href="admin.ftl#/configs/filter=true/type=VolatilityCubeDefinition">Vol Cube Definition</a></li>
                   <li>
@@ -75,7 +75,7 @@
                 </ul>
               </td>
               <td>
-                <header style="margin-top:20px">Futures</header>
+                <header>Futures</header>
                 <ul>
                   <li>
                     <a href="admin.ftl#/configs/filter=true/type=FuturePriceCurveDefinition">Future Price Curve Definition</a> /
@@ -84,7 +84,7 @@
                 </ul>
               </td>
               <td>
-                <header style="margin-top:20px">Other</header>
+                <header>Other</header>
                 <ul>
                   <li><a href="admin.ftl#/positions/">Positions</a></li>
                   <li><a href="admin.ftl#/securities/">Securities</a></li>
