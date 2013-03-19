@@ -30,10 +30,12 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ehcache.EHCacheUtils;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * Test EHCachingFinancialSecuritySource.
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class EHCachingFinancialSecuritySourceTest {
 
   private MockFinancialSecuritySource _underlyingSecuritySource = null;

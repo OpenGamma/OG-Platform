@@ -12,11 +12,13 @@ import org.testng.annotations.Test;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.fudgemsg.FinancialTestBase;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.Tenor;
 
 /**
- * Test {@link CreditDefaultSwapIndexSecurity} Fudge support.
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class CDSIndexSecurityFudgeEncodingTest extends FinancialTestBase {
 
   private static final CreditDefaultSwapIndexSecurity s_cdsIndexSecurity;

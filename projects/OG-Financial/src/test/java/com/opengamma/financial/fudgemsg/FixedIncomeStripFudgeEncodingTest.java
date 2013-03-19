@@ -12,8 +12,13 @@ import org.testng.annotations.Test;
 import com.opengamma.financial.analytics.ircurve.FixedIncomeStrip;
 import com.opengamma.financial.analytics.ircurve.IndexType;
 import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.Tenor;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class FixedIncomeStripFudgeEncodingTest extends FinancialTestBase {
 
   @Test

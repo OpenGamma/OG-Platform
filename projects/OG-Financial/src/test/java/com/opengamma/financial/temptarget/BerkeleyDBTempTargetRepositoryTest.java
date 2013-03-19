@@ -16,11 +16,12 @@ import java.util.ArrayList;
 import org.testng.annotations.Test;
 
 import com.google.common.io.Files;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * Tests the {@link BerkeleyDBTempTargetRepository} class.
+ * Test.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class BerkeleyDBTempTargetRepositoryTest {
 
   private BerkeleyDBTempTargetRepository createTempTargetRepository() {

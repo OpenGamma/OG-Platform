@@ -9,13 +9,14 @@ import org.testng.annotations.Test;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
+import com.opengamma.util.test.TestGroup;
 
 /**
  *
  */
+@Test(groups = TestGroup.UNIT)
 public class ISDADateCurveBuilderTest extends AnalyticsTestBase {
 
-  @SuppressWarnings("unchecked")
   @Test
   public void testNodalDoubleCurve() {
     ZonedDateTime now = ZonedDateTime.now();

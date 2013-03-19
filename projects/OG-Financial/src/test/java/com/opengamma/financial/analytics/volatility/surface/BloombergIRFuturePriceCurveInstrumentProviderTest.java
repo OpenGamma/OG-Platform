@@ -15,12 +15,15 @@ import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.OpenGammaClock;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * This test was set up to check Bloomberg's logic of ticker construction for IR Futures.
  * It will begin to fail by design, to clean this up to nail down the logic of the switch over.
  */
+@Test(groups = TestGroup.UNIT)
 public class BloombergIRFuturePriceCurveInstrumentProviderTest {
+
   private static final String PREFIX_EUR = "ER";
   private static final String POSTFIX = "Comdty";
   private static final LocalDate SNAPSHOT_DATE = LocalDate.of(2010, 6, 14); // Last Trading Date of ERM10 Comdty
@@ -60,7 +63,6 @@ public class BloombergIRFuturePriceCurveInstrumentProviderTest {
 
   @Test
   public void testERM() {
-
     final LocalDate today = LocalDate.now(OpenGammaClock.getInstance());
     final LocalDate lastTradeDateOfERM1 = LocalDate.of(2011, 6, 13);
 

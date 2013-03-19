@@ -24,6 +24,7 @@ import com.opengamma.master.region.impl.InMemoryRegionMaster;
 import com.opengamma.master.region.impl.MasterRegionSource;
 import com.opengamma.master.region.impl.RegionFileReader;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Base class for testing OG-Financial objects to and from Fudge messages.
@@ -35,7 +36,7 @@ public class FinancialTestBase {
   private RegionSource _regionSource;
   private FudgeContext _fudgeContext;
 
-  @BeforeMethod
+  @BeforeMethod(groups = TestGroup.UNIT)
   public void createFudgeContext() {
     _fudgeContext = OpenGammaFudgeContext.getInstance();
     final RegionMaster regionMaster = new InMemoryRegionMaster();

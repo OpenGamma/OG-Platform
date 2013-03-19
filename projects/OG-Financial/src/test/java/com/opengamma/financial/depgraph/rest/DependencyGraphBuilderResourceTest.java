@@ -54,11 +54,12 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the diagnostic REST exposure of a dependency graph builder.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class DependencyGraphBuilderResourceTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DependencyGraphBuilderResourceTest.class);

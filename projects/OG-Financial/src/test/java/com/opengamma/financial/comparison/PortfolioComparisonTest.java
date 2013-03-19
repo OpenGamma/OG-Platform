@@ -12,11 +12,12 @@ import org.testng.annotations.Test;
 import com.opengamma.core.position.impl.SimplePortfolio;
 import com.opengamma.core.position.impl.SimplePortfolioNode;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.test.TestGroup;
 
 /**
- *
+ * Test.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class PortfolioComparisonTest extends AbstractTest {
 
   public void testComparison() {

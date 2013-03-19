@@ -44,11 +44,13 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.master.VersionedSource;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.test.Timeout;
 
 /**
- * Test the ViewProcessorManager class.
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class ViewProcessorManagerTest {
 
   //-------------------------------------------------------------------------

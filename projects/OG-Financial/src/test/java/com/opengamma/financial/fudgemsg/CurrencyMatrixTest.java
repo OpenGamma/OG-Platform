@@ -22,7 +22,12 @@ import com.opengamma.financial.currency.CurrencyMatrixValue;
 import com.opengamma.financial.currency.SimpleCurrencyMatrix;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class CurrencyMatrixTest extends FinancialTestBase {
 
   private static void assertMatrixEqual(final CurrencyMatrix expected, final CurrencyMatrix actual) {
