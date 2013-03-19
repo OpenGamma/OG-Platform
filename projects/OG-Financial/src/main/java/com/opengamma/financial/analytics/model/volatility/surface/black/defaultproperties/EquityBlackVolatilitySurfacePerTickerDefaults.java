@@ -24,7 +24,8 @@ import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
 import com.opengamma.financial.analytics.model.equity.EquitySecurityUtils;
 import com.opengamma.financial.property.DefaultPropertyFunction;
-import com.opengamma.id.UniqueId;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdentifiable;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -91,7 +92,10 @@ public class EquityBlackVolatilitySurfacePerTickerDefaults extends DefaultProper
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     //FIXME: Modify to take ExternalId to avoid incorrect cast to UniqueId
-    UniqueId id = UniqueId.parse(target.getValue().toString());
+    if (!(target.getValue () instanceof ExternalIdentifiable)) {
+      return false;
+    }
+    ExternalId id = ((ExternalIdentifiable)target.getValue()).getExternalId();
     final String equityId = EquitySecurityUtils.getIndexOrEquityName(id);
     if (equityId == null) {
       return false;
