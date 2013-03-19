@@ -35,7 +35,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Test.
  */
-@Test(groups = {TestGroup.UNIT, "ehcache"})
+@Test(groups = {TestGroup.INTEGRATION, "ehcache"})  // this fails randomly
 public class HistoricalTimeSeriesSourceTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(HistoricalTimeSeriesSourceTest.class);
