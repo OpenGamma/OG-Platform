@@ -262,6 +262,9 @@ public class PresentValueCreditDefaultSwap {
 
         t = TimeCalculator.getTimeBetween(today, subStartDate, ACT_365);
 
+        if (Double.compare(t, -0.0) == 0) {
+          t = 0;
+        }
         double s0 = hazardRateCurve.getSurvivalProbability(t);
         double df0 = yieldCurve.getDiscountFactor(t);
 

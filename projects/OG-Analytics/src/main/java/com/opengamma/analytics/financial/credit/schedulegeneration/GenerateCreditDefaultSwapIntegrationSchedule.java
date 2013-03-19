@@ -93,12 +93,15 @@ public class GenerateCreditDefaultSwapIntegrationSchedule {
     final boolean includeSchedule = false;
 
     // Calculate the time at which protection starts
-    final double protectionStartTime = TimeCalculator.getTimeBetween(valuationDate, startDate, ACT_365); //calculateProtectionStartTime(valuationDate, cds, ACT_365);
+    double protectionStartTime = TimeCalculator.getTimeBetween(valuationDate, startDate, ACT_365); //calculateProtectionStartTime(valuationDate, cds, ACT_365);
     final double protectionEndTime = TimeCalculator.getTimeBetween(valuationDate, endDate, ACT_365);
 
     // Calculate the maturity of the CDS with respect to the valuation date
     final double maturity = calculateCreditDefaultSwapMaturity(valuationDate, cds, ACT_365);
 
+    if (Double.compare(protectionStartTime, -0.0) == 0) {
+      protectionStartTime = 0;
+    }
     // Calculate the schedule of integration timenodes for the contingent leg calculation
     final double[] timeNodes = constructISDACompliantIntegrationSchedule(valuationDate, cds, yieldCurve, hazardRateCurve, protectionStartTime, /*maturity*/protectionEndTime, includeSchedule);
 
@@ -268,12 +271,12 @@ public class GenerateCreditDefaultSwapIntegrationSchedule {
 
     final ZonedDateTime[] hazardCurveDates = hazardRateCurve.getCurveTenors();
 
-    for (int i = 0; i < yieldCurveDates.length; i++) {
-      allDates.add(yieldCurveDates[i]);
+    for (final ZonedDateTime yieldCurveDate : yieldCurveDates) {
+      allDates.add(yieldCurveDate);
     }
 
-    for (int i = 0; i < hazardCurveDates.length; i++) {
-      allDates.add(hazardCurveDates[i]);
+    for (final ZonedDateTime hazardCurveDate : hazardCurveDates) {
+      allDates.add(hazardCurveDate);
     }
 
     // Add the timenodes at the times when protection starts and ends
@@ -341,8 +344,8 @@ public class GenerateCreditDefaultSwapIntegrationSchedule {
     // The subset of timenodes in the range over which protection extends
     Set<ZonedDateTime> allDatesInRange;
 
-    for (int i = 0; i < fullDateList.length; i++) {
-      allDates.add(fullDateList[i]);
+    for (final ZonedDateTime element : fullDateList) {
+      allDates.add(element);
     }
 
     allDates.add(startDate);
@@ -435,7 +438,7 @@ public class GenerateCreditDefaultSwapIntegrationSchedule {
       final CreditDefaultSwapDefinition cds,
       final DayCount dayCount) {
 
-    ZonedDateTime mat = cds.getMaturityDate();
+    final ZonedDateTime mat = cds.getMaturityDate();
     final double maturity = TimeCalculator.getTimeBetween(valuationDate, cds.getMaturityDate(), dayCount);
 
     return maturity;
