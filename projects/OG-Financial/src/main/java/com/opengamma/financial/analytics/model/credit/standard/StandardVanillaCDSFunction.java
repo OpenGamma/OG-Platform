@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Iterables;
@@ -16,6 +17,7 @@ import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
+import com.opengamma.analytics.math.ParallelArrayBinarySort;
 import com.opengamma.analytics.math.curve.NodalObjectsCurve;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.organization.OrganizationSource;
@@ -90,8 +92,9 @@ public abstract class StandardVanillaCDSFunction extends AbstractFunction.NonCom
     }
     final ISDADateCurve yieldCurve = (ISDADateCurve) yieldCurveObject;
     final NodalObjectsCurve<?, ?> spreadCurve = (NodalObjectsCurve<?, ?>) spreadCurveObject;
-    final Tenor[] tenors = (Tenor[]) spreadCurve.getXData();
-    final Double[] marketSpreadObjects = (Double[]) spreadCurve.getYData();
+    final Tenor[] tenors = getTenors(spreadCurve.getXData());
+    final Double[] marketSpreadObjects = getSpreads(spreadCurve.getYData());
+    ParallelArrayBinarySort.parallelBinarySort(tenors, marketSpreadObjects);
     final int n = tenors.length;
     final ZonedDateTime[] times = new ZonedDateTime[n];
     final double[] marketSpreads = new double[n];
@@ -193,4 +196,20 @@ public abstract class StandardVanillaCDSFunction extends AbstractFunction.NonCom
 
   protected abstract Set<ComputedValue> getComputedValue(LegacyVanillaCreditDefaultSwapDefinition definition, ISDADateCurve yieldCurve, ZonedDateTime[] times, double[] marketSpreads,
       ZonedDateTime valuationTime, ComputationTarget target, ValueProperties properties);
+
+  private Tenor[] getTenors(final Comparable[] xs) {
+    final Tenor[] tenors = new Tenor[xs.length];
+    for (int i = 0; i < xs.length; i++) {
+      tenors[i] = new Tenor(Period.parse((String) xs[i]));
+    }
+    return tenors;
+  }
+
+  private Double[] getSpreads(final Object[] ys) {
+    final Double[] spreads = new Double[ys.length];
+    for (int i = 0; i < ys.length; i++) {
+      spreads[i] = (Double) ys[i];
+    }
+    return spreads;
+  }
 }
