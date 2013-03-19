@@ -13,6 +13,10 @@
     position: relative;
 }
 
+.OG-masthead ul {
+  white-space: nowrap;
+}
+
 .OG-masthead li {
   display: inline-block;
 }
