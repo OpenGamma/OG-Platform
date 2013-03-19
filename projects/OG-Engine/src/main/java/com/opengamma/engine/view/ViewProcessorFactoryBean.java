@@ -28,6 +28,8 @@ import com.opengamma.engine.view.listener.ViewResultListenerFactory;
 import com.opengamma.engine.view.permission.ViewPermissionProvider;
 import com.opengamma.engine.view.worker.SingleThreadViewProcessWorkerFactory;
 import com.opengamma.engine.view.worker.ViewProcessWorkerFactory;
+import com.opengamma.engine.view.worker.cache.InMemoryViewExecutionCache;
+import com.opengamma.engine.view.worker.cache.ViewExecutionCache;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.SingletonFactoryBean;
 
@@ -53,6 +55,7 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
   private ViewPermissionProvider _viewPermissionProvider;
   private OverrideOperationCompiler _overrideOperationCompiler = new DummyOverrideOperationCompiler();
   private ViewResultListenerFactory _batchViewClientFactory;
+  private ViewExecutionCache _viewExecutionCache = new InMemoryViewExecutionCache();
 
   //-------------------------------------------------------------------------
   public String getName() {
@@ -167,6 +170,14 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
     _overrideOperationCompiler = overrideOperationCompiler;
   }
 
+  public ViewExecutionCache getViewExecutionCache() {
+    return _viewExecutionCache;
+  }
+
+  public void setViewExecutionCache(final ViewExecutionCache viewExecutionCache) {
+    _viewExecutionCache = viewExecutionCache;
+  }
+
   //-------------------------------------------------------------------------
   protected void checkInjectedInputs() {
     s_logger.debug("Checking injected inputs.");
@@ -181,6 +192,7 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
     ArgumentChecker.notNullInjected(getComputationJobDispatcher(), "computationJobDispatcher");
     ArgumentChecker.notNullInjected(getViewProcessWorkerFactory(), "viewComputationJobFactory");
     ArgumentChecker.notNullInjected(getViewPermissionProvider(), "viewPermissionProvider");
+    ArgumentChecker.notNullInjected(getViewExecutionCache(), "viewExecutionCache");
   }
 
   @Override
@@ -201,7 +213,8 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
         getViewPermissionProvider(),
         getOverrideOperationCompiler(),
         getViewResultListenerFactory(),
-        getViewProcessWorkerFactory());
+        getViewProcessWorkerFactory(),
+        getViewExecutionCache());
   }
 
   public void setViewResultListenerFactory(final ViewResultListenerFactory viewResultListenerFactory) {

@@ -76,6 +76,8 @@ public class PortfolioGridStructure extends MainGridStructure {
     AnalyticsNode rootNode = AnalyticsNode.portoflioRoot(portfolio);
     List<PortfolioGridRow> rows = buildRows(portfolio);
     TargetLookup targetLookup = new TargetLookup(_valueMappings, rows);
+    // TODO ATM the column renderers should be rebuilt here because they reference the rows
+    // that ref should be replaced with an interface so they don't need to be rebuilt
     return new PortfolioGridStructure(getColumnStructure(), rootNode, rows, targetLookup, _valueMappings);
   }
 
