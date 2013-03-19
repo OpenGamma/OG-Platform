@@ -6,12 +6,16 @@
 package com.opengamma.engine.view.worker.cache;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNotSame;
+import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertSame;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Collections;
@@ -32,6 +36,8 @@ import com.opengamma.core.position.impl.SimplePortfolioNode;
 import com.opengamma.core.position.impl.SimplePosition;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetResolver;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.function.CompiledFunctionService;
@@ -121,7 +127,12 @@ public class EHCacheViewExecutionCacheTest {
   }
 
   private FunctionCompilationContext createFunctionCompilationContext() {
-    return new FunctionCompilationContext();
+    final FunctionCompilationContext context = new FunctionCompilationContext();
+    final ComputationTargetResolver targetResolver = Mockito.mock(ComputationTargetResolver.class);
+    Mockito.when(targetResolver.resolve(new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO, UniqueId.of("Portfolio", "0", "V")), VersionCorrection.LATEST)).thenReturn(
+        new ComputationTarget(ComputationTargetType.PORTFOLIO, createPortfolio()));
+    context.setRawComputationTargetResolver(targetResolver);
+    return context;
   }
 
   private FunctionRepository createFunctionRepository() {
@@ -144,13 +155,17 @@ public class EHCacheViewExecutionCacheTest {
     return new CompiledViewDefinitionWithGraphsImpl(VersionCorrection.LATEST, viewDefinition, graphs, resolutions, portfolio, 0);
   }
 
-  public void testCompiledViewDefinitionWithGraphsSerialization() throws Exception {
+  private EHCacheViewExecutionCache createCache() {
     final ConfigSource configSource = Mockito.mock(ConfigSource.class);
-    final CompiledViewDefinitionWithGraphs object = createCompiledViewDefinitionWithGraphs();
     Mockito.when(configSource.getConfig(ViewDefinition.class, UniqueId.of("View", "0", "V"))).thenReturn(createViewDefinition());
     final CompiledFunctionService functions = new CompiledFunctionService(createFunctionRepository(), new LazyFunctionRepositoryCompiler(), createFunctionCompilationContext());
     functions.initialize();
-    final EHCacheViewExecutionCache cache = new EHCacheViewExecutionCache(_cacheManager, configSource, functions);
+    return new EHCacheViewExecutionCache(_cacheManager, configSource, functions);
+  }
+
+  public void testCompiledViewDefinitionWithGraphs_serialization() throws Exception {
+    final EHCacheViewExecutionCache cache = createCache();
+    final CompiledViewDefinitionWithGraphs object = createCompiledViewDefinitionWithGraphs();
     final CompiledViewDefinitionWithGraphsHolder holder = cache.new CompiledViewDefinitionWithGraphsHolder(object);
     assertSame(holder.get(), object);
     final ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -168,4 +183,33 @@ public class EHCacheViewExecutionCacheTest {
     assertEquals(newObject.getResolvedIdentifiers(), object.getResolvedIdentifiers());
     assertEquals(newObject.getResolverVersionCorrection(), object.getResolverVersionCorrection());
   }
+
+  public void testCompiledViewDefinitionWithGraphs_caching() {
+    final EHCacheViewExecutionCache cache = createCache();
+    final CompiledViewDefinitionWithGraphs object = createCompiledViewDefinitionWithGraphs();
+    final ViewExecutionCacheKey key = new ViewExecutionCacheKey(UniqueId.of("Key", "1"), new Serializable[] {"Foo" });
+    // Miss
+    assertNull(cache.getCompiledViewDefinitionWithGraphs(key));
+    // Store
+    cache.setCompiledViewDefinitionWithGraphs(key, object);
+    // Hit the front cache
+    assertSame(cache.getCompiledViewDefinitionWithGraphs(key), object);
+    // Hit the EH Cache
+    cache.clearFrontCache();
+    final CompiledViewDefinitionWithGraphs cachedObject = cache.getCompiledViewDefinitionWithGraphs(key);
+    assertNotNull(cachedObject);
+    // Hit the front cache
+    assertSame(cache.getCompiledViewDefinitionWithGraphs(key), cachedObject);
+    // Discard replacement
+    cache.setCompiledViewDefinitionWithGraphs(key, createCompiledViewDefinitionWithGraphs());
+    assertSame(cache.getCompiledViewDefinitionWithGraphs(key), cachedObject);
+    // Keep replacement
+    cache.clearFrontCache();
+    final CompiledViewDefinitionWithGraphs newObject = createCompiledViewDefinitionWithGraphs();
+    assertNotSame(newObject, object);
+    assertNotSame(newObject, cachedObject);
+    cache.setCompiledViewDefinitionWithGraphs(key, newObject);
+    assertSame(cache.getCompiledViewDefinitionWithGraphs(key), newObject);
+  }
+
 }

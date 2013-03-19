@@ -33,6 +33,7 @@ import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.FunctionParameters;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.target.ComputationTargetReference;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewDefinition;
@@ -79,6 +80,13 @@ public class EHCacheViewExecutionCache implements ViewExecutionCache {
     EHCacheUtils.addCache(_cacheManager, COMPILED_VIEW_DEFINITIONS);
     _compiledViewDefinitions = EHCacheUtils.getCacheFromManager(_cacheManager, COMPILED_VIEW_DEFINITIONS);
     s_instance2identifier.put(_identifier, this);
+  }
+
+  /**
+   * For testing only.
+   */
+  /* package */void clearFrontCache() {
+    _compiledViewDefinitionsFrontCache.clear();
   }
 
   protected Serializable instance() {
@@ -165,7 +173,7 @@ public class EHCacheViewExecutionCache implements ViewExecutionCache {
     private final UniqueId _viewDefinition;
     private final Collection<DependencyGraphHolder> _graphs;
     private final Map<ComputationTargetReference, UniqueId> _resolutions;
-    private final Portfolio _portfolio;
+    private final UniqueId _portfolio;
     private final long _functionInitId;
 
     public CompiledViewDefinitionWithGraphsReader(final EHCacheViewExecutionCache parent, final CompiledViewDefinitionWithGraphs object) {
@@ -191,7 +199,7 @@ public class EHCacheViewExecutionCache implements ViewExecutionCache {
         _graphs.add(new DependencyGraphHolder(explorer.getWholeGraph()));
       }
       _resolutions = object.getResolvedIdentifiers();
-      _portfolio = object.getPortfolio();
+      _portfolio = object.getPortfolio().getUniqueId();
       _functionInitId = ((CompiledViewDefinitionWithGraphsImpl) object).getFunctionInitId();
     }
 
@@ -203,7 +211,9 @@ public class EHCacheViewExecutionCache implements ViewExecutionCache {
       for (DependencyGraphHolder graph : _graphs) {
         graphs.add(graph.get(functions));
       }
-      return parent.new CompiledViewDefinitionWithGraphsHolder(new CompiledViewDefinitionWithGraphsImpl(_versionCorrection, viewDefinition, graphs, _resolutions, _portfolio, _functionInitId));
+      final Portfolio portfolio = (Portfolio) parent.getFunctions().getFunctionCompilationContext().getRawComputationTargetResolver()
+          .resolve(new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO, _portfolio), _versionCorrection).getValue();
+      return parent.new CompiledViewDefinitionWithGraphsHolder(new CompiledViewDefinitionWithGraphsImpl(_versionCorrection, viewDefinition, graphs, _resolutions, portfolio, _functionInitId));
     }
   }
 
@@ -238,14 +248,9 @@ public class EHCacheViewExecutionCache implements ViewExecutionCache {
     if (element != null) {
       s_logger.debug("EHCache hit CompiledViewDefinitionWithGraphs for {}", key);
       graphs = ((CompiledViewDefinitionWithGraphsHolder) element.getObjectValue()).get();
-      if (graphs != null) {
-        final CompiledViewDefinitionWithGraphs existing = _compiledViewDefinitionsFrontCache.putIfAbsent(key, graphs);
-        if (existing != null) {
-          graphs = existing;
-        }
-      } else {
-        // This will only happen until we've fixed the serialisation
-        s_logger.debug("Deserialisation miss CompiledViewDefinitionWithGraphs for {}", key);
+      final CompiledViewDefinitionWithGraphs existing = _compiledViewDefinitionsFrontCache.putIfAbsent(key, graphs);
+      if (existing != null) {
+        graphs = existing;
       }
     } else {
       s_logger.debug("EHCache miss CompiledViewDefinitionWithGraphs for {}", key);
