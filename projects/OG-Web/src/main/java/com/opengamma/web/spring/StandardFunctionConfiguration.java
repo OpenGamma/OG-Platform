@@ -85,6 +85,7 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
 
     private final Value _curveConfiguration = new Value();
     private final Value _curveName = new Value();
+    private final Value _curveCalculationMethodName = new Value();
     private final Value _surfaceName = new Value();
     private final Value _cubeName = new Value();
     private final Value _forwardCurveName = new Value();
@@ -113,6 +114,14 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
 
     public String getCurveName(final String key) {
       return _curveName.get(key);
+    }
+    
+    public void setCurveCalculationMethodName(final String key, final String curveCalculationMethodName) {
+      _curveCalculationMethodName.set(key, curveCalculationMethodName);
+    }
+    
+    public String getCurveCalculationMethodName(final String key) {
+      return _curveCalculationMethodName.get(key);
     }
 
     public void setSurfaceName(final String key, final String surfaceName) {
@@ -648,10 +657,9 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
   }
 
   protected void setCDSFunctionDefaults(final CurrencyInfo i, final CreditFunctions.Defaults.CurrencyInfo defaults) {
-    if ("USD".equals(i.getCurrency())) {
-      defaults.setCurveCalculationConfig("ISDA");
-      defaults.setCurveName("ISDA");
-    }
+    defaults.setCurveCalculationConfig(i.getCurveConfiguration("model/cds"));
+    defaults.setCurveName(i.getCurveName("model/cds"));
+    defaults.setCurveCalculationMethod(i.getCurveCalculationMethodName("model/cds"));
   }
 
   protected void setCDSFunctionDefaults(final CreditFunctions.Defaults defaults) {

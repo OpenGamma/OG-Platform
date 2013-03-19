@@ -112,7 +112,10 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
   protected CurrencyInfo eurCurrencyInfo() {
     final CurrencyInfo i = super.eurCurrencyInfo();
     i.setCurveConfiguration(null, "DefaultTwoCurveEURConfig");
+    i.setCurveConfiguration("model/cds", "ISDAEURCurveConfig");
     i.setCurveName(null, "Discounting");
+    i.setCurveName("model/cds", "ISDA");
+    i.setCurveCalculationMethodName("model/cds", "ISDA");
     i.setSurfaceName("model/irfutureoption", "DEFAULT_PRICE");
     i.setSurfaceName("model/swaption", "DEFAULT");
     i.setCubeName(null, "BLOOMBERG");
@@ -188,7 +191,10 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
   protected CurrencyInfo usdCurrencyInfo() {
     final CurrencyInfo i = super.usdCurrencyInfo();
     i.setCurveConfiguration(null, "DefaultTwoCurveUSDConfig");
+    i.setCurveConfiguration("model/cds", "ISDAUSDCurveConfig");
     i.setCurveName(null, "Discounting");
+    i.setCurveName("model/cds", "ISDA");        
+    i.setCurveCalculationMethodName("model/cds", "ISDA");
     i.setSurfaceName("model/bondfutureoption", "BBG");
     i.setSurfaceName("model/futureoption", "BBG");
     i.setSurfaceName("model/irfutureoption", "DEFAULT_PRICE");

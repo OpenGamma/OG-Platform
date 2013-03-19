@@ -250,6 +250,7 @@ public class AnalyticsFunctions extends AbstractRepositoryConfigurationBean {
     addSummingFunction(functions, ValueRequirementNames.BUCKETED_CS01);
     addSummingFunction(functions, ValueRequirementNames.GAMMA_CS01);
     addSummingFunction(functions, ValueRequirementNames.BUCKETED_GAMMA_CS01);
+    addUnitScalingFunction(functions, ValueRequirementNames.DV01);
     addUnitScalingFunction(functions, ValueRequirementNames.CS01);
     addUnitScalingFunction(functions, ValueRequirementNames.BUCKETED_CS01);
     addUnitScalingFunction(functions, ValueRequirementNames.GAMMA_CS01);

@@ -99,7 +99,7 @@ public abstract class StandardVanillaCDSFunction extends AbstractFunction.NonCom
     final ZonedDateTime[] times = new ZonedDateTime[n];
     final double[] marketSpreads = new double[n];
     for (int i = 0; i < n; i++) {
-      times[i] = IMMDateGenerator.getNextIMMDate(valuationTime, tenors[i]);
+      times[i] = IMMDateGenerator.getNextIMMDate(valuationTime, tenors[i]).withHour(0).withMinute(0).withSecond(0).withNano(0);
       marketSpreads[i] = marketSpreadObjects[i];
     }
     final ValueProperties properties = desiredValues.iterator().next().getConstraints().copy()
@@ -160,31 +160,31 @@ public abstract class StandardVanillaCDSFunction extends AbstractFunction.NonCom
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
-    final ValueProperties.Builder propertiesBuilder = createValueProperties();
+    final ValueProperties.Builder propertiesBuilder = getCommonResultProperties();
     for (final Map.Entry<ValueSpecification, ValueRequirement> entry : inputs.entrySet()) {
       final ValueSpecification spec = entry.getKey();
-      ValueProperties inputProperties = spec.getProperties().copy().get();
-      inputProperties = inputProperties.withoutAny(ValuePropertyNames.FUNCTION);
+      final ValueProperties.Builder inputPropertiesBuilder = spec.getProperties().copy();
+      inputPropertiesBuilder.withoutAny(ValuePropertyNames.FUNCTION);
       if (spec.getValueName().equals(ValueRequirementNames.YIELD_CURVE)) {
-        propertiesBuilder.with(CreditInstrumentPropertyNamesAndValues.PROPERTY_YIELD_CURVE, inputProperties.getValues(ValuePropertyNames.CURVE));
-        inputProperties = inputProperties.withoutAny(ValuePropertyNames.CURVE);
-        propertiesBuilder.with(CreditInstrumentPropertyNamesAndValues.PROPERTY_YIELD_CURVE_CALCULATION_CONFIG, inputProperties.getValues(ValuePropertyNames.CURVE_CALCULATION_CONFIG));
-        inputProperties = inputProperties.withoutAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
-        propertiesBuilder.with(CreditInstrumentPropertyNamesAndValues.PROPERTY_YIELD_CURVE_CALCULATION_METHOD, inputProperties.getValues(ValuePropertyNames.CURVE_CALCULATION_METHOD));
-        inputProperties = inputProperties.withoutAny(ValuePropertyNames.CURVE_CALCULATION_METHOD);
+        propertiesBuilder.with(CreditInstrumentPropertyNamesAndValues.PROPERTY_YIELD_CURVE, inputPropertiesBuilder.get().getValues(ValuePropertyNames.CURVE));
+        inputPropertiesBuilder.withoutAny(ValuePropertyNames.CURVE);
+        propertiesBuilder.with(CreditInstrumentPropertyNamesAndValues.PROPERTY_YIELD_CURVE_CALCULATION_CONFIG, inputPropertiesBuilder.get().getValues(ValuePropertyNames.CURVE_CALCULATION_CONFIG));
+        inputPropertiesBuilder.withoutAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
+        propertiesBuilder.with(CreditInstrumentPropertyNamesAndValues.PROPERTY_YIELD_CURVE_CALCULATION_METHOD, inputPropertiesBuilder.get().getValues(ValuePropertyNames.CURVE_CALCULATION_METHOD));
+        inputPropertiesBuilder.withoutAny(ValuePropertyNames.CURVE_CALCULATION_METHOD);
       } else if (spec.getValueName().equals(ValueRequirementNames.CREDIT_SPREAD_CURVE)) {
-        propertiesBuilder.with(CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE, inputProperties.getValues(ValuePropertyNames.CURVE));
-        inputProperties = inputProperties.withoutAny(ValuePropertyNames.CURVE);
+        propertiesBuilder.with(CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE, inputPropertiesBuilder.get().getValues(ValuePropertyNames.CURVE));
+        inputPropertiesBuilder.withoutAny(ValuePropertyNames.CURVE);
       }
-      if (!inputProperties.isEmpty()) {
-        for (final String propertyName : inputProperties.getProperties()) {
-          propertiesBuilder.with(propertyName, inputProperties.getValues(propertyName));
+      if (!inputPropertiesBuilder.get().isEmpty()) {
+        for (final String propertyName : inputPropertiesBuilder.get().getProperties()) {
+          propertiesBuilder.with(propertyName, inputPropertiesBuilder.get().getValues(propertyName));
         }
       }
     }
-    propertiesBuilder.withAny(CreditInstrumentPropertyNamesAndValues.PROPERTY_CDS_PRICE_TYPE)
-    .withAny(CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE_BUMP)
-    .withAny(CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_BUMP_TYPE);
+    if (labelResultWithCurrency()) {
+      propertiesBuilder.with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode());
+    }
     final ValueProperties properties = propertiesBuilder.get();
     final ComputationTargetSpecification targetSpec = target.toSpecification();
     final Set<ValueSpecification> results = new HashSet<>();
@@ -197,6 +197,11 @@ public abstract class StandardVanillaCDSFunction extends AbstractFunction.NonCom
   protected abstract Set<ComputedValue> getComputedValue(LegacyVanillaCreditDefaultSwapDefinition definition, ISDADateCurve yieldCurve, ZonedDateTime[] times, double[] marketSpreads,
       ZonedDateTime valuationTime, ComputationTarget target, ValueProperties properties);
 
+  protected abstract ValueProperties.Builder getCommonResultProperties();
+
+  protected abstract boolean labelResultWithCurrency();
+
+  @SuppressWarnings("rawtypes")
   private Tenor[] getTenors(final Comparable[] xs) {
     final Tenor[] tenors = new Tenor[xs.length];
     for (int i = 0; i < xs.length; i++) {

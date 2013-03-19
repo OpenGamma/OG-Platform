@@ -106,7 +106,7 @@ public class CreditDefaultSwapSecurityConverter {
     //final Calendar calendar = new HolidaySourceCalendarAdapter(_holidaySource, _regionSource.getHighestLevelRegion(regionId));
     final Calendar calendar = new HolidaySourceCalendarAdapter(_holidaySource, security.getNotional().getCurrency());
     final ZonedDateTime startDate = security.getStartDate();
-    final ZonedDateTime effectiveDate = FOLLOWING.adjustDate(calendar, valuationDate.plusDays(1));
+    final ZonedDateTime effectiveDate = FOLLOWING.adjustDate(calendar, valuationDate.withHour(0).withMinute(0).withSecond(0).withNano(0).plusDays(1));
     final ZonedDateTime maturityDate = security.getMaturityDate();
     final PeriodFrequency couponFrequency = getPeriodFrequency(security.getCouponFrequency());
     final DayCount dayCount = security.getDayCount();
@@ -150,7 +150,7 @@ public class CreditDefaultSwapSecurityConverter {
     final ExternalId regionId = security.getRegionId();
     final Calendar calendar = new HolidaySourceCalendarAdapter(_holidaySource, _regionSource.getHighestLevelRegion(regionId));
     final ZonedDateTime startDate = security.getStartDate();
-    final ZonedDateTime effectiveDate = FOLLOWING.adjustDate(calendar, valuationDate.plusDays(1));
+    final ZonedDateTime effectiveDate = FOLLOWING.adjustDate(calendar, valuationDate.withHour(0).withMinute(0).withSecond(0).withNano(0).plusDays(1));
     final ZonedDateTime maturityDate = security.getMaturityDate();
     final PeriodFrequency couponFrequency = getPeriodFrequency(security.getCouponFrequency());
     final DayCount dayCount = security.getDayCount();

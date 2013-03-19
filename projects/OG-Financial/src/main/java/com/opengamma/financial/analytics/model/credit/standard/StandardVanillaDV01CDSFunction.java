@@ -28,7 +28,7 @@ import com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNa
 /**
  * 
  */
-public class StandardVanillaDV01CDSFunction extends StandardVanillaCS01CDSFunction {
+public class StandardVanillaDV01CDSFunction extends StandardVanillaCDSFunction {
   private static final IR01CreditDefaultSwap CALCULATOR = new IR01CreditDefaultSwap();
 
   public StandardVanillaDV01CDSFunction() {
@@ -55,12 +55,12 @@ public class StandardVanillaDV01CDSFunction extends StandardVanillaCS01CDSFuncti
       return null;
     }
     final ValueProperties constraints = desiredValue.getConstraints();
-    final Set<String> spreadCurveBumps = constraints.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_INTEREST_RATE_CURVE_BUMP);
-    if (spreadCurveBumps == null || spreadCurveBumps.size() != 1) {
+    final Set<String> yieldCurveBumps = constraints.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_INTEREST_RATE_CURVE_BUMP);
+    if (yieldCurveBumps == null || yieldCurveBumps.size() != 1) {
       return null;
     }
-    final Set<String> spreadCurveBumpTypes = constraints.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_INTEREST_RATE_BUMP_TYPE);
-    if (spreadCurveBumpTypes == null || spreadCurveBumpTypes.size() != 1) {
+    final Set<String> yieldCurveBumpTypes = constraints.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_INTEREST_RATE_BUMP_TYPE);
+    if (yieldCurveBumpTypes == null || yieldCurveBumpTypes.size() != 1) {
       return null;
     }
     final Set<String> cdsPriceTypes = constraints.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_CDS_PRICE_TYPE);
@@ -68,5 +68,18 @@ public class StandardVanillaDV01CDSFunction extends StandardVanillaCS01CDSFuncti
       return null;
     }
     return requirements;
+  }
+
+  @Override
+  protected ValueProperties.Builder getCommonResultProperties() {
+    return createValueProperties()
+        .withAny(CreditInstrumentPropertyNamesAndValues.PROPERTY_INTEREST_RATE_CURVE_BUMP)
+        .withAny(CreditInstrumentPropertyNamesAndValues.PROPERTY_INTEREST_RATE_BUMP_TYPE)
+        .withAny(CreditInstrumentPropertyNamesAndValues.PROPERTY_CDS_PRICE_TYPE);
+  }
+
+  @Override
+  protected boolean labelResultWithCurrency() {
+    return true;
   }
 }

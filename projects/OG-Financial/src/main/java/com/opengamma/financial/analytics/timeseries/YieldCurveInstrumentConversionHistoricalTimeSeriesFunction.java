@@ -96,7 +96,7 @@ public class YieldCurveInstrumentConversionHistoricalTimeSeriesFunction extends 
     if ((curveCalculationConfigs == null) || (curveCalculationConfigs.size() != 1)) {
       return null;
     }
-    final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
+    final Set<ValueRequirement> requirements = new HashSet<>();
     final MultiCurveCalculationConfig curveCalculationConfig = getCurveCalculationConfig().getConfig(Iterables.getOnlyElement(curveCalculationConfigs));
     for (final String curveName : curveCalculationConfig.getYieldCurveNames()) {
       final ValueProperties properties = ValueProperties.with(ValuePropertyNames.CURVE, curveName).get();
@@ -116,7 +116,7 @@ public class YieldCurveInstrumentConversionHistoricalTimeSeriesFunction extends 
       if (!input.getSpecification().getValueName().equals(ValueRequirementNames.YIELD_CURVE_SPEC)) {
         continue;
       }
-      String curveName = input.getSpecification().getProperty(ValuePropertyNames.CURVE);
+      final String curveName = input.getSpecification().getProperty(ValuePropertyNames.CURVE);
       final InterpolatedYieldCurveSpecificationWithSecurities curve = (InterpolatedYieldCurveSpecificationWithSecurities) input.getValue();
       for (final FixedIncomeStripWithSecurity strip : curve.getStrips()) {
         final InstrumentDefinition<?> definition = getSecurityConverter().visit(strip.getSecurity());
