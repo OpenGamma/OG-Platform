@@ -76,8 +76,7 @@ public final class PrimitivesGridStructure extends MainGridStructure {
     GridColumnGroup fixedColumns = new GridColumnGroup("fixed", ImmutableList.of(labelColumn), false);
     TargetLookup targetLookup = new TargetLookup(new ValueMappings(compiledViewDef), rows);
     List<GridColumnGroup> analyticsColumns = buildAnalyticsColumns(compiledViewDef.getViewDefinition(), targetLookup);
-    List<GridColumnGroup> groups = Lists.newArrayList(analyticsColumns);
-    return new PrimitivesGridStructure(fixedColumns, new GridColumnGroups(groups), targetLookup);
+    return new PrimitivesGridStructure(fixedColumns, new GridColumnGroups(analyticsColumns), targetLookup);
   }
 
   private static List<GridColumnGroup> buildAnalyticsColumns(ViewDefinition viewDef, TargetLookup targetLookup) {

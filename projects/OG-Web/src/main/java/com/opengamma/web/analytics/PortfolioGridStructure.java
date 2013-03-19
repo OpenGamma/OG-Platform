@@ -84,10 +84,8 @@ public class PortfolioGridStructure extends MainGridStructure {
     GridColumnGroup fixedColumns = buildFixedColumns(rows);
     TargetLookup targetLookup = new TargetLookup(_valueMappings, rows);
     List<GridColumnGroup> analyticsColumns = buildAnalyticsColumns(_viewDef, targetLookup);
-    List<GridColumnGroup> groups = Lists.newArrayList(fixedColumns);
-    groups.addAll(analyticsColumns);
-    GridColumnGroups columnGroups = new GridColumnGroups(groups);
-    return new PortfolioGridStructure(fixedColumns, columnGroups, rootNode, targetLookup, _valueMappings, _viewDef);
+    GridColumnGroups nonFixedColumns = new GridColumnGroups(analyticsColumns);
+    return new PortfolioGridStructure(fixedColumns, nonFixedColumns, rootNode, targetLookup, _valueMappings, _viewDef);
   }
 
   /* package */ PortfolioGridStructure withUpdatedStructure(CompiledViewDefinition compiledViewDef) {
@@ -99,10 +97,8 @@ public class PortfolioGridStructure extends MainGridStructure {
     TargetLookup targetLookup = new TargetLookup(valueMappings, rows);
     ViewDefinition viewDef = compiledViewDef.getViewDefinition();
     List<GridColumnGroup> analyticsColumns = buildAnalyticsColumns(viewDef, targetLookup);
-    List<GridColumnGroup> groups = Lists.newArrayList(fixedColumns);
-    groups.addAll(analyticsColumns);
-    GridColumnGroups columnGroups = new GridColumnGroups(groups);
-    return new PortfolioGridStructure(fixedColumns, columnGroups, rootNode, targetLookup, valueMappings, viewDef);
+    GridColumnGroups nonFixedColumns = new GridColumnGroups(analyticsColumns);
+    return new PortfolioGridStructure(fixedColumns, nonFixedColumns, rootNode, targetLookup, valueMappings, viewDef);
   }
 
   /* package */ static GridColumnGroup buildFixedColumns(List<PortfolioGridRow> rows) {
