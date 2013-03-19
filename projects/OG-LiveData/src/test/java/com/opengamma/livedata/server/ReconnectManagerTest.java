@@ -21,7 +21,7 @@ import com.opengamma.util.test.TestGroup;
 /**
  * Test.
  */
-@Test(groups = {TestGroup.UNIT, "ehcache"})
+@Test(groups = {TestGroup.INTEGRATION, "ehcache"})
 public class ReconnectManagerTest {
 
   private CacheManager _cacheManager;
