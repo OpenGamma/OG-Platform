@@ -5,11 +5,11 @@
  */
 package com.opengamma.web.analytics;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import com.google.common.collect.Lists;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.analytics.formatting.TypeFormatter;
 
@@ -20,7 +20,6 @@ public class ArbitraryViewportDefinition extends ViewportDefinition {
 
   /** Cells in the viewport, not empty, sorted by column then row (i.e. along rows) */
   private final List<GridCell> _cells;
-  private final boolean _enableLogging;
 
   /**
    * @param version
@@ -32,10 +31,9 @@ public class ArbitraryViewportDefinition extends ViewportDefinition {
                                             List<GridCell> cells,
                                             TypeFormatter.Format format,
                                             boolean enableLogging) {
-    super(version, format);
-    _enableLogging = enableLogging;
+    super(version, format, enableLogging);
     ArgumentChecker.notEmpty(cells, "cells");
-    _cells = new ArrayList<GridCell>(cells);
+    _cells = Lists.newArrayList(cells);
     Collections.sort(_cells);
   }
 
@@ -55,14 +53,10 @@ public class ArbitraryViewportDefinition extends ViewportDefinition {
     return true;
   }
 
-  public boolean enableLogging() {
-    return _enableLogging;
-  }
-
   @Override
   public String toString() {
     return "ArbitraryViewportDefinition [" +
-        "_enableLogging=" + _enableLogging +
+        "_enableLogging=" + enableLogging() +
         ", _cells=" + _cells +
         "]";
   }
