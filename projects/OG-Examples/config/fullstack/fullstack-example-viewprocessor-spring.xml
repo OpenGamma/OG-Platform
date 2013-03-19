@@ -40,8 +40,11 @@
   </bean>
   
   <!-- Calculation node management -->
-  <bean id="mainComputationCacheSource" class="com.opengamma.engine.cache.InMemoryViewComputationCacheSource">
+  <bean id="unbufferedComputationCacheSource" class="com.opengamma.engine.cache.InMemoryViewComputationCacheSource">
     <constructor-arg ref="standardFudgeContext" />
+  </bean>
+  <bean id="bufferedComputationCacheSource" class="com.opengamma.engine.cache.WriteThroughViewComputationCacheSource">
+    <constructor-arg ref="unbufferedComputationCacheSource" />
   </bean>
   <bean id="jobDispatchStatistics" class="com.opengamma.engine.calcnode.stats.TotallingNodeStatisticsGatherer" />
   <bean id="functionCosts" class="com.opengamma.engine.calcnode.stats.FunctionCosts">
@@ -55,7 +58,7 @@
   <bean id="calcNodeCacheServer" class="com.opengamma.transport.socket.ServerSocketFudgeConnectionReceiver" init-method="start" destroy-method="stop">
     <constructor-arg>
       <bean class="com.opengamma.engine.cache.ViewComputationCacheServer">
-        <constructor-arg ref="mainComputationCacheSource" />
+        <constructor-arg ref="unbufferedComputationCacheSource" />
       </bean>
     </constructor-arg>
     <constructor-arg ref="standardFudgeContext" />
@@ -67,7 +70,7 @@
       <bean class="com.opengamma.engine.calcnode.RemoteNodeServer">
         <constructor-arg ref="mainJobDispatcher" />
         <constructor-arg>
-          <bean factory-bean="mainComputationCacheSource" factory-method="getIdentifierMap" />
+          <bean factory-bean="unbufferedComputationCacheSource" factory-method="getIdentifierMap" />
         </constructor-arg>
         <constructor-arg ref="functionCosts" />
         <constructor-arg ref="mainFunctionCompilationContext" />
@@ -117,7 +120,7 @@
     <property name="functionCompilationService" ref="mainCompiledFunctionService" />
     <property name="functionResolver" ref="mainFunctionResolver" />
     <property name="marketDataProviderResolver" ref="standardMarketDataProviderResolver" />
-    <property name="computationCacheSource" ref="mainComputationCacheSource" />
+    <property name="computationCacheSource" ref="bufferedComputationCacheSource" />
     <property name="computationJobDispatcher" ref="mainJobDispatcher" />
     <property name="dependencyGraphBuilderFactory">
       <bean class="com.opengamma.engine.depgraph.DependencyGraphBuilderFactory">
@@ -180,7 +183,7 @@
 
   <!-- Local calculation nodes -->  
   <bean id="localNodeFactory" class="com.opengamma.engine.calcnode.SimpleCalculationNodeFactory">
-    <property name="viewComputationCache" ref="mainComputationCacheSource" />
+    <property name="viewComputationCache" ref="bufferedComputationCacheSource" />
     <property name="functionCompilationService" ref="mainCompiledFunctionService" />
     <property name="functionExecutionContext" ref="mainFunctionExecutionContext" />
     <property name="nodeIdentifier" value="local" />
