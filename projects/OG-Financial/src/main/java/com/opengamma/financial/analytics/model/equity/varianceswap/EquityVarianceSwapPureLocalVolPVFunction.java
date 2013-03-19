@@ -45,7 +45,7 @@ public class EquityVarianceSwapPureLocalVolPVFunction extends EquityVarianceSwap
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
     final Clock snapshotClock = executionContext.getValuationClock();
-    final ZonedDateTime now = ZonedDateTime.now(snapshotClock).minusYears(3); //TODO remove me - just for testing
+    final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
     final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
     final EquityVarianceSwapSecurity security = (EquityVarianceSwapSecurity) target.getSecurity();
     final EquityVarianceSwapDefinition definition = security.accept(getConverter());
