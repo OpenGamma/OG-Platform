@@ -332,7 +332,16 @@ public class PresentValueCreditDefaultSwap {
 
       // TODO : Maybe check if stepinDate is in range [startDate, maturityDate] - probably not necessary
 
-      final int startCashflowIndex = getCashflowIndex(stepinDate, premiumLegSchedule, 0, 1);
+      //final int startCashflowIndex = getCashflowIndex(stepinDate, premiumLegSchedule, 0, 1);
+
+      int startCashflowIndex = 0;
+
+      ZonedDateTime rollingDate = premiumLegSchedule[0].minusDays(1);
+
+      while (rollingDate.isBefore(premiumLegSchedule[startCashflowIndex])) {
+        startCashflowIndex++;
+        rollingDate = premiumLegSchedule[startCashflowIndex];
+      }
 
       // Get the date of the last coupon before the current valuation date
       final ZonedDateTime previousPeriod = premiumLegSchedule[startCashflowIndex - 1];
@@ -799,6 +808,9 @@ public class PresentValueCreditDefaultSwap {
 
     // Calibrate the hazard rate curve to the market observed par CDS spreads (returns calibrated hazard rates as a vector of doubles)
     final double[] calibratedHazardRates = hazardRateCurve.getCalibratedHazardRateTermStructure(valuationDate, calibrationCDS, marketTenors, spreads, yieldCurve, priceType);
+
+    // ********************************** REMEMBER THIS **************************************
+    //final double[] calibratedHazardRates = hazardRateCurve.getCalibratedHazardRateTermStructure(valuationDate, calibrationCDS, marketTenors, spreads, yieldCurve, PriceType.DIRTY);
 
     double[] modifiedHazardRateCurve = new double[calibratedHazardRates.length + 1];
 
