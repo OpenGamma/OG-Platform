@@ -6,6 +6,7 @@
 package com.opengamma.bbg.loader.hts;
 
 import static com.opengamma.bbg.BloombergConstants.BLOOMBERG_DATA_SOURCE_NAME;
+import static com.opengamma.bbg.BloombergConstants.DEFAULT_START_DATE;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -19,7 +20,6 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.LocalDate;
-import org.threeten.bp.Month;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -55,8 +55,6 @@ public class BloombergHTSMasterUpdater {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergHTSMasterUpdater.class);
-
-  private static final LocalDate DEFAULT_START_DATE = LocalDate.of(1900, Month.JANUARY, 1);
 
   private final HistoricalTimeSeriesMaster _timeSeriesMaster;
   private final HistoricalTimeSeriesProvider _historicalTimeSeriesProvider;
@@ -102,8 +100,12 @@ public class BloombergHTSMasterUpdater {
 
   public void run() {
     if (_reload) {
-      _startDate = DEFAULT_START_DATE;
-      _endDate = LocalDate.MAX;
+      if (_startDate == null) {
+        _startDate = DEFAULT_START_DATE;
+      }
+      if (_endDate == null) {
+        _endDate = LocalDate.MAX;
+      }
     }
     updateTimeSeries();
   }
@@ -143,7 +145,7 @@ public class BloombergHTSMasterUpdater {
         }
         s_logger.debug("Scheduling update for series {} from {}", htsId, latestDate);
         toUpdate++;
-        startDate = latestDate.plusDays(1);
+        startDate = DateUtils.nextWeekDay(latestDate);
       }
       Map<String, Map<String, Set<ExternalIdBundle>>> providerFieldIdentifiers = MapUtils.putIfAbsentGet(bbgTSRequest, startDate, new HashMap<String, Map<String, Set<ExternalIdBundle>>>());
       
@@ -167,8 +169,7 @@ public class BloombergHTSMasterUpdater {
     }
     
     // select end date
-    LocalDate endDate = resolveEndDate();
-    
+    LocalDate endDate = resolveEndDate();    
     s_logger.info("Updating {} time series to {}", toUpdate, endDate);
     // load from Bloomberg and store in database
     getAndUpdateHistoricalData(bbgTSRequest, metaDataKeyMap, endDate);
