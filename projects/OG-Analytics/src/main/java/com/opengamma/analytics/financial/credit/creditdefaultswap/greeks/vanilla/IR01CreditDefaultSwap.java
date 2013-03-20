@@ -174,14 +174,14 @@ public class IR01CreditDefaultSwap {
           bumpedInterestRates[m] += bumpInBp;
           bumpedYieldCurve = new ISDADateCurve("Bumped", marketTenors, yieldCurve.getTimePoints(), bumpedInterestRates, yieldCurve.getOffset());
           bumpedPresentValue = PV_CALCULATOR.calibrateAndGetPresentValue(valuationDate, cds, marketTenors, marketSpreads, bumpedYieldCurve, priceType);
-          bucketedIR01[m] = (bumpedPresentValue - presentValue) / bumpInBp;
+          bucketedIR01[m] = (bumpedPresentValue - presentValue) / interestRateBump;
           bumpedInterestRates[m] -= bumpInBp;
           break;
         case MULTIPLICATIVE:
           bumpedInterestRates[m] *= 1 + bumpInBp;
           bumpedYieldCurve = new ISDADateCurve("Bumped", marketTenors, yieldCurve.getTimePoints(), bumpedInterestRates, yieldCurve.getOffset());
           bumpedPresentValue = PV_CALCULATOR.calibrateAndGetPresentValue(valuationDate, cds, marketTenors, marketSpreads, bumpedYieldCurve, priceType);
-          bucketedIR01[m] = (bumpedPresentValue - presentValue) / bumpInBp;
+          bucketedIR01[m] = (bumpedPresentValue - presentValue) / interestRateBump;
           bumpedInterestRates[m] /= 1 + bumpInBp;
           break;
         default:
