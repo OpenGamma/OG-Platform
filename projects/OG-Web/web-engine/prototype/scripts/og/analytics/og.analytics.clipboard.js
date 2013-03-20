@@ -21,7 +21,7 @@ $.register_module({
                         ['Exception Class:', row['exceptionClass']].join(' '),
                         ['Exception Message:', row['exceptionMessage']].join(' '),
                         ['Events:', (row.events && row.events.length ? '' : 'N/A')].join(' '),
-                        row.events
+                        !row.events && !row.events.length ? null : row.events
                             .map(function (event) {return [tab, event.level, event.message].join(' ');}).join(line),
                         ['Stack Trace:', row['exceptionStackTrace'] ? '' : 'N/A'].join(' '),
                         !row['exceptionStackTrace'] ? null : row['exceptionStackTrace'].split(line)
