@@ -173,9 +173,14 @@ $.register_module({
                         if (show_loading) view.notify(null);
                         setTimeout(view.layout.inner.resizeAll);
                     };
-                    api.text({module: template}).pipe(function (template) {
+                    $.when(
+                        api.text({module: module.name + '.header'}),
+                        api.text({module: template}),
+                        api.text({module: module.name + '.attributes'})
+                    ).pipe(function (header, template, attributes) {
                         return template.error ? (og.dev.warn('no template for: ' + security_type),
-                            api.text({module: module.name + '.default'})) : template;
+                            api.text({module: module.name + '.default'})) :
+                                template.replace('${header}', header).replace('${attributes}', attributes);                   ;
                     }).pipe(render);
                 });
             };
