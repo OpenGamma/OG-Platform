@@ -6,6 +6,7 @@
 package com.opengamma.financial.currency;
 
 import com.opengamma.core.config.ConfigSource;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -21,7 +22,7 @@ public class ConfigDBCurrencyMatrixSource implements CurrencyMatrixSource {
   /**
    * Creates an instance backed by a config source.
    * 
-   * @param configSource  the source, not null
+   * @param configSource the source, not null
    */
   public ConfigDBCurrencyMatrixSource(final ConfigSource configSource) {
     ArgumentChecker.notNull(configSource, "configSource");
@@ -40,8 +41,8 @@ public class ConfigDBCurrencyMatrixSource implements CurrencyMatrixSource {
 
   //-------------------------------------------------------------------------
   @Override
-  public CurrencyMatrix getCurrencyMatrix(final String name) {
-    return getConfigSource().getLatestByName(CurrencyMatrix.class, name);
+  public CurrencyMatrix getCurrencyMatrix(final String name, final VersionCorrection versionCorrection) {
+    return getConfigSource().getSingle(CurrencyMatrix.class, name, versionCorrection);
   }
 
 }

@@ -10,6 +10,7 @@ import java.net.URI;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.financial.currency.CurrencyMatrixSource;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractRemoteClient;
 import com.opengamma.util.rest.UniformInterfaceException404NotFound;
@@ -22,7 +23,7 @@ public class RemoteCurrencyMatrixSource extends AbstractRemoteClient implements 
   /**
    * Creates an instance.
    * 
-   * @param baseUri  the base target URI for all RESTful web services, not null
+   * @param baseUri the base target URI for all RESTful web services, not null
    */
   public RemoteCurrencyMatrixSource(final URI baseUri) {
     super(baseUri);
@@ -30,11 +31,10 @@ public class RemoteCurrencyMatrixSource extends AbstractRemoteClient implements 
 
   //-------------------------------------------------------------------------
   @Override
-  public CurrencyMatrix getCurrencyMatrix(String name) {
+  public CurrencyMatrix getCurrencyMatrix(String name, VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(name, "name");
-    
     try {
-      URI uri = DataCurrencyMatrixSourceResource.uriGetMatrix(getBaseUri(), name);
+      URI uri = DataCurrencyMatrixSourceResource.uriGetMatrix(getBaseUri(), name, versionCorrection);
       return accessRemote(uri).get(CurrencyMatrix.class);
     } catch (DataNotFoundException ex) {
       return null;

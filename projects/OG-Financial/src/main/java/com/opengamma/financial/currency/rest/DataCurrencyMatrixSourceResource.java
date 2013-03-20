@@ -17,6 +17,7 @@ import javax.ws.rs.core.UriInfo;
 
 import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.financial.currency.CurrencyMatrixSource;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;
 
@@ -36,7 +37,7 @@ public class DataCurrencyMatrixSourceResource extends AbstractDataResource {
   /**
    * Creates the resource, exposing the underlying source over REST.
    * 
-   * @param source  the underlying source, not null
+   * @param source the underlying source, not null
    */
   public DataCurrencyMatrixSourceResource(final CurrencyMatrixSource source) {
     ArgumentChecker.notNull(source, "source");
@@ -60,9 +61,10 @@ public class DataCurrencyMatrixSourceResource extends AbstractDataResource {
   }
 
   @GET
-  @Path("currencyMatrices/{name}")
-  public Response getMatrix(@PathParam("name") String name) {
-    CurrencyMatrix result = getCurrencyMatrixSource().getCurrencyMatrix(name);
+  @Path("currencyMatrices/{name}/{versionCorrection}")
+  public Response getMatrix(@PathParam("name") String name, @PathParam("versionCorrection") String versionCorrectionStr) {
+    final VersionCorrection versionCorrection = VersionCorrection.parse(versionCorrectionStr);
+    CurrencyMatrix result = getCurrencyMatrixSource().getCurrencyMatrix(name, versionCorrection);
     return responseOkFudge(result);
   }
 
@@ -70,13 +72,15 @@ public class DataCurrencyMatrixSourceResource extends AbstractDataResource {
   /**
    * Builds a URI.
    * 
-   * @param baseUri  the base URI, not null
-   * @param name  the name, not null
+   * @param baseUri the base URI, not null
+   * @param name the name, not null
+   * @param versionCorrection the version/correction timestamp
    * @return the URI, not null
    */
-  public static URI uriGetMatrix(URI baseUri, String name) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/currencyMatrices/{name}");
-    return bld.build(name);
+  public static URI uriGetMatrix(URI baseUri, String name, VersionCorrection versionCorrection) {
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/currencyMatrices/{name}/{versionCorrection}");
+    versionCorrection = versionCorrection != null ? versionCorrection : VersionCorrection.LATEST;
+    return bld.build(name, versionCorrection);
   }
 
 }

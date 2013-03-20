@@ -63,7 +63,7 @@ public class CurrencyMatrixSpotSourcingFunctionTest {
     matrix.setCrossConversion(_currencyEUR, _currencyUSD, _currencyGBP);
     OpenGammaCompilationContext.setCurrencyMatrixSource(_functionCompilationContext, new CurrencyMatrixSource() {
       @Override
-      public CurrencyMatrix getCurrencyMatrix(final String name) {
+      public CurrencyMatrix getCurrencyMatrix(final String name, final VersionCorrection versionCorrection) {
         assertEquals("Foo", name);
         return matrix;
       }
