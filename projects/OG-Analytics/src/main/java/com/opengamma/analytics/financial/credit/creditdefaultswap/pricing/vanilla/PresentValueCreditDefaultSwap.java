@@ -776,6 +776,23 @@ public class PresentValueCreditDefaultSwap {
 
   // TODO : Need to move this function
 
+  public double calculatePointsUpfront(
+      final ZonedDateTime valuationDate,
+      final LegacyVanillaCreditDefaultSwapDefinition cds,
+      final ZonedDateTime[] marketTenors,
+      final double[] spreads,
+      final ISDADateCurve yieldCurve,
+      final PriceType priceType) {
+
+    double pointsUpfront = 0.0;
+
+    return pointsUpfront;
+  }
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  // TODO : Need to move this function
+
   public double calibrateAndGetPresentValue(
       final ZonedDateTime valuationDate,
       final LegacyVanillaCreditDefaultSwapDefinition cds,
@@ -813,10 +830,10 @@ public class PresentValueCreditDefaultSwap {
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Calibrate the hazard rate curve to the market observed par CDS spreads (returns calibrated hazard rates as a vector of doubles)
-    final double[] calibratedHazardRates = hazardRateCurve.getCalibratedHazardRateTermStructure(valuationDate, calibrationCDS, marketTenors, spreads, yieldCurve, priceType);
+    //final double[] calibratedHazardRates = hazardRateCurve.getCalibratedHazardRateTermStructure(valuationDate, calibrationCDS, marketTenors, spreads, yieldCurve, priceType);
 
-    // ********************************** REMEMBER THIS **************************************
-    //final double[] calibratedHazardRates = hazardRateCurve.getCalibratedHazardRateTermStructure(valuationDate, calibrationCDS, marketTenors, spreads, yieldCurve, PriceType.DIRTY);
+    // ********************************** REMEMBER THIS **********************************************************************************************
+    final double[] calibratedHazardRates = hazardRateCurve.getCalibratedHazardRateTermStructure(valuationDate, calibrationCDS, marketTenors, spreads, yieldCurve, PriceType.CLEAN);
 
     final double[] modifiedHazardRateCurve = new double[calibratedHazardRates.length + 1];
 
