@@ -9,6 +9,7 @@ foo~
 /lib/
 /ivy/
 /temp/
+/install/
 tests/classes/
 tests/output/
 .settings/
