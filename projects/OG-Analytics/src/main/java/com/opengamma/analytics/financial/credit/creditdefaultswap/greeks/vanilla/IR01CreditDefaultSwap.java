@@ -12,6 +12,7 @@ import com.opengamma.analytics.financial.credit.bumpers.SpreadBumpType;
 import com.opengamma.analytics.financial.credit.cds.ISDACurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.legacy.PresentValueLegacyCreditDefaultSwap;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.PresentValueCreditDefaultSwap;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.InterestRateBumpType;
 import com.opengamma.analytics.financial.credit.marketdatachecker.SpreadTermStructureDataChecker;
@@ -81,18 +82,20 @@ public class IR01CreditDefaultSwap {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
+    final double bumpInBp = interestRateBump / 10000;
     // Calculate the bumped spreads
     for (int m = 0; m < yieldCurve.getNumberOfCurvePoints(); m++) {
 
       if (interestRateBumpType == InterestRateBumpType.ADDITIVE_PARALLEL) {
-        bumpedInterestRates[m] = yieldCurve.getInterestRate(m) + interestRateBump;
+        bumpedInterestRates[m] = yieldCurve.getInterestRate(m) + bumpInBp;
       }
 
-      if (interestRateBumpType == interestRateBumpType.MULTIPLICATIVE_PARALLEL) {
-        bumpedInterestRates[m] = yieldCurve.getInterestRate(m) * (1 + interestRateBump);
+      if (interestRateBumpType == InterestRateBumpType.MULTIPLICATIVE_PARALLEL) {
+        bumpedInterestRates[m] = yieldCurve.getInterestRate(m) * (1 + bumpInBp);
       }
     }
 
+    final ISDADateCurve bumpedYieldCurve = new ISDADateCurve("Bumped", marketTenors, yieldCurve.getTimePoints(), bumpedInterestRates, yieldCurve.getOffset());
     /*
     for (int m = 0; m < yieldCurve.getNumberOfCurvePoints(); m++) {
       System.out.println(yieldCurve.getTimenode(m) + "\t" + yieldCurve.getTimenode(m));
@@ -102,13 +105,13 @@ public class IR01CreditDefaultSwap {
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Create a CDS PV calculator
-    final PresentValueLegacyCreditDefaultSwap creditDefaultSwap = new PresentValueLegacyCreditDefaultSwap();
+    final PresentValueCreditDefaultSwap creditDefaultSwap = new PresentValueCreditDefaultSwap();
 
     // Calculate the unbumped CDS PV
-    final double presentValue = 0; //creditDefaultSwap.calibrateAndGetPresentValue(valuationDate, cds, marketTenors, marketSpreads, yieldCurve, priceType);
+    final double presentValue = creditDefaultSwap.calibrateAndGetPresentValue(valuationDate, cds, marketTenors, marketSpreads, yieldCurve, priceType);
 
     // Calculate the bumped (up) CDS PV
-    final double bumpedPresentValue = 0.0; //creditDefaultSwap.getPresentValueCreditDefaultSwap(valuationDate, cds, marketTenors, marketSpreads, yieldCurve, priceType);
+    final double bumpedPresentValue = creditDefaultSwap.calibrateAndGetPresentValue(valuationDate, cds, marketTenors, marketSpreads, bumpedYieldCurve, priceType);
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -188,7 +191,7 @@ public class IR01CreditDefaultSwap {
       if (spreadBumpType == SpreadBumpType.MULTIPLICATIVE_BUCKETED) {
         bumpedMarketSpreads[m] = marketSpreads[m] * (1 + spreadBump);
       }
-      */
+       */
 
       // Calculate the bumped CDS PV
       final double bumpedPresentValue = 0; //creditDefaultSwap.calibrateAndGetPresentValue(valuationDate, cds, marketTenors, bumpedMarketSpreads, yieldCurve, priceType);
