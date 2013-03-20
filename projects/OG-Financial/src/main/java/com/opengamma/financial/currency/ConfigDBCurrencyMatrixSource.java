@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.currency;
 
+import com.opengamma.core.AbstractSource;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.id.ObjectId;
@@ -15,7 +16,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Provides a source of currency conversion matrices ({@link CurrencyMatrix}) backed by a config database.
  */
-public class ConfigDBCurrencyMatrixSource implements CurrencyMatrixSource {
+public class ConfigDBCurrencyMatrixSource extends AbstractSource<CurrencyMatrix> implements CurrencyMatrixSource {
 
   /**
    * The config source for the data.
@@ -50,12 +51,12 @@ public class ConfigDBCurrencyMatrixSource implements CurrencyMatrixSource {
   }
 
   @Override
-  public CurrencyMatrix getCurrencyMatrix(UniqueId identifier) {
+  public CurrencyMatrix get(UniqueId identifier) {
     return getConfigSource().getConfig(CurrencyMatrix.class, identifier);
   }
 
   @Override
-  public CurrencyMatrix getCurrencyMatrix(ObjectId identifier, VersionCorrection versionCorrection) {
+  public CurrencyMatrix get(ObjectId identifier, VersionCorrection versionCorrection) {
     return getConfigSource().getConfig(CurrencyMatrix.class, identifier, versionCorrection);
   }
 
