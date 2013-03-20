@@ -26,7 +26,7 @@ import com.opengamma.util.test.TestGroup;
 /**
  * Test HibernateAuditLogger.
  */
-@Test(groups = TestGroup.UNIT_DB)
+@Test(groups = TestGroup.UNIT_DB, singleThreaded = true)
 public class HibernateAuditLoggerTest extends HibernateTest {
 
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)

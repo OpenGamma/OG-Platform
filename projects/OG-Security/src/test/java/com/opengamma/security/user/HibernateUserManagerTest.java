@@ -26,7 +26,7 @@ import com.opengamma.util.test.TransactionalHibernateTest;
 /**
  * Test HibernateUserManager.
  */
-@Test(groups = TestGroup.UNIT_DB)
+@Test(groups = TestGroup.UNIT_DB, singleThreaded = true)
 public class HibernateUserManagerTest extends TransactionalHibernateTest {
 
   private HibernateUserManager _userManager;
