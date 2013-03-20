@@ -60,7 +60,6 @@ import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
-import com.opengamma.financial.currency.ConfigDBCurrencyPairsSource;
 import com.opengamma.financial.currency.CurrencyMatrixSeriesSourcingFunction;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.CurrencyPairs;
@@ -138,8 +137,7 @@ public class FXForwardYieldCurveNodePnLFunction extends AbstractFunction.NonComp
     DoubleTimeSeries<?> receiveResult = null;
     receiveResult = getPnLForCurve(inputs, position, receiveCurrency, receiveCurveName, samplingFunction, schedule, receiveResult, receiveCurveCalculationConfig,
         receiveYCNS, receiveYCHTS);
-    final ConfigDBCurrencyPairsSource currencyPairsSource = new ConfigDBCurrencyPairsSource(configSource);
-    final CurrencyPairs currencyPairs = currencyPairsSource.getCurrencyPairs(CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
+    final CurrencyPairs currencyPairs = OpenGammaExecutionContext.getCurrencyPairsSource(executionContext).getCurrencyPairs(CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
     final CurrencyPair currencyPair = currencyPairs.getCurrencyPair(payCurrency, receiveCurrency);
     final Currency currencyBase = currencyPair.getBase();
     final Object fxSpotTSObject = inputs.getValue(ValueRequirementNames.HISTORICAL_FX_TIME_SERIES);
@@ -178,9 +176,7 @@ public class FXForwardYieldCurveNodePnLFunction extends AbstractFunction.NonComp
     final FinancialSecurity security = (FinancialSecurity) position.getSecurity();
     final Currency payCurrency = security.accept(ForexVisitors.getPayCurrencyVisitor());
     final Currency receiveCurrency = security.accept(ForexVisitors.getReceiveCurrencyVisitor());
-    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
-    final ConfigDBCurrencyPairsSource currencyPairsSource = new ConfigDBCurrencyPairsSource(configSource);
-    final CurrencyPairs currencyPairs = currencyPairsSource.getCurrencyPairs(CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
+    final CurrencyPairs currencyPairs = OpenGammaCompilationContext.getCurrencyPairsSource(context).getCurrencyPairs(CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
     final Currency currencyBase = currencyPairs.getCurrencyPair(payCurrency, receiveCurrency).getBase();
     final ValueProperties properties = createValueProperties()
         .withAny(ValuePropertyNames.PAY_CURVE)
@@ -239,8 +235,7 @@ public class FXForwardYieldCurveNodePnLFunction extends AbstractFunction.NonComp
       return null;
     }
     final FXForwardSecurity security = (FXForwardSecurity) target.getPosition().getSecurity();
-    final ConfigDBCurrencyPairsSource currencyPairsSource = new ConfigDBCurrencyPairsSource(configSource);
-    final CurrencyPairs currencyPairs = currencyPairsSource.getCurrencyPairs(CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
+    final CurrencyPairs currencyPairs = OpenGammaCompilationContext.getCurrencyPairsSource(context).getCurrencyPairs(CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
     final String payCurveName = Iterables.getOnlyElement(payCurveNames);
     final String receiveCurveName = Iterables.getOnlyElement(receiveCurveNames);
     final Currency payCurrency = security.accept(ForexVisitors.getPayCurrencyVisitor());

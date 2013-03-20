@@ -32,7 +32,6 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
-import com.opengamma.financial.currency.ConfigDBCurrencyPairsSource;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.util.money.Currency;
@@ -101,8 +100,7 @@ public class FXForwardCurveFromYieldCurvesFunction extends AbstractFunction.NonC
     Currency payCurrency;
     Currency receiveCurrency;
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
-    final ConfigDBCurrencyPairsSource currencyPairsSource = new ConfigDBCurrencyPairsSource(configSource);
-    final CurrencyPairs baseQuotePairs = currencyPairsSource.getCurrencyPairs(CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
+    final CurrencyPairs baseQuotePairs = OpenGammaCompilationContext.getCurrencyPairsSource(context).getCurrencyPairs(CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
     final CurrencyPair baseQuotePair = baseQuotePairs.getCurrencyPair(ccyPair.getFirstCurrency(), ccyPair.getSecondCurrency());
     if (baseQuotePair == null) {
       throw new OpenGammaRuntimeException("Could not get base/quote pair for currency pair " + ccyPair);
@@ -131,9 +129,7 @@ public class FXForwardCurveFromYieldCurvesFunction extends AbstractFunction.NonC
     final UnorderedCurrencyPair ccyPair = UnorderedCurrencyPair.of(target.getUniqueId());
     Currency payCurrency;
     Currency receiveCurrency;
-    final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(executionContext);
-    final ConfigDBCurrencyPairsSource currencyPairsSource = new ConfigDBCurrencyPairsSource(configSource);
-    final CurrencyPairs baseQuotePairs = currencyPairsSource.getCurrencyPairs(CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
+    final CurrencyPairs baseQuotePairs = OpenGammaExecutionContext.getCurrencyPairsSource(executionContext).getCurrencyPairs(CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
     final CurrencyPair baseQuotePair = baseQuotePairs.getCurrencyPair(ccyPair.getFirstCurrency(), ccyPair.getSecondCurrency());
     if (baseQuotePair == null) {
       throw new OpenGammaRuntimeException("Could not get base/quote pair for currency pair " + ccyPair);

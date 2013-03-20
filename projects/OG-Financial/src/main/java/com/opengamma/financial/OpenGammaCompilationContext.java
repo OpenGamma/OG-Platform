@@ -18,6 +18,7 @@ import com.opengamma.financial.analytics.ircurve.calcconfig.CurveCalculationConf
 import com.opengamma.financial.analytics.model.pnl.PnLRequirementsGatherer;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
 import com.opengamma.financial.convention.ConventionBundleSource;
+import com.opengamma.financial.currency.CurrencyPairsSource;
 import com.opengamma.financial.temptarget.TempTargetRepository;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 
@@ -85,6 +86,8 @@ public final class OpenGammaCompilationContext {
   private static final String PERMISSIVE_FLAG_NAME = "permissive";
 
   private static final String PNL_REQUIREMENTS_GATHERER_NAME = "pnlRequirementsGatherer";
+
+  private static final String CURRENCY_PAIRS_SOURCE = "currencyPairsSource";
 
   /**
    * Restricted constructor.
@@ -297,6 +300,22 @@ public final class OpenGammaCompilationContext {
 
   public static void setPnLRequirementsGatherer(final FunctionCompilationContext compilationContext, final PnLRequirementsGatherer pnlRequirementsGatherer) {
     set(compilationContext, PNL_REQUIREMENTS_GATHERER_NAME, pnlRequirementsGatherer);
+  }
+
+  /**
+   * @deprecated [PLAT-2782] interim measure to move away from direct use of a config source
+   */
+  @Deprecated
+  public static CurrencyPairsSource getCurrencyPairsSource(final FunctionCompilationContext compilationContext) {
+    return get(compilationContext, CURRENCY_PAIRS_SOURCE);
+  }
+
+  /**
+   * @deprecated [PLAT-2782] interim measure to move away from direct use of a config source
+   */
+  @Deprecated
+  public static void setCurrencyPairsSource(final FunctionCompilationContext compilationContext, final CurrencyPairsSource currencyPairsSource) {
+    set(compilationContext, CURRENCY_PAIRS_SOURCE, currencyPairsSource);
   }
 
 }

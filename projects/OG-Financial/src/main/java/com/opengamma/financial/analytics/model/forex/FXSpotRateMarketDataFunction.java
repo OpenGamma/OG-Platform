@@ -9,7 +9,6 @@ import java.util.Collections;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -22,7 +21,6 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.financial.currency.ConfigDBCurrencyPairsSource;
 import com.opengamma.financial.currency.CurrencyMatrixSpotSourcingFunction;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.CurrencyPairs;
@@ -58,11 +56,7 @@ public class FXSpotRateMarketDataFunction extends AbstractFunction.NonCompiledIn
 
   @Override
   public void init(final FunctionCompilationContext context) {
-    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
-    if (configSource == null) {
-      throw new UnsupportedOperationException("A config source is required");
-    }
-    _currencyPairs = new ConfigDBCurrencyPairsSource(configSource).getCurrencyPairs(_convention);
+    _currencyPairs = OpenGammaCompilationContext.getCurrencyPairsSource(context).getCurrencyPairs(_convention);
     if (_currencyPairs == null) {
       throw new UnsupportedOperationException("No convention called " + _convention + " found");
     }

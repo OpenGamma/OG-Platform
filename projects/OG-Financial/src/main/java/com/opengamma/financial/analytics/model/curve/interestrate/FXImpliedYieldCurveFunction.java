@@ -69,7 +69,6 @@ import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveSpecificat
 import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalculationConfigSource;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
-import com.opengamma.financial.currency.ConfigDBCurrencyPairsSource;
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
@@ -125,8 +124,7 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
     final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(executionContext);
     final ConfigDBFXForwardCurveDefinitionSource fxCurveDefinitionSource = new ConfigDBFXForwardCurveDefinitionSource(configSource);
     final ConfigDBFXForwardCurveSpecificationSource fxCurveSpecificationSource = new ConfigDBFXForwardCurveSpecificationSource(configSource);
-    final ConfigDBCurrencyPairsSource currencyPairsSource = new ConfigDBCurrencyPairsSource(OpenGammaExecutionContext.getConfigSource(executionContext));
-    final CurrencyPairs currencyPairs = currencyPairsSource.getCurrencyPairs(CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
+    final CurrencyPairs currencyPairs = OpenGammaExecutionContext.getCurrencyPairsSource(executionContext).getCurrencyPairs(CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
     final Currency baseCurrency = currencyPairs.getCurrencyPair(domesticCurrency, foreignCurrency).getBase();
     boolean invertFXQuotes;
     if (baseCurrency.equals(foreignCurrency)) {
@@ -181,7 +179,7 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
         initialRatesGuess.add(0.02);
       }
     }
-    final YieldCurveBundle knownCurve = new YieldCurveBundle(new String[] {fullForeignCurveName}, new YieldAndDiscountCurve[] {foreignCurve});
+    final YieldCurveBundle knownCurve = new YieldCurveBundle(new String[] {fullForeignCurveName }, new YieldAndDiscountCurve[] {foreignCurve });
     final LinkedHashMap<String, double[]> curveKnots = new LinkedHashMap<String, double[]>();
     curveKnots.put(fullDomesticCurveName, nodeTimes.toDoubleArray());
     final LinkedHashMap<String, double[]> curveNodes = new LinkedHashMap<String, double[]>();
@@ -329,7 +327,7 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
     requirements.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetSpecification.of(foreignCurrency), foreignCurveProperties));
     return requirements;
   }
-  
+
   private ValueProperties getForeignCurveProperties(final MultiCurveCalculationConfig foreignConfig, final String foreignCurveName) {
     return ValueProperties.builder()
         .with(ValuePropertyNames.CURVE, foreignCurveName)

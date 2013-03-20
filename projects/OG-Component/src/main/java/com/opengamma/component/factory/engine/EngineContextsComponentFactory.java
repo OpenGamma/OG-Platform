@@ -44,6 +44,7 @@ import com.opengamma.financial.analytics.model.pnl.DefaultPnLRequirementsGathere
 import com.opengamma.financial.analytics.model.pnl.PnLRequirementsGatherer;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
 import com.opengamma.financial.convention.ConventionBundleSource;
+import com.opengamma.financial.currency.ConfigDBCurrencyPairsSource;
 import com.opengamma.financial.marketdata.MarketDataELCompiler;
 import com.opengamma.financial.temptarget.TempTargetRepository;
 import com.opengamma.master.config.ConfigMaster;
@@ -202,6 +203,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
     }
     OpenGammaCompilationContext.setPermissive(context, Boolean.TRUE.equals(getPermissive()));
     OpenGammaCompilationContext.setPnLRequirementsGatherer(context, getPnlRequirementsGatherer());
+    OpenGammaCompilationContext.setCurrencyPairsSource(context, new ConfigDBCurrencyPairsSource(getConfigSource()));
     final ComponentInfo info = new ComponentInfo(FunctionCompilationContext.class, getClassifier());
     repo.registerComponent(info, context);
   }
@@ -230,6 +232,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
     if (getViewProcessor() != null) {
       OpenGammaExecutionContext.setViewProcessor(context, getViewProcessor());
     }
+    OpenGammaExecutionContext.setCurrencyPairsSource(context, new ConfigDBCurrencyPairsSource(getConfigSource()));
     final ComponentInfo info = new ComponentInfo(FunctionExecutionContext.class, getClassifier());
     repo.registerComponent(info, context);
   }

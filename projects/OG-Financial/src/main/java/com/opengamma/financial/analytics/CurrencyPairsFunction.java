@@ -9,7 +9,6 @@ import java.util.Collections;
 import java.util.Set;
 
 import com.google.common.collect.Iterables;
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
@@ -22,7 +21,6 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
-import com.opengamma.financial.currency.ConfigDBCurrencyPairsSource;
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.util.async.AsynchronousExecution;
 
@@ -36,14 +34,12 @@ public class CurrencyPairsFunction extends AbstractFunction.NonCompiledInvoker {
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
-          final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
+      final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
     final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
     final String name = desiredValue.getConstraint(CURRENCY_PAIRS_NAME);
-    final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(executionContext);
-    final ConfigDBCurrencyPairsSource currencyPairsSource = new ConfigDBCurrencyPairsSource(configSource);
-    final CurrencyPairs currencyPairs = currencyPairsSource.getCurrencyPairs(name);
+    final CurrencyPairs currencyPairs = OpenGammaExecutionContext.getCurrencyPairsSource(executionContext).getCurrencyPairs(name);
     return Collections.singleton(new ComputedValue(new ValueSpecification(ValueRequirementNames.CURRENCY_PAIRS, ComputationTargetSpecification.NULL,
-            createValueProperties().with(CURRENCY_PAIRS_NAME, name).get()), currencyPairs));
+        createValueProperties().with(CURRENCY_PAIRS_NAME, name).get()), currencyPairs));
   }
 
   @Override
@@ -54,7 +50,7 @@ public class CurrencyPairsFunction extends AbstractFunction.NonCompiledInvoker {
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext myContext, final ComputationTarget target) {
     return Collections.singleton(new ValueSpecification(ValueRequirementNames.CURRENCY_PAIRS, target.toSpecification(),
-            createValueProperties().withAny(CURRENCY_PAIRS_NAME).get()));
+        createValueProperties().withAny(CURRENCY_PAIRS_NAME).get()));
   }
 
   @Override
