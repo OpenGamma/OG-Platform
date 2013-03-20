@@ -99,6 +99,7 @@ public class DefaultManageableFunctionBlacklistTest {
     }
   }
 
+  @Test(invocationCount = 5, successPercentage = 19)
   public void testExpiry() throws Exception {
     final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
     try {
