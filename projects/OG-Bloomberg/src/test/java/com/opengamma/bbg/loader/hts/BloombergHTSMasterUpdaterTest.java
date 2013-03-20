@@ -32,7 +32,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Test.
  */
-@Test(groups = TestGroup.UNIT_DB)
+@Test(groups = TestGroup.UNIT_DB, singleThreaded = true)
 public class BloombergHTSMasterUpdaterTest extends AbstractHistoricalTimeSeriesDBTest {
   
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergHTSMasterUpdaterTest.class);

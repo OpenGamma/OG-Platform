@@ -27,7 +27,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Test {@link BloombergHistoricalTimeSeriesLoader}
  */
-@Test(groups = TestGroup.UNIT_DB)
+@Test(groups = TestGroup.UNIT_DB, singleThreaded = true)
 public class BloombergHistoricalTimeSeriesLoaderTest extends AbstractHistoricalTimeSeriesDBTest {
   
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergHistoricalTimeSeriesLoaderTest.class);
