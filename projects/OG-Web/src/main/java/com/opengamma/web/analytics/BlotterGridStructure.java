@@ -63,10 +63,12 @@ public class BlotterGridStructure extends PortfolioGridStructure {
 
 
   private static GridColumnGroup buildBlotterColumns(BlotterColumnMapper columnMapper, List<PortfolioGridRow> rows) {
+    GridColumn quantityColumn = new GridColumn(BlotterColumn.QUANTITY.getName(), "", Double.class,
+                                               new BlotterColumnRenderer(BlotterColumn.QUANTITY, columnMapper, rows));
     List<GridColumn> columns = Lists.newArrayList(
         blotterColumn(BlotterColumn.TYPE, columnMapper, rows),
         blotterColumn(BlotterColumn.PRODUCT, columnMapper, rows),
-        blotterColumn(BlotterColumn.QUANTITY, columnMapper, rows),
+        quantityColumn,
         blotterColumn(BlotterColumn.DIRECTION, columnMapper, rows),
         blotterColumn(BlotterColumn.START, columnMapper, rows),
         blotterColumn(BlotterColumn.MATURITY, columnMapper, rows),

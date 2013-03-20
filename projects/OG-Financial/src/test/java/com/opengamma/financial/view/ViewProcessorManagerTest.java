@@ -50,7 +50,7 @@ import com.opengamma.util.test.Timeout;
 /**
  * Test.
  */
-@Test(groups = TestGroup.UNIT)
+@Test(groups = TestGroup.INTEGRATION)
 public class ViewProcessorManagerTest {
 
   //-------------------------------------------------------------------------

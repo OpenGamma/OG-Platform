@@ -53,8 +53,8 @@
 
   <properties>
     <tests.testng.threads>1</tests.testng.threads>
-    <tests.testng.includedgroups>unit,unitdb</tests.testng.includedgroups>
-    <tests.testng.excludedgroups>integration</tests.testng.excludedgroups>
+    <tests.testng.includedgroups>unit</tests.testng.includedgroups>
+    <tests.testng.excludedgroups>integration, unitdb, unitslow</tests.testng.excludedgroups>
   </properties>
 
 </project>

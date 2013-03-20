@@ -776,11 +776,71 @@ public class PresentValueCreditDefaultSwap {
 
   // TODO : Need to move this function
 
+  public double calculatePointsUpfront(
+      final ZonedDateTime valuationDate,
+      final LegacyVanillaCreditDefaultSwapDefinition cds,
+      final ZonedDateTime[] marketTenors,
+      final double[] marketSpreads,
+      final ISDADateCurve yieldCurve,
+      final PriceType priceType) {
+
+    // ----------------------------------------------------------------------------------------------------------------------------------------
+
+    // TODO : Add arg checkers
+
+    // ----------------------------------------------------------------------------------------------------------------------------------------
+
+    // Vector of time nodes for the hazard rate curve
+    final double[] times = new double[1];
+
+    final double[] spreads = new double[1];
+
+    times[0] = ACT_365.getDayCountFraction(valuationDate, marketTenors[0]);
+    spreads[0] = marketSpreads[0];
+
+    // ----------------------------------------------------------------------------------------------------------------------------------------
+
+    // Create a CDS for calibration
+    final LegacyVanillaCreditDefaultSwapDefinition calibrationCDS = cds;
+
+    // Create a CDS for valuation
+    final LegacyVanillaCreditDefaultSwapDefinition valuationCDS = cds;
+
+    // ----------------------------------------------------------------------------------------------------------------------------------------
+
+    // Call the constructor to create a CDS present value object
+    final PresentValueLegacyCreditDefaultSwap creditDefaultSwap = new PresentValueLegacyCreditDefaultSwap();
+
+    // Call the constructor to create a calibrate hazard rate curve object
+    final CalibrateHazardRateCurveLegacyCreditDefaultSwap hazardRateCurve = new CalibrateHazardRateCurveLegacyCreditDefaultSwap();
+
+    // ----------------------------------------------------------------------------------------------------------------------------------------
+
+    final double[] calibratedHazardRates = hazardRateCurve.getCalibratedHazardRateTermStructure(valuationDate, calibrationCDS, marketTenors, marketSpreads, yieldCurve, PriceType.CLEAN);
+
+    final double[] modifiedHazardRateCurve = new double[1];
+
+    modifiedHazardRateCurve[0] = calibratedHazardRates[0];
+
+    // Build a hazard rate curve object based on the input market data
+    final HazardRateCurve calibratedHazardRateCurve = new HazardRateCurve(marketTenors, times, modifiedHazardRateCurve/*calibratedHazardRates*/, 0.0);
+
+    final double pointsUpfront = creditDefaultSwap.getPresentValueLegacyCreditDefaultSwap(valuationDate, valuationCDS, yieldCurve, calibratedHazardRateCurve, priceType);
+
+    // ----------------------------------------------------------------------------------------------------------------------------------------
+
+    return pointsUpfront / cds.getNotional();
+  }
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  // TODO : Need to move this function
+
   public double calibrateAndGetPresentValue(
       final ZonedDateTime valuationDate,
       final LegacyVanillaCreditDefaultSwapDefinition cds,
       final ZonedDateTime[] marketTenors,
-      final double[] spreads,
+      final double[] marketSpreads,
       final ISDADateCurve yieldCurve,
       final PriceType priceType) {
 
@@ -813,10 +873,10 @@ public class PresentValueCreditDefaultSwap {
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Calibrate the hazard rate curve to the market observed par CDS spreads (returns calibrated hazard rates as a vector of doubles)
-    final double[] calibratedHazardRates = hazardRateCurve.getCalibratedHazardRateTermStructure(valuationDate, calibrationCDS, marketTenors, spreads, yieldCurve, priceType);
+    //final double[] calibratedHazardRates = hazardRateCurve.getCalibratedHazardRateTermStructure(valuationDate, calibrationCDS, marketTenors, spreads, yieldCurve, priceType);
 
-    // ********************************** REMEMBER THIS **************************************
-    //final double[] calibratedHazardRates = hazardRateCurve.getCalibratedHazardRateTermStructure(valuationDate, calibrationCDS, marketTenors, spreads, yieldCurve, PriceType.DIRTY);
+    // ********************************** REMEMBER THIS **********************************************************************************************
+    final double[] calibratedHazardRates = hazardRateCurve.getCalibratedHazardRateTermStructure(valuationDate, calibrationCDS, marketTenors, marketSpreads, yieldCurve, PriceType.CLEAN);
 
     final double[] modifiedHazardRateCurve = new double[calibratedHazardRates.length + 1];
 

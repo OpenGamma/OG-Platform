@@ -91,7 +91,7 @@ public class ISDAYieldCurveFunction extends AbstractFunction.NonCompiledInvoker 
     }
     final Object specObject = inputs.getValue(ValueRequirementNames.YIELD_CURVE_SPEC);
     if (specObject == null) {
-      throw new OpenGammaRuntimeException("Could not get yield curve specification for " + curveName);
+      throw new OpenGammaRuntimeException("Could not get yield curve specification for " + curveName + " and target " + target.getName());
     }
     final SnapshotDataBundle marketData = (SnapshotDataBundle) dataObject;
     final InterpolatedYieldCurveSpecificationWithSecurities yieldCurveSpec = (InterpolatedYieldCurveSpecificationWithSecurities) specObject;

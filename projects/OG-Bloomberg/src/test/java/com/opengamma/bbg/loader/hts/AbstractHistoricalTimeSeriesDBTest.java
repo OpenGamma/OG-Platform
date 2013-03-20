@@ -46,6 +46,7 @@ import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProviderG
 import com.opengamma.provider.historicaltimeseries.impl.AbstractHistoricalTimeSeriesProvider;
 import com.opengamma.util.MapUtils;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.LocalDateRange;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
@@ -83,7 +84,7 @@ public abstract class AbstractHistoricalTimeSeriesDBTest extends DbTest {
     s_logger.debug("running test for database = {}", databaseType);
   }
 
-  @BeforeMethod
+  @BeforeMethod(groups = TestGroup.UNIT_DB)
   public void setUp() throws Exception {
     super.setUp();
     DataSourceTransactionManager transactionManager = getTransactionManager();
@@ -102,7 +103,7 @@ public abstract class AbstractHistoricalTimeSeriesDBTest extends DbTest {
     return ts;
   }
 
-  @AfterMethod
+  @AfterMethod(groups = TestGroup.UNIT_DB)
   public void tearDown() throws Exception {
     _htsMaster = null;
     super.tearDown();
@@ -197,7 +198,7 @@ public abstract class AbstractHistoricalTimeSeriesDBTest extends DbTest {
    * Gets the htsMasterUpdater.
    * @return the htsMasterUpdater
    */
-  public BloombergHTSMasterUpdater getHtsMasterUpdater() {
+  protected BloombergHTSMasterUpdater getHtsMasterUpdater() {
     return _htsMasterUpdater;
   }
 
@@ -205,7 +206,7 @@ public abstract class AbstractHistoricalTimeSeriesDBTest extends DbTest {
    * Gets the loader.
    * @return the loader
    */
-  public BloombergHistoricalTimeSeriesLoader getLoader() {
+  protected BloombergHistoricalTimeSeriesLoader getLoader() {
     return _loader;
   }
 
@@ -213,7 +214,7 @@ public abstract class AbstractHistoricalTimeSeriesDBTest extends DbTest {
    * Gets the htsMaster.
    * @return the htsMaster
    */
-  public HistoricalTimeSeriesMaster getHtsMaster() {
+  protected HistoricalTimeSeriesMaster getHtsMaster() {
     return _htsMaster;
   }
 }

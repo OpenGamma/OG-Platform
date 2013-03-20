@@ -86,7 +86,23 @@
  * Dropdown
  */
 .OG-grid-options .og-dropdown {
+    background-color: #fff;
+    border: 1px inset #eee;
     float: left;
+    padding: 2px 15px 1px 5px;
+    line-height: 10px;
+    margin: 2px 0 0 0;
+}
+
+.OG-grid-options .og-dropdown .og-menu {
+    margin:-5px 0 0 5px;
+    overflow: hidden;
+    right: 0;
+}
+
+.OG-grid-options .og-dropdown .og-menu div{
+    padding: 3px 0 3px 5px;
+    min-width: 100px;
 }
 
 .ie8 .OG-grid-options .og-sparklines,

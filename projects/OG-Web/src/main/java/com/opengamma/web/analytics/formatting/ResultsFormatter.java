@@ -41,6 +41,8 @@ public class ResultsFormatter {
                   currencyAmountFormatter,
                   zonedDateTimeFormatter,
                   new YieldCurveFormatter(),
+                  new ISDADateCurveFormatter(),
+                  new NodalObjectsCurveFormatter(), //TODO is not a general formatter - used only for (Tenor, Double) curves
                   new VolatilityCubeDataFormatter(),
                   new VolatilitySurfaceDataFormatter(),
                   new VolatilitySurfaceFormatter(),

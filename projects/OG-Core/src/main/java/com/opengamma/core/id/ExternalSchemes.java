@@ -295,7 +295,7 @@ public class ExternalSchemes {
     }
     if (s_logger.isDebugEnabled()) {
       try {
-        LocalDate.parse(maturity, DateTimeFormatter.ofPattern("MM/dd/YY"));
+        LocalDate.parse(maturity, DateTimeFormatter.ofPattern("MM/dd/yy"));
       } catch (final UnsupportedOperationException uoe) {
         s_logger.warn("Problem parsing maturity " + maturity + " ticker=" + tickerWithoutSector + ", coupon=" + coupon);
       } catch (final DateTimeException ex) {

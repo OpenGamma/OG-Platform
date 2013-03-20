@@ -79,7 +79,10 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
   protected CurrencyInfo audCurrencyInfo() {
     final CurrencyInfo i = super.audCurrencyInfo();
     i.setCurveConfiguration(null, "DefaultTwoCurveAUDConfig");
+    i.setCurveConfiguration("model/cds", "ISDAAUDCurveConfig");
     i.setCurveName(null, "Discounting");
+    i.setCurveName("model/cds", "ISDA");
+    i.setCurveCalculationMethodName("model/cds", "ISDA");
     i.setCubeName(null, "BLOOMBERG");
     return i;
   }
@@ -126,7 +129,10 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
   protected CurrencyInfo gbpCurrencyInfo() {
     final CurrencyInfo i = super.gbpCurrencyInfo();
     i.setCurveConfiguration(null, "DefaultTwoCurveGBPConfig");
+    i.setCurveConfiguration("model/cds", "ISDAGBPCurveConfig");
     i.setCurveName(null, "Discounting");
+    i.setCurveName("model/cds", "ISDA");
+    i.setCurveCalculationMethodName("model/cds", "ISDA");
     i.setCubeName(null, "BLOOMBERG");
     return i;
   }
@@ -151,7 +157,10 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
   protected CurrencyInfo jpyCurrencyInfo() {
     final CurrencyInfo i = super.jpyCurrencyInfo();
     i.setCurveConfiguration(null, "DefaultTwoCurveJPYConfig");
+    i.setCurveConfiguration("model/cds", "ISDAJPYCurveConfig");
     i.setCurveName(null, "Discounting");
+    i.setCurveName("model/cds", "ISDA");
+    i.setCurveCalculationMethodName("model/cds", "ISDA");
     return i;
   }
 

@@ -32,7 +32,7 @@ $.register_module({
             combo.init_blurkill = false;
 
             combo.open = function () {
-                if ('$input' in combo && combo.$input) combo.$input.autocomplete('search', '').select();
+                if ('$input' in combo && combo.$input) combo.$input.autocomplete('search', '');
             };
 
             combo.placeholder = config.placeholder || '';
