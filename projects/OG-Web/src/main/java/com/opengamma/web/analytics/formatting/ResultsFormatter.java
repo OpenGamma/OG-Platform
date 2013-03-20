@@ -41,6 +41,7 @@ public class ResultsFormatter {
                   currencyAmountFormatter,
                   zonedDateTimeFormatter,
                   new YieldCurveFormatter(),
+                  new ISDADateCurveFormatter(),
                   new VolatilityCubeDataFormatter(),
                   new VolatilitySurfaceDataFormatter(),
                   new VolatilitySurfaceFormatter(),

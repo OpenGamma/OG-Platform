@@ -58,6 +58,5 @@
 'VolatilitySurfaceData' com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData
 'Yield Curve Node Sensitivities' com.opengamma.financial.analytics.DoubleLabelledMatrix1D
 'Yield To Maturity' java.lang.Double
-'YieldCurve' com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve
 'YieldCurveJacobian' java.util.ArrayList
 'Z Spread' java.lang.Double
