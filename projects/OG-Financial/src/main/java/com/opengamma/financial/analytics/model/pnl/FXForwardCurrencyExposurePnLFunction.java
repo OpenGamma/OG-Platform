@@ -46,7 +46,6 @@ import com.opengamma.financial.currency.ConfigDBCurrencyPairsSource;
 import com.opengamma.financial.currency.CurrencyMatrixSeriesSourcingFunction;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.CurrencyPairs;
-import com.opengamma.financial.currency.CurrencySeriesConversionFunction;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.money.Currency;
@@ -74,7 +73,7 @@ public class FXForwardCurrencyExposurePnLFunction extends AbstractFunction.NonCo
     final String samplingFunction = desiredValue.getConstraint(ValuePropertyNames.SAMPLING_FUNCTION);
     final FXForwardSecurity security = (FXForwardSecurity) position.getSecurity();
     final MultipleCurrencyAmount mca = (MultipleCurrencyAmount) inputs.getValue(ValueRequirementNames.FX_CURRENCY_EXPOSURE);
-    final DoubleTimeSeries<?> timeSeries = (DoubleTimeSeries<?>) inputs.getValue(CurrencySeriesConversionFunction.SPOT_RATE);
+    final DoubleTimeSeries<?> timeSeries = (DoubleTimeSeries<?>) inputs.getValue(ValueRequirementNames.HISTORICAL_FX_TIME_SERIES);
     final Currency payCurrency = security.getPayCurrency();
     final Currency receiveCurrency = security.getReceiveCurrency();
     if (timeSeries == null) {
@@ -173,10 +172,10 @@ public class FXForwardCurrencyExposurePnLFunction extends AbstractFunction.NonCo
     final CurrencyPairs currencyPairs = currencyPairsSource.getCurrencyPairs(CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
     final ValueRequirement fxCurrencyExposureRequirement = new ValueRequirement(ValueRequirementNames.FX_CURRENCY_EXPOSURE, ComputationTargetSpecification.of(target.getPosition().getSecurity()),
         ValueProperties.builder()
-        .with(ValuePropertyNames.PAY_CURVE, payCurveNames.iterator().next())
-        .with(ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG, payCurveCalculationConfigs.iterator().next())
-        .with(ValuePropertyNames.RECEIVE_CURVE, receiveCurveNames.iterator().next())
-        .with(ValuePropertyNames.RECEIVE_CURVE_CALCULATION_CONFIG, receiveCurveCalculationConfigs.iterator().next()).get());
+            .with(ValuePropertyNames.PAY_CURVE, payCurveNames.iterator().next())
+            .with(ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG, payCurveCalculationConfigs.iterator().next())
+            .with(ValuePropertyNames.RECEIVE_CURVE, receiveCurveNames.iterator().next())
+            .with(ValuePropertyNames.RECEIVE_CURVE_CALCULATION_CONFIG, receiveCurveCalculationConfigs.iterator().next()).get());
     final Currency payCurrency = security.accept(ForexVisitors.getPayCurrencyVisitor());
     final Currency receiveCurrency = security.accept(ForexVisitors.getReceiveCurrencyVisitor());
     final CurrencyPair currencyPair = currencyPairs.getCurrencyPair(payCurrency, receiveCurrency);

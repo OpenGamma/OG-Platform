@@ -51,28 +51,27 @@ public class CurrencyMatrixSpotSourcingFunctionTest {
   private FunctionExecutionContext _functionExecutionContext;
   private FunctionCompilationContext _functionCompilationContext;
   private CurrencyMatrixSpotSourcingFunction _function;
+  private ComputationTarget _matrixTarget;
 
   @BeforeMethod
   public void setupContexts() {
     _functionExecutionContext = new FunctionExecutionContext();
     _functionCompilationContext = new FunctionCompilationContext();
-    final SimpleCurrencyMatrix matrix = new SimpleCurrencyMatrix();
+    SimpleCurrencyMatrix matrix = new SimpleCurrencyMatrix();
+    matrix.setUniqueId(UniqueId.of("Matrix", "Test"));
     matrix.setLiveData(_currencyUSD, _currencyGBP, new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, ExternalId.of("LiveData", "USD_GBP")));
     matrix.setFixedConversion(_currencyEUR, _currencyGBP, _rateEUR_GBP);
     matrix.setCrossConversion(_currencyEUR, _currencyUSD, _currencyGBP);
-    _function = new CurrencyMatrixSpotSourcingFunction("Foo");
+    _matrixTarget = new ComputationTarget(CurrencyMatrixResolver.TYPE, matrix);
+    _function = new CurrencyMatrixSpotSourcingFunction();
     _function.setUniqueId("currencyMatrixSourcing");
     _function.init(_functionCompilationContext);
   }
 
   @Test
   public void testGetResults() {
-    final ComputationTarget ct = new ComputationTarget(CurrencyPair.TYPE, CurrencyPair.parse("USD/EUD"));
-    final Set<ValueSpecification> results = _function.getResults(_functionCompilationContext, ct);
-    assertEquals(1, results.size());
-    final ValueSpecification result = results.iterator().next();
-    assertEquals(ValueRequirementNames.SPOT_RATE, result.getValueName());
-    assertEquals(ct.toSpecification(), result.getTargetSpecification());
+    final Set<ValueSpecification> results = _function.getResults(_functionCompilationContext, _matrixTarget);
+    assertEquals(6, results.size());
   }
 
   @Test
@@ -81,60 +80,65 @@ public class CurrencyMatrixSpotSourcingFunctionTest {
     final ComputationTargetSpecificationResolver resolver = new DefaultComputationTargetResolver().getSpecificationResolver();
 
     // Require value the "right" way up
-    ComputationTarget outTarget = new ComputationTarget(CurrencyPair.TYPE, CurrencyPair.parse("GBP/USD"));
     // [PLAT-2290] Execute should be taking a ValueSpecification, getRequirements should be taking a ValueRequirement
-    ValueRequirement outRequirement = new ValueRequirement(ValueRequirementNames.SPOT_RATE, outTarget.toSpecification(), ValueProperties.with(ValuePropertyNames.FUNCTION, "CMSF").get());
-    Set<ValueRequirement> inRequirements = _function.getRequirements(_functionCompilationContext, outTarget, outRequirement);
+    ValueRequirement outRequirement = new ValueRequirement(ValueRequirementNames.SPOT_RATE, _matrixTarget.toSpecification(), ValueProperties
+        .with(AbstractCurrencyMatrixSourcingFunction.SOURCE_CURRENCY_PROPERTY, "USD").with(AbstractCurrencyMatrixSourcingFunction.TARGET_CURRENCY_PROPERTY, "GBP")
+        .with(ValuePropertyNames.FUNCTION, "CMSF").get());
+    Set<ValueRequirement> inRequirements = _function.getRequirements(_functionCompilationContext, _matrixTarget, outRequirement);
     assertEquals(1, inRequirements.size());
     final ComputationTargetRequirement inRequirementTarget = new ComputationTargetRequirement(ComputationTargetType.PRIMITIVE, ExternalId.of("LiveData", "USD_GBP"));
     ValueRequirement inRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, inRequirementTarget);
     assertTrue(inRequirements.contains(inRequirement));
     Set<ComputedValue> outputs = _function.execute(_functionExecutionContext, new FunctionInputsImpl(resolver.atVersionCorrection(VersionCorrection.LATEST), new ComputedValue(new ValueSpecification(
-        inRequirement.getValueName(), ComputationTargetSpecification.of(UniqueId.of("ExternalId-LiveData", "USD_GBP")), properties), _rateUSD_GBP)), outTarget, Collections.singleton(outRequirement));
+        inRequirement.getValueName(), ComputationTargetSpecification.of(UniqueId.of("ExternalId-LiveData", "USD_GBP")), properties), _rateUSD_GBP)), _matrixTarget,
+        Collections.singleton(outRequirement));
     assertEquals(1, outputs.size());
     ComputedValue output = outputs.iterator().next();
     assertTrue(output.getValue() instanceof Double);
     assertEquals(_rateUSD_GBP, (Double) output.getValue(), Double.MIN_NORMAL);
 
     // Require value the "wrong" way up
-    outTarget = new ComputationTarget(CurrencyPair.TYPE, CurrencyPair.parse("USD/GBP"));
     // [PLAT-2290] Execute should be taking a ValueSpecification, getRequirements should be taking a ValueRequirement
-    outRequirement = new ValueRequirement(ValueRequirementNames.SPOT_RATE, outTarget.toSpecification(), ValueProperties.with(ValuePropertyNames.FUNCTION, "CMSF").get());
-    inRequirements = _function.getRequirements(_functionCompilationContext, outTarget, outRequirement);
+    outRequirement = new ValueRequirement(ValueRequirementNames.SPOT_RATE, _matrixTarget.toSpecification(), ValueProperties
+        .with(AbstractCurrencyMatrixSourcingFunction.SOURCE_CURRENCY_PROPERTY, "GBP").with(AbstractCurrencyMatrixSourcingFunction.TARGET_CURRENCY_PROPERTY, "USD")
+        .with(ValuePropertyNames.FUNCTION, "CMSF").get());
+    inRequirements = _function.getRequirements(_functionCompilationContext, _matrixTarget, outRequirement);
     assertEquals(1, inRequirements.size());
     inRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, inRequirementTarget);
     assertTrue(inRequirements.contains(inRequirement));
     outputs = _function.execute(_functionExecutionContext,
         new FunctionInputsImpl(resolver.atVersionCorrection(VersionCorrection.LATEST), new ComputedValue(new ValueSpecification(inRequirement.getValueName(),
-            ComputationTargetSpecification.of(UniqueId.of("ExternalId-LiveData", "USD_GBP")), properties), _rateUSD_GBP)), outTarget, Collections.singleton(outRequirement));
+            ComputationTargetSpecification.of(UniqueId.of("ExternalId-LiveData", "USD_GBP")), properties), _rateUSD_GBP)), _matrixTarget, Collections.singleton(outRequirement));
     assertEquals(1, outputs.size());
     output = outputs.iterator().next();
     assertTrue(output.getValue() instanceof Double);
     assertEquals(1.0 / _rateUSD_GBP, (Double) output.getValue(), Double.MIN_NORMAL);
 
     // Require no additional live data
-    outTarget = new ComputationTarget(CurrencyPair.TYPE, CurrencyPair.parse("EUR/GBP"));
     // [PLAT-2290] Execute should be taking a ValueSpecification, getRequirements should be taking a ValueRequirement
-    outRequirement = new ValueRequirement(ValueRequirementNames.SPOT_RATE, outTarget.toSpecification(), ValueProperties.with(ValuePropertyNames.FUNCTION, "CMSF").get());
-    inRequirements = _function.getRequirements(_functionCompilationContext, outTarget, outRequirement);
+    outRequirement = new ValueRequirement(ValueRequirementNames.SPOT_RATE, _matrixTarget.toSpecification(), ValueProperties
+        .with(AbstractCurrencyMatrixSourcingFunction.SOURCE_CURRENCY_PROPERTY, "GBP").with(AbstractCurrencyMatrixSourcingFunction.TARGET_CURRENCY_PROPERTY, "EUR")
+        .with(ValuePropertyNames.FUNCTION, "CMSF").get());
+    inRequirements = _function.getRequirements(_functionCompilationContext, _matrixTarget, outRequirement);
     assertEquals(0, inRequirements.size());
-    outputs = _function.execute(_functionExecutionContext, new EmptyFunctionInputs(), outTarget, Collections.singleton(outRequirement));
+    outputs = _function.execute(_functionExecutionContext, new EmptyFunctionInputs(), _matrixTarget, Collections.singleton(outRequirement));
     assertEquals(1, outputs.size());
     output = outputs.iterator().next();
     assertTrue(output.getValue() instanceof Double);
     assertEquals(1.0 / _rateEUR_GBP, (Double) output.getValue(), Double.MIN_NORMAL);
 
     // Require intermediate value
-    outTarget = new ComputationTarget(CurrencyPair.TYPE, CurrencyPair.parse("USD/EUR"));
     // [PLAT-2290] Execute should be taking a ValueSpecification, getRequirements should be taking a ValueRequirement
-    outRequirement = new ValueRequirement(ValueRequirementNames.SPOT_RATE, outTarget.toSpecification(), ValueProperties.with(ValuePropertyNames.FUNCTION, "CMSF").get());
-    inRequirements = _function.getRequirements(_functionCompilationContext, outTarget, outRequirement);
+    outRequirement = new ValueRequirement(ValueRequirementNames.SPOT_RATE, _matrixTarget.toSpecification(), ValueProperties
+        .with(AbstractCurrencyMatrixSourcingFunction.SOURCE_CURRENCY_PROPERTY, "EUR").with(AbstractCurrencyMatrixSourcingFunction.TARGET_CURRENCY_PROPERTY, "USD")
+        .with(ValuePropertyNames.FUNCTION, "CMSF").get());
+    inRequirements = _function.getRequirements(_functionCompilationContext, _matrixTarget, outRequirement);
     assertEquals(1, inRequirements.size());
     inRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, inRequirementTarget);
     assertTrue(inRequirements.contains(inRequirement));
     outputs = _function.execute(_functionExecutionContext,
         new FunctionInputsImpl(resolver.atVersionCorrection(VersionCorrection.LATEST), new ComputedValue(new ValueSpecification(inRequirement.getValueName(),
-            ComputationTargetSpecification.of(UniqueId.of("ExternalId-LiveData", "USD_GBP")), properties), _rateUSD_GBP)), outTarget, Collections.singleton(outRequirement));
+            ComputationTargetSpecification.of(UniqueId.of("ExternalId-LiveData", "USD_GBP")), properties), _rateUSD_GBP)), _matrixTarget, Collections.singleton(outRequirement));
     assertEquals(1, outputs.size());
     output = outputs.iterator().next();
     assertTrue(output.getValue() instanceof Double);
