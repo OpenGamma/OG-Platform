@@ -19,9 +19,9 @@ import com.opengamma.core.position.impl.SimplePosition;
 import com.opengamma.util.test.TestGroup;
 
 @Test(groups = TestGroup.UNIT)
-public class ObligorRedCodeAggregatorTest {
+public class ObligorRedCodeAggregatorFunctionTest {
 
-  public static final ObligorRedCodeAggregator AGGREGATOR = new ObligorRedCodeAggregator();
+  public static final ObligorRedCodeAggregatorFunction AGGREGATOR = new ObligorRedCodeAggregatorFunction();
 
   @Test
   public void testNameIsDefined() {

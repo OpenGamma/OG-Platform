@@ -20,7 +20,7 @@ import com.opengamma.id.ExternalId;
  * generally only applicable to CDS securities, and if applied to securities with no
  * RED code, the result of {@link #classifyPosition(Position)} will be "N/A".
  */
-public class ObligorRedCodeAggregator implements AggregationFunction<String> {
+public class ObligorRedCodeAggregatorFunction implements AggregationFunction<String> {
 
   private static final Comparator<Position> COMPARATOR = new SimplePositionComparator();
   private static final String NAME = "RED Codes";
