@@ -9,6 +9,7 @@
 'CAPM Regression Beta Standard Error' java.lang.Double
 'CAPM Regression Beta' java.lang.Double
 'Clean Price' java.lang.Double
+'CreditSpreadCurve' com.opengamma.analytics.math.curve.NodalObjectsCurve
 'Dirty Price' java.lang.Double
 'FX Currency Exposure' com.opengamma.util.money.MultipleCurrencyAmount
 'FX Present Value' com.opengamma.financial.analytics.CurrencyLabelledMatrix1D
@@ -58,6 +59,5 @@
 'VolatilitySurfaceData' com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData
 'Yield Curve Node Sensitivities' com.opengamma.financial.analytics.DoubleLabelledMatrix1D
 'Yield To Maturity' java.lang.Double
-'YieldCurve' com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve
 'YieldCurveJacobian' java.util.ArrayList
 'Z Spread' java.lang.Double

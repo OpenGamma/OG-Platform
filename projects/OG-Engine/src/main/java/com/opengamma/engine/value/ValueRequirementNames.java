@@ -324,6 +324,16 @@ public final class ValueRequirementNames {
   public static final String BUCKETED_GAMMA_CS01 = "Bucketed Gamma CS01";
   
   /**
+   * The change in the value of an instrument if the recovery rate is moved by one basis point. 
+   */
+  public static final String RR01 = "RR01";
+  
+  /**
+   * The jump-to-default.
+   */
+  public static final String JUMP_TO_DEFAULT = "Jump to Default";
+  
+  /**
    * The bucketed (CS01) spreads for a credit default swap.
    */
   public static final String BUCKETED_SPREADS = "Bucketed Spreads";

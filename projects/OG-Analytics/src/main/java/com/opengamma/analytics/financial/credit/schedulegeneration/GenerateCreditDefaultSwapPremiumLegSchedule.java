@@ -54,7 +54,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
 
     int totalDates = 0;
 
-    ZonedDateTime[] tempCashflowSchedule = new ZonedDateTime[1000];
+    final ZonedDateTime[] tempCashflowSchedule = new ZonedDateTime[1000];
 
     ZonedDateTime date;
     final ZonedDateTime startDate = cds.getStartDate();
@@ -73,7 +73,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
     } else {
       ArgumentChecker.isTrue(endDate.isAfter(startDate), null);
     }
-    */
+     */
 
     if (protectStart && endDate.equals(startDate)) {
       // TODO : Add code for when there are only two dates and break out of routine
@@ -111,13 +111,13 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
 
     }
 
-    ZonedDateTime[] cashflowSchedule = new ZonedDateTime[totalDates];
+    final ZonedDateTime[] cashflowSchedule = new ZonedDateTime[totalDates];
 
     for (int i = 0; i < totalDates; i++) {
       cashflowSchedule[i] = tempCashflowSchedule[totalDates - 1 - i];
     }
 
-    ZonedDateTime[] bdaCashflowSchedule = new ZonedDateTime[cashflowSchedule.length];
+    final ZonedDateTime[] bdaCashflowSchedule = new ZonedDateTime[cashflowSchedule.length];
 
     bdaCashflowSchedule[0] = cashflowSchedule[0];
 
@@ -130,7 +130,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
     if (protectStart) {
       bdaCashflowSchedule[bdaCashflowSchedule.length - 1] = cashflowSchedule[cashflowSchedule.length - 1].plusDays(1);
     }
-    */
+     */
 
     // Remember if protectStart = TRUE then there is an extra day of accrued that is not captured here
     bdaCashflowSchedule[bdaCashflowSchedule.length - 1] = cashflowSchedule[cashflowSchedule.length - 1];
@@ -313,7 +313,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
     } else {
       adjustedCashflowSchedule[0] = cashflowSchedule[0];
     }
-    */
+     */
 
     // Determine if we need to business day adjust the final cashflow or not
     if (adjustedMaturityDateConvention) {
@@ -380,7 +380,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
         cashflowDate = cashflowDate.minus(couponFrequency.getPeriod());
         cashflowSchedule[i] = cashflowDate;
       }
-      */
+       */
 
       // Note the order of the loop and the termination condition (i > 0 not i = 0)
       for (int i = numberOfCashflows; i > 0; i--) {
@@ -426,7 +426,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
         cashflowDate = cashflowDate.plus(couponFrequency.getPeriod());
         cashflowSchedule[i] = cashflowDate;
       }
-      */
+       */
 
       for (int i = 0; i < numberOfCashflows; i++) {
 
@@ -445,7 +445,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
     for (int i = 0; i < cashflowSchedule.length; i++) {
       System.out.println("i = " + i + "\t" + cashflowSchedule[i]);
     }
-    */
+     */
 
     return cashflowSchedule;
   }

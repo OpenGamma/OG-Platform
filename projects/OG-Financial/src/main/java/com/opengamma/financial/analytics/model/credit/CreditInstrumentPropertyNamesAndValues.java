@@ -41,6 +41,10 @@ public class CreditInstrumentPropertyNamesAndValues {
   public static final String PROPERTY_INTEREST_RATE_CURVE_BUMP = "InterestRateCurveBump";
   /** Property name for the spread bump type */
   public static final String PROPERTY_INTEREST_RATE_BUMP_TYPE = "InterestRateCurveBumpType";
+  /** Property name for the bump to use for the recovery rate */
+  public static final String PROPERTY_RECOVERY_RATE_CURVE_BUMP = "RecoveryRateCurveBump";
+  /** Property name for the recovery rate bump type */
+  public static final String PROPERTY_RECOVERY_RATE_BUMP_TYPE = "RecoveryRateCurveBumpType";
   /** Property name for the price type */
   public static final String PROPERTY_CDS_PRICE_TYPE = "CDSPriceType";
 }

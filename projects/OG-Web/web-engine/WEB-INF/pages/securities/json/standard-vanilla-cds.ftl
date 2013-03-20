@@ -2,7 +2,7 @@
 <#include "security-header.ftl"> 
 <#include "standard-cds.ftl"> 
   "coupon":"${security.coupon}",
-  "cashSettlementDate":{"date": "${security.cashSettlementDate.toLocalDate()}", "zone": "${security.cashSettlementDate.zone}"},
+  "cashSettlementDate":"${security.cashSettlementDate.toLocalDate()}",
   "adjustCashSettlementDate":"${security.adjustCashSettlementDate?string}",
 <#include "security-footer.ftl"> 
 </#escape>
