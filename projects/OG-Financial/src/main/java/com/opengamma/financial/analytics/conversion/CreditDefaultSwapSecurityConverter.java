@@ -147,8 +147,9 @@ public class CreditDefaultSwapSecurityConverter {
   public LegacyVanillaCreditDefaultSwapDefinition visitLegacyVanillaCDSSecurity(final LegacyVanillaCDSSecurity security, final ZonedDateTime valuationDate) {
     ArgumentChecker.notNull(security, "security");
     final BuySellProtection buySellProtection = security.isBuy() ? BuySellProtection.BUY : BuySellProtection.SELL;
-    final ExternalId regionId = security.getRegionId();
-    final Calendar calendar = new HolidaySourceCalendarAdapter(_holidaySource, _regionSource.getHighestLevelRegion(regionId));
+    //    final ExternalId regionId = security.getRegionId();
+    //    final Calendar calendar = new HolidaySourceCalendarAdapter(_holidaySource, _regionSource.getHighestLevelRegion(regionId));
+    final Calendar calendar = new HolidaySourceCalendarAdapter(_holidaySource, security.getNotional().getCurrency());
     final ZonedDateTime startDate = security.getStartDate();
     final ZonedDateTime effectiveDate = FOLLOWING.adjustDate(calendar, valuationDate.withHour(0).withMinute(0).withSecond(0).withNano(0).plusDays(1));
     final ZonedDateTime maturityDate = security.getMaturityDate();
