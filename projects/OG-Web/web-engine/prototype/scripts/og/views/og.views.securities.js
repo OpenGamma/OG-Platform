@@ -180,7 +180,7 @@ $.register_module({
                     ).pipe(function (header, template, attributes) {
                         return template.error ? (og.dev.warn('no template for: ' + security_type),
                             api.text({module: module.name + '.default'})) :
-                                template.replace('${header}', header).replace('${attributes}', attributes);                   ;
+                                template.replace('${header}', header).replace('${attributes}', attributes);
                     }).pipe(render);
                 });
             };
