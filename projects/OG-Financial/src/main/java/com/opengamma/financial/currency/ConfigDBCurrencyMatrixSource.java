@@ -5,7 +5,10 @@
  */
 package com.opengamma.financial.currency;
 
+import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.config.ConfigSource;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 
@@ -39,10 +42,29 @@ public class ConfigDBCurrencyMatrixSource implements CurrencyMatrixSource {
     return _configSource;
   }
 
-  //-------------------------------------------------------------------------
+  // CurrencyMatrixSource
+
   @Override
   public CurrencyMatrix getCurrencyMatrix(final String name, final VersionCorrection versionCorrection) {
     return getConfigSource().getSingle(CurrencyMatrix.class, name, versionCorrection);
+  }
+
+  @Override
+  public CurrencyMatrix getCurrencyMatrix(UniqueId identifier) {
+    return getConfigSource().getConfig(CurrencyMatrix.class, identifier);
+  }
+
+  @Override
+  public CurrencyMatrix getCurrencyMatrix(ObjectId identifier, VersionCorrection versionCorrection) {
+    return getConfigSource().getConfig(CurrencyMatrix.class, identifier, versionCorrection);
+  }
+
+  // ChangeProvider
+
+  @Override
+  public ChangeManager changeManager() {
+    // TODO: Only need to propogate change messages for configuration items that are CurrencyMatrix type
+    return getConfigSource().changeManager();
   }
 
 }

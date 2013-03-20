@@ -8,17 +8,22 @@ package com.opengamma.financial.currency.rest;
 import java.net.URI;
 
 import com.opengamma.DataNotFoundException;
+import com.opengamma.core.change.BasicChangeManager;
+import com.opengamma.core.change.ChangeManager;
 import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.financial.currency.CurrencyMatrixSource;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractRemoteClient;
-import com.opengamma.util.rest.UniformInterfaceException404NotFound;
 
 /**
  * Provides remote access to a {@link CurrencyMatrixSource}.
  */
 public class RemoteCurrencyMatrixSource extends AbstractRemoteClient implements CurrencyMatrixSource {
+
+  private final ChangeManager _changeManager;
 
   /**
    * Creates an instance.
@@ -26,10 +31,16 @@ public class RemoteCurrencyMatrixSource extends AbstractRemoteClient implements 
    * @param baseUri the base target URI for all RESTful web services, not null
    */
   public RemoteCurrencyMatrixSource(final URI baseUri) {
-    super(baseUri);
+    this(baseUri, new BasicChangeManager());
   }
 
-  //-------------------------------------------------------------------------
+  public RemoteCurrencyMatrixSource(final URI baseUri, final ChangeManager changeManager) {
+    super(baseUri);
+    _changeManager = changeManager;
+  }
+
+  // CurrencyMatrixSource
+
   @Override
   public CurrencyMatrix getCurrencyMatrix(String name, VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(name, "name");
@@ -38,9 +49,28 @@ public class RemoteCurrencyMatrixSource extends AbstractRemoteClient implements 
       return accessRemote(uri).get(CurrencyMatrix.class);
     } catch (DataNotFoundException ex) {
       return null;
-    } catch (UniformInterfaceException404NotFound ex) {
-      return null;
     }
+  }
+
+  @Override
+  public CurrencyMatrix getCurrencyMatrix(UniqueId identifier) {
+    ArgumentChecker.notNull(identifier, "identifier");
+    URI uri = DataCurrencyMatrixSourceResource.uriGetMatrix(getBaseUri(), identifier);
+    return accessRemote(uri).get(CurrencyMatrix.class);
+  }
+
+  @Override
+  public CurrencyMatrix getCurrencyMatrix(ObjectId identifier, VersionCorrection versionCorrection) {
+    ArgumentChecker.notNull(identifier, "identifier");
+    URI uri = DataCurrencyMatrixSourceResource.uriGetMatrix(getBaseUri(), identifier, versionCorrection);
+    return accessRemote(uri).get(CurrencyMatrix.class);
+  }
+
+  // ChangeProvider
+
+  @Override
+  public ChangeManager changeManager() {
+    return _changeManager;
   }
 
 }

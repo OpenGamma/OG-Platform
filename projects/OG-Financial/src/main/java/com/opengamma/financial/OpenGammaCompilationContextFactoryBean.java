@@ -19,7 +19,6 @@ import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveDefinitio
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationBuilder;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
 import com.opengamma.financial.convention.ConventionBundleSource;
-import com.opengamma.financial.currency.CurrencyMatrixSource;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.SingletonFactoryBean;
 
@@ -36,7 +35,6 @@ public class OpenGammaCompilationContextFactoryBean extends SingletonFactoryBean
   private InterpolatedYieldCurveDefinitionSource _interpolatedYieldCurveDefinitionSource;
   private InterpolatedYieldCurveSpecificationBuilder _interpolatedYieldCurveSpecificationBuilder;
   private VolatilityCubeDefinitionSource _volatilityCubeDefinitionSource;
-  private CurrencyMatrixSource _currencyMatrixSource;
   private HolidaySource _holidaySource;
   private ExchangeSource _exchangeSource;
   private ComputationTargetResolver _targetResolver;
@@ -117,14 +115,6 @@ public class OpenGammaCompilationContextFactoryBean extends SingletonFactoryBean
     _volatilityCubeDefinitionSource = volatilityCubeDefinitionSource;
   }
 
-  public CurrencyMatrixSource getCurrencyMatrixSource() {
-    return _currencyMatrixSource;
-  }
-
-  public void setCurrencyMatrixSource(final CurrencyMatrixSource currencyMatrixSource) {
-    _currencyMatrixSource = currencyMatrixSource;
-  }
-
   public HolidaySource getHolidaySource() {
     return _holidaySource;
   }
@@ -175,9 +165,6 @@ public class OpenGammaCompilationContextFactoryBean extends SingletonFactoryBean
     }
     if (getVolatilityCubeDefinitionSource() != null) {
       OpenGammaCompilationContext.setVolatilityCubeDefinitionSource(context, getVolatilityCubeDefinitionSource());
-    }
-    if (getCurrencyMatrixSource() != null) {
-      OpenGammaCompilationContext.setCurrencyMatrixSource(context, getCurrencyMatrixSource());
     }
     if (getHolidaySource() != null) {
       OpenGammaCompilationContext.setHolidaySource(context, getHolidaySource());

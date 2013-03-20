@@ -31,7 +31,6 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
@@ -61,13 +60,6 @@ public class CurrencyMatrixSpotSourcingFunctionTest {
     matrix.setLiveData(_currencyUSD, _currencyGBP, new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, ExternalId.of("LiveData", "USD_GBP")));
     matrix.setFixedConversion(_currencyEUR, _currencyGBP, _rateEUR_GBP);
     matrix.setCrossConversion(_currencyEUR, _currencyUSD, _currencyGBP);
-    OpenGammaCompilationContext.setCurrencyMatrixSource(_functionCompilationContext, new CurrencyMatrixSource() {
-      @Override
-      public CurrencyMatrix getCurrencyMatrix(final String name, final VersionCorrection versionCorrection) {
-        assertEquals("Foo", name);
-        return matrix;
-      }
-    });
     _function = new CurrencyMatrixSpotSourcingFunction("Foo");
     _function.setUniqueId("currencyMatrixSourcing");
     _function.init(_functionCompilationContext);

@@ -17,6 +17,8 @@ import javax.ws.rs.core.UriInfo;
 
 import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.financial.currency.CurrencyMatrixSource;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;
@@ -61,10 +63,27 @@ public class DataCurrencyMatrixSourceResource extends AbstractDataResource {
   }
 
   @GET
-  @Path("currencyMatrices/{name}/{versionCorrection}")
-  public Response getMatrix(@PathParam("name") String name, @PathParam("versionCorrection") String versionCorrectionStr) {
+  @Path("currencyMatricesByName/{versionCorrection}/{name}")
+  public Response getMatrixByName(@PathParam("name") String name, @PathParam("versionCorrection") String versionCorrectionStr) {
     final VersionCorrection versionCorrection = VersionCorrection.parse(versionCorrectionStr);
     CurrencyMatrix result = getCurrencyMatrixSource().getCurrencyMatrix(name, versionCorrection);
+    return responseOkFudge(result);
+  }
+
+  @GET
+  @Path("currencyMatrices/{uniqueId}")
+  public Response getMatrixByUniqueId(@PathParam("uniqueId") String uniqueIdStr) {
+    final UniqueId uniqueId = UniqueId.parse(uniqueIdStr);
+    final CurrencyMatrix result = getCurrencyMatrixSource().getCurrencyMatrix(uniqueId);
+    return responseOkFudge(result);
+  }
+
+  @GET
+  @Path("currencyMatrices/{objectId}/{versionCorrection}")
+  public Response getMatrixByObjectIdentifier(@PathParam("objectId") String objectIdStr, @PathParam("versionCorrection") String versionCorrectionStr) {
+    final ObjectId objectId = ObjectId.parse(objectIdStr);
+    final VersionCorrection versionCorrection = VersionCorrection.parse(versionCorrectionStr);
+    final CurrencyMatrix result = getCurrencyMatrixSource().getCurrencyMatrix(objectId, versionCorrection);
     return responseOkFudge(result);
   }
 
@@ -78,9 +97,35 @@ public class DataCurrencyMatrixSourceResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uriGetMatrix(URI baseUri, String name, VersionCorrection versionCorrection) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/currencyMatrices/{name}/{versionCorrection}");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/currencyMatricesByName/{versionCorrection}/{name}");
     versionCorrection = versionCorrection != null ? versionCorrection : VersionCorrection.LATEST;
-    return bld.build(name, versionCorrection);
+    return bld.build(versionCorrection, name);
+  }
+
+  /**
+   * Builds a URI.
+   * 
+   * @param baseUri the base URI, not null
+   * @param identifier the unique identifier, not null
+   * @return the URI, not null
+   */
+  public static URI uriGetMatrix(URI baseUri, UniqueId identifier) {
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/currencyMatrices/{identifier}");
+    return bld.build(identifier);
+  }
+
+  /**
+   * Builds a URI.
+   * 
+   * @param baseUri the base URI, not null
+   * @param identifier the object identifier, not null
+   * @param versionCorrection the version/correction timestamp
+   * @return the URI, not null
+   */
+  public static URI uriGetMatrix(URI baseUri, ObjectId identifier, VersionCorrection versionCorrection) {
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/currencyMatrices/{identifier}/{versionCorrection}");
+    versionCorrection = versionCorrection != null ? versionCorrection : VersionCorrection.LATEST;
+    return bld.build(identifier, versionCorrection);
   }
 
 }
