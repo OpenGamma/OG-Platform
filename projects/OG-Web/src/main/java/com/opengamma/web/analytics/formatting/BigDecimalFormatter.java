@@ -49,6 +49,7 @@ import com.opengamma.web.server.conversion.DoubleValueSizeBasedDecimalPlaceForma
     s_formatters.put(ValueRequirementNames.CS01, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
     s_formatters.put(ValueRequirementNames.GAMMA_CS01, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
     s_formatters.put(ValueRequirementNames.RR01, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
+    s_formatters.put(ValueRequirementNames.IR01, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
     s_formatters.put(ValueRequirementNames.JUMP_TO_DEFAULT, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
     s_formatters.put(ValueRequirementNames.PAR_RATE, DoubleValueDecimalPlaceFormatter.NON_CCY_6DP);
     s_formatters.put(ValueRequirementNames.PAR_RATE_PARALLEL_CURVE_SHIFT, DoubleValueDecimalPlaceFormatter.NON_CCY_6DP);
@@ -86,6 +87,7 @@ import com.opengamma.web.server.conversion.DoubleValueSizeBasedDecimalPlaceForma
     s_formatters.put(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
     s_formatters.put(ValueRequirementNames.BUCKETED_CS01, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
     s_formatters.put(ValueRequirementNames.BUCKETED_GAMMA_CS01, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
+    s_formatters.put(ValueRequirementNames.BUCKETED_IR01, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
     s_formatters.put(ValueRequirementNames.YIELD_CURVE_JACOBIAN, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
     s_formatters.put(ValueRequirementNames.ULTIMA, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
     s_formatters.put(ValueRequirementNames.VARIANCE_ULTIMA, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
