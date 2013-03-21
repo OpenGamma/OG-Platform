@@ -19,6 +19,12 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.core.id.ExternalSchemes;
+import com.opengamma.core.obligor.CreditRating;
+import com.opengamma.core.obligor.CreditRatingFitch;
+import com.opengamma.core.obligor.CreditRatingMoodys;
+import com.opengamma.core.obligor.CreditRatingStandardAndPoors;
+import com.opengamma.core.obligor.Region;
+import com.opengamma.core.obligor.Sector;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.impl.SimplePosition;
 import com.opengamma.financial.convention.StubType;
@@ -29,29 +35,37 @@ import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.cds.StandardVanillaCDSSecurity;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.id.ExternalId;
+import com.opengamma.master.organization.impl.MasterOrganizationSource;
+import com.opengamma.master.orgs.ManageableOrganisation;
+import com.opengamma.master.orgs.OrganisationDocument;
+import com.opengamma.master.orgs.impl.InMemoryOrganisationMaster;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
-import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.impl.InMemorySecurityMaster;
 import com.opengamma.master.security.impl.MasterSecuritySource;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
 
 @Test(groups = TestGroup.UNIT)
-public class ObligorRedCodeAggregationFunctionTest {
+public class ObligorMarkitSectorAggregatorFunctionTest {
 
-  private SecurityMaster _securityMaster;
   private AggregationFunction<String> _aggregator;
+  private InMemorySecurityMaster _securityMaster;
+  private InMemoryOrganisationMaster _organizationMaster;
 
   @BeforeMethod
   public void setup() {
+
     _securityMaster = new InMemorySecurityMaster();
-    _aggregator = new ObligorRedCodeAggregationFunction(new MasterSecuritySource(_securityMaster));
+    _organizationMaster = new InMemoryOrganisationMaster();
+
+    _aggregator = new ObligorMarkitSectorAggregationFunction(
+        new MasterSecuritySource(_securityMaster), new MasterOrganizationSource(_organizationMaster));
   }
 
   @Test
   public void testNameIsDefined() {
-    assertEquals(_aggregator.getName(), "RED Codes");
+    assertEquals(_aggregator.getName(), "Markit Sectors");
   }
 
   @Test
@@ -61,9 +75,9 @@ public class ObligorRedCodeAggregationFunctionTest {
 
   @Test
   public void testSimpleStringComparisonIsUsed() {
-    assertEquals(_aggregator.compare("39FF64", "6H27C2") < 0, true);
-    assertEquals(_aggregator.compare("6H27C2", "6H27C2"), 0);
-    assertEquals(_aggregator.compare("6H27C2", "39FF64") > 0, true);
+    assertEquals(_aggregator.compare("CONSUMERSERVICES", "TELECOMMUNICATIONSSERVICES") < 0, true);
+    assertEquals(_aggregator.compare("CONSUMERSERVICES", "CONSUMERSERVICES"), 0);
+    assertEquals(_aggregator.compare("TELECOMMUNICATIONSSERVICES", "CONSUMERSERVICES") > 0, true);
   }
 
   @Test
@@ -94,17 +108,17 @@ public class ObligorRedCodeAggregationFunctionTest {
   }
 
   @Test
-  public void testPositionSecurityWithRedCodeIsUsed() {
+  public void testObligorWithMatchingRedCodeIsUsed() {
+
+    ManageableOrganisation org = new ManageableOrganisation("ShortName", "39FF64", "Ticker", Region.NORTHAMERICA,
+                                                            "US", Sector.FINANCIALS, CreditRating.NR, CreditRating.NR,
+                                                            CreditRatingFitch.NR, CreditRatingMoodys.NR,
+                                                            CreditRatingStandardAndPoors.NR, false);
+
+    _organizationMaster.add(new OrganisationDocument(org));
 
     SecurityDocument document = new SecurityDocument();
-    ManageableSecurity cds = new StandardVanillaCDSSecurity(true, ExternalId.of("EXTERNAL_CODE" ,"ProtBuyer"),
-                                                                    ExternalId.of("EXTERNAL_CODE" ,"ProtSeller"), ExternalSchemes.redCode("39FF64"),
-                                                                    DebtSeniority.SNRFOR, RestructuringClause.MM, ExternalSchemes.financialRegionId("US"),
-                                                                    createZdt(2013, 3, 20), createZdt(2013, 3, 21), createZdt(2014,3,20), StubType.SHORT_START,
-                                                                    SimpleFrequency.SEMI_ANNUAL, DayCountFactory.INSTANCE.getDayCount("Actual/360"),
-                                                                    BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"),
-                                                                    true, true, true, new InterestRateNotional(Currency.USD, 10000000), 0.4, true, true, 500,
-                                                                    new InterestRateNotional(Currency.USD, 500000), 500, createZdt(2013,3,21), true);
+    ManageableSecurity cds = createCdsWithRedCode("39FF64");
     ExternalId secId = ExternalId.of("SEC_ID", "12345");
     cds.addExternalId(secId);
     document.setSecurity(cds);
@@ -112,11 +126,23 @@ public class ObligorRedCodeAggregationFunctionTest {
 
     Position posn = new SimplePosition(BigDecimal.ONE, secId);
 
-    assertEquals(_aggregator.classifyPosition(posn), "39FF64");
+    assertEquals(_aggregator.classifyPosition(posn), "FINANCIALS");
+  }
+
+  private StandardVanillaCDSSecurity createCdsWithRedCode(String redcode) {
+    return new StandardVanillaCDSSecurity(true, ExternalId.of("EXTERNAL_CODE", "ProtBuyer"),
+                                                            ExternalId.of("EXTERNAL_CODE" ,"ProtSeller"), ExternalSchemes.redCode(redcode),
+                                                            DebtSeniority.SNRFOR, RestructuringClause.MM, ExternalSchemes.financialRegionId("US"),
+                                                            createZdt(2013, 3, 20), createZdt(2013, 3, 21), createZdt(2014,3,20), StubType.SHORT_START,
+                                                            SimpleFrequency.SEMI_ANNUAL, DayCountFactory.INSTANCE.getDayCount("Actual/360"),
+                                                            BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"),
+                                                            true, true, true, new InterestRateNotional(Currency.USD, 10000000), 0.4, true, true, 500,
+                                                            new InterestRateNotional(Currency.USD, 500000), 500, createZdt(2013,3,21), true);
   }
 
   private ZonedDateTime createZdt(int year, int month, int day) {
     return ZonedDateTime.of(LocalDate.of(year, month, day).atStartOfDay(), ZoneOffset.UTC);
   }
+
 
 }
