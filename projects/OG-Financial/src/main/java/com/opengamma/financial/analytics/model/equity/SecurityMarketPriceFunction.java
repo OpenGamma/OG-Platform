@@ -43,15 +43,15 @@ public class SecurityMarketPriceFunction extends AbstractFunction.NonCompiledInv
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.POSITION;
+    return ComputationTargetType.POSITION_OR_TRADE;
   }
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (!(target.getPosition().getSecurity() instanceof FinancialSecurity)) {
+    if (!(target.getPositionOrTrade().getSecurity() instanceof FinancialSecurity)) {
       return false;
     }
-    final FinancialSecurity security = (FinancialSecurity) target.getPosition().getSecurity();
+    final FinancialSecurity security = (FinancialSecurity) target.getPositionOrTrade().getSecurity();
     return security.accept(s_judgeOfMarketSecurities);
   }
 
@@ -68,7 +68,7 @@ public class SecurityMarketPriceFunction extends AbstractFunction.NonCompiledInv
   }
 
   private ValueSpecification getSpecification(final ComputationTarget target) {
-    final Currency ccy = FinancialSecurityUtils.getCurrency(target.getPosition().getSecurity());
+    final Currency ccy = FinancialSecurityUtils.getCurrency(target.getPositionOrTrade().getSecurity());
     ValueProperties valueProperties;
     if (ccy == null) {
       valueProperties = createValueProperties().get();
@@ -79,10 +79,7 @@ public class SecurityMarketPriceFunction extends AbstractFunction.NonCompiledInv
   }
 
   private ValueRequirement getRequirement(final ComputationTarget target) {
-    return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, target.getPosition().getSecurity().getUniqueId());
-    // TESTING: The following will use BLOOMBERG_TICKER_WEAK, hence will not put a strain on the amount of data requested from BBG in a day
-    // ValueRequirement(MarketDataRequirementNames.MARKET_VALUE,
-    //     ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER_WEAK, target.getPosition().getSecurity().getExternalIdBundle().getValue(ExternalSchemes.BLOOMBERG_TICKER)));
+    return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, target.getPositionOrTrade().getSecurity().getUniqueId());
   }
 
 }
