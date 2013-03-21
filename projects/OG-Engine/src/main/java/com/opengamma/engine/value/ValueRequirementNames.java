@@ -329,6 +329,16 @@ public final class ValueRequirementNames {
   public static final String RR01 = "RR01";
   
   /**
+   * The change in the value of an instrument if the yield curve is shifted in parallel by one basis point. 
+   */
+  public static final String IR01 = "IR01";
+
+  /**
+   * The bucketed changes in the value of an instrument if the interest rate curve is moved by 1 basis point.
+   */
+  public static final String BUCKETED_IR01 = "Bucketed IR01";
+  
+  /**
    * The jump-to-default.
    */
   public static final String JUMP_TO_DEFAULT = "Jump to Default";

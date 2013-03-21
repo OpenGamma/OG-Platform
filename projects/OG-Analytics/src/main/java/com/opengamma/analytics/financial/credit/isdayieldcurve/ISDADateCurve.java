@@ -5,6 +5,14 @@
  */
 package com.opengamma.analytics.financial.credit.isdayieldcurve;
 
+import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.FLAT_EXTRAPOLATOR;
+import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.ISDA_EXTRAPOLATOR;
+import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.ISDA_INTERPOLATOR;
+
+import java.util.Arrays;
+
+import org.threeten.bp.ZonedDateTime;
+
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.interestrate.PeriodicInterestRate;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
@@ -14,13 +22,6 @@ import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolat
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
-import org.threeten.bp.ZonedDateTime;
-
-import java.util.Arrays;
-
-import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.FLAT_EXTRAPOLATOR;
-import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.ISDA_EXTRAPOLATOR;
-import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.ISDA_INTERPOLATOR;
 
 /**
  *
@@ -53,11 +54,10 @@ public class ISDADateCurve {
 
     _name = name;
     _offset = offset;
-
     _curveTenors = curveTenors;
 
-    double[] xData = new double[curveTenors.length];
-    double[] yData = new double[curveTenors.length];
+    final double[] xData = new double[curveTenors.length];
+    final double[] yData = new double[curveTenors.length];
 
     for (int i = 0; i < curveTenors.length; i++) {
 

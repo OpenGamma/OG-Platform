@@ -251,6 +251,8 @@ public class AnalyticsFunctions extends AbstractRepositoryConfigurationBean {
     addSummingFunction(functions, ValueRequirementNames.GAMMA_CS01);
     addSummingFunction(functions, ValueRequirementNames.BUCKETED_GAMMA_CS01);
     addSummingFunction(functions, ValueRequirementNames.RR01);
+    addSummingFunction(functions, ValueRequirementNames.IR01);
+    addSummingFunction(functions, ValueRequirementNames.BUCKETED_IR01);
     addSummingFunction(functions, ValueRequirementNames.JUMP_TO_DEFAULT);
     addUnitScalingFunction(functions, ValueRequirementNames.DV01);
     addUnitScalingFunction(functions, ValueRequirementNames.CS01);
@@ -258,6 +260,8 @@ public class AnalyticsFunctions extends AbstractRepositoryConfigurationBean {
     addUnitScalingFunction(functions, ValueRequirementNames.GAMMA_CS01);
     addUnitScalingFunction(functions, ValueRequirementNames.BUCKETED_GAMMA_CS01);
     addUnitScalingFunction(functions, ValueRequirementNames.RR01);
+    addUnitScalingFunction(functions, ValueRequirementNames.IR01);
+    addUnitScalingFunction(functions, ValueRequirementNames.BUCKETED_IR01);
     addUnitScalingFunction(functions, ValueRequirementNames.JUMP_TO_DEFAULT);
     addScalingFunction(functions, ValueRequirementNames.MONETIZED_VEGA);
     addSummingFunction(functions, ValueRequirementNames.MONETIZED_VEGA);

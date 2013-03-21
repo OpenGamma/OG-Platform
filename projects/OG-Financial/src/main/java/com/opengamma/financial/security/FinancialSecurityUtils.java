@@ -213,6 +213,16 @@ public class FinancialSecurityUtils {
         public ExternalId visitContinuousZeroDepositSecurity(final ContinuousZeroDepositSecurity security) {
           return security.getRegion();
         }
+
+        @Override
+        public ExternalId visitStandardVanillaCDSSecurity(final StandardVanillaCDSSecurity security) {
+          return security.getRegionId();
+        }
+
+        @Override
+        public ExternalId visitLegacyVanillaCDSSecurity(final LegacyVanillaCDSSecurity security) {
+          return security.getRegionId();
+        }
       });
 
       return regionId;
@@ -597,7 +607,7 @@ public class FinancialSecurityUtils {
         public Currency visitCreditDefaultSwapIndexSecurity(final CreditDefaultSwapIndexSecurity security) {
           return security.getCurrency();
         }
-        
+
       });
       return ccy;
     } else if (security instanceof RawSecurity) {
@@ -618,7 +628,7 @@ public class FinancialSecurityUtils {
    * @return a Currency, where it is possible to determine a single Currency association, null otherwise.
    */
   public static Collection<Currency> getCurrencies(final Security security, final SecuritySource securitySource) {
-    
+
     if (security instanceof FinancialSecurity) {
       final FinancialSecurity finSec = (FinancialSecurity) security;
       final Collection<Currency> ccy = finSec.accept(new FinancialSecurityVisitor<Collection<Currency>>() {
@@ -935,7 +945,7 @@ public class FinancialSecurityUtils {
         }
 
         @Override
-        public Collection<Currency> visitCreditDefaultSwapIndexSecurity(CreditDefaultSwapIndexSecurity security) {
+        public Collection<Currency> visitCreditDefaultSwapIndexSecurity(final CreditDefaultSwapIndexSecurity security) {
           return Collections.singletonList(security.getCurrency());
         }
       });
@@ -994,7 +1004,7 @@ public class FinancialSecurityUtils {
         public ExternalId visitFxFutureOptionSecurity(final FxFutureOptionSecurity security) {
           return security.getUnderlyingId();
         }
-        
+
         @Override
         public ExternalId visitEnergyForwardSecurity(final EnergyForwardSecurity security) {
           return security.getUnderlyingId();

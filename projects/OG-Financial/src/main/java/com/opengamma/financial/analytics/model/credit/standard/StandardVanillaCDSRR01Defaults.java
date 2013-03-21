@@ -30,22 +30,19 @@ public class StandardVanillaCDSRR01Defaults extends DefaultPropertyFunction {
   private final PriorityClass _priority;
   private final Map<String, String> _currencyToRecoveryRateBump;
   private final Map<String, String> _currencyToRecoveryBumpType;
-  private final Map<String, String> _currencyToPriceType;
 
   public StandardVanillaCDSRR01Defaults(final String priority, final String... perCurrencyDefaults) {
     super(FinancialSecurityTypes.STANDARD_VANILLA_CDS_SECURITY.or(FinancialSecurityTypes.LEGACY_VANILLA_CDS_SECURITY), true);
     ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(perCurrencyDefaults, "per currency defaults");
-    ArgumentChecker.isTrue(perCurrencyDefaults.length % 4 == 0, "Must have one recovery rate bump, recovery rate bump type and price type per currency");
+    ArgumentChecker.isTrue(perCurrencyDefaults.length % 3 == 0, "Must have one recovery rate bump and recovery rate bump type per currency");
     _priority = PriorityClass.valueOf(priority);
     _currencyToRecoveryRateBump = new HashMap<>();
     _currencyToRecoveryBumpType = new HashMap<>();
-    _currencyToPriceType = new HashMap<>();
-    for (int i = 0; i < perCurrencyDefaults.length; i += 4) {
+    for (int i = 0; i < perCurrencyDefaults.length; i += 3) {
       final String currency = perCurrencyDefaults[i];
       _currencyToRecoveryRateBump.put(currency, perCurrencyDefaults[i + 1]);
       _currencyToRecoveryBumpType.put(currency, perCurrencyDefaults[i + 2]);
-      _currencyToPriceType.put(currency, perCurrencyDefaults[i + 3]);
     }
   }
 
@@ -59,7 +56,6 @@ public class StandardVanillaCDSRR01Defaults extends DefaultPropertyFunction {
     for (final String valueRequirement : VALUE_REQUIREMENT) {
       defaults.addValuePropertyName(valueRequirement, CreditInstrumentPropertyNamesAndValues.PROPERTY_RECOVERY_RATE_CURVE_BUMP);
       defaults.addValuePropertyName(valueRequirement, CreditInstrumentPropertyNamesAndValues.PROPERTY_RECOVERY_RATE_BUMP_TYPE);
-      defaults.addValuePropertyName(valueRequirement, CreditInstrumentPropertyNamesAndValues.PROPERTY_CDS_PRICE_TYPE);
     }
   }
 
@@ -71,9 +67,6 @@ public class StandardVanillaCDSRR01Defaults extends DefaultPropertyFunction {
     }
     if (CreditInstrumentPropertyNamesAndValues.PROPERTY_RECOVERY_RATE_BUMP_TYPE.equals(propertyName)) {
       return Collections.singleton(_currencyToRecoveryBumpType.get(currency));
-    }
-    if (CreditInstrumentPropertyNamesAndValues.PROPERTY_CDS_PRICE_TYPE.equals(propertyName)) {
-      return Collections.singleton(_currencyToPriceType.get(currency));
     }
     return null;
   }

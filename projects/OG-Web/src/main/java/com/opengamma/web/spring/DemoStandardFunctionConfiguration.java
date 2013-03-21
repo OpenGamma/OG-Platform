@@ -99,7 +99,10 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
   protected CurrencyInfo cadCurrencyInfo() {
     final CurrencyInfo i = super.cadCurrencyInfo();
     i.setCurveConfiguration(null, "DefaultTwoCurveCADConfig");
+    i.setCurveConfiguration("model/cds", "ISDACADCurveConfig");
     i.setCurveName(null, "Discounting");
+    i.setCurveName("model/cds", "ISDA");
+    i.setCurveCalculationMethodName("model/cds", "ISDA");
     return i;
   }
 
