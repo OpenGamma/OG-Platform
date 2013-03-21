@@ -9,7 +9,6 @@ import java.util.Collections;
 import java.util.Set;
 
 import org.threeten.bp.LocalDate;
-import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Iterables;
@@ -23,9 +22,8 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.TenorLabelledMatrix1D;
+import com.opengamma.financial.analytics.LocalDateLabelledMatrix1D;
 import com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues;
-import com.opengamma.util.time.Tenor;
 
 /**
  * 
@@ -46,12 +44,11 @@ public class StandardVanillaBucketedCS01CDSFunction extends StandardVanillaCS01C
     final double[] cs01 = CALCULATOR.getCS01BucketedCreditDefaultSwap(valuationDate, definition, yieldCurve, times, marketSpreads, spreadCurveBump,
         spreadBumpType, priceType);
     final int n = times.length;
-    final Tenor[] tenors = new Tenor[n];
-    final LocalDate now = valuationDate.toLocalDate();
+    final LocalDate[] dates = new LocalDate[n];
     for (int i = 0; i < n; i++) {
-      tenors[i] = new Tenor(Period.between(now, times[i].toLocalDate()));
+      dates[i] = times[i].toLocalDate();
     }
-    final TenorLabelledMatrix1D cs01Matrix = new TenorLabelledMatrix1D(tenors, cs01);
+    final LocalDateLabelledMatrix1D cs01Matrix = new LocalDateLabelledMatrix1D(dates, cs01);
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.BUCKETED_CS01, target.toSpecification(), properties);
     return Collections.singleton(new ComputedValue(spec, cs01Matrix));
   }
