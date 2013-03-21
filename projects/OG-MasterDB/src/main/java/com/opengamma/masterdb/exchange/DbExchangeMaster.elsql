@@ -61,7 +61,8 @@
       exg_exchange
     @INCLUDE(SearchWhere)
     ORDER BY
-      @INCLUDE(:sort_order)
+      @INCLUDE(:sort_order),
+      exg_exchange.id
 
 
 -- ==========================================================================
