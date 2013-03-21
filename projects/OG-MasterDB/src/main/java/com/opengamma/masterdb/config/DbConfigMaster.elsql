@@ -67,7 +67,8 @@
       cfg_config
     @INCLUDE(SearchWhere)
     ORDER BY
-      @INCLUDE(:sort_order)
+      @INCLUDE(:sort_order),
+      cfg_config.id
 
 
 -- ==========================================================================

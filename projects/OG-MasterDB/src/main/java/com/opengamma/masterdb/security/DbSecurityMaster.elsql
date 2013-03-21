@@ -96,7 +96,8 @@
         LEFT JOIN sec_bond ON (sec_bond.security_id = sec_security.id)
     @INCLUDE(SearchWhere)
     ORDER BY
-      @INCLUDE(:sort_order)
+      @INCLUDE(:sort_order),
+      sec_security.id
 
 
 -- ==========================================================================
