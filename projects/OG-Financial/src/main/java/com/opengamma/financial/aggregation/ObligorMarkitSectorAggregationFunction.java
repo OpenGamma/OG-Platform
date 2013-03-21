@@ -6,6 +6,7 @@
  */
 package com.opengamma.financial.aggregation;
 
+import com.opengamma.core.obligor.definition.Obligor;
 import com.opengamma.core.organization.Organization;
 import com.opengamma.core.organization.OrganizationSource;
 import com.opengamma.core.position.Position;
@@ -22,19 +23,13 @@ public class ObligorMarkitSectorAggregationFunction extends AbstractCdsObligorAg
 
   public static final String NAME = "Markit Sectors";
 
-  private final OrganizationSource _organizationSource;
-
   public ObligorMarkitSectorAggregationFunction(SecuritySource securitySource,
                                                 OrganizationSource organizationSource) {
-    super(securitySource, NAME);
-
-    ArgumentChecker.notNull(organizationSource, "organizationSource");
-    _organizationSource = organizationSource;
+    super(NAME, securitySource, organizationSource);
   }
 
   @Override
-  protected String extractDataUsingRedCode(String redCode) {
-    Organization organization = _organizationSource.getOrganizationByRedCode(redCode);
-    return organization.getObligor().getSector().name();
+  protected String extractDataUsingObligor(Obligor obligor) {
+    return obligor.getSector().name();
   }
 }

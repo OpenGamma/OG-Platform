@@ -14,12 +14,12 @@ import com.opengamma.core.security.SecuritySource;
  * generally only applicable to CDS securities, and if applied to securities with no
  * RED code, the result of {@link #classifyPosition(Position)} will be "N/A".
  */
-public class ObligorRedCodeAggregationFunction extends AbstractCdsObligorAggregationFunction {
+public class CdsRedCodeAggregationFunction extends AbstractCdsAggregationFunction {
 
   private static final String NAME = "RED Codes";
 
-  public ObligorRedCodeAggregationFunction(SecuritySource securitySource) {
-    super(securitySource, NAME);
+  public CdsRedCodeAggregationFunction(SecuritySource securitySource) {
+    super(NAME, securitySource);
   }
 
   @Override

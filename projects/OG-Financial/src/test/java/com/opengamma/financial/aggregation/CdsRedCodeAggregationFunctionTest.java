@@ -38,7 +38,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
 
 @Test(groups = TestGroup.UNIT)
-public class ObligorRedCodeAggregationFunctionTest {
+public class CdsRedCodeAggregationFunctionTest {
 
   private SecurityMaster _securityMaster;
   private AggregationFunction<String> _aggregator;
@@ -46,7 +46,7 @@ public class ObligorRedCodeAggregationFunctionTest {
   @BeforeMethod
   public void setup() {
     _securityMaster = new InMemorySecurityMaster();
-    _aggregator = new ObligorRedCodeAggregationFunction(new MasterSecuritySource(_securityMaster));
+    _aggregator = new CdsRedCodeAggregationFunction(new MasterSecuritySource(_securityMaster));
   }
 
   @Test
