@@ -45,6 +45,7 @@ import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.impl.MasterConfigSource;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
+import com.opengamma.master.orgs.OrganisationMaster;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.SecurityMaster;
@@ -122,6 +123,11 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
    */
   @PropertyDefinition(validate = "notNull")
   private HistoricalTimeSeriesMaster _historicalTimeSeriesMaster;
+  /**
+   * The organization master.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private OrganisationMaster _organizationMaster;
   /**
    * The user master.
    */
@@ -247,6 +253,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     providers.add(getSecurityMaster());
     providers.add(getHistoricalTimeSeriesMaster());
     providers.add(getConfigMaster());
+    providers.add(getOrganizationMaster());
     return new AggregatingChangeManager(providers);
   }
 
@@ -257,6 +264,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     providers.put(MasterType.SECURITY, getSecurityMaster());
     providers.put(MasterType.TIME_SERIES, getHistoricalTimeSeriesMaster());
     providers.put(MasterType.CONFIG, getConfigMaster());
+    providers.put(MasterType.ORGANIZATION, getOrganizationMaster());
     return new MasterChangeManager(providers);
   }
 
@@ -297,6 +305,8 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
         return getComputationTargetResolver();
       case 173967376:  // historicalTimeSeriesMaster
         return getHistoricalTimeSeriesMaster();
+      case -1158737547:  // organizationMaster
+        return getOrganizationMaster();
       case 1808868758:  // userPositionMaster
         return getUserPositionMaster();
       case 686514815:  // userPortfolioMaster
@@ -348,6 +358,9 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
       case 173967376:  // historicalTimeSeriesMaster
         setHistoricalTimeSeriesMaster((HistoricalTimeSeriesMaster) newValue);
         return;
+      case -1158737547:  // organizationMaster
+        setOrganizationMaster((OrganisationMaster) newValue);
+        return;
       case 1808868758:  // userPositionMaster
         setUserPositionMaster((PositionMaster) newValue);
         return;
@@ -392,6 +405,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     JodaBeanUtils.notNull(_positionSource, "positionSource");
     JodaBeanUtils.notNull(_computationTargetResolver, "computationTargetResolver");
     JodaBeanUtils.notNull(_historicalTimeSeriesMaster, "historicalTimeSeriesMaster");
+    JodaBeanUtils.notNull(_organizationMaster, "organizationMaster");
     JodaBeanUtils.notNull(_userPositionMaster, "userPositionMaster");
     JodaBeanUtils.notNull(_userPortfolioMaster, "userPortfolioMaster");
     JodaBeanUtils.notNull(_userConfigMaster, "userConfigMaster");
@@ -420,6 +434,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
           JodaBeanUtils.equal(getPositionSource(), other.getPositionSource()) &&
           JodaBeanUtils.equal(getComputationTargetResolver(), other.getComputationTargetResolver()) &&
           JodaBeanUtils.equal(getHistoricalTimeSeriesMaster(), other.getHistoricalTimeSeriesMaster()) &&
+          JodaBeanUtils.equal(getOrganizationMaster(), other.getOrganizationMaster()) &&
           JodaBeanUtils.equal(getUserPositionMaster(), other.getUserPositionMaster()) &&
           JodaBeanUtils.equal(getUserPortfolioMaster(), other.getUserPortfolioMaster()) &&
           JodaBeanUtils.equal(getUserConfigMaster(), other.getUserConfigMaster()) &&
@@ -446,6 +461,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     hash += hash * 31 + JodaBeanUtils.hashCode(getPositionSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getComputationTargetResolver());
     hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getOrganizationMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUserPositionMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUserPortfolioMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUserConfigMaster());
@@ -665,6 +681,32 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
    */
   public final Property<HistoricalTimeSeriesMaster> historicalTimeSeriesMaster() {
     return metaBean().historicalTimeSeriesMaster().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the organization master.
+   * @return the value of the property, not null
+   */
+  public OrganisationMaster getOrganizationMaster() {
+    return _organizationMaster;
+  }
+
+  /**
+   * Sets the organization master.
+   * @param organizationMaster  the new value of the property, not null
+   */
+  public void setOrganizationMaster(OrganisationMaster organizationMaster) {
+    JodaBeanUtils.notNull(organizationMaster, "organizationMaster");
+    this._organizationMaster = organizationMaster;
+  }
+
+  /**
+   * Gets the the {@code organizationMaster} property.
+   * @return the property, not null
+   */
+  public final Property<OrganisationMaster> organizationMaster() {
+    return metaBean().organizationMaster().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -978,6 +1020,11 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<HistoricalTimeSeriesMaster> _historicalTimeSeriesMaster = DirectMetaProperty.ofReadWrite(
         this, "historicalTimeSeriesMaster", WebsiteViewportsComponentFactory.class, HistoricalTimeSeriesMaster.class);
     /**
+     * The meta-property for the {@code organizationMaster} property.
+     */
+    private final MetaProperty<OrganisationMaster> _organizationMaster = DirectMetaProperty.ofReadWrite(
+        this, "organizationMaster", WebsiteViewportsComponentFactory.class, OrganisationMaster.class);
+    /**
      * The meta-property for the {@code userPositionMaster} property.
      */
     private final MetaProperty<PositionMaster> _userPositionMaster = DirectMetaProperty.ofReadWrite(
@@ -1040,6 +1087,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
         "positionSource",
         "computationTargetResolver",
         "historicalTimeSeriesMaster",
+        "organizationMaster",
         "userPositionMaster",
         "userPortfolioMaster",
         "userConfigMaster",
@@ -1076,6 +1124,8 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
           return _computationTargetResolver;
         case 173967376:  // historicalTimeSeriesMaster
           return _historicalTimeSeriesMaster;
+        case -1158737547:  // organizationMaster
+          return _organizationMaster;
         case 1808868758:  // userPositionMaster
           return _userPositionMaster;
         case 686514815:  // userPortfolioMaster
@@ -1178,6 +1228,14 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
      */
     public final MetaProperty<HistoricalTimeSeriesMaster> historicalTimeSeriesMaster() {
       return _historicalTimeSeriesMaster;
+    }
+
+    /**
+     * The meta-property for the {@code organizationMaster} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<OrganisationMaster> organizationMaster() {
+      return _organizationMaster;
     }
 
     /**
