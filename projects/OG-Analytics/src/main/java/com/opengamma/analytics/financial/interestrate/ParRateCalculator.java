@@ -109,6 +109,7 @@ public final class ParRateCalculator extends InstrumentDerivativeVisitorAdapter<
   }
 
   /**
+   * {@inheritDoc}
    * Compute the future rate (1-price) without convexity adjustment.
    */
   @Override
