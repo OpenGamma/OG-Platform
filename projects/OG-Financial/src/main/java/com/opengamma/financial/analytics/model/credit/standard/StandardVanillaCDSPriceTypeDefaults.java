@@ -23,14 +23,22 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-public class StandardVanillaCDSJtDDefaults extends DefaultPropertyFunction {
+public class StandardVanillaCDSPriceTypeDefaults extends DefaultPropertyFunction {
   private static final String[] VALUE_REQUIREMENT = new String[] {
+    ValueRequirementNames.CS01,
+    ValueRequirementNames.GAMMA_CS01,
+    ValueRequirementNames.BUCKETED_CS01,
+    ValueRequirementNames.BUCKETED_GAMMA_CS01,
+    ValueRequirementNames.RR01,
+    ValueRequirementNames.IR01,
+    ValueRequirementNames.BUCKETED_IR01,
+    ValueRequirementNames.PRESENT_VALUE,
     ValueRequirementNames.JUMP_TO_DEFAULT,
   };
   private final PriorityClass _priority;
   private final Map<String, String> _currencyToPriceType;
 
-  public StandardVanillaCDSJtDDefaults(final String priority, final String... perCurrencyDefaults) {
+  public StandardVanillaCDSPriceTypeDefaults(final String priority, final String... perCurrencyDefaults) {
     super(FinancialSecurityTypes.STANDARD_VANILLA_CDS_SECURITY.or(FinancialSecurityTypes.LEGACY_VANILLA_CDS_SECURITY), true);
     ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(perCurrencyDefaults, "per currency defaults");

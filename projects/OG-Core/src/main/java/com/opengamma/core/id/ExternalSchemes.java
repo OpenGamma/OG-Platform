@@ -90,10 +90,12 @@ public class ExternalSchemes {
    * Identification scheme for GMI contracts.
    */
   public static final ExternalScheme GMI = ExternalScheme.of("GMI");
-  /**
+  // --------------------- SCHEMES FOR EXCHANGES ---------------------------
+
+/**
    * Identification scheme for CDS Index and Obligors.
    */
-  public static final ExternalScheme RED_CODE = ExternalScheme.of("RED_CODE");
+  public static final ExternalScheme MARKIT_RED_CODE = ExternalScheme.of("MARKIT_RED_CODE");
 
   //-------------------- SCHEMES FOR REGIONS ---------------------
 
@@ -128,7 +130,7 @@ public class ExternalSchemes {
    */
   public static final ExternalScheme FINANCIAL = ExternalScheme.of("FINANCIAL_REGION");
 
-  // --------------------- SCHEMES FOR EXCHANGES ---------------------------
+
   /**
    * Identification scheme for the MIC exchange code ISO standard.
    */
@@ -389,15 +391,13 @@ public class ExternalSchemes {
   /**
    * Creates a RED_CODE identifier
    * <p>
-   * @param redcode the redcode identifier, not null
+   * @param redcode the redcode identifier, not null or empty
    * @return the security redcode identifier, not null
    */
   public static ExternalId redCode(String redcode) {
     ArgumentChecker.notNull(redcode, "redcode");
-    if (redcode.length() == 0) {
-      throw new IllegalArgumentException("Redcode is invalid: " + redcode);
-    }
-    return ExternalId.of(RED_CODE, redcode);
+    ArgumentChecker.isFalse(redcode.isEmpty(), "Empty redcode is invalid");
+    return ExternalId.of(MARKIT_RED_CODE, redcode);
   }
   
   // -------------------------- METHODS FOR REGIONS ---------------------------

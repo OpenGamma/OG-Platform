@@ -47,6 +47,7 @@ public class CurrencyFunctions extends AbstractRepositoryConfigurationBean {
     addCurrencyConversionFunction(functions, ValueRequirementNames.CS01);
     addCurrencyConversionFunction(functions, ValueRequirementNames.GAMMA_CS01);
     addCurrencyConversionFunction(functions, ValueRequirementNames.RR01);
+    addCurrencyConversionFunction(functions, ValueRequirementNames.IR01);
     addCurrencyConversionFunction(functions, ValueRequirementNames.JUMP_TO_DEFAULT);
     addCurrencyConversionFunction(functions, ValueRequirementNames.FAIR_VALUE);
     addCurrencySeriesConversionFunction(functions, ValueRequirementNames.PNL_SERIES);
@@ -66,6 +67,7 @@ public class CurrencyFunctions extends AbstractRepositoryConfigurationBean {
     addCurrencyConversionFunction(functions, ValueRequirementNames.MONETIZED_VEGA);
     addCurrencyConversionFunction(functions, ValueRequirementNames.BUCKETED_CS01);
     addCurrencyConversionFunction(functions, ValueRequirementNames.BUCKETED_GAMMA_CS01);
+    addCurrencyConversionFunction(functions, ValueRequirementNames.BUCKETED_IR01);
   }
 
 }

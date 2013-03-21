@@ -8,6 +8,8 @@ package com.opengamma.web.analytics;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -21,7 +23,6 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
-import com.opengamma.id.ExternalId;
 
 /**
  *
@@ -36,29 +37,17 @@ public final class PrimitivesGridStructure extends MainGridStructure {
           .or(ComputationTargetType.SECURITY);
 
   /** Creates names for the label column in the grid. */
-  private static final ComputationTargetReferenceVisitor<String> s_computationTargetDisplayNameVisitor =
-      new ComputationTargetReferenceVisitor<String>() {
+  private static final ComputationTargetReferenceVisitor<String> s_nameVisitor = new ComputationTargetReferenceVisitor<String>() {
 
     @Override
     public String visitComputationTargetRequirement(ComputationTargetRequirement requirement) {
-      // TODO can't this just be done with StringUtils.join(requirement.getIdentifiers(), ", ")
-      StringBuilder sb = new StringBuilder();
-      boolean first = true;
-      for (ExternalId externalId : requirement.getIdentifiers()) {
-        if (!first) {
-          sb.append(", ");
-        }
-        sb.append(externalId.toString());
-        first = false;
-      }
-      return sb.toString();
+      return StringUtils.join(requirement.getIdentifiers().iterator(), ", ");
     }
 
     @Override
     public String visitComputationTargetSpecification(ComputationTargetSpecification specification) {
       return specification.getUniqueId().toString();
     }
-    
   };
 
   private PrimitivesGridStructure() {
@@ -112,7 +101,7 @@ public final class PrimitivesGridStructure extends MainGridStructure {
     }
     List<MainGridStructure.Row> rows = Lists.newArrayList();
     for (ComputationTargetReference targetRef : targetRefs) {
-      rows.add(new Row(targetRef, targetRef.accept(s_computationTargetDisplayNameVisitor)));
+      rows.add(new Row(targetRef, targetRef.accept(s_nameVisitor)));
     }
     return rows;
   }
