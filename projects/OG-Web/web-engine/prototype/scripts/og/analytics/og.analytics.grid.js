@@ -214,8 +214,8 @@ $.register_module({
                 })
                 .on('types', function (types) {
                     grid.views = {selected: config.source.type || 'portfolio'};
-                    grid.views.rest = Object.keys(types)
-                        .filter(function (key) {return types[key] && key !== grid.views.selected;});
+                    grid.views.list = Object.keys(types).filter(function (key) { return !!types[key]; });
+                    if (grid.views.list.length === 1) grid.views.list = [];
                     if (grid.elements.empty) return; else render_header.call(grid);
                 });
             grid.clipboard = new og.analytics.Clipboard(grid);
@@ -248,7 +248,9 @@ $.register_module({
             (elements = grid.elements).style = $('<style type="text/css" />').appendTo('head');
             elements.parent.unbind().html(templates.container({id: grid.id.substring(1)}))
                 .on('click', '.OG-g-h-set-name .og-js-viewchange', function (event) {
-                    return grid.fire('viewchange', $(this).html().toLowerCase()), false;
+                    var selection = $(this).html().toLowerCase();
+                    if (selection === grid.views.selected) return $('.OG-g-h-set-name .og-menu').toggle(), false;
+                    return grid.fire('viewchange', selection), false;
                 })
                 .on('click', '.OG-g-h-set-name .og-dropdown', function (event) {
                     return $('.OG-g-h-set-name .og-menu').toggle(), false;
