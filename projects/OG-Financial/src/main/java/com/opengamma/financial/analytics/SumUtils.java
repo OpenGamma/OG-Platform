@@ -53,6 +53,10 @@ public class SumUtils {
       final LocalDateLabelledMatrix1D previousMatrix = (LocalDateLabelledMatrix1D) currentTotal;
       final LocalDateLabelledMatrix1D currentMatrix = (LocalDateLabelledMatrix1D) value;
       return previousMatrix.add(currentMatrix);
+    } else if (value instanceof TenorLabelledMatrix1D) {
+      final TenorLabelledMatrix1D previousMatrix = (TenorLabelledMatrix1D) currentTotal;
+      final TenorLabelledMatrix1D currentMatrix = (TenorLabelledMatrix1D) value;
+      return previousMatrix.add(currentMatrix);
     } else if (value instanceof ZonedDateTimeLabelledMatrix1D) {
       final ZonedDateTimeLabelledMatrix1D previousMatrix = (ZonedDateTimeLabelledMatrix1D) currentTotal;
       final ZonedDateTimeLabelledMatrix1D currentMatrix = (ZonedDateTimeLabelledMatrix1D) value;
