@@ -9,11 +9,19 @@ package com.opengamma.financial.aggregation;
 import java.util.Collection;
 import java.util.Comparator;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.ImmutableList;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.impl.SimplePositionComparator;
+import com.opengamma.core.security.Security;
+import com.opengamma.core.security.SecuritySource;
+import com.opengamma.financial.security.cds.CreditDefaultSwapSecurity;
+import com.opengamma.financial.security.cds.StandardVanillaCDSSecurity;
 import com.opengamma.id.ExternalId;
+import com.opengamma.master.security.SecurityMaster;
 
 /**
  * Simple aggregator function to allow positions to be aggregated by RED code. This is
@@ -22,13 +30,20 @@ import com.opengamma.id.ExternalId;
  */
 public class ObligorRedCodeAggregationFunction implements AggregationFunction<String> {
 
+  private static final Logger s_logger = LoggerFactory.getLogger(ObligorRedCodeAggregationFunction.class);
   private static final Comparator<Position> COMPARATOR = new SimplePositionComparator();
   private static final String NAME = "RED Codes";
   private static final String NOT_APPLICABLE = "N/A";
 
+  private final SecuritySource _securitySource;
+
+  public ObligorRedCodeAggregationFunction(SecuritySource securitySource) {
+    _securitySource = securitySource;
+  }
+
   /**
-   * Classify the position using the RED code contained in the security id (if applicable).
-   * If the security id does contain a RED code then it is returned, else the string "N/A" is.
+   * Classify the position using the RED code of the reference entity contained in the
+   * CDS security (if applicable). If the security is not a CDS the string "N/A" is returned.
    *
    * @param position the position to classify
    * @return the RED code if the security associated with the position has one, "N/A" otherwise
@@ -36,8 +51,21 @@ public class ObligorRedCodeAggregationFunction implements AggregationFunction<St
   @Override
   public String classifyPosition(Position position) {
 
-    ExternalId redCode = position.getSecurityLink().getExternalId().getExternalId(ExternalSchemes.MARKIT_RED_CODE);
-    return redCode == null ? NOT_APPLICABLE : redCode.getValue();
+    try {
+      Security security = position.getSecurityLink().resolve(_securitySource);
+
+      if (security instanceof CreditDefaultSwapSecurity) {
+        CreditDefaultSwapSecurity cds = (CreditDefaultSwapSecurity) security;
+        ExternalId refEntityId = cds.getReferenceEntity();
+        if (refEntityId.isScheme(ExternalSchemes.MARKIT_RED_CODE)) {
+          return refEntityId.getValue();
+        }
+      }
+    } catch (RuntimeException e) {
+      s_logger.warn("Error whilst attempting to resolve security link for position", e);
+    }
+
+    return NOT_APPLICABLE;
   }
 
   @Override
