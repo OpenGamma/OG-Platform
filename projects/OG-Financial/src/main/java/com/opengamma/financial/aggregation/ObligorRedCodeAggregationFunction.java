@@ -19,9 +19,7 @@ import com.opengamma.core.position.impl.SimplePositionComparator;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.security.cds.CreditDefaultSwapSecurity;
-import com.opengamma.financial.security.cds.StandardVanillaCDSSecurity;
 import com.opengamma.id.ExternalId;
-import com.opengamma.master.security.SecurityMaster;
 
 /**
  * Simple aggregator function to allow positions to be aggregated by RED code. This is
@@ -51,21 +49,23 @@ public class ObligorRedCodeAggregationFunction implements AggregationFunction<St
   @Override
   public String classifyPosition(Position position) {
 
-    try {
-      Security security = position.getSecurityLink().resolve(_securitySource);
+    Security security = resolveSecurity(position);
 
-      if (security instanceof CreditDefaultSwapSecurity) {
-        CreditDefaultSwapSecurity cds = (CreditDefaultSwapSecurity) security;
-        ExternalId refEntityId = cds.getReferenceEntity();
-        if (refEntityId.isScheme(ExternalSchemes.MARKIT_RED_CODE)) {
-          return refEntityId.getValue();
-        }
+    if (security instanceof CreditDefaultSwapSecurity) {
+      CreditDefaultSwapSecurity cds = (CreditDefaultSwapSecurity) security;
+      ExternalId refEntityId = cds.getReferenceEntity();
+      if (refEntityId.isScheme(ExternalSchemes.MARKIT_RED_CODE)) {
+        return refEntityId.getValue();
       }
-    } catch (RuntimeException e) {
-      s_logger.warn("Error whilst attempting to resolve security link for position", e);
     }
 
     return NOT_APPLICABLE;
+  }
+
+  private Security resolveSecurity(Position position) {
+
+    Security security = position.getSecurityLink().getTarget();
+    return security != null ? security : position.getSecurityLink().resolveQuiet(_securitySource);
   }
 
   @Override
