@@ -19,7 +19,7 @@ $.register_module({
                 var from = args.from,
                     to = args.to,
                     from_page = Math.floor(from / DEFAULT_PAGESIZE),
-                    to_page = Math.floor(to / DEFAULT_PAGESIZE),
+                    to_page = Math.ceil(to / DEFAULT_PAGESIZE),
                     request_page_size,
                     request_page_number,
                     data_cached = false,

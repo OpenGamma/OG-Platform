@@ -11,14 +11,11 @@ $.register_module({
             panels = ['south', 'dock-north', 'dock-center', 'dock-south'];
         var go = function (params) {
             og.api.rest.compressor.put({content: params || last, dependencies: ['data']}).pipe(function (result) {
-                var current = routes.current(),
-                    hash = routes.hash(og.views[og.analytics.blotter ? 'blotter' : 'analytics2']
+                var current = routes.current(), hash = routes
+                    .hash(og.views[og.analytics.blotter ? 'blotter' : 'analytics2']
                         .rules.load_item, {data: result.data.data});
                 if (current.hash === hash) return url.process(current.args);
-                routes.go(hash);
-                og.common.util.history.put({
-                    name: $('.OG-analytics-form .og-view input').val(), item: 'history.analytics.recent', value: hash
-                });
+                routes.go(hash, 'loading title...');
             });
         };
         return url = {
@@ -72,6 +69,15 @@ $.register_module({
                         });
                     } else if (!config.main) {new og.analytics.Form2({callback: og.analytics.url.main});}
                     last.main = config.main;
+                    og.common.routes.set_title('loading title...');
+                    $.when(last.main ? og.api.rest.configs.get({id: last.main.viewdefinition}) : null)
+                        .then(function (result) {
+                            var title = result ? !result.error ? result.data.template_data.name : null : null;
+                            title = title || $('.OG-analytics-form .og-view input').val() || 'Analytics';
+                            routes.set_title(title);
+                            if (last.main) og.common.util.history
+                                .put({name: title, item: 'history.analytics.recent', value: routes.current().hash});
+                        });
                     panels.forEach(function (panel) {
                         var gadgets = config[panel], new_gadgets = [];
                         if (!gadgets || !gadgets.length) return last[panel] = [];
