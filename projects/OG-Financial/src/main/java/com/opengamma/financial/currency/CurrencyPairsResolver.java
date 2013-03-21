@@ -14,7 +14,10 @@ import com.opengamma.id.VersionCorrection;
  */
 public class CurrencyPairsResolver extends AbstractSourceResolver<CurrencyPairs, VersionedCurrencyPairsSource> {
 
-  private static final ExternalScheme IDENTIFIER_SCHEME = ExternalScheme.of("CurrencyPairs");
+  /**
+   * The scheme used to reference convention documents by symbolic name.
+   */
+  public static final ExternalScheme IDENTIFIER_SCHEME = ExternalScheme.of("CurrencyPairs");
 
   public CurrencyPairsResolver(final VersionedCurrencyPairsSource underlying) {
     super(IDENTIFIER_SCHEME, underlying);

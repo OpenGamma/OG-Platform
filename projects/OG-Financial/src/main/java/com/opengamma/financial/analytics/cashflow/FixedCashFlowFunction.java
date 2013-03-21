@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.threeten.bp.Instant;
 import org.threeten.bp.LocalDate;
 
 import com.google.common.collect.Iterables;
@@ -20,6 +21,7 @@ import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.AbstractFunction;
+import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
@@ -50,9 +52,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 /**
  * 
  */
-public abstract class FixedCashFlowFunction extends AbstractFunction.NonCompiledInvoker {
-  private FinancialSecurityVisitor<InstrumentDefinition<?>> _visitor;
-  private FixedIncomeConverterDataProvider _definitionConverter;
+public abstract class FixedCashFlowFunction extends AbstractFunction {
   private final String _valueRequirementName;
   private final InstrumentDefinitionVisitor<DoubleTimeSeries<LocalDate>, Map<LocalDate, MultipleCurrencyAmount>> _cashFlowVisitor;
 
@@ -64,7 +64,7 @@ public abstract class FixedCashFlowFunction extends AbstractFunction.NonCompiled
   }
 
   @Override
-  public void init(final FunctionCompilationContext context) {
+  public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
     final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
@@ -76,45 +76,64 @@ public abstract class FixedCashFlowFunction extends AbstractFunction.NonCompiled
     final BondSecurityConverter bondConverter = new BondSecurityConverter(holidaySource, conventionSource, regionSource);
     final InterestRateFutureSecurityConverter irFutureConverter = new InterestRateFutureSecurityConverter(holidaySource, conventionSource, regionSource);
     final ForexSecurityConverter fxConverter = new ForexSecurityConverter(baseQuotePairs);
-    _visitor = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder().cashSecurityVisitor(cashConverter).fraSecurityVisitor(fraConverter)
+    return new Compiled(FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder().cashSecurityVisitor(cashConverter).fraSecurityVisitor(fraConverter)
         .swapSecurityVisitor(swapConverter).interestRateFutureSecurityVisitor(irFutureConverter).bondSecurityVisitor(bondConverter).fxForwardVisitor(fxConverter)
-        .nonDeliverableFxForwardVisitor(fxConverter).create();
-    _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource, timeSeriesResolver);
+        .nonDeliverableFxForwardVisitor(fxConverter).create(), new FixedIncomeConverterDataProvider(conventionSource, timeSeriesResolver));
   }
 
-  @Override
-  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
-      final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
-    final InstrumentDefinition<?> definition = ((FinancialSecurity) target.getSecurity()).accept(_visitor);
-    final Map<LocalDate, MultipleCurrencyAmount> cashFlows;
-    if (inputs.getAllValues().isEmpty()) {
-      cashFlows = new TreeMap<LocalDate, MultipleCurrencyAmount>(definition.accept(_cashFlowVisitor));
-    } else {
-      HistoricalTimeSeries fixingSeries = (HistoricalTimeSeries) Iterables.getOnlyElement(inputs.getAllValues()).getValue();
-      if (fixingSeries == null) {
+  /**
+   * The compiled form.
+   */
+  protected class Compiled extends AbstractInvokingCompiledFunction {
+
+    private final FinancialSecurityVisitor<InstrumentDefinition<?>> _visitor;
+    private final FixedIncomeConverterDataProvider _definitionConverter;
+
+    public Compiled(final FinancialSecurityVisitor<InstrumentDefinition<?>> visitor, final FixedIncomeConverterDataProvider definitionConverter) {
+      _visitor = visitor;
+      _definitionConverter = definitionConverter;
+    }
+
+    // CompiledFunctionDefinition
+
+    @Override
+    public ComputationTargetType getTargetType() {
+      return FinancialSecurityTypes.FINANCIAL_SECURITY;
+    }
+
+    @Override
+    public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
+      return Collections.singleton(new ValueSpecification(_valueRequirementName, target.toSpecification(), createValueProperties().get()));
+    }
+
+    @Override
+    public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
+      final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
+      InstrumentDefinition<?> definition = security.accept(_visitor);
+      return _definitionConverter.getConversionTimeSeriesRequirements(security, definition);
+    }
+
+    // FunctionInvoker
+
+    @Override
+    public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
+        final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
+      final InstrumentDefinition<?> definition = ((FinancialSecurity) target.getSecurity()).accept(_visitor);
+      final Map<LocalDate, MultipleCurrencyAmount> cashFlows;
+      if (inputs.getAllValues().isEmpty()) {
         cashFlows = new TreeMap<LocalDate, MultipleCurrencyAmount>(definition.accept(_cashFlowVisitor));
       } else {
-        cashFlows = new TreeMap<LocalDate, MultipleCurrencyAmount>(definition.accept(_cashFlowVisitor, fixingSeries.getTimeSeries()));
+        HistoricalTimeSeries fixingSeries = (HistoricalTimeSeries) Iterables.getOnlyElement(inputs.getAllValues()).getValue();
+        if (fixingSeries == null) {
+          cashFlows = new TreeMap<LocalDate, MultipleCurrencyAmount>(definition.accept(_cashFlowVisitor));
+        } else {
+          cashFlows = new TreeMap<LocalDate, MultipleCurrencyAmount>(definition.accept(_cashFlowVisitor, fixingSeries.getTimeSeries()));
+        }
       }
+      return Collections.singleton(new ComputedValue(new ValueSpecification(_valueRequirementName, target.toSpecification(), createValueProperties()
+          .get()), new FixedPaymentMatrix(cashFlows)));
     }
-    return Collections.singleton(new ComputedValue(new ValueSpecification(_valueRequirementName, target.toSpecification(), createValueProperties()
-        .get()), new FixedPaymentMatrix(cashFlows)));
+
   }
 
-  @Override
-  public ComputationTargetType getTargetType() {
-    return FinancialSecurityTypes.FINANCIAL_SECURITY;
-  }
-
-  @Override
-  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    return Collections.singleton(new ValueSpecification(_valueRequirementName, target.toSpecification(), createValueProperties().get()));
-  }
-
-  @Override
-  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
-    InstrumentDefinition<?> definition = security.accept(_visitor);
-    return _definitionConverter.getConversionTimeSeriesRequirements(security, definition);
-  }
 }

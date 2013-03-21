@@ -23,9 +23,11 @@ import com.opengamma.engine.target.ComputationTargetRequirement;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 
@@ -73,35 +75,73 @@ public class CurrencyMatrixLookupFunction extends AbstractFunction.NonCompiledIn
     return CurrencyPair.TYPE;
   }
 
+  private ValueSpecification createSpotRateResult(ComputationTargetSpecification targetSpec, ValueProperties properties) {
+    return new ValueSpecification(ValueRequirementNames.SPOT_RATE, targetSpec, properties);
+  }
+
+  private ValueSpecification createHistoricalTimeSeriesResult(ComputationTargetSpecification targetSpec, ValueProperties properties) {
+    properties = properties.copy()
+        .withAny(HistoricalTimeSeriesFunctionUtils.START_DATE_PROPERTY)
+        .with(HistoricalTimeSeriesFunctionUtils.INCLUDE_START_PROPERTY, HistoricalTimeSeriesFunctionUtils.NO_VALUE, HistoricalTimeSeriesFunctionUtils.YES_VALUE)
+        .withAny(HistoricalTimeSeriesFunctionUtils.END_DATE_PROPERTY)
+        .with(HistoricalTimeSeriesFunctionUtils.INCLUDE_END_PROPERTY, HistoricalTimeSeriesFunctionUtils.NO_VALUE, HistoricalTimeSeriesFunctionUtils.YES_VALUE).get();
+    return new ValueSpecification(ValueRequirementNames.HISTORICAL_FX_TIME_SERIES, targetSpec, properties);
+  }
+
+  private ValueSpecification createTimeSeriesLatestResult(ComputationTargetSpecification targetSpec, ValueProperties properties) {
+    return new ValueSpecification(ValueRequirementNames.HISTORICAL_TIME_SERIES_LATEST, targetSpec, properties);
+  }
+
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final ComputationTargetSpecification targetSpec = target.toSpecification();
     final ValueProperties properties = createValueProperties().withAny(CURRENCY_MATRIX_NAME_PROPERTY).get();
-    return ImmutableSet.of(new ValueSpecification(ValueRequirementNames.SPOT_RATE, targetSpec, properties), new ValueSpecification(ValueRequirementNames.HISTORICAL_FX_TIME_SERIES, targetSpec,
-        properties));
+    return ImmutableSet.of(createSpotRateResult(targetSpec, properties), createHistoricalTimeSeriesResult(targetSpec, properties), createTimeSeriesLatestResult(targetSpec, properties));
   }
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final CurrencyPair currencies = (CurrencyPair) target.getValue();
-    Set<String> matrixNames = desiredValue.getConstraints().getValues(CURRENCY_MATRIX_NAME_PROPERTY);
-    final ExternalIdBundle matrixIdentifiers;
-    if ((matrixNames != null) && !matrixNames.isEmpty()) {
-      if (matrixNames.size() == 1) {
-        matrixIdentifiers = ExternalId.of(CurrencyMatrixResolver.IDENTIFIER_SCHEME, matrixNames.iterator().next()).toBundle();
-      } else {
-        final Collection<ExternalId> identifiers = new ArrayList<ExternalId>(matrixNames.size());
-        for (String matrixName : matrixNames) {
-          identifiers.add(ExternalId.of(CurrencyMatrixResolver.IDENTIFIER_SCHEME, matrixName));
+    final ValueProperties.Builder constraints = ValueProperties
+        .with(AbstractCurrencyMatrixSourcingFunction.SOURCE_CURRENCY_PROPERTY, currencies.getCounter().getCode())
+        .with(AbstractCurrencyMatrixSourcingFunction.TARGET_CURRENCY_PROPERTY, currencies.getBase().getCode());
+    ExternalIdBundle matrixIdentifiers = null;
+    if (desiredValue.getConstraints().getProperties() != null) {
+      for (String constraintName : desiredValue.getConstraints().getProperties()) {
+        if (ValuePropertyNames.FUNCTION.equals(constraintName) || constraintName.startsWith(ValuePropertyNames.OUTPUT_RESERVED_PREFIX)) {
+          continue;
         }
-        matrixIdentifiers = ExternalIdBundle.of(identifiers);
+        final Set<String> values = desiredValue.getConstraints().getValues(constraintName);
+        if (CURRENCY_MATRIX_NAME_PROPERTY.equals(constraintName)) {
+          if (values.isEmpty()) {
+            matrixIdentifiers = ExternalId.of(CurrencyMatrixResolver.IDENTIFIER_SCHEME, getDefaultCurrencyMatrixName()).toBundle();
+          } else {
+            if (values.size() == 1) {
+              matrixIdentifiers = ExternalId.of(CurrencyMatrixResolver.IDENTIFIER_SCHEME, values.iterator().next()).toBundle();
+            } else {
+              final Collection<ExternalId> identifiers = new ArrayList<ExternalId>(values.size());
+              for (String matrixName : values) {
+                identifiers.add(ExternalId.of(CurrencyMatrixResolver.IDENTIFIER_SCHEME, matrixName));
+              }
+              matrixIdentifiers = ExternalIdBundle.of(identifiers);
+            }
+          }
+        } else {
+          if (values.isEmpty()) {
+            constraints.withAny(constraintName);
+          } else {
+            constraints.with(constraintName, values);
+          }
+          if (desiredValue.getConstraints().isOptional(constraintName)) {
+            constraints.withOptional(constraintName);
+          }
+        }
       }
-    } else {
+    }
+    if (matrixIdentifiers == null) {
       matrixIdentifiers = ExternalId.of(CurrencyMatrixResolver.IDENTIFIER_SCHEME, getDefaultCurrencyMatrixName()).toBundle();
     }
-    return Collections.singleton(new ValueRequirement(desiredValue.getValueName(), new ComputationTargetRequirement(CurrencyMatrixResolver.TYPE, matrixIdentifiers), ValueProperties
-        .with(AbstractCurrencyMatrixSourcingFunction.SOURCE_CURRENCY_PROPERTY, currencies.getCounter().getCode())
-        .with(AbstractCurrencyMatrixSourcingFunction.TARGET_CURRENCY_PROPERTY, currencies.getBase().getCode()).get()));
+    return Collections.singleton(new ValueRequirement(desiredValue.getValueName(), new ComputationTargetRequirement(CurrencyMatrixResolver.TYPE, matrixIdentifiers), constraints.get()));
   }
 
   @Override
@@ -110,6 +150,19 @@ public class CurrencyMatrixLookupFunction extends AbstractFunction.NonCompiledIn
     for (Map.Entry<ValueSpecification, ValueRequirement> inputEntry : inputs.entrySet()) {
       ValueProperties.Builder properties = createValueProperties();
       properties.with(CURRENCY_MATRIX_NAME_PROPERTY, inputEntry.getValue().getTargetReference().getRequirement().getIdentifiers().getValue(CurrencyMatrixResolver.IDENTIFIER_SCHEME));
+      final ValueProperties inputProperties = inputEntry.getKey().getProperties();
+      for (String propertyName : inputProperties.getProperties()) {
+        if (!AbstractCurrencyMatrixSourcingFunction.SOURCE_CURRENCY_PROPERTY.equals(propertyName)
+            && !AbstractCurrencyMatrixSourcingFunction.TARGET_CURRENCY_PROPERTY.equals(propertyName)
+            && !ValuePropertyNames.FUNCTION.equals(propertyName)) {
+          final Set<String> values = inputProperties.getValues(propertyName);
+          if (values.isEmpty()) {
+            properties.withAny(propertyName);
+          } else {
+            properties.with(propertyName, values);
+          }
+        }
+      }
       results.add(new ValueSpecification(inputEntry.getKey().getValueName(), target.toSpecification(), properties.get()));
     }
     return results;
@@ -117,9 +170,12 @@ public class CurrencyMatrixLookupFunction extends AbstractFunction.NonCompiledIn
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-    final ComputedValue input = inputs.getAllValues().iterator().next();
-    final ValueRequirement desiredValue = desiredValues.iterator().next();
-    return Collections.singleton(new ComputedValue(new ValueSpecification(desiredValue.getValueName(), target.toSpecification(), desiredValue.getConstraints()), input.getValue()));
+    final Set<ComputedValue> results = Sets.newHashSetWithExpectedSize(desiredValues.size());
+    for (ValueRequirement desiredValue : desiredValues) {
+      final Object input = inputs.getValue(desiredValue.getValueName());
+      results.add(new ComputedValue(new ValueSpecification(desiredValue.getValueName(), target.toSpecification(), desiredValue.getConstraints()), input));
+    }
+    return results;
   }
 
   public int getPriority() {

@@ -205,7 +205,9 @@ public abstract class AbstractFunction implements FunctionDefinition {
    * Default implementation performs no initialization action.
    * 
    * @param context the function compilation context
+   * @deprecated See [PLAT-2240]. Sub-classes should avoid overriding this function and use {@code compile} instead.
    */
+  @Deprecated
   @Override
   public void init(final FunctionCompilationContext context) {
   }

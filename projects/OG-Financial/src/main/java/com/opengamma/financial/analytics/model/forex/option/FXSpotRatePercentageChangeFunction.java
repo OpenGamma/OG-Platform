@@ -5,9 +5,9 @@
  */
 package com.opengamma.financial.analytics.model.forex.option;
 
-import static com.opengamma.financial.analytics.model.forex.option.BloombergFXOptionSpotRateFunction.LAST_CLOSE;
-import static com.opengamma.financial.analytics.model.forex.option.BloombergFXOptionSpotRateFunction.LIVE;
-import static com.opengamma.financial.analytics.model.forex.option.BloombergFXOptionSpotRateFunction.PROPERTY_DATA_TYPE;
+import static com.opengamma.financial.analytics.model.forex.option.FXOptionSpotRateFunction.LAST_CLOSE;
+import static com.opengamma.financial.analytics.model.forex.option.FXOptionSpotRateFunction.LIVE;
+import static com.opengamma.financial.analytics.model.forex.option.FXOptionSpotRateFunction.PROPERTY_DATA_TYPE;
 
 import java.text.DecimalFormat;
 import java.util.Collections;
@@ -32,7 +32,7 @@ import com.opengamma.util.async.AsynchronousExecution;
 /**
  *
  */
-public class BloombergFXSpotRatePercentageChangeFunction extends AbstractFunction.NonCompiledInvoker {
+public class FXSpotRatePercentageChangeFunction extends AbstractFunction.NonCompiledInvoker {
   private static final DecimalFormat FORMAT = new DecimalFormat("##.###");
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,

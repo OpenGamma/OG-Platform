@@ -23,6 +23,7 @@ import org.threeten.bp.Instant;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.ObjectId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.monitor.OperationTimer;
 
@@ -60,7 +61,7 @@ public class CompiledFunctionService {
   };
 
   public CompiledFunctionService(final FunctionRepository functionRepository,
-                                 final FunctionRepositoryCompiler functionRepositoryCompiler, final FunctionCompilationContext functionCompilationContext) {
+      final FunctionRepositoryCompiler functionRepositoryCompiler, final FunctionCompilationContext functionCompilationContext) {
     ArgumentChecker.notNull(functionRepository, "functionRepository");
     ArgumentChecker.notNull(functionRepositoryCompiler, "functionRepositoryCompiler");
     ArgumentChecker.notNull(functionCompilationContext, "functionCompilationContext");
@@ -166,7 +167,7 @@ public class CompiledFunctionService {
 
   /**
    * Initializes all functions.
-   *
+   * 
    * @return the set of object identifiers that should trigger re-initialization
    */
   public Set<ObjectId> initialize() {
@@ -182,7 +183,7 @@ public class CompiledFunctionService {
 
   /**
    * Initializes all functions.
-   *
+   * 
    * @param initId the initialization identifier
    * @return the set of object identifiers that should trigger re-initialization
    */
@@ -211,7 +212,7 @@ public class CompiledFunctionService {
 
   /**
    * Re-initializes functions that requested re-initialization during their previous initialization.
-   *
+   * 
    * @return the set of unique identifiers requested by any initialized functions that should trigger re-initialization
    */
   public synchronized Set<ObjectId> reinitialize() {
@@ -230,9 +231,9 @@ public class CompiledFunctionService {
   }
 
   /**
-   * Returns the underlying (raw) function repository. Definitions in the repository may or may not be properly initialized. If
-   * functions are needed that can be reliably used, use {@link #getInitializedFunctionRepository} instead.
-   *
+   * Returns the underlying (raw) function repository. Definitions in the repository may or may not be properly initialized. If functions are needed that can be reliably used, use
+   * {@link #getInitializedFunctionRepository} instead.
+   * 
    * @return the function repository, not null
    */
   public FunctionRepository getFunctionRepository() {
@@ -240,9 +241,8 @@ public class CompiledFunctionService {
   }
 
   /**
-   * Returns a repository of initialized functions. This may be a subset of the underlying (raw) repository if one or more threw
-   * exceptions during their {@link FunctionDefinition#init} calls.
-   *
+   * Returns a repository of initialized functions. This may be a subset of the underlying (raw) repository if one or more threw exceptions during their {@link FunctionDefinition#init} calls.
+   * 
    * @return the function repository, not null
    */
   public synchronized FunctionRepository getInitializedFunctionRepository() {
@@ -258,11 +258,17 @@ public class CompiledFunctionService {
   }
 
   public CompiledFunctionRepository compileFunctionRepository(final long timestamp) {
-    return getFunctionRepositoryCompiler().compile(getInitializedFunctionRepository(), getFunctionCompilationContext(), getExecutorService(), Instant.ofEpochMilli(timestamp));
+    final FunctionCompilationContext context = getFunctionCompilationContext();
+    // TODO: [PLAT-2761] Temporary hack until the correct version/correction is passed in
+    context.setComputationTargetResolver(context.getRawComputationTargetResolver().atVersionCorrection(VersionCorrection.LATEST));
+    return getFunctionRepositoryCompiler().compile(getInitializedFunctionRepository(), context, getExecutorService(), Instant.ofEpochMilli(timestamp));
   }
 
   public CompiledFunctionRepository compileFunctionRepository(final Instant timestamp) {
-    return getFunctionRepositoryCompiler().compile(getInitializedFunctionRepository(), getFunctionCompilationContext(), getExecutorService(), timestamp);
+    final FunctionCompilationContext context = getFunctionCompilationContext();
+    // TODO: [PLAT-2761] Temporary hack until the correct version/correction is passed in
+    context.setComputationTargetResolver(context.getRawComputationTargetResolver().atVersionCorrection(VersionCorrection.LATEST));
+    return getFunctionRepositoryCompiler().compile(getInitializedFunctionRepository(), context, getExecutorService(), timestamp);
   }
 
   public ExecutorService getExecutorService() {

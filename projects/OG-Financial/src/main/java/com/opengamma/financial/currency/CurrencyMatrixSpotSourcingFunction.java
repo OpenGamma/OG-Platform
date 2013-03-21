@@ -69,7 +69,7 @@ public class CurrencyMatrixSpotSourcingFunction extends AbstractCurrencyMatrixSo
   }
 
   @Override
-  protected boolean getRequirements(FunctionCompilationContext context, CurrencyMatrix matrix, Set<ValueRequirement> requirements, Currency source, Currency target) {
+  protected boolean getRequirements(FunctionCompilationContext context, ValueRequirement desiredValue, CurrencyMatrix matrix, Set<ValueRequirement> requirements, Currency source, Currency target) {
     return getRequirements(matrix, requirements, new HashSet<Pair<Currency, Currency>>(), Pair.of(source, target));
   }
 
@@ -125,7 +125,7 @@ public class CurrencyMatrixSpotSourcingFunction extends AbstractCurrencyMatrixSo
   }
 
   @Override
-  protected Object getRate(CurrencyMatrix matrix, FunctionExecutionContext executionContext, FunctionInputs inputs, Currency source, Currency target) {
+  protected Object getRate(CurrencyMatrix matrix, ValueRequirement desiredValue, FunctionExecutionContext executionContext, FunctionInputs inputs, Currency source, Currency target) {
     return getRate(matrix, inputs, source, target);
   }
 

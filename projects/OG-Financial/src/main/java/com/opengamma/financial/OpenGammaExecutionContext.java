@@ -16,9 +16,15 @@ import com.opengamma.engine.marketdata.OverrideOperationCompiler;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.financial.analytics.ircurve.calcconfig.CurveCalculationConfigSource;
 import com.opengamma.financial.convention.ConventionBundleSource;
+import com.opengamma.financial.currency.CurrencyPair;
+import com.opengamma.financial.currency.CurrencyPairs;
+import com.opengamma.financial.currency.CurrencyPairsResolver;
 import com.opengamma.financial.currency.CurrencyPairsSource;
+import com.opengamma.id.ExternalId;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.holiday.HolidayMaster;
+import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
 
 /**
  * Utility methods to pull standard objects out of a {@link FunctionExecutionContext}.
@@ -298,15 +304,28 @@ public final class OpenGammaExecutionContext {
    */
   @Deprecated
   public static CurrencyPairsSource getCurrencyPairsSource(final FunctionExecutionContext context) {
-    return (CurrencyPairsSource) context.get(CURRENCY_PAIRS_SOURCE);
-  }
+    final ComputationTargetResolverWrapper resolver = new ComputationTargetResolverWrapper(context.getComputationTargetResolver());
+    return new CurrencyPairsSource() {
 
-  /**
-   * @deprecated [PLAT-2782] interim measure to move away from direct use of a config source
-   */
-  @Deprecated
-  public static void setCurrencyPairsSource(final FunctionExecutionContext context, final CurrencyPairsSource currencyPairsSource) {
-    context.put(CURRENCY_PAIRS_SOURCE, currencyPairsSource);
+      @Override
+      public CurrencyPairs getCurrencyPairs(String name) {
+        if (name == null) {
+          name = CurrencyPairs.DEFAULT_CURRENCY_PAIRS;
+        }
+        return (CurrencyPairs) resolver.get(CurrencyPairs.TYPE, ExternalId.of(CurrencyPairsResolver.IDENTIFIER_SCHEME, name));
+      }
+
+      @Override
+      public CurrencyPair getCurrencyPair(String name, Currency currency1, Currency currency2) {
+        ArgumentChecker.notNull(currency1, "currency1");
+        ArgumentChecker.notNull(currency2, "currency2");
+        CurrencyPairs currencyPairs = getCurrencyPairs(name);
+        if (currencyPairs == null) {
+          return null;
+        }
+        return currencyPairs.getCurrencyPair(currency1, currency2);
+      }
+    };
   }
 
 }

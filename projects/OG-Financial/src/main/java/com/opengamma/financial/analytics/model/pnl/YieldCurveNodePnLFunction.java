@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.Clock;
@@ -119,7 +118,6 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
     final ConfigDBCurveCalculationConfigSource curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);
     final MultiCurveCalculationConfig curveCalculationConfig = curveCalculationConfigSource.getConfig(curveCalculationConfigName);
     HistoricalTimeSeries fxSeries = null;
-    final ValueProperties resultProperties;
     boolean isInverse = true;
     if (!desiredCurrency.equals(currencyString)) {
       if (inputs.getValue(ValueRequirementNames.HISTORICAL_FX_TIME_SERIES) != null) {
@@ -136,12 +134,9 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
           throw new OpenGammaRuntimeException("Could not get FX series for currency pair " + desiredCurrency + ", " + currencyString);
         }
         fxSeries = entry.getValue();
-        resultProperties = getResultProperties(desiredValue, desiredCurrency, yieldCurveNames.toArray(ArrayUtils.EMPTY_STRING_ARRAY), curveCalculationConfigName);
       } else {
         throw new OpenGammaRuntimeException("Could not get FX series for currency pair " + desiredCurrency + ", " + currencyString);
       }
-    } else {
-      resultProperties = getResultProperties(desiredValue, currencyString, yieldCurveNames.toArray(ArrayUtils.EMPTY_STRING_ARRAY), curveCalculationConfigName);
     }
     for (final String yieldCurveName : yieldCurveNames) {
       final ValueRequirement ycnsRequirement = getYCNSRequirement(currencyString, curveCalculationConfigName, yieldCurveName, target, constraints);
@@ -178,7 +173,7 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
       throw new OpenGammaRuntimeException("Could not get any values for security " + position.getSecurity());
     }
     result = result.multiply(position.getQuantity().doubleValue());
-    final ValueSpecification resultSpec = new ValueSpecification(ValueRequirementNames.PNL_SERIES, target.toSpecification(), resultProperties);
+    final ValueSpecification resultSpec = new ValueSpecification(ValueRequirementNames.PNL_SERIES, target.toSpecification(), desiredValue.getConstraints());
     return Sets.newHashSet(new ComputedValue(resultSpec, result));
   }
 

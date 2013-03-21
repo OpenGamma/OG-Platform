@@ -52,6 +52,7 @@ import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.model.YieldCurveNodeSensitivitiesHelper;
 import com.opengamma.financial.analytics.model.curve.interestrate.FXImpliedYieldCurveFunction;
 import com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults;
+import com.opengamma.financial.analytics.model.forex.ConventionBasedFXRateFunction;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.security.FinancialSecurity;
@@ -213,7 +214,7 @@ public class FXOptionBlackYCNSFunction extends FXOptionBlackSingleValuedFunction
       requirements.add(getCouponSensitivitiesRequirement(Currency.of(resultCurrency), resultCurveConfigName));
     }
     final UnorderedCurrencyPair baseQuotePair = UnorderedCurrencyPair.of(putCurrency, callCurrency);
-    requirements.add(new ValueRequirement(ValueRequirementNames.SPOT_RATE, ComputationTargetType.UNORDERED_CURRENCY_PAIR.specification(baseQuotePair)));
+    requirements.add(ConventionBasedFXRateFunction.getSpotRateRequirement(baseQuotePair));
     requirements.add(new ValueRequirement(ValueRequirementNames.CURRENCY_PAIRS, ComputationTargetSpecification.NULL));
     return requirements;
   }

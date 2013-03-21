@@ -17,6 +17,7 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.marketdata.ExternalIdBundleResolver;
+import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.OpenGammaCompilationContext;
@@ -43,7 +44,11 @@ public class CurrencyMatrixSeriesSourcingFunction extends AbstractCurrencyMatrix
   private HistoricalTimeSeriesResolver _htsResolver;
 
   public CurrencyMatrixSeriesSourcingFunction() {
-    super(ValueRequirementNames.HISTORICAL_FX_TIME_SERIES);
+    this(ValueRequirementNames.HISTORICAL_FX_TIME_SERIES);
+  }
+
+  protected CurrencyMatrixSeriesSourcingFunction(final String valueRequirementName) {
+    super(valueRequirementName);
   }
 
   protected void setHistoricalTimeSeriesResolver(final HistoricalTimeSeriesResolver htsResolver) {
@@ -61,7 +66,17 @@ public class CurrencyMatrixSeriesSourcingFunction extends AbstractCurrencyMatrix
     setHistoricalTimeSeriesResolver(OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context));
   }
 
-  private ValueRequirement getSeriesConversionRequirement(final ExternalIdBundleResolver resolver, final CurrencyMatrixValueRequirement valueRequirement) {
+  @Override
+  protected ValueProperties.Builder createValueProperties() {
+    final ValueProperties.Builder properties = super.createValueProperties();
+    properties.withAny(HistoricalTimeSeriesFunctionUtils.START_DATE_PROPERTY)
+        .with(HistoricalTimeSeriesFunctionUtils.INCLUDE_START_PROPERTY, HistoricalTimeSeriesFunctionUtils.YES_VALUE, HistoricalTimeSeriesFunctionUtils.NO_VALUE)
+        .withAny(HistoricalTimeSeriesFunctionUtils.END_DATE_PROPERTY)
+        .with(HistoricalTimeSeriesFunctionUtils.INCLUDE_END_PROPERTY, HistoricalTimeSeriesFunctionUtils.YES_VALUE, HistoricalTimeSeriesFunctionUtils.NO_VALUE);
+    return properties;
+  }
+
+  private ValueRequirement getRequirement(final ExternalIdBundleResolver resolver, final CurrencyMatrixValueRequirement valueRequirement, final ValueProperties constraints) {
     final ValueRequirement requirement = valueRequirement.getValueRequirement();
     // TODO: PLAT-2813 Don't perform the resolution here; request the time series directly
     final ExternalIdBundle targetIdentifiers = resolver.getExternalIdBundle(requirement.getTargetReference());
@@ -74,12 +89,11 @@ public class CurrencyMatrixSeriesSourcingFunction extends AbstractCurrencyMatrix
     }
     // TODO: Requesting the whole time series isn't ideal but we don't know which points will be needed. Could the time series somehow be a lazy-fetch?
     // Is this really a problem - caching the whole time series at a calc node may be better than requesting different subsets each time?
-    return HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, MarketDataRequirementNames.MARKET_VALUE, DateConstraint.NULL, true,
-        DateConstraint.VALUATION_TIME, true);
+    return HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, MarketDataRequirementNames.MARKET_VALUE, constraints);
   }
 
   private boolean getRequirements(final CurrencyMatrix matrix, final ExternalIdBundleResolver resolver, final Set<ValueRequirement> requirements, final Set<Pair<Currency, Currency>> visited,
-      final Pair<Currency, Currency> currencies) {
+      final Pair<Currency, Currency> currencies, final ValueProperties constraints) {
     if (!visited.add(currencies)) {
       // Gone round in a loop if we've already seen this pair
       throw new IllegalStateException();
@@ -90,8 +104,8 @@ public class CurrencyMatrixSeriesSourcingFunction extends AbstractCurrencyMatrix
 
         @Override
         public Boolean visitCross(final CurrencyMatrixCross cross) {
-          return getRequirements(matrix, resolver, requirements, visited, Pair.of(currencies.getFirst(), cross.getCrossCurrency()))
-              && getRequirements(matrix, resolver, requirements, visited, Pair.of(cross.getCrossCurrency(), currencies.getSecond()));
+          return getRequirements(matrix, resolver, requirements, visited, Pair.of(currencies.getFirst(), cross.getCrossCurrency()), constraints)
+              && getRequirements(matrix, resolver, requirements, visited, Pair.of(cross.getCrossCurrency(), currencies.getSecond()), constraints);
         }
 
         @Override
@@ -102,7 +116,7 @@ public class CurrencyMatrixSeriesSourcingFunction extends AbstractCurrencyMatrix
 
         @Override
         public Boolean visitValueRequirement(final CurrencyMatrixValueRequirement valueRequirement) {
-          final ValueRequirement requirement = getSeriesConversionRequirement(resolver, valueRequirement);
+          final ValueRequirement requirement = getRequirement(resolver, valueRequirement, constraints);
           if (requirement == null) {
             return Boolean.FALSE;
           }
@@ -116,19 +130,51 @@ public class CurrencyMatrixSeriesSourcingFunction extends AbstractCurrencyMatrix
     }
   }
 
-  @Override
-  protected boolean getRequirements(FunctionCompilationContext context, CurrencyMatrix matrix, Set<ValueRequirement> requirements, Currency source, Currency target) {
-    return getRequirements(matrix, new ExternalIdBundleResolver(context.getComputationTargetResolver()), requirements, new HashSet<Pair<Currency, Currency>>(), Pair.of(source, target));
+  protected ValueProperties getRequirementConstraints(final ValueRequirement desiredValue) {
+    final ValueProperties desiredConstraints = desiredValue.getConstraints();
+    final ValueProperties.Builder requiredConstraints = ValueProperties.builder();
+    Set<String> values = desiredConstraints.getValues(HistoricalTimeSeriesFunctionUtils.START_DATE_PROPERTY);
+    if ((values == null) || values.isEmpty()) {
+      requiredConstraints.with(HistoricalTimeSeriesFunctionUtils.START_DATE_PROPERTY, DateConstraint.NULL.toString());
+    } else {
+      requiredConstraints.with(HistoricalTimeSeriesFunctionUtils.START_DATE_PROPERTY, values);
+    }
+    values = desiredConstraints.getValues(HistoricalTimeSeriesFunctionUtils.INCLUDE_START_PROPERTY);
+    if ((values == null) || values.isEmpty()) {
+      requiredConstraints.with(HistoricalTimeSeriesFunctionUtils.INCLUDE_START_PROPERTY, HistoricalTimeSeriesFunctionUtils.YES_VALUE);
+    } else {
+      requiredConstraints.with(HistoricalTimeSeriesFunctionUtils.INCLUDE_START_PROPERTY, values);
+    }
+    values = desiredConstraints.getValues(HistoricalTimeSeriesFunctionUtils.END_DATE_PROPERTY);
+    if ((values == null) || values.isEmpty()) {
+      requiredConstraints.with(HistoricalTimeSeriesFunctionUtils.END_DATE_PROPERTY, DateConstraint.VALUATION_TIME.toString());
+    } else {
+      requiredConstraints.with(HistoricalTimeSeriesFunctionUtils.END_DATE_PROPERTY);
+    }
+    values = desiredConstraints.getValues(HistoricalTimeSeriesFunctionUtils.INCLUDE_END_PROPERTY);
+    if ((values == null) || values.isEmpty()) {
+      requiredConstraints.with(HistoricalTimeSeriesFunctionUtils.INCLUDE_END_PROPERTY, HistoricalTimeSeriesFunctionUtils.YES_VALUE);
+    } else {
+      requiredConstraints.with(HistoricalTimeSeriesFunctionUtils.INCLUDE_END_PROPERTY, values);
+    }
+    return requiredConstraints.get();
   }
 
-  private Object getRate(final CurrencyMatrix matrix, final ExternalIdBundleResolver resolver, final FunctionInputs inputs, final Currency source, final Currency target) {
+  @Override
+  protected boolean getRequirements(FunctionCompilationContext context, ValueRequirement desiredValue, CurrencyMatrix matrix, Set<ValueRequirement> requirements, Currency source, Currency target) {
+    return getRequirements(matrix, new ExternalIdBundleResolver(context.getComputationTargetResolver()), requirements, new HashSet<Pair<Currency, Currency>>(), Pair.of(source, target),
+        getRequirementConstraints(desiredValue));
+  }
+
+  private Object getRate(final CurrencyMatrix matrix, final ExternalIdBundleResolver resolver, final FunctionInputs inputs, final Currency source, final Currency target,
+      final ValueProperties htsConstraints) {
     final CurrencyMatrixValue value = matrix.getConversion(source, target);
     final Object rate = value.accept(new CurrencyMatrixValueVisitor<Object>() {
 
       @Override
       public Object visitCross(final CurrencyMatrixCross cross) {
-        final Object r1 = getRate(matrix, resolver, inputs, source, cross.getCrossCurrency());
-        final Object r2 = getRate(matrix, resolver, inputs, cross.getCrossCurrency(), target);
+        final Object r1 = getRate(matrix, resolver, inputs, source, cross.getCrossCurrency(), htsConstraints);
+        final Object r2 = getRate(matrix, resolver, inputs, cross.getCrossCurrency(), target, htsConstraints);
         return createCrossRate(r1, r2);
       }
 
@@ -139,7 +185,7 @@ public class CurrencyMatrixSeriesSourcingFunction extends AbstractCurrencyMatrix
 
       @Override
       public Object visitValueRequirement(final CurrencyMatrixValueRequirement valueRequirement) {
-        final Object marketValue = inputs.getValue(getSeriesConversionRequirement(resolver, valueRequirement));
+        final Object marketValue = inputs.getValue(getRequirement(resolver, valueRequirement, htsConstraints));
         if (marketValue instanceof DoubleTimeSeries) {
           //TODO is this branch ever reached?
           DoubleTimeSeries<?> fxRate = (DoubleTimeSeries<?>) marketValue;
@@ -168,15 +214,35 @@ public class CurrencyMatrixSeriesSourcingFunction extends AbstractCurrencyMatrix
   }
 
   @Override
-  protected Object getRate(CurrencyMatrix matrix, FunctionExecutionContext executionContext, FunctionInputs inputs, Currency source, Currency target) {
-    return getRate(matrix, new ExternalIdBundleResolver(executionContext.getComputationTargetResolver()), inputs, source, target);
+  protected Object getRate(CurrencyMatrix matrix, ValueRequirement desiredValue, FunctionExecutionContext executionContext, FunctionInputs inputs, Currency source, Currency target) {
+    return getRate(matrix, new ExternalIdBundleResolver(executionContext.getComputationTargetResolver()), inputs, source, target, getRequirementConstraints(desiredValue));
+  }
+
+  public static ValueRequirement getConversionRequirement(final CurrencyPair currencies) {
+    return getConversionRequirement(currencies, DateConstraint.NULL, true, DateConstraint.VALUATION_TIME, true);
   }
 
   public static ValueRequirement getConversionRequirement(final Currency source, final Currency target) {
-    return new ValueRequirement(ValueRequirementNames.HISTORICAL_FX_TIME_SERIES, CurrencyPair.TYPE.specification(CurrencyPair.of(target, source)));
+    return getConversionRequirement(CurrencyPair.of(target, source));
   }
 
   public static ValueRequirement getConversionRequirement(final String source, final String target) {
+    return getConversionRequirement(Currency.of(source), Currency.of(target));
+  }
+
+  public static ValueRequirement getConversionRequirement(final CurrencyPair currencies, final DateConstraint startDate, final boolean includeStart, final DateConstraint endDate,
+      final boolean includeEnd) {
+    return new ValueRequirement(ValueRequirementNames.HISTORICAL_FX_TIME_SERIES, CurrencyPair.TYPE.specification(currencies), HistoricalTimeSeriesFunctionUtils.htsConstraints(
+        ValueProperties.builder(), startDate, includeStart, endDate, includeEnd).get());
+  }
+
+  public static ValueRequirement getConversionRequirement(final Currency source, final Currency target, final DateConstraint startDate, final boolean includeStart, final DateConstraint endDate,
+      final boolean includeEnd) {
+    return getConversionRequirement(CurrencyPair.of(target, source));
+  }
+
+  public static ValueRequirement getConversionRequirement(final String source, final String target, final DateConstraint startDate, final boolean includeStart, final DateConstraint endDate,
+      final boolean includeEnd) {
     return getConversionRequirement(Currency.of(source), Currency.of(target));
   }
 

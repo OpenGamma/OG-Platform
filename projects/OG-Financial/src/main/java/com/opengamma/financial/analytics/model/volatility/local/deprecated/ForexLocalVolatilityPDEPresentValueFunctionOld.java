@@ -43,14 +43,13 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
+import com.opengamma.financial.analytics.model.forex.ConventionBasedFXRateFunction;
 import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
-import com.opengamma.util.money.UnorderedCurrencyPair;
 
 /**
- *
  * @deprecated Deprecated
  */
 @Deprecated
@@ -407,8 +406,7 @@ public class ForexLocalVolatilityPDEPresentValueFunctionOld extends AbstractFunc
   }
 
   private ValueRequirement getSpotRequirement(final FXOptionSecurity fxOption) {
-    return new ValueRequirement(ValueRequirementNames.SPOT_RATE,
-        ComputationTargetType.UNORDERED_CURRENCY_PAIR.specification(UnorderedCurrencyPair.of(fxOption.getCallCurrency(), fxOption.getPutCurrency())));
+    return ConventionBasedFXRateFunction.getSpotRateRequirement(fxOption.getCallCurrency(), fxOption.getPutCurrency());
   }
 
   private ValueProperties getPriceProperties(final String surfaceName, final String surfaceType, final String xAxis, final String yAxis, final String yAxisType,
