@@ -476,7 +476,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
   // -------------------------------------------------------------------------------------------
 
   // Method to adjust the specified maturity date to the next IMM date
-  private ZonedDateTime immAdjustDate(final ZonedDateTime date) {
+  public ZonedDateTime immAdjustDate(final ZonedDateTime date) {
 
     // Check that the input date is not null
     ArgumentChecker.notNull(date, "Maturity date");
