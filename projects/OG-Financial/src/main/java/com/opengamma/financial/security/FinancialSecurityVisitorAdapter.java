@@ -413,6 +413,26 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
       return this;
     }
 
+    public Builder<T> standardVanillaCDSSecurityVisitor(final FinancialSecurityVisitor<T> visitor) {
+      _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
+        @Override
+        public T visitStandardVanillaCDSSecurity(StandardVanillaCDSSecurity security) {
+          return visitor.visitStandardVanillaCDSSecurity(security);
+        }
+      };
+      return this;
+    }
+
+    public Builder<T> legacyVanillaCDSSecurityVisitor(final FinancialSecurityVisitor<T> visitor) {
+      _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
+        @Override
+        public T visitLegacyVanillaCDSSecurity(LegacyVanillaCDSSecurity security) {
+          return visitor.visitLegacyVanillaCDSSecurity(security);
+        }
+      };
+      return this;
+    }
+
     public Builder<T> equityIndexDividendFutureOptionVisitor(final FinancialSecurityVisitor<T> visitor) {
       _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
         @Override

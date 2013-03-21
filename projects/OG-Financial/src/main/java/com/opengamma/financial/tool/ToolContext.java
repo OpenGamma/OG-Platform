@@ -26,6 +26,7 @@ import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
+import com.opengamma.core.organization.OrganizationSource;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
@@ -149,6 +150,11 @@ public class ToolContext extends DirectBean implements Closeable {
    */
   @PropertyDefinition
   private PositionSource _positionSource;
+  /**
+   * The organization source.
+   */
+  @PropertyDefinition
+  private OrganizationSource _organizationSource;
   /**
    * The historical time-series source.
    */
@@ -282,6 +288,8 @@ public class ToolContext extends DirectBean implements Closeable {
         return getSecuritySource();
       case -1655657820:  // positionSource
         return getPositionSource();
+      case -973975762:  // organizationSource
+        return getOrganizationSource();
       case 358729161:  // historicalTimeSeriesSource
         return getHistoricalTimeSeriesSource();
       case -2019554651:  // marketDataSnapshotSource
@@ -359,6 +367,9 @@ public class ToolContext extends DirectBean implements Closeable {
       case -1655657820:  // positionSource
         setPositionSource((PositionSource) newValue);
         return;
+      case -973975762:  // organizationSource
+        setOrganizationSource((OrganizationSource) newValue);
+        return;
       case 358729161:  // historicalTimeSeriesSource
         setHistoricalTimeSeriesSource((HistoricalTimeSeriesSource) newValue);
         return;
@@ -412,6 +423,7 @@ public class ToolContext extends DirectBean implements Closeable {
           JodaBeanUtils.equal(getRegionSource(), other.getRegionSource()) &&
           JodaBeanUtils.equal(getSecuritySource(), other.getSecuritySource()) &&
           JodaBeanUtils.equal(getPositionSource(), other.getPositionSource()) &&
+          JodaBeanUtils.equal(getOrganizationSource(), other.getOrganizationSource()) &&
           JodaBeanUtils.equal(getHistoricalTimeSeriesSource(), other.getHistoricalTimeSeriesSource()) &&
           JodaBeanUtils.equal(getMarketDataSnapshotSource(), other.getMarketDataSnapshotSource()) &&
           JodaBeanUtils.equal(getConventionBundleSource(), other.getConventionBundleSource()) &&
@@ -445,6 +457,7 @@ public class ToolContext extends DirectBean implements Closeable {
     hash += hash * 31 + JodaBeanUtils.hashCode(getRegionSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSecuritySource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPositionSource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getOrganizationSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataSnapshotSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getConventionBundleSource());
@@ -902,6 +915,31 @@ public class ToolContext extends DirectBean implements Closeable {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the organization source.
+   * @return the value of the property
+   */
+  public OrganizationSource getOrganizationSource() {
+    return _organizationSource;
+  }
+
+  /**
+   * Sets the organization source.
+   * @param organizationSource  the new value of the property
+   */
+  public void setOrganizationSource(OrganizationSource organizationSource) {
+    this._organizationSource = organizationSource;
+  }
+
+  /**
+   * Gets the the {@code organizationSource} property.
+   * @return the property, not null
+   */
+  public final Property<OrganizationSource> organizationSource() {
+    return metaBean().organizationSource().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the historical time-series source.
    * @return the value of the property
    */
@@ -1201,6 +1239,11 @@ public class ToolContext extends DirectBean implements Closeable {
     private final MetaProperty<PositionSource> _positionSource = DirectMetaProperty.ofReadWrite(
         this, "positionSource", ToolContext.class, PositionSource.class);
     /**
+     * The meta-property for the {@code organizationSource} property.
+     */
+    private final MetaProperty<OrganizationSource> _organizationSource = DirectMetaProperty.ofReadWrite(
+        this, "organizationSource", ToolContext.class, OrganizationSource.class);
+    /**
      * The meta-property for the {@code historicalTimeSeriesSource} property.
      */
     private final MetaProperty<HistoricalTimeSeriesSource> _historicalTimeSeriesSource = DirectMetaProperty.ofReadWrite(
@@ -1263,6 +1306,7 @@ public class ToolContext extends DirectBean implements Closeable {
         "regionSource",
         "securitySource",
         "positionSource",
+        "organizationSource",
         "historicalTimeSeriesSource",
         "marketDataSnapshotSource",
         "conventionBundleSource",
@@ -1317,6 +1361,8 @@ public class ToolContext extends DirectBean implements Closeable {
           return _securitySource;
         case -1655657820:  // positionSource
           return _positionSource;
+        case -973975762:  // organizationSource
+          return _organizationSource;
         case 358729161:  // historicalTimeSeriesSource
           return _historicalTimeSeriesSource;
         case -2019554651:  // marketDataSnapshotSource
@@ -1495,6 +1541,14 @@ public class ToolContext extends DirectBean implements Closeable {
      */
     public final MetaProperty<PositionSource> positionSource() {
       return _positionSource;
+    }
+
+    /**
+     * The meta-property for the {@code organizationSource} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<OrganizationSource> organizationSource() {
+      return _organizationSource;
     }
 
     /**

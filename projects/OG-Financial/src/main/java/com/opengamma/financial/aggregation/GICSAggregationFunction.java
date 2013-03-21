@@ -11,16 +11,21 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Map;
 
+import com.opengamma.core.id.ExternalSchemes;
+import com.opengamma.core.organization.Organization;
+import com.opengamma.core.organization.OrganizationSource;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.impl.SimplePositionComparator;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
+import com.opengamma.financial.security.cds.StandardVanillaCDSSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.GICSCode;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
+import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 
 /**
@@ -75,26 +80,33 @@ public class GICSAggregationFunction implements AggregationFunction<String> {
 
   private Level _level;
   private SecuritySource _secSource;
+  private OrganizationSource _organizationSource;
   private boolean _includeEmptyCategories;
-  ;
 
-  public GICSAggregationFunction(SecuritySource secSource, Level level) {
-    this(secSource, level, false);
+  public GICSAggregationFunction(SecuritySource secSource, OrganizationSource organizationSource, String level) {
+    this(secSource, organizationSource, Enum.valueOf(Level.class, level));
   }
 
-  public GICSAggregationFunction(SecuritySource secSource, Level level, boolean useAttributes) {
-    this(secSource, level, useAttributes, true);
+  public GICSAggregationFunction(SecuritySource secSource, OrganizationSource organizationSource, Level level) {
+    this(secSource, organizationSource, level, false);
   }
 
-  public GICSAggregationFunction(SecuritySource secSource, Level level, boolean useAttributes, boolean includeEmptyCategories) {
+  public GICSAggregationFunction(SecuritySource secSource,
+                                 OrganizationSource organizationSource,
+                                 Level level,
+                                 boolean useAttributes) {
+    this(secSource, organizationSource, level, useAttributes, true);
+  }
+
+  public GICSAggregationFunction(SecuritySource secSource,
+                                 OrganizationSource organizationSource, Level level,
+                                 boolean useAttributes,
+                                 boolean includeEmptyCategories) {
     _secSource = secSource;
+    _organizationSource = organizationSource;
     _level = level;
     _useAttributes = useAttributes;
     _includeEmptyCategories = includeEmptyCategories;
-  }
-
-  public GICSAggregationFunction(SecuritySource secSource, String level) {
-    this(secSource, Enum.valueOf(Level.class, level));
   }
 
   private FinancialSecurityVisitor<String> _equitySecurityVisitor = new FinancialSecurityVisitorAdapter<String>() {
@@ -149,6 +161,38 @@ public class GICSAggregationFunction implements AggregationFunction<String> {
     }
   };
 
+  private FinancialSecurityVisitor<String> _standardVanillaCdsSecurityVisitor = new FinancialSecurityVisitorAdapter<String>() {
+    @Override
+    public String visitStandardVanillaCDSSecurity(StandardVanillaCDSSecurity cds) {
+      if (_level == Level.SECTOR) {
+
+        ExternalId refEntityId = cds.getReferenceEntity();
+        if (refEntityId.isScheme(ExternalSchemes.MARKIT_RED_CODE)) {
+
+          Organization organization = _organizationSource.getOrganizationByRedCode(refEntityId.getValue());
+          return organization.getObligor().getSector().name();
+        }
+      }
+      return UNKNOWN;
+    }
+  };
+
+  private FinancialSecurityVisitor<String> _legacyVanillaCdsSecurityVisitor = new FinancialSecurityVisitorAdapter<String>() {
+    @Override
+    public String visitStandardVanillaCDSSecurity(StandardVanillaCDSSecurity cds) {
+      if (_level == Level.SECTOR) {
+
+        ExternalId refEntityId = cds.getReferenceEntity();
+        if (refEntityId.isScheme(ExternalSchemes.MARKIT_RED_CODE)) {
+
+          Organization organization = _organizationSource.getOrganizationByRedCode(refEntityId.getValue());
+          return organization.getObligor().getSector().name();
+        }
+      }
+      return UNKNOWN;
+    }
+  };
+
   @Override
   public String classifyPosition(Position position) {
     if (_useAttributes) {
@@ -163,6 +207,8 @@ public class GICSAggregationFunction implements AggregationFunction<String> {
         .equitySecurityVisitor(_equitySecurityVisitor)
         .equityOptionVisitor(_equityOptionSecurityVisitor)
         .equityIndexOptionVisitor(_equityIndexOptionSecurityVisitor)
+        .standardVanillaCDSSecurityVisitor(_standardVanillaCdsSecurityVisitor)
+        .legacyVanillaCDSSecurityVisitor(_legacyVanillaCdsSecurityVisitor)
         .create();
       FinancialSecurity security = (FinancialSecurity) position.getSecurityLink().resolve(_secSource);
       try {
