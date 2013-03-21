@@ -372,6 +372,10 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
           }
           replaceMarketDataProvider(executionOptions.getMarketDataSpecifications());
           marketDataProvider = getMarketDataProvider();
+          if (marketDataProvider == null) {
+            cycleExecutionFailed(executionOptions, new OpenGammaRuntimeException("Market data specifications " + executionOptions.getMarketDataSpecifications() + "invalid"));
+            return;
+          }
         }
         // Obtain the snapshot in case it is needed, but don't explicitly initialise it until the data is required
         marketDataSnapshot = marketDataProvider.snapshot();
