@@ -22,10 +22,10 @@ import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.component.factory.ComponentInfoAttributes;
-import com.opengamma.master.orgs.OrganisationMaster;
-import com.opengamma.master.orgs.impl.DataOrganisationMasterResource;
-import com.opengamma.master.orgs.impl.EHCachingOrganisationMaster;
-import com.opengamma.master.orgs.impl.RemoteOrganisationMaster;
+import com.opengamma.master.orgs.OrganizationMaster;
+import com.opengamma.master.orgs.impl.DataOrganizationMasterResource;
+import com.opengamma.master.orgs.impl.EHCachingOrganizationMaster;
+import com.opengamma.master.orgs.impl.RemoteOrganizationMaster;
 import com.opengamma.util.ehcache.EHCacheUtils;
 
 /**
@@ -50,24 +50,24 @@ public class EHCachingOrganizationMasterComponentFactory extends AbstractCompone
    * The underlying organization master.
    */
   @PropertyDefinition(validate = "notNull")
-  private OrganisationMaster _underlying;
+  private OrganizationMaster _underlying;
 
 
   //-------------------------------------------------------------------------
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> organizationuration) {
 
-    OrganisationMaster master = new EHCachingOrganisationMaster(getClassifier(),
+    OrganizationMaster master = new EHCachingOrganizationMaster(getClassifier(),
                                                       _underlying,
                                                       EHCacheUtils.createCacheManager()); // actually retrieves existing
 
     // register
-    ComponentInfo info = new ComponentInfo(OrganisationMaster.class, getClassifier());
+    ComponentInfo info = new ComponentInfo(OrganizationMaster.class, getClassifier());
     info.addAttribute(ComponentInfoAttributes.LEVEL, 2);
-    info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteOrganisationMaster.class);
+    info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteOrganizationMaster.class);
     repo.registerComponent(info, master);
     if (isPublishRest()) {
-      repo.getRestComponents().publish(info, new DataOrganisationMasterResource(master));
+      repo.getRestComponents().publish(info, new DataOrganizationMasterResource(master));
     }
   }
 
@@ -112,7 +112,7 @@ public class EHCachingOrganizationMasterComponentFactory extends AbstractCompone
         setPublishRest((Boolean) newValue);
         return;
       case -1770633379:  // underlying
-        setUnderlying((OrganisationMaster) newValue);
+        setUnderlying((OrganizationMaster) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -205,7 +205,7 @@ public class EHCachingOrganizationMasterComponentFactory extends AbstractCompone
    * Gets the underlying organization master.
    * @return the value of the property, not null
    */
-  public OrganisationMaster getUnderlying() {
+  public OrganizationMaster getUnderlying() {
     return _underlying;
   }
 
@@ -213,7 +213,7 @@ public class EHCachingOrganizationMasterComponentFactory extends AbstractCompone
    * Sets the underlying organization master.
    * @param underlying  the new value of the property, not null
    */
-  public void setUnderlying(OrganisationMaster underlying) {
+  public void setUnderlying(OrganizationMaster underlying) {
     JodaBeanUtils.notNull(underlying, "underlying");
     this._underlying = underlying;
   }
@@ -222,7 +222,7 @@ public class EHCachingOrganizationMasterComponentFactory extends AbstractCompone
    * Gets the the {@code underlying} property.
    * @return the property, not null
    */
-  public final Property<OrganisationMaster> underlying() {
+  public final Property<OrganizationMaster> underlying() {
     return metaBean().underlying().createProperty(this);
   }
 
@@ -249,8 +249,8 @@ public class EHCachingOrganizationMasterComponentFactory extends AbstractCompone
     /**
      * The meta-property for the {@code underlying} property.
      */
-    private final MetaProperty<OrganisationMaster> _underlying = DirectMetaProperty.ofReadWrite(
-        this, "underlying", EHCachingOrganizationMasterComponentFactory.class, OrganisationMaster.class);
+    private final MetaProperty<OrganizationMaster> _underlying = DirectMetaProperty.ofReadWrite(
+        this, "underlying", EHCachingOrganizationMasterComponentFactory.class, OrganizationMaster.class);
     /**
      * The meta-properties.
      */
@@ -315,7 +315,7 @@ public class EHCachingOrganizationMasterComponentFactory extends AbstractCompone
      * The meta-property for the {@code underlying} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<OrganisationMaster> underlying() {
+    public final MetaProperty<OrganizationMaster> underlying() {
       return _underlying;
     }
 
