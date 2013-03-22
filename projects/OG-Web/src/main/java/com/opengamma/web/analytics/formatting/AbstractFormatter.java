@@ -43,6 +43,15 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
+  public Object formatInlineCell(T value, ValueSpecification valueSpec, int index) {
+    if (index == 0) {
+      return formatCell(value, valueSpec);
+    } else {
+      return "";
+    }
+  }
+
+  @Override
   public Class<T> getType() {
     return _type;
   }

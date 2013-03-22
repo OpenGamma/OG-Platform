@@ -29,7 +29,7 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public ResultsCell getResults(int rowIndex, ResultsCache cache, Class<?> columnType) {
+  public ResultsCell getResults(int rowIndex, ResultsCache cache, Class<?> columnType, Integer inlineIndex) {
     PortfolioGridRow row = _rows.get(rowIndex);
     ComputationTargetReference target = row.getTarget();
     ComputationTargetType targetType = target.getType();

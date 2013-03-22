@@ -22,18 +22,22 @@ import com.opengamma.engine.view.AggregatedExecutionLog;
   private final AggregatedExecutionLog _executionLog;
   private final boolean _updated;
   private final Class<?> _type;
+  private final Integer _inlineIndex;
 
   private ResultsCell(Object value,
                       ValueSpecification valueSpecification,
                       Collection<Object> history,
                       AggregatedExecutionLog executionLog,
-                      boolean updated, Class<?> type) {
+                      boolean updated,
+                      Class<?> type,
+                      Integer inlineIndex) {
     _value = value;
     _valueSpecification = valueSpecification;
     _history = history;
     _executionLog = executionLog;
     _updated = updated;
     _type = type;
+    _inlineIndex = inlineIndex;
   }
 
   /**
@@ -44,7 +48,7 @@ import com.opengamma.engine.view.AggregatedExecutionLog;
    * @return A cell for displaying the value
    */
   /* package */ static ResultsCell forStaticValue(Object value, Class<?> type, boolean updated) {
-    return new ResultsCell(value, null, null, null, updated, type);
+    return new ResultsCell(value, null, null, null, updated, type, null);
   }
 
   // TODO is this version still required? or should all callers be specifying whether the value was updated?
@@ -73,7 +77,17 @@ import com.opengamma.engine.view.AggregatedExecutionLog;
                                                       AggregatedExecutionLog executionLog,
                                                       boolean updated,
                                                       Class<?> type) {
-    return new ResultsCell(value, valueSpecification, history, executionLog, updated, type);
+    return new ResultsCell(value, valueSpecification, history, executionLog, updated, type, null);
+  }
+
+  /* package */ static ResultsCell forCalculatedValue(Object value,
+                                                      ValueSpecification valueSpecification,
+                                                      Collection<Object> history,
+                                                      AggregatedExecutionLog executionLog,
+                                                      boolean updated,
+                                                      Class<?> type,
+                                                      Integer inlineIndex) {
+    return new ResultsCell(value, valueSpecification, history, executionLog, updated, type, inlineIndex);
   }
 
   /**
@@ -84,7 +98,7 @@ import com.opengamma.engine.view.AggregatedExecutionLog;
    * @param type TODO remove
    */
   /* package */ static ResultsCell empty(Collection<Object> emptyHistory, Class<?> type) {
-    return new ResultsCell(null, null, emptyHistory, null, false, type);
+    return new ResultsCell(null, null, emptyHistory, null, false, type, null);
   }
 
   /**
@@ -125,6 +139,10 @@ import com.opengamma.engine.view.AggregatedExecutionLog;
 
   /* package */ Class<?> getType() {
     return _type;
+  }
+
+  /* package */ Integer getInlineIndex() {
+    return _inlineIndex;
   }
 
   @Override
