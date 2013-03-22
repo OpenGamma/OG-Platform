@@ -10,7 +10,7 @@ import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.PublicAPI;
 
 /**
- * An organisation that may represent amongst other, an Obligor.
+ * An organization that may represent amongst other, an Obligor.
  * <p>
  * This interface is read-only.
  * Implementations may be mutable.
@@ -24,5 +24,5 @@ public interface Organization extends UniqueIdentifiable {
    *
    * @return the obligor
    */
-  public Obligor getObligor();
+  Obligor getObligor();
 }

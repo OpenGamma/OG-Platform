@@ -48,7 +48,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalIdentifiable;
 import com.opengamma.id.UniqueId;
-import com.opengamma.util.timeseries.TimeSeries;
+import com.opengamma.timeseries.TimeSeries;
 
 /**
  * Iterates a view client over historical data to produce a historical valuation of a target. The view client iteration is performed by a helper function on a {@link ViewEvaluationTarget} created by

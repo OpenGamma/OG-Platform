@@ -35,8 +35,8 @@ import java.util.TreeMap;
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 
+import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.money.MultipleCurrencyAmount;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * 

@@ -22,10 +22,10 @@ import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.core.change.JmsChangeManager;
-import com.opengamma.master.orgs.OrganisationMaster;
-import com.opengamma.master.orgs.impl.DataOrganisationMasterResource;
-import com.opengamma.master.orgs.impl.RemoteOrganisationMaster;
-import com.opengamma.masterdb.orgs.DbOrganisationMaster;
+import com.opengamma.master.orgs.OrganizationMaster;
+import com.opengamma.master.orgs.impl.DataOrganizationMasterResource;
+import com.opengamma.master.orgs.impl.RemoteOrganizationMaster;
+import com.opengamma.masterdb.orgs.DbOrganizationMaster;
 import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.jms.JmsConnector;
 
@@ -74,10 +74,10 @@ public class DbOrganizationMasterComponentFactory extends AbstractDbMasterCompon
   //-------------------------------------------------------------------------
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
-    ComponentInfo info = new ComponentInfo(OrganisationMaster.class, getClassifier());
+    ComponentInfo info = new ComponentInfo(OrganizationMaster.class, getClassifier());
 
     // create
-    DbOrganisationMaster master = new DbOrganisationMaster(getDbConnector());
+    DbOrganizationMaster master = new DbOrganizationMaster(getDbConnector());
     if (getUniqueIdScheme() != null) {
       master.setUniqueIdScheme(getUniqueIdScheme());
     }
@@ -97,13 +97,13 @@ public class DbOrganizationMasterComponentFactory extends AbstractDbMasterCompon
 
     // register
     info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
-    info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteOrganisationMaster.class);
+    info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteOrganizationMaster.class);
     info.addAttribute(ComponentInfoAttributes.UNIQUE_ID_SCHEME, master.getUniqueIdScheme());
     repo.registerComponent(info, master);
 
     // publish
     if (isPublishRest()) {
-      repo.getRestComponents().publish(info, new DataOrganisationMasterResource(master));
+      repo.getRestComponents().publish(info, new DataOrganizationMasterResource(master));
     }
   }
 

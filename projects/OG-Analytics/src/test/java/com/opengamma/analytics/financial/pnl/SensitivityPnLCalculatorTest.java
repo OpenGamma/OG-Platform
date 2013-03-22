@@ -16,10 +16,10 @@ import com.opengamma.analytics.financial.greeks.Greek;
 import com.opengamma.analytics.financial.sensitivity.ValueGreek;
 import com.opengamma.analytics.financial.sensitivity.ValueGreekSensitivity;
 import com.opengamma.analytics.math.function.Function;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
-import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
-import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
+import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.fast.DateTimeNumericEncoding;
+import com.opengamma.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
+import com.opengamma.timeseries.fast.longint.FastLongDoubleTimeSeries;
 
 /**
  * 

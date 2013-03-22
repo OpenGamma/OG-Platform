@@ -26,7 +26,7 @@ import com.opengamma.core.organization.OrganizationSource;
 import com.opengamma.core.organization.impl.DataOrganizationSourceResource;
 import com.opengamma.core.organization.impl.RemoteOrganizationSource;
 import com.opengamma.master.organization.impl.MasterOrganizationSource;
-import com.opengamma.master.orgs.OrganisationMaster;
+import com.opengamma.master.orgs.OrganizationMaster;
 
 /**
  * Component factory providing the {@code OrganizationSource}.
@@ -48,7 +48,7 @@ public class OrganizationSourceComponentFactory extends AbstractComponentFactory
    * The underlying organization master.
    */
   @PropertyDefinition(validate = "notNull")
-  private OrganisationMaster _organizationMaster;
+  private OrganizationMaster _organizationMaster;
 
   //-------------------------------------------------------------------------
   /**
@@ -122,7 +122,7 @@ public class OrganizationSourceComponentFactory extends AbstractComponentFactory
         setPublishRest((Boolean) newValue);
         return;
       case -1158737547:  // organizationMaster
-        setOrganizationMaster((OrganisationMaster) newValue);
+        setOrganizationMaster((OrganizationMaster) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -215,7 +215,7 @@ public class OrganizationSourceComponentFactory extends AbstractComponentFactory
    * Gets the underlying organization master.
    * @return the value of the property, not null
    */
-  public OrganisationMaster getOrganizationMaster() {
+  public OrganizationMaster getOrganizationMaster() {
     return _organizationMaster;
   }
 
@@ -223,7 +223,7 @@ public class OrganizationSourceComponentFactory extends AbstractComponentFactory
    * Sets the underlying organization master.
    * @param organizationMaster  the new value of the property, not null
    */
-  public void setOrganizationMaster(OrganisationMaster organizationMaster) {
+  public void setOrganizationMaster(OrganizationMaster organizationMaster) {
     JodaBeanUtils.notNull(organizationMaster, "organizationMaster");
     this._organizationMaster = organizationMaster;
   }
@@ -232,7 +232,7 @@ public class OrganizationSourceComponentFactory extends AbstractComponentFactory
    * Gets the the {@code organizationMaster} property.
    * @return the property, not null
    */
-  public final Property<OrganisationMaster> organizationMaster() {
+  public final Property<OrganizationMaster> organizationMaster() {
     return metaBean().organizationMaster().createProperty(this);
   }
 
@@ -259,8 +259,8 @@ public class OrganizationSourceComponentFactory extends AbstractComponentFactory
     /**
      * The meta-property for the {@code organizationMaster} property.
      */
-    private final MetaProperty<OrganisationMaster> _organizationMaster = DirectMetaProperty.ofReadWrite(
-        this, "organizationMaster", OrganizationSourceComponentFactory.class, OrganisationMaster.class);
+    private final MetaProperty<OrganizationMaster> _organizationMaster = DirectMetaProperty.ofReadWrite(
+        this, "organizationMaster", OrganizationSourceComponentFactory.class, OrganizationMaster.class);
     /**
      * The meta-properties.
      */
@@ -325,7 +325,7 @@ public class OrganizationSourceComponentFactory extends AbstractComponentFactory
      * The meta-property for the {@code organizationMaster} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<OrganisationMaster> organizationMaster() {
+    public final MetaProperty<OrganizationMaster> organizationMaster() {
       return _organizationMaster;
     }
 

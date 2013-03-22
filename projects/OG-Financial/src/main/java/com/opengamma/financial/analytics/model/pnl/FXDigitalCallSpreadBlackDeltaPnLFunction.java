@@ -50,9 +50,9 @@ import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.currency.CurrencySeriesConversionFunction;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
+import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  *

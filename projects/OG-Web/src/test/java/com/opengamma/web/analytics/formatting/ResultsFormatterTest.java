@@ -31,6 +31,6 @@ public class ResultsFormatterTest {
     ComputationTargetSpecification spec = new ComputationTargetSpecification(ComputationTargetType.POSITION, uid);
     ValueProperties props = ValueProperties.builder().with(ValuePropertyNames.FUNCTION, "fn").get();
     // if this works without an exception then the bug is fixed
-    formatter.format(123d, new ValueSpecification("unknown value name", spec, props), TypeFormatter.Format.HISTORY);
+    formatter.format(123d, new ValueSpecification("unknown value name", spec, props), TypeFormatter.Format.HISTORY, null);
   }
 }

@@ -67,9 +67,9 @@ import org.threeten.bp.LocalDate;
 
 import com.google.common.collect.Iterables;
 import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefinition;
+import com.opengamma.timeseries.localdate.ListLocalDateDoubleTimeSeries;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
-import com.opengamma.util.timeseries.localdate.ListLocalDateDoubleTimeSeries;
 
 /**
  * 

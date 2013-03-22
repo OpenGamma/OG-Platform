@@ -13,8 +13,8 @@ import org.threeten.bp.ZonedDateTime;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
-import com.opengamma.util.timeseries.zoneddatetime.ZonedDateTimeDoubleTimeSeries;
+import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.zoneddatetime.ZonedDateTimeDoubleTimeSeries;
 
 /**
  *

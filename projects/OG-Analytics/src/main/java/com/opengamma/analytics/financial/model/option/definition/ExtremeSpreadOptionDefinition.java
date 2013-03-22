@@ -9,9 +9,9 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * 

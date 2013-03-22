@@ -8,10 +8,10 @@ package com.opengamma.analytics.financial.pnl;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.math.function.Function1D;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
-import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
-import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
+import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.fast.DateTimeNumericEncoding;
+import com.opengamma.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
+import com.opengamma.timeseries.fast.longint.FastLongDoubleTimeSeries;
 
 /**
  * The drawdown is a measure of the decline from the historic peak of a variable (e.g. the NAV of a fund). This calculator returns a time series

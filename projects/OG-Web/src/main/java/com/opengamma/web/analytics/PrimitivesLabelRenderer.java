@@ -22,7 +22,7 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public ResultsCell getResults(int rowIndex, ResultsCache cache, Class<?> columnType) {
+  public ResultsCell getResults(int rowIndex, ResultsCache cache, Class<?> columnType, Integer inlineIndex) {
     MainGridStructure.Row row = _rows.get(rowIndex);
     return ResultsCell.forStaticValue(row.getName(), columnType);
   }

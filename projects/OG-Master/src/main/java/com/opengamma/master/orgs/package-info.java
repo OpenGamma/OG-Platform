@@ -5,6 +5,6 @@
  */
 
 /**
- * Organization master API providing the ability to query and update organisations.
+ * Organization master API providing the ability to query and update organizations.
  */
 package com.opengamma.master.orgs;

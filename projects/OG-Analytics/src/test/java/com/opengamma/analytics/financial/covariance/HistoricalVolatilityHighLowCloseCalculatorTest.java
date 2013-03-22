@@ -12,8 +12,8 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.timeseries.returns.SimpleNetRelativeTimeSeriesReturnCalculator;
 import com.opengamma.analytics.financial.timeseries.returns.SimpleNetTimeSeriesReturnCalculator;
+import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.CalculationMode;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * 

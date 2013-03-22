@@ -139,7 +139,16 @@ import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
   public List<String> updateResults(ViewResultModel results, ViewCycle viewCycle) {
     _cache.put(results);
     List<String> updatedIds = Lists.newArrayList();
-    updatedIds.addAll(_portfolioGrid.updateResults(_cache, viewCycle));
+    PortfolioAnalyticsGrid updatedPortfolioGrid = _portfolioGrid.withUpdatedStructure(_cache);
+    if (updatedPortfolioGrid == _portfolioGrid) {
+      // no change to the grid structure, notify the data has changed
+      updatedIds.addAll(_portfolioGrid.updateResults(_cache, viewCycle));
+    } else {
+      _portfolioGrid = updatedPortfolioGrid;
+      // grid structure has changed due to the results, notify the grids need to be rebuilt
+      updatedIds.add(_portfolioGrid.getCallbackId());
+      updatedIds.addAll(_portfolioGrid.getDependencyGraphCallbackIds());
+    }
     updatedIds.addAll(_primitivesGrid.updateResults(_cache, viewCycle));
     return updatedIds;
   }

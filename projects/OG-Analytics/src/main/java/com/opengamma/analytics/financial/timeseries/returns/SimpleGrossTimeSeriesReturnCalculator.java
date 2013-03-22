@@ -10,11 +10,11 @@ import java.util.Map;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.timeseries.TimeSeriesException;
+import com.opengamma.timeseries.fast.integer.FastIntDoubleTimeSeries;
+import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.CalculationMode;
-import com.opengamma.util.timeseries.TimeSeriesException;
-import com.opengamma.util.timeseries.fast.integer.FastIntDoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * <p>

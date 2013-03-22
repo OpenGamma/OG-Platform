@@ -75,7 +75,7 @@
     <constructor-arg ref="hsqldbDbConnector" />
   </bean>
 
-  <bean id="hsqldbDbOrganisationMaster" class="com.opengamma.masterdb.orgs.DbOrganisationMaster">
+  <bean id="hsqldbDbOrganizationMaster" class="com.opengamma.masterdb.orgs.DbOrganizationMaster">
     <constructor-arg ref="hsqldbDbConnector" />
   </bean>
   
@@ -147,7 +147,7 @@
     <constructor-arg ref="postgresDbConnector" />
   </bean>
 
-  <bean id="postgresDbOrganisationMaster" class="com.opengamma.masterdb.orgs.DbOrganisationMaster">
+  <bean id="postgresDbOrganizationMaster" class="com.opengamma.masterdb.orgs.DbOrganizationMaster">
     <constructor-arg ref="postgresDbConnector" />
   </bean>
 
@@ -219,7 +219,7 @@
     <constructor-arg ref="sqlserver2008DbConnector" />
   </bean>
 
-  <bean id="sqlserver2008DbOrganisationMaster" class="com.opengamma.masterdb.orgs.DbOrganisationMaster">
+  <bean id="sqlserver2008DbOrganizationMaster" class="com.opengamma.masterdb.orgs.DbOrganizationMaster">
     <constructor-arg ref="sqlserver2008DbConnector" />
   </bean>
 

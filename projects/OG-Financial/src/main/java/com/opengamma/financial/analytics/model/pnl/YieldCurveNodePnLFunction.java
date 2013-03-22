@@ -72,9 +72,9 @@ import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.financial.sensitivities.SecurityEntryData;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  *

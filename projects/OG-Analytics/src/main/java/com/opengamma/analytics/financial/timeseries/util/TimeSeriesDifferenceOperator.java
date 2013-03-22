@@ -8,9 +8,9 @@ package com.opengamma.analytics.financial.timeseries.util;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.math.function.Function1D;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.fast.integer.FastArrayIntDoubleTimeSeries;
-import com.opengamma.util.timeseries.fast.integer.FastIntDoubleTimeSeries;
+import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.fast.integer.FastArrayIntDoubleTimeSeries;
+import com.opengamma.timeseries.fast.integer.FastIntDoubleTimeSeries;
 
 /**
  * 
