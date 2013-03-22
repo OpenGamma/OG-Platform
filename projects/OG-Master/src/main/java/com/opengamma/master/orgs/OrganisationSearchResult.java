@@ -93,10 +93,14 @@ public class OrganisationSearchResult extends AbstractSearchResult<OrganisationD
    * @throws IllegalStateException if no organisation was found
    */
   public ManageableOrganisation getSingleOrganisation() {
-    if (getDocuments().size() != 1) {
-      throw new OpenGammaRuntimeException("Expecting zero or single resulting match, and was " + getDocuments().size());
-    } else {
-      return getDocuments().get(0).getOrganisation();
+    List<OrganisationDocument> documents = getDocuments();
+    switch (documents.size()) {
+      case 0:
+        return null;
+      case 1:
+        return documents.get(0).getOrganisation();
+      default:
+        throw new OpenGammaRuntimeException("Expecting zero or single resulting match, and was " + documents.size());
     }
   }
 

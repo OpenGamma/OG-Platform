@@ -10,16 +10,20 @@ import com.opengamma.core.obligor.definition.Obligor;
 import com.opengamma.core.organization.OrganizationSource;
 import com.opengamma.core.security.SecuritySource;
 
-public class CdsObligorNameAggregationFunction extends AbstractCdsObligorAggregationFunction {
+/**
+ * Aggregation function which which extract the short name from the reference
+ * entity on a CDS security.
+ */
+public class CdsObligorNameAggregationFunction extends AbstractCdsAggregationFunction<Obligor> {
 
   private static final String NAME = "Reference Entity Names";
 
   public CdsObligorNameAggregationFunction(SecuritySource securitySource, OrganizationSource organizationSource) {
-    super(NAME, securitySource, organizationSource);
+    super(NAME, securitySource, new CdsObligorExtractor(organizationSource));
   }
 
   @Override
-  protected String extractDataUsingObligor(Obligor obligor) {
+  protected String handleExtractedData(Obligor obligor) {
     return obligor.getObligorShortName();
   }
 }
