@@ -232,8 +232,6 @@ public class PresentValueCreditDefaultSwap {
 
       //final double discount = yieldCurve.getDiscountFactor(today, accrualEndDate);
 
-      //System.out.println(i + "\t" + accTime + "\t" + survival + "\t" + discount);
-
       thisPV += delta * accTime * discount * survival;
 
       // ---------------------------------------------
@@ -455,8 +453,6 @@ public class PresentValueCreditDefaultSwap {
      */
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
-
-    //System.out.println(cds.getNotional() * presentValuePremiumLeg);
 
     return cds.getNotional() * presentValuePremiumLeg;
 
