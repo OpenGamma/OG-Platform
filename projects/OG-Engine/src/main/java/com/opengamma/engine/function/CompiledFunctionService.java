@@ -25,6 +25,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.NamedThreadPoolFactory;
 import com.opengamma.util.monitor.OperationTimer;
 
 /**
@@ -74,7 +75,8 @@ public class CompiledFunctionService {
 
   protected ExecutorService createDefaultExecutorService() {
     final int processors = Math.max(Runtime.getRuntime().availableProcessors(), 1);
-    final ThreadPoolExecutor executorService = new ThreadPoolExecutor(processors, processors, 30, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
+    final ThreadPoolExecutor executorService = new ThreadPoolExecutor(processors, processors, 30, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), new NamedThreadPoolFactory(
+        "CompiledFunctionService", true));
     executorService.allowCoreThreadTimeOut(true);
     return executorService;
   }
