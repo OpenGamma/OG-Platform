@@ -22,10 +22,10 @@ import com.opengamma.web.analytics.rest.MasterType;
 /**
  * Test.
  */
-@Test(groups = TestGroup.UNIT)
+@Test(groups = TestGroup.INTEGRATION)
 public class ConnectionManagerImplTest {
 
-  @Test(expectedExceptions = DataNotFoundException.class, invocationCount = 5, successPercentage = 19)
+  @Test(expectedExceptions = DataNotFoundException.class)
   public void timeout() throws InterruptedException {
     // update manager with non-default short timeouts
     final MasterChangeManager masterChangeManager = new MasterChangeManager(Collections.<MasterType, ChangeProvider>emptyMap());

@@ -21,6 +21,7 @@ import com.opengamma.util.tuple.Pair;
 
   /** The column structure. */
   private final GridColumnGroups _columnGroups;
+
   /** For looking up the underlying target of a grid cell. */
   private final TargetLookup _targetLookup;
 
@@ -76,6 +77,10 @@ import com.opengamma.util.tuple.Pair;
     return _columnGroups.getColumnCount();
   }
 
+  /* package */ TargetLookup getTargetLookup() {
+    return _targetLookup;
+  }
+
   @Override
   public String toString() {
     return "MainGridStructure [_columnGroups=" + _columnGroups + "]";
@@ -108,10 +113,6 @@ import com.opengamma.util.tuple.Pair;
                                                           _columnGroups,
                                                           cache.getLastCalculationDuration());
     return Pair.of(viewportResults, state);
-  }
-
-  /* package */ GridColumnGroups getNonFixedColumns() {
-    return _columnGroups;
   }
 
   /**

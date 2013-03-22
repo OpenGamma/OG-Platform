@@ -331,6 +331,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
       ViewProcessImpl process = _sharedProcessesByDescription.get(viewDescription);
       if (process == null) {
         process = createViewProcess(viewDefinitionId, executionOptions);
+        process.setDescriptionKey(viewDescription); // TEMPORARY - the execution options in the key might not match what the process was created with
         _sharedProcessesByDescription.put(viewDescription, process);
       }
       return process;
@@ -342,28 +343,30 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
   private ViewProcessImpl createViewProcess(UniqueId definitionId, ViewExecutionOptions executionOptions) {
     // TEMPORARY CODE - This should be removed post credit work and supports Excel (Jim)
     ViewCycleExecutionOptions defaultExecutionOptions = executionOptions.getDefaultExecutionOptions();
-    List<MarketDataSpecification> specifications = defaultExecutionOptions.getMarketDataSpecifications();
-    if (!specifications.isEmpty()) {
-      specifications = new ArrayList<MarketDataSpecification>(specifications);
-      boolean changed = false;
-      for (int i = 0; i < specifications.size(); i++) {
-        final MarketDataSpecification specification = specifications.get(i);
-        if (specification instanceof LiveMarketDataSpecification) {
-          final String dataSource = ((LiveMarketDataSpecification) specification).getDataSource();
-          if (dataSource != null) {
-            final MarketDataSpecification namedSpec = _namedMarketDataSpecificationRepository.getSpecification(dataSource);
-            if (namedSpec != null) {
-              s_logger.info("Replacing live data {} with named spec {}", dataSource, namedSpec);
-              specifications.set(i, namedSpec);
-              changed = true;
+    if (defaultExecutionOptions != null) {
+      List<MarketDataSpecification> specifications = defaultExecutionOptions.getMarketDataSpecifications();
+      if (specifications != null && !specifications.isEmpty()) {
+        specifications = new ArrayList<MarketDataSpecification>(specifications);
+        boolean changed = false;
+        for (int i = 0; i < specifications.size(); i++) {
+          final MarketDataSpecification specification = specifications.get(i);
+          if (specification instanceof LiveMarketDataSpecification) {
+            final String dataSource = ((LiveMarketDataSpecification) specification).getDataSource();
+            if (dataSource != null) {
+              final MarketDataSpecification namedSpec = _namedMarketDataSpecificationRepository.getSpecification(dataSource);
+              if (namedSpec != null) {
+                s_logger.info("Replacing live data {} with named spec {}", dataSource, namedSpec);
+                specifications.set(i, namedSpec);
+                changed = true;
+              }
             }
           }
         }
-      }
-      if (changed) {
-        executionOptions = new ExecutionOptions(executionOptions.getExecutionSequence(), executionOptions.getFlags(), executionOptions.getMaxSuccessiveDeltaCycles(), ViewCycleExecutionOptions
-            .builder().setMarketDataSpecifications(specifications).setResolverVersionCorrection(defaultExecutionOptions.getResolverVersionCorrection())
-            .setValuationTime(defaultExecutionOptions.getValuationTime()).create());
+        if (changed) {
+          executionOptions = new ExecutionOptions(executionOptions.getExecutionSequence(), executionOptions.getFlags(), executionOptions.getMaxSuccessiveDeltaCycles(), ViewCycleExecutionOptions
+              .builder().setMarketDataSpecifications(specifications).setResolverVersionCorrection(defaultExecutionOptions.getResolverVersionCorrection())
+              .setValuationTime(defaultExecutionOptions.getValuationTime()).create());
+        }
       }
     }
     // END TEMPORARY CODE
@@ -419,7 +422,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
       viewProcess.shutdownCore();
 
       _allProcessesById.remove(viewProcess.getUniqueId());
-      final ViewProcessDescription description = new ViewProcessDescription(viewProcess.getDefinitionId(), viewProcess.getExecutionOptions());
+      final ViewProcessDescription description = (ViewProcessDescription)viewProcess.getDescriptionKey();
       final ViewProcessImpl sharedProc = _sharedProcessesByDescription.get(description);
       if (sharedProc != null && sharedProc == viewProcess) { //PLAT-1287
         _sharedProcessesByDescription.remove(description);
@@ -441,7 +444,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
   }
 
   private boolean isShared(ViewProcessImpl process) {
-    ViewProcessDescription description = new ViewProcessDescription(process.getDefinitionId(), process.getExecutionOptions());
+    ViewProcessDescription description = (ViewProcessDescription)process.getDescriptionKey();
     _processLock.lock();
     try {
       return _sharedProcessesByDescription.containsKey(description);

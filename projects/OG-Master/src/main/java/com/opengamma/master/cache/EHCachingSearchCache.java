@@ -111,6 +111,9 @@ public class EHCachingSearchCache {
     cacheConfiguration.setCopyOnRead(true);
     cacheConfiguration.setCopyOnWrite(true);
 
+    // Set short expiry time, since search result change management is not yet available
+    cacheConfiguration.setTimeToLiveSeconds(5 * 60);
+
     // Generate statistics
     cacheConfiguration.setStatistics(true);
 
