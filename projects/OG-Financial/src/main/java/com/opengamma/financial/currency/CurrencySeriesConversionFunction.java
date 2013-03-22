@@ -39,7 +39,9 @@ public class CurrencySeriesConversionFunction extends AbstractFunction.NonCompil
 
   private static final String CURRENCY_INJECTION_PROPERTY = ValuePropertyNames.OUTPUT_RESERVED_PREFIX + "Currency";
 
-  private static final Logger s_logger = LoggerFactory.getLogger(CurrencyConversionFunction.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(CurrencySeriesConversionFunction.class);
+
+  private static final ComputationTargetType TYPE = ComputationTargetType.PORTFOLIO_NODE.or(ComputationTargetType.POSITION).or(ComputationTargetType.SECURITY).or(ComputationTargetType.TRADE);
 
   private final Set<String> _valueNames;
   private boolean _allowViewDefaultCurrency; // = false;
@@ -249,7 +251,7 @@ public class CurrencySeriesConversionFunction extends AbstractFunction.NonCompil
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.PORTFOLIO_NODE.or(ComputationTargetType.POSITION).or(ComputationTargetType.SECURITY).or(ComputationTargetType.TRADE);
+    return TYPE;
   }
 
 }
