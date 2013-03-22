@@ -27,9 +27,9 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
 import com.opengamma.master.historicaltimeseries.impl.AbstractHistoricalTimeSeriesLoader;
 import com.opengamma.master.historicaltimeseries.impl.RandomTimeSeriesGenerator;
+import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.DateUtils;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * Loads random time-series to the time-series master for demo/testing purposes.

@@ -11,9 +11,9 @@ import java.util.Set;
 import org.threeten.bp.LocalDate;
 
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.PublicSPI;
 import com.opengamma.util.time.LocalDateRange;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.tuple.Pair;
 
 /**

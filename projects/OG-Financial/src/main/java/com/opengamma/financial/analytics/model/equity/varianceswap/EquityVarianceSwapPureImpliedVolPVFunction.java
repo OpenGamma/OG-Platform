@@ -32,8 +32,8 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
+import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.async.AsynchronousExecution;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  *

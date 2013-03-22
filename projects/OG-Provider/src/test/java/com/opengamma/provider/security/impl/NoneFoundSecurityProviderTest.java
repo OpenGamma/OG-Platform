@@ -15,8 +15,8 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.provider.security.SecurityProviderRequest;
 import com.opengamma.provider.security.SecurityProviderResult;
+import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.test.TestGroup;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * Test.

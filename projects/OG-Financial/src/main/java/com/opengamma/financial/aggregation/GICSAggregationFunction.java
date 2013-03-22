@@ -22,7 +22,8 @@ import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
-import com.opengamma.financial.security.cds.StandardCDSSecurity;
+import com.opengamma.financial.security.cds.CreditDefaultSwapSecurity;
+import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
 import com.opengamma.financial.security.cds.StandardVanillaCDSSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.GICSCode;
@@ -201,7 +202,7 @@ public class GICSAggregationFunction implements AggregationFunction<String> {
 
   private FinancialSecurityVisitor<String> _legacyVanillaCdsSecurityVisitor = new FinancialSecurityVisitorAdapter<String>() {
     @Override
-    public String visitStandardVanillaCDSSecurity(StandardVanillaCDSSecurity cds) {
+    public String visitLegacyVanillaCDSSecurity(LegacyVanillaCDSSecurity cds) {
       return sectorExtractionIsValid() ? _obligorSectorExtractor.extractOrElse(cds, UNKNOWN) : UNKNOWN;
     }
   };
@@ -296,7 +297,7 @@ public class GICSAggregationFunction implements AggregationFunction<String> {
       _obligorExtractor = new CdsRedCodeExtractor<>(new CdsObligorExtractor(organizationSource));
     }
 
-    public String extractOrElse(StandardCDSSecurity cds, String alternative) {
+    public String extractOrElse(CreditDefaultSwapSecurity cds, String alternative) {
 
       Obligor obligor = _obligorExtractor.extract(cds);
       return obligor != null ? obligor.getSector().name() : alternative;

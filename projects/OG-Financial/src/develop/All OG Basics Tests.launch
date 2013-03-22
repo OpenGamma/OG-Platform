@@ -30,9 +30,12 @@
 <listEntry value="com.opengamma.util.rest"/>
 <listEntry value="com.opengamma.util.test"/>
 <listEntry value="com.opengamma.util.time"/>
-<listEntry value="com.opengamma.util.timeseries"/>
-<listEntry value="com.opengamma.util.timeseries.object"/>
 <listEntry value="com.opengamma.util.tuple"/>
+<listEntry value="com.opengamma.timeseries"/>
+<listEntry value="com.opengamma.timeseries.fast.integer"/>
+<listEntry value="com.opengamma.timeseries.fast.longint"/>
+<listEntry value="com.opengamma.timeseries.object"/>
+<listEntry value="com.opengamma.timeseries.yearoffset"/>
 <listEntry value="com.opengamma.core"/>
 <listEntry value="com.opengamma.core.change"/>
 <listEntry value="com.opengamma.core.config"/>

@@ -94,8 +94,8 @@ import com.opengamma.analytics.financial.instrument.swaption.SwaptionCashFixedIb
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.varianceswap.VarianceSwapDefinition;
+import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.money.MultipleCurrencyAmount;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * Adapter that uses the same method regardless of the type of the instrument definition.

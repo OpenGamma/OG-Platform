@@ -76,6 +76,20 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
   private final AtomicReference<ViewComputationResultModel> _latestResult = new AtomicReference<ViewComputationResultModel>();
 
   private final ChangeListener _viewDefinitionChangeListener;
+  
+  // BEGIN TEMPORARY -- See ViewProcessorImpl
+  
+  private volatile Object _description;
+  
+  public Object getDescriptionKey() {
+    return _description;
+  }
+  
+  public void setDescriptionKey(final Object description)  {
+    _description = description;
+  }
+  
+  // END TEMPORARY CODE
 
   /**
    * Constructs an instance.

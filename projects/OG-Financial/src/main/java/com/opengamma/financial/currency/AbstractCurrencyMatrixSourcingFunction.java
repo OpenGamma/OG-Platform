@@ -12,8 +12,8 @@ import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.id.UniqueId;
+import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.tuple.Pair;
 
 /**

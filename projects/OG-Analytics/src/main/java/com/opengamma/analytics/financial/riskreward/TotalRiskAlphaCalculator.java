@@ -8,7 +8,7 @@ package com.opengamma.analytics.financial.riskreward;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.timeseries.analysis.DoubleTimeSeriesStatisticsCalculator;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.DoubleTimeSeries;
 
 /**
  * The total risk alpha measures the performance of an asset by comparing its

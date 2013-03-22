@@ -44,11 +44,11 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
 import com.opengamma.master.historicaltimeseries.impl.AbstractHistoricalTimeSeriesLoader;
 import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProvider;
+import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.OpenGammaClock;
 import com.opengamma.util.monitor.OperationTimer;
 import com.opengamma.util.time.LocalDateRange;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * Loads time-series information from Bloomberg into a master.
