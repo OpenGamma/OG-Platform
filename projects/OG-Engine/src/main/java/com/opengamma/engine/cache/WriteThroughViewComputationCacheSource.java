@@ -23,14 +23,16 @@ public class WriteThroughViewComputationCacheSource implements ViewComputationCa
     return _underlying;
   }
 
+  // ViewComputationCacheSource
+
   @Override
   public ViewComputationCache getCache(UniqueId viewCycleId, String calculationConfigurationName) {
-    return new WriteThroughViewComputationCache(getUnderlying().getCache(viewCycleId, calculationConfigurationName));
+    return WriteThroughViewComputationCache.of(getUnderlying().getCache(viewCycleId, calculationConfigurationName));
   }
 
   @Override
   public ViewComputationCache cloneCache(UniqueId viewCycleId, String calculationConfigurationName) {
-    return new WriteThroughViewComputationCache(getUnderlying().cloneCache(viewCycleId, calculationConfigurationName));
+    return WriteThroughViewComputationCache.of(getUnderlying().cloneCache(viewCycleId, calculationConfigurationName));
   }
 
   @Override

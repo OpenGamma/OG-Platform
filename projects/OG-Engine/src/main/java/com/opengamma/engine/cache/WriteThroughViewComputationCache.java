@@ -30,6 +30,8 @@ public class WriteThroughViewComputationCache implements ViewComputationCache {
 
   private static final Object PENDING = new Object();
 
+  private static final ConcurrentMap<ViewComputationCache, WriteThroughViewComputationCache> s_instances = new MapMaker().weakKeys().weakValues().makeMap();
+
   /* package */static final class Pending {
 
     private final ValueSpecification _specification;
@@ -69,9 +71,23 @@ public class WriteThroughViewComputationCache implements ViewComputationCache {
 
   private final ConcurrentMap<ValueSpecification, Pending> _pending = new MapMaker().weakValues().makeMap();
 
-  public WriteThroughViewComputationCache(final ViewComputationCache underlying) {
+  protected WriteThroughViewComputationCache(final ViewComputationCache underlying) {
     ArgumentChecker.notNull(underlying, "underlying");
     _underlying = underlying;
+  }
+
+  public static WriteThroughViewComputationCache of(final ViewComputationCache underlying) {
+    WriteThroughViewComputationCache cached = s_instances.get(underlying);
+    if (cached != null) {
+      return cached;
+    }
+    cached = new WriteThroughViewComputationCache(underlying);
+    final WriteThroughViewComputationCache existing = s_instances.putIfAbsent(underlying, cached);
+    if (existing == null) {
+      return cached;
+    } else {
+      return existing;
+    }
   }
 
   protected ViewComputationCache getUnderlying() {
