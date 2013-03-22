@@ -10,16 +10,17 @@ import static org.testng.AssertJUnit.assertEquals;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.ehcache.CacheManager;
+
 import org.joda.beans.Bean;
 import org.testng.annotations.Test;
 
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.security.SecuritySearchRequest;
+import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.paging.PagingRequest;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.ObjectsPair;
-
-import net.sf.ehcache.CacheManager;
 
 @Test(groups = TestGroup.UNIT)
 public class EHCachingSearchCacheTest {
@@ -79,7 +80,7 @@ public class EHCachingSearchCacheTest {
    * @return the cache manager
    */
   private CacheManager getCleanCacheManager() {
-    CacheManager cacheManager = CacheManager.getInstance();
+    CacheManager cacheManager = EHCacheUtils.createTestCacheManager(getClass().getName() + System.currentTimeMillis());
     cacheManager.clearAll();
     cacheManager.removalAll();
     return cacheManager;
