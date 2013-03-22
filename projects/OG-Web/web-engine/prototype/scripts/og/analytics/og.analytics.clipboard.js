@@ -122,10 +122,6 @@ $.register_module({
             og.dev.warn(module.name + ': no formatter for ' + cell.type, cell);
             return typeof cell.value.v === 'string' ? cell.value.v : '';
         };
-        var same_viewport = function (one, two) {
-            if ((!one || !two) && one !== two) return false; // if either viewport is null
-            return one.rows.join('|') === two.rows.join('|') && one.cols.join('|') === two.cols.join('|');
-        };
         var select = function (text) {textarea.val(text).focus().select();};
         Clipboard.prototype.clear = function () {
             var clipboard = this;
@@ -158,7 +154,7 @@ $.register_module({
             grid_data = grid.range(selection, expanded);
             if (format === 'EXPANDED' && grid_data.raw && grid_data.raw[0][0].value.error)
                 (log = true), grid_data.data = null;
-            if (same_viewport(clipboard.selection, selection)) if (same_viewport(selection, data_viewport))
+            if (Object.equals(clipboard.selection, selection)) if (Object.equals(selection, data_viewport))
                 return grid_data.data ? (clipboard.dataman.viewport(null), clipboard.data = grid_data.data) : null;
             return (clipboard.selection = selection) && grid_data.data ?
                 (clipboard.dataman.viewport(null), clipboard.data = grid_data.data)
