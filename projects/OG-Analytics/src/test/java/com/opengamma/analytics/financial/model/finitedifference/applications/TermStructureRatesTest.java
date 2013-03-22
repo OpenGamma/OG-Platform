@@ -89,7 +89,7 @@ public class TermStructureRatesTest {
     final double pvFwd = DF*FWD_CURVE.getForward(T);
 
     final double pdePrice = PRICER.price(FWD_CURVE, RISK_FREE_CURVE, option, LOCAL_VOL_SUR, false, xNodes, tNodes);
-    System.out.println(pdePrice);
+    //System.out.println(pdePrice);
 
     //can recover accurate forward price with moderate grid
     assertEquals(pvFwd,pdePrice,pvFwd*5e-6);
@@ -126,7 +126,7 @@ public class TermStructureRatesTest {
     final int index = Arrays.binarySearch(grid.getSpaceNodes(), S0);
     final double pdePrice = res.getFunctionValue(index);
 
-    System.out.println(DF+"\t"+pdePrice);
+    //System.out.println(DF+"\t"+pdePrice);
     assertEquals(DF,pdePrice,DF*5e-5);
   }
 

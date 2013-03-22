@@ -117,7 +117,6 @@ public class BarrierOptionPricer {
     final boolean isUp = barrierLevel > spot;
 
     final double adj = 0.0; // _lambda == 0 ? ZETA * vol * Math.sqrt(expiry / (_nTNodes - 1)) : 0.0;
-    //System.out.println("adjustment: " + adj);
 
     double sMin;
     double sMax;

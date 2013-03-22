@@ -441,12 +441,6 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
 
     // -------------------------------------------------------------------------------
 
-    /*
-    for (int i = 0; i < cashflowSchedule.length; i++) {
-      System.out.println("i = " + i + "\t" + cashflowSchedule[i]);
-    }
-     */
-
     return cashflowSchedule;
   }
 

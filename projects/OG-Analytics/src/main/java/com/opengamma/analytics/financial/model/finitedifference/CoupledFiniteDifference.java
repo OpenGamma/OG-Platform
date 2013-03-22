@@ -293,8 +293,6 @@ public class CoupledFiniteDifference {
       }
       count++;
     }
-    //debug
-    //  System.out.println(count + " " + omega);
     return count;
   }
 
