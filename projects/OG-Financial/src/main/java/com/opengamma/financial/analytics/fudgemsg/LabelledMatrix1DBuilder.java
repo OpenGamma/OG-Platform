@@ -29,6 +29,7 @@ import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
 import com.opengamma.financial.analytics.LocalDateLabelledMatrix1D;
 import com.opengamma.financial.analytics.StringLabelledMatrix1D;
 import com.opengamma.financial.analytics.TenorLabelledMatrix1D;
+import com.opengamma.util.ClassUtils;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
 
@@ -54,7 +55,7 @@ final class LabelledMatrix1DBuilder {
     Class<?> labelClass;
     labelClass = loadedClasses.get(labelType);
     if (labelClass == null) {
-      labelClass = Class.forName(labelType);
+      labelClass = ClassUtils.loadClass(labelType);
       loadedClasses.put(labelType, labelClass);
     }
     return labelClass;
@@ -138,6 +139,7 @@ final class LabelledMatrix1DBuilder {
       final double[] valuesArray = Doubles.toArray(values);
       return new DoubleLabelledMatrix1D(keysArray, labelsArray, labelsTitle, valuesArray, valuesTitle);
     }
+
     private final Map<String, Class<?>> _loadedClasses = new ConcurrentHashMap<>(); //TODO: This should be expired at some point, but it's an insignificant leak at the moment
   }
 
@@ -225,6 +227,7 @@ final class LabelledMatrix1DBuilder {
       }
       return labelClass;
     }
+
     private final Map<String, Class<?>> _loadedClasses = new ConcurrentHashMap<>(); //TODO: This should be expired at some point, but it's an insignificant leak at the moment
   }
 
@@ -312,6 +315,7 @@ final class LabelledMatrix1DBuilder {
       }
       return labelClass;
     }
+
     private final Map<String, Class<?>> _loadedClasses = new ConcurrentHashMap<>(); //TODO: This should be expired at some point, but it's an insignificant leak at the moment
   }
 
@@ -397,6 +401,7 @@ final class LabelledMatrix1DBuilder {
       final double[] valuesArray = Doubles.toArray(values);
       return new CurrencyLabelledMatrix1D(keysArray, labelsArray, labelsTitle, valuesArray, valuesTitle);
     }
+
     private final Map<String, Class<?>> _loadedClasses = new ConcurrentHashMap<>(); //TODO: This should be expired at some point, but it's an insignificant leak at the moment
   }
 
