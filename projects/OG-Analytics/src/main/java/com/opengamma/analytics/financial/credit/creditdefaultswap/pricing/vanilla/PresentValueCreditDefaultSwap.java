@@ -33,6 +33,8 @@ public class PresentValueCreditDefaultSwap {
 
   private static final int spotDays = 3;
 
+  private static final boolean businessDayAdjustCashSettlementDate = true;
+
   private static final BusinessDayConvention cashSettlementDateBusinessDayConvention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("F");
 
   private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
@@ -64,6 +66,8 @@ public class PresentValueCreditDefaultSwap {
   // TODO : Tidy up the calculatePremiumLeg, valueFeeLegAccrualOnDefault and methods
   // TODO : Add the calculation for the settlement and stepin discount factors
   // TODO : Need to add the PROT_PAY_MAT option as well
+
+  // TODO : Add the calculation of the cash settlement amount
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -318,7 +322,11 @@ public class PresentValueCreditDefaultSwap {
 
     //final int spotDays = 5;
 
-    final ZonedDateTime bdaCashSettlementDate = cashSettlementDateBusinessDayConvention.adjustDate(cds.getCalendar(), valuationDate.plusDays(spotDays));
+    ZonedDateTime bdaCashSettlementDate = valuationDate.plusDays(spotDays);
+
+    if (businessDayAdjustCashSettlementDate) {
+      bdaCashSettlementDate = cashSettlementDateBusinessDayConvention.adjustDate(cds.getCalendar(), valuationDate.plusDays(spotDays));
+    }
 
     //final double tSett = TimeCalculator.getTimeBetween(valuationDate, valuationDate.plusDays(spotDays));
 
@@ -697,7 +705,11 @@ public class PresentValueCreditDefaultSwap {
     //final ZonedDateTime cashSettleDate = valuationDate.plusDays(spotDays);
     //final double t = TimeCalculator.getTimeBetween(valuationDate, cashSettleDate, ACT_365);
 
-    final ZonedDateTime bdaCashSettlementDate = cashSettlementDateBusinessDayConvention.adjustDate(cds.getCalendar(), valuationDate.plusDays(spotDays));
+    ZonedDateTime bdaCashSettlementDate = valuationDate.plusDays(spotDays);
+
+    if (businessDayAdjustCashSettlementDate) {
+      bdaCashSettlementDate = cashSettlementDateBusinessDayConvention.adjustDate(cds.getCalendar(), valuationDate.plusDays(spotDays));
+    }
 
     final double t = TimeCalculator.getTimeBetween(valuationDate, bdaCashSettlementDate, ACT_365);
 
@@ -776,7 +788,7 @@ public class PresentValueCreditDefaultSwap {
 
   // TODO : Need to move this function
 
-  public double calculatePointsUpfront(
+  public double calculateUpfrontFlat(
       final ZonedDateTime valuationDate,
       final LegacyVanillaCreditDefaultSwapDefinition cds,
       final ZonedDateTime[] marketTenors,
