@@ -10,26 +10,56 @@ import java.util.Collection;
 import java.util.Comparator;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.impl.SimplePositionComparator;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.security.cds.CreditDefaultSwapSecurity;
-import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 
-public abstract class AbstractCdsAggregationFunction implements AggregationFunction<String> {
+/**
+ * Abstract aggregation function for CDS reference entity data. If used with
+ * non-CDS securities, all items will be classified as "N/A".
+ *
+ * @param <T> The type of data that this implementation will extract
+ */
+public abstract class AbstractCdsAggregationFunction<T> implements AggregationFunction<String> {
 
+  /**
+   * Classification indicating that this aggregation does not apply to the security.
+   */
   private static final String NOT_APPLICABLE = "N/A";
-  protected final SecuritySource _securitySource;
-  protected final String _name;
 
-  public AbstractCdsAggregationFunction(String name, SecuritySource securitySource) {
+  /**
+   * The name to be used for this aggregation, not null.
+   */
+  private final String _name;
 
+  /**
+   * The security source used for resolution of the CDS security, not null.
+   */
+  private final SecuritySource _securitySource;
+
+  /**
+   * The extractor which will process the red code and return the required type, not null.
+   */
+  private final CdsRedCodeExtractor<T> _redCodeExtractor;
+
+  /**
+   * Creates the aggregation function.
+   *
+   * @param name the name to be used for this aggregation, not null
+   * @param securitySource the security source used for resolution of the CDS security, not null
+   * @param redCodeHandler the extractor which will process the red code and return the required type, not null
+   */
+  public AbstractCdsAggregationFunction(String name, SecuritySource securitySource, RedCodeHandler<T> redCodeHandler) {
+
+    ArgumentChecker.notNull(name, "name");
     ArgumentChecker.notNull(securitySource, "securitySource");
-    _securitySource = securitySource;
+    ArgumentChecker.notNull(redCodeHandler, "redCodeHandler");
     _name = name;
+    _securitySource = securitySource;
+    _redCodeExtractor = new CdsRedCodeExtractor<>(redCodeHandler);
   }
 
   @Override
@@ -39,21 +69,28 @@ public abstract class AbstractCdsAggregationFunction implements AggregationFunct
 
   @Override
   public String classifyPosition(Position position) {
+
     Security security = resolveSecurity(position);
 
     if (security instanceof CreditDefaultSwapSecurity) {
       CreditDefaultSwapSecurity cds = (CreditDefaultSwapSecurity) security;
-      ExternalId refEntityId = cds.getReferenceEntity();
-      if (refEntityId.isScheme(ExternalSchemes.MARKIT_RED_CODE)) {
+      T extracted = _redCodeExtractor.extract(cds);
+      if (extracted != null) {
 
-        return extractDataUsingRedCode(refEntityId.getValue());
+        return handleExtractedData(extracted);
       }
     }
 
     return NOT_APPLICABLE;
   }
 
-  protected abstract String extractDataUsingRedCode(String redCode);
+  /**
+   * Handle the data which has been returned from the {@link RedCodeHandler} instance.
+   *
+   * @param extracted the data extracted by the handler
+   * @return the string which should be used as the classifier value
+   */
+  protected abstract String handleExtractedData(T extracted);
 
   private Security resolveSecurity(Position position) {
 
