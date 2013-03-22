@@ -46,9 +46,24 @@ public class RemoteCompiledViewDefinitionWithGraphs implements CompiledViewDefin
     _client = FudgeRestClient.create();
   }
 
+  private RemoteCompiledViewDefinitionWithGraphs(final URI baseUri, final FudgeRestClient client) {
+    _baseUri = baseUri;
+    _client = client;
+  }
+
   @Override
   public VersionCorrection getResolverVersionCorrection() {
     throw new UnsupportedOperationException("TODO: Implement this method over REST");
+  }
+
+  @Override
+  public CompiledViewDefinitionWithGraphs withResolverVersionCorrection(final VersionCorrection versionCorrection) {
+    return new RemoteCompiledViewDefinitionWithGraphs(_baseUri, _client) {
+      @Override
+      public VersionCorrection getResolverVersionCorrection() {
+        return versionCorrection;
+      }
+    };
   }
 
   @Override

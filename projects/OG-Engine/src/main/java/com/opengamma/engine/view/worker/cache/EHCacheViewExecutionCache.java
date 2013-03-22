@@ -260,12 +260,11 @@ public class EHCacheViewExecutionCache implements ViewExecutionCache {
 
   @Override
   public void setCompiledViewDefinitionWithGraphs(ViewExecutionCacheKey key, CompiledViewDefinitionWithGraphs viewDefinition) {
-    CompiledViewDefinitionWithGraphs existing = _compiledViewDefinitionsFrontCache.putIfAbsent(key, viewDefinition);
+    CompiledViewDefinitionWithGraphs existing = _compiledViewDefinitionsFrontCache.put(key, viewDefinition);
     if (existing != null) {
-      if (existing != viewDefinition) {
-        s_logger.debug("Discarding updated CompiledViewDefinitionWithGraphs for {}", key);
+      if (existing == viewDefinition) {
+        return;
       }
-      return;
     }
     s_logger.info("Storing CompiledViewDefinitionWithGraphs for {}", key);
     _compiledViewDefinitions.put(new Element(key, new CompiledViewDefinitionWithGraphsHolder(viewDefinition)));

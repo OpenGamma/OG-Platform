@@ -67,6 +67,18 @@ public class CompiledViewDefinitionWithGraphsImpl extends CompiledViewDefinition
     _resolutions = Collections.unmodifiableMap(resolutions);
   }
 
+  private CompiledViewDefinitionWithGraphsImpl(final CompiledViewDefinitionWithGraphsImpl copyFrom, final VersionCorrection versionCorrection) {
+    super(copyFrom, versionCorrection);
+    _graphsByConfiguration = copyFrom._graphsByConfiguration;
+    _functionInitId = copyFrom._functionInitId;
+    _resolutions = copyFrom._resolutions;
+  }
+
+  @Override
+  public CompiledViewDefinitionWithGraphs withResolverVersionCorrection(final VersionCorrection versionCorrection) {
+    return new CompiledViewDefinitionWithGraphsImpl(this, versionCorrection);
+  }
+
   @Override
   public Collection<DependencyGraphExplorer> getDependencyGraphExplorers() {
     return _graphsByConfiguration.values();
