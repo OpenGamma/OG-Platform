@@ -350,11 +350,13 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
         final MarketDataSpecification specification = specifications.get(i);
         if (specification instanceof LiveMarketDataSpecification) {
           final String dataSource = ((LiveMarketDataSpecification) specification).getDataSource();
-          final MarketDataSpecification namedSpec = _namedMarketDataSpecificationRepository.getSpecification(dataSource);
-          if (namedSpec != null) {
-            s_logger.info("Replacing live data {} with named spec {}", dataSource, namedSpec);
-            specifications.set(i, namedSpec);
-            changed = true;
+          if (dataSource != null) {
+            final MarketDataSpecification namedSpec = _namedMarketDataSpecificationRepository.getSpecification(dataSource);
+            if (namedSpec != null) {
+              s_logger.info("Replacing live data {} with named spec {}", dataSource, namedSpec);
+              specifications.set(i, namedSpec);
+              changed = true;
+            }
           }
         }
       }
