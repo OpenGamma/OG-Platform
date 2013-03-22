@@ -59,7 +59,7 @@ public class EHCachingHolidayMaster extends AbstractEHCachingMaster<HolidayDocum
     super(name, underlying, cacheManager);
 
     // Create the doc search cache and register a holiday master searcher
-    _documentSearchCache = new EHCachingSearchCache(name + "Document", cacheManager, new EHCachingSearchCache.Searcher() {
+    _documentSearchCache = new EHCachingSearchCache(name + "Holiday", cacheManager, new EHCachingSearchCache.Searcher() {
       @Override
       public ObjectsPair<Integer, List<UniqueId>> search(Bean request, PagingRequest pagingRequest) {
         // Fetch search results from underlying master
@@ -76,7 +76,7 @@ public class EHCachingHolidayMaster extends AbstractEHCachingMaster<HolidayDocum
     });
 
     // Create the history search cache and register a security master searcher
-    _historySearchCache = new EHCachingSearchCache(name + "History", cacheManager, new EHCachingSearchCache.Searcher() {
+    _historySearchCache = new EHCachingSearchCache(name + "HolidayHistory", cacheManager, new EHCachingSearchCache.Searcher() {
       @Override
       public ObjectsPair<Integer, List<UniqueId>> search(Bean request, PagingRequest pagingRequest) {
         // Fetch search results from underlying master

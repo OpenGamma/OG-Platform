@@ -59,7 +59,7 @@ public class EHCachingMarketDataSnapshotMaster extends AbstractEHCachingMaster<M
     super(name, underlying, cacheManager);
 
     // Create the document search cache and register a marketDataSnapshot master searcher
-    _documentSearchCache = new EHCachingSearchCache(name + "Document", cacheManager, new EHCachingSearchCache.Searcher() {
+    _documentSearchCache = new EHCachingSearchCache(name + "MarketDataSnapshot", cacheManager, new EHCachingSearchCache.Searcher() {
       @Override
       public ObjectsPair<Integer, List<UniqueId>> search(Bean request, PagingRequest pagingRequest) {
         // Fetch search results from underlying master
@@ -76,7 +76,7 @@ public class EHCachingMarketDataSnapshotMaster extends AbstractEHCachingMaster<M
     });
 
     // Create the history search cache and register a marketDataSnapshot master searcher
-    _historySearchCache = new EHCachingSearchCache(name + "History", cacheManager, new EHCachingSearchCache.Searcher() {
+    _historySearchCache = new EHCachingSearchCache(name + "MarketDataSnapshotHistory", cacheManager, new EHCachingSearchCache.Searcher() {
       @Override
       public ObjectsPair<Integer, List<UniqueId>> search(Bean request, PagingRequest pagingRequest) {
         // Fetch search results from underlying master
