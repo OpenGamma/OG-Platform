@@ -15,9 +15,9 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.analytics.financial.timeseries.analysis.DoubleTimeSeriesStatisticsCalculator;
 import com.opengamma.analytics.math.statistics.descriptive.MeanCalculator;
 import com.opengamma.analytics.math.statistics.descriptive.SampleStandardDeviationCalculator;
-import com.opengamma.util.timeseries.fast.integer.FastIntDoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.fast.integer.FastIntDoubleTimeSeries;
+import com.opengamma.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * 

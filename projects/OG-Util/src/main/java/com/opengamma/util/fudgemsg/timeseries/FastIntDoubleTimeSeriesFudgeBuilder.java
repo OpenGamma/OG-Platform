@@ -11,8 +11,8 @@ import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
-import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
-import com.opengamma.util.timeseries.fast.integer.FastIntDoubleTimeSeries;
+import com.opengamma.timeseries.fast.DateTimeNumericEncoding;
+import com.opengamma.timeseries.fast.integer.FastIntDoubleTimeSeries;
 
 /**
  * Abstract fudge message builder to serialize and de=serialize FastIntDoubleTimeSeries concrete implementations.

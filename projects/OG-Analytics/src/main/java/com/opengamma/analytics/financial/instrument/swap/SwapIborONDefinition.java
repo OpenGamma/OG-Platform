@@ -18,7 +18,7 @@ import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.DoubleTimeSeries;
 
 /**
  * Class describing an Ibor for overnight swap. Both legs are in the same currency. 

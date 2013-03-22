@@ -30,12 +30,12 @@ import com.opengamma.financial.analytics.timeseries.DateConstraint;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.analytics.timeseries.HistoricalValuationFunction;
 import com.opengamma.financial.security.FinancialSecurityUtils;
+import com.opengamma.timeseries.fast.integer.FastArrayIntDoubleTimeSeries;
+import com.opengamma.timeseries.fast.integer.FastIntDoubleTimeSeries;
+import com.opengamma.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.timeseries.fast.integer.FastArrayIntDoubleTimeSeries;
-import com.opengamma.util.timeseries.fast.integer.FastIntDoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * Calculates a PnL series by performing a full historical valuation over the required period.

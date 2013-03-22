@@ -31,14 +31,14 @@ import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewResultEntry;
 import com.opengamma.engine.view.compilation.CompiledViewCalculationConfiguration;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
-import com.opengamma.util.timeseries.TimeSeries;
-import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
-import com.opengamma.util.timeseries.fast.integer.FastArrayIntDoubleTimeSeries;
-import com.opengamma.util.timeseries.fast.integer.object.FastArrayIntObjectTimeSeries;
-import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.ArrayLocalDateObjectTimeSeries;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.LocalDateObjectTimeSeries;
+import com.opengamma.timeseries.TimeSeries;
+import com.opengamma.timeseries.fast.DateTimeNumericEncoding;
+import com.opengamma.timeseries.fast.integer.FastArrayIntDoubleTimeSeries;
+import com.opengamma.timeseries.fast.integer.object.FastArrayIntObjectTimeSeries;
+import com.opengamma.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.localdate.ArrayLocalDateObjectTimeSeries;
+import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.localdate.LocalDateObjectTimeSeries;
 
 /* package */class HistoricalViewEvaluationResultBuilder {
   

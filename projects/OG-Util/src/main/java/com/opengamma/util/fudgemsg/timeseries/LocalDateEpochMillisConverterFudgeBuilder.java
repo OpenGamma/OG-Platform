@@ -9,7 +9,7 @@ import java.util.TimeZone;
 
 import org.fudgemsg.mapping.FudgeBuilderFor;
 
-import com.opengamma.util.timeseries.localdate.LocalDateEpochDaysConverter;
+import com.opengamma.timeseries.localdate.LocalDateEpochDaysConverter;
 
 /**
  * Fudge message builder (serializer/deserializer) for LocalDateEpochMillisConverter.

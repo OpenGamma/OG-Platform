@@ -30,8 +30,8 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.timeseries.DoubleTimeSeriesOperators.UnaryOperator;
 import com.opengamma.util.functional.Function3;
-import com.opengamma.util.timeseries.DoubleTimeSeriesOperators.UnaryOperator;
 
 /**
  * Base class for functions to shift historical market data values, implemented using properties and constraints.

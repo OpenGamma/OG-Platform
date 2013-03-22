@@ -14,7 +14,7 @@ import org.fudgemsg.mapping.FudgeSerializer;
 import org.threeten.bp.OffsetDateTime;
 import org.threeten.bp.ZoneId;
 
-import com.opengamma.util.timeseries.yearoffset.YearOffsetEpochMillisConverter;
+import com.opengamma.timeseries.yearoffset.YearOffsetEpochMillisConverter;
 
 /**
  * Fudge message builder (serializer/deserializer) for YearOffsetEpochMillisConverter.

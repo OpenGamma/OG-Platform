@@ -7,10 +7,10 @@ package com.opengamma.util.fudgemsg.timeseries;
 
 import org.fudgemsg.mapping.FudgeBuilderFor;
 
-import com.opengamma.util.timeseries.DateTimeConverter;
-import com.opengamma.util.timeseries.fast.FastTimeSeries;
-import com.opengamma.util.timeseries.fast.longint.FastMutableLongDoubleTimeSeries;
-import com.opengamma.util.timeseries.yearoffset.MapYearOffsetDoubleTimeSeries;
+import com.opengamma.timeseries.DateTimeConverter;
+import com.opengamma.timeseries.fast.FastTimeSeries;
+import com.opengamma.timeseries.fast.longint.FastMutableLongDoubleTimeSeries;
+import com.opengamma.timeseries.yearoffset.MapYearOffsetDoubleTimeSeries;
 
 /**
  * Fudge message encoder/decoder (builder) for MapYearOffsetDoubleTimeSeries.

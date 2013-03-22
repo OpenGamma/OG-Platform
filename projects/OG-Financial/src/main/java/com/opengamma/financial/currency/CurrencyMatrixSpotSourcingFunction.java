@@ -28,8 +28,8 @@ import com.opengamma.financial.currency.CurrencyMatrixValue.CurrencyMatrixCross;
 import com.opengamma.financial.currency.CurrencyMatrixValue.CurrencyMatrixFixed;
 import com.opengamma.financial.currency.CurrencyMatrixValue.CurrencyMatrixValueRequirement;
 import com.opengamma.id.UniqueId;
+import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.tuple.Pair;
 
 /**

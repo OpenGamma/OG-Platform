@@ -8,10 +8,10 @@ package com.opengamma.util.fudgemsg.timeseries;
 import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.util.timeseries.DateTimeConverter;
-import com.opengamma.util.timeseries.fast.FastTimeSeries;
-import com.opengamma.util.timeseries.fast.longint.FastMutableLongDoubleTimeSeries;
-import com.opengamma.util.timeseries.zoneddatetime.ListZonedDateTimeDoubleTimeSeries;
+import com.opengamma.timeseries.DateTimeConverter;
+import com.opengamma.timeseries.fast.FastTimeSeries;
+import com.opengamma.timeseries.fast.longint.FastMutableLongDoubleTimeSeries;
+import com.opengamma.timeseries.zoneddatetime.ListZonedDateTimeDoubleTimeSeries;
 
 /**
  * Fudge message encoder/decoder (builder) for ListZonedDateTimeDoubleTimeSeries

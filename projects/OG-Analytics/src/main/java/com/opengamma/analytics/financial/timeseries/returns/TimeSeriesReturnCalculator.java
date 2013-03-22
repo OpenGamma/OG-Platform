@@ -8,13 +8,13 @@ package com.opengamma.analytics.financial.timeseries.returns;
 import cern.colt.Arrays;
 
 import com.opengamma.analytics.math.function.Function;
+import com.opengamma.timeseries.TimeSeriesException;
+import com.opengamma.timeseries.fast.integer.FastArrayIntDoubleTimeSeries;
+import com.opengamma.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.CalculationMode;
 import com.opengamma.util.CompareUtils;
-import com.opengamma.util.timeseries.TimeSeriesException;
-import com.opengamma.util.timeseries.fast.integer.FastArrayIntDoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * 

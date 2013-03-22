@@ -9,7 +9,7 @@ import java.util.TimeZone;
 
 import org.fudgemsg.mapping.FudgeBuilderFor;
 
-import com.opengamma.util.timeseries.sqldate.SQLDateEpochDaysConverter;
+import com.opengamma.timeseries.sqldate.SQLDateEpochDaysConverter;
 
 /**
  * Fudge message builder (serializer/deserializer) for SQLDateEpochDaysConverter.

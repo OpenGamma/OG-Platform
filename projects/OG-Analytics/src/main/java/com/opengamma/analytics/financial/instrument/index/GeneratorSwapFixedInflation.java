@@ -12,8 +12,8 @@ import com.opengamma.analytics.financial.instrument.swap.SwapFixedInflationZeroC
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * Class with the description of swap characteristics.

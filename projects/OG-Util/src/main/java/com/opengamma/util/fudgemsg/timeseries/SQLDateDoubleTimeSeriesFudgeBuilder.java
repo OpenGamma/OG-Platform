@@ -11,7 +11,7 @@ import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
-import com.opengamma.util.timeseries.sqldate.SQLDateDoubleTimeSeries;
+import com.opengamma.timeseries.sqldate.SQLDateDoubleTimeSeries;
 
 /**
  * Fudge message builder (serializer/deserializer) for SQLDateDoubleTimeSeries.

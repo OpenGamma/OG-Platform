@@ -51,10 +51,10 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProviderGetRequest;
 import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProviderGetResult;
 import com.opengamma.provider.historicaltimeseries.impl.AbstractHistoricalTimeSeriesProvider;
+import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.localdate.MapLocalDateDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.LocalDateRange;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.MapLocalDateDoubleTimeSeries;
 
 /**
  * Provider of time-series from the Bloomberg data source.

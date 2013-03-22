@@ -9,7 +9,7 @@ import java.util.Iterator;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.DoubleTimeSeries;
 
 /**
  * Calculates the historical covariance of two return series. The covariance is

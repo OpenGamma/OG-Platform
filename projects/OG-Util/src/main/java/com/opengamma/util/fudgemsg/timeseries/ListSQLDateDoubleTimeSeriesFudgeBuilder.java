@@ -9,10 +9,10 @@ import java.sql.Date;
 
 import org.fudgemsg.mapping.FudgeBuilderFor;
 
-import com.opengamma.util.timeseries.DateTimeConverter;
-import com.opengamma.util.timeseries.fast.FastTimeSeries;
-import com.opengamma.util.timeseries.fast.integer.FastMutableIntDoubleTimeSeries;
-import com.opengamma.util.timeseries.sqldate.ListSQLDateDoubleTimeSeries;
+import com.opengamma.timeseries.DateTimeConverter;
+import com.opengamma.timeseries.fast.FastTimeSeries;
+import com.opengamma.timeseries.fast.integer.FastMutableIntDoubleTimeSeries;
+import com.opengamma.timeseries.sqldate.ListSQLDateDoubleTimeSeries;
 
 /**
  * Fudge message encoder/decoder (builder) for ListDateDoubleTimeSeries

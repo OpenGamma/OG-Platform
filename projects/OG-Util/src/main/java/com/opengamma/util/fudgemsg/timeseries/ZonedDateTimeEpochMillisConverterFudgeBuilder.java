@@ -9,7 +9,7 @@ import java.util.TimeZone;
 
 import org.fudgemsg.mapping.FudgeBuilderFor;
 
-import com.opengamma.util.timeseries.zoneddatetime.ZonedDateTimeEpochMillisConverter;
+import com.opengamma.timeseries.zoneddatetime.ZonedDateTimeEpochMillisConverter;
 
 /**
  * Fudge message builder (serializer/deserializer) for ZonedDateTimeEpochMillisConverter.

@@ -31,7 +31,7 @@
 'Market Yield To Maturity' java.lang.Double
 'Market_Value' java.lang.Double
 'Modified Duration' java.lang.Double
-'P&L Series' com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries
+'P&L Series' com.opengamma.timeseries.localdate.ArrayLocalDateDoubleTimeSeries
 'Par Rate' java.lang.Double
 'PV Z Spread Sensitivity' java.lang.Double
 'PV01' java.lang.Double

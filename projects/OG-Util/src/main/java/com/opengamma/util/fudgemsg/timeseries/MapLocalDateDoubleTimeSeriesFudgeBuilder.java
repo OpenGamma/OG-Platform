@@ -8,10 +8,10 @@ package com.opengamma.util.fudgemsg.timeseries;
 import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.threeten.bp.LocalDate;
 
-import com.opengamma.util.timeseries.DateTimeConverter;
-import com.opengamma.util.timeseries.fast.FastTimeSeries;
-import com.opengamma.util.timeseries.fast.integer.FastMutableIntDoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.MapLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.DateTimeConverter;
+import com.opengamma.timeseries.fast.FastTimeSeries;
+import com.opengamma.timeseries.fast.integer.FastMutableIntDoubleTimeSeries;
+import com.opengamma.timeseries.localdate.MapLocalDateDoubleTimeSeries;
 
 /**
  * Fudge message encoder/decoder (builder) for MapLocalDateDoubleTimeSeries.

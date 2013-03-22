@@ -11,7 +11,7 @@ import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
-import com.opengamma.util.timeseries.zoneddatetime.ZonedDateTimeDoubleTimeSeries;
+import com.opengamma.timeseries.zoneddatetime.ZonedDateTimeDoubleTimeSeries;
 
 /**
  * Fudge message builder (serializer/deserializer) for ZonedDateTimeDoubleTimeSeries.

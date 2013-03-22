@@ -9,11 +9,11 @@
 <stringAttribute key="org.testng.eclipse.LOG_LEVEL" value="2"/>
 <listAttribute key="org.testng.eclipse.METHOD_TEST_LIST"/>
 <listAttribute key="org.testng.eclipse.PACKAGE_TEST_LIST">
-<listEntry value="com.opengamma.util.timeseries"/>
-<listEntry value="com.opengamma.util.timeseries.fast.integer"/>
-<listEntry value="com.opengamma.util.timeseries.fast.longint"/>
-<listEntry value="com.opengamma.util.timeseries.object"/>
-<listEntry value="com.opengamma.util.timeseries.yearoffset"/>
+<listEntry value="com.opengamma.timeseries"/>
+<listEntry value="com.opengamma.timeseries.fast.integer"/>
+<listEntry value="com.opengamma.timeseries.fast.longint"/>
+<listEntry value="com.opengamma.timeseries.object"/>
+<listEntry value="com.opengamma.timeseries.yearoffset"/>
 </listAttribute>
 <mapAttribute key="org.testng.eclipse.PARAMETERS"/>
 <intAttribute key="org.testng.eclipse.TYPE" value="5"/>

@@ -14,8 +14,8 @@ import com.opengamma.analytics.financial.var.EmpiricalDistributionVaRParameters;
 import com.opengamma.analytics.financial.var.VaRCalculationResult;
 import com.opengamma.analytics.financial.var.VaRCalculator;
 import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * 

@@ -13,7 +13,7 @@ import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
-import com.opengamma.util.timeseries.DateTimeConverter;
+import com.opengamma.timeseries.DateTimeConverter;
 
 /**
  * @param <T> type of concrete subclass of DateTimeConverter to build

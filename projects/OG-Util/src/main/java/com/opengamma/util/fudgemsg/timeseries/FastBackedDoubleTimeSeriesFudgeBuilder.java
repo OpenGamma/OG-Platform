@@ -11,9 +11,9 @@ import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
-import com.opengamma.util.timeseries.DateTimeConverter;
-import com.opengamma.util.timeseries.FastBackedDoubleTimeSeries;
-import com.opengamma.util.timeseries.fast.FastTimeSeries;
+import com.opengamma.timeseries.DateTimeConverter;
+import com.opengamma.timeseries.FastBackedDoubleTimeSeries;
+import com.opengamma.timeseries.fast.FastTimeSeries;
 
 /**
  * @param <T> class of concrete time series implementation
