@@ -16,21 +16,21 @@ import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
 import com.opengamma.engine.value.ValueRequirementNames;
 
 /**
- * Function to calculate the bucketed CS01 for a given CDS instrument.
+ * Function to calculate the parallel CS01 for a given CDS instrument.
  */
-public class ISDABucketedCS01VanillaCDSFunction extends ISDAVanillaCDSFunction {
+public class ISDAParallelCS01VanillaCDSFunction extends ISDAVanillaCDSFunction {
 
   private static CS01CreditDefaultSwap CALCULATOR = new CS01CreditDefaultSwap();
 
-  public ISDABucketedCS01VanillaCDSFunction() {
-    super(ValueRequirementNames.BUCKETED_CS01);
+  public ISDAParallelCS01VanillaCDSFunction() {
+    super(ValueRequirementNames.PARALLEL_CS01);
   }
 
   @Override
   protected Object compute(final ZonedDateTime now, LegacyVanillaCreditDefaultSwapDefinition cds, final double[] spreads, final ISDADateCurve isdaCurve, final ZonedDateTime[] bucketDates) {
-    double[] bucketedCS01 = CALCULATOR.getCS01BucketedCreditDefaultSwap(now, cds, isdaCurve, bucketDates, spreads, 1.0, SpreadBumpType.ADDITIVE_BUCKETED,
+    double cs01 = CALCULATOR.getCS01ParallelShiftCreditDefaultSwap(now, cds, isdaCurve, bucketDates, spreads, 1.0, SpreadBumpType.ADDITIVE_PARALLEL,
         PriceType.CLEAN); // take values from requirements
-    return bucketedCS01;
+    return cs01;
   }
 
 }

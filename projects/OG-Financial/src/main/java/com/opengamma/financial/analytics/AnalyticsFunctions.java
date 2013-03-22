@@ -265,6 +265,14 @@ public class AnalyticsFunctions extends AbstractRepositoryConfigurationBean {
     addUnitScalingFunction(functions, ValueRequirementNames.JUMP_TO_DEFAULT);
     addScalingFunction(functions, ValueRequirementNames.MONETIZED_VEGA);
     addSummingFunction(functions, ValueRequirementNames.MONETIZED_VEGA);
+
+    addScalingAndSummingFunction(functions, ValueRequirementNames.CLEAN_PRESENT_VALUE);
+    addScalingAndSummingFunction(functions, ValueRequirementNames.DIRTY_PRESENT_VALUE);
+    addUnitScalingFunction(functions, ValueRequirementNames.ACCRUED_DAYS);
+    addUnitScalingFunction(functions, ValueRequirementNames.ACCRUED_PREMIUM);
+    addUnitScalingFunction(functions, ValueRequirementNames.PRINCIPAL);
+    addUnitScalingFunction(functions, ValueRequirementNames.POINTS_UPFRONT);
+    addUnitScalingFunction(functions, ValueRequirementNames.UPFRONT_AMOUNT);
   }
 
   protected RepositoryConfigurationSource cashFlowFunctionConfiguration() {
