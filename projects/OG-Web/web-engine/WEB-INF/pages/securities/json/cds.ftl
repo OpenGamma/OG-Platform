@@ -14,7 +14,7 @@
 "immAdjustMaturityDate":"${security.immAdjustMaturityDate?string}",
 "adjustEffectiveDate":"${security.adjustEffectiveDate?string}",
 "adjustMaturityDate":"${security.adjustMaturityDate?string}",
-"notional":{"amount":"${security.notional.amount}","currency":"${security.notional.currency}"},
+"notional":"${security.notional.currency} ${security.notional.amount}",
 "recoveryRate":"${security.recoveryRate}",
 "includeAccruedPremium":"${security.includeAccruedPremium?string}",
 "protectionStart":"${security.protectionStart?string}",
