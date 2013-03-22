@@ -98,6 +98,26 @@ public class GICSAggregationFunction implements AggregationFunction<String> {
     this(secSource, organizationSource, level, useAttributes, true);
   }
 
+  public GICSAggregationFunction(SecuritySource secSource, String level) {
+    this(secSource, Enum.valueOf(Level.class, level));
+  }
+
+  public GICSAggregationFunction(SecuritySource secSource, Level level) {
+    this(secSource, level, false);
+  }
+
+  public GICSAggregationFunction(SecuritySource secSource,
+                                 Level level,
+                                 boolean useAttributes) {
+    this(secSource, level, useAttributes, true);
+  }
+
+  public GICSAggregationFunction(SecuritySource secSource, Level level,
+                                 boolean useAttributes,
+                                 boolean includeEmptyCategories) {
+    this(secSource, null, level, useAttributes, includeEmptyCategories);
+  }
+
   public GICSAggregationFunction(SecuritySource secSource,
                                  OrganizationSource organizationSource, Level level,
                                  boolean useAttributes,
@@ -164,7 +184,7 @@ public class GICSAggregationFunction implements AggregationFunction<String> {
   private FinancialSecurityVisitor<String> _standardVanillaCdsSecurityVisitor = new FinancialSecurityVisitorAdapter<String>() {
     @Override
     public String visitStandardVanillaCDSSecurity(StandardVanillaCDSSecurity cds) {
-      if (_level == Level.SECTOR) {
+      if (_organizationSource != null && _level == Level.SECTOR) {
 
         ExternalId refEntityId = cds.getReferenceEntity();
         if (refEntityId.isScheme(ExternalSchemes.MARKIT_RED_CODE)) {
@@ -180,7 +200,7 @@ public class GICSAggregationFunction implements AggregationFunction<String> {
   private FinancialSecurityVisitor<String> _legacyVanillaCdsSecurityVisitor = new FinancialSecurityVisitorAdapter<String>() {
     @Override
     public String visitStandardVanillaCDSSecurity(StandardVanillaCDSSecurity cds) {
-      if (_level == Level.SECTOR) {
+      if (_organizationSource != null && _level == Level.SECTOR) {
 
         ExternalId refEntityId = cds.getReferenceEntity();
         if (refEntityId.isScheme(ExternalSchemes.MARKIT_RED_CODE)) {
