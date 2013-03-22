@@ -12,6 +12,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,7 +56,7 @@ public class PortfolioGridStructure extends MainGridStructure {
   /** Definition of the view driving the grid. */
   private final ViewDefinition _viewDef;
   /** Number of exploded child columns for each column whose values can be exploded. */
-  private final Map<ColumnSpecification, Integer> _inlineColumnCounts;
+  private final Map<ColumnSpecification, SortedSet<ColumnMeta>> _inlineColumnMeta;
   /** Rows in the grid. */
   private final List<PortfolioGridRow> _rows;
 
@@ -67,7 +68,7 @@ public class PortfolioGridStructure extends MainGridStructure {
                                        ValueMappings valueMappings,
                                        ViewDefinition viewDef) {
     this(rows, fixedColumns, nonFixedColumns, rootNode, targetLookup, valueMappings, viewDef,
-         Collections.<ColumnSpecification, Integer>emptyMap());
+         Collections.<ColumnSpecification, SortedSet<ColumnMeta>>emptyMap());
   }
 
   /* package */ PortfolioGridStructure(List<PortfolioGridRow> rows,
@@ -77,11 +78,11 @@ public class PortfolioGridStructure extends MainGridStructure {
                                        TargetLookup targetLookup,
                                        ValueMappings valueMappings,
                                        ViewDefinition viewDef,
-                                       Map<ColumnSpecification, Integer> inlineColumnCounts) {
+                                       Map<ColumnSpecification, SortedSet<ColumnMeta>> inlineColumnMeta) {
     super(fixedColumns, nonFixedColumns, targetLookup);
     ArgumentChecker.notNull(rows, "rows");
-    ArgumentChecker.notNull(inlineColumnCounts, "inlineColumnCounts");
-    _inlineColumnCounts = inlineColumnCounts;
+    ArgumentChecker.notNull(inlineColumnMeta, "inlineColumnCounts");
+    _inlineColumnMeta = inlineColumnMeta;
     _rows = rows;
     _rootNode = rootNode;
     _valueMappings = valueMappings;
@@ -134,46 +135,29 @@ public class PortfolioGridStructure extends MainGridStructure {
   }
 
   /* package */ PortfolioGridStructure withUpdatedStructure(ResultsCache cache) {
-    Map<ColumnSpecification, Integer> inlineColumnCounts = Maps.newHashMap();
-    Map<ColumnSpecification, List<String>> inlineColumnHeaders = Maps.newHashMap();
+    Map<ColumnSpecification, SortedSet<ColumnMeta>> inlineColumnMeta = Maps.newHashMap();
     for (GridColumn column : getColumnStructure().getColumns()) {
       ColumnSpecification colSpec = column.getSpecification();
       if (Inliner.isDisplayableInline(column.getType(), column.getSpecification())) {
-        List<String> headers = Lists.newArrayList();
-        Iterator<Pair<String, ValueSpecification>> it = getTargetLookup().getTargetsForColumn(colSpec);
-        Integer inlineColumnCount = null;
-        for ( ; it.hasNext(); ) {
+        // order set of the union of the column metadata for the whole set. need this to figure out how many unique
+        // columns are required
+        SortedSet<ColumnMeta> allColumnMeta = Sets.newTreeSet();
+        // traverse every result in the column and get the column metadata
+        for (Iterator<Pair<String, ValueSpecification>> it = getTargetLookup().getTargetsForColumn(colSpec); it.hasNext(); ) {
           Pair<String, ValueSpecification> target = it.next();
           if (target != null) {
             ResultsCache.Result result = cache.getResult(target.getFirst(), target.getSecond(), column.getType());
             Object value = result.getValue();
-            List<String> valueHeaders = Inliner.columnHeaders(value);
-            inlineColumnCount = max(inlineColumnCount, Inliner.columnCount(value));
-            for (int i = 0; i < valueHeaders.size(); i++) {
-              if (i < headers.size()) {
-                String header = headers.get(i);
-                String valueHeader = valueHeaders.get(i);
-                if (!header.equals(valueHeader)) {
-                  s_logger.warn("Inline column headers don't match: {}, {}, {}", new Object[]{header, valueHeader, value});
-                }
-              } else {
-                headers.add(valueHeaders.get(i));
-              }
-            }
+            allColumnMeta.addAll(Inliner.columnMeta(value));
           }
         }
-        if (inlineColumnCount != null) {
-          // TODO a class to carry this?
-          inlineColumnCounts.put(colSpec, inlineColumnCount);
-          inlineColumnHeaders.put(colSpec, headers);
+        if (!allColumnMeta.isEmpty()) {
+          inlineColumnMeta.put(colSpec, allColumnMeta);
         }
       }
     }
-    if (!inlineColumnCounts.equals(_inlineColumnCounts)) {
-      List<GridColumnGroup> analyticsColumns = buildAnalyticsColumns(_viewDef,
-                                                                     getTargetLookup(),
-                                                                     inlineColumnCounts,
-                                                                     inlineColumnHeaders);
+    if (!inlineColumnMeta.equals(_inlineColumnMeta)) {
+      List<GridColumnGroup> analyticsColumns = buildAnalyticsColumns(_viewDef, getTargetLookup(), inlineColumnMeta);
       return new PortfolioGridStructure(_rows,
                                         buildFixedColumns(_rows),
                                         new GridColumnGroups(analyticsColumns),
@@ -181,7 +165,7 @@ public class PortfolioGridStructure extends MainGridStructure {
                                         getTargetLookup(),
                                         getValueMappings(),
                                         _viewDef,
-                                        inlineColumnCounts);
+                                        inlineColumnMeta);
     } else {
       return this;
     }
@@ -204,10 +188,7 @@ public class PortfolioGridStructure extends MainGridStructure {
   }
 
   /* package */ static List<GridColumnGroup> buildAnalyticsColumns(ViewDefinition viewDef, TargetLookup targetLookup) {
-    return buildAnalyticsColumns(viewDef,
-                                 targetLookup,
-                                 Collections.<ColumnSpecification, Integer>emptyMap(),
-                                 Collections.<ColumnSpecification, List<String>>emptyMap());
+    return buildAnalyticsColumns(viewDef, targetLookup, Collections.<ColumnSpecification, SortedSet<ColumnMeta>>emptyMap());
   }
 
   /**
@@ -217,9 +198,7 @@ public class PortfolioGridStructure extends MainGridStructure {
   /* package */
   static List<GridColumnGroup> buildAnalyticsColumns(ViewDefinition viewDef,
                                                      TargetLookup targetLookup,
-                                                     // TODO object to carry counts and list of headers
-                                                     Map<ColumnSpecification, Integer> inlineColumnCounts,
-                                                     Map<ColumnSpecification, List<String>> inlineColumnHeaders) {
+                                                     Map<ColumnSpecification, SortedSet<ColumnMeta>> inlineColumnMeta) {
     List<GridColumnGroup> columnGroups = Lists.newArrayList();
     Set<ColumnSpecification> columnSpecs = Sets.newHashSet();
     for (ViewCalculationConfiguration calcConfig : viewDef.getAllCalculationConfigurations()) {
@@ -229,15 +208,22 @@ public class PortfolioGridStructure extends MainGridStructure {
         Class<?> columnType = ValueTypes.getTypeForValueName(valueName);
         ValueProperties constraints = portfolioOutput.getSecond();
         ColumnSpecification columnSpec = new ColumnSpecification(calcConfig.getName(), valueName, constraints);
-        Integer inlineColCount = inlineColumnCounts.get(columnSpec);
         // ensure columnSpec isn't a duplicate
         if (columnSpecs.add(columnSpec)) {
-          if (inlineColCount == null) { // column can't be inlined
+          SortedSet<ColumnMeta> meta = inlineColumnMeta.get(columnSpec);
+          //if (true) { // column can't be inlined
+          if (meta == null) { // column can't be inlined
             columns.add(GridColumn.forSpec(columnSpec, columnType, targetLookup));
           } else {
-            List<String> headers = inlineColumnHeaders.get(columnSpec);
-            for (int inlineIndex = 0; inlineIndex < inlineColCount; inlineIndex++) {
-              columns.add(GridColumn.forSpec(headers.get(inlineIndex), columnSpec, columnType, targetLookup, inlineIndex));
+            int inlineIndex = 0;
+            for (ColumnMeta columnMeta : meta) {
+              String header;
+              if (inlineIndex++ == 0) {
+                header = columnSpec.getValueName() + " / " + columnMeta.getHeader();
+              } else {
+                header = columnMeta.getHeader();
+              }
+              columns.add(GridColumn.forSpec(header, columnSpec, columnType, targetLookup, columnMeta.getKey(), inlineIndex));
             }
           }
         }

@@ -47,6 +47,7 @@ public class ResultsFormatter {
                   new VolatilitySurfaceDataFormatter(),
                   new VolatilitySurfaceFormatter(),
                   new LabelledMatrix1DFormatter(doubleFormatter),
+                  new LocalDateLabelledMatrix1DFormatter(doubleFormatter),
                   new LabelledMatrix2DFormatter(),
                   new LabelledMatrix3DFormatter(),
                   new TenorFormatter(),
@@ -136,12 +137,12 @@ public class ResultsFormatter {
 
   // TODO I'm not keen on this interface. format is ignored if inlineIndex is non-null
   @SuppressWarnings("unchecked")
-  public Object format(Object value, ValueSpecification valueSpec, TypeFormatter.Format format, Integer inlineIndex) {
+  public Object format(Object value, ValueSpecification valueSpec, TypeFormatter.Format format, Object inlineKey) {
     TypeFormatter formatter = getFormatter(value, valueSpec);
-    if (inlineIndex == null) {
+    if (inlineKey == null) {
       return formatter.format(value, valueSpec, format);
     } else {
-      return formatter.formatInlineCell(value, valueSpec, inlineIndex);
+      return formatter.formatInlineCell(value, valueSpec, inlineKey);
     }
   }
   
