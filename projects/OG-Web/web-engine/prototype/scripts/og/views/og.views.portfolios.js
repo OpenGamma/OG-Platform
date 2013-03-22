@@ -290,7 +290,7 @@ $.register_module({
                     };
                     $('.OG-js-add-position').click(function () {
                         var nodeId = json.template_data.node;
-                        new og.blotter.Dialog({portfolio:{name: nodeId, id: nodeId}, 
+                        new og.blotter.Dialog({portfolio:{name: nodeId, id: nodeId},
                             handler: function (data) {return og.api.rest.blotter.trades.put(data);}
                         });
                     });
@@ -421,7 +421,10 @@ $.register_module({
                     }
                 }
             },
+            tooltip: function () {
+                console.log('tooltip stubb');
+            },
             rules: view.rules(['name'], ['node', 'position', 'sync', 'version'])
-        });
+        }), view.rules.tooltip = {route: '/tooltip/', method: module.name + '.tooltip'}, view;
     }
 });
