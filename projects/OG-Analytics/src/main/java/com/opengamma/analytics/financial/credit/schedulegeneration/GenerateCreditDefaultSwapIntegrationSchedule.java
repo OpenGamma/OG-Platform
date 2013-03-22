@@ -168,6 +168,9 @@ public class GenerateCreditDefaultSwapIntegrationSchedule {
       allTimePoints.add(new Double(element));
     }
 
+    // TODO : There is a known bug observed when adding endTime to the list, if endTime is very close (numerically) to one of the entries in x
+    // TODO : This leads to two numbers which differ at ~O(10^-15). This causes an error in the contingent leg calc leading to a NaN value
+
     // Add the timenodes at the times when protection starts and ends
     allTimePoints.add(new Double(startTime));
     allTimePoints.add(new Double(endTime));
