@@ -33,6 +33,8 @@ public class PresentValueCreditDefaultSwap {
 
   private static final int spotDays = 3;
 
+  private static final boolean businessDayAdjustCashSettlementDate = true;
+
   private static final BusinessDayConvention cashSettlementDateBusinessDayConvention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("F");
 
   private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
@@ -64,6 +66,8 @@ public class PresentValueCreditDefaultSwap {
   // TODO : Tidy up the calculatePremiumLeg, valueFeeLegAccrualOnDefault and methods
   // TODO : Add the calculation for the settlement and stepin discount factors
   // TODO : Need to add the PROT_PAY_MAT option as well
+
+  // TODO : Add the calculation of the cash settlement amount
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -158,7 +162,7 @@ public class PresentValueCreditDefaultSwap {
     //final int startCashflowIndex = getCashflowIndex(valuationDate, premiumLegSchedule, 1, 1);
 
     final ZonedDateTime today = valuationDate;
-    final ZonedDateTime stepinDate = cds.getEffectiveDate();
+    final ZonedDateTime stepinDate = cds.getEffectiveDate(); //TODO this relies on the person that's set up the CDS to know that effective date = 1 day after valuation date by convention
 
     // The value date is when cash settlement is made
     final ZonedDateTime valueDate = valuationDate;
@@ -318,7 +322,11 @@ public class PresentValueCreditDefaultSwap {
 
     //final int spotDays = 5;
 
-    final ZonedDateTime bdaCashSettlementDate = cashSettlementDateBusinessDayConvention.adjustDate(cds.getCalendar(), valuationDate.plusDays(spotDays));
+    ZonedDateTime bdaCashSettlementDate = valuationDate.plusDays(spotDays);
+
+    if (businessDayAdjustCashSettlementDate) {
+      bdaCashSettlementDate = cashSettlementDateBusinessDayConvention.adjustDate(cds.getCalendar(), valuationDate.plusDays(spotDays));
+    }
 
     //final double tSett = TimeCalculator.getTimeBetween(valuationDate, valuationDate.plusDays(spotDays));
 
@@ -697,7 +705,11 @@ public class PresentValueCreditDefaultSwap {
     //final ZonedDateTime cashSettleDate = valuationDate.plusDays(spotDays);
     //final double t = TimeCalculator.getTimeBetween(valuationDate, cashSettleDate, ACT_365);
 
-    final ZonedDateTime bdaCashSettlementDate = cashSettlementDateBusinessDayConvention.adjustDate(cds.getCalendar(), valuationDate.plusDays(spotDays));
+    ZonedDateTime bdaCashSettlementDate = valuationDate.plusDays(spotDays);
+
+    if (businessDayAdjustCashSettlementDate) {
+      bdaCashSettlementDate = cashSettlementDateBusinessDayConvention.adjustDate(cds.getCalendar(), valuationDate.plusDays(spotDays));
+    }
 
     final double t = TimeCalculator.getTimeBetween(valuationDate, bdaCashSettlementDate, ACT_365);
 
@@ -776,7 +788,7 @@ public class PresentValueCreditDefaultSwap {
 
   // TODO : Need to move this function
 
-  public double calculatePointsUpfront(
+  public double calculateUpfrontFlat(
       final ZonedDateTime valuationDate,
       final LegacyVanillaCreditDefaultSwapDefinition cds,
       final ZonedDateTime[] marketTenors,
@@ -900,5 +912,49 @@ public class PresentValueCreditDefaultSwap {
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
     return presentValue;
+  }
+
+  public HazardRateCurve calibrateHazardRateCurve(final ZonedDateTime valuationDate,
+      final LegacyVanillaCreditDefaultSwapDefinition cds,
+      final ZonedDateTime[] marketTenors,
+      final double[] marketSpreads,
+      final ISDADateCurve yieldCurve) {
+
+    // ----------------------------------------------------------------------------------------------------------------------------------------
+
+    // Vector of time nodes for the hazard rate curve
+    final double[] times = new double[marketTenors.length + 1];
+
+    times[0] = 0.0;
+    for (int m = 1; m <= marketTenors.length; m++) {
+      times[m] = ACT_365.getDayCountFraction(valuationDate, marketTenors[m - 1]);
+    }
+
+    // ----------------------------------------------------------------------------------------------------------------------------------------
+
+    // Create a CDS for calibration
+    final LegacyVanillaCreditDefaultSwapDefinition calibrationCDS = cds;
+
+    // Call the constructor to create a calibrate hazard rate curve object
+    final CalibrateHazardRateCurveLegacyCreditDefaultSwap hazardRateCurve = new CalibrateHazardRateCurveLegacyCreditDefaultSwap();
+
+    // ----------------------------------------------------------------------------------------------------------------------------------------
+
+    // Calibrate the hazard rate curve to the market observed par CDS spreads (returns calibrated hazard rates as a vector of doubles)
+    //final double[] calibratedHazardRates = hazardRateCurve.getCalibratedHazardRateTermStructure(valuationDate, calibrationCDS, marketTenors, spreads, yieldCurve, priceType);
+
+    // ********************************** REMEMBER THIS **********************************************************************************************
+    final double[] calibratedHazardRates = hazardRateCurve.getCalibratedHazardRateTermStructure(valuationDate, calibrationCDS, marketTenors, marketSpreads, yieldCurve, PriceType.CLEAN);
+
+    final double[] modifiedHazardRateCurve = new double[calibratedHazardRates.length + 1];
+
+    modifiedHazardRateCurve[0] = calibratedHazardRates[0];
+
+    for (int m = 1; m < modifiedHazardRateCurve.length; m++) {
+      modifiedHazardRateCurve[m] = calibratedHazardRates[m - 1];
+    }
+
+    // Build a hazard rate curve object based on the input market data
+    return new HazardRateCurve(marketTenors, times, modifiedHazardRateCurve/*calibratedHazardRates*/, 0.0);
   }
 }

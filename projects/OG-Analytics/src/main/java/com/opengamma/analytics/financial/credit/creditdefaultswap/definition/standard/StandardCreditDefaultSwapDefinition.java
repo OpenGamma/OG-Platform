@@ -31,6 +31,8 @@ public class StandardCreditDefaultSwapDefinition extends CreditDefaultSwapDefini
   // TODO : Need to add the test file for this object
   // TODO : Check hashCode (and need to fix this) and equals methods
 
+  // TODO : Add a flag to determine if we want to business day adjust the cash settlement date or not
+
   // TODO : Maybe replace the _cashSettlementDate with an integer to make this more like the MarkIt calculator
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
