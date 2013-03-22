@@ -12,7 +12,7 @@ import org.joda.beans.impl.flexi.FlexiBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.master.orgs.OrganisationMaster;
+import com.opengamma.master.orgs.OrganizationMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.AbstractPerRequestWebResource;
 import com.opengamma.web.WebHomeUris;
@@ -44,7 +44,7 @@ public abstract class AbstractWebOrganizationResource extends AbstractPerRequest
    * Creates the resource.
    * @param organizationMaster  the organization master, not null
    */
-  protected AbstractWebOrganizationResource(final OrganisationMaster organizationMaster) {
+  protected AbstractWebOrganizationResource(final OrganizationMaster organizationMaster) {
     ArgumentChecker.notNull(organizationMaster, "organizationMaster");
     _data = new WebOrganizationsData();
     data().setOrganizationMaster(organizationMaster);

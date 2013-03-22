@@ -27,38 +27,38 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Request for searching for organisations.
+ * Request for searching for organizations.
  * <p/>
  * Documents will be returned that match the search criteria.
  * This class provides the ability to page the results and to search
  * as at a specific version and correction instant.
- * See {@link com.opengamma.master.orgs.OrganisationHistoryRequest} for more details on how history works.
+ * See {@link com.opengamma.master.orgs.OrganizationHistoryRequest} for more details on how history works.
  */
 @PublicSPI
 @BeanDefinition
-public class OrganisationSearchRequest extends AbstractSearchRequest {
+public class OrganizationSearchRequest extends AbstractSearchRequest {
 
   /**
-   * The set of organisation object identifiers, null to not limit by organisation object identifiers.
-   * Note that an empty set will return no organisations.
+   * The set of organization object identifiers, null to not limit by organization object identifiers.
+   * Note that an empty set will return no organizations.
    */
   @PropertyDefinition(set = "manual")
-  private List<ObjectId> _organisationObjectIds;
+  private List<ObjectId> _organizationObjectIds;
 
   /**
-   * The organisation ticker, null to not match on ticker.
+   * The organization ticker, null to not match on ticker.
    */
   @PropertyDefinition
   private String _obligorTicker;
 
   /**
-   * The organisation short name, wildcards allowed, null to not match on short name.
+   * The organization short name, wildcards allowed, null to not match on short name.
    */
   @PropertyDefinition
   private String _obligorShortName;
 
   /**
-   * The Reference Entity Database code of the organisation, wildcards allowed, null to not match on RED code.
+   * The Reference Entity Database code of the organization, wildcards allowed, null to not match on RED code.
    */
   @PropertyDefinition
   private String _obligorREDCode;
@@ -67,37 +67,37 @@ public class OrganisationSearchRequest extends AbstractSearchRequest {
   /**
    * Creates an instance.
    */
-  public OrganisationSearchRequest() {
+  public OrganizationSearchRequest() {
   }
 
   //-------------------------------------------------------------------------
 
   /**
-   * Adds a single organisation object identifier to the set.
+   * Adds a single organization object identifier to the set.
    *
-   * @param organisationId the organisation object identifier to add, not null
+   * @param organizationId the organization object identifier to add, not null
    */
-  public void addOrganisationObjectId(ObjectIdentifiable organisationId) {
-    ArgumentChecker.notNull(organisationId, "organisationId");
-    if (_organisationObjectIds == null) {
-      _organisationObjectIds = new ArrayList<ObjectId>();
+  public void addOrganizationObjectId(ObjectIdentifiable organizationId) {
+    ArgumentChecker.notNull(organizationId, "organizationId");
+    if (_organizationObjectIds == null) {
+      _organizationObjectIds = new ArrayList<ObjectId>();
     }
-    _organisationObjectIds.add(organisationId.getObjectId());
+    _organizationObjectIds.add(organizationId.getObjectId());
   }
 
   /**
-   * Sets the set of organisation object identifiers, null to not limit by organisation object identifiers.
-   * Note that an empty set will return no organisations.
+   * Sets the set of organization object identifiers, null to not limit by organization object identifiers.
+   * Note that an empty set will return no organizations.
    *
-   * @param organisationIds the new organisation identifiers, null clears the position id search
+   * @param organizationIds the new organization identifiers, null clears the position id search
    */
-  public void setOrganisationObjectIds(Iterable<? extends ObjectIdentifiable> organisationIds) {
-    if (organisationIds == null) {
-      _organisationObjectIds = null;
+  public void setOrganizationObjectIds(Iterable<? extends ObjectIdentifiable> organizationIds) {
+    if (organizationIds == null) {
+      _organizationObjectIds = null;
     } else {
-      _organisationObjectIds = new ArrayList<ObjectId>();
-      for (ObjectIdentifiable organisationId : organisationIds) {
-        _organisationObjectIds.add(organisationId.getObjectId());
+      _organizationObjectIds = new ArrayList<ObjectId>();
+      for (ObjectIdentifiable organizationId : organizationIds) {
+        _organizationObjectIds.add(organizationId.getObjectId());
       }
     }
   }
@@ -106,21 +106,21 @@ public class OrganisationSearchRequest extends AbstractSearchRequest {
   //-------------------------------------------------------------------------
   @Override
   public boolean matches(final AbstractDocument obj) {
-    if (obj instanceof OrganisationDocument == false) {
+    if (obj instanceof OrganizationDocument == false) {
       return false;
     }
-    final OrganisationDocument document = (OrganisationDocument) obj;
-    final ManageableOrganisation organisation = document.getOrganisation();
-    if (getOrganisationObjectIds() != null && getOrganisationObjectIds().contains(document.getObjectId()) == false) {
+    final OrganizationDocument document = (OrganizationDocument) obj;
+    final ManageableOrganization organization = document.getOrganization();
+    if (getOrganizationObjectIds() != null && getOrganizationObjectIds().contains(document.getObjectId()) == false) {
       return false;
     }
-    if (getObligorShortName() != null && RegexUtils.wildcardMatch(getObligorShortName(), organisation.getObligor().getObligorShortName()) == false) {
+    if (getObligorShortName() != null && RegexUtils.wildcardMatch(getObligorShortName(), organization.getObligor().getObligorShortName()) == false) {
       return false;
     }
-    if (getObligorREDCode() != null && RegexUtils.wildcardMatch(getObligorREDCode(), organisation.getObligor().getObligorREDCode()) == false) {
+    if (getObligorREDCode() != null && RegexUtils.wildcardMatch(getObligorREDCode(), organization.getObligor().getObligorREDCode()) == false) {
       return false;
     }
-    if (getObligorTicker() != null && !getObligorShortName().equalsIgnoreCase(organisation.getObligor().getObligorShortName())) {
+    if (getObligorTicker() != null && !getObligorShortName().equalsIgnoreCase(organization.getObligor().getObligorShortName())) {
       return false;
     }
     return true;
@@ -129,26 +129,26 @@ public class OrganisationSearchRequest extends AbstractSearchRequest {
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code OrganisationSearchRequest}.
+   * The meta-bean for {@code OrganizationSearchRequest}.
    * @return the meta-bean, not null
    */
-  public static OrganisationSearchRequest.Meta meta() {
-    return OrganisationSearchRequest.Meta.INSTANCE;
+  public static OrganizationSearchRequest.Meta meta() {
+    return OrganizationSearchRequest.Meta.INSTANCE;
   }
   static {
-    JodaBeanUtils.registerMetaBean(OrganisationSearchRequest.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(OrganizationSearchRequest.Meta.INSTANCE);
   }
 
   @Override
-  public OrganisationSearchRequest.Meta metaBean() {
-    return OrganisationSearchRequest.Meta.INSTANCE;
+  public OrganizationSearchRequest.Meta metaBean() {
+    return OrganizationSearchRequest.Meta.INSTANCE;
   }
 
   @Override
   protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case -666913985:  // organisationObjectIds
-        return getOrganisationObjectIds();
+      case 1296014086:  // organizationObjectIds
+        return getOrganizationObjectIds();
       case 896190372:  // obligorTicker
         return getObligorTicker();
       case -1066272179:  // obligorShortName
@@ -163,8 +163,8 @@ public class OrganisationSearchRequest extends AbstractSearchRequest {
   @Override
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case -666913985:  // organisationObjectIds
-        setOrganisationObjectIds((List<ObjectId>) newValue);
+      case 1296014086:  // organizationObjectIds
+        setOrganizationObjectIds((List<ObjectId>) newValue);
         return;
       case 896190372:  // obligorTicker
         setObligorTicker((String) newValue);
@@ -185,8 +185,8 @@ public class OrganisationSearchRequest extends AbstractSearchRequest {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      OrganisationSearchRequest other = (OrganisationSearchRequest) obj;
-      return JodaBeanUtils.equal(getOrganisationObjectIds(), other.getOrganisationObjectIds()) &&
+      OrganizationSearchRequest other = (OrganizationSearchRequest) obj;
+      return JodaBeanUtils.equal(getOrganizationObjectIds(), other.getOrganizationObjectIds()) &&
           JodaBeanUtils.equal(getObligorTicker(), other.getObligorTicker()) &&
           JodaBeanUtils.equal(getObligorShortName(), other.getObligorShortName()) &&
           JodaBeanUtils.equal(getObligorREDCode(), other.getObligorREDCode()) &&
@@ -198,7 +198,7 @@ public class OrganisationSearchRequest extends AbstractSearchRequest {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getOrganisationObjectIds());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getOrganizationObjectIds());
     hash += hash * 31 + JodaBeanUtils.hashCode(getObligorTicker());
     hash += hash * 31 + JodaBeanUtils.hashCode(getObligorShortName());
     hash += hash * 31 + JodaBeanUtils.hashCode(getObligorREDCode());
@@ -207,26 +207,26 @@ public class OrganisationSearchRequest extends AbstractSearchRequest {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the set of organisation object identifiers, null to not limit by organisation object identifiers.
-   * Note that an empty set will return no organisations.
+   * Gets the set of organization object identifiers, null to not limit by organization object identifiers.
+   * Note that an empty set will return no organizations.
    * @return the value of the property
    */
-  public List<ObjectId> getOrganisationObjectIds() {
-    return _organisationObjectIds;
+  public List<ObjectId> getOrganizationObjectIds() {
+    return _organizationObjectIds;
   }
 
   /**
-   * Gets the the {@code organisationObjectIds} property.
-   * Note that an empty set will return no organisations.
+   * Gets the the {@code organizationObjectIds} property.
+   * Note that an empty set will return no organizations.
    * @return the property, not null
    */
-  public final Property<List<ObjectId>> organisationObjectIds() {
-    return metaBean().organisationObjectIds().createProperty(this);
+  public final Property<List<ObjectId>> organizationObjectIds() {
+    return metaBean().organizationObjectIds().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the organisation ticker, null to not match on ticker.
+   * Gets the organization ticker, null to not match on ticker.
    * @return the value of the property
    */
   public String getObligorTicker() {
@@ -234,7 +234,7 @@ public class OrganisationSearchRequest extends AbstractSearchRequest {
   }
 
   /**
-   * Sets the organisation ticker, null to not match on ticker.
+   * Sets the organization ticker, null to not match on ticker.
    * @param obligorTicker  the new value of the property
    */
   public void setObligorTicker(String obligorTicker) {
@@ -251,7 +251,7 @@ public class OrganisationSearchRequest extends AbstractSearchRequest {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the organisation short name, wildcards allowed, null to not match on short name.
+   * Gets the organization short name, wildcards allowed, null to not match on short name.
    * @return the value of the property
    */
   public String getObligorShortName() {
@@ -259,7 +259,7 @@ public class OrganisationSearchRequest extends AbstractSearchRequest {
   }
 
   /**
-   * Sets the organisation short name, wildcards allowed, null to not match on short name.
+   * Sets the organization short name, wildcards allowed, null to not match on short name.
    * @param obligorShortName  the new value of the property
    */
   public void setObligorShortName(String obligorShortName) {
@@ -276,7 +276,7 @@ public class OrganisationSearchRequest extends AbstractSearchRequest {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the Reference Entity Database code of the organisation, wildcards allowed, null to not match on RED code.
+   * Gets the Reference Entity Database code of the organization, wildcards allowed, null to not match on RED code.
    * @return the value of the property
    */
   public String getObligorREDCode() {
@@ -284,7 +284,7 @@ public class OrganisationSearchRequest extends AbstractSearchRequest {
   }
 
   /**
-   * Sets the Reference Entity Database code of the organisation, wildcards allowed, null to not match on RED code.
+   * Sets the Reference Entity Database code of the organization, wildcards allowed, null to not match on RED code.
    * @param obligorREDCode  the new value of the property
    */
   public void setObligorREDCode(String obligorREDCode) {
@@ -301,7 +301,7 @@ public class OrganisationSearchRequest extends AbstractSearchRequest {
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code OrganisationSearchRequest}.
+   * The meta-bean for {@code OrganizationSearchRequest}.
    */
   public static class Meta extends AbstractSearchRequest.Meta {
     /**
@@ -310,32 +310,32 @@ public class OrganisationSearchRequest extends AbstractSearchRequest {
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code organisationObjectIds} property.
+     * The meta-property for the {@code organizationObjectIds} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<ObjectId>> _organisationObjectIds = DirectMetaProperty.ofReadWrite(
-        this, "organisationObjectIds", OrganisationSearchRequest.class, (Class) List.class);
+    private final MetaProperty<List<ObjectId>> _organizationObjectIds = DirectMetaProperty.ofReadWrite(
+        this, "organizationObjectIds", OrganizationSearchRequest.class, (Class) List.class);
     /**
      * The meta-property for the {@code obligorTicker} property.
      */
     private final MetaProperty<String> _obligorTicker = DirectMetaProperty.ofReadWrite(
-        this, "obligorTicker", OrganisationSearchRequest.class, String.class);
+        this, "obligorTicker", OrganizationSearchRequest.class, String.class);
     /**
      * The meta-property for the {@code obligorShortName} property.
      */
     private final MetaProperty<String> _obligorShortName = DirectMetaProperty.ofReadWrite(
-        this, "obligorShortName", OrganisationSearchRequest.class, String.class);
+        this, "obligorShortName", OrganizationSearchRequest.class, String.class);
     /**
      * The meta-property for the {@code obligorREDCode} property.
      */
     private final MetaProperty<String> _obligorREDCode = DirectMetaProperty.ofReadWrite(
-        this, "obligorREDCode", OrganisationSearchRequest.class, String.class);
+        this, "obligorREDCode", OrganizationSearchRequest.class, String.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
-        "organisationObjectIds",
+        "organizationObjectIds",
         "obligorTicker",
         "obligorShortName",
         "obligorREDCode");
@@ -349,8 +349,8 @@ public class OrganisationSearchRequest extends AbstractSearchRequest {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case -666913985:  // organisationObjectIds
-          return _organisationObjectIds;
+        case 1296014086:  // organizationObjectIds
+          return _organizationObjectIds;
         case 896190372:  // obligorTicker
           return _obligorTicker;
         case -1066272179:  // obligorShortName
@@ -362,13 +362,13 @@ public class OrganisationSearchRequest extends AbstractSearchRequest {
     }
 
     @Override
-    public BeanBuilder<? extends OrganisationSearchRequest> builder() {
-      return new DirectBeanBuilder<OrganisationSearchRequest>(new OrganisationSearchRequest());
+    public BeanBuilder<? extends OrganizationSearchRequest> builder() {
+      return new DirectBeanBuilder<OrganizationSearchRequest>(new OrganizationSearchRequest());
     }
 
     @Override
-    public Class<? extends OrganisationSearchRequest> beanType() {
-      return OrganisationSearchRequest.class;
+    public Class<? extends OrganizationSearchRequest> beanType() {
+      return OrganizationSearchRequest.class;
     }
 
     @Override
@@ -378,11 +378,11 @@ public class OrganisationSearchRequest extends AbstractSearchRequest {
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code organisationObjectIds} property.
+     * The meta-property for the {@code organizationObjectIds} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<List<ObjectId>> organisationObjectIds() {
-      return _organisationObjectIds;
+    public final MetaProperty<List<ObjectId>> organizationObjectIds() {
+      return _organizationObjectIds;
     }
 
     /**

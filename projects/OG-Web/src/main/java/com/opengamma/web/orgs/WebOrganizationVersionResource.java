@@ -21,7 +21,7 @@ import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.id.UniqueId;
-import com.opengamma.master.orgs.OrganisationDocument;
+import com.opengamma.master.orgs.OrganizationDocument;
 
 /**
  * RESTful resource for a version of an organization.
@@ -65,12 +65,12 @@ public class WebOrganizationVersionResource extends AbstractWebOrganizationResou
    */
   protected FlexiBean createRootData() {
     FlexiBean out = super.createRootData();
-    OrganisationDocument latestOrgDoc = data().getOrganization();
-    OrganisationDocument versionedOrganization = data().getVersioned();
+    OrganizationDocument latestOrgDoc = data().getOrganization();
+    OrganizationDocument versionedOrganization = data().getVersioned();
     out.put("latestOrganizationDoc", latestOrgDoc);
-    out.put("latestOrganization", latestOrgDoc.getOrganisation());
+    out.put("latestOrganization", latestOrgDoc.getOrganization());
     out.put("organizationDoc", versionedOrganization);
-    out.put("organization", versionedOrganization.getOrganisation());
+    out.put("organization", versionedOrganization.getOrganization());
     out.put("deleted", !latestOrgDoc.isLatest());
     return out;
   }

@@ -36,9 +36,9 @@ import com.opengamma.financial.security.cds.StandardVanillaCDSSecurity;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.id.ExternalId;
 import com.opengamma.master.organization.impl.MasterOrganizationSource;
-import com.opengamma.master.orgs.ManageableOrganisation;
-import com.opengamma.master.orgs.OrganisationDocument;
-import com.opengamma.master.orgs.impl.InMemoryOrganisationMaster;
+import com.opengamma.master.orgs.ManageableOrganization;
+import com.opengamma.master.orgs.OrganizationDocument;
+import com.opengamma.master.orgs.impl.InMemoryOrganizationMaster;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.impl.InMemorySecurityMaster;
@@ -51,13 +51,13 @@ public class ObligorMarkitSectorAggregatorFunctionTest {
 
   private AggregationFunction<String> _aggregator;
   private InMemorySecurityMaster _securityMaster;
-  private InMemoryOrganisationMaster _organizationMaster;
+  private InMemoryOrganizationMaster _organizationMaster;
 
   @BeforeMethod
   public void setup() {
 
     _securityMaster = new InMemorySecurityMaster();
-    _organizationMaster = new InMemoryOrganisationMaster();
+    _organizationMaster = new InMemoryOrganizationMaster();
 
     _aggregator = new ObligorMarkitSectorAggregationFunction(
         new MasterSecuritySource(_securityMaster), new MasterOrganizationSource(_organizationMaster));
@@ -110,12 +110,12 @@ public class ObligorMarkitSectorAggregatorFunctionTest {
   @Test
   public void testObligorWithMatchingRedCodeIsUsed() {
 
-    ManageableOrganisation org = new ManageableOrganisation("ShortName", "39FF64", "Ticker", Region.NORTHAMERICA,
+    ManageableOrganization org = new ManageableOrganization("ShortName", "39FF64", "Ticker", Region.NORTHAMERICA,
                                                             "US", Sector.FINANCIALS, CreditRating.NR, CreditRating.NR,
                                                             CreditRatingFitch.NR, CreditRatingMoodys.NR,
                                                             CreditRatingStandardAndPoors.NR, false);
 
-    _organizationMaster.add(new OrganisationDocument(org));
+    _organizationMaster.add(new OrganizationDocument(org));
 
     SecurityDocument document = new SecurityDocument();
     ManageableSecurity cds = createCdsWithRedCode("39FF64");

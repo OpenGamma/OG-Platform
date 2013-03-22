@@ -18,12 +18,12 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractMasterSource;
-import com.opengamma.master.orgs.ManageableOrganisation;
-import com.opengamma.master.orgs.OrganisationDocument;
-import com.opengamma.master.orgs.OrganisationMaster;
-import com.opengamma.master.orgs.OrganisationSearchRequest;
+import com.opengamma.master.orgs.ManageableOrganization;
+import com.opengamma.master.orgs.OrganizationDocument;
+import com.opengamma.master.orgs.OrganizationMaster;
+import com.opengamma.master.orgs.OrganizationSearchRequest;
 
-public class MasterOrganizationSource extends AbstractMasterSource<Organization, OrganisationDocument, OrganisationMaster>
+public class MasterOrganizationSource extends AbstractMasterSource<Organization, OrganizationDocument, OrganizationMaster>
     implements OrganizationSource {
 
   /**
@@ -31,7 +31,7 @@ public class MasterOrganizationSource extends AbstractMasterSource<Organization,
    *
    * @param master the master, not null
    */
-  public MasterOrganizationSource(final OrganisationMaster master) {
+  public MasterOrganizationSource(final OrganizationMaster master) {
     super(master);
   }
 
@@ -41,7 +41,7 @@ public class MasterOrganizationSource extends AbstractMasterSource<Organization,
    * @param master the master, not null
    * @param versionCorrection  the version-correction locator to search at, null to not override versions
    */
-  public MasterOrganizationSource(final OrganisationMaster master, VersionCorrection versionCorrection) {
+  public MasterOrganizationSource(final OrganizationMaster master, VersionCorrection versionCorrection) {
     super(master, versionCorrection);
   }
 
@@ -53,42 +53,42 @@ public class MasterOrganizationSource extends AbstractMasterSource<Organization,
   @Override
   public Organization getOrganizationByRedCode(String redCode) {
 
-    OrganisationSearchRequest request = new OrganisationSearchRequest();
+    OrganizationSearchRequest request = new OrganizationSearchRequest();
     request.setObligorREDCode(redCode);
     return searchForSingleOrganization(request);
   }
 
-  private ManageableOrganisation searchForSingleOrganization(OrganisationSearchRequest request) {
-    return getMaster().search(request).getSingleOrganisation();
+  private ManageableOrganization searchForSingleOrganization(OrganizationSearchRequest request) {
+    return getMaster().search(request).getSingleOrganization();
   }
 
   @Override
   public Organization getOrganizationByTicker(String ticker) {
-    OrganisationSearchRequest request = new OrganisationSearchRequest();
+    OrganizationSearchRequest request = new OrganizationSearchRequest();
     request.setObligorTicker(ticker);
     return searchForSingleOrganization(request);
   }
 
   @Override
   public Organization get(UniqueId uniqueId) {
-    return getMaster().getOrganisation(uniqueId);
+    return getMaster().getOrganization(uniqueId);
   }
 
   @Override
   public Organization get(ObjectId objectId, VersionCorrection versionCorrection) {
-    OrganisationDocument document = getMaster().get(objectId, versionCorrection);
-    return document == null ? null : document.getOrganisation();
+    OrganizationDocument document = getMaster().get(objectId, versionCorrection);
+    return document == null ? null : document.getOrganization();
   }
 
   @Override
   public Map<UniqueId, Organization> get(Collection<UniqueId> uniqueIds) {
 
-    Map<UniqueId, OrganisationDocument> documents = getMaster().get(uniqueIds);
+    Map<UniqueId, OrganizationDocument> documents = getMaster().get(uniqueIds);
     return Maps.transformValues(documents,
-           new Function<OrganisationDocument, Organization>() {
+           new Function<OrganizationDocument, Organization>() {
              @Override
-             public Organization apply(OrganisationDocument organisationDocument) {
-               return organisationDocument.getOrganisation();
+             public Organization apply(OrganizationDocument organizationDocument) {
+               return organizationDocument.getOrganization();
              }
            });
   }

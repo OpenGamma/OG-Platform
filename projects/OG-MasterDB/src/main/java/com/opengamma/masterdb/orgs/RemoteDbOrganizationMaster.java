@@ -6,7 +6,7 @@
 package com.opengamma.masterdb.orgs;
 
 import com.opengamma.core.change.ChangeManager;
-import com.opengamma.master.orgs.impl.RemoteOrganisationMaster;
+import com.opengamma.master.orgs.impl.RemoteOrganizationMaster;
 import com.opengamma.masterdb.TimeOverrideRequest;
 
 import java.net.URI;
@@ -14,16 +14,16 @@ import java.net.URI;
 import org.threeten.bp.Instant;
 
 /**
- * Provides remote access to a {@link com.opengamma.masterdb.orgs.DbOrganisationMaster}.
+ * Provides remote access to a {@link com.opengamma.masterdb.orgs.DbOrganizationMaster}.
  */
-public class RemoteDbOrganisationMaster extends RemoteOrganisationMaster {
+public class RemoteDbOrganizationMaster extends RemoteOrganizationMaster {
 
   /**
    * Creates an instance.
    * 
    * @param baseUri  the base target URI for all RESTful web services, not null
    */
-  public RemoteDbOrganisationMaster(final URI baseUri) {
+  public RemoteDbOrganizationMaster(final URI baseUri) {
     super(baseUri);
   }
 
@@ -34,18 +34,18 @@ public class RemoteDbOrganisationMaster extends RemoteOrganisationMaster {
    * @param changeManager  the change manager, not null
    */
 
-  public RemoteDbOrganisationMaster(final URI baseUri, ChangeManager changeManager) {
+  public RemoteDbOrganizationMaster(final URI baseUri, ChangeManager changeManager) {
     super(baseUri, changeManager);
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Overrides the current time seen by the remote organisation master to a fixed instant.
+   * Overrides the current time seen by the remote organization master to a fixed instant.
    * 
    * @param instant  the instant, or null to remove an existing override.
    */
   public void setTimeOverride(final Instant instant) {
-    URI uri = DataDbOrganisationMasterResource.uriTimeOverride(getBaseUri());
+    URI uri = DataDbOrganizationMasterResource.uriTimeOverride(getBaseUri());
     TimeOverrideRequest request = new TimeOverrideRequest();
     request.setTimeOverride(instant);
     accessRemote(uri).put(request);

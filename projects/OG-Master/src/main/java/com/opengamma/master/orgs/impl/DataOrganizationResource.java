@@ -7,10 +7,10 @@ package com.opengamma.master.orgs.impl;
 
 import com.opengamma.id.ObjectId;
 import com.opengamma.master.AbstractDocumentDataResource;
-import com.opengamma.master.orgs.OrganisationDocument;
-import com.opengamma.master.orgs.OrganisationHistoryRequest;
-import com.opengamma.master.orgs.OrganisationHistoryResult;
-import com.opengamma.master.orgs.OrganisationMaster;
+import com.opengamma.master.orgs.OrganizationDocument;
+import com.opengamma.master.orgs.OrganizationHistoryRequest;
+import com.opengamma.master.orgs.OrganizationHistoryResult;
+import com.opengamma.master.orgs.OrganizationMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.RestUtils;
 
@@ -27,15 +27,15 @@ import javax.ws.rs.core.UriInfo;
 import java.util.List;
 
 /**
- * RESTful resource for a organisation.
+ * RESTful resource for a organization.
  */
-public class DataOrganisationResource
-    extends AbstractDocumentDataResource<OrganisationDocument> {
+public class DataOrganizationResource
+    extends AbstractDocumentDataResource<OrganizationDocument> {
 
   /**
-   * The organisations resource.
+   * The organizations resource.
    */
-  private final DataOrganisationMasterResource _organisationsResource;
+  private final DataOrganizationMasterResource _organizationsResource;
   /**
    * The identifier specified in the URI.
    */
@@ -44,36 +44,36 @@ public class DataOrganisationResource
   /**
    * Creates dummy resource for the purpose of url resolution.
    */
-  DataOrganisationResource() {
-    _organisationsResource = null;
+  DataOrganizationResource() {
+    _organizationsResource = null;
   }
 
   /**
    * Creates the resource.
    *
-   * @param organisationsResource the parent resource, not null
-   * @param organisationId        the organisation unique identifier, not null
+   * @param organizationsResource the parent resource, not null
+   * @param organizationId        the organization unique identifier, not null
    */
-  public DataOrganisationResource(final DataOrganisationMasterResource organisationsResource, final ObjectId organisationId) {
-    ArgumentChecker.notNull(organisationsResource, "organisationsResource");
-    ArgumentChecker.notNull(organisationId, "organisation");
-    _organisationsResource = organisationsResource;
-    _urlResourceId = organisationId;
+  public DataOrganizationResource(final DataOrganizationMasterResource organizationsResource, final ObjectId organizationId) {
+    ArgumentChecker.notNull(organizationsResource, "organizationsResource");
+    ArgumentChecker.notNull(organizationId, "organization");
+    _organizationsResource = organizationsResource;
+    _urlResourceId = organizationId;
   }
 
   //-------------------------------------------------------------------------
 
   /**
-   * Gets the organisations resource.
+   * Gets the organizations resource.
    *
-   * @return the organisations resource, not null
+   * @return the organizations resource, not null
    */
-  public DataOrganisationMasterResource getOrganisationsResource() {
-    return _organisationsResource;
+  public DataOrganizationMasterResource getOrganizationsResource() {
+    return _organizationsResource;
   }
 
   /**
-   * Gets the organisation identifier from the URL.
+   * Gets the organization identifier from the URL.
    *
    * @return the unique identifier, not null
    */
@@ -84,22 +84,22 @@ public class DataOrganisationResource
   //-------------------------------------------------------------------------
 
   /**
-   * Gets the organisation master.
+   * Gets the organization master.
    *
-   * @return the organisation master, not null
+   * @return the organization master, not null
    */
-  public OrganisationMaster getMaster() {
-    return getOrganisationsResource().getOrganisationMaster();
+  public OrganizationMaster getMaster() {
+    return getOrganizationsResource().getOrganizationMaster();
   }
 
   @GET
   @Path("versions")
   public Response history(@Context UriInfo uriInfo) {
-    OrganisationHistoryRequest request = RestUtils.decodeQueryParams(uriInfo, OrganisationHistoryRequest.class);
+    OrganizationHistoryRequest request = RestUtils.decodeQueryParams(uriInfo, OrganizationHistoryRequest.class);
     if (getUrlId().equals(request.getObjectId()) == false) {
       throw new IllegalArgumentException("Document objectId does not match URI");
     }
-    OrganisationHistoryResult result = getMaster().history(request);
+    OrganizationHistoryResult result = getMaster().history(request);
     return responseOkFudge(result);
   }
 
@@ -109,7 +109,7 @@ public class DataOrganisationResource
   }
 
   @POST
-  public Response update(@Context UriInfo uriInfo, OrganisationDocument request) {
+  public Response update(@Context UriInfo uriInfo, OrganizationDocument request) {
     return super.update(uriInfo, request);
   }
 
@@ -127,24 +127,24 @@ public class DataOrganisationResource
 
   @PUT
   @Path("versions/{versionId}")
-  public Response replaceVersion(@PathParam("versionId") String versionId, List<OrganisationDocument> replacementDocuments) {
+  public Response replaceVersion(@PathParam("versionId") String versionId, List<OrganizationDocument> replacementDocuments) {
     return super.replaceVersion(versionId, replacementDocuments);
   }
 
   @PUT
-  public Response replaceVersions(List<OrganisationDocument> replacementDocuments) {
+  public Response replaceVersions(List<OrganizationDocument> replacementDocuments) {
     return super.replaceVersions(replacementDocuments);
   }
 
   @PUT
   @Path("all")
-  public Response replaceAllVersions(List<OrganisationDocument> replacementDocuments) {
+  public Response replaceAllVersions(List<OrganizationDocument> replacementDocuments) {
     return super.replaceAllVersions(replacementDocuments);
   }
 
   @Override
   protected String getResourceName() {
-    return "organisations";
+    return "organizations";
   }
 
 }

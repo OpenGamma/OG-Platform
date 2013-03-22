@@ -16,13 +16,13 @@ import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.SimpleAbstractInMemoryMaster;
-import com.opengamma.master.orgs.ManageableOrganisation;
-import com.opengamma.master.orgs.OrganisationDocument;
-import com.opengamma.master.orgs.OrganisationHistoryRequest;
-import com.opengamma.master.orgs.OrganisationHistoryResult;
-import com.opengamma.master.orgs.OrganisationMaster;
-import com.opengamma.master.orgs.OrganisationSearchRequest;
-import com.opengamma.master.orgs.OrganisationSearchResult;
+import com.opengamma.master.orgs.ManageableOrganization;
+import com.opengamma.master.orgs.OrganizationDocument;
+import com.opengamma.master.orgs.OrganizationHistoryRequest;
+import com.opengamma.master.orgs.OrganizationHistoryResult;
+import com.opengamma.master.orgs.OrganizationMaster;
+import com.opengamma.master.orgs.OrganizationSearchRequest;
+import com.opengamma.master.orgs.OrganizationSearchResult;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.paging.Paging;
 import org.joda.beans.JodaBeanUtils;
@@ -32,9 +32,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * An in-memory implementation of a organisation master.
+ * An in-memory implementation of a organization master.
  */
-public class InMemoryOrganisationMaster extends SimpleAbstractInMemoryMaster<OrganisationDocument> implements OrganisationMaster {
+public class InMemoryOrganizationMaster extends SimpleAbstractInMemoryMaster<OrganizationDocument> implements OrganizationMaster {
 
   /**
    * The default scheme used for each {@link com.opengamma.id.UniqueId}.
@@ -45,7 +45,7 @@ public class InMemoryOrganisationMaster extends SimpleAbstractInMemoryMaster<Org
   /**
    * Creates an instance.
    */
-  public InMemoryOrganisationMaster() {
+  public InMemoryOrganizationMaster() {
     this(new ObjectIdSupplier(DEFAULT_OID_SCHEME));
   }
 
@@ -54,7 +54,7 @@ public class InMemoryOrganisationMaster extends SimpleAbstractInMemoryMaster<Org
    *
    * @param changeManager the change manager, not null
    */
-  public InMemoryOrganisationMaster(final ChangeManager changeManager) {
+  public InMemoryOrganizationMaster(final ChangeManager changeManager) {
     this(new ObjectIdSupplier(DEFAULT_OID_SCHEME), changeManager);
   }
 
@@ -63,7 +63,7 @@ public class InMemoryOrganisationMaster extends SimpleAbstractInMemoryMaster<Org
    *
    * @param objectIdSupplier the supplier of object identifiers, not null
    */
-  public InMemoryOrganisationMaster(final Supplier<ObjectId> objectIdSupplier) {
+  public InMemoryOrganizationMaster(final Supplier<ObjectId> objectIdSupplier) {
     this(objectIdSupplier, new BasicChangeManager());
   }
 
@@ -73,55 +73,55 @@ public class InMemoryOrganisationMaster extends SimpleAbstractInMemoryMaster<Org
    * @param objectIdSupplier the supplier of object identifiers, not null
    * @param changeManager    the change manager, not null
    */
-  public InMemoryOrganisationMaster(final Supplier<ObjectId> objectIdSupplier, final ChangeManager changeManager) {
+  public InMemoryOrganizationMaster(final Supplier<ObjectId> objectIdSupplier, final ChangeManager changeManager) {
     super(objectIdSupplier, changeManager);
   }
 
   //-------------------------------------------------------------------------
   @Override
-  protected void validateDocument(OrganisationDocument document) {
+  protected void validateDocument(OrganizationDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getOrganisation(), "document.organisation");
+    ArgumentChecker.notNull(document.getOrganization(), "document.organization");
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public OrganisationDocument get(UniqueId uniqueId) {
+  public OrganizationDocument get(UniqueId uniqueId) {
     return get(uniqueId, VersionCorrection.LATEST);
   }
 
   @Override
-  public OrganisationDocument get(ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
+  public OrganizationDocument get(ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(objectId, "objectId");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
-    final OrganisationDocument document = _store.get(objectId.getObjectId());
+    final OrganizationDocument document = _store.get(objectId.getObjectId());
     if (document == null) {
-      throw new DataNotFoundException("Organisation not found: " + objectId);
+      throw new DataNotFoundException("Organization not found: " + objectId);
     }
-    return cloneOrganisationDocument(document);
+    return cloneOrganizationDocument(document);
   }
 
-  private OrganisationDocument cloneOrganisationDocument(OrganisationDocument document) {
-    OrganisationDocument clone = JodaBeanUtils.clone(document);
-    ManageableOrganisation organisationClone = JodaBeanUtils.clone(document.getOrganisation());
-    clone.setOrganisation(organisationClone);
+  private OrganizationDocument cloneOrganizationDocument(OrganizationDocument document) {
+    OrganizationDocument clone = JodaBeanUtils.clone(document);
+    ManageableOrganization organizationClone = JodaBeanUtils.clone(document.getOrganization());
+    clone.setOrganization(organizationClone);
     return clone;
   }
 
-  private ManageableOrganisation cloneOrganisation(ManageableOrganisation organisation) {
-    return JodaBeanUtils.clone(organisation);
+  private ManageableOrganization cloneOrganization(ManageableOrganization organization) {
+    return JodaBeanUtils.clone(organization);
   }
 
   @Override
-  public OrganisationDocument add(OrganisationDocument document) {
+  public OrganizationDocument add(OrganizationDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getOrganisation(), "document.organisation");
+    ArgumentChecker.notNull(document.getOrganization(), "document.organization");
 
     final ObjectId objectId = _objectIdSupplier.get();
     final UniqueId uniqueId = objectId.atVersion("");
     final Instant now = Instant.now();
 
-    final OrganisationDocument clonedDoc = cloneOrganisationDocument(document);
+    final OrganizationDocument clonedDoc = cloneOrganizationDocument(document);
     setDocumentId(document, clonedDoc, uniqueId);
     setVersionTimes(document, clonedDoc, now, null, now, null);
     _store.put(objectId, clonedDoc);
@@ -130,14 +130,14 @@ public class InMemoryOrganisationMaster extends SimpleAbstractInMemoryMaster<Org
     return document;
   }
 
-  private void setDocumentId(final OrganisationDocument document, final OrganisationDocument clonedDoc, final UniqueId uniqueId) {
-    document.getOrganisation().setUniqueId(uniqueId);
-    clonedDoc.getOrganisation().setUniqueId(uniqueId);
+  private void setDocumentId(final OrganizationDocument document, final OrganizationDocument clonedDoc, final UniqueId uniqueId) {
+    document.getOrganization().setUniqueId(uniqueId);
+    clonedDoc.getOrganization().setUniqueId(uniqueId);
     document.setUniqueId(uniqueId);
     clonedDoc.setUniqueId(uniqueId);
   }
 
-  private void setVersionTimes(OrganisationDocument document, final OrganisationDocument clonedDoc,
+  private void setVersionTimes(OrganizationDocument document, final OrganizationDocument clonedDoc,
                                final Instant versionFromInstant, final Instant versionToInstant, final Instant correctionFromInstant, final Instant correctionToInstant) {
 
     clonedDoc.setVersionFromInstant(versionFromInstant);
@@ -154,19 +154,19 @@ public class InMemoryOrganisationMaster extends SimpleAbstractInMemoryMaster<Org
   }
 
   @Override
-  public OrganisationDocument update(OrganisationDocument document) {
+  public OrganizationDocument update(OrganizationDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
-    ArgumentChecker.notNull(document.getOrganisation(), "document.organisation");
+    ArgumentChecker.notNull(document.getOrganization(), "document.organization");
 
     final UniqueId uniqueId = document.getUniqueId();
     final Instant now = Instant.now();
-    final OrganisationDocument storedDocument = _store.get(uniqueId.getObjectId());
+    final OrganizationDocument storedDocument = _store.get(uniqueId.getObjectId());
     if (storedDocument == null) {
-      throw new DataNotFoundException("Organisation not found: " + uniqueId);
+      throw new DataNotFoundException("Organization not found: " + uniqueId);
     }
 
-    final OrganisationDocument clonedDoc = cloneOrganisationDocument(document);
+    final OrganizationDocument clonedDoc = cloneOrganizationDocument(document);
 
 
     setVersionTimes(document, clonedDoc, now, null, now, null);
@@ -182,45 +182,45 @@ public class InMemoryOrganisationMaster extends SimpleAbstractInMemoryMaster<Org
   @Override
   public void remove(ObjectIdentifiable objectIdentifiable) {
     ArgumentChecker.notNull(objectIdentifiable, "objectIdentifiable");
-    OrganisationDocument storedDocument = _store.remove(objectIdentifiable.getObjectId());
+    OrganizationDocument storedDocument = _store.remove(objectIdentifiable.getObjectId());
     if (storedDocument == null) {
-      throw new DataNotFoundException("Organisation not found " + objectIdentifiable);
+      throw new DataNotFoundException("Organization not found " + objectIdentifiable);
     }    
     _changeManager.entityChanged(ChangeType.REMOVED, objectIdentifiable.getObjectId(), null, null, Instant.now());
   }
 
   @Override
-  public OrganisationDocument correct(OrganisationDocument document) {
+  public OrganizationDocument correct(OrganizationDocument document) {
     return update(document);
   }
 
   @Override
-  public OrganisationSearchResult search(OrganisationSearchRequest request) {
+  public OrganizationSearchResult search(OrganizationSearchRequest request) {
     ArgumentChecker.notNull(request, "request");
-    final List<OrganisationDocument> list = new ArrayList<OrganisationDocument>();
-    for (OrganisationDocument doc : _store.values()) {
+    final List<OrganizationDocument> list = new ArrayList<OrganizationDocument>();
+    for (OrganizationDocument doc : _store.values()) {
       if (request.matches(doc)) {
-        list.add(cloneOrganisationDocument(doc));
+        list.add(cloneOrganizationDocument(doc));
       }
     }
-    final OrganisationSearchResult result = new OrganisationSearchResult();
+    final OrganizationSearchResult result = new OrganizationSearchResult();
     result.setPaging(Paging.of(request.getPagingRequest(), list));
     result.getDocuments().addAll(request.getPagingRequest().select(list));
     return result;
   }
 
   @Override
-  public OrganisationHistoryResult history(OrganisationHistoryRequest request) {
+  public OrganizationHistoryResult history(OrganizationHistoryRequest request) {
     throw new UnsupportedOperationException("History request not supported by " + getClass().getSimpleName());
   }
 
   @Override
-  public ManageableOrganisation getOrganisation(UniqueId organisationId) {
-    ArgumentChecker.notNull(organisationId, "organisationId");
-    ManageableOrganisation organisation = _store.get(organisationId.getObjectId()).getOrganisation();
-    if (organisation == null) {
-      throw new DataNotFoundException("Organisation not found: " + organisationId);
+  public ManageableOrganization getOrganization(UniqueId organizationId) {
+    ArgumentChecker.notNull(organizationId, "organizationId");
+    ManageableOrganization organization = _store.get(organizationId.getObjectId()).getOrganization();
+    if (organization == null) {
+      throw new DataNotFoundException("Organization not found: " + organizationId);
     }
-    return cloneOrganisation(organisation);
+    return cloneOrganization(organization);
   }
 }

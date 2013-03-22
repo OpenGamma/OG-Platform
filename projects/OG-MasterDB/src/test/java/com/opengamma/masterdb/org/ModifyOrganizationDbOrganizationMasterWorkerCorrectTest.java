@@ -21,38 +21,38 @@ import com.opengamma.core.obligor.CreditRatingStandardAndPoors;
 import com.opengamma.core.obligor.Region;
 import com.opengamma.core.obligor.Sector;
 import com.opengamma.id.UniqueId;
-import com.opengamma.master.orgs.ManageableOrganisation;
-import com.opengamma.master.orgs.OrganisationDocument;
-import com.opengamma.master.orgs.OrganisationHistoryRequest;
-import com.opengamma.master.orgs.OrganisationHistoryResult;
+import com.opengamma.master.orgs.ManageableOrganization;
+import com.opengamma.master.orgs.OrganizationDocument;
+import com.opengamma.master.orgs.OrganizationHistoryRequest;
+import com.opengamma.master.orgs.OrganizationHistoryResult;
 import com.opengamma.util.test.DbTest;
 import com.opengamma.util.test.TestGroup;
 
 /**
- * Tests ModifyOrganisationDbOrganisationMasterWorker.
+ * Tests ModifyOrganizationDbOrganizationMasterWorker.
  */
 @Test(groups = TestGroup.UNIT_DB)
-public class ModifyOrganisationDbOrganisationMasterWorkerCorrectTest extends AbstractDbOrganisationMasterWorkerTest {
+public class ModifyOrganizationDbOrganizationMasterWorkerCorrectTest extends AbstractDbOrganizationMasterWorkerTest {
   // superclass sets up dummy database
 
-  private static final Logger s_logger = LoggerFactory.getLogger(ModifyOrganisationDbOrganisationMasterWorkerCorrectTest.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(ModifyOrganizationDbOrganizationMasterWorkerCorrectTest.class);
 
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
-  public ModifyOrganisationDbOrganisationMasterWorkerCorrectTest(String databaseType, String databaseVersion) {
+  public ModifyOrganizationDbOrganizationMasterWorkerCorrectTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion, false);
     s_logger.info("running testcases for {}", databaseType);
   }
 
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void test_correctOrganisation_nullDocument() {
+  public void test_correctOrganization_nullDocument() {
     _orgMaster.correct(null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void test_correct_noOrganisationId() {
+  public void test_correct_noOrganizationId() {
     UniqueId uniqueId = UniqueId.of("DbOrg", "101");
-    ManageableOrganisation org = new ManageableOrganisation("TestOrganisation101",
+    ManageableOrganization org = new ManageableOrganization("TestOrganization101",
                                                             "RED_code_101",
                                                             "ticker_101",
                                                             Region.AFRICA,
@@ -65,14 +65,14 @@ public class ModifyOrganisationDbOrganisationMasterWorkerCorrectTest extends Abs
                                                             CreditRatingStandardAndPoors.A,
                                                             false);
     org.setUniqueId(uniqueId);
-    OrganisationDocument doc = new OrganisationDocument(org);
+    OrganizationDocument doc = new OrganizationDocument(org);
     doc.setUniqueId(null);
     _orgMaster.correct(doc);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void test_correct_noOrganisation() {
-    OrganisationDocument doc = new OrganisationDocument();
+  public void test_correct_noOrganization() {
+    OrganizationDocument doc = new OrganizationDocument();
     doc.setUniqueId(UniqueId.of("DbOrg", "101", "0"));
     _orgMaster.correct(doc);
   }
@@ -80,7 +80,7 @@ public class ModifyOrganisationDbOrganisationMasterWorkerCorrectTest extends Abs
   @Test(expectedExceptions = DataNotFoundException.class)
   public void test_correct_notFound() {
     UniqueId uniqueId = UniqueId.of("DbOrg", "0", "0");
-    ManageableOrganisation org = new ManageableOrganisation("TestOrganisation101",
+    ManageableOrganization org = new ManageableOrganization("TestOrganization101",
                                                             "RED_code_101",
                                                             "ticker_101",
                                                             Region.AFRICA,
@@ -93,7 +93,7 @@ public class ModifyOrganisationDbOrganisationMasterWorkerCorrectTest extends Abs
                                                             CreditRatingStandardAndPoors.A,
                                                             false);
     org.setUniqueId(uniqueId);
-    OrganisationDocument doc = new OrganisationDocument(org);
+    OrganizationDocument doc = new OrganizationDocument(org);
     _orgMaster.correct(doc);
   }
 
@@ -103,8 +103,8 @@ public class ModifyOrganisationDbOrganisationMasterWorkerCorrectTest extends Abs
     Instant now = Instant.now(_orgMaster.getClock());
 
     UniqueId uniqueId = UniqueId.of("DbOrg", "101", "0");
-    OrganisationDocument base = _orgMaster.get(uniqueId);
-    ManageableOrganisation org = new ManageableOrganisation("TestOrganisation101",
+    OrganizationDocument base = _orgMaster.get(uniqueId);
+    ManageableOrganization org = new ManageableOrganization("TestOrganization101",
                                                             "RED_code_101",
                                                             "ticker_101",
                                                             Region.AFRICA,
@@ -117,26 +117,26 @@ public class ModifyOrganisationDbOrganisationMasterWorkerCorrectTest extends Abs
                                                             CreditRatingStandardAndPoors.A,
                                                             false);
     org.setUniqueId(uniqueId);
-    OrganisationDocument input = new OrganisationDocument(org);
+    OrganizationDocument input = new OrganizationDocument(org);
 
-    OrganisationDocument corrected = _orgMaster.correct(input);
+    OrganizationDocument corrected = _orgMaster.correct(input);
     assertEquals(false, base.getUniqueId().equals(corrected.getUniqueId()));
     assertEquals(base.getVersionFromInstant(), corrected.getVersionFromInstant());
     assertEquals(base.getVersionToInstant(), corrected.getVersionToInstant());
     assertEquals(now, corrected.getCorrectionFromInstant());
     assertEquals(null, corrected.getCorrectionToInstant());
-    assertEquals(input.getOrganisation(), corrected.getOrganisation());
+    assertEquals(input.getOrganization(), corrected.getOrganization());
 
-    OrganisationDocument old = _orgMaster.get(UniqueId.of("DbOrg", "101", "0"));
+    OrganizationDocument old = _orgMaster.get(UniqueId.of("DbOrg", "101", "0"));
     assertEquals(base.getUniqueId(), old.getUniqueId());
     assertEquals(base.getVersionFromInstant(), old.getVersionFromInstant());
     assertEquals(base.getVersionToInstant(), old.getVersionToInstant());
     assertEquals(base.getCorrectionFromInstant(), old.getCorrectionFromInstant());
     assertEquals(now, old.getCorrectionToInstant());  // old version ended
-    assertEquals(base.getOrganisation(), old.getOrganisation());
+    assertEquals(base.getOrganization(), old.getOrganization());
 
-    OrganisationHistoryRequest search = new OrganisationHistoryRequest(base.getUniqueId(), now, null);
-    OrganisationHistoryResult searchResult = _orgMaster.history(search);
+    OrganizationHistoryRequest search = new OrganizationHistoryRequest(base.getUniqueId(), now, null);
+    OrganizationHistoryResult searchResult = _orgMaster.history(search);
     assertEquals(2, searchResult.getDocuments().size());
   }
 

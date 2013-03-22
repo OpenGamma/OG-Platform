@@ -27,12 +27,12 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
-import com.opengamma.master.orgs.OrganisationDocument;
-import com.opengamma.master.orgs.OrganisationHistoryRequest;
-import com.opengamma.master.orgs.OrganisationHistoryResult;
-import com.opengamma.master.orgs.OrganisationMaster;
-import com.opengamma.master.orgs.OrganisationSearchRequest;
-import com.opengamma.master.orgs.OrganisationSearchResult;
+import com.opengamma.master.orgs.OrganizationDocument;
+import com.opengamma.master.orgs.OrganizationHistoryRequest;
+import com.opengamma.master.orgs.OrganizationHistoryResult;
+import com.opengamma.master.orgs.OrganizationMaster;
+import com.opengamma.master.orgs.OrganizationSearchRequest;
+import com.opengamma.master.orgs.OrganizationSearchResult;
 import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.util.paging.PagingRequest;
 import com.opengamma.web.WebPaging;
@@ -52,7 +52,7 @@ public class WebOrganizationsResource extends AbstractWebOrganizationResource {
    * Creates the resource.
    * @param organizationMaster  the organization master, not null
    */
-  public WebOrganizationsResource(final OrganisationMaster organizationMaster) {
+  public WebOrganizationsResource(final OrganizationMaster organizationMaster) {
     super(organizationMaster);
   }
 
@@ -95,18 +95,18 @@ public class WebOrganizationsResource extends AbstractWebOrganizationResource {
       final String obligorREDCode, final List<String> organizationIdStrs, final UriInfo uriInfo) {
     FlexiBean out = createRootData();
     
-    OrganisationSearchRequest searchRequest = new OrganisationSearchRequest();
+    OrganizationSearchRequest searchRequest = new OrganizationSearchRequest();
     searchRequest.setPagingRequest(pr);
     searchRequest.setObligorShortName(StringUtils.trimToNull(shortName));
     searchRequest.setObligorTicker(StringUtils.trimToNull(obligorTicker));
     searchRequest.setObligorREDCode(StringUtils.trimToNull(obligorREDCode));
     for (String organizationIdStr : organizationIdStrs) {
-      searchRequest.addOrganisationObjectId(ObjectId.parse(organizationIdStr));
+      searchRequest.addOrganizationObjectId(ObjectId.parse(organizationIdStr));
     }
     out.put("searchRequest", searchRequest);
     
     if (data().getUriInfo().getQueryParameters().size() > 0) {
-      OrganisationSearchResult searchResult = data().getOrganizationMaster().search(searchRequest);
+      OrganizationSearchResult searchResult = data().getOrganizationMaster().search(searchRequest);
       out.put("searchResult", searchResult);
       out.put("paging", new WebPaging(searchResult.getPaging(), uriInfo));
     }
@@ -120,12 +120,12 @@ public class WebOrganizationsResource extends AbstractWebOrganizationResource {
     data().setUriOrganizationId(idStr);
     UniqueId oid = UniqueId.parse(idStr);
     try {
-      OrganisationDocument doc = data().getOrganizationMaster().get(oid);
+      OrganizationDocument doc = data().getOrganizationMaster().get(oid);
       data().setOrganization(doc);
     } catch (DataNotFoundException ex) {
-      OrganisationHistoryRequest historyRequest = new OrganisationHistoryRequest(oid);
+      OrganizationHistoryRequest historyRequest = new OrganizationHistoryRequest(oid);
       historyRequest.setPagingRequest(PagingRequest.ONE);
-      OrganisationHistoryResult historyResult = data().getOrganizationMaster().history(historyRequest);
+      OrganizationHistoryResult historyResult = data().getOrganizationMaster().history(historyRequest);
       if (historyResult.getDocuments().size() == 0) {
         return null;
       }

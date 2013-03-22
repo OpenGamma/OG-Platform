@@ -13,10 +13,10 @@ import com.opengamma.core.obligor.Region;
 import com.opengamma.core.obligor.Sector;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
-import com.opengamma.master.orgs.ManageableOrganisation;
-import com.opengamma.master.orgs.OrganisationDocument;
+import com.opengamma.master.orgs.ManageableOrganization;
+import com.opengamma.master.orgs.OrganizationDocument;
 import com.opengamma.masterdb.DbMasterTestUtils;
-import com.opengamma.masterdb.orgs.DbOrganisationMaster;
+import com.opengamma.masterdb.orgs.DbOrganizationMaster;
 import com.opengamma.util.test.DbTest;
 import com.opengamma.util.test.TestGroup;
 
@@ -40,22 +40,22 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 
 /**
- * Base tests for DbOrganisationMasterWorker via DbOrganisationMaster.
+ * Base tests for DbOrganizationMasterWorker via DbOrganizationMaster.
  */
 @Test(groups = TestGroup.UNIT_DB)
-public abstract class AbstractDbOrganisationMasterWorkerTest extends DbTest {
+public abstract class AbstractDbOrganizationMasterWorkerTest extends DbTest {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(AbstractDbOrganisationMasterWorkerTest.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(AbstractDbOrganizationMasterWorkerTest.class);
 
-  protected DbOrganisationMaster _orgMaster;
+  protected DbOrganizationMaster _orgMaster;
   protected Instant _version1Instant;
   protected Instant _version2Instant;
-  protected int _totalOrganisations;
+  protected int _totalOrganizations;
   protected boolean _readOnly;  // attempt to speed up tests
 
   final static String PROVIDER_SCHEME = "Markit";
 
-  public AbstractDbOrganisationMasterWorkerTest(String databaseType, String databaseVersion, boolean readOnly) {
+  public AbstractDbOrganizationMasterWorkerTest(String databaseType, String databaseVersion, boolean readOnly) {
     super(databaseType, databaseVersion, databaseVersion);
     _readOnly = readOnly;
     s_logger.info("running testcases for {}", databaseType);
@@ -78,7 +78,7 @@ public abstract class AbstractDbOrganisationMasterWorkerTest extends DbTest {
   private void init() throws Exception {
     super.setUp();
     ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
-    _orgMaster = (DbOrganisationMaster) context.getBean(getDatabaseType() + "DbOrganisationMaster");
+    _orgMaster = (DbOrganizationMaster) context.getBean(getDatabaseType() + "DbOrganizationMaster");
 
 //    id bigint NOT NULL,
 //    oid bigint NOT NULL,
@@ -142,7 +142,7 @@ public abstract class AbstractDbOrganisationMasterWorkerTest extends DbTest {
                     MAX_SQL_TIMESTAMP,
                     PROVIDER_SCHEME,
                     "1",
-                    "TestOrganisation101",
+                    "TestOrganization101",
                     "RED_code_101",
                     "ticker_101",
                     "CountryA",
@@ -163,7 +163,7 @@ public abstract class AbstractDbOrganisationMasterWorkerTest extends DbTest {
                     MAX_SQL_TIMESTAMP,
                     PROVIDER_SCHEME,
                     "2",
-                    "TestOrganisation102",
+                    "TestOrganization102",
                     "RED_code_102",
                     "ticker_102",
                     "CountryB",
@@ -185,7 +185,7 @@ public abstract class AbstractDbOrganisationMasterWorkerTest extends DbTest {
                     MAX_SQL_TIMESTAMP,
                     PROVIDER_SCHEME,
                     "3",
-                    "TestOrganisation201",
+                    "TestOrganization201",
                     "RED_code_201",
                     "ticker_201",
                     "CountryC",
@@ -206,7 +206,7 @@ public abstract class AbstractDbOrganisationMasterWorkerTest extends DbTest {
                     MAX_SQL_TIMESTAMP,
                     PROVIDER_SCHEME,
                     "3",
-                    "TestOrganisation201",
+                    "TestOrganization201",
                     "RED_code_201",
                     "ticker_201",
                     "CountryD",
@@ -219,7 +219,7 @@ public abstract class AbstractDbOrganisationMasterWorkerTest extends DbTest {
         CreditRatingStandardAndPoors.B.name(),
         0);
 
-    _totalOrganisations = 3;
+    _totalOrganizations = 3;
   }
 
   @AfterMethod
@@ -244,7 +244,7 @@ public abstract class AbstractDbOrganisationMasterWorkerTest extends DbTest {
   }
 
 
-  protected void assert101(final OrganisationDocument test) {
+  protected void assert101(final OrganizationDocument test) {
     UniqueId uniqueId = UniqueId.of("DbOrg", "101", "0");
     assertNotNull(test);
     assertEquals(uniqueId, test.getUniqueId());
@@ -252,25 +252,25 @@ public abstract class AbstractDbOrganisationMasterWorkerTest extends DbTest {
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    ManageableOrganisation organisation = test.getOrganisation();
-    assertNotNull(organisation);
-    assertEquals(uniqueId, organisation.getUniqueId());
+    ManageableOrganization organization = test.getOrganization();
+    assertNotNull(organization);
+    assertEquals(uniqueId, organization.getUniqueId());
     assertEquals(ExternalId.of(PROVIDER_SCHEME, "1"), test.getProviderId());
-    assertEquals("TestOrganisation101", test.getOrganisation().getObligor().getObligorShortName());
-    assertEquals("RED_code_101", test.getOrganisation().getObligor().getObligorREDCode());
-    assertEquals("ticker_101", test.getOrganisation().getObligor().getObligorTicker());
-    assertEquals("CountryA", test.getOrganisation().getObligor().getCountry());
-    assertEquals(Region.AFRICA, test.getOrganisation().getObligor().getRegion());
-    assertEquals(Sector.BASICMATERIALS, test.getOrganisation().getObligor().getSector());
-    assertEquals(CreditRating.A, test.getOrganisation().getObligor().getCompositeRating());
-    assertEquals(CreditRating.A, test.getOrganisation().getObligor().getImpliedRating());
-    assertEquals(CreditRatingFitch.A, test.getOrganisation().getObligor().getFitchCreditRating());
-    assertEquals(CreditRatingMoodys.A, test.getOrganisation().getObligor().getMoodysCreditRating());
-    assertEquals(CreditRatingStandardAndPoors.A, test.getOrganisation().getObligor().getStandardAndPoorsCreditRating());
-    assertEquals(false, test.getOrganisation().getObligor().isHasDefaulted());
+    assertEquals("TestOrganization101", test.getOrganization().getObligor().getObligorShortName());
+    assertEquals("RED_code_101", test.getOrganization().getObligor().getObligorREDCode());
+    assertEquals("ticker_101", test.getOrganization().getObligor().getObligorTicker());
+    assertEquals("CountryA", test.getOrganization().getObligor().getCountry());
+    assertEquals(Region.AFRICA, test.getOrganization().getObligor().getRegion());
+    assertEquals(Sector.BASICMATERIALS, test.getOrganization().getObligor().getSector());
+    assertEquals(CreditRating.A, test.getOrganization().getObligor().getCompositeRating());
+    assertEquals(CreditRating.A, test.getOrganization().getObligor().getImpliedRating());
+    assertEquals(CreditRatingFitch.A, test.getOrganization().getObligor().getFitchCreditRating());
+    assertEquals(CreditRatingMoodys.A, test.getOrganization().getObligor().getMoodysCreditRating());
+    assertEquals(CreditRatingStandardAndPoors.A, test.getOrganization().getObligor().getStandardAndPoorsCreditRating());
+    assertEquals(false, test.getOrganization().getObligor().isHasDefaulted());
   }
 
-  protected void assert102(final OrganisationDocument test) {
+  protected void assert102(final OrganizationDocument test) {
     UniqueId uniqueId = UniqueId.of("DbOrg", "102", "0");
     assertNotNull(test);
     assertEquals(uniqueId, test.getUniqueId());
@@ -278,25 +278,25 @@ public abstract class AbstractDbOrganisationMasterWorkerTest extends DbTest {
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    ManageableOrganisation organisation = test.getOrganisation();
-    assertNotNull(organisation);
-    assertEquals(uniqueId, organisation.getUniqueId());
+    ManageableOrganization organization = test.getOrganization();
+    assertNotNull(organization);
+    assertEquals(uniqueId, organization.getUniqueId());
     assertEquals(ExternalId.of(PROVIDER_SCHEME, "2"), test.getProviderId());
-    assertEquals("TestOrganisation102", test.getOrganisation().getObligor().getObligorShortName());
-    assertEquals("RED_code_102", test.getOrganisation().getObligor().getObligorREDCode());
-    assertEquals("ticker_102", test.getOrganisation().getObligor().getObligorTicker());
-    assertEquals("CountryB", test.getOrganisation().getObligor().getCountry());
-    assertEquals(Region.AFRICA, test.getOrganisation().getObligor().getRegion());
-    assertEquals(Sector.BASICMATERIALS, test.getOrganisation().getObligor().getSector());
-    assertEquals(CreditRating.A, test.getOrganisation().getObligor().getCompositeRating());
-    assertEquals(CreditRating.A, test.getOrganisation().getObligor().getImpliedRating());
-    assertEquals(CreditRatingFitch.A, test.getOrganisation().getObligor().getFitchCreditRating());
-    assertEquals(CreditRatingMoodys.A, test.getOrganisation().getObligor().getMoodysCreditRating());
-    assertEquals(CreditRatingStandardAndPoors.A, test.getOrganisation().getObligor().getStandardAndPoorsCreditRating());
-    assertEquals(false, test.getOrganisation().getObligor().isHasDefaulted());
+    assertEquals("TestOrganization102", test.getOrganization().getObligor().getObligorShortName());
+    assertEquals("RED_code_102", test.getOrganization().getObligor().getObligorREDCode());
+    assertEquals("ticker_102", test.getOrganization().getObligor().getObligorTicker());
+    assertEquals("CountryB", test.getOrganization().getObligor().getCountry());
+    assertEquals(Region.AFRICA, test.getOrganization().getObligor().getRegion());
+    assertEquals(Sector.BASICMATERIALS, test.getOrganization().getObligor().getSector());
+    assertEquals(CreditRating.A, test.getOrganization().getObligor().getCompositeRating());
+    assertEquals(CreditRating.A, test.getOrganization().getObligor().getImpliedRating());
+    assertEquals(CreditRatingFitch.A, test.getOrganization().getObligor().getFitchCreditRating());
+    assertEquals(CreditRatingMoodys.A, test.getOrganization().getObligor().getMoodysCreditRating());
+    assertEquals(CreditRatingStandardAndPoors.A, test.getOrganization().getObligor().getStandardAndPoorsCreditRating());
+    assertEquals(false, test.getOrganization().getObligor().isHasDefaulted());
   }
 
-  protected void assert201(final OrganisationDocument test) {
+  protected void assert201(final OrganizationDocument test) {
     UniqueId uniqueId = UniqueId.of("DbOrg", "201", "0");
     assertNotNull(test);
     assertEquals(uniqueId, test.getUniqueId());
@@ -304,25 +304,25 @@ public abstract class AbstractDbOrganisationMasterWorkerTest extends DbTest {
     assertEquals(_version2Instant, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    ManageableOrganisation organisation = test.getOrganisation();
-    assertNotNull(organisation);
-    assertEquals(uniqueId, organisation.getUniqueId());
+    ManageableOrganization organization = test.getOrganization();
+    assertNotNull(organization);
+    assertEquals(uniqueId, organization.getUniqueId());
     assertEquals(ExternalId.of(PROVIDER_SCHEME, "3"), test.getProviderId());
-    assertEquals("TestOrganisation201", test.getOrganisation().getObligor().getObligorShortName());
-    assertEquals("RED_code_201", test.getOrganisation().getObligor().getObligorREDCode());
-    assertEquals("ticker_201", test.getOrganisation().getObligor().getObligorTicker());
-    assertEquals("CountryC", test.getOrganisation().getObligor().getCountry());
-    assertEquals(Region.AFRICA, test.getOrganisation().getObligor().getRegion());
-    assertEquals(Sector.BASICMATERIALS, test.getOrganisation().getObligor().getSector());
-    assertEquals(CreditRating.A, test.getOrganisation().getObligor().getCompositeRating());
-    assertEquals(CreditRating.A, test.getOrganisation().getObligor().getImpliedRating());
-    assertEquals(CreditRatingFitch.A, test.getOrganisation().getObligor().getFitchCreditRating());
-    assertEquals(CreditRatingMoodys.A, test.getOrganisation().getObligor().getMoodysCreditRating());
-    assertEquals(CreditRatingStandardAndPoors.A, test.getOrganisation().getObligor().getStandardAndPoorsCreditRating());
-    assertEquals(false, test.getOrganisation().getObligor().isHasDefaulted());
+    assertEquals("TestOrganization201", test.getOrganization().getObligor().getObligorShortName());
+    assertEquals("RED_code_201", test.getOrganization().getObligor().getObligorREDCode());
+    assertEquals("ticker_201", test.getOrganization().getObligor().getObligorTicker());
+    assertEquals("CountryC", test.getOrganization().getObligor().getCountry());
+    assertEquals(Region.AFRICA, test.getOrganization().getObligor().getRegion());
+    assertEquals(Sector.BASICMATERIALS, test.getOrganization().getObligor().getSector());
+    assertEquals(CreditRating.A, test.getOrganization().getObligor().getCompositeRating());
+    assertEquals(CreditRating.A, test.getOrganization().getObligor().getImpliedRating());
+    assertEquals(CreditRatingFitch.A, test.getOrganization().getObligor().getFitchCreditRating());
+    assertEquals(CreditRatingMoodys.A, test.getOrganization().getObligor().getMoodysCreditRating());
+    assertEquals(CreditRatingStandardAndPoors.A, test.getOrganization().getObligor().getStandardAndPoorsCreditRating());
+    assertEquals(false, test.getOrganization().getObligor().isHasDefaulted());
   }
 
-  protected void assert202(final OrganisationDocument test) {
+  protected void assert202(final OrganizationDocument test) {
     UniqueId uniqueId = UniqueId.of("DbOrg", "201", "1");
     assertNotNull(test);
     assertEquals(uniqueId, test.getUniqueId());
@@ -330,22 +330,22 @@ public abstract class AbstractDbOrganisationMasterWorkerTest extends DbTest {
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version2Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    ManageableOrganisation organisation = test.getOrganisation();
-    assertNotNull(organisation);
-    assertEquals(uniqueId, organisation.getUniqueId());
+    ManageableOrganization organization = test.getOrganization();
+    assertNotNull(organization);
+    assertEquals(uniqueId, organization.getUniqueId());
     assertEquals(ExternalId.of(PROVIDER_SCHEME, "3"), test.getProviderId());
-    assertEquals("TestOrganisation201", test.getOrganisation().getObligor().getObligorShortName());
-    assertEquals("RED_code_201", test.getOrganisation().getObligor().getObligorREDCode());
-    assertEquals("ticker_201", test.getOrganisation().getObligor().getObligorTicker());
-    assertEquals("CountryD", test.getOrganisation().getObligor().getCountry());
-    assertEquals(Region.AFRICA, test.getOrganisation().getObligor().getRegion());
-    assertEquals(Sector.BASICMATERIALS, test.getOrganisation().getObligor().getSector());
-    assertEquals(CreditRating.B, test.getOrganisation().getObligor().getCompositeRating());
-    assertEquals(CreditRating.B, test.getOrganisation().getObligor().getImpliedRating());
-    assertEquals(CreditRatingFitch.B, test.getOrganisation().getObligor().getFitchCreditRating());
-    assertEquals(CreditRatingMoodys.B, test.getOrganisation().getObligor().getMoodysCreditRating());
-    assertEquals(CreditRatingStandardAndPoors.B, test.getOrganisation().getObligor().getStandardAndPoorsCreditRating());
-    assertEquals(false, test.getOrganisation().getObligor().isHasDefaulted());
+    assertEquals("TestOrganization201", test.getOrganization().getObligor().getObligorShortName());
+    assertEquals("RED_code_201", test.getOrganization().getObligor().getObligorREDCode());
+    assertEquals("ticker_201", test.getOrganization().getObligor().getObligorTicker());
+    assertEquals("CountryD", test.getOrganization().getObligor().getCountry());
+    assertEquals(Region.AFRICA, test.getOrganization().getObligor().getRegion());
+    assertEquals(Sector.BASICMATERIALS, test.getOrganization().getObligor().getSector());
+    assertEquals(CreditRating.B, test.getOrganization().getObligor().getCompositeRating());
+    assertEquals(CreditRating.B, test.getOrganization().getObligor().getImpliedRating());
+    assertEquals(CreditRatingFitch.B, test.getOrganization().getObligor().getFitchCreditRating());
+    assertEquals(CreditRatingMoodys.B, test.getOrganization().getObligor().getMoodysCreditRating());
+    assertEquals(CreditRatingStandardAndPoors.B, test.getOrganization().getObligor().getStandardAndPoorsCreditRating());
+    assertEquals(false, test.getOrganization().getObligor().isHasDefaulted());
   }
 
 }

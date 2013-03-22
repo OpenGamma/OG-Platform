@@ -22,8 +22,8 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.id.UniqueId;
-import com.opengamma.master.orgs.OrganisationDocument;
-import com.opengamma.master.orgs.OrganisationMaster;
+import com.opengamma.master.orgs.OrganizationDocument;
+import com.opengamma.master.orgs.OrganizationMaster;
 
 /**
  * Data class for web-based organizations.
@@ -35,7 +35,7 @@ public class WebOrganizationsData extends DirectBean {
    * The organization master.
    */
   @PropertyDefinition
-  private OrganisationMaster _organizationMaster;
+  private OrganizationMaster _organizationMaster;
   /**
    * The JSR-311 URI information.
    */
@@ -55,12 +55,12 @@ public class WebOrganizationsData extends DirectBean {
    * The organization.
    */
   @PropertyDefinition
-  private OrganisationDocument _organization;
+  private OrganizationDocument _organization;
   /**
    * The versioned organization.
    */
   @PropertyDefinition
-  private OrganisationDocument _versioned;
+  private OrganizationDocument _versioned;
 
   /**
    * Creates an instance.
@@ -131,7 +131,7 @@ public class WebOrganizationsData extends DirectBean {
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -1158737547:  // organizationMaster
-        setOrganizationMaster((OrganisationMaster) newValue);
+        setOrganizationMaster((OrganizationMaster) newValue);
         return;
       case -173275078:  // uriInfo
         setUriInfo((UriInfo) newValue);
@@ -143,10 +143,10 @@ public class WebOrganizationsData extends DirectBean {
         setUriVersionId((String) newValue);
         return;
       case 1178922291:  // organization
-        setOrganization((OrganisationDocument) newValue);
+        setOrganization((OrganizationDocument) newValue);
         return;
       case -1407102089:  // versioned
-        setVersioned((OrganisationDocument) newValue);
+        setVersioned((OrganizationDocument) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -186,7 +186,7 @@ public class WebOrganizationsData extends DirectBean {
    * Gets the organization master.
    * @return the value of the property
    */
-  public OrganisationMaster getOrganizationMaster() {
+  public OrganizationMaster getOrganizationMaster() {
     return _organizationMaster;
   }
 
@@ -194,7 +194,7 @@ public class WebOrganizationsData extends DirectBean {
    * Sets the organization master.
    * @param organizationMaster  the new value of the property
    */
-  public void setOrganizationMaster(OrganisationMaster organizationMaster) {
+  public void setOrganizationMaster(OrganizationMaster organizationMaster) {
     this._organizationMaster = organizationMaster;
   }
 
@@ -202,7 +202,7 @@ public class WebOrganizationsData extends DirectBean {
    * Gets the the {@code organizationMaster} property.
    * @return the property, not null
    */
-  public final Property<OrganisationMaster> organizationMaster() {
+  public final Property<OrganizationMaster> organizationMaster() {
     return metaBean().organizationMaster().createProperty(this);
   }
 
@@ -286,7 +286,7 @@ public class WebOrganizationsData extends DirectBean {
    * Gets the organization.
    * @return the value of the property
    */
-  public OrganisationDocument getOrganization() {
+  public OrganizationDocument getOrganization() {
     return _organization;
   }
 
@@ -294,7 +294,7 @@ public class WebOrganizationsData extends DirectBean {
    * Sets the organization.
    * @param organization  the new value of the property
    */
-  public void setOrganization(OrganisationDocument organization) {
+  public void setOrganization(OrganizationDocument organization) {
     this._organization = organization;
   }
 
@@ -302,7 +302,7 @@ public class WebOrganizationsData extends DirectBean {
    * Gets the the {@code organization} property.
    * @return the property, not null
    */
-  public final Property<OrganisationDocument> organization() {
+  public final Property<OrganizationDocument> organization() {
     return metaBean().organization().createProperty(this);
   }
 
@@ -311,7 +311,7 @@ public class WebOrganizationsData extends DirectBean {
    * Gets the versioned organization.
    * @return the value of the property
    */
-  public OrganisationDocument getVersioned() {
+  public OrganizationDocument getVersioned() {
     return _versioned;
   }
 
@@ -319,7 +319,7 @@ public class WebOrganizationsData extends DirectBean {
    * Sets the versioned organization.
    * @param versioned  the new value of the property
    */
-  public void setVersioned(OrganisationDocument versioned) {
+  public void setVersioned(OrganizationDocument versioned) {
     this._versioned = versioned;
   }
 
@@ -327,7 +327,7 @@ public class WebOrganizationsData extends DirectBean {
    * Gets the the {@code versioned} property.
    * @return the property, not null
    */
-  public final Property<OrganisationDocument> versioned() {
+  public final Property<OrganizationDocument> versioned() {
     return metaBean().versioned().createProperty(this);
   }
 
@@ -344,8 +344,8 @@ public class WebOrganizationsData extends DirectBean {
     /**
      * The meta-property for the {@code organizationMaster} property.
      */
-    private final MetaProperty<OrganisationMaster> _organizationMaster = DirectMetaProperty.ofReadWrite(
-        this, "organizationMaster", WebOrganizationsData.class, OrganisationMaster.class);
+    private final MetaProperty<OrganizationMaster> _organizationMaster = DirectMetaProperty.ofReadWrite(
+        this, "organizationMaster", WebOrganizationsData.class, OrganizationMaster.class);
     /**
      * The meta-property for the {@code uriInfo} property.
      */
@@ -364,13 +364,13 @@ public class WebOrganizationsData extends DirectBean {
     /**
      * The meta-property for the {@code organization} property.
      */
-    private final MetaProperty<OrganisationDocument> _organization = DirectMetaProperty.ofReadWrite(
-        this, "organization", WebOrganizationsData.class, OrganisationDocument.class);
+    private final MetaProperty<OrganizationDocument> _organization = DirectMetaProperty.ofReadWrite(
+        this, "organization", WebOrganizationsData.class, OrganizationDocument.class);
     /**
      * The meta-property for the {@code versioned} property.
      */
-    private final MetaProperty<OrganisationDocument> _versioned = DirectMetaProperty.ofReadWrite(
-        this, "versioned", WebOrganizationsData.class, OrganisationDocument.class);
+    private final MetaProperty<OrganizationDocument> _versioned = DirectMetaProperty.ofReadWrite(
+        this, "versioned", WebOrganizationsData.class, OrganizationDocument.class);
     /**
      * The meta-properties.
      */
@@ -428,7 +428,7 @@ public class WebOrganizationsData extends DirectBean {
      * The meta-property for the {@code organizationMaster} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<OrganisationMaster> organizationMaster() {
+    public final MetaProperty<OrganizationMaster> organizationMaster() {
       return _organizationMaster;
     }
 
@@ -460,7 +460,7 @@ public class WebOrganizationsData extends DirectBean {
      * The meta-property for the {@code organization} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<OrganisationDocument> organization() {
+    public final MetaProperty<OrganizationDocument> organization() {
       return _organization;
     }
 
@@ -468,7 +468,7 @@ public class WebOrganizationsData extends DirectBean {
      * The meta-property for the {@code versioned} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<OrganisationDocument> versioned() {
+    public final MetaProperty<OrganizationDocument> versioned() {
       return _versioned;
     }
 

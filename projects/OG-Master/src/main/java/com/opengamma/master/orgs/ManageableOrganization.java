@@ -5,18 +5,8 @@
  */
 package com.opengamma.master.orgs;
 
-import com.opengamma.core.obligor.CreditRating;
-import com.opengamma.core.obligor.CreditRatingFitch;
-import com.opengamma.core.obligor.CreditRatingMoodys;
-import com.opengamma.core.obligor.CreditRatingStandardAndPoors;
-import com.opengamma.core.obligor.Sector;
-import com.opengamma.core.obligor.definition.Obligor;
-import com.opengamma.core.organization.Organization;
-import com.opengamma.id.MutableUniqueIdentifiable;
-import com.opengamma.id.UniqueId;
-import com.opengamma.id.UniqueIdentifiable;
-import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.PublicSPI;
+import java.util.Map;
+
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -29,18 +19,29 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import java.util.Map;
+import com.opengamma.core.obligor.CreditRating;
+import com.opengamma.core.obligor.CreditRatingFitch;
+import com.opengamma.core.obligor.CreditRatingMoodys;
+import com.opengamma.core.obligor.CreditRatingStandardAndPoors;
+import com.opengamma.core.obligor.Region;
+import com.opengamma.core.obligor.Sector;
+import com.opengamma.core.obligor.definition.Obligor;
+import com.opengamma.core.organization.Organization;
+import com.opengamma.id.MutableUniqueIdentifiable;
+import com.opengamma.id.UniqueId;
+import com.opengamma.id.UniqueIdentifiable;
+import com.opengamma.util.PublicSPI;
 
 /**
- * An organisation
+ * An organization
  * <p/>
  */
 @PublicSPI
 @BeanDefinition
-public class ManageableOrganisation extends DirectBean implements Organization, MutableUniqueIdentifiable, UniqueIdentifiable {
+public class ManageableOrganization extends DirectBean implements Organization, MutableUniqueIdentifiable, UniqueIdentifiable {
 
   /**
-   * The organisation unique identifier.
+   * The organization unique identifier.
    * This must be null when adding to a master and not null when retrieved from a master.
    */
   @PropertyDefinition
@@ -50,58 +51,70 @@ public class ManageableOrganisation extends DirectBean implements Organization, 
   private Obligor _obligor;
 
   /**
-   * Creates an empty organisation.
+   * Creates an empty organization.
    */
-  public ManageableOrganisation() {
+  public ManageableOrganization() {
   }
 
   /**
-   * Creates an organisation.
+   * Creates an organization.
+   * 
+   * @param obligorShortName the obligor short name, not null.
+   * @param obligorREDCode the obligor red code, not null.
+   * @param obligorTicker the obligor ticker, not null.
+   * @param region the region, not null.
+   * @param country the country, not null.
+   * @param sector the sector, not null.
+   * @param compositeRating the composite rating, not null.
+   * @param impliedRating the implied rating, not null.
+   * @param fitchCreditRating the fitch credit rating, not null.
+   * @param moodysCreditRating the moodys credit rating, not null.
+   * @param standardAndPoorsCreditRating the standard and poors credit rating, not null.
+   * @param hasDefaulted true if has defaulted, false otherwise.
    */
-  public ManageableOrganisation(
-                                final String obligorShortName,
-                                final String obligorREDCode,
-                                final String obligorTicker,
-                                final com.opengamma.core.obligor.Region region,
-                                final String country,
-                                final Sector sector,
-                                final CreditRating compositeRating,
-                                final CreditRating impliedRating,
-                                final CreditRatingFitch fitchCreditRating,
-                                final CreditRatingMoodys moodysCreditRating,
-                                final CreditRatingStandardAndPoors standardAndPoorsCreditRating,
-                                final boolean hasDefaulted) {
-    ArgumentChecker.notNull(obligorTicker, "obligorTicker");
-    ArgumentChecker.notNull(obligorShortName, "obligorShortName");
-    ArgumentChecker.notNull(obligorREDCode, "obligorREDCode");
-    ArgumentChecker.notNull(sector, "sector");
-    ArgumentChecker.notNull(region, "region");
-    ArgumentChecker.notNull(country, "country");
-    ArgumentChecker.notNull(compositeRating, "compositeRating");
-    ArgumentChecker.notNull(impliedRating, "impliedRating");
-    ArgumentChecker.notNull(fitchCreditRating, "fitchCreditRating");
-    ArgumentChecker.notNull(moodysCreditRating, "moodysCreditRating");
-    ArgumentChecker.notNull(standardAndPoorsCreditRating, "standardAndPoorsCreditRating");
-    ArgumentChecker.notNull(hasDefaulted, "hasDefaulted");
-    setObligor(new Obligor(obligorTicker, obligorShortName, obligorREDCode, compositeRating, impliedRating, moodysCreditRating, standardAndPoorsCreditRating, fitchCreditRating, hasDefaulted, sector, region, country));
+  public ManageableOrganization(final String obligorShortName, 
+      final String obligorREDCode, 
+      final String obligorTicker, 
+      final Region region, 
+      final String country, 
+      final Sector sector, 
+      final CreditRating compositeRating, 
+      final CreditRating impliedRating, 
+      final CreditRatingFitch fitchCreditRating, 
+      final CreditRatingMoodys moodysCreditRating, 
+      final CreditRatingStandardAndPoors standardAndPoorsCreditRating, 
+      final boolean hasDefaulted) {
+    
+    setObligor(new Obligor(obligorTicker, 
+        obligorShortName, 
+        obligorREDCode, 
+        compositeRating, 
+        impliedRating, 
+        moodysCreditRating, 
+        standardAndPoorsCreditRating, 
+        fitchCreditRating, 
+        hasDefaulted, 
+        sector, 
+        region, 
+        country));
   }
 
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code ManageableOrganisation}.
+   * The meta-bean for {@code ManageableOrganization}.
    * @return the meta-bean, not null
    */
-  public static ManageableOrganisation.Meta meta() {
-    return ManageableOrganisation.Meta.INSTANCE;
+  public static ManageableOrganization.Meta meta() {
+    return ManageableOrganization.Meta.INSTANCE;
   }
   static {
-    JodaBeanUtils.registerMetaBean(ManageableOrganisation.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(ManageableOrganization.Meta.INSTANCE);
   }
 
   @Override
-  public ManageableOrganisation.Meta metaBean() {
-    return ManageableOrganisation.Meta.INSTANCE;
+  public ManageableOrganization.Meta metaBean() {
+    return ManageableOrganization.Meta.INSTANCE;
   }
 
   @Override
@@ -134,7 +147,7 @@ public class ManageableOrganisation extends DirectBean implements Organization, 
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      ManageableOrganisation other = (ManageableOrganisation) obj;
+      ManageableOrganization other = (ManageableOrganization) obj;
       return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
           JodaBeanUtils.equal(getObligor(), other.getObligor());
     }
@@ -151,7 +164,7 @@ public class ManageableOrganisation extends DirectBean implements Organization, 
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the organisation unique identifier.
+   * Gets the organization unique identifier.
    * This must be null when adding to a master and not null when retrieved from a master.
    * @return the value of the property
    */
@@ -160,7 +173,7 @@ public class ManageableOrganisation extends DirectBean implements Organization, 
   }
 
   /**
-   * Sets the organisation unique identifier.
+   * Sets the organization unique identifier.
    * This must be null when adding to a master and not null when retrieved from a master.
    * @param uniqueId  the new value of the property
    */
@@ -204,7 +217,7 @@ public class ManageableOrganisation extends DirectBean implements Organization, 
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code ManageableOrganisation}.
+   * The meta-bean for {@code ManageableOrganization}.
    */
   public static class Meta extends DirectMetaBean {
     /**
@@ -216,12 +229,12 @@ public class ManageableOrganisation extends DirectBean implements Organization, 
      * The meta-property for the {@code uniqueId} property.
      */
     private final MetaProperty<UniqueId> _uniqueId = DirectMetaProperty.ofReadWrite(
-        this, "uniqueId", ManageableOrganisation.class, UniqueId.class);
+        this, "uniqueId", ManageableOrganization.class, UniqueId.class);
     /**
      * The meta-property for the {@code obligor} property.
      */
     private final MetaProperty<Obligor> _obligor = DirectMetaProperty.ofReadWrite(
-        this, "obligor", ManageableOrganisation.class, Obligor.class);
+        this, "obligor", ManageableOrganization.class, Obligor.class);
     /**
      * The meta-properties.
      */
@@ -248,13 +261,13 @@ public class ManageableOrganisation extends DirectBean implements Organization, 
     }
 
     @Override
-    public BeanBuilder<? extends ManageableOrganisation> builder() {
-      return new DirectBeanBuilder<ManageableOrganisation>(new ManageableOrganisation());
+    public BeanBuilder<? extends ManageableOrganization> builder() {
+      return new DirectBeanBuilder<ManageableOrganization>(new ManageableOrganization());
     }
 
     @Override
-    public Class<? extends ManageableOrganisation> beanType() {
-      return ManageableOrganisation.class;
+    public Class<? extends ManageableOrganization> beanType() {
+      return ManageableOrganization.class;
     }
 
     @Override

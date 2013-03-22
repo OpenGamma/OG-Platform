@@ -5,7 +5,7 @@
  */
 package com.opengamma.masterdb.orgs;
 
-import com.opengamma.master.orgs.impl.DataOrganisationMasterResource;
+import com.opengamma.master.orgs.impl.DataOrganizationMasterResource;
 import com.opengamma.masterdb.TimeOverrideRequest;
 import com.opengamma.util.ArgumentChecker;
 
@@ -19,31 +19,31 @@ import org.threeten.bp.Clock;
 import org.threeten.bp.ZoneId;
 
 /**
- * RESTful resource for organisations.
+ * RESTful resource for organizations.
  * <p>
- * The organisations resource receives and processes RESTful calls to a database organisation master.
+ * The organizations resource receives and processes RESTful calls to a database organization master.
  */
-@Path("organisationMaster")
-public class DataDbOrganisationMasterResource extends DataOrganisationMasterResource {
+@Path("organizationMaster")
+public class DataDbOrganizationMasterResource extends DataOrganizationMasterResource {
 
   /**
-   * The organisation master.
+   * The organization master.
    */
-  private final DbOrganisationMaster _dbOrganisationMaster;
+  private final DbOrganizationMaster _dbOrganizationMaster;
   
   /**
    * Creates the resource, exposing the underlying master over REST.
    * 
-   * @param dbOrganisationMaster  the underlying database organisation master, not null
+   * @param dbOrganizationMaster  the underlying database organization master, not null
    */
-  public DataDbOrganisationMasterResource(final DbOrganisationMaster dbOrganisationMaster) {
-    super(dbOrganisationMaster);
-    _dbOrganisationMaster = dbOrganisationMaster;
+  public DataDbOrganizationMasterResource(final DbOrganizationMaster dbOrganizationMaster) {
+    super(dbOrganizationMaster);
+    _dbOrganizationMaster = dbOrganizationMaster;
   }
   
   //-------------------------------------------------------------------------
-  public DbOrganisationMaster getDbOrganisationMaster() {
-    return _dbOrganisationMaster;
+  public DbOrganizationMaster getDbOrganizationMaster() {
+    return _dbOrganizationMaster;
   }
   
   //-------------------------------------------------------------------------
@@ -52,9 +52,9 @@ public class DataDbOrganisationMasterResource extends DataOrganisationMasterReso
   public Response setTimeOverride(final TimeOverrideRequest doc) {
     ArgumentChecker.notNull(doc, "doc");
     if (doc.getTimeOverride() == null) {
-      getDbOrganisationMaster().resetClock();
+      getDbOrganizationMaster().resetClock();
     } else {
-      getDbOrganisationMaster().setClock(Clock.fixed(doc.getTimeOverride(), ZoneId.of("UTC")));
+      getDbOrganizationMaster().setClock(Clock.fixed(doc.getTimeOverride(), ZoneId.of("UTC")));
     }
     return responseOk();
   }

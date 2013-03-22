@@ -18,8 +18,8 @@ import javax.ws.rs.core.Response.Status;
 import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.id.UniqueId;
-import com.opengamma.master.orgs.ManageableOrganisation;
-import com.opengamma.master.orgs.OrganisationDocument;
+import com.opengamma.master.orgs.ManageableOrganization;
+import com.opengamma.master.orgs.OrganizationDocument;
 
 /**
  * RESTful resource for an organization.
@@ -54,7 +54,7 @@ public class WebOrganizationResource extends AbstractWebOrganizationResource {
   @DELETE
   @Produces(MediaType.TEXT_HTML)
   public Response deleteHTML() {
-    OrganisationDocument doc = data().getOrganization();
+    OrganizationDocument doc = data().getOrganization();
     if (doc.isLatest() == false) {
       return Response.status(Status.FORBIDDEN).entity(getHTML()).build();
     }
@@ -66,7 +66,7 @@ public class WebOrganizationResource extends AbstractWebOrganizationResource {
   @DELETE
   @Produces(MediaType.APPLICATION_JSON)
   public Response deleteJSON() {
-    OrganisationDocument doc = data().getOrganization();
+    OrganizationDocument doc = data().getOrganization();
     if (doc.isLatest()) {  // idempotent DELETE
       data().getOrganizationMaster().remove(doc.getUniqueId());
     }
@@ -80,8 +80,8 @@ public class WebOrganizationResource extends AbstractWebOrganizationResource {
    */
   protected FlexiBean createRootData() {
     FlexiBean out = super.createRootData();
-    OrganisationDocument organizationDoc = data().getOrganization();
-    ManageableOrganisation organization = organizationDoc.getOrganisation();
+    OrganizationDocument organizationDoc = data().getOrganization();
+    ManageableOrganization organization = organizationDoc.getOrganization();
     out.put("organizationDoc", organizationDoc); 
     out.put("organization", organization);
     out.put("deleted", !organizationDoc.isLatest());

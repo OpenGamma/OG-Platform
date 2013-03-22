@@ -28,7 +28,7 @@ public enum MasterType {
   TIME_SERIES,
   /** {@link ConfigMaster} */
   CONFIG,
-  /** @link OrganisationMaster} */
+  /** @link OrganizationMaster} */
   ORGANIZATION
   // TODO all the other masters
 }

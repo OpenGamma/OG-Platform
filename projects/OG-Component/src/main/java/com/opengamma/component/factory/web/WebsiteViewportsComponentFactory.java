@@ -45,7 +45,7 @@ import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.impl.MasterConfigSource;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
-import com.opengamma.master.orgs.OrganisationMaster;
+import com.opengamma.master.orgs.OrganizationMaster;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.SecurityMaster;
@@ -127,7 +127,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
    * The organization master.
    */
   @PropertyDefinition(validate = "notNull")
-  private OrganisationMaster _organizationMaster;
+  private OrganizationMaster _organizationMaster;
   /**
    * The user master.
    */
@@ -359,7 +359,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
         setHistoricalTimeSeriesMaster((HistoricalTimeSeriesMaster) newValue);
         return;
       case -1158737547:  // organizationMaster
-        setOrganizationMaster((OrganisationMaster) newValue);
+        setOrganizationMaster((OrganizationMaster) newValue);
         return;
       case 1808868758:  // userPositionMaster
         setUserPositionMaster((PositionMaster) newValue);
@@ -688,7 +688,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
    * Gets the organization master.
    * @return the value of the property, not null
    */
-  public OrganisationMaster getOrganizationMaster() {
+  public OrganizationMaster getOrganizationMaster() {
     return _organizationMaster;
   }
 
@@ -696,7 +696,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
    * Sets the organization master.
    * @param organizationMaster  the new value of the property, not null
    */
-  public void setOrganizationMaster(OrganisationMaster organizationMaster) {
+  public void setOrganizationMaster(OrganizationMaster organizationMaster) {
     JodaBeanUtils.notNull(organizationMaster, "organizationMaster");
     this._organizationMaster = organizationMaster;
   }
@@ -705,7 +705,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
    * Gets the the {@code organizationMaster} property.
    * @return the property, not null
    */
-  public final Property<OrganisationMaster> organizationMaster() {
+  public final Property<OrganizationMaster> organizationMaster() {
     return metaBean().organizationMaster().createProperty(this);
   }
 
@@ -1022,8 +1022,8 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     /**
      * The meta-property for the {@code organizationMaster} property.
      */
-    private final MetaProperty<OrganisationMaster> _organizationMaster = DirectMetaProperty.ofReadWrite(
-        this, "organizationMaster", WebsiteViewportsComponentFactory.class, OrganisationMaster.class);
+    private final MetaProperty<OrganizationMaster> _organizationMaster = DirectMetaProperty.ofReadWrite(
+        this, "organizationMaster", WebsiteViewportsComponentFactory.class, OrganizationMaster.class);
     /**
      * The meta-property for the {@code userPositionMaster} property.
      */
@@ -1234,7 +1234,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
      * The meta-property for the {@code organizationMaster} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<OrganisationMaster> organizationMaster() {
+    public final MetaProperty<OrganizationMaster> organizationMaster() {
       return _organizationMaster;
     }
 

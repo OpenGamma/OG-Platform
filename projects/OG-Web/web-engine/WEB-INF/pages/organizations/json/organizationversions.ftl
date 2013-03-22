@@ -12,7 +12,7 @@
     },
     "data": [<#if versionsResult??>
         <#list versionsResult.documents as item>
-        "${item.uniqueId.version}|${item.organisation.obligor.obligorShortName}|${item.versionFromInstant}|${item.versionToInstant}|${item.correctionFromInstant}|${item.correctionToInstant}"<#if item_has_next>,</#if>
+        "${item.uniqueId.version}|${item.organization.obligor.obligorShortName}|${item.versionFromInstant}|${item.versionToInstant}|${item.correctionFromInstant}|${item.correctionToInstant}"<#if item_has_next>,</#if>
         </#list>
      </#if>]
 }

@@ -23,25 +23,25 @@ import com.opengamma.core.obligor.CreditRatingMoodys;
 import com.opengamma.core.obligor.CreditRatingStandardAndPoors;
 import com.opengamma.core.obligor.Region;
 import com.opengamma.core.obligor.Sector;
-import com.opengamma.master.orgs.ManageableOrganisation;
-import com.opengamma.master.orgs.OrganisationDocument;
+import com.opengamma.master.orgs.ManageableOrganization;
+import com.opengamma.master.orgs.OrganizationDocument;
 import com.opengamma.masterdb.DbMasterTestUtils;
-import com.opengamma.masterdb.orgs.DbOrganisationMaster;
+import com.opengamma.masterdb.orgs.DbOrganizationMaster;
 import com.opengamma.util.test.DbTest;
 import com.opengamma.util.test.TestGroup;
 
 /**
- * Test DbOrganisationMaster.
+ * Test DbOrganizationMaster.
  */
 @Test(groups = TestGroup.UNIT_DB)
-public class DbOrganisationMasterTest extends DbTest {
+public class DbOrganizationMasterTest extends DbTest {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(DbOrganisationMasterTest.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(DbOrganizationMasterTest.class);
 
-  private DbOrganisationMaster _orgMaster;
+  private DbOrganizationMaster _orgMaster;
 
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
-  public DbOrganisationMasterTest(String databaseType, String databaseVersion) {
+  public DbOrganizationMasterTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
   }
@@ -50,7 +50,7 @@ public class DbOrganisationMasterTest extends DbTest {
   public void setUp() throws Exception {
     super.setUp();
     ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
-    _orgMaster = (DbOrganisationMaster) context.getBean(getDatabaseType() + "DbOrganisationMaster");
+    _orgMaster = (DbOrganizationMaster) context.getBean(getDatabaseType() + "DbOrganizationMaster");
   }
 
   @AfterMethod
@@ -76,7 +76,7 @@ public class DbOrganisationMasterTest extends DbTest {
 
   @Test
   public void test_example() throws Exception {
-    ManageableOrganisation org = new ManageableOrganisation("TestOrganisation101",
+    ManageableOrganization org = new ManageableOrganization("TestOrganization101",
         "RED_code_101",
         "ticker_101",
         Region.AFRICA,
@@ -88,17 +88,17 @@ public class DbOrganisationMasterTest extends DbTest {
         CreditRatingMoodys.A,
         CreditRatingStandardAndPoors.A,
         false);
-    OrganisationDocument addDoc = new OrganisationDocument(org);
-    OrganisationDocument added = _orgMaster.add(addDoc);
+    OrganizationDocument addDoc = new OrganizationDocument(org);
+    OrganizationDocument added = _orgMaster.add(addDoc);
     
-    OrganisationDocument loaded = _orgMaster.get(added.getUniqueId());
+    OrganizationDocument loaded = _orgMaster.get(added.getUniqueId());
     assertEquals(added, loaded);
   }
 
 
   @Test
   public void test_toString() {
-    assertEquals("DbOrganisationMaster[DbOrg]", _orgMaster.toString());
+    assertEquals("DbOrganizationMaster[DbOrg]", _orgMaster.toString());
   }
 
 }

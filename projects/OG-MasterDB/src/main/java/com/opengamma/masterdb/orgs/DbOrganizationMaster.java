@@ -31,13 +31,13 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractHistoryRequest;
 import com.opengamma.master.AbstractHistoryResult;
-import com.opengamma.master.orgs.ManageableOrganisation;
-import com.opengamma.master.orgs.OrganisationDocument;
-import com.opengamma.master.orgs.OrganisationHistoryRequest;
-import com.opengamma.master.orgs.OrganisationHistoryResult;
-import com.opengamma.master.orgs.OrganisationMaster;
-import com.opengamma.master.orgs.OrganisationSearchRequest;
-import com.opengamma.master.orgs.OrganisationSearchResult;
+import com.opengamma.master.orgs.ManageableOrganization;
+import com.opengamma.master.orgs.OrganizationDocument;
+import com.opengamma.master.orgs.OrganizationHistoryRequest;
+import com.opengamma.master.orgs.OrganizationHistoryResult;
+import com.opengamma.master.orgs.OrganizationMaster;
+import com.opengamma.master.orgs.OrganizationSearchRequest;
+import com.opengamma.master.orgs.OrganizationSearchResult;
 import com.opengamma.masterdb.AbstractDocumentDbMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbConnector;
@@ -46,23 +46,23 @@ import com.opengamma.util.db.DbMapSqlParameterSource;
 import com.opengamma.util.paging.Paging;
 
 /**
- * A organisation master implementation using a database for persistence.
+ * An organization master implementation using a database for persistence.
  * <p>
- * This is a full implementation of the organisation master using an SQL database.
- * Full details of the API are in {@link com.opengamma.master.orgs.OrganisationMaster}.
+ * This is a full implementation of the organization master using an SQL database.
+ * Full details of the API are in {@link com.opengamma.master.orgs.OrganizationMaster}.
  * <p>
- * The SQL is stored externally in {@code DbOrganisationMaster.elsql}.
+ * The SQL is stored externally in {@code DbOrganizationMaster.elsql}.
  * Alternate databases or specific SQL requirements can be handled using database
- * specific overrides, such as {@code DbOrganisationMaster-MySpecialDB.elsql}.
+ * specific overrides, such as {@code DbOrganizationMaster-MySpecialDB.elsql}.
  * <p>
  * This class is mutable but must be treated as immutable after configuration.
  */
-public class DbOrganisationMaster
-    extends AbstractDocumentDbMaster<OrganisationDocument>
-    implements OrganisationMaster {
+public class DbOrganizationMaster
+    extends AbstractDocumentDbMaster<OrganizationDocument>
+    implements OrganizationMaster {
 
   /** Logger. */
-  private static final Logger s_logger = LoggerFactory.getLogger(DbOrganisationMaster.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(DbOrganizationMaster.class);
 
   /**
    * The default scheme for unique identifiers.
@@ -74,25 +74,25 @@ public class DbOrganisationMaster
    * 
    * @param dbConnector  the database connector, not null
    */
-  public DbOrganisationMaster(final DbConnector dbConnector) {
+  public DbOrganizationMaster(final DbConnector dbConnector) {
     super(dbConnector, IDENTIFIER_SCHEME_DEFAULT);
-    setElSqlBundle(ElSqlBundle.of(dbConnector.getDialect().getElSqlConfig(), DbOrganisationMaster.class));
+    setElSqlBundle(ElSqlBundle.of(dbConnector.getDialect().getElSqlConfig(), DbOrganizationMaster.class));
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public OrganisationSearchResult search(final OrganisationSearchRequest request) {
+  public OrganizationSearchResult search(final OrganizationSearchRequest request) {
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getPagingRequest(), "request.pagingRequest");
     ArgumentChecker.notNull(request.getVersionCorrection(), "request.versionCorrection");
     s_logger.debug("search {}", request);
     
     final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(now());
-    final OrganisationSearchResult result = new OrganisationSearchResult(vc);
+    final OrganizationSearchResult result = new OrganizationSearchResult(vc);
     
 
-    final List<ObjectId> organisationObjectIds = request.getOrganisationObjectIds();
-    if (organisationObjectIds != null && organisationObjectIds.size() == 0) {
+    final List<ObjectId> organizationObjectIds = request.getOrganizationObjectIds();
+    if (organizationObjectIds != null && organizationObjectIds.size() == 0) {
       result.setPaging(Paging.of(request.getPagingRequest(), 0));
       return result;
     }
@@ -106,9 +106,9 @@ public class DbOrganisationMaster
     args.addValue("paging_offset", request.getPagingRequest().getFirstItem());
     args.addValue("paging_fetch", request.getPagingRequest().getPagingSize());
 
-    if (organisationObjectIds != null) {
-      StringBuilder buf = new StringBuilder(organisationObjectIds.size() * 10);
-      for (ObjectId objectId : organisationObjectIds) {
+    if (organizationObjectIds != null) {
+      StringBuilder buf = new StringBuilder(organizationObjectIds.size() * 10);
+      for (ObjectId objectId : organizationObjectIds) {
         checkScheme(objectId);
         buf.append(extractOid(objectId)).append(", ");
       }
@@ -117,26 +117,26 @@ public class DbOrganisationMaster
     }
     
     String[] sql = {getElSqlBundle().getSql("Search", args), getElSqlBundle().getSql("SearchCount", args)};
-    searchWithPaging(request.getPagingRequest(), sql, args, new OrganisationDocumentExtractor(), result);
+    searchWithPaging(request.getPagingRequest(), sql, args, new OrganizationDocumentExtractor(), result);
     return result;
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public OrganisationDocument get(final UniqueId uniqueId) {
-    return doGet(uniqueId, new OrganisationDocumentExtractor(), "Organisation");
+  public OrganizationDocument get(final UniqueId uniqueId) {
+    return doGet(uniqueId, new OrganizationDocumentExtractor(), "Organization");
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public OrganisationDocument get(final ObjectIdentifiable objectId, final VersionCorrection versionCorrection) {
-    return doGetByOidInstants(objectId, versionCorrection, new OrganisationDocumentExtractor(), "Organisation");
+  public OrganizationDocument get(final ObjectIdentifiable objectId, final VersionCorrection versionCorrection) {
+    return doGetByOidInstants(objectId, versionCorrection, new OrganizationDocumentExtractor(), "Organization");
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public OrganisationHistoryResult history(final OrganisationHistoryRequest request) {
-    return doHistory(request, new OrganisationHistoryResult(), new OrganisationDocumentExtractor());
+  public OrganizationHistoryResult history(final OrganizationHistoryRequest request) {
+    return doHistory(request, new OrganizationHistoryResult(), new OrganizationDocumentExtractor());
   }
 
   //-------------------------------------------------------------------------
@@ -147,34 +147,34 @@ public class DbOrganisationMaster
    * @return the new document, not null
    */
   @Override
-  protected OrganisationDocument insert(final OrganisationDocument document) {
-    ArgumentChecker.notNull(document.getOrganisation(), "document.organisation");
-    ArgumentChecker.notNull(document.getOrganisation().getObligor(), "document.organisation.obligor");
+  protected OrganizationDocument insert(final OrganizationDocument document) {
+    ArgumentChecker.notNull(document.getOrganization(), "document.organization");
+    ArgumentChecker.notNull(document.getOrganization().getObligor(), "document.organization.obligor");
 
-    ArgumentChecker.notNull(document.getOrganisation().getObligor().getObligorShortName(),
-                            "organisation.trade.obligor_short_name");
-    ArgumentChecker.notNull(document.getOrganisation().getObligor().getObligorREDCode(),
-                            "organisation.trade.obligor_red_code");
-    ArgumentChecker.notNull(document.getOrganisation().getObligor().getObligorTicker(),
-                            "organisation.trade.obligor_ticker");
-    ArgumentChecker.notNull(document.getOrganisation().getObligor().getCompositeRating(),
-                            "organisation.trade.obligor_composite_rating");
-    ArgumentChecker.notNull(document.getOrganisation().getObligor().getCountry(), "organisation.trade.obligor_country");
-    ArgumentChecker.notNull(document.getOrganisation().getObligor().getFitchCreditRating(),
-                            "organisation.trade.obligor_fitch_credit_rating");
-    ArgumentChecker.notNull(document.getOrganisation().getObligor().getMoodysCreditRating(),
-                            "organisation.trade.obligor_moodys_credit_rating");
-    ArgumentChecker.notNull(document.getOrganisation().getObligor().getRegion(), "organisation.trade.obligor_region");
-    ArgumentChecker.notNull(document.getOrganisation().getObligor().getSector(), "organisation.trade.obligor_sector");
-    ArgumentChecker.notNull(document.getOrganisation().getObligor().getStandardAndPoorsCreditRating(),
-                            "organisation.trade.obligor_standard_and_poors_credit_rating");
+    ArgumentChecker.notNull(document.getOrganization().getObligor().getObligorShortName(),
+                            "organization.trade.obligor_short_name");
+    ArgumentChecker.notNull(document.getOrganization().getObligor().getObligorREDCode(),
+                            "organization.trade.obligor_red_code");
+    ArgumentChecker.notNull(document.getOrganization().getObligor().getObligorTicker(),
+                            "organization.trade.obligor_ticker");
+    ArgumentChecker.notNull(document.getOrganization().getObligor().getCompositeRating(),
+                            "organization.trade.obligor_composite_rating");
+    ArgumentChecker.notNull(document.getOrganization().getObligor().getCountry(), "organization.trade.obligor_country");
+    ArgumentChecker.notNull(document.getOrganization().getObligor().getFitchCreditRating(),
+                            "organization.trade.obligor_fitch_credit_rating");
+    ArgumentChecker.notNull(document.getOrganization().getObligor().getMoodysCreditRating(),
+                            "organization.trade.obligor_moodys_credit_rating");
+    ArgumentChecker.notNull(document.getOrganization().getObligor().getRegion(), "organization.trade.obligor_region");
+    ArgumentChecker.notNull(document.getOrganization().getObligor().getSector(), "organization.trade.obligor_sector");
+    ArgumentChecker.notNull(document.getOrganization().getObligor().getStandardAndPoorsCreditRating(),
+                            "organization.trade.obligor_standard_and_poors_credit_rating");
 
     final long docId = nextId("org_organisation_seq");
     final long docOid = (document.getUniqueId() != null ? extractOid(document.getUniqueId()) : docId);
-    final UniqueId organisationUid = createUniqueId(docOid, docId);
-    final ManageableOrganisation organisation = document.getOrganisation();
+    final UniqueId organizationUid = createUniqueId(docOid, docId);
+    final ManageableOrganization organization = document.getOrganization();
 
-    // the arguments for inserting into the organisation table
+    // the arguments for inserting into the organization table
     final DbMapSqlParameterSource docArgs = new DbMapSqlParameterSource()
         .addValue("doc_id", docId)
         .addValue("doc_oid", docOid)
@@ -188,23 +188,23 @@ public class DbOrganisationMaster
         .addValue("provider_value",
             document.getProviderId() != null ? document.getProviderId().getValue() : null,
             Types.VARCHAR)
-        .addValue("obligor_short_name", organisation.getObligor().getObligorShortName(), Types.VARCHAR)
-        .addValue("obligor_red_code", organisation.getObligor().getObligorREDCode(), Types.VARCHAR)
-        .addValue("obligor_ticker", organisation.getObligor().getObligorTicker(), Types.VARCHAR)
-        .addValue("obligor_composite_rating", organisation.getObligor().getCompositeRating().name(), Types.VARCHAR)
-        .addValue("obligor_country", organisation.getObligor().getCountry(), Types.VARCHAR)
-        .addValue("obligor_fitch_credit_rating", organisation.getObligor().getFitchCreditRating().name(), Types.VARCHAR)
-        .addValue("obligor_implied_rating", organisation.getObligor().getImpliedRating().name(), Types.VARCHAR)
+        .addValue("obligor_short_name", organization.getObligor().getObligorShortName(), Types.VARCHAR)
+        .addValue("obligor_red_code", organization.getObligor().getObligorREDCode(), Types.VARCHAR)
+        .addValue("obligor_ticker", organization.getObligor().getObligorTicker(), Types.VARCHAR)
+        .addValue("obligor_composite_rating", organization.getObligor().getCompositeRating().name(), Types.VARCHAR)
+        .addValue("obligor_country", organization.getObligor().getCountry(), Types.VARCHAR)
+        .addValue("obligor_fitch_credit_rating", organization.getObligor().getFitchCreditRating().name(), Types.VARCHAR)
+        .addValue("obligor_implied_rating", organization.getObligor().getImpliedRating().name(), Types.VARCHAR)
         .addValue("obligor_moodys_credit_rating",
-                  organisation.getObligor().getMoodysCreditRating().name(),
+                  organization.getObligor().getMoodysCreditRating().name(),
                   Types.VARCHAR)
-        .addValue("obligor_region", organisation.getObligor().getRegion().name(), Types.VARCHAR)
-        .addValue("obligor_sector", organisation.getObligor().getSector().name(), Types.VARCHAR)
+        .addValue("obligor_region", organization.getObligor().getRegion().name(), Types.VARCHAR)
+        .addValue("obligor_sector", organization.getObligor().getSector().name(), Types.VARCHAR)
         .addValue("obligor_standard_and_poors_credit_rating",
-                  organisation.getObligor().getStandardAndPoorsCreditRating().name(),
+                  organization.getObligor().getStandardAndPoorsCreditRating().name(),
                   Types.VARCHAR)
         .addValue("obligor_has_defaulted",
-                  organisation.getObligor().isHasDefaulted() ? 1 : 0,
+                  organization.getObligor().isHasDefaulted() ? 1 : 0,
                   Types.TINYINT);
 
 
@@ -212,21 +212,21 @@ public class DbOrganisationMaster
     getJdbcTemplate().update(sqlDoc, docArgs);
 
     // set the uniqueId
-    organisation.setUniqueId(organisationUid);
-    document.setUniqueId(organisationUid);
+    organization.setUniqueId(organizationUid);
+    document.setUniqueId(organizationUid);
     return document;
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public ManageableOrganisation getOrganisation(final UniqueId uniqueId) {
-    return get(uniqueId).getOrganisation();
+  public ManageableOrganization getOrganization(final UniqueId uniqueId) {
+    return get(uniqueId).getOrganization();
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public AbstractHistoryResult<OrganisationDocument> historyByVersionsCorrections(AbstractHistoryRequest request) {
-    OrganisationHistoryRequest historyRequest = new OrganisationHistoryRequest();
+  public AbstractHistoryResult<OrganizationDocument> historyByVersionsCorrections(AbstractHistoryRequest request) {
+    OrganizationHistoryRequest historyRequest = new OrganizationHistoryRequest();
     historyRequest.setCorrectionsFromInstant(request.getCorrectionsFromInstant());
     historyRequest.setCorrectionsToInstant(request.getCorrectionsToInstant());
     historyRequest.setVersionsFromInstant(request.getVersionsFromInstant());
@@ -237,27 +237,27 @@ public class DbOrganisationMaster
 
   //-------------------------------------------------------------------------
   /**
-   * Mapper from SQL rows to a OrganisationDocument.
+   * Mapper from SQL rows to a OrganizationDocument.
    */
-  protected final class OrganisationDocumentExtractor implements ResultSetExtractor<List<OrganisationDocument>> {
-    private long _lastOrganisationId = -1;
-    private ManageableOrganisation _organisation;
-    private List<OrganisationDocument> _documents = new ArrayList<OrganisationDocument>();
+  protected final class OrganizationDocumentExtractor implements ResultSetExtractor<List<OrganizationDocument>> {
+    private long _lastOrganizationId = -1;
+    private ManageableOrganization _organization;
+    private List<OrganizationDocument> _documents = new ArrayList<OrganizationDocument>();
 
     @Override
-    public List<OrganisationDocument> extractData(final ResultSet rs) throws SQLException, DataAccessException {
+    public List<OrganizationDocument> extractData(final ResultSet rs) throws SQLException, DataAccessException {
       while (rs.next()) {
-        final long organisationId = rs.getLong("ORGANISATION_ID");
-        if (_lastOrganisationId != organisationId) {
-          _lastOrganisationId = organisationId;
-          buildOrganisation(rs, organisationId);
+        final long organizationId = rs.getLong("ORGANISATION_ID");
+        if (_lastOrganizationId != organizationId) {
+          _lastOrganizationId = organizationId;
+          buildOrganization(rs, organizationId);
         }
       }
       return _documents;
     }
 
-    private void buildOrganisation(final ResultSet rs, final long organisationId) throws SQLException {
-      final long organisationOid = rs.getLong("ORGANISATION_OID");
+    private void buildOrganization(final ResultSet rs, final long organizationId) throws SQLException {
+      final long organizationOid = rs.getLong("ORGANISATION_OID");
       final Timestamp versionFrom = rs.getTimestamp("VER_FROM_INSTANT");
       final Timestamp versionTo = rs.getTimestamp("VER_TO_INSTANT");
       final Timestamp correctionFrom = rs.getTimestamp("CORR_FROM_INSTANT");
@@ -280,7 +280,7 @@ public class DbOrganisationMaster
       final boolean hasDefaulted = rs.getBoolean("obligor_has_defaulted");
 
 
-      _organisation = new ManageableOrganisation(
+      _organization = new ManageableOrganization(
           shortName,
           redCode,
           ticker,
@@ -294,13 +294,13 @@ public class DbOrganisationMaster
           CreditRatingStandardAndPoors.valueOf(standardAndPoorsCreditRating),
           hasDefaulted
       );
-      _organisation.setUniqueId(createUniqueId(organisationOid, organisationId));
-      OrganisationDocument doc = new OrganisationDocument(_organisation);
+      _organization.setUniqueId(createUniqueId(organizationOid, organizationId));
+      OrganizationDocument doc = new OrganizationDocument(_organization);
       doc.setVersionFromInstant(DbDateUtils.fromSqlTimestamp(versionFrom));
       doc.setVersionToInstant(DbDateUtils.fromSqlTimestampNullFarFuture(versionTo));
       doc.setCorrectionFromInstant(DbDateUtils.fromSqlTimestamp(correctionFrom));
       doc.setCorrectionToInstant(DbDateUtils.fromSqlTimestampNullFarFuture(correctionTo));
-      doc.setUniqueId(createUniqueId(organisationOid, organisationId));
+      doc.setUniqueId(createUniqueId(organizationOid, organizationId));
       if (providerScheme != null && providerValue != null) {
         doc.setProviderId(ExternalId.of(providerScheme, providerValue));
       }

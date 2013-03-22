@@ -8,6 +8,8 @@ package com.opengamma.master.orgs.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.ehcache.CacheManager;
+
 import org.joda.beans.Bean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,29 +19,27 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.cache.AbstractEHCachingMaster;
 import com.opengamma.master.cache.EHCachingSearchCache;
-import com.opengamma.master.orgs.ManageableOrganisation;
-import com.opengamma.master.orgs.OrganisationDocument;
-import com.opengamma.master.orgs.OrganisationHistoryRequest;
-import com.opengamma.master.orgs.OrganisationHistoryResult;
-import com.opengamma.master.orgs.OrganisationMaster;
-import com.opengamma.master.orgs.OrganisationSearchRequest;
-import com.opengamma.master.orgs.OrganisationSearchResult;
+import com.opengamma.master.orgs.ManageableOrganization;
+import com.opengamma.master.orgs.OrganizationDocument;
+import com.opengamma.master.orgs.OrganizationHistoryRequest;
+import com.opengamma.master.orgs.OrganizationHistoryResult;
+import com.opengamma.master.orgs.OrganizationMaster;
+import com.opengamma.master.orgs.OrganizationSearchRequest;
+import com.opengamma.master.orgs.OrganizationSearchResult;
 import com.opengamma.util.paging.Paging;
 import com.opengamma.util.paging.PagingRequest;
 import com.opengamma.util.tuple.ObjectsPair;
 
-import net.sf.ehcache.CacheManager;
-
 /**
- * A cache decorating a {@code OrganisationMaster}, mainly intended to reduce the frequency and repetition of queries to
+ * A cache decorating a {@code OrganizationMaster}, mainly intended to reduce the frequency and repetition of queries to
  * the underlying master.
  * <p>
  * The cache is implemented using {@code EHCache}.
  */
-public class EHCachingOrganisationMaster extends AbstractEHCachingMaster<OrganisationDocument> implements OrganisationMaster {
+public class EHCachingOrganizationMaster extends AbstractEHCachingMaster<OrganizationDocument> implements OrganizationMaster {
 
   /** Logger. */
-  private static final Logger s_logger = LoggerFactory.getLogger(EHCachingOrganisationMaster.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(EHCachingOrganizationMaster.class);
 
   /** The document search cache */
   private EHCachingSearchCache _documentSearchCache;
@@ -54,7 +54,7 @@ public class EHCachingOrganisationMaster extends AbstractEHCachingMaster<Organis
    * @param underlying    the underlying organisation master, not null
    * @param cacheManager  the cache manager, not null
    */
-  public EHCachingOrganisationMaster(final String name, final OrganisationMaster underlying, final CacheManager cacheManager) {
+  public EHCachingOrganizationMaster(final String name, final OrganizationMaster underlying, final CacheManager cacheManager) {
     super(name, underlying, cacheManager);
 
     // Create the document search cache and register a organisation master searcher
@@ -62,7 +62,7 @@ public class EHCachingOrganisationMaster extends AbstractEHCachingMaster<Organis
       @Override
       public ObjectsPair<Integer, List<UniqueId>> search(Bean request, PagingRequest pagingRequest) {
         // Fetch search results from underlying master
-        OrganisationSearchResult result = ((OrganisationMaster) getUnderlying()).search((OrganisationSearchRequest)
+        OrganizationSearchResult result = ((OrganizationMaster) getUnderlying()).search((OrganizationSearchRequest)
             EHCachingSearchCache.withPagingRequest(request, pagingRequest));
 
         // Cache the result documents
@@ -79,7 +79,7 @@ public class EHCachingOrganisationMaster extends AbstractEHCachingMaster<Organis
       @Override
       public ObjectsPair<Integer, List<UniqueId>> search(Bean request, PagingRequest pagingRequest) {
         // Fetch search results from underlying master
-        OrganisationHistoryResult result = ((OrganisationMaster) getUnderlying()).history((OrganisationHistoryRequest)
+        OrganizationHistoryResult result = ((OrganizationMaster) getUnderlying()).history((OrganizationHistoryRequest)
             EHCachingSearchCache.withPagingRequest(request, pagingRequest));
 
         // Cache the result documents
@@ -92,12 +92,12 @@ public class EHCachingOrganisationMaster extends AbstractEHCachingMaster<Organis
     });
 
     // Prime document search cache
-    OrganisationSearchRequest defaultSearch = new OrganisationSearchRequest();
+    OrganizationSearchRequest defaultSearch = new OrganizationSearchRequest();
     _documentSearchCache.prefetch(defaultSearch, PagingRequest.FIRST_PAGE);
   }
 
   @Override
-  public OrganisationSearchResult search(OrganisationSearchRequest request) {
+  public OrganizationSearchResult search(OrganizationSearchRequest request) {
     // Ensure that the relevant prefetch range is cached, otherwise fetch and cache any missing sub-ranges in background
     _documentSearchCache.prefetch(EHCachingSearchCache.withPagingRequest(request, null), request.getPagingRequest());
 
@@ -106,12 +106,12 @@ public class EHCachingOrganisationMaster extends AbstractEHCachingMaster<Organis
         EHCachingSearchCache.withPagingRequest(request, null),
         request.getPagingRequest(), false);
 
-    List<OrganisationDocument> documents = new ArrayList<>();
+    List<OrganizationDocument> documents = new ArrayList<>();
     for (UniqueId uniqueId : pair.getSecond()) {
       documents.add(get(uniqueId));
     }
 
-    OrganisationSearchResult result = new OrganisationSearchResult(documents);
+    OrganizationSearchResult result = new OrganizationSearchResult(documents);
     result.setPaging(Paging.of(request.getPagingRequest(), pair.getFirst()));
 
     final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(Instant.now());
@@ -119,7 +119,7 @@ public class EHCachingOrganisationMaster extends AbstractEHCachingMaster<Organis
 
     // Debug: check result against underlying
     if (EHCachingSearchCache.TEST_AGAINST_UNDERLYING) {
-      OrganisationSearchResult check = ((OrganisationMaster) getUnderlying()).search(request);
+      OrganizationSearchResult check = ((OrganizationMaster) getUnderlying()).search(request);
       if (!result.getPaging().equals(check.getPaging())) {
         s_logger.error(_documentSearchCache.getCache().getName()
                            + "\n\tCache:\t" + result.getPaging()
@@ -145,7 +145,7 @@ public class EHCachingOrganisationMaster extends AbstractEHCachingMaster<Organis
   }
 
   @Override
-  public OrganisationHistoryResult history(OrganisationHistoryRequest request) {
+  public OrganizationHistoryResult history(OrganizationHistoryRequest request) {
 
     // Ensure that the relevant prefetch range is cached, otherwise fetch and cache any missing sub-ranges in background
     _historySearchCache.prefetch(EHCachingSearchCache.withPagingRequest(request, null), request.getPagingRequest());
@@ -155,19 +155,19 @@ public class EHCachingOrganisationMaster extends AbstractEHCachingMaster<Organis
         EHCachingSearchCache.withPagingRequest(request, null),
         request.getPagingRequest(), false); // don't block until cached
 
-    List<OrganisationDocument> documents = new ArrayList<>();
+    List<OrganizationDocument> documents = new ArrayList<>();
     for (UniqueId uniqueId : pair.getSecond()) {
       documents.add(get(uniqueId));
     }
 
-    OrganisationHistoryResult result = new OrganisationHistoryResult(documents);
+    OrganizationHistoryResult result = new OrganizationHistoryResult(documents);
     result.setPaging(Paging.of(request.getPagingRequest(), pair.getFirst()));
     return result;
   }
 
   @Override
-  public ManageableOrganisation getOrganisation(UniqueId uid) {
-    return get(uid).getOrganisation();
+  public ManageableOrganization getOrganization(UniqueId uid) {
+    return get(uid).getOrganization();
   }
 
 }

@@ -18,9 +18,9 @@ import javax.ws.rs.core.Response;
 import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.id.UniqueId;
-import com.opengamma.master.orgs.OrganisationDocument;
-import com.opengamma.master.orgs.OrganisationHistoryRequest;
-import com.opengamma.master.orgs.OrganisationHistoryResult;
+import com.opengamma.master.orgs.OrganizationDocument;
+import com.opengamma.master.orgs.OrganizationHistoryRequest;
+import com.opengamma.master.orgs.OrganizationHistoryResult;
 import com.opengamma.util.paging.PagingRequest;
 import com.opengamma.web.WebPaging;
 
@@ -42,12 +42,12 @@ public class WebOrganizationVersionsResource extends AbstractWebOrganizationReso
   @Produces(MediaType.TEXT_HTML)
   @GET
   public String getHTML() {
-    OrganisationHistoryRequest request = new OrganisationHistoryRequest(data().getOrganization().getUniqueId());
-    OrganisationHistoryResult result = data().getOrganizationMaster().history(request);
+    OrganizationHistoryRequest request = new OrganizationHistoryRequest(data().getOrganization().getUniqueId());
+    OrganizationHistoryResult result = data().getOrganizationMaster().history(request);
     
     FlexiBean out = createRootData();
     out.put("versionsResult", result);
-    out.put("versions", result.getOrganisations());
+    out.put("versions", result.getOrganizations());
     return getFreemarker().build(HTML_DIR + "organizationversions.ftl", out);
   }
 
@@ -58,13 +58,13 @@ public class WebOrganizationVersionsResource extends AbstractWebOrganizationReso
       @QueryParam("pgNum") Integer pgNum,
       @QueryParam("pgSze") Integer pgSze) {
     PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
-    OrganisationHistoryRequest request = new OrganisationHistoryRequest(data().getOrganization().getUniqueId());
+    OrganizationHistoryRequest request = new OrganizationHistoryRequest(data().getOrganization().getUniqueId());
     request.setPagingRequest(pr);
-    OrganisationHistoryResult result = data().getOrganizationMaster().history(request);
+    OrganizationHistoryResult result = data().getOrganizationMaster().history(request);
     
     FlexiBean out = createRootData();
     out.put("versionsResult", result);
-    out.put("versions", result.getOrganisations());
+    out.put("versions", result.getOrganizations());
     out.put("paging", new WebPaging(result.getPaging(), data().getUriInfo()));
     String json = getFreemarker().build(JSON_DIR + "organizationversions.ftl", out);
     return Response.ok(json).build();
@@ -77,9 +77,9 @@ public class WebOrganizationVersionsResource extends AbstractWebOrganizationReso
    */
   protected FlexiBean createRootData() {
     FlexiBean out = super.createRootData();
-    OrganisationDocument doc = data().getOrganization();
+    OrganizationDocument doc = data().getOrganization();
     out.put("organizationDoc", doc);
-    out.put("organization", doc.getOrganisation());
+    out.put("organization", doc.getOrganization());
     out.put("deleted", !doc.isLatest());
     return out;
   }
@@ -88,10 +88,10 @@ public class WebOrganizationVersionsResource extends AbstractWebOrganizationReso
   @Path("{versionId}")
   public WebOrganizationVersionResource findVersion(@PathParam("versionId") String idStr) {
     data().setUriVersionId(idStr);
-    OrganisationDocument doc = data().getOrganization();
+    OrganizationDocument doc = data().getOrganization();
     UniqueId combined = doc.getUniqueId().withVersion(idStr);
     if (doc.getUniqueId().equals(combined) == false) {
-      OrganisationDocument versioned = data().getOrganizationMaster().get(combined);
+      OrganizationDocument versioned = data().getOrganizationMaster().get(combined);
       data().setVersioned(versioned);
     } else {
       data().setVersioned(doc);
