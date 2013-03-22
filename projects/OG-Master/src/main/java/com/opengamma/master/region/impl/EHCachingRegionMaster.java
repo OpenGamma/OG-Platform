@@ -53,7 +53,7 @@ public class EHCachingRegionMaster extends AbstractEHCachingMaster<RegionDocumen
    * @param cacheManager  the cache manager, not null
    */
   public EHCachingRegionMaster(final String name, final RegionMaster underlying, final CacheManager cacheManager) {
-    super(name, underlying, cacheManager);
+    super(name + "Region", underlying, cacheManager);
  
     // Create the doc search cache and register a region master searcher
     _documentSearchCache = new EHCachingSearchCache(name + "Region", cacheManager, new EHCachingSearchCache.Searcher() {

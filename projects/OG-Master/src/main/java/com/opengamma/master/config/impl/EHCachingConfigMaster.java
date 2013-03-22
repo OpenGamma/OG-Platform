@@ -57,7 +57,7 @@ public class EHCachingConfigMaster extends AbstractEHCachingMaster<ConfigDocumen
    * @param cacheManager  the cache manager, not null
    */
   public EHCachingConfigMaster(final String name, final ConfigMaster underlying, final CacheManager cacheManager) {
-    super(name, underlying, cacheManager);
+    super(name + "Config", underlying, cacheManager);
 
         // Create the doc search cache and register a config master searcher
     _documentSearchCache = new EHCachingSearchCache(name + "Config", cacheManager, new EHCachingSearchCache.Searcher() {

@@ -55,7 +55,7 @@ public class EHCachingPositionMaster extends AbstractEHCachingMaster<PositionDoc
    * @param cacheManager  the cache manager, not null
    */
   public EHCachingPositionMaster(final String name, final PositionMaster underlying, final CacheManager cacheManager) {
-    super(name, underlying, cacheManager);
+    super(name + "Position", underlying, cacheManager);
 
     // Create the doc search cache and register a position master searcher
     _documentSearchCache = new EHCachingSearchCache(name + "Position", cacheManager, new EHCachingSearchCache.Searcher() {

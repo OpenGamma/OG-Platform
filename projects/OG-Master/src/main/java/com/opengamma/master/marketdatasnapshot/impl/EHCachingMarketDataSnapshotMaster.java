@@ -56,7 +56,7 @@ public class EHCachingMarketDataSnapshotMaster extends AbstractEHCachingMaster<M
   public EHCachingMarketDataSnapshotMaster(final String name,
                                            final MarketDataSnapshotMaster underlying,
                                            final CacheManager cacheManager) {
-    super(name, underlying, cacheManager);
+    super(name + "MarketDataSnapshot", underlying, cacheManager);
 
     // Create the document search cache and register a marketDataSnapshot master searcher
     _documentSearchCache = new EHCachingSearchCache(name + "MarketDataSnapshot", cacheManager, new EHCachingSearchCache.Searcher() {

@@ -54,7 +54,7 @@ public class EHCachingExchangeMaster extends AbstractEHCachingMaster<ExchangeDoc
    * @param cacheManager  the cache manager, not null
    */
   public EHCachingExchangeMaster(final String name, final ExchangeMaster underlying, final CacheManager cacheManager) {
-    super(name, underlying, cacheManager);
+    super(name + "Exchange", underlying, cacheManager);
     
     // Create the doc search cache and register a exchange master searcher
     _documentSearchCache = new EHCachingSearchCache(name + "Exchange", cacheManager, new EHCachingSearchCache.Searcher() {

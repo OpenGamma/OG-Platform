@@ -53,7 +53,7 @@ public class EHCachingUserMaster extends AbstractEHCachingMaster<UserDocument> i
    * @param cacheManager  the cache manager, not null
    */
   public EHCachingUserMaster(final String name, final UserMaster underlying, final CacheManager cacheManager) {
-    super(name, underlying, cacheManager);
+    super(name + "User", underlying, cacheManager);
  
     // Create the doc search cache and register a user master searcher
     _documentSearchCache = new EHCachingSearchCache(name + "User", cacheManager, new EHCachingSearchCache.Searcher() {
