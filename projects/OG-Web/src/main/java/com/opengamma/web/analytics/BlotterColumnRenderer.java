@@ -37,7 +37,7 @@ import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
   }
 
   @Override
-  public ResultsCell getResults(int rowIndex, ResultsCache cache, Class<?> columnType) {
+  public ResultsCell getResults(int rowIndex, ResultsCache cache, Class<?> columnType, Integer inlineIndex) {
     PortfolioGridRow row = _rows.get(rowIndex);
     UniqueId securityId = row.getSecurityId();
     Security security;

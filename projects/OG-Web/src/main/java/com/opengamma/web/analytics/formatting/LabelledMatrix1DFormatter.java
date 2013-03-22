@@ -61,6 +61,17 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
+  public String formatInlineCell(LabelledMatrix1D matrix, ValueSpecification valueSpec, int index) {
+    // if there are matrices of different lengths on different rows then the shorter ones will be missing values for
+    // the last columns
+    if (index < matrix.getValues().length) {
+      return _doubleFormatter.formatCell(matrix.getValues()[index], valueSpec);
+    } else {
+      return "";
+    }
+  }
+
+  @Override
   public DataType getDataType() {
     return DataType.LABELLED_MATRIX_1D;
   }

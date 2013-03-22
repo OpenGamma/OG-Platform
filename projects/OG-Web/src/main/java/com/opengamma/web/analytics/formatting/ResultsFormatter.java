@@ -134,9 +134,15 @@ public class ResultsFormatter {
     return value instanceof MissingInput;
   }
 
+  // TODO I'm not keen on this interface. format is ignored if inlineIndex is non-null
   @SuppressWarnings("unchecked")
-  public Object format(Object value, ValueSpecification valueSpec, TypeFormatter.Format format) {
-    return getFormatter(value, valueSpec).format(value, valueSpec, format);
+  public Object format(Object value, ValueSpecification valueSpec, TypeFormatter.Format format, Integer inlineIndex) {
+    TypeFormatter formatter = getFormatter(value, valueSpec);
+    if (inlineIndex == null) {
+      return formatter.format(value, valueSpec, format);
+    } else {
+      return formatter.formatInlineCell(value, valueSpec, inlineIndex);
+    }
   }
   
   /**

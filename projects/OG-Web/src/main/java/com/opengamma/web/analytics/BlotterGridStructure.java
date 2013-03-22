@@ -26,7 +26,8 @@ public class BlotterGridStructure extends PortfolioGridStructure {
   /** The view definition that's driving the grid. */
   private final ViewDefinition _viewDef;
 
-  /* package */ BlotterGridStructure(GridColumnGroup fixedColumns,
+  /* package */ BlotterGridStructure(List<PortfolioGridRow> rows,
+                                     GridColumnGroup fixedColumns,
                                      GridColumnGroup blotterColumns,
                                      List<GridColumnGroup> analyticsColumns,
                                      AnalyticsNode rootNode,
@@ -34,7 +35,7 @@ public class BlotterGridStructure extends PortfolioGridStructure {
                                      BlotterColumnMapper columnMapper,
                                      ValueMappings valueMappings,
                                      ViewDefinition viewDef) {
-    super(fixedColumns, createGroups(blotterColumns, analyticsColumns), rootNode, targetLookup, valueMappings, viewDef);
+    super(rows, fixedColumns, createGroups(blotterColumns, analyticsColumns), rootNode, targetLookup, valueMappings, viewDef);
     ArgumentChecker.notNull(columnMapper, "columnMapper");
     ArgumentChecker.notNull(viewDef, "viewDef");
     _viewDef = viewDef;
@@ -51,7 +52,8 @@ public class BlotterGridStructure extends PortfolioGridStructure {
     List<PortfolioGridRow> rows = buildRows(portfolio);
     ValueMappings valueMappings = new ValueMappings();
     TargetLookup targetLookup = new TargetLookup(valueMappings, rows);
-    return new BlotterGridStructure(GridColumnGroup.empty(),
+    return new BlotterGridStructure(rows,
+                                    GridColumnGroup.empty(),
                                     GridColumnGroup.empty(),
                                     Collections.<GridColumnGroup>emptyList(),
                                     AnalyticsNode.portoflioRoot(portfolio),
@@ -94,7 +96,7 @@ public class BlotterGridStructure extends PortfolioGridStructure {
     GridColumnGroup fixedColumns = buildFixedColumns(rows);
     GridColumnGroup blotterColumns = buildBlotterColumns(_columnMapper, rows);
     List<GridColumnGroup> analyticsColumns = buildAnalyticsColumns(_viewDef, targetLookup);
-    return new BlotterGridStructure(fixedColumns, blotterColumns, analyticsColumns, rootNode, targetLookup,
+    return new BlotterGridStructure(rows, fixedColumns, blotterColumns, analyticsColumns, rootNode, targetLookup,
                                     _columnMapper, getValueMappings(), _viewDef);
   }
 
@@ -109,7 +111,13 @@ public class BlotterGridStructure extends PortfolioGridStructure {
     List<GridColumnGroup> analyticsColumns = buildAnalyticsColumns(viewDef, targetLookup);
     GridColumnGroup fixedColumns = buildFixedColumns(rows);
     GridColumnGroup blotterColumns = buildBlotterColumns(_columnMapper, rows);
-    return new BlotterGridStructure(fixedColumns, blotterColumns, analyticsColumns, rootNode, targetLookup,
+    return new BlotterGridStructure(rows, fixedColumns, blotterColumns, analyticsColumns, rootNode, targetLookup,
                                     _columnMapper, valueMappings, viewDef);
+  }
+
+  // TODO handle inlining of values into columns
+  @Override
+  PortfolioGridStructure withUpdatedStructure(ResultsCache cache) {
+    return this;
   }
 }

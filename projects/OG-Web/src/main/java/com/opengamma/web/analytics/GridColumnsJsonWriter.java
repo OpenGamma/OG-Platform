@@ -48,6 +48,10 @@ public class GridColumnsJsonWriter {
         Map<String, String> columnMap = Maps.newHashMap();
         columnMap.put("header", column.getHeader());
         columnMap.put("description", column.getDescription());
+        Integer inlineIndex = column.getInlineIndex();
+        if (inlineIndex != null) {
+          columnMap.put("inlineIndex", inlineIndex.toString());
+        }
         Class<?> columnType = column.getType();
         String type = _formatter.getDataType(columnType).name();
         columnMap.put("type", type);
