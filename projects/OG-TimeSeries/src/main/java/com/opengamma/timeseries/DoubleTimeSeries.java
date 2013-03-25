@@ -100,7 +100,6 @@ public interface DoubleTimeSeries<T> extends TimeSeries<T, Double> {
    */
   DoubleTimeSeries<T> add(double amountToAdd);
 
-  //-------------------------------------------------------------------------
   /**
    * Creates a new time-series with the intersection of the date-times from
    * this time-series and another time-series, with the values added.
@@ -114,43 +113,6 @@ public interface DoubleTimeSeries<T> extends TimeSeries<T, Double> {
   DoubleTimeSeries<T> add(DoubleTimeSeries<?> other);
 
   /**
-   * Creates a new time-series with the intersection of the date-times from
-   * this time-series and another time-series, with the values added.
-   * <p>
-   * For each date-time that the series have in common, the result will be the
-   * sum of the two values by simple {@code double} addition.
-   * 
-   * @param other  the other series to intersect with, not null
-   * @return the new time-series, not null
-   */
-  DoubleTimeSeries<T> add(FastBackedDoubleTimeSeries<?> other);
-
-  /**
-   * Creates a new time-series with the intersection of the date-times from
-   * this time-series and another time-series, with the values added.
-   * <p>
-   * For each date-time that the series have in common, the result will be the
-   * sum of the two values by simple {@code double} addition.
-   * 
-   * @param other  the other series to intersect with, not null
-   * @return the new time-series, not null
-   */
-  DoubleTimeSeries<T> add(FastIntDoubleTimeSeries other);
-
-  /**
-   * Creates a new time-series with the intersection of the date-times from
-   * this time-series and another time-series, with the values added.
-   * <p>
-   * For each date-time that the series have in common, the result will be the
-   * sum of the two values by simple {@code double} addition.
-   * 
-   * @param other  the other series to intersect with, not null
-   * @return the new time-series, not null
-   */
-  DoubleTimeSeries<T> add(FastLongDoubleTimeSeries other);
-
-  //-------------------------------------------------------------------------
-  /**
    * Creates a new time-series with the union of the date-times from
    * this time-series and another time-series, with the values added.
    * <p>
@@ -161,42 +123,6 @@ public interface DoubleTimeSeries<T> extends TimeSeries<T, Double> {
    * @return the new time-series, not null
    */
   DoubleTimeSeries<T> unionAdd(DoubleTimeSeries<?> other);
-
-  /**
-   * Creates a new time-series with the union of the date-times from
-   * this time-series and another time-series, with the values added.
-   * <p>
-   * For the union of date-times, the result will be the sum of the two
-   * values by simple {@code double} addition, with zero as the default value.
-   * 
-   * @param other  the other series to union with, not null
-   * @return the new time-series, not null
-   */
-  DoubleTimeSeries<T> unionAdd(FastBackedDoubleTimeSeries<?> other);
-
-  /**
-   * Creates a new time-series with the union of the date-times from
-   * this time-series and another time-series, with the values added.
-   * <p>
-   * For the union of date-times, the result will be the sum of the two
-   * values by simple {@code double} addition, with zero as the default value.
-   * 
-   * @param other  the other series to union with, not null
-   * @return the new time-series, not null
-   */
-  DoubleTimeSeries<T> unionAdd(FastIntDoubleTimeSeries other);
-
-  /**
-   * Creates a new time-series with the union of the date-times from
-   * this time-series and another time-series, with the values added.
-   * <p>
-   * For the union of date-times, the result will be the sum of the two
-   * values by simple {@code double} addition, with zero as the default value.
-   * 
-   * @param other  the other series to union with, not null
-   * @return the new time-series, not null
-   */
-  DoubleTimeSeries<T> unionAdd(FastLongDoubleTimeSeries other);
 
   //-------------------------------------------------------------------------
   /**
@@ -211,7 +137,6 @@ public interface DoubleTimeSeries<T> extends TimeSeries<T, Double> {
    */
   DoubleTimeSeries<T> subtract(double amountToSubtract);
 
-  //-------------------------------------------------------------------------
   /**
    * Creates a new time-series with the intersection of the date-times from
    * this time-series and another time-series, with the values subtracted.
@@ -226,46 +151,6 @@ public interface DoubleTimeSeries<T> extends TimeSeries<T, Double> {
   DoubleTimeSeries<T> subtract(DoubleTimeSeries<?> other);
 
   /**
-   * Creates a new time-series with the intersection of the date-times from
-   * this time-series and another time-series, with the values subtracted.
-   * <p>
-   * For each date-time that the series have in common, the result will be the
-   * value of this series minus the value of the other series by simple
-   * {@code double} subtraction.
-   * 
-   * @param other  the other series to intersect with, not null
-   * @return the new time-series, not null
-   */
-  DoubleTimeSeries<T> subtract(FastBackedDoubleTimeSeries<?> other);
-
-  /**
-   * Creates a new time-series with the intersection of the date-times from
-   * this time-series and another time-series, with the values subtracted.
-   * <p>
-   * For each date-time that the series have in common, the result will be the
-   * value of this series minus the value of the other series by simple
-   * {@code double} subtraction.
-   * 
-   * @param other  the other series to intersect with, not null
-   * @return the new time-series, not null
-   */
-  DoubleTimeSeries<T> subtract(FastLongDoubleTimeSeries other);
-
-  /**
-   * Creates a new time-series with the intersection of the date-times from
-   * this time-series and another time-series, with the values subtracted.
-   * <p>
-   * For each date-time that the series have in common, the result will be the
-   * value of this series minus the value of the other series by simple
-   * {@code double} subtraction.
-   * 
-   * @param other  the other series to intersect with, not null
-   * @return the new time-series, not null
-   */
-  DoubleTimeSeries<T> subtract(FastIntDoubleTimeSeries other);
-
-  //-------------------------------------------------------------------------
-  /**
    * Creates a new time-series with the union of the date-times from
    * this time-series and another time-series, with the values subtracted.
    * <p>
@@ -277,45 +162,6 @@ public interface DoubleTimeSeries<T> extends TimeSeries<T, Double> {
    * @return the new time-series, not null
    */
   DoubleTimeSeries<T> unionSubtract(DoubleTimeSeries<?> other);
-
-  /**
-   * Creates a new time-series with the union of the date-times from
-   * this time-series and another time-series, with the values subtracted.
-   * <p>
-   * For the union of date-times, the result will be the value of this
-   * series minus the value of the other series by simple {@code double}
-   * subtraction, with zero as the default value.
-   * 
-   * @param other  the other series to union with, not null
-   * @return the new time-series, not null
-   */
-  DoubleTimeSeries<T> unionSubtract(FastBackedDoubleTimeSeries<?> other);
-
-  /**
-   * Creates a new time-series with the union of the date-times from
-   * this time-series and another time-series, with the values subtracted.
-   * <p>
-   * For the union of date-times, the result will be the value of this
-   * series minus the value of the other series by simple {@code double}
-   * subtraction, with zero as the default value.
-   * 
-   * @param other  the other series to union with, not null
-   * @return the new time-series, not null
-   */
-  DoubleTimeSeries<T> unionSubtract(FastIntDoubleTimeSeries other);
-
-  /**
-   * Creates a new time-series with the union of the date-times from
-   * this time-series and another time-series, with the values subtracted.
-   * <p>
-   * For the union of date-times, the result will be the value of this
-   * series minus the value of the other series by simple {@code double}
-   * subtraction, with zero as the default value.
-   * 
-   * @param other  the other series to union with, not null
-   * @return the new time-series, not null
-   */
-  DoubleTimeSeries<T> unionSubtract(FastLongDoubleTimeSeries other);
 
   //-------------------------------------------------------------------------
   /**
@@ -330,7 +176,6 @@ public interface DoubleTimeSeries<T> extends TimeSeries<T, Double> {
    */
   DoubleTimeSeries<T> multiply(double amountToMultiplyBy);
 
-  //-------------------------------------------------------------------------
   /**
    * Creates a new time-series with the intersection of the date-times from
    * this time-series and another time-series, with the values multiplied.
@@ -345,46 +190,6 @@ public interface DoubleTimeSeries<T> extends TimeSeries<T, Double> {
   DoubleTimeSeries<T> multiply(DoubleTimeSeries<?> other);
 
   /**
-   * Creates a new time-series with the intersection of the date-times from
-   * this time-series and another time-series, with the values multiplied.
-   * <p>
-   * For each date-time that the series have in common, the result will be the
-   * value of this series multiplied by the value of the other series by simple
-   * {@code double} multiplication.
-   * 
-   * @param other  the other series to intersect with, not null
-   * @return the new time-series, not null
-   */
-  DoubleTimeSeries<T> multiply(FastBackedDoubleTimeSeries<?> other);
-
-  /**
-   * Creates a new time-series with the intersection of the date-times from
-   * this time-series and another time-series, with the values multiplied.
-   * <p>
-   * For each date-time that the series have in common, the result will be the
-   * value of this series multiplied by the value of the other series by simple
-   * {@code double} multiplication.
-   * 
-   * @param other  the other series to intersect with, not null
-   * @return the new time-series, not null
-   */
-  DoubleTimeSeries<T> multiply(FastIntDoubleTimeSeries other);
-
-  /**
-   * Creates a new time-series with the intersection of the date-times from
-   * this time-series and another time-series, with the values multiplied.
-   * <p>
-   * For each date-time that the series have in common, the result will be the
-   * value of this series multiplied by the value of the other series by simple
-   * {@code double} multiplication.
-   * 
-   * @param other  the other series to intersect with, not null
-   * @return the new time-series, not null
-   */
-  DoubleTimeSeries<T> multiply(FastLongDoubleTimeSeries other);
-
-  //-------------------------------------------------------------------------
-  /**
    * Creates a new time-series with the union of the date-times from
    * this time-series and another time-series, with the values multiplied.
    * <p>
@@ -396,45 +201,6 @@ public interface DoubleTimeSeries<T> extends TimeSeries<T, Double> {
    * @return the new time-series, not null
    */
   DoubleTimeSeries<T> unionMultiply(DoubleTimeSeries<?> other);
-
-  /**
-   * Creates a new time-series with the union of the date-times from
-   * this time-series and another time-series, with the values multiplied.
-   * <p>
-   * For the union of date-times, the result will be the value of this
-   * series multiplied by the value of the other series by simple {@code double}
-   * multiplication, with zero as the default value.
-   * 
-   * @param other  the other series to union with, not null
-   * @return the new time-series, not null
-   */
-  DoubleTimeSeries<T> unionMultiply(FastBackedDoubleTimeSeries<?> other);
-
-  /**
-   * Creates a new time-series with the union of the date-times from
-   * this time-series and another time-series, with the values multiplied.
-   * <p>
-   * For the union of date-times, the result will be the value of this
-   * series multiplied by the value of the other series by simple {@code double}
-   * multiplication, with zero as the default value.
-   * 
-   * @param other  the other series to union with, not null
-   * @return the new time-series, not null
-   */
-  DoubleTimeSeries<T> unionMultiply(FastIntDoubleTimeSeries other);
-
-  /**
-   * Creates a new time-series with the union of the date-times from
-   * this time-series and another time-series, with the values multiplied.
-   * <p>
-   * For the union of date-times, the result will be the value of this
-   * series multiplied by the value of the other series by simple {@code double}
-   * multiplication, with zero as the default value.
-   * 
-   * @param other  the other series to union with, not null
-   * @return the new time-series, not null
-   */
-  DoubleTimeSeries<T> unionMultiply(FastLongDoubleTimeSeries other);
 
   //-------------------------------------------------------------------------
   /**
@@ -449,7 +215,6 @@ public interface DoubleTimeSeries<T> extends TimeSeries<T, Double> {
    */
   DoubleTimeSeries<T> divide(double amountToDivideBy);
 
-  //-------------------------------------------------------------------------
   /**
    * Creates a new time-series with the intersection of the date-times from
    * this time-series and another time-series, with the values divided.
@@ -464,46 +229,6 @@ public interface DoubleTimeSeries<T> extends TimeSeries<T, Double> {
   DoubleTimeSeries<T> divide(DoubleTimeSeries<?> other);
 
   /**
-   * Creates a new time-series with the intersection of the date-times from
-   * this time-series and another time-series, with the values divided.
-   * <p>
-   * For each date-time that the series have in common, the result will be the
-   * value of this series divided by the value of the other series by simple
-   * {@code double} division.
-   * 
-   * @param other  the other series to intersect with, not null
-   * @return the new time-series, not null
-   */
-  DoubleTimeSeries<T> divide(FastBackedDoubleTimeSeries<?> other);
-
-  /**
-   * Creates a new time-series with the intersection of the date-times from
-   * this time-series and another time-series, with the values divided.
-   * <p>
-   * For each date-time that the series have in common, the result will be the
-   * value of this series divided by the value of the other series by simple
-   * {@code double} division.
-   * 
-   * @param other  the other series to intersect with, not null
-   * @return the new time-series, not null
-   */
-  DoubleTimeSeries<T> divide(FastIntDoubleTimeSeries other);
-
-  /**
-   * Creates a new time-series with the intersection of the date-times from
-   * this time-series and another time-series, with the values divided.
-   * <p>
-   * For each date-time that the series have in common, the result will be the
-   * value of this series divided by the value of the other series by simple
-   * {@code double} division.
-   * 
-   * @param other  the other series to intersect with, not null
-   * @return the new time-series, not null
-   */
-  DoubleTimeSeries<T> divide(FastLongDoubleTimeSeries other);
-
-  //-------------------------------------------------------------------------
-  /**
    * Creates a new time-series with the union of the date-times from
    * this time-series and another time-series, with the values divided.
    * <p>
@@ -515,45 +240,6 @@ public interface DoubleTimeSeries<T> extends TimeSeries<T, Double> {
    * @return the new time-series, not null
    */
   DoubleTimeSeries<T> unionDivide(DoubleTimeSeries<?> other);
-
-  /**
-   * Creates a new time-series with the union of the date-times from
-   * this time-series and another time-series, with the values divided.
-   * <p>
-   * For the union of date-times, the result will be the value of this
-   * series divided by the value of the other series by simple {@code double}
-   * division, with zero as the default value.
-   * 
-   * @param other  the other series to union with, not null
-   * @return the new time-series, not null
-   */
-  DoubleTimeSeries<T> unionDivide(FastBackedDoubleTimeSeries<?> other);
-
-  /**
-   * Creates a new time-series with the union of the date-times from
-   * this time-series and another time-series, with the values divided.
-   * <p>
-   * For the union of date-times, the result will be the value of this
-   * series divided by the value of the other series by simple {@code double}
-   * division, with zero as the default value.
-   * 
-   * @param other  the other series to union with, not null
-   * @return the new time-series, not null
-   */
-  DoubleTimeSeries<T> unionDivide(FastIntDoubleTimeSeries other);
-
-  /**
-   * Creates a new time-series with the union of the date-times from
-   * this time-series and another time-series, with the values divided.
-   * <p>
-   * For the union of date-times, the result will be the value of this
-   * series divided by the value of the other series by simple {@code double}
-   * division, with zero as the default value.
-   * 
-   * @param other  the other series to union with, not null
-   * @return the new time-series, not null
-   */
-  DoubleTimeSeries<T> unionDivide(FastLongDoubleTimeSeries other);
 
   //-------------------------------------------------------------------------
   /**
@@ -568,7 +254,6 @@ public interface DoubleTimeSeries<T> extends TimeSeries<T, Double> {
    */
   DoubleTimeSeries<T> power(double power);
 
-  //-------------------------------------------------------------------------
   /**
    * Creates a new time-series with the intersection of the date-times from
    * this time-series and another time-series, with the values powered.
@@ -582,43 +267,6 @@ public interface DoubleTimeSeries<T> extends TimeSeries<T, Double> {
   DoubleTimeSeries<T> power(DoubleTimeSeries<?> other);
 
   /**
-   * Creates a new time-series with the intersection of the date-times from
-   * this time-series and another time-series, with the values powered.
-   * <p>
-   * For each date-time that the series have in common, the result will be the
-   * value of this series to the power of the value of the other series.
-   * 
-   * @param other  the other series to intersect with, not null
-   * @return the new time-series, not null
-   */
-  DoubleTimeSeries<T> power(FastBackedDoubleTimeSeries<?> other);
-
-  /**
-   * Creates a new time-series with the intersection of the date-times from
-   * this time-series and another time-series, with the values powered.
-   * <p>
-   * For each date-time that the series have in common, the result will be the
-   * value of this series to the power of the value of the other series.
-   * 
-   * @param other  the other series to intersect with, not null
-   * @return the new time-series, not null
-   */
-  DoubleTimeSeries<T> power(FastIntDoubleTimeSeries other);
-
-  /**
-   * Creates a new time-series with the intersection of the date-times from
-   * this time-series and another time-series, with the values powered.
-   * <p>
-   * For each date-time that the series have in common, the result will be the
-   * value of this series to the power of the value of the other series.
-   * 
-   * @param other  the other series to intersect with, not null
-   * @return the new time-series, not null
-   */
-  DoubleTimeSeries<T> power(FastLongDoubleTimeSeries other);
-
-  //-------------------------------------------------------------------------
-  /**
    * Creates a new time-series with the union of the date-times from
    * this time-series and another time-series, with the values powered.
    * <p>
@@ -630,45 +278,6 @@ public interface DoubleTimeSeries<T> extends TimeSeries<T, Double> {
    * @return the new time-series, not null
    */
   DoubleTimeSeries<T> unionPower(DoubleTimeSeries<?> other);
-
-  /**
-   * Creates a new time-series with the union of the date-times from
-   * this time-series and another time-series, with the values powered.
-   * <p>
-   * For the union of date-times, the result will be the value of this
-   * series to the power of the value of the other series, with zero as the
-   * default value.
-   * 
-   * @param other  the other series to union with, not null
-   * @return the new time-series, not null
-   */
-  DoubleTimeSeries<T> unionPower(FastBackedDoubleTimeSeries<?> other);
-
-  /**
-   * Creates a new time-series with the union of the date-times from
-   * this time-series and another time-series, with the values powered.
-   * <p>
-   * For the union of date-times, the result will be the value of this
-   * series to the power of the value of the other series, with zero as the
-   * default value.
-   * 
-   * @param other  the other series to union with, not null
-   * @return the new time-series, not null
-   */
-  DoubleTimeSeries<T> unionPower(FastIntDoubleTimeSeries other);
-
-  /**
-   * Creates a new time-series with the union of the date-times from
-   * this time-series and another time-series, with the values powered.
-   * <p>
-   * For the union of date-times, the result will be the value of this
-   * series to the power of the value of the other series, with zero as the
-   * default value.
-   * 
-   * @param other  the other series to union with, not null
-   * @return the new time-series, not null
-   */
-  DoubleTimeSeries<T> unionPower(FastLongDoubleTimeSeries other);
 
   //-------------------------------------------------------------------------
   /**
@@ -683,7 +292,6 @@ public interface DoubleTimeSeries<T> extends TimeSeries<T, Double> {
    */
   DoubleTimeSeries<T> minimum(double minValue);
 
-  //-------------------------------------------------------------------------
   /**
    * Creates a new time-series with the intersection of the date-times from
    * this time-series and another time-series, with the minimum value selected.
@@ -697,43 +305,6 @@ public interface DoubleTimeSeries<T> extends TimeSeries<T, Double> {
   DoubleTimeSeries<T> minimum(DoubleTimeSeries<?> other);
 
   /**
-   * Creates a new time-series with the intersection of the date-times from
-   * this time-series and another time-series, with the minimum value selected.
-   * <p>
-   * For each date-time that the series have in common, the result will be the
-   * minimum of the value of this series and the value of the other series.
-   * 
-   * @param other  the other series to intersect with, not null
-   * @return the new time-series, not null
-   */
-  DoubleTimeSeries<T> minimum(FastBackedDoubleTimeSeries<?> other);
-
-  /**
-   * Creates a new time-series with the intersection of the date-times from
-   * this time-series and another time-series, with the minimum value selected.
-   * <p>
-   * For each date-time that the series have in common, the result will be the
-   * minimum of the value of this series and the value of the other series.
-   * 
-   * @param other  the other series to intersect with, not null
-   * @return the new time-series, not null
-   */
-  DoubleTimeSeries<T> minimum(FastIntDoubleTimeSeries other);
-
-  /**
-   * Creates a new time-series with the intersection of the date-times from
-   * this time-series and another time-series, with the minimum value selected.
-   * <p>
-   * For each date-time that the series have in common, the result will be the
-   * minimum of the value of this series and the value of the other series.
-   * 
-   * @param other  the other series to intersect with, not null
-   * @return the new time-series, not null
-   */
-  DoubleTimeSeries<T> minimum(FastLongDoubleTimeSeries other);
-
-  //-------------------------------------------------------------------------
-  /**
    * Creates a new time-series with the union of the date-times from
    * this time-series and another time-series, with the minimum value selected.
    * <p>
@@ -744,42 +315,6 @@ public interface DoubleTimeSeries<T> extends TimeSeries<T, Double> {
    * @return the new time-series, not null
    */
   DoubleTimeSeries<T> unionMinimum(DoubleTimeSeries<?> other);
-
-  /**
-   * Creates a new time-series with the union of the date-times from
-   * this time-series and another time-series, with the minimum value selected.
-   * <p>
-   * For the union of date-times, the result will be the minimum of the value
-   * of this series and the value of the other series, with zero as the default value.
-   * 
-   * @param other  the other series to union with, not null
-   * @return the new time-series, not null
-   */
-  DoubleTimeSeries<T> unionMinimum(FastBackedDoubleTimeSeries<?> other);
-
-  /**
-   * Creates a new time-series with the union of the date-times from
-   * this time-series and another time-series, with the minimum value selected.
-   * <p>
-   * For the union of date-times, the result will be the minimum of the value
-   * of this series and the value of the other series, with zero as the default value.
-   * 
-   * @param other  the other series to union with, not null
-   * @return the new time-series, not null
-   */
-  DoubleTimeSeries<T> unionMinimum(FastIntDoubleTimeSeries other);
-
-  /**
-   * Creates a new time-series with the union of the date-times from
-   * this time-series and another time-series, with the minimum value selected.
-   * <p>
-   * For the union of date-times, the result will be the minimum of the value
-   * of this series and the value of the other series, with zero as the default value.
-   * 
-   * @param other  the other series to union with, not null
-   * @return the new time-series, not null
-   */
-  DoubleTimeSeries<T> unionMinimum(FastLongDoubleTimeSeries other);
 
   //-------------------------------------------------------------------------
   /**
@@ -794,7 +329,6 @@ public interface DoubleTimeSeries<T> extends TimeSeries<T, Double> {
    */
   DoubleTimeSeries<T> maximum(double maxValue);
 
-  //-------------------------------------------------------------------------
   /**
    * Creates a new time-series with the intersection of the date-times from
    * this time-series and another time-series, with the maximum value selected.
@@ -808,43 +342,6 @@ public interface DoubleTimeSeries<T> extends TimeSeries<T, Double> {
   DoubleTimeSeries<T> maximum(DoubleTimeSeries<?> other);
 
   /**
-   * Creates a new time-series with the intersection of the date-times from
-   * this time-series and another time-series, with the maximum value selected.
-   * <p>
-   * For each date-time that the series have in common, the result will be the
-   * maximum of the value of this series and the value of the other series.
-   * 
-   * @param other  the other series to intersect with, not null
-   * @return the new time-series, not null
-   */
-  DoubleTimeSeries<T> maximum(FastBackedDoubleTimeSeries<?> other);
-
-  /**
-   * Creates a new time-series with the intersection of the date-times from
-   * this time-series and another time-series, with the maximum value selected.
-   * <p>
-   * For each date-time that the series have in common, the result will be the
-   * maximum of the value of this series and the value of the other series.
-   * 
-   * @param other  the other series to intersect with, not null
-   * @return the new time-series, not null
-   */
-  DoubleTimeSeries<T> maximum(FastIntDoubleTimeSeries other);
-
-  /**
-   * Creates a new time-series with the intersection of the date-times from
-   * this time-series and another time-series, with the maximum value selected.
-   * <p>
-   * For each date-time that the series have in common, the result will be the
-   * maximum of the value of this series and the value of the other series.
-   * 
-   * @param other  the other series to intersect with, not null
-   * @return the new time-series, not null
-   */
-  DoubleTimeSeries<T> maximum(FastLongDoubleTimeSeries other);
-
-  //-------------------------------------------------------------------------
-  /**
    * Creates a new time-series with the union of the date-times from
    * this time-series and another time-series, with the maximum value selected.
    * <p>
@@ -855,42 +352,6 @@ public interface DoubleTimeSeries<T> extends TimeSeries<T, Double> {
    * @return the new time-series, not null
    */
   DoubleTimeSeries<T> unionMaximum(DoubleTimeSeries<?> other);
-
-  /**
-   * Creates a new time-series with the union of the date-times from
-   * this time-series and another time-series, with the maximum value selected.
-   * <p>
-   * For the union of date-times, the result will be the maximum of the value
-   * of this series and the value of the other series, with zero as the default value.
-   * 
-   * @param other  the other series to union with, not null
-   * @return the new time-series, not null
-   */
-  DoubleTimeSeries<T> unionMaximum(FastBackedDoubleTimeSeries<?> other);
-
-  /**
-   * Creates a new time-series with the union of the date-times from
-   * this time-series and another time-series, with the maximum value selected.
-   * <p>
-   * For the union of date-times, the result will be the maximum of the value
-   * of this series and the value of the other series, with zero as the default value.
-   * 
-   * @param other  the other series to union with, not null
-   * @return the new time-series, not null
-   */
-  DoubleTimeSeries<T> unionMaximum(FastIntDoubleTimeSeries other);
-
-  /**
-   * Creates a new time-series with the union of the date-times from
-   * this time-series and another time-series, with the maximum value selected.
-   * <p>
-   * For the union of date-times, the result will be the maximum of the value
-   * of this series and the value of the other series, with zero as the default value.
-   * 
-   * @param other  the other series to union with, not null
-   * @return the new time-series, not null
-   */
-  DoubleTimeSeries<T> unionMaximum(FastLongDoubleTimeSeries other);
 
   //-------------------------------------------------------------------------
   /**
@@ -905,7 +366,6 @@ public interface DoubleTimeSeries<T> extends TimeSeries<T, Double> {
    */
   DoubleTimeSeries<T> average(double value);
 
-  //-------------------------------------------------------------------------
   /**
    * Creates a new time-series with the intersection of the date-times from
    * this time-series and another time-series, with the average value.
@@ -919,43 +379,6 @@ public interface DoubleTimeSeries<T> extends TimeSeries<T, Double> {
   DoubleTimeSeries<T> average(DoubleTimeSeries<?> other);
 
   /**
-   * Creates a new time-series with the intersection of the date-times from
-   * this time-series and another time-series, with the average value.
-   * <p>
-   * For each date-time that the series have in common, the result will be the
-   * average of the value of this series and the value of the other series.
-   * 
-   * @param other  the other series to intersect with, not null
-   * @return the new time-series, not null
-   */
-  DoubleTimeSeries<T> average(FastBackedDoubleTimeSeries<?> other);
-
-  /**
-   * Creates a new time-series with the intersection of the date-times from
-   * this time-series and another time-series, with the average value.
-   * <p>
-   * For each date-time that the series have in common, the result will be the
-   * average of the value of this series and the value of the other series.
-   * 
-   * @param other  the other series to intersect with, not null
-   * @return the new time-series, not null
-   */
-  DoubleTimeSeries<T> average(FastIntDoubleTimeSeries other);
-
-  /**
-   * Creates a new time-series with the intersection of the date-times from
-   * this time-series and another time-series, with the average value.
-   * <p>
-   * For each date-time that the series have in common, the result will be the
-   * average of the value of this series and the value of the other series.
-   * 
-   * @param other  the other series to intersect with, not null
-   * @return the new time-series, not null
-   */
-  DoubleTimeSeries<T> average(FastLongDoubleTimeSeries other);
-
-  //-------------------------------------------------------------------------
-  /**
    * Creates a new time-series with the union of the date-times from
    * this time-series and another time-series, with the average value.
    * <p>
@@ -966,42 +389,6 @@ public interface DoubleTimeSeries<T> extends TimeSeries<T, Double> {
    * @return the new time-series, not null
    */
   DoubleTimeSeries<T> unionAverage(DoubleTimeSeries<?> other);
-
-  /**
-   * Creates a new time-series with the union of the date-times from
-   * this time-series and another time-series, with the average value.
-   * <p>
-   * For the union of date-times, the result will be the average of the value
-   * of this series and the value of the other series, with zero as the default value.
-   * 
-   * @param other  the other series to union with, not null
-   * @return the new time-series, not null
-   */
-  DoubleTimeSeries<T> unionAverage(FastBackedDoubleTimeSeries<?> other);
-
-  /**
-   * Creates a new time-series with the union of the date-times from
-   * this time-series and another time-series, with the average value.
-   * <p>
-   * For the union of date-times, the result will be the average of the value
-   * of this series and the value of the other series, with zero as the default value.
-   * 
-   * @param other  the other series to union with, not null
-   * @return the new time-series, not null
-   */
-  DoubleTimeSeries<T> unionAverage(FastIntDoubleTimeSeries other);
-
-  /**
-   * Creates a new time-series with the union of the date-times from
-   * this time-series and another time-series, with the average value.
-   * <p>
-   * For the union of date-times, the result will be the average of the value
-   * of this series and the value of the other series, with zero as the default value.
-   * 
-   * @param other  the other series to union with, not null
-   * @return the new time-series, not null
-   */
-  DoubleTimeSeries<T> unionAverage(FastLongDoubleTimeSeries other);
 
   //-------------------------------------------------------------------------
   /**
@@ -1015,34 +402,6 @@ public interface DoubleTimeSeries<T> extends TimeSeries<T, Double> {
 
   /**
    * Creates a new time-series with the intersection of the date-times from
-   * this time-series and another time-series, with the values from this series.
-   * 
-   * @param other  the other series to intersect with, not null
-   * @return the new time-series, not null
-   */
-  DoubleTimeSeries<T> intersectionFirstValue(FastBackedDoubleTimeSeries<?> other);
-
-  /**
-   * Creates a new time-series with the intersection of the date-times from
-   * this time-series and another time-series, with the values from this series.
-   * 
-   * @param other  the other series to intersect with, not null
-   * @return the new time-series, not null
-   */
-  DoubleTimeSeries<T> intersectionFirstValue(FastIntDoubleTimeSeries other);
-
-  /**
-   * Creates a new time-series with the intersection of the date-times from
-   * this time-series and another time-series, with the values from this series.
-   * 
-   * @param other  the other series to intersect with, not null
-   * @return the new time-series, not null
-   */
-  DoubleTimeSeries<T> intersectionFirstValue(FastLongDoubleTimeSeries other);
-
-  //-------------------------------------------------------------------------
-  /**
-   * Creates a new time-series with the intersection of the date-times from
    * this time-series and another time-series, with the values from the other series.
    * 
    * @param other  the other series to intersect with, not null
@@ -1050,34 +409,6 @@ public interface DoubleTimeSeries<T> extends TimeSeries<T, Double> {
    */
   DoubleTimeSeries<T> intersectionSecondValue(DoubleTimeSeries<?> other);
 
-  /**
-   * Creates a new time-series with the intersection of the date-times from
-   * this time-series and another time-series, with the values from the other series.
-   * 
-   * @param other  the other series to intersect with, not null
-   * @return the new time-series, not null
-   */
-  DoubleTimeSeries<T> intersectionSecondValue(FastBackedDoubleTimeSeries<?> other);
-
-  /**
-   * Creates a new time-series with the intersection of the date-times from
-   * this time-series and another time-series, with the values from the other series.
-   * 
-   * @param other  the other series to intersect with, not null
-   * @return the new time-series, not null
-   */
-  DoubleTimeSeries<T> intersectionSecondValue(FastIntDoubleTimeSeries other);
-
-  /**
-   * Creates a new time-series with the intersection of the date-times from
-   * this time-series and another time-series, with the values from the other series.
-   * 
-   * @param other  the other series to intersect with, not null
-   * @return the new time-series, not null
-   */
-  DoubleTimeSeries<T> intersectionSecondValue(FastLongDoubleTimeSeries other);
-
-  //-------------------------------------------------------------------------
   /**
    * Creates a new time-series combining both series where there are no
    * overlapping date-times.
@@ -1087,36 +418,6 @@ public interface DoubleTimeSeries<T> extends TimeSeries<T, Double> {
    * @throws RuntimeException if there are overlapping date-times
    */
   DoubleTimeSeries<T> noIntersectionOperation(DoubleTimeSeries<?> other);
-
-  /**
-   * Creates a new time-series combining both series where there are no
-   * overlapping date-times.
-   * 
-   * @param other  the other series to intersect with, not null
-   * @return the new time-series, not null
-   * @throws RuntimeException if there are overlapping date-times
-   */
-  DoubleTimeSeries<T> noIntersectionOperation(FastBackedDoubleTimeSeries<?> other);
-
-  /**
-   * Creates a new time-series combining both series where there are no
-   * overlapping date-times.
-   * 
-   * @param other  the other series to intersect with, not null
-   * @return the new time-series, not null
-   * @throws RuntimeException if there are overlapping date-times
-   */
-  DoubleTimeSeries<T> noIntersectionOperation(FastIntDoubleTimeSeries other);
-
-  /**
-   * Creates a new time-series combining both series where there are no
-   * overlapping date-times.
-   * 
-   * @param other  the other series to intersect with, not null
-   * @return the new time-series, not null
-   * @throws RuntimeException if there are overlapping date-times
-   */
-  DoubleTimeSeries<T> noIntersectionOperation(FastLongDoubleTimeSeries other);
 
   //-------------------------------------------------------------------------
   /**

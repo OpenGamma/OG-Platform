@@ -22,6 +22,10 @@ public interface FastTimeSeries<T> extends DoubleTimeSeries<T> {
 
   DateTimeResolution getDateTimeResolution();
 
+  @Override
+  FastTimeSeries<T> lag(int days);
+
+  //-------------------------------------------------------------------------
   FastTimeSeries<T> operate(final UnaryOperator operator);
 
   FastTimeSeries<T> operate(final double other, final BinaryOperator operator);
@@ -38,141 +42,51 @@ public interface FastTimeSeries<T> extends DoubleTimeSeries<T> {
 
   FastTimeSeries<T> unionOperate(final FastBackedDoubleTimeSeries<?> other, final BinaryOperator operator);
 
-  FastTimeSeries<T> add(FastBackedDoubleTimeSeries<?> other);
-
-  FastTimeSeries<T> add(FastLongDoubleTimeSeries other);
-
-  FastTimeSeries<T> add(FastIntDoubleTimeSeries other);
-
+  //-------------------------------------------------------------------------
+  @Override
   FastTimeSeries<T> add(double other);
 
-  FastTimeSeries<T> unionAdd(FastBackedDoubleTimeSeries<?> other);
-
-  FastTimeSeries<T> unionAdd(FastLongDoubleTimeSeries other);
-
-  FastTimeSeries<T> unionAdd(FastIntDoubleTimeSeries other);
-
-  FastTimeSeries<T> subtract(FastBackedDoubleTimeSeries<?> other);
-
-  FastTimeSeries<T> subtract(FastLongDoubleTimeSeries other);
-
-  FastTimeSeries<T> subtract(FastIntDoubleTimeSeries other);
-
+  @Override
   FastTimeSeries<T> subtract(double other);
 
-  FastTimeSeries<T> unionSubtract(FastBackedDoubleTimeSeries<?> other);
-
-  FastTimeSeries<T> unionSubtract(FastIntDoubleTimeSeries other);
-
-  FastTimeSeries<T> unionSubtract(FastLongDoubleTimeSeries other);
-
-  FastTimeSeries<T> multiply(FastBackedDoubleTimeSeries<?> other);
-
-  FastTimeSeries<T> multiply(FastLongDoubleTimeSeries other);
-
-  FastTimeSeries<T> multiply(FastIntDoubleTimeSeries other);
-
+  @Override
   FastTimeSeries<T> multiply(double other);
 
-  FastTimeSeries<T> unionMultiply(FastBackedDoubleTimeSeries<?> other);
-
-  FastTimeSeries<T> unionMultiply(FastLongDoubleTimeSeries other);
-
-  FastTimeSeries<T> unionMultiply(FastIntDoubleTimeSeries other);
-
-  FastTimeSeries<T> divide(FastBackedDoubleTimeSeries<?> other);
-
-  FastTimeSeries<T> divide(FastLongDoubleTimeSeries other);
-
-  FastTimeSeries<T> divide(FastIntDoubleTimeSeries other);
-
+  @Override
   FastTimeSeries<T> divide(double other);
 
-  FastTimeSeries<T> unionDivide(FastBackedDoubleTimeSeries<?> other);
-
-  FastTimeSeries<T> unionDivide(FastLongDoubleTimeSeries other);
-
-  FastTimeSeries<T> unionDivide(FastIntDoubleTimeSeries other);
-
-  FastTimeSeries<T> power(FastBackedDoubleTimeSeries<?> other);
-
-  FastTimeSeries<T> power(FastLongDoubleTimeSeries other);
-
-  FastTimeSeries<T> power(FastIntDoubleTimeSeries other);
-
+  @Override
   FastTimeSeries<T> power(double other);
 
-  FastTimeSeries<T> unionPower(FastBackedDoubleTimeSeries<?> other);
-
-  FastTimeSeries<T> unionPower(FastLongDoubleTimeSeries other);
-
-  FastTimeSeries<T> unionPower(FastIntDoubleTimeSeries other);
-
-  FastTimeSeries<T> minimum(FastBackedDoubleTimeSeries<?> other);
-
-  FastTimeSeries<T> minimum(FastLongDoubleTimeSeries other);
-
-  FastTimeSeries<T> minimum(FastIntDoubleTimeSeries other);
-
+  @Override
   FastTimeSeries<T> minimum(double other);
 
-  FastTimeSeries<T> unionMinimum(FastBackedDoubleTimeSeries<?> other);
-
-  FastTimeSeries<T> unionMinimum(FastLongDoubleTimeSeries other);
-
-  FastTimeSeries<T> unionMinimum(FastIntDoubleTimeSeries other);
-
-  FastTimeSeries<T> maximum(FastBackedDoubleTimeSeries<?> other);
-
-  FastTimeSeries<T> maximum(FastLongDoubleTimeSeries other);
-
-  FastTimeSeries<T> maximum(FastIntDoubleTimeSeries other);
-
+  @Override
   FastTimeSeries<T> maximum(double other);
 
-  FastTimeSeries<T> unionMaximum(FastBackedDoubleTimeSeries<?> other);
-
-  FastTimeSeries<T> unionMaximum(FastLongDoubleTimeSeries other);
-
-  FastTimeSeries<T> unionMaximum(FastIntDoubleTimeSeries other);
-
-  FastTimeSeries<T> average(FastBackedDoubleTimeSeries<?> other);
-
-  FastTimeSeries<T> average(FastIntDoubleTimeSeries other);
-
-  FastTimeSeries<T> average(FastLongDoubleTimeSeries other);
-
+  @Override
   FastTimeSeries<T> average(double other);
 
-  FastTimeSeries<T> unionAverage(FastBackedDoubleTimeSeries<?> other);
-
-  FastTimeSeries<T> unionAverage(FastLongDoubleTimeSeries other);
-
-  FastTimeSeries<T> unionAverage(FastIntDoubleTimeSeries other);
-
-  FastTimeSeries<T> intersectionFirstValue(FastBackedDoubleTimeSeries<?> other);
-
-  FastTimeSeries<T> intersectionFirstValue(FastLongDoubleTimeSeries other);
-
-  FastTimeSeries<T> intersectionFirstValue(FastIntDoubleTimeSeries other);
-
-  FastTimeSeries<T> intersectionSecondValue(FastBackedDoubleTimeSeries<?> other);
-
-  FastTimeSeries<T> intersectionSecondValue(FastLongDoubleTimeSeries other);
-
-  FastTimeSeries<T> intersectionSecondValue(FastIntDoubleTimeSeries other);
-
+  //-------------------------------------------------------------------------
+  @Override
   FastTimeSeries<T> negate();
 
+  @Override
   FastTimeSeries<T> reciprocal();
 
+  @Override
   FastTimeSeries<T> log();
 
+  @Override
   FastTimeSeries<T> log10();
 
+  @Override
   FastTimeSeries<T> abs();
 
+  @Override
   double maxValue();
 
+  @Override
   double minValue();
+
 }

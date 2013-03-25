@@ -15,186 +15,92 @@ import com.opengamma.timeseries.fast.longint.FastLongDoubleTimeSeries;
 import com.opengamma.timeseries.fast.longint.FastMutableLongDoubleTimeSeries;
 
 /**
- * @param <DATE_TYPE> The type of dates for the time series
+ * @param <T> the type of dates for the time series
  */
-public interface FastBackedDoubleTimeSeries<DATE_TYPE> extends DoubleTimeSeries<DATE_TYPE> {
+public interface FastBackedDoubleTimeSeries<T> extends DoubleTimeSeries<T> {
 
-  DateTimeConverter<DATE_TYPE> getConverter();
-  
+  DateTimeConverter<T> getConverter();
+
   FastTimeSeries<?> getFastSeries();
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> operate(FastTimeSeries<?> other, BinaryOperator operator);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> operate(FastBackedDoubleTimeSeries<?> other, BinaryOperator operator);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> operate(double other, BinaryOperator operator);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> operate(UnaryOperator operator);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> unionOperate(FastTimeSeries<?> other, BinaryOperator operator);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> unionOperate(FastBackedDoubleTimeSeries<?> other, BinaryOperator operator);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> add(FastBackedDoubleTimeSeries<?> other);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> add(FastIntDoubleTimeSeries other);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> add(FastLongDoubleTimeSeries other);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> add(double other);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> unionAdd(FastBackedDoubleTimeSeries<?> other);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> unionAdd(FastIntDoubleTimeSeries other);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> unionAdd(FastLongDoubleTimeSeries other);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> subtract(FastBackedDoubleTimeSeries<?> other);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> subtract(FastLongDoubleTimeSeries other);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> subtract(FastIntDoubleTimeSeries other);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> subtract(double other);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> unionSubtract(FastBackedDoubleTimeSeries<?> other);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> unionSubtract(FastIntDoubleTimeSeries other);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> unionSubtract(FastLongDoubleTimeSeries other);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> multiply(FastBackedDoubleTimeSeries<?> other);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> multiply(FastIntDoubleTimeSeries other);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> multiply(FastLongDoubleTimeSeries other);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> multiply(double other);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> unionMultiply(FastBackedDoubleTimeSeries<?> other);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> unionMultiply(FastIntDoubleTimeSeries other);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> unionMultiply(FastLongDoubleTimeSeries other);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> divide(FastBackedDoubleTimeSeries<?> other);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> divide(FastIntDoubleTimeSeries other);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> divide(FastLongDoubleTimeSeries other);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> divide(double other);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> unionDivide(FastBackedDoubleTimeSeries<?> other);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> unionDivide(FastIntDoubleTimeSeries other);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> unionDivide(FastLongDoubleTimeSeries other);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> power(FastBackedDoubleTimeSeries<?> other);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> power(FastIntDoubleTimeSeries other);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> power(FastLongDoubleTimeSeries other);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> power(double other);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> unionPower(FastBackedDoubleTimeSeries<?> other);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> unionPower(FastIntDoubleTimeSeries other);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> unionPower(FastLongDoubleTimeSeries other);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> minimum(FastBackedDoubleTimeSeries<?> other);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> minimum(FastIntDoubleTimeSeries other);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> minimum(FastLongDoubleTimeSeries other);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> minimum(double other);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> unionMinimum(FastBackedDoubleTimeSeries<?> other);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> unionMinimum(FastIntDoubleTimeSeries other);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> unionMinimum(FastLongDoubleTimeSeries other);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> maximum(FastBackedDoubleTimeSeries<?> other);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> maximum(FastIntDoubleTimeSeries other);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> maximum(FastLongDoubleTimeSeries other);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> maximum(double other);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> unionMaximum(FastBackedDoubleTimeSeries<?> other);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> unionMaximum(FastIntDoubleTimeSeries other);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> unionMaximum(FastLongDoubleTimeSeries other);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> average(FastBackedDoubleTimeSeries<?> other);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> average(FastIntDoubleTimeSeries other);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> average(FastLongDoubleTimeSeries other);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> average(double other);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> unionAverage(FastBackedDoubleTimeSeries<?> other);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> unionAverage(FastIntDoubleTimeSeries other);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> unionAverage(FastLongDoubleTimeSeries other);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> noIntersectionOperation(FastBackedDoubleTimeSeries<?> other);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> noIntersectionOperation(FastIntDoubleTimeSeries other);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> noIntersectionOperation(FastLongDoubleTimeSeries other);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> intersectionFirstValue(FastBackedDoubleTimeSeries<?> other);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> intersectionFirstValue(FastIntDoubleTimeSeries other);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> intersectionFirstValue(FastLongDoubleTimeSeries other);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> intersectionSecondValue(FastBackedDoubleTimeSeries<?> other);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> intersectionSecondValue(FastIntDoubleTimeSeries other);
-   
-  FastBackedDoubleTimeSeries<DATE_TYPE> intersectionSecondValue(FastLongDoubleTimeSeries other);
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> negate();
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> reciprocal();
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> log();
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> log10();
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> abs();
-  
+
+  @Override
+  FastBackedDoubleTimeSeries<T> lag(int days);
+
+  //-------------------------------------------------------------------------
+  FastBackedDoubleTimeSeries<T> operate(FastTimeSeries<?> other, BinaryOperator operator);
+
+  FastBackedDoubleTimeSeries<T> operate(FastBackedDoubleTimeSeries<?> other, BinaryOperator operator);
+
+  FastBackedDoubleTimeSeries<T> operate(double other, BinaryOperator operator);
+
+  FastBackedDoubleTimeSeries<T> operate(UnaryOperator operator);
+
+  FastBackedDoubleTimeSeries<T> unionOperate(FastTimeSeries<?> other, BinaryOperator operator);
+
+  FastBackedDoubleTimeSeries<T> unionOperate(FastBackedDoubleTimeSeries<?> other, BinaryOperator operator);
+
+  //-------------------------------------------------------------------------
+  @Override
+  FastBackedDoubleTimeSeries<T> add(double other);
+
+  @Override
+  FastBackedDoubleTimeSeries<T> subtract(double other);
+
+  @Override
+  FastBackedDoubleTimeSeries<T> multiply(double other);
+
+  @Override
+  FastBackedDoubleTimeSeries<T> divide(double other);
+
+  @Override
+  FastBackedDoubleTimeSeries<T> power(double other);
+
+  @Override
+  FastBackedDoubleTimeSeries<T> minimum(double other);
+
+  @Override
+  FastBackedDoubleTimeSeries<T> maximum(double other);
+
+  @Override
+  FastBackedDoubleTimeSeries<T> average(double other);
+
+  //-------------------------------------------------------------------------
+  @Override
+  FastBackedDoubleTimeSeries<T> negate();
+
+  @Override
+  FastBackedDoubleTimeSeries<T> reciprocal();
+
+  @Override
+  FastBackedDoubleTimeSeries<T> log();
+
+  @Override
+  FastBackedDoubleTimeSeries<T> log10();
+
+  @Override
+  FastBackedDoubleTimeSeries<T> abs();
+
+  @Override
   double maxValue();
-  
+
+  @Override
   double minValue();
-  
-  FastBackedDoubleTimeSeries<DATE_TYPE> lag(final int days);
-  
+
+  //-------------------------------------------------------------------------
   FastIntDoubleTimeSeries toFastIntDoubleTimeSeries();
-  
+
   FastIntDoubleTimeSeries toFastIntDoubleTimeSeries(DateTimeNumericEncoding encoding);
-  
+
   FastLongDoubleTimeSeries toFastLongDoubleTimeSeries();
-  
+
   FastLongDoubleTimeSeries toFastLongDoubleTimeSeries(DateTimeNumericEncoding encoding);
-  
+
   FastMutableIntDoubleTimeSeries toFastMutableIntDoubleTimeSeries();
-  
+
   FastMutableIntDoubleTimeSeries toFastMutableIntDoubleTimeSeries(DateTimeNumericEncoding encoding);
-  
+
   FastMutableLongDoubleTimeSeries toFastMutableLongDoubleTimeSeries();
-  
+
   FastMutableLongDoubleTimeSeries toFastMutableLongDoubleTimeSeries(DateTimeNumericEncoding encoding);
 
 }
