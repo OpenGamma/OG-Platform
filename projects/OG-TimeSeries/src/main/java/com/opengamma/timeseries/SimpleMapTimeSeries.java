@@ -49,8 +49,8 @@ public class SimpleMapTimeSeries<T, V> implements TimeSeries<T, V> {
    */
   @SuppressWarnings("unchecked")
   public SimpleMapTimeSeries(final Class<T> dateTimeType, final Class<V> valueType) {
-    ArgumentChecker.notNull(dateTimeType, "dateTimeType");
-    ArgumentChecker.notNull(valueType, "valueType");
+    TimeSeriesUtils.notNull(dateTimeType, "dateTimeType");
+    TimeSeriesUtils.notNull(valueType, "valueType");
     _map = new TreeMap<T, V>();
     _times = (T[]) Array.newInstance(dateTimeType, 0);
     _values = (V[]) Array.newInstance(valueType, 0);
@@ -63,9 +63,9 @@ public class SimpleMapTimeSeries<T, V> implements TimeSeries<T, V> {
    * @param values  the values, not null
    */
   public SimpleMapTimeSeries(final T[] dateTimes, final V[] values) {
-    ArgumentChecker.notNull(dateTimes, "dateTimes");
-    ArgumentChecker.notNull(values, "values");
-    ArgumentChecker.isTrue(dateTimes.length == values.length, "Arrays must be same length");
+    TimeSeriesUtils.notNull(dateTimes, "dateTimes");
+    TimeSeriesUtils.notNull(values, "values");
+    TimeSeriesUtils.isTrue(dateTimes.length == values.length, "Arrays must be same length");
     final NavigableMap<T, V> newMap = new TreeMap<T, V>();
     for (int i = 0; i < dateTimes.length; i++) {
       newMap.put(dateTimes[i], values[i]);
@@ -84,9 +84,9 @@ public class SimpleMapTimeSeries<T, V> implements TimeSeries<T, V> {
    */
   @SuppressWarnings("unchecked")
   private SimpleMapTimeSeries(final NavigableMap<T, V> map, final T[] oldDateTimes, final V[] oldValues) {
-    ArgumentChecker.notNull(map, "map");
-    ArgumentChecker.notNull(oldDateTimes, "oldDateTimes");
-    ArgumentChecker.notNull(oldValues, "oldValues");
+    TimeSeriesUtils.notNull(map, "map");
+    TimeSeriesUtils.notNull(oldDateTimes, "oldDateTimes");
+    TimeSeriesUtils.notNull(oldValues, "oldValues");
     _map = map;
     _times = (T[]) Array.newInstance(oldDateTimes.getClass().getComponentType(), map.size());
     _values = (V[]) Array.newInstance(oldValues.getClass().getComponentType(), map.size());
