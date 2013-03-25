@@ -104,8 +104,8 @@ public class ISDADateCurve {
     ArgumentChecker.notNull(rates, "rates");
     _n = curveDates.length;
     ArgumentChecker.isTrue(_n != 0, "Data arrays were empty");
-    ArgumentChecker.isTrue(_n == times.length, "Have {} times for {} dates", times.length, _n);
-    ArgumentChecker.isTrue(_n == rates.length, "Have {} rates for {} dates", rates.length, _n);
+    //    ArgumentChecker.isTrue(_n == times.length, "Have {} times for {} dates", times.length, _n);
+    //    ArgumentChecker.isTrue(_n == rates.length, "Have {} rates for {} dates", rates.length, _n);
 
     _name = name;
     _offset = offset;
