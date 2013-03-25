@@ -36,7 +36,14 @@ import com.opengamma.financial.security.LongShort;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
+import com.opengamma.financial.security.cds.CreditDefaultSwapIndexSecurity;
 import com.opengamma.financial.security.cds.CreditDefaultSwapSecurity;
+import com.opengamma.financial.security.cds.LegacyFixedRecoveryCDSSecurity;
+import com.opengamma.financial.security.cds.LegacyRecoveryLockCDSSecurity;
+import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
+import com.opengamma.financial.security.cds.StandardFixedRecoveryCDSSecurity;
+import com.opengamma.financial.security.cds.StandardRecoveryLockCDSSecurity;
+import com.opengamma.financial.security.cds.StandardVanillaCDSSecurity;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
 import com.opengamma.financial.security.equity.GICSCode;
 import com.opengamma.financial.security.fra.FRASecurity;
@@ -91,7 +98,14 @@ import com.opengamma.util.time.Expiry;
       FloatingInterestRateLeg.meta(),
       FloatingSpreadIRLeg.meta(),
       FloatingGearingIRLeg.meta(),
-      InterestRateNotional.meta());
+      InterestRateNotional.meta(),
+      LegacyVanillaCDSSecurity.meta(),
+      LegacyRecoveryLockCDSSecurity.meta(),
+      LegacyFixedRecoveryCDSSecurity.meta(),
+      StandardVanillaCDSSecurity.meta(),
+      StandardRecoveryLockCDSSecurity.meta(),
+      StandardFixedRecoveryCDSSecurity.meta(),
+      CreditDefaultSwapIndexSecurity.meta());
 
   /** Meta bean factory for looking up meta beans by type name. */
   private static final MetaBeanFactory s_metaBeanFactory = new MapMetaBeanFactory(s_metaBeans);
