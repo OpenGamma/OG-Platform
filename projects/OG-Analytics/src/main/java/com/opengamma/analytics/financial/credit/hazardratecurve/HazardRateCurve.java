@@ -48,8 +48,8 @@ public class HazardRateCurve {
     ArgumentChecker.notNull(rates, "rates");
     final int n = curveTenors.length;
     ArgumentChecker.isTrue(n > 0, "Must have at least one data point");
-    ArgumentChecker.isTrue(times.length == n, "number of times {} must equal number of dates {}", times.length, n);
-    ArgumentChecker.isTrue(rates.length == n, "number of rates {} must equal number of dates {}", rates.length, n);
+    //ArgumentChecker.isTrue(times.length == n, "number of times {} must equal number of dates {}", times.length, n);
+    //ArgumentChecker.isTrue(rates.length == n, "number of rates {} must equal number of dates {}", rates.length, n);
     _offset = offset;
 
     _curveTenors = new ZonedDateTime[n];
