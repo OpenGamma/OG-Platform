@@ -20,6 +20,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.Lists;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.CachingFunctionRepositoryCompiler;
 import com.opengamma.engine.function.CompiledFunctionRepository;
@@ -30,8 +31,8 @@ import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
-import com.opengamma.engine.function.NoOpFunction;
 import com.opengamma.engine.function.MarketDataAliasingFunction;
+import com.opengamma.engine.function.NoOpFunction;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
@@ -153,7 +154,9 @@ public class RepositoryFactoryTest {
       }
     }
     assertNotNull(definition);
-    final CompiledFunctionService cfs = new CompiledFunctionService(repo, new CachingFunctionRepositoryCompiler(), new FunctionCompilationContext());
+    final FunctionCompilationContext context = new FunctionCompilationContext();
+    context.setRawComputationTargetResolver(new DefaultComputationTargetResolver());
+    final CompiledFunctionService cfs = new CompiledFunctionService(repo, new CachingFunctionRepositoryCompiler(), context);
     cfs.initialize();
     final CompiledFunctionRepository compiledRepo = cfs.compileFunctionRepository(System.currentTimeMillis());
     assertNotNull(compiledRepo.getDefinition(definition.getUniqueId()));

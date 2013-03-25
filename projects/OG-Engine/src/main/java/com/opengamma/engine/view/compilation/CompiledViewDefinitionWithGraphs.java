@@ -11,11 +11,21 @@ import java.util.Map;
 import com.opengamma.engine.depgraph.DependencyGraphExplorer;
 import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 
 /**
  * A {@link CompiledViewDefinition} with dependency graphs.
  */
 public interface CompiledViewDefinitionWithGraphs extends CompiledViewDefinition {
+
+  /**
+   * Returns a copy of this object with an updated version/correction parameter.
+   * 
+   * @param resolverVersionCorrection the resolver version/correction date for the copy
+   * @return the copy
+   */
+  @Override
+  CompiledViewDefinitionWithGraphs withResolverVersionCorrection(VersionCorrection resolverVersionCorrection);
 
   /**
    * Gets all of the dependency graph explorers.

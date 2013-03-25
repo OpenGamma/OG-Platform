@@ -35,16 +35,18 @@ import com.opengamma.livedata.msg.LiveDataSubscriptionRequest;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResponseMsg;
 import com.opengamma.livedata.server.distribution.MarketDataDistributor;
+import com.opengamma.util.NamedThreadPoolFactory;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * A {@link StandardLiveDataServer} which delegates all the work to a set of {@link StandardLiveDataServer}  
+ * A {@link StandardLiveDataServer} which delegates all the work to a set of {@link StandardLiveDataServer}
  */
 public abstract class CombiningLiveDataServer extends StandardLiveDataServer {
-  
+
   private static final Logger s_logger = LoggerFactory.getLogger(CombiningLiveDataServer.class);
 
-  private final ExecutorService _subscriptionExecutor = Executors.newCachedThreadPool();
+  private static final ExecutorService s_subscriptionExecutor = Executors.newCachedThreadPool(new NamedThreadPoolFactory("CombiningLiveDataServer", true));
+
   private final Set<StandardLiveDataServer> _underlyings;
 
   public CombiningLiveDataServer(CacheManager cacheManager, StandardLiveDataServer... otherUnderlyings) {
@@ -65,9 +67,9 @@ public abstract class CombiningLiveDataServer extends StandardLiveDataServer {
 
           @Override
           public Collection<LiveDataSubscriptionResponse> subscribe(StandardLiveDataServer server, Collection<LiveDataSpecification> specifications) {
-            return  server.subscribe(specifications, persistent);
+            return server.subscribe(specifications, persistent);
           }
-          
+
           @Override
           public String getName() {
             return "Subscribe";
@@ -78,7 +80,7 @@ public abstract class CombiningLiveDataServer extends StandardLiveDataServer {
   @Override
   public LiveDataSubscriptionResponseMsg subscriptionRequestMadeImpl(final LiveDataSubscriptionRequest subscriptionRequest) {
     //Need to override here as well in order to catch the resolution/entitlement checking
-    
+
     Collection<LiveDataSubscriptionResponse> responses = subscribeByServer(
         subscriptionRequest.getSpecifications(),
         new SubscribeAction() {
@@ -102,16 +104,18 @@ public abstract class CombiningLiveDataServer extends StandardLiveDataServer {
         });
     return new LiveDataSubscriptionResponseMsg(subscriptionRequest.getUser(), responses);
   }
-  
+
   private LiveDataSubscriptionRequest buildSubRequest(final LiveDataSubscriptionRequest subscriptionRequest, Collection<LiveDataSpecification> specifications) {
     LiveDataSubscriptionRequest liveDataSubscriptionRequest = new LiveDataSubscriptionRequest(subscriptionRequest.getUser(), subscriptionRequest.getType(), specifications);
     return liveDataSubscriptionRequest;
   }
-  
+
   private interface SubscribeAction {
     Collection<LiveDataSubscriptionResponse> subscribe(StandardLiveDataServer server, Collection<LiveDataSpecification> specifications);
+
     String getName();
   }
+
   private Collection<LiveDataSubscriptionResponse> subscribeByServer(Collection<LiveDataSpecification> specifications, final SubscribeAction action)
   {
     return forEachServer(specifications, new Function<Pair<StandardLiveDataServer, Collection<LiveDataSpecification>>, Collection<LiveDataSubscriptionResponse>>() {
@@ -119,11 +123,12 @@ public abstract class CombiningLiveDataServer extends StandardLiveDataServer {
       public Collection<LiveDataSubscriptionResponse> apply(Pair<StandardLiveDataServer, Collection<LiveDataSpecification>> input) {
         StandardLiveDataServer specs = input.getFirst();
         Collection<LiveDataSpecification> server = input.getSecond();
-        s_logger.debug("Sending subscription ({}) for {} to underlying server {}", new Object[] {action.getName(), specs, server});
+        s_logger.debug("Sending subscription ({}) for {} to underlying server {}", new Object[] {action.getName(), specs, server });
         return action.subscribe(specs, server);
       }
     });
   }
+
   private <T> Collection<T> forEachServer(Collection<LiveDataSpecification> specifications, final Function<Pair<StandardLiveDataServer, Collection<LiveDataSpecification>>, Collection<T>> operation)
   {
     Map<StandardLiveDataServer, Collection<LiveDataSpecification>> mapped = groupByServer(specifications);
@@ -133,14 +138,14 @@ public abstract class CombiningLiveDataServer extends StandardLiveDataServer {
       if (entry.getValue().isEmpty()) {
         continue;
       }
-      Future<Collection<T>> future = _subscriptionExecutor.submit(new Callable<Collection<T>>() {
+      Future<Collection<T>> future = s_subscriptionExecutor.submit(new Callable<Collection<T>>() {
 
         @Override
         public Collection<T> call() throws Exception {
           return operation.apply(Pair.of(entry.getKey(), entry.getValue()));
         }
       });
-      
+
       futures.add(future);
     }
     List<T> responses = new ArrayList<T>(specifications.size());
@@ -172,7 +177,7 @@ public abstract class CombiningLiveDataServer extends StandardLiveDataServer {
     }
     throw new OpenGammaRuntimeException("Couldn't find server for " + spec);
   }
-  
+
   // For expiration manager
   @Override
   public void addSubscriptionListener(SubscriptionListener subscriptionListener) {
@@ -181,7 +186,6 @@ public abstract class CombiningLiveDataServer extends StandardLiveDataServer {
     }
   }
 
-  
   @Override
   public Set<Subscription> getSubscriptions() {
     Set<Subscription> ret = new HashSet<Subscription>();
@@ -193,7 +197,6 @@ public abstract class CombiningLiveDataServer extends StandardLiveDataServer {
     return ret;
   }
 
-  
   @Override
   public Subscription getSubscription(LiveDataSpecification fullyQualifiedSpec) {
     return getServer(fullyQualifiedSpec).getSubscription(fullyQualifiedSpec);
@@ -203,8 +206,7 @@ public abstract class CombiningLiveDataServer extends StandardLiveDataServer {
   public MarketDataDistributor getMarketDataDistributor(LiveDataSpecification fullyQualifiedSpec) {
     return getServer(fullyQualifiedSpec).getMarketDataDistributor(fullyQualifiedSpec);
   }
-  
-  
+
   @Override
   public Map<LiveDataSpecification, MarketDataDistributor> getMarketDataDistributors(Collection<LiveDataSpecification> fullyQualifiedSpecs) {
     Map<StandardLiveDataServer, Collection<LiveDataSpecification>> grouped = groupByServer(fullyQualifiedSpecs);
@@ -218,7 +220,7 @@ public abstract class CombiningLiveDataServer extends StandardLiveDataServer {
 
   @Override
   public boolean stopDistributor(MarketDataDistributor distributor) {
-    return getServer(distributor.getFullyQualifiedLiveDataSpecification()).stopDistributor(distributor);    
+    return getServer(distributor.getFullyQualifiedLiveDataSpecification()).stopDistributor(distributor);
   }
 
   @Override

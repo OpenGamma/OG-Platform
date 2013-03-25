@@ -22,20 +22,21 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.financial.analytics.DoubleLabelledMatrix3D;
 import com.opengamma.financial.analytics.LabelledMatrix3D;
+import com.opengamma.util.ClassUtils;
 
 /**
- * Base class for builders of {@link LabelledMatrix3D} subclasses. Basic
- * message structure is:
+ * Base class for builders of {@link LabelledMatrix3D} subclasses. Basic message structure is:
  * <dl>
- * <dd>[X|Y|Z]_KEYS</dd><dt>The values of the keys. The default encoding is a sub-message containing the keys as anonymous fields,
- * but if the keys are primitive types it may use one of the built-in Fudge array types.</dt>
- * <dd>[X|Y|Z]_LABELS</dd><dt>The values of the labels as a sub-message containing an anonymous field for each value.</dt> 
- * <dd>[X|Y|Z]_TYPES</dd><dt>Additional type information for the labels as a sub-message containing an anonymous field for each
- * value in <code>?_LABELS</code>. If a numeric value, this is the Fudge type identifier of the original value. If a string value,
- * this is a class name of the original type. This is an optional field. If omitted, default types will be inferred from
- * <code>?_LABELS</code>. It will only be generated if the inferred types differ from the actual types.</dt>
- * <dd>VALUES</dd><dt>A flattened array of matrix data, e.g. <code>{ { { 1, 2 }, { 3, 4 } }, { { 5, 6 }, { 7, 8 } } }</code> becomes
- * <code>{ 1, 2, 3, 4, 5, 6, 7, 8 }</code>.</dt>
+ * <dd>[X|Y|Z]_KEYS</dd>
+ * <dt>The values of the keys. The default encoding is a sub-message containing the keys as anonymous fields, but if the keys are primitive types it may use one of the built-in Fudge array types.</dt>
+ * <dd>[X|Y|Z]_LABELS</dd>
+ * <dt>The values of the labels as a sub-message containing an anonymous field for each value.</dt>
+ * <dd>[X|Y|Z]_TYPES</dd>
+ * <dt>Additional type information for the labels as a sub-message containing an anonymous field for each value in <code>?_LABELS</code>. If a numeric value, this is the Fudge type identifier of the
+ * original value. If a string value, this is a class name of the original type. This is an optional field. If omitted, default types will be inferred from <code>?_LABELS</code>. It will only be
+ * generated if the inferred types differ from the actual types.</dt>
+ * <dd>VALUES</dd>
+ * <dt>A flattened array of matrix data, e.g. <code>{ { { 1, 2 }, { 3, 4 } }, { { 5, 6 }, { 7, 8 } } }</code> becomes <code>{ 1, 2, 3, 4, 5, 6, 7, 8 }</code>.</dt>
  * 
  * @param <KX> X key type
  * @param <KY> Y key type
@@ -271,7 +272,7 @@ public abstract class LabelledMatrix3DFudgeBuilder<KX, KY, KZ, T extends Labelle
         final Object val = typeField.getValue();
         if (val instanceof String) {
           try {
-            type = Class.forName((String) val);
+            type = ClassUtils.loadClass((String) val);
           } catch (ClassNotFoundException e) {
             s_logger.warn("Message field {} requires unknown class {}", i, val);
             type = Object.class;
@@ -401,7 +402,7 @@ public abstract class LabelledMatrix3DFudgeBuilder<KX, KY, KZ, T extends Labelle
     public DoubleBuilder() {
       super(Double.class, Double.class, Double.class);
     }
-    
+
     @Override
     protected void writeXKeys(final FudgeSerializer serializer, final MutableFudgeMsg message, final Double[] keys) {
       writeDoubleKeys(message, keys, X_KEYS_KEY);

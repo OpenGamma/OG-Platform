@@ -81,8 +81,8 @@ public class OptionFunctions extends AbstractRepositoryConfigurationBean {
 
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
-    functions.add(functionConfiguration(BloombergFXSpotRatePercentageChangeFunction.class));
-    functions.add(functionConfiguration(BloombergFXOptionSpotRateFunction.class));
+    functions.add(functionConfiguration(FXSpotRatePercentageChangeFunction.class));
+    functions.add(functionConfiguration(FXOptionSpotRateFunction.class));
     functions.add(functionConfiguration(FXBarrierOptionDistanceFunction.class));
     functions.add(functionConfiguration(FXOptionsCalculationMethodDefaults.class, CalculationPropertyNamesAndValues.BLACK_METHOD,
         FXDigitalCallSpreadBlackFunction.CALL_SPREAD_BLACK_METHOD));

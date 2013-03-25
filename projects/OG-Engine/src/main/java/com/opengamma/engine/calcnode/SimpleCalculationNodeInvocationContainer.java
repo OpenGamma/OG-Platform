@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.NamedThreadPoolFactory;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.async.AsynchronousResult;
 import com.opengamma.util.async.ResultListener;
@@ -97,7 +98,7 @@ public abstract class SimpleCalculationNodeInvocationContainer {
 
     /**
      * Decrements the block count.
-     *
+     * 
      * @return true when the count reaches zero
      */
     public boolean releaseBlockCount() {
@@ -251,7 +252,7 @@ public abstract class SimpleCalculationNodeInvocationContainer {
    */
   private final Queue<PartialJobEntry> _partialJobs = new ConcurrentLinkedQueue<PartialJobEntry>();
 
-  private final ExecutorService _executorService = Executors.newCachedThreadPool();
+  private final ExecutorService _executorService = Executors.newCachedThreadPool(new NamedThreadPoolFactory("CalcNode", true));
 
   protected Queue<SimpleCalculationNode> getNodes() {
     return _nodes;
@@ -289,7 +290,7 @@ public abstract class SimpleCalculationNodeInvocationContainer {
 
   /**
    * Removes a node if one is available.
-   *
+   * 
    * @return the node removed from the live set, or null if there are none to remove
    */
   public SimpleCalculationNode removeNode() {
@@ -302,7 +303,7 @@ public abstract class SimpleCalculationNodeInvocationContainer {
 
   /**
    * Returns the total number of nodes in this invocation set. This includes those in the available set and those that are currently busy executing jobs.
-   *
+   * 
    * @return the total number of nodes
    */
   public int getTotalNodeCount() {
@@ -311,7 +312,7 @@ public abstract class SimpleCalculationNodeInvocationContainer {
 
   /**
    * Returns the number of available nodes in the set. Note that the structure that holds the nodes may have quite a costly size operation.
-   *
+   * 
    * @return the number of available nodes in the set
    */
   public int getAvailableNodeCount() {
@@ -320,7 +321,7 @@ public abstract class SimpleCalculationNodeInvocationContainer {
 
   /**
    * Returns the total number of jobs enqueued at this node. This includes both runnable, partial and blocked jobs. Note that the structure that holds the jobs may have quite a costly size operation.
-   *
+   * 
    * @return the number of jobs
    */
   public int getTotalJobCount() {
@@ -330,7 +331,7 @@ public abstract class SimpleCalculationNodeInvocationContainer {
   /**
    * Returns the number of jobs enqueued at this node that are available to start. This includes both runnable, partial and blocked jobs. Note that the structure that holds the jobs may have quite a
    * costly size operation.
-   *
+   * 
    * @return the number of jobs
    */
   public int getRunnableJobCount() {
@@ -340,7 +341,7 @@ public abstract class SimpleCalculationNodeInvocationContainer {
   /**
    * Returns the number of jobs enqueued at this node that have been partially completed and are ready for continuation. Note that the structure that holds the jobs may have quite a costly size
    * operation.
-   *
+   * 
    * @return the number of jobs
    */
   public int getPartialJobCount() {
@@ -459,7 +460,7 @@ public abstract class SimpleCalculationNodeInvocationContainer {
   /**
    * Adds jobs to the runnable queue, spawning a worker thread if a node is supplied or one is available. Jobs must be added in dependency order - i.e. a job must be submitted before any that require
    * it. This is to simplify retention of job status as we only need to track jobs that are still running or have failed which saves a lot of housekeeping overhead.
-   *
+   * 
    * @param job job to run, not null
    * @param receiver execution status receiver, not null
    * @param node optional node to start a worker thread with
@@ -567,7 +568,7 @@ public abstract class SimpleCalculationNodeInvocationContainer {
 
   /**
    * Executes jobs from the runnable and partially-run queues until both are empty.
-   *
+   * 
    * @param node Node to run on, not null
    * @param job The first job to run, not null if resumeJob is null
    * @param resumeJob the first job to run, not null if newJob is null

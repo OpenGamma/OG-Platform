@@ -19,7 +19,7 @@ public class CurrencyFunctions extends AbstractRepositoryConfigurationBean {
 
   /**
    * Default instance of a repository configuration source exposing the functions from this package.
-   *
+   * 
    * @return the configuration source exposing functions from this package
    */
   public static RepositoryConfigurationSource instance() {
@@ -42,6 +42,8 @@ public class CurrencyFunctions extends AbstractRepositoryConfigurationBean {
 
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
+    functions.add(functionConfiguration(CurrencyMatrixSeriesSourcingFunction.class));
+    functions.add(functionConfiguration(CurrencyMatrixSpotSourcingFunction.class));
     addCurrencyConversionFunction(functions, ValueRequirementNames.DAILY_PNL);
     addCurrencyConversionFunction(functions, ValueRequirementNames.DV01);
     addCurrencyConversionFunction(functions, ValueRequirementNames.CS01);

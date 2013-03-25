@@ -45,10 +45,10 @@ import com.opengamma.transport.FudgeConnectionReceiver;
 import com.opengamma.transport.FudgeConnectionStateListener;
 import com.opengamma.transport.FudgeMessageReceiver;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.NamedThreadPoolFactory;
 
 /**
- * Server for {@link RemoteFudgeMessageStore} clients created by a {@link RemoteFudgeMessageStoreFactory}.
- * The underlying is the shared data store component of a {@link DefaultViewComputationCache}.
+ * Server for {@link RemoteFudgeMessageStore} clients created by a {@link RemoteFudgeMessageStoreFactory}. The underlying is the shared data store component of a {@link DefaultViewComputationCache}.
  */
 public class FudgeMessageStoreServer implements FudgeConnectionReceiver, ReleaseCachesCallback, MissingValueLoader, FudgeConnectionStateListener {
 
@@ -88,7 +88,7 @@ public class FudgeMessageStoreServer implements FudgeConnectionReceiver, Release
 
   }
 
-  private final ExecutorService _executorService = Executors.newCachedThreadPool();
+  private static final ExecutorService s_executorService = Executors.newCachedThreadPool(new NamedThreadPoolFactory("FudgeMessageStoreBroadcast", true));
   private final DefaultViewComputationCacheSource _underlying;
   private final Map<FudgeConnection, Object> _connections = new ConcurrentHashMap<FudgeConnection, Object>();
   private final Map<ViewComputationCacheKey, ValueSearch> _searching = new HashMap<ViewComputationCacheKey, ValueSearch>();
@@ -121,7 +121,7 @@ public class FudgeMessageStoreServer implements FudgeConnectionReceiver, Release
     FudgeSerializer.addClassHeader(msg, message.getClass(), CacheMessage.class);
     for (Map.Entry<FudgeConnection, Object> connectionEntry : getConnections().entrySet()) {
       final FudgeConnection connection = connectionEntry.getKey();
-      _executorService.execute(new Runnable() {
+      s_executorService.execute(new Runnable() {
         @Override
         public void run() {
           connection.getFudgeMessageSender().send(msg);
@@ -141,8 +141,7 @@ public class FudgeMessageStoreServer implements FudgeConnectionReceiver, Release
   }
 
   /**
-   * Set the timeout for any given value wait when retrieving data from the clients' private
-   * caches. Set to {@code 0} for no timeout.
+   * Set the timeout for any given value wait when retrieving data from the clients' private caches. Set to {@code 0} for no timeout.
    * 
    * @param findValueTimeout the timeout in milliseconds.
    */
