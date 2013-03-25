@@ -11,7 +11,7 @@ import java.util.TimeZone;
 
 import com.opengamma.timeseries.DateTimeConverter;
 import com.opengamma.timeseries.DoubleTimeSeries;
-import com.opengamma.timeseries.ToStringHelper;
+import com.opengamma.timeseries.TimeSeriesUtils;
 import com.opengamma.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.timeseries.fast.longint.FastListLongDoubleTimeSeries;
 import com.opengamma.timeseries.fast.longint.FastMutableLongDoubleTimeSeries;
@@ -72,6 +72,6 @@ public class ListDateTimeDoubleTimeSeries extends MutableDateTimeDoubleTimeSerie
   
   @Override
   public String toString() {
-    return ToStringHelper.toString(this);
+    return TimeSeriesUtils.toString(this);
   }
 }

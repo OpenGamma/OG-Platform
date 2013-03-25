@@ -31,7 +31,7 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.FastBackedDoubleTimeSeries;
-import com.opengamma.timeseries.ToStringHelper;
+import com.opengamma.timeseries.TimeSeriesUtils;
 import com.opengamma.timeseries.DoubleTimeSeriesOperators.BinaryOperator;
 import com.opengamma.timeseries.DoubleTimeSeriesOperators.UnaryOperator;
 import com.opengamma.timeseries.date.ArrayDateDoubleTimeSeries;
@@ -737,7 +737,7 @@ public abstract class AbstractFastTimeSeries<T> implements DoubleTimeSeries<T>, 
 
   @Override
   public String toString() {
-    return ToStringHelper.toString(this);
+    return TimeSeriesUtils.toString(this);
   }
 
 }

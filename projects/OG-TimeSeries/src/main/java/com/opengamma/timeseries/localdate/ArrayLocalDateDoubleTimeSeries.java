@@ -13,7 +13,7 @@ import org.threeten.bp.ZoneId;
 import com.opengamma.timeseries.DateTimeConverter;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.FastBackedDoubleTimeSeries;
-import com.opengamma.timeseries.ToStringHelper;
+import com.opengamma.timeseries.TimeSeriesUtils;
 import com.opengamma.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.timeseries.fast.integer.FastArrayIntDoubleTimeSeries;
 import com.opengamma.timeseries.fast.integer.FastIntDoubleTimeSeries;
@@ -118,7 +118,7 @@ public class ArrayLocalDateDoubleTimeSeries extends LocalDateDoubleTimeSeries.In
 
   @Override
   public String toString() {
-    return ToStringHelper.toString(this);
+    return TimeSeriesUtils.toString(this);
   }
 
 }

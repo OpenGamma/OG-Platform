@@ -8,7 +8,7 @@ package com.opengamma.timeseries.fast;
 import com.opengamma.timeseries.FastBackedObjectTimeSeries;
 import com.opengamma.timeseries.ObjectTimeSeries;
 import com.opengamma.timeseries.ObjectTimeSeriesOperators;
-import com.opengamma.timeseries.ToStringHelper;
+import com.opengamma.timeseries.TimeSeriesUtils;
 import com.opengamma.timeseries.ObjectTimeSeriesOperators.BinaryOperator;
 import com.opengamma.timeseries.ObjectTimeSeriesOperators.UnaryOperator;
 import com.opengamma.timeseries.fast.integer.object.FastIntObjectTimeSeries;
@@ -241,6 +241,6 @@ public abstract class AbstractFastObjectTimeSeries<FAST_DATE_T, T> implements Ob
 
   @Override
   public String toString() {
-    return ToStringHelper.toString(this);
+    return TimeSeriesUtils.toString(this);
   }
 }

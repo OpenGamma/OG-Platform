@@ -5,6 +5,9 @@
  */
 package com.opengamma.timeseries;
 
+import java.util.Iterator;
+import java.util.Map.Entry;
+
 /**
  * Simple argument checker throwing {@code IllegalArgumentException}.
  */
@@ -160,6 +163,35 @@ public class TimeSeriesUtils {
       return (a == b);
     }
     return (Math.abs(a - b) < 1E-15);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Converts the series to a string.
+   * 
+   * @param <K>  the key type
+   * @param <V>  the value type
+   * @param ts  the series, not null
+   * @return the string, not null
+   */
+  public static <K, V> String toString(TimeSeries<K, V> ts) {
+    StringBuilder sb = new StringBuilder();
+    sb.append(ts.getClass().getSimpleName());
+    sb.append("["); 
+    Iterator<Entry<K, V>> iterator = ts.iterator();
+    while (iterator.hasNext()) {
+      Entry<?, ?> next = iterator.next();
+      sb.append("(");
+      sb.append(next.getKey());
+      sb.append(", ");
+      sb.append(next.getValue());
+      sb.append(")");
+      if (iterator.hasNext()) {
+        sb.append(", ");
+      }
+    }
+    sb.append("]");
+    return sb.toString();
   }
 
 }

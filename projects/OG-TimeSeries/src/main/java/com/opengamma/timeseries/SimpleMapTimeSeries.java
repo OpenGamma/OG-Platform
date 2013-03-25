@@ -241,7 +241,7 @@ public class SimpleMapTimeSeries<T, V> implements TimeSeries<T, V> {
   //-------------------------------------------------------------------------
   @Override
   public String toString() {
-    return ToStringHelper.toString(this);
+    return TimeSeriesUtils.toString(this);
   }
 
 }
