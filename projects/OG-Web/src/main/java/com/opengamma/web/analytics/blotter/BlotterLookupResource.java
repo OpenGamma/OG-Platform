@@ -26,6 +26,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
+import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -133,6 +134,13 @@ public class BlotterLookupResource {
   @Produces(MediaType.APPLICATION_JSON)
   public String getRestructuringClause() {
     return convertToJsonArray(RestructuringClause.class, Arrays.asList(RestructuringClause.values()).iterator());
+  }
+
+  @GET
+  @Path("stubtype")
+  @Produces(MediaType.APPLICATION_JSON)
+  public String getStubType() {
+    return convertToJsonArray(StubType.class, Arrays.asList(StubType.values()).iterator());
   }
 
   @GET

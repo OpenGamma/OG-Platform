@@ -38,6 +38,9 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.credit.DebtSeniority;
+import com.opengamma.analytics.financial.credit.RestructuringClause;
+import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.core.security.Security;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -103,6 +106,9 @@ public class BlotterResource {
     s_endpoints.put(FloatingRateType.class, "floatingratetypes");
     s_endpoints.put(LongShort.class, "longshort");
     s_endpoints.put(MonitoringType.class, "monitoringtype");
+    s_endpoints.put(DebtSeniority.class, "debtseniority");
+    s_endpoints.put(RestructuringClause.class, "restructuringclause");
+    s_endpoints.put(StubType.class, "stubtype");
 
     for (MetaBean metaBean : BlotterUtils.getMetaBeans()) {
       Class<? extends Bean> beanType = metaBean.beanType();

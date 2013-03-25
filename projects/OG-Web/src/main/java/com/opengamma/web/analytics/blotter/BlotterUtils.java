@@ -24,6 +24,8 @@ import org.threeten.bp.ZonedDateTime;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.opengamma.analytics.financial.credit.DebtSeniority;
+import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -176,6 +178,8 @@ import com.opengamma.util.time.Expiry;
     s_stringConvert.register(ZonedDateTime.class, new ZonedDateTimeConverter());
     s_stringConvert.register(OffsetTime.class, new OffsetTimeConverter());
     s_stringConvert.register(Country.class, new CountryConverter());
+    s_stringConvert.register(DebtSeniority.class, new EnumConverter<DebtSeniority>());
+    s_stringConvert.register(StubType.class, new EnumConverter<StubType>());
 
     s_jsonBuildingConverters = new Converters(jsonRegionConverters, s_stringConvert);
     s_beanBuildingConverters = new Converters(beanRegionConverters, s_stringConvert);
