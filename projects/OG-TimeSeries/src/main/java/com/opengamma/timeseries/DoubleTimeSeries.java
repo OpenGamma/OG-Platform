@@ -41,19 +41,19 @@ import com.opengamma.timeseries.zoneddatetime.ZonedDateTimeDoubleTimeSeries;
  */
 public interface DoubleTimeSeries<T> extends TimeSeries<T, Double> {
 
-  @Override
+  @Override  // override for covariant return type
   DoubleTimeSeries<T> subSeries(T startTime, boolean includeStart, T endTime, boolean includeEnd);
 
-  @Override
+  @Override  // override for covariant return type
   DoubleTimeSeries<T> subSeries(T startTime, T endTime);
 
-  @Override
+  @Override  // override for covariant return type
   DoubleTimeSeries<T> head(int numItems);
 
-  @Override
+  @Override  // override for covariant return type
   DoubleTimeSeries<T> tail(int numItems);
 
-  @Override
+  @Override  // override for covariant return type
   DoubleTimeSeries<T> lag(final int lagCount);
 
 //  //-------------------------------------------------------------------------
@@ -1202,6 +1202,7 @@ public interface DoubleTimeSeries<T> extends TimeSeries<T, Double> {
    * @return the new time-series, not null
    * @throws RuntimeException if the array sizes differ or the instance cannot be created
    */
+  @Override  // override for covariant return type
   DoubleTimeSeries<T> newInstance(T[] dateTimes, Double[] values);
 
   //-------------------------------------------------------------------------
