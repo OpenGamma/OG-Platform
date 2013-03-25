@@ -99,7 +99,7 @@ public class IR01CreditDefaultSwap {
         throw new IllegalArgumentException("Cannot support bumps of type " + interestRateBumpType);
     }
 
-    final ISDADateCurve bumpedYieldCurve = new ISDADateCurve("Bumped", marketTenors, yieldCurve.getTimePoints(), bumpedInterestRates, yieldCurve.getOffset());
+    final ISDADateCurve bumpedYieldCurve = new ISDADateCurve("Bumped", yieldCurve.getCurveDates(), yieldCurve.getTimePoints(), bumpedInterestRates, yieldCurve.getOffset());
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 

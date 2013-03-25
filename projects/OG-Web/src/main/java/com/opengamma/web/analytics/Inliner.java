@@ -13,6 +13,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.LabelledMatrix1D;
+import com.opengamma.financial.analytics.LocalDateLabelledMatrix1D;
 
 /**
  * TODO make this non-static
@@ -33,20 +34,22 @@ import com.opengamma.financial.analytics.LabelledMatrix1D;
    */
   /* package */ static Integer columnCount(Object value) {
     // do something a bit more sophisticated if we need to support this for more types
-    if (value instanceof LabelledMatrix1D) {
-      return ((LabelledMatrix1D) value).getValues().length;
+    if (value instanceof LocalDateLabelledMatrix1D) {
+      return ((LocalDateLabelledMatrix1D) value).getValues().length;
     } else {
       return null;
     }
   }
 
   public static boolean isDisplayableInline(Class<?> type, ColumnSpecification spec) {
-    return type != null && LabelledMatrix1D.class.isAssignableFrom(type) && INLINE_VALUE_NAMES.contains(spec.getValueName());
+    return type != null &&
+        LocalDateLabelledMatrix1D.class.isAssignableFrom(type) &&
+        INLINE_VALUE_NAMES.contains(spec.getValueName());
   }
 
   public static List<String> columnHeaders(Object value) {
     // do something a bit more generic. label generators etc registered by class
-    if (!(value instanceof LabelledMatrix1D)) {
+    if (!(value instanceof LocalDateLabelledMatrix1D)) {
       return Collections.emptyList();
     }
     Object[] labelsObjects = ((LabelledMatrix1D) value).getLabels();
@@ -55,5 +58,67 @@ import com.opengamma.financial.analytics.LabelledMatrix1D;
       labels.add(labelObject.toString());
     }
     return labels;
+  }
+
+  public static List<ColumnMeta> columnMeta(Object value) {
+    if (!(value instanceof LocalDateLabelledMatrix1D)) {
+      return Collections.emptyList();
+    }
+    LocalDateLabelledMatrix1D matrix = (LocalDateLabelledMatrix1D) value;
+    List<ColumnMeta> meta = Lists.newArrayListWithCapacity(matrix.size());
+    for (int i = 0; i < matrix.size(); i++) {
+      meta.add(new ColumnMeta(matrix.getKeys()[i], matrix.getKeys()[i].toString()));
+    }
+    return meta;
+  }
+}
+
+/* package */ class ColumnMeta implements Comparable<ColumnMeta> {
+
+  private final Comparable _key;
+  private final String _header;
+
+  /* package */ ColumnMeta(Comparable key, String header) {
+    _key = key;
+    _header = header;
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public int compareTo(ColumnMeta meta) {
+    if (!meta._key.getClass().equals(_key.getClass())) {
+      return 0;
+    } else {
+      return _key.compareTo(meta._key);
+    }
+  }
+
+  /* package */ Comparable getKey() {
+    return _key;
+  }
+
+  /* package */ String getHeader() {
+    return _header;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    ColumnMeta that = (ColumnMeta) o;
+
+    if (!_key.equals(that._key)) {
+      return false;
+    }
+    return true;
+  }
+
+  @Override
+  public int hashCode() {
+    return _key.hashCode();
   }
 }

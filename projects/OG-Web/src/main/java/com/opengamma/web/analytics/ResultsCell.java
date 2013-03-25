@@ -22,7 +22,7 @@ import com.opengamma.engine.view.AggregatedExecutionLog;
   private final AggregatedExecutionLog _executionLog;
   private final boolean _updated;
   private final Class<?> _type;
-  private final Integer _inlineIndex;
+  private final Object _inlineKey;
 
   private ResultsCell(Object value,
                       ValueSpecification valueSpecification,
@@ -30,14 +30,14 @@ import com.opengamma.engine.view.AggregatedExecutionLog;
                       AggregatedExecutionLog executionLog,
                       boolean updated,
                       Class<?> type,
-                      Integer inlineIndex) {
+                      Object inlineKey) {
     _value = value;
     _valueSpecification = valueSpecification;
     _history = history;
     _executionLog = executionLog;
     _updated = updated;
     _type = type;
-    _inlineIndex = inlineIndex;
+    _inlineKey = inlineKey;
   }
 
   /**
@@ -86,8 +86,8 @@ import com.opengamma.engine.view.AggregatedExecutionLog;
                                                       AggregatedExecutionLog executionLog,
                                                       boolean updated,
                                                       Class<?> type,
-                                                      Integer inlineIndex) {
-    return new ResultsCell(value, valueSpecification, history, executionLog, updated, type, inlineIndex);
+                                                      Object inlineKey) {
+    return new ResultsCell(value, valueSpecification, history, executionLog, updated, type, inlineKey);
   }
 
   /**
@@ -141,8 +141,8 @@ import com.opengamma.engine.view.AggregatedExecutionLog;
     return _type;
   }
 
-  /* package */ Integer getInlineIndex() {
-    return _inlineIndex;
+  /* package */ Object getInlineKey() {
+    return _inlineKey;
   }
 
   @Override

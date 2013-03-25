@@ -49,7 +49,7 @@ public class StandardVanillaBucketedIR01CDSFunction extends StandardVanillaCDSFu
     final int n = yieldCurve.getNumberOfCurvePoints();
     final LocalDate[] dates = new LocalDate[n];
     for (int i = 0; i < n; i++) {
-      dates[i] = yieldCurve.getCurveTenors()[i].toLocalDate();
+      dates[i] = yieldCurve.getCurveDates()[i].toLocalDate();
     }
     final LocalDateLabelledMatrix1D ir01Matrix = new LocalDateLabelledMatrix1D(dates, ir01);
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.BUCKETED_IR01, target.toSpecification(), properties);

@@ -10,6 +10,9 @@ import static com.opengamma.analytics.math.matrix.MatrixAlgebraFactory.OG_ALGEBR
 import java.util.Arrays;
 import java.util.Random;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.analytics.financial.model.volatility.smile.function.MixedBivariateLogNormalModelVolatility;
@@ -23,12 +26,12 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Once given a set of parameters of two log-normal models with normal variables X,Y, 
- * find the best-fit correlations X,Y by applying least square method to volatility smile of another mixed log-normal model associated with Z = X-Y. 
- * The algorithm is modified such that model constraints are satisfied in every iteration step of fitting. 
+ * Once given a set of parameters of two log-normal models with normal variables X,Y,
+ * find the best-fit correlations X,Y by applying least square method to volatility smile of another mixed log-normal model associated with Z = X-Y.
+ * The algorithm is modified such that model constraints are satisfied in every iteration step of fitting.
  */
 public class MixedBivariateLogNormalCorrelationFinder {
-
+  private static final Logger s_logger = LoggerFactory.getLogger(MixedBivariateLogNormalCorrelationFinder.class);
   private static final int ITRMAX = 10000;
   private static final double EPS_1 = 1.E-14;
   private static final double EPS_2 = 1.E-14;
@@ -45,14 +48,14 @@ public class MixedBivariateLogNormalCorrelationFinder {
   private final MixedLogNormalVolatilityFunction _volfunc = MixedLogNormalVolatilityFunction.getInstance();
 
   /**
-   * Find a set of correlations such that sum ( (_dataStrikes - exactFunctionValue)^2 ) is minimum. 
+   * Find a set of correlations such that sum ( (_dataStrikes - exactFunctionValue)^2 ) is minimum.
    * @param rhosGuess  Initial geuss rhos
    * @param dataStrikes  Strikes (market data) of Z
    * @param dataVolatilities  Volatilities (market data) of Z
    * @param timeToExpiry  The time to expiry
-   * @param weights  The weights  <b>These weights must sum to 1</b> 
-   * @param sigmasX  The standard deviation of the normal distributions in X 
-   * @param sigmasY  The standard deviation of the normal distributions in Y 
+   * @param weights  The weights  <b>These weights must sum to 1</b>
+   * @param sigmasX  The standard deviation of the normal distributions in X
+   * @param sigmasY  The standard deviation of the normal distributions in Y
    * @param relativePartialForwardsX  The expectation of each distribution in X is rpf_i*forward
    * @param relativePartialForwardsY  The expectation of each distribution in Y is rpf_i*forward
    * (rpf_i is the ith relativePartialForwards)
@@ -60,7 +63,7 @@ public class MixedBivariateLogNormalCorrelationFinder {
    * @param forwardX  The forward of X
    * @param forwardY  The forward of Y
    */
-  public void doFit(final double[] rhosGuess, final double[] dataStrikes, final double[] dataVolatilities, final double timeToExpiry, final double[] weights, double[] sigmasX,
+  public void doFit(final double[] rhosGuess, final double[] dataStrikes, final double[] dataVolatilities, final double timeToExpiry, final double[] weights, final double[] sigmasX,
       final double[] sigmasY,
       final double[] relativePartialForwardsX, final double[] relativePartialForwardsY, final double forwardX, final double forwardY) {
 
@@ -115,8 +118,8 @@ public class MixedBivariateLogNormalCorrelationFinder {
 
     double[] dataDerivedYDiff = new double[nData];
     double[][] gradM = new double[nData][nNormals];
-    double[] gradFunctionValueM = new double[nNormals];
-    double[][] hessian = new double[nNormals][nNormals];
+    final double[] gradFunctionValueM = new double[nNormals];
+    final double[][] hessian = new double[nNormals][nNormals];
 
     final double forwardZ = forwardX / forwardY;
 
@@ -172,7 +175,7 @@ public class MixedBivariateLogNormalCorrelationFinder {
 
     if (getVecNorm(gradFunctionValueM) <= EPS_1) {
       done = true;
-      double[] tmp = exactFunctionValue(_rhosGuess, dataStrs, dataVols, time, wghts, sigsX, sigsY, rpfsX, rpfsY, forwardZ);
+      final double[] tmp = exactFunctionValue(_rhosGuess, dataStrs, dataVols, time, wghts, sigsX, sigsY, rpfsX, rpfsY, forwardZ);
       _finalSqu = 0.5 * getVecNormSq(tmp);
     }
 
@@ -283,7 +286,7 @@ public class MixedBivariateLogNormalCorrelationFinder {
       }
 
       if (k == ITRMAX) {
-        System.out.println("Too Many Iterations");
+        s_logger.error("Too many iterations");
         _finalSqu = 0.5 * getVecNormSq(exactFunctionValue(_rhosGuess, dataStrs, dataVols, time, wghts, sigsX, sigsY, rpfsX, rpfsY, forwardZ));
       }
     }
@@ -323,7 +326,7 @@ public class MixedBivariateLogNormalCorrelationFinder {
    * @param rpfsX Relative Partial forwards of X
    * @param rpfsY Relative Partial forwards of Y
    * @param forwardZ Forward of Z
-   * @return Gain ratio which controls update of _shift 
+   * @return Gain ratio which controls update of _shift
    */
   private double getGainRatio(final double[] jump, final double[] dataStrs, final double[] dataVols, final double[] gradFunctionValueM, final double time, final double[] wghts, final double[] sigsX,
       final double[] sigsY, final double[] rpfsX, final double[] rpfsY, final double forwardZ) {
@@ -354,7 +357,7 @@ public class MixedBivariateLogNormalCorrelationFinder {
     final int nNormals = jump.length;
     final int nData = dataStrs.length;
 
-    double[] tmp0 = exactFunctionValue(_rhosGuess, dataStrs, dataVols, time, wghts, sigsX, sigsY, rpfsX, rpfsY, forwardZ);
+    final double[] tmp0 = exactFunctionValue(_rhosGuess, dataStrs, dataVols, time, wghts, sigsX, sigsY, rpfsX, rpfsY, forwardZ);
     double[] newParams = new double[nNormals];
     double[] tmp1 = new double[nData];
 
@@ -367,8 +370,8 @@ public class MixedBivariateLogNormalCorrelationFinder {
   }
 
   /**
-   * During the iterations of least-square fitting, a set of rhos sometimes breaks the condition 0 < targetPrice < Math.min(forward, strike). 
-   * Do not use getImpliedVolatilityZ method in MixedBivariateLogNormalModelVolatility. 
+   * During the iterations of least-square fitting, a set of rhos sometimes breaks the condition 0 < targetPrice < Math.min(forward, strike).
+   * Do not use getImpliedVolatilityZ method in MixedBivariateLogNormalModelVolatility.
    */
   private double getVolatility(final EuropeanVanillaOption option, final double forward, final MixedLogNormalModelData data) {
 
@@ -388,7 +391,7 @@ public class MixedBivariateLogNormalCorrelationFinder {
       targetPrice = 0.99 * Math.min(forward, strike);
     }
 
-    double sigmaGuess = 0.3;
+    final double sigmaGuess = 0.3;
     return BlackFormulaRepository.impliedVolatility(targetPrice, forward, k, t, sigmaGuess);
   }
 
@@ -409,7 +412,7 @@ public class MixedBivariateLogNormalCorrelationFinder {
       final double[] rpfsX, final double[] rpfsY, final double forwardZ) {
 
     final int nData = dataStrs.length;
-    double[] res = new double[nData];
+    final double[] res = new double[nData];
     Arrays.fill(res, 0.);
 
     final MixedBivariateLogNormalModelVolatility guessObjZ = new MixedBivariateLogNormalModelVolatility(wghts, sigsX, sigsY, rpfsX, rpfsY, rhos);
@@ -419,7 +422,7 @@ public class MixedBivariateLogNormalCorrelationFinder {
     final MixedLogNormalModelData guessDataZ = new MixedLogNormalModelData(weightsZ, sigmasZ, relativePartialForwardsZ);
 
     for (int j = 0; j < nData; ++j) {
-      EuropeanVanillaOption option = new EuropeanVanillaOption(dataStrs[j], time, true);
+      final EuropeanVanillaOption option = new EuropeanVanillaOption(dataStrs[j], time, true);
       res[j] = dataVols[j] - getVolatility(option, forwardZ, guessDataZ);
     }
 
@@ -443,7 +446,7 @@ public class MixedBivariateLogNormalCorrelationFinder {
 
     final int nNormals = rhos.length;
     final int nData = dataStrs.length;
-    double[][] res = new double[nData][nNormals];
+    final double[][] res = new double[nData][nNormals];
     for (int i = 0; i < nData; ++i) {
       Arrays.fill(res[i], 0.);
     }
@@ -459,8 +462,8 @@ public class MixedBivariateLogNormalCorrelationFinder {
     final double[] sigmasY = guessObjZ.getOrderedSigmasY();
 
     for (int j = 0; j < nData; ++j) {
-      EuropeanVanillaOption option = new EuropeanVanillaOption(dataStrs[j], time, true);
-      double impVolZ = getVolatility(option, forwardZ, guessDataZ);
+      final EuropeanVanillaOption option = new EuropeanVanillaOption(dataStrs[j], time, true);
+      final double impVolZ = getVolatility(option, forwardZ, guessDataZ);
       for (int i = 0; i < nNormals; ++i) {
         final double part1 = weightsZ[i] * forwardZ * BlackFormulaRepository.delta(relativePartialForwardsZ[i], dataStrs[j] / forwardZ, time, sigmasZ[i], true) * sigmasX[i] *
             sigmasY[i] * relativePartialForwardsZ[i] / BlackFormulaRepository.vega(forwardZ, dataStrs[j], time, impVolZ);
@@ -500,13 +503,13 @@ public class MixedBivariateLogNormalCorrelationFinder {
       final double[] sigsX, final double[] sigsY, final double[] rpfsX, final double[] rpfsY, final double forwardZ) {
 
     final int nNormals = gradFunctionValueM.length;
-    double[][] toBeInv = new double[nNormals][nNormals];
+    final double[][] toBeInv = new double[nNormals][nNormals];
     for (int i = 0; i < nNormals; ++i) {
       toBeInv[i] = Arrays.copyOf(hessian[i], nNormals);
     }
 
-    double tmpDerivativeNorm = getVecNorm(gradFunctionValueM);
-    double tmpSquFact = 0.02 * 0.5 * getVecNormSq(exactFunctionValue(_rhosGuess, dataStrs, dataVols, time, wghts, sigsX, sigsY, rpfsX, rpfsY, forwardZ));
+    final double tmpDerivativeNorm = getVecNorm(gradFunctionValueM);
+    final double tmpSquFact = 0.02 * 0.5 * getVecNormSq(exactFunctionValue(_rhosGuess, dataStrs, dataVols, time, wghts, sigsX, sigsY, rpfsX, rpfsY, forwardZ));
     if (tmpDerivativeNorm <= tmpSquFact) {
       _shift = TAU * _shift;
     }
@@ -545,7 +548,7 @@ public class MixedBivariateLogNormalCorrelationFinder {
   private double[] forwardSubstitution(final double[][] lMat, final double[] doubVec) {
 
     final int size = lMat.length;
-    double[] res = new double[size];
+    final double[] res = new double[size];
 
     for (int i = 0; i < size; ++i) {
       double tmp = doubVec[i] / lMat[i][i];
@@ -567,7 +570,7 @@ public class MixedBivariateLogNormalCorrelationFinder {
   private double[] backSubstitution(final double[][] uMat, final double[] doubVec) {
 
     final int size = uMat.length;
-    double[] res = new double[size];
+    final double[] res = new double[size];
 
     for (int i = size - 1; i > -1; --i) {
       double tmp = doubVec[i] / uMat[i][i];
@@ -585,7 +588,7 @@ public class MixedBivariateLogNormalCorrelationFinder {
    */
   private double[] addVectors(final double[] vecA, final double[] vecB) {
     final int dim = vecA.length;
-    double[] res = new double[dim];
+    final double[] res = new double[dim];
 
     for (int i = 0; i < dim; ++i) {
       res[i] = vecA[i] + vecB[i];

@@ -317,8 +317,6 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
       if (count == maxInt) {
         throw new MathException("PSOR failed to converge");
       }
-      //  System.out.println("interations " + count);
-
       return x;
     }
 
@@ -837,7 +835,6 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
       count++;
     }
     //debug
-    //  System.out.println(count + " " + omega);
     return count;
   }
 

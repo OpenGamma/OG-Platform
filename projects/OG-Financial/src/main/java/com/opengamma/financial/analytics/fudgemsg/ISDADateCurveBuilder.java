@@ -52,7 +52,7 @@ public class ISDADateCurveBuilder extends AbstractFudgeBuilder<ISDADateCurve> {
     serializer.addToMessageWithClassHeaders(message, CURVE_FIELD_NAME, null, object.getCurve());
     message.add(OFFSET_FIELD_NAME, object.getOffset());
     serializer.addToMessageWithClassHeaders(message, OFFSET_FIELD_NAME, null, Double.valueOf(object.getOffset()), double.class);
-    serializer.addToMessageWithClassHeaders(message, DATES_FIELD_NAME, null, Arrays.asList(object.getCurveTenors()));
+    serializer.addToMessageWithClassHeaders(message, DATES_FIELD_NAME, null, Arrays.asList(object.getCurveDates()));
   }
 
 }
