@@ -193,7 +193,27 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
   private final Set<ValueSpecification> _marketDataSubscriptions = new HashSet<ValueSpecification>();
   private final Set<ValueSpecification> _pendingSubscriptions = Collections.newSetFromMap(new ConcurrentHashMap<ValueSpecification, Boolean>());
 
-  private ConcurrentMap<ObjectId, Boolean> _changedTargets;
+  /**
+   * Marker for the state of watched targets.
+   */
+  private static enum TargetState {
+    /**
+     * Notification of changes to the target are required, but it must be checked for any changes between when it was last queried and this state was stored. After such a check, the state may be
+     * changed to {@link #WAITING}.
+     */
+    REQUIRED,
+    /**
+     * Notification of changes to the target are required, none have been received, and it will not be checked unless notified. After a change is received, the state may be changed to {@link #CHANGED}
+     * .
+     */
+    WAITING,
+    /**
+     * Notification of changes to the target are required, at least one is pending, and it must now be checked. Before the check is made, the state may be changed to {@link #WAITING}.
+     */
+    CHANGED
+  }
+
+  private ConcurrentMap<ObjectId, TargetState> _changedTargets;
   private ChangeListener _targetResolverChangeListener;
 
   private volatile boolean _wakeOnCycleRequest;
@@ -352,6 +372,10 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
           }
           replaceMarketDataProvider(executionOptions.getMarketDataSpecifications());
           marketDataProvider = getMarketDataProvider();
+          if (marketDataProvider == null) {
+            cycleExecutionFailed(executionOptions, new OpenGammaRuntimeException("Market data specifications " + executionOptions.getMarketDataSpecifications() + "invalid"));
+            return;
+          }
         }
         // Obtain the snapshot in case it is needed, but don't explicitly initialise it until the data is required
         marketDataSnapshot = marketDataProvider.snapshot();
@@ -391,6 +415,21 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
           return;
         }
         if (previous != compiledViewDefinition) {
+          if (_changedTargets != null) {
+            // We'll try to register for changes that will wake us up for a cycle if market data is not ticking
+            if (previous != null) {
+              final Set<UniqueId> subscribedIds = new HashSet<UniqueId>(previous.getResolvedIdentifiers().values());
+              for (UniqueId uid : compiledViewDefinition.getResolvedIdentifiers().values()) {
+                if (!subscribedIds.contains(uid)) {
+                  _changedTargets.putIfAbsent(uid.getObjectId(), TargetState.REQUIRED);
+                }
+              }
+            } else {
+              for (UniqueId uid : compiledViewDefinition.getResolvedIdentifiers().values()) {
+                _changedTargets.putIfAbsent(uid.getObjectId(), TargetState.REQUIRED);
+              }
+            }
+          }
           viewDefinitionCompiled(executionOptions, compiledViewDefinition);
         }
       } catch (final Exception e) {
@@ -677,15 +716,24 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
   private void subscribeToTargetResolverChanges() {
     if (_changedTargets == null) {
       assert _targetResolverChangeListener == null;
-      final ConcurrentMap<ObjectId, Boolean> changed = new ConcurrentHashMap<ObjectId, Boolean>();
+      final ConcurrentMap<ObjectId, TargetState> changed = new ConcurrentHashMap<ObjectId, TargetState>();
       _changedTargets = changed;
       _targetResolverChangeListener = new ChangeListener() {
         @Override
         public void entityChanged(final ChangeEvent event) {
           final ObjectId oid = event.getObjectId();
-          if (changed.replace(oid, Boolean.FALSE, Boolean.TRUE)) {
-            s_logger.info("Received change notification for {}", event.getObjectId());
-            requestCycle();
+          TargetState state = changed.get(oid);
+          if (state == null) {
+            return;
+          }
+          if ((state == TargetState.WAITING) || (state == TargetState.REQUIRED)) {
+            if (changed.replace(oid, state, TargetState.CHANGED)) {
+              // If the state changed to anything else, we either don't need the notification or another change message overtook
+              // this one and a cycle has already been triggered.
+              s_logger.info("Received change notification for {}", event.getObjectId());
+              requestCycle();
+              return;
+            }
           }
         }
       };
@@ -772,9 +820,9 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
    * 
    * @param previousResolutions the previous cycle's resolution of identifiers, not null
    * @param versionCorrection the resolver version correction for this cycle, not null
-   * @return the invalid identifier set, or null if none are invalid
+   * @return the invalid identifier set, or null if none are invalid, this is a map from the old unique identifier to the new resolution
    */
-  private Set<UniqueId> getInvalidIdentifiers(final Map<ComputationTargetReference, UniqueId> previousResolutions, final VersionCorrection versionCorrection) {
+  private Map<UniqueId, ComputationTargetSpecification> getInvalidIdentifiers(final Map<ComputationTargetReference, UniqueId> previousResolutions, final VersionCorrection versionCorrection) {
     long t = -System.nanoTime();
     // TODO [PLAT-349] Checking all of these identifiers is costly. Can we fork this out as a "job"? Can we use existing infrastructure? Should the bulk resolver operations use a thread pool?
     final Set<ComputationTargetReference> toCheck;
@@ -787,11 +835,11 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
       final Set<ObjectId> allObjectIds = Sets.newHashSetWithExpectedSize(previousResolutions.size());
       for (final Map.Entry<ComputationTargetReference, UniqueId> previousResolution : previousResolutions.entrySet()) {
         final ObjectId oid = previousResolution.getValue().getObjectId();
-        if (_changedTargets.replace(oid, Boolean.TRUE, Boolean.FALSE)) {
+        if (_changedTargets.replace(oid, TargetState.CHANGED, TargetState.WAITING)) {
           // A change was seen on this target
           s_logger.debug("Change observed on {}", oid);
           toCheck.add(previousResolution.getKey());
-        } else if (_changedTargets.putIfAbsent(oid, Boolean.FALSE) == null) {
+        } else if (_changedTargets.putIfAbsent(oid, TargetState.WAITING) == null) {
           // We've not been monitoring this target for changes - better start doing so
           s_logger.debug("Added {} to change observation set", oid);
           toCheck.add(previousResolution.getKey());
@@ -809,7 +857,7 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
     final Map<ComputationTargetReference, ComputationTargetSpecification> specifications = getProcessContext().getFunctionCompilationService().getFunctionCompilationContext()
         .getRawComputationTargetResolver().getSpecificationResolver().getTargetSpecifications(toCheck, versionCorrection);
     t += System.nanoTime();
-    Set<UniqueId> invalidIdentifiers = null;
+    Map<UniqueId, ComputationTargetSpecification> invalidIdentifiers = null;
     for (final Map.Entry<ComputationTargetReference, UniqueId> target : previousResolutions.entrySet()) {
       final ComputationTargetSpecification resolved = specifications.get(target.getKey());
       if ((resolved != null) && target.getValue().equals(resolved.getUniqueId())) {
@@ -819,9 +867,9 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
         // Identifier no longer resolved, or resolved differently
         s_logger.info("New resolution of {} to {}", target, resolved);
         if (invalidIdentifiers == null) {
-          invalidIdentifiers = new HashSet<UniqueId>();
+          invalidIdentifiers = new HashMap<UniqueId, ComputationTargetSpecification>();
         }
-        invalidIdentifiers.add(target.getValue());
+        invalidIdentifiers.put(target.getValue(), resolved);
       }
     }
     s_logger.debug("{} resolutions checked in {}ms", toCheck.size(), t / 1e6);
@@ -986,6 +1034,7 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
       Map<String, Pair<DependencyGraph, Set<ValueRequirement>>> previousGraphs = null;
       ConcurrentMap<ComputationTargetReference, UniqueId> previousResolutions = null;
       boolean portfolioFull = false;
+      Set<UniqueId> changedPositions = null;
       boolean marketDataProviderDirty = _marketDataProviderDirty;
       _marketDataProviderDirty = false;
       if (compiledViewDefinition != null) {
@@ -1002,24 +1051,29 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
           // TODO: The check below works well for the historical valuation case, but if the resolver v/c is different for two workers in the 
           // group for an otherwise identical cache key then including it in the caching detail may become necessary to handle those cases.
           if (!versionCorrection.equals(compiledViewDefinition.getResolverVersionCorrection())) {
-            final Set<UniqueId> invalidIdentifiers = getInvalidIdentifiers(resolvedIdentifiers, versionCorrection);
+            final Map<UniqueId, ComputationTargetSpecification> invalidIdentifiers = getInvalidIdentifiers(resolvedIdentifiers, versionCorrection);
             if (invalidIdentifiers != null) {
               previousGraphs = getPreviousGraphs(previousGraphs, compiledViewDefinition);
-              if (invalidIdentifiers.contains(compiledViewDefinition.getPortfolio().getUniqueId())) {
+              if (invalidIdentifiers.containsKey(compiledViewDefinition.getPortfolio().getUniqueId())) {
                 // The portfolio resolution is different, invalidate all PORTFOLIO and PORTFOLIO_NODE nodes in the graph
                 removePortfolioTerminalOutputs(previousGraphs, compiledViewDefinition);
                 filterPreviousGraphs(previousGraphs, new InvalidPortfolioDependencyNodeFilter());
                 portfolioFull = true;
               }
               // Invalidate any dependency graph nodes on the invalid targets
-              filterPreviousGraphs(previousGraphs, new InvalidTargetDependencyNodeFilter(invalidIdentifiers));
+              filterPreviousGraphs(previousGraphs, new InvalidTargetDependencyNodeFilter(invalidIdentifiers.keySet()));
               previousResolutions = new ConcurrentHashMap<ComputationTargetReference, UniqueId>(resolvedIdentifiers.size());
               for (final Map.Entry<ComputationTargetReference, UniqueId> resolvedIdentifier : resolvedIdentifiers.entrySet()) {
-                if (invalidIdentifiers.contains(resolvedIdentifier.getValue())) {
+                if (invalidIdentifiers.containsKey(resolvedIdentifier.getValue())) {
                   if (!portfolioFull && resolvedIdentifier.getKey().getType().isTargetType(ComputationTargetType.POSITION)) {
                     // At least one position has changed, add all portfolio targets
-                    // TODO: This is very heavy handed, we only REALLY need to add the targets for TRADEs underneath the affected POSITION if TRADE level outputs are enabled.
-                    portfolioFull = true;
+                    ComputationTargetSpecification ctspec = invalidIdentifiers.get(resolvedIdentifier.getValue());
+                    if (ctspec != null) {
+                      if (changedPositions == null) {
+                        changedPositions = new HashSet<UniqueId>();
+                      }
+                      changedPositions.add(ctspec.getUniqueId());
+                    }
                   }
                 } else {
                   previousResolutions.put(resolvedIdentifier.getKey(), resolvedIdentifier.getValue());
@@ -1056,9 +1110,14 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
       final MarketDataAvailabilityProvider availabilityProvider = getMarketDataProvider().getAvailabilityProvider();
       final ViewCompilationServices compilationServices = getProcessContext().asCompilationServices(availabilityProvider);
       if (previousGraphs != null) {
-        s_logger.info(portfolioFull ? "Performing incremental graph compilation with full portfolio resolution" : "Performing incremental graph compilation");
-        _compilationTask = ViewDefinitionCompiler
-            .incrementalCompileTask(getViewDefinition(), compilationServices, valuationTime, versionCorrection, previousGraphs, previousResolutions, portfolioFull);
+        if (portfolioFull) {
+          s_logger.info("Performing incremental graph compilation with portfolio resolution");
+          _compilationTask = ViewDefinitionCompiler.incrementalCompileTask(getViewDefinition(), compilationServices, valuationTime, versionCorrection, previousGraphs, previousResolutions);
+        } else {
+          s_logger.info("Performing incremental graph compilation");
+          _compilationTask = ViewDefinitionCompiler.incrementalCompileTask(getViewDefinition(), compilationServices, valuationTime, versionCorrection, previousGraphs, previousResolutions,
+              changedPositions);
+        }
       } else {
         s_logger.info("Performing full graph compilation");
         _compilationTask = ViewDefinitionCompiler.fullCompileTask(getViewDefinition(), compilationServices, valuationTime, versionCorrection);

@@ -35,12 +35,13 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.Expiry;
 
 /**
- * Tests the {@link MarketDataELCompiler} class.
+ * Test.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class MarketDataELCompilerTest {
 
   private EquitySecurity _fooEquity;

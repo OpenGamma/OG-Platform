@@ -30,11 +30,11 @@ import com.opengamma.financial.analytics.LabelledMatrix1D;
 import com.opengamma.financial.analytics.LabelledMatrix2D;
 import com.opengamma.financial.analytics.LabelledMatrix3D;
 import com.opengamma.financial.analytics.volatility.surface.FunctionalVolatilitySurfaceData;
+import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.ClassMap;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.Tenor;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * Manages a set of converters and provides access to the most appropriate converter for a given type.

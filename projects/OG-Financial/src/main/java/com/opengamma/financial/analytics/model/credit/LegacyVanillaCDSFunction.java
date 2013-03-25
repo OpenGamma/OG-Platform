@@ -45,7 +45,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.financial.analytics.conversion.CreditDefaultSwapSecurityConverter;
+import com.opengamma.financial.analytics.conversion.CreditDefaultSwapSecurityConverterDeprecated;
 import com.opengamma.financial.analytics.model.cds.ISDAFunctionConstants;
 import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.FinancialSecurityUtils;
@@ -58,7 +58,7 @@ import com.opengamma.util.money.Currency;
  *
  */
 public abstract class LegacyVanillaCDSFunction extends AbstractFunction.NonCompiledInvoker {
-  private CreditDefaultSwapSecurityConverter _converter;
+  private CreditDefaultSwapSecurityConverterDeprecated _converter;
   private final String _valueRequirement;
   private final PriceType _priceType;
 
@@ -78,7 +78,7 @@ public abstract class LegacyVanillaCDSFunction extends AbstractFunction.NonCompi
   public void init(final FunctionCompilationContext context) {
     final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
-    _converter = new CreditDefaultSwapSecurityConverter(holidaySource, regionSource);
+    _converter = new CreditDefaultSwapSecurityConverterDeprecated(holidaySource, regionSource);
   }
 
   @Override

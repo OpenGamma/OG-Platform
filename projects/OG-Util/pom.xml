@@ -22,6 +22,12 @@
 
   <dependencies>
     <dependency>
+      <groupId>com.opengamma</groupId>
+      <artifactId>og-timeseries</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
       <groupId>commons-lang</groupId>
       <artifactId>commons-lang</artifactId>
     </dependency>
@@ -204,7 +210,7 @@
 
   <properties>
     <tests.testng.includedgroups>unit</tests.testng.includedgroups>
-    <tests.testng.excludedgroups>integration</tests.testng.excludedgroups>
+    <tests.testng.excludedgroups>integration, unitdb, unitslow</tests.testng.excludedgroups>
   </properties>
 
 </project>

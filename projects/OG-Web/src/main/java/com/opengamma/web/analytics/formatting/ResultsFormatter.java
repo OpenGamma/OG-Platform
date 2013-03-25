@@ -41,10 +41,13 @@ public class ResultsFormatter {
                   currencyAmountFormatter,
                   zonedDateTimeFormatter,
                   new YieldCurveFormatter(),
+                  new ISDADateCurveFormatter(),
+                  new NodalObjectsCurveFormatter(), //TODO is not a general formatter - used only for (Tenor, Double) curves
                   new VolatilityCubeDataFormatter(),
                   new VolatilitySurfaceDataFormatter(),
                   new VolatilitySurfaceFormatter(),
                   new LabelledMatrix1DFormatter(doubleFormatter),
+                  new LocalDateLabelledMatrix1DFormatter(doubleFormatter),
                   new LabelledMatrix2DFormatter(),
                   new LabelledMatrix3DFormatter(),
                   new TenorFormatter(),
@@ -132,9 +135,15 @@ public class ResultsFormatter {
     return value instanceof MissingInput;
   }
 
+  // TODO I'm not keen on this interface. format is ignored if inlineIndex is non-null
   @SuppressWarnings("unchecked")
-  public Object format(Object value, ValueSpecification valueSpec, TypeFormatter.Format format) {
-    return getFormatter(value, valueSpec).format(value, valueSpec, format);
+  public Object format(Object value, ValueSpecification valueSpec, TypeFormatter.Format format, Object inlineKey) {
+    TypeFormatter formatter = getFormatter(value, valueSpec);
+    if (inlineKey == null) {
+      return formatter.format(value, valueSpec, format);
+    } else {
+      return formatter.formatInlineCell(value, valueSpec, inlineKey);
+    }
   }
   
   /**

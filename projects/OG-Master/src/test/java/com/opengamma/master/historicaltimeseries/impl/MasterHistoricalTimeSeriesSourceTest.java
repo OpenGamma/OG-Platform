@@ -30,9 +30,9 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionR
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeries;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
+import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * Test {@link MasterHistoricalTimeSeriesSource}.

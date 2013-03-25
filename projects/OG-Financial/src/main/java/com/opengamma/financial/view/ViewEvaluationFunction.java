@@ -67,18 +67,18 @@ public abstract class ViewEvaluationFunction<TTarget extends ViewEvaluationTarge
   private static final Logger s_logger = LoggerFactory.getLogger(ViewEvaluationFunction.class);
 
   private final String _valueRequirementName;
-  private final Class<TTarget> _targetType;
+  private final ComputationTargetType _targetType;
 
   public ViewEvaluationFunction(String valueRequirementName, Class<TTarget> targetType) {
     _valueRequirementName = valueRequirementName;
-    _targetType = targetType;
+    _targetType = ComputationTargetType.of(targetType);
   }
 
   // CompiledFunctionDefinition
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.of(_targetType);
+    return _targetType;
   }
 
   @Override

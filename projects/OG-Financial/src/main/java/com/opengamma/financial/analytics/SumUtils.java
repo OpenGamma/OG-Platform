@@ -20,8 +20,9 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.cashflow.FixedPaymentMatrix;
 import com.opengamma.financial.analytics.cashflow.FloatingPaymentMatrix;
+import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -33,7 +34,7 @@ public class SumUtils {
     if (currentTotal == null) {
       return value;
     }
-    if (currentTotal.getClass() != value.getClass()) {
+    if (currentTotal.getClass() != value.getClass() && !(currentTotal.getClass() == MultipleCurrencyAmount.class && value.getClass() == CurrencyAmount.class)) {
       throw new IllegalArgumentException("Inputs have different value types for requirement " + valueName + " currentTotal type = " + currentTotal.getClass() + " value type = " + value.getClass());
     }
     if (value instanceof Double) {
@@ -53,6 +54,10 @@ public class SumUtils {
       final LocalDateLabelledMatrix1D previousMatrix = (LocalDateLabelledMatrix1D) currentTotal;
       final LocalDateLabelledMatrix1D currentMatrix = (LocalDateLabelledMatrix1D) value;
       return previousMatrix.add(currentMatrix);
+    } else if (value instanceof TenorLabelledMatrix1D) {
+      final TenorLabelledMatrix1D previousMatrix = (TenorLabelledMatrix1D) currentTotal;
+      final TenorLabelledMatrix1D currentMatrix = (TenorLabelledMatrix1D) value;
+      return previousMatrix.add(currentMatrix);
     } else if (value instanceof ZonedDateTimeLabelledMatrix1D) {
       final ZonedDateTimeLabelledMatrix1D previousMatrix = (ZonedDateTimeLabelledMatrix1D) currentTotal;
       final ZonedDateTimeLabelledMatrix1D currentMatrix = (ZonedDateTimeLabelledMatrix1D) value;
@@ -61,6 +66,8 @@ public class SumUtils {
       final CurrencyLabelledMatrix1D previousMatrix = (CurrencyLabelledMatrix1D) currentTotal;
       final CurrencyLabelledMatrix1D currentMatrix = (CurrencyLabelledMatrix1D) value;
       return previousMatrix.addIgnoringLabel(currentMatrix);
+    } else if (value instanceof CurrencyAmount) {
+      return calculateCurrencyAmount(currentTotal, (CurrencyAmount) value);
     } else if (value instanceof MultipleCurrencyAmount) {
       final MultipleCurrencyAmount previousMCA = (MultipleCurrencyAmount) currentTotal;
       final MultipleCurrencyAmount currentMCA = (MultipleCurrencyAmount) value;
@@ -134,6 +141,27 @@ public class SumUtils {
       return previousSensitivity.plus(currentSensitivity);
     }
     throw new IllegalArgumentException("Cannot sum results of type " + value.getClass());
+  }
+
+  private static Object calculateCurrencyAmount(Object currentTotal, CurrencyAmount currentAmount) {
+
+    // if we have a currency amount and the requested addition is the same currency then we add to it
+    // If we have a multiple currency amount we use it,
+    // Otherwise we create a new MultipleCurrencyAmount
+    if (currentTotal instanceof CurrencyAmount) {
+
+      CurrencyAmount total = (CurrencyAmount) currentTotal;
+      if (total.getCurrency() == currentAmount.getCurrency()) {
+        return total.plus(currentAmount);
+      } else {
+        return MultipleCurrencyAmount.of(total).plus(currentAmount);
+      }
+    } else if (currentTotal instanceof MultipleCurrencyAmount) {
+      return ((MultipleCurrencyAmount) currentTotal).plus(currentAmount);
+    } else {
+      throw new IllegalArgumentException("Expected current total to be of type " + CurrencyAmount.class +
+                                             " or " + MultipleCurrencyAmount.class + " but was: "+ currentTotal.getClass());
+    }
   }
 
   /**

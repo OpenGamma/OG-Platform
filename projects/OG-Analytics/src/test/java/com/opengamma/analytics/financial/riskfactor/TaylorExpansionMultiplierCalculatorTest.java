@@ -22,10 +22,10 @@ import com.opengamma.analytics.financial.greeks.MixedOrderUnderlying;
 import com.opengamma.analytics.financial.greeks.NthOrderUnderlying;
 import com.opengamma.analytics.financial.greeks.Underlying;
 import com.opengamma.analytics.financial.pnl.UnderlyingType;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
-import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
-import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
+import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.fast.DateTimeNumericEncoding;
+import com.opengamma.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
+import com.opengamma.timeseries.fast.longint.FastLongDoubleTimeSeries;
 
 public class TaylorExpansionMultiplierCalculatorTest {
   private static final Underlying NEW_TYPE = new Underlying() {

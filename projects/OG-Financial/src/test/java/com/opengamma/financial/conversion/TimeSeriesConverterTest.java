@@ -13,12 +13,14 @@ import java.util.Map;
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 
-import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class TimeSeriesConverterTest {
   
   private final TimeSeriesConverter _converter = new TimeSeriesConverter();

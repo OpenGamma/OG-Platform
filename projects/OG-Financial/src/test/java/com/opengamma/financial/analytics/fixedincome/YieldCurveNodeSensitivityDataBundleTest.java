@@ -12,11 +12,14 @@ import org.testng.annotations.Test;
 
 import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * 
  */
+@Test(groups = TestGroup.UNIT)
 public class YieldCurveNodeSensitivityDataBundleTest {
+
   private static final Double[] T = new Double[] {1., 2., 3., 4.};
   private static final Object[] LABELS = new Object[] {"1Y", "2Y", "3Y", "4Y"};
   private static final double[] X = new double[] {5, 6, 7, 8};

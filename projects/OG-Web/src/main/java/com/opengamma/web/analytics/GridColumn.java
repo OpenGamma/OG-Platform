@@ -26,9 +26,13 @@ import com.opengamma.util.ArgumentChecker;
   private final CellRenderer _renderer;
   /** Specifies the analytics data displayed in the column, null if the column data doesn't come from the engine. */
   private final ColumnSpecification _columnSpec;
+  /** Null if this column doesn't display exploded data, otherwise the key into the exploded data */
+  private final Object _inlineKey;
+  /** Null if this column doesn't display exploded data, otherwise the index in the set of exploded data columns */
+  private final Integer _inlineIndex;
 
   /* package */ GridColumn(String header, String description, Class<?> type, CellRenderer renderer) {
-    this(header, description, type, renderer, null);
+    this(header, description, type, renderer, null, null, null);
   }
 
   /* package */ GridColumn(String header,
@@ -36,8 +40,19 @@ import com.opengamma.util.ArgumentChecker;
                            Class<?> type,
                            CellRenderer renderer,
                            ColumnSpecification columnSpec) {
+    this(header, description, type, renderer, columnSpec, null, null);
+  }
+
+  /* package */ GridColumn(String header,
+                           String description,
+                           Class<?> type,
+                           CellRenderer renderer,
+                           ColumnSpecification columnSpec,
+                           Object inlineKey,
+                           Integer inlineIndex) {
     ArgumentChecker.notNull(header, "header");
     ArgumentChecker.notNull(renderer, "renderer");
+    _inlineIndex = inlineIndex;
     _columnSpec = columnSpec;
     _header = header;
     _renderer = renderer;
@@ -47,6 +62,7 @@ import com.opengamma.util.ArgumentChecker;
       _description = header;
     }
     _type = type;
+    _inlineKey = inlineKey;
   }
 
   /**
@@ -58,12 +74,35 @@ import com.opengamma.util.ArgumentChecker;
   /* package */ static GridColumn forSpec(ColumnSpecification columnSpec,
                                           Class<?> columnType,
                                           TargetLookup targetLookup) {
+    return forSpec(columnSpec.getValueName(), columnSpec, columnType, targetLookup, null, null);
+  }
+
+  /**
+   * Factory method to create a column for inlined values. These are single values (e.g. vectors) displayed over
+   * multiple columns.
+   * @param headerSuffix The header suffix. Header is derived from the value name (common to all columns for the value)
+   * and the suffix
+   * @param columnSpec Specification of the column's value
+   * @param columnType The type of the column's value
+   * @param targetLookup For looking up values to populate the column
+   * @param inlineIndex The index of the individual data item in this column. This is used to extract each cell's data
+   * from the value.
+   * @return The column
+   */
+  /* package */ static GridColumn forSpec(String header,
+                                          ColumnSpecification columnSpec,
+                                          Class<?> columnType,
+                                          TargetLookup targetLookup,
+                                          Object inlineKey,
+                                          Integer inlineIndex) {
     CellRenderer renderer = new AnalyticsRenderer(columnSpec, targetLookup);
-    return new GridColumn(columnSpec.getValueName(),
+    return new GridColumn(header,
                           createDescription(columnSpec.getValueProperties()),
                           columnType,
                           renderer,
-                          columnSpec);
+                          columnSpec,
+                          inlineKey,
+                          inlineIndex);
   }
 
   /**
@@ -94,8 +133,12 @@ import com.opengamma.util.ArgumentChecker;
     return _columnSpec;
   }
 
+  /* package */ Integer getInlineIndex() {
+    return _inlineIndex;
+  }
+
   /* package */ ResultsCell buildResults(int rowIndex, ResultsCache cache) {
-    return _renderer.getResults(rowIndex, cache, _type);
+    return _renderer.getResults(rowIndex, cache, _type, _inlineKey);
   }
 
   private static String createDescription(ValueProperties constraints) {
@@ -152,6 +195,6 @@ import com.opengamma.util.ArgumentChecker;
   // TODO merge this into the AnalyticsColumn and create subclasses for each of the renderer classes
   /* package */ interface CellRenderer {
 
-    ResultsCell getResults(int rowIndex, ResultsCache cache, Class<?> columnType);
+    ResultsCell getResults(int rowIndex, ResultsCache cache, Class<?> columnType, Object inlineKey);
   }
 }

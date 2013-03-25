@@ -12,8 +12,8 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureTransaction;
+import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * Description of an transaction on a Federal Funds Futures.

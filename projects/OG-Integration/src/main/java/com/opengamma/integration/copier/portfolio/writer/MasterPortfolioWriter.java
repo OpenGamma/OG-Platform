@@ -193,7 +193,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
       try {
         addedDoc = _positionMaster.add(new PositionDocument(position));
       } catch (Exception e) {
-        s_logger.error("Unable to add position " + position.getUniqueId() + ": " + e.getMessage());
+        s_logger.error("Unable to add position " + position.getUniqueId() + ": " + e.getMessage(), e);
         return null;
       }
       // Add the new position to the portfolio

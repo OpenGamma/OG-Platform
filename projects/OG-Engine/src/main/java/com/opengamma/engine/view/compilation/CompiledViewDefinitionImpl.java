@@ -50,9 +50,23 @@ public class CompiledViewDefinitionImpl implements CompiledViewDefinition {
     _latestValidity = latestValidity;
   }
 
+  protected CompiledViewDefinitionImpl(final CompiledViewDefinitionImpl copyFrom, final VersionCorrection versionCorrection) {
+    _versionCorrection = versionCorrection;
+    _viewDefinition = copyFrom._viewDefinition;
+    _portfolio = copyFrom._portfolio;
+    _compiledCalculationConfigurations = copyFrom._compiledCalculationConfigurations;
+    _earliestValidity = copyFrom._earliestValidity;
+    _latestValidity = copyFrom._latestValidity;
+  }
+
   @Override
   public VersionCorrection getResolverVersionCorrection() {
     return _versionCorrection;
+  }
+
+  @Override
+  public CompiledViewDefinition withResolverVersionCorrection(final VersionCorrection versionCorrection) {
+    return new CompiledViewDefinitionImpl(this, versionCorrection);
   }
 
   @Override

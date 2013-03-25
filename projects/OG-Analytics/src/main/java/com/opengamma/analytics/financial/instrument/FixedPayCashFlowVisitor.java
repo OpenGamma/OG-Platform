@@ -25,9 +25,9 @@ import com.opengamma.analytics.financial.instrument.payment.PaymentDefinition;
 import com.opengamma.analytics.financial.instrument.payment.PaymentFixedDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborSpreadDefinition;
+import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * Returns all of the known pay cash-flows, including floating payments that have fixed.

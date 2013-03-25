@@ -16,8 +16,7 @@ import com.opengamma.financial.analytics.model.bond.BondPV01CurrencyCurveFunctio
 import com.opengamma.financial.analytics.model.bond.BondPresentValueCountryCurveFunction;
 import com.opengamma.financial.analytics.model.bond.BondPresentValueCurrencyCurveFunction;
 import com.opengamma.financial.currency.CurrencyConversionFunction;
-import com.opengamma.financial.currency.CurrencyMatrixSeriesSourcingFunction;
-import com.opengamma.financial.currency.CurrencyMatrixSpotSourcingFunction;
+import com.opengamma.financial.currency.CurrencyMatrixLookupFunction;
 import com.opengamma.financial.currency.CurrencySeriesConversionFunction;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.util.SingletonFactoryBean;
@@ -71,13 +70,9 @@ public class DemoFunctionResolverFactoryBean extends SingletonFactoryBean<Functi
           // to all of its inputs
           return -1;
         }
-        if (function instanceof CurrencyMatrixSpotSourcingFunction) {
-          final CurrencyMatrixSpotSourcingFunction currencyMatrixSourcingFunction = (CurrencyMatrixSpotSourcingFunction) function;
-          return currencyMatrixSourcingFunction.getPriority();
-        }
-        if (function instanceof CurrencyMatrixSeriesSourcingFunction) {
-          final CurrencyMatrixSeriesSourcingFunction currencyMatrixSourcingFunction = (CurrencyMatrixSeriesSourcingFunction) function;
-          return currencyMatrixSourcingFunction.getPriority();
+        if (function instanceof CurrencyMatrixLookupFunction) {
+          final CurrencyMatrixLookupFunction currencyMatrixLookupFunction = (CurrencyMatrixLookupFunction) function;
+          return currencyMatrixLookupFunction.getPriority();
         }
         return 0;
       }

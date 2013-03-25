@@ -9,7 +9,6 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.position.Portfolio;
@@ -87,14 +86,7 @@ public class PositionSourceResolver {
 
     @Override
     public Map<ObjectId, UniqueId> resolveObjectIds(final Set<ObjectId> identifiers, final VersionCorrection versionCorrection) {
-      final Map<ObjectId, UniqueId> result = Maps.newHashMapWithExpectedSize(identifiers.size());
-      for (ObjectId identifier : identifiers) {
-        UniqueId uid = resolveObjectId(identifier, versionCorrection);
-        if (uid != null) {
-          result.put(identifier, uid);
-        }
-      }
-      return result;
+      return AbstractIdentifierResolver.resolveObjectIds(this, identifiers, versionCorrection);
     }
 
   }
@@ -139,14 +131,7 @@ public class PositionSourceResolver {
 
     @Override
     public Map<ObjectId, UniqueId> resolveObjectIds(final Set<ObjectId> identifiers, final VersionCorrection versionCorrection) {
-      final Map<ObjectId, UniqueId> result = Maps.newHashMapWithExpectedSize(identifiers.size());
-      for (ObjectId identifier : identifiers) {
-        UniqueId uid = resolveObjectId(identifier, versionCorrection);
-        if (uid != null) {
-          result.put(identifier, uid);
-        }
-      }
-      return result;
+      return AbstractIdentifierResolver.resolveObjectIds(this, identifiers, versionCorrection);
     }
 
   }

@@ -22,7 +22,7 @@ import com.opengamma.web.analytics.rest.MasterType;
 /**
  * Test.
  */
-@Test(groups = TestGroup.UNIT)
+@Test(groups = TestGroup.INTEGRATION)
 public class ConnectionManagerImplTest {
 
   @Test(expectedExceptions = DataNotFoundException.class)

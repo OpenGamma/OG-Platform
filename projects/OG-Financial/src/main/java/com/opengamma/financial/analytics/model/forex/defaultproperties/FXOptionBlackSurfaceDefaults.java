@@ -33,23 +33,23 @@ import com.opengamma.util.tuple.Pair;
 public class FXOptionBlackSurfaceDefaults extends DefaultPropertyFunction {
   private static final Logger s_logger = LoggerFactory.getLogger(FXOptionBlackSurfaceDefaults.class);
   private static final String[] VALUE_REQUIREMENTS = new String[] {
-      ValueRequirementNames.PRESENT_VALUE,
-      ValueRequirementNames.FX_PRESENT_VALUE,
-      ValueRequirementNames.FX_CURRENCY_EXPOSURE,
-      ValueRequirementNames.VALUE_VEGA,
-      ValueRequirementNames.VALUE_GAMMA,
-      ValueRequirementNames.VALUE_GAMMA_P,
-      ValueRequirementNames.VEGA_MATRIX,
-      ValueRequirementNames.VEGA_QUOTE_MATRIX,
-      ValueRequirementNames.FX_CURVE_SENSITIVITIES,
-      ValueRequirementNames.PV01,
-      ValueRequirementNames.SECURITY_IMPLIED_VOLATILITY,
-      ValueRequirementNames.VALUE_THETA,
-      ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
-      ValueRequirementNames.VALUE_RHO,
-      ValueRequirementNames.VALUE_PHI,
-      ValueRequirementNames.VALUE_VOMMA,
-      ValueRequirementNames.VALUE_VANNA
+    ValueRequirementNames.PRESENT_VALUE,
+    ValueRequirementNames.FX_PRESENT_VALUE,
+    ValueRequirementNames.FX_CURRENCY_EXPOSURE,
+    ValueRequirementNames.VALUE_VEGA,
+    ValueRequirementNames.VALUE_GAMMA,
+    ValueRequirementNames.VALUE_GAMMA_P,
+    ValueRequirementNames.VEGA_MATRIX,
+    ValueRequirementNames.VEGA_QUOTE_MATRIX,
+    ValueRequirementNames.FX_CURVE_SENSITIVITIES,
+    ValueRequirementNames.PV01,
+    ValueRequirementNames.SECURITY_IMPLIED_VOLATILITY,
+    ValueRequirementNames.VALUE_THETA,
+    ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
+    ValueRequirementNames.VALUE_RHO,
+    ValueRequirementNames.VALUE_PHI,
+    ValueRequirementNames.VALUE_VOMMA,
+    ValueRequirementNames.VALUE_VANNA
   };
   private final String _interpolatorName;
   private final String _leftExtrapolatorName;
@@ -79,7 +79,7 @@ public class FXOptionBlackSurfaceDefaults extends DefaultPropertyFunction {
     _interpolatorName = interpolatorName;
     _leftExtrapolatorName = leftExtrapolatorName;
     _rightExtrapolatorName = rightExtrapolatorName;
-    _surfaceNameByCurrencyPair = new HashMap<Pair<String, String>, String>();
+    _surfaceNameByCurrencyPair = new HashMap<>();
     for (int i = 0; i < surfaceNamesByCurrencyPair.length; i += 3) {
       final String firstCurrency = surfaceNamesByCurrencyPair[i];
       final String secondCurrency = surfaceNamesByCurrencyPair[i + 1];

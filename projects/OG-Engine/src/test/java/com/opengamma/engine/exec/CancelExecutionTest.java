@@ -75,6 +75,7 @@ import com.opengamma.engine.view.listener.ComputationResultListener;
 import com.opengamma.engine.view.permission.DefaultViewPermissionProvider;
 import com.opengamma.engine.view.permission.ViewPermissionProvider;
 import com.opengamma.engine.view.worker.SingleThreadViewProcessWorkerFactory;
+import com.opengamma.engine.view.worker.cache.InMemoryViewExecutionCache;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.id.VersionedUniqueIdSupplier;
@@ -169,7 +170,7 @@ public class CancelExecutionTest {
     configSource.put(viewDefinition);
     final ViewProcessContext vpc = new ViewProcessContext(UniqueId.of("Process", "Test"), configSource, viewPermissionProvider, marketDataProviderResolver, compilationService, functionResolver,
         computationCacheSource, jobDispatcher, new SingleThreadViewProcessWorkerFactory(), new DependencyGraphBuilderFactory(), factory, graphExecutorStatisticsProvider,
-        new DummyOverrideOperationCompiler(), new EngineResourceManagerImpl<SingleComputationCycle>(), new VersionedUniqueIdSupplier("Test", "1"));
+        new DummyOverrideOperationCompiler(), new EngineResourceManagerImpl<SingleComputationCycle>(), new VersionedUniqueIdSupplier("Test", "1"), new InMemoryViewExecutionCache());
     final DependencyGraph graph = new DependencyGraph("Default");
     DependencyNode previous = null;
     for (int i = 0; i < JOB_SIZE; i++) {

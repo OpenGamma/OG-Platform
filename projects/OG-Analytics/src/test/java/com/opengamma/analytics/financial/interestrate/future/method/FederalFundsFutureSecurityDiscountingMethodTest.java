@@ -19,9 +19,9 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.FederalF
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.time.DateUtils;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
 
 public class FederalFundsFutureSecurityDiscountingMethodTest {
 

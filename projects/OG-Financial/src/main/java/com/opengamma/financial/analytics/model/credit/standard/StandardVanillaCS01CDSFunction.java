@@ -43,4 +43,17 @@ public abstract class StandardVanillaCS01CDSFunction extends StandardVanillaCDSF
     }
     return requirements;
   }
+
+  @Override
+  protected ValueProperties.Builder getCommonResultProperties() {
+    return createValueProperties()
+        .withAny(CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE_BUMP)
+        .withAny(CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_BUMP_TYPE)
+        .withAny(CreditInstrumentPropertyNamesAndValues.PROPERTY_CDS_PRICE_TYPE);
+  }
+
+  @Override
+  protected boolean labelResultWithCurrency() {
+    return true;
+  }
 }

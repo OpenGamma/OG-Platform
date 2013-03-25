@@ -13,10 +13,10 @@ import org.testng.annotations.Test;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.equity.future.derivative.EquityIndexDividendFuture;
+import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
 
 /**
  * 

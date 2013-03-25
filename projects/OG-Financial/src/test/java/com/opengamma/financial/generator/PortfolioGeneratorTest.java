@@ -24,11 +24,12 @@ import com.opengamma.engine.InMemorySecuritySource;
 import com.opengamma.id.ExternalId;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.security.RawSecurity;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the {@link PortfolioGenerator}, {@link LeafPortfolioNodeGenerator}, and {@link SimplePositionGenerator} classes.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class PortfolioGeneratorTest {
 
   private PositionGenerator createSimplePositionGenerator(final InMemorySecuritySource source) {

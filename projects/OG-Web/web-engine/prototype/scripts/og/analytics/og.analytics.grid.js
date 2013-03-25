@@ -648,7 +648,7 @@ $.register_module({
                 col_indices, cols_len = viewport.cols.length, types = [], result = null,
                 available = !selection.rows.some(function (row) {return !~viewport.rows.indexOf(row);}) &&
                     !selection.cols.some(function (col) {return !~viewport.cols.indexOf(col);});
-            if (!available) return null;
+            if (!available) return {data: null, raw: null};
             row_indices = selection.rows.map(function (row) {return viewport.rows.indexOf(row);});
             col_indices = selection.cols.map(function (col) {return viewport.cols.indexOf(col);});
             result = row_indices.map(function (row_idx) {
@@ -657,9 +657,9 @@ $.register_module({
                     return {value: cell, type: cell.t || selection.type[idx]};
                 });
             });
-            return !expanded ? result : result.every(function (row) {
+            return !expanded ? {data: result, raw: result} : result.every(function (row) {
                 return row.pluck('type').every(function (type) {return type in do_not_expand;});
-            }) ? result : null;
+            }) ? {data: result, raw: result} : {data: null, raw: result};
         };
         Grid.prototype.resize = function (collapse) {
             var grid = this, config = grid.config, meta = grid.meta, state = grid.state, columns = meta.columns,

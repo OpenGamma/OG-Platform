@@ -26,10 +26,10 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Paymen
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
+import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * Class describing a OIS-like floating coupon.

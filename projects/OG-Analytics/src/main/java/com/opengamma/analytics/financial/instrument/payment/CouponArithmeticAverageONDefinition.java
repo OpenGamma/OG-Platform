@@ -22,9 +22,9 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Paymen
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
+import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * Class describing a Fed Fund swap-like floating coupon (arithmetic average on overnight rates).

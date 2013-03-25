@@ -16,18 +16,18 @@ import com.opengamma.util.ArgumentChecker;
  * 
  */
 public class CurveNodeWithIdentifier implements Comparable<CurveNodeWithIdentifier> {
-  private final CurveNode _strip;
+  private final CurveNode _node;
   private final ExternalId _id;
 
-  public CurveNodeWithIdentifier(final CurveNode strip, final ExternalId id) {
-    ArgumentChecker.notNull(strip, "strip");
+  public CurveNodeWithIdentifier(final CurveNode node, final ExternalId id) {
+    ArgumentChecker.notNull(node, "node");
     ArgumentChecker.notNull(id, "id");
-    _strip = strip;
+    _node = node;
     _id = id;
   }
 
-  public CurveNode getCurveStrip() {
-    return _strip;
+  public CurveNode getCurveNode() {
+    return _node;
   }
 
   public ExternalId getIdentifier() {
@@ -36,7 +36,7 @@ public class CurveNodeWithIdentifier implements Comparable<CurveNodeWithIdentifi
 
   @Override
   public int compareTo(final CurveNodeWithIdentifier o) {
-    final int result = _strip.compareTo(o._strip);
+    final int result = _node.compareTo(o._node);
     if (result != 0) {
       return result;
     }
@@ -53,7 +53,7 @@ public class CurveNodeWithIdentifier implements Comparable<CurveNodeWithIdentifi
     final int prime = 31;
     int result = 1;
     result = prime * result + _id.hashCode();
-    result = prime * result + _strip.hashCode();
+    result = prime * result + _node.hashCode();
     return result;
   }
 
@@ -72,7 +72,7 @@ public class CurveNodeWithIdentifier implements Comparable<CurveNodeWithIdentifi
     if (!ObjectUtils.equals(_id, other._id)) {
       return false;
     }
-    if (!ObjectUtils.equals(_strip, other._strip)) {
+    if (!ObjectUtils.equals(_node, other._node)) {
       return false;
     }
     return true;

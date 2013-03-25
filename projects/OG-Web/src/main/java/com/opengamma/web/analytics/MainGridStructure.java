@@ -21,6 +21,7 @@ import com.opengamma.util.tuple.Pair;
 
   /** The column structure. */
   private final GridColumnGroups _columnGroups;
+
   /** For looking up the underlying target of a grid cell. */
   private final TargetLookup _targetLookup;
 
@@ -32,11 +33,17 @@ import com.opengamma.util.tuple.Pair;
   // TODO refactor this to pass in columns instead of column keys?
   // column would need to return its key (null for static and blotter columns)
   // could pass all columns in a single List<GridColumnGroup> or GridColumnGroups instance
-  /* package */ MainGridStructure(GridColumnGroups columnGroups, TargetLookup targetLookup) {
+  /* package */ MainGridStructure(GridColumnGroup fixedColumns,
+                                  GridColumnGroups nonFixedColumns,
+                                  TargetLookup targetLookup) {
     ArgumentChecker.notNull(targetLookup, "targetLookup");
-    ArgumentChecker.notNull(columnGroups, "columnGroups");
-    _columnGroups = columnGroups;
+    ArgumentChecker.notNull(nonFixedColumns, "nonFixedColumns");
+    ArgumentChecker.notNull(fixedColumns, "fixedColumns");
+    List<GridColumnGroup> columnGroups = Lists.newArrayList(fixedColumns);
+    columnGroups.addAll(nonFixedColumns.getGroups());
+    _columnGroups = new GridColumnGroups(columnGroups);
     _targetLookup = targetLookup;
+
   }
 
     /**
@@ -68,6 +75,10 @@ import com.opengamma.util.tuple.Pair;
   @Override
   public int getColumnCount() {
     return _columnGroups.getColumnCount();
+  }
+
+  /* package */ TargetLookup getTargetLookup() {
+    return _targetLookup;
   }
 
   @Override
@@ -102,11 +113,6 @@ import com.opengamma.util.tuple.Pair;
                                                           _columnGroups,
                                                           cache.getLastCalculationDuration());
     return Pair.of(viewportResults, state);
-  }
-
-  /** For looking up the underlying target of a grid cell. */
-  TargetLookup getTargetLookup() {
-    return _targetLookup;
   }
 
   /**

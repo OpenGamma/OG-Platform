@@ -13,6 +13,22 @@ $.register_module({
             },
             DOUBLE: function (value) {return value.v || '';},
             DOUBLE_GADGET: function (value) {return value.v || '';},
+            ERROR: function (value) {
+                return value['logOutput'].map(function (row) {
+                    return [
+                        ['Function:', row['functionName']].join(' '),
+                        ['Target:', row.target].join(' '),
+                        ['Exception Class:', row['exceptionClass']].join(' '),
+                        ['Exception Message:', row['exceptionMessage']].join(' '),
+                        ['Events:', (row.events && row.events.length ? '' : 'N/A')].join(' '),
+                        !row.events && !row.events.length ? null : row.events
+                            .map(function (event) {return [tab, event.level, event.message].join(' ');}).join(line),
+                        ['Stack Trace:', row['exceptionStackTrace'] ? '' : 'N/A'].join(' '),
+                        !row['exceptionStackTrace'] ? null : row['exceptionStackTrace'].split(line)
+                            .map(function (val) {return [tab, val].join('');}).join(line)
+                    ].filter(Boolean).join(line);
+                }).join(line + '------------------------------------------------------------------------' + line);
+            },
             FUNGIBLE_TRADE: function (value) {return value.v && value.v.name || '';},
             LABELLED_MATRIX_1D: function (value, single) {
                 if (!single) return value.v || '**1D MATRIX**';
@@ -85,17 +101,23 @@ $.register_module({
                 .on('deselect', function () {clipboard.clear();});
         };
         var data_handler = function (data) {
-            var clipboard = this, grid = clipboard.grid, lcv, index, selection = clipboard.selection, rows, cols, row;
+            var clipboard = this, grid = clipboard.grid, lcv, index,
+                selection = clipboard.selection, rows, cols, row, cell, single;
             if (!clipboard.selection) return; // user has deselected before handler came back, so bail
-            index = 0; rows = selection.rows.length; cols = selection.cols.length;
+            index = 0; rows = selection.rows.length; cols = selection.cols.length; single = rows === 1 && cols === 1;
+            if (single && data[0].error && !data[0]['logOutput']) // if there's no error output yet, bail
+                return clipboard.data = null;
             clipboard.data = [];
-            while (rows--) for (clipboard.data.push(row = []), lcv = 0; lcv < cols; lcv += 1)
-                row.push({value: data[index++], type: clipboard.selection.type[lcv]});
-            if (!grid.selector.copyable) grid.selector.render();
+            while (rows--) for (clipboard.data.push(row = []), lcv = 0; lcv < cols; lcv += 1) {
+                cell = data[index++];
+                row.push({value: cell, type: cell['logOutput'] ? 'ERROR' : clipboard.selection.type[lcv]});
+            }
+            grid.selector.render();
         };
         var format = function (cell, single) {
             if (typeof cell.value === 'undefined') return '';
-            if (cell.value.error) return typeof cell.value.v === 'string' ? cell.value.v : '***ERROR***';
+            if (cell.value.error && cell.type !== 'ERROR')
+                return typeof cell.value.v === 'string' ? cell.value.v : '#ERROR';
             if (formatters[cell.type]) return formatters[cell.type](cell.value, single);
             og.dev.warn(module.name + ': no formatter for ' + cell.type, cell);
             return typeof cell.value.v === 'string' ? cell.value.v : '';
@@ -110,10 +132,14 @@ $.register_module({
             if (clipboard.selection) clipboard.dataman.viewport(clipboard.selection = clipboard.data = null);
         };
         Clipboard.prototype.has = function (selection) {
-            var clipboard = this, grid = clipboard.grid,
+            var clipboard = this, grid = clipboard.grid, grid_data,
                 expanded = selection.rows.length === 1 && selection.cols.length === 1;
             clipboard.viewport(selection);
-            return !!selection && !!(clipboard.data || (clipboard.data = grid.range(selection, expanded)));
+            if (!selection) return false;
+            if (clipboard.data) return true;
+            grid_data = grid.range(selection, expanded);
+            if (expanded && grid_data.raw && grid_data.raw[0][0].value.error) grid_data.data = null;
+            return !!(clipboard.data = grid_data.data);
         };
         Clipboard.prototype.select = function () {
             var clipboard = this, data = clipboard.data, selection = clipboard.selection,
@@ -127,15 +153,18 @@ $.register_module({
         Clipboard.prototype.viewport = function (selection) {
             var clipboard = this, grid = clipboard.grid, grid_data, data_viewport = clipboard.dataman.meta.viewport,
                 expanded = selection && selection.rows.length === 1 && selection.cols.length === 1,
-                format = expanded ? 'EXPANDED' : 'CELL';
+                format = expanded ? 'EXPANDED' : 'CELL', log = false;
             if (selection === null) return clipboard.dataman.viewport(clipboard.selection = clipboard.data = null);
             grid_data = grid.range(selection, expanded);
+            if (format === 'EXPANDED' && grid_data.raw && grid_data.raw[0][0].value.error)
+                (log = true), grid_data.data = null;
             if (same_viewport(clipboard.selection, selection)) if (same_viewport(selection, data_viewport))
-                return grid_data ? (clipboard.dataman.viewport(null), clipboard.data = grid_data) : null;
-            return (clipboard.selection = selection) && grid_data ?
-                (clipboard.dataman.viewport(null), clipboard.data = grid_data)
-                    : (clipboard.dataman.viewport({rows: selection.rows, cols: selection.cols, format: format}),
-                        clipboard.data = null);
+                return grid_data.data ? (clipboard.dataman.viewport(null), clipboard.data = grid_data.data) : null;
+            return (clipboard.selection = selection) && grid_data.data ?
+                (clipboard.dataman.viewport(null), clipboard.data = grid_data.data)
+                    : (clipboard.dataman
+                        .viewport({rows: selection.rows, cols: selection.cols, format: format, log: log}),
+                            clipboard.data = null);
         };
         $(function () {
             node = (textarea = $('<textarea readonly="readonly" />').appendTo('body')

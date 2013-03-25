@@ -9,10 +9,10 @@ import java.io.PrintStream;
 
 import org.threeten.bp.LocalDate;
 
-import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.ListLocalDateDoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.MutableLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.localdate.ListLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.localdate.MutableLocalDateDoubleTimeSeries;
 
 public class TimeSeriesExample {
   public static void timeSeriesExample(final PrintStream out) {

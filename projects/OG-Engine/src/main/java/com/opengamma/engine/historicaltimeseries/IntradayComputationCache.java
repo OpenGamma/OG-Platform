@@ -10,8 +10,8 @@ import java.util.Map;
 import org.threeten.bp.Duration;
 
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.timeseries.date.time.DateTimeDoubleTimeSeries;
 import com.opengamma.util.PublicSPI;
-import com.opengamma.util.timeseries.date.time.DateTimeDoubleTimeSeries;
 
 /**
  * Cache storing historical values while the engine is running.

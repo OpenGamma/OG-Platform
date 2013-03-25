@@ -30,12 +30,13 @@ import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.position.PositionSearchRequest;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test the portfolio loader tool behaves as expected. Data should be read from a file and
  * inserted into the correct database masters.
  */
-@Test
+@Test(groups = TestGroup.INTEGRATION)
 public class PortfolioLoaderToolTest extends DbTest{
 
   private static final Logger s_logger = LoggerFactory.getLogger(PortfolioLoaderToolTest.class);

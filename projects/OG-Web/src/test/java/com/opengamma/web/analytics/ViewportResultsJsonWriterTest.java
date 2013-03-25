@@ -53,7 +53,7 @@ public class ViewportResultsJsonWriterTest {
   private static GridColumnGroups createColumns(Class<?> type) {
     GridColumn.CellRenderer renderer = new TestCellRenderer();
     GridColumn column = new GridColumn("header", "desc", type, renderer);
-    return new GridColumnGroups(ImmutableList.of(new GridColumnGroup("grp", ImmutableList.of(column), false)));
+    return new GridColumnGroups(new GridColumnGroup("grp", ImmutableList.of(column), false));
   }
 
   private List<ResultsCell> createResults(Object value, List<Object> history, Class<?> columnType) {
@@ -137,7 +137,7 @@ public class ViewportResultsJsonWriterTest {
   private static class TestCellRenderer implements GridColumn.CellRenderer {
 
     @Override
-    public ResultsCell getResults(int rowIndex, ResultsCache cache, Class<?> columnType) {
+    public ResultsCell getResults(int rowIndex, ResultsCache cache, Class<?> columnType, Object inlineKey) {
       return null;
     }
   }

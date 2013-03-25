@@ -24,12 +24,14 @@ import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.position.impl.InMemoryPositionMaster;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test {@link OrphanedPositionRemover}
  */
+@Test(groups = TestGroup.UNIT)
 public class OrphanedPositionRemoverTest {
-  
+
   private static final ExternalId SEC1 = ExternalId.of ("Test", "sec1");
   private static final ExternalId SEC2 = ExternalId.of ("Test", "sec2");
   private static final ExternalId SEC3 = ExternalId.of ("Test", "sec3");

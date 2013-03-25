@@ -21,6 +21,7 @@ import com.opengamma.financial.analytics.volatility.fittedresults.HestonFittedSu
 import com.opengamma.financial.analytics.volatility.fittedresults.SABRFittedSurfaces;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.Pair;
@@ -28,6 +29,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * 
  */
+@Test(groups = TestGroup.UNIT)
 public class SmileFittedSurfaceBuilderTest extends AnalyticsTestBase {
 
   @Test

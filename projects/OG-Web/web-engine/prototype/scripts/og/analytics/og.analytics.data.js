@@ -158,9 +158,9 @@ $.register_module({
                 var port_request, prim_request, initial = grid_type === null;
                 grid_type = source.type;
                 port_request = api.grid.structure
-                    .get({dry: initial, view_id: view_id, update: initial ? type_setup : null, grid_type: 'portfolio', label: 'one ' + config.label});
+                    .get({dry: initial, view_id: view_id, update: initial ? type_setup : null, grid_type: 'portfolio'});
                 if (initial) return; /* just register interest and bail*/ else prim_request = api.grid.structure
-                    .get({view_id: view_id, grid_type: 'primitives', label: 'two ' + config.label});
+                    .get({view_id: view_id, grid_type: 'primitives'});
                 $.when(port_request, prim_request).then(function (port_struct, prim_struct) {
                     var portfolio = port_struct.data &&
                             !!(port_struct.data[ROOT] && port_struct.data[ROOT].length ? port_struct.data[ROOT][1] + 1
@@ -171,7 +171,7 @@ $.register_module({
                     if (!grid_type) grid_type = portfolio ? 'portfolio' : primitives ? 'primitives' : grid_type;
                     if (data.parent) source.type = grid_type; // keep parent connections' sources immutable
                     api.grid.structure
-                        .get({dry: true, view_id: view_id, grid_type: grid_type, update: structure_setup, label: 'three ' + config.label});
+                        .get({dry: true, view_id: view_id, grid_type: grid_type, update: structure_setup});
                     structure_handler(grid_type === 'portfolio' ? port_struct : prim_struct);
                     fire('types', {portfolio: portfolio, primitives: primitives});
                 });

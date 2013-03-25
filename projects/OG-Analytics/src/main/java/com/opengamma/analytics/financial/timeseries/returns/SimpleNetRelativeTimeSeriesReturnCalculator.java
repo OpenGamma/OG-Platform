@@ -11,10 +11,10 @@ import java.util.Map.Entry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.timeseries.TimeSeriesException;
+import com.opengamma.timeseries.fast.integer.FastIntDoubleTimeSeries;
+import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.CalculationMode;
-import com.opengamma.util.timeseries.TimeSeriesException;
-import com.opengamma.util.timeseries.fast.integer.FastIntDoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * 

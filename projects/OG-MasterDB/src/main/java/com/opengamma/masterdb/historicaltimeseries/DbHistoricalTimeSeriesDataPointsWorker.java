@@ -37,11 +37,11 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesGetFilter;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeries;
 import com.opengamma.masterdb.AbstractDbMaster;
+import com.opengamma.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
-import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.tuple.Pair;
 
 

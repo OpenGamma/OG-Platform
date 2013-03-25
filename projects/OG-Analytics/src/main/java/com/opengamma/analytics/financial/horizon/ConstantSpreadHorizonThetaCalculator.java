@@ -33,13 +33,13 @@ import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithB
 import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackSwaptionBundle;
 import com.opengamma.analytics.financial.provider.calculator.generic.TodayPaymentCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
+import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
+import com.opengamma.timeseries.zoneddatetime.ListZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
-import com.opengamma.util.timeseries.zoneddatetime.ListZonedDateTimeDoubleTimeSeries;
 
 /**
  *  Computes the difference in present value between one day and the next, without Volatility or Rate slide. 

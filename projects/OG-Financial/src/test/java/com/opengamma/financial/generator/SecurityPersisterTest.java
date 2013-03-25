@@ -21,12 +21,13 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.Expiry;
 
 /**
- * Tests the {@link SecurityPersister} class.
+ * Test.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class SecurityPersisterTest {
   
   private static class Impl extends SecurityPersister {

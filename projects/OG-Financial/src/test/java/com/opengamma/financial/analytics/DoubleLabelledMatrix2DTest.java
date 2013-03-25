@@ -11,10 +11,14 @@ import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * 
  */
+@Test(groups = TestGroup.UNIT)
 public class DoubleLabelledMatrix2DTest {
+
   private static final Double[] SORTED_X_KEYS = new Double[] {1., 2., 3., 4., 5.};
   private static final Double[] SORTED_Y_KEYS = new Double[] {1., 2., 3.};
   private static final Object[] SORTED_X_LABELS1 = new String[] {"1.0", "2.0", "3.0", "4.0", "5.0"};

@@ -15,11 +15,14 @@ import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.analytics.ircurve.NextExpiryAdjuster;
 import com.opengamma.financial.analytics.model.FutureOptionExpiries;
 import com.opengamma.id.ExternalId;
+import com.opengamma.util.test.TestGroup;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class BloombergEquityIndexFutureOptionVolatilitySurfaceInstrumentProviderTest {
+
   private static final String PREFIX = "DJX";
   private static final String POSTFIX = "Index";
   private static final LocalDate DATE = LocalDate.of(2012, 5, 23);

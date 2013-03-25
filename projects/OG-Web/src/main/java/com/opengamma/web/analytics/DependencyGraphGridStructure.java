@@ -228,7 +228,7 @@ public class DependencyGraphGridStructure implements GridStructure {
     }
 
     @Override
-    public ResultsCell getResults(int rowIndex, ResultsCache cache, Class<?> columnType) {
+    public ResultsCell getResults(int rowIndex, ResultsCache cache, Class<?> columnType, Object inlineKey) {
       ValueSpecification valueSpec = _valueSpecs.get(rowIndex);
       switch (_colIndex) {
         case TARGET_COL:

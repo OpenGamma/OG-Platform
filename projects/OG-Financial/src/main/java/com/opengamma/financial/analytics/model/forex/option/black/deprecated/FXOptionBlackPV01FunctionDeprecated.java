@@ -35,13 +35,13 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.conversion.ForexSecurityConverterDeprecated;
+import com.opengamma.financial.analytics.model.forex.ConventionBasedFXRateFunction;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackPV01Function;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -101,7 +101,7 @@ public class FXOptionBlackPV01FunctionDeprecated extends AbstractFunction.NonCom
     final ValueProperties properties = getResultProperties(curveCurrency.getCode(), curveName, putCurveName, putForwardCurveName, putCurveCalculationMethod,
         callCurveName, callForwardCurveName, callCurveCalculationMethod, surfaceName);
     final InstrumentDefinition<?> definition = security.accept(CONVERTER);
-    final InstrumentDerivative option = definition.toDerivative(date, new String[] {fullCurveName, forwardCurveName});
+    final InstrumentDerivative option = definition.toDerivative(date, new String[] {fullCurveName, forwardCurveName });
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.PV01, target.toSpecification(), properties);
     final Map<String, Double> pv01 = option.accept(CALCULATOR, sensitivitiesForCurrency);
     return Collections.singleton(new ComputedValue(spec, pv01.get(fullCurveName)));
@@ -173,8 +173,7 @@ public class FXOptionBlackPV01FunctionDeprecated extends AbstractFunction.NonCom
     final String putCurveCalculationMethod = putCurveCalculationMethods.iterator().next();
     final String callCurveCalculationMethod = callCurveCalculationMethods.iterator().next();
     final String surfaceName = surfaceNames.iterator().next();
-    final ValueRequirement spotRequirement = new ValueRequirement(ValueRequirementNames.SPOT_RATE, ComputationTargetType.UNORDERED_CURRENCY_PAIR.specification(UnorderedCurrencyPair.of(callCurrency,
-        putCurrency)));
+    final ValueRequirement spotRequirement = ConventionBasedFXRateFunction.getSpotRateRequirement(callCurrency, putCurrency);
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
     requirements.add(spotRequirement);
     requirements.add(getCurveSpecRequirement(Currency.of(currency), curveName));

@@ -157,6 +157,21 @@ public class ManageablePosition extends DirectBean
     }
   }
 
+  /**
+   * Creates a populated instance (no trades or attributes).
+   *
+   * @param uniqueId    the position unique identifier, may be null
+   * @param quantity    the amount of the position, not null
+   * @param securityId  the security identifier, not null
+   */
+  public ManageablePosition(UniqueId uniqueId, BigDecimal quantity, ExternalIdBundle securityId) {
+    ArgumentChecker.notNull(quantity, "quantity");
+    ArgumentChecker.notNull(securityId, "securityId");
+    setUniqueId(uniqueId);
+    setQuantity(quantity);
+    _securityLink = new ManageableSecurityLink(securityId);
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Adds a trade to the list.
@@ -199,7 +214,6 @@ public class ManageablePosition extends DirectBean
     }
     return null;
   }
-
   /**
    * Checks if any trade object identifier matches one in the specified list.
    * 

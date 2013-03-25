@@ -7,9 +7,12 @@ package com.opengamma.financial.aggregation;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Test aggregation.
  */
+@Test(groups = TestGroup.UNIT)
 public class AggregationTest {
 //  private static final Logger s_logger = LoggerFactory.getLogger(AggregationTest.class);
 //  private List<Position> _equities;

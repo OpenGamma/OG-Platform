@@ -31,9 +31,9 @@ import com.opengamma.analytics.financial.sensitivity.ValueGreekSensitivity;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.matrix.Matrix;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
-import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
+import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.fast.DateTimeNumericEncoding;
+import com.opengamma.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
 
 /**
  * 

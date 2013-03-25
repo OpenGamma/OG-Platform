@@ -18,10 +18,10 @@ import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
 import com.opengamma.analytics.math.function.Function;
+import com.opengamma.timeseries.TimeSeriesException;
+import com.opengamma.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.CalculationMode;
-import com.opengamma.util.timeseries.TimeSeriesException;
-import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * 

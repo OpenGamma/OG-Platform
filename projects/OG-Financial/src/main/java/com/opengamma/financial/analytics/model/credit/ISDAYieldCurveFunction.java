@@ -91,7 +91,7 @@ public class ISDAYieldCurveFunction extends AbstractFunction.NonCompiledInvoker 
     }
     final Object specObject = inputs.getValue(ValueRequirementNames.YIELD_CURVE_SPEC);
     if (specObject == null) {
-      throw new OpenGammaRuntimeException("Could not get yield curve specification for " + curveName);
+      throw new OpenGammaRuntimeException("Could not get yield curve specification for " + curveName + " and target " + target.getName());
     }
     final SnapshotDataBundle marketData = (SnapshotDataBundle) dataObject;
     final InterpolatedYieldCurveSpecificationWithSecurities yieldCurveSpec = (InterpolatedYieldCurveSpecificationWithSecurities) specObject;
@@ -103,7 +103,7 @@ public class ISDAYieldCurveFunction extends AbstractFunction.NonCompiledInvoker 
     final String[] curveNamesForSecurity = new String[] {curveName, curveName };
     for (final FixedIncomeStripWithSecurity strip : yieldCurveSpec.getStrips()) {
       final String securityType = strip.getSecurity().getSecurityType();
-      if (!(securityType.equals(CashSecurity.SECURITY_TYPE) || securityType.equals(SwapSecurity.SECURITY_TYPE))) {
+      if (!(securityType.equals(CashSecurity.SECURITY_TYPE) || securityType.equals(SwapSecurity.SECURITY_TYPE) || securityType.equals(specObject))) {
         throw new OpenGammaRuntimeException("ISDA curves should only use Libor and swap rates");
       }
       final Double marketValue = marketData.getDataPoint(strip.getSecurityIdentifier());
@@ -117,7 +117,7 @@ public class ISDAYieldCurveFunction extends AbstractFunction.NonCompiledInvoker 
         throw new OpenGammaRuntimeException("Had a null InterestRateDefinition for " + strip);
       }
       times[i] = derivative.accept(LAST_DATE_CALCULATOR);
-      curveDates[i] = strip.getMaturity();
+      curveDates[i] = strip.getMaturity().withHour(0).withMinute(0).withSecond(0).withNano(0);
       yields[i++] = marketValue;
     }
     final ISDADateCurve curve = new ISDADateCurve(curveName, curveDates, times, yields, offset);
@@ -177,6 +177,10 @@ public class ISDAYieldCurveFunction extends AbstractFunction.NonCompiledInvoker 
     }
     final Set<String> curveCalculationConfigs = constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
     if (curveCalculationConfigs == null || curveCalculationConfigs.size() != 1) {
+      return null;
+    }
+    final Set<String> isdaCurveOffsets = constraints.getValues(ISDAFunctionConstants.ISDA_CURVE_OFFSET);
+    if (isdaCurveOffsets == null || isdaCurveOffsets.size() != 1) {
       return null;
     }
     final String curveName = Iterables.getOnlyElement(curveNames);

@@ -31,11 +31,14 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class SecurityToFixedIncomeFutureDefinitionConverterTest {
+
   private static final HolidaySource HOLIDAY_SOURCE = new MyHolidaySource();
   private static final ExchangeSource EXCHANGE_SOURCE = new MyExchangeSource();
   private static final ConventionBundleSource CONVENTION_SOURCE = new DefaultConventionBundleSource(

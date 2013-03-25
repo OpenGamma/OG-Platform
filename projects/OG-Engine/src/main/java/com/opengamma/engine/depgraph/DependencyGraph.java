@@ -321,20 +321,20 @@ public class DependencyGraph {
    * @param specifications the outputs to mark as terminals
    */
   public void addTerminalOutputs(final Map<ValueSpecification, Set<ValueRequirement>> specifications) {
-    for (final ValueSpecification specification : specifications.keySet()) {
+    for (Map.Entry<ValueSpecification, Set<ValueRequirement>> specification : specifications.entrySet()) {
       // Register it with the node responsible for producing it - informs the node that the output is required
-      final DependencyNode node = _outputValues.get(specification);
+      final DependencyNode node = _outputValues.get(specification.getKey());
       if (node == null) {
-        throw new IllegalArgumentException("No node produces " + specification);
+        throw new IllegalArgumentException("No node produces " + specification.getKey());
       }
-      node.addTerminalOutputValue(specification);
+      node.addTerminalOutputValue(specification.getKey());
       // Maintain a cache of all terminal outputs at the graph level
-      Set<ValueRequirement> requirements = _terminalOutputs.get(specification);
+      Set<ValueRequirement> requirements = _terminalOutputs.get(specification.getKey());
       if (requirements == null) {
         requirements = new HashSet<ValueRequirement>();
-        _terminalOutputs.put(specification, requirements);
+        _terminalOutputs.put(specification.getKey(), requirements);
       }
-      requirements.addAll(specifications.get(specification));
+      requirements.addAll(specification.getValue());
     }
   }
 
@@ -373,17 +373,21 @@ public class DependencyGraph {
     do {
       for (final DependencyNode node : _dependencyNodes) {
         final Set<ValueSpecification> unnecessaryValues = node.removeUnnecessaryOutputs();
+        if (unnecessaryValues == null) {
+          continue;
+        }
         if (!unnecessaryValues.isEmpty()) {
           s_logger.info("{}: removed {} unnecessary potential result(s)", this, unnecessaryValues.size());
-          if (node.getOutputValues().isEmpty()) {
-            unnecessaryNodes.add(node);
-          }
           for (final ValueSpecification unnecessaryValue : unnecessaryValues) {
             final DependencyNode removed = _outputValues.remove(unnecessaryValue);
             if (removed == null) {
               throw new IllegalStateException("A value specification " + unnecessaryValue + " wasn't mapped to a node");
             }
+            _allRequiredMarketData.remove(unnecessaryValue);
           }
+        }
+        if (node.getOutputValues().isEmpty()) {
+          unnecessaryNodes.add(node);
         }
       }
       if (unnecessaryNodes.isEmpty()) {
@@ -393,7 +397,6 @@ public class DependencyGraph {
       _dependencyNodes.removeAll(unnecessaryNodes);
       _rootNodes.removeAll(unnecessaryNodes);
       for (final DependencyNode node : unnecessaryNodes) {
-        _allRequiredMarketData.remove(node.getRequiredMarketData());
         node.clearInputs();
       }
       unnecessaryNodes.clear();

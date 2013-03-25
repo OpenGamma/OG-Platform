@@ -74,10 +74,12 @@ public class BaroneAdesiWhaleyModelTest {
 
     final double bawPrice = baw.price(s0, k, r, b, t, sigma, isCall);
     final double bsprice = Math.exp(-r * t) * BlackFormulaRepository.price(s0 * Math.exp(b * t), k, t, sigma, isCall);
-    System.out.println(bawPrice + " " + bsprice);
+    //TODO test me
+    //System.out.println(bawPrice + " " + bsprice);
 
     final double impVol = baw.impliedVolatility(bawPrice, s0, k, r, b, t, isCall);
-    System.out.println(impVol);
+    //TODO test me
+    //System.out.println(impVol);
   }
 
   @Test

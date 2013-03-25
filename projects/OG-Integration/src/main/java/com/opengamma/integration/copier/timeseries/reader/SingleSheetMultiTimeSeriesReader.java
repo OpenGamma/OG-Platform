@@ -21,7 +21,7 @@ import com.opengamma.integration.copier.sheet.SheetFormat;
 import com.opengamma.integration.copier.sheet.reader.SheetReader;
 import com.opengamma.integration.copier.timeseries.TimeSeriesLoader;
 import com.opengamma.integration.copier.timeseries.writer.TimeSeriesWriter;
-import com.opengamma.util.timeseries.localdate.MapLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.localdate.MapLocalDateDoubleTimeSeries;
 
 /**
  * Reads data points, possibly from multiple time series, from an single sheet

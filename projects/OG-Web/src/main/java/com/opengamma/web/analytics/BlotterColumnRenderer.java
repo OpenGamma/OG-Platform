@@ -18,9 +18,11 @@ import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
  */
 /* package */ class BlotterColumnRenderer implements GridColumn.CellRenderer {
 
-  /** Maps  */
+  /** Maps the shared blotter columns to the fields of each different security type. */
   private final BlotterColumnMapper _columnMappings;
+  /** The column whose values are handled by this renderer. */
   private final BlotterColumn _column;
+  /** The rows in the grid. */
   private final List<PortfolioGridRow> _rows;
 
   public BlotterColumnRenderer(BlotterColumn column,
@@ -35,7 +37,7 @@ import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
   }
 
   @Override
-  public ResultsCell getResults(int rowIndex, ResultsCache cache, Class<?> columnType) {
+  public ResultsCell getResults(int rowIndex, ResultsCache cache, Class<?> columnType, Object inlineKey) {
     PortfolioGridRow row = _rows.get(rowIndex);
     UniqueId securityId = row.getSecurityId();
     Security security;

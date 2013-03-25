@@ -19,9 +19,9 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.util.timeseries.TimeSeries;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.LocalDateObjectTimeSeries;
+import com.opengamma.timeseries.TimeSeries;
+import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.localdate.LocalDateObjectTimeSeries;
 
 /**
  * Result object holding the time series bundles produced by {@link ViewEvaluationFunction}.

@@ -44,7 +44,6 @@ import com.opengamma.financial.analytics.model.pnl.DefaultPnLRequirementsGathere
 import com.opengamma.financial.analytics.model.pnl.PnLRequirementsGatherer;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
 import com.opengamma.financial.convention.ConventionBundleSource;
-import com.opengamma.financial.currency.CurrencyMatrixSource;
 import com.opengamma.financial.marketdata.MarketDataELCompiler;
 import com.opengamma.financial.temptarget.TempTargetRepository;
 import com.opengamma.master.config.ConfigMaster;
@@ -119,11 +118,6 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
   @PropertyDefinition()
   private VolatilityCubeDefinitionSource _volatilityCubeDefinitionSource;
   /**
-   * The currency matrix source.
-   */
-  @PropertyDefinition()
-  private CurrencyMatrixSource _currencyMatrixSource;
-  /**
    * The holiday source.
    */
   @PropertyDefinition(validate = "notNull")
@@ -190,7 +184,6 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
     OpenGammaCompilationContext.setInterpolatedYieldCurveDefinitionSource(context, getInterpolatedYieldCurveDefinitionSource());
     OpenGammaCompilationContext.setInterpolatedYieldCurveSpecificationBuilder(context, getInterpolatedYieldCurveSpecificationBuilder());
     OpenGammaCompilationContext.setVolatilityCubeDefinitionSource(context, getVolatilityCubeDefinitionSource());
-    OpenGammaCompilationContext.setCurrencyMatrixSource(context, getCurrencyMatrixSource());
     OpenGammaCompilationContext.setHolidaySource(context, getHolidaySource());
     OpenGammaCompilationContext.setExchangeSource(context, getExchangeSource());
     OpenGammaCompilationContext.setHistoricalTimeSeriesSource(context, getHistoricalTimeSeriesSource());
@@ -284,8 +277,6 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
         return getInterpolatedYieldCurveSpecificationBuilder();
       case 1540542824:  // volatilityCubeDefinitionSource
         return getVolatilityCubeDefinitionSource();
-      case 615188973:  // currencyMatrixSource
-        return getCurrencyMatrixSource();
       case 431020691:  // holidaySource
         return getHolidaySource();
       case -467239906:  // exchangeSource
@@ -345,9 +336,6 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
         return;
       case 1540542824:  // volatilityCubeDefinitionSource
         setVolatilityCubeDefinitionSource((VolatilityCubeDefinitionSource) newValue);
-        return;
-      case 615188973:  // currencyMatrixSource
-        setCurrencyMatrixSource((CurrencyMatrixSource) newValue);
         return;
       case 431020691:  // holidaySource
         setHolidaySource((HolidaySource) newValue);
@@ -417,7 +405,6 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
           JodaBeanUtils.equal(getInterpolatedYieldCurveDefinitionSource(), other.getInterpolatedYieldCurveDefinitionSource()) &&
           JodaBeanUtils.equal(getInterpolatedYieldCurveSpecificationBuilder(), other.getInterpolatedYieldCurveSpecificationBuilder()) &&
           JodaBeanUtils.equal(getVolatilityCubeDefinitionSource(), other.getVolatilityCubeDefinitionSource()) &&
-          JodaBeanUtils.equal(getCurrencyMatrixSource(), other.getCurrencyMatrixSource()) &&
           JodaBeanUtils.equal(getHolidaySource(), other.getHolidaySource()) &&
           JodaBeanUtils.equal(getExchangeSource(), other.getExchangeSource()) &&
           JodaBeanUtils.equal(getHistoricalTimeSeriesSource(), other.getHistoricalTimeSeriesSource()) &&
@@ -447,7 +434,6 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
     hash += hash * 31 + JodaBeanUtils.hashCode(getInterpolatedYieldCurveDefinitionSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getInterpolatedYieldCurveSpecificationBuilder());
     hash += hash * 31 + JodaBeanUtils.hashCode(getVolatilityCubeDefinitionSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrencyMatrixSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getHolidaySource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getExchangeSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesSource());
@@ -762,31 +748,6 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
    */
   public final Property<VolatilityCubeDefinitionSource> volatilityCubeDefinitionSource() {
     return metaBean().volatilityCubeDefinitionSource().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the currency matrix source.
-   * @return the value of the property
-   */
-  public CurrencyMatrixSource getCurrencyMatrixSource() {
-    return _currencyMatrixSource;
-  }
-
-  /**
-   * Sets the currency matrix source.
-   * @param currencyMatrixSource  the new value of the property
-   */
-  public void setCurrencyMatrixSource(CurrencyMatrixSource currencyMatrixSource) {
-    this._currencyMatrixSource = currencyMatrixSource;
-  }
-
-  /**
-   * Gets the the {@code currencyMatrixSource} property.
-   * @return the property, not null
-   */
-  public final Property<CurrencyMatrixSource> currencyMatrixSource() {
-    return metaBean().currencyMatrixSource().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -1109,11 +1070,6 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<VolatilityCubeDefinitionSource> _volatilityCubeDefinitionSource = DirectMetaProperty.ofReadWrite(
         this, "volatilityCubeDefinitionSource", EngineContextsComponentFactory.class, VolatilityCubeDefinitionSource.class);
     /**
-     * The meta-property for the {@code currencyMatrixSource} property.
-     */
-    private final MetaProperty<CurrencyMatrixSource> _currencyMatrixSource = DirectMetaProperty.ofReadWrite(
-        this, "currencyMatrixSource", EngineContextsComponentFactory.class, CurrencyMatrixSource.class);
-    /**
      * The meta-property for the {@code holidaySource} property.
      */
     private final MetaProperty<HolidaySource> _holidaySource = DirectMetaProperty.ofReadWrite(
@@ -1179,7 +1135,6 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
         "interpolatedYieldCurveDefinitionSource",
         "interpolatedYieldCurveSpecificationBuilder",
         "volatilityCubeDefinitionSource",
-        "currencyMatrixSource",
         "holidaySource",
         "exchangeSource",
         "historicalTimeSeriesSource",
@@ -1222,8 +1177,6 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
           return _interpolatedYieldCurveSpecificationBuilder;
         case 1540542824:  // volatilityCubeDefinitionSource
           return _volatilityCubeDefinitionSource;
-        case 615188973:  // currencyMatrixSource
-          return _currencyMatrixSource;
         case 431020691:  // holidaySource
           return _holidaySource;
         case -467239906:  // exchangeSource
@@ -1350,14 +1303,6 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
      */
     public final MetaProperty<VolatilityCubeDefinitionSource> volatilityCubeDefinitionSource() {
       return _volatilityCubeDefinitionSource;
-    }
-
-    /**
-     * The meta-property for the {@code currencyMatrixSource} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<CurrencyMatrixSource> currencyMatrixSource() {
-      return _currencyMatrixSource;
     }
 
     /**

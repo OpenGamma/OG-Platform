@@ -16,10 +16,10 @@ import com.opengamma.analytics.financial.varianceswap.VarianceSwap;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
+import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 
 /**
  * A variance swap is a forward contract on the realized variance of an underlying security.

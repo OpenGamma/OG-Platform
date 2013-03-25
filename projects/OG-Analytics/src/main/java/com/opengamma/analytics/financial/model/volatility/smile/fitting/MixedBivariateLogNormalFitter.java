@@ -10,6 +10,9 @@ import static com.opengamma.analytics.math.matrix.MatrixAlgebraFactory.OG_ALGEBR
 import java.util.Arrays;
 import java.util.Random;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.analytics.financial.model.volatility.smile.function.MixedLogNormalModelData;
@@ -22,16 +25,16 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Fitting volatility smiles of two mixed log-normal models with mixed normal variables X,Y. 
- * As model constraints are eventually violated starting with some initial guess parameters, 
- * the LM algorithm is modified such that model parameters satisfy all of the constraints in every step of the fitting iteration.  
+ * Fitting volatility smiles of two mixed log-normal models with mixed normal variables X,Y.
+ * As model constraints are eventually violated starting with some initial guess parameters,
+ * the LM algorithm is modified such that model parameters satisfy all of the constraints in every step of the fitting iteration.
  * X,Y should have the same number of normal distributions and share all of the weights.
  * 
- * For a mixture of N log-normal distributions, a mixed log-normal model contains 3 * N -2 free parameters. 
+ * For a mixture of N log-normal distributions, a mixed log-normal model contains 3 * N -2 free parameters.
  * Because sets of weights of X,Y are identical, total number of free parameters of X,Y is 5 * N -3.
  */
 public class MixedBivariateLogNormalFitter {
-
+  private static final Logger s_logger = LoggerFactory.getLogger(MixedBivariateLogNormalFitter.class);
   private static final int ITRMAX = 10000;
   private static final double EPS_1 = 1.E-14; //EPS_1 and EPS_2 should be chosen by users
   private static final double EPS_2 = 1.E-14; //
@@ -49,9 +52,9 @@ public class MixedBivariateLogNormalFitter {
   private final MixedLogNormalVolatilityFunction _volfunc = MixedLogNormalVolatilityFunction.getInstance();
 
   /**
-   * Find a set of parameters such that sum ( (_dataStrikes - exactFunctionValue)^2 ) is minimum 
+   * Find a set of parameters such that sum ( (_dataStrikes - exactFunctionValue)^2 ) is minimum
    * 
-   * @param paramsGuess  Initial (unconstrained) guess parameters of X,Y to be chosen randomly 
+   * @param paramsGuess  Initial (unconstrained) guess parameters of X,Y to be chosen randomly
    * @param dataStrikes  Strike (market data). All the data of X should be before those of Y
    * @param dataVolatilities  Volatility (market data). all the data of X should be before those of Y
    * @param timeToExpiry  Time to Expiry
@@ -161,7 +164,7 @@ public class MixedBivariateLogNormalFitter {
 
     if (getVecNorm(gradFunctionValueM) <= EPS_1) {
       done = true;
-      double[] tmp = exactFunctionValue(_paramsGuess, dataStrs, dataVols, time, fwdX, fwdY, nNorms, nX);
+      final double[] tmp = exactFunctionValue(_paramsGuess, dataStrs, dataVols, time, fwdX, fwdY, nNorms, nX);
       _finalSqu = 0.5 * getVecNormSq(tmp);
     }
 
@@ -177,7 +180,7 @@ public class MixedBivariateLogNormalFitter {
 
         int nWarnings = 0;
         for (int i = 0; i < nParams; ++i) {
-          double tmpGuess = _paramsGuess[i] + paramsJump[i];
+          final double tmpGuess = _paramsGuess[i] + paramsJump[i];
           if (tmpGuess <= 0. || Double.isNaN(paramsJump[i])) {
             ++nWarnings;
           }
@@ -277,7 +280,7 @@ public class MixedBivariateLogNormalFitter {
       }
 
       if (k == ITRMAX) {
-        System.out.println("Too Many Iterations");
+        s_logger.error("Too Many Iterations");
         _finalSqu = 0.5 * getVecNormSq(exactFunctionValue(_paramsGuess, dataStrs, dataVols, time, fwdX, fwdY, nNorms, nX));
       }
     }
@@ -315,7 +318,7 @@ public class MixedBivariateLogNormalFitter {
    * @param fwdY Forward of Y
    * @param nNorms Number of Normals
    * @param nX Number of data in the X part
-   * @return Gain ratio which controls update of _shift 
+   * @return Gain ratio which controls update of _shift
    */
   private double getGainRatio(final double[] jump, final double[] dataStrs, final double[] dataVols, final double[] gradFunctionValueM, final double time, final double fwdX, final double fwdY,
       final int nNorms,
@@ -346,7 +349,7 @@ public class MixedBivariateLogNormalFitter {
     final int nParams = jump.length;
     final int nData = dataStrs.length;
 
-    double[] tmp0 = exactFunctionValue(_paramsGuess, dataStrs, dataVols, time, fwdX, fwdY, nNorms, nX);
+    final double[] tmp0 = exactFunctionValue(_paramsGuess, dataStrs, dataVols, time, fwdX, fwdY, nNorms, nX);
     double[] newParams = new double[nParams];
     double[] tmp1 = new double[nData];
 
@@ -359,11 +362,11 @@ public class MixedBivariateLogNormalFitter {
   }
 
   /**
-   * During the iterations of least-square fitting, a set of parameters sometimes breaks the condition 0 < targetPrice < Math.min(forward, strike). 
+   * During the iterations of least-square fitting, a set of parameters sometimes breaks the condition 0 < targetPrice < Math.min(forward, strike).
    * Do not use getImpliedVolatilityZ method in MixedLogNormalModel2DVolatility.
-   * @param option 
-   * @param forward 
-   * @param data 
+   * @param option
+   * @param forward
+   * @param data
    * @return
    */
   private double getVolatility(final EuropeanVanillaOption option, final double forward, final MixedLogNormalModelData data) {
@@ -384,7 +387,7 @@ public class MixedBivariateLogNormalFitter {
       targetPrice = 0.99 * Math.min(forward, strike);
     }
 
-    double sigmaGuess = 0.3;
+    final double sigmaGuess = 0.3;
     return BlackFormulaRepository.impliedVolatility(targetPrice, forward, k, t, sigmaGuess);
   }
 
@@ -405,8 +408,8 @@ public class MixedBivariateLogNormalFitter {
     final int nData = dataStrs.length;
     final int dof = 3 * nNorms - 2;
 
-    double[] paramsX = new double[dof];
-    double[] paramsY = new double[dof];
+    final double[] paramsX = new double[dof];
+    final double[] paramsY = new double[dof];
 
     for (int i = 0; i < nNorms; ++i) {
       paramsX[i] = params[i];
@@ -424,19 +427,19 @@ public class MixedBivariateLogNormalFitter {
       paramsY[i + 2 * nNorms - 1] = params[i + 4 * nNorms - 2];
     }
 
-    MixedLogNormalModelData dataX = new MixedLogNormalModelData(paramsX, true);
-    MixedLogNormalModelData dataY = new MixedLogNormalModelData(paramsY, true);
+    final MixedLogNormalModelData dataX = new MixedLogNormalModelData(paramsX, true);
+    final MixedLogNormalModelData dataY = new MixedLogNormalModelData(paramsY, true);
 
-    double[] res = new double[nData];
+    final double[] res = new double[nData];
     Arrays.fill(res, 0.);
 
     for (int j = 0; j < nX; ++j) {
-      EuropeanVanillaOption option = new EuropeanVanillaOption(dataStrs[j], time, true);
+      final EuropeanVanillaOption option = new EuropeanVanillaOption(dataStrs[j], time, true);
       res[j] = dataVols[j] - getVolatility(option, fwdX, dataX);
     }
 
     for (int j = nX; j < nData; ++j) {
-      EuropeanVanillaOption option = new EuropeanVanillaOption(dataStrs[j], time, true);
+      final EuropeanVanillaOption option = new EuropeanVanillaOption(dataStrs[j], time, true);
       res[j] = dataVols[j] - getVolatility(option, fwdY, dataY);
     }
 
@@ -458,8 +461,8 @@ public class MixedBivariateLogNormalFitter {
     final int nData = dataStrs.length;
     final int nParams = params.length;
     final int dof = 3 * nNorms - 2;
-    double[] paramsX = new double[dof];
-    double[] paramsY = new double[dof];
+    final double[] paramsX = new double[dof];
+    final double[] paramsY = new double[dof];
 
     for (int i = 0; i < nNorms; ++i) {
       paramsX[i] = params[i];
@@ -477,10 +480,10 @@ public class MixedBivariateLogNormalFitter {
       paramsY[i + 2 * nNorms - 1] = params[i + 4 * nNorms - 2];
     }
 
-    MixedLogNormalModelData dataX = new MixedLogNormalModelData(paramsX, true);
-    MixedLogNormalModelData dataY = new MixedLogNormalModelData(paramsY, true);
+    final MixedLogNormalModelData dataX = new MixedLogNormalModelData(paramsX, true);
+    final MixedLogNormalModelData dataY = new MixedLogNormalModelData(paramsY, true);
 
-    double[][] res = new double[nData][nParams];
+    final double[][] res = new double[nData][nParams];
     for (int i = 0; i < nData; ++i) {
       Arrays.fill(res[i], 0.);
     }
@@ -497,8 +500,8 @@ public class MixedBivariateLogNormalFitter {
     final double[][] relativeForwardsJacobianY = dataY.getRelativeForwardsJacobian();
 
     for (int j = 0; j < nX; ++j) {
-      EuropeanVanillaOption option = new EuropeanVanillaOption(dataStrs[j], time, true);
-      double impVolX = getVolatility(option, fwdX, dataX);
+      final EuropeanVanillaOption option = new EuropeanVanillaOption(dataStrs[j], time, true);
+      final double impVolX = getVolatility(option, fwdX, dataX);
       for (int i = 0; i < nNorms; ++i) {
         for (int l = i; l < nNorms; ++l) {
           res[j][i] += -fwdX * weightsX[l] * BlackFormulaRepository.vega(relativeForwardsX[l], dataStrs[j] / fwdX, time, sigmasX[l]) /
@@ -510,7 +513,7 @@ public class MixedBivariateLogNormalFitter {
           res[j][i] += -fwdX *
               (BlackFormulaRepository.price(relativeForwardsX[l], dataStrs[j] / fwdX, time, sigmasX[l], true) - relativeForwardsX[l] *
                   BlackFormulaRepository.delta(relativeForwardsX[l], dataStrs[j] / fwdX, time, sigmasX[l], true)) * weightsJacobianX[l][i - 2 * nNorms] /
-              BlackFormulaRepository.vega(fwdX, dataStrs[j], time, impVolX);
+                  BlackFormulaRepository.vega(fwdX, dataStrs[j], time, impVolX);
         }
       }
       for (int i = 3 * nNorms - 1; i < 4 * nNorms - 2; ++i) {
@@ -523,8 +526,8 @@ public class MixedBivariateLogNormalFitter {
     }
 
     for (int j = nX; j < nData; ++j) {
-      EuropeanVanillaOption option = new EuropeanVanillaOption(dataStrs[j], time, true);
-      double impVolY = getVolatility(option, fwdY, dataY);
+      final EuropeanVanillaOption option = new EuropeanVanillaOption(dataStrs[j], time, true);
+      final double impVolY = getVolatility(option, fwdY, dataY);
       for (int i = nNorms; i < 2 * nNorms; ++i) {
         for (int l = i; l < 2 * nNorms; ++l) {
           res[j][i] += -fwdY * weightsY[l - nNorms] * BlackFormulaRepository.vega(relativeForwardsY[l - nNorms], dataStrs[j] / fwdY, time, sigmasY[l - nNorms]) /
@@ -570,13 +573,13 @@ public class MixedBivariateLogNormalFitter {
 
     final int nParams = gradFunctionValueM.length;
 
-    double[][] toBeInv = new double[nParams][nParams];
+    final double[][] toBeInv = new double[nParams][nParams];
     for (int i = 0; i < nParams; ++i) {
       toBeInv[i] = Arrays.copyOf(hessian[i], nParams);
     }
 
-    double tmpDerivativeNorm = getVecNorm(gradFunctionValueM);
-    double tmpSquFact = 0.02 * 0.5 * getVecNormSq(exactFunctionValue(_paramsGuess, dataStrs, dataVols, time, fwdX, fwdY, nNorms, nX));
+    final double tmpDerivativeNorm = getVecNorm(gradFunctionValueM);
+    final double tmpSquFact = 0.02 * 0.5 * getVecNormSq(exactFunctionValue(_paramsGuess, dataStrs, dataVols, time, fwdX, fwdY, nNorms, nX));
     if (tmpDerivativeNorm <= tmpSquFact) {
       _shift = TAU * _shift;
     }
@@ -615,7 +618,7 @@ public class MixedBivariateLogNormalFitter {
   private double[] forwardSubstitution(final double[][] lMat, final double[] doubVec) {
 
     final int size = lMat.length;
-    double[] res = new double[size];
+    final double[] res = new double[size];
 
     for (int i = 0; i < size; ++i) {
       double tmp = doubVec[i] / lMat[i][i];
@@ -637,7 +640,7 @@ public class MixedBivariateLogNormalFitter {
   private double[] backSubstitution(final double[][] uMat, final double[] doubVec) {
 
     final int size = uMat.length;
-    double[] res = new double[size];
+    final double[] res = new double[size];
 
     for (int i = size - 1; i > -1; --i) {
       double tmp = doubVec[i] / uMat[i][i];
@@ -685,7 +688,7 @@ public class MixedBivariateLogNormalFitter {
    */
   private double[] addVectors(final double[] vecA, final double[] vecB) {
     final int dim = vecA.length;
-    double[] res = new double[dim];
+    final double[] res = new double[dim];
 
     for (int i = 0; i < dim; ++i) {
       res[i] = vecA[i] + vecB[i];

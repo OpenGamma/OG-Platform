@@ -44,7 +44,7 @@ import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.DoubleTimeSeries;
 
 /**
  * 

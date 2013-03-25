@@ -25,7 +25,6 @@ import com.opengamma.engine.view.compilation.ViewCompilationServices;
 import com.opengamma.engine.view.cycle.SingleComputationCycle;
 import com.opengamma.engine.view.permission.ViewPermissionProvider;
 import com.opengamma.engine.view.worker.ViewProcessWorkerFactory;
-import com.opengamma.engine.view.worker.cache.InMemoryViewExecutionCache;
 import com.opengamma.engine.view.worker.cache.ViewExecutionCache;
 import com.opengamma.engine.view.worker.cache.ViewExecutionCacheLock;
 import com.opengamma.id.UniqueId;
@@ -65,8 +64,7 @@ public class ViewProcessContext {
   // process is the one that updates them.
   private final ExecutionLogModeSource _executionLogModeSource = new ExecutionLogModeSource();
 
-  // TODO: [PLAT-3190] Need to inject this from the view processor so that processes in a group can share data
-  private final ViewExecutionCache _executionCache = new InMemoryViewExecutionCache();
+  private final ViewExecutionCache _executionCache;
 
   // TODO: [PLAT-3190] Might need to inject this from the view processor so that all workers in the process group can share work
   private final ViewExecutionCacheLock _executionCacheLock = new ViewExecutionCacheLock();
@@ -86,7 +84,8 @@ public class ViewProcessContext {
       final GraphExecutorStatisticsGathererProvider graphExecutorStatisticsProvider,
       final OverrideOperationCompiler overrideOperationCompiler,
       final EngineResourceManagerInternal<SingleComputationCycle> cycleManager,
-      final Supplier<UniqueId> cycleIdentifiers) {
+      final Supplier<UniqueId> cycleIdentifiers,
+      final ViewExecutionCache executionCache) {
     ArgumentChecker.notNull(processId, "processId");
     ArgumentChecker.notNull(configSource, "configSource");
     ArgumentChecker.notNull(viewPermissionProvider, "viewPermissionProvider");
@@ -102,6 +101,7 @@ public class ViewProcessContext {
     ArgumentChecker.notNull(overrideOperationCompiler, "overrideOperationCompiler");
     ArgumentChecker.notNull(cycleManager, "cycleManager");
     ArgumentChecker.notNull(cycleIdentifiers, "cycleIdentifiers");
+    ArgumentChecker.notNull(executionCache, "executionCache");
     _processId = processId;
     _configSource = configSource;
     _viewPermissionProvider = viewPermissionProvider;
@@ -119,6 +119,7 @@ public class ViewProcessContext {
     _overrideOperationCompiler = overrideOperationCompiler;
     _cycleManager = cycleManager;
     _cycleIdentifiers = cycleIdentifiers;
+    _executionCache = executionCache;
   }
 
   public UniqueId getProcessId() {

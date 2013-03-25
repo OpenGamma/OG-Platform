@@ -5,8 +5,8 @@
  */
 
 /**
- * Defines the core concepts of an organisation.
+ * Defines the core concepts of an organization.
  * <p>
- * An organisation initially represents an Obligor.
+ * An organization initially represents an Obligor.
  */
 package com.opengamma.core.organization;

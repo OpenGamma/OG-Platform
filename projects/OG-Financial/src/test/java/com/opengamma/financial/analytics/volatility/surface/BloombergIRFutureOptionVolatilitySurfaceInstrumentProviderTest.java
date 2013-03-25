@@ -16,11 +16,14 @@ import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.analytics.ircurve.NextExpiryAdjuster;
 import com.opengamma.financial.analytics.model.FutureOptionExpiries;
 import com.opengamma.id.ExternalId;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * This test will begin late in 2012 as historical data on options on the Sep2011 Eurodollar future will cease to be provided
  */
+@Test(groups = TestGroup.UNIT)
 public class BloombergIRFutureOptionVolatilitySurfaceInstrumentProviderTest {
+
   private static final String PREFIX = "ED";
   private static final String POSTFIX = "Comdty";
   private static final LocalDate DATE = LocalDate.of(2011, 7, 1);

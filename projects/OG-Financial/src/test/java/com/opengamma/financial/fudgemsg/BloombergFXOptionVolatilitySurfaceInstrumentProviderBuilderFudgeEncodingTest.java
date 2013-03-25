@@ -11,11 +11,14 @@ import org.testng.annotations.Test;
 
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.analytics.volatility.surface.BloombergFXOptionVolatilitySurfaceInstrumentProvider;
+import com.opengamma.util.test.TestGroup;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class BloombergFXOptionVolatilitySurfaceInstrumentProviderBuilderFudgeEncodingTest extends FinancialTestBase {
+
   private static final String PREFIX = "EURJPY";
   private static final String POSTFIX = "Curncy";
   private static final String DATA_FIELD_NAME = "PX_LAST";

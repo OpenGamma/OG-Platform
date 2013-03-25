@@ -62,7 +62,7 @@ import com.opengamma.master.holiday.HolidayMaster;
 import com.opengamma.master.holiday.impl.RemoteHolidayMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.marketdatasnapshot.impl.RemoteMarketDataSnapshotMaster;
-import com.opengamma.master.orgs.OrganisationMaster;
+import com.opengamma.master.orgs.OrganizationMaster;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.region.RegionMaster;
@@ -70,7 +70,7 @@ import com.opengamma.master.region.impl.RemoteRegionMaster;
 import com.opengamma.master.security.SecurityLoader;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.impl.RemoteSecurityLoader;
-import com.opengamma.masterdb.orgs.RemoteDbOrganisationMaster;
+import com.opengamma.masterdb.orgs.RemoteDbOrganizationMaster;
 import com.opengamma.masterdb.portfolio.RemoteDbPortfolioMaster;
 import com.opengamma.masterdb.position.RemoteDbPositionMaster;
 import com.opengamma.masterdb.security.RemoteDbSecurityMaster;
@@ -362,7 +362,7 @@ public class RemoteComponentFactory {
   }
 
   //-------------------------------------------------------------------------
-  // Organisations/Obligors
+  // Organizations/Obligors
   /**
    * @param name the classifier name of the object you want to retrieve
    * @return the interface requested, or null if not present
@@ -397,27 +397,27 @@ public class RemoteComponentFactory {
    * @param name the classifier name of the object you want to retrieve
    * @return the interface requested, or null if not present
    */
-  public OrganisationMaster getOrganisationMaster(final String name) {
-    URI uri = getComponentServer().getComponentInfo(OrganisationMaster.class, name).getUri();
-    return new RemoteDbOrganisationMaster(uri);
+  public OrganizationMaster getOrganizationMaster(final String name) {
+    URI uri = getComponentServer().getComponentInfo(OrganizationMaster.class, name).getUri();
+    return new RemoteDbOrganizationMaster(uri);
   }
 
   /**
    * @param preferredClassifiers a list of names of classifiers in order of preference (most preferred first), or null
    * @return the best matching interface available
    */
-  public OrganisationMaster getOrganisationMaster(final List<String> preferredClassifiers) {
-    URI uri = getTopLevelComponent(preferredClassifiers, OrganisationMaster.class).getUri();
-    return new RemoteDbOrganisationMaster(uri);
+  public OrganizationMaster getOrganizationMaster(final List<String> preferredClassifiers) {
+    URI uri = getTopLevelComponent(preferredClassifiers, OrganizationMaster.class).getUri();
+    return new RemoteDbOrganizationMaster(uri);
   }
 
   /**
    * @return a map of classifier names to requested interface type
    */
-  public Map<String, OrganisationMaster> getOrganisationMasters() {
-    Map<String, OrganisationMaster> result = new LinkedHashMap<>();
-    for (ComponentInfo info : getComponentServer().getComponentInfos(OrganisationMaster.class)) {
-      result.put(info.getClassifier(), new RemoteDbOrganisationMaster(info.getUri()));
+  public Map<String, OrganizationMaster> getOrganizationMasters() {
+    Map<String, OrganizationMaster> result = new LinkedHashMap<>();
+    for (ComponentInfo info : getComponentServer().getComponentInfos(OrganizationMaster.class)) {
+      result.put(info.getClassifier(), new RemoteDbOrganizationMaster(info.getUri()));
     }
     return result;
   }

@@ -159,7 +159,7 @@ final class MathCurve {
     public NodalTenorDoubleCurve buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
       final String[] tenorStrings = deserializer.fieldValueToObject(String[].class, message.getByName(X_DATA_FIELD_NAME));
       final ArrayList<Tenor> tenors = new ArrayList<>();
-      for (String tenorString : tenorStrings) {
+      for (final String tenorString : tenorStrings) {
         tenors.add(new Tenor(Period.parse(tenorString)));
       }
       final double[] y = deserializer.fieldValueToObject(double[].class, message.getByName(Y_DATA_FIELD_NAME));
@@ -168,7 +168,7 @@ final class MathCurve {
       return NodalTenorDoubleCurve.fromSorted(tenors.toArray(new Tenor[tenors.size()]), yObjects, name);
     }
   }
-  
+
   /**
    * Fudge builder for {@link NodalObjectCurve}
    */
@@ -177,24 +177,24 @@ final class MathCurve {
     private static final String X_DATA_FIELD_NAME = "x data";
     private static final String Y_DATA_FIELD_NAME = "y data";
     private static final String CURVE_NAME_FIELD_NAME = "curve name";
-    
+
     @Override
-    public NodalObjectsCurve<?, ?> buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
-      Comparable[] xs = deserializer.fieldValueToObject(Comparable[].class, message.getByName(X_DATA_FIELD_NAME));
-      Object[] ys = deserializer.fieldValueToObject(Object[].class, message.getByName(Y_DATA_FIELD_NAME));
-      String curveName = message.getString(CURVE_NAME_FIELD_NAME);
+    public NodalObjectsCurve<?, ?> buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+      final Comparable[] xs = deserializer.fieldValueToObject(Comparable[].class, message.getByName(X_DATA_FIELD_NAME));
+      final Object[] ys = deserializer.fieldValueToObject(Object[].class, message.getByName(Y_DATA_FIELD_NAME));
+      final String curveName = message.getString(CURVE_NAME_FIELD_NAME);
       return NodalObjectsCurve.from(xs, ys, curveName);
     }
 
     @Override
-    protected void buildMessage(FudgeSerializer serializer, MutableFudgeMsg message, NodalObjectsCurve<?, ?> object) {
-      Comparable<?>[] xs = object.getXData();
-      Object[] ys = object.getYData();
-      String curveName = object.getName();
+    protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final NodalObjectsCurve<?, ?> object) {
+      final Object[] xs = object.getXData();
+      final Object[] ys = object.getYData();
+      final String curveName = object.getName();
       serializer.addToMessage(message, X_DATA_FIELD_NAME, null, xs);
       serializer.addToMessage(message, Y_DATA_FIELD_NAME, null, ys);
       message.add(CURVE_NAME_FIELD_NAME, curveName);
     }
-    
+
   }
 }

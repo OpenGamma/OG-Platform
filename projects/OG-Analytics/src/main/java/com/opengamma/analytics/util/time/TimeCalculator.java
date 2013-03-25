@@ -14,7 +14,7 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Converts dates to 'Analytics Time'. The latter are stored as doubles, 
+ * Converts dates to 'Analytics Time'. The latter are stored as doubles,
  * and typically represent the fraction of years between some date and the current one.
  */
 public final class TimeCalculator {
@@ -27,7 +27,7 @@ public final class TimeCalculator {
   }
 
   /**
-   * Computes the time between two dates using a user-supplied day count convention. Dates can be in any order. 
+   * Computes the time between two dates using a user-supplied day count convention. Dates can be in any order.
    * If date1 is after date2, the result will be negative.
    * @param date1 The first date.
    * @param date2 The second date.
@@ -39,7 +39,7 @@ public final class TimeCalculator {
     ArgumentChecker.notNull(date1, "date2");
     ArgumentChecker.notNull(dayCount, "day count");
     // Implementation note: here we convert date2 to the same zone as date1 so we don't accidentally gain or lose a day.
-    ZonedDateTime rebasedDate2 = date2.withZoneSameInstant(date1.getZone());
+    final ZonedDateTime rebasedDate2 = date2.withZoneSameInstant(date1.getZone());
 
     final boolean timeIsNegative = date1.isAfter(rebasedDate2); // date1 >= date2
 
@@ -103,16 +103,16 @@ public final class TimeCalculator {
   public static double getTimeBetween(final ZonedDateTime zdt1, final LocalDate date2) {
     ArgumentChecker.notNull(zdt1, "date1");
     ArgumentChecker.notNull(date2, "date2");
-    ZonedDateTime zdt2 = date2.atStartOfDay(ZoneOffset.UTC);
-    ZonedDateTime rebasedZdt1 = zdt1.withZoneSameInstant(ZoneOffset.UTC);
+    final ZonedDateTime zdt2 = date2.atStartOfDay(ZoneOffset.UTC);
+    final ZonedDateTime rebasedZdt1 = zdt1.withZoneSameInstant(ZoneOffset.UTC);
     return getTimeBetween(rebasedZdt1, zdt2);
   }
 
   public static double getTimeBetween(final LocalDate date1, final ZonedDateTime zdt2) {
     ArgumentChecker.notNull(date1, "date1");
     ArgumentChecker.notNull(zdt2, "date2");
-    ZonedDateTime zdt1 = date1.atStartOfDay(ZoneOffset.UTC);
-    ZonedDateTime rebasedZdt2 = zdt2.withZoneSameInstant(ZoneOffset.UTC);
+    final ZonedDateTime zdt1 = date1.atStartOfDay(ZoneOffset.UTC);
+    final ZonedDateTime rebasedZdt2 = zdt2.withZoneSameInstant(ZoneOffset.UTC);
     return getTimeBetween(zdt1, rebasedZdt2);
   }
 }
