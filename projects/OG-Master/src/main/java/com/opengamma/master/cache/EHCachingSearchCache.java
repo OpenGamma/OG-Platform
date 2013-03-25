@@ -108,7 +108,7 @@ public class EHCachingSearchCache {
     CacheConfiguration cacheConfiguration = new CacheConfiguration();
 
     // Set max bytes on local heap
-    cacheConfiguration.setMaxBytesLocalHeap("10M");
+    cacheConfiguration.setMaxEntriesLocalHeap(100000);
 
     // Set cache name
     cacheConfiguration.setName(name + CACHE_NAME_SUFFIX);

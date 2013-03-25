@@ -96,7 +96,7 @@ public abstract class AbstractEHCachingMaster<D extends AbstractDocument> implem
     cacheConfiguration.setName(name + CACHE_NAME_SUFFIX);
 
     // Set max bytes on local heap
-    cacheConfiguration.setMaxBytesLocalHeap("10M");
+    cacheConfiguration.setMaxEntriesLocalHeap(100000);
 
     Searchable uidToDocumentCacheSearchable = new Searchable();
     uidToDocumentCacheSearchable.addSearchAttribute(new SearchAttribute().name("ObjectId")
