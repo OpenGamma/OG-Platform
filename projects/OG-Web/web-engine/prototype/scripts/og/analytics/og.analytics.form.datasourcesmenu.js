@@ -24,21 +24,21 @@ $.register_module({
                     live: {
                         type:'Live',
                         source:'',
-                        datasource: function () { return og.api.rest.livedatasources },
-                        api_opts:{ cache_for: 5000 }
+                        datasource: 'livedatasources',
+                        api_opts:{ cache_for:5000 }
                     },
                     snapshot: {
                         type:'Snapshot',
                         source:'',
-                        datasource: function () { return og.api.rest.marketdatasnapshots.get },
-                        api_opts:{  page: '*', cache_for: 5000 }
+                        datasource: 'marketdatasnapshots',
+                        api_opts:{ cache_for:5000 }
                     },
                     historical: {
                         type:'Historical',
                         source:'',
                         date:'',
-                        datasource: function () { return og.api.rest.configs.get },
-                        api_opts:{ page: '*', type: 'HistoricalTimeSeriesRating' }
+                        datasource: 'configs',
+                        api_opts:{ type: 'HistoricalTimeSeriesRating' }
                     }
                 };
 
@@ -64,10 +64,11 @@ $.register_module({
             };
 
             var add_source_dropdown = function (obj) {
+                var datasource = obj.datasource.split('.').reduce(function (api, key) {return api[key];}, og.api.rest);
                 return new form.Block({
                     module: 'og.analytics.form_datasources_source_tash',
                     generator: function (handler, tmpl, data) {
-                        obj.datasource().get(obj.api_opts).pipe(function (resp) {
+                        datasource.get(obj.api_opts).pipe(function (resp) {
                             if (resp.error) return og.dev.warn('og.analytics.DatasourcesMenu: ' + resp.error);
                             data.source = obj.type === 'Live' ? resp.data.map(function (entry) {
                                 return { text: entry, value: entry, selected: obj.source === entry };
