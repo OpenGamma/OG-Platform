@@ -5,24 +5,95 @@
  */
 package com.opengamma.timeseries;
 
-
-
 /**
- * 
- * 
+ * Unary and binary operators for time-series.
  */
 @SuppressWarnings("synthetic-access")
 public class DoubleTimeSeriesOperators {
+
   /**
-   * Interface that should be satisfied by all binary operators. Public
-   * so that it's possible
-   * to provide custom operations to @method operate and @method
-   * unionOperate
+   * Binary operator to add the input parameters.
+   */
+  public static final BinaryOperator ADD_OPERATOR = new AddOperator();
+  /**
+   * Binary operator to subtract the second parameter from the first.
+   */
+  public static final BinaryOperator SUBTRACT_OPERATOR = new SubtractOperator();
+  /**
+   * Binary operator to multiply the input parameters.
+   */
+  public static final BinaryOperator MULTIPLY_OPERATOR = new MultiplyOperator();
+  /**
+   * Binary operator to divide the first parameter by the second.
+   */
+  public static final BinaryOperator DIVIDE_OPERATOR = new DivideOperator();
+  /**
+   * Binary operator to raise the first parameter to the power of the second parameter.
+   */
+  public static final BinaryOperator POWER_OPERATOR = new PowerOperator();
+  /**
+   * Binary operator to return the minimum of the two input parameters.
+   */
+  public static final BinaryOperator MINIMUM_OPERATOR = new MinimumOperator();
+  /**
+   * Binary operator to return the maximum of the two input parameters.
+   */
+  public static final BinaryOperator MAXIMUM_OPERATOR = new MaximumOperator();
+  /**
+   * Binary operator to return the average of the two input parameters.
+   */
+  public static final BinaryOperator AVERAGE_OPERATOR = new AverageOperator();
+  /**
+   * Binary operator to return the first parameter.
+   */
+  public static final BinaryOperator FIRST_OPERATOR = new FirstOperator();
+  /**
+   * Binary operator to return the second parameter.
+   */
+  public static final BinaryOperator SECOND_OPERATOR = new SecondOperator();
+  /**
+   * Binary operator that always throws an exception.
+   */
+  public static final BinaryOperator NO_INTERSECTION_OPERATOR = new NoIntersectionOperator();
+
+  /**
+   * Unary operator that returns the reciprocal of the input parameter.
+   */
+  public static final UnaryOperator RECIPROCAL_OPERATOR = new ReciprocalOperator();
+  /**
+   * Unary operator that returns the negation of the input parameter.
+   */
+  public static final UnaryOperator NEGATE_OPERATOR = new NegateOperator();
+  /**
+   * Unary operator that returns the log of the input parameter.
+   */
+  public static final UnaryOperator LOG_OPERATOR = new LogOperator();
+  /**
+   * Unary operator that returns the log 10 of the input parameter.
+   */
+  public static final UnaryOperator LOG10_OPERATOR = new Log10Operator();
+  /**
+   * Unary operator that returns the absolute value of the input parameter.
+   */
+  public static final UnaryOperator ABS_OPERATOR = new AbsOperator();
+
+  //-------------------------------------------------------------------------
+  /**
+   * A binary operator takes two parameters and produces a single result.
+   * For example, the plus, minus and multiply operators are binary.
    */
   public interface BinaryOperator {
+    /**
+     * Performs an operation on the input to produce an output.
+     * 
+     * @param a  the first parameter
+     * @param b  the second parameter
+     * @return the result
+     */
     double operate(double a, double b);
   }
 
+  //-------------------------------------------------------------------------
   private static class AddOperator implements BinaryOperator {
     public double operate(final double a, final double b) {
       return a + b;
@@ -87,18 +158,24 @@ public class DoubleTimeSeriesOperators {
     public double operate(double a, double b) {
       throw new IllegalStateException("No binary operation permitted");
     }
-    
   }
 
+  //-------------------------------------------------------------------------
   /**
-   *         Interface to be implemented by any unary operation on time series.
-   *         Public so
-   *         that custom implementations can be passed to @method operate.
+   * A unary operator takes a single parameter and produces a result.
+   * For example, the increment and decrement operators are unary.
    */
   public interface UnaryOperator {
+    /**
+     * Performs an operation on the input to produce an output.
+     * 
+     * @param a  the input parameter
+     * @return the result
+     */
     double operate(double a);
   }
 
+  //-------------------------------------------------------------------------
   private static class ReciprocalOperator implements UnaryOperator {
     public double operate(final double a) {
       return 1 / a;
@@ -128,25 +205,5 @@ public class DoubleTimeSeriesOperators {
       return Math.abs(a);
     }
   }
-  
-  
 
-  // CSOFF: Self-Explainatory
-  public static final AddOperator ADD_OPERATOR = new AddOperator();
-  public static final SubtractOperator SUBTRACT_OPERATOR = new SubtractOperator();
-  public static final MultiplyOperator MULTIPLY_OPERATOR = new MultiplyOperator();
-  public static final DivideOperator DIVIDE_OPERATOR = new DivideOperator();
-  public static final PowerOperator POWER_OPERATOR = new PowerOperator();
-  public static final MinimumOperator MINIMUM_OPERATOR = new MinimumOperator();
-  public static final MaximumOperator MAXIMUM_OPERATOR = new MaximumOperator();
-  public static final AverageOperator AVERAGE_OPERATOR = new AverageOperator();
-  public static final FirstOperator FIRST_OPERATOR = new FirstOperator();
-  public static final SecondOperator SECOND_OPERATOR = new SecondOperator();
-  public static final ReciprocalOperator RECIPROCAL_OPERATOR = new ReciprocalOperator();
-  public static final NegateOperator NEGATE_OPERATOR = new NegateOperator();
-  public static final LogOperator LOG_OPERATOR = new LogOperator();
-  public static final Log10Operator LOG10_OPERATOR = new Log10Operator();
-  public static final AbsOperator ABS_OPERATOR = new AbsOperator();
-  public static final NoIntersectionOperator NO_INTERSECTION_OPERATOR = new NoIntersectionOperator();
-  // CSON: Self-Explainatory
 }

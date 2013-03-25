@@ -68,47 +68,47 @@ public abstract class AbstractFastObjectTimeSeries<FAST_DATE_T, T> implements Ob
   @SuppressWarnings("unchecked")
   public FastObjectTimeSeries<FAST_DATE_T, T> intersectionFirstValue(ObjectTimeSeries<?, T> other) {
     if (other instanceof FastBackedObjectTimeSeries<?, ?>) {
-      return operate((FastBackedObjectTimeSeries<?, T>) other, ObjectTimeSeriesOperators.<T>makeFirstOperator());
+      return operate((FastBackedObjectTimeSeries<?, T>) other, ObjectTimeSeriesOperators.<T>firstOperator());
     } else if (other instanceof FastIntObjectTimeSeries) {
-      return operate((FastIntObjectTimeSeries<T>) other, ObjectTimeSeriesOperators.<T>makeFirstOperator());
+      return operate((FastIntObjectTimeSeries<T>) other, ObjectTimeSeriesOperators.<T>firstOperator());
     } else { // if (other instanceof FastLongDoubleTimeSeries) {
-      return operate((FastLongObjectTimeSeries<T>) other, ObjectTimeSeriesOperators.<T>makeFirstOperator());
+      return operate((FastLongObjectTimeSeries<T>) other, ObjectTimeSeriesOperators.<T>firstOperator());
     }
   }
 
   public FastObjectTimeSeries<FAST_DATE_T, T> intersectionFirstValue(FastBackedObjectTimeSeries<?, T> other) {
-    return operate(other, ObjectTimeSeriesOperators.<T>makeFirstOperator());
+    return operate(other, ObjectTimeSeriesOperators.<T>firstOperator());
   }
 
   public FastObjectTimeSeries<FAST_DATE_T, T> intersectionFirstValue(FastLongObjectTimeSeries<T> other) {
-    return operate(other, ObjectTimeSeriesOperators.<T>makeFirstOperator());
+    return operate(other, ObjectTimeSeriesOperators.<T>firstOperator());
   }
 
   public FastObjectTimeSeries<FAST_DATE_T, T> intersectionFirstValue(FastIntObjectTimeSeries<T> other) {
-    return operate(other, ObjectTimeSeriesOperators.<T>makeFirstOperator());
+    return operate(other, ObjectTimeSeriesOperators.<T>firstOperator());
   }
 
   @SuppressWarnings("unchecked")
   public FastObjectTimeSeries<FAST_DATE_T, T> intersectionSecondValue(ObjectTimeSeries<?, T> other) {
     if (other instanceof FastBackedObjectTimeSeries<?, ?>) {
-      return operate((FastBackedObjectTimeSeries<?, T>) other, ObjectTimeSeriesOperators.<T>makeSecondOperator());
+      return operate((FastBackedObjectTimeSeries<?, T>) other, ObjectTimeSeriesOperators.<T>secondOperator());
     } else if (other instanceof FastIntObjectTimeSeries<?>) {
-      return operate((FastIntObjectTimeSeries<T>) other, ObjectTimeSeriesOperators.<T>makeSecondOperator());
+      return operate((FastIntObjectTimeSeries<T>) other, ObjectTimeSeriesOperators.<T>secondOperator());
     } else { // if (other instanceof FastLongDoubleTimeSeries) {
-      return operate((FastLongObjectTimeSeries<T>) other, ObjectTimeSeriesOperators.<T>makeSecondOperator());
+      return operate((FastLongObjectTimeSeries<T>) other, ObjectTimeSeriesOperators.<T>secondOperator());
     }
   }
 
   public FastObjectTimeSeries<FAST_DATE_T, T> intersectionSecondValue(FastBackedObjectTimeSeries<?, T> other) {
-    return operate(other, ObjectTimeSeriesOperators.<T>makeSecondOperator());
+    return operate(other, ObjectTimeSeriesOperators.<T>secondOperator());
   }
 
   public FastObjectTimeSeries<FAST_DATE_T, T> intersectionSecondValue(FastLongObjectTimeSeries<T> other) {
-    return operate(other, ObjectTimeSeriesOperators.<T>makeSecondOperator());
+    return operate(other, ObjectTimeSeriesOperators.<T>secondOperator());
   }
 
   public FastObjectTimeSeries<FAST_DATE_T, T> intersectionSecondValue(FastIntObjectTimeSeries<T> other) {
-    return operate(other, ObjectTimeSeriesOperators.<T>makeSecondOperator());
+    return operate(other, ObjectTimeSeriesOperators.<T>secondOperator());
   }
 
   public FastIntObjectTimeSeries<T> toFastIntDaysDTS() {
