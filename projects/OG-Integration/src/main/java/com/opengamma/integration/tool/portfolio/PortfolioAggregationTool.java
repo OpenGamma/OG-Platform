@@ -18,8 +18,12 @@ import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.aggregation.AggregationFunction;
 import com.opengamma.financial.aggregation.AssetClassAggregationFunction;
+import com.opengamma.financial.aggregation.CdsObligorNameAggregationFunction;
+import com.opengamma.financial.aggregation.CdsObligorTickerAggregationFunction;
+import com.opengamma.financial.aggregation.CdsRedCodeAggregationFunction;
 import com.opengamma.financial.aggregation.CurrencyAggregationFunction;
 import com.opengamma.financial.aggregation.DetailedAssetClassAggregationFunction;
+import com.opengamma.financial.aggregation.GICSAggregationFunction;
 import com.opengamma.financial.aggregation.PortfolioAggregator;
 import com.opengamma.financial.aggregation.PositionAttributeAggregationFunction;
 import com.opengamma.financial.aggregation.UnderlyingAggregationFunction;
@@ -68,6 +72,10 @@ public class PortfolioAggregationTool extends AbstractTool<IntegrationToolContex
     _aggregationFunctions.put("Currency", new CurrencyAggregationFunction());
     _aggregationFunctions.put("DetailedAssetClass", new DetailedAssetClassAggregationFunction());
     _aggregationFunctions.put("Underlying", new UnderlyingAggregationFunction(secSource, "BLOOMBERG_TICKER"));
+    _aggregationFunctions.put("ReferenceEntityName", new CdsObligorNameAggregationFunction(getToolContext().getSecuritySource(), getToolContext().getOrganizationSource()));
+    _aggregationFunctions.put("ReferenceEntityTicker", new CdsObligorTickerAggregationFunction(getToolContext().getSecuritySource(), getToolContext().getOrganizationSource()));
+    _aggregationFunctions.put("Sector", new GICSAggregationFunction(getToolContext().getSecuritySource(), getToolContext().getOrganizationSource(), GICSAggregationFunction.Level.SECTOR));
+    _aggregationFunctions.put("RedCode", new CdsRedCodeAggregationFunction(getToolContext().getSecuritySource()));
   }
   
   private AggregationFunction<?>[] createAggregationFunctions(String[] aggregatorNames) {
@@ -106,7 +114,7 @@ public class PortfolioAggregationTool extends AbstractTool<IntegrationToolContex
                                                  .isRequired()
                                                  .withValueSeparator(',')
                                                  .withDescription("The (comma, no space seperated) names of the aggregation" +
-                                                                  " styles to use: e.g AssetClass,Currency,DetailtedAssetClass")
+                                                                  " styles to use: e.g AssetClass,Currency,DetailedAssetClass")
                                                  .create(AGGREGATION_OPT);
     options.addOption(aggregationTypesOption);
     @SuppressWarnings("static-access")
