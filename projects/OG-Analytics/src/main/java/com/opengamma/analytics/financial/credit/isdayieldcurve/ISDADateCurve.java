@@ -120,7 +120,7 @@ public class ISDADateCurve {
     }
 
     _shiftedTimePoints = new double[times.length];
-    for (int i = 0; i < _n; ++i) {
+    for (int i = 0; i < times.length; ++i) {
       _shiftedTimePoints[i] = times[i] + _offset;
     }
     _zeroDiscountFactor = Math.exp(_offset * getInterestRate(0.0));

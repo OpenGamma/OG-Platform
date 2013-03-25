@@ -7,7 +7,6 @@
 package com.opengamma.core.organization.impl;
 
 import java.net.URI;
-import java.util.List;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -18,11 +17,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
-import com.opengamma.core.organization.Organization;
 import com.opengamma.core.organization.OrganizationSource;
-import com.opengamma.core.security.Security;
-import com.opengamma.core.security.SecuritySource;
-import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
@@ -38,7 +33,8 @@ import com.opengamma.util.rest.AbstractDataResource;
 public class DataOrganizationSourceResource extends AbstractDataResource {
 
   public static final String GET_ORGANIZATIONS_URL = "organizations/{organizationId}";
-  public static final String SEARCH_ORGANIZATION_SINGLE = "organizationSearches/single";
+  public static final String SEARCH_ORGANIZATION_BY_TICKER = "organizationSearches/ticker";
+  public static final String SEARCH_ORGANIZATION_BY_RED_CODE = "organizationSearches/redCode";
   public static final String TICKER_PARAM = "ticker";
   public static final String RED_CODE_PARAM = "redCode";
   public static final String ORGANIZATION_ID_PATH = "organizationId";
@@ -83,13 +79,13 @@ public class DataOrganizationSourceResource extends AbstractDataResource {
   }
 
   @GET
-  @Path(SEARCH_ORGANIZATION_SINGLE)
+  @Path(SEARCH_ORGANIZATION_BY_RED_CODE)
   public Response searchRedCode(@QueryParam(RED_CODE_PARAM) String redCode) {
     return responseOkFudge(redCode == null ? null : _orgSource.getOrganizationByRedCode(redCode));
   }
 
   @GET
-  @Path(SEARCH_ORGANIZATION_SINGLE)
+  @Path(SEARCH_ORGANIZATION_BY_TICKER)
   public Response searchTicker(@QueryParam(TICKER_PARAM) String ticker) {
     return responseOkFudge(ticker == null ? null : _orgSource.getOrganizationByTicker(ticker));
   }
@@ -122,7 +118,7 @@ public class DataOrganizationSourceResource extends AbstractDataResource {
   public static URI uriSearchByRedCode(URI baseUri, String redCode) {
     return UriBuilder
         .fromUri(baseUri)
-        .path(SEARCH_ORGANIZATION_SINGLE)
+        .path(SEARCH_ORGANIZATION_BY_RED_CODE)
         .queryParam(RED_CODE_PARAM, redCode)
         .build();
   }
@@ -130,7 +126,7 @@ public class DataOrganizationSourceResource extends AbstractDataResource {
   public static URI uriSearchByTicker(URI baseUri, String ticker) {
     return UriBuilder
         .fromUri(baseUri)
-        .path(SEARCH_ORGANIZATION_SINGLE)
+        .path(SEARCH_ORGANIZATION_BY_TICKER)
         .queryParam(TICKER_PARAM, ticker)
         .build();
   }
