@@ -5,15 +5,18 @@
  */
 package com.opengamma.timeseries.localdate;
 
+import java.util.NoSuchElementException;
+import java.util.Map.Entry;
+
 import org.threeten.bp.LocalDate;
 
 import com.opengamma.timeseries.AbstractIntDoubleTimeSeries;
 import com.opengamma.timeseries.AbstractLongDoubleTimeSeries;
 import com.opengamma.timeseries.DateTimeConverter;
 import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.DoubleTimeSeriesOperators.UnaryOperator;
 import com.opengamma.timeseries.FastBackedDoubleTimeSeries;
 import com.opengamma.timeseries.TimeSeriesUtils;
-import com.opengamma.timeseries.DoubleTimeSeriesOperators.UnaryOperator;
 import com.opengamma.timeseries.fast.integer.FastIntDoubleTimeSeries;
 import com.opengamma.timeseries.fast.longint.FastLongDoubleTimeSeries;
 
@@ -22,22 +25,33 @@ import com.opengamma.timeseries.fast.longint.FastLongDoubleTimeSeries;
  */
 public interface LocalDateDoubleTimeSeries extends DoubleTimeSeries<LocalDate>, FastBackedDoubleTimeSeries<LocalDate> {
 
-  @Override
+  /**
+   * Gets an iterator over the date-value pairs.
+   * <p>
+   * Although the pairs are expressed as instances of {@code Map.Entry},
+   * it is recommended to use the primitive methods on {@code LocalDateDoubleIterator}.
+   * 
+   * @return the iterator, not null
+   */
+  LocalDateDoubleIterator iterator();
+
+  //-------------------------------------------------------------------------
+  @Override  // override for covariant return type
   LocalDateDoubleTimeSeries subSeries(LocalDate startTime, boolean includeStart, LocalDate endTime, boolean includeEnd);
 
-  @Override
+  @Override  // override for covariant return type
   LocalDateDoubleTimeSeries subSeries(LocalDate startTime, LocalDate endTime);
 
-  @Override
+  @Override  // override for covariant return type
   LocalDateDoubleTimeSeries head(int numItems);
 
-  @Override
+  @Override  // override for covariant return type
   LocalDateDoubleTimeSeries tail(int numItems);
 
-  @Override
+  @Override  // override for covariant return type
   LocalDateDoubleTimeSeries lag(final int lagCount);
 
-  @Override
+  @Override  // override for covariant return type
   LocalDateDoubleTimeSeries operate(UnaryOperator operator);
 
   //-------------------------------------------------------------------------
@@ -51,6 +65,63 @@ public interface LocalDateDoubleTimeSeries extends DoubleTimeSeries<LocalDate>, 
       super(converter, timeSeries);
     }
 
+    //-------------------------------------------------------------------------
+    @Override
+    public LocalDateDoubleIterator iterator() {
+      return new LocalDateDoubleIterator() {
+        private int _index = -1;
+        @Override
+        public boolean hasNext() {
+          return (_index + 1) < size();
+        }
+        @Override
+        public Entry<LocalDate, Double> next() {
+          if (hasNext() == false) {
+            throw new NoSuchElementException("No more elements in the iteration");
+          }
+          _index++;
+          int date = getFastSeries().getTimeFast(_index);
+          Double value = getFastSeries().getValueAt(_index);
+          return getConverter().makeMapEntry(getConverter().convertFromInt(date), value);
+        }
+        @Override
+        public int nextDate() {
+          if (hasNext() == false) {
+            throw new NoSuchElementException("No more elements in the iteration");
+          }
+          _index++;
+          return getFastSeries().getTimeFast(_index);
+        }
+        @Override
+        public LocalDate nextLocalDate() {
+          return getConverter().convertFromInt(nextDate());
+        }
+        @Override
+        public int currentDate() {
+          if (_index < 0) {
+            throw new IllegalStateException("Iterator has nor has nextDate() or next() called yet");
+          }
+          return getFastSeries().getTimeFast(_index);
+        }
+        @Override
+        public LocalDate currentLocalDate() {
+          return getConverter().convertFromInt(currentDate());
+        }
+        @Override
+        public double currentValue() {
+          if (_index < 0) {
+            throw new IllegalStateException("Iterator has nor has nextDate() or next() called yet");
+          }
+          return getFastSeries().getValueAtFast(_index);
+        }
+        @Override
+        public void remove() {
+          throw new UnsupportedOperationException("Immutable iterator");
+        }
+      };
+    }
+
+    //-------------------------------------------------------------------------
     @Override
     public LocalDateDoubleTimeSeries subSeries(LocalDate startTime, boolean includeStart, LocalDate endTime, boolean includeEnd) {
       return (LocalDateDoubleTimeSeries) super.subSeries(startTime, includeStart, endTime, includeEnd);
@@ -105,6 +176,56 @@ public interface LocalDateDoubleTimeSeries extends DoubleTimeSeries<LocalDate>, 
       super(converter, timeSeries);
     }
 
+    //-------------------------------------------------------------------------
+    @Override
+    public LocalDateDoubleIterator iterator() {
+      return new LocalDateDoubleIterator() {
+        private int _index = -1;
+        @Override
+        public boolean hasNext() {
+          return (_index + 1) < size();
+        }
+        @Override
+        public Entry<LocalDate, Double> next() {
+          if (hasNext() == false) {
+            throw new NoSuchElementException("No more elements in the iteration");
+          }
+          _index++;
+          long date = getFastSeries().getTimeFast(_index);
+          Double value = getFastSeries().getValueAt(_index);
+          return getConverter().makeMapEntry(getConverter().convertFromLong(date), value);
+        }
+        @Override
+        public int nextDate() {
+          throw new UnsupportedOperationException("long dates are not supported");
+        }
+        @Override
+        public LocalDate nextLocalDate() {
+          return getConverter().convertFromLong(nextDate());
+        }
+        @Override
+        public int currentDate() {
+          throw new UnsupportedOperationException("long dates are not supported");
+        }
+        @Override
+        public LocalDate currentLocalDate() {
+          return getConverter().convertFromLong(currentDate());
+        }
+        @Override
+        public double currentValue() {
+          if (_index < 0) {
+            throw new IllegalStateException("Iterator has nor has nextDate() or next() called yet");
+          }
+          return getFastSeries().getValueAtFast(_index);
+        }
+        @Override
+        public void remove() {
+          throw new UnsupportedOperationException("Immutable iterator");
+        }
+      };
+    }
+
+    //-------------------------------------------------------------------------
     @Override
     public LocalDateDoubleTimeSeries subSeries(LocalDate startTime, boolean includeStart, LocalDate endTime, boolean includeEnd) {
       return (LocalDateDoubleTimeSeries) super.subSeries(startTime, includeStart, endTime, includeEnd);
