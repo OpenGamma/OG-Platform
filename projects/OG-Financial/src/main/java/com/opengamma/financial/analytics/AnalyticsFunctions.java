@@ -173,7 +173,7 @@ public class AnalyticsFunctions extends AbstractRepositoryConfigurationBean {
     addUnitScalingFunction(functions, ValueRequirementNames.MODIFIED_DURATION);
     addUnitScalingAndSummingFunction(functions, ValueRequirementNames.NET_BASIS);
     addUnitScalingAndSummingFunction(functions, ValueRequirementNames.NETTED_FIXED_CASH_FLOWS);
-    addUnitScalingFunction(functions, ValueRequirementNames.NOTIONAL);
+    addUnitScalingAndSummingFunction(functions, ValueRequirementNames.NOTIONAL);
     addUnitScalingFunction(functions, ValueRequirementNames.PHI);
     addUnitScalingFunction(functions, ValueRequirementNames.PAR_RATE);
     addUnitScalingFunction(functions, ValueRequirementNames.PAR_RATE_CURVE_SENSITIVITY);
