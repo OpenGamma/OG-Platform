@@ -28,6 +28,8 @@ import com.opengamma.master.holiday.impl.EHCachingHolidayMaster;
 import com.opengamma.master.holiday.impl.RemoteHolidayMaster;
 import com.opengamma.util.ehcache.EHCacheUtils;
 
+import net.sf.ehcache.CacheManager;
+
 /**
  * Component factory for the combined holiday master.
  * <p>
@@ -51,6 +53,11 @@ public class EHCachingHolidayMasterComponentFactory extends AbstractComponentFac
    */
   @PropertyDefinition(validate = "notNull")
   private HolidayMaster _underlying;
+  /**
+   * The cache manager.
+   */
+  @PropertyDefinition
+  private CacheManager _cacheManager;
 
 
   //-------------------------------------------------------------------------
@@ -58,8 +65,8 @@ public class EHCachingHolidayMasterComponentFactory extends AbstractComponentFac
   public void init(ComponentRepository repo, LinkedHashMap<String, String> holidayuration) {
 
     HolidayMaster master = new EHCachingHolidayMaster(getClassifier(),
-                                                      _underlying,
-                                                      EHCacheUtils.createCacheManager()); // actually retrieves existing
+                                                      getUnderlying(),
+                                                      getCacheManager());
 
     // register
     ComponentInfo info = new ComponentInfo(HolidayMaster.class, getClassifier());
@@ -98,6 +105,8 @@ public class EHCachingHolidayMasterComponentFactory extends AbstractComponentFac
         return isPublishRest();
       case -1770633379:  // underlying
         return getUnderlying();
+      case -1452875317:  // cacheManager
+        return getCacheManager();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -113,6 +122,9 @@ public class EHCachingHolidayMasterComponentFactory extends AbstractComponentFac
         return;
       case -1770633379:  // underlying
         setUnderlying((HolidayMaster) newValue);
+        return;
+      case -1452875317:  // cacheManager
+        setCacheManager((CacheManager) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -135,6 +147,7 @@ public class EHCachingHolidayMasterComponentFactory extends AbstractComponentFac
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
           JodaBeanUtils.equal(isPublishRest(), other.isPublishRest()) &&
           JodaBeanUtils.equal(getUnderlying(), other.getUnderlying()) &&
+          JodaBeanUtils.equal(getCacheManager(), other.getCacheManager()) &&
           super.equals(obj);
     }
     return false;
@@ -146,6 +159,7 @@ public class EHCachingHolidayMasterComponentFactory extends AbstractComponentFac
     hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
     hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlying());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
     return hash ^ super.hashCode();
   }
 
@@ -228,6 +242,31 @@ public class EHCachingHolidayMasterComponentFactory extends AbstractComponentFac
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the cache manager.
+   * @return the value of the property
+   */
+  public CacheManager getCacheManager() {
+    return _cacheManager;
+  }
+
+  /**
+   * Sets the cache manager.
+   * @param cacheManager  the new value of the property
+   */
+  public void setCacheManager(CacheManager cacheManager) {
+    this._cacheManager = cacheManager;
+  }
+
+  /**
+   * Gets the the {@code cacheManager} property.
+   * @return the property, not null
+   */
+  public final Property<CacheManager> cacheManager() {
+    return metaBean().cacheManager().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code EHCachingHolidayMasterComponentFactory}.
    */
   public static class Meta extends AbstractComponentFactory.Meta {
@@ -252,13 +291,19 @@ public class EHCachingHolidayMasterComponentFactory extends AbstractComponentFac
     private final MetaProperty<HolidayMaster> _underlying = DirectMetaProperty.ofReadWrite(
         this, "underlying", EHCachingHolidayMasterComponentFactory.class, HolidayMaster.class);
     /**
+     * The meta-property for the {@code cacheManager} property.
+     */
+    private final MetaProperty<CacheManager> _cacheManager = DirectMetaProperty.ofReadWrite(
+        this, "cacheManager", EHCachingHolidayMasterComponentFactory.class, CacheManager.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier",
         "publishRest",
-        "underlying");
+        "underlying",
+        "cacheManager");
 
     /**
      * Restricted constructor.
@@ -275,6 +320,8 @@ public class EHCachingHolidayMasterComponentFactory extends AbstractComponentFac
           return _publishRest;
         case -1770633379:  // underlying
           return _underlying;
+        case -1452875317:  // cacheManager
+          return _cacheManager;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -317,6 +364,14 @@ public class EHCachingHolidayMasterComponentFactory extends AbstractComponentFac
      */
     public final MetaProperty<HolidayMaster> underlying() {
       return _underlying;
+    }
+
+    /**
+     * The meta-property for the {@code cacheManager} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<CacheManager> cacheManager() {
+      return _cacheManager;
     }
 
   }
