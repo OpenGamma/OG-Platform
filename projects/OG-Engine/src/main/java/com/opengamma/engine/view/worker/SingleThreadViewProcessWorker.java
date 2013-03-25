@@ -414,7 +414,7 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
           s_logger.warn("Job terminated during view compilation");
           return;
         }
-        if (previous != compiledViewDefinition) {
+        if ((previous == null) || !previous.getCompilationIdentifier().equals(compiledViewDefinition.getCompilationIdentifier())) {
           if (_changedTargets != null) {
             // We'll try to register for changes that will wake us up for a cycle if market data is not ticking
             if (previous != null) {
@@ -1079,6 +1079,9 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
                   previousResolutions.put(resolvedIdentifier.getKey(), resolvedIdentifier.getValue());
                 }
               }
+            } else {
+              compiledViewDefinition = compiledViewDefinition.withResolverVersionCorrection(versionCorrection);
+              cacheCompiledViewDefinition(compiledViewDefinition);
             }
           }
           if (!CompiledViewDefinitionWithGraphsImpl.isValidFor(compiledViewDefinition, valuationTime)) {
