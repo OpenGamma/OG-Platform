@@ -32,7 +32,6 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.greeks.Greek;
 import com.opengamma.analytics.financial.greeks.PDEResultCollection;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
@@ -48,7 +47,6 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
-import com.opengamma.financial.currency.ConfigDBCurrencyPairsSource;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.security.FinancialSecurityTypes;
@@ -56,7 +54,6 @@ import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.util.money.Currency;
 
 /**
- *
  * @deprecated Deprecated
  */
 @Deprecated
@@ -111,15 +108,10 @@ public class ForexLocalVolatilityGreekFunction extends AbstractFunction.NonCompi
     if (gridGreeksObject == null) {
       throw new OpenGammaRuntimeException("Grid greeks were null");
     }
-    final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(executionContext);
-    final ConfigDBCurrencyPairsSource currencyPairsSource = new ConfigDBCurrencyPairsSource(configSource);
-    final CurrencyPairs currencyPairs = currencyPairsSource.getCurrencyPairs(CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
+    final CurrencyPairs currencyPairs = OpenGammaExecutionContext.getCurrencyPairsSource(executionContext).getCurrencyPairs(CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
     final CurrencyPair currencyPair = currencyPairs.getCurrencyPair(fxOption.getPutCurrency(), fxOption.getCallCurrency());
     final double strike = getStrike(fxOption, currencyPair);
     final PDEResultCollection gridGreeks = (PDEResultCollection) gridGreeksObject;
-    final ValueProperties.Builder properties = createValueProperties(surfaceName, surfaceType, xAxis, yAxis, yAxisType, forwardCurveCalculationMethod, h, forwardCurveName, theta, timeSteps,
-        spaceSteps,
-        timeGridBunching, spaceGridBunching, maxMoneyness, pdeDirection);
     final ComputationTargetSpecification spec = target.toSpecification();
     final Set<ComputedValue> result = new HashSet<ComputedValue>();
     for (final ValueRequirement value : desiredValues) {
@@ -129,9 +121,7 @@ public class ForexLocalVolatilityGreekFunction extends AbstractFunction.NonCompi
       if (point == null) {
         throw new OpenGammaRuntimeException("Grid greeks for " + greek + " were null");
       }
-      properties.with(PROPERTY_RESULT_STRIKE_INTERPOLATOR, strikeInterpolatorName);
-      final ValueSpecification resultSpec = new ValueSpecification(value.getValueName(), spec, properties.get());
-      properties.withoutAny(PROPERTY_RESULT_STRIKE_INTERPOLATOR);
+      final ValueSpecification resultSpec = new ValueSpecification(value.getValueName(), spec, value.getConstraints());
       result.add(new ComputedValue(resultSpec, point));
     }
     return result;
@@ -464,29 +454,6 @@ public class ForexLocalVolatilityGreekFunction extends AbstractFunction.NonCompi
         .with(PROPERTY_PDE_DIRECTION, pdeDirection)
         .withAny(PROPERTY_RESULT_STRIKE_INTERPOLATOR)
         .get();
-  }
-
-  private ValueProperties.Builder createValueProperties(final String surfaceName, final String surfaceType, final String xAxis, final String yAxis, final String yAxisType,
-      final String forwardCurveCalculationMethod, final String h, final String forwardCurveName, final String theta, final String timeSteps, final String spaceSteps, final String timeGridBunching,
-      final String spaceGridBunching, final String maxMoneyness, final String pdeDirection) {
-    return createValueProperties()
-        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)
-        .with(ValuePropertyNames.SURFACE, surfaceName)
-        .with(ValuePropertyNames.CALCULATION_METHOD, LocalVolatilityPDEValuePropertyNames.LOCAL_VOLATILITY_METHOD)
-        .with(PROPERTY_SURFACE_TYPE, surfaceType)
-        .with(PROPERTY_X_AXIS, xAxis)
-        .with(PROPERTY_Y_AXIS, yAxis)
-        .with(PROPERTY_Y_AXIS_TYPE, yAxisType)
-        .with(CURVE_CALCULATION_METHOD, forwardCurveCalculationMethod)
-        .with(CURVE, forwardCurveName)
-        .with(PROPERTY_THETA, theta)
-        .with(PROPERTY_TIME_STEPS, timeSteps)
-        .with(PROPERTY_SPACE_STEPS, spaceSteps)
-        .with(PROPERTY_TIME_GRID_BUNCHING, timeGridBunching)
-        .with(PROPERTY_SPACE_GRID_BUNCHING, spaceGridBunching)
-        .with(PROPERTY_MAX_MONEYNESS, maxMoneyness)
-        .with(PROPERTY_H, h)
-        .with(PROPERTY_PDE_DIRECTION, pdeDirection);
   }
 
   private double getStrike(final FXOptionSecurity fxOption, final CurrencyPair currencyPair) {

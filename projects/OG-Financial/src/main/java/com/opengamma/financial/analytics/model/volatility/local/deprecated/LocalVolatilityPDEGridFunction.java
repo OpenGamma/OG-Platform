@@ -39,7 +39,6 @@ import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpol
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr.SmileSurfaceDataBundle;
 import com.opengamma.analytics.financial.model.volatility.surface.Moneyness;
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurfaceInterpolator;
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -55,14 +54,12 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
-import com.opengamma.financial.currency.ConfigDBCurrencyPairsSource;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 
 /**
- *
  * @deprecated Deprecated
  */
 @Deprecated
@@ -104,7 +101,6 @@ public abstract class LocalVolatilityPDEGridFunction extends AbstractFunction.No
     final double timeGridBunching = Double.parseDouble(timeGridBunchingName);
     final String spaceGridBunchingName = desiredValue.getConstraint(PROPERTY_SPACE_GRID_BUNCHING);
     final double spaceGridBunching = Double.parseDouble(spaceGridBunchingName);
-    final String maxMoneynessName = desiredValue.getConstraint(PROPERTY_MAX_MONEYNESS);
     final String pdeDirection = desiredValue.getConstraint(PROPERTY_PDE_DIRECTION);
     if (!(pdeDirection.equals(LocalVolatilityPDEValuePropertyNames.FORWARD_PDE))) {
       throw new OpenGammaRuntimeException("Can only use forward PDE; should never ask for this direction: " + pdeDirection);
@@ -117,9 +113,7 @@ public abstract class LocalVolatilityPDEGridFunction extends AbstractFunction.No
     //TODO get rid of hardcoded maxProxydelta = 1.5
     final LocalVolatilityForwardPDEGreekCalculator1<?> calculator = new LocalVolatilityForwardPDEGreekCalculator1<Moneyness>(theta, timeSteps, spaceSteps, timeGridBunching, spaceGridBunching,
         /*(MoneynessPiecewiseSABRSurfaceFitter)*/surfaceFitter, localVolatilityCalculator, 1.5);
-    final ValueSpecification spec = getResultSpec(target, surfaceName, surfaceType, xAxis, yAxis, yAxisType, forwardCurveCalculationMethod,
-        hName, forwardCurveName, thetaName, timeStepsName, spaceStepsName,
-        timeGridBunchingName, spaceGridBunchingName, maxMoneynessName, pdeDirection);
+    final ValueSpecification spec = new ValueSpecification(desiredValue.getValueName(), target.toSpecification(), desiredValue.getConstraints());
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final ComputationTargetReference id = getTargetForUnderlyings(target);
     final ValueRequirement surfaceRequirement = getVolatilitySurfaceRequirement(surfaceName, surfaceType, xAxis, yAxis, yAxisType, hName, forwardCurveCalculationMethod, forwardCurveName, id);
@@ -136,10 +130,8 @@ public abstract class LocalVolatilityPDEGridFunction extends AbstractFunction.No
     final ForwardCurve forwardCurve = (ForwardCurve) forwardCurveObject;
     final ValueRequirement volDataRequirement = getUnderlyingVolatilityDataRequirement(surfaceName, id);
     final SmileSurfaceDataBundle data = getData(inputs, volDataRequirement, forwardCurveRequirement);
-    final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(executionContext);
-    final ConfigDBCurrencyPairsSource currencyPairsSource = new ConfigDBCurrencyPairsSource(configSource);
     final FXOptionSecurity fxOption = (FXOptionSecurity) security;
-    final CurrencyPairs currencyPairs = currencyPairsSource.getCurrencyPairs(CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
+    final CurrencyPairs currencyPairs = OpenGammaExecutionContext.getCurrencyPairsSource(executionContext).getCurrencyPairs(CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
     final CurrencyPair currencyPair = currencyPairs.getCurrencyPair(fxOption.getPutCurrency(), fxOption.getCallCurrency());
     final EuropeanVanillaOption option = getOption(security, now, currencyPair);
     return Collections.singleton(new ComputedValue(spec, getResult(calculator, localVolatilitySurface, forwardCurve, data, option)));
@@ -360,40 +352,10 @@ public abstract class LocalVolatilityPDEGridFunction extends AbstractFunction.No
         .withAny(PROPERTY_PDE_DIRECTION).get();
   }
 
-  private ValueProperties getResultProperties(final String surfaceName, final String surfaceType, final String xAxis, final String yAxis, final String yAxisType,
-      final String forwardCurveCalculationMethod, final String h, final String forwardCurveName, final String theta, final String timeSteps, final String spaceSteps,
-      final String timeGridBunching, final String spaceGridBunching, final String maxMoneyness, final String pdeDirection) {
-    return createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, LocalVolatilityPDEValuePropertyNames.LOCAL_VOLATILITY_METHOD)
-        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, _instrumentType)
-        .with(ValuePropertyNames.SURFACE, surfaceName)
-        .with(PROPERTY_SURFACE_TYPE, surfaceType)
-        .with(PROPERTY_X_AXIS, xAxis)
-        .with(PROPERTY_Y_AXIS, yAxis)
-        .with(PROPERTY_Y_AXIS_TYPE, yAxisType)
-        .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD, forwardCurveCalculationMethod)
-        .with(CURVE, forwardCurveName)
-        .with(PROPERTY_THETA, theta)
-        .with(PROPERTY_TIME_STEPS, timeSteps)
-        .with(PROPERTY_SPACE_STEPS, spaceSteps)
-        .with(PROPERTY_TIME_GRID_BUNCHING, timeGridBunching)
-        .with(PROPERTY_SPACE_GRID_BUNCHING, spaceGridBunching)
-        .with(PROPERTY_MAX_MONEYNESS, maxMoneyness)
-        .with(PROPERTY_H, h)
-        .with(PROPERTY_PDE_DIRECTION, pdeDirection).get();
-  }
-
   private ValueSpecification getResultSpec(final ComputationTarget target, final String definitionName, final String surfaceType, final String xAxis, final String yAxis,
       final String yAxisType, final String forwardCurveCalculationMethod, final String h, final String forwardCurveName) {
     final ValueProperties properties = getResultProperties(definitionName, surfaceType, xAxis, yAxis, yAxisType, forwardCurveCalculationMethod, h, forwardCurveName);
     return new ValueSpecification(getResultName(), target.toSpecification(), properties);
   }
 
-  private ValueSpecification getResultSpec(final ComputationTarget target, final String definitionName, final String surfaceType, final String xAxis, final String yAxis,
-      final String yAxisType, final String forwardCurveCalculationMethod, final String h, final String forwardCurveName, final String theta, final String timeSteps,
-      final String spaceSteps, final String timeGridBunching, final String spaceGridBunching, final String maxMoneyness, final String pdeDirection) {
-    final ValueProperties properties = getResultProperties(definitionName, surfaceType, xAxis, yAxis, yAxisType, forwardCurveCalculationMethod, h, forwardCurveName, theta, timeSteps,
-        spaceSteps, timeGridBunching, spaceGridBunching, maxMoneyness, pdeDirection);
-    return new ValueSpecification(getResultName(), target.toSpecification(), properties);
-  }
 }

@@ -7,6 +7,9 @@ package com.opengamma.engine.target;
 
 import java.io.ObjectStreamException;
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
@@ -36,12 +39,22 @@ public abstract class ComputationTargetType implements Serializable {
 
   private static final long serialVersionUID = 1L;
 
+  /**
+   * Try to keep the instances unique. This reduces the operating memory footprint.
+   */
   private static final WeakInstanceCache<ComputationTargetType> s_computationTargetTypes = new WeakInstanceCache<ComputationTargetType>();
+
+  /**
+   * A map of classes to the computation target types. This is to optimize the {@link #of(Class)} method for common cases used during target resolution. To modify the map, use a copy-and-replace
+   * approach.
+   */
+  private static final AtomicReference<Map<Class<?>, ComputationTargetType>> s_classTypes = new AtomicReference<Map<Class<?>, ComputationTargetType>>(new HashMap<Class<?>, ComputationTargetType>());
 
   /**
    * A full portfolio structure. This will seldom be needed for calculations - the root node is usually more important from an aggregation perspective.
    */
   public static final ObjectComputationTargetType<Portfolio> PORTFOLIO = defaultObject(Portfolio.class, "PORTFOLIO");
+
   /**
    * An ordered list of positions and other portfolio nodes.
    */
@@ -113,7 +126,10 @@ public abstract class ComputationTargetType implements Serializable {
   }
 
   private static <T extends UniqueIdentifiable> ComputationTargetType defaultType(final Class<T> clazz, final String name) {
-    return of(clazz, name, true);
+    final ComputationTargetType type = of(clazz, name, true);
+    // This is safe; we only get called like this during class initialization
+    s_classTypes.get().put(clazz, type);
+    return type;
   }
 
   private static <T extends UniqueIdentifiable> ObjectComputationTargetType<T> defaultObject(final Class<T> clazz, final String name) {
@@ -129,8 +145,17 @@ public abstract class ComputationTargetType implements Serializable {
   }
 
   public static <T extends UniqueIdentifiable> ComputationTargetType of(final Class<T> clazz) {
+    Map<Class<?>, ComputationTargetType> cache = s_classTypes.get();
+    ComputationTargetType type = cache.get(clazz);
+    if (type != null) {
+      return type;
+    }
     ArgumentChecker.notNull(clazz, "clazz");
-    return of(clazz, clazz.getSimpleName(), false);
+    type = of(clazz, clazz.getSimpleName(), false);
+    final Map<Class<?>, ComputationTargetType> updatedCache = new HashMap<Class<?>, ComputationTargetType>(cache);
+    updatedCache.put(clazz, type);
+    s_classTypes.compareAndSet(cache, updatedCache);
+    return type;
   }
 
   public ComputationTargetType containing(final Class<? extends UniqueIdentifiable> clazz) {

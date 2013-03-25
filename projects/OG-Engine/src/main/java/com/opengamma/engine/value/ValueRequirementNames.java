@@ -314,6 +314,11 @@ public final class ValueRequirementNames {
   public static final String BUCKETED_CS01 = "Bucketed CS01";
 
   /**
+   * The parallel CS01 for a credit default swap.
+   */
+  public static final String PARALLEL_CS01 = "Parallel CS01";
+
+  /**
    * The second-order change in the value of an instrument if the credit curve is moved by 1 basis point.
    */
   public static final String GAMMA_CS01 = "Gamma CS01";
@@ -338,6 +343,41 @@ public final class ValueRequirementNames {
    */
   public static final String BUCKETED_IR01 = "Bucketed IR01";
   
+  /**
+   * The accrued premium for a credit default swap.
+   */
+  public static final String ACCRUED_PREMIUM = "Accrued Premium ";
+
+  /**
+   * The accrued days for a credit default swap.
+   */
+  public static final String ACCRUED_DAYS = "Accrued Days";
+
+  /**
+   * The upfront ammount for a credit default swap.
+   */
+  public static final String UPFRONT_AMOUNT = "Upfront Amount";
+
+  /**
+   * The points upfront for a credit default swap.
+   */
+  public static final String POINTS_UPFRONT = "Points Upfront";
+
+  /**
+   * The principal for a credit default swap.
+   */
+  public static final String PRINCIPAL = "Principal";
+
+  /**
+   * The clean present value for a credit default swap.
+   */
+  public static final String CLEAN_PRESENT_VALUE = "Clean Present Value";
+
+  /**
+   * The dirty present value for a credit default swap.
+   */
+  public static final String DIRTY_PRESENT_VALUE = "Dirty Present Value";
+
   /**
    * The jump-to-default.
    */

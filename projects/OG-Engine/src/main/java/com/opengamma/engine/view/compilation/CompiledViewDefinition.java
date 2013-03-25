@@ -31,6 +31,14 @@ public interface CompiledViewDefinition {
   VersionCorrection getResolverVersionCorrection();
 
   /**
+   * Returns a copy of this object with an updated version/correction parameter.
+   * 
+   * @param resolverVersionCorrection the resolver version/correction date for the copy
+   * @return the copy
+   */
+  CompiledViewDefinition withResolverVersionCorrection(VersionCorrection resolverVersionCorrection);
+
+  /**
    * Gets the view definition which was compiled.
    * 
    * @return the view definition, not null

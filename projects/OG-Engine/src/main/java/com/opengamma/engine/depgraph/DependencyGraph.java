@@ -373,17 +373,21 @@ public class DependencyGraph {
     do {
       for (final DependencyNode node : _dependencyNodes) {
         final Set<ValueSpecification> unnecessaryValues = node.removeUnnecessaryOutputs();
+        if (unnecessaryValues == null) {
+          continue;
+        }
         if (!unnecessaryValues.isEmpty()) {
           s_logger.info("{}: removed {} unnecessary potential result(s)", this, unnecessaryValues.size());
-          if (node.getOutputValues().isEmpty()) {
-            unnecessaryNodes.add(node);
-          }
           for (final ValueSpecification unnecessaryValue : unnecessaryValues) {
             final DependencyNode removed = _outputValues.remove(unnecessaryValue);
             if (removed == null) {
               throw new IllegalStateException("A value specification " + unnecessaryValue + " wasn't mapped to a node");
             }
+            _allRequiredMarketData.remove(unnecessaryValue);
           }
+        }
+        if (node.getOutputValues().isEmpty()) {
+          unnecessaryNodes.add(node);
         }
       }
       if (unnecessaryNodes.isEmpty()) {
@@ -393,7 +397,6 @@ public class DependencyGraph {
       _dependencyNodes.removeAll(unnecessaryNodes);
       _rootNodes.removeAll(unnecessaryNodes);
       for (final DependencyNode node : unnecessaryNodes) {
-        _allRequiredMarketData.remove(node.getRequiredMarketData());
         node.clearInputs();
       }
       unnecessaryNodes.clear();

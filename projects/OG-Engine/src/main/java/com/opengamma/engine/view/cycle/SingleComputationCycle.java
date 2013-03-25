@@ -5,8 +5,6 @@
  */
 package com.opengamma.engine.view.cycle;
 
-import static com.opengamma.util.functional.Functional.submapByKeySet;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -36,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import org.threeten.bp.Duration;
 import org.threeten.bp.Instant;
 
+import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTargetResolver;
@@ -637,13 +636,15 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     final DependencyGraph depGraph = getDependencyGraph(calcConfigurationName);
     final ViewComputationCache computationCache = getComputationCache(calcConfigurationName);
     final DependencyNodeJobExecutionResultCache jobExecutionResultCache = getJobExecutionResultCache(calcConfigurationName);
+    final String computeNodeId = executionResult.getResult().getComputeNodeId();
     final Iterator<CalculationJobResultItem> itrResultItem = executionResult.getResult().getResultItems().iterator();
     final Iterator<DependencyNode> itrNode = executionResult.getNodes().iterator();
+    Map<ValueSpecification, Set<ValueRequirement>> allTerminalOutputs = depGraph.getTerminalOutputs();
+    Map<ValueSpecification, Set<ValueRequirement>> processedTerminalOutputs = Maps.newHashMapWithExpectedSize(allTerminalOutputs.size());
     while (itrResultItem.hasNext()) {
       assert itrNode.hasNext();
       final CalculationJobResultItem jobResultItem = itrResultItem.next();
       final DependencyNode node = itrNode.next();
-      final String computeNodeId = executionResult.getResult().getComputeNodeId();
       final Set<AggregatedExecutionLog> inputLogs = new LinkedHashSet<AggregatedExecutionLog>();
       for (final ValueSpecification inputValueSpec : node.getInputValues()) {
         final DependencyNodeJobExecutionResult nodeResult = jobExecutionResultCache.get(inputValueSpec);
@@ -657,25 +658,18 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
       final ExecutionLogWithContext executionLogWithContext = ExecutionLogWithContext.of(node, jobResultItem.getExecutionLog());
       final AggregatedExecutionLog aggregatedExecutionLog = new DefaultAggregatedExecutionLog(executionLogWithContext, new ArrayList<AggregatedExecutionLog>(inputLogs), executionLogMode);
       final DependencyNodeJobExecutionResult jobExecutionResult = new DependencyNodeJobExecutionResult(computeNodeId, jobResultItem, aggregatedExecutionLog);
-      processDependencyNodeResult(jobExecutionResult, depGraph, node, computationCache, fragmentResultModel, fullResultModel, jobExecutionResultCache);
+      for (ValueSpecification terminalOutput : node.getTerminalOutputValues()) {
+        processedTerminalOutputs.put(terminalOutput, allTerminalOutputs.get(terminalOutput));
+        jobExecutionResultCache.put(terminalOutput, jobExecutionResult);
+      }
     }
-  }
-
-  private void processDependencyNodeResult(final DependencyNodeJobExecutionResult jobExecutionResult, final DependencyGraph depGraph,
-      final DependencyNode node, final ViewComputationCache computationCache,
-      final InMemoryViewComputationResultModel fragmentResultModel, final InMemoryViewComputationResultModel fullResultModel,
-      final DependencyNodeJobExecutionResultCache jobExecutionResultCache) {
-    final Set<ValueSpecification> specifications = node.getOutputValues();
-    final Map<ValueSpecification, Set<ValueRequirement>> specToRequirements = submapByKeySet(depGraph.getTerminalOutputs(), specifications);
-    fragmentResultModel.addRequirements(specToRequirements);
-    fullResultModel.addRequirements(specToRequirements);
-    for (final Pair<ValueSpecification, Object> value : computationCache.getValues(specifications, CacheSelectHint.allShared())) {
+    fragmentResultModel.addRequirements(processedTerminalOutputs);
+    fullResultModel.addRequirements(processedTerminalOutputs);
+    for (final Pair<ValueSpecification, Object> value : computationCache.getValues(processedTerminalOutputs.keySet(), CacheSelectHint.allShared())) {
       final ValueSpecification valueSpec = value.getFirst();
       final Object calculatedValue = value.getSecond();
-      jobExecutionResultCache.put(valueSpec, jobExecutionResult);
-      if (calculatedValue != null && specToRequirements.containsKey(valueSpec) &&
-          getViewDefinition().getResultModelDefinition().shouldOutputResult(valueSpec, depGraph)) {
-        final ComputedValueResult computedValueResult = createComputedValueResult(valueSpec, calculatedValue, jobExecutionResult);
+      if (calculatedValue != null) {
+        final ComputedValueResult computedValueResult = createComputedValueResult(valueSpec, calculatedValue, jobExecutionResultCache.get(valueSpec));
         fragmentResultModel.addValue(depGraph.getCalculationConfigurationName(), computedValueResult);
         fullResultModel.addValue(depGraph.getCalculationConfigurationName(), computedValueResult);
       }

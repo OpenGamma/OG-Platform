@@ -28,6 +28,8 @@ import com.opengamma.master.marketdatasnapshot.impl.EHCachingMarketDataSnapshotM
 import com.opengamma.master.marketdatasnapshot.impl.RemoteMarketDataSnapshotMaster;
 import com.opengamma.util.ehcache.EHCacheUtils;
 
+import net.sf.ehcache.CacheManager;
+
 /**
  * Component factory for the combined marketdatasnapshot master.
  * <p>
@@ -51,6 +53,11 @@ public class EHCachingMarketDataSnapshotMasterComponentFactory extends AbstractC
    */
   @PropertyDefinition(validate = "notNull")
   private MarketDataSnapshotMaster _underlying;
+  /**
+   * The cache manager.
+   */
+  @PropertyDefinition
+  private CacheManager _cacheManager;
 
 
   //-------------------------------------------------------------------------
@@ -58,8 +65,8 @@ public class EHCachingMarketDataSnapshotMasterComponentFactory extends AbstractC
   public void init(ComponentRepository repo, LinkedHashMap<String, String> marketdatasnapshoturation) {
 
     MarketDataSnapshotMaster master = new EHCachingMarketDataSnapshotMaster(getClassifier(),
-                                                      _underlying,
-                                                      EHCacheUtils.createCacheManager()); // actually retrieves existing
+                                                      getUnderlying(),
+                                                      getCacheManager());
 
     // register
     ComponentInfo info = new ComponentInfo(MarketDataSnapshotMaster.class, getClassifier());
@@ -98,6 +105,8 @@ public class EHCachingMarketDataSnapshotMasterComponentFactory extends AbstractC
         return isPublishRest();
       case -1770633379:  // underlying
         return getUnderlying();
+      case -1452875317:  // cacheManager
+        return getCacheManager();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -113,6 +122,9 @@ public class EHCachingMarketDataSnapshotMasterComponentFactory extends AbstractC
         return;
       case -1770633379:  // underlying
         setUnderlying((MarketDataSnapshotMaster) newValue);
+        return;
+      case -1452875317:  // cacheManager
+        setCacheManager((CacheManager) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -135,6 +147,7 @@ public class EHCachingMarketDataSnapshotMasterComponentFactory extends AbstractC
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
           JodaBeanUtils.equal(isPublishRest(), other.isPublishRest()) &&
           JodaBeanUtils.equal(getUnderlying(), other.getUnderlying()) &&
+          JodaBeanUtils.equal(getCacheManager(), other.getCacheManager()) &&
           super.equals(obj);
     }
     return false;
@@ -146,6 +159,7 @@ public class EHCachingMarketDataSnapshotMasterComponentFactory extends AbstractC
     hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
     hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlying());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
     return hash ^ super.hashCode();
   }
 
@@ -228,6 +242,31 @@ public class EHCachingMarketDataSnapshotMasterComponentFactory extends AbstractC
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the cache manager.
+   * @return the value of the property
+   */
+  public CacheManager getCacheManager() {
+    return _cacheManager;
+  }
+
+  /**
+   * Sets the cache manager.
+   * @param cacheManager  the new value of the property
+   */
+  public void setCacheManager(CacheManager cacheManager) {
+    this._cacheManager = cacheManager;
+  }
+
+  /**
+   * Gets the the {@code cacheManager} property.
+   * @return the property, not null
+   */
+  public final Property<CacheManager> cacheManager() {
+    return metaBean().cacheManager().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code EHCachingMarketDataSnapshotMasterComponentFactory}.
    */
   public static class Meta extends AbstractComponentFactory.Meta {
@@ -252,13 +291,19 @@ public class EHCachingMarketDataSnapshotMasterComponentFactory extends AbstractC
     private final MetaProperty<MarketDataSnapshotMaster> _underlying = DirectMetaProperty.ofReadWrite(
         this, "underlying", EHCachingMarketDataSnapshotMasterComponentFactory.class, MarketDataSnapshotMaster.class);
     /**
+     * The meta-property for the {@code cacheManager} property.
+     */
+    private final MetaProperty<CacheManager> _cacheManager = DirectMetaProperty.ofReadWrite(
+        this, "cacheManager", EHCachingMarketDataSnapshotMasterComponentFactory.class, CacheManager.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier",
         "publishRest",
-        "underlying");
+        "underlying",
+        "cacheManager");
 
     /**
      * Restricted constructor.
@@ -275,6 +320,8 @@ public class EHCachingMarketDataSnapshotMasterComponentFactory extends AbstractC
           return _publishRest;
         case -1770633379:  // underlying
           return _underlying;
+        case -1452875317:  // cacheManager
+          return _cacheManager;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -317,6 +364,14 @@ public class EHCachingMarketDataSnapshotMasterComponentFactory extends AbstractC
      */
     public final MetaProperty<MarketDataSnapshotMaster> underlying() {
       return _underlying;
+    }
+
+    /**
+     * The meta-property for the {@code cacheManager} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<CacheManager> cacheManager() {
+      return _cacheManager;
     }
 
   }
