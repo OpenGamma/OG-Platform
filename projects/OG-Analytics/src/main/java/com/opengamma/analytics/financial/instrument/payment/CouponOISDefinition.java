@@ -177,7 +177,7 @@ public class CouponOISDefinition extends CouponDefinition implements InstrumentD
     }
 
     // FIXME Historical time series do not have time information to begin with.
-    final LocalDateDoubleTimeSeries indexFixingDateSeries = indexFixingTimeSeries.toDateDoubleTimeSeries().toLocalDateDoubleTimeSeries(ZoneOffset.UTC);
+    final LocalDateDoubleTimeSeries indexFixingDateSeries = indexFixingTimeSeries.toLocalDateDoubleTimeSeries(ZoneOffset.UTC);
 
     // Accrue notional for fixings before today; up to and including yesterday
     int fixedPeriod = 0;

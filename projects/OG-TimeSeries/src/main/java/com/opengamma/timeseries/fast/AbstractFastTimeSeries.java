@@ -22,26 +22,15 @@ import static com.opengamma.timeseries.DoubleTimeSeriesOperators.RECIPROCAL_OPER
 import static com.opengamma.timeseries.DoubleTimeSeriesOperators.SECOND_OPERATOR;
 import static com.opengamma.timeseries.DoubleTimeSeriesOperators.SUBTRACT_OPERATOR;
 
-import java.util.Date;
 import java.util.NoSuchElementException;
-import java.util.TimeZone;
 
 import org.threeten.bp.ZoneId;
-import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.timeseries.DoubleTimeSeries;
-import com.opengamma.timeseries.FastBackedDoubleTimeSeries;
-import com.opengamma.timeseries.TimeSeriesUtils;
 import com.opengamma.timeseries.DoubleTimeSeriesOperators.BinaryOperator;
 import com.opengamma.timeseries.DoubleTimeSeriesOperators.UnaryOperator;
-import com.opengamma.timeseries.date.ArrayDateDoubleTimeSeries;
-import com.opengamma.timeseries.date.DateDoubleTimeSeries;
-import com.opengamma.timeseries.date.ListDateDoubleTimeSeries;
-import com.opengamma.timeseries.date.MutableDateDoubleTimeSeries;
-import com.opengamma.timeseries.date.time.ArrayDateTimeDoubleTimeSeries;
-import com.opengamma.timeseries.date.time.DateTimeDoubleTimeSeries;
-import com.opengamma.timeseries.date.time.ListDateTimeDoubleTimeSeries;
-import com.opengamma.timeseries.date.time.MutableDateTimeDoubleTimeSeries;
+import com.opengamma.timeseries.FastBackedDoubleTimeSeries;
+import com.opengamma.timeseries.TimeSeriesUtils;
 import com.opengamma.timeseries.fast.integer.FastIntDoubleTimeSeries;
 import com.opengamma.timeseries.fast.integer.FastMutableIntDoubleTimeSeries;
 import com.opengamma.timeseries.fast.longint.FastLongDoubleTimeSeries;
@@ -50,14 +39,6 @@ import com.opengamma.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 import com.opengamma.timeseries.localdate.ListLocalDateDoubleTimeSeries;
 import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.timeseries.localdate.MutableLocalDateDoubleTimeSeries;
-import com.opengamma.timeseries.sqldate.ArraySQLDateDoubleTimeSeries;
-import com.opengamma.timeseries.sqldate.ListSQLDateDoubleTimeSeries;
-import com.opengamma.timeseries.sqldate.MutableSQLDateDoubleTimeSeries;
-import com.opengamma.timeseries.sqldate.SQLDateDoubleTimeSeries;
-import com.opengamma.timeseries.yearoffset.ArrayYearOffsetDoubleTimeSeries;
-import com.opengamma.timeseries.yearoffset.ListYearOffsetDoubleTimeSeries;
-import com.opengamma.timeseries.yearoffset.MutableYearOffsetDoubleTimeSeries;
-import com.opengamma.timeseries.yearoffset.YearOffsetDoubleTimeSeries;
 import com.opengamma.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
 import com.opengamma.timeseries.zoneddatetime.ListZonedDateTimeDoubleTimeSeries;
 import com.opengamma.timeseries.zoneddatetime.MutableZonedDateTimeDoubleTimeSeries;
@@ -641,58 +622,6 @@ public abstract class AbstractFastTimeSeries<T> implements DoubleTimeSeries<T>, 
     return new ListLocalDateDoubleTimeSeries(timeZone, toFastMutableIntDaysDTS());
   }
 
-  public MutableDateDoubleTimeSeries toMutableDateDoubleTimeSeries() {
-    return new ListDateDoubleTimeSeries(toFastMutableIntDaysDTS());
-  }
-
-  public MutableDateDoubleTimeSeries toMutableDateDoubleTimeSeries(TimeZone timeZone) {
-    return new ListDateDoubleTimeSeries(timeZone, toFastMutableIntDaysDTS());
-  }
-
-  public DateDoubleTimeSeries toDateDoubleTimeSeries() {
-    return new ArrayDateDoubleTimeSeries(toFastIntDaysDTS());
-  }
-
-  public DateDoubleTimeSeries toDateDoubleTimeSeries(TimeZone timeZone) {
-    return new ArrayDateDoubleTimeSeries(timeZone, toFastIntDaysDTS());
-  }
-
-  @Override
-  public SQLDateDoubleTimeSeries toSQLDateDoubleTimeSeries() {
-    return new ArraySQLDateDoubleTimeSeries(toFastIntDaysDTS());
-  }
-
-  @Override
-  public SQLDateDoubleTimeSeries toSQLDateDoubleTimeSeries(TimeZone timeZone) {
-    return new ArraySQLDateDoubleTimeSeries(timeZone, toFastIntDaysDTS());
-  }
-
-  @Override
-  public MutableSQLDateDoubleTimeSeries toMutableSQLDateDoubleTimeSeries() {
-    return new ListSQLDateDoubleTimeSeries(toFastMutableIntDaysDTS());
-  }
-
-  @Override
-  public MutableSQLDateDoubleTimeSeries toMutableSQLDateDoubleTimeSeries(TimeZone timeZone) {
-    return new ListSQLDateDoubleTimeSeries(timeZone, toFastMutableIntDaysDTS());
-  }
-
-  public MutableDateTimeDoubleTimeSeries toMutableDateTimeDoubleTimeSeries() {
-    return new ListDateTimeDoubleTimeSeries(this.toFastMutableLongMillisDTS());
-  }
-
-  public MutableDateTimeDoubleTimeSeries toMutableDateTimeDoubleTimeSeries(TimeZone timeZone) {
-    return new ListDateTimeDoubleTimeSeries(timeZone, toFastMutableLongMillisDTS());
-  }
-
-  public DateTimeDoubleTimeSeries toDateTimeDoubleTimeSeries() {
-    return new ArrayDateTimeDoubleTimeSeries(toFastLongMillisDTS());
-  }
-
-  public DateTimeDoubleTimeSeries toDateTimeDoubleTimeSeries(TimeZone timeZone) {
-    return new ArrayDateTimeDoubleTimeSeries(timeZone, toFastLongMillisDTS());
-  }
-
   @Override
   public ZonedDateTimeDoubleTimeSeries toZonedDateTimeDoubleTimeSeries() {
     return new ArrayZonedDateTimeDoubleTimeSeries(toFastLongMillisDTS());
@@ -714,27 +643,7 @@ public abstract class AbstractFastTimeSeries<T> implements DoubleTimeSeries<T>, 
     return new ListZonedDateTimeDoubleTimeSeries(timeZone, toFastMutableLongMillisDTS());
   }
 
-  @Override
-  public YearOffsetDoubleTimeSeries toYearOffsetDoubleTimeSeries(ZonedDateTime zeroDate) {
-    return new ArrayYearOffsetDoubleTimeSeries(zeroDate, toFastLongMillisDTS());
-  }
-
-  @Override
-  public YearOffsetDoubleTimeSeries toYearOffsetDoubleTimeSeries(java.util.TimeZone timeZone, Date zeroDate) {
-    return new ArrayYearOffsetDoubleTimeSeries(timeZone, zeroDate, toFastLongMillisDTS());
-  }
-
-  @Override
-  public MutableYearOffsetDoubleTimeSeries toMutableYearOffsetDoubleTimeSeries(ZonedDateTime zeroDate) {
-    return new ListYearOffsetDoubleTimeSeries(zeroDate, toFastMutableLongMillisDTS());
-  }
-
-  @Override
-  public MutableYearOffsetDoubleTimeSeries toMutableYearOffsetDoubleTimeSeries(java.util.TimeZone timeZone,
-      Date zeroDate) {
-    return new ListYearOffsetDoubleTimeSeries(timeZone, zeroDate, toFastMutableLongMillisDTS());
-  }
-
+  //-------------------------------------------------------------------------
   @Override
   public String toString() {
     return TimeSeriesUtils.toString(this);

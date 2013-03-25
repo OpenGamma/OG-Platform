@@ -5,17 +5,10 @@
  */
 package com.opengamma.timeseries;
 
-import java.util.Date;
 import java.util.NoSuchElementException;
-import java.util.TimeZone;
 
 import org.threeten.bp.ZoneId;
-import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.timeseries.date.DateDoubleTimeSeries;
-import com.opengamma.timeseries.date.MutableDateDoubleTimeSeries;
-import com.opengamma.timeseries.date.time.DateTimeDoubleTimeSeries;
-import com.opengamma.timeseries.date.time.MutableDateTimeDoubleTimeSeries;
 import com.opengamma.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.timeseries.fast.integer.FastIntDoubleTimeSeries;
 import com.opengamma.timeseries.fast.integer.FastMutableIntDoubleTimeSeries;
@@ -23,10 +16,6 @@ import com.opengamma.timeseries.fast.longint.FastLongDoubleTimeSeries;
 import com.opengamma.timeseries.fast.longint.FastMutableLongDoubleTimeSeries;
 import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.timeseries.localdate.MutableLocalDateDoubleTimeSeries;
-import com.opengamma.timeseries.sqldate.MutableSQLDateDoubleTimeSeries;
-import com.opengamma.timeseries.sqldate.SQLDateDoubleTimeSeries;
-import com.opengamma.timeseries.yearoffset.MutableYearOffsetDoubleTimeSeries;
-import com.opengamma.timeseries.yearoffset.YearOffsetDoubleTimeSeries;
 import com.opengamma.timeseries.zoneddatetime.MutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.timeseries.zoneddatetime.ZonedDateTimeDoubleTimeSeries;
 
@@ -1275,102 +1264,6 @@ public interface DoubleTimeSeries<T> extends TimeSeries<T, Double> {
 
   //-------------------------------------------------------------------------
   /**
-   * Converts this time-series to a {@code DateDoubleTimeSeries}.
-   * 
-   * @return the time-series, not null
-   */
-  DateDoubleTimeSeries toDateDoubleTimeSeries();
-
-  /**
-   * Converts this time-series to a {@code DateDoubleTimeSeries}.
-   * 
-   * @param zone  the time-zone to use
-   * @return the time-series, not null
-   */
-  DateDoubleTimeSeries toDateDoubleTimeSeries(TimeZone zone);
-
-  //-------------------------------------------------------------------------
-  /**
-   * Converts this time-series to a {@code MutableDateDoubleTimeSeries}.
-   * 
-   * @return the time-series, not null
-   */
-  MutableDateDoubleTimeSeries toMutableDateDoubleTimeSeries();
-
-  /**
-   * Converts this time-series to a {@code MutableDateDoubleTimeSeries}.
-   * 
-   * @param zone  the time-zone to use
-   * @return the time-series, not null
-   */
-  MutableDateDoubleTimeSeries toMutableDateDoubleTimeSeries(TimeZone zone);
-
-  //-------------------------------------------------------------------------
-  /**
-   * Converts this time-series to a {@code MutableSQLDateDoubleTimeSeries}.
-   * 
-   * @return the time-series, not null
-   */
-  MutableSQLDateDoubleTimeSeries toMutableSQLDateDoubleTimeSeries();
-
-  /**
-   * Converts this time-series to a {@code MutableSQLDateDoubleTimeSeries}.
-   * 
-   * @param zone  the time-zone to use
-   * @return the time-series, not null
-   */
-  MutableSQLDateDoubleTimeSeries toMutableSQLDateDoubleTimeSeries(TimeZone zone);
-
-  //-------------------------------------------------------------------------
-  /**
-   * Converts this time-series to a {@code SQLDateDoubleTimeSeries}.
-   * 
-   * @return the time-series, not null
-   */
-  SQLDateDoubleTimeSeries toSQLDateDoubleTimeSeries();
-
-  /**
-   * Converts this time-series to a {@code SQLDateDoubleTimeSeries}.
-   * 
-   * @param zone  the time-zone to use
-   * @return the time-series, not null
-   */
-  SQLDateDoubleTimeSeries toSQLDateDoubleTimeSeries(TimeZone zone);
-
-  //-------------------------------------------------------------------------
-  /**
-   * Converts this time-series to a {@code MutableDateTimeDoubleTimeSeries}.
-   * 
-   * @return the time-series, not null
-   */
-  MutableDateTimeDoubleTimeSeries toMutableDateTimeDoubleTimeSeries();
-
-  /**
-   * Converts this time-series to a {@code MutableDateTimeDoubleTimeSeries}.
-   * 
-   * @param zone  the time-zone to use
-   * @return the time-series, not null
-   */
-  MutableDateTimeDoubleTimeSeries toMutableDateTimeDoubleTimeSeries(TimeZone zone);
-
-  //-------------------------------------------------------------------------
-  /**
-   * Converts this time-series to a {@code DateTimeDoubleTimeSeries}.
-   * 
-   * @return the time-series, not null
-   */
-  DateTimeDoubleTimeSeries toDateTimeDoubleTimeSeries();
-
-  /**
-   * Converts this time-series to a {@code DateTimeDoubleTimeSeries}.
-   * 
-   * @param zone  the time-zone to use
-   * @return the time-series, not null
-   */
-  DateTimeDoubleTimeSeries toDateTimeDoubleTimeSeries(TimeZone zone);
-
-  //-------------------------------------------------------------------------
-  /**
    * Converts this time-series to a {@code ZonedDateTimeDoubleTimeSeries}.
    * 
    * @return the time-series, not null
@@ -1432,41 +1325,5 @@ public interface DoubleTimeSeries<T> extends TimeSeries<T, Double> {
    * @return the time-series, not null
    */
   MutableLocalDateDoubleTimeSeries toMutableLocalDateDoubleTimeSeries(ZoneId zone);
-
-  //-------------------------------------------------------------------------
-  /**
-   * Converts this time-series to a {@code YearOffsetDoubleTimeSeries}.
-   * 
-   * @param zeroDate  the zero date-time
-   * @return the time-series, not null
-   */
-  YearOffsetDoubleTimeSeries toYearOffsetDoubleTimeSeries(ZonedDateTime zeroDate);
-
-  /**
-   * Converts this time-series to a {@code YearOffsetDoubleTimeSeries}.
-   * 
-   * @param zone  the time-zone to use
-   * @param zeroDate  the zero date-time
-   * @return the time-series, not null
-   */
-  YearOffsetDoubleTimeSeries toYearOffsetDoubleTimeSeries(TimeZone zone, Date zeroDate);
-
-  //-------------------------------------------------------------------------
-  /**
-   * Converts this time-series to a {@code MutableYearOffsetDoubleTimeSeries}.
-   * 
-   * @param zeroDate  the zero date-time
-   * @return the time-series, not null
-   */
-  MutableYearOffsetDoubleTimeSeries toMutableYearOffsetDoubleTimeSeries(ZonedDateTime zeroDate);
-
-  /**
-   * Converts this time-series to a {@code MutableYearOffsetDoubleTimeSeries}.
-   * 
-   * @param zone  the time-zone to use
-   * @param zeroDate  the zero date-time
-   * @return the time-series, not null
-   */
-  MutableYearOffsetDoubleTimeSeries toMutableYearOffsetDoubleTimeSeries(TimeZone zone, Date zeroDate);
 
 }
