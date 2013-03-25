@@ -29,10 +29,6 @@ public class HazardRateCurve {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  /**
-   * 
-   */
-
   private final double _offset;
 
   private final DoublesCurve _curve;

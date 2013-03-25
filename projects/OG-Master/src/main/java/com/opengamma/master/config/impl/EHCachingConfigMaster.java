@@ -57,10 +57,10 @@ public class EHCachingConfigMaster extends AbstractEHCachingMaster<ConfigDocumen
    * @param cacheManager  the cache manager, not null
    */
   public EHCachingConfigMaster(final String name, final ConfigMaster underlying, final CacheManager cacheManager) {
-    super(name, underlying, cacheManager);
+    super(name + "Config", underlying, cacheManager);
 
         // Create the doc search cache and register a config master searcher
-    _documentSearchCache = new EHCachingSearchCache(name + "Document", cacheManager, new EHCachingSearchCache.Searcher() {
+    _documentSearchCache = new EHCachingSearchCache(name + "Config", cacheManager, new EHCachingSearchCache.Searcher() {
       @Override
       public ObjectsPair<Integer, List<UniqueId>> search(Bean request, PagingRequest pagingRequest) {
 
@@ -79,7 +79,7 @@ public class EHCachingConfigMaster extends AbstractEHCachingMaster<ConfigDocumen
     });
 
     // Create the history search cache and register a security master searcher
-    _historySearchCache = new EHCachingSearchCache(name + "History", cacheManager, new EHCachingSearchCache.Searcher() {
+    _historySearchCache = new EHCachingSearchCache(name + "ConfigHistory", cacheManager, new EHCachingSearchCache.Searcher() {
       @Override
       public ObjectsPair<Integer, List<UniqueId>> search(Bean request, PagingRequest pagingRequest) {
         // Fetch search results from underlying master

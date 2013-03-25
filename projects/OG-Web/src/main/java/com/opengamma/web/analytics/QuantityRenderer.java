@@ -27,7 +27,7 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public ResultsCell getResults(int rowIndex, ResultsCache cache, Class<?> columnType, Integer inlineIndex) {
+  public ResultsCell getResults(int rowIndex, ResultsCache cache, Class<?> columnType, Object inlineKey) {
     PortfolioGridRow row = _rows.get(rowIndex);
     // TODO this might have been updated but forStaticValue() always says updated=false
     // TODO need to get the appropriate ID and get the object with quantity from the cache. how do I know whether it's

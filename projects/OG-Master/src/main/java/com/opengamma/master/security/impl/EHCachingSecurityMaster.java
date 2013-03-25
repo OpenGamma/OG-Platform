@@ -57,10 +57,10 @@ public class EHCachingSecurityMaster extends AbstractEHCachingMaster<SecurityDoc
    * @param cacheManager  the cache manager, not null
    */
   public EHCachingSecurityMaster(final String name, final SecurityMaster underlying, final CacheManager cacheManager) {
-    super(name, underlying, cacheManager);
+    super(name + "Security", underlying, cacheManager);
 
     // Create the document search cache and register a security master searcher
-    _documentSearchCache = new EHCachingSearchCache(name + "Document", cacheManager, new EHCachingSearchCache.Searcher() {
+    _documentSearchCache = new EHCachingSearchCache(name + "Security", cacheManager, new EHCachingSearchCache.Searcher() {
       @Override
       public ObjectsPair<Integer, List<UniqueId>> search(Bean request, PagingRequest pagingRequest) {
         // Fetch search results from underlying master
@@ -77,7 +77,7 @@ public class EHCachingSecurityMaster extends AbstractEHCachingMaster<SecurityDoc
     });
 
     // Create the history search cache and register a security master searcher
-    _historySearchCache = new EHCachingSearchCache(name + "History", cacheManager, new EHCachingSearchCache.Searcher() {
+    _historySearchCache = new EHCachingSearchCache(name + "SecurityHistory", cacheManager, new EHCachingSearchCache.Searcher() {
       @Override
       public ObjectsPair<Integer, List<UniqueId>> search(Bean request, PagingRequest pagingRequest) {
         // Fetch search results from underlying master

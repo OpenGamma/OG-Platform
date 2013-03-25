@@ -142,17 +142,6 @@ public class CS01CreditDefaultSwap {
 
     // Check input objects are not null
 
-    /*
-    System.out.println(
-        valuationDate.toString(new DateTimeFormatterBuilder().appendPattern("yyyyMMdd").toFormatter()) + "\n"
-            + cds + "\n"
-            + yieldCurve
-            + "\n" + marketTenors
-            + "\n" + spreadBump + "\n"
-            + spreadBumpType + "\n"
-            + priceType);
-            */
-
     ArgumentChecker.notNull(valuationDate, "Valuation date");
     ArgumentChecker.notNull(cds, "LegacyCreditDefaultSwapDefinition");
     ArgumentChecker.notNull(yieldCurve, "YieldCurve");
@@ -177,7 +166,7 @@ public class CS01CreditDefaultSwap {
     // Vector to hold the bumped market spreads
     //double[] bumpedMarketSpreads = new double[marketSpreads.length];
 
-    double[] unbumpedMarketSpreads = new double[marketSpreads.length];
+    final double[] unbumpedMarketSpreads = new double[marketSpreads.length];
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 

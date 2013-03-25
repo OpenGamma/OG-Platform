@@ -39,7 +39,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Tests RateLimitingMergingUpdateProvider
  */
-@Test(groups = TestGroup.UNIT)
+@Test(groups = TestGroup.INTEGRATION)
 public class RateLimitingMergingViewProcessListenerTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(RateLimitingMergingViewProcessListenerTest.class);

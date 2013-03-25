@@ -22,7 +22,7 @@ public interface TypeFormatter<T> {
   
   Object formatCell(T value, ValueSpecification valueSpec);
 
-  Object formatInlineCell(T value, ValueSpecification valueSpec, int index);
+  Object formatInlineCell(T value, ValueSpecification valueSpec, Object inlineKey);
 
   Object format(T value, ValueSpecification valueSpec, Format format);
 

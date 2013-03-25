@@ -270,7 +270,7 @@ public class GenerateCreditDefaultSwapIntegrationSchedule {
 
     // ------------------------------------------------
 
-    final ZonedDateTime[] yieldCurveDates = yieldCurve.getCurveTenors();
+    final ZonedDateTime[] yieldCurveDates = yieldCurve.getCurveDates();
 
     final ZonedDateTime[] hazardCurveDates = hazardRateCurve.getCurveTenors();
 

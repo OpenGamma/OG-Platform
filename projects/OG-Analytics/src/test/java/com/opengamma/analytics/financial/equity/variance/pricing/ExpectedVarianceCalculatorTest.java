@@ -31,7 +31,7 @@ public class ExpectedVarianceCalculatorTest {
 
   /**
    * Start with a Black volatility surface (strike) - which comes from a mixed log-normal model (hence we know the answer analytically) and convert the surface to ones
-   * parameterised by moneyness, log-moneyness and (Black) delta, then check we recover the expected value using all four surfaces. 
+   * parameterised by moneyness, log-moneyness and (Black) delta, then check we recover the expected value using all four surfaces.
    */
   @Test
   public void testMixedLogNormalVolSurface() {
@@ -70,11 +70,8 @@ public class ExpectedVarianceCalculatorTest {
     final double logMoneynessVal = CALCULATOR.getAnnualizedVariance(expiry, surfaceLogMoneyness);
     final double deltaVal = CALCULATOR.getAnnualizedVariance(fwd, expiry, surfaceDelta);
 
-    //    System.out.println(Math.abs((expected - strikeVal)) + "\t" + Math.abs((expected - moneynessVal)) + "\t" + Math.abs((expected - logMoneynessVal)) + "\t" +
-    //        Math.abs((expected - deltaVal)));
-
     assertEquals("strike", expected, strikeVal, TOL);
-    assertEquals("moneyness", expected, moneynessVal, 200 * TOL); //TODO why do we loss a lot of accuracy 
+    assertEquals("moneyness", expected, moneynessVal, 200 * TOL); //TODO why do we loss a lot of accuracy
     assertEquals("log-moneyness", expected, logMoneynessVal, 200 * TOL);
     assertEquals("delta", expected, deltaVal, 100 * TOL);
   }

@@ -8,8 +8,6 @@ package com.opengamma.master.orgs.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.ehcache.CacheManager;
-
 import org.joda.beans.Bean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +27,8 @@ import com.opengamma.master.orgs.OrganizationSearchResult;
 import com.opengamma.util.paging.Paging;
 import com.opengamma.util.paging.PagingRequest;
 import com.opengamma.util.tuple.ObjectsPair;
+
+import net.sf.ehcache.CacheManager;
 
 /**
  * A cache decorating a {@code OrganizationMaster}, mainly intended to reduce the frequency and repetition of queries to
@@ -55,10 +55,10 @@ public class EHCachingOrganizationMaster extends AbstractEHCachingMaster<Organiz
    * @param cacheManager  the cache manager, not null
    */
   public EHCachingOrganizationMaster(final String name, final OrganizationMaster underlying, final CacheManager cacheManager) {
-    super(name, underlying, cacheManager);
+    super(name + "Organization", underlying, cacheManager);
 
     // Create the document search cache and register a organisation master searcher
-    _documentSearchCache = new EHCachingSearchCache(name + "Document", cacheManager, new EHCachingSearchCache.Searcher() {
+    _documentSearchCache = new EHCachingSearchCache(name + "Organization", cacheManager, new EHCachingSearchCache.Searcher() {
       @Override
       public ObjectsPair<Integer, List<UniqueId>> search(Bean request, PagingRequest pagingRequest) {
         // Fetch search results from underlying master
@@ -75,7 +75,7 @@ public class EHCachingOrganizationMaster extends AbstractEHCachingMaster<Organiz
     });
 
     // Create the history search cache and register a organisation master searcher
-    _historySearchCache = new EHCachingSearchCache(name + "History", cacheManager, new EHCachingSearchCache.Searcher() {
+    _historySearchCache = new EHCachingSearchCache(name + "OrganizationHistory", cacheManager, new EHCachingSearchCache.Searcher() {
       @Override
       public ObjectsPair<Integer, List<UniqueId>> search(Bean request, PagingRequest pagingRequest) {
         // Fetch search results from underlying master
