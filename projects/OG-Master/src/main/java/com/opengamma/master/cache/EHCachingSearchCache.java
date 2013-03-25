@@ -148,8 +148,10 @@ public class EHCachingSearchCache {
     final int totalResults = info.getFirst();
     final ConcurrentNavigableMap<Integer, List<UniqueId>> rangeMap = info.getSecond();
 
-    // Fix unpaged requests and end indexes larger than the total doc count
-    if (pagingRequest.getLastItem() >= totalResults) {
+    // Fix indexes larger than the total doc count
+    if (pagingRequest.getFirstItem() >= totalResults) {
+      pagingRequest = PagingRequest.ofIndex(totalResults, 0);
+    } else if (pagingRequest.getLastItem() >= totalResults) {
       pagingRequest = PagingRequest.ofIndex(pagingRequest.getFirstItem(), totalResults - pagingRequest.getFirstItem());
     }
 
