@@ -51,7 +51,7 @@ public class SpikeDoubleTimeSeriesFilter extends TimeSeriesFilter {
     final double[] filteredData = new double[n];
     final int[] rejectedDates = new int[n];
     final double[] rejectedData = new double[n];
-    final int firstDate = x.getTimeAt(0);
+    final int firstDate = x.getEarliestTimeFast();
     final double firstDatum = x.getValueAt(0);
     int i = 0, j = 0;
     if (Math.abs(firstDatum / x.getValueAt(1) - 1) < _maxPercentageMove) {

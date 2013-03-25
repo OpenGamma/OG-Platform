@@ -204,9 +204,9 @@ public class DbHistoricalTimeSeriesDataPointsWorker extends AbstractDbMaster {
     Date result = getDbConnector().getJdbcTemplate().queryForObject(sql, Date.class, queryArgs);
     if (result != null) {
       LocalDate maxDate = DbDateUtils.fromSqlDateAllowNull(result);
-      if (series.getTimeAt(0).isAfter(maxDate) == false) {
+      if (series.getEarliestTime().isAfter(maxDate) == false) {
         throw new IllegalArgumentException("Unable to update data points of time-series " + uniqueId +
-            " as the update starts at " + series.getTimeAt(0) +
+            " as the update starts at " + series.getEarliestTime() +
             " which is before the latest data point in the database at " + maxDate);
       }
     }
