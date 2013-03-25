@@ -16,6 +16,8 @@ public final class CalculationPropertyNamesAndValues {
   // Values for ValuePropertyNames.CALCULATION_METHOD
   /** Black calculations */
   public static final String BLACK_METHOD = "BlackMethod";
+  /** Black model without an entire Volatility Surface, hence no smile */
+  public static final String BLACK_BASIC_METHOD = "BlackBasicMethod";
   /** The Barone-Adesi Whaley approximation for American options */
   public static final String BAW_METHOD = "BaroneAdesiWhaleyMethod";
   /** The Bjerksund-Stensland approximation for American options */

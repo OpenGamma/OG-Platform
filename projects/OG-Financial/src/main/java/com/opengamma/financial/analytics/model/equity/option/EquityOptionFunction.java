@@ -333,6 +333,9 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
           properties.with(property, forwardCurveProperties.getValues(property));
         }
         forwardCurvePropertiesSet = true;
+      } else if (inputName.equals(MarketDataRequirementNames.MARKET_VALUE) && !surfacePropertiesSet) { // BlackBasic case
+        // TODO: Add any additional properties for the BlackBasic MarketValue result
+        surfacePropertiesSet = true; // i.e. don't set any surface properties
       }
     }
     assert discountCurvePropertiesSet;
@@ -385,7 +388,7 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
     return new ValueRequirement(ValueRequirementNames.FORWARD_CURVE, ComputationTargetType.PRIMITIVE, underlyingBuid, properties);
   }
 
-  private ValueRequirement getVolatilitySurfaceRequirement(final HistoricalTimeSeriesSource tsSource, final SecuritySource securitySource,
+  protected ValueRequirement getVolatilitySurfaceRequirement(final HistoricalTimeSeriesSource tsSource, final SecuritySource securitySource,
       final ValueRequirement desiredValue, final Security security, final String surfaceName, final String forwardCurveName,
       final String surfaceCalculationMethod, final ExternalId underlyingBuid, final ValueProperties additionalConstraints) {
     // REVIEW Andrew 2012-01-17 -- Could we pass a CTRef to the getSurfaceRequirement and use the underlyingBuid external identifier directly with a target type of SECURITY
