@@ -105,7 +105,10 @@ public class EHCachingSearchCache {
     _searcher = searcher;
 
     // Configure cache - this should probably be in an xml config
-    CacheConfiguration cacheConfiguration = new CacheConfiguration(name + CACHE_NAME_SUFFIX, 1000);
+    CacheConfiguration cacheConfiguration = new CacheConfiguration();
+
+    // Set cache name
+    cacheConfiguration.setName(name + CACHE_NAME_SUFFIX);
 
     // Make copies of cached objects (use default Serializable copy)
     cacheConfiguration.setCopyOnRead(true);
