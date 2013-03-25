@@ -421,10 +421,7 @@ $.register_module({
                     }
                 }
             },
-            tooltip: function () {
-                console.log('tooltip stubb');
-            },
             rules: view.rules(['name'], ['node', 'position', 'sync', 'version'])
-        }), view.rules.tooltip = {route: '/tooltip/', method: module.name + '.tooltip'}, view;
+        });
     }
 });
