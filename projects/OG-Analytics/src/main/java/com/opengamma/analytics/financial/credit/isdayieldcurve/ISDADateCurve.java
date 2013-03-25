@@ -49,6 +49,7 @@ public class ISDADateCurve {
   private final double _zeroDiscountFactor;
 
   private final int _n;
+
   // ------------------------------------------------------------------------------------------------------------------------------------
 
   // Overloaded ctor to take in the output from the native ISDA yield curve construction model
@@ -195,10 +196,8 @@ public class ISDADateCurve {
     int result = 1;
     result = prime * result + Arrays.hashCode(_curveDates);
     result = prime * result + _name.hashCode();
-    long temp;
-    temp = Double.doubleToLongBits(_offset);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
     result = prime * result + Arrays.hashCode(_shiftedTimePoints);
+    long temp;
     temp = Double.doubleToLongBits(_zeroDiscountFactor);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     return result;
