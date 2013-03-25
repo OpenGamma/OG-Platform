@@ -5,6 +5,7 @@
 .OG-table {
     width: 100%;
     position: relative;
+    margin-top: 2px;
 }
 
 .OG-table:after {

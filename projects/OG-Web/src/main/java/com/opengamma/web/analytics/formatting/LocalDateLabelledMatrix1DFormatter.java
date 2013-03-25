@@ -15,7 +15,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.LocalDateLabelledMatrix1D;
-import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -52,8 +51,7 @@ import com.opengamma.util.ArgumentChecker;
     int length = value.getKeys().length;
     List<List<String>> results = Lists.newArrayListWithCapacity(length);
     for (int i = 0; i < length; i++) {
-      Object labelObject = value.getLabels()[i];
-      String label = labelObject instanceof ExternalId ? ((ExternalId) labelObject).getValue() : labelObject.toString();
+      String label = value.getLabels()[i].toString();
       String formattedValue = _doubleFormatter.formatCell(value.getValues()[i], valueSpec);
       List<String> rowResults = ImmutableList.of(label, formattedValue);
       results.add(rowResults);

@@ -29,11 +29,11 @@ import com.opengamma.util.ArgumentChecker;
   /** Immediate child nodes. */
   private final List<AnalyticsNode> _children;
   /** Whether this node represents a position in a fungible security, i.e. it has child nodes which are trades. */
-  private final boolean _fungiblePosition;
+  private final boolean _collapseByDefault;
 
-  /* package */ AnalyticsNode(int startRow, int endRow, List<AnalyticsNode> children, boolean fungiblePosition) {
+  /* package */ AnalyticsNode(int startRow, int endRow, List<AnalyticsNode> children, boolean collapseByDefault) {
     ArgumentChecker.notNull(children, "children");
-    _fungiblePosition = fungiblePosition;
+    _collapseByDefault = collapseByDefault;
     _startRow = startRow;
     _endRow = endRow;
     _children = children;
@@ -77,8 +77,8 @@ import com.opengamma.util.ArgumentChecker;
   /**
    * @return Whether this node represents a position in a fungible security, i.e. it has child nodes which are trades
    */
-  public boolean isFungiblePosition() {
-    return _fungiblePosition;
+  public boolean isCollapseByDefault() {
+    return _collapseByDefault;
   }
 
   @Override
@@ -115,7 +115,9 @@ import com.opengamma.util.ArgumentChecker;
         ++_lastRow;
         nodes.add(createPortfolioNode(child));
       }
-      return new AnalyticsNode(nodeStart, _lastRow, Collections.unmodifiableList(nodes), false);
+      // collapse nodes if there are no child nodes
+      boolean collapse = node.getChildNodes().isEmpty();
+      return new AnalyticsNode(nodeStart, _lastRow, Collections.unmodifiableList(nodes), collapse);
     }
 
     private AnalyticsNode createFungiblePositionNode(Position position) {

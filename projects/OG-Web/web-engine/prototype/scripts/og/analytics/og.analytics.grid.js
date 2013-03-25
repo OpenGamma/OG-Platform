@@ -77,12 +77,8 @@ $.register_module({
             };
             var mousemove = function (grid, event) {
                 var scroll_body = grid.elements.scroll_body, scroll_left = scroll_body.scrollLeft(),
-                    x = event.pageX - grid.offset.left + scroll_left, fixed_width = grid.meta.columns.width.fixed,
-                    scan = grid.meta.columns.scan.all, line_left;
-                after = Math.max(
-                    grid.meta.fixed_length - 1,
-                    grid.meta.columns.scan.all.reduce(function (acc, val, idx) {return val < x ? idx : acc;}, 0)
-                );
+                    fixed_width = grid.meta.columns.width.fixed, scan = grid.meta.columns.scan.all, line_left;
+                set_after(grid, event);
                 line_left = grid.offset.left - scroll_left + scan[after];
                 $('.' + reorderer).css({left: event.pageX - offset_left});
                 if (line_left <= fixed_width + grid.offset.left && scroll_left)
@@ -103,6 +99,13 @@ $.register_module({
                 grid.resize();
             };
             var scroll = function () {$('.' + line).hide();};
+            var set_after = function (grid, event) {
+                var x = event.pageX - grid.offset.left + grid.elements.scroll_body.scrollLeft();
+                after = Math.max(
+                    grid.meta.fixed_length - 1,
+                    grid.meta.columns.scan.all.reduce(function (acc, val, idx) {return val < x ? idx : acc;}, 0)
+                );
+            };
             return function (event, $target) {
                 var grid = this, $clone;
                 clean_up(grid);
@@ -127,6 +130,7 @@ $.register_module({
                     height: grid.elements.parent.height() - grid.meta.header_height
                 }).appendTo(document.body);
                 grid.elements.scroll_body.on('scroll' + namespace, scroll);
+                set_after(grid, event);
                 $(document)
                     .on('mousemove' + namespace, mousemove.partial(grid))
                     .on('mouseup' + namespace, mouseup.partial(grid));
@@ -214,8 +218,8 @@ $.register_module({
                 })
                 .on('types', function (types) {
                     grid.views = {selected: config.source.type || 'portfolio'};
-                    grid.views.rest = Object.keys(types)
-                        .filter(function (key) {return types[key] && key !== grid.views.selected;});
+                    grid.views.list = Object.keys(types).filter(function (key) { return !!types[key]; });
+                    if (grid.views.list.length === 1) grid.views.list = [];
                     if (grid.elements.empty) return; else render_header.call(grid);
                 });
             grid.clipboard = new og.analytics.Clipboard(grid);
@@ -248,7 +252,9 @@ $.register_module({
             (elements = grid.elements).style = $('<style type="text/css" />').appendTo('head');
             elements.parent.unbind().html(templates.container({id: grid.id.substring(1)}))
                 .on('click', '.OG-g-h-set-name .og-js-viewchange', function (event) {
-                    return grid.fire('viewchange', $(this).html().toLowerCase()), false;
+                    var selection = $(this).html().toLowerCase();
+                    if (selection === grid.views.selected) return $('.OG-g-h-set-name .og-menu').toggle(), false;
+                    return grid.fire('viewchange', selection), false;
                 })
                 .on('click', '.OG-g-h-set-name .og-dropdown', function (event) {
                     return $('.OG-g-h-set-name .og-menu').toggle(), false;
@@ -382,6 +388,7 @@ $.register_module({
             scrolls = reorder.map(function (idx) {return scrolls[idx];});
             sets = columns.scroll.reduce(function (acc, set) {delete set.columns; return acc.concat(set);}, []);
             columns.scroll = scrolls.reduce(function (acc, col, idx) {
+                if (!col) debugger;
                 var length = acc.length, same_set = length && scrolls[idx - 1].orig_set === col.orig_set, orig_set;
                 if (same_set) return acc[length - 1].columns.push(col), acc;
                 orig_set = sets[col.orig_set];

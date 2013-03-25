@@ -13,7 +13,7 @@ $.register_module({
                 var hide_menu = function () {
                     $(menu).hide();
                     $(link).removeClass(active);
-                    common.layout.main.resetOverflow('north');
+//                    common.layout.main.resetOverflow('north');
                 };
                 $(link + ', ' + menu).hover(
                     function () {
