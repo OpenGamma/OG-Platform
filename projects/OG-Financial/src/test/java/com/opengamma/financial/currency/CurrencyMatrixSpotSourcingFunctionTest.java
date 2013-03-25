@@ -87,10 +87,13 @@ public class CurrencyMatrixSpotSourcingFunctionTest {
     Set<ValueRequirement> inRequirements = _function.getRequirements(_functionCompilationContext, _matrixTarget, outRequirement);
     assertEquals(1, inRequirements.size());
     final ComputationTargetRequirement inRequirementTarget = new ComputationTargetRequirement(ComputationTargetType.PRIMITIVE, ExternalId.of("LiveData", "USD_GBP"));
-    ValueRequirement inRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, inRequirementTarget);
-    assertTrue(inRequirements.contains(inRequirement));
+    for (ValueRequirement requirement : inRequirements) {
+      assertEquals(requirement.getValueName(), MarketDataRequirementNames.MARKET_VALUE);
+      assertEquals(requirement.getTargetReference(), inRequirementTarget);
+      assertTrue(requirement.getConstraints().isSatisfiedBy(ValueProperties.none()));
+    }
     Set<ComputedValue> outputs = _function.execute(_functionExecutionContext, new FunctionInputsImpl(resolver.atVersionCorrection(VersionCorrection.LATEST), new ComputedValue(new ValueSpecification(
-        inRequirement.getValueName(), ComputationTargetSpecification.of(UniqueId.of("ExternalId-LiveData", "USD_GBP")), properties), _rateUSD_GBP)), _matrixTarget,
+        MarketDataRequirementNames.MARKET_VALUE, ComputationTargetSpecification.of(UniqueId.of("ExternalId-LiveData", "USD_GBP")), properties), _rateUSD_GBP)), _matrixTarget,
         Collections.singleton(outRequirement));
     assertEquals(1, outputs.size());
     ComputedValue output = outputs.iterator().next();
@@ -104,10 +107,13 @@ public class CurrencyMatrixSpotSourcingFunctionTest {
         .with(ValuePropertyNames.FUNCTION, "CMSF").get());
     inRequirements = _function.getRequirements(_functionCompilationContext, _matrixTarget, outRequirement);
     assertEquals(1, inRequirements.size());
-    inRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, inRequirementTarget);
-    assertTrue(inRequirements.contains(inRequirement));
+    for (ValueRequirement requirement : inRequirements) {
+      assertEquals(requirement.getValueName(), MarketDataRequirementNames.MARKET_VALUE);
+      assertEquals(requirement.getTargetReference(), inRequirementTarget);
+      assertTrue(requirement.getConstraints().isSatisfiedBy(ValueProperties.none()));
+    }
     outputs = _function.execute(_functionExecutionContext,
-        new FunctionInputsImpl(resolver.atVersionCorrection(VersionCorrection.LATEST), new ComputedValue(new ValueSpecification(inRequirement.getValueName(),
+        new FunctionInputsImpl(resolver.atVersionCorrection(VersionCorrection.LATEST), new ComputedValue(new ValueSpecification(MarketDataRequirementNames.MARKET_VALUE,
             ComputationTargetSpecification.of(UniqueId.of("ExternalId-LiveData", "USD_GBP")), properties), _rateUSD_GBP)), _matrixTarget, Collections.singleton(outRequirement));
     assertEquals(1, outputs.size());
     output = outputs.iterator().next();
@@ -134,10 +140,13 @@ public class CurrencyMatrixSpotSourcingFunctionTest {
         .with(ValuePropertyNames.FUNCTION, "CMSF").get());
     inRequirements = _function.getRequirements(_functionCompilationContext, _matrixTarget, outRequirement);
     assertEquals(1, inRequirements.size());
-    inRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, inRequirementTarget);
-    assertTrue(inRequirements.contains(inRequirement));
+    for (ValueRequirement requirement : inRequirements) {
+      assertEquals(requirement.getValueName(), MarketDataRequirementNames.MARKET_VALUE);
+      assertEquals(requirement.getTargetReference(), inRequirementTarget);
+      assertTrue(requirement.getConstraints().isSatisfiedBy(ValueProperties.none()));
+    }
     outputs = _function.execute(_functionExecutionContext,
-        new FunctionInputsImpl(resolver.atVersionCorrection(VersionCorrection.LATEST), new ComputedValue(new ValueSpecification(inRequirement.getValueName(),
+        new FunctionInputsImpl(resolver.atVersionCorrection(VersionCorrection.LATEST), new ComputedValue(new ValueSpecification(MarketDataRequirementNames.MARKET_VALUE,
             ComputationTargetSpecification.of(UniqueId.of("ExternalId-LiveData", "USD_GBP")), properties), _rateUSD_GBP)), _matrixTarget, Collections.singleton(outRequirement));
     assertEquals(1, outputs.size());
     output = outputs.iterator().next();

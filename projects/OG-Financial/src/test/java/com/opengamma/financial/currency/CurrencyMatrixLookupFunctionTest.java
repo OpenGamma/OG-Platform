@@ -49,7 +49,7 @@ public class CurrencyMatrixLookupFunctionTest {
   public void testGetResults1() {
     final ComputationTarget ct = new ComputationTarget(CurrencyPair.TYPE, CurrencyPair.parse("USD/EUD"));
     final Set<ValueSpecification> results = _function.getResults(_functionCompilationContext, ct);
-    assertEquals(2, results.size());
+    assertEquals(3, results.size());
   }
 
   @Test
