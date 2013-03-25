@@ -18,34 +18,35 @@ import com.opengamma.util.ArgumentChecker;
 public class InflationDiscountFinderFunction extends Function1D<DoubleMatrix1D, DoubleMatrix1D> {
 
   /**
-   * The instrument value calculator.
-   */
+  * The instrument value calculator.
+  */
   private final InstrumentDerivativeVisitor<InflationProviderInterface, Double> _calculator;
+
   /**
    * The data required for curve building.
    */
   private final InflationDiscountBuildingData _data;
 
   /**
-   * Constructor.
-   * @param calculator The instrument value calculator.
+   * Constructor
+   * @param inflationCalculator The instrument value calculator.
    * @param data The data required for curve building.
    */
-  public InflationDiscountFinderFunction(final InstrumentDerivativeVisitor<InflationProviderInterface, Double> calculator, final InflationDiscountBuildingData data) {
-    ArgumentChecker.notNull(calculator, "Calculator");
+  public InflationDiscountFinderFunction(final InstrumentDerivativeVisitor<InflationProviderInterface, Double> inflationCalculator, final InflationDiscountBuildingData data) {
+    ArgumentChecker.notNull(inflationCalculator, "Calculator");
     ArgumentChecker.notNull(data, "Data");
-    _calculator = calculator;
+    _calculator = inflationCalculator;
     _data = data;
   }
 
   @Override
   public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
-    final InflationProviderDiscount bundle = _data.getKnownData().copy();
-    final InflationProviderDiscount newCurves = _data.getGeneratorMarket().evaluate(x);
-    bundle.setAll(newCurves);
+    final InflationProviderDiscount inflationBundle = _data.getKnownData().copy();
+    final InflationProviderDiscount inflationnewCurves = _data.getGeneratorMarket().evaluate(x);
+    inflationBundle.setAll(inflationnewCurves);
     final double[] res = new double[_data.getNumberOfInstruments()];
     for (int i = 0; i < _data.getNumberOfInstruments(); i++) {
-      res[i] = _data.getInstrument(i).accept(_calculator, bundle);
+      res[i] = _data.getInstrument(i).accept(_calculator, inflationBundle);
     }
     return new DoubleMatrix1D(res);
   }

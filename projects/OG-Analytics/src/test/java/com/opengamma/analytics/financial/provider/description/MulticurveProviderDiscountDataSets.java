@@ -176,6 +176,11 @@ public class MulticurveProviderDiscountDataSets {
     MULTICURVES_EUR_USD.setCurve(EURIBOR6M, EUR_FWD6);
   }
 
+  private static final MulticurveProviderDiscount MULTICURVES_USD_WITHOUT_DISCOUNT = new MulticurveProviderDiscount();
+  static {
+
+  }
+
   private static final MulticurveProviderDiscount MULTICURVES_CAD = new MulticurveProviderDiscount();
   static {
     MULTICURVES_CAD.setCurve(Currency.CAD, CAD_DSC);
@@ -344,6 +349,14 @@ public class MulticurveProviderDiscountDataSets {
    */
   public static MulticurveProviderDiscount createMulticurveEurUsd() {
     return MULTICURVES_EUR_USD;
+  }
+
+  /**
+   * Returns a multi-curves provider with two currencies USD without discount curve, four Ibor indexes (Euribor3M, Euribor6M, UsdLibor3M, UsdLibor6M).
+   * @return The provider.
+   */
+  public static MulticurveProviderDiscount createMulticurveUsdWithoutDiscount() {
+    return MULTICURVES_USD_WITHOUT_DISCOUNT;
   }
 
   /**
