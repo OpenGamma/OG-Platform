@@ -166,7 +166,7 @@ public class VarianceSwapDefinition implements InstrumentDefinitionWithData<Vari
     } else {
       realizedTS = underlyingTimeSeries.subSeries(_obsStartDate.toLocalDate(), true, valueDate.toLocalDate(), false);
     }
-    final double[] observations = realizedTS.toFastIntDoubleTimeSeries().valuesArrayFast();
+    final double[] observations = realizedTS.valuesArrayFast();
     final double[] observationWeights = {}; // TODO Case 2011-06-29 Calendar Add functionality for non-trivial weighting of observations
     final int nGoodBusinessDays = countExpectedGoodDays(_obsStartDate.toLocalDate(), valueDate.toLocalDate(), _calendar, _obsFreq);
     final int nObsDisrupted = nGoodBusinessDays - observations.length;
