@@ -54,6 +54,7 @@ public class RecordConsumptionJob implements Runnable {
     try {
       while (!_terminated.get()) {
         Object record = _recordStream.readRecord();
+        s_logger.debug("Received record {}", record);
         try {
           _queue.put(record);
         } catch (InterruptedException e) {
@@ -81,6 +82,7 @@ public class RecordConsumptionJob implements Runnable {
       s_logger.warn("Unable to open stream using {}", _inputStreamFactory);
       return;
     }
+    assert is != null;
     _inputStream = is;
     _recordStream = _recordStreamFactory.newInstance(new BufferedInputStream(_inputStream));
   }
@@ -106,10 +108,10 @@ public class RecordConsumptionJob implements Runnable {
     while (!_terminated.get()) {
       establishConnection();
       if (_recordStream == null) {
-        // We failed in establishing the connection. Use as a trigger
-        // to terminate.
-        terminate();
-        break;
+        // We failed in establishing the connection. Keep trying in case
+        // this is a sporadic issue.
+        s_logger.warn("Unable to establish a connection. Looping.");
+        continue;
       }
       
       loopWhileConnected();

@@ -14,6 +14,12 @@ import java.io.InputStream;
  */
 public interface InputStreamFactory {
   
+  /**
+   * Open a connection.
+   * In the case that a connection cannot be made, this method <em>must</em>
+   * throw an unchecked exception rather than returning null.
+   * @return A valid connection.
+   */
   InputStream openConnection();
 
 }
