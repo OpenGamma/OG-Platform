@@ -31,6 +31,7 @@ public class SocketInputStreamFactory implements InputStreamFactory {
   
   private final InetAddress _host;
   private final int _port;
+  private final String _description;
   
   public SocketInputStreamFactory(String hostName, int port) throws UnknownHostException {
     this(InetAddress.getByName(hostName), port);
@@ -41,6 +42,24 @@ public class SocketInputStreamFactory implements InputStreamFactory {
     ArgumentChecker.notNegative(port, "port");
     _host = host;
     _port = port;
+    
+    _description = "Socket[" + _host + ":" + port + "]";
+  }
+
+  /**
+   * Gets the host.
+   * @return the host
+   */
+  public InetAddress getHost() {
+    return _host;
+  }
+
+  /**
+   * Gets the port.
+   * @return the port
+   */
+  public int getPort() {
+    return _port;
   }
 
   @Override
@@ -60,6 +79,11 @@ public class SocketInputStreamFactory implements InputStreamFactory {
       s_logger.warn("Unable to open a connection to " + _host + ":" + _port, ioe);
       throw new OpenGammaRuntimeException("Unable to open a connection to " + _host + ":" + _port, ioe);
     }
+  }
+
+  @Override
+  public String getDescription() {
+    return _description;
   }
 
 }

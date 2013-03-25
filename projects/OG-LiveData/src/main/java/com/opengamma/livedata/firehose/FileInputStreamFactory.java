@@ -22,6 +22,7 @@ import com.opengamma.util.ArgumentChecker;
 public class FileInputStreamFactory implements InputStreamFactory {
   private static final Logger s_logger = LoggerFactory.getLogger(FileInputStreamFactory.class);
   private final File _inputFile;
+  private String _description;
   
   public FileInputStreamFactory(String fileName) {
     this(new File(fileName));
@@ -30,6 +31,8 @@ public class FileInputStreamFactory implements InputStreamFactory {
   public FileInputStreamFactory(File inputFile) {
     ArgumentChecker.notNull(inputFile, "inputFile");
     _inputFile = inputFile;
+    
+    _description = "File[" + _inputFile.getAbsolutePath() + "]";
   }
 
   @Override
@@ -40,6 +43,11 @@ public class FileInputStreamFactory implements InputStreamFactory {
     } catch (FileNotFoundException ex) {
       throw new OpenGammaRuntimeException("Unable to open file " + _inputFile.getAbsolutePath(), ex);
     }
+  }
+
+  @Override
+  public String getDescription() {
+    return _description;
   }
 
 }

@@ -21,5 +21,14 @@ public interface InputStreamFactory {
    * @return A valid connection.
    */
   InputStream openConnection();
+  
+  /**
+   * Obtain a description of the underlying connection.
+   * For example, if the factory is backed by a file, it might return
+   * the file name. If it's based on a socket, it might describe the connection
+   * parameters.
+   * @return A description for the factory.
+   */
+  String getDescription();
 
 }
