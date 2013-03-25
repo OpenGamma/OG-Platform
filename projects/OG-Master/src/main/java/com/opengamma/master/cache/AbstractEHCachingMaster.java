@@ -90,7 +90,14 @@ public abstract class AbstractEHCachingMaster<D extends AbstractDocument> implem
     _cacheManager = cacheManager;
 
     // Configure cache for searching - this should probably be in an xml config
-    CacheConfiguration cacheConfiguration = new CacheConfiguration(name + CACHE_NAME_SUFFIX, 1000);
+    CacheConfiguration cacheConfiguration = new CacheConfiguration();
+
+    // Set cache name
+    cacheConfiguration.setName(name + CACHE_NAME_SUFFIX);
+
+    // Set max bytes on local heap
+    cacheConfiguration.setMaxEntriesLocalHeap(100000);
+
     Searchable uidToDocumentCacheSearchable = new Searchable();
     uidToDocumentCacheSearchable.addSearchAttribute(new SearchAttribute().name("ObjectId")
         .expression("value.getObjectId().toString()"));

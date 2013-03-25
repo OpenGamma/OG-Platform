@@ -53,9 +53,9 @@ public class EHCachingSearchCache {
   /** The number of units to prefetch on either side of the current paging request */
   protected static final int PREFETCH_RADIUS = 2;
   /** The size of a prefetch unit */
-  protected static final int PREFETCH_GRANULARITY = 100;
+  protected static final int PREFETCH_GRANULARITY = 200;
   /** The maximum number of concurrent prefetch operations */
-  protected static final int MAX_PREFETCH_CONCURRENCY = 4;
+  protected static final int MAX_PREFETCH_CONCURRENCY = 8;
   /** Cache name. */
   private static final String CACHE_NAME_SUFFIX = "PagedSearchCache";
   /** Check cached results against results from underlying */
@@ -105,7 +105,13 @@ public class EHCachingSearchCache {
     _searcher = searcher;
 
     // Configure cache - this should probably be in an xml config
-    CacheConfiguration cacheConfiguration = new CacheConfiguration(name + CACHE_NAME_SUFFIX, 1000);
+    CacheConfiguration cacheConfiguration = new CacheConfiguration();
+
+    // Set max bytes on local heap
+    cacheConfiguration.setMaxEntriesLocalHeap(100000);
+
+    // Set cache name
+    cacheConfiguration.setName(name + CACHE_NAME_SUFFIX);
 
     // Make copies of cached objects (use default Serializable copy)
     cacheConfiguration.setCopyOnRead(true);
@@ -148,8 +154,10 @@ public class EHCachingSearchCache {
     final int totalResults = info.getFirst();
     final ConcurrentNavigableMap<Integer, List<UniqueId>> rangeMap = info.getSecond();
 
-    // Fix unpaged requests and end indexes larger than the total doc count
-    if (pagingRequest.getLastItem() >= totalResults) {
+    // Fix indexes larger than the total doc count
+    if (pagingRequest.getFirstItem() >= totalResults) {
+      pagingRequest = PagingRequest.ofIndex(totalResults, 0);
+    } else if (pagingRequest.getLastItem() >= totalResults) {
       pagingRequest = PagingRequest.ofIndex(pagingRequest.getFirstItem(), totalResults - pagingRequest.getFirstItem());
     }
 

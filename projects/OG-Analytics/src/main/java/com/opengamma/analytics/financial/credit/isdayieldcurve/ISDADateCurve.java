@@ -49,6 +49,7 @@ public class ISDADateCurve {
   private final double _zeroDiscountFactor;
 
   private final int _n;
+
   // ------------------------------------------------------------------------------------------------------------------------------------
 
   // Overloaded ctor to take in the output from the native ISDA yield curve construction model
@@ -65,7 +66,7 @@ public class ISDADateCurve {
     ArgumentChecker.notNull(dayCount, "day count");
     _n = curveDates.length;
     ArgumentChecker.isTrue(_n != 0, "Data arrays were empty");
-    ArgumentChecker.isTrue(_n == rates.length, "Have {} rates for {} dates", rates.length, _n);
+    //ArgumentChecker.isTrue(_n == rates.length, "Have {} rates for {} dates", rates.length, _n);
 
     _name = name;
     _offset = offset;
@@ -103,8 +104,8 @@ public class ISDADateCurve {
     ArgumentChecker.notNull(rates, "rates");
     _n = curveDates.length;
     ArgumentChecker.isTrue(_n != 0, "Data arrays were empty");
-    ArgumentChecker.isTrue(_n == times.length, "Have {} times for {} dates", times.length, _n);
-    ArgumentChecker.isTrue(_n == rates.length, "Have {} rates for {} dates", rates.length, _n);
+    //    ArgumentChecker.isTrue(_n == times.length, "Have {} times for {} dates", times.length, _n);
+    //    ArgumentChecker.isTrue(_n == rates.length, "Have {} rates for {} dates", rates.length, _n);
 
     _name = name;
     _offset = offset;
@@ -195,10 +196,8 @@ public class ISDADateCurve {
     int result = 1;
     result = prime * result + Arrays.hashCode(_curveDates);
     result = prime * result + _name.hashCode();
-    long temp;
-    temp = Double.doubleToLongBits(_offset);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
     result = prime * result + Arrays.hashCode(_shiftedTimePoints);
+    long temp;
     temp = Double.doubleToLongBits(_zeroDiscountFactor);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     return result;
