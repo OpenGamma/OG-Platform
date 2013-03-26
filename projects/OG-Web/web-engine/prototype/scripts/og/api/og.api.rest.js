@@ -248,7 +248,7 @@ $.register_module({
                 [ // blotter/lookup/* endpoints
                     'barrierdirections', 'barriertypes', 'businessdayconventions', 'daycountconventions',
                     'exercisetypes', 'floatingratetypes', 'frequencies', 'idschemes', 'longshort', 'monitoringtype',
-                    'samplingfrequencies', 'regions', 'deptseniority', 'restructuringclause', 'stubtype'
+                    'samplingfrequencies', 'regions', 'debtseniority', 'restructuringclause', 'stubtype'
                 ].forEach(function (key) {
                     blotter[key] = {
                         root: 'blotter/lookup/' + key, get: simple_get, put: not_available_put, del: not_available_del
