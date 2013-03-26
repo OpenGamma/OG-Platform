@@ -26,6 +26,7 @@ $.register_module({
                 form.children.push(
                     new og.blotter.forms.blocks.Portfolio({form: form, counterparty: data.trade.counterparty,
                         portfolio: data.nodeId, trade: data.trade}),
+                    new og.blotter.forms.blocks.CDS.js({form: form}),
                     new og.common.util.ui.Attributes({
                         form: form, attributes: data.trade.attributes, index: 'trade.attributes'
                     })
