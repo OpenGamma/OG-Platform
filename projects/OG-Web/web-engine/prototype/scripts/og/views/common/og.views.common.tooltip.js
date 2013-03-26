@@ -19,6 +19,9 @@ $.register_module({
                         }
                     }
                 ]});
+                og.api.text({module: 'og.views.tooltip', handler: function (template) {
+                    $('.ui-layout-center').html(template);
+                }});
             },
             load_item: function (args) {
                 view.check_state({args: args, conditions: [{new_page: view.load}]});
