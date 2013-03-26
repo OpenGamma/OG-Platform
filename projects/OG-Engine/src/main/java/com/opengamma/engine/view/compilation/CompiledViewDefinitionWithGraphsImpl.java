@@ -40,23 +40,23 @@ public class CompiledViewDefinitionWithGraphsImpl extends CompiledViewDefinition
    * Constructs an instance.
    * 
    * @param versionCorrection the resolver version/correction, not null
+   * @param identifier the compilation identifier, not null
    * @param viewDefinition the view definition, not null
    * @param graphs the dependency graphs, not null
    * @param resolutions the resolution mappings used to create the dependency graphs, not null
    * @param portfolio the portfolio, possibly null
    * @param functionInitId the function init ID that was used when creating the dependency graphs
    */
-  public CompiledViewDefinitionWithGraphsImpl(final VersionCorrection versionCorrection, final ViewDefinition viewDefinition,
-      final Collection<DependencyGraph> graphs, final Map<ComputationTargetReference, UniqueId> resolutions,
-      final Portfolio portfolio, final long functionInitId) {
-    this(versionCorrection, viewDefinition, portfolio, processCompiledCalculationConfigurations(graphs),
+  public CompiledViewDefinitionWithGraphsImpl(final VersionCorrection versionCorrection, final String identifier, final ViewDefinition viewDefinition,
+      final Collection<DependencyGraph> graphs, final Map<ComputationTargetReference, UniqueId> resolutions, final Portfolio portfolio, final long functionInitId) {
+    this(versionCorrection, identifier, viewDefinition, portfolio, processCompiledCalculationConfigurations(graphs),
         processValidityRange(graphs), graphs, resolutions, functionInitId);
   }
 
-  private CompiledViewDefinitionWithGraphsImpl(final VersionCorrection versionCorrection, final ViewDefinition viewDefinition, final Portfolio portfolio,
-      final Collection<CompiledViewCalculationConfiguration> compiledCalculationConfigurations,
-      final Pair<Instant, Instant> validityRange, final Collection<DependencyGraph> graphs, final Map<ComputationTargetReference, UniqueId> resolutions, final long functionInitId) {
-    super(versionCorrection, viewDefinition, portfolio, compiledCalculationConfigurations, validityRange.getFirst(), validityRange.getSecond());
+  private CompiledViewDefinitionWithGraphsImpl(final VersionCorrection versionCorrection, final String identifier, final ViewDefinition viewDefinition, final Portfolio portfolio,
+      final Collection<CompiledViewCalculationConfiguration> compiledCalculationConfigurations, final Pair<Instant, Instant> validityRange, final Collection<DependencyGraph> graphs,
+      final Map<ComputationTargetReference, UniqueId> resolutions, final long functionInitId) {
+    super(versionCorrection, identifier, viewDefinition, portfolio, compiledCalculationConfigurations, validityRange.getFirst(), validityRange.getSecond());
     ArgumentChecker.notNull(resolutions, "resolutions");
     _functionInitId = functionInitId;
     final Map<String, DependencyGraphExplorer> graphsByConfiguration = Maps.newHashMapWithExpectedSize(graphs.size());

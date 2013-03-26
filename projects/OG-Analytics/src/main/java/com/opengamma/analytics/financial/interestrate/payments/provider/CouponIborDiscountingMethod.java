@@ -22,25 +22,25 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * Method to compute present value and present value sensitivity for Ibor coupon with gearing factor and spread.
  */
-public final class CouponIborDiscountingProviderMethod {
+public final class CouponIborDiscountingMethod {
 
   /**
    * The method unique instance.
    */
-  private static final CouponIborDiscountingProviderMethod INSTANCE = new CouponIborDiscountingProviderMethod();
+  private static final CouponIborDiscountingMethod INSTANCE = new CouponIborDiscountingMethod();
 
   /**
    * Return the unique instance of the class.
    * @return The instance.
    */
-  public static CouponIborDiscountingProviderMethod getInstance() {
+  public static CouponIborDiscountingMethod getInstance() {
     return INSTANCE;
   }
 
   /**
    * Private constructor.
    */
-  private CouponIborDiscountingProviderMethod() {
+  private CouponIborDiscountingMethod() {
   }
 
   /**

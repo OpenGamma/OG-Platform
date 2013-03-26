@@ -56,7 +56,7 @@ public class EHCachingHolidayMaster extends AbstractEHCachingMaster<HolidayDocum
    * @param cacheManager  the cache manager, not null
    */
   public EHCachingHolidayMaster(final String name, final HolidayMaster underlying, final CacheManager cacheManager) {
-    super(name + "HolidaY", underlying, cacheManager);
+    super(name + "Holiday", underlying, cacheManager);
 
     // Create the doc search cache and register a holiday master searcher
     _documentSearchCache = new EHCachingSearchCache(name + "Holiday", cacheManager, new EHCachingSearchCache.Searcher() {

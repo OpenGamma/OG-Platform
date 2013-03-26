@@ -307,6 +307,9 @@ public class CogdaLiveDataClient extends AbstractLiveDataClient implements Lifec
       case SNAPSHOT_RESPONSE:
         dispatchSnapshotResponse(msg, subHandle);
         break;
+      default:
+        s_logger.warn("Got unexpected msg type {} as a command response - {}", msgType, msg);
+        break;
     }
   }
 

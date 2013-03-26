@@ -11,11 +11,13 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,6 +61,18 @@ public final class ViewDefinitionCompiler {
   private static final boolean OUTPUT_DEPENDENCY_GRAPHS = false;
   private static final boolean OUTPUT_LIVE_DATA_REQUIREMENTS = false;
   private static final boolean OUTPUT_FAILURE_REPORTS = false;
+
+  private static final Supplier<String> s_uniqueIdentifiers = new Supplier<String>() {
+
+    private final String _prefix = UUID.randomUUID().toString() + "-";
+    private final AtomicLong _number = new AtomicLong();
+
+    @Override
+    public String get() {
+      return _prefix + Long.toString(_number.incrementAndGet());
+    }
+
+  };
 
   private ViewDefinitionCompiler() {
   }
@@ -134,15 +148,13 @@ public final class ViewDefinitionCompiler {
     private final ConcurrentMap<ComputationTargetReference, UniqueId> _resolutions;
     private boolean _portfolioOutputs;
 
-    protected CompilationTask(final ViewDefinition viewDefinition, final ViewCompilationServices compilationServices, final Instant valuationTime,
-        final VersionCorrection versionCorrection, final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions) {
-      s_logger.info("Compiling {} for use at {}", viewDefinition.getName(), valuationTime);
-      _viewCompilationContext = new ViewCompilationContext(viewDefinition, compilationServices, valuationTime, versionCorrection);
+    protected CompilationTask(final ViewCompilationContext context, final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions) {
+      _viewCompilationContext = context;
       _resolutions = resolutions;
       if (s_logger.isDebugEnabled()) {
         new CompilationCompletionEstimate(_viewCompilationContext);
       }
-      final ResultModelDefinition resultModelDefinition = viewDefinition.getResultModelDefinition();
+      final ResultModelDefinition resultModelDefinition = context.getViewDefinition().getResultModelDefinition();
       _portfolioOutputs = (resultModelDefinition.getPositionOutputMode() != ResultOutputMode.NONE) || (resultModelDefinition.getAggregatePositionOutputMode() != ResultOutputMode.NONE);
     }
 
@@ -266,8 +278,9 @@ public final class ViewDefinitionCompiler {
       t += System.nanoTime();
       s_logger.info("Processed dependency graphs after {}ms", t / 1e6);
       removeUnusedResolutions(graphs, portfolio);
-      _result = new CompiledViewDefinitionWithGraphsImpl(getContext().getResolverVersionCorrection(), getContext().getViewDefinition(), graphs, getResolutions(), portfolio, getContext().getServices()
-          .getFunctionCompilationContext().getFunctionInitId());
+      _result = new CompiledViewDefinitionWithGraphsImpl(getContext().getResolverVersionCorrection(), s_uniqueIdentifiers.get(), getContext().getViewDefinition(), graphs,
+          getResolutions(), portfolio, getContext()
+              .getServices().getFunctionCompilationContext().getFunctionInitId());
       if (OUTPUT_DEPENDENCY_GRAPHS) {
         outputDependencyGraphs(graphs);
       }
@@ -289,9 +302,8 @@ public final class ViewDefinitionCompiler {
 
   private static class FullCompilationTask extends CompilationTask {
 
-    protected FullCompilationTask(final ViewDefinition viewDefinition, final ViewCompilationServices compilationServices, final Instant valuationTime,
-        final VersionCorrection versionCorrection) {
-      super(viewDefinition, compilationServices, valuationTime, versionCorrection, new ConcurrentHashMap<ComputationTargetReference, UniqueId>());
+    protected FullCompilationTask(final ViewCompilationContext context) {
+      super(context, new ConcurrentHashMap<ComputationTargetReference, UniqueId>());
     }
 
     @Override
@@ -307,10 +319,9 @@ public final class ViewDefinitionCompiler {
 
     private final Map<String, Pair<DependencyGraph, Set<ValueRequirement>>> _previousGraphs;
 
-    protected IncrementalCompilationTask(final ViewDefinition viewDefinition, final ViewCompilationServices compilationServices, final Instant valuationTime,
-        final VersionCorrection versionCorrection, final Map<String, Pair<DependencyGraph, Set<ValueRequirement>>> previousGraphs,
+    protected IncrementalCompilationTask(final ViewCompilationContext context, final Map<String, Pair<DependencyGraph, Set<ValueRequirement>>> previousGraphs,
         final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions) {
-      super(viewDefinition, compilationServices, valuationTime, versionCorrection, resolutions);
+      super(context, resolutions);
       _previousGraphs = previousGraphs;
     }
 
@@ -334,10 +345,9 @@ public final class ViewDefinitionCompiler {
 
   private static class IncrementalCompilationTaskFullResolve extends IncrementalCompilationTask {
 
-    protected IncrementalCompilationTaskFullResolve(final ViewDefinition viewDefinition, final ViewCompilationServices compilationServices, final Instant valuationTime,
-        final VersionCorrection versionCorrection, final Map<String, Pair<DependencyGraph, Set<ValueRequirement>>> previousGraphs,
+    protected IncrementalCompilationTaskFullResolve(final ViewCompilationContext context, final Map<String, Pair<DependencyGraph, Set<ValueRequirement>>> previousGraphs,
         final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions) {
-      super(viewDefinition, compilationServices, valuationTime, versionCorrection, previousGraphs, resolutions);
+      super(context, previousGraphs, resolutions);
     }
 
     @Override
@@ -352,10 +362,9 @@ public final class ViewDefinitionCompiler {
 
     private final Set<UniqueId> _changedPositions;
 
-    protected IncrementalCompilationTaskPartialResolve(final ViewDefinition viewDefinition, final ViewCompilationServices compilationServices, final Instant valuationTime,
-        final VersionCorrection versionCorrection, final Map<String, Pair<DependencyGraph, Set<ValueRequirement>>> previousGraphs,
+    protected IncrementalCompilationTaskPartialResolve(final ViewCompilationContext context, final Map<String, Pair<DependencyGraph, Set<ValueRequirement>>> previousGraphs,
         final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions, final Set<UniqueId> changedPositions) {
-      super(viewDefinition, compilationServices, valuationTime, versionCorrection, previousGraphs, resolutions);
+      super(context, previousGraphs, resolutions);
       _changedPositions = changedPositions;
     }
 
@@ -367,21 +376,25 @@ public final class ViewDefinitionCompiler {
 
   }
 
-  public static Future<CompiledViewDefinitionWithGraphsImpl> fullCompileTask(final ViewDefinition viewDefinition, final ViewCompilationServices compilationServices, final Instant valuationTime,
-      final VersionCorrection versionCorrection) {
-    return new FullCompilationTask(viewDefinition, compilationServices, valuationTime, versionCorrection);
+  public static Future<CompiledViewDefinitionWithGraphsImpl> fullCompileTask(final ViewDefinition viewDefinition, final ViewCompilationServices compilationServices,
+      final Instant valuationTime, final VersionCorrection versionCorrection) {
+    s_logger.info("Full compile of {} for use at {}", viewDefinition.getName(), valuationTime);
+    return new FullCompilationTask(new ViewCompilationContext(viewDefinition, compilationServices, valuationTime, versionCorrection));
   }
 
   public static Future<CompiledViewDefinitionWithGraphsImpl> incrementalCompileTask(final ViewDefinition viewDefinition, final ViewCompilationServices compilationServices,
       final Instant valuationTime, final VersionCorrection versionCorrection, final Map<String, Pair<DependencyGraph, Set<ValueRequirement>>> previousGraphs,
       final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions, final Set<UniqueId> changedPositions) {
-    return new IncrementalCompilationTaskPartialResolve(viewDefinition, compilationServices, valuationTime, versionCorrection, previousGraphs, resolutions, changedPositions);
+    s_logger.info("Incremental compile of {} for use at {}", viewDefinition.getName(), valuationTime);
+    return new IncrementalCompilationTaskPartialResolve(new ViewCompilationContext(viewDefinition, compilationServices, valuationTime, versionCorrection), previousGraphs, resolutions,
+        changedPositions);
   }
 
   public static Future<CompiledViewDefinitionWithGraphsImpl> incrementalCompileTask(final ViewDefinition viewDefinition, final ViewCompilationServices compilationServices,
       final Instant valuationTime, final VersionCorrection versionCorrection, final Map<String, Pair<DependencyGraph, Set<ValueRequirement>>> previousGraphs,
       final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions) {
-    return new IncrementalCompilationTaskFullResolve(viewDefinition, compilationServices, valuationTime, versionCorrection, previousGraphs, resolutions);
+    s_logger.info("Incremental compile of {} for use at {}", viewDefinition.getName(), valuationTime);
+    return new IncrementalCompilationTaskFullResolve(new ViewCompilationContext(viewDefinition, compilationServices, valuationTime, versionCorrection), previousGraphs, resolutions);
   }
 
   public static CompiledViewDefinitionWithGraphsImpl compile(final ViewDefinition viewDefinition, final ViewCompilationServices compilationServices,

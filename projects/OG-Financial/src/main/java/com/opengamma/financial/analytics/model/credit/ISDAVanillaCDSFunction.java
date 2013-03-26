@@ -91,7 +91,8 @@ public abstract class ISDAVanillaCDSFunction extends NonCompiledInvoker {
     // get the market spread bump to apply to all tenors
     final Object spreadObject = inputs.getValue(ValueRequirementNames.BUCKETED_SPREADS);
     final NodalTenorDoubleCurve spreadCurve = (NodalTenorDoubleCurve) spreadObject;
-    final double[] spreads = SpreadCurveFunctions.getSpreadCurve(cds, spreadCurve, SpreadCurveFunctions.BUCKET_DATES_ARRAY); // get spread for this cds
+    final ZonedDateTime[] bucketDates = SpreadCurveFunctions.getIMMDates(now, SpreadCurveFunctions.BUCKET_TENORS);
+    final double[] spreads = SpreadCurveFunctions.getSpreadCurve(cds, spreadCurve, bucketDates); // get spread for this cds
 
     // get the isda curve
     final Object isdaObject = inputs.getValue(ValueRequirementNames.YIELD_CURVE);
@@ -102,7 +103,7 @@ public abstract class ISDAVanillaCDSFunction extends NonCompiledInvoker {
 
     cds = IMMDateGenerator.cdsModifiedForIMM(now, cds);
 
-    Object cs01 = compute(now, cds, spreads, isdaCurve, SpreadCurveFunctions.BUCKET_DATES_ARRAY);
+    Object cs01 = compute(now, cds, spreads, isdaCurve, bucketDates);
 
     final ValueProperties properties = desiredValue.getConstraints().copy().get();
     final ValueSpecification spec = new ValueSpecification(_valueRequirement, target.toSpecification(), properties);

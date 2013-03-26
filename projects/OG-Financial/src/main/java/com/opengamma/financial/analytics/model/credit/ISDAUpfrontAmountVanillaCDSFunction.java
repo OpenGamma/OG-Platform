@@ -29,8 +29,7 @@ public class ISDAUpfrontAmountVanillaCDSFunction extends ISDAVanillaCDSFunction 
   protected Object compute(final ZonedDateTime now, LegacyVanillaCreditDefaultSwapDefinition cds, final double[] spreads, final ISDADateCurve isdaCurve, final ZonedDateTime[] bucketDates) {
     final ZonedDateTime[] singleCalibrationTenor = { cds.getMaturityDate() };
     final double[] singleSpreadTermStructure = { spreads[0] };
-    double points = CALCULATOR.calibrateAndGetPresentValue(now, cds, singleCalibrationTenor, singleSpreadTermStructure, isdaCurve, PriceType.CLEAN); // take values from requirements
-    return 100.0 * points;
+    return CALCULATOR.calibrateAndGetPresentValue(now, cds, singleCalibrationTenor, singleSpreadTermStructure, isdaCurve, PriceType.DIRTY); // take values from requirements
   }
 
 }

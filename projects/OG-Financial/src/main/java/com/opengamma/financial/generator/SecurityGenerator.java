@@ -256,6 +256,8 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
     final FunctionExecutionContext context = new FunctionExecutionContext();
     context.setValuationTime(valuationTime.atTime(LocalTime.NOON).toInstant(ZoneOffset.UTC));
     context.setValuationClock(DateUtils.fixedClockUTC(context.getValuationTime()));
+    context.setComputationTargetResolver(
+        new DefaultComputationTargetResolver(context.getSecuritySource()).atVersionCorrection(VersionCorrection.LATEST));
     OpenGammaExecutionContext.setHolidaySource(context, getHolidaySource());
     OpenGammaExecutionContext.setRegionSource(context, getRegionSource());
     OpenGammaExecutionContext.setConventionBundleSource(context, getConventionSource());

@@ -175,7 +175,8 @@ public class CompiledViewDefinitionTest {
   }
 
   private CompiledViewDefinitionWithGraphsImpl buildCompiledViewDefinition(final DependencyGraph... graphs) {
-    return new CompiledViewDefinitionWithGraphsImpl(VersionCorrection.LATEST, mock(ViewDefinition.class), Arrays.asList(graphs), Collections.<ComputationTargetReference, UniqueId>emptyMap(), null, 0);
+    return new CompiledViewDefinitionWithGraphsImpl(VersionCorrection.LATEST, "", mock(ViewDefinition.class), Arrays.asList(graphs), Collections.<ComputationTargetReference, UniqueId>emptyMap(),
+        null, 0);
   }
 
   @Test

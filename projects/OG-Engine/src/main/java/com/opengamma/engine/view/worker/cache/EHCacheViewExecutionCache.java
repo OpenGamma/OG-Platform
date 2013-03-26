@@ -168,8 +168,9 @@ public class EHCacheViewExecutionCache implements ViewExecutionCache {
     private static final long serialVersionUID = 1L;
 
     private final Serializable _parent;
-    private final Instant _compilationTime;
     private final VersionCorrection _versionCorrection;
+    private final String _compilationId;
+    private final Instant _compilationTime;
     private final UniqueId _viewDefinition;
     private final Collection<DependencyGraphHolder> _graphs;
     private final Map<ComputationTargetReference, UniqueId> _resolutions;
@@ -179,6 +180,7 @@ public class EHCacheViewExecutionCache implements ViewExecutionCache {
     public CompiledViewDefinitionWithGraphsReader(final EHCacheViewExecutionCache parent, final CompiledViewDefinitionWithGraphs object) {
       _parent = parent.instance();
       _versionCorrection = object.getResolverVersionCorrection();
+      _compilationId = object.getCompilationIdentifier();
       if (object.getValidFrom() == null) {
         if (object.getValidTo() == null) {
           _compilationTime = Instant.now();
@@ -213,7 +215,8 @@ public class EHCacheViewExecutionCache implements ViewExecutionCache {
       }
       final Portfolio portfolio = (Portfolio) parent.getFunctions().getFunctionCompilationContext().getRawComputationTargetResolver()
           .resolve(new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO, _portfolio), _versionCorrection).getValue();
-      return parent.new CompiledViewDefinitionWithGraphsHolder(new CompiledViewDefinitionWithGraphsImpl(_versionCorrection, viewDefinition, graphs, _resolutions, portfolio, _functionInitId));
+      return parent.new CompiledViewDefinitionWithGraphsHolder(new CompiledViewDefinitionWithGraphsImpl(_versionCorrection, _compilationId, viewDefinition, graphs, _resolutions, portfolio,
+          _functionInitId));
     }
   }
 

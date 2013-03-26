@@ -57,6 +57,11 @@ public class RemoteCompiledViewDefinitionWithGraphs implements CompiledViewDefin
   }
 
   @Override
+  public String getCompilationIdentifier() {
+    throw new UnsupportedOperationException("TODO: Implement this method over REST");
+  }
+
+  @Override
   public CompiledViewDefinitionWithGraphs withResolverVersionCorrection(final VersionCorrection versionCorrection) {
     return new RemoteCompiledViewDefinitionWithGraphs(_baseUri, _client) {
       @Override

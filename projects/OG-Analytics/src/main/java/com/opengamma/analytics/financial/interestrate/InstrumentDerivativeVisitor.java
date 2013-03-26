@@ -70,6 +70,7 @@ import com.opengamma.analytics.financial.interestrate.payments.ForexForward;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorCMS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorCMSSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponArithmeticAverageON;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponCMS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedCompounding;
@@ -239,7 +240,9 @@ public interface InstrumentDerivativeVisitor<DATA_TYPE, RESULT_TYPE> {
 
   RESULT_TYPE visitCouponOIS(CouponOIS payment);
 
-  // -----     Annuity     -----
+  RESULT_TYPE visitCouponArithmeticAverageON(CouponArithmeticAverageON payment, DATA_TYPE data);
+
+  RESULT_TYPE visitCouponArithmeticAverageON(CouponArithmeticAverageON payment);
 
   // -----     Swap     -----
 
@@ -274,9 +277,9 @@ public interface InstrumentDerivativeVisitor<DATA_TYPE, RESULT_TYPE> {
   RESULT_TYPE visitCouponInflationYearOnYearInterpolation(CouponInflationYearOnYearInterpolation coupon);
 
   // -----     Futures   -----
-  
+
   RESULT_TYPE visitCashSettledFuture(CashSettledFuture future, DATA_TYPE data);
-  
+
   RESULT_TYPE visitCashSettledFuture(CashSettledFuture future);
 
   RESULT_TYPE visitBondFuture(BondFuture bondFuture, DATA_TYPE data);
@@ -418,7 +421,7 @@ public interface InstrumentDerivativeVisitor<DATA_TYPE, RESULT_TYPE> {
   RESULT_TYPE visitEquityFuture(EquityFuture future, DATA_TYPE data);
 
   RESULT_TYPE visitIndexFuture(IndexFuture future, DATA_TYPE data);
-  
+
   RESULT_TYPE visitIndexFuture(IndexFuture future);
 
   RESULT_TYPE visitEquityIndexFuture(EquityIndexFuture future, DATA_TYPE data);
@@ -432,7 +435,7 @@ public interface InstrumentDerivativeVisitor<DATA_TYPE, RESULT_TYPE> {
   RESULT_TYPE visitVolatilityIndexFuture(VolatilityIndexFuture future, DATA_TYPE data);
 
   RESULT_TYPE visitVolatilityIndexFuture(VolatilityIndexFuture future);
-  
+
   RESULT_TYPE visitEquityIndexOption(EquityIndexOption option, DATA_TYPE data);
 
   RESULT_TYPE visitEquityIndexOption(EquityIndexOption option);
@@ -454,7 +457,6 @@ public interface InstrumentDerivativeVisitor<DATA_TYPE, RESULT_TYPE> {
   RESULT_TYPE visitEquityVarianceSwap(EquityVarianceSwap varianceSwap);
 
   RESULT_TYPE visitEquityVarianceSwap(EquityVarianceSwap varianceSwap, DATA_TYPE data);
-  
 
   //  -----     Deprecated     -----
 
