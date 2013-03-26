@@ -19,12 +19,12 @@
               <!-- -->
               <div class="og-divider"></div>
               <!-- DROPDOWN MENU -->
-              <div class="og-dropdown">
+              <div class="og-dropdown {{#if views.list.length}}og-expandable{{/if}}">
                 <span>{{views.selected}}</span>
-                {{#if views.rest.length}}
+                {{#if views.list.length}}
                   <span class="OG-icon og-icon-down"></span>
                   <div class="og-menu">
-                    {{#each views.rest}}<div class="og-js-viewchange">{{this}}</div>{{/each}}
+                    {{#each views.list}}<div class="og-js-viewchange">{{this}}</div>{{/each}}
                   </div>
                 {{/if}}
               </div>

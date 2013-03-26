@@ -205,7 +205,11 @@ public abstract class StandardVanillaCDSFunction extends AbstractFunction.NonCom
   private Tenor[] getTenors(final Comparable[] xs) {
     final Tenor[] tenors = new Tenor[xs.length];
     for (int i = 0; i < xs.length; i++) {
-      tenors[i] = new Tenor(Period.parse((String) xs[i]));
+      if (xs[i] instanceof Tenor) {
+        tenors[i] = (Tenor) xs[i];
+      } else {
+        tenors[i] = new Tenor(Period.parse((String) xs[i]));
+      }
     }
     return tenors;
   }

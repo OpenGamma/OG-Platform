@@ -110,7 +110,7 @@ $.register_module({
             clipboard.data = [];
             while (rows--) for (clipboard.data.push(row = []), lcv = 0; lcv < cols; lcv += 1) {
                 cell = data[index++];
-                row.push({value: cell, type: cell['logOutput'] ? 'ERROR' : clipboard.selection.type[lcv]});
+                row.push({value: cell, type: cell && cell['logOutput'] ? 'ERROR' : clipboard.selection.type[lcv]});
             }
             grid.selector.render();
         };
@@ -122,10 +122,6 @@ $.register_module({
             og.dev.warn(module.name + ': no formatter for ' + cell.type, cell);
             return typeof cell.value.v === 'string' ? cell.value.v : '';
         };
-        var same_viewport = function (one, two) {
-            if ((!one || !two) && one !== two) return false; // if either viewport is null
-            return one.rows.join('|') === two.rows.join('|') && one.cols.join('|') === two.cols.join('|');
-        };
         var select = function (text) {textarea.val(text).focus().select();};
         Clipboard.prototype.clear = function () {
             var clipboard = this;
@@ -134,7 +130,8 @@ $.register_module({
         Clipboard.prototype.has = function (selection) {
             var clipboard = this, grid = clipboard.grid, grid_data,
                 expanded = selection.rows.length === 1 && selection.cols.length === 1;
-            clipboard.viewport(selection);
+            if (clipboard.selection && selection && !Object.equals(clipboard.selection, selection))
+                clipboard.viewport(selection);
             if (!selection) return false;
             if (clipboard.data) return true;
             grid_data = grid.range(selection, expanded);
@@ -142,8 +139,9 @@ $.register_module({
             return !!(clipboard.data = grid_data.data);
         };
         Clipboard.prototype.select = function () {
-            var clipboard = this, data = clipboard.data, selection = clipboard.selection,
-                single = selection.rows.length === 1 && selection.cols.length === 1;
+            var clipboard = this, data = clipboard.data, selection = clipboard.selection, single;
+            if (!selection) return;
+            single = selection.rows.length === 1 && selection.cols.length === 1;
             if (!data || !data.length) return og.dev.warn(module.name + ': no data to select'), select('');
             if (!data.formatted) data.formatted = data.map(function (row) { // only format once per tick
                 return row.map(function (col) {return format(col, single);}).join(tab);
@@ -158,13 +156,13 @@ $.register_module({
             grid_data = grid.range(selection, expanded);
             if (format === 'EXPANDED' && grid_data.raw && grid_data.raw[0][0].value.error)
                 (log = true), grid_data.data = null;
-            if (same_viewport(clipboard.selection, selection)) if (same_viewport(selection, data_viewport))
-                return grid_data.data ? (clipboard.dataman.viewport(null), clipboard.data = grid_data.data) : null;
-            return (clipboard.selection = selection) && grid_data.data ?
-                (clipboard.dataman.viewport(null), clipboard.data = grid_data.data)
-                    : (clipboard.dataman
-                        .viewport({rows: selection.rows, cols: selection.cols, format: format, log: log}),
-                            clipboard.data = null);
+            if (clipboard.selection && selection && Object.equals(clipboard.selection, selection))
+                if (selection && data_viewport && Object.equals(selection, data_viewport))
+                    return grid_data.data ? (clipboard.dataman.viewport(null), clipboard.data = grid_data.data) : null;
+            clipboard.selection = selection;
+            if (grid_data.data) return clipboard.dataman.viewport(null), clipboard.data = grid_data.data;
+            clipboard.dataman.viewport({rows: selection.rows, cols: selection.cols, format: format, log: log});
+            clipboard.data = null;
         };
         $(function () {
             node = (textarea = $('<textarea readonly="readonly" />').appendTo('body')

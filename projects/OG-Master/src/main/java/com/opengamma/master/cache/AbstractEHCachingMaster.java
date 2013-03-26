@@ -28,7 +28,6 @@ import com.opengamma.master.AbstractChangeProvidingMaster;
 import com.opengamma.master.AbstractDocument;
 import com.opengamma.util.ArgumentChecker;
 
-import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
@@ -89,14 +88,12 @@ public abstract class AbstractEHCachingMaster<D extends AbstractDocument> implem
     _underlying = underlying;
     _cacheManager = cacheManager;
 
-    // Configure cache for searching - this should probably be in an xml config
-    CacheConfiguration cacheConfiguration = new CacheConfiguration();
-
-    // Set cache name
-    cacheConfiguration.setName(name + CACHE_NAME_SUFFIX);
-
-    // Set max bytes on local heap
-    cacheConfiguration.setMaxBytesLocalHeap("10M");
+    // Load cache configuration
+    if (cacheManager.getCache(name + CACHE_NAME_SUFFIX) == null) {
+      s_logger.warn("Could not load cache configuration for " + name + CACHE_NAME_SUFFIX + ", using defaultCache configuration instead");
+      cacheManager.addCache(name + CACHE_NAME_SUFFIX);
+    }
+    CacheConfiguration cacheConfiguration = cacheManager.getCache(name + CACHE_NAME_SUFFIX).getCacheConfiguration();
 
     Searchable uidToDocumentCacheSearchable = new Searchable();
     uidToDocumentCacheSearchable.addSearchAttribute(new SearchAttribute().name("ObjectId")
@@ -118,14 +115,9 @@ public abstract class AbstractEHCachingMaster<D extends AbstractDocument> implem
     cacheConfiguration.setCopyOnRead(true);
     cacheConfiguration.setCopyOnWrite(true);
 
-    // Generate statistics
-    cacheConfiguration.setStatistics(true);
-
-    _cacheManager.addCache(new Cache(cacheConfiguration));
     _uidToDocumentCache = new SelfPopulatingCache(_cacheManager.getCache(name + CACHE_NAME_SUFFIX),
                                                   new UidToDocumentCacheEntryFactory<>(_underlying));
     _cacheManager.replaceCacheWithDecoratedCache(_cacheManager.getCache(name + CACHE_NAME_SUFFIX), getUidToDocumentCache());
-    //getUidToDocumentCache().registerCacheWriter(new UidToDocumentCacheWriterFactory().createCacheWriter(getUidToDocumentCache(), null));
 
     // Listen to change events from underlying, clean this cache accordingly and relay events to our change listeners
     _changeManager = new BasicChangeManager();

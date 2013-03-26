@@ -39,8 +39,6 @@ import net.sf.ehcache.config.CacheConfiguration;
  * <p>
  * The cache is implemented using {@code EHCache}.
  *
- * TODO externalise configuration in xml file
- * TODO set aggressive expiry for cached searches
  * TODO investigate possibility of using SelfPopulatingCache for the search cache too
  * TODO eliminate/minimise duplicate caching of similar searches (e.g. history searches with different date ranges)
  * TODO OPTIMIZE finer grain range locking
@@ -104,27 +102,17 @@ public class EHCachingSearchCache {
     _cacheManager = cacheManager;
     _searcher = searcher;
 
-    // Configure cache - this should probably be in an xml config
-    CacheConfiguration cacheConfiguration = new CacheConfiguration();
-
-    // Set max bytes on local heap
-    cacheConfiguration.setMaxBytesLocalHeap("10M");
-
-    // Set cache name
-    cacheConfiguration.setName(name + CACHE_NAME_SUFFIX);
+    // Load cache configuration
+    if (cacheManager.getCache(name + CACHE_NAME_SUFFIX) == null) {
+      s_logger.warn("Could not load cache configuration for " + name + CACHE_NAME_SUFFIX + ", using defaultCache configuration instead");
+      cacheManager.addCache(name + CACHE_NAME_SUFFIX);
+    }
+    _searchRequestCache = cacheManager.getCache(name + CACHE_NAME_SUFFIX);
+    CacheConfiguration cacheConfiguration = _searchRequestCache.getCacheConfiguration();
 
     // Make copies of cached objects (use default Serializable copy)
     cacheConfiguration.setCopyOnRead(true);
     cacheConfiguration.setCopyOnWrite(true);
-
-    // Set short expiry time, since search result change management is not yet available
-    cacheConfiguration.setTimeToLiveSeconds(5 * 60);
-
-    // Generate statistics
-    cacheConfiguration.setStatistics(true);
-
-    _searchRequestCache = new Cache(cacheConfiguration);
-    cacheManager.addCache(_searchRequestCache);
 
     // Async prefetch executor service
     ExecutorServiceFactoryBean execBean = new ExecutorServiceFactoryBean();
