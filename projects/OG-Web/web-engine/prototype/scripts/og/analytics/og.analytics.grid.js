@@ -10,7 +10,7 @@ $.register_module({
             templates = null, default_col_width = 175, HTML = 'innerHTML', scrollbar = og.common.util.scrollbar_size,
             do_not_expand = {
                 DOUBLE: null, FUNGIBLE_TRADE: null, NODE: null, OTC_TRADE: null, POSITION: null, STRING: null
-            };
+            }, has = 'hasOwnProperty';
         var available = (function () {
             var nodes;
             var all = function (total) {
@@ -279,7 +279,9 @@ $.register_module({
                 })
                 .on('contextmenu', '.OG-g-sel, .OG-g-cell', function (event) { // for cells
                     hoverin_handler(event, true); // silently run hoverin_handler to set cell
-                    return grid.fire('contextmenu', event, cell, null);
+                    if (!cell || !grid.fire('contextmenu', event, cell, null)) return false;
+                    if (0 === cell.col && grid.state.nodes[has](cell.row))
+                        return og.analytics.node_menu.call(grid, event, cell);
                 })
                 .on('contextmenu', '.OG-g-h-cols', function (event) { // for column headers
                     hoverin_handler(event, true); // silently run hoverin_handler to set cell
@@ -342,8 +344,7 @@ $.register_module({
         };
         var init_grid = function (metadata) {
             var grid = this, config = grid.config, meta = grid.meta = JSON.parse(JSON.stringify(metadata)); // a copy
-            ['show_sets', 'show_views', 'start_expanded']
-                .forEach(function (key) {meta[key] = key in config ? config[key] : true;});
+            ['show_sets', 'show_views'].forEach(function (key) {meta[key] = key in config ? config[key] : true;});
             meta.show_save = 'show_save' in config ? config['show_save'] : false;
             meta.viewport = {format: 'CELL'};
             meta.row_height = row_height;
@@ -356,7 +357,7 @@ $.register_module({
             if (!reorder_cols.call(grid)) populate_cols.call(grid);
             meta.row_class = {}; // TODO populate with added, deleted, edited by data row index
             if (grid.elements.empty) init_elements.call(grid);
-            grid.resize(!meta.start_expanded);
+            grid.resize(config[has]('collapse_level'));
             render_rows.call(grid, null, true);
         };
         var populate_cols = function () {
@@ -507,7 +508,7 @@ $.register_module({
                     i, j, len = children.length, child, curr_start, curr_end, html;
                 html = '<span data-row="' + start + '" class="node {{state}}"></span>&nbsp;'
                 prefix = cache[rep(indent) + html] = counter++;
-                result.push({prefix: prefix, node: true, indent: indent, length: end - start, expand: expand});
+                result.push({prefix: prefix, node: true, indent: indent, range: [start, end], expand: expand});
                 for (i = 0; i < len; i += 1) {
                     child = children[i]; curr_start = child[0]; curr_end = child[1]; j = (last_end || start) + 1;
                     if (j < curr_start) prefix = (str = rep(indent + 2)) in cache ? cache[str] : cache[str] = counter++;
@@ -520,16 +521,18 @@ $.register_module({
                 return result;
             };
             return function () {
-                var grid = this, meta = grid.meta, state = grid.state, unraveled;
+                var grid = this, meta = grid.meta, state = grid.state, unraveled,
+                    collapse = grid.config[has]('collapse_level'), collapse_level = grid.config.collapse_level;
                 cache = {}; counter = 0; state.unraveled_cache = [];
                 unraveled = meta.structure.length ? unravel(meta.structure, [], 0) : all(meta.data_rows);
                 state.nodes = unraveled.reduce(function (acc, val, idx) {
                     if (!val.node) return acc;
                     acc[idx] = val.expand;
-                    acc.all.push(idx);
-                    if (val.indent > 1) acc.collapse.push(idx);
+                    acc.all.push(idx); acc.indent[idx] = val.indent; acc.ranges.push(val.range);
+                    acc.max_indent = Math.max(acc.max_indent, val.indent);
+                    if (collapse && val.indent >= collapse_level) acc.collapse.push(idx); // e.g. depgraphs
                     return acc;
-                }, {all: [], collapse: []});
+                }, {all: [], collapse: [], indent: {}, ranges: [], max_indent: 0});
                 Object.keys(cache)
                     .forEach(function (prefix) {state.unraveled_cache[+cache[prefix]] = Handlebars.compile(prefix);});
                 state.unraveled = unraveled.pluck('prefix');
@@ -538,7 +541,7 @@ $.register_module({
         })();
         var verify_state = function () {
             var grid = this, meta = grid.meta, state = grid.state;
-            if (state.col_override.length !== meta.fixed_length + meta.scroll_length) {// if length has changed (in meta)
+            if (state.col_override.length !== meta.fixed_length + meta.scroll_length) { // length has changed (in meta)
                 state.col_override = new Array(meta.fixed_length + meta.scroll_length);
                 state.col_reorder = [];
             }
