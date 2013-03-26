@@ -44,20 +44,13 @@ import com.opengamma.util.time.ExpiryAccuracy;
 * Instead, the implied volatility is implied by the market_value of the security, along with it's contract parameters of expiry and strike,
 * along with the requirement of a forward curve (ValueRequirementNames.FORWARD_CURVE). 
 */
-public class EquityOptionBlackBasicFunction extends EquityOptionFunction {
+public abstract class EquityOptionBlackBasicFunction extends EquityOptionFunction {
 
   /** @param valueRequirementName The value requirement names, not null */
   public EquityOptionBlackBasicFunction(final String... valueRequirementName) {
     super(valueRequirementName);
   }
   
-  @Override
-  protected Set<ComputedValue> computeValues(InstrumentDerivative derivative, StaticReplicationDataBundle market, FunctionInputs inputs, Set<ValueRequirement> desiredValues,
-      ComputationTargetSpecification targetSpec, ValueProperties resultProperties) {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
   @Override
   protected String getCalculationMethod() {
     return CalculationPropertyNamesAndValues.BLACK_BASIC_METHOD;

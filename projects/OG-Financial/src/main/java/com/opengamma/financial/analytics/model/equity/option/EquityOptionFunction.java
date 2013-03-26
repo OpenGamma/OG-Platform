@@ -41,6 +41,7 @@ import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValueProperties.Builder;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -335,6 +336,14 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
         forwardCurvePropertiesSet = true;
       } else if (inputName.equals(MarketDataRequirementNames.MARKET_VALUE) && !surfacePropertiesSet) { // BlackBasic case
         // TODO: Add any additional properties for the BlackBasic MarketValue result
+        // FIXME: For prototyping, I am adding stubs for what the default functions are going to add anyway...
+        // FIXME: This is garbage that has to go. It's not right to spoof a bunch of properties here. What I really want is for the caller not to expect them at all.
+        //        ValueProperties surfaceProperties = BlackVolatilitySurfacePropertyUtils.addAllBlackSurfaceProperties(ValueProperties.none(), 
+        //            InstrumentTypeProperties.EQUITY_OPTION, BlackVolatilitySurfacePropertyNamesAndValues.SPLINE).get();
+        //        for (final String property : surfaceProperties.getProperties()) {
+        //          properties.with(property, surfaceProperties.getValues(property));
+        //        }
+        
         surfacePropertiesSet = true; // i.e. don't set any surface properties
       }
     }
