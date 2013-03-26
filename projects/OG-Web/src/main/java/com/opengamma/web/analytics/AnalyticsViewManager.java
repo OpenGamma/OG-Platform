@@ -8,6 +8,7 @@ package com.opengamma.web.analytics;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.slf4j.Logger;
@@ -64,6 +65,7 @@ public class AnalyticsViewManager {
   private final SecuritySource _securitySource;
   private final SecurityMaster _securityMaster;
   private final PositionMaster _positionMaster;
+  private final ExecutorService _portfolioResolutionExecutor;
 
   public AnalyticsViewManager(ViewProcessor viewProcessor,
                               AggregatedViewDefinitionManager aggregatedViewDefManager,
@@ -98,6 +100,8 @@ public class AnalyticsViewManager {
     _marketDataSpecificationRepository = marketDataSpecificationRepository;
     _securityMaster = securityMaster;
     _positionMaster = positionMaster;
+    // TODO something more sophisticated / configurable here
+    _portfolioResolutionExecutor = Executors.newFixedThreadPool(4);
   }
 
   /**
@@ -135,14 +139,16 @@ public class AnalyticsViewManager {
       portfolioObjectId = portfolioId.getObjectId();
       // TODO confirm the correct versioning behaviour
       portfolio = _positionSource.getPortfolio(portfolioObjectId, VersionCorrection.LATEST);
-      resolvedPortfolio = PortfolioCompiler.resolvePortfolio(portfolio,
-                                                             Executors.newSingleThreadExecutor(),
-                                                             _securitySource);
+      resolvedPortfolio = PortfolioCompiler.resolvePortfolio(portfolio, _portfolioResolutionExecutor, _securitySource);
     } else {
       portfolioObjectId = null;
       resolvedPortfolio = null;
     }
-    portfolioSupplier = new PortfolioSupplier(portfolioObjectId, versionCorrection, _positionSource);
+    portfolioSupplier = new PortfolioSupplier(portfolioObjectId,
+                                              versionCorrection,
+                                              _positionSource,
+                                              _securitySource,
+                                              _portfolioResolutionExecutor);
     // TODO something a bit more sophisticated with the executor
     ViewClient viewClient = _viewProcessor.createViewClient(user);
     s_logger.debug("Client ID {} creating new view with ID {}", clientId, viewId);

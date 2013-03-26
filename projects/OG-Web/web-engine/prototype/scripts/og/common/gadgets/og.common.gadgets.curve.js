@@ -12,7 +12,7 @@ $.register_module({
             gadget.dataman = new og.analytics
                 .Cell({source: config.source, row: config.row, col: config.col, format: 'EXPANDED'}, 'curve')
                 .on('data', function (data) {
-                    data = data.v || data; 
+                    data = data.v || data;
                     if (!$.isArray(data)) return og.dev.warn(module.name + ': data should be an Array', data);
                     gadget.data = [{curve: data}];
                     $curve.update ? $curve.update(gadget.data) : gadget.resize();
@@ -25,7 +25,7 @@ $.register_module({
             gadget.resize = function () {
                 if (!$(config.selector).length) return;
                 $curve = $(config.selector)
-                    .css({position: 'absolute', top: 0, left: 0, right: 0, bottom: 0})
+                    .css({position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: '#fff'})
                     .ogcurve(gadget.data);
             };
             $curve = $(config.selector).addClass(alive);

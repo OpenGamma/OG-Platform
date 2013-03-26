@@ -132,8 +132,7 @@
           <parallel>${tests.testng.parallel}</parallel>
           <threadCount>${tests.testng.threads}</threadCount>
           <groups>${tests.testng.includedgroups}</groups>
-          <!--<excludedGroups>${tests.testng.exludedgroups}</excludedGroups>-->
-          <excludedGroups>integration</excludedGroups>
+          <excludedGroups>${tests.testng.excludedgroups}</excludedGroups>
         </configuration>
       </plugin>
       <plugin>
@@ -840,6 +839,17 @@
           <exclusion>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging-api</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.xbean</groupId>
+        <artifactId>xbean-spring</artifactId>
+        <version>3.6</version>
+        <exclusions>
+          <exclusion>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
           </exclusion>
         </exclusions>
       </dependency>

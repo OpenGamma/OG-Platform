@@ -7,7 +7,6 @@ package com.opengamma.engine.target;
 
 import static org.testng.Assert.assertEquals;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -16,7 +15,7 @@ import org.testng.annotations.Test;
 import org.threeten.bp.Instant;
 
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.target.resolver.IdentifierResolver;
+import com.opengamma.engine.target.resolver.AbstractIdentifierResolver;
 import com.opengamma.engine.target.resolver.PrimitiveResolver;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -24,11 +23,12 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the {@link DefaultComputationTargetSpecificationResolver} class.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class DefaultComputationTargetSpecificationResolverTest {
 
   private static class Foo implements UniqueIdentifiable {
@@ -53,7 +53,7 @@ public class DefaultComputationTargetSpecificationResolverTest {
   private final ComputationTargetRequirement REQUIREMENT_FOO_INVALID = new ComputationTargetRequirement(ComputationTargetType.of(Foo.class), ExternalIdBundle.of(ExternalId.of("Test", "C")));
 
   public DefaultComputationTargetSpecificationResolverTest() {
-    RESOLVER.addResolver(ComputationTargetType.of(Foo.class), new IdentifierResolver() {
+    RESOLVER.addResolver(ComputationTargetType.of(Foo.class), new AbstractIdentifierResolver() {
 
       @Override
       public UniqueId resolveExternalId(final ExternalIdBundle identifiers, final VersionCorrection versionCorrection) {
@@ -66,15 +66,6 @@ public class DefaultComputationTargetSpecificationResolverTest {
       }
 
       @Override
-      public Map<ExternalIdBundle, UniqueId> resolveExternalIds(final Set<ExternalIdBundle> identifiers, final VersionCorrection versionCorrection) {
-        final Map<ExternalIdBundle, UniqueId> result = new HashMap<ExternalIdBundle, UniqueId>();
-        for (final ExternalIdBundle identifier : identifiers) {
-          result.put(identifier, resolveExternalId(identifier, versionCorrection));
-        }
-        return result;
-      }
-
-      @Override
       public UniqueId resolveObjectId(final ObjectId identifier, final VersionCorrection versionCorrection) {
         assertEquals(versionCorrection, VC);
         if (identifier.getValue().equals("Bar")) {
@@ -82,15 +73,6 @@ public class DefaultComputationTargetSpecificationResolverTest {
         } else {
           return null;
         }
-      }
-
-      @Override
-      public Map<ObjectId, UniqueId> resolveObjectIds(final Set<ObjectId> identifiers, final VersionCorrection versionCorrection) {
-        final Map<ObjectId, UniqueId> result = new HashMap<ObjectId, UniqueId>();
-        for (final ObjectId identifier : identifiers) {
-          result.put(identifier, resolveObjectId(identifier, versionCorrection));
-        }
-        return result;
       }
 
     });

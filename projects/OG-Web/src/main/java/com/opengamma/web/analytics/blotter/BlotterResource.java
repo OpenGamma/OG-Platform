@@ -201,6 +201,7 @@ public class BlotterResource {
   }
 
   // for getting the security for fungible trades - the user can change the ID and see the trade details update
+
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   @Path("securities/{securityExternalId}")
@@ -247,16 +248,14 @@ public class BlotterResource {
       throw new IllegalArgumentException("The blotter can only be used to update the latest version of a trade");
     }
     ManageablePosition position = _positionMaster.get(positionId).getPosition();
-    if (position.getTrades().size() > 0) {
-      throw new IllegalArgumentException("The blotter can only directly update a position if it has no trades. " +
-                                             "Position " + positionId + " has " + position.getTrades().size() + " trades");
-    }
     ManageableSecurityLink securityLink = position.getSecurityLink();
     ManageableTrade trade = new ManageableTrade();
-    trade.setTradeDate(LocalDate.now());
-    trade.setCounterpartyExternalId(ExternalId.of(AbstractTradeBuilder.CPTY_SCHEME, AbstractTradeBuilder.DEFAULT_COUNTERPARTY));
-    trade.setQuantity(position.getQuantity());
     trade.setSecurityLink(securityLink);
+    if (position.getTrades().size() == 0) {
+      trade.setTradeDate(LocalDate.now());
+      trade.setCounterpartyExternalId(ExternalId.of(AbstractTradeBuilder.CPTY_SCHEME, AbstractTradeBuilder.DEFAULT_COUNTERPARTY));
+      trade.setQuantity(position.getQuantity());
+    }
     return buildTradeJSON(trade, securityLink);
   }
 

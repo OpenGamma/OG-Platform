@@ -32,13 +32,14 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphsImp
 import com.opengamma.engine.view.impl.InMemoryViewDeltaResultModel;
 import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.test.Timeout;
 import com.opengamma.util.tuple.Pair;
 
 /**
  * Tests RateLimitingMergingUpdateProvider
  */
-@Test
+@Test(groups = TestGroup.INTEGRATION)
 public class RateLimitingMergingViewProcessListenerTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(RateLimitingMergingViewProcessListenerTest.class);

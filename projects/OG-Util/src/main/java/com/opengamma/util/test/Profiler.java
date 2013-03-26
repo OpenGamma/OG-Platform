@@ -29,6 +29,7 @@ public final class Profiler {
   private static final Logger s_logger = LoggerFactory.getLogger(Profiler.class);
   private static final Collection<Profiler> s_profilers = Sets.newSetFromMap(new MapMaker().weakKeys().<Profiler, Boolean>makeMap());
   private static volatile boolean s_enabled;
+  private static volatile int s_reset;
 
   private final String _name;
   private final AtomicInteger _lock = new AtomicInteger();
@@ -37,6 +38,7 @@ public final class Profiler {
   private volatile boolean _snapshotPending;
   private double _snapshotTime;
   private int _snapshotOperations;
+  private int _reset;
 
   private Profiler(final String name) {
     _name = name;
@@ -88,6 +90,12 @@ public final class Profiler {
       return;
     }
     _snapshotPending = false;
+    final int reset = s_reset;
+    if (_reset != reset) {
+      _snapshotTime = 0;
+      _snapshotOperations = 0;
+      _reset = reset;
+    }
     _snapshotTime += (double) _time.getAndSet(0) / 1e6;
     _snapshotOperations += _operations.getAndSet(0);
     assert _lock.get() == -1;
@@ -129,7 +137,7 @@ public final class Profiler {
     final Map<String, Object[]> report = new HashMap<String, Object[]>();
     for (Profiler profiler : s_profilers) {
       profiler.snapshot();
-      final Object[] arg = new Object[] {profiler._name, profiler._snapshotOperations, profiler._snapshotTime };
+      final Object[] arg = new Object[] {profiler._name, profiler._snapshotOperations, profiler._snapshotTime, (double) profiler._snapshotTime / (double) profiler._snapshotOperations };
       insertNoClash(report, arg, profiler._name.lastIndexOf('.'));
     }
     List<String> keys = new ArrayList<String>(report.keySet());
@@ -151,12 +159,16 @@ public final class Profiler {
     for (String key : keys) {
       final Object[] values = report.get(key);
       values[0] = key;
-      s_logger.info("{} - {} in {}ms", values);
+      s_logger.info("{} - {} in {}ms ({} ms/op)", values);
     }
     s_logger.debug("{} active profiler instances", s_profilers.size());
   }
 
-  public static synchronized void enable(final long period) {
+  public static void enable(final long period) {
+    enable(period, 0);
+  }
+
+  public static synchronized void enable(final long period, final int resetPeriod) {
     if (isEnabled()) {
       s_logger.warn("Already enabled");
       return;
@@ -165,14 +177,19 @@ public final class Profiler {
     final Thread t = new Thread() {
       @Override
       public void run() {
-        do {
+        for (int count = 0;; count++) {
           try {
             Thread.sleep(period);
           } catch (InterruptedException e) {
             return;
           }
+          if (resetPeriod != 0) {
+            if ((count % resetPeriod) == 0) {
+              s_reset++;
+            }
+          }
           printProfilers();
-        } while (true);
+        }
       }
     };
     t.setName(Profiler.class.getSimpleName());

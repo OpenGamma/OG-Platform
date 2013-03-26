@@ -5,6 +5,7 @@
  */
 package com.opengamma.web.analytics;
 
+import java.util.Collections;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
@@ -60,6 +61,10 @@ public class GridColumnGroup {
   @Override
   public String toString() {
     return "AnalyticsColumnGroup [_name='" + _name + '\'' + ", _columns=" + _columns + "]";
+  }
+
+  /* package */ static GridColumnGroup empty() {
+    return new GridColumnGroup("", Collections.<GridColumn>emptyList(), false);
   }
 }
 

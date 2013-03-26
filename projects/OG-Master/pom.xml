@@ -26,6 +26,16 @@
       <artifactId>og-core</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>com.opengamma</groupId>
+      <artifactId>og-region-data</artifactId>
+      <version>1.0.0.v20110908a</version>
+    </dependency>
   </dependencies>
+
+  <properties>
+    <tests.testng.includedgroups>unit</tests.testng.includedgroups>
+    <tests.testng.excludedgroups>integration, unitdb, unitslow</tests.testng.excludedgroups>
+  </properties>
 
 </project>

@@ -70,6 +70,7 @@ import com.opengamma.analytics.financial.interestrate.payments.ForexForward;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorCMS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorCMSSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponArithmeticAverageON;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponCMS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedCompounding;
@@ -446,6 +447,16 @@ public class InstrumentDerivativeVisitorDelegate<DATA_TYPE, RESULT_TYPE> impleme
   @Override
   public RESULT_TYPE visitCouponOIS(final CouponOIS payment) {
     return _delegate.visitCouponOIS(payment);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponArithmeticAverageON(final CouponArithmeticAverageON payment, final DATA_TYPE data) {
+    return _delegate.visitCouponArithmeticAverageON(payment, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponArithmeticAverageON(final CouponArithmeticAverageON payment) {
+    return _delegate.visitCouponArithmeticAverageON(payment);
   }
 
   @Override

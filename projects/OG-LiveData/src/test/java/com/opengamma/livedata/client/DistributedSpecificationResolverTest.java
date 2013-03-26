@@ -16,11 +16,12 @@ import com.opengamma.livedata.resolver.IdentityIdResolver;
 import com.opengamma.transport.ByteArrayFudgeRequestSender;
 import com.opengamma.transport.FudgeRequestDispatcher;
 import com.opengamma.transport.InMemoryByteArrayRequestConduit;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test.
  */
-@Test(groups = "unit")
+@Test(groups = TestGroup.UNIT)
 public class DistributedSpecificationResolverTest {
 
   public void testRequestResponse() {

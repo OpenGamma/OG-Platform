@@ -11,10 +11,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * Test EquitySecurity Fudge support.
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class EquitySecurityFudgeEncodingTest extends FinancialTestBase {
 
   private static final EquitySecurity s_ref = new EquitySecurity("A", "B", "C", Currency.USD);

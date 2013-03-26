@@ -45,7 +45,7 @@ public class MockMarketDataProvider extends AbstractMarketDataProvider {
       @Override
       public void run() {
         if (_subscriptionsSucceed) {
-          subscriptionSucceeded(valueSpecifications);
+          subscriptionsSucceeded(valueSpecifications);
         } else {
           subscriptionFailed(valueSpecifications, _name);
         }

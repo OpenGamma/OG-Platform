@@ -45,6 +45,7 @@ import com.opengamma.financial.analytics.conversion.ForexSecurityConverterDeprec
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
+import com.opengamma.financial.analytics.model.forex.ConventionBasedFXRateFunction;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityTypes;
@@ -97,9 +98,9 @@ public abstract class FXDigitalCallSpreadBlackFunctionDeprecated extends Abstrac
     final String fullCallCurveName = callCurveName + "_" + callCurrency.getCode();
     final String[] curveNames;
     if (FXUtils.isInBaseQuoteOrder(putCurrency, callCurrency)) { // To get Base/quote in market standard order.
-      curveNames = new String[] {fullPutCurveName, fullCallCurveName};
+      curveNames = new String[] {fullPutCurveName, fullCallCurveName };
     } else {
-      curveNames = new String[] {fullCallCurveName, fullPutCurveName};
+      curveNames = new String[] {fullCallCurveName, fullPutCurveName };
     }
     final YieldAndDiscountCurve putFundingCurve = getCurve(inputs, putCurrency, putCurveName);
     final YieldAndDiscountCurve callFundingCurve = getCurve(inputs, callCurrency, callCurveName);
@@ -113,11 +114,11 @@ public abstract class FXDigitalCallSpreadBlackFunctionDeprecated extends Abstrac
     if (FXUtils.isInBaseQuoteOrder(putCurrency, callCurrency)) { // To get Base/quote in market standard order.
       ccy1 = putCurrency;
       ccy2 = callCurrency;
-      curves = new YieldAndDiscountCurve[] {putFundingCurve, callFundingCurve};
-      allCurveNames = new String[] {fullPutCurveName, fullCallCurveName};
+      curves = new YieldAndDiscountCurve[] {putFundingCurve, callFundingCurve };
+      allCurveNames = new String[] {fullPutCurveName, fullCallCurveName };
     } else {
-      curves = new YieldAndDiscountCurve[] {callFundingCurve, putFundingCurve};
-      allCurveNames = new String[] {fullCallCurveName, fullPutCurveName};
+      curves = new YieldAndDiscountCurve[] {callFundingCurve, putFundingCurve };
+      allCurveNames = new String[] {fullCallCurveName, fullPutCurveName };
       ccy1 = callCurrency;
       ccy2 = putCurrency;
     }
@@ -221,8 +222,7 @@ public abstract class FXDigitalCallSpreadBlackFunctionDeprecated extends Abstrac
     final ValueRequirement putFundingCurve = getCurveRequirement(putCurveName, putForwardCurveName, putCurveName, putCurveCalculationMethod, putCurrency);
     final ValueRequirement callFundingCurve = getCurveRequirement(callCurveName, callForwardCurveName, callCurveName, callCurveCalculationMethod, callCurrency);
     final ValueRequirement fxVolatilitySurface = getSurfaceRequirement(surfaceName, putCurrency, callCurrency, interpolatorName, leftExtrapolatorName, rightExtrapolatorName);
-    final ValueRequirement spotRequirement = new ValueRequirement(ValueRequirementNames.SPOT_RATE, ComputationTargetType.UNORDERED_CURRENCY_PAIR.specification(UnorderedCurrencyPair.of(
-        callCurrency, putCurrency)));
+    final ValueRequirement spotRequirement = ConventionBasedFXRateFunction.getSpotRateRequirement(callCurrency, putCurrency);
     return Sets.newHashSet(putFundingCurve, callFundingCurve, fxVolatilitySurface, spotRequirement);
   }
 

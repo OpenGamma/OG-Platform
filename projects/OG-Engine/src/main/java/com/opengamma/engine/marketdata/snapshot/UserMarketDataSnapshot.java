@@ -5,6 +5,8 @@
  */
 package com.opengamma.engine.marketdata.snapshot;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -37,6 +39,9 @@ import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityFilter
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.availability.ProviderMarketDataAvailabilityFilter;
 import com.opengamma.engine.marketdata.spec.MarketData;
+import com.opengamma.engine.target.ComputationTargetReference;
+import com.opengamma.engine.target.ComputationTargetRequirement;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -63,9 +68,8 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
 
   private static final Map<String, StructuredMarketDataHandler> s_structuredDataHandler = new HashMap<String, StructuredMarketDataHandler>();
 
-  private final InMemoryLKVMarketDataProvider _unstructured = new InMemoryLKVMarketDataProvider();
+  private InMemoryLKVMarketDataProvider _unstructured;
   private final StructuredMarketDataSnapshot _snapshot;
-  private final UniqueId _snapshotId;
 
   /**
    * Handler for a type of structured market data.
@@ -279,9 +283,8 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
     });
   }
 
-  public UserMarketDataSnapshot(final StructuredMarketDataSnapshot snapshot, final UniqueId snapshotId) {
+  public UserMarketDataSnapshot(final StructuredMarketDataSnapshot snapshot) {
     _snapshot = snapshot;
-    _snapshotId = snapshotId;
   }
 
   private static void registerStructuredMarketDataHandler(final String valueRequirementName, final StructuredMarketDataHandler handler) {
@@ -375,7 +378,7 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
 
   @Override
   public UniqueId getUniqueId() {
-    return _snapshotId;
+    return getSnapshot().getUniqueId();
   }
 
   @Override
@@ -384,18 +387,29 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
   }
 
   @Override
-  public void init() {
-    // No-op
+  public synchronized void init() {
+    if (!isInitialized()) {
+      _unstructured = new InMemoryLKVMarketDataProvider();
+      final UnstructuredMarketDataSnapshot globalValues = _snapshot.getGlobalValues();
+      if (globalValues != null) {
+        for (final ExternalIdBundle target : globalValues.getTargets()) {
+          final ComputationTargetReference targetRef = new ComputationTargetRequirement(ComputationTargetType.PRIMITIVE, target);
+          for (final Map.Entry<String, ValueSnapshot> valuePair : globalValues.getTargetValues(target).entrySet()) {
+            _unstructured.addValue(new ValueRequirement(valuePair.getKey(), targetRef), query(valuePair.getValue()));
+          }
+        }
+      }
+    }
   }
 
   @Override
   public void init(final Set<ValueSpecification> valuesRequired, final long timeout, final TimeUnit unit) {
-    // No-op
+    init();
   }
 
   @Override
-  public boolean isInitialized() {
-    return true;
+  public synchronized boolean isInitialized() {
+    return _unstructured != null;
   }
 
   @Override
@@ -435,6 +449,7 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
   // MarketDataProvider
 
   public MarketDataAvailabilityProvider getAvailabilityProvider() {
+    assertInitialized();
     final MarketDataAvailabilityProvider unstructured = _unstructured.getAvailabilityProvider(MarketData.live());
     return new MarketDataAvailabilityProvider() {
 
@@ -451,6 +466,14 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
       @Override
       public MarketDataAvailabilityFilter getAvailabilityFilter() {
         return new ProviderMarketDataAvailabilityFilter(this);
+      }
+
+      @Override
+      public Serializable getAvailabilityHintKey() {
+        final ArrayList<Serializable> key = new ArrayList<Serializable>();
+        key.add(getClass().getName());
+        key.add(getUniqueId());
+        return key;
       }
 
     };

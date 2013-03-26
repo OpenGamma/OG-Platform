@@ -8,10 +8,7 @@ package com.opengamma.engine.target.resolver;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
-import com.google.common.collect.Maps;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.DummyChangeManager;
 import com.opengamma.engine.target.ComputationTargetType;
@@ -27,7 +24,7 @@ import com.opengamma.id.VersionCorrection;
 /**
  * A {@link ObjectResolver} for {@link ComputationTargetType#PRIMITIVE}.
  */
-public class PrimitiveResolver implements Resolver<Primitive> {
+public class PrimitiveResolver extends AbstractIdentifierResolver implements Resolver<Primitive> {
 
   private static final String SCHEME_PREFIX = "ExternalId-";
 
@@ -50,15 +47,17 @@ public class PrimitiveResolver implements Resolver<Primitive> {
   private static String[] unescape(final String str, final int i) {
     final int l = str.length();
     int count = 1;
+    boolean backslash = false;
     for (int j = i; j < l; j++) {
       final char c = str.charAt(j);
       if (c == '-') {
         count++;
       } else if (c == '\\') {
         j++;
+        backslash = true;
       }
     }
-    if (count == 1) {
+    if ((count == 1) && !backslash) {
       return new String[] {str.substring(i) };
     }
     final String[] result = new String[count];
@@ -107,26 +106,8 @@ public class PrimitiveResolver implements Resolver<Primitive> {
   }
 
   @Override
-  public Map<ExternalIdBundle, UniqueId> resolveExternalIds(final Set<ExternalIdBundle> identifiers, final VersionCorrection versionCorrection) {
-    final Map<ExternalIdBundle, UniqueId> result = Maps.newHashMapWithExpectedSize(identifiers.size());
-    for (final ExternalIdBundle bundle : identifiers) {
-      result.put(bundle, resolveExternalId(bundle, versionCorrection));
-    }
-    return result;
-  }
-
-  @Override
   public UniqueId resolveObjectId(final ObjectId identifier, final VersionCorrection versionCorrection) {
     return identifier.atLatestVersion();
-  }
-
-  @Override
-  public Map<ObjectId, UniqueId> resolveObjectIds(final Set<ObjectId> identifiers, final VersionCorrection versionCorrection) {
-    final Map<ObjectId, UniqueId> result = Maps.newHashMapWithExpectedSize(identifiers.size());
-    for (final ObjectId identifier : identifiers) {
-      result.put(identifier, resolveObjectId(identifier, versionCorrection));
-    }
-    return result;
   }
 
   // ObjectResolver

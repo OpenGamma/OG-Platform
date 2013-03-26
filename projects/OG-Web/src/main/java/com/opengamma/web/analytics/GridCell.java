@@ -15,9 +15,9 @@ import com.opengamma.util.ArgumentChecker;
 public class GridCell implements Comparable<GridCell> {
 
   /** Row index, not null. */
-  private final Integer _row;
+  private final int _row;
   /** Column index, not null. */
-  private final Integer _column;
+  private final int _column;
 
   /**
    * @param cell The row and column indices separated by a comma, e.g. "12,46", not null, indices must be non-negative
@@ -74,10 +74,10 @@ public class GridCell implements Comparable<GridCell> {
 
     GridCell gridCell = (GridCell) o;
 
-    if (!_column.equals(gridCell._column)) {
+    if (_column != gridCell._column) {
       return false;
     }
-    if (!_row.equals(gridCell._row)) {
+    if (_row != gridCell._row) {
       return false;
     }
 
@@ -97,11 +97,11 @@ public class GridCell implements Comparable<GridCell> {
    */
   @Override
   public int compareTo(GridCell other) {
-    int rowComp = _row.compareTo(other._row);
+    int rowComp = Integer.compare(_row, other._row);
     if (rowComp != 0) {
       return rowComp;
     }
-    return _column.compareTo(other._column);
+    return Integer.compare(_column, other._column);
   }
 
   @Override

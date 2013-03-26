@@ -54,6 +54,9 @@ public abstract class FXForwardFunction extends AbstractFunction.NonCompiledInvo
    */
   @Deprecated
   public static final String RECEIVE_CURVE_CALC_CONFIG = ValuePropertyNames.RECEIVE_CURVE_CALCULATION_CONFIG;
+
+  private static final ComputationTargetType TYPE = FinancialSecurityTypes.FX_FORWARD_SECURITY.or(FinancialSecurityTypes.NON_DELIVERABLE_FX_FORWARD_SECURITY);
+
   /** The value requirement produced by this function */
   private final String _valueRequirementName;
 
@@ -94,8 +97,8 @@ public abstract class FXForwardFunction extends AbstractFunction.NonCompiledInvo
     final CurrencyPairs baseQuotePairs = (CurrencyPairs) baseQuotePairsObject;
     final YieldAndDiscountCurve[] curves;
     final String[] allCurveNames;
-    curves = new YieldAndDiscountCurve[] {payCurve, receiveCurve};
-    allCurveNames = new String[] {fullPayCurveName, fullReceiveCurveName};
+    curves = new YieldAndDiscountCurve[] {payCurve, receiveCurve };
+    allCurveNames = new String[] {fullPayCurveName, fullReceiveCurveName };
     // Implementation note: The ForexSecurityConverter create the Forex with currency order pay/receive. The curve are passed in the same order.
     final ForexSecurityConverter converter = new ForexSecurityConverter(baseQuotePairs);
     final InstrumentDefinition<?> definition = security.accept(converter);
@@ -109,6 +112,7 @@ public abstract class FXForwardFunction extends AbstractFunction.NonCompiledInvo
   //TODO clumsy. Push the execute() method down into the functions and have getForward() and getData() methods
   /**
    * Performs the calculation.
+   * 
    * @param fxForward The FX forward
    * @param data The yield curve data
    * @param target The computation target
@@ -123,7 +127,7 @@ public abstract class FXForwardFunction extends AbstractFunction.NonCompiledInvo
 
   @Override
   public ComputationTargetType getTargetType() {
-    return FinancialSecurityTypes.FX_FORWARD_SECURITY.or(FinancialSecurityTypes.NON_DELIVERABLE_FX_FORWARD_SECURITY);
+    return TYPE;
   }
 
   @Override
@@ -166,6 +170,7 @@ public abstract class FXForwardFunction extends AbstractFunction.NonCompiledInvo
 
   /**
    * Gets the general result properties.
+   * 
    * @param target The target
    * @return The result properties
    */
@@ -173,6 +178,7 @@ public abstract class FXForwardFunction extends AbstractFunction.NonCompiledInvo
 
   /**
    * Gets the result properties.
+   * 
    * @param target The target
    * @param desiredValue The desired value
    * @return The result properties
@@ -181,6 +187,7 @@ public abstract class FXForwardFunction extends AbstractFunction.NonCompiledInvo
 
   /**
    * Gets the value requirement name.
+   * 
    * @return The value requirement name
    */
   protected String getValueRequirementName() {
@@ -189,6 +196,7 @@ public abstract class FXForwardFunction extends AbstractFunction.NonCompiledInvo
 
   /**
    * Gets the requirement for the pay curve.
+   * 
    * @param curveName The pay curve name
    * @param currency The pay currency
    * @param curveCalculationConfigName The pay curve calculation configuration name
@@ -204,6 +212,7 @@ public abstract class FXForwardFunction extends AbstractFunction.NonCompiledInvo
 
   /**
    * Gets the pay curve.
+   * 
    * @param inputs The function inputs
    * @param currency The pay currency
    * @param curveName The pay curve name
@@ -221,6 +230,7 @@ public abstract class FXForwardFunction extends AbstractFunction.NonCompiledInvo
 
   /**
    * Gets the requirement for the receive curve.
+   * 
    * @param curveName The receive curve name
    * @param currency The receive currency
    * @param curveCalculationConfigName The receive curve calculation configuration name
@@ -236,6 +246,7 @@ public abstract class FXForwardFunction extends AbstractFunction.NonCompiledInvo
 
   /**
    * Gets the receive curve.
+   * 
    * @param inputs The function inputs
    * @param currency The receive currency
    * @param curveName The receive curve name

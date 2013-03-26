@@ -168,6 +168,7 @@ public class CogdaLiveDataClient extends AbstractLiveDataClient implements Lifec
    * 
    * @return the fudge context, not null
    */
+  @Override
   public FudgeContext getFudgeContext() {
     return _fudgeContext;
   }
@@ -177,6 +178,7 @@ public class CogdaLiveDataClient extends AbstractLiveDataClient implements Lifec
    * 
    * @param fudgeContext  the fudge context, not null
    */
+  @Override
   public void setFudgeContext(FudgeContext fudgeContext) {
     _fudgeContext = fudgeContext;
   }
@@ -304,6 +306,9 @@ public class CogdaLiveDataClient extends AbstractLiveDataClient implements Lifec
         break;
       case SNAPSHOT_RESPONSE:
         dispatchSnapshotResponse(msg, subHandle);
+        break;
+      default:
+        s_logger.warn("Got unexpected msg type {} as a command response - {}", msgType, msg);
         break;
     }
   }
@@ -449,6 +454,11 @@ public class CogdaLiveDataClient extends AbstractLiveDataClient implements Lifec
       @Override
       public void subscriptionResultReceived(LiveDataSubscriptionResponse subscriptionResult) {
         s_logger.warn("Sub result {}", subscriptionResult);
+      }
+
+      @Override
+      public void subscriptionResultsReceived(final Collection<LiveDataSubscriptionResponse> subscriptionResults) {
+        s_logger.warn("Sub result {}", subscriptionResults);
       }
 
       @Override

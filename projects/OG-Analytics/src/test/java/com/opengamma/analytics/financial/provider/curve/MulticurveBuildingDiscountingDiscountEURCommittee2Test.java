@@ -69,10 +69,10 @@ import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -111,8 +111,8 @@ public class MulticurveBuildingDiscountingDiscountEURCommittee2Test {
   private static final ZonedDateTime NOW = DateUtils.getUTCDate(2012, 11, 14);
   // DateUtils.getUTCDate(2012, 12, 6), DateUtils.getUTCDate(2013, 1, 10)
   private static final ZonedDateTime[] MEETING_ECB_DATE = new ZonedDateTime[] {DateUtils.getUTCDate(2012, 12, 6), DateUtils.getUTCDate(2013, 1, 10), DateUtils.getUTCDate(2013, 2, 7),
-    DateUtils.getUTCDate(2013, 3, 7), DateUtils.getUTCDate(2013, 4, 4), DateUtils.getUTCDate(2013, 5, 2), DateUtils.getUTCDate(2013, 6, 6), DateUtils.getUTCDate(2013, 7, 4),
-    DateUtils.getUTCDate(2013, 8, 1), DateUtils.getUTCDate(2013, 9, 5), DateUtils.getUTCDate(2013, 10, 2), DateUtils.getUTCDate(2013, 11, 7)};
+      DateUtils.getUTCDate(2013, 3, 7), DateUtils.getUTCDate(2013, 4, 4), DateUtils.getUTCDate(2013, 5, 2), DateUtils.getUTCDate(2013, 6, 6), DateUtils.getUTCDate(2013, 7, 4),
+      DateUtils.getUTCDate(2013, 8, 1), DateUtils.getUTCDate(2013, 9, 5), DateUtils.getUTCDate(2013, 10, 2), DateUtils.getUTCDate(2013, 11, 7) };
   private static final double[] MEETING_ECB_TIME = new double[MEETING_ECB_DATE.length];
   static {
     for (int loopdate = 0; loopdate < MEETING_ECB_DATE.length; loopdate++) {
@@ -122,38 +122,38 @@ public class MulticurveBuildingDiscountingDiscountEURCommittee2Test {
 
   private static final ArrayZonedDateTimeDoubleTimeSeries TS_EMPTY = new ArrayZonedDateTimeDoubleTimeSeries();
   private static final ArrayZonedDateTimeDoubleTimeSeries TS_ON_EUR_WITH_TODAY = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 27),
-      DateUtils.getUTCDate(2011, 9, 28)}, new double[] {0.07, 0.08});
+      DateUtils.getUTCDate(2011, 9, 28) }, new double[] {0.07, 0.08 });
   private static final ArrayZonedDateTimeDoubleTimeSeries TS_ON_EUR_WITHOUT_TODAY = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 27),
-      DateUtils.getUTCDate(2011, 9, 28)}, new double[] {0.07, 0.08});
+      DateUtils.getUTCDate(2011, 9, 28) }, new double[] {0.07, 0.08 });
   @SuppressWarnings("rawtypes")
-  private static final DoubleTimeSeries[] TS_FIXED_OIS_EUR_WITH_TODAY = new DoubleTimeSeries[] {TS_EMPTY, TS_ON_EUR_WITH_TODAY};
+  private static final DoubleTimeSeries[] TS_FIXED_OIS_EUR_WITH_TODAY = new DoubleTimeSeries[] {TS_EMPTY, TS_ON_EUR_WITH_TODAY };
   @SuppressWarnings("rawtypes")
-  private static final DoubleTimeSeries[] TS_FIXED_OIS_EUR_WITHOUT_TODAY = new DoubleTimeSeries[] {TS_EMPTY, TS_ON_EUR_WITHOUT_TODAY};
+  private static final DoubleTimeSeries[] TS_FIXED_OIS_EUR_WITHOUT_TODAY = new DoubleTimeSeries[] {TS_EMPTY, TS_ON_EUR_WITHOUT_TODAY };
 
   private static final ArrayZonedDateTimeDoubleTimeSeries TS_IBOR_EUR6M_WITH_TODAY = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 27),
-      DateUtils.getUTCDate(2011, 9, 28)}, new double[] {0.0035, 0.0036});
-  private static final ArrayZonedDateTimeDoubleTimeSeries TS_IBOR_EUR6M_WITHOUT_TODAY = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 27)},
-      new double[] {0.0035});
+      DateUtils.getUTCDate(2011, 9, 28) }, new double[] {0.0035, 0.0036 });
+  private static final ArrayZonedDateTimeDoubleTimeSeries TS_IBOR_EUR6M_WITHOUT_TODAY = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 27) },
+      new double[] {0.0035 });
 
   @SuppressWarnings("rawtypes")
-  private static final DoubleTimeSeries[] TS_FIXED_IBOR_EUR6M_WITH_TODAY = new DoubleTimeSeries[] {TS_IBOR_EUR6M_WITH_TODAY};
+  private static final DoubleTimeSeries[] TS_FIXED_IBOR_EUR6M_WITH_TODAY = new DoubleTimeSeries[] {TS_IBOR_EUR6M_WITH_TODAY };
   @SuppressWarnings("rawtypes")
-  private static final DoubleTimeSeries[] TS_FIXED_IBOR_EUR6M_WITHOUT_TODAY = new DoubleTimeSeries[] {TS_IBOR_EUR6M_WITHOUT_TODAY};
+  private static final DoubleTimeSeries[] TS_FIXED_IBOR_EUR6M_WITHOUT_TODAY = new DoubleTimeSeries[] {TS_IBOR_EUR6M_WITHOUT_TODAY };
 
   private static final String CURVE_NAME_DSC_EUR = "EUR Dsc";
   private static final String CURVE_NAME_FWD6_EUR = "EUR Fwd 6M";
 
   /** Market values for the dsc USD curve */
   private static final double[] DSC_EUR_MARKET_QUOTES = new double[] {0.0050, 0.0050, 0.0050, 0.0051, 0.0051, 0.0051, 0.0054, 0.0062, 0.0069, 0.0071, 0.0072, 0.0070, 0.0074, 0.0076, 0.0100, 0.0110,
-    0.0120, 0.0110, 0.0150};
+      0.0120, 0.0110, 0.0150 };
   /** Generators for the dsc USD curve */
   private static final GeneratorInstrument<? extends GeneratorAttribute>[] DSC_EUR_GENERATORS = new GeneratorInstrument<?>[] {GENERATOR_DEPOSIT_ON_EUR, GENERATOR_DEPOSIT_ON_EUR, GENERATOR_OIS_EUR,
-    GENERATOR_OIS_EUR, GENERATOR_OIS_EUR, GENERATOR_OIS_EUR, GENERATOR_OIS_EUR, GENERATOR_OIS_EUR, GENERATOR_OIS_EUR, GENERATOR_OIS_EUR, GENERATOR_OIS_EUR, GENERATOR_OIS_EUR, GENERATOR_OIS_EUR,
-    GENERATOR_OIS_EUR, GENERATOR_OIS_EUR, GENERATOR_OIS_EUR, GENERATOR_OIS_EUR, GENERATOR_OIS_EUR, GENERATOR_OIS_EUR};
+      GENERATOR_OIS_EUR, GENERATOR_OIS_EUR, GENERATOR_OIS_EUR, GENERATOR_OIS_EUR, GENERATOR_OIS_EUR, GENERATOR_OIS_EUR, GENERATOR_OIS_EUR, GENERATOR_OIS_EUR, GENERATOR_OIS_EUR, GENERATOR_OIS_EUR,
+      GENERATOR_OIS_EUR, GENERATOR_OIS_EUR, GENERATOR_OIS_EUR, GENERATOR_OIS_EUR, GENERATOR_OIS_EUR, GENERATOR_OIS_EUR };
   /** Tenors for the dsc USD curve */
   private static final Period[] DSC_EUR_TENOR = new Period[] {Period.ofDays(0), Period.ofDays(1), Period.ofMonths(1), Period.ofMonths(2), Period.ofMonths(3), Period.ofMonths(4), Period.ofMonths(5),
-    Period.ofMonths(6), Period.ofMonths(7), Period.ofMonths(8), Period.ofMonths(9), Period.ofMonths(10), Period.ofMonths(11), Period.ofYears(1), Period.ofYears(2), Period.ofYears(3),
-    Period.ofYears(4), Period.ofYears(5), Period.ofYears(10)};
+      Period.ofMonths(6), Period.ofMonths(7), Period.ofMonths(8), Period.ofMonths(9), Period.ofMonths(10), Period.ofMonths(11), Period.ofYears(1), Period.ofYears(2), Period.ofYears(3),
+      Period.ofYears(4), Period.ofYears(5), Period.ofYears(10) };
   private static final GeneratorAttributeIR[] DSC_EUR_ATTR = new GeneratorAttributeIR[DSC_EUR_TENOR.length];
   static {
     for (int loopins = 0; loopins < 2; loopins++) {
@@ -165,13 +165,13 @@ public class MulticurveBuildingDiscountingDiscountEURCommittee2Test {
   }
 
   /** Market values for the Fwd 3M USD curve */
-  private static final double[] FWD6_EUR_MARKET_QUOTES = new double[] {0.0150, 0.0150, 0.0150, 0.0150, 0.0180, 0.0175, 0.0200, 0.0175};
+  private static final double[] FWD6_EUR_MARKET_QUOTES = new double[] {0.0150, 0.0150, 0.0150, 0.0150, 0.0180, 0.0175, 0.0200, 0.0175 };
   /** Generators for the Fwd 3M USD curve */
   private static final GeneratorInstrument<? extends GeneratorAttribute>[] FWD6_EUR_GENERATORS = new GeneratorInstrument<?>[] {GENERATOR_EURIBOR6M, GENERATOR_FRA_6M, GENERATOR_FRA_6M, EUR1YEURIBOR6M,
-    EUR1YEURIBOR6M, EUR1YEURIBOR6M, EUR1YEURIBOR6M, EUR1YEURIBOR6M};
+      EUR1YEURIBOR6M, EUR1YEURIBOR6M, EUR1YEURIBOR6M, EUR1YEURIBOR6M };
   /** Tenors for the Fwd 3M USD curve */
   private static final Period[] FWD6_EUR_TENOR = new Period[] {Period.ofMonths(0), Period.ofMonths(9), Period.ofMonths(12), Period.ofYears(2), Period.ofYears(3), Period.ofYears(5), Period.ofYears(7),
-    Period.ofYears(10)};
+      Period.ofYears(10) };
   private static final GeneratorAttributeIR[] FWD6_EUR_ATTR = new GeneratorAttributeIR[FWD6_EUR_TENOR.length];
   static {
     for (int loopins = 0; loopins < FWD6_EUR_TENOR.length; loopins++) {
@@ -185,7 +185,7 @@ public class MulticurveBuildingDiscountingDiscountEURCommittee2Test {
   private static final InstrumentDefinition<?>[] DEFINITIONS_FWD6_EUR;
 
   /** Units of curves */
-  private static final int[] NB_UNITS = new int[] {2, 2};
+  private static final int[] NB_UNITS = new int[] {2, 2 };
   private static final int NB_BLOCKS = NB_UNITS.length;
   private static final InstrumentDefinition<?>[][][][] DEFINITIONS_UNITS = new InstrumentDefinition<?>[NB_BLOCKS][][][];
   private static final GeneratorYDCurve[][][] GENERATORS_UNITS = new GeneratorYDCurve[NB_BLOCKS][][];
@@ -205,46 +205,46 @@ public class MulticurveBuildingDiscountingDiscountEURCommittee2Test {
       GENERATORS_UNITS[loopblock] = new GeneratorYDCurve[NB_UNITS[loopblock]][];
       NAMES_UNITS[loopblock] = new String[NB_UNITS[loopblock]][];
     }
-    DEFINITIONS_UNITS[0][0] = new InstrumentDefinition<?>[][] {DEFINITIONS_DSC_EUR};
-    DEFINITIONS_UNITS[0][1] = new InstrumentDefinition<?>[][] {DEFINITIONS_FWD6_EUR};
-    DEFINITIONS_UNITS[1][0] = new InstrumentDefinition<?>[][] {DEFINITIONS_DSC_EUR};
-    DEFINITIONS_UNITS[1][1] = new InstrumentDefinition<?>[][] {DEFINITIONS_FWD6_EUR};
+    DEFINITIONS_UNITS[0][0] = new InstrumentDefinition<?>[][] {DEFINITIONS_DSC_EUR };
+    DEFINITIONS_UNITS[0][1] = new InstrumentDefinition<?>[][] {DEFINITIONS_FWD6_EUR };
+    DEFINITIONS_UNITS[1][0] = new InstrumentDefinition<?>[][] {DEFINITIONS_DSC_EUR };
+    DEFINITIONS_UNITS[1][1] = new InstrumentDefinition<?>[][] {DEFINITIONS_FWD6_EUR };
     final int nbNode1 = 2;
     final GeneratorYDCurve genIntLin = new GeneratorCurveYieldInterpolated(MATURITY_CALCULATOR, INTERPOLATOR_LINEAR);
     final GeneratorYDCurve genIntNumDFLL = new GeneratorCurveDiscountFactorInterpolatedNumber(MATURITY_CALCULATOR, nbNode1, INTERPOLATOR_LL);
     final GeneratorYDCurve genInt0DFLL = new GeneratorCurveDiscountFactorInterpolatedAnchorNode(MEETING_ECB_TIME, TimeCalculator.getTimeBetween(NOW,
         ScheduleCalculator.getAdjustedDate(NOW, GENERATOR_OIS_EUR.getSpotLag(), TARGET)), INTERPOLATOR_LL);
     final GeneratorYDCurve genInt0DQ = new GeneratorCurveYieldInterpolatedAnchor(MATURITY_CALCULATOR, INTERPOLATOR_DQ);
-    final GeneratorYDCurve[] genCompArray = new GeneratorYDCurve[] {genIntNumDFLL, genInt0DFLL, genInt0DQ};
+    final GeneratorYDCurve[] genCompArray = new GeneratorYDCurve[] {genIntNumDFLL, genInt0DFLL, genInt0DQ };
     final GeneratorYDCurve genComp = new GeneratorCurveAddYield(genCompArray, false);
 
     final LocalDate startTOY = LocalDate.of(2012, 12, 31);
     final LocalDate endTOY = LocalDate.of(2013, 1, 2);
     final double spreadTOY = 0.0030; // 30bps
     final double dfTOY = 1.0 / (1 + EONIA.getDayCount().getDayCountFraction(startTOY, endTOY) * spreadTOY);
-    final double[] times = {TimeCalculator.getTimeBetween(NOW, startTOY), TimeCalculator.getTimeBetween(NOW, endTOY)};
-    final double[] df = {1.0, dfTOY};
+    final double[] times = {TimeCalculator.getTimeBetween(NOW, startTOY), TimeCalculator.getTimeBetween(NOW, endTOY) };
+    final double[] df = {1.0, dfTOY };
     final YieldAndDiscountCurve curveTOY = new DiscountCurve("TOY", new InterpolatedDoublesCurve(times, df, INTERPOLATOR_LINEAR, true));
     final GeneratorYDCurve genAddFixed = new GeneratorCurveAddYieldFixed(genComp, false, curveTOY);
 
     final GeneratorYDCurve genIntDQ = new GeneratorCurveYieldInterpolated(MATURITY_CALCULATOR, INTERPOLATOR_LINEAR);
     final GeneratorYDCurve genAddExistDsc = new GeneratorCurveAddYieldExisiting(genIntDQ, false, CURVE_NAME_DSC_EUR);
 
-    GENERATORS_UNITS[0][0] = new GeneratorYDCurve[] {genComp};
-    GENERATORS_UNITS[0][1] = new GeneratorYDCurve[] {genIntLin};
-    GENERATORS_UNITS[1][0] = new GeneratorYDCurve[] {genAddFixed};
-    GENERATORS_UNITS[1][1] = new GeneratorYDCurve[] {genAddExistDsc};
-    NAMES_UNITS[0][0] = new String[] {CURVE_NAME_DSC_EUR};
-    NAMES_UNITS[0][1] = new String[] {CURVE_NAME_FWD6_EUR};
-    NAMES_UNITS[1][0] = new String[] {CURVE_NAME_DSC_EUR};
-    NAMES_UNITS[1][1] = new String[] {CURVE_NAME_FWD6_EUR};
+    GENERATORS_UNITS[0][0] = new GeneratorYDCurve[] {genComp };
+    GENERATORS_UNITS[0][1] = new GeneratorYDCurve[] {genIntLin };
+    GENERATORS_UNITS[1][0] = new GeneratorYDCurve[] {genAddFixed };
+    GENERATORS_UNITS[1][1] = new GeneratorYDCurve[] {genAddExistDsc };
+    NAMES_UNITS[0][0] = new String[] {CURVE_NAME_DSC_EUR };
+    NAMES_UNITS[0][1] = new String[] {CURVE_NAME_FWD6_EUR };
+    NAMES_UNITS[1][0] = new String[] {CURVE_NAME_DSC_EUR };
+    NAMES_UNITS[1][1] = new String[] {CURVE_NAME_FWD6_EUR };
     DSC_MAP.put(CURVE_NAME_DSC_EUR, EUR);
-    FWD_ON_MAP.put(CURVE_NAME_DSC_EUR, new IndexON[] {EONIA});
-    FWD_IBOR_MAP.put(CURVE_NAME_FWD6_EUR, new IborIndex[] {EURIBOR6M, EUROLIBOR6M});
+    FWD_ON_MAP.put(CURVE_NAME_DSC_EUR, new IndexON[] {EONIA });
+    FWD_IBOR_MAP.put(CURVE_NAME_FWD6_EUR, new IborIndex[] {EURIBOR6M, EUROLIBOR6M });
   }
 
   private static final String NOT_USED = "Not used";
-  private static final String[] NOT_USED_2 = {NOT_USED, NOT_USED};
+  private static final String[] NOT_USED_2 = {NOT_USED, NOT_USED };
 
   public static InstrumentDefinition<?>[] getDefinitions(final double[] marketQuotes, final GeneratorInstrument[] generators, final GeneratorAttribute[] attribute) {
     final InstrumentDefinition<?>[] definitions = new InstrumentDefinition<?>[marketQuotes.length];

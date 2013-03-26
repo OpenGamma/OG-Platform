@@ -10,6 +10,8 @@ import static org.mockito.Mockito.verify;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNull;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 
 import org.mockito.Mockito;
@@ -22,11 +24,12 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests {@link MarketDataProviderWithOverride}
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class MarketDataProviderWithOverrideTest {
 
   public void testSubscriptionFailure() throws InterruptedException {
@@ -43,7 +46,7 @@ public class MarketDataProviderWithOverrideTest {
     p2.awaitSubscriptionResponses();
 
     verify(listener).subscriptionFailed(spec, "p2");
-    verify(listener, VerificationModeFactory.noMoreInteractions()).subscriptionSucceeded(Mockito.<ValueSpecification>anyObject());
+    verify(listener, VerificationModeFactory.noMoreInteractions()).subscriptionsSucceeded(Collections.singleton(Mockito.<ValueSpecification>anyObject()));
     verify(listener, VerificationModeFactory.noMoreInteractions()).subscriptionFailed(Mockito.<ValueSpecification>anyObject(), Mockito.anyString());
   }
 
@@ -60,8 +63,8 @@ public class MarketDataProviderWithOverrideTest {
     p1.awaitSubscriptionResponses();
     p2.awaitSubscriptionResponses();
 
-    verify(listener).subscriptionSucceeded(spec);
-    verify(listener, VerificationModeFactory.noMoreInteractions()).subscriptionSucceeded(Mockito.<ValueSpecification>anyObject());
+    verify(listener).subscriptionsSucceeded(new ArrayList<ValueSpecification>(Arrays.asList(spec)));
+    verify(listener, VerificationModeFactory.noMoreInteractions()).subscriptionsSucceeded(Collections.singleton(Mockito.<ValueSpecification>anyObject()));
     verify(listener, VerificationModeFactory.noMoreInteractions()).subscriptionFailed(Mockito.<ValueSpecification>anyObject(), Mockito.anyString());
 
     p1.valuesChanged(Collections.singleton(spec));

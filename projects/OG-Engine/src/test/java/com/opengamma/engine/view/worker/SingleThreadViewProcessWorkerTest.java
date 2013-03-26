@@ -19,7 +19,6 @@ import org.threeten.bp.Instant;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.change.ChangeType;
 import com.opengamma.engine.cache.MissingMarketDataSentinel;
 import com.opengamma.engine.marketdata.InMemoryLKVMarketDataProvider;
 import com.opengamma.engine.marketdata.MarketDataListener;
@@ -58,11 +57,13 @@ import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.test.Timeout;
 
 /**
  * Tests {@link SingleThreadViewProcessWorker}
  */
+@Test(groups = TestGroup.UNIT)
 public class SingleThreadViewProcessWorkerTest {
 
   private static final long TIMEOUT = 5L * Timeout.standardTimeoutMillis();
@@ -275,38 +276,6 @@ public class SingleThreadViewProcessWorkerTest {
 
     final ViewProcessWorker worker = env.getCurrentWorker(env.getViewProcess(vp, client.getUniqueId()));
 
-    resultListener.assertViewDefinitionCompiled(TIMEOUT);
-    resultListener.assertCycleCompleted(TIMEOUT);
-    worker.triggerCycle();
-    resultListener.assertCycleCompleted(TIMEOUT);
-
-    client.shutdown();
-  }
-
-  @Test
-  public void testUpdateViewDefinitionCausesRecompile() {
-    final ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
-    env.init();
-
-    final ViewProcessorImpl vp = env.getViewProcessor();
-    vp.start();
-
-    final ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
-    final TestViewResultListener resultListener = new TestViewResultListener();
-    client.setResultListener(resultListener);
-    final EnumSet<ViewExecutionFlags> flags = ExecutionFlags.none().get();
-    final ViewExecutionOptions viewExecutionOptions = ExecutionOptions.infinite(MarketData.live(), flags);
-    final UniqueId viewDefinitionId = env.getViewDefinition().getUniqueId();
-    client.attachToViewProcess(viewDefinitionId, viewExecutionOptions);
-
-    final ViewProcessWorker worker = env.getCurrentWorker(env.getViewProcess(vp, client.getUniqueId()));
-
-    resultListener.assertViewDefinitionCompiled(TIMEOUT);
-    resultListener.assertCycleCompleted(TIMEOUT);
-    worker.triggerCycle();
-    resultListener.assertCycleCompleted(TIMEOUT);
-    env.getConfigSource().changeManager().entityChanged(ChangeType.CHANGED, viewDefinitionId.getObjectId(), null, null, Instant.now());
-    worker.triggerCycle();
     resultListener.assertViewDefinitionCompiled(TIMEOUT);
     resultListener.assertCycleCompleted(TIMEOUT);
     worker.triggerCycle();

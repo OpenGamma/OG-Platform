@@ -9,10 +9,10 @@ import java.util.List;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.TimeSeriesException;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.CalculationMode;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.TimeSeriesException;
 
 /**
  * 

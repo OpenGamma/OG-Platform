@@ -127,7 +127,7 @@ import com.opengamma.util.ArgumentChecker;
    * @return The current data displayed in the viewport
    */
   /* package */ ViewportResults getData(int viewportId) {
-    return getViewport(viewportId).getData();
+      return getViewport(viewportId).getData();
   }
 
   /**

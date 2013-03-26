@@ -12,11 +12,12 @@ import org.fudgemsg.wire.types.FudgeWireType;
 import org.testng.annotations.Test;
 
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test Fudge support.
  */
-@Test(groups = "unit")
+@Test(groups = TestGroup.UNIT)
 public class CurrencyFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
 
   private static final Currency s_ref = Currency.USD;

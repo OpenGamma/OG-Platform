@@ -15,7 +15,7 @@ import org.threeten.bp.LocalDate;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.bbg.BloombergIdentifierProvider;
-import com.opengamma.bbg.loader.BloombergHistoricalTimeSeriesLoader;
+import com.opengamma.bbg.loader.hts.BloombergHistoricalTimeSeriesLoader;
 import com.opengamma.bloombergexample.generator.BloombergExamplePortfolioGeneratorTool;
 import com.opengamma.bloombergexample.loader.CurveNodeHistoricalDataLoader;
 import com.opengamma.bloombergexample.loader.DemoEquityOptionCollarPortfolioLoader;

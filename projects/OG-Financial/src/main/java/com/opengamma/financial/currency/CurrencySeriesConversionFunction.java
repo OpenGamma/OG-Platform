@@ -29,8 +29,8 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * Converts a series of values from one currency to another, preserving all other properties.
@@ -39,12 +39,9 @@ public class CurrencySeriesConversionFunction extends AbstractFunction.NonCompil
 
   private static final String CURRENCY_INJECTION_PROPERTY = ValuePropertyNames.OUTPUT_RESERVED_PREFIX + "Currency";
 
-  private static final Logger s_logger = LoggerFactory.getLogger(CurrencyConversionFunction.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(CurrencySeriesConversionFunction.class);
 
-  /**
-   * The value requirement name used to request a Spot Rate series instead of the valuation time spot rate.
-   */
-  public static final String SPOT_RATE = ValueRequirementNames.SPOT_RATE + "Series";
+  private static final ComputationTargetType TYPE = ComputationTargetType.PORTFOLIO_NODE.or(ComputationTargetType.POSITION).or(ComputationTargetType.SECURITY).or(ComputationTargetType.TRADE);
 
   private final Set<String> _valueNames;
   private boolean _allowViewDefaultCurrency; // = false;
@@ -131,7 +128,7 @@ public class CurrencySeriesConversionFunction extends AbstractFunction.NonCompil
     DoubleTimeSeries<LocalDate> exchangeRates = null;
     Double exchangeRate = null;
     for (final ComputedValue input : inputs.getAllValues()) {
-      if (SPOT_RATE.equals(input.getSpecification().getValueName())) {
+      if (ValueRequirementNames.HISTORICAL_FX_TIME_SERIES.equals(input.getSpecification().getValueName())) {
         if (input.getValue() instanceof Double) {
           // Note: The rate might be a DOUBLE if the matrix being used has a hard coded constant in it. Improbable for a time-series conversion, but possible.
           exchangeRate = (Double) input.getValue();
@@ -254,7 +251,7 @@ public class CurrencySeriesConversionFunction extends AbstractFunction.NonCompil
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.PORTFOLIO_NODE.or(ComputationTargetType.POSITION).or(ComputationTargetType.SECURITY).or(ComputationTargetType.TRADE);
+    return TYPE;
   }
 
 }

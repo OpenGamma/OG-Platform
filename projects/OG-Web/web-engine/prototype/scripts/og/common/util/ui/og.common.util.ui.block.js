@@ -7,7 +7,7 @@ $.register_module({
     name: 'og.common.util.ui.Block',
     dependencies: ['og.api.text'],
     obj: function () {
-        var module = this, STALL = 500 /* 500ms */, api_text = og.api.text;
+        var module = this, api_text = og.api.text;
         /**
          * creates a Block instance
          * @name Block
@@ -27,7 +27,10 @@ $.register_module({
             block.children = config.children || [];
             block.form = form;
             if (config.module) api_text({module: config.module, loading: function () {block.template = 'loading';}})
-                .pipe(function (html) {block.template = Handlebars.compile(html);});
+                .pipe(function (html) {
+                    block.template = Handlebars.compile(html);
+                    if (block.ready_handler) block.html(block.ready_handler);
+                });
             else if (config.template) block.template = Handlebars.compile(config.template);
         };
         /**
@@ -40,6 +43,7 @@ $.register_module({
         Block.prototype.html = function (handler, extras) {
             var block = this, template = block.template, total = block.children.length, done = 0, result = [],
                 generator = block.config.generator;
+            block.ready_handler = null;
             /** @private */
             var internal_handler = function () {
                 var template_data = $.extend(
@@ -50,7 +54,8 @@ $.register_module({
                 return generator ? generator(handler, template, template_data) : handler(template(template_data));
             };
             if (block.config.content) return handler(block.config.content), block;
-            if (template === 'loading') return setTimeout(function () {block.html(handler);}, STALL), block;
+            if (template === 'loading') // set a local handler and wait for template to return
+                return (block.ready_handler = handler), block;
             if (!total) return internal_handler(), block;
             block.children.forEach(function (child, index) {
                 child.html(function (html) {(result[index] = html), (total === ++done) && internal_handler();});

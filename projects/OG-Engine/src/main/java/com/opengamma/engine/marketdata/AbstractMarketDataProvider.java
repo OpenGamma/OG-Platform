@@ -12,7 +12,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import org.threeten.bp.Duration;
 import org.threeten.bp.Instant;
 
-import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**
@@ -49,14 +48,12 @@ public abstract class AbstractMarketDataProvider implements MarketDataProvider {
   }
 
   protected void subscriptionSucceeded(final ValueSpecification specification) {
-    for (final MarketDataListener listener : getListeners()) {
-      listener.subscriptionSucceeded(specification);
-    }
+    subscriptionsSucceeded(Collections.singleton(specification));
   }
 
-  protected void subscriptionSucceeded(final Collection<ValueSpecification> specifications) {
-    for (final ValueSpecification specification : specifications) {
-      subscriptionSucceeded(specification);
+  protected void subscriptionsSucceeded(final Collection<ValueSpecification> specifications) {
+    for (final MarketDataListener listener : getListeners()) {
+      listener.subscriptionsSucceeded(specifications);
     }
   }
 

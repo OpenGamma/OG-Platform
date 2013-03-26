@@ -26,12 +26,13 @@ import com.opengamma.transport.FudgeConnection;
 import com.opengamma.transport.FudgeConnectionReceiver;
 import com.opengamma.transport.FudgeMessageReceiver;
 import com.opengamma.transport.FudgeMessageSender;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.test.Timeout;
 
 /**
  * Tests the SocketFudgeConnection and ServerSocketFudgeConnectionReceiver classes
  */
-@Test(groups = "integration", singleThreaded = true)
+@Test(groups = TestGroup.INTEGRATION, singleThreaded = true)
 public class SocketFudgeConnectionConduitTest {
   
   private final AtomicInteger _counter = new AtomicInteger();

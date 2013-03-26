@@ -16,8 +16,13 @@ import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
 import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.Tenor;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class YieldCurveDefinitionFudgeEncodingTest extends FinancialTestBase {
 
   @Test

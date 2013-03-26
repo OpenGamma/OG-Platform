@@ -11,9 +11,12 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Tests the methods in the {@link DataUtils} class.
  */
+@Test(groups = TestGroup.UNIT)
 public class DataUtilsTest {
 
   @Test

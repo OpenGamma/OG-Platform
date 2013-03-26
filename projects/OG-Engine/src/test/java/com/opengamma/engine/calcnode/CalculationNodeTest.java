@@ -43,11 +43,12 @@ import com.opengamma.util.log.LogEvent;
 import com.opengamma.util.log.LogLevel;
 import com.opengamma.util.log.SimpleLogEvent;
 import com.opengamma.util.log.ThreadLocalLogEventListener;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the {@link SimpleCalculationNode} class. Note the name so that Clover doesn't ignore it.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class CalculationNodeTest {
 
   public void mockFunctionInvocationOneInputMissing() throws Exception {

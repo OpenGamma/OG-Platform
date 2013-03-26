@@ -5,6 +5,8 @@
  */
 package com.opengamma.engine.marketdata.availability;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -298,6 +300,14 @@ public class FixedMarketDataAvailabilityProvider extends AbstractMarketDataAvail
     ArgumentChecker.notNull(valueName, "valueName");
     final ComputationTargetSpecification target = new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, identifier);
     addMissingData(target, valueName);
+  }
+
+  @Override
+  public Serializable getAvailabilityHintKey() {
+    final ArrayList<Serializable> key = new ArrayList<Serializable>(2);
+    key.add(getClass().getName());
+    key.add(_syntheticScheme);
+    return key;
   }
 
 }

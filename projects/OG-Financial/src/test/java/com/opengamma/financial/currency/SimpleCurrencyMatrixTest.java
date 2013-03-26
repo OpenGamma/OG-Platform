@@ -18,10 +18,12 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.currency.CurrencyMatrixValue.CurrencyMatrixValueRequirement;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * Tests the SimpleCurrencyMatrix class
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class SimpleCurrencyMatrixTest {
   
   private final Currency currencyUSD = Currency.of ("USD");

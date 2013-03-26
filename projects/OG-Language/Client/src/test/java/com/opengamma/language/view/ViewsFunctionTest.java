@@ -19,11 +19,12 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.impl.InMemoryConfigMaster;
 import com.opengamma.master.config.impl.MasterConfigSource;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the {@link ViewsFunction} class.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class ViewsFunctionTest {
 
   private ConfigSource createConfigSource() {

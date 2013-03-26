@@ -12,7 +12,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.LocalDate;
-import org.threeten.bp.temporal.JulianFields;
+import org.threeten.bp.temporal.ChronoUnit;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
@@ -35,6 +35,7 @@ import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.time.Expiry;
+import com.opengamma.util.time.ExpiryAccuracy;
 
 /**
  * TODO - PROTOTYPE 
@@ -63,7 +64,7 @@ public class WeightedVegaFunction extends AbstractFunction.NonCompiledInvoker {
         if (inputVal != null) {
           vega = (Double) inputVal;
         } else {
-          throw new OpenGammaRuntimeException("Did not satisfy requirement," + s_vega + ", for trade" + target.getTrade().getUniqueId());
+          throw new OpenGammaRuntimeException("Did not satisfy requirement," + s_vega + ", for security" + target.getSecurity().toString());
         }
       }
     }
@@ -71,7 +72,7 @@ public class WeightedVegaFunction extends AbstractFunction.NonCompiledInvoker {
     // 2. Compute Weighted Vega
     
     Expiry expiry = null;
-    final Security security = target.getTrade().getSecurity();
+    final Security security = target.getSecurity();
     if (security instanceof EquityOptionSecurity) {
       expiry = ((EquityOptionSecurity) security).getExpiry();
     } else if (security instanceof EquityIndexOptionSecurity) {
@@ -80,11 +81,12 @@ public class WeightedVegaFunction extends AbstractFunction.NonCompiledInvoker {
       s_logger.error("If applicable, please add the following SecurityType to WeightedVegaFunction, " + security.getSecurityType());
     }
     
-    LocalDate expiryDt = expiry.getExpiry().toLocalDate();
-    LocalDate valDt = LocalDate.now(executionContext.getValuationClock());
-    final long daysToExpiry = expiryDt.get(JulianFields.MODIFIED_JULIAN_DAY) - valDt.get(JulianFields.MODIFIED_JULIAN_DAY);
-    // Or perhaps something like: Period.of(Duration.between(expiry.getExpiry(), executionContext.getValuationClock().zonedDateTimeToMinute())).totalDaysWith24HourDays();
     
+    if (expiry.getAccuracy().equals(ExpiryAccuracy.MONTH_YEAR) || expiry.getAccuracy().equals(ExpiryAccuracy.YEAR)) {
+      throw new OpenGammaRuntimeException("Security's Expiry is not accurate to the day, which is required: " + security.toString());
+    }
+    
+    final long daysToExpiry = ChronoUnit.DAYS.between(LocalDate.now(executionContext.getValuationClock()), expiry.getExpiry().toLocalDate()); 
     final double weighting = Math.sqrt(s_baseDays / Math.max(daysToExpiry, 1.0));     
     final double weightedVega = weighting * vega;
     
@@ -98,13 +100,13 @@ public class WeightedVegaFunction extends AbstractFunction.NonCompiledInvoker {
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.TRADE;
+    return ComputationTargetType.SECURITY;
   }
   
   @Override
   public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
 
-    final Security security = target.getTrade().getSecurity();
+    final Security security = target.getSecurity();
     if (security instanceof EquityOptionSecurity || security instanceof EquityIndexOptionSecurity) {
       return true;
     }
@@ -126,8 +128,7 @@ public class WeightedVegaFunction extends AbstractFunction.NonCompiledInvoker {
 
   @Override
   public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
-    final Trade trade = target.getTrade();
-    final ValueRequirement vegaReq = new ValueRequirement(ValueRequirementNames.VEGA, ComputationTargetSpecification.of(trade.getSecurity()), desiredValue.getConstraints().withoutAny(
+    final ValueRequirement vegaReq = new ValueRequirement(s_vega, target.toSpecification(), desiredValue.getConstraints().withoutAny(
         ValuePropertyNames.FUNCTION));
     final Set<ValueRequirement> requirements = Sets.newHashSet(vegaReq);
     return requirements;

@@ -6,7 +6,7 @@
 package com.opengamma.analytics.financial.forex.provider;
 
 import com.opengamma.analytics.financial.forex.derivative.Forex;
-import com.opengamma.analytics.financial.interestrate.payments.provider.PaymentFixedDiscountingProviderMethod;
+import com.opengamma.analytics.financial.interestrate.payments.provider.PaymentFixedDiscountingMethod;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -38,7 +38,7 @@ public final class ForexDiscountingProviderMethod {
   /**
    * Fixed payments method.
    */
-  private static final PaymentFixedDiscountingProviderMethod METHOD_PAY = PaymentFixedDiscountingProviderMethod.getInstance();
+  private static final PaymentFixedDiscountingMethod METHOD_PAY = PaymentFixedDiscountingMethod.getInstance();
 
   /**
    * Computes the present value by discounting each payment in its own currency.

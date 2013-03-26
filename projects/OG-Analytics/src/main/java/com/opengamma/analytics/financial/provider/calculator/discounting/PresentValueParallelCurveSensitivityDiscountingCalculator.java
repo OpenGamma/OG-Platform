@@ -11,7 +11,7 @@ import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
-import com.opengamma.analytics.financial.interestrate.payments.provider.PaymentFixedDiscountingProviderMethod;
+import com.opengamma.analytics.financial.interestrate.payments.provider.PaymentFixedDiscountingMethod;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.util.amount.StringAmount;
 import com.opengamma.util.ArgumentChecker;
@@ -44,7 +44,7 @@ public final class PresentValueParallelCurveSensitivityDiscountingCalculator ext
   /**
    * Methods.
    */
-  private static final PaymentFixedDiscountingProviderMethod METHOD_PAYMENTFIXED = PaymentFixedDiscountingProviderMethod.getInstance();
+  private static final PaymentFixedDiscountingMethod METHOD_PAYMENTFIXED = PaymentFixedDiscountingMethod.getInstance();
 
   // -----     Payment/Coupon     ------
 

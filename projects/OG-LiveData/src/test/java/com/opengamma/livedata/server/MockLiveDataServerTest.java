@@ -14,6 +14,10 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Collections;
 
+import net.sf.ehcache.CacheManager;
+
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -28,20 +32,33 @@ import com.opengamma.livedata.msg.LiveDataSubscriptionResult;
 import com.opengamma.livedata.msg.SubscriptionType;
 import com.opengamma.livedata.normalization.StandardRules;
 import com.opengamma.livedata.server.distribution.MarketDataDistributor;
+import com.opengamma.util.ehcache.EHCacheUtils;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test.
  */
-@Test(groups = "unit")
+@Test(groups = {TestGroup.UNIT, "ehcache"})
 public class MockLiveDataServerTest {
 
   private ExternalScheme _domain;
   private MockLiveDataServer _server;
+  private CacheManager _cacheManager;
+
+  @BeforeClass
+  public void setUpClass() {
+    _cacheManager = EHCacheUtils.createTestCacheManager(getClass());
+  }
+
+  @AfterClass
+  public void tearDownClass() {
+    EHCacheUtils.shutdownQuiet(_cacheManager);
+  }
 
   @BeforeMethod
   public void setUp() {
     _domain = ExternalScheme.of("test");
-    _server = new MockLiveDataServer(_domain);
+    _server = new MockLiveDataServer(_domain, _cacheManager);
     _server.connect();
   }
 

@@ -13,9 +13,12 @@ import java.util.Set;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Test the {@link ValueRequirementNamesFunction} class.
  */
+@Test(groups = TestGroup.UNIT)
 public class ValueRequirementNamesFunctionTest {
 
   @Test

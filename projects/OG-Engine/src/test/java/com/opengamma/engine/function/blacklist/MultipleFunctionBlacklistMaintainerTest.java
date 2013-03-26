@@ -16,11 +16,12 @@ import com.opengamma.engine.calcnode.CalculationJobItem;
 import com.opengamma.engine.function.EmptyFunctionParameters;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ExecutionLogMode;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the {@link MultipleFunctionBlacklistMaintainer} class.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class MultipleFunctionBlacklistMaintainerTest {
 
   private final CalculationJobItem _item1 = new CalculationJobItem("F1", new EmptyFunctionParameters(), ComputationTargetSpecification.NULL,

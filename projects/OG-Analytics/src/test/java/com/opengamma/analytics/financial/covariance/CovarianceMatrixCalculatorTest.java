@@ -11,9 +11,9 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.function.Function;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
-import com.opengamma.util.timeseries.fast.integer.FastArrayIntDoubleTimeSeries;
+import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.fast.DateTimeNumericEncoding;
+import com.opengamma.timeseries.fast.integer.FastArrayIntDoubleTimeSeries;
 
 /**
  * 

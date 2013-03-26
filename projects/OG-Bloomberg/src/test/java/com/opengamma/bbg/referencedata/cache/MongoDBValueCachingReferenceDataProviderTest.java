@@ -9,11 +9,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.bbg.test.MongoCachedReferenceData;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test.
  */
-@Test(groups= {"unit", "mongodb"})
+@Test(groups= {TestGroup.UNIT_DB, "mongodb"})
 public class MongoDBValueCachingReferenceDataProviderTest extends AbstractValueCachingReferenceDataProviderTestCase {
 
   @Override

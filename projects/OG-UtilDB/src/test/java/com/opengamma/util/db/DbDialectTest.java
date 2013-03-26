@@ -10,11 +10,12 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.util.paging.PagingRequest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test DbDialect.
  */
-@Test(groups = "unit")
+@Test(groups = TestGroup.UNIT)
 public class DbDialectTest {
 
   protected DbDialect _dialect = new MockDbDialect();

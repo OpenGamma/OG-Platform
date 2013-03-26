@@ -9,10 +9,12 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Test {@link ExternalId}. 
  */
-@Test(groups = "unit")
+@Test(groups = TestGroup.UNIT)
 public class ExternalIdTest {
 
   private static final ExternalScheme SCHEME = ExternalScheme.of("Scheme");

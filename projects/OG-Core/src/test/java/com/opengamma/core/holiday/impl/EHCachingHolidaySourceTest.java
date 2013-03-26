@@ -10,8 +10,11 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.testng.AssertJUnit.assertSame;
+import net.sf.ehcache.CacheManager;
 
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -21,13 +24,12 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ehcache.EHCacheUtils;
-
-import net.sf.ehcache.CacheManager;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test {@link EHCachingHolidaySource}.
  */
-@Test
+@Test(groups = {TestGroup.UNIT, "ehcache"})
 public class EHCachingHolidaySourceTest {
 
   private static final UniqueId UID = UniqueId.of("A", "B");
@@ -36,12 +38,22 @@ public class EHCachingHolidaySourceTest {
 
   private HolidaySource _underlyingSource;
   private EHCachingHolidaySource _cachingSource;
+  private CacheManager _cacheManager;
+
+  @BeforeClass
+  public void setUpClass() {
+    _cacheManager = EHCacheUtils.createTestCacheManager(EHCachingHolidaySourceTest.class);
+  }
+
+  @AfterClass
+  public void tearDownClass() {
+    EHCacheUtils.shutdownQuiet(_cacheManager);
+  }
 
   @BeforeMethod
   public void setUp() {
-    CacheManager cacheManager = EHCacheUtils.createCacheManager();
     _underlyingSource = mock(HolidaySource.class);
-    _cachingSource = new EHCachingHolidaySource(_underlyingSource, cacheManager);
+    _cachingSource = new EHCachingHolidaySource(_underlyingSource, _cacheManager);
   }
 
   @AfterMethod

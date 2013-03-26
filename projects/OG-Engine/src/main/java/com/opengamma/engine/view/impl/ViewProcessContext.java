@@ -25,6 +25,8 @@ import com.opengamma.engine.view.compilation.ViewCompilationServices;
 import com.opengamma.engine.view.cycle.SingleComputationCycle;
 import com.opengamma.engine.view.permission.ViewPermissionProvider;
 import com.opengamma.engine.view.worker.ViewProcessWorkerFactory;
+import com.opengamma.engine.view.worker.cache.ViewExecutionCache;
+import com.opengamma.engine.view.worker.cache.ViewExecutionCacheLock;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 
@@ -62,6 +64,11 @@ public class ViewProcessContext {
   // process is the one that updates them.
   private final ExecutionLogModeSource _executionLogModeSource = new ExecutionLogModeSource();
 
+  private final ViewExecutionCache _executionCache;
+
+  // TODO: [PLAT-3190] Might need to inject this from the view processor so that all workers in the process group can share work
+  private final ViewExecutionCacheLock _executionCacheLock = new ViewExecutionCacheLock();
+
   public ViewProcessContext(
       final UniqueId processId,
       final ConfigSource configSource,
@@ -77,7 +84,8 @@ public class ViewProcessContext {
       final GraphExecutorStatisticsGathererProvider graphExecutorStatisticsProvider,
       final OverrideOperationCompiler overrideOperationCompiler,
       final EngineResourceManagerInternal<SingleComputationCycle> cycleManager,
-      final Supplier<UniqueId> cycleIdentifiers) {
+      final Supplier<UniqueId> cycleIdentifiers,
+      final ViewExecutionCache executionCache) {
     ArgumentChecker.notNull(processId, "processId");
     ArgumentChecker.notNull(configSource, "configSource");
     ArgumentChecker.notNull(viewPermissionProvider, "viewPermissionProvider");
@@ -93,6 +101,7 @@ public class ViewProcessContext {
     ArgumentChecker.notNull(overrideOperationCompiler, "overrideOperationCompiler");
     ArgumentChecker.notNull(cycleManager, "cycleManager");
     ArgumentChecker.notNull(cycleIdentifiers, "cycleIdentifiers");
+    ArgumentChecker.notNull(executionCache, "executionCache");
     _processId = processId;
     _configSource = configSource;
     _viewPermissionProvider = viewPermissionProvider;
@@ -110,6 +119,7 @@ public class ViewProcessContext {
     _overrideOperationCompiler = overrideOperationCompiler;
     _cycleManager = cycleManager;
     _cycleIdentifiers = cycleIdentifiers;
+    _executionCache = executionCache;
   }
 
   public UniqueId getProcessId() {
@@ -225,21 +235,12 @@ public class ViewProcessContext {
     return _executionLogModeSource;
   }
 
-  /**
-   * Returns a lock that a worker should hold for the duration of a graph build.
-   * <p>
-   * This can either be set so that all workers owned by a single process use graph building resources exclusively (that is, all use the same lock) to avoid vast memory requirements during historical
-   * runs that are optimized by parallel worker threads. For this case, the {@link ViewProcessContext} object instance can be used.
-   * <p>
-   * An alternative strategy could be to make the graph builder completely exclusive by returning a static object from here. Doing so would lower memory requirements but could adversely impact on the
-   * performance of a system that runs a large number of relatively simple view processes concurrently.
-   * 
-   * @return the object a worker should lock while it is performing is graph building phase
-   * @deprecated This doesn't belong here; PLAT-3190 will introduce execution digests which the exclusion should be based around
-   */
-  @Deprecated
-  public Object getGraphBuildingLock() {
-    return this;
+  public ViewExecutionCache getExecutionCache() {
+    return _executionCache;
+  }
+
+  public ViewExecutionCacheLock getExecutionCacheLock() {
+    return _executionCacheLock;
   }
 
   // -------------------------------------------------------------------------

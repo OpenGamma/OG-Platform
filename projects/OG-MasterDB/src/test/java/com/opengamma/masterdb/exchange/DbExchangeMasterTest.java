@@ -24,10 +24,12 @@ import com.opengamma.master.exchange.ExchangeDocument;
 import com.opengamma.master.exchange.ManageableExchange;
 import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test DbExchangeMaster.
  */
+@Test(groups = TestGroup.UNIT_DB)
 public class DbExchangeMasterTest extends DbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DbExchangeMasterTest.class);

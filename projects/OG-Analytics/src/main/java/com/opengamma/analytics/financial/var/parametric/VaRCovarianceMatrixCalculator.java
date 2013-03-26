@@ -21,7 +21,7 @@ import com.opengamma.analytics.financial.sensitivity.Sensitivity;
 import com.opengamma.analytics.math.function.Function;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.DoubleTimeSeries;
 
 /**
  * 

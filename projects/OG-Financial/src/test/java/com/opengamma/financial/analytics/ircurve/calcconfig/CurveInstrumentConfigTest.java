@@ -15,11 +15,14 @@ import org.testng.annotations.Test;
 
 import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
 import com.opengamma.financial.fudgemsg.FinancialTestBase;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class CurveInstrumentConfigTest extends FinancialTestBase {
+
   private static final String FUNDING_CURVE_NAME = "Funding";
   private static final String FORWARD_3M_CURVE_NAME = "Forward3M";
   private static final CurveInstrumentConfig FUNDING_CONFIG;

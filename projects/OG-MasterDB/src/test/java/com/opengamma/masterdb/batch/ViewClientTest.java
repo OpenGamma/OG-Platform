@@ -14,6 +14,8 @@ import static org.mockito.MockitoAnnotations.initMocks;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
+import java.io.Serializable;
+
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.testng.annotations.BeforeMethod;
@@ -158,6 +160,11 @@ public class ViewClientTest {
         @Override
         public MarketDataAvailabilityFilter getAvailabilityFilter() {
           throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Serializable getAvailabilityHintKey() {
+          return underlying.getAvailabilityHintKey();
         }
 
       };

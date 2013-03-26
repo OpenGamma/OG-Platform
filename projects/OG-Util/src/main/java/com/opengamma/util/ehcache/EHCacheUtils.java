@@ -5,24 +5,39 @@
  */
 package com.opengamma.util.ehcache;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
-
-import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.util.ArgumentChecker;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicReference;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.config.Configuration;
+import net.sf.ehcache.config.ConfigurationFactory;
+
+import org.apache.commons.io.IOUtils;
+
+import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Utilities for working with EHCache.
  */
 public final class EHCacheUtils {
 
-  /** The default Ehcache configuration file name */
+  /** The set of unique names already seen. */
+  private static final ConcurrentMap<String, String> UNIQUE_TEST_NAMES = new ConcurrentHashMap<>();
+  /** The default Ehcache configuration file name. */
   private static final String DEFAULT_EHCACHE_CONFIG_FILE = "/com/opengamma/util/ehcache/default-ehcache.xml";
+  /** The default test Ehcache configuration file name. */
+  private static final String DEFAULT_TEST_EHCACHE_CONFIG_FILE = "/com/opengamma/util/ehcache/test-ehcache.xml";
+  /** The cached content of the default config file. */
+  private static final AtomicReference<byte[]> CONFIG_TEST_FILE_BYTES = new AtomicReference<>();
 
   /** Null value to cache */
   private static final Object NULL = new Object();
@@ -33,6 +48,62 @@ public final class EHCacheUtils {
   private EHCacheUtils() {
   }
 
+  /**
+   * Creates a unique cache manager.
+   * 
+   * @param uniqueName  the unique name, typically a test case class
+   * @return the unique cache manager, not null
+   */
+  public static CacheManager createTestCacheManager(Class<?> uniqueName) {
+    ArgumentChecker.notNull(uniqueName, "uniqueName");
+    return createTestCacheManager(uniqueName.getName());
+  }
+
+  /**
+   * Creates a unique cache manager.
+   * 
+   * @param uniqueName  the unique name, typically a test case class name
+   * @return the unique cache manager, not null
+   */
+  public static CacheManager createTestCacheManager(String uniqueName) {
+    ArgumentChecker.notNull(uniqueName, "uniqueName");
+    if (UNIQUE_TEST_NAMES.putIfAbsent(uniqueName, uniqueName) != null) {
+      throw new OpenGammaRuntimeException("CacheManager has already been created with unique name: " + uniqueName);
+    }
+    try {
+      InputStream configStream = getTestEhCacheConfig();
+      Configuration config = ConfigurationFactory.parseConfiguration(configStream);
+      config.setName(uniqueName);
+      return CacheManager.newInstance(config);
+    } catch (CacheException ex) {
+      throw new OpenGammaRuntimeException("Unable to create CacheManager", ex);
+    }
+  }
+
+  private static synchronized InputStream getTestEhCacheConfig() {
+    byte[] bytes = CONFIG_TEST_FILE_BYTES.get();
+    if (bytes == null) {
+      String ehcacheConfigFile = DEFAULT_TEST_EHCACHE_CONFIG_FILE;
+      String overrideEhcacheConfigFile = System.getProperty("ehcache.config"); // passed in by Ant
+      if (overrideEhcacheConfigFile != null) {
+        ehcacheConfigFile = overrideEhcacheConfigFile;
+        System.err.println("Using ehcache.config from system property: " + ehcacheConfigFile);
+      } else {
+        System.err.println("Using default test ehcache.config file name: " + ehcacheConfigFile);
+      }
+      InputStream in = EHCacheUtils.class.getResourceAsStream(ehcacheConfigFile);
+      try {
+        bytes = IOUtils.toByteArray(in);
+      } catch (IOException ex) {
+        throw new OpenGammaRuntimeException("Unable to read cache configuration", ex);
+      }
+      CONFIG_TEST_FILE_BYTES.compareAndSet(null, bytes);
+      bytes = CONFIG_TEST_FILE_BYTES.get();
+    }
+    return new ByteArrayInputStream(bytes);
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Creates/returns the singleton cache manager using the default configuration. This should be used only in a test
    * environment; in other environments a properly configured cache manager should be injected.
@@ -50,6 +121,8 @@ public final class EHCacheUtils {
    *     configuration, or return the existing singleton.
    *   new CacheManager(Configuration configuration) – Create a new CacheManager, or throw an exception if the
    *     CacheManager named in the configuration already exists or if the parameter (configuration) is null.
+   * <p>
+   * Tests should use {@link #createTestCacheManager(String)} or {@link #createTestCacheManager(Class)}.
    *
    * @return the cache manager, not null
    */
@@ -61,7 +134,7 @@ public final class EHCacheUtils {
     }
   }
 
-  public static synchronized InputStream getEhCacheConfig() {
+  private static synchronized InputStream getEhCacheConfig() {
     String ehcacheConfigFile = DEFAULT_EHCACHE_CONFIG_FILE;
     String overrideEhcacheConfigFile = System.getProperty("ehcache.config"); // passed in by Ant
     if (overrideEhcacheConfigFile != null) {
@@ -73,7 +146,7 @@ public final class EHCacheUtils {
     return EHCacheUtils.class.getResourceAsStream(ehcacheConfigFile);
   }
 
-
+  //-------------------------------------------------------------------------
   /**
    * Clears the contents of all caches (without deleting the caches themselves). Should be called e.g. between tests.
    * 
@@ -84,7 +157,17 @@ public final class EHCacheUtils {
   public static void clearAll() {
     CacheManager.create().clearAll();
   }
-  
+
+  /**
+   * Clears the contents of a cache manager.
+   * 
+   * @param cacheManager  the cache manager, not null
+   */
+  public static void clear(CacheManager cacheManager) {
+    ArgumentChecker.notNull(cacheManager, "cacheManager");
+    cacheManager.clearAll();
+  }
+
   /**
    * Clears the contents of a named cache, if that cache exists, without deleting the cache itself.
    * 

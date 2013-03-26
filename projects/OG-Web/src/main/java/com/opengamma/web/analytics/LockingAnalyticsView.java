@@ -33,10 +33,10 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public List<String> updateColumns(CompiledViewDefinition compiledViewDefinition) {
+  public List<String> updateStructure(CompiledViewDefinition compiledViewDefinition) {
     try {
       _lock.writeLock().lock();
-      return _delegate.updateColumns(compiledViewDefinition);
+      return _delegate.updateStructure(compiledViewDefinition);
     } finally {
       _lock.writeLock().unlock();
     }

@@ -23,11 +23,12 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the {@link DefaultFunctionBlacklistQuery} class.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class DefaultFunctionBlacklistQueryTest {
 
   private final ParameterizedFunction _function1;

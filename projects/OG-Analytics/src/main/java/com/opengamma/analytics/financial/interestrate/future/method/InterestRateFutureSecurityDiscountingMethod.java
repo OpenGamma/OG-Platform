@@ -62,21 +62,6 @@ public final class InterestRateFutureSecurityDiscountingMethod extends InterestR
   }
 
   /**
-   * Computes the future rate (1-price) from the curves using an estimation of the future rate without convexity adjustment.
-   * @param future The future.
-   * @param curves The yield curves. Should contain the forward curve associated.
-   * @return The rate.
-   */
-  public double parRate(final InterestRateFutureSecurity future, final YieldCurveBundle curves) {
-    Validate.notNull(future, "Future");
-    Validate.notNull(curves, "Curves");
-    final YieldAndDiscountCurve forwardCurve = curves.getCurve(future.getForwardCurveName());
-    final double forward = (forwardCurve.getDiscountFactor(future.getFixingPeriodStartTime()) / forwardCurve.getDiscountFactor(future.getFixingPeriodEndTime()) - 1)
-        / future.getFixingPeriodAccrualFactor();
-    return forward;
-  }
-
-  /**
    * Compute the price sensitivity to rates of an interest rate future by discounting.
    * @param future The future.
    * @param curves The yield curves. Should contain the forward curve associated.
@@ -105,9 +90,48 @@ public final class InterestRateFutureSecurityDiscountingMethod extends InterestR
     return result;
   }
 
+  /**
+   * Computes the future rate (1-price) from the curves using an estimation of the future rate without convexity adjustment.
+   * @param future The future.
+   * @param curves The yield curves. Should contain the forward curve associated.
+   * @return The rate.
+   */
+  public double parRate(final InterestRateFutureSecurity future, final YieldCurveBundle curves) {
+    Validate.notNull(future, "Future");
+    Validate.notNull(curves, "Curves");
+    final YieldAndDiscountCurve forwardCurve = curves.getCurve(future.getForwardCurveName());
+    final double forward = (forwardCurve.getDiscountFactor(future.getFixingPeriodStartTime()) / forwardCurve.getDiscountFactor(future.getFixingPeriodEndTime()) - 1)
+        / future.getFixingPeriodAccrualFactor();
+    return forward;
+  }
+
+  /**
+   * Computes the future rate (1-price) curve sensitivity from the curves using an estimation of the future rate without convexity adjustment.
+   * @param future The future.
+   * @param curves The yield curves. Should contain the forward curve associated.
+   * @return The rate curve sensitivity.
+   */
+  public InterestRateCurveSensitivity parRateCurveSensitivity(final InterestRateFutureSecurity future, final YieldCurveBundle curves) {
+    Validate.notNull(future, "Future");
+    Validate.notNull(curves, "Curves");
+    final String curveName = future.getForwardCurveName();
+    final YieldAndDiscountCurve curve = curves.getCurve(curveName);
+    final double ta = future.getFixingPeriodStartTime();
+    final double tb = future.getFixingPeriodEndTime();
+    final double ratio = curve.getDiscountFactor(ta) / curve.getDiscountFactor(tb) / future.getFixingPeriodAccrualFactor();
+    final DoublesPair s1 = new DoublesPair(ta, -ta * ratio);
+    final DoublesPair s2 = new DoublesPair(tb, tb * ratio);
+    final List<DoublesPair> temp = new ArrayList<DoublesPair>();
+    temp.add(s1);
+    temp.add(s2);
+    final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
+    result.put(curveName, temp);
+    return new InterestRateCurveSensitivity(result);
+  }
+
   @Override
   public CurrencyAmount presentValue(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
-    return null;
+    throw new UnsupportedOperationException("Present value not supported for STIR futures securities");
   }
 
   @Override

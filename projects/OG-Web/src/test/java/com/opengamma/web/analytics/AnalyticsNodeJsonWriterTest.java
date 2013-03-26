@@ -14,10 +14,12 @@ import org.json.JSONException;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests that {@link AnalyticsNodeJsonWriter} creates the expected JSON.
  */
+@Test(groups = TestGroup.UNIT)
 public class AnalyticsNodeJsonWriterTest {
 
   @Test

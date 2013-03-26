@@ -20,6 +20,9 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.fudgemsg.FudgeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.opengamma.OpenGammaRuntimeException;
@@ -42,6 +45,7 @@ import com.opengamma.transport.socket.SocketFudgeConnection;
 import com.opengamma.util.ThreadUtils;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
 
 import net.sf.ehcache.CacheManager;
@@ -52,6 +56,7 @@ import net.sf.ehcache.config.Configuration;
  * A test of the remote View Computation Cache Source infrastucture operating
  * over proper sockets.
  */
+@Test(groups = {TestGroup.INTEGRATION, "ehcache"})
 public class ServerSocketRemoteViewComputationCacheTest {
   private static final Logger s_logger = LoggerFactory.getLogger(ServerSocketRemoteViewComputationCacheTest.class);
   private static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();
@@ -62,6 +67,24 @@ public class ServerSocketRemoteViewComputationCacheTest {
   private ServerSocketFudgeConnectionReceiver _serverSocket;
   private SocketFudgeConnection _socket;
 
+  private CacheManager _cacheManager;
+
+  @BeforeClass
+  public void setUpClass() {
+    _cacheManager = EHCacheUtils.createTestCacheManager(getClass());
+  }
+
+  @AfterClass
+  public void tearDownClass() {
+    EHCacheUtils.shutdownQuiet(_cacheManager);
+  }
+
+  @BeforeMethod
+  public void setUp() {
+    EHCacheUtils.clear(_cacheManager);
+  }
+
+  //-------------------------------------------------------------------------
   private void setupCacheSource(final boolean lazyReads, final int cacheSize, final int flushDelay) {
     InMemoryViewComputationCacheSource cache = new InMemoryViewComputationCacheSource(s_fudgeContext);
     ViewComputationCacheServer server = new ViewComputationCacheServer(cache);
@@ -83,9 +106,8 @@ public class ServerSocketRemoteViewComputationCacheTest {
     CacheConfiguration cacheConfig = new CacheConfiguration();
     cacheConfig.setMaxElementsInMemory(cacheSize);
     configuration.setDefaultCacheConfiguration(cacheConfig);
-    CacheManager cacheManager = EHCacheUtils.createCacheManager();
     _cacheSource = new RemoteViewComputationCacheSource(client, new DefaultFudgeMessageStoreFactory(
-        new InMemoryBinaryDataStoreFactory(), s_fudgeContext), cacheManager);
+        new InMemoryBinaryDataStoreFactory(), s_fudgeContext), _cacheManager);
   }
 
   private void shutDown() {

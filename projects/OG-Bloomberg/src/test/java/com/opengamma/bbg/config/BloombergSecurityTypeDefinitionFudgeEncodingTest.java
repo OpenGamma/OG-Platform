@@ -62,14 +62,14 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 import org.testng.annotations.Test;
 
-import com.opengamma.bbg.config.BloombergSecurityTypeDefinition;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test conversion of {@link BloombergSecurityTypeDefinition} to/from Fudge messages.
  */
-@Test(groups="unit")
+@Test(groups = TestGroup.UNIT)
 public class BloombergSecurityTypeDefinitionFudgeEncodingTest {
 
   private static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();

@@ -55,6 +55,7 @@ import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.impl.AbstractSecurityLoader;
 import com.opengamma.master.security.impl.InMemorySecurityMaster;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.web.FreemarkerOutputter;
 import com.opengamma.web.MockUriInfo;
 import com.opengamma.web.WebResourceTestUtils;
@@ -83,7 +84,7 @@ public abstract class AbstractWebPositionResourceTestCase {
   protected List<ManageableTrade> _trades;
   protected UriInfo _uriInfo;
 
-  @BeforeMethod
+  @BeforeMethod(groups = TestGroup.UNIT)
   public void setUp() throws Exception {
     _uriInfo = new MockUriInfo();
     _trades = getTrades();

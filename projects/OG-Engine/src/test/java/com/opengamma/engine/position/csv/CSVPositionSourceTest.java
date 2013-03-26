@@ -27,11 +27,12 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test CSVPositionSource.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class CSVPositionSourceTest {
 
   private static UniqueId UID = UniqueId.of("A", "B");

@@ -13,12 +13,13 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 import org.threeten.bp.Period;
 
-import com.opengamma.util.time.DateUtils;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.Tenor;
 
 /**
  * Test FixedIncomeStrip.
  */
+@Test(groups = TestGroup.UNIT)
 public class FixedIncomeStripTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)

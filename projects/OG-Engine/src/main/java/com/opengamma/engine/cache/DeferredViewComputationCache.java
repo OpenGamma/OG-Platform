@@ -21,15 +21,15 @@ public interface DeferredViewComputationCache extends ViewComputationCache {
 
   void putValue(ComputedValue value, CacheSelectHint filter, DeferredStatistics statistics);
 
-  void putSharedValues(Collection<ComputedValue> values, DeferredStatistics statistics);
+  void putSharedValues(Collection<? extends ComputedValue> values, DeferredStatistics statistics);
 
-  void putPrivateValues(Collection<ComputedValue> values, DeferredStatistics statistics);
+  void putPrivateValues(Collection<? extends ComputedValue> values, DeferredStatistics statistics);
 
-  void putValues(Collection<ComputedValue> values, CacheSelectHint filter, DeferredStatistics statistics);
+  void putValues(Collection<? extends ComputedValue> values, CacheSelectHint filter, DeferredStatistics statistics);
 
   /**
    * Cause all put operations issued by this thread to complete. This may block until the operations have completed or return an asynchronous handle to that additional work can be done.
    */
   void flush() throws AsynchronousExecution;
-  
+
 }

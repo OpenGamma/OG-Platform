@@ -7,6 +7,9 @@ package com.opengamma.engine.target;
 
 import java.io.ObjectStreamException;
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
@@ -15,6 +18,7 @@ import com.opengamma.core.position.PositionOrTrade;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.fudgemsg.ComputationTargetTypeFudgeBuilder;
+import com.opengamma.engine.target.resolver.CreditCurveIdentifierResolver;
 import com.opengamma.engine.target.resolver.CurrencyResolver;
 import com.opengamma.engine.target.resolver.ObjectResolver;
 import com.opengamma.engine.target.resolver.PrimitiveResolver;
@@ -23,6 +27,7 @@ import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
 import com.opengamma.util.WeakInstanceCache;
+import com.opengamma.util.credit.CreditCurveIdentifier;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 
@@ -34,12 +39,22 @@ public abstract class ComputationTargetType implements Serializable {
 
   private static final long serialVersionUID = 1L;
 
+  /**
+   * Try to keep the instances unique. This reduces the operating memory footprint.
+   */
   private static final WeakInstanceCache<ComputationTargetType> s_computationTargetTypes = new WeakInstanceCache<ComputationTargetType>();
+
+  /**
+   * A map of classes to the computation target types. This is to optimize the {@link #of(Class)} method for common cases used during target resolution. To modify the map, use a copy-and-replace
+   * approach.
+   */
+  private static final AtomicReference<Map<Class<?>, ComputationTargetType>> s_classTypes = new AtomicReference<Map<Class<?>, ComputationTargetType>>(new HashMap<Class<?>, ComputationTargetType>());
 
   /**
    * A full portfolio structure. This will seldom be needed for calculations - the root node is usually more important from an aggregation perspective.
    */
   public static final ObjectComputationTargetType<Portfolio> PORTFOLIO = defaultObject(Portfolio.class, "PORTFOLIO");
+
   /**
    * An ordered list of positions and other portfolio nodes.
    */
@@ -77,6 +92,12 @@ public abstract class ComputationTargetType implements Serializable {
       new UnorderedCurrencyPairResolver());
 
   /**
+   * A credit curve identifier.
+   */
+  public static final PrimitiveComputationTargetType<CreditCurveIdentifier> CREDIT_CURVE_IDENTIFIER = defaultPrimitive(CreditCurveIdentifier.class, "CREDIT_CURVE_IDENTIFIER",
+      new CreditCurveIdentifierResolver());
+
+  /**
    * A wildcard type. This may be used when declaring the target type of a function. It should not be used as part of a target reference as the lack of specific type details will prevent a resolver
    * from producing the concrete target object.
    */
@@ -105,7 +126,10 @@ public abstract class ComputationTargetType implements Serializable {
   }
 
   private static <T extends UniqueIdentifiable> ComputationTargetType defaultType(final Class<T> clazz, final String name) {
-    return of(clazz, name, true);
+    final ComputationTargetType type = of(clazz, name, true);
+    // This is safe; we only get called like this during class initialization
+    s_classTypes.get().put(clazz, type);
+    return type;
   }
 
   private static <T extends UniqueIdentifiable> ObjectComputationTargetType<T> defaultObject(final Class<T> clazz, final String name) {
@@ -121,8 +145,17 @@ public abstract class ComputationTargetType implements Serializable {
   }
 
   public static <T extends UniqueIdentifiable> ComputationTargetType of(final Class<T> clazz) {
+    Map<Class<?>, ComputationTargetType> cache = s_classTypes.get();
+    ComputationTargetType type = cache.get(clazz);
+    if (type != null) {
+      return type;
+    }
     ArgumentChecker.notNull(clazz, "clazz");
-    return of(clazz, clazz.getSimpleName(), false);
+    type = of(clazz, clazz.getSimpleName(), false);
+    final Map<Class<?>, ComputationTargetType> updatedCache = new HashMap<Class<?>, ComputationTargetType>(cache);
+    updatedCache.put(clazz, type);
+    s_classTypes.compareAndSet(cache, updatedCache);
+    return type;
   }
 
   public ComputationTargetType containing(final Class<? extends UniqueIdentifiable> clazz) {

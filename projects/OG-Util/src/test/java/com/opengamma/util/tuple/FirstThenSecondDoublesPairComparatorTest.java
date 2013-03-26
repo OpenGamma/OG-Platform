@@ -9,10 +9,12 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Test FirstThenSecondDoublesPairComparator.
  */
-@Test(groups = "unit")
+@Test(groups = TestGroup.UNIT)
 public class FirstThenSecondDoublesPairComparatorTest {
 
   public void testSingleton() {

@@ -9,7 +9,7 @@ import static com.opengamma.analytics.financial.timeseries.util.TimeSeriesDataTe
 import static com.opengamma.analytics.financial.timeseries.util.TimeSeriesDataTestUtils.testTimeSeriesSize;
 
 import com.opengamma.analytics.math.function.Function;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.DoubleTimeSeries;
 
 /**
  * Base class for calculating the covariance of two time series.

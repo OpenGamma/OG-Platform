@@ -27,11 +27,13 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.exchange.ExchangeDocument;
 import com.opengamma.master.exchange.ExchangeMaster;
 import com.opengamma.master.exchange.ManageableExchange;
+import com.opengamma.util.test.TestGroup;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**
  * Tests DataExchangeResource.
  */
+@Test(groups = TestGroup.UNIT)
 public class DataExchangeResourceTest {
 
   private static final ObjectId OID = ObjectId.of("Test", "PosA");

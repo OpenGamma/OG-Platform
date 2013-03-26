@@ -11,11 +11,12 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class OpenGammaComponentServerTest extends AbstractFudgeBuilderTestCase {
 
   @DataProvider(name = "extractName")

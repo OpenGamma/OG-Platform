@@ -7,8 +7,8 @@ package com.opengamma.analytics.financial.var;
 
 import java.util.Arrays;
 
+import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  *

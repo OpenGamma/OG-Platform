@@ -7,20 +7,39 @@ package com.opengamma.livedata.server;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import net.sf.ehcache.CacheManager;
+
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.opengamma.id.ExternalScheme;
+import com.opengamma.util.ehcache.EHCacheUtils;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test.
  */
-@Test(groups = "unit")
+@Test(groups = {TestGroup.INTEGRATION, "ehcache"})
 public class ReconnectManagerTest {
 
+  private CacheManager _cacheManager;
+
+  @BeforeClass
+  public void setUpClass() {
+    _cacheManager = EHCacheUtils.createTestCacheManager(getClass());
+  }
+
+  @AfterClass
+  public void tearDownClass() {
+    EHCacheUtils.shutdownQuiet(_cacheManager);
+  }
+
+  //-------------------------------------------------------------------------
   @Test
   public void reconnection() throws Exception {
-    MockLiveDataServer server = new MockLiveDataServer(ExternalScheme.of("BLOOMBERG_BUID"));
+    MockLiveDataServer server = new MockLiveDataServer(ExternalScheme.of("BLOOMBERG_BUID"), _cacheManager);
     ReconnectManager manager = new ReconnectManager(server, 20);
     
     try {

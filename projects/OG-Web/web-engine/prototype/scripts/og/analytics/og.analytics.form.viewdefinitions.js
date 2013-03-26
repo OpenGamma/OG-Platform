@@ -52,7 +52,6 @@ $.register_module({
                     data.viewdefinition = vw;
                 }
             });
-
             form.on("form:load", function () {
                 menu = new og.common.util.ui.AutoCombo({
                     selector: '.og-view.og-autocombo',

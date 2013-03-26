@@ -27,7 +27,7 @@ import com.opengamma.util.tuple.Pair;
   }
 
   @Override
-  public ResultsCell getResults(int rowIndex, ResultsCache cache, Class<?> columnType) {
+  public ResultsCell getResults(int rowIndex, ResultsCache cache, Class<?> columnType, Object inlineKey) {
     Pair<String, ValueSpecification> cellTarget = _targetLookup.getTargetForCell(rowIndex, _columnKey);
     if (cellTarget != null) {
       String calcConfigName = cellTarget.getFirst();
@@ -38,7 +38,9 @@ import com.opengamma.util.tuple.Pair;
                                             valueSpec,
                                             cacheResult.getHistory(),
                                             cacheResult.getAggregatedExecutionLog(),
-                                            cacheResult.isUpdated(), columnType);
+                                            cacheResult.isUpdated(),
+                                            columnType,
+                                            inlineKey);
     } else {
       Collection<Object> emptyHistory = cache.emptyHistory(columnType);
       return ResultsCell.empty(emptyHistory, columnType);

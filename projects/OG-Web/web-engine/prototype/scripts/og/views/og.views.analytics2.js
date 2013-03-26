@@ -15,7 +15,10 @@ $.register_module({
                 $('.OG-masthead .og-analytics-beta').addClass('og-active');
                 var new_page = false, layout = og.views.common.layout;
                 view.check_state({args: args, conditions: [
-                    {new_page: function () {new_page = true; og.analytics.containers.initialize();}}
+                    {new_page: function () {
+                        new_page = true;
+                        og.analytics.containers.initialize();
+                    }}
                 ]});
                 og.api.text({module: 'og.views.analytics.default', handler: function (template) {
                     var layout = og.views.common.layout,

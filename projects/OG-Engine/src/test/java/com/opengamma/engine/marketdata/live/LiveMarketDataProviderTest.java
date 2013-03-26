@@ -31,11 +31,12 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.livedata.test.TestLiveDataClient;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test LiveDataSnapshotProvider.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class LiveMarketDataProviderTest {
 
   private static final String _marketDataRequirement = MarketDataRequirementNames.MARKET_VALUE;

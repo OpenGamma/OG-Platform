@@ -17,12 +17,13 @@ import java.util.concurrent.ScheduledExecutorService;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.test.Timeout;
 
 /**
  * Tests the {@link FunctionBlacklistRuleSet} class.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class FunctionBlacklistRuleSetTest {
 
   public void testEmpty() throws Exception {

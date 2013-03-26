@@ -102,29 +102,62 @@ public final class EquitySecurityUtils {
    * BUID (if the security is an equity index option) are handled.
    * For a Bloomberg ticker, the suffix is stripped (SPX Index -> SPX). For a BUID, the last three letters are assumed to be
    * the name.
-   * @param uniqueId The unique id, not null
+   * @param externalId The unique id, not null
    * @return The equity or index name, null if the underlying id is not a BUID or Bloomberg ticker
    */
-  public static String getIndexOrEquityName(final UniqueId uniqueId) {
+  public static String getIndexOrEquityName(final ExternalId externalId) {
     //FIXME: Modify to take ExternalId to avoid incorrect cast to UniqueId
-    ArgumentChecker.notNull(uniqueId, "unique id");
-    final String value = uniqueId.getValue();
-    final String scheme = uniqueId.getScheme();
-    if (scheme.equals(ExternalSchemes.BLOOMBERG_BUID.getName()) || scheme.equals(ExternalSchemes.BLOOMBERG_BUID_WEAK.getName())) {
+    ArgumentChecker.notNull(externalId, "unique id");
+    final String value = externalId.getValue();
+    final ExternalScheme extScheme = externalId.getScheme();
+
+    if (extScheme.equals(ExternalSchemes.BLOOMBERG_BUID) || extScheme.equals(ExternalSchemes.BLOOMBERG_BUID_WEAK)) {
       final int length = value.length();
       return value.substring(length - 3, length).toUpperCase(); //TODO fix this
     }
-    if (scheme.equals(ExternalSchemes.BLOOMBERG_TICKER.getName()) || scheme.equals(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName())) {
+    if (extScheme.equals(ExternalSchemes.BLOOMBERG_TICKER) || extScheme.equals(ExternalSchemes.BLOOMBERG_TICKER_WEAK)) {
       final int lastSpace = value.lastIndexOf(" ");
       return value.substring(0, lastSpace);
     }
-    if (scheme.equals(ExternalSchemes.ACTIVFEED_TICKER.getName())) {
+    if (extScheme.equals(ExternalSchemes.ACTIVFEED_TICKER)) {
       final int firstDot = value.indexOf(".", 0);
       return value.substring(0, firstDot + 1); // e.g. "IBM."
     }
-    s_logger.info("Cannot handle scheme of type {}", scheme);
+    s_logger.info("Cannot handle scheme of type {}", extScheme);
     return null;
   }
+  
+  
+  
+  /*
+   * 
+   *   public static String getIndexOrEquityName(final UniqueId uniqueId) {
+    //FIXME: Modify to take ExternalId to avoid incorrect cast to UniqueId
+    ArgumentChecker.notNull(uniqueId, "unique id");
+    final String value = uniqueId.getValue();
+    final String uidScheme = uniqueId.getScheme();
+    final String extScheme;
+    if (uidScheme.substring(0, 11).equalsIgnoreCase("ExternalId-")) {
+      extScheme = uidScheme.substring(11);
+    } else {
+      extScheme = uidScheme;
+    }
+    if (extScheme.equals(ExternalSchemes.BLOOMBERG_BUID.getName()) || extScheme.equals(ExternalSchemes.BLOOMBERG_BUID_WEAK.getName())) {
+      final int length = value.length();
+      return value.substring(length - 3, length).toUpperCase(); //TODO fix this
+    }
+    if (extScheme.equals(ExternalSchemes.BLOOMBERG_TICKER.getName()) || extScheme.equals(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName())) {
+      final int lastSpace = value.lastIndexOf(" ");
+      return value.substring(0, lastSpace);
+    }
+    if (extScheme.equals(ExternalSchemes.ACTIVFEED_TICKER.getName())) {
+      final int firstDot = value.indexOf(".", 0);
+      return value.substring(0, firstDot + 1); // e.g. "IBM."
+    }
+    s_logger.info("Cannot handle scheme of type {}", uidScheme);
+    return null;
+  }
+   */
 
   /**
    * Removes the postfix if the uid is a Bloomberg ticker.

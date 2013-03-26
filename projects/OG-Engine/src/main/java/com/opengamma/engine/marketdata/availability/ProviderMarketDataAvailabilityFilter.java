@@ -5,6 +5,9 @@
  */
 package com.opengamma.engine.marketdata.availability;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -53,6 +56,14 @@ public class ProviderMarketDataAvailabilityFilter implements MarketDataAvailabil
         @Override
         public MarketDataAvailabilityFilter getAvailabilityFilter() {
           return ProviderMarketDataAvailabilityFilter.this;
+        }
+
+        @Override
+        public Serializable getAvailabilityHintKey() {
+          final ArrayList<Serializable> key = new ArrayList<Serializable>(2);
+          key.add(getProvider().getAvailabilityHintKey());
+          key.add(provider.getAvailabilityHintKey());
+          return key;
         }
 
       };

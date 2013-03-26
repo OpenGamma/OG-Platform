@@ -48,7 +48,10 @@ $.register_module({
                         source: options, 
                         id: scheme_id, name :scheme_id,
                         no_arrow: true,
-                        select: function( event, ui ) {callback();},
+                        select: function( event, ui ) {
+                            $(select_id()).val(ui.item.value);
+                            callback();
+                        },
                         value: scheme_value,
                         disabled: config.edit
                     });

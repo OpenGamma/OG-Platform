@@ -71,7 +71,15 @@
 			<arg value="classpath:fullstack${file.separator}fullstack-example-dev.properties" />
 		</java>
 	</target>
-
+	
+	<target name="db-manager" depends="compile-src,jetty-stop">
+	  <java classpathref="jetty.run.path" classname="org.hsqldb.util.DatabaseManagerSwing" fork="true" spawn="false">
+	    <jvmarg value="-Xms${jetty.initialheap}" />
+	    <jvmarg value="-Xmx${jetty.maxheap}" />
+	    <jvmarg value="-XX:MaxPermSize=${jetty.maxpermgen}" />
+	  </java>
+	</target>
+	
 	<target name="run-engine" depends="init-database">
 		<java classpathref="jetty.run.path" classname="com.opengamma.component.OpenGammaComponentServer" fork="true" spawn="false">
 			<jvmarg value="-Dlogback.configurationFile=com/opengamma/util/warn-logback.xml" />

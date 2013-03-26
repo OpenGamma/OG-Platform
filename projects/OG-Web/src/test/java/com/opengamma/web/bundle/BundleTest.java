@@ -16,11 +16,12 @@ import java.util.List;
 import org.testng.annotations.Test;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test Bundle.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class BundleTest {
 
   static final String JS_BUNDLE_COMMON_JS = "jsBundleCommon.js";
@@ -105,7 +106,7 @@ public class BundleTest {
     assertEquals(FRAG_D, allFragment.get(7));
   }
 
-  public static Bundle makeCssBundleCommon() {
+  static Bundle makeCssBundleCommon() {
     Bundle cssBundleCommon = new Bundle(OG_COMMON_CSS);
     cssBundleCommon.addChildNode(FRAG_A);
     cssBundleCommon.addChildNode(BUTTON_CSS);
@@ -113,14 +114,14 @@ public class BundleTest {
     return cssBundleCommon;
   }
 
-  public static Bundle makeCssUtil() {
+  static Bundle makeCssUtil() {
     Bundle cssUtil = new Bundle(CSS_UTIL_CSS);
     cssUtil.addChildNode(RESET_CSS);
     cssUtil.addChildNode(LINKS_CSS);
     return cssUtil;
   }
 
-  public static Bundle makejsBundleCommon() {
+  static Bundle makejsBundleCommon() {
     Bundle jsBundleCommon = new Bundle(JS_BUNDLE_COMMON_JS);
     jsBundleCommon.addChildNode(CORE_JS);
     jsBundleCommon.addChildNode(INIT_JS);

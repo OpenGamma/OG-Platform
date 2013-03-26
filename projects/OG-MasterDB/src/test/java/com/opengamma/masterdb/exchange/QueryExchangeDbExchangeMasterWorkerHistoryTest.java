@@ -18,10 +18,12 @@ import com.opengamma.master.exchange.ExchangeHistoryRequest;
 import com.opengamma.master.exchange.ExchangeHistoryResult;
 import com.opengamma.util.paging.PagingRequest;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests QueryExchangeDbExchangeMasterWorker.
  */
+@Test(groups = TestGroup.UNIT_DB)
 public class QueryExchangeDbExchangeMasterWorkerHistoryTest extends AbstractDbExchangeMasterWorkerTest {
   // superclass sets up dummy database
 

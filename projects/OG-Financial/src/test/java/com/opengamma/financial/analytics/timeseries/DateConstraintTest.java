@@ -15,11 +15,12 @@ import org.threeten.bp.Period;
 import org.threeten.bp.ZoneId;
 
 import com.opengamma.engine.function.FunctionExecutionContext;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * Tests the {@link DateConstraint} class.
+ * Test.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class DateConstraintTest {
 
   private final LocalDate referenceDate = LocalDate.of(2010, 4, 23);

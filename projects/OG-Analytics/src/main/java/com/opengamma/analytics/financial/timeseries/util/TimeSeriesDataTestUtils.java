@@ -7,7 +7,7 @@ package com.opengamma.analytics.financial.timeseries.util;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.DoubleTimeSeries;
 
 /**
  * Utility class for test that are performed often on time series.

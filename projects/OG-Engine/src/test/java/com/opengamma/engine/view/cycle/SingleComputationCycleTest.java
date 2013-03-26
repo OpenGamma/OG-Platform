@@ -31,12 +31,13 @@ import com.opengamma.engine.view.impl.ViewProcessImpl;
 import com.opengamma.engine.view.impl.ViewProcessorImpl;
 import com.opengamma.engine.view.worker.ViewProcessWorker;
 import com.opengamma.livedata.UserPrincipal;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.test.Timeout;
 
 /**
  * Tests SingleComputationCycle
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class SingleComputationCycleTest {
 
   private static final long TIMEOUT = Timeout.standardTimeoutMillis();

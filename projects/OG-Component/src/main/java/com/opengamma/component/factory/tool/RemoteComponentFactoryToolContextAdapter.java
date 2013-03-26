@@ -47,6 +47,7 @@ public class RemoteComponentFactoryToolContextAdapter extends ToolContext {
     setSecurityMaster(remoteComponentFactory.getSecurityMaster(classifierPreferences));
     setPositionMaster(remoteComponentFactory.getPositionMaster(classifierPreferences));
     setPortfolioMaster(remoteComponentFactory.getPortfolioMaster(classifierPreferences));
+    setOrganizationMaster(remoteComponentFactory.getOrganizationMaster(classifierPreferences));
     setHistoricalTimeSeriesMaster(remoteComponentFactory.getHistoricalTimeSeriesMaster(classifierPreferences));
     setMarketDataSnapshotMaster(remoteComponentFactory.getMarketDataSnapshotMaster(classifierPreferences));
     
@@ -56,6 +57,7 @@ public class RemoteComponentFactoryToolContextAdapter extends ToolContext {
     setRegionSource(remoteComponentFactory.getRegionSource(classifierPreferences));
     setSecuritySource(remoteComponentFactory.getSecuritySource(classifierPreferences));
     setPositionSource(remoteComponentFactory.getPositionSource(classifierPreferences));
+    setOrganizationSource(remoteComponentFactory.getOrganizationSource(classifierPreferences));
     setHistoricalTimeSeriesSource(remoteComponentFactory.getHistoricalTimeSeriesSource(classifierPreferences));
     setMarketDataSnapshotSource(remoteComponentFactory.getMarketDataSnapshotSource(classifierPreferences));
     

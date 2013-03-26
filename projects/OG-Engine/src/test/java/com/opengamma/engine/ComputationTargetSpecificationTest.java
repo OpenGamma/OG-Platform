@@ -29,11 +29,12 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test ComputationTargetSpecification.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class ComputationTargetSpecificationTest {
 
   private static final UniqueId UID = UniqueId.of("Test", "1");

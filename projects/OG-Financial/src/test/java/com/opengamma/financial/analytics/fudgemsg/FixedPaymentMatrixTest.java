@@ -16,10 +16,12 @@ import com.opengamma.financial.analytics.cashflow.FixedPaymentMatrix;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 
 /**
  *
  */
+@Test(groups = TestGroup.UNIT)
 public class FixedPaymentMatrixTest extends AnalyticsTestBase {
 
   @Test

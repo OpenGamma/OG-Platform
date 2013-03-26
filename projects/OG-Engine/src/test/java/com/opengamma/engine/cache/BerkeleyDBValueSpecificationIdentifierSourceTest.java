@@ -35,6 +35,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.monitor.OperationTimer;
+import com.opengamma.util.test.TestGroup;
 import com.sleepycat.je.Environment;
 import com.sleepycat.je.EnvironmentConfig;
 
@@ -45,7 +46,7 @@ import com.sleepycat.je.EnvironmentConfig;
 /**
  * A simple unit test of {@link BerkeleyDBIdentifierMap}.
  */
-@Test
+@Test(groups = TestGroup.INTEGRATION)
 public class BerkeleyDBValueSpecificationIdentifierSourceTest {
   private static final Logger s_logger = LoggerFactory.getLogger(BerkeleyDBValueSpecificationIdentifierSourceTest.class);
   private static Set<File> s_dbDirsToDelete = new HashSet<File>();

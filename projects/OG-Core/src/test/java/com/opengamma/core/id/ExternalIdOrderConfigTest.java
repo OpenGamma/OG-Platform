@@ -14,11 +14,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the {@link ExternalIdOrderConfig} class.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class ExternalIdOrderConfigTest {
 
   public void testGetPreferred_empty() {

@@ -32,11 +32,12 @@ import com.opengamma.master.config.ConfigMetaDataRequest;
 import com.opengamma.master.config.ConfigMetaDataResult;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test {@link InMemoryConfigMaster}.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class InMemoryConfigMasterTest {
 
   private static final UniqueId OTHER_UID = UniqueId.of("U", "1");

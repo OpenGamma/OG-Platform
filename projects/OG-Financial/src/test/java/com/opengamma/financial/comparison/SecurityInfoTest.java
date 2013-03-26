@@ -11,11 +11,12 @@ import static org.testng.Assert.assertTrue;
 import org.testng.annotations.Test;
 
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * Tests the SecurityInfo class.
+ * Test.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class SecurityInfoTest extends AbstractTest {
 
   public void testRawSecurity() {

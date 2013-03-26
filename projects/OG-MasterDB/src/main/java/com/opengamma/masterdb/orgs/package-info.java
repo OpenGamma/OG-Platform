@@ -5,6 +5,6 @@
  */
 
 /**
- * Organisation master implementation using an SQL database.
+ * Organization master implementation using an SQL database.
  */
 package com.opengamma.masterdb.orgs;

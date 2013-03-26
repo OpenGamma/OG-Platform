@@ -12,10 +12,12 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.threeten.bp.Instant;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Test {@link VersionCorrection}. 
  */
-@Test(groups = "unit")
+@Test(groups = TestGroup.UNIT)
 public class VersionCorrectionTest {
 
   private static final Instant INSTANT1 = Instant.ofEpochSecond(1);
@@ -117,7 +119,7 @@ public class VersionCorrectionTest {
   }
 
   @DataProvider(name = "parseInvalid")
-  public Object[][] data_parseInvalid() {
+  Object[][] data_parseInvalid() {
     return new Object[][] {
         {"1970-01-01T00:00:01Z.C1970-01-01T00:00:02Z"},  // no V
         {"V1970-01-01T00:00:01Z.1970-01-01T00:00:02Z"},  // no C

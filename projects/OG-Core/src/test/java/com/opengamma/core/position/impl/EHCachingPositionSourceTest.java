@@ -11,7 +11,11 @@ import static org.testng.Assert.assertSame;
 
 import java.math.BigDecimal;
 
+import net.sf.ehcache.CacheManager;
+
 import org.mockito.Mockito;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.threeten.bp.Instant;
 
@@ -22,17 +26,27 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ehcache.EHCacheUtils;
-
-import net.sf.ehcache.CacheManager;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the {@link EHCachingPositionSource} class.
  */
-@Test
+@Test(groups = {TestGroup.UNIT, "ehcache"})
 public class EHCachingPositionSourceTest {
 
-  private CacheManager _cacheManager = EHCacheUtils.createCacheManager();
+  private CacheManager _cacheManager;
 
+  @BeforeClass
+  public void setUpClass() {
+    _cacheManager = EHCacheUtils.createTestCacheManager(EHCachingPositionSourceTest.class);
+  }
+
+  @AfterClass
+  public void tearDownClass() {
+    EHCacheUtils.shutdownQuiet(_cacheManager);
+  }
+
+  //-------------------------------------------------------------------------
   private Position createPosition(final int id) {
     return new SimplePosition(UniqueId.of("Test", Integer.toString(id)), BigDecimal.ONE, ExternalId.of("Foo", Integer.toString(id)));
   }

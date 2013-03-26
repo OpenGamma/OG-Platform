@@ -15,12 +15,13 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.provider.security.SecurityProviderRequest;
 import com.opengamma.provider.security.SecurityProviderResult;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test.
  */
-@Test(groups="unit")
+@Test(groups = TestGroup.UNIT)
 public class NoneFoundSecurityProviderTest {
 
   private static final ExternalIdBundle BUNDLE = ExternalIdBundle.of("A", "B");

@@ -24,13 +24,14 @@ import com.opengamma.financial.temptarget.MockTempTarget;
 import com.opengamma.financial.temptarget.TempTargetRepository;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.rest.UniformInterfaceException404NotFound;
+import com.opengamma.util.test.TestGroup;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.UniformInterface;
 
 /**
  * Tests the {@link RemoteTempTargetRepository} and {@link DataTempTargetRepositoryResource} classes.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class RemoteTempTargetRepositoryTest {
 
   public void testGet() {

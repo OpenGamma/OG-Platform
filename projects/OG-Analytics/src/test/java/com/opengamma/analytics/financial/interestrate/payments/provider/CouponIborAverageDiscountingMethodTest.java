@@ -57,7 +57,7 @@ public class CouponIborAverageDiscountingMethodTest {
   private static final CouponIbor CPN_IBOR_1 = (CouponIbor) CPN_IBOR_DEFINITION_1.toDerivative(REFERENCE_DATE, NOT_USED);
   private static final CouponIbor CPN_IBOR_2 = (CouponIbor) CPN_IBOR_DEFINITION_2.toDerivative(REFERENCE_DATE, NOT_USED);
 
-  private static final CouponIborDiscountingProviderMethod METHOD_CPN_IBOR = CouponIborDiscountingProviderMethod.getInstance();
+  private static final CouponIborDiscountingMethod METHOD_CPN_IBOR = CouponIborDiscountingMethod.getInstance();
   private static final PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();
   private static final PresentValueCurveSensitivityDiscountingCalculator PVCSDC = PresentValueCurveSensitivityDiscountingCalculator.getInstance();
 

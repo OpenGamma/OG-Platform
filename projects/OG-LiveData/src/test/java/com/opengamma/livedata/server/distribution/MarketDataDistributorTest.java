@@ -18,11 +18,12 @@ import com.opengamma.livedata.server.DistributionSpecification;
 import com.opengamma.livedata.server.MapLastKnownValueStoreProvider;
 import com.opengamma.livedata.server.Subscription;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test.
  */
-@Test(groups = "unit")
+@Test(groups = TestGroup.UNIT)
 public class MarketDataDistributorTest {
   public static MarketDataDistributor getTestDistributor(MarketDataSenderFactory factory) {
     MapLastKnownValueStoreProvider lkvStoreProvider = new MapLastKnownValueStoreProvider();

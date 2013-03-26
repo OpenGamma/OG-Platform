@@ -13,12 +13,13 @@ import org.threeten.bp.LocalDate;
 
 import com.opengamma.core.historicaltimeseries.impl.SimpleHistoricalTimeSeries;
 import com.opengamma.id.UniqueId;
-import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the {@link HistoricalTimeSeriesAdjustment} class.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class HistoricalTimeSeriesAdjustmentTest {
 
   private HistoricalTimeSeries createTestSeries() {

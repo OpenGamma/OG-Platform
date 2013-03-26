@@ -19,7 +19,7 @@ import com.opengamma.analytics.financial.interestrate.TestsDataSetsBlack;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuture;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumTransaction;
-import com.opengamma.analytics.financial.interestrate.payments.provider.PaymentFixedDiscountingProviderMethod;
+import com.opengamma.analytics.financial.interestrate.payments.provider.PaymentFixedDiscountingMethod;
 import com.opengamma.analytics.financial.provider.description.IssuerProviderDiscountDataSets;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackBondFuturesSmilePriceProvider;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackBondFuturesSmileProvider;
@@ -106,7 +106,7 @@ public class BondFutureOptionPremiumTransactionBlackSurfaceMethodTest {
   private static final BlackBondFuturesSmilePriceProvider BLACK_PRICE_MULTICURVES = new BlackBondFuturesSmilePriceProvider(BLACK_MULTICURVES, PRICE_FUTURES);
 
   private static final BondFutureDiscountingMethod METHOD_FUTURES = BondFutureDiscountingMethod.getInstance();
-  private static final PaymentFixedDiscountingProviderMethod METHOD_PAY_FIXED = PaymentFixedDiscountingProviderMethod.getInstance();
+  private static final PaymentFixedDiscountingMethod METHOD_PAY_FIXED = PaymentFixedDiscountingMethod.getInstance();
   private static final BondFutureOptionPremiumSecurityBlackSmileMethod METHOD_BLACK_SEC = BondFutureOptionPremiumSecurityBlackSmileMethod.getInstance();
   private static final BondFutureOptionPremiumTransactionBlackSmileMethod METHOD_BLACK_TRA = BondFutureOptionPremiumTransactionBlackSmileMethod.getInstance();
 

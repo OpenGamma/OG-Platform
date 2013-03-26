@@ -9,8 +9,9 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.util.test.TestGroup;
 
-@Test(groups="unit")
+@Test(groups = TestGroup.UNIT)
 public class FutureOptionMarginResolverTest {
 
   @Test

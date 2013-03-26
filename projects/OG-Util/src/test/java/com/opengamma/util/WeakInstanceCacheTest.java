@@ -10,10 +10,12 @@ import static org.testng.Assert.assertSame;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Tests the {@link WeakInstanceCache}.
  */
-@Test(groups = "unit")
+@Test(groups = TestGroup.UNIT)
 public class WeakInstanceCacheTest {
 
   private static final class Foo {

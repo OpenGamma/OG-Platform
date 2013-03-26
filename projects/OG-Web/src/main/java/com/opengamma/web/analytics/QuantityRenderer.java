@@ -21,13 +21,13 @@ import com.opengamma.util.ArgumentChecker;
   /** The rows in the grid. */
   private final List<PortfolioGridRow> _rows;
 
-  /* package */ QuantityRenderer(List<PortfolioGridRow> rows) {
+/* package */ QuantityRenderer(List<PortfolioGridRow> rows) {
     ArgumentChecker.notNull(rows, "rows");
     _rows = rows;
   }
 
   @Override
-  public ResultsCell getResults(int rowIndex, ResultsCache cache, Class<?> columnType) {
+  public ResultsCell getResults(int rowIndex, ResultsCache cache, Class<?> columnType, Object inlineKey) {
     PortfolioGridRow row = _rows.get(rowIndex);
     // TODO this might have been updated but forStaticValue() always says updated=false
     // TODO need to get the appropriate ID and get the object with quantity from the cache. how do I know whether it's

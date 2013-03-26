@@ -16,11 +16,14 @@ import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.financial.analytics.model.FutureOptionExpiries;
 import com.opengamma.financial.fudgemsg.FinancialTestBase;
 import com.opengamma.id.ExternalId;
+import com.opengamma.util.test.TestGroup;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class BloombergEquityFuturePriceCurveInstrumentProviderTest extends FinancialTestBase {
+
   private static final String DATA_FIELD_NAME = MarketDataRequirementNames.IMPLIED_VOLATILITY;
   private static final String POSTFIX = "Equity";
   private static final String SCHEME = ExternalSchemes.BLOOMBERG_BUID_WEAK.getName();

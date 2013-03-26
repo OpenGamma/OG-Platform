@@ -19,7 +19,12 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.cycle.ComputationCycleQuery;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
+import com.opengamma.util.test.TestGroup;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class ComputationCacheQueryBuilderTest extends AbstractFudgeBuilderTestCase {
 
   @Test

@@ -19,10 +19,11 @@ public interface MarketDataPermissionProvider {
 
   /**
    * Checks whether has permission to view market data and returns the values which were in the query but the user <em>doesn't</em> have permission for.
-   *
+   * 
    * @param user The user whose market data permissions should be checked
    * @param specifications The market data to test for
    * @return The values for which the user <em>doesn't</em> have permission
    */
   Set<ValueSpecification> checkMarketDataPermissions(UserPrincipal user, Set<ValueSpecification> specifications);
+
 }

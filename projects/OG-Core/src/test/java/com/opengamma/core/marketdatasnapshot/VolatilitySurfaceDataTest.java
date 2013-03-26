@@ -17,12 +17,14 @@ import org.testng.annotations.Test;
 
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
 
 /**
  * 
  */
+@Test(groups = TestGroup.UNIT)
 public class VolatilitySurfaceDataTest {
 
   @Test

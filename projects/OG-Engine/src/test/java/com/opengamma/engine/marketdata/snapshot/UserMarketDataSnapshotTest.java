@@ -34,10 +34,12 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
 /**
  *
  */
+@Test(groups = TestGroup.UNIT)
 public class UserMarketDataSnapshotTest {
 
   private UnstructuredMarketDataSnapshot generateUnstructured(final ExternalId testValueId, final Double marketValue) {
@@ -50,8 +52,9 @@ public class UserMarketDataSnapshotTest {
     final StructuredMarketDataSnapshot snapshot = mock(StructuredMarketDataSnapshot.class);
     final UniqueId snapshotId = UniqueId.of("TestSnapshot", "1");
     final ExternalId testValueId = ExternalId.of("TestScheme", "Value1");
+    when(snapshot.getUniqueId()).thenReturn(snapshotId);
     when(snapshot.getGlobalValues()).thenReturn(generateUnstructured(testValueId, 234d));
-    final UserMarketDataSnapshot userSnapshot = new UserMarketDataSnapshot(snapshot, snapshotId);
+    final UserMarketDataSnapshot userSnapshot = new UserMarketDataSnapshot(snapshot);
     userSnapshot.init();
     final YieldCurveSnapshot yieldCurveSnapshot = mock(YieldCurveSnapshot.class);
     when(yieldCurveSnapshot.getValues()).thenReturn(generateUnstructured(testValueId, 123d));

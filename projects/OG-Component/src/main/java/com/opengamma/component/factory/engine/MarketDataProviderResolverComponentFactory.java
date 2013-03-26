@@ -25,7 +25,6 @@ import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.engine.marketdata.CombinedMarketDataProviderFactory;
 import com.opengamma.engine.marketdata.MarketDataProviderFactory;
-import com.opengamma.engine.marketdata.availability.OptimisticMarketDataAvailabilityFilter;
 import com.opengamma.engine.marketdata.historical.HistoricalMarketDataProviderFactory;
 import com.opengamma.engine.marketdata.historical.LatestHistoricalMarketDataProviderFactory;
 import com.opengamma.engine.marketdata.resolver.MarketDataProviderResolver;
@@ -106,8 +105,7 @@ public class MarketDataProviderResolverComponentFactory extends AbstractComponen
   }
 
   protected MarketDataProviderFactory initUserMarketDataProviderFactory() {
-    // [PLAT-1459] This shouldn't be the optimistic data availability filter, but one representative of the filters used by the actual live data providers
-    return new UserMarketDataProviderFactory(getMarketDataSnapshotSource(), new OptimisticMarketDataAvailabilityFilter());
+    return new UserMarketDataProviderFactory(getMarketDataSnapshotSource());
   }
 
   protected MarketDataProviderFactory initCombinedMarketDataProviderFactory(final MarketDataProviderResolver underlyingResolver) {

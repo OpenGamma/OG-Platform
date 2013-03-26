@@ -20,12 +20,13 @@ import org.testng.annotations.Test;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.test.Timeout;
 
 /**
  * Tests the {@link AbstractFunctionBlacklistRuleListener} class.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class FunctionBlacklistRuleListenerTest {
 
   private final FunctionBlacklistRule RULE_1 = new FunctionBlacklistRule();

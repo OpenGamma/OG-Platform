@@ -173,8 +173,12 @@ $.register_module({
                 if (menu.$dom) {
                     $query = $('.datasources-query', menu.$dom.toggle);
                     if (menu.$dom.menu)
-                        menu.$dom.menu.on('click', 'input, button, div.og-icon-delete, a.OG-link-add', menu_handler)
-                            .on('change', 'select', menu_handler);
+                        menu.$dom.menu
+                            .on('click', 'input, button, div.og-icon-delete, a.OG-link-add', menu_handler)
+                            .on('change', 'select', menu_handler)
+                            .on('keypress', 'select.source', function (event) {
+                                if (event.keyCode === 13) return form.submit();
+                            });
                     menu.opts.forEach(function (entry, idx) { source_handler(idx, true); });
                     og.common.events.on('datasources:dropmenu:open', function() {menu.fire('dropmenu:open', this);});
                     og.common.events.on('datasources:dropmenu:close', function() {menu.fire('dropmenu:close', this);});
@@ -300,29 +304,34 @@ $.register_module({
                 });
             };
 
-            $.when(
+            form.Block.call(block, {
+                data: { providers: [] },
+                module: 'og.analytics.form_datasources_loading_tash',
+                processor: function (data) {
+                    data.providers = serialize();
+                }
+            });
+
+            $.when( //TODO AG: Automate this process when an endpoint is available for datasource types
                 og.api.rest.livedatasources.get({}),
                 og.api.rest.configs.get({type: 'HistoricalTimeSeriesRating'}),
                 og.api.rest.marketdatasnapshots.get({})
             ).pipe(function (live, historical, snapshot) {
                 if (live.data.length) types.push({type: 'Live', source: live.data[0]});
-                if (historical.data.data.length)
+                if (historical.data && 'data' in historical.data && historical.data.data.length)
                     types.push({type: 'Historical', source: historical.data.data[0].split('|')[1]});
-                if (snapshot.data[0].snapshots.length)
+                if (snapshot.data.length && snapshot.data[0].snapshots.length)
                     types.push({type: 'Snapshot', source: snapshot.data[0].snapshots[0].id});
                 default_source = $.extend({}, sources[types[0].type.toLowerCase()]);
                 default_source.source = types[0].source;
                 datasources = config.source ? deserialize(config.source) : [default_source];
-                form.Block.call(block, {
-                    data: { providers: [] },
+                new form.Block({
                     module: 'og.analytics.form_datasources_tash',
-                    children: datasources.map(add_row_handler),
-                    processor: function (data) {
-                        data.providers = serialize();
-                    }
+                    children: datasources.map(add_row_handler)
+                }).html(function (html) {
+                    $('.datasource-load').replaceWith(html);
+                    init();
                 });
-                form.on('form:load', init);
-                form.dom();
             });
 
         };

@@ -5,8 +5,6 @@
  */
 package com.opengamma.core;
 
-import static com.google.common.collect.Maps.newHashMap;
-
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
@@ -21,7 +19,6 @@ import org.threeten.bp.Instant;
 
 import com.google.common.collect.MapMaker;
 import com.google.common.collect.Maps;
-import com.opengamma.DataNotFoundException;
 import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeEvent;
 import com.opengamma.core.change.ChangeListener;
@@ -40,12 +37,12 @@ import com.opengamma.util.map.WeakValueHashMap2;
  * A cache decorating a {@code FinancialSecuritySource}.
  * <p>
  * The cache is implemented using {@code EHCache}.
- *
+ * 
  * @param <V> the type returned by the source
  * @param <S> the source
  */
-public abstract class AbstractEHCachingSource<V extends UniqueIdentifiable, S extends Source<V> & ChangeProvider>  // CSIGNORE
-    implements Source<V>, ChangeProvider {
+public abstract class AbstractEHCachingSource<V extends UniqueIdentifiable, S extends Source<V> & ChangeProvider> // CSIGNORE
+    extends AbstractSource<V> implements Source<V>, ChangeProvider {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractEHCachingSource.class);
@@ -94,7 +91,7 @@ public abstract class AbstractEHCachingSource<V extends UniqueIdentifiable, S ex
 
   /**
    * Creates an instance over an underlying source specifying the cache manager.
-   *
+   * 
    * @param underlying the underlying security source, not null
    * @param cacheManager the cache manager, not null
    */
@@ -124,7 +121,7 @@ public abstract class AbstractEHCachingSource<V extends UniqueIdentifiable, S ex
   //-------------------------------------------------------------------------
   /**
    * Gets the underlying source of items.
-   *
+   * 
    * @return the underlying source of items, not null
    */
   protected S getUnderlying() {
@@ -133,7 +130,7 @@ public abstract class AbstractEHCachingSource<V extends UniqueIdentifiable, S ex
 
   /**
    * Gets the cache manager.
-   *
+   * 
    * @return the cache manager, not null
    */
   protected CacheManager getCacheManager() {
@@ -232,20 +229,6 @@ public abstract class AbstractEHCachingSource<V extends UniqueIdentifiable, S ex
         }
         newitems.put(versionCorrection, result);
         _oidCache.put(new Element(objectId, newitems));
-      }
-    }
-    return result;
-  }
-
-  @Override
-  public Map<UniqueId, V> get(final Collection<UniqueId> uniqueIds) {
-    final Map<UniqueId, V> result = newHashMap();
-    for (final UniqueId uniqueId : uniqueIds) {
-      try {
-        final V object = get(uniqueId);
-        result.put(uniqueId, object);
-      } catch (final DataNotFoundException ex) {
-        // do nothing
       }
     }
     return result;

@@ -13,6 +13,7 @@ $.register_module({
              * @param {Object} config.portfolio the data of a node, places form in create mode (optional)
              * @param {Function} config.handler the endopoint that the form submits too
              * @param {Function} config.complete fired when the form closes after a sucessful edit/create (optional) 
+             * @param {Boolean} config.save_as toggle if save as button is present, default false 
              */
             var constructor = this, $selector, form_block = '.OG-blotter-form-block', form_wrapper, title, submit,
             blotter, error_block = '.OG-blotter-error-block', complete = config.complete || $.noop;
@@ -23,7 +24,7 @@ $.register_module({
                     return;
                 }
                 blotter.close();
-                complete();
+                complete(result);
             };
             constructor.load = function () {
                 // security type tells which type of form to load
@@ -33,7 +34,7 @@ $.register_module({
                         var type = config.details.data.security ?
                             config.details.data.security.type.toLowerCase() : 'fungibletrade';
                         $selector = $(template);
-                        constructor.create();
+                        constructor.create_dialog();
                         constructor.populate(type, config);
                     });
                 } else {
@@ -43,7 +44,7 @@ $.register_module({
                         .on('change', function (event) {
                             constructor.populate($(event.target).val(), config);
                         });
-                        constructor.create();
+                        constructor.create_dialog();
                     });
                 }
             };
@@ -59,13 +60,13 @@ $.register_module({
                     $('.ui-dialog-title').html(form_wrapper.title);
                 }
             };
-            constructor.create = function () {
+            constructor.create_dialog = function () {
                 var buttons = {
                         'Save': function () {form_wrapper.submit(validation_handler);},
                         'Save as new' : function () {form_wrapper.submit_new(validation_handler);},
                         'Cancel': function () {$(this).dialog('close');}
                     };
-                if (!config.details || !config.portfolio) delete buttons['Save as new'];
+                if (!config.save_as) delete buttons['Save as new'];
                 blotter = new og.common.util.ui.dialog({
                     type: 'input', title: title, width: 530, height: 700, custom: $selector,
                     buttons: buttons

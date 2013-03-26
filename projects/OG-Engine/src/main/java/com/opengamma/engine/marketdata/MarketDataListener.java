@@ -17,15 +17,15 @@ import com.opengamma.util.PublicSPI;
 public interface MarketDataListener {
 
   /**
-   * Notifies of a successful live data subscription.
-   *
-   * @param specification the market data that was successfully subscribed to, not null
+   * Notifies of successful live data subscriptions.
+   * 
+   * @param specifications the market data that was successfully subscribed to, not null and not containing nulls
    */
-  void subscriptionSucceeded(ValueSpecification specification);
+  void subscriptionsSucceeded(Collection<ValueSpecification> specifications);
 
   /**
    * Notifies of a failed live data subscription.
-   *
+   * 
    * @param specification the market data that could not be subscribed to, not null
    * @param msg the error message, not null
    */
@@ -33,7 +33,7 @@ public interface MarketDataListener {
 
   /**
    * Notifies of a terminated live data subscription.
-   *
+   * 
    * @param specification the market data that is no longer subscribed to, not null
    */
   void subscriptionStopped(ValueSpecification specification);
@@ -42,7 +42,7 @@ public interface MarketDataListener {
    * Notifies the listener that one or more market data values have changed.
    * <p>
    * This method must execute quickly and not block; it may be called from within a market data receiver thread.
-   *
+   * 
    * @param specifications the specifications whose values have changed, not null
    */
   void valuesChanged(Collection<ValueSpecification> specifications);

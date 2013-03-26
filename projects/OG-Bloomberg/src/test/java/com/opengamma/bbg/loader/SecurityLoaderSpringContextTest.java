@@ -9,11 +9,12 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
 import com.opengamma.util.test.AbstractSpringContextValidationTestNG;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test Spring.
  */
-@Test(groups = "integration")
+@Test(groups = TestGroup.INTEGRATION)
 public class SecurityLoaderSpringContextTest extends AbstractSpringContextValidationTestNG {
 
   @Test(enabled=false)

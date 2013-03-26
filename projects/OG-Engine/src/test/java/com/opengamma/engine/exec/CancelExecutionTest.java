@@ -10,8 +10,6 @@ import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -77,16 +75,19 @@ import com.opengamma.engine.view.listener.ComputationResultListener;
 import com.opengamma.engine.view.permission.DefaultViewPermissionProvider;
 import com.opengamma.engine.view.permission.ViewPermissionProvider;
 import com.opengamma.engine.view.worker.SingleThreadViewProcessWorkerFactory;
+import com.opengamma.engine.view.worker.cache.InMemoryViewExecutionCache;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.id.VersionedUniqueIdSupplier;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.log.ThreadLocalLogEventListener;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.test.Timeout;
 
 /**
  * Test.
  */
+@Test(groups = TestGroup.INTEGRATION)
 public class CancelExecutionTest {
 
   private static final int JOB_SIZE = 100;
@@ -169,7 +170,7 @@ public class CancelExecutionTest {
     configSource.put(viewDefinition);
     final ViewProcessContext vpc = new ViewProcessContext(UniqueId.of("Process", "Test"), configSource, viewPermissionProvider, marketDataProviderResolver, compilationService, functionResolver,
         computationCacheSource, jobDispatcher, new SingleThreadViewProcessWorkerFactory(), new DependencyGraphBuilderFactory(), factory, graphExecutorStatisticsProvider,
-        new DummyOverrideOperationCompiler(), new EngineResourceManagerImpl<SingleComputationCycle>(), new VersionedUniqueIdSupplier("Test", "1"));
+        new DummyOverrideOperationCompiler(), new EngineResourceManagerImpl<SingleComputationCycle>(), new VersionedUniqueIdSupplier("Test", "1"), new InMemoryViewExecutionCache());
     final DependencyGraph graph = new DependencyGraph("Default");
     DependencyNode previous = null;
     for (int i = 0; i < JOB_SIZE; i++) {
@@ -181,10 +182,8 @@ public class CancelExecutionTest {
       graph.addDependencyNode(node);
       previous = node;
     }
-    final Map<String, DependencyGraph> graphs = new HashMap<String, DependencyGraph>();
-    graphs.put(graph.getCalculationConfigurationName(), graph);
-    final CompiledViewDefinitionWithGraphsImpl viewEvaluationModel = new CompiledViewDefinitionWithGraphsImpl(viewDefinition, graphs, Collections.<ComputationTargetReference, UniqueId>emptyMap(),
-        new SimplePortfolio("Test Portfolio"), 0);
+    final CompiledViewDefinitionWithGraphsImpl viewEvaluationModel = new CompiledViewDefinitionWithGraphsImpl(VersionCorrection.LATEST, "", viewDefinition, Collections.singleton(graph),
+        Collections.<ComputationTargetReference, UniqueId>emptyMap(), new SimplePortfolio("Test Portfolio"), 0);
     final ViewCycleExecutionOptions cycleOptions = ViewCycleExecutionOptions.builder().setValuationTime(Instant.ofEpochMilli(1)).setMarketDataSpecification(new MarketDataSpecification()).create();
     final SingleComputationCycle cycle = new SingleComputationCycle(UniqueId.of("Test", "Cycle1"), computationCycleResultListener, vpc, viewEvaluationModel,
         cycleOptions, VersionCorrection.of(Instant.ofEpochMilli(1), Instant.ofEpochMilli(1)));

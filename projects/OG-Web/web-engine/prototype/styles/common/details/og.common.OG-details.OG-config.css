@@ -7,7 +7,7 @@
   display: block;
 }
 
-.OG-config p {
+.OG-config p, .desc {
   color: #999;
   font-style: italic;
   margin-bottom: 10px;

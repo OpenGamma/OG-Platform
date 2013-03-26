@@ -15,11 +15,12 @@ import com.opengamma.core.marketdatasnapshot.impl.ManageableYieldCurveSnapshot;
 import com.opengamma.id.ExternalId;
 import com.opengamma.language.Value;
 import com.opengamma.language.ValueUtils;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the yield curve tensor functions.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class YieldCurveTensorTest {
 
   private ManageableYieldCurveSnapshot createSnapshot() {

@@ -44,11 +44,12 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.UniqueId;
 import com.opengamma.transport.DirectFudgeConnection;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * 
  */
-@Test
+@Test(groups = TestGroup.INTEGRATION)
 public class RemoteCacheRequestResponseTest {
   private static final Logger s_logger = LoggerFactory.getLogger(RemoteCacheRequestResponseTest.class);
   private static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();

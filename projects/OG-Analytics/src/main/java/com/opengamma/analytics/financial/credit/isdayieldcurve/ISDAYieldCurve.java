@@ -164,9 +164,9 @@ public class ISDAYieldCurve {
     _zCurveRates = new double[_numberOfInstruments];
     _zCurveCCRates = new double[_numberOfInstruments];
 
-    double[] zcCashDates = new double[_numberOfCashInstruments + 2];
-    double[] zcCashRates = new double[_numberOfCashInstruments + 2];
-    double[] zcCashDiscount = new double[_numberOfCashInstruments + 2];
+    final double[] zcCashDates = new double[_numberOfCashInstruments + 2];
+    final double[] zcCashRates = new double[_numberOfCashInstruments + 2];
+    final double[] zcCashDiscount = new double[_numberOfCashInstruments + 2];
 
     // Initialise the ArrayList to hold the dates on the curve
     _zCurveDates = new ArrayList<ZonedDateTime>();
@@ -184,8 +184,8 @@ public class ISDAYieldCurve {
 
       // TODO : Check if rate <= 0
 
-      ZonedDateTime startDate = _baseDate;
-      ZonedDateTime endDate = _cashDates[i];
+      final ZonedDateTime startDate = _baseDate;
+      final ZonedDateTime endDate = _cashDates[i];
 
       final double rateYF = TimeCalculator.getTimeBetween(startDate, endDate, ACT_360);
 
@@ -245,10 +245,10 @@ public class ISDAYieldCurve {
 
     // -----------------------------------
 
-    ZonedDateTime[] swapDatesOriginal = new ZonedDateTime[_numberOfSwapInstruments];    // The unadjusted maturity date of the swap
-    ZonedDateTime[] swapDatesAdjusted = new ZonedDateTime[_numberOfSwapInstruments];    // The adjusted maturity date of the swap
-    ZonedDateTime[] swapDatesPrevious = new ZonedDateTime[_numberOfSwapInstruments];    // The cashflow prior to the maturity of the swap
-    boolean[] swapDatesOnCycle = new boolean[_numberOfSwapInstruments];
+    final ZonedDateTime[] swapDatesOriginal = new ZonedDateTime[_numberOfSwapInstruments];    // The unadjusted maturity date of the swap
+    final ZonedDateTime[] swapDatesAdjusted = new ZonedDateTime[_numberOfSwapInstruments];    // The adjusted maturity date of the swap
+    final ZonedDateTime[] swapDatesPrevious = new ZonedDateTime[_numberOfSwapInstruments];    // The cashflow prior to the maturity of the swap
+    final boolean[] swapDatesOnCycle = new boolean[_numberOfSwapInstruments];
 
     // -----------------------------------
 
@@ -262,11 +262,11 @@ public class ISDAYieldCurve {
 
     // -----------------------------------
 
-    double[] swapRates = _swapRates;
+    final double[] swapRates = _swapRates;
 
-    boolean oneAlreadyAdded = false;
+    final boolean oneAlreadyAdded = false;
 
-    double[] zc = new double[_numberOfSwapInstruments];
+    final double[] zc = new double[_numberOfSwapInstruments];
 
     for (int i = 0; i < _numberOfSwapInstruments; i++) {
 
@@ -302,7 +302,7 @@ public class ISDAYieldCurve {
 
   private double JpmcsdsZCAddSwap(final double price, final ZonedDateTime matDate, final boolean onCycle, final double rate, final ZonedDateTime lastMMDate) {
 
-    double Z = 0;
+    final double Z = 0;
 
     // TODO : Check 'If floating side at par' condition - suspect discZC is always null
 
@@ -316,8 +316,8 @@ public class ISDAYieldCurve {
 
       final int[] temp = JpmcdsCountDates(_baseDate, matDate, 1);
 
-      int numIvls = temp[0];
-      int extraDays = temp[1];
+      final int numIvls = temp[0];
+      final int extraDays = temp[1];
 
       if (extraDays > 0) {
         isEndStub = false;
@@ -357,7 +357,7 @@ public class ISDAYieldCurve {
     // ---------------------
 
     // Adjust matDate
-    ZonedDateTime adjMatDate = modifiedFollowingBadDayConv.adjustDate(holidayCalendar, matDate);
+    final ZonedDateTime adjMatDate = modifiedFollowingBadDayConv.adjustDate(holidayCalendar, matDate);
 
     /* Add rate implied by cashflow list to the zeroCurve.
      */
@@ -400,7 +400,7 @@ public class ISDAYieldCurve {
     if (firstUncovered == cflDate.length - 1 && cflDate[firstUncovered].equals(date)) {
 
       double discFactor = 0.0;
-      double pvOfLast = price - sumNPV;
+      final double pvOfLast = price - sumNPV;
       double futOfLast = 0.0;
 
       futOfLast = cflAmount[firstUncovered];
@@ -428,11 +428,11 @@ public class ISDAYieldCurve {
 
   private int[] JpmcdsBinarySearch(final ZonedDateTime date) {
 
-    int[] results = new int[2];
+    final int[] results = new int[2];
 
-    int N = _zCurveDates.size();
+    final int N = _zCurveDates.size();
 
-    int shiftValue = 2;
+    final int shiftValue = 2;
 
     if (!date.isAfter(_zCurveDates.get(0))) {
       results[0] = 0;
@@ -491,7 +491,7 @@ public class ISDAYieldCurve {
     int hi = 0;
 
     // TODO : Need to replace with ACT / 365.25
-    double yearsFromBaseDate = TimeCalculator.getTimeBetween(_baseDate, date, ACT_365) * (365 / 365.25);
+    final double yearsFromBaseDate = TimeCalculator.getTimeBetween(_baseDate, date, ACT_365) * (365 / 365.25);
 
     // TODO : Check if there is nothing in the zero curve
 
@@ -501,13 +501,13 @@ public class ISDAYieldCurve {
       rate = _zCurveContinuouslyCompoundedRates.get(0);
     }
 
-    int n = _zCurveDates.size();
+    final int n = _zCurveDates.size();
 
     if (date.isAfter(_zCurveDates.get(n - 1))) {
 
     }
 
-    int[] temp = JpmcdsBinarySearch(date);
+    final int[] temp = JpmcdsBinarySearch(date);
 
     lo = temp[0];
     hi = temp[1];
@@ -533,12 +533,12 @@ public class ISDAYieldCurve {
 
     // TODO : Error checking on iLo and iHi
 
-    int numItems = _zCurveDates.size();
+    final int numItems = _zCurveDates.size();
 
     for (int i = iLo; i <= iHi; i++)
     {
-      double amt = cflAmount[i];
-      ZonedDateTime date = cflDate[i];
+      final double amt = cflAmount[i];
+      final ZonedDateTime date = cflDate[i];
 
       double pv = 0.0;
 
@@ -550,7 +550,7 @@ public class ISDAYieldCurve {
 
       if (j < numItems && _zCurveDates.get(j).equals(date))
       {
-        double discount = _zCurveDiscountFactors.get(j);
+        final double discount = _zCurveDiscountFactors.get(j);
         pv = discount * amt;
       }
       else
@@ -577,8 +577,8 @@ public class ISDAYieldCurve {
     }
 
     int numDates;
-    int numIntervals = temp[0];
-    int extraDays = temp[1];
+    final int numIntervals = temp[0];
+    final int extraDays = temp[1];
 
     if (extraDays > 0) {
       numDates = numIntervals + 2;
@@ -604,9 +604,9 @@ public class ISDAYieldCurve {
       dl[0] = valueDate;
     }
 
-    ZonedDateTime[] payDates = new ZonedDateTime[numDates - 1];
+    final ZonedDateTime[] payDates = new ZonedDateTime[numDates - 1];
 
-    ZonedDateTime[] bdaPayDates = new ZonedDateTime[numDates - 1];
+    final ZonedDateTime[] bdaPayDates = new ZonedDateTime[numDates - 1];
 
     for (int idx = 0; idx < numDates - 1; idx++) {
       payDates[idx] = dl[idx + 1];
@@ -616,19 +616,19 @@ public class ISDAYieldCurve {
       bdaPayDates[idx] = modifiedFollowingBadDayConv.adjustDate(holidayCalendar, payDates[idx]);
     }
 
-    // numItems-- 
+    // numItems--
 
     return bdaPayDates;
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  private ZonedDateTime[] JpmcdsMakeTDateArray(final ZonedDateTime baseDate, int startIdx, int arrayIncrement, int nDates) {
+  private ZonedDateTime[] JpmcdsMakeTDateArray(final ZonedDateTime baseDate, final int startIdx, final int arrayIncrement, final int nDates) {
 
-    ZonedDateTime[] dateArray = new ZonedDateTime[nDates + 1];
+    final ZonedDateTime[] dateArray = new ZonedDateTime[nDates + 1];
 
     for (int idx = 0; idx < nDates; idx++) {
-      int offsetInterval = _fixedInterval * (startIdx + idx);
+      final int offsetInterval = _fixedInterval * (startIdx + idx);
 
       dateArray[idx * arrayIncrement] = baseDate.plusMonths(offsetInterval);
     }
@@ -640,7 +640,7 @@ public class ISDAYieldCurve {
 
   private int[] JpmcdsCountDates(final ZonedDateTime fromDate, final ZonedDateTime toDate, final int k) {
 
-    int[] result = new int[2];
+    final int[] result = new int[2];
 
     final double intervalYears = _fixedInterval / 12.0;
     final double fromToYears = TimeCalculator.getTimeBetween(fromDate, toDate, ACT_365);
@@ -662,7 +662,7 @@ public class ISDAYieldCurve {
     // TODO : Check if this is < lowNumIntervals
     result[0] = index - 1;
 
-    long t = toDate.toEpochSecond() - lastDate.toEpochSecond();
+    final long t = toDate.toEpochSecond() - lastDate.toEpochSecond();
 
     result[1] = (int) (t / (60 * 60));
 
@@ -709,8 +709,8 @@ public class ISDAYieldCurve {
       final ISDAYieldCurveTenors[] yieldCurveTenors,
       final Calendar calendar) {
 
-    ZonedDateTime[] yieldCurveDates = new ZonedDateTime[yieldCurveTenors.length];
-    ZonedDateTime[] bdaYieldCurveDates = new ZonedDateTime[yieldCurveTenors.length];
+    final ZonedDateTime[] yieldCurveDates = new ZonedDateTime[yieldCurveTenors.length];
+    final ZonedDateTime[] bdaYieldCurveDates = new ZonedDateTime[yieldCurveTenors.length];
 
     for (int i = 0; i < yieldCurveTenors.length; i++) {
 
@@ -849,7 +849,7 @@ public class ISDAYieldCurve {
   public ZonedDateTime[] getZCurveDates() {
     return _zCurveDates;
   }
-  */
+   */
 
   public ArrayList<ZonedDateTime> getZCurveDates() {
     return _zCurveDates;
@@ -874,14 +874,14 @@ public class ISDAYieldCurve {
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   private int getNumberOfInstrumentsOfSpecificType(
-      ISDAInstrumentTypes[] rateTypes,
-      ISDAInstrumentTypes rateType) {
+      final ISDAInstrumentTypes[] rateTypes,
+      final ISDAInstrumentTypes rateType) {
 
     int nInstruments = 0;
 
-    for (int i = 0; i < rateTypes.length; i++) {
+    for (final ISDAInstrumentTypes rateType2 : rateTypes) {
 
-      if (rateTypes[i] == rateType) {
+      if (rateType2 == rateType) {
         nInstruments++;
       }
     }
@@ -892,14 +892,14 @@ public class ISDAYieldCurve {
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   private ZonedDateTime[] getInstrumentDates(
-      ZonedDateTime[] instrumentMaturities,
-      ISDAInstrumentTypes[] rateTypes,
-      ISDAInstrumentTypes rateType,
+      final ZonedDateTime[] instrumentMaturities,
+      final ISDAInstrumentTypes[] rateTypes,
+      final ISDAInstrumentTypes rateType,
       final int nInstruments) {
 
     int index = 0;
 
-    ZonedDateTime[] instrumentDates = new ZonedDateTime[nInstruments];
+    final ZonedDateTime[] instrumentDates = new ZonedDateTime[nInstruments];
 
     for (int i = 0; i < rateTypes.length; i++) {
 
@@ -915,14 +915,14 @@ public class ISDAYieldCurve {
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   private double[] getInstrumentRates(
-      double[] instrumentRates,
-      ISDAInstrumentTypes[] rateTypes,
-      ISDAInstrumentTypes rateType,
+      final double[] instrumentRates,
+      final ISDAInstrumentTypes[] rateTypes,
+      final ISDAInstrumentTypes rateType,
       final int nInstruments) {
 
     int index = 0;
 
-    double[] instrumentInputRates = new double[nInstruments];
+    final double[] instrumentInputRates = new double[nInstruments];
 
     for (int i = 0; i < rateTypes.length; i++) {
 
@@ -939,8 +939,8 @@ public class ISDAYieldCurve {
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   private static int getNumberOfActiveSwaps(
-      ZonedDateTime lastStubDate,
-      ZonedDateTime[] swapDates,
+      final ZonedDateTime lastStubDate,
+      final ZonedDateTime[] swapDates,
       final int nSwap) {
 
     int offset = 0;
@@ -956,19 +956,19 @@ public class ISDAYieldCurve {
   }
 
   boolean calculateOnCycle(
-      ZonedDateTime valueDate,
-      ZonedDateTime unadjustedSwapDate,
-      PeriodFrequency swapFixedLegCouponFrequency) {
+      final ZonedDateTime valueDate,
+      final ZonedDateTime unadjustedSwapDate,
+      final PeriodFrequency swapFixedLegCouponFrequency) {
 
     boolean onCycle = false;
 
     if (valueDate.getDayOfMonth() <= 28 && unadjustedSwapDate.getDayOfMonth() <= 28) {
 
-      ZonedDateTime fromDate = valueDate;
-      ZonedDateTime toDate = unadjustedSwapDate;
+      final ZonedDateTime fromDate = valueDate;
+      final ZonedDateTime toDate = unadjustedSwapDate;
 
       double intervalYears = 0.0;
-      double fromToYears = TimeCalculator.getTimeBetween(fromDate, toDate, ACT_365);
+      final double fromToYears = TimeCalculator.getTimeBetween(fromDate, toDate, ACT_365);
 
       // Need to fix this - bit of a hack
       if (swapFixedLegCouponFrequency == PeriodFrequency.SEMI_ANNUAL) {
@@ -979,7 +979,7 @@ public class ISDAYieldCurve {
         intervalYears = 0.25;
       }
 
-      int lowNumIntervals = Math.max(0, (int) Math.floor(Math.abs(fromToYears / intervalYears)) - 2);
+      final int lowNumIntervals = Math.max(0, (int) Math.floor(Math.abs(fromToYears / intervalYears)) - 2);
       int index = lowNumIntervals;
 
       int compoundInterval = 0;
@@ -1005,8 +1005,8 @@ public class ISDAYieldCurve {
         currDate = valueDate.plusMonths(index * multiplier);
       }
 
-      int numIntervals = index - 1;
-      int extraDays = (int) Math.abs(TimeCalculator.getTimeBetween(toDate, lastDate));
+      final int numIntervals = index - 1;
+      final int extraDays = (int) Math.abs(TimeCalculator.getTimeBetween(toDate, lastDate));
 
       if (extraDays == 0) {
         onCycle = true;
@@ -1019,34 +1019,34 @@ public class ISDAYieldCurve {
   //Assuming that the inputs are ordered as MM followed by swap instruments
 
   private void jpmCDSZCSwaps(
-      ZonedDateTime valueDate,
-      ZonedDateTime[] cashDates,
-      ZonedDateTime[] swapDates,
-      double[] swapRates,
-      int numSwaps,
-      double fixedSwapFreq,
-      double floatSwapFreq,
-      DayCount swapFixedLegDaycountFractionConvention,
-      DayCount swapFloatingLegDaycountFractionConvention,
-      BusinessDayConvention businessdayAdjustmentConvention,
-      Calendar calendar) {
+      final ZonedDateTime valueDate,
+      final ZonedDateTime[] cashDates,
+      final ZonedDateTime[] swapDates,
+      final double[] swapRates,
+      final int numSwaps,
+      final double fixedSwapFreq,
+      final double floatSwapFreq,
+      final DayCount swapFixedLegDaycountFractionConvention,
+      final DayCount swapFloatingLegDaycountFractionConvention,
+      final BusinessDayConvention businessdayAdjustmentConvention,
+      final Calendar calendar) {
 
     if (numSwaps == 0) {
       return;
     }
 
-    GenerateCreditDefaultSwapPremiumLegSchedule swapMaturities = new GenerateCreditDefaultSwapPremiumLegSchedule();
+    final GenerateCreditDefaultSwapPremiumLegSchedule swapMaturities = new GenerateCreditDefaultSwapPremiumLegSchedule();
 
-    ZonedDateTime lastStubDate = cashDates[cashDates.length - 1];
+    final ZonedDateTime lastStubDate = cashDates[cashDates.length - 1];
 
     // Need to implement this if want to have swaps with maturities less than MM instruments
     // numSwaps = getNumberOfActiveSwaps(lastStubDate, swapDates, numSwaps);
 
-    ZonedDateTime[] unadjustedSwapDates = new ZonedDateTime[swapDates.length];
-    ZonedDateTime[] adjustedSwapDates = new ZonedDateTime[swapDates.length];
+    final ZonedDateTime[] unadjustedSwapDates = new ZonedDateTime[swapDates.length];
+    final ZonedDateTime[] adjustedSwapDates = new ZonedDateTime[swapDates.length];
 
-    boolean[] onCycleSwapDates = new boolean[swapDates.length];
-    ZonedDateTime[] previousSwapDates = new ZonedDateTime[swapDates.length];
+    final boolean[] onCycleSwapDates = new boolean[swapDates.length];
+    final ZonedDateTime[] previousSwapDates = new ZonedDateTime[swapDates.length];
 
     for (int i = 0; i < numSwaps; i++) {
       unadjustedSwapDates[i] = swapDates[i];
@@ -1080,12 +1080,12 @@ public class ISDAYieldCurve {
 
       if (valueDate.getDayOfMonth() <= 28 && unadjustedSwapDates[i].getDayOfMonth() <= 28) {
 
-        ZonedDateTime fromDate = valueDate;
-        ZonedDateTime toDate = unadjustedSwapDates[i];
+        final ZonedDateTime fromDate = valueDate;
+        final ZonedDateTime toDate = unadjustedSwapDates[i];
 
-        double fromToYears = TimeCalculator.getTimeBetween(fromDate, toDate, ACT_365);
+        final double fromToYears = TimeCalculator.getTimeBetween(fromDate, toDate, ACT_365);
 
-        int lowNumIntervals = Math.max(0, (int) Math.floor(Math.abs(fromToYears / intervalYears)) - 2);
+        final int lowNumIntervals = Math.max(0, (int) Math.floor(Math.abs(fromToYears / intervalYears)) - 2);
         int index = lowNumIntervals;
 
         compoundInterval = index * multiplier;
@@ -1104,7 +1104,7 @@ public class ISDAYieldCurve {
 
         if (extraDays == 0) {
           onCycle = true;
-        } // end if extraDays 
+        } // end if extraDays
 
       } // end if dom <= 28
 
@@ -1123,15 +1123,9 @@ public class ISDAYieldCurve {
 
     } // end loop over i
 
-    /*
-    for (int i = 0; i < numSwaps; i++) {
-      System.out.println("i = " + i + "\t" + unadjustedSwapDates[i] + "\t" + adjustedSwapDates[i] + "\t" + onCycleSwapDates[i] + "\t" + previousSwapDates[i]);
-    }
-     */
-
     // -------------------------------------------
 
-    boolean oneAlreadyAdded = false;
+    final boolean oneAlreadyAdded = false;
 
     boolean isEndStub = false;
 
@@ -1152,12 +1146,12 @@ public class ISDAYieldCurve {
 
         if (isEndStub) {
 
-          ZonedDateTime fromDate = valueDate;
-          ZonedDateTime toDate = unadjustedSwapDates[i];
+          final ZonedDateTime fromDate = valueDate;
+          final ZonedDateTime toDate = unadjustedSwapDates[i];
 
-          double fromToYears = TimeCalculator.getTimeBetween(fromDate, toDate, ACT_365);
+          final double fromToYears = TimeCalculator.getTimeBetween(fromDate, toDate, ACT_365);
 
-          int lowNumIntervals = Math.max(0, (int) Math.floor(Math.abs(fromToYears / intervalYears)) - 2);
+          final int lowNumIntervals = Math.max(0, (int) Math.floor(Math.abs(fromToYears / intervalYears)) - 2);
           int index = lowNumIntervals;
 
           compoundInterval = index * multiplier;
@@ -1186,7 +1180,7 @@ public class ISDAYieldCurve {
           numDates = numIntervals + 1;
         }
 
-        ZonedDateTime[] dateList = new ZonedDateTime[numDates];
+        final ZonedDateTime[] dateList = new ZonedDateTime[numDates];
 
         if (isEndStub) {
 
@@ -1208,21 +1202,21 @@ public class ISDAYieldCurve {
 
         //
 
-        ZonedDateTime[] adjustedDateList = new ZonedDateTime[numDates];
+        final ZonedDateTime[] adjustedDateList = new ZonedDateTime[numDates];
 
         for (int idx = 0; idx < numDates; idx++) {
           adjustedDateList[idx] = swapMaturities.businessDayAdjustDate(dateList[idx], calendar, businessdayAdjustmentConvention);
         }
 
-        double[] cashflowList = new double[numDates];
+        final double[] cashflowList = new double[numDates];
 
         ZonedDateTime prevDate = valueDate;
 
         for (int idx = 0; idx < numDates; idx++) {
 
-          ZonedDateTime cDate = adjustedDateList[idx];
+          final ZonedDateTime cDate = adjustedDateList[idx];
 
-          double dcf = ACT_360.getDayCountFraction(prevDate, cDate);
+          final double dcf = ACT_360.getDayCountFraction(prevDate, cDate);
 
           cashflowList[idx] = dcf * swapRates[i];
 
@@ -1231,9 +1225,9 @@ public class ISDAYieldCurve {
 
         cashflowList[numDates - 1] += 1.0;
 
-        ZonedDateTime adjMatDate = adjustedSwapDates[i];
+        final ZonedDateTime adjMatDate = adjustedSwapDates[i];
 
-        double price = 1.0;
+        final double price = 1.0;
 
         //ZCAddCashFlowList(adjustedDateList, cashflowList, price, adjMatDate);
 
@@ -1314,8 +1308,8 @@ public class ISDAYieldCurve {
     // Extrapolation beyond the last date
     if (!date.isBefore(timePoints[_numberOfInstruments - 1])) {
 
-      int lo = _numberOfInstruments - 2;
-      int hi = _numberOfInstruments - 1;
+      final int lo = _numberOfInstruments - 2;
+      final int hi = _numberOfInstruments - 1;
 
       t1 = TimeCalculator.getTimeBetween(valueDate, timePoints[lo], ACT_360);
       t2 = TimeCalculator.getTimeBetween(valueDate, timePoints[hi], ACT_360);
@@ -1364,7 +1358,7 @@ public class ISDAYieldCurve {
         rollingDate = timePoints[lo];
       }
 
-      int hi = lo + 1;
+      final int hi = lo + 1;
 
       loDate = timePoints[lo - 1];
       hiDate = timePoints[hi - 1];

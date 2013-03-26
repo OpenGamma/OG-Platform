@@ -155,6 +155,10 @@ public final class ValueRequirementNames {
    */
   public static final String HAZARD_RATE_CURVE = "HazardRateCurve";
   /**
+   * Credit spread curves.
+   */
+  public static final String CREDIT_SPREAD_CURVE = "CreditSpreadCurve";
+  /**
    * The bundle of historical time series objects for instruments on a curve.
    */
   public static final String YIELD_CURVE_HISTORICAL_TIME_SERIES = "Yield Curve Historical Time Series";
@@ -309,6 +313,76 @@ public final class ValueRequirementNames {
    */
   public static final String BUCKETED_CS01 = "Bucketed CS01";
 
+  /**
+   * The parallel CS01 for a credit default swap.
+   */
+  public static final String PARALLEL_CS01 = "Parallel CS01";
+
+  /**
+   * The second-order change in the value of an instrument if the credit curve is moved by 1 basis point.
+   */
+  public static final String GAMMA_CS01 = "Gamma CS01";
+  
+  /** 
+   * The bucketed second-order changes in the value of an instrument if the credit curve is moved by 1 basis point. 
+   */
+  public static final String BUCKETED_GAMMA_CS01 = "Bucketed Gamma CS01";
+  
+  /**
+   * The change in the value of an instrument if the recovery rate is moved by one basis point. 
+   */
+  public static final String RR01 = "RR01";
+  
+  /**
+   * The change in the value of an instrument if the yield curve is shifted in parallel by one basis point. 
+   */
+  public static final String IR01 = "IR01";
+
+  /**
+   * The bucketed changes in the value of an instrument if the interest rate curve is moved by 1 basis point.
+   */
+  public static final String BUCKETED_IR01 = "Bucketed IR01";
+  
+  /**
+   * The accrued premium for a credit default swap.
+   */
+  public static final String ACCRUED_PREMIUM = "Accrued Premium ";
+
+  /**
+   * The accrued days for a credit default swap.
+   */
+  public static final String ACCRUED_DAYS = "Accrued Days";
+
+  /**
+   * The upfront ammount for a credit default swap.
+   */
+  public static final String UPFRONT_AMOUNT = "Upfront Amount";
+
+  /**
+   * The points upfront for a credit default swap.
+   */
+  public static final String POINTS_UPFRONT = "Points Upfront";
+
+  /**
+   * The principal for a credit default swap.
+   */
+  public static final String PRINCIPAL = "Principal";
+
+  /**
+   * The clean present value for a credit default swap.
+   */
+  public static final String CLEAN_PRESENT_VALUE = "Clean Present Value";
+
+  /**
+   * The dirty present value for a credit default swap.
+   */
+  public static final String DIRTY_PRESENT_VALUE = "Dirty Present Value";
+
+  /**
+   * The jump-to-default.
+   */
+  public static final String JUMP_TO_DEFAULT = "Jump to Default";
+  
   /**
    * The bucketed (CS01) spreads for a credit default swap.
    */
@@ -529,6 +603,10 @@ public final class ValueRequirementNames {
    * The aggregate percentage vega of an option.
    */
   public static final String POSITION_VEGA_P = "PositionVegaP";
+  /**
+   * The aggregate vega of an option with a weighting factor related to square root of time to expiry
+   */
+  public static final String POSITION_WEIGHTED_VEGA = "PositionWeightedVega";
   /**
    * The aggregate vomma of an option (second order derivative of price with respect to the volatility).
    */
@@ -754,7 +832,7 @@ public final class ValueRequirementNames {
    */
   public static final String VEGA_P = "VegaP";
   /**
-   * The vega an option with some weighting factor
+   * The vega of an option with a weighting factor related to square root of time to expiry
    */
   public static final String WEIGHTED_VEGA = "Weighted Vega";
   /**

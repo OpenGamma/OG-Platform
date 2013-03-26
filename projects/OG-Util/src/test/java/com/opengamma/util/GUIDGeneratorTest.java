@@ -11,10 +11,12 @@ import java.util.UUID;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Test GUIDGenerator.
  */
-@Test(groups = "unit")
+@Test(groups = TestGroup.UNIT)
 public class GUIDGeneratorTest {
 
   public void generatorAlwaysGeneratesSomething() {

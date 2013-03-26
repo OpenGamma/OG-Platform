@@ -181,7 +181,7 @@ import com.opengamma.util.ArgumentChecker;
 
     @Override
     public void viewDefinitionCompiled(CompiledViewDefinition compiledViewDefinition, boolean hasMarketDataPermissions) {
-      _view.updateColumns(compiledViewDefinition);
+      _view.updateStructure(compiledViewDefinition);
     }
 
     @Override

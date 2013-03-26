@@ -53,6 +53,7 @@ public class BloombergLiveDataServer extends AbstractBloombergLiveDataServer {
    * 
    * @param bloombergConnector  the connector, not null
    * @param referenceDataProvider  the reference data provider, not null
+   * @param cacheManager  the cache manager, not null
    */
   public BloombergLiveDataServer(BloombergConnector bloombergConnector, ReferenceDataProvider referenceDataProvider, CacheManager cacheManager) {
     super(cacheManager);

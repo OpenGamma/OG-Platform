@@ -5,6 +5,9 @@
  */
 package com.opengamma.engine.marketdata.snapshot;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityFilter;
 import com.opengamma.util.ArgumentChecker;
@@ -15,7 +18,14 @@ import com.opengamma.util.SingletonFactoryBean;
  */
 public class UserMarketDataProviderFactoryFactoryBean extends SingletonFactoryBean<UserMarketDataProviderFactory> {
 
+  private static final Logger s_logger = LoggerFactory.getLogger(UserMarketDataProviderFactoryFactoryBean.class);
+
   private MarketDataSnapshotSource _snapshotSource;
+
+  /**
+   * @deprecated see PLAT-1459
+   */
+  @Deprecated
   private MarketDataAvailabilityFilter _baseMarketDataAvailability;
 
   public MarketDataSnapshotSource getSnapshotSource() {
@@ -26,18 +36,28 @@ public class UserMarketDataProviderFactoryFactoryBean extends SingletonFactoryBe
     _snapshotSource = snapshotSource;
   }
 
+  /**
+   * @deprecated see PLAT-1459
+   */
+  @Deprecated
   public MarketDataAvailabilityFilter getBaseMarketDataAvailability() {
+    s_logger.error("Call to deprecated method 'getBaseMarketDataAvailability' (PLAT-1459)");
     return _baseMarketDataAvailability;
   }
 
+  /**
+   * @deprecated see PLAT-1459
+   */
+  @Deprecated
   public void setBaseMarketDataAvailability(final MarketDataAvailabilityFilter baseMarketDataAvailability) {
+    s_logger.error("Call to deprecated method 'setBaseMarketDataAvailability' (PLAT-1459)");
     _baseMarketDataAvailability = baseMarketDataAvailability;
   }
 
   @Override
   protected UserMarketDataProviderFactory createObject() {
     ArgumentChecker.notNullInjected(getSnapshotSource(), "snapshotSource");
-    return new UserMarketDataProviderFactory(getSnapshotSource(), getBaseMarketDataAvailability());
+    return new UserMarketDataProviderFactory(getSnapshotSource());
   }
 
 }

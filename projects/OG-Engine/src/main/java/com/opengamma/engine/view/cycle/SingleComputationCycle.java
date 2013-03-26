@@ -5,8 +5,6 @@
  */
 package com.opengamma.engine.view.cycle;
 
-import static com.opengamma.util.functional.Functional.submapByKeySet;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -36,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import org.threeten.bp.Duration;
 import org.threeten.bp.Instant;
 
+import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTargetResolver;
@@ -44,9 +43,9 @@ import com.opengamma.engine.cache.MissingMarketDataSentinel;
 import com.opengamma.engine.cache.NotCalculatedSentinel;
 import com.opengamma.engine.cache.ViewComputationCache;
 import com.opengamma.engine.calcnode.CalculationJobResultItem;
-import com.opengamma.engine.calcnode.MissingInput;
 import com.opengamma.engine.calcnode.MutableExecutionLog;
 import com.opengamma.engine.depgraph.DependencyGraph;
+import com.opengamma.engine.depgraph.DependencyGraphExplorer;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.depgraph.DependencyNodeFilter;
 import com.opengamma.engine.exec.DefaultAggregatedExecutionLog;
@@ -61,7 +60,6 @@ import com.opengamma.engine.marketdata.MarketDataSnapshot;
 import com.opengamma.engine.marketdata.OverrideOperation;
 import com.opengamma.engine.marketdata.OverrideOperationCompiler;
 import com.opengamma.engine.resource.EngineResource;
-import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.engine.value.ValueRequirement;
@@ -70,9 +68,13 @@ import com.opengamma.engine.view.AggregatedExecutionLog;
 import com.opengamma.engine.view.ExecutionLog;
 import com.opengamma.engine.view.ExecutionLogMode;
 import com.opengamma.engine.view.ExecutionLogWithContext;
+import com.opengamma.engine.view.ResultModelDefinition;
+import com.opengamma.engine.view.ResultOutputMode;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.engine.view.compilation.CompiledViewCalculationConfiguration;
+import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphsImpl;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.impl.ExecutionLogModeSource;
@@ -118,7 +120,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
   // Injected inputs
   private final UniqueId _cycleId;
   private final ViewProcessContext _viewProcessContext;
-  private final CompiledViewDefinitionWithGraphsImpl _compiledViewDefinition;
+  private final CompiledViewDefinitionWithGraphs _compiledViewDefinition;
   private final ViewCycleExecutionOptions _executionOptions;
   private final VersionCorrection _versionCorrection;
 
@@ -139,7 +141,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
   private final InMemoryViewComputationResultModel _resultModel;
 
   public SingleComputationCycle(final UniqueId cycleId, final ComputationResultListener cycleFragmentResultListener, final ViewProcessContext viewProcessContext,
-      final CompiledViewDefinitionWithGraphsImpl compiledViewDefinition, final ViewCycleExecutionOptions executionOptions,
+      final CompiledViewDefinitionWithGraphs compiledViewDefinition, final ViewCycleExecutionOptions executionOptions,
       final VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(cycleId, "cycleId");
     ArgumentChecker.notNull(cycleFragmentResultListener, "cycleFragmentResultListener");
@@ -176,8 +178,14 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     return _executionOptions;
   }
 
+  /**
+   * @return the function initialization identifier
+   * @deprecated this needs to go
+   */
+  @Deprecated
   public long getFunctionInitId() {
-    return getCompiledViewDefinition().getFunctionInitId();
+    // The cast is only temporary until we've got rid of the function initialisation id
+    return ((CompiledViewDefinitionWithGraphsImpl) getCompiledViewDefinition()).getFunctionInitId();
   }
 
   /**
@@ -268,7 +276,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
   }
 
   @Override
-  public CompiledViewDefinitionWithGraphsImpl getCompiledViewDefinition() {
+  public CompiledViewDefinitionWithGraphs getCompiledViewDefinition() {
     return _compiledViewDefinition;
   }
 
@@ -400,100 +408,89 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
   }
 
   /**
-   * Creates a map containing the "shift" operations to apply to market data or each calculation configuration. If there is no operation to apply, the map contains null for that configuration.
+   * Fetches the override operation to apply to market data in the given configuration. If there is no operation to apply, returns null.
    * 
-   * @return the map of computation cache to shift operations
+   * @return the shift operation, or null for non
    */
-  private Map<ViewComputationCache, OverrideOperation> getCacheMarketDataOperation() {
-    final Map<ViewComputationCache, OverrideOperation> shifts = new HashMap<ViewComputationCache, OverrideOperation>();
+  private OverrideOperation getCacheMarketDataOperation(ViewCalculationConfiguration calcConfig) {
     OverrideOperationCompiler compiler = null;
     ComputationTargetResolver.AtVersionCorrection resolver = null;
-    for (final ViewCalculationConfiguration calcConfig : getCompiledViewDefinition().getViewDefinition().getAllCalculationConfigurations()) {
-      final Set<String> marketDataShift = calcConfig.getDefaultProperties().getValues(MARKET_DATA_SHIFT_PROPERTY);
-      OverrideOperation operation = null;
-      if (marketDataShift != null) {
-        if (marketDataShift.size() != 1) {
-          // This doesn't really mean much
-          s_logger.error("Market data shift for {} not valid - {}", calcConfig.getName(), marketDataShift);
-        } else {
-          if (compiler == null) {
-            compiler = getViewProcessContext().getOverrideOperationCompiler();
-            resolver = getViewProcessContext().getFunctionCompilationService().getFunctionCompilationContext().getRawComputationTargetResolver().atVersionCorrection(getVersionCorrection());
-          }
-          final String shiftExpr = marketDataShift.iterator().next();
-          try {
-            operation = compiler.compile(shiftExpr, resolver);
-          } catch (final IllegalArgumentException e) {
-            s_logger.error("Market data shift for  {} not valid - {}", calcConfig.getName(), shiftExpr);
-            s_logger.info("Invalid market data shift", e);
-          }
+    final Set<String> marketDataShift = calcConfig.getDefaultProperties().getValues(MARKET_DATA_SHIFT_PROPERTY);
+    OverrideOperation operation = null;
+    if (marketDataShift != null) {
+      if (marketDataShift.size() != 1) {
+        // This doesn't really mean much
+        s_logger.error("Market data shift for {} not valid - {}", calcConfig.getName(), marketDataShift);
+      } else {
+        if (compiler == null) {
+          compiler = getViewProcessContext().getOverrideOperationCompiler();
+          resolver = getViewProcessContext().getFunctionCompilationService().getFunctionCompilationContext().getRawComputationTargetResolver().atVersionCorrection(getVersionCorrection());
+        }
+        final String shiftExpr = marketDataShift.iterator().next();
+        try {
+          operation = compiler.compile(shiftExpr, resolver);
+        } catch (final IllegalArgumentException e) {
+          s_logger.error("Market data shift for  {} not valid - {}", calcConfig.getName(), shiftExpr);
+          s_logger.info("Invalid market data shift", e);
         }
       }
-      shifts.put(getComputationCache(calcConfig.getName()), operation);
     }
-    return shifts;
+    return operation;
   }
 
   private void prepareInputs(final MarketDataSnapshot snapshot) {
-    final Set<ValueSpecification> missingMarketData = new HashSet<ValueSpecification>();
-    final Set<ValueSpecification> requiredMarketData = getCompiledViewDefinition().getMarketDataRequirements();
-    s_logger.debug("Populating {} market data items using snapshot {}", requiredMarketData.size(), snapshot);
-    final Map<ViewComputationCache, OverrideOperation> cacheMarketDataOperation = getCacheMarketDataOperation();
+    int missingMarketData = 0;
+    final Set<ValueSpecification> allRequiredMarketData = getCompiledViewDefinition().getMarketDataRequirements();
+    s_logger.debug("Populating {} market data items using snapshot {}", allRequiredMarketData.size(), snapshot);
     final InMemoryViewComputationResultModel fragmentResultModel = constructTemplateResultModel();
     final InMemoryViewComputationResultModel fullResultModel = getResultModel();
-    final Map<ValueSpecification, Object> marketDataValues = snapshot.query(requiredMarketData);
-    for (final ValueSpecification marketDataSpec : requiredMarketData) {
-      final Object marketDataValue = marketDataValues.get(marketDataSpec);
-      ComputedValue computedValue;
-      ComputedValueResult computedValueResult;
-      if (marketDataValue == null) {
-        s_logger.debug("Unable to load market data value for {} from snapshot {}", marketDataSpec, getValuationTime());
-        missingMarketData.add(marketDataSpec);
-        // TODO provide elevated logs if requested from market data providers
-        final ExecutionLog executionLog = MutableExecutionLog.single(SimpleLogEvent.of(LogLevel.WARN, null), ExecutionLogMode.INDICATORS);
-        final ExecutionLogWithContext executionLogWithContext = ExecutionLogWithContext.of("Market Data", marketDataSpec.getTargetSpecification(), executionLog);
-        final AggregatedExecutionLog aggregatedExecutionLog = new DefaultAggregatedExecutionLog(executionLogWithContext, null, ExecutionLogMode.INDICATORS);
-        computedValue = new ComputedValue(marketDataSpec, MissingMarketDataSentinel.getInstance());
-        computedValueResult = new ComputedValueResult(computedValue, aggregatedExecutionLog);
-      } else {
-        computedValue = new ComputedValue(marketDataSpec, marketDataValue);
-        computedValueResult = new ComputedValueResult(computedValue, AggregatedExecutionLog.EMPTY);
-        fragmentResultModel.addMarketData(computedValueResult);
-        fullResultModel.addMarketData(computedValueResult);
+    final Map<ValueSpecification, Object> marketDataValues = snapshot.query(allRequiredMarketData);
+    final ResultModelDefinition resultModel = getViewDefinition().getResultModelDefinition();
+    for (CompiledViewCalculationConfiguration calcConfig : getCompiledViewDefinition().getCompiledCalculationConfigurations()) {
+      final OverrideOperation operation = getCacheMarketDataOperation(getViewDefinition().getCalculationConfiguration(calcConfig.getName()));
+      final ViewComputationCache cache = getComputationCache(calcConfig.getName());
+      final Collection<ValueSpecification> marketDataRequirements = calcConfig.getMarketDataRequirements();
+      final Set<ValueSpecification> terminalOutputs = calcConfig.getTerminalOutputSpecifications().keySet();
+      final Collection<ComputedValueResult> valuesToLoad = new ArrayList<ComputedValueResult>(marketDataRequirements.size());
+      for (ValueSpecification marketDataSpec : marketDataRequirements) {
+        Object marketDataValue = marketDataValues.get(marketDataSpec);
+        ComputedValueResult computedValueResult;
+        if (operation != null) {
+          if (marketDataValue != null) {
+            marketDataValue = operation.apply(marketDataSpec.toRequirementSpecification(), marketDataValue);
+            if (marketDataValue == null) {
+              s_logger.debug("Market data {} discarded by override operation", marketDataSpec);
+            }
+          }
+        }
+        if (marketDataValue == null) {
+          s_logger.debug("Unable to load market data value for {} from snapshot {}", marketDataSpec, getValuationTime());
+          missingMarketData++;
+          // TODO provide elevated logs if requested from market data providers
+          final ExecutionLog executionLog = MutableExecutionLog.single(SimpleLogEvent.of(LogLevel.WARN, null), ExecutionLogMode.INDICATORS);
+          final ExecutionLogWithContext executionLogWithContext = ExecutionLogWithContext.of("Market Data", marketDataSpec.getTargetSpecification(), executionLog);
+          final AggregatedExecutionLog aggregatedExecutionLog = new DefaultAggregatedExecutionLog(executionLogWithContext, null, ExecutionLogMode.INDICATORS);
+          computedValueResult = new ComputedValueResult(marketDataSpec, MissingMarketDataSentinel.getInstance(), aggregatedExecutionLog);
+        } else {
+          computedValueResult = new ComputedValueResult(marketDataSpec, marketDataValue, AggregatedExecutionLog.EMPTY);
+          fragmentResultModel.addMarketData(computedValueResult);
+          fullResultModel.addMarketData(computedValueResult);
+        }
+        if (terminalOutputs.contains(marketDataSpec) && (resultModel.getOutputMode(marketDataSpec.getTargetSpecification().getType()) != ResultOutputMode.NONE)) {
+          fragmentResultModel.addValue(calcConfig.getName(), computedValueResult);
+          fullResultModel.addValue(calcConfig.getName(), computedValueResult);
+        }
+        valuesToLoad.add(computedValueResult);
       }
-      addMarketDataToResults(marketDataSpec, computedValueResult, fragmentResultModel, getResultModel());
-      addToAllCaches(computedValue, computedValueResult, cacheMarketDataOperation);
+      if (!valuesToLoad.isEmpty()) {
+        cache.putSharedValues(valuesToLoad);
+      }
     }
-    if (!missingMarketData.isEmpty()) {
+    if (missingMarketData > 0) {
       // REVIEW jonathan 2012-11-01 -- probably need a cycle-level execution log for things like this
-      s_logger.info("Missing {} market data elements: {}", missingMarketData.size(), formatMissingMarketData(missingMarketData));
+      s_logger.info("Missing {} market data elements", missingMarketData);
     }
     notifyFragmentCompleted(fragmentResultModel);
-  }
-
-  private void addMarketDataToResults(final ValueSpecification valueSpec, final ComputedValueResult computedValueResult,
-      final InMemoryViewComputationResultModel fragmentResultModel, final InMemoryViewComputationResultModel fullResultModel) {
-    // REVIEW jonathan 2011-11-17 -- do we really need to include all market data in the results?
-    for (final DependencyGraph depGraph : getCompiledViewDefinition().getAllDependencyGraphs()) {
-      if (depGraph.getTerminalOutputSpecifications().contains(valueSpec)
-          && getViewDefinition().getResultModelDefinition().shouldOutputResult(valueSpec, depGraph)) {
-        fragmentResultModel.addValue(depGraph.getCalculationConfigurationName(), computedValueResult);
-        fullResultModel.addValue(depGraph.getCalculationConfigurationName(), computedValueResult);
-      }
-    }
-  }
-
-  private static String formatMissingMarketData(final Set<ValueSpecification> missingLiveData) {
-    final StringBuilder sb = new StringBuilder();
-    for (final ValueSpecification spec : missingLiveData) {
-      sb.append("[").append(spec.getValueName()).append(" on ");
-      sb.append(spec.getTargetSpecification().getType());
-      if (spec.getTargetSpecification().getType().isTargetType(ComputationTargetType.PRIMITIVE)) {
-        sb.append("-").append(spec.getTargetSpecification().getUniqueId().getScheme());
-      }
-      sb.append(":").append(spec.getTargetSpecification().getUniqueId().getValue()).append("] ");
-    }
-    return sb.toString();
   }
 
   /**
@@ -505,27 +502,6 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
           .getCache(getUniqueId(), calcConfigurationName);
       _cachesByCalculationConfiguration.put(calcConfigurationName, cache);
       _jobResultCachesByCalculationConfiguration.put(calcConfigurationName, new DependencyNodeJobExecutionResultCache());
-    }
-  }
-
-  private void addToAllCaches(final ComputedValue computedValue, final ComputedValueResult computedValueResult, final Map<ViewComputationCache, OverrideOperation> cacheMarketDataInfo) {
-    for (final Map.Entry<ViewComputationCache, OverrideOperation> cacheMarketData : cacheMarketDataInfo.entrySet()) {
-      final ViewComputationCache cache = cacheMarketData.getKey();
-      final ComputedValue cacheValue;
-      if ((computedValue.getValue() instanceof MissingInput) || (cacheMarketData.getValue() == null)) {
-        cacheValue = computedValue;
-      } else {
-        // TODO: Converting a ValueSpecification to a ValueRequirement like this is probably wrong
-        final ValueSpecification valueSpec = computedValue.getSpecification();
-        final Object newValue = cacheMarketData.getValue().apply(new ValueRequirement(valueSpec.getValueName(), valueSpec.getTargetSpecification(), valueSpec.getProperties()),
-            computedValue.getValue());
-        if (newValue != computedValue.getValue()) {
-          cacheValue = new ComputedValue(computedValue.getSpecification(), newValue);
-        } else {
-          cacheValue = computedValue;
-        }
-      }
-      cache.putSharedValue(cacheValue);
     }
   }
 
@@ -548,19 +524,23 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     }
     final InMemoryViewComputationResultModel fragmentResultModel = constructTemplateResultModel();
     final InMemoryViewComputationResultModel fullResultModel = getResultModel();
-    for (final String calcConfigurationName : getAllCalculationConfigurationNames()) {
-      final DependencyGraph depGraph = getCompiledViewDefinition().getDependencyGraph(calcConfigurationName);
-      final ViewComputationCache cache = getComputationCache(calcConfigurationName);
-      final ViewComputationCache previousCache = previousCycle.getComputationCache(calcConfigurationName);
-      final DependencyNodeJobExecutionResultCache jobExecutionResultCache = getJobExecutionResultCache(calcConfigurationName);
-      final DependencyNodeJobExecutionResultCache previousJobExecutionResultCache = previousCycle.getJobExecutionResultCache(calcConfigurationName);
+    for (final DependencyGraphExplorer depGraphExplorer : getCompiledViewDefinition().getDependencyGraphExplorers()) {
+      final DependencyGraph depGraph = depGraphExplorer.getWholeGraph();
+      final ViewComputationCache cache = getComputationCache(depGraph.getCalculationConfigurationName());
+      final ViewComputationCache previousCache = previousCycle.getComputationCache(depGraph.getCalculationConfigurationName());
+      final DependencyNodeJobExecutionResultCache jobExecutionResultCache = getJobExecutionResultCache(depGraph.getCalculationConfigurationName());
+      final DependencyNodeJobExecutionResultCache previousJobExecutionResultCache = previousCycle.getJobExecutionResultCache(depGraph.getCalculationConfigurationName());
       final LiveDataDeltaCalculator deltaCalculator = new LiveDataDeltaCalculator(depGraph, cache, previousCache);
       deltaCalculator.computeDelta();
       s_logger.info("Computed delta for calculation configuration '{}'. {} nodes out of {} require recomputation.",
-          new Object[] {calcConfigurationName, deltaCalculator.getChangedNodes().size(), depGraph.getSize() });
+          new Object[] {depGraph.getCalculationConfigurationName(), deltaCalculator.getChangedNodes().size(), depGraph.getSize() });
       final Collection<ValueSpecification> specsToCopy = new LinkedList<ValueSpecification>();
       final Collection<ComputedValue> errors = new LinkedList<ComputedValue>();
       for (final DependencyNode unchangedNode : deltaCalculator.getUnchangedNodes()) {
+        if (isMarketDataNode(unchangedNode)) {
+          // Market data is already in the cache, so don't need to copy it across again
+          continue;
+        }
         final DependencyNodeJobExecutionResult previousExecutionResult = previousJobExecutionResultCache.find(unchangedNode.getOutputValues());
         if (getLogModeSource().getLogMode(unchangedNode) == ExecutionLogMode.FULL
             && (previousExecutionResult == null || previousExecutionResult.getJobResultItem().getExecutionLog().getEvents() == null)) {
@@ -581,7 +561,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
       }
       if (!specsToCopy.isEmpty()) {
         final ComputationCycleQuery reusableResultsQuery = new ComputationCycleQuery();
-        reusableResultsQuery.setCalculationConfigurationName(calcConfigurationName);
+        reusableResultsQuery.setCalculationConfigurationName(depGraph.getCalculationConfigurationName());
         reusableResultsQuery.setValueSpecifications(specsToCopy);
         final ComputationResultsResponse reusableResultsQueryResponse = previousCycle.queryResults(reusableResultsQuery);
         final Map<ValueSpecification, ComputedValueResult> resultsToReuse = reusableResultsQueryResponse.getResults();
@@ -590,8 +570,8 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
           final ValueSpecification valueSpec = computedValueResult.getSpecification();
           if (depGraph.getTerminalOutputSpecifications().contains(valueSpec)
               && getViewDefinition().getResultModelDefinition().shouldOutputResult(valueSpec, depGraph)) {
-            fragmentResultModel.addValue(calcConfigurationName, computedValueResult);
-            fullResultModel.addValue(calcConfigurationName, computedValueResult);
+            fragmentResultModel.addValue(depGraph.getCalculationConfigurationName(), computedValueResult);
+            fullResultModel.addValue(depGraph.getCalculationConfigurationName(), computedValueResult);
           }
           final Object previousValue = computedValueResult.getValue() != null ? computedValueResult.getValue() : NotCalculatedSentinel.EVALUATION_ERROR;
           newValues.add(new ComputedValue(valueSpec, previousValue));
@@ -653,16 +633,18 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
 
   private void processExecutionResult(final ExecutionResult executionResult, final InMemoryViewComputationResultModel fragmentResultModel, final InMemoryViewComputationResultModel fullResultModel) {
     final String calcConfigurationName = executionResult.getResult().getSpecification().getCalcConfigName();
-    final DependencyGraph depGraph = getCompiledViewDefinition().getDependencyGraph(calcConfigurationName);
+    final DependencyGraph depGraph = getDependencyGraph(calcConfigurationName);
     final ViewComputationCache computationCache = getComputationCache(calcConfigurationName);
     final DependencyNodeJobExecutionResultCache jobExecutionResultCache = getJobExecutionResultCache(calcConfigurationName);
+    final String computeNodeId = executionResult.getResult().getComputeNodeId();
     final Iterator<CalculationJobResultItem> itrResultItem = executionResult.getResult().getResultItems().iterator();
     final Iterator<DependencyNode> itrNode = executionResult.getNodes().iterator();
+    Map<ValueSpecification, Set<ValueRequirement>> allTerminalOutputs = depGraph.getTerminalOutputs();
+    Map<ValueSpecification, Set<ValueRequirement>> processedTerminalOutputs = Maps.newHashMapWithExpectedSize(allTerminalOutputs.size());
     while (itrResultItem.hasNext()) {
       assert itrNode.hasNext();
       final CalculationJobResultItem jobResultItem = itrResultItem.next();
       final DependencyNode node = itrNode.next();
-      final String computeNodeId = executionResult.getResult().getComputeNodeId();
       final Set<AggregatedExecutionLog> inputLogs = new LinkedHashSet<AggregatedExecutionLog>();
       for (final ValueSpecification inputValueSpec : node.getInputValues()) {
         final DependencyNodeJobExecutionResult nodeResult = jobExecutionResultCache.get(inputValueSpec);
@@ -676,25 +658,18 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
       final ExecutionLogWithContext executionLogWithContext = ExecutionLogWithContext.of(node, jobResultItem.getExecutionLog());
       final AggregatedExecutionLog aggregatedExecutionLog = new DefaultAggregatedExecutionLog(executionLogWithContext, new ArrayList<AggregatedExecutionLog>(inputLogs), executionLogMode);
       final DependencyNodeJobExecutionResult jobExecutionResult = new DependencyNodeJobExecutionResult(computeNodeId, jobResultItem, aggregatedExecutionLog);
-      processDependencyNodeResult(jobExecutionResult, depGraph, node, computationCache, fragmentResultModel, fullResultModel, jobExecutionResultCache);
+      for (ValueSpecification terminalOutput : node.getTerminalOutputValues()) {
+        processedTerminalOutputs.put(terminalOutput, allTerminalOutputs.get(terminalOutput));
+        jobExecutionResultCache.put(terminalOutput, jobExecutionResult);
+      }
     }
-  }
-
-  private void processDependencyNodeResult(final DependencyNodeJobExecutionResult jobExecutionResult, final DependencyGraph depGraph,
-      final DependencyNode node, final ViewComputationCache computationCache,
-      final InMemoryViewComputationResultModel fragmentResultModel, final InMemoryViewComputationResultModel fullResultModel,
-      final DependencyNodeJobExecutionResultCache jobExecutionResultCache) {
-    final Set<ValueSpecification> specifications = node.getOutputValues();
-    final Map<ValueSpecification, Set<ValueRequirement>> specToRequirements = submapByKeySet(depGraph.getTerminalOutputs(), specifications);
-    fragmentResultModel.addRequirements(specToRequirements);
-    fullResultModel.addRequirements(specToRequirements);
-    for (final Pair<ValueSpecification, Object> value : computationCache.getValues(specifications, CacheSelectHint.allShared())) {
+    fragmentResultModel.addRequirements(processedTerminalOutputs);
+    fullResultModel.addRequirements(processedTerminalOutputs);
+    for (final Pair<ValueSpecification, Object> value : computationCache.getValues(processedTerminalOutputs.keySet(), CacheSelectHint.allShared())) {
       final ValueSpecification valueSpec = value.getFirst();
       final Object calculatedValue = value.getSecond();
-      jobExecutionResultCache.put(valueSpec, jobExecutionResult);
-      if (calculatedValue != null && specToRequirements.containsKey(valueSpec) &&
-          getViewDefinition().getResultModelDefinition().shouldOutputResult(valueSpec, depGraph)) {
-        final ComputedValueResult computedValueResult = createComputedValueResult(valueSpec, calculatedValue, jobExecutionResult);
+      if (calculatedValue != null) {
+        final ComputedValueResult computedValueResult = createComputedValueResult(valueSpec, calculatedValue, jobExecutionResultCache.get(valueSpec));
         fragmentResultModel.addValue(depGraph.getCalculationConfigurationName(), computedValueResult);
         fullResultModel.addValue(depGraph.getCalculationConfigurationName(), computedValueResult);
       }
@@ -723,7 +698,11 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
    * @return the dependency graph
    */
   protected DependencyGraph getDependencyGraph(final String calcConfName) {
-    return getCompiledViewDefinition().getDependencyGraph(calcConfName);
+    return getCompiledViewDefinition().getDependencyGraphExplorer(calcConfName).getWholeGraph();
+  }
+
+  private boolean isMarketDataNode(final DependencyNode node) {
+    return node.getFunction().getFunction() instanceof MarketDataSourcingFunction;
   }
 
   /**
@@ -740,7 +719,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
       @Override
       public boolean accept(final DependencyNode node) {
         // Market data functions must not be executed
-        if (node.getFunction().getFunction() instanceof MarketDataSourcingFunction) {
+        if (isMarketDataNode(node)) {
           markExecuted(node);
           return false;
         }

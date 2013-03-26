@@ -18,11 +18,13 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.LocalTime;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Test DbDateUtils.
  */
 @SuppressWarnings("deprecation")
-@Test(groups = "unit")
+@Test(groups = TestGroup.UNIT)
 public class DbDateUtilsTest {
 
   //-------------------------------------------------------------------------

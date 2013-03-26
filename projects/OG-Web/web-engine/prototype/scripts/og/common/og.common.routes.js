@@ -8,21 +8,20 @@ $.register_module({
     name: 'og.common.routes',
     dependencies: ['og.dev'],
     obj: function () {
-        var routes, set_title = function (title) {document.title = 'OpenGamma: ' + title;},
-            hash = window.RouteMap.hash;
+        var routes, hash = window.RouteMap.hash;
         return routes = $.extend(true, window.RouteMap, {
             init: function () {
-                var title, go = routes.go;
+                var go = routes.go;
                 // overwrite routes.go so it can accept new title parameter
-                routes.go = function (location, new_title) {
-                    title = new_title;
+                routes.go = function (location, title) {
+                    routes.title = title;
                     go(location);
                 };
                 // listen to all clicks that bubble up and capture their titles
                 // overwrite href with new filter values
                 $('a[href]').live('click', function (e) {
                     var $anchor = $(this), current, parsed, rule, view, href;
-                    title = $anchor.attr('title');
+                    routes.title = $anchor.attr('title');
                     if (!$anchor.is('.og-js-live-anchor')) return;
                     view = og.views[(parsed = routes.parse($anchor.attr('href'))).page.slice(1)];
                     if (!view.filter_params.length || (current = routes.current()).page !== parsed.page) return;
@@ -35,8 +34,8 @@ $.register_module({
                 });
                 $(window).on('hashchange', function () {
                     routes.handler();
-                    set_title(title || (new Date).toLocaleTimeString());
-                    title = null;
+                    routes.set_title(routes.title || routes.current().hash);
+                    routes.title = null;
                 });
                 $(window).on('keydown', function (event) {
                     if (event.keyCode !== $.ui.keyCode.ESCAPE) return;
@@ -67,8 +66,8 @@ $.register_module({
                         (og.api.rest = parent_api).on('abandon', function () {document.location.reload();});
                     else if (og.api.rest) api.subscribe();
                     if (is_child && parent_data) og.analytics.Data = parent_data;
+                    routes.set_title(routes.title || (routes.get() || ''));
                     routes.handler();
-                    set_title((new Date).toLocaleTimeString());
                 });
                 // IE does not allow deleting from window so set to void 0 if it fails
                 try {delete window.RouteMap;} catch (error) {window.RouteMap = void 0;}
@@ -90,7 +89,9 @@ $.register_module({
                 if (parsed.length && parsed[0].args.debug) og.dev.debug = parsed[0].args.debug === 'true';
                 if (og.api.rest) og.api.rest.clean();
                 return parsed;
-            }
+            },
+            set_title: function (title) {document.title = 'OpenGamma: ' + title;},
+            title: null
         });
     }
 });

@@ -14,10 +14,13 @@ import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
 import com.opengamma.engine.function.config.SimpleRepositoryConfigurationSource;
-import com.opengamma.financial.analytics.model.equity.option.EquityVanillaBarrierOptionDistanceFunction;
+import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
+import com.opengamma.financial.analytics.model.forex.FXOptionsCalculationMethodDefaults;
 import com.opengamma.financial.analytics.model.forex.option.black.BlackFunctions;
+import com.opengamma.financial.analytics.model.forex.option.callspreadblack.FXDigitalCallSpreadBlackFunction;
 import com.opengamma.financial.analytics.model.forex.option.localvol.LocalVolFunctions;
 import com.opengamma.financial.analytics.model.futureoption.BarrierOptionDistanceDefaults;
+import com.opengamma.financial.analytics.model.futureoption.BarrierOptionDistanceFunction;
 
 /**
  * Function repository configuration source for the functions contained in this package and its sub-packages.
@@ -59,7 +62,7 @@ public class OptionFunctions extends AbstractRepositoryConfigurationBean {
    */
   public static class Defaults extends AbstractRepositoryConfigurationBean {
 
-    private String _barrierFormat = EquityVanillaBarrierOptionDistanceFunction.BARRIER_ABS;
+    private String _barrierFormat = BarrierOptionDistanceFunction.BARRIER_ABS;
 
     public void setBarrierDistanceFormat(final String format) {
       _barrierFormat = format;
@@ -78,9 +81,11 @@ public class OptionFunctions extends AbstractRepositoryConfigurationBean {
 
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
-    functions.add(functionConfiguration(BloombergFXSpotRatePercentageChangeFunction.class));
-    functions.add(functionConfiguration(BloombergFXOptionSpotRateFunction.class));
+    functions.add(functionConfiguration(FXSpotRatePercentageChangeFunction.class));
+    functions.add(functionConfiguration(FXOptionSpotRateFunction.class));
     functions.add(functionConfiguration(FXBarrierOptionDistanceFunction.class));
+    functions.add(functionConfiguration(FXOptionsCalculationMethodDefaults.class, CalculationPropertyNamesAndValues.BLACK_METHOD,
+        FXDigitalCallSpreadBlackFunction.CALL_SPREAD_BLACK_METHOD));
   }
 
   protected RepositoryConfigurationSource blackFunctionConfiguration() {

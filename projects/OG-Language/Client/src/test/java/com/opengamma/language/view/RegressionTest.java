@@ -37,12 +37,13 @@ import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.test.Timeout;
 
 /**
  * Tests a view running over historical market data.
  */
-@Test
+@Test(groups = TestGroup.INTEGRATION)
 public class RegressionTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(RegressionTest.class);

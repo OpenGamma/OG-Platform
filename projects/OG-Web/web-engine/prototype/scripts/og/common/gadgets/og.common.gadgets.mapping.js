@@ -22,12 +22,12 @@ $.register_module({
                 'Depgraph', 'Data', 'Surface', 'Curve', 'Timeseries', 'ExpandedPositions', 'Log', 'Histogram', 'Text'
             ],
             panel_preference: {
-                'south'      : [0, 2, 4, 3, 1, 5, 6],
-                'dock-north' : [2, 4, 3, 1, 0, 5, 6],
-                'dock-center': [2, 4, 3, 1, 0, 5, 6],
-                'dock-south' : [2, 4, 3, 1, 0, 5, 6],
-                'new-window' : [2, 4, 3, 1, 0, 5, 6],
-                'inplace'    : [2, 4, 3, 1, 0, 5, 6]
+                'south'      : [0, 2, 4, 3, 1, 5, 6, 8],
+                'dock-north' : [2, 4, 3, 1, 0, 5, 6, 8],
+                'dock-center': [2, 4, 3, 1, 0, 5, 6, 8],
+                'dock-south' : [2, 4, 3, 1, 0, 5, 6, 8],
+                'new-window' : [2, 4, 3, 1, 0, 5, 6, 8],
+                'inplace'    : [2, 4, 3, 1, 0, 5, 8, 6]
             },
             options: function (cell, grid, panel) {
                 var gadget_type = mapping.type(cell, panel), source = $.extend({}, grid.source), gadget_options;
@@ -75,7 +75,7 @@ $.register_module({
                 MATRIX_2D               : [0, 1, 6],
                 OTC_TRADE               : [5],
                 POSITION                : [5],
-                STRING                  : [0, 6, 8],
+                STRING                  : [8, 6],
                 SURFACE_DATA            : [2, 1, 0, 6],
                 UNPLOTTABLE_SURFACE_DATA: [1, 6, 0],
                 TENOR                   : [0, 6],

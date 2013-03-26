@@ -14,7 +14,7 @@ $.register_module({
             var left_handler = function () {
                 var offset = $main.offset(), right, bottom;
                 if ($menu) $menu.remove();
-                $bars.css({width: $main.width(), height: $main.outerHeight(true) + 1, 
+                $bars.css({width: $main.width(), height: $main.outerHeight(true) + 1,
                     top: offset.top, left: offset.left + 1});
                 $overlay.on('mousemove', function (event) {
                     $bars.css({
@@ -34,7 +34,7 @@ $.register_module({
             };
             var mousedown_handler = function (event) {
                 var handler;
-                if (event.which !== 3 || event.button !== 2){ 
+                if (event.which !== 3 || event.button !== 2){
                     $(window).on('mouseout',  function(event) {
                         event = event ? event : window.event;
                         var from = event.relatedTarget || event.toElement;
@@ -43,19 +43,19 @@ $.register_module({
                     handler = left_handler();
                 }else{
                     event.stopPropagation();
-                    block_menu = true; 
+                    block_menu = true;
                     handler =  right_handler($resizer);
                 }
                 return handler;
             };
             var resize = function () {
                 $resizer.css({
-                    left: offset.left + $main.width() - icon_size, 
-                    top: offset.top + $main.height() - icon_size
+                    left: offset.left + $main.width() - icon_size - 1,
+                    top: offset.top + $main.height() - icon_size - 1
                 });
             };
             var reset = function () {
-                $bars.remove(); 
+                $bars.remove();
                 $overlay.remove();
                 $(window).off('mouseout');
             };

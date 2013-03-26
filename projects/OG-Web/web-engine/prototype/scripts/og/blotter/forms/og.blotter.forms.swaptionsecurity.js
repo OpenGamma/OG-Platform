@@ -83,6 +83,7 @@ $.register_module({
                     $receive_select = $('#' + receive_select.id);
                     og.blotter.util.add_date_picker('.blotter-date');
                     og.blotter.util.add_time_picker('.blotter-time');
+                    og.blotter.util.set_initial_focus();
                     og.blotter.util.set_select("security.currency", data.security.currency);
                     og.blotter.util.check_radio("security.payer", data.security.payer);
                     og.blotter.util.check_radio("security.cashSettled", data.security.cashSettled);

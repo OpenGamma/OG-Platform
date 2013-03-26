@@ -26,11 +26,13 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.position.PositionMaster;
+import com.opengamma.util.test.TestGroup;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**
  * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class DataPositionResourceTest {
 
   private static final ObjectId OID = ObjectId.of("Test", "PosA");

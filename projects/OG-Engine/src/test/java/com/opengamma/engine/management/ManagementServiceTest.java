@@ -30,11 +30,12 @@ import com.opengamma.engine.view.execution.ExecutionOptions;
 import com.opengamma.engine.view.impl.ViewProcessorImpl;
 import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the exposed MBeans and ManagementServiceTest can register MBeans
  */
-@Test
+@Test(groups = TestGroup.INTEGRATION)
 public class ManagementServiceTest {
   
   private static final String ANOTHER_TEST_VIEW = "ANOTHER_TEST_VIEW";

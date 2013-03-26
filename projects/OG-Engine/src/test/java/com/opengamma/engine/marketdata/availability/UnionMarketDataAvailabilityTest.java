@@ -10,6 +10,7 @@ import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
 import org.testng.annotations.DataProvider;
@@ -26,11 +27,12 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.async.BlockingOperation;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the {@link UnionMarketDataAvailability} class.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class UnionMarketDataAvailabilityTest {
 
   private static class BlockingDataProvider implements MarketDataAvailabilityProvider {
@@ -67,6 +69,11 @@ public class UnionMarketDataAvailabilityTest {
       };
     }
 
+    @Override
+    public Serializable getAvailabilityHintKey() {
+      return getClass();
+    }
+
   }
 
   protected MarketDataAvailabilityProvider createProvider1() {
@@ -97,6 +104,11 @@ public class UnionMarketDataAvailabilityTest {
       @Override
       public MarketDataAvailabilityFilter getAvailabilityFilter() {
         return filter;
+      }
+
+      @Override
+      public Serializable getAvailabilityHintKey() {
+        return getClass();
       }
 
     });

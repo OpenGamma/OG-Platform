@@ -25,11 +25,13 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.PortfolioDocument;
 import com.opengamma.master.portfolio.PortfolioMaster;
+import com.opengamma.util.test.TestGroup;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**
  * Tests DataPortfolioResource.
  */
+@Test(groups = TestGroup.UNIT)
 public class DataPortfolioResourceTest {
 
   private static final ObjectId OID = ObjectId.of("Test", "PortA");

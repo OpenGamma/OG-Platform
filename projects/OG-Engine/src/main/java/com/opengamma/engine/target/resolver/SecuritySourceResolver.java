@@ -7,10 +7,7 @@ package com.opengamma.engine.target.resolver;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
-import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.id.ExternalSchemes;
@@ -26,7 +23,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * A {@link ObjectResolver} built on a {@link SecuritySource}.
  */
-public class SecuritySourceResolver implements Resolver<Security> {
+public class SecuritySourceResolver extends AbstractIdentifierResolver implements Resolver<Security> {
 
   private final SecuritySource _underlying;
 
@@ -88,36 +85,12 @@ public class SecuritySourceResolver implements Resolver<Security> {
   }
 
   @Override
-  public Map<ExternalIdBundle, UniqueId> resolveExternalIds(final Set<ExternalIdBundle> identifiers, final VersionCorrection versionCorrection) {
-    final Map<ExternalIdBundle, UniqueId> result = Maps.newHashMapWithExpectedSize(identifiers.size());
-    for (final ExternalIdBundle identifier : identifiers) {
-      final UniqueId uid = resolveExternalId(identifier, versionCorrection);
-      if (uid != null) {
-        result.put(identifier, uid);
-      }
-    }
-    return result;
-  }
-
-  @Override
   public UniqueId resolveObjectId(final ObjectId identifier, final VersionCorrection versionCorrection) {
     try {
       return getUnderlying().get(identifier, versionCorrection).getUniqueId();
     } catch (final DataNotFoundException e) {
       return null;
     }
-  }
-
-  @Override
-  public Map<ObjectId, UniqueId> resolveObjectIds(final Set<ObjectId> identifiers, final VersionCorrection versionCorrection) {
-    final Map<ObjectId, UniqueId> result = Maps.newHashMapWithExpectedSize(identifiers.size());
-    for (final ObjectId identifier : identifiers) {
-      final UniqueId uid = resolveObjectId(identifier, versionCorrection);
-      if (uid != null) {
-        result.put(identifier, uid);
-      }
-    }
-    return result;
   }
 
 }

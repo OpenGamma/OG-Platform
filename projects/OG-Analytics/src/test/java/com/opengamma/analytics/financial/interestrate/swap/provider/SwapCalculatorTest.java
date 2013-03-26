@@ -19,6 +19,7 @@ import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapIborIborDefinition;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
@@ -32,14 +33,15 @@ import com.opengamma.analytics.financial.provider.calculator.generic.TodayPaymen
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
 import com.opengamma.analytics.util.amount.ReferenceAmount;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;
-import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.tuple.Pair;
 
 public class SwapCalculatorTest {
@@ -54,7 +56,7 @@ public class SwapCalculatorTest {
 
   // Swap Fixed-Ibor
   private static final GeneratorSwapFixedIbor USD6MLIBOR3M = GENERATOR_SWAP_MASTER.getGenerator("USD6MLIBOR3M", NYC);
-  private static final Period SWAP_TENOR = Period.ofYears(5);
+  private static final Period SWAP_TENOR = Period.ofYears(10);
   private static final ZonedDateTime SETTLEMENT_DATE = DateUtils.getUTCDate(2012, 5, 17);
   private static final double NOTIONAL = 100000000; //100m
   private static final double RATE_FIXED = 0.025;
@@ -267,6 +269,80 @@ public class SwapCalculatorTest {
     final MultipleCurrencyAmount cash = swap.accept(TPC);
     assertEquals("TodayPaymentCalculator: fixed-coupon swap", 0.0, cash.getAmount(USDLIBOR3M.getCurrency()), TOLERANCE_PV);
     assertEquals("TodayPaymentCalculator: fixed-coupon swap", 1, cash.getCurrencyAmounts().length);
+  }
+
+  @Test(enabled = false)
+  public void presentValuePerformance() {
+
+    long startTime, endTime;
+    final int nbTest = 10;
+
+    PresentValueDiscountingCalculator pvdCalculator = PresentValueDiscountingCalculator.getInstance();
+    PresentValueCurveSensitivityDiscountingCalculator pvcsdCalculator = PresentValueCurveSensitivityDiscountingCalculator.getInstance();
+    ParameterSensitivityParameterCalculator<MulticurveProviderInterface> psCalculator = new ParameterSensitivityParameterCalculator<MulticurveProviderInterface>(pvcsdCalculator);
+
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 5, 14);
+
+    final int nbSwap = 100;
+    MultipleCurrencyAmount[] pv = new MultipleCurrencyAmount[nbSwap];
+    MultipleCurrencyMulticurveSensitivity[] pvcs = new MultipleCurrencyMulticurveSensitivity[nbSwap];
+    MultipleCurrencyParameterSensitivity[] ps = new MultipleCurrencyParameterSensitivity[nbSwap];
+
+    final InstrumentDerivative[] swap = new InstrumentDerivative[nbSwap];
+
+    for (int loops = 0; loops < nbSwap; loops++) {
+      double rate = RATE_FIXED - 0.0050 + loops * BP1;
+      SwapFixedIborDefinition swapDefinition = SwapFixedIborDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, USD6MLIBOR3M, NOTIONAL, rate, true);
+      swap[loops] = swapDefinition.toDerivative(referenceDate, NOT_USED_A);
+    }
+
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      for (int loops = 0; loops < nbSwap; loops++) {
+        pv[loops] = swap[loops].accept(pvdCalculator, MULTICURVES);
+      }
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println("SwapCalculatorTest: " + nbTest + " x " + nbSwap + " swaps (5Y/Q) - present value " + (endTime - startTime) + " ms");
+    // Performance note: Discounting price: 13-Mar-2013: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: xx ms for 100x100 swaps.
+
+    startTime = System.currentTimeMillis(); // Swap construction + PV
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      for (int loops = 0; loops < nbSwap; loops++) {
+        double rate = RATE_FIXED - 0.0050 + loops * BP1;
+        SwapFixedIborDefinition swapDefinition = SwapFixedIborDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, USD6MLIBOR3M, NOTIONAL, rate, true);
+        swap[loops] = swapDefinition.toDerivative(referenceDate, NOT_USED_A);
+      }
+      for (int loops = 0; loops < nbSwap; loops++) {
+        pv[loops] = swap[loops].accept(pvdCalculator, MULTICURVES);
+      }
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println("SwapCalculatorTest: " + nbTest + " x " + nbSwap + " swaps (5Y/Q) - construction + present value " + (endTime - startTime) + " ms");
+    // Performance note: Discounting price: 13-Mar-2013: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: xx ms for 100x100 swaps.
+
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      for (int loops = 0; loops < nbSwap; loops++) {
+        pv[loops] = swap[loops].accept(pvdCalculator, MULTICURVES);
+        pvcs[loops] = swap[loops].accept(pvcsdCalculator, MULTICURVES);
+      }
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println("SwapCalculatorTest: " + nbTest + " x " + nbSwap + " swaps (5Y/Q) - present value + present value curve sensitivity " + (endTime - startTime) + " ms");
+    // Performance note: Discounting price: 13-Mar-2013: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: xx ms for 100x100 swaps.
+
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      for (int loops = 0; loops < nbSwap; loops++) {
+        pv[loops] = swap[loops].accept(pvdCalculator, MULTICURVES);
+        ps[loops] = psCalculator.calculateSensitivity(swap[loops], MULTICURVES, MULTICURVES.getAllNames());
+      }
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println("SwapCalculatorTest: " + nbTest + " x " + nbSwap + " swaps (5Y/Q) - present value + present value parameters sensitivity " + (endTime - startTime) + " ms");
+    // Performance note: Discounting price: 13-Mar-2013: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: xx ms for 100x100 swaps.
+
   }
 
   //  @Test

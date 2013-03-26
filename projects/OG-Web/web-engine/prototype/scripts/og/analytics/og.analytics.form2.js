@@ -6,7 +6,7 @@ $.register_module({
     name: 'og.analytics.Form2',
     dependencies: [],
     obj: function () {
-        var constructor, callback,
+        var constructor, callback, form,
             tashes = { form_container:  'og.analytics.form_tash' },
             selectors = {
                 form_container: 'OG-analytics-form',
@@ -27,7 +27,7 @@ $.register_module({
 
         var init = function (data) {
             dom.form_container = $('.' + selectors.form_container);
-            var form = new og.common.util.ui.Form({
+            form = new og.common.util.ui.Form({
                 module: tashes.form_container,
                 selector: '.' + selectors.form_container
             });
@@ -40,7 +40,7 @@ $.register_module({
                 //new og.analytics.form.FiltersMenu({form:form, index:'filters', filters:  data.filters || null})
             );
             form.on('form:load', load_handler);
-            form.on('form:submit', function (result) {load_form(result.data);});
+            form.on('form:submit', function (result) { load_form(result.data); });
             form.on('keydown', selectors.form_controls, keydown_handler);
             form.dom();
         };
@@ -50,7 +50,6 @@ $.register_module({
             dom.form_controls = {};
             Object.keys(selectors.menus).map(function (entry) {
                 dom.menus[entry] = $('.'+selectors.menus[entry], dom.form_container);
-                dom.form_controls[entry] = $(selectors.form_controls, dom.menus[entry]);
             });
             dom.menus.views.find('input').select();
         };
@@ -69,6 +68,11 @@ $.register_module({
 
         var keydown_handler = function (event) {
             if (event.keyCode !== 9) return;
+            if (!Object.keys(dom.form_controls).length) {
+                Object.keys(dom.menus).forEach(function (entry) {
+                    dom.form_controls[entry] = $(selectors.form_controls, dom.menus[entry]);
+                });
+            }
             var $elem = $(event.srcElement || event.target), shift = event.shiftKey, menus = dom.menus,
                 controls = dom.form_controls, menu_toggle = '.'+selectors.menu_toggle,
                 load_btn = '.'+selectors.load_btn, idx,

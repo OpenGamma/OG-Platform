@@ -213,14 +213,11 @@
   </bean>
 
   <!-- Target resolver -->
-  <bean id="targetResolver" class="com.opengamma.engine.DefaultCachingComputationTargetResolver">
-    <constructor-arg>
-      <bean class="com.opengamma.engine.DefaultComputationTargetResolver">
-        <constructor-arg ref="positionSource" />
-        <constructor-arg ref="securitySource" />
-      </bean>
-    </constructor-arg>
-    <constructor-arg ref="cacheManager" />
+  <bean id="targetResolver" class="com.opengamma.component.factory.engine.TargetResolverComponentFactory">
+    <property name="cacheManager" ref="cacheManager" />
+    <property name="currencyMatrixSource" ref="currencyMatrixSource" />
+    <property name="positionSource" ref="positionSource" />
+    <property name="securitySource" ref="securitySource" />
   </bean>
   
   <!-- Execution statistics -->
@@ -233,7 +230,6 @@
     <property name="computationTargetResolver" ref="targetResolver" />
     <property name="configSource" ref="configSource" />
     <property name="conventionBundleSource" ref="conventionBundleSource"/>
-    <property name="currencyMatrixSource" ref="currencyMatrixSource" />
     <property name="exchangeSource" ref="exchangeSource" />
     <property name="holidaySource" ref="holidaySource" />
     <property name="historicalTimeSeriesSource" ref="historicalTimeSeriesSource" />

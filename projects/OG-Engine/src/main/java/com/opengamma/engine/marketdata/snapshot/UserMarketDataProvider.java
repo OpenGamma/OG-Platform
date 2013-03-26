@@ -5,7 +5,6 @@
  */
 package com.opengamma.engine.marketdata.snapshot;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -21,7 +20,6 @@ import com.opengamma.engine.marketdata.MarketDataProvider;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
 import com.opengamma.engine.marketdata.PermissiveMarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
-import com.opengamma.engine.marketdata.availability.UnionMarketDataAvailability;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.UserMarketDataSpecification;
 import com.opengamma.engine.value.ValueSpecification;
@@ -42,8 +40,6 @@ public class UserMarketDataProvider extends AbstractMarketDataProvider {
   private final Object _listenerLock = new Object();
   private final Object _initSnapshotLock = new Object();
   private volatile UserMarketDataSnapshot _snapshot;
-
-  private MarketDataAvailabilityProvider _baseMarketDataAvailabilityProvider;
 
   public UserMarketDataProvider(final MarketDataSnapshotSource snapshotSource, final UniqueId snapshotId) {
     ArgumentChecker.notNull(snapshotSource, "snapshotSource");
@@ -74,7 +70,9 @@ public class UserMarketDataProvider extends AbstractMarketDataProvider {
     synchronized (_initSnapshotLock) {
       if (_snapshot == null) {
         StructuredMarketDataSnapshot structuredSnapshot = getSnapshotSource().get(getSnapshotId());
-        _snapshot = new UserMarketDataSnapshot(structuredSnapshot, getSnapshotId());
+        snapshot = new UserMarketDataSnapshot(structuredSnapshot);
+        snapshot.init();
+        _snapshot = snapshot;
       }
       return _snapshot;
     }
@@ -110,7 +108,7 @@ public class UserMarketDataProvider extends AbstractMarketDataProvider {
   @Override
   public void subscribe(final Set<ValueSpecification> valueSpecifications) {
     _listeningValueSpecifications.addAll(valueSpecifications);
-    subscriptionSucceeded(valueSpecifications);
+    subscriptionsSucceeded(valueSpecifications);
   }
 
   @Override
@@ -126,16 +124,7 @@ public class UserMarketDataProvider extends AbstractMarketDataProvider {
   //-------------------------------------------------------------------------
   @Override
   public MarketDataAvailabilityProvider getAvailabilityProvider(final MarketDataSpecification marketDataSpec) {
-    final UserMarketDataSnapshot snapshot = getSnapshot();
-    snapshot.init();
-    if (getBaseMarketDataAvailabilityProvider() == null) {
-      return snapshot.getAvailabilityProvider();
-    } else {
-      // [PLAT-1459] 2011-10-03 -- missing values in the snapshot will prevent the dep graph from building even though
-      // it builds in the live case where the availability provider is more optimistic. Using a union of the two works
-      // around this problem.
-      return new UnionMarketDataAvailability.Provider(Arrays.asList(getBaseMarketDataAvailabilityProvider(), snapshot.getAvailabilityProvider()));
-    }
+    return getSnapshot().getAvailabilityProvider();
   }
 
   @Override
@@ -168,15 +157,6 @@ public class UserMarketDataProvider extends AbstractMarketDataProvider {
 
   private MarketDataSnapshotSource getSnapshotSource() {
     return _snapshotSource;
-  }
-
-  //-------------------------------------------------------------------------
-  public MarketDataAvailabilityProvider getBaseMarketDataAvailabilityProvider() {
-    return _baseMarketDataAvailabilityProvider;
-  }
-
-  public void setBaseMarketDataAvailabilityProvider(final MarketDataAvailabilityProvider baseMarketDataAvailabilityProvider) {
-    _baseMarketDataAvailabilityProvider = baseMarketDataAvailabilityProvider;
   }
 
 }

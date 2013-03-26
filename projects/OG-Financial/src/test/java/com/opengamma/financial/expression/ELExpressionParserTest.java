@@ -10,11 +10,12 @@ import static org.testng.Assert.assertEquals;
 import org.testng.annotations.Test;
 
 import com.google.common.base.Function;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * Tests the {@link ELExpressionParser} class.
+ * Test.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class ELExpressionParserTest {
 
   @Test(expectedExceptions = {IllegalArgumentException.class })

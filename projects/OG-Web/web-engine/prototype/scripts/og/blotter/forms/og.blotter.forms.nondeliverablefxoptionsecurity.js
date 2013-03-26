@@ -61,6 +61,7 @@ $.register_module({
                 form.on('form:load', function (){
                     og.blotter.util.add_date_picker('.blotter-date');
                     og.blotter.util.add_time_picker('.blotter-time');
+                    og.blotter.util.set_initial_focus();
                     if(data.security.length) return;
                     og.blotter.util.set_select("security.putCurrency", data.security.putCurrency);
                     og.blotter.util.set_select("security.callCurrency", data.security.callCurrency);

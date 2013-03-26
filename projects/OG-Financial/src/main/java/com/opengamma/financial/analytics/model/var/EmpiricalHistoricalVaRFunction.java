@@ -6,6 +6,7 @@
 package com.opengamma.financial.analytics.model.var;
 
 import static com.opengamma.financial.analytics.model.var.NormalHistoricalVaRFunction.PROPERTY_VAR_DISTRIBUTION;
+import static com.opengamma.financial.analytics.model.var.NormalHistoricalVaRFunction.DEFAULT_PNL_CONTRIBUTIONS;
 
 import java.util.Map;
 import java.util.Set;
@@ -28,20 +29,18 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.model.pnl.YieldCurveNodePnLFunction;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.DoubleTimeSeries;
 
 /**
  * 
  */
 public class EmpiricalHistoricalVaRFunction extends AbstractFunction.NonCompiledInvoker {
+  
   /**
    * The name for the empirical historical VaR calculation method.
    */
   public static final String EMPIRICAL_VAR = "Empirical";
-  /**
-   * The default PnLContribution property value.
-   */
-  public static final String DEFAULT_PNL_CONTRIBUTIONS = "Delta";
+  
   private static final EmpiricalDistributionVaRCalculator CALCULATOR = new EmpiricalDistributionVaRCalculator();
 
   @Override
@@ -156,8 +155,8 @@ public class EmpiricalHistoricalVaRFunction extends AbstractFunction.NonCompiled
         .withAny(ValuePropertyNames.SAMPLING_FUNCTION)
         .withAny(ValuePropertyNames.CONFIDENCE_LEVEL)
         .withAny(ValuePropertyNames.HORIZON)
-        .with(PROPERTY_VAR_DISTRIBUTION, EMPIRICAL_VAR)
-        .with(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS, pnlContribution);
+        .with(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS, pnlContribution)
+        .with(PROPERTY_VAR_DISTRIBUTION, EMPIRICAL_VAR);
     if (aggregationStyle != null) {
       properties.with(ValuePropertyNames.AGGREGATION, aggregationStyle);
     }

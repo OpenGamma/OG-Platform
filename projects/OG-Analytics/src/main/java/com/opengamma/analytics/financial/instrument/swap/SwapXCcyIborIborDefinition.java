@@ -17,8 +17,8 @@ import com.opengamma.analytics.financial.instrument.payment.PaymentFixedDefiniti
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
+import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * Class describing a Ibor+Spread for Ibor+Spread payments swap. The two legs can be in different currencies.
@@ -125,8 +125,8 @@ public class SwapXCcyIborIborDefinition extends SwapDefinition {
   @Override
   public Swap<Payment, Payment> toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.isTrue(yieldCurveNames.length >= 4, "Should have at least 4 curve names");
-    final String[] firstLegCurveNames = new String[] {yieldCurveNames[0], yieldCurveNames[1]};
-    final String[] secondLegCurveNames = new String[] {yieldCurveNames[2], yieldCurveNames[3]};
+    final String[] firstLegCurveNames = new String[] {yieldCurveNames[0], yieldCurveNames[1] };
+    final String[] secondLegCurveNames = new String[] {yieldCurveNames[2], yieldCurveNames[3] };
     final Annuity<Payment> firstLeg = (Annuity<Payment>) getFirstLeg().toDerivative(date, firstLegCurveNames);
     final Annuity<Payment> secondLeg = (Annuity<Payment>) getSecondLeg().toDerivative(date, secondLegCurveNames);
     return new Swap<Payment, Payment>(firstLeg, secondLeg);
@@ -137,8 +137,8 @@ public class SwapXCcyIborIborDefinition extends SwapDefinition {
     ArgumentChecker.notNull(indexDataTS, "index data time series array");
     ArgumentChecker.isTrue(indexDataTS.length > 1, "index data time series must contain at least two elements");
     ArgumentChecker.isTrue(yieldCurveNames.length >= 4, "Should have at least 4 curve names");
-    final String[] firstLegCurveNames = new String[] {yieldCurveNames[0], yieldCurveNames[1]};
-    final String[] secondLegCurveNames = new String[] {yieldCurveNames[2], yieldCurveNames[3]};
+    final String[] firstLegCurveNames = new String[] {yieldCurveNames[0], yieldCurveNames[1] };
+    final String[] secondLegCurveNames = new String[] {yieldCurveNames[2], yieldCurveNames[3] };
     final Annuity<Payment> firstLeg = (Annuity<Payment>) getFirstLeg().toDerivative(date, indexDataTS[0], firstLegCurveNames);
     final Annuity<Payment> secondLeg = (Annuity<Payment>) getSecondLeg().toDerivative(date, indexDataTS[1], secondLegCurveNames);
     return new Swap<Payment, Payment>(firstLeg, secondLeg);

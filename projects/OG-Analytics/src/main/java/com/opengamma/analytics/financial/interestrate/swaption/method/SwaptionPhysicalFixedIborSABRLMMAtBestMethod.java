@@ -337,8 +337,6 @@ public class SwaptionPhysicalFixedIborSABRLMMAtBestMethod implements PricingMeth
     for (int loopp = 0; loopp < 2 * nbPeriods; loopp++) {
       dPvdC = dPvdC.plus(dPhidC[loopp].multipliedBy(dPvdPhi[loopp])).cleaned();
     }
-    //    System.out.println(Runtime.getRuntime().totalMemory());
-
     return new Triple<CurrencyAmount, PresentValueSABRSensitivityDataBundle, InterestRateCurveSensitivity>(pv, sensiSABR, dPvdC);
   }
 

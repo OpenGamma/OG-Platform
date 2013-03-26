@@ -101,7 +101,8 @@
       usr_oguser
     @INCLUDE(SearchWhere)
     ORDER BY
-      @INCLUDE(:sort_order)
+      @INCLUDE(:sort_order),
+      usr_oguser.id
 
 
 -- ==========================================================================

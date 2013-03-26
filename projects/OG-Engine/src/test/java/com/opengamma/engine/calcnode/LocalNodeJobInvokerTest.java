@@ -20,12 +20,13 @@ import com.opengamma.engine.calcnode.JobInvoker;
 import com.opengamma.engine.calcnode.JobInvokerRegister;
 import com.opengamma.engine.calcnode.LocalNodeJobInvoker;
 import com.opengamma.engine.test.TestCalculationNode;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.test.Timeout;
 
 /**
  * Tests the LocalNodeJobInvoker class
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class LocalNodeJobInvokerTest {
 
   private static final long TIMEOUT = Timeout.standardTimeoutMillis();

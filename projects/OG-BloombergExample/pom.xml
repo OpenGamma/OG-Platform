@@ -41,4 +41,9 @@
     </dependency>
   </dependencies>
 
+  <properties>
+    <tests.testng.includedgroups>unit</tests.testng.includedgroups>
+    <tests.testng.excludedgroups>integration, unitdb, unitslow</tests.testng.excludedgroups>
+  </properties>
+
 </project>

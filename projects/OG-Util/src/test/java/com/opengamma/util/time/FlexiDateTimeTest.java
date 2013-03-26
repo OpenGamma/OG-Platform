@@ -17,10 +17,12 @@ import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Test.
  */
-@Test(groups = "unit")
+@Test(groups = TestGroup.UNIT)
 public class FlexiDateTimeTest {
 
   private static final LocalDate DATE = LocalDate.of(2010, 7, 1);

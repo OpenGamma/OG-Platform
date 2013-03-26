@@ -140,6 +140,7 @@ public class OptionFunctions extends AbstractRepositoryConfigurationBean {
     functions.add(functionConfiguration(PositionGreeksFunction.class, ValueRequirementNames.POSITION_RHO, ValueRequirementNames.RHO));
     functions.add(functionConfiguration(PositionGreeksFunction.class, ValueRequirementNames.POSITION_THETA, ValueRequirementNames.THETA));
     functions.add(functionConfiguration(PositionGreeksFunction.class, ValueRequirementNames.POSITION_VEGA, ValueRequirementNames.VEGA));
+    functions.add(functionConfiguration(PositionGreeksFunction.class, ValueRequirementNames.POSITION_WEIGHTED_VEGA, ValueRequirementNames.WEIGHTED_VEGA));
     functions.add(functionConfiguration(WeightedVegaFunction.class));
     functions.add(functionConfiguration(EquityVanillaBarrierOptionDistanceFunction.class));
   }
