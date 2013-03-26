@@ -23,25 +23,25 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * Method to compute present value and present value sensitivity for fixed coupon.
  */
-public final class CouponFixedDiscountingProviderMethod {
+public final class CouponFixedDiscountingMethod {
 
   /**
    * The method unique instance.
    */
-  private static final CouponFixedDiscountingProviderMethod INSTANCE = new CouponFixedDiscountingProviderMethod();
+  private static final CouponFixedDiscountingMethod INSTANCE = new CouponFixedDiscountingMethod();
 
   /**
    * Return the unique instance of the class.
    * @return The instance.
    */
-  public static CouponFixedDiscountingProviderMethod getInstance() {
+  public static CouponFixedDiscountingMethod getInstance() {
     return INSTANCE;
   }
 
   /**
    * Private constructor.
    */
-  private CouponFixedDiscountingProviderMethod() {
+  private CouponFixedDiscountingMethod() {
   }
 
   /**
