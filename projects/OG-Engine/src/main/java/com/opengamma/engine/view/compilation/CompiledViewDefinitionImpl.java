@@ -54,12 +54,12 @@ public class CompiledViewDefinitionImpl implements CompiledViewDefinition {
 
   protected CompiledViewDefinitionImpl(final CompiledViewDefinitionImpl copyFrom, final VersionCorrection versionCorrection) {
     _versionCorrection = versionCorrection;
-    _identifier = copyFrom._identifier;
-    _viewDefinition = copyFrom._viewDefinition;
-    _portfolio = copyFrom._portfolio;
+    _identifier = copyFrom.getCompilationIdentifier();
+    _viewDefinition = copyFrom.getViewDefinition();
+    _portfolio = copyFrom.getPortfolio();
     _compiledCalculationConfigurations = copyFrom._compiledCalculationConfigurations;
-    _earliestValidity = copyFrom._earliestValidity;
-    _latestValidity = copyFrom._latestValidity;
+    _earliestValidity = copyFrom.getValidFrom();
+    _latestValidity = copyFrom.getValidTo();
   }
 
   @Override

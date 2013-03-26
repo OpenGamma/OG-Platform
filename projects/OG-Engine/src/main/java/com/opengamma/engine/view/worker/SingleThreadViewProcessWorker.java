@@ -1189,6 +1189,9 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
               _latestCompiledViewDefinition = PLAT3249.deepClone(cached);
             }
           }
+        } else {
+          // Nothing in the cache; use the one from last time
+          cached = _latestCompiledViewDefinition;
         }
       }
     } else {
