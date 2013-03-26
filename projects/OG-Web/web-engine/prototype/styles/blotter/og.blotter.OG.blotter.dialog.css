@@ -42,7 +42,10 @@
     padding-right:0;
 }
 .OG-blotter-form-block .og-double-cell label{
-    margin-left:10%
+    margin-left:3%
+}
+.OG-blotter-form-block .og-double-cell label span{
+    width: 65%
 }
 .OG-blotter-form-block label input[type=radio] {
     vertical-align: top;

@@ -13,7 +13,7 @@ $.register_module({
                 trade: og.blotter.util.otc_trade};}
             data.nodeId = config.portfolio ? config.portfolio.id : null;
             constructor.load = function () {
-                constructor.title = 'LegacyFixedRecoveryCDS';
+                constructor.title = 'Legacy Fixed Recovery CDS';
                 form = new og.common.util.ui.Form({
                     module: 'og.blotter.forms.simple_tash',
                     selector: '.OG-blotter-form-block',
