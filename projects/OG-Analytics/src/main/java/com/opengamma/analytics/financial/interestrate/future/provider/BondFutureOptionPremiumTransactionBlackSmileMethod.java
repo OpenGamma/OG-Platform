@@ -6,7 +6,7 @@
 package com.opengamma.analytics.financial.interestrate.future.provider;
 
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumTransaction;
-import com.opengamma.analytics.financial.interestrate.payments.provider.PaymentFixedDiscountingProviderMethod;
+import com.opengamma.analytics.financial.interestrate.payments.provider.PaymentFixedDiscountingMethod;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackBondFuturesSmilePriceProviderInterface;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackBondFuturesSmileProviderInterface;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
@@ -44,7 +44,7 @@ public final class BondFutureOptionPremiumTransactionBlackSmileMethod {
    * The methods and calculators used.
    */
   private static final BondFutureOptionPremiumSecurityBlackSmileMethod METHOD_SECURITY = BondFutureOptionPremiumSecurityBlackSmileMethod.getInstance();
-  private static final PaymentFixedDiscountingProviderMethod METHOD_PAY_FIXED = PaymentFixedDiscountingProviderMethod.getInstance();
+  private static final PaymentFixedDiscountingMethod METHOD_PAY_FIXED = PaymentFixedDiscountingMethod.getInstance();
 
   /**
    * Compute the present value of a bond future option transaction from the quoted option price.
