@@ -9,8 +9,14 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.threeten.bp.Instant;
+
 import com.google.common.collect.MapMaker;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.WeakInstanceCache;
+import com.opengamma.util.map.Map2;
+import com.opengamma.util.map.WeakValueHashMap2;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Provides locks that correspond to the view execution cache keys.
@@ -22,20 +28,58 @@ public final class ViewExecutionCacheLock {
   // No harm in sharing the canonicalized forms with other instances.
   private static final WeakInstanceCache<ViewExecutionCacheKey> s_keys = new WeakInstanceCache<ViewExecutionCacheKey>();
 
-  // The actual lock objects are per instance
-  private final ConcurrentMap<ViewExecutionCacheKey, Lock> _locks = new MapMaker().weakKeys().makeMap();
+  private static final class Locks {
 
-  public Lock get(final ViewExecutionCacheKey cacheKey) {
+    private final Lock _broad = new ReentrantLock();
+    private final Map2<Instant, VersionCorrection, Lock> _fine = new WeakValueHashMap2<Instant, VersionCorrection, Lock>();
+
+  }
+
+  // The actual lock objects are per instance
+  private final ConcurrentMap<ViewExecutionCacheKey, Locks> _locks = new MapMaker().weakKeys().makeMap();
+
+  private Locks getOrCreateLocks(final ViewExecutionCacheKey cacheKey) {
     final ViewExecutionCacheKey normalized = s_keys.get(cacheKey);
-    Lock lock = _locks.get(normalized);
+    Locks locks = _locks.get(normalized);
+    if (locks == null) {
+      locks = new Locks();
+      final Locks previous = _locks.putIfAbsent(normalized, locks);
+      if (previous != null) {
+        locks = previous;
+      }
+    }
+    return locks;
+  }
+
+  /**
+   * Acquires the broad lock for the view compilation.
+   * 
+   * @param cacheKey the broad key that summarizes the view definition and market data providers, not null
+   * @return the lock instance, not null
+   */
+  public Lock get(final ViewExecutionCacheKey cacheKey) {
+    return getOrCreateLocks(cacheKey)._broad;
+  }
+
+  /**
+   * Acquires the broad and finer grained locks for a specific compilation of a view
+   * 
+   * @param cacheKey the broad key that summarizes the view definition and market data providers, not null
+   * @param valuationTime an indicative valuation time for any compilation, not null
+   * @param resolverVersionCorrection the target resolver version/correction timestamp, not null
+   * @return the lock instances, not null. The first element in the pair is the broad lock, the second is the finer lock
+   */
+  public Pair<Lock, Lock> get(final ViewExecutionCacheKey cacheKey, final Instant valuationTime, final VersionCorrection resolverVersionCorrection) {
+    final Locks locks = getOrCreateLocks(cacheKey);
+    Lock lock = locks._fine.get(valuationTime, resolverVersionCorrection);
     if (lock == null) {
       lock = new ReentrantLock();
-      Lock previous = _locks.putIfAbsent(normalized, lock);
+      final Lock previous = locks._fine.putIfAbsent(valuationTime, resolverVersionCorrection, lock);
       if (previous != null) {
         lock = previous;
       }
     }
-    return lock;
+    return Pair.of(locks._broad, lock);
   }
 
 }

@@ -1026,11 +1026,12 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
     final long functionInitId = getProcessContext().getFunctionCompilationService().getFunctionCompilationContext().getFunctionInitId();
     updateViewDefinitionIfRequired();
     CompiledViewDefinitionWithGraphs compiledViewDefinition = null;
-    final Lock executionCacheLock = getProcessContext().getExecutionCacheLock().get(_executionCacheKey);
-    executionCacheLock.lock();
-    boolean locked = true;
+    final Pair<Lock, Lock> executionCacheLocks = getProcessContext().getExecutionCacheLock().get(_executionCacheKey, valuationTime, versionCorrection);
+    executionCacheLocks.getSecond().lock();
+    executionCacheLocks.getFirst().lock();
+    boolean broadLock = true;
     try {
-      compiledViewDefinition = getCachedCompiledViewDefinition();
+      compiledViewDefinition = getCachedCompiledViewDefinition(valuationTime, versionCorrection);
       Map<String, Pair<DependencyGraph, Set<ValueRequirement>>> previousGraphs = null;
       ConcurrentMap<ComputationTargetReference, UniqueId> previousResolutions = null;
       boolean portfolioFull = false;
@@ -1038,8 +1039,8 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
       boolean marketDataProviderDirty = _marketDataProviderDirty;
       _marketDataProviderDirty = false;
       if (compiledViewDefinition != null) {
-        executionCacheLock.unlock();
-        locked = false;
+        executionCacheLocks.getFirst().unlock();
+        broadLock = false;
         do {
           // The cast below is bad, but only temporary -- the function initialiser id needs to go
           if (functionInitId != ((CompiledViewDefinitionWithGraphsImpl) compiledViewDefinition).getFunctionInitId()) {
@@ -1107,8 +1108,8 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
             previousResolutions = new ConcurrentHashMap<ComputationTargetReference, UniqueId>(resolvedIdentifiers);
           }
         } while (false);
-        executionCacheLock.lock();
-        locked = true;
+        executionCacheLocks.getFirst().lock();
+        broadLock = true;
       }
       final MarketDataAvailabilityProvider availabilityProvider = getMarketDataProvider().getAvailabilityProvider();
       final ViewCompilationServices compilationServices = getProcessContext().asCompilationServices(availabilityProvider);
@@ -1140,9 +1141,10 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
       viewDefinitionCompilationFailed(valuationTime, new OpenGammaRuntimeException(message, e));
       throw new OpenGammaRuntimeException(message, e);
     } finally {
-      if (locked) {
-        executionCacheLock.unlock();
+      if (broadLock) {
+        executionCacheLocks.getFirst().unlock();
       }
+      executionCacheLocks.getSecond().unlock();
     }
     // [PLAT-984]
     // Assume that valuation times are increasing in real-time towards the expiry of the view definition, so that we
@@ -1166,16 +1168,37 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
    * <p>
    * External visibility for tests.
    * 
+   * @param valuationTime the indicative valuation time, not null
+   * @param resolverVersionCorrection the resolver version correction, not null
    * @return the cached compiled view definition, or null if nothing is currently cached
    */
-  public CompiledViewDefinitionWithGraphs getCachedCompiledViewDefinition() {
-    if (_latestCompiledViewDefinition == null) {
-      _latestCompiledViewDefinition = getProcessContext().getExecutionCache().getCompiledViewDefinitionWithGraphs(_executionCacheKey);
-      if (_latestCompiledViewDefinition != null) {
-        _latestCompiledViewDefinition = PLAT3249.deepClone(_latestCompiledViewDefinition);
+  public CompiledViewDefinitionWithGraphs getCachedCompiledViewDefinition(final Instant valuationTime, final VersionCorrection resolverVersionCorrection) {
+    CompiledViewDefinitionWithGraphs cached = _latestCompiledViewDefinition;
+    if (cached != null) {
+      boolean resolverMatch = resolverVersionCorrection.equals(cached.getResolverVersionCorrection());
+      boolean valuationMatch = CompiledViewDefinitionWithGraphsImpl.isValidFor(cached, valuationTime);
+      if (!resolverMatch || !valuationMatch) {
+        // Query the cache in case there is a newer one
+        cached = getProcessContext().getExecutionCache().getCompiledViewDefinitionWithGraphs(_executionCacheKey);
+        if (cached != null) {
+          // Only update ours if the one from the cache has a better validity
+          if (resolverVersionCorrection.equals(cached.getResolverVersionCorrection())) {
+            _latestCompiledViewDefinition = PLAT3249.deepClone(cached);
+          } else {
+            if (!resolverMatch && !valuationMatch && CompiledViewDefinitionWithGraphsImpl.isValidFor(cached, valuationTime)) {
+              _latestCompiledViewDefinition = PLAT3249.deepClone(cached);
+            }
+          }
+        }
+      }
+    } else {
+      // Query the cache
+      cached = getProcessContext().getExecutionCache().getCompiledViewDefinitionWithGraphs(_executionCacheKey);
+      if (cached != null) {
+        _latestCompiledViewDefinition = PLAT3249.deepClone(cached);
       }
     }
-    return _latestCompiledViewDefinition;
+    return cached;
   }
 
   /**
@@ -1359,7 +1382,8 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
     if (!getExecutionOptions().getFlags().contains(ViewExecutionFlags.TRIGGER_CYCLE_ON_MARKET_DATA_CHANGED)) {
       return;
     }
-    final CompiledViewDefinitionWithGraphs compiledView = getCachedCompiledViewDefinition();
+    // Don't want to query the cache for this; always use the last one
+    final CompiledViewDefinitionWithGraphs compiledView = _latestCompiledViewDefinition;
     if (compiledView == null) {
       return;
     }
