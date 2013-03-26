@@ -14,6 +14,18 @@ $.register_module({
                 module: 'og.blotter.forms.blocks.cds_tash',
                 extras: {},
                 children: [
+                    new og.blotter.forms.blocks.Security({
+                        form: form, label: "Protection Buyer", security: data.security.protectionBuyer,
+                        index: "security.protectionBuyer"
+                    }),
+                    new og.blotter.forms.blocks.Security({
+                        form: form, label: "Protection Seller", security: data.security.protectionSeller,
+                        index: "security.protectionSeller"
+                    }),
+                    new og.blotter.forms.blocks.Security({
+                        form: form, label: "Reference Entity", security: data.security.referenceEntity,
+                        index: "security.referenceEntity"
+                    }),
                     new form.Block({module:'og.views.forms.currency_tash', 
                         extras:{}
                     }),
@@ -21,32 +33,33 @@ $.register_module({
                         form: form, resource: 'blotter.regions', index:  'regionId',
                         value: data.regionId, placeholder: 'Select Region ID'
                     }),
-                    security_block = new og.blotter.forms.blocks.Security({
-                        form: form, label: "Short Underlying ID", security: data.floatingReferenceRateId,
-                        index: "floatingReferenceRateId"
-                    }),    
                     new ui.Dropdown({
                         form: form, resource: 'blotter.daycountconventions', index: 'dayCount',
                         value: data.dayCount, placeholder: 'Select Day Count'
                     }),
                     new ui.Dropdown({
-                        form: form, resource: 'blotter.frequencies', index:  'frequency',
-                        value: data.frequency, placeholder: 'Select Frequency'
+                        form: form, resource: 'blotter.frequencies', index:  'couponFrequency',
+                        value: data.couponFrequency, placeholder: 'Select Frequency'
                     }),
                     new ui.Dropdown({
                         form: form, resource: 'blotter.businessdayconventions', 
-                        index:  'businessDayConvention',
-                        value: data.businessDayConvention, 
+                        index:  'businessDayConvention', value: data.businessDayConvention, 
                         placeholder: 'Select Business Day Convention'
                     }),
                     new ui.Dropdown({
-                        form: form, resource: 'blotter.floatingratetypes', 
-                        index:  'floatingRateType',
-                        value: data.floatingRateType, placeholder: 'Select Floating Rate Type'
+                        form: form, resource: 'blotter.restructuringclause', 
+                        index:  'restructuringClause', value: data.restructuringClause, 
+                        placeholder: 'Select Restructuring Clause'
                     }),
                     new ui.Dropdown({
-                        form: form, resource: 'blotter.frequencies', index:  'offsetFixing',
-                        value: data.offsetFixing, placeholder: 'Select Offset Fixing'
+                        form: form, resource: 'blotter.debtseniority', 
+                        index:  'debtSeniority', value: data.debtSeniority, 
+                        placeholder: 'Select Debt Seniority'
+                    }),
+                    new ui.Dropdown({
+                        form: form, resource: 'blotter.stubtype', 
+                        index:  'stubType', value: data.stubType, 
+                        placeholder: 'Select Stub Type'
                     })
                 ]
             });
