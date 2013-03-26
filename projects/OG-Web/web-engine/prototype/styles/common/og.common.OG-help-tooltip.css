@@ -4,7 +4,7 @@
  */
 
 .tool-tips {
-    margin:300px;
+    margin:30px;
 }
 
 /* base CSS element */
@@ -17,14 +17,84 @@
     box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
     position: relative;
     width: 200px;
+    margin:10px;
 }
 
 /* arrows - :before and :after */
-.tip:before {
+.tip.north:before{
+    position: absolute;
+    display: inline-block;
+    border-bottom: 7px solid #bdc4c8;
+    border-right: 7px solid transparent;
+    border-left: 7px solid transparent;
+    border-bottom-color: rgba(0, 0, 0, 0.2);
+    left: 100px;
+    top: -8px;
+    content: '';
+}
+
+.tip.north:after{
+    position: absolute;
+    display: inline-block;
+    border-bottom: 6px solid #fff;
+    border-right: 6px solid transparent;
+    border-left: 6px solid transparent;
+    left: 101px;
+    top: -6px;
+    content: '';
+}
+
+.tip.east:before {
     position: absolute;
     display: inline-block;
     border-top: 7px solid transparent;
-    border-right: 7px solid #eee;
+    border-left: 7px solid #bdc4c8;
+    border-bottom: 7px solid transparent;
+    border-left-color: rgba(0, 0, 0, 0.2);
+    left: 220px;
+    top: 63px;
+    content: '';
+}
+
+.tip.east:after {
+    position: absolute;
+    display: inline-block;
+    border-top: 6px solid transparent;
+    border-left: 6px solid #fff;
+    border-bottom: 6px solid transparent;
+    left: 219px;
+    top: 64px;
+    content: '';
+}
+
+.tip.south:before{
+    position: absolute;
+    display: inline-block;
+    border-top: 7px solid #bdc4c8;
+    border-right: 7px solid transparent;
+    border-left: 7px solid transparent;
+    border-top-color: rgba(0, 0, 0, 0.2);
+    left: 100px;
+    top: 172px;
+    content: '';
+}
+
+.tip.south:after{
+    position: absolute;
+    display: inline-block;
+    border-top: 6px solid #fff;
+    border-right: 6px solid transparent;
+    border-left: 6px solid transparent;
+    left: 101px;
+    top: 172px;
+    content: '';
+}
+
+.tip.west:before {
+    position: absolute;
+    display: inline-block;
+    border-top: 7px solid transparent;
+    border-right: 7px solid #bdc4c8;
     border-bottom: 7px solid transparent;
     border-right-color: rgba(0, 0, 0, 0.2);
     left: -8px;
@@ -32,7 +102,7 @@
     content: '';
 }
 
-.tip:after {
+.tip.west:after {
     position: absolute;
     display: inline-block;
     border-top: 6px solid transparent;
