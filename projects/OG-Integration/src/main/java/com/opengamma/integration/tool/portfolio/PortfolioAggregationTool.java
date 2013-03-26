@@ -63,7 +63,7 @@ public class PortfolioAggregationTool extends AbstractTool<IntegrationToolContex
                                   getToolContext().getPositionSource(),
                                   getToolContext().getSecuritySource(),
                                   createAggregationFunctions(getCommandLine().getOptionValues(AGGREGATION_OPT)),
-                                  true);
+                                  getCommandLine().hasOption(SPLIT_OPT));
   }
 
 

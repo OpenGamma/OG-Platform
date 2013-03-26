@@ -17,7 +17,7 @@
     <orderEntry type="module" module-name="OG-Master" />
     <orderEntry type="module" module-name="OG-Core" />
     <orderEntry type="module" module-name="OG-Util" />
-    <orderEntry type="module" module-name="OG-Timeseries" />
+    <orderEntry type="module" module-name="og-timeseries" />
     <orderEntry type="library" name="Maven: org.threeten:threetenbp:0.8.1" level="project" />
     <orderEntry type="library" name="Maven: it.unimi.dsi:fastutil:6.4.2" level="project" />
     <orderEntry type="library" name="Maven: commons-lang:commons-lang:2.6" level="project" />
