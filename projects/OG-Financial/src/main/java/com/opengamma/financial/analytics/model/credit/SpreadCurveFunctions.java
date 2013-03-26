@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 
+import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
@@ -22,26 +23,34 @@ import com.opengamma.util.time.Tenor;
  */
 public class SpreadCurveFunctions {
 
-  protected static final Collection<ZonedDateTime> BUCKET_DATES = new ArrayList<>();
+  public static final Collection<Tenor> BUCKET_TENORS = new ArrayList<>();
 
   //FIXME: Derive these instead of hardcoding
   static {
-    BUCKET_DATES.add(DateUtils.getUTCDate(2013, 9, 20));
-    BUCKET_DATES.add(DateUtils.getUTCDate(2014, 3, 20));
-    BUCKET_DATES.add(DateUtils.getUTCDate(2015, 3, 20));
-    BUCKET_DATES.add(DateUtils.getUTCDate(2016, 3, 20));
-    BUCKET_DATES.add(DateUtils.getUTCDate(2017, 3, 20));
-    BUCKET_DATES.add(DateUtils.getUTCDate(2018, 3, 20));
-    BUCKET_DATES.add(DateUtils.getUTCDate(2019, 3, 20));
-    BUCKET_DATES.add(DateUtils.getUTCDate(2020, 3, 20));
-    BUCKET_DATES.add(DateUtils.getUTCDate(2021, 3, 20));
-    BUCKET_DATES.add(DateUtils.getUTCDate(2022, 3, 20));
-    BUCKET_DATES.add(DateUtils.getUTCDate(2023, 3, 20));
-    BUCKET_DATES.add(DateUtils.getUTCDate(2028, 3, 20));
-    BUCKET_DATES.add(DateUtils.getUTCDate(2033, 3, 20));
-    BUCKET_DATES.add(DateUtils.getUTCDate(2043, 3, 20));
+    BUCKET_TENORS.add(Tenor.SIX_MONTHS);
+    BUCKET_TENORS.add(Tenor.ONE_YEAR);
+    BUCKET_TENORS.add(Tenor.TWO_YEARS);
+    BUCKET_TENORS.add(Tenor.THREE_YEARS);
+    BUCKET_TENORS.add(Tenor.FOUR_YEARS);
+    BUCKET_TENORS.add(Tenor.FIVE_YEARS);
+    BUCKET_TENORS.add(Tenor.SIX_YEARS);
+    BUCKET_TENORS.add(Tenor.SEVEN_YEARS);
+    BUCKET_TENORS.add(Tenor.EIGHT_YEARS);
+    BUCKET_TENORS.add(Tenor.NINE_YEARS);
+    BUCKET_TENORS.add(Tenor.TEN_YEARS);
+    BUCKET_TENORS.add(new Tenor(Period.ofYears(15)));
+    BUCKET_TENORS.add(new Tenor(Period.ofYears(20)));
+    BUCKET_TENORS.add(new Tenor(Period.ofYears(30)));
   }
-  public static final ZonedDateTime[] BUCKET_DATES_ARRAY = BUCKET_DATES.toArray(new ZonedDateTime[BUCKET_DATES.size()]);
+
+  public static final ZonedDateTime[] getIMMDates(final ZonedDateTime now, final Collection<Tenor> tenors) {
+    final ZonedDateTime[] dates = new ZonedDateTime[tenors.size()];
+    int i = 0;
+    for (final Tenor tenor : tenors) {
+      dates[i++] = IMMDateGenerator.getNextIMMDate(now, tenor);
+    }
+    return dates;
+  }
 
   /**
    * Format the spread curve for a given cds.

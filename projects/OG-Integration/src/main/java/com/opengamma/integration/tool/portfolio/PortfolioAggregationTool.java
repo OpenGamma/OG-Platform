@@ -63,7 +63,7 @@ public class PortfolioAggregationTool extends AbstractTool<IntegrationToolContex
                                   getToolContext().getPositionSource(),
                                   getToolContext().getSecuritySource(),
                                   createAggregationFunctions(getCommandLine().getOptionValues(AGGREGATION_OPT)),
-                                  true);
+                                  getCommandLine().hasOption(SPLIT_OPT));
   }
 
 
@@ -74,7 +74,9 @@ public class PortfolioAggregationTool extends AbstractTool<IntegrationToolContex
     _aggregationFunctions.put("Underlying", new UnderlyingAggregationFunction(secSource, "BLOOMBERG_TICKER"));
     _aggregationFunctions.put("ReferenceEntityName", new CdsObligorNameAggregationFunction(getToolContext().getSecuritySource(), getToolContext().getOrganizationSource()));
     _aggregationFunctions.put("ReferenceEntityTicker", new CdsObligorTickerAggregationFunction(getToolContext().getSecuritySource(), getToolContext().getOrganizationSource()));
-    _aggregationFunctions.put("Sector", new GICSAggregationFunction(getToolContext().getSecuritySource(), getToolContext().getOrganizationSource(), GICSAggregationFunction.Level.SECTOR));
+    _aggregationFunctions.put("Sector", new GICSAggregationFunction(getToolContext().getSecuritySource(),
+                                                                    getToolContext().getOrganizationSource(),
+                                                                    GICSAggregationFunction.Level.SECTOR, false, false));
     _aggregationFunctions.put("RedCode", new CdsRedCodeAggregationFunction(getToolContext().getSecuritySource()));
   }
   

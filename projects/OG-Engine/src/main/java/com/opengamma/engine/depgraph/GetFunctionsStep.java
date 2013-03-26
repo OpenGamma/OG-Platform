@@ -106,9 +106,12 @@ import com.opengamma.util.tuple.Triple;
         final Set<String> functionNames = constraints.getValues(ValuePropertyNames.FUNCTION);
         if (functionNames == null) {
           final Set<String> allProperties = constraints.getProperties();
-          if ((allProperties == null) || !allProperties.isEmpty()) {
-            // Requirement made no constraint on function identifier
+          if (allProperties == null) {
+            // Requirement made no constraints
             properties = ValueProperties.with(ValuePropertyNames.FUNCTION, MarketDataAliasingFunction.UNIQUE_ID).get();
+          } else if (!allProperties.isEmpty()) {
+            // Requirement made no constraint on function identifier
+            properties = constraints.copy().with(ValuePropertyNames.FUNCTION, MarketDataAliasingFunction.UNIQUE_ID).get();
           } else {
             // Requirement used a nearly infinite property bundle that omitted a function identifier
             properties = constraints.copy().withAny(ValuePropertyNames.FUNCTION).get();

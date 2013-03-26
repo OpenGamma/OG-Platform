@@ -30,6 +30,7 @@ import com.opengamma.util.ArgumentChecker;
 public class CompiledViewDefinitionImpl implements CompiledViewDefinition {
 
   private final VersionCorrection _versionCorrection;
+  private final String _identifier;
   private final ViewDefinition _viewDefinition;
   private final Portfolio _portfolio;
   private final Map<String, CompiledViewCalculationConfiguration> _compiledCalculationConfigurations;
@@ -37,9 +38,10 @@ public class CompiledViewDefinitionImpl implements CompiledViewDefinition {
   private final Instant _latestValidity;
   private volatile Set<ValueSpecification> _marketDataRequirements;
 
-  public CompiledViewDefinitionImpl(final VersionCorrection versionCorrection, final ViewDefinition viewDefinition, final Portfolio portfolio,
+  public CompiledViewDefinitionImpl(final VersionCorrection versionCorrection, final String identifier, final ViewDefinition viewDefinition, final Portfolio portfolio,
       final Collection<CompiledViewCalculationConfiguration> compiledCalculationConfigurations, final Instant earliestValidity, final Instant latestValidity) {
     _versionCorrection = versionCorrection;
+    _identifier = identifier;
     _viewDefinition = viewDefinition;
     _portfolio = portfolio;
     _compiledCalculationConfigurations = new HashMap<String, CompiledViewCalculationConfiguration>();
@@ -52,16 +54,22 @@ public class CompiledViewDefinitionImpl implements CompiledViewDefinition {
 
   protected CompiledViewDefinitionImpl(final CompiledViewDefinitionImpl copyFrom, final VersionCorrection versionCorrection) {
     _versionCorrection = versionCorrection;
-    _viewDefinition = copyFrom._viewDefinition;
-    _portfolio = copyFrom._portfolio;
+    _identifier = copyFrom.getCompilationIdentifier();
+    _viewDefinition = copyFrom.getViewDefinition();
+    _portfolio = copyFrom.getPortfolio();
     _compiledCalculationConfigurations = copyFrom._compiledCalculationConfigurations;
-    _earliestValidity = copyFrom._earliestValidity;
-    _latestValidity = copyFrom._latestValidity;
+    _earliestValidity = copyFrom.getValidFrom();
+    _latestValidity = copyFrom.getValidTo();
   }
 
   @Override
   public VersionCorrection getResolverVersionCorrection() {
     return _versionCorrection;
+  }
+
+  @Override
+  public String getCompilationIdentifier() {
+    return _identifier;
   }
 
   @Override

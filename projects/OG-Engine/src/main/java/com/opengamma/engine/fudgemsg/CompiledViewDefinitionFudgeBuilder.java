@@ -32,6 +32,7 @@ import com.opengamma.id.VersionCorrection;
 public class CompiledViewDefinitionFudgeBuilder implements FudgeBuilder<CompiledViewDefinition> {
 
   private static final String VERSION_CORRECTION_FIELD = "versionCorrection";
+  private static final String COMPILATION_IDENTIFIER_FIELD = "compilationId";
   private static final String VIEW_DEFINITION_FIELD = "viewDefinition";
   private static final String PORTFOLIO_FIELD = "portfolio";
   private static final String COMPILED_CALCULATION_CONFIGURATIONS_FIELD = "compiledCalculationConfigurations";
@@ -42,6 +43,7 @@ public class CompiledViewDefinitionFudgeBuilder implements FudgeBuilder<Compiled
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, CompiledViewDefinition object) {
     MutableFudgeMsg msg = serializer.newMessage();
     serializer.addToMessage(msg, VERSION_CORRECTION_FIELD, null, object.getResolverVersionCorrection());
+    serializer.addToMessage(msg, COMPILATION_IDENTIFIER_FIELD, null, object.getCompilationIdentifier());
     serializer.addToMessage(msg, VIEW_DEFINITION_FIELD, null, object.getViewDefinition());
     serializer.addToMessage(msg, PORTFOLIO_FIELD, null, object.getPortfolio());
 
@@ -58,6 +60,7 @@ public class CompiledViewDefinitionFudgeBuilder implements FudgeBuilder<Compiled
   @Override
   public CompiledViewDefinition buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
     VersionCorrection versionCorrection = deserializer.fieldValueToObject(VersionCorrection.class, message.getByName(VERSION_CORRECTION_FIELD));
+    String compilationId = message.getString(COMPILATION_IDENTIFIER_FIELD);
     ViewDefinition viewDefinition = deserializer.fieldValueToObject(ViewDefinition.class, message.getByName(VIEW_DEFINITION_FIELD));
     FudgeField portfolioField = message.getByName(PORTFOLIO_FIELD);
     Portfolio portfolio = portfolioField != null ? deserializer.fieldValueToObject(Portfolio.class, portfolioField) : null;
@@ -73,7 +76,7 @@ public class CompiledViewDefinitionFudgeBuilder implements FudgeBuilder<Compiled
     Instant earliestValidity = earliestValidityField != null ? deserializer.fieldValueToObject(Instant.class, earliestValidityField) : null;
     FudgeField latestValidityField = message.getByName(LATEST_VALIDITY_FIELD);
     Instant latestValidity = latestValidityField != null ? deserializer.fieldValueToObject(Instant.class, latestValidityField) : null;
-    return new CompiledViewDefinitionImpl(versionCorrection, viewDefinition, portfolio, compiledCalculationConfigurations, earliestValidity, latestValidity);
+    return new CompiledViewDefinitionImpl(versionCorrection, compilationId, viewDefinition, portfolio, compiledCalculationConfigurations, earliestValidity, latestValidity);
   }
 
 }
