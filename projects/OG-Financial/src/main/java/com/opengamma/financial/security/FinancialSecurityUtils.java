@@ -1197,6 +1197,26 @@ public class FinancialSecurityUtils {
           return CurrencyAmount.of(notional.getCurrency(), notional.getAmount());
         }
 
+        @Override
+        public CurrencyAmount visitGovernmentBondSecurity(final GovernmentBondSecurity security) {
+          final Currency currency = security.getCurrency();
+          final double notional = security.getMinimumAmount();
+          return CurrencyAmount.of(currency, notional);
+        }
+
+        @Override
+        public CurrencyAmount visitCorporateBondSecurity(final CorporateBondSecurity security) {
+          final Currency currency = security.getCurrency();
+          final double notional = security.getMinimumAmount();
+          return CurrencyAmount.of(currency, notional);
+        }
+
+        @Override
+        public CurrencyAmount visitMunicipalBondSecurity(final MunicipalBondSecurity security) {
+          final Currency currency = security.getCurrency();
+          final double notional = security.getMinimumAmount();
+          return CurrencyAmount.of(currency, notional);
+        }
       });
       return notional;
     }

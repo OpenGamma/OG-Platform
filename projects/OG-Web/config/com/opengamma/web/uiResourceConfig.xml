@@ -355,6 +355,7 @@
     <fragment>/scripts/og/analytics/og.analytics.formatter.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.clipboard.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.selector.js</fragment>
+    <fragment>/scripts/og/analytics/og.analytics.node_menu.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.data.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.depgraph.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.resize.js</fragment>

@@ -22,25 +22,25 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * Methods related to fixed payments.
  */
-public final class PaymentFixedDiscountingProviderMethod {
+public final class PaymentFixedDiscountingMethod {
 
   /**
    * The method unique instance.
    */
-  private static final PaymentFixedDiscountingProviderMethod INSTANCE = new PaymentFixedDiscountingProviderMethod();
+  private static final PaymentFixedDiscountingMethod INSTANCE = new PaymentFixedDiscountingMethod();
 
   /**
    * Return the unique instance of the class.
    * @return The instance.
    */
-  public static PaymentFixedDiscountingProviderMethod getInstance() {
+  public static PaymentFixedDiscountingMethod getInstance() {
     return INSTANCE;
   }
 
   /**
    * Private constructor.
    */
-  private PaymentFixedDiscountingProviderMethod() {
+  private PaymentFixedDiscountingMethod() {
   }
 
   /**

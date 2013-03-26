@@ -27,15 +27,15 @@ public final class CouponArithmeticAverageON extends Coupon {
   /**
    * The accrual factors (or year fractions) associated to the fixing periods in the Index day count convention.
    */
-  private final Double[] _fixingPeriodAccrualFactors;
+  private final double[] _fixingPeriodAccrualFactors;
   /**
-   * The notional augmented by the interest accrued over the periods already fixed.
+   * The interest accrued over the periods already fixed.
    */
-  private final double _notionalAccrued; // Interest accrued?
+  private final double _rateAccrued;
   /**
-   * The accrual factor (or year fraction) associated to the total fixing period in the Index day count convention.
+   * The accrual factor (or year fraction) associated to the remaining fixing period in the Index day count convention.
    */
-  private final double _fixingPeriodTotalAccrualFactor; // required?
+  private final double _fixingPeriodRemainingAccrualFactor;
 
   /**
    * Constructor.
@@ -46,17 +46,17 @@ public final class CouponArithmeticAverageON extends Coupon {
    * @param index The index associated to the coupon.
    * @param fixingPeriodTimes The times of the remaining fixing. The length is one greater than the number of periods, as it includes accrual start and end.
    * @param fixingPeriodAccrualFactors The accrual factors (or year fractions) associated to the fixing periods in the Index day count convention.
-   * @param notionalAccrued ??
-   * @param fixingPeriodTotalAccrualFactor ??
+   * @param rateAccrued The interest accrued over the periods already fixed.
+   * @param fixingPeriodRemainingAccrualFactor ??
    */
-  private CouponArithmeticAverageON(Currency currency, double paymentTime, double paymentYearFraction, double notional, IndexON index, double[] fixingPeriodTimes, Double[] fixingPeriodAccrualFactors,
-      double notionalAccrued, double fixingPeriodTotalAccrualFactor) {
+  private CouponArithmeticAverageON(Currency currency, double paymentTime, double paymentYearFraction, double notional, IndexON index, double[] fixingPeriodTimes, double[] fixingPeriodAccrualFactors,
+      double rateAccrued, double fixingPeriodRemainingAccrualFactor) {
     super(currency, paymentTime, "NOT USED", paymentYearFraction, notional);
     _index = index;
     _fixingPeriodTimes = fixingPeriodTimes;
     _fixingPeriodAccrualFactors = fixingPeriodAccrualFactors;
-    _notionalAccrued = notionalAccrued;
-    _fixingPeriodTotalAccrualFactor = fixingPeriodTotalAccrualFactor;
+    _rateAccrued = rateAccrued;
+    _fixingPeriodRemainingAccrualFactor = fixingPeriodRemainingAccrualFactor;
   }
 
   /**
@@ -67,13 +67,18 @@ public final class CouponArithmeticAverageON extends Coupon {
    * @param index The index associated to the coupon.
    * @param fixingPeriodTimes The times of the remaining fixing. The length is one greater than the number of periods, as it includes accrual start and end.
    * @param fixingPeriodAccrualFactors The accrual factors (or year fractions) associated to the fixing periods in the Index day count convention.
-   * @param notionalAccrued ??
+   * @param rateAccrued The interest accrued over the periods already fixed.
    * @return The coupon.
    */
-  public static CouponArithmeticAverageON from(double paymentTime, double paymentYearFraction, double notional, IndexON index, double[] fixingPeriodTimes, Double[] fixingPeriodAccrualFactors,
-      double notionalAccrued) {
+  public static CouponArithmeticAverageON from(double paymentTime, double paymentYearFraction, double notional, IndexON index, double[] fixingPeriodTimes, double[] fixingPeriodAccrualFactors,
+      double rateAccrued) {
     ArgumentChecker.notNull(index, "Index");
-    return new CouponArithmeticAverageON(index.getCurrency(), paymentTime, paymentYearFraction, notional, index, fixingPeriodTimes, fixingPeriodAccrualFactors, notionalAccrued, paymentYearFraction);
+    double fixingPeriodRemainingAccrualFactor = 0.0;
+    for (int loopp = 0; loopp < fixingPeriodAccrualFactors.length; loopp++) {
+      fixingPeriodRemainingAccrualFactor += fixingPeriodAccrualFactors[loopp];
+    }
+    return new CouponArithmeticAverageON(index.getCurrency(), paymentTime, paymentYearFraction, notional, index, fixingPeriodTimes, fixingPeriodAccrualFactors, rateAccrued,
+        fixingPeriodRemainingAccrualFactor);
   }
 
   /**
@@ -96,7 +101,7 @@ public final class CouponArithmeticAverageON extends Coupon {
    * Gets the fixingPeriodAccrualFactors field.
    * @return the fixingPeriodAccrualFactors
    */
-  public Double[] getFixingPeriodAccrualFactors() {
+  public double[] getFixingPeriodAccrualFactors() {
     return _fixingPeriodAccrualFactors;
   }
 
@@ -104,16 +109,16 @@ public final class CouponArithmeticAverageON extends Coupon {
    * Gets the notionalAccrued field.
    * @return the notionalAccrued
    */
-  public double getNotionalAccrued() {
-    return _notionalAccrued;
+  public double getRateAccrued() {
+    return _rateAccrued;
   }
 
   /**
    * Gets the fixingPeriodTotalAccrualFactor field.
    * @return the fixingPeriodTotalAccrualFactor
    */
-  public double getFixingPeriodTotalAccrualFactor() {
-    return _fixingPeriodTotalAccrualFactor;
+  public double getFixingPeriodRemainingAccrualFactor() {
+    return _fixingPeriodRemainingAccrualFactor;
   }
 
   @Override
@@ -123,12 +128,14 @@ public final class CouponArithmeticAverageON extends Coupon {
 
   @Override
   public <S, T> T accept(InstrumentDerivativeVisitor<S, T> visitor, S data) {
-    return null;
+    ArgumentChecker.notNull(visitor, "visitor");
+    return visitor.visitCouponArithmeticAverageON(this, data);
   }
 
   @Override
   public <T> T accept(InstrumentDerivativeVisitor<?, T> visitor) {
-    return null;
+    ArgumentChecker.notNull(visitor, "visitor");
+    return visitor.visitCouponArithmeticAverageON(this);
   }
 
 }

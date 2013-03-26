@@ -17,11 +17,17 @@ $.register_module({
                 {name: 'Reload', handler: function () {location.reload()}}
             ]);
             html = items.reduce(function (acc, val, i) {
-                return acc + (val.name ? '<div data-id='+ i +'><span></span>' + val.name + '</div>' : '<hr />');
+                return acc + (val.name ? '<div data-id='+ i + (val.disabled ? ' data-active="false"' : '')
+                    + '><span></span>' + val.name + '</div>' : '<hr />');
             }, '');
             $menu.blurkill().html(html).css(css).appendTo('body')
                 .position({my: 'left top', at: 'left top', of: event})
-                .click(function (event) {items[$(event.target).attr('data-id')].handler(), $(this).remove();});
+                .click(function (event) {
+                    var id = $(event.target).attr('data-id'),
+                        handler = items[id] && !items[id].disabled && items[id].handler;
+                    $(this).remove();
+                    if (handler) handler();
+                });
             return false;
         };
     }

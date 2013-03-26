@@ -79,6 +79,7 @@ import com.opengamma.analytics.financial.interestrate.payments.ForexForward;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorCMS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorCMSSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponArithmeticAverageON;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponCMS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedCompounding;
@@ -1092,6 +1093,16 @@ public class InstrumentDerivativeVisitorTest {
     @Override
     public String visitVolatilityIndexFuture(VolatilityIndexFuture future) {
       return getValue(future, false);
+    }
+
+    @Override
+    public String visitCouponArithmeticAverageON(CouponArithmeticAverageON payment, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponArithmeticAverageON(CouponArithmeticAverageON payment) {
+      return null;
     }
   }
 
