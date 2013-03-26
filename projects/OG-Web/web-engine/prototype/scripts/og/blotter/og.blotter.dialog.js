@@ -55,10 +55,11 @@ $.register_module({
                     if (typeof acc[val] === 'undefined') constructor.clear();
                     else return acc[val];
                     }, window);
-                if(inner) {
+                if (inner) {
                     form_wrapper = new inner(config);
                     $('.ui-dialog-title').html(form_wrapper.title);
                 }
+                else console.log("no form to load");
             };
             constructor.create_dialog = function () {
                 var buttons = {
