@@ -128,7 +128,7 @@ public final class ParSpreadInflationMarketQuoteDiscountingCalculator extends In
   /**
   * The par spread is the spread that should be added to the forex forward points to have a zero value.
   * @param fx The forex swap.
-  * @param multicurves The multi-curves provider.
+  * @param inflation The inflation provider.
   * @return The spread.
   */
   @Override

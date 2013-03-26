@@ -5,6 +5,10 @@
  */
 package com.opengamma.analytics.financial.provider.calculator.inflation;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
@@ -20,13 +24,20 @@ import com.opengamma.analytics.financial.interestrate.inflation.method.CouponInf
 import com.opengamma.analytics.financial.interestrate.inflation.method.CouponInflationZeroCouponInterpolationGearingDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.inflation.method.CouponInflationZeroCouponMonthlyDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.inflation.method.CouponInflationZeroCouponMonthlyGearingDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.payments.provider.CouponFixedCompoundingDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.payments.provider.CouponFixedDiscountingProviderMethod;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
+import com.opengamma.analytics.financial.provider.sensitivity.inflation.InflationSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.inflation.MultipleCurrencyInflationSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Calculator of the present value curve sensitivity as multiple currency interest rate curve sensitivity.
@@ -78,9 +89,14 @@ public final class PresentValueCurveSensitivityDiscountingInflationCalculator ex
    */
   private static final CouponInflationYearOnYearInterpolationDiscountingMethod METHOD_YEAR_ON_YEAR_INTERPOLATION = new CouponInflationYearOnYearInterpolationDiscountingMethod();
   /**
-   * Pricing method for year on year coupon fixed compounding.
+   * Pricing method for coupon fixed compounding.
    */
   private static final CouponFixedCompoundingDiscountingMethod METHOD_CPN_FIXED_COMPOUNDING = CouponFixedCompoundingDiscountingMethod.getInstance();
+
+  /**
+   * Pricing method for coupon fixed .
+   */
+  private static final CouponFixedDiscountingProviderMethod METHOD_CPN_FIXED = CouponFixedDiscountingProviderMethod.getInstance();
 
   // -----     Inflation Coupon     ------
 
@@ -115,10 +131,29 @@ public final class PresentValueCurveSensitivityDiscountingInflationCalculator ex
     return METHOD_YEAR_ON_YEAR_INTERPOLATION.presentValueCurveSensitivity(coupon, inflation);
   }
 
-  /*@Override
-  public MultipleCurrencyInflationSensitivity visitCouponFixedCompounding(final CouponFixedCompounding payment, final InflationProviderInterface inflation) {
-    return METHOD_CPN_FIXED_COMPOUNDING.presentValueCurveSensitivity(payment, inflation);
-  }*/
+  //-----     Coupon fix    ------
+
+  @Override
+  public MultipleCurrencyInflationSensitivity visitCouponFixed(final CouponFixed coupon, final InflationProviderInterface inflation) {
+    MultipleCurrencyMulticurveSensitivity multipleCurrencyMulticurveSensitivity = METHOD_CPN_FIXED.presentValueCurveSensitivity(coupon, inflation.getMulticurveProvider());
+    MultipleCurrencyInflationSensitivity multipleCurrencyInflationSensitivity = new MultipleCurrencyInflationSensitivity();
+    for (final Currency loopccy : multipleCurrencyMulticurveSensitivity.getCurrencies()) {
+      Map<String, List<DoublesPair>> sensitivityPriceCurve = new HashMap<>();
+      multipleCurrencyInflationSensitivity.plus(loopccy, InflationSensitivity.of(multipleCurrencyMulticurveSensitivity.getSensitivity(loopccy), sensitivityPriceCurve));
+    }
+    return multipleCurrencyInflationSensitivity;
+  }
+
+  @Override
+  public MultipleCurrencyInflationSensitivity visitCouponFixedCompounding(final CouponFixedCompounding coupon, final InflationProviderInterface inflation) {
+    MultipleCurrencyMulticurveSensitivity multipleCurrencyMulticurveSensitivity = METHOD_CPN_FIXED_COMPOUNDING.presentValueCurveSensitivity(coupon, inflation.getMulticurveProvider());
+    MultipleCurrencyInflationSensitivity multipleCurrencyInflationSensitivity = new MultipleCurrencyInflationSensitivity();
+    for (final Currency loopccy : multipleCurrencyMulticurveSensitivity.getCurrencies()) {
+      Map<String, List<DoublesPair>> sensitivityPriceCurve = new HashMap<>();
+      multipleCurrencyInflationSensitivity.plus(loopccy, InflationSensitivity.of(multipleCurrencyMulticurveSensitivity.getSensitivity(loopccy), sensitivityPriceCurve));
+    }
+    return multipleCurrencyInflationSensitivity;
+  }
 
   //-----     Annuity     ------
 
