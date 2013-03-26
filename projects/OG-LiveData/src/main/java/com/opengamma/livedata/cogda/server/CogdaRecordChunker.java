@@ -11,6 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.opengamma.livedata.firehose.InputStreamFactory;
 import com.opengamma.transport.FudgeMessageSender;
 
 /**
@@ -33,6 +34,10 @@ public abstract class CogdaRecordChunker {
    * The destination for decoded messsages.
    */
   private FudgeMessageSender _fudgeSender;
+  /**
+   * The source for new connections for data to parse.
+   */
+  private InputStreamFactory _inputStreamFactory;
 
   /**
    * Gets the fudgeSender.
@@ -50,6 +55,22 @@ public abstract class CogdaRecordChunker {
     _fudgeSender = fudgeSender;
   }
   
+  /**
+   * Gets the inputStreamFactory.
+   * @return the inputStreamFactory
+   */
+  public InputStreamFactory getInputStreamFactory() {
+    return _inputStreamFactory;
+  }
+
+  /**
+   * Sets the inputStreamFactory.
+   * @param inputStreamFactory  the inputStreamFactory
+   */
+  public void setInputStreamFactory(InputStreamFactory inputStreamFactory) {
+    _inputStreamFactory = inputStreamFactory;
+  }
+
   /**
    * Should be called by the sub-class whenever a tick is received.
    * Allows the parent class to update statistics visible by the MBean.
@@ -102,6 +123,8 @@ public abstract class CogdaRecordChunker {
    * for this connection.
    * @return An MBean-visible remote connection name
    */
-  public abstract String getRemoteServerConnectionName();
+  public String getRemoteServerConnectionName() {
+    return getInputStreamFactory().getDescription();
+  }
 
 }

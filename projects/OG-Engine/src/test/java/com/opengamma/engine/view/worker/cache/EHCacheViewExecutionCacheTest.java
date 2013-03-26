@@ -153,7 +153,7 @@ public class EHCacheViewExecutionCacheTest {
     final Collection<DependencyGraph> graphs = Collections.singleton(graph);
     final Map<ComputationTargetReference, UniqueId> resolutions = ImmutableMap.<ComputationTargetReference, UniqueId>of(
         new ComputationTargetRequirement(ComputationTargetType.SECURITY, ExternalId.of("Security", "Foo")), UniqueId.of("Sec", "0"));
-    return new CompiledViewDefinitionWithGraphsImpl(VersionCorrection.LATEST, viewDefinition, graphs, resolutions, portfolio, 0);
+    return new CompiledViewDefinitionWithGraphsImpl(VersionCorrection.LATEST, "", viewDefinition, graphs, resolutions, portfolio, 0);
   }
 
   private EHCacheViewExecutionCache createCache() {
