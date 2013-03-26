@@ -390,6 +390,8 @@
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.capfloorsecurity.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.capfloorcmsspreadsecurity.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.frasecurity.js</fragment>
+    <!--CDS Trades-->
+    <fragment>/scripts/og/blotter/forms/og.blotter.forms.legacyfixedrecoverycds.js</fragment>
     <!--Fungible Trades-->
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.fungibletrade.js</fragment>
   </bundle>
