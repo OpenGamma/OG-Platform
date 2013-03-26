@@ -24,6 +24,8 @@ import org.threeten.bp.ZonedDateTime;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.opengamma.analytics.financial.credit.DebtSeniority;
+import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -36,7 +38,14 @@ import com.opengamma.financial.security.LongShort;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
+import com.opengamma.financial.security.cds.CreditDefaultSwapIndexSecurity;
 import com.opengamma.financial.security.cds.CreditDefaultSwapSecurity;
+import com.opengamma.financial.security.cds.LegacyFixedRecoveryCDSSecurity;
+import com.opengamma.financial.security.cds.LegacyRecoveryLockCDSSecurity;
+import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
+import com.opengamma.financial.security.cds.StandardFixedRecoveryCDSSecurity;
+import com.opengamma.financial.security.cds.StandardRecoveryLockCDSSecurity;
+import com.opengamma.financial.security.cds.StandardVanillaCDSSecurity;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
 import com.opengamma.financial.security.equity.GICSCode;
 import com.opengamma.financial.security.fra.FRASecurity;
@@ -91,7 +100,14 @@ import com.opengamma.util.time.Expiry;
       FloatingInterestRateLeg.meta(),
       FloatingSpreadIRLeg.meta(),
       FloatingGearingIRLeg.meta(),
-      InterestRateNotional.meta());
+      InterestRateNotional.meta(),
+      LegacyVanillaCDSSecurity.meta(),
+      LegacyRecoveryLockCDSSecurity.meta(),
+      LegacyFixedRecoveryCDSSecurity.meta(),
+      StandardVanillaCDSSecurity.meta(),
+      StandardRecoveryLockCDSSecurity.meta(),
+      StandardFixedRecoveryCDSSecurity.meta(),
+      CreditDefaultSwapIndexSecurity.meta());
 
   /** Meta bean factory for looking up meta beans by type name. */
   private static final MetaBeanFactory s_metaBeanFactory = new MapMetaBeanFactory(s_metaBeans);
@@ -162,6 +178,8 @@ import com.opengamma.util.time.Expiry;
     s_stringConvert.register(ZonedDateTime.class, new ZonedDateTimeConverter());
     s_stringConvert.register(OffsetTime.class, new OffsetTimeConverter());
     s_stringConvert.register(Country.class, new CountryConverter());
+    s_stringConvert.register(DebtSeniority.class, new EnumConverter<DebtSeniority>());
+    s_stringConvert.register(StubType.class, new EnumConverter<StubType>());
 
     s_jsonBuildingConverters = new Converters(jsonRegionConverters, s_stringConvert);
     s_beanBuildingConverters = new Converters(beanRegionConverters, s_stringConvert);

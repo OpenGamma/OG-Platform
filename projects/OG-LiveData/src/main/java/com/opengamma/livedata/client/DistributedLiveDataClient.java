@@ -8,8 +8,8 @@ package com.opengamma.livedata.client;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 import org.fudgemsg.FudgeContext;
@@ -320,7 +320,8 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
   
     private void startReceivingTicks() {
       Map<SubscriptionHandle, LiveDataSubscriptionResponse> resps = getSuccessResponses();
-      List<String> distributionSpecs = new ArrayList<String>(resps.size());
+      // tick distribution specifications can be duplicated, only pass each down once to startReceivingTicks()
+      Collection<String> distributionSpecs = new HashSet<>(resps.size());
       for (Map.Entry<SubscriptionHandle, LiveDataSubscriptionResponse> entry : resps.entrySet()) {
         DistributedLiveDataClient.this.subscriptionStartingToReceiveTicks(entry.getKey(), entry.getValue());
         distributionSpecs.add(entry.getValue().getTickDistributionSpecification());

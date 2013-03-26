@@ -12,6 +12,7 @@
             <td>
               <header>Legal Entities</header>
               <ul>
+                <li><a href="admin.ftl#/legal_entities/">Legal Entities</a></li>
                 <li><a href="admin.ftl#/exchanges/">Exchanges</a></li>
                 <li><a href="admin.ftl#/portfolios/">Portfolios</a></li>
               </ul>
