@@ -62,7 +62,6 @@ import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.util.generate.scripts.Scriptable;
-import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -111,7 +110,7 @@ public class DemoEquityOptionCollarPortfolioLoader extends AbstractTool<Integrat
   //-------------------------------------------------------------------------
   /**
    * Main method to run the tool. No arguments are needed.
-   *
+   * 
    * @param args the arguments, unused
    */
   public static void main(final String[] args) { // CSIGNORE
@@ -181,11 +180,15 @@ public class DemoEquityOptionCollarPortfolioLoader extends AbstractTool<Integrat
     int count = 0;
     final List<String> chosenEquities = new ArrayList<String>();
     for (final Entry<Double, String> entry : equityByMarketCap.descendingMap().entrySet()) {
-      if (count++ >= _numMembers) {
-        break;
+      try {
+        addNodes(rootNode, entry.getValue(), true, MEMBER_OPTION_PERIODS);
+        chosenEquities.add(entry.getValue());
+        if (++count >= _numMembers) {
+          break;
+        }
+      } catch (RuntimeException e) {
+        s_logger.warn("Caught exception", e);
       }
-      addNodes(rootNode, entry.getValue(), true, MEMBER_OPTION_PERIODS);
-      chosenEquities.add(entry.getValue());
     }
     s_logger.info("Generated collar portfolio for {}", chosenEquities);
     return portfolio;
@@ -561,7 +564,7 @@ public class DemoEquityOptionCollarPortfolioLoader extends AbstractTool<Integrat
 
   /**
    * Stores the portfolio.
-   *
+   * 
    * @param portfolio the portfolio, not null
    */
   private void storePortfolio(final ManageablePortfolio portfolio) {
