@@ -12,7 +12,9 @@ ${ogStyle.print('og_all.css', 'all',false)}
       <#include "modules/common/og.common.masthead.ftl">
       <div class="og-form"></div>
   </div>
-  <div class="ui-layout-center"> </div>
+  <div class="ui-layout-center OG-layout-tooltip">
+
+  </div>
 </div>
 <!--[if IE]>${ogScript.print('ie.js',false)}<![endif]-->
 ${ogScript.print('og_common.js',false)}

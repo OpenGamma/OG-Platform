@@ -86,6 +86,18 @@ $.register_module({
                     center: {paneSelector: '.OG-layout-analytics-dock-center', size: '34%'}
                 })
             };},
+            tooltip: function () {
+                return {
+                    main: $('.OG-layout-tooltip-container').layout({
+                        defaults: {
+                            enableCursorHotkey: false, onresize_end: 'og.common.gadgets.manager.resize',
+                            togglerLength_open: 0
+                        },
+                        north: {spacing_open: 0, paneClass: 'OG-layout-tooltip-masthead', size: 67},
+                        center: {spacing_open: 0, paneClass: 'OG-layout-tooltip-center'}
+                    })
+                };
+            },
             blotter: function () {
                 return {
                     main: $('.OG-layout-blotter-container').layout({

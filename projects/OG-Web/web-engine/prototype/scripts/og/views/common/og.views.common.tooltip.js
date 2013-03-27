@@ -11,29 +11,13 @@ $.register_module({
         return view = {
             check_state: og.views.common.state.check.partial('/'),
             load: function (args) {
-                var new_page = false;
-                view.check_state({args: args, conditions: [
-                    {
-                        new_page: function () {
-                            new_page = true;
-                        }
-                    }
-                ]});
                 og.api.text({module: 'og.views.tooltip', handler: function (template) {
-                    $('.ui-layout-center').html(template);
+                    $('.OG-layout-tooltip').html(template);
                 }});
             },
-            load_item: function (args) {
-                view.check_state({args: args, conditions: [{new_page: view.load}]});
-            },
-            init: function () {
-                for (var rule in view.rules) {
-                    routes.add(view.rules[rule]);
-                }
-            },
-            rules: {
-                load_item: { route: '/', method: module.name + '.load_item' }
-            }
+            load_item: function (args) { view.check_state({args: args, conditions: [{new_page: view.load}]}); },
+            init: function () { for (var rule in view.rules) routes.add(view.rules[rule]); },
+            rules: { load_item: { route: '/:data?', method: module.name + '.load_item' } }
         }
     }
 });
