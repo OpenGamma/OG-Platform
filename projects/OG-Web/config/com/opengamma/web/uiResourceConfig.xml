@@ -392,6 +392,7 @@
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.frasecurity.js</fragment>
     <!--CDS Trades-->
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.legacyfixedrecoverycds.js</fragment>
+    <fragment>/scripts/og/blotter/forms/og.blotter.forms.cds.js</fragment>
     <fragment>/scripts/og/blotter/forms/blocks/og.blotter.forms.blocks.cds.js</fragment>
     <!--Fungible Trades-->
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.fungibletrade.js</fragment>
