@@ -59,6 +59,9 @@ $.register_module({
                         form: form, resource: 'blotter.stubtype', 
                         index:  'stubType', value: data.stubType, 
                         placeholder: 'Select Stub Type'
+                    }),
+                    new form.Block({module:'og.views.forms.currency_tash', 
+                        extras:{}
                     })
                 ]
             });
