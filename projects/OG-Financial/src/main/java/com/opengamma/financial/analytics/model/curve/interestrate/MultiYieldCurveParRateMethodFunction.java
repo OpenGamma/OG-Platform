@@ -127,8 +127,11 @@ public class MultiYieldCurveParRateMethodFunction extends MultiYieldCurveFunctio
     final Map<String, Integer> nodesPerCurve = new HashMap<>();
     final HistoricalTimeSeriesBundle timeSeries = getTimeSeriesBundle(inputs, targetSpec, curveCalculationConfigName);
     for (final String curveName : curveNames) {
-      int nInstruments = 0;
       final InterpolatedYieldCurveSpecificationWithSecurities spec = getYieldCurveSpecification(inputs, targetSpec, curveName);
+      if (spec == null) {
+        continue;
+      }
+      int nInstruments = 0;
       final Interpolator1D interpolator = spec.getInterpolator();
       final SnapshotDataBundle marketData = getMarketData(inputs, targetSpec, curveName);
       final DoubleArrayList nodeTimes = new DoubleArrayList();
@@ -188,6 +191,9 @@ public class MultiYieldCurveParRateMethodFunction extends MultiYieldCurveFunctio
     final YieldCurveBundle curveBundle = new YieldCurveBundle();
     for (final String curveName : curveNames) {
       final Integer offset = nodesPerCurve.get(curveName);
+      if (offset == null) {
+        continue;
+      }
       final double[] yields = Arrays.copyOfRange(fittedYields, i, i + offset);
       final YieldCurve yieldCurve = YieldCurve.from(InterpolatedDoublesCurve.from(curveNodes.get(curveName), yields, interpolators.get(curveName)));
       final ValueProperties curveProperties = getCurveProperties(curveCalculationConfigName, curveName, absoluteToleranceName,
