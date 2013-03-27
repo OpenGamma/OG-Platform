@@ -54,7 +54,6 @@ public abstract class ParameterSensitivityInflationMatrixProviderAbstractCalcula
     Validate.notNull(curvesSet, "null curves set");
     InflationSensitivity sensitivity = instrument.accept(_curveSensitivityCalculator, inflationCurves);
     sensitivity = sensitivity.cleaned();
-    // TODO: for testing purposes mainly. Could be removed after the tests.
     return pointToParameterSensitivity(sensitivity, inflationCurves, curvesSet);
   }
 

@@ -34,7 +34,7 @@ import com.opengamma.util.time.DateUtils;
  * Describes a floating coupon bond (or Floating Rate Note) issue with Ibor-like coupon.
  */
 public class BondIborSecurityDefinition extends BondSecurityDefinition<PaymentFixedDefinition, CouponIborDefinition>
-implements InstrumentDefinitionWithData<BondSecurity<? extends Payment, ? extends Coupon>, DoubleTimeSeries<ZonedDateTime>> {
+    implements InstrumentDefinitionWithData<BondSecurity<? extends Payment, ? extends Coupon>, DoubleTimeSeries<ZonedDateTime>> {
 
   /**
    * The default notional for the security.
@@ -86,7 +86,7 @@ implements InstrumentDefinitionWithData<BondSecurity<? extends Payment, ? extend
     ArgumentChecker.notNull(businessDay, "Business day convention");
     final AnnuityCouponIborDefinition coupon = AnnuityCouponIborDefinition.fromAccrualUnadjusted(firstAccrualDate, maturityDate, DEFAULT_NOTIONAL, index, false);
     final PaymentFixedDefinition[] nominalPayment = new PaymentFixedDefinition[] {new PaymentFixedDefinition(index.getCurrency(), businessDay.adjustDate(index.getCalendar(), maturityDate),
-        DEFAULT_NOTIONAL)};
+        DEFAULT_NOTIONAL) };
     final AnnuityPaymentFixedDefinition nominal = new AnnuityPaymentFixedDefinition(nominalPayment);
     return new BondIborSecurityDefinition(nominal, coupon, DEFAULT_EX_COUPON_DAYS, settlementDays, index.getCalendar(), dayCount, issuer);
   }
@@ -103,7 +103,7 @@ implements InstrumentDefinitionWithData<BondSecurity<? extends Payment, ? extend
   public BondIborSecurity toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "date");
     final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, getSettlementDays(), getCalendar());
-    return toDerivative(date, new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(1800, 1, 1)}, new double[] {0.0}), spot, yieldCurveNames);
+    return toDerivative(date, new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(1800, 1, 1) }, new double[] {0.0 }), spot, yieldCurveNames);
 
   }
 

@@ -122,7 +122,7 @@ public class SwapIborONDefinition extends SwapDefinition {
   public Swap<Coupon, Coupon> toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     // Curves should be: discounting, ibor, ois
     final Annuity<? extends Coupon> iborLeg = this.getIborLeg().toDerivative(date, yieldCurveNames);
-    final Annuity<? extends Coupon> oisLeg = (Annuity<? extends Coupon>) this.getOISLeg().toDerivative(date, new String[] {yieldCurveNames[0], yieldCurveNames[2]});
+    final Annuity<? extends Coupon> oisLeg = (Annuity<? extends Coupon>) this.getOISLeg().toDerivative(date, new String[] {yieldCurveNames[0], yieldCurveNames[2] });
     return new Swap<Coupon, Coupon>((Annuity<Coupon>) iborLeg, (Annuity<Coupon>) oisLeg);
   }
 
@@ -133,7 +133,7 @@ public class SwapIborONDefinition extends SwapDefinition {
     Validate.notNull(indexDataTS, "index data time series array");
     Validate.isTrue(indexDataTS.length > 1, "index data time series must contain at least two elements");
     final Annuity<? extends Coupon> iborLeg = this.getIborLeg().toDerivative(date, indexDataTS[0], yieldCurveNames);
-    final Annuity<? extends Coupon> oisLeg = this.getOISLeg().toDerivative(date, indexDataTS[1], new String[] {yieldCurveNames[0], yieldCurveNames[2]});
+    final Annuity<? extends Coupon> oisLeg = this.getOISLeg().toDerivative(date, indexDataTS[1], new String[] {yieldCurveNames[0], yieldCurveNames[2] });
     return new Swap<Coupon, Coupon>((Annuity<Coupon>) iborLeg, (Annuity<Coupon>) oisLeg);
   }
 

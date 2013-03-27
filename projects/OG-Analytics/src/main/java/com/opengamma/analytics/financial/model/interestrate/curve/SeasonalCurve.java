@@ -53,6 +53,8 @@ class SeasonalFunction extends Function1D<Double, Double> {
     Validate.notNull(monthlyFactors, "Monthly factors");
     Validate.isTrue(monthlyFactors.length == 11, "Monthly factors with incorrect length; should be 11");
     Validate.notNull(isAdditive, "isAdditive");
+    _referenceTime = referenceTime;
+    _isAdditive = isAdditive;
     _monthlyCumulativeFactors = new double[NB_MONTH];
     _monthlyCumulativeFactors[0] = 1.0;
 
@@ -64,9 +66,6 @@ class SeasonalFunction extends Function1D<Double, Double> {
         _monthlyCumulativeFactors[loopmonth] = _monthlyCumulativeFactors[loopmonth - 1] * monthlyFactors[loopmonth - 1];
       }
     }
-
-    _referenceTime = referenceTime;
-    _isAdditive = isAdditive;
   }
 
   @Override
@@ -76,5 +75,10 @@ class SeasonalFunction extends Function1D<Double, Double> {
     relativeMonth = (relativeMonth < 0) ? relativeMonth + NB_MONTH : relativeMonth;
     return _monthlyCumulativeFactors[relativeMonth];
   }
+
+  /* public Double evaluate(int x) {
+     Validate.isTrue(x >= 0  || x <= 11, "x should be an integer between 0 nd 11");
+     return _monthlyCumulativeFactors[x];
+   }*/
 
 }

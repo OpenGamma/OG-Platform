@@ -7,8 +7,6 @@ package com.opengamma.analytics.financial.instrument.annuity;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
-import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
-import static org.threeten.bp.temporal.ChronoUnit.YEARS;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -137,7 +135,8 @@ public class AnnuityCouponOISSimplifiedDefinitionTest {
     assertFalse(DEFINITION.equals(definition));
     definition = AnnuityCouponOISSimplifiedDefinition.from(SETTLEMENT_DATE, MATURITY_DATE, NOTIONAL / 2, GENERATOR, IS_PAYER);
     assertFalse(DEFINITION.equals(definition));
-    definition = AnnuityCouponOISSimplifiedDefinition.from(SETTLEMENT_DATE, MATURITY_DATE, NOTIONAL, new GeneratorSwapFixedON("OIS", INDEX, PAYMENT_PERIOD, DAY_COUNT, BUSINESS_DAY, IS_EOM, 0), IS_PAYER);
+    definition = AnnuityCouponOISSimplifiedDefinition.from(SETTLEMENT_DATE, MATURITY_DATE, NOTIONAL, new GeneratorSwapFixedON("OIS", INDEX, PAYMENT_PERIOD, DAY_COUNT, BUSINESS_DAY, IS_EOM, 0),
+        IS_PAYER);
     assertFalse(DEFINITION.equals(definition));
     definition = AnnuityCouponOISSimplifiedDefinition.from(SETTLEMENT_DATE, MATURITY_DATE, NOTIONAL, GENERATOR, !IS_PAYER);
     assertFalse(DEFINITION.equals(definition));

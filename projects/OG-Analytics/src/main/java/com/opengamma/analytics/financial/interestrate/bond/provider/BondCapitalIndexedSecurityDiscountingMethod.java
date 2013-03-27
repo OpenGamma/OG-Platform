@@ -11,9 +11,11 @@ import com.opengamma.analytics.financial.instrument.inflation.CouponInflationGea
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedSecurity;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.provider.calculator.inflation.NetAmountInflationCalculator;
+import com.opengamma.analytics.financial.provider.calculator.inflation.PresentValueCurveSensitivityDiscountingInflationCalculator;
 import com.opengamma.analytics.financial.provider.calculator.inflation.PresentValueDiscountingInflationCalculator;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationIssuerProviderInterface;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
+import com.opengamma.analytics.financial.provider.sensitivity.inflation.MultipleCurrencyInflationSensitivity;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.rootfinding.BracketRoot;
 import com.opengamma.analytics.math.rootfinding.BrentSingleRootFinder;
@@ -33,6 +35,7 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
    */
   private static final PresentValueDiscountingInflationCalculator PVIC = PresentValueDiscountingInflationCalculator.getInstance();
   private static final NetAmountInflationCalculator NAIC = NetAmountInflationCalculator.getInstance();
+  private static final PresentValueCurveSensitivityDiscountingInflationCalculator PVCSIC = PresentValueCurveSensitivityDiscountingInflationCalculator.getInstance();
   //TODO: REVIEW: Method depends on Calculator; Calculator would depend on Method (code duplicated to avoid circularity).
   /**
    * The root bracket used for yield finding.
@@ -156,7 +159,18 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
     return yield;
   }
 
-  // TODO: curve sensitivity
-  // TODO: price index sensitivity
+  /**
+   * Computes the present value sensitivity of a capital indexed bound by index estimation and discounting. The sensitivity is the sensitivity of the nominal and the coupons but not the settlement.
+   * @param bond The bond.
+   * @param provider The provider.
+   * @return The present value.
+   */
+  public MultipleCurrencyInflationSensitivity presentValueCurveSensitivity(final BondCapitalIndexedSecurity<?> bond, final InflationIssuerProviderInterface provider) {
+    ArgumentChecker.notNull(bond, "Bond");
+    final InflationProviderInterface creditDiscounting = provider.withDiscountFactor(bond.getCurrency(), new ObjectsPair<>(bond.getIssuer(), bond.getCurrency()));
+    final MultipleCurrencyInflationSensitivity sensitivityNominal = bond.getNominal().accept(PVCSIC, creditDiscounting);
+    final MultipleCurrencyInflationSensitivity sensitivityCoupon = bond.getCoupon().accept(PVCSIC, creditDiscounting);
+    return sensitivityNominal.plus(sensitivityCoupon);
+  }
 
 }

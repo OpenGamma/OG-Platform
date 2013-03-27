@@ -28,8 +28,8 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Describes a transaction on a Ibor coupon bond issue.
  */
-public class BondIborTransactionDefinition extends BondTransactionDefinition<PaymentFixedDefinition, CouponIborDefinition> 
-  implements InstrumentDefinitionWithData<BondTransaction<? extends BondSecurity<? extends Payment, ? extends Coupon>>, DoubleTimeSeries<ZonedDateTime>> {
+public class BondIborTransactionDefinition extends BondTransactionDefinition<PaymentFixedDefinition, CouponIborDefinition>
+    implements InstrumentDefinitionWithData<BondTransaction<? extends BondSecurity<? extends Payment, ? extends Coupon>>, DoubleTimeSeries<ZonedDateTime>> {
 
   /**
    * Constructor of a Ibor coupon bond transaction from all the transaction details.
@@ -52,7 +52,7 @@ public class BondIborTransactionDefinition extends BondTransactionDefinition<Pay
     final String creditCurveName = yieldCurveNames[0];
     final String discountingCurveName = yieldCurveNames[1];
     final String iborCurveName = yieldCurveNames[2];
-    final String[] couponCurveName = new String[] {creditCurveName, iborCurveName};
+    final String[] couponCurveName = new String[] {creditCurveName, iborCurveName };
     final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
     final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, getUnderlyingBond().getSettlementDays(), getUnderlyingBond().getCalendar());
     final double spotTime = actAct.getDayCountFraction(date, spot);
@@ -94,7 +94,7 @@ public class BondIborTransactionDefinition extends BondTransactionDefinition<Pay
     final String creditCurveName = yieldCurveNames[0];
     final String discountingCurveName = yieldCurveNames[1];
     final String iborCurveName = yieldCurveNames[2];
-    final String[] couponCurveName = new String[] {creditCurveName, iborCurveName};
+    final String[] couponCurveName = new String[] {creditCurveName, iborCurveName };
     final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
     final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, getUnderlyingBond().getSettlementDays(), getUnderlyingBond().getCalendar());
     final double spotTime = actAct.getDayCountFraction(date, spot);

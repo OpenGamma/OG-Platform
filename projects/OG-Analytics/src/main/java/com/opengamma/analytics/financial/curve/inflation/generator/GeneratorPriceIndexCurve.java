@@ -5,19 +5,14 @@
  */
 package com.opengamma.analytics.financial.curve.inflation.generator;
 
+import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
 
 /**
  * Interface for describing and generating inflation curves in curve construction process.
  */
-public abstract class GeneratorPriceIndexCurve {
-
-  /**
-   * Returns the number of parameters expected to generate the curve.
-   * @return The number of parameters.
-   */
-  public abstract int getNumberOfParameter();
+public abstract class GeneratorPriceIndexCurve extends GeneratorCurve {
 
   /**
    * Generate a curve using the parameters of a vector.
@@ -25,7 +20,7 @@ public abstract class GeneratorPriceIndexCurve {
    * @param parameters The parameters.
    * @return The curve.
    */
-  public abstract PriceIndexCurve generateCurve(final String name, final double[] parameters);
+  abstract PriceIndexCurve generateCurve(final String name, final double[] parameters);
 
   /**
    * Generate a curve using the parameters of a vector and an existing bundle. The existing bundle will be required if the generated curve depends on previous curves.
@@ -43,18 +38,9 @@ public abstract class GeneratorPriceIndexCurve {
    * @param data The additional data.
    * @return The final generator.
    */
+  @Override
   public GeneratorPriceIndexCurve finalGenerator(Object data) {
     return this;
-  }
-
-  /**
-   * The initial guess of parameters can be very different for different curve descriptions (in particular for functional curves).
-   * The method produce a set of initial guess parameters from the instruments "rates". By default it simply return the rates.
-   * @param rates The instrument estimated rates.
-   * @return The initial parameters guess.
-   */
-  public double[] initialGuess(double[] rates) {
-    return rates;
   }
 
 }
