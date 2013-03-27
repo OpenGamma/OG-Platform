@@ -59,7 +59,6 @@ $.register_module({
                     form_wrapper = new inner(config);
                     $('.ui-dialog-title').html(form_wrapper.title);
                 }
-                else console.log("no form to load");
             };
             constructor.create_dialog = function () {
                 var buttons = {

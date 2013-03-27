@@ -23,7 +23,6 @@ $.register_module({
                         og.blotter.util.cleanup(data);
                     }
                 });
-                console.log(config);
                 form.children.push(
                     new og.blotter.forms.blocks.Portfolio({form: form, counterparty: data.trade.counterparty,
                         portfolio: data.nodeId, trade: data.trade}),
