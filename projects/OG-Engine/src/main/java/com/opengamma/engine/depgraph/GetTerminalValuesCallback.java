@@ -11,13 +11,14 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.LinkedTransferQueue;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.slf4j.Logger;
@@ -61,11 +62,6 @@ import com.opengamma.util.tuple.Pair;
   private final Set<DependencyNode> _graphNodes = new HashSet<DependencyNode>();
 
   /**
-   * All leaf graph nodes.
-   */
-  private final Set<DependencyNode> _leafNodes = new HashSet<DependencyNode>();
-
-  /**
    * Terminal value resolutions, mapping the resolved value specifications back to the originally requested requested value requirements.
    */
   private final Map<ValueSpecification, Collection<ValueRequirement>> _resolvedValues = new HashMap<ValueSpecification, Collection<ValueRequirement>>();
@@ -74,7 +70,19 @@ import com.opengamma.util.tuple.Pair;
    * Queue of completed resolutions that have not been processed into the partial graph. Graph construction is single threaded, with this queue holding work items if other thread produce results while
    * one is busy building the graph.
    */
-  private final BlockingQueue<Pair<ValueRequirement, ResolvedValue>> _resolvedQueue = new LinkedBlockingQueue<Pair<ValueRequirement, ResolvedValue>>();
+  private final Queue<Pair<ValueRequirement, ResolvedValue>> _resolvedQueue = new LinkedTransferQueue<Pair<ValueRequirement, ResolvedValue>>();
+
+  /**
+   * Collection of nodes that are candidates for the targets to be collapsed. Graph construction is single threaded but the cost of running the collapse logic can be high so candidates are buffered
+   * here and the collapse is performed outside of the mutex held while the main resolved queue is worked on. The mutex must however be reclaimed in order to action any changes to the dependency
+   * graph.
+   */
+  private final Map<Set<DependencyNode>, Collection<Pair<DependencyNode, Object>>> _collapsing = new HashMap<Set<DependencyNode>, Collection<Pair<DependencyNode, Object>>>();
+
+  /**
+   * Queue of nodes that need to be collapsed. Graph construction is single threaded, with this queue holding nodes identified for collapse until the single thread lock can be re-acquired.
+   */
+  private final Queue<Pair<DependencyNode, DependencyNode>> _collapsedQueue = new LinkedTransferQueue<Pair<DependencyNode, DependencyNode>>();
 
   /**
    * Mutex for working on the resolved queue. Any thread can add to the queue, only the one that has claimed this mutex can process the elements from it and be sure of exclusive access to the other
@@ -207,113 +215,242 @@ import com.opengamma.util.tuple.Pair;
     }
   }
 
-  private DependencyNode collapseNode(final DependencyNode node, final DependencyNode peer) {
-    final ComputationTargetSpecification collapsed = _computationTargetCollapser.collapse(node.getFunction().getFunction(), peer.getComputationTarget(), node.getComputationTarget());
-    if (collapsed == null) {
-      return null;
-    }
-    if (collapsed.equals(peer.getComputationTarget())) {
-      s_logger.debug("Collapsing new node {} into existing node {}", node, peer);
-      node.replaceWith(peer);
-      return peer;
-    } else if (collapsed.equals(node.getComputationTarget())) {
-      s_logger.debug("Collapsing existing node {} into new node {}", peer, node);
-      peer.replaceWith(node);
-      // Replace references to the original peer with the new node
-      for (final ValueSpecification output : peer.getOutputValues()) {
-        _spec2Node.put(output, node);
-      }
-      _graphNodes.remove(peer);
-      _leafNodes.remove(peer);
-      return node;
-    } else {
-      s_logger.debug("Collapsing {} and {} into new target {}", new Object[] {node, peer, collapsed });
-      final DependencyNode collapsedNode = new DependencyNode(collapsed);
-      collapsedNode.setFunction(node.getFunction());
-      peer.replaceWith(collapsedNode);
-      node.replaceWith(collapsedNode);
-      // Replace the references to the original peer to the collapsed node. The new node is not referenced other than by graph edges.
-      for (final ValueSpecification output : peer.getOutputValues()) {
-        _spec2Node.put(output, collapsedNode);
-        final Collection<ValueRequirement> requirements = _resolvedValues.remove(output);
-        if (requirements != null) {
-          _resolvedValues.put(MemoryUtils.instance(new ValueSpecification(output.getValueName(), collapsed, output.getProperties())), requirements);
+  private void collapseNodes() {
+    Pair<DependencyNode, DependencyNode> merge = _collapsedQueue.poll();
+    while (merge != null) {
+      if (_graphNodes.remove(merge.getFirst())) {
+        s_logger.debug("Applying collapse {}", merge);
+        merge.getFirst().replaceWith(merge.getSecond());
+        for (final ValueSpecification output : merge.getFirst().getOutputValues()) {
+          final ValueSpecification newOutput = MemoryUtils.instance(new ValueSpecification(output.getValueName(), merge.getSecond().getComputationTarget(), output.getProperties()));
+          _spec2Node.remove(output);
+          _spec2Node.put(newOutput, merge.getSecond());
+          final Collection<ValueRequirement> requirements = _resolvedValues.remove(output);
+          if (requirements != null) {
+            _resolvedValues.put(newOutput, requirements);
+          }
         }
+        // TODO: Update _func2target2nodes to remove .getFirst and add .getSecond
+        _graphNodes.add(merge.getSecond());
+      } else {
+        s_logger.debug("Ignoring collapse {}", merge);
       }
-      _graphNodes.remove(peer);
-      _graphNodes.add(collapsedNode);
-      if (_leafNodes.remove(peer)) {
-        _leafNodes.add(collapsedNode);
-      }
-      return collapsedNode;
+      merge = _collapsedQueue.poll();
     }
   }
 
-  private static boolean equals(final ParameterizedFunction a, final ParameterizedFunction b) {
-    if (a == b) {
+  private void scheduleCollapsers(final GraphBuildingContext context) {
+    if (!_collapsing.isEmpty()) {
+      final Iterator<Map.Entry<Set<DependencyNode>, Collection<Pair<DependencyNode, Object>>>> itrCollapsing = _collapsing.entrySet().iterator();
+      while (itrCollapsing.hasNext()) {
+        final Map.Entry<Set<DependencyNode>, Collection<Pair<DependencyNode, Object>>> collapsing = itrCollapsing.next();
+        if (collapsing.getValue().size() > 1) {
+          final Iterator<Pair<DependencyNode, Object>> itrNodes = collapsing.getValue().iterator();
+          boolean differentGroups = false;
+          final Object group = itrNodes.next().getSecond();
+          do {
+            if (itrNodes.next().getSecond() != group) {
+              differentGroups = true;
+              break;
+            }
+          } while (itrNodes.hasNext());
+          if (differentGroups) {
+            itrCollapsing.remove();
+            context.submit(new CollapseNodes(collapsing.getValue()));
+          }
+        }
+      }
+    }
+  }
+
+  // TODO: Use a mutable object instead of Pair so we don't have to keep reallocating to indicate a group change
+
+  private class CollapseNodes implements ContextRunnable {
+
+    private final Object _group = new Object();
+    private final CollapseNodes _parent;
+    private final Pair<DependencyNode, Object>[] _nodes;
+    private final int _start;
+    private int _end;
+    private int _endLeft;
+    private int _startRight;
+
+    @SuppressWarnings("unchecked")
+    public CollapseNodes(final Collection<Pair<DependencyNode, Object>> nodes) {
+      _parent = null;
+      _nodes = nodes.toArray(new Pair[nodes.size()]);
+      _start = 0;
+      _end = _nodes.length;
+    }
+
+    private CollapseNodes(final CollapseNodes parent, final Pair<DependencyNode, Object>[] nodes, final int start, final int end) {
+      _parent = parent;
+      _nodes = nodes;
+      _start = start;
+      _end = end;
+    }
+
+    private boolean equals(final ParameterizedFunction a, final ParameterizedFunction b) {
+      if (a == b) {
+        return true;
+      }
+      if (a.getFunction() != b.getFunction()) {
+        if (!a.getFunction().getFunctionDefinition().getUniqueId().equals(b.getFunction().getFunctionDefinition().getUniqueId())) {
+          return false;
+        }
+      }
+      return a.getParameters().equals(b.getParameters());
+    }
+
+    private void finish(final GraphBuildingContext context) {
+      if (_parent != null) {
+        _parent.notifyComplete(context, _start, _end);
+      } else {
+        synchronized (GetTerminalValuesCallback.this) {
+          collapseNodes();
+          // Put any unmerged nodes (there will be at least one) back into the set
+          if (_end > _start) {
+            final Set<DependencyNode> inputs = _nodes[_start].getFirst().getInputNodes();
+            Collection<Pair<DependencyNode, Object>> nodes = _collapsing.get(inputs);
+            if (nodes == null) {
+              nodes = new LinkedList<Pair<DependencyNode, Object>>();
+              _collapsing.put(inputs, nodes);
+            }
+            for (int i = _start; i < _end; i++) {
+              nodes.add(Pair.of(_nodes[i].getFirst(), _group));
+            }
+            scheduleCollapsers(context);
+          }
+        }
+      }
+    }
+
+    private void notifyComplete(final GraphBuildingContext context, final int start, final int end) {
+      synchronized (this) {
+        if (_start == start) {
+          // Completion notified for left half of a split
+          _endLeft = end;
+          if (_startRight == 0) {
+            // Right half is still pending
+            return;
+          }
+        } else {
+          // Completion notified for right half of a split
+          _startRight = start;
+          _end = end;
+          if (_endLeft == 0) {
+            // Left half is still pending
+            return;
+          }
+        }
+      }
+      if (_endLeft < _startRight) {
+        final int l = _end - _startRight;
+        System.arraycopy(_nodes, _startRight, _nodes, _endLeft, l);
+        _end = _endLeft + l;
+        _startRight = _endLeft;
+      }
+      for (int i = _start; i < _endLeft; i++) {
+        final DependencyNode a = _nodes[i].getFirst();
+        for (int j = _startRight; j < _end; j++) {
+          if (_nodes[i].getSecond() == _nodes[j].getSecond()) {
+            // Nodes are from the same group; have already been compared
+            continue;
+          }
+          final DependencyNode b = _nodes[j].getFirst();
+          if (equals(a.getFunction(), b.getFunction()) && a.getComputationTarget().getType().equals(b.getComputationTarget().getType())) {
+            final ComputationTargetSpecification collapsed = _computationTargetCollapser.collapse(a.getFunction().getFunction(), a.getComputationTarget(), b.getComputationTarget());
+            if (collapsed != null) {
+              if (collapsed.equals(a.getComputationTarget())) {
+                // A and B merged into A
+                _nodes[j--] = _nodes[--_end];
+                _collapsedQueue.add(Pair.of(b, a));
+                s_logger.debug("Merging {} into {}", b, a);
+              } else if (collapsed.equals(b.getComputationTarget())) {
+                // A and B merged into B
+                _nodes[i--] = _nodes[--_endLeft];
+                _collapsedQueue.add(Pair.of(a, b));
+                s_logger.debug("Merging {} into {}", a, b);
+                break;
+              } else {
+                // A and B merged into new node X
+                final DependencyNode x = new DependencyNode(collapsed);
+                x.setFunction(a.getFunction());
+                _nodes[i--] = _nodes[--_endLeft];
+                _nodes[j] = _nodes[_end - 1];
+                _nodes[_end - 1] = Pair.of(x, _group);
+                _collapsedQueue.add(Pair.of(a, x));
+                _collapsedQueue.add(Pair.of(b, x));
+                if (s_logger.isDebugEnabled()) {
+                  s_logger.debug("Merging {} and {} into new node {}", new Object[] {a, b, x });
+                }
+                break;
+              }
+            }
+          }
+        }
+      }
+      if (_endLeft < _startRight) {
+        final int l = _end - _startRight;
+        System.arraycopy(_nodes, _startRight, _nodes, _endLeft, l);
+        _end = _endLeft + l;
+        _startRight = _endLeft;
+      }
+      finish(context);
+    }
+
+    // ContextRunnable
+
+    @Override
+    public boolean tryRun(final GraphBuildingContext context) {
+      if (_end - _start >= 4) {
+        final int mid = (_start + _end) >> 1;
+        context.submit(new CollapseNodes(this, _nodes, _start, mid));
+        context.submit(new CollapseNodes(this, _nodes, mid, _end));
+      } else {
+        for (int i = _start; i < _end - 1; i++) {
+          final DependencyNode a = _nodes[i].getFirst();
+          for (int j = i + 1; j < _end; j++) {
+            if (_nodes[i].getSecond() == _nodes[j].getSecond()) {
+              // Nodes are from the same group; have already been compared
+              continue;
+            }
+            final DependencyNode b = _nodes[j].getFirst();
+            if (equals(a.getFunction(), b.getFunction()) && a.getComputationTarget().getType().equals(b.getComputationTarget().getType())) {
+              final ComputationTargetSpecification collapsed = _computationTargetCollapser.collapse(a.getFunction().getFunction(), a.getComputationTarget(), b.getComputationTarget());
+              if (collapsed != null) {
+                if (collapsed.equals(a.getComputationTarget())) {
+                  // A and B merged into A
+                  _nodes[j--] = _nodes[--_end];
+                  _collapsedQueue.add(Pair.of(b, a));
+                  s_logger.debug("Merging {} into {}", b, a);
+                } else if (collapsed.equals(b.getComputationTarget())) {
+                  // A and B merged into B
+                  _nodes[i--] = _nodes[--_end];
+                  _collapsedQueue.add(Pair.of(a, b));
+                  s_logger.debug("Merging {} into {}", a, b);
+                  break;
+                } else {
+                  // A and B merged into new node X
+                  final DependencyNode x = new DependencyNode(collapsed);
+                  x.setFunction(a.getFunction());
+                  _nodes[i--] = _nodes[--_end];
+                  _nodes[j] = _nodes[_end - 1];
+                  _nodes[_end - 1] = Pair.of(x, _group);
+                  _collapsedQueue.add(Pair.of(a, x));
+                  _collapsedQueue.add(Pair.of(b, x));
+                  s_logger.debug("Merging {} and {} into new node {}", new Object[] {a, b, x });
+                  break;
+                }
+              }
+            }
+          }
+        }
+        finish(context);
+      }
       return true;
     }
-    if (a.getFunction() != b.getFunction()) {
-      if (!a.getFunction().getFunctionDefinition().getUniqueId().equals(b.getFunction().getFunctionDefinition().getUniqueId())) {
-        return false;
-      }
-    }
-    return a.getParameters().equals(b.getParameters());
-  }
 
-  private DependencyNode collapseNode(final DependencyNode node) {
-    final Set<DependencyNode> inputs = node.getInputNodes();
-    final ParameterizedFunction function = node.getFunction();
-    if (inputs.isEmpty()) {
-      for (final DependencyNode peer : _leafNodes) {
-        if (peer == node) {
-          // Can't merge with ourselves
-          continue;
-        }
-        if (!equals(peer.getFunction(), function)) {
-          // Can't merge with different function
-          continue;
-        }
-        if (!peer.getComputationTarget().getType().equals(node.getComputationTarget().getType())) {
-          // Can't merge with different types
-          continue;
-        }
-        final DependencyNode collapsed = collapseNode(node, peer);
-        if (collapsed == null) {
-          // Collapser couldn't handle the nodes
-          continue;
-        }
-        return collapsed;
-      }
-    } else {
-      for (final DependencyNode inputNode : inputs) {
-        for (final DependencyNode peer : inputNode.getDependentNodes()) {
-          if (peer == node) {
-            // Can't merge with ourselves
-            continue;
-          }
-          if (!equals(peer.getFunction(), function)) {
-            // Can't merge with different function
-            continue;
-          }
-          if (!peer.getComputationTarget().getType().equals(node.getComputationTarget().getType())) {
-            // Can't merge with different types
-            continue;
-          }
-          if (!inputs.equals(peer.getInputNodes())) {
-            // Can't merge with different inputs
-            continue;
-          }
-          final DependencyNode collapsed = collapseNode(node, peer);
-          if (collapsed == null) {
-            // Collapser couldn't handle the nodes
-            continue;
-          }
-          return collapsed;
-        }
-      }
-    }
-    return node;
   }
 
   private DependencyNode getOrCreateNode(final ResolvedValue resolvedValue, final Set<ValueSpecification> downstream, DependencyNode node,
@@ -338,14 +475,7 @@ import com.opengamma.util.tuple.Pair;
           inputNode = getOrCreateNode(inputValue, downstreamCopy);
           if (inputNode != null) {
             node.addInputNode(inputNode);
-            if (input.getTargetSpecification().equals(inputNode.getComputationTarget())) {
-              node.addInputValue(input);
-            } else {
-              // The node we connected to is a substitute following a target collapse; the original input value is now incorrect
-              final ValueSpecification substituteInput = new ValueSpecification(input.getValueName(), inputNode.getComputationTarget(), input.getProperties());
-              assert inputNode.getOutputValues().contains(substituteInput);
-              node.addInputValue(substituteInput);
-            }
+            node.addInputValue(input);
           } else {
             s_logger.warn("No node production for {}", inputValue);
             return null;
@@ -369,24 +499,33 @@ import com.opengamma.util.tuple.Pair;
           node.removeOutputValue(valueSpecification);
         }
       }
-      if ((_computationTargetCollapser != null) && _computationTargetCollapser.canApplyTo(node.getComputationTarget().getSpecification())) {
+      if ((_computationTargetCollapser != null) && _computationTargetCollapser.canApplyTo(node.getComputationTarget())) {
         // Test if the targets can be collapsed and another node used here
-        final DependencyNode collapsedNode = collapseNode(node);
-        if (collapsedNode != node) {
-          s_logger.debug("Rewrite after collapse to {}", collapsedNode);
-          node = collapsedNode;
+        final Set<DependencyNode> inputs = node.getInputNodes();
+        boolean addToCollapse;
+        if (inputs.isEmpty()) {
+          addToCollapse = true;
         } else {
-          _graphNodes.add(node);
-          if (resolvedValue.getFunctionInputs().isEmpty()) {
-            _leafNodes.add(node);
+          addToCollapse = true;
+          for (DependencyNode input : inputs) {
+            if (_computationTargetCollapser.canApplyTo(input.getComputationTarget())) {
+              // This node will be considered after it's input has been considered
+              // TODO: This doesn't happen; either consider this now or put the logic in somewhere to consider this node
+              addToCollapse = false;
+              break;
+            }
           }
         }
-      } else {
-        _graphNodes.add(node);
-        if (resolvedValue.getFunctionInputs().isEmpty()) {
-          _leafNodes.add(node);
+        if (addToCollapse) {
+          Collection<Pair<DependencyNode, Object>> nodes = _collapsing.get(inputs);
+          if (nodes == null) {
+            nodes = new LinkedList<Pair<DependencyNode, Object>>();
+            _collapsing.put(inputs, nodes);
+          }
+          nodes.add(Pair.of(node, (Object) node));
         }
       }
+      _graphNodes.add(node);
       _resolvedBuffer.remove(resolvedValue.getValueSpecification());
     }
     return node;
@@ -531,7 +670,18 @@ import com.opengamma.util.tuple.Pair;
     return getOrCreateNode(resolvedValue, downstream, findExistingNode(nodes, resolvedValue), nodes);
   }
 
-  private void completeGraphBuild() {
+  /**
+   * Reports a successful resolution of a top level requirement. The production of linked {@link DependencyNode} instances to form the final graph is single threaded. The resolution is added to a
+   * queue of successful resolutions. If this is the only (or first) thread to report resolutions then this will work to drain the queue and produce nodes for the graph based on the resolved value
+   * cache in the building context. If other threads report resolutions while this is happening they are added to the queue and those threads return immediately.
+   */
+  @Override
+  public void resolved(final GraphBuildingContext context, final ValueRequirement valueRequirement, final ResolvedValue resolvedValue, final ResolutionPump pump) {
+    s_logger.info("Resolved {} to {}", valueRequirement, resolvedValue.getValueSpecification());
+    if (pump != null) {
+      context.close(pump);
+    }
+    _resolvedQueue.add(Pair.of(valueRequirement, resolvedValue));
     while (!_resolvedQueue.isEmpty() && _singleton.compareAndSet(null, Thread.currentThread())) {
       synchronized (this) {
         Pair<ValueRequirement, ResolvedValue> resolved = _resolvedQueue.poll();
@@ -554,24 +704,11 @@ import com.opengamma.util.tuple.Pair;
           }
           resolved = _resolvedQueue.poll();
         }
+        collapseNodes();
+        scheduleCollapsers(context);
       }
       _singleton.set(null);
     }
-  }
-
-  /**
-   * Reports a successful resolution of a top level requirement. The production of linked {@link DependencyNode} instances to form the final graph is single threaded. The resolution is added to a
-   * queue of successful resolutions. If this is the only (or first) thread to report resolutions then this will work to drain the queue and produce nodes for the graph based on the resolved value
-   * cache in the building context. If other threads report resolutions while this is happening they are added to the queue and those threads return immediately.
-   */
-  @Override
-  public void resolved(final GraphBuildingContext context, final ValueRequirement valueRequirement, final ResolvedValue resolvedValue, final ResolutionPump pump) {
-    s_logger.info("Resolved {} to {}", valueRequirement, resolvedValue.getValueSpecification());
-    if (pump != null) {
-      context.close(pump);
-    }
-    _resolvedQueue.add(Pair.of(valueRequirement, resolvedValue));
-    completeGraphBuild();
   }
 
   @Override
