@@ -30,13 +30,14 @@ $.register_module({
                     delete data[scheme_id];
                 }
             });
-            block.name = function () {
-                var scheme = $(select_id()).val().trim(), id = $(input_id()).val().trim();
+            block.name = function() {
+
+                var scheme = $('#' + scheme_id).val().trim(), id = $('#' + sec_id).val().trim();
                 if (!scheme.length || !id.length) return false;
                 return  scheme + '~' + id;
             };
             block.create_autocomplete = function () {
-                og.api.rest.blotter.idschemes.get().pipe(function (result){
+                og.api.rest.blotter.idschemes.get().pipe(function(result) {
                     var obj = result.data;
                     Object.keys(obj).forEach(function(key) { 
                         options.push(obj[key]);
@@ -48,26 +49,20 @@ $.register_module({
                         source: options, 
                         id: scheme_id, name :scheme_id,
                         no_arrow: true,
-                        select: function( event, ui ) {
-                            $(select_id()).val(ui.item.value);
+                        select: function(event, ui) {
+                            $('#' + scheme_id).val(ui.item.value);
                             callback();
                         },
                         value: scheme_value,
                         disabled: config.edit
                     });
                     menu.$input.autocomplete('widget').css('max-height', 500);
-                    form.on('keyup', input_id(), function (event) {callback();});
-                    form.on('keyup', select_id(), function (event) {callback();}); 
+                    form.on('keyup', '#' + sec_id, function(event) {callback();});
+                    form.on('keyup', '#' + scheme_id, function(event) {callback();}); 
                     callback(); 
                 });                           
             };
-            input_id = function () {
-                return '#' + sec_id;
-            };
-            select_id = function () {
-                return '#' + scheme_id;
-            };
-            form.on('form:load', function (){
+            form.on('form:load', function(){
                 block.create_autocomplete();
             });
         };
