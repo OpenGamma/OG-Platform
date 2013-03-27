@@ -5,9 +5,8 @@
  */
 package com.opengamma.analytics.financial.credit.schedulegeneration;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.NavigableSet;
 import java.util.Set;
 import java.util.TreeSet;
@@ -372,15 +371,20 @@ public class GenerateCreditDefaultSwapIntegrationSchedule {
     return truncatedDateList;
   }
 
-  public ZonedDateTime[] getTruncatedTimeLine(final ZonedDateTime[] fullDateList, final ZonedDateTime startDate, final ZonedDateTime endDate) {
-    final int n = fullDateList.length;
-    final ZonedDateTime[] sorted = new ZonedDateTime[n];
-    System.arraycopy(fullDateList, 0, sorted, 0, n);
-    final List<ZonedDateTime> truncated = new ArrayList<>();
-    //sorting?
+  public ZonedDateTime[] getTruncatedTimeLine(final ZonedDateTime[] allDates, final ZonedDateTime startDate, final ZonedDateTime endDate,
+      final boolean sorted) {
+    ArgumentChecker.notNull(allDates, "all dates");
+    ArgumentChecker.notNull(startDate, "start date");
+    ArgumentChecker.notNull(endDate, "end date");
+    //TODO should allDates not be empty?
+    ArgumentChecker.isTrue(startDate.isBefore(endDate), "Start date {} must be before end date {}", startDate, endDate);
+    final int n = allDates.length;
+    final ZonedDateTime[] dates = new ZonedDateTime[n];
+    System.arraycopy(allDates, 0, dates, 0, n);
+    final LinkedHashSet<ZonedDateTime> truncated = new LinkedHashSet<>();
     final LocalDate startDateAsLocal = startDate.toLocalDate();
     final LocalDate endDateAsLocal = endDate.toLocalDate();
-    for (final ZonedDateTime date : sorted) {
+    for (final ZonedDateTime date : dates) {
       final LocalDate localDate = date.toLocalDate();
       if (!(localDate.isBefore(startDateAsLocal) || localDate.isAfter(endDateAsLocal))) {
         truncated.add(date);
@@ -391,7 +395,9 @@ public class GenerateCreditDefaultSwapIntegrationSchedule {
       return new ZonedDateTime[] {startDate, endDate };
     }
     final ZonedDateTime[] truncatedArray = truncated.toArray(new ZonedDateTime[truncatedSize]);
-    Arrays.sort(truncatedArray);
+    if (!sorted) {
+      Arrays.sort(truncatedArray);
+    }
     if (truncatedArray[0].equals(startDate)) {
       if (truncatedArray[truncatedSize - 1].equals(endDate)) {
         return truncatedArray;
@@ -399,6 +405,12 @@ public class GenerateCreditDefaultSwapIntegrationSchedule {
       final ZonedDateTime[] result = new ZonedDateTime[truncatedSize + 1];
       System.arraycopy(truncatedArray, 0, result, 0, truncatedSize);
       result[truncatedSize] = endDate;
+      return result;
+    }
+    if (truncatedArray[truncatedSize - 1].equals(endDate)) {
+      final ZonedDateTime[] result = new ZonedDateTime[truncatedSize + 1];
+      System.arraycopy(truncatedArray, 0, result, 1, truncatedSize);
+      result[0] = startDate;
       return result;
     }
     final ZonedDateTime[] result = new ZonedDateTime[truncatedSize + 2];
