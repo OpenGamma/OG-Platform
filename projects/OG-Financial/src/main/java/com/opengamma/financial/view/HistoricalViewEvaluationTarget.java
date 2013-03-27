@@ -22,6 +22,7 @@ import com.opengamma.engine.view.execution.ArbitraryViewCycleExecutionSequence;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.execution.ViewCycleExecutionSequence;
 import com.opengamma.financial.analytics.timeseries.DateConstraint;
+import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 
@@ -70,6 +71,10 @@ public class HistoricalViewEvaluationTarget extends ViewEvaluationTarget {
 
   private HistoricalViewEvaluationTarget(FudgeDeserializer deserializer, FudgeMsg message, String startDate, boolean includeStart, String endDate, boolean includeEnd) {
     super(deserializer, message, new HistoricalSequence(startDate, includeStart, endDate, includeEnd));
+  }
+
+  protected HistoricalViewEvaluationTarget(final HistoricalViewEvaluationTarget copyFrom, final UniqueId uid) {
+    super(copyFrom, uid);
   }
 
   @Override
@@ -161,6 +166,11 @@ public class HistoricalViewEvaluationTarget extends ViewEvaluationTarget {
 
   public boolean isIncludeEnd() {
     return ((HistoricalSequence) getExecutionSequence())._includeEnd;
+  }
+
+  @Override
+  public HistoricalViewEvaluationTarget withUniqueId(final UniqueId uid) {
+    return new HistoricalViewEvaluationTarget(this, uid);
   }
 
   @Override

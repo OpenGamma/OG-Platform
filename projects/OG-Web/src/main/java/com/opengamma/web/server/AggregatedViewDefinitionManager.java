@@ -116,7 +116,7 @@ public class AggregatedViewDefinitionManager {
                                                                               baseViewDefinition.getMarketDataUser());
         
         // Treat as a transient view definition that should not be persistent
-        aggregatedViewDefinition.setPersistent(false);
+        //aggregatedViewDefinition.setPersistent(false);
         
         ConfigItem<ViewDefinition> configItem = ConfigItem.of(aggregatedViewDefinition);
         configItem.setName(aggregatedViewDefinition.getName());

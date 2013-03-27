@@ -10,6 +10,7 @@ import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -22,6 +23,11 @@ public final class MockTempTarget extends TempTarget {
   public MockTempTarget(final String value) {
     ArgumentChecker.notNull(value, "value");
     _value = value;
+  }
+
+  protected MockTempTarget(final MockTempTarget copyFrom, final UniqueId uid) {
+    super(uid);
+    _value = copyFrom._value;
   }
 
   private MockTempTarget(final FudgeDeserializer deserializer, final FudgeMsg msg) {
@@ -40,6 +46,11 @@ public final class MockTempTarget extends TempTarget {
   }
 
   // TempTarget
+
+  @Override
+  public MockTempTarget withUniqueId(final UniqueId uid) {
+    return new MockTempTarget(this, uid);
+  }
 
   @Override
   protected boolean equalsImpl(final Object o) {

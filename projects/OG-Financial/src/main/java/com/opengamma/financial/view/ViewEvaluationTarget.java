@@ -14,6 +14,7 @@ import org.fudgemsg.mapping.FudgeSerializer;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.financial.temptarget.TempTarget;
+import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 
 /**
@@ -59,6 +60,12 @@ public class ViewEvaluationTarget extends TempTarget {
   protected ViewEvaluationTarget(ViewDefinition viewDefinition, ViewCycleExecutionSequenceDescriptor executionSequence) {
     _viewDefinition = viewDefinition;
     _executionSequence = executionSequence;
+  }
+
+  protected ViewEvaluationTarget(final ViewEvaluationTarget copyFrom, final UniqueId uid) {
+    super(uid);
+    _viewDefinition = copyFrom._viewDefinition;
+    _executionSequence = copyFrom._executionSequence;
   }
 
   public ViewDefinition getViewDefinition() {
@@ -122,6 +129,11 @@ public class ViewEvaluationTarget extends TempTarget {
   }
 
   // TempTarget
+
+  @Override
+  public ViewEvaluationTarget withUniqueId(final UniqueId uid) {
+    return new ViewEvaluationTarget(this, uid);
+  }
 
   @Override
   protected boolean equalsImpl(Object o) {
