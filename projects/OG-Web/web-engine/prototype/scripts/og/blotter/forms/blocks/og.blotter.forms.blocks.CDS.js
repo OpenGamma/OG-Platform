@@ -26,42 +26,42 @@ $.register_module({
                         index: "security.referenceEntity"
                     }),
                     new form.Block({module:'og.views.forms.currency_tash', 
-                        extras:{}
+                        extras:{name: "security.notional.currency"}
                     }),
                     new ui.Dropdown({
-                        form: form, resource: 'blotter.regions', index:  'regionId',
+                        form: form, resource: 'blotter.regions', index: 'security.regionId',
                         value: data.regionId, placeholder: 'Select Region ID'
                     }),
                     new ui.Dropdown({
-                        form: form, resource: 'blotter.daycountconventions', index: 'dayCount',
+                        form: form, resource: 'blotter.daycountconventions', index: 'security.dayCount',
                         value: data.dayCount, placeholder: 'Select Day Count'
                     }),
                     new ui.Dropdown({
-                        form: form, resource: 'blotter.frequencies', index:  'couponFrequency',
+                        form: form, resource: 'blotter.frequencies', index:  'security.couponFrequency',
                         value: data.couponFrequency, placeholder: 'Select Frequency'
                     }),
                     new ui.Dropdown({
                         form: form, resource: 'blotter.businessdayconventions', 
-                        index:  'businessDayConvention', value: data.businessDayConvention, 
+                        index:  'security.businessDayConvention', value: data.businessDayConvention, 
                         placeholder: 'Select Business Day Convention'
                     }),
                     new ui.Dropdown({
                         form: form, resource: 'blotter.restructuringclause', 
-                        index:  'restructuringClause', value: data.restructuringClause, 
+                        index:  'security.restructuringClause', value: data.restructuringClause, 
                         placeholder: 'Select Restructuring Clause'
                     }),
                     new ui.Dropdown({
                         form: form, resource: 'blotter.debtseniority', 
-                        index:  'debtSeniority', value: data.debtSeniority, 
+                        index:  'security.debtSeniority', value: data.debtSeniority, 
                         placeholder: 'Select Debt Seniority'
                     }),
                     new ui.Dropdown({
                         form: form, resource: 'blotter.stubtype', 
-                        index:  'stubType', value: data.stubType, 
+                        index:  'security.stubType', value: data.stubType, 
                         placeholder: 'Select Stub Type'
                     }),
                     new form.Block({module:'og.views.forms.currency_tash', 
-                        extras:{}
+                        extras:{name: "security.upfrontAmount.currency"}
                     })
                 ]
             });
