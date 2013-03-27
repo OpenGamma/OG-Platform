@@ -16,10 +16,8 @@ import org.threeten.bp.temporal.ChronoUnit;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.position.Trade;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
@@ -31,6 +29,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.security.option.EquityIndexFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.util.async.AsynchronousExecution;
@@ -71,12 +70,15 @@ public class WeightedVegaFunction extends AbstractFunction.NonCompiledInvoker {
     
     // 2. Compute Weighted Vega
     
-    Expiry expiry = null;
+    Expiry expiry = null; // TODO: Create an ExpiryVisitor - this is the only reason we need to mention specific securities..
     final Security security = target.getSecurity();
+    
     if (security instanceof EquityOptionSecurity) {
       expiry = ((EquityOptionSecurity) security).getExpiry();
     } else if (security instanceof EquityIndexOptionSecurity) {
       expiry = ((EquityIndexOptionSecurity) security).getExpiry();
+    } else if (security instanceof EquityIndexFutureOptionSecurity) {
+      expiry = ((EquityIndexFutureOptionSecurity) security).getExpiry();
     } else {
       s_logger.error("If applicable, please add the following SecurityType to WeightedVegaFunction, " + security.getSecurityType());
     }
@@ -105,9 +107,11 @@ public class WeightedVegaFunction extends AbstractFunction.NonCompiledInvoker {
   
   @Override
   public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
-
+    
     final Security security = target.getSecurity();
-    if (security instanceof EquityOptionSecurity || security instanceof EquityIndexOptionSecurity) {
+    if (security instanceof EquityOptionSecurity || 
+        security instanceof EquityIndexOptionSecurity ||
+        security instanceof EquityIndexFutureOptionSecurity) {
       return true;
     }
     return false;

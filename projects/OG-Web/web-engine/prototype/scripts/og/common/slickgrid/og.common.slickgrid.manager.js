@@ -93,8 +93,11 @@ $.register_module({
                         page: request_page_number + 1, // 0 and 1 are the same
                         search: true
                     }, (function () {
-                        var fields = ['name', 'type', 'data_source', 'identifier', 'data_provider',
-                            'data_field', 'ob_time', 'ob_date', 'observation_time', 'status', 'quantity'];
+                        var fields = [
+                            'name', 'type', 'data_source', 'identifier', 'data_provider',
+                            'data_field', 'ob_time', 'ob_date', 'observation_time', 'status', 'quantity',
+                            'obligor_red_code', 'obligor_ticker'
+                        ];
                         return fields.reduce(function (acc, val) {
                             if (!filters[val]) return acc;
                             if (val === 'type') return acc[val] = filters.type, acc;

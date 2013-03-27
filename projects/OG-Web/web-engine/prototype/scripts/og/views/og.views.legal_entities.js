@@ -50,6 +50,18 @@ $.register_module({
                             width: 300, cssClass: 'og-link',
                             name: '<input type="text" placeholder="Name" '
                                 + 'class="og-js-name-filter" style="width: 288px;">'
+                        },
+                        {
+                            id: 'obligor_red_code', toolTip: 'Obligor RED Code', field: 'obligor_red_code',
+                            width: 100, cssClass: 'og-link',
+                            name: '<input type="text" placeholder="Obligor RED Code" '
+                                + 'class="og-js-obligor_red_code-filter" style="width: 88px;">'
+                        },
+                        {
+                            id: 'obligor_ticker', toolTip: 'Obligor Ticker', field: 'obligor_ticker',
+                            width: 100, cssClass: 'og-link',
+                            name: '<input type="text" placeholder="Obligor Ticker" '
+                                + 'class="og-js-obligor_ticker-filter" style="width: 88px;">'
                         }
                     ]
                 },
@@ -76,7 +88,7 @@ $.register_module({
                     }
                 }
             },
-            rules: view.rules(['name'])
+            rules: view.rules(['name', 'obligor_red_code', 'obligor_ticker'])
         });
     }
 });
