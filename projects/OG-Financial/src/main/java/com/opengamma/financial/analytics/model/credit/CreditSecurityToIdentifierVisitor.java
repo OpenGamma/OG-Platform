@@ -5,12 +5,7 @@
  */
 package com.opengamma.financial.analytics.model.credit;
 
-import org.apache.commons.lang.NotImplementedException;
-
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
-import com.opengamma.financial.security.cds.CreditDefaultSwapIndexSecurity;
-import com.opengamma.financial.security.cds.LegacyFixedRecoveryCDSSecurity;
-import com.opengamma.financial.security.cds.LegacyRecoveryLockCDSSecurity;
 import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
 import com.opengamma.financial.security.cds.StandardVanillaCDSSecurity;
 import com.opengamma.id.ExternalId;
