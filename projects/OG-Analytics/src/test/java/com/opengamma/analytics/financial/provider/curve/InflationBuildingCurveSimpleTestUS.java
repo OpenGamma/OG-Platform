@@ -50,8 +50,6 @@ import com.opengamma.analytics.financial.provider.sensitivity.inflation.Inflatio
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
-import com.opengamma.financial.convention.calendar.Calendar;
-import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
@@ -71,7 +69,6 @@ public class InflationBuildingCurveSimpleTestUS {
   private static final int STEP_MAX = 100;
 
   private static final Currency USD = Currency.USD;
-  private static final Calendar NYC = new MondayToFridayCalendar("NYC");
 
   private static final double NOTIONAL = 1.0;
 
@@ -79,8 +76,6 @@ public class InflationBuildingCurveSimpleTestUS {
   private static final IndexPrice US_CPI = GENERATOR_INFALTION_SWAP.getIndexPrice();
 
   private static final ZonedDateTime NOW = DateUtils.getUTCDate(2012, 9, 28);
-
-  private static final ArrayZonedDateTimeDoubleTimeSeries TS_EMPTY = new ArrayZonedDateTimeDoubleTimeSeries();
 
   private static final ArrayZonedDateTimeDoubleTimeSeries TS_PRICE_INDEX_USD_WITH_TODAY = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 27),
       DateUtils.getUTCDate(2011, 9, 28) }, new double[] {200, 200 });
@@ -175,6 +170,20 @@ public class InflationBuildingCurveSimpleTestUS {
     }
   }
 
+  @Test(enabled = false)
+  public void performance() {
+    long startTime, endTime;
+    final int nbTest = 1000;
+
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      makeCurvesFromDefinitions(DEFINITIONS_UNITS[0], GENERATORS_UNITS[0], NAMES_UNITS[0], KNOWN_DATA, PSIMQC, PSIMQCSC, false);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println("InflationBuildingCurveSimpleTestEUR - " + nbTest + " curve construction Price index EUR 1 units: " + (endTime - startTime) + " ms");
+    // Performance note: curve construction Price index EUR 1 units: 27-Mar-13: On Dell Precision T1850 3.5 GHz Quad-Core Intel Xeon: 3564 ms for 1000 sets.
+  }
+
   @Test
   public void curveConstructionGeneratorOtherBlocks() {
     for (int loopblock = 0; loopblock < NB_BLOCKS; loopblock++) {
@@ -196,37 +205,6 @@ public class InflationBuildingCurveSimpleTestUS {
       }
     }
   }
-
-  /*  @Test(enabled = true)
-    *//**
-      * Analyzes the shape of the  curve.
-      */
-
-  /* public void forwardAnalysis() {
-   final InflationProviderInterface marketDsc = CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(0).getFirst();
-   final int jump = 1;
-   final int startIndex = 0;
-   final int nbDate = 2750;
-   ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(NOW,2, NYC);
-   final double[] rateDsc = new double[nbDate];
-   final double[] startTime = new double[nbDate];
-   try {
-   final FileWriter writer = new FileWriter("fwd-dsc.csv");
-   for (int loopdate = 0; loopdate < nbDate; loopdate++) {
-   startTime[loopdate] = TimeCalculator.getTimeBetween(NOW, startDate);
-   final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, US_CPI);
-   final double endTime = TimeCalculator.getTimeBetween(NOW, endDate);
-   final double accrualFactor = USDLIBOR3M.getDayCount().getDayCountFraction(startDate, endDate);
-   rateDsc[loopdate] = marketDsc.getForwardRate(USDLIBOR3M, startTime[loopdate], endTime, accrualFactor);
-   startDate = ScheduleCalculator.getAdjustedDate(startDate, jump, NYC);
-   writer.append(0.0 + "," + startTime[loopdate] + "," + rateDsc[loopdate] + "\n");
-   }
-   writer.flush();
-   writer.close();
-   } catch (final IOException e) {
-   e.printStackTrace();
-   }
-   }*/
 
   private static Pair<InflationProviderDiscount, CurveBuildingBlockBundle> makeCurvesFromDefinitions(final InstrumentDefinition<?>[][][] definitions,
       final GeneratorPriceIndexCurve[][] curveGenerators,
