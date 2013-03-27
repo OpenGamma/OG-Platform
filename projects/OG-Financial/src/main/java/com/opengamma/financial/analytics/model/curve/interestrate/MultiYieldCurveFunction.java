@@ -205,7 +205,7 @@ public abstract class MultiYieldCurveFunction extends AbstractFunction.NonCompil
     final ValueRequirement specRequirement = new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, targetSpec, ValueProperties.with(ValuePropertyNames.CURVE, curveName).get());
     final Object specObject = inputs.getValue(specRequirement);
     if (specObject == null) {
-      throw new OpenGammaRuntimeException("Could not get a value for requirement " + specRequirement);
+      return null;
     }
     final InterpolatedYieldCurveSpecificationWithSecurities spec = (InterpolatedYieldCurveSpecificationWithSecurities) specObject;
     return spec;

@@ -46,7 +46,7 @@ public class OrganizationSearchRequest extends AbstractSearchRequest {
   private List<ObjectId> _organizationObjectIds;
 
   /**
-   * The organization ticker, null to not match on ticker.
+   * The organization ticker, wildcards allowed, null to not match on ticker.
    */
   @PropertyDefinition
   private String _obligorTicker;

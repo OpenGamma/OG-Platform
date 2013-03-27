@@ -25,21 +25,28 @@ public abstract class TempTarget implements UniqueIdentifiable {
    */
   public static final ComputationTargetType TYPE = ComputationTargetType.of(TempTarget.class);
 
-  private UniqueId _uid;
+  private final UniqueId _uid;
 
   public TempTarget() {
+    _uid = null;
+  }
+
+  protected TempTarget(UniqueId uid) {
+    _uid = uid;
   }
 
   protected TempTarget(final FudgeDeserializer deserializer, final FudgeMsg message) {
     final FudgeField field = message.getByName("uid");
     if (field != null) {
       _uid = deserializer.fieldValueToObject(UniqueId.class, field);
+    } else {
+      _uid = null;
     }
   }
 
   /**
    * Returns the unique identifier of the target, if one is set.
-   *
+   * 
    * @return the unique identifier, null if none is set
    */
   @Override
@@ -47,13 +54,11 @@ public abstract class TempTarget implements UniqueIdentifiable {
     return _uid;
   }
 
-  public void setUniqueId(final UniqueId uid) {
-    _uid = uid;
-  }
+  public abstract TempTarget withUniqueId(final UniqueId uid);
 
   /**
    * Tests the target for equality against another, ignoring the unique identifier.
-   *
+   * 
    * @param o the other object, not null, not this instance, and of the same class as this instance
    * @return true if the objects are equal (ignoring the unique identifier), false otherwise
    */
@@ -61,14 +66,14 @@ public abstract class TempTarget implements UniqueIdentifiable {
 
   /**
    * Creates a hash code for the object, ignoring the unique identifier.
-   *
+   * 
    * @return the hash code
    */
   protected abstract int hashCodeImpl();
 
   /**
    * Tests the target for equality against another, ignoring the unique identifier.
-   *
+   * 
    * @param o the object to test against, possibly null
    * @return true if the objects are equal (ignoring the unique identifier), false otherwise
    */
@@ -85,7 +90,7 @@ public abstract class TempTarget implements UniqueIdentifiable {
 
   /**
    * Creates a hash code for the object, ignoring the unique identifier.
-   *
+   * 
    * @return the hash code
    */
   @Override

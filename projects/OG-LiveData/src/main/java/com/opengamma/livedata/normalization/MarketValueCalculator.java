@@ -39,7 +39,9 @@ public class MarketValueCalculator implements NormalizationRule {
   @Override
   public MutableFudgeMsg apply(MutableFudgeMsg msg, String securityUniqueId, FieldHistoryStore fieldHistory) {
     
-    FudgeMsg lkv = fieldHistory.getLastKnownValues();
+    // TODO: Review behaviours under different market providers.
+    // Tickers that are not actually assets, like indices, provide an important case.
+    FudgeMsg lkv = fieldHistory.getLastKnownValues(); 
     
     Double bid = msg.getDouble(MarketDataRequirementNames.BID);
     if (bid == null) {
@@ -79,7 +81,7 @@ public class MarketValueCalculator implements NormalizationRule {
       msg.add(MarketDataRequirementNames.MARKET_VALUE, marketValue);
       return msg;
     }
-    // Use a "MID" if we've been given one (should this take priority before the BID/ASK sum?)
+    // Use a "MID" if we've been given one (should this take priority before the BID/ASK sum?) // TODO: Review - Consider Indices in Activ...
     Double mid = msg.getDouble(MarketDataRequirementNames.MID);
     if (mid != null) {
       msg.add(MarketDataRequirementNames.MARKET_VALUE, mid);

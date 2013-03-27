@@ -39,8 +39,7 @@ public class InMemoryTempTargetRepository implements TempTargetRepository {
       return uid;
     }
     uid = _uids.get();
-    target.setUniqueId(uid);
-    _uid2object.put(uid, target);
+    _uid2object.put(uid, target.withUniqueId(uid));
     final UniqueId existing = _object2uid.putIfAbsent(target, uid);
     if (existing != null) {
       _uid2object.remove(uid);
