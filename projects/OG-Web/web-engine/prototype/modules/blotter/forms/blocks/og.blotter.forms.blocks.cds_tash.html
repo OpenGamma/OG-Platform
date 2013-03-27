@@ -33,7 +33,9 @@
         </label>
       </td>
       <td class="og-double-cell">
-        <div><span>{{{item_3}}}</span><span><input name="{{leg}}notional.amount" type="text" value="{{notional}}"/></span></div>
+        <div><span>{{{item_3}}}
+        </span><span><input name="notional.amount" type="text" value="{{data.notional.amount}}"/>
+      </span></div>
       </td>
     </tr>
     <tr>
@@ -53,7 +55,7 @@
         </label>
       </td>
       <td>
-        <input class="blotter-date" name="security.startDate" type="text" value="{{start}}"/>
+        <input class="blotter-date" name="security.startDate" type="text" value="{{data.startDate}}"/>
       </td>
     </tr>
     <tr>
@@ -63,7 +65,7 @@
         </label>
       </td>
       <td class="og-double-cell">
-        <div><span><input class="blotter-date" name="security.effectiveDate" type="text" value="{{maturity}}"/>
+        <div><span><input class="blotter-date" name="security.effectiveDate" type="text" value="{{data.effectiveDate}}"/>
         </span><span><label>Adjust <input name="security.adjustEffectiveDate" type="checkbox" />
         </label></span></div>
       </td>
@@ -76,7 +78,7 @@
           </label>
         </td>
         <td class="og-double-cell">
-          <div><span><input class="blotter-date" name="security.cashSettlementDate" type="text" value="{{maturity}}"/>
+          <div><span><input class="blotter-date" name="security.cashSettlementDate" type="text" value="{{data.cashSettlementDate}}"/>
           </span><span><label>Adjust <input name="security.adjustCashSettlementDate" type="checkbox" />
           </label></span></div>
         </td>
@@ -89,7 +91,7 @@
         </label>
       </td>
       <td class="og-double-cell">
-        <div><span><input class="blotter-date" name="security.maturityDate" type="text" value="{{maturity}}"/>
+        <div><span><input class="blotter-date" name="security.maturityDate" type="text" value="{{data.maturityDate}}"/>
         </span><span><label>Adjust <input name="security.adjustMaturityDate" type="checkbox" />
         </label><label>IMM <input name="security.immAdjustMaturityDate" type="checkbox" /></label></span></div>
       </td>
@@ -161,7 +163,7 @@
         </label>
       </td>
       <td>
-        <input name="security.recoveryRate" type="text" value="{{recovery}}"/>
+        <input name="security.recoveryRate" type="text" value="{{data.recoveryRate}}"/>
       </td>
     </tr>
     {{#if legacy}}
