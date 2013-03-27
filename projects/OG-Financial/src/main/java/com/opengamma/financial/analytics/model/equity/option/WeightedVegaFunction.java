@@ -70,7 +70,7 @@ public class WeightedVegaFunction extends AbstractFunction.NonCompiledInvoker {
     
     // 2. Compute Weighted Vega
     
-    Expiry expiry = null;
+    Expiry expiry = null; // TODO: Create an ExpiryVisitor - this is the only reason we need to mention specific securities..
     final Security security = target.getSecurity();
     
     if (security instanceof EquityOptionSecurity) {
