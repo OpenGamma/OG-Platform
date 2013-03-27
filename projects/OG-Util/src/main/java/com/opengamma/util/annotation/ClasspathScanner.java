@@ -31,6 +31,11 @@ import com.opengamma.OpenGammaRuntimeException;
   private final Instant _timestamp;
   
   private static volatile URL[] s_classPathElements;
+  
+  private boolean _scanClassAnnotations = true;
+  private boolean _scanMethodAnnotations = true;
+  private boolean _scanParameterAnnotations = true;
+  private boolean _scanFieldAnnotations = true;
 
   public ClasspathScanner() {
     _urls = getClassPathElements();
@@ -99,10 +104,10 @@ import com.opengamma.OpenGammaRuntimeException;
    */
   protected AnnotationCache scan(Class<? extends Annotation> annotationClass) {
     final AnnotationDB annoDb = new AnnotationDB();
-    annoDb.setScanClassAnnotations(false);
-    annoDb.setScanMethodAnnotations(true);
-    annoDb.setScanFieldAnnotations(false);
-    annoDb.setScanParameterAnnotations(false);
+    annoDb.setScanClassAnnotations(_scanClassAnnotations);
+    annoDb.setScanFieldAnnotations(_scanFieldAnnotations);
+    annoDb.setScanMethodAnnotations(_scanMethodAnnotations);
+    annoDb.setScanParameterAnnotations(_scanParameterAnnotations);
     try {
       annoDb.scanArchives(_urls);
     } catch (IOException ex) {
@@ -116,4 +121,68 @@ import com.opengamma.OpenGammaRuntimeException;
     return cache;
   }
 
+  /**
+   * Gets the scanClassAnnotations.
+   * @return the scanClassAnnotations
+   */
+  public boolean isScanClassAnnotations() {
+    return _scanClassAnnotations;
+  }
+
+  /**
+   * Sets the scanClassAnnotations.
+   * @param scanClassAnnotations  the scanClassAnnotations
+   */
+  public void setScanClassAnnotations(boolean scanClassAnnotations) {
+    _scanClassAnnotations = scanClassAnnotations;
+  }
+
+  /**
+   * Gets the scanMethodAnnotations.
+   * @return the scanMethodAnnotations
+   */
+  public boolean isScanMethodAnnotations() {
+    return _scanMethodAnnotations;
+  }
+
+  /**
+   * Sets the scanMethodAnnotations.
+   * @param scanMethodAnnotations  the scanMethodAnnotations
+   */
+  public void setScanMethodAnnotations(boolean scanMethodAnnotations) {
+    _scanMethodAnnotations = scanMethodAnnotations;
+  }
+
+  /**
+   * Gets the scanParameterAnnotations.
+   * @return the scanParameterAnnotations
+   */
+  public boolean isScanParameterAnnotations() {
+    return _scanParameterAnnotations;
+  }
+
+  /**
+   * Sets the scanParameterAnnotations.
+   * @param scanParameterAnnotations  the scanParameterAnnotations
+   */
+  public void setScanParameterAnnotations(boolean scanParameterAnnotations) {
+    _scanParameterAnnotations = scanParameterAnnotations;
+  }
+
+  /**
+   * Gets the scanFieldAnnotations.
+   * @return the scanFieldAnnotations
+   */
+  public boolean isScanFieldAnnotations() {
+    return _scanFieldAnnotations;
+  }
+
+  /**
+   * Sets the scanFieldAnnotations.
+   * @param scanFieldAnnotations  the scanFieldAnnotations
+   */
+  public void setScanFieldAnnotations(boolean scanFieldAnnotations) {
+    _scanFieldAnnotations = scanFieldAnnotations;
+  }
+  
 }
