@@ -68,6 +68,20 @@
         </label></span></div>
       </td>
     </tr>
+    {{#if stdvanilla}}
+      <tr>
+        <td>
+          <label>
+            <span>Cash Settlement Date</span>
+          </label>
+        </td>
+        <td class="og-double-cell">
+          <div><span><input class="blotter-date" name="security.cashSettlementDate" type="text" value="{{maturity}}"/>
+          </span><span><label>Adjust <input name="security.adjustCashSettlementDate" type="checkbox" />
+          </label></span></div>
+        </td>
+      </tr>
+    {{/if}}
     <tr>
       <td>
         <label>
@@ -150,6 +164,52 @@
         <input name="security.recoveryRate" type="text" value="{{recovery}}"/>
       </td>
     </tr>
+    {{#if legacy}}
+    <tr>
+      <td>
+        <label>
+          <span>Par Spread</span>
+        </label>
+      </td>
+      <td>
+        <input name="security.parSpread" type="text" value="{{data.parSpread}}"/>
+      </td>
+    </tr>
+    {{/if}}
+    {{#if standard}}
+      <tr>
+        <td>
+          <label>
+            <span>Quoted Spread</span>
+          </label>
+        </td>
+        <td>
+          <input name="security.quotedSpread" type="text" value="{{data.quotedSpread}}"/>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <label>
+            <span>Upfront Amount</span>
+          </label>
+        </td>
+        <td>
+          <input name="security.upfrontAmout" type="text" value="{{data.upfrontAmout}}"/>
+        </td>
+      </tr>
+    {{/if}}
+    {{#if stdvanilla}}
+      <tr>
+        <td>
+          <label>
+            <span>Coupon</span>
+          </label>
+        </td>
+        <td>
+          <input name="security.coupon" type="text" value="{{data.coupon}}"/>
+        </td>
+      </tr>
+    {{/if}}
   </tbody>
 </table>
 </section>

@@ -6,13 +6,12 @@ $.register_module({
     name: 'og.blotter.forms.blocks.cds',
     dependencies: ['og.common.util.ui.Form'],
     obj: function () {
-        var module = this, Block = og.common.util.ui.Block;
+        var Block = og.common.util.ui.Block;
         var CDS = function (config) {
-            var block = this, id = og.common.id('attributes'), form = config.form, data = config.data,
-                ui = og.common.util.ui;
+            var block = this, form = config.form, data = config.data, ui = og.common.util.ui;
             form.Block.call(block, {
                 module: 'og.blotter.forms.blocks.cds_tash',
-                extras: {},
+                extras: {legacy: config.legacy, standard: config.standard, stdvanilla: config.stdvanilla},
                 children: [
                     new og.blotter.forms.blocks.Security({
                         form: form, label: "Protection Buyer", security: data.security.protectionBuyer,

@@ -27,7 +27,7 @@ $.register_module({
                 complete(result);
             };
             constructor.load = function () {
-                // security type specifies which type of form to load
+                // security type specifies which form to create
                 if (config.details) {
                     title = 'Edit Trade', submit = 'Update';
                     og.api.text({module: 'og.blotter.forms.blocks.form_edit_tash'}).pipe(function (template){
