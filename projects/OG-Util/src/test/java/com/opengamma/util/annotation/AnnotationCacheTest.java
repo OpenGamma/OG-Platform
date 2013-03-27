@@ -24,7 +24,7 @@ import com.opengamma.util.test.TestGroup;
  */
 @Test(groups = TestGroup.UNIT)
 public class AnnotationCacheTest {
-  
+
   private static final String CACHE_FILE_NAME = ".TestAnnotation";
 
   private File createTempFolder() {
@@ -40,7 +40,7 @@ public class AnnotationCacheTest {
     final File temp = createTempFolder();
     try {
       System.setProperty(AnnotationCache.CACHE_PATH_PROPERTY, temp.toString());
-      final AnnotationCache cache = AnnotationCache.load(TestAnnotation.class);
+      final AnnotationCache cache = AnnotationCache.load(MockType.class);
       assertNotNull(cache);
       assertEquals(cache.getTimestamp(), Instant.EPOCH);
     } finally {
@@ -53,11 +53,11 @@ public class AnnotationCacheTest {
     try {
       System.setProperty(AnnotationCache.CACHE_PATH_PROPERTY, temp.toString());
       final Instant ts = Instant.now();
-      AnnotationCache cache = AnnotationCache.create(ts, TestAnnotation.class, Arrays.asList(DummyAnnotatedTest.class.getName()));
+      AnnotationCache cache = AnnotationCache.create(ts, MockType.class, Arrays.asList(AnnotationCacheTest.class.getName()));
       cache.save();
       try {
         assertTrue(new File(temp, CACHE_FILE_NAME).exists());
-        cache = AnnotationCache.load(TestAnnotation.class);
+        cache = AnnotationCache.load(MockType.class);
         assertEquals(cache.getTimestamp(), ts);
         assertEquals(cache.getClassNames().size(), 1);
         assertEquals(cache.getClassNames().iterator().next(), AnnotationCacheTest.class.getName());
@@ -70,10 +70,10 @@ public class AnnotationCacheTest {
   }
 
   public void testGetClasses() throws ClassNotFoundException {
-    final AnnotationCache cache = AnnotationCache.create(Instant.now(), TestAnnotation.class, Arrays.asList(DummyAnnotatedTest.class.getName()));
+    final AnnotationCache cache = AnnotationCache.create(Instant.now(), MockType.class, Arrays.asList(AnnotationCacheTest.class.getName()));
     final Collection<Class<?>> classes = cache.getClasses();
     assertEquals(classes.size(), 1);
-    assertEquals(classes.iterator().next(), DummyAnnotatedTest.class);
+    assertEquals(classes.iterator().next(), AnnotationCacheTest.class);
   }
 
 }
