@@ -5,10 +5,8 @@
  */
 package com.opengamma.analytics.financial.timeseries.returns;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.timeseries.TimeSeriesException;
-import com.opengamma.timeseries.fast.integer.FastIntDoubleTimeSeries;
+import com.opengamma.timeseries.localdate.LocalDateDoubleIterator;
 import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.CalculationMode;
@@ -52,54 +50,46 @@ public class ContinuouslyCompoundedTimeSeriesReturnCalculator extends TimeSeries
    */
   @Override
   public LocalDateDoubleTimeSeries evaluate(final LocalDateDoubleTimeSeries... x) {
-    Validate.notNull(x, "x");
     ArgumentChecker.notEmpty(x, "x");
-    Validate.notNull(x[0], "first time series");
-    final FastIntDoubleTimeSeries ts = (FastIntDoubleTimeSeries) x[0].getFastSeries();
+    ArgumentChecker.notNull(x[0], "first time series");
+    final LocalDateDoubleTimeSeries ts = x[0];
     if (ts.size() < 2) {
       throw new TimeSeriesException("Need at least two data points to calculate return series");
     }
-    FastIntDoubleTimeSeries d = null;
+    LocalDateDoubleTimeSeries d = null;
     if (x.length > 1) {
       if (x[1] != null) {
-        d = (FastIntDoubleTimeSeries) x[1].getFastSeries();
+        d = x[1];
       }
     }
 
-    final int[] times = ts.timesArrayFast();
-    final double[] values = ts.valuesArrayFast();
+    final int[] resultDates = new int[ts.size() - 1];
+    final double[] resultValues = new double[ts.size() - 1];
+    int resultIndex = 0;
     
-    final int[] resultTimes = new int[times.length];
-    final double[] resultValues = new double[times.length];
-    
-    int index = 0;
-    //int previousTime = times[index];
-    double previousValue = values[index];
-    index++;
+    final LocalDateDoubleIterator it = ts.iterator();
+    it.nextDate();
+    double previousValue = it.currentValue();
     
     double dividend;
     Double dividendTSData;
-    int resultIndex = 0;
-    
-    while (index < times.length) {
-      int time = times[index];
-      double value = values[index];
-      index++;
+    while (it.hasNext()) {
+      int date = it.nextDate();
+      double value = it.currentValue();
       
       if (isValueNonZero(previousValue) && isValueNonZero(value)) {
-        resultTimes[resultIndex] = time;
+        resultDates[resultIndex] = date;
         if (d == null) {
           dividend = 0;
         } else {
-          dividendTSData = d.getValue(time); // Arghh, this makes it n log(n) instead of n...  Improve this.
+          dividendTSData = d.getValue(date); // Arghh, this makes it n log(n) instead of n...  Improve this.
           dividend = dividendTSData == null ? 0 : dividendTSData;
         }
-        resultValues[resultIndex] = Math.log((value + dividend) / previousValue);
-        resultIndex++;
+        resultValues[resultIndex++] = Math.log((value + dividend) / previousValue);
       }
-      //previousTime = time;
       previousValue = value;
     }
-    return getSeries(x[0], resultTimes, resultValues, resultIndex);
+    return getSeries(x[0], resultDates, resultValues, resultIndex);
   }
+
 }

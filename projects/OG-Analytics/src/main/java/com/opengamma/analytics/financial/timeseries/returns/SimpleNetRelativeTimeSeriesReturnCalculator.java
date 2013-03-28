@@ -7,7 +7,6 @@ package com.opengamma.analytics.financial.timeseries.returns;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.threeten.bp.LocalDate;
 
 import com.opengamma.timeseries.TimeSeriesException;
 import com.opengamma.timeseries.localdate.LocalDateDoubleIterator;
@@ -39,11 +38,11 @@ public class SimpleNetRelativeTimeSeriesReturnCalculator extends RelativeTimeSer
     final LocalDateDoubleIterator iter1 = ts1.iterator();
     int i = 0;
     while (iter1.hasNext()) {
-      LocalDate t = iter1.nextLocalDate();
-      Double value2 = ts2.getValue(t);
+      int date = iter1.nextDate();
+      Double value2 = ts2.getValue(date);
       if (value2 == null || Math.abs(value2) < ZERO) {
         if (getMode().equals(CalculationMode.STRICT)) {
-          throw new TimeSeriesException("No data in second series for time " + t);
+          throw new TimeSeriesException("No data in second series for time " + iter1.currentLocalDate());
         }
       } else {
         times[i] = iter1.currentDate();
