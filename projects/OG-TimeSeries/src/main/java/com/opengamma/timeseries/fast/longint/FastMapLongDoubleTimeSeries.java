@@ -35,6 +35,9 @@ import com.opengamma.timeseries.fast.integer.FastIntDoubleTimeSeries;
  */
 public class FastMapLongDoubleTimeSeries extends AbstractFastMutableLongDoubleTimeSeries {
 
+  /** Serialization version. */
+  private static final long serialVersionUID = 3833768299262252818L;
+
   private Long2DoubleSortedMap _map = new Long2DoubleAVLTreeMap();
   private final double _defaultReturnValue = _map.defaultReturnValue();
 

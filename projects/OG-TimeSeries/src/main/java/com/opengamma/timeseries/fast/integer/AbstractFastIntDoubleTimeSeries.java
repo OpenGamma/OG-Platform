@@ -25,20 +25,48 @@ import com.opengamma.timeseries.fast.longint.FastLongDoubleTimeSeries;
 import com.opengamma.timeseries.fast.longint.FastMutableLongDoubleTimeSeries;
 
 /**
- * @author jim
- *         Contains methods to make Primitive time series work with the normal
- *         non-primitive time series interface (where possible)
+ * Contains methods to make Primitive time series work with the normal
+ * non-primitive time series interface (where possible)
  */
 public abstract class AbstractFastIntDoubleTimeSeries
-extends AbstractFastTimeSeries<Integer>
-implements FastIntDoubleTimeSeries {
+    extends AbstractFastTimeSeries<Integer>
+    implements FastIntDoubleTimeSeries {
 
+  /** Serialization version. */
+  private static final long serialVersionUID = 5328672809268001876L;
+
+  /**
+   * The date-time encoding.
+   */
   private final DateTimeNumericEncoding _encoding;
 
   protected AbstractFastIntDoubleTimeSeries(final DateTimeNumericEncoding encoding) {
     _encoding = encoding;
   }
 
+  //-------------------------------------------------------------------------
+  @Override
+  public Double getValue(final Integer dateTime) {
+    try {
+      return getValueFast(dateTime);
+    } catch (final NoSuchElementException nsee) {
+      return null;
+    } catch (final ArrayIndexOutOfBoundsException aioobe) {
+      return null;
+    }
+  }
+
+  @Override
+  public Integer getTimeAt(final int index) {
+    return getTimeFast(index);
+  }
+
+  @Override
+  public Double getValueAt(final int index) {
+    return getValueAtFast(index);
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public Integer getEarliestTime() {
     return getEarliestTimeFast();
@@ -59,27 +87,7 @@ implements FastIntDoubleTimeSeries {
     return getLatestValueFast();
   }
 
-  @Override
-  public Integer getTimeAt(final int index) {
-    return getTimeFast(index);
-  }
-
-  @Override
-  public Double getValue(final Integer dateTime) {
-    try {
-      return getValueFast(dateTime);
-    } catch (final NoSuchElementException nsee) {
-      return null;
-    } catch (final ArrayIndexOutOfBoundsException aioobe) {
-      return null;
-    }
-  }
-
-  @Override
-  public Double getValueAt(final int index) {
-    return getValueAtFast(index);
-  }
-
+  //-------------------------------------------------------------------------
   @Override
   public DoubleTimeSeries<Integer> subSeries(final Integer startTime, final Integer endTime) {
     return subSeriesFast(startTime, endTime);

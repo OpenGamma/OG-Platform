@@ -20,6 +20,10 @@ import com.opengamma.timeseries.fast.integer.object.FastMutableIntObjectTimeSeri
  * @param <T> The type of the time series
  */
 public class MapLocalDateObjectTimeSeries<T> extends MutableLocalDateObjectTimeSeries.Integer<T> {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 8061489067205401915L;
+
   /** An empty time series */
   public static final MapLocalDateObjectTimeSeries<?> EMPTY_SERIES = new MapLocalDateObjectTimeSeries<Object>();
   private static final DateTimeConverter<LocalDate> s_converter = new LocalDateEpochDaysConverter();

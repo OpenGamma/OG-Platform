@@ -20,6 +20,10 @@ import com.opengamma.timeseries.fast.longint.object.FastMutableLongObjectTimeSer
  * @param <T> The type of the data
  */
 public class MapZonedDateTimeObjectTimeSeries<T> extends MutableZonedDateTimeObjectTimeSeries.Long<T> {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 5422308957461439800L;
+
   private static final DateTimeConverter<ZonedDateTime> s_converter = new ZonedDateTimeEpochMillisConverter();
 
   public MapZonedDateTimeObjectTimeSeries() {

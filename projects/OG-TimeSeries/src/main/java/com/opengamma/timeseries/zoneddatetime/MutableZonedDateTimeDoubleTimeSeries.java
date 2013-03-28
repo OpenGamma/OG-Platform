@@ -19,8 +19,15 @@ import com.opengamma.timeseries.fast.longint.FastMutableLongDoubleTimeSeries;
  * 
  */
 public interface MutableZonedDateTimeDoubleTimeSeries extends ZonedDateTimeDoubleTimeSeries, MutableDoubleTimeSeries<ZonedDateTime> {
+
   /** */
-  public abstract static class Integer extends AbstractMutableIntDoubleTimeSeries<ZonedDateTime> implements MutableZonedDateTimeDoubleTimeSeries {
+  public abstract static class Integer
+      extends AbstractMutableIntDoubleTimeSeries<ZonedDateTime>
+      implements MutableZonedDateTimeDoubleTimeSeries {
+
+    /** Serialization version. */
+    private static final long serialVersionUID = -181714699836889630L;
+
     public Integer(final DateTimeConverter<ZonedDateTime> converter, final FastMutableIntDoubleTimeSeries timeSeries) {
       super(converter, timeSeries);
     }
@@ -32,8 +39,15 @@ public interface MutableZonedDateTimeDoubleTimeSeries extends ZonedDateTimeDoubl
 
     public abstract MutableZonedDateTimeDoubleTimeSeries newInstanceFast(ZonedDateTime[] dateTimes, double[] values);
   }
+
   /** */
-  public abstract static class Long extends AbstractMutableLongDoubleTimeSeries<ZonedDateTime> implements MutableZonedDateTimeDoubleTimeSeries {
+  public abstract static class Long
+      extends AbstractMutableLongDoubleTimeSeries<ZonedDateTime>
+      implements MutableZonedDateTimeDoubleTimeSeries {
+
+    /** Serialization version. */
+    private static final long serialVersionUID = 2147484208841802248L;
+
     public Long(final DateTimeConverter<ZonedDateTime> converter, final FastMutableLongDoubleTimeSeries timeSeries) {
       super(converter, timeSeries);
     }
@@ -45,4 +59,5 @@ public interface MutableZonedDateTimeDoubleTimeSeries extends ZonedDateTimeDoubl
 
     public abstract MutableZonedDateTimeDoubleTimeSeries newInstanceFast(ZonedDateTime[] dateTimes, double[] values);
   }
+
 }

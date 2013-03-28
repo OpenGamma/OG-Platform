@@ -31,6 +31,10 @@ import com.opengamma.timeseries.fast.integer.object.FastIntObjectTimeSeries;
  * @param <T> The type of the data
  */
 public class FastArrayLongObjectTimeSeries<T> extends AbstractFastLongObjectTimeSeries<T> {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 1743171047306594560L;
+
   private final long[] _times;
   private final T[] _values;
 

@@ -48,7 +48,12 @@ import com.opengamma.timeseries.zoneddatetime.ZonedDateTimeDoubleTimeSeries;
  * 
  * @param <T> The type of the dates
  */
-public abstract class AbstractFastTimeSeries<T> implements DoubleTimeSeries<T>, FastTimeSeries<T> {
+public abstract class AbstractFastTimeSeries<T>
+    implements DoubleTimeSeries<T>, FastTimeSeries<T> {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 1290271718448655111L;
+
   public abstract DateTimeNumericEncoding getEncoding();
 
   public abstract DateTimeResolution getDateTimeResolution();

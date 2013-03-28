@@ -20,6 +20,10 @@ import com.opengamma.timeseries.fast.longint.FastMutableLongDoubleTimeSeries;
  * 
  */
 public class MapZonedDateTimeDoubleTimeSeries extends MutableZonedDateTimeDoubleTimeSeries.Long {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = -4998233859095460286L;
+
   private static final DateTimeConverter<ZonedDateTime> s_converter = new ZonedDateTimeEpochMillisConverter();
 
   public MapZonedDateTimeDoubleTimeSeries() {

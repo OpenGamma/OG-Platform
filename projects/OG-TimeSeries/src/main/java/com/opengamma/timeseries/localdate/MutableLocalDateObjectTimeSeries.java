@@ -22,8 +22,13 @@ public interface MutableLocalDateObjectTimeSeries<T> extends LocalDateObjectTime
     MutableObjectTimeSeries<LocalDate, T> {
 
   /** */
-  public abstract static class Integer<T> extends AbstractMutableIntObjectTimeSeries<LocalDate, T> implements
-      MutableLocalDateObjectTimeSeries<T> {
+  public abstract static class Integer<T>
+      extends AbstractMutableIntObjectTimeSeries<LocalDate, T>
+      implements MutableLocalDateObjectTimeSeries<T> {
+
+    /** Serialization version. */
+    private static final long serialVersionUID = 759960440250501976L;
+
     public Integer(final DateTimeConverter<LocalDate> converter, final FastMutableIntObjectTimeSeries<T> timeSeries) {
       super(converter, timeSeries);
     }
@@ -37,8 +42,13 @@ public interface MutableLocalDateObjectTimeSeries<T> extends LocalDateObjectTime
   }
 
   /** */
-  public abstract static class Long<T> extends AbstractMutableLongObjectTimeSeries<LocalDate, T> implements
-      MutableLocalDateObjectTimeSeries<T> {
+  public abstract static class Long<T>
+      extends AbstractMutableLongObjectTimeSeries<LocalDate, T>
+      implements MutableLocalDateObjectTimeSeries<T> {
+
+    /** Serialization version. */
+    private static final long serialVersionUID = -8931458723329084801L;
+
     public Long(final DateTimeConverter<LocalDate> converter, final FastMutableLongObjectTimeSeries<T> timeSeries) {
       super(converter, timeSeries);
     }

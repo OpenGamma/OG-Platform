@@ -8,17 +8,22 @@ package com.opengamma.timeseries.fast.longint.object;
 import com.opengamma.timeseries.fast.DateTimeNumericEncoding;
 
 /**
- *         Contains methods to make Primitive time series work with the normal
- *         non-primitive time series interface (where possible)
- *         @param <T> The type of the data
+ * Contains methods to make Primitive time series work with the normal
+ * non-primitive time series interface (where possible)
+ * @param <T> The type of the data
  */
-public abstract class AbstractFastMutableLongObjectTimeSeries<T> extends AbstractFastLongObjectTimeSeries<T> implements
-    FastMutableLongObjectTimeSeries<T> {
+public abstract class AbstractFastMutableLongObjectTimeSeries<T>
+    extends AbstractFastLongObjectTimeSeries<T>
+    implements FastMutableLongObjectTimeSeries<T> {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 6190917539235488759L;
 
   protected AbstractFastMutableLongObjectTimeSeries(final DateTimeNumericEncoding encoding) {
     super(encoding);
   }
 
+  //-------------------------------------------------------------------------
   public void putDataPoint(final Long time, final T value) {
     primitivePutDataPoint(time, value);
   }

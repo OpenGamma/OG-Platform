@@ -13,12 +13,17 @@ import com.opengamma.timeseries.fast.DateTimeNumericEncoding;
  * @param <T>  the type
  */
 public abstract class AbstractFastMutableIntObjectTimeSeries<T>
-    extends AbstractFastIntObjectTimeSeries<T> implements FastMutableIntObjectTimeSeries<T> {
+    extends AbstractFastIntObjectTimeSeries<T>
+    implements FastMutableIntObjectTimeSeries<T> {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = -2160158198123994057L;
 
   protected AbstractFastMutableIntObjectTimeSeries(final DateTimeNumericEncoding encoding) {
     super(encoding);
   }
 
+  //-------------------------------------------------------------------------
   public void putDataPoint(final Integer time, final T value) {
     primitivePutDataPoint(time, value);
   }

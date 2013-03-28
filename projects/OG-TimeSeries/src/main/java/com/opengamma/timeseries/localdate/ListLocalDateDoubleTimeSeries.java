@@ -18,10 +18,13 @@ import com.opengamma.timeseries.fast.integer.FastListIntDoubleTimeSeries;
 import com.opengamma.timeseries.fast.integer.FastMutableIntDoubleTimeSeries;
 
 /**
- * @author jim
  * 
  */
 public class ListLocalDateDoubleTimeSeries extends MutableLocalDateDoubleTimeSeries.Integer {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = -9111933113421728410L;
+
   private static final FastIntDoubleTimeSeries TIMESERIES_TEMPLATE = new FastListIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS);
   private static final DateTimeConverter<LocalDate> s_converter = new LocalDateEpochDaysConverter();
 

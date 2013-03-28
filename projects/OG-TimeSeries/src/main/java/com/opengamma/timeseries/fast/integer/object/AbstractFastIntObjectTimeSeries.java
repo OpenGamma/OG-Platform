@@ -30,7 +30,11 @@ import com.opengamma.timeseries.fast.longint.object.FastMutableLongObjectTimeSer
  * @param <T>  type
  */
 public abstract class AbstractFastIntObjectTimeSeries<T>
-    extends AbstractFastObjectTimeSeries<Integer, T> implements FastIntObjectTimeSeries<T> {
+    extends AbstractFastObjectTimeSeries<Integer, T>
+    implements FastIntObjectTimeSeries<T> {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = -4509124682634807389L;
 
   private final DateTimeNumericEncoding _encoding;
 

@@ -21,7 +21,11 @@ import com.opengamma.timeseries.fast.longint.object.FastLongObjectTimeSeries;
  * @param <DATE_TYPE> the type of object used to hold Dates/DateTimes in the wrpper
  * @param <T> the type of the objects being stored in the time series
  */
-public abstract class AbstractLongObjectTimeSeries<DATE_TYPE, T> extends AbstractFastBackedObjectTimeSeries<DATE_TYPE, T> {
+public abstract class AbstractLongObjectTimeSeries<DATE_TYPE, T>
+    extends AbstractFastBackedObjectTimeSeries<DATE_TYPE, T> {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 8169275066251744746L;
 
   private final DateTimeConverter<DATE_TYPE> _converter;
   private final FastLongObjectTimeSeries<T> _timeSeries;

@@ -23,7 +23,12 @@ import com.opengamma.timeseries.fast.longint.object.FastMutableLongObjectTimeSer
  * @param <DATE_TYPE> Type of the dates
  * @param <T> Type of the data
  */
-public abstract class AbstractFastBackedObjectTimeSeries<DATE_TYPE, T> implements ObjectTimeSeries<DATE_TYPE, T>, FastBackedObjectTimeSeries<DATE_TYPE, T> {
+public abstract class AbstractFastBackedObjectTimeSeries<DATE_TYPE, T>
+    implements ObjectTimeSeries<DATE_TYPE, T>, FastBackedObjectTimeSeries<DATE_TYPE, T> {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = -5914140323400583200L;
+
   public abstract DateTimeConverter<DATE_TYPE> getConverter();
 
   public abstract FastObjectTimeSeries<?, T> getFastSeries();

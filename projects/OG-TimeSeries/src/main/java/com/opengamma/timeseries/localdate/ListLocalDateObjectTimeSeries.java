@@ -21,6 +21,10 @@ import com.opengamma.timeseries.fast.integer.object.FastMutableIntObjectTimeSeri
  * @param <T> The type of the data
  */
 public class ListLocalDateObjectTimeSeries<T> extends MutableLocalDateObjectTimeSeries.Integer<T> {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 352644516800771296L;
+
   /** A template time series with date encoding */
   public static final FastIntObjectTimeSeries<?> TIMESERIES_TEMPLATE = new FastListIntObjectTimeSeries<Object>(
       DateTimeNumericEncoding.DATE_EPOCH_DAYS);

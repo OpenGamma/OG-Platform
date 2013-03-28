@@ -35,6 +35,9 @@ import com.opengamma.timeseries.fast.integer.object.FastIntObjectTimeSeries;
  */
 public class FastMapLongObjectTimeSeries<T> extends AbstractFastMutableLongObjectTimeSeries<T> {
 
+  /** Serialization version. */
+  private static final long serialVersionUID = 7787611134719061595L;
+
   private Long2ObjectSortedMap<T> _map = new Long2ObjectAVLTreeMap<T>();
   private final T _defaultReturnValue = _map.defaultReturnValue();
 

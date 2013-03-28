@@ -20,6 +20,10 @@ import com.opengamma.timeseries.fast.longint.object.FastLongObjectTimeSeries;
  * @param <T> The type of the data
  */
 public class ArrayZonedDateTimeObjectTimeSeries<T> extends ZonedDateTimeObjectTimeSeries.Long<T> {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = -3677135056090697283L;
+
   private static final FastListLongObjectTimeSeries<?> DEFAULT_SERIES_TEMPLATE = new FastListLongObjectTimeSeries<Object>(DateTimeNumericEncoding.TIME_EPOCH_MILLIS);
   private static final ZonedDateTimeEpochMillisConverter s_converter = new ZonedDateTimeEpochMillisConverter();
 

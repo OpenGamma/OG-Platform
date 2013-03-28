@@ -11,7 +11,12 @@ import com.opengamma.timeseries.fast.integer.object.FastMutableIntObjectTimeSeri
  * @param <DATE_TYPE> the type of object used to hold Dates/DateTimes in the wrapper
  * @param <T> the type of the objects being stored in the time series
  */
-public abstract class AbstractMutableIntObjectTimeSeries<DATE_TYPE, T> extends AbstractIntObjectTimeSeries<DATE_TYPE, T> implements MutableObjectTimeSeries<DATE_TYPE, T> {
+public abstract class AbstractMutableIntObjectTimeSeries<DATE_TYPE, T>
+    extends AbstractIntObjectTimeSeries<DATE_TYPE, T>
+    implements MutableObjectTimeSeries<DATE_TYPE, T> {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 1623412453866181351L;
 
   private final FastMutableIntObjectTimeSeries<T> _timeSeries;
 

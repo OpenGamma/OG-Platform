@@ -32,6 +32,10 @@ import com.opengamma.timeseries.fast.integer.FastIntDoubleTimeSeries;
  * 
  */
 public class FastListLongDoubleTimeSeries extends AbstractFastMutableLongDoubleTimeSeries {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
+
   private final LongArrayList _times;
   private final DoubleArrayList _values;
 

@@ -10,7 +10,12 @@ import com.opengamma.timeseries.fast.longint.FastMutableLongDoubleTimeSeries;
 /**
  * @param <DATE_TYPE> the type of object used to hold Dates/DateTimes in the wrapper
  */
-public abstract class AbstractMutableLongDoubleTimeSeries<DATE_TYPE> extends AbstractLongDoubleTimeSeries<DATE_TYPE> implements MutableDoubleTimeSeries<DATE_TYPE> {
+public abstract class AbstractMutableLongDoubleTimeSeries<DATE_TYPE>
+    extends AbstractLongDoubleTimeSeries<DATE_TYPE>
+    implements MutableDoubleTimeSeries<DATE_TYPE> {
+
+      /** Serialization version. */
+  private static final long serialVersionUID = -4439371316347476231L;
 
   private final FastMutableLongDoubleTimeSeries _timeSeries;
 

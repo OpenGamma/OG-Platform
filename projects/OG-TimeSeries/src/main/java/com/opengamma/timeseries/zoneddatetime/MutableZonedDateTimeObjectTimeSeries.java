@@ -19,8 +19,15 @@ import com.opengamma.timeseries.fast.longint.object.FastMutableLongObjectTimeSer
  * @param <T> The type of the data
  */
 public interface MutableZonedDateTimeObjectTimeSeries<T> extends ZonedDateTimeObjectTimeSeries<T>, MutableObjectTimeSeries<ZonedDateTime, T> {
+
   /** */
-  public abstract static class Integer<T> extends AbstractMutableIntObjectTimeSeries<ZonedDateTime, T> implements MutableZonedDateTimeObjectTimeSeries<T> {
+  public abstract static class Integer<T>
+      extends AbstractMutableIntObjectTimeSeries<ZonedDateTime, T>
+      implements MutableZonedDateTimeObjectTimeSeries<T> {
+
+    /** Serialization version. */
+    private static final long serialVersionUID = -7996257143330324739L;
+
     public Integer(final DateTimeConverter<ZonedDateTime> converter, final FastMutableIntObjectTimeSeries<T> timeSeries) {
       super(converter, timeSeries);
     }
@@ -32,8 +39,15 @@ public interface MutableZonedDateTimeObjectTimeSeries<T> extends ZonedDateTimeOb
 
     public abstract ZonedDateTimeObjectTimeSeries<T> newInstanceFast(ZonedDateTime[] dateTimes, T[] values);
   }
+
   /** */
-  public abstract static class Long<T> extends AbstractMutableLongObjectTimeSeries<ZonedDateTime, T> implements MutableZonedDateTimeObjectTimeSeries<T> {
+  public abstract static class Long<T>
+      extends AbstractMutableLongObjectTimeSeries<ZonedDateTime, T>
+      implements MutableZonedDateTimeObjectTimeSeries<T> {
+
+    /** Serialization version. */
+    private static final long serialVersionUID = 8286781278040433947L;
+
     public Long(final DateTimeConverter<ZonedDateTime> converter, final FastMutableLongObjectTimeSeries<T> timeSeries) {
       super(converter, timeSeries);
     }
@@ -45,4 +59,5 @@ public interface MutableZonedDateTimeObjectTimeSeries<T> extends ZonedDateTimeOb
 
     public abstract ZonedDateTimeObjectTimeSeries<T> newInstanceFast(ZonedDateTime[] dateTimes, T[] values);
   }
+
 }

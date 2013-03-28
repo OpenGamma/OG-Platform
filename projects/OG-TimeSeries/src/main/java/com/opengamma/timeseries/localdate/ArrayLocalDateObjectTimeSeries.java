@@ -21,6 +21,10 @@ import com.opengamma.timeseries.fast.integer.object.FastListIntObjectTimeSeries;
  * @param <T> The type of the data
  */
 public class ArrayLocalDateObjectTimeSeries<T> extends LocalDateObjectTimeSeries.Integer<T> {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 8762539342788274538L;
+
   /** An empty time series backed by a LocalDate */
   public static final ArrayLocalDateObjectTimeSeries<?> EMPTY_SERIES = new ArrayLocalDateObjectTimeSeries<Object>();
   private static final DateTimeConverter<LocalDate> s_converter = new LocalDateEpochDaysConverter();

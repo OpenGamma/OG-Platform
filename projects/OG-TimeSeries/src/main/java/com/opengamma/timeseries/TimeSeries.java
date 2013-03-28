@@ -82,22 +82,6 @@ public interface TimeSeries<T, V> extends Iterable<Map.Entry<T, V>>, Serializabl
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the latest date-time for which there is a data point.
-   * 
-   * @return the latest date-time, not null
-   * @throws java.util.NoSuchElementException if empty
-   */
-  T getLatestTime();
-
-  /**
-   * Gets the value at the latest date-time in the series.
-   * 
-   * @return the value at the latest date-time, not null
-   * @throws java.util.NoSuchElementException if empty
-   */
-  V getLatestValue();
-
-  /**
    * Gets the earliest date-time for which there is a data point.
    * 
    * @return the earliest date-time, not null
@@ -112,6 +96,22 @@ public interface TimeSeries<T, V> extends Iterable<Map.Entry<T, V>>, Serializabl
    * @throws java.util.NoSuchElementException if empty
    */
   V getEarliestValue();
+
+  /**
+   * Gets the latest date-time for which there is a data point.
+   * 
+   * @return the latest date-time, not null
+   * @throws java.util.NoSuchElementException if empty
+   */
+  T getLatestTime();
+
+  /**
+   * Gets the value at the latest date-time in the series.
+   * 
+   * @return the value at the latest date-time, not null
+   * @throws java.util.NoSuchElementException if empty
+   */
+  V getLatestValue();
 
   //-------------------------------------------------------------------------
   /**

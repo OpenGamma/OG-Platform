@@ -50,7 +50,11 @@ import com.opengamma.timeseries.zoneddatetime.ZonedDateTimeDoubleTimeSeries;
 /**
  * @param <DATE_TYPE> Type of the dates
  */
-public abstract class AbstractFastBackedDoubleTimeSeries<DATE_TYPE> implements DoubleTimeSeries<DATE_TYPE>, FastBackedDoubleTimeSeries<DATE_TYPE> {
+public abstract class AbstractFastBackedDoubleTimeSeries<DATE_TYPE>
+    implements DoubleTimeSeries<DATE_TYPE>, FastBackedDoubleTimeSeries<DATE_TYPE> {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 2676866983197027948L;
 
   @Override
   public abstract DateTimeConverter<DATE_TYPE> getConverter();

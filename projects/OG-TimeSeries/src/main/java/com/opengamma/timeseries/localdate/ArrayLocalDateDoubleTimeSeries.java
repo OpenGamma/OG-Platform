@@ -21,10 +21,13 @@ import com.opengamma.timeseries.fast.integer.FastListIntDoubleTimeSeries;
 import com.opengamma.timeseries.fast.longint.FastLongDoubleTimeSeries;
 
 /**
- * @author jim
  * 
  */
 public class ArrayLocalDateDoubleTimeSeries extends LocalDateDoubleTimeSeries.Integer {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = -4569291116928429214L;
+
   /** Empty instance */
   public static final ArrayLocalDateDoubleTimeSeries EMPTY_SERIES = new ArrayLocalDateDoubleTimeSeries();
   private static final DateTimeConverter<LocalDate> s_converter = new LocalDateEpochDaysConverter();

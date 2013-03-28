@@ -18,12 +18,17 @@ import com.opengamma.timeseries.fast.longint.object.FastLongObjectTimeSeries;
 /**
  * @param <T> The type of the data
  */
-public interface LocalDateObjectTimeSeries<T> extends ObjectTimeSeries<LocalDate, T>,
-    FastBackedObjectTimeSeries<LocalDate, T> {
+public interface LocalDateObjectTimeSeries<T>
+    extends ObjectTimeSeries<LocalDate, T>, FastBackedObjectTimeSeries<LocalDate, T> {
 
   /** */
-  public abstract static class Integer<T> extends AbstractIntObjectTimeSeries<LocalDate, T> implements
-      LocalDateObjectTimeSeries<T> {
+  public abstract static class Integer<T>
+      extends AbstractIntObjectTimeSeries<LocalDate, T>
+      implements LocalDateObjectTimeSeries<T> {
+
+    /** Serialization version. */
+    private static final long serialVersionUID = -4801663305568678025L;
+
     public Integer(final DateTimeConverter<LocalDate> converter, final FastIntObjectTimeSeries<T> timeSeries) {
       super(converter, timeSeries);
     }
@@ -37,8 +42,13 @@ public interface LocalDateObjectTimeSeries<T> extends ObjectTimeSeries<LocalDate
   }
 
   /** */
-  public abstract static class Long<T> extends AbstractLongObjectTimeSeries<LocalDate, T> implements
-      LocalDateObjectTimeSeries<T> {
+  public abstract static class Long<T>
+      extends AbstractLongObjectTimeSeries<LocalDate, T>
+      implements LocalDateObjectTimeSeries<T> {
+
+    /** Serialization version. */
+    private static final long serialVersionUID = -3594255957679410231L;
+
     public Long(final DateTimeConverter<LocalDate> converter, final FastLongObjectTimeSeries<T> timeSeries) {
       super(converter, timeSeries);
     }

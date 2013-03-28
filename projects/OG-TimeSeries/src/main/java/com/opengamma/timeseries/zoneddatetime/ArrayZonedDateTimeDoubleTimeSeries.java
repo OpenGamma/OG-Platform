@@ -21,6 +21,10 @@ import com.opengamma.timeseries.fast.longint.FastLongDoubleTimeSeries;
  * 
  */
 public class ArrayZonedDateTimeDoubleTimeSeries extends ZonedDateTimeDoubleTimeSeries.Long {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = -7379049321368276229L;
+
   /** Empty instance */
   public static final ArrayZonedDateTimeDoubleTimeSeries EMPTY_SERIES = new ArrayZonedDateTimeDoubleTimeSeries();
   private static final FastListLongDoubleTimeSeries DEFAULT_SERIES_TEMPLATE = new FastListLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS);

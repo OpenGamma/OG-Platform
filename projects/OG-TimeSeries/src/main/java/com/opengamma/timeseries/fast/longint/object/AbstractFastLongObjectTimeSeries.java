@@ -24,13 +24,20 @@ import com.opengamma.timeseries.fast.integer.object.FastListIntObjectTimeSeries;
 import com.opengamma.timeseries.fast.integer.object.FastMutableIntObjectTimeSeries;
 
 /**
- *         Contains methods to make Primitive time series work with the normal
- *         non-primitive time series interface (where possible)
- *         @param <T> The type of the data
+ * Contains methods to make Primitive time series work with the normal
+ * non-primitive time series interface (where possible)
+ * @param <T> The type of the data
  */
-public abstract class AbstractFastLongObjectTimeSeries<T> extends AbstractFastObjectTimeSeries<Long, T> implements
-    FastLongObjectTimeSeries<T> {
+public abstract class AbstractFastLongObjectTimeSeries<T>
+    extends AbstractFastObjectTimeSeries<Long, T>
+    implements FastLongObjectTimeSeries<T> {
 
+  /** Serialization version. */
+  private static final long serialVersionUID = 4649797096522824278L;
+
+  /**
+   * Date-time encoding.
+   */
   private final DateTimeNumericEncoding _encoding;
 
   protected AbstractFastLongObjectTimeSeries(final DateTimeNumericEncoding encoding) {

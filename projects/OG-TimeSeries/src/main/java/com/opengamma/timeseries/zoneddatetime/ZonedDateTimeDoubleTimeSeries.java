@@ -20,8 +20,15 @@ import com.opengamma.timeseries.fast.longint.FastLongDoubleTimeSeries;
  * 
  */
 public interface ZonedDateTimeDoubleTimeSeries extends DoubleTimeSeries<ZonedDateTime>, FastBackedDoubleTimeSeries<ZonedDateTime> {
+
   /** */
-  public abstract static class Integer extends AbstractIntDoubleTimeSeries<ZonedDateTime> implements ZonedDateTimeDoubleTimeSeries {
+  public abstract static class Integer
+      extends AbstractIntDoubleTimeSeries<ZonedDateTime>
+      implements ZonedDateTimeDoubleTimeSeries {
+
+    /** Serialization version. */
+    private static final long serialVersionUID = 3333283617280268397L;
+
     public Integer(final DateTimeConverter<ZonedDateTime> converter, final FastIntDoubleTimeSeries timeSeries) {
       super(converter, timeSeries);
     }
@@ -33,8 +40,15 @@ public interface ZonedDateTimeDoubleTimeSeries extends DoubleTimeSeries<ZonedDat
 
     public abstract ZonedDateTimeDoubleTimeSeries newInstanceFast(ZonedDateTime[] dateTimes, double[] values);
   }
+
   /** */
-  public abstract static class Long extends AbstractLongDoubleTimeSeries<ZonedDateTime> implements ZonedDateTimeDoubleTimeSeries {
+  public abstract static class Long
+      extends AbstractLongDoubleTimeSeries<ZonedDateTime>
+      implements ZonedDateTimeDoubleTimeSeries {
+    
+    /** Serialization version. */
+    private static final long serialVersionUID = 6698328262716700897L;
+
     public Long(final DateTimeConverter<ZonedDateTime> converter, final FastLongDoubleTimeSeries timeSeries) {
       super(converter, timeSeries);
     }
@@ -46,4 +60,5 @@ public interface ZonedDateTimeDoubleTimeSeries extends DoubleTimeSeries<ZonedDat
 
     public abstract ZonedDateTimeDoubleTimeSeries newInstanceFast(ZonedDateTime[] dateTimes, double[] values);
   }
+
 }
