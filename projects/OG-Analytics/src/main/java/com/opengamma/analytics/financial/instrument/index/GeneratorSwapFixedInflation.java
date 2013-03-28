@@ -23,7 +23,7 @@ public class GeneratorSwapFixedInflation extends GeneratorInstrument<GeneratorAt
   /**
    * The Price index.
    */
-  private final IndexPrice _indexPrice;
+  private final PriceIndex _indexPrice;
   /**
    * The time series with the relevant price index values.
    */
@@ -65,7 +65,7 @@ public class GeneratorSwapFixedInflation extends GeneratorInstrument<GeneratorAt
    * @param spotLag Lag between today and the spot date. 
    * @param isLinear TODO
    */
-  public GeneratorSwapFixedInflation(String name, IndexPrice indexPrice, DoubleTimeSeries<ZonedDateTime> priceIndexTimeSeries, final BusinessDayConvention businessDayConvention, Calendar calendar,
+  public GeneratorSwapFixedInflation(String name, PriceIndex indexPrice, DoubleTimeSeries<ZonedDateTime> priceIndexTimeSeries, final BusinessDayConvention businessDayConvention, Calendar calendar,
       final boolean endOfMonth,
       int monthLag, int spotLag, boolean isLinear) {
     super(name);
@@ -86,7 +86,7 @@ public class GeneratorSwapFixedInflation extends GeneratorInstrument<GeneratorAt
   * Gets the _indexPrice field.
   * @return the _indexPrice
   */
-  public IndexPrice getIndexPrice() {
+  public PriceIndex getIndexPrice() {
     return _indexPrice;
   }
 

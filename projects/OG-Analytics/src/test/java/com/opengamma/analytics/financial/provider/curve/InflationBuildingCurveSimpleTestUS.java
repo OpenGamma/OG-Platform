@@ -26,7 +26,7 @@ import com.opengamma.analytics.financial.instrument.index.GeneratorAttributeIR;
 import com.opengamma.analytics.financial.instrument.index.GeneratorInstrument;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedInflation;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedInflationMaster;
-import com.opengamma.analytics.financial.instrument.index.IndexPrice;
+import com.opengamma.analytics.financial.instrument.index.PriceIndex;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZeroCouponInterpolationDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZeroCouponMonthlyDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
@@ -73,7 +73,7 @@ public class InflationBuildingCurveSimpleTestUS {
   private static final double NOTIONAL = 1.0;
 
   private static final GeneratorSwapFixedInflation GENERATOR_INFALTION_SWAP = GeneratorSwapFixedInflationMaster.getInstance().getGenerator("USCPI");
-  private static final IndexPrice US_CPI = GENERATOR_INFALTION_SWAP.getIndexPrice();
+  private static final PriceIndex US_CPI = GENERATOR_INFALTION_SWAP.getIndexPrice();
 
   private static final ZonedDateTime NOW = DateUtils.getUTCDate(2012, 9, 28);
 
@@ -121,7 +121,7 @@ public class InflationBuildingCurveSimpleTestUS {
   public static final MulticurveProviderDiscount usMulticurveProviderDiscount = MulticurveProviderDiscountDataSets.createMulticurveEurUsd().copy();
   public static final InflationProviderDiscount KNOWN_DATA = new InflationProviderDiscount(usMulticurveProviderDiscount);
 
-  public static final LinkedHashMap<String, IndexPrice[]> US_CPI_MAP = new LinkedHashMap<String, IndexPrice[]>();
+  public static final LinkedHashMap<String, PriceIndex[]> US_CPI_MAP = new LinkedHashMap<String, PriceIndex[]>();
 
   static {
     DEFINITIONS_CPI_USD = getDefinitions(CPI_USD_MARKET_QUOTES, CPI_USD_GENERATORS, CPI_USD_ATTR);
@@ -138,7 +138,7 @@ public class InflationBuildingCurveSimpleTestUS {
 
     NAMES_UNITS[0][0] = new String[] {CURVE_NAME_CPI_USD };
 
-    US_CPI_MAP.put(CURVE_NAME_CPI_USD, new IndexPrice[] {US_CPI });
+    US_CPI_MAP.put(CURVE_NAME_CPI_USD, new PriceIndex[] {US_CPI });
   }
 
   public static final String NOT_USED = "Not used";
