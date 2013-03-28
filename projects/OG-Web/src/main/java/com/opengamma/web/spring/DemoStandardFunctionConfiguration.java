@@ -39,8 +39,7 @@ import com.opengamma.financial.analytics.model.volatility.surface.black.defaultp
 import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.PureBlackVolatilitySurfacePrimitiveDefaults;
 import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.PureBlackVolatilitySurfaceSecurityDefaults;
 import com.opengamma.financial.currency.CurrencyMatrixConfigPopulator;
-import com.opengamma.financial.currency.CurrencyMatrixSeriesSourcingFunction;
-import com.opengamma.financial.currency.CurrencyMatrixSpotSourcingFunction;
+import com.opengamma.financial.currency.CurrencyMatrixLookupFunction;
 import com.opengamma.financial.property.DefaultPropertyFunction.PriorityClass;
 import com.opengamma.web.spring.defaults.EquityInstrumentDefaultValues;
 
@@ -74,7 +73,7 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
     addEquityPureVolatilitySurfaceDefaults(functions);
     addEquityVarianceSwapDefaults(functions);
   }
-  
+
   @Override
   protected CurrencyInfo audCurrencyInfo() {
     final CurrencyInfo i = super.audCurrencyInfo();
@@ -205,7 +204,7 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
     i.setCurveConfiguration(null, "DefaultTwoCurveUSDConfig");
     i.setCurveConfiguration("model/cds", "ISDAUSDCurveConfig");
     i.setCurveName(null, "Discounting");
-    i.setCurveName("model/cds", "ISDA");        
+    i.setCurveName("model/cds", "ISDA");
     i.setCurveCalculationMethodName("model/cds", "ISDA");
     i.setSurfaceName("model/bondfutureoption", "BBG");
     i.setSurfaceName("model/futureoption", "BBG");
@@ -324,10 +323,8 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
   @Override
   protected void addCurrencyConversionFunctions(final List<FunctionConfiguration> functionConfigs) {
     super.addCurrencyConversionFunctions(functionConfigs);
-    functionConfigs.add(functionConfiguration(CurrencyMatrixSpotSourcingFunction.class, CurrencyMatrixConfigPopulator.BLOOMBERG_LIVE_DATA));
-    functionConfigs.add(functionConfiguration(CurrencyMatrixSeriesSourcingFunction.class, CurrencyMatrixConfigPopulator.BLOOMBERG_LIVE_DATA));
-    functionConfigs.add(functionConfiguration(CurrencyMatrixSpotSourcingFunction.class, CurrencyMatrixConfigPopulator.SYNTHETIC_LIVE_DATA));
-    functionConfigs.add(functionConfiguration(CurrencyMatrixSeriesSourcingFunction.class, CurrencyMatrixConfigPopulator.SYNTHETIC_LIVE_DATA));
+    functionConfigs.add(functionConfiguration(CurrencyMatrixLookupFunction.class, CurrencyMatrixConfigPopulator.BLOOMBERG_LIVE_DATA));
+    functionConfigs.add(functionConfiguration(CurrencyMatrixLookupFunction.class, CurrencyMatrixConfigPopulator.SYNTHETIC_LIVE_DATA));
   }
 
   @Override
@@ -337,7 +334,7 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
     defaults.setPayCurveName("FUNDING");
     defaults.setReceiveCurveName("FUNDING");
   }
-  
+
   protected void addEquityDividendYieldFuturesDefaults(final List<FunctionConfiguration> functionConfigs) {
     final List<String> equityFutureDefaults = EquityInstrumentDefaultValues.builder()
         .useDiscountingCurveCurrency()
@@ -399,7 +396,7 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityBlackVolatilitySurfacePerExchangeDefaults.class.getName(), perExchangeDefaults));
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityBlackVolatilitySurfacePerCurrencyDefaults.class.getName(), perCurrencyDefaults));
   }
-  
+
   protected void addEquityFutureOptionBlackVolatilitySurfaceDefaults(final List<FunctionConfiguration> functionConfigs) {
     List<String> defaults = Arrays.asList(PriorityClass.ABOVE_NORMAL.name(), "USD", "BBG", ForwardCurveValuePropertyNames.PROPERTY_FUTURE_PRICE_METHOD, "BBG");
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFutureBlackVolatilitySurfacePerCurrencyDefaults.class.getName(), defaults));

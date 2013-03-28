@@ -27,6 +27,13 @@ $.register_module({
                 return result;
             };
         })();
+        var get_viewport_data = function (dataman) {
+            var data = dataman.formatted.data, viewport = dataman.meta.viewport, rows = dataman.meta.columns.total;
+            return viewport.rows.reduce(function (acc, row) {
+                var start = row * rows;
+                return acc.concat(viewport.cols.map(function (col) {return start + col;}));
+            }, []).map(function (index) {return data[index];});
+        };
         var meta = function (dataman, rows, cols, fixed_width, first) {
             var dimensions = rows + '|' + cols.length, meta;
             if (dataman.dimensions === dimensions) return null; else dataman.dimensions = dimensions;
@@ -40,13 +47,6 @@ $.register_module({
                     total: first ? cols.length : cols.length + 1
                 }
             };
-        };
-        var viewport = function (dataman) {
-            var data = dataman.formatted.data, viewport = dataman.meta.viewport, rows = dataman.meta.columns.total;
-            return viewport.rows.reduce(function (acc, row) {
-                var start = row * rows;
-                return acc.concat(viewport.cols.map(function (col) {return start + col;}));
-            }, []).map(function (index) {return data[index];});
         };
         formatters = {
             CURVE: function (dataman, data) {
@@ -115,9 +115,11 @@ $.register_module({
         var DataMan = function (row, col, type, source, config) {
             var dataman = this, format = formatters[type].partial(dataman);
             dataman.cell = (config.parent ? config.parent.cell : new og.analytics
-                .Cell({source: source, col: col, row: row, format: 'EXPANDED'}, config.label))
+                .Cell({ // TODO: stop special casing CURVE gadgets (they need nodal + interpolated)
+                    source: source, col: col, row: row, format: type === 'CURVE' ? 'CELL' : 'EXPANDED'
+                }, config.label))
                 .on('data', function (raw) {
-                    var message;
+                    var message, viewport = dataman.meta.viewport;
                     if (raw.error || !raw.v) return;
                     try {dataman.formatted = config.parent ? config.parent.formatted : format(raw.v);} catch (error) {
                         og.dev.warn(message = module.name + ': formatting ' + type + ' failed, ' + error.message);
@@ -129,7 +131,8 @@ $.register_module({
                             .forEach(function (key) {dataman.meta[key] = dataman.formatted.meta[key];});
                         dataman.fire('meta', dataman.meta);
                     }
-                    if (dataman.formatted.data && dataman.meta.viewport) dataman.fire('data', viewport(dataman));
+                    if (dataman.formatted.data && viewport && viewport.cols.length && viewport.rows.length)
+                        dataman.fire('data', get_viewport_data(dataman));
                 });
             dataman.id = dataman.cell.id;
             dataman.meta = {viewport: {rows: [], cols: []}};
@@ -140,7 +143,7 @@ $.register_module({
             var dataman = this;
             if (!new_viewport) return (dataman.meta.viewport.cols = []), (dataman.meta.viewport.rows = []), dataman;
             dataman.meta.viewport = new_viewport;
-            if (dataman.formatted.data) setTimeout(function () {dataman.fire('data', viewport(dataman));});
+            if (dataman.formatted.data) setTimeout(function () {dataman.fire('data', get_viewport_data(dataman));});
             return dataman;
         };
         var Gadget = function (config) {

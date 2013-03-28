@@ -137,7 +137,7 @@ public final class Profiler {
     final Map<String, Object[]> report = new HashMap<String, Object[]>();
     for (Profiler profiler : s_profilers) {
       profiler.snapshot();
-      final Object[] arg = new Object[] {profiler._name, profiler._snapshotOperations, profiler._snapshotTime };
+      final Object[] arg = new Object[] {profiler._name, profiler._snapshotOperations, profiler._snapshotTime, (double) profiler._snapshotTime / (double) profiler._snapshotOperations };
       insertNoClash(report, arg, profiler._name.lastIndexOf('.'));
     }
     List<String> keys = new ArrayList<String>(report.keySet());
@@ -159,7 +159,7 @@ public final class Profiler {
     for (String key : keys) {
       final Object[] values = report.get(key);
       values[0] = key;
-      s_logger.info("{} - {} in {}ms", values);
+      s_logger.info("{} - {} in {}ms ({} ms/op)", values);
     }
     s_logger.debug("{} active profiler instances", s_profilers.size());
   }

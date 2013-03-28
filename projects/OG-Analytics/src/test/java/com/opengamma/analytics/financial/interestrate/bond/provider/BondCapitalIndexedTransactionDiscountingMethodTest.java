@@ -6,7 +6,6 @@
 package com.opengamma.analytics.financial.interestrate.bond.provider;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.Period;
@@ -19,10 +18,17 @@ import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZer
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedTransaction;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
+import com.opengamma.analytics.financial.provider.calculator.inflation.PresentValueCurveSensitivityDiscountingInflationCalculator;
 import com.opengamma.analytics.financial.provider.calculator.inflation.PresentValueDiscountingInflationCalculator;
 import com.opengamma.analytics.financial.provider.calculator.inflation.PresentValueDiscountingInflationIssuerCalculator;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationIssuerProviderDiscount;
+import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
+import com.opengamma.analytics.financial.provider.sensitivity.inflation.MultipleCurrencyInflationSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.inflation.ParameterSensitivityInflationMulticurveDiscountInterpolatedFDCalculator;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterInflationSensitivityParameterCalculator;
+import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -34,6 +40,7 @@ import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;
+import com.opengamma.util.tuple.ObjectsPair;
 
 /**
  * Tests the present value of Capital inflation indexed bonds.
@@ -46,10 +53,18 @@ public class BondCapitalIndexedTransactionDiscountingMethodTest {
   private static final String[] ISSUER_NAMES = MulticurveProviderDiscountDataSets.getIssuerNames();
   private static final String ISSUER_US_GOVT = ISSUER_NAMES[0];
   private static final ZonedDateTime PRICING_DATE = DateUtils.getUTCDate(2011, 8, 8);
+
+  private static final double SHIFT_FD = 1.0E-7;
+  private static final double TOLERANCE_PV = 1.0E-2;
+  private static final double TOLERANCE_PV_DELTA = 1.0E+2;
+
   private static final BondCapitalIndexedSecurityDiscountingMethod METHOD_BOND_SECURITY = new BondCapitalIndexedSecurityDiscountingMethod();
   private static final BondCapitalIndexedTransactionDiscountingMethod METHOD_BOND_TRANSACTION = new BondCapitalIndexedTransactionDiscountingMethod();
   private static final PresentValueDiscountingInflationCalculator PVDIC = PresentValueDiscountingInflationCalculator.getInstance();
   private static final PresentValueDiscountingInflationIssuerCalculator PVDIIC = PresentValueDiscountingInflationIssuerCalculator.getInstance();
+  private static final PresentValueCurveSensitivityDiscountingInflationCalculator PVCSDC = PresentValueCurveSensitivityDiscountingInflationCalculator.getInstance();
+  private static final ParameterInflationSensitivityParameterCalculator<InflationProviderInterface> PSC = new ParameterInflationSensitivityParameterCalculator<>(PVCSDC);
+  private static final ParameterSensitivityInflationMulticurveDiscountInterpolatedFDCalculator PS_PV_FDC = new ParameterSensitivityInflationMulticurveDiscountInterpolatedFDCalculator(PVDIC, SHIFT_FD);
 
   // 2% 10-YEAR TREASURY INFLATION-PROTECTED SECURITIES (TIPS) Due January 15, 2016 - US912828ET33
   private static final Calendar CALENDAR_USD = new MondayToFridayCalendar("USD");
@@ -97,5 +112,36 @@ public class BondCapitalIndexedTransactionDiscountingMethodTest {
     final MultipleCurrencyAmount pvMethod = METHOD_BOND_TRANSACTION.presentValue(BOND_TIPS_1_TRANSACTION, MARKET);
     final MultipleCurrencyAmount pvCalculator = BOND_TIPS_1_TRANSACTION.accept(PVDIIC, MARKET);
     assertEquals("Inflation Capital Indexed bond transaction: Method vs Calculator", pvMethod, pvCalculator);
+  }
+
+  @Test
+  /**
+   * Test the present value parameter curves sensitivity.
+   */
+  public void presentValueParameterCurveSensitivity() {
+
+    final MultipleCurrencyParameterSensitivity pvicsFD = PS_PV_FDC.calculateSensitivity(BOND_TIPS_1_TRANSACTION.getBondTransaction().getCoupon(), MARKET.getInflationProvider());
+    final MultipleCurrencyParameterSensitivity pvicsExact = PSC.calculateSensitivity(BOND_TIPS_1_TRANSACTION.getBondTransaction().getCoupon(), MARKET.getInflationProvider(), MARKET.getAllNames());
+
+    AssertSensivityObjects.assertEquals("Bond capital indexed security: presentValueParameterCurveSensitivity ", pvicsExact, pvicsFD, TOLERANCE_PV_DELTA);
+
+  }
+
+  @Test
+  /**
+   * Test the present value curves sensitivity.
+   */
+  public void presentValueCurveSensitivity() {
+
+    final InflationProviderInterface creditDiscounting = MARKET.withDiscountFactor(BOND_TIPS_1_TRANSACTION.getBondTransaction().getCurrency(),
+        new ObjectsPair<>(BOND_TIPS_1_TRANSACTION.getBondTransaction().getIssuer(), BOND_TIPS_1_TRANSACTION.getBondTransaction().getCurrency()));
+    final MultipleCurrencyInflationSensitivity sensitivityNominal = BOND_TIPS_1_TRANSACTION.getBondTransaction().getNominal().accept(PVCSDC, creditDiscounting);
+    final MultipleCurrencyInflationSensitivity sensitivityCoupon = BOND_TIPS_1_TRANSACTION.getBondTransaction().getCoupon().accept(PVCSDC, creditDiscounting);
+    final MultipleCurrencyInflationSensitivity pvcisCalculated = sensitivityNominal.plus(sensitivityCoupon);
+
+    final MultipleCurrencyInflationSensitivity pvcisMethod = METHOD_BOND_SECURITY.presentValueCurveSensitivity(BOND_TIPS_1_TRANSACTION.getBondTransaction(), MARKET);
+
+    AssertSensivityObjects.assertEquals("Bond capital indexed security: presentValueCurveSensitivity ", pvcisCalculated, pvcisMethod, TOLERANCE_PV_DELTA);
+
   }
 }

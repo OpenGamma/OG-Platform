@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
@@ -28,8 +29,8 @@ import com.opengamma.util.money.Currency;
 
 /**
  * Class describing a Fed Fund swap-like floating coupon (arithmetic average on overnight rates).
+ * FIXME: Class under construction, don't use yet.
  */
-// * FIXME: Class under construction, don't use yet.
 public class CouponArithmeticAverageONDefinition extends CouponDefinition implements InstrumentDefinitionWithData<Payment, DoubleTimeSeries<ZonedDateTime>> {
 
   /**
@@ -43,7 +44,7 @@ public class CouponArithmeticAverageONDefinition extends CouponDefinition implem
   /**
    * The accrual factors (or year fractions) associated to the fixing periods in the Index day count convention.
    */
-  private final Double[] _fixingPeriodAccrualFactor;
+  private final double[] _fixingPeriodAccrualFactor;
 
   // TODO: Implement the rate cut-off mechanism (the two last periods use the same fixing)
 
@@ -79,7 +80,7 @@ public class CouponArithmeticAverageONDefinition extends CouponDefinition implem
       currentDate = nextDate;
     }
     _fixingPeriodDate = fixingDateList.toArray(new ZonedDateTime[fixingDateList.size()]);
-    _fixingPeriodAccrualFactor = fixingAccrualFactorList.toArray(new Double[fixingAccrualFactorList.size()]);
+    _fixingPeriodAccrualFactor = ArrayUtils.toPrimitive(fixingAccrualFactorList.toArray(new Double[fixingAccrualFactorList.size()]));
   }
 
   /**
@@ -137,7 +138,7 @@ public class CouponArithmeticAverageONDefinition extends CouponDefinition implem
    * Gets the accrual factors (or year fractions) associated to the fixing periods in the Index day count convention.
    * @return The accrual factors.
    */
-  public Double[] getFixingPeriodAccrualFactor() {
+  public double[] getFixingPeriodAccrualFactor() {
     return _fixingPeriodAccrualFactor;
   }
 

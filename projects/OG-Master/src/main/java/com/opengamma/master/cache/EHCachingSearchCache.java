@@ -39,8 +39,6 @@ import net.sf.ehcache.config.CacheConfiguration;
  * <p>
  * The cache is implemented using {@code EHCache}.
  *
- * TODO externalise configuration in xml file
- * TODO set aggressive expiry for cached searches
  * TODO investigate possibility of using SelfPopulatingCache for the search cache too
  * TODO eliminate/minimise duplicate caching of similar searches (e.g. history searches with different date ranges)
  * TODO OPTIMIZE finer grain range locking
@@ -53,9 +51,9 @@ public class EHCachingSearchCache {
   /** The number of units to prefetch on either side of the current paging request */
   protected static final int PREFETCH_RADIUS = 2;
   /** The size of a prefetch unit */
-  protected static final int PREFETCH_GRANULARITY = 100;
+  protected static final int PREFETCH_GRANULARITY = 200;
   /** The maximum number of concurrent prefetch operations */
-  protected static final int MAX_PREFETCH_CONCURRENCY = 4;
+  protected static final int MAX_PREFETCH_CONCURRENCY = 8;
   /** Cache name. */
   private static final String CACHE_NAME_SUFFIX = "PagedSearchCache";
   /** Check cached results against results from underlying */
@@ -104,21 +102,17 @@ public class EHCachingSearchCache {
     _cacheManager = cacheManager;
     _searcher = searcher;
 
-    // Configure cache - this should probably be in an xml config
-    CacheConfiguration cacheConfiguration = new CacheConfiguration(name + CACHE_NAME_SUFFIX, 1000);
+    // Load cache configuration
+    if (cacheManager.getCache(name + CACHE_NAME_SUFFIX) == null) {
+      s_logger.warn("Could not load cache configuration for " + name + CACHE_NAME_SUFFIX + ", using defaultCache configuration instead");
+      cacheManager.addCache(name + CACHE_NAME_SUFFIX);
+    }
+    _searchRequestCache = cacheManager.getCache(name + CACHE_NAME_SUFFIX);
+    CacheConfiguration cacheConfiguration = _searchRequestCache.getCacheConfiguration();
 
     // Make copies of cached objects (use default Serializable copy)
     cacheConfiguration.setCopyOnRead(true);
     cacheConfiguration.setCopyOnWrite(true);
-
-    // Set short expiry time, since search result change management is not yet available
-    cacheConfiguration.setTimeToLiveSeconds(5 * 60);
-
-    // Generate statistics
-    cacheConfiguration.setStatistics(true);
-
-    _searchRequestCache = new Cache(cacheConfiguration);
-    cacheManager.addCache(_searchRequestCache);
 
     // Async prefetch executor service
     ExecutorServiceFactoryBean execBean = new ExecutorServiceFactoryBean();
@@ -148,8 +142,10 @@ public class EHCachingSearchCache {
     final int totalResults = info.getFirst();
     final ConcurrentNavigableMap<Integer, List<UniqueId>> rangeMap = info.getSecond();
 
-    // Fix unpaged requests and end indexes larger than the total doc count
-    if (pagingRequest.getLastItem() >= totalResults) {
+    // Fix indexes larger than the total doc count
+    if (pagingRequest.getFirstItem() >= totalResults) {
+      pagingRequest = PagingRequest.ofIndex(totalResults, 0);
+    } else if (pagingRequest.getLastItem() >= totalResults) {
       pagingRequest = PagingRequest.ofIndex(pagingRequest.getFirstItem(), totalResults - pagingRequest.getFirstItem());
     }
 

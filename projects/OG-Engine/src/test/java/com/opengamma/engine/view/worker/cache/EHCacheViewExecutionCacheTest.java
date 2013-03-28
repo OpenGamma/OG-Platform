@@ -131,6 +131,7 @@ public class EHCacheViewExecutionCacheTest {
     final ComputationTargetResolver targetResolver = Mockito.mock(ComputationTargetResolver.class);
     Mockito.when(targetResolver.resolve(new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO, UniqueId.of("Portfolio", "0", "V")), VersionCorrection.LATEST)).thenReturn(
         new ComputationTarget(ComputationTargetType.PORTFOLIO, createPortfolio()));
+    Mockito.when(targetResolver.atVersionCorrection(VersionCorrection.LATEST)).thenReturn(Mockito.mock(ComputationTargetResolver.AtVersionCorrection.class));
     context.setRawComputationTargetResolver(targetResolver);
     return context;
   }
@@ -152,7 +153,7 @@ public class EHCacheViewExecutionCacheTest {
     final Collection<DependencyGraph> graphs = Collections.singleton(graph);
     final Map<ComputationTargetReference, UniqueId> resolutions = ImmutableMap.<ComputationTargetReference, UniqueId>of(
         new ComputationTargetRequirement(ComputationTargetType.SECURITY, ExternalId.of("Security", "Foo")), UniqueId.of("Sec", "0"));
-    return new CompiledViewDefinitionWithGraphsImpl(VersionCorrection.LATEST, viewDefinition, graphs, resolutions, portfolio, 0);
+    return new CompiledViewDefinitionWithGraphsImpl(VersionCorrection.LATEST, "", viewDefinition, graphs, resolutions, portfolio, 0);
   }
 
   private EHCacheViewExecutionCache createCache() {
@@ -200,11 +201,7 @@ public class EHCacheViewExecutionCacheTest {
     assertNotNull(cachedObject);
     // Hit the front cache
     assertSame(cache.getCompiledViewDefinitionWithGraphs(key), cachedObject);
-    // Discard replacement
-    cache.setCompiledViewDefinitionWithGraphs(key, createCompiledViewDefinitionWithGraphs());
-    assertSame(cache.getCompiledViewDefinitionWithGraphs(key), cachedObject);
-    // Keep replacement
-    cache.clearFrontCache();
+    // Replacement
     final CompiledViewDefinitionWithGraphs newObject = createCompiledViewDefinitionWithGraphs();
     assertNotSame(newObject, object);
     assertNotSame(newObject, cachedObject);

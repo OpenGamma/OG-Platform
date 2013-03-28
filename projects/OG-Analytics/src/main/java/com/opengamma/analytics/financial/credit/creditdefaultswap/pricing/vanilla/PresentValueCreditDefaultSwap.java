@@ -248,7 +248,7 @@ public class PresentValueCreditDefaultSwap {
 
         // TODO : Check endDate > startDate
 
-        final ZonedDateTime[] truncatedDateList = accruedSchedule.getTruncatedTimeLine(accruedLegIntegrationSchedule, offsetAccStartDate, offsetAccEndDate);
+        final ZonedDateTime[] truncatedDateList = accruedSchedule.getTruncatedTimeLineDeprecated(accruedLegIntegrationSchedule, offsetAccStartDate, offsetAccEndDate);
 
         ZonedDateTime subStartDate;
 
@@ -896,11 +896,6 @@ public class PresentValueCreditDefaultSwap {
 
     // Build a hazard rate curve object based on the input market data
     final HazardRateCurve calibratedHazardRateCurve = new HazardRateCurve(marketTenors, times, modifiedHazardRateCurve/*calibratedHazardRates*/, 0.0);
-
-    // ----------------------------------------------------------------------------------------------------------------------------------------
-
-    // TODO : Remember to take this out - just used for testing purposes
-    //valuationCDS = valuationCDS.withRecoveryRate(1.0);
 
     // Calculate the CDS PV using the just calibrated hazard rate term structure
     final double presentValue = creditDefaultSwap.getPresentValueLegacyCreditDefaultSwap(valuationDate, valuationCDS, yieldCurve, calibratedHazardRateCurve, priceType);

@@ -1,0 +1,65 @@
+<article>
+  <header class="OG-header-generic">
+    <div class="OG-tools"></div>
+    <label class="og-h1-label">Legal Entity:</label><h1>{{html template_data.obligorShortName}}</h1>
+  </header>
+  <section>
+    <div class="OG-details-content OG-js-details-panel">
+      <section>
+          <table class="OG-table">
+            <col style="width: 40%" />
+            <col style="width: 60%" />
+            <thead>
+              <tr><th><span><em>Details</em></span></th><th>&nbsp;</th></tr>
+            </thead>
+            <tbody class="og-js-info">
+              <tr>
+                <td><span>Obligor Red Code</span></td>
+                <td>${template_data.obligorRedCode}</td>
+              </tr>
+              <tr>
+                <td><span>Obligor Ticker</span></td>
+                <td>${template_data.obligorTicker}</td>
+              </tr>
+              <tr>
+                <td><span>Region</span></td>
+                <td>${template_data.region}</td>
+              </tr>
+              <tr>
+                <td><span>Country</span></td>
+                <td>${template_data.country}</td>
+              </tr>
+              <tr>
+                <td><span>Sector</span></td>
+                <td>${template_data.sector}</td>
+              </tr>
+              <tr>
+                <td><span>Composite Rating</span></td>
+                <td>${template_data.compositeRating}</td>
+              </tr>
+              <tr>
+                <td><span>Implied Rating</span></td>
+                <td>${template_data.impliedRating}</td>
+              </tr>
+              <tr>
+                <td><span>Moodys Credit Rating</span></td>
+                <td>${template_data.moodysCreditRating}</td>
+              </tr>
+              <tr>
+                <td><span>Standard And Poors Credit Rating</span></td>
+                <td>${template_data.standardAndPoorsCreditRating}</td>
+              </tr>
+              <tr>
+                <td><span>Fitch Credit Rating</span></td>
+                <td>${template_data.fitchCreditRating}</td>
+              </tr>
+              <tr>
+                <td><span>Has Defaulted</span></td>
+                <td>${template_data.hasDefaulted}</td>
+              </tr>
+            </tbody>
+          </table>
+      </section>
+    </div>
+  </section>
+</article>

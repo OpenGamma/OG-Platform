@@ -238,7 +238,7 @@ $.register_module({
                 del: not_available_del
             },
             blotter: (function () { // all requests that begin with /blotter
-                var blotter = {  
+                var blotter = {
                     root: 'blotter',
                     get: not_available_get, put: not_available_put, del: not_available_del, // no requests to /blotter
                     trades: {root: 'blotter/trades'},
@@ -269,7 +269,7 @@ $.register_module({
                 blotter.trades.put = function (config) {
                     config = config || {};
                     var root = this.root, method = root.split('/'), meta, data = {trade: {}}, id = config.id;
-                    meta = check({bundle: {method: root + '#put', config: config}, 
+                    meta = check({bundle: {method: root + '#put', config: config},
                                 required: [{all_of: ['trade', 'nodeId']}]});
                     data.trade = str({trade: config.trade, security: config.security, underlying: config.underlying,
                         nodeId: config.nodeId});
@@ -286,7 +286,7 @@ $.register_module({
                 blotter.positions.put = function (config) {
                     config = config || {};
                     var root = this.root, method = root.split('/'), meta, data = {trade: {}}, id = config.nodeId;
-                    meta = check({bundle: {method: root + '#put', config: config}, 
+                    meta = check({bundle: {method: root + '#put', config: config},
                                 required: [{all_of: ['trade', 'nodeId']}]});
                     data.trade = str({trade: config.trade, security: config.security, underlying: config.underlying,
                         nodeId: config.nodeId});
@@ -414,6 +414,13 @@ $.register_module({
                 get: simple_get,
                 put: not_available_put,
                 del: not_available_del
+            },
+            legal_entities: {
+                root: 'organizations',
+                get: default_get.partial(['node', 'name', 'obligor_red_code', 'obligor_ticker'],
+                    ['organizationId', 'shortName', 'obligorREDCode', 'obligorTicker']),
+                put: not_implemented_put,
+                del: not_implemented_del
             },
             marketdatasnapshots: { // all requests that begin with /marketdatasnapshots
                 root: 'marketdatasnapshots',

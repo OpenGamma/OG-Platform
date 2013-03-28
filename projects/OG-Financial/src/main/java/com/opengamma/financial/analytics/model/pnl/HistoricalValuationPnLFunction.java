@@ -87,6 +87,9 @@ public class HistoricalValuationPnLFunction extends AbstractFunction.NonCompiled
   public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
     ComputedValue valueTsComputedValue = inputs.getComputedValue(ValueRequirementNames.HISTORICAL_TIME_SERIES);
     LocalDateDoubleTimeSeries valueTs = (LocalDateDoubleTimeSeries) valueTsComputedValue.getValue();
+    if (valueTs.isEmpty()) {
+      return null;
+    }
     int pnlVectorSize = valueTs.size() - 1;
     double[] pnlValues = new double[pnlVectorSize];
     for (int i = 0; i < pnlVectorSize; i++) {

@@ -20,6 +20,8 @@ import org.springframework.context.Lifecycle;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.cache.BerkeleyDBViewComputationCacheSource;
+import com.opengamma.id.UniqueId;
+import com.opengamma.id.UniqueIdFudgeBuilder;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.sleepycat.bind.tuple.LongBinding;
@@ -57,27 +59,6 @@ public class BerkeleyDBTempTargetRepository extends RollingTempTargetRepository 
       _id2LastAccessed = openTruncated(environment, config, "access" + generation);
     }
 
-    private MutableFudgeMsg toFudgeMsg(final TempTarget target, final boolean includeUid) {
-      final FudgeSerializer serializer = new FudgeSerializer(s_fudgeContext);
-      final MutableFudgeMsg msg = serializer.newMessage();
-      if (includeUid) {
-        target.toFudgeMsg(serializer, msg);
-      } else {
-        target.toFudgeMsgImpl(serializer, msg);
-      }
-      FudgeSerializer.addClassHeader(msg, target.getClass(), TempTarget.class);
-      return msg;
-    }
-
-    private byte[] toByteArray(final FudgeMsg msg) {
-      return s_fudgeContext.toByteArray(msg);
-    }
-
-    private TempTarget fromByteArray(final byte[] data) {
-      final FudgeDeserializer deserializer = new FudgeDeserializer(s_fudgeContext);
-      return deserializer.fudgeMsgToObject(TempTarget.class, s_fudgeContext.deserialize(data).getMessage());
-    }
-
     public TempTarget get(final long uid) {
       final DatabaseEntry key = new DatabaseEntry();
       LongBinding.longToEntry(uid, key);
@@ -98,46 +79,34 @@ public class BerkeleyDBTempTargetRepository extends RollingTempTargetRepository 
       }
     }
 
-    public Long find(final TempTarget target) {
+    public Long find(final byte[] targetNoUid) {
       final DatabaseEntry key = new DatabaseEntry();
-      key.setData(toByteArray(toFudgeMsg(target, false)));
+      key.setData(targetNoUid);
       final DatabaseEntry value = new DatabaseEntry();
       if (_target2Id.get(null, key, value, LockMode.READ_UNCOMMITTED) == OperationStatus.SUCCESS) {
         final long result = LongBinding.entryToLong(value);
         LongBinding.longToEntry(System.nanoTime(), value);
         _id2LastAccessed.put(null, key, value);
-        if (s_logger.isDebugEnabled()) {
-          s_logger.debug("Found record {} for {} in {}", new Object[] {result, target, _target2Id.getDatabaseName() });
-        }
         return result;
       } else {
-        if (s_logger.isDebugEnabled()) {
-          s_logger.debug("No record found for {} in {}", target, _target2Id.getDatabaseName());
-        }
         return null;
       }
     }
 
-    public long store(final long newId, final TempTarget target) {
+    public long store(final long newId, final byte[] targetWithUid, final byte[] targetNoUid) {
       final DatabaseEntry idEntry = new DatabaseEntry();
       LongBinding.longToEntry(newId, idEntry);
       final DatabaseEntry targetEntry = new DatabaseEntry();
-      final MutableFudgeMsg msg = toFudgeMsg(target, true);
-      targetEntry.setData(toByteArray(msg));
+      targetEntry.setData(targetWithUid);
       // Write the new identifier marker first in case the target2Id write is successful
       if (_id2Target.put(null, idEntry, targetEntry) != OperationStatus.SUCCESS) {
-        s_logger.error("Error writing {}/{} to {}", new Object[] {newId, target, _id2Target.getDatabaseName() });
         throw new OpenGammaRuntimeException("Internal error writing new record marker");
       }
-      msg.remove("uid");
-      targetEntry.setData(toByteArray(msg));
+      targetEntry.setData(targetNoUid);
       final OperationStatus status = _target2Id.putNoOverwrite(null, targetEntry, idEntry);
       if (status == OperationStatus.SUCCESS) {
         LongBinding.longToEntry(System.nanoTime(), targetEntry);
         _id2LastAccessed.put(null, idEntry, targetEntry);
-        if (s_logger.isDebugEnabled()) {
-          s_logger.debug("{} stored as {} in {}", new Object[] {target, newId, this });
-        }
         return newId;
       }
       // Write was unsuccessful; won't be using the new identifier so remove the marker
@@ -148,13 +117,9 @@ public class BerkeleyDBTempTargetRepository extends RollingTempTargetRepository 
       }
       if (_target2Id.get(null, targetEntry, idEntry, LockMode.READ_UNCOMMITTED) != OperationStatus.SUCCESS) {
         // Shouldn't happen - the identifier must be there since the previous put failed
-        s_logger.error("Error fetching {} from {}", target, _target2Id.getDatabaseName());
         throw new OpenGammaRuntimeException("Internal error fetching existing record");
       }
       final long result = LongBinding.entryToLong(idEntry);
-      if (s_logger.isDebugEnabled()) {
-        s_logger.debug("{} stored as {} (after collision) in {}", new Object[] {target, result, this });
-      }
       return result;
     }
 
@@ -231,7 +196,7 @@ public class BerkeleyDBTempTargetRepository extends RollingTempTargetRepository 
 
   /**
    * Creates a new temporary target repository.
-   *
+   * 
    * @param dbDir the folder to use for the repository, it will be created if it doesn't exist. If it contains existing files they may be destroyed.
    */
   public BerkeleyDBTempTargetRepository(final File dbDir) {
@@ -240,7 +205,7 @@ public class BerkeleyDBTempTargetRepository extends RollingTempTargetRepository 
 
   /**
    * Creates a new temporary target repository.
-   *
+   * 
    * @param scheme the scheme to use for unique identifiers allocated by this repository
    * @param dbDir the folder to use for the repository, it will be created if it doesn't exist. If it contains existing files they may be destroyed.
    */
@@ -248,6 +213,15 @@ public class BerkeleyDBTempTargetRepository extends RollingTempTargetRepository 
     super(scheme);
     ArgumentChecker.notNull(dbDir, "dbDir");
     _dir = dbDir;
+  }
+
+  private static byte[] toByteArray(final FudgeMsg msg) {
+    return s_fudgeContext.toByteArray(msg);
+  }
+
+  private static TempTarget fromByteArray(final byte[] data) {
+    final FudgeDeserializer deserializer = new FudgeDeserializer(s_fudgeContext);
+    return deserializer.fudgeMsgToObject(TempTarget.class, s_fudgeContext.deserialize(data).getMessage());
   }
 
   protected Generation getOrCreateNewGeneration() {
@@ -295,25 +269,44 @@ public class BerkeleyDBTempTargetRepository extends RollingTempTargetRepository 
 
   @Override
   protected Long findOldGeneration(final TempTarget target) {
-    final Generation gen = _old;
-    if (gen != null) {
-      return gen.find(target);
-    } else {
-      s_logger.debug("No old generation to lookup {} in", target);
-      return null;
-    }
+    throw new UnsupportedOperationException("locateOrStoreImpl has been overloaded");
   }
 
   @Override
   protected long findOrAddNewGeneration(final TempTarget target) {
-    final Generation gen = getOrCreateNewGeneration();
-    final Long uidObject = gen.find(target);
-    if (uidObject != null) {
-      return uidObject.longValue();
+    throw new UnsupportedOperationException("locateOrStoreImpl has been overloaded");
+  }
+
+  @Override
+  protected UniqueId locateOrStoreImpl(final TempTarget target) {
+    final FudgeSerializer serializer;
+    final MutableFudgeMsg msg;
+    final byte[] targetNoUid;
+    serializer = new FudgeSerializer(s_fudgeContext);
+    msg = serializer.newMessage();
+    target.toFudgeMsgImpl(serializer, msg);
+    FudgeSerializer.addClassHeader(msg, target.getClass(), TempTarget.class);
+    targetNoUid = toByteArray(msg);
+    Generation gen = _old;
+    if (gen != null) {
+      final Long uidOld = gen.find(targetNoUid);
+      if (uidOld != null) {
+        return createIdentifier(uidOld);
+      }
     }
-    final long identifier = allocIdentifier();
-    target.setUniqueId(createIdentifier(identifier));
-    return gen.store(identifier, target);
+    gen = getOrCreateNewGeneration();
+    final Long uidNew = gen.find(targetNoUid);
+    if (uidNew != null) {
+      return createIdentifier(uidNew);
+    }
+    final long uidValue = allocIdentifier();
+    final UniqueId uid = createIdentifier(uidValue);
+    UniqueIdFudgeBuilder.toFudgeMsg(serializer, uid, msg.addSubMessage("uid", null));
+    final long existingValue = gen.store(uidValue, toByteArray(msg), targetNoUid);
+    if (existingValue != uidValue) {
+      return createIdentifier(existingValue);
+    }
+    return uid;
   }
 
   @Override

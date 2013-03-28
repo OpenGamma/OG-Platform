@@ -113,11 +113,27 @@ public class InflationProviderDiscount implements InflationProviderInterface {
   private void setInflationCurves() {
     _allCurves = new LinkedHashMap<String, PriceIndexCurve>();
 
-    final Set<IndexPrice> indexSet = _priceIndexCurves.keySet();
-    for (final IndexPrice index : indexSet) {
+    final Set<IndexPrice> inlfationIndexSet = _priceIndexCurves.keySet();
+    for (final IndexPrice index : inlfationIndexSet) {
       final String name = _priceIndexCurves.get(index).getName();
       _allCurves.put(name, _priceIndexCurves.get(index));
     }
+
+    /* final Set<Currency> ccySet = _multicurveProvider.getCurrencies();
+     for (final Currency ccy : ccySet) {
+       final String name = _multicurveProvider.getName(ccy);
+       _allCurves.put(name, _multicurveProvider.getCurve(ccy));
+     }
+     final Set<IborIndex> indexSet = _multicurveProvider.getIndexesIbor();
+     for (final IborIndex index : indexSet) {
+       final String name = _multicurveProvider.getName(index);
+       _allCurves.put(name, _multicurveProvider.getCurve(index));
+     }
+     final Set<IndexON> indexONSet = _multicurveProvider.getIndexesON();
+     for (final IndexON index : indexONSet) {
+       final String name = _multicurveProvider.getName(index);
+       _allCurves.put(name, _multicurveProvider.getCurve(index));
+     }*/
 
   }
 
@@ -352,8 +368,15 @@ public class InflationProviderDiscount implements InflationProviderInterface {
 
   @Override
   public Integer getNumberOfParameters(final String name) {
-    final PriceIndexCurve curve = _allCurves.get(name);
-    return curve.getNumberOfParameters();
+    final PriceIndexCurve inflationCurve = _allCurves.get(name);
+    final YieldAndDiscountCurve curve = _multicurveProvider.getCurve(name);
+    if (!(inflationCurve == null)) {
+      return inflationCurve.getNumberOfParameters();
+    }
+    else
+    {
+      return curve.getNumberOfParameters();
+    }
   }
 
   @Override

@@ -82,7 +82,7 @@ public class ViewDefinitionCompilerTest {
   //-------------------------------------------------------------------------
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDependencyGraphs() {
-    new CompiledViewDefinitionWithGraphsImpl(null, null, null, null, null, 0);
+    new CompiledViewDefinitionWithGraphsImpl(null, null, null, null, null, null, 0);
   }
 
   public void testEmptyView() {

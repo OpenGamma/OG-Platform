@@ -89,36 +89,25 @@ public abstract class AbstractEHCachingMaster<D extends AbstractDocument> implem
     _underlying = underlying;
     _cacheManager = cacheManager;
 
-    // Configure cache for searching - this should probably be in an xml config
-    CacheConfiguration cacheConfiguration = new CacheConfiguration(name + CACHE_NAME_SUFFIX, 1000);
-    Searchable uidToDocumentCacheSearchable = new Searchable();
-    uidToDocumentCacheSearchable.addSearchAttribute(new SearchAttribute().name("ObjectId")
-        .expression("value.getObjectId().toString()"));
-    uidToDocumentCacheSearchable.addSearchAttribute(new SearchAttribute().name("VersionFromInstant")
-        .className("com.opengamma.master.cache.InstantExtractor"));
-    uidToDocumentCacheSearchable.addSearchAttribute(new SearchAttribute().name("VersionToInstant")
-        .className("com.opengamma.master.cache.InstantExtractor"));
-    uidToDocumentCacheSearchable.addSearchAttribute(new SearchAttribute().name("CorrectionFromInstant")
-        .className("com.opengamma.master.cache.InstantExtractor"));
-    uidToDocumentCacheSearchable.addSearchAttribute(new SearchAttribute().name("CorrectionToInstant")
-        .className("com.opengamma.master.cache.InstantExtractor"));
-    cacheConfiguration.addSearchable(uidToDocumentCacheSearchable);
+    if (cacheManager.getCache(name + CACHE_NAME_SUFFIX) == null) {
+      // If cache config not found, set up from scratch
+      s_logger.warn("Could not load cache configuration for " + name + CACHE_NAME_SUFFIX
+                  + ", building configuration on the fly instead");
+      getCacheManager().addCache(new Cache(tweakCacheConfiguration(new CacheConfiguration(name + CACHE_NAME_SUFFIX,
+                                                                                          10000))));
+    } else {
+      // If cache config found, tweak loaded config
+      tweakCacheConfiguration(cacheManager.getCache(name + CACHE_NAME_SUFFIX).getCacheConfiguration());
+    }
 
-    // Make copies of cached objects
-    CopyStrategyConfiguration copyStrategyConfiguration = new CopyStrategyConfiguration();
-    copyStrategyConfiguration.setClass("com.opengamma.master.cache.JodaBeanCopyStrategy");
-    cacheConfiguration.addCopyStrategy(copyStrategyConfiguration);
-    cacheConfiguration.setCopyOnRead(true);
-    cacheConfiguration.setCopyOnWrite(true);
 
-    // Generate statistics
-    cacheConfiguration.setStatistics(true);
 
-    _cacheManager.addCache(new Cache(cacheConfiguration));
+    // Create the self-populating cache decorator
     _uidToDocumentCache = new SelfPopulatingCache(_cacheManager.getCache(name + CACHE_NAME_SUFFIX),
                                                   new UidToDocumentCacheEntryFactory<>(_underlying));
-    _cacheManager.replaceCacheWithDecoratedCache(_cacheManager.getCache(name + CACHE_NAME_SUFFIX), getUidToDocumentCache());
-    //getUidToDocumentCache().registerCacheWriter(new UidToDocumentCacheWriterFactory().createCacheWriter(getUidToDocumentCache(), null));
+    getCacheManager().replaceCacheWithDecoratedCache(_cacheManager.getCache(name + CACHE_NAME_SUFFIX),
+                                                     getUidToDocumentCache());
+
 
     // Listen to change events from underlying, clean this cache accordingly and relay events to our change listeners
     _changeManager = new BasicChangeManager();
@@ -134,6 +123,32 @@ public abstract class AbstractEHCachingMaster<D extends AbstractDocument> implem
       }
     };
     underlying.changeManager().addChangeListener(_changeListener);
+  }
+
+  private CacheConfiguration tweakCacheConfiguration(CacheConfiguration cacheConfiguration) {
+
+    // Set searchable index
+    Searchable uidToDocumentCacheSearchable = new Searchable();
+    uidToDocumentCacheSearchable.addSearchAttribute(new SearchAttribute().name("ObjectId")
+        .expression("value.getObjectId().toString()"));
+    uidToDocumentCacheSearchable.addSearchAttribute(new SearchAttribute().name("VersionFromInstant")
+        .className("com.opengamma.master.cache.InstantExtractor"));
+    uidToDocumentCacheSearchable.addSearchAttribute(new SearchAttribute().name("VersionToInstant")
+                                                        .className("com.opengamma.master.cache.InstantExtractor"));
+    uidToDocumentCacheSearchable.addSearchAttribute(new SearchAttribute().name("CorrectionFromInstant")
+                                                        .className("com.opengamma.master.cache.InstantExtractor"));
+    uidToDocumentCacheSearchable.addSearchAttribute(new SearchAttribute().name("CorrectionToInstant")
+                                                        .className("com.opengamma.master.cache.InstantExtractor"));
+    cacheConfiguration.addSearchable(uidToDocumentCacheSearchable);
+
+    // Make copies of cached objects
+    CopyStrategyConfiguration copyStrategyConfiguration = new CopyStrategyConfiguration();
+    copyStrategyConfiguration.setClass("com.opengamma.master.cache.JodaBeanCopyStrategy");
+    cacheConfiguration.addCopyStrategy(copyStrategyConfiguration);
+    cacheConfiguration.setCopyOnRead(true);
+    cacheConfiguration.setCopyOnWrite(true);
+
+    return cacheConfiguration;
   }
 
   //-------------------------------------------------------------------------

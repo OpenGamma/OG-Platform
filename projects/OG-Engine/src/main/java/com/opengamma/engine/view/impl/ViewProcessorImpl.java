@@ -382,7 +382,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
         if (_viewResultListenerFactory == null) {
           throw new IllegalStateException("Batch mode requires a ViewResultListenerFactory");
         }
-        viewProcess.attachListener(_viewResultListenerFactory.createViewResultListener());
+        viewProcess.attachListener(_viewResultListenerFactory.createViewResultListener(viewProcess.getLatestViewDefinition().getMarketDataUser()));
       }
 
       // The view must be created in a locked state if this view processor is suspended

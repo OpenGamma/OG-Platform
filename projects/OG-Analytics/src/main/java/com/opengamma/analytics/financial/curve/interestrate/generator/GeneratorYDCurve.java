@@ -13,13 +13,7 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Multi
 /**
  * Interface for describing and generating curves in curve construction process.
  */
-public abstract class GeneratorYDCurve {
-
-  /**
-   * Returns the number of parameters expected to generate the curve.
-   * @return The number of parameters.
-   */
-  public abstract int getNumberOfParameter();
+public abstract class GeneratorYDCurve extends GeneratorCurve {
 
   /**
    * Generate a curve using the parameters of a vector.
@@ -65,18 +59,9 @@ public abstract class GeneratorYDCurve {
    * @param data The additional data.
    * @return The final generator.
    */
+  @Override
   public GeneratorYDCurve finalGenerator(Object data) {
     return this;
-  }
-
-  /**
-   * The initial guess of parameters can be very different for different curve descriptions (in particular for functional curves).
-   * The method produce a set of initial guess parameters from the instruments "rates". By default it simply return the rates.
-   * @param rates The instrument estimated rates.
-   * @return The initial parameters guess.
-   */
-  public double[] initialGuess(double[] rates) {
-    return rates;
   }
 
 }

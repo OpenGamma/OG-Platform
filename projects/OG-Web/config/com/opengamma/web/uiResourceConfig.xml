@@ -354,6 +354,7 @@
     <fragment>/scripts/og/analytics/og.analytics.formatter.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.clipboard.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.selector.js</fragment>
+    <fragment>/scripts/og/analytics/og.analytics.node_menu.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.data.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.depgraph.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.resize.js</fragment>
@@ -425,6 +426,7 @@
     <fragment>/scripts/og/views/config_forms/og.views.config_forms.yieldcurvedefinition.js</fragment>
     <!-- /config forms -->
     <fragment>/scripts/og/views/extras/og.views.extras.portfolios_sync.js</fragment>
+    <fragment>/scripts/og/views/og.views.legal_entities.js</fragment>
     <fragment>/scripts/og/views/og.views.portfolios.js</fragment>
     <fragment>/scripts/og/views/og.views.positions.js</fragment>
     <fragment>/scripts/og/views/og.views.securities.js</fragment>

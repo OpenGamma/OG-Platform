@@ -10,21 +10,17 @@ import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.financial.analytics.model.forex.ConventionBasedFXRateFunction;
 import com.opengamma.financial.analytics.model.futureoption.BarrierOptionDistanceFunction;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
-import com.opengamma.util.money.UnorderedCurrencyPair;
-
 
 // logic in getBarrierLevel() / getMarketDataRequirement() probably implies this should be refactored
 
 /**
- * Function to compute barrier distance for equity options
- *
- * Defined as absolute difference (optionally expressed as a percentage) between barrier level and market price
- *
+ * Function to compute barrier distance for equity options Defined as absolute difference (optionally expressed as a percentage) between barrier level and market price
  */
 public class FXBarrierOptionDistanceFunction extends BarrierOptionDistanceFunction {
 
@@ -43,12 +39,10 @@ public class FXBarrierOptionDistanceFunction extends BarrierOptionDistanceFuncti
   protected ValueRequirement getMarketDataRequirement(FinancialSecurity security) {
     if (security instanceof FXBarrierOptionSecurity) {
       final FXBarrierOptionSecurity barrierOption = (FXBarrierOptionSecurity) security;
-      return new ValueRequirement(ValueRequirementNames.SPOT_RATE, ComputationTargetType.UNORDERED_CURRENCY_PAIR.specification(UnorderedCurrencyPair.of(barrierOption.getCallCurrency(),
-          barrierOption.getPutCurrency())));
+      return ConventionBasedFXRateFunction.getSpotRateRequirement(barrierOption.getCallCurrency(), barrierOption.getPutCurrency());
     } else if (security instanceof FXDigitalOptionSecurity) {
       final FXDigitalOptionSecurity digitalOption = (FXDigitalOptionSecurity) security;
-      return new ValueRequirement(ValueRequirementNames.SPOT_RATE, ComputationTargetType.UNORDERED_CURRENCY_PAIR.specification(UnorderedCurrencyPair.of(digitalOption.getCallCurrency(),
-          digitalOption.getPutCurrency())));
+      return ConventionBasedFXRateFunction.getSpotRateRequirement(digitalOption.getCallCurrency(), digitalOption.getPutCurrency());
     } else {
       throw new OpenGammaRuntimeException("Got unexpected security type " + security);
     }

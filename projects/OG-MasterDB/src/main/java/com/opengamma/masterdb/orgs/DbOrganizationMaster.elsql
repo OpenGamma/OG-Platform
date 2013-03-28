@@ -136,9 +136,9 @@
     @AND(:obligor_short_name)
       UPPER(obligor_short_name) @LIKE UPPER(:obligor_short_name)
     @AND(:obligor_red_code)
-      obligor_red_code = :obligor_red_code
+      UPPER(obligor_red_code) @LIKE UPPER(:obligor_red_code)
     @AND(:obligor_ticker)
-      obligor_ticker = :obligor_ticker
+      UPPER(obligor_ticker) @LIKE UPPER(:obligor_ticker)
     @AND(:obligor_composite_rating)
       obligor_composite_rating = :obligor_composite_rating
     @AND(:obligor_country)

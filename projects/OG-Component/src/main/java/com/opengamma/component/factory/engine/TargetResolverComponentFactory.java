@@ -17,6 +17,7 @@ import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.springframework.beans.factory.FactoryBean;
 
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
@@ -28,6 +29,14 @@ import com.opengamma.engine.CachingComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.DefaultCachingComputationTargetResolver;
 import com.opengamma.engine.DefaultComputationTargetResolver;
+import com.opengamma.financial.currency.ConfigDBCurrencyMatrixSource;
+import com.opengamma.financial.currency.ConfigDBCurrencyPairsSource;
+import com.opengamma.financial.currency.CurrencyMatrixResolver;
+import com.opengamma.financial.currency.CurrencyMatrixSource;
+import com.opengamma.financial.currency.CurrencyPair;
+import com.opengamma.financial.currency.CurrencyPairs;
+import com.opengamma.financial.currency.CurrencyPairsResolver;
+import com.opengamma.financial.currency.VersionedCurrencyPairsSource;
 import com.opengamma.financial.temptarget.ConfigItemTarget;
 import com.opengamma.financial.temptarget.ConfigItemTargetResolver;
 import com.opengamma.financial.temptarget.TempTarget;
@@ -40,7 +49,7 @@ import net.sf.ehcache.CacheManager;
  * Component factory for the target resolver.
  */
 @BeanDefinition
-public class TargetResolverComponentFactory extends AbstractComponentFactory {
+public class TargetResolverComponentFactory extends AbstractComponentFactory implements FactoryBean<ComputationTargetResolver> {
 
   /**
    * The classifier that the factory should publish under.
@@ -72,29 +81,84 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory {
    */
   @PropertyDefinition
   private ConfigSource _configSource;
+  /**
+   * The currency matrix source, if omitted a default will wrap the config source.
+   */
+  @PropertyDefinition
+  private CurrencyMatrixSource _currencyMatrixSource;
+  /**
+   * The currency pairs source, if omitted a default will wrap the config source.
+   */
+  @PropertyDefinition
+  private VersionedCurrencyPairsSource _currencyPairsSource;
 
   protected ComputationTargetResolver createTargetResolver() {
     final DefaultComputationTargetResolver resolver = new DefaultComputationTargetResolver(getSecuritySource(), getPositionSource());
+    initDefaultResolvers(resolver);
+    return resolver;
+  }
+
+  protected CurrencyMatrixSource createCurrencyMatrixSource() {
+    if (getConfigSource() != null) {
+      return new ConfigDBCurrencyMatrixSource(getConfigSource());
+    } else {
+      return null;
+    }
+  }
+
+  protected CurrencyMatrixSource getOrCreateCurrencyMatrixSource() {
+    if (getCurrencyMatrixSource() == null) {
+      setCurrencyMatrixSource(createCurrencyMatrixSource());
+    }
+    return getCurrencyMatrixSource();
+  }
+
+  protected VersionedCurrencyPairsSource createCurrencyPairsSource() {
+    if (getConfigSource() != null) {
+      return new ConfigDBCurrencyPairsSource(getConfigSource());
+    } else {
+      return null;
+    }
+  }
+
+  protected VersionedCurrencyPairsSource getOrCreateCurrencyPairsSource() {
+    if (getCurrencyPairsSource() == null) {
+      setCurrencyPairsSource(createCurrencyPairsSource());
+    }
+    return getCurrencyPairsSource();
+  }
+
+  protected void initDefaultResolvers(final DefaultComputationTargetResolver resolver) {
+    if (getConfigSource() != null) {
+      resolver.addResolver(ConfigItemTarget.TYPE, new ConfigItemTargetResolver(getConfigSource()));
+    }
+    if (getOrCreateCurrencyMatrixSource() != null) {
+      resolver.addResolver(CurrencyMatrixResolver.TYPE, new CurrencyMatrixResolver(getOrCreateCurrencyMatrixSource()));
+    }
+    if (getOrCreateCurrencyPairsSource() != null) {
+      resolver.addResolver(CurrencyPairs.TYPE, new CurrencyPairsResolver(getOrCreateCurrencyPairsSource()));
+    }
     if (getTempTargets() != null) {
       resolver.addResolver(TempTarget.TYPE, new TempTargetResolver(getTempTargets()));
     }
-    if (_configSource != null) {
-      resolver.addResolver(ConfigItemTarget.TYPE, new ConfigItemTargetResolver(_configSource));
-    }
-    return resolver;
+    resolver.addResolver(CurrencyPair.TYPE);
   }
 
   protected CachingComputationTargetResolver createCachedTargetResolver(final ComputationTargetResolver underlying) {
     return new DefaultCachingComputationTargetResolver(underlying, getCacheManager());
   }
 
-  @Override
-  public void init(final ComponentRepository repo, final LinkedHashMap<String, String> configuration) {
+  private ComputationTargetResolver initTargetResolver() {
     ComputationTargetResolver resolver = createTargetResolver();
     if (getCacheManager() != null) {
       resolver = createCachedTargetResolver(resolver);
     }
-    repo.registerComponent(new ComponentInfo(ComputationTargetResolver.class, getClassifier()), resolver);
+    return resolver;
+  }
+
+  @Override
+  public void init(final ComponentRepository repo, final LinkedHashMap<String, String> configuration) {
+    repo.registerComponent(new ComponentInfo(ComputationTargetResolver.class, getClassifier()), initTargetResolver());
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -130,6 +194,10 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory {
         return getCacheManager();
       case 195157501:  // configSource
         return getConfigSource();
+      case 615188973:  // currencyMatrixSource
+        return getCurrencyMatrixSource();
+      case -1615906429:  // currencyPairsSource
+        return getCurrencyPairsSource();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -154,6 +222,12 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory {
         return;
       case 195157501:  // configSource
         setConfigSource((ConfigSource) newValue);
+        return;
+      case 615188973:  // currencyMatrixSource
+        setCurrencyMatrixSource((CurrencyMatrixSource) newValue);
+        return;
+      case -1615906429:  // currencyPairsSource
+        setCurrencyPairsSource((VersionedCurrencyPairsSource) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -180,6 +254,8 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory {
           JodaBeanUtils.equal(getTempTargets(), other.getTempTargets()) &&
           JodaBeanUtils.equal(getCacheManager(), other.getCacheManager()) &&
           JodaBeanUtils.equal(getConfigSource(), other.getConfigSource()) &&
+          JodaBeanUtils.equal(getCurrencyMatrixSource(), other.getCurrencyMatrixSource()) &&
+          JodaBeanUtils.equal(getCurrencyPairsSource(), other.getCurrencyPairsSource()) &&
           super.equals(obj);
     }
     return false;
@@ -194,6 +270,8 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory {
     hash += hash * 31 + JodaBeanUtils.hashCode(getTempTargets());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
     hash += hash * 31 + JodaBeanUtils.hashCode(getConfigSource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrencyMatrixSource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrencyPairsSource());
     return hash ^ super.hashCode();
   }
 
@@ -352,6 +430,56 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the currency matrix source, if omitted a default will wrap the config source.
+   * @return the value of the property
+   */
+  public CurrencyMatrixSource getCurrencyMatrixSource() {
+    return _currencyMatrixSource;
+  }
+
+  /**
+   * Sets the currency matrix source, if omitted a default will wrap the config source.
+   * @param currencyMatrixSource  the new value of the property
+   */
+  public void setCurrencyMatrixSource(CurrencyMatrixSource currencyMatrixSource) {
+    this._currencyMatrixSource = currencyMatrixSource;
+  }
+
+  /**
+   * Gets the the {@code currencyMatrixSource} property.
+   * @return the property, not null
+   */
+  public final Property<CurrencyMatrixSource> currencyMatrixSource() {
+    return metaBean().currencyMatrixSource().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the currency pairs source, if omitted a default will wrap the config source.
+   * @return the value of the property
+   */
+  public VersionedCurrencyPairsSource getCurrencyPairsSource() {
+    return _currencyPairsSource;
+  }
+
+  /**
+   * Sets the currency pairs source, if omitted a default will wrap the config source.
+   * @param currencyPairsSource  the new value of the property
+   */
+  public void setCurrencyPairsSource(VersionedCurrencyPairsSource currencyPairsSource) {
+    this._currencyPairsSource = currencyPairsSource;
+  }
+
+  /**
+   * Gets the the {@code currencyPairsSource} property.
+   * @return the property, not null
+   */
+  public final Property<VersionedCurrencyPairsSource> currencyPairsSource() {
+    return metaBean().currencyPairsSource().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code TargetResolverComponentFactory}.
    */
   public static class Meta extends AbstractComponentFactory.Meta {
@@ -391,6 +519,16 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<ConfigSource> _configSource = DirectMetaProperty.ofReadWrite(
         this, "configSource", TargetResolverComponentFactory.class, ConfigSource.class);
     /**
+     * The meta-property for the {@code currencyMatrixSource} property.
+     */
+    private final MetaProperty<CurrencyMatrixSource> _currencyMatrixSource = DirectMetaProperty.ofReadWrite(
+        this, "currencyMatrixSource", TargetResolverComponentFactory.class, CurrencyMatrixSource.class);
+    /**
+     * The meta-property for the {@code currencyPairsSource} property.
+     */
+    private final MetaProperty<VersionedCurrencyPairsSource> _currencyPairsSource = DirectMetaProperty.ofReadWrite(
+        this, "currencyPairsSource", TargetResolverComponentFactory.class, VersionedCurrencyPairsSource.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -400,7 +538,9 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory {
         "positionSource",
         "tempTargets",
         "cacheManager",
-        "configSource");
+        "configSource",
+        "currencyMatrixSource",
+        "currencyPairsSource");
 
     /**
      * Restricted constructor.
@@ -423,6 +563,10 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory {
           return _cacheManager;
         case 195157501:  // configSource
           return _configSource;
+        case 615188973:  // currencyMatrixSource
+          return _currencyMatrixSource;
+        case -1615906429:  // currencyPairsSource
+          return _currencyPairsSource;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -491,8 +635,41 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory {
       return _configSource;
     }
 
+    /**
+     * The meta-property for the {@code currencyMatrixSource} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<CurrencyMatrixSource> currencyMatrixSource() {
+      return _currencyMatrixSource;
+    }
+
+    /**
+     * The meta-property for the {@code currencyPairsSource} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<VersionedCurrencyPairsSource> currencyPairsSource() {
+      return _currencyPairsSource;
+    }
+
   }
 
   ///CLOVER:ON
   //-------------------------- AUTOGENERATED END --------------------------
+
+  // FactoryBean
+
+  @Override
+  public ComputationTargetResolver getObject() throws Exception {
+    return initTargetResolver();
+  }
+
+  @Override
+  public Class<?> getObjectType() {
+    return ComputationTargetResolver.class;
+  }
+
+  @Override
+  public boolean isSingleton() {
+    return false;
+  }
 }

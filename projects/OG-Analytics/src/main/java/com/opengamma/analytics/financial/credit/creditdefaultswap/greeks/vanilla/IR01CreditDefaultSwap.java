@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.financial.credit.creditdefaultswap.greeks.vanilla;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.PriceType;
@@ -21,6 +23,7 @@ import com.opengamma.util.ArgumentChecker;
  * Class containing methods for the computation of IR01 for a vanilla Legacy CDS (parallel and bucketed bumps)
  */
 public class IR01CreditDefaultSwap {
+  private static final Logger s_logger = LoggerFactory.getLogger(IR01CreditDefaultSwap.class);
 
   //------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -172,7 +175,12 @@ public class IR01CreditDefaultSwap {
       switch (interestRateBumpType) {
         case ADDITIVE:
           bumpedInterestRates[m] += bumpInBp;
-          bumpedYieldCurve = new ISDADateCurve("Bumped", marketTenors, yieldCurve.getTimePoints(), bumpedInterestRates, yieldCurve.getOffset());
+          try {
+            bumpedYieldCurve = new ISDADateCurve("Bumped", marketTenors, yieldCurve.getTimePoints(), bumpedInterestRates, yieldCurve.getOffset());
+          } catch (ArrayIndexOutOfBoundsException aioobe) {
+            s_logger.error("AIOOBE", aioobe);
+            throw aioobe;
+          }
           bumpedPresentValue = PV_CALCULATOR.calibrateAndGetPresentValue(valuationDate, cds, marketTenors, marketSpreads, bumpedYieldCurve, priceType);
           bucketedIR01[m] = (bumpedPresentValue - presentValue) / interestRateBump;
           bumpedInterestRates[m] -= bumpInBp;

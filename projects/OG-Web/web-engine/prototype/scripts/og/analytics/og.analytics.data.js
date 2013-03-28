@@ -114,14 +114,6 @@ $.register_module({
                 initialize();
             };
             var reconnect_handler = function () {initialize();};
-            var same_viewport = function (one, two) {
-                if ((!one || !two) && one !== two) return false; // if either viewport is null
-                if ((one.cells && two.rows) || (one.rows && two.cells)) return false;
-                if (one.cells && two.cells)
-                    return one.cells.join('|') === two.cells.join('|') && one.format === two.format;
-                return one.rows.join('|') === two.rows.join('|') && one.cols.join('|') === two.cols.join('|') &&
-                    one.format === two.format;
-            };
             var structure_handler = function (result) {
                 if (!grid_type || (depgraph && !graph_id)) return;
                 if (result.error) return fire('fatal', data.prefix + result.message);
@@ -215,7 +207,7 @@ $.register_module({
                 }
                 if (nonsensical_viewport(new_viewport))
                     return og.dev.warn(data.prefix + 'nonsensical viewport, ', new_viewport), data;
-                if (same_viewport(viewport_cache, new_viewport)) return data; // duplicate viewport, do nothing
+                if (Object.equals(viewport_cache, new_viewport)) return data; // duplicate viewport, do nothing
                 viewport_cache = JSON.parse(JSON.stringify(data.meta.viewport = viewport = new_viewport));
                 if (!viewport_id) return loading_viewport_id ? data : data_setup(), data;
                 try { // viewport definitions come from outside, so try/catch

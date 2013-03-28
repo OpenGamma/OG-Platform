@@ -9,8 +9,10 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedTransaction;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
+import com.opengamma.analytics.financial.provider.calculator.inflation.PresentValueCurveSensitivityDiscountingInflationCalculator;
 import com.opengamma.analytics.financial.provider.calculator.inflation.PresentValueDiscountingInflationCalculator;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationIssuerProviderInterface;
+import com.opengamma.analytics.financial.provider.sensitivity.inflation.MultipleCurrencyInflationSensitivity;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
@@ -22,6 +24,7 @@ public final class BondCapitalIndexedTransactionDiscountingMethod {
    * The present value inflation calculator (for the different parts of the bond transaction).
    */
   private static final PresentValueDiscountingInflationCalculator PVIC = PresentValueDiscountingInflationCalculator.getInstance();
+  private static final PresentValueCurveSensitivityDiscountingInflationCalculator PVCSIC = PresentValueCurveSensitivityDiscountingInflationCalculator.getInstance();
   /**
    * The method used for security computation.
    */
@@ -56,7 +59,17 @@ public final class BondCapitalIndexedTransactionDiscountingMethod {
     return pvBond.plus(pvSettlement);
   }
 
-  // TODO: curve sensitivity
-  // TODO: price index sensitivity
+  /**
+   * Computes the present value of a capital indexed bound transaction by index estimation and discounting.
+   * @param bond The bond transaction.
+   * @param provider The provider.
+   * @return The present value.
+   */
+  public MultipleCurrencyInflationSensitivity presentValueCurveSensitivity(final BondCapitalIndexedTransaction<?> bond, final InflationIssuerProviderInterface provider) {
+    final MultipleCurrencyInflationSensitivity sensitivityBond = METHOD_SECURITY.presentValueCurveSensitivity(bond.getBondTransaction(), provider);
+    final MultipleCurrencyInflationSensitivity sensitivitySettlement = bond.getBondTransaction().getSettlement().accept(PVCSIC, provider.getInflationProvider()).multipliedBy(
+        bond.getQuantity() * bond.getBondTransaction().getCoupon().getNthPayment(0).getNotional());
+    return sensitivityBond.multipliedBy(bond.getQuantity()).plus(sensitivitySettlement);
+  }
 
 }

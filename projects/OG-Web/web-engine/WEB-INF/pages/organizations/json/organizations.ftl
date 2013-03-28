@@ -7,7 +7,7 @@
         "pgSze": ${"${paging.pagingSize}"?replace(',','')},
         "pgTtl": ${"${paging.totalItems}"?replace(',','')},
 	    </#if>
-	    "dataFields": ["id", "obligorShortName", "ObligorRedCode", "ObligorTicker"]
+	    "dataFields": ["id", "name", "obligor_red_code", "obligor_ticker"]
     },
 	"data": [<#if searchResult??>
 	 <#list searchResult.organizations as organization>

@@ -123,7 +123,6 @@
     <property name="name" value="main" />
     <property name="configSource" ref="combinedConfigSource" />
     <property name="namedMarketDataSpecificationRepository" ref="bloombergNamedMarketDataSpecificationRepository" />
-    <property name="computationTargetResolver" ref="combinedComputationTargetResolver" />
     <property name="functionCompilationService" ref="mainCompiledFunctionService" />
     <property name="functionResolver" ref="mainFunctionResolver" />
     <property name="marketDataProviderResolver" ref="standardMarketDataProviderResolver" />

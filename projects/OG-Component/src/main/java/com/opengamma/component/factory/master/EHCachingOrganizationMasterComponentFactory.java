@@ -28,6 +28,8 @@ import com.opengamma.master.orgs.impl.EHCachingOrganizationMaster;
 import com.opengamma.master.orgs.impl.RemoteOrganizationMaster;
 import com.opengamma.util.ehcache.EHCacheUtils;
 
+import net.sf.ehcache.CacheManager;
+
 /**
  * Component factory for the combined organization master.
  * <p>
@@ -51,6 +53,11 @@ public class EHCachingOrganizationMasterComponentFactory extends AbstractCompone
    */
   @PropertyDefinition(validate = "notNull")
   private OrganizationMaster _underlying;
+  /**
+   * The cache manager.
+   */
+  @PropertyDefinition
+  private CacheManager _cacheManager;
 
 
   //-------------------------------------------------------------------------
@@ -58,8 +65,8 @@ public class EHCachingOrganizationMasterComponentFactory extends AbstractCompone
   public void init(ComponentRepository repo, LinkedHashMap<String, String> organizationuration) {
 
     OrganizationMaster master = new EHCachingOrganizationMaster(getClassifier(),
-                                                      _underlying,
-                                                      EHCacheUtils.createCacheManager()); // actually retrieves existing
+                                                      getUnderlying(),
+                                                      getCacheManager());
 
     // register
     ComponentInfo info = new ComponentInfo(OrganizationMaster.class, getClassifier());
@@ -98,6 +105,8 @@ public class EHCachingOrganizationMasterComponentFactory extends AbstractCompone
         return isPublishRest();
       case -1770633379:  // underlying
         return getUnderlying();
+      case -1452875317:  // cacheManager
+        return getCacheManager();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -113,6 +122,9 @@ public class EHCachingOrganizationMasterComponentFactory extends AbstractCompone
         return;
       case -1770633379:  // underlying
         setUnderlying((OrganizationMaster) newValue);
+        return;
+      case -1452875317:  // cacheManager
+        setCacheManager((CacheManager) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -135,6 +147,7 @@ public class EHCachingOrganizationMasterComponentFactory extends AbstractCompone
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
           JodaBeanUtils.equal(isPublishRest(), other.isPublishRest()) &&
           JodaBeanUtils.equal(getUnderlying(), other.getUnderlying()) &&
+          JodaBeanUtils.equal(getCacheManager(), other.getCacheManager()) &&
           super.equals(obj);
     }
     return false;
@@ -146,6 +159,7 @@ public class EHCachingOrganizationMasterComponentFactory extends AbstractCompone
     hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
     hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlying());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
     return hash ^ super.hashCode();
   }
 
@@ -228,6 +242,31 @@ public class EHCachingOrganizationMasterComponentFactory extends AbstractCompone
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the cache manager.
+   * @return the value of the property
+   */
+  public CacheManager getCacheManager() {
+    return _cacheManager;
+  }
+
+  /**
+   * Sets the cache manager.
+   * @param cacheManager  the new value of the property
+   */
+  public void setCacheManager(CacheManager cacheManager) {
+    this._cacheManager = cacheManager;
+  }
+
+  /**
+   * Gets the the {@code cacheManager} property.
+   * @return the property, not null
+   */
+  public final Property<CacheManager> cacheManager() {
+    return metaBean().cacheManager().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code EHCachingOrganizationMasterComponentFactory}.
    */
   public static class Meta extends AbstractComponentFactory.Meta {
@@ -252,13 +291,19 @@ public class EHCachingOrganizationMasterComponentFactory extends AbstractCompone
     private final MetaProperty<OrganizationMaster> _underlying = DirectMetaProperty.ofReadWrite(
         this, "underlying", EHCachingOrganizationMasterComponentFactory.class, OrganizationMaster.class);
     /**
+     * The meta-property for the {@code cacheManager} property.
+     */
+    private final MetaProperty<CacheManager> _cacheManager = DirectMetaProperty.ofReadWrite(
+        this, "cacheManager", EHCachingOrganizationMasterComponentFactory.class, CacheManager.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier",
         "publishRest",
-        "underlying");
+        "underlying",
+        "cacheManager");
 
     /**
      * Restricted constructor.
@@ -275,6 +320,8 @@ public class EHCachingOrganizationMasterComponentFactory extends AbstractCompone
           return _publishRest;
         case -1770633379:  // underlying
           return _underlying;
+        case -1452875317:  // cacheManager
+          return _cacheManager;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -317,6 +364,14 @@ public class EHCachingOrganizationMasterComponentFactory extends AbstractCompone
      */
     public final MetaProperty<OrganizationMaster> underlying() {
       return _underlying;
+    }
+
+    /**
+     * The meta-property for the {@code cacheManager} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<CacheManager> cacheManager() {
+      return _cacheManager;
     }
 
   }

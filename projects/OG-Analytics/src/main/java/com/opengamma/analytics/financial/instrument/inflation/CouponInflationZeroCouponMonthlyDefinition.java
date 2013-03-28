@@ -27,7 +27,7 @@ import com.opengamma.util.money.Currency;
  * The pay-off is (Index_End / Index_Start - X) with X=0 for notional payment and X=1 for no notional payment.
  */
 public class CouponInflationZeroCouponMonthlyDefinition extends CouponInflationDefinition implements
-InstrumentDefinitionWithData<Payment, DoubleTimeSeries<ZonedDateTime>> {
+    InstrumentDefinitionWithData<Payment, DoubleTimeSeries<ZonedDateTime>> {
 
   /**
    * The reference date for the index at the coupon start. May not be relevant as the index value is known.

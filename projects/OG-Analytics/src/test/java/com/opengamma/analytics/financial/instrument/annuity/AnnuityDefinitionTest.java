@@ -8,7 +8,6 @@ package com.opengamma.analytics.financial.instrument.annuity;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
-import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
 
 import java.util.Arrays;
 
@@ -66,7 +65,7 @@ public class AnnuityDefinitionTest {
     }
     FIXED_DEFINITION = new AnnuityDefinition<PaymentFixedDefinition>(FIXED_PAYMENTS);
     FIXED_FLOAT_DEFINITION = new AnnuityDefinition<PaymentDefinition>(FIXED_FLOAT_PAYMENTS);
-    FIXING_TS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {FIXING_DATE}, new double[] {FIXING_RATE});
+    FIXING_TS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {FIXING_DATE }, new double[] {FIXING_RATE });
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -95,12 +94,12 @@ public class AnnuityDefinitionTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testConversionNullDate1() {
-    FIXED_DEFINITION.toDerivative(null, new String[] {"E", "F"});
+    FIXED_DEFINITION.toDerivative(null, new String[] {"E", "F" });
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testConversionNullDate2() {
-    FIXED_DEFINITION.toDerivative(null, FIXING_TS, new String[] {"E", "F"});
+    FIXED_DEFINITION.toDerivative(null, FIXING_TS, new String[] {"E", "F" });
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

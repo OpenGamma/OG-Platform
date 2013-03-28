@@ -6,8 +6,6 @@
 package com.opengamma.analytics.financial.instrument.bond;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
-import static org.threeten.bp.temporal.ChronoUnit.YEARS;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.Period;
@@ -61,7 +59,7 @@ public class BondIborSecurityDefinitionTest {
 
   private static final String CREDIT_CURVE_NAME = "Credit";
   private static final String DSC_CURVE_NAME = "Discounting";
-  private static final String[] CURVES_NAME = {CREDIT_CURVE_NAME, DSC_CURVE_NAME};
+  private static final String[] CURVES_NAME = {CREDIT_CURVE_NAME, DSC_CURVE_NAME };
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullMaturity() {
@@ -91,14 +89,14 @@ public class BondIborSecurityDefinitionTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testPositiveNominal() {
     final AnnuityCouponIborDefinition coupon = AnnuityCouponIborDefinition.fromAccrualUnadjusted(START_ACCRUAL_DATE, MATURITY_DATE, 1.0, IBOR_INDEX, false);
-    final AnnuityPaymentFixedDefinition nominal = new AnnuityPaymentFixedDefinition(new PaymentFixedDefinition[] {new PaymentFixedDefinition(CUR, MATURITY_DATE, -1.0)});
+    final AnnuityPaymentFixedDefinition nominal = new AnnuityPaymentFixedDefinition(new PaymentFixedDefinition[] {new PaymentFixedDefinition(CUR, MATURITY_DATE, -1.0) });
     new BondIborSecurityDefinition(nominal, coupon, 0, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, ISSUER_NAME);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testPositiveCoupon() {
     final AnnuityCouponIborDefinition coupon = AnnuityCouponIborDefinition.fromAccrualUnadjusted(START_ACCRUAL_DATE, MATURITY_DATE, 1.0, IBOR_INDEX, false);
-    final AnnuityPaymentFixedDefinition nominal = new AnnuityPaymentFixedDefinition(new PaymentFixedDefinition[] {new PaymentFixedDefinition(CUR, MATURITY_DATE, -1.0)});
+    final AnnuityPaymentFixedDefinition nominal = new AnnuityPaymentFixedDefinition(new PaymentFixedDefinition[] {new PaymentFixedDefinition(CUR, MATURITY_DATE, -1.0) });
     new BondIborSecurityDefinition(nominal, coupon, 0, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, ISSUER_NAME);
   }
 
@@ -111,7 +109,7 @@ public class BondIborSecurityDefinitionTest {
     final AnnuityCouponIborDefinition coupon = AnnuityCouponIborDefinition.fromAccrualUnadjusted(START_ACCRUAL_DATE, MATURITY_DATE, 1.0, IBOR_INDEX, false);
     assertEquals(coupon, FRN_DEFINITION.getCoupons());
     final AnnuityDefinition<PaymentFixedDefinition> nominal = new AnnuityDefinition<PaymentFixedDefinition>(new PaymentFixedDefinition[] {new PaymentFixedDefinition(CUR,
-        BUSINESS_DAY.adjustDate(CALENDAR, MATURITY_DATE), 1.0)});
+        BUSINESS_DAY.adjustDate(CALENDAR, MATURITY_DATE), 1.0) });
     assertEquals(nominal.getCurrency(), FRN_DEFINITION.getNominal().getCurrency());
     assertEquals(nominal.getNthPayment(0).getPaymentDate(), FRN_DEFINITION.getNominal().getNthPayment(0).getPaymentDate());
     assertEquals(nominal.getNthPayment(0).getReferenceAmount(), FRN_DEFINITION.getNominal().getNthPayment(0).getReferenceAmount());
@@ -148,7 +146,7 @@ public class BondIborSecurityDefinitionTest {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 8, 16);
     final ZonedDateTime settlementDate = ScheduleCalculator.getAdjustedDate(referenceDate, SETTLEMENT_DAYS, CALENDAR);
     final DoubleTimeSeries<ZonedDateTime> fixingUSDLibor3M = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 7, 11),
-        DateUtils.getUTCDate(2011, 7, 12), DateUtils.getUTCDate(2011, 7, 13), DateUtils.getUTCDate(2011, 8, 16)}, new double[] {0.01, 0.05, 0.05, 0.05});
+        DateUtils.getUTCDate(2011, 7, 12), DateUtils.getUTCDate(2011, 7, 13), DateUtils.getUTCDate(2011, 8, 16) }, new double[] {0.01, 0.05, 0.05, 0.05 });
     final BondIborSecurity frn = FRN_DEFINITION.toDerivative(referenceDate, fixingUSDLibor3M, CURVES_NAME);
     final AnnuityPaymentFixed nominal = ((AnnuityPaymentFixedDefinition) FRN_DEFINITION.getNominal()).toDerivative(referenceDate, CURVES_NAME[0]);
     @SuppressWarnings("unchecked")

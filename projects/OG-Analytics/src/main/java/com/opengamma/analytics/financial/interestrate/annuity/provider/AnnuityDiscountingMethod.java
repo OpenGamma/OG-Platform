@@ -7,7 +7,7 @@ package com.opengamma.analytics.financial.interestrate.annuity.provider;
 
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
-import com.opengamma.analytics.financial.interestrate.payments.provider.CouponFixedDiscountingProviderMethod;
+import com.opengamma.analytics.financial.interestrate.payments.provider.CouponFixedDiscountingMethod;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.CurrencyAmount;
@@ -40,7 +40,7 @@ public final class AnnuityDiscountingMethod {
   /**
    * Methods.
    */
-  private static final CouponFixedDiscountingProviderMethod METHOD_CPN_FIXED = CouponFixedDiscountingProviderMethod.getInstance();
+  private static final CouponFixedDiscountingMethod METHOD_CPN_FIXED = CouponFixedDiscountingMethod.getInstance();
 
   /**
    * Computes the present value of an annuity of fixed coupons.

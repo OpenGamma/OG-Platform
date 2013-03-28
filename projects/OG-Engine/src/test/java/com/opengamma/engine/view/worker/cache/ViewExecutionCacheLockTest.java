@@ -12,13 +12,14 @@ import java.util.concurrent.locks.Lock;
 
 import org.mockito.Mockito;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.view.ViewDefinition;
-import com.opengamma.engine.view.worker.cache.ViewExecutionCacheKey;
-import com.opengamma.engine.view.worker.cache.ViewExecutionCacheLock;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.test.TestGroup;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Tests the {@link ViewExecutionCacheLock} class.
@@ -36,7 +37,7 @@ public class ViewExecutionCacheLockTest {
     return mock;
   }
 
-  public void testOperation() {
+  public void testBroadLock() {
     final ViewExecutionCacheLock locks1 = new ViewExecutionCacheLock();
     final ViewExecutionCacheLock locks2 = new ViewExecutionCacheLock();
     final ViewExecutionCacheKey keyA = ViewExecutionCacheKey.of(viewDefinition(), marketDataProvider("A"));
@@ -51,6 +52,38 @@ public class ViewExecutionCacheLockTest {
     assertNotSame(lockB1, lockB2);
     assertSame(locks1.get(keyA), lockA1);
     assertSame(locks1.get(keyB), lockB1);
+  }
+
+  public void testFinerLock() {
+    final ViewExecutionCacheLock locks = new ViewExecutionCacheLock();
+    final ViewExecutionCacheKey keyA = ViewExecutionCacheKey.of(viewDefinition(), marketDataProvider("A"));
+    final ViewExecutionCacheKey keyB = ViewExecutionCacheKey.of(viewDefinition(), marketDataProvider("B"));
+    final Instant valuationTimeA = Instant.now();
+    final Instant valuationTimeB = valuationTimeA.plusSeconds(100);
+    final VersionCorrection resolverVersionCorrectionA = VersionCorrection.of(valuationTimeA.minusSeconds(1), valuationTimeA.minusSeconds(2));
+    final VersionCorrection resolverVersionCorrectionB = VersionCorrection.of(valuationTimeA.minusSeconds(3), valuationTimeA.minusSeconds(3));
+    @SuppressWarnings("unchecked")
+    final Pair<Lock, Lock>[] ls = new Pair[] {locks.get(keyA, valuationTimeA, resolverVersionCorrectionA),
+        locks.get(keyA, valuationTimeA, resolverVersionCorrectionB),
+        locks.get(keyA, valuationTimeB, resolverVersionCorrectionA),
+        locks.get(keyA, valuationTimeB, resolverVersionCorrectionB),
+        locks.get(keyB, valuationTimeA, resolverVersionCorrectionA),
+        locks.get(keyB, valuationTimeA, resolverVersionCorrectionB),
+        locks.get(keyB, valuationTimeB, resolverVersionCorrectionA),
+        locks.get(keyB, valuationTimeB, resolverVersionCorrectionB) };
+    for (int i = 0; i < 8; i++) {
+      for (int j = 0; j < 8; j++) {
+        if ((i < 4) == (j < 4)) {
+          assertSame(ls[j].getFirst(), ls[i].getFirst());
+        } else {
+          assertNotSame(ls[j].getFirst(), ls[i].getFirst());
+        }
+        if (i != j) {
+          assertNotSame(ls[j].getSecond(), ls[i].getSecond());
+        }
+      }
+    }
+    assertSame(locks.get(keyA, valuationTimeA, resolverVersionCorrectionB).getSecond(), ls[1].getSecond());
   }
 
 }

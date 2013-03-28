@@ -24,6 +24,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
+import com.opengamma.financial.analytics.model.forex.ConventionBasedFXRateFunction;
 import com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityPDEFunction;
 import com.opengamma.financial.analytics.model.volatility.local.LocalVolatilitySurfacePropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.volatility.local.LocalVolatilitySurfaceUtils;
@@ -33,7 +34,6 @@ import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
-import com.opengamma.util.money.UnorderedCurrencyPair;
 
 /**
  *
@@ -98,7 +98,7 @@ public class FXOptionLocalVolatilityForwardPDEPresentValueFunction extends Abstr
   private ValueRequirement getSpotRequirement(final FXOptionSecurity fxOption) {
     final Currency putCurrency = fxOption.getPutCurrency();
     final Currency callCurrency = fxOption.getCallCurrency();
-    return new ValueRequirement(ValueRequirementNames.SPOT_RATE, ComputationTargetType.UNORDERED_CURRENCY_PAIR.specification(UnorderedCurrencyPair.of(callCurrency, putCurrency)));
+    return ConventionBasedFXRateFunction.getSpotRateRequirement(callCurrency, putCurrency);
   }
 
   private ValueRequirement getPriceRequirement(final ComputationTarget target, final ValueRequirement desiredValue) {

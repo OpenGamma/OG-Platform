@@ -22,9 +22,15 @@ import com.opengamma.util.money.Currency;
  */
 public class SyntheticPortfolioGeneratorTool extends AbstractPortfolioGeneratorTool {
 
+  @Override
   protected void configureChain(final SecurityGenerator<?> securityGenerator) {
     super.configureChain(securityGenerator);
     securityGenerator.setCurrencyCurveName("SECONDARY");
+    securityGenerator.setCurveCalculationConfig(Currency.CHF, "DefaultTwoCurveCHFConfig");
+    securityGenerator.setCurveCalculationConfig(Currency.EUR, "DefaultTwoCurveEURConfig");
+    securityGenerator.setCurveCalculationConfig(Currency.GBP, "DefaultTwoCurveGBPConfig");
+    securityGenerator.setCurveCalculationConfig(Currency.JPY, "DefaultTwoCurveJPYConfig");
+    securityGenerator.setCurveCalculationConfig(Currency.USD, "DefaultTwoCurveUSDConfig");
     securityGenerator.setPreferredScheme(ExternalSchemes.OG_SYNTHETIC_TICKER);
     securityGenerator.setSpotRateIdentifier(new Function2<Currency, Currency, ExternalId>() {
       @Override
