@@ -85,13 +85,13 @@ public abstract class ObjectTimeSeriesTest<E, T> {
     }    
   }
   
-  public ObjectTimeSeries<E, T> createStandardTimeSeries() {
+  protected ObjectTimeSeries<E, T> createStandardTimeSeries() {
     E[] times = testTimes();
     T[] values = testValues();
     return createTimeSeries(times, values);
   }
   
-  public ObjectTimeSeries<E, T> createStandardTimeSeries2() {
+  protected ObjectTimeSeries<E, T> createStandardTimeSeries2() {
     E[] times = testTimes2();
     T[] values = testValues();
     return createTimeSeries(times, values);

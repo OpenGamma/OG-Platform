@@ -14,7 +14,7 @@ import com.opengamma.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 /**
  * Test to check performance.
  */
-@Test(enabled = true)
+@Test(enabled = false)
 public class TimeSeriesPerformanceTest {
 
   private static final int SMALL = 10;
