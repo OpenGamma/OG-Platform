@@ -41,7 +41,6 @@ $.register_module({
                     if(data.security.length) return;
                 });
                 form.on('form:submit', function (result){
-                    console.log(result);
                     $.when(config.handler(result.data)).then(validate);
                 });
             };
