@@ -26,16 +26,18 @@ import com.opengamma.livedata.UserPrincipal;
 public class BatchDbViewResultListener implements ViewResultListener {
 
   private final BatchRunWriter _batchRunWriter;
+  private final UserPrincipal _user;
   
   private RiskRun _riskRun;
 
-  public BatchDbViewResultListener(BatchRunWriter batchRunWriter) {
+  public BatchDbViewResultListener(BatchRunWriter batchRunWriter, UserPrincipal user) {
     _batchRunWriter = batchRunWriter;
+    _user = user;
   }
 
   @Override
   public UserPrincipal getUser() {
-    return null;
+    return _user;
   }
 
   @Override

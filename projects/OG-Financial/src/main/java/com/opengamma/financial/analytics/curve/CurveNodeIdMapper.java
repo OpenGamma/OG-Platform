@@ -19,6 +19,7 @@ import org.threeten.bp.LocalDate;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.config.Config;
 import com.opengamma.financial.analytics.ircurve.CurveInstrumentProvider;
 import com.opengamma.financial.fudgemsg.CurveSpecificationBuilderConfigurationFudgeBuilder;
 import com.opengamma.id.ExternalId;
@@ -27,6 +28,7 @@ import com.opengamma.util.time.Tenor;
 /**
  * 
  */
+@Config
 public class CurveNodeIdMapper {
   public static final List<String> s_curveIdMapperNames = getCurveIdMapperNames();
 

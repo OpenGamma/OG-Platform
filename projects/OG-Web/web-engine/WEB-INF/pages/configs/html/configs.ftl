@@ -9,8 +9,8 @@
   	<@rowin label="Type">
       <select name="type">
       	<option value="" <#if type = ''>selected</#if>></option>
-      	<#list typeMap?keys as key>
-    		<option value="${key}" <#if type = '${key}'>selected</#if>>${key}</option>
+      	<#list configTypes as configType>
+    		<option value="${configType}" <#if type = '${configType}'>selected</#if>>${configType}</option>
 		</#list>
       </select>
     </@rowin>

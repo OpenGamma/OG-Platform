@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.language.external;
+package com.opengamma.util.annotation;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
@@ -20,10 +20,12 @@ import org.threeten.bp.Instant;
 import com.opengamma.util.test.TestGroup;
 
 /**
- * Tests the {@link ExternalFunctionCache} class.
+ * Tests the {@link AnnotationCache} class.
  */
 @Test(groups = TestGroup.UNIT)
-public class ExternalFunctionCacheTest {
+public class AnnotationCacheTest {
+
+  private static final String CACHE_FILE_NAME = ".TestAnnotation";
 
   private File createTempFolder() {
     final File tmp = new File(System.getProperty("java.io.tmpdir"));
@@ -37,8 +39,8 @@ public class ExternalFunctionCacheTest {
   public void testLoadMissing() {
     final File temp = createTempFolder();
     try {
-      System.setProperty(ExternalFunctionCache.CACHE_PATH_PROPERTY, temp.toString());
-      final ExternalFunctionCache cache = ExternalFunctionCache.load();
+      System.setProperty(AnnotationCache.CACHE_PATH_PROPERTY, temp.toString());
+      final AnnotationCache cache = AnnotationCache.load(MockType.class);
       assertNotNull(cache);
       assertEquals(cache.getTimestamp(), Instant.EPOCH);
     } finally {
@@ -49,18 +51,18 @@ public class ExternalFunctionCacheTest {
   public void testSaveAndLoad() {
     final File temp = createTempFolder();
     try {
-      System.setProperty(ExternalFunctionCache.CACHE_PATH_PROPERTY, temp.toString());
+      System.setProperty(AnnotationCache.CACHE_PATH_PROPERTY, temp.toString());
       final Instant ts = Instant.now();
-      ExternalFunctionCache cache = ExternalFunctionCache.create(ts, Arrays.asList(ExternalFunctionCacheTest.class.getName()));
+      AnnotationCache cache = AnnotationCache.create(ts, MockType.class, Arrays.asList(AnnotationCacheTest.class.getName()));
       cache.save();
       try {
-        assertTrue(new File(temp, ExternalFunctionCache.CACHE_FILE_NAME).exists());
-        cache = ExternalFunctionCache.load();
+        assertTrue(new File(temp, CACHE_FILE_NAME).exists());
+        cache = AnnotationCache.load(MockType.class);
         assertEquals(cache.getTimestamp(), ts);
         assertEquals(cache.getClassNames().size(), 1);
-        assertEquals(cache.getClassNames().iterator().next(), ExternalFunctionCacheTest.class.getName());
+        assertEquals(cache.getClassNames().iterator().next(), AnnotationCacheTest.class.getName());
       } finally {
-        new File(temp, ExternalFunctionCache.CACHE_FILE_NAME).delete();
+        new File(temp, CACHE_FILE_NAME).delete();
       }
     } finally {
       temp.delete();
@@ -68,10 +70,10 @@ public class ExternalFunctionCacheTest {
   }
 
   public void testGetClasses() throws ClassNotFoundException {
-    final ExternalFunctionCache cache = ExternalFunctionCache.create(Instant.now(), Arrays.asList(ExternalFunctionCacheTest.class.getName()));
+    final AnnotationCache cache = AnnotationCache.create(Instant.now(), MockType.class, Arrays.asList(AnnotationCacheTest.class.getName()));
     final Collection<Class<?>> classes = cache.getClasses();
     assertEquals(classes.size(), 1);
-    assertEquals(classes.iterator().next(), ExternalFunctionCacheTest.class);
+    assertEquals(classes.iterator().next(), AnnotationCacheTest.class);
   }
 
 }
