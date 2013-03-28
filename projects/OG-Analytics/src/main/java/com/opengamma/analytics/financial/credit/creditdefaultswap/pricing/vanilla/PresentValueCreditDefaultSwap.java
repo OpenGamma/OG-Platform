@@ -248,7 +248,7 @@ public class PresentValueCreditDefaultSwap {
 
         // TODO : Check endDate > startDate
 
-        final ZonedDateTime[] truncatedDateList = accruedSchedule.getTruncatedTimeLine(accruedLegIntegrationSchedule, offsetAccStartDate, offsetAccEndDate);
+        final ZonedDateTime[] truncatedDateList = accruedSchedule.getTruncatedTimeLineDeprecated(accruedLegIntegrationSchedule, offsetAccStartDate, offsetAccEndDate);
 
         ZonedDateTime subStartDate;
 
