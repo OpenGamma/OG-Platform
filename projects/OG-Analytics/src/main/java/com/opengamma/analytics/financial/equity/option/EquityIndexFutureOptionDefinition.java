@@ -161,8 +161,14 @@ public class EquityIndexFutureOptionDefinition implements InstrumentDefinition<E
       // The intended behaviour is that an option is still alive on the expiry date
       timeToExpiry = 0.0015; // Approximately half a day
     } 
-    final double timeToFutureFixing = TimeCalculator.getTimeBetween(date, _underlying.getExpiryDate());
-    final double timeToFutureDelivery = TimeCalculator.getTimeBetween(date, _underlying.getSettlementDate());
+    double timeToFutureFixing = TimeCalculator.getTimeBetween(date, _underlying.getExpiryDate());
+    if (timeToFutureFixing == 0) {
+      timeToFutureFixing = 0.0015;
+    } 
+    double timeToFutureDelivery = TimeCalculator.getTimeBetween(date, _underlying.getSettlementDate());
+    if (timeToFutureDelivery == 0) {
+      timeToFutureDelivery = 0.0015;
+    } 
     final double futureStrike = _underlying.getStrikePrice();
     final Currency currency = _underlying.getCurrency();
     final double unitValue = _underlying.getUnitAmount();

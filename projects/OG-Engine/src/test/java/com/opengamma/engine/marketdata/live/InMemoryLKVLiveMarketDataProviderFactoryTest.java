@@ -13,25 +13,26 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.engine.marketdata.MarketDataProvider;
+import com.opengamma.engine.marketdata.MarketDataProviderFactory;
 import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.test.TestGroup;
 
 @Test(groups = TestGroup.UNIT)
-public class LiveMarketDataProviderFactoryTest {
+public class InMemoryLKVLiveMarketDataProviderFactoryTest {
 
-  private final LiveMarketDataProviderFactory _factory;
+  private final MarketDataProviderFactory _factory;
   private final LiveMarketDataProvider _defaultProvider;
   private final LiveMarketDataProvider _provider1;
   private final LiveMarketDataProvider _provider2;
   private final UserPrincipal _user;
 
-  public LiveMarketDataProviderFactoryTest() {
+  public InMemoryLKVLiveMarketDataProviderFactoryTest() {
     _user = UserPrincipal.getLocalUser();
     LiveDataFactory defaultFactory = mock(LiveDataFactory.class);
     LiveDataFactory factory1 = mock(LiveDataFactory.class);
     LiveDataFactory factory2 = mock(LiveDataFactory.class);
-    _factory = new LiveMarketDataProviderFactory(defaultFactory, ImmutableMap.of("1", factory1, "2", factory2));
+    _factory = new InMemoryLKVLiveMarketDataProviderFactory(defaultFactory, ImmutableMap.of("1", factory1, "2", factory2));
     _defaultProvider = mock(LiveMarketDataProvider.class);
     stub(defaultFactory.create(_user)).toReturn(_defaultProvider);
     _provider1 = mock(LiveMarketDataProvider.class);

@@ -8,8 +8,6 @@ package com.opengamma.analytics.financial.instrument.future;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
-import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
-import static org.threeten.bp.temporal.ChronoUnit.YEARS;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.Period;
@@ -46,12 +44,12 @@ public class BondFutureDefinitionTest {
   private static final YieldConvention YIELD_CONVENTION = YieldConventionFactory.INSTANCE.getYieldConvention("STREET CONVENTION");
   private static final int NB_BOND = 7;
   private static final Period[] BOND_TENOR = new Period[] {Period.ofYears(5), Period.ofYears(5), Period.ofYears(5), Period.ofYears(8), Period.ofYears(5),
-      Period.ofYears(5), Period.ofYears(5)};
+      Period.ofYears(5), Period.ofYears(5) };
   private static final ZonedDateTime[] START_ACCRUAL_DATE = new ZonedDateTime[] {DateUtils.getUTCDate(2010, 11, 30), DateUtils.getUTCDate(2010, 12, 31),
       DateUtils.getUTCDate(2011, 1, 31), DateUtils.getUTCDate(2008, 2, 29), DateUtils.getUTCDate(2011, 3, 31), DateUtils.getUTCDate(2011, 4, 30),
-      DateUtils.getUTCDate(2011, 5, 31)};
-  private static final double[] RATE = new double[] {0.01375, 0.02125, 0.0200, 0.02125, 0.0225, 0.0200, 0.0175};
-  private static final double[] CONVERSION_FACTOR = new double[] {.8317, .8565, .8493, .8516, .8540, .8417, .8292};
+      DateUtils.getUTCDate(2011, 5, 31) };
+  private static final double[] RATE = new double[] {0.01375, 0.02125, 0.0200, 0.02125, 0.0225, 0.0200, 0.0175 };
+  private static final double[] CONVERSION_FACTOR = new double[] {.8317, .8565, .8493, .8516, .8540, .8417, .8292 };
   private static final ZonedDateTime[] MATURITY_DATE = new ZonedDateTime[NB_BOND];
   private static final BondFixedSecurityDefinition[] BASKET_DEFINITION = new BondFixedSecurityDefinition[NB_BOND];
   static {
@@ -141,7 +139,7 @@ public class BondFutureDefinitionTest {
     assertFalse(FUTURE_DEFINITION.equals(modifiedFuture));
     modifiedFuture = new BondFutureDefinition(LAST_TRADING_DATE, FIRST_NOTICE_DATE, LAST_NOTICE_DATE, NOTIONAL + 100000, BASKET_DEFINITION, CONVERSION_FACTOR);
     assertFalse(FUTURE_DEFINITION.equals(modifiedFuture));
-    final double[] otherConversionFactor = new double[] {.9000, .8565, .8493, .8516, .8540, .8417, .8292};
+    final double[] otherConversionFactor = new double[] {.9000, .8565, .8493, .8516, .8540, .8417, .8292 };
     modifiedFuture = new BondFutureDefinition(LAST_TRADING_DATE, FIRST_NOTICE_DATE, LAST_NOTICE_DATE, NOTIONAL, BASKET_DEFINITION, otherConversionFactor);
     assertFalse(FUTURE_DEFINITION.equals(modifiedFuture));
     final BondFixedSecurityDefinition[] otherBasket = new BondFixedSecurityDefinition[NB_BOND];
@@ -171,7 +169,7 @@ public class BondFutureDefinitionTest {
     final double lastDeliveryTime = actAct.getDayCountFraction(referenceDate, lastDeliveryDate);
     final String creditCruveName = "Credit";
     final String repoCurveName = "Repo";
-    final String[] curvesName = {creditCruveName, repoCurveName};
+    final String[] curvesName = {creditCruveName, repoCurveName };
     final BondFixedSecurity[] basket = new BondFixedSecurity[NB_BOND];
     for (int loopbasket = 0; loopbasket < NB_BOND; loopbasket++) {
       basket[loopbasket] = BASKET_DEFINITION[loopbasket].toDerivative(referenceDate, lastDeliveryDate, curvesName);

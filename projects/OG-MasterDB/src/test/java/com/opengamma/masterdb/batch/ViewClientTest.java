@@ -58,7 +58,7 @@ public class ViewClientTest {
   @BeforeMethod
   public void setUp() throws Exception {
     initMocks(this);
-    when(viewResultListenerFactoryStub.createViewResultListener()).thenReturn(viewResultListenerMock);
+    when(viewResultListenerFactoryStub.createViewResultListener(ViewProcessorTestEnvironment.TEST_USER)).thenReturn(viewResultListenerMock);
   }
 
   @Test

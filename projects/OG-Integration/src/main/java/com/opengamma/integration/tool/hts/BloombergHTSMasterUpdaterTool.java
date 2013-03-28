@@ -3,19 +3,24 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.bbg.tool;
+package com.opengamma.integration.tool.hts;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.threeten.bp.LocalDate;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.BloombergIdentifierProvider;
 import com.opengamma.bbg.loader.hts.BloombergHTSMasterUpdater;
+import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.component.tool.AbstractTool;
-import com.opengamma.financial.tool.ToolContext;
+import com.opengamma.integration.tool.IntegrationToolContext;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
+import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProvider;
 import com.opengamma.util.generate.scripts.Scriptable;
 import com.opengamma.util.time.DateUtils;
 
@@ -25,8 +30,10 @@ import com.opengamma.util.time.DateUtils;
  * This loads missing historical time-series data from Bloomberg.
  */
 @Scriptable
-public class BloombergHTSMasterUpdaterTool extends AbstractTool<ToolContext> {
-
+public class BloombergHTSMasterUpdaterTool extends AbstractTool<IntegrationToolContext> {
+  
+  private static final Logger s_logger = LoggerFactory.getLogger(BloombergHTSMasterUpdaterTool.class);
+  
   /** Command line option. */
   private static final String RELOAD_OPTION = "reload";
   /** Command line option. */
@@ -48,17 +55,30 @@ public class BloombergHTSMasterUpdaterTool extends AbstractTool<ToolContext> {
    * @param args the command line arguments
    */
   public static void main(String[] args) {   // CSIGNORE
-    boolean success = new BloombergHTSMasterUpdaterTool().initAndRun(args, ToolContext.class);
+    boolean success = new BloombergHTSMasterUpdaterTool().initAndRun(args, IntegrationToolContext.class);
     System.exit(success ? 0 : 1);
   }
 
   //-------------------------------------------------------------------------
   @Override
   protected void doRun() throws Exception {
-    BloombergHTSMasterUpdater loader = new BloombergHTSMasterUpdater(
-        getToolContext().getHistoricalTimeSeriesMaster(),
-        getToolContext().getHistoricalTimeSeriesProvider(),
-        new BloombergIdentifierProvider(((BloombergToolContext) getToolContext()).getBloombergReferenceDataProvider()));
+    final HistoricalTimeSeriesMaster historicalTimeSeriesMaster = getToolContext().getHistoricalTimeSeriesMaster();
+    if (historicalTimeSeriesMaster == null) {
+      s_logger.warn("Historical timeseries master is missing in toolContext");
+      return;
+    }
+    HistoricalTimeSeriesProvider historicalTimeSeriesProvider = getToolContext().getHistoricalTimeSeriesProvider();
+    if (historicalTimeSeriesProvider == null) {
+      s_logger.warn("Historical timeseries provider is missing in toolContext");
+      return;
+    }
+    ReferenceDataProvider bloombergReferenceDataProvider = getToolContext().getBloombergReferenceDataProvider();
+    if (bloombergReferenceDataProvider == null) {
+      s_logger.warn("Bloomberg reference data provider is missing in toolContext");
+      return;
+    }
+    
+    BloombergHTSMasterUpdater loader = new BloombergHTSMasterUpdater(historicalTimeSeriesMaster, historicalTimeSeriesProvider, new BloombergIdentifierProvider(bloombergReferenceDataProvider));
     configureOptions(getCommandLine(), loader);
     
     loader.run();

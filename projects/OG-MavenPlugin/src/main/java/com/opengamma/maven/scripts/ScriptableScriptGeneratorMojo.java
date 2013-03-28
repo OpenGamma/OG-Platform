@@ -31,7 +31,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.opengamma.maven.MojoUtils;
 import com.opengamma.util.ClasspathUtils;
-import com.opengamma.util.annotation.ClassNameAnnotationScanner;
+import com.opengamma.util.annotation.ClassNameAnnotationScannerUtils;
 import com.opengamma.util.generate.scripts.Scriptable;
 import com.opengamma.util.generate.scripts.ScriptsGenerator;
 
@@ -112,7 +112,7 @@ public class ScriptableScriptGeneratorMojo extends AbstractMojo {
       throw new MojoExecutionException("Error obtaining dependencies", e);
     }
     URL[] classpathUrls = ClasspathUtils.getClasspathURLs(classpathElementList);
-    Set<String> annotationClasses = ClassNameAnnotationScanner.scan(classpathUrls, Scriptable.class.getName());
+    Set<String> annotationClasses = ClassNameAnnotationScannerUtils.scan(classpathUrls, Scriptable.class.getName());
     getLog().info("Generating " + annotationClasses.size() + " scripts");
     
     ClassLoader classLoader = new URLClassLoader(classpathUrls, this.getClass().getClassLoader());

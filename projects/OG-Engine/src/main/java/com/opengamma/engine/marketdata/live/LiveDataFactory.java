@@ -32,6 +32,6 @@ public class LiveDataFactory {
   }
 
   /* package */LiveMarketDataProvider create(final UserPrincipal user) {
-    return new LiveMarketDataProvider(_liveDataClient, _availabilityFilter, user);
+    return new InMemoryLKVLiveMarketDataProvider(_liveDataClient, _availabilityFilter, user);
   }
 }

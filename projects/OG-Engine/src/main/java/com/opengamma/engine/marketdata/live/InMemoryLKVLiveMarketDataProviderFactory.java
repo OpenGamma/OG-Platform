@@ -18,12 +18,12 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Factory for {@link MarketDataProvider}s backed by live data.
  */
-public class LiveMarketDataProviderFactory implements MarketDataProviderFactory {
+public class InMemoryLKVLiveMarketDataProviderFactory implements MarketDataProviderFactory {
 
   private final LiveDataFactory _defaultFactory;
   private final Map<String, LiveDataFactory> _namedFactories;
 
-  public LiveMarketDataProviderFactory(LiveDataFactory defaultFactory, Map<String, LiveDataFactory> namedFactories) {
+  public InMemoryLKVLiveMarketDataProviderFactory(LiveDataFactory defaultFactory, Map<String, LiveDataFactory> namedFactories) {
     ArgumentChecker.notNull(defaultFactory, "defaultFactory");
     ArgumentChecker.notNull(namedFactories, "namedFactories");
     _defaultFactory = defaultFactory;

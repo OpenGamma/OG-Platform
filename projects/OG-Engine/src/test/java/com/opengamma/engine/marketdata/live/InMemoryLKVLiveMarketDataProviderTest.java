@@ -37,7 +37,7 @@ import com.opengamma.util.test.TestGroup;
  * Test LiveDataSnapshotProvider.
  */
 @Test(groups = TestGroup.UNIT)
-public class LiveMarketDataProviderTest {
+public class InMemoryLKVLiveMarketDataProviderTest {
 
   private static final String _marketDataRequirement = MarketDataRequirementNames.MARKET_VALUE;
 
@@ -63,7 +63,7 @@ public class LiveMarketDataProviderTest {
     availabilityProvider.addAvailableData(getTicker("test1"), constructSpecification("test1"));
     availabilityProvider.addAvailableData(getTicker("test2"), constructSpecification("test2"));
     availabilityProvider.addAvailableData(getTicker("test3"), constructSpecification("test3"));
-    final LiveMarketDataProvider provider = new LiveMarketDataProvider(client, availabilityProvider.getAvailabilityFilter(), UserPrincipal.getTestUser());
+    final LiveMarketDataProvider provider = new InMemoryLKVLiveMarketDataProvider(client, availabilityProvider.getAvailabilityFilter(), UserPrincipal.getTestUser());
     final ValueSpecification test1Specification = provider.getAvailabilityProvider(MarketData.live()).getAvailability(constructTargetSpec("test1"), getTicker("test1"), constructRequirement("test1"));
     final ValueSpecification test2Specification = provider.getAvailabilityProvider(MarketData.live()).getAvailability(constructTargetSpec("test2"), getTicker("test2"), constructRequirement("test2"));
     final ValueSpecification test3Specification = provider.getAvailabilityProvider(MarketData.live()).getAvailability(constructTargetSpec("test3"), getTicker("test3"), constructRequirement("test3"));

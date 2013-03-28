@@ -16,6 +16,8 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.lang.annotation.ExternalFunction;
 import com.opengamma.language.function.AbstractFunctionProvider;
 import com.opengamma.language.function.MetaFunction;
+import com.opengamma.util.annotation.AnnotationCache;
+import com.opengamma.util.annotation.ClasspathScanner;
 
 /**
  * Creates and exposes functions based on methods that are annotated with
@@ -29,7 +31,7 @@ public class ExternalFunctionProvider extends AbstractFunctionProvider {
   private List<MetaFunction> _functions;
 
   private static List<MetaFunction> functions() {
-    ExternalFunctionCache cache = ExternalFunctionCache.load();
+    AnnotationCache cache = AnnotationCache.load(ExternalFunction.class);
     final ClasspathScanner scanner = new ClasspathScanner();
     if (!scanner.getTimestamp().isAfter(cache.getTimestamp())) {
       s_logger.info("Loading external functions from cache");
@@ -40,7 +42,13 @@ public class ExternalFunctionProvider extends AbstractFunctionProvider {
       s_logger.warn("One or more errors loading functions from cache");
     }
     s_logger.info("Scanning class path for annotated external functions");
-    cache = scanner.scan();
+    
+    scanner.setScanClassAnnotations(false);
+    scanner.setScanMethodAnnotations(true);
+    scanner.setScanFieldAnnotations(false);
+    scanner.setScanParameterAnnotations(false);
+    
+    cache = scanner.scan(ExternalFunction.class);
     final List<MetaFunction> functions = createFunctions(cache);
     if (functions != null) {
       cache.save();
@@ -68,7 +76,7 @@ public class ExternalFunctionProvider extends AbstractFunctionProvider {
     return false;
   }
 
-  private static List<MetaFunction> createFunctions(final ExternalFunctionCache cache) {
+  private static List<MetaFunction> createFunctions(final AnnotationCache cache) {
     final List<MetaFunction> functions = new ArrayList<MetaFunction>();
     for (final Class<?> clazz : cache.getClasses()) {
       if (isExcludeTests() && isTestClass(clazz)) {

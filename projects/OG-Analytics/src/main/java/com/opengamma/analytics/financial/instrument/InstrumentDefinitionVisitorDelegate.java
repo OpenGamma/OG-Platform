@@ -49,6 +49,7 @@ import com.opengamma.analytics.financial.instrument.future.BondFutureDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFutureOptionPremiumSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFutureOptionPremiumTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.DeliverableSwapFuturesSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.future.DeliverableSwapFuturesTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.FederalFundsFutureSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.FederalFundsFutureTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureOptionMarginSecurityDefinition;
@@ -287,6 +288,16 @@ public class InstrumentDefinitionVisitorDelegate<DATA_TYPE, RESULT_TYPE> impleme
   @Override
   public RESULT_TYPE visitDeliverableSwapFuturesSecurityDefinition(final DeliverableSwapFuturesSecurityDefinition futures) {
     return _delegate.visitDeliverableSwapFuturesSecurityDefinition(futures);
+  }
+
+  @Override
+  public RESULT_TYPE visitDeliverableSwapFuturesTransactionDefinition(final DeliverableSwapFuturesTransactionDefinition futures, final DATA_TYPE data) {
+    return _delegate.visitDeliverableSwapFuturesTransactionDefinition(futures, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitDeliverableSwapFuturesTransactionDefinition(final DeliverableSwapFuturesTransactionDefinition futures) {
+    return _delegate.visitDeliverableSwapFuturesTransactionDefinition(futures);
   }
 
   @Override

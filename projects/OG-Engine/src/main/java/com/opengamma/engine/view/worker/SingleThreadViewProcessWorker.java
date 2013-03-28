@@ -164,7 +164,6 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
 
   private static final long NANOS_PER_MILLISECOND = 1000000;
   private static final long MARKET_DATA_SUBSCRIPTION_TIMEOUT_MILLIS = 10000;
-  private static final long AWAIT_MARKET_DATA_TIMEOUT_MILLIS = 60000;
 
   private final ViewProcessWorkerContext _context;
   private final ViewExecutionOptions _executionOptions;
@@ -444,7 +443,9 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
       setMarketDataSubscriptions(compiledViewDefinition.getMarketDataRequirements());
       try {
         if (getExecutionOptions().getFlags().contains(ViewExecutionFlags.AWAIT_MARKET_DATA)) {
-          marketDataSnapshot.init(compiledViewDefinition.getMarketDataRequirements(), AWAIT_MARKET_DATA_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
+          // REVIEW jonathan/andrew -- 2013-03-28 -- if the user wants to wait for market data, then assume they mean
+          // it and wait as long as it takes. There are mechanisms for cancelling the job.
+          marketDataSnapshot.init(compiledViewDefinition.getMarketDataRequirements(), Long.MAX_VALUE, TimeUnit.MILLISECONDS);
         } else {
           marketDataSnapshot.init();
         }

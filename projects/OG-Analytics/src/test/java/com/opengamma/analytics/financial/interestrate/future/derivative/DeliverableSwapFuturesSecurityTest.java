@@ -6,7 +6,6 @@
 package com.opengamma.analytics.financial.interestrate.future.derivative;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.threeten.bp.temporal.ChronoUnit.YEARS;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.Period;
@@ -40,7 +39,7 @@ public class DeliverableSwapFuturesSecurityTest {
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2012, 9, 21);
   private static final String DSC_CURVE_NAME = "USD Discounting";
   private static final String FWD3_CURVE_NAME = "USD Forward 3M";
-  private static final String[] CURVE_NAMES = {DSC_CURVE_NAME, FWD3_CURVE_NAME};
+  private static final String[] CURVE_NAMES = {DSC_CURVE_NAME, FWD3_CURVE_NAME };
   private static final SwapFixedCoupon<? extends Coupon> SWAP = SWAP_DEFINITION.toDerivative(REFERENCE_DATE, CURVE_NAMES);
   private static final double LAST_TRADING_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, LAST_TRADING_DATE);
   private static final double EFFECTIVE_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, EFFECTIVE_DATE);
