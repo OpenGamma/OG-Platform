@@ -35,6 +35,9 @@ import com.opengamma.timeseries.fast.longint.object.FastLongObjectTimeSeries;
  */
 public class FastMapIntObjectTimeSeries<T> extends AbstractFastMutableIntObjectTimeSeries<T> {
 
+  /** Serialization version. */
+  private static final long serialVersionUID = 1010700154663725246L;
+
   private Int2ObjectSortedMap<T> _map = new Int2ObjectAVLTreeMap<T>();
   private final T _defaultReturnValue = _map.defaultReturnValue();
 
@@ -88,6 +91,7 @@ public class FastMapIntObjectTimeSeries<T> extends AbstractFastMutableIntObjectT
     _map.putAll(initialMap);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public int getEarliestTimeFast() {
     return _map.firstIntKey();
@@ -106,6 +110,21 @@ public class FastMapIntObjectTimeSeries<T> extends AbstractFastMutableIntObjectT
   @Override
   public T getLatestValueFast() {
     return _map.get(_map.lastIntKey());
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public boolean containsTime(Integer time) {
+    return _map.get(time) != _defaultReturnValue;
+  }
+
+  @Override
+  public T getValueFast(final int time) {
+    T value = _map.get(time);
+    if (value == _defaultReturnValue) {
+      throw new NoSuchElementException();
+    }
+    return value;
   }
 
   @Override
@@ -128,15 +147,7 @@ public class FastMapIntObjectTimeSeries<T> extends AbstractFastMutableIntObjectT
     return _map.get(iterator.nextInt());
   }
 
-  @Override
-  public T getValueFast(final int time) {
-    T value = _map.get(time);
-    if (value == _defaultReturnValue) {
-      throw new NoSuchElementException();
-    }
-    return value;
-  }
-
+  //-------------------------------------------------------------------------
   @Override
   public boolean isEmpty() {
     return _map.isEmpty();

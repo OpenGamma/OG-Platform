@@ -111,6 +111,11 @@ public class SimpleMapTimeSeries<T, V> implements TimeSeries<T, V> {
   }
 
   @Override
+  public boolean containsTime(T dateTime) {
+    return _map.containsKey(dateTime);
+  }
+
+  @Override
   public V getValue(final T dateTime) {
     return _map.get(dateTime);
   }

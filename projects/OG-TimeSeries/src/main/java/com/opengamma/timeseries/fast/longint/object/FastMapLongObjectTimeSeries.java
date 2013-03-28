@@ -91,6 +91,7 @@ public class FastMapLongObjectTimeSeries<T> extends AbstractFastMutableLongObjec
     _map.putAll(initialMap);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public long getEarliestTimeFast() {
     return _map.firstLongKey();
@@ -109,6 +110,21 @@ public class FastMapLongObjectTimeSeries<T> extends AbstractFastMutableLongObjec
   @Override
   public T getLatestValueFast() {
     return _map.get(_map.lastLongKey());
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public boolean containsTime(Long time) {
+    return _map.get(time) != _defaultReturnValue;
+  }
+
+  @Override
+  public T getValueFast(final long time) {
+    T value = _map.get(time);
+    if (value == _defaultReturnValue) {
+      throw new NoSuchElementException();
+    }
+    return value;
   }
 
   @Override
@@ -131,15 +147,7 @@ public class FastMapLongObjectTimeSeries<T> extends AbstractFastMutableLongObjec
     return _map.get(iterator.nextLong());
   }
 
-  @Override
-  public T getValueFast(final long time) {
-    T value = _map.get(time);
-    if (value == _defaultReturnValue) {
-      throw new NoSuchElementException();
-    }
-    return value;
-  }
-
+  //-------------------------------------------------------------------------
   @Override
   public boolean isEmpty() {
     return _map.isEmpty();

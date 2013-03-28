@@ -123,6 +123,7 @@ public class FastListLongDoubleTimeSeries extends AbstractFastMutableLongDoubleT
     }
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public long getEarliestTimeFast() {
     if (_times.size() > 0) {
@@ -159,14 +160,11 @@ public class FastListLongDoubleTimeSeries extends AbstractFastMutableLongDoubleT
     }
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  public long getTimeFast(final int index) {
-    return _times.getLong(index);
-  }
-
-  @Override
-  public double getValueAtFast(final int index) {
-    return _values.getDouble(index);
+  public boolean containsTime(Long time) {
+    final int index = _times.indexOf(time);
+    return (index >= 0);
   }
 
   @Override
@@ -179,6 +177,17 @@ public class FastListLongDoubleTimeSeries extends AbstractFastMutableLongDoubleT
     }
   }
 
+  @Override
+  public long getTimeFast(final int index) {
+    return _times.getLong(index);
+  }
+
+  @Override
+  public double getValueAtFast(final int index) {
+    return _values.getDouble(index);
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public boolean isEmpty() {
     return _values.isEmpty();

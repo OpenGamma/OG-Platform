@@ -46,6 +46,7 @@ public abstract class AbstractIntDoubleTimeSeries<DATE_TYPE> extends AbstractFas
   // protected abstract FastMutableIntDoubleTimeSeries
   // makePrimitiveMutableListTimeSeries();
 
+  //-------------------------------------------------------------------------
   @Override
   public DATE_TYPE getEarliestTime() {
     return _converter.convertFromInt(getFastSeries().getEarliestTimeFast());
@@ -66,9 +67,10 @@ public abstract class AbstractIntDoubleTimeSeries<DATE_TYPE> extends AbstractFas
     return getFastSeries().getLatestValueFast();
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  public DATE_TYPE getTimeAt(final int index) {
-    return _converter.convertFromInt(getFastSeries().getTimeFast(index));
+  public boolean containsTime(DATE_TYPE dateTime) {
+    return getFastSeries().containsTime(_converter.convertToInt(dateTime));
   }
 
   @Override
@@ -81,10 +83,16 @@ public abstract class AbstractIntDoubleTimeSeries<DATE_TYPE> extends AbstractFas
   }
 
   @Override
+  public DATE_TYPE getTimeAt(final int index) {
+    return _converter.convertFromInt(getFastSeries().getTimeFast(index));
+  }
+
+  @Override
   public Double getValueAt(final int index) {
     return getFastSeries().getValueAtFast(index);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public DoubleTimeSeries<DATE_TYPE> head(final int numItems) {
     return _converter.convertFromInt(this, getFastSeries().headFast(numItems));

@@ -31,6 +31,10 @@ import com.opengamma.timeseries.fast.longint.object.FastLongObjectTimeSeries;
  * @param <T>  the type
  */
 public class FastArrayIntObjectTimeSeries<T> extends AbstractFastIntObjectTimeSeries<T> {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = -7046052624472466452L;
+
   /** Empty time series. */
   public static final FastIntObjectTimeSeries<Object> EMPTY_SERIES = new FastArrayIntObjectTimeSeries<Object>(
       DateTimeNumericEncoding.TIME_EPOCH_MILLIS);
@@ -171,15 +175,7 @@ public class FastArrayIntObjectTimeSeries<T> extends AbstractFastIntObjectTimeSe
     return new FastArrayIntObjectTimeSeries(getEncoding(), resultTimes, resultValues);
   }
 
-  public T getDataPointFast(final int time) {
-    final int index = Arrays.binarySearch(_times, time);
-    if (index >= 0) {
-      return _values[index];
-    } else {
-      throw new NoSuchElementException();
-    }
-  }
-
+  //-------------------------------------------------------------------------
   @Override
   public int getEarliestTimeFast() {
     if (_times.length > 0) {
@@ -218,6 +214,32 @@ public class FastArrayIntObjectTimeSeries<T> extends AbstractFastIntObjectTimeSe
   }
 
   //-------------------------------------------------------------------------
+  @Override
+  public boolean containsTime(Integer time) {
+    return Arrays.binarySearch(_times, time) >= 0;
+  }
+
+  @Override
+  public T getValueFast(final int time) {
+    final int binarySearch = Arrays.binarySearch(_times, time);
+    if (binarySearch >= 0 && _times[binarySearch] == time) {
+      return _values[binarySearch];
+    } else {
+      throw new NoSuchElementException();
+    }
+  }
+
+  @Override
+  public int getTimeFast(final int index) {
+    return _times[index];
+  }
+
+  @Override
+  public T getValueAtFast(final int index) {
+    return _values[index];
+  }
+
+  //-------------------------------------------------------------------------
   /* package */class PrimitiveArrayObjectTimeSeriesIterator implements ObjectIterator<Int2ObjectMap.Entry<T>> {
     private int _current;
 
@@ -226,7 +248,6 @@ public class FastArrayIntObjectTimeSeries<T> extends AbstractFastIntObjectTimeSe
       return _current < _times.length;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public Int2ObjectMap.Entry<T> next() {
       if (hasNext()) {
@@ -360,11 +381,6 @@ public class FastArrayIntObjectTimeSeries<T> extends AbstractFastIntObjectTimeSe
     return _times.clone();
   }
 
-  @Override
-  public int getTimeFast(final int index) {
-    return _times[index];
-  }
-
   @SuppressWarnings({"unchecked", "rawtypes" })
   public FastIntObjectTimeSeries<T> tailFast(final int numItems) {
     if (numItems <= _times.length) {
@@ -493,21 +509,6 @@ public class FastArrayIntObjectTimeSeries<T> extends AbstractFastIntObjectTimeSe
   @Override
   public int hashCode() {
     return Arrays.hashCode(_values);
-  }
-
-  @Override
-  public T getValueFast(final int time) {
-    final int binarySearch = Arrays.binarySearch(_times, time);
-    if (binarySearch >= 0 && _times[binarySearch] == time) {
-      return _values[binarySearch];
-    } else {
-      throw new NoSuchElementException();
-    }
-  }
-
-  @Override
-  public T getValueAtFast(final int index) {
-    return _values[index];
   }
 
   @Override

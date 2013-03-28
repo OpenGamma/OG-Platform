@@ -31,9 +31,13 @@ import com.opengamma.timeseries.fast.integer.FastIntDoubleTimeSeries;
  * 
  */
 public class FastArrayLongDoubleTimeSeries extends AbstractFastLongDoubleTimeSeries {
+
   /** An empty double time series backed using milliseconds as the date encoding */
   public static final FastLongDoubleTimeSeries EMPTY_SERIES = new FastArrayLongDoubleTimeSeries(
       DateTimeNumericEncoding.TIME_EPOCH_MILLIS);
+
+  /** Serialization version.*/
+  private static final long serialVersionUID = -8420980110601809370L;
 
   private final long[] _times;
   private final double[] _values;
@@ -173,15 +177,7 @@ public class FastArrayLongDoubleTimeSeries extends AbstractFastLongDoubleTimeSer
     return new FastArrayLongDoubleTimeSeries(getEncoding(), resultTimes, resultValues);
   }
 
-  public double getDataPointFast(final long time) {
-    final int index = Arrays.binarySearch(_times, time);
-    if (index >= 0) {
-      return _values[index];
-    } else {
-      throw new NoSuchElementException();
-    }
-  }
-
+  //-------------------------------------------------------------------------
   @Override
   public long getEarliestTimeFast() {
     if (_times.length > 0) {
@@ -219,6 +215,35 @@ public class FastArrayLongDoubleTimeSeries extends AbstractFastLongDoubleTimeSer
     }
   }
 
+  //-------------------------------------------------------------------------
+  @Override
+  public boolean containsTime(Long time) {
+    long timeValue = time;
+    final int binarySearch = Arrays.binarySearch(_times, timeValue);
+    return (binarySearch >= 0 && _times[binarySearch] == timeValue);
+  }
+
+  @Override
+  public double getValueFast(final long time) {
+    final int binarySearch = Arrays.binarySearch(_times, time);
+    if (binarySearch >= 0 && _times[binarySearch] == time) {
+      return _values[binarySearch];
+    } else {
+      throw new NoSuchElementException();
+    }
+  }
+
+  @Override
+  public long getTimeFast(final int index) {
+    return _times[index];
+  }
+
+  @Override
+  public double getValueAtFast(final int index) {
+    return _values[index];
+  }
+
+  //-------------------------------------------------------------------------
   /* package */class PrimitiveArrayDoubleTimeSeriesIterator implements ObjectIterator<Long2DoubleMap.Entry> {
     private int _current;
 
@@ -371,11 +396,6 @@ public class FastArrayLongDoubleTimeSeries extends AbstractFastLongDoubleTimeSer
   }
 
   @Override
-  public long getTimeFast(final int index) {
-    return _times[index];
-  }
-
-  @Override
   public FastLongDoubleTimeSeries tail(final int numItems) {
     if (numItems <= _times.length) {
       final long[] times = new long[numItems];
@@ -509,21 +529,6 @@ public class FastArrayLongDoubleTimeSeries extends AbstractFastLongDoubleTimeSer
   @Override
   public int hashCode() {
     return Arrays.hashCode(_values);
-  }
-
-  @Override
-  public double getValueFast(final long time) {
-    final int binarySearch = Arrays.binarySearch(_times, time);
-    if (binarySearch >= 0 && _times[binarySearch] == time) {
-      return _values[binarySearch];
-    } else {
-      throw new NoSuchElementException();
-    }
-  }
-
-  @Override
-  public double getValueAtFast(final int index) {
-    return _values[index];
   }
 
   @SuppressWarnings("unchecked")

@@ -35,6 +35,9 @@ import com.opengamma.timeseries.fast.longint.FastLongDoubleTimeSeries;
  */
 public class FastMapIntDoubleTimeSeries extends AbstractFastMutableIntDoubleTimeSeries {
 
+  /** Serialization version. */
+  private static final long serialVersionUID = -1891058615602159571L;
+
   private Int2DoubleSortedMap _map = new Int2DoubleAVLTreeMap();
   private final double _defaultReturnValue = _map.defaultReturnValue();
 
@@ -88,6 +91,7 @@ public class FastMapIntDoubleTimeSeries extends AbstractFastMutableIntDoubleTime
     _map.putAll(initialMap);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public int getEarliestTimeFast() {
     return _map.firstIntKey();
@@ -106,6 +110,21 @@ public class FastMapIntDoubleTimeSeries extends AbstractFastMutableIntDoubleTime
   @Override
   public double getLatestValueFast() {
     return _map.get(_map.lastIntKey());
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public boolean containsTime(Integer time) {
+    return _map.get(time) != _defaultReturnValue;
+  }
+
+  @Override
+  public double getValueFast(final int time) {
+    double value = _map.get(time);
+    if (value == _defaultReturnValue) {
+      throw new NoSuchElementException();
+    }
+    return value;
   }
 
   @Override
@@ -128,15 +147,7 @@ public class FastMapIntDoubleTimeSeries extends AbstractFastMutableIntDoubleTime
     return _map.get(iterator.nextInt());
   }
 
-  @Override
-  public double getValueFast(final int time) {
-    double value = _map.get(time);
-    if (value == _defaultReturnValue) {
-      throw new NoSuchElementException();
-    }
-    return value;
-  }
-
+  //-------------------------------------------------------------------------
   @Override
   public boolean isEmpty() {
     return _map.isEmpty();

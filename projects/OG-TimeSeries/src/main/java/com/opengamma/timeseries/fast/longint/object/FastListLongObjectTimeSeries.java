@@ -123,6 +123,7 @@ public class FastListLongObjectTimeSeries<T> extends AbstractFastMutableLongObje
     }
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public long getEarliestTimeFast() {
     if (_times.size() > 0) {
@@ -159,14 +160,10 @@ public class FastListLongObjectTimeSeries<T> extends AbstractFastMutableLongObje
     }
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  public long getTimeFast(final int index) {
-    return _times.getLong(index);
-  }
-
-  @Override
-  public T getValueAtFast(final int index) {
-    return _values.get(index);
+  public boolean containsTime(Long time) {
+    return _times.indexOf(time) >= 0;
   }
 
   @Override
@@ -179,6 +176,17 @@ public class FastListLongObjectTimeSeries<T> extends AbstractFastMutableLongObje
     }
   }
 
+  @Override
+  public long getTimeFast(final int index) {
+    return _times.getLong(index);
+  }
+
+  @Override
+  public T getValueAtFast(final int index) {
+    return _values.get(index);
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public boolean isEmpty() {
     return _values.isEmpty();

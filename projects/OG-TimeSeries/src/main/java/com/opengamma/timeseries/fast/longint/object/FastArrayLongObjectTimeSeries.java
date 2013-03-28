@@ -176,15 +176,7 @@ public class FastArrayLongObjectTimeSeries<T> extends AbstractFastLongObjectTime
     return new FastArrayLongObjectTimeSeries<T>(getEncoding(), resultTimes, resultValues);
   }
 
-  public T getDataPointFast(final long time) {
-    final int index = Arrays.binarySearch(_times, time);
-    if (index >= 0) {
-      return _values[index];
-    } else {
-      throw new NoSuchElementException();
-    }
-  }
-
+  //-------------------------------------------------------------------------
   @Override
   public long getEarliestTimeFast() {
     if (_times.length > 0) {
@@ -222,6 +214,33 @@ public class FastArrayLongObjectTimeSeries<T> extends AbstractFastLongObjectTime
     }
   }
 
+  //-------------------------------------------------------------------------
+  @Override
+  public boolean containsTime(Long time) {
+    return Arrays.binarySearch(_times, time) >= 0;
+  }
+
+  @Override
+  public T getValueFast(final long time) {
+    final int binarySearch = Arrays.binarySearch(_times, time);
+    if (binarySearch >= 0 && _times[binarySearch] == time) {
+      return _values[binarySearch];
+    } else {
+      throw new NoSuchElementException();
+    }
+  }
+
+  @Override
+  public long getTimeFast(final int index) {
+    return _times[index];
+  }
+
+  @Override
+  public T getValueAtFast(final int index) {
+    return _values[index];
+  }
+
+  //-------------------------------------------------------------------------
   /* package */class PrimitiveArrayObjectTimeSeriesIterator implements ObjectIterator<Long2ObjectMap.Entry<T>> {
     private int _current;
 
@@ -371,11 +390,6 @@ public class FastArrayLongObjectTimeSeries<T> extends AbstractFastLongObjectTime
     return _times.clone();
   }
 
-  @Override
-  public long getTimeFast(final int index) {
-    return _times[index];
-  }
-
   @SuppressWarnings("unchecked")
   public FastLongObjectTimeSeries<T> tail(final int numItems) {
     if (numItems <= _times.length) {
@@ -510,21 +524,6 @@ public class FastArrayLongObjectTimeSeries<T> extends AbstractFastLongObjectTime
   @Override
   public int hashCode() {
     return Arrays.hashCode(_values);
-  }
-
-  @Override
-  public T getValueFast(final long time) {
-    final int binarySearch = Arrays.binarySearch(_times, time);
-    if (binarySearch >= 0 && _times[binarySearch] == time) {
-      return _values[binarySearch];
-    } else {
-      throw new NoSuchElementException();
-    }
-  }
-
-  @Override
-  public T getValueAtFast(final int index) {
-    return _values[index];
   }
 
   @SuppressWarnings("unchecked")

@@ -91,6 +91,7 @@ public class FastMapLongDoubleTimeSeries extends AbstractFastMutableLongDoubleTi
     _map.putAll(initialMap);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public long getEarliestTimeFast() {
     return _map.firstLongKey();
@@ -109,6 +110,21 @@ public class FastMapLongDoubleTimeSeries extends AbstractFastMutableLongDoubleTi
   @Override
   public double getLatestValueFast() {
     return _map.get(_map.lastLongKey());
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public boolean containsTime(Long time) {
+    return _map.get(time) != _defaultReturnValue;
+  }
+
+  @Override
+  public double getValueFast(final long time) {
+    double value = _map.get(time);
+    if (value == _defaultReturnValue) {
+      throw new NoSuchElementException();
+    }
+    return value;
   }
 
   @Override
@@ -131,15 +147,7 @@ public class FastMapLongDoubleTimeSeries extends AbstractFastMutableLongDoubleTi
     return _map.get(iterator.nextLong());
   }
 
-  @Override
-  public double getValueFast(final long time) {
-    double value = _map.get(time);
-    if (value == _defaultReturnValue) {
-      throw new NoSuchElementException();
-    }
-    return value;
-  }
-
+  //-------------------------------------------------------------------------
   @Override
   public boolean isEmpty() {
     return _map.isEmpty();

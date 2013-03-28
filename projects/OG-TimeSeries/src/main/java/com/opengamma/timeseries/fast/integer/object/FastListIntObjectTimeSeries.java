@@ -30,6 +30,10 @@ import com.opengamma.timeseries.fast.longint.object.FastLongObjectTimeSeries;
  * @param <T> The type of the data
  */
 public class FastListIntObjectTimeSeries<T> extends AbstractFastMutableIntObjectTimeSeries<T> {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = -3008568662011019078L;
+
   private final IntArrayList _times;
   private final ObjectArrayList<T> _values;
 
@@ -116,6 +120,7 @@ public class FastListIntObjectTimeSeries<T> extends AbstractFastMutableIntObject
     }
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public int getEarliestTimeFast() {
     if (_times.size() > 0) {
@@ -152,14 +157,10 @@ public class FastListIntObjectTimeSeries<T> extends AbstractFastMutableIntObject
     }
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  public int getTimeFast(final int index) {
-    return _times.getInt(index);
-  }
-
-  @Override
-  public T getValueAtFast(final int index) {
-    return _values.get(index);
+  public boolean containsTime(Integer time) {
+    return _times.indexOf(time) >= 0;
   }
 
   @Override
@@ -172,6 +173,17 @@ public class FastListIntObjectTimeSeries<T> extends AbstractFastMutableIntObject
     }
   }
 
+  @Override
+  public int getTimeFast(final int index) {
+    return _times.getInt(index);
+  }
+
+  @Override
+  public T getValueAtFast(final int index) {
+    return _values.get(index);
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public boolean isEmpty() {
     return _values.isEmpty();

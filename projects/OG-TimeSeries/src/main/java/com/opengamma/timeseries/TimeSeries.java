@@ -21,7 +21,6 @@ import java.util.Map;
  * @param <V> the value being viewed over time, such as {@code Double}
  */
 public interface TimeSeries<T, V> extends Iterable<Map.Entry<T, V>>, Serializable {
-  // TODO containsTime
   // tailSeries/headSeries by time
 
   /**
@@ -43,6 +42,17 @@ public interface TimeSeries<T, V> extends Iterable<Map.Entry<T, V>>, Serializabl
   boolean isEmpty();
 
   //-------------------------------------------------------------------------
+  /**
+   * Checks if the series contains a value at the date-time specified.
+   * <p>
+   * This method provides {@code Map} style {@code containsKey()} behavior.
+   * The date/time is matched exactly, thus care must be taken with precision in times.
+   * 
+   * @param dateTime  the date-time to retrieve, not null
+   * @return true if the series contains the specified time, false if not
+   */
+  boolean containsTime(T dateTime);
+
   /**
    * Gets the value at the date-time specified.
    * <p>

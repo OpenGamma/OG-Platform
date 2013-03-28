@@ -30,6 +30,10 @@ import com.opengamma.timeseries.fast.longint.FastLongDoubleTimeSeries;
  * 
  */
 public class FastListIntDoubleTimeSeries extends AbstractFastMutableIntDoubleTimeSeries {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 2563406873674831463L;
+
   private final IntArrayList _times;
   private final DoubleArrayList _values;
 
@@ -116,6 +120,7 @@ public class FastListIntDoubleTimeSeries extends AbstractFastMutableIntDoubleTim
     }
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public int getEarliestTimeFast() {
     if (_times.size() > 0) {
@@ -152,14 +157,11 @@ public class FastListIntDoubleTimeSeries extends AbstractFastMutableIntDoubleTim
     }
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  public int getTimeFast(final int index) {
-    return _times.getInt(index);
-  }
-
-  @Override
-  public double getValueAtFast(final int index) {
-    return _values.getDouble(index);
+  public boolean containsTime(Integer time) {
+    final int index = _times.indexOf(time);
+    return (index >= 0);
   }
 
   @Override
@@ -172,6 +174,17 @@ public class FastListIntDoubleTimeSeries extends AbstractFastMutableIntDoubleTim
     }
   }
 
+  @Override
+  public int getTimeFast(final int index) {
+    return _times.getInt(index);
+  }
+
+  @Override
+  public double getValueAtFast(final int index) {
+    return _values.getDouble(index);
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public boolean isEmpty() {
     return _values.isEmpty();

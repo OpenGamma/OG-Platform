@@ -48,6 +48,7 @@ public abstract class AbstractIntObjectTimeSeries<DATE_TYPE, T>
   // protected abstract FastMutableIntDoubleTimeSeries
   // makePrimitiveMutableListTimeSeries();
 
+  //-------------------------------------------------------------------------
   @Override
   public DATE_TYPE getEarliestTime() {
     return _converter.convertFromInt(getFastSeries().getEarliestTimeFast());
@@ -68,9 +69,10 @@ public abstract class AbstractIntObjectTimeSeries<DATE_TYPE, T>
     return getFastSeries().getLatestValueFast();
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  public DATE_TYPE getTimeAt(final int index) {
-    return _converter.convertFromInt(getFastSeries().getTimeFast(index));
+  public boolean containsTime(DATE_TYPE dateTime) {
+    return getFastSeries().containsTime(_converter.convertToInt(dateTime));
   }
 
   @Override
@@ -83,10 +85,16 @@ public abstract class AbstractIntObjectTimeSeries<DATE_TYPE, T>
   }
 
   @Override
+  public DATE_TYPE getTimeAt(final int index) {
+    return _converter.convertFromInt(getFastSeries().getTimeFast(index));
+  }
+
+  @Override
   public T getValueAt(final int index) {
     return getFastSeries().getValueAtFast(index);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public ObjectTimeSeries<DATE_TYPE, T> head(final int numItems) {
     return _converter.convertFromInt(this, getFastSeries().headFast(numItems));
