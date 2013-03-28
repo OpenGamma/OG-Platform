@@ -92,22 +92,21 @@ public class OtcSecurityVisitor extends FinancialSecurityVisitorSameValueAdapter
   }
 
   @Override
-
   public Boolean visitLegacyRecoveryLockCDSSecurity(LegacyRecoveryLockCDSSecurity security) {
     return true;
   }
-  @Override
 
+  @Override
   public Boolean visitLegacyFixedRecoveryCDSSecurity(LegacyFixedRecoveryCDSSecurity security) {
     return true;
   }
-  @Override
 
+  @Override
   public Boolean visitStandardVanillaCDSSecurity(StandardVanillaCDSSecurity security) {
     return true;
   }
-  @Override
 
+  @Override
   public Boolean visitStandardRecoveryLockCDSSecurity(StandardRecoveryLockCDSSecurity security) {
     return true;
   }
