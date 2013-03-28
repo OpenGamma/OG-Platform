@@ -10,6 +10,7 @@ import java.util.Arrays;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
+import com.opengamma.core.config.Config;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.money.Currency;
 
@@ -19,6 +20,7 @@ import com.opengamma.util.money.Currency;
  * @param <X> Type of the x-data
  * @param <Y> Type of the y-data
  */
+@Config
 public class VolatilitySurfaceDefinition<X, Y> {
   private final String _name;
   private final UniqueIdentifiable _target;

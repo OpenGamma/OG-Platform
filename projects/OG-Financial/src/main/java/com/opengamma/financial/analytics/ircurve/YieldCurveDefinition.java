@@ -23,6 +23,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.core.config.Config;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueId;
@@ -38,6 +39,7 @@ import com.opengamma.util.money.Currency;
  * This class is mutable.
  */
 @BeanDefinition
+@Config
 public class YieldCurveDefinition extends DirectBean implements Serializable, UniqueIdentifiable,
     MutableUniqueIdentifiable {
 

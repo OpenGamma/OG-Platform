@@ -90,7 +90,11 @@ public class FXForwardCurrencyExposurePnLFunction extends AbstractFunction {
     @Override
     public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
       final FXForwardSecurity security = (FXForwardSecurity) target.getPosition().getSecurity();
-      final Currency currencyBase = _currencyPairs.getCurrencyPair(security.getPayCurrency(), security.getReceiveCurrency()).getBase();
+      CurrencyPair currencyPair = _currencyPairs.getCurrencyPair(security.getPayCurrency(), security.getReceiveCurrency());
+      if (currencyPair == null) {
+        return null;
+      }
+      final Currency currencyBase = currencyPair.getBase();
       final ValueProperties properties = createValueProperties()
           .withAny(ValuePropertyNames.PAY_CURVE)
           .withAny(ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG)

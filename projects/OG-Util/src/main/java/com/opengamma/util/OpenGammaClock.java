@@ -7,7 +7,6 @@ package com.opengamma.util;
 
 import org.threeten.bp.Clock;
 import org.threeten.bp.ZoneId;
-import org.threeten.bp.ZoneOffset;
 
 /**
  * Provides a shared singleton {@code Clock} for use throughout OpenGamma.

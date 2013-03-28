@@ -26,6 +26,7 @@ import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.google.common.collect.BiMap;
+import com.google.common.collect.ImmutableSortedSet;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.impl.ConfigItem;
@@ -292,7 +293,7 @@ public class WebConfigsResource extends AbstractWebConfigResource {
     ConfigSearchRequest<Object> searchRequest = new ConfigSearchRequest<Object>();
     searchRequest.setType(Object.class);
     out.put("searchRequest", searchRequest);
-    out.put("typeMap", data().getTypeMap());
+    out.put("configTypes", getConfigTypesProvider().getConfigTypes());
     out.put("curveSpecs", CurveSpecificationBuilderConfiguration.s_curveSpecNames);
     return out;
   }

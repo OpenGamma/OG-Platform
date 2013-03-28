@@ -179,7 +179,6 @@ import com.opengamma.util.time.Expiry;
     s_stringConvert.register(OffsetTime.class, new OffsetTimeConverter());
     s_stringConvert.register(Country.class, new CountryConverter());
     s_stringConvert.register(DebtSeniority.class, new EnumConverter<DebtSeniority>());
-    s_stringConvert.register(StubType.class, new EnumConverter<StubType>());
 
     s_jsonBuildingConverters = new Converters(jsonRegionConverters, s_stringConvert);
     s_beanBuildingConverters = new Converters(beanRegionConverters, s_stringConvert);
