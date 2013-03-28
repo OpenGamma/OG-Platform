@@ -8,6 +8,7 @@ package com.opengamma.web.config;
 import java.io.CharArrayReader;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.Map.Entry;
 
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
@@ -42,8 +43,6 @@ import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceDef
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceSpecification;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
-import com.opengamma.master.config.ConfigMetaDataRequest;
-import com.opengamma.master.config.ConfigMetaDataResult;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.web.AbstractPerRequestWebResource;
@@ -64,6 +63,7 @@ import com.opengamma.web.json.YieldCurveDefinitionJSONBuilder;
  * 
  */
 public abstract class AbstractWebConfigResource extends AbstractPerRequestWebResource {
+    
   /**
    * HTML ftl directory
    */
@@ -84,7 +84,12 @@ public abstract class AbstractWebConfigResource extends AbstractPerRequestWebRes
    * The Fudge context.
    */
   private final FudgeContext _fudgeContext = OpenGammaFudgeContext.getInstance();
-
+  
+  /**
+   * The Config Types provider
+   */
+  private final ConfigTypesProvider _configTypesProvider = ConfigTypesProvider.getInstance();
+  
   /**
    * The backing bean.
    */
@@ -98,15 +103,17 @@ public abstract class AbstractWebConfigResource extends AbstractPerRequestWebRes
     ArgumentChecker.notNull(configMaster, "configMaster");
     _data = new WebConfigData();
     data().setConfigMaster(configMaster);
-    
-    // init meta-data
-    ConfigMetaDataResult metaData = configMaster.metaData(new ConfigMetaDataRequest());
-    for (Class<?> configType : metaData.getConfigTypes()) {
-      data().getTypeMap().put(configType.getSimpleName(), configType);
-    }
+    initializeMetaData();
     initializeJSONBuilders();
   }
 
+  //init meta-data
+  private void initializeMetaData() {
+    for (Entry<String, Class<?>> entry : _configTypesProvider.getConfigTypeMap().entrySet()) {
+      data().getTypeMap().put(entry.getKey(), entry.getValue());
+    }
+  }
+  
   private void initializeJSONBuilders() {
     data().getJsonBuilderMap().put(ViewDefinition.class, ViewDefinitionJSONBuilder.INSTANCE);
     data().getJsonBuilderMap().put(YieldCurveDefinition.class, YieldCurveDefinitionJSONBuilder.INSTANCE);
@@ -225,4 +232,12 @@ public abstract class AbstractWebConfigResource extends AbstractPerRequestWebRes
     return _fudgeContext;
   }
 
+  /**
+   * Gets the configTypesProvider.
+   * @return the configTypesProvider
+   */
+  public ConfigTypesProvider getConfigTypesProvider() {
+    return _configTypesProvider;
+  }
+  
 }
