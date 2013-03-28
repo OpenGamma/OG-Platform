@@ -22,7 +22,7 @@ public interface FastTimeSeries<T> extends DoubleTimeSeries<T> {
 
   DateTimeResolution getDateTimeResolution();
 
-  @Override
+  @Override  // override for covariant return type
   FastTimeSeries<T> lag(int days);
 
   //-------------------------------------------------------------------------
@@ -43,44 +43,44 @@ public interface FastTimeSeries<T> extends DoubleTimeSeries<T> {
   FastTimeSeries<T> unionOperate(final FastBackedDoubleTimeSeries<?> other, final BinaryOperator operator);
 
   //-------------------------------------------------------------------------
-  @Override
+  @Override  // override for covariant return type
   FastTimeSeries<T> add(double other);
 
-  @Override
+  @Override  // override for covariant return type
   FastTimeSeries<T> subtract(double other);
 
-  @Override
+  @Override  // override for covariant return type
   FastTimeSeries<T> multiply(double other);
 
-  @Override
+  @Override  // override for covariant return type
   FastTimeSeries<T> divide(double other);
 
-  @Override
+  @Override  // override for covariant return type
   FastTimeSeries<T> power(double other);
 
-  @Override
+  @Override  // override for covariant return type
   FastTimeSeries<T> minimum(double other);
 
-  @Override
+  @Override  // override for covariant return type
   FastTimeSeries<T> maximum(double other);
 
-  @Override
+  @Override  // override for covariant return type
   FastTimeSeries<T> average(double other);
 
   //-------------------------------------------------------------------------
-  @Override
+  @Override  // override for covariant return type
   FastTimeSeries<T> negate();
 
-  @Override
+  @Override  // override for covariant return type
   FastTimeSeries<T> reciprocal();
 
-  @Override
+  @Override  // override for covariant return type
   FastTimeSeries<T> log();
 
-  @Override
+  @Override  // override for covariant return type
   FastTimeSeries<T> log10();
 
-  @Override
+  @Override  // override for covariant return type
   FastTimeSeries<T> abs();
 
   @Override
