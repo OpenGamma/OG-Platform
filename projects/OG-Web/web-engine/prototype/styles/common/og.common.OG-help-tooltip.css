@@ -9,7 +9,11 @@
     visibility: visible;
 }
 
-/* base CSS element */
+.left {
+    float: left;
+    margin-right: 10px;
+}
+
 .tooltip {
     color:#555;
     background: #fff;
@@ -121,4 +125,202 @@
     margin-top: -6px;
     position: absolute;
     top: 50%;
+}
+
+.tooltip.north-east:before{
+    border-bottom: 7px solid #bdc4c8;
+    border-right: 7px solid #bdc4c8;
+    border-top: 7px solid transparent;
+    content: '';
+    display: inline-block;
+    left: 100%;
+    margin-left: -6px;
+    position: absolute;
+    top: -8px;
+}
+
+.tooltip.north-east:after{
+    border-bottom: 7px solid #fff;
+    border-right: 6px solid #fff;
+    border-top: 7px solid transparent;
+    content: '';
+    display: inline-block;
+    left: 100%;
+    margin-left: -6px;
+    position: absolute;
+    top: -6px;
+}
+
+.tooltip.south-east:before{
+    border-bottom: 7px solid transparent;
+    border-right: 7px solid #bdc4c8;
+    border-top: 7px solid #bdc4c8;
+    bottom: -8px;
+    content: '';
+    display: inline-block;
+    left: 100%;
+    margin-left: -6px;
+    position: absolute;
+}
+
+.tooltip.south-east:after{
+    border-bottom: 7px solid transparent;
+    border-right: 6px solid #fff;
+    border-top: 7px solid #fff;
+    bottom: -6px;
+    content: '';
+    display: inline-block;
+    left: 100%;
+    margin-left: -6px;
+    position: absolute;
+}
+
+.tooltip.south-west:before{
+    border-bottom: 7px solid transparent;
+    border-left: 7px solid #bdc4c8;
+    border-top: 7px solid #bdc4c8;
+    bottom: -8px;
+    content: '';
+    display: inline-block;
+    left: 0%;
+    margin-left:-1px;
+    position: absolute;
+}
+
+.tooltip.south-west:after{
+    border-bottom: 7px solid transparent;
+    border-left: 6px solid #fff;
+    border-top: 7px solid #fff;
+    bottom: -6px;
+    content: '';
+    display: inline-block;
+    left: 0%;
+    position: absolute;
+}
+
+.tooltip.north-west:before{
+    border-bottom: 7px solid #bdc4c8;
+    border-left: 7px solid #bdc4c8;
+    border-top: 7px solid transparent;
+    content: '';
+    display: inline-block;
+    left: 0%;
+    margin-left:-1px;
+    position: absolute;
+    top: -8px;
+}
+
+.tooltip.north-west:after{
+    border-bottom: 7px solid #fff;
+    border-left: 6px solid #fff;
+    border-top: 7px solid transparent;
+    content: '';
+    display: inline-block;
+    left: 0%;
+    position: absolute;
+    top: -6px;
+}
+
+.tooltip.north-east-flip:before{
+    border-bottom: 7px solid transparent;
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+    border-top: 7px solid #bdc4c8;
+    content: '';
+    display: inline-block;
+    left: 100%;
+    margin-left: -6px;
+    position: absolute;
+    top: -1px;
+}
+
+.tooltip.north-east-flip:after{
+    border-bottom: 7px solid transparent;
+    border-left: 6px solid transparent;
+    border-right: 7px solid transparent;
+    border-top: 6px solid #fff;
+    content: '';
+    display: inline-block;
+    left: 100%;
+    margin-left: -7px;
+    position: absolute;
+    top: 0;
+}
+
+.tooltip.south-east-flip:before{
+    border-bottom: 7px solid #bdc4c8;
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+    border-top: 7px solid transparent;
+    content: '';
+    display: inline-block;
+    left: 100%;
+    margin-left: -6px;
+    position: absolute;
+    bottom: -1px;
+}
+
+.tooltip.south-east-flip:after{
+    border-bottom: 7px solid #fff;
+    border-left: 6px solid transparent;
+    border-right: 7px solid transparent;
+    border-top: 6px solid transparent;
+    bottom: 0;
+    content: '';
+    display: inline-block;
+    left: 100%;
+    margin-left: -7px;
+    position: absolute;
+}
+
+.tooltip.south-west-flip:before{
+    border-bottom: 7px solid #bdc4c8;
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+    border-top: 7px solid transparent;
+    bottom: -1px;
+    content: '';
+    display: inline-block;
+    left: 0%;
+    margin-left:-8px;
+    position: absolute;
+}
+
+.tooltip.south-west-flip:after{
+    border-bottom: 7px solid #fff;
+    border-left: 6px solid transparent;
+    border-right: 7px solid transparent;
+    border-top: 6px solid transparent;
+    bottom: 0;
+    content: '';
+    display: inline-block;
+    left: 0%;
+    margin-left: -5px;
+    position: absolute;
+}
+
+.tooltip.north-west-flip:before{
+    border-bottom: 7px solid transparent;
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+    border-top: 7px solid #bdc4c8;
+    content: '';
+    display: inline-block;
+    left: 0%;
+    margin-left:-8px;
+    position: absolute;
+    top: -1px;
+}
+
+.tooltip.north-west-flip:after{
+    border-bottom: 7px solid transparent;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 7px solid #fff;
+    content: '';
+    display: inline-block;
+    left: 0%;
+    margin-left: -5px;
+    position: absolute;
+    top: 0;
 }

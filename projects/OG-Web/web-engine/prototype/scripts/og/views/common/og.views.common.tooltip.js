@@ -15,9 +15,12 @@ $.register_module({
                     $('.OG-layout-tooltip').html(template);
                 }});
             },
-            load_item: function (args) { view.check_state({args: args, conditions: [{new_page: view.load}]}); },
+            load_item: function (args) {
+                console.log(args);
+                view.check_state({args: args, conditions: [{new_page: view.load}]});
+            },
             init: function () { for (var rule in view.rules) routes.add(view.rules[rule]); },
-            rules: { load_item: { route: '/:data?', method: module.name + '.load_item' } }
+            rules: { load_item: { route: '/', method: module.name + '.load_item' } }
         }
     }
 });
