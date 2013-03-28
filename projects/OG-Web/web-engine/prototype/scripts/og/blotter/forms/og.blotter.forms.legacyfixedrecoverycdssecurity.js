@@ -8,7 +8,7 @@ $.register_module({
     obj: function () {
         return function (config) {
             config.title = 'Legacy Fixed Recovery CDS';
-            config.type = 'LegacyFixedRecoveryCDS';
+            config.type = 'LegacyFixedRecoveryCDSSecurity';
             config.legacy = true;
             return new og.blotter.forms.cds(config);
         };    

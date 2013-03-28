@@ -14,19 +14,19 @@ $.register_module({
                 extras: {legacy: config.legacy, standard: config.standard, stdvanilla: config.stdvanilla},
                 children: [
                     new og.blotter.forms.blocks.Security({
-                        form: form, label: "Protection Buyer", security: data.security.protectionBuyer,
-                        index: "security.protectionBuyer"
+                        form: form, label: 'Protection Buyer', security: data.security.protectionBuyer,
+                        index: 'security.protectionBuyer'
                     }),
                     new og.blotter.forms.blocks.Security({
-                        form: form, label: "Protection Seller", security: data.security.protectionSeller,
-                        index: "security.protectionSeller"
+                        form: form, label: 'Protection Seller', security: data.security.protectionSeller,
+                        index: 'security.protectionSeller'
                     }),
                     new og.blotter.forms.blocks.Security({
-                        form: form, label: "Reference Entity", security: data.security.referenceEntity,
-                        index: "security.referenceEntity"
+                        form: form, label: 'Reference Entity', security: data.security.referenceEntity,
+                        index: 'security.referenceEntity'
                     }),
                     new form.Block({module:'og.views.forms.currency_tash', 
-                        extras:{name: "security.notional.currency"}
+                        extras:{name: 'security.notional.currency'}
                     }),
                     new ui.Dropdown({
                         form: form, resource: 'blotter.regions', index: 'security.regionId',
@@ -61,9 +61,21 @@ $.register_module({
                         placeholder: 'Select Stub Type'
                     }),
                     new form.Block({module:'og.views.forms.currency_tash', 
-                        extras:{name: "security.upfrontAmount.currency"}
+                        extras:{name: 'security.upfrontAmount.currency'}
                     })
-                ]
+                ],
+                processor: function (data) {
+                    var sec = data.security;
+                    sec.includeAccruedPremium = og.blotter.util.get_checkbox('security.includeAccruedPremium');
+                    sec.protectionStart = og.blotter.util.get_checkbox('security.protectionStart');
+                    sec.adjustMaturityDate = og.blotter.util.get_checkbox('security.adjustMaturityDate');
+                    sec.adjustEffectiveDate = og.blotter.util.get_checkbox('security.adjustEffectiveDate');
+                    sec.immAdjustMaturityDate = og.blotter.util.get_checkbox('security.immAdjustMaturityDate');
+                    sec.adjustCashSettlementDate = og.blotter.util.get_checkbox('security.adjustCashSettlementDate');
+                    sec.notional.type = 'InterestRateNotional';
+                    if (config.standard)
+                        sec.upfrontAmount.type = 'InterestRateNotional';   
+                }
             });
         };
         CDS.prototype = new Block(); // inherit Block prototype

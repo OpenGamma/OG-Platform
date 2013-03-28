@@ -8,7 +8,7 @@ $.register_module({
     obj: function () {
         return function (config) {
             config.title = 'Legacy Vanilla CDS';
-            config.type = 'LegacyVanillaCDS';
+            config.type = 'LegacyVanillaCDSSecurity';
             config.legacy = true;
             return new og.blotter.forms.cds(config);
         };    

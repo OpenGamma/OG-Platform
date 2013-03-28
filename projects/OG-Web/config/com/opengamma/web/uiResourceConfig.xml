@@ -391,7 +391,12 @@
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.capfloorcmsspreadsecurity.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.frasecurity.js</fragment>
     <!--CDS Trades-->
-    <fragment>/scripts/og/blotter/forms/og.blotter.forms.legacyfixedrecoverycds.js</fragment>
+    <fragment>/scripts/og/blotter/forms/og.blotter.forms.legacyfixedrecoverycdssecurity.js</fragment>
+    <fragment>/scripts/og/blotter/forms/og.blotter.forms.legacyrecoverylockcdssecurity.js</fragment>
+    <fragment>/scripts/og/blotter/forms/og.blotter.forms.legacyvanillacdssecurity.js</fragment>
+    <fragment>/scripts/og/blotter/forms/og.blotter.forms.standardfixedrecoverycdssecurity.js</fragment>
+    <fragment>/scripts/og/blotter/forms/og.blotter.forms.standardrecoverylockcdssecurity.js</fragment>
+    <fragment>/scripts/og/blotter/forms/og.blotter.forms.standardvanillacdssecurity.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.cds.js</fragment>
     <fragment>/scripts/og/blotter/forms/blocks/og.blotter.forms.blocks.cds.js</fragment>
     <!--Fungible Trades-->
