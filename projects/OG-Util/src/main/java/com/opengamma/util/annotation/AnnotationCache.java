@@ -22,15 +22,19 @@ import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Caches a set of annotated classes. The cache can be written to disk, and reloaded to survive a JVM restart.
  */
-/* package */ final class AnnotationCache {
+public final class AnnotationCache {
 
   private static final Logger s_logger = LoggerFactory.getLogger(AnnotationCache.class);
 
-  protected static final String CACHE_PATH_PROPERTY = "opengamma.annotationCachePath";
+  /**
+   * The cache path property name
+   */
+  public static final String CACHE_PATH_PROPERTY = "opengamma.annotationCachePath";
 
   private final Instant _timestamp;
   private final Collection<String> _classNames = new LinkedList<String>();
@@ -113,9 +117,11 @@ import com.google.common.collect.ImmutableList;
   /**
    * Loads the function cache from disk (if available).
    * 
+   * @param annotationClass the annotation class, not null
    * @return the cache object, not null
    */
-  protected static AnnotationCache load(Class<? extends Annotation> annotationClass) {
+  public static AnnotationCache load(Class<? extends Annotation> annotationClass) {
+    ArgumentChecker.notNull(annotationClass, "annotation class");
     final String path = System.getProperty(CACHE_PATH_PROPERTY);
     if (path == null) {
       s_logger.warn("No cache path set in system property {}", CACHE_PATH_PROPERTY);

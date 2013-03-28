@@ -25,7 +25,7 @@ import com.opengamma.OpenGammaRuntimeException;
 /**
  * Scans the class path for classes that contain the given annotations.
  */
-/* package */final class ClasspathScanner {
+public final class ClasspathScanner {
 
   private final URL[] _urls;
   private final Instant _timestamp;
@@ -102,7 +102,7 @@ import com.opengamma.OpenGammaRuntimeException;
    * 
    * @return the cache, not null
    */
-  protected AnnotationCache scan(Class<? extends Annotation> annotationClass) {
+  public AnnotationCache scan(Class<? extends Annotation> annotationClass) {
     final AnnotationDB annoDb = new AnnotationDB();
     annoDb.setScanClassAnnotations(_scanClassAnnotations);
     annoDb.setScanFieldAnnotations(_scanFieldAnnotations);
