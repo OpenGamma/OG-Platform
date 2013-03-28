@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.volatility.surface;
 
+import com.opengamma.core.config.Config;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -12,6 +13,7 @@ import com.opengamma.util.money.Currency;
 /**
  * Specification for a volatility surface - contains all available points on the surface.
  */
+@Config
 public class VolatilitySurfaceSpecification {
   private final SurfaceInstrumentProvider<?, ?> _surfaceInstrumentProvider;
   private final String _name;

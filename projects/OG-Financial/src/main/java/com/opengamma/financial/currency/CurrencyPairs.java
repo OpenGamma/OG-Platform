@@ -8,6 +8,7 @@ package com.opengamma.financial.currency;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
+import com.opengamma.core.config.Config;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueId;
@@ -20,6 +21,7 @@ import com.opengamma.util.money.Currency;
  * <p>
  * This class is immutable and thread-safe.
  */
+@Config
 public final class CurrencyPairs implements MutableUniqueIdentifiable, UniqueIdentifiable {
 
   /**

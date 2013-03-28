@@ -19,12 +19,12 @@ import com.opengamma.util.ClasspathUtils;
 /**
  * Static utility for scanning classes for a particular annotation.
  */
-public final class ClassNameAnnotationScanner {
+public final class ClassNameAnnotationScannerUtils {
 
   /**
    * Restricted constructor.
    */
-  private ClassNameAnnotationScanner() {
+  private ClassNameAnnotationScannerUtils() {
   }
 
   /**
