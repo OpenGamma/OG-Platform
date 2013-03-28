@@ -9,7 +9,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.ExerciseDecisionType;
-import com.opengamma.analytics.financial.equity.future.definition.EquityFutureDefinition;
+import com.opengamma.analytics.financial.equity.future.definition.IndexFutureDefinition;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityIndexFuture;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
@@ -25,7 +25,7 @@ public class EquityIndexFutureOptionDefinition implements InstrumentDefinition<E
   private final ZonedDateTime _expiryDate;
   /** The underlying equity future */
   //TODO probably best to create a separate type for equity index futures
-  private final EquityFutureDefinition _underlying;
+  private final IndexFutureDefinition _underlying;
   /** The strike */
   private final double _strike;
   /** The exercise type */
@@ -43,7 +43,7 @@ public class EquityIndexFutureOptionDefinition implements InstrumentDefinition<E
    * @param isCall true if call, false if put
    * @param pointValue The point value
    */
-  public EquityIndexFutureOptionDefinition(final ZonedDateTime expiryDate, final EquityFutureDefinition underlying, final double strike, final ExerciseDecisionType exerciseType,
+  public EquityIndexFutureOptionDefinition(final ZonedDateTime expiryDate, final IndexFutureDefinition underlying, final double strike, final ExerciseDecisionType exerciseType,
       final boolean isCall, final double pointValue) {
     ArgumentChecker.notNull(expiryDate, "expiry date");
     ArgumentChecker.notNull(underlying, "underlying");
@@ -69,7 +69,7 @@ public class EquityIndexFutureOptionDefinition implements InstrumentDefinition<E
    * Gets the definition of the underlying.
    * @return The underlying definition
    */
-  public EquityFutureDefinition getUnderlying() {
+  public IndexFutureDefinition getUnderlying() {
     return _underlying;
   }
 
