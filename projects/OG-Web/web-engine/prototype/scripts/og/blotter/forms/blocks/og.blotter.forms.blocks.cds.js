@@ -11,7 +11,7 @@ $.register_module({
             var block = this, form = config.form, data = config.data, ui = og.common.util.ui;
             form.Block.call(block, {
                 module: 'og.blotter.forms.blocks.cds_tash',
-                extras: {legacy: config.legacy, standard: config.standard, stdvanilla: config.stdvanilla},
+                extras: {data: data.security, legacy: config.legacy, standard: config.standard, stdvanilla: config.stdvanilla},
                 children: [
                     new og.blotter.forms.blocks.Security({
                         form: form, label: 'Protection Buyer', security: data.security.protectionBuyer,
@@ -30,34 +30,34 @@ $.register_module({
                     }),
                     new ui.Dropdown({
                         form: form, resource: 'blotter.regions', index: 'security.regionId',
-                        value: data.regionId, placeholder: 'Select Region ID'
+                        value: data.security.regionId, placeholder: 'Select Region ID'
                     }),
                     new ui.Dropdown({
                         form: form, resource: 'blotter.daycountconventions', index: 'security.dayCount',
-                        value: data.dayCount, placeholder: 'Select Day Count'
+                        value: data.security.dayCount, placeholder: 'Select Day Count'
                     }),
                     new ui.Dropdown({
                         form: form, resource: 'blotter.frequencies', index:  'security.couponFrequency',
-                        value: data.couponFrequency, placeholder: 'Select Frequency'
+                        value: data.security.couponFrequency, placeholder: 'Select Frequency'
                     }),
                     new ui.Dropdown({
                         form: form, resource: 'blotter.businessdayconventions', 
-                        index:  'security.businessDayConvention', value: data.businessDayConvention, 
+                        index:  'security.businessDayConvention', value: data.security.businessDayConvention, 
                         placeholder: 'Select Business Day Convention'
                     }),
                     new ui.Dropdown({
                         form: form, resource: 'blotter.restructuringclause', 
-                        index:  'security.restructuringClause', value: data.restructuringClause, 
+                        index:  'security.restructuringClause', value: data.security.restructuringClause, 
                         placeholder: 'Select Restructuring Clause'
                     }),
                     new ui.Dropdown({
                         form: form, resource: 'blotter.debtseniority', 
-                        index:  'security.debtSeniority', value: data.debtSeniority, 
+                        index:  'security.debtSeniority', value: data.security.debtSeniority, 
                         placeholder: 'Select Debt Seniority'
                     }),
                     new ui.Dropdown({
                         form: form, resource: 'blotter.stubtype', 
-                        index:  'security.stubType', value: data.stubType, 
+                        index:  'security.stubType', value: data.security.stubType, 
                         placeholder: 'Select Stub Type'
                     }),
                     new form.Block({module:'og.views.forms.currency_tash', 
