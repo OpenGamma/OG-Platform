@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import org.testng.annotations.Test;
 
 import com.google.common.io.Files;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.test.TestGroup;
 
 /**
@@ -37,7 +38,6 @@ public class BerkeleyDBTempTargetRepositoryTest {
     try {
       assertNull(targets.getOldGeneration(0));
       assertNull(targets.getNewGeneration(0));
-      assertNull(targets.findOldGeneration(new MockTempTarget("Foo")));
       assertFalse(targets.copyOldToNewGeneration(0, new ArrayList<Long>()));
       targets.nextGeneration();
     } finally {
@@ -48,9 +48,9 @@ public class BerkeleyDBTempTargetRepositoryTest {
   public void testTargetMatches() {
     final BerkeleyDBTempTargetRepository targets = createTempTargetRepository();
     try {
-      assertEquals(targets.findOrAddNewGeneration(new MockTempTarget("Foo")), 0L);
-      assertEquals(targets.findOrAddNewGeneration(new MockTempTarget("Bar")), 1L);
-      assertEquals(targets.findOrAddNewGeneration(new MockTempTarget("Foo")), 0L);
+      assertEquals(targets.locateOrStoreImpl(new MockTempTarget("Foo")), UniqueId.of("Tmp", "0"));
+      assertEquals(targets.locateOrStoreImpl(new MockTempTarget("Bar")), UniqueId.of("Tmp", "1"));
+      assertEquals(targets.locateOrStoreImpl(new MockTempTarget("Foo")), UniqueId.of("Tmp", "0"));
       assertEquals(targets.getNewGeneration(0), new MockTempTarget("Foo"));
       assertEquals(targets.getNewGeneration(1), new MockTempTarget("Bar"));
       assertTrue(targets.copyOldToNewGeneration(0, new ArrayList<Long>()));
@@ -59,7 +59,7 @@ public class BerkeleyDBTempTargetRepositoryTest {
       assertEquals(targets.getOldGeneration(1), new MockTempTarget("Bar"));
       assertNull(targets.getNewGeneration(0));
       assertNull(targets.getNewGeneration(1));
-      assertEquals(targets.findOrAddNewGeneration(new MockTempTarget("Cow")), 2L);
+      assertEquals(targets.locateOrStoreImpl(new MockTempTarget("Cow")), UniqueId.of("Tmp", "2"));
       assertEquals(targets.getNewGeneration(2), new MockTempTarget("Cow"));
     } finally {
       targets.stop();
@@ -69,12 +69,12 @@ public class BerkeleyDBTempTargetRepositoryTest {
   public void testRotation() {
     final BerkeleyDBTempTargetRepository targets = createTempTargetRepository();
     try {
-      assertEquals(targets.findOrAddNewGeneration(new MockTempTarget("Foo")), 0L);
+      assertEquals(targets.locateOrStoreImpl(new MockTempTarget("Foo")), UniqueId.of("Tmp", "0"));
       final long t = System.nanoTime();
-      assertEquals(targets.findOrAddNewGeneration(new MockTempTarget("Bar")), 1L);
+      assertEquals(targets.locateOrStoreImpl(new MockTempTarget("Bar")), UniqueId.of("Tmp", "1"));
       assertTrue(targets.copyOldToNewGeneration(0, new ArrayList<Long>()));
       targets.nextGeneration();
-      assertEquals(targets.findOrAddNewGeneration(new MockTempTarget("Cow")), 2L);
+      assertEquals(targets.locateOrStoreImpl(new MockTempTarget("Cow")), UniqueId.of("Tmp", "2"));
       assertTrue(targets.copyOldToNewGeneration(t, new ArrayList<Long>()));
       targets.nextGeneration();
       assertNull(targets.getOldGeneration(0));
