@@ -35,6 +35,14 @@ public interface LocalDateDoubleTimeSeries extends DoubleTimeSeries<LocalDate>, 
    */
   LocalDateDoubleIterator iterator();
 
+  /**
+   * Gets the value associated with the time, specifying the primitive {@code int} date.
+   * 
+   * @param date  the primitive date equivalent to a {@code LocalDate}
+   * @return the matching value, null if there is no value for the date
+   */
+  Double getValue(int date);
+
   //-------------------------------------------------------------------------
   @Override  // override for covariant return type
   LocalDateDoubleTimeSeries subSeries(LocalDate startTime, boolean includeStart, LocalDate endTime, boolean includeEnd);
@@ -119,6 +127,15 @@ public interface LocalDateDoubleTimeSeries extends DoubleTimeSeries<LocalDate>, 
           throw new UnsupportedOperationException("Immutable iterator");
         }
       };
+    }
+
+    @Override
+    public Double getValue(int time) {
+      try {
+        return getFastSeries().getValueFast(time);
+      } catch (NoSuchElementException ex) {
+        return null;
+      }
     }
 
     //-------------------------------------------------------------------------
@@ -223,6 +240,15 @@ public interface LocalDateDoubleTimeSeries extends DoubleTimeSeries<LocalDate>, 
           throw new UnsupportedOperationException("Immutable iterator");
         }
       };
+    }
+
+    @Override
+    public Double getValue(int time) {
+      try {
+        return getFastSeries().getValueFast(time);
+      } catch (NoSuchElementException ex) {
+        return null;
+      }
     }
 
     //-------------------------------------------------------------------------

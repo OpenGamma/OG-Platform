@@ -91,6 +91,15 @@ public interface MutableLocalDateDoubleTimeSeries extends LocalDateDoubleTimeSer
       };
     }
 
+    @Override
+    public Double getValue(int time) {
+      try {
+        return getFastSeries().getValueFast(time);
+      } catch (NoSuchElementException ex) {
+        return null;
+      }
+    }
+
     //-------------------------------------------------------------------------
     @Override
     public LocalDateDoubleTimeSeries subSeries(LocalDate startTime, boolean includeStart, LocalDate endTime, boolean includeEnd) {
@@ -188,6 +197,15 @@ public interface MutableLocalDateDoubleTimeSeries extends LocalDateDoubleTimeSer
           throw new UnsupportedOperationException("Immutable iterator");
         }
       };
+    }
+
+    @Override
+    public Double getValue(int time) {
+      try {
+        return getFastSeries().getValueFast(time);
+      } catch (NoSuchElementException ex) {
+        return null;
+      }
     }
 
     //-------------------------------------------------------------------------
