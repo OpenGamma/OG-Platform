@@ -11,6 +11,7 @@ import java.util.Map;
 
 import org.apache.commons.lang.ObjectUtils;
 
+import com.opengamma.core.config.Config;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
 import com.opengamma.util.ArgumentChecker;
@@ -18,6 +19,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
+@Config
 public class MultiCurveCalculationConfig {
   //TODO check inputs for instrument exposures - need some or all of yield curve names in the array of names
   private final String _calculationConfigName;

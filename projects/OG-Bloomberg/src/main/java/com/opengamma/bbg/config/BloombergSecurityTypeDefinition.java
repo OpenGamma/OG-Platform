@@ -19,6 +19,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.opengamma.bbg.loader.SecurityType;
+import com.opengamma.core.config.Config;
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
@@ -27,6 +28,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * The mapping of bloomberg security types description to OG security types.
  */
+@Config
 public class BloombergSecurityTypeDefinition implements Serializable, UniqueIdentifiable, MutableUniqueIdentifiable {
   
   private static final long serialVersionUID = 1L;
