@@ -1217,6 +1217,28 @@ public class FinancialSecurityUtils {
           final double notional = security.getMinimumAmount();
           return CurrencyAmount.of(currency, notional);
         }
+
+        @Override
+        public CurrencyAmount visitSwaptionSecurity(final SwaptionSecurity security) {
+          final Currency currency = security.getCurrency();
+          final double notional = security.getNotional();
+          return CurrencyAmount.of(currency, notional);
+        }
+
+        @Override
+        public CurrencyAmount visitEquityIndexOptionSecurity(final EquityIndexOptionSecurity security) {
+          final Currency currency = security.getCurrency();
+          final double notional = security.getPointValue();
+          return CurrencyAmount.of(currency, notional);
+        }
+
+        @Override
+        public CurrencyAmount visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
+          final Currency currency = security.getCurrency();
+          final double notional = security.getUnitAmount();
+          return CurrencyAmount.of(currency, notional);
+        }
+
       });
       return notional;
     }
