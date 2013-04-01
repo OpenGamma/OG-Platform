@@ -24,7 +24,7 @@ import com.opengamma.util.money.Currency;
 /**
  * Definition of a Standard CDS i.e. with the features of CDS contracts post the Big Bang in 2009
  */
-public class StandardCreditDefaultSwapDefinition extends CreditDefaultSwapDefinition {
+public abstract class StandardCreditDefaultSwapDefinition extends CreditDefaultSwapDefinition {
 
   //----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -162,122 +162,7 @@ public class StandardCreditDefaultSwapDefinition extends CreditDefaultSwapDefini
     return _adjustCashSettlementDate;
   }
 
-  // ----------------------------------------------------------------------------------------------------------------------------------------
-
-  // Builder method to allow the maturity of a standard CDS object to be modified (used during calibration of the survival curve)
-
-  public StandardCreditDefaultSwapDefinition withMaturity(final ZonedDateTime maturityDate) {
-
-    ArgumentChecker.notNull(maturityDate, "maturity date");
-    ArgumentChecker.isTrue(!getEffectiveDate().isAfter(maturityDate), "Effective date {} must be on or before maturity date {} (calibration error)", getEffectiveDate(), maturityDate);
-
-    final StandardCreditDefaultSwapDefinition modifiedCDS = new StandardCreditDefaultSwapDefinition(
-        getBuySellProtection(),
-        getProtectionBuyer(),
-        getProtectionSeller(),
-        getReferenceEntity(),
-        getCurrency(),
-        getDebtSeniority(),
-        getRestructuringClause(),
-        getCalendar(),
-        getStartDate(),
-        getEffectiveDate(),
-        maturityDate,
-        getStubType(),
-        getCouponFrequency(),
-        getDayCountFractionConvention(),
-        getBusinessDayAdjustmentConvention(),
-        getIMMAdjustMaturityDate(),
-        getAdjustEffectiveDate(),
-        getAdjustMaturityDate(),
-        getNotional(),
-        getRecoveryRate(),
-        getIncludeAccruedPremium(),
-        getProtectionStart(),
-        _quotedSpread,
-        _premiumLegCoupon,
-        _upfrontAmount,
-        _cashSettlementDate,
-        _adjustCashSettlementDate);
-
-    return modifiedCDS;
-  }
-
-  // ----------------------------------------------------------------------------------------------------------------------------------------
-
-  // Builder method to allow the premium leg coupon of a standard CDS object to be modified (used during calibration of the survival curve)
-
-  public StandardCreditDefaultSwapDefinition withSpread(final double quotedSpread) {
-
-    final StandardCreditDefaultSwapDefinition modifiedCDS = new StandardCreditDefaultSwapDefinition(
-        getBuySellProtection(),
-        getProtectionBuyer(),
-        getProtectionSeller(),
-        getReferenceEntity(),
-        getCurrency(),
-        getDebtSeniority(),
-        getRestructuringClause(),
-        getCalendar(),
-        getStartDate(),
-        getEffectiveDate(),
-        getMaturityDate(),
-        getStubType(),
-        getCouponFrequency(),
-        getDayCountFractionConvention(),
-        getBusinessDayAdjustmentConvention(),
-        getIMMAdjustMaturityDate(),
-        getAdjustEffectiveDate(),
-        getAdjustMaturityDate(),
-        getNotional(),
-        getRecoveryRate(),
-        getIncludeAccruedPremium(),
-        getProtectionStart(),
-        quotedSpread,
-        _premiumLegCoupon,
-        _upfrontAmount,
-        _cashSettlementDate,
-        _adjustCashSettlementDate);
-
-    return modifiedCDS;
-  }
-
-  // ----------------------------------------------------------------------------------------------------------------------------------------
-
-  // Builder method to allow the recovery rate of a standard CDS object to be modified (used during calibration of the survival curve)
-
-  public StandardCreditDefaultSwapDefinition withRecoveryRate(final double recoveryRate) {
-
-    final StandardCreditDefaultSwapDefinition modifiedCDS = new StandardCreditDefaultSwapDefinition(
-        getBuySellProtection(),
-        getProtectionBuyer(),
-        getProtectionSeller(),
-        getReferenceEntity(),
-        getCurrency(),
-        getDebtSeniority(),
-        getRestructuringClause(),
-        getCalendar(),
-        getStartDate(),
-        getEffectiveDate(),
-        getMaturityDate(),
-        getStubType(),
-        getCouponFrequency(),
-        getDayCountFractionConvention(),
-        getBusinessDayAdjustmentConvention(),
-        getIMMAdjustMaturityDate(),
-        getAdjustEffectiveDate(),
-        getAdjustMaturityDate(),
-        getNotional(),
-        recoveryRate,
-        getIncludeAccruedPremium(),
-        getProtectionStart(),
-        _quotedSpread,
-        _premiumLegCoupon,
-        _upfrontAmount,
-        _cashSettlementDate,
-        _adjustCashSettlementDate);
-
-    return modifiedCDS;
-  }
+  public abstract StandardCreditDefaultSwapDefinition withSpread(double spread);
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 }

@@ -8,6 +8,7 @@ package com.opengamma.analytics.financial.credit.creditdefaultswap.definition.st
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.BuySellProtection;
+import com.opengamma.analytics.financial.credit.CreditInstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.StubType;
@@ -17,6 +18,7 @@ import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -101,64 +103,109 @@ public class StandardSovereignCreditDefaultSwapDefinition extends StandardCredit
     // ----------------------------------------------------------------------------------------------------------------------------------------
   }
 
-  // ----------------------------------------------------------------------------------------------------------------------------------------
-
-  /*
   @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = super.hashCode();
-    //result = prime * result + _cashSettlementDate;
-    result = prime * result + _premiumLegCoupon.hashCode();
-    long temp;
-    temp = Double.doubleToLongBits(_quotedSpread);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
-    temp = Double.doubleToLongBits(_upfrontAmount);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
-    return result;
+  public StandardSovereignCreditDefaultSwapDefinition withSpread(final double spread) {
+    return new StandardSovereignCreditDefaultSwapDefinition(getBuySellProtection(),
+        getProtectionBuyer(),
+        getProtectionSeller(),
+        getReferenceEntity(),
+        getCurrency(),
+        getDebtSeniority(),
+        getRestructuringClause(),
+        getCalendar(),
+        getStartDate(),
+        getEffectiveDate(),
+        getMaturityDate(),
+        getStubType(),
+        getCouponFrequency(),
+        getDayCountFractionConvention(),
+        getBusinessDayAdjustmentConvention(),
+        getIMMAdjustMaturityDate(),
+        getAdjustEffectiveDate(),
+        getAdjustMaturityDate(),
+        getNotional(),
+        getRecoveryRate(),
+        getIncludeAccruedPremium(),
+        getProtectionStart(),
+        spread,
+        getPremiumLegCoupon(),
+        getUpfrontAmount(),
+        getCashSettlementDate(),
+        getAdjustCashSettlementDate());
   }
-  */
 
-  // ----------------------------------------------------------------------------------------------------------------------------------------
-
-  /*
   @Override
-  public boolean equals(final Object obj) {
-
-    if (this == obj) {
-      return true;
-    }
-
-    if (!super.equals(obj)) {
-      return false;
-    }
-
-    if (!(obj instanceof StandardSovereignCreditDefaultSwapDefinition)) {
-      return false;
-    }
-
-    final StandardSovereignCreditDefaultSwapDefinition other = (StandardSovereignCreditDefaultSwapDefinition) obj;
-
-    if (_cashSettlementDate != other._cashSettlementDate) {
-      return false;
-    }
-
-    if (_premiumLegCoupon != other._premiumLegCoupon) {
-      return false;
-    }
-
-    if (Double.compare(_quotedSpread, other._quotedSpread) != 0) {
-      return false;
-    }
-
-    if (Double.compare(_upfrontAmount, other._upfrontAmount) != 0) {
-      return false;
-    }
-
-    return true;
+  public StandardSovereignCreditDefaultSwapDefinition withMaturityDate(final ZonedDateTime maturityDate) {
+    return new StandardSovereignCreditDefaultSwapDefinition(getBuySellProtection(),
+        getProtectionBuyer(),
+        getProtectionSeller(),
+        getReferenceEntity(),
+        getCurrency(),
+        getDebtSeniority(),
+        getRestructuringClause(),
+        getCalendar(),
+        getStartDate(),
+        getEffectiveDate(),
+        maturityDate,
+        getStubType(),
+        getCouponFrequency(),
+        getDayCountFractionConvention(),
+        getBusinessDayAdjustmentConvention(),
+        getIMMAdjustMaturityDate(),
+        getAdjustEffectiveDate(),
+        getAdjustMaturityDate(),
+        getNotional(),
+        getRecoveryRate(),
+        getIncludeAccruedPremium(),
+        getProtectionStart(),
+        getQuotedSpread(),
+        getPremiumLegCoupon(),
+        getUpfrontAmount(),
+        getCashSettlementDate(),
+        getAdjustCashSettlementDate());
   }
-  */
 
-  // ----------------------------------------------------------------------------------------------------------------------------------------
+  @Override
+  public StandardSovereignCreditDefaultSwapDefinition withRecoveryRate(final double recoveryRate) {
+    return new StandardSovereignCreditDefaultSwapDefinition(getBuySellProtection(),
+        getProtectionBuyer(),
+        getProtectionSeller(),
+        getReferenceEntity(),
+        getCurrency(),
+        getDebtSeniority(),
+        getRestructuringClause(),
+        getCalendar(),
+        getStartDate(),
+        getEffectiveDate(),
+        getMaturityDate(),
+        getStubType(),
+        getCouponFrequency(),
+        getDayCountFractionConvention(),
+        getBusinessDayAdjustmentConvention(),
+        getIMMAdjustMaturityDate(),
+        getAdjustEffectiveDate(),
+        getAdjustMaturityDate(),
+        getNotional(),
+        recoveryRate,
+        getIncludeAccruedPremium(),
+        getProtectionStart(),
+        getQuotedSpread(),
+        getPremiumLegCoupon(),
+        getUpfrontAmount(),
+        getCashSettlementDate(),
+        getAdjustCashSettlementDate());
+  }
+
+  @Override
+  public <DATA_TYPE, RESULT_TYPE> RESULT_TYPE accept(final CreditInstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> visitor, final DATA_TYPE data) {
+    ArgumentChecker.notNull(visitor, "visitor");
+    return visitor.visitStandardSovereignCDS(this, data);
+  }
+
+  @Override
+  public <RESULT_TYPE> RESULT_TYPE accept(final CreditInstrumentDefinitionVisitor<Void, RESULT_TYPE> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
+    return visitor.visitStandardSovereignCDS(this);
+  }
 
 }

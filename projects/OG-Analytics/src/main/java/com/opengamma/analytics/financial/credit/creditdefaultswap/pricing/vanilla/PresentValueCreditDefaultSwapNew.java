@@ -15,6 +15,7 @@ import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.legacy
 import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
 import com.opengamma.analytics.financial.credit.schedulegeneration.GenerateCreditDefaultSwapIntegrationSchedule;
+import com.opengamma.analytics.financial.credit.schedulegeneration.GenerateCreditDefaultSwapIntegrationScheduleNew;
 import com.opengamma.analytics.financial.credit.schedulegeneration.GenerateCreditDefaultSwapPremiumLegSchedule;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
@@ -27,7 +28,7 @@ import com.opengamma.util.ArgumentChecker;
  * Class containing the methods for valuing a CDS which are common to all types of CDS e.g. the contingent leg
  * calculation
  */
-public class PresentValueCreditDefaultSwap {
+public class PresentValueCreditDefaultSwapNew {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -43,11 +44,11 @@ public class PresentValueCreditDefaultSwap {
   private static final int DEFAULT_N_POINTS = 30;
   private final int _numberOfIntegrationSteps;
 
-  public PresentValueCreditDefaultSwap() {
+  public PresentValueCreditDefaultSwapNew() {
     this(DEFAULT_N_POINTS);
   }
 
-  public PresentValueCreditDefaultSwap(final int numberOfIntegrationPoints) {
+  public PresentValueCreditDefaultSwapNew(final int numberOfIntegrationPoints) {
     _numberOfIntegrationSteps = numberOfIntegrationPoints;
   }
 
@@ -127,7 +128,7 @@ public class PresentValueCreditDefaultSwap {
     final ZonedDateTime[] premiumLegSchedule = cashflowSchedule.constructISDACompliantCreditDefaultSwapPremiumLegSchedule(cds);
 
     // Construct a schedule object for the accrued leg (this is not a cashflow schedule per se, but a set of time nodes for evaluating the accrued payment integral)
-    final GenerateCreditDefaultSwapIntegrationSchedule accruedSchedule = new GenerateCreditDefaultSwapIntegrationSchedule();
+    final GenerateCreditDefaultSwapIntegrationScheduleNew accruedSchedule = new GenerateCreditDefaultSwapIntegrationScheduleNew();
 
     // Build the integration schedule for the calculation of the accrued leg
     final ZonedDateTime[] accruedLegIntegrationSchedule = accruedSchedule.constructCreditDefaultSwapAccruedLegIntegrationSchedule(valuationDate, cds, yieldCurve, hazardRateCurve, false);
@@ -248,7 +249,7 @@ public class PresentValueCreditDefaultSwap {
 
         // TODO : Check endDate > startDate
 
-        final ZonedDateTime[] truncatedDateList = accruedSchedule.getTruncatedTimeLineDeprecated(accruedLegIntegrationSchedule, offsetAccStartDate, offsetAccEndDate);
+        final ZonedDateTime[] truncatedDateList = accruedSchedule.getTruncatedTimeLine(accruedLegIntegrationSchedule, offsetAccStartDate, offsetAccEndDate, true);
 
         ZonedDateTime subStartDate;
 
@@ -839,8 +840,6 @@ public class PresentValueCreditDefaultSwap {
 
     return pointsUpfront / cds.getNotional();
   }
-
-  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // TODO : Need to move this function
 

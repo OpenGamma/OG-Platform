@@ -8,6 +8,7 @@ package com.opengamma.analytics.financial.credit.creditdefaultswap.definition.le
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.BuySellProtection;
+import com.opengamma.analytics.financial.credit.CreditInstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.StubType;
@@ -23,7 +24,7 @@ import com.opengamma.util.money.Currency;
 /**
  * Definition of a Legacy collateralised vanilla CDS i.e. with the features of CDS contracts prior to the Big Bang in 2009
  */
-public class LegacyCollateralisedVanillaCreditDefaultSwapDefinition extends LegacyVanillaCreditDefaultSwapDefinition {
+public class LegacyCollateralizedVanillaCreditDefaultSwapDefinition extends LegacyVanillaCreditDefaultSwapDefinition {
 
   //----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -41,7 +42,7 @@ public class LegacyCollateralisedVanillaCreditDefaultSwapDefinition extends Lega
 
   // Ctor for the Legacy vanilla collateralised CDS
 
-  public LegacyCollateralisedVanillaCreditDefaultSwapDefinition(
+  public LegacyCollateralizedVanillaCreditDefaultSwapDefinition(
       final BuySellProtection buySellProtection,
       final Obligor protectionBuyer,
       final Obligor protectionSeller,
@@ -109,4 +110,156 @@ public class LegacyCollateralisedVanillaCreditDefaultSwapDefinition extends Lega
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
+  @Override
+  public LegacyCollateralizedVanillaCreditDefaultSwapDefinition withEffectiveDate(final ZonedDateTime effectiveDate) {
+    return new LegacyCollateralizedVanillaCreditDefaultSwapDefinition(getBuySellProtection(),
+        getProtectionBuyer(),
+        getProtectionSeller(),
+        getReferenceEntity(),
+        getCurrency(),
+        getDebtSeniority(),
+        getRestructuringClause(),
+        getCalendar(),
+        getStartDate(),
+        effectiveDate,
+        getMaturityDate(),
+        getStubType(),
+        getCouponFrequency(),
+        getDayCountFractionConvention(),
+        getBusinessDayAdjustmentConvention(),
+        getIMMAdjustMaturityDate(),
+        getAdjustEffectiveDate(),
+        getAdjustMaturityDate(),
+        getNotional(),
+        getRecoveryRate(),
+        getIncludeAccruedPremium(),
+        getProtectionStart(),
+        getParSpread(),
+        _creditSupportAnnex);
+  }
+
+  @Override
+  public LegacyCollateralizedVanillaCreditDefaultSwapDefinition withSpread(final double parSpread) {
+    return new LegacyCollateralizedVanillaCreditDefaultSwapDefinition(getBuySellProtection(),
+        getProtectionBuyer(),
+        getProtectionSeller(),
+        getReferenceEntity(),
+        getCurrency(),
+        getDebtSeniority(),
+        getRestructuringClause(),
+        getCalendar(),
+        getStartDate(),
+        getEffectiveDate(),
+        getMaturityDate(),
+        getStubType(),
+        getCouponFrequency(),
+        getDayCountFractionConvention(),
+        getBusinessDayAdjustmentConvention(),
+        getIMMAdjustMaturityDate(),
+        getAdjustEffectiveDate(),
+        getAdjustMaturityDate(),
+        getNotional(),
+        getRecoveryRate(),
+        getIncludeAccruedPremium(),
+        getProtectionStart(),
+        parSpread,
+        _creditSupportAnnex);
+  }
+
+  @Override
+  public LegacyCollateralizedVanillaCreditDefaultSwapDefinition withCouponFrequency(final PeriodFrequency couponFrequency) {
+    return new LegacyCollateralizedVanillaCreditDefaultSwapDefinition(getBuySellProtection(),
+        getProtectionBuyer(),
+        getProtectionSeller(),
+        getReferenceEntity(),
+        getCurrency(),
+        getDebtSeniority(),
+        getRestructuringClause(),
+        getCalendar(),
+        getStartDate(),
+        getEffectiveDate(),
+        getMaturityDate(),
+        getStubType(),
+        couponFrequency,
+        getDayCountFractionConvention(),
+        getBusinessDayAdjustmentConvention(),
+        getIMMAdjustMaturityDate(),
+        getAdjustEffectiveDate(),
+        getAdjustMaturityDate(),
+        getNotional(),
+        getRecoveryRate(),
+        getIncludeAccruedPremium(),
+        getProtectionStart(),
+        getParSpread(),
+        _creditSupportAnnex);
+  }
+
+  @Override
+  public LegacyCollateralizedVanillaCreditDefaultSwapDefinition withMaturityDate(final ZonedDateTime maturityDate) {
+    return new LegacyCollateralizedVanillaCreditDefaultSwapDefinition(getBuySellProtection(),
+        getProtectionBuyer(),
+        getProtectionSeller(),
+        getReferenceEntity(),
+        getCurrency(),
+        getDebtSeniority(),
+        getRestructuringClause(),
+        getCalendar(),
+        getStartDate(),
+        getEffectiveDate(),
+        maturityDate,
+        getStubType(),
+        getCouponFrequency(),
+        getDayCountFractionConvention(),
+        getBusinessDayAdjustmentConvention(),
+        getIMMAdjustMaturityDate(),
+        getAdjustEffectiveDate(),
+        getAdjustMaturityDate(),
+        getNotional(),
+        getRecoveryRate(),
+        getIncludeAccruedPremium(),
+        getProtectionStart(),
+        getParSpread(),
+        _creditSupportAnnex);
+  }
+
+  @Override
+  public LegacyCollateralizedVanillaCreditDefaultSwapDefinition withRecoveryRate(final double recoveryRate) {
+    return new LegacyCollateralizedVanillaCreditDefaultSwapDefinition(getBuySellProtection(),
+        getProtectionBuyer(),
+        getProtectionSeller(),
+        getReferenceEntity(),
+        getCurrency(),
+        getDebtSeniority(),
+        getRestructuringClause(),
+        getCalendar(),
+        getStartDate(),
+        getEffectiveDate(),
+        getMaturityDate(),
+        getStubType(),
+        getCouponFrequency(),
+        getDayCountFractionConvention(),
+        getBusinessDayAdjustmentConvention(),
+        getIMMAdjustMaturityDate(),
+        getAdjustEffectiveDate(),
+        getAdjustMaturityDate(),
+        getNotional(),
+        recoveryRate,
+        getIncludeAccruedPremium(),
+        getProtectionStart(),
+        getParSpread(),
+        _creditSupportAnnex);
+  }
+
+  @Override
+  public <DATA_TYPE, RESULT_TYPE> RESULT_TYPE accept(final CreditInstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> visitor, final DATA_TYPE data) {
+    ArgumentChecker.notNull(visitor, "visitor");
+    return visitor.visitLegacyCollateralizedVanillaCDS(this, data);
+  }
+
+  @Override
+  public <RESULT_TYPE> RESULT_TYPE accept(final CreditInstrumentDefinitionVisitor<Void, RESULT_TYPE> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
+    return visitor.visitLegacyCollateralizedVanillaCDS(this);
+  }
+
 }

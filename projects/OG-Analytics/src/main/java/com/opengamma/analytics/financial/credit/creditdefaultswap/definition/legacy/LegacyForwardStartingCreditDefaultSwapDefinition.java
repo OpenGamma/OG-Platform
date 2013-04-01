@@ -8,6 +8,7 @@ package com.opengamma.analytics.financial.credit.creditdefaultswap.definition.le
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.BuySellProtection;
+import com.opengamma.analytics.financial.credit.CreditInstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.StubType;
@@ -103,42 +104,187 @@ public class LegacyForwardStartingCreditDefaultSwapDefinition extends LegacyCred
     // ----------------------------------------------------------------------------------------------------------------------------------------
   }
 
-  // ----------------------------------------------------------------------------------------------------------------------------------------
-
   public ZonedDateTime getForwardStartDate() {
     return _forwardStartDate;
   }
 
-  // ----------------------------------------------------------------------------------------------------------------------------------------
-
   @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = super.hashCode();
-    long temp;
-    temp = 0; //Double.doubleToLongBits(_parSpread);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
-    return result;
+  public LegacyForwardStartingCreditDefaultSwapDefinition withStartDate(final ZonedDateTime startDate) {
+    return new LegacyForwardStartingCreditDefaultSwapDefinition(getBuySellProtection(),
+        getProtectionBuyer(),
+        getProtectionSeller(),
+        getReferenceEntity(),
+        getCurrency(),
+        getDebtSeniority(),
+        getRestructuringClause(),
+        getCalendar(),
+        startDate,
+        getEffectiveDate(),
+        getMaturityDate(),
+        getStubType(),
+        getCouponFrequency(),
+        getDayCountFractionConvention(),
+        getBusinessDayAdjustmentConvention(),
+        getIMMAdjustMaturityDate(),
+        getAdjustEffectiveDate(),
+        getAdjustMaturityDate(),
+        getNotional(),
+        getRecoveryRate(),
+        getIncludeAccruedPremium(),
+        getProtectionStart(),
+        getParSpread(),
+        _forwardStartDate);
   }
 
-  // ----------------------------------------------------------------------------------------------------------------------------------------
-
   @Override
-  public boolean equals(final Object obj) {
-
-    if (this == obj) {
-      return true;
-    }
-
-    if (!super.equals(obj)) {
-      return false;
-    }
-    if (!(obj instanceof LegacyForwardStartingCreditDefaultSwapDefinition)) {
-      return false;
-    }
-
-    return true;
+  public LegacyForwardStartingCreditDefaultSwapDefinition withEffectiveDate(final ZonedDateTime effectiveDate) {
+    return new LegacyForwardStartingCreditDefaultSwapDefinition(getBuySellProtection(),
+        getProtectionBuyer(),
+        getProtectionSeller(),
+        getReferenceEntity(),
+        getCurrency(),
+        getDebtSeniority(),
+        getRestructuringClause(),
+        getCalendar(),
+        getStartDate(),
+        effectiveDate,
+        getMaturityDate(),
+        getStubType(),
+        getCouponFrequency(),
+        getDayCountFractionConvention(),
+        getBusinessDayAdjustmentConvention(),
+        getIMMAdjustMaturityDate(),
+        getAdjustEffectiveDate(),
+        getAdjustMaturityDate(),
+        getNotional(),
+        getRecoveryRate(),
+        getIncludeAccruedPremium(),
+        getProtectionStart(),
+        getParSpread(),
+        _forwardStartDate);
   }
 
-  // ----------------------------------------------------------------------------------------------------------------------------------------
+  @Override
+  public LegacyForwardStartingCreditDefaultSwapDefinition withSpread(final double parSpread) {
+    return new LegacyForwardStartingCreditDefaultSwapDefinition(getBuySellProtection(),
+        getProtectionBuyer(),
+        getProtectionSeller(),
+        getReferenceEntity(),
+        getCurrency(),
+        getDebtSeniority(),
+        getRestructuringClause(),
+        getCalendar(),
+        getStartDate(),
+        getEffectiveDate(),
+        getMaturityDate(),
+        getStubType(),
+        getCouponFrequency(),
+        getDayCountFractionConvention(),
+        getBusinessDayAdjustmentConvention(),
+        getIMMAdjustMaturityDate(),
+        getAdjustEffectiveDate(),
+        getAdjustMaturityDate(),
+        getNotional(),
+        getRecoveryRate(),
+        getIncludeAccruedPremium(),
+        getProtectionStart(),
+        parSpread,
+        _forwardStartDate);
+  }
+
+  @Override
+  public LegacyForwardStartingCreditDefaultSwapDefinition withCouponFrequency(final PeriodFrequency couponFrequency) {
+    return new LegacyForwardStartingCreditDefaultSwapDefinition(getBuySellProtection(),
+        getProtectionBuyer(),
+        getProtectionSeller(),
+        getReferenceEntity(),
+        getCurrency(),
+        getDebtSeniority(),
+        getRestructuringClause(),
+        getCalendar(),
+        getStartDate(),
+        getEffectiveDate(),
+        getMaturityDate(),
+        getStubType(),
+        couponFrequency,
+        getDayCountFractionConvention(),
+        getBusinessDayAdjustmentConvention(),
+        getIMMAdjustMaturityDate(),
+        getAdjustEffectiveDate(),
+        getAdjustMaturityDate(),
+        getNotional(),
+        getRecoveryRate(),
+        getIncludeAccruedPremium(),
+        getProtectionStart(),
+        getParSpread(),
+        _forwardStartDate);
+  }
+
+  @Override
+  public LegacyForwardStartingCreditDefaultSwapDefinition withMaturityDate(final ZonedDateTime maturityDate) {
+    return new LegacyForwardStartingCreditDefaultSwapDefinition(getBuySellProtection(),
+        getProtectionBuyer(),
+        getProtectionSeller(),
+        getReferenceEntity(),
+        getCurrency(),
+        getDebtSeniority(),
+        getRestructuringClause(),
+        getCalendar(),
+        getStartDate(),
+        getEffectiveDate(),
+        maturityDate,
+        getStubType(),
+        getCouponFrequency(),
+        getDayCountFractionConvention(),
+        getBusinessDayAdjustmentConvention(),
+        getIMMAdjustMaturityDate(),
+        getAdjustEffectiveDate(),
+        getAdjustMaturityDate(),
+        getNotional(),
+        getRecoveryRate(),
+        getIncludeAccruedPremium(),
+        getProtectionStart(),
+        getParSpread(),
+        _forwardStartDate);
+  }
+
+  @Override
+  public LegacyForwardStartingCreditDefaultSwapDefinition withRecoveryRate(final double recoveryRate) {
+    return new LegacyForwardStartingCreditDefaultSwapDefinition(getBuySellProtection(),
+        getProtectionBuyer(),
+        getProtectionSeller(),
+        getReferenceEntity(),
+        getCurrency(),
+        getDebtSeniority(),
+        getRestructuringClause(),
+        getCalendar(),
+        getStartDate(),
+        getEffectiveDate(),
+        getMaturityDate(),
+        getStubType(),
+        getCouponFrequency(),
+        getDayCountFractionConvention(),
+        getBusinessDayAdjustmentConvention(),
+        getIMMAdjustMaturityDate(),
+        getAdjustEffectiveDate(),
+        getAdjustMaturityDate(),
+        getNotional(),
+        recoveryRate,
+        getIncludeAccruedPremium(),
+        getProtectionStart(),
+        getParSpread(),
+        _forwardStartDate);
+  }
+
+  @Override
+  public <DATA_TYPE, RESULT_TYPE> RESULT_TYPE accept(final CreditInstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> visitor, final DATA_TYPE data) {
+    ArgumentChecker.notNull(visitor, "visitor");
+    return visitor.visitLegacyForwardStartingCDS(this, data);
+  }
+
+  @Override
+  public <RESULT_TYPE> RESULT_TYPE accept(final CreditInstrumentDefinitionVisitor<Void, RESULT_TYPE> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
+    return visitor.visitLegacyForwardStartingCDS(this);
+  }
 }
