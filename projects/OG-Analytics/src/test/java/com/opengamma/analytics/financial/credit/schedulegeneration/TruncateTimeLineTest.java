@@ -14,13 +14,12 @@ import java.util.List;
 import org.testng.annotations.Test;
 import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * 
  */
-@Test(groups = TestGroup.UNIT)
+//@Test(groups = TestGroup.UNIT)
 public class TruncateTimeLineTest {
   private static final GenerateCreditDefaultSwapIntegrationScheduleNew CALCULATOR = new GenerateCreditDefaultSwapIntegrationScheduleNew();
   private static final GenerateCreditDefaultSwapIntegrationSchedule DEPRECATED_CALCULATOR = new GenerateCreditDefaultSwapIntegrationSchedule();
