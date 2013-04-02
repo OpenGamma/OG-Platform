@@ -6,9 +6,7 @@
 package com.opengamma.core.organization;
 
 import com.opengamma.core.Source;
-import com.opengamma.core.SourceWithExternalBundle;
 import com.opengamma.core.change.ChangeProvider;
-import com.opengamma.core.security.Security;
 import com.opengamma.util.PublicSPI;
 
 /**
