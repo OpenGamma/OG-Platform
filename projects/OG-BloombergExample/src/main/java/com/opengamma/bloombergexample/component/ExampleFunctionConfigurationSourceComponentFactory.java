@@ -22,7 +22,7 @@ import com.opengamma.financial.analytics.model.forex.defaultproperties.FXOptionB
 /**
  * Component factory for the repository configuration source.
  */
-public class ExampleRepositoryConfigurationSourceComponentFactory extends FunctionConfigurationSourceComponentFactory {
+public class ExampleFunctionConfigurationSourceComponentFactory extends FunctionConfigurationSourceComponentFactory {
 
   @Override
   protected List<FunctionConfigurationSource> initSources() {

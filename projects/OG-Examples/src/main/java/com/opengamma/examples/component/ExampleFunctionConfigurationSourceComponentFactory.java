@@ -25,7 +25,7 @@ import com.opengamma.examples.tutorial.TutorialFunctions;
  * Component factory for the function configuration source.
  */
 @BeanDefinition
-public class ExampleRepositoryConfigurationSourceComponentFactory extends FunctionConfigurationSourceComponentFactory {
+public class ExampleFunctionConfigurationSourceComponentFactory extends FunctionConfigurationSourceComponentFactory {
 
   @Override
   protected FunctionConfigurationSource standardConfiguration() {
@@ -54,16 +54,16 @@ public class ExampleRepositoryConfigurationSourceComponentFactory extends Functi
    * The meta-bean for {@code ExampleRepositoryConfigurationSourceComponentFactory}.
    * @return the meta-bean, not null
    */
-  public static ExampleRepositoryConfigurationSourceComponentFactory.Meta meta() {
-    return ExampleRepositoryConfigurationSourceComponentFactory.Meta.INSTANCE;
+  public static ExampleFunctionConfigurationSourceComponentFactory.Meta meta() {
+    return ExampleFunctionConfigurationSourceComponentFactory.Meta.INSTANCE;
   }
   static {
-    JodaBeanUtils.registerMetaBean(ExampleRepositoryConfigurationSourceComponentFactory.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(ExampleFunctionConfigurationSourceComponentFactory.Meta.INSTANCE);
   }
 
   @Override
-  public ExampleRepositoryConfigurationSourceComponentFactory.Meta metaBean() {
-    return ExampleRepositoryConfigurationSourceComponentFactory.Meta.INSTANCE;
+  public ExampleFunctionConfigurationSourceComponentFactory.Meta metaBean() {
+    return ExampleFunctionConfigurationSourceComponentFactory.Meta.INSTANCE;
   }
 
   @Override
@@ -116,13 +116,13 @@ public class ExampleRepositoryConfigurationSourceComponentFactory extends Functi
     }
 
     @Override
-    public BeanBuilder<? extends ExampleRepositoryConfigurationSourceComponentFactory> builder() {
-      return new DirectBeanBuilder<ExampleRepositoryConfigurationSourceComponentFactory>(new ExampleRepositoryConfigurationSourceComponentFactory());
+    public BeanBuilder<? extends ExampleFunctionConfigurationSourceComponentFactory> builder() {
+      return new DirectBeanBuilder<ExampleFunctionConfigurationSourceComponentFactory>(new ExampleFunctionConfigurationSourceComponentFactory());
     }
 
     @Override
-    public Class<? extends ExampleRepositoryConfigurationSourceComponentFactory> beanType() {
-      return ExampleRepositoryConfigurationSourceComponentFactory.class;
+    public Class<? extends ExampleFunctionConfigurationSourceComponentFactory> beanType() {
+      return ExampleFunctionConfigurationSourceComponentFactory.class;
     }
 
     @Override
