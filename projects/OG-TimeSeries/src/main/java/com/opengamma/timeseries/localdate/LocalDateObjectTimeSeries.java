@@ -7,57 +7,20 @@ package com.opengamma.timeseries.localdate;
 
 import org.threeten.bp.LocalDate;
 
-import com.opengamma.timeseries.AbstractIntObjectTimeSeries;
-import com.opengamma.timeseries.AbstractLongObjectTimeSeries;
-import com.opengamma.timeseries.DateTimeConverter;
 import com.opengamma.timeseries.FastBackedObjectTimeSeries;
 import com.opengamma.timeseries.ObjectTimeSeries;
-import com.opengamma.timeseries.fast.integer.object.FastIntObjectTimeSeries;
-import com.opengamma.timeseries.fast.longint.object.FastLongObjectTimeSeries;
 
 /**
- * @param <T> The type of the data
+ * A time series that stores {@code Object} data values against {@code LocalDate} dates.
+ * <p>
+ * The "time" key to the time-series is a {@code LocalDate}.
+ * Some methods on the API represent the "time" as an {@code int}.
+ * Some implementations may store the {@code int} rather than {@code LocalDate} internally.
+ * The mapping between the two is available using {@link LocalDateToIntConverter}.
+ * 
+ * @param <T>  the type of the data
  */
 public interface LocalDateObjectTimeSeries<T>
     extends ObjectTimeSeries<LocalDate, T>, FastBackedObjectTimeSeries<LocalDate, T> {
 
-  /** */
-  public abstract static class Integer<T>
-      extends AbstractIntObjectTimeSeries<LocalDate, T>
-      implements LocalDateObjectTimeSeries<T> {
-
-    /** Serialization version. */
-    private static final long serialVersionUID = -4801663305568678025L;
-
-    public Integer(final DateTimeConverter<LocalDate> converter, final FastIntObjectTimeSeries<T> timeSeries) {
-      super(converter, timeSeries);
-    }
-
-    @Override
-    public ObjectTimeSeries<LocalDate, T> newInstance(final LocalDate[] dateTimes, final T[] values) {
-      return newInstanceFast(dateTimes, values);
-    }
-
-    public abstract LocalDateObjectTimeSeries<T> newInstanceFast(LocalDate[] dateTimes, T[] values);
-  }
-
-  /** */
-  public abstract static class Long<T>
-      extends AbstractLongObjectTimeSeries<LocalDate, T>
-      implements LocalDateObjectTimeSeries<T> {
-
-    /** Serialization version. */
-    private static final long serialVersionUID = -3594255957679410231L;
-
-    public Long(final DateTimeConverter<LocalDate> converter, final FastLongObjectTimeSeries<T> timeSeries) {
-      super(converter, timeSeries);
-    }
-
-    @Override
-    public ObjectTimeSeries<LocalDate, T> newInstance(final LocalDate[] dateTimes, final T[] values) {
-      return newInstanceFast(dateTimes, values);
-    }
-
-    public abstract LocalDateObjectTimeSeries<T> newInstanceFast(LocalDate[] dateTimes, T[] values);
-  }
 }

@@ -18,9 +18,11 @@ import com.opengamma.timeseries.fast.integer.object.FastIntObjectTimeSeries;
 import com.opengamma.timeseries.fast.integer.object.FastListIntObjectTimeSeries;
 
 /**
- * @param <T> The type of the data
+ * Standard immutable implementation of {@code LocalDateObjectTimeSeries}.
+ * 
+ * @param <T> the type of the data
  */
-public class ArrayLocalDateObjectTimeSeries<T> extends LocalDateObjectTimeSeries.Integer<T> {
+public class ArrayLocalDateObjectTimeSeries<T> extends AbstractLocalDateObjectTimeSeries<T> {
 
   /** Serialization version. */
   private static final long serialVersionUID = 8762539342788274538L;
