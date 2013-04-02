@@ -7,7 +7,7 @@ package com.opengamma.financial.function.rest;
 
 import java.net.URI;
 
-import com.opengamma.engine.function.config.RepositoryConfiguration;
+import com.opengamma.engine.function.config.FunctionConfigurationBundle;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
 import com.opengamma.util.rest.AbstractRemoteClient;
 
@@ -27,9 +27,9 @@ public class RemoteRepositoryConfigurationSource extends AbstractRemoteClient im
 
   //-------------------------------------------------------------------------
   @Override
-  public RepositoryConfiguration getRepositoryConfiguration() {
+  public FunctionConfigurationBundle getRepositoryConfiguration() {
     URI uri = DataRepositoryConfigurationSourceResource.uriGetAll(getBaseUri());
-    return accessRemote(uri).get(RepositoryConfiguration.class);
+    return accessRemote(uri).get(FunctionConfigurationBundle.class);
   }
 
 }

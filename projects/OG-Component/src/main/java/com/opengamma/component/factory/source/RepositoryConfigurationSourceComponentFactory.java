@@ -29,8 +29,8 @@ import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.engine.function.config.CombiningRepositoryConfigurationSource;
 import com.opengamma.engine.function.config.FunctionConfiguration;
+import com.opengamma.engine.function.config.FunctionConfigurationBundle;
 import com.opengamma.engine.function.config.ParameterizedFunctionConfiguration;
-import com.opengamma.engine.function.config.RepositoryConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
 import com.opengamma.engine.function.config.StaticFunctionConfiguration;
 import com.opengamma.financial.FinancialFunctions;
@@ -95,7 +95,7 @@ public class RepositoryConfigurationSourceComponentFactory extends AbstractCompo
     return new RepositoryConfigurationSource() {
 
       @Override
-      public RepositoryConfiguration getRepositoryConfiguration() {
+      public FunctionConfigurationBundle getRepositoryConfiguration() {
         final List<FunctionConfiguration> functions = new ArrayList<FunctionConfiguration>(source.getRepositoryConfiguration().getFunctions());
         Collections.sort(functions, new Comparator<FunctionConfiguration>() {
 
@@ -142,7 +142,7 @@ public class RepositoryConfigurationSourceComponentFactory extends AbstractCompo
           }
 
         });
-        return new RepositoryConfiguration(functions);
+        return new FunctionConfigurationBundle(functions);
       }
 
     };

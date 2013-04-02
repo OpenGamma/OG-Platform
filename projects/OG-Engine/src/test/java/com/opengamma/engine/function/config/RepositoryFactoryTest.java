@@ -128,7 +128,7 @@ public class RepositoryFactoryTest {
   }
 
   public void emptyConfiguration() {
-    final RepositoryConfiguration configuration = new RepositoryConfiguration();
+    final FunctionConfigurationBundle configuration = new FunctionConfigurationBundle();
     final InMemoryFunctionRepository repo = RepositoryFactory.constructRepository(configuration);
     assertNotNull(repo);
     assertEquals(repo.getAllFunctions().size(), RepositoryFactory.INTRINSIC_FUNCTION_COUNT);
@@ -139,7 +139,7 @@ public class RepositoryFactoryTest {
   }
 
   public void singleConfigurationNoArgs() {
-    final RepositoryConfiguration configuration = new RepositoryConfiguration();
+    final FunctionConfigurationBundle configuration = new FunctionConfigurationBundle();
     configuration.addFunctions(new StaticFunctionConfiguration(MockEmptyFunction.class.getName()));
     final InMemoryFunctionRepository repo = RepositoryFactory.constructRepository(configuration);
     assertNotNull(repo);
@@ -167,7 +167,7 @@ public class RepositoryFactoryTest {
   }
 
   public void twoConfigurationsWithArgs() {
-    final RepositoryConfiguration configuration = new RepositoryConfiguration();
+    final FunctionConfigurationBundle configuration = new FunctionConfigurationBundle();
     configuration.addFunctions(new ParameterizedFunctionConfiguration(MockSingleArgumentFunction.class.getName(), Collections.singleton("foo")));
     configuration.addFunctions(new ParameterizedFunctionConfiguration(MockMultiArgumentFunctionArrayForm.class.getName(), Lists.newArrayList(
         "foo1", "foo2")));

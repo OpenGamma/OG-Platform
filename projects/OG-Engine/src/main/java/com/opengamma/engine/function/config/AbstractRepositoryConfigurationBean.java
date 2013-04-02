@@ -31,10 +31,10 @@ public abstract class AbstractRepositoryConfigurationBean extends SingletonFacto
 
   protected abstract void addAllConfigurations(final List<FunctionConfiguration> functions);
 
-  protected RepositoryConfiguration createRepositoryConfiguration() {
+  protected FunctionConfigurationBundle createRepositoryConfiguration() {
     final List<FunctionConfiguration> functions = new LinkedList<FunctionConfiguration>();
     addAllConfigurations(functions);
-    return new RepositoryConfiguration(functions);
+    return new FunctionConfigurationBundle(functions);
   }
 
   @Override

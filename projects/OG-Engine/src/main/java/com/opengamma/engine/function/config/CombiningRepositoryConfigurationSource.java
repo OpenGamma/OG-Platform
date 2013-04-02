@@ -60,14 +60,14 @@ public class CombiningRepositoryConfigurationSource implements RepositoryConfigu
    */
   public static RepositoryConfigurationSource of(final RepositoryConfigurationSource... sources) {
     if ((sources == null) || (sources.length == 0)) {
-      return new SimpleRepositoryConfigurationSource(new RepositoryConfiguration(Collections.<FunctionConfiguration>emptyList()));
+      return new SimpleRepositoryConfigurationSource(new FunctionConfigurationBundle(Collections.<FunctionConfiguration>emptyList()));
     }
     int i = 0;
     for (final RepositoryConfigurationSource source : sources) {
       i += count(source);
     }
     if (i == 0) {
-      return new SimpleRepositoryConfigurationSource(new RepositoryConfiguration(Collections.<FunctionConfiguration>emptyList()));
+      return new SimpleRepositoryConfigurationSource(new FunctionConfigurationBundle(Collections.<FunctionConfiguration>emptyList()));
     } else if (i == 1) {
       for (final RepositoryConfigurationSource source : sources) {
         if (source != null) {
@@ -90,12 +90,12 @@ public class CombiningRepositoryConfigurationSource implements RepositoryConfigu
   }
 
   @Override
-  public RepositoryConfiguration getRepositoryConfiguration() {
+  public FunctionConfigurationBundle getRepositoryConfiguration() {
     final List<FunctionConfiguration> configs = new ArrayList<FunctionConfiguration>();
     for (final RepositoryConfigurationSource source : getSources()) {
       configs.addAll(source.getRepositoryConfiguration().getFunctions());
     }
-    return new RepositoryConfiguration(configs);
+    return new FunctionConfigurationBundle(configs);
   }
 
 }

@@ -1,13 +1,13 @@
 // Automatically created - do not modify
 ///CLOVER:OFF - CSOFF
 package com.opengamma.engine.function.config;
-public class RepositoryConfiguration implements java.io.Serializable {
+public class FunctionConfigurationBundle implements java.io.Serializable {
   private static final long serialVersionUID = -2595680220l;
   private java.util.List<com.opengamma.engine.function.config.FunctionConfiguration> _functions;
   public static final String FUNCTIONS_KEY = "functions";
-  public RepositoryConfiguration () {
+  public FunctionConfigurationBundle () {
   }
-  protected RepositoryConfiguration (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
+  protected FunctionConfigurationBundle (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
     java.util.List<org.fudgemsg.FudgeField> fudgeFields;
     fudgeFields = fudgeMsg.getAllByName (FUNCTIONS_KEY);
     if (fudgeFields.size () > 0)  {
@@ -20,13 +20,13 @@ public class RepositoryConfiguration implements java.io.Serializable {
           fudge1.add (fudge3);
         }
         catch (IllegalArgumentException e) {
-          throw new IllegalArgumentException ("Fudge message is not a RepositoryConfiguration - field 'functions' is not FunctionConfiguration message", e);
+          throw new IllegalArgumentException ("Fudge message is not a FunctionConfigurationBundle - field 'functions' is not FunctionConfiguration message", e);
         }
       }
       setFunctions (fudge1);
     }
   }
-  public RepositoryConfiguration (java.util.Collection<? extends com.opengamma.engine.function.config.FunctionConfiguration> functions) {
+  public FunctionConfigurationBundle (java.util.Collection<? extends com.opengamma.engine.function.config.FunctionConfiguration> functions) {
     if (functions == null) _functions = null;
     else {
       final java.util.List<com.opengamma.engine.function.config.FunctionConfiguration> fudge0 = new java.util.ArrayList<com.opengamma.engine.function.config.FunctionConfiguration> (functions);
@@ -38,7 +38,7 @@ public class RepositoryConfiguration implements java.io.Serializable {
       _functions = fudge0;
     }
   }
-  protected RepositoryConfiguration (final RepositoryConfiguration source) {
+  protected FunctionConfigurationBundle (final FunctionConfigurationBundle source) {
     if (source == null) throw new NullPointerException ("'source' must not be null");
     if (source._functions == null) _functions = null;
     else {
@@ -50,8 +50,8 @@ public class RepositoryConfiguration implements java.io.Serializable {
       _functions = fudge0;
     }
   }
-  public RepositoryConfiguration clone () {
-    return new RepositoryConfiguration (this);
+  public FunctionConfigurationBundle clone () {
+    return new FunctionConfigurationBundle (this);
   }
   public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializer serializer) {
     if (serializer == null) throw new NullPointerException ("serializer must not be null");
@@ -68,19 +68,19 @@ public class RepositoryConfiguration implements java.io.Serializable {
       }
     }
   }
-  public static RepositoryConfiguration fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
+  public static FunctionConfigurationBundle fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
     final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
     for (org.fudgemsg.FudgeField field : types) {
       final String className = (String)field.getValue ();
-      if ("com.opengamma.engine.function.config.RepositoryConfiguration".equals (className)) break;
+      if ("com.opengamma.engine.function.config.FunctionConfigurationBundle".equals (className)) break;
       try {
-        return (com.opengamma.engine.function.config.RepositoryConfiguration)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializer.class, org.fudgemsg.FudgeMsg.class).invoke (null, deserializer, fudgeMsg);
+        return (com.opengamma.engine.function.config.FunctionConfigurationBundle)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializer.class, org.fudgemsg.FudgeMsg.class).invoke (null, deserializer, fudgeMsg);
       }
       catch (Throwable t) {
         // no-action
       }
     }
-    return new RepositoryConfiguration (deserializer, fudgeMsg);
+    return new FunctionConfigurationBundle (deserializer, fudgeMsg);
   }
   public java.util.List<com.opengamma.engine.function.config.FunctionConfiguration> getFunctions () {
     if (_functions != null) {

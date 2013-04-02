@@ -26,6 +26,6 @@ public interface RepositoryConfigurationSource {
    *
    * @return the configuration, not null
    */
-  RepositoryConfiguration getRepositoryConfiguration();
+  FunctionConfigurationBundle getRepositoryConfiguration();
 
 }

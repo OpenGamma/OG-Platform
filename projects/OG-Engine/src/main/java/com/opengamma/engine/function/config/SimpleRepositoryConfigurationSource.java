@@ -15,20 +15,20 @@ public class SimpleRepositoryConfigurationSource implements RepositoryConfigurat
   /**
    * The underlying config,
    */
-  private final RepositoryConfiguration _repoConfig;
+  private final FunctionConfigurationBundle _repoConfig;
 
   /**
    * Creates an instance.
    * 
    * @param repoConfig  the config, not null
    */
-  public SimpleRepositoryConfigurationSource(final RepositoryConfiguration repoConfig) {
+  public SimpleRepositoryConfigurationSource(final FunctionConfigurationBundle repoConfig) {
     ArgumentChecker.notNull(repoConfig, "repoConfig");
     _repoConfig = repoConfig;
   }
 
   @Override
-  public RepositoryConfiguration getRepositoryConfiguration() {
+  public FunctionConfigurationBundle getRepositoryConfiguration() {
     return _repoConfig;
   }
 

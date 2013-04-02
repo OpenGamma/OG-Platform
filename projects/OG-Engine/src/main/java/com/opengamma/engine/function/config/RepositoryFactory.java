@@ -28,7 +28,7 @@ public class RepositoryFactory {
   private static final Logger s_logger = LoggerFactory.getLogger(RepositoryFactory.class);
 
   /**
-   * The number of functions that are always in a constructed repository regardless of the {@link RepositoryConfiguration} document used. For example:
+   * The number of functions that are always in a constructed repository regardless of the {@link FunctionConfigurationBundle} document used. For example:
    * <ul>
    * <li>The no-op function used for execution suppression ({@link NoOpFunction})</li>
    * <li>The value aliasing function ({@link MarketDataAliasingFunction})</li>
@@ -43,7 +43,7 @@ public class RepositoryFactory {
    * @param configuration the configuration, not null
    * @return the repository, not null
    */
-  public static InMemoryFunctionRepository constructRepository(final RepositoryConfiguration configuration) {
+  public static InMemoryFunctionRepository constructRepository(final FunctionConfigurationBundle configuration) {
     final InMemoryFunctionRepository repository = new InMemoryFunctionRepository();
     repository.addFunction(NoOpFunction.INSTANCE);
     repository.addFunction(MarketDataAliasingFunction.INSTANCE);

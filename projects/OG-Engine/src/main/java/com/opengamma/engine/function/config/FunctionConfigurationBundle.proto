@@ -6,7 +6,7 @@
  
 namespace com.opengamma.engine.function.config {
 
-  message RepositoryConfiguration {
+  message FunctionConfigurationBundle {
   
     repeated FunctionConfiguration functions;
   }
