@@ -281,7 +281,7 @@ $.register_module({
                     hoverin_handler(event, true); // silently run hoverin_handler to set cell
                     if (!cell || !grid.fire('contextmenu', event, cell, null)) return false;
                     if (0 === cell.col && grid.state.nodes[has](cell.row))
-                        return og.analytics.node_menu.call(grid, event, cell);
+                        return new og.analytics.NodeMenu(grid, cell, event).display();
                 })
                 .on('contextmenu', '.OG-g-h-cols', function (event) { // for column headers
                     hoverin_handler(event, true); // silently run hoverin_handler to set cell

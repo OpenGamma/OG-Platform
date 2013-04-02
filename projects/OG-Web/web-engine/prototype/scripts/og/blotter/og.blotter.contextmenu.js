@@ -7,8 +7,8 @@ $.register_module({
     dependencies: [],
     obj: function () {
         return function (cell, event) {
-            var module = this;
-            module.context_items = function (cell) {
+            var grid = og.analytics.grid;
+            var context_items = function (cell) {
                 var items = [];
                 // when aggregated the portfolio node structure is not shown so edit/add is not possible
                 if (og.analytics.url && og.analytics.url.last.main.aggregators.length) {
@@ -75,11 +75,11 @@ $.register_module({
                 };
                 // if a row is a node AND the cell is a position only the position insert option is relevant
                 // if a row is a node OR the cell is a node only the add new trade option is relevant
-                if (cell.row in og.analytics.grid.state.nodes && cell.type === 'POSITION') {
+                if (cell.row in grid.state.nodes && cell.type === 'POSITION') {
                     items.push({name: 'Add Trade', handler: position_insert});
                     return items;
                 }
-                else if (cell.row in og.analytics.grid.state.nodes || cell.type === 'NODE') {  
+                else if (cell.row in grid.state.nodes || cell.type === 'NODE') {  
                     items.push({name: 'Add Trade', handler: trade_insert_node});
                     return items;  
                 }
@@ -94,7 +94,9 @@ $.register_module({
                 return items;
             }; 
             return og.common.util.ui.contextmenu({
-                defaults: true, zindex: 4, items: module.context_items(cell)}, event, cell);
+                defaults: false, zindex: 4,
+                items: new og.analytics.NodeMenu(grid, cell, event).items().concat({}, context_items(cell))
+            }, event, cell);
         };
     }
 });

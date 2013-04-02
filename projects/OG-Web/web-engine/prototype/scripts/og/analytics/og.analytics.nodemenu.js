@@ -3,19 +3,29 @@
  * Please see distribution for license.
  */
 $.register_module({
-    name: 'og.analytics.node_menu',
+    name: 'og.analytics.NodeMenu',
     dependencies: [],
     obj: function () {
-        var module = this;
-        return function (event, cell) {
-            var grid = this, state = grid.state, items, expanded = state.nodes[cell.row],
-                expand_deep, expand_globally, collapse_deep, collapse_globally, dry = true,
+        var module = this, has = 'hasOwnProperty';
+        var NodeMenu = function (grid, cell, event) {
+            var menu = this;
+            menu.grid = grid; menu.event = event; menu.cell = cell;
+        };
+        NodeMenu.prototype.display = function () {
+            var menu = this;
+            return og.common.util.ui.contextmenu({zindex: 4, items: menu.items()}, menu.event, menu.cell);
+        };
+        NodeMenu.prototype.items = function () {
+            var menu = this, grid = menu.grid, event = menu.event, cell = menu.cell, dry = true,
+                state = grid.state, items, expanded = state.nodes[cell.row],
+                expand_deep, expand_globally, collapse_deep, collapse_globally,
                 rows = grid.meta.viewport.rows.reduce(function (acc, row) {return acc[row] = null, acc;}, {});
             var loading = function (row) {
                 var $target = grid.elements.fixed_body.find('.node[data-row=' + row + ']');
                 if (!$target.length) return;
                 if ($target.is('.loading')) return; else $target.removeClass('expand collapse').addClass('loading');
             };
+            if (!grid.state.nodes[has](cell.row)) return [];
             expand_deep = {name: 'Expand (deep)', handler: function () {
                 var range = state.nodes.ranges.filter(function (range) {return range[0] === cell.row;})[0],
                     indent, max_indent, nodes, changed;
@@ -72,8 +82,8 @@ $.register_module({
                     if (item.handler) item.disabled = !item.handler(); // check changed flags & enable relevant options
                     return item;
                 });
-            dry = false;
-            return og.common.util.ui.contextmenu({zindex: 4, items: items}, event, cell);
+            return (dry = false), items;
         };
+        return NodeMenu;
     }
 });
