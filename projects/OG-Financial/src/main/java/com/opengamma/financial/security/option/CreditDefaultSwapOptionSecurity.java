@@ -5,23 +5,22 @@
  */
 package com.opengamma.financial.security.option;
 
-import java.util.Map;
-
-import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
-import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaProperty;
-import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaProperty;
-import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
+import java.util.Map;
+import org.joda.beans.BeanBuilder;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 /**
  * 
@@ -94,7 +93,7 @@ public class CreditDefaultSwapOptionSecurity extends FinancialSecurity {
   /**
    * The option type, true if the option is a payer.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private boolean _isPayer;
 
   /**
@@ -240,7 +239,6 @@ public class CreditDefaultSwapOptionSecurity extends FinancialSecurity {
     JodaBeanUtils.notNull(_currency, "currency");
     JodaBeanUtils.notNull(_notional, "notional");
     JodaBeanUtils.notNull(_strike, "strike");
-    JodaBeanUtils.notNull(_isPayer, "isPayer");
     JodaBeanUtils.notNull(_exerciseType, "exerciseType");
     JodaBeanUtils.notNull(_underlyingId, "underlyingId");
     super.validate();
@@ -523,7 +521,7 @@ public class CreditDefaultSwapOptionSecurity extends FinancialSecurity {
   //-----------------------------------------------------------------------
   /**
    * Gets the option type, true if the option is a payer.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public boolean isIsPayer() {
     return _isPayer;
@@ -531,10 +529,9 @@ public class CreditDefaultSwapOptionSecurity extends FinancialSecurity {
 
   /**
    * Sets the option type, true if the option is a payer.
-   * @param isPayer  the new value of the property, not null
+   * @param isPayer  the new value of the property
    */
   public void setIsPayer(boolean isPayer) {
-    JodaBeanUtils.notNull(isPayer, "isPayer");
     this._isPayer = isPayer;
   }
 
