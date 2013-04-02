@@ -7,10 +7,10 @@ $.register_module({
     dependencies: [],
     obj: function () {
         return function (config) {
-            var constructor = this, form, ui = og.common.util.ui, data, validate;
+            var constructor = this, form, ui = og.common.util.ui, data, validate, util = og.blotter.util;
             if(config.details) {data = config.details.data; data.id = config.details.data.trade.uniqueId;}
             else {data = {security: {type: config.type, externalIdBundle: "", attributes: {}}, 
-                trade: og.blotter.util.otc_trade};}
+                trade: util.otc_trade};}
             data.nodeId = config.portfolio ? config.portfolio.id : null;
             constructor.load = function () {
                 constructor.title = config.title;
@@ -19,8 +19,8 @@ $.register_module({
                     selector: '.OG-blotter-form-block',
                     data: data,
                     processor: function (data) {
-                        data.security.name = og.blotter.util.create_name(data);
-                        og.blotter.util.cleanup(data);
+                        data.security.name = util.create_name(data);
+                        util.cleanup(data);
                     }
                 });
                 form.children.push(
@@ -35,10 +35,19 @@ $.register_module({
                 );
                 form.dom();
                 form.on('form:load', function (){
-                    og.blotter.util.add_date_picker('.blotter-date');
-                    og.blotter.util.add_time_picker('.blotter-time');
-                    og.blotter.util.set_initial_focus();
+                    util.add_date_picker('.blotter-date');
+                    util.add_time_picker('.blotter-time');
+                    util.set_initial_focus();
                     if(data.security.length) return;
+                    util.check_radio("security.buy", data.security.buy);
+                    util.check_checkbox("security.protectionStart", data.security.protectionStart);
+                    util.check_checkbox("security.includeAccruedPremium", data.security.includeAccruedPremium);
+                    util.set_select("security.notional.currency", data.security.notional.currency);
+                    util.check_checkbox("security.adjustEffectiveDate", data.security.adjustEffectiveDate);
+                    util.check_checkbox("security.adjustCashSettlementDate", data.security.adjustCashSettlementDate);
+                    util.check_checkbox("security.adjustMaturityDate", data.security.adjustMaturityDate);
+                    util.check_checkbox("security.immAdjustMaturityDate", data.security.immAdjustMaturityDate);
+                    
                 });
                 form.on('form:submit', function (result){
                     $.when(config.handler(result.data)).then(validate);
