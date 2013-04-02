@@ -13,6 +13,7 @@ import org.apache.commons.lang.ArrayUtils;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.SimpleParameterSensitivity;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.util.tuple.DoublesPair;
@@ -45,6 +46,21 @@ public class ParameterSensitivityInflationMatrixCalculator extends ParameterSens
     for (final Map.Entry<String, List<DoublesPair>> entry : sensitivityPriceCurve.entrySet()) {
       if (curvesSet.contains(entry.getKey())) {
         ps = ps.plus(entry.getKey(), new DoubleMatrix1D(inflation.parameterInflationSensitivity(entry.getKey(), entry.getValue())));
+      }
+    }
+
+    // YieldAndDiscount
+    final Map<String, List<DoublesPair>> sensitivityDsc = sensitivity.getYieldDiscountingSensitivities();
+    for (final Map.Entry<String, List<DoublesPair>> entry : sensitivityDsc.entrySet()) {
+      if (curvesSet.contains(entry.getKey())) {
+        ps = ps.plus(entry.getKey(), new DoubleMatrix1D(inflation.getMulticurveProvider().parameterSensitivity(entry.getKey(), entry.getValue())));
+      }
+    }
+    // Forward
+    final Map<String, List<ForwardSensitivity>> sensitivityFwd = sensitivity.getForwardSensitivities();
+    for (final Map.Entry<String, List<ForwardSensitivity>> entry : sensitivityFwd.entrySet()) {
+      if (curvesSet.contains(entry.getKey())) {
+        ps = ps.plus(entry.getKey(), new DoubleMatrix1D(inflation.getMulticurveProvider().parameterForwardSensitivity(entry.getKey(), entry.getValue())));
       }
     }
 

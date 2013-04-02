@@ -32,7 +32,7 @@ import com.opengamma.engine.marketdata.NamedMarketDataSpecificationRepository;
 import com.opengamma.engine.marketdata.availability.DomainMarketDataAvailabilityFilter;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityFilter;
 import com.opengamma.engine.marketdata.live.LiveDataFactory;
-import com.opengamma.engine.marketdata.live.LiveMarketDataProviderFactory;
+import com.opengamma.engine.marketdata.live.InMemoryLKVLiveMarketDataProviderFactory;
 import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.livedata.LiveDataClient;
@@ -84,7 +84,7 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
     final MarketDataAvailabilityFilter availability = createAvailabilityFilter(provider);
     final LiveDataFactory defaultFactory = new LiveDataFactory(liveDataClient, availability);
     final Map<String, LiveDataFactory> factoryMap = ImmutableMap.of(SIMULATED_LIVE_SOURCE_NAME, defaultFactory);
-    final LiveMarketDataProviderFactory marketDataProviderFactory = new LiveMarketDataProviderFactory(defaultFactory, factoryMap);
+    final MarketDataProviderFactory marketDataProviderFactory = new InMemoryLKVLiveMarketDataProviderFactory(defaultFactory, factoryMap);
 
     final ComponentInfo info = new ComponentInfo(MarketDataProviderFactory.class, getClassifier());
     repo.registerComponent(info, marketDataProviderFactory);

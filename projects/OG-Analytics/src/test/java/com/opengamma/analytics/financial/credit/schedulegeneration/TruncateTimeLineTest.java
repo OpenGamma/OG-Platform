@@ -14,15 +14,15 @@ import java.util.List;
 import org.testng.annotations.Test;
 import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * 
  */
-@Test(groups = TestGroup.UNIT)
+//@Test(groups = TestGroup.UNIT)
 public class TruncateTimeLineTest {
-  private static final GenerateCreditDefaultSwapIntegrationSchedule CALCULATOR = new GenerateCreditDefaultSwapIntegrationSchedule();
+  private static final GenerateCreditDefaultSwapIntegrationScheduleNew CALCULATOR = new GenerateCreditDefaultSwapIntegrationScheduleNew();
+  private static final GenerateCreditDefaultSwapIntegrationSchedule DEPRECATED_CALCULATOR = new GenerateCreditDefaultSwapIntegrationSchedule();
   private static final ZonedDateTime[] SORTED_DATE_LIST;
   private static final int N;
   private static final ZonedDateTime[] UNSORTED_DATE_LIST;
@@ -196,9 +196,93 @@ public class TruncateTimeLineTest {
     testResults(expectedResult, CONCATENATED_SORTED_DATE_LIST, startDate, endDate, false);
   }
 
+  @Test(enabled = false)
+  public void testDeprecatedUnsorted() {
+    int j = 0;
+    final ZonedDateTime startDate = SORTED_DATE_LIST[0];
+    final ZonedDateTime endDate = SORTED_DATE_LIST[SORTED_DATE_LIST.length - 1];
+    final double startTime = System.currentTimeMillis();
+    for (int i = 0; i < 1000000; i++) {
+      DEPRECATED_CALCULATOR.getTruncatedTimeLineDeprecated(UNSORTED_DATE_LIST, startDate, endDate);
+      j++;
+    }
+    final double endTime = System.currentTimeMillis();
+    System.out.println("Deprecated unsorted:\t" + (endTime - startTime) / j * 1000);
+  }
+
+  @Test(enabled = false)
+  public void testDeprecatedConcatenated() {
+    int j = 0;
+    final ZonedDateTime startDate = SORTED_DATE_LIST[0];
+    final ZonedDateTime endDate = SORTED_DATE_LIST[SORTED_DATE_LIST.length - 1];
+    final double startTime = System.currentTimeMillis();
+    for (int i = 0; i < 1000000; i++) {
+      DEPRECATED_CALCULATOR.getTruncatedTimeLineDeprecated(CONCATENATED_SORTED_DATE_LIST, startDate, endDate);
+      j++;
+    }
+    final double endTime = System.currentTimeMillis();
+    System.out.println("Deprecated concatenated:\t" + (endTime - startTime) / j * 1000);
+  }
+
+  @Test(enabled = false)
+  public void testDeprecatedSorted() {
+    int j = 0;
+    final ZonedDateTime startDate = SORTED_DATE_LIST[0];
+    final ZonedDateTime endDate = SORTED_DATE_LIST[SORTED_DATE_LIST.length - 1];
+    final double startTime = System.currentTimeMillis();
+    for (int i = 0; i < 1000000; i++) {
+      DEPRECATED_CALCULATOR.getTruncatedTimeLineDeprecated(SORTED_DATE_LIST, startDate, endDate);
+      j++;
+    }
+    final double endTime = System.currentTimeMillis();
+    System.out.println("Deprecated sorted:\t" + (endTime - startTime) / j * 1000);
+  }
+
+  @Test(enabled = false)
+  public void testRefactoredUnsorted() {
+    int j = 0;
+    final ZonedDateTime startDate = SORTED_DATE_LIST[0];
+    final ZonedDateTime endDate = SORTED_DATE_LIST[SORTED_DATE_LIST.length - 1];
+    final double startTime = System.currentTimeMillis();
+    for (int i = 0; i < 1000000; i++) {
+      CALCULATOR.getTruncatedTimeLine(UNSORTED_DATE_LIST, startDate, endDate, false);
+      j++;
+    }
+    final double endTime = System.currentTimeMillis();
+    System.out.println("Refactored unsorted:\t" + (endTime - startTime) / j * 1000);
+  }
+
+  @Test(enabled = false)
+  public void testRefactoredConcatenated() {
+    int j = 0;
+    final ZonedDateTime startDate = SORTED_DATE_LIST[0];
+    final ZonedDateTime endDate = SORTED_DATE_LIST[SORTED_DATE_LIST.length - 1];
+    final double startTime = System.currentTimeMillis();
+    for (int i = 0; i < 1000000; i++) {
+      CALCULATOR.getTruncatedTimeLine(CONCATENATED_SORTED_DATE_LIST, startDate, endDate, false);
+      j++;
+    }
+    final double endTime = System.currentTimeMillis();
+    System.out.println("Refactored concatenated:\t" + (endTime - startTime) / j * 1000);
+  }
+
+  @Test(enabled = false)
+  public void testRefactoredSorted() {
+    int j = 0;
+    final ZonedDateTime startDate = SORTED_DATE_LIST[0];
+    final ZonedDateTime endDate = SORTED_DATE_LIST[SORTED_DATE_LIST.length - 1];
+    final double startTime = System.currentTimeMillis();
+    for (int i = 0; i < 1000000; i++) {
+      CALCULATOR.getTruncatedTimeLine(SORTED_DATE_LIST, startDate, endDate, true);
+      j++;
+    }
+    final double endTime = System.currentTimeMillis();
+    System.out.println("Refactored sorted:\t" + (endTime - startTime) / j * 1000000);
+  }
+
   private void testResults(final ZonedDateTime[] expectedResult, final ZonedDateTime[] dates, final ZonedDateTime startDate, final ZonedDateTime endDate,
       final boolean sorted) {
-    final ZonedDateTime[] truncatedDeprecated = CALCULATOR.getTruncatedTimeLineDeprecated(dates, startDate, endDate);
+    final ZonedDateTime[] truncatedDeprecated = DEPRECATED_CALCULATOR.getTruncatedTimeLineDeprecated(dates, startDate, endDate);
     assertEquals(expectedResult.length, truncatedDeprecated.length);
     assertDateArrayEquals(expectedResult, truncatedDeprecated);
     final ZonedDateTime[] truncated = CALCULATOR.getTruncatedTimeLine(dates, startDate, endDate, sorted);

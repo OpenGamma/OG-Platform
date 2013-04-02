@@ -302,6 +302,23 @@ public final class ArgumentChecker {
   }
 
   /**
+   * Checks that the argument is greater than zero to within a given accuracy.
+   * 
+   * @param parameter  the value to check
+   * @param eps  the accuracy
+   * @param name  the name to use in the error message
+   * @throws IllegalArgumentException If the absolute value of the argument is less than eps
+   */
+  public static void notNegativeOrZero(double parameter, double eps, String name) {
+    if (CompareUtils.closeEquals(parameter, 0, eps)) {
+      throw new IllegalArgumentException("Input parameter '" + name + "' must not be zero");
+    }
+    if (parameter < 0) {
+      throw new IllegalArgumentException("Input parameter '" + name + "' must be greater than zero");
+    }
+  }
+  
+  /**
    * Checks that the argument is not negative or zero.
    * 
    * @param parameter  the parameter to check

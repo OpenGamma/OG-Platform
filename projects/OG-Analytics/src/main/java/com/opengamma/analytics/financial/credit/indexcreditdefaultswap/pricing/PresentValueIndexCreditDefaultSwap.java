@@ -8,9 +8,9 @@ package com.opengamma.analytics.financial.credit.indexcreditdefaultswap.pricing;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.BuySellProtection;
-import com.opengamma.analytics.financial.credit.cds.ISDACurve;
 import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.indexcreditdefaultswap.definition.IndexCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -36,7 +36,7 @@ public class PresentValueIndexCreditDefaultSwap {
   public double getPresentValueIndexCreditDefaultSwap(
       final ZonedDateTime valuationDate,
       final IndexCreditDefaultSwapDefinition indexCDS,
-      final ISDACurve[] yieldCurves,
+      final ISDADateCurve[]/*ISDACurve[]*/yieldCurves,
       final HazardRateCurve[] hazardRateCurves) {
 
     ArgumentChecker.notNull(valuationDate, "Valuation date");
@@ -64,11 +64,10 @@ public class PresentValueIndexCreditDefaultSwap {
   // -------------------------------------------------------------------------------------------------
 
   // Calculate the present value of an Index CDS premium leg
-
   private double calculateIndexPremiumLeg(
       final ZonedDateTime valuationDate,
       final IndexCreditDefaultSwapDefinition indexCDS,
-      final ISDACurve[] yieldCurves,
+      final ISDADateCurve[]/*ISDACurve[]*/yieldCurves,
       final HazardRateCurve[] hazardRateCurves) {
 
     final int numberofObligors = indexCDS.getUnderlyingPool().getNumberOfObligors();
@@ -77,7 +76,7 @@ public class PresentValueIndexCreditDefaultSwap {
 
     for (int i = 0; i < numberofObligors; i++) {
 
-      double pv = 0.0;
+      final double pv = 0.0;
 
       presentValueIndexPremiumLeg += pv;
     }
@@ -88,14 +87,22 @@ public class PresentValueIndexCreditDefaultSwap {
   // -------------------------------------------------------------------------------------------------
 
   // Calculate the present value of an Index CDS contingent leg
-
   private double calculateIndexContingentLeg(
       final ZonedDateTime valuationDate,
       final IndexCreditDefaultSwapDefinition indexCDS,
-      final ISDACurve[] yieldCurves,
+      final ISDADateCurve[]/*ISDACurve[]*/yieldCurves,
       final HazardRateCurve[] hazardRateCurves) {
 
+    final int numberofObligors = indexCDS.getUnderlyingPool().getNumberOfObligors();
+
     double presentValueIndexContingentLeg = 0.0;
+
+    for (int i = 0; i < numberofObligors; i++) {
+
+      final double pv = 0.0;
+
+      presentValueIndexContingentLeg += pv;
+    }
 
     return presentValueIndexContingentLeg;
   }

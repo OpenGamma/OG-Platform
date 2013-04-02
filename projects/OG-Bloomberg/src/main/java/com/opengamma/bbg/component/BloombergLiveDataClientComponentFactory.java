@@ -32,7 +32,7 @@ import com.opengamma.engine.marketdata.MarketDataProviderFactory;
 import com.opengamma.engine.marketdata.NamedMarketDataSpecificationRepository;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityFilter;
 import com.opengamma.engine.marketdata.live.LiveDataFactory;
-import com.opengamma.engine.marketdata.live.LiveMarketDataProviderFactory;
+import com.opengamma.engine.marketdata.live.InMemoryLKVLiveMarketDataProviderFactory;
 import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
 import com.opengamma.livedata.LiveDataClient;
 import com.opengamma.livedata.client.RemoteLiveDataClientFactoryBean;
@@ -95,7 +95,7 @@ public class BloombergLiveDataClientComponentFactory extends AbstractComponentFa
 
     final MarketDataAvailabilityFilter availability = BloombergDataUtils.createAvailabilityFilter();
     final LiveDataFactory liveDataFactory = new LiveDataFactory(liveDataClient, availability);
-    final LiveMarketDataProviderFactory liveMarketDataProviderFactory = new LiveMarketDataProviderFactory(liveDataFactory, ImmutableMap.of(description, liveDataFactory));
+    final MarketDataProviderFactory liveMarketDataProviderFactory = new InMemoryLKVLiveMarketDataProviderFactory(liveDataFactory, ImmutableMap.of(description, liveDataFactory));
     final ComponentInfo providerFactoryInfo = new ComponentInfo(MarketDataProviderFactory.class, getClassifier());
     repo.registerComponent(providerFactoryInfo, liveMarketDataProviderFactory);
 

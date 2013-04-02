@@ -6,8 +6,10 @@
 package com.opengamma.analytics.financial.provider.calculator.hullwhite;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorDelegate;
+import com.opengamma.analytics.financial.interestrate.future.derivative.DeliverableSwapFuturesTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
+import com.opengamma.analytics.financial.interestrate.future.provider.DeliverableSwapFuturesTransactionHullWhiteMethod;
 import com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureOptionMarginTransactionHullWhiteMethod;
 import com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureTransactionHullWhiteMethod;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
@@ -51,6 +53,7 @@ public final class PresentValueHullWhiteCalculator extends InstrumentDerivativeV
   private static final CapFloorIborHullWhiteMethod METHOD_CAPFLOOR_IBOR = CapFloorIborHullWhiteMethod.getInstance();
   private static final InterestRateFutureTransactionHullWhiteMethod METHOD_STIRFUT = InterestRateFutureTransactionHullWhiteMethod.getInstance();
   private static final InterestRateFutureOptionMarginTransactionHullWhiteMethod METHOD_STIRFUT_OPT_MAR = InterestRateFutureOptionMarginTransactionHullWhiteMethod.getInstance();
+  private static final DeliverableSwapFuturesTransactionHullWhiteMethod METHOD_SWAPFUT = DeliverableSwapFuturesTransactionHullWhiteMethod.getInstance();
   private static final SwaptionPhysicalFixedIborHullWhiteMethod METHOD_SWPT_PHYS = SwaptionPhysicalFixedIborHullWhiteMethod.getInstance();
   private static final SwaptionCashFixedIborHullWhiteApproximationMethod METHOD_SWPT_CASH = SwaptionCashFixedIborHullWhiteApproximationMethod.getInstance();
 
@@ -71,6 +74,11 @@ public final class PresentValueHullWhiteCalculator extends InstrumentDerivativeV
   @Override
   public MultipleCurrencyAmount visitInterestRateFutureOptionMarginTransaction(final InterestRateFutureOptionMarginTransaction option, final HullWhiteOneFactorProviderInterface hullWhite) {
     return METHOD_STIRFUT_OPT_MAR.presentValue(option, hullWhite);
+  }
+
+  @Override
+  public MultipleCurrencyAmount visitDeliverableSwapFuturesTransaction(final DeliverableSwapFuturesTransaction futures, final HullWhiteOneFactorProviderInterface hullWhite) {
+    return METHOD_SWAPFUT.presentValue(futures, hullWhite);
   }
 
   //     -----     Swaption     -----

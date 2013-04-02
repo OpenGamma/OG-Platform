@@ -5,7 +5,7 @@
  */
 package com.opengamma.analytics.financial.interestrate.inflation.derivative;
 
-import com.opengamma.analytics.financial.instrument.index.IndexPrice;
+import com.opengamma.analytics.financial.instrument.index.PriceIndex;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationGearing;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.util.ArgumentChecker;
@@ -50,7 +50,7 @@ public class CouponInflationZeroCouponMonthlyGearing extends CouponInflation imp
    * @param payNotional Flag indicating if the notional is paid (true) or not (false).
    * @param factor The multiplicative factor.
    */
-  public CouponInflationZeroCouponMonthlyGearing(final Currency currency, final double paymentTime, final double paymentYearFraction, final double notional, final IndexPrice priceIndex,
+  public CouponInflationZeroCouponMonthlyGearing(final Currency currency, final double paymentTime, final double paymentYearFraction, final double notional, final PriceIndex priceIndex,
       final double indexStartValue,
       final double referenceEndTime, final boolean payNotional, final double factor) {
     super(currency, paymentTime, paymentYearFraction, notional, priceIndex);

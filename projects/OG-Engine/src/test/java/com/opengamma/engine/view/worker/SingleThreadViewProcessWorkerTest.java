@@ -66,7 +66,7 @@ import com.opengamma.util.test.Timeout;
 @Test(groups = TestGroup.UNIT)
 public class SingleThreadViewProcessWorkerTest {
 
-  private static final long TIMEOUT = 5L * Timeout.standardTimeoutMillis();
+  private static final long TIMEOUT = 50000L * Timeout.standardTimeoutMillis();
 
   private static final String SOURCE_1_NAME = "source1";
   private static final String SOURCE_2_NAME = "source2";
@@ -294,7 +294,7 @@ public class SingleThreadViewProcessWorkerTest {
     }
   }
 
-  private static class TestLiveMarketDataProvider implements MarketDataProvider {
+  private static class TestLiveMarketDataProvider implements LiveMarketDataProvider {
 
     private final String _sourceName;
     private final InMemoryLKVMarketDataProvider _underlyingProvider;
@@ -417,8 +417,7 @@ public class SingleThreadViewProcessWorkerTest {
 
     @Override
     public MarketDataSnapshot snapshot(final MarketDataSpecification marketDataSpec) {
-      return new LiveMarketDataSnapshot(_underlyingProvider.snapshot(marketDataSpec),
-          new LiveMarketDataProvider(_dummyLiveDataClient, getAvailabilityProvider(marketDataSpec).getAvailabilityFilter(), UserPrincipal.getTestUser()));
+      return new LiveMarketDataSnapshot(_underlyingProvider.snapshot(marketDataSpec), this);
     }
 
     @Override
@@ -426,15 +425,16 @@ public class SingleThreadViewProcessWorkerTest {
       return Duration.between(fromInstant, toInstant);
     }
 
+    @Override
+    public boolean isFailed(ValueSpecification specification) {
+      return false;
+    }
+
   }
 
   private static class MockMarketDataProviderResolver implements MarketDataProviderResolver {
 
     private final Map<String, MarketDataProvider> _providers;
-
-    public MockMarketDataProviderResolver(final String provider1SourceName, final MarketDataProvider provider1, final String provider2SourceName, final MarketDataProvider provider2) {
-      _providers = ImmutableMap.of(provider1SourceName, provider1, provider2SourceName, provider2);
-    }
 
     public MockMarketDataProviderResolver(final String provider1SourceName, final MarketDataProvider provider1, final String provider2SourceName, final MarketDataProvider provider2,
         final String provider3SourceName, final MarketDataProvider provider3) {

@@ -21,6 +21,7 @@ public class SpreadTermStructureDataChecker {
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // TODO : Check that no two tenors are identical
+  // TODO : Don't need to check that val date is before any of the calibration tenors
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
