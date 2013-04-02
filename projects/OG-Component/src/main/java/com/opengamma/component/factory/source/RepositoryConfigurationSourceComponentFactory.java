@@ -37,7 +37,7 @@ import com.opengamma.financial.FinancialFunctions;
 import com.opengamma.financial.analytics.ircurve.IRCurveFunctions;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.function.rest.DataRepositoryConfigurationSourceResource;
-import com.opengamma.financial.function.rest.RemoteRepositoryConfigurationSource;
+import com.opengamma.financial.function.rest.RemoteFunctionConfigurationSource;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.web.spring.BloombergVolatilityCubeFunctions;
 import com.opengamma.web.spring.DemoStandardFunctionConfiguration;
@@ -77,7 +77,7 @@ public class RepositoryConfigurationSourceComponentFactory extends AbstractCompo
 
     final ComponentInfo info = new ComponentInfo(FunctionConfigurationSource.class, getClassifier());
     info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
-    info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteRepositoryConfigurationSource.class);
+    info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteFunctionConfigurationSource.class);
     repo.registerComponent(info, source);
 
     if (isPublishRest()) {

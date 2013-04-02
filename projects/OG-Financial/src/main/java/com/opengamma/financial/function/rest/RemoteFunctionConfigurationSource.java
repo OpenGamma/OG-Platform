@@ -14,14 +14,14 @@ import com.opengamma.util.rest.AbstractRemoteClient;
 /**
  * Provides remote access to a {@link FunctionConfigurationSource}.
  */
-public class RemoteRepositoryConfigurationSource extends AbstractRemoteClient implements FunctionConfigurationSource {
+public class RemoteFunctionConfigurationSource extends AbstractRemoteClient implements FunctionConfigurationSource {
 
   /**
    * Creates an instance.
    * 
    * @param baseUri  the base target URI for all RESTful web services, not null
    */
-  public RemoteRepositoryConfigurationSource(final URI baseUri) {
+  public RemoteFunctionConfigurationSource(final URI baseUri) {
     super(baseUri);
   }
 

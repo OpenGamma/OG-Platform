@@ -46,7 +46,7 @@ import com.opengamma.financial.analytics.ircurve.rest.RemoteInterpolatedYieldCur
 import com.opengamma.financial.analytics.ircurve.rest.RemoteInterpolatedYieldCurveSpecificationBuilder;
 import com.opengamma.financial.currency.CurrencyMatrixSource;
 import com.opengamma.financial.currency.rest.RemoteCurrencyMatrixSource;
-import com.opengamma.financial.function.rest.RemoteRepositoryConfigurationSource;
+import com.opengamma.financial.function.rest.RemoteFunctionConfigurationSource;
 import com.opengamma.financial.security.RemoteFinancialSecuritySource;
 import com.opengamma.financial.view.rest.RemoteAvailableOutputsProvider;
 import com.opengamma.financial.view.rest.RemoteViewProcessor;
@@ -643,7 +643,7 @@ public class RemoteComponentFactory {
    */
   public FunctionConfigurationSource getRepositoryConfigurationSource(final String name) {
     URI uri = getComponentServer().getComponentInfo(FunctionConfigurationSource.class, name).getUri();
-    return new RemoteRepositoryConfigurationSource(uri);
+    return new RemoteFunctionConfigurationSource(uri);
   }
 
   /**
@@ -652,7 +652,7 @@ public class RemoteComponentFactory {
    */
   public FunctionConfigurationSource getRepositoryConfigurationSource(final List<String> preferredClassifiers) {
     URI uri = getTopLevelComponent(preferredClassifiers, FunctionConfigurationSource.class).getUri();
-    return new RemoteRepositoryConfigurationSource(uri);
+    return new RemoteFunctionConfigurationSource(uri);
   }
 
   /**
@@ -661,7 +661,7 @@ public class RemoteComponentFactory {
   public Map<String, FunctionConfigurationSource> getRepositoryConfigurationSources() {
     Map<String, FunctionConfigurationSource> result = new LinkedHashMap<String, FunctionConfigurationSource>();
     for (ComponentInfo info : getComponentServer().getComponentInfos(FunctionConfigurationSource.class)) {
-      result.put(info.getClassifier(), new RemoteRepositoryConfigurationSource(info.getUri()));
+      result.put(info.getClassifier(), new RemoteFunctionConfigurationSource(info.getUri()));
     }
     return result;    
   }
