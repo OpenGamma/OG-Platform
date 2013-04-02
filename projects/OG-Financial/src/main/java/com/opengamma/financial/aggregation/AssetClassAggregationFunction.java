@@ -16,7 +16,6 @@ import com.opengamma.core.position.impl.SimplePositionComparator;
 import com.opengamma.core.security.Security;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
-import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
@@ -56,6 +55,7 @@ import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
+import com.opengamma.financial.security.option.CreditDefaultSwapOptionSecurity;
 import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexFutureOptionSecurity;
@@ -113,14 +113,17 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
   /* package */static final String CDS = "CDS"; // TODO: is this the correct abbreviation?
   /* package */static final String EQUITY_INDEX_FUTURE_OPTIONS = "Equity Index Future Options";
   /* package */static final String DELIVERABLE_SWAP_FUTURES = "Deliverable Swap Futures";
+  /* package */static final String CDX = "CDX";
+  /* package */static final String CREDIT_DEFAULT_SWAP_OPTIONS = "CDS Options";
+
   private final Comparator<Position> _comparator = new SimplePositionComparator();
 
   /* package */static final List<String> ALL_CATEGORIES = Arrays.asList(FX_OPTIONS, NONDELIVERABLE_FX_FORWARDS, FX_BARRIER_OPTIONS, FX_DIGITAL_OPTIONS,
-    NONDELIVERABLE_FX_DIGITAL_OPTIONS, FX_FORWARDS, NONDELIVERABLE_FX_FORWARDS, BONDS, CASH, EQUITIES,
-    FRAS, FUTURES, EQUITY_INDEX_OPTIONS, EQUITY_OPTIONS, EQUITY_BARRIER_OPTIONS,
-    EQUITY_VARIANCE_SWAPS, SWAPTIONS, IRFUTURE_OPTIONS, EQUITY_INDEX_DIVIDEND_FUTURE_OPTIONS,
-    SWAPS, CAP_FLOOR, CAP_FLOOR_CMS_SPREAD, EQUITY_INDEX_FUTURE_OPTIONS,
-    UNKNOWN);
+      NONDELIVERABLE_FX_DIGITAL_OPTIONS, FX_FORWARDS, NONDELIVERABLE_FX_FORWARDS, BONDS, CASH, EQUITIES,
+      FRAS, FUTURES, EQUITY_INDEX_OPTIONS, EQUITY_OPTIONS, EQUITY_BARRIER_OPTIONS,
+      EQUITY_VARIANCE_SWAPS, SWAPTIONS, IRFUTURE_OPTIONS, EQUITY_INDEX_DIVIDEND_FUTURE_OPTIONS,
+      SWAPS, CAP_FLOOR, CAP_FLOOR_CMS_SPREAD, EQUITY_INDEX_FUTURE_OPTIONS,
+      UNKNOWN);
 
   private final boolean _includeEmptyCategories;
 
@@ -231,7 +234,7 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
 
         @Override
         public String visitEquityIndexDividendFutureOptionSecurity(
-          final EquityIndexDividendFutureOptionSecurity equityIndexDividendFutureOptionSecurity) {
+            final EquityIndexDividendFutureOptionSecurity equityIndexDividendFutureOptionSecurity) {
           return EQUITY_INDEX_DIVIDEND_FUTURE_OPTIONS;
         }
 
@@ -406,10 +409,14 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
         }
 
         @Override
-        public String visitCreditDefaultSwapIndexSecurity(CreditDefaultSwapIndexSecurity security) {
-          throw new UnsupportedOperationException(FinancialSecurityVisitorAdapter.getUnsupportedOperationMessage(getClass(), security));
+        public String visitCreditDefaultSwapIndexSecurity(final CreditDefaultSwapIndexSecurity security) {
+          return CDX;
         }
-        
+
+        @Override
+        public String visitCreditDefaultSwapOptionSecurity(final CreditDefaultSwapOptionSecurity security) {
+          return CREDIT_DEFAULT_SWAP_OPTIONS;
+        }
       });
     } else {
       if (security instanceof RawSecurity && security.getSecurityType().equals(SecurityEntryData.EXTERNAL_SENSITIVITIES_SECURITY_TYPE)) {

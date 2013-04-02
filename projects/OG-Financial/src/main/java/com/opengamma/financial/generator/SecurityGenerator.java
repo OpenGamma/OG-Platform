@@ -32,6 +32,7 @@ import com.opengamma.analytics.math.linearalgebra.DecompositionFactory;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.organization.OrganizationSource;
 import com.opengamma.core.position.Counterparty;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.value.MarketDataRequirementNames;
@@ -129,6 +130,7 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
   private HistoricalTimeSeriesSource _historicalSource;
   private HistoricalTimeSeriesMaster _htsMaster;
   private RegionSource _regionSource;
+  private OrganizationSource _organizationSource;
   private ExchangeMaster _exchangeMaster;
   private SecurityMaster _securityMaster;
   private String _currencyCurveName;
@@ -234,6 +236,14 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
     _regionSource = regionSource;
   }
 
+  public OrganizationSource getOrganizationSource() {
+    return _organizationSource;
+  }
+
+  public void setOrganizationSource(OrganizationSource organizationSource) {
+    _organizationSource = organizationSource;
+  }
+
   public SecurityMaster getSecurityMaster() {
     return _securityMaster;
   }
@@ -288,6 +298,7 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
     OpenGammaExecutionContext.setSecuritySource(context, new MasterSecuritySource(getSecurityMaster()));
     OpenGammaExecutionContext.setHistoricalTimeSeriesSource(context, getHistoricalSource());
     OpenGammaExecutionContext.setConfigSource(context, getConfigSource());
+    OpenGammaExecutionContext.setOrganizationSource(context, getOrganizationSource());
     return context;
   }
 
@@ -298,6 +309,7 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
     context.setFunctionReinitializer(new DummyFunctionReinitializer());
     OpenGammaCompilationContext.setHolidaySource(context, getHolidaySource());
     OpenGammaCompilationContext.setRegionSource(context, getRegionSource());
+    OpenGammaCompilationContext.setOrganizationSource(context, getOrganizationSource());
     OpenGammaCompilationContext.setConventionBundleSource(context, getConventionSource());
     OpenGammaCompilationContext.setSecuritySource(context, new MasterSecuritySource(getSecurityMaster()));
     OpenGammaCompilationContext.setHistoricalTimeSeriesResolver(context, new DefaultHistoricalTimeSeriesResolver(new DefaultHistoricalTimeSeriesSelector(getConfigSource()),

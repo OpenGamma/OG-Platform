@@ -44,6 +44,7 @@ import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
+import com.opengamma.financial.security.option.CreditDefaultSwapOptionSecurity;
 import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexFutureOptionSecurity;
@@ -349,5 +350,10 @@ public class FinancialSecurityVisitorSameMethodAdapter<T> implements FinancialSe
   public T visitCreditDefaultSwapIndexSecurity(final CreditDefaultSwapIndexSecurity security) {
     return _value.visit(security);
   }
-  
+
+  @Override
+  public T visitCreditDefaultSwapOptionSecurity(final CreditDefaultSwapOptionSecurity security) {
+    return _value.visit(security);
+  }
+
 }
