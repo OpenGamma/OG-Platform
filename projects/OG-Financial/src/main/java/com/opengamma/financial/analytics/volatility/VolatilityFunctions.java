@@ -13,7 +13,7 @@ import com.opengamma.engine.function.config.CombiningRepositoryConfigurationSour
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationBundle;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
-import com.opengamma.engine.function.config.SimpleRepositoryConfigurationSource;
+import com.opengamma.engine.function.config.SimpleFunctionConfigurationSource;
 import com.opengamma.financial.analytics.volatility.surface.SurfaceFunctions;
 
 /**
@@ -38,12 +38,12 @@ public class VolatilityFunctions extends AbstractRepositoryConfigurationBean {
 
   protected FunctionConfigurationSource cubeFunctionConfiguration() {
     // TODO
-    return new SimpleRepositoryConfigurationSource(new FunctionConfigurationBundle(Collections.<FunctionConfiguration>emptyList()));
+    return new SimpleFunctionConfigurationSource(new FunctionConfigurationBundle(Collections.<FunctionConfiguration>emptyList()));
   }
 
   protected FunctionConfigurationSource fittedResultsFunctionConfiguration() {
     // TODO
-    return new SimpleRepositoryConfigurationSource(new FunctionConfigurationBundle(Collections.<FunctionConfiguration>emptyList()));
+    return new SimpleFunctionConfigurationSource(new FunctionConfigurationBundle(Collections.<FunctionConfiguration>emptyList()));
   }
 
   protected FunctionConfigurationSource surfaceFunctionConfiguration() {

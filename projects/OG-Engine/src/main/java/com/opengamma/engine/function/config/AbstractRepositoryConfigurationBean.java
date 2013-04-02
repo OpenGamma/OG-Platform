@@ -39,7 +39,7 @@ public abstract class AbstractRepositoryConfigurationBean extends SingletonFacto
 
   @Override
   protected FunctionConfigurationSource createObject() {
-    return new SimpleRepositoryConfigurationSource(createRepositoryConfiguration());
+    return new SimpleFunctionConfigurationSource(createRepositoryConfiguration());
   }
 
 }

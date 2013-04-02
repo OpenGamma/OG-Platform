@@ -8,9 +8,9 @@ package com.opengamma.engine.function.config;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Simple implementation of the repository configuration source that is setup at construction.
+ * Simple implementation of the function configuration source that is setup at construction.
  */
-public class SimpleRepositoryConfigurationSource implements FunctionConfigurationSource {
+public class SimpleFunctionConfigurationSource implements FunctionConfigurationSource {
 
   /**
    * The underlying config,
@@ -22,7 +22,7 @@ public class SimpleRepositoryConfigurationSource implements FunctionConfiguratio
    * 
    * @param repoConfig  the config, not null
    */
-  public SimpleRepositoryConfigurationSource(final FunctionConfigurationBundle repoConfig) {
+  public SimpleFunctionConfigurationSource(final FunctionConfigurationBundle repoConfig) {
     ArgumentChecker.notNull(repoConfig, "repoConfig");
     _repoConfig = repoConfig;
   }

@@ -13,7 +13,7 @@ import com.opengamma.engine.function.config.CombiningRepositoryConfigurationSour
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationBundle;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
-import com.opengamma.engine.function.config.SimpleRepositoryConfigurationSource;
+import com.opengamma.engine.function.config.SimpleFunctionConfigurationSource;
 
 /**
  * Function repository configuration source for the functions contained in this package and sub-packages.
@@ -49,7 +49,7 @@ public class BlackFunctions extends AbstractRepositoryConfigurationBean {
 
   protected FunctionConfigurationSource pureFunctionConfiguration() {
     // TODO
-    return new SimpleRepositoryConfigurationSource(new FunctionConfigurationBundle(Collections.<FunctionConfiguration>emptyList()));
+    return new SimpleFunctionConfigurationSource(new FunctionConfigurationBundle(Collections.<FunctionConfiguration>emptyList()));
   }
 
   @Override

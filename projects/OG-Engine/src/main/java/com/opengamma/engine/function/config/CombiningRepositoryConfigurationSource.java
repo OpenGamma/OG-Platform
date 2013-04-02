@@ -60,14 +60,14 @@ public class CombiningRepositoryConfigurationSource implements FunctionConfigura
    */
   public static FunctionConfigurationSource of(final FunctionConfigurationSource... sources) {
     if ((sources == null) || (sources.length == 0)) {
-      return new SimpleRepositoryConfigurationSource(new FunctionConfigurationBundle(Collections.<FunctionConfiguration>emptyList()));
+      return new SimpleFunctionConfigurationSource(new FunctionConfigurationBundle(Collections.<FunctionConfiguration>emptyList()));
     }
     int i = 0;
     for (final FunctionConfigurationSource source : sources) {
       i += count(source);
     }
     if (i == 0) {
-      return new SimpleRepositoryConfigurationSource(new FunctionConfigurationBundle(Collections.<FunctionConfiguration>emptyList()));
+      return new SimpleFunctionConfigurationSource(new FunctionConfigurationBundle(Collections.<FunctionConfiguration>emptyList()));
     } else if (i == 1) {
       for (final FunctionConfigurationSource source : sources) {
         if (source != null) {
