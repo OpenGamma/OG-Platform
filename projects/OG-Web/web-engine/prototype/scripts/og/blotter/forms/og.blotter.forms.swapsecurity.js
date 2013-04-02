@@ -31,6 +31,7 @@ $.register_module({
                         data.security.payLeg.notional.type = 'InterestRateNotional';
                         data.security.receiveLeg.notional.type = 'InterestRateNotional';
                         data.security.name = og.blotter.util.create_name(data);
+                        data.security.tradeDate = data.trade.tradeDate;
                         og.blotter.util.cleanup(data);
                     }
                 });

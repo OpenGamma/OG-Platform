@@ -183,6 +183,37 @@ public class StandardCollateralizedVanillaCreditDefaultSwapDefinition extends St
   }
 
   @Override
+  public StandardCollateralizedVanillaCreditDefaultSwapDefinition withEffectiveDate(final ZonedDateTime effectiveDate) {
+    return new StandardCollateralizedVanillaCreditDefaultSwapDefinition(getBuySellProtection(),
+        getProtectionBuyer(),
+        getProtectionSeller(),
+        getReferenceEntity(),
+        getCurrency(),
+        getDebtSeniority(),
+        getRestructuringClause(),
+        getCalendar(),
+        getStartDate(),
+        effectiveDate,
+        getMaturityDate(),
+        getStubType(),
+        getCouponFrequency(),
+        getDayCountFractionConvention(),
+        getBusinessDayAdjustmentConvention(),
+        getIMMAdjustMaturityDate(),
+        getAdjustEffectiveDate(),
+        getAdjustMaturityDate(),
+        getNotional(),
+        getRecoveryRate(),
+        getIncludeAccruedPremium(),
+        getProtectionStart(),
+        getQuotedSpread(),
+        getPremiumLegCoupon(),
+        getUpfrontAmount(),
+        getCashSettlementDate(),
+        getAdjustCashSettlementDate(),
+        _creditSupportAnnex);
+  }
+  @Override
   public StandardCollateralizedVanillaCreditDefaultSwapDefinition withRecoveryRate(final double recoveryRate) {
     return new StandardCollateralizedVanillaCreditDefaultSwapDefinition(getBuySellProtection(),
         getProtectionBuyer(),

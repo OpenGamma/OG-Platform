@@ -242,6 +242,8 @@ public abstract class CreditDefaultSwapDefinition implements CreditInstrumentDef
 
   public abstract CreditDefaultSwapDefinition withRecoveryRate(double recoveryRate);
 
+  public abstract CreditDefaultSwapDefinition withEffectiveDate(ZonedDateTime effectiveDate);
+
   // Public member accessor methods
 
   public BuySellProtection getBuySellProtection() {

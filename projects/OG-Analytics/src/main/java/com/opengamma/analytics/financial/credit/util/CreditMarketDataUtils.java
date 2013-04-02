@@ -21,6 +21,7 @@ public class CreditMarketDataUtils {
     ArgumentChecker.notNull(marketSpreads, "market spreads");
     ArgumentChecker.isTrue(marketDates.length == marketSpreads.length, "Number of dates {} and spreads {} should be equal", marketDates.length, marketSpreads.length);
     ArgumentChecker.isTrue(marketDates[0].isAfter(valuationDate), "Calibration instrument of tenor {} is before the valuation date {}", marketDates[0], valuationDate);
+    ArgumentChecker.notNegativeOrZero(marketSpreads[0], _tolerance, "Market spread for date " + marketDates[0]);
     if (marketDates.length > 1) {
       for (int m = 1; m < marketDates.length; m++) {
         ArgumentChecker.isTrue(marketDates[m].isAfter(marketDates[m - 1]), "Dates not in ascending order");

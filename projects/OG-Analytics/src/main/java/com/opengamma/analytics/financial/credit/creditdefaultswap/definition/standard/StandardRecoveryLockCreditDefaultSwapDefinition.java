@@ -167,6 +167,36 @@ public class StandardRecoveryLockCreditDefaultSwapDefinition extends StandardCre
   }
 
   @Override
+  public StandardRecoveryLockCreditDefaultSwapDefinition withEffectiveDate(final ZonedDateTime effectiveDate) {
+    return new StandardRecoveryLockCreditDefaultSwapDefinition(getBuySellProtection(),
+        getProtectionBuyer(),
+        getProtectionSeller(),
+        getReferenceEntity(),
+        getCurrency(),
+        getDebtSeniority(),
+        getRestructuringClause(),
+        getCalendar(),
+        getStartDate(),
+        effectiveDate,
+        getMaturityDate(),
+        getStubType(),
+        getCouponFrequency(),
+        getDayCountFractionConvention(),
+        getBusinessDayAdjustmentConvention(),
+        getIMMAdjustMaturityDate(),
+        getAdjustEffectiveDate(),
+        getAdjustMaturityDate(),
+        getNotional(),
+        getRecoveryRate(),
+        getIncludeAccruedPremium(),
+        getProtectionStart(),
+        getQuotedSpread(),
+        getPremiumLegCoupon(),
+        getUpfrontAmount(),
+        getCashSettlementDate(),
+        getAdjustCashSettlementDate());
+  }
+  @Override
   public StandardRecoveryLockCreditDefaultSwapDefinition withRecoveryRate(final double recoveryRate) {
     return new StandardRecoveryLockCreditDefaultSwapDefinition(getBuySellProtection(),
         getProtectionBuyer(),

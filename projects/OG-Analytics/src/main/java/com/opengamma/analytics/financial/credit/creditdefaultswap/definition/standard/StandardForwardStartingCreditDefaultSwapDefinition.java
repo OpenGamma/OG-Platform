@@ -181,6 +181,39 @@ public class StandardForwardStartingCreditDefaultSwapDefinition extends Standard
         _forwardStartDate);
   }
 
+
+  @Override
+  public StandardForwardStartingCreditDefaultSwapDefinition withEffectiveDate(final ZonedDateTime effectiveDate) {
+    return new StandardForwardStartingCreditDefaultSwapDefinition(getBuySellProtection(),
+        getProtectionBuyer(),
+        getProtectionSeller(),
+        getReferenceEntity(),
+        getCurrency(),
+        getDebtSeniority(),
+        getRestructuringClause(),
+        getCalendar(),
+        getStartDate(),
+        effectiveDate,
+        getMaturityDate(),
+        getStubType(),
+        getCouponFrequency(),
+        getDayCountFractionConvention(),
+        getBusinessDayAdjustmentConvention(),
+        getIMMAdjustMaturityDate(),
+        getAdjustEffectiveDate(),
+        getAdjustMaturityDate(),
+        getNotional(),
+        getRecoveryRate(),
+        getIncludeAccruedPremium(),
+        getProtectionStart(),
+        getQuotedSpread(),
+        getPremiumLegCoupon(),
+        getUpfrontAmount(),
+        getCashSettlementDate(),
+        getAdjustCashSettlementDate(),
+        _forwardStartDate);
+  }
+
   @Override
   public StandardForwardStartingCreditDefaultSwapDefinition withRecoveryRate(final double recoveryRate) {
     return new StandardForwardStartingCreditDefaultSwapDefinition(getBuySellProtection(),

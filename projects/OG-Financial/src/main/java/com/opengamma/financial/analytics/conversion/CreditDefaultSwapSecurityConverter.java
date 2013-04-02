@@ -14,6 +14,7 @@ import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.StandardCDSCoupon;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.obligor.CreditRating;
 import com.opengamma.analytics.financial.credit.obligor.CreditRatingFitch;
 import com.opengamma.analytics.financial.credit.obligor.CreditRatingMoodys;
@@ -33,6 +34,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
+import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
 import com.opengamma.financial.security.cds.StandardVanillaCDSSecurity;
 import com.opengamma.financial.security.swap.InterestRateNotional;
@@ -44,7 +46,7 @@ import com.opengamma.util.money.Currency;
 /**
  *
  */
-public class CreditDefaultSwapSecurityConverter {
+public class CreditDefaultSwapSecurityConverter extends FinancialSecurityVisitorAdapter<CreditDefaultSwapDefinition> {
   private static final Obligor DUMMY_OBLIGOR_A = new Obligor(
       "Dummy_A",
       "Dummy_A",
@@ -99,14 +101,14 @@ public class CreditDefaultSwapSecurityConverter {
     _organizationSource = organizationSource;
   }
 
-  public LegacyVanillaCreditDefaultSwapDefinition visitStandardVanillaCDSSecurity(final StandardVanillaCDSSecurity security, final ZonedDateTime valuationDate) {
+  public LegacyVanillaCreditDefaultSwapDefinition visitStandardVanillaCDSSecurity(final StandardVanillaCDSSecurity security) {
     ArgumentChecker.notNull(security, "security");
     final BuySellProtection buySellProtection = security.isBuy() ? BuySellProtection.BUY : BuySellProtection.SELL;
     //final ExternalId regionId = security.getRegionId();
     //final Calendar calendar = new HolidaySourceCalendarAdapter(_holidaySource, _regionSource.getHighestLevelRegion(regionId));
     final Calendar calendar = new HolidaySourceCalendarAdapter(_holidaySource, security.getNotional().getCurrency());
     final ZonedDateTime startDate = security.getStartDate();
-    final ZonedDateTime effectiveDate = FOLLOWING.adjustDate(calendar, valuationDate.withHour(0).withMinute(0).withSecond(0).withNano(0).plusDays(1));
+    final ZonedDateTime effectiveDate = security.getEffectiveDate(); //FOLLOWING.adjustDate(calendar, valuationDate.withHour(0).withMinute(0).withSecond(0).withNano(0).plusDays(1));
     final ZonedDateTime maturityDate = security.getMaturityDate();
     final PeriodFrequency couponFrequency = getPeriodFrequency(security.getCouponFrequency());
     final DayCount dayCount = security.getDayCount();
@@ -144,14 +146,14 @@ public class CreditDefaultSwapSecurityConverter {
         amount, recoveryRate, includeAccruedPremium, protectionStart, coupon);
   }
 
-  public LegacyVanillaCreditDefaultSwapDefinition visitLegacyVanillaCDSSecurity(final LegacyVanillaCDSSecurity security, final ZonedDateTime valuationDate) {
+  public LegacyVanillaCreditDefaultSwapDefinition visitLegacyVanillaCDSSecurity(final LegacyVanillaCDSSecurity security) {
     ArgumentChecker.notNull(security, "security");
     final BuySellProtection buySellProtection = security.isBuy() ? BuySellProtection.BUY : BuySellProtection.SELL;
     //    final ExternalId regionId = security.getRegionId();
     //    final Calendar calendar = new HolidaySourceCalendarAdapter(_holidaySource, _regionSource.getHighestLevelRegion(regionId));
     final Calendar calendar = new HolidaySourceCalendarAdapter(_holidaySource, security.getNotional().getCurrency());
     final ZonedDateTime startDate = security.getStartDate();
-    final ZonedDateTime effectiveDate = FOLLOWING.adjustDate(calendar, valuationDate.withHour(0).withMinute(0).withSecond(0).withNano(0).plusDays(1));
+    final ZonedDateTime effectiveDate = security.getEffectiveDate(); //FOLLOWING.adjustDate(calendar, valuationDate.withHour(0).withMinute(0).withSecond(0).withNano(0).plusDays(1));
     final ZonedDateTime maturityDate = security.getMaturityDate();
     final PeriodFrequency couponFrequency = getPeriodFrequency(security.getCouponFrequency());
     final DayCount dayCount = security.getDayCount();

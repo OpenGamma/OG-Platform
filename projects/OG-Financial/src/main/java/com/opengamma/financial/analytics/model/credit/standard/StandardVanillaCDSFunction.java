@@ -36,11 +36,16 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
+import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.conversion.CreditDefaultSwapSecurityConverter;
 import com.opengamma.financial.analytics.model.YieldCurveFunctionUtils;
 import com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.credit.CreditSecurityToIdentifierVisitor;
 import com.opengamma.financial.analytics.model.credit.IMMDateGenerator;
+import com.opengamma.financial.convention.HolidaySourceCalendarAdapter;
+import com.opengamma.financial.convention.businessday.BusinessDayConvention;
+import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.FinancialSecurityUtils;
@@ -54,7 +59,9 @@ import com.opengamma.util.time.Tenor;
 /**
  * 
  */
+//TODO rename to make clear that these functions use the ISDA methodology (specifically, for effective dates)
 public abstract class StandardVanillaCDSFunction extends AbstractFunction.NonCompiledInvoker {
+  private static final BusinessDayConvention FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
   private final String[] _valueRequirements;
   private CreditDefaultSwapSecurityConverter _converter;
 
@@ -74,13 +81,17 @@ public abstract class StandardVanillaCDSFunction extends AbstractFunction.NonCom
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
+    final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
     final ZonedDateTime valuationTime = ZonedDateTime.now(executionContext.getValuationClock());
     final CreditDefaultSwapSecurity security = (CreditDefaultSwapSecurity) target.getSecurity();
-    final LegacyVanillaCreditDefaultSwapDefinition definition;
+    final Calendar calendar = new HolidaySourceCalendarAdapter(holidaySource, FinancialSecurityUtils.getCurrency(security));
+    LegacyVanillaCreditDefaultSwapDefinition definition;
     if (security instanceof StandardVanillaCDSSecurity) {
-      definition = _converter.visitStandardVanillaCDSSecurity((StandardVanillaCDSSecurity) security, valuationTime);
+      definition = _converter.visitStandardVanillaCDSSecurity((StandardVanillaCDSSecurity) security);
+      definition = definition.withEffectiveDate(FOLLOWING.adjustDate(calendar, valuationTime.withHour(0).withMinute(0).withSecond(0).withNano(0).plusDays(1)));
     } else {
-      definition = _converter.visitLegacyVanillaCDSSecurity((LegacyVanillaCDSSecurity) security, valuationTime);
+      definition = _converter.visitLegacyVanillaCDSSecurity((LegacyVanillaCDSSecurity) security);
+      definition = definition.withEffectiveDate(FOLLOWING.adjustDate(calendar, valuationTime.withHour(0).withMinute(0).withSecond(0).withNano(0).plusDays(1)));
     }
     final Object yieldCurveObject = inputs.getValue(ValueRequirementNames.YIELD_CURVE);
     if (yieldCurveObject == null) {

@@ -61,6 +61,7 @@ import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
+import com.opengamma.financial.security.option.CreditDefaultSwapOptionSecurity;
 import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexFutureOptionSecurity;
@@ -613,6 +614,11 @@ public class FinancialSecurityUtils {
           return security.getCurrency();
         }
 
+        @Override
+        public Currency visitCreditDefaultSwapOptionSecurity(final CreditDefaultSwapOptionSecurity security) {
+          return security.getCurrency();
+        }
+
       });
       return ccy;
     } else if (security instanceof RawSecurity) {
@@ -951,6 +957,11 @@ public class FinancialSecurityUtils {
 
         @Override
         public Collection<Currency> visitCreditDefaultSwapIndexSecurity(final CreditDefaultSwapIndexSecurity security) {
+          return Collections.singletonList(security.getCurrency());
+        }
+
+        @Override
+        public Collection<Currency> visitCreditDefaultSwapOptionSecurity(final CreditDefaultSwapOptionSecurity security) {
           return Collections.singletonList(security.getCurrency());
         }
       });

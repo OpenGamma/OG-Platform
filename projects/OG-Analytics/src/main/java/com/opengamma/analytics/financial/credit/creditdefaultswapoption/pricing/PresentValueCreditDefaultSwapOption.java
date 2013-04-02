@@ -7,8 +7,6 @@ package com.opengamma.analytics.financial.credit.creditdefaultswapoption.pricing
 
 import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.analytics.financial.credit.creditdefaultswapoption.definition.CDSOptionKnockoutType;
-import com.opengamma.analytics.financial.credit.creditdefaultswapoption.definition.CDSOptionType;
 import com.opengamma.analytics.financial.credit.creditdefaultswapoption.definition.CreditDefaultSwapOptionDefinition;
 import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
@@ -29,9 +27,10 @@ public class PresentValueCreditDefaultSwapOption {
   // TODO : Need to sort out the calculation of the forward starting spread
   // TODO : Need to check through this model in detail
   // TODO : Need to add error checking for d1 and d2 calculations
-  // TODO : Need to check that strike is not equal to zero
+  // TODO : Check that valuationDate is not inconsistent with other trade economics
 
   // NOTE : Have not included the PriceType field for the CDS - assume this is entered as part of the underlying CDS contract definition
+  // NOTE : The test for a negative option strike is done in the CDS swaption ctor
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -41,7 +40,7 @@ public class PresentValueCreditDefaultSwapOption {
       final ZonedDateTime valuationDate,
       final CreditDefaultSwapOptionDefinition cdsSwaption,
       final double sigma,
-      final ISDADateCurve/*ISDACurve*/yieldCurve,
+      final ISDADateCurve yieldCurve,
       final HazardRateCurve hazardRateCurve) {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -57,14 +56,14 @@ public class PresentValueCreditDefaultSwapOption {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
-    NormalDistribution normal = new NormalDistribution(0.0, 1.0);
+    final NormalDistribution normal = new NormalDistribution(0.0, 1.0);
 
     double presentValue = 0.0;
     double frontendProtection = 0.0;
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
-    double optionStrike = cdsSwaption.getOptionStrike();
+    final double optionStrike = cdsSwaption.getOptionStrike();
 
     // Calculate the remaining time to option expiry (cannot be negative since this would be detected at the time of swaption construction)
     final double optionExpiryTime = TimeCalculator.getTimeBetween(valuationDate, cdsSwaption.getOptionExerciseDate());
@@ -77,7 +76,7 @@ public class PresentValueCreditDefaultSwapOption {
 
       // ... the option still has some value (and the calculation shouldn't fall over)
 
-      // Calculate the risky dV01 
+      // Calculate the risky dV01
       final double riskydV01 = calculateRiskydV01(valuationDate, cdsSwaption, yieldCurve, hazardRateCurve);
 
       // Calculate the forward spread
@@ -92,15 +91,13 @@ public class PresentValueCreditDefaultSwapOption {
 
       // Calculate the value of the CDS swaption
 
-      if (cdsSwaption.getOptionType() == CDSOptionType.PAYER) {
+      if (cdsSwaption.isPayer()) {
         presentValue = riskydV01 * (forwardSpread * normal.getCDF(d1) - optionStrike * normal.getCDF(d2));
-      }
-
-      if (cdsSwaption.getOptionType() == CDSOptionType.RECEIVER) {
+      } else {
         presentValue = riskydV01 * (optionStrike * normal.getCDF(-d2) - forwardSpread * normal.getCDF(-d1));
       }
 
-      if (cdsSwaption.getOptionKnockoutType() == CDSOptionKnockoutType.NONKNOCKOUT) {
+      if (!cdsSwaption.isKnockOut()) {
         frontendProtection = calculateFrontendProtection(valuationDate, cdsSwaption, yieldCurve, hazardRateCurve);
       }
     }
@@ -116,7 +113,7 @@ public class PresentValueCreditDefaultSwapOption {
       final ISDADateCurve/*ISDACurve*/yieldCurve,
       final HazardRateCurve hazardRateCurve) {
 
-    double riskydV01 = 0.0;
+    final double riskydV01 = 0.0;
 
     return riskydV01;
   }
@@ -129,7 +126,7 @@ public class PresentValueCreditDefaultSwapOption {
       final ISDADateCurve/*ISDACurve*/yieldCurve,
       final HazardRateCurve hazardRateCurve) {
 
-    double forwardSpread = 0.0;
+    final double forwardSpread = 0.0;
 
     return forwardSpread;
   }
