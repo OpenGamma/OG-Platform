@@ -67,7 +67,8 @@ public final class PresentValueMarketQuoteSensitivityCurveSensitivityDiscounting
     final Map<String, List<DoublesPair>> resultMapDsc = new HashMap<String, List<DoublesPair>>();
     final List<DoublesPair> listDiscounting = new ArrayList<DoublesPair>();
     listDiscounting.add(new DoublesPair(coupon.getPaymentTime(), -coupon.getPaymentTime() * df * dfBar));
-    resultMapDsc.put(coupon.getFundingCurveName(), listDiscounting);
+    //    resultMapDsc.put(coupon.getFundingCurveName(), listDiscounting);
+    resultMapDsc.put(multicurve.getName(coupon.getCurrency()), listDiscounting);
     return MulticurveSensitivity.ofYieldDiscounting(resultMapDsc);
   }
 

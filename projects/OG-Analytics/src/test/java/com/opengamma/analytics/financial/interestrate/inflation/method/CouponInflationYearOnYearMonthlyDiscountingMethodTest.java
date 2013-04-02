@@ -12,7 +12,7 @@ import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
-import com.opengamma.analytics.financial.instrument.index.IndexPrice;
+import com.opengamma.analytics.financial.instrument.index.PriceIndex;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationYearOnYearMonthlyDefinition;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationYearOnYearMonthly;
 import com.opengamma.analytics.financial.provider.calculator.inflation.NetAmountInflationCalculator;
@@ -39,8 +39,8 @@ import com.opengamma.util.time.DateUtils;
 public class CouponInflationYearOnYearMonthlyDiscountingMethodTest {
 
   private static final InflationIssuerProviderDiscount MARKET = MulticurveProviderDiscountDataSets.createMarket1();
-  private static final IndexPrice[] PRICE_INDEXES = MARKET.getPriceIndexes().toArray(new IndexPrice[MARKET.getPriceIndexes().size()]);
-  private static final IndexPrice PRICE_INDEX_EUR = PRICE_INDEXES[0];
+  private static final PriceIndex[] PRICE_INDEXES = MARKET.getPriceIndexes().toArray(new PriceIndex[MARKET.getPriceIndexes().size()]);
+  private static final PriceIndex PRICE_INDEX_EUR = PRICE_INDEXES[0];
   private static final IborIndex[] IBOR_INDEXES = MARKET.getIndexesIbor().toArray(new IborIndex[MARKET.getIndexesIbor().size()]);
   private static final IborIndex EURIBOR3M = IBOR_INDEXES[0];
   private static final Calendar CALENDAR_EUR = EURIBOR3M.getCalendar();

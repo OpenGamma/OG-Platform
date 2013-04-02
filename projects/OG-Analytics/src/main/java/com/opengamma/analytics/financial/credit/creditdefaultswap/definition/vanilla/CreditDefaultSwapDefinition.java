@@ -9,6 +9,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.BuySellProtection;
+import com.opengamma.analytics.financial.credit.CreditInstrumentDefinition;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.StubType;
@@ -23,7 +24,7 @@ import com.opengamma.util.money.Currency;
 /**
  *  Definition of a generic Single Name Credit Default Swap contract (abstract class therefore different types of CDS will inherit from this)
  */
-public abstract class CreditDefaultSwapDefinition {
+public abstract class CreditDefaultSwapDefinition implements CreditInstrumentDefinition {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -236,6 +237,10 @@ public abstract class CreditDefaultSwapDefinition {
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  public abstract CreditDefaultSwapDefinition withMaturityDate(ZonedDateTime maturityDate);
+
+  public abstract CreditDefaultSwapDefinition withRecoveryRate(double recoveryRate);
 
   // Public member accessor methods
 
@@ -459,7 +464,6 @@ public abstract class CreditDefaultSwapDefinition {
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
-
 
   @Override
   public String toString() {

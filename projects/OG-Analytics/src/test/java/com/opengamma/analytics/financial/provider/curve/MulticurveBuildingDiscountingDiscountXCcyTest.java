@@ -592,7 +592,7 @@ public class MulticurveBuildingDiscountingDiscountXCcyTest {
 
   //TODO: test on the correctness of the Jacobian matrix in the CurveBuildingBlock's.
 
-  @Test(enabled = false)
+  @Test(enabled = true)
   public void performance() {
     long startTime, endTime;
     final int nbTest = 10;

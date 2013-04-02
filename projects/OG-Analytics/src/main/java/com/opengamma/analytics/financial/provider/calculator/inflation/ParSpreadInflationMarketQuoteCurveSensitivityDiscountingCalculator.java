@@ -71,7 +71,7 @@ public final class ParSpreadInflationMarketQuoteCurveSensitivityDiscountingCalcu
   private static final ForwardRateAgreementDiscountingProviderMethod METHOD_FRA = ForwardRateAgreementDiscountingProviderMethod.getInstance();
   private static final ForexSwapDiscountingProviderMethod METHOD_FOREX_SWAP = ForexSwapDiscountingProviderMethod.getInstance();
 
-  //-----     Inflation Swaps     -----
+  //-----    Swaps     -----
 
   /**
   * For swaps the ParSpread is the spread to be added on each coupon of the first leg to obtain a present value of zero.
@@ -86,6 +86,7 @@ public final class ParSpreadInflationMarketQuoteCurveSensitivityDiscountingCalcu
     ArgumentChecker.notNull(inflation, "Market");
     ArgumentChecker.notNull(swap, "Swap");
     if (swap.getFirstLeg().getNumberOfPayments() == 1 && swap.getFirstLeg().getNthPayment(0) instanceof CouponFixedCompounding)
+    // Implementation note: check if the swap is an inflation swap.
     {
       final InflationSensitivity pvcis = swap.getSecondLeg().accept(PVISC, inflation).getSensitivity(swap.getSecondLeg().getCurrency());
       final MulticurveSensitivity pvcs = swap.getFirstLeg().accept(PVSC, inflation.getMulticurveProvider()).getSensitivity(swap.getFirstLeg().getCurrency());

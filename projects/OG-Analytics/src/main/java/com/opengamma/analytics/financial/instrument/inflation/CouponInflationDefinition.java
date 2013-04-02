@@ -9,7 +9,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.analytics.financial.instrument.index.IndexPrice;
+import com.opengamma.analytics.financial.instrument.index.PriceIndex;
 import com.opengamma.analytics.financial.instrument.payment.CouponDefinition;
 import com.opengamma.util.money.Currency;
 
@@ -21,7 +21,7 @@ public abstract class CouponInflationDefinition extends CouponDefinition {
   /**
    * The price index associated to the coupon.
    */
-  private final IndexPrice _priceIndex;
+  private final PriceIndex _priceIndex;
 
   /**
    * Constructor from the coupon details.
@@ -34,7 +34,7 @@ public abstract class CouponInflationDefinition extends CouponDefinition {
    * @param priceIndex The price index.
    */
   public CouponInflationDefinition(Currency currency, ZonedDateTime paymentDate, ZonedDateTime accrualStartDate, ZonedDateTime accrualEndDate, double paymentYearFraction, double notional,
-      IndexPrice priceIndex) {
+      PriceIndex priceIndex) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, paymentYearFraction, notional);
     Validate.notNull(priceIndex, "Price index");
     this._priceIndex = priceIndex;
@@ -54,7 +54,7 @@ public abstract class CouponInflationDefinition extends CouponDefinition {
    * Gets the price index associated to the coupon.
    * @return The price index.
    */
-  public IndexPrice getPriceIndex() {
+  public PriceIndex getPriceIndex() {
     return _priceIndex;
   }
 

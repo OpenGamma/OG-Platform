@@ -24,6 +24,7 @@ public class CurveScenarioCreditDefaultSwap {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
+  // The user can bump the market spreads at each tenor by a tenor specific amount (additive and parallel bumps)
   public double getCurveScenarioCreditDefaultSwap(
       final ZonedDateTime valuationDate,
       final LegacyVanillaCreditDefaultSwapDefinition cds,
@@ -93,5 +94,79 @@ public class CurveScenarioCreditDefaultSwap {
 
     return curveScenarioPresentValue;
   }
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  // The user can bump the market spreads at each tenor by a specified amount (additive and parallel bumps)
+  public double getCurveScenarioCreditDefaultSwap(
+      final ZonedDateTime valuationDate,
+      final LegacyVanillaCreditDefaultSwapDefinition cds,
+      final ISDADateCurve/*ISDACurve*/yieldCurve,
+      final ZonedDateTime[] marketTenors,
+      final double[] marketSpreads,
+      final double spreadBump,
+      final SpreadBumpType spreadBumpType,
+      final PriceType priceType) {
+
+    // ----------------------------------------------------------------------------------------------------------------------------------------
+
+    // Check input CDS, YieldCurve and SurvivalCurve objects are not null
+
+    ArgumentChecker.notNull(valuationDate, "Valuation date");
+    ArgumentChecker.notNull(cds, "LegacyCreditDefaultSwapDefinition");
+    ArgumentChecker.notNull(yieldCurve, "YieldCurve");
+    ArgumentChecker.notNull(marketTenors, "Market tenors");
+    ArgumentChecker.notNull(marketSpreads, "Market spreads");
+    ArgumentChecker.notNull(spreadBump, "Spread bump");
+    ArgumentChecker.notNull(spreadBumpType, "Spread bump type");
+    ArgumentChecker.notNull(priceType, "Price type");
+
+    // Construct a market data checker object
+    final SpreadTermStructureDataChecker checkMarketData = new SpreadTermStructureDataChecker();
+
+    // Check the efficacy of the input market data
+    checkMarketData.checkSpreadData(valuationDate, /*cds, */marketTenors, marketSpreads);
+
+    // ----------------------------------------------------------------------------------------------------------------------------------------
+
+    // Vector to hold the bumped market spreads
+    final double[] bumpedMarketSpreads = new double[marketSpreads.length];
+
+    // ----------------------------------------------------------------------------------------------------------------------------------------
+
+    // Create a CDS PV calculator
+    //final PresentValueLegacyCreditDefaultSwap creditDefaultSwap = new PresentValueLegacyCreditDefaultSwap();
+    final PresentValueCreditDefaultSwap creditDefaultSwap = new PresentValueCreditDefaultSwap();
+
+    // Calculate the unbumped CDS PV
+    final double presentValue = creditDefaultSwap.calibrateAndGetPresentValue(valuationDate, cds, marketTenors, marketSpreads, yieldCurve, priceType);
+
+    // ----------------------------------------------------------------------------------------------------------------------------------------
+
+    // Loop through and bump each of the spreads at each tenor
+    for (int m = 0; m < marketSpreads.length; m++) {
+
+      // Bump the spread at tenor m
+      if (spreadBumpType == SpreadBumpType.ADDITIVE) {
+        bumpedMarketSpreads[m] = marketSpreads[m] + spreadBump;
+      }
+
+      if (spreadBumpType == SpreadBumpType.MULTIPLICATIVE) {
+        bumpedMarketSpreads[m] = marketSpreads[m] * (1 + spreadBump);
+      }
+
+      ArgumentChecker.notNegative(bumpedMarketSpreads[m], "Bumped market spread");
+    }
+
+    // Calculate the bumped CDS PV
+    final double bumpedPresentValue = creditDefaultSwap.calibrateAndGetPresentValue(valuationDate, cds, marketTenors, bumpedMarketSpreads, yieldCurve, priceType);
+
+    double curveScenarioPresentValue = (bumpedPresentValue - presentValue);
+
+    // ----------------------------------------------------------------------------------------------------------------------------------------
+
+    return curveScenarioPresentValue;
+  }
+
   // ----------------------------------------------------------------------------------------------------------------------------------------
 }

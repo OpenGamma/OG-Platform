@@ -8,7 +8,7 @@ package com.opengamma.analytics.financial.interestrate.inflation.derivative;
 
 import java.util.Arrays;
 
-import com.opengamma.analytics.financial.instrument.index.IndexPrice;
+import com.opengamma.analytics.financial.instrument.index.PriceIndex;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -61,7 +61,7 @@ public class CouponInflationYearOnYearInterpolation extends CouponInflation {
    * @param weightStart The weight on the first month index in the interpolation of the index at the coupon start.
    * @param weightEnd The weight on the first month index in the interpolation of the index at the coupon end.
    */
-  public CouponInflationYearOnYearInterpolation(final Currency currency, final double paymentTime, final double paymentYearFraction, final double notional, final IndexPrice priceIndex,
+  public CouponInflationYearOnYearInterpolation(final Currency currency, final double paymentTime, final double paymentYearFraction, final double notional, final PriceIndex priceIndex,
       final double[] referenceStartTime, final double[] referenceEndTime,
       final boolean payNotional, final double weightStart, final double weightEnd) {
     super(currency, paymentTime, paymentYearFraction, notional, priceIndex);

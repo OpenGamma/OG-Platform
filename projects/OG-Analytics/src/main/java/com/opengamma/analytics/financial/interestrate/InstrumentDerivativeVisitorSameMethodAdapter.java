@@ -52,6 +52,7 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutu
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.DeliverableSwapFuturesSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.DeliverableSwapFuturesTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
@@ -590,6 +591,16 @@ public abstract class InstrumentDerivativeVisitorSameMethodAdapter<DATA_TYPE, RE
 
   @Override
   public RESULT_TYPE visitDeliverableSwapFuturesSecurity(final DeliverableSwapFuturesSecurity futures) {
+    return visit(futures);
+  }
+
+  @Override
+  public RESULT_TYPE visitDeliverableSwapFuturesTransaction(final DeliverableSwapFuturesTransaction futures, final DATA_TYPE data) {
+    return visit(futures, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitDeliverableSwapFuturesTransaction(final DeliverableSwapFuturesTransaction futures) {
     return visit(futures);
   }
 

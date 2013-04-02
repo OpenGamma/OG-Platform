@@ -39,6 +39,8 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
   // TODO : Remove one of the overloaded convertdatesToDoubles methods
   // TODO : Rewrite and integrate constructISDACompliantCashflowSchedule into the code better
 
+  // TODO : Need to hook in the flags for adjusting various dates again
+
   // TODO : Add WORKDAY equivalent function
 
   // -------------------------------------------------------------------------------------------

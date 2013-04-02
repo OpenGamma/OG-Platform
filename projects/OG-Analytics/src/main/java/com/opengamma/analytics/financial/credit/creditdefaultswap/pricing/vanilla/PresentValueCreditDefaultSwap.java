@@ -852,59 +852,22 @@ public class PresentValueCreditDefaultSwap {
       final ISDADateCurve yieldCurve,
       final PriceType priceType) {
 
-    // ----------------------------------------------------------------------------------------------------------------------------------------
-
-    // Vector of time nodes for the hazard rate curve
-    final double[] times = new double[marketTenors.length + 1];
-
-    times[0] = 0.0;
-    for (int m = 1; m <= marketTenors.length; m++) {
-      times[m] = ACT_365.getDayCountFraction(valuationDate, marketTenors[m - 1]);
-    }
-
-    // ----------------------------------------------------------------------------------------------------------------------------------------
-
-    // Create a CDS for calibration
-    final LegacyVanillaCreditDefaultSwapDefinition calibrationCDS = cds;
-
     // Create a CDS for valuation
     final LegacyVanillaCreditDefaultSwapDefinition valuationCDS = cds;
-
-    // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Call the constructor to create a CDS present value object
     final PresentValueLegacyCreditDefaultSwap creditDefaultSwap = new PresentValueLegacyCreditDefaultSwap();
 
-    // Call the constructor to create a calibrate hazard rate curve object
-    final CalibrateHazardRateCurveLegacyCreditDefaultSwap hazardRateCurve = new CalibrateHazardRateCurveLegacyCreditDefaultSwap();
-
-    // ----------------------------------------------------------------------------------------------------------------------------------------
-
-    // Calibrate the hazard rate curve to the market observed par CDS spreads (returns calibrated hazard rates as a vector of doubles)
-    //final double[] calibratedHazardRates = hazardRateCurve.getCalibratedHazardRateTermStructure(valuationDate, calibrationCDS, marketTenors, spreads, yieldCurve, priceType);
-
-    // ********************************** REMEMBER THIS **********************************************************************************************
-    final double[] calibratedHazardRates = hazardRateCurve.getCalibratedHazardRateTermStructure(valuationDate, calibrationCDS, marketTenors, marketSpreads, yieldCurve, PriceType.CLEAN);
-
-    final double[] modifiedHazardRateCurve = new double[calibratedHazardRates.length + 1];
-
-    modifiedHazardRateCurve[0] = calibratedHazardRates[0];
-
-    for (int m = 1; m < modifiedHazardRateCurve.length; m++) {
-      modifiedHazardRateCurve[m] = calibratedHazardRates[m - 1];
-    }
-
     // Build a hazard rate curve object based on the input market data
-    final HazardRateCurve calibratedHazardRateCurve = new HazardRateCurve(marketTenors, times, modifiedHazardRateCurve/*calibratedHazardRates*/, 0.0);
+    final HazardRateCurve calibratedHazardRateCurve = calibrateHazardRateCurve(valuationDate, valuationCDS, marketTenors, marketSpreads, yieldCurve);
 
     // Calculate the CDS PV using the just calibrated hazard rate term structure
     final double presentValue = creditDefaultSwap.getPresentValueLegacyCreditDefaultSwap(valuationDate, valuationCDS, yieldCurve, calibratedHazardRateCurve, priceType);
 
-    // ----------------------------------------------------------------------------------------------------------------------------------------
-
     return presentValue;
   }
 
+  @Deprecated
   public HazardRateCurve calibrateHazardRateCurve(final ZonedDateTime valuationDate,
       final LegacyVanillaCreditDefaultSwapDefinition cds,
       final ZonedDateTime[] marketTenors,
@@ -946,6 +909,6 @@ public class PresentValueCreditDefaultSwap {
     }
 
     // Build a hazard rate curve object based on the input market data
-    return new HazardRateCurve(marketTenors, times, modifiedHazardRateCurve/*calibratedHazardRates*/, 0.0);
+    return new HazardRateCurve(marketTenors, times, modifiedHazardRateCurve, 0.0);
   }
 }

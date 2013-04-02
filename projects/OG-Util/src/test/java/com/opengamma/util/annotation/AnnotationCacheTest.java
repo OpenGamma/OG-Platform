@@ -25,7 +25,7 @@ import com.opengamma.util.test.TestGroup;
 @Test(groups = TestGroup.UNIT)
 public class AnnotationCacheTest {
 
-  private static final String CACHE_FILE_NAME = ".TestAnnotation";
+  private static final String CACHE_FILE_NAME = ".MockType";
 
   private File createTempFolder() {
     final File tmp = new File(System.getProperty("java.io.tmpdir"));

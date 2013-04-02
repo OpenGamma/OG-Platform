@@ -12,7 +12,7 @@ import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.bond.BondCapitalIndexedSecurityDefinition;
-import com.opengamma.analytics.financial.instrument.index.IndexPrice;
+import com.opengamma.analytics.financial.instrument.index.PriceIndex;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationGearing;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZeroCouponInterpolationGearingDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZeroCouponMonthlyGearingDefinition;
@@ -57,9 +57,9 @@ import com.opengamma.util.tuple.ObjectsPair;
 public class BondCapitalIndexedSecurityDiscountingMethodTest {
 
   private static final InflationIssuerProviderDiscount MARKET = MulticurveProviderDiscountDataSets.createMarket1();
-  private static final IndexPrice[] PRICE_INDEXES = MulticurveProviderDiscountDataSets.getPriceIndexes();
-  private static final IndexPrice PRICE_INDEX_UKRPI = PRICE_INDEXES[1];
-  private static final IndexPrice PRICE_INDEX_USCPI = PRICE_INDEXES[2];
+  private static final PriceIndex[] PRICE_INDEXES = MulticurveProviderDiscountDataSets.getPriceIndexes();
+  private static final PriceIndex PRICE_INDEX_UKRPI = PRICE_INDEXES[1];
+  private static final PriceIndex PRICE_INDEX_USCPI = PRICE_INDEXES[2];
   private static final String[] ISSUER_NAMES = MulticurveProviderDiscountDataSets.getIssuerNames();
   private static final String ISSUER_US_GOVT = ISSUER_NAMES[0];
   private static final String ISSUER_UK_GOVT = ISSUER_NAMES[1];

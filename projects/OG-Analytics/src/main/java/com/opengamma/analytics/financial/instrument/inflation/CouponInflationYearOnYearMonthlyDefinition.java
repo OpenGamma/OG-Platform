@@ -11,7 +11,7 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
-import com.opengamma.analytics.financial.instrument.index.IndexPrice;
+import com.opengamma.analytics.financial.instrument.index.PriceIndex;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationYearOnYearMonthly;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
@@ -63,7 +63,7 @@ public class CouponInflationYearOnYearMonthlyDefinition extends CouponInflationD
    * @param payNotional Flag indicating if the notional is paid (true) or not (false).
    */
   public CouponInflationYearOnYearMonthlyDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate,
-      final ZonedDateTime accrualEndDate, final double paymentYearFraction, final double notional, final IndexPrice priceIndex, final int monthLag,
+      final ZonedDateTime accrualEndDate, final double paymentYearFraction, final double notional, final PriceIndex priceIndex, final int monthLag,
       final ZonedDateTime referenceStartDate, final ZonedDateTime referenceEndDate, final boolean payNotional) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, paymentYearFraction, notional, priceIndex);
     ArgumentChecker.notNull(referenceStartDate, "Reference start date");
@@ -85,7 +85,7 @@ public class CouponInflationYearOnYearMonthlyDefinition extends CouponInflationD
    * @return The inflation zero-coupon.
    */
   public static CouponInflationYearOnYearMonthlyDefinition from(final ZonedDateTime accrualStartDate, final ZonedDateTime paymentDate, final double notional,
-      final IndexPrice priceIndex, final int monthLag, final boolean payNotional) {
+      final PriceIndex priceIndex, final int monthLag, final boolean payNotional) {
     ZonedDateTime referenceStartDate = accrualStartDate.minusMonths(monthLag);
     ZonedDateTime referenceEndDate = paymentDate.minusMonths(monthLag);
     referenceStartDate = referenceStartDate.withDayOfMonth(1);

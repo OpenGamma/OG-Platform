@@ -165,7 +165,10 @@ public class EquityOptionDefinition implements InstrumentDefinition<EquityOption
       // The intended behaviour is that an option is still alive on the expiry date
       timeToExpiry = 0.0015; // Approximately half a day
     } 
-    final double timeToSettlement = TimeCalculator.getTimeBetween(date, _settlementDate);
+    double timeToSettlement = TimeCalculator.getTimeBetween(date, _settlementDate);
+    if (timeToSettlement == 0) {
+      timeToSettlement = 0.0015;
+    } 
     return new EquityOption(timeToExpiry, timeToSettlement, _strike, _isCall, _currency, _pointValue, _exerciseType, _settlementType);
   }
 
