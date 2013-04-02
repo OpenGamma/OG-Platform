@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
@@ -25,7 +26,7 @@ import com.opengamma.engine.value.ValueSpecification;
 /**
  * Acts on a target of {@link ComputationTarget#NULL} to mean the view's portfolio. This is a convenience function to allow this to be more easily added as a specific requirement to a view.
  */
-public class DefaultTargetSampledCovarianceMatrixFunction extends AbstractFunction.NonCompiledInvoker {
+public class DefaultTargetCovarianceMatrixFunction extends AbstractFunction.NonCompiledInvoker {
 
   // CompiledFunctionDefinition
 
@@ -41,12 +42,13 @@ public class DefaultTargetSampledCovarianceMatrixFunction extends AbstractFuncti
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    return Collections.singleton(new ValueSpecification(SampledCovarianceMatrixFunction.VALUE_NAME, ComputationTargetSpecification.NULL, ValueProperties.all()));
+    return ImmutableSet.of(new ValueSpecification(SampledCovarianceMatrixFunction.VALUE_NAME, ComputationTargetSpecification.NULL, ValueProperties.all()),
+        new ValueSpecification(CorrelationMatrixFunction.VALUE_NAME, ComputationTargetSpecification.NULL, ValueProperties.all()));
   }
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    return Collections.singleton(new ValueRequirement(SampledCovarianceMatrixFunction.VALUE_NAME, new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO, context.getPortfolio()
+    return Collections.singleton(new ValueRequirement(desiredValue.getValueName(), new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO, context.getPortfolio()
         .getUniqueId()), desiredValue.getConstraints().withoutAny(ValuePropertyNames.FUNCTION)));
   }
 
@@ -64,16 +66,17 @@ public class DefaultTargetSampledCovarianceMatrixFunction extends AbstractFuncti
         }
       }
     }
-    return Collections.singleton(new ValueSpecification(SampledCovarianceMatrixFunction.VALUE_NAME, ComputationTargetSpecification.NULL, properties.get()));
+    return Collections.singleton(new ValueSpecification(input.getValueName(), ComputationTargetSpecification.NULL, properties.get()));
   }
 
   // FunctionInvoker
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext context, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-    final Object value = inputs.getValue(SampledCovarianceMatrixFunction.VALUE_NAME);
+    final ValueRequirement desiredValue = desiredValues.iterator().next();
+    final Object value = inputs.getValue(desiredValue.getValueName());
     final ValueRequirement resultReq = desiredValues.iterator().next();
-    final ValueSpecification resultSpec = new ValueSpecification(SampledCovarianceMatrixFunction.VALUE_NAME, ComputationTargetSpecification.NULL, resultReq.getConstraints());
+    final ValueSpecification resultSpec = new ValueSpecification(desiredValue.getValueName(), ComputationTargetSpecification.NULL, resultReq.getConstraints());
     return Collections.singleton(new ComputedValue(resultSpec, value));
   }
 

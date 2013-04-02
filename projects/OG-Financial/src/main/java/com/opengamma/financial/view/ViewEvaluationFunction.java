@@ -186,7 +186,12 @@ public abstract class ViewEvaluationFunction<TTarget extends ViewEvaluationTarge
       @Override
       public void viewDefinitionCompiled(final CompiledViewDefinition compiledViewDefinition, final boolean hasMarketDataPermissions) {
         s_logger.debug("View definition compiled for {}", viewClientId);
-        store(compiledViewDefinition, resultBuilder);
+        try {
+          store(compiledViewDefinition, resultBuilder);
+        } catch (final RuntimeException e) {
+          s_logger.error("Caught exception during compilation completed callback", e);
+          reportException(e);
+        }
       }
 
       @Override

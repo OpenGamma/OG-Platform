@@ -5,12 +5,16 @@
  */
 package com.opengamma.financial.analytics.covariance;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
 import org.threeten.bp.Period;
 
+import com.opengamma.analytics.financial.covariance.CovarianceMatrixCalculator;
+import com.opengamma.analytics.financial.covariance.HistoricalCovarianceCalculator;
+import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
@@ -27,12 +31,14 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.financial.OpenGammaCompilationContext;
+import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
 import com.opengamma.financial.analytics.timeseries.DateConstraint;
 import com.opengamma.financial.temptarget.TempTarget;
 import com.opengamma.financial.temptarget.TempTargetRepository;
 import com.opengamma.financial.view.HistoricalViewEvaluationTarget;
 import com.opengamma.financial.view.ViewEvaluationFunction;
 import com.opengamma.id.UniqueId;
+import com.opengamma.timeseries.DoubleTimeSeries;
 
 /**
  * Iterates a view client over a window of historical data to get time series of values from which a covariance matrix can be constructed. The target will identify the item(s) for which data should be
@@ -51,7 +57,10 @@ public abstract class SampledCovarianceMatrixFunction extends AbstractFunction.N
    */
   private static final Period DEFAULT_SAMPLING_PERIOD = Period.ofMonths(1);
 
-  private static final ComputationTargetType TYPE = ComputationTargetType.PORTFOLIO.or(ComputationTargetType.PORTFOLIO_NODE).or(ComputationTargetType.POSITION);
+  /**
+   * The type supported by this class.
+   */
+  protected static final ComputationTargetType TYPE = ComputationTargetType.PORTFOLIO.or(ComputationTargetType.PORTFOLIO_NODE).or(ComputationTargetType.POSITION);
 
   /**
    * Returns the type of data used to construct the matrix, and distinguish between different sub-class implementations. For example, this might be market data, risk factors or something else.
@@ -91,6 +100,33 @@ public abstract class SampledCovarianceMatrixFunction extends AbstractFunction.N
 
   protected ViewCalculationConfiguration createViewCalculationConfiguration(final ViewDefinition viewDefinition, final String calcConfigName) {
     return new ViewCalculationConfiguration(viewDefinition, calcConfigName);
+  }
+
+  protected DoubleLabelledMatrix2D createCovarianceMatrix(@SuppressWarnings("rawtypes") DoubleTimeSeries[] timeSeries, Object[] labels) {
+    final CovarianceMatrixCalculator calculator = new CovarianceMatrixCalculator(new HistoricalCovarianceCalculator());
+    // Any nulls (missing data) will upset the calculator, so we'll remove them and produce a best efforts matrix with what is left
+    int len = timeSeries.length;
+    for (int i = 0; i < len; i++) {
+      if (timeSeries[i] == null) {
+        len--;
+        timeSeries[i] = timeSeries[len];
+        labels[i] = labels[len];
+        i--;
+      }
+    }
+    if (len != timeSeries.length) {
+      timeSeries = Arrays.copyOf(timeSeries, len);
+      labels = Arrays.copyOf(labels, len);
+    }
+    // Keys will just be sequential numbers
+    final Double[] keys = new Double[timeSeries.length];
+    for (int i = 0; i < timeSeries.length; i++) {
+      keys[i] = (double) i;
+    }
+    // Calculate the co-variance matrix
+    final DoubleMatrix2D unlabelled = calculator.evaluate(timeSeries);
+    // Label it
+    return new DoubleLabelledMatrix2D(keys, labels, keys, labels, unlabelled.getData());
   }
 
   // CompiledFunctionDefinition

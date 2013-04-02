@@ -155,6 +155,8 @@ import com.opengamma.timeseries.localdate.LocalDateObjectTimeSeries;
 
   private static class MarketDataResults extends HashMap<ValueSpecification, MarketData> {
 
+    private static final long serialVersionUID = 1L;
+
     public void addMarketDataAlias(final ValueSpecification valueSpec, final Collection<ValueSpecification> aliasValueSpecs) {
       MarketData data = get(valueSpec);
       if (data == null) {

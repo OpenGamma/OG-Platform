@@ -27,9 +27,9 @@ public class CovarianceFunctions extends AbstractRepositoryConfigurationBean {
 
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
-    functions.add(functionConfiguration(DefaultTargetSampledCovarianceMatrixFunction.class));
+    functions.add(functionConfiguration(CorrelationMatrixFunction.class));
+    functions.add(functionConfiguration(DefaultTargetCovarianceMatrixFunction.class));
     functions.add(functionConfiguration(MarketDataCovarianceMatrixFunction.class));
     functions.add(functionConfiguration(RiskFactorCovarianceMatrixFunction.class));
   }
-
 }
