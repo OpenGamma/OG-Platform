@@ -44,6 +44,7 @@ import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
+import com.opengamma.financial.security.option.CreditDefaultSwapOptionSecurity;
 import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexFutureOptionSecurity;
@@ -293,6 +294,11 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
     throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
   }
 
+  @Override
+  public T visitCreditDefaultSwapOptionSecurity(final CreditDefaultSwapOptionSecurity security) {
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
+  }
+
   /**
    * Generic message for unsupported methods in FinancialSecurityVisitor implementations
    * 
@@ -416,7 +422,7 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
     public Builder<T> standardVanillaCDSSecurityVisitor(final FinancialSecurityVisitor<T> visitor) {
       _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
         @Override
-        public T visitStandardVanillaCDSSecurity(StandardVanillaCDSSecurity security) {
+        public T visitStandardVanillaCDSSecurity(final StandardVanillaCDSSecurity security) {
           return visitor.visitStandardVanillaCDSSecurity(security);
         }
       };
@@ -426,7 +432,7 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
     public Builder<T> legacyVanillaCDSSecurityVisitor(final FinancialSecurityVisitor<T> visitor) {
       _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
         @Override
-        public T visitLegacyVanillaCDSSecurity(LegacyVanillaCDSSecurity security) {
+        public T visitLegacyVanillaCDSSecurity(final LegacyVanillaCDSSecurity security) {
           return visitor.visitLegacyVanillaCDSSecurity(security);
         }
       };
@@ -1601,6 +1607,10 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
           return value;
         }
 
+        @Override
+        public T visitCreditDefaultSwapOptionSecurity(final CreditDefaultSwapOptionSecurity security) {
+          return value;
+        }
       };
       return this;
     }

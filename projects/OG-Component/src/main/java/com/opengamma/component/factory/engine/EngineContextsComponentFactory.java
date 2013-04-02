@@ -25,6 +25,7 @@ import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.organization.OrganizationSource;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
@@ -97,6 +98,11 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
    */
   @PropertyDefinition(validate = "notNull")
   private RegionSource _regionSource;
+  /**
+   * The organization source.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private OrganizationSource _organizationSource;
   /**
    * The convention bundle source.
    */
@@ -192,6 +198,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
       OpenGammaCompilationContext.setTempTargets(context, getTempTargetRepository());
     }
     context.setSecuritySource(getSecuritySource());
+    context.setOrganizationSource(getOrganizationSource());
     context.setPortfolioStructure(new PortfolioStructure(getPositionSource()));
     context.setRawComputationTargetResolver(getTargetResolver());
     if (getCompilationBlacklist() != null) {
@@ -219,7 +226,9 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
     OpenGammaExecutionContext.setRegionSource(context, getRegionSource());
     OpenGammaExecutionContext.setExchangeSource(context, getExchangeSource());
     OpenGammaExecutionContext.setHolidaySource(context, getHolidaySource());
+    OpenGammaExecutionContext.setOrganizationSource(context, getOrganizationSource());
     OpenGammaExecutionContext.setConventionBundleSource(context, getConventionBundleSource());
+    OpenGammaExecutionContext.setOrganizationSource(context, getOrganizationSource());
     OpenGammaExecutionContext.setConfigSource(context, getConfigSource());
     if (getConfigMaster() != null) {
       OpenGammaExecutionContext.setConfigMaster(context, getConfigMaster());
@@ -269,6 +278,8 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
         return getTargetResolver();
       case -1636207569:  // regionSource
         return getRegionSource();
+      case -973975762:  // organizationSource
+        return getOrganizationSource();
       case -1281578674:  // conventionBundleSource
         return getConventionBundleSource();
       case -582658381:  // interpolatedYieldCurveDefinitionSource
@@ -325,6 +336,9 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
       case -1636207569:  // regionSource
         setRegionSource((RegionSource) newValue);
         return;
+      case -973975762:  // organizationSource
+        setOrganizationSource((OrganizationSource) newValue);
+        return;
       case -1281578674:  // conventionBundleSource
         setConventionBundleSource((ConventionBundleSource) newValue);
         return;
@@ -379,6 +393,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
     JodaBeanUtils.notNull(_positionSource, "positionSource");
     JodaBeanUtils.notNull(_targetResolver, "targetResolver");
     JodaBeanUtils.notNull(_regionSource, "regionSource");
+    JodaBeanUtils.notNull(_organizationSource, "organizationSource");
     JodaBeanUtils.notNull(_conventionBundleSource, "conventionBundleSource");
     JodaBeanUtils.notNull(_holidaySource, "holidaySource");
     JodaBeanUtils.notNull(_exchangeSource, "exchangeSource");
@@ -401,6 +416,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
           JodaBeanUtils.equal(getPositionSource(), other.getPositionSource()) &&
           JodaBeanUtils.equal(getTargetResolver(), other.getTargetResolver()) &&
           JodaBeanUtils.equal(getRegionSource(), other.getRegionSource()) &&
+          JodaBeanUtils.equal(getOrganizationSource(), other.getOrganizationSource()) &&
           JodaBeanUtils.equal(getConventionBundleSource(), other.getConventionBundleSource()) &&
           JodaBeanUtils.equal(getInterpolatedYieldCurveDefinitionSource(), other.getInterpolatedYieldCurveDefinitionSource()) &&
           JodaBeanUtils.equal(getInterpolatedYieldCurveSpecificationBuilder(), other.getInterpolatedYieldCurveSpecificationBuilder()) &&
@@ -430,6 +446,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
     hash += hash * 31 + JodaBeanUtils.hashCode(getPositionSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getTargetResolver());
     hash += hash * 31 + JodaBeanUtils.hashCode(getRegionSource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getOrganizationSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getConventionBundleSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getInterpolatedYieldCurveDefinitionSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getInterpolatedYieldCurveSpecificationBuilder());
@@ -647,6 +664,32 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
    */
   public final Property<RegionSource> regionSource() {
     return metaBean().regionSource().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the organization source.
+   * @return the value of the property, not null
+   */
+  public OrganizationSource getOrganizationSource() {
+    return _organizationSource;
+  }
+
+  /**
+   * Sets the organization source.
+   * @param organizationSource  the new value of the property, not null
+   */
+  public void setOrganizationSource(OrganizationSource organizationSource) {
+    JodaBeanUtils.notNull(organizationSource, "organizationSource");
+    this._organizationSource = organizationSource;
+  }
+
+  /**
+   * Gets the the {@code organizationSource} property.
+   * @return the property, not null
+   */
+  public final Property<OrganizationSource> organizationSource() {
+    return metaBean().organizationSource().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -1050,6 +1093,11 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<RegionSource> _regionSource = DirectMetaProperty.ofReadWrite(
         this, "regionSource", EngineContextsComponentFactory.class, RegionSource.class);
     /**
+     * The meta-property for the {@code organizationSource} property.
+     */
+    private final MetaProperty<OrganizationSource> _organizationSource = DirectMetaProperty.ofReadWrite(
+        this, "organizationSource", EngineContextsComponentFactory.class, OrganizationSource.class);
+    /**
      * The meta-property for the {@code conventionBundleSource} property.
      */
     private final MetaProperty<ConventionBundleSource> _conventionBundleSource = DirectMetaProperty.ofReadWrite(
@@ -1131,6 +1179,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
         "positionSource",
         "targetResolver",
         "regionSource",
+        "organizationSource",
         "conventionBundleSource",
         "interpolatedYieldCurveDefinitionSource",
         "interpolatedYieldCurveSpecificationBuilder",
@@ -1169,6 +1218,8 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
           return _targetResolver;
         case -1636207569:  // regionSource
           return _regionSource;
+        case -973975762:  // organizationSource
+          return _organizationSource;
         case -1281578674:  // conventionBundleSource
           return _conventionBundleSource;
         case -582658381:  // interpolatedYieldCurveDefinitionSource
@@ -1271,6 +1322,14 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
      */
     public final MetaProperty<RegionSource> regionSource() {
       return _regionSource;
+    }
+
+    /**
+     * The meta-property for the {@code organizationSource} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<OrganizationSource> organizationSource() {
+      return _organizationSource;
     }
 
     /**

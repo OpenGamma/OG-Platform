@@ -94,8 +94,8 @@ public class CreditDefaultSwapOptionDefinitionTest {
   private static final double cdsSwaptionNotional = 10000000.0;
   private static final double cdsSwaptionStrike = 100.0;
 
-  private static final CDSOptionKnockoutType cdsSwaptionKnockoutType = CDSOptionKnockoutType.KNOCKOUT;
-  private static final CDSOptionType cdsSwaptionType = CDSOptionType.PAYER;
+  private static final boolean isKnockout = true;
+  private static final boolean isPayer = true;
   private static final CDSOptionExerciseType cdsSwaptionExerciseType = CDSOptionExerciseType.EUROPEAN;
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -298,13 +298,11 @@ public class CreditDefaultSwapOptionDefinitionTest {
       cdsSwaptionProtectionSeller,
       cdsSwaptionCurrency,
       cdsSwaptionStartDate,
-      cdsSwaptionEffectiveDate,
       cdsSwaptionExerciseDate,
-      cdsSwaptionMaturityDate,
       cdsSwaptionNotional,
       cdsSwaptionStrike,
-      cdsSwaptionKnockoutType,
-      cdsSwaptionType,
+      isKnockout,
+      isPayer,
       cdsSwaptionExerciseType,
       underlyingCDS);
 
@@ -314,8 +312,7 @@ public class CreditDefaultSwapOptionDefinitionTest {
   public void testNullBuySellProtectionField() {
 
     new CreditDefaultSwapOptionDefinition(null, cdsSwaptionProtectionBuyer, cdsSwaptionProtectionSeller, cdsSwaptionCurrency, cdsSwaptionStartDate,
-        cdsSwaptionEffectiveDate, cdsSwaptionExerciseDate, cdsSwaptionMaturityDate, cdsSwaptionNotional, cdsSwaptionStrike, cdsSwaptionKnockoutType, cdsSwaptionType,
-        cdsSwaptionExerciseType, underlyingCDS);
+        cdsSwaptionExerciseDate, cdsSwaptionNotional, cdsSwaptionStrike, isKnockout, isPayer, cdsSwaptionExerciseType, underlyingCDS);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -324,8 +321,7 @@ public class CreditDefaultSwapOptionDefinitionTest {
   public void testNullProtectionBuyerField() {
 
     new CreditDefaultSwapOptionDefinition(cdsSwaptionBuySellProtection, null, cdsSwaptionProtectionSeller, cdsSwaptionCurrency, cdsSwaptionStartDate,
-        cdsSwaptionEffectiveDate, cdsSwaptionExerciseDate, cdsSwaptionMaturityDate, cdsSwaptionNotional, cdsSwaptionStrike, cdsSwaptionKnockoutType, cdsSwaptionType,
-        cdsSwaptionExerciseType, underlyingCDS);
+        cdsSwaptionExerciseDate, cdsSwaptionNotional, cdsSwaptionStrike, isKnockout, isPayer, cdsSwaptionExerciseType, underlyingCDS);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -334,8 +330,7 @@ public class CreditDefaultSwapOptionDefinitionTest {
   public void testNullProtectionSellerField() {
 
     new CreditDefaultSwapOptionDefinition(cdsSwaptionBuySellProtection, cdsSwaptionProtectionBuyer, null, cdsSwaptionCurrency, cdsSwaptionStartDate,
-        cdsSwaptionEffectiveDate, cdsSwaptionExerciseDate, cdsSwaptionMaturityDate, cdsSwaptionNotional, cdsSwaptionStrike, cdsSwaptionKnockoutType, cdsSwaptionType,
-        cdsSwaptionExerciseType, underlyingCDS);
+        cdsSwaptionExerciseDate, cdsSwaptionNotional, cdsSwaptionStrike, isKnockout, isPayer, cdsSwaptionExerciseType, underlyingCDS);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -344,8 +339,7 @@ public class CreditDefaultSwapOptionDefinitionTest {
   public void testNullCurrencyField() {
 
     new CreditDefaultSwapOptionDefinition(cdsSwaptionBuySellProtection, cdsSwaptionProtectionBuyer, cdsSwaptionProtectionSeller, null, cdsSwaptionStartDate,
-        cdsSwaptionEffectiveDate, cdsSwaptionExerciseDate, cdsSwaptionMaturityDate, cdsSwaptionNotional, cdsSwaptionStrike, cdsSwaptionKnockoutType, cdsSwaptionType,
-        cdsSwaptionExerciseType, underlyingCDS);
+        cdsSwaptionExerciseDate, cdsSwaptionNotional, cdsSwaptionStrike, isKnockout, isPayer, cdsSwaptionExerciseType, underlyingCDS);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -354,18 +348,7 @@ public class CreditDefaultSwapOptionDefinitionTest {
   public void testNullStartDateField() {
 
     new CreditDefaultSwapOptionDefinition(cdsSwaptionBuySellProtection, cdsSwaptionProtectionBuyer, cdsSwaptionProtectionSeller, cdsSwaptionCurrency, null,
-        cdsSwaptionEffectiveDate, cdsSwaptionExerciseDate, cdsSwaptionMaturityDate, cdsSwaptionNotional, cdsSwaptionStrike, cdsSwaptionKnockoutType, cdsSwaptionType,
-        cdsSwaptionExerciseType, underlyingCDS);
-  }
-
-  // --------------------------------------------------------------------------------------------------------------------------------------------------
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullEffectiveDateField() {
-
-    new CreditDefaultSwapOptionDefinition(cdsSwaptionBuySellProtection, cdsSwaptionProtectionBuyer, cdsSwaptionProtectionSeller, cdsSwaptionCurrency, cdsSwaptionStartDate,
-        null, cdsSwaptionExerciseDate, cdsSwaptionMaturityDate, cdsSwaptionNotional, cdsSwaptionStrike, cdsSwaptionKnockoutType, cdsSwaptionType,
-        cdsSwaptionExerciseType, underlyingCDS);
+        cdsSwaptionExerciseDate, cdsSwaptionNotional, cdsSwaptionStrike, isKnockout, isPayer, cdsSwaptionExerciseType, underlyingCDS);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -374,18 +357,7 @@ public class CreditDefaultSwapOptionDefinitionTest {
   public void testNullExerciseDateField() {
 
     new CreditDefaultSwapOptionDefinition(cdsSwaptionBuySellProtection, cdsSwaptionProtectionBuyer, cdsSwaptionProtectionSeller, cdsSwaptionCurrency, cdsSwaptionStartDate,
-        cdsSwaptionEffectiveDate, null, cdsSwaptionMaturityDate, cdsSwaptionNotional, cdsSwaptionStrike, cdsSwaptionKnockoutType, cdsSwaptionType,
-        cdsSwaptionExerciseType, underlyingCDS);
-  }
-
-  // --------------------------------------------------------------------------------------------------------------------------------------------------
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullMaturityDateField() {
-
-    new CreditDefaultSwapOptionDefinition(cdsSwaptionBuySellProtection, cdsSwaptionProtectionBuyer, cdsSwaptionProtectionSeller, cdsSwaptionCurrency, cdsSwaptionStartDate,
-        cdsSwaptionEffectiveDate, cdsSwaptionExerciseDate, null, cdsSwaptionNotional, cdsSwaptionStrike, cdsSwaptionKnockoutType, cdsSwaptionType,
-        cdsSwaptionExerciseType, underlyingCDS);
+        null, cdsSwaptionNotional, cdsSwaptionStrike, isKnockout, isPayer, cdsSwaptionExerciseType, underlyingCDS);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -394,8 +366,7 @@ public class CreditDefaultSwapOptionDefinitionTest {
   public void testNegativeNotionalField() {
 
     new CreditDefaultSwapOptionDefinition(cdsSwaptionBuySellProtection, cdsSwaptionProtectionBuyer, cdsSwaptionProtectionSeller, cdsSwaptionCurrency, cdsSwaptionStartDate,
-        cdsSwaptionEffectiveDate, cdsSwaptionExerciseDate, cdsSwaptionMaturityDate, -cdsSwaptionNotional, cdsSwaptionStrike, cdsSwaptionKnockoutType, cdsSwaptionType,
-        cdsSwaptionExerciseType, underlyingCDS);
+        cdsSwaptionExerciseDate, -cdsSwaptionNotional, cdsSwaptionStrike, isKnockout, isPayer, cdsSwaptionExerciseType, underlyingCDS);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -404,28 +375,7 @@ public class CreditDefaultSwapOptionDefinitionTest {
   public void testNegativeStrikeField() {
 
     new CreditDefaultSwapOptionDefinition(cdsSwaptionBuySellProtection, cdsSwaptionProtectionBuyer, cdsSwaptionProtectionSeller, cdsSwaptionCurrency, cdsSwaptionStartDate,
-        cdsSwaptionEffectiveDate, cdsSwaptionExerciseDate, cdsSwaptionMaturityDate, cdsSwaptionNotional, -cdsSwaptionStrike, cdsSwaptionKnockoutType, cdsSwaptionType,
-        cdsSwaptionExerciseType, underlyingCDS);
-  }
-
-  // --------------------------------------------------------------------------------------------------------------------------------------------------
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullKnockoutTypeField() {
-
-    new CreditDefaultSwapOptionDefinition(cdsSwaptionBuySellProtection, cdsSwaptionProtectionBuyer, cdsSwaptionProtectionSeller, cdsSwaptionCurrency, cdsSwaptionStartDate,
-        cdsSwaptionEffectiveDate, cdsSwaptionExerciseDate, cdsSwaptionMaturityDate, cdsSwaptionNotional, cdsSwaptionStrike, null, cdsSwaptionType,
-        cdsSwaptionExerciseType, underlyingCDS);
-  }
-
-  // --------------------------------------------------------------------------------------------------------------------------------------------------
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullSwaptionTypeField() {
-
-    new CreditDefaultSwapOptionDefinition(cdsSwaptionBuySellProtection, cdsSwaptionProtectionBuyer, cdsSwaptionProtectionSeller, cdsSwaptionCurrency, cdsSwaptionStartDate,
-        cdsSwaptionEffectiveDate, cdsSwaptionExerciseDate, cdsSwaptionMaturityDate, cdsSwaptionNotional, cdsSwaptionStrike, cdsSwaptionKnockoutType, null,
-        cdsSwaptionExerciseType, underlyingCDS);
+        cdsSwaptionExerciseDate, cdsSwaptionNotional, -cdsSwaptionStrike, isKnockout, isPayer, cdsSwaptionExerciseType, underlyingCDS);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -434,8 +384,7 @@ public class CreditDefaultSwapOptionDefinitionTest {
   public void testNullExerciseTypeField() {
 
     new CreditDefaultSwapOptionDefinition(cdsSwaptionBuySellProtection, cdsSwaptionProtectionBuyer, cdsSwaptionProtectionSeller, cdsSwaptionCurrency, cdsSwaptionStartDate,
-        cdsSwaptionEffectiveDate, cdsSwaptionExerciseDate, cdsSwaptionMaturityDate, cdsSwaptionNotional, cdsSwaptionStrike, cdsSwaptionKnockoutType, cdsSwaptionType,
-        null, underlyingCDS);
+        cdsSwaptionExerciseDate, cdsSwaptionNotional, cdsSwaptionStrike, isKnockout, isPayer, null, underlyingCDS);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -444,8 +393,7 @@ public class CreditDefaultSwapOptionDefinitionTest {
   public void testNullUnderlyingCDSField() {
 
     new CreditDefaultSwapOptionDefinition(cdsSwaptionBuySellProtection, cdsSwaptionProtectionBuyer, cdsSwaptionProtectionSeller, cdsSwaptionCurrency, cdsSwaptionStartDate,
-        cdsSwaptionEffectiveDate, cdsSwaptionExerciseDate, cdsSwaptionMaturityDate, cdsSwaptionNotional, cdsSwaptionStrike, cdsSwaptionKnockoutType, cdsSwaptionType,
-        cdsSwaptionExerciseType, null);
+        cdsSwaptionExerciseDate, cdsSwaptionNotional, cdsSwaptionStrike, isKnockout, isPayer, cdsSwaptionExerciseType, null);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------

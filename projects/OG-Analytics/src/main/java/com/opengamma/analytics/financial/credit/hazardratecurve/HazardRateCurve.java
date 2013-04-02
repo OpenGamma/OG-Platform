@@ -72,6 +72,7 @@ public class HazardRateCurve {
 
   // Builder method to build a new SurvivalCurve object given the tenor and hazard rate inputs
 
+  @Deprecated
   public HazardRateCurve bootstrapHelperHazardRateCurve(final ZonedDateTime[] curveTenors, final double[] tenorsAsDoubles, final double[] hazardRates) {
     ArgumentChecker.notNull(curveTenors, "curve tenors");
     ArgumentChecker.notNull(tenorsAsDoubles, "Tenors as doubles field");
@@ -145,7 +146,5 @@ public class HazardRateCurve {
     }
     return true;
   }
-
-  // ----------------------------------------------------------------------------------------------------------------------------------------
 
 }

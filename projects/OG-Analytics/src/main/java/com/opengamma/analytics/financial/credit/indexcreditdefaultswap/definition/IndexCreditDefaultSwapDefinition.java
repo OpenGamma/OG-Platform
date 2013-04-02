@@ -10,6 +10,7 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.obligor.definition.Obligor;
 import com.opengamma.analytics.financial.credit.underlyingpool.definition.UnderlyingPool;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
@@ -45,7 +46,9 @@ public class IndexCreditDefaultSwapDefinition {
   // TODO : Add the hashCode and equals methods
   // TODO : Do we need to allow negative notionals to be consistent with end users (convention above is sensible, but might not be market practice)
   // TODO : Need to sort out the quoting conventions for the different indices
-  // TODO : Extract out all the market data from the definition of the index contract
+  // TODO : Need to sort out the type of CDS used to construct the index (in principle would like to build the index from an arbitrary combination of CDS types)
+
+  // TODO : Add an overloaded ctor taking in a SNCDS etc
 
   // NOTE : The restructuring clause and debt seniority of the index constituents is contained within the UnderlyingPool class
 
@@ -444,7 +447,7 @@ public class IndexCreditDefaultSwapDefinition {
     return _indexFactor;
   }
 
-  public LegacyVanillaCreditDefaultSwapDefinition[] getUnderlyingCDS() {
+  public CreditDefaultSwapDefinition[] getUnderlyingCDS() {
     return _underlyingCDS;
   }
 

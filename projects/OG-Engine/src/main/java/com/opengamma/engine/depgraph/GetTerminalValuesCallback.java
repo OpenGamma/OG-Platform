@@ -11,7 +11,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -39,6 +38,43 @@ import com.opengamma.util.tuple.Pair;
 
   private static final Logger s_logger = LoggerFactory.getLogger(GetTerminalValuesCallback.class);
 
+  private static class PerFunctionNodeInfo {
+
+    /**
+     * All nodes using this function, indexed by target specification.
+     */
+    private final Map<ComputationTargetSpecification, Set<DependencyNode>> _target2nodes = new HashMap<ComputationTargetSpecification, Set<DependencyNode>>();
+
+    /**
+     * All targets that a {@link ComputationTargetCollapser} can apply to, with its checking group. Any targets in the same group have already been mutually compared, and cannot be collapsed.
+     */
+    private Map<ComputationTargetSpecification, Object> _target2collapseGroup;
+
+    /**
+     * All targets that a {@link ComputationTargetCollapser} can apply to, indexed by the checking group. Any targets in the same group have already been mutually compared, and cannot be collapsed.
+     */
+    private Map<Object, Collection<ComputationTargetSpecification>> _collapseGroup2targets;
+
+    /**
+     * Queue of targets that must be collapsed, the first element in each pair if the original target - the next element is the replacement target.
+     */
+    private Queue<Pair<ComputationTargetSpecification, ComputationTargetSpecification>> _collapse;
+
+    public void storeForCollapse(final ComputationTargetSpecification targetSpecification) {
+      if (_target2collapseGroup == null) {
+        _target2collapseGroup = new HashMap<ComputationTargetSpecification, Object>();
+        _collapseGroup2targets = new HashMap<Object, Collection<ComputationTargetSpecification>>();
+        _collapse = new LinkedTransferQueue<Pair<ComputationTargetSpecification, ComputationTargetSpecification>>();
+      }
+      if (!_target2collapseGroup.containsKey(targetSpecification)) {
+        final Object group = new Object();
+        _target2collapseGroup.put(targetSpecification, group);
+        _collapseGroup2targets.put(group, Collections.singleton(targetSpecification));
+      }
+    }
+
+  }
+
   /**
    * Buffer of resolved value specifications. For any entries in here, all input values have been previously resolved and are in this buffer or the partially constructed graph. Information here gets
    * used to construct dependency graph fragments whenever a terminal item can be resolved.
@@ -51,10 +87,9 @@ import com.opengamma.util.tuple.Pair;
   private final Map<ValueSpecification, DependencyNode> _spec2Node = new ConcurrentHashMap<ValueSpecification, DependencyNode>();
 
   /**
-   * Index into the dependency graph nodes, keyed by their targets and functions.
+   * Index into the dependency graph nodes.
    */
-  private final Map<ParameterizedFunction, Map<ComputationTargetSpecification, Set<DependencyNode>>> _func2target2nodes =
-      new HashMap<ParameterizedFunction, Map<ComputationTargetSpecification, Set<DependencyNode>>>();
+  private final Map<ParameterizedFunction, PerFunctionNodeInfo> _func2nodeInfo = new HashMap<ParameterizedFunction, PerFunctionNodeInfo>();
 
   /**
    * All dependency graph nodes.
@@ -73,16 +108,9 @@ import com.opengamma.util.tuple.Pair;
   private final Queue<Pair<ValueRequirement, ResolvedValue>> _resolvedQueue = new LinkedTransferQueue<Pair<ValueRequirement, ResolvedValue>>();
 
   /**
-   * Collection of nodes that are candidates for the targets to be collapsed. Graph construction is single threaded but the cost of running the collapse logic can be high so candidates are buffered
-   * here and the collapse is performed outside of the mutex held while the main resolved queue is worked on. The mutex must however be reclaimed in order to action any changes to the dependency
-   * graph.
+   * Index of functions which have an active collapse set.
    */
-  private final Map<Set<DependencyNode>, Collection<Pair<DependencyNode, Object>>> _collapsing = new HashMap<Set<DependencyNode>, Collection<Pair<DependencyNode, Object>>>();
-
-  /**
-   * Queue of nodes that need to be collapsed. Graph construction is single threaded, with this queue holding nodes identified for collapse until the single thread lock can be re-acquired.
-   */
-  private final Queue<Pair<DependencyNode, DependencyNode>> _collapsedQueue = new LinkedTransferQueue<Pair<DependencyNode, DependencyNode>>();
+  private final Set<ParameterizedFunction> _collapsers = new HashSet<ParameterizedFunction>();
 
   /**
    * Mutex for working on the resolved queue. Any thread can add to the queue, only the one that has claimed this mutex can process the elements from it and be sure of exclusive access to the other
@@ -153,45 +181,6 @@ import com.opengamma.util.tuple.Pair;
     }
   }
 
-  private static boolean mismatchUnionImpl(final Set<ValueSpecification> as, final Set<ValueSpecification> bs) {
-    nextA: for (final ValueSpecification a : as) { //CSIGNORE
-      if (bs.contains(a)) {
-        // Exact match
-        continue;
-      }
-      final String aName = a.getValueName();
-      final ValueProperties aProperties = a.getProperties();
-      boolean mismatch = false;
-      for (final ValueSpecification b : bs) {
-        if (aName == b.getValueName()) {
-          // Match the name; check the constraints
-          if (aProperties.isSatisfiedBy(b.getProperties())) {
-            continue nextA;
-          } else {
-            // Mismatch found
-            mismatch = true;
-          }
-        }
-      }
-      if (mismatch) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  /**
-   * Tests whether the union of value specifications would be mismatched; that is the two sets can't be composed. Given the intersection of common value names, the properties must be mutually
-   * compatible.
-   * 
-   * @param as the first set of values, not null
-   * @param bs the second set of values, not null
-   * @return true if the values can't be composed, false if they can
-   */
-  private static boolean mismatchUnion(final Set<ValueSpecification> as, final Set<ValueSpecification> bs) {
-    return mismatchUnionImpl(as, bs) || mismatchUnionImpl(bs, as);
-  }
-
   public synchronized void populateState(final DependencyGraph graph) {
     final Set<DependencyNode> remove = new HashSet<DependencyNode>();
     for (final DependencyNode node : graph.getDependencyNodes()) {
@@ -215,242 +204,173 @@ import com.opengamma.util.tuple.Pair;
     }
   }
 
-  private void collapseNodes() {
-    Pair<DependencyNode, DependencyNode> merge = _collapsedQueue.poll();
-    while (merge != null) {
-      if (_graphNodes.remove(merge.getFirst())) {
-        s_logger.debug("Applying collapse {}", merge);
-        merge.getFirst().replaceWith(merge.getSecond());
-        for (final ValueSpecification output : merge.getFirst().getOutputValues()) {
-          final ValueSpecification newOutput = MemoryUtils.instance(new ValueSpecification(output.getValueName(), merge.getSecond().getComputationTarget(), output.getProperties()));
-          _spec2Node.remove(output);
-          _spec2Node.put(newOutput, merge.getSecond());
-          final Collection<ValueRequirement> requirements = _resolvedValues.remove(output);
-          if (requirements != null) {
-            _resolvedValues.put(newOutput, requirements);
-          }
-        }
-        // TODO: Update _func2target2nodes to remove .getFirst and add .getSecond
-        _graphNodes.add(merge.getSecond());
-      } else {
-        s_logger.debug("Ignoring collapse {}", merge);
-      }
-      merge = _collapsedQueue.poll();
-    }
-  }
-
-  private void scheduleCollapsers(final GraphBuildingContext context) {
-    if (!_collapsing.isEmpty()) {
-      final Iterator<Map.Entry<Set<DependencyNode>, Collection<Pair<DependencyNode, Object>>>> itrCollapsing = _collapsing.entrySet().iterator();
-      while (itrCollapsing.hasNext()) {
-        final Map.Entry<Set<DependencyNode>, Collection<Pair<DependencyNode, Object>>> collapsing = itrCollapsing.next();
-        if (collapsing.getValue().size() > 1) {
-          final Iterator<Pair<DependencyNode, Object>> itrNodes = collapsing.getValue().iterator();
-          boolean differentGroups = false;
-          final Object group = itrNodes.next().getSecond();
-          do {
-            if (itrNodes.next().getSecond() != group) {
-              differentGroups = true;
-              break;
-            }
-          } while (itrNodes.hasNext());
-          if (differentGroups) {
-            itrCollapsing.remove();
-            context.submit(new CollapseNodes(collapsing.getValue()));
-          }
-        }
-      }
-    }
-  }
-
-  // TODO: Use a mutable object instead of Pair so we don't have to keep reallocating to indicate a group change
-
   private class CollapseNodes implements ContextRunnable {
 
-    private final Object _group = new Object();
-    private final CollapseNodes _parent;
-    private final Pair<DependencyNode, Object>[] _nodes;
-    private final int _start;
-    private int _end;
-    private int _endLeft;
-    private int _startRight;
+    private final ParameterizedFunction _function;
+    private final PerFunctionNodeInfo _nodeInfo;
+    private final ComputationTargetSpecification[] _a;
+    private final ComputationTargetSpecification[] _b;
 
-    @SuppressWarnings("unchecked")
-    public CollapseNodes(final Collection<Pair<DependencyNode, Object>> nodes) {
-      _parent = null;
-      _nodes = nodes.toArray(new Pair[nodes.size()]);
-      _start = 0;
-      _end = _nodes.length;
-    }
-
-    private CollapseNodes(final CollapseNodes parent, final Pair<DependencyNode, Object>[] nodes, final int start, final int end) {
-      _parent = parent;
-      _nodes = nodes;
-      _start = start;
-      _end = end;
-    }
-
-    private boolean equals(final ParameterizedFunction a, final ParameterizedFunction b) {
-      if (a == b) {
-        return true;
-      }
-      if (a.getFunction() != b.getFunction()) {
-        if (!a.getFunction().getFunctionDefinition().getUniqueId().equals(b.getFunction().getFunctionDefinition().getUniqueId())) {
-          return false;
-        }
-      }
-      return a.getParameters().equals(b.getParameters());
-    }
-
-    private void finish(final GraphBuildingContext context) {
-      if (_parent != null) {
-        _parent.notifyComplete(context, _start, _end);
-      } else {
-        synchronized (GetTerminalValuesCallback.this) {
-          collapseNodes();
-          // Put any unmerged nodes (there will be at least one) back into the set
-          if (_end > _start) {
-            final Set<DependencyNode> inputs = _nodes[_start].getFirst().getInputNodes();
-            Collection<Pair<DependencyNode, Object>> nodes = _collapsing.get(inputs);
-            if (nodes == null) {
-              nodes = new LinkedList<Pair<DependencyNode, Object>>();
-              _collapsing.put(inputs, nodes);
-            }
-            for (int i = _start; i < _end; i++) {
-              nodes.add(Pair.of(_nodes[i].getFirst(), _group));
-            }
-            scheduleCollapsers(context);
-          }
-        }
-      }
-    }
-
-    private void notifyComplete(final GraphBuildingContext context, final int start, final int end) {
-      synchronized (this) {
-        if (_start == start) {
-          // Completion notified for left half of a split
-          _endLeft = end;
-          if (_startRight == 0) {
-            // Right half is still pending
-            return;
-          }
-        } else {
-          // Completion notified for right half of a split
-          _startRight = start;
-          _end = end;
-          if (_endLeft == 0) {
-            // Left half is still pending
-            return;
-          }
-        }
-      }
-      if (_endLeft < _startRight) {
-        final int l = _end - _startRight;
-        System.arraycopy(_nodes, _startRight, _nodes, _endLeft, l);
-        _end = _endLeft + l;
-        _startRight = _endLeft;
-      }
-      for (int i = _start; i < _endLeft; i++) {
-        final DependencyNode a = _nodes[i].getFirst();
-        for (int j = _startRight; j < _end; j++) {
-          if (_nodes[i].getSecond() == _nodes[j].getSecond()) {
-            // Nodes are from the same group; have already been compared
-            continue;
-          }
-          final DependencyNode b = _nodes[j].getFirst();
-          if (equals(a.getFunction(), b.getFunction()) && a.getComputationTarget().getType().equals(b.getComputationTarget().getType())) {
-            final ComputationTargetSpecification collapsed = _computationTargetCollapser.collapse(a.getFunction().getFunction(), a.getComputationTarget(), b.getComputationTarget());
-            if (collapsed != null) {
-              if (collapsed.equals(a.getComputationTarget())) {
-                // A and B merged into A
-                _nodes[j--] = _nodes[--_end];
-                _collapsedQueue.add(Pair.of(b, a));
-                s_logger.debug("Merging {} into {}", b, a);
-              } else if (collapsed.equals(b.getComputationTarget())) {
-                // A and B merged into B
-                _nodes[i--] = _nodes[--_endLeft];
-                _collapsedQueue.add(Pair.of(a, b));
-                s_logger.debug("Merging {} into {}", a, b);
-                break;
-              } else {
-                // A and B merged into new node X
-                final DependencyNode x = new DependencyNode(collapsed);
-                x.setFunction(a.getFunction());
-                _nodes[i--] = _nodes[--_endLeft];
-                _nodes[j] = _nodes[_end - 1];
-                _nodes[_end - 1] = Pair.of(x, _group);
-                _collapsedQueue.add(Pair.of(a, x));
-                _collapsedQueue.add(Pair.of(b, x));
-                if (s_logger.isDebugEnabled()) {
-                  s_logger.debug("Merging {} and {} into new node {}", new Object[] {a, b, x });
-                }
-                break;
-              }
-            }
-          }
-        }
-      }
-      if (_endLeft < _startRight) {
-        final int l = _end - _startRight;
-        System.arraycopy(_nodes, _startRight, _nodes, _endLeft, l);
-        _end = _endLeft + l;
-        _startRight = _endLeft;
-      }
-      finish(context);
+    public CollapseNodes(ParameterizedFunction function, final PerFunctionNodeInfo nodeInfo, final Collection<ComputationTargetSpecification> a, final Collection<ComputationTargetSpecification> b) {
+      _function = function;
+      _nodeInfo = nodeInfo;
+      _a = a.toArray(new ComputationTargetSpecification[a.size()]);
+      _b = b.toArray(new ComputationTargetSpecification[b.size()]);
     }
 
     // ContextRunnable
 
     @Override
     public boolean tryRun(final GraphBuildingContext context) {
-      if (_end - _start >= 4) {
-        final int mid = (_start + _end) >> 1;
-        context.submit(new CollapseNodes(this, _nodes, _start, mid));
-        context.submit(new CollapseNodes(this, _nodes, mid, _end));
-      } else {
-        for (int i = _start; i < _end - 1; i++) {
-          final DependencyNode a = _nodes[i].getFirst();
-          for (int j = i + 1; j < _end; j++) {
-            if (_nodes[i].getSecond() == _nodes[j].getSecond()) {
-              // Nodes are from the same group; have already been compared
-              continue;
-            }
-            final DependencyNode b = _nodes[j].getFirst();
-            if (equals(a.getFunction(), b.getFunction()) && a.getComputationTarget().getType().equals(b.getComputationTarget().getType())) {
-              final ComputationTargetSpecification collapsed = _computationTargetCollapser.collapse(a.getFunction().getFunction(), a.getComputationTarget(), b.getComputationTarget());
-              if (collapsed != null) {
-                if (collapsed.equals(a.getComputationTarget())) {
-                  // A and B merged into A
-                  _nodes[j--] = _nodes[--_end];
-                  _collapsedQueue.add(Pair.of(b, a));
-                  s_logger.debug("Merging {} into {}", b, a);
-                } else if (collapsed.equals(b.getComputationTarget())) {
-                  // A and B merged into B
-                  _nodes[i--] = _nodes[--_end];
-                  _collapsedQueue.add(Pair.of(a, b));
-                  s_logger.debug("Merging {} into {}", a, b);
-                  break;
-                } else {
-                  // A and B merged into new node X
-                  final DependencyNode x = new DependencyNode(collapsed);
-                  x.setFunction(a.getFunction());
-                  _nodes[i--] = _nodes[--_end];
-                  _nodes[j] = _nodes[_end - 1];
-                  _nodes[_end - 1] = Pair.of(x, _group);
-                  _collapsedQueue.add(Pair.of(a, x));
-                  _collapsedQueue.add(Pair.of(b, x));
-                  s_logger.debug("Merging {} and {} into new node {}", new Object[] {a, b, x });
-                  break;
-                }
+      int aLength = _a.length;
+      int bLength = _b.length;
+      for (int i = 0; i < aLength; i++) {
+        final ComputationTargetSpecification a = _a[i];
+        for (int j = 0; j < bLength; j++) {
+          final ComputationTargetSpecification b = _b[j];
+          assert !a.equals(b);
+          final ComputationTargetSpecification collapsed = _computationTargetCollapser.collapse(_function.getFunction(), a, b);
+          if (collapsed != null) {
+            if (collapsed.equals(a)) {
+              // A and B merged into A
+              _b[j--] = _b[--bLength];
+              _nodeInfo._collapse.add(Pair.of(b, a));
+              s_logger.debug("Merging {} into {}", b, a);
+            } else if (collapsed.equals(b)) {
+              // A and B merged into B
+              _a[i--] = _a[--aLength];
+              _nodeInfo._collapse.add(Pair.of(a, b));
+              s_logger.debug("Merging {} into {}", a, b);
+              break;
+            } else {
+              // A and B merged into new target
+              _a[i--] = _a[--aLength];
+              _b[j] = _b[--bLength];
+              // Note the new target will go into its own evaluation group when this is actioned; it will then be compared against the other targets
+              _nodeInfo._collapse.add(Pair.of(a, collapsed));
+              _nodeInfo._collapse.add(Pair.of(b, collapsed));
+              if (s_logger.isDebugEnabled()) {
+                s_logger.debug("Merging {} and {} into new node {}", new Object[] {a, b, collapsed });
               }
+              break;
             }
           }
         }
-        finish(context);
+      }
+      Collection<ComputationTargetSpecification> targets = new ArrayList<ComputationTargetSpecification>(aLength + bLength);
+      for (int i = 0; i < aLength; i++) {
+        targets.add(_a[i]);
+      }
+      for (int i = 0; i < bLength; i++) {
+        targets.add(_b[i]);
+      }
+      final Object group = new Object();
+      // TODO: Waiting for the lock could be costly; we could post this to a queue like the resolved values do
+      synchronized (GetTerminalValuesCallback.this) {
+        for (int i = 0; i < aLength; i++) {
+          _nodeInfo._target2collapseGroup.put(_a[i], group);
+        }
+        for (int i = 0; i < bLength; i++) {
+          _nodeInfo._target2collapseGroup.put(_b[i], group);
+        }
+        _nodeInfo._collapseGroup2targets.put(group, targets);
+        scheduleCollapsers(context, _function, _nodeInfo);
       }
       return true;
     }
+  }
 
+  // TODO: Multiple nodes for a single collapse applicable target should be collapsed, probably with a "collapse(function, a, a)" sanity check first
+
+  private void scheduleCollapsers(final GraphBuildingContext context, final ParameterizedFunction function, final PerFunctionNodeInfo nodeInfo) {
+    // Action anything already found asynchronously
+    Pair<ComputationTargetSpecification, ComputationTargetSpecification> collapse = nodeInfo._collapse.poll();
+    while (collapse != null) {
+      s_logger.debug("Found collapse targets {}", collapse);
+      nodeInfo._target2collapseGroup.remove(collapse.getFirst());
+      final Set<DependencyNode> originalNodes = nodeInfo._target2nodes.remove(collapse.getFirst());
+      final Set<DependencyNode> newNodes = getOrCreateNodes(function, collapse.getSecond());
+      final DependencyNode newNode;
+      if (newNodes.isEmpty()) {
+        newNode = new DependencyNode(collapse.getSecond());
+        newNode.setFunction(function);
+        newNodes.add(newNode);
+        _graphNodes.add(newNode);
+      } else {
+        // TODO: See comment above about whether multiple nodes for a single collapse applicable target should exist
+        newNode = newNodes.iterator().next();
+      }
+      for (DependencyNode originalNode : originalNodes) {
+        s_logger.debug("Applying collapse of {} into {}", originalNode, newNode);
+        if (!_graphNodes.remove(originalNode)) {
+          s_logger.error("Assertion error - {} is not in the graph", originalNode);
+          continue;
+        }
+        originalNode.replaceWith(newNode);
+        for (final ValueSpecification output : originalNode.getOutputValues()) {
+          final ValueSpecification newOutput = MemoryUtils.instance(new ValueSpecification(output.getValueName(), newNode.getComputationTarget(), output.getProperties()));
+          _spec2Node.put(output, newNode);
+          _spec2Node.put(newOutput, newNode);
+          final Collection<ValueRequirement> requirements = _resolvedValues.remove(output);
+          if (requirements != null) {
+            _resolvedValues.put(newOutput, requirements);
+          }
+        }
+      }
+      collapse = nodeInfo._collapse.poll();
+    }
+    // Schedule collapsing tasks to run asynchronously
+    int collapseGroups = nodeInfo._collapseGroup2targets.size();
+    if (collapseGroups > 1) {
+      final Iterator<Map.Entry<ComputationTargetSpecification, Object>> itrTarget2CollapseGroup = nodeInfo._target2collapseGroup.entrySet().iterator();
+      do {
+        final Map.Entry<ComputationTargetSpecification, Object> target2collapseGroup = itrTarget2CollapseGroup.next();
+        if (!nodeInfo._target2nodes.containsKey(target2collapseGroup.getKey())) {
+          // Note: This happens because entries get written into the nodeInfo as soon as a target is requested. The target might not result in any
+          // nodes being created because of an earlier substitution. This is a simple solution - an alternative and possible faster method is to not
+          // create the target2collapseGroup entry until a node is created. The alternative is harder to implement though! 
+          s_logger.debug("Found transient key {}", target2collapseGroup);
+          final Collection<ComputationTargetSpecification> targetSpecs = nodeInfo._collapseGroup2targets.get(target2collapseGroup.getValue());
+          if (targetSpecs.size() == 1) {
+            if (targetSpecs.contains(target2collapseGroup.getKey())) {
+              nodeInfo._collapseGroup2targets.remove(target2collapseGroup.getValue());
+              collapseGroups--;
+            } else {
+              s_logger.error("Assertion error - transient singleton key {} not in reverse lookup table", target2collapseGroup.getKey());
+            }
+          } else {
+            if (!targetSpecs.remove(target2collapseGroup.getKey())) {
+              s_logger.error("Assertion error - transient key {} not in reverse lookup table", target2collapseGroup.getKey());
+            }
+          }
+          itrTarget2CollapseGroup.remove();
+        }
+      } while (itrTarget2CollapseGroup.hasNext());
+      if (collapseGroups > 1) {
+        final Iterator<Collection<ComputationTargetSpecification>> itrCollapseGroup2Targets = nodeInfo._collapseGroup2targets.values().iterator();
+        do {
+          final Collection<ComputationTargetSpecification> a = itrCollapseGroup2Targets.next();
+          if (!itrCollapseGroup2Targets.hasNext()) {
+            break;
+          }
+          itrCollapseGroup2Targets.remove();
+          final Collection<ComputationTargetSpecification> b = itrCollapseGroup2Targets.next();
+          itrCollapseGroup2Targets.remove();
+          context.submit(new CollapseNodes(function, nodeInfo, a, b));
+        } while (itrCollapseGroup2Targets.hasNext());
+      }
+    }
+  }
+
+  private void scheduleCollapsers(final GraphBuildingContext context) {
+    if (!_collapsers.isEmpty()) {
+      final Iterator<ParameterizedFunction> itrCollapsers = _collapsers.iterator();
+      do {
+        final ParameterizedFunction function = itrCollapsers.next();
+        final PerFunctionNodeInfo nodeInfo = _func2nodeInfo.get(function);
+        scheduleCollapsers(context, function, nodeInfo);
+      } while (itrCollapsers.hasNext());
+    }
   }
 
   private DependencyNode getOrCreateNode(final ResolvedValue resolvedValue, final Set<ValueSpecification> downstream, DependencyNode node,
@@ -461,7 +381,14 @@ import com.opengamma.util.tuple.Pair;
       inputNode = _spec2Node.get(input);
       if (inputNode != null) {
         s_logger.debug("Found node {} for input {}", inputNode, input);
-        node.addInputValue(input);
+        if (input.getTargetSpecification().equals(inputNode.getComputationTarget())) {
+          node.addInputValue(input);
+        } else {
+          // The node we connected to is a substitute following a target collapse; the original input value is now incorrect
+          final ValueSpecification substituteInput = MemoryUtils.instance(new ValueSpecification(input.getValueName(), inputNode.getComputationTarget(), input.getProperties()));
+          assert inputNode.getOutputValues().contains(substituteInput);
+          node.addInputValue(substituteInput);
+        }
         node.addInputNode(inputNode);
       } else {
         s_logger.debug("Finding node production for {}", input);
@@ -499,32 +426,6 @@ import com.opengamma.util.tuple.Pair;
           node.removeOutputValue(valueSpecification);
         }
       }
-      if ((_computationTargetCollapser != null) && _computationTargetCollapser.canApplyTo(node.getComputationTarget())) {
-        // Test if the targets can be collapsed and another node used here
-        final Set<DependencyNode> inputs = node.getInputNodes();
-        boolean addToCollapse;
-        if (inputs.isEmpty()) {
-          addToCollapse = true;
-        } else {
-          addToCollapse = true;
-          for (DependencyNode input : inputs) {
-            if (_computationTargetCollapser.canApplyTo(input.getComputationTarget())) {
-              // This node will be considered after it's input has been considered
-              // TODO: This doesn't happen; either consider this now or put the logic in somewhere to consider this node
-              addToCollapse = false;
-              break;
-            }
-          }
-        }
-        if (addToCollapse) {
-          Collection<Pair<DependencyNode, Object>> nodes = _collapsing.get(inputs);
-          if (nodes == null) {
-            nodes = new LinkedList<Pair<DependencyNode, Object>>();
-            _collapsing.put(inputs, nodes);
-          }
-          nodes.add(Pair.of(node, (Object) node));
-        }
-      }
       _graphNodes.add(node);
       _resolvedBuffer.remove(resolvedValue.getValueSpecification());
     }
@@ -547,18 +448,65 @@ import com.opengamma.util.tuple.Pair;
     }
   }
 
-  private Set<DependencyNode> getOrCreateNodes(final ParameterizedFunction function, final ComputationTargetSpecification targetSpecification) {
-    Map<ComputationTargetSpecification, Set<DependencyNode>> target2nodes = _func2target2nodes.get(function);
-    if (target2nodes == null) {
-      target2nodes = new HashMap<ComputationTargetSpecification, Set<DependencyNode>>();
-      _func2target2nodes.put(function, target2nodes);
-    }
-    Set<DependencyNode> nodes = target2nodes.get(targetSpecification);
+  private Set<DependencyNode> getOrCreateNodes(final ParameterizedFunction function, final PerFunctionNodeInfo nodeInfo, final ComputationTargetSpecification targetSpecification) {
+    Set<DependencyNode> nodes = nodeInfo._target2nodes.get(targetSpecification);
     if (nodes == null) {
       nodes = new HashSet<DependencyNode>();
-      target2nodes.put(targetSpecification, nodes);
+      nodeInfo._target2nodes.put(targetSpecification, nodes);
+      if ((_computationTargetCollapser != null) && _computationTargetCollapser.canApplyTo(targetSpecification)) {
+        nodeInfo.storeForCollapse(targetSpecification);
+        _collapsers.add(function);
+      }
     }
     return nodes;
+  }
+
+  private Set<DependencyNode> getOrCreateNodes(final ParameterizedFunction function, final ComputationTargetSpecification targetSpecification) {
+    PerFunctionNodeInfo nodeInfo = _func2nodeInfo.get(function);
+    if (nodeInfo == null) {
+      nodeInfo = new PerFunctionNodeInfo();
+      _func2nodeInfo.put(function, nodeInfo);
+    }
+    return getOrCreateNodes(function, nodeInfo, targetSpecification);
+  }
+
+  private static boolean mismatchUnionImpl(final Set<ValueSpecification> as, final Set<ValueSpecification> bs) {
+    nextA: for (final ValueSpecification a : as) { //CSIGNORE
+      if (bs.contains(a)) {
+        // Exact match
+        continue;
+      }
+      final String aName = a.getValueName();
+      final ValueProperties aProperties = a.getProperties();
+      boolean mismatch = false;
+      for (final ValueSpecification b : bs) {
+        if (aName == b.getValueName()) {
+          // Match the name; check the constraints
+          if (aProperties.isSatisfiedBy(b.getProperties())) {
+            continue nextA;
+          } else {
+            // Mismatch found
+            mismatch = true;
+          }
+        }
+      }
+      if (mismatch) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Tests whether the union of value specifications would be mismatched; that is the two sets can't be composed. Given the intersection of common value names, the properties must be mutually
+   * compatible.
+   * 
+   * @param as the first set of values, not null
+   * @param bs the second set of values, not null
+   * @return true if the values can't be composed, false if they can
+   */
+  private static boolean mismatchUnion(final Set<ValueSpecification> as, final Set<ValueSpecification> bs) {
+    return mismatchUnionImpl(as, bs) || mismatchUnionImpl(bs, as);
   }
 
   private DependencyNode findExistingNode(final Set<DependencyNode> nodes, final ResolvedValue resolvedValue) {
@@ -704,7 +652,6 @@ import com.opengamma.util.tuple.Pair;
           }
           resolved = _resolvedQueue.poll();
         }
-        collapseNodes();
         scheduleCollapsers(context);
       }
       _singleton.set(null);

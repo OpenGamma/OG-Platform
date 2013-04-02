@@ -98,11 +98,11 @@ import com.opengamma.util.ArgumentChecker;
     private int _lastRow;
 
     /* package */ PortfolioNodeBuilder(PortfolioNode root) {
-      _root = createPortfolioNode(root);
+      _root = createPortfolioNode(root, true);
       _lastRow = 0;
     }
 
-    private AnalyticsNode createPortfolioNode(PortfolioNode node) {
+    private AnalyticsNode createPortfolioNode(PortfolioNode node, boolean root) {
       int nodeStart = _lastRow;
       List<AnalyticsNode> nodes = Lists.newArrayList();
       for (Position position : node.getPositions()) {
@@ -113,10 +113,10 @@ import com.opengamma.util.ArgumentChecker;
       }
       for (PortfolioNode child : node.getChildNodes()) {
         ++_lastRow;
-        nodes.add(createPortfolioNode(child));
+        nodes.add(createPortfolioNode(child, false));
       }
-      // collapse nodes if there are no child nodes
-      boolean collapse = node.getChildNodes().isEmpty();
+      // collapse nodes if there are no child nodes (unless it's the root node which is never collapsed)
+      boolean collapse = node.getChildNodes().isEmpty() && !root;
       return new AnalyticsNode(nodeStart, _lastRow, Collections.unmodifiableList(nodes), collapse);
     }
 
