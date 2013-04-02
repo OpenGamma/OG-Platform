@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.view;
 
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -26,6 +27,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
+import com.opengamma.engine.view.execution.ViewExecutionFlags;
 
 /**
  * Runs an execution sequence over a series of historical dates, returning the results as time-series.
@@ -67,11 +69,25 @@ public class HistoricalViewEvaluationFunction extends ViewEvaluationFunction<His
   }
 
   @Override
+  protected EnumSet<ViewExecutionFlags> getViewExecutionFlags(Set<ValueRequirement> desiredValues) {
+    final EnumSet<ViewExecutionFlags> flags = super.getViewExecutionFlags(desiredValues);
+    for (ValueRequirement desiredValue : desiredValues) {
+      if (!MARKET_DATA_PROPERTY_VALUE.equals(desiredValue.getConstraint(MARKET_DATA_PROPERTY_NAME))) {
+        return flags;
+      }
+    }
+    // No result values were requested, so don't bother executing the cycles
+    flags.add(ViewExecutionFlags.FETCH_MARKET_DATA_ONLY);
+    return flags;
+  }
+
+  @Override
   protected HistoricalViewEvaluationResultBuilder createResultBuilder(final ViewEvaluationTarget target, final Set<ValueRequirement> desiredValues) {
     boolean includeMarketData = false;
     for (ValueRequirement desiredValue : desiredValues) {
       if (MARKET_DATA_PROPERTY_VALUE.equals(desiredValue.getConstraint(MARKET_DATA_PROPERTY_NAME))) {
         includeMarketData = true;
+        break;
       }
     }
     return new HistoricalViewEvaluationResultBuilder(target.getViewDefinition(), includeMarketData);

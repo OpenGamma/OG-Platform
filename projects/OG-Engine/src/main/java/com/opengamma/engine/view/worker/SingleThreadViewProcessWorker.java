@@ -170,6 +170,7 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
   private final ViewCycleTrigger _masterCycleTrigger;
   private final FixedTimeTrigger _compilationExpiryCycleTrigger;
   private final boolean _executeCycles;
+  private final boolean _executeGraphs;
 
   private int _cycleCount;
   private EngineResourceReference<SingleComputationCycle> _previousCycleReference;
@@ -263,6 +264,7 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
     _compilationExpiryCycleTrigger = new FixedTimeTrigger();
     _masterCycleTrigger = createViewCycleTrigger(executionOptions);
     _executeCycles = !getExecutionOptions().getFlags().contains(ViewExecutionFlags.COMPILE_ONLY);
+    _executeGraphs = !getExecutionOptions().getFlags().contains(ViewExecutionFlags.FETCH_MARKET_DATA_ONLY);
     _viewDefinition = viewDefinition;
     _job = new Job();
     _thread = new BorrowedThread(context.toString(), _job);
@@ -663,21 +665,25 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
         deltaCycle = null;
       }
     }
-
-    try {
-      cycleReference.get().execute(deltaCycle, marketDataSnapshot, s_executor);
-    } catch (final InterruptedException e) {
-      Thread.interrupted();
-      // In reality this means that the job has been terminated, and it will end as soon as we return from this method.
-      // In case the thread has been interrupted without terminating the job, we tidy everything up as if the
-      // interrupted cycle never happened so that deltas will be calculated from the previous cycle.
-      s_logger.info("Interrupted while executing a computation cycle. No results will be output from this cycle.");
-      throw e;
-    } catch (final Exception e) {
-      s_logger.error("Error while executing view cycle", e);
-      throw e;
+    cycleReference.get().preExecute(deltaCycle, marketDataSnapshot);
+    if (_executeGraphs) {
+      try {
+        cycleReference.get().execute(s_executor);
+      } catch (final InterruptedException e) {
+        Thread.interrupted();
+        // In reality this means that the job has been terminated, and it will end as soon as we return from this method.
+        // In case the thread has been interrupted without terminating the job, we tidy everything up as if the
+        // interrupted cycle never happened so that deltas will be calculated from the previous cycle.
+        s_logger.info("Interrupted while executing a computation cycle. No results will be output from this cycle.");
+        throw e;
+      } catch (final Exception e) {
+        s_logger.error("Error while executing view cycle", e);
+        throw e;
+      }
+    } else {
+      s_logger.debug("Skipping graph execution");
     }
-
+    cycleReference.get().postExecute();
     final long durationNanos = cycleReference.get().getDuration().toNanos();
     _totalTimeNanos += durationNanos;
     _cycleCount += 1;

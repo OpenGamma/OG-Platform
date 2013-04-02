@@ -143,10 +143,8 @@ public abstract class ViewEvaluationFunction<TTarget extends ViewEvaluationTarge
     final ViewClient viewClient = viewProcessor.createViewClient(viewEvaluation.getViewDefinition().getMarketDataUser());
     final UniqueId viewClientId = viewClient.getUniqueId();
     s_logger.info("Created view client {}, connecting to {}", viewClientId, viewId);
-    viewClient.attachToViewProcess(
-        viewId,
-        ExecutionOptions.of(viewEvaluation.getExecutionSequence().createSequence(executionContext), getDefaultCycleOptions(executionContext),
-            EnumSet.of(ViewExecutionFlags.WAIT_FOR_INITIAL_TRIGGER, ViewExecutionFlags.RUN_AS_FAST_AS_POSSIBLE)), true);
+    viewClient.attachToViewProcess(viewId,
+        ExecutionOptions.of(viewEvaluation.getExecutionSequence().createSequence(executionContext), getDefaultCycleOptions(executionContext), getViewExecutionFlags(desiredValues)), true);
     final TResultBuilder resultBuilder = createResultBuilder(viewEvaluation, desiredValues);
     final AsynchronousOperation<Set<ComputedValue>> async = AsynchronousOperation.createSet();
     final AtomicReference<ResultCallback<Set<ComputedValue>>> asyncResult = new AtomicReference<ResultCallback<Set<ComputedValue>>>(async.getCallback());
@@ -273,6 +271,10 @@ public abstract class ViewEvaluationFunction<TTarget extends ViewEvaluationTarge
   protected ValueSpecification getResultSpec(String calcConfigName, ComputationTargetSpecification targetSpec) {
     ValueProperties.Builder properties = createValueProperties().withoutAny(PROPERTY_CALC_CONFIG).with(PROPERTY_CALC_CONFIG, calcConfigName);
     return new ValueSpecification(_valueRequirementName, targetSpec, properties.get());
+  }
+
+  protected EnumSet<ViewExecutionFlags> getViewExecutionFlags(Set<ValueRequirement> desiredValues) {
+    return EnumSet.of(ViewExecutionFlags.WAIT_FOR_INITIAL_TRIGGER, ViewExecutionFlags.RUN_AS_FAST_AS_POSSIBLE);
   }
 
   protected abstract ViewCycleExecutionOptions getDefaultCycleOptions(FunctionExecutionContext context);

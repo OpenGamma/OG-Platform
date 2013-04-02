@@ -5,6 +5,8 @@
  */
 package com.opengamma.engine.fudgemsg;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.EnumSet;
 
 import org.apache.commons.lang.BooleanUtils;
@@ -20,6 +22,7 @@ import com.opengamma.engine.view.execution.ExecutionOptions;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.execution.ViewCycleExecutionSequence;
 import com.opengamma.engine.view.execution.ViewExecutionFlags;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Fudge message builder for {@link ExecutionOptions}
@@ -34,22 +37,31 @@ public class ExecutionOptionsFudgeBuilder implements FudgeBuilder<ExecutionOptio
   private static final String TRIGGER_CYCLE_ON_TIME_ELAPSED_FIELD = "timeElapsedTriggerEnabled";
   private static final String RUN_AS_FAST_AS_POSSIBLE_FIELD = "runAsFastAsPossible";
   private static final String COMPILE_ONLY_FIELD = "compileOnly";
+  private static final String FETCH_MARKET_DATA_ONLY_FIELD = "fetchMarketDataOnly";
   private static final String WAIT_FOR_INITIAL_TRIGGER_FIELD = "waitForInitialTrigger";
   private static final String MAX_SUCCESSIVE_DELTA_CYCLES_FIELD = "maxSuccessiveDeltaCycles";
   private static final String DEFAULT_EXECUTION_OPTIONS_FIELD = "defaultExecutionOptions";
   private static final String BATCH_FIELD = "batch";
 
+  private static final Collection<Pair<String, ViewExecutionFlags>> s_flags = Arrays.<Pair<String, ViewExecutionFlags>>asList(
+      Pair.of(AWAIT_MARKET_DATA_FIELD, ViewExecutionFlags.AWAIT_MARKET_DATA),
+      Pair.of(TRIGGER_CYCLE_ON_LIVE_DATA_CHANGED_FIELD, ViewExecutionFlags.TRIGGER_CYCLE_ON_MARKET_DATA_CHANGED),
+      Pair.of(TRIGGER_CYCLE_ON_TIME_ELAPSED_FIELD, ViewExecutionFlags.TRIGGER_CYCLE_ON_TIME_ELAPSED),
+      Pair.of(RUN_AS_FAST_AS_POSSIBLE_FIELD, ViewExecutionFlags.RUN_AS_FAST_AS_POSSIBLE),
+      Pair.of(COMPILE_ONLY_FIELD, ViewExecutionFlags.COMPILE_ONLY),
+      Pair.of(FETCH_MARKET_DATA_ONLY_FIELD, ViewExecutionFlags.FETCH_MARKET_DATA_ONLY),
+      Pair.of(WAIT_FOR_INITIAL_TRIGGER_FIELD, ViewExecutionFlags.WAIT_FOR_INITIAL_TRIGGER),
+      Pair.of(BATCH_FIELD, ViewExecutionFlags.BATCH));
+
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, ExecutionOptions object) {
     MutableFudgeMsg msg = serializer.newMessage();
     serializer.addToMessageWithClassHeaders(msg, EXECUTION_SEQUENCE_FIELD, null, object.getExecutionSequence());
-    msg.add(AWAIT_MARKET_DATA_FIELD, object.getFlags().contains(ViewExecutionFlags.AWAIT_MARKET_DATA));
-    msg.add(TRIGGER_CYCLE_ON_LIVE_DATA_CHANGED_FIELD, object.getFlags().contains(ViewExecutionFlags.TRIGGER_CYCLE_ON_MARKET_DATA_CHANGED));
-    msg.add(TRIGGER_CYCLE_ON_TIME_ELAPSED_FIELD, object.getFlags().contains(ViewExecutionFlags.TRIGGER_CYCLE_ON_TIME_ELAPSED));
-    msg.add(RUN_AS_FAST_AS_POSSIBLE_FIELD, object.getFlags().contains(ViewExecutionFlags.RUN_AS_FAST_AS_POSSIBLE));
-    msg.add(COMPILE_ONLY_FIELD, object.getFlags().contains(ViewExecutionFlags.COMPILE_ONLY));
-    msg.add(WAIT_FOR_INITIAL_TRIGGER_FIELD, object.getFlags().contains(ViewExecutionFlags.WAIT_FOR_INITIAL_TRIGGER));
-    msg.add(BATCH_FIELD, object.getFlags().contains(ViewExecutionFlags.BATCH));
+    for (Pair<String, ViewExecutionFlags> flags : s_flags) {
+      if (object.getFlags().contains(flags.getSecond())) {
+        msg.add(flags.getFirst(), Boolean.TRUE);
+      }
+    }
     if (object.getMaxSuccessiveDeltaCycles() != null) {
       msg.add(MAX_SUCCESSIVE_DELTA_CYCLES_FIELD, object.getMaxSuccessiveDeltaCycles());
     }
@@ -61,32 +73,15 @@ public class ExecutionOptionsFudgeBuilder implements FudgeBuilder<ExecutionOptio
   public ExecutionOptions buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
     ViewCycleExecutionSequence executionSequence = deserializer.fudgeMsgToObject(ViewCycleExecutionSequence.class, message.getMessage(EXECUTION_SEQUENCE_FIELD));
     EnumSet<ViewExecutionFlags> flags = EnumSet.noneOf(ViewExecutionFlags.class);
-    if (BooleanUtils.isTrue(message.getBoolean(AWAIT_MARKET_DATA_FIELD))) {
-      flags.add(ViewExecutionFlags.AWAIT_MARKET_DATA);
-    }
-    if (BooleanUtils.isTrue(message.getBoolean(TRIGGER_CYCLE_ON_LIVE_DATA_CHANGED_FIELD))) {
-      flags.add(ViewExecutionFlags.TRIGGER_CYCLE_ON_MARKET_DATA_CHANGED);
-    }
-    if (BooleanUtils.isTrue(message.getBoolean(TRIGGER_CYCLE_ON_TIME_ELAPSED_FIELD))) {
-      flags.add(ViewExecutionFlags.TRIGGER_CYCLE_ON_TIME_ELAPSED);
-    }
-    if (BooleanUtils.isTrue(message.getBoolean(RUN_AS_FAST_AS_POSSIBLE_FIELD))) {
-      flags.add(ViewExecutionFlags.RUN_AS_FAST_AS_POSSIBLE);
-    }
-    if (BooleanUtils.isTrue(message.getBoolean(COMPILE_ONLY_FIELD))) {
-      flags.add(ViewExecutionFlags.COMPILE_ONLY);
-    }
-    if (BooleanUtils.isTrue(message.getBoolean(WAIT_FOR_INITIAL_TRIGGER_FIELD))) {
-      flags.add(ViewExecutionFlags.WAIT_FOR_INITIAL_TRIGGER);
-    }
-    if (BooleanUtils.isTrue(message.getBoolean(BATCH_FIELD))) {
-      flags.add(ViewExecutionFlags.BATCH);
+    for (Pair<String, ViewExecutionFlags> flagField : s_flags) {
+      if (BooleanUtils.isTrue(message.getBoolean(flagField.getFirst()))) {
+        flags.add(flagField.getSecond());
+      }
     }
     Integer maxSuccessiveDeltaCycles = null;
     if (message.hasField(MAX_SUCCESSIVE_DELTA_CYCLES_FIELD)) {
       maxSuccessiveDeltaCycles = message.getInt(MAX_SUCCESSIVE_DELTA_CYCLES_FIELD);
     }
-
     FudgeField defaultExecutionOptionsField = message.getByName(DEFAULT_EXECUTION_OPTIONS_FIELD);
     ViewCycleExecutionOptions defaultExecutionOptions = defaultExecutionOptionsField != null ?
         deserializer.fieldValueToObject(ViewCycleExecutionOptions.class, defaultExecutionOptionsField) : null;
