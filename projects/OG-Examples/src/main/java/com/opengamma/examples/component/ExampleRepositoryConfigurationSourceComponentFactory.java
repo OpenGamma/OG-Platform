@@ -15,7 +15,7 @@ import org.joda.beans.MetaProperty;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.component.factory.source.RepositoryConfigurationSourceComponentFactory;
+import com.opengamma.component.factory.source.FunctionConfigurationSourceComponentFactory;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.examples.function.ExampleStandardFunctionConfiguration;
 import com.opengamma.examples.function.SyntheticVolatilityCubeFunctions;
@@ -25,7 +25,7 @@ import com.opengamma.examples.tutorial.TutorialFunctions;
  * Component factory for the function configuration source.
  */
 @BeanDefinition
-public class ExampleRepositoryConfigurationSourceComponentFactory extends RepositoryConfigurationSourceComponentFactory {
+public class ExampleRepositoryConfigurationSourceComponentFactory extends FunctionConfigurationSourceComponentFactory {
 
   @Override
   protected FunctionConfigurationSource standardConfiguration() {
@@ -97,7 +97,7 @@ public class ExampleRepositoryConfigurationSourceComponentFactory extends Reposi
   /**
    * The meta-bean for {@code ExampleRepositoryConfigurationSourceComponentFactory}.
    */
-  public static class Meta extends RepositoryConfigurationSourceComponentFactory.Meta {
+  public static class Meta extends FunctionConfigurationSourceComponentFactory.Meta {
     /**
      * The singleton instance of the meta-bean.
      */

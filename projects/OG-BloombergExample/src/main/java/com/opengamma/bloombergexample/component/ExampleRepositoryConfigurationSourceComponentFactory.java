@@ -11,7 +11,7 @@ import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.L
 import java.util.Arrays;
 import java.util.List;
 
-import com.opengamma.component.factory.source.RepositoryConfigurationSourceComponentFactory;
+import com.opengamma.component.factory.source.FunctionConfigurationSourceComponentFactory;
 import com.opengamma.engine.function.config.FunctionConfigurationBundle;
 import com.opengamma.engine.function.config.ParameterizedFunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
@@ -22,7 +22,7 @@ import com.opengamma.financial.analytics.model.forex.defaultproperties.FXOptionB
 /**
  * Component factory for the repository configuration source.
  */
-public class ExampleRepositoryConfigurationSourceComponentFactory extends RepositoryConfigurationSourceComponentFactory {
+public class ExampleRepositoryConfigurationSourceComponentFactory extends FunctionConfigurationSourceComponentFactory {
 
   @Override
   protected List<FunctionConfigurationSource> initSources() {

@@ -43,10 +43,10 @@ import com.opengamma.web.spring.BloombergVolatilityCubeFunctions;
 import com.opengamma.web.spring.DemoStandardFunctionConfiguration;
 
 /**
- * Component factory providing the {@code RepositoryConfigurationSource}.
+ * Component factory providing the {@code FunctionConfigurationSource}.
  */
 @BeanDefinition
-public class RepositoryConfigurationSourceComponentFactory extends AbstractComponentFactory {
+public class FunctionConfigurationSourceComponentFactory extends AbstractComponentFactory {
 
   /**
    * The classifier that the factory should publish under.
@@ -197,16 +197,16 @@ public class RepositoryConfigurationSourceComponentFactory extends AbstractCompo
    * The meta-bean for {@code RepositoryConfigurationSourceComponentFactory}.
    * @return the meta-bean, not null
    */
-  public static RepositoryConfigurationSourceComponentFactory.Meta meta() {
-    return RepositoryConfigurationSourceComponentFactory.Meta.INSTANCE;
+  public static FunctionConfigurationSourceComponentFactory.Meta meta() {
+    return FunctionConfigurationSourceComponentFactory.Meta.INSTANCE;
   }
   static {
-    JodaBeanUtils.registerMetaBean(RepositoryConfigurationSourceComponentFactory.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(FunctionConfigurationSourceComponentFactory.Meta.INSTANCE);
   }
 
   @Override
-  public RepositoryConfigurationSourceComponentFactory.Meta metaBean() {
-    return RepositoryConfigurationSourceComponentFactory.Meta.INSTANCE;
+  public FunctionConfigurationSourceComponentFactory.Meta metaBean() {
+    return FunctionConfigurationSourceComponentFactory.Meta.INSTANCE;
   }
 
   @Override
@@ -257,7 +257,7 @@ public class RepositoryConfigurationSourceComponentFactory extends AbstractCompo
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      RepositoryConfigurationSourceComponentFactory other = (RepositoryConfigurationSourceComponentFactory) obj;
+      FunctionConfigurationSourceComponentFactory other = (FunctionConfigurationSourceComponentFactory) obj;
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
           JodaBeanUtils.equal(isPublishRest(), other.isPublishRest()) &&
           JodaBeanUtils.equal(getConfigMaster(), other.getConfigMaster()) &&
@@ -394,22 +394,22 @@ public class RepositoryConfigurationSourceComponentFactory extends AbstractCompo
      * The meta-property for the {@code classifier} property.
      */
     private final MetaProperty<String> _classifier = DirectMetaProperty.ofReadWrite(
-        this, "classifier", RepositoryConfigurationSourceComponentFactory.class, String.class);
+        this, "classifier", FunctionConfigurationSourceComponentFactory.class, String.class);
     /**
      * The meta-property for the {@code publishRest} property.
      */
     private final MetaProperty<Boolean> _publishRest = DirectMetaProperty.ofReadWrite(
-        this, "publishRest", RepositoryConfigurationSourceComponentFactory.class, Boolean.TYPE);
+        this, "publishRest", FunctionConfigurationSourceComponentFactory.class, Boolean.TYPE);
     /**
      * The meta-property for the {@code configMaster} property.
      */
     private final MetaProperty<ConfigMaster> _configMaster = DirectMetaProperty.ofReadWrite(
-        this, "configMaster", RepositoryConfigurationSourceComponentFactory.class, ConfigMaster.class);
+        this, "configMaster", FunctionConfigurationSourceComponentFactory.class, ConfigMaster.class);
     /**
      * The meta-property for the {@code conventionBundleSource} property.
      */
     private final MetaProperty<ConventionBundleSource> _conventionBundleSource = DirectMetaProperty.ofReadWrite(
-        this, "conventionBundleSource", RepositoryConfigurationSourceComponentFactory.class, ConventionBundleSource.class);
+        this, "conventionBundleSource", FunctionConfigurationSourceComponentFactory.class, ConventionBundleSource.class);
     /**
      * The meta-properties.
      */
@@ -442,13 +442,13 @@ public class RepositoryConfigurationSourceComponentFactory extends AbstractCompo
     }
 
     @Override
-    public BeanBuilder<? extends RepositoryConfigurationSourceComponentFactory> builder() {
-      return new DirectBeanBuilder<RepositoryConfigurationSourceComponentFactory>(new RepositoryConfigurationSourceComponentFactory());
+    public BeanBuilder<? extends FunctionConfigurationSourceComponentFactory> builder() {
+      return new DirectBeanBuilder<FunctionConfigurationSourceComponentFactory>(new FunctionConfigurationSourceComponentFactory());
     }
 
     @Override
-    public Class<? extends RepositoryConfigurationSourceComponentFactory> beanType() {
-      return RepositoryConfigurationSourceComponentFactory.class;
+    public Class<? extends FunctionConfigurationSourceComponentFactory> beanType() {
+      return FunctionConfigurationSourceComponentFactory.class;
     }
 
     @Override
