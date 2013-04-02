@@ -14,12 +14,12 @@ import com.opengamma.util.PublicSPI;
  * <li>Retrieve function information from a configuration database;
  * <li>Generate function information dynamically (e.g. by scanning for annotations);
  * <li>Download the configuration from another node;
- * <li>Collate the information from other {@code RepositoryConfigurationSource} instances; or
+ * <li>Collate the information from other {@code FunctionConfigurationSource} instances; or
  * <li>Construct the repository from static data.
  * </ul>
  */
 @PublicSPI
-public interface RepositoryConfigurationSource {
+public interface FunctionConfigurationSource {
 
   /**
    * Returns a repository configuration.

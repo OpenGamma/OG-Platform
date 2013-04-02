@@ -10,7 +10,7 @@ import java.util.List;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
-import com.opengamma.engine.function.config.RepositoryConfigurationSource;
+import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.financial.analytics.model.future.FutureFunctions;
 import com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesRatingFieldNames;
 import com.opengamma.util.ArgumentChecker;
@@ -22,11 +22,11 @@ import com.opengamma.util.ArgumentChecker;
 public class DividendYieldFuturesFunctions extends AbstractRepositoryConfigurationBean {
 
   /**
-   * Default instance of a repository configuration source exposing the functions from this package.
+   * Default instance of a function configuration source exposing the functions from this package.
    *
    * @return the configuration source exposing functions from this package
    */
-  public static RepositoryConfigurationSource instance() {
+  public static FunctionConfigurationSource instance() {
     return new FutureFunctions().getObjectCreating();
   }
   

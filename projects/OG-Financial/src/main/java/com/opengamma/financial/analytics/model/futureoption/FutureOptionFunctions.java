@@ -13,7 +13,7 @@ import org.springframework.beans.factory.InitializingBean;
 
 import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
-import com.opengamma.engine.function.config.RepositoryConfigurationSource;
+import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
 import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyNamesAndValues;
 import com.opengamma.financial.property.DefaultPropertyFunction.PriorityClass;
@@ -29,7 +29,7 @@ public class FutureOptionFunctions extends AbstractRepositoryConfigurationBean {
    *
    * @return the configuration source exposing functions from this package
    */
-  public static RepositoryConfigurationSource instance() {
+  public static FunctionConfigurationSource instance() {
     return new FutureOptionFunctions().getObjectCreating();
   }
 

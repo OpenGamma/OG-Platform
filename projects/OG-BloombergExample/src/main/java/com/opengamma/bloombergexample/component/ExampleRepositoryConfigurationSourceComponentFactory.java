@@ -14,7 +14,7 @@ import java.util.List;
 import com.opengamma.component.factory.source.RepositoryConfigurationSourceComponentFactory;
 import com.opengamma.engine.function.config.FunctionConfigurationBundle;
 import com.opengamma.engine.function.config.ParameterizedFunctionConfiguration;
-import com.opengamma.engine.function.config.RepositoryConfigurationSource;
+import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.engine.function.config.SimpleRepositoryConfigurationSource;
 import com.opengamma.financial.analytics.model.forex.defaultproperties.FXOptionBlackSurfaceDefaults;
 
@@ -24,9 +24,8 @@ import com.opengamma.financial.analytics.model.forex.defaultproperties.FXOptionB
 public class ExampleRepositoryConfigurationSourceComponentFactory extends RepositoryConfigurationSourceComponentFactory {
 
   @Override
-  protected List<RepositoryConfigurationSource> initSources() {
-    final List<RepositoryConfigurationSource> sources = super.initSources();
-    
+  protected List<FunctionConfigurationSource> initSources() {
+    final List<FunctionConfigurationSource> sources = super.initSources();
     final FunctionConfigurationBundle configuration = new FunctionConfigurationBundle();
     configuration.addFunctions(new ParameterizedFunctionConfiguration(FXOptionBlackSurfaceDefaults.class.getName(), Arrays.asList(DOUBLE_QUADRATIC, LINEAR_EXTRAPOLATOR,
         LINEAR_EXTRAPOLATOR, "USD", "EUR", "DEFAULT")));

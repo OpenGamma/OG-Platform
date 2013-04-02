@@ -10,7 +10,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Simple implementation of the repository configuration source that is setup at construction.
  */
-public class SimpleRepositoryConfigurationSource implements RepositoryConfigurationSource {
+public class SimpleRepositoryConfigurationSource implements FunctionConfigurationSource {
 
   /**
    * The underlying config,

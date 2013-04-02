@@ -11,7 +11,7 @@ import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
 import com.opengamma.engine.function.config.CombiningRepositoryConfigurationSource;
 import com.opengamma.engine.function.config.FunctionConfiguration;
-import com.opengamma.engine.function.config.RepositoryConfigurationSource;
+import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.financial.analytics.model.volatility.surface.black.BlackFunctions;
 import com.opengamma.util.ArgumentChecker;
 
@@ -25,7 +25,7 @@ public class SurfaceFunctions extends AbstractRepositoryConfigurationBean {
    *
    * @return the configuration source exposing functions from this package and its sub-packages
    */
-  public static RepositoryConfigurationSource instance() {
+  public static FunctionConfigurationSource instance() {
     return new SurfaceFunctions().getObjectCreating();
   }
 
@@ -203,12 +203,12 @@ public class SurfaceFunctions extends AbstractRepositoryConfigurationBean {
     functions.add(functionConfiguration(InterpolatedVolatilitySurfaceFunction.class));
   }
 
-  protected RepositoryConfigurationSource blackFunctionConfiguration() {
+  protected FunctionConfigurationSource blackFunctionConfiguration() {
     return BlackFunctions.instance();
   }
 
   @Override
-  protected RepositoryConfigurationSource createObject() {
+  protected FunctionConfigurationSource createObject() {
     return CombiningRepositoryConfigurationSource.of(super.createObject(), blackFunctionConfiguration());
   }
 

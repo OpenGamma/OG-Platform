@@ -10,7 +10,7 @@ import java.util.List;
 import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
 import com.opengamma.engine.function.config.CombiningRepositoryConfigurationSource;
 import com.opengamma.engine.function.config.FunctionConfiguration;
-import com.opengamma.engine.function.config.RepositoryConfigurationSource;
+import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.financial.analytics.model.volatility.cube.CubeFunctions;
 import com.opengamma.financial.analytics.model.volatility.local.LocalFunctions;
 import com.opengamma.financial.analytics.model.volatility.surface.SurfaceFunctions;
@@ -25,7 +25,7 @@ public class VolatilityFunctions extends AbstractRepositoryConfigurationBean {
    *
    * @return the configuration source exposing functions from this package and its sub-packages
    */
-  public static RepositoryConfigurationSource instance() {
+  public static FunctionConfigurationSource instance() {
     return new VolatilityFunctions().getObjectCreating();
   }
 
@@ -34,20 +34,20 @@ public class VolatilityFunctions extends AbstractRepositoryConfigurationBean {
     // No functions, just sub-packages
   }
 
-  protected RepositoryConfigurationSource cubeFunctionConfiguration() {
+  protected FunctionConfigurationSource cubeFunctionConfiguration() {
     return CubeFunctions.instance();
   }
 
-  protected RepositoryConfigurationSource localFunctionConfiguration() {
+  protected FunctionConfigurationSource localFunctionConfiguration() {
     return LocalFunctions.instance();
   }
 
-  protected RepositoryConfigurationSource surfaceFunctionConfiguration() {
+  protected FunctionConfigurationSource surfaceFunctionConfiguration() {
     return SurfaceFunctions.instance();
   }
 
   @Override
-  protected RepositoryConfigurationSource createObject() {
+  protected FunctionConfigurationSource createObject() {
     return CombiningRepositoryConfigurationSource.of(super.createObject(), cubeFunctionConfiguration(), localFunctionConfiguration(), surfaceFunctionConfiguration());
   }
 

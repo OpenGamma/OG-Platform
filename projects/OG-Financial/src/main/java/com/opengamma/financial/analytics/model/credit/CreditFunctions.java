@@ -17,7 +17,7 @@ import com.opengamma.analytics.financial.credit.bumpers.SpreadBumpType;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.InterestRateBumpType;
 import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
-import com.opengamma.engine.function.config.RepositoryConfigurationSource;
+import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.financial.analytics.model.credit.isda.ISDADateCurveDefaults;
 import com.opengamma.financial.analytics.model.credit.isda.ISDAHazardRateCurveDefaults;
 import com.opengamma.financial.analytics.model.credit.isda.calibration.ISDAHazardRateCurveFunction;
@@ -50,7 +50,7 @@ public class CreditFunctions extends AbstractRepositoryConfigurationBean {
    *
    * @return the configuration source exposing functions from this package
    */
-  public static RepositoryConfigurationSource instance() {
+  public static FunctionConfigurationSource instance() {
     return new CreditFunctions().getObjectCreating();
   }
 

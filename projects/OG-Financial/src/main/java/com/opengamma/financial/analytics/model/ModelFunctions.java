@@ -12,7 +12,7 @@ import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
 import com.opengamma.engine.function.config.CombiningRepositoryConfigurationSource;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationBundle;
-import com.opengamma.engine.function.config.RepositoryConfigurationSource;
+import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.engine.function.config.SimpleRepositoryConfigurationSource;
 import com.opengamma.financial.analytics.model.bond.BondFunctions;
 import com.opengamma.financial.analytics.model.bondfutureoption.BondFutureOptionFunctions;
@@ -45,7 +45,7 @@ public class ModelFunctions extends AbstractRepositoryConfigurationBean {
    *
    * @return the configuration source exposing functions from this package and its sub-packages
    */
-  public static RepositoryConfigurationSource instance() {
+  public static FunctionConfigurationSource instance() {
     return new ModelFunctions().getObjectCreating();
   }
 
@@ -54,93 +54,93 @@ public class ModelFunctions extends AbstractRepositoryConfigurationBean {
     // Nothing in this package, just the sub-packages
   }
 
-  protected RepositoryConfigurationSource bondFunctionConfiguration() {
+  protected FunctionConfigurationSource bondFunctionConfiguration() {
     return BondFunctions.instance();
   }
 
-  protected RepositoryConfigurationSource bondFutureOptionFunctionConfiguration() {
+  protected FunctionConfigurationSource bondFutureOptionFunctionConfiguration() {
     return BondFutureOptionFunctions.instance();
   }
 
-  protected RepositoryConfigurationSource cdsFunctionConfiguration() {
+  protected FunctionConfigurationSource cdsFunctionConfiguration() {
     return CDSFunctions.instance();
   }
 
-  protected RepositoryConfigurationSource creditFunctionConfiguration() {
+  protected FunctionConfigurationSource creditFunctionConfiguration() {
     return CreditFunctions.instance();
   }
 
-  protected RepositoryConfigurationSource curveFunctionConfiguration() {
+  protected FunctionConfigurationSource curveFunctionConfiguration() {
     return CurveFunctions.instance();
   }
 
-  protected RepositoryConfigurationSource equityFunctionConfiguration() {
+  protected FunctionConfigurationSource equityFunctionConfiguration() {
     return EquityFunctions.instance();
   }
 
-  protected RepositoryConfigurationSource fixedIncomeFunctionConfiguration() {
+  protected FunctionConfigurationSource fixedIncomeFunctionConfiguration() {
     return FixedIncomeFunctions.instance();
   }
 
-  protected RepositoryConfigurationSource forexFunctionConfiguration() {
+  protected FunctionConfigurationSource forexFunctionConfiguration() {
     return ForexFunctions.instance();
   }
 
-  protected RepositoryConfigurationSource futureFunctionConfiguration() {
+  protected FunctionConfigurationSource futureFunctionConfiguration() {
     return FutureFunctions.instance();
   }
 
-  protected RepositoryConfigurationSource futureOptionFunctionConfiguration() {
+  protected FunctionConfigurationSource futureOptionFunctionConfiguration() {
     return FutureOptionFunctions.instance();
   }
 
-  protected RepositoryConfigurationSource horizonFunctionConfiguration() {
+  protected FunctionConfigurationSource horizonFunctionConfiguration() {
     return HorizonFunctions.instance();
   }
 
-  protected RepositoryConfigurationSource irFutureOptionFunctionConfiguration() {
+  protected FunctionConfigurationSource irFutureOptionFunctionConfiguration() {
     return IRFutureOptionFunctions.instance();
   }
 
-  protected RepositoryConfigurationSource optionFunctionConfiguration() {
+  protected FunctionConfigurationSource optionFunctionConfiguration() {
     return OptionFunctions.instance();
   }
 
-  protected RepositoryConfigurationSource pnlFunctionConfiguration() {
+  protected FunctionConfigurationSource pnlFunctionConfiguration() {
     return PNLFunctions.instance();
   }
 
-  protected RepositoryConfigurationSource riskFactorFunctionConfiguration() {
+  protected FunctionConfigurationSource riskFactorFunctionConfiguration() {
     // TODO
     return new SimpleRepositoryConfigurationSource(new FunctionConfigurationBundle(Collections.<FunctionConfiguration>emptyList()));
   }
 
-  protected RepositoryConfigurationSource sabrCubeFunctionConfiguration() {
+  protected FunctionConfigurationSource sabrCubeFunctionConfiguration() {
     return SABRCubeFunctions.instance();
   }
 
-  protected RepositoryConfigurationSource sensitivitiesFunctionConfiguration() {
+  protected FunctionConfigurationSource sensitivitiesFunctionConfiguration() {
     return SensitivitiesFunctions.instance();
   }
 
-  protected RepositoryConfigurationSource simpleInstrumentFunctionConfiguration() {
+  protected FunctionConfigurationSource simpleInstrumentFunctionConfiguration() {
     return SimpleInstrumentFunctions.instance();
   }
 
-  protected RepositoryConfigurationSource swaptionFunctionConfiguration() {
+  protected FunctionConfigurationSource swaptionFunctionConfiguration() {
     return SwaptionFunctions.instance();
   }
 
-  protected RepositoryConfigurationSource varFunctionConfiguration() {
+  protected FunctionConfigurationSource varFunctionConfiguration() {
     return VaRFunctions.instance();
   }
 
-  protected RepositoryConfigurationSource volatilityFunctionConfiguration() {
+  protected FunctionConfigurationSource volatilityFunctionConfiguration() {
     return VolatilityFunctions.instance();
   }
 
   @Override
-  protected RepositoryConfigurationSource createObject() {
+  protected FunctionConfigurationSource createObject() {
     return CombiningRepositoryConfigurationSource.of(super.createObject(), bondFunctionConfiguration(), bondFutureOptionFunctionConfiguration(), cdsFunctionConfiguration(),
         creditFunctionConfiguration(), curveFunctionConfiguration(), equityFunctionConfiguration(), fixedIncomeFunctionConfiguration(), forexFunctionConfiguration(),
         futureFunctionConfiguration(), futureOptionFunctionConfiguration(), horizonFunctionConfiguration(), irFutureOptionFunctionConfiguration(), optionFunctionConfiguration(),

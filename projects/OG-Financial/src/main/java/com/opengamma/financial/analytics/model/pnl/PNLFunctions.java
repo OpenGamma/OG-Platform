@@ -18,7 +18,7 @@ import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
-import com.opengamma.engine.function.config.RepositoryConfigurationSource;
+import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.MissingInputsFunction;
 import com.opengamma.financial.property.AggregationDefaultPropertyFunction;
@@ -36,11 +36,11 @@ public class PNLFunctions extends AbstractRepositoryConfigurationBean {
    *
    * @return the configuration source exposing functions from this package
    */
-  public static RepositoryConfigurationSource instance() {
+  public static FunctionConfigurationSource instance() {
     return new PNLFunctions().getObjectCreating();
   }
 
-  public static RepositoryConfigurationSource deprecated() {
+  public static FunctionConfigurationSource deprecated() {
     return new Deprecated().getObjectCreating();
   }
 

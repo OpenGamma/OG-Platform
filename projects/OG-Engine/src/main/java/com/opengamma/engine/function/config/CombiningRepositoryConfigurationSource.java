@@ -14,20 +14,20 @@ import java.util.List;
  * Combines the repository configuration from two or more sources into a single configuration
  * object.
  */
-public class CombiningRepositoryConfigurationSource implements RepositoryConfigurationSource {
+public class CombiningRepositoryConfigurationSource implements FunctionConfigurationSource {
 
-  private final RepositoryConfigurationSource[] _sources;
+  private final FunctionConfigurationSource[] _sources;
 
-  protected CombiningRepositoryConfigurationSource(final RepositoryConfigurationSource[] sources) {
+  protected CombiningRepositoryConfigurationSource(final FunctionConfigurationSource[] sources) {
     _sources = sources;
   }
 
-  private static int count(final RepositoryConfigurationSource source) {
+  private static int count(final FunctionConfigurationSource source) {
     if (source == null) {
       return 0;
     } else if (source instanceof CombiningRepositoryConfigurationSource) {
       int count = 0;
-      for (final RepositoryConfigurationSource inner : ((CombiningRepositoryConfigurationSource) source).getSources()) {
+      for (final FunctionConfigurationSource inner : ((CombiningRepositoryConfigurationSource) source).getSources()) {
         count += count(inner);
       }
       return count;
@@ -36,10 +36,10 @@ public class CombiningRepositoryConfigurationSource implements RepositoryConfigu
     }
   }
 
-  private static int copy(final RepositoryConfigurationSource source, final RepositoryConfigurationSource[] dest, int index) {
+  private static int copy(final FunctionConfigurationSource source, final FunctionConfigurationSource[] dest, int index) {
     if (source != null) {
       if (source instanceof CombiningRepositoryConfigurationSource) {
-        for (final RepositoryConfigurationSource inner : ((CombiningRepositoryConfigurationSource) source).getSources()) {
+        for (final FunctionConfigurationSource inner : ((CombiningRepositoryConfigurationSource) source).getSources()) {
           index = copy(inner, dest, index);
         }
       } else {
@@ -58,41 +58,41 @@ public class CombiningRepositoryConfigurationSource implements RepositoryConfigu
    * @param sources the sources to combine, may contain nulls
    * @return the composite source, not null
    */
-  public static RepositoryConfigurationSource of(final RepositoryConfigurationSource... sources) {
+  public static FunctionConfigurationSource of(final FunctionConfigurationSource... sources) {
     if ((sources == null) || (sources.length == 0)) {
       return new SimpleRepositoryConfigurationSource(new FunctionConfigurationBundle(Collections.<FunctionConfiguration>emptyList()));
     }
     int i = 0;
-    for (final RepositoryConfigurationSource source : sources) {
+    for (final FunctionConfigurationSource source : sources) {
       i += count(source);
     }
     if (i == 0) {
       return new SimpleRepositoryConfigurationSource(new FunctionConfigurationBundle(Collections.<FunctionConfiguration>emptyList()));
     } else if (i == 1) {
-      for (final RepositoryConfigurationSource source : sources) {
+      for (final FunctionConfigurationSource source : sources) {
         if (source != null) {
           return source;
         }
       }
       throw new IllegalStateException();
     } else {
-      final RepositoryConfigurationSource[] copy = new RepositoryConfigurationSource[i];
+      final FunctionConfigurationSource[] copy = new FunctionConfigurationSource[i];
       i = 0;
-      for (final RepositoryConfigurationSource source : sources) {
+      for (final FunctionConfigurationSource source : sources) {
         i = copy(source, copy, i);
       }
       return new CombiningRepositoryConfigurationSource(copy);
     }
   }
 
-  protected RepositoryConfigurationSource[] getSources() {
+  protected FunctionConfigurationSource[] getSources() {
     return _sources;
   }
 
   @Override
   public FunctionConfigurationBundle getRepositoryConfiguration() {
     final List<FunctionConfiguration> configs = new ArrayList<FunctionConfiguration>();
-    for (final RepositoryConfigurationSource source : getSources()) {
+    for (final FunctionConfigurationSource source : getSources()) {
       configs.addAll(source.getRepositoryConfiguration().getFunctions());
     }
     return new FunctionConfigurationBundle(configs);

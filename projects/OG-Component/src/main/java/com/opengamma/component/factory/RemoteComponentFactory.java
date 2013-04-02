@@ -35,7 +35,7 @@ import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.region.impl.RemoteRegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.security.impl.RemoteSecuritySource;
-import com.opengamma.engine.function.config.RepositoryConfigurationSource;
+import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.helper.AvailableOutputsProvider;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveDefinitionMaster;
@@ -641,8 +641,8 @@ public class RemoteComponentFactory {
    * @param name the classifier name of the object you want to retrieve
    * @return the interface requested, or null if not present
    */
-  public RepositoryConfigurationSource getRepositoryConfigurationSource(final String name) {
-    URI uri = getComponentServer().getComponentInfo(RepositoryConfigurationSource.class, name).getUri();
+  public FunctionConfigurationSource getRepositoryConfigurationSource(final String name) {
+    URI uri = getComponentServer().getComponentInfo(FunctionConfigurationSource.class, name).getUri();
     return new RemoteRepositoryConfigurationSource(uri);
   }
 
@@ -650,17 +650,17 @@ public class RemoteComponentFactory {
    * @param preferredClassifiers a list of names of classifiers in order of preference (most preferred first), or null
    * @return the best matching interface available
    */
-  public RepositoryConfigurationSource getRepositoryConfigurationSource(final List<String> preferredClassifiers) {
-    URI uri = getTopLevelComponent(preferredClassifiers, RepositoryConfigurationSource.class).getUri();
+  public FunctionConfigurationSource getRepositoryConfigurationSource(final List<String> preferredClassifiers) {
+    URI uri = getTopLevelComponent(preferredClassifiers, FunctionConfigurationSource.class).getUri();
     return new RemoteRepositoryConfigurationSource(uri);
   }
 
   /**
    * @return a map of classifier names to requested interface type
    */
-  public Map<String, RepositoryConfigurationSource> getRepositoryConfigurationSources() {
-    Map<String, RepositoryConfigurationSource> result = new LinkedHashMap<String, RepositoryConfigurationSource>();
-    for (ComponentInfo info : getComponentServer().getComponentInfos(RepositoryConfigurationSource.class)) {
+  public Map<String, FunctionConfigurationSource> getRepositoryConfigurationSources() {
+    Map<String, FunctionConfigurationSource> result = new LinkedHashMap<String, FunctionConfigurationSource>();
+    for (ComponentInfo info : getComponentServer().getComponentInfos(FunctionConfigurationSource.class)) {
       result.put(info.getClassifier(), new RemoteRepositoryConfigurationSource(info.getUri()));
     }
     return result;    

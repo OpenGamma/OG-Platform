@@ -9,7 +9,7 @@ import java.util.List;
 
 import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
-import com.opengamma.engine.function.config.RepositoryConfigurationSource;
+import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -22,17 +22,17 @@ public class SurfaceFunctions extends AbstractRepositoryConfigurationBean {
    *
    * @return the configuration source exposing functions from this package
    */
-  public static RepositoryConfigurationSource instance() {
+  public static FunctionConfigurationSource instance() {
     return new SurfaceFunctions().getObjectCreating();
   }
 
-  public static RepositoryConfigurationSource defaults() {
+  public static FunctionConfigurationSource defaults() {
     final Defaults factory = new Defaults();
     factory.afterPropertiesSet();
     return factory.getObject();
   }
 
-  public static RepositoryConfigurationSource defaults(final String leftXExtrapolatorName, final String rightXExtrapolatorName, final String xInterpolatorName, final String leftYExtrapolatorName,
+  public static FunctionConfigurationSource defaults(final String leftXExtrapolatorName, final String rightXExtrapolatorName, final String xInterpolatorName, final String leftYExtrapolatorName,
       final String rightYExtrapolatorName, final String yInterpolatorName) {
     final Defaults factory = new Defaults();
     factory.setLeftXExtrapolatorName(leftXExtrapolatorName);

@@ -8,13 +8,13 @@ package com.opengamma.financial.function.rest;
 import java.net.URI;
 
 import com.opengamma.engine.function.config.FunctionConfigurationBundle;
-import com.opengamma.engine.function.config.RepositoryConfigurationSource;
+import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.util.rest.AbstractRemoteClient;
 
 /**
- * Provides remote access to a {@link RepositoryConfigurationSource}.
+ * Provides remote access to a {@link FunctionConfigurationSource}.
  */
-public class RemoteRepositoryConfigurationSource extends AbstractRemoteClient implements RepositoryConfigurationSource {
+public class RemoteRepositoryConfigurationSource extends AbstractRemoteClient implements FunctionConfigurationSource {
 
   /**
    * Creates an instance.

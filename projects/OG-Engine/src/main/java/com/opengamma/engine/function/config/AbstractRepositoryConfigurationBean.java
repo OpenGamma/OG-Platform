@@ -14,10 +14,10 @@ import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.util.SingletonFactoryBean;
 
 /**
- * Factory bean template for creating a simple {@link RepositoryConfigurationSource} which returns a static configuration. The configuration may be generated from additional parameters set on the bean
+ * Factory bean template for creating a simple {@link FunctionConfigurationSource} which returns a static configuration. The configuration may be generated from additional parameters set on the bean
  * or entirely from static data.
  */
-public abstract class AbstractRepositoryConfigurationBean extends SingletonFactoryBean<RepositoryConfigurationSource> {
+public abstract class AbstractRepositoryConfigurationBean extends SingletonFactoryBean<FunctionConfigurationSource> {
 
   protected static <F extends FunctionDefinition> FunctionConfiguration functionConfiguration(final Class<F> clazz, final String... args) {
     if (Modifier.isAbstract(clazz.getModifiers())) {
@@ -38,7 +38,7 @@ public abstract class AbstractRepositoryConfigurationBean extends SingletonFacto
   }
 
   @Override
-  protected RepositoryConfigurationSource createObject() {
+  protected FunctionConfigurationSource createObject() {
     return new SimpleRepositoryConfigurationSource(createRepositoryConfiguration());
   }
 

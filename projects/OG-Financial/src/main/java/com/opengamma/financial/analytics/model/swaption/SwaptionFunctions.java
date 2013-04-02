@@ -10,7 +10,7 @@ import java.util.List;
 import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
 import com.opengamma.engine.function.config.CombiningRepositoryConfigurationSource;
 import com.opengamma.engine.function.config.FunctionConfiguration;
-import com.opengamma.engine.function.config.RepositoryConfigurationSource;
+import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.financial.analytics.model.swaption.black.BlackFunctions;
 import com.opengamma.financial.analytics.model.swaption.deprecated.DeprecatedFunctions;
 
@@ -24,11 +24,11 @@ public class SwaptionFunctions extends AbstractRepositoryConfigurationBean {
    *
    * @return the configuration source exposing functions from this package and its sub-packages
    */
-  public static RepositoryConfigurationSource instance() {
+  public static FunctionConfigurationSource instance() {
     return new SwaptionFunctions().getObjectCreating();
   }
 
-  public static RepositoryConfigurationSource deprecated() {
+  public static FunctionConfigurationSource deprecated() {
     return new DeprecatedFunctions().getObjectCreating();
   }
 
@@ -37,12 +37,12 @@ public class SwaptionFunctions extends AbstractRepositoryConfigurationBean {
     // Nothing in this package, just the sub-packages
   }
 
-  protected RepositoryConfigurationSource blackFunctionConfiguration() {
+  protected FunctionConfigurationSource blackFunctionConfiguration() {
     return BlackFunctions.instance();
   }
 
   @Override
-  protected RepositoryConfigurationSource createObject() {
+  protected FunctionConfigurationSource createObject() {
     return CombiningRepositoryConfigurationSource.of(super.createObject(), blackFunctionConfiguration());
   }
 

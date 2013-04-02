@@ -12,7 +12,7 @@ import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
 import com.opengamma.engine.function.config.CombiningRepositoryConfigurationSource;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationBundle;
-import com.opengamma.engine.function.config.RepositoryConfigurationSource;
+import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.engine.function.config.SimpleRepositoryConfigurationSource;
 import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.forex.FXOptionsCalculationMethodDefaults;
@@ -32,7 +32,7 @@ public class OptionFunctions extends AbstractRepositoryConfigurationBean {
    *
    * @return the configuration source exposing functions from this package and its sub-packages
    */
-  public static RepositoryConfigurationSource instance() {
+  public static FunctionConfigurationSource instance() {
     return new OptionFunctions().getObjectCreating();
   }
 
@@ -40,7 +40,7 @@ public class OptionFunctions extends AbstractRepositoryConfigurationBean {
    * Gets the default values for calculations
    * @return The repository with equity option defaults set
    */
-  public static RepositoryConfigurationSource defaults() {
+  public static FunctionConfigurationSource defaults() {
     final Defaults factory = new Defaults();
     factory.afterPropertiesSet();
     return factory.getObject();
@@ -50,7 +50,7 @@ public class OptionFunctions extends AbstractRepositoryConfigurationBean {
    * @param barrierFormat the barrier output display format
    * @return The repository with equity barrier option defaults set
    */
-  public static RepositoryConfigurationSource defaults(final String barrierFormat) {
+  public static FunctionConfigurationSource defaults(final String barrierFormat) {
     final Defaults factory = new Defaults();
     factory.setBarrierDistanceFormat(barrierFormat);
     factory.afterPropertiesSet();
@@ -88,26 +88,26 @@ public class OptionFunctions extends AbstractRepositoryConfigurationBean {
         FXDigitalCallSpreadBlackFunction.CALL_SPREAD_BLACK_METHOD));
   }
 
-  protected RepositoryConfigurationSource blackFunctionConfiguration() {
+  protected FunctionConfigurationSource blackFunctionConfiguration() {
     return BlackFunctions.instance();
   }
 
-  protected RepositoryConfigurationSource callSpreadBlackFunctionConfiguration() {
+  protected FunctionConfigurationSource callSpreadBlackFunctionConfiguration() {
     // TODO
     return new SimpleRepositoryConfigurationSource(new FunctionConfigurationBundle(Collections.<FunctionConfiguration>emptyList()));
   }
 
-  protected RepositoryConfigurationSource localVolFunctionConfiguration() {
+  protected FunctionConfigurationSource localVolFunctionConfiguration() {
     return LocalVolFunctions.instance();
   }
 
-  protected RepositoryConfigurationSource vannaVolgaFunctionConfiguration() {
+  protected FunctionConfigurationSource vannaVolgaFunctionConfiguration() {
     // TODO
     return new SimpleRepositoryConfigurationSource(new FunctionConfigurationBundle(Collections.<FunctionConfiguration>emptyList()));
   }
 
   @Override
-  protected RepositoryConfigurationSource createObject() {
+  protected FunctionConfigurationSource createObject() {
     return CombiningRepositoryConfigurationSource.of(super.createObject(), blackFunctionConfiguration(), callSpreadBlackFunctionConfiguration(), localVolFunctionConfiguration(),
         vannaVolgaFunctionConfiguration());
   }

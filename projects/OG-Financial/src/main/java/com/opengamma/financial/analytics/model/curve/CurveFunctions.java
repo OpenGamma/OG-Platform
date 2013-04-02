@@ -10,7 +10,7 @@ import java.util.List;
 import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
 import com.opengamma.engine.function.config.CombiningRepositoryConfigurationSource;
 import com.opengamma.engine.function.config.FunctionConfiguration;
-import com.opengamma.engine.function.config.RepositoryConfigurationSource;
+import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardFunctions;
 import com.opengamma.financial.analytics.model.curve.future.FutureFunctions;
 import com.opengamma.financial.analytics.model.curve.interestrate.InterestRateFunctions;
@@ -25,7 +25,7 @@ public class CurveFunctions extends AbstractRepositoryConfigurationBean {
    *
    * @return the configuration source exposing functions from this package and its sub-packages
    */
-  public static RepositoryConfigurationSource instance() {
+  public static FunctionConfigurationSource instance() {
     return new CurveFunctions().getObjectCreating();
   }
 
@@ -34,20 +34,20 @@ public class CurveFunctions extends AbstractRepositoryConfigurationBean {
     // Nothing in this package, just the sub-packages
   }
 
-  protected RepositoryConfigurationSource forwardFunctionConfiguration() {
+  protected FunctionConfigurationSource forwardFunctionConfiguration() {
     return ForwardFunctions.instance();
   }
 
-  protected RepositoryConfigurationSource futureFunctionConfiguration() {
+  protected FunctionConfigurationSource futureFunctionConfiguration() {
     return FutureFunctions.instance();
   }
 
-  protected RepositoryConfigurationSource interestRateFunctionConfiguration() {
+  protected FunctionConfigurationSource interestRateFunctionConfiguration() {
     return InterestRateFunctions.instance();
   }
 
   @Override
-  protected RepositoryConfigurationSource createObject() {
+  protected FunctionConfigurationSource createObject() {
     return CombiningRepositoryConfigurationSource.of(super.createObject(), forwardFunctionConfiguration(), futureFunctionConfiguration(), interestRateFunctionConfiguration());
   }
 

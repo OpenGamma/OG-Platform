@@ -12,7 +12,7 @@ import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
 import com.opengamma.engine.function.config.CombiningRepositoryConfigurationSource;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationBundle;
-import com.opengamma.engine.function.config.RepositoryConfigurationSource;
+import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.engine.function.config.SimpleRepositoryConfigurationSource;
 import com.opengamma.financial.analytics.model.equity.option.EquityVanillaBarrierOptionDistanceFunction;
 import com.opengamma.financial.analytics.model.equity.option.OptionFunctions;
@@ -29,7 +29,7 @@ public class EquityFunctions extends AbstractRepositoryConfigurationBean {
    *
    * @return the configuration source exposing functions from this package and its sub-packages
    */
-  public static RepositoryConfigurationSource instance() {
+  public static FunctionConfigurationSource instance() {
     return new EquityFunctions().getObjectCreating();
   }
 
@@ -46,25 +46,25 @@ public class EquityFunctions extends AbstractRepositoryConfigurationBean {
     functions.add(functionConfiguration(EquityOptionMonetizedVegaFunction.class));
   }
 
-  protected RepositoryConfigurationSource futuresFunctionConfiguration() {
+  protected FunctionConfigurationSource futuresFunctionConfiguration() {
     // TODO
     return new SimpleRepositoryConfigurationSource(new FunctionConfigurationBundle(Collections.<FunctionConfiguration>emptyList()));
   }
 
-  protected RepositoryConfigurationSource optionFunctionConfiguration() {
+  protected FunctionConfigurationSource optionFunctionConfiguration() {
     return OptionFunctions.instance();
   }
 
-  protected RepositoryConfigurationSource portfolioTheoryFunctionConfiguration() {
+  protected FunctionConfigurationSource portfolioTheoryFunctionConfiguration() {
     return PortfolioTheoryFunctions.instance();
   }
 
-  protected RepositoryConfigurationSource varianceSwapFunctionConfiguration() {
+  protected FunctionConfigurationSource varianceSwapFunctionConfiguration() {
     return VarianceSwapFunctions.instance();
   }
 
   @Override
-  protected RepositoryConfigurationSource createObject() {
+  protected FunctionConfigurationSource createObject() {
     return CombiningRepositoryConfigurationSource.of(super.createObject(), futuresFunctionConfiguration(), optionFunctionConfiguration(), portfolioTheoryFunctionConfiguration(),
         varianceSwapFunctionConfiguration());
   }

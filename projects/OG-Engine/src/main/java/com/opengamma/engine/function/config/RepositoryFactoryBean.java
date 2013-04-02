@@ -10,23 +10,23 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.SingletonFactoryBean;
 
 /**
- * Bean for constructing a {@link FunctionRepository} from a {@link RepositoryConfigurationSource} using the {@link RepositoryFactory}.
+ * Bean for constructing a {@link FunctionRepository} from a {@link FunctionConfigurationSource} using the {@link RepositoryFactory}.
  */
 public class RepositoryFactoryBean extends SingletonFactoryBean<FunctionRepository> {
 
-  private RepositoryConfigurationSource _repositoryConfigurationSource;
+  private FunctionConfigurationSource _repositoryConfigurationSource;
 
-  public void setRepositoryConfigurationSource(final RepositoryConfigurationSource repositoryConfigurationSource) {
+  public void setRepositoryConfigurationSource(final FunctionConfigurationSource repositoryConfigurationSource) {
     _repositoryConfigurationSource = repositoryConfigurationSource;
   }
 
-  public RepositoryConfigurationSource getRepositoryConfigurationSource() {
+  public FunctionConfigurationSource getRepositoryConfigurationSource() {
     return _repositoryConfigurationSource;
   }
 
   @Override
   protected FunctionRepository createObject() {
-    final RepositoryConfigurationSource repositoryConfigurationSource = getRepositoryConfigurationSource();
+    final FunctionConfigurationSource repositoryConfigurationSource = getRepositoryConfigurationSource();
     ArgumentChecker.notNull(repositoryConfigurationSource, "repositoryConfigurationSource");
     final FunctionConfigurationBundle repositoryConfiguration = repositoryConfigurationSource.getRepositoryConfiguration();
     return RepositoryFactory.constructRepository(repositoryConfiguration);

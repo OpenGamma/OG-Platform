@@ -10,7 +10,7 @@ import java.util.Set;
 
 import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
-import com.opengamma.engine.function.config.RepositoryConfigurationSource;
+import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.examples.volatility.cube.ExampleSwaptionVolatilityCubeInstrumentProvider;
 import com.opengamma.examples.volatility.cube.ExampleVolatilityCubeDefinitionSource;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeFunction;
@@ -26,7 +26,7 @@ public class SyntheticVolatilityCubeFunctions extends AbstractRepositoryConfigur
    *
    * @return the configuration source exposing functions from this package
    */
-  public static RepositoryConfigurationSource instance() {
+  public static FunctionConfigurationSource instance() {
     return new SyntheticVolatilityCubeFunctions().getObjectCreating();
   }
 

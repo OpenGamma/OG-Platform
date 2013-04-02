@@ -9,7 +9,7 @@ import java.util.List;
 
 import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
-import com.opengamma.engine.function.config.RepositoryConfigurationSource;
+import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.engine.value.ValueRequirementNames;
 
 /**
@@ -22,7 +22,7 @@ public class CurrencyFunctions extends AbstractRepositoryConfigurationBean {
    * 
    * @return the configuration source exposing functions from this package
    */
-  public static RepositoryConfigurationSource instance() {
+  public static FunctionConfigurationSource instance() {
     return new CurrencyFunctions().getObjectCreating();
   }
 

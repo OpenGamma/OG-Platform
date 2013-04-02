@@ -12,7 +12,7 @@ import com.opengamma.analytics.financial.schedule.TimeSeriesSamplingFunctionFact
 import com.opengamma.analytics.math.statistics.descriptive.StatisticsCalculatorFactory;
 import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
-import com.opengamma.engine.function.config.RepositoryConfigurationSource;
+import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -25,7 +25,7 @@ public class VaRFunctions extends AbstractRepositoryConfigurationBean {
    *
    * @return the configuration source exposing functions from this package
    */
-  public static RepositoryConfigurationSource instance() {
+  public static FunctionConfigurationSource instance() {
     return new VaRFunctions().getObjectCreating();
   }
 

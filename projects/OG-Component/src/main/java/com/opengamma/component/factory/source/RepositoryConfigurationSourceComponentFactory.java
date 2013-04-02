@@ -31,7 +31,7 @@ import com.opengamma.engine.function.config.CombiningRepositoryConfigurationSour
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationBundle;
 import com.opengamma.engine.function.config.ParameterizedFunctionConfiguration;
-import com.opengamma.engine.function.config.RepositoryConfigurationSource;
+import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.engine.function.config.StaticFunctionConfiguration;
 import com.opengamma.financial.FinancialFunctions;
 import com.opengamma.financial.analytics.ircurve.IRCurveFunctions;
@@ -72,10 +72,10 @@ public class RepositoryConfigurationSourceComponentFactory extends AbstractCompo
   //-------------------------------------------------------------------------
   @Override
   public void init(final ComponentRepository repo, final LinkedHashMap<String, String> configuration) {
-    final RepositoryConfigurationSource source = initSource();
+    final FunctionConfigurationSource source = initSource();
     //final RepositoryConfigurationSource source = sorted(initSource());
 
-    final ComponentInfo info = new ComponentInfo(RepositoryConfigurationSource.class, getClassifier());
+    final ComponentInfo info = new ComponentInfo(FunctionConfigurationSource.class, getClassifier());
     info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
     info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteRepositoryConfigurationSource.class);
     repo.registerComponent(info, source);
@@ -91,8 +91,8 @@ public class RepositoryConfigurationSourceComponentFactory extends AbstractCompo
    * @param source the raw repository configuration source
    * @return a source that return a sorted list of functions
    */
-  protected RepositoryConfigurationSource sorted(final RepositoryConfigurationSource source) {
-    return new RepositoryConfigurationSource() {
+  protected FunctionConfigurationSource sorted(final FunctionConfigurationSource source) {
+    return new FunctionConfigurationSource() {
 
       @Override
       public FunctionConfigurationBundle getRepositoryConfiguration() {
@@ -155,25 +155,25 @@ public class RepositoryConfigurationSourceComponentFactory extends AbstractCompo
    *
    * @return the list of base sources to be combined, not null
    */
-  protected RepositoryConfigurationSource initSource() {
-    final List<RepositoryConfigurationSource> underlying = initSources();
-    final RepositoryConfigurationSource[] array = underlying.toArray(new RepositoryConfigurationSource[underlying.size()]);
+  protected FunctionConfigurationSource initSource() {
+    final List<FunctionConfigurationSource> underlying = initSources();
+    final FunctionConfigurationSource[] array = underlying.toArray(new FunctionConfigurationSource[underlying.size()]);
     return CombiningRepositoryConfigurationSource.of(array);
   }
 
-  protected RepositoryConfigurationSource financialFunctions() {
+  protected FunctionConfigurationSource financialFunctions() {
     return FinancialFunctions.instance();
   }
 
-  protected RepositoryConfigurationSource standardConfiguration() {
+  protected FunctionConfigurationSource standardConfiguration() {
     return DemoStandardFunctionConfiguration.instance();
   }
 
-  protected RepositoryConfigurationSource curveConfigurations() {
+  protected FunctionConfigurationSource curveConfigurations() {
     return IRCurveFunctions.providers(getConfigMaster());
   }
 
-  protected RepositoryConfigurationSource cubeConfigurations() {
+  protected FunctionConfigurationSource cubeConfigurations() {
     return BloombergVolatilityCubeFunctions.instance();
   }
 
@@ -182,8 +182,8 @@ public class RepositoryConfigurationSourceComponentFactory extends AbstractCompo
    *
    * @return the list of base sources to be combined, not null
    */
-  protected List<RepositoryConfigurationSource> initSources() {
-    final List<RepositoryConfigurationSource> sources = new LinkedList<RepositoryConfigurationSource>();
+  protected List<FunctionConfigurationSource> initSources() {
+    final List<FunctionConfigurationSource> sources = new LinkedList<FunctionConfigurationSource>();
     sources.add(financialFunctions());
     sources.add(standardConfiguration());
     sources.add(curveConfigurations());

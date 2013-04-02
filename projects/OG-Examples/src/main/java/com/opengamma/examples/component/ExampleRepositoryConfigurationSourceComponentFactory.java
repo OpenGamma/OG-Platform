@@ -16,7 +16,7 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.component.factory.source.RepositoryConfigurationSourceComponentFactory;
-import com.opengamma.engine.function.config.RepositoryConfigurationSource;
+import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.examples.function.ExampleStandardFunctionConfiguration;
 import com.opengamma.examples.function.SyntheticVolatilityCubeFunctions;
 import com.opengamma.examples.tutorial.TutorialFunctions;
@@ -28,22 +28,22 @@ import com.opengamma.examples.tutorial.TutorialFunctions;
 public class ExampleRepositoryConfigurationSourceComponentFactory extends RepositoryConfigurationSourceComponentFactory {
 
   @Override
-  protected RepositoryConfigurationSource standardConfiguration() {
+  protected FunctionConfigurationSource standardConfiguration() {
     return ExampleStandardFunctionConfiguration.instance();
   }
 
   @Override
-  protected RepositoryConfigurationSource cubeConfigurations() {
+  protected FunctionConfigurationSource cubeConfigurations() {
     return SyntheticVolatilityCubeFunctions.instance();
   }
 
-  protected RepositoryConfigurationSource tutorialConfiguration() {
+  protected FunctionConfigurationSource tutorialConfiguration() {
     return TutorialFunctions.instance();
   }
 
   @Override
-  protected List<RepositoryConfigurationSource> initSources() {
-    final List<RepositoryConfigurationSource> sources = super.initSources();
+  protected List<FunctionConfigurationSource> initSources() {
+    final List<FunctionConfigurationSource> sources = super.initSources();
     // sources.add(tutorialConfiguration());
     return sources;
   }
