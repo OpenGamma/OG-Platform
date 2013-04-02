@@ -87,8 +87,8 @@ public abstract class ViewEvaluationFunction<TTarget extends ViewEvaluationTarge
     final TTarget viewEvaluation = (TTarget) target.getValue();
     final Collection<String> calcConfigs = viewEvaluation.getViewDefinition().getAllCalculationConfigurationNames();
     final Set<ValueSpecification> results = Sets.newHashSetWithExpectedSize(calcConfigs.size());
+    final ComputationTargetSpecification targetSpec = target.toSpecification();
     for (final String calcConfig : calcConfigs) {
-      ComputationTargetSpecification targetSpec = target.toSpecification();
       results.add(getResultSpec(calcConfig, targetSpec));
     }
     return results;
@@ -147,7 +147,7 @@ public abstract class ViewEvaluationFunction<TTarget extends ViewEvaluationTarge
         viewId,
         ExecutionOptions.of(viewEvaluation.getExecutionSequence().createSequence(executionContext), getDefaultCycleOptions(executionContext),
             EnumSet.of(ViewExecutionFlags.WAIT_FOR_INITIAL_TRIGGER, ViewExecutionFlags.RUN_AS_FAST_AS_POSSIBLE)), true);
-    final TResultBuilder resultBuilder = createResultBuilder(viewEvaluation);
+    final TResultBuilder resultBuilder = createResultBuilder(viewEvaluation, desiredValues);
     final AsynchronousOperation<Set<ComputedValue>> async = AsynchronousOperation.createSet();
     final AtomicReference<ResultCallback<Set<ComputedValue>>> asyncResult = new AtomicReference<ResultCallback<Set<ComputedValue>>>(async.getCallback());
     viewClient.setResultListener(new ViewResultListener() {
@@ -277,7 +277,7 @@ public abstract class ViewEvaluationFunction<TTarget extends ViewEvaluationTarge
 
   protected abstract ViewCycleExecutionOptions getDefaultCycleOptions(FunctionExecutionContext context);
 
-  protected abstract TResultBuilder createResultBuilder(ViewEvaluationTarget viewEvaluation);
+  protected abstract TResultBuilder createResultBuilder(ViewEvaluationTarget viewEvaluation, Set<ValueRequirement> desiredValues);
 
   protected abstract void store(ViewComputationResultModel results, TResultBuilder resultBuilder);
 

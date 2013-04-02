@@ -7,6 +7,7 @@ package com.opengamma.engine.fudgemsg;
 
 import static org.testng.Assert.assertEquals;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 
@@ -35,7 +36,7 @@ public class CompiledViewCalculationConfigurationFudgeBuilderTest extends Abstra
 
   public void testEmpty() {
     final CompiledViewCalculationConfiguration in = new CompiledViewCalculationConfigurationImpl("1", Collections.<ComputationTargetSpecification>emptySet(),
-        Collections.<ValueSpecification, Set<ValueRequirement>>emptyMap(), Collections.<ValueSpecification>emptySet());
+        Collections.<ValueSpecification, Set<ValueRequirement>>emptyMap(), Collections.<ValueSpecification, Collection<ValueSpecification>>emptyMap());
     final CompiledViewCalculationConfiguration out = cycleObject(CompiledViewCalculationConfiguration.class, in);
     assertEquals(out.getName(), in.getName());
     assertEquals(out.getComputationTargets(), in.getComputationTargets());
@@ -46,9 +47,19 @@ public class CompiledViewCalculationConfigurationFudgeBuilderTest extends Abstra
   public void testBasic() {
     final ComputationTargetRequirement targetReq = ComputationTargetRequirement.of(ExternalId.of("Foo", "Bar"));
     final ComputationTargetSpecification targetSpec = ComputationTargetSpecification.of(UniqueId.of("Sec", "123"));
+    final ValueSpecification valueSpecification = new ValueSpecification("Value", targetSpec, ValueProperties.with(ValuePropertyNames.FUNCTION, "Foo").get());
+    final ValueRequirement valueRequirement = new ValueRequirement("Value", targetReq);
+    final ValueSpecification dataSpecification1 = new ValueSpecification("Data1", targetSpec, ValueProperties.with(ValuePropertyNames.FUNCTION, "Bar").get());
+    final ValueSpecification dataSpecification2a = new ValueSpecification("Data2a", targetSpec, ValueProperties.with(ValuePropertyNames.FUNCTION, "Bar").get());
+    final ValueSpecification dataSpecification2b = new ValueSpecification("Data2b", targetSpec, ValueProperties.with(ValuePropertyNames.FUNCTION, "Bar").get());
+    final ValueSpecification dataSpecification3a = new ValueSpecification("Data3a", targetSpec, ValueProperties.with(ValuePropertyNames.FUNCTION, "Bar").get());
+    final ValueSpecification dataSpecification3b = new ValueSpecification("Data3b", targetSpec, ValueProperties.with(ValuePropertyNames.FUNCTION, "Bar").get());
+    final ValueSpecification dataSpecification3c = new ValueSpecification("Data3c", targetSpec, ValueProperties.with(ValuePropertyNames.FUNCTION, "Bar").get());
     final CompiledViewCalculationConfiguration in = new CompiledViewCalculationConfigurationImpl("2", ImmutableSet.of(ComputationTargetSpecification.NULL, targetSpec),
-        ImmutableMap.<ValueSpecification, Set<ValueRequirement>>of(new ValueSpecification("Value", targetSpec, ValueProperties.with(ValuePropertyNames.FUNCTION, "Foo").get()),
-            ImmutableSet.of(new ValueRequirement("Value", targetReq))), ImmutableSet.of(new ValueSpecification("Data", targetSpec, ValueProperties.with(ValuePropertyNames.FUNCTION, "Bar").get())));
+        ImmutableMap.<ValueSpecification, Set<ValueRequirement>>of(valueSpecification, ImmutableSet.of(valueRequirement)), ImmutableMap.<ValueSpecification, Collection<ValueSpecification>>of(
+            dataSpecification1, Collections.singleton(dataSpecification1),
+            dataSpecification2a, Collections.singleton(dataSpecification2b),
+            dataSpecification3a, ImmutableSet.of(dataSpecification3a, dataSpecification3b, dataSpecification3c)));
     final CompiledViewCalculationConfiguration out = cycleObject(CompiledViewCalculationConfiguration.class, in);
     assertEquals(out.getName(), in.getName());
     assertEquals(out.getComputationTargets(), in.getComputationTargets());

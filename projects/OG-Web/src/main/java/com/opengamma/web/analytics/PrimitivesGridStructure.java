@@ -46,7 +46,11 @@ public final class PrimitivesGridStructure extends MainGridStructure {
 
     @Override
     public String visitComputationTargetSpecification(ComputationTargetSpecification specification) {
-      return specification.getUniqueId().toString();
+      if (specification.getUniqueId() != null) {
+        return specification.getUniqueId().toString();
+      } else {
+        return "No target";
+      }
     }
   };
 
@@ -54,8 +58,8 @@ public final class PrimitivesGridStructure extends MainGridStructure {
   }
 
   private PrimitivesGridStructure(GridColumnGroup fixedColumns,
-                                  GridColumnGroups nonFixedColumns,
-                                  TargetLookup targetLookup) {
+      GridColumnGroups nonFixedColumns,
+      TargetLookup targetLookup) {
     super(fixedColumns, nonFixedColumns, targetLookup);
   }
 
@@ -106,7 +110,7 @@ public final class PrimitivesGridStructure extends MainGridStructure {
     return rows;
   }
 
-  /* package */ static PrimitivesGridStructure empty() {
+  /* package */static PrimitivesGridStructure empty() {
     return new PrimitivesGridStructure();
   }
 }

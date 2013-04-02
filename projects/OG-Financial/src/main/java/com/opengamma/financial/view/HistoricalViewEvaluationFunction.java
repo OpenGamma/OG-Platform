@@ -15,11 +15,14 @@ import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.marketdata.spec.FixedHistoricalMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
@@ -29,9 +32,34 @@ import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
  */
 public class HistoricalViewEvaluationFunction extends ViewEvaluationFunction<HistoricalViewEvaluationTarget, HistoricalViewEvaluationResultBuilder> {
 
+  /**
+   * Name of a property on an output value that contains the market data used rather than the computed results.
+   */
+  public static final String MARKET_DATA_PROPERTY_NAME = "Type";
+
+  /**
+   * Value taken by the {@link #MARKET_DATA_PROPERTY_NAME} property when the output contains market data used rather than the computed results.
+   */
+  public static final String MARKET_DATA_PROPERTY_VALUE = "MarketData";
+
   public HistoricalViewEvaluationFunction() {
     super(ValueRequirementNames.HISTORICAL_TIME_SERIES, HistoricalViewEvaluationTarget.class);
   }
+
+  protected ValueSpecification getMarketDataResultSpec(final ComputationTargetSpecification targetSpec) {
+    return new ValueSpecification(ValueRequirementNames.HISTORICAL_TIME_SERIES, targetSpec, createValueProperties().with(MARKET_DATA_PROPERTY_NAME, MARKET_DATA_PROPERTY_VALUE).get());
+  }
+
+  // CompiledFunctionDefinition
+
+  @Override
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
+    final Set<ValueSpecification> results = super.getResults(context, target);
+    results.add(getMarketDataResultSpec(target.toSpecification()));
+    return results;
+  }
+
+  // ViewEvaluationFunction
 
   @Override
   protected ViewCycleExecutionOptions getDefaultCycleOptions(FunctionExecutionContext context) {
@@ -39,8 +67,14 @@ public class HistoricalViewEvaluationFunction extends ViewEvaluationFunction<His
   }
 
   @Override
-  protected HistoricalViewEvaluationResultBuilder createResultBuilder(ViewEvaluationTarget target) {
-    return new HistoricalViewEvaluationResultBuilder(target.getViewDefinition());
+  protected HistoricalViewEvaluationResultBuilder createResultBuilder(final ViewEvaluationTarget target, final Set<ValueRequirement> desiredValues) {
+    boolean includeMarketData = false;
+    for (ValueRequirement desiredValue : desiredValues) {
+      if (MARKET_DATA_PROPERTY_VALUE.equals(desiredValue.getConstraint(MARKET_DATA_PROPERTY_NAME))) {
+        includeMarketData = true;
+      }
+    }
+    return new HistoricalViewEvaluationResultBuilder(target.getViewDefinition(), includeMarketData);
   }
 
   @Override
@@ -56,12 +90,16 @@ public class HistoricalViewEvaluationFunction extends ViewEvaluationFunction<His
   @Override
   protected Set<ComputedValue> buildResults(ComputationTarget target, HistoricalViewEvaluationResultBuilder resultBuilder) {
     final Map<String, HistoricalViewEvaluationResult> viewResults = resultBuilder.getResults();
-    final Set<ComputedValue> results = Sets.newHashSetWithExpectedSize(viewResults.size());
+    final Set<ComputedValue> results = Sets.newHashSetWithExpectedSize(viewResults.size() + 1);
     final ComputationTargetSpecification targetSpec = target.toSpecification();
     for (final Map.Entry<String, HistoricalViewEvaluationResult> viewResult : viewResults.entrySet()) {
       String calcConfigName = viewResult.getKey();
       HistoricalViewEvaluationResult value = viewResult.getValue();
       results.add(new ComputedValue(getResultSpec(calcConfigName, targetSpec), value));
+    }
+    final HistoricalViewEvaluationMarketData viewMarketData = resultBuilder.getMarketData();
+    if (viewMarketData != null) {
+      results.add(new ComputedValue(getMarketDataResultSpec(targetSpec), viewMarketData));
     }
     return results;
   }

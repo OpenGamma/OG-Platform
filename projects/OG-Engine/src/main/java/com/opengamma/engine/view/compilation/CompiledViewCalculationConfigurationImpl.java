@@ -5,6 +5,8 @@
  */
 package com.opengamma.engine.view.compilation;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
@@ -12,8 +14,11 @@ import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
 
+import com.google.common.collect.Maps;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.depgraph.DependencyGraph;
+import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.function.MarketDataAliasingFunction;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -28,7 +33,7 @@ public class CompiledViewCalculationConfigurationImpl implements CompiledViewCal
   private final String _name;
   private final Set<ComputationTargetSpecification> _computationTargets;
   private final Map<ValueSpecification, Set<ValueRequirement>> _terminalOutputSpecifications;
-  private final Set<ValueSpecification> _marketDataRequirements;
+  private final Map<ValueSpecification, Collection<ValueSpecification>> _marketDataAliases;
 
   /**
    * Constructs an instance
@@ -40,7 +45,7 @@ public class CompiledViewCalculationConfigurationImpl implements CompiledViewCal
    */
   public CompiledViewCalculationConfigurationImpl(final String name, final Set<ComputationTargetSpecification> computationTargets,
       final Map<ValueSpecification, Set<ValueRequirement>> terminalOutputSpecifications,
-      final Set<ValueSpecification> marketDataRequirements) {
+      final Map<ValueSpecification, Collection<ValueSpecification>> marketDataRequirements) {
     ArgumentChecker.notNull(name, "name");
     ArgumentChecker.notNull(computationTargets, "computationTargets");
     ArgumentChecker.notNull(terminalOutputSpecifications, "terminalOutputSpecifications");
@@ -48,7 +53,7 @@ public class CompiledViewCalculationConfigurationImpl implements CompiledViewCal
     _name = name;
     _computationTargets = computationTargets;
     _terminalOutputSpecifications = terminalOutputSpecifications;
-    _marketDataRequirements = marketDataRequirements;
+    _marketDataAliases = marketDataRequirements;
   }
 
   /**
@@ -61,9 +66,35 @@ public class CompiledViewCalculationConfigurationImpl implements CompiledViewCal
         processTerminalOutputSpecifications(dependencyGraph), processMarketDataRequirements(dependencyGraph));
   }
 
-  private static Set<ValueSpecification> processMarketDataRequirements(final DependencyGraph dependencyGraph) {
+  private static Map<ValueSpecification, Collection<ValueSpecification>> processMarketDataRequirements(final DependencyGraph dependencyGraph) {
     ArgumentChecker.notNull(dependencyGraph, "dependencyGraph");
-    return dependencyGraph.getAllRequiredMarketData();
+    final Collection<ValueSpecification> marketDataEntries = dependencyGraph.getAllRequiredMarketData();
+    final Map<ValueSpecification, Collection<ValueSpecification>> result = Maps.newHashMapWithExpectedSize(marketDataEntries.size());
+    for (ValueSpecification marketData : marketDataEntries) {
+      final DependencyNode marketDataNode = dependencyGraph.getNodeProducing(marketData);
+      Collection<ValueSpecification> aliases = null;
+      boolean usedDirectly = false;
+      Collection<DependencyNode> aliasNodes = marketDataNode.getDependentNodes();
+      for (DependencyNode aliasNode : aliasNodes) {
+        if (aliasNode.getFunction().getFunction() instanceof MarketDataAliasingFunction) {
+          if (aliases == null) {
+            aliases = new ArrayList<ValueSpecification>(aliasNodes.size());
+            result.put(marketData, Collections.unmodifiableCollection(aliases));
+          }
+          aliases.addAll(aliasNode.getOutputValues());
+        } else {
+          usedDirectly = true;
+        }
+      }
+      if (usedDirectly) {
+        if (aliases != null) {
+          aliases.add(marketData);
+        } else {
+          result.put(marketData, Collections.singleton(marketData));
+        }
+      }
+    }
+    return Collections.unmodifiableMap(result);
   }
 
   private static Map<ValueSpecification, Set<ValueRequirement>> processTerminalOutputSpecifications(final DependencyGraph dependencyGraph) {
@@ -105,7 +136,12 @@ public class CompiledViewCalculationConfigurationImpl implements CompiledViewCal
 
   @Override
   public Set<ValueSpecification> getMarketDataRequirements() {
-    return _marketDataRequirements;
+    return getMarketDataAliases().keySet();
+  }
+
+  @Override
+  public Map<ValueSpecification, Collection<ValueSpecification>> getMarketDataAliases() {
+    return _marketDataAliases;
   }
 
   // Object
