@@ -12,7 +12,7 @@ import java.util.List;
 
 import com.opengamma.analytics.financial.schedule.ScheduleCalculatorFactory;
 import com.opengamma.analytics.financial.schedule.TimeSeriesSamplingFunctionFactory;
-import com.opengamma.engine.function.config.CombiningRepositoryConfigurationSource;
+import com.opengamma.engine.function.config.CombiningFunctionConfigurationSource;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.financial.analytics.model.fixedincome.FixedIncomeFunctions;
@@ -205,7 +205,7 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
 
   @Override
   protected FunctionConfigurationSource deprecatedFunctions() {
-    return CombiningRepositoryConfigurationSource.of(super.deprecatedFunctions(), FixedIncomeFunctions.deprecated(), SABRCubeFunctions.deprecated(),
+    return CombiningFunctionConfigurationSource.of(super.deprecatedFunctions(), FixedIncomeFunctions.deprecated(), SABRCubeFunctions.deprecated(),
         com.opengamma.financial.analytics.model.forex.forward.ForwardFunctions.deprecated(), com.opengamma.financial.analytics.model.forex.option.black.BlackFunctions.deprecated(),
         FutureFunctions.deprecated(), PNLFunctions.deprecated());
   }

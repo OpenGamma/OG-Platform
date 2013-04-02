@@ -27,7 +27,7 @@ import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.component.factory.ComponentInfoAttributes;
-import com.opengamma.engine.function.config.CombiningRepositoryConfigurationSource;
+import com.opengamma.engine.function.config.CombiningFunctionConfigurationSource;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationBundle;
 import com.opengamma.engine.function.config.ParameterizedFunctionConfiguration;
@@ -151,14 +151,14 @@ public class RepositoryConfigurationSourceComponentFactory extends AbstractCompo
   /**
    * Initializes the source.
    * <p>
-   * Calls {@link #initSources()} and combines the result using {@link CombiningRepositoryConfigurationSource}.
+   * Calls {@link #initSources()} and combines the result using {@link CombiningFunctionConfigurationSource}.
    *
    * @return the list of base sources to be combined, not null
    */
   protected FunctionConfigurationSource initSource() {
     final List<FunctionConfigurationSource> underlying = initSources();
     final FunctionConfigurationSource[] array = underlying.toArray(new FunctionConfigurationSource[underlying.size()]);
-    return CombiningRepositoryConfigurationSource.of(array);
+    return CombiningFunctionConfigurationSource.of(array);
   }
 
   protected FunctionConfigurationSource financialFunctions() {

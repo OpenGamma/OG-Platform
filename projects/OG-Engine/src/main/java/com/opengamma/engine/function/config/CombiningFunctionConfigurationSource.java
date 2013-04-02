@@ -11,23 +11,23 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Combines the repository configuration from two or more sources into a single configuration
+ * Combines the function configuration from two or more sources into a single configuration
  * object.
  */
-public class CombiningRepositoryConfigurationSource implements FunctionConfigurationSource {
+public class CombiningFunctionConfigurationSource implements FunctionConfigurationSource {
 
   private final FunctionConfigurationSource[] _sources;
 
-  protected CombiningRepositoryConfigurationSource(final FunctionConfigurationSource[] sources) {
+  protected CombiningFunctionConfigurationSource(final FunctionConfigurationSource[] sources) {
     _sources = sources;
   }
 
   private static int count(final FunctionConfigurationSource source) {
     if (source == null) {
       return 0;
-    } else if (source instanceof CombiningRepositoryConfigurationSource) {
+    } else if (source instanceof CombiningFunctionConfigurationSource) {
       int count = 0;
-      for (final FunctionConfigurationSource inner : ((CombiningRepositoryConfigurationSource) source).getSources()) {
+      for (final FunctionConfigurationSource inner : ((CombiningFunctionConfigurationSource) source).getSources()) {
         count += count(inner);
       }
       return count;
@@ -38,8 +38,8 @@ public class CombiningRepositoryConfigurationSource implements FunctionConfigura
 
   private static int copy(final FunctionConfigurationSource source, final FunctionConfigurationSource[] dest, int index) {
     if (source != null) {
-      if (source instanceof CombiningRepositoryConfigurationSource) {
-        for (final FunctionConfigurationSource inner : ((CombiningRepositoryConfigurationSource) source).getSources()) {
+      if (source instanceof CombiningFunctionConfigurationSource) {
+        for (final FunctionConfigurationSource inner : ((CombiningFunctionConfigurationSource) source).getSources()) {
           index = copy(inner, dest, index);
         }
       } else {
@@ -81,7 +81,7 @@ public class CombiningRepositoryConfigurationSource implements FunctionConfigura
       for (final FunctionConfigurationSource source : sources) {
         i = copy(source, copy, i);
       }
-      return new CombiningRepositoryConfigurationSource(copy);
+      return new CombiningFunctionConfigurationSource(copy);
     }
   }
 

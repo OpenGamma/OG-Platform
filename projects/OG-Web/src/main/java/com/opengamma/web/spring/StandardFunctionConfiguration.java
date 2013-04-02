@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
 import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
-import com.opengamma.engine.function.config.CombiningRepositoryConfigurationSource;
+import com.opengamma.engine.function.config.CombiningFunctionConfigurationSource;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.engine.function.config.ParameterizedFunctionConfiguration;
@@ -721,7 +721,7 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
     setExternalSensitivitesCalculators(calculators);
     final SensitivitiesFunctions.Defaults defaults = new SensitivitiesFunctions.Defaults();
     setExternalSensitivitiesDefaults(defaults);
-    return CombiningRepositoryConfigurationSource.of(getRepository(calculators), getRepository(defaults));
+    return CombiningFunctionConfigurationSource.of(getRepository(calculators), getRepository(defaults));
   }
 
   protected void setFixedIncomeDefaults(final CurrencyInfo i, final FixedIncomeFunctions.Defaults.CurrencyInfo defaults) {
@@ -986,7 +986,7 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
     setPNLFunctionCalculators(calculators);
     final PNLFunctions.Defaults defaults = new PNLFunctions.Defaults();
     setPNLFunctionDefaults(defaults);
-    return CombiningRepositoryConfigurationSource.of(getRepository(calculators), getRepository(defaults));
+    return CombiningFunctionConfigurationSource.of(getRepository(calculators), getRepository(defaults));
   }
 
   protected void setPortfolioTheoryCalculators(final PortfolioTheoryFunctions.Calculators calculators) {
@@ -1000,7 +1000,7 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
     setPortfolioTheoryCalculators(calculators);
     final PortfolioTheoryFunctions.Defaults defaults = new PortfolioTheoryFunctions.Defaults();
     setPortfolioTheoryDefaults(defaults);
-    return CombiningRepositoryConfigurationSource.of(getRepository(calculators), getRepository(defaults));
+    return CombiningFunctionConfigurationSource.of(getRepository(calculators), getRepository(defaults));
   }
 
   protected void setSABRCubeDefaults(final CurrencyInfo i, final com.opengamma.financial.analytics.model.sabrcube.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo defaults) {
@@ -1117,12 +1117,12 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
     setVolatilitySurfaceBlackDefaults(d2);
     final com.opengamma.financial.analytics.volatility.surface.SurfaceFunctions.Defaults d3 = new com.opengamma.financial.analytics.volatility.surface.SurfaceFunctions.Defaults();
     setVolatilitySurfaceDefaults(d3);
-    return CombiningRepositoryConfigurationSource.of(getRepository(d1), getRepository(d2), getRepository(d3));
+    return CombiningFunctionConfigurationSource.of(getRepository(d1), getRepository(d2), getRepository(d3));
   }
 
   @Override
   protected FunctionConfigurationSource createObject() {
-    return CombiningRepositoryConfigurationSource.of(super.createObject(), bondFunctions(), bondFutureOptionFunctions(), cdsFunctions(), deprecatedFunctions(), equityOptionFunctions(),
+    return CombiningFunctionConfigurationSource.of(super.createObject(), bondFunctions(), bondFutureOptionFunctions(), cdsFunctions(), deprecatedFunctions(), equityOptionFunctions(),
         externalSensitivitiesFunctions(), fixedIncomeFunctions(), forexFunctions(), forexOptionFunctions(), forwardCurveFunctions(), futureFunctions(), futureOptionFunctions(),
         interestRateFunctions(), irFutureOptionFunctions(), localVolatilityFunctions(), pnlFunctions(), portfolioTheoryFunctions(), sabrCubeFunctions(), swaptionFunctions(), varFunctions(),
         volatilitySurfaceFunctions());

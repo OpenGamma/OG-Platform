@@ -8,7 +8,7 @@ package com.opengamma.financial.analytics.model.volatility;
 import java.util.List;
 
 import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
-import com.opengamma.engine.function.config.CombiningRepositoryConfigurationSource;
+import com.opengamma.engine.function.config.CombiningFunctionConfigurationSource;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.financial.analytics.model.volatility.cube.CubeFunctions;
@@ -48,7 +48,7 @@ public class VolatilityFunctions extends AbstractRepositoryConfigurationBean {
 
   @Override
   protected FunctionConfigurationSource createObject() {
-    return CombiningRepositoryConfigurationSource.of(super.createObject(), cubeFunctionConfiguration(), localFunctionConfiguration(), surfaceFunctionConfiguration());
+    return CombiningFunctionConfigurationSource.of(super.createObject(), cubeFunctionConfiguration(), localFunctionConfiguration(), surfaceFunctionConfiguration());
   }
 
 }

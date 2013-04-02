@@ -8,7 +8,7 @@ package com.opengamma.financial;
 import java.util.List;
 
 import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
-import com.opengamma.engine.function.config.CombiningRepositoryConfigurationSource;
+import com.opengamma.engine.function.config.CombiningFunctionConfigurationSource;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.financial.aggregation.AggregationFunctions;
@@ -68,7 +68,7 @@ public class FinancialFunctions extends AbstractRepositoryConfigurationBean {
 
   @Override
   protected FunctionConfigurationSource createObject() {
-    return CombiningRepositoryConfigurationSource.of(super.createObject(), aggregationFunctionConfiguration(), analyticsFunctionConfiguration(), currencyFunctionConfiguration(),
+    return CombiningFunctionConfigurationSource.of(super.createObject(), aggregationFunctionConfiguration(), analyticsFunctionConfiguration(), currencyFunctionConfiguration(),
         propertyFunctionConfiguration(), valueFunctionConfiguration(), targetFunctionConfiguration(), viewFunctionConfiguration());
   }
 
