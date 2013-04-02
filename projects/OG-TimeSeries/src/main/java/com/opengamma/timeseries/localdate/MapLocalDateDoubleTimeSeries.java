@@ -18,9 +18,9 @@ import com.opengamma.timeseries.fast.integer.FastMapIntDoubleTimeSeries;
 import com.opengamma.timeseries.fast.integer.FastMutableIntDoubleTimeSeries;
 
 /**
- * 
+ * Map-based implementation of {@code MutableLocalDateDoubleTimeSeries}.
  */
-public class MapLocalDateDoubleTimeSeries extends MutableLocalDateDoubleTimeSeries.Integer {
+public class MapLocalDateDoubleTimeSeries extends AbstractMutableLocalDateDoubleTimeSeries {
 
   /** Serialization version. */
   private static final long serialVersionUID = -1719524159253442838L;

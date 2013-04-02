@@ -17,9 +17,11 @@ import com.opengamma.timeseries.fast.integer.object.FastMapIntObjectTimeSeries;
 import com.opengamma.timeseries.fast.integer.object.FastMutableIntObjectTimeSeries;
 
 /**
+ * Map-based implementation of {@code MutableLocalDateObjectTimeSeries}.
+ * 
  * @param <T> The type of the time series
  */
-public class MapLocalDateObjectTimeSeries<T> extends MutableLocalDateObjectTimeSeries.Integer<T> {
+public class MapLocalDateObjectTimeSeries<T> extends AbstractMutableLocalDateObjectTimeSeries<T> {
 
   /** Serialization version. */
   private static final long serialVersionUID = 8061489067205401915L;
