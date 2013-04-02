@@ -3,13 +3,12 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.credit.standard;
+package com.opengamma.financial.analytics.model.credit.isda.cds;
 
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Iterables;
@@ -39,6 +38,7 @@ import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.conversion.CreditDefaultSwapSecurityConverter;
 import com.opengamma.financial.analytics.model.YieldCurveFunctionUtils;
+import com.opengamma.financial.analytics.model.credit.CreditFunctionUtils;
 import com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.credit.CreditSecurityToIdentifierVisitor;
 import com.opengamma.financial.analytics.model.credit.IMMDateGenerator;
@@ -74,7 +74,7 @@ public abstract class StandardVanillaCDSFunction extends AbstractFunction.NonCom
   public void init(final FunctionCompilationContext context) {
     final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
-    final OrganizationSource organizationSource = null; //OpenGammaCompilationContext.getOrganizationSource(context);
+    final OrganizationSource organizationSource = OpenGammaCompilationContext.getOrganizationSource(context);
     _converter = new CreditDefaultSwapSecurityConverter(holidaySource, regionSource, organizationSource);
   }
 
@@ -103,8 +103,8 @@ public abstract class StandardVanillaCDSFunction extends AbstractFunction.NonCom
     }
     final ISDADateCurve yieldCurve = (ISDADateCurve) yieldCurveObject;
     final NodalObjectsCurve<?, ?> spreadCurve = (NodalObjectsCurve<?, ?>) spreadCurveObject;
-    final Tenor[] tenors = getTenors(spreadCurve.getXData());
-    final Double[] marketSpreadObjects = getSpreads(spreadCurve.getYData());
+    final Tenor[] tenors = CreditFunctionUtils.getTenors(spreadCurve.getXData());
+    final Double[] marketSpreadObjects = CreditFunctionUtils.getSpreads(spreadCurve.getYData());
     ParallelArrayBinarySort.parallelBinarySort(tenors, marketSpreadObjects);
     final int n = tenors.length;
     final ZonedDateTime[] times = new ZonedDateTime[n];
@@ -212,24 +212,4 @@ public abstract class StandardVanillaCDSFunction extends AbstractFunction.NonCom
 
   protected abstract boolean labelResultWithCurrency();
 
-  @SuppressWarnings("rawtypes")
-  private Tenor[] getTenors(final Comparable[] xs) {
-    final Tenor[] tenors = new Tenor[xs.length];
-    for (int i = 0; i < xs.length; i++) {
-      if (xs[i] instanceof Tenor) {
-        tenors[i] = (Tenor) xs[i];
-      } else {
-        tenors[i] = new Tenor(Period.parse((String) xs[i]));
-      }
-    }
-    return tenors;
-  }
-
-  private Double[] getSpreads(final Object[] ys) {
-    final Double[] spreads = new Double[ys.length];
-    for (int i = 0; i < ys.length; i++) {
-      spreads[i] = (Double) ys[i];
-    }
-    return spreads;
-  }
 }
