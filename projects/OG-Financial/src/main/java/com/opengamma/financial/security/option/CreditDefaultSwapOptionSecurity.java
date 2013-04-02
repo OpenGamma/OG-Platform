@@ -88,6 +88,7 @@ public class CreditDefaultSwapOptionSecurity extends FinancialSecurity {
   /**
    * The knock-out type.
    */
+  @PropertyDefinition
   private boolean _isKnockOut;
 
   /**
@@ -175,6 +176,8 @@ public class CreditDefaultSwapOptionSecurity extends FinancialSecurity {
         return getNotional();
       case -891985998:  // strike
         return getStrike();
+      case -1177436892:  // isKnockOut
+        return isIsKnockOut();
       case 2067849291:  // isPayer
         return isIsPayer();
       case -466331342:  // exerciseType
@@ -211,6 +214,9 @@ public class CreditDefaultSwapOptionSecurity extends FinancialSecurity {
         return;
       case -891985998:  // strike
         setStrike((Double) newValue);
+        return;
+      case -1177436892:  // isKnockOut
+        setIsKnockOut((Boolean) newValue);
         return;
       case 2067849291:  // isPayer
         setIsPayer((Boolean) newValue);
@@ -255,6 +261,7 @@ public class CreditDefaultSwapOptionSecurity extends FinancialSecurity {
           JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
           JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
           JodaBeanUtils.equal(getStrike(), other.getStrike()) &&
+          JodaBeanUtils.equal(isIsKnockOut(), other.isIsKnockOut()) &&
           JodaBeanUtils.equal(isIsPayer(), other.isIsPayer()) &&
           JodaBeanUtils.equal(getExerciseType(), other.getExerciseType()) &&
           JodaBeanUtils.equal(getUnderlyingId(), other.getUnderlyingId()) &&
@@ -274,6 +281,7 @@ public class CreditDefaultSwapOptionSecurity extends FinancialSecurity {
     hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
     hash += hash * 31 + JodaBeanUtils.hashCode(getNotional());
     hash += hash * 31 + JodaBeanUtils.hashCode(getStrike());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isIsKnockOut());
     hash += hash * 31 + JodaBeanUtils.hashCode(isIsPayer());
     hash += hash * 31 + JodaBeanUtils.hashCode(getExerciseType());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingId());
@@ -489,6 +497,31 @@ public class CreditDefaultSwapOptionSecurity extends FinancialSecurity {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the knock-out type.
+   * @return the value of the property
+   */
+  public boolean isIsKnockOut() {
+    return _isKnockOut;
+  }
+
+  /**
+   * Sets the knock-out type.
+   * @param isKnockOut  the new value of the property
+   */
+  public void setIsKnockOut(boolean isKnockOut) {
+    this._isKnockOut = isKnockOut;
+  }
+
+  /**
+   * Gets the the {@code isKnockOut} property.
+   * @return the property, not null
+   */
+  public final Property<Boolean> isKnockOut() {
+    return metaBean().isKnockOut().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the option type, true if the option is a payer.
    * @return the value of the property, not null
    */
@@ -616,6 +649,11 @@ public class CreditDefaultSwapOptionSecurity extends FinancialSecurity {
     private final MetaProperty<Double> _strike = DirectMetaProperty.ofReadWrite(
         this, "strike", CreditDefaultSwapOptionSecurity.class, Double.class);
     /**
+     * The meta-property for the {@code isKnockOut} property.
+     */
+    private final MetaProperty<Boolean> _isKnockOut = DirectMetaProperty.ofReadWrite(
+        this, "isKnockOut", CreditDefaultSwapOptionSecurity.class, Boolean.TYPE);
+    /**
      * The meta-property for the {@code isPayer} property.
      */
     private final MetaProperty<Boolean> _isPayer = DirectMetaProperty.ofReadWrite(
@@ -643,6 +681,7 @@ public class CreditDefaultSwapOptionSecurity extends FinancialSecurity {
         "currency",
         "notional",
         "strike",
+        "isKnockOut",
         "isPayer",
         "exerciseType",
         "underlyingId");
@@ -672,6 +711,8 @@ public class CreditDefaultSwapOptionSecurity extends FinancialSecurity {
           return _notional;
         case -891985998:  // strike
           return _strike;
+        case -1177436892:  // isKnockOut
+          return _isKnockOut;
         case 2067849291:  // isPayer
           return _isPayer;
         case -466331342:  // exerciseType
@@ -760,6 +801,14 @@ public class CreditDefaultSwapOptionSecurity extends FinancialSecurity {
      */
     public final MetaProperty<Double> strike() {
       return _strike;
+    }
+
+    /**
+     * The meta-property for the {@code isKnockOut} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Boolean> isKnockOut() {
+      return _isKnockOut;
     }
 
     /**
