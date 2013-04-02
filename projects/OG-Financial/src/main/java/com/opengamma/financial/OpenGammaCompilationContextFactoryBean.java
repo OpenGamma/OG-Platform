@@ -9,6 +9,7 @@ import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.organization.OrganizationSource;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
@@ -31,6 +32,7 @@ public class OpenGammaCompilationContextFactoryBean extends SingletonFactoryBean
   private SecuritySource _securitySource;
   private PositionSource _positionSource;
   private RegionSource _regionSource;
+  private OrganizationSource _organizationSource;
   private ConventionBundleSource _conventionBundleSource;
   private InterpolatedYieldCurveDefinitionSource _interpolatedYieldCurveDefinitionSource;
   private InterpolatedYieldCurveSpecificationBuilder _interpolatedYieldCurveSpecificationBuilder;
@@ -55,6 +57,14 @@ public class OpenGammaCompilationContextFactoryBean extends SingletonFactoryBean
 
   public PositionSource getPositionSource() {
     return _positionSource;
+  }
+
+  public void setOrganizationSource(final OrganizationSource organizationSource) {
+    _organizationSource = organizationSource;
+  }
+
+  public OrganizationSource getOrganizationSource() {
+    return _organizationSource;
   }
 
   public void setComputationTargetResolver(final ComputationTargetResolver targetResolver) {
@@ -177,6 +187,9 @@ public class OpenGammaCompilationContextFactoryBean extends SingletonFactoryBean
     }
     if (getHistoricalTimeSeriesResolver() != null) {
       OpenGammaCompilationContext.setHistoricalTimeSeriesResolver(context, getHistoricalTimeSeriesResolver());
+    }
+    if (getOrganizationSource() != null) {
+      context.setOrganizationSource(getOrganizationSource());
     }
     context.setSecuritySource(getSecuritySource());
     context.setRawComputationTargetResolver(getComputationTargetResolver());
