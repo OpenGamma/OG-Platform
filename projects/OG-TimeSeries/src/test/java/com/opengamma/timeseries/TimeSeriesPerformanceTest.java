@@ -20,14 +20,12 @@ public class TimeSeriesPerformanceTest {
   private static final int SMALL = 10;
   private static final int BIG = 10_000;
 
-  @Test
   public void test_addSimple_small() {
     for (int i = 0; i < 5; i++) {
       addSimple(SMALL, "addSimple-small");
     }
   }
 
-  @Test
   public void test_addSimple_big() {
     for (int i = 0; i < 5; i++) {
       addSimple(BIG, "addSimple-big");
@@ -54,14 +52,12 @@ public class TimeSeriesPerformanceTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_addSeries_small() {
     for (int i = 0; i < 5; i++) {
       addSeries(SMALL, "addSeries-small");
     }
   }
 
-  @Test
   public void test_addSeries_big() {
     for (int i = 0; i < 5; i++) {
       addSeries(BIG, "addSeries-big");
@@ -93,14 +89,12 @@ public class TimeSeriesPerformanceTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_multiplySeries_small() {
     for (int i = 0; i < 5; i++) {
       multiplySeries(SMALL, "multiplySeries-small");
     }
   }
 
-  @Test
   public void test_multiplySeries_big() {
     for (int i = 0; i < 5; i++) {
       multiplySeries(BIG, "multiplySeries-big");
@@ -132,14 +126,12 @@ public class TimeSeriesPerformanceTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_reciprocal_small() {
     for (int i = 0; i < 5; i++) {
       multiplySeries(SMALL, "reciprocal-small");
     }
   }
 
-  @Test
   public void test_reciprocal_big() {
     for (int i = 0; i < 5; i++) {
       multiplySeries(BIG, "reciprocal-big");

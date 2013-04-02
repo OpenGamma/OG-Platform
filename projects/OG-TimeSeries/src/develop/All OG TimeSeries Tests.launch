@@ -12,6 +12,7 @@
 <listEntry value="com.opengamma.timeseries"/>
 <listEntry value="com.opengamma.timeseries.fast.integer"/>
 <listEntry value="com.opengamma.timeseries.fast.longint"/>
+<listEntry value="com.opengamma.timeseries.localdate"/>
 <listEntry value="com.opengamma.timeseries.object"/>
 </listAttribute>
 <mapAttribute key="org.testng.eclipse.PARAMETERS"/>
