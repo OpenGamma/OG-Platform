@@ -88,8 +88,7 @@ public class CreditDefaultSwapOptionSecurity extends FinancialSecurity {
   /**
    * The knock-out type.
    */
-  @PropertyDefinition(validate = "notNull")
-  private BarrierType _barrierType;
+  private boolean _isKnockOut;
 
   /**
    * The option type, true if the option is a payer.
@@ -118,7 +117,7 @@ public class CreditDefaultSwapOptionSecurity extends FinancialSecurity {
 
   public CreditDefaultSwapOptionSecurity(final boolean buy, final ExternalId protectionBuyer, final ExternalId protectionSeller, final ZonedDateTime startDate,
       final ZonedDateTime maturityDate, final Currency currency, final Double notional, final Double strike,
-      final BarrierType barrierType, final boolean payer, final ExerciseType exerciseType, final ExternalId underlyingId) {
+      final boolean isKnockOut, final boolean payer, final ExerciseType exerciseType, final ExternalId underlyingId) {
     super(SECURITY_TYPE);
     setIsBuy(buy);
     setProtectionBuyer(protectionBuyer);
@@ -128,7 +127,7 @@ public class CreditDefaultSwapOptionSecurity extends FinancialSecurity {
     setCurrency(currency);
     setNotional(notional);
     setStrike(strike);
-    setBarrierType(barrierType);
+    setIsKnockOut(isKnockOut);
     setIsPayer(payer);
     setExerciseType(exerciseType);
     setUnderlyingId(underlyingId);
@@ -176,8 +175,6 @@ public class CreditDefaultSwapOptionSecurity extends FinancialSecurity {
         return getNotional();
       case -891985998:  // strike
         return getStrike();
-      case 1029043089:  // barrierType
-        return getBarrierType();
       case 2067849291:  // isPayer
         return isIsPayer();
       case -466331342:  // exerciseType
@@ -215,9 +212,6 @@ public class CreditDefaultSwapOptionSecurity extends FinancialSecurity {
       case -891985998:  // strike
         setStrike((Double) newValue);
         return;
-      case 1029043089:  // barrierType
-        setBarrierType((BarrierType) newValue);
-        return;
       case 2067849291:  // isPayer
         setIsPayer((Boolean) newValue);
         return;
@@ -240,7 +234,6 @@ public class CreditDefaultSwapOptionSecurity extends FinancialSecurity {
     JodaBeanUtils.notNull(_currency, "currency");
     JodaBeanUtils.notNull(_notional, "notional");
     JodaBeanUtils.notNull(_strike, "strike");
-    JodaBeanUtils.notNull(_barrierType, "barrierType");
     JodaBeanUtils.notNull(_isPayer, "isPayer");
     JodaBeanUtils.notNull(_exerciseType, "exerciseType");
     JodaBeanUtils.notNull(_underlyingId, "underlyingId");
@@ -262,7 +255,6 @@ public class CreditDefaultSwapOptionSecurity extends FinancialSecurity {
           JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
           JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
           JodaBeanUtils.equal(getStrike(), other.getStrike()) &&
-          JodaBeanUtils.equal(getBarrierType(), other.getBarrierType()) &&
           JodaBeanUtils.equal(isIsPayer(), other.isIsPayer()) &&
           JodaBeanUtils.equal(getExerciseType(), other.getExerciseType()) &&
           JodaBeanUtils.equal(getUnderlyingId(), other.getUnderlyingId()) &&
@@ -282,7 +274,6 @@ public class CreditDefaultSwapOptionSecurity extends FinancialSecurity {
     hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
     hash += hash * 31 + JodaBeanUtils.hashCode(getNotional());
     hash += hash * 31 + JodaBeanUtils.hashCode(getStrike());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBarrierType());
     hash += hash * 31 + JodaBeanUtils.hashCode(isIsPayer());
     hash += hash * 31 + JodaBeanUtils.hashCode(getExerciseType());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingId());
@@ -498,32 +489,6 @@ public class CreditDefaultSwapOptionSecurity extends FinancialSecurity {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the knock-out type.
-   * @return the value of the property, not null
-   */
-  public BarrierType getBarrierType() {
-    return _barrierType;
-  }
-
-  /**
-   * Sets the knock-out type.
-   * @param barrierType  the new value of the property, not null
-   */
-  public void setBarrierType(BarrierType barrierType) {
-    JodaBeanUtils.notNull(barrierType, "barrierType");
-    this._barrierType = barrierType;
-  }
-
-  /**
-   * Gets the the {@code barrierType} property.
-   * @return the property, not null
-   */
-  public final Property<BarrierType> barrierType() {
-    return metaBean().barrierType().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Gets the option type, true if the option is a payer.
    * @return the value of the property, not null
    */
@@ -651,11 +616,6 @@ public class CreditDefaultSwapOptionSecurity extends FinancialSecurity {
     private final MetaProperty<Double> _strike = DirectMetaProperty.ofReadWrite(
         this, "strike", CreditDefaultSwapOptionSecurity.class, Double.class);
     /**
-     * The meta-property for the {@code barrierType} property.
-     */
-    private final MetaProperty<BarrierType> _barrierType = DirectMetaProperty.ofReadWrite(
-        this, "barrierType", CreditDefaultSwapOptionSecurity.class, BarrierType.class);
-    /**
      * The meta-property for the {@code isPayer} property.
      */
     private final MetaProperty<Boolean> _isPayer = DirectMetaProperty.ofReadWrite(
@@ -683,7 +643,6 @@ public class CreditDefaultSwapOptionSecurity extends FinancialSecurity {
         "currency",
         "notional",
         "strike",
-        "barrierType",
         "isPayer",
         "exerciseType",
         "underlyingId");
@@ -713,8 +672,6 @@ public class CreditDefaultSwapOptionSecurity extends FinancialSecurity {
           return _notional;
         case -891985998:  // strike
           return _strike;
-        case 1029043089:  // barrierType
-          return _barrierType;
         case 2067849291:  // isPayer
           return _isPayer;
         case -466331342:  // exerciseType
@@ -803,14 +760,6 @@ public class CreditDefaultSwapOptionSecurity extends FinancialSecurity {
      */
     public final MetaProperty<Double> strike() {
       return _strike;
-    }
-
-    /**
-     * The meta-property for the {@code barrierType} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<BarrierType> barrierType() {
-      return _barrierType;
     }
 
     /**
