@@ -36,6 +36,8 @@ public class VoDCreditDefaultSwap {
   // TODO : Further checks on efficacy of input arguments
   // TODO : Need to consider more sophisticated sensitivity calculations e.g. algorithmic differentiation 
 
+  // TODO : Need to remove the Math.abs() calls on the MtM calc
+
   // ------------------------------------------------------------------------------------------------------------------------------------------
 
   // Compute the VoD
@@ -106,5 +108,4 @@ public class VoDCreditDefaultSwap {
   }
 
   // ------------------------------------------------------------------------------------------------------------------------------------------
-
 }

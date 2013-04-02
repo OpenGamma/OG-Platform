@@ -103,7 +103,7 @@ public class CalibrateHazardRateCurveCreditDefaultSwap {
   // TODO : Add a method to convert the hazard rates to survival probabilities
   // TODO : Currently only implementing piecewise constant hazard rate term structure assumption (market standard approach). Need to add further choices in due course.
   // TODO : Not happy with the structure of this solution (would prefer to input and return a DoublesCurve object not a single vector) - need to revisit
-  // TODO : There is a problem with the accrued payment when calibrating a term structure - need to fix
+  // TODO : There is a problem with the accrued payment when calibrating a term structure - think this is fixed
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 

@@ -7,11 +7,11 @@ package com.opengamma.analytics.financial.credit.creditdefaultswapoption.pricing
 
 import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.analytics.financial.credit.cds.ISDACurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswapoption.definition.CDSOptionKnockoutType;
 import com.opengamma.analytics.financial.credit.creditdefaultswapoption.definition.CDSOptionType;
 import com.opengamma.analytics.financial.credit.creditdefaultswapoption.definition.CreditDefaultSwapOptionDefinition;
 import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
+import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.util.ArgumentChecker;
@@ -41,7 +41,7 @@ public class PresentValueCreditDefaultSwapOption {
       final ZonedDateTime valuationDate,
       final CreditDefaultSwapOptionDefinition cdsSwaption,
       final double sigma,
-      final ISDACurve yieldCurve,
+      final ISDADateCurve/*ISDACurve*/yieldCurve,
       final HazardRateCurve hazardRateCurve) {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -113,7 +113,7 @@ public class PresentValueCreditDefaultSwapOption {
   private double calculateRiskydV01(
       final ZonedDateTime valuationDate,
       final CreditDefaultSwapOptionDefinition cdsSwaption,
-      final ISDACurve yieldCurve,
+      final ISDADateCurve/*ISDACurve*/yieldCurve,
       final HazardRateCurve hazardRateCurve) {
 
     double riskydV01 = 0.0;
@@ -126,7 +126,7 @@ public class PresentValueCreditDefaultSwapOption {
   private double calculateForwardSpread(
       final ZonedDateTime valuationDate,
       final CreditDefaultSwapOptionDefinition cdsSwaption,
-      final ISDACurve yieldCurve,
+      final ISDADateCurve/*ISDACurve*/yieldCurve,
       final HazardRateCurve hazardRateCurve) {
 
     double forwardSpread = 0.0;
@@ -139,7 +139,7 @@ public class PresentValueCreditDefaultSwapOption {
   private double calculateFrontendProtection(
       final ZonedDateTime valuationDate,
       final CreditDefaultSwapOptionDefinition cdsSwaption,
-      final ISDACurve yieldCurve,
+      final ISDADateCurve/*ISDACurve*/yieldCurve,
       final HazardRateCurve hazardRateCurve) {
 
     // Calculate the option expiry time

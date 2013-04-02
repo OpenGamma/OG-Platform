@@ -47,6 +47,8 @@ public class IndexCreditDefaultSwapDefinition {
   // TODO : Need to sort out the quoting conventions for the different indices
   // TODO : Extract out all the market data from the definition of the index contract
 
+  // TODO : Add an overloaded ctor taking in a SNCDS etc
+
   // NOTE : The restructuring clause and debt seniority of the index constituents is contained within the UnderlyingPool class
 
   // NOTE : The stub type, coupon frequency, daycount fraction and business day convention fields are part of the CDS index definition.
@@ -160,6 +162,14 @@ public class IndexCreditDefaultSwapDefinition {
 
   // Vector of single name CDS objects (one for each obligor in the underlying pool)
   private final LegacyVanillaCreditDefaultSwapDefinition[] _underlyingCDS;
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  /*
+  public IndexCreditDefaultSwapDefinition(final LegacyVanillaCreditDefaultSwapDefinition cds) {
+
+  }
+  */
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
