@@ -13,10 +13,34 @@ $.register_module({
             load: function (args) {
                 og.api.text({module: 'og.views.tooltip', handler: function (template) {
                     $('.OG-layout-tooltip').html(template);
-                }});
+                }}).pipe(function () {
+                    // For testing purposes only, should be removed/refactored once
+                    // implementation details have been agreed.
+                    var anchor = $('a.tooltip'), tooltip = $('div.tooltip.north'), offsets,
+                        left = 0, top = 0, parent = tooltip.parent();
+                        while (parent && parent[0].tagName !== 'BODY') {
+                            top += parent.offset().top;
+                            left += parent.offset().left;
+                            parent = parent.parent();
+                        }
+                    anchor.on('mouseover', function (event) {
+                            offsets = anchor.offset();
+                            tooltip.css({
+                                top: (offsets.top - top) + anchor.height() + 'px',
+                                left: (offsets.left - left) - tooltip.width()/2 + 'px',
+                            }).show();
+                    }).on('mouseout', function () {
+                        tooltip.hide();
+                    });
+                });
+                var display_tooltip = function (ref_elem, position) {
+                    // var direction = get_dir(position);
+                };
+                var get_direction = function (position) {
+                    var height = $(window).height(), width = $(window).width();
+                };
             },
             load_item: function (args) {
-                console.log(args);
                 view.check_state({args: args, conditions: [{new_page: view.load}]});
             },
             init: function () { for (var rule in view.rules) routes.add(view.rules[rule]); },
