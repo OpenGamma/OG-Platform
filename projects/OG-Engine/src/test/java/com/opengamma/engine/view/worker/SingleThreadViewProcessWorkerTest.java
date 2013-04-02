@@ -66,7 +66,7 @@ import com.opengamma.util.test.Timeout;
 @Test(groups = TestGroup.UNIT)
 public class SingleThreadViewProcessWorkerTest {
 
-  private static final long TIMEOUT = 50000L * Timeout.standardTimeoutMillis();
+  private static final long TIMEOUT = 10L * Timeout.standardTimeoutMillis();
 
   private static final String SOURCE_1_NAME = "source1";
   private static final String SOURCE_2_NAME = "source2";

@@ -55,6 +55,7 @@ import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
+import com.opengamma.financial.security.option.CreditDefaultSwapOptionSecurity;
 import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexFutureOptionSecurity;
@@ -202,13 +203,13 @@ public class LongShortAggregationFunction implements AggregationFunction<String>
 
         @Override
         public String visitEquityIndexDividendFutureOptionSecurity(
-          final EquityIndexDividendFutureOptionSecurity equityIndexDividendFutureOptionSecurity) {
+            final EquityIndexDividendFutureOptionSecurity equityIndexDividendFutureOptionSecurity) {
           return position.getQuantity().longValue() < 0 ? SHORT : LONG;
         }
 
         @Override
         public String visitEquityIndexFutureOptionSecurity(
-          final EquityIndexFutureOptionSecurity equityIndexFutureOptionSecurity) {
+            final EquityIndexFutureOptionSecurity equityIndexFutureOptionSecurity) {
           return position.getQuantity().longValue() < 0 ? SHORT : LONG;
         }
 
@@ -378,9 +379,15 @@ public class LongShortAggregationFunction implements AggregationFunction<String>
         }
 
         @Override
-        public String visitCreditDefaultSwapIndexSecurity(CreditDefaultSwapIndexSecurity security) {
+        public String visitCreditDefaultSwapIndexSecurity(final CreditDefaultSwapIndexSecurity security) {
           throw new UnsupportedOperationException(FinancialSecurityVisitorAdapter.getUnsupportedOperationMessage(getClass(), security));
         }
+
+        @Override
+        public String visitCreditDefaultSwapOptionSecurity(final CreditDefaultSwapOptionSecurity security) {
+          throw new UnsupportedOperationException(FinancialSecurityVisitorAdapter.getUnsupportedOperationMessage(getClass(), security));
+        }
+
       };
       if (position.getSecurity() instanceof FinancialSecurity) {
         final FinancialSecurity finSec = (FinancialSecurity) position.getSecurity();
