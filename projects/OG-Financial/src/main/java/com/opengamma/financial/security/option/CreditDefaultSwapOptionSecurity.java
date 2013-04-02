@@ -62,12 +62,6 @@ public class CreditDefaultSwapOptionSecurity extends FinancialSecurity {
   private ZonedDateTime _startDate;
 
   /**
-   * The effective date.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private ZonedDateTime _effectiveDate;
-
-  /**
    * The maturity date.
    */
   @PropertyDefinition(validate = "notNull")
@@ -123,14 +117,13 @@ public class CreditDefaultSwapOptionSecurity extends FinancialSecurity {
   }
 
   public CreditDefaultSwapOptionSecurity(final boolean buy, final ExternalId protectionBuyer, final ExternalId protectionSeller, final ZonedDateTime startDate,
-      final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate, final Currency currency, final Double notional, final Double strike,
+      final ZonedDateTime maturityDate, final Currency currency, final Double notional, final Double strike,
       final BarrierType barrierType, final boolean payer, final ExerciseType exerciseType, final ExternalId underlyingId) {
     super(SECURITY_TYPE);
     setIsBuy(buy);
     setProtectionBuyer(protectionBuyer);
     setProtectionSeller(protectionSeller);
     setStartDate(startDate);
-    setEffectiveDate(effectiveDate);
     setMaturityDate(maturityDate);
     setCurrency(currency);
     setNotional(notional);
@@ -175,8 +168,6 @@ public class CreditDefaultSwapOptionSecurity extends FinancialSecurity {
         return getProtectionSeller();
       case -2129778896:  // startDate
         return getStartDate();
-      case -930389515:  // effectiveDate
-        return getEffectiveDate();
       case -414641441:  // maturityDate
         return getMaturityDate();
       case 575402001:  // currency
@@ -212,9 +203,6 @@ public class CreditDefaultSwapOptionSecurity extends FinancialSecurity {
       case -2129778896:  // startDate
         setStartDate((ZonedDateTime) newValue);
         return;
-      case -930389515:  // effectiveDate
-        setEffectiveDate((ZonedDateTime) newValue);
-        return;
       case -414641441:  // maturityDate
         setMaturityDate((ZonedDateTime) newValue);
         return;
@@ -248,7 +236,6 @@ public class CreditDefaultSwapOptionSecurity extends FinancialSecurity {
     JodaBeanUtils.notNull(_protectionBuyer, "protectionBuyer");
     JodaBeanUtils.notNull(_protectionSeller, "protectionSeller");
     JodaBeanUtils.notNull(_startDate, "startDate");
-    JodaBeanUtils.notNull(_effectiveDate, "effectiveDate");
     JodaBeanUtils.notNull(_maturityDate, "maturityDate");
     JodaBeanUtils.notNull(_currency, "currency");
     JodaBeanUtils.notNull(_notional, "notional");
@@ -271,7 +258,6 @@ public class CreditDefaultSwapOptionSecurity extends FinancialSecurity {
           JodaBeanUtils.equal(getProtectionBuyer(), other.getProtectionBuyer()) &&
           JodaBeanUtils.equal(getProtectionSeller(), other.getProtectionSeller()) &&
           JodaBeanUtils.equal(getStartDate(), other.getStartDate()) &&
-          JodaBeanUtils.equal(getEffectiveDate(), other.getEffectiveDate()) &&
           JodaBeanUtils.equal(getMaturityDate(), other.getMaturityDate()) &&
           JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
           JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
@@ -292,7 +278,6 @@ public class CreditDefaultSwapOptionSecurity extends FinancialSecurity {
     hash += hash * 31 + JodaBeanUtils.hashCode(getProtectionBuyer());
     hash += hash * 31 + JodaBeanUtils.hashCode(getProtectionSeller());
     hash += hash * 31 + JodaBeanUtils.hashCode(getStartDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getEffectiveDate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMaturityDate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
     hash += hash * 31 + JodaBeanUtils.hashCode(getNotional());
@@ -405,32 +390,6 @@ public class CreditDefaultSwapOptionSecurity extends FinancialSecurity {
    */
   public final Property<ZonedDateTime> startDate() {
     return metaBean().startDate().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the effective date.
-   * @return the value of the property, not null
-   */
-  public ZonedDateTime getEffectiveDate() {
-    return _effectiveDate;
-  }
-
-  /**
-   * Sets the effective date.
-   * @param effectiveDate  the new value of the property, not null
-   */
-  public void setEffectiveDate(ZonedDateTime effectiveDate) {
-    JodaBeanUtils.notNull(effectiveDate, "effectiveDate");
-    this._effectiveDate = effectiveDate;
-  }
-
-  /**
-   * Gets the the {@code effectiveDate} property.
-   * @return the property, not null
-   */
-  public final Property<ZonedDateTime> effectiveDate() {
-    return metaBean().effectiveDate().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -672,11 +631,6 @@ public class CreditDefaultSwapOptionSecurity extends FinancialSecurity {
     private final MetaProperty<ZonedDateTime> _startDate = DirectMetaProperty.ofReadWrite(
         this, "startDate", CreditDefaultSwapOptionSecurity.class, ZonedDateTime.class);
     /**
-     * The meta-property for the {@code effectiveDate} property.
-     */
-    private final MetaProperty<ZonedDateTime> _effectiveDate = DirectMetaProperty.ofReadWrite(
-        this, "effectiveDate", CreditDefaultSwapOptionSecurity.class, ZonedDateTime.class);
-    /**
      * The meta-property for the {@code maturityDate} property.
      */
     private final MetaProperty<ZonedDateTime> _maturityDate = DirectMetaProperty.ofReadWrite(
@@ -725,7 +679,6 @@ public class CreditDefaultSwapOptionSecurity extends FinancialSecurity {
         "protectionBuyer",
         "protectionSeller",
         "startDate",
-        "effectiveDate",
         "maturityDate",
         "currency",
         "notional",
@@ -752,8 +705,6 @@ public class CreditDefaultSwapOptionSecurity extends FinancialSecurity {
           return _protectionSeller;
         case -2129778896:  // startDate
           return _startDate;
-        case -930389515:  // effectiveDate
-          return _effectiveDate;
         case -414641441:  // maturityDate
           return _maturityDate;
         case 575402001:  // currency
@@ -820,14 +771,6 @@ public class CreditDefaultSwapOptionSecurity extends FinancialSecurity {
      */
     public final MetaProperty<ZonedDateTime> startDate() {
       return _startDate;
-    }
-
-    /**
-     * The meta-property for the {@code effectiveDate} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<ZonedDateTime> effectiveDate() {
-      return _effectiveDate;
     }
 
     /**
