@@ -27,9 +27,10 @@ public class PresentValueCreditDefaultSwapOption {
   // TODO : Need to sort out the calculation of the forward starting spread
   // TODO : Need to check through this model in detail
   // TODO : Need to add error checking for d1 and d2 calculations
-  // TODO : Need to check that strike is not equal to zero
+  // TODO : Check that valuationDate is not inconsistent with other trade economics
 
   // NOTE : Have not included the PriceType field for the CDS - assume this is entered as part of the underlying CDS contract definition
+  // NOTE : The test for a negative option strike is done in the CDS swaption ctor
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -39,7 +40,7 @@ public class PresentValueCreditDefaultSwapOption {
       final ZonedDateTime valuationDate,
       final CreditDefaultSwapOptionDefinition cdsSwaption,
       final double sigma,
-      final ISDADateCurve/*ISDACurve*/yieldCurve,
+      final ISDADateCurve yieldCurve,
       final HazardRateCurve hazardRateCurve) {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
