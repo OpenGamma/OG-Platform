@@ -13,6 +13,7 @@ import com.google.common.collect.Lists;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.ParameterizedFunctionConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
+import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
 import com.opengamma.financial.analytics.model.equity.EquityForwardCurvePerExchangeDefaults;
 import com.opengamma.financial.analytics.model.equity.EquityForwardCurvePerTickerDefaults;
@@ -27,6 +28,7 @@ import com.opengamma.financial.analytics.model.equity.option.EquityOptionSurface
 import com.opengamma.financial.analytics.model.equity.varianceswap.EquityForwardPerEquityDefaults;
 import com.opengamma.financial.analytics.model.equity.varianceswap.EquityVarianceSwapDefaults;
 import com.opengamma.financial.analytics.model.equity.varianceswap.EquityVarianceSwapStaticReplicationDefaults;
+import com.opengamma.financial.analytics.model.future.FuturesPricingDefaults;
 import com.opengamma.financial.analytics.model.futureoption.EquityFutureOptionBlackLognormalDefaults;
 import com.opengamma.financial.analytics.model.futureoption.EquityFutureOptionSurfaceCalculationMethodDefaults;
 import com.opengamma.financial.analytics.model.option.AnalyticOptionDefaultCurveFunction;
@@ -66,6 +68,7 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
     functions.add(functionConfiguration(AnalyticOptionDefaultCurveFunction.class, "SECONDARY"));
     addEquityDividendYieldFuturesDefaults(functions);
     addEquityForwardDefaults(functions);
+    addEquityFuturePricingDefaults(functions);
     addEquityIndexOptionBlackVolatilitySurfaceDefaults(functions);
     addEquityFutureOptionBlackVolatilitySurfaceDefaults(functions);
     addEquityOptionDefaults(functions);
@@ -378,6 +381,11 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityForwardCurvePerTickerDefaults.class.getName(), equityForwardCurvePerTickerDefaults));
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityForwardCurvePerExchangeDefaults.class.getName(), equityForwardCurvePerExchangeDefaults));
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityForwardCurveYieldCurveImpliedPerCurrencyDefaults.class.getName(), equityForwardCurvePerCurrencyDefaults));
+  }
+  
+  protected void addEquityFuturePricingDefaults(final List<FunctionConfiguration> functionConfigs) {
+    final List<String> defaults = Arrays.asList(PriorityClass.NORMAL.name(), CalculationPropertyNamesAndValues.MARK_TO_MARKET_METHOD);
+    functionConfigs.add(new ParameterizedFunctionConfiguration(FuturesPricingDefaults.class.getName(), defaults));
   }
 
   protected void addEquityIndexOptionBlackVolatilitySurfaceDefaults(final List<FunctionConfiguration> functionConfigs) {
