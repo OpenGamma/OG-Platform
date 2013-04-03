@@ -70,6 +70,8 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.Interest
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionPremiumTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
+import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationZeroCouponInterpolation;
+import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationZeroCouponMonthly;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationYearOnYearInterpolation;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationYearOnYearMonthly;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponInterpolation;
@@ -1113,6 +1115,26 @@ public class InstrumentDerivativeVisitorTest {
 
     @Override
     public String visitDeliverableSwapFuturesTransaction(DeliverableSwapFuturesTransaction futures) {
+      return null;
+    }
+
+    @Override
+    public String visitCapFloorInflationZeroCouponInterpolation(CapFloorInflationZeroCouponInterpolation coupon, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitCapFloorInflationZeroCouponInterpolation(CapFloorInflationZeroCouponInterpolation coupon) {
+      return null;
+    }
+
+    @Override
+    public String visitCapFloorInflationZeroCouponMonthly(CapFloorInflationZeroCouponMonthly coupon, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitCapFloorInflationZeroCouponMonthly(CapFloorInflationZeroCouponMonthly coupon) {
       return null;
     }
   }

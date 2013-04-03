@@ -61,6 +61,8 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.Interest
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionPremiumTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
+import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationZeroCouponInterpolation;
+import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationZeroCouponMonthly;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationYearOnYearInterpolation;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationYearOnYearMonthly;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponInterpolation;
@@ -276,6 +278,14 @@ public interface InstrumentDerivativeVisitor<DATA_TYPE, RESULT_TYPE> {
   RESULT_TYPE visitCouponInflationYearOnYearInterpolation(CouponInflationYearOnYearInterpolation coupon, DATA_TYPE data);
 
   RESULT_TYPE visitCouponInflationYearOnYearInterpolation(CouponInflationYearOnYearInterpolation coupon);
+
+  RESULT_TYPE visitCapFloorInflationZeroCouponInterpolation(CapFloorInflationZeroCouponInterpolation coupon, DATA_TYPE data);
+
+  RESULT_TYPE visitCapFloorInflationZeroCouponInterpolation(CapFloorInflationZeroCouponInterpolation coupon);
+
+  RESULT_TYPE visitCapFloorInflationZeroCouponMonthly(CapFloorInflationZeroCouponMonthly coupon, DATA_TYPE data);
+
+  RESULT_TYPE visitCapFloorInflationZeroCouponMonthly(CapFloorInflationZeroCouponMonthly coupon);
 
   // -----     Futures   -----
 
