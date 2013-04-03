@@ -14,8 +14,9 @@ import org.threeten.bp.ZonedDateTime;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.credit.ISDAYieldCurveAndSpreadsProvider;
+import com.opengamma.analytics.financial.credit.calibratehazardratecurve.HazardRateCurveCalculator;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.PresentValueCreditDefaultSwap;
 import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
 import com.opengamma.analytics.math.ParallelArrayBinarySort;
@@ -52,8 +53,6 @@ import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.cds.CreditDefaultSwapSecurity;
-import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
-import com.opengamma.financial.security.cds.StandardVanillaCDSSecurity;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.time.Tenor;
 
@@ -62,7 +61,7 @@ import com.opengamma.util.time.Tenor;
  */
 public class ISDAHazardRateCurveFunction extends AbstractFunction.NonCompiledInvoker {
   private static final BusinessDayConvention FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
-  private static final PresentValueCreditDefaultSwap CALCULATOR = new PresentValueCreditDefaultSwap();
+  private static final HazardRateCurveCalculator CALCULATOR = new HazardRateCurveCalculator();
   private CreditDefaultSwapSecurityConverter _converter;
 
   @Override
@@ -80,14 +79,8 @@ public class ISDAHazardRateCurveFunction extends AbstractFunction.NonCompiledInv
     final ZonedDateTime valuationTime = ZonedDateTime.now(executionContext.getValuationClock());
     final CreditDefaultSwapSecurity security = (CreditDefaultSwapSecurity) target.getSecurity();
     final Calendar calendar = new HolidaySourceCalendarAdapter(holidaySource, FinancialSecurityUtils.getCurrency(security));
-    LegacyVanillaCreditDefaultSwapDefinition definition;
-    if (security instanceof StandardVanillaCDSSecurity) {
-      definition = _converter.visitStandardVanillaCDSSecurity((StandardVanillaCDSSecurity) security);
-      definition = definition.withEffectiveDate(FOLLOWING.adjustDate(calendar, valuationTime.withHour(0).withMinute(0).withSecond(0).withNano(0).plusDays(1)));
-    } else {
-      definition = _converter.visitLegacyVanillaCDSSecurity((LegacyVanillaCDSSecurity) security);
-      definition = definition.withEffectiveDate(FOLLOWING.adjustDate(calendar, valuationTime.withHour(0).withMinute(0).withSecond(0).withNano(0).plusDays(1)));
-    }
+    LegacyVanillaCreditDefaultSwapDefinition cds = (LegacyVanillaCreditDefaultSwapDefinition) security.accept(_converter);
+    cds = cds.withEffectiveDate(FOLLOWING.adjustDate(calendar, valuationTime.withHour(0).withMinute(0).withSecond(0).withNano(0).plusDays(1)));
     final Object yieldCurveObject = inputs.getValue(ValueRequirementNames.YIELD_CURVE);
     if (yieldCurveObject == null) {
       throw new OpenGammaRuntimeException("Could not get yield curve");
@@ -111,7 +104,8 @@ public class ISDAHazardRateCurveFunction extends AbstractFunction.NonCompiledInv
     final ValueProperties properties = Iterables.getOnlyElement(desiredValues).getConstraints().copy()
         .with(ValuePropertyNames.FUNCTION, getUniqueId())
         .get();
-    final HazardRateCurve curve = CALCULATOR.calibrateHazardRateCurve(valuationTime, definition, times, marketSpreads, yieldCurve);
+    final ISDAYieldCurveAndSpreadsProvider data = new ISDAYieldCurveAndSpreadsProvider(times, marketSpreads, yieldCurve);
+    final HazardRateCurve curve = CALCULATOR.calibrateHazardRateCurve(cds, data, valuationTime);
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.HAZARD_RATE_CURVE, target.toSpecification(), properties);
     return Collections.singleton(new ComputedValue(spec, curve));
   }
