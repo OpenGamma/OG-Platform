@@ -71,16 +71,16 @@ final class ISDAResultsBuilder {
     private static final String OFFSET_FIELD = "offset";
     @Override
     public HazardRateCurve buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
-      final ZonedDateTime[] dates = deserializer.fieldValueToObject(ZonedDateTime[].class, message.getByName(DATES_FIELD));
+      final List<ZonedDateTime> dates = (List<ZonedDateTime>) deserializer.fieldValueToObject(message.getByName(DATES_FIELD));
       final double[] times = deserializer.fieldValueToObject(double[].class, message.getByName(TIMES_FIELD));
       final double[] rates = deserializer.fieldValueToObject(double[].class, message.getByName(RATES_FIELD));
       final double offset = message.getDouble(OFFSET_FIELD);
-      return new HazardRateCurve(dates, times, rates, offset);
+      return new HazardRateCurve(dates.toArray(new ZonedDateTime[dates.size()]), times, rates, offset);
     }
 
     @Override
     protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final HazardRateCurve object) {
-      serializer.addToMessageWithClassHeaders(message, DATES_FIELD, null, object.getCurveTenors());
+      serializer.addToMessageWithClassHeaders(message, DATES_FIELD, null, Arrays.asList(object.getCurveTenors()));
       serializer.addToMessageWithClassHeaders(message, TIMES_FIELD, null, object.getTimes());
       serializer.addToMessageWithClassHeaders(message, RATES_FIELD, null, object.getRates());
       message.add(OFFSET_FIELD, object.getOffset());
