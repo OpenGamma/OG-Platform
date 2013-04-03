@@ -128,7 +128,7 @@ public abstract class ListedEquityOptionFunction extends AbstractFunction.NonCom
       final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
     // 1. Build the analytic derivative to be priced
     final ZonedDateTime now = ZonedDateTime.now(executionContext.getValuationClock());
-      final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
+    final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final ExternalId underlyingId = FinancialSecurityUtils.getUnderlyingId(security);
     final InstrumentDefinition<?> defn = security.accept(_converter);
     final InstrumentDerivative derivative = defn.toDerivative(now);

@@ -11,10 +11,13 @@ import java.util.Map;
 
 import org.springframework.beans.factory.InitializingBean;
 
+import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
+import com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesRatingFieldNames;
 import com.opengamma.util.ArgumentChecker;
+
 
 /**
  * Function repository configuration source for the functions contained in this package.
@@ -113,6 +116,72 @@ public class FutureFunctions extends AbstractRepositoryConfigurationBean {
 
   }
 
+  /**
+   * Function repository configuration source for the configurable functions contained in this package.
+   */
+  public static class Calculators extends AbstractRepositoryConfigurationBean {
+
+    private String _htsResolutionKey = HistoricalTimeSeriesRatingFieldNames.DEFAULT_CONFIG_NAME;
+    private String _closingPriceField;
+    private String _costOfCarryField = "COST_OF_CARRY";
+    private String _valueFieldName = MarketDataRequirementNames.MARKET_VALUE;
+
+    public void setHtsResolutionKey(final String htsResolutionKey) {
+      _htsResolutionKey = htsResolutionKey;
+    }
+
+    public String getHtsResolutionKey() {
+      return _htsResolutionKey;
+    }
+
+    public void setClosingPriceField(final String closingPriceField) {
+      _closingPriceField = closingPriceField;
+    }
+
+    public String getClosingPriceField() {
+      return _closingPriceField;
+    }
+
+    public void setCostOfCarryField(final String costOfCarryField) {
+      _costOfCarryField = costOfCarryField;
+    }
+
+    public String getCostOfCarryField() {
+      return _costOfCarryField;
+    }
+
+    public void setValueFieldName(final String valueFieldName) {
+      _valueFieldName = valueFieldName;
+    }
+
+    public String getValueFieldName() {
+      return _valueFieldName;
+    }
+
+    @Override
+    public void afterPropertiesSet() {
+      ArgumentChecker.notNullInjected(getHtsResolutionKey(), "htsResolutionKey");
+      ArgumentChecker.notNullInjected(getClosingPriceField(), "closingPriceField");
+      ArgumentChecker.notNullInjected(getCostOfCarryField(), "costOfCarryField");
+      ArgumentChecker.notNullInjected(getValueFieldName(), "valueFieldName");
+      super.afterPropertiesSet();
+    }
+
+    @Override
+    protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
+      functions.add(functionConfiguration(MarkToMarketForwardFuturesFunction.class, getClosingPriceField(), getCostOfCarryField(), getHtsResolutionKey()));
+      functions.add(functionConfiguration(MarkToMarketPresentValueFuturesFunction.class, getClosingPriceField(), getCostOfCarryField(), getHtsResolutionKey()));
+      functions.add(functionConfiguration(MarkToMarketPV01FuturesFunction.class, getClosingPriceField(), getCostOfCarryField(), getHtsResolutionKey()));
+      functions.add(functionConfiguration(MarkToMarketSpotFuturesFunction.class, getClosingPriceField(), getCostOfCarryField(), getHtsResolutionKey()));
+      functions.add(functionConfiguration(MarkToMarketValueDeltaFuturesFunction.class, getClosingPriceField(), getCostOfCarryField(), getHtsResolutionKey()));
+      functions.add(functionConfiguration(MarkToMarketValueRhoFuturesFunction.class, getClosingPriceField(), getCostOfCarryField(), getHtsResolutionKey()));
+    }
+
+  }
+  
+  
+  
+  
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
     functions.add(functionConfiguration(BondFutureGrossBasisFromCurvesFunction.class));
@@ -120,12 +189,7 @@ public class FutureFunctions extends AbstractRepositoryConfigurationBean {
     functions.add(functionConfiguration(InterestRateFuturePresentValueFunction.class));
     functions.add(functionConfiguration(InterestRateFuturePV01Function.class));
     functions.add(functionConfiguration(InterestRateFutureYieldCurveNodeSensitivitiesFunction.class));
-    functions.add(functionConfiguration(MarkToMarketForwardFuturesFunction.class));
-    functions.add(functionConfiguration(MarkToMarketPresentValueFuturesFunction.class));
-    functions.add(functionConfiguration(MarkToMarketPV01FuturesFunction.class));
-    functions.add(functionConfiguration(MarkToMarketSpotFuturesFunction.class));
-    functions.add(functionConfiguration(MarkToMarketValueDeltaFuturesFunction.class));
-    functions.add(functionConfiguration(MarkToMarketValueRhoFuturesFunction.class));
+
     functions.add(functionConfiguration(FutureSecurityDeltaFunction.class));
     functions.add(functionConfiguration(FutureSecurityValueDeltaFunction.class));
     // TODO: add functions from package
