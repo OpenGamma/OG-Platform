@@ -13,16 +13,27 @@ $.register_module({
             load: function (args) {
                 og.api.text({module: 'og.views.tooltip', handler: function (template) {
                     $('.OG-layout-tooltip').html(template);
+                    $('body').append(
+                        '<div class="tooltip north">' +
+                            'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'+
+                            'Nullam consectetur quam a sapien egestas eget scelerisque'+
+                            'lectus tempor. Duis placerat tellus at erat pellentesque nec'+
+                            'ultricies erat molestie. Integer nec orci id tortor molestie'+
+                            'porta. Suspendisse eu sagittis quam.'+
+                        '</div>'
+                    )
                 }}).pipe(function () {
                     // For testing purposes only, should be removed/refactored once
                     // implementation details have been agreed.
-                    var anchor = $('a.tooltip'), tooltip = $('div.tooltip.north'), tooltip_offsets = tooltip.offset();
-                    anchor.on('mouseover', function (event) {
-                            var offsets = anchor.offset();
-                            tooltip.css({
-                                top: (offsets.top - tooltip_offsets.top) - tooltip.height()/2 + anchor.height() + 'px',
-                                left: (offsets.left - tooltip_offsets.left) - tooltip.width()/2 + 'px'
-                            }).show();
+                    var tool_cta = $('.tooltip-cta'), tooltip = $('div.tooltip.north'),
+                        tooltip_offsets = tooltip.offset();
+                    tool_cta.on('click', function (event) {
+                        var elem = $(this), offsets = elem.offset(), width = elem.width(), height = elem.height();
+                        // North orientation, after testing dims; to be implemented
+                        tooltip.css({
+                            top: offsets.top + height + 'px',
+                            left: offsets.left - width/2 + 'px'
+                        }).show();
                     }).on('mouseout', function () {
                         tooltip.hide();
                     });

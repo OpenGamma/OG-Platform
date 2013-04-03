@@ -13,17 +13,100 @@
 
 div.center {
     position: absolute;
-    top:50%;
+    top: 50%;
     left: 50%;
-    margin-top: -300px;
+    margin-top: -150px;
     margin-left: -300px;
     width:600px;
-    height:600px;
+    height:300px;
 }
 
-a.tooltip {
+a.tooltip-cta {
     cursor: help;
     position: absolute;
+}
+
+div.tooltip-cta{
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    text-align: center;
+}
+
+div.tooltip-cta.norf {
+    width: 150px;
+    height: 150px;
+    background: #eee;
+    position: absolute;
+    top:0;
+    left:50%;
+    margin-left: -75px;
+}
+
+div.tooltip-cta.norf-west {
+    width: 150px;
+    height: 150px;
+    background: #eee;
+    position: absolute;
+    top:0;
+    left:50px;
+    margin-left: 0;
+}
+
+div.tooltip-cta.west {
+    width: 150px;
+    height: 150px;
+    background: #eee;
+    position: absolute;
+    top:50%;
+    left:50px;
+    margin-top: -75px;
+}
+
+div.tooltip-cta.south-west {
+    width: 150px;
+    height: 150px;
+    background: #eee;
+    position: absolute;
+    bottom:30px;
+    left:50px;
+}
+
+div.tooltip-cta.south {
+    width: 150px;
+    height: 150px;
+    background: #eee;
+    position: absolute;
+    bottom:30px;
+    left:50%;
+    margin-left: -75px;
+}
+
+div.tooltip-cta.south-east {
+    width: 150px;
+    height: 150px;
+    background: #eee;
+    position: absolute;
+    bottom:30px;
+    right:50px;
+}
+
+div.tooltip-cta.east {
+    width: 150px;
+    height: 150px;
+    background: #eee;
+    position: absolute;
+    top:50%;
+    right:50px;
+    margin-top: -75px;
+}
+
+div.tooltip-cta.north-east {
+    width: 150px;
+    height: 150px;
+    background: #eee;
+    position: absolute;
+    top:0;
+    right:50px;
 }
 
 a.north {
@@ -95,8 +178,7 @@ div.tooltip {
 }
 
 div.tooltip.north{
-    margin-top: 16px;
-    margin-left: 4px;
+    margin-top: 7px;
 }
 
 div.tooltip.north:before{
