@@ -7,7 +7,7 @@ package com.opengamma.financial.analytics.model.forex.option.black;
 
 import java.util.List;
 
-import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
+import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.financial.analytics.model.forex.option.black.deprecated.DeprecatedFunctions;
@@ -22,7 +22,7 @@ import com.opengamma.financial.analytics.model.horizon.FXOptionBlackYieldCurvesF
 /**
  * Function repository configuration source for the functions contained in this package.
  */
-public class BlackFunctions extends AbstractRepositoryConfigurationBean {
+public class BlackFunctions extends AbstractFunctionConfigurationBean {
 
   /**
    * Default instance of a repository configuration source exposing the functions from this package.
@@ -40,7 +40,7 @@ public class BlackFunctions extends AbstractRepositoryConfigurationBean {
   /**
    * Function repository configuration source for the defaults functions contained in this package.
    */
-  public static class Defaults extends AbstractRepositoryConfigurationBean {
+  public static class Defaults extends AbstractFunctionConfigurationBean {
 
     private double _overhedge; /* = 0.0;*/
     private double _relativeStrikeSmoothing = 0.001;

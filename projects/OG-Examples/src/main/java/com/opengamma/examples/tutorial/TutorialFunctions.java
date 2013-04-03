@@ -7,7 +7,7 @@ package com.opengamma.examples.tutorial;
 
 import java.util.List;
 
-import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
+import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.engine.function.config.StaticFunctionConfiguration;
@@ -15,7 +15,7 @@ import com.opengamma.engine.function.config.StaticFunctionConfiguration;
 /**
  * Function repository configuration source for the functions contained in this package.
  */
-public class TutorialFunctions extends AbstractRepositoryConfigurationBean {
+public class TutorialFunctions extends AbstractFunctionConfigurationBean {
 
   /**
    * Default instance of a repository configuration source exposing the functions from this package.

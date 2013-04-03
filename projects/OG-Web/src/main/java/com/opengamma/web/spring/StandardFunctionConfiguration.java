@@ -13,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
-import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
+import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
 import com.opengamma.engine.function.config.CombiningFunctionConfigurationSource;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
@@ -45,7 +45,7 @@ import com.opengamma.web.spring.defaults.GeneralLocalVolatilitySurfaceDefaults;
  * <p>
  * A sub-class should provide installation specific details relating to the data providers used.
  */
-public abstract class StandardFunctionConfiguration extends AbstractRepositoryConfigurationBean {
+public abstract class StandardFunctionConfiguration extends AbstractFunctionConfigurationBean {
 
   private static final Logger s_logger = LoggerFactory.getLogger(StandardFunctionConfiguration.class);
 

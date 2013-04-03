@@ -8,7 +8,7 @@ package com.opengamma.financial.analytics.model.forex.option.localvol;
 import java.util.List;
 
 import com.opengamma.engine.function.FunctionDefinition;
-import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
+import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyNamesAndValues;
@@ -16,7 +16,7 @@ import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVol
 /**
  * Function repository configuration source for the functions contained in this package.
  */
-public class LocalVolFunctions extends AbstractRepositoryConfigurationBean {
+public class LocalVolFunctions extends AbstractFunctionConfigurationBean {
 
   /**
    * Default instance of a repository configuration source exposing the functions from this package.

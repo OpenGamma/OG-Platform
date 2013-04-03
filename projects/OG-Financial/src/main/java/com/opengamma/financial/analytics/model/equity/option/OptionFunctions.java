@@ -7,7 +7,7 @@ package com.opengamma.financial.analytics.model.equity.option;
 
 import java.util.List;
 
-import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
+import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -17,7 +17,7 @@ import com.opengamma.financial.analytics.model.futureoption.BarrierOptionDistanc
 /**
  * Function repository configuration source for the functions contained in this package.
  */
-public class OptionFunctions extends AbstractRepositoryConfigurationBean {
+public class OptionFunctions extends AbstractFunctionConfigurationBean {
 
   /**
    * Default instance of a repository configuration source exposing the functions from this package.
@@ -56,7 +56,7 @@ public class OptionFunctions extends AbstractRepositoryConfigurationBean {
   /**
    * Function repository configuration source for the default functions contained in this package.
    */
-  public static class Defaults extends AbstractRepositoryConfigurationBean {
+  public static class Defaults extends AbstractFunctionConfigurationBean {
 
     private double _overhedge; /* = 0.0; */
     private double _callSpreadFullWidth = 0.001;

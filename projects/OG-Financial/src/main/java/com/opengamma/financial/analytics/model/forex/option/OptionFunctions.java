@@ -8,7 +8,7 @@ package com.opengamma.financial.analytics.model.forex.option;
 import java.util.Collections;
 import java.util.List;
 
-import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
+import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
 import com.opengamma.engine.function.config.CombiningFunctionConfigurationSource;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationBundle;
@@ -25,7 +25,7 @@ import com.opengamma.financial.analytics.model.futureoption.BarrierOptionDistanc
 /**
  * Function repository configuration source for the functions contained in this package and its sub-packages.
  */
-public class OptionFunctions extends AbstractRepositoryConfigurationBean {
+public class OptionFunctions extends AbstractFunctionConfigurationBean {
 
   /**
    * Default instance of a repository configuration source exposing the functions from this package and its sub-packages.
@@ -60,7 +60,7 @@ public class OptionFunctions extends AbstractRepositoryConfigurationBean {
   /**
    * Function repository configuration source for the default functions contained in this package.
    */
-  public static class Defaults extends AbstractRepositoryConfigurationBean {
+  public static class Defaults extends AbstractFunctionConfigurationBean {
 
     private String _barrierFormat = BarrierOptionDistanceFunction.BARRIER_ABS;
 

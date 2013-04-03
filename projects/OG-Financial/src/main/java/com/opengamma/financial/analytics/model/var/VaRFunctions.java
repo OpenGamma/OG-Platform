@@ -10,7 +10,7 @@ import java.util.List;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculatorFactory;
 import com.opengamma.analytics.financial.schedule.TimeSeriesSamplingFunctionFactory;
 import com.opengamma.analytics.math.statistics.descriptive.StatisticsCalculatorFactory;
-import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
+import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.util.ArgumentChecker;
@@ -18,7 +18,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Function repository configuration source for the functions contained in this package and sub-packages.
  */
-public class VaRFunctions extends AbstractRepositoryConfigurationBean {
+public class VaRFunctions extends AbstractFunctionConfigurationBean {
 
   /**
    * Default instance of a repository configuration source exposing the functions from this package.
@@ -32,7 +32,7 @@ public class VaRFunctions extends AbstractRepositoryConfigurationBean {
   /**
    * Function repository configuration source for the default functions contained in this package.
    */
-  public static class Defaults extends AbstractRepositoryConfigurationBean {
+  public static class Defaults extends AbstractFunctionConfigurationBean {
 
     private String _samplingPeriodName = "P2Y";
     private String _scheduleName = ScheduleCalculatorFactory.DAILY;

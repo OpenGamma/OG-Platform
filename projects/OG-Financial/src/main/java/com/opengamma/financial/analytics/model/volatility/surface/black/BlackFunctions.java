@@ -8,7 +8,7 @@ package com.opengamma.financial.analytics.model.volatility.surface.black;
 import java.util.Collections;
 import java.util.List;
 
-import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
+import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
 import com.opengamma.engine.function.config.CombiningFunctionConfigurationSource;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationBundle;
@@ -18,7 +18,7 @@ import com.opengamma.engine.function.config.SimpleFunctionConfigurationSource;
 /**
  * Function repository configuration source for the functions contained in this package and sub-packages.
  */
-public class BlackFunctions extends AbstractRepositoryConfigurationBean {
+public class BlackFunctions extends AbstractFunctionConfigurationBean {
 
   /**
    * Default instance of a repository configuration source exposing the functions from this package and its sub-packages.

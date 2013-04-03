@@ -7,7 +7,7 @@ package com.opengamma.financial.analytics.volatility.surface;
 
 import java.util.List;
 
-import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
+import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.util.ArgumentChecker;
@@ -15,7 +15,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Function repository configuration source for the functions contained in this package and sub-packages.
  */
-public class SurfaceFunctions extends AbstractRepositoryConfigurationBean {
+public class SurfaceFunctions extends AbstractFunctionConfigurationBean {
 
   /**
    * Default instance of a repository configuration source exposing the functions from this package.
@@ -48,7 +48,7 @@ public class SurfaceFunctions extends AbstractRepositoryConfigurationBean {
   /**
    * Function repository configuration source for the functions contained in this package and sub-packages.
    */
-  public static class Defaults extends AbstractRepositoryConfigurationBean {
+  public static class Defaults extends AbstractFunctionConfigurationBean {
 
     private String _leftXExtrapolatorName = "FlatExtrapolator";
     private String _rightXExtrapolatorName = "FlatExtrapolator";

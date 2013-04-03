@@ -11,7 +11,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.InitializingBean;
 
-import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
+import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.financial.analytics.model.volatility.SmileFittingProperties;
@@ -20,7 +20,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Function repository configuration source for the functions contained in this package.
  */
-public class IRFutureOptionFunctions extends AbstractRepositoryConfigurationBean {
+public class IRFutureOptionFunctions extends AbstractFunctionConfigurationBean {
 
   /**
    * Default instance of a repository configuration source exposing the functions from this package.
@@ -38,7 +38,7 @@ public class IRFutureOptionFunctions extends AbstractRepositoryConfigurationBean
   /**
    * Function repository configuration source for the deprecated functions contained in this package.
    */
-  public static class Deprecated extends AbstractRepositoryConfigurationBean {
+  public static class Deprecated extends AbstractFunctionConfigurationBean {
 
     @Override
     protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
@@ -50,7 +50,7 @@ public class IRFutureOptionFunctions extends AbstractRepositoryConfigurationBean
   /**
    * Function repository configuration source for the default functions contained in this package.
    */
-  public static class Defaults extends AbstractRepositoryConfigurationBean {
+  public static class Defaults extends AbstractFunctionConfigurationBean {
 
     /**
      * Currency specific data.

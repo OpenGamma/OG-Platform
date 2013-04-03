@@ -8,7 +8,7 @@ package com.opengamma.financial.analytics.model.equity;
 import java.util.Collections;
 import java.util.List;
 
-import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
+import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
 import com.opengamma.engine.function.config.CombiningFunctionConfigurationSource;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationBundle;
@@ -22,7 +22,7 @@ import com.opengamma.financial.analytics.model.equity.varianceswap.VarianceSwapF
 /**
  * Function repository configuration source for the functions contained in this package and its sub-packages.
  */
-public class EquityFunctions extends AbstractRepositoryConfigurationBean {
+public class EquityFunctions extends AbstractFunctionConfigurationBean {
 
   /**
    * Default instance of a repository configuration source exposing the functions from this package and its sub-packages.

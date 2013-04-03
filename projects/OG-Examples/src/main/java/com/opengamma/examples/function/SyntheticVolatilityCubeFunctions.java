@@ -8,7 +8,7 @@ package com.opengamma.examples.function;
 import java.util.List;
 import java.util.Set;
 
-import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
+import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.examples.volatility.cube.ExampleSwaptionVolatilityCubeInstrumentProvider;
@@ -19,7 +19,7 @@ import com.opengamma.util.money.Currency;
 /**
  * Function repository configuration source for the synthetic volatility cubes.
  */
-public class SyntheticVolatilityCubeFunctions extends AbstractRepositoryConfigurationBean {
+public class SyntheticVolatilityCubeFunctions extends AbstractFunctionConfigurationBean {
 
   /**
    * Default instance of a repository configuration source exposing the functions from this package.
