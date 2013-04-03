@@ -29,4 +29,9 @@ public class CreditDefaultSwapOptionPVFunction extends CreditDefaultSwapOptionFu
     //final double pv = CALCULATOR.getPresentValueCreditDefaultSwapOption(valuationTime, definition, vol, yieldCurve, hazardRateCurve);
     return null;
   }
+
+  @Override
+  protected boolean labelResultWithCurrency() {
+    return true;
+  }
 }
