@@ -199,8 +199,8 @@ public abstract class CreditDefaultSwapOptionFunction extends AbstractFunction.N
     return results;
   }
 
-  protected abstract Set<ComputedValue> getComputedValue(CreditDefaultSwapOptionDefinition definition, ISDADateCurve yieldCurve, double vol, HazardRateCurve hazardRateCurve,
-      ZonedDateTime valuationTime, ComputationTarget target, ValueProperties properties);
+  protected abstract Set<ComputedValue> getComputedValue(CreditDefaultSwapOptionDefinition definition, ISDADateCurve yieldCurve, double vol, ZonedDateTime[] calibrationTenors,
+      double[] marketSpreads, HazardRateCurve hazardRateCurve, ZonedDateTime valuationTime, ComputationTarget target, ValueProperties properties);
 
   protected abstract boolean labelResultWithCurrency();
 }
