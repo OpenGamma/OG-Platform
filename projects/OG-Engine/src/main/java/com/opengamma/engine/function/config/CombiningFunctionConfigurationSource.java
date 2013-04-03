@@ -90,10 +90,10 @@ public class CombiningFunctionConfigurationSource implements FunctionConfigurati
   }
 
   @Override
-  public FunctionConfigurationBundle getRepositoryConfiguration() {
+  public FunctionConfigurationBundle getFunctionConfiguration() {
     final List<FunctionConfiguration> configs = new ArrayList<FunctionConfiguration>();
     for (final FunctionConfigurationSource source : getSources()) {
-      configs.addAll(source.getRepositoryConfiguration().getFunctions());
+      configs.addAll(source.getFunctionConfiguration().getFunctions());
     }
     return new FunctionConfigurationBundle(configs);
   }

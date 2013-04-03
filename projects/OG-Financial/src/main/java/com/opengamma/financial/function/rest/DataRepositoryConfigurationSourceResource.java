@@ -61,7 +61,7 @@ public class DataRepositoryConfigurationSourceResource extends AbstractDataResou
   @GET
   @Path("repoConfigs/all")
   public Response getAll() {
-    FunctionConfigurationBundle result = getRepositoryConfigurationSource().getRepositoryConfiguration();
+    FunctionConfigurationBundle result = getRepositoryConfigurationSource().getFunctionConfiguration();
     return responseOkFudge(result);
   }
 

@@ -27,7 +27,7 @@ public class RemoteFunctionConfigurationSource extends AbstractRemoteClient impl
 
   //-------------------------------------------------------------------------
   @Override
-  public FunctionConfigurationBundle getRepositoryConfiguration() {
+  public FunctionConfigurationBundle getFunctionConfiguration() {
     URI uri = DataRepositoryConfigurationSourceResource.uriGetAll(getBaseUri());
     return accessRemote(uri).get(FunctionConfigurationBundle.class);
   }

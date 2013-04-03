@@ -9,7 +9,7 @@ package com.opengamma.engine.function.config;
 import com.opengamma.util.PublicSPI;
 
 /**
- * Provides a repository configuration for bootstrapping a function repository. Possible implementations may (but are not limited to):
+ * Provides a function configuration for bootstrapping a function repository. Possible implementations may (but are not limited to):
  * <ul>
  * <li>Retrieve function information from a configuration database;
  * <li>Generate function information dynamically (e.g. by scanning for annotations);
@@ -22,10 +22,10 @@ import com.opengamma.util.PublicSPI;
 public interface FunctionConfigurationSource {
 
   /**
-   * Returns a repository configuration.
+   * Returns a function configuration bundle.
    *
    * @return the configuration, not null
    */
-  FunctionConfigurationBundle getRepositoryConfiguration();
+  FunctionConfigurationBundle getFunctionConfiguration();
 
 }

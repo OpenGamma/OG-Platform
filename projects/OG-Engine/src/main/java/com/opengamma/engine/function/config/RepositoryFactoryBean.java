@@ -28,7 +28,7 @@ public class RepositoryFactoryBean extends SingletonFactoryBean<FunctionReposito
   protected FunctionRepository createObject() {
     final FunctionConfigurationSource repositoryConfigurationSource = getRepositoryConfigurationSource();
     ArgumentChecker.notNull(repositoryConfigurationSource, "repositoryConfigurationSource");
-    final FunctionConfigurationBundle repositoryConfiguration = repositoryConfigurationSource.getRepositoryConfiguration();
+    final FunctionConfigurationBundle repositoryConfiguration = repositoryConfigurationSource.getFunctionConfiguration();
     return RepositoryFactory.constructRepository(repositoryConfiguration);
   }
 

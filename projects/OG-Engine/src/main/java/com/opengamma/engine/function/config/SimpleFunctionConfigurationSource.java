@@ -28,7 +28,7 @@ public class SimpleFunctionConfigurationSource implements FunctionConfigurationS
   }
 
   @Override
-  public FunctionConfigurationBundle getRepositoryConfiguration() {
+  public FunctionConfigurationBundle getFunctionConfiguration() {
     return _repoConfig;
   }
 
