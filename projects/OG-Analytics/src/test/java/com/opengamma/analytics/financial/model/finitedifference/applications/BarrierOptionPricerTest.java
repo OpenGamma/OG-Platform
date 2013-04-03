@@ -112,18 +112,18 @@ public class BarrierOptionPricerTest {
 
   @Test
   public void debugtest() {
-    final double spot = 10.0;
-    final double expiry = 2.0;
+    final double spot = 109.0;
+    final double expiry = 0.5;
     final boolean isCall = true;
-    final double strike = 13.0;
-    final double barrerLevel = 17.0;
-    final double rebate = 1.0;
-    final double r = 0.0;
-    final double b = 0.0;
-    final double sigma = 0.3;
+    final double strike = 100.0;
+    final double barrerLevel = 110.0;
+    final double rebate = 0.0;
+    final double r = 0.05;
+    final double b = 0.05;
+    final double sigma = 0.2;
     final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, expiry, isCall);
     final Barrier barrier = new Barrier(KnockType.OUT, BarrierType.UP, ObservationType.CONTINUOUS, barrerLevel);
-    final BarrierOptionPricer pricer = new BarrierOptionPricer(100, 50, 0.5, 0.1);
+    final BarrierOptionPricer pricer = new BarrierOptionPricer(11, 11, 0.0, 2.0);
 
     if (PRINT) {
       double p1 = ANAL_PRICER.getPrice(option, barrier, rebate, spot, b, r, sigma);
