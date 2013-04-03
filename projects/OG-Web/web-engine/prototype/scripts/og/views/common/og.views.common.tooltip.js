@@ -16,18 +16,12 @@ $.register_module({
                 }}).pipe(function () {
                     // For testing purposes only, should be removed/refactored once
                     // implementation details have been agreed.
-                    var anchor = $('a.tooltip'), tooltip = $('div.tooltip.north'), offsets,
-                        left = 0, top = 0, parent = tooltip.parent();
-                        while (parent && parent[0].tagName !== 'BODY') {
-                            top += parent.offset().top;
-                            left += parent.offset().left;
-                            parent = parent.parent();
-                        }
+                    var anchor = $('a.tooltip'), tooltip = $('div.tooltip.north'), tooltip_offsets = tooltip.offset();
                     anchor.on('mouseover', function (event) {
-                            offsets = anchor.offset();
+                            var offsets = anchor.offset();
                             tooltip.css({
-                                top: (offsets.top - top) + anchor.height() + 'px',
-                                left: (offsets.left - left) - tooltip.width()/2 + 'px',
+                                top: (offsets.top - tooltip_offsets.top) - tooltip.height()/2 + anchor.height() + 'px',
+                                left: (offsets.left - tooltip_offsets.left) - tooltip.width()/2 + 'px'
                             }).show();
                     }).on('mouseout', function () {
                         tooltip.hide();
