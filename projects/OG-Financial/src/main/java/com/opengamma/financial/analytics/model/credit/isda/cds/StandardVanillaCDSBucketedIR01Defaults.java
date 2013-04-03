@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.credit.standard;
+package com.opengamma.financial.analytics.model.credit.isda.cds;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -23,15 +23,15 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-public class StandardVanillaCDSIR01Defaults extends DefaultPropertyFunction {
+public class StandardVanillaCDSBucketedIR01Defaults extends DefaultPropertyFunction {
   private static final String[] VALUE_REQUIREMENT = new String[] {
-    ValueRequirementNames.IR01,
+    ValueRequirementNames.BUCKETED_IR01,
   };
   private final PriorityClass _priority;
   private final Map<String, String> _currencyToYieldCurveBump;
   private final Map<String, String> _currencyToYieldBumpType;
 
-  public StandardVanillaCDSIR01Defaults(final String priority, final String... perCurrencyDefaults) {
+  public StandardVanillaCDSBucketedIR01Defaults(final String priority, final String... perCurrencyDefaults) {
     super(FinancialSecurityTypes.STANDARD_VANILLA_CDS_SECURITY.or(FinancialSecurityTypes.LEGACY_VANILLA_CDS_SECURITY), true);
     ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(perCurrencyDefaults, "per currency defaults");

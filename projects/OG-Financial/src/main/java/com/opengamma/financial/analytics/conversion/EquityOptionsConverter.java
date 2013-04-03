@@ -11,15 +11,16 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.ExerciseDecisionType;
 import com.opengamma.analytics.financial.commodity.definition.SettlementType;
-import com.opengamma.analytics.financial.equity.future.definition.EquityFutureDefinition;
+import com.opengamma.analytics.financial.equity.future.definition.IndexFutureDefinition;
 import com.opengamma.analytics.financial.equity.option.EquityIndexFutureOptionDefinition;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOptionDefinition;
 import com.opengamma.analytics.financial.equity.option.EquityOptionDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
+import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.security.ExerciseTypeAnalyticsVisitorAdapter;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
-import com.opengamma.financial.security.future.EquityFutureSecurity;
+import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.option.EquityIndexFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
@@ -89,16 +90,18 @@ public class EquityOptionsConverter extends FinancialSecurityVisitorAdapter<Inst
     final ZonedDateTime expiryDate = security.getExpiry().getExpiry();
     final ExternalId underlyingIdentifier = security.getUnderlyingId();
     // REVIEW Andrew -- This call to getSingle is not correct as the resolution time of the view cycle will not be considered
-    final EquityFutureSecurity underlyingSecurity = ((EquityFutureSecurity) _securitySource.getSingle(ExternalIdBundle.of(underlyingIdentifier)));
-    if (underlyingSecurity == null) {
+    Security underlyingSecurity = _securitySource.getSingle(ExternalIdBundle.of(underlyingIdentifier));
+    final IndexFutureSecurity underlyingFuture = ((IndexFutureSecurity) underlyingSecurity);
+    if (underlyingFuture == null) {
       throw new OpenGammaRuntimeException("Underlying security " + underlyingIdentifier + " was not found in database");
     }
-    final EquityFutureDefinition underlying = (EquityFutureDefinition) underlyingSecurity.accept(_futureSecurityConverter);
+    final IndexFutureDefinition underlying = (IndexFutureDefinition) underlyingFuture.accept(_futureSecurityConverter);
     final double strike = security.getStrike();
     final ExerciseDecisionType exerciseType = security.getExerciseType().accept(ExerciseTypeAnalyticsVisitorAdapter.getInstance());
     final boolean isCall = security.getOptionType() == OptionType.CALL;
     final double pointValue = security.getPointValue();
     return new EquityIndexFutureOptionDefinition(expiryDate, underlying, strike, exerciseType, isCall, pointValue);
+
   }
 
 }

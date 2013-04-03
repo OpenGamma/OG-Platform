@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.credit.standard;
+package com.opengamma.financial.analytics.model.credit.isda.cds;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -23,51 +23,50 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-public class StandardVanillaCDSCS01Defaults extends DefaultPropertyFunction {
+public class StandardVanillaCDSIR01Defaults extends DefaultPropertyFunction {
   private static final String[] VALUE_REQUIREMENT = new String[] {
-    ValueRequirementNames.CS01,
-    ValueRequirementNames.GAMMA_CS01,
+    ValueRequirementNames.IR01,
   };
   private final PriorityClass _priority;
-  private final Map<String, String> _currencyToSpreadCurveBump;
-  private final Map<String, String> _currencyToSpreadBumpType;
+  private final Map<String, String> _currencyToYieldCurveBump;
+  private final Map<String, String> _currencyToYieldBumpType;
 
-  public StandardVanillaCDSCS01Defaults(final String priority, final String... perCurrencyDefaults) {
+  public StandardVanillaCDSIR01Defaults(final String priority, final String... perCurrencyDefaults) {
     super(FinancialSecurityTypes.STANDARD_VANILLA_CDS_SECURITY.or(FinancialSecurityTypes.LEGACY_VANILLA_CDS_SECURITY), true);
     ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(perCurrencyDefaults, "per currency defaults");
-    ArgumentChecker.isTrue(perCurrencyDefaults.length % 3 == 0, "Must have one spread curve bump and spread bump type per currency");
+    ArgumentChecker.isTrue(perCurrencyDefaults.length % 3 == 0, "Must have one yield curve bump and yield bump type per currency");
     _priority = PriorityClass.valueOf(priority);
-    _currencyToSpreadCurveBump = new HashMap<>();
-    _currencyToSpreadBumpType = new HashMap<>();
+    _currencyToYieldCurveBump = new HashMap<>();
+    _currencyToYieldBumpType = new HashMap<>();
     for (int i = 0; i < perCurrencyDefaults.length; i += 3) {
       final String currency = perCurrencyDefaults[i];
-      _currencyToSpreadCurveBump.put(currency, perCurrencyDefaults[i + 1]);
-      _currencyToSpreadBumpType.put(currency, perCurrencyDefaults[i + 2]);
+      _currencyToYieldCurveBump.put(currency, perCurrencyDefaults[i + 1]);
+      _currencyToYieldBumpType.put(currency, perCurrencyDefaults[i + 2]);
     }
   }
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return _currencyToSpreadCurveBump.containsKey(FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode());
+    return _currencyToYieldCurveBump.containsKey(FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode());
   }
 
   @Override
   protected void getDefaults(final PropertyDefaults defaults) {
     for (final String valueRequirement : VALUE_REQUIREMENT) {
-      defaults.addValuePropertyName(valueRequirement, CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE_BUMP);
-      defaults.addValuePropertyName(valueRequirement, CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_BUMP_TYPE);
+      defaults.addValuePropertyName(valueRequirement, CreditInstrumentPropertyNamesAndValues.PROPERTY_INTEREST_RATE_CURVE_BUMP);
+      defaults.addValuePropertyName(valueRequirement, CreditInstrumentPropertyNamesAndValues.PROPERTY_INTEREST_RATE_BUMP_TYPE);
     }
   }
 
   @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
     final String currency = FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode();
-    if (CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE_BUMP.equals(propertyName)) {
-      return Collections.singleton(_currencyToSpreadCurveBump.get(currency));
+    if (CreditInstrumentPropertyNamesAndValues.PROPERTY_INTEREST_RATE_CURVE_BUMP.equals(propertyName)) {
+      return Collections.singleton(_currencyToYieldCurveBump.get(currency));
     }
-    if (CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_BUMP_TYPE.equals(propertyName)) {
-      return Collections.singleton(_currencyToSpreadBumpType.get(currency));
+    if (CreditInstrumentPropertyNamesAndValues.PROPERTY_INTEREST_RATE_BUMP_TYPE.equals(propertyName)) {
+      return Collections.singleton(_currencyToYieldBumpType.get(currency));
     }
     return null;
   }

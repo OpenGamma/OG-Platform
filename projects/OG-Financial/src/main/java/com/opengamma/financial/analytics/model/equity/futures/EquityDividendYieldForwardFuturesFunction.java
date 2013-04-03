@@ -13,8 +13,13 @@ import com.opengamma.engine.value.ValueRequirementNames;
  */
 public class EquityDividendYieldForwardFuturesFunction extends EquityDividendYieldFuturesFunction<Double> {
 
-  public EquityDividendYieldForwardFuturesFunction() {
-    super(ValueRequirementNames.FORWARD, DividendYieldFuturesCalculator.ForwardPriceCalculator.getInstance());
+  /**
+   * @param closingPriceField The field name of the historical time series for price, e.g. "PX_LAST", "Close". Set in *FunctionConfiguration
+   * @param costOfCarryField The field name of the historical time series for cost of carry e.g. "COST_OF_CARRY". Set in *FunctionConfiguration
+   * @param resolutionKey The key defining how the time series resolution is to occur e.g. "DEFAULT_TSS_CONFIG"
+   */
+  public EquityDividendYieldForwardFuturesFunction(String closingPriceField, String costOfCarryField, String resolutionKey) {
+    super(ValueRequirementNames.FORWARD, DividendYieldFuturesCalculator.ForwardPriceCalculator.getInstance(), closingPriceField, costOfCarryField, resolutionKey);
   }
 
 }

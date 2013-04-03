@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.credit.standard;
+package com.opengamma.financial.analytics.model.credit.isda.cds;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -33,7 +33,8 @@ public class StandardVanillaCDSCurveDefaults extends DefaultPropertyFunction {
     ValueRequirementNames.IR01,
     ValueRequirementNames.BUCKETED_IR01,
     ValueRequirementNames.JUMP_TO_DEFAULT,
-    ValueRequirementNames.PRESENT_VALUE
+    ValueRequirementNames.PRESENT_VALUE,
+    ValueRequirementNames.HAZARD_RATE_CURVE
   };
   private final PriorityClass _priority;
   private final Map<String, String> _currencyToYieldCurveName;

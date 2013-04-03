@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.credit.standard;
+package com.opengamma.financial.analytics.model.credit.isda.cds;
 
 import java.util.Set;
 

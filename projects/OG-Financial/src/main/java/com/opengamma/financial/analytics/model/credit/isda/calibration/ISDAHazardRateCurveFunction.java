@@ -3,19 +3,21 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.credit.standard;
+package com.opengamma.financial.analytics.model.credit.isda.calibration;
 
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.credit.ISDAYieldCurveAndSpreadsProvider;
+import com.opengamma.analytics.financial.credit.calibratehazardratecurve.HazardRateCurveCalculator;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
 import com.opengamma.analytics.math.ParallelArrayBinarySort;
 import com.opengamma.analytics.math.curve.NodalObjectsCurve;
@@ -39,6 +41,7 @@ import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.conversion.CreditDefaultSwapSecurityConverter;
 import com.opengamma.financial.analytics.model.YieldCurveFunctionUtils;
+import com.opengamma.financial.analytics.model.credit.CreditFunctionUtils;
 import com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.credit.CreditSecurityToIdentifierVisitor;
 import com.opengamma.financial.analytics.model.credit.IMMDateGenerator;
@@ -50,31 +53,22 @@ import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.cds.CreditDefaultSwapSecurity;
-import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
-import com.opengamma.financial.security.cds.StandardVanillaCDSSecurity;
-import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.time.Tenor;
 
 /**
  * 
  */
-//TODO rename to make clear that these functions use the ISDA methodology (specifically, for effective dates)
-public abstract class StandardVanillaCDSFunction extends AbstractFunction.NonCompiledInvoker {
+public class ISDAHazardRateCurveFunction extends AbstractFunction.NonCompiledInvoker {
   private static final BusinessDayConvention FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
-  private final String[] _valueRequirements;
+  private static final HazardRateCurveCalculator CALCULATOR = new HazardRateCurveCalculator();
   private CreditDefaultSwapSecurityConverter _converter;
-
-  public StandardVanillaCDSFunction(final String... valueRequirements) {
-    ArgumentChecker.notNull(valueRequirements, "value requirements");
-    _valueRequirements = valueRequirements;
-  }
 
   @Override
   public void init(final FunctionCompilationContext context) {
     final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
-    final OrganizationSource organizationSource = null; //OpenGammaCompilationContext.getOrganizationSource(context);
+    final OrganizationSource organizationSource = OpenGammaCompilationContext.getOrganizationSource(context);
     _converter = new CreditDefaultSwapSecurityConverter(holidaySource, regionSource, organizationSource);
   }
 
@@ -85,14 +79,8 @@ public abstract class StandardVanillaCDSFunction extends AbstractFunction.NonCom
     final ZonedDateTime valuationTime = ZonedDateTime.now(executionContext.getValuationClock());
     final CreditDefaultSwapSecurity security = (CreditDefaultSwapSecurity) target.getSecurity();
     final Calendar calendar = new HolidaySourceCalendarAdapter(holidaySource, FinancialSecurityUtils.getCurrency(security));
-    LegacyVanillaCreditDefaultSwapDefinition definition;
-    if (security instanceof StandardVanillaCDSSecurity) {
-      definition = _converter.visitStandardVanillaCDSSecurity((StandardVanillaCDSSecurity) security);
-      definition = definition.withEffectiveDate(FOLLOWING.adjustDate(calendar, valuationTime.withHour(0).withMinute(0).withSecond(0).withNano(0).plusDays(1)));
-    } else {
-      definition = _converter.visitLegacyVanillaCDSSecurity((LegacyVanillaCDSSecurity) security);
-      definition = definition.withEffectiveDate(FOLLOWING.adjustDate(calendar, valuationTime.withHour(0).withMinute(0).withSecond(0).withNano(0).plusDays(1)));
-    }
+    LegacyVanillaCreditDefaultSwapDefinition cds = (LegacyVanillaCreditDefaultSwapDefinition) security.accept(_converter);
+    cds = cds.withEffectiveDate(FOLLOWING.adjustDate(calendar, valuationTime.withHour(0).withMinute(0).withSecond(0).withNano(0).plusDays(1)));
     final Object yieldCurveObject = inputs.getValue(ValueRequirementNames.YIELD_CURVE);
     if (yieldCurveObject == null) {
       throw new OpenGammaRuntimeException("Could not get yield curve");
@@ -103,8 +91,8 @@ public abstract class StandardVanillaCDSFunction extends AbstractFunction.NonCom
     }
     final ISDADateCurve yieldCurve = (ISDADateCurve) yieldCurveObject;
     final NodalObjectsCurve<?, ?> spreadCurve = (NodalObjectsCurve<?, ?>) spreadCurveObject;
-    final Tenor[] tenors = getTenors(spreadCurve.getXData());
-    final Double[] marketSpreadObjects = getSpreads(spreadCurve.getYData());
+    final Tenor[] tenors = CreditFunctionUtils.getTenors(spreadCurve.getXData());
+    final Double[] marketSpreadObjects = CreditFunctionUtils.getSpreads(spreadCurve.getYData());
     ParallelArrayBinarySort.parallelBinarySort(tenors, marketSpreadObjects);
     final int n = tenors.length;
     final ZonedDateTime[] times = new ZonedDateTime[n];
@@ -113,25 +101,24 @@ public abstract class StandardVanillaCDSFunction extends AbstractFunction.NonCom
       times[i] = IMMDateGenerator.getNextIMMDate(valuationTime, tenors[i]).withHour(0).withMinute(0).withSecond(0).withNano(0);
       marketSpreads[i] = marketSpreadObjects[i];
     }
-    final ValueProperties properties = desiredValues.iterator().next().getConstraints().copy()
+    final ValueProperties properties = Iterables.getOnlyElement(desiredValues).getConstraints().copy()
         .with(ValuePropertyNames.FUNCTION, getUniqueId())
         .get();
-    return getComputedValue(definition, yieldCurve, times, marketSpreads, valuationTime, target, properties);
+    final ISDAYieldCurveAndSpreadsProvider data = new ISDAYieldCurveAndSpreadsProvider(times, marketSpreads, yieldCurve);
+    final HazardRateCurve curve = CALCULATOR.calibrateHazardRateCurve(cds, data, valuationTime);
+    final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.HAZARD_RATE_CURVE, target.toSpecification(), properties);
+    return Collections.singleton(new ComputedValue(spec, curve));
   }
 
   @Override
   public ComputationTargetType getTargetType() {
-    return FinancialSecurityTypes.STANDARD_VANILLA_CDS_SECURITY.or(FinancialSecurityTypes.LEGACY_VANILLA_CDS_SECURITY);
+    return FinancialSecurityTypes.LEGACY_VANILLA_CDS_SECURITY.or(FinancialSecurityTypes.STANDARD_VANILLA_CDS_SECURITY);
   }
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final ValueProperties properties = ValueProperties.all();
-    final Set<ValueSpecification> results = new HashSet<>();
-    for (final String valueRequirement : _valueRequirements) {
-      results.add(new ValueSpecification(valueRequirement, target.toSpecification(), properties));
-    }
-    return results;
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.HAZARD_RATE_CURVE, target.toSpecification(), properties));
   }
 
   @Override
@@ -150,16 +137,11 @@ public abstract class StandardVanillaCDSFunction extends AbstractFunction.NonCom
       return null;
     }
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
-    final String spreadCurveName = security.accept(CreditSecurityToIdentifierVisitor.getInstance()).getUniqueId().getValue();
-    //    final Set<String> spreadCurveNames = constraints.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE);
-    //    if (spreadCurveNames == null || spreadCurveNames.size() != 1) {
-    //      return null;
-    //    }
     final ComputationTargetSpecification currencyTarget = ComputationTargetSpecification.of(FinancialSecurityUtils.getCurrency(target.getSecurity()));
     final String yieldCurveName = Iterables.getOnlyElement(yieldCurveNames);
     final String yieldCurveCalculationConfigName = Iterables.getOnlyElement(yieldCurveCalculationConfigNames);
     final String yieldCurveCalculationMethodName = Iterables.getOnlyElement(yieldCurveCalculationMethodNames);
-    //    final String spreadCurveName = Iterables.getOnlyElement(spreadCurveNames);
+    final String spreadCurveName = security.accept(CreditSecurityToIdentifierVisitor.getInstance()).getUniqueId().getValue();
     final ValueRequirement yieldCurveRequirement = YieldCurveFunctionUtils.getCurveRequirement(currencyTarget, yieldCurveName, yieldCurveCalculationConfigName,
         yieldCurveCalculationMethodName);
     final ValueProperties spreadCurveProperties = ValueProperties.builder()
@@ -171,7 +153,7 @@ public abstract class StandardVanillaCDSFunction extends AbstractFunction.NonCom
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
-    final ValueProperties.Builder propertiesBuilder = getCommonResultProperties();
+    final ValueProperties.Builder propertiesBuilder = createValueProperties();
     for (final Map.Entry<ValueSpecification, ValueRequirement> entry : inputs.entrySet()) {
       final ValueSpecification spec = entry.getKey();
       final ValueProperties.Builder inputPropertiesBuilder = spec.getProperties().copy();
@@ -184,7 +166,7 @@ public abstract class StandardVanillaCDSFunction extends AbstractFunction.NonCom
         propertiesBuilder.with(CreditInstrumentPropertyNamesAndValues.PROPERTY_YIELD_CURVE_CALCULATION_METHOD, inputPropertiesBuilder.get().getValues(ValuePropertyNames.CURVE_CALCULATION_METHOD));
         inputPropertiesBuilder.withoutAny(ValuePropertyNames.CURVE_CALCULATION_METHOD);
       } else if (spec.getValueName().equals(ValueRequirementNames.CREDIT_SPREAD_CURVE)) {
-        propertiesBuilder.with(CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE, inputPropertiesBuilder.get().getValues(ValuePropertyNames.CURVE));
+        propertiesBuilder.with(ValuePropertyNames.CURVE, inputPropertiesBuilder.get().getValues(ValuePropertyNames.CURVE));
         inputPropertiesBuilder.withoutAny(ValuePropertyNames.CURVE);
       }
       if (!inputPropertiesBuilder.get().isEmpty()) {
@@ -193,43 +175,9 @@ public abstract class StandardVanillaCDSFunction extends AbstractFunction.NonCom
         }
       }
     }
-    if (labelResultWithCurrency()) {
-      propertiesBuilder.with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode());
-    }
     final ValueProperties properties = propertiesBuilder.get();
     final ComputationTargetSpecification targetSpec = target.toSpecification();
-    final Set<ValueSpecification> results = new HashSet<>();
-    for (final String valueRequirement : _valueRequirements) {
-      results.add(new ValueSpecification(valueRequirement, targetSpec, properties));
-    }
-    return results;
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.HAZARD_RATE_CURVE, targetSpec, properties));
   }
 
-  protected abstract Set<ComputedValue> getComputedValue(LegacyVanillaCreditDefaultSwapDefinition definition, ISDADateCurve yieldCurve, ZonedDateTime[] times, double[] marketSpreads,
-      ZonedDateTime valuationTime, ComputationTarget target, ValueProperties properties);
-
-  protected abstract ValueProperties.Builder getCommonResultProperties();
-
-  protected abstract boolean labelResultWithCurrency();
-
-  @SuppressWarnings("rawtypes")
-  private Tenor[] getTenors(final Comparable[] xs) {
-    final Tenor[] tenors = new Tenor[xs.length];
-    for (int i = 0; i < xs.length; i++) {
-      if (xs[i] instanceof Tenor) {
-        tenors[i] = (Tenor) xs[i];
-      } else {
-        tenors[i] = new Tenor(Period.parse((String) xs[i]));
-      }
-    }
-    return tenors;
-  }
-
-  private Double[] getSpreads(final Object[] ys) {
-    final Double[] spreads = new Double[ys.length];
-    for (int i = 0; i < ys.length; i++) {
-      spreads[i] = (Double) ys[i];
-    }
-    return spreads;
-  }
 }
