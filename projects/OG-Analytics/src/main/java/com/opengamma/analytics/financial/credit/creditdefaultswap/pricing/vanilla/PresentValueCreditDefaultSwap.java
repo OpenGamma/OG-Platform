@@ -16,6 +16,8 @@ import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
 import com.opengamma.analytics.financial.credit.schedulegeneration.GenerateCreditDefaultSwapIntegrationSchedule;
 import com.opengamma.analytics.financial.credit.schedulegeneration.GenerateCreditDefaultSwapPremiumLegSchedule;
+import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.rootfinding.BisectionSingleRootFinder;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -42,6 +44,9 @@ public class PresentValueCreditDefaultSwap {
 
   private static final int DEFAULT_N_POINTS = 30;
   private final int _numberOfIntegrationSteps;
+
+  private static final double spreadLowerBound = 1e-10;
+  private static final double spreadUpperBound = 1e10;
 
   public PresentValueCreditDefaultSwap() {
     this(DEFAULT_N_POINTS);
@@ -784,6 +789,44 @@ public class PresentValueCreditDefaultSwap {
 
   // TODO : Need to move this function
 
+  // Given a points upfront amount, compute the flat par spread implied by this
+  public double calculateParSpreadFlat(
+      final ZonedDateTime valuationDate,
+      final LegacyVanillaCreditDefaultSwapDefinition cds,
+      final double upfrontAmount,
+      final ZonedDateTime[] marketTenors,
+      final ISDADateCurve yieldCurve,
+      final PriceType priceType) {
+
+    // 1 x 1 vector to hold the flat spread (term structure)
+    final double[] marketSpreads = new double[1];
+
+    Function1D<Double, Double> function = new Function1D<Double, Double>() {
+
+      @Override
+      public Double evaluate(Double parSpread) {
+
+        // For this value of the flat spread, compute the upfront amount
+        marketSpreads[0] = parSpread;
+        final double pointsUpfront = calculateUpfrontFlat(valuationDate, cds, marketTenors, marketSpreads, yieldCurve, priceType);
+
+        // Compute the difference between the calculated and input upfront amount 
+        final double delta = pointsUpfront - upfrontAmount;
+
+        return delta;
+      }
+    };
+
+    double parSpreadFlat = new BisectionSingleRootFinder().getRoot(function, spreadLowerBound, spreadUpperBound);
+
+    return parSpreadFlat;
+  }
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  // TODO : Need to move this function
+
+  // Calculate the upfront amount given a specified spread curve level
   public double calculateUpfrontFlat(
       final ZonedDateTime valuationDate,
       final LegacyVanillaCreditDefaultSwapDefinition cds,
@@ -798,7 +841,7 @@ public class PresentValueCreditDefaultSwap {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
-    // Vector of time nodes for the hazard rate curve
+    // Vectors of time nodes and spreads for the hazard rate curve (note the sizes of these arrays)
     final double[] times = new double[1];
 
     final double[] spreads = new double[1];
