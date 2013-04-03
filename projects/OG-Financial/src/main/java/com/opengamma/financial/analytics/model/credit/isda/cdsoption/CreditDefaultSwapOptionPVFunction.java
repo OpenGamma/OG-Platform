@@ -26,7 +26,7 @@ public class CreditDefaultSwapOptionPVFunction extends CreditDefaultSwapOptionFu
   @Override
   protected Set<ComputedValue> getComputedValue(final CreditDefaultSwapOptionDefinition definition, final ISDADateCurve yieldCurve, final double vol,
       final HazardRateCurve hazardRateCurve, final ZonedDateTime valuationTime, final ComputationTarget target, final ValueProperties properties) {
-    final double pv = CALCULATOR.getPresentValueCreditDefaultSwapOption(valuationTime, definition, vol, yieldCurve, hazardRateCurve);
+    //final double pv = CALCULATOR.getPresentValueCreditDefaultSwapOption(valuationTime, definition, vol, yieldCurve, hazardRateCurve);
     return null;
   }
 }
