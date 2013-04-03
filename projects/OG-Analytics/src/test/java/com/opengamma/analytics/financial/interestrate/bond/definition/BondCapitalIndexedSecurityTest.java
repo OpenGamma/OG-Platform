@@ -14,7 +14,7 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BondCapitalIndexedSecurityDefinition;
-import com.opengamma.analytics.financial.instrument.index.PriceIndex;
+import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZeroCouponMonthlyGearingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponDefinition;
@@ -43,7 +43,7 @@ public class BondCapitalIndexedSecurityTest {
   // Index-Lined Gilt 2% Index-linked Treasury Stock 2035 - GB0031790826
   private static final String NAME = "UK RPI";
   private static final Currency CUR = Currency.GBP;
-  private static final PriceIndex PRICE_INDEX = new PriceIndex(NAME, CUR);
+  private static final IndexPrice PRICE_INDEX = new IndexPrice(NAME, CUR);
   private static final Calendar CALENDAR = new MondayToFridayCalendar("GBP");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
   private static final DayCount DAY_COUNT_GILT_1 = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");

@@ -5,7 +5,7 @@
  */
 package com.opengamma.analytics.financial.interestrate.inflation.derivative;
 
-import com.opengamma.analytics.financial.instrument.index.PriceIndex;
+import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.instrument.payment.CapFloor;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
@@ -52,7 +52,7 @@ public class CapFloorInflationZeroCouponInterpolation extends CouponInflation im
    * @param strike The strike
    * @param isCap The cap/floor flag.
    */
-  public CapFloorInflationZeroCouponInterpolation(final Currency currency, final double paymentTime, final double paymentYearFraction, final double notional, final PriceIndex priceIndex,
+  public CapFloorInflationZeroCouponInterpolation(final Currency currency, final double paymentTime, final double paymentYearFraction, final double notional, final IndexPrice priceIndex,
       final double indexStartValue, final double[] referenceEndTime, final double weight, double strike, boolean isCap) {
     super(currency, paymentTime, paymentYearFraction, notional, priceIndex);
     _indexStartValue = indexStartValue;

@@ -11,7 +11,7 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedInflation;
-import com.opengamma.analytics.financial.instrument.index.PriceIndex;
+import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZeroCouponInterpolationDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZeroCouponMonthlyDefinition;
@@ -51,7 +51,7 @@ public class SwapFixedInflationZeroCouponDefinition extends SwapDefinition {
    * @param priceIndexTimeSeries The time series with the relevant price index values.
    * @return The zero coupon inflation swap.
    */
-  public static SwapFixedInflationZeroCouponDefinition fromInterpolation(final PriceIndex index, final ZonedDateTime settlementDate, int tenor, double fixedRate, double notional,
+  public static SwapFixedInflationZeroCouponDefinition fromInterpolation(final IndexPrice index, final ZonedDateTime settlementDate, int tenor, double fixedRate, double notional,
       final boolean isPayer, final BusinessDayConvention businessDayConvention, final Calendar calendar, final boolean endOfMonth, final int monthLag,
       final DoubleTimeSeries<ZonedDateTime> priceIndexTimeSeries) {
     Validate.notNull(index, "Price index");
@@ -111,7 +111,7 @@ public class SwapFixedInflationZeroCouponDefinition extends SwapDefinition {
    * @param priceIndexTimeSeries The time series with the relevant price index values.
    * @return The zero coupon inflation swap.
    */
-  public static SwapFixedInflationZeroCouponDefinition fromMonthly(final PriceIndex index, final ZonedDateTime settlementDate, int tenor, double fixedRate, double notional,
+  public static SwapFixedInflationZeroCouponDefinition fromMonthly(final IndexPrice index, final ZonedDateTime settlementDate, int tenor, double fixedRate, double notional,
       final boolean isPayer, final BusinessDayConvention businessDayConvention, final Calendar calendar, final boolean endOfMonth, final int monthLag,
       final DoubleTimeSeries<ZonedDateTime> priceIndexTimeSeries) {
     Validate.notNull(index, "Price index");

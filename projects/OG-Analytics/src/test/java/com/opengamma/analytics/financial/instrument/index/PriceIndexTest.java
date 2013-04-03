@@ -19,16 +19,16 @@ public class PriceIndexTest {
 
   private static final String NAME = "Euro HICP x";
   private static final Currency CUR = Currency.EUR;
-  private static final PriceIndex PRICE_INDEX = new PriceIndex(NAME, CUR);
+  private static final IndexPrice PRICE_INDEX = new IndexPrice(NAME, CUR);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullName() {
-    new PriceIndex(null, CUR);
+    new IndexPrice(null, CUR);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurrency() {
-    new PriceIndex(NAME, null);
+    new IndexPrice(NAME, null);
   }
 
   @Test
@@ -40,13 +40,13 @@ public class PriceIndexTest {
   @Test
   public void testEqualHash() {
     assertEquals(PRICE_INDEX, PRICE_INDEX);
-    PriceIndex indexDuplicate = new PriceIndex("Euro HICP x", CUR);
+    IndexPrice indexDuplicate = new IndexPrice("Euro HICP x", CUR);
     assertEquals(PRICE_INDEX, indexDuplicate);
     assertEquals(PRICE_INDEX.hashCode(), indexDuplicate.hashCode());
-    PriceIndex modified;
-    modified = new PriceIndex("xxx", CUR);
+    IndexPrice modified;
+    modified = new IndexPrice("xxx", CUR);
     assertFalse(PRICE_INDEX.equals(modified));
-    modified = new PriceIndex(NAME, Currency.AUD);
+    modified = new IndexPrice(NAME, Currency.AUD);
     assertFalse(PRICE_INDEX.equals(modified));
 
   }

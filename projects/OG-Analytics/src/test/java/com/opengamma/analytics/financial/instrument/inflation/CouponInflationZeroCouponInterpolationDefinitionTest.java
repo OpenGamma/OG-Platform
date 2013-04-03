@@ -12,7 +12,7 @@ import org.testng.annotations.Test;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.analytics.financial.instrument.index.PriceIndex;
+import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponInterpolation;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
@@ -32,8 +32,8 @@ import com.opengamma.util.time.DateUtils;
  * Tests the zero-coupon inflation constructors.
  */
 public class CouponInflationZeroCouponInterpolationDefinitionTest {
-  private static final PriceIndex[] PRICE_INDEXES = MulticurveProviderDiscountDataSets.getPriceIndexes();
-  private static final PriceIndex PRICE_INDEX_EUR = PRICE_INDEXES[0];
+  private static final IndexPrice[] PRICE_INDEXES = MulticurveProviderDiscountDataSets.getPriceIndexes();
+  private static final IndexPrice PRICE_INDEX_EUR = PRICE_INDEXES[0];
   private static final Currency CUR = PRICE_INDEX_EUR.getCurrency();
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");

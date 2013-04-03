@@ -26,7 +26,7 @@ import com.opengamma.analytics.financial.instrument.index.GeneratorAttributeIR;
 import com.opengamma.analytics.financial.instrument.index.GeneratorInstrument;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedInflation;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedInflationMaster;
-import com.opengamma.analytics.financial.instrument.index.PriceIndex;
+import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZeroCouponInterpolationDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZeroCouponMonthlyDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
@@ -73,7 +73,7 @@ public class InflationBuildingCurveSimpleTestEUR {
   private static final double NOTIONAL = 1.0;
 
   private static final GeneratorSwapFixedInflation GENERATOR_INFALTION_SWAP = GeneratorSwapFixedInflationMaster.getInstance().getGenerator("EURHICP");
-  private static final PriceIndex EUR_HICP = GENERATOR_INFALTION_SWAP.getIndexPrice();
+  private static final IndexPrice EUR_HICP = GENERATOR_INFALTION_SWAP.getIndexPrice();
 
   private static final ZonedDateTime NOW = DateUtils.getUTCDate(2012, 9, 28);
 
@@ -124,7 +124,7 @@ public class InflationBuildingCurveSimpleTestEUR {
   private static final MulticurveProviderDiscount eurMulticurveProviderDiscount = MulticurveProviderDiscountDataSets.createMulticurveEurUsd().copy();
   private static final InflationProviderDiscount KNOWN_DATA = new InflationProviderDiscount(eurMulticurveProviderDiscount);
 
-  private static final LinkedHashMap<String, PriceIndex[]> EUR_HICP_MAP = new LinkedHashMap<>();
+  private static final LinkedHashMap<String, IndexPrice[]> EUR_HICP_MAP = new LinkedHashMap<>();
 
   static {
     DEFINITIONS_HICP_EUR = getDefinitions(HICP_EUR_MARKET_QUOTES, HICP_EUR_GENERATORS, HICP_EUR_ATTR);
@@ -141,7 +141,7 @@ public class InflationBuildingCurveSimpleTestEUR {
 
     NAMES_UNITS[0][0] = new String[] {CURVE_NAME_HICP_EUR };
 
-    EUR_HICP_MAP.put(CURVE_NAME_HICP_EUR, new PriceIndex[] {EUR_HICP });
+    EUR_HICP_MAP.put(CURVE_NAME_HICP_EUR, new IndexPrice[] {EUR_HICP });
   }
 
   private static final String NOT_USED = "Not used";

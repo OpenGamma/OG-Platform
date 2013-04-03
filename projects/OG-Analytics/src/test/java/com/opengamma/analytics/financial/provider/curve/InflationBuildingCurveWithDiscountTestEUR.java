@@ -36,7 +36,7 @@ import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedInfl
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedON;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedONMaster;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
-import com.opengamma.analytics.financial.instrument.index.PriceIndex;
+import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZeroCouponInterpolationDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZeroCouponMonthlyDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
@@ -92,7 +92,7 @@ public class InflationBuildingCurveWithDiscountTestEUR {
   private static final GeneratorDepositON GENERATOR_DEPOSIT_ON_USD = new GeneratorDepositON("USD Deposit ON", USD, NYC, INDEX_ON_USD.getDayCount());
 
   private static final GeneratorSwapFixedInflation GENERATOR_INFALTION_SWAP = GeneratorSwapFixedInflationMaster.getInstance().getGenerator("USCPI");
-  private static final PriceIndex US_CPI = GENERATOR_INFALTION_SWAP.getIndexPrice();
+  private static final IndexPrice US_CPI = GENERATOR_INFALTION_SWAP.getIndexPrice();
 
   private static final ZonedDateTime NOW = DateUtils.getUTCDate(2012, 9, 28);
 
@@ -163,7 +163,7 @@ public class InflationBuildingCurveWithDiscountTestEUR {
 
   private static final LinkedHashMap<String, Currency> DSC_MAP = new LinkedHashMap<String, Currency>();
   private static final LinkedHashMap<String, IndexON[]> FWD_ON_MAP = new LinkedHashMap<String, IndexON[]>();
-  public static final LinkedHashMap<String, PriceIndex[]> US_CPI_MAP = new LinkedHashMap<String, PriceIndex[]>();
+  public static final LinkedHashMap<String, IndexPrice[]> US_CPI_MAP = new LinkedHashMap<String, IndexPrice[]>();
 
   static {
     DEFINITIONS_DSC_USD = getDefinitions(DSC_USD_MARKET_QUOTES, DSC_USD_GENERATORS, DSC_USD_ATTR);
@@ -192,7 +192,7 @@ public class InflationBuildingCurveWithDiscountTestEUR {
 
     DSC_MAP.put(CURVE_NAME_DSC_USD, USD);
     FWD_ON_MAP.put(CURVE_NAME_DSC_USD, new IndexON[] {INDEX_ON_USD });
-    US_CPI_MAP.put(CURVE_NAME_CPI_USD, new PriceIndex[] {US_CPI });
+    US_CPI_MAP.put(CURVE_NAME_CPI_USD, new IndexPrice[] {US_CPI });
   }
 
   public static final String NOT_USED = "Not used";

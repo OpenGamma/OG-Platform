@@ -32,34 +32,34 @@ public final class PriceIndexMaster {
   /**
    * The map with the list of Ibor Indexes and their conventions.
    */
-  private final Map<String, PriceIndex> _priceIndex;
+  private final Map<String, IndexPrice> _priceIndex;
 
   /**
    * Private constructor.
    */
   private PriceIndexMaster() {
 
-    _priceIndex = new HashMap<String, PriceIndex>();
+    _priceIndex = new HashMap<String, IndexPrice>();
     _priceIndex.put(
         "EURHICP",
-        new PriceIndex("EUR HICP", Currency.EUR));
+        new IndexPrice("EUR HICP", Currency.EUR));
     _priceIndex.put(
         "UKRPI",
-        new PriceIndex("UK RPI", Currency.EUR));
+        new IndexPrice("UK RPI", Currency.EUR));
     _priceIndex.put(
         "FRCPI",
-        new PriceIndex("FR CPI", Currency.EUR));
+        new IndexPrice("FR CPI", Currency.EUR));
     _priceIndex.put(
         "USCPI",
-        new PriceIndex("US CPI", Currency.USD));
+        new IndexPrice("US CPI", Currency.USD));
   }
 
-  public PriceIndex getIndex(final String name) {
-    final PriceIndex indexNoCalendar = _priceIndex.get(name);
+  public IndexPrice getIndex(final String name) {
+    final IndexPrice indexNoCalendar = _priceIndex.get(name);
     if (indexNoCalendar == null) {
       throw new OpenGammaRuntimeException("Could not get Ibor index for " + name);
     }
-    return new PriceIndex(indexNoCalendar.getName(), indexNoCalendar.getCurrency());
+    return new IndexPrice(indexNoCalendar.getName(), indexNoCalendar.getCurrency());
   }
 
 }
