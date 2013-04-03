@@ -78,7 +78,7 @@ public class RiskFactorCovarianceMatrixFunction extends SampledCovarianceMatrixF
       timeSeries[i] = riskFactors.getDoubleTimeSeries(riskFactorReqs[i]);
     }
     final ValueRequirement desiredValueReq = desiredValues.iterator().next();
-    final ValueSpecification desiredValueSpec = new ValueSpecification(VALUE_NAME, target.toSpecification(), desiredValueReq.getConstraints());
+    final ValueSpecification desiredValueSpec = new ValueSpecification(ValueRequirementNames.COVARIANCE_MATRIX, target.toSpecification(), desiredValueReq.getConstraints());
     return Collections.singleton(new ComputedValue(desiredValueSpec, createCovarianceMatrix(timeSeries, riskFactorReqs)));
   }
 

@@ -21,6 +21,7 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**
@@ -42,8 +43,8 @@ public class DefaultTargetCovarianceMatrixFunction extends AbstractFunction.NonC
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    return ImmutableSet.of(new ValueSpecification(SampledCovarianceMatrixFunction.VALUE_NAME, ComputationTargetSpecification.NULL, ValueProperties.all()),
-        new ValueSpecification(CorrelationMatrixFunction.VALUE_NAME, ComputationTargetSpecification.NULL, ValueProperties.all()));
+    return ImmutableSet.of(new ValueSpecification(ValueRequirementNames.COVARIANCE_MATRIX, ComputationTargetSpecification.NULL, ValueProperties.all()),
+        new ValueSpecification(ValueRequirementNames.CORRELATION_MATRIX, ComputationTargetSpecification.NULL, ValueProperties.all()));
   }
 
   @Override

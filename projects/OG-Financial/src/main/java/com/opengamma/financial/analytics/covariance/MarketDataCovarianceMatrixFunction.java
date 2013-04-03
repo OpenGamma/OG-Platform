@@ -59,7 +59,7 @@ public class MarketDataCovarianceMatrixFunction extends SampledCovarianceMatrixF
       timeSeries[i] = marketData.getDoubleTimeSeries(marketDataSpecs[i]);
     }
     final ValueRequirement desiredValueReq = desiredValues.iterator().next();
-    final ValueSpecification desiredValueSpec = new ValueSpecification(VALUE_NAME, target.toSpecification(), desiredValueReq.getConstraints());
+    final ValueSpecification desiredValueSpec = new ValueSpecification(ValueRequirementNames.COVARIANCE_MATRIX, target.toSpecification(), desiredValueReq.getConstraints());
     return Collections.singleton(new ComputedValue(desiredValueSpec, createCovarianceMatrix(timeSeries, marketDataSpecs)));
   }
 

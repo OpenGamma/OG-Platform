@@ -47,12 +47,6 @@ import com.opengamma.timeseries.DoubleTimeSeries;
 public abstract class SampledCovarianceMatrixFunction extends AbstractFunction.NonCompiledInvoker {
 
   /**
-   * The value name produced by this function.
-   */
-  // TODO: Promote this into ValueRequirementNames
-  public static final String VALUE_NAME = "CovarianceMatrix";
-
-  /**
    * When used in "permissive" mode, will use this period as a default sampling duration.
    */
   private static final Period DEFAULT_SAMPLING_PERIOD = Period.ofMonths(1);
@@ -150,7 +144,7 @@ public abstract class SampledCovarianceMatrixFunction extends AbstractFunction.N
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    return Collections.singleton(new ValueSpecification(VALUE_NAME, target.toSpecification(), createValueProperties().withAny(ValuePropertyNames.SAMPLING_PERIOD).get()));
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.COVARIANCE_MATRIX, target.toSpecification(), createValueProperties().withAny(ValuePropertyNames.SAMPLING_PERIOD).get()));
   }
 
   private String anyConstraintOrNull(final ValueProperties constraints, final String name) {
@@ -198,7 +192,8 @@ public abstract class SampledCovarianceMatrixFunction extends AbstractFunction.N
     final DateConstraint endDate = DateConstraint.parse(historicalTarget.getEndDate());
     final Period samplingPeriod = startDate.periodUntil(endDate);
     return Collections
-        .singleton(new ValueSpecification(VALUE_NAME, target.toSpecification(), createValueProperties().with(ValuePropertyNames.SAMPLING_PERIOD, samplingPeriod.toString()).get()));
+        .singleton(new ValueSpecification(ValueRequirementNames.COVARIANCE_MATRIX, target.toSpecification(), createValueProperties()
+            .with(ValuePropertyNames.SAMPLING_PERIOD, samplingPeriod.toString()).get()));
   }
 
 }
