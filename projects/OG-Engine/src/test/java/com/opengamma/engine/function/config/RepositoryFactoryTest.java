@@ -124,14 +124,14 @@ public class RepositoryFactoryTest {
 
   @Test(expectedExceptions = NullPointerException.class)
   public void nullConfiguration() {
-    RepositoryFactory.constructRepository(null);
+    FunctionRepositoryFactory.constructRepository(null);
   }
 
   public void emptyConfiguration() {
     final FunctionConfigurationBundle configuration = new FunctionConfigurationBundle();
-    final InMemoryFunctionRepository repo = RepositoryFactory.constructRepository(configuration);
+    final InMemoryFunctionRepository repo = FunctionRepositoryFactory.constructRepository(configuration);
     assertNotNull(repo);
-    assertEquals(repo.getAllFunctions().size(), RepositoryFactory.INTRINSIC_FUNCTION_COUNT);
+    assertEquals(repo.getAllFunctions().size(), FunctionRepositoryFactory.INTRINSIC_FUNCTION_COUNT);
     for (final FunctionDefinition definition : repo.getAllFunctions()) {
       assertTrue((definition instanceof NoOpFunction) || (definition instanceof MarketDataAliasingFunction));
       assertNotNull(definition.getUniqueId());
@@ -141,11 +141,11 @@ public class RepositoryFactoryTest {
   public void singleConfigurationNoArgs() {
     final FunctionConfigurationBundle configuration = new FunctionConfigurationBundle();
     configuration.addFunctions(new StaticFunctionConfiguration(MockEmptyFunction.class.getName()));
-    final InMemoryFunctionRepository repo = RepositoryFactory.constructRepository(configuration);
+    final InMemoryFunctionRepository repo = FunctionRepositoryFactory.constructRepository(configuration);
     assertNotNull(repo);
     final Collection<FunctionDefinition> definitions = repo.getAllFunctions();
     assertNotNull(definitions);
-    assertEquals(RepositoryFactory.INTRINSIC_FUNCTION_COUNT + 1, definitions.size());
+    assertEquals(FunctionRepositoryFactory.INTRINSIC_FUNCTION_COUNT + 1, definitions.size());
     FunctionDefinition definition = null;
     for (final FunctionDefinition d : definitions) {
       if (d instanceof MockEmptyFunction) {
@@ -172,12 +172,12 @@ public class RepositoryFactoryTest {
     configuration.addFunctions(new ParameterizedFunctionConfiguration(MockMultiArgumentFunctionArrayForm.class.getName(), Lists.newArrayList(
         "foo1", "foo2")));
     configuration.addFunctions(new ParameterizedFunctionConfiguration(MockMultiArgumentFunctionIndividualParameterForm.class.getName(), Lists.newArrayList("bar1", "bar2")));
-    final InMemoryFunctionRepository repo = RepositoryFactory.constructRepository(configuration);
+    final InMemoryFunctionRepository repo = FunctionRepositoryFactory.constructRepository(configuration);
     assertNotNull(repo);
 
     final Collection<FunctionDefinition> definitions = repo.getAllFunctions();
     assertNotNull(definitions);
-    assertEquals(RepositoryFactory.INTRINSIC_FUNCTION_COUNT + 3, definitions.size());
+    assertEquals(FunctionRepositoryFactory.INTRINSIC_FUNCTION_COUNT + 3, definitions.size());
     for (final FunctionDefinition definition : definitions) {
       if (definition instanceof MockSingleArgumentFunction) {
         final MockSingleArgumentFunction single = (MockSingleArgumentFunction) definition;

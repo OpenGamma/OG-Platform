@@ -23,9 +23,9 @@ import com.opengamma.util.ReflectionUtils;
 /**
  * Constructs and bootstraps an {@link InMemoryFunctionRepository} based on configuration provided in a Fudge-encoded stream.
  */
-public class RepositoryFactory {
+public class FunctionRepositoryFactory {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(RepositoryFactory.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(FunctionRepositoryFactory.class);
 
   /**
    * The number of functions that are always in a constructed repository regardless of the {@link FunctionConfigurationBundle} document used. For example:
