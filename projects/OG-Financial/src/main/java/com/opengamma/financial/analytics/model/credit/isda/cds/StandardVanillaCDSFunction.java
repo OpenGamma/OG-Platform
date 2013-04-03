@@ -50,8 +50,6 @@ import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.cds.CreditDefaultSwapSecurity;
-import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
-import com.opengamma.financial.security.cds.StandardVanillaCDSSecurity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.time.Tenor;
@@ -85,14 +83,8 @@ public abstract class StandardVanillaCDSFunction extends AbstractFunction.NonCom
     final ZonedDateTime valuationTime = ZonedDateTime.now(executionContext.getValuationClock());
     final CreditDefaultSwapSecurity security = (CreditDefaultSwapSecurity) target.getSecurity();
     final Calendar calendar = new HolidaySourceCalendarAdapter(holidaySource, FinancialSecurityUtils.getCurrency(security));
-    LegacyVanillaCreditDefaultSwapDefinition definition;
-    if (security instanceof StandardVanillaCDSSecurity) {
-      definition = _converter.visitStandardVanillaCDSSecurity((StandardVanillaCDSSecurity) security);
-      definition = definition.withEffectiveDate(FOLLOWING.adjustDate(calendar, valuationTime.withHour(0).withMinute(0).withSecond(0).withNano(0).plusDays(1)));
-    } else {
-      definition = _converter.visitLegacyVanillaCDSSecurity((LegacyVanillaCDSSecurity) security);
-      definition = definition.withEffectiveDate(FOLLOWING.adjustDate(calendar, valuationTime.withHour(0).withMinute(0).withSecond(0).withNano(0).plusDays(1)));
-    }
+    LegacyVanillaCreditDefaultSwapDefinition definition = (LegacyVanillaCreditDefaultSwapDefinition) security.accept(_converter);
+    definition = definition.withEffectiveDate(FOLLOWING.adjustDate(calendar, valuationTime.withHour(0).withMinute(0).withSecond(0).withNano(0).plusDays(1)));
     final Object yieldCurveObject = inputs.getValue(ValueRequirementNames.YIELD_CURVE);
     if (yieldCurveObject == null) {
       throw new OpenGammaRuntimeException("Could not get yield curve");
@@ -149,8 +141,9 @@ public abstract class StandardVanillaCDSFunction extends AbstractFunction.NonCom
     if (yieldCurveCalculationMethodNames == null || yieldCurveCalculationMethodNames.size() != 1) {
       return null;
     }
+    final CreditSecurityToIdentifierVisitor identifierVisitor = new CreditSecurityToIdentifierVisitor(OpenGammaCompilationContext.getSecuritySource(context));
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
-    final String spreadCurveName = security.accept(CreditSecurityToIdentifierVisitor.getInstance()).getUniqueId().getValue();
+    final String spreadCurveName = security.accept(identifierVisitor).getUniqueId().getValue();
     //    final Set<String> spreadCurveNames = constraints.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE);
     //    if (spreadCurveNames == null || spreadCurveNames.size() != 1) {
     //      return null;
