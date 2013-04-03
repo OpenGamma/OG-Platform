@@ -41,19 +41,19 @@ public class CompiledViewCalculationConfigurationImpl implements CompiledViewCal
    * @param name the name of the view calculation configuration, not null
    * @param computationTargets the computation targets, not null
    * @param terminalOutputSpecifications the output specifications, not null
-   * @param marketDataRequirements the market data requirements, not null
+   * @param marketDataAliasesSpecifications the market data specifications, not null
    */
   public CompiledViewCalculationConfigurationImpl(final String name, final Set<ComputationTargetSpecification> computationTargets,
       final Map<ValueSpecification, Set<ValueRequirement>> terminalOutputSpecifications,
-      final Map<ValueSpecification, Collection<ValueSpecification>> marketDataRequirements) {
+      final Map<ValueSpecification, Collection<ValueSpecification>> marketDataSpecifications) {
     ArgumentChecker.notNull(name, "name");
     ArgumentChecker.notNull(computationTargets, "computationTargets");
     ArgumentChecker.notNull(terminalOutputSpecifications, "terminalOutputSpecifications");
-    ArgumentChecker.notNull(marketDataRequirements, "marketDataRequirements");
+    ArgumentChecker.notNull(marketDataSpecifications, "marketDataSpecifications");
     _name = name;
     _computationTargets = computationTargets;
     _terminalOutputSpecifications = terminalOutputSpecifications;
-    _marketDataAliases = marketDataRequirements;
+    _marketDataAliases = marketDataSpecifications;
   }
 
   /**
@@ -70,11 +70,12 @@ public class CompiledViewCalculationConfigurationImpl implements CompiledViewCal
     ArgumentChecker.notNull(dependencyGraph, "dependencyGraph");
     final Collection<ValueSpecification> marketDataEntries = dependencyGraph.getAllRequiredMarketData();
     final Map<ValueSpecification, Collection<ValueSpecification>> result = Maps.newHashMapWithExpectedSize(marketDataEntries.size());
+    final Set<ValueSpecification> terminalOutputs = dependencyGraph.getTerminalOutputSpecifications();
     for (ValueSpecification marketData : marketDataEntries) {
       final DependencyNode marketDataNode = dependencyGraph.getNodeProducing(marketData);
       Collection<ValueSpecification> aliases = null;
-      boolean usedDirectly = false;
       Collection<DependencyNode> aliasNodes = marketDataNode.getDependentNodes();
+      boolean usedDirectly = terminalOutputs.contains(marketData);
       for (DependencyNode aliasNode : aliasNodes) {
         if (aliasNode.getFunction().getFunction() instanceof MarketDataAliasingFunction) {
           if (aliases == null) {
