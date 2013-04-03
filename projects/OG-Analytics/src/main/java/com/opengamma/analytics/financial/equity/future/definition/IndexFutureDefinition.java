@@ -185,8 +185,7 @@ public class IndexFutureDefinition implements InstrumentDefinitionWithData<Index
 
   @Override
   public IndexFuture toDerivative(ZonedDateTime date, String... yieldCurveNames) {
-    // TODO Auto-generated method stub
-    return null;
+    return toDerivative(date, getReferencePrice(), yieldCurveNames);
   }
 
   @Override
