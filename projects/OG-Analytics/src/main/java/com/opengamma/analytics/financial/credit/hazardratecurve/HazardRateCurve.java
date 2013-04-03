@@ -40,6 +40,10 @@ public class HazardRateCurve {
 
   private final double _zeroDiscountFactor;
 
+  //TODO almost certainly not necessary to store the next two
+  private final double[] _times;
+
+  private final double[] _rates;
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   public HazardRateCurve(final ZonedDateTime[] curveTenors, final double[] times, final double[] rates, final double offset) {
@@ -54,9 +58,13 @@ public class HazardRateCurve {
 
     _curveTenors = new ZonedDateTime[n];
     System.arraycopy(curveTenors, 0, _curveTenors, 0, n);
-
+    final int length = times.length;
+    _times = new double[length];
+    System.arraycopy(times, 0, _times, 0, length);
+    _rates = new double[length];
+    System.arraycopy(rates, 0, _rates, 0, length);
     // Choose interpolation/extrapolation to match the behaviour of curves in the ISDA CDS reference code
-    if (times.length > 1) {
+    if (length > 1) {
       _curve = InterpolatedDoublesCurve.fromSorted(times, rates, INTERPOLATOR);
     } else {
       _curve = ConstantDoublesCurve.from(rates[0]);  // Unless the curve is flat, in which case use a constant curve
@@ -112,6 +120,14 @@ public class HazardRateCurve {
 
   public int getNumberOfCurvePoints() {
     return _shiftedTimePoints.length;
+  }
+
+  public double[] getTimes() {
+    return _times;
+  }
+
+  public double[] getRates() {
+    return _rates;
   }
 
   @Override

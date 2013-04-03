@@ -22,8 +22,6 @@ import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.organization.OrganizationSource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.option.AmericanExerciseType;
@@ -67,7 +65,6 @@ public class CreditDefaultSwapOptionSecurityConverter extends FinancialSecurityV
       Sector.BASICMATERIALS,
       Region.ASIA,
       "NY");
-  private static final BusinessDayConvention FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("FOLLOWING");
   private final SecuritySource _securitySource;
   private final CreditDefaultSwapSecurityConverter _underlyingConverter;
 
@@ -97,7 +94,6 @@ public class CreditDefaultSwapOptionSecurityConverter extends FinancialSecurityV
     final CDSOptionExerciseType optionExerciseType = convertExerciseType(security.getExerciseType());
     final FinancialSecurity underlyingSecurity = (FinancialSecurity) _securitySource.getSingle(ExternalIdBundle.of(security.getUnderlyingId())); //TODO version correction
     final CreditDefaultSwapDefinition underlyingCDS = underlyingSecurity.accept(_underlyingConverter);
-
     return new CreditDefaultSwapOptionDefinition(buySellProtection, protectionBuyer, protectionSeller, currency, startDate, maturityDate, notional, strike,
         isKnockOut, isPayer, optionExerciseType, underlyingCDS);
   }
