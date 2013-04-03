@@ -26,9 +26,12 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.credit.creditdefaultswapoption.definition.CreditDefaultSwapOptionDefinition;
 import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
+import com.opengamma.analytics.math.ParallelArrayBinarySort;
+import com.opengamma.analytics.math.curve.NodalObjectsCurve;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.organization.OrganizationSource;
 import com.opengamma.core.region.RegionSource;
@@ -42,6 +45,7 @@ import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
@@ -49,7 +53,10 @@ import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.conversion.CreditDefaultSwapOptionSecurityConverter;
 import com.opengamma.financial.analytics.model.YieldCurveFunctionUtils;
+import com.opengamma.financial.analytics.model.credit.CreditFunctionUtils;
 import com.opengamma.financial.analytics.model.credit.CreditSecurityToIdentifierVisitor;
+import com.opengamma.financial.analytics.model.credit.IMMDateGenerator;
+import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.cds.CreditDefaultSwapSecurity;
@@ -57,6 +64,7 @@ import com.opengamma.financial.security.option.CreditDefaultSwapOptionSecurity;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
+import com.opengamma.util.time.Tenor;
 
 /**
  * 
@@ -70,18 +78,46 @@ public abstract class CreditDefaultSwapOptionFunction extends AbstractFunction.N
   }
 
   @Override
-  public void init(final FunctionCompilationContext context) {
-  }
-
-  @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
+    final ZonedDateTime valuationTime = ZonedDateTime.now(executionContext.getValuationClock());
     final SecuritySource securitySource = OpenGammaExecutionContext.getSecuritySource(executionContext);
     final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
     final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(executionContext);
     final OrganizationSource organizationSource = OpenGammaExecutionContext.getOrganizationSource(executionContext);
     final CreditDefaultSwapOptionSecurityConverter converter = new CreditDefaultSwapOptionSecurityConverter(securitySource, holidaySource, regionSource, organizationSource);
-    return null;
+    final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
+    final CreditDefaultSwapOptionDefinition definition = security.accept(converter);
+    final Object yieldCurveObject = inputs.getValue(ValueRequirementNames.YIELD_CURVE);
+    if (yieldCurveObject == null) {
+      throw new OpenGammaRuntimeException("Could not get yield curve");
+    }
+    final Object spreadCurveObject = inputs.getValue(ValueRequirementNames.CREDIT_SPREAD_CURVE);
+    if (spreadCurveObject == null) {
+      throw new OpenGammaRuntimeException("Could not get credit spread curve");
+    }
+    final Object hazardRateCurveObject = inputs.getValue(ValueRequirementNames.HAZARD_RATE_CURVE);
+    if (hazardRateCurveObject == null) {
+      throw new OpenGammaRuntimeException("Could not get hazard rate curve");
+    }
+    final ISDADateCurve yieldCurve = (ISDADateCurve) yieldCurveObject;
+    final double volatility = 0.3; //TODO
+    final HazardRateCurve hazardRateCurve = (HazardRateCurve) hazardRateCurveObject;
+    final NodalObjectsCurve<?, ?> spreadCurve = (NodalObjectsCurve<?, ?>) spreadCurveObject;
+    final Tenor[] tenors = CreditFunctionUtils.getTenors(spreadCurve.getXData());
+    final Double[] marketSpreadObjects = CreditFunctionUtils.getSpreads(spreadCurve.getYData());
+    ParallelArrayBinarySort.parallelBinarySort(tenors, marketSpreadObjects);
+    final int n = tenors.length;
+    final ZonedDateTime[] calibrationTimes = new ZonedDateTime[n];
+    final double[] marketSpreads = new double[n];
+    for (int i = 0; i < n; i++) {
+      calibrationTimes[i] = IMMDateGenerator.getNextIMMDate(valuationTime, tenors[i]).withHour(0).withMinute(0).withSecond(0).withNano(0);
+      marketSpreads[i] = marketSpreadObjects[i];
+    }
+    final ValueProperties properties = desiredValues.iterator().next().getConstraints().copy()
+        .with(ValuePropertyNames.FUNCTION, getUniqueId())
+        .get();
+    return getComputedValue(definition, yieldCurve, volatility, calibrationTimes, marketSpreads, hazardRateCurve, valuationTime, target, properties);
   }
 
   @Override
