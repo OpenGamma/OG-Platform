@@ -39,10 +39,10 @@ public class LocalVolPDEPricerTest {
     final boolean isCall = true;
     final ForwardCurve fc = new ForwardCurve(spot, r);
 
-    LocalVolatilitySurfaceStrike lv = new LocalVolatilitySurfaceStrike(ConstantDoublesSurface.from(sigma));
+    final LocalVolatilitySurfaceStrike lv = new LocalVolatilitySurfaceStrike(ConstantDoublesSurface.from(sigma));
 
-    int tN = 60;
-    int sN = 80 * tN;
+    final int tN = 60;
+    final int sN = 80 * tN;
 
     final double pdePrice = PRICER.price(spot, k, r, b, t, lv, true, false, sN, tN);
     final double price = Math.exp(-r * t) * BlackFormulaRepository.price(fc.getForward(t), k, t, sigma, isCall);
@@ -64,23 +64,23 @@ public class LocalVolPDEPricerTest {
     final boolean isCall = true;
     final ForwardCurve fc = new ForwardCurve(spot, b);
     final YieldAndDiscountCurve discountCurve = new YieldCurve("test", ConstantDoublesCurve.from(r));
-    double[] w = new double[] {0.7, 0.25, 0.05 };
-    double[] sigma = new double[] {0.3, 0.6, 1.0 };
-    double[] mu = new double[] {0.0, 0.3, -0.5 };
+    final double[] w = new double[] {0.7, 0.25, 0.05 };
+    final double[] sigma = new double[] {0.3, 0.6, 1.0 };
+    final double[] mu = new double[] {0.0, 0.3, -0.5 };
 
-    MultiHorizonMixedLogNormalModelData data = new MultiHorizonMixedLogNormalModelData(w, sigma, mu);
-    LocalVolatilitySurfaceStrike lv = MixedLogNormalVolatilitySurface.getLocalVolatilitySurface(fc, data);
+    final MultiHorizonMixedLogNormalModelData data = new MultiHorizonMixedLogNormalModelData(w, sigma, mu);
+    final LocalVolatilitySurfaceStrike lv = MixedLogNormalVolatilitySurface.getLocalVolatilitySurface(fc, data);
 
-    //TODO relatively large grid needed for moderate accuracy 
-    int tN = 400;
-    int sN = 2 * tN;
+    //TODO relatively large grid needed for moderate accuracy
+    final int tN = 400;
+    final int sN = 2 * tN;
 
     final double pdePrice = PRICER.price(spot, k, r, b, t, lv, true, false, sN, tN);
     final double price = MixedLogNormalVolatilitySurface.getPriceSurface(fc, discountCurve, data).getPrice(t, k);
     final double vol = MixedLogNormalVolatilitySurface.getImpliedVolatilitySurface(fc, data).getVolatility(t, k);
     final double price2 = Math.exp(-r * t) * BlackFormulaRepository.price(spot * Math.exp(b * t), k, t, vol, isCall);
 
-    System.out.println(price + "\t" + price2 + "\t" + pdePrice);
+    //System.out.println(price + "\t" + price2 + "\t" + pdePrice);
     assertEquals(price, pdePrice, 1e-3 * price);
 
   }

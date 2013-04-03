@@ -13,7 +13,12 @@ import com.opengamma.financial.analytics.ircurve.BloombergFutureCurveInstrumentP
 import com.opengamma.financial.analytics.ircurve.CurveInstrumentProvider;
 import com.opengamma.financial.analytics.ircurve.StaticCurveInstrumentProvider;
 import com.opengamma.id.ExternalId;
+import com.opengamma.util.test.TestGroup;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class CurveInstrumentProviderFudgeEncodingTest extends FinancialTestBase {
 
   @Test

@@ -1,0 +1,31 @@
+<table class="OG-table og-tablesorter">
+  <thead>
+    <tr>
+    <th colspan="6">{{{title}}}</th>
+    </tr>
+    <tr>
+    <th><div><em>ID<em/></div></th>
+    <th><div><em>Quantity<em/></div></th>
+    <th><div><em>Counterparty<em/></div></th>
+    <th><div><em>Trade Date / Time<em/></div></th>
+    <th><div><em>Premium<em/></div></th>
+    <th><div><em>Premium Date / Time<em/></div></th>
+    </tr>
+  </thead>
+  <tbody>
+    {{#if trades}}
+      {{#each trades}}
+        <tr class="og-row">
+          <td>{{id}}</td>
+          <td>{{quantity}}</td>
+          <td>{{counterParty}}</td>
+          <td>{{trade_date_time}}</td>
+          <td>{{premium}}</td>
+          <td>{{premium_date_time}}</td>
+        </tr>
+      {{/each}}
+    {{else}}
+      <tr><td colspan="6">No Trades</td></tr>
+    {{/if}}
+  </tbody>
+</table>

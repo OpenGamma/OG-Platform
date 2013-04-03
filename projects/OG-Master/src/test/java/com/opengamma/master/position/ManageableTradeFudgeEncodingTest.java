@@ -22,11 +22,12 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.security.ManageableSecurityLink;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test {@link ManageableTrade} Fudge.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class ManageableTradeFudgeEncodingTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ManageableTradeFudgeEncodingTest.class);

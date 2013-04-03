@@ -20,11 +20,12 @@ import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test Expiry.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class ExpiryTest {
 
   private static final FudgeContext s_fudgeContext = new FudgeContext();

@@ -19,12 +19,13 @@ LOGGING (com.opengamma.language.service.JVMTest);
  * Tries to start the JVM and invoke the same methods as MainTest/TestStartStop does.
  */
 static void StartStop () {
-	CJVM *pJvm = CJVM::Create ();
+	CErrorFeedback oFeedback;
+	CJVM *pJvm = CJVM::Create (&oFeedback);
 	ASSERT (pJvm);
 	ASSERT (!pJvm->IsBusy (0));
 	ASSERT (!pJvm->IsRunning ());
 	LOGDEBUG (TEXT ("Starting JVM"));
-	pJvm->Start ();
+	pJvm->Start (&oFeedback);
 	int nAttempt = 0;
 	while (pJvm->IsBusy (TIMEOUT_START_JVM / 10)) {
 		LOGDEBUG (TEXT ("JVM busy"));

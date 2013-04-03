@@ -52,35 +52,35 @@ public class WebConfigResource extends AbstractWebConfigResource {
   @GET
   @Produces(MediaType.TEXT_HTML)
   public String getHTML() {
-    FlexiBean out = createRootData();
-    ConfigDocument doc = data().getConfig();
+    final FlexiBean out = createRootData();
+    final ConfigDocument doc = data().getConfig();
     out.put("configXml", createXML(doc));
-    return getFreemarker().build("configs/config.ftl", out);
+    return getFreemarker().build(HTML_DIR + "config.ftl", out);
   }
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
-  public Response getJSON(@Context Request request) {
-    EntityTag etag = new EntityTag(data().getConfig().getUniqueId().toString());
-    ResponseBuilder builder = request.evaluatePreconditions(etag);
+  public Response getJSON(@Context final Request request) {
+    final EntityTag etag = new EntityTag(data().getConfig().getUniqueId().toString());
+    final ResponseBuilder builder = request.evaluatePreconditions(etag);
     if (builder != null) {
       return builder.build();
     }
-    FlexiBean out = createRootData();
-    ConfigDocument doc = data().getConfig();
-    String jsonConfig = StringUtils.stripToNull(toJSON(doc.getConfig().getValue(), doc.getType()));
+    final FlexiBean out = createRootData();
+    final ConfigDocument doc = data().getConfig();
+    final String jsonConfig = StringUtils.stripToNull(toJSON(doc.getConfig().getValue(), doc.getType()));
     if (jsonConfig != null) {
       out.put("configJSON", jsonConfig);
     }
-    out.put("configXML", StringEscapeUtils.escapeJavaScript(createXML(doc)));
+    out.put("configXML", StringEscapeUtils.escapeJava(createXML(doc)));
     out.put("type", doc.getType().getName());
-    String json = getFreemarker().build("configs/jsonconfig.ftl", out);
+    final String json = getFreemarker().build(JSON_DIR + "config.ftl", out);
     return Response.ok(json).tag(etag).build();
   }
 
   @SuppressWarnings("unchecked")
   private <T> String toJSON(final Object configObj, final Class<T> configType) {
-    JSONBuilder<T> jsonBuilder = (JSONBuilder<T>) data().getJsonBuilderMap().get(configType);
+    final JSONBuilder<T> jsonBuilder = (JSONBuilder<T>) data().getJsonBuilderMap().get(configType);
     String result = null;
     if (jsonBuilder != null) {
       result = jsonBuilder.toJSON((T) configObj);
@@ -104,18 +104,18 @@ public class WebConfigResource extends AbstractWebConfigResource {
     name = StringUtils.trimToNull(name);
     xml = StringUtils.trimToNull(xml);
     if (name == null || xml == null) {
-      FlexiBean out = createRootData();
+      final FlexiBean out = createRootData();
       if (name == null) {
         out.put("err_nameMissing", true);
       }
       if (xml == null) {
         out.put("err_xmlMissing", true);
       }
-      String html = getFreemarker().build("configs/config-update.ftl", out);
+      final String html = getFreemarker().build(HTML_DIR + "config-update.ftl", out);
       return Response.ok(html).build();
     }
 
-    URI uri = updateConfig(name, parseXML(xml));
+    final URI uri = updateConfig(name, parseXML(xml));
     return Response.seeOther(uri).build();
   }
 
@@ -147,16 +147,16 @@ public class WebConfigResource extends AbstractWebConfigResource {
     return Response.ok().build();
   }
 
-  private URI updateConfig(String name, Object newConfigValue) {
-    ConfigDocument oldDoc = data().getConfig();
-    ConfigItem<?> newItem = ConfigItem.of(newConfigValue);
+  private URI updateConfig(final String name, final Object newConfigValue) {
+    final ConfigDocument oldDoc = data().getConfig();
+    final ConfigItem<?> newItem = ConfigItem.of(newConfigValue);
     newItem.setName(name);
     newItem.setType(oldDoc.getType());
     ConfigDocument doc = new ConfigDocument(newItem);
     doc.setUniqueId(oldDoc.getUniqueId());
     doc = data().getConfigMaster().update(doc);
     data().setConfig(doc);
-    URI uri = WebConfigResource.uri(data());
+    final URI uri = WebConfigResource.uri(data());
     return uri;
   }
 
@@ -164,19 +164,19 @@ public class WebConfigResource extends AbstractWebConfigResource {
   @DELETE
   @Produces(MediaType.TEXT_HTML)
   public Response deleteHTML() {
-    ConfigDocument doc = data().getConfig();
+    final ConfigDocument doc = data().getConfig();
     if (doc.isLatest() == false) {
       return Response.status(Status.FORBIDDEN).entity(getHTML()).build();
     }
     data().getConfigMaster().remove(doc.getUniqueId());
-    URI uri = WebConfigsResource.uri(data());
+    final URI uri = WebConfigsResource.uri(data());
     return Response.seeOther(uri).build();
   }
 
   @DELETE
   @Produces(MediaType.APPLICATION_JSON)
   public Response deleteJSON() {
-    ConfigDocument doc = data().getConfig();
+    final ConfigDocument doc = data().getConfig();
     if (doc.isLatest()) {
       data().getConfigMaster().remove(doc.getUniqueId());
     }
@@ -188,9 +188,10 @@ public class WebConfigResource extends AbstractWebConfigResource {
    * Creates the output root data.
    * @return the output root data, not null
    */
+  @Override
   protected FlexiBean createRootData() {
-    FlexiBean out = super.createRootData();
-    ConfigDocument doc = data().getConfig();
+    final FlexiBean out = super.createRootData();
+    final ConfigDocument doc = data().getConfig();
     out.put("configDoc", doc);
     out.put("config", doc.getConfig().getValue());
     out.put("deleted", !doc.isLatest());
@@ -220,7 +221,7 @@ public class WebConfigResource extends AbstractWebConfigResource {
    * @return the URI, not null
    */
   public static URI uri(final WebConfigData data, final UniqueId overrideConfigId) {
-    String configId = data.getBestConfigUriId(overrideConfigId);
+    final String configId = data.getBestConfigUriId(overrideConfigId);
     return data.getUriInfo().getBaseUriBuilder().path(WebConfigResource.class).build(configId);
   }
 

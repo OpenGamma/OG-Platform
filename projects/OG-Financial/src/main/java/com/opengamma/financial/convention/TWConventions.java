@@ -8,6 +8,8 @@ package com.opengamma.financial.convention;
 import static com.opengamma.core.id.ExternalSchemes.bloombergTickerSecurityId;
 import static com.opengamma.financial.convention.InMemoryConventionBundleMaster.simpleNameSecurityId;
 
+import org.threeten.bp.Period;
+
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -37,19 +39,19 @@ public class TWConventions {
       final String name = "TWD Deposit " + i + "d";
       final ExternalId bbgId = bloombergTickerSecurityId("NTDR" + i + BBG_DAY_CODE + " Curncy");
       final ExternalId simpleId = simpleNameSecurityId(name);
-      utils.addConventionBundle(ExternalIdBundle.of(bbgId, simpleId), name, ACT_365, FOLLOWING, DateUtils.periodOfDays(i), 0, false, TW);
+      utils.addConventionBundle(ExternalIdBundle.of(bbgId, simpleId), name, ACT_365, FOLLOWING, Period.ofDays(i), 0, false, TW);
     }
     for (int i = 1; i < 4; i++) {
       final String name = "TWD Deposit " + i + "w";
       final ExternalId bbgId = bloombergTickerSecurityId("NTDR" + i + BBG_WEEK_CODE + " Curncy");
       final ExternalId simpleId = simpleNameSecurityId(name);
-      utils.addConventionBundle(ExternalIdBundle.of(bbgId, simpleId), name, ACT_365, FOLLOWING, DateUtils.periodOfDays(i * 7), 0, false, TW);
+      utils.addConventionBundle(ExternalIdBundle.of(bbgId, simpleId), name, ACT_365, FOLLOWING, Period.ofDays(i * 7), 0, false, TW);
     }
     for (int i = 1; i < 12; i++) {
       final String name = "TWD Deposit " + i + "m";
       final ExternalId bbgId = bloombergTickerSecurityId("NTDR" + BBG_MONTH_CODES[i - 1] + " Curncy");
       final ExternalId simpleId = simpleNameSecurityId(name);
-      utils.addConventionBundle(ExternalIdBundle.of(bbgId, simpleId), name, ACT_365, FOLLOWING, DateUtils.periodOfMonths(i), 0, false, TW);
+      utils.addConventionBundle(ExternalIdBundle.of(bbgId, simpleId), name, ACT_365, FOLLOWING, Period.ofMonths(i), 0, false, TW);
     }
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("TWD_3M_SWAP")), "TWD_3M_SWAP", ACT_365, FOLLOWING,
         QUARTERLY, 2, TW, ACT_365, FOLLOWING, QUARTERLY, 2, simpleNameSecurityId("TWD Deposit 3m"), TW, true);

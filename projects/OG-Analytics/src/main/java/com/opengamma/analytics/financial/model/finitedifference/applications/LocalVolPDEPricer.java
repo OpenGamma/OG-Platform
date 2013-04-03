@@ -105,16 +105,16 @@ public class LocalVolPDEPricer {
         lower = new NeumannBoundaryCondition(0.0, sMin, true);
         Function1D<Double, Double> upFunc = new Function1D<Double, Double>() {
           @Override
-          public Double evaluate(Double t) {
-            return Math.exp(-q * t);
+          public Double evaluate(Double time) {
+            return Math.exp(-q * time);
           }
         };
         upper = new NeumannBoundaryCondition(upFunc, sMax, false);
       } else {
         Function1D<Double, Double> downFunc = new Function1D<Double, Double>() {
           @Override
-          public Double evaluate(Double t) {
-            return -Math.exp(-q * t);
+          public Double evaluate(Double time) {
+            return -Math.exp(-q * time);
           }
         };
         lower = new NeumannBoundaryCondition(downFunc, sMin, true);

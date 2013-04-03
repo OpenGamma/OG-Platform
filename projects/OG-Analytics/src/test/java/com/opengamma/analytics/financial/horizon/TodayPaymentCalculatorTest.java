@@ -16,16 +16,16 @@ import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIborMaster;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.analytics.financial.interestrate.TestsDataSetsSABR;
-import com.opengamma.analytics.financial.interestrate.TodayPaymentCalculator;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
+import com.opengamma.analytics.financial.provider.calculator.generic.TodayPaymentCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;
-import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
 
 /**
  * Tests functionality of TPC, which returns currency amounts paid on provided date
@@ -36,7 +36,7 @@ public class TodayPaymentCalculatorTest {
   private static final Calendar CALENDAR_USD = new MondayToFridayCalendar("USD Calendar");
   private static final GeneratorSwapFixedIborMaster GENERATOR_SWAP_MASTER = GeneratorSwapFixedIborMaster.getInstance();
   private static final GeneratorSwapFixedIbor USD6MLIBOR3M = GENERATOR_SWAP_MASTER.getGenerator("USD6MLIBOR3M", CALENDAR_USD);
-  private static final Period SWAP_TENOR = Period.of(5, YEARS);
+  private static final Period SWAP_TENOR = Period.ofYears(5);
   private static final ZonedDateTime SETTLEMENT_DATE = DateUtils.getUTCDate(2012, 5, 17);
   private static final double NOTIONAL = 100000000; //100m
   private static final double RATE_FIXED = 0.025;
@@ -50,7 +50,7 @@ public class TodayPaymentCalculatorTest {
       DateUtils.getUTCDate(2012, 5, 15), DateUtils.getUTCDate(2012, 5, 16)}, new double[] {0.0095, 0.0120, 0.0130});
   private static final ArrayZonedDateTimeDoubleTimeSeries[] FIXING_TS_3_6 = new ArrayZonedDateTimeDoubleTimeSeries[] {FIXING_TS_3, FIXING_TS_6};
 
-  // Tests 
+  // Tests
   private static final double TOLERANCE_PV = 1.0E-2; // one cent out of 100m
 
   @Test
@@ -111,7 +111,7 @@ public class TodayPaymentCalculatorTest {
 
   // BACKWARD LOOKING TESTS //////////////////////////////////////////
   @Test
-  public void TpcLookingBackwardOnDayOfPayment() {
+  public void tpcLookingBackwardOnDayOfPayment() {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 8, 17);
     final SwapFixedCoupon<Coupon> swapToday = SWAP_FIXED_IBOR_DEFINITION.toDerivative(referenceDate, FIXING_TS_3_6, CURVE_NAMES);
     final double todayCash = ((CouponFixed) swapToday.getSecondLeg().getNthPayment(0)).getAmount();
@@ -125,7 +125,7 @@ public class TodayPaymentCalculatorTest {
   }
 
   @Test
-  public void TpcLookingBackwardOneDayOneDayAfterPayment() {
+  public void tpcLookingBackwardOneDayOneDayAfterPayment() {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 8, 18);
     final SwapFixedCoupon<Coupon> swapToday = SWAP_FIXED_IBOR_DEFINITION.toDerivative(referenceDate, FIXING_TS_3_6, CURVE_NAMES);
     final double todayCash = 0.0; // ((CouponFixed) swapToday.getSecondLeg().getNthPayment(0)).getAmount();
@@ -139,7 +139,7 @@ public class TodayPaymentCalculatorTest {
   }
 
   @Test
-  public void TpcLookingBackwardAndForwardOnDayOfPayment() {
+  public void tpcLookingBackwardAndForwardOnDayOfPayment() {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 8, 17);
     final SwapFixedCoupon<Coupon> swapToday = SWAP_FIXED_IBOR_DEFINITION.toDerivative(referenceDate, FIXING_TS_3_6, CURVE_NAMES);
 
@@ -161,7 +161,7 @@ public class TodayPaymentCalculatorTest {
   // The following test fails because the payment on 2012/08/17 is dropped when toDerivative is called.
   // TodayPaymentCalculator does what it says on the tin. It provides the cashflows that occur today.
   // The horizon is there only to give flexibility in financial-time as to the range in which one considers something as having occurred today.
-  public void TpcWontProvidePaymentFromOneWeekBack() {
+  public void tpcWontProvidePaymentFromOneWeekBack() {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 8, 21);
     final SwapFixedCoupon<Coupon> swapToday = SWAP_FIXED_IBOR_DEFINITION.toDerivative(referenceDate, FIXING_TS_3_6, CURVE_NAMES);
     final ZonedDateTime horizonDate = referenceDate.minusDays(7);

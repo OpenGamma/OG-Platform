@@ -16,7 +16,7 @@ import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithB
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Calculator of the value gamma, second order derivative of present value with respect to the futures rate, 
+ * Calculator of the value gamma, second order derivative of present value with respect to the futures rate,
  * for InterestRateFutureOptions in the Black world.
  */
 public class PresentValueBlackGammaCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, Double> {
@@ -41,8 +41,8 @@ public class PresentValueBlackGammaCalculator extends InstrumentDerivativeVisito
   }
 
   /**
-  * The methods used in the calculator.
-  */
+   * The methods used in the calculator.
+   */
   private static final InterestRateFutureOptionMarginTransactionBlackSurfaceMethod MARGINNED_IR_FUTURE_OPTION = InterestRateFutureOptionMarginTransactionBlackSurfaceMethod.getInstance();
   private static final BondFutureOptionPremiumTransactionBlackSurfaceMethod PREMIUM_BOND_FUTURE_OPTION = BondFutureOptionPremiumTransactionBlackSurfaceMethod.getInstance();
 

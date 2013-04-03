@@ -9,7 +9,9 @@ import static com.opengamma.bbg.BloombergConstants.BLOOMBERG_DATA_SOURCE_NAME;
 import static com.opengamma.bbg.BloombergConstants.BLOOMBERG_FIELDS_REQUEST;
 import static com.opengamma.bbg.BloombergConstants.BLOOMBERG_HISTORICAL_DATA_REQUEST;
 import static com.opengamma.bbg.BloombergConstants.BLOOMBERG_SECURITIES_REQUEST;
+import static com.opengamma.bbg.BloombergConstants.DATA_PROVIDER_UNKNOWN;
 import static com.opengamma.bbg.BloombergConstants.ERROR_INFO;
+import static com.opengamma.bbg.BloombergConstants.DEFAULT_DATA_PROVIDER;
 import static com.opengamma.bbg.BloombergConstants.FIELD_DATA;
 import static com.opengamma.bbg.BloombergConstants.FIELD_EXCEPTIONS;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ID;
@@ -17,6 +19,8 @@ import static com.opengamma.bbg.BloombergConstants.RESPONSE_ERROR;
 import static com.opengamma.bbg.BloombergConstants.SECURITY_DATA;
 import static com.opengamma.bbg.BloombergConstants.SECURITY_ERROR;
 import static com.opengamma.bbg.util.BloombergDataUtils.toBloombergDate;
+import static com.opengamma.core.id.ExternalSchemes.BLOOMBERG_BUID;
+import static com.opengamma.core.id.ExternalSchemes.BLOOMBERG_TICKER;
 
 import java.text.MessageFormat;
 import java.util.Collections;
@@ -42,16 +46,15 @@ import com.opengamma.bbg.BloombergConnector;
 import com.opengamma.bbg.BloombergConstants;
 import com.opengamma.bbg.referencedata.statistics.BloombergReferenceDataStatistics;
 import com.opengamma.bbg.util.BloombergDomainIdentifierResolver;
-import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProviderGetRequest;
 import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProviderGetResult;
 import com.opengamma.provider.historicaltimeseries.impl.AbstractHistoricalTimeSeriesProvider;
+import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.localdate.MapLocalDateDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.LocalDateRange;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.MapLocalDateDoubleTimeSeries;
 
 /**
  * Provider of time-series from the Bloomberg data source.
@@ -203,25 +206,7 @@ public class BloombergHistoricalTimeSeriesProvider extends AbstractHistoricalTim
 
       // identifiers
       for (ExternalIdBundle identifiers : externalIdBundle) {
-        Set<ExternalId> preferredIds = identifiers.getExternalIds(ExternalSchemes.BLOOMBERG_TICKER);
-        ExternalId preferredId = null;
-        if (preferredIds == null || preferredIds.size() == 0) {
-          preferredId = BloombergDomainIdentifierResolver.resolvePreferredIdentifier(identifiers);
-        } else if (preferredIds.size() == 1) {
-          preferredId = preferredIds.iterator().next();
-        } else { // multiple matches, find the shortest code and use that.
-          int minLength = Integer.MAX_VALUE;
-          for (ExternalId id : preferredIds) {
-            if (id.getValue().length() <= minLength) {
-              preferredId = id;
-              minLength = id.getValue().length();
-            }
-          }
-        }
-        if (preferredId == null) {
-          throw new OpenGammaRuntimeException("Couldn't establish preferred identifier, this should not happen and indicates a code logic error");
-        }
-
+        ExternalId preferredId = getPreferredIdentifier(identifiers, dataProvider);
         s_logger.debug("Resolved preferred identifier {} from identifier bundle {}", preferredId, identifiers);
         String bbgKey = BloombergDomainIdentifierResolver.toBloombergKeyWithDataProvider(preferredId, dataProvider);
         securitiesElem.appendValue(bbgKey);
@@ -236,12 +221,41 @@ public class BloombergHistoricalTimeSeriesProvider extends AbstractHistoricalTim
       request.set("periodicityAdjustment", "ACTUAL");
       request.set("periodicitySelection", "DAILY");
       request.set("startDate", toBloombergDate(dateRange.getStartDateInclusive()));
-      request.set("endDate", toBloombergDate(dateRange.getEndDateInclusive()));
+      if (!dateRange.isEndDateMaximum()) {
+        request.set("endDate", toBloombergDate(dateRange.getEndDateInclusive()));
+      }
       request.set("adjustmentSplit", true);
       if (maxPoints != null && maxPoints <= 0) {
         request.set("maxDataPoints", -maxPoints);
       }
       return request;
+    }
+
+    private ExternalId getPreferredIdentifier(final ExternalIdBundle identifiers, final String dataProvider) {
+      ExternalId preferredId = null;
+      if (dataProvider == null || dataProvider.equalsIgnoreCase(DATA_PROVIDER_UNKNOWN) || dataProvider.equalsIgnoreCase(DEFAULT_DATA_PROVIDER)) {
+        preferredId = identifiers.getExternalId(BLOOMBERG_BUID);
+      }
+      if (preferredId == null) {
+        Set<ExternalId> tickers = identifiers.getExternalIds(BLOOMBERG_TICKER);
+        if (tickers == null || tickers.size() == 0) {
+          preferredId = BloombergDomainIdentifierResolver.resolvePreferredIdentifier(identifiers);
+        } else if (tickers.size() == 1) {
+          preferredId = tickers.iterator().next();
+        } else { // multiple matches, find the shortest code and use that.
+          int minLength = Integer.MAX_VALUE;
+          for (ExternalId id : tickers) {
+            if (id.getValue().length() <= minLength) {
+              preferredId = id;
+              minLength = id.getValue().length();
+            }
+          }
+        }
+      }
+      if (preferredId == null) {
+        throw new OpenGammaRuntimeException("Couldn't establish preferred identifier, this should not happen and indicates a code logic error");
+      }
+      return preferredId;
     }
 
     //-------------------------------------------------------------------------

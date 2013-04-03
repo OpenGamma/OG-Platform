@@ -23,10 +23,12 @@ import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.position.PositionHistoryRequest;
 import com.opengamma.master.position.PositionHistoryResult;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests ModifyPositionDbPositionMasterWorker.
  */
+@Test(groups = TestGroup.UNIT_DB)
 public class ModifyPositionDbPositionMasterWorkerCorrectPositionTest extends AbstractDbPositionMasterWorkerTest {
   // superclass sets up dummy database
 

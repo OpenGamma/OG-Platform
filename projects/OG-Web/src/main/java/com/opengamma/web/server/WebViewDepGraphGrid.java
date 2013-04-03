@@ -32,10 +32,10 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewComputationResultModel;
-import com.opengamma.engine.view.calc.ComputationCacheResponse;
-import com.opengamma.engine.view.calc.ComputationCycleQuery;
-import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.client.ViewClient;
+import com.opengamma.engine.view.cycle.ComputationCacheResponse;
+import com.opengamma.engine.view.cycle.ComputationCycleQuery;
+import com.opengamma.engine.view.cycle.ViewCycle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
@@ -44,8 +44,7 @@ import com.opengamma.web.server.conversion.ResultConverter;
 import com.opengamma.web.server.conversion.ResultConverterCache;
 
 /**
- * Represents a dependency graph grid. This is slightly special since, unlike the other grids, the columns are known
- * statically and each value may differ in type.
+ * Represents a dependency graph grid. This is slightly special since, unlike the other grids, the columns are known statically and each value may differ in type.
  */
 public class WebViewDepGraphGrid extends WebViewGrid {
 
@@ -86,11 +85,11 @@ public class WebViewDepGraphGrid extends WebViewGrid {
   }
 
   //-------------------------------------------------------------------------
-  /*package*/ boolean isInit() {
+  /*package*/boolean isInit() {
     return _init.get();
   }
 
-  /*package*/ boolean init(final DependencyGraph depGraph, final String calcConfigName, final ValueSpecification valueSpecification) {
+  /*package*/boolean init(final DependencyGraph depGraph, final String calcConfigName, final ValueSpecification valueSpecification) {
     if (!_init.compareAndSet(false, true)) {
       return false;
     }
@@ -112,15 +111,15 @@ public class WebViewDepGraphGrid extends WebViewGrid {
     return true;
   }
 
-  /*package*/ WebGridCell getParentGridCell() {
+  /*package*/WebGridCell getParentGridCell() {
     return _parentGridCell;
   }
 
-  /*package*/ String getParentCalcConfigName() {
+  /*package*/String getParentCalcConfigName() {
     return _parentCalcConfigName;
   }
 
-  /*package*/ ValueSpecification getParentValueSpecification() {
+  /*package*/ValueSpecification getParentValueSpecification() {
     return _parentValueSpecification;
   }
 
@@ -136,7 +135,8 @@ public class WebViewDepGraphGrid extends WebViewGrid {
     return rowStructure;
   }
 
-  private int addInputRowStructures(final DependencyGraph graph, final DependencyNode node, final Map<ValueSpecification, IntSet> rowIdMap, final List<Object> rowStructure, final int indent, final int parentRowId, int nextRowId) {
+  private int addInputRowStructures(final DependencyGraph graph, final DependencyNode node, final Map<ValueSpecification, IntSet> rowIdMap, final List<Object> rowStructure, final int indent,
+      final int parentRowId, int nextRowId) {
     for (final ValueSpecification inputValue : node.getInputValues()) {
       final DependencyNode inputNode = graph.getNodeProducing(inputValue);
       final int rowId = nextRowId++;

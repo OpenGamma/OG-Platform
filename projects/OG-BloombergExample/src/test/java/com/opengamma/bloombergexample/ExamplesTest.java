@@ -16,11 +16,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.component.ComponentManager;
 import com.opengamma.component.rest.RemoteComponentServer;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test.
  */
-@Test(groups = "integration")
+@Test(groups = TestGroup.INTEGRATION)
 public class ExamplesTest {
 
   private static final String CONFIG_RESOURCE_LOCATION = "classpath:fullstack/fullstack-bloombergexample-test.properties";

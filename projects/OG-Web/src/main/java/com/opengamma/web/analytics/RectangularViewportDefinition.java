@@ -5,12 +5,10 @@
  */
 package com.opengamma.web.analytics;
 
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.analytics.formatting.TypeFormatter;
 
@@ -33,26 +31,19 @@ public class RectangularViewportDefinition extends ViewportDefinition {
    * @param rows Indices of rows in the viewport, not empty
    * @param columns Indices of columns in the viewport, not empty
    * @param format
+   * @param enableLogging
    */
   /* package */ RectangularViewportDefinition(int version,
                                               List<Integer> rows,
                                               List<Integer> columns,
-                                              TypeFormatter.Format format) {
-    super(version, format);
+                                              TypeFormatter.Format format,
+                                              Boolean enableLogging) {
+    super(version, format, enableLogging);
     ArgumentChecker.notEmpty(rows, "rows");
     ArgumentChecker.notEmpty(columns, "columns");
-    List<Integer> sortedColumns = Lists.newArrayList(columns);
-    List<Integer> sortedRows = Lists.newArrayList(rows);
-    Collections.sort(sortedColumns);
-    Collections.sort(sortedRows);
-    if (sortedRows.get(0) < 0) {
-      throw new IllegalArgumentException("All row indices must be non-negative: " + rows);
-    }
-    if (sortedColumns.get(0) < 0) {
-      throw new IllegalArgumentException("All column indices must be non-negative: " + sortedColumns);
-    }
-    _rows = ImmutableList.copyOf(sortedRows);
-    _columns = ImmutableList.copyOf(sortedColumns);
+    // TODO bounds checking
+    _rows = ImmutableList.copyOf(rows);
+    _columns = ImmutableList.copyOf(columns);
   }
 
   @Override
@@ -77,12 +68,8 @@ public class RectangularViewportDefinition extends ViewportDefinition {
     return true;
   }
 
-  /**
-   * @return false
-   */
-  @Override
-  boolean enableLogging() {
-    return false;
+  /* package */ List<Integer> getColumns() {
+    return _columns;
   }
 
   @Override

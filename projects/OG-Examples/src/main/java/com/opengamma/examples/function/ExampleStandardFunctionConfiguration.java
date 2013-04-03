@@ -34,7 +34,7 @@ import com.opengamma.financial.analytics.model.simpleinstrument.SimpleFXFuturePr
 import com.opengamma.financial.analytics.model.simpleinstrument.SimpleFuturePresentValueFunctionDeprecated;
 import com.opengamma.financial.analytics.volatility.surface.Grid2DInterpolatedVolatilitySurfaceFunctionDeprecated;
 import com.opengamma.financial.currency.CurrencyMatrixConfigPopulator;
-import com.opengamma.financial.currency.CurrencyMatrixSourcingFunction;
+import com.opengamma.financial.currency.CurrencyMatrixLookupFunction;
 import com.opengamma.web.spring.StandardFunctionConfiguration;
 
 /**
@@ -89,6 +89,8 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
     i.setCurveConfiguration(null, "DefaultTwoCurveUSDConfig");
     i.setCurveName(null, "Discounting");
     i.setCubeName(null, "SECONDARY");
+    i.setForwardCurveName(null, "Forward3M");
+    i.setSurfaceName(null, "SECONDARY");
     return i;
   }
 
@@ -96,13 +98,14 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
   protected CurrencyPairInfo usdEurCurrencyPairInfo() {
     final CurrencyPairInfo i = super.usdEurCurrencyPairInfo();
     i.setCurveName(null, "DiscountingImplied");
+    i.setSurfaceName(null, "SECONDARY");
     return i;
   }
 
   @Override
   protected void addCurrencyConversionFunctions(final List<FunctionConfiguration> functionConfigs) {
     super.addCurrencyConversionFunctions(functionConfigs);
-    functionConfigs.add(functionConfiguration(CurrencyMatrixSourcingFunction.class, CurrencyMatrixConfigPopulator.SYNTHETIC_LIVE_DATA));
+    functionConfigs.add(functionConfiguration(CurrencyMatrixLookupFunction.class, CurrencyMatrixConfigPopulator.SYNTHETIC_LIVE_DATA));
   }
 
   protected void addFixedIncomeInstrumentDefaults(final List<FunctionConfiguration> functionConfigs) {
@@ -214,6 +217,5 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
     defaults.setPayCurveName("SECONDARY");
     defaults.setReceiveCurveName("SECONDARY");
   }
-
 
 }

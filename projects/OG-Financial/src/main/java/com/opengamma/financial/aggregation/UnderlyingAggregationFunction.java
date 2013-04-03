@@ -18,8 +18,21 @@ import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.equity.EquitySecurity;
+import com.opengamma.financial.security.future.AgricultureFutureSecurity;
+import com.opengamma.financial.security.future.BondFutureSecurity;
+import com.opengamma.financial.security.future.DeliverableSwapFutureSecurity;
+import com.opengamma.financial.security.future.EnergyFutureSecurity;
+import com.opengamma.financial.security.future.EquityFutureSecurity;
+import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
+import com.opengamma.financial.security.future.FXFutureSecurity;
+import com.opengamma.financial.security.future.FutureSecurity;
+import com.opengamma.financial.security.future.IndexFutureSecurity;
+import com.opengamma.financial.security.future.InterestRateFutureSecurity;
+import com.opengamma.financial.security.future.MetalFutureSecurity;
+import com.opengamma.financial.security.future.StockFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
+import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
@@ -36,7 +49,8 @@ import com.opengamma.id.ExternalScheme;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 
 /**
- * Abstract aggregation function for bucketing equities and equity options by GICS code of the underlying
+ * Aggregation function for bucketing securities by their underlying hedging instrument.
+ * Originally, this was used to bucket equity options by GICS code of the underlying equity, but has since been expanded.
  */
 public class UnderlyingAggregationFunction implements AggregationFunction<String> {
   private boolean _useAttributes;
@@ -64,6 +78,22 @@ public class UnderlyingAggregationFunction implements AggregationFunction<String
     _preferredScheme = preferredScheme;
     _useAttributes = useAttributes;
   }
+  
+
+  // CommodityFutureOptionSecurity
+  private FinancialSecurityVisitor<String> _commodityFutureOptionSecurityVisitor = new FinancialSecurityVisitorAdapter<String>() {
+    @Override
+    public String visitCommodityFutureOptionSecurity(CommodityFutureOptionSecurity security) {
+      Security underlying = _secSource.getSingle(ExternalIdBundle.of(security.getUnderlyingId()));
+      if (underlying != null) {
+        String identifier = underlying.getExternalIdBundle().getValue(_preferredScheme);
+        return identifier != null ? identifier : NOT_APPLICABLE;
+      } else {
+        String identifier = security.getUnderlyingId() != null ? security.getUnderlyingId().getValue() : null;
+        return identifier != null ? identifier : NOT_APPLICABLE;
+      }
+    }    
+  };
   
   private FinancialSecurityVisitor<String> _equityIndexOptionSecurityVisitor = new FinancialSecurityVisitorAdapter<String>() {
     @Override
@@ -115,6 +145,116 @@ public class UnderlyingAggregationFunction implements AggregationFunction<String
     @Override
     public String visitEquitySecurity(EquitySecurity equitySecurity) {
       String ticker = equitySecurity.getExternalIdBundle().getValue(_preferredScheme);
+      return ticker != null ? ticker : NOT_APPLICABLE;
+    }
+  };
+  
+  /*   // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! FIXME MANY FUTURES ARE MISSING 
+  private FinancialSecurityVisitor<String> _futureSecurityVisitor = new FinancialSecurityVisitorAdapter<String>() {
+//  private FinancialSecurityVisitorSameMethodAdapter<String> _futureSecurityVisitor = new FinancialSecurityVisitorSameMethodAdapter<String>() {
+    @Override
+    public String visitFutureSecurity(FutureSecurity futureSecurity) {
+      String ticker = futureSecurity.getExternalIdBundle().getValue(_preferredScheme);
+      return ticker != null ? ticker : NOT_APPLICABLE;
+    }
+  };
+ */
+  
+  @Deprecated
+  private FinancialSecurityVisitor<String> _agricultureFutureSecurityVisitor = new FinancialSecurityVisitorAdapter<String>() {
+    @Override
+    public String visitAgricultureFutureSecurity(AgricultureFutureSecurity security) {
+      String ticker = security.getExternalIdBundle().getValue(_preferredScheme);
+      return ticker != null ? ticker : NOT_APPLICABLE;
+    }
+  };
+  
+  @Deprecated
+  private FinancialSecurityVisitor<String> _metalFutureSecurityVisitor = new FinancialSecurityVisitorAdapter<String>() {
+    @Override
+    public String visitMetalFutureSecurity(MetalFutureSecurity security) {
+      String ticker = security.getExternalIdBundle().getValue(_preferredScheme);
+      return ticker != null ? ticker : NOT_APPLICABLE;
+    }
+  };
+
+  @Deprecated
+  private FinancialSecurityVisitor<String> _bondFutureSecurityVisitor = new FinancialSecurityVisitorAdapter<String>() {
+    @Override
+    public String visitBondFutureSecurity(BondFutureSecurity security) {
+      String ticker = security.getExternalIdBundle().getValue(_preferredScheme);
+      return ticker != null ? ticker : NOT_APPLICABLE;
+    }
+  };
+  
+  @Deprecated
+  private FinancialSecurityVisitor<String> _energyFutureSecurityVisitor = new FinancialSecurityVisitorAdapter<String>() {
+    @Override
+    public String visitEnergyFutureSecurity(EnergyFutureSecurity security) {
+      String ticker = security.getExternalIdBundle().getValue(_preferredScheme);
+      return ticker != null ? ticker : NOT_APPLICABLE;
+    }
+  };
+  
+  @Deprecated
+  private FinancialSecurityVisitor<String> _deliverableSwapFutureSecurityVisitor = new FinancialSecurityVisitorAdapter<String>() {
+    @Override
+    public String visitDeliverableSwapFutureSecurity(DeliverableSwapFutureSecurity security) {
+      String ticker = security.getExternalIdBundle().getValue(_preferredScheme);
+      return ticker != null ? ticker : NOT_APPLICABLE;
+    }
+  };
+  
+  @Deprecated
+  private FinancialSecurityVisitor<String> _equityFutureSecurityVisitor = new FinancialSecurityVisitorAdapter<String>() {
+    @Override
+    public String visitEquityFutureSecurity(EquityFutureSecurity security) {
+      String ticker = security.getExternalIdBundle().getValue(_preferredScheme);
+      return ticker != null ? ticker : NOT_APPLICABLE;
+    }
+  };
+  
+  @Deprecated
+  private FinancialSecurityVisitor<String> _equityIndexDividendFutureSecurityVisitor = new FinancialSecurityVisitorAdapter<String>() {
+    @Override
+    public String visitEquityIndexDividendFutureSecurity(EquityIndexDividendFutureSecurity security) {
+      String ticker = security.getExternalIdBundle().getValue(_preferredScheme);
+      return ticker != null ? ticker : NOT_APPLICABLE;
+    }
+  };
+  
+  @Deprecated
+  private FinancialSecurityVisitor<String> _fxFutureSecurityVisitor = new FinancialSecurityVisitorAdapter<String>() {
+    @Override
+    public String visitFXFutureSecurity(FXFutureSecurity security) {
+      String ticker = security.getExternalIdBundle().getValue(_preferredScheme);
+      return ticker != null ? ticker : NOT_APPLICABLE;
+    }
+  };
+  
+  @Deprecated
+  private FinancialSecurityVisitor<String> _indexFutureSecurityVisitor = new FinancialSecurityVisitorAdapter<String>() {
+    @Override
+    public String visitIndexFutureSecurity(IndexFutureSecurity security) {
+      String ticker = security.getExternalIdBundle().getValue(_preferredScheme);
+      return ticker != null ? ticker : NOT_APPLICABLE;
+    }
+  };
+  
+  @Deprecated
+  private FinancialSecurityVisitor<String> _interestRateFutureSecurityVisitor = new FinancialSecurityVisitorAdapter<String>() {
+    @Override
+    public String visitInterestRateFutureSecurity(InterestRateFutureSecurity security) {
+      String ticker = security.getExternalIdBundle().getValue(_preferredScheme);
+      return ticker != null ? ticker : NOT_APPLICABLE;
+    }
+  };
+  
+  @Deprecated
+  private FinancialSecurityVisitor<String> _stockFutureSecurityVisitor = new FinancialSecurityVisitorAdapter<String>() {
+    @Override
+    public String visitStockFutureSecurity(StockFutureSecurity security) {
+      String ticker = security.getExternalIdBundle().getValue(_preferredScheme);
       return ticker != null ? ticker : NOT_APPLICABLE;
     }
   };
@@ -199,6 +339,18 @@ public class UnderlyingAggregationFunction implements AggregationFunction<String
       } 
     } else {
       FinancialSecurityVisitor<String> visitorAdapter = FinancialSecurityVisitorAdapter.<String>builder()
+                                                                                              .commodityFutureOptionSecurityVisitor(_commodityFutureOptionSecurityVisitor)
+                                                                                              // .futureSecurityVisitor(_futureSecurityVisitor) // TODO: MANY FUTURES ARE MISSING !!!
+                                                                                              .agricultureFutureSecurityVisitor(_agricultureFutureSecurityVisitor)
+                                                                                              .metalFutureSecurityVisitor(_metalFutureSecurityVisitor)
+                                                                                              .bondFutureSecurityVisitor(_bondFutureSecurityVisitor)
+                                                                                              .energyFutureSecurityVisitor(_energyFutureSecurityVisitor)
+                                                                                              .equityFutureSecurityVisitor(_equityFutureSecurityVisitor)
+                                                                                              .equityIndexDividendFutureSecurityVisitor(_equityIndexDividendFutureSecurityVisitor)
+                                                                                              .fxFutureSecurityVisitor(_fxFutureSecurityVisitor)
+                                                                                              .indexFutureSecurityVisitor(_indexFutureSecurityVisitor)
+                                                                                              .interestRateFutureSecurityVisitor(_interestRateFutureSecurityVisitor)
+                                                                                              .stockFutureSecurityVisitor(_stockFutureSecurityVisitor)
                                                                                               .equitySecurityVisitor(_equitySecurityVisitor)
                                                                                               .equityIndexOptionVisitor(_equityIndexOptionSecurityVisitor)
                                                                                               .equityOptionVisitor(_equityOptionSecurityVisitor)

@@ -43,7 +43,7 @@ public class ComplexChooserOptionDefinition extends OptionDefinition {
       return Math.max(callPrice, putPrice);
     }
   };
-  private final OptionExerciseFunction<StandardOptionDataBundle> _exerciseFunction = new EuropeanExerciseFunction<StandardOptionDataBundle>();
+  private final OptionExerciseFunction<StandardOptionDataBundle> _exerciseFunction = new EuropeanExerciseFunction<>();
   private final double _callStrike;
   private final double _putStrike;
   private final Expiry _callExpiry;

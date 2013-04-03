@@ -6,7 +6,6 @@
 package com.opengamma.financial.analytics.model.curve.interestrate;
 
 import java.util.Collections;
-import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -21,8 +20,8 @@ import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.analytics.financial.interestrate.LastTimeCalculator;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.analytics.financial.provider.calculator.generic.LastTimeCalculator;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.core.holiday.HolidaySource;
@@ -54,7 +53,6 @@ import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.FinancialSecurity;
-import com.opengamma.id.ExternalId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 
 /**
@@ -97,14 +95,13 @@ public class InterpolatedYieldCurveFunction extends AbstractFunction {
           throw new OpenGammaRuntimeException("Could not get yield curve data");
         }
         final InterpolatedYieldCurveSpecificationWithSecurities specification = (InterpolatedYieldCurveSpecificationWithSecurities) specificationObject;
-        final SnapshotDataBundle data = (SnapshotDataBundle) dataObject;
-        final Map<ExternalId, Double> marketData = data.getDataPoints();
+        final SnapshotDataBundle marketData = (SnapshotDataBundle) dataObject;
         final int n = marketData.size();
         final double[] times = new double[n];
         final double[] yields = new double[n];
         int i = 0;
         for (final FixedIncomeStripWithSecurity strip : specification.getStrips()) {
-          final Double marketValue = marketData.get(strip.getSecurityIdentifier());
+          final Double marketValue = marketData.getDataPoint(strip.getSecurityIdentifier());
           if (marketValue == null) {
             throw new OpenGammaRuntimeException("Could not get market data for " + strip);
           }

@@ -185,12 +185,19 @@ static CTimeoutIO::FILE_REFERENCE _CreatePipe (const TCHAR *pszName, bool bServe
 	return handle;
 #else /* ifdef _WIN32 */
 	if (bExclusive) {
+		// Security note: we create the FIFO with world R/W so that the OG-Language service may work with it
+		// if it is running as a different user. We always have user and group RW in case it is the same user
+		// or same group as us. If the world R/W is bad, then set the pipe location to an area that only the
+		// creating user and OG-Language service user have access to.
+		mode_t mOriginal = umask (bReader ? 4 : 2);
 		if (mkfifo (pszName, 0666)) {
 			int ec = GetLastError ();
+			umask (mOriginal);
 			LOGWARN (TEXT ("Couldn't create pipe ") << pszName << TEXT (", error ") << ec);
 			SetLastError (ec);
 			return 0;
 		}
+		umask (mOriginal);
 		CThread *poOpener = new CNamedPipeOpenThread (pszName, bReader ? O_WRONLY : O_RDONLY);
 		poOpener->Start ();
 		CThread::Release (poOpener);
@@ -229,13 +236,16 @@ static CTimeoutIO::FILE_REFERENCE _CreatePipe (const TCHAR *pszName, bool bServe
 			if (!unlink (pszName)) {
 				LOGINFO (TEXT ("Deleted previous instance of ") << pszName);
 			}
+			mode_t mOriginal = umask (0);
 			if (bind (sock, (struct sockaddr*)&addr, sizeof (addr.sun_family) + _tcslen (addr.sun_path))) {
 				int ec = GetLastError ();
+				umask (mOriginal);
 				close (sock);
 				LOGWARN (TEXT ("Couldn't open pipe ") << pszName << TEXT (", error ") << ec);
 				SetLastError (ec);
 				return 0;
 			}
+			umask (mOriginal);
 			if (fcntl (sock, F_SETFL, O_NONBLOCK) || listen (sock, 0)) {
 				int ec = GetLastError ();
 				close (sock);

@@ -7,7 +7,7 @@ package com.opengamma.engine.marketdata;
 
 import java.util.Collection;
 
-import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.PublicSPI;
 
 /**
@@ -15,36 +15,36 @@ import com.opengamma.util.PublicSPI;
  */
 @PublicSPI
 public interface MarketDataListener {
-  
+
   /**
-   * Notifies of a successful live data subscription. 
+   * Notifies of successful live data subscriptions.
    * 
-   * @param requirement  the requirement that was successfully subscribed to, not null
+   * @param specifications the market data that was successfully subscribed to, not null and not containing nulls
    */
-  void subscriptionSucceeded(ValueRequirement requirement);
-  
+  void subscriptionsSucceeded(Collection<ValueSpecification> specifications);
+
   /**
    * Notifies of a failed live data subscription.
    * 
-   * @param requirement  the requirement that could not be subscribed to, not null
-   * @param msg  the error message, not null
+   * @param specification the market data that could not be subscribed to, not null
+   * @param msg the error message, not null
    */
-  void subscriptionFailed(ValueRequirement requirement, String msg);
-  
+  void subscriptionFailed(ValueSpecification specification, String msg);
+
   /**
    * Notifies of a terminated live data subscription.
    * 
-   * @param requirement  the requirement that is no longer subscribed to, not null
+   * @param specification the market data that is no longer subscribed to, not null
    */
-  void subscriptionStopped(ValueRequirement requirement);
-  
+  void subscriptionStopped(ValueSpecification specification);
+
   /**
    * Notifies the listener that one or more market data values have changed.
    * <p>
    * This method must execute quickly and not block; it may be called from within a market data receiver thread.
    * 
-   * @param requirements  the requirements whose values have changed, not null
+   * @param specifications the specifications whose values have changed, not null
    */
-  void valuesChanged(Collection<ValueRequirement> requirements);
+  void valuesChanged(Collection<ValueSpecification> specifications);
 
 }

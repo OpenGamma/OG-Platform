@@ -150,7 +150,7 @@ public class VegaMatrixHelper {
 
   private static double getTime(final Tenor tenor) { //TODO this should be moved into a utils class
     final Period period = tenor.getPeriod();
-    final double months = DateUtils.totalMonths(period);
+    final double months = period.toTotalMonths();
     return months / 12.;
   }
 }

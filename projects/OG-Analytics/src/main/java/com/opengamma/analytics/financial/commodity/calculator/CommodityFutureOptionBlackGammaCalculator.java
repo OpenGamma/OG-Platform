@@ -35,21 +35,21 @@ public final class CommodityFutureOptionBlackGammaCalculator extends InstrumentD
   public Double visitAgricultureFutureOption(final AgricultureFutureOption derivative, final StaticReplicationDataBundle data) {
     ArgumentChecker.notNull(derivative, "derivative");
     ArgumentChecker.notNull(data, "data");
-    return PRICER.gamma(derivative, data);
+    return PRICER.gammaWrtSpot(derivative, data);
   }
 
   @Override
   public Double visitEnergyFutureOption(final EnergyFutureOption derivative, final StaticReplicationDataBundle data) {
     ArgumentChecker.notNull(derivative, "derivative");
     ArgumentChecker.notNull(data, "data");
-    return PRICER.gamma(derivative, data);
+    return PRICER.gammaWrtSpot(derivative, data);
   }
 
   @Override
   public Double visitMetalFutureOption(final MetalFutureOption derivative, final StaticReplicationDataBundle data) {
     ArgumentChecker.notNull(derivative, "derivative");
     ArgumentChecker.notNull(data, "data");
-    return PRICER.gamma(derivative, data);
+    return PRICER.gammaWrtSpot(derivative, data);
   }
 
 }

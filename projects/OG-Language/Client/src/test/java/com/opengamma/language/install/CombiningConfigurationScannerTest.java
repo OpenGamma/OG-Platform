@@ -16,10 +16,12 @@ import java.util.Collections;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Tests the {@link CombiningConfigurationScanner} class.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class CombiningConfigurationScannerTest {
 
   public void testNoScanners() {

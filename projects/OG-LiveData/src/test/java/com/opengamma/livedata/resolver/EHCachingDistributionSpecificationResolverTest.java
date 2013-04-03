@@ -17,8 +17,8 @@ import java.util.Map;
 
 import net.sf.ehcache.CacheManager;
 
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.opengamma.id.ExternalId;
@@ -26,23 +26,24 @@ import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.normalization.StandardRules;
 import com.opengamma.livedata.server.DistributionSpecification;
 import com.opengamma.util.ehcache.EHCacheUtils;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test.
  */
-@Test(groups = "unit")
+@Test(groups = {TestGroup.UNIT, "ehcache"})
 public class EHCachingDistributionSpecificationResolverTest {
 
   private CacheManager _cacheManager;
 
-  @BeforeMethod
-  public void setUp() {
-    _cacheManager = CacheManager.newInstance();
+  @BeforeClass
+  public void setUpClass() {
+    _cacheManager = EHCacheUtils.createTestCacheManager(getClass());
   }
 
-  @AfterMethod
-  public void tearDown() {
-    _cacheManager = EHCacheUtils.shutdownQuiet(_cacheManager);
+  @AfterClass
+  public void tearDownClass() {
+    EHCacheUtils.shutdownQuiet(_cacheManager);
   }
 
   //-------------------------------------------------------------------------
@@ -60,7 +61,8 @@ public class EHCachingDistributionSpecificationResolverTest {
     DistributionSpecificationResolver underlying = mock(DistributionSpecificationResolver.class);
     when(underlying.resolve(Collections.singletonList(request))).thenReturn(returnValue);
     
-    EHCachingDistributionSpecificationResolver resolver = new EHCachingDistributionSpecificationResolver(underlying, _cacheManager);
+    EHCachingDistributionSpecificationResolver resolver =
+        new EHCachingDistributionSpecificationResolver(underlying, _cacheManager);
     assertEquals(distributionSpec, resolver.resolve(request));
     assertEquals(distributionSpec, resolver.resolve(request));
     

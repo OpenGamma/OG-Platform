@@ -34,7 +34,7 @@ public class ActualActualICMA extends ActualTypeDayCount {
 
   public double getAccruedInterest(final ZonedDateTime previousCouponDate, final ZonedDateTime date, final ZonedDateTime nextCouponDate, final double coupon, final double paymentsPerYear,
       final StubType stubType) {
-    return getAccruedInterest(previousCouponDate.getDate(), date.getDate(), nextCouponDate.getDate(), coupon, paymentsPerYear, stubType);
+    return getAccruedInterest(previousCouponDate.toLocalDate(), date.toLocalDate(), nextCouponDate.toLocalDate(), coupon, paymentsPerYear, stubType);
   }
 
   public double getAccruedInterest(final LocalDate previousCouponDate, final LocalDate date, final LocalDate nextCouponDate, final double coupon, final double paymentsPerYear,

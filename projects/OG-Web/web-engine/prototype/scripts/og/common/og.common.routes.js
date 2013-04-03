@@ -8,21 +8,20 @@ $.register_module({
     name: 'og.common.routes',
     dependencies: ['og.dev'],
     obj: function () {
-        var routes, set_title = function (title) {document.title = 'OpenGamma: ' + title;},
-            hash = window.RouteMap.hash;
+        var routes, hash = window.RouteMap.hash;
         return routes = $.extend(true, window.RouteMap, {
             init: function () {
-                var title, go = routes.go;
+                var go = routes.go;
                 // overwrite routes.go so it can accept new title parameter
-                routes.go = function (location, new_title) {
-                    title = new_title;
+                routes.go = function (location, title) {
+                    routes.title = title;
                     go(location);
                 };
                 // listen to all clicks that bubble up and capture their titles
                 // overwrite href with new filter values
                 $('a[href]').live('click', function (e) {
                     var $anchor = $(this), current, parsed, rule, view, href;
-                    title = $anchor.attr('title');
+                    routes.title = $anchor.attr('title');
                     if (!$anchor.is('.og-js-live-anchor')) return;
                     view = og.views[(parsed = routes.parse($anchor.attr('href'))).page.slice(1)];
                     if (!view.filter_params.length || (current = routes.current()).page !== parsed.page) return;
@@ -35,13 +34,17 @@ $.register_module({
                 });
                 $(window).on('hashchange', function () {
                     routes.handler();
-                    set_title(title || (new Date).toLocaleTimeString());
-                    title = null;
+                    routes.set_title(routes.title || routes.current().hash);
+                    routes.title = null;
                 });
-                // escape key will break long-polling, so prevent the default action
-                $(window).on('keydown', function (e) {if (e.keyCode === $.ui.keyCode.ESCAPE) e.preventDefault();});
+                $(window).on('keydown', function (event) {
+                    if (event.keyCode !== $.ui.keyCode.ESCAPE) return;
+                    event.preventDefault(); // escape key will break long-polling, so prevent the default action
+                    if ($('.OG-cell-options.og-frozen').remove().length) // remove any inplace gadgets and clean up
+                        $('.og-inplace-resizer').remove(), og.common.gadgets.manager.clean();
+                });
                 $(function () { // in addition to binding hash change events to window, also fire it onload
-                    var common = og.views.common, is_child, parent_api, api = og.api.rest;
+                    var common = og.views.common, is_child, opener_og, parent_api, parent_data, api = og.api.rest;
                     $('.OG-js-loading').hide();
                     $('.OG-layout-admin-container, .OG-layout-analytics-container, .OG-layout-blotter-container')
                         .css({'visibility': 'visible'});
@@ -55,11 +58,16 @@ $.register_module({
                     // check if the parent's document is the same as the window's (instead of just comparing
                     // window.parent to window, we use document because IE8 doesn't know true from false)
                     is_child = (window.parent.document !== window.document) || window.opener;
-                    parent_api = (window.opener && window.opener.og && window.opener.og.api.rest) ||
+                    parent_api = ((opener_og = window.opener && window.opener.og) && window.opener.og.api.rest) ||
                         window.parent.og.api.rest;
-                    if (is_child && parent_api) og.api.rest = parent_api; else if (og.api.rest) api.subscribe();
+                    parent_data = (opener_og && window.opener.og.analytics && window.opener.og.analytics.Data) ||
+                        window.parent.og.analytics && window.parent.og.analytics.Data;
+                    if (is_child && parent_api)
+                        (og.api.rest = parent_api).on('abandon', function () {document.location.reload();});
+                    else if (og.api.rest) api.subscribe();
+                    if (is_child && parent_data) og.analytics.Data = parent_data;
+                    routes.set_title(routes.title || (routes.get() || ''));
                     routes.handler();
-                    set_title((new Date).toLocaleTimeString());
                 });
                 // IE does not allow deleting from window so set to void 0 if it fails
                 try {delete window.RouteMap;} catch (error) {window.RouteMap = void 0;}
@@ -81,7 +89,9 @@ $.register_module({
                 if (parsed.length && parsed[0].args.debug) og.dev.debug = parsed[0].args.debug === 'true';
                 if (og.api.rest) og.api.rest.clean();
                 return parsed;
-            }
+            },
+            set_title: function (title) {document.title = 'OpenGamma: ' + title;},
+            title: null
         });
     }
 });

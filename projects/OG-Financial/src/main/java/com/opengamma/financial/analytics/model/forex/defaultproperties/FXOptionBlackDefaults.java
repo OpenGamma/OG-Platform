@@ -91,8 +91,8 @@ public class FXOptionBlackDefaults extends DefaultPropertyFunction {
     _interpolatorName = interpolatorName;
     _leftExtrapolatorName = leftExtrapolatorName;
     _rightExtrapolatorName = rightExtrapolatorName;
-    _propertyValuesByCurrency = new HashMap<String, Pair<String, String>>();
-    _surfaceNameByCurrencyPair = new HashMap<Pair<String, String>, String>();
+    _propertyValuesByCurrency = new HashMap<>();
+    _surfaceNameByCurrencyPair = new HashMap<>();
     for (int i = 0; i < propertyValuesByCurrencies.length; i += 7) {
       final String firstCurrency = propertyValuesByCurrencies[i];
       final Pair<String, String> firstCurrencyValues = Pair.of(propertyValuesByCurrencies[i + 1], propertyValuesByCurrencies[i + 2]);

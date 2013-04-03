@@ -39,18 +39,6 @@ public class WebHolidayVersionsResource extends AbstractWebHolidayResource {
     super(parent);
   }
 
-  //-------------------------------------------------------------------------
-//  @GET
-//  public String getHTML() {
-//    HolidayHistoryRequest request = new HolidayHistoryRequest(data().getObject().getUniqueId());
-//    HolidayHistoryResult result = data().getHolidayMaster().history(request);
-//    
-//    FlexiBean out = createRootData();
-//    out.put("versionsResult", result);
-//    out.put("versions", result.getHolidays());
-//    return getFreemarker().build("holidays/holidayversions.ftl", out);
-//  }
-
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public Response getJSON(
@@ -66,7 +54,7 @@ public class WebHolidayVersionsResource extends AbstractWebHolidayResource {
     out.put("versionsResult", result);
     out.put("versions", result.getHolidays());
     out.put("paging", new WebPaging(result.getPaging(), data().getUriInfo()));
-    String json = getFreemarker().build("holidays/jsonholidayversions.ftl", out);
+    String json = getFreemarker().build(JSON_DIR + "holidayversions.ftl", out);
     return Response.ok(json).build();
   }
 

@@ -28,7 +28,7 @@ import org.threeten.bp.Instant;
 import com.google.common.collect.Sets;
 import com.opengamma.batch.BatchMaster;
 import com.opengamma.batch.SnapshotMode;
-import com.opengamma.engine.view.calc.ViewCycleMetadata;
+import com.opengamma.engine.view.cycle.ViewCycleMetadata;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;

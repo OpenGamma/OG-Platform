@@ -10,8 +10,8 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import com.opengamma.engine.view.ViewResultModel;
-import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
+import com.opengamma.engine.view.cycle.ViewCycle;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -169,6 +169,26 @@ import com.opengamma.util.ArgumentChecker;
       return _delegate.getData(gridType, graphId, viewportId);
     } finally {
       _lock.readLock().unlock();
+    }
+  }
+
+  @Override
+  public List<String> entityChanged(MasterChangeNotification<?> notification) {
+    try {
+      _lock.writeLock().lock();
+      return _delegate.entityChanged(notification);
+    } finally {
+      _lock.writeLock().unlock();
+    }
+  }
+
+  @Override
+  public List<String> portfolioChanged() {
+    try {
+      _lock.writeLock().lock();
+      return _delegate.portfolioChanged();
+    } finally {
+      _lock.writeLock().unlock();
     }
   }
 }

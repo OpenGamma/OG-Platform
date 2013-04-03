@@ -12,11 +12,12 @@ import org.testng.annotations.Test;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the {@link ComputationTargetRequirement} class
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class ComputationTargetRequirementTest {
 
   public void testConstructor_id() {

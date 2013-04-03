@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.convention;
 
+import org.threeten.bp.Period;
+
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -46,8 +48,8 @@ public class HUConventions {
       final ExternalId simpleBuborId = InMemoryConventionBundleMaster.simpleNameSecurityId(buborName);
       final ExternalId bloombergDepositId = ExternalSchemes.bloombergTickerSecurityId("HFDR" + (i == 12 ? "1" : MONTH_CODES[i - 1]) + " Curncy");
       final ExternalId simpleDepositId = InMemoryConventionBundleMaster.simpleNameSecurityId(depositName);
-      utils.addConventionBundle(ExternalIdBundle.of(bloombergBuborId, simpleBuborId), buborName, DAY_COUNT, FOLLOWING, DateUtils.periodOfMonths(i), 0, false, HU);
-      utils.addConventionBundle(ExternalIdBundle.of(bloombergDepositId, simpleDepositId), depositName, DAY_COUNT, FOLLOWING, DateUtils.periodOfMonths(i), 0, false, HU);
+      utils.addConventionBundle(ExternalIdBundle.of(bloombergBuborId, simpleBuborId), buborName, DAY_COUNT, FOLLOWING, Period.ofMonths(i), 0, false, HU);
+      utils.addConventionBundle(ExternalIdBundle.of(bloombergDepositId, simpleDepositId), depositName, DAY_COUNT, FOLLOWING, Period.ofMonths(i), 0, false, HU);
     }
   }
 }

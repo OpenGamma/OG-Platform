@@ -25,7 +25,7 @@ import com.opengamma.util.time.DateUtils;
  */
 public class PaymentFixedDefinitionTest {
 
-  private static final Currency CUR = Currency.USD;
+  private static final Currency CUR = Currency.EUR;
   private static final ZonedDateTime PAYMENT_DATE = DateUtils.getUTCDate(2011, 1, 3);
   private static final double AMOUNT = 1000000; //1m
   private static final PaymentFixedDefinition FIXED_PAYMENT = new PaymentFixedDefinition(CUR, PAYMENT_DATE, AMOUNT);
@@ -67,7 +67,7 @@ public class PaymentFixedDefinitionTest {
   @Test
   public void testToDerivative() {
     final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
-    final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.of(REFERENCE_DATE.getDate(), LocalTime.MIDNIGHT), ZoneOffset.UTC);
+    final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.of(REFERENCE_DATE.toLocalDate(), LocalTime.MIDNIGHT), ZoneOffset.UTC);
     final double paymentTime = actAct.getDayCountFraction(zonedDate, PAYMENT_DATE);
     final String fundingCurve = "Funding";
     final PaymentFixed paymentFixed = new PaymentFixed(CUR, paymentTime, AMOUNT, fundingCurve);

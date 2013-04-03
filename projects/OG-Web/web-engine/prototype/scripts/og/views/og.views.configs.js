@@ -24,15 +24,16 @@ $.register_module({
             search, suppress_update = false, ui = common.util.ui,
             module = this, view,
             page_name = module.name.split('.').pop(),
-            config_types = [], // used to populate the dropdown in the new button
+            current_type, config_types = [], // used to populate the dropdown in the new button
             toolbar_buttons = {
                 'new': function () {ui.dialog({
                     type: 'input',
                     title: 'Add configuration',
                     width: 400, height: 190,
-                    fields: [
-                        {type: 'select', name: 'Configuration Type', id: 'config_type', options: config_types}
-                    ],
+                    fields: [{
+                        type: 'select', name: 'Configuration Type', id: 'config_type', options: config_types,
+                        value: function () {return current_type;}
+                    }],
                     buttons: {
                         'OK': function () {
                             var config_type = ui.dialog({return_field_value: 'config_type'});
@@ -84,7 +85,8 @@ $.register_module({
                     var details_json = result.data, too_large = result.meta.content_length > 0.75 * 1024 * 1024,
                         config_type, render_type, render_options;
                     if (result.error) return view.notify(null), view.error(result.message);
-                    config_type = details_json.template_data.type.toLowerCase().split('.').reverse()[0];
+                    current_type = details_json.template_data.type.split('.').reverse()[0];
+                    config_type = current_type.toLowerCase();
                     if (is_new) {
                         if (!result.data) return view.error('No template for: ' + new_config_type);
                         if (!result.data.template_data.configJSON) result.data.template_data.configJSON = {};
@@ -96,12 +98,13 @@ $.register_module({
                         item: 'history.' + page_name + '.recent',
                         value: routes.current().hash
                     });
-                    if (!og.views.config_forms[config_type])
-                        return view.notify(null), view.error('No renderer for: ' + config_type);
-                    if (too_large && !og.views.config_forms[config_type].is_default)
+                    render_type = config_type;
+                    if (too_large && !og.views.config_forms[config_type].is_default) {
                         view.error('This configuration is using the default form because it contains too much data (' +
                             result.meta.content_length + ' bytes)');
-                    render_type = too_large ? 'default' : config_type;
+                        render_type = 'default';
+                    }
+                    if (!og.views.config_forms[config_type]) render_type = 'default';
                     render_options = {
                         is_new: is_new,
                         data: details_json,
@@ -164,8 +167,6 @@ $.register_module({
                         selector: '.OG-layout-admin-details-center .ui-layout-content',
                         type: details_json.template_data.type
                     };
-                    if (render_type !== config_type)
-                        render_options.type_map = og.views.config_forms[config_type].type_map;
                     $(render_options.selector).css({'overflow': 'auto'});
                     og.views.config_forms[render_type](render_options);
                 };

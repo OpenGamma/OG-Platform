@@ -16,11 +16,12 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test DeltaDefinition. 
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class DeltaDefinitionTest {
   
   public void testEmptyDefinition() {

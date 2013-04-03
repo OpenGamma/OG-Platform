@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<og-portfolio schemaVersion="1.0"
+              xmlns="http://www.opengamma.com/portfolios"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://www.opengamma.com/portfolios">
+
+  <trades/>
+
+  <positions/>
+
+  <portfolios>
+    <portfolio name="missing_trade_portfolio">
+      <trades>
+        <!-- Trade ref is not present-->
+        <trade ref="t1"/>
+      </trades>
+    </portfolio>
+  </portfolios>
+
+</og-portfolio>

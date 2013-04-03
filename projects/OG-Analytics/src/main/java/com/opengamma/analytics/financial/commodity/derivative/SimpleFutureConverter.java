@@ -13,7 +13,7 @@ import com.opengamma.analytics.financial.simpleinstruments.derivative.SimpleFutu
  */
 public final class SimpleFutureConverter extends InstrumentDerivativeVisitorAdapter<Object, SimpleFuture> {
   /** The converter */
-  private static SimpleFutureConverter s_instance;
+  private static SimpleFutureConverter s_instance = new SimpleFutureConverter();
 
   /**
    * Class to convert between Commodity future objects and SimpleFuture objects
@@ -25,25 +25,22 @@ public final class SimpleFutureConverter extends InstrumentDerivativeVisitorAdap
    * @return A static instance of this converter
    */
   public static SimpleFutureConverter getInstance() {
-    if (s_instance == null) {
-      s_instance = new SimpleFutureConverter();
-    }
     return s_instance;
   }
 
   @Override
-  public SimpleFuture visitAgricultureFuture(final AgricultureFuture visitor) {
-    return new SimpleFuture(visitor.getExpiry(), visitor.getSettlement(), visitor.getReferencePrice(), visitor.getUnitAmount(), visitor.getCurrency());
+  public SimpleFuture visitAgricultureFuture(final AgricultureFuture future) {
+    return new SimpleFuture(future.getExpiry(), future.getSettlement(), future.getReferencePrice(), future.getUnitAmount(), future.getCurrency());
   }
 
   @Override
-  public SimpleFuture visitEnergyFuture(final EnergyFuture visitor) {
-    return new SimpleFuture(visitor.getExpiry(), visitor.getSettlement(), visitor.getReferencePrice(), visitor.getUnitAmount(), visitor.getCurrency());
+  public SimpleFuture visitEnergyFuture(final EnergyFuture future) {
+    return new SimpleFuture(future.getExpiry(), future.getSettlement(), future.getReferencePrice(), future.getUnitAmount(), future.getCurrency());
   }
 
   @Override
-  public SimpleFuture visitMetalFuture(final MetalFuture visitor) {
-    return new SimpleFuture(visitor.getExpiry(), visitor.getSettlement(), visitor.getReferencePrice(), visitor.getUnitAmount(), visitor.getCurrency());
+  public SimpleFuture visitMetalFuture(final MetalFuture future) {
+    return new SimpleFuture(future.getExpiry(), future.getSettlement(), future.getReferencePrice(), future.getUnitAmount(), future.getCurrency());
   }
 
 }

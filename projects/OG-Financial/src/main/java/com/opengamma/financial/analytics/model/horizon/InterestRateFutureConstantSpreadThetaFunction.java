@@ -16,11 +16,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.Clock;
 import org.threeten.bp.LocalDate;
+import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.horizon.ConstantSpreadHorizonThetaCalculator;
-import com.opengamma.analytics.financial.instrument.future.InterestRateFutureDefinition;
+import com.opengamma.analytics.financial.instrument.future.InterestRateFutureTransactionDefinition;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
@@ -94,21 +95,21 @@ public class InterestRateFutureConstantSpreadThetaFunction extends AbstractFunct
     }
     final String[] curveNames = curveCalculationConfig.getYieldCurveNames();
     final YieldCurveBundle bundle = YieldCurveFunctionUtils.getAllYieldCurves(inputs, curveCalculationConfig, curveCalculationConfigSource);
-    final InterestRateFutureDefinition definition = _converter.convert(trade);
+    final InterestRateFutureTransactionDefinition definition = _converter.convert(trade);
     if (definition == null) {
       throw new OpenGammaRuntimeException("Definition for security " + security + " was null");
     }
     final String[] yieldCurveNames = curveNames.length == 1 ? new String[] {curveNames[0], curveNames[0] } : curveNames;
     final String[] curveNamesForSecurity = FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security, yieldCurveNames[0], yieldCurveNames[1]);
     final String currency = FinancialSecurityUtils.getCurrency(security).getCode();
-    final LocalDate startDate = DateUtils.previousWeekDay(now.getDate().minusMonths(1));
+    final LocalDate startDate = DateUtils.previousWeekDay(now.toLocalDate().minusMonths(1));
     final HistoricalTimeSeries ts = (HistoricalTimeSeries) inputs.getValue(ValueRequirementNames.HISTORICAL_TIME_SERIES);
     if (ts == null) {
       throw new OpenGammaRuntimeException("Could not get price time series for " + security);
     }
     final int length = ts.getTimeSeries().size();
     if (length == 0) {
-      throw new OpenGammaRuntimeException("Price time series for " + security.getExternalIdBundle() + " was empty between " + startDate + " and " + now.getDate());
+      throw new OpenGammaRuntimeException("Price time series for " + security.getExternalIdBundle() + " was empty between " + startDate + " and " + now.toLocalDate());
     }
     final double lastMarginPrice = ts.getTimeSeries().getLatestValue();
     final ConstantSpreadHorizonThetaCalculator calculator = ConstantSpreadHorizonThetaCalculator.getInstance();
@@ -171,7 +172,7 @@ public class InterestRateFutureConstantSpreadThetaFunction extends AbstractFunct
       return null;
     }
     return HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, MarketDataRequirementNames.MARKET_VALUE,
-        DateConstraint.VALUATION_TIME.minus(DateUtils.periodOfMonths(1)).previousWeekDay(), true, DateConstraint.VALUATION_TIME, true);
+        DateConstraint.VALUATION_TIME.minus(Period.ofMonths(1)).previousWeekDay(), true, DateConstraint.VALUATION_TIME, true);
   }
 
   private ValueProperties.Builder getResultProperties(final String currency) {

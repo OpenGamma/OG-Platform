@@ -38,11 +38,13 @@ import com.opengamma.transport.jaxrs.FudgeResponse;
 import com.opengamma.util.paging.Paging;
 import com.opengamma.util.paging.PagingRequest;
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
 
 /**
  * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class DataBatchMasterResourceTest extends AbstractFudgeBuilderTestCase {
 
   @Mock

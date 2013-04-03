@@ -10,8 +10,8 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.util.timeseries.TimeSeries;
-import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
+import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
 
 /**
  * 
@@ -36,7 +36,7 @@ public class PortmanteauIIDHypothesisTest extends IIDHypothesisTestCase {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInsufficientData() {
-    final TimeSeries<Long, Double> subSeries = RANDOM.subSeries(RANDOM.getTimeAt(0), RANDOM.getTimeAt(3));
+    final DoubleTimeSeries<Long> subSeries = RANDOM.subSeries(RANDOM.getTimeAt(0), RANDOM.getTimeAt(3));
     TEST.evaluate(new FastArrayLongDoubleTimeSeries(ENCODING, subSeries.timesArray(), subSeries.valuesArray()));
   }
 

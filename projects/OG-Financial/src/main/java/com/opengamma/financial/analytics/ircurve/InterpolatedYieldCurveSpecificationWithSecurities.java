@@ -40,19 +40,7 @@ public class InterpolatedYieldCurveSpecificationWithSecurities implements Serial
 
   public InterpolatedYieldCurveSpecificationWithSecurities(final LocalDate curveDate, final String name, final Currency currency, final Interpolator1D interpolator,
       final Collection<FixedIncomeStripWithSecurity> resolvedStrips) {
-    Validate.notNull(curveDate, "CurveDate");
-    Validate.notNull(currency, "Currency");
-    Validate.notNull(interpolator, "Interpolator1D");
-    Validate.notNull(resolvedStrips, "ResolvedStrips");
-    // Name can be null.
-    _curveDate = curveDate;
-    _currency = currency;
-    _name = name;
-    _interpolator = interpolator;
-    _interpolateYield = true;
-    for (final FixedIncomeStripWithSecurity strip : resolvedStrips) {
-      addStrip(strip);
-    }
+    this(curveDate, name, currency, interpolator, true, resolvedStrips);
   }
 
   public InterpolatedYieldCurveSpecificationWithSecurities(final LocalDate curveDate, final String name, final Currency currency, final Interpolator1D interpolator,

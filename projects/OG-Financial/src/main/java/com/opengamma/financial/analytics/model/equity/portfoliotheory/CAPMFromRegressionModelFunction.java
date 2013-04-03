@@ -42,7 +42,7 @@ import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.id.ExternalId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.DoubleTimeSeries;
 
 /**
  * 
@@ -50,6 +50,7 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
 public class CAPMFromRegressionModelFunction extends AbstractFunction.NonCompiledInvoker {
   private static final double DAYS_IN_YEAR = 365.25;
   private static final CAPMFromRegressionCalculator CAPM_REGRESSION_MODEL = new CAPMFromRegressionCalculator();
+  private static final ComputationTargetType TYPE = ComputationTargetType.POSITION.or(ComputationTargetType.PORTFOLIO_NODE);
   private final String _resolutionKey;
 
   public CAPMFromRegressionModelFunction(final String resolutionKey) {
@@ -207,7 +208,7 @@ public class CAPMFromRegressionModelFunction extends AbstractFunction.NonCompile
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.POSITION.or(ComputationTargetType.PORTFOLIO_NODE);
+    return TYPE;
   }
 
 }

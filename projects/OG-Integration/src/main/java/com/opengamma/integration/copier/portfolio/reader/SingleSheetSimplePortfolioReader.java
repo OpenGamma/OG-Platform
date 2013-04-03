@@ -110,4 +110,8 @@ public class SingleSheetSimplePortfolioReader extends SingleSheetPortfolioReader
     getSheet().close();
   }
 
+  @Override
+  public String getPortfolioName() {
+    return null;
+  }
 }

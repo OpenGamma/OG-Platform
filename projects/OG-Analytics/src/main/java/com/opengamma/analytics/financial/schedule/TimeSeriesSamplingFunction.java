@@ -7,7 +7,7 @@ package com.opengamma.analytics.financial.schedule;
 
 import org.threeten.bp.LocalDate;
 
-import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.DoubleTimeSeries;
 
 /**
  * 

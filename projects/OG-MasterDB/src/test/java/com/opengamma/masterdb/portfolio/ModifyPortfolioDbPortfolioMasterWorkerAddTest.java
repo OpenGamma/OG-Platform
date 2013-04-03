@@ -24,10 +24,12 @@ import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioDocument;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests ModifyPortfolioDbPortfolioMasterWorker.
  */
+@Test(groups = TestGroup.UNIT_DB)
 public class ModifyPortfolioDbPortfolioMasterWorkerAddTest extends AbstractDbPortfolioMasterWorkerTest {
   // superclass sets up dummy database
 

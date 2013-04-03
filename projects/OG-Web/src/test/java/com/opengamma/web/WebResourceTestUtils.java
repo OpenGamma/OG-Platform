@@ -61,8 +61,6 @@ public final class WebResourceTestUtils {
     }
   };
   
-  public static final JSONParser s_jsonParser = new JSONParser();
-  
   private WebResourceTestUtils() {
   }
   
@@ -166,8 +164,8 @@ public final class WebResourceTestUtils {
   public static void assertJSONObjectEquals(final JSONObject expectedJson, final JSONObject actualJson) throws Exception {
     assertNotNull(expectedJson);
     assertNotNull(actualJson);
-    String expectedSorted = JSONValue.toJSONString((Map) s_jsonParser.parse(expectedJson.toString(), s_sortedJSONObjectFactory));
-    String actualSorted = JSONValue.toJSONString((Map) s_jsonParser.parse(actualJson.toString(), s_sortedJSONObjectFactory));
+    String expectedSorted = JSONValue.toJSONString((Map) new JSONParser().parse(expectedJson.toString(), s_sortedJSONObjectFactory));
+    String actualSorted = JSONValue.toJSONString((Map) new JSONParser().parse(actualJson.toString(), s_sortedJSONObjectFactory));
     assertEquals(expectedSorted, actualSorted);
   }
   

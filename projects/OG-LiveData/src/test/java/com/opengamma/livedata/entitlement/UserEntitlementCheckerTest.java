@@ -28,11 +28,12 @@ import com.opengamma.security.user.Authority;
 import com.opengamma.security.user.User;
 import com.opengamma.security.user.UserGroup;
 import com.opengamma.security.user.UserManager;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test.
  */
-@Test(groups = "unit")
+@Test(groups = TestGroup.UNIT)
 public class UserEntitlementCheckerTest {
 
   public void basicPermissionCheck() {

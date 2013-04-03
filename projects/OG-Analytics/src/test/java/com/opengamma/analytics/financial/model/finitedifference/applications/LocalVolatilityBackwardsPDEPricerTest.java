@@ -52,7 +52,7 @@ public class LocalVolatilityBackwardsPDEPricerTest {
     RISK_FREE_CURVE = ConstantDoublesCurve.from(R);
     final Function<Double, Double> df = new Function1D<Double, Double>() {
       @Override
-      public Double evaluate(Double t) {
+      public Double evaluate(final Double t) {
         return Math.exp(-t * R);
       }
     };
@@ -61,13 +61,13 @@ public class LocalVolatilityBackwardsPDEPricerTest {
 
     final Function1D<Double, Double> volTS = new Function1D<Double, Double>() {
 
-      final double a = -0.1;
-      final double b = 0.3;
-      final double c = 0.4;
-      final double d = 0.3;
+      private final static double a = -0.1;
+      private final static double b = 0.3;
+      private final static double c = 0.4;
+      private final static double d = 0.3;
 
       @Override
-      public Double evaluate(Double t) {
+      public Double evaluate(final Double t) {
         final double tau = T - t;
         return (a + b * tau) * Math.exp(-c * tau) + d;
       }
@@ -75,7 +75,7 @@ public class LocalVolatilityBackwardsPDEPricerTest {
 
     final Function1D<Double, Double> vol2TS = new Function1D<Double, Double>() {
       @Override
-      public Double evaluate(Double t) {
+      public Double evaluate(final Double t) {
         final double vol = volTS.evaluate(t);
         return vol * vol;
       }
@@ -83,7 +83,7 @@ public class LocalVolatilityBackwardsPDEPricerTest {
 
     final Function<Double, Double> vol = new Function2D<Double, Double>() {
       @Override
-      public Double evaluate(Double t, Double s) {
+      public Double evaluate(final Double t, final Double s) {
         return volTS.evaluate(t);
       }
     };
@@ -112,8 +112,7 @@ public class LocalVolatilityBackwardsPDEPricerTest {
     final EuropeanVanillaOption option = new EuropeanVanillaOption(k, T, isCall);
 
     double pdePrice = PRICER.price(FWD_CURVE, RISK_FREE_CURVE, option, LOCAL_VOL_SUR, isCall, xNodes, tNodes);
-    @SuppressWarnings("unused")
-    double relErr = Math.abs((pdePrice - bsPrice) / bsPrice);
+    //    double relErr = Math.abs((pdePrice - bsPrice) / bsPrice);
 
     // System.out.println(bsPrice+"\t"+pdePrice+"\t"+relErr);
     assertEquals(bsPrice, pdePrice, 1e-5 * bsPrice);
@@ -123,21 +122,21 @@ public class LocalVolatilityBackwardsPDEPricerTest {
     xNodes = nu * tNodes;
 
     pdePrice = PRICER.price(FWD_CURVE, RISK_FREE_CURVE, option, LOCAL_VOL_SUR, isCall, xNodes, tNodes, 0.1, 0.0, 5.0);
-    relErr = Math.abs((pdePrice - bsPrice) / bsPrice);
+    //    relErr = Math.abs((pdePrice - bsPrice) / bsPrice);
     // System.out.println(bsPrice+"\t"+pdePrice+"\t"+relErr);
     assertEquals(bsPrice, pdePrice, 1e-5 * bsPrice);
   }
 
   /**
-   * Here the vol surface is flat in the time direction 
+   * Here the vol surface is flat in the time direction
    * The dynamics of a CEV process are $df_t = \sigma_{\beta} f_t^{\beta} dW$ where $f$ is the forward ($f(t,T)$) for some expiry $T$.
-   * For this test we'd like to work with spot rather that forward - for a deterministic rate (and zero yield), the forward and spot are related by 
+   * For this test we'd like to work with spot rather that forward - for a deterministic rate (and zero yield), the forward and spot are related by
    * $f_t = R_t S_t$ where $R_t = \exp(\int_t^T r_s dt)$. The dynamics of spot are $\frac{dS_t}{S_t} = r_t dt + \sigma_{\beta} (R_t S_t)^{\beta-1} dW$.
    * This means we can treat the local volatility as $\sigma(t,S_t) = \sigma_{\beta} (R_t S_t)^{\beta-1}$
    */
   @Test
   public void cevTest() {
-    CEVPriceFunction cev = new CEVPriceFunction();
+    final CEVPriceFunction cev = new CEVPriceFunction();
     final double k = 14.0;
     final boolean isCall = true;
 
@@ -152,7 +151,7 @@ public class LocalVolatilityBackwardsPDEPricerTest {
     final double beta = 0.5;
     final Function<Double, Double> vol = new Function2D<Double, Double>() {
       @Override
-      public Double evaluate(Double t, Double s) {
+      public Double evaluate(final Double t, final Double s) {
         final double tau = T - t;
         final double rt = Math.exp(tau * R);
         return sigma * Math.pow(rt * s, beta - 1.0);
@@ -167,8 +166,7 @@ public class LocalVolatilityBackwardsPDEPricerTest {
     final double cevPrice = priceFunc.evaluate(data);
 
     double pdePrice = PRICER.price(FWD_CURVE, RISK_FREE_CURVE, option, volSurf, isCall, xNodes, tNodes);
-    @SuppressWarnings("unused")
-    double relErr = Math.abs((pdePrice - cevPrice) / cevPrice);
+    //    double relErr = Math.abs((pdePrice - cevPrice) / cevPrice);
 
     // System.out.println(cevPrice + "\t" + pdePrice + "\t" + relErr);
     assertEquals(cevPrice, pdePrice, 1e-5 * cevPrice);
@@ -177,7 +175,7 @@ public class LocalVolatilityBackwardsPDEPricerTest {
     nu = 15;
     xNodes = nu * tNodes;
     pdePrice = PRICER.price(FWD_CURVE, RISK_FREE_CURVE, option, volSurf, isCall, xNodes, tNodes, 0.1, 0.0, 4.0);
-    relErr = Math.abs((pdePrice - cevPrice) / cevPrice);
+    //    relErr = Math.abs((pdePrice - cevPrice) / cevPrice);
     // System.out.println(cevPrice + "\t" + pdePrice + "\t" + relErr);
     assertEquals(cevPrice, pdePrice, 1e-5 * cevPrice);
   }
@@ -185,32 +183,32 @@ public class LocalVolatilityBackwardsPDEPricerTest {
   @Test
   public void mixedLogNormalTest() {
 
-    double[] w = new double[] {0.7, 0.25, 0.05};
-  double[] sigma = new double[] {0.3, 0.6, 1.0};
-  double[] mu = new double[] {0.0, 0.3, -0.5};
-//    double[] w = new double[] {0.99, 0.01, 0.0000};
-//    double[] sigma = new double[] {0.3, 0.5, 0.8};
-//  double[] mu = new double[] {0.0, 0.0, -0.0};
-    MultiHorizonMixedLogNormalModelData data = new MultiHorizonMixedLogNormalModelData(w, sigma, mu);
+    final double[] w = new double[] {0.7, 0.25, 0.05};
+    final double[] sigma = new double[] {0.3, 0.6, 1.0};
+    final double[] mu = new double[] {0.0, 0.3, -0.5};
+    //    double[] w = new double[] {0.99, 0.01, 0.0000};
+    //    double[] sigma = new double[] {0.3, 0.5, 0.8};
+    //  double[] mu = new double[] {0.0, 0.0, -0.0};
+    final MultiHorizonMixedLogNormalModelData data = new MultiHorizonMixedLogNormalModelData(w, sigma, mu);
     final PriceSurface priceSurf = MixedLogNormalVolatilitySurface.getPriceSurface(FWD_CURVE, DIS_CURVE, data);
-    LocalVolatilitySurfaceStrike locVol = MixedLogNormalVolatilitySurface.getLocalVolatilitySurface(FWD_CURVE, data);
-    
- 
-    
+    final LocalVolatilitySurfaceStrike locVol = MixedLogNormalVolatilitySurface.getLocalVolatilitySurface(FWD_CURVE, data);
+
+
+
     final double k = 14.0;
     final boolean isCall = true;
 
     final int tNodes = 50;
-    int nu = 20;
-    int xNodes = nu * tNodes;
+    final int nu = 20;
+    final int xNodes = nu * tNodes;
 
     final EuropeanVanillaOption option = new EuropeanVanillaOption(k, T, isCall);
-    double pdePrice = PRICER.price(FWD_CURVE, RISK_FREE_CURVE, option, locVol, isCall, xNodes, tNodes,0.05, 0.0, 8.0);
-    double mlnPrice = priceSurf.getPrice(T, k);
-    
-//    double relErr = Math.abs((pdePrice - mlnPrice) / mlnPrice);
-//     System.out.println(mlnPrice + "\t" + pdePrice + "\t" + relErr);
-     assertEquals(mlnPrice, pdePrice, 5e-3 * mlnPrice);
+    final double pdePrice = PRICER.price(FWD_CURVE, RISK_FREE_CURVE, option, locVol, isCall, xNodes, tNodes,0.05, 0.0, 8.0);
+    final double mlnPrice = priceSurf.getPrice(T, k);
+
+    //    double relErr = Math.abs((pdePrice - mlnPrice) / mlnPrice);
+    //     System.out.println(mlnPrice + "\t" + pdePrice + "\t" + relErr);
+    assertEquals(mlnPrice, pdePrice, 5e-3 * mlnPrice);
   }
 
 }

@@ -10,11 +10,12 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test Fudge encoding.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class ExceptionFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
 
   public void test_UTC() {

@@ -47,7 +47,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.AggregatedExecutionLog;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewResultEntry;
-import com.opengamma.engine.view.calc.ViewCycleMetadata;
+import com.opengamma.engine.view.cycle.ViewCycleMetadata;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.masterdb.AbstractDbMaster;

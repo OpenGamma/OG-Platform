@@ -31,6 +31,7 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
   <alias name="finDbConnector" alias="posDbConnector"/>
   <alias name="finDbConnector" alias="prtDbConnector"/>
   <alias name="finDbConnector" alias="engDbConnector"/>
+  <alias name="finDbConnector" alias="orgDbConnector"/>
 
   <bean id="secDbConnector" class="com.opengamma.util.db.DbConnectorFactoryBean">
     <property name="name" value="Security"/>
@@ -69,7 +70,7 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
   <!-- ================================================================== -->
   <bean id="activeMQConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
     <constructor-arg value="${activeMQ.brokerURL}" />
-    <property name="WatchTopicAdvisories" value="false" /> <!-- IGN-94 -->
+    <property name="watchTopicAdvisories" value="false" /> <!-- IGN-94 -->
   </bean>
   <bean id="jmsConnectionFactory" class="org.apache.activemq.pool.PooledConnectionFactory" destroy-method="stop"> 
     <constructor-arg ref="activeMQConnectionFactory"/>
@@ -88,6 +89,7 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
   <alias name="standardJmsConnector" alias="secJmsConnector"/>
   <alias name="standardJmsConnector" alias="posJmsConnector"/>
   <alias name="standardJmsConnector" alias="prtJmsConnector"/>
+  <alias name="standardJmsConnector" alias="orgJmsConnector"/>
 
   <!-- ================================================================== -->
   <bean id="standardCacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
@@ -103,6 +105,7 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
   <alias name="standardCacheManager" alias="secCacheManager"/>
   <alias name="standardCacheManager" alias="posCacheManager"/>
   <alias name="standardCacheManager" alias="prtCacheManager"/>
+  <alias name="standardCacheManager" alias="orgCacheManager"/>
   <alias name="standardCacheManager" alias="engCacheManager"/>
 
   <!-- ================================================================== -->

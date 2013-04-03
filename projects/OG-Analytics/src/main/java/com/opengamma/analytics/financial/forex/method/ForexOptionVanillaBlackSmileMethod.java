@@ -25,7 +25,7 @@ import com.opengamma.analytics.financial.model.volatility.surface.SmileDeltaTerm
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
-import com.opengamma.analytics.util.surface.SurfaceValue;
+import com.opengamma.analytics.util.amount.SurfaceValue;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -302,15 +302,15 @@ public final class ForexOptionVanillaBlackSmileMethod implements ForexPricingMet
     final double forward = spot * dfForeign / dfDomestic;
     final double volatility = FXVolatilityUtils.getVolatility(smile, optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getTimeToExpiry(), optionForex.getStrike(), forward);
     final double sign = (optionForex.isLong() ? 1.0 : -1.0);
-    final double theta = BlackFormulaRepository.theta(forward, optionForex.getStrike(), optionForex.getTimeToExpiry(), volatility) * sign
+    final double theta = BlackFormulaRepository.driftlessTheta(forward, optionForex.getStrike(), optionForex.getTimeToExpiry(), volatility) * sign
         * Math.abs(optionForex.getUnderlyingForex().getPaymentCurrency1().getAmount());
     return CurrencyAmount.of(optionForex.getUnderlyingForex().getCurrency2(), theta);
   }
 
   /**
    * Computes the Vanna (2nd order cross-sensitivity of the option present value to the spot fx and implied vol),
-   *  
-   * $\frac{\partial^2 (PV)}{\partial FX \partial \sigma}$ 
+   * 
+   * $\frac{\partial^2 (PV)}{\partial FX \partial \sigma}$
    * @param optionForex The Forex option.
    * @param curves The yield curve bundle.
    * @return The Vanna. In the same currency as present value.
@@ -405,14 +405,14 @@ public final class ForexOptionVanillaBlackSmileMethod implements ForexPricingMet
     final double rDomesticBar = -payTime * dfDomestic * dfDomesticBar;
     // Sensitivity object
     final double factor = Math.abs(optionForex.getUnderlyingForex().getPaymentCurrency1().getAmount()) * (optionForex.isLong() ? 1.0 : -1.0);
-    final List<DoublesPair> listForeign = new ArrayList<DoublesPair>();
+    final List<DoublesPair> listForeign = new ArrayList<>();
     listForeign.add(new DoublesPair(payTime, rForeignBar * factor));
-    final Map<String, List<DoublesPair>> resultForeignMap = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> resultForeignMap = new HashMap<>();
     resultForeignMap.put(foreignCurveName, listForeign);
     InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(resultForeignMap);
-    final List<DoublesPair> listDomestic = new ArrayList<DoublesPair>();
+    final List<DoublesPair> listDomestic = new ArrayList<>();
     listDomestic.add(new DoublesPair(payTime, rDomesticBar * factor));
-    final Map<String, List<DoublesPair>> resultDomesticMap = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> resultDomesticMap = new HashMap<>();
     resultDomesticMap.put(domesticCurveName, listDomestic);
     result = result.plus(new InterestRateCurveSensitivity(resultDomesticMap));
     return MultipleCurrencyInterestRateCurveSensitivity.of(optionForex.getUnderlyingForex().getCurrency2(), result);

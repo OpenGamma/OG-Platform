@@ -65,6 +65,7 @@
     right: 0;
     border-top: 5px solid transparent;
     border-left: 5px solid transparent;
+    -moz-transform: scale(.9999); /* Temporary fix for FF until mozilla patch bug */
 }
 
 .OG-g-cell.og-log-ERROR:after {
@@ -111,6 +112,37 @@
     text-overflow: ellipsis;
     background: #ecf5fa;
     padding: 0 0 0 4px;
+    white-space: nowrap;
+}
+
+.OG-g-h-resize {
+    float: right;
+    position: absolute;
+    right: -3px;
+    top: 0;
+    height: 100%;
+    width: 3px;
+    cursor: ew-resize;
+    border-left: 3px solid transparent;
+}
+
+.OG-g-h-resize:hover {
+    border-left-color: #999;
+}
+
+.OG-g-h-line {
+    border-left: 1px dotted #000;
+    position: absolute;
+    z-index: 5;
+}
+
+.OG-g-h-reorderer {
+    position: absolute;
+    font-weight: bold;
+    border: 2px dotted #555;
+    padding: 4;
+    margin: 0;
+    z-index: 1;
 }
 
 .OG-g-h-set-name {
@@ -192,4 +224,11 @@
 /* negative value */
 .OG-g .og-neg {
     color: #a62a2a;
+}
+
+/* column type styles */
+.OG-g-LABELLED_MATRIX_1D, .OG-g-LABELLED_MATRIX_2D, .OG-g-LABELLED_MATRIX_3D,
+.OG-g-UNPLOTTABLE_SURFACE_DATA, .OG-g-VECTOR, .OG-g-DOUBLE_GADGET {
+    text-align: right;
+    padding-right: 4px;
 }

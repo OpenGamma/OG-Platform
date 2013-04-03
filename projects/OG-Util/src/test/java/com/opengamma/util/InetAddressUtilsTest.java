@@ -9,10 +9,12 @@ import static org.testng.AssertJUnit.assertNotNull;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Test.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class InetAddressUtilsTest {
 
   public void test_strip() {

@@ -185,7 +185,7 @@ public class BaroneAdesiWhaleyModel {
     ArgumentChecker.isTrue(k > 0.0, "strike must be greater than zero");
     ArgumentChecker.isTrue(t > 0.0, "t must be greater than zero");
 
-    if ((isCall && price == (s0 - k)) || (!isCall && price == (k - s0))) {
+    if ((isCall && Double.compare(price, s0 - k) == 0) || (!isCall && Double.compare(price, k - s0) == 0)) {
       s_logger.warn("The price indicates that this option should be exercised immediately, therefore there is no implied volatility. Zero is returned.");
       return 0.0;
     }
@@ -239,7 +239,7 @@ public class BaroneAdesiWhaleyModel {
   /**
    * Calculates the price for a call
    */
-  private class CallSolver {
+  private static class CallSolver {
     /** The tolerance */
     private static final double TOL = 1e-8;
     /** The maximum number of iterations */
@@ -583,7 +583,7 @@ public class BaroneAdesiWhaleyModel {
   /**
    * Calculates the price for a put
    */
-  private class PutSolver {
+  private static class PutSolver {
     /** The tolerance */
     private static final double TOL = 1e-8;
     /** The maximum number of iterations */

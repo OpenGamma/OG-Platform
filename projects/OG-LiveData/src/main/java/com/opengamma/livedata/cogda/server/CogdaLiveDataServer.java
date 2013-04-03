@@ -6,13 +6,12 @@
 package com.opengamma.livedata.cogda.server;
 
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
@@ -72,7 +71,7 @@ public class CogdaLiveDataServer implements LiveDataServer, FudgeConnectionRecei
   private final ConcurrentMap<LiveDataSpecification, LastKnownValueStore> _lastKnownValueStores =
       new ConcurrentHashMap<LiveDataSpecification, LastKnownValueStore>();
   
-  private final Set<CogdaClientConnection> _clients = Collections.synchronizedSet(new HashSet<CogdaClientConnection>());
+  private final Set<CogdaClientConnection> _clients = new CopyOnWriteArraySet<CogdaClientConnection>();
   // TODO kirk 2012-07-23 -- This is absolutely the wrong executor here.
   private final Executor _valueUpdateSendingExecutor = Executors.newFixedThreadPool(5);
   private final AtomicLong _ticksReceived = new AtomicLong(0L);
@@ -179,10 +178,14 @@ public class CogdaLiveDataServer implements LiveDataServer, FudgeConnectionRecei
   
   public void liveDataReceived(LiveDataValueUpdate valueUpdate) {
     _ticksReceived.incrementAndGet();
+    
+    // REVIEW kirk 2013-03-27 -- Does this loop need to be done in an executor
+    // task or something? If nothing else, connection.liveDataReceived() can
+    // block.
+    
     // This could probably be much much faster, but we're designed initially for low-frequency
     // updates. Someone smarter should optimize the data structures here.
-    List<CogdaClientConnection> connections = new LinkedList<CogdaClientConnection>(_clients);
-    for (CogdaClientConnection connection : connections) {
+    for (CogdaClientConnection connection : _clients) {
       boolean needsPump = connection.liveDataReceived(valueUpdate);
       if (needsPump) {
         final CogdaClientConnection finalConnection = connection;

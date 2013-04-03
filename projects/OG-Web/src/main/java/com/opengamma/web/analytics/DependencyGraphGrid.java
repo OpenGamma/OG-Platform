@@ -10,8 +10,8 @@ import java.util.List;
 import com.google.common.collect.Lists;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
+import com.opengamma.engine.view.cycle.ViewCycle;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -28,8 +28,6 @@ public class DependencyGraphGrid extends AnalyticsGrid<DependencyGraphViewport> 
    * view output values (apart from the root) and therefore aren't included in the main results model and main results
    * cache.
    */
-  private final ResultsCache _cache = new ResultsCache();
-
   private ViewCycle _latestCycle;
 
   private DependencyGraphGrid(DependencyGraphGridStructure gridStructure,
@@ -81,20 +79,17 @@ public class DependencyGraphGrid extends AnalyticsGrid<DependencyGraphViewport> 
   }
 
   @Override
-  protected ResultsCache getResultsCache() {
-    return _cache;
+  protected DependencyGraphViewport createViewport(ViewportDefinition viewportDefinition,
+                                                   String callbackId,
+                                                   ResultsCache cache) {
+    return new DependencyGraphViewport(_calcConfigName, _gridStructure, callbackId, viewportDefinition, _latestCycle, cache);
   }
 
-  @Override
-  protected DependencyGraphViewport createViewport(ViewportDefinition viewportDefinition, String callbackId) {
-    return new DependencyGraphViewport(_calcConfigName, _gridStructure, callbackId, viewportDefinition, _latestCycle, _cache);
-  }
-
-  /* package */ List<String> updateResults(ViewCycle cycle) {
+  /* package */ List<String> updateResults(ViewCycle cycle, ResultsCache cache) {
     _latestCycle = cycle;
     List<String> updatedIds = Lists.newArrayList();
-    for (DependencyGraphViewport viewport : _viewports.values()) {
-      viewport.updateResults(cycle, _cache);
+    for (DependencyGraphViewport viewport : getViewports().values()) {
+      viewport.updateResults(cycle, cache);
       if (viewport.getState() == Viewport.State.FRESH_DATA) {
         updatedIds.add(viewport.getCallbackId());
       }

@@ -59,7 +59,7 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
     if (!(compiledViewDef instanceof CompiledViewDefinitionWithGraphs)) {
       s_logger.warn("Compiled view definition is not an instance of CompiledViewDefinitionWithGraphs, class={}." +
                         " Dependency graphs not supported");
-      _structure = new DependencyGraphGridStructure(AnalyticsNode.emptyRoot(),
+      _structure = new DependencyGraphGridStructure(null,
                                                     null,
                                                     Collections.<ValueSpecification>emptyList(),
                                                     Collections.<String>emptyList(),
@@ -68,7 +68,7 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
       CompiledViewDefinitionWithGraphs viewDef = (CompiledViewDefinitionWithGraphs) compiledViewDef;
       DependencyGraphExplorer depGraphExplorer = viewDef.getDependencyGraphExplorer(calcConfigName);
       DependencyGraph depGraph = depGraphExplorer.getSubgraphProducing(root);
-      AnalyticsNode node = createNode(root, depGraph);
+      AnalyticsNode node = createNode(root, depGraph, true);
       _structure = new DependencyGraphGridStructure(node, calcConfigName, _valueSpecs, _fnNames, targetResolver);
     }
   }
@@ -78,9 +78,10 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
    * nodes it depends on. Recursively builds up the node structure representing whole the dependency graph.
    * @param valueSpec The value specification of the target that is the current root
    * @param depGraph Dependency graph for the entire view definition
+   * @param rootNode Whether the value specification is for the root node of the dependency graph
    * @return Root node of the grid structure representing the dependency graph for the value
    */
-  private AnalyticsNode createNode(ValueSpecification valueSpec, DependencyGraph depGraph) {
+  private AnalyticsNode createNode(ValueSpecification valueSpec, DependencyGraph depGraph, boolean rootNode) {
     DependencyNode targetNode = depGraph.getNodeProducing(valueSpec);
     String fnName = targetNode.getFunction().getFunction().getFunctionDefinition().getShortName();
     _valueSpecs.add(valueSpec);
@@ -89,12 +90,17 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
     List<AnalyticsNode> nodes = Lists.newArrayList();
     Set<ValueSpecification> inputValues = targetNode.getInputValues();
     if (inputValues.isEmpty()) {
-      // don't create a node unless it has children
-      return null;
+      if (rootNode) {
+        // the root node should never be null even if it has no children
+        return new AnalyticsNode(nodeStart, _lastRow, Collections.<AnalyticsNode>emptyList(), false);
+      } else {
+        // non-root leaf nodes don't need a node of their own, their place in the structure is handled by their parent
+        return null;
+      }
     } else {
       for (ValueSpecification input : inputValues) {
         ++_lastRow;
-        AnalyticsNode newNode = createNode(input, depGraph);
+        AnalyticsNode newNode = createNode(input, depGraph, false);
         if (newNode != null) {
           nodes.add(newNode);
         }

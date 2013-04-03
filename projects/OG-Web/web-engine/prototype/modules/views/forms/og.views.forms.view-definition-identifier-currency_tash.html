@@ -39,5 +39,14 @@
       <span>Currency</span>
       <span>{{{item_1}}}</span>
     </label>
+    <label>
+      <span>
+        Persistent <input type="checkbox" name="persistent" {{#persistent}}checked="checked"{{/persistent}}
+          style="vertical-align: baseline" />
+        <span class="desc" style="display: inline">
+          (If checked, this view will start running when the engine starts even if a user does not load it in a client.)
+        </span>
+      </span>
+    </label>
   </div>
 </section>

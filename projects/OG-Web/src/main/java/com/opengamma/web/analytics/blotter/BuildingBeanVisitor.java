@@ -49,7 +49,7 @@ import com.opengamma.util.ArgumentChecker;
 
   @Override
   public void visitBeanProperty(MetaProperty<?> property, BeanTraverser traverser) {
-    _sink.setValue(property.name(), _sink.convert(property.get(_bean), property.propertyType(), traverser));
+    _sink.setValue(property.name(), _sink.convert(property.get(_bean), property, property.propertyType(), traverser));
   }
 
   private Collection<Object> convertCollection(MetaProperty<?> property, BeanTraverser traverser) {
@@ -57,7 +57,7 @@ import com.opengamma.util.ArgumentChecker;
     List<Object> convertedValues = Lists.newArrayList();
     Class<?> collectionType = JodaBeanUtils.collectionType(property, property.declaringType());
     for (Object value : values) {
-      convertedValues.add(_sink.convert(value, collectionType, traverser));
+      convertedValues.add(_sink.convert(value, property, collectionType, traverser));
     }
     return convertedValues;
   }
@@ -84,8 +84,8 @@ import com.opengamma.util.ArgumentChecker;
     Class<?> keyType = JodaBeanUtils.mapKeyType(property, property.declaringType());
     Class<?> valueType = JodaBeanUtils.mapValueType(property, property.declaringType());
     for (Map.Entry<?, ?> entry : valueMap.entrySet()) {
-      Object key = _sink.convert(entry.getKey(), keyType, traverser);
-      Object value = _sink.convert(entry.getValue(), valueType, traverser);
+      Object key = _sink.convert(entry.getKey(), property, keyType, traverser);
+      Object value = _sink.convert(entry.getValue(), property, valueType, traverser);
       convertedMap.put(key, value);
     }
     _sink.setMap(property.name(), convertedMap);
@@ -93,7 +93,7 @@ import com.opengamma.util.ArgumentChecker;
 
   @Override
   public void visitProperty(MetaProperty<?> property, BeanTraverser traverser) {
-    _sink.setValue(property.name(), _sink.convert(property.get(_bean), property.propertyType(), traverser));
+    _sink.setValue(property.name(), _sink.convert(property.get(_bean), property, property.propertyType(), traverser));
   }
 
   @Override

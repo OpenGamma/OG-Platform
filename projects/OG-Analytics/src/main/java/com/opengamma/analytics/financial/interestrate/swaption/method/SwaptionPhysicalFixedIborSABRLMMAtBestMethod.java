@@ -6,6 +6,7 @@
 package com.opengamma.analytics.financial.interestrate.swaption.method;
 
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang.Validate;
 
@@ -62,37 +63,37 @@ public class SwaptionPhysicalFixedIborSABRLMMAtBestMethod implements PricingMeth
    * @param strikeMoneyness The noneyness of strikes used in the calibration basket. Difference between the swaption rate and the basket rates.
    * @param parametersInit The initial value of the LMM parameters for calibration. The initial parameters are not modified by the calibration but a new copy is created for each calibration.
    */
-  public SwaptionPhysicalFixedIborSABRLMMAtBestMethod(double[] strikeMoneyness, final LiborMarketModelDisplacedDiffusionParameters parametersInit) {
+  public SwaptionPhysicalFixedIborSABRLMMAtBestMethod(final double[] strikeMoneyness, final LiborMarketModelDisplacedDiffusionParameters parametersInit) {
     _strikeMoneyness = strikeMoneyness;
     _parametersInit = parametersInit;
   }
 
   /**
    * The method calibrates a LMM on a set of vanilla swaption priced with SABR. The set of vanilla swaptions is given by the CalibrationType.
-   * The original swaption is priced with the calibrated LMM. 
+   * The original swaption is priced with the calibrated LMM.
    * This should not be used for vanilla swaptions (the price is equal to the SABR price with a longer computation type and some approximation).
    * This is useful for non-standard swaptions like amortized swaptions.
    * @param swaption The swaption.
    * @param curves The curves and SABR data.
-   * @return The present value. 
+   * @return The present value.
    */
   public CurrencyAmount presentValue(final SwaptionPhysicalFixedIbor swaption, final SABRInterestRateDataBundle curves) {
     Validate.notNull(swaption);
     Validate.notNull(curves);
-    int nbStrikes = _strikeMoneyness.length;
-    LiborMarketModelDisplacedDiffusionParameters lmmParameters = _parametersInit.copy();
-    SwaptionPhysicalLMMDDSuccessiveLeastSquareCalibrationObjective objective = new SwaptionPhysicalLMMDDSuccessiveLeastSquareCalibrationObjective(lmmParameters);
-    SwaptionPhysicalLMMDDSuccessiveLeastSquareCalibrationEngine calibrationEngine = new SwaptionPhysicalLMMDDSuccessiveLeastSquareCalibrationEngine(objective, nbStrikes);
-    SwaptionPhysicalFixedIbor[] swaptionCalibration = METHOD_BASKET.calibrationBasketFixedLegPeriod(swaption, _strikeMoneyness);
+    final int nbStrikes = _strikeMoneyness.length;
+    final LiborMarketModelDisplacedDiffusionParameters lmmParameters = _parametersInit.copy();
+    final SwaptionPhysicalLMMDDSuccessiveLeastSquareCalibrationObjective objective = new SwaptionPhysicalLMMDDSuccessiveLeastSquareCalibrationObjective(lmmParameters);
+    final SwaptionPhysicalLMMDDSuccessiveLeastSquareCalibrationEngine calibrationEngine = new SwaptionPhysicalLMMDDSuccessiveLeastSquareCalibrationEngine(objective, nbStrikes);
+    final SwaptionPhysicalFixedIbor[] swaptionCalibration = METHOD_BASKET.calibrationBasketFixedLegPeriod(swaption, _strikeMoneyness);
     calibrationEngine.addInstrument(swaptionCalibration, METHOD_SWAPTION_SABR);
     calibrationEngine.calibrate(curves);
-    LiborMarketModelDisplacedDiffusionDataBundle lmmBundle = new LiborMarketModelDisplacedDiffusionDataBundle(lmmParameters, curves);
-    CurrencyAmount pv = METHOD_SWAPTION_LMM.presentValue(swaption, lmmBundle);
+    final LiborMarketModelDisplacedDiffusionDataBundle lmmBundle = new LiborMarketModelDisplacedDiffusionDataBundle(lmmParameters, curves);
+    final CurrencyAmount pv = METHOD_SWAPTION_LMM.presentValue(swaption, lmmBundle);
     return pv;
   }
 
   @Override
-  public CurrencyAmount presentValue(InstrumentDerivative instrument, YieldCurveBundle curves) {
+  public CurrencyAmount presentValue(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
     Validate.isTrue(instrument instanceof SwaptionPhysicalFixedIbor, "Physical delivery swaption");
     Validate.isTrue(curves instanceof SABRInterestRateDataBundle, "Bundle should contain SABR data");
     return presentValue((SwaptionPhysicalFixedIbor) instrument, (SABRInterestRateDataBundle) curves);
@@ -101,24 +102,24 @@ public class SwaptionPhysicalFixedIborSABRLMMAtBestMethod implements PricingMeth
   public PresentValueSABRSensitivityDataBundle presentValueSABRSensitivity(final SwaptionPhysicalFixedIbor swaption, final SABRInterestRateDataBundle curves) {
     Validate.notNull(swaption);
     Validate.notNull(curves);
-    int nbStrikes = _strikeMoneyness.length;
-    LiborMarketModelDisplacedDiffusionParameters lmmParameters = _parametersInit.copy();
-    SwaptionPhysicalLMMDDSuccessiveLeastSquareCalibrationObjective objective = new SwaptionPhysicalLMMDDSuccessiveLeastSquareCalibrationObjective(lmmParameters);
-    SwaptionPhysicalLMMDDSuccessiveLeastSquareCalibrationEngine calibrationEngine = new SwaptionPhysicalLMMDDSuccessiveLeastSquareCalibrationEngine(objective, nbStrikes);
-    SwaptionPhysicalFixedIbor[] swaptionCalibration = METHOD_BASKET.calibrationBasketFixedLegPeriod(swaption, _strikeMoneyness);
+    final int nbStrikes = _strikeMoneyness.length;
+    final LiborMarketModelDisplacedDiffusionParameters lmmParameters = _parametersInit.copy();
+    final SwaptionPhysicalLMMDDSuccessiveLeastSquareCalibrationObjective objective = new SwaptionPhysicalLMMDDSuccessiveLeastSquareCalibrationObjective(lmmParameters);
+    final SwaptionPhysicalLMMDDSuccessiveLeastSquareCalibrationEngine calibrationEngine = new SwaptionPhysicalLMMDDSuccessiveLeastSquareCalibrationEngine(objective, nbStrikes);
+    final SwaptionPhysicalFixedIbor[] swaptionCalibration = METHOD_BASKET.calibrationBasketFixedLegPeriod(swaption, _strikeMoneyness);
     calibrationEngine.addInstrument(swaptionCalibration, METHOD_SWAPTION_SABR);
     calibrationEngine.calibrate(curves);
-    LiborMarketModelDisplacedDiffusionDataBundle lmmBundle = new LiborMarketModelDisplacedDiffusionDataBundle(lmmParameters, curves);
+    final LiborMarketModelDisplacedDiffusionDataBundle lmmBundle = new LiborMarketModelDisplacedDiffusionDataBundle(lmmParameters, curves);
 
-    int nbCalibrations = swaptionCalibration.length;
-    int nbPeriods = nbCalibrations / nbStrikes;
-    int nbFact = lmmParameters.getNbFactor();
-    List<Integer> instrumentIndex = calibrationEngine.getInstrumentIndex();
-    double[] dPvdPhi = new double[2 * nbPeriods];
+    final int nbCalibrations = swaptionCalibration.length;
+    final int nbPeriods = nbCalibrations / nbStrikes;
+    final int nbFact = lmmParameters.getNbFactor();
+    final List<Integer> instrumentIndex = calibrationEngine.getInstrumentIndex();
+    final double[] dPvdPhi = new double[2 * nbPeriods];
     // Implementation note: Derivative of the priced swaptions wrt the calibration parameters (multiplicative factor and additive term)
     // Implementation note: Phi is a vector with the multiplicative factors on the volatility and then the additive terms on the displacements.
-    double[][] dPvdGamma = METHOD_SWAPTION_LMM.presentValueLMMSensitivity(swaption, lmmBundle);
-    double[] dPvdDis = METHOD_SWAPTION_LMM.presentValueDDSensitivity(swaption, lmmBundle);
+    final double[][] dPvdGamma = METHOD_SWAPTION_LMM.presentValueLMMSensitivity(swaption, lmmBundle);
+    final double[] dPvdDis = METHOD_SWAPTION_LMM.presentValueDDSensitivity(swaption, lmmBundle);
     for (int loopperiod = 0; loopperiod < nbPeriods; loopperiod++) {
       for (int loopsub = instrumentIndex.get(loopperiod * nbStrikes); loopsub < instrumentIndex.get((loopperiod + 1) * nbStrikes); loopsub++) {
         for (int loopfact = 0; loopfact < nbFact; loopfact++) {
@@ -128,13 +129,13 @@ public class SwaptionPhysicalFixedIborSABRLMMAtBestMethod implements PricingMeth
       }
     }
 
-    double[][] dPvCaldPhi = new double[nbCalibrations][2 * nbPeriods];
+    final double[][] dPvCaldPhi = new double[nbCalibrations][2 * nbPeriods];
     // Implementation note: Derivative of the calibration swaptions wrt the calibration parameters (multiplicative factor and additive term)
-    double[][][] dPvCaldGamma = new double[nbCalibrations][][];
+    final double[][][] dPvCaldGamma = new double[nbCalibrations][][];
     for (int loopcal = 0; loopcal < nbCalibrations; loopcal++) {
       dPvCaldGamma[loopcal] = METHOD_SWAPTION_LMM.presentValueLMMSensitivity(swaptionCalibration[loopcal], lmmBundle);
     }
-    double[][] dPvCaldDis = new double[nbCalibrations][];
+    final double[][] dPvCaldDis = new double[nbCalibrations][];
     for (int loopcal = 0; loopcal < nbCalibrations; loopcal++) {
       dPvCaldDis[loopcal] = METHOD_SWAPTION_LMM.presentValueDDSensitivity(swaptionCalibration[loopcal], lmmBundle);
     }
@@ -149,20 +150,21 @@ public class SwaptionPhysicalFixedIborSABRLMMAtBestMethod implements PricingMeth
       }
     }
 
-    double[][] dPvCaldTheta = new double[nbCalibrations][3 * nbPeriods];
+    final double[][] dPvCaldTheta = new double[nbCalibrations][3 * nbPeriods];
     // Implementation note: Derivative of the calibration swaptions wrt the SABR parameters as a unique array.
     // Implementation note: Theta is vector with first the Alpha, the the Rho and finally the Nu.
     for (int loopperiod = 0; loopperiod < nbPeriods; loopperiod++) {
       for (int loopstrike = 0; loopstrike < nbStrikes; loopstrike++) {
-        PresentValueSABRSensitivityDataBundle dPvCaldSABR = METHOD_SWAPTION_SABR.presentValueSABRSensitivity(swaptionCalibration[loopperiod * nbStrikes + loopstrike], curves);
-        DoublesPair[] keySet = dPvCaldSABR.getAlpha().getMap().keySet().toArray(new DoublesPair[0]);
-        dPvCaldTheta[loopperiod * nbStrikes + loopstrike][loopperiod] += dPvCaldSABR.getAlpha().getMap().get(keySet[0]);
-        dPvCaldTheta[loopperiod * nbStrikes + loopstrike][nbPeriods + loopperiod] = dPvCaldSABR.getRho().getMap().get(keySet[0]);
-        dPvCaldTheta[loopperiod * nbStrikes + loopstrike][2 * nbPeriods + loopperiod] = dPvCaldSABR.getNu().getMap().get(keySet[0]);
+        final PresentValueSABRSensitivityDataBundle dPvCaldSABR = METHOD_SWAPTION_SABR.presentValueSABRSensitivity(swaptionCalibration[loopperiod * nbStrikes + loopstrike], curves);
+        final Set<DoublesPair> keySet = dPvCaldSABR.getAlpha().getMap().keySet();
+        final DoublesPair[] keys = keySet.toArray(new DoublesPair[keySet.size()]);
+        dPvCaldTheta[loopperiod * nbStrikes + loopstrike][loopperiod] += dPvCaldSABR.getAlpha().getMap().get(keys[0]);
+        dPvCaldTheta[loopperiod * nbStrikes + loopstrike][nbPeriods + loopperiod] = dPvCaldSABR.getRho().getMap().get(keys[0]);
+        dPvCaldTheta[loopperiod * nbStrikes + loopstrike][2 * nbPeriods + loopperiod] = dPvCaldSABR.getNu().getMap().get(keys[0]);
       }
     }
 
-    double[][] dfdTheta = new double[2 * nbPeriods][3 * nbPeriods];
+    final double[][] dfdTheta = new double[2 * nbPeriods][3 * nbPeriods];
     // Implementation note: Derivative of f wrt the SABR parameters.
     for (int loopp = 0; loopp < 2 * nbPeriods; loopp++) {
       for (int loops = 0; loops < 3 * nbPeriods; loops++) {
@@ -171,7 +173,7 @@ public class SwaptionPhysicalFixedIborSABRLMMAtBestMethod implements PricingMeth
         }
       }
     }
-    double[][] dfdPhi = new double[2 * nbPeriods][2 * nbPeriods];
+    final double[][] dfdPhi = new double[2 * nbPeriods][2 * nbPeriods];
     // Implementation note: Derivative of f wrt the calibration parameters. This is an approximation: the second order derivative part are ignored.
     for (int loopp1 = 0; loopp1 < 2 * nbPeriods; loopp1++) {
       for (int loopp2 = 0; loopp2 < 2 * nbPeriods; loopp2++) {
@@ -181,17 +183,17 @@ public class SwaptionPhysicalFixedIborSABRLMMAtBestMethod implements PricingMeth
       }
     }
 
-    DoubleMatrix2D dfdThetaMat = new DoubleMatrix2D(dfdTheta);
-    DoubleMatrix2D dfdPhiMat = new DoubleMatrix2D(dfdPhi);
-    DoubleMatrix2D dPhidThetaMat = (DoubleMatrix2D) ALGEBRA.scale(ALGEBRA.multiply(ALGEBRA.getInverse(dfdPhiMat), dfdThetaMat), -1.0);
-    DoubleMatrix1D dPvdPhiMat = new DoubleMatrix1D(dPvdPhi);
-    DoubleMatrix2D dPvdThetaMat = ALGEBRA.getTranspose(ALGEBRA.multiply(ALGEBRA.getTranspose(dPhidThetaMat), dPvdPhiMat));
-    double[] dPvdTheta = dPvdThetaMat.getData()[0];
+    final DoubleMatrix2D dfdThetaMat = new DoubleMatrix2D(dfdTheta);
+    final DoubleMatrix2D dfdPhiMat = new DoubleMatrix2D(dfdPhi);
+    final DoubleMatrix2D dPhidThetaMat = (DoubleMatrix2D) ALGEBRA.scale(ALGEBRA.multiply(ALGEBRA.getInverse(dfdPhiMat), dfdThetaMat), -1.0);
+    final DoubleMatrix1D dPvdPhiMat = new DoubleMatrix1D(dPvdPhi);
+    final DoubleMatrix2D dPvdThetaMat = ALGEBRA.getTranspose(ALGEBRA.multiply(ALGEBRA.getTranspose(dPhidThetaMat), dPvdPhiMat));
+    final double[] dPvdTheta = dPvdThetaMat.getData()[0];
 
     // Storage in PresentValueSABRSensitivityDataBundle
-    PresentValueSABRSensitivityDataBundle sensi = new PresentValueSABRSensitivityDataBundle();
+    final PresentValueSABRSensitivityDataBundle sensi = new PresentValueSABRSensitivityDataBundle();
     for (int loopp = 0; loopp < nbPeriods; loopp++) {
-      DoublesPair expiryMaturity = new DoublesPair(swaptionCalibration[loopp * nbStrikes].getTimeToExpiry(), swaptionCalibration[loopp * nbStrikes].getMaturityTime());
+      final DoublesPair expiryMaturity = new DoublesPair(swaptionCalibration[loopp * nbStrikes].getTimeToExpiry(), swaptionCalibration[loopp * nbStrikes].getMaturityTime());
       sensi.addAlpha(expiryMaturity, dPvdTheta[loopp]);
       sensi.addRho(expiryMaturity, dPvdTheta[nbPeriods + loopp]);
       sensi.addNu(expiryMaturity, dPvdTheta[2 * nbPeriods + loopp]);
@@ -203,30 +205,30 @@ public class SwaptionPhysicalFixedIborSABRLMMAtBestMethod implements PricingMeth
       final SABRInterestRateDataBundle curves) {
     Validate.notNull(swaption);
     Validate.notNull(curves);
-    int nbStrikes = _strikeMoneyness.length;
-    LiborMarketModelDisplacedDiffusionParameters lmmParameters = _parametersInit.copy();
-    SwaptionPhysicalLMMDDSuccessiveLeastSquareCalibrationObjective objective = new SwaptionPhysicalLMMDDSuccessiveLeastSquareCalibrationObjective(lmmParameters);
-    SwaptionPhysicalLMMDDSuccessiveLeastSquareCalibrationEngine calibrationEngine = new SwaptionPhysicalLMMDDSuccessiveLeastSquareCalibrationEngine(objective, nbStrikes);
-    SwaptionPhysicalFixedIbor[] swaptionCalibration = METHOD_BASKET.calibrationBasketFixedLegPeriod(swaption, _strikeMoneyness);
+    final int nbStrikes = _strikeMoneyness.length;
+    final LiborMarketModelDisplacedDiffusionParameters lmmParameters = _parametersInit.copy();
+    final SwaptionPhysicalLMMDDSuccessiveLeastSquareCalibrationObjective objective = new SwaptionPhysicalLMMDDSuccessiveLeastSquareCalibrationObjective(lmmParameters);
+    final SwaptionPhysicalLMMDDSuccessiveLeastSquareCalibrationEngine calibrationEngine = new SwaptionPhysicalLMMDDSuccessiveLeastSquareCalibrationEngine(objective, nbStrikes);
+    final SwaptionPhysicalFixedIbor[] swaptionCalibration = METHOD_BASKET.calibrationBasketFixedLegPeriod(swaption, _strikeMoneyness);
     calibrationEngine.addInstrument(swaptionCalibration, METHOD_SWAPTION_SABR);
     calibrationEngine.calibrate(curves);
-    LiborMarketModelDisplacedDiffusionDataBundle lmmBundle = new LiborMarketModelDisplacedDiffusionDataBundle(lmmParameters, curves);
+    final LiborMarketModelDisplacedDiffusionDataBundle lmmBundle = new LiborMarketModelDisplacedDiffusionDataBundle(lmmParameters, curves);
 
-    // 1. PV 
+    // 1. PV
 
-    CurrencyAmount pv = METHOD_SWAPTION_LMM.presentValue(swaption, lmmBundle);
+    final CurrencyAmount pv = METHOD_SWAPTION_LMM.presentValue(swaption, lmmBundle);
 
-    int nbCalibrations = swaptionCalibration.length;
-    int nbPeriods = nbCalibrations / nbStrikes;
-    int nbFact = lmmParameters.getNbFactor();
-    List<Integer> instrumentIndex = calibrationEngine.getInstrumentIndex();
+    final int nbCalibrations = swaptionCalibration.length;
+    final int nbPeriods = nbCalibrations / nbStrikes;
+    final int nbFact = lmmParameters.getNbFactor();
+    final List<Integer> instrumentIndex = calibrationEngine.getInstrumentIndex();
 
-    // 2. SABR sensitivities 
+    // 2. SABR sensitivities
 
-    double[] dPvdPhi = new double[2 * nbPeriods];
+    final double[] dPvdPhi = new double[2 * nbPeriods];
     // Implementation note: Derivative of the priced swaptions wrt the calibration parameters (multiplicative factor and additive term)
-    double[][] dPvdGamma = METHOD_SWAPTION_LMM.presentValueLMMSensitivity(swaption, lmmBundle);
-    double[] dPvdDis = METHOD_SWAPTION_LMM.presentValueDDSensitivity(swaption, lmmBundle);
+    final double[][] dPvdGamma = METHOD_SWAPTION_LMM.presentValueLMMSensitivity(swaption, lmmBundle);
+    final double[] dPvdDis = METHOD_SWAPTION_LMM.presentValueDDSensitivity(swaption, lmmBundle);
     for (int loopperiod = 0; loopperiod < nbPeriods; loopperiod++) {
       for (int loopsub = instrumentIndex.get(loopperiod * nbStrikes); loopsub < instrumentIndex.get((loopperiod + 1) * nbStrikes); loopsub++) {
         for (int loopfact = 0; loopfact < nbFact; loopfact++) {
@@ -236,13 +238,13 @@ public class SwaptionPhysicalFixedIborSABRLMMAtBestMethod implements PricingMeth
       }
     }
 
-    double[][] dPvCaldPhi = new double[nbCalibrations][2 * nbPeriods];
+    final double[][] dPvCaldPhi = new double[nbCalibrations][2 * nbPeriods];
     // Implementation note: Derivative of the calibration swaptions wrt the calibration parameters (multiplicative factor and additive term)
-    double[][][] dPvCaldGamma = new double[nbCalibrations][][];
+    final double[][][] dPvCaldGamma = new double[nbCalibrations][][];
     for (int loopcal = 0; loopcal < nbCalibrations; loopcal++) {
       dPvCaldGamma[loopcal] = METHOD_SWAPTION_LMM.presentValueLMMSensitivity(swaptionCalibration[loopcal], lmmBundle);
     }
-    double[][] dPvCaldDis = new double[nbCalibrations][];
+    final double[][] dPvCaldDis = new double[nbCalibrations][];
     for (int loopcal = 0; loopcal < nbCalibrations; loopcal++) {
       dPvCaldDis[loopcal] = METHOD_SWAPTION_LMM.presentValueDDSensitivity(swaptionCalibration[loopcal], lmmBundle);
     }
@@ -257,19 +259,20 @@ public class SwaptionPhysicalFixedIborSABRLMMAtBestMethod implements PricingMeth
       }
     }
 
-    double[][] dPvCaldTheta = new double[nbCalibrations][3 * nbPeriods];
+    final double[][] dPvCaldTheta = new double[nbCalibrations][3 * nbPeriods];
     // Implementation note: Derivative of the calibration swaptions wrt the SABR parameters as a unique array.
     for (int loopperiod = 0; loopperiod < nbPeriods; loopperiod++) {
       for (int loopstrike = 0; loopstrike < nbStrikes; loopstrike++) {
-        PresentValueSABRSensitivityDataBundle dPvCaldSABR = METHOD_SWAPTION_SABR.presentValueSABRSensitivity(swaptionCalibration[loopperiod * nbStrikes + loopstrike], curves);
-        DoublesPair[] keySet = dPvCaldSABR.getAlpha().getMap().keySet().toArray(new DoublesPair[0]);
-        dPvCaldTheta[loopperiod * nbStrikes + loopstrike][loopperiod] += dPvCaldSABR.getAlpha().getMap().get(keySet[0]);
-        dPvCaldTheta[loopperiod * nbStrikes + loopstrike][nbPeriods + loopperiod] = dPvCaldSABR.getRho().getMap().get(keySet[0]);
-        dPvCaldTheta[loopperiod * nbStrikes + loopstrike][2 * nbPeriods + loopperiod] = dPvCaldSABR.getNu().getMap().get(keySet[0]);
+        final PresentValueSABRSensitivityDataBundle dPvCaldSABR = METHOD_SWAPTION_SABR.presentValueSABRSensitivity(swaptionCalibration[loopperiod * nbStrikes + loopstrike], curves);
+        final Set<DoublesPair> keySet = dPvCaldSABR.getAlpha().getMap().keySet();
+        final DoublesPair[] keys = keySet.toArray(new DoublesPair[keySet.size()]);
+        dPvCaldTheta[loopperiod * nbStrikes + loopstrike][loopperiod] += dPvCaldSABR.getAlpha().getMap().get(keys[0]);
+        dPvCaldTheta[loopperiod * nbStrikes + loopstrike][nbPeriods + loopperiod] = dPvCaldSABR.getRho().getMap().get(keys[0]);
+        dPvCaldTheta[loopperiod * nbStrikes + loopstrike][2 * nbPeriods + loopperiod] = dPvCaldSABR.getNu().getMap().get(keys[0]);
       }
     }
 
-    double[][] dfdTheta = new double[2 * nbPeriods][3 * nbPeriods];
+    final double[][] dfdTheta = new double[2 * nbPeriods][3 * nbPeriods];
     // Implementation note: Derivative of f wrt the SABR parameters.
     for (int loopp = 0; loopp < 2 * nbPeriods; loopp++) {
       for (int loops = 0; loops < 3 * nbPeriods; loops++) {
@@ -278,7 +281,7 @@ public class SwaptionPhysicalFixedIborSABRLMMAtBestMethod implements PricingMeth
         }
       }
     }
-    double[][] dfdPhi = new double[2 * nbPeriods][2 * nbPeriods];
+    final double[][] dfdPhi = new double[2 * nbPeriods][2 * nbPeriods];
     // Implementation note: Derivative of f wrt the calibration parameters. This is an approximation: the second order derivative part are ignored.
     for (int loopp1 = 0; loopp1 < 2 * nbPeriods; loopp1++) {
       for (int loopp2 = 0; loopp2 < 2 * nbPeriods; loopp2++) {
@@ -288,34 +291,34 @@ public class SwaptionPhysicalFixedIborSABRLMMAtBestMethod implements PricingMeth
       }
     }
 
-    DoubleMatrix2D dfdThetaMat = new DoubleMatrix2D(dfdTheta);
-    DoubleMatrix2D dfdPhiMat = new DoubleMatrix2D(dfdPhi);
-    DoubleMatrix2D dfdPhiInvMat = ALGEBRA.getInverse(dfdPhiMat);
-    DoubleMatrix2D dPhidThetaMat = (DoubleMatrix2D) ALGEBRA.scale(ALGEBRA.multiply(dfdPhiInvMat, dfdThetaMat), -1.0);
-    DoubleMatrix1D dPvdPhiMat = new DoubleMatrix1D(dPvdPhi);
-    DoubleMatrix2D dPvdThetaMat = ALGEBRA.getTranspose(ALGEBRA.multiply(ALGEBRA.getTranspose(dPhidThetaMat), dPvdPhiMat));
-    double[] dPvdTheta = dPvdThetaMat.getData()[0];
+    final DoubleMatrix2D dfdThetaMat = new DoubleMatrix2D(dfdTheta);
+    final DoubleMatrix2D dfdPhiMat = new DoubleMatrix2D(dfdPhi);
+    final DoubleMatrix2D dfdPhiInvMat = ALGEBRA.getInverse(dfdPhiMat);
+    final DoubleMatrix2D dPhidThetaMat = (DoubleMatrix2D) ALGEBRA.scale(ALGEBRA.multiply(dfdPhiInvMat, dfdThetaMat), -1.0);
+    final DoubleMatrix1D dPvdPhiMat = new DoubleMatrix1D(dPvdPhi);
+    final DoubleMatrix2D dPvdThetaMat = ALGEBRA.getTranspose(ALGEBRA.multiply(ALGEBRA.getTranspose(dPhidThetaMat), dPvdPhiMat));
+    final double[] dPvdTheta = dPvdThetaMat.getData()[0];
 
     // Storage in PresentValueSABRSensitivityDataBundle
-    PresentValueSABRSensitivityDataBundle sensiSABR = new PresentValueSABRSensitivityDataBundle();
+    final PresentValueSABRSensitivityDataBundle sensiSABR = new PresentValueSABRSensitivityDataBundle();
     for (int loopp = 0; loopp < nbPeriods; loopp++) {
-      DoublesPair expiryMaturity = new DoublesPair(swaptionCalibration[loopp * nbStrikes].getTimeToExpiry(), swaptionCalibration[loopp * nbStrikes].getMaturityTime());
+      final DoublesPair expiryMaturity = new DoublesPair(swaptionCalibration[loopp * nbStrikes].getTimeToExpiry(), swaptionCalibration[loopp * nbStrikes].getMaturityTime());
       sensiSABR.addAlpha(expiryMaturity, dPvdTheta[loopp]);
       sensiSABR.addRho(expiryMaturity, dPvdTheta[nbPeriods + loopp]);
       sensiSABR.addNu(expiryMaturity, dPvdTheta[2 * nbPeriods + loopp]);
     }
 
-    // 3. Curve sensitivities 
+    // 3. Curve sensitivities
 
-    InterestRateCurveSensitivity[] dPvCalBasedC = new InterestRateCurveSensitivity[nbCalibrations];
-    InterestRateCurveSensitivity[] dPvCalLmmdC = new InterestRateCurveSensitivity[nbCalibrations];
-    InterestRateCurveSensitivity[] dPvCalDiffdC = new InterestRateCurveSensitivity[nbCalibrations];
+    final InterestRateCurveSensitivity[] dPvCalBasedC = new InterestRateCurveSensitivity[nbCalibrations];
+    final InterestRateCurveSensitivity[] dPvCalLmmdC = new InterestRateCurveSensitivity[nbCalibrations];
+    final InterestRateCurveSensitivity[] dPvCalDiffdC = new InterestRateCurveSensitivity[nbCalibrations];
     for (int loopcal = 0; loopcal < nbCalibrations; loopcal++) {
       dPvCalBasedC[loopcal] = METHOD_SWAPTION_SABR.presentValueCurveSensitivity(swaptionCalibration[loopcal], curves);
       dPvCalLmmdC[loopcal] = METHOD_SWAPTION_LMM.presentValueCurveSensitivity(swaptionCalibration[loopcal], lmmBundle);
       dPvCalDiffdC[loopcal] = dPvCalBasedC[loopcal].plus(dPvCalLmmdC[loopcal].multipliedBy(-1.0)).cleaned();
     }
-    InterestRateCurveSensitivity[] dfdC = new InterestRateCurveSensitivity[2 * nbPeriods];
+    final InterestRateCurveSensitivity[] dfdC = new InterestRateCurveSensitivity[2 * nbPeriods];
     // Implementation note: Derivative of f wrt the curves. This is an approximation: the second order derivative part are ignored.
     for (int loopp = 0; loopp < 2 * nbPeriods; loopp++) {
       dfdC[loopp] = new InterestRateCurveSensitivity();
@@ -323,7 +326,7 @@ public class SwaptionPhysicalFixedIborSABRLMMAtBestMethod implements PricingMeth
         dfdC[loopp] = dfdC[loopp].plus(dPvCalDiffdC[loopcal].multipliedBy(-2 * dPvCaldPhi[loopcal][loopp])).cleaned();
       }
     }
-    InterestRateCurveSensitivity[] dPhidC = new InterestRateCurveSensitivity[2 * nbPeriods];
+    final InterestRateCurveSensitivity[] dPhidC = new InterestRateCurveSensitivity[2 * nbPeriods];
     for (int loopp1 = 0; loopp1 < 2 * nbPeriods; loopp1++) {
       dPhidC[loopp1] = new InterestRateCurveSensitivity();
       for (int loopp2 = 0; loopp2 < 2 * nbPeriods; loopp2++) {
@@ -334,8 +337,6 @@ public class SwaptionPhysicalFixedIborSABRLMMAtBestMethod implements PricingMeth
     for (int loopp = 0; loopp < 2 * nbPeriods; loopp++) {
       dPvdC = dPvdC.plus(dPhidC[loopp].multipliedBy(dPvdPhi[loopp])).cleaned();
     }
-    //    System.out.println(Runtime.getRuntime().totalMemory());
-
     return new Triple<CurrencyAmount, PresentValueSABRSensitivityDataBundle, InterestRateCurveSensitivity>(pv, sensiSABR, dPvdC);
   }
 

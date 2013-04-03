@@ -293,7 +293,7 @@ public class MarketDataSnapshotSearchRequest extends AbstractSearchRequest imple
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "snapshotIds",
         "name",
         "includeData");

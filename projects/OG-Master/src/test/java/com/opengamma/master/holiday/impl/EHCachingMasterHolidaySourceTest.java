@@ -16,7 +16,9 @@ import java.util.Collections;
 
 import net.sf.ehcache.CacheManager;
 
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
@@ -31,11 +33,12 @@ import com.opengamma.master.holiday.HolidaySearchResult;
 import com.opengamma.master.holiday.ManageableHoliday;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test.
  */
-@Test
+@Test(groups = {TestGroup.UNIT, "ehcache"})
 public class EHCachingMasterHolidaySourceTest {
 
   private static final LocalDate DATE_MONDAY = LocalDate.of(2010, 10, 25);
@@ -49,17 +52,25 @@ public class EHCachingMasterHolidaySourceTest {
   private EHCachingMasterHolidaySource _cachingHolidaySource = null;
   private CacheManager _cacheManager;
 
+  @BeforeClass
+  public void setUpClass() {
+    _cacheManager = EHCacheUtils.createTestCacheManager(EHCachingMasterHolidaySourceTest.class);
+  }
+
+  @AfterClass
+  public void tearDownClass() {
+    EHCacheUtils.shutdownQuiet(_cacheManager);
+  }
+
   @BeforeMethod
   public void setUp() {
-    _cacheManager = CacheManager.newInstance();
     _underlyingHolidayMaster = mock(HolidayMaster.class);
-    EHCacheUtils.clear(_cacheManager, EHCachingMasterHolidaySource.HOLIDAY_CACHE);
     _cachingHolidaySource = new EHCachingMasterHolidaySource(_underlyingHolidayMaster, _cacheManager);
   }
 
   @AfterMethod
   public void tearDown() {
-    _cacheManager = EHCacheUtils.shutdownQuiet(_cacheManager);
+    EHCacheUtils.clear(_cacheManager, EHCachingMasterHolidaySource.HOLIDAY_CACHE);
   }
 
   //-------------------------------------------------------------------------

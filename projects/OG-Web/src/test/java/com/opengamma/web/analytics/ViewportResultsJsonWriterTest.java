@@ -16,16 +16,21 @@ import org.threeten.bp.Duration;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.cache.NotCalculatedSentinel;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.cache.NotCalculatedSentinel;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.web.analytics.formatting.ResultsFormatter;
 import com.opengamma.web.analytics.formatting.TypeFormatter;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class ViewportResultsJsonWriterTest {
 
   private static final Duration DURATION = Duration.ofMillis(1234);
@@ -48,7 +53,7 @@ public class ViewportResultsJsonWriterTest {
   private static GridColumnGroups createColumns(Class<?> type) {
     GridColumn.CellRenderer renderer = new TestCellRenderer();
     GridColumn column = new GridColumn("header", "desc", type, renderer);
-    return new GridColumnGroups(ImmutableList.of(new GridColumnGroup("grp", ImmutableList.of(column), false)));
+    return new GridColumnGroups(new GridColumnGroup("grp", ImmutableList.of(column), false));
   }
 
   private List<ResultsCell> createResults(Object value, List<Object> history, Class<?> columnType) {
@@ -132,7 +137,7 @@ public class ViewportResultsJsonWriterTest {
   private static class TestCellRenderer implements GridColumn.CellRenderer {
 
     @Override
-    public ResultsCell getResults(int rowIndex, ResultsCache cache, Class<?> columnType) {
+    public ResultsCell getResults(int rowIndex, ResultsCache cache, Class<?> columnType, Object inlineKey) {
       return null;
     }
   }

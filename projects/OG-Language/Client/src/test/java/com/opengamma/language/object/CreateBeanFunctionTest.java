@@ -17,7 +17,9 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.language.function.MetaFunction;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
+@Test(groups = TestGroup.UNIT)
 public class CreateBeanFunctionTest {
 
   private static final double MAX_DELTA = 1E-15;

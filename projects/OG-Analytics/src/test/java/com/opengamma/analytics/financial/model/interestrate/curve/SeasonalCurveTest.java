@@ -15,23 +15,23 @@ import org.testng.annotations.Test;
 public class SeasonalCurveTest {
 
   final static double REFERENCE_TIME = 0.75;
-  final static double[] MONTHLY_FACTORS = new double[] {1.0010, 1.0010, 1.0020, 0.9990, 0.9990, 0.9990, 0.9990, 1.0000, 1.0010, 1.0010, 1.0010};
-  final static SeasonalCurve SEASONAL_CURVE = new SeasonalCurve(REFERENCE_TIME, MONTHLY_FACTORS);
+  final static double[] MONTHLY_FACTORS = new double[] {1.0010, 1.0010, 1.0020, 0.9990, 0.9990, 0.9990, 0.9990, 1.0000, 1.0010, 1.0010, 1.0010 };
+  final static SeasonalCurve SEASONAL_CURVE = new SeasonalCurve(REFERENCE_TIME, MONTHLY_FACTORS, false);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFactor() {
-    new SeasonalCurve(REFERENCE_TIME, null);
+    new SeasonalCurve(REFERENCE_TIME, null, false);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testIncorrectNbFactor() {
-    new SeasonalCurve(REFERENCE_TIME, new double[10]);
+    new SeasonalCurve(REFERENCE_TIME, new double[10], false);
   }
 
   @Test
   public void valuesXYearAppart() {
-    double[] time = new double[] {2.25, 3.45, 0.12};
-    double[] shift = new double[] {1.0, 2.0, 5.0}; // Shift in years 
+    double[] time = new double[] {2.25, 3.45, 0.12 };
+    double[] shift = new double[] {1.0, 2.0, 5.0 }; // Shift in years 
     for (int looptime = 0; looptime < time.length; looptime++) {
       for (int loopshift = 0; loopshift < shift.length; loopshift++) {
         assertEquals("Values x years appart", SEASONAL_CURVE.getYValue(time[looptime]), SEASONAL_CURVE.getYValue(time[looptime] + shift[loopshift]), 1.0E-10);
@@ -42,7 +42,7 @@ public class SeasonalCurveTest {
   @Test
   public void valuesMonthly() {
     int nbTime = 3;
-    int[] shift = new int[] {1, 2, 5}; // Shifts in months
+    int[] shift = new int[] {1, 2, 5 }; // Shifts in months
     double[] monthlyCumulativeFactors = new double[12];
     monthlyCumulativeFactors[0] = 1.0;
     for (int loopmonth = 1; loopmonth < 12; loopmonth++) {

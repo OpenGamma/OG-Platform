@@ -11,6 +11,7 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
@@ -35,10 +36,8 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.financial.analytics.conversion.BondFutureSecurityConverter;
-import com.opengamma.financial.analytics.conversion.BondSecurityConverter;
-import com.opengamma.financial.analytics.conversion.FutureSecurityConverter;
-import com.opengamma.financial.analytics.conversion.InterestRateFutureSecurityConverter;
+import com.opengamma.financial.analytics.conversion.FutureTradeConverter;
+import com.opengamma.financial.analytics.model.pnl.PNLFunctions;
 import com.opengamma.financial.analytics.timeseries.DateConstraint;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
@@ -50,31 +49,49 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.time.DateUtils;
 
 /**
+ * Base class for FuturesSecurity ValueRequirements. 
+ * FuturesFunctions, as the securities are exchange traded, closely resemble MarkToMarketPnLFunction.
  * @param <T> The type of the data returned from the calculator
  */
 public abstract class FuturesFunction<T> extends AbstractFunction.NonCompiledInvoker {
+
   /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(FuturesFunction.class);
-  /** The converter */
-  private FutureSecurityConverter _converter;
-
+  
   /** The value requirement name */
   private final String _valueRequirementName;
   /** The calculator */
   private final InstrumentDerivativeVisitor<SimpleFutureDataBundle, T> _calculator;
-
+  /** The trade converter */
+  private FutureTradeConverter _tradeConverter;
+  /** The field name of the historical time series for price, e.g. "PX_LAST", "Close" */
+  private final String _closingPriceField;
+  /** The field name of the historical time series for cost of carry e.g. "COST_OF_CARRY" */
+  private final String _costOfCarryField;
+  /** key defining how the time series resolution is to occur e.g. "DEFAULT_TSS_CONFIG"*/
+  private final String _resolutionKey;
+  
   /**
    * @param valueRequirementName String describes the value requested
    * @param calculator The calculator
+   * @param closingPriceField The field name of the historical time series for price, e.g. "PX_LAST", "Close". Set in *FunctionConfiguration
+   * @param costOfCarryField The field name of the historical time series for cost of carry e.g. "COST_OF_CARRY". Set in *FunctionConfiguration
+   * @param resolutionKey The key defining how the time series resolution is to occur e.g. "DEFAULT_TSS_CONFIG"
    */
-  public FuturesFunction(final String valueRequirementName, final InstrumentDerivativeVisitor<SimpleFutureDataBundle, T> calculator)  {
+  public FuturesFunction(final String valueRequirementName, final InstrumentDerivativeVisitor<SimpleFutureDataBundle, T> calculator, 
+      String closingPriceField, String costOfCarryField, String resolutionKey) {
     ArgumentChecker.notNull(valueRequirementName, "value requirement name");
     ArgumentChecker.notNull(calculator, "calculator");
+    ArgumentChecker.notNull(closingPriceField, "closingPriceField");
+    ArgumentChecker.notNull(costOfCarryField, "costOfCarryField");
+    ArgumentChecker.notNull(resolutionKey, "resolutionKey");
     _valueRequirementName = valueRequirementName;
     _calculator = calculator;
+    _closingPriceField = closingPriceField;
+    _costOfCarryField = costOfCarryField;
+    _resolutionKey = resolutionKey;
   }
 
   @Override
@@ -83,10 +100,7 @@ public abstract class FuturesFunction<T> extends AbstractFunction.NonCompiledInv
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
-    final InterestRateFutureSecurityConverter irFutureConverter = new InterestRateFutureSecurityConverter(holidaySource, conventionSource, regionSource);
-    final BondSecurityConverter bondConverter = new BondSecurityConverter(holidaySource, conventionSource, regionSource);
-    final BondFutureSecurityConverter bondFutureConverter = new BondFutureSecurityConverter(securitySource, bondConverter);
-    _converter = new FutureSecurityConverter(irFutureConverter, bondFutureConverter);
+    _tradeConverter = new FutureTradeConverter(securitySource, holidaySource, conventionSource, regionSource);
   }
 
   @Override
@@ -105,14 +119,22 @@ public abstract class FuturesFunction<T> extends AbstractFunction.NonCompiledInv
     }
     Double lastMarginPrice = null;
     try {
-      lastMarginPrice = timeSeriesBundle.get(MarketDataRequirementNames.MARKET_VALUE, security.getExternalIdBundle()).getTimeSeries().getLatestValue();
+      lastMarginPrice = timeSeriesBundle.get(getClosingPriceField(), security.getExternalIdBundle()).getTimeSeries().getLatestValue();
     } catch (final NoSuchElementException e) {
       throw new OpenGammaRuntimeException("Time series for " + security.getExternalIdBundle() + " was empty");
     }
     // Build the analytic's version of the security - the derivative
     final ZonedDateTime valuationTime = ZonedDateTime.now(executionContext.getValuationClock());
-    final InstrumentDefinitionWithData<?, Double> definition = security.accept(_converter);
-    final InstrumentDerivative derivative = definition.toDerivative(valuationTime, lastMarginPrice, new String[] {"", ""});
+    final InstrumentDefinitionWithData<?, Double> tradeDefinition = _tradeConverter.convert(trade);
+    double referencePrice = lastMarginPrice; // TODO: Decide if this logic should be here or in toDerivative. 
+    if (trade.getTradeDate() != null) {
+      if (trade.getTradeDate().isEqual(valuationTime.toLocalDate())) { // Transaction is on pricing date.if (trade.getPremium() != null) {
+        if (trade.getPremium() != null) {
+          referencePrice = trade.getPremium(); // TODO: The trade price is stored in the trade premium. This has to be corrected.
+        }
+      }
+    }
+    final InstrumentDerivative derivative = tradeDefinition.toDerivative(valuationTime, referencePrice, new String[] {"", "" });
     // Build the DataBundle it requires
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final SimpleFutureDataBundle dataBundle = getFutureDataBundle(security, inputs, timeSeriesBundle, desiredValue);
@@ -224,13 +246,25 @@ public abstract class FuturesFunction<T> extends AbstractFunction.NonCompiledInv
   protected ValueRequirement getReferencePriceRequirement(final FunctionCompilationContext context, final FutureSecurity security) {
     final HistoricalTimeSeriesResolver resolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
     final ExternalIdBundle idBundle = security.getExternalIdBundle();
-    final HistoricalTimeSeriesResolutionResult timeSeries = resolver.resolve(security.getExternalIdBundle(), null, null, null, MarketDataRequirementNames.MARKET_VALUE, null);
+    final HistoricalTimeSeriesResolutionResult timeSeries = resolver.resolve(security.getExternalIdBundle(), null, null, null, getClosingPriceField(), getResolutionKey());
     if (timeSeries == null) {
       s_logger.warn("Failed to find time series for: " + idBundle.toString());
       return null;
     }
-    return HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, MarketDataRequirementNames.MARKET_VALUE,
-        DateConstraint.VALUATION_TIME.minus(DateUtils.periodOfDays(7)), true, DateConstraint.VALUATION_TIME, true);
+    return HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, getClosingPriceField(),
+        DateConstraint.VALUATION_TIME.minus(Period.ofDays(7)), true, DateConstraint.VALUATION_TIME, true);
+  }
+
+  protected String getClosingPriceField() {
+    return _closingPriceField;
+  }
+
+  protected String getCostOfCarryField() {
+    return _costOfCarryField;
+  }
+
+  protected String getResolutionKey() {
+    return _resolutionKey;
   }
 
 }

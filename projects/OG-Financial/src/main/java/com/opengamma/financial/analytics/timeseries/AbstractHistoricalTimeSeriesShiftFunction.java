@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.timeseries;
@@ -30,12 +30,12 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.timeseries.DoubleTimeSeriesOperators.UnaryOperator;
 import com.opengamma.util.functional.Function3;
-import com.opengamma.util.timeseries.DoubleTimeSeriesOperators.UnaryOperator;
 
 /**
  * Base class for functions to shift historical market data values, implemented using properties and constraints.
- * 
+ *
  * @param <T> the type of data converted
  */
 public abstract class AbstractHistoricalTimeSeriesShiftFunction<T> extends AbstractFunction.NonCompiledInvoker {
@@ -127,7 +127,7 @@ public abstract class AbstractHistoricalTimeSeriesShiftFunction<T> extends Abstr
       throw new IllegalStateException("No override operation compiler for " + shift + " in execution context");
     }
     s_logger.debug("Applying {} to yield curve {}", shift, inputValue);
-    final T result = apply(executionContext, compiler.compile(shift), inputValue, input.getSpecification());
+    final T result = apply(executionContext, compiler.compile(shift, executionContext.getComputationTargetResolver()), inputValue, input.getSpecification());
     s_logger.debug("Got result {}", result);
     return Collections.singleton(new ComputedValue(new ValueSpecification(desiredValue.getValueName(), target.toSpecification(), desiredValue.getConstraints()), result));
   }

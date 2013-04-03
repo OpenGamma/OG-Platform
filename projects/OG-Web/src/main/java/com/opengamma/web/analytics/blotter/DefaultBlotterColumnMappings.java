@@ -193,7 +193,9 @@ public class DefaultBlotterColumnMappings {
     // ------------------- Swaption
     mapper.mapColumn(TYPE, SwaptionSecurity.class, "Swaption");
     mapper.mapColumn(MATURITY, SwaptionSecurity.meta().expiry());
-    // TODO this is tricky - need the underlying swap. where can I store it? need a security link on swaption
+    // TODO this is tricky - need the underlying swap. where can I store it?
+    // TODO need a security link on swaption so the target can be resolved
+    // otherwise I need a security source / master in the provider. and hit the DB to get the swap for every cell
     // TODO direction
     // TODO product
     // TODO start

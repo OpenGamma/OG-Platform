@@ -5,7 +5,7 @@
  */
 package com.opengamma.web.analytics.formatting;
 
-import com.opengamma.engine.view.calcnode.MissingInput;
+import com.opengamma.engine.calcnode.MissingInput;
 import com.opengamma.util.ArgumentChecker;
 
 /**

@@ -14,11 +14,14 @@ import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurf
 import com.opengamma.analytics.math.function.Function;
 import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
 import com.opengamma.analytics.util.serialization.InvokedSerializedForm;
+import com.opengamma.util.test.TestGroup;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class FunctionalVolatilitySurfaceDataTest {
+
   private static final String X_LABEL = "X";
   private static final double X_MIN = 0.01;
   private static final double X_MAX = 20;

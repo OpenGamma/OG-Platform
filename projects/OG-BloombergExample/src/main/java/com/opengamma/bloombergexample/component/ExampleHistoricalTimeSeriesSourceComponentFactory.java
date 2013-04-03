@@ -16,6 +16,7 @@ import org.joda.beans.MetaProperty;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.component.ComponentRepository;
 import com.opengamma.integration.component.IntegrationFieldMappingHistoricalTimeSeriesSourceComponentFactory;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesSelector;
@@ -32,11 +33,11 @@ public class ExampleHistoricalTimeSeriesSourceComponentFactory extends Integrati
 
   //-------------------------------------------------------------------------
   @Override
-  protected HistoricalTimeSeriesResolver initResolver() {
+  protected HistoricalTimeSeriesResolver createResolver(ComponentRepository repo) {
     Collection<HistoricalTimeSeriesFieldAdjustmentMap> fieldAdjustmentMaps = new ArrayList<HistoricalTimeSeriesFieldAdjustmentMap>();
     
     // Add field adjustment maps from superclass
-    HistoricalTimeSeriesResolver res = super.initResolver();
+    HistoricalTimeSeriesResolver res = super.createResolver(repo);
     fieldAdjustmentMaps.addAll(((FieldMappingHistoricalTimeSeriesResolver) res).getFieldMaps());
     
     HistoricalTimeSeriesSelector selector = new DefaultHistoricalTimeSeriesSelector(getConfigSource());
@@ -109,7 +110,7 @@ public class ExampleHistoricalTimeSeriesSourceComponentFactory extends Integrati
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap());
+        this, (DirectMetaPropertyMap) super.metaPropertyMap());
 
     /**
      * Restricted constructor.

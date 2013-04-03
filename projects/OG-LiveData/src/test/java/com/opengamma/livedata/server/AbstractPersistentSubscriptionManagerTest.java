@@ -7,6 +7,10 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import net.sf.ehcache.CacheManager;
+
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Sets;
@@ -15,16 +19,31 @@ import com.opengamma.id.ExternalScheme;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.normalization.StandardRules;
 import com.opengamma.livedata.server.distribution.MarketDataDistributor;
+import com.opengamma.util.ehcache.EHCacheUtils;
+import com.opengamma.util.test.TestGroup;
 
+@Test(groups = {TestGroup.UNIT, "ehcache"})
 public class AbstractPersistentSubscriptionManagerTest {
   
   //TODO test async logic
   private final ExternalScheme _scheme = ExternalScheme.of("SomeScheme");
   private final String _normalizationRulesetId = StandardRules.getNoNormalization().getId();
-  
+  private CacheManager _cacheManager;
+
+  @BeforeClass
+  public void setUpClass() {
+    _cacheManager = EHCacheUtils.createTestCacheManager(getClass());
+  }
+
+  @AfterClass
+  public void tearDownClass() {
+    EHCacheUtils.shutdownQuiet(_cacheManager);
+  }
+
+  //-------------------------------------------------------------------------
   @Test
   public void testNormalStartup() throws InterruptedException {
-    MockLiveDataServer server = new MockLiveDataServer(_scheme);
+    MockLiveDataServer server = new MockLiveDataServer(_scheme, _cacheManager);
     TestPersistentSubscriptionManager subManager = new TestPersistentSubscriptionManager(server);
     String ticker = "X";
     subManager.getPendingReads().add(Sets.newHashSet(getSubscription(ticker)));
@@ -38,7 +57,7 @@ public class AbstractPersistentSubscriptionManagerTest {
 
   @Test
   public void testLateRefresh() throws InterruptedException {
-    MockLiveDataServer server = new MockLiveDataServer(_scheme);
+    MockLiveDataServer server = new MockLiveDataServer(_scheme, _cacheManager);
     TestPersistentSubscriptionManager subManager = new TestPersistentSubscriptionManager(server);
     String ticker = "X";
     subManager.getPendingReads().add(new HashSet<PersistentSubscription>());

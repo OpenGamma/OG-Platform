@@ -5,6 +5,7 @@
 .OG-table {
     width: 100%;
     position: relative;
+    margin-top: 2px;
 }
 
 .OG-table:after {
@@ -180,10 +181,9 @@
         background: url('/prototype/images/common/sprites/main-sprite-sheet.png');
         background-position: -22px  -9px;
         height: 6px;
-        margin-top: -5px;
+        margin-top: 5px;
         width: 7px;
         position: absolute;
-        top: 50%;
         right: 10px;
         z-index: 1;
     }
@@ -192,8 +192,7 @@
         background-position: -11px -35px;
         width: 11px;
         height: 10px;
-        top: 50%;
-        margin-top: -7px;
+        margin-top: 3px;
         right: 8px;
     }
 

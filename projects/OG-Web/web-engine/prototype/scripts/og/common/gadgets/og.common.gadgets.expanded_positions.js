@@ -17,8 +17,10 @@ $.register_module({
                 $(config.selector).addClass(alive).html(loading_template({text: 'loading...'}));
                 $.when(og.api.text({module: 'og.views.gadgets.expanded_positions'})).pipe(function (template) {
                     $(config.selector).html(template);
-                    og.common.gadgets.positions($.extend({}, config, {selector: selector_position}));
-                    og.common.gadgets.trades($.extend({}, config, {selector: selector_trades}));
+                    og.common.gadgets
+                        .positions($.extend({id: config.value.positionId}, config, {selector: selector_position}));
+                    og.common.gadgets
+                        .trades($.extend({id: config.value.positionId}, config, {selector: selector_trades}));
                 });
             };
             if (!config.child) og.common.gadgets.manager.register(gadget);

@@ -13,8 +13,12 @@ import com.opengamma.engine.value.ValueRequirementNames;
  */
 public class CostOfCarryValueDeltaFuturesFunction extends CostOfCarryFuturesFunction<Double> {
 
-  public CostOfCarryValueDeltaFuturesFunction() {
-    super(ValueRequirementNames.VALUE_DELTA, CostOfCarryFuturesCalculator.SpotDeltaCalculator.getInstance());
+  /**
+   * @param closingPriceField The field name of the historical time series for price, e.g. "PX_LAST", "Close". Set in *FunctionConfiguration
+   * @param costOfCarryField The field name of the historical time series for cost of carry e.g. "COST_OF_CARRY". Set in *FunctionConfiguration
+   * @param resolutionKey The key defining how the time series resolution is to occur e.g. "DEFAULT_TSS_CONFIG"
+   */
+  public CostOfCarryValueDeltaFuturesFunction(String closingPriceField, String costOfCarryField, String resolutionKey) {
+    super(ValueRequirementNames.VALUE_DELTA, CostOfCarryFuturesCalculator.SpotDeltaCalculator.getInstance(), closingPriceField, costOfCarryField, resolutionKey);
   }
-
 }

@@ -18,11 +18,12 @@ import com.opengamma.analytics.math.curve.NodalDoublesCurve;
 import com.opengamma.analytics.math.curve.NodalObjectsCurve;
 import com.opengamma.analytics.math.function.Function;
 import com.opengamma.language.error.InvokeInvalidArgumentException;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the {@link GetCurveYValuesFunction} class.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class GetCurveYValuesFunctionTest {
 
   public void testDoublesCurve() {

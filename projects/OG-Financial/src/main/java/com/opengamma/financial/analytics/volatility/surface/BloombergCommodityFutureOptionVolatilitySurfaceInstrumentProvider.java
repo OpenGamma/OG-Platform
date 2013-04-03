@@ -27,6 +27,8 @@ public class BloombergCommodityFutureOptionVolatilitySurfaceInstrumentProvider e
   static {
     EXPIRY_RULES = Maps.newHashMap();
     EXPIRY_RULES.put("BO", SoybeanFutureOptionExpiryCalculator.getInstance());      // Soy oil
+    EXPIRY_RULES.put("BZ", SoybeanFutureOptionExpiryCalculator.getInstance());      // Brent Crude -- temp for 2 character code in surface name
+    EXPIRY_RULES.put("BZA", SoybeanFutureOptionExpiryCalculator.getInstance());      // Brent Crude
     EXPIRY_RULES.put("GC", GoldFutureOptionExpiryCalculator.getInstance());         // Gold
     EXPIRY_RULES.put("LC", LiveCattleFutureOptionExpiryCalculator.getInstance());   // Live Cattle
     EXPIRY_RULES.put("S ", SoybeanFutureOptionExpiryCalculator.getInstance());      // Soy
@@ -86,7 +88,12 @@ public class BloombergCommodityFutureOptionVolatilitySurfaceInstrumentProvider e
     ticker.append(expiryCode);
     ticker.append(strike > useCallAboveStrike() ? "C" : "P");
     ticker.append(" ");
-    ticker.append(strike);
+    // temp workaround for BZA which has 2 decimal places - need to find the proper rule.
+    //if (prefix.equals("BZA")) {
+    //  ticker.append(withTwoDigits.format(strike));
+    //} else {
+      ticker.append(strike);
+    //}
     ticker.append(" ");
     ticker.append(getPostfix());
     return ExternalId.of(getScheme(), ticker.toString());

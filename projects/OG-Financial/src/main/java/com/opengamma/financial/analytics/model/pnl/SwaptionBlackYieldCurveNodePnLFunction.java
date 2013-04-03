@@ -64,8 +64,8 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.id.ExternalId;
+import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  *
@@ -81,7 +81,7 @@ public class SwaptionBlackYieldCurveNodePnLFunction extends AbstractFunction.Non
     final Position position = target.getPosition();
     final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(executionContext);
     final Clock snapshotClock = executionContext.getValuationClock();
-    final LocalDate now = ZonedDateTime.now(snapshotClock).getDate();
+    final LocalDate now = ZonedDateTime.now(snapshotClock).toLocalDate();
     final Currency currency = FinancialSecurityUtils.getCurrency(position.getSecurity());
     final String currencyString = currency.getCode();
     final ValueRequirement desiredValue = desiredValues.iterator().next();
@@ -161,7 +161,7 @@ public class SwaptionBlackYieldCurveNodePnLFunction extends AbstractFunction.Non
       s_logger.error("Security currency and curve calculation config id were not equal; have {} and {}", currency, curveCalculationConfig.getTarget());
     }
     final String surfaceName = getPropertyName(surfaceNames);
-    final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
+    final Set<ValueRequirement> requirements = new HashSet<>();
     for (final String curveName : curveCalculationConfig.getYieldCurveNames()) {
       requirements.add(getCurveSpecRequirement(currency, curveName));
       requirements.add(getYCNSRequirement(currencyString, curveCalculationConfigName, curveName, surfaceName, target));
@@ -189,7 +189,7 @@ public class SwaptionBlackYieldCurveNodePnLFunction extends AbstractFunction.Non
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
-    final Set<String> curveNames = new HashSet<String>();
+    final Set<String> curveNames = new HashSet<>();
     for (final Map.Entry<ValueSpecification, ValueRequirement> entry : inputs.entrySet()) {
       if (entry.getKey().getValueName().equals(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES)) {
         curveNames.add(entry.getValue().getConstraint(ValuePropertyNames.CURVE));
@@ -269,7 +269,7 @@ public class SwaptionBlackYieldCurveNodePnLFunction extends AbstractFunction.Non
       stripList.add(index, strip.getInstrumentType());
     }
     for (int i = 0; i < n; i++) {
-      final ExternalId id = (ExternalId) stripsArray[i].getSecurityIdentifier();
+      final ExternalId id = stripsArray[i].getSecurityIdentifier();
       final double sensitivity = values[i];
       final HistoricalTimeSeries dbNodeTimeSeries = timeSeriesBundle.get(MarketDataRequirementNames.MARKET_VALUE, id);
       if (dbNodeTimeSeries.getTimeSeries().isEmpty()) {

@@ -6,6 +6,7 @@
 package com.opengamma.provider.security;
 
 import java.util.List;
+import java.util.Map;
 
 import com.opengamma.core.security.Security;
 import com.opengamma.util.PublicSPI;
@@ -49,6 +50,20 @@ public interface SecurityEnhancer {
    * @throws RuntimeException if a problem occurs
    */
   List<Security> enhanceSecurities(List<Security> securities);
+
+  /**
+   * Enhances the information about a the specified securities from the underlying data source.
+   * <p>
+   * Each security in the supplied map is enhanced.
+   * The map key has no effect on enhancement.
+   * The result is keyed by the same key as the input.
+   * 
+   * @param <R>  the type of the map key
+   * @param securities  the securities to enhance, not null
+   * @return the enhanced securities, not null
+   * @throws RuntimeException if a problem occurs
+   */
+  <R> Map<R, Security> enhanceSecurities(Map<R, Security> securities);
 
   /**
    * Enhances one or more security information objects from the underlying data source.

@@ -39,7 +39,7 @@ public class FederalFundsFutureSecurityTest {
   private static final ZonedDateTime APRIL_1 = DateUtils.getUTCDate(2012, 4, 1);
   private static final ZonedDateTime PERIOD_FIRST_DATE = BUSINESS_DAY_FOLLOWING.adjustDate(NYC, MARCH_1);
   private static final ZonedDateTime PERIOD_LAST_DATE = BUSINESS_DAY_FOLLOWING.adjustDate(NYC, APRIL_1.minusDays(1));
-  private static final List<ZonedDateTime> FIXING_LIST = new ArrayList<ZonedDateTime>();
+  private static final List<ZonedDateTime> FIXING_LIST = new ArrayList<>();
   private static final ZonedDateTime[] FIXING_DATE;
   static {
     ZonedDateTime date = PERIOD_FIRST_DATE;
@@ -47,7 +47,7 @@ public class FederalFundsFutureSecurityTest {
       FIXING_LIST.add(date);
       date = BUSINESS_DAY_FOLLOWING.adjustDate(NYC, date.plusDays(1));
     }
-    FIXING_DATE = FIXING_LIST.toArray(new ZonedDateTime[0]);
+    FIXING_DATE = FIXING_LIST.toArray(new ZonedDateTime[FIXING_LIST.size()]);
   }
   private static final double[] FIXING_ACCURAL_FACTOR = new double[FIXING_DATE.length - 1];
   private static final double[] FIXING_TIME = new double[FIXING_DATE.length];
@@ -116,7 +116,7 @@ public class FederalFundsFutureSecurityTest {
    */
   public void equalHash() {
     assertTrue(FUTURE_FEDFUND.equals(FUTURE_FEDFUND));
-    FederalFundsFutureSecurity other = new FederalFundsFutureSecurity(INDEX_FEDFUND, ACCRUED_INTERESTS, FIXING_TIME, FIXING_ACCURAL_FACTOR, FIXING_TOTAL_ACCURAL_FACTOR, NOTIONAL,
+    final FederalFundsFutureSecurity other = new FederalFundsFutureSecurity(INDEX_FEDFUND, ACCRUED_INTERESTS, FIXING_TIME, FIXING_ACCURAL_FACTOR, FIXING_TOTAL_ACCURAL_FACTOR, NOTIONAL,
         PAYMENT_ACCURAL_FACTOR, NAME, CURVE_NAME);
     assertTrue(FUTURE_FEDFUND.equals(other));
     assertTrue(FUTURE_FEDFUND.hashCode() == other.hashCode());

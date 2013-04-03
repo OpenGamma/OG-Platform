@@ -5,6 +5,14 @@
  */
 package com.opengamma.financial.currency;
 
+import com.opengamma.core.change.ChangeManager;
+import com.opengamma.core.change.DummyChangeManager;
+import com.opengamma.engine.target.ComputationTargetType;
+import com.opengamma.engine.target.PrimitiveComputationTargetType;
+import com.opengamma.engine.target.resolver.ObjectResolver;
+import com.opengamma.id.UniqueId;
+import com.opengamma.id.UniqueIdentifiable;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
@@ -13,7 +21,30 @@ import com.opengamma.util.money.Currency;
  * <p>
  * This class is immutable and thread-safe.
  */
-public final class CurrencyPair {
+public final class CurrencyPair implements UniqueIdentifiable {
+
+  private static final String OBJECT_SCHEME = CurrencyPair.class.getSimpleName();
+
+  /**
+   * An OG-Engine type so an instance can be used as a target in a dependency graph.
+   */
+  public static final PrimitiveComputationTargetType<CurrencyPair> TYPE = PrimitiveComputationTargetType.of(ComputationTargetType.of(CurrencyPair.class), CurrencyPair.class,
+      new ObjectResolver<CurrencyPair>() {
+
+        @Override
+        public ChangeManager changeManager() {
+          return DummyChangeManager.INSTANCE;
+        }
+
+        @Override
+        public CurrencyPair resolveObject(UniqueId uniqueId, VersionCorrection versionCorrection) {
+          if (!OBJECT_SCHEME.equals(uniqueId.getScheme())) {
+            throw new IllegalArgumentException("Invalid scheme - " + uniqueId);
+          }
+          return parse(uniqueId.getValue());
+        }
+
+      });
 
   /**
    * The first currency in the pair.
@@ -28,8 +59,8 @@ public final class CurrencyPair {
   /**
    * Obtains a currency pair from a string with format AAA/BBB.
    * 
-   * @param base  the base currency, not null
-   * @param counter  the counter currency, not null
+   * @param base the base currency, not null
+   * @param counter the counter currency, not null
    * @return the currency pair, not null
    */
   public static CurrencyPair of(Currency base, Currency counter) {
@@ -39,7 +70,7 @@ public final class CurrencyPair {
   /**
    * Parses a currency pair from a string with format AAA/BBB.
    * 
-   * @param pair  the currency pair as a string AAA/BBB, not null
+   * @param pair the currency pair as a string AAA/BBB, not null
    * @return the currency pair, not null
    */
   public static CurrencyPair parse(String pair) {
@@ -55,8 +86,8 @@ public final class CurrencyPair {
   /**
    * Creates an instance.
    * 
-   * @param base  the base currency, not null
-   * @param counter  the counter currency, not null
+   * @param base the base currency, not null
+   * @param counter the counter currency, not null
    */
   private CurrencyPair(Currency base, Currency counter) {
     ArgumentChecker.notNull(base, "base");
@@ -108,6 +139,34 @@ public final class CurrencyPair {
     return new CurrencyPair(_counter, _base);
   }
 
+  /**
+   * Indicates if the currency pair contains the supplied currency as either its base or counter.
+   * 
+   * @param currency the currency to check against the pair
+   * @return true if the currency is either the base or counter currency in the pair.
+   */
+  public boolean contains(Currency currency) {
+    return _base.equals(currency) || _counter.equals(currency);
+  }
+
+  /**
+   * Return the pair's complementing currency for the supplied currency. i.e. if the supplied currency is the pair's base, then the counter currency is returned.
+   * 
+   * @param currency the currency to find the complement for
+   * @return the complementing currency
+   * @throws IllegalArgumentException if the supplied currency is not a member of the pair
+   */
+  public Currency getComplement(Currency currency) {
+
+    if (_base.equals(currency)) {
+      return _counter;
+    } else if (_counter.equals(currency)) {
+      return _base;
+    } else {
+      throw new IllegalArgumentException("Currency [" + currency + "] is not a member of " + this.toString());
+    }
+  }
+
   //-------------------------------------------------------------------------
   @Override
   public boolean equals(Object obj) {
@@ -132,6 +191,11 @@ public final class CurrencyPair {
   @Override
   public String toString() {
     return "CurrencyPair[" + getName() + "]";
+  }
+
+  @Override
+  public UniqueId getUniqueId() {
+    return UniqueId.of(OBJECT_SCHEME, getName());
   }
 
 }

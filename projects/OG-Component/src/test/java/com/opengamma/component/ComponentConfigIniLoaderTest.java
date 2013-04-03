@@ -16,11 +16,12 @@ import org.springframework.security.util.InMemoryResource;
 import org.testng.annotations.Test;
 
 import com.google.common.base.Charsets;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class ComponentConfigIniLoaderTest {
 
   private static final ComponentLogger LOGGER = ComponentLogger.Sink.INSTANCE;

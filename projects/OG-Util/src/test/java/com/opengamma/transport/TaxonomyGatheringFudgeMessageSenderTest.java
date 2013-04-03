@@ -21,10 +21,12 @@ import org.fudgemsg.FudgeContext;
 import org.fudgemsg.MutableFudgeMsg;
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Test TaxonomyGatheringFudgeMessageSender.
  */
-@Test
+@Test(groups = TestGroup.INTEGRATION)
 public class TaxonomyGatheringFudgeMessageSenderTest {
 
   public void noTaxonomyFileAvailableYet() throws IOException {

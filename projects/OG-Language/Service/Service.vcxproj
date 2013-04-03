@@ -152,6 +152,7 @@
   <ItemGroup>
     <ClInclude Include="ClientConnect.h" />
     <ClInclude Include="ConnectionPipe.h" />
+    <ClInclude Include="ErrorFeedback.h" />
     <ClInclude Include="JVM.h" />
     <ClInclude Include="Public.h" />
     <ClInclude Include="Service.h" />
@@ -163,6 +164,7 @@
       <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
     <ClCompile Include="ConnectionPipe.cpp" />
+    <ClCompile Include="ErrorFeedback.cpp" />
     <ClCompile Include="JVM.cpp" />
     <ClCompile Include="Service.cpp" />
     <ClCompile Include="Settings.cpp" />

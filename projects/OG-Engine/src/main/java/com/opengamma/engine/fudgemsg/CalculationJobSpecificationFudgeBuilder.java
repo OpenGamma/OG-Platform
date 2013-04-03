@@ -13,7 +13,7 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 import org.threeten.bp.Instant;
 
-import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
+import com.opengamma.engine.calcnode.CalculationJobSpecification;
 import com.opengamma.id.UniqueId;
 
 /**

@@ -45,6 +45,7 @@ import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitio
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
 import com.opengamma.financial.analytics.volatility.surface.SurfaceAndCubePropertyNames;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
 
@@ -109,7 +110,7 @@ public class RawSwaptionVolatilityCubeDataFunction extends AbstractFunction {
         }
         final CubeInstrumentProvider<Tenor, Tenor, Double> provider = (CubeInstrumentProvider<Tenor, Tenor, Double>) specification.getCubeInstrumentProvider();
         final Map<VolatilityPoint, Double> data = new HashMap<VolatilityPoint, Double>();
-        final Map<VolatilityPoint, ExternalId> ids = new HashMap<VolatilityPoint, ExternalId>();
+        final Map<VolatilityPoint, ExternalIdBundle> ids = new HashMap<VolatilityPoint, ExternalIdBundle>();
         for (final Tenor x : definition.getSwapTenors()) {
           for (final Tenor y : definition.getOptionExpiries()) {
             for (final Double z : definition.getRelativeStrikes()) {
@@ -120,7 +121,7 @@ public class RawSwaptionVolatilityCubeDataFunction extends AbstractFunction {
                 final Double volatility = (Double) volatilityObject;
                 final VolatilityPoint coordinate = new VolatilityPoint(x, y, z);
                 data.put(coordinate, volatility);
-                ids.put(coordinate, id);
+                ids.put(coordinate, id.toBundle());
               }
             }
           }

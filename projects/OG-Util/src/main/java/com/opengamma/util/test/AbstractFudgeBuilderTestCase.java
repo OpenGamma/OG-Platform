@@ -38,7 +38,7 @@ public abstract class AbstractFudgeBuilderTestCase {
   private FudgeDeserializer _deserializer;
   private BuilderTestProxy _proxy;
 
-  @BeforeMethod
+  @BeforeMethod(groups = TestGroup.UNIT)
   public void createContexts() {
     _context = OpenGammaFudgeContext.getInstance();
     _serializer = new FudgeSerializer(_context);
@@ -106,7 +106,7 @@ public abstract class AbstractFudgeBuilderTestCase {
 
   protected FudgeMsg cycleMessage(final FudgeMsg message) {
     final byte[] data = getFudgeContext().toByteArray(message);
-    s_logger.info("{} bytes", data.length);
+    getLogger().info("{} bytes", data.length);
     return getFudgeContext().deserialize(data).getMessage();
   }
 
@@ -122,7 +122,7 @@ public abstract class AbstractFudgeBuilderTestCase {
     }
   }
 
-  public static void isInstanceOf(Object parameter, Class<?> clazz) {
+  protected static void isInstanceOf(Object parameter, Class<?> clazz) {
     if (!clazz.isInstance(parameter)) {
       throw new AssertionError("Expected an object to be instance of <" + clazz.getName() + "> but it was instance of <" + parameter.getClass().getName() + "> actually.");
     }

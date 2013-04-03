@@ -27,6 +27,24 @@ public class CreditInstrumentPropertyNamesAndValues {
   /** Property name for the range multiplier to use when fitting the hazard rate curve */
   public static final String PROPERTY_HAZARD_RATE_CURVE_RANGE_MULTIPLIER = "HazardRateCurveRangeMultiplier";
 
+  /** Property name for the spread curve */
+  public static final String PROPERTY_SPREAD_CURVE = "CreditSpreadCurve";
+
   /** Property name for number of integration points to use when valuing a CDS */
   public static final String PROPERTY_N_INTEGRATION_POINTS = "IntegrationPoints";
+
+  /** Property name for the bump to use for spread curves */
+  public static final String PROPERTY_SPREAD_CURVE_BUMP = "SpreadCurveBump";
+  /** Property name for the spread bump type */
+  public static final String PROPERTY_SPREAD_BUMP_TYPE = "SpreadCurveBumpType";
+  /** Property name for the bump to use for interest rate curves */
+  public static final String PROPERTY_INTEREST_RATE_CURVE_BUMP = "InterestRateCurveBump";
+  /** Property name for the spread bump type */
+  public static final String PROPERTY_INTEREST_RATE_BUMP_TYPE = "InterestRateCurveBumpType";
+  /** Property name for the bump to use for the recovery rate */
+  public static final String PROPERTY_RECOVERY_RATE_CURVE_BUMP = "RecoveryRateCurveBump";
+  /** Property name for the recovery rate bump type */
+  public static final String PROPERTY_RECOVERY_RATE_BUMP_TYPE = "RecoveryRateCurveBumpType";
+  /** Property name for the price type */
+  public static final String PROPERTY_CDS_PRICE_TYPE = "CDSPriceType";
 }

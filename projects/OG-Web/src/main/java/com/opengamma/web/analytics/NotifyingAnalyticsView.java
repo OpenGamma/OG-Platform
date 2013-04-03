@@ -10,8 +10,8 @@ import java.util.List;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.engine.view.ViewResultModel;
-import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
+import com.opengamma.engine.view.cycle.ViewCycle;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.analytics.push.UpdateListener;
 
@@ -133,5 +133,19 @@ import com.opengamma.web.analytics.push.UpdateListener;
   @Override
   public ViewportResults getData(GridType gridType, int graphId, int viewportId) {
     return _delegate.getData(gridType, graphId, viewportId);
+  }
+
+  @Override
+  public List<String> entityChanged(MasterChangeNotification<?> notification) {
+    List<String> ids = _delegate.entityChanged(notification);
+    _listener.itemsUpdated(ids);
+    return ids;
+  }
+
+  @Override
+  public List<String> portfolioChanged() {
+    List<String> ids = _delegate.portfolioChanged();
+    _listener.itemsUpdated(ids);
+    return ids;
   }
 }

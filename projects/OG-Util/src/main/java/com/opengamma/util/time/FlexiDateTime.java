@@ -8,10 +8,6 @@ package com.opengamma.util.time;
 import java.io.Serializable;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializer;
-import org.fudgemsg.mapping.FudgeSerializer;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.LocalTime;
@@ -94,7 +90,7 @@ public final class FlexiDateTime implements Serializable {
    */
   public static FlexiDateTime of(LocalDateTime dateTime) {
     ArgumentChecker.notNull(dateTime, "dateTime");
-    return new FlexiDateTime(dateTime.getDate(), dateTime.getTime(), null);
+    return new FlexiDateTime(dateTime.toLocalDate(), dateTime.toLocalTime(), null);
   }
 
   /**
@@ -107,7 +103,7 @@ public final class FlexiDateTime implements Serializable {
    */
   public static FlexiDateTime of(OffsetDateTime dateTime) {
     ArgumentChecker.notNull(dateTime, "dateTime");
-    return new FlexiDateTime(dateTime.getDate(), dateTime.getTime(), dateTime.getOffset());
+    return new FlexiDateTime(dateTime.toLocalDate(), dateTime.toLocalTime(), dateTime.getOffset());
   }
 
   /**
@@ -120,7 +116,7 @@ public final class FlexiDateTime implements Serializable {
    */
   public static FlexiDateTime of(ZonedDateTime dateTime) {
     ArgumentChecker.notNull(dateTime, "dateTime");
-    return new FlexiDateTime(dateTime.getDate(), dateTime.getTime(), dateTime.getZone());
+    return new FlexiDateTime(dateTime.toLocalDate(), dateTime.toLocalTime(), dateTime.getZone());
   }
 
   /**
@@ -156,7 +152,7 @@ public final class FlexiDateTime implements Serializable {
   public static FlexiDateTime ofLenient(LocalDate date, OffsetTime time) {
     ArgumentChecker.notNull(date, "date");
     if (time != null) {
-      return new FlexiDateTime(date, time.getTime(), time.getOffset());
+      return new FlexiDateTime(date, time.toLocalTime(), time.getOffset());
     }
     return new FlexiDateTime(date, null, null);
   }
@@ -391,34 +387,6 @@ public final class FlexiDateTime implements Serializable {
   @Override
   public String toString() {
     return toBest().toString();
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * This is for more efficient code within the .proto representations of securities, allowing this class
-   * to be used directly as a message type instead of through the serialization framework.
-   *
-   * @param serializer  the serializer, not null
-   * @param msg  the message to populate, not null
-   * @deprecated Use builder
-   */
-  @Deprecated
-  public void toFudgeMsg(final FudgeSerializer serializer, final MutableFudgeMsg msg) {
-    FlexiDateTimeFudgeBuilder.toFudgeMsg(serializer, this, msg);
-  }
-
-  /**
-   * This is for more efficient code within the .proto representations of securities, allowing this class
-   * to be used directly as a message type instead of through the serialization framework.
-   *
-   * @param deserializer  the deserializer, not null
-   * @param msg  the message to decode, not null
-   * @return the created object, not null
-   * @deprecated Use builder
-   */
-  @Deprecated
-  public static FlexiDateTime fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
-    return FlexiDateTimeFudgeBuilder.fromFudgeMsg(deserializer, msg);
   }
 
 }

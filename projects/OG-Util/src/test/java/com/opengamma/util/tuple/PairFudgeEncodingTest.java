@@ -15,12 +15,13 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.Tenor;
 
 /**
  * Test Fudge encoding.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class PairFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
 
   public void test_OO_Bundle() {
@@ -64,12 +65,12 @@ public class PairFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
   }
 
   public void test_TypeWithSecondaryTypeAndBuilderEncoding() {
-    Pair<Tenor, Tenor> object = Pair.of(Tenor.DAY, Tenor.WORKING_DAYS_IN_MONTH);
+    Pair<Tenor, Tenor> object = Pair.of(Tenor.DAY, Tenor.TWELVE_MONTHS);
     assertEncodeDecodeCycle(Pair.class, object);
   }
 
   public void test_staticTypedMethods() {
-    ObjectsPair<Tenor, Tenor> in = Pair.of(Tenor.DAY, Tenor.WORKING_DAYS_IN_MONTH);
+    ObjectsPair<Tenor, Tenor> in = Pair.of(Tenor.DAY, Tenor.TEN_YEARS);
     FudgeMsg msg = ObjectsPairFudgeBuilder.buildMessage(getFudgeSerializer(), in, Tenor.class, Tenor.class);
     ObjectsPair<Tenor, Tenor> out = ObjectsPairFudgeBuilder.buildObject(getFudgeDeserializer(), msg, Tenor.class, Tenor.class);
     assertEquals(out, in);

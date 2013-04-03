@@ -30,25 +30,25 @@ public final class RealFunctionIntegrator1DFactory {
   private static final Map<Class<?>, String> s_instanceNames;
 
   static {
-    final Map<String, Integrator1D<Double, Double>> staticInstances = new HashMap<String, Integrator1D<Double, Double>>();
-    final Map<Class<?>, String> instanceNames = new HashMap<Class<?>, String>();
+    final Map<String, Integrator1D<Double, Double>> staticInstances = new HashMap<>();
+    final Map<Class<?>, String> instanceNames = new HashMap<>();
     staticInstances.put(ROMBERG, ROMBERG_INSTANCE);
     instanceNames.put(ROMBERG_INSTANCE.getClass(), ROMBERG);
     staticInstances.put(SIMPSON, SIMPSON_INSTANCE);
     instanceNames.put(SIMPSON_INSTANCE.getClass(), SIMPSON);
     staticInstances.put(EXTENDED_TRAPEZOID, EXTENDED_TRAPEZOID_INSTANCE);
     instanceNames.put(EXTENDED_TRAPEZOID_INSTANCE.getClass(), EXTENDED_TRAPEZOID);
-    s_staticInstances = new HashMap<String, Integrator1D<Double, Double>>(staticInstances);
-    s_instanceNames = new HashMap<Class<?>, String>(instanceNames);
+    s_staticInstances = new HashMap<>(staticInstances);
+    s_instanceNames = new HashMap<>(instanceNames);
   }
 
   private RealFunctionIntegrator1DFactory() {
   }
 
   /**
-   * Given a name, returns an instance of that integrator 
+   * Given a name, returns an instance of that integrator
    * @param integratorName The name of the integrator
-   * @return The integrator 
+   * @return The integrator
    * @throws IllegalArgumentException If the integrator name is null or there is no integrator for that name
    */
   public static Integrator1D<Double, Double> getIntegrator(final String integratorName) {
@@ -60,7 +60,7 @@ public final class RealFunctionIntegrator1DFactory {
   }
 
   /**
-   * Given an integrator, returns its name 
+   * Given an integrator, returns its name
    * @param integrator The integrator
    * @return The name of that integrator (null if not found)
    */

@@ -1,6 +1,5 @@
 // Automatically created - do not modify
-///CLOVER:OFF
-// CSOFF: Generated File
+///CLOVER:OFF - CSOFF
 package com.opengamma.language.livedata;
 public class Result extends com.opengamma.language.connector.LiveData implements java.io.Serializable {
   private static final long serialVersionUID = -23781587995738l;
@@ -131,5 +130,4 @@ public class Result extends com.opengamma.language.connector.LiveData implements
     return org.apache.commons.lang.builder.ToStringBuilder.reflectionToString(this, org.apache.commons.lang.builder.ToStringStyle.SHORT_PREFIX_STYLE);
   }
 }
-///CLOVER:ON
-// CSON: Generated File
+///CLOVER:ON - CSON

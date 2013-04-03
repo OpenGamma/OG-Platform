@@ -219,7 +219,7 @@ public abstract class BlackFormulaRepository {
   }
 
   /**
-   * The theta (non-forward).
+   * The theta (non-forward), the sensitivity of the present value to a change in time to maturity, $\-frac{\partial V}{\partial T}$ 
    *
    * @param forward The forward value of the underlying
    * @param strike The Strike
@@ -227,7 +227,7 @@ public abstract class BlackFormulaRepository {
    * @param lognormalVol The log-normal volatility
    * @param isCall true for call, false for put
    * @param interestRate the interest rate
-   * @return The forward theta
+   * @return theta
    */
   @ExternalFunction
   public static double theta(final double forward, final double strike, final double timeToExpiry, final double lognormalVol, final boolean isCall, final double interestRate) {
@@ -251,10 +251,10 @@ public abstract class BlackFormulaRepository {
    * @param strike The Strike
    * @param timeToExpiry The time-to-expiry
    * @param lognormalVol The log-normal volatility
-   * @return The forward theta
+   * @return The driftless theta
    */
   @ExternalFunction
-  public static double theta(final double forward, final double strike, final double timeToExpiry, final double lognormalVol) {
+  public static double driftlessTheta(final double forward, final double strike, final double timeToExpiry, final double lognormalVol) {
     Validate.isTrue(lognormalVol >= 0.0, "negative vol");
     if (forward == 0 || strike == 0.0) {
       return 0.0;

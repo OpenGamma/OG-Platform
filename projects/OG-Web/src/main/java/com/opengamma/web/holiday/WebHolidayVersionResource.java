@@ -43,13 +43,6 @@ public class WebHolidayVersionResource extends AbstractWebHolidayResource {
     super(parent);
   }
 
-  //-------------------------------------------------------------------------
-//  @GET
-//  public String getHTML() {
-//    FlexiBean out = createRootData();
-//    return getFreemarker().build("holidays/holidayversion.ftl", out);
-//  }
-
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public Response getJSON(@Context Request request) {
@@ -59,7 +52,7 @@ public class WebHolidayVersionResource extends AbstractWebHolidayResource {
       return builder.build();
     }
     FlexiBean out = createRootData();
-    String json = getFreemarker().build("holidays/jsonholiday.ftl", out);
+    String json = getFreemarker().build(JSON_DIR + "holiday.ftl", out);
     return Response.ok(json).tag(etag).build();
   }
 

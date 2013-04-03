@@ -11,11 +11,12 @@ import org.testng.annotations.Test;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test DependencyNode.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class DependencyNodeTest {
   
   public void testDependentNodes() {

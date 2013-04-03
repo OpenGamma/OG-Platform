@@ -6,7 +6,10 @@
 package com.opengamma.integration.masterdb;
 
 import static org.testng.AssertJUnit.assertNotNull;
+import net.sf.ehcache.CacheManager;
 
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -29,11 +32,22 @@ public abstract class AbstractIntegrationDbSecurityMasterTest extends AbstractLo
   private static final int PAGE_SIZE = 1000;
 
   private DbSecurityMaster _secMaster;
+  private CacheManager _cacheManager;
+
+  @BeforeClass
+  public void setUpClass() {
+    _cacheManager = EHCacheUtils.createTestCacheManager(getClass());
+  }
+
+  @AfterClass
+  public void tearDownClass() {
+    EHCacheUtils.shutdownQuiet(_cacheManager);
+  }
 
   @BeforeMethod
   public void setUp() throws Exception {
     _secMaster = (DbSecurityMaster) getTestHelper().getSecurityMaster();
-    _secMaster.setDetailProvider(new EHCachingSecurityMasterDetailProvider(new HibernateSecurityMasterDetailProvider(), EHCacheUtils.createCacheManager()));
+    _secMaster.setDetailProvider(new EHCachingSecurityMasterDetailProvider(new HibernateSecurityMasterDetailProvider(), _cacheManager));
   }
 
   protected SecurityMaster getSecurityMaster() {
@@ -41,7 +55,7 @@ public abstract class AbstractIntegrationDbSecurityMasterTest extends AbstractLo
   }
 
   //-------------------------------------------------------------------------
-  @Test(groups="full")
+  @Test(groups = "full")
   public void test_queryAll() throws Exception {
     final SecuritySearchRequest request = new SecuritySearchRequest();
     request.setPagingRequest(PagingRequest.NONE);

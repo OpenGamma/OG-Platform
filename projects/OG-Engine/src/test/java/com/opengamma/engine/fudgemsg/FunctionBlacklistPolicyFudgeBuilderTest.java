@@ -14,11 +14,12 @@ import com.opengamma.engine.function.blacklist.EmptyFunctionBlacklistPolicy;
 import com.opengamma.engine.function.blacklist.FunctionBlacklistPolicy;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test the {@link FunctionBlacklistPolicyFudgeBuilder} class.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class FunctionBlacklistPolicyFudgeBuilderTest extends AbstractFudgeBuilderTestCase {
 
   public void testEmpty() {

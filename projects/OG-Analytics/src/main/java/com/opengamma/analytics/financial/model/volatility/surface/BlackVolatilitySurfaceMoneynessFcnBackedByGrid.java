@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.model.volatility.surface;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
@@ -32,10 +33,10 @@ public class BlackVolatilitySurfaceMoneynessFcnBackedByGrid extends BlackVolatil
    * @param surface A implied volatility surface parameterised by time and moneyness m = strike/forward
    * @param forwardCurve the forward curve
    * @param gridData underlying data: expiries, strikes and vols
-   * @param interpolator specification of intepolation/exprapolation in expiry and strike dimensions
+   * @param interpolator specification of interpolation/extrapolation in expiry and strike dimensions
    */
   public BlackVolatilitySurfaceMoneynessFcnBackedByGrid(final Surface<Double, Double, Double> surface, final ForwardCurve forwardCurve,
-        final SmileSurfaceDataBundle gridData, final VolatilitySurfaceInterpolator interpolator) {
+      final SmileSurfaceDataBundle gridData, final VolatilitySurfaceInterpolator interpolator) {
     super(surface, forwardCurve);
     Validate.notNull(forwardCurve, "null ForwardCurve");
     Validate.notNull(surface, "null Surface");
@@ -80,6 +81,36 @@ public class BlackVolatilitySurfaceMoneynessFcnBackedByGrid extends BlackVolatil
   @Override
   public <U> U accept(final BlackVolatilitySurfaceVisitor<?, U> visitor) {
     return visitor.visitMoneyness(this);
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    result = prime * result + _gridData.hashCode();
+    result = prime * result + _interpolator.hashCode();
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!super.equals(obj)) {
+      return false;
+    }
+    if (!(obj instanceof BlackVolatilitySurfaceMoneynessFcnBackedByGrid)) {
+      return false;
+    }
+    final BlackVolatilitySurfaceMoneynessFcnBackedByGrid other = (BlackVolatilitySurfaceMoneynessFcnBackedByGrid) obj;
+    if (!ObjectUtils.equals(_interpolator, other._interpolator)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_gridData, other._gridData)) {
+      return false;
+    }
+    return true;
   }
 
 }

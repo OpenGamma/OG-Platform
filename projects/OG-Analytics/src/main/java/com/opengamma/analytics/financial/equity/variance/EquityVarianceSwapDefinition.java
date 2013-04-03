@@ -13,10 +13,10 @@ import com.opengamma.analytics.financial.instrument.varianceswap.VarianceSwapDef
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
+import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 
 /**
  * An equity variance swap is a forward contract of the realized variance of an underlying stock or index.
@@ -124,11 +124,11 @@ public class EquityVarianceSwapDefinition extends VarianceSwapDefinition {
     if (timeToObsStart > 0) {
       realizedTS = ArrayLocalDateDoubleTimeSeries.EMPTY_SERIES;
     } else {
-      realizedTS = underlyingTimeSeries.subSeries(getObsStartDate().getDate(), true, valueDate.getDate(), false);
+      realizedTS = underlyingTimeSeries.subSeries(getObsStartDate().toLocalDate(), true, valueDate.toLocalDate(), false);
     }
     final double[] observations = realizedTS.toFastIntDoubleTimeSeries().valuesArrayFast();
     final double[] observationWeights = {}; // TODO Case 2011-06-29 Calendar Add functionality for non-trivial weighting of observations
-    final int nGoodBusinessDays = countExpectedGoodDays(getObsStartDate().getDate(), valueDate.getDate(), getCalendar(), getObsFreq());
+    final int nGoodBusinessDays = countExpectedGoodDays(getObsStartDate().toLocalDate(), valueDate.toLocalDate(), getCalendar(), getObsFreq());
     final int nObsDisrupted = nGoodBusinessDays - observations.length;
     ArgumentChecker.isTrue(nObsDisrupted >= 0, "Have more observations {} than good business days {}", observations.length, nGoodBusinessDays);
     return new EquityVarianceSwap(timeToObsStart, timeToObsEnd, timeToSettlement, getVarStrike(), getVarNotional(), getCurrency(),

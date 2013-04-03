@@ -27,6 +27,11 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
+      <groupId>com.opengamma</groupId>
+      <artifactId>og-utildb</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-core</artifactId>
     </dependency>
@@ -48,6 +53,8 @@
 
   <properties>
     <tests.testng.threads>1</tests.testng.threads>
+    <tests.testng.includedgroups>unit</tests.testng.includedgroups>
+    <tests.testng.excludedgroups>integration, unitdb, unitslow</tests.testng.excludedgroups>
   </properties>
 
 </project>

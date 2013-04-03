@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.util.Assert;
+import org.threeten.bp.Period;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
@@ -40,7 +41,7 @@ public class SecondaryCurveDefinitionAndSpecifications {
   public static YieldCurveDefinition buildFundingCurve(final Currency ccy, final ExternalId region, final Tenor[] depositStrips, final Tenor[] tenorSwaps) {
     final Collection<FixedIncomeStrip> strips = new ArrayList<FixedIncomeStrip>();
     for (final Tenor depositTenor : depositStrips) {
-      if (depositTenor.getPeriod().equals(DateUtils.periodOfDays(30))) {
+      if (depositTenor.getPeriod().equals(Period.ofDays(30))) {
         throw new OpenGammaRuntimeException("This shouldn't happen!");
       }
       strips.add(new FixedIncomeStrip(StripInstrumentType.CASH, depositTenor, SPEC_NAME));

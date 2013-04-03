@@ -32,10 +32,12 @@ import com.opengamma.master.user.UserSearchRequest;
 import com.opengamma.master.user.UserSearchResult;
 import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT_DB)
 public class DbUserMasterTest extends DbTest {
   private static final Logger s_logger = LoggerFactory.getLogger(DbUserMasterTest.class);
 

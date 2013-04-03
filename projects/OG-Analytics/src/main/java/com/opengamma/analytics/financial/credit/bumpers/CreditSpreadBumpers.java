@@ -5,6 +5,10 @@
  */
 package com.opengamma.analytics.financial.credit.bumpers;
 
+import java.util.Arrays;
+
+import com.opengamma.OpenGammaRuntimeException;
+
 /**
  * Class containing utilities for bumping credit spread term structures by user defined methods and amounts
  */
@@ -13,6 +17,7 @@ public class CreditSpreadBumpers {
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // TODO : Add error checkers for the input arguments
+  // TODO : Replace the logic in the choice of spread bump to ensure something is bumped i.e. use if then else
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -44,16 +49,16 @@ public class CreditSpreadBumpers {
 
   public double[] getBumpedCreditSpreads(final double[] marketSpreads, final int spreadTenorToBump, final double spreadBump, final SpreadBumpType spreadBumpType) {
 
-    double[] bumpedCreditSpreads = marketSpreads;
+    double[] bumpedCreditSpreads = Arrays.copyOf(marketSpreads, marketSpreads.length);
 
     // Calculate the bumped spreads
 
-    if (spreadBumpType == SpreadBumpType.ADDITIVE_BUCKETED) {
-      bumpedCreditSpreads[spreadTenorToBump] = bumpedCreditSpreads[spreadTenorToBump] + spreadBump;
-    }
-
-    if (spreadBumpType == SpreadBumpType.MULTIPLICATIVE_BUCKETED) {
-      bumpedCreditSpreads[spreadTenorToBump] = bumpedCreditSpreads[spreadTenorToBump] * (1 + spreadBump);
+    if (spreadBumpType == SpreadBumpType.ADDITIVE_BUCKETED || spreadBumpType == SpreadBumpType.ADDITIVE) {
+      bumpedCreditSpreads[spreadTenorToBump] += spreadBump;
+    } else if (spreadBumpType == SpreadBumpType.MULTIPLICATIVE_BUCKETED || spreadBumpType == SpreadBumpType.MULTIPLICATIVE) {
+      bumpedCreditSpreads[spreadTenorToBump] *= (1 + spreadBump);
+    } else {
+      throw new OpenGammaRuntimeException("Unsupported spread bump type " + spreadBumpType);
     }
 
     return bumpedCreditSpreads;

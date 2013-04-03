@@ -170,7 +170,7 @@ public abstract class EquityVarianceSwapFunction extends AbstractFunction.NonCom
     if (timeSeries == null) {
       return null;
     }
-    return HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, MarketDataRequirementNames.MARKET_VALUE, DateConstraint.EARLIEST_START, true, DateConstraint.VALUATION_TIME, true);
+    return HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, MarketDataRequirementNames.MARKET_VALUE, DateConstraint.NULL, true, DateConstraint.VALUATION_TIME, true);
   }
 
   protected SmileSurfaceDataBundle getData(final FunctionInputs inputs) {

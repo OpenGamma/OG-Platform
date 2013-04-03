@@ -32,8 +32,8 @@ import com.opengamma.util.time.DateUtils;
  */
 public class CapFloorIborTest {
 
-  private static final Currency CUR = Currency.USD;
-  private static final Period TENOR = Period.of(3, MONTHS);
+  private static final Currency CUR = Currency.EUR;
+  private static final Period TENOR = Period.ofMonths(3);
   private static final int SETTLEMENT_DAYS = 2;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final DayCount DAY_COUNT_INDEX = DayCountFactory.INSTANCE.getDayCount("Actual/360");
@@ -73,16 +73,16 @@ public class CapFloorIborTest {
   public void testGetters() {
     assertEquals("Getter strike", STRIKE, CAP.getStrike());
     assertEquals("Getter cap flag", IS_CAP, CAP.isCap());
-    double fixingRate = 0.05;
+    final double fixingRate = 0.05;
     assertEquals("Pay-off", Math.max(fixingRate - STRIKE, 0), CAP.payOff(fixingRate));
   }
 
   @Test
   public void withStrike() {
-    double otherStrike = STRIKE + 0.01;
-    CapFloorIbor otherCap = new CapFloorIbor(CUR, PAYMENT_TIME, FUNDING_CURVE_NAME, PAYMENT_YEAR_FRACTION, NOTIONAL, FIXING_TIME, INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_YEAR_FRACTION,
+    final double otherStrike = STRIKE + 0.01;
+    final CapFloorIbor otherCap = new CapFloorIbor(CUR, PAYMENT_TIME, FUNDING_CURVE_NAME, PAYMENT_YEAR_FRACTION, NOTIONAL, FIXING_TIME, INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_YEAR_FRACTION,
         FORWARD_CURVE_NAME, otherStrike, IS_CAP);
-    CapFloorIbor otherCapWith = CAP.withStrike(otherStrike);
+    final CapFloorIbor otherCapWith = CAP.withStrike(otherStrike);
     assertEquals("Strike", otherStrike, otherCapWith.getStrike());
     assertEquals("Pay-off", otherCap, otherCapWith);
   }

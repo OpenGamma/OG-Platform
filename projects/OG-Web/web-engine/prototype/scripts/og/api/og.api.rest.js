@@ -108,6 +108,7 @@ $.register_module({
         };
         var Promise = function () {
             var deferred = new $.Deferred, promise = deferred.promise();
+            promise.abort = function () {return api.abort(promise), promise;};
             promise.deferred = deferred;
             promise.id = ++request_id;
             return promise;
@@ -156,18 +157,19 @@ $.register_module({
                         if (error === 'timeout' && is_get && !config.meta.is_update) return send();
                         var result = {
                             error: xhr.status || true, data: null,
-                            meta: {content_length: (xhr.responseText || '').length, url: url},
+                            meta: {content_length: (xhr.responseText || '').length, url: url, promise: promise.id},
                             message: status === 'parsererror' ? 'JSON parser failed'
                                 : xhr.responseText || 'There was no response from the server.'
                         };
                         delete outstanding_requests[promise.id];
                         if (error === 'abort') return; // do not call handler if request was cancelled
+                        if (config.meta.cache_for) cache_del(url);
                         config.meta.handler(result);
                         promise.deferred.resolve(result);
                     },
                     success: function (data, status, xhr) {
                         if (promise.ignore) return;
-                        var meta = {content_length: xhr.responseText.length, url: url},
+                        var meta = {content_length: xhr.responseText.length, url: url, promise: promise.id},
                             location = xhr.getResponseHeader('Location'), result, cache_for;
                         delete outstanding_requests[promise.id];
                         if (location && ~!location.indexOf('?')) meta.id = location.split('/').pop();
@@ -184,7 +186,9 @@ $.register_module({
                 // if registration fails, it's because we don't have a client ID yet, so stall
                 return setTimeout(request.partial(method, config, promise), STALL), promise;
             if (!is_get && og.app.READ_ONLY) return setTimeout(function () {
-                var result = {error: true, data: null, meta: {}, message: 'The app is in read-only mode.'};
+                var result = {
+                    error: true, data: null, meta: {promise: promise.id}, message: 'The app is in read-only mode.'
+                };
                 config.meta.handler(result);
                 promise.deferred.resolve(result);
             }, INSTANT), promise;
@@ -195,6 +199,7 @@ $.register_module({
             loading_start(config.meta.loading);
             if (is_get) { // deal with client-side caching of GETs
                 if (cache_get(url) && typeof cache_get(url) === 'object') return setTimeout((function (result) {
+                    result.meta.promise = promise.id; // overwrite the promise id before sending it out
                     return function () {config.meta.handler(result), promise.deferred.resolve(result);};
                 })(cache_get(url)), INSTANT), promise;
                 if (cache_get(url)) // if cache_get returns true a request is already outstanding, so stall
@@ -233,20 +238,28 @@ $.register_module({
                 del: not_available_del
             },
             blotter: (function () { // all requests that begin with /blotter
-                var blotter = {  
+                var blotter = {
                     root: 'blotter',
                     get: not_available_get, put: not_available_put, del: not_available_del, // no requests to /blotter
-                    trades: {root: 'blotter/trades'}
+                    trades: {root: 'blotter/trades'},
+                    securities: {root: 'blotter/securities'},
+                    positions: {root: 'blotter/positions'}
                 };
                 [ // blotter/lookup/* endpoints
                     'barrierdirections', 'barriertypes', 'businessdayconventions', 'daycountconventions',
                     'exercisetypes', 'floatingratetypes', 'frequencies', 'idschemes', 'longshort', 'monitoringtype',
-                    'samplingfrequencies'
+                    'samplingfrequencies', 'regions'
                 ].forEach(function (key) {
                     blotter[key] = {
                         root: 'blotter/lookup/' + key, get: simple_get, put: not_available_put, del: not_available_del
                     };
                 });
+                blotter.securities.get = function (config) {
+                    config = config || {};
+                    var root = this.root, method = root.split('/'), meta;
+                    meta = check({bundle: {method: root + '#get', config: config}, required: [{all_of: ['id']}]});
+                    return request(method.concat(config.id), {data: {}, meta: meta});
+                };
                 blotter.trades.get = function (config) {
                     config = config || {};
                     var root = this.root, method = root.split('/'), meta;
@@ -256,8 +269,27 @@ $.register_module({
                 blotter.trades.put = function (config) {
                     config = config || {};
                     var root = this.root, method = root.split('/'), meta, data = {trade: {}}, id = config.id;
-                    meta = check({bundle: {method: root + '#put', config: config}, required: [{all_of: ['trade']}]});
-                    data.trade = str({trade: config.trade, security: config.security, underlying: config.underlying});
+                    meta = check({bundle: {method: root + '#put', config: config},
+                                required: [{all_of: ['trade', 'nodeId']}]});
+                    data.trade = str({trade: config.trade, security: config.security, underlying: config.underlying,
+                        nodeId: config.nodeId});
+                    meta.type = id ? 'PUT' : 'POST';
+                    if (id) method.push(id);
+                    return request(method, {data: data, meta: meta});
+                };
+                blotter.positions.get = function (config) {
+                    config = config || {};
+                    var root = this.root, method = root.split('/'), meta;
+                    meta = check({bundle: {method: root + '#get', config: config}, required: [{all_of: ['id']}]});
+                    return request(method.concat(config.id), {data: {}, meta: meta});
+                };
+                blotter.positions.put = function (config) {
+                    config = config || {};
+                    var root = this.root, method = root.split('/'), meta, data = {trade: {}}, id = config.nodeId;
+                    meta = check({bundle: {method: root + '#put', config: config},
+                                required: [{all_of: ['trade', 'nodeId']}]});
+                    data.trade = str({trade: config.trade, security: config.security, underlying: config.underlying,
+                        nodeId: config.nodeId});
                     meta.type = id ? 'PUT' : 'POST';
                     if (id) method.push(id);
                     return request(method, {data: data, meta: meta});
@@ -382,6 +414,13 @@ $.register_module({
                 get: simple_get,
                 put: not_available_put,
                 del: not_available_del
+            },
+            legal_entities: {
+                root: 'organizations',
+                get: default_get.partial(['node', 'name', 'obligor_red_code', 'obligor_ticker'],
+                    ['organizationId', 'shortName', 'obligorREDCode', 'obligorTicker']),
+                put: not_implemented_put,
+                del: not_implemented_del
             },
             marketdatasnapshots: { // all requests that begin with /marketdatasnapshots
                 root: 'marketdatasnapshots',
@@ -616,11 +655,12 @@ $.register_module({
                     var promise = promise || new Promise,
                         root = this.root, method = [root], data = {}, meta,
                         fields = [
-                            'viewdefinition', 'aggregators', 'providers', 'valuation', 'version', 'correction'
+                            'viewdefinition', 'aggregators', 'providers', 'valuation',
+                            'version', 'correction', 'blotter'
                         ],
                         api_fields = [
-                            'viewDefinitionId', 'aggregators', 'marketDataProviders',
-                            'valuationTime', 'portfolioVersionTime', 'portfolioCorrectionTime'
+                            'viewDefinitionId', 'aggregators', 'marketDataProviders', 'valuationTime',
+                            'portfolioVersionTime', 'portfolioCorrectionTime', 'blotter'
                         ];
                     if (!api.id) return setTimeout((function (context) {                    // if handshake isn't
                         return function () {api.views.put.call(context, config, promise);}; // complete, return a
@@ -655,7 +695,19 @@ $.register_module({
                 grid: {
                     depgraphs: {
                         root: 'views/{{view_id}}/{{grid_type}}/depgraphs',
-                        del: not_implemented_del,
+                        del: function (config) {
+                            config = config || {};
+                            var root = this.root, method = root.split('/'), data = {}, meta;
+                            meta = check({
+                                bundle: {method: root + '#del', config: config},
+                                required: [{all_of: ['view_id', 'grid_type', 'graph_id']}]
+                            });
+                            meta.type = 'DELETE';
+                            method[1] = config.view_id;
+                            method[2] = config.grid_type;
+                            method.push(config.graph_id);
+                            return request(method, {data: {}, meta: meta});
+                        },
                         get: not_available_get,
                         structure: {
                             root: 'views/{{view_id}}/{{grid_type}}/depgraphs/{{graph_id}}',
@@ -835,8 +887,9 @@ $.register_module({
                 result.data.updates.filter(function (update) {
                     var simple = typeof update === 'string', promise, request;
                     if (!simple && (promise = (request = outstanding_requests[update.id]) && request.promise)) {
-                        promise.deferred
-                            .resolve({error: false, data: null, meta: {id: update.message.split('/').pop()}});
+                        promise.deferred.resolve({
+                            error: false, data: null, meta: {id: update.message.split('/').pop()}, promise: promise.id
+                        });
                         delete outstanding_requests[promise.id];
                     }
                     return simple;
@@ -861,6 +914,7 @@ $.register_module({
                 }});
             })();
         }});
+        $(window).on('unload', function () {api.fire('abandon');});
         return api;
     }
 });

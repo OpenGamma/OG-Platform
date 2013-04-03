@@ -18,11 +18,14 @@ import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
 import com.opengamma.financial.fudgemsg.FinancialTestBase;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class MultiCurveCalculationConfigTest extends FinancialTestBase {
+
   private static final String DEFAULT_USD_CONFIG_NAME = "Default";
   private static final String[] DEFAULT_USD_YIELD_CURVE_NAMES = new String[] {"FUNDING", "FORWARD_3M" };
   private static final ComputationTargetSpecification DEFAULT_USD_ID = ComputationTargetSpecification.of(Currency.USD);

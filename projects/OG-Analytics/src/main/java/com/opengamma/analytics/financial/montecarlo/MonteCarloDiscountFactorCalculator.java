@@ -49,7 +49,7 @@ public class MonteCarloDiscountFactorCalculator extends InstrumentDerivativeVisi
     double ibor;
     final double omega = (payment.isCap() ? 1.0 : -1.0);
     for (int looppath = 0; looppath < nbPath; looppath++) {
-      ibor = (-impactAmount[0][0] * pathDiscountFactors[looppath][0][0] / (impactAmount[0][1] * pathDiscountFactors[looppath][0][1]) - 1.0) / payment.getFixingYearFraction();
+      ibor = (-impactAmount[0][0] * pathDiscountFactors[looppath][0][0] / (impactAmount[0][1] * pathDiscountFactors[looppath][0][1]) - 1.0) / payment.getFixingAccrualFactor();
       price += Math.max(omega * (ibor - payment.getStrike()), 0) * pathDiscountFactors[looppath][0][2];
     }
     price = price / nbPath * payment.getNotional() * payment.getPaymentYearFraction();
@@ -96,7 +96,8 @@ public class MonteCarloDiscountFactorCalculator extends InstrumentDerivativeVisi
         if (annuity.getNthPayment(loopcpn) instanceof CouponIborRatchet) {
           final CouponIborRatchet cpn = (CouponIborRatchet) annuity.getNthPayment(loopcpn);
           for (int looppath = 0; looppath < nbPath; looppath++) {
-            ibor = (-impactAmount[loopcpn][0] * pathDiscountFactors[looppath][loopcpn][0] / (impactAmount[loopcpn][1] * pathDiscountFactors[looppath][loopcpn][1]) - 1.0) / cpn.getFixingYearFraction();
+            ibor = (-impactAmount[loopcpn][0] * pathDiscountFactors[looppath][loopcpn][0] / (impactAmount[loopcpn][1] *
+                pathDiscountFactors[looppath][loopcpn][1]) - 1.0) / cpn.getFixingAccrualFactor();
             final double cpnMain = cpn.getMainCoefficients()[0] * cpnRate[loopcpn - 1][looppath] + cpn.getMainCoefficients()[1] * ibor + cpn.getMainCoefficients()[2];
             final double cpnFloor = cpn.getFloorCoefficients()[0] * cpnRate[loopcpn - 1][looppath] + cpn.getFloorCoefficients()[1] * ibor + cpn.getFloorCoefficients()[2];
             final double cpnCap = cpn.getCapCoefficients()[0] * cpnRate[loopcpn - 1][looppath] + cpn.getCapCoefficients()[1] * ibor + cpn.getCapCoefficients()[2];

@@ -8,9 +8,10 @@ package com.opengamma.web.analytics;
 import java.util.List;
 
 import com.opengamma.core.security.Security;
-import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -21,20 +22,26 @@ import com.opengamma.util.ArgumentChecker;
   /** The rows in the grid. */
   private final List<PortfolioGridRow> _rows;
 
+  // TODO it would be better to pass in an interface so the renderers don't have to be rebuilt when the rows change
   /* package */ PortfolioLabelRenderer(List<PortfolioGridRow> rows) {
     ArgumentChecker.notNull(rows, "rows");
     _rows = rows;
   }
 
   @Override
-  public ResultsCell getResults(int rowIndex, ResultsCache cache, Class<?> columnType) {
+  public ResultsCell getResults(int rowIndex, ResultsCache cache, Class<?> columnType, Object inlineKey) {
     PortfolioGridRow row = _rows.get(rowIndex);
-    ComputationTargetSpecification target = row.getTarget();
+    ComputationTargetReference target = row.getTarget();
     ComputationTargetType targetType = target.getType();
     // TODO do I need to use the target type to figure out the row type? can I just have different row types?
     if (targetType.isTargetType(ComputationTargetType.POSITION)) {
       RowTarget rowTarget;
-      if (isOtc(row.getSecurity())) {
+      UniqueId securityId = row.getSecurityId();
+      ResultsCache.Result securityResult = cache.getEntity(securityId.getObjectId());
+      Security security = (Security) securityResult.getValue();
+      if (isOtc(security)) {
+        // TODO different type for OTC positions with no trades? they are effecively the same but the client
+        // needs to know when a position has no trades because it will be a different endpoint to trigger editing
         // OTC trades and positions are shown as a single row as there's always one trade per position
         rowTarget = new OtcTradeTarget(row.getName(), row.getNodeId(), row.getPositionId(), row.getTradeId());
       } else {
@@ -42,6 +49,7 @@ import com.opengamma.util.ArgumentChecker;
         // for each of its trades
         rowTarget = new PositionTarget(row.getName(), row.getNodeId(), row.getPositionId());
       }
+      // TODO check the cache items for the position, security, underlying to find out whether they've been updated
       return ResultsCell.forStaticValue(rowTarget, columnType);
     } else if (targetType.isTargetType(ComputationTargetType.PORTFOLIO_NODE)) {
       return ResultsCell.forStaticValue(new NodeTarget(row.getName(), row.getNodeId()), columnType);
@@ -49,6 +57,7 @@ import com.opengamma.util.ArgumentChecker;
       // only fungible trades have their own row, OTC trades are shown on the same row as their parent position
       FungibleTradeTarget tradeTarget =
           new FungibleTradeTarget(row.getName(), row.getNodeId(), row.getPositionId(), row.getTradeId());
+      // TODO check cache item for trade to see if it's been updated
       return ResultsCell.forStaticValue(tradeTarget, columnType);
     }
     throw new IllegalArgumentException("Unexpected target type for row: " + targetType);

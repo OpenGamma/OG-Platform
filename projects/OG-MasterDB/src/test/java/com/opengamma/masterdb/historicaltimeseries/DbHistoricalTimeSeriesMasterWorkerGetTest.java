@@ -18,10 +18,12 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests DbHistoricalTimeSeriesMaster.
  */
+@Test(groups = TestGroup.UNIT_DB)
 public class DbHistoricalTimeSeriesMasterWorkerGetTest extends AbstractDbHistoricalTimeSeriesMasterWorkerTest {
   // superclass sets up dummy database
 

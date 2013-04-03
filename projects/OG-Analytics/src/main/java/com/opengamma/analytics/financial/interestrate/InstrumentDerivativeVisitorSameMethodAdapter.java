@@ -15,8 +15,13 @@ import com.opengamma.analytics.financial.commodity.derivative.MetalForward;
 import com.opengamma.analytics.financial.commodity.derivative.MetalFuture;
 import com.opengamma.analytics.financial.commodity.derivative.MetalFutureOption;
 import com.opengamma.analytics.financial.credit.cds.ISDACDSDerivative;
+import com.opengamma.analytics.financial.equity.future.derivative.CashSettledFuture;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityFuture;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityIndexDividendFuture;
+import com.opengamma.analytics.financial.equity.future.derivative.EquityIndexFuture;
+import com.opengamma.analytics.financial.equity.future.derivative.IndexFuture;
+import com.opengamma.analytics.financial.equity.future.derivative.VolatilityIndexFuture;
+import com.opengamma.analytics.financial.equity.option.EquityIndexFutureOption;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.equity.option.EquityOption;
 import com.opengamma.analytics.financial.equity.variance.EquityVarianceSwap;
@@ -29,9 +34,7 @@ import com.opengamma.analytics.financial.forex.derivative.ForexOptionVanilla;
 import com.opengamma.analytics.financial.forex.derivative.ForexSwap;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
-import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponIbor;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponIborRatchet;
-import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillTransaction;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedSecurity;
@@ -44,18 +47,24 @@ import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositCounterpart;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositIbor;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositZero;
-import com.opengamma.analytics.financial.interestrate.fra.ForwardRateAgreement;
+import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRateAgreement;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuture;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.DeliverableSwapFuturesSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.DeliverableSwapFuturesTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureTransaction;
-import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionPremiumSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionPremiumTransaction;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
+import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationZeroCouponInterpolation;
+import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationZeroCouponMonthly;
+import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationYearOnYearInterpolation;
+import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationYearOnYearMonthly;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponInterpolation;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponInterpolationGearing;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponMonthly;
@@ -64,21 +73,22 @@ import com.opengamma.analytics.financial.interestrate.payments.ForexForward;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorCMS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorCMSSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponArithmeticAverageON;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponCMS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompounded;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverage;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompounding;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompoundingSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborGearing;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponOIS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
-import com.opengamma.analytics.financial.interestrate.swap.derivative.CrossCurrencySwap;
-import com.opengamma.analytics.financial.interestrate.swap.derivative.FixedFloatSwap;
-import com.opengamma.analytics.financial.interestrate.swap.derivative.FloatingRateNote;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
+import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCompoundingCoupon;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
-import com.opengamma.analytics.financial.interestrate.swap.derivative.TenorSwap;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionBermudaFixedIbor;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
@@ -94,14 +104,14 @@ public abstract class InstrumentDerivativeVisitorSameMethodAdapter<DATA_TYPE, RE
   /**
    * Calculates the result
    * @param derivative The derivative
-   * @return The result 
+   * @return The result
    */
   public abstract RESULT_TYPE visit(InstrumentDerivative derivative);
 
   /**
    * Calculates the result
    * @param derivative The derivative
-   * @param data The data 
+   * @param data The data
    * @return The result
    */
   public abstract RESULT_TYPE visit(InstrumentDerivative derivative, DATA_TYPE data);
@@ -157,7 +167,7 @@ public abstract class InstrumentDerivativeVisitorSameMethodAdapter<DATA_TYPE, RE
   }
 
   @Override
-  public RESULT_TYPE visitFixedFloatSwap(final FixedFloatSwap swap, final DATA_TYPE data) {
+  public RESULT_TYPE visitFixedCompoundingCouponSwap(final SwapFixedCompoundingCoupon<?> swap, final DATA_TYPE data) {
     return visit(swap, data);
   }
 
@@ -174,16 +184,6 @@ public abstract class InstrumentDerivativeVisitorSameMethodAdapter<DATA_TYPE, RE
   @Override
   public RESULT_TYPE visitSwaptionBermudaFixedIbor(final SwaptionBermudaFixedIbor swaption, final DATA_TYPE data) {
     return visit(swaption, data);
-  }
-
-  @Override
-  public RESULT_TYPE visitTenorSwap(final TenorSwap<? extends Payment> tenorSwap, final DATA_TYPE data) {
-    return visit(tenorSwap, data);
-  }
-
-  @Override
-  public RESULT_TYPE visitCrossCurrencySwap(final CrossCurrencySwap ccs, final DATA_TYPE data) {
-    return visit(ccs, data);
   }
 
   @Override
@@ -292,7 +292,7 @@ public abstract class InstrumentDerivativeVisitorSameMethodAdapter<DATA_TYPE, RE
   }
 
   @Override
-  public RESULT_TYPE visitFixedFloatSwap(final FixedFloatSwap swap) {
+  public RESULT_TYPE visitFixedCompoundingCouponSwap(final SwapFixedCompoundingCoupon<?> swap) {
     return visit(swap);
   }
 
@@ -312,18 +312,8 @@ public abstract class InstrumentDerivativeVisitorSameMethodAdapter<DATA_TYPE, RE
   }
 
   @Override
-  public RESULT_TYPE visitCrossCurrencySwap(final CrossCurrencySwap ccs) {
-    return visit(ccs);
-  }
-
-  @Override
   public RESULT_TYPE visitForexForward(final ForexForward fx) {
     return visit(fx);
-  }
-
-  @Override
-  public RESULT_TYPE visitTenorSwap(final TenorSwap<? extends Payment> tenorSwap) {
-    return visit(tenorSwap);
   }
 
   @Override
@@ -387,12 +377,32 @@ public abstract class InstrumentDerivativeVisitorSameMethodAdapter<DATA_TYPE, RE
   }
 
   @Override
+  public RESULT_TYPE visitCouponFixedCompounding(final CouponFixedCompounding payment, final DATA_TYPE data) {
+    return visit(payment, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponFixedCompounding(final CouponFixedCompounding payment) {
+    return visit(payment);
+  }
+
+  @Override
   public RESULT_TYPE visitCouponIbor(final CouponIbor payment, final DATA_TYPE data) {
     return visit(payment, data);
   }
 
   @Override
   public RESULT_TYPE visitCouponIbor(final CouponIbor payment) {
+    return visit(payment);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponIborAverage(final CouponIborAverage payment, final DATA_TYPE data) {
+    return visit(payment, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponIborAverage(final CouponIborAverage payment) {
     return visit(payment);
   }
 
@@ -417,12 +427,22 @@ public abstract class InstrumentDerivativeVisitorSameMethodAdapter<DATA_TYPE, RE
   }
 
   @Override
-  public RESULT_TYPE visitCouponIborCompounded(final CouponIborCompounded payment) {
+  public RESULT_TYPE visitCouponIborCompounding(final CouponIborCompounding payment) {
     return visit(payment);
   }
 
   @Override
-  public RESULT_TYPE visitCouponIborCompounded(final CouponIborCompounded payment, final DATA_TYPE data) {
+  public RESULT_TYPE visitCouponIborCompounding(final CouponIborCompounding payment, final DATA_TYPE data) {
+    return visit(payment, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponIborCompoundingSpread(final CouponIborCompoundingSpread payment) {
+    return visit(payment);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponIborCompoundingSpread(final CouponIborCompoundingSpread payment, final DATA_TYPE data) {
     return visit(payment, data);
   }
 
@@ -433,6 +453,16 @@ public abstract class InstrumentDerivativeVisitorSameMethodAdapter<DATA_TYPE, RE
 
   @Override
   public RESULT_TYPE visitCouponOIS(final CouponOIS payment) {
+    return visit(payment);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponArithmeticAverageON(final CouponArithmeticAverageON payment, final DATA_TYPE data) {
+    return visit(payment, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponArithmeticAverageON(final CouponArithmeticAverageON payment) {
     return visit(payment);
   }
 
@@ -487,6 +517,46 @@ public abstract class InstrumentDerivativeVisitorSameMethodAdapter<DATA_TYPE, RE
   }
 
   @Override
+  public RESULT_TYPE visitCouponInflationYearOnYearMonthly(final CouponInflationYearOnYearMonthly coupon, final DATA_TYPE data) {
+    return visit(coupon, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponInflationYearOnYearMonthly(final CouponInflationYearOnYearMonthly coupon) {
+    return visit(coupon);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponInflationYearOnYearInterpolation(final CouponInflationYearOnYearInterpolation coupon, final DATA_TYPE data) {
+    return visit(coupon, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponInflationYearOnYearInterpolation(final CouponInflationYearOnYearInterpolation coupon) {
+    return visit(coupon);
+  }
+
+  @Override
+  public RESULT_TYPE visitCapFloorInflationZeroCouponInterpolation(final CapFloorInflationZeroCouponInterpolation coupon, final DATA_TYPE data) {
+    return visit(coupon, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitCapFloorInflationZeroCouponInterpolation(final CapFloorInflationZeroCouponInterpolation coupon) {
+    return visit(coupon);
+  }
+
+  @Override
+  public RESULT_TYPE visitCapFloorInflationZeroCouponMonthly(final CapFloorInflationZeroCouponMonthly coupon, final DATA_TYPE data) {
+    return visit(coupon, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitCapFloorInflationZeroCouponMonthly(final CapFloorInflationZeroCouponMonthly coupon) {
+    return visit(coupon);
+  }
+
+  @Override
   public RESULT_TYPE visitBondFuture(final BondFuture bondFuture, final DATA_TYPE data) {
     return visit(bondFuture, data);
   }
@@ -497,12 +567,22 @@ public abstract class InstrumentDerivativeVisitorSameMethodAdapter<DATA_TYPE, RE
   }
 
   @Override
-  public RESULT_TYPE visitInterestRateFuture(final InterestRateFuture future, final DATA_TYPE data) {
+  public RESULT_TYPE visitInterestRateFutureTransaction(final InterestRateFutureTransaction future, final DATA_TYPE data) {
     return visit(future, data);
   }
 
   @Override
-  public RESULT_TYPE visitInterestRateFuture(final InterestRateFuture future) {
+  public RESULT_TYPE visitInterestRateFutureTransaction(final InterestRateFutureTransaction future) {
+    return visit(future);
+  }
+
+  @Override
+  public RESULT_TYPE visitInterestRateFutureSecurity(final InterestRateFutureSecurity future, final DATA_TYPE data) {
+    return visit(future, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitInterestRateFutureSecurity(final InterestRateFutureSecurity future) {
     return visit(future);
   }
 
@@ -533,6 +613,16 @@ public abstract class InstrumentDerivativeVisitorSameMethodAdapter<DATA_TYPE, RE
 
   @Override
   public RESULT_TYPE visitDeliverableSwapFuturesSecurity(final DeliverableSwapFuturesSecurity futures) {
+    return visit(futures);
+  }
+
+  @Override
+  public RESULT_TYPE visitDeliverableSwapFuturesTransaction(final DeliverableSwapFuturesTransaction futures, final DATA_TYPE data) {
+    return visit(futures, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitDeliverableSwapFuturesTransaction(final DeliverableSwapFuturesTransaction futures) {
     return visit(futures);
   }
 
@@ -807,6 +897,16 @@ public abstract class InstrumentDerivativeVisitorSameMethodAdapter<DATA_TYPE, RE
   }
 
   @Override
+  public RESULT_TYPE visitEquityIndexFutureOption(final EquityIndexFutureOption option) {
+    return visit(option);
+  }
+
+  @Override
+  public RESULT_TYPE visitEquityIndexFutureOption(final EquityIndexFutureOption option, final DATA_TYPE data) {
+    return visit(option, data);
+  }
+
+  @Override
   public RESULT_TYPE visitEquityOption(final EquityOption option) {
     return visit(option);
   }
@@ -827,36 +927,6 @@ public abstract class InstrumentDerivativeVisitorSameMethodAdapter<DATA_TYPE, RE
   }
 
   @Override
-  public RESULT_TYPE visitForwardLiborAnnuity(final AnnuityCouponIbor forwardLiborAnnuity, final DATA_TYPE data) {
-    return visit(forwardLiborAnnuity, data);
-  }
-
-  @Override
-  public RESULT_TYPE visitForwardLiborAnnuity(final AnnuityCouponIbor forwardLiborAnnuity) {
-    return visit(forwardLiborAnnuity);
-  }
-
-  @Override
-  public RESULT_TYPE visitAnnuityCouponIborSpread(final AnnuityCouponIborSpread annuity, final DATA_TYPE data) {
-    return visit(annuity, data);
-  }
-
-  @Override
-  public RESULT_TYPE visitAnnuityCouponIborSpread(final AnnuityCouponIborSpread annuity) {
-    return visit(annuity);
-  }
-
-  @Override
-  public RESULT_TYPE visitFloatingRateNote(final FloatingRateNote derivative, final DATA_TYPE data) {
-    return visit(derivative, data);
-  }
-
-  @Override
-  public RESULT_TYPE visitFloatingRateNote(final FloatingRateNote derivative) {
-    return visit(derivative);
-  }
-
-  @Override
   public RESULT_TYPE visitVarianceSwap(final VarianceSwap varianceSwap) {
     return visit(varianceSwap);
   }
@@ -874,5 +944,45 @@ public abstract class InstrumentDerivativeVisitorSameMethodAdapter<DATA_TYPE, RE
   @Override
   public RESULT_TYPE visitEquityVarianceSwap(final EquityVarianceSwap varianceSwap, final DATA_TYPE data) {
     return visit(varianceSwap, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitCashSettledFuture(CashSettledFuture future, DATA_TYPE data) {
+    return visit(future, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitCashSettledFuture(CashSettledFuture future) {
+    return visit(future);
+  }
+
+  @Override
+  public RESULT_TYPE visitIndexFuture(IndexFuture future, DATA_TYPE data) {
+    return visit(future, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitIndexFuture(IndexFuture future) {
+    return visit(future);
+  }
+
+  @Override
+  public RESULT_TYPE visitEquityIndexFuture(EquityIndexFuture future, DATA_TYPE data) {
+    return visit(future, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitEquityIndexFuture(EquityIndexFuture future) {
+    return visit(future);
+  }
+
+  @Override
+  public RESULT_TYPE visitVolatilityIndexFuture(VolatilityIndexFuture future, DATA_TYPE data) {
+    return visit(future, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitVolatilityIndexFuture(VolatilityIndexFuture future) {
+    return visit(future);
   }
 }

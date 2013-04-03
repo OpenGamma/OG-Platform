@@ -7,12 +7,11 @@ package com.opengamma.analytics.financial.interestrate.inflation.derivative;
 
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.interestrate.market.description.IMarketBundle;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * Class describing an zero-coupon inflation coupon. 
+ * Class describing an zero-coupon inflation coupon.
  * The start index value is known when the coupon is traded/issued.
  * The index for a given month is given in the yield curve and in the time series on the first of the month.
  * The pay-off is (final index / start index - 1) * notional if the notional is not paid and final index / start index * notional if the notional is paid.
@@ -29,11 +28,6 @@ public class CouponInflationZeroCouponMonthly extends CouponInflation {
    */
   private final double _referenceEndTime;
   /**
-   * The time on which the end index is expected to be known. The index is usually known two week after the end of the reference month. 
-   * The date is only an "expected date" as the index publication could be delayed for different reasons. The date should not be enforced to strictly in pricing and instrument creation.
-   */
-  private final double _fixingEndTime;
-  /**
    * Flag indicating if the notional is paid (true) or not (false) at the end of the period.
    */
   private final boolean _payNotional;
@@ -42,22 +36,19 @@ public class CouponInflationZeroCouponMonthly extends CouponInflation {
    * Inflation zero-coupon constructor.
    * @param currency The coupon currency.
    * @param paymentTime The time to payment.
-   * @param fundingCurveName The discounting curve name.
    * @param paymentYearFraction Accrual factor of the accrual period.
    * @param notional Coupon notional.
    * @param priceIndex The price index associated to the coupon.
    * @param indexStartValue The index value at the start of the coupon.
    * @param referenceEndTime The reference time for the index at the coupon end.
-   * @param fixingEndTime The time on which the end index is expected to be known.
    * @param payNotional Flag indicating if the notional is paid (true) or not (false).
    */
-  public CouponInflationZeroCouponMonthly(final Currency currency, final double paymentTime, final String fundingCurveName, final double paymentYearFraction, final double notional,
-      final IndexPrice priceIndex, final double indexStartValue,
-      final double referenceEndTime, final double fixingEndTime, final boolean payNotional) {
-    super(currency, paymentTime, fundingCurveName, paymentYearFraction, notional, priceIndex);
+  public CouponInflationZeroCouponMonthly(final Currency currency, final double paymentTime, final double paymentYearFraction, final double notional, final IndexPrice priceIndex,
+      final double indexStartValue, final double referenceEndTime,
+      final boolean payNotional) {
+    super(currency, paymentTime, paymentYearFraction, notional, priceIndex);
     this._indexStartValue = indexStartValue;
     this._referenceEndTime = referenceEndTime;
-    this._fixingEndTime = fixingEndTime;
     _payNotional = payNotional;
   }
 
@@ -78,31 +69,16 @@ public class CouponInflationZeroCouponMonthly extends CouponInflation {
   }
 
   /**
-   * Gets the time on which the end index is expected to be known.
-   * @return The time on which the end index is expected to be known.
-   */
-  public double getFixingEndTime() {
-    return _fixingEndTime;
-  }
-
-  /**
-   * Gets the pay notional flag.
-   * @return The flag.
-   */
+  * Gets the pay notional flag.
+  * @return The flag.
+  */
   public boolean payNotional() {
     return _payNotional;
   }
 
   @Override
   public CouponInflationZeroCouponMonthly withNotional(final double notional) {
-    return new CouponInflationZeroCouponMonthly(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), notional, getPriceIndex(), _indexStartValue, _referenceEndTime,
-        _fixingEndTime, _payNotional);
-  }
-
-  @Override
-  public double estimatedIndex(final IMarketBundle market) {
-    final double estimatedIndex = market.getPriceIndex(getPriceIndex(), _referenceEndTime);
-    return estimatedIndex;
+    return new CouponInflationZeroCouponMonthly(getCurrency(), getPaymentTime(), getPaymentYearFraction(), notional, getPriceIndex(), _indexStartValue, _referenceEndTime, _payNotional);
   }
 
   @Override
@@ -119,7 +95,7 @@ public class CouponInflationZeroCouponMonthly extends CouponInflation {
 
   @Override
   public String toString() {
-    return super.toString() + ", reference=" + _referenceEndTime + ", fixing=" + _fixingEndTime;
+    return "CouponInflationZeroCouponMonthly [_referenceEndTime=" + _referenceEndTime + "]";
   }
 
   @Override
@@ -127,8 +103,6 @@ public class CouponInflationZeroCouponMonthly extends CouponInflation {
     final int prime = 31;
     int result = super.hashCode();
     long temp;
-    temp = Double.doubleToLongBits(_fixingEndTime);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
     temp = Double.doubleToLongBits(_indexStartValue);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     result = prime * result + (_payNotional ? 1231 : 1237);
@@ -138,7 +112,7 @@ public class CouponInflationZeroCouponMonthly extends CouponInflation {
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (this == obj) {
       return true;
     }
@@ -148,10 +122,7 @@ public class CouponInflationZeroCouponMonthly extends CouponInflation {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final CouponInflationZeroCouponMonthly other = (CouponInflationZeroCouponMonthly) obj;
-    if (Double.doubleToLongBits(_fixingEndTime) != Double.doubleToLongBits(other._fixingEndTime)) {
-      return false;
-    }
+    CouponInflationZeroCouponMonthly other = (CouponInflationZeroCouponMonthly) obj;
     if (Double.doubleToLongBits(_indexStartValue) != Double.doubleToLongBits(other._indexStartValue)) {
       return false;
     }

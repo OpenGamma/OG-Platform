@@ -25,12 +25,12 @@ public class SmileInterpolatorSplineTest extends SmileInterpolatorTestCase {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadDataLeftExtrapolation() {
-    INTERPOLATOR.getVolatilityFunction(STRIKES[0] - 10, STRIKES, EXPIRY, VOLS);
+    INTERPOLATOR.getVolatilityFunction(getStrikes()[0] - 10, getStrikes(), getExpiry(), getVols());
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadDataRightExtrapolation() {
-    INTERPOLATOR.getVolatilityFunction(STRIKES[STRIKES.length - 1] + 10, STRIKES, EXPIRY, VOLS);
+    INTERPOLATOR.getVolatilityFunction(getStrikes()[getStrikes().length - 1] + 10, getStrikes(), getExpiry(), getVols());
   }
 
 }

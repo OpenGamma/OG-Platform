@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- As there is no schemaVersion specified, we should fail to load-->
+<og-portfolio
+    xmlns="http://www.opengamma.com/portfolios"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.opengamma.com/portfolios">
+
+</og-portfolio>

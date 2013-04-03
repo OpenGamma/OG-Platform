@@ -47,35 +47,35 @@ import com.opengamma.util.tuple.DoublesPair;
  */
 public abstract class NodeSensitivityCalculatorTest {
 
-  protected static final String DISCOUNTING_CURVE_NAME = "USD Discounting";
-  protected static final String FORWARD_CURVE_NAME = "USD Forward 3M";
-  protected static final String[] CURVE_NAMES = new String[] {DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME };
+  private static final String DISCOUNTING_CURVE_NAME = "USD Discounting";
+  private static final String FORWARD_CURVE_NAME = "USD Forward 3M";
+  private static final String[] CURVE_NAMES = new String[] {DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME };
 
-  protected static final YieldCurveBundle CURVE_BUNDLE_YIELD;
-  protected static final YieldAndDiscountCurve DISCOUNTING_YIELD_CURVE;
-  protected static final YieldAndDiscountCurve FORWARD_YIELD_CURVE;
+  private static final YieldCurveBundle CURVE_BUNDLE_YIELD;
+  private static final YieldAndDiscountCurve DISCOUNTING_YIELD_CURVE;
+  private static final YieldAndDiscountCurve FORWARD_YIELD_CURVE;
 
-  protected static final YieldCurveBundle CURVE_BUNDLE_DISCOUNTING;
-  protected static final YieldAndDiscountCurve DISCOUNTING_DISCOUNTING_CURVE;
-  protected static final YieldAndDiscountCurve FORWARD_DISCOUNTING_CURVE;
+  private static final YieldCurveBundle CURVE_BUNDLE_DISCOUNTING;
+  private static final YieldAndDiscountCurve DISCOUNTING_DISCOUNTING_CURVE;
+  private static final YieldAndDiscountCurve FORWARD_DISCOUNTING_CURVE;
 
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");
   private static final GeneratorSwapFixedIbor USD6MLIBOR3M = GeneratorSwapFixedIborMaster.getInstance().getGenerator("USD6MLIBOR3M", NYC);
   private static final IborIndex USDLIBOR6M = USD6MLIBOR3M.getIborIndex();
-  private static final Period SWAP_TENOR = Period.of(5, YEARS);
+  private static final Period SWAP_TENOR = Period.ofYears(5);
   private static final double SWAP_RATE = 0.05;
   private static final double SWAP_NOTIONAL = 1.0;
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2012, 6, 29);
   private static final ZonedDateTime SETTLE_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, USDLIBOR6M.getSpotLag(), NYC);
   private static final SwapFixedIborDefinition SWAP_DEFINITION = SwapFixedIborDefinition.from(SETTLE_DATE, SWAP_TENOR, USD6MLIBOR3M, SWAP_NOTIONAL, SWAP_RATE, true);
-  protected static final SwapFixedCoupon<Coupon> SWAP = SWAP_DEFINITION.toDerivative(REFERENCE_DATE, CURVE_NAMES);
+  private static final SwapFixedCoupon<Coupon> SWAP = SWAP_DEFINITION.toDerivative(REFERENCE_DATE, CURVE_NAMES);
 
   private static final CombinedInterpolatorExtrapolator INTERPOLATOR_DQ = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC, LINEAR_EXTRAPOLATOR,
       FLAT_EXTRAPOLATOR);
   private static final CombinedInterpolatorExtrapolator INTERPOLATOR_CS = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.NATURAL_CUBIC_SPLINE, LINEAR_EXTRAPOLATOR,
       FLAT_EXTRAPOLATOR);
 
-  protected static final double TOLERANCE_SENSI = 1.0E-6;
+  private static final double TOLERANCE_SENSI = 1.0E-6;
 
   static {
     final double[] dscCurveNodes = new double[] {0.01, 0.5, 1, 1.5, 2.0, 3.1, 4.1, 5, 6.0 };
@@ -86,7 +86,7 @@ public abstract class NodeSensitivityCalculatorTest {
 
     DISCOUNTING_YIELD_CURVE = YieldCurve.from(InterpolatedDoublesCurve.fromSorted(dscCurveNodes, dscCurveYields, INTERPOLATOR_DQ));
     FORWARD_YIELD_CURVE = YieldCurve.from(InterpolatedDoublesCurve.fromSorted(fwdCurveNodes, fwdCurveYields, INTERPOLATOR_CS));
-    final LinkedHashMap<String, YieldAndDiscountCurve> curvesY = new LinkedHashMap<String, YieldAndDiscountCurve>();
+    final LinkedHashMap<String, YieldAndDiscountCurve> curvesY = new LinkedHashMap<>();
     curvesY.put(DISCOUNTING_CURVE_NAME, DISCOUNTING_YIELD_CURVE);
     curvesY.put(FORWARD_CURVE_NAME, FORWARD_YIELD_CURVE);
     CURVE_BUNDLE_YIELD = new YieldCurveBundle(curvesY);
@@ -102,7 +102,7 @@ public abstract class NodeSensitivityCalculatorTest {
 
     DISCOUNTING_DISCOUNTING_CURVE = DiscountCurve.from(InterpolatedDoublesCurve.fromSorted(dscCurveNodes, dscCurveDf, INTERPOLATOR_DQ));
     FORWARD_DISCOUNTING_CURVE = DiscountCurve.from(InterpolatedDoublesCurve.fromSorted(fwdCurveNodes, fwdCurveDf, INTERPOLATOR_CS));
-    final LinkedHashMap<String, YieldAndDiscountCurve> curvesDF = new LinkedHashMap<String, YieldAndDiscountCurve>();
+    final LinkedHashMap<String, YieldAndDiscountCurve> curvesDF = new LinkedHashMap<>();
     curvesDF.put(DISCOUNTING_CURVE_NAME, DISCOUNTING_DISCOUNTING_CURVE);
     curvesDF.put(FORWARD_CURVE_NAME, FORWARD_DISCOUNTING_CURVE);
     CURVE_BUNDLE_DISCOUNTING = new YieldCurveBundle(curvesDF);
@@ -138,7 +138,7 @@ public abstract class NodeSensitivityCalculatorTest {
   public void testWithKnownYieldCurve() {
     final YieldCurveBundle fixedCurve = new YieldCurveBundle();
     fixedCurve.setCurve(DISCOUNTING_CURVE_NAME, DISCOUNTING_YIELD_CURVE);
-    final LinkedHashMap<String, YieldAndDiscountCurve> fittingCurveMap = new LinkedHashMap<String, YieldAndDiscountCurve>();
+    final LinkedHashMap<String, YieldAndDiscountCurve> fittingCurveMap = new LinkedHashMap<>();
     fittingCurveMap.put(FORWARD_CURVE_NAME, FORWARD_YIELD_CURVE);
     final YieldCurveBundle fittingCurve = new YieldCurveBundle(fittingCurveMap);
     final InstrumentDerivativeVisitor<YieldCurveBundle, Double> valueCalculator = getValueCalculator();
@@ -152,7 +152,7 @@ public abstract class NodeSensitivityCalculatorTest {
   public void testWithKnownDiscountingCurve() {
     final YieldCurveBundle fixedCurve = new YieldCurveBundle();
     fixedCurve.setCurve(DISCOUNTING_CURVE_NAME, DISCOUNTING_DISCOUNTING_CURVE);
-    final LinkedHashMap<String, YieldAndDiscountCurve> fittingCurveMap = new LinkedHashMap<String, YieldAndDiscountCurve>();
+    final LinkedHashMap<String, YieldAndDiscountCurve> fittingCurveMap = new LinkedHashMap<>();
     fittingCurveMap.put(FORWARD_CURVE_NAME, FORWARD_DISCOUNTING_CURVE);
     final YieldCurveBundle fittingCurve = new YieldCurveBundle(fittingCurveMap);
     final InstrumentDerivativeVisitor<YieldCurveBundle, Double> valueCalculator = getValueCalculator();
@@ -256,4 +256,15 @@ public abstract class NodeSensitivityCalculatorTest {
     return grad.evaluate(new DoubleMatrix1D(df));
   }
 
+  protected InstrumentDerivative getSwap() {
+    return SWAP;
+  }
+
+  protected YieldCurveBundle getYieldCurve() {
+    return CURVE_BUNDLE_YIELD;
+  }
+
+  protected double getTolerance() {
+    return TOLERANCE_SENSI;
+  }
 }

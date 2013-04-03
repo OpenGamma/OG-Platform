@@ -47,7 +47,7 @@ import com.opengamma.util.time.DateUtils;
 public class CapFloorIborInArrearsReplicationMethodTest {
 
   // Euribor 6m
-  private static final Period TENOR = Period.of(6, MONTHS);
+  private static final Period TENOR = Period.ofMonths(6);
   private static final int SETTLEMENT_DAYS = 2;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final DayCount DAY_COUNT_INDEX = DayCountFactory.INSTANCE.getDayCount("Actual/360");
@@ -57,7 +57,7 @@ public class CapFloorIborInArrearsReplicationMethodTest {
   private static final IborIndex INDEX = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM);
   // Dates
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 6, 7);
-  private static final ZonedDateTime START_ACCRUAL_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.of(9, YEARS), BUSINESS_DAY, CALENDAR, IS_EOM);
+  private static final ZonedDateTime START_ACCRUAL_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.ofYears(9), BUSINESS_DAY, CALENDAR, IS_EOM);
   private static final ZonedDateTime END_ACCRUAL_DATE = ScheduleCalculator.getAdjustedDate(START_ACCRUAL_DATE, TENOR, BUSINESS_DAY, CALENDAR, IS_EOM);
   private static final double ACCRUAL_FACTOR = DAY_COUNT_INDEX.getDayCountFraction(START_ACCRUAL_DATE, END_ACCRUAL_DATE);
   private static final ZonedDateTime FIXING_DATE = ScheduleCalculator.getAdjustedDate(END_ACCRUAL_DATE, -SETTLEMENT_DAYS, CALENDAR);
@@ -102,12 +102,12 @@ public class CapFloorIborInArrearsReplicationMethodTest {
    */
   public void persentValueSABRExtrapolation() {
     final CapFloorIbor capStandard = new CapFloorIbor(CUR, CAP_LONG.getFixingPeriodEndTime(), FUNDING_CURVE_NAME, CAP_LONG.getPaymentYearFraction(), NOTIONAL, CAP_LONG.getFixingTime(), INDEX,
-        CAP_LONG.getFixingPeriodStartTime(), CAP_LONG.getFixingPeriodEndTime(), CAP_LONG.getFixingYearFraction(), FORWARD_CURVE_NAME, STRIKE, IS_CAP);
+        CAP_LONG.getFixingPeriodStartTime(), CAP_LONG.getFixingPeriodEndTime(), CAP_LONG.getFixingAccrualFactor(), FORWARD_CURVE_NAME, STRIKE, IS_CAP);
     final double priceStandard = capStandard.accept(PVC, SABR_BUNDLE);
     final double beta = CURVES.getCurve(FORWARD_CURVE_NAME).getDiscountFactor(CAP_LONG.getFixingPeriodStartTime())
         / CURVES.getCurve(FORWARD_CURVE_NAME).getDiscountFactor(CAP_LONG.getFixingPeriodEndTime()) * CURVES.getCurve(FUNDING_CURVE_NAME).getDiscountFactor(CAP_LONG.getFixingPeriodEndTime())
         / CURVES.getCurve(FUNDING_CURVE_NAME).getDiscountFactor(CAP_LONG.getFixingPeriodStartTime());
-    final double strikePart = (1.0 + CAP_LONG.getFixingYearFraction() * STRIKE) * priceStandard;
+    final double strikePart = (1.0 + CAP_LONG.getFixingAccrualFactor() * STRIKE) * priceStandard;
     final RungeKuttaIntegrator1D integrator = new RungeKuttaIntegrator1D(1.0, 1E-8, 10);
     final InArrearsIntegrant integrant = new InArrearsIntegrant(METHOD_SABREXTRA_STD, capStandard, SABR_BUNDLE);
     double integralPart;
@@ -116,7 +116,7 @@ public class CapFloorIborInArrearsReplicationMethodTest {
     } catch (final Exception e) {
       throw new RuntimeException(e);
     }
-    integralPart *= 2.0 * CAP_LONG.getFixingYearFraction();
+    integralPart *= 2.0 * CAP_LONG.getFixingAccrualFactor();
     final CurrencyAmount price = METHOD_SABREXTRA_CAP_IA.presentValue(CAP_LONG, SABR_BUNDLE);
     final double priceExpected = (strikePart + integralPart) / beta;
     assertEquals("Cap/floor IA - SABR pricing", priceExpected, price.getAmount(), 1E+0);

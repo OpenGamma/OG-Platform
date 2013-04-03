@@ -152,7 +152,7 @@ $.register_module({
                             depgraph = val.gadget.config.options.source.depgraph,
                             tmpl_data = og.common.gadgets.mapping.available_types(val.data_type, depgraph);
                         menu_template = typemenu_template(tmpl_data);
-                        menu_config = {$cntr: $('.og-tab-' + val.id + ' .OG-multiselect'), tmpl: menu_template};
+                        menu_config = {cntr: $('.og-tab-' + val.id + ' .OG-multiselect'), tmpl: menu_template};
                         menu = new og.common.util.ui.DropMenu(menu_config);
                         menu.$dom.toggle.on('mousedown', function () {
                             menu.toggle_handler();
@@ -174,8 +174,7 @@ $.register_module({
                                 col_name: val.gadget.config.col_name, data_type: val.gadget.config.data_type,
                                 row_name: val.gadget.config.row_name
                             };
-                            if (false !== container.fire('swap', swap_config, val.gadget_index))
-                                container.add([swap_config], val.gadget_index, true);
+                            container.swap(swap_config, val.gadget_index);
                             return false;
                         });
                         menu.$dom.toggle.html($icon);
@@ -194,7 +193,7 @@ $.register_module({
              *     obj.name     String
              *     obj.margin   Boolean
              */
-            container.add = function (data, index, swap) {
+            container.add = function (data, index) {
                 var panel_container = selector + ' .OG-gadget-container', new_gadgets;
                 if (!loading && !initialized)
                     return container.init(), setTimeout(container.add.partial(data, index), 10), container;
@@ -203,13 +202,14 @@ $.register_module({
                 if (!selector) throw new TypeError('GadgetsContainer has not been initialized');
                 new_gadgets = data.map(function (obj, idx) {
                     var id, gadget_class = 'OG-gadget-' + (id = counter++), gadget,
-                        options = $.extend(true, obj.options || {}, {selector: panel_container + ' .' + gadget_class}),
+                        options = JSON.parse(JSON.stringify(obj.options)), // make a copy
                         constructor = obj.gadget.split('.').reduce(function (acc, val) {return acc[val];}, window),
                         type = obj.gadget.replace(/^[a-z0-9.-_]+\.([a-z0-9.-_]+?)$/, '$1').toLowerCase();
                     $(panel_container).append('<div class="' + gadget_class + '" />').find('.' + gadget_class).css({
                         position: 'absolute', top: 0, bottom: 0, left: 0, right: 0,
                         display: idx === data.length - 1 ? 'block' : 'none'
                     });
+                    options.selector = panel_container + ' .' + gadget_class;
                     gadget = {id: id, config: obj, type: type, gadget: new constructor(options)};
                     if (typeof index === 'number') {
                         if (gadgets[index]) {
@@ -218,10 +218,9 @@ $.register_module({
                         }
                         gadgets.splice(index, 1, gadget);
                     } else gadgets.push(gadget);
-                    if (obj.fingerprint) gadget.fingerprint = obj.fingerprint;
                     return gadget;
                 });
-                if (!swap) update_tabs(new_gadgets[new_gadgets.length - 1].id);
+                update_tabs(new_gadgets[new_gadgets.length - 1].id);
                 return container;
             };
             container.alive = function () {
@@ -236,8 +235,8 @@ $.register_module({
                 id = gadgets.length
                     ? live_id === obj.id ? gadgets[gadgets.length - 1].id : live_id
                     : null;
-                if (!silent && id) gadgets[extract_index(id)].gadget.resize();
                 update_tabs(id); // new active tab or empty
+                if (!silent && id) gadgets[extract_index(id)].gadget.resize();
                 if (!silent) container.fire('del', index);
             };
             container.gadgets = function () {return gadgets;};
@@ -297,16 +296,13 @@ $.register_module({
                             var has_ancestor = function (elm, sel) {return $(elm).closest('.' + sel).length;},
                                 pane_class = class_prefix + pane,
                                 overflow_class = 'og-js-overflow-' + pane,
-                                data = ui.draggable.data(),
-                                gadget = data.gadget().config.options,
-                                re = new RegExp(selector_prefix + '(.*?)\\s');
+                                data = ui.draggable.data();
                             if (has_ancestor(ui.draggable, pane_class) || has_ancestor(ui.draggable, overflow_class)) {
                                 ui.draggable.draggable('option', 'revert', true);
                             } else {
                                 ui.draggable.draggable('option', 'revert', false);
-                                gadget.selector = gadget.selector.replace(re, selector_prefix + pane + ' ');
                                 if (false !== container.fire('drop', data.gadget().config, data.source))
-                                    container.add([data.gadget.config]);
+                                    container.add([data.gadget().config]);
                                 setTimeout(data.handler); // setTimeout to ensure handler is called after drag evt ends
                             }
                         }
@@ -324,14 +320,16 @@ $.register_module({
                     }
                 });
             };
-            container.verify = function (fingerprints) {
-                if (!initialized) return setTimeout(container.verify.partial(fingerprints), 10), container;
-                var gadget_prints = gadgets.pluck('fingerprint'), keep;
-                keep = (fingerprints || []).map(function (fingerprint) {
-                    var index;
-                    if (!fingerprint) return null;
-                    if (~(index = gadget_prints.indexOf(fingerprint))) return index; else return null;
-                }).reduce(function (acc, val) {if (val !== null) acc[val] = null; return acc;}, {});
+            container.swap = function (config, index) {
+                container.add([config], index);
+                container.fire('swap', config, index);
+            };
+            container.verify = function (new_gadgets) {
+                if (!initialized) return setTimeout(container.verify.partial(new_gadgets), 10), container;
+                var keep = gadgets.pluck('config').reduce(function (acc, cfg, idx) {
+                    if (new_gadgets.some(function (gadget) {return Object.equals(cfg, gadget);})) acc[idx] = null;
+                    return acc;
+                }, {});
                 gadgets.forEach(function (gadget, index) {if (!(index in keep)) container.del(gadgets[index], true);});
                 return container;
             };

@@ -23,7 +23,7 @@ import com.opengamma.analytics.financial.credit.collateralmodel.CollateralRoundi
 import com.opengamma.analytics.financial.credit.collateralmodel.CollateralType;
 import com.opengamma.analytics.financial.credit.collateralmodel.CreditSupportAnnexDefinition;
 import com.opengamma.analytics.financial.credit.collateralmodel.MarginCallFrequency;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyCollateralisedVanillaCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyCollateralizedVanillaCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.obligor.CreditRating;
 import com.opengamma.analytics.financial.credit.obligor.CreditRatingFitch;
@@ -324,6 +324,8 @@ public class PresentValueLegacyCollateralisedCreditDefaultSwapTest {
 
   // Hazard rate term structure (assume this has been calibrated previously)
 
+  static ZonedDateTime[] hazardRateDates = {zdt(2013, 06, 20, 0, 0, 0, 0, ZoneOffset.UTC), zdt(2015, 06, 20, 0, 0, 0, 0, ZoneOffset.UTC), zdt(2018, 06, 20, 0, 0, 0, 0, ZoneOffset.UTC) };
+
   static double[] hazardRateTimes = {
       0.0,
       s_act365.getDayCountFraction(valuationDate, zdt(2013, 06, 20, 0, 0, 0, 0, ZoneOffset.UTC)),
@@ -339,7 +341,7 @@ public class PresentValueLegacyCollateralisedCreditDefaultSwapTest {
   };
 
   // Build the hazard rate curve object (No offset - survival probability = 1 on valuationDate)
-  private static final HazardRateCurve hazardRateCurve = new HazardRateCurve(hazardRateTimes, hazardRates, 0.0);
+  private static final HazardRateCurve hazardRateCurve = new HazardRateCurve(hazardRateDates, hazardRateTimes, hazardRates, 0.0);
 
   private static final HazardRateCurve sovereignHazardRateCurve = hazardRateCurve;
   private static final HazardRateCurve muniHazardRateCurve = hazardRateCurve;
@@ -440,7 +442,7 @@ public class PresentValueLegacyCollateralisedCreditDefaultSwapTest {
 
   // Construct a set of CDS contracts for each type of CDS contract
 
-  private static final LegacyCollateralisedVanillaCreditDefaultSwapDefinition legacyVanillaCDS = new LegacyCollateralisedVanillaCreditDefaultSwapDefinition(
+  private static final LegacyCollateralizedVanillaCreditDefaultSwapDefinition legacyVanillaCDS = new LegacyCollateralizedVanillaCreditDefaultSwapDefinition(
       buySellProtection,
       protectionBuyer,
       protectionSeller,

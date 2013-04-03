@@ -21,6 +21,9 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
 import com.opengamma.financial.property.DefaultPropertyFunction;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdentifiable;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Triple;
 
@@ -60,11 +63,15 @@ public class EquityForwardCurvePerTickerDefaults extends DefaultPropertyFunction
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    final String equityId = EquitySecurityUtils.getIndexOrEquityName(target.getUniqueId());
-    if (equityId == null) {
+    if (!(target.getValue() instanceof ExternalIdentifiable)) {
       return false;
     }
-    return _perEquityConfig.containsKey(equityId.toUpperCase());
+    ExternalId id = ((ExternalIdentifiable) target.getValue()).getExternalId();
+    final String ticker = EquitySecurityUtils.getIndexOrEquityName(id);
+    if (ticker == null) {
+      return false;
+    }
+    return _perEquityConfig.containsKey(ticker.toUpperCase());
   }
 
   @Override
@@ -79,7 +86,7 @@ public class EquityForwardCurvePerTickerDefaults extends DefaultPropertyFunction
   @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue,
       final String propertyName) {
-    final String equityId = EquitySecurityUtils.getIndexOrEquityName(target.getUniqueId());
+    final String equityId = EquitySecurityUtils.getIndexOrEquityName(((ExternalIdentifiable) target.getValue()).getExternalId());
     if (!_perEquityConfig.containsKey(equityId)) {
       s_logger.error("Could not get config for equity " + equityId + "; should never happen");
       return null;

@@ -12,12 +12,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import net.sf.ehcache.CacheManager;
+
 import org.fudgemsg.FudgeMsg;
 
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.livedata.normalization.StandardRules;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
@@ -32,12 +33,12 @@ public class MockLiveDataServer extends StandardLiveDataServer {
   private volatile int _numDisconnections; // = 0;
   private final Map<String, FudgeMsg> _uniqueId2MarketData;
 
-  public MockLiveDataServer(ExternalScheme domain) {
-    this(domain, new ConcurrentHashMap<String, FudgeMsg>());
+  public MockLiveDataServer(ExternalScheme domain, CacheManager cacheManager) {
+    this(domain, new ConcurrentHashMap<String, FudgeMsg>(), cacheManager);
   }
 
-  public MockLiveDataServer(ExternalScheme domain, Map<String, FudgeMsg> uniqueId2Snapshot) {
-    super(EHCacheUtils.createCacheManager());
+  public MockLiveDataServer(ExternalScheme domain, Map<String, FudgeMsg> uniqueId2Snapshot, CacheManager cacheManager) {
+    super(cacheManager);
     ArgumentChecker.notNull(domain, "Identification domain");
     ArgumentChecker.notNull(uniqueId2Snapshot, "Snapshot map");
     _domain = domain;

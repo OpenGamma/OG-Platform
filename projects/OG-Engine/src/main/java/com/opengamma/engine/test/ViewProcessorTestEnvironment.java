@@ -16,7 +16,16 @@ import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.InMemorySecuritySource;
+import com.opengamma.engine.cache.InMemoryViewComputationCacheSource;
+import com.opengamma.engine.calcnode.CalculationNodeLogEventListener;
+import com.opengamma.engine.calcnode.JobDispatcher;
+import com.opengamma.engine.calcnode.LocalNodeJobInvoker;
+import com.opengamma.engine.calcnode.SimpleCalculationNode;
+import com.opengamma.engine.calcnode.stats.DiscardingInvocationStatisticsGatherer;
 import com.opengamma.engine.depgraph.DependencyGraphBuilderFactory;
+import com.opengamma.engine.exec.DependencyGraphExecutorFactory;
+import com.opengamma.engine.exec.ExecutionResult;
+import com.opengamma.engine.exec.SingleNodeExecutorFactory;
 import com.opengamma.engine.function.CachingFunctionRepositoryCompiler;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -30,29 +39,21 @@ import com.opengamma.engine.marketdata.InMemoryNamedMarketDataSpecificationRepos
 import com.opengamma.engine.marketdata.MarketDataProvider;
 import com.opengamma.engine.marketdata.resolver.MarketDataProviderResolver;
 import com.opengamma.engine.marketdata.resolver.SingleMarketDataProviderResolver;
+import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewCalculationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
-import com.opengamma.engine.view.ViewProcessImpl;
 import com.opengamma.engine.view.ViewProcessorFactoryBean;
-import com.opengamma.engine.view.ViewProcessorImpl;
 import com.opengamma.engine.view.ViewResultModel;
-import com.opengamma.engine.view.cache.InMemoryViewComputationCacheSource;
-import com.opengamma.engine.view.calc.DependencyGraphExecutorFactory;
-import com.opengamma.engine.view.calc.ExecutionResult;
-import com.opengamma.engine.view.calc.SingleNodeExecutorFactory;
-import com.opengamma.engine.view.calc.ViewComputationJob;
-import com.opengamma.engine.view.calc.ViewResultListenerFactory;
-import com.opengamma.engine.view.calcnode.CalculationNodeLogEventListener;
-import com.opengamma.engine.view.calcnode.JobDispatcher;
-import com.opengamma.engine.view.calcnode.LocalNodeJobInvoker;
-import com.opengamma.engine.view.calcnode.SimpleCalculationNode;
-import com.opengamma.engine.view.calcnode.stats.DiscardingInvocationStatisticsGatherer;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphsImpl;
 import com.opengamma.engine.view.compilation.ViewCompilationServices;
 import com.opengamma.engine.view.compilation.ViewDefinitionCompiler;
+import com.opengamma.engine.view.impl.ViewProcessImpl;
+import com.opengamma.engine.view.impl.ViewProcessorImpl;
+import com.opengamma.engine.view.listener.ViewResultListenerFactory;
 import com.opengamma.engine.view.permission.DefaultViewPermissionProvider;
+import com.opengamma.engine.view.worker.ViewProcessWorker;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.UserPrincipal;
@@ -115,7 +116,7 @@ public class ViewProcessorTestEnvironment {
     compiledFunctions.initialize();
     vpFactBean.setFunctionCompilationService(compiledFunctions);
 
-    final MarketDataProviderResolver marketDataProviderResolver = getMarketDataProviderResolver() != null ? getMarketDataProviderResolver() : generateMarketDataProviderResolver(securitySource);
+    final MarketDataProviderResolver marketDataProviderResolver = getMarketDataProviderResolver() != null ? getMarketDataProviderResolver() : generateMarketDataProviderResolver();
     vpFactBean.setMarketDataProviderResolver(marketDataProviderResolver);
 
     vpFactBean.setConfigSource(configSource);
@@ -142,7 +143,7 @@ public class ViewProcessorTestEnvironment {
       throw new IllegalStateException(ViewProcessorTestEnvironment.class.getName() + " has not been initialised");
     }
     final ViewCompilationServices compilationServices = new ViewCompilationServices(
-        getMarketDataProvider().getAvailabilityProvider(),
+        getMarketDataProvider().getAvailabilityProvider(MarketData.live()),
         getFunctionResolver(),
         getFunctionCompilationContext(),
         getViewProcessor().getFunctionCompilationService().getExecutorService(),
@@ -204,8 +205,8 @@ public class ViewProcessorTestEnvironment {
     _marketDataProvider = marketDataProvider;
   }
 
-  private MarketDataProvider generateMarketDataProvider(final SecuritySource securitySource) {
-    final InMemoryLKVMarketDataProvider provider = new InMemoryLKVMarketDataProvider(securitySource);
+  private MarketDataProvider generateMarketDataProvider() {
+    final InMemoryLKVMarketDataProvider provider = new InMemoryLKVMarketDataProvider();
     provider.addValue(getPrimitive1(), 0);
     provider.addValue(getPrimitive2(), 0);
     setMarketDataProvider(provider);
@@ -221,8 +222,8 @@ public class ViewProcessorTestEnvironment {
     _marketDataProviderResolver = marketDataProviderResolver;
   }
 
-  private MarketDataProviderResolver generateMarketDataProviderResolver(final SecuritySource securitySource) {
-    final MarketDataProvider marketDataProvider = getMarketDataProvider() != null ? getMarketDataProvider() : generateMarketDataProvider(securitySource);
+  private MarketDataProviderResolver generateMarketDataProviderResolver() {
+    final MarketDataProvider marketDataProvider = getMarketDataProvider() != null ? getMarketDataProvider() : generateMarketDataProvider();
     final MarketDataProviderResolver resolver = new SingleMarketDataProviderResolver(marketDataProvider);
     setMarketDataProviderResolver(resolver);
     return resolver;
@@ -341,12 +342,8 @@ public class ViewProcessorTestEnvironment {
     return viewProcessor.getViewProcessForClient(viewClientId);
   }
 
-  public ViewComputationJob getCurrentComputationJob(final ViewProcessImpl viewProcess) {
-    return viewProcess.getComputationJob();
-  }
-
-  public Thread getCurrentComputationThread(final ViewProcessImpl viewProcess) {
-    return viewProcess.getComputationThread();
+  public ViewProcessWorker getCurrentWorker(final ViewProcessImpl viewProcess) {
+    return viewProcess.getWorker();
   }
 
   public static ComputationTargetSpecification getPrimitiveTarget() {

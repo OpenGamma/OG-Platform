@@ -8,8 +8,8 @@ package com.opengamma.web.analytics;
 import java.util.List;
 
 import com.opengamma.engine.view.ViewResultModel;
-import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
+import com.opengamma.engine.view.cycle.ViewCycle;
 
 /**
  * <p>This is the top level object of the back-end of the the analytics user interface. A view displays analytics data
@@ -178,4 +178,8 @@ public interface AnalyticsView {
    * @return The current data for the viewport.
    */
   ViewportResults getData(GridType gridType, int graphId, int viewportId);
+
+  List<String> entityChanged(MasterChangeNotification<?> notification);
+
+  List<String> portfolioChanged();
 }

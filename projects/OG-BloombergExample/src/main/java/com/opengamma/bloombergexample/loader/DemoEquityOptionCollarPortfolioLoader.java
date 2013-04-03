@@ -62,7 +62,6 @@ import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.util.generate.scripts.Scriptable;
-import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -84,7 +83,7 @@ public class DemoEquityOptionCollarPortfolioLoader extends AbstractTool<Integrat
   private static final Map<String, String> INDEXES_TO_EXCHANGE = getIndexToExchangeMap();
   private static final Set<String> EXCLUDED_SECTORS = Sets.newHashSet("Financials");
 
-  private static final Period[] MEMBER_OPTION_PERIODS = new Period[] {DateUtils.periodOfMonths(3), DateUtils.periodOfMonths(6) };
+  private static final Period[] MEMBER_OPTION_PERIODS = new Period[] {Period.ofMonths(3), Period.ofMonths(6) };
 
   private BigDecimal _numContracts;
   private int _numOptions;
@@ -111,7 +110,7 @@ public class DemoEquityOptionCollarPortfolioLoader extends AbstractTool<Integrat
   //-------------------------------------------------------------------------
   /**
    * Main method to run the tool. No arguments are needed.
-   *
+   * 
    * @param args the arguments, unused
    */
   public static void main(final String[] args) { // CSIGNORE
@@ -181,11 +180,15 @@ public class DemoEquityOptionCollarPortfolioLoader extends AbstractTool<Integrat
     int count = 0;
     final List<String> chosenEquities = new ArrayList<String>();
     for (final Entry<Double, String> entry : equityByMarketCap.descendingMap().entrySet()) {
-      if (count++ >= _numMembers) {
-        break;
+      try {
+        addNodes(rootNode, entry.getValue(), true, MEMBER_OPTION_PERIODS);
+        chosenEquities.add(entry.getValue());
+        if (++count >= _numMembers) {
+          break;
+        }
+      } catch (RuntimeException e) {
+        s_logger.warn("Caught exception", e);
       }
-      addNodes(rootNode, entry.getValue(), true, MEMBER_OPTION_PERIODS);
-      chosenEquities.add(entry.getValue());
     }
     s_logger.info("Generated collar portfolio for {}", chosenEquities);
     return portfolio;
@@ -255,7 +258,7 @@ public class DemoEquityOptionCollarPortfolioLoader extends AbstractTool<Integrat
       s_logger.info("Using time {} for bucket {} ({})", new Object[] {chosenExpiry, bucketPeriod, targetExpiry });
 
       final Set<BloombergTickerParserEQOption> optionsAtExpiry = optionsByExpiry.get(chosenExpiry);
-      final TreeMap<Double, Pair<BloombergTickerParserEQOption, BloombergTickerParserEQOption>> optionsByStrike = new TreeMap<Double, Pair<BloombergTickerParserEQOption, BloombergTickerParserEQOption>>();
+      final TreeMap<Double, Pair<BloombergTickerParserEQOption, BloombergTickerParserEQOption>> optionsByStrike = new TreeMap<>();
       for (final BloombergTickerParserEQOption option : optionsAtExpiry) {
         //        s_logger.info("option {}", option);
         final double key = option.getStrike();
@@ -496,7 +499,8 @@ public class DemoEquityOptionCollarPortfolioLoader extends AbstractTool<Integrat
       }
     }
     final ExternalIdBundle searchBundle = idBundle.withoutScheme(ExternalSchemes.ISIN); // For things which move country, e.g. ISIN(VALE5 BZ Equity) == ISIN(RIODF US Equity)
-    final Map<ExternalId, UniqueId> timeSeries = getToolContext().getHistoricalTimeSeriesLoader().addTimeSeries(searchBundle.getExternalIds(), "UNKNOWN", "PX_LAST", LocalDate.now().minusYears(1), null);
+    final Map<ExternalId, UniqueId> timeSeries = getToolContext().getHistoricalTimeSeriesLoader()
+        .loadTimeSeries(searchBundle.getExternalIds(), "UNKNOWN", "PX_LAST", LocalDate.now().minusYears(1), null);
     if (timeSeries.size() != 1) {
       throw new OpenGammaRuntimeException("Failed to load time series " + idBundle + " " + timeSeries);
     }
@@ -550,7 +554,7 @@ public class DemoEquityOptionCollarPortfolioLoader extends AbstractTool<Integrat
   private ManageableSecurity loadSecurity(final ExternalId ticker) {
     final ExternalIdBundle tickerBundle = ExternalIdBundle.of(ticker);
     final Collection<ExternalIdBundle> bundles = Collections.singleton(tickerBundle);
-    final Map<ExternalIdBundle, UniqueId> loaded = getToolContext().getSecurityLoader().loadSecurity(bundles);
+    final Map<ExternalIdBundle, UniqueId> loaded = getToolContext().getSecurityLoader().loadSecurities(bundles);
     final UniqueId loadedSec = loaded.get(tickerBundle);
     if (loadedSec == null) {
       throw new OpenGammaRuntimeException("Failed to load security for " + ticker);
@@ -560,7 +564,7 @@ public class DemoEquityOptionCollarPortfolioLoader extends AbstractTool<Integrat
 
   /**
    * Stores the portfolio.
-   *
+   * 
    * @param portfolio the portfolio, not null
    */
   private void storePortfolio(final ManageablePortfolio portfolio) {

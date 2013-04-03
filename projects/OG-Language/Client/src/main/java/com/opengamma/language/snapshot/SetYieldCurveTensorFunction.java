@@ -12,7 +12,9 @@ import java.util.List;
 import java.util.Map;
 
 import com.opengamma.core.marketdatasnapshot.ValueSnapshot;
+import com.opengamma.core.marketdatasnapshot.impl.ManageableUnstructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableYieldCurveSnapshot;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.language.Value;
 import com.opengamma.language.context.SessionContext;
 import com.opengamma.language.definition.Categories;
@@ -54,9 +56,11 @@ public class SetYieldCurveTensorFunction extends AbstractFunctionInvoker impleme
 
   public static ManageableYieldCurveSnapshot invoke(final ManageableYieldCurveSnapshot snapshot, final Value[] overrideValue, final Value[] marketValue) {
     int i = 0;
-    for (Map<String, ValueSnapshot> entries : snapshot.getValues().getValues().values()) {
+    final ManageableUnstructuredMarketDataSnapshot values = snapshot.getValues();
+    for (final ExternalIdBundle target : values.getTargets()) {
+      final Map<String, ValueSnapshot> entries = values.getTargetValues(target);
       if (marketValue != null) {
-        for (Map.Entry<String, ValueSnapshot> entry : new ArrayList<Map.Entry<String, ValueSnapshot>>(entries.entrySet())) {
+        for (final Map.Entry<String, ValueSnapshot> entry : new ArrayList<Map.Entry<String, ValueSnapshot>>(entries.entrySet())) {
           final Double override;
           if (overrideValue != null) {
             if (overrideValue.length < i) {
@@ -66,12 +70,12 @@ public class SetYieldCurveTensorFunction extends AbstractFunctionInvoker impleme
           } else {
             override = entry.getValue().getOverrideValue();
           }
-          entries.put(entry.getKey(), new ValueSnapshot(marketValue[i].getDoubleValue(), override));
+          values.putValue(target, entry.getKey(), new ValueSnapshot(marketValue[i].getDoubleValue(), override));
           i++;
         }
       } else {
         if (overrideValue != null) {
-          for (ValueSnapshot entry : entries.values()) {
+          for (final ValueSnapshot entry : entries.values()) {
             if (overrideValue.length < i) {
               throw new InvokeInvalidArgumentException(1, "Vector too short");
             }

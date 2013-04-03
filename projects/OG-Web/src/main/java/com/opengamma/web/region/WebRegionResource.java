@@ -65,7 +65,7 @@ public class WebRegionResource extends AbstractWebRegionResource {
     }
     
     FlexiBean out = createRootData();
-    return getFreemarker().build("regions/region.ftl", out);
+    return getFreemarker().build(HTML_DIR + "region.ftl", out);
   }
 
   @GET
@@ -83,7 +83,7 @@ public class WebRegionResource extends AbstractWebRegionResource {
     }
 
     FlexiBean out = createRootData();
-    return getFreemarker().build("regions/jsonregion.ftl", out);
+    return getFreemarker().build(JSON_DIR + "region.ftl", out);
   }
 
   //-------------------------------------------------------------------------
@@ -115,7 +115,7 @@ public class WebRegionResource extends AbstractWebRegionResource {
       if (regionClassification == null) {
         out.put("err_classificationMissing", true);
       }
-      String html = getFreemarker().build("regions/region-add.ftl", out);
+      String html = getFreemarker().build(HTML_DIR + "region-add.ftl", out);
       return Response.ok(html).build();
     }
     if (fullName == null) {
@@ -197,7 +197,7 @@ public class WebRegionResource extends AbstractWebRegionResource {
       if (regionClassification == null) {
         out.put("err_classificationMissing", true);
       }
-      String html = getFreemarker().build("regions/region-update.ftl", out);
+      String html = getFreemarker().build(HTML_DIR + "region-update.ftl", out);
       return Response.ok(html).build();
     }
     if (fullName == null) {

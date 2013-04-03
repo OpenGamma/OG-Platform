@@ -10,10 +10,12 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Test Currency.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class StandardCurrencyPairsTest {
 
   public void testCases() {

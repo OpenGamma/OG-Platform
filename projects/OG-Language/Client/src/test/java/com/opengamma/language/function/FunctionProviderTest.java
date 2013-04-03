@@ -17,7 +17,9 @@ import java.util.Set;
 
 import com.google.common.collect.Sets;
 import com.opengamma.language.debug.DebugFunctionLiteral;
+import com.opengamma.util.test.TestGroup;
 
+@Test(groups = TestGroup.UNIT)
 public class FunctionProviderTest {
 
   private class ExtFunctionProviderBean extends FunctionProviderBean {

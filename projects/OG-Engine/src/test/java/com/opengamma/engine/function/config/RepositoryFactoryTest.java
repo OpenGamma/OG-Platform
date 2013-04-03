@@ -20,6 +20,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.Lists;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.CachingFunctionRepositoryCompiler;
 import com.opengamma.engine.function.CompiledFunctionRepository;
@@ -30,32 +31,34 @@ import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
+import com.opengamma.engine.function.MarketDataAliasingFunction;
 import com.opengamma.engine.function.NoOpFunction;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * 
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class RepositoryFactoryTest {
 
   public static class MockEmptyFunction extends AbstractFunction.NonCompiledInvoker {
 
     @Override
-    public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
+    public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
       return false;
     }
 
     @Override
-    public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, final ValueRequirement desiredValue) {
+    public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
       return null;
     }
 
     @Override
-    public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
+    public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
       return null;
     }
 
@@ -70,7 +73,7 @@ public class RepositoryFactoryTest {
     }
 
     @Override
-    public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) {
+    public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
       return null;
     }
 
@@ -79,7 +82,7 @@ public class RepositoryFactoryTest {
   public static class MockSingleArgumentFunction extends MockEmptyFunction {
     private final String _param;
 
-    public MockSingleArgumentFunction(String param) {
+    public MockSingleArgumentFunction(final String param) {
       _param = param;
     }
 
@@ -92,7 +95,7 @@ public class RepositoryFactoryTest {
     private final String _param1;
     private final String _param2;
 
-    public MockMultiArgumentFunctionIndividualParameterForm(String param1, String param2) {
+    public MockMultiArgumentFunctionIndividualParameterForm(final String param1, final String param2) {
       _param1 = param1;
       _param2 = param2;
     }
@@ -110,7 +113,7 @@ public class RepositoryFactoryTest {
   public static class MockMultiArgumentFunctionArrayForm extends MockEmptyFunction {
     private final String[] _params;
 
-    public MockMultiArgumentFunctionArrayForm(String... strings) {
+    public MockMultiArgumentFunctionArrayForm(final String... strings) {
       _params = strings;
     }
 
@@ -128,10 +131,11 @@ public class RepositoryFactoryTest {
     final RepositoryConfiguration configuration = new RepositoryConfiguration();
     final InMemoryFunctionRepository repo = RepositoryFactory.constructRepository(configuration);
     assertNotNull(repo);
-    assertEquals(repo.getAllFunctions().size(), 1);
-    final FunctionDefinition definition = repo.getAllFunctions().iterator().next();
-    assertTrue(definition instanceof NoOpFunction);
-    assertNotNull(definition.getUniqueId());
+    assertEquals(repo.getAllFunctions().size(), RepositoryFactory.INTRINSIC_FUNCTION_COUNT);
+    for (final FunctionDefinition definition : repo.getAllFunctions()) {
+      assertTrue((definition instanceof NoOpFunction) || (definition instanceof MarketDataAliasingFunction));
+      assertNotNull(definition.getUniqueId());
+    }
   }
 
   public void singleConfigurationNoArgs() {
@@ -141,16 +145,18 @@ public class RepositoryFactoryTest {
     assertNotNull(repo);
     final Collection<FunctionDefinition> definitions = repo.getAllFunctions();
     assertNotNull(definitions);
-    assertEquals(2, definitions.size());
+    assertEquals(RepositoryFactory.INTRINSIC_FUNCTION_COUNT + 1, definitions.size());
     FunctionDefinition definition = null;
-    for (FunctionDefinition d : definitions) {
+    for (final FunctionDefinition d : definitions) {
       if (d instanceof MockEmptyFunction) {
         assertNotNull(d.getUniqueId());
         definition = d;
       }
     }
     assertNotNull(definition);
-    final CompiledFunctionService cfs = new CompiledFunctionService(repo, new CachingFunctionRepositoryCompiler(), new FunctionCompilationContext());
+    final FunctionCompilationContext context = new FunctionCompilationContext();
+    context.setRawComputationTargetResolver(new DefaultComputationTargetResolver());
+    final CompiledFunctionService cfs = new CompiledFunctionService(repo, new CachingFunctionRepositoryCompiler(), context);
     cfs.initialize();
     final CompiledFunctionRepository compiledRepo = cfs.compileFunctionRepository(System.currentTimeMillis());
     assertNotNull(compiledRepo.getDefinition(definition.getUniqueId()));
@@ -171,19 +177,19 @@ public class RepositoryFactoryTest {
 
     final Collection<FunctionDefinition> definitions = repo.getAllFunctions();
     assertNotNull(definitions);
-    assertEquals(4, definitions.size());
-    for (FunctionDefinition definition : definitions) {
+    assertEquals(RepositoryFactory.INTRINSIC_FUNCTION_COUNT + 3, definitions.size());
+    for (final FunctionDefinition definition : definitions) {
       if (definition instanceof MockSingleArgumentFunction) {
-        MockSingleArgumentFunction single = (MockSingleArgumentFunction) definition;
+        final MockSingleArgumentFunction single = (MockSingleArgumentFunction) definition;
         assertEquals("foo", single.getParam());
       } else if (definition instanceof MockMultiArgumentFunctionArrayForm) {
-        MockMultiArgumentFunctionArrayForm multi = (MockMultiArgumentFunctionArrayForm) definition;
+        final MockMultiArgumentFunctionArrayForm multi = (MockMultiArgumentFunctionArrayForm) definition;
         assertEquals(Arrays.asList("foo1", "foo2"), Arrays.asList(multi.getParams()));
       } else if (definition instanceof MockMultiArgumentFunctionIndividualParameterForm) {
-        MockMultiArgumentFunctionIndividualParameterForm multi = (MockMultiArgumentFunctionIndividualParameterForm) definition;
+        final MockMultiArgumentFunctionIndividualParameterForm multi = (MockMultiArgumentFunctionIndividualParameterForm) definition;
         assertEquals("bar1", multi.getParam1());
         assertEquals("bar2", multi.getParam2());
-      } else if (definition instanceof NoOpFunction) {
+      } else if ((definition instanceof NoOpFunction) || (definition instanceof MarketDataAliasingFunction)) {
         // Ignore
       } else {
         Assert.fail("Unexpected type of definition " + definition);

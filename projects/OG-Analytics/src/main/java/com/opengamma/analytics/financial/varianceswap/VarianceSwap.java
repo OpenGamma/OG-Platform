@@ -228,10 +228,7 @@ public class VarianceSwap implements InstrumentDerivative {
     if (this == obj) {
       return true;
     }
-    if (obj == null) {
-      return false;
-    }
-    if (getClass() != obj.getClass()) {
+    if (!(obj instanceof VarianceSwap)) {
       return false;
     }
     final VarianceSwap other = (VarianceSwap) obj;

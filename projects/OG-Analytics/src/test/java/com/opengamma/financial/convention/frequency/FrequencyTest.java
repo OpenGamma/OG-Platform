@@ -30,7 +30,7 @@ public class FrequencyTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullName2() {
-    new PeriodFrequency(null, Period.of(2, DAYS));
+    new PeriodFrequency(null, Period.ofDays(2));
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -58,15 +58,15 @@ public class FrequencyTest {
 
   @Test
   public void testPredefinedPeriodFrequencies() {
-    assertEquals(PeriodFrequency.ANNUAL.getPeriod(), Period.of(1, YEARS));
-    assertEquals(PeriodFrequency.BIMONTHLY.getPeriod(), Period.of(2, MONTHS));
-    assertEquals(PeriodFrequency.BIWEEKLY.getPeriod(), Period.of(14, DAYS));
+    assertEquals(PeriodFrequency.ANNUAL.getPeriod(), Period.ofYears(1));
+    assertEquals(PeriodFrequency.BIMONTHLY.getPeriod(), Period.ofMonths(2));
+    assertEquals(PeriodFrequency.BIWEEKLY.getPeriod(), Period.ofDays(14));
     assertEquals(PeriodFrequency.CONTINUOUS.getPeriod(), Period.ZERO);
-    assertEquals(PeriodFrequency.DAILY.getPeriod(), Period.of(1, DAYS));
-    assertEquals(PeriodFrequency.MONTHLY.getPeriod(), Period.of(1, MONTHS));
-    assertEquals(PeriodFrequency.QUARTERLY.getPeriod(), Period.of(3, MONTHS));
-    assertEquals(PeriodFrequency.SEMI_ANNUAL.getPeriod(), Period.of(6, MONTHS));
-    assertEquals(PeriodFrequency.WEEKLY.getPeriod(), Period.of(7, DAYS));
+    assertEquals(PeriodFrequency.DAILY.getPeriod(), Period.ofDays(1));
+    assertEquals(PeriodFrequency.MONTHLY.getPeriod(), Period.ofMonths(1));
+    assertEquals(PeriodFrequency.QUARTERLY.getPeriod(), Period.ofMonths(3));
+    assertEquals(PeriodFrequency.SEMI_ANNUAL.getPeriod(), Period.ofMonths(6));
+    assertEquals(PeriodFrequency.WEEKLY.getPeriod(), Period.ofDays(7));
   }
 
   @Test

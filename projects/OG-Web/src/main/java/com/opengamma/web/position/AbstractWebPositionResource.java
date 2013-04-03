@@ -27,7 +27,14 @@ import com.opengamma.web.security.WebSecuritiesUris;
  * Abstract base class for RESTful position resources.
  */
 public abstract class AbstractWebPositionResource extends AbstractPerRequestWebResource {
-
+  /**
+   * HTML ftl directory
+   */
+  protected static final String HTML_DIR = "positions/html/";
+  /**
+   * JSON ftl directory
+   */
+  protected static final String JSON_DIR = "positions/json/";
   /**
    * The backing bean.
    */

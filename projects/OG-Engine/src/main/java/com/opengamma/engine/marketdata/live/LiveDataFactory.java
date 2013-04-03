@@ -5,8 +5,7 @@
  */
 package com.opengamma.engine.marketdata.live;
 
-import com.opengamma.core.security.SecuritySource;
-import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
+import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityFilter;
 import com.opengamma.livedata.LiveDataClient;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
@@ -17,21 +16,22 @@ import com.opengamma.util.ArgumentChecker;
 public class LiveDataFactory {
 
   private final LiveDataClient _liveDataClient;
-  private final MarketDataAvailabilityProvider _availabilityProvider;
-  private final SecuritySource _securitySource;
+  private final MarketDataAvailabilityFilter _availabilityFilter;
 
-  public LiveDataFactory(LiveDataClient liveDataClient,
-                         MarketDataAvailabilityProvider availabilityProvider,
-                         SecuritySource securitySource) {
+  /**
+   * Creates a new factory.
+   * 
+   * @param liveDataClient the live data client to use to source data values
+   * @param availabilityFilter the filter describing which values to source from this live data client
+   */
+  public LiveDataFactory(final LiveDataClient liveDataClient, final MarketDataAvailabilityFilter availabilityFilter) {
     ArgumentChecker.notNull(liveDataClient, "liveDataClient");
-    ArgumentChecker.notNull(availabilityProvider, "availabilityProvider");
-    ArgumentChecker.notNull(securitySource, "securitySource");
+    ArgumentChecker.notNull(availabilityFilter, "availabilityFilter");
     _liveDataClient = liveDataClient;
-    _availabilityProvider = availabilityProvider;
-    _securitySource = securitySource;
+    _availabilityFilter = availabilityFilter;
   }
 
-  /* package */ LiveMarketDataProvider create(UserPrincipal user) {
-    return new LiveMarketDataProvider(_liveDataClient, _availabilityProvider, _securitySource, user);
+  /* package */LiveMarketDataProvider create(final UserPrincipal user) {
+    return new InMemoryLKVLiveMarketDataProvider(_liveDataClient, _availabilityFilter, user);
   }
 }

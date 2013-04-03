@@ -39,12 +39,12 @@ public class BusinessDayDateUtils {
       final ZonedDateTime startDate, final boolean includeStart,
       final ZonedDateTime endDate, final boolean includeEnd,
       final TemporalAdjuster convention) {
-    LocalDate date = startDate.getDate();
-    LocalDate localEndDate = endDate.getDate();
+    LocalDate date = startDate.toLocalDate();
+    LocalDate localEndDate = endDate.toLocalDate();
     int mult = 1;
     if (startDate.isAfter(endDate)) {
-      date = endDate.getDate();
-      localEndDate = startDate.getDate();
+      date = endDate.toLocalDate();
+      localEndDate = startDate.toLocalDate();
       mult = -1;
     }
     int result = includeStart ? 1 : 0;

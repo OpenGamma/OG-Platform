@@ -1,27 +1,28 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.convention;
 
-import org.joda.beans.BeanDefinition;
-import org.joda.beans.PropertyDefinition;
-
-import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.id.ExternalId;
-import com.opengamma.id.ExternalIdBundle;
 import java.util.Map;
+
 import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.financial.convention.businessday.BusinessDayConvention;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+
 /**
- * 
+ *
  */
 @BeanDefinition
 public class FXForwardAndSwapConvention extends Convention {
@@ -33,7 +34,7 @@ public class FXForwardAndSwapConvention extends Convention {
    * The spot convention.
    */
   @PropertyDefinition(validate = "notNull")
-  private String _spotConvention;
+  private ExternalId _spotConvention;
 
   /**
    * The business day convention.
@@ -59,7 +60,7 @@ public class FXForwardAndSwapConvention extends Convention {
   public FXForwardAndSwapConvention() {
   }
 
-  public FXForwardAndSwapConvention(final String name, final ExternalIdBundle externalIdBundle, final String spotConvention, final BusinessDayConvention businessDayConvention,
+  public FXForwardAndSwapConvention(final String name, final ExternalIdBundle externalIdBundle, final ExternalId spotConvention, final BusinessDayConvention businessDayConvention,
       final boolean isEOM, final ExternalId settlementRegion) {
     super(name, externalIdBundle);
     setSpotConvention(spotConvention);
@@ -104,7 +105,7 @@ public class FXForwardAndSwapConvention extends Convention {
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -1912646125:  // spotConvention
-        setSpotConvention((String) newValue);
+        setSpotConvention((ExternalId) newValue);
         return;
       case -1002835891:  // businessDayConvention
         setBusinessDayConvention((BusinessDayConvention) newValue);
@@ -158,7 +159,7 @@ public class FXForwardAndSwapConvention extends Convention {
    * Gets the spot convention.
    * @return the value of the property, not null
    */
-  public String getSpotConvention() {
+  public ExternalId getSpotConvention() {
     return _spotConvention;
   }
 
@@ -166,7 +167,7 @@ public class FXForwardAndSwapConvention extends Convention {
    * Sets the spot convention.
    * @param spotConvention  the new value of the property, not null
    */
-  public void setSpotConvention(String spotConvention) {
+  public void setSpotConvention(ExternalId spotConvention) {
     JodaBeanUtils.notNull(spotConvention, "spotConvention");
     this._spotConvention = spotConvention;
   }
@@ -175,7 +176,7 @@ public class FXForwardAndSwapConvention extends Convention {
    * Gets the the {@code spotConvention} property.
    * @return the property, not null
    */
-  public final Property<String> spotConvention() {
+  public final Property<ExternalId> spotConvention() {
     return metaBean().spotConvention().createProperty(this);
   }
 
@@ -269,8 +270,8 @@ public class FXForwardAndSwapConvention extends Convention {
     /**
      * The meta-property for the {@code spotConvention} property.
      */
-    private final MetaProperty<String> _spotConvention = DirectMetaProperty.ofReadWrite(
-        this, "spotConvention", FXForwardAndSwapConvention.class, String.class);
+    private final MetaProperty<ExternalId> _spotConvention = DirectMetaProperty.ofReadWrite(
+        this, "spotConvention", FXForwardAndSwapConvention.class, ExternalId.class);
     /**
      * The meta-property for the {@code businessDayConvention} property.
      */
@@ -290,7 +291,7 @@ public class FXForwardAndSwapConvention extends Convention {
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "spotConvention",
         "businessDayConvention",
         "isEOM",
@@ -337,7 +338,7 @@ public class FXForwardAndSwapConvention extends Convention {
      * The meta-property for the {@code spotConvention} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<String> spotConvention() {
+    public final MetaProperty<ExternalId> spotConvention() {
       return _spotConvention;
     }
 

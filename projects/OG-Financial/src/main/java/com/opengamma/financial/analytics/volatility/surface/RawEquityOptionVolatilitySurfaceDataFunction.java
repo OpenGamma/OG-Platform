@@ -5,6 +5,9 @@
  */
 package com.opengamma.financial.analytics.volatility.surface;
 
+import java.util.Set;
+
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.engine.ComputationTarget;
@@ -12,12 +15,18 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.equity.EquitySecurityUtils;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdentifiable;
+import com.opengamma.id.ExternalScheme;
+import com.opengamma.id.UniqueId;
 
 /**
  * Constructs volatility surface data objects for equity options (single-name and index) if the target is a Bloomberg
  * ticker or weak ticker.
  */
 public class RawEquityOptionVolatilitySurfaceDataFunction extends RawVolatilitySurfaceDataFunction {
+
+  private static final Set<ExternalScheme> s_validSchemes = ImmutableSet.of(ExternalSchemes.BLOOMBERG_TICKER, ExternalSchemes.BLOOMBERG_TICKER_WEAK, ExternalSchemes.ACTIVFEED_TICKER);
 
   /**
    * Default constructor
@@ -33,10 +42,11 @@ public class RawEquityOptionVolatilitySurfaceDataFunction extends RawVolatilityS
 
   @Override
   protected boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    final String targetScheme = target.getUniqueId().getScheme();
-    return (targetScheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER.getName()) ||
-        targetScheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName())) ||
-        targetScheme.equalsIgnoreCase(ExternalSchemes.ACTIVFEED_TICKER.getName());
+    if (target.getValue() instanceof ExternalIdentifiable) {
+      final ExternalId identifier = ((ExternalIdentifiable) target.getValue()).getExternalId();
+      return s_validSchemes.contains(identifier.getScheme());
+    }
+    return false;
   }
 
   /**
@@ -50,7 +60,8 @@ public class RawEquityOptionVolatilitySurfaceDataFunction extends RawVolatilityS
    */
   @Override
   protected VolatilitySurfaceDefinition<?, ?> getDefinition(final VolatilitySurfaceDefinitionSource definitionSource, final ComputationTarget target, final String definitionName) {
-    final String fullDefinitionName = definitionName + "_" + EquitySecurityUtils.getTrimmedTarget(target.getUniqueId());
+    //FIXME: Modify to take ExternalId to avoid incorrect cast to UniqueId
+    final String fullDefinitionName = definitionName + "_" + EquitySecurityUtils.getTrimmedTarget(UniqueId.parse(target.getValue().toString()));
     final VolatilitySurfaceDefinition<?, ?> definition = definitionSource.getDefinition(fullDefinitionName, InstrumentTypeProperties.EQUITY_OPTION);
     if (definition == null) {
       throw new OpenGammaRuntimeException("Could not get volatility surface definition named " + fullDefinitionName + " for instrument type " + InstrumentTypeProperties.EQUITY_OPTION);
@@ -69,7 +80,8 @@ public class RawEquityOptionVolatilitySurfaceDataFunction extends RawVolatilityS
    */
   @Override
   protected VolatilitySurfaceSpecification getSpecification(final VolatilitySurfaceSpecificationSource specificationSource, final ComputationTarget target, final String specificationName) {
-    final String fullSpecificationName = specificationName + "_" + EquitySecurityUtils.getTrimmedTarget(target.getUniqueId());
+    //FIXME: Modify to take ExternalId to avoid incorrect cast to UniqueId
+    final String fullSpecificationName = specificationName + "_" + EquitySecurityUtils.getTrimmedTarget(UniqueId.parse(target.getValue().toString()));
     final VolatilitySurfaceSpecification specification = specificationSource.getSpecification(fullSpecificationName, InstrumentTypeProperties.EQUITY_OPTION);
     if (specification == null) {
       throw new OpenGammaRuntimeException("Could not get volatility surface specification named " + fullSpecificationName + " for instrument type " + InstrumentTypeProperties.EQUITY_OPTION);

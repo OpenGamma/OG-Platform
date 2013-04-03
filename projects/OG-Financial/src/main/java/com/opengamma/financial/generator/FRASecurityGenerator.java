@@ -52,17 +52,17 @@ public class FRASecurityGenerator extends SecurityGenerator<FRASecurity> {
     ExternalId underlyingIdentifier = null;
     Tenor tenor = Tenor.ofMonths(length);
     try {
-      underlyingIdentifier = getUnderlyingRate(currency, start.getDate(), tenor);
+      underlyingIdentifier = getUnderlyingRate(currency, start.toLocalDate(), tenor);
       if (underlyingIdentifier == null) {
         return null;
       }
     } catch (Exception ex) {
-      s_logger.warn("Unable to obtain underlying id for " + currency + " " + start.getDate() + " " + tenor, ex);
+      s_logger.warn("Unable to obtain underlying id for " + currency + " " + start.toLocalDate() + " " + tenor, ex);
       return null;
     }
     
-    final HistoricalTimeSeries underlyingSeries = getHistoricalSource().getHistoricalTimeSeries(MarketDataRequirementNames.MARKET_VALUE, underlyingIdentifier.toBundle(), null, start.getDate(),
-        true, start.getDate(), true);
+    final HistoricalTimeSeries underlyingSeries = getHistoricalSource().getHistoricalTimeSeries(MarketDataRequirementNames.MARKET_VALUE, underlyingIdentifier.toBundle(), null, start.toLocalDate(),
+        true, start.toLocalDate(), true);
     if ((underlyingSeries == null) || underlyingSeries.getTimeSeries().isEmpty()) {
       return null;
     }

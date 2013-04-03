@@ -5,7 +5,6 @@
  */
 package com.opengamma.web.security;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -21,14 +20,16 @@ import com.google.common.collect.Maps;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.test.AbstractSecurityTestCaseAdapter;
-import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.id.UniqueId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaltimeseries.impl.InMemoryHistoricalTimeSeriesMaster;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityLoader;
+import com.opengamma.master.security.SecurityLoaderRequest;
+import com.opengamma.master.security.SecurityLoaderResult;
 import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.master.security.impl.AbstractSecurityLoader;
 import com.opengamma.master.security.impl.InMemorySecurityMaster;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.web.FreemarkerOutputter;
 import com.opengamma.web.MockUriInfo;
 import com.opengamma.web.WebResourceTestUtils;
@@ -47,20 +48,14 @@ public abstract class AbstractWebSecurityResourceTestCase extends AbstractSecuri
   protected Map<Class<?>, List<FinancialSecurity>> _securities = Maps.newHashMap();
   protected UriInfo _uriInfo;
 
-  @BeforeMethod
+  @BeforeMethod(groups = TestGroup.UNIT)
   public void setUp() throws Exception {
     _uriInfo = new MockUriInfo();
     _secMaster = new InMemorySecurityMaster();
-    _secLoader = new SecurityLoader() {
-      
+    _secLoader = new AbstractSecurityLoader() {
       @Override
-      public Map<ExternalIdBundle, UniqueId> loadSecurity(Collection<ExternalIdBundle> identifiers) {
+      protected SecurityLoaderResult doBulkLoad(SecurityLoaderRequest request) {
         throw new UnsupportedOperationException("load security not supported");
-      }
-      
-      @Override
-      public SecurityMaster getSecurityMaster() {
-        return _secMaster;
       }
     };
     

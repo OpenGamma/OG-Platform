@@ -14,7 +14,9 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import net.sf.ehcache.CacheManager;
 
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.threeten.bp.Instant;
@@ -29,11 +31,12 @@ import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
 import com.opengamma.util.ehcache.EHCacheUtils;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test.
  */
-@Test
+@Test(groups = {TestGroup.UNIT, "ehcache"})
 public class EHCachingMasterConfigSourceTest {
 
   private static final VersionCorrection VC = VersionCorrection.LATEST;
@@ -51,19 +54,25 @@ public class EHCachingMasterConfigSourceTest {
   private EHCachingMasterConfigSource _cachingSource;
   private CacheManager _cacheManager;
 
+  @BeforeClass
+  public void setUpClass() {
+    _cacheManager = EHCacheUtils.createTestCacheManager(EHCachingMasterConfigSourceTest.class);
+  }
+
+  @AfterClass
+  public void tearDownClass() {
+    EHCacheUtils.shutdownQuiet(_cacheManager);
+  }
+
   @BeforeMethod
   public void setUp() {
-    _cacheManager = CacheManager.newInstance();
     _underlyingConfigMaster = new UnitTestConfigMaster();
     _cachingSource = new EHCachingMasterConfigSource(_underlyingConfigMaster, _cacheManager);
   }
 
   @AfterMethod
   public void tearDown() {
-    _cacheManager = EHCacheUtils.shutdownQuiet(_cacheManager);
-    final CacheManager cm = EHCacheUtils.createCacheManager();
-    EHCacheUtils.clear(cm, EHCachingMasterConfigSource.CONFIG_CACHE);
-    _cachingSource = new EHCachingMasterConfigSource(_underlyingConfigMaster, cm);
+    EHCacheUtils.clear(_cacheManager, EHCachingMasterConfigSource.CONFIG_CACHE);
   }
 
   //-------------------------------------------------------------------------

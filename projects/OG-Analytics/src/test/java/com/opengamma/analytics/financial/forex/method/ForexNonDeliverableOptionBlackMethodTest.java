@@ -48,7 +48,7 @@ public class ForexNonDeliverableOptionBlackMethodTest {
   private static final int SETTLEMENT_DAYS = 2;
 
   private static final Currency KRW = Currency.of("KRW");
-  private static final Currency USD = Currency.USD;
+  private static final Currency USD = Currency.EUR;
   private static final ZonedDateTime FIXING_DATE = DateUtils.getUTCDate(2012, 5, 2);
   private static final ZonedDateTime PAYMENT_DATE = DateUtils.getUTCDate(2012, 5, 4);
   private static final double NOMINAL_USD = 100000000; // 1m
@@ -76,7 +76,7 @@ public class ForexNonDeliverableOptionBlackMethodTest {
   private static final CurrencyExposureBlackSmileForexCalculator CE_BLACK = CurrencyExposureBlackSmileForexCalculator.getInstance();
 
   // Smile data
-  private static final Period[] EXPIRY_PERIOD = new Period[] {Period.of(3, MONTHS), Period.of(6, MONTHS), Period.of(1, YEARS), Period.of(2, YEARS), Period.of(5, YEARS) };
+  private static final Period[] EXPIRY_PERIOD = new Period[] {Period.ofMonths(3), Period.ofMonths(6), Period.ofYears(1), Period.ofYears(2), Period.ofYears(5) };
   private static final int NB_EXP = EXPIRY_PERIOD.length;
   private static final ZonedDateTime REFERENCE_SPOT = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, SETTLEMENT_DAYS, CALENDAR);
   private static final ZonedDateTime[] PAY_DATE = new ZonedDateTime[NB_EXP];

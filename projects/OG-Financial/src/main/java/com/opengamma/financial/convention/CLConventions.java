@@ -9,6 +9,8 @@ import static com.opengamma.core.id.ExternalSchemes.bloombergTickerSecurityId;
 import static com.opengamma.core.id.ExternalSchemes.tullettPrebonSecurityId;
 import static com.opengamma.financial.convention.InMemoryConventionBundleMaster.simpleNameSecurityId;
 
+import org.threeten.bp.Period;
+
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -46,13 +48,13 @@ public class CLConventions {
       final String impliedDepositName = "CLP IMPLIED DEPOSIT " + i + "m";
       final ExternalId tullettImpliedDeposit = tullettPrebonSecurityId("LMIDPCLPSPT" + (i < 10 ? "0" : "") + i + "M");
       final ExternalId simpleImpliedDeposit = simpleNameSecurityId(impliedDepositName);
-      utils.addConventionBundle(ExternalIdBundle.of(tullettImpliedDeposit, simpleImpliedDeposit), impliedDepositName, ACT_360, FOLLOWING, DateUtils.periodOfMonths(i), 0, false, CL);
+      utils.addConventionBundle(ExternalIdBundle.of(tullettImpliedDeposit, simpleImpliedDeposit), impliedDepositName, ACT_360, FOLLOWING, Period.ofMonths(i), 0, false, CL);
     }
 
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("CHIBNOM Index"), simpleNameSecurityId("CLP DEPOSIT O/N")), "CLP DEPOSIT O/N", ACT_360,
-        FOLLOWING, DateUtils.periodOfDays(1), 0, false, CL);
+        FOLLOWING, Period.ofDays(1), 0, false, CL);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("CLICP Index"), simpleNameSecurityId("CLICP Index")), "CLICP Index", ACT_360,
-        FOLLOWING, DateUtils.periodOfDays(1), 0, false, CL, 0);
+        FOLLOWING, Period.ofDays(1), 0, false, CL, 0);
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("CLP_OIS_SWAP")), "CLP_OIS_SWAP", ACT_360, FOLLOWING, SEMI_ANNUAL, 0, CL, ACT_360,
         FOLLOWING, SEMI_ANNUAL, 0, simpleNameSecurityId("CLICP Index"), CL, true, 0);
   }

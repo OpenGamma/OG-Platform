@@ -12,8 +12,8 @@ import java.util.HashSet;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.curve.sensitivity.ParameterSensitivityCalculator;
-import com.opengamma.analytics.financial.curve.sensitivity.ParameterUnderlyingSensitivityCalculator;
+import com.opengamma.analytics.financial.curve.interestrate.sensitivity.ParameterSensitivityCalculator;
+import com.opengamma.analytics.financial.curve.interestrate.sensitivity.ParameterUnderlyingSensitivityCalculator;
 import com.opengamma.analytics.financial.interestrate.PresentValueCalculator;
 import com.opengamma.analytics.financial.interestrate.PresentValueCurveSensitivityIRSCalculator;
 import com.opengamma.analytics.financial.interestrate.PresentValueNodeSensitivityCalculator;
@@ -53,23 +53,23 @@ public class PresentValueParameterUnderlyingSensitivityCalculatorTest extends Pa
 
   @Test
   public void testObject() {
-    ParameterUnderlyingSensitivityCalculator other = new ParameterUnderlyingSensitivityCalculator(SENSITIVITY_IRS_CALCULATOR);
+    final ParameterUnderlyingSensitivityCalculator other = new ParameterUnderlyingSensitivityCalculator(SENSITIVITY_IRS_CALCULATOR);
     assertEquals(PARAMETER_UNDERLYING_CALCULATOR, other);
     assertEquals(PARAMETER_UNDERLYING_CALCULATOR.hashCode(), other.hashCode());
   }
 
   @Test
   public void curveWithSpreadAllCurves() {
-    final DoubleMatrix1D resultCleanComputed = PARAMETER_UNDERLYING_CALCULATOR.calculateSensitivity(SWAP, new HashSet<String>(), CURVE_BUNDLE_SPREAD);
-    final DoubleMatrix1D resultDirty = PARAMETER_CALCULATOR.calculateSensitivity(SWAP, new HashSet<String>(), CURVE_BUNDLE_SPREAD);
-    int nbNode = 9;
-    int nbSpreadParam = 1;
-    double[] resultCleanExpected = new double[nbNode + nbSpreadParam];
+    final DoubleMatrix1D resultCleanComputed = PARAMETER_UNDERLYING_CALCULATOR.calculateSensitivity(getSwap(), new HashSet<String>(), getCurveBundleSpread());
+    final DoubleMatrix1D resultDirty = PARAMETER_CALCULATOR.calculateSensitivity(getSwap(), new HashSet<String>(), getCurveBundleSpread());
+    final int nbNode = 9;
+    final int nbSpreadParam = 1;
+    final double[] resultCleanExpected = new double[nbNode + nbSpreadParam];
     System.arraycopy(resultDirty.getData(), nbNode, resultCleanExpected, 0, nbNode + nbSpreadParam);
     for (int loops = 0; loops < nbNode; loops++) {
       resultCleanExpected[loops] += resultDirty.getEntry(loops);
     }
-    assertArrayEquals("Sensitivity to rates: Spread curve", resultCleanComputed.getData(), resultCleanExpected, TOLERANCE_SENSI);
+    assertArrayEquals("Sensitivity to rates: Spread curve", resultCleanComputed.getData(), resultCleanExpected, getTolerance());
   }
 
 }

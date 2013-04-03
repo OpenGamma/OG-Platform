@@ -9,6 +9,7 @@ import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.organization.OrganizationSource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.function.FunctionExecutionContext;
@@ -16,8 +17,15 @@ import com.opengamma.engine.marketdata.OverrideOperationCompiler;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.financial.analytics.ircurve.calcconfig.CurveCalculationConfigSource;
 import com.opengamma.financial.convention.ConventionBundleSource;
+import com.opengamma.financial.currency.CurrencyPair;
+import com.opengamma.financial.currency.CurrencyPairs;
+import com.opengamma.financial.currency.CurrencyPairsResolver;
+import com.opengamma.financial.currency.CurrencyPairsSource;
+import com.opengamma.id.ExternalId;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.holiday.HolidayMaster;
+import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
 
 /**
  * Utility methods to pull standard objects out of a {@link FunctionExecutionContext}.
@@ -84,6 +92,8 @@ public final class OpenGammaExecutionContext {
    */
   public static final String VIEW_PROCESSOR_NAME = "viewProcessor";
 
+  private static final String CURRENCY_PAIRS_SOURCE = "currencyPairsSource";
+
   /**
    * Restricted constructor.
    */
@@ -93,7 +103,7 @@ public final class OpenGammaExecutionContext {
   //-------------------------------------------------------------------------
   /**
    * Gets a {@code HistoricalTimeSeriesSource} from the context.
-   *
+   * 
    * @param context the context to examine, not null
    * @return the value, null if not found
    */
@@ -103,7 +113,7 @@ public final class OpenGammaExecutionContext {
 
   /**
    * Stores a {@code HistoricalTimeSeriesSource} in the context.
-   *
+   * 
    * @param context the context to store in, not null
    * @param source the value to store, not null
    */
@@ -113,7 +123,7 @@ public final class OpenGammaExecutionContext {
 
   /**
    * Gets a {@code SecuritySource} from the context.
-   *
+   * 
    * @param context the context to examine, not null
    * @return the value, null if not found
    */
@@ -123,7 +133,7 @@ public final class OpenGammaExecutionContext {
 
   /**
    * Stores a {@code SecuritySource} in the context.
-   *
+   * 
    * @param context the context to store in, not null
    * @param securitySource the value to store, not null
    */
@@ -133,7 +143,7 @@ public final class OpenGammaExecutionContext {
 
   /**
    * Gets a {@code ConventionBundleSource} from the context.
-   *
+   * 
    * @param context the context to examine, not null
    * @return the value, null if not found
    */
@@ -143,7 +153,7 @@ public final class OpenGammaExecutionContext {
 
   /**
    * Stores a {@code ConventionBundleSource} in the context.
-   *
+   * 
    * @param context the context to store in, not null
    * @param conventionBundleSource the value to store, not null
    */
@@ -154,7 +164,7 @@ public final class OpenGammaExecutionContext {
   //-------------------------------------------------------------------------
   /**
    * Gets a {@code RegionSource} from the context.
-   *
+   * 
    * @param context the context to examine, not null
    * @return the value, null if not found
    */
@@ -164,7 +174,7 @@ public final class OpenGammaExecutionContext {
 
   /**
    * Stores a {@code RegionSource} in the context.
-   *
+   * 
    * @param context the context to store in, not null
    * @param regionSource the value to store, not null
    */
@@ -175,7 +185,7 @@ public final class OpenGammaExecutionContext {
   //-------------------------------------------------------------------------
   /**
    * Gets a {@code HolidaySource} from the context.
-   *
+   * 
    * @param context the context to examine, not null
    * @return the value, null if not found
    */
@@ -185,7 +195,7 @@ public final class OpenGammaExecutionContext {
 
   /**
    * Stores a {@code HolidaySource} in the context.
-   *
+   * 
    * @param context the context to store in, not null
    * @param holidaySource the value to store, not null
    */
@@ -195,8 +205,29 @@ public final class OpenGammaExecutionContext {
 
   //-------------------------------------------------------------------------
   /**
-   * Gets a {@code ExchangeSource} from the context.
+   * Gets a {@code OrganizationSource} from the context.
    *
+   * @param context the context to examine, not null
+   * @return the value, null if not found
+   */
+  public static OrganizationSource getOrganizationSource(final FunctionExecutionContext context) {
+    return context.getOrganizationSource();
+  }
+
+  /**
+   * Stores a {@code OrganizationSource} in the context.
+   *
+   * @param context the context to store in, not null
+   * @param organizationSource the value to store, not null
+   */
+  public static void setOrganizationSource(final FunctionExecutionContext context, final OrganizationSource organizationSource) {
+    context.setOrganizationSource(organizationSource);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets a {@code ExchangeSource} from the context.
+   * 
    * @param context the context to examine, not null
    * @return the value, null if not found
    */
@@ -206,7 +237,7 @@ public final class OpenGammaExecutionContext {
 
   /**
    * Stores a {@code ExchangeSource} in the context.
-   *
+   * 
    * @param context the context to store in, not null
    * @param exchangeSource the value to store, not null
    */
@@ -216,7 +247,7 @@ public final class OpenGammaExecutionContext {
 
   /**
    * Gets a {@code CurveCalculationConfigSource} from the context.
-   *
+   * 
    * @param context the context to examine, not null
    * @return the curve config source, null if not found
    */
@@ -226,7 +257,7 @@ public final class OpenGammaExecutionContext {
 
   /**
    * Stores a {@code CurveCalculationConfigSource} in the context.
-   *
+   * 
    * @param context the context to store in, not null
    * @param curveConfigSource the curve config source to store, not null
    */
@@ -236,7 +267,7 @@ public final class OpenGammaExecutionContext {
 
   /**
    * Gets a {@code ConfigMaster} from the context.
-   *
+   * 
    * @param context the context to examine, not null
    * @return the value, null if not found
    */
@@ -246,7 +277,7 @@ public final class OpenGammaExecutionContext {
 
   /**
    * Stores a {@code ConfigMaster} in the context.
-   *
+   * 
    * @param context the context to store in, not null
    * @param configMaster the config master instance to store, not null
    */
@@ -256,7 +287,7 @@ public final class OpenGammaExecutionContext {
 
   /**
    * Gets a {@code ConfigSource} from the context.
-   *
+   * 
    * @param context the context to examine, not null
    * @return the value, null if not found
    */
@@ -266,7 +297,7 @@ public final class OpenGammaExecutionContext {
 
   /**
    * Stores a {@code ConfigSource} in the context.
-   *
+   * 
    * @param context the context to store in, not null
    * @param configSource the value to store, not null
    */
@@ -288,6 +319,35 @@ public final class OpenGammaExecutionContext {
 
   public static void setViewProcessor(final FunctionExecutionContext context, final ViewProcessor viewProcessor) {
     context.put(VIEW_PROCESSOR_NAME, viewProcessor);
+  }
+
+  /**
+   * @deprecated [PLAT-2782] interim measure to move away from direct use of a config source
+   */
+  @Deprecated
+  public static CurrencyPairsSource getCurrencyPairsSource(final FunctionExecutionContext context) {
+    final ComputationTargetResolverWrapper resolver = new ComputationTargetResolverWrapper(context.getComputationTargetResolver());
+    return new CurrencyPairsSource() {
+
+      @Override
+      public CurrencyPairs getCurrencyPairs(String name) {
+        if (name == null) {
+          name = CurrencyPairs.DEFAULT_CURRENCY_PAIRS;
+        }
+        return (CurrencyPairs) resolver.get(CurrencyPairs.TYPE, ExternalId.of(CurrencyPairsResolver.IDENTIFIER_SCHEME, name));
+      }
+
+      @Override
+      public CurrencyPair getCurrencyPair(String name, Currency currency1, Currency currency2) {
+        ArgumentChecker.notNull(currency1, "currency1");
+        ArgumentChecker.notNull(currency2, "currency2");
+        CurrencyPairs currencyPairs = getCurrencyPairs(name);
+        if (currencyPairs == null) {
+          return null;
+        }
+        return currencyPairs.getCurrencyPair(currency1, currency2);
+      }
+    };
   }
 
 }

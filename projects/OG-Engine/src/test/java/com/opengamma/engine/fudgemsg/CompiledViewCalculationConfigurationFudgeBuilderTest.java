@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.engine.fudgemsg;
@@ -25,16 +25,17 @@ import com.opengamma.engine.view.compilation.CompiledViewCalculationConfiguratio
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the {@link CompiledViewCalculationConfigurationFudgeBuilder} class.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class CompiledViewCalculationConfigurationFudgeBuilderTest extends AbstractFudgeBuilderTestCase {
 
   public void testEmpty() {
     final CompiledViewCalculationConfiguration in = new CompiledViewCalculationConfigurationImpl("1", Collections.<ComputationTargetSpecification>emptySet(),
-        Collections.<ValueSpecification, Set<ValueRequirement>>emptyMap(), Collections.<ValueRequirement, ValueSpecification>emptyMap());
+        Collections.<ValueSpecification, Set<ValueRequirement>>emptyMap(), Collections.<ValueSpecification>emptySet());
     final CompiledViewCalculationConfiguration out = cycleObject(CompiledViewCalculationConfiguration.class, in);
     assertEquals(out.getName(), in.getName());
     assertEquals(out.getComputationTargets(), in.getComputationTargets());
@@ -47,8 +48,7 @@ public class CompiledViewCalculationConfigurationFudgeBuilderTest extends Abstra
     final ComputationTargetSpecification targetSpec = ComputationTargetSpecification.of(UniqueId.of("Sec", "123"));
     final CompiledViewCalculationConfiguration in = new CompiledViewCalculationConfigurationImpl("2", ImmutableSet.of(ComputationTargetSpecification.NULL, targetSpec),
         ImmutableMap.<ValueSpecification, Set<ValueRequirement>>of(new ValueSpecification("Value", targetSpec, ValueProperties.with(ValuePropertyNames.FUNCTION, "Foo").get()),
-            ImmutableSet.of(new ValueRequirement("Value", targetReq))), ImmutableMap.of(new ValueRequirement("Data", targetReq),
-                new ValueSpecification("Data", targetSpec, ValueProperties.with(ValuePropertyNames.FUNCTION, "Bar").get())));
+            ImmutableSet.of(new ValueRequirement("Value", targetReq))), ImmutableSet.of(new ValueSpecification("Data", targetSpec, ValueProperties.with(ValuePropertyNames.FUNCTION, "Bar").get())));
     final CompiledViewCalculationConfiguration out = cycleObject(CompiledViewCalculationConfiguration.class, in);
     assertEquals(out.getName(), in.getName());
     assertEquals(out.getComputationTargets(), in.getComputationTargets());

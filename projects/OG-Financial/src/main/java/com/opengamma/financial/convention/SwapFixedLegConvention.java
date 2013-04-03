@@ -23,6 +23,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.Tenor;
 
 /**
  *
@@ -34,10 +35,10 @@ public class SwapFixedLegConvention extends Convention {
   private static final long serialVersionUID = 1L;
 
   /**
-   * The payment period.
+   * The payment tenor.
    */
   @PropertyDefinition(validate = "notNull")
-  private Period _paymentPeriod;
+  private Tenor _paymentTenor;
 
   /**
    * The day count.
@@ -88,11 +89,11 @@ public class SwapFixedLegConvention extends Convention {
     super();
   }
 
-  public SwapFixedLegConvention(final String name, final ExternalIdBundle externalIdBundle, final Period paymentPeriod, final DayCount dayCount,
+  public SwapFixedLegConvention(final String name, final ExternalIdBundle externalIdBundle, final Tenor paymentTenor, final DayCount dayCount,
       final BusinessDayConvention businessDayConvention, final int daysToSettle, final boolean isEOM, final Currency currency, final ExternalId regionCalendar,
       final StubType stubType) {
     super(name, externalIdBundle);
-    setPaymentPeriod(paymentPeriod);
+    setPaymentTenor(paymentTenor);
     setDayCount(dayCount);
     setBusinessDayConvention(businessDayConvention);
     setDaysToSettle(daysToSettle);
@@ -123,8 +124,8 @@ public class SwapFixedLegConvention extends Convention {
   @Override
   protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case 1331459943:  // paymentPeriod
-        return getPaymentPeriod();
+      case -507548582:  // paymentTenor
+        return getPaymentTenor();
       case 1905311443:  // dayCount
         return getDayCount();
       case -1002835891:  // businessDayConvention
@@ -146,8 +147,8 @@ public class SwapFixedLegConvention extends Convention {
   @Override
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case 1331459943:  // paymentPeriod
-        setPaymentPeriod((Period) newValue);
+      case -507548582:  // paymentTenor
+        setPaymentTenor((Tenor) newValue);
         return;
       case 1905311443:  // dayCount
         setDayCount((DayCount) newValue);
@@ -176,7 +177,7 @@ public class SwapFixedLegConvention extends Convention {
 
   @Override
   protected void validate() {
-    JodaBeanUtils.notNull(_paymentPeriod, "paymentPeriod");
+    JodaBeanUtils.notNull(_paymentTenor, "paymentTenor");
     JodaBeanUtils.notNull(_dayCount, "dayCount");
     JodaBeanUtils.notNull(_businessDayConvention, "businessDayConvention");
     JodaBeanUtils.notNull(_currency, "currency");
@@ -192,7 +193,7 @@ public class SwapFixedLegConvention extends Convention {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       SwapFixedLegConvention other = (SwapFixedLegConvention) obj;
-      return JodaBeanUtils.equal(getPaymentPeriod(), other.getPaymentPeriod()) &&
+      return JodaBeanUtils.equal(getPaymentTenor(), other.getPaymentTenor()) &&
           JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
           JodaBeanUtils.equal(getBusinessDayConvention(), other.getBusinessDayConvention()) &&
           JodaBeanUtils.equal(getDaysToSettle(), other.getDaysToSettle()) &&
@@ -208,7 +209,7 @@ public class SwapFixedLegConvention extends Convention {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentPeriod());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentTenor());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDayCount());
     hash += hash * 31 + JodaBeanUtils.hashCode(getBusinessDayConvention());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDaysToSettle());
@@ -221,28 +222,28 @@ public class SwapFixedLegConvention extends Convention {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the payment period.
+   * Gets the payment tenor.
    * @return the value of the property, not null
    */
-  public Period getPaymentPeriod() {
-    return _paymentPeriod;
+  public Tenor getPaymentTenor() {
+    return _paymentTenor;
   }
 
   /**
-   * Sets the payment period.
-   * @param paymentPeriod  the new value of the property, not null
+   * Sets the payment tenor.
+   * @param paymentTenor  the new value of the property, not null
    */
-  public void setPaymentPeriod(Period paymentPeriod) {
-    JodaBeanUtils.notNull(paymentPeriod, "paymentPeriod");
-    this._paymentPeriod = paymentPeriod;
+  public void setPaymentTenor(Tenor paymentTenor) {
+    JodaBeanUtils.notNull(paymentTenor, "paymentTenor");
+    this._paymentTenor = paymentTenor;
   }
 
   /**
-   * Gets the the {@code paymentPeriod} property.
+   * Gets the the {@code paymentTenor} property.
    * @return the property, not null
    */
-  public final Property<Period> paymentPeriod() {
-    return metaBean().paymentPeriod().createProperty(this);
+  public final Property<Tenor> paymentTenor() {
+    return metaBean().paymentTenor().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -436,10 +437,10 @@ public class SwapFixedLegConvention extends Convention {
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code paymentPeriod} property.
+     * The meta-property for the {@code paymentTenor} property.
      */
-    private final MetaProperty<Period> _paymentPeriod = DirectMetaProperty.ofReadWrite(
-        this, "paymentPeriod", SwapFixedLegConvention.class, Period.class);
+    private final MetaProperty<Tenor> _paymentTenor = DirectMetaProperty.ofReadWrite(
+        this, "paymentTenor", SwapFixedLegConvention.class, Tenor.class);
     /**
      * The meta-property for the {@code dayCount} property.
      */
@@ -479,8 +480,8 @@ public class SwapFixedLegConvention extends Convention {
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
-        "paymentPeriod",
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        "paymentTenor",
         "dayCount",
         "businessDayConvention",
         "daysToSettle",
@@ -498,8 +499,8 @@ public class SwapFixedLegConvention extends Convention {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 1331459943:  // paymentPeriod
-          return _paymentPeriod;
+        case -507548582:  // paymentTenor
+          return _paymentTenor;
         case 1905311443:  // dayCount
           return _dayCount;
         case -1002835891:  // businessDayConvention
@@ -535,11 +536,11 @@ public class SwapFixedLegConvention extends Convention {
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code paymentPeriod} property.
+     * The meta-property for the {@code paymentTenor} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Period> paymentPeriod() {
-      return _paymentPeriod;
+    public final MetaProperty<Tenor> paymentTenor() {
+      return _paymentTenor;
     }
 
     /**

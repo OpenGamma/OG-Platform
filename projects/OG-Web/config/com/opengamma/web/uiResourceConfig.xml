@@ -96,6 +96,10 @@
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-histogram.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-timeseries.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-surface.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-temporal.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-aggregation.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-text.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-filter.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-background.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-tooltip.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-dropbox.css</fragment>
@@ -164,6 +168,7 @@
     <fragment>/styles/analytics/og.analytics.gadget.OG-gadgets-container.css</fragment>
     <fragment>/styles/analytics/og.analytics.gadget.OG-gadget-tabs-options.css</fragment>
     <fragment>/styles/analytics/og.analytics.gadget.OG-gadget-expanded-positions.css</fragment>
+    <fragment>/styles/analytics/og.analytics.gadget.OG-gadget-text.css</fragment>
     <fragment>/styles/analytics/og.analytics.gadget.OG-logger.css</fragment>
     <fragment>/styles/analytics/og.analytics.OG-layout-blotter.css</fragment>
     <fragment>/styles/analytics/og.analytics.OG-layout-analytics.css</fragment>
@@ -204,6 +209,8 @@
     <fragment>/scripts/lib/js.ext.array.prototype.pluck.js</fragment>
     <fragment>/scripts/lib/js.ext.string.prototype.lang.js</fragment>
     <fragment>/scripts/lib/js.ext.string.prototype.trim.js</fragment>
+    <fragment>/scripts/lib/js.ext.object.create.js</fragment>
+    <fragment>/scripts/lib/js.ext.object.equals.js</fragment>
     <fragment>/scripts/lib/js.ext.object.keys.js</fragment>
     <fragment>/scripts/lib/js.ext.function.prototype.bind.js</fragment>
     <fragment>/scripts/lib/js.ext.function.prototype.partial.js</fragment>
@@ -220,6 +227,7 @@
     <fragment>/scripts/lib/jquery/jquery-tablesorter.parsers.js</fragment>
     <fragment>/scripts/lib/jquery/jquery-blurkill.js</fragment>
     <fragment>/scripts/lib/jquery/jquery.sparkline.2.0.js</fragment>
+    <fragment>/scripts/lib/jquery/jquery.searchabledropdown.js</fragment>
     <fragment>/scripts/lib/jquery/ui/jquery.ui.core.js</fragment>
     <fragment>/scripts/lib/jquery/ui/jquery.ui.widget.js</fragment>
     <fragment>/scripts/lib/jquery/ui/jquery.ui.mouse.js</fragment>
@@ -327,8 +335,11 @@
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.expanded_positions.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.timeseries_plot.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.timeseries.js</fragment>
+    <fragment>/scripts/og/common/gadgets/og.common.gadgets.histogram.js</fragment>
+    <fragment>/scripts/og/common/gadgets/og.common.gadgets.histogram_plot.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.curve.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.log.js</fragment>
+    <fragment>/scripts/og/common/gadgets/og.common.gadgets.text.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.surface.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.securitiesidentifiers.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.gadgetscontainer.js</fragment>
@@ -343,26 +354,31 @@
     <fragment>/scripts/og/analytics/og.analytics.formatter.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.clipboard.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.selector.js</fragment>
+    <fragment>/scripts/og/analytics/og.analytics.node_menu.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.data.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.depgraph.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.resize.js</fragment>
-    <fragment>/scripts/og/analytics/og.analytics.dropmenu.js</fragment>
-    <fragment>/scripts/og/analytics/og.analytics.aggregators_menu.js</fragment>
-    <fragment>/scripts/og/analytics/og.analytics.datasources_menu.js</fragment>
-    <fragment>/scripts/og/analytics/og.analytics.filtersmenu.js</fragment>
+    <fragment>/scripts/og/analytics/og.analytics.form.portfolios.js</fragment>
+    <fragment>/scripts/og/analytics/og.analytics.form.viewdefinitions.js</fragment>
+    <fragment>/scripts/og/analytics/og.analytics.form.aggregatorsmenu.js</fragment>
+    <fragment>/scripts/og/analytics/og.analytics.form.datasourcesmenu.js</fragment>
+    <fragment>/scripts/og/analytics/og.analytics.form.temporalmenu.js</fragment>
+    <fragment>/scripts/og/analytics/og.analytics.form.filtersmenu.js</fragment>
+    <fragment>/scripts/og/analytics/og.analytics.form.dropmenu.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.status.js</fragment>
-    <fragment>/scripts/og/analytics/og.analytics.form.js</fragment>
+    <!-- <fragment>/scripts/og/analytics/og.analytics.form.js</fragment> -->
+    <fragment>/scripts/og/analytics/og.analytics.form2.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.containers.js</fragment>
   </bundle>
   <bundle id="blotter.js">
     <fragment>/scripts/og/blotter/og.blotter.dialog.js</fragment>
     <fragment>/scripts/og/blotter/og.blotter.util.js</fragment>
+    <fragment>/scripts/og/blotter/og.blotter.contextmenu.js</fragment>
     <!--Reusable Blocks-->
     <fragment>/scripts/og/blotter/forms/blocks/og.blotter.forms.blocks.portfolio.js</fragment>
     <fragment>/scripts/og/blotter/forms/blocks/og.blotter.forms.blocks.security.js</fragment>
     <fragment>/scripts/og/blotter/forms/blocks/og.blotter.forms.blocks.floatingleg.js</fragment>
     <fragment>/scripts/og/blotter/forms/blocks/og.blotter.forms.blocks.fixedleg.js</fragment>
-    <fragment>/scripts/og/blotter/forms/blocks/og.blotter.forms.blocks.fungible.js</fragment>
     <!--OTC Trades-->
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.swapsecurity.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.equityvarianceswapsecurity.js</fragment>
@@ -376,14 +392,6 @@
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.frasecurity.js</fragment>
     <!--Fungible Trades-->
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.fungibletrade.js</fragment>
-    <!--Lifecycle-->
-    <fragment>/scripts/og/blotter/forms/og.blotter.forms.edit_cap_floor.js</fragment>
-    <fragment>/scripts/og/blotter/forms/og.blotter.forms.edit_equity_option.js</fragment>
-    <fragment>/scripts/og/blotter/forms/og.blotter.forms.edit_forward.js</fragment>
-    <fragment>/scripts/og/blotter/forms/og.blotter.forms.edit_fra.js</fragment>
-    <fragment>/scripts/og/blotter/forms/og.blotter.forms.edit_fx_option.js</fragment>
-    <fragment>/scripts/og/blotter/forms/og.blotter.forms.edit_ir_swap.js</fragment>
-    <fragment>/scripts/og/blotter/forms/og.blotter.forms.edit_swaption.js</fragment>
   </bundle>
   <bundle id="views_common.js">
     <fragment>/scripts/og/views/common/og.views.common.state.js</fragment>
@@ -418,6 +426,7 @@
     <fragment>/scripts/og/views/config_forms/og.views.config_forms.yieldcurvedefinition.js</fragment>
     <!-- /config forms -->
     <fragment>/scripts/og/views/extras/og.views.extras.portfolios_sync.js</fragment>
+    <fragment>/scripts/og/views/og.views.legal_entities.js</fragment>
     <fragment>/scripts/og/views/og.views.portfolios.js</fragment>
     <fragment>/scripts/og/views/og.views.positions.js</fragment>
     <fragment>/scripts/og/views/og.views.securities.js</fragment>
@@ -426,6 +435,7 @@
     <fragment>/scripts/og/views/og.views.holidays.js</fragment>
     <fragment>/scripts/og/views/og.views.regions.js</fragment>
     <fragment>/scripts/og/views/og.views.configs.js</fragment>
+    <bundle idref="blotter.js" />
   </bundle>
   <bundle id="ie.js">
     <fragment>/scripts/lib/excanvas.js</fragment>

@@ -35,6 +35,7 @@
  *         font_color: 0x000000,       // Font color for value labels
  *         font_color_axis_labels: 0xcccccc,      // Font color for axis labels
  *         hud: true,                             // Toggle options overlay and volatility display
+ *         log_function: false,                   // Toggle log functionality (experimental)
  *         log: false,                            // Apply natural log by default
  *         interactive_surface_color: 0xff0000,   // Highlight for interactive surface elements (in hex)
  *         interactive_hud_color: '#f00',         // Highlight colour for volatility display (in css)
@@ -51,6 +52,7 @@
  *         surface_y: 40,                         // The height range of the surface
  *         texture_size: 512,                     // Texture map size for axis ticks
  *         tick_length: 20,                       // Axis tick length
+ *         webgl: false,                          // Webgl defaults to off
  *         y_segments: 10,                        // Number of segments to thin vol out to for smile planes
  *         vertex_shading_hue_min: 180,           // vertex shading hue range min value
  *         vertex_shading_hue_max: 0,             // vertex shading hue range max value
@@ -82,6 +84,7 @@
             font_color: 0x555555,       // Font color for value labels
             font_color_axis_labels: 0x555555,      // Font color for axis labels
             hud: true,                             // Toggle options overlay and volatility display
+            log_function: false,                   // Toggle log functionality (experimental)
             log: false,                            // Apply natural log by default
             interactive_surface_color: 0xff0000,   // Highlight for interactive surface elements (in hex)
             interactive_hud_color: '#f00',         // Highlight colour for volatility display (in css)
@@ -98,6 +101,7 @@
             surface_y: 40,                         // The height range of the surface
             texture_size: 512,                     // Texture map size for axis ticks
             tick_length: 20,                       // Axis tick length
+            webgl: false,                          // Webgl defaults to off
             y_segments: 10,                        // Number of segments to thin vol out to for smile planes
             vertex_shading_hue_min: 180,           // vertex shading hue range min value
             vertex_shading_hue_max: 0,             // vertex shading hue range max value
@@ -108,10 +112,10 @@
     window.JSurface3D = function (config) {
         var js3d = this, $selector, animation_frame, timeout, buffers, settings, stats = {},
             renderer, scene, backlight, keylight, filllight, ambientlight;
-        js3d.webgl = Detector.webgl ? true : false;
         js3d.data = config.data;
         js3d.selector = $selector = $(config.selector);
         js3d.settings = settings = $.extend({}, default_settings, config.options);
+        js3d.webgl = js3d.settings.webgl && Detector.webgl ? true : false;
         js3d.local_settings = {play: null, stopping: false};
         js3d.matlib = new Four.Matlib();
         js3d.projector = new THREE.Projector();

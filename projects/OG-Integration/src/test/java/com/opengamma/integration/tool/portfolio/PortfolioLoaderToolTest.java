@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.integration.tool.portfolio;
 
 import static org.testng.Assert.assertEquals;
@@ -25,12 +30,13 @@ import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.position.PositionSearchRequest;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test the portfolio loader tool behaves as expected. Data should be read from a file and
  * inserted into the correct database masters.
  */
-@Test
+@Test(groups = TestGroup.INTEGRATION)
 public class PortfolioLoaderToolTest extends DbTest{
 
   private static final Logger s_logger = LoggerFactory.getLogger(PortfolioLoaderToolTest.class);
@@ -93,22 +99,25 @@ public class PortfolioLoaderToolTest extends DbTest{
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testToolContextMustBeProvided() {
-    new PortfolioLoader(null, "My portfolio", "Equity", _tempFile.getAbsolutePath(), true, true, false, false, false, true);
+    new PortfolioLoader(null, "My portfolio", "Equity", _tempFile.getAbsolutePath(), true, true, false, false, false, true,
+                        true, null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testPortfolioNameMustBeProvided() {
-    new PortfolioLoader(_toolContext, null, "Equity", _tempFile.getAbsolutePath(), true, true, false, false, false, true);
+    new PortfolioLoader(_toolContext, null, "Equity", _tempFile.getAbsolutePath(), true, true, false, false, false, true,
+                        true, null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testFilenameMustBeProvided() {
-    new PortfolioLoader(_toolContext, "My portfolio", "Equity", null, true, true, false, false, false, true);
+    new PortfolioLoader(_toolContext, "My portfolio", "Equity", null, true, true, false, false, false, true, true, null);
   }
 
   @Test(expectedExceptions = OpenGammaRuntimeException.class)
   public void testFileMustHaveRecognisedExtension() {
-    new PortfolioLoader(_toolContext, "My portfolio", "Equity", "some_file.goobledygook", true, true, false, false, false, true).execute();
+    new PortfolioLoader(_toolContext, "My portfolio", "Equity", "some_file.goobledygook", true, true, false, false, false, true,
+                        true, null).execute();
   }
 
   @Test
@@ -172,7 +181,8 @@ public class PortfolioLoaderToolTest extends DbTest{
 
     populateFileWithData(data);
 
-    new PortfolioLoader(_toolContext, portfolioName, securityType, _tempFile.getAbsolutePath(), true, true, false, false, false, true).execute();
+    new PortfolioLoader(_toolContext, portfolioName, securityType, _tempFile.getAbsolutePath(), true, true, false, false, false, true,
+                        true, null).execute();
 
     assertEquals(_portfolioMaster.search(new PortfolioSearchRequest()).getPortfolios().size(), expectedPortfolios);
     assertEquals(_positionMaster.search(new PositionSearchRequest()).getPositions().size(), expectedPositions);

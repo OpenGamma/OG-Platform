@@ -31,12 +31,13 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.test.Timeout;
 
 /**
  * Tests the {@link CoalescingSecuritySource} class.
  */
-@Test
+@Test(groups = TestGroup.INTEGRATION)
 public class CoalescingSecuritySourceTest {
 
   private static void join(final CyclicBarrier barrier) {

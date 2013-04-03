@@ -18,7 +18,6 @@ import org.fudgemsg.types.FudgeSecondaryType;
 import org.fudgemsg.types.FudgeTime;
 import org.fudgemsg.types.SecondaryFieldType;
 import org.fudgemsg.wire.types.FudgeWireType;
-import org.threeten.bp.LocalTime;
 import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZonedDateTime;
 
@@ -66,12 +65,11 @@ public final class ExpiryFudgeBuilder extends AbstractFudgeBuilder implements Fu
       case HOUR_DAY_MONTH_YEAR:
         return new FudgeDateTime(DateTimeAccuracy.HOUR, object.getExpiry().toOffsetDateTime());
       case DAY_MONTH_YEAR:
-        return new FudgeDateTime(new FudgeDate(object.getExpiry().getYear(), object.getExpiry().getMonthValue(), object.getExpiry().getDayOfMonth()), new FudgeTime(DateTimeAccuracy.DAY,
-            0, 0, 0));
+        return new FudgeDateTime(FudgeDate.from(object.getExpiry()), new FudgeTime(DateTimeAccuracy.DAY, 0, 0, 0));
       case MONTH_YEAR:
-        return new FudgeDateTime(new FudgeDate(object.getExpiry().getYear(), object.getExpiry().getMonthValue()), new FudgeTime(DateTimeAccuracy.MONTH, 0, 0, 0));
+        return new FudgeDateTime(FudgeDate.ofYearMonth(object.getExpiry().getYear(), object.getExpiry().getMonthValue()), new FudgeTime(DateTimeAccuracy.MONTH, 0, 0, 0));
       case YEAR:
-        return new FudgeDateTime(new FudgeDate(object.getExpiry().getYear()), new FudgeTime(DateTimeAccuracy.YEAR, 0, 0, 0));
+        return new FudgeDateTime(FudgeDate.ofYear(object.getExpiry().getYear()), new FudgeTime(DateTimeAccuracy.YEAR, 0, 0, 0));
       default:
         throw new IllegalArgumentException("Invalid accuracy value on " + object);
     }

@@ -32,23 +32,23 @@ import com.opengamma.util.tuple.Pair;
 public class FXOptionBlackCurveDefaults extends DefaultPropertyFunction {
   private static final Logger s_logger = LoggerFactory.getLogger(FXOptionBlackCurveDefaults.class);
   private static final String[] VALUE_REQUIREMENTS = new String[] {
-      ValueRequirementNames.PRESENT_VALUE,
-      ValueRequirementNames.FX_PRESENT_VALUE,
-      ValueRequirementNames.FX_CURRENCY_EXPOSURE,
-      ValueRequirementNames.VALUE_VEGA,
-      ValueRequirementNames.VALUE_GAMMA,
-      ValueRequirementNames.VALUE_GAMMA_P,
-      ValueRequirementNames.VEGA_MATRIX,
-      ValueRequirementNames.VEGA_QUOTE_MATRIX,
-      ValueRequirementNames.FX_CURVE_SENSITIVITIES,
-      ValueRequirementNames.PV01,
-      ValueRequirementNames.SECURITY_IMPLIED_VOLATILITY,
-      ValueRequirementNames.VALUE_THETA,
-      ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
-      ValueRequirementNames.VALUE_RHO,
-      ValueRequirementNames.VALUE_PHI,
-      ValueRequirementNames.VALUE_VOMMA,
-      ValueRequirementNames.VALUE_VANNA
+    ValueRequirementNames.PRESENT_VALUE,
+    ValueRequirementNames.FX_PRESENT_VALUE,
+    ValueRequirementNames.FX_CURRENCY_EXPOSURE,
+    ValueRequirementNames.VALUE_VEGA,
+    ValueRequirementNames.VALUE_GAMMA,
+    ValueRequirementNames.VALUE_GAMMA_P,
+    ValueRequirementNames.VEGA_MATRIX,
+    ValueRequirementNames.VEGA_QUOTE_MATRIX,
+    ValueRequirementNames.FX_CURVE_SENSITIVITIES,
+    ValueRequirementNames.PV01,
+    ValueRequirementNames.SECURITY_IMPLIED_VOLATILITY,
+    ValueRequirementNames.VALUE_THETA,
+    ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
+    ValueRequirementNames.VALUE_RHO,
+    ValueRequirementNames.VALUE_PHI,
+    ValueRequirementNames.VALUE_VOMMA,
+    ValueRequirementNames.VALUE_VANNA
   };
   private final Map<String, Pair<String, String>> _currencyCurveConfigAndDiscountingCurveNames;
 
@@ -65,7 +65,7 @@ public class FXOptionBlackCurveDefaults extends DefaultPropertyFunction {
         .or(FinancialSecurityTypes.NON_DELIVERABLE_FX_OPTION_SECURITY).or(FinancialSecurityTypes.NON_DELIVERABLE_FX_DIGITAL_OPTION_SECURITY), true);
     ArgumentChecker.notNull(currencyCurveConfigAndDiscountingCurveNames, "currency and curve config names");
     ArgumentChecker.isTrue(currencyCurveConfigAndDiscountingCurveNames.length % 3 == 0, "Must have one curve config and discounting curve name per currency");
-    _currencyCurveConfigAndDiscountingCurveNames = new HashMap<String, Pair<String, String>>();
+    _currencyCurveConfigAndDiscountingCurveNames = new HashMap<>();
     for (int i = 0; i < currencyCurveConfigAndDiscountingCurveNames.length; i += 3) {
       final Pair<String, String> pair = Pair.of(currencyCurveConfigAndDiscountingCurveNames[i + 1], currencyCurveConfigAndDiscountingCurveNames[i + 2]);
       _currencyCurveConfigAndDiscountingCurveNames.put(currencyCurveConfigAndDiscountingCurveNames[i], pair);
@@ -127,7 +127,7 @@ public class FXOptionBlackCurveDefaults extends DefaultPropertyFunction {
 
   @Override
   public String getMutualExclusionGroup() {
-    return OpenGammaFunctionExclusions.FX_OPTION_BLACK_CURVE_DEFAULTS;
+    return OpenGammaFunctionExclusions.CURVE_DEFAULTS;
   }
 
   protected static String[] getRequirementNames() {

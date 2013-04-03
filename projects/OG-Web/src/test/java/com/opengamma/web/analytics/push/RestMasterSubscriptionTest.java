@@ -17,8 +17,13 @@ import org.threeten.bp.Instant;
 
 import com.opengamma.core.change.ChangeType;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class RestMasterSubscriptionTest {
 
   private Server _server;

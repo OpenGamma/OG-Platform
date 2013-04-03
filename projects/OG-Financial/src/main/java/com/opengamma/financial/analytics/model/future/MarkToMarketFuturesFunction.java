@@ -19,6 +19,7 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -36,13 +37,19 @@ public abstract class MarkToMarketFuturesFunction<T> extends FuturesFunction<T> 
   public static final String CALCULATION_METHOD_NAME = "MarkToMarket";
 
   /**
-   * @param valueRequirementName The value requirement name
-   * @param calculator The calculator for the value
+   * @param valueRequirementName String describes the value requested
+   * @param calculator The calculator
+   * @param closingPriceField The field name of the historical time series for price, e.g. "PX_LAST", "Close". Set in *FunctionConfiguration
+   * @param costOfCarryField The field name of the historical time series for cost of carry e.g. "COST_OF_CARRY". Set in *FunctionConfiguration
+   * @param resolutionKey The key defining how the time series resolution is to occur e.g. "DEFAULT_TSS_CONFIG"
    */
-  public MarkToMarketFuturesFunction(final String valueRequirementName, final InstrumentDerivativeVisitor<SimpleFutureDataBundle, T> calculator)  {
-    super(valueRequirementName, calculator);
+  public MarkToMarketFuturesFunction(final String valueRequirementName, final InstrumentDerivativeVisitor<SimpleFutureDataBundle, T> calculator, 
+      String closingPriceField, String costOfCarryField, String resolutionKey) {
+    super(valueRequirementName, calculator, closingPriceField, costOfCarryField, resolutionKey);
   }
-
+  
+  
+  
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final FutureSecurity security = (FutureSecurity)  target.getTrade().getSecurity();
@@ -78,10 +85,12 @@ public abstract class MarkToMarketFuturesFunction<T> extends FuturesFunction<T> 
     return new SimpleFutureDataBundle(null, marketPrice, spotUnderlyer, null, null);
   }
 
+  /** Requirement of latest market value */
   private ValueRequirement getMarketPriceRequirement(final Security security) {
-    return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetSpecification.of(security));
+    return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, security.getUniqueId());
   }
 
+  /** Getter for latest market value requirement */
   private Double getMarketPrice(final Security security, final FunctionInputs inputs) {
     final ValueRequirement marketPriceRequirement = getMarketPriceRequirement(security);
     final Object marketPriceObject = inputs.getValue(marketPriceRequirement);

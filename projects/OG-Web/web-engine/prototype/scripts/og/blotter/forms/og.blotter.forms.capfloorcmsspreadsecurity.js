@@ -7,24 +7,29 @@ $.register_module({
     dependencies: [],
     obj: function () {
         return function (config) {
-            var constructor = this, form, ui = og.common.util.ui;
-            if(config) {data = config; data.id = config.trade.uniqueId;}
-            else {data = {security: {type: "CapFloorCMSSpreadSecurity", name: "CapFloorCMSSpreadSecurity ABC", 
-                regionId: "ABC~123", externalIdBundle: ""}, trade: og.blotter.util.otc_trade};}
+            var constructor = this, form, ui = og.common.util.ui, data, validate;
+            if(config.details) {data = config.details.data; data.id = config.details.data.trade.uniqueId;}
+            else {data = {security: {type: "CapFloorCMSSpreadSecurity", externalIdBundle: "", attributes: {}}, 
+                trade: og.blotter.util.otc_trade};}
+            data.nodeId = config.portfolio ? config.portfolio.id : null;
             constructor.load = function () {
                 constructor.title = 'Cap/Floor CMS Spread';
                 form = new og.common.util.ui.Form({
                     module: 'og.blotter.forms.simple_tash',
                     selector: '.OG-blotter-form-block',
-                    data: data
+                    data: data,
+                    processor: function (data) {
+                        data.security.name = og.blotter.util.create_name(data);
+                        og.blotter.util.cleanup(data);
+                    }
                 });
                 form.children.push(
-                    new og.blotter.forms.blocks.Portfolio({form: form, counterparty: data.trade.counterparty}),
+                    new og.blotter.forms.blocks.Portfolio({form: form, counterparty: data.trade.counterparty,
+                        portfolio: data.nodeId, trade: data.trade}),
                     new form.Block({
                         module: 'og.blotter.forms.blocks.cap_floor_cms_tash',
-                        extras: {start: data.security.startDate, maturity: data.security.maturityDate, 
-                            notional: data.security.notional,strike: data.security.strike, longId: data.security.longId, 
-                            shortId: data.security.shortId
+                        extras: {start: data.security.startDate, maturity: data.security.maturityDate,
+                            notional: data.security.notional,strike: data.security.strike
                         },
                         children: [
                             new form.Block({module:'og.views.forms.currency_tash',
@@ -36,7 +41,7 @@ $.register_module({
                             new og.blotter.forms.blocks.Security({
                                 form: form, label: "Short Underlying ID", security: data.security.shortId,
                                 index: "security.shortId"
-                            }),                            
+                            }),
                             new ui.Dropdown({
                                 form: form, resource: 'blotter.frequencies', index: 'security.frequency',
                                 value: data.security.frequency, placeholder: 'Select Frequency'
@@ -53,26 +58,27 @@ $.register_module({
                 );
                 form.dom();
                 form.on('form:load', function (){
-                    og.blotter.util.add_datetimepicker("security.startDate");
-                    og.blotter.util.add_datetimepicker("security.maturityDate");
+                    og.blotter.util.add_date_picker('.blotter-date');
+                    og.blotter.util.add_time_picker('.blotter-time');
+                    og.blotter.util.set_initial_focus();
                     if(data.security.length) return;
                     og.blotter.util.set_select("security.currency", data.security.currency);
                     og.blotter.util.check_radio("security.cap", data.security.cap);
                     og.blotter.util.check_radio("security.payer", data.security.payer);
                 });
                 form.on('form:submit', function (result){
-                    og.api.rest.blotter.trades.put(result.data);
+                   $.when(config.handler(result.data)).then(validate);
                 });
-            }; 
+            };
             constructor.load();
-            constructor.submit = function () {
+            constructor.submit = function (handler) {
+                validate = handler;
                 form.submit();
             };
-            constructor.submit_new = function () {
+            constructor.submit_new = function (handler) {
+                validate = handler;
                 delete data.id;
                 form.submit();
-            };
-            constructor.kill = function () {
             };
         };
     }

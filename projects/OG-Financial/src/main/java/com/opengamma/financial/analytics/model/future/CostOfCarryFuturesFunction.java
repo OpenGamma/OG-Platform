@@ -32,13 +32,18 @@ public abstract class CostOfCarryFuturesFunction<T> extends FuturesFunction<T> {
   public static final String CALCULATION_METHOD_NAME = "CostOfCarry";
 
   /**
-   * @param valueRequirementName The value requirement name
+   * @param valueRequirementName String describes the value requested
    * @param calculator The calculator
+   * @param closingPriceField The field name of the historical time series for price, e.g. "PX_LAST", "Close". Set in *FunctionConfiguration
+   * @param costOfCarryField The field name of the historical time series for cost of carry e.g. "COST_OF_CARRY". Set in *FunctionConfiguration
+   * @param resolutionKey The key defining how the time series resolution is to occur e.g. "DEFAULT_TSS_CONFIG"
    */
-  public CostOfCarryFuturesFunction(final String valueRequirementName, final InstrumentDerivativeVisitor<SimpleFutureDataBundle, T> calculator)  {
-    super(valueRequirementName, calculator);
+  public CostOfCarryFuturesFunction(final String valueRequirementName, final InstrumentDerivativeVisitor<SimpleFutureDataBundle, T> calculator, 
+      String closingPriceField, String costOfCarryField, String resolutionKey) {
+    super(valueRequirementName, calculator, closingPriceField, costOfCarryField, resolutionKey);
   }
 
+  
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final FutureSecurity security = (FutureSecurity)  target.getTrade().getSecurity();

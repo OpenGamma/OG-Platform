@@ -36,6 +36,14 @@ import com.opengamma.web.security.WebSecuritiesUris;
  * Abstract base class for RESTful portfolio resources.
  */
 public abstract class AbstractWebPortfolioResource extends AbstractPerRequestWebResource {
+  /**
+   * HTML ftl directory
+   */
+  protected static final String HTML_DIR = "portfolios/html/";
+  /**
+   * JSON ftl directory
+   */
+  protected static final String JSON_DIR = "portfolios/json/";
 
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractWebPortfolioResource.class);
   

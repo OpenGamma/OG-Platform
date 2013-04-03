@@ -11,10 +11,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Test OperationTimer.
  */
-@Test
+@Test(groups = TestGroup.INTEGRATION)
 public class OperationTimerTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(OperationTimerTest.class);

@@ -150,6 +150,7 @@ public abstract class AbstractPortfolioGeneratorTool {
       securityGenerator.setHistoricalSource(getToolContext().getHistoricalTimeSeriesSource());
       securityGenerator.setExchangeMaster(getToolContext().getExchangeMaster());
       securityGenerator.setRegionSource(getToolContext().getRegionSource());
+      securityGenerator.setOrganizationSource(getToolContext().getOrganizationSource());
       securityGenerator.setSecurityMaster(getToolContext().getSecurityMaster());
       securityGenerator.setHistoricalTimeSeriesMaster(getToolContext().getHistoricalTimeSeriesMaster());
     }

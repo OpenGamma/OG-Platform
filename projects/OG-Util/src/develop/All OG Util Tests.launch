@@ -13,7 +13,6 @@
 <listAttribute key="org.testng.eclipse.METHOD_TEST_LIST"/>
 <listAttribute key="org.testng.eclipse.PACKAGE_TEST_LIST">
 <listEntry value="com.opengamma"/>
-<listEntry value="com.opengamma.elsql"/>
 <listEntry value="com.opengamma.fudge.inner"/>
 <listEntry value="com.opengamma.id"/>
 <listEntry value="com.opengamma.transport"/>
@@ -21,17 +20,18 @@
 <listEntry value="com.opengamma.transport.jms"/>
 <listEntry value="com.opengamma.transport.socket"/>
 <listEntry value="com.opengamma.util"/>
-<listEntry value="com.opengamma.util.db"/>
+<listEntry value="com.opengamma.util.async"/>
+<listEntry value="com.opengamma.util.csv"/>
 <listEntry value="com.opengamma.util.fudgemsg"/>
 <listEntry value="com.opengamma.util.i18n"/>
+<listEntry value="com.opengamma.util.map"/>
 <listEntry value="com.opengamma.util.money"/>
 <listEntry value="com.opengamma.util.monitor"/>
 <listEntry value="com.opengamma.util.paging"/>
 <listEntry value="com.opengamma.util.rest"/>
 <listEntry value="com.opengamma.util.test"/>
 <listEntry value="com.opengamma.util.time"/>
-<listEntry value="com.opengamma.util.timeseries"/>
-<listEntry value="com.opengamma.util.timeseries.object"/>
+<listEntry value="com.opengamma.util.fudgemsg.timeseries"/>
 <listEntry value="com.opengamma.util.tuple"/>
 </listAttribute>
 <mapAttribute key="org.testng.eclipse.PARAMETERS"/>

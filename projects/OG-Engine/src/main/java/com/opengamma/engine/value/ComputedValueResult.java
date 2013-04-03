@@ -10,8 +10,8 @@ import java.util.Set;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.ToStringStyle;
 
+import com.opengamma.engine.calcnode.InvocationResult;
 import com.opengamma.engine.view.AggregatedExecutionLog;
-import com.opengamma.engine.view.calcnode.InvocationResult;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
 

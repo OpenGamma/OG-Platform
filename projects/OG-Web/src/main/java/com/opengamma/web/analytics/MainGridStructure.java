@@ -9,7 +9,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.google.common.collect.Lists;
-import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
@@ -21,6 +21,7 @@ import com.opengamma.util.tuple.Pair;
 
   /** The column structure. */
   private final GridColumnGroups _columnGroups;
+
   /** For looking up the underlying target of a grid cell. */
   private final TargetLookup _targetLookup;
 
@@ -32,11 +33,17 @@ import com.opengamma.util.tuple.Pair;
   // TODO refactor this to pass in columns instead of column keys?
   // column would need to return its key (null for static and blotter columns)
   // could pass all columns in a single List<GridColumnGroup> or GridColumnGroups instance
-  /* package */ MainGridStructure(GridColumnGroups columnGroups, TargetLookup targetLookup) {
+  /* package */ MainGridStructure(GridColumnGroup fixedColumns,
+                                  GridColumnGroups nonFixedColumns,
+                                  TargetLookup targetLookup) {
     ArgumentChecker.notNull(targetLookup, "targetLookup");
-    ArgumentChecker.notNull(columnGroups, "columnGroups");
-    _columnGroups = columnGroups;
+    ArgumentChecker.notNull(nonFixedColumns, "nonFixedColumns");
+    ArgumentChecker.notNull(fixedColumns, "fixedColumns");
+    List<GridColumnGroup> columnGroups = Lists.newArrayList(fixedColumns);
+    columnGroups.addAll(nonFixedColumns.getGroups());
+    _columnGroups = new GridColumnGroups(columnGroups);
     _targetLookup = targetLookup;
+
   }
 
     /**
@@ -70,6 +77,10 @@ import com.opengamma.util.tuple.Pair;
     return _columnGroups.getColumnCount();
   }
 
+  /* package */ TargetLookup getTargetLookup() {
+    return _targetLookup;
+  }
+
   @Override
   public String toString() {
     return "MainGridStructure [_columnGroups=" + _columnGroups + "]";
@@ -82,7 +93,7 @@ import com.opengamma.util.tuple.Pair;
     List<ResultsCell> results = Lists.newArrayList();
     for (GridCell cell : viewportDefinition) {
       GridColumn column = _columnGroups.getColumn(cell.getColumn());
-      ResultsCell resultsCell = column.getResults(cell.getRow(), cache);
+      ResultsCell resultsCell = column.buildResults(cell.getRow(), cache);
       updated = updated || resultsCell.isUpdated();
       if (resultsCell.getValue() != null) {
         hasData = true;
@@ -110,18 +121,18 @@ import com.opengamma.util.tuple.Pair;
   /* package */ static class Row {
 
     /** The row's target. */
-    private final ComputationTargetSpecification _target;
+    private final ComputationTargetReference _target;
     /** The row label. */
     private final String _name;
 
-    /* package */ Row(ComputationTargetSpecification target, String name) {
+    /* package */ Row(ComputationTargetReference target, String name) {
       ArgumentChecker.notNull(target, "target");
       ArgumentChecker.notNull(name, "name");
       _target = target;
       _name = name;
     }
 
-    /* package */ ComputationTargetSpecification getTarget() {
+    /* package */ ComputationTargetReference getTarget() {
       return _target;
     }
 

@@ -13,6 +13,7 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.util.ClassUtils;
 import com.opengamma.util.fudgemsg.AbstractFudgeBuilder;
 
 /**
@@ -49,7 +50,7 @@ public class ExerciseTypeFudgeBuilder extends AbstractFudgeBuilder implements Fu
   public static ExerciseType fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg) {
     final String className = msg.getString(0);
     try {
-      return (ExerciseType) Class.forName(className).newInstance();
+      return (ExerciseType) ClassUtils.loadClass(className).newInstance();
     } catch (Exception th) {
       throw new OpenGammaRuntimeException("Unable to create ExerciseType: " + className, th);
     }

@@ -26,7 +26,7 @@ public class YieldCurve extends YieldAndDiscountCurve {
    */
   private final DoublesCurve _curve;
 
-  /** 
+  /**
    * @param name The curve name.
    * @param yieldCurve Curve containing continuously-compounded rates against maturities. Rates are unitless (eg 0.02 for two percent) and maturities are in years.
    */
@@ -55,13 +55,13 @@ public class YieldCurve extends YieldAndDiscountCurve {
    * @return The yield curve.
    */
   public static YieldCurve fromDiscountFactorInterpolated(final double[] nodePoints, final double[] discountFactors, final Interpolator1D interpolator, final String name) {
-    int nbDF = discountFactors.length;
+    final int nbDF = discountFactors.length;
     ArgumentChecker.isTrue(nodePoints.length == nbDF, "Yields array of incorrect length");
-    double[] yields = new double[nbDF];
+    final double[] yields = new double[nbDF];
     for (int loopy = 0; loopy < nbDF; loopy++) {
       yields[loopy] = -Math.log(discountFactors[loopy]) / nodePoints[loopy];
     }
-    InterpolatedDoublesCurve curve = new InterpolatedDoublesCurve(nodePoints, yields, interpolator, false);
+    final InterpolatedDoublesCurve curve = new InterpolatedDoublesCurve(nodePoints, yields, interpolator, false);
     return new YieldCurve(name, curve);
   }
 
@@ -71,7 +71,7 @@ public class YieldCurve extends YieldAndDiscountCurve {
   }
 
   @Override
-  public double[] getInterestRateParameterSensitivity(double t) {
+  public double[] getInterestRateParameterSensitivity(final double t) {
     return ArrayUtils.toPrimitive(_curve.getYValueParameterSensitivity(t));
   }
 
@@ -82,11 +82,11 @@ public class YieldCurve extends YieldAndDiscountCurve {
 
   @Override
   public List<String> getUnderlyingCurvesNames() {
-    return new ArrayList<String>();
+    return new ArrayList<>();
   }
 
   /**
-   * Gets the underlying curve. 
+   * Gets the underlying curve.
    * @return The curve.
    */
   public DoublesCurve getCurve() {

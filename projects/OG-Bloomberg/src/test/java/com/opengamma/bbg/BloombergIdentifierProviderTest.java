@@ -27,11 +27,12 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundleWithDates;
 import com.opengamma.id.ExternalIdWithDates;
 import com.opengamma.master.historicaltimeseries.ExternalIdResolver;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test.
  */
-@Test(groups = "integration")
+@Test(groups = TestGroup.INTEGRATION)
 public class BloombergIdentifierProviderTest {
 
   private ExternalIdResolver _idProvider = null;

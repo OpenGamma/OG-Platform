@@ -5,8 +5,6 @@
  */
 package com.opengamma.financial.analytics;
 
-import static org.threeten.bp.temporal.ChronoUnit.NANOS;
-
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 
@@ -14,7 +12,7 @@ import org.threeten.bp.Period;
  * 
  */
 public class LocalDateLabelledMatrix1D extends LabelledMatrix1D<LocalDate, Period> {
-  private static final Period TOLERANCE = Period.of(1, NANOS);
+  private static final Period TOLERANCE = Period.ofDays(1);
 
   public LocalDateLabelledMatrix1D(final LocalDate[] keys, final double[] values) {
     super(keys, values, TOLERANCE);

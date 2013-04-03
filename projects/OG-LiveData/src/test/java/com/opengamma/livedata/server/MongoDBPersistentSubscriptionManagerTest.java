@@ -8,22 +8,40 @@ package com.opengamma.livedata.server;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
+import net.sf.ehcache.CacheManager;
 
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.opengamma.id.ExternalScheme;
+import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.mongo.MongoConnector;
 import com.opengamma.util.test.MongoTestUtils;
 
 /**
  * Test.
  */
+@Test(groups = {"ehcache"})
 public class MongoDBPersistentSubscriptionManagerTest {
 
+  private CacheManager _cacheManager;
+
+  @BeforeClass
+  public void setUpClass() {
+    _cacheManager = EHCacheUtils.createTestCacheManager(getClass());
+  }
+
+  @AfterClass
+  public void tearDownClass() {
+    EHCacheUtils.shutdownQuiet(_cacheManager);
+  }
+
+  //-------------------------------------------------------------------------
   @Test(enabled=false)
   public void persistentSubscriptionManagement() {
     ExternalScheme idScheme = ExternalScheme.of("TestDomain");
-    MockLiveDataServer server = new MockLiveDataServer(idScheme);
+    MockLiveDataServer server = new MockLiveDataServer(idScheme, _cacheManager);
     server.connect();
     
     MongoConnector connector = MongoTestUtils.makeTestConnector(MongoDBPersistentSubscriptionManagerTest.class.getSimpleName(), true);

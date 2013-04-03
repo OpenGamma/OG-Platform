@@ -19,7 +19,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.bbg.BloombergIdentifierProvider;
-import com.opengamma.bbg.loader.BloombergHistoricalTimeSeriesLoader;
+import com.opengamma.bbg.loader.hts.BloombergHistoricalTimeSeriesLoader;
 import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
@@ -290,7 +290,7 @@ public class ExampleHistoricalTimeSeriesLoaderComponentFactory extends AbstractC
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier",
         "historicalTimeSeriesProvider",
         "historicalTimeSeriesMaster",

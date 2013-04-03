@@ -13,7 +13,7 @@ import java.util.Map;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.util.surface.SurfaceValue;
+import com.opengamma.analytics.util.amount.SurfaceValue;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.ObjectsPair;
@@ -25,7 +25,7 @@ import com.opengamma.util.tuple.Pair;
 public class PresentValueVolatilitySensitivityDataBundleTest {
 
   private static final Currency CUR_1 = Currency.EUR;
-  private static final Currency CUR_2 = Currency.USD;
+  private static final Currency CUR_2 = Currency.EUR;
   private static final Currency CUR_3 = Currency.GBP;
 
   @Test

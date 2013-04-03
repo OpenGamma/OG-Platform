@@ -25,16 +25,16 @@ import com.opengamma.analytics.math.curve.DoublesCurve;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.marketdatasnapshot.VolatilityCubeData;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
-import com.opengamma.engine.view.cache.MissingMarketDataSentinel;
+import com.opengamma.engine.cache.MissingMarketDataSentinel;
 import com.opengamma.financial.analytics.LabelledMatrix1D;
 import com.opengamma.financial.analytics.LabelledMatrix2D;
 import com.opengamma.financial.analytics.LabelledMatrix3D;
 import com.opengamma.financial.analytics.volatility.surface.FunctionalVolatilitySurfaceData;
+import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.ClassMap;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.Tenor;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * Manages a set of converters and provides access to the most appropriate converter for a given type.

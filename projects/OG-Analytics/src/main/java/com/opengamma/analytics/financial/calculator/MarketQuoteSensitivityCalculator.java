@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.opengamma.analytics.financial.curve.sensitivity.AbstractParameterSensitivityCalculator;
+import com.opengamma.analytics.financial.curve.interestrate.sensitivity.AbstractParameterSensitivityCalculator;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.math.matrix.ColtMatrixAlgebra;
@@ -78,8 +78,8 @@ public final class MarketQuoteSensitivityCalculator {
       final DoubleMatrix2D jacobian) {
     final DoubleArrayList resultList = new DoubleArrayList();
     for (final String curveName : curves.getAllNames()) {
-      final DoubleMatrix1D nodeSensitivity = new DoubleMatrix1D(
-          (_parameterSensitivityCalculator.pointToParameterSensitivity(curveSensitivities.get(curveName), curves.getCurve(curveName))).toArray(new Double[0]));
+      final List<Double> pointToParameterSensitivity = _parameterSensitivityCalculator.pointToParameterSensitivity(curveSensitivities.get(curveName), curves.getCurve(curveName));
+      final DoubleMatrix1D nodeSensitivity = new DoubleMatrix1D(pointToParameterSensitivity.toArray(new Double[pointToParameterSensitivity.size()]));
       final int n = nodeSensitivity.getNumberOfElements();
       final DoubleMatrix2D inverseJacobian = MATRIX_ALGEBRA.getInverse(jacobian);
       for (int i = 0; i < n; i++) {
@@ -96,8 +96,8 @@ public final class MarketQuoteSensitivityCalculator {
   public DoubleMatrix1D calculateFromParRate(final Map<String, List<DoublesPair>> curveSensitivities, final YieldCurveBundle interpolatedCurves, final DoubleMatrix2D jacobian) {
     final DoubleArrayList resultList = new DoubleArrayList();
     for (final String curveName : interpolatedCurves.getAllNames()) {
-      final DoubleMatrix1D nodeSensitivity = new DoubleMatrix1D(
-          (_parameterSensitivityCalculator.pointToParameterSensitivity(curveSensitivities.get(curveName), interpolatedCurves.getCurve(curveName))).toArray(new Double[0]));
+      final List<Double> pointToParameterSensitivity = _parameterSensitivityCalculator.pointToParameterSensitivity(curveSensitivities.get(curveName), interpolatedCurves.getCurve(curveName));
+      final DoubleMatrix1D nodeSensitivity = new DoubleMatrix1D(pointToParameterSensitivity.toArray(new Double[pointToParameterSensitivity.size()]));
       final int n = nodeSensitivity.getNumberOfElements();
       final DoubleMatrix2D inverseJacobian = MATRIX_ALGEBRA.getInverse(jacobian);
       for (int i = 0; i < n; i++) {
@@ -114,8 +114,8 @@ public final class MarketQuoteSensitivityCalculator {
   public DoubleMatrix1D calculateFromSimpleInterpolatedCurve(final Map<String, List<DoublesPair>> curveSensitivities, final YieldCurveBundle interpolatedCurves) {
     final DoubleArrayList resultList = new DoubleArrayList();
     for (final String curveName : interpolatedCurves.getAllNames()) {
-      final DoubleMatrix1D nodeSensitivity = new DoubleMatrix1D(
-          (_parameterSensitivityCalculator.pointToParameterSensitivity(curveSensitivities.get(curveName), interpolatedCurves.getCurve(curveName))).toArray(new Double[0]));
+      final List<Double> pointToParameterSensitivity = _parameterSensitivityCalculator.pointToParameterSensitivity(curveSensitivities.get(curveName), interpolatedCurves.getCurve(curveName));
+      final DoubleMatrix1D nodeSensitivity = new DoubleMatrix1D(pointToParameterSensitivity.toArray(new Double[pointToParameterSensitivity.size()]));
       final int n = nodeSensitivity.getNumberOfElements();
       for (int i = 0; i < n; i++) {
         double sum = 0;

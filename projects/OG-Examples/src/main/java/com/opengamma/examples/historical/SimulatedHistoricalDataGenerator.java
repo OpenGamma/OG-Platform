@@ -21,16 +21,17 @@ import org.threeten.bp.LocalDate;
 
 import au.com.bytecode.opencsv.CSVReader;
 
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesConstants;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundleWithDates;
 import com.opengamma.id.ExternalIdWithDates;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
+import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.localdate.MapLocalDateDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.DateUtils;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.MapLocalDateDoubleTimeSeries;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -106,7 +107,7 @@ public class SimulatedHistoricalDataGenerator {
     info.setDataField(dataField);
     info.setDataSource(OG_DATA_SOURCE);
     info.setDataProvider(OG_DATA_PROVIDER);
-    info.setObservationTime("LONDON_CLOSE");
+    info.setObservationTime(HistoricalTimeSeriesConstants.LONDON_CLOSE);
     final ExternalIdWithDates id = ExternalIdWithDates.of(identifier, null, null);
     final ExternalIdBundleWithDates bundle = ExternalIdBundleWithDates.of(id);
     info.setExternalIdBundle(bundle);

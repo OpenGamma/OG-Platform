@@ -18,11 +18,12 @@ import com.opengamma.language.definition.JavaTypeInfo;
 import com.opengamma.language.test.AbstractConverterTest;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the {@link FudgeTypeConverter} class.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class FudgeTypeConverterTest extends AbstractConverterTest {
 
   private final FudgeTypeConverter _converter = new FudgeTypeConverter (OpenGammaFudgeContext.getInstance ());

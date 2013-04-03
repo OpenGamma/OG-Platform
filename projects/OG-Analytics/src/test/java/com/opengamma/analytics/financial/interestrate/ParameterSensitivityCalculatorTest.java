@@ -20,7 +20,7 @@ import org.testng.annotations.Test;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.analytics.financial.curve.sensitivity.ParameterSensitivityCalculator;
+import com.opengamma.analytics.financial.curve.interestrate.sensitivity.ParameterSensitivityCalculator;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIborMaster;
@@ -48,17 +48,17 @@ import com.opengamma.util.time.DateUtils;
 
 public abstract class ParameterSensitivityCalculatorTest {
 
-  protected static final String DISCOUNTING_CURVE_NAME = "USD Discounting";
-  protected static final String FORWARD_CURVE_NAME = "USD Forward 3M";
-  protected static final String[] CURVE_NAMES = new String[] {DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME };
+  static final String DISCOUNTING_CURVE_NAME = "USD Discounting";
+  static final String FORWARD_CURVE_NAME = "USD Forward 3M";
+  static final String[] CURVE_NAMES = new String[] {DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME };
 
-  protected static final YieldCurveBundle CURVE_BUNDLE_YIELD;
-  protected static final YieldAndDiscountCurve DISCOUNTING_CURVE_YIELD;
-  protected static final YieldAndDiscountCurve FORWARD_CURVE_YIELD;
+  static final YieldCurveBundle CURVE_BUNDLE_YIELD;
+  static final YieldAndDiscountCurve DISCOUNTING_CURVE_YIELD;
+  static final YieldAndDiscountCurve FORWARD_CURVE_YIELD;
 
-  protected static final YieldCurveBundle CURVE_BUNDLE_SPREAD;
-  protected static final YieldAndDiscountCurve DISCOUNTING_CURVE_SPREAD;
-  protected static final YieldAndDiscountCurve FORWARD_CURVE_SPREAD;
+  static final YieldCurveBundle CURVE_BUNDLE_SPREAD;
+  static final YieldAndDiscountCurve DISCOUNTING_CURVE_SPREAD;
+  static final YieldAndDiscountCurve FORWARD_CURVE_SPREAD;
 
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");
   private static final GeneratorSwapFixedIbor USD6MLIBOR3M = GeneratorSwapFixedIborMaster.getInstance().getGenerator("USD6MLIBOR3M", NYC);
@@ -66,20 +66,20 @@ public abstract class ParameterSensitivityCalculatorTest {
   private static final Currency USD = USDLIBOR6M.getCurrency();
   private static final FXMatrix FX_MATRIX = new FXMatrix(USD);
   private static final HashMap<String, Currency> CCY_MAP = new HashMap<String, Currency>();
-  private static final Period SWAP_TENOR = Period.of(5, YEARS);
+  private static final Period SWAP_TENOR = Period.ofYears(5);
   private static final double SWAP_RATE = 0.05;
   private static final double SWAP_NOTIONAL = 1.0;
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2012, 6, 29);
   private static final ZonedDateTime SETTLE_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, USDLIBOR6M.getSpotLag(), NYC);
   private static final SwapFixedIborDefinition SWAP_DEFINITION = SwapFixedIborDefinition.from(SETTLE_DATE, SWAP_TENOR, USD6MLIBOR3M, SWAP_NOTIONAL, SWAP_RATE, true);
-  protected static final SwapFixedCoupon<Coupon> SWAP = SWAP_DEFINITION.toDerivative(REFERENCE_DATE, CURVE_NAMES);
+  static final SwapFixedCoupon<Coupon> SWAP = SWAP_DEFINITION.toDerivative(REFERENCE_DATE, CURVE_NAMES);
 
   private static final CombinedInterpolatorExtrapolator INTERPOLATOR_DQ = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC, LINEAR_EXTRAPOLATOR,
       FLAT_EXTRAPOLATOR);
   private static final CombinedInterpolatorExtrapolator INTERPOLATOR_CS = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.NATURAL_CUBIC_SPLINE, LINEAR_EXTRAPOLATOR,
       FLAT_EXTRAPOLATOR);
 
-  protected static final double TOLERANCE_SENSI = 1.0E-6;
+  static final double TOLERANCE_SENSI = 1.0E-6;
 
   static {
     CCY_MAP.put(DISCOUNTING_CURVE_NAME, USD);

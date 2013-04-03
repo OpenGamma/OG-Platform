@@ -25,10 +25,12 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test {@link SimpleSecurityResolver}.
  */
+@Test(groups = TestGroup.UNIT)
 public class SimpleSecurityResolverTest {
 
   private static final ObjectId UNKNOWN_OID = ObjectId.of("Unknown", "Unknown");

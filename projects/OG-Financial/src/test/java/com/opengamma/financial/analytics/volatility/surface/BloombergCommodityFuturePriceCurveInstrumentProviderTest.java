@@ -17,11 +17,14 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.fudgemsg.FinancialTestBase;
 import com.opengamma.id.ExternalId;
+import com.opengamma.util.test.TestGroup;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class BloombergCommodityFuturePriceCurveInstrumentProviderTest extends FinancialTestBase {
+
   private static final String DATA_FIELD_NAME = MarketDataRequirementNames.IMPLIED_VOLATILITY;
   private static final String POSTFIX = "Comdty";
   private static final String SCHEME = ExternalSchemes.BLOOMBERG_BUID_WEAK.getName();

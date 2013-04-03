@@ -10,9 +10,9 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.bumpers.CreditSpreadBumpers;
 import com.opengamma.analytics.financial.credit.bumpers.SpreadBumpType;
-import com.opengamma.analytics.financial.credit.cds.ISDACurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.legacy.PresentValueLegacyCreditDefaultSwap;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.PresentValueCreditDefaultSwap;
+import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
 import com.opengamma.analytics.financial.credit.marketdatachecker.SpreadTermStructureDataChecker;
 import com.opengamma.util.ArgumentChecker;
 
@@ -30,6 +30,8 @@ public class GammaCreditDefaultSwap {
 
   // TODO : Lots of ongoing work to do in this class - Work In Progress
 
+  // TODO : Add beta adjusted variants of these sensitivities
+
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Compute the Gamma by a parallel bump of each point on the spread curve
@@ -37,7 +39,7 @@ public class GammaCreditDefaultSwap {
   public double getGammaParallelShiftCreditDefaultSwap(
       final ZonedDateTime valuationDate,
       final LegacyVanillaCreditDefaultSwapDefinition cds,
-      final ISDACurve yieldCurve,
+      final ISDADateCurve/*ISDACurve*/yieldCurve,
       final ZonedDateTime[] marketTenors,
       final double[] marketSpreads,
       final double spreadBump,
@@ -88,16 +90,17 @@ public class GammaCreditDefaultSwap {
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Create a CDS PV calculator
-    final PresentValueLegacyCreditDefaultSwap creditDefaultSwap = new PresentValueLegacyCreditDefaultSwap();
+    //final PresentValueLegacyCreditDefaultSwap creditDefaultSwap = new PresentValueLegacyCreditDefaultSwap();
+    final PresentValueCreditDefaultSwap creditDefaultSwap = new PresentValueCreditDefaultSwap();
 
     // Calculate the unbumped CDS PV
-    final double presentValue = 0; //creditDefaultSwap.calibrateAndGetPresentValue(valuationDate, cds, marketTenors, marketSpreads, yieldCurve, priceType);
+    final double presentValue = creditDefaultSwap.calibrateAndGetPresentValue(valuationDate, cds, marketTenors, marketSpreads, yieldCurve, priceType);
 
     // Calculate the bumped up CDS PV
-    final double bumpedUpPresentValue = 0; //creditDefaultSwap.calibrateAndGetPresentValue(valuationDate, cds, marketTenors, bumpedUpMarketSpreads, yieldCurve, priceType);
+    final double bumpedUpPresentValue = creditDefaultSwap.calibrateAndGetPresentValue(valuationDate, cds, marketTenors, bumpedUpMarketSpreads, yieldCurve, priceType);
 
     // Calculate the bumped down CDS PV
-    final double bumpedDownPresentValue = 0; //creditDefaultSwap.calibrateAndGetPresentValue(valuationDate, cds, marketTenors, bumpedDownMarketSpreads, yieldCurve, priceType);
+    final double bumpedDownPresentValue = creditDefaultSwap.calibrateAndGetPresentValue(valuationDate, cds, marketTenors, bumpedDownMarketSpreads, yieldCurve, priceType);
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -114,7 +117,7 @@ public class GammaCreditDefaultSwap {
   public double[] getGammaBucketedCreditDefaultSwap(
       final ZonedDateTime valuationDate,
       final LegacyVanillaCreditDefaultSwapDefinition cds,
-      final ISDACurve yieldCurve,
+      final ISDADateCurve/*ISDACurve*/yieldCurve,
       final ZonedDateTime[] marketTenors,
       final double[] marketSpreads,
       final double spreadBump,
@@ -151,10 +154,11 @@ public class GammaCreditDefaultSwap {
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Create a CDS calculator object
-    final PresentValueLegacyCreditDefaultSwap creditDefaultSwap = new PresentValueLegacyCreditDefaultSwap();
+    //final PresentValueLegacyCreditDefaultSwap creditDefaultSwap = new PresentValueLegacyCreditDefaultSwap();
+    final PresentValueCreditDefaultSwap creditDefaultSwap = new PresentValueCreditDefaultSwap();
 
     // Calculate the unbumped CDS PV
-    final double presentValue = 0; //creditDefaultSwap.calibrateAndGetPresentValue(valuationDate, cds, marketTenors, marketSpreads, yieldCurve, priceType);
+    final double presentValue = creditDefaultSwap.calibrateAndGetPresentValue(valuationDate, cds, marketTenors, marketSpreads, yieldCurve, priceType);
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -179,10 +183,10 @@ public class GammaCreditDefaultSwap {
       }
 
       // Calculate the bumped up CDS PV
-      final double bumpedUpPresentValue = 0; //creditDefaultSwap.calibrateAndGetPresentValue(valuationDate, cds, marketTenors, bumpedUpMarketSpreads, yieldCurve, priceType);
+      final double bumpedUpPresentValue = creditDefaultSwap.calibrateAndGetPresentValue(valuationDate, cds, marketTenors, bumpedUpMarketSpreads, yieldCurve, priceType);
 
       // Calculate the bumped down CDS PV
-      final double bumpedDownPresentValue = 0; //creditDefaultSwap.calibrateAndGetPresentValue(valuationDate, cds, marketTenors, bumpedDownMarketSpreads, yieldCurve, priceType);
+      final double bumpedDownPresentValue = creditDefaultSwap.calibrateAndGetPresentValue(valuationDate, cds, marketTenors, bumpedDownMarketSpreads, yieldCurve, priceType);
 
       // Compute the bucketed gamma for this tenor
       bucketedGamma[m] = (bumpedUpPresentValue - 2 * presentValue + bumpedDownPresentValue) / (2 * spreadBump);

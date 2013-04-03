@@ -9,6 +9,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.BuySellProtection;
+import com.opengamma.analytics.financial.credit.CreditInstrumentDefinition;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.StubType;
@@ -23,7 +24,7 @@ import com.opengamma.util.money.Currency;
 /**
  *  Definition of a generic Single Name Credit Default Swap contract (abstract class therefore different types of CDS will inherit from this)
  */
-public abstract class CreditDefaultSwapDefinition {
+public abstract class CreditDefaultSwapDefinition implements CreditInstrumentDefinition {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -236,6 +237,12 @@ public abstract class CreditDefaultSwapDefinition {
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  public abstract CreditDefaultSwapDefinition withMaturityDate(ZonedDateTime maturityDate);
+
+  public abstract CreditDefaultSwapDefinition withRecoveryRate(double recoveryRate);
+
+  public abstract CreditDefaultSwapDefinition withEffectiveDate(ZonedDateTime effectiveDate);
 
   // Public member accessor methods
 
@@ -459,4 +466,34 @@ public abstract class CreditDefaultSwapDefinition {
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  @Override
+  public String toString() {
+    return "CreditDefaultSwapDefinition{" +
+        "_buySellProtection=" + _buySellProtection +
+        ", _protectionBuyer=" + _protectionBuyer +
+        ", _protectionSeller=" + _protectionSeller +
+        ", _referenceEntity=" + _referenceEntity +
+        ", _currency=" + _currency +
+        ", _debtSeniority=" + _debtSeniority +
+        ", _restructuringClause=" + _restructuringClause +
+        ", _calendar=" + _calendar +
+        ", _startDate=" + _startDate +
+        ", _effectiveDate=" + _effectiveDate +
+        ", _maturityDate=" + _maturityDate +
+        ", _stubType=" + _stubType +
+        ", _couponFrequency=" + _couponFrequency +
+        ", _daycountFractionConvention=" + _daycountFractionConvention +
+        ", _businessdayAdjustmentConvention=" + _businessdayAdjustmentConvention +
+        ", _immAdjustMaturityDate=" + _immAdjustMaturityDate +
+        ", _adjustEffectiveDate=" + _adjustEffectiveDate +
+        ", _adjustMaturityDate=" + _adjustMaturityDate +
+        ", _notional=" + _notional +
+        ", _recoveryRate=" + _recoveryRate +
+        ", _includeAccruedPremium=" + _includeAccruedPremium +
+        ", _protectionStart=" + _protectionStart +
+        ", _creditKey='" + _creditKey + '\'' +
+        ", _protectionOffset=" + _protectionOffset +
+        '}';
+  }
 }

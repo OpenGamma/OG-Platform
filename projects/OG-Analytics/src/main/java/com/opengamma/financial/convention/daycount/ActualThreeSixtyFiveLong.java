@@ -29,7 +29,7 @@ public class ActualThreeSixtyFiveLong extends ActualTypeDayCount {
     Validate.notNull(previousCouponDate);
     Validate.notNull(date);
     Validate.notNull(nextCouponDate);
-    return getAccruedInterest(previousCouponDate.getDate(), date.getDate(), nextCouponDate.getDate(), coupon, paymentsPerYear);
+    return getAccruedInterest(previousCouponDate.toLocalDate(), date.toLocalDate(), nextCouponDate.toLocalDate(), coupon, paymentsPerYear);
   }
 
   @Override

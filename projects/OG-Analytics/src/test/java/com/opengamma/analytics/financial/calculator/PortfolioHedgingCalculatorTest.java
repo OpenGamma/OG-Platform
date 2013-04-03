@@ -16,8 +16,8 @@ import java.util.LinkedHashSet;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Maps;
-import com.opengamma.analytics.financial.curve.sensitivity.ParameterSensitivity;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.math.matrix.CommonsMatrixAlgebra;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
@@ -66,11 +66,11 @@ public class PortfolioHedgingCalculatorTest {
     for (int loopnode = 0; loopnode < NB_SENSI_1; loopnode++) {
       sensiOpposite[loopnode] = -SENSI_1[loopnode];
     }
-    ParameterSensitivity ps = new ParameterSensitivity();
+    MultipleCurrencyParameterSensitivity ps = new MultipleCurrencyParameterSensitivity();
     ps = ps.plus(NAME_1_EUR, new DoubleMatrix1D(SENSI_1));
-    ParameterSensitivity[] rs = new ParameterSensitivity[NB_SENSI_1];
+    MultipleCurrencyParameterSensitivity[] rs = new MultipleCurrencyParameterSensitivity[NB_SENSI_1];
     for (int loopnode = 0; loopnode < NB_SENSI_1; loopnode++) {
-      rs[loopnode] = new ParameterSensitivity();
+      rs[loopnode] = new MultipleCurrencyParameterSensitivity();
       double[] r = new double[NB_SENSI_1];
       r[loopnode] = 1.0;
       rs[loopnode] = rs[loopnode].plus(NAME_1_EUR, new DoubleMatrix1D(r));
@@ -102,22 +102,22 @@ public class PortfolioHedgingCalculatorTest {
    */
   public void checkMin() {
     int nbSensi = NB_SENSI_1 + NB_SENSI_2;
-    ParameterSensitivity ps = new ParameterSensitivity();
+    MultipleCurrencyParameterSensitivity ps = new MultipleCurrencyParameterSensitivity();
     ps = ps.plus(NAME_1_EUR, new DoubleMatrix1D(SENSI_1));
     ps = ps.plus(NAME_1_USD, new DoubleMatrix1D(SENSI_1));
     ps = ps.plus(NAME_2_EUR, new DoubleMatrix1D(SENSI_2));
     int nbReference = 4;
-    ParameterSensitivity[] rs = new ParameterSensitivity[nbReference];
-    rs[0] = new ParameterSensitivity();
+    MultipleCurrencyParameterSensitivity[] rs = new MultipleCurrencyParameterSensitivity[nbReference];
+    rs[0] = new MultipleCurrencyParameterSensitivity();
     rs[0] = rs[0].plus(NAME_1_EUR, new DoubleMatrix1D(new double[] {1.0, 0.0, 0.0, 0.0}));
     rs[0] = rs[0].plus(NAME_2_EUR, new DoubleMatrix1D(new double[] {1.0, 0.0, 0.0, 0.0, 0.0}));
-    rs[1] = new ParameterSensitivity();
+    rs[1] = new MultipleCurrencyParameterSensitivity();
     rs[1] = rs[1].plus(NAME_1_EUR, new DoubleMatrix1D(new double[] {0.0, 0.5, 0.0, 0.0}));
     rs[1] = rs[1].plus(NAME_2_EUR, new DoubleMatrix1D(new double[] {0.0, 1.0, 0.0, 0.0, 0.0}));
-    rs[2] = new ParameterSensitivity();
+    rs[2] = new MultipleCurrencyParameterSensitivity();
     rs[2] = rs[2].plus(NAME_1_EUR, new DoubleMatrix1D(new double[] {0.0, 0.0, 1.0, 2.0}));
     rs[2] = rs[2].plus(NAME_2_EUR, new DoubleMatrix1D(new double[] {0.0, 0.0, 0.0, 0.0, 0.0}));
-    rs[3] = new ParameterSensitivity();
+    rs[3] = new MultipleCurrencyParameterSensitivity();
     rs[3] = rs[3].plus(NAME_1_EUR, new DoubleMatrix1D(new double[] {0.0, 0.0, 0.0, 0.0}));
     rs[3] = rs[3].plus(NAME_2_EUR, new DoubleMatrix1D(new double[] {0.0, 0.0, 1.0, 1.0, 1.0}));
     // Weights: tridiagonal + sum by curve
@@ -134,7 +134,7 @@ public class PortfolioHedgingCalculatorTest {
     DoubleMatrix2D wtW = (DoubleMatrix2D) MATRIX.multiply(MATRIX.getTranspose(w), w);
     // Hedging
     double[] hedging = PortfolioHedgingCalculator.hedgeQuantity(ps, rs, w, ORDER, FX_MATRIX);
-    ParameterSensitivity psMin = new ParameterSensitivity();
+    MultipleCurrencyParameterSensitivity psMin = new MultipleCurrencyParameterSensitivity();
     psMin = psMin.plus(ps);
     for (int loopref = 0; loopref < nbReference; loopref++) { // To created the hedge portfolio
       psMin = psMin.plus(rs[loopref].multipliedBy(hedging[loopref]));
@@ -147,7 +147,7 @@ public class PortfolioHedgingCalculatorTest {
     double[] penaltyPlus = new double[nbReference];
     double[] penaltyMinus = new double[nbReference];
     for (int loopref = 0; loopref < nbReference; loopref++) { // Shift on each quantity
-      ParameterSensitivity psPertPlus = new ParameterSensitivity();
+      MultipleCurrencyParameterSensitivity psPertPlus = new MultipleCurrencyParameterSensitivity();
       psPertPlus = psPertPlus.plus(psMin);
       psPertPlus = psPertPlus.plus(rs[loopref].multipliedBy(shift));
       DoubleMatrix1D psPertPlusMat = PortfolioHedgingCalculator.toMatrix(psPertPlus.converted(FX_MATRIX, EUR), ORDER);
@@ -155,7 +155,7 @@ public class PortfolioHedgingCalculatorTest {
       penaltyPlus[loopref] = ((DoubleMatrix2D) MATRIX.multiply(psPertPlusMatT, MATRIX.multiply(wtW, psPertPlusMat))).getEntry(0, 0);
       assertTrue("PortfolioHedgingCalculator: minimum", penalty < penaltyPlus[loopref]);
 
-      ParameterSensitivity psPertMinus = new ParameterSensitivity();
+      MultipleCurrencyParameterSensitivity psPertMinus = new MultipleCurrencyParameterSensitivity();
       psPertMinus = psPertMinus.plus(psMin);
       psPertMinus = psPertMinus.plus(rs[loopref].multipliedBy(-shift));
       DoubleMatrix1D psPertMinusMat = PortfolioHedgingCalculator.toMatrix(psPertMinus.converted(FX_MATRIX, EUR), ORDER);
@@ -174,15 +174,15 @@ public class PortfolioHedgingCalculatorTest {
     final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> map1 = Maps.newLinkedHashMap();
     map1.put(NAME_1_EUR, SENSITIVITY_1_1);
     map1.put(NAME_2_EUR, SENSITIVITY_2_1);
-    final ParameterSensitivity sensitivity1 = ParameterSensitivity.of(map1);
+    final MultipleCurrencyParameterSensitivity sensitivity1 = MultipleCurrencyParameterSensitivity.of(map1);
     final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> map2 = Maps.newLinkedHashMap();
     map2.put(NAME_1_EUR, SENSITIVITY_1_1);
     map2.put(NAME_2_EUR, SENSITIVITY_1_1);
-    final ParameterSensitivity sensitivity2 = ParameterSensitivity.of(map2);
+    final MultipleCurrencyParameterSensitivity sensitivity2 = MultipleCurrencyParameterSensitivity.of(map2);
     final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> map3 = Maps.newLinkedHashMap();
     map3.put(NAME_2_EUR, SENSITIVITY_2_1);
     map3.put(NAME_1_EUR, SENSITIVITY_1_1);
-    final ParameterSensitivity sensitivity3 = ParameterSensitivity.of(map3);
+    final MultipleCurrencyParameterSensitivity sensitivity3 = MultipleCurrencyParameterSensitivity.of(map3);
     final double[] total1 = new double[SENSITIVITY_1_1.getNumberOfElements() + SENSITIVITY_2_1.getNumberOfElements()];
     int j = 0;
     for (int i = 0; i < SENSITIVITY_1_1.getNumberOfElements(); i++, j++) {

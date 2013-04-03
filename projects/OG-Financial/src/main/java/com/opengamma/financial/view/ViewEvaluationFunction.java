@@ -5,20 +5,15 @@
  */
 package com.opengamma.financial.view;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
-import org.threeten.bp.LocalDate;
-import org.threeten.bp.LocalDateTime;
-import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
@@ -29,29 +24,24 @@ import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
-import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.ViewProcessor;
-import com.opengamma.engine.view.calc.ViewCycleMetadata;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
-import com.opengamma.engine.view.execution.ArbitraryViewCycleExecutionSequence;
+import com.opengamma.engine.view.cycle.ViewCycleMetadata;
 import com.opengamma.engine.view.execution.ExecutionOptions;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.execution.ViewExecutionFlags;
 import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.financial.OpenGammaExecutionContext;
-import com.opengamma.financial.analytics.timeseries.DateConstraint;
 import com.opengamma.id.UniqueId;
-import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
@@ -60,14 +50,14 @@ import com.opengamma.master.config.ConfigSearchResult;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.async.AsynchronousOperation;
 import com.opengamma.util.async.ResultCallback;
-import com.opengamma.util.time.DateUtils;
 
 /**
- * Iterates a view client over historical data to produce historical valuations of one or more targets. The targets required and the parameters for the valuation are encoded into a
- * {@link ViewEvaluationTarget}. The results of the valuation are written to the value cache as a {@link ViewEvaluationResult} for each configuration and dependent nodes in the graph will extract time
- * series appropriate to their specific targets.
+ * Runs an arbitrary execution sequence on a view definition to produce values for one or more targets. The job is encoded into a {@link ViewEvaluationTarget}.
+ * 
+ * @param <TTarget> the computation target type
+ * @param <TResultBuilder> the type of the result builder used throughout execution
  */
-public class ViewEvaluationFunction extends AbstractFunction.NonCompiledInvoker {
+public abstract class ViewEvaluationFunction<TTarget extends ViewEvaluationTarget, TResultBuilder> extends AbstractFunction.NonCompiledInvoker {
 
   /**
    * Name of the property used to distinguish the outputs when the view definition has multiple calculation configurations.
@@ -76,22 +66,30 @@ public class ViewEvaluationFunction extends AbstractFunction.NonCompiledInvoker 
 
   private static final Logger s_logger = LoggerFactory.getLogger(ViewEvaluationFunction.class);
 
+  private final String _valueRequirementName;
+  private final ComputationTargetType _targetType;
+
+  public ViewEvaluationFunction(String valueRequirementName, Class<TTarget> targetType) {
+    _valueRequirementName = valueRequirementName;
+    _targetType = ComputationTargetType.of(targetType);
+  }
+
   // CompiledFunctionDefinition
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.of(ViewEvaluationTarget.class);
+    return _targetType;
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    final ViewEvaluationTarget viewEvaluation = (ViewEvaluationTarget) target.getValue();
+    final TTarget viewEvaluation = (TTarget) target.getValue();
     final Collection<String> calcConfigs = viewEvaluation.getViewDefinition().getAllCalculationConfigurationNames();
     final Set<ValueSpecification> results = Sets.newHashSetWithExpectedSize(calcConfigs.size());
-    final ValueProperties.Builder properties = createValueProperties();
     for (final String calcConfig : calcConfigs) {
-      properties.withoutAny(PROPERTY_CALC_CONFIG).with(PROPERTY_CALC_CONFIG, calcConfig);
-      results.add(new ValueSpecification(ValueRequirementNames.VALUE, target.toSpecification(), properties.get()));
+      ComputationTargetSpecification targetSpec = target.toSpecification();
+      results.add(getResultSpec(calcConfig, targetSpec));
     }
     return results;
   }
@@ -131,37 +129,6 @@ public class ViewEvaluationFunction extends AbstractFunction.NonCompiledInvoker 
     return uid;
   }
 
-  protected Collection<ViewCycleExecutionOptions> getExecutionCycleOptions(final FunctionExecutionContext executionContext, final ViewEvaluationTarget target) {
-    LocalDate startDate = DateConstraint.getLocalDate(executionContext, target.getFirstValuationDate());
-    if (startDate == null) {
-      startDate = LocalDate.now(executionContext.getValuationClock());
-    }
-    if (!target.isIncludeFirstValuationDate()) {
-      startDate = startDate.plusDays(1);
-    }
-    LocalDate finishDate = DateConstraint.getLocalDate(executionContext, target.getLastValuationDate());
-    if (finishDate == null) {
-      finishDate = LocalDate.now(executionContext.getValuationClock());
-    }
-    if (!target.isIncludeLastValuationDate()) {
-      finishDate = finishDate.minusDays(1);
-    }
-    if (startDate.isAfter(finishDate)) {
-      throw new IllegalArgumentException("First valuation date " + startDate + " is after last valuation date " + finishDate);
-    }
-    LocalDateTime dateTime = LocalDateTime.of(startDate, target.getValuationTime());
-    final Collection<ViewCycleExecutionOptions> cycles = new ArrayList<ViewCycleExecutionOptions>(DateUtils.getDaysBetween(startDate, true, finishDate, true));
-    do {
-      final ZonedDateTime valuation = ZonedDateTime.of(dateTime, target.getTimeZone());
-      cycles.add(ViewCycleExecutionOptions.builder().setValuationTime(valuation.toInstant()).setMarketDataSpecification(MarketData.historical(dateTime.getDate(), null))
-          .setResolverVersionCorrection(VersionCorrection.of(valuation.toInstant(), target.getCorrection())).create());
-      if (dateTime.getDate().equals(finishDate)) {
-        return cycles;
-      }
-      dateTime = dateTime.plusDays(1);
-    } while (true);
-  }
-
   // FunctionInvoker
 
   @Override
@@ -176,9 +143,11 @@ public class ViewEvaluationFunction extends AbstractFunction.NonCompiledInvoker 
     final ViewClient viewClient = viewProcessor.createViewClient(viewEvaluation.getViewDefinition().getMarketDataUser());
     final UniqueId viewClientId = viewClient.getUniqueId();
     s_logger.info("Created view client {}, connecting to {}", viewClientId, viewId);
-    final Collection<ViewCycleExecutionOptions> cycles = getExecutionCycleOptions(executionContext, viewEvaluation);
-    viewClient.attachToViewProcess(viewId, ExecutionOptions.of(new ArbitraryViewCycleExecutionSequence(cycles), EnumSet.of(ViewExecutionFlags.WAIT_FOR_INITIAL_TRIGGER)), true);
-    final ViewEvaluationResultBuilder resultBuilder = new ViewEvaluationResultBuilder(viewEvaluation.getTimeZone(), cycles.size(), viewEvaluation.getViewDefinition());
+    viewClient.attachToViewProcess(
+        viewId,
+        ExecutionOptions.of(viewEvaluation.getExecutionSequence().createSequence(executionContext), getDefaultCycleOptions(executionContext),
+            EnumSet.of(ViewExecutionFlags.WAIT_FOR_INITIAL_TRIGGER, ViewExecutionFlags.RUN_AS_FAST_AS_POSSIBLE)), true);
+    final TResultBuilder resultBuilder = createResultBuilder(viewEvaluation);
     final AsynchronousOperation<Set<ComputedValue>> async = AsynchronousOperation.createSet();
     final AtomicReference<ResultCallback<Set<ComputedValue>>> asyncResult = new AtomicReference<ResultCallback<Set<ComputedValue>>>(async.getCallback());
     viewClient.setResultListener(new ViewResultListener() {
@@ -219,7 +188,7 @@ public class ViewEvaluationFunction extends AbstractFunction.NonCompiledInvoker 
       @Override
       public void viewDefinitionCompiled(final CompiledViewDefinition compiledViewDefinition, final boolean hasMarketDataPermissions) {
         s_logger.debug("View definition compiled for {}", viewClientId);
-        resultBuilder.store(compiledViewDefinition);
+        store(compiledViewDefinition, resultBuilder);
       }
 
       @Override
@@ -246,8 +215,7 @@ public class ViewEvaluationFunction extends AbstractFunction.NonCompiledInvoker 
       public void cycleCompleted(final ViewComputationResultModel fullResult, final ViewDeltaResultModel deltaResult) {
         s_logger.debug("Cycle completed for {}", viewClientId);
         try {
-          viewClient.triggerCycle();
-          resultBuilder.store(fullResult);
+          store(fullResult, resultBuilder);
         } catch (final RuntimeException e) {
           s_logger.error("Caught exception during cycle completed callback", e);
           reportException(e);
@@ -264,14 +232,7 @@ public class ViewEvaluationFunction extends AbstractFunction.NonCompiledInvoker 
       public void processCompleted() {
         s_logger.info("View process completed for {}", viewClientId);
         try {
-          final Map<String, ViewEvaluationResult> viewResults = resultBuilder.getResults();
-          final Set<ComputedValue> results = Sets.newHashSetWithExpectedSize(viewResults.size());
-          final ValueProperties.Builder properties = createValueProperties();
-          final ComputationTargetSpecification targetSpec = target.toSpecification();
-          for (final Map.Entry<String, ViewEvaluationResult> viewResult : viewResults.entrySet()) {
-            properties.withoutAny(PROPERTY_CALC_CONFIG).with(PROPERTY_CALC_CONFIG, viewResult.getKey());
-            results.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.VALUE, targetSpec, properties.get()), viewResult.getValue()));
-          }
+          Set<ComputedValue> results = buildResults(target, resultBuilder);
           reportResult(results);
         } catch (final RuntimeException e) {
           s_logger.error("Caught exception during process completed callback", e);
@@ -307,5 +268,21 @@ public class ViewEvaluationFunction extends AbstractFunction.NonCompiledInvoker 
     viewClient.triggerCycle();
     return async.getResult();
   }
+
+  //-------------------------------------------------------------------------
+  protected ValueSpecification getResultSpec(String calcConfigName, ComputationTargetSpecification targetSpec) {
+    ValueProperties.Builder properties = createValueProperties().withoutAny(PROPERTY_CALC_CONFIG).with(PROPERTY_CALC_CONFIG, calcConfigName);
+    return new ValueSpecification(_valueRequirementName, targetSpec, properties.get());
+  }
+
+  protected abstract ViewCycleExecutionOptions getDefaultCycleOptions(FunctionExecutionContext context);
+
+  protected abstract TResultBuilder createResultBuilder(ViewEvaluationTarget viewEvaluation);
+
+  protected abstract void store(ViewComputationResultModel results, TResultBuilder resultBuilder);
+
+  protected abstract void store(CompiledViewDefinition compiledViewDefinition, TResultBuilder resultBuilder);
+
+  protected abstract Set<ComputedValue> buildResults(ComputationTarget target, TResultBuilder resultBuilder);
 
 }

@@ -130,8 +130,13 @@ public enum InterestRateInstrumentType {
   /**
    * Engine {@link ComputationTargetType} corresponding to securities which would return true for {@link #isFixedIncomeInstrumentType}.
    */
-  public static final ComputationTargetType FIXED_INCOME_INSTRUMENT_TARGET_TYPE = FinancialSecurityTypes.GOVERNMENT_BOND_SECURITY.or(FinancialSecurityTypes.MUNICIPAL_BOND_SECURITY)
-      .or(FinancialSecurityTypes.CORPORATE_BOND_SECURITY).or(FinancialSecurityTypes.CASH_SECURITY).or(FinancialSecurityTypes.FRA_SECURITY)
-      .or(FinancialSecurityTypes.BOND_FUTURE_SECURITY).or(FinancialSecurityTypes.INTEREST_RATE_FUTURE_SECURITY).or(FinancialSecurityTypes.SWAP_SECURITY);
+  public static final ComputationTargetType FIXED_INCOME_INSTRUMENT_TARGET_TYPE = FinancialSecurityTypes.GOVERNMENT_BOND_SECURITY
+      .or(FinancialSecurityTypes.MUNICIPAL_BOND_SECURITY)
+      .or(FinancialSecurityTypes.CORPORATE_BOND_SECURITY)
+      .or(FinancialSecurityTypes.CASH_SECURITY)
+      .or(FinancialSecurityTypes.FRA_SECURITY)
+      .or(FinancialSecurityTypes.BOND_FUTURE_SECURITY)
+      .or(FinancialSecurityTypes.INTEREST_RATE_FUTURE_SECURITY)
+      .or(FinancialSecurityTypes.SWAP_SECURITY);
 
 }

@@ -13,6 +13,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+import net.sf.ehcache.CacheManager;
+
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.opengamma.core.position.Position;
@@ -22,13 +27,32 @@ import com.opengamma.engine.target.MockComputationTargetResolver;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ehcache.EHCacheUtils;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the {@link LazyResolvedPosition} class
  */
-@Test
+@Test(groups = {TestGroup.UNIT, "ehcache" })
 public class LazyResolvedPositionTest {
 
+  private CacheManager _cacheManager;
+
+  @BeforeClass
+  public void setUpClass() {
+    _cacheManager = EHCacheUtils.createTestCacheManager(getClass());
+  }
+
+  @AfterClass
+  public void tearDownClass() {
+    EHCacheUtils.shutdownQuiet(_cacheManager);
+  }
+
+  @BeforeMethod
+  public void setUp() {
+    EHCacheUtils.clear(_cacheManager);
+  }
+
+  //-------------------------------------------------------------------------
   public void testBasicMethods() {
     final MockComputationTargetResolver resolver = MockComputationTargetResolver.resolved();
     final Position underlying = resolver.getPositionSource().getPosition(UniqueId.of("Position", "0"));
@@ -58,7 +82,7 @@ public class LazyResolvedPositionTest {
     final MockComputationTargetResolver resolver = MockComputationTargetResolver.resolved();
     final Position underlying = resolver.getPositionSource().getPosition(UniqueId.of("Position", "0"));
     Position position = new LazyResolvedPosition(new LazyResolveContext(resolver.getSecuritySource(), new DefaultCachingComputationTargetResolver(resolver,
-        EHCacheUtils.createCacheManager())).atVersionCorrection(VersionCorrection.LATEST), underlying);
+        _cacheManager)).atVersionCorrection(VersionCorrection.LATEST), underlying);
     final ByteArrayOutputStream baos = new ByteArrayOutputStream();
     new ObjectOutputStream(baos).writeObject(position);
     final Object resultObject = new ObjectInputStream(new ByteArrayInputStream(baos.toByteArray())).readObject();

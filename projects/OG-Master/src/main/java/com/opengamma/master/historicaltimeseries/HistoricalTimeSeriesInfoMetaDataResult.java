@@ -295,7 +295,7 @@ public class HistoricalTimeSeriesInfoMetaDataResult extends AbstractMetaDataResu
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "dataFields",
         "dataSources",
         "dataProviders",

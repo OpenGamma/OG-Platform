@@ -29,7 +29,7 @@ public class GeneratorDepositONCounterpartTest {
   private static final String NAME_GENERATOR = "US Govt Deposit ON";
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-  private static final Currency CUR = Currency.USD;
+  private static final Currency CUR = Currency.EUR;
   private static final String NAME_COUNTERPART = "US GOVT";
   private static final GeneratorDepositONCounterpart GENERATOR_DEPOSIT_ON_USD = new GeneratorDepositONCounterpart(NAME_GENERATOR, CUR, CALENDAR, DAY_COUNT, NAME_COUNTERPART);
 
@@ -70,10 +70,11 @@ public class GeneratorDepositONCounterpartTest {
   @Test
   public void generateInstrument() {
     ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 7, 17);
-    Period tenor = Period.of(2, DAYS);
+    Period tenor = Period.ofDays(2);
     double rate = 0.01;
     double notional = 12345;
-    DepositCounterpartDefinition insGenerated = GENERATOR_DEPOSIT_ON_USD.generateInstrument(referenceDate, tenor, rate, notional);
+    GeneratorAttributeIR attribute = new GeneratorAttributeIR(tenor, tenor);
+    DepositCounterpartDefinition insGenerated = GENERATOR_DEPOSIT_ON_USD.generateInstrument(referenceDate, rate, notional, attribute);
     ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(referenceDate, tenor, CALENDAR);
     ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, 1, CALENDAR);
     double accrualFactor = DAY_COUNT.getDayCountFraction(startDate, endDate);

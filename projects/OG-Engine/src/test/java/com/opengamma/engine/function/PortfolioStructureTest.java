@@ -24,11 +24,12 @@ import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdSupplier;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests for the {@link PortfolioStructure} class. 
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class PortfolioStructureTest {
 
   private FunctionCompilationContext _context;

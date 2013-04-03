@@ -113,7 +113,7 @@ public class Grid2DInterpolatedVolatilitySurfaceFunctionDeprecated extends Abstr
     final LocalDate[] xDates = volatilitySurfaceData.getXs();
     final Double[] y = volatilitySurfaceData.getYs();
     for (int i = 0; i < n; i++) {
-      final Double time = DateUtils.getDifferenceInYears(now.getDate(), xDates[i]);
+      final Double time = DateUtils.getDifferenceInYears(now.toLocalDate(), xDates[i]);
       for (int j = 0; j < m; j++) {
         final Double strike = y[j];
         final Double vol = volatilitySurfaceData.getVolatility(xDates[i], y[j]);

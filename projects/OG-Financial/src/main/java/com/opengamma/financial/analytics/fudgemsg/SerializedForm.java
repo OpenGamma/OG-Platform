@@ -17,6 +17,7 @@ import org.fudgemsg.wire.types.FudgeWireType;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.util.serialization.InvokedSerializedForm;
+import com.opengamma.util.ClassUtils;
 
 /**
  * Fudge builders for alternative serialized forms of objects.
@@ -60,7 +61,7 @@ import com.opengamma.analytics.util.serialization.InvokedSerializedForm;
           if (field.getOrdinal() == null) {
             if (field.getValue() instanceof String) {
               try {
-                outer = Class.forName((String) field.getValue());
+                outer = ClassUtils.loadClass((String) field.getValue());
               } catch (final ClassNotFoundException e) {
                 throw new OpenGammaRuntimeException("Class not found", e);
               }

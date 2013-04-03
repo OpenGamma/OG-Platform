@@ -23,8 +23,8 @@ public abstract class AbstractBusinessDayConvention implements BusinessDayConven
 
   @Override
   public ZonedDateTime adjustDate(final Calendar workingDayCalendar, final ZonedDateTime dateTime) {
-    LocalDate adjusted = adjustDate(workingDayCalendar, dateTime.getDate());
-    return adjusted.atTime(dateTime.getTime()).atZone(dateTime.getZone());
+    LocalDate adjusted = adjustDate(workingDayCalendar, dateTime.toLocalDate());
+    return adjusted.atTime(dateTime.toLocalTime()).atZone(dateTime.getZone());
   }
 
   @Override

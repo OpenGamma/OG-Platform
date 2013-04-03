@@ -21,9 +21,10 @@ import org.threeten.bp.Instant;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ComputedValueResult;
-import com.opengamma.engine.view.InMemoryViewResultModel;
 import com.opengamma.engine.view.ViewCalculationResultModel;
 import com.opengamma.engine.view.ViewResultModel;
+import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
+import com.opengamma.engine.view.impl.InMemoryViewResultModel;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 
@@ -33,7 +34,7 @@ import com.opengamma.id.VersionCorrection;
 public abstract class ViewResultModelFudgeBuilder {
   private static final String FIELD_VIEWPROCESSID = "viewProcessId";
   private static final String FIELD_VIEWCYCLEID = "viewCycleId";
-  private static final String FIELD_VALUATION_TIME = "valuationTime";
+  private static final String FIELD_VIEW_CYCLE_EXECUTION_OPTIONS = "viewCycleExecutionOptions";
   private static final String FIELD_CALCULATION_TIME = "calculationTime";
   private static final String FIELD_CALCULATION_DURATION = "calculationDuration";
   private static final String FIELD_VERSION_CORRECTION = "versionCorrection";
@@ -43,8 +44,8 @@ public abstract class ViewResultModelFudgeBuilder {
     final MutableFudgeMsg message = serializer.newMessage();
     message.add(FIELD_VIEWPROCESSID, resultModel.getViewProcessId());
     message.add(FIELD_VIEWCYCLEID, resultModel.getViewCycleId());
-    message.add(FIELD_VALUATION_TIME, resultModel.getValuationTime());
     message.add(FIELD_CALCULATION_TIME, resultModel.getCalculationTime());
+    serializer.addToMessage(message, FIELD_VIEW_CYCLE_EXECUTION_OPTIONS, null, resultModel.getViewCycleExecutionOptions());
     serializer.addToMessage(message, FIELD_CALCULATION_DURATION, null, resultModel.getCalculationDuration());
     serializer.addToMessage(message, FIELD_VERSION_CORRECTION, null, resultModel.getVersionCorrection());
     final Collection<String> calculationConfigurations = resultModel.getCalculationConfigurationNames();
@@ -60,7 +61,7 @@ public abstract class ViewResultModelFudgeBuilder {
   protected InMemoryViewResultModel bootstrapCommonDataFromMessage(final FudgeDeserializer deserializer, final FudgeMsg message) {
     final UniqueId viewProcessId = message.getValue(UniqueId.class, FIELD_VIEWPROCESSID);
     final UniqueId viewCycleId = message.getValue(UniqueId.class, FIELD_VIEWCYCLEID);
-    final Instant valuationTime = message.getFieldValue(Instant.class, message.getByName(FIELD_VALUATION_TIME));
+    final ViewCycleExecutionOptions viewCycleExecutionOptions = deserializer.fieldValueToObject(ViewCycleExecutionOptions.class, message.getByName(FIELD_VIEW_CYCLE_EXECUTION_OPTIONS));
     final Instant calculationTime = message.getFieldValue(Instant.class, message.getByName(FIELD_CALCULATION_TIME));
     FudgeField durationField = message.getByName(FIELD_CALCULATION_DURATION);
     final Duration calculationDuration = durationField != null ? deserializer.fieldValueToObject(Duration.class, durationField) : null;
@@ -97,7 +98,7 @@ public abstract class ViewResultModelFudgeBuilder {
     
     resultModel.setViewProcessId(viewProcessId);
     resultModel.setViewCycleId(viewCycleId);
-    resultModel.setValuationTime(valuationTime);
+    resultModel.setViewCycleExecutionOptions(viewCycleExecutionOptions);
     resultModel.setCalculationTime(calculationTime);
     resultModel.setCalculationDuration(calculationDuration);
     resultModel.setVersionCorrection(versionCorrection);

@@ -18,11 +18,12 @@ import org.threeten.bp.Month;
 
 import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.id.ExternalId;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test.
  */
-@Test(groups = "unit")
+@Test(groups = TestGroup.UNIT)
 public class BloombergEQVanillaOptionChainTest {
 
   // ------------ FIELDS ------------

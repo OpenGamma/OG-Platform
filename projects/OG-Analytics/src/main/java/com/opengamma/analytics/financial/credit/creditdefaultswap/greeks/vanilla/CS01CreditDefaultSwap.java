@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.credit.creditdefaultswap.greeks.vanilla;
@@ -10,9 +10,9 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.bumpers.CreditSpreadBumpers;
 import com.opengamma.analytics.financial.credit.bumpers.SpreadBumpType;
-import com.opengamma.analytics.financial.credit.cds.ISDACurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.PresentValueCreditDefaultSwap;
+import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
 import com.opengamma.analytics.financial.credit.marketdatachecker.SpreadTermStructureDataChecker;
 import com.opengamma.util.ArgumentChecker;
 
@@ -40,11 +40,10 @@ public class CS01CreditDefaultSwap {
   // ------------------------------------------------------------------------------------------------------------------------------------------
 
   // Compute the CS01 by a parallel bump of each point on the spread curve
-
   public double getCS01ParallelShiftCreditDefaultSwap(
       final ZonedDateTime valuationDate,
       final LegacyVanillaCreditDefaultSwapDefinition cds,
-      final ISDACurve yieldCurve,
+      final ISDADateCurve yieldCurve,
       final ZonedDateTime[] marketTenors,
       final double[] marketSpreads,
       final double spreadBump,
@@ -96,14 +95,73 @@ public class CS01CreditDefaultSwap {
     return parallelCS01;
   }
 
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  // Compute the beta adjusted parallel CS01 
+  public double getBetaAdjustedCS01ParallelShiftCreditDefaultSwap(
+      final ZonedDateTime valuationDate,
+      final LegacyVanillaCreditDefaultSwapDefinition cds,
+      final ISDADateCurve yieldCurve,
+      final ZonedDateTime[] marketTenors,
+      final double[] marketSpreads,
+      final double spreadBump,
+      final double beta,
+      final SpreadBumpType spreadBumpType,
+      final PriceType priceType) {
+
+    // ----------------------------------------------------------------------------------------------------------------------------------------
+
+    // TODO : Check that beta is in the range [-100%, +100%] and not null
+
+    // Compute the unadjusted parallel CS01
+    final double parallelCS01 = getCS01ParallelShiftCreditDefaultSwap(valuationDate, cds, yieldCurve, marketTenors, marketSpreads, spreadBump, spreadBumpType, priceType);
+
+    // beta adjust the parallel CS01
+    final double betaAdjustedParallelCS01 = beta * parallelCS01;
+
+    return betaAdjustedParallelCS01;
+  }
+
   // ------------------------------------------------------------------------------------------------------------------------------------------
 
-  // Compute the CS01 by bumping each point on the spread curve individually by spreadBump (bump is same for all tenors)
+  // Compute the beta adjusted bucketed CS01
+  public double[] getBetaAdjustedCS01BucketedCreditDefaultSwap(
+      final ZonedDateTime valuationDate,
+      final LegacyVanillaCreditDefaultSwapDefinition cds,
+      final ISDADateCurve yieldCurve,
+      final ZonedDateTime[] marketTenors,
+      final double[] marketSpreads,
+      final double spreadBump,
+      final double beta,
+      final SpreadBumpType spreadBumpType,
+      final PriceType priceType) {
 
+    // ----------------------------------------------------------------------------------------------------------------------------------------
+
+    // TODO : Check that beta is in the range [-100%, +100%] and not null
+
+    // ----------------------------------------------------------------------------------------------------------------------------------------
+
+    // Compute the unadjusted parallel CS01
+    final double[] bucketedCS01 = getCS01BucketedCreditDefaultSwap(valuationDate, cds, yieldCurve, marketTenors, marketSpreads, spreadBump, spreadBumpType, priceType);
+
+    final double[] betaAdjustedBucketedCS01 = new double[bucketedCS01.length];
+
+    // beta adjust the bucketed CS01
+    for (int m = 0; m < betaAdjustedBucketedCS01.length; m++) {
+      betaAdjustedBucketedCS01[m] = beta * bucketedCS01[m];
+    }
+
+    return betaAdjustedBucketedCS01;
+  }
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  // Compute the CS01 by bumping each point on the spread curve individually by spreadBump (bump is same for all tenors)
   public double[] getCS01BucketedCreditDefaultSwap(
       final ZonedDateTime valuationDate,
       final LegacyVanillaCreditDefaultSwapDefinition cds,
-      final ISDACurve yieldCurve,
+      final ISDADateCurve yieldCurve,
       final ZonedDateTime[] marketTenors,
       final double[] marketSpreads,
       final double spreadBump,
@@ -138,7 +196,7 @@ public class CS01CreditDefaultSwap {
     // Vector to hold the bumped market spreads
     //double[] bumpedMarketSpreads = new double[marketSpreads.length];
 
-    double[] unbumpedMarketSpreads = new double[marketSpreads.length];
+    final double[] unbumpedMarketSpreads = new double[marketSpreads.length];
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 

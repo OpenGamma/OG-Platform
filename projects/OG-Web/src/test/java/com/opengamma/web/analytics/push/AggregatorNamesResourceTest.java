@@ -14,9 +14,14 @@ import org.springframework.web.context.WebApplicationContext;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableSet;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.analytics.rest.AggregatorNamesResource;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class AggregatorNamesResourceTest {
 
   private static final String AGGREGATOR1 = "aggregator1";

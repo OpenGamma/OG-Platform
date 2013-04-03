@@ -72,7 +72,7 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends I
     final Currency currency = FinancialSecurityUtils.getCurrency(security);
     final Clock snapshotClock = executionContext.getValuationClock();
     final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
-    final LocalDate localNow = now.getDate();
+    final LocalDate localNow = now.toLocalDate();
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final String curveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
     final HistoricalTimeSeriesBundle timeSeries = HistoricalTimeSeriesFunctionUtils.getHistoricalTimeSeriesInputs(executionContext, inputs);
@@ -88,8 +88,13 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends I
       throw new OpenGammaRuntimeException("Could not find curve calculation configuration named " + curveCalculationConfigName);
     }
     final String[] curveNames = curveCalculationConfig.getYieldCurveNames();
+    final int length = curveNames.length;
+    final String[] fullCurveNames = new String[length];
+    for (int i = 0; i < length; i++) {
+      fullCurveNames[i] = curveNames[i] + "_" + currency.getCode();
+    }
     final String curveCalculationMethod = curveCalculationConfig.getCalculationMethod();
-    final InstrumentDerivative derivative = InterestRateInstrumentFunction.getDerivative(security, now, timeSeries, curveNames, definition, getConverter());
+    final InstrumentDerivative derivative = InterestRateInstrumentFunction.getDerivative(security, now, timeSeries, fullCurveNames, definition, getConverter());
     final YieldCurveBundle curves = YieldCurveFunctionUtils.getYieldCurves(inputs, curveCalculationConfig);
     final YieldCurveBundle fixedCurves = YieldCurveFunctionUtils.getFixedCurves(inputs, curveCalculationConfig, curveCalculationConfigSource);
     final ValueProperties properties = createValueProperties(target, curveName, curveCalculationConfigName).get();
@@ -115,8 +120,7 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends I
       final Currency domesticCurrency = ComputationTargetType.CURRENCY.resolve(curveCalculationConfig.getTarget().getUniqueId());
       final Currency foreignCurrency = ComputationTargetType.CURRENCY.resolve(curveCalculationConfigSource.getConfig(curveCalculationConfig.getExogenousConfigData().keySet().iterator().next())
           .getTarget().getUniqueId());
-      return YieldCurveNodeSensitivitiesHelper.getInstrumentLabelledSensitivitiesForCurve(sensitivities, domesticCurrency, foreignCurrency, curveNames,
-          curves, configSource, localNow, resultSpec);
+      return YieldCurveNodeSensitivitiesHelper.getInstrumentLabelledSensitivitiesForCurve(sensitivities, domesticCurrency, foreignCurrency, fullCurveNames, curves, configSource, localNow, resultSpec);
     }
     final ValueRequirement curveSpecRequirement = getCurveSpecRequirement(currency, curveName);
     final Object curveSpecObject = inputs.getValue(curveSpecRequirement);
@@ -124,7 +128,7 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends I
       throw new OpenGammaRuntimeException("Could not get " + curveSpecRequirement);
     }
     final InterpolatedYieldCurveSpecificationWithSecurities curveSpec = (InterpolatedYieldCurveSpecificationWithSecurities) curveSpecObject;
-    return YieldCurveNodeSensitivitiesHelper.getInstrumentLabelledSensitivitiesForCurve(curveName, curves, sensitivities, curveSpec, resultSpec);
+    return YieldCurveNodeSensitivitiesHelper.getInstrumentLabelledSensitivitiesForCurve(curveName + "_" + currency.getCode(), curves, sensitivities, curveSpec, resultSpec);
   }
 
   @Override

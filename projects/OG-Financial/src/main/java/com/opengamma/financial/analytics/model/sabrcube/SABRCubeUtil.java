@@ -7,7 +7,7 @@ package com.opengamma.financial.analytics.model.sabrcube;
 
 import java.util.TreeSet;
 
-import com.opengamma.analytics.util.surface.SurfaceValue;
+import com.opengamma.analytics.util.amount.SurfaceValue;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
 import com.opengamma.util.tuple.DoublesPair;
 

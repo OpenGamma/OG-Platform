@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.engine.view.compilation;
@@ -15,8 +15,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Provides access to a snapshot of the basic state involved in the computation of
- * an individual view calculation configuration. 
+ * Provides access to a snapshot of the basic state involved in the computation of an individual view calculation configuration.
  */
 public interface CompiledViewCalculationConfiguration {
 
@@ -28,11 +27,9 @@ public interface CompiledViewCalculationConfiguration {
   String getName();
 
   /**
-   * Gets the map of terminal output {@link ValueSpecification} to all satisfying requirements {@link ValueRequirement}
-   * for the calculation configuration.
+   * Gets the map of terminal output {@link ValueSpecification} to all satisfying requirements {@link ValueRequirement} for the calculation configuration.
    * 
-   * @return the map of terminal output {@link ValueSpecification} to all satisfying requirements {@link ValueRequirement}
-   * for the calculation configuration., not null
+   * @return the map of terminal output {@link ValueSpecification} to all satisfying requirements {@link ValueRequirement} for the calculation configuration., not null
    */
   Map<ValueSpecification, Set<ValueRequirement>> getTerminalOutputSpecifications();
 
@@ -53,8 +50,8 @@ public interface CompiledViewCalculationConfiguration {
   /**
    * Gets the market data requirements of the calculation configuration.
    * 
-   * @return a map from each stated value requirement to the resolved value specification for market data, not null
+   * @return the value specifications for all required market data, not null
    */
-  Map<ValueRequirement, ValueSpecification> getMarketDataRequirements();
+  Set<ValueSpecification> getMarketDataRequirements();
 
 }

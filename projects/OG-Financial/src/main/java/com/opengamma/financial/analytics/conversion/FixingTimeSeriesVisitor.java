@@ -27,12 +27,12 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.FastBackedDoubleTimeSeries;
-import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
-import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
-import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
-import com.opengamma.util.timeseries.zoneddatetime.ZonedDateTimeEpochMillisConverter;
+import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.FastBackedDoubleTimeSeries;
+import com.opengamma.timeseries.fast.DateTimeNumericEncoding;
+import com.opengamma.timeseries.fast.longint.FastLongDoubleTimeSeries;
+import com.opengamma.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
+import com.opengamma.timeseries.zoneddatetime.ZonedDateTimeEpochMillisConverter;
 
 /**
  * Produces a value requirement that will query the fixing time series for a security.
@@ -68,7 +68,7 @@ public class FixingTimeSeriesVisitor extends FinancialSecurityVisitorAdapter<Val
       final boolean includeEndDate, final HistoricalTimeSeriesResolver resolver) {
     final FloatingInterestRateLeg floatingLeg = leg;
     final ExternalIdBundle id = getIndexIdForSwap(floatingLeg);
-    final LocalDate startDate = swapEffectiveDate.getDate().minusDays(30); // To catch first fixing. SwapSecurity does not have this date.
+    final LocalDate startDate = swapEffectiveDate.toLocalDate().minusDays(30); // To catch first fixing. SwapSecurity does not have this date.
     final HistoricalTimeSeriesResolutionResult ts = resolver.resolve(id, null, null, null, MarketDataRequirementNames.MARKET_VALUE, null);
     if (ts == null) {
       throw new OpenGammaRuntimeException("Could not get time series of underlying index " + id.getExternalIds().toString() + " bundle used was " + id);

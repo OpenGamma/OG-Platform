@@ -11,8 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.view.ViewResultModel;
-import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
+import com.opengamma.engine.view.cycle.ViewCycle;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -174,6 +174,24 @@ import com.opengamma.util.ArgumentChecker;
     s_logger.trace("Executing AnalyticsView.getData");
     ViewportResults retVal = _delegate.getData(gridType, graphId, viewportId);
     s_logger.trace("Method getData completed in " + (System.currentTimeMillis() - startTime) + "ms");
+    return retVal;
+  }
+
+  @Override
+  public List<String> entityChanged(MasterChangeNotification<?> notification) {
+    long startTime = System.currentTimeMillis();
+    s_logger.trace("Executing AnalyticsView.entityChanged");
+    List<String> retVal = _delegate.entityChanged(notification);
+    s_logger.trace("Method entityChanged completed in " + (System.currentTimeMillis() - startTime) + "ms");
+    return retVal;
+  }
+
+  @Override
+  public List<String> portfolioChanged() {
+    long startTime = System.currentTimeMillis();
+    s_logger.trace("Executing AnalyticsView.entityChanged");
+    List<String> retVal = _delegate.portfolioChanged();
+    s_logger.trace("Method portfolioChanged completed in " + (System.currentTimeMillis() - startTime) + "ms");
     return retVal;
   }
 }

@@ -9,6 +9,7 @@ import com.opengamma.analytics.financial.commodity.derivative.AgricultureFutureO
 import com.opengamma.analytics.financial.commodity.derivative.EnergyFutureOption;
 import com.opengamma.analytics.financial.commodity.derivative.MetalFutureOption;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
+import com.opengamma.analytics.financial.equity.option.EquityIndexFutureOption;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.equity.option.EquityOption;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
@@ -17,7 +18,7 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Calculates the value (or dollar) gamma of an option given market data and the gamma. The value gamma is defined as the
- * option gamma multiplied by half of the spot squared and shares per option. 
+ * option gamma multiplied by half of the spot squared and shares per option.
  */
 public final class ValueGammaCalculator implements ValueGreekCalculator {
   /** Static instance */
@@ -55,6 +56,12 @@ public final class ValueGammaCalculator implements ValueGreekCalculator {
     public Double visitEquityIndexOption(final EquityIndexOption option, final StaticReplicationDataBundle market) {
       final double spot = market.getForwardCurve().getSpot();
       return option.getUnitAmount() * spot * spot / 2;
+    }
+
+    @Override
+    public Double visitEquityIndexFutureOption(final EquityIndexFutureOption option, final StaticReplicationDataBundle market) {
+      final double spot = market.getForwardCurve().getSpot();
+      return option.getPointValue() * spot * spot / 2;
     }
 
     @Override

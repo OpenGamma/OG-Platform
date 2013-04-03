@@ -5,16 +5,29 @@
  */
 package com.opengamma.web.analytics;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Instant;
 
+import com.google.common.base.Supplier;
 import com.google.common.collect.Lists;
+import com.opengamma.core.change.ChangeEvent;
+import com.opengamma.core.change.ChangeType;
+import com.opengamma.core.position.Portfolio;
+import com.opengamma.core.position.Position;
+import com.opengamma.core.position.Trade;
+import com.opengamma.core.position.impl.PortfolioMapper;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.view.ViewResultModel;
-import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
+import com.opengamma.engine.view.cycle.ViewCycle;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.UniqueIdentifiable;
+import com.opengamma.id.VersionCorrection;
+import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
 
@@ -33,10 +46,11 @@ import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
   private final ComputationTargetResolver _targetResolver;
   private final String _viewId;
   private final ViewportListener _viewportListener;
-  private final BlotterColumnMapper _blotterColumnMapper;
-  private final boolean _showBlotterColumns;
+  private final VersionCorrection _versionCorrection;
+  private final Supplier<Portfolio> _portfolioSupplier;
+  private final PortfolioEntityExtractor _portfolioEntityExtractor;
 
-  private MainAnalyticsGrid _portfolioGrid;
+  private PortfolioAnalyticsGrid _portfolioGrid;
   private MainAnalyticsGrid _primitivesGrid;
   private CompiledViewDefinition _compiledViewDefinition;
 
@@ -45,18 +59,23 @@ import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
    * @param portoflioCallbackId ID that is passed to the listener when the structure of the portfolio grid changes.
    * This class makes no assumptions about its value
    * @param primitivesCallbackId ID that is passed to the listener when the structure of the primitives grid changes.
-   * This class makes no assumptions about its value
+ * This class makes no assumptions about its value
    * @param targetResolver For looking up calculation targets by specification
    * @param viewportListener Notified when any viewport is created, updated or deleted
    * @param blotterColumnMapper For populating the blotter columns with details for each different security type
+   * @param portfolioSupplier Supplies an up to date version of the portfolio
    * @param showBlotterColumns Whether the blotter columns should be shown in the portfolio analytics grid
    */
-  /* package */ SimpleAnalyticsView(String viewId,
+  /* package */ SimpleAnalyticsView(Portfolio portfolio,
+                                    VersionCorrection versionCorrection,
+                                    String viewId,
                                     String portoflioCallbackId,
                                     String primitivesCallbackId,
                                     ComputationTargetResolver targetResolver,
                                     ViewportListener viewportListener,
                                     BlotterColumnMapper blotterColumnMapper,
+                                    Supplier<Portfolio> portfolioSupplier,
+                                    PortfolioEntityExtractor portfolioEntityExtractor,
                                     boolean showBlotterColumns) {
     ArgumentChecker.notEmpty(viewId, "viewId");
     ArgumentChecker.notEmpty(portoflioCallbackId, "portoflioGridId");
@@ -64,32 +83,50 @@ import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
     ArgumentChecker.notNull(targetResolver, "targetResolver");
     ArgumentChecker.notNull(viewportListener, "viewportListener");
     ArgumentChecker.notNull(blotterColumnMapper, "blotterColumnMappings");
-    _blotterColumnMapper = blotterColumnMapper;
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
+    ArgumentChecker.notNull(portfolioSupplier, "portfolioSupplier");
+    ArgumentChecker.notNull(portfolioEntityExtractor, "portfolioEntityExtractor");
+    _versionCorrection = versionCorrection;
     _viewId = viewId;
     _targetResolver = targetResolver;
-    _portfolioGrid = PortfolioAnalyticsGrid.empty(portoflioCallbackId);
+    _portfolioSupplier = portfolioSupplier;
+    _portfolioEntityExtractor = portfolioEntityExtractor;
+    List<UniqueIdentifiable> entities;
+    if (portfolio != null) {
+      entities = PortfolioMapper.flatMap(portfolio.getRootNode(), _portfolioEntityExtractor);
+    } else {
+      entities = Collections.emptyList();
+    }
+    _cache.put(entities);
+    if (showBlotterColumns) {
+      _portfolioGrid = PortfolioAnalyticsGrid.forBlotter(portoflioCallbackId,
+                                                         portfolio,
+                                                         targetResolver,
+                                                         viewportListener,
+                                                         blotterColumnMapper);
+    } else {
+      _portfolioGrid = PortfolioAnalyticsGrid.forAnalytics(portoflioCallbackId,
+                                                           portfolio,
+                                                           targetResolver,
+                                                           viewportListener);
+    }
     _primitivesGrid = PrimitivesAnalyticsGrid.empty(primitivesCallbackId);
     _viewportListener = viewportListener;
-    _showBlotterColumns = showBlotterColumns;
   }
 
   @Override
   public List<String> updateStructure(CompiledViewDefinition compiledViewDefinition) {
     _compiledViewDefinition = compiledViewDefinition;
-    // TODO this loses all dependency graphs. new grid needs to rebuild graphs from old grid. need stable row and col IDs to do that
-    ValueMappings valueMappings = new ValueMappings(_compiledViewDefinition);
-    _portfolioGrid = new PortfolioAnalyticsGrid(_compiledViewDefinition,
-                                                _portfolioGrid.getCallbackId(),
-                                                _targetResolver,
-                                                valueMappings,
-                                                _viewportListener,
-                                                _blotterColumnMapper,
-                                                _showBlotterColumns);
+    // TODO this loses all dependency graphs. new grid needs to rebuild graphs from old grid. need stable IDs to do that
+    _portfolioGrid = _portfolioGrid.withUpdatedStructure(_compiledViewDefinition);
     _primitivesGrid = new PrimitivesAnalyticsGrid(_compiledViewDefinition,
                                                   _primitivesGrid.getCallbackId(),
                                                   _targetResolver,
-                                                  valueMappings,
                                                   _viewportListener);
+    return getGridIds();
+  }
+
+  private List<String> getGridIds() {
     List<String> gridIds = Lists.newArrayList();
     gridIds.add(_portfolioGrid.getCallbackId());
     gridIds.add(_primitivesGrid.getCallbackId());
@@ -102,7 +139,16 @@ import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
   public List<String> updateResults(ViewResultModel results, ViewCycle viewCycle) {
     _cache.put(results);
     List<String> updatedIds = Lists.newArrayList();
-    updatedIds.addAll(_portfolioGrid.updateResults(_cache, viewCycle));
+    PortfolioAnalyticsGrid updatedPortfolioGrid = _portfolioGrid.withUpdatedStructure(_cache);
+    if (updatedPortfolioGrid == _portfolioGrid) {
+      // no change to the grid structure, notify the data has changed
+      updatedIds.addAll(_portfolioGrid.updateResults(_cache, viewCycle));
+    } else {
+      _portfolioGrid = updatedPortfolioGrid;
+      // grid structure has changed due to the results, notify the grids need to be rebuilt
+      updatedIds.add(_portfolioGrid.getCallbackId());
+      updatedIds.addAll(_portfolioGrid.getDependencyGraphCallbackIds());
+    }
     updatedIds.addAll(_primitivesGrid.updateResults(_cache, viewCycle));
     return updatedIds;
   }
@@ -127,7 +173,7 @@ import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
 
   @Override
   public boolean createViewport(int requestId, GridType gridType, int viewportId, String callbackId, ViewportDefinition viewportDefinition) {
-    boolean hasData = getGrid(gridType).createViewport(viewportId, callbackId, viewportDefinition);
+    boolean hasData = getGrid(gridType).createViewport(viewportId, callbackId, viewportDefinition, _cache);
     s_logger.debug("View {} created viewport ID {} for the {} grid from {}",
                    new Object[]{_viewId, viewportId, gridType, viewportDefinition});
     return hasData;
@@ -137,7 +183,7 @@ import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
   public String updateViewport(GridType gridType, int viewportId, ViewportDefinition viewportDefinition) {
     s_logger.debug("View {} updating viewport {} for {} grid to {}",
                    new Object[]{_viewId, viewportId, gridType, viewportDefinition});
-    return getGrid(gridType).updateViewport(viewportId, viewportDefinition);
+    return getGrid(gridType).updateViewport(viewportId, viewportDefinition, _cache);
   }
 
   @Override
@@ -175,7 +221,7 @@ import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
 
   @Override
   public boolean createViewport(int requestId, GridType gridType, int graphId, int viewportId, String callbackId, ViewportDefinition viewportDefinition) {
-    boolean hasData = getGrid(gridType).createViewport(graphId, viewportId, callbackId, viewportDefinition);
+    boolean hasData = getGrid(gridType).createViewport(graphId, viewportId, callbackId, viewportDefinition, _cache);
     s_logger.debug("View {} created viewport ID {} for dependency graph {} of the {} grid using {}",
                    new Object[]{_viewId, viewportId, graphId, gridType, viewportDefinition});
     return hasData;
@@ -185,7 +231,7 @@ import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
   public String updateViewport(GridType gridType, int graphId, int viewportId, ViewportDefinition viewportDefinition) {
     s_logger.debug("View {} updating viewport for dependency graph {} of the {} grid using {}",
                    new Object[]{_viewId, graphId, gridType, viewportDefinition});
-    return getGrid(gridType).updateViewport(graphId, viewportId, viewportDefinition);
+    return getGrid(gridType).updateViewport(graphId, viewportId, viewportDefinition, _cache);
   }
 
   @Override
@@ -202,4 +248,90 @@ import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
     return getGrid(gridType).getData(graphId, viewportId);
   }
 
+  @Override
+  public List<String> portfolioChanged() {
+    Portfolio portfolio = _portfolioSupplier.get();
+    List<UniqueIdentifiable> entities = PortfolioMapper.flatMap(portfolio.getRootNode(), _portfolioEntityExtractor);
+    _cache.put(entities);
+    _portfolioGrid = _portfolioGrid.withUpdatedRows(portfolio);
+    // TODO this is pretty conservative, refreshes all grids because the portfolio structure has changed
+    return getGridIds();
+  }
+
+  @Override
+  public List<String> entityChanged(MasterChangeNotification<?> notification) {
+    ChangeEvent event = notification.getEvent();
+    if (isChangeRelevant(event)) {
+      if (event.getType() == ChangeType.REMOVED) {
+        // TODO clean up trades from cache if this is a position that has been removed
+        _cache.remove(notification.getEntity().getUniqueId().getObjectId());
+        _portfolioGrid = _portfolioGrid.withUpdatedRows(_portfolioSupplier.get());
+        // return the IDs of all grids because the portfolio structure has changed
+        // TODO if we had separate IDs for rows and columns it would save the client rebuilding the column metadata
+        return getGridIds();
+      } else {
+        UniqueIdentifiable entity = notification.getEntity();
+        _cache.put(entity);
+        List<ObjectId> entityIds = Lists.newArrayList(entity.getUniqueId().getObjectId());
+        // TODO get rid of this duplication when ManageablePosition implements Position
+        // TODO would it be nicer to have a getEntities() method on MasterChangeNotification?
+        // would need different impls for different entity types. probably not worth it
+        if (entity instanceof Position) {
+          for (Trade trade : ((Position) entity).getTrades()) {
+            entityIds.add(trade.getUniqueId().getObjectId());
+            _cache.put(trade);
+          }
+        } else if (entity instanceof ManageablePosition) {
+          for (Trade trade : ((ManageablePosition) entity).getTrades()) {
+            entityIds.add(trade.getUniqueId().getObjectId());
+            _cache.put(trade);
+          }
+        }
+        List<String> ids = _portfolioGrid.updateEntities(_cache, entityIds);
+        s_logger.debug("Entity changed {}, firing updates for viewports {}", notification.getEntity().getUniqueId(), ids);
+        return ids;
+      }
+    } else {
+      return Collections.emptyList();
+    }
+  }
+
+  /**
+   * Returns true if a change event invalidates any of this view's portfolio, including trades, securities and positions
+   * it refers to.
+   * @param event The event
+   * @return true if the portfolio or positions, trades or securities it refers to have changed
+   */
+  private boolean isChangeRelevant(ChangeEvent event) {
+    // if the correctedTo time is non-null then we're looking at corrections up to a fixed point in the past and
+    // new corrections can't affect our version
+    if (_versionCorrection.getCorrectedTo() != null) {
+      return false;
+    }
+    // there's no way we can know about an object if it's just been added. and if the portfolio is modified we will
+    // cache any newly added positions etc when traversing the new portfolio structure
+    if (event.getType() == ChangeType.ADDED) {
+      return false;
+    }
+    if (_cache.getEntity(event.getObjectId()) == null) {
+      return false;
+    }
+    Instant versionInstant = _versionCorrection.getVersionAsOf();
+    Instant eventFrom = event.getVersionFrom();
+    Instant eventTo = event.getVersionTo();
+    if (versionInstant == null) {
+      // if the version time is null (latest) and eventTo is null (latest) then handle the change
+      // if the version time is null (latest) and eventTo isn't null the event doesn't affect the latest version
+      return eventTo == null;
+    }
+    // check whether the range of the changed version contains our version instance
+    if (eventFrom.isAfter(versionInstant)) {
+      return false;
+    }
+    if (eventTo != null && eventTo.isBefore(versionInstant)) {
+      return false;
+    }
+    return true;
+  }
 }
+

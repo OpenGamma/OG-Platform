@@ -42,7 +42,6 @@ import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecifica
 import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalculationConfigSource;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
-import com.opengamma.id.ExternalId;
 
 /**
  *
@@ -182,15 +181,14 @@ public abstract class MultiYieldCurveFunction extends AbstractFunction.NonCompil
       final String maxIterations, final String decomposition, final String useFiniteDifference);
 
   protected abstract String getCalculationMethod();
-  
-  protected Map<ExternalId, Double> getMarketData(final FunctionInputs inputs, final ComputationTargetSpecification targetSpec, final String curveName) {
+
+  protected SnapshotDataBundle getMarketData(final FunctionInputs inputs, final ComputationTargetSpecification targetSpec, final String curveName) {
     final ValueRequirement marketDataRequirement = new ValueRequirement(ValueRequirementNames.YIELD_CURVE_MARKET_DATA, targetSpec, ValueProperties.with(ValuePropertyNames.CURVE, curveName).get());
-    final Object marketDataMapObject = inputs.getValue(marketDataRequirement);
-    if (marketDataMapObject == null) {
+    final Object marketDataObject = inputs.getValue(marketDataRequirement);
+    if (marketDataObject == null) {
       throw new OpenGammaRuntimeException("Could not get a value for requirement " + marketDataRequirement);
     }
-    final Map<ExternalId, Double> marketDataMap = ((SnapshotDataBundle) marketDataMapObject).getDataPoints();
-    return marketDataMap;
+    return (SnapshotDataBundle) marketDataObject;
   }
 
   protected HistoricalTimeSeriesBundle getTimeSeriesBundle(final FunctionInputs inputs, final ComputationTargetSpecification targetSpec, final String curveCalculationConfigName) {
@@ -207,7 +205,7 @@ public abstract class MultiYieldCurveFunction extends AbstractFunction.NonCompil
     final ValueRequirement specRequirement = new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, targetSpec, ValueProperties.with(ValuePropertyNames.CURVE, curveName).get());
     final Object specObject = inputs.getValue(specRequirement);
     if (specObject == null) {
-      throw new OpenGammaRuntimeException("Could not get a value for requirement " + specRequirement);
+      return null;
     }
     final InterpolatedYieldCurveSpecificationWithSecurities spec = (InterpolatedYieldCurveSpecificationWithSecurities) specObject;
     return spec;

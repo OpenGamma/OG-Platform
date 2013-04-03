@@ -14,10 +14,12 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Test InMemoryBatchMessageDispatcher.
  */
-@Test
+@Test(groups = TestGroup.INTEGRATION)
 public class InMemoryBatchMessageDispatcherTest {
   
   public void testBaseUsage() throws Exception {
@@ -55,7 +57,7 @@ public class InMemoryBatchMessageDispatcherTest {
     long startTime = System.currentTimeMillis();
     while(batchSizes.isEmpty()) {
       Thread.sleep(100);
-      if((System.currentTimeMillis() - startTime) > 5000l) {
+      if ((System.currentTimeMillis() - startTime) > 5000l) {
         fail("Did not receive a batch in 5 seconds.");
       }
     }

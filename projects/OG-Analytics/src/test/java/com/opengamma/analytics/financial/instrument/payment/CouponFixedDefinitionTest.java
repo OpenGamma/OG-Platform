@@ -31,7 +31,7 @@ import com.opengamma.util.time.DateUtils;
  * Tests the constructors and equal/hash for CouponFixedDefinition.
  */
 public class CouponFixedDefinitionTest {
-  private static final Currency CUR = Currency.USD;
+  private static final Currency CUR = Currency.EUR;
   private static final ZonedDateTime PAYMENT_DATE = DateUtils.getUTCDate(2011, 4, 6);
   private static final ZonedDateTime ACCRUAL_START_DATE = DateUtils.getUTCDate(2011, 1, 5);
   private static final ZonedDateTime ACCRUAL_END_DATE = DateUtils.getUTCDate(2011, 4, 5);
@@ -42,7 +42,7 @@ public class CouponFixedDefinitionTest {
   private static final ZonedDateTime FAKE_DATE = DateUtils.getUTCDate(0, 1, 1);
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final BusinessDayConvention BD_CONVENTION = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
-  private static final IborIndex INDEX = new IborIndex(CUR, Period.of(6, MONTHS), 0, CALENDAR, DAY_COUNT, BD_CONVENTION, false);
+  private static final IborIndex INDEX = new IborIndex(CUR, Period.ofMonths(6), 0, CALENDAR, DAY_COUNT, BD_CONVENTION, false);
   private static final CouponFloatingDefinition COUPON = new CouponIborDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FAKE_DATE, INDEX);
   private static final CouponFixedDefinition FIXED_COUPON = new CouponFixedDefinition(COUPON, RATE);
 
@@ -62,7 +62,7 @@ public class CouponFixedDefinitionTest {
   @Test
   public void fromGeneratorDeposit() {
     GeneratorDeposit generator = new USDDeposit(CALENDAR);
-    Period tenor = Period.of(3, MONTHS);
+    Period tenor = Period.ofMonths(3);
     CouponFixedDefinition cpnFixed = CouponFixedDefinition.from(ACCRUAL_START_DATE, tenor, generator, NOTIONAL, RATE);
     ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(ACCRUAL_START_DATE, tenor, generator.getBusinessDayConvention(), CALENDAR, generator.isEndOfMonth());
     double accrual = generator.getDayCount().getDayCountFraction(ACCRUAL_START_DATE, endDate);

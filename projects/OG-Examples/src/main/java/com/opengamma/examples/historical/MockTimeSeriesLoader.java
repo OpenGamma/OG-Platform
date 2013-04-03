@@ -5,15 +5,11 @@
  */
 package com.opengamma.examples.historical;
 
-import java.util.Map;
-import java.util.Set;
-
-import org.threeten.bp.LocalDate;
-
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesLoader;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesLoaderRequest;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesLoaderResult;
+import com.opengamma.master.historicaltimeseries.impl.AbstractHistoricalTimeSeriesLoader;
 
 /**
  * Mock time-series loader to get the example engine server running.
@@ -21,14 +17,14 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesLoader;
  * For fully supported implementations supporting major data vendors like Bloomberg and
  * Thomson-Reuters, please contact sales@opengamma.com
  */
-public class MockTimeSeriesLoader implements HistoricalTimeSeriesLoader {
+public class MockTimeSeriesLoader extends AbstractHistoricalTimeSeriesLoader {
 
   private static final String MESSAGE = "This is a placeholder time-series loader." +
       "\nFor fully supported implementations supporting major data vendors like Bloomberg and Thomson-Reuters," +
       "\nPlease contact sales@opengamma.com.";
 
   @Override
-  public Map<ExternalId, UniqueId> addTimeSeries(Set<ExternalId> identifiers, String dataProvider, String dataField, LocalDate startDate, LocalDate endDate) {
+  protected HistoricalTimeSeriesLoaderResult doBulkLoad(HistoricalTimeSeriesLoaderRequest request) {
     System.out.println(MESSAGE);
     throw new OpenGammaRuntimeException(MESSAGE);
   }

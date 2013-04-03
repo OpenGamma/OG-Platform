@@ -17,7 +17,6 @@ import javax.xml.bind.Unmarshaller;
 
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.format.DateTimeFormatter;
-import org.threeten.bp.format.DateTimeFormatters;
 
 /**
  * Managed staged data for ISDA test cases
@@ -27,8 +26,8 @@ import org.threeten.bp.format.DateTimeFormatters;
 public class ISDAStagedDataManager {
 
   private static final Pattern TEST_GRID_REGEX = Pattern.compile("([A-Z]{3}+)_([0-9]{8}+)\\.xls", Pattern.CASE_INSENSITIVE);
-  private static final DateTimeFormatter GRID_DATE_FORMAT = DateTimeFormatters.pattern("yyyyMMdd");
-  private static final DateTimeFormatter STAGED_DATE_FORMAT = DateTimeFormatters.pattern("dd_MM_yyyy");
+  private static final DateTimeFormatter GRID_DATE_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd");
+  private static final DateTimeFormatter STAGED_DATE_FORMAT = DateTimeFormatter.ofPattern("dd_MM_yyyy");
   
   private static final String RESOURCE_DIR = "resources";
   private static final String STAGED_CURVE_DIR = "isda_staged_curves";

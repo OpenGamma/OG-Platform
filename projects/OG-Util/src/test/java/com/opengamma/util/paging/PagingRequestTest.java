@@ -12,11 +12,12 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test PagingRequest.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public final class PagingRequestTest {
 
   public void test_ALL() {

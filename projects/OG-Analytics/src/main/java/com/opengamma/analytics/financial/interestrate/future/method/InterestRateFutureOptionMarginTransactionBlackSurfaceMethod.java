@@ -7,7 +7,7 @@ package com.opengamma.analytics.financial.interestrate.future.method;
 
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
 import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackCubeBundle;
-import com.opengamma.analytics.util.surface.SurfaceValue;
+import com.opengamma.analytics.util.amount.SurfaceValue;
 
 /**
  * Method for the pricing of interest rate future options with up-front premium. The pricing is done with a Black approach on the future rate (1.0-price).
@@ -59,7 +59,7 @@ public final class InterestRateFutureOptionMarginTransactionBlackSurfaceMethod e
   public double presentValueGamma(final InterestRateFutureOptionMarginTransaction transaction, final YieldCurveWithBlackCubeBundle blackData) {
     final double securityGamma = ((InterestRateFutureOptionMarginSecurityBlackSurfaceMethod) getSecurityMethod()).optionPriceGamma(transaction.getUnderlyingOption(), blackData);
     final double txnGamma = securityGamma * transaction.getQuantity() * transaction.getUnderlyingOption().getUnderlyingFuture().getNotional()
-                          * transaction.getUnderlyingOption().getUnderlyingFuture().getPaymentAccrualFactor();
+        * transaction.getUnderlyingOption().getUnderlyingFuture().getPaymentAccrualFactor();
     return txnGamma;
   }
 }

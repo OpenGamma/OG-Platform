@@ -12,10 +12,12 @@ import static org.testng.Assert.fail;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Tests the {@link BlockingOperation} class.
  */
-@Test
+@Test(groups = TestGroup.INTEGRATION)
 public class BlockingOperationTest {
 
   public void testDefaultState() {

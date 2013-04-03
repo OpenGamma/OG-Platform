@@ -30,14 +30,14 @@ import com.opengamma.util.time.DateUtils;
 
 public class AnnuityCouponFixedDefinitionTest {
   //Semi-annual 2Y
-  private static final Currency CUR = Currency.USD;
+  private static final Currency CUR = Currency.EUR;
   private static final PeriodFrequency PAYMENT_FREQUENCY = PeriodFrequency.SEMI_ANNUAL;
-  private static final Period PAYMENT_TENOR = Period.of(6, MONTHS);
+  private static final Period PAYMENT_TENOR = Period.ofMonths(6);
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("30/360");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final boolean IS_EOM = true;
-  private static final Period ANNUITY_TENOR = Period.of(2, YEARS);
+  private static final Period ANNUITY_TENOR = Period.ofYears(2);
   private static final ZonedDateTime SETTLEMENT_DATE = DateUtils.getUTCDate(2011, 3, 17);
   private static final double NOTIONAL = 1000000;
   private static final double RATE = 0.0325;

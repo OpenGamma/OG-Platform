@@ -31,6 +31,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.jms.JmsConnector;
 import com.opengamma.util.rest.UniformInterfaceException404NotFound;
 import com.opengamma.util.test.ActiveMQTestUtils;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.test.Timeout;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.UniformInterface;
@@ -39,7 +40,7 @@ import com.sun.jersey.api.client.UniformInterface;
  * Tests the {@link RemoteFunctionBlacklistProvider}, {@RemoteFunctionBlacklist}, {@link DataFunctionBlacklistProviderResource}, and {@link DataFunctionBlacklistResource}
  * classes.
  */
-@Test
+@Test(groups = TestGroup.INTEGRATION)
 public class RemoteFunctionBlacklistProviderTest {
 
   private FunctionBlacklistProvider createClient(final ExecutorService executor, final JmsConnector jmsConnector, final DataFunctionBlacklistProviderResource server) {

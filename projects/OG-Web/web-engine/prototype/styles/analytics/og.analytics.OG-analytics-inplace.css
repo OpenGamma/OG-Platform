@@ -13,7 +13,8 @@
     box-shadow: 3px 3px 3px #ebebeb;
     -moz-box-shadow: 3px 3px 3px #ebebeb;
     -webkit-box-shadow: 3px 3px 3px #ebebeb;
-    height:275px;
+    height: 100%;
+    top: 1px;
 }
 .OG-analytics-inplace .ui-layout-header:after,
 .OG-analytics-inplace .ui-layout-header {
@@ -28,6 +29,10 @@
     margin-top: 17px;
     width: 480px;
     position: absolute;
+}
+
+.OG-analytics-inplace .OG-gadget-container {
+    border: 1px solid #ccc;
 }
 
 .OG-analytics-inplace .OG-gadget-tabs {

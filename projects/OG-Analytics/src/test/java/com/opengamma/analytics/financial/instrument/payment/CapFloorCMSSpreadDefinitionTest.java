@@ -37,25 +37,25 @@ import com.opengamma.util.time.DateUtils;
 public class CapFloorCMSSpreadDefinitionTest {
 
   //Swaps
-  private static final Currency CUR = Currency.USD;
+  private static final Currency CUR = Currency.EUR;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final boolean IS_EOM = true;
   private static final ZonedDateTime SETTLEMENT_DATE = DateUtils.getUTCDate(2011, 3, 17);
-  private static final Period FIXED_PAYMENT_PERIOD = Period.of(6, MONTHS);
+  private static final Period FIXED_PAYMENT_PERIOD = Period.ofMonths(6);
   private static final DayCount FIXED_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("30/360");
   private static final boolean FIXED_IS_PAYER = true; // Irrelevant for the underlying
   private static final double RATE = 0.0; // Irrelevant for the underlying
-  private static final Period INDEX_TENOR = Period.of(3, MONTHS);
+  private static final Period INDEX_TENOR = Period.ofMonths(3);
   private static final int SETTLEMENT_DAYS = 2;
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final IborIndex IBOR_INDEX = new IborIndex(CUR, INDEX_TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM);
   // Swap 10Y
-  private static final Period ANNUITY_TENOR_1 = Period.of(10, YEARS);
+  private static final Period ANNUITY_TENOR_1 = Period.ofYears(10);
   private static final IndexSwap CMS_INDEX_1 = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, IBOR_INDEX, ANNUITY_TENOR_1);
   private static final SwapFixedIborDefinition SWAP_DEFINITION_1 = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX_1, 1.0, RATE, FIXED_IS_PAYER);
   // Swap 2Y
-  private static final Period ANNUITY_TENOR_2 = Period.of(2, YEARS);
+  private static final Period ANNUITY_TENOR_2 = Period.ofYears(2);
   private static final IndexSwap CMS_INDEX_2 = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, IBOR_INDEX, ANNUITY_TENOR_2);
   private static final SwapFixedIborDefinition SWAP_DEFINITION_2 = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX_2, 1.0, RATE, FIXED_IS_PAYER);
   // CMS spread coupon
@@ -81,7 +81,7 @@ public class CapFloorCMSSpreadDefinitionTest {
   private static final SwapFixedCoupon<? extends Payment> SWAP_1 = SWAP_DEFINITION_1.toDerivative(REFERENCE_DATE, CURVES_2_NAME);
   private static final SwapFixedCoupon<? extends Payment> SWAP_2 = SWAP_DEFINITION_2.toDerivative(REFERENCE_DATE, CURVES_2_NAME);
   private static final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
-  private static final ZonedDateTime REFERENCE_DATE_ZONED = ZonedDateTime.of(LocalDateTime.of(REFERENCE_DATE.getDate(), LocalTime.MIDNIGHT), ZoneOffset.UTC);
+  private static final ZonedDateTime REFERENCE_DATE_ZONED = ZonedDateTime.of(LocalDateTime.of(REFERENCE_DATE.toLocalDate(), LocalTime.MIDNIGHT), ZoneOffset.UTC);
   private static final double PAYMENT_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE_ZONED, PAYMENT_DATE);
   private static final double FIXING_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE_ZONED, FIXING_DATE);
   private static final double SETTLEMENT_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE_ZONED, SWAP_DEFINITION_1.getFixedLeg().getNthPayment(0).getAccrualStartDate());
@@ -156,7 +156,7 @@ public class CapFloorCMSSpreadDefinitionTest {
         SWAP_DEFINITION_1, CMS_INDEX_1, SWAP_DEFINITION_2, CMS_INDEX_2, STRIKE, IS_CAP);
     assertEquals(newCMSSpread.equals(CMS_SPREAD_DEFINITION), true);
     assertEquals(newCMSSpread.hashCode() == CMS_SPREAD_DEFINITION.hashCode(), true);
-    final Currency newCur = Currency.EUR;
+    final Currency newCur = Currency.USD;
     final CapFloorCMSSpreadDefinition cmsSpreadCur = new CapFloorCMSSpreadDefinition(newCur, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, PAYMENT_ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE,
         SWAP_DEFINITION_1, CMS_INDEX_1, SWAP_DEFINITION_2, CMS_INDEX_2, STRIKE, IS_CAP);
     assertEquals(cmsSpreadCur.equals(CMS_SPREAD_DEFINITION), false);
@@ -187,8 +187,7 @@ public class CapFloorCMSSpreadDefinitionTest {
     assertEquals(SWAP_1, cmsSpread.getUnderlyingSwap1());
     assertEquals(SWAP_2, cmsSpread.getUnderlyingSwap2());
     final CapFloorCMSSpread cmsSpreadExpected = new CapFloorCMSSpread(CUR, PAYMENT_TIME, PAYMENT_ACCRUAL_FACTOR, NOTIONAL, FIXING_TIME, SWAP_1, CMS_INDEX_1, SWAP_2, CMS_INDEX_2, SETTLEMENT_TIME,
-        STRIKE,
-        IS_CAP, FUNDING_CURVE_NAME);
+        STRIKE, IS_CAP, FUNDING_CURVE_NAME);
     assertEquals("CMS Spread to derivatives", cmsSpreadExpected, cmsSpread);
 
   }

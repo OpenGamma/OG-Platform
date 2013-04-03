@@ -14,12 +14,15 @@ import com.opengamma.analytics.financial.greeks.BucketedGreekResultCollection;
 import com.opengamma.analytics.financial.greeks.PDEResultCollection;
 import com.opengamma.analytics.financial.model.finitedifference.PDEFullResults1D;
 import com.opengamma.analytics.financial.model.finitedifference.PDEGrid1D;
+import com.opengamma.util.test.TestGroup;
 
 
 /**
  * 
  */
+@Test(groups = TestGroup.UNIT)
 public class PDEResultsFudgeBuilderTest extends AnalyticsTestBase {
+
   private static final PDEGrid1D GRID = new PDEGrid1D(3, 4, 400, 0, 10);
   private static final double[][] DATA = new double[][] {new double[] {1, 2, 3, 4}, new double[] {5, 6, 7, 8}, new double[] {9, 10, 11, 12}};
   private static final PDEFullResults1D RESULTS = new PDEFullResults1D(GRID, DATA);

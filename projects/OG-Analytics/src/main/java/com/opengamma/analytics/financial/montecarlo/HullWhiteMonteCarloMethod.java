@@ -68,7 +68,7 @@ public class HullWhiteMonteCarloMethod extends MonteCarloMethod {
   /**
    * Computes the present value in the Hull-White one factor model by Monte-Carlo.
    * Implementation note: The total number of paths is divided in blocks of maximum size BLOCK_SIZE=1000. The Monte Carlo is run on each block and the average of each
-   * block price is the total price. 
+   * block price is the total price.
    * @param instrument The swaption.
    * @param ccy The currency
    * @param dscName The discounting curve name.
@@ -158,9 +158,9 @@ public class HullWhiteMonteCarloMethod extends MonteCarloMethod {
   }
 
   /**
-   * Computes the present value curve sensitivity in the Hull-White one factor model by Monte-Carlo. The sensitivity is computed by Adjoint Algorithmic Differentiation. 
+   * Computes the present value curve sensitivity in the Hull-White one factor model by Monte-Carlo. The sensitivity is computed by Adjoint Algorithmic Differentiation.
    * Implementation note: The total number of paths is divided in blocks of maximum size BLOCK_SIZE=1000. The Monte Carlo is run on each block and the average of each
-   * block price is the total price. 
+   * block price is the total price.
    * @param instrument The swaption.
    * @param dscName The discounting curve name.
    * @param hwData The Hull-White data (curves and Hull-White parameters).
@@ -292,8 +292,8 @@ public class HullWhiteMonteCarloMethod extends MonteCarloMethod {
         pDNBar += -dsc.getDiscountFactor(impactTime[loopjump][loopimp]) / (pDN * pDN) * pDIBar[loopjump][loopimp];
       }
     }
-    final Map<String, List<DoublesPair>> resultMap = new HashMap<String, List<DoublesPair>>();
-    final List<DoublesPair> listDiscounting = new ArrayList<DoublesPair>();
+    final Map<String, List<DoublesPair>> resultMap = new HashMap<>();
+    final List<DoublesPair> listDiscounting = new ArrayList<>();
     listDiscounting.add(new DoublesPair(numeraireTime, -numeraireTime * pDN * pDNBar));
     for (int loopjump = 0; loopjump < nbJump; loopjump++) {
       for (int loopimp = 0; loopimp < impactTime[loopjump].length; loopimp++) {

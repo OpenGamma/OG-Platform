@@ -9,6 +9,7 @@ import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.organization.OrganizationSource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -18,9 +19,15 @@ import com.opengamma.financial.analytics.ircurve.calcconfig.CurveCalculationConf
 import com.opengamma.financial.analytics.model.pnl.PnLRequirementsGatherer;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
 import com.opengamma.financial.convention.ConventionBundleSource;
-import com.opengamma.financial.currency.CurrencyMatrixSource;
+import com.opengamma.financial.currency.CurrencyPair;
+import com.opengamma.financial.currency.CurrencyPairs;
+import com.opengamma.financial.currency.CurrencyPairsResolver;
+import com.opengamma.financial.currency.CurrencyPairsSource;
 import com.opengamma.financial.temptarget.TempTargetRepository;
+import com.opengamma.id.ExternalId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
+import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
 
 /**
  * Utility methods to pull standard objects out of a {@link FunctionCompilationContext}.
@@ -55,10 +62,6 @@ public final class OpenGammaCompilationContext {
    */
   public static final String VOLATILITY_CUBE_DEFINITION_SOURCE_NAME = "volatilityCubeDefinitionSource";
   /**
-   * The name under which an instance of {@link CurrencyMatrixSource} should be bound.
-   */
-  public static final String CURRENCY_MATRIX_SOURCE_NAME = "currencyMatrixSource";
-  /**
    * The name under which an instance of {@link HolidaySource} should be bound.
    */
   public static final String HOLIDAY_SOURCE_NAME = "holidaySource";
@@ -91,6 +94,8 @@ public final class OpenGammaCompilationContext {
 
   private static final String PNL_REQUIREMENTS_GATHERER_NAME = "pnlRequirementsGatherer";
 
+  private static final String CURRENCY_PAIRS_SOURCE = "currencyPairsSource";
+
   /**
    * Restricted constructor.
    */
@@ -109,7 +114,8 @@ public final class OpenGammaCompilationContext {
   // -------------------------------------------------------------------------
   /**
    * Gets a {@code ConfigSource} from the context.
-   * @param compilationContext  the context to examine, not null
+   * 
+   * @param compilationContext the context to examine, not null
    * @return the config source, null if not found
    */
   public static ConfigSource getConfigSource(final FunctionCompilationContext compilationContext) {
@@ -118,8 +124,9 @@ public final class OpenGammaCompilationContext {
 
   /**
    * Stores a {@code ConfigSource} in the context.
-   * @param compilationContext  the context to store in, not null
-   * @param configSource  the config source to store, not null
+   * 
+   * @param compilationContext the context to store in, not null
+   * @param configSource the config source to store, not null
    */
   public static void setConfigSource(final FunctionCompilationContext compilationContext, final ConfigSource configSource) {
     set(compilationContext, CONFIG_SOURCE_NAME, configSource);
@@ -128,7 +135,8 @@ public final class OpenGammaCompilationContext {
   // -------------------------------------------------------------------------
   /**
    * Gets a {@code RegionSource} from the context.
-   * @param compilationContext  the context to examine, not null
+   * 
+   * @param compilationContext the context to examine, not null
    * @return the region source, null if not found
    */
   public static RegionSource getRegionSource(final FunctionCompilationContext compilationContext) {
@@ -137,8 +145,9 @@ public final class OpenGammaCompilationContext {
 
   /**
    * Stores a {@code RegionSource} in the context.
-   * @param compilationContext  the context to store in, not null
-   * @param regionSource  the region source to store, not null
+   * 
+   * @param compilationContext the context to store in, not null
+   * @param regionSource the region source to store, not null
    */
   public static void setRegionSource(final FunctionCompilationContext compilationContext, final RegionSource regionSource) {
     set(compilationContext, REGION_SOURCE_NAME, regionSource);
@@ -147,7 +156,8 @@ public final class OpenGammaCompilationContext {
   // -------------------------------------------------------------------------
   /**
    * Gets a {@code ConventionBundleSource} from the context.
-   * @param compilationContext  the context to examine, not null
+   * 
+   * @param compilationContext the context to examine, not null
    * @return the convention bundle source, null if not found
    */
   public static ConventionBundleSource getConventionBundleSource(final FunctionCompilationContext compilationContext) {
@@ -156,8 +166,9 @@ public final class OpenGammaCompilationContext {
 
   /**
    * Stores a {@code ConventionBundleSource} in the context.
-   * @param compilationContext  the context to store in, not null
-   * @param conventionBundleSource  the convention bundle source to store, not null
+   * 
+   * @param compilationContext the context to store in, not null
+   * @param conventionBundleSource the convention bundle source to store, not null
    */
   public static void setConventionBundleSource(final FunctionCompilationContext compilationContext,
       final ConventionBundleSource conventionBundleSource) {
@@ -192,21 +203,20 @@ public final class OpenGammaCompilationContext {
     set(compilationContext, VOLATILITY_CUBE_DEFINITION_SOURCE_NAME, source);
   }
 
-  public static CurrencyMatrixSource getCurrencyMatrixSource(final FunctionCompilationContext compilationContext) {
-    return get(compilationContext, CURRENCY_MATRIX_SOURCE_NAME);
-  }
-
-  public static void setCurrencyMatrixSource(final FunctionCompilationContext compilationContext,
-      final CurrencyMatrixSource currencyMatrixSource) {
-    set(compilationContext, CURRENCY_MATRIX_SOURCE_NAME, currencyMatrixSource);
-  }
-
   public static HolidaySource getHolidaySource(final FunctionCompilationContext compilationContext) {
     return get(compilationContext, HOLIDAY_SOURCE_NAME);
   }
 
   public static void setHolidaySource(final FunctionCompilationContext compilationContext, final HolidaySource holidaySource) {
     set(compilationContext, HOLIDAY_SOURCE_NAME, holidaySource);
+  }
+
+  public static OrganizationSource getOrganizationSource(final FunctionCompilationContext compilationContext) {
+    return compilationContext.getOrganizationSource();
+  }
+
+  public static void setOrganizationSource(final FunctionCompilationContext compilationContext, final OrganizationSource organizationSource) {
+    compilationContext.setOrganizationSource(organizationSource);
   }
 
   public static ExchangeSource getExchangeSource(final FunctionCompilationContext compilationContext) {
@@ -227,7 +237,8 @@ public final class OpenGammaCompilationContext {
 
   /**
    * Gets a {@code CurveCalculationConfigSource} from the context.
-   * @param compilationContext  the context to examine, not null
+   * 
+   * @param compilationContext the context to examine, not null
    * @return the curve config source, null if not found
    */
   public static CurveCalculationConfigSource getCurveCalculationConfigSource(final FunctionCompilationContext compilationContext) {
@@ -236,8 +247,9 @@ public final class OpenGammaCompilationContext {
 
   /**
    * Stores a {@code CurveCalculationConfigSource} in the context.
-   * @param compilationContext  the context to store in, not null
-   * @param curveConfigSource  the curve config source to store, not null
+   * 
+   * @param compilationContext the context to store in, not null
+   * @param curveConfigSource the curve config source to store, not null
    */
   public static void setCurveCalculationConfigSource(final FunctionCompilationContext compilationContext, final CurveCalculationConfigSource curveConfigSource) {
     set(compilationContext, CURVE_CALCULATION_CONFIG_NAME, curveConfigSource);
@@ -272,7 +284,7 @@ public final class OpenGammaCompilationContext {
    * values rather than abandon the production. This increases the chance of a successful graph build for an inaccurately specified view but the graph may not be as the user intended/expected.
    * <p>
    * This flag is off by default.
-   *
+   * 
    * @param compilationContext the context to test, not null
    * @return true if permissive behavior is enabled, false otherwise.
    */
@@ -285,7 +297,7 @@ public final class OpenGammaCompilationContext {
    * rather than abandon the production. This increases the chance of a successful graph build for an inaccurately specified view but the graph may not be as the user intended/expected.
    * <p>
    * This flag is off by default.
-   *
+   * 
    * @param compilationContext the context to update, not null
    * @param permissive true to enable permissive behavior, false to disable it
    */
@@ -303,6 +315,35 @@ public final class OpenGammaCompilationContext {
 
   public static void setPnLRequirementsGatherer(final FunctionCompilationContext compilationContext, final PnLRequirementsGatherer pnlRequirementsGatherer) {
     set(compilationContext, PNL_REQUIREMENTS_GATHERER_NAME, pnlRequirementsGatherer);
+  }
+
+  /**
+   * @deprecated [PLAT-2782] interim measure to request data via function inputs, or targets
+   */
+  @Deprecated
+  public static CurrencyPairsSource getCurrencyPairsSource(final FunctionCompilationContext compilationContext) {
+    final ComputationTargetResolverWrapper resolver = new ComputationTargetResolverWrapper(compilationContext.getComputationTargetResolver());
+    return new CurrencyPairsSource() {
+
+      @Override
+      public CurrencyPairs getCurrencyPairs(String name) {
+        if (name == null) {
+          name = CurrencyPairs.DEFAULT_CURRENCY_PAIRS;
+        }
+        return (CurrencyPairs) resolver.get(CurrencyPairs.TYPE, ExternalId.of(CurrencyPairsResolver.IDENTIFIER_SCHEME, name));
+      }
+
+      @Override
+      public CurrencyPair getCurrencyPair(String name, Currency currency1, Currency currency2) {
+        ArgumentChecker.notNull(currency1, "currency1");
+        ArgumentChecker.notNull(currency2, "currency2");
+        CurrencyPairs currencyPairs = getCurrencyPairs(name);
+        if (currencyPairs == null) {
+          return null;
+        }
+        return currencyPairs.getCurrencyPair(currency1, currency2);
+      }
+    };
   }
 
 }

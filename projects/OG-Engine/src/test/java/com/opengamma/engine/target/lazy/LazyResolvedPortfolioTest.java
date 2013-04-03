@@ -14,6 +14,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+import net.sf.ehcache.CacheManager;
+
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
@@ -24,13 +29,32 @@ import com.opengamma.engine.target.MockComputationTargetResolver;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ehcache.EHCacheUtils;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the {@link LazyResolvedPortfolio} class
  */
-@Test
+@Test(groups = {TestGroup.UNIT, "ehcache" })
 public class LazyResolvedPortfolioTest {
-  
+
+  private CacheManager _cacheManager;
+
+  @BeforeClass
+  public void setUpClass() {
+    _cacheManager = EHCacheUtils.createTestCacheManager(getClass());
+  }
+
+  @AfterClass
+  public void tearDownClass() {
+    EHCacheUtils.shutdownQuiet(_cacheManager);
+  }
+
+  @BeforeMethod
+  public void setUp() {
+    EHCacheUtils.clear(_cacheManager);
+  }
+
+  //-------------------------------------------------------------------------
   public void testBasicMethods() {
     final MockComputationTargetResolver resolver = MockComputationTargetResolver.resolved();
     final Portfolio underlying = resolver.getPositionSource().getPortfolio(UniqueId.of("Portfolio", "0"), VersionCorrection.LATEST);
@@ -71,7 +95,7 @@ public class LazyResolvedPortfolioTest {
     final MockComputationTargetResolver resolver = MockComputationTargetResolver.resolved();
     final Portfolio underlying = resolver.getPositionSource().getPortfolio(UniqueId.of("Portfolio", "0"), VersionCorrection.LATEST);
     Portfolio portfolio = new LazyResolvedPortfolio(
-        new LazyResolveContext(resolver.getSecuritySource(), new DefaultCachingComputationTargetResolver(resolver, EHCacheUtils.createCacheManager())).atVersionCorrection(VersionCorrection.LATEST),
+        new LazyResolveContext(resolver.getSecuritySource(), new DefaultCachingComputationTargetResolver(resolver, _cacheManager)).atVersionCorrection(VersionCorrection.LATEST),
         underlying);
     final ByteArrayOutputStream baos = new ByteArrayOutputStream();
     new ObjectOutputStream(baos).writeObject(portfolio);
@@ -89,5 +113,5 @@ public class LazyResolvedPortfolioTest {
     assertEquals(portfolio.getRootNode().getUniqueId(), underlying.getRootNode().getUniqueId());
     assertEquals(portfolio.getRootNode().getChildNodes().size(), underlying.getRootNode().getChildNodes().size());
   }
-  
+
 }

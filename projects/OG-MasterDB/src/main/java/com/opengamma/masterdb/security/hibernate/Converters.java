@@ -8,6 +8,7 @@ package com.opengamma.masterdb.security.hibernate;
 import java.util.Date;
 
 import org.threeten.bp.Instant;
+import org.threeten.bp.Period;
 import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
@@ -24,11 +25,14 @@ import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
+import com.opengamma.financial.security.cds.CreditDefaultSwapIndexComponent;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.masterdb.security.hibernate.bond.YieldConventionBean;
+import com.opengamma.masterdb.security.hibernate.cds.CDSIndexComponentBean;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
+import com.opengamma.util.time.Tenor;
 
 /**
  * Utility methods for simple conversions.
@@ -54,7 +58,16 @@ public final class Converters {
   }
 
   public static ExternalIdBean externalIdToExternalIdBean(final ExternalId identifier) {
+    if (identifier == null) {
+      return null;
+    }
     return new ExternalIdBean(identifier.getScheme().getName(), identifier.getValue());
+  }
+  
+  public static CreditDefaultSwapIndexComponent cdsIndexComponentBeanToCDSIndexComponent(final CDSIndexComponentBean componentBean) {
+    final ExternalId obligor = externalIdBeanToExternalId(componentBean.getObligor());
+    final ExternalId bondId = externalIdBeanToExternalId(componentBean.getBondId());
+    return new CreditDefaultSwapIndexComponent(componentBean.getName(), obligor, componentBean.getWeight(), bondId);
   }
 
   //-------------------------------------------------------------------------
@@ -129,6 +142,13 @@ public final class Converters {
     }
     validateFrequency(frequencyBean.getName());
     return SimpleFrequencyFactory.INSTANCE.getFrequency(frequencyBean.getName());
+  }
+  
+  public static Tenor tenorBeanToTenor(final TenorBean tenorBean) {
+    if (tenorBean == null) {
+      return null;
+    }
+    return new Tenor(Period.parse(tenorBean.getName()));
   }
 
   public static void validateFrequency(final String name) {

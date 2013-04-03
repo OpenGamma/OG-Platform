@@ -105,10 +105,11 @@ public class GeneratorDepositTest {
   @Test
   public void generateInstrument() {
     ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 7, 17);
-    Period tenor = Period.of(6, MONTHS);
+    Period tenor = Period.ofMonths(6);
     double rate = 0.01;
     double notional = 12345;
-    CashDefinition insGenerated = GENERATOR_DEPOSIT_USD.generateInstrument(referenceDate, tenor, rate, notional);
+    GeneratorAttributeIR attribute = new GeneratorAttributeIR(tenor);
+    CashDefinition insGenerated = GENERATOR_DEPOSIT_USD.generateInstrument(referenceDate, rate, notional, attribute);
     ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(referenceDate, SETTLEMENT_DAYS, CALENDAR);
     ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, tenor, BUSINESS_DAY, CALENDAR, IS_EOM);
     double accrualFactor = DAY_COUNT.getDayCountFraction(startDate, endDate);

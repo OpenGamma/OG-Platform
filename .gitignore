@@ -26,7 +26,9 @@ common/deploy.properties
 !/projects/OG-Provider
 !/projects/OG-Security
 !/projects/OG-Server
+!/projects/OG-TimeSeries
 !/projects/OG-Util
+!/projects/OG-UtilDB
 !/projects/OG-Web
 !/projects/OG-BloombergExample
 repository/
@@ -56,3 +58,6 @@ docs.sqlite3
 *.pid
 *.pyc
 .settings/
+.idea/libraries
+.idea/workspace.xml
+.idea/dictionaries

@@ -15,11 +15,12 @@ import java.util.Map;
 import org.testng.annotations.Test;
 
 import com.opengamma.util.functional.Function2;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the {@link ComputationTargetTypeMap} class
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class ComputationTargetTypeMapTest {
 
   public void testEmpty() {

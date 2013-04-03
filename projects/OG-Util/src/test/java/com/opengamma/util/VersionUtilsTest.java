@@ -10,10 +10,12 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Test VersionUtils.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class VersionUtilsTest {
 
   public void validPropertyFile() {

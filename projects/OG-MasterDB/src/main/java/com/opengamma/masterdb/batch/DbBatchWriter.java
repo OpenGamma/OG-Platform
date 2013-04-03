@@ -64,6 +64,8 @@ import com.opengamma.batch.domain.RiskValueSpecification;
 import com.opengamma.batch.domain.StatusEntry;
 import com.opengamma.elsql.ElSqlBundle;
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.calcnode.InvocationResult;
+import com.opengamma.engine.calcnode.MissingInput;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.engine.value.ValueProperties;
@@ -73,9 +75,7 @@ import com.opengamma.engine.view.ExecutionLogWithContext;
 import com.opengamma.engine.view.ViewCalculationResultModel;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewResultEntry;
-import com.opengamma.engine.view.calc.ViewCycleMetadata;
-import com.opengamma.engine.view.calcnode.InvocationResult;
-import com.opengamma.engine.view.calcnode.MissingInput;
+import com.opengamma.engine.view.cycle.ViewCycleMetadata;
 import com.opengamma.financial.conversion.ResultConverter;
 import com.opengamma.financial.conversion.ResultConverterCache;
 import com.opengamma.id.ObjectId;
@@ -405,9 +405,23 @@ public class DbBatchWriter extends AbstractDbMaster {
     Map<Map<String, Object>, Collection<ComputationTargetSpecification>> computationTargetsData = newHashMapWithDefaultCollection();
     for (ComputationTargetSpecification targetSpecification : computationTargetSpecifications) {
       Map<String, Object> attribs = newHashMap();
-      attribs.put("id_scheme", targetSpecification.getUniqueId().getScheme());
-      attribs.put("id_value", targetSpecification.getUniqueId().getValue());
-      attribs.put("id_version", targetSpecification.getUniqueId().getVersion());
+      
+      String idScheme;
+      String idValue;
+      String idVersion;
+      if (ComputationTargetSpecification.NULL.equals(targetSpecification)) {
+        idScheme = null;
+        idValue = null;
+        idVersion = null;
+      } else {
+        UniqueId uniqueId = targetSpecification.getUniqueId();
+        idScheme = uniqueId.getScheme();
+        idValue = uniqueId.getValue();
+        idVersion = uniqueId.getVersion();
+      }
+      attribs.put("id_scheme", idScheme);
+      attribs.put("id_value", idValue);
+      attribs.put("id_version", idVersion);
       attribs.put("type", targetSpecification.getType().toString());
       computationTargetsData.get(attribs).add(targetSpecification);
     }

@@ -48,20 +48,21 @@ public class WebHistoricalTimeSeriesResource extends AbstractWebHistoricalTimeSe
   @Produces(MediaType.TEXT_HTML)
   public String getHTML() {
     FlexiBean out = createRootData();
-    return getFreemarker().build("timeseries/onetimeseries.ftl", out);
+    return getFreemarker().build(HTML_DIR + "onetimeseries.ftl", out);
   }
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public String getJSON() {
     FlexiBean out = createRootData();
-    return getFreemarker().build("timeseries/jsononetimeseries.ftl", out);
+    return getFreemarker().build(JSON_DIR + "onetimeseries.ftl", out);
   }
 
   @GET
   @Produces("text/csv")
   public String getCSV() {
     StringWriter stringWriter  = new StringWriter();
+    @SuppressWarnings("resource")
     CSVWriter csvWriter = new CSVWriter(stringWriter);
     csvWriter.writeNext(new String[] {"Time", "Value"});
     for (Map.Entry<?, Double> entry : data().getTimeSeries().getTimeSeries()) {

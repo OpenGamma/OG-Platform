@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.threeten.bp.DateTimeException;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZoneId;
-import org.threeten.bp.format.DateTimeFormatters;
+import org.threeten.bp.format.DateTimeFormatter;
 
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalScheme;
@@ -90,6 +90,12 @@ public class ExternalSchemes {
    * Identification scheme for GMI contracts.
    */
   public static final ExternalScheme GMI = ExternalScheme.of("GMI");
+  // --------------------- SCHEMES FOR EXCHANGES ---------------------------
+
+/**
+   * Identification scheme for CDS Index and Obligors.
+   */
+  public static final ExternalScheme MARKIT_RED_CODE = ExternalScheme.of("MARKIT_RED_CODE");
 
   //-------------------- SCHEMES FOR REGIONS ---------------------
 
@@ -124,7 +130,7 @@ public class ExternalSchemes {
    */
   public static final ExternalScheme FINANCIAL = ExternalScheme.of("FINANCIAL_REGION");
 
-  // --------------------- SCHEMES FOR EXCHANGES ---------------------------
+
   /**
    * Identification scheme for the MIC exchange code ISO standard.
    */
@@ -235,7 +241,7 @@ public class ExternalSchemes {
     }
     return ExternalId.of(BLOOMBERG_TICKER, ticker);
   }
-
+  
   /**
    * Creates a Synthetic ticker.
    * <p>
@@ -289,7 +295,7 @@ public class ExternalSchemes {
     }
     if (s_logger.isDebugEnabled()) {
       try {
-        LocalDate.parse(maturity, DateTimeFormatters.pattern("MM/dd/YY"));
+        LocalDate.parse(maturity, DateTimeFormatter.ofPattern("MM/dd/yy"));
       } catch (final UnsupportedOperationException uoe) {
         s_logger.warn("Problem parsing maturity " + maturity + " ticker=" + tickerWithoutSector + ", coupon=" + coupon);
       } catch (final DateTimeException ex) {
@@ -381,6 +387,19 @@ public class ExternalSchemes {
     }
     return ExternalId.of(GMI, ticker);
   }
+  
+  /**
+   * Creates a RED_CODE identifier
+   * <p>
+   * @param redcode the redcode identifier, not null or empty
+   * @return the security redcode identifier, not null
+   */
+  public static ExternalId redCode(String redcode) {
+    ArgumentChecker.notNull(redcode, "redcode");
+    ArgumentChecker.isFalse(redcode.isEmpty(), "Empty redcode is invalid");
+    return ExternalId.of(MARKIT_RED_CODE, redcode);
+  }
+  
   // -------------------------- METHODS FOR REGIONS ---------------------------
 
   /**

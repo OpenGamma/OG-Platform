@@ -10,10 +10,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.language.definition.JavaTypeInfo;
 import com.opengamma.language.test.AbstractConverterTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the {@link ArrayDepthConverter} class.
  */
+@Test(groups = TestGroup.UNIT)
 public class ArrayDepthConverterTest extends AbstractConverterTest {
 
   private final ArrayDepthConverter _converter = new ArrayDepthConverter();

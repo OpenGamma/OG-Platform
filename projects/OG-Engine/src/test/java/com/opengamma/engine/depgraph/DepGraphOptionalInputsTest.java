@@ -23,11 +23,12 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the dependency graph building with optional inputs to functions.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class DepGraphOptionalInputsTest extends AbstractDependencyGraphBuilderTest {
 
   private static class OptionalInputsFunction extends TestFunction {

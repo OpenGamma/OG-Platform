@@ -6,8 +6,12 @@
 package com.opengamma.provider.security.impl;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.opengamma.core.security.Security;
 import com.opengamma.provider.security.SecurityEnhancer;
 import com.opengamma.provider.security.SecurityEnhancerRequest;
@@ -41,6 +45,22 @@ public abstract class AbstractSecurityEnhancer implements SecurityEnhancer {
     SecurityEnhancerRequest request = SecurityEnhancerRequest.create(securities);
     SecurityEnhancerResult result = enhanceSecurities(request);
     return result.getResultList();
+  }
+
+  @Override
+  public <R> Map<R, Security> enhanceSecurities(Map<R, Security> securities) {
+    List<R> keyList = Lists.newArrayList();
+    List<Security> securityList = Lists.newArrayList();
+    for (Entry<R, Security> entry : securities.entrySet()) {
+      keyList.add(entry.getKey());
+      securityList.add(entry.getValue());
+    }
+    securityList = enhanceSecurities(securityList);
+    Map<R, Security> result = Maps.newHashMap();
+    for (int i = 0; i < keyList.size(); i++) {
+      result.put(keyList.get(i), securityList.get(i));
+    }
+    return result;
   }
 
   //-------------------------------------------------------------------------

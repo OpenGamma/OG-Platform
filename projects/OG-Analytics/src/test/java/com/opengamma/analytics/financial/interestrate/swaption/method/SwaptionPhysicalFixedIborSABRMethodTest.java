@@ -6,8 +6,6 @@
 package com.opengamma.analytics.financial.interestrate.swaption.method;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
-import static org.threeten.bp.temporal.ChronoUnit.YEARS;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -73,16 +71,16 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
   private static final boolean IS_LONG = true;
   private static final int SETTLEMENT_DAYS = 2;
   // Swap 5Y description
-  private static final Currency CUR = Currency.USD;
+  private static final Currency CUR = Currency.EUR;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final boolean IS_EOM = true;
   private static final int ANNUITY_TENOR_YEAR = 5;
-  private static final Period ANNUITY_TENOR = Period.of(ANNUITY_TENOR_YEAR, YEARS);
+  private static final Period ANNUITY_TENOR = Period.ofYears(ANNUITY_TENOR_YEAR);
   private static final ZonedDateTime SETTLEMENT_DATE = ScheduleCalculator.getAdjustedDate(EXPIRY_DATE, SETTLEMENT_DAYS, CALENDAR);
   private static final double NOTIONAL = 100000000; //100m
   //  Fixed leg: Semi-annual bond
-  private static final Period FIXED_PAYMENT_PERIOD = Period.of(6, MONTHS);
+  private static final Period FIXED_PAYMENT_PERIOD = Period.ofMonths(6);
   private static final DayCount FIXED_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("30/360");
   private static final double RATE = 0.0325;
   private static final boolean FIXED_IS_PAYER = true;
@@ -91,7 +89,7 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
   private static final AnnuityCouponFixedDefinition FIXED_ANNUITY_RECEIVER = AnnuityCouponFixedDefinition.from(CUR, SETTLEMENT_DATE, ANNUITY_TENOR, FIXED_PAYMENT_PERIOD, CALENDAR, FIXED_DAY_COUNT,
       BUSINESS_DAY, IS_EOM, NOTIONAL, RATE, !FIXED_IS_PAYER);
   //  Ibor leg: quarterly money
-  private static final Period INDEX_TENOR = Period.of(3, MONTHS);
+  private static final Period INDEX_TENOR = Period.ofMonths(3);
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final IborIndex IBOR_INDEX = new IborIndex(CUR, INDEX_TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM);
   private static final IndexSwap CMS_INDEX = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, IBOR_INDEX, ANNUITY_TENOR);
@@ -108,7 +106,7 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2008, 8, 18);
   private static final String FUNDING_CURVE_NAME = "Funding";
   private static final String FORWARD_CURVE_NAME = "Forward";
-  private static final String[] CURVES_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME };
+  private static final String[] CURVES_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME};
   private static final YieldCurveBundle CURVES = TestsDataSetsSABR.createCurves1();
   private static final SABRInterestRateParameters SABR_PARAMETER = TestsDataSetsSABR.createSABR1();
   private static final SABRInterestRateDataBundle SABR_BUNDLE = new SABRInterestRateDataBundle(SABR_PARAMETER, CURVES);
@@ -246,7 +244,7 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
     final double pv = SWAPTION_LONG_PAYER.accept(PVC, sabrBundle);
     // 1. Forward curve sensitivity
     final String bumpedCurveName = "Bumped Curve";
-    final String[] bumpedCurvesForwardName = {FUNDING_CURVE_NAME, bumpedCurveName };
+    final String[] bumpedCurvesForwardName = {FUNDING_CURVE_NAME, bumpedCurveName};
     final SwaptionPhysicalFixedIbor swaptionBumpedForward = SWAPTION_DEFINITION_LONG_PAYER.toDerivative(REFERENCE_DATE, bumpedCurvesForwardName);
     final YieldAndDiscountCurve curveForward = curves.getCurve(FORWARD_CURVE_NAME);
     final Set<Double> timeForwardSet = new TreeSet<Double>();
@@ -281,7 +279,7 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
       assertEquals("Node " + i, res, pair.getSecond(), deltaTolerance);
     }
     // 2. Funding curve sensitivity
-    final String[] bumpedCurvesFundingName = {bumpedCurveName, FORWARD_CURVE_NAME };
+    final String[] bumpedCurvesFundingName = {bumpedCurveName, FORWARD_CURVE_NAME};
     final SwaptionPhysicalFixedIbor swaptionBumpedFunding = SWAPTION_DEFINITION_LONG_PAYER.toDerivative(REFERENCE_DATE, bumpedCurvesFundingName);
     final int nbPayDate = SWAPTION_DEFINITION_LONG_PAYER.getUnderlyingSwap().getIborLeg().getPayments().length;
     final YieldAndDiscountCurve curveFunding = curves.getCurve(FUNDING_CURVE_NAME);
@@ -306,7 +304,6 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
       assertEquals("Node " + i, nodeTimesFunding[i + 1], pair.getFirst(), 1E-8);
       assertEquals("Node " + i, res, pair.getSecond(), deltaTolerance);
     }
-
   }
 
   @Test
@@ -318,7 +315,7 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
     final PresentValueSABRSensitivityDataBundle pvsLongPayer = METHOD.presentValueSABRSensitivity(SWAPTION_LONG_PAYER, sabrBundle);
     PresentValueSABRSensitivityDataBundle pvsShortPayer = METHOD.presentValueSABRSensitivity(SWAPTION_SHORT_PAYER, sabrBundle);
     // Long/short parity
-    pvsShortPayer = PresentValueSABRSensitivityDataBundle.multiplyBy(pvsShortPayer, -1.0);
+    pvsShortPayer = pvsShortPayer.multiplyBy(-1.0);
     assertEquals(pvsLongPayer.getAlpha(), pvsShortPayer.getAlpha());
     // SABR sensitivity vs finite difference
     final double pvLongPayer = METHOD.presentValue(SWAPTION_LONG_PAYER, sabrBundle).getAmount();
@@ -377,8 +374,8 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
    */
   public void analysisSensitivities() {
     final IborIndex USDLIBOR3M = IndexIborMaster.getInstance().getIndex("USDLIBOR3M", CALENDAR);
-    final Period expiryTenor = Period.of(5, YEARS);
-    final Period underlyingTenor = Period.of(10, YEARS);
+    final Period expiryTenor = Period.ofYears(5);
+    final Period underlyingTenor = Period.ofYears(10);
     final ZonedDateTime expiryDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, expiryTenor, USDLIBOR3M);
     final ZonedDateTime settleDate = ScheduleCalculator.getAdjustedDate(expiryDate, USDLIBOR3M.getSpotLag(), CALENDAR);
     final GeneratorSwapFixedIbor USD6MLIBOR3M = GeneratorSwapFixedIborMaster.getInstance().getGenerator("USD6MLIBOR3M", CALENDAR);
@@ -443,13 +440,14 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
     final int nbTest2 = 10;
     final PresentValueSABRHullWhiteMonteCarloCalculator pvcSABRHWMC = PresentValueSABRHullWhiteMonteCarloCalculator.getInstance();
     final double[] pvMC = new double[nbTest2];
+
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest2; looptest++) {
       pvMC[looptest] = SWAPTION_LONG_PAYER.accept(pvcSABRHWMC, SABR_BUNDLE);
     }
     endTime = System.currentTimeMillis();
     System.out.println(nbTest2 + " physical swaptions SABR + Hull-White Monte Carlo: " + (endTime - startTime) + " ms");
-    // Performance note: price+delta+vega: 12-Jun-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 375 ms for 100 swaptions.
+    // Performance note: price: 12-Jun-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 530 ms for 10 swaptions.
 
   }
 

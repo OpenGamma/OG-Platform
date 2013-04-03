@@ -27,11 +27,13 @@ import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.HolidayMaster;
 import com.opengamma.master.holiday.ManageableHoliday;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**
  * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class DataHolidayMasterResourceTest {
 
   private static final UniqueId UID = UniqueId.of("Test", "A", "B");

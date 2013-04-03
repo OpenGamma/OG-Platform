@@ -9,10 +9,6 @@ import java.io.Serializable;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.text.StrBuilder;
-import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializer;
-import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
@@ -238,34 +234,6 @@ public final class ObjectId
   @Override
   public String toString() {
     return new StrBuilder().append(_scheme).append('~').append(_value).toString();
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * This is for more efficient code within the .proto representations of securities, allowing this class
-   * to be used directly as a message type instead of through the serialization framework.
-   * 
-   * @param serializer  the serializer, not null
-   * @param msg  the message to populate, not null
-   * @deprecated Use builder
-   */
-  @Deprecated
-  public void toFudgeMsg(final FudgeSerializer serializer, final MutableFudgeMsg msg) {
-    ObjectIdFudgeBuilder.toFudgeMsg(serializer, this, msg);
-  }
-
-  /**
-   * This is for more efficient code within the .proto representations of securities, allowing this class
-   * to be used directly as a message type instead of through the serialization framework.
-   * 
-   * @param deserializer  the deserializer, not null
-   * @param msg  the message to decode, not null
-   * @return the created object, not null
-   * @deprecated Use builder
-   */
-  @Deprecated
-  public static ObjectId fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
-    return ObjectIdFudgeBuilder.fromFudgeMsg(deserializer, msg);
   }
 
 }

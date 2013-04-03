@@ -14,17 +14,20 @@ $.register_module({
             'Surface': 'Surface',
             'Timeseries': 'Time Series',
             'Histogram' : 'Histogram',
-            'ExpandedPositions': 'Position'
+            'ExpandedPositions': 'Position',
+            'Text' : 'Text'
         };
         return mapping = {
-            gadgets: ['Depgraph', 'Data', 'Surface', 'Curve', 'Timeseries', 'ExpandedPositions', 'Log', 'Histogram'],
+            gadgets: [
+                'Depgraph', 'Data', 'Surface', 'Curve', 'Timeseries', 'ExpandedPositions', 'Log', 'Histogram', 'Text'
+            ],
             panel_preference: {
-                'south'      : [0, 2, 4, 3, 1, 5, 6],
-                'dock-north' : [2, 4, 3, 1, 0, 5, 6],
-                'dock-center': [2, 4, 3, 1, 0, 5, 6],
-                'dock-south' : [2, 4, 3, 1, 0, 5, 6],
-                'new-window' : [2, 4, 3, 1, 0, 5, 6],
-                'inplace'    : [2, 4, 3, 1, 0, 5, 6]
+                'south'      : [0, 2, 4, 3, 1, 5, 6, 8],
+                'dock-north' : [2, 4, 3, 1, 0, 5, 6, 8],
+                'dock-center': [2, 4, 3, 1, 0, 5, 6, 8],
+                'dock-south' : [2, 4, 3, 1, 0, 5, 6, 8],
+                'new-window' : [2, 4, 3, 1, 0, 5, 6, 8],
+                'inplace'    : [2, 4, 3, 1, 0, 5, 8, 6]
             },
             options: function (cell, grid, panel) {
                 var gadget_type = mapping.type(cell, panel), source = $.extend({}, grid.source), gadget_options;
@@ -33,7 +36,7 @@ $.register_module({
                     options: {
                         source: source, child: true, col: cell.col, row: cell.row, type: cell.type,
                         menu: false, datapoints_link: false, /* ONLY RELEVANT FOR TIMESERIES (be wary) */
-                        id: cell.value.v.id, editable: false, external_links: true /* ONLY EXPANDED POSITIONS */
+                        value: cell.value.v, editable: false, external_links: true /* ONLY EXPANDED POSITIONS */
                     },
                     row_name: cell.row_name, col_name: cell.col_name,
                     gadget_name: gadget_names[gadget_type],
@@ -63,7 +66,7 @@ $.register_module({
             },
             depgraph_blacklist: ['DOUBLE', 'STRING', 'TENOR', 'UNKNOWN'],
             data_type_map: {
-                CURVE                   : [3, 1, 6],
+                CURVE                   : [3, 1, 6, 0],
                 DOUBLE                  : [0, 6],
                 FUNGIBLE_TRADE          : [5],
                 LABELLED_MATRIX_1D      : [0, 1, 6],
@@ -72,14 +75,14 @@ $.register_module({
                 MATRIX_2D               : [0, 1, 6],
                 OTC_TRADE               : [5],
                 POSITION                : [5],
-                STRING                  : [0, 6],
+                STRING                  : [8, 6],
                 SURFACE_DATA            : [2, 1, 0, 6],
-                UNPLOTTABLE_SURFACE_DATA: [1, 6],
+                UNPLOTTABLE_SURFACE_DATA: [1, 6, 0],
                 TENOR                   : [0, 6],
-                TIME_SERIES             : [4, 1, 6],
+                TIME_SERIES             : [4, 1, 7, 6, 0],
                 UNKNOWN                 : [0, 6],
                 VECTOR                  : [0, 1, 6],
-                HISTOGRAM               : [5, 1, 6]
+                HISTOGRAM               : [5, 1, 6, 0]
             }
         };
     }

@@ -188,7 +188,7 @@ public class MultiHorizonMixedLogNormalModelData {
     return _sto.jacobian(temp);
   }
 
-  public int getNumberOfparameters() {
+  public int getNumberOfParameters() {
     return _nParams;
   }
 

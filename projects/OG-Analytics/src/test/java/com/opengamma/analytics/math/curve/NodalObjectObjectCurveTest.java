@@ -29,20 +29,20 @@ import com.opengamma.util.tuple.Pair;
  * 
  */
 public class NodalObjectObjectCurveTest {
-  protected static final String NAME1 = "a";
-  protected static final String NAME2 = "b";
-  protected static final Float[] X_OBJECT;
-  protected static final Double[] Y_OBJECT;
-  protected static final Float[] X_OBJECT_SORTED;
-  protected static final Double[] Y_OBJECT_SORTED;
-  protected static final Map<Float, Double> MAP;
-  protected static final Map<Float, Double> MAP_SORTED;
-  protected static final Set<Pair<Float, Double>> PAIR_SET;
-  protected static final Set<Pair<Float, Double>> PAIR_SET_SORTED;
-  protected static final List<Float> X_LIST;
-  protected static final List<Double> Y_LIST;
-  protected static final List<Float> X_LIST_SORTED;
-  protected static final List<Double> Y_LIST_SORTED;
+  static final String NAME1 = "a";
+  static final String NAME2 = "b";
+  static final Float[] X_OBJECT;
+  static final Double[] Y_OBJECT;
+  static final Float[] X_OBJECT_SORTED;
+  static final Double[] Y_OBJECT_SORTED;
+  static final Map<Float, Double> MAP;
+  static final Map<Float, Double> MAP_SORTED;
+  static final Set<Pair<Float, Double>> PAIR_SET;
+  static final Set<Pair<Float, Double>> PAIR_SET_SORTED;
+  static final List<Float> X_LIST;
+  static final List<Double> Y_LIST;
+  static final List<Float> X_LIST_SORTED;
+  static final List<Double> Y_LIST_SORTED;
 
   static {
     final int n = 10;
