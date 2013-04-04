@@ -9,6 +9,7 @@ import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.organization.OrganizationSource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.function.FunctionExecutionContext;
@@ -200,6 +201,27 @@ public final class OpenGammaExecutionContext {
    */
   public static void setHolidaySource(final FunctionExecutionContext context, final HolidaySource holidaySource) {
     context.put(HOLIDAY_SOURCE_NAME, holidaySource);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets a {@code OrganizationSource} from the context.
+   *
+   * @param context the context to examine, not null
+   * @return the value, null if not found
+   */
+  public static OrganizationSource getOrganizationSource(final FunctionExecutionContext context) {
+    return context.getOrganizationSource();
+  }
+
+  /**
+   * Stores a {@code OrganizationSource} in the context.
+   *
+   * @param context the context to store in, not null
+   * @param organizationSource the value to store, not null
+   */
+  public static void setOrganizationSource(final FunctionExecutionContext context, final OrganizationSource organizationSource) {
+    context.setOrganizationSource(organizationSource);
   }
 
   //-------------------------------------------------------------------------

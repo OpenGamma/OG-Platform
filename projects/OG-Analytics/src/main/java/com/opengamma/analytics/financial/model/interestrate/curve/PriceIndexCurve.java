@@ -105,10 +105,10 @@ public class PriceIndexCurve {
   }
 
   /**
-   * @param name The time 
-   * @return nothing
+   * The list of underlying curves (up to one level).
+   * @return The list.
    */
-  public List<String> getUnderlyingCurvesNames(final String name) {
+  public List<String> getUnderlyingCurvesNames() {
     return new ArrayList<>();
   }
 

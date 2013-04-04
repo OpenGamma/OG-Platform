@@ -49,6 +49,7 @@ import com.opengamma.analytics.financial.instrument.future.BondFutureDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFutureOptionPremiumSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFutureOptionPremiumTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.DeliverableSwapFuturesSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.future.DeliverableSwapFuturesTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.FederalFundsFutureSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.FederalFundsFutureTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureOptionMarginSecurityDefinition;
@@ -57,6 +58,8 @@ import com.opengamma.analytics.financial.instrument.future.InterestRateFutureOpt
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureOptionPremiumTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureTransactionDefinition;
+import com.opengamma.analytics.financial.instrument.inflation.CapFloorInflationZeroCouponInterpolationDefinition;
+import com.opengamma.analytics.financial.instrument.inflation.CapFloorInflationZeroCouponMonthlyDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationYearOnYearInterpolationDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationYearOnYearMonthlyDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZeroCouponInterpolationDefinition;
@@ -174,6 +177,10 @@ public interface InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
   RESULT_TYPE visitDeliverableSwapFuturesSecurityDefinition(DeliverableSwapFuturesSecurityDefinition futures, DATA_TYPE data);
 
   RESULT_TYPE visitDeliverableSwapFuturesSecurityDefinition(DeliverableSwapFuturesSecurityDefinition futures);
+
+  RESULT_TYPE visitDeliverableSwapFuturesTransactionDefinition(DeliverableSwapFuturesTransactionDefinition futures, DATA_TYPE data);
+
+  RESULT_TYPE visitDeliverableSwapFuturesTransactionDefinition(DeliverableSwapFuturesTransactionDefinition futures);
 
   // -----     Futures options    -----
 
@@ -335,6 +342,14 @@ public interface InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
 
   RESULT_TYPE visitCouponInflationYearOnYearInterpolationDefinition(CouponInflationYearOnYearInterpolationDefinition coupon);
 
+  RESULT_TYPE visitCapFloorInflationZeroCouponInterpolationDefinition(CapFloorInflationZeroCouponInterpolationDefinition coupon, DATA_TYPE data);
+
+  RESULT_TYPE visitCapFloorInflationZeroCouponInterpolationDefinition(CapFloorInflationZeroCouponInterpolationDefinition coupon);
+
+  RESULT_TYPE visitCapFloorInflationZeroCouponMonthlyDefinition(CapFloorInflationZeroCouponMonthlyDefinition coupon, DATA_TYPE data);
+
+  RESULT_TYPE visitCapFloorInflationZeroCouponMonthlyDefinition(CapFloorInflationZeroCouponMonthlyDefinition coupon);
+
   RESULT_TYPE visitBondCapitalIndexedSecurity(BondCapitalIndexedSecurityDefinition<?> bond, DATA_TYPE data);
 
   RESULT_TYPE visitBondCapitalIndexedSecurity(BondCapitalIndexedSecurityDefinition<?> bond);
@@ -420,23 +435,23 @@ public interface InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
   RESULT_TYPE visitEquityFutureDefinition(EquityFutureDefinition future, DATA_TYPE data);
 
   RESULT_TYPE visitEquityFutureDefinition(EquityFutureDefinition future);
-  
+
   RESULT_TYPE visitIndexFutureDefinition(IndexFutureDefinition future, DATA_TYPE data);
 
   RESULT_TYPE visitIndexFutureDefinition(IndexFutureDefinition future);
-  
+
   RESULT_TYPE visitEquityIndexFutureDefinition(EquityIndexFutureDefinition future, DATA_TYPE data);
 
   RESULT_TYPE visitEquityIndexFutureDefinition(EquityIndexFutureDefinition future);
-  
+
   RESULT_TYPE visitEquityIndexDividendFutureDefinition(EquityIndexDividendFutureDefinition future, DATA_TYPE data);
 
   RESULT_TYPE visitEquityIndexDividendFutureDefinition(EquityIndexDividendFutureDefinition future);
-  
+
   RESULT_TYPE visitVolatilityIndexFutureDefinition(VolatilityIndexFutureDefinition future, DATA_TYPE data);
 
   RESULT_TYPE visitVolatilityIndexFutureDefinition(VolatilityIndexFutureDefinition future);
-  
+
   RESULT_TYPE visitEquityIndexOptionDefinition(EquityIndexOptionDefinition option, DATA_TYPE data);
 
   RESULT_TYPE visitEquityIndexOptionDefinition(EquityIndexOptionDefinition option);

@@ -26,6 +26,8 @@ public final class CalculationPropertyNamesAndValues {
   public static final String BJERKSUND_STENSLAND_METHOD = "BjerksundStenslandMethod";
   /** The so-called PDE method computes prices for American and European options under the BlackScholesMerton model*/
   public static final String PDE_METHOD = "PDE";
+  /** Pricing from marked / listed price */
+  public static final String MARK_TO_MARKET_METHOD = "MarkToMarket";
   
   //Values for PROPERTY_MODEL_TYPE
   /** Analytic */

@@ -50,8 +50,6 @@ import com.opengamma.analytics.financial.provider.sensitivity.inflation.Inflatio
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
-import com.opengamma.financial.convention.calendar.Calendar;
-import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
@@ -71,7 +69,6 @@ public class InflationBuildingCurveSimpleTestEUR {
   private static final int STEP_MAX = 100;
 
   private static final Currency EUR = Currency.EUR;
-  private static final Calendar NYC = new MondayToFridayCalendar("NYC");
 
   private static final double NOTIONAL = 1.0;
 
@@ -79,8 +76,6 @@ public class InflationBuildingCurveSimpleTestEUR {
   private static final IndexPrice EUR_HICP = GENERATOR_INFALTION_SWAP.getIndexPrice();
 
   private static final ZonedDateTime NOW = DateUtils.getUTCDate(2012, 9, 28);
-
-  private static final ArrayZonedDateTimeDoubleTimeSeries TS_EMPTY = new ArrayZonedDateTimeDoubleTimeSeries();
 
   private static final ArrayZonedDateTimeDoubleTimeSeries TS_PRICE_INDEX_USD_WITH_TODAY = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 27),
       DateUtils.getUTCDate(2011, 9, 28) }, new double[] {200, 200 });
@@ -176,6 +171,20 @@ public class InflationBuildingCurveSimpleTestEUR {
     for (int loopblock = 0; loopblock < NB_BLOCKS; loopblock++) {
       CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.add(makeCurvesFromDefinitions(DEFINITIONS_UNITS[loopblock], GENERATORS_UNITS[loopblock], NAMES_UNITS[loopblock], KNOWN_DATA, PSIMQC, PSIMQCSC, false));
     }
+  }
+
+  @Test(enabled = false)
+  public void performance() {
+    long startTime, endTime;
+    final int nbTest = 1000;
+
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      makeCurvesFromDefinitions(DEFINITIONS_UNITS[0], GENERATORS_UNITS[0], NAMES_UNITS[0], KNOWN_DATA, PSIMQC, PSIMQCSC, false);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println("InflationBuildingCurveSimpleTestEUR - " + nbTest + " curve construction Price index EUR 1 units: " + (endTime - startTime) + " ms");
+    // Performance note: curve construction Price index EUR 1 units: 27-Mar-13: On Dell Precision T1850 3.5 GHz Quad-Core Intel Xeon: 2816 ms for 1000 sets.
   }
 
   @Test

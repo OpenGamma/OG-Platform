@@ -9,6 +9,7 @@ import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.organization.OrganizationSource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -208,6 +209,14 @@ public final class OpenGammaCompilationContext {
 
   public static void setHolidaySource(final FunctionCompilationContext compilationContext, final HolidaySource holidaySource) {
     set(compilationContext, HOLIDAY_SOURCE_NAME, holidaySource);
+  }
+
+  public static OrganizationSource getOrganizationSource(final FunctionCompilationContext compilationContext) {
+    return compilationContext.getOrganizationSource();
+  }
+
+  public static void setOrganizationSource(final FunctionCompilationContext compilationContext, final OrganizationSource organizationSource) {
+    compilationContext.setOrganizationSource(organizationSource);
   }
 
   public static ExchangeSource getExchangeSource(final FunctionCompilationContext compilationContext) {

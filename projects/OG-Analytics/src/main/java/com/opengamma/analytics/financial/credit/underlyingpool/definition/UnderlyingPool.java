@@ -146,6 +146,7 @@ public class UnderlyingPool {
       totalObligorWeightings += obligorWeights[i];
     }
 
+    // TODO : DoubleToBits this comparison
     ArgumentChecker.isTrue(totalObligorWeightings == 1.0, "Index constituent weights must sum to unity");
 
     // ----------------------------------------------------------------------------------------------------------------------------------------

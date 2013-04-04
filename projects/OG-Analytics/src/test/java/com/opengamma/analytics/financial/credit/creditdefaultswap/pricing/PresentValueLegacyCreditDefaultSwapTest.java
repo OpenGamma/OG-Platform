@@ -57,7 +57,7 @@ public class PresentValueLegacyCreditDefaultSwapTest {
   // ----------------------------------------------------------------------------------
 
   // Flag to control if any test results are output to the console
-  private static final boolean outputResults = true;
+  private static final boolean outputResults = false;
 
   // ----------------------------------------------------------------------------------
 
@@ -294,17 +294,17 @@ public class PresentValueLegacyCreditDefaultSwapTest {
   static ZonedDateTime[] hazardRateDates = {zdt(2013, 06, 20, 0, 0, 0, 0, ZoneOffset.UTC), zdt(2015, 06, 20, 0, 0, 0, 0, ZoneOffset.UTC), zdt(2018, 06, 20, 0, 0, 0, 0, ZoneOffset.UTC) };
 
   static double[] hazardRateTimes = {
-      0.0,
-      s_act365.getDayCountFraction(valuationDate, zdt(2013, 06, 20, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(valuationDate, zdt(2015, 06, 20, 0, 0, 0, 0, ZoneOffset.UTC)),
-      s_act365.getDayCountFraction(valuationDate, zdt(2018, 06, 20, 0, 0, 0, 0, ZoneOffset.UTC))
+    0.0,
+    s_act365.getDayCountFraction(valuationDate, zdt(2013, 06, 20, 0, 0, 0, 0, ZoneOffset.UTC)),
+    s_act365.getDayCountFraction(valuationDate, zdt(2015, 06, 20, 0, 0, 0, 0, ZoneOffset.UTC)),
+    s_act365.getDayCountFraction(valuationDate, zdt(2018, 06, 20, 0, 0, 0, 0, ZoneOffset.UTC))
   };
 
   static double[] hazardRates = {
-      (new PeriodicInterestRate(0.09709857471184660000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.09709857471184660000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.09705141266558010000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.09701141671498870000, 1)).toContinuous().getRate()
+    (new PeriodicInterestRate(0.09709857471184660000, 1)).toContinuous().getRate(),
+    (new PeriodicInterestRate(0.09709857471184660000, 1)).toContinuous().getRate(),
+    (new PeriodicInterestRate(0.09705141266558010000, 1)).toContinuous().getRate(),
+    (new PeriodicInterestRate(0.09701141671498870000, 1)).toContinuous().getRate()
   };
 
   // Build the hazard rate curve object (No offset - survival probability = 1 on valuationDate)
@@ -402,7 +402,7 @@ public class PresentValueLegacyCreditDefaultSwapTest {
 
     final PresentValueLegacyVanillaCreditDefaultSwap vanillaCreditDefaultSwap = new PresentValueLegacyVanillaCreditDefaultSwap();
 
-    // Calculate the legacy fixed recovery CDS MtM and par spread 
+    // Calculate the legacy fixed recovery CDS MtM and par spread
     final double presentValueLegacyFixedRecoveryCDS = fixedRecoveryCreditDefaultSwap.getPresentValueLegacyFixedRecoveryCreditDefaultSwap(valuationDate,
         legacyFixedRecoveryCDS, yieldCurve, hazardRateCurve, priceType);
     final double parSpreadLegacyFixedRecoveryCDS = fixedRecoveryCreditDefaultSwap.getParSpreadLegacyFixedRecoveryCreditDefaultSwap(valuationDate, legacyFixedRecoveryCDS,
@@ -464,7 +464,7 @@ public class PresentValueLegacyCreditDefaultSwapTest {
       System.out.println("Legacy Sovereign CDS par spread = " + "\t" + parSpreadSovereignCDS);
       System.out.println("Legacy Vanilla CDS par spread = " + "\t" + parSpreadLegacyVanillaCDS);
     }
-    */
+     */
 
     // -----------------------------------------------------------------------------------------------
   }
@@ -503,7 +503,7 @@ public class PresentValueLegacyCreditDefaultSwapTest {
 
     // -----------------------------------------------------------------------------------------------
   }
-  */
+   */
 
   // -----------------------------------------------------------------------------------------------
 
@@ -549,7 +549,7 @@ public class PresentValueLegacyCreditDefaultSwapTest {
 
     // -----------------------------------------------------------------------------------------------
   }
-  */
+   */
 
   // -----------------------------------------------------------------------------------------------
 
@@ -598,7 +598,7 @@ public class PresentValueLegacyCreditDefaultSwapTest {
 
     // -----------------------------------------------------------------------------------------------
   }
-  */
+   */
 
   // -----------------------------------------------------------------------------------------------
 
@@ -650,7 +650,7 @@ public class PresentValueLegacyCreditDefaultSwapTest {
 
     // -----------------------------------------------------------------------------------------------
   }
-  */
+   */
 
   //-------------------------------------------------------------------------
   private static ZonedDateTime zdt(final int y, final int m, final int d, final int hr, final int min, final int sec, final int nanos, final ZoneId zone) {

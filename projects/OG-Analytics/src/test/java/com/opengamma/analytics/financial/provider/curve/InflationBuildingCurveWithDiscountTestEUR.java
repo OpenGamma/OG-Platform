@@ -6,11 +6,13 @@
 package com.opengamma.analytics.financial.provider.curve;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 import org.threeten.bp.Period;
@@ -29,8 +31,6 @@ import com.opengamma.analytics.financial.instrument.index.GeneratorAttribute;
 import com.opengamma.analytics.financial.instrument.index.GeneratorAttributeIR;
 import com.opengamma.analytics.financial.instrument.index.GeneratorDepositON;
 import com.opengamma.analytics.financial.instrument.index.GeneratorInstrument;
-import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
-import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIborMaster;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedInflation;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedInflationMaster;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedON;
@@ -47,6 +47,9 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisito
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
+import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.provider.calculator.generic.LastTimeCalculator;
 import com.opengamma.analytics.financial.provider.calculator.inflation.ParSpreadInflationMarketQuoteCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.inflation.ParSpreadInflationMarketQuoteDiscountingCalculator;
@@ -87,15 +90,11 @@ public class InflationBuildingCurveWithDiscountTestEUR {
   private static final GeneratorSwapFixedON GENERATOR_OIS_USD = GeneratorSwapFixedONMaster.getInstance().getGenerator("USD1YFEDFUND", NYC);
   private static final IndexON INDEX_ON_USD = GENERATOR_OIS_USD.getIndex();
   private static final GeneratorDepositON GENERATOR_DEPOSIT_ON_USD = new GeneratorDepositON("USD Deposit ON", USD, NYC, INDEX_ON_USD.getDayCount());
-  private static final GeneratorSwapFixedIborMaster GENERATOR_SWAP_MASTER = GeneratorSwapFixedIborMaster.getInstance();
-  private static final GeneratorSwapFixedIbor USD6MLIBOR3M = GENERATOR_SWAP_MASTER.getGenerator("USD6MLIBOR3M", NYC);
 
   private static final GeneratorSwapFixedInflation GENERATOR_INFALTION_SWAP = GeneratorSwapFixedInflationMaster.getInstance().getGenerator("USCPI");
   private static final IndexPrice US_CPI = GENERATOR_INFALTION_SWAP.getIndexPrice();
 
   private static final ZonedDateTime NOW = DateUtils.getUTCDate(2012, 9, 28);
-
-  private static final ArrayZonedDateTimeDoubleTimeSeries TS_EMPTY = new ArrayZonedDateTimeDoubleTimeSeries();
 
   private static final ArrayZonedDateTimeDoubleTimeSeries TS_PRICE_INDEX_USD_WITH_TODAY = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 27),
       DateUtils.getUTCDate(2011, 9, 28) }, new double[] {200, 200 });
@@ -152,7 +151,7 @@ public class InflationBuildingCurveWithDiscountTestEUR {
   public static final InstrumentDefinition<?>[] DEFINITIONS_CPI_USD;
 
   /** Units of curves */
-  public static final int[] NB_UNITS = new int[] {2 };
+  public static final int[] NB_UNITS = new int[] {2, 1 };
   public static final int NB_BLOCKS = NB_UNITS.length;
   public static final InstrumentDefinition<?>[][][][] DEFINITIONS_UNITS = new InstrumentDefinition<?>[NB_BLOCKS][][][];
   public static final GeneratorCurve[][][] GENERATORS_UNITS = new GeneratorCurve[NB_BLOCKS][][];
@@ -178,15 +177,18 @@ public class InflationBuildingCurveWithDiscountTestEUR {
 
     DEFINITIONS_UNITS[0][0] = new InstrumentDefinition<?>[][] {DEFINITIONS_DSC_USD };
     DEFINITIONS_UNITS[0][1] = new InstrumentDefinition<?>[][] {DEFINITIONS_CPI_USD };
+    DEFINITIONS_UNITS[1][0] = new InstrumentDefinition<?>[][] {DEFINITIONS_DSC_USD, DEFINITIONS_CPI_USD };
 
     final GeneratorYDCurve genIntLinDiscount = new GeneratorCurveYieldInterpolated(MATURITY_CALCULATOR, INTERPOLATOR_LINEAR);
     final GeneratorPriceIndexCurve genIntLinInflation = new GeneratorPriceIndexCurveInterpolated(MATURITY_CALCULATOR, INTERPOLATOR_LINEAR);
 
     GENERATORS_UNITS[0][0] = new GeneratorYDCurve[] {genIntLinDiscount };
     GENERATORS_UNITS[0][1] = new GeneratorPriceIndexCurve[] {genIntLinInflation };
+    GENERATORS_UNITS[1][0] = new GeneratorCurve[] {genIntLinDiscount, genIntLinInflation };
 
     NAMES_UNITS[0][0] = new String[] {CURVE_NAME_DSC_USD };
     NAMES_UNITS[0][1] = new String[] {CURVE_NAME_CPI_USD };
+    NAMES_UNITS[1][0] = new String[] {CURVE_NAME_DSC_USD, CURVE_NAME_CPI_USD };
 
     DSC_MAP.put(CURVE_NAME_DSC_USD, USD);
     FWD_ON_MAP.put(CURVE_NAME_DSC_USD, new IndexON[] {INDEX_ON_USD });
@@ -222,6 +224,56 @@ public class InflationBuildingCurveWithDiscountTestEUR {
     }
   }
 
+  @Test(enabled = false)
+  public void comparison1Unit2Units() {
+    final InflationProviderDiscount[] units = new InflationProviderDiscount[2];
+    final CurveBuildingBlockBundle[] bb = new CurveBuildingBlockBundle[2];
+    final YieldAndDiscountCurve[] curveDsc = new YieldAndDiscountCurve[2];
+    final PriceIndexCurve[] curveInflation = new PriceIndexCurve[2];
+
+    for (int loopblock = 0; loopblock < 2; loopblock++) {
+      units[loopblock] = CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(loopblock).getFirst();
+      bb[loopblock] = CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(loopblock).getSecond();
+      curveDsc[loopblock] = units[loopblock].getCurve(USD);
+      curveInflation[loopblock] = units[loopblock].getCurve(US_CPI);
+
+    }
+    assertEquals("Curve construction: 1 unit / 3 units ", curveDsc[0].getNumberOfParameters(), curveDsc[1].getNumberOfParameters());
+    assertEquals("Curve construction: 1 unit / 3 units ", curveInflation[0].getNumberOfParameters(), curveInflation[1].getNumberOfParameters());
+
+    assertArrayEquals("Curve construction: 1 unit / 3 units ", ArrayUtils.toPrimitive(((YieldCurve) curveDsc[0]).getCurve().getXData()),
+        ArrayUtils.toPrimitive(((YieldCurve) curveDsc[1]).getCurve().getXData()), TOLERANCE_CAL);
+    assertArrayEquals("Curve construction: 1 unit / 3 units ", ArrayUtils.toPrimitive(((YieldCurve) curveDsc[0]).getCurve().getYData()),
+        ArrayUtils.toPrimitive(((YieldCurve) curveDsc[1]).getCurve().getYData()), TOLERANCE_CAL);
+    assertArrayEquals("Curve construction: 1 unit / 3 units ", ArrayUtils.toPrimitive(curveInflation[0].getCurve().getXData()),
+        ArrayUtils.toPrimitive(curveInflation[1].getCurve().getXData()), TOLERANCE_CAL);
+    assertArrayEquals("Curve construction: 1 unit / 3 units ", ArrayUtils.toPrimitive(curveInflation[0].getCurve().getYData()),
+        ArrayUtils.toPrimitive(curveInflation[1].getCurve().getYData()), TOLERANCE_CAL);
+  }
+
+  @Test(enabled = false)
+  public void performance() {
+    long startTime, endTime;
+    final int nbTest = 1000;
+
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      makeCurvesFromDefinitions(DEFINITIONS_UNITS[0], GENERATORS_UNITS[0], NAMES_UNITS[0], KNOWN_DATA, PSIMQC, PSIMQCSC, false);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println("MulticurveBuildingDiscountingDiscountXCcyTest - " + nbTest + " curve construction / USD/EUR 3 units: " + (endTime - startTime) + " ms");
+    // Performance note: curve construction Price index EUR and discount EUR 1 units: 27-Mar-13: On Dell Precision T1850 3.5 GHz Quad-Core Intel Xeon: 5869 ms for 1000 sets.
+
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      makeCurvesFromDefinitions(DEFINITIONS_UNITS[1], GENERATORS_UNITS[1], NAMES_UNITS[1], KNOWN_DATA, PSIMQC, PSIMQCSC, false);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest + " curve construction / 1 unit: " + (endTime - startTime) + " ms");
+    // Performance note: curve construction Price index EUR and discount EUR 1 units: 27-Mar-13: On Dell Precision T1850 3.5 GHz Quad-Core Intel Xeon: 9153 ms for 1000 sets.
+
+  }
+
   @Test
   public void curveConstructionGeneratorOtherBlocks() {
     for (int loopblock = 0; loopblock < NB_BLOCKS; loopblock++) {
@@ -243,37 +295,6 @@ public class InflationBuildingCurveWithDiscountTestEUR {
       }
     }
   }
-
-  /*  @Test(enabled = true)
-    *//**
-      * Analyzes the shape of the  curve.
-      */
-
-  /* public void forwardAnalysis() {
-   final InflationProviderInterface marketDsc = CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(0).getFirst();
-   final int jump = 1;
-   final int startIndex = 0;
-   final int nbDate = 2750;
-   ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(NOW,2, NYC);
-   final double[] rateDsc = new double[nbDate];
-   final double[] startTime = new double[nbDate];
-   try {
-   final FileWriter writer = new FileWriter("fwd-dsc.csv");
-   for (int loopdate = 0; loopdate < nbDate; loopdate++) {
-   startTime[loopdate] = TimeCalculator.getTimeBetween(NOW, startDate);
-   final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, US_CPI);
-   final double endTime = TimeCalculator.getTimeBetween(NOW, endDate);
-   final double accrualFactor = USDLIBOR3M.getDayCount().getDayCountFraction(startDate, endDate);
-   rateDsc[loopdate] = marketDsc.getForwardRate(USDLIBOR3M, startTime[loopdate], endTime, accrualFactor);
-   startDate = ScheduleCalculator.getAdjustedDate(startDate, jump, NYC);
-   writer.append(0.0 + "," + startTime[loopdate] + "," + rateDsc[loopdate] + "\n");
-   }
-   writer.flush();
-   writer.close();
-   } catch (final IOException e) {
-   e.printStackTrace();
-   }
-   }*/
 
   private static Pair<InflationProviderDiscount, CurveBuildingBlockBundle> makeCurvesFromDefinitions(final InstrumentDefinition<?>[][][] definitions,
       final GeneratorCurve[][] curveGenerators,
@@ -376,7 +397,7 @@ public class InflationBuildingCurveWithDiscountTestEUR {
     if (instrument instanceof CashDefinition) {
       return ((CashDefinition) instrument).getRate();
     }
-    return 1;
+    return 100;
   }
 
 }

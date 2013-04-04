@@ -8,6 +8,7 @@ package com.opengamma.analytics.financial.credit.creditdefaultswap.definition.le
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.BuySellProtection;
+import com.opengamma.analytics.financial.credit.CreditInstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.StubType;
@@ -89,59 +90,11 @@ public class LegacyVanillaCreditDefaultSwapDefinition extends LegacyCreditDefaul
         protectionStart,
         parSpread);
 
-    // ----------------------------------------------------------------------------------------------------------------------------------------
   }
-
-  // ----------------------------------------------------------------------------------------------------------------------------------------
-
-  // Builder method to allow the maturity of a Legacy CDS object to be modified (used during calibration of the hazard rate curve)
-
-  @Override
-  public LegacyVanillaCreditDefaultSwapDefinition withMaturityDate(final ZonedDateTime maturityDate) {
-
-    ArgumentChecker.notNull(maturityDate, "maturity date");
-    ArgumentChecker.isTrue(!getEffectiveDate().isAfter(maturityDate), "Effective date {} must be on or before maturity date {} (calibration error)", getEffectiveDate(), maturityDate);
-
-    final LegacyVanillaCreditDefaultSwapDefinition modifiedCDS = new LegacyVanillaCreditDefaultSwapDefinition(
-        getBuySellProtection(),
-        getProtectionBuyer(),
-        getProtectionSeller(),
-        getReferenceEntity(),
-        getCurrency(),
-        getDebtSeniority(),
-        getRestructuringClause(),
-        getCalendar(),
-        getStartDate(),
-        getEffectiveDate(),
-        maturityDate,                             // This is the field that this builder method modifies
-        getStubType(),
-        getCouponFrequency(),
-        getDayCountFractionConvention(),
-        getBusinessDayAdjustmentConvention(),
-        getIMMAdjustMaturityDate(),
-        getAdjustEffectiveDate(),
-        getAdjustMaturityDate(),
-        getNotional(),
-        getRecoveryRate(),
-        getIncludeAccruedPremium(),
-        getProtectionStart(),
-        getParSpread());
-
-    return modifiedCDS;
-  }
-
-  // ----------------------------------------------------------------------------------------------------------------------------------------
-
-  // Builder method to allow the start date of a Legacy CDS object to be modified
 
   @Override
   public LegacyVanillaCreditDefaultSwapDefinition withStartDate(final ZonedDateTime startDate) {
-
-    ArgumentChecker.notNull(startDate, "start date");
-    //ArgumentChecker.isTrue(!getEffectiveDate().isAfter(maturityDate), "Effective date {} must be on or before maturity date {} (calibration error)", getEffectiveDate(), maturityDate);
-
-    final LegacyVanillaCreditDefaultSwapDefinition modifiedCDS = new LegacyVanillaCreditDefaultSwapDefinition(
-        getBuySellProtection(),
+    return new LegacyVanillaCreditDefaultSwapDefinition(getBuySellProtection(),
         getProtectionBuyer(),
         getProtectionSeller(),
         getReferenceEntity(),
@@ -149,7 +102,7 @@ public class LegacyVanillaCreditDefaultSwapDefinition extends LegacyCreditDefaul
         getDebtSeniority(),
         getRestructuringClause(),
         getCalendar(),
-        startDate,                                        // This is the field that this builder method modifies
+        startDate,
         getEffectiveDate(),
         getMaturityDate(),
         getStubType(),
@@ -164,22 +117,11 @@ public class LegacyVanillaCreditDefaultSwapDefinition extends LegacyCreditDefaul
         getIncludeAccruedPremium(),
         getProtectionStart(),
         getParSpread());
-
-    return modifiedCDS;
   }
-
-  // ----------------------------------------------------------------------------------------------------------------------------------------
-
-  // Builder method to allow the effective date of a Legacy CDS object to be modified
 
   @Override
   public LegacyVanillaCreditDefaultSwapDefinition withEffectiveDate(final ZonedDateTime effectiveDate) {
-
-    ArgumentChecker.notNull(effectiveDate, "start date");
-    //ArgumentChecker.isTrue(!getEffectiveDate().isAfter(maturityDate), "Effective date {} must be on or before maturity date {} (calibration error)", getEffectiveDate(), maturityDate);
-
-    final LegacyVanillaCreditDefaultSwapDefinition modifiedCDS = new LegacyVanillaCreditDefaultSwapDefinition(
-        getBuySellProtection(),
+    return new LegacyVanillaCreditDefaultSwapDefinition(getBuySellProtection(),
         getProtectionBuyer(),
         getProtectionSeller(),
         getReferenceEntity(),
@@ -187,7 +129,7 @@ public class LegacyVanillaCreditDefaultSwapDefinition extends LegacyCreditDefaul
         getDebtSeniority(),
         getRestructuringClause(),
         getCalendar(),
-        getStartDate(),                                        // This is the field that this builder method modifies
+        getStartDate(),
         effectiveDate,
         getMaturityDate(),
         getStubType(),
@@ -202,19 +144,11 @@ public class LegacyVanillaCreditDefaultSwapDefinition extends LegacyCreditDefaul
         getIncludeAccruedPremium(),
         getProtectionStart(),
         getParSpread());
-
-    return modifiedCDS;
   }
-
-  // ----------------------------------------------------------------------------------------------------------------------------------------
-
-  // Builder method to allow the premium leg coupon of a Legacy CDS object to be modified (used during calibration of the hazard rate curve)
 
   @Override
   public LegacyVanillaCreditDefaultSwapDefinition withSpread(final double parSpread) {
-
-    final LegacyVanillaCreditDefaultSwapDefinition modifiedCDS = new LegacyVanillaCreditDefaultSwapDefinition(
-        getBuySellProtection(),
+    return new LegacyVanillaCreditDefaultSwapDefinition(getBuySellProtection(),
         getProtectionBuyer(),
         getProtectionSeller(),
         getReferenceEntity(),
@@ -236,55 +170,12 @@ public class LegacyVanillaCreditDefaultSwapDefinition extends LegacyCreditDefaul
         getRecoveryRate(),
         getIncludeAccruedPremium(),
         getProtectionStart(),
-        parSpread);                               // This is the field that this builder method modifies
-
-    return modifiedCDS;
+        parSpread);
   }
-
-  // ----------------------------------------------------------------------------------------------------------------------------------------
-
-  // Builder method to allow the recovery rate of a Legacy CDS object to be modified (used during calibration of the hazard rate curve)
-
-  @Override
-  public LegacyVanillaCreditDefaultSwapDefinition withRecoveryRate(final double recoveryRate) {
-
-    final LegacyVanillaCreditDefaultSwapDefinition modifiedCDS = new LegacyVanillaCreditDefaultSwapDefinition(
-        getBuySellProtection(),
-        getProtectionBuyer(),
-        getProtectionSeller(),
-        getReferenceEntity(),
-        getCurrency(),
-        getDebtSeniority(),
-        getRestructuringClause(),
-        getCalendar(),
-        getStartDate(),
-        getEffectiveDate(),
-        getMaturityDate(),
-        getStubType(),
-        getCouponFrequency(),
-        getDayCountFractionConvention(),
-        getBusinessDayAdjustmentConvention(),
-        getIMMAdjustMaturityDate(),
-        getAdjustEffectiveDate(),
-        getAdjustMaturityDate(),
-        getNotional(),
-        recoveryRate,                         // This is the field that this builder method modifies
-        getIncludeAccruedPremium(),
-        getProtectionStart(),
-        getParSpread());
-
-    return modifiedCDS;
-  }
-
-  // ----------------------------------------------------------------------------------------------------------------------------------------
-
-  // Builder method to allow the coupon frequency of a Legacy CDS object to be modified
 
   @Override
   public LegacyVanillaCreditDefaultSwapDefinition withCouponFrequency(final PeriodFrequency couponFrequency) {
-
-    final LegacyVanillaCreditDefaultSwapDefinition modifiedCDS = new LegacyVanillaCreditDefaultSwapDefinition(
-        getBuySellProtection(),
+    return new LegacyVanillaCreditDefaultSwapDefinition(getBuySellProtection(),
         getProtectionBuyer(),
         getProtectionSeller(),
         getReferenceEntity(),
@@ -296,7 +187,7 @@ public class LegacyVanillaCreditDefaultSwapDefinition extends LegacyCreditDefaul
         getEffectiveDate(),
         getMaturityDate(),
         getStubType(),
-        couponFrequency,                              // This is the field that this builder method modifies
+        couponFrequency,
         getDayCountFractionConvention(),
         getBusinessDayAdjustmentConvention(),
         getIMMAdjustMaturityDate(),
@@ -307,40 +198,72 @@ public class LegacyVanillaCreditDefaultSwapDefinition extends LegacyCreditDefaul
         getIncludeAccruedPremium(),
         getProtectionStart(),
         getParSpread());
-
-    return modifiedCDS;
   }
-
-  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = super.hashCode();
-    long temp;
-    temp = 0; //Double.doubleToLongBits(_parSpread);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
-    return result;
+  public LegacyVanillaCreditDefaultSwapDefinition withMaturityDate(final ZonedDateTime maturityDate) {
+    return new LegacyVanillaCreditDefaultSwapDefinition(getBuySellProtection(),
+        getProtectionBuyer(),
+        getProtectionSeller(),
+        getReferenceEntity(),
+        getCurrency(),
+        getDebtSeniority(),
+        getRestructuringClause(),
+        getCalendar(),
+        getStartDate(),
+        getEffectiveDate(),
+        maturityDate,
+        getStubType(),
+        getCouponFrequency(),
+        getDayCountFractionConvention(),
+        getBusinessDayAdjustmentConvention(),
+        getIMMAdjustMaturityDate(),
+        getAdjustEffectiveDate(),
+        getAdjustMaturityDate(),
+        getNotional(),
+        getRecoveryRate(),
+        getIncludeAccruedPremium(),
+        getProtectionStart(),
+        getParSpread());
   }
-
-  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   @Override
-  public boolean equals(final Object obj) {
-
-    if (this == obj) {
-      return true;
-    }
-
-    if (!super.equals(obj)) {
-      return false;
-    }
-    if (!(obj instanceof LegacyVanillaCreditDefaultSwapDefinition)) {
-      return false;
-    }
-
-    return true;
+  public LegacyVanillaCreditDefaultSwapDefinition withRecoveryRate(final double recoveryRate) {
+    return new LegacyVanillaCreditDefaultSwapDefinition(getBuySellProtection(),
+        getProtectionBuyer(),
+        getProtectionSeller(),
+        getReferenceEntity(),
+        getCurrency(),
+        getDebtSeniority(),
+        getRestructuringClause(),
+        getCalendar(),
+        getStartDate(),
+        getEffectiveDate(),
+        getMaturityDate(),
+        getStubType(),
+        getCouponFrequency(),
+        getDayCountFractionConvention(),
+        getBusinessDayAdjustmentConvention(),
+        getIMMAdjustMaturityDate(),
+        getAdjustEffectiveDate(),
+        getAdjustMaturityDate(),
+        getNotional(),
+        recoveryRate,
+        getIncludeAccruedPremium(),
+        getProtectionStart(),
+        getParSpread());
   }
 
-  // ----------------------------------------------------------------------------------------------------------------------------------------
+  @Override
+  public <DATA_TYPE, RESULT_TYPE> RESULT_TYPE accept(final CreditInstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> visitor, final DATA_TYPE data) {
+    ArgumentChecker.notNull(visitor, "visitor");
+    return visitor.visitLegacyVanillaCDS(this, data);
+  }
+
+  @Override
+  public <RESULT_TYPE> RESULT_TYPE accept(final CreditInstrumentDefinitionVisitor<Void, RESULT_TYPE> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
+    return visitor.visitLegacyVanillaCDS(this);
+  }
+
 }

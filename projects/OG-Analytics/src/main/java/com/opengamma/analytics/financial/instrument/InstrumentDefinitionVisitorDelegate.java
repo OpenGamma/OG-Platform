@@ -49,6 +49,7 @@ import com.opengamma.analytics.financial.instrument.future.BondFutureDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFutureOptionPremiumSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFutureOptionPremiumTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.DeliverableSwapFuturesSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.future.DeliverableSwapFuturesTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.FederalFundsFutureSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.FederalFundsFutureTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureOptionMarginSecurityDefinition;
@@ -57,6 +58,8 @@ import com.opengamma.analytics.financial.instrument.future.InterestRateFutureOpt
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureOptionPremiumTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureTransactionDefinition;
+import com.opengamma.analytics.financial.instrument.inflation.CapFloorInflationZeroCouponInterpolationDefinition;
+import com.opengamma.analytics.financial.instrument.inflation.CapFloorInflationZeroCouponMonthlyDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationYearOnYearInterpolationDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationYearOnYearMonthlyDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZeroCouponInterpolationDefinition;
@@ -287,6 +290,16 @@ public class InstrumentDefinitionVisitorDelegate<DATA_TYPE, RESULT_TYPE> impleme
   @Override
   public RESULT_TYPE visitDeliverableSwapFuturesSecurityDefinition(final DeliverableSwapFuturesSecurityDefinition futures) {
     return _delegate.visitDeliverableSwapFuturesSecurityDefinition(futures);
+  }
+
+  @Override
+  public RESULT_TYPE visitDeliverableSwapFuturesTransactionDefinition(final DeliverableSwapFuturesTransactionDefinition futures, final DATA_TYPE data) {
+    return _delegate.visitDeliverableSwapFuturesTransactionDefinition(futures, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitDeliverableSwapFuturesTransactionDefinition(final DeliverableSwapFuturesTransactionDefinition futures) {
+    return _delegate.visitDeliverableSwapFuturesTransactionDefinition(futures);
   }
 
   @Override
@@ -657,6 +670,26 @@ public class InstrumentDefinitionVisitorDelegate<DATA_TYPE, RESULT_TYPE> impleme
   @Override
   public RESULT_TYPE visitCouponInflationYearOnYearInterpolationDefinition(final CouponInflationYearOnYearInterpolationDefinition coupon) {
     return _delegate.visitCouponInflationYearOnYearInterpolationDefinition(coupon);
+  }
+
+  @Override
+  public RESULT_TYPE visitCapFloorInflationZeroCouponInterpolationDefinition(final CapFloorInflationZeroCouponInterpolationDefinition coupon, final DATA_TYPE data) {
+    return _delegate.visitCapFloorInflationZeroCouponInterpolationDefinition(coupon, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitCapFloorInflationZeroCouponInterpolationDefinition(final CapFloorInflationZeroCouponInterpolationDefinition coupon) {
+    return _delegate.visitCapFloorInflationZeroCouponInterpolationDefinition(coupon);
+  }
+
+  @Override
+  public RESULT_TYPE visitCapFloorInflationZeroCouponMonthlyDefinition(final CapFloorInflationZeroCouponMonthlyDefinition coupon, final DATA_TYPE data) {
+    return _delegate.visitCapFloorInflationZeroCouponMonthlyDefinition(coupon, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitCapFloorInflationZeroCouponMonthlyDefinition(final CapFloorInflationZeroCouponMonthlyDefinition coupon) {
+    return _delegate.visitCapFloorInflationZeroCouponMonthlyDefinition(coupon);
   }
 
   @Override

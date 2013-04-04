@@ -7,11 +7,16 @@ package com.opengamma.analytics.financial.credit.hazardratecurve;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
+
+import java.util.Arrays;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
+import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.util.test.TestGroup;
@@ -30,6 +35,7 @@ public class HazardRateCurveTest {
   private static final double[] RATES = new double[] {0.01, 0.02, 0.04, 0.03, 0.06, 0.03, 0.05, 0.03, 0.02 };
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("ACT/365");
   private static final double OFFSET = 1. / 365;
+  private static final double EPS = 1e-15;
 
   static {
     final int n = DATES.length;
@@ -109,6 +115,54 @@ public class HazardRateCurveTest {
     System.arraycopy(RATES, 0, rates, 0, RATES.length);
     rates[RATES.length - 1] = rates[RATES.length - 1] - 0.0001;
     assertFalse(other.equals(curve));
+  }
+
+  @Test
+  public void testCurveTypes() {
+    HazardRateCurve curve = new HazardRateCurve(DATES, TIMES, RATES, OFFSET);
+    assertTrue(curve.getCurve() instanceof InterpolatedDoublesCurve);
+    curve = new HazardRateCurve(new ZonedDateTime[] {DATES[0] }, new double[] {TIMES[0] }, new double[] {RATES[0] }, OFFSET);
+    assertTrue(curve.getCurve() instanceof ConstantDoublesCurve);
+  }
+
+  @Test
+  public void testHazardRatesWithZeroOffset() {
+    final HazardRateCurve curve = new HazardRateCurve(DATES, TIMES, RATES, 0);
+    for (int i = 0; i < TIMES.length; i++) {
+      assertEquals(RATES[i], curve.getHazardRate(TIMES[i]), EPS);
+      assertEquals(Math.exp(-TIMES[i] * RATES[i]), curve.getSurvivalProbability(TIMES[i]), EPS);
+    }
+  }
+
+  @Test
+  public void testZeroHazardRates() {
+    final double[] rates = new double[TIMES.length];
+    final HazardRateCurve curve = new HazardRateCurve(DATES, TIMES, rates, 0);
+    assertEquals(1, curve.getZeroDiscountFactor(), EPS);
+  }
+
+  @Test
+  public void testNonZeroOffset() {
+    final HazardRateCurve curve = new HazardRateCurve(DATES, TIMES, RATES, OFFSET);
+    assertEquals(Math.exp(OFFSET * RATES[0]), curve.getZeroDiscountFactor(), EPS);
+  }
+
+  @Test
+  public void testFlatHazardRateCurve() {
+    final double[] rates = new double[TIMES.length];
+    final double rate = 0.02;
+    Arrays.fill(rates, rate);
+    HazardRateCurve curve = new HazardRateCurve(DATES, TIMES, rates, 0);
+    for (int i = 0; i < TIMES.length; i++) {
+      assertEquals(rate, curve.getHazardRate(TIMES[i]), EPS);
+      assertEquals(Math.exp(-TIMES[i] * rate), curve.getSurvivalProbability(TIMES[i]), EPS);
+    }
+    curve = new HazardRateCurve(DATES, TIMES, rates, OFFSET);
+    final double zeroDiscountFactor = Math.exp(OFFSET * rate);
+    for (int i = 0; i < TIMES.length; i++) {
+      assertEquals(rate, curve.getHazardRate(TIMES[i]), EPS);
+      assertEquals(Math.exp(-(TIMES[i] - OFFSET) * rate) / zeroDiscountFactor, curve.getSurvivalProbability(TIMES[i]), EPS);
+    }
   }
 
   private void assertDateArrayEquals(final ZonedDateTime[] expected, final ZonedDateTime[] actual) {

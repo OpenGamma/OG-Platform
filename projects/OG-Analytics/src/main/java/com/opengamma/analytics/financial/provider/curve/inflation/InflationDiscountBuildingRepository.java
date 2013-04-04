@@ -102,7 +102,7 @@ public class InflationDiscountBuildingRepository {
         data);
     //    final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new MulticurveDiscountFinderJacobian(
     //                new ParameterSensitivityMatrixMulticurveCalculator(sensitivityCalculator), data); // TODO
-    final double[] parameters = _rootFinder.getRoot(curveCalculator, new DoubleMatrix1D(initGuess)).getData();
+    final double[] parameters = _rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(initGuess)).getData();
     final InflationProviderDiscount newCurves = data.getGeneratorMarket().evaluate(new DoubleMatrix1D(parameters));
     return new ObjectsPair<InflationProviderDiscount, Double[]>(newCurves, ArrayUtils.toObject(parameters));
   }
@@ -132,7 +132,7 @@ public class InflationDiscountBuildingRepository {
         data);
     //    final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new MulticurveDiscountFinderJacobian(
     //                new ParameterSensitivityMatrixMulticurveCalculator(sensitivityCalculator), data); // TODO
-    final double[] parameters = _rootFinder.getRoot(curveCalculator, new DoubleMatrix1D(initGuess)).getData();
+    final double[] parameters = _rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(initGuess)).getData();
     final InflationProviderDiscount newCurves = data.getGeneratorMarket().evaluate(new DoubleMatrix1D(parameters));
     return new ObjectsPair<InflationProviderDiscount, Double[]>(newCurves, ArrayUtils.toObject(parameters));
   }

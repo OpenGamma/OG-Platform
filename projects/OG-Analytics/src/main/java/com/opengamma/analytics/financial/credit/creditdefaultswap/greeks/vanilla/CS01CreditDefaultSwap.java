@@ -40,7 +40,6 @@ public class CS01CreditDefaultSwap {
   // ------------------------------------------------------------------------------------------------------------------------------------------
 
   // Compute the CS01 by a parallel bump of each point on the spread curve
-
   public double getCS01ParallelShiftCreditDefaultSwap(
       final ZonedDateTime valuationDate,
       final LegacyVanillaCreditDefaultSwapDefinition cds,
@@ -98,8 +97,7 @@ public class CS01CreditDefaultSwap {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  // Compute the beta adjusted CS01 by a parallel bump of each point on the spread curve
-
+  // Compute the beta adjusted parallel CS01 
   public double getBetaAdjustedCS01ParallelShiftCreditDefaultSwap(
       final ZonedDateTime valuationDate,
       final LegacyVanillaCreditDefaultSwapDefinition cds,
@@ -113,7 +111,7 @@ public class CS01CreditDefaultSwap {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
-    // TODO : Check that beta is in the range [-100%, +100%]
+    // TODO : Check that beta is in the range [-100%, +100%] and not null
 
     // Compute the unadjusted parallel CS01
     final double parallelCS01 = getCS01ParallelShiftCreditDefaultSwap(valuationDate, cds, yieldCurve, marketTenors, marketSpreads, spreadBump, spreadBumpType, priceType);
@@ -126,8 +124,40 @@ public class CS01CreditDefaultSwap {
 
   // ------------------------------------------------------------------------------------------------------------------------------------------
 
-  // Compute the CS01 by bumping each point on the spread curve individually by spreadBump (bump is same for all tenors)
+  // Compute the beta adjusted bucketed CS01
+  public double[] getBetaAdjustedCS01BucketedCreditDefaultSwap(
+      final ZonedDateTime valuationDate,
+      final LegacyVanillaCreditDefaultSwapDefinition cds,
+      final ISDADateCurve yieldCurve,
+      final ZonedDateTime[] marketTenors,
+      final double[] marketSpreads,
+      final double spreadBump,
+      final double beta,
+      final SpreadBumpType spreadBumpType,
+      final PriceType priceType) {
 
+    // ----------------------------------------------------------------------------------------------------------------------------------------
+
+    // TODO : Check that beta is in the range [-100%, +100%] and not null
+
+    // ----------------------------------------------------------------------------------------------------------------------------------------
+
+    // Compute the unadjusted parallel CS01
+    final double[] bucketedCS01 = getCS01BucketedCreditDefaultSwap(valuationDate, cds, yieldCurve, marketTenors, marketSpreads, spreadBump, spreadBumpType, priceType);
+
+    final double[] betaAdjustedBucketedCS01 = new double[bucketedCS01.length];
+
+    // beta adjust the bucketed CS01
+    for (int m = 0; m < betaAdjustedBucketedCS01.length; m++) {
+      betaAdjustedBucketedCS01[m] = beta * bucketedCS01[m];
+    }
+
+    return betaAdjustedBucketedCS01;
+  }
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  // Compute the CS01 by bumping each point on the spread curve individually by spreadBump (bump is same for all tenors)
   public double[] getCS01BucketedCreditDefaultSwap(
       final ZonedDateTime valuationDate,
       final LegacyVanillaCreditDefaultSwapDefinition cds,

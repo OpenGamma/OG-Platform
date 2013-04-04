@@ -17,6 +17,7 @@ public class CreditSpreadBumpers {
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // TODO : Add error checkers for the input arguments
+  // TODO : Replace the logic in the choice of spread bump to ensure something is bumped i.e. use if then else
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 

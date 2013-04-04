@@ -77,7 +77,7 @@ public class ListedEquityOptionDefaults extends DefaultPropertyFunction {
       final String forwardCurveName, 
       final String forwardCurveCalculationMethodName) {
     super(FinancialSecurityTypes.EQUITY_INDEX_OPTION_SECURITY
-        .or(FinancialSecurityTypes.EQUITY_OPTION_SECURITY), true);
+        .or(FinancialSecurityTypes.EQUITY_OPTION_SECURITY).or(FinancialSecurityTypes.EQUITY_INDEX_FUTURE_OPTION_SECURITY), true);
     ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(discountingCurveConfig, "discountingCurveConfig");
     ArgumentChecker.notNull(discountingCurveName, "discountingCurveName");

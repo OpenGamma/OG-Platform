@@ -26,7 +26,7 @@ public class BjerksundStenslandModelTest extends AmericanAnalyticOptionModelTest
 
   @Test
   public void test() {
-    // Deprecated form used for this test 
+    // Deprecated form used for this test
     super.assertValid(new BjerksundStenslandModelDeprecated(), 1e-4);
   }
 
@@ -40,7 +40,7 @@ public class BjerksundStenslandModelTest extends AmericanAnalyticOptionModelTest
     final double t = 0.25;
     final double sigma = 0.3;
 
-    BjerksundStenslandModel bs = new BjerksundStenslandModel();
+    final BjerksundStenslandModel bs = new BjerksundStenslandModel();
     final double eurPrice = Math.exp(-r * t) * BlackFormulaRepository.price(s0 * Math.exp(b * t), k, t, sigma, true);
     final double amPrice = bs.price(s0, k, r, b, t, sigma, true);
     System.out.println(eurPrice + "\t" + amPrice);
@@ -57,7 +57,7 @@ public class BjerksundStenslandModelTest extends AmericanAnalyticOptionModelTest
     final double sigma = 0.3;
     final boolean isCall = false;
 
-    BjerksundStenslandModel bs = new BjerksundStenslandModel();
+    final BjerksundStenslandModel bs = new BjerksundStenslandModel();
     final double amPrice = bs.price(s0, k, r, b, t, sigma, isCall);
     assertTrue(amPrice >= (k - s0));
   }
@@ -72,27 +72,27 @@ public class BjerksundStenslandModelTest extends AmericanAnalyticOptionModelTest
     final double t = 0.5;
     final boolean[] tfSet = new boolean[] {true, false };
 
-    BjerksundStenslandModel bs = new BjerksundStenslandModel();
+    final BjerksundStenslandModel bs = new BjerksundStenslandModel();
     final double eps = 1e-5;
 
-    for (double s0 : s0Set) {
-      for (double r : rSet) {
-        for (double b : bSet) {
+    for (final double s0 : s0Set) {
+      for (final double r : rSet) {
+        for (final double b : bSet) {
           final double[] parms = new double[] {s0, k, r, b, t, sigma };
           final int n = parms.length;
 
-          for (boolean isCall : tfSet) {
+          for (final boolean isCall : tfSet) {
             final double price = bs.price(s0, k, r, b, t, sigma, isCall);
             final double[] sense = bs.getPriceAdjoint(s0, k, r, b, t, sigma, isCall);
             assertEquals("price " + s0 + " " + r + " " + b + " " + isCall, price, sense[0], 1e-13);
 
             for (int i = 0; i < n; i++) {
               final double delta = (1 + Math.abs(parms[i])) * eps;
-              double[] temp = Arrays.copyOf(parms, n);
+              final double[] temp = Arrays.copyOf(parms, n);
               temp[i] += delta;
-              double up = bs.price(temp[0], temp[1], temp[2], temp[3], temp[4], temp[5], isCall);
+              final double up = bs.price(temp[0], temp[1], temp[2], temp[3], temp[4], temp[5], isCall);
               temp[i] -= 2 * delta;
-              double down = bs.price(temp[0], temp[1], temp[2], temp[3], temp[4], temp[5], isCall);
+              final double down = bs.price(temp[0], temp[1], temp[2], temp[3], temp[4], temp[5], isCall);
               //  System.out.println("debug " + i + " " + s0 + " " + r + " " + b + " " + isCall + "\t" + up + "\t" + price + "\t" + down + "\t" + delta);
               double fd;
               if ((i == 3 && Math.abs(b) < delta) /*|| (i == 2 && Math.abs(r) < delta)*/) {
@@ -120,7 +120,7 @@ public class BjerksundStenslandModelTest extends AmericanAnalyticOptionModelTest
 
   @Test
   public void debugTest() {
-    BjerksundStenslandModel bs = new BjerksundStenslandModel();
+    final BjerksundStenslandModel bs = new BjerksundStenslandModel();
     final double s0 = 90;
     final double k = 100;
     final double r = 0.0;
@@ -131,19 +131,19 @@ public class BjerksundStenslandModelTest extends AmericanAnalyticOptionModelTest
 
     final double price = bs.price(s0, k, r, b, t, sigma, isCall);
     final double[] sense = bs.getPriceAdjoint(s0, k, r, b, t, sigma, isCall);
-    System.out.println(price + "\t" + sense[0]);
+    //System.out.println(price + "\t" + sense[0]);
 
-    System.out.println(sense[3]);
-    double eps = 1e-4;
-    double up = bs.price(s0, k, r + eps, b, t, sigma, isCall);
-    double down = bs.price(s0, k, r - eps, b, t, sigma, isCall);
-    System.out.println(up + "\t" + down + "\t" + (up - down) / 2 / eps);
+    //System.out.println(sense[3]);
+    final double eps = 1e-4;
+    final double up = bs.price(s0, k, r + eps, b, t, sigma, isCall);
+    final double down = bs.price(s0, k, r - eps, b, t, sigma, isCall);
+    //System.out.println(up + "\t" + down + "\t" + (up - down) / 2 / eps);
   }
 
   @Test
   //(enabled = false)
   public void deltaGammaTest() {
-    BjerksundStenslandModel bs = new BjerksundStenslandModel();
+    final BjerksundStenslandModel bs = new BjerksundStenslandModel();
     final double[] s0Set = new double[] {60, 90, 100, 110, 160 };
     final double k = 100;
     final double r = 0.1;
@@ -152,10 +152,10 @@ public class BjerksundStenslandModelTest extends AmericanAnalyticOptionModelTest
     final double t = 0.5;
     final boolean[] tfSet = new boolean[] {true, false };
 
-    for (double s0 : s0Set) {
+    for (final double s0 : s0Set) {
       final double eps = 1e-5 * s0;
-      for (double b : bSet) {
-        for (boolean isCall : tfSet) {
+      for (final double b : bSet) {
+        for (final boolean isCall : tfSet) {
           final double price = bs.price(s0, k, r, b, t, sigma, isCall);
           final double[] sense = bs.getPriceDeltaGamma(s0, k, r, b, t, sigma, isCall);
           assertEquals("price " + s0 + " " + b, price, sense[0], 1e-13);
@@ -183,14 +183,14 @@ public class BjerksundStenslandModelTest extends AmericanAnalyticOptionModelTest
     final double[] gammaSet = new double[] {0, 1, 0.67, 1.87 };
     final double x1 = 133.0;
 
-    for (double x2 : x2Set) {
-      for (double b : bSet) {
-        for (double gamma : gammaSet) {
+    for (final double x2 : x2Set) {
+      for (final double b : bSet) {
+        for (final double gamma : gammaSet) {
 
           final double[] parms = new double[] {s0, t, gamma, x1, x2, r, b, sigma };
           final int n = parms.length;
 
-          BjerksundStenslandModel bs = new BjerksundStenslandModel();
+          final BjerksundStenslandModel bs = new BjerksundStenslandModel();
           final double impA = bs.getPhi(s0, t1, gamma, x1, x2, r, b, sigma);
           final double[] sense = bs.getPhiAdjoint(s0, t, gamma, x1, x2, r, b, sigma);
 
@@ -198,13 +198,13 @@ public class BjerksundStenslandModelTest extends AmericanAnalyticOptionModelTest
           assertEquals(impA, sense[0], 1e-12);
           final double eps = 1e-5;
           for (int i = 0; i < 8; i++) {
-            double[] temp = Arrays.copyOf(parms, n);
+            final double[] temp = Arrays.copyOf(parms, n);
             final double delta = (1 + Math.abs(parms[i])) * eps;
             temp[i] += delta;
-            double up = bs.getPhiAdjoint(temp[0], temp[1], temp[2], temp[3], temp[4], temp[5], temp[6], temp[7])[0];
+            final double up = bs.getPhiAdjoint(temp[0], temp[1], temp[2], temp[3], temp[4], temp[5], temp[6], temp[7])[0];
             temp[i] -= 2 * delta;
-            double down = bs.getPhiAdjoint(temp[0], temp[1], temp[2], temp[3], temp[4], temp[5], temp[6], temp[7])[0];
-            double fd = (up - down) / 2 / delta;
+            final double down = bs.getPhiAdjoint(temp[0], temp[1], temp[2], temp[3], temp[4], temp[5], temp[6], temp[7])[0];
+            final double fd = (up - down) / 2 / delta;
             //System.out.println(fd + "\t" + sense[i + 1]);
             assertEquals(i + " " + x2 + " " + b + " " + gamma, fd, sense[i + 1], Math.abs(fd) * 2e-8);
           }
@@ -229,14 +229,14 @@ public class BjerksundStenslandModelTest extends AmericanAnalyticOptionModelTest
     final double x1 = 133.0;
     final double x2 = 140.2;
 
-    for (double k : kSet) {
-      for (double b : bSet) {
-        for (double gamma : gammaSet) {
+    for (final double k : kSet) {
+      for (final double b : bSet) {
+        for (final double gamma : gammaSet) {
 
           final double[] parms = new double[] {s0, t, gamma, k, x2, x1, r, b, sigma };
           final int n = parms.length;
 
-          BjerksundStenslandModel bs = new BjerksundStenslandModel();
+          final BjerksundStenslandModel bs = new BjerksundStenslandModel();
           final double impA = bs.getPsi(s0, t1, t, gamma, k, x2, x1, r, b, sigma);
           final double[] sense = bs.getPsiAdjoint(s0, t, gamma, k, x2, x1, r, b, sigma);
 
@@ -245,16 +245,16 @@ public class BjerksundStenslandModelTest extends AmericanAnalyticOptionModelTest
 
           final double eps = 1e-5;
           for (int i = 0; i < n; i++) {
-            double[] temp = Arrays.copyOf(parms, n);
+            final double[] temp = Arrays.copyOf(parms, n);
             final double delta = (1 + Math.abs(parms[i])) * eps;
             temp[i] += delta;
-            double up = bs.getPsiAdjoint(temp[0], temp[1], temp[2], temp[3], temp[4], temp[5], temp[6], temp[7], temp[8])[0];
+            final double up = bs.getPsiAdjoint(temp[0], temp[1], temp[2], temp[3], temp[4], temp[5], temp[6], temp[7], temp[8])[0];
             temp[i] -= 2 * delta;
-            double down = bs.getPsiAdjoint(temp[0], temp[1], temp[2], temp[3], temp[4], temp[5], temp[6], temp[7], temp[8])[0];
-            double fd = (up - down) / 2 / delta;
+            final double down = bs.getPsiAdjoint(temp[0], temp[1], temp[2], temp[3], temp[4], temp[5], temp[6], temp[7], temp[8])[0];
+            final double fd = (up - down) / 2 / delta;
             //           System.out.println(fd + "\t" + sense[i + 1]);
 
-            assertEquals(i + " " + k + " " + b + " " + gamma, fd, sense[i + 1], Math.abs(fd) * 1e-4); //TODO would expect better agreement than this 
+            assertEquals(i + " " + k + " " + b + " " + gamma, fd, sense[i + 1], Math.abs(fd) * 1e-4); //TODO would expect better agreement than this
 
           }
         }
@@ -264,7 +264,7 @@ public class BjerksundStenslandModelTest extends AmericanAnalyticOptionModelTest
 
   @Test
   public void psiDeltaTest() {
-    BjerksundStenslandModel bs = new BjerksundStenslandModel();
+    final BjerksundStenslandModel bs = new BjerksundStenslandModel();
     final double s0 = 100;
     final double[] kSet = new double[] {90, 100, 110 };
     final double r = 0.1;
@@ -280,19 +280,19 @@ public class BjerksundStenslandModelTest extends AmericanAnalyticOptionModelTest
 
     final double eps = 1e-5 * s0;
 
-    for (double k : kSet) {
-      for (double b : bSet) {
-        for (double gamma : gammaSet) {
+    for (final double k : kSet) {
+      for (final double b : bSet) {
+        for (final double gamma : gammaSet) {
 
           final double psi = bs.getPsi(s0, t1, t, gamma, k, x2, x1, r, b, sigma);
           final double[] sense = bs.getPsiDelta(s0, t, gamma, k, x2, x1, r, b, sigma);
           //double psi = sense[0];
           assertEquals("psi", psi, sense[0], Math.abs(psi) * 1e-15);
-          double up = bs.getPsi(s0 + eps, t1, t, gamma, k, x2, x1, r, b, sigma);
-          double down = bs.getPsi(s0 - eps, t1, t, gamma, k, x2, x1, r, b, sigma);
+          final double up = bs.getPsi(s0 + eps, t1, t, gamma, k, x2, x1, r, b, sigma);
+          final double down = bs.getPsi(s0 - eps, t1, t, gamma, k, x2, x1, r, b, sigma);
 
-          double fd = (up - down) / 2 / eps;
-          double fd2 = (up + down - 2 * psi) / eps / eps;
+          final double fd = (up - down) / 2 / eps;
+          final double fd2 = (up + down - 2 * psi) / eps / eps;
           assertEquals("psi delta", fd, sense[1], Math.abs(fd) * 1e-6);
           assertEquals("psi gamma", fd2, sense[2], Math.abs(fd2) * 1e-4);
         }
@@ -308,7 +308,7 @@ public class BjerksundStenslandModelTest extends AmericanAnalyticOptionModelTest
     final double b = -0.6;
     final double eps = 1e-5;
 
-    BjerksundStenslandModel bs = new BjerksundStenslandModel();
+    final BjerksundStenslandModel bs = new BjerksundStenslandModel();
     final double cent = BIVARIATE_NORMAL.getCDF(new double[] {a, b, rho });
     final double[] sense = bs.bivariateNormDiv(a, b, true);
     final double aUp = BIVARIATE_NORMAL.getCDF(new double[] {a + eps, b, rho });
@@ -340,19 +340,19 @@ public class BjerksundStenslandModelTest extends AmericanAnalyticOptionModelTest
     final double x = 204;
     final double beta = 2.3;
 
-    BjerksundStenslandModel bs = new BjerksundStenslandModel();
+    final BjerksundStenslandModel bs = new BjerksundStenslandModel();
 
     final double[] sense = bs.getAlphaAdjoint(k, x, beta);
     final double[] parms = new double[] {k, x, beta };
     final int n = parms.length;
     final double eps = 1e-5;
     for (int i = 0; i < n; i++) {
-      double[] temp = Arrays.copyOf(parms, n);
+      final double[] temp = Arrays.copyOf(parms, n);
       temp[i] += eps;
-      double up = bs.getAlphaAdjoint(temp[0], temp[1], temp[2])[0];
+      final double up = bs.getAlphaAdjoint(temp[0], temp[1], temp[2])[0];
       temp[i] -= 2 * eps;
-      double down = bs.getAlphaAdjoint(temp[0], temp[1], temp[2])[0];
-      double fd = (up - down) / 2 / eps;
+      final double down = bs.getAlphaAdjoint(temp[0], temp[1], temp[2])[0];
+      final double fd = (up - down) / 2 / eps;
       assertEquals(fd, sense[i + 1], Math.abs(fd) * 1e-8);
     }
   }
@@ -364,19 +364,19 @@ public class BjerksundStenslandModelTest extends AmericanAnalyticOptionModelTest
     final double sigma = 0.3;
     final double sigmaSq = sigma * sigma;
 
-    BjerksundStenslandModel bs = new BjerksundStenslandModel();
+    final BjerksundStenslandModel bs = new BjerksundStenslandModel();
 
     final double[] sense = bs.getBetaAdjoint(r, b, sigmaSq);
     final double[] parms = new double[] {r, b, sigmaSq };
     final int n = parms.length;
     final double eps = 1e-5;
     for (int i = 0; i < n; i++) {
-      double[] temp = Arrays.copyOf(parms, n);
+      final double[] temp = Arrays.copyOf(parms, n);
       temp[i] += eps;
-      double up = bs.getBetaAdjoint(temp[0], temp[1], temp[2])[0];
+      final double up = bs.getBetaAdjoint(temp[0], temp[1], temp[2])[0];
       temp[i] -= 2 * eps;
-      double down = bs.getBetaAdjoint(temp[0], temp[1], temp[2])[0];
-      double fd = (up - down) / 2 / eps;
+      final double down = bs.getBetaAdjoint(temp[0], temp[1], temp[2])[0];
+      final double fd = (up - down) / 2 / eps;
 
       assertEquals(fd, sense[i + 1], Math.abs(fd) * 1e-8);
     }
@@ -390,22 +390,22 @@ public class BjerksundStenslandModelTest extends AmericanAnalyticOptionModelTest
     final double sigma = 0.3;
     final double sigmaSq = sigma * sigma;
 
-    BjerksundStenslandModel bs = new BjerksundStenslandModel();
+    final BjerksundStenslandModel bs = new BjerksundStenslandModel();
 
-    for (double gamma : gammaSet) {
-      for (double b : bSet) {
+    for (final double gamma : gammaSet) {
+      for (final double b : bSet) {
 
         final double[] sense = bs.getLambdaAdjoint(gamma, r, b, sigmaSq);
         final double[] parms = new double[] {gamma, r, b, sigmaSq };
         final int n = parms.length;
         final double eps = 1e-5;
         for (int i = 0; i < n; i++) {
-          double[] temp = Arrays.copyOf(parms, n);
+          final double[] temp = Arrays.copyOf(parms, n);
           temp[i] += eps;
-          double up = bs.getLambdaAdjoint(temp[0], temp[1], temp[2], temp[3])[0];
+          final double up = bs.getLambdaAdjoint(temp[0], temp[1], temp[2], temp[3])[0];
           temp[i] -= 2 * eps;
-          double down = bs.getLambdaAdjoint(temp[0], temp[1], temp[2], temp[3])[0];
-          double fd = (up - down) / 2 / eps;
+          final double down = bs.getLambdaAdjoint(temp[0], temp[1], temp[2], temp[3])[0];
+          final double fd = (up - down) / 2 / eps;
           assertEquals(fd, sense[i + 1], Math.abs(fd) * 1e-8);
         }
       }
@@ -419,22 +419,22 @@ public class BjerksundStenslandModelTest extends AmericanAnalyticOptionModelTest
     final double sigma = 0.3;
     final double sigmaSq = sigma * sigma;
 
-    BjerksundStenslandModel bs = new BjerksundStenslandModel();
+    final BjerksundStenslandModel bs = new BjerksundStenslandModel();
 
-    for (double gamma : gammaSet) {
-      for (double b : bSet) {
+    for (final double gamma : gammaSet) {
+      for (final double b : bSet) {
 
         final double[] sense = bs.getKappaAdjoint(gamma, b, sigmaSq);
         final double[] parms = new double[] {gamma, b, sigmaSq };
         final int n = parms.length;
         final double eps = 1e-5;
         for (int i = 0; i < n; i++) {
-          double[] temp = Arrays.copyOf(parms, n);
+          final double[] temp = Arrays.copyOf(parms, n);
           temp[i] += eps;
-          double up = bs.getKappaAdjoint(temp[0], temp[1], temp[2])[0];
+          final double up = bs.getKappaAdjoint(temp[0], temp[1], temp[2])[0];
           temp[i] -= 2 * eps;
-          double down = bs.getKappaAdjoint(temp[0], temp[1], temp[2])[0];
-          double fd = (up - down) / 2 / eps;
+          final double down = bs.getKappaAdjoint(temp[0], temp[1], temp[2])[0];
+          final double fd = (up - down) / 2 / eps;
           assertEquals(fd, sense[i + 1], Math.abs(fd) * 2e-8);
         }
       }
@@ -449,26 +449,26 @@ public class BjerksundStenslandModelTest extends AmericanAnalyticOptionModelTest
     final double sigma = 0.3;
     final double t = 0.3;
 
-    BjerksundStenslandModel bs = new BjerksundStenslandModel();
+    final BjerksundStenslandModel bs = new BjerksundStenslandModel();
 
-    for (double r : rSet) {
-      for (double b : bb) {
+    for (final double r : rSet) {
+      for (final double b : bb) {
 
         if (r >= b) {
 
           final double[] sense = bs.getI1Adjoint(k, r, b, sigma, t);
-          System.out.println(sense[0]);
+          //System.out.println(sense[0]);
           final double[] parms = new double[] {k, r, b, sigma, t };
           final int n = parms.length;
           final double eps = 1e-5;
           for (int i = 0; i < n; i++) {
-            double[] temp = Arrays.copyOf(parms, n);
+            final double[] temp = Arrays.copyOf(parms, n);
             temp[i] += eps;
-            double up = bs.getI1Adjoint(temp[0], temp[1], temp[2], temp[3], temp[4])[0];
+            final double up = bs.getI1Adjoint(temp[0], temp[1], temp[2], temp[3], temp[4])[0];
             temp[i] -= 2 * eps;
-            double down = bs.getI1Adjoint(temp[0], temp[1], temp[2], temp[3], temp[4])[0];
-            double fd = (up - down) / 2 / eps;
-            System.out.println(up + "\t" + down);
+            final double down = bs.getI1Adjoint(temp[0], temp[1], temp[2], temp[3], temp[4])[0];
+            final double fd = (up - down) / 2 / eps;
+            //System.out.println(up + "\t" + down);
             assertEquals(i + "\t" + r + "\t" + b, fd, sense[i + 1], Math.abs(fd) * 1e-5);
           }
         }
@@ -484,21 +484,21 @@ public class BjerksundStenslandModelTest extends AmericanAnalyticOptionModelTest
     final double sigma = 0.3;
     final double t = 1.3;
 
-    BjerksundStenslandModel bs = new BjerksundStenslandModel();
+    final BjerksundStenslandModel bs = new BjerksundStenslandModel();
 
-    for (double b : bb) {
+    for (final double b : bb) {
 
       final double[] sense = bs.getI2Adjoint(k, r, b, sigma, t);
       final double[] parms = new double[] {k, r, b, sigma, t };
       final int n = parms.length;
       final double eps = 1e-5;
       for (int i = 0; i < n; i++) {
-        double[] temp = Arrays.copyOf(parms, n);
+        final double[] temp = Arrays.copyOf(parms, n);
         temp[i] += eps;
-        double up = bs.getI2Adjoint(temp[0], temp[1], temp[2], temp[3], temp[4])[0];
+        final double up = bs.getI2Adjoint(temp[0], temp[1], temp[2], temp[3], temp[4])[0];
         temp[i] -= 2 * eps;
-        double down = bs.getI2Adjoint(temp[0], temp[1], temp[2], temp[3], temp[4])[0];
-        double fd = (up - down) / 2 / eps;
+        final double down = bs.getI2Adjoint(temp[0], temp[1], temp[2], temp[3], temp[4])[0];
+        final double fd = (up - down) / 2 / eps;
         assertEquals(fd, sense[i + 1], Math.abs(fd) * 1e-7);
       }
     }
@@ -506,7 +506,7 @@ public class BjerksundStenslandModelTest extends AmericanAnalyticOptionModelTest
 
   @Test
   public void phiDeltaTest() {
-    BjerksundStenslandModel bs = new BjerksundStenslandModel();
+    final BjerksundStenslandModel bs = new BjerksundStenslandModel();
     final double s0 = 100;
     final double[] x2Set = new double[] {130, 150, 170 };
     final double r = 0.1;
@@ -520,17 +520,17 @@ public class BjerksundStenslandModelTest extends AmericanAnalyticOptionModelTest
 
     final double eps = s0 * 1e-5;
 
-    for (double x2 : x2Set) {
-      for (double b : bSet) {
-        for (double gamma : gammaSet) {
+    for (final double x2 : x2Set) {
+      for (final double b : bSet) {
+        for (final double gamma : gammaSet) {
 
-          double phi = bs.getPhi(s0, t1, gamma, x1, x2, r, b, sigma);
-          double[] sense = bs.getPhiDelta(s0, t, gamma, x1, x2, r, b, sigma);
+          final double phi = bs.getPhi(s0, t1, gamma, x1, x2, r, b, sigma);
+          final double[] sense = bs.getPhiDelta(s0, t, gamma, x1, x2, r, b, sigma);
           assertEquals(phi, sense[0], Math.abs(phi) * 1e-15);
-          double up = bs.getPhi(s0 + eps, t1, gamma, x1, x2, r, b, sigma);
-          double down = bs.getPhi(s0 - eps, t1, gamma, x1, x2, r, b, sigma);
-          double fd = (up - down) / 2 / eps;
-          double fd2 = (up + down - 2 * phi) / eps / eps;
+          final double up = bs.getPhi(s0 + eps, t1, gamma, x1, x2, r, b, sigma);
+          final double down = bs.getPhi(s0 - eps, t1, gamma, x1, x2, r, b, sigma);
+          final double fd = (up - down) / 2 / eps;
+          final double fd2 = (up + down - 2 * phi) / eps / eps;
           assertEquals(fd, sense[1], Math.abs(fd) * 2e-8);
           assertEquals(fd2, sense[2], Math.abs(fd2) * 1e-5);
         }

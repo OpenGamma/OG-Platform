@@ -161,7 +161,7 @@ public class InflationProviderForward implements InflationProviderInterface {
 
   @Override
   public List<String> getUnderlyingCurvesNames(final String name) {
-    return _allCurves.get(name).getUnderlyingCurvesNames(name);
+    return _allCurves.get(name).getUnderlyingCurvesNames();
   }
 
   @Override

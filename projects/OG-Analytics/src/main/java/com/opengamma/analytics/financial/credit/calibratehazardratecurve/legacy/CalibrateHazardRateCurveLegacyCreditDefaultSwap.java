@@ -173,7 +173,7 @@ public class CalibrateHazardRateCurveLegacyCreditDefaultSwap {
       }
 
       // Modify the calibration CDS to have a maturity of tenor[m]
-      calibrationCDS = calibrationCDS.withMaturityDate(marketTenors[m]);
+      calibrationCDS = (LegacyCreditDefaultSwapDefinition) calibrationCDS.withMaturityDate(marketTenors[m]);
 
       // Modify the calibration CDS to have a contractual spread of marketSpread[m]
       calibrationCDS = calibrationCDS.withSpread(marketSpreads[m]);

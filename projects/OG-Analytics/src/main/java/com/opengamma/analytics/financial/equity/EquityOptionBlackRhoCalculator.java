@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.financial.equity;
 
+import com.opengamma.analytics.financial.equity.option.EquityIndexFutureOption;
+import com.opengamma.analytics.financial.equity.option.EquityIndexFutureOptionBlackMethod;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOptionBlackMethod;
 import com.opengamma.analytics.financial.equity.option.EquityOption;
@@ -43,6 +45,14 @@ public final class EquityOptionBlackRhoCalculator extends InstrumentDerivativeVi
     ArgumentChecker.notNull(option, "option");
     ArgumentChecker.notNull(data, "data");
     final Double rhoBlack = EquityOptionBlackMethod.getInstance().rhoBlack(option, data);
+    return rhoBlack;
+  }
+  
+  @Override
+  public Double visitEquityIndexFutureOption(final EquityIndexFutureOption option, final StaticReplicationDataBundle data) {
+    ArgumentChecker.notNull(option, "option");
+    ArgumentChecker.notNull(data, "data");
+    final Double rhoBlack = EquityIndexFutureOptionBlackMethod.getInstance().rhoBlack(option, data);
     return rhoBlack;
   }
 

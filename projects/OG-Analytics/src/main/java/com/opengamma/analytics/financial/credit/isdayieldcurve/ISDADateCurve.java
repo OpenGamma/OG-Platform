@@ -10,11 +10,13 @@ import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.I
 import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.ISDA_INTERPOLATOR;
 
 import java.util.Arrays;
+import java.util.List;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.interestrate.PeriodicInterestRate;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.curve.DoublesCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
@@ -27,7 +29,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  *
  */
-public class ISDADateCurve {
+public class ISDADateCurve extends YieldAndDiscountCurve {
 
   private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
   private static final DayCount ACT_360 = DayCountFactory.INSTANCE.getDayCount("ACT/360");
@@ -59,6 +61,7 @@ public class ISDADateCurve {
 
   public ISDADateCurve(final String name, final ZonedDateTime baseDate, final ZonedDateTime[] curveDates, final double[] rates, final double offset,
       final DayCount dayCount) {
+    super(name);
     ArgumentChecker.notNull(name, "name");
     ArgumentChecker.notNull(baseDate, "base date");
     ArgumentChecker.notNull(curveDates, "curve dates");
@@ -98,6 +101,7 @@ public class ISDADateCurve {
   // ------------------------------------------------------------------------------------------------------------------------------------
 
   public ISDADateCurve(final String name, final ZonedDateTime[] curveDates, final double[] times, final double[] rates, final double offset) {
+    super(name);
     ArgumentChecker.notNull(name, "name");
     ArgumentChecker.notNull(curveDates, "curve dates");
     ArgumentChecker.notNull(times, "times");
@@ -132,10 +136,12 @@ public class ISDADateCurve {
     return _curveDates;
   }
 
+  @Override
   public String getName() {
     return _name;
   }
 
+  @Override
   public double getInterestRate(final Double t) {
     return _curve.getYValue(t - _offset);
   }
@@ -148,6 +154,7 @@ public class ISDADateCurve {
     return _curve.getYData()[m];
   }
 
+  @Override
   public double getDiscountFactor(final double t) {
     return Math.exp((_offset - t) * getInterestRate(t)) / _zeroDiscountFactor;
   }
@@ -225,6 +232,21 @@ public class ISDADateCurve {
       return false;
     }
     return true;
+  }
+
+  @Override
+  public double[] getInterestRateParameterSensitivity(final double time) {
+    return null;
+  }
+
+  @Override
+  public int getNumberOfParameters() {
+    return 0;
+  }
+
+  @Override
+  public List<String> getUnderlyingCurvesNames() {
+    return null;
   }
 
 }

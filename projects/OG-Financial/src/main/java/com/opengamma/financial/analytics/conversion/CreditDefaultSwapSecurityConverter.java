@@ -14,6 +14,7 @@ import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.StandardCDSCoupon;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.obligor.CreditRating;
 import com.opengamma.analytics.financial.credit.obligor.CreditRatingFitch;
 import com.opengamma.analytics.financial.credit.obligor.CreditRatingMoodys;
@@ -27,12 +28,12 @@ import com.opengamma.core.organization.OrganizationSource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.financial.convention.HolidaySourceCalendarAdapter;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
+import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
 import com.opengamma.financial.security.cds.StandardVanillaCDSSecurity;
 import com.opengamma.financial.security.swap.InterestRateNotional;
@@ -44,7 +45,7 @@ import com.opengamma.util.money.Currency;
 /**
  *
  */
-public class CreditDefaultSwapSecurityConverter {
+public class CreditDefaultSwapSecurityConverter extends FinancialSecurityVisitorAdapter<CreditDefaultSwapDefinition> {
   private static final Obligor DUMMY_OBLIGOR_A = new Obligor(
       "Dummy_A",
       "Dummy_A",
@@ -85,7 +86,6 @@ public class CreditDefaultSwapSecurityConverter {
       Region.NORTHAMERICA,
       "NJ");
 
-  private static final BusinessDayConvention FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
   private final HolidaySource _holidaySource;
   private final RegionSource _regionSource;
   private final OrganizationSource _organizationSource;
@@ -93,20 +93,21 @@ public class CreditDefaultSwapSecurityConverter {
   public CreditDefaultSwapSecurityConverter(final HolidaySource holidaySource, final RegionSource regionSource, final OrganizationSource organizationSource) {
     ArgumentChecker.notNull(holidaySource, "holiday source");
     ArgumentChecker.notNull(regionSource, "region source");
-    //ArgumentChecker.notNull(organizationSource, "organization source");
+    ArgumentChecker.notNull(organizationSource, "organization source");
     _holidaySource = holidaySource;
     _regionSource = regionSource;
     _organizationSource = organizationSource;
   }
 
-  public LegacyVanillaCreditDefaultSwapDefinition visitStandardVanillaCDSSecurity(final StandardVanillaCDSSecurity security, final ZonedDateTime valuationDate) {
+  @Override
+  public LegacyVanillaCreditDefaultSwapDefinition visitStandardVanillaCDSSecurity(final StandardVanillaCDSSecurity security) {
     ArgumentChecker.notNull(security, "security");
     final BuySellProtection buySellProtection = security.isBuy() ? BuySellProtection.BUY : BuySellProtection.SELL;
     //final ExternalId regionId = security.getRegionId();
     //final Calendar calendar = new HolidaySourceCalendarAdapter(_holidaySource, _regionSource.getHighestLevelRegion(regionId));
     final Calendar calendar = new HolidaySourceCalendarAdapter(_holidaySource, security.getNotional().getCurrency());
     final ZonedDateTime startDate = security.getStartDate();
-    final ZonedDateTime effectiveDate = FOLLOWING.adjustDate(calendar, valuationDate.withHour(0).withMinute(0).withSecond(0).withNano(0).plusDays(1));
+    final ZonedDateTime effectiveDate = security.getEffectiveDate(); //FOLLOWING.adjustDate(calendar, valuationDate.withHour(0).withMinute(0).withSecond(0).withNano(0).plusDays(1));
     final ZonedDateTime maturityDate = security.getMaturityDate();
     final PeriodFrequency couponFrequency = getPeriodFrequency(security.getCouponFrequency());
     final DayCount dayCount = security.getDayCount();
@@ -129,29 +130,24 @@ public class CreditDefaultSwapSecurityConverter {
     final ZonedDateTime cashSettlementDate = security.getCashSettlementDate();
     final boolean adjustCashSettlementDate = security.isAdjustCashSettlementDate();
     final double coupon = security.getCoupon();
-    if (_organizationSource != null) {
-      final com.opengamma.analytics.financial.credit.obligor.definition.Obligor protectionBuyer = getObligor(security.getProtectionBuyer());
-      final com.opengamma.analytics.financial.credit.obligor.definition.Obligor protectionSeller = getObligor(security.getProtectionSeller());
-      final com.opengamma.analytics.financial.credit.obligor.definition.Obligor referenceEntity = getObligor(security.getReferenceEntity());
-      return new LegacyVanillaCreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency,
-          debtSeniority, restructuringClause, calendar, startDate, effectiveDate, maturityDate, stubType,
-          couponFrequency, dayCount, businessDayConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate,
-          amount, recoveryRate, includeAccruedPremium, protectionStart, coupon);
-    }
-    return new LegacyVanillaCreditDefaultSwapDefinition(buySellProtection, DUMMY_OBLIGOR_A, DUMMY_OBLIGOR_B, DUMMY_OBLIGOR_C, currency,
+    final com.opengamma.analytics.financial.credit.obligor.definition.Obligor protectionBuyer = getObligorForProtectionBuyer(security.getProtectionBuyer());
+    final com.opengamma.analytics.financial.credit.obligor.definition.Obligor protectionSeller = getObligorForProtectionSeller(security.getProtectionSeller());
+    final com.opengamma.analytics.financial.credit.obligor.definition.Obligor referenceEntity = getObligorForReferenceEntity(security.getReferenceEntity());
+    return new LegacyVanillaCreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency,
         debtSeniority, restructuringClause, calendar, startDate, effectiveDate, maturityDate, stubType,
         couponFrequency, dayCount, businessDayConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate,
         amount, recoveryRate, includeAccruedPremium, protectionStart, coupon);
   }
 
-  public LegacyVanillaCreditDefaultSwapDefinition visitLegacyVanillaCDSSecurity(final LegacyVanillaCDSSecurity security, final ZonedDateTime valuationDate) {
+  @Override
+  public LegacyVanillaCreditDefaultSwapDefinition visitLegacyVanillaCDSSecurity(final LegacyVanillaCDSSecurity security) {
     ArgumentChecker.notNull(security, "security");
     final BuySellProtection buySellProtection = security.isBuy() ? BuySellProtection.BUY : BuySellProtection.SELL;
     //    final ExternalId regionId = security.getRegionId();
     //    final Calendar calendar = new HolidaySourceCalendarAdapter(_holidaySource, _regionSource.getHighestLevelRegion(regionId));
     final Calendar calendar = new HolidaySourceCalendarAdapter(_holidaySource, security.getNotional().getCurrency());
     final ZonedDateTime startDate = security.getStartDate();
-    final ZonedDateTime effectiveDate = FOLLOWING.adjustDate(calendar, valuationDate.withHour(0).withMinute(0).withSecond(0).withNano(0).plusDays(1));
+    final ZonedDateTime effectiveDate = security.getEffectiveDate(); //FOLLOWING.adjustDate(calendar, valuationDate.withHour(0).withMinute(0).withSecond(0).withNano(0).plusDays(1));
     final ZonedDateTime maturityDate = security.getMaturityDate();
     final PeriodFrequency couponFrequency = getPeriodFrequency(security.getCouponFrequency());
     final DayCount dayCount = security.getDayCount();
@@ -169,16 +165,10 @@ public class CreditDefaultSwapSecurityConverter {
     final boolean protectionStart = security.isProtectionStart();
     final StubType stubType = security.getStubType().toAnalyticsType();
     final double parSpread = security.getParSpread();
-    if (_organizationSource != null) {
-      final com.opengamma.analytics.financial.credit.obligor.definition.Obligor protectionBuyer = getObligor(security.getProtectionBuyer());
-      final com.opengamma.analytics.financial.credit.obligor.definition.Obligor protectionSeller = getObligor(security.getProtectionSeller());
-      final com.opengamma.analytics.financial.credit.obligor.definition.Obligor referenceEntity = getObligor(security.getReferenceEntity());
-      return new LegacyVanillaCreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency,
-          debtSeniority, restructuringClause, calendar, startDate, effectiveDate, maturityDate, stubType,
-          couponFrequency, dayCount, businessDayConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate,
-          amount, recoveryRate, includeAccruedPremium, protectionStart, parSpread);
-    }
-    return new LegacyVanillaCreditDefaultSwapDefinition(buySellProtection, DUMMY_OBLIGOR_A, DUMMY_OBLIGOR_B, DUMMY_OBLIGOR_C, currency,
+    final com.opengamma.analytics.financial.credit.obligor.definition.Obligor protectionBuyer = getObligorForProtectionBuyer(security.getProtectionBuyer());
+    final com.opengamma.analytics.financial.credit.obligor.definition.Obligor protectionSeller = getObligorForProtectionSeller(security.getProtectionSeller());
+    final com.opengamma.analytics.financial.credit.obligor.definition.Obligor referenceEntity = getObligorForReferenceEntity(security.getReferenceEntity());
+    return new LegacyVanillaCreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency,
         debtSeniority, restructuringClause, calendar, startDate, effectiveDate, maturityDate, stubType,
         couponFrequency, dayCount, businessDayConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate,
         amount, recoveryRate, includeAccruedPremium, protectionStart, parSpread);
@@ -213,8 +203,14 @@ public class CreditDefaultSwapSecurityConverter {
     throw new OpenGammaRuntimeException("Could not identify coupon with value " + coupon);
   }
 
-  private com.opengamma.analytics.financial.credit.obligor.definition.Obligor getObligor(final ExternalId obligorId) {
-    final Organization organization = _organizationSource.get(UniqueId.of(obligorId.getScheme().getName(), obligorId.getValue()));
+  private com.opengamma.analytics.financial.credit.obligor.definition.Obligor getObligorForReferenceEntity(final ExternalId obligorId) {
+    final Organization organization;
+    //TODO temporary fix until securities are reloaded with references to the org master
+    if (obligorId.getScheme().getName().equals("DbOrg")) {
+      organization = _organizationSource.get(UniqueId.of(obligorId.getScheme().getName(), obligorId.getValue()));
+    } else {
+      return DUMMY_OBLIGOR_C;
+    }
     final com.opengamma.core.obligor.definition.Obligor obligorDb = organization.getObligor();
     final com.opengamma.analytics.financial.credit.obligor.definition.Obligor obligor = new com.opengamma.analytics.financial.credit.obligor.definition.Obligor(
         obligorDb.getObligorTicker(),
@@ -230,6 +226,14 @@ public class CreditDefaultSwapSecurityConverter {
         getRegion(obligorDb.getRegion()),
         obligorDb.getCountry());
     return obligor;
+  }
+
+  private com.opengamma.analytics.financial.credit.obligor.definition.Obligor getObligorForProtectionBuyer(final ExternalId obligorId) {
+    return DUMMY_OBLIGOR_A; //TODO fix this
+  }
+
+  private com.opengamma.analytics.financial.credit.obligor.definition.Obligor getObligorForProtectionSeller(final ExternalId obligorId) {
+    return DUMMY_OBLIGOR_B; //TODO fix this
   }
 
   private com.opengamma.analytics.financial.credit.obligor.CreditRating getCreditRating(final com.opengamma.core.obligor.CreditRating ratingDb) {

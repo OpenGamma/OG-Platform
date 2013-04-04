@@ -38,6 +38,7 @@ import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.future.FutureSecurity;
 import com.opengamma.financial.security.fx.FXUtils;
+import com.opengamma.financial.security.option.EquityIndexFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.id.ExternalIdBundle;
@@ -96,7 +97,7 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
     if (FXUtils.isFXSecurity(security)) {
       return false;
     }
-    return FinancialSecurityUtils.isExchangeTraded(security) || (security instanceof BondSecurity);
+    return FinancialSecurityUtils.isExchangeTraded(security) || (security instanceof BondSecurity); // See SecurityMarketValueFunction
   }
 
   @Override
@@ -180,6 +181,10 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
     } else if (security instanceof EquityIndexOptionSecurity) {
       final EquityIndexOptionSecurity optionSecurity = (EquityIndexOptionSecurity) security;
       dailyValueMove = dailyValueMove * optionSecurity.getPointValue();
+    } else if (security instanceof EquityIndexFutureOptionSecurity) {
+      final EquityIndexFutureOptionSecurity optionSecurity = (EquityIndexFutureOptionSecurity) security;
+      dailyValueMove = dailyValueMove * optionSecurity.getPointValue();
+    
     }
     // Multiply by the Trade's Quantity
     final Double dailyPnL = target.getTrade().getQuantity().doubleValue() * dailyValueMove;

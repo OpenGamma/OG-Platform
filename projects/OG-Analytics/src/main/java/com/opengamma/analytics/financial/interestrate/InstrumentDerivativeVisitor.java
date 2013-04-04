@@ -52,6 +52,7 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutu
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.DeliverableSwapFuturesSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.DeliverableSwapFuturesTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
@@ -60,6 +61,8 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.Interest
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionPremiumTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
+import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationZeroCouponInterpolation;
+import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationZeroCouponMonthly;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationYearOnYearInterpolation;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationYearOnYearMonthly;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponInterpolation;
@@ -276,6 +279,14 @@ public interface InstrumentDerivativeVisitor<DATA_TYPE, RESULT_TYPE> {
 
   RESULT_TYPE visitCouponInflationYearOnYearInterpolation(CouponInflationYearOnYearInterpolation coupon);
 
+  RESULT_TYPE visitCapFloorInflationZeroCouponInterpolation(CapFloorInflationZeroCouponInterpolation coupon, DATA_TYPE data);
+
+  RESULT_TYPE visitCapFloorInflationZeroCouponInterpolation(CapFloorInflationZeroCouponInterpolation coupon);
+
+  RESULT_TYPE visitCapFloorInflationZeroCouponMonthly(CapFloorInflationZeroCouponMonthly coupon, DATA_TYPE data);
+
+  RESULT_TYPE visitCapFloorInflationZeroCouponMonthly(CapFloorInflationZeroCouponMonthly coupon);
+
   // -----     Futures   -----
 
   RESULT_TYPE visitCashSettledFuture(CashSettledFuture future, DATA_TYPE data);
@@ -305,6 +316,10 @@ public interface InstrumentDerivativeVisitor<DATA_TYPE, RESULT_TYPE> {
   RESULT_TYPE visitDeliverableSwapFuturesSecurity(DeliverableSwapFuturesSecurity futures, DATA_TYPE data);
 
   RESULT_TYPE visitDeliverableSwapFuturesSecurity(DeliverableSwapFuturesSecurity futures);
+
+  RESULT_TYPE visitDeliverableSwapFuturesTransaction(DeliverableSwapFuturesTransaction futures, DATA_TYPE data);
+
+  RESULT_TYPE visitDeliverableSwapFuturesTransaction(DeliverableSwapFuturesTransaction futures);
 
   // -----     Futures options   -----
 

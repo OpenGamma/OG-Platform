@@ -23,9 +23,12 @@ import com.opengamma.util.time.Tenor;
 public class IMMDateGenerator {
   private static final NextExpiryAdjuster IMM_ADJUSTER = new NextExpiryAdjuster(TemporalAdjusters.dayOfWeekInMonth(3, DayOfWeek.WEDNESDAY));
   private static Set<Month> s_imm_MONTHS = ImmutableSet.of(Month.MARCH, Month.JUNE, Month.SEPTEMBER, Month.DECEMBER);
+  private static final int s_TWENTIETH = 20;
 
   public static ZonedDateTime getNextIMMDate(final ZonedDateTime date, final Tenor tenor) {
-    final ZonedDateTime nextIMMDate = ZonedDateTime.from(IMM_ADJUSTER.adjustInto(date));
+    // If 19th of month (IMM date - 1 day) we need to cycle to next IMM period, as effective date of trade on date t is t + 1
+    final ZonedDateTime DateWithTradeAdjustment = ((isIMMDate(date) && date.getDayOfMonth() == s_TWENTIETH - 1)) ? ZonedDateTime.from(date).plusDays(1) : ZonedDateTime.from(date);
+    final ZonedDateTime nextIMMDate = ZonedDateTime.from(IMM_ADJUSTER.adjustInto(DateWithTradeAdjustment)).withDayOfMonth(s_TWENTIETH); // must be 20th
     return nextIMMDate.plus(tenor.getPeriod());
   }
 
