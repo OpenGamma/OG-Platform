@@ -606,13 +606,13 @@ $.register_module({
                     meta = check({
                         bundle: {method: root + '#put', config: config},
                         required: [
-                            {condition: !id, all_of: ['data_provider', 'data_field', 'scheme_type', 'identifier']},
+                            {condition: !id, all_of: ['data_field', 'scheme_type', 'identifier']},
                             {condition: !!id, all_of: ['id']}
                         ]
                     });
                     meta.type = !id ? 'POST' : 'PUT';
                     fields.forEach(function (val, idx) {if (val = str(config[val])) data[api_fields[idx]] = val;});
-                    if (id) method = method.concat(id);
+                    if (id) method = method.concat(id); else data['dataProvider'] = data['dataProvider'] || 'DEFAULT';
                     return request(method, {data: data, meta: meta});
                 },
                 del: default_del
