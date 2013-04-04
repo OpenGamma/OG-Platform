@@ -7,7 +7,6 @@ package com.opengamma.timeseries;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 
 import com.opengamma.timeseries.ObjectTimeSeriesOperators.BinaryOperator;
@@ -103,40 +102,6 @@ public abstract class AbstractIntObjectTimeSeries<DATE_TYPE, T>
   @Override
   public boolean isEmpty() {
     return getFastSeries().isEmpty();
-  }
-  
-  /**
-   * Converts from the underlying iterator into the wrapped type.
-   */
-  protected class IteratorAdapter implements Iterator<Entry<DATE_TYPE, T>> {
-
-    private final Iterator<Entry<Integer, T>> _iterator;
-
-    public IteratorAdapter(final Iterator<Entry<Integer, T>> iterator) {
-      _iterator = iterator;
-    }
-
-    @Override
-    public boolean hasNext() {
-      return _iterator.hasNext();
-    }
-
-    @Override
-    public Entry<DATE_TYPE, T> next() {
-      final Entry<Integer, T> next = _iterator.next();
-      return _converter.<T>makeMapEntry(_converter.convertFromInt(next.getKey()), next.getValue());
-    }
-
-    @Override
-    public void remove() {
-      _iterator.next();
-    }
-
-  }
-
-  @Override
-  public Iterator<Entry<DATE_TYPE, T>> iterator() {
-    return new IteratorAdapter(getFastSeries().iterator());
   }
 
   @Override

@@ -8,19 +8,17 @@ package com.opengamma.timeseries.localdate;
 import org.threeten.bp.LocalDate;
 
 import com.opengamma.timeseries.FastBackedObjectTimeSeries;
-import com.opengamma.timeseries.ObjectTimeSeries;
+import com.opengamma.timeseries.date.DateObjectTimeSeries;
 
 /**
  * A time series that stores {@code Object} data values against {@code LocalDate} dates.
  * <p>
  * The "time" key to the time-series is a {@code LocalDate}.
- * Some methods on the API represent the "time" as an {@code int}.
- * Some implementations may store the {@code int} rather than {@code LocalDate} internally.
- * The mapping between the two is available using {@link LocalDateToIntConverter}.
+ * See {@link DateObjectTimeSeries} for details about the "time" represented as an {@code int}.
  * 
- * @param <T>  the type of the data
+ * @param <V>  the type of the values
  */
-public interface LocalDateObjectTimeSeries<T>
-    extends ObjectTimeSeries<LocalDate, T>, FastBackedObjectTimeSeries<LocalDate, T> {
+public interface LocalDateObjectTimeSeries<V>
+    extends DateObjectTimeSeries<LocalDate, V>, FastBackedObjectTimeSeries<LocalDate, V> {
 
 }
