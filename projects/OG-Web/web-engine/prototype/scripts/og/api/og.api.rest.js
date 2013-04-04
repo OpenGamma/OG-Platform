@@ -12,9 +12,8 @@ $.register_module({
         var module = this, live_data_root = module.live_data_root, api, warn = og.dev.warn,
             common = og.api.common, routes = og.common.routes, loading_start = common.loading_start,
             loading_end = common.loading_end, encode = window['encodeURIComponent'],
-            // convert all incoming params into strings (so for example, the value 0 ought to be truthy, not falsey)
-            str = common.str,
-            outstanding_requests = {}, registrations = [], subscribe, post_processors = {},
+            str = common.str, // convert all incoming params into strings (eg, 0 ought to be truthy, not falsey)
+            outstanding_requests = {}, registrations = [], subscribe, post_processors = {}, request_id = 1,
             meta_data = {configs: null, holidays: null, securities: null, viewrequirementnames: null},
             singular = {
                 configs: 'config', exchanges: 'exchange', holidays: 'holiday',
@@ -25,26 +24,13 @@ $.register_module({
                 configs: true, exchanges: true, holidays: true, portfolios: true,
                 positions: true, regions: true, securities: true, timeseries: false
             },
-            request_id = 1,
-            MAX_INT = Math.pow(2, 31) - 1, PAGE_SIZE = 50, PAGE = 1, STALL = 500 /* 500ms */,
+            PAGE = common.PAGE, PAGE_SIZE = common.PAGE_SIZE, STALL = 500 /* 500ms */,
             INSTANT = 0 /* 0ms */, RESUBSCRIBE = 10000 /* 10s */,
             TIMEOUTSOON = 120000 /* 2m */, TIMEOUTFOREVER = 7200000 /* 2h */
         var cache_get = function (key) {return common.cache_get(module.name + key);};
         var cache_set = function (key, value) {return common.cache_set(module.name + key, value);};
         var cache_del = function (key) {return common.cache_del(module.name + key);};
-        var check = function (params) {
-            common.check(params);
-            if (typeof params.bundle.config.handler !== 'function') params.bundle.config.handler = $.noop;
-            if (params.bundle.config.page && (params.bundle.config.from || params.bundle.config.to))
-                throw new TypeError(params.bundle.method + ': config.page + config.from/to is ambiguous');
-            if (str(params.bundle.config.to) && !str(params.bundle.config.from))
-                throw new TypeError(params.bundle.method + ': config.to requires config.from');
-            if (params.bundle.config.page_size === '*' || params.bundle.config.page === '*')
-                params.bundle.config.page_size = MAX_INT, params.bundle.config.page = PAGE;
-            return ['handler', 'loading', 'update', 'dependencies', 'cache_for', 'dry'].reduce(function (acc, val) {
-                return (val in params.bundle.config) && (acc[val] = params.bundle.config[val]), acc;
-            }, {type: 'GET'});
-        };
+        var check = common.check;
         var default_del = function (config) {
             config = config || {};
             var root = this.root, method = [root], meta, id = str(config.id), version = str(config.version);
