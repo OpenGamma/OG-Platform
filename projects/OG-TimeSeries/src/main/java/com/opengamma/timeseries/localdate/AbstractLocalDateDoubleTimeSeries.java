@@ -39,6 +39,53 @@ public abstract class AbstractLocalDateDoubleTimeSeries
 
   //-------------------------------------------------------------------------
   @Override
+  public boolean containsTime(int date) {
+    return getFastSeries().containsTime(date);
+  }
+
+  @Override
+  public Double getValue(int time) {
+    try {
+      return getFastSeries().getValueFast(time);
+    } catch (NoSuchElementException ex) {
+      return null;
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public int getTimeAtIndexFast(int index) {
+    return getFastSeries().getTimeAtIndexFast(index);
+  }
+
+  @Override
+  public double getValueAtIndexFast(int index) {
+    return getFastSeries().getValueAtIndexFast(index);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public int getEarliestTimeFast() {
+    return getFastSeries().getEarliestTimeFast();
+  }
+
+  @Override
+  public double getEarliestValueFast() {
+    return getFastSeries().getEarliestTimeFast();
+  }
+
+  @Override
+  public int getLatestTimeFast() {
+    return getFastSeries().getLatestTimeFast();
+  }
+
+  @Override
+  public double getLatestValueFast() {
+    return getFastSeries().getLatestTimeFast();
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
   public LocalDateDoubleEntryIterator iterator() {
     return new LocalDateDoubleEntryIterator() {
       private int _index = -1;
@@ -107,12 +154,8 @@ public abstract class AbstractLocalDateDoubleTimeSeries
   }
 
   @Override
-  public Double getValue(int time) {
-    try {
-      return getFastSeries().getValueFast(time);
-    } catch (NoSuchElementException ex) {
-      return null;
-    }
+  public int[] timesArrayFast() {
+    return getFastSeries().timesArrayFast();
   }
 
   //-------------------------------------------------------------------------

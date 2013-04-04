@@ -7,20 +7,18 @@ package com.opengamma.timeseries.localdate;
 
 import org.threeten.bp.LocalDate;
 
-import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.DoubleTimeSeriesOperators.UnaryOperator;
 import com.opengamma.timeseries.FastBackedDoubleTimeSeries;
+import com.opengamma.timeseries.date.DateDoubleTimeSeries;
 
 /**
  * A time series that stores {@code double} data values against {@code LocalDate} dates.
  * <p>
  * The "time" key to the time-series is a {@code LocalDate}.
- * Some methods on the API represent the "time" as an {@code int}.
- * Some implementations may store the {@code int} rather than {@code LocalDate} internally.
- * The mapping between the two is available using {@link LocalDateToIntConverter}.
+ * See {@link DateDoubleTimeSeries} for details about the "time" represented as an {@code int}.
  */
 public interface LocalDateDoubleTimeSeries
-    extends DoubleTimeSeries<LocalDate>, FastBackedDoubleTimeSeries<LocalDate> {
+    extends DateDoubleTimeSeries<LocalDate>, FastBackedDoubleTimeSeries<LocalDate> {
 
   /**
    * Gets an iterator over the date-value pairs.
@@ -30,15 +28,8 @@ public interface LocalDateDoubleTimeSeries
    * 
    * @return the iterator, not null
    */
+  @Override
   LocalDateDoubleEntryIterator iterator();
-
-  /**
-   * Gets the value associated with the time, specifying the primitive {@code int} date.
-   * 
-   * @param date  the primitive date equivalent to a {@code LocalDate}
-   * @return the matching value, null if there is no value for the date
-   */
-  Double getValue(int date);
 
   //-------------------------------------------------------------------------
   @Override  // override for covariant return type
