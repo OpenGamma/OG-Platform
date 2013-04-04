@@ -60,7 +60,7 @@ public abstract class AbstractMutableLocalDateDoubleTimeSeries
       }
 
       @Override
-      public int nextDate() {
+      public int nextTimeFast() {
         if (hasNext() == false) {
           throw new NoSuchElementException("No more elements in the iteration");
         }
@@ -69,12 +69,12 @@ public abstract class AbstractMutableLocalDateDoubleTimeSeries
       }
 
       @Override
-      public LocalDate nextLocalDate() {
-        return getConverter().convertFromInt(nextDate());
+      public LocalDate nextTime() {
+        return getConverter().convertFromInt(nextTimeFast());
       }
 
       @Override
-      public int currentDate() {
+      public int currentTimeFast() {
         if (_index < 0) {
           throw new IllegalStateException("Iterator has nor has nextDate() or next() called yet");
         }
@@ -82,8 +82,8 @@ public abstract class AbstractMutableLocalDateDoubleTimeSeries
       }
 
       @Override
-      public LocalDate currentLocalDate() {
-        return getConverter().convertFromInt(currentDate());
+      public LocalDate currentTime() {
+        return getConverter().convertFromInt(currentTimeFast());
       }
 
       @Override

@@ -78,7 +78,7 @@ public class ExtremeValueDoubleTimeSeriesFilter extends TimeSeriesFilter {
     final LocalDateDoubleEntryIterator it = ts.iterator();
     int i = 0, j = 0;
     while (it.hasNext()) {
-      int date = it.nextDate();
+      int date = it.nextTimeFast();
       double value = it.currentValue();
       if (value > _maxValue || value < _minValue) {
         rejectedDates[j] = date;

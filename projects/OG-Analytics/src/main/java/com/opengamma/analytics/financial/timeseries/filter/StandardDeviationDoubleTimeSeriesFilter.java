@@ -67,7 +67,7 @@ public class StandardDeviationDoubleTimeSeriesFilter extends TimeSeriesFilter {
     final LocalDateDoubleEntryIterator it = ts.iterator();
     int i = 0, j = 0;
     while (it.hasNext()) {
-      int date = it.nextDate();
+      int date = it.nextTimeFast();
       double value = it.currentValue();
       if (Math.abs(value - mean) > _standardDeviations * std) {
         rejectedDates[j] = date;

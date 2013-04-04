@@ -68,13 +68,13 @@ public class SimpleNetTimeSeriesReturnCalculator extends TimeSeriesReturnCalcula
     int resultIndex = 0;
     
     final LocalDateDoubleEntryIterator it = ts.iterator();
-    it.nextDate();
+    it.nextTimeFast();
     double previousValue = it.currentValue();
     
     double dividend;
     Double dividendTSData;
     while (it.hasNext()) {
-      int date = it.nextDate();
+      int date = it.nextTimeFast();
       double value = it.currentValue();
       
       if (isValueNonZero(previousValue) && isValueNonZero(value)) {

@@ -38,14 +38,14 @@ public class ContinuouslyCompoundedRelativeTimeSeriesReturnCalculator extends Re
     final LocalDateDoubleEntryIterator iter1 = ts1.iterator();
     int i = 0;
     while (iter1.hasNext()) {
-      int date = iter1.nextDate();
+      int date = iter1.nextTimeFast();
       Double value2 = ts2.getValue(date);
       if (value2 == null || Math.abs(value2) < ZERO) {
         if (getMode().equals(CalculationMode.STRICT)) {
-          throw new TimeSeriesException("No data in second series for time " + iter1.currentLocalDate());
+          throw new TimeSeriesException("No data in second series for time " + iter1.currentTime());
         }
       } else {
-        times[i] = iter1.currentDate();
+        times[i] = iter1.currentTimeFast();
         returns[i++] = Math.log(iter1.currentValue() / value2);
       }
     }

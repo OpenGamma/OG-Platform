@@ -59,14 +59,14 @@ public class SpikeDoubleTimeSeriesFilter extends TimeSeriesFilter {
     final double[] rejectedData = new double[n];
     
     LocalDateDoubleEntryIterator it = ts.iterator();
-    int firstDate = it.nextDate();
+    int firstDate = it.nextTimeFast();
     double firstValue = it.currentValue();
     int secondDate = 0;
     double secondValue = 0;
     int i = 0, j = 0;
     // handle most pairs
     while (it.hasNext()) {
-      secondDate = it.nextDate();
+      secondDate = it.nextTimeFast();
       secondValue = it.currentValue();
       if (Math.abs(firstValue / secondValue - 1) < _maxPercentageMove) {
         filteredDates[i] = firstDate;
