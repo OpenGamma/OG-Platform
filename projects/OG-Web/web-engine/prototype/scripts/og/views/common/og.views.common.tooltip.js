@@ -14,7 +14,7 @@ $.register_module({
                 og.api.text({module: 'og.views.tooltip', handler: function (template) {
                     $('.OG-layout-tooltip').html(template);
                     $('body').append(
-                        '<div class="tooltip north">' +
+                        '<div class="tooltip">' +
                             'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'+
                             'Nullam consectetur quam a sapien egestas eget scelerisque'+
                             'lectus tempor. Duis placerat tellus at erat pellentesque nec'+
@@ -23,27 +23,37 @@ $.register_module({
                         '</div>'
                     )
                 }}).pipe(function () {
-                    // For testing purposes only, should be removed/refactored once
-                    // implementation details have been agreed.
-                    var tool_cta = $('.tooltip-cta'), tooltip = $('div.tooltip.north'),
-                        tooltip_offsets = tooltip.offset();
-                    tool_cta.on('click', function (event) {
-                        var elem = $(this), offsets = elem.offset(), width = elem.width(), height = elem.height();
-                        // North orientation, after testing dims; to be implemented
-                        tooltip.css({
+                    var tooltip = $('div.tooltip'), tooltip_offsets = tooltip.offset();
+                    $('.tooltip-cta').on('click', function (event) {
+                        var elem = $(this), offsets = elem.offset(), width = elem.width(), height = elem.height(),
+                            margins = elem.css('margins');
+
+                        // North
+                        /*tooltip.addClass('north').css({
                             top: offsets.top + height + 'px',
-                            left: offsets.left - width/2 + 'px'
+                            left: offsets.left - (tooltip.outerWidth()/2) + width/2 + 'px'
+                        }).show();*/
+
+                        // East
+                        /*tooltip.addClass('east').css({
+                            top: offsets.top - ((tooltip.outerHeight()-height)/2) + 'px',
+                            left: offsets.left - tooltip.outerWidth() + 'px'
+                        }).show();*/
+
+                        // South
+                        /*tooltip.addClass('south').css({
+                            top: offsets.top - tooltip.outerHeight() + 'px',
+                            left: offsets.left - (tooltip.outerWidth()/2) + width/2 + 'px'
+                        }).show();*/
+
+                        // West
+                        tooltip.addClass('west').css({
+                            top: offsets.top - ((tooltip.outerHeight()-height)/2) + 'px',
+                            left: offsets.left + width + 'px'
                         }).show();
-                    }).on('mouseout', function () {
-                        tooltip.hide();
-                    });
+
+                    }).on('mouseout', function () { tooltip.removeAttr('style').hide(); });
                 });
-                var display_tooltip = function (ref_elem, position) {
-                    // var direction = get_dir(position);
-                };
-                var get_direction = function (position) {
-                    var height = $(window).height(), width = $(window).width();
-                };
             },
             load_item: function (args) {
                 view.check_state({args: args, conditions: [{new_page: view.load}]});
