@@ -850,7 +850,7 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
     setFutureFunctionCalculators(calculators);
     final FutureFunctions.Defaults defaults = new FutureFunctions.Defaults();
     setFutureDefaults(defaults);
-    return CombiningRepositoryConfigurationSource.of(getRepository(calculators), getRepository(defaults));
+    return CombiningFunctionConfigurationSource.of(getRepository(calculators), getRepository(defaults));
   }
 
   protected void setFutureOptionDefaults(final CurrencyInfo i, final FutureOptionFunctions.Defaults.CurrencyInfo defaults) {
