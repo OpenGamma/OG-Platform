@@ -18,6 +18,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -121,7 +122,10 @@ public class MultiYieldCurvePresentValueMethodFunction extends MultiYieldCurveFu
     final List<InstrumentDerivative> derivatives = new ArrayList<InstrumentDerivative>();
     final DoubleArrayList marketValues = new DoubleArrayList();
     final DoubleArrayList initialRatesGuess = new DoubleArrayList();
-    final String[] curveNames = curveCalculationConfig.getYieldCurveNames();
+    LinkedHashSet<String> curveNames = new LinkedHashSet<>();
+    for (String curveName : curveCalculationConfig.getYieldCurveNames()) {
+      curveNames.add(curveName);
+    }
     final LinkedHashMap<String, double[]> curveNodes = new LinkedHashMap<String, double[]>();
     final LinkedHashMap<String, Interpolator1D> interpolators = new LinkedHashMap<String, Interpolator1D>();
     final ComputationTargetSpecification targetSpec = target.toSpecification();
