@@ -42,10 +42,12 @@ public abstract class AbstractMutableLocalDateDoubleTimeSeries
   public LocalDateDoubleIterator iterator() {
     return new LocalDateDoubleIterator() {
       private int _index = -1;
+
       @Override
       public boolean hasNext() {
         return (_index + 1) < size();
       }
+
       @Override
       public Entry<LocalDate, Double> next() {
         if (hasNext() == false) {
@@ -56,6 +58,7 @@ public abstract class AbstractMutableLocalDateDoubleTimeSeries
         Double value = getFastSeries().getValueAtIndex(_index);
         return getConverter().makeMapEntry(getConverter().convertFromInt(date), value);
       }
+
       @Override
       public int nextDate() {
         if (hasNext() == false) {
@@ -64,10 +67,12 @@ public abstract class AbstractMutableLocalDateDoubleTimeSeries
         _index++;
         return getFastSeries().getTimeAtIndexFast(_index);
       }
+
       @Override
       public LocalDate nextLocalDate() {
         return getConverter().convertFromInt(nextDate());
       }
+
       @Override
       public int currentDate() {
         if (_index < 0) {
@@ -75,10 +80,12 @@ public abstract class AbstractMutableLocalDateDoubleTimeSeries
         }
         return getFastSeries().getTimeAtIndexFast(_index);
       }
+
       @Override
       public LocalDate currentLocalDate() {
         return getConverter().convertFromInt(currentDate());
       }
+
       @Override
       public double currentValue() {
         if (_index < 0) {
@@ -86,6 +93,12 @@ public abstract class AbstractMutableLocalDateDoubleTimeSeries
         }
         return getFastSeries().getValueAtIndexFast(_index);
       }
+
+      @Override
+      public int currentIndex() {
+        return _index;
+      }
+
       @Override
       public void remove() {
         throw new UnsupportedOperationException("Immutable iterator");

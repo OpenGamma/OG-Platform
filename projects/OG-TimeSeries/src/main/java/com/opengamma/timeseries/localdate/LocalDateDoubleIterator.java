@@ -62,4 +62,13 @@ public interface LocalDateDoubleIterator extends Iterator<Map.Entry<LocalDate, D
    */
   double currentValue();
 
+  /**
+   * The current index of the iterator.
+   * This returns the index of the time-value pair associated with the
+   * last call to {@code nextDate()}, or -1 if iteration has not yet started.
+   * 
+   * @return the current index, or -1 if iteration has not yet started
+   */
+  int currentIndex();
+
 }

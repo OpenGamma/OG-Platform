@@ -95,6 +95,11 @@ public abstract class AbstractLocalDateDoubleTimeSeries
       }
 
       @Override
+      public int currentIndex() {
+        return _index;
+      }
+
+      @Override
       public void remove() {
         throw new UnsupportedOperationException("Immutable iterator");
       }
