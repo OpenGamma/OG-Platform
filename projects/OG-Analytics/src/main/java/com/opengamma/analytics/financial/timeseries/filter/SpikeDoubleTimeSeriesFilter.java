@@ -9,7 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
-import com.opengamma.timeseries.localdate.LocalDateDoubleIterator;
+import com.opengamma.timeseries.localdate.LocalDateDoubleEntryIterator;
 import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 
@@ -58,7 +58,7 @@ public class SpikeDoubleTimeSeriesFilter extends TimeSeriesFilter {
     final int[] rejectedDates = new int[n];
     final double[] rejectedData = new double[n];
     
-    LocalDateDoubleIterator it = ts.iterator();
+    LocalDateDoubleEntryIterator it = ts.iterator();
     int firstDate = it.nextDate();
     double firstValue = it.currentValue();
     int secondDate = 0;

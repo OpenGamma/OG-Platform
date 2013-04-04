@@ -9,7 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.timeseries.TimeSeriesException;
-import com.opengamma.timeseries.localdate.LocalDateDoubleIterator;
+import com.opengamma.timeseries.localdate.LocalDateDoubleEntryIterator;
 import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.CalculationMode;
 
@@ -35,7 +35,7 @@ public class ContinuouslyCompoundedRelativeTimeSeriesReturnCalculator extends Re
     final int n = ts1.size();
     final int[] times = new int[n];
     final double[] returns = new double[n];
-    final LocalDateDoubleIterator iter1 = ts1.iterator();
+    final LocalDateDoubleEntryIterator iter1 = ts1.iterator();
     int i = 0;
     while (iter1.hasNext()) {
       int date = iter1.nextDate();

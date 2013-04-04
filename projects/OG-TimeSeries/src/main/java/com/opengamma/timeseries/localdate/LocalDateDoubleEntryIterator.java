@@ -15,7 +15,7 @@ import org.threeten.bp.LocalDate;
  * Specialized iterator that can access primitive values.
  * This iterator is dedicated to {@code LocalDateDoubleTimeSeries}.
  */
-public interface LocalDateDoubleIterator extends Iterator<Map.Entry<LocalDate, Double>> {
+public interface LocalDateDoubleEntryIterator extends Iterator<Map.Entry<LocalDate, Double>> {
 
   /**
    * The next available date in the iterator.

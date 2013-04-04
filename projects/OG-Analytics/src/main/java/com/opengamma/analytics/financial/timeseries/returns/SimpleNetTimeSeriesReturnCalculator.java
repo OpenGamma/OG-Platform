@@ -6,7 +6,7 @@
 package com.opengamma.analytics.financial.timeseries.returns;
 
 import com.opengamma.timeseries.TimeSeriesException;
-import com.opengamma.timeseries.localdate.LocalDateDoubleIterator;
+import com.opengamma.timeseries.localdate.LocalDateDoubleEntryIterator;
 import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.CalculationMode;
@@ -67,7 +67,7 @@ public class SimpleNetTimeSeriesReturnCalculator extends TimeSeriesReturnCalcula
     final double[] resultValues = new double[ts.size() - 1];
     int resultIndex = 0;
     
-    final LocalDateDoubleIterator it = ts.iterator();
+    final LocalDateDoubleEntryIterator it = ts.iterator();
     it.nextDate();
     double previousValue = it.currentValue();
     

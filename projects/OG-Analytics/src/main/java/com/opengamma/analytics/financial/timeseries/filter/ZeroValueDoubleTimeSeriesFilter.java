@@ -9,7 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
-import com.opengamma.timeseries.localdate.LocalDateDoubleIterator;
+import com.opengamma.timeseries.localdate.LocalDateDoubleEntryIterator;
 import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 
@@ -60,7 +60,7 @@ public class ZeroValueDoubleTimeSeriesFilter extends TimeSeriesFilter {
     final double[] filteredData = new double[n];
     final int[] rejectedDates = new int[n];
     final double[] rejectedData = new double[n];
-    final LocalDateDoubleIterator it = ts.iterator();
+    final LocalDateDoubleEntryIterator it = ts.iterator();
     int i = 0, j = 0;
     while (it.hasNext()) {
       int date = it.nextDate();

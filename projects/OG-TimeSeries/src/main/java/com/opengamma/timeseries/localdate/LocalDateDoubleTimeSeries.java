@@ -30,7 +30,7 @@ public interface LocalDateDoubleTimeSeries
    * 
    * @return the iterator, not null
    */
-  LocalDateDoubleIterator iterator();
+  LocalDateDoubleEntryIterator iterator();
 
   /**
    * Gets the value associated with the time, specifying the primitive {@code int} date.

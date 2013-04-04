@@ -39,8 +39,8 @@ public abstract class AbstractMutableLocalDateDoubleTimeSeries
 
   //-------------------------------------------------------------------------
   @Override
-  public LocalDateDoubleIterator iterator() {
-    return new LocalDateDoubleIterator() {
+  public LocalDateDoubleEntryIterator iterator() {
+    return new LocalDateDoubleEntryIterator() {
       private int _index = -1;
 
       @Override

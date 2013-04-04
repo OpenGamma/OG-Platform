@@ -12,7 +12,7 @@ import com.opengamma.analytics.financial.timeseries.analysis.DoubleTimeSeriesSta
 import com.opengamma.analytics.math.statistics.descriptive.MeanCalculator;
 import com.opengamma.analytics.math.statistics.descriptive.SampleStandardDeviationCalculator;
 import com.opengamma.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
-import com.opengamma.timeseries.localdate.LocalDateDoubleIterator;
+import com.opengamma.timeseries.localdate.LocalDateDoubleEntryIterator;
 import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 
@@ -64,7 +64,7 @@ public class StandardDeviationDoubleTimeSeriesFilter extends TimeSeriesFilter {
     final double[] filteredData = new double[n];
     final int[] rejectedDates = new int[n];
     final double[] rejectedData = new double[n];
-    final LocalDateDoubleIterator it = ts.iterator();
+    final LocalDateDoubleEntryIterator it = ts.iterator();
     int i = 0, j = 0;
     while (it.hasNext()) {
       int date = it.nextDate();
