@@ -6,6 +6,7 @@
 package com.opengamma.master.historicaltimeseries;
 
 
+import java.io.Serializable;
 import java.util.Map;
 
 import org.joda.beans.BeanBuilder;
@@ -34,7 +35,7 @@ import com.opengamma.util.PublicSPI;
  */
 @PublicSPI
 @BeanDefinition
-public class HistoricalTimeSeriesGetFilter extends DirectBean {
+public class HistoricalTimeSeriesGetFilter extends DirectBean implements Serializable {
 
   /**
    * The earliest date to return, inclusive, null means far past.
