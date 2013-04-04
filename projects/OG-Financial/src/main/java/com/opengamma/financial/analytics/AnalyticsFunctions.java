@@ -263,6 +263,7 @@ public class AnalyticsFunctions extends AbstractRepositoryConfigurationBean {
     addUnitScalingFunction(functions, ValueRequirementNames.IR01);
     addUnitScalingFunction(functions, ValueRequirementNames.BUCKETED_IR01);
     addUnitScalingFunction(functions, ValueRequirementNames.JUMP_TO_DEFAULT);
+    addUnitScalingFunction(functions, ValueRequirementNames.HAZARD_RATE_CURVE);
     addScalingFunction(functions, ValueRequirementNames.MONETIZED_VEGA);
     addSummingFunction(functions, ValueRequirementNames.MONETIZED_VEGA);
 

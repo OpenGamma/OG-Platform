@@ -13,8 +13,13 @@ import com.opengamma.engine.value.ValueRequirementNames;
  */
 public class MarkToMarketSpotFuturesFunction extends MarkToMarketFuturesFunction<Double> {
 
-  public MarkToMarketSpotFuturesFunction() {
-    super(ValueRequirementNames.SPOT, MarkToMarketFuturesCalculator.SpotPriceCalculator.getInstance());
+  /**
+   * @param closingPriceField The field name of the historical time series for price, e.g. "PX_LAST", "Close". Set in *FunctionConfiguration
+   * @param costOfCarryField The field name of the historical time series for cost of carry e.g. "COST_OF_CARRY". Set in *FunctionConfiguration
+   * @param resolutionKey The key defining how the time series resolution is to occur e.g. "DEFAULT_TSS_CONFIG"
+   */
+  public MarkToMarketSpotFuturesFunction(String closingPriceField, String costOfCarryField, String resolutionKey) {
+    super(ValueRequirementNames.SPOT, MarkToMarketFuturesCalculator.SpotPriceCalculator.getInstance(), closingPriceField, costOfCarryField, resolutionKey);
   }
-
 }
+

@@ -10,7 +10,7 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
-import com.opengamma.analytics.financial.instrument.index.PriceIndex;
+import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.instrument.payment.CapFloor;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationZeroCouponInterpolation;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
@@ -84,7 +84,7 @@ public class CapFloorInflationZeroCouponInterpolationDefinition extends CouponIn
    * @param isCap The cap/floor flag.
    */
   public CapFloorInflationZeroCouponInterpolationDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate,
-      final ZonedDateTime accrualEndDate, final double paymentYearFraction, final double notional, final PriceIndex priceIndex, final int monthLag, final int maturity,
+      final ZonedDateTime accrualEndDate, final double paymentYearFraction, final double notional, final IndexPrice priceIndex, final int monthLag, final int maturity,
       final ZonedDateTime referenceStartDate, final double indexStartValue, final ZonedDateTime[] referenceEndDate,
       final double strike, final boolean isCap) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, paymentYearFraction, notional, priceIndex);
@@ -115,7 +115,7 @@ public class CapFloorInflationZeroCouponInterpolationDefinition extends CouponIn
    * @return The cap/floor.
    */
   public static CapFloorInflationZeroCouponInterpolationDefinition from(final ZonedDateTime accrualStartDate, final ZonedDateTime paymentDate, final double notional,
-      final PriceIndex priceIndex, final int monthLag, final int maturity, final double indexStartValue, final ZonedDateTime[] referenceEndDate,
+      final IndexPrice priceIndex, final int monthLag, final int maturity, final double indexStartValue, final ZonedDateTime[] referenceEndDate,
       final double strike, final boolean isCap) {
     Validate.notNull(priceIndex, "Price index");
     return new CapFloorInflationZeroCouponInterpolationDefinition(priceIndex.getCurrency(), paymentDate, accrualStartDate, paymentDate, 1.0,

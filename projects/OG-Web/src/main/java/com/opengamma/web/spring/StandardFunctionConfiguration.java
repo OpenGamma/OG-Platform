@@ -28,6 +28,7 @@ import com.opengamma.financial.analytics.model.equity.option.OptionFunctions;
 import com.opengamma.financial.analytics.model.equity.portfoliotheory.PortfolioTheoryFunctions;
 import com.opengamma.financial.analytics.model.fixedincome.FixedIncomeFunctions;
 import com.opengamma.financial.analytics.model.future.FutureFunctions;
+import com.opengamma.financial.analytics.model.future.FutureFunctions.Calculators;
 import com.opengamma.financial.analytics.model.futureoption.FutureOptionFunctions;
 import com.opengamma.financial.analytics.model.irfutureoption.IRFutureOptionFunctions;
 import com.opengamma.financial.analytics.model.pnl.PNLFunctions;
@@ -835,10 +836,16 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
     }));
   }
 
+  protected void setFutureFunctionCalculators(FutureFunctions.Calculators calculators) {
+    calculators.setClosingPriceField(getMark2MarketField());
+  }
+  
   protected RepositoryConfigurationSource futureFunctions() {
+    final FutureFunctions.Calculators calculators = new FutureFunctions.Calculators();
+    setFutureFunctionCalculators(calculators);
     final FutureFunctions.Defaults defaults = new FutureFunctions.Defaults();
     setFutureDefaults(defaults);
-    return getRepository(defaults);
+    return CombiningRepositoryConfigurationSource.of(getRepository(calculators), getRepository(defaults));
   }
 
   protected void setFutureOptionDefaults(final CurrencyInfo i, final FutureOptionFunctions.Defaults.CurrencyInfo defaults) {

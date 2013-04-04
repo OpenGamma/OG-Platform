@@ -137,11 +137,13 @@ public class HazardRateCurveCalculator {
       if (upperHazardRate > 1.0) {
         upperHazardRate = 1.0;
       }
+
       // Now do the root search (in hazard rate space) - simple bisection method for the moment (guaranteed to work and we are not concerned with speed at the moment)
       // Calculate the CDS PV at the lower hazard rate bound
       final double cdsPresentValueAtLowerPoint = calculateCDSPV(valuationDate, calibrationCDS, marketTenors, runningTenors, hazardRates, lowerHazardRate, yieldCurve, priceType);
       // Calculate the CDS PV at the upper hazard rate bound
       double cdsPresentValueAtMidPoint = calculateCDSPV(valuationDate, calibrationCDS, marketTenors, runningTenors, hazardRates, upperHazardRate, yieldCurve, priceType);
+
       // Orient the search
       if (cdsPresentValueAtLowerPoint < 0.0) {
         deltaHazardRate = upperHazardRate - lowerHazardRate;
@@ -150,6 +152,7 @@ public class HazardRateCurveCalculator {
         deltaHazardRate = lowerHazardRate - upperHazardRate;
         calibratedHazardRate = upperHazardRate;
       }
+
       // The actual bisection routine
       for (int i = 0; i < _maximumNumberOfIterations; i++) {
         // Cut the hazard rate range in half

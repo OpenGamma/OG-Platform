@@ -11,7 +11,7 @@ import java.util.Set;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
-import com.opengamma.analytics.financial.instrument.index.PriceIndex;
+import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
@@ -37,7 +37,7 @@ public interface InflationProviderInterface extends ParameterProviderInterface {
    * @param time The reference time.
    * @return The price index.
    */
-  double getPriceIndex(PriceIndex index, Double time);
+  double getPriceIndex(IndexPrice index, Double time);
 
   // TODO: Do we need a method which returns the inflation rate over a period?
 
@@ -46,13 +46,13 @@ public interface InflationProviderInterface extends ParameterProviderInterface {
    * @param index The price index.
    * @return The name.
    */
-  String getName(PriceIndex index);
+  String getName(IndexPrice index);
 
   /**
    * Gets the set of price indexes defined in the provider.
    * @return The set of index.
    */
-  Set<PriceIndex> getPriceIndexes();
+  Set<IndexPrice> getPriceIndexes();
 
   /**
    * Gets the names of all curves (discounting, forward, price index and issuers).
