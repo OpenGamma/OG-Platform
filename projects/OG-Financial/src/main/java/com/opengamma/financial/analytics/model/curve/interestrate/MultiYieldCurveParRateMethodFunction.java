@@ -15,10 +15,10 @@ import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -26,7 +26,6 @@ import java.util.Set;
 import org.threeten.bp.Clock;
 import org.threeten.bp.ZonedDateTime;
 
-import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
@@ -121,7 +120,10 @@ public class MultiYieldCurveParRateMethodFunction extends MultiYieldCurveFunctio
     final List<InstrumentDerivative> derivatives = new ArrayList<>();
     final DoubleArrayList marketValues = new DoubleArrayList();
     final DoubleArrayList initialRatesGuess = new DoubleArrayList();
-    final Collection<String> curveNames = Sets.newHashSet(curveCalculationConfig.getYieldCurveNames()); // curve names may be duplicated - loop over each once
+    LinkedHashSet<String> curveNames = new LinkedHashSet<>();
+    for (String curveName : curveCalculationConfig.getYieldCurveNames()) {
+      curveNames.add(curveName);
+    }
     final LinkedHashMap<String, double[]> curveNodes = new LinkedHashMap<>();
     final LinkedHashMap<String, Interpolator1D> interpolators = new LinkedHashMap<>();
     final Map<String, Integer> nodesPerCurve = new HashMap<>();
@@ -146,14 +148,17 @@ public class MultiYieldCurveParRateMethodFunction extends MultiYieldCurveFunctio
         final InstrumentDerivative derivative = _definitionConverter.convert(security, definition, now, curveNamesForSecurity, timeSeries);
         if (derivative != null) {
           if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
-            InstrumentDefinition<?> unitNotional;
-            if (definition instanceof InterestRateFutureSecurityDefinition) {
-              final InterestRateFutureSecurityDefinition securityDefinition = (InterestRateFutureSecurityDefinition) definition;
-              unitNotional = new InterestRateFutureTransactionDefinition(securityDefinition, now, marketValue, 1);
-            } else {
-              unitNotional = ((InterestRateFutureTransactionDefinition) definition).withNewNotionalAndTransactionPrice(1, marketValue);
-              // Implementation note: to have the same notional for OTC and futures (and thus not near-singular Jacobian)
-            }
+            //            InstrumentDefinition<?> unitNotional;
+            //            if (definition instanceof InterestRateFutureSecurityDefinition) {
+            //              final InterestRateFutureSecurityDefinition securityDefinition = (InterestRateFutureSecurityDefinition) definition;
+            //              unitNotional = new InterestRateFutureTransactionDefinition(securityDefinition, now, marketValue, 1);
+            //            } else {
+            //              unitNotional = ((InterestRateFutureTransactionDefinition) definition).withNewNotionalAndTransactionPrice(1, marketValue);
+            //              // Implementation note: to have the same notional for OTC and futures (and thus not near-singular Jacobian)
+            //            }
+            final InterestRateFutureSecurityDefinition securityDefinition = (InterestRateFutureSecurityDefinition) definition;
+            InterestRateFutureTransactionDefinition unitNotional = new InterestRateFutureTransactionDefinition(securityDefinition, now, marketValue, 1);
+            unitNotional = unitNotional.withNewNotionalAndTransactionPrice(1, marketValue);
             final InstrumentDerivative unitNotionalDerivative = _definitionConverter.convert(security, unitNotional, now, curveNamesForSecurity, timeSeries);
             derivatives.add(unitNotionalDerivative);
             initialRatesGuess.add(1 - marketValue);
