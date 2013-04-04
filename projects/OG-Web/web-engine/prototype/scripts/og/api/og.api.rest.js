@@ -610,7 +610,7 @@ $.register_module({
                             {condition: !!id, all_of: ['id']}
                         ]
                     });
-                    meta.type = !id ? 'POST' : 'PUT';
+                    meta.type = id ? 'PUT' : 'POST';
                     fields.forEach(function (val, idx) {if (val = str(config[val])) data[api_fields[idx]] = val;});
                     if (id) method = method.concat(id); else data['dataProvider'] = data['dataProvider'] || 'DEFAULT';
                     return request(method, {data: data, meta: meta});
