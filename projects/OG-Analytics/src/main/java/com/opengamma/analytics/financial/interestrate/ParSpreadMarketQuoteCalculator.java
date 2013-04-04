@@ -19,10 +19,8 @@ import com.opengamma.analytics.financial.interestrate.cash.method.CashDiscountin
 import com.opengamma.analytics.financial.interestrate.cash.method.DepositZeroDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRateAgreement;
 import com.opengamma.analytics.financial.interestrate.fra.method.ForwardRateAgreementDiscountingMethod;
-import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureSecurityDiscountingMethod;
-import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureTransactionDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 
@@ -60,7 +58,7 @@ public final class ParSpreadMarketQuoteCalculator extends InstrumentDerivativeVi
   private static final DepositZeroDiscountingMethod METHOD_DEPOSIT_ZERO = DepositZeroDiscountingMethod.getInstance();
   private static final BillTransactionDiscountingMethod METHOD_BILL_TRANSACTION = BillTransactionDiscountingMethod.getInstance();
   private static final ForwardRateAgreementDiscountingMethod METHOD_FRA = ForwardRateAgreementDiscountingMethod.getInstance();
-  private static final InterestRateFutureTransactionDiscountingMethod METHOD_IR_FUTURES_TRANSACTION = InterestRateFutureTransactionDiscountingMethod.getInstance();
+  //  private static final InterestRateFutureTransactionDiscountingMethod METHOD_IR_FUTURES_TRANSACTION = InterestRateFutureTransactionDiscountingMethod.getInstance();
   private static final InterestRateFutureSecurityDiscountingMethod METHOD_IR_FUTURES_SECURITY = InterestRateFutureSecurityDiscountingMethod.getInstance();
   private static final ForexSwapDiscountingMethod METHOD_FX_SWAP = ForexSwapDiscountingMethod.getInstance();
 
@@ -133,13 +131,13 @@ public final class ParSpreadMarketQuoteCalculator extends InstrumentDerivativeVi
    */
   @Override
   public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
-    return METHOD_IR_FUTURES_TRANSACTION.presentValue(future, curves).getAmount() - future.getReferencePrice();
+    return METHOD_IR_FUTURES_SECURITY.price(future.getUnderlying(), curves) - future.getReferencePrice();
   }
 
-  @Override
-  public Double visitInterestRateFutureSecurity(final InterestRateFutureSecurity future, final YieldCurveBundle curves) {
-    return METHOD_IR_FUTURES_SECURITY.price(future, curves);
-  }
+  //  @Override
+  //  public Double visitInterestRateFutureSecurity(final InterestRateFutureSecurity future, final YieldCurveBundle curves) {
+  //    return METHOD_IR_FUTURES_SECURITY.price(future, curves);
+  //  }
 
   //     -----     Forex     -----
 

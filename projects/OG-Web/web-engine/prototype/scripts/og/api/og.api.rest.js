@@ -600,15 +600,19 @@ $.register_module({
                 },
                 put: function (config) {
                     config = config || {};
-                    var root = this.root, method = [root], data = {}, meta,
+                    var root = this.root, method = [root], data = {}, meta, id = str(config.id),
                         fields = ['data_provider', 'data_field', 'start', 'end', 'scheme_type', 'identifier'],
                         api_fields = ['dataProvider', 'dataField', 'start', 'end', 'idscheme', 'idvalue'];
                     meta = check({
                         bundle: {method: root + '#put', config: config},
-                        required: [{all_of: ['data_provider', 'data_field', 'scheme_type', 'identifier']}]
+                        required: [
+                            {condition: !id, all_of: ['data_provider', 'data_field', 'scheme_type', 'identifier']},
+                            {condition: !!id, all_of: ['id']}
+                        ]
                     });
-                    meta.type = 'POST';
+                    meta.type = !id ? 'POST' : 'PUT';
                     fields.forEach(function (val, idx) {if (val = str(config[val])) data[api_fields[idx]] = val;});
+                    if (id) method = method.concat(id);
                     return request(method, {data: data, meta: meta});
                 },
                 del: default_del
