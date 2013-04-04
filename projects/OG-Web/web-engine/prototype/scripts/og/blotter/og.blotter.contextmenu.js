@@ -66,12 +66,29 @@ $.register_module({
                             'Cancel': function () {$(this).dialog('close');}
                         }
                     });
-                };
+                };              
                 var complete_handler = function (result) {
                     var msg, id = result.meta.id;
                     if (id) msg = "Trade " + result.meta.id + " successfully added";
                     else msg = "Trade successfully updated";
                     og.common.util.ui.message({location: '.OG-layout-analytics-center', message: msg, live_for: 6000});
+                };
+                var create_portolio = function () {
+                    $(this).dialog('close');
+                    og.api.rest.portfolios.put({
+                        name: og.common.util.ui.dialog({return_field_value: 'name'}),
+                        id: 'TODO'
+                    });
+                };
+                var new_porfolio = function () {
+                    og.common.util.ui.dialog({
+                        width: 400, height: 190,  type: 'input', title: 'Add New Portfolio',
+                        fields: [{type: 'input', name: 'Portfolio Name', id: 'name'}],
+                        buttons: {
+                            'OK': create_portolio,
+                            'Cancel': function () {$(this).dialog('close');}
+                        }
+                    });
                 };
                 // if a row is a node AND the cell is a position only the position insert option is relevant
                 // if a row is a node OR the cell is a node only the add new trade option is relevant
@@ -81,6 +98,7 @@ $.register_module({
                 }
                 else if (cell.row in grid.state.nodes || cell.type === 'NODE') {  
                     items.push({name: 'Add Trade', handler: trade_insert_node});
+                    items.push({name: 'Add Sub Portfolio', handler: new_porfolio});
                     return items;  
                 }
                 // if a cell has a tradeId then edit the trade otherwise it is an empty position
