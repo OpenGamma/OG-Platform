@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.credit.isda.cds;
+package com.opengamma.financial.analytics.model.credit.isda;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -23,7 +23,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-public class StandardVanillaCDSCurveDefaults extends DefaultPropertyFunction {
+public class ISDADateCurveDefaults extends DefaultPropertyFunction {
   private static final String[] VALUE_REQUIREMENTS = new String[] {
     ValueRequirementNames.CS01,
     ValueRequirementNames.BUCKETED_CS01,
@@ -41,8 +41,10 @@ public class StandardVanillaCDSCurveDefaults extends DefaultPropertyFunction {
   private final Map<String, String> _currencyToYieldCurveConfigName;
   private final Map<String, String> _currencyToYieldCurveCalculationMethodName;
 
-  public StandardVanillaCDSCurveDefaults(final String priority, final String... perCurrencyDefaults) {
-    super(FinancialSecurityTypes.STANDARD_VANILLA_CDS_SECURITY.or(FinancialSecurityTypes.LEGACY_VANILLA_CDS_SECURITY), true);
+  public ISDADateCurveDefaults(final String priority, final String... perCurrencyDefaults) {
+    super(FinancialSecurityTypes.STANDARD_VANILLA_CDS_SECURITY
+        .or(FinancialSecurityTypes.LEGACY_VANILLA_CDS_SECURITY)
+        .or(FinancialSecurityTypes.CREDIT_DEFAULT_SWAP_OPTION_SECURITY), true);
     ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(perCurrencyDefaults, "per currency defaults");
     ArgumentChecker.isTrue(perCurrencyDefaults.length % 4 == 0, "must have one yield curve name, yield curve calculation config and" +

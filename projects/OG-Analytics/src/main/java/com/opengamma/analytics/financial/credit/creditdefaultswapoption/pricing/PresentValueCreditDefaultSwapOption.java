@@ -16,6 +16,7 @@ import com.opengamma.analytics.math.curve.DoublesCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
+import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -44,13 +45,13 @@ public class PresentValueCreditDefaultSwapOption {
 
   private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
 
-  public static final String SPREAD_INTERPOLATOR = "FlatInterpolator";
-  public static final String LEFT_EXTRAPOLATOR = "FlatExtrapolator";
-  public static final String RIGHT_EXTRAPOLATOR = "FlatExtrapolator";
+  private static final String SPREAD_INTERPOLATOR = Interpolator1DFactory.LINEAR; //TODO "FlatInterpolator" does not exist - is linear correct, or should it be STEP?
+  private static final String LEFT_EXTRAPOLATOR = Interpolator1DFactory.FLAT_EXTRAPOLATOR;
+  private static final String RIGHT_EXTRAPOLATOR = Interpolator1DFactory.FLAT_EXTRAPOLATOR;
 
   private static final CombinedInterpolatorExtrapolator INTERPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(SPREAD_INTERPOLATOR, LEFT_EXTRAPOLATOR, RIGHT_EXTRAPOLATOR);
 
-  private static final GenerateCreditDefaultSwapPremiumLegSchedule premiumLegSchedule = new GenerateCreditDefaultSwapPremiumLegSchedule();
+  private static final GenerateCreditDefaultSwapPremiumLegSchedule PREMIUM_LEG_SCHEDULE_CALCULATOR = new GenerateCreditDefaultSwapPremiumLegSchedule();
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -78,7 +79,7 @@ public class PresentValueCreditDefaultSwapOption {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
-    final double[] times = premiumLegSchedule.convertTenorsToDoubles(calibrationTenors, valuationDate, ACT_365);
+    final double[] times = PREMIUM_LEG_SCHEDULE_CALCULATOR.convertTenorsToDoubles(calibrationTenors, valuationDate, ACT_365);
 
     final DoublesCurve curve = InterpolatedDoublesCurve.fromSorted(times, marketSpreads, INTERPOLATOR);
 
@@ -93,7 +94,7 @@ public class PresentValueCreditDefaultSwapOption {
     final CreditDefaultSwapDefinition underlyingCDS = cdsSwaption.getUnderlyingCDS();
 
     // Generate the cashflow schedule for the (forward) premium leg
-    final ZonedDateTime[] underlyingCDSPremiumLegSchedule = premiumLegSchedule.constructCreditDefaultSwapPremiumLegSchedule(underlyingCDS);
+    final ZonedDateTime[] underlyingCDSPremiumLegSchedule = PREMIUM_LEG_SCHEDULE_CALCULATOR.constructCreditDefaultSwapPremiumLegSchedule(underlyingCDS);
 
     final ZonedDateTime optionExpiryDate = cdsSwaption.getOptionExerciseDate();
     final ZonedDateTime cdsMaturityDate = cdsSwaption.getUnderlyingCDS().getMaturityDate();
@@ -161,9 +162,9 @@ public class PresentValueCreditDefaultSwapOption {
       final ISDADateCurve yieldCurve,
       final HazardRateCurve hazardRateCurve) {
 
-    double forwardRiskydV01 = 0.0;
+    final double forwardRiskydV01 = 0.0;
 
-    for (int i = 0; i < premiumLegSchedule.length; i++) {
+    for (final ZonedDateTime element : premiumLegSchedule) {
 
     }
 

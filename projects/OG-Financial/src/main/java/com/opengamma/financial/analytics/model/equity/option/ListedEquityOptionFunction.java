@@ -105,8 +105,9 @@ public abstract class ListedEquityOptionFunction extends AbstractFunction.NonCom
   
   //TODO: INDUSTRIALISE: The types we're concerned about: EquityOptionSecurity, EquityIndexOptionSecurity, EquityIndexFutureOptionSecurity
   public ComputationTargetType getTargetType() {
-    return FinancialSecurityTypes.EQUITY_INDEX_OPTION_SECURITY
-        .or(FinancialSecurityTypes.EQUITY_OPTION_SECURITY);
+    return FinancialSecurityTypes.EQUITY_OPTION_SECURITY
+        .or(FinancialSecurityTypes.EQUITY_INDEX_FUTURE_OPTION_SECURITY)
+        .or(FinancialSecurityTypes.EQUITY_INDEX_OPTION_SECURITY);
   }
   
   @Override

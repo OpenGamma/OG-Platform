@@ -15,7 +15,7 @@ import org.apache.commons.lang.ArrayUtils;
 import com.opengamma.analytics.financial.curve.inflation.generator.GeneratorPriceIndexCurve;
 import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorCurve;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
-import com.opengamma.analytics.financial.instrument.index.PriceIndex;
+import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlock;
@@ -92,7 +92,7 @@ public class InflationDiscountBuildingRepository {
    * @return The new curves and the calibrated parameters.
    */
   private Pair<InflationProviderDiscount, Double[]> makeUnit(final InstrumentDerivative[] instruments, final double[] initGuess, final InflationProviderDiscount knownData,
-      final LinkedHashMap<String, PriceIndex[]> inflationMap, final LinkedHashMap<String, GeneratorPriceIndexCurve> generatorsMap,
+      final LinkedHashMap<String, IndexPrice[]> inflationMap, final LinkedHashMap<String, GeneratorPriceIndexCurve> generatorsMap,
       final InstrumentDerivativeVisitor<InflationProviderInterface, Double> calculator, final InstrumentDerivativeVisitor<InflationProviderInterface, InflationSensitivity> sensitivityCalculator)
   {
     final GeneratorInflationProviderDiscount generator = new GeneratorInflationProviderDiscount(knownData, inflationMap, generatorsMap);
@@ -121,7 +121,7 @@ public class InflationDiscountBuildingRepository {
    * @return The new curves and the calibrated parameters.
    */
   private Pair<InflationProviderDiscount, Double[]> makeUnit(final InstrumentDerivative[] instruments, final double[] initGuess, final InflationProviderDiscount knownData,
-      final LinkedHashMap<String, Currency> discountingMap, final LinkedHashMap<String, IndexON[]> forwardONMap, final LinkedHashMap<String, PriceIndex[]> inflationMap,
+      final LinkedHashMap<String, Currency> discountingMap, final LinkedHashMap<String, IndexON[]> forwardONMap, final LinkedHashMap<String, IndexPrice[]> inflationMap,
       final LinkedHashMap<String, GeneratorCurve> generatorsMap, final InstrumentDerivativeVisitor<InflationProviderInterface, Double> calculator,
       final InstrumentDerivativeVisitor<InflationProviderInterface, InflationSensitivity> sensitivityCalculator)
   {
@@ -156,7 +156,7 @@ public class InflationDiscountBuildingRepository {
    */
   private DoubleMatrix2D[] makeCurveMatrix(final InstrumentDerivative[] instruments, final int startBlock, final int[] nbParameters, final Double[] parameters,
       final InflationProviderDiscount knownData,
-      final LinkedHashMap<String, PriceIndex[]> inflationMap, final LinkedHashMap<String, GeneratorPriceIndexCurve> generatorsMap,
+      final LinkedHashMap<String, IndexPrice[]> inflationMap, final LinkedHashMap<String, GeneratorPriceIndexCurve> generatorsMap,
       final InstrumentDerivativeVisitor<InflationProviderInterface, InflationSensitivity> sensitivityCalculator) {
     final GeneratorInflationProviderDiscount generator = new GeneratorInflationProviderDiscount(knownData, inflationMap, generatorsMap);
     final InflationDiscountBuildingData data = new InflationDiscountBuildingData(instruments, generator);
@@ -199,7 +199,7 @@ public class InflationDiscountBuildingRepository {
    */
   private DoubleMatrix2D[] makeCurveMatrix(final InstrumentDerivative[] instruments, final int startBlock, final int[] nbParameters, final Double[] parameters,
       final InflationProviderDiscount knownData, final LinkedHashMap<String, Currency> discountingMap, final LinkedHashMap<String, IndexON[]> forwardONMap,
-      final LinkedHashMap<String, PriceIndex[]> inflationMap, final LinkedHashMap<String, GeneratorCurve> generatorsMap,
+      final LinkedHashMap<String, IndexPrice[]> inflationMap, final LinkedHashMap<String, GeneratorCurve> generatorsMap,
       final InstrumentDerivativeVisitor<InflationProviderInterface, InflationSensitivity> sensitivityCalculator) {
     final GeneratorInflationProviderDiscount generator = new GeneratorInflationProviderDiscount(knownData, discountingMap, forwardONMap, inflationMap, generatorsMap);
     final InflationDiscountBuildingData data = new InflationDiscountBuildingData(instruments, generator);
@@ -236,7 +236,7 @@ public class InflationDiscountBuildingRepository {
    * @return A pair with the calibrated yield curve bundle (including the known data) and the CurveBuildingBlckBundle with the relevant inverse Jacobian Matrix.
    */
   public Pair<InflationProviderDiscount, CurveBuildingBlockBundle> makeCurvesFromDerivatives(final InstrumentDerivative[][][] instruments, final GeneratorPriceIndexCurve[][] curveGenerators,
-      final String[][] curveNames, final double[][] parametersGuess, final InflationProviderDiscount knownData, final LinkedHashMap<String, PriceIndex[]> inflationMap,
+      final String[][] curveNames, final double[][] parametersGuess, final InflationProviderDiscount knownData, final LinkedHashMap<String, IndexPrice[]> inflationMap,
       final InstrumentDerivativeVisitor<InflationProviderInterface, Double> calculator,
       final InstrumentDerivativeVisitor<InflationProviderInterface, InflationSensitivity> sensitivityCalculator) {
     final int nbUnits = curveGenerators.length;
@@ -304,7 +304,7 @@ public class InflationDiscountBuildingRepository {
    */
   public Pair<InflationProviderDiscount, CurveBuildingBlockBundle> makeCurvesFromDerivatives(final InstrumentDerivative[][][] instruments, final GeneratorCurve[][] curveGenerators,
       final String[][] curveNames, final double[][] parametersGuess, final InflationProviderDiscount knownData, final LinkedHashMap<String, Currency> discountingMap,
-      final LinkedHashMap<String, IndexON[]> forwardONMap, final LinkedHashMap<String, PriceIndex[]> inflationMap, final InstrumentDerivativeVisitor<InflationProviderInterface, Double> calculator,
+      final LinkedHashMap<String, IndexON[]> forwardONMap, final LinkedHashMap<String, IndexPrice[]> inflationMap, final InstrumentDerivativeVisitor<InflationProviderInterface, Double> calculator,
       final InstrumentDerivativeVisitor<InflationProviderInterface, InflationSensitivity> sensitivityCalculator) {
     final int nbUnits = curveGenerators.length;
 

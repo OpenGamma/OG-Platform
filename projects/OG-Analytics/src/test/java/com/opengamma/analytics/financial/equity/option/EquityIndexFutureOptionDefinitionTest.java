@@ -13,6 +13,9 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.ExerciseDecisionType;
 import com.opengamma.analytics.financial.equity.future.definition.EquityFutureDefinition;
+import com.opengamma.analytics.financial.equity.future.definition.IndexFutureDefinition;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalScheme;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 
@@ -27,7 +30,8 @@ public class EquityIndexFutureOptionDefinitionTest {
   private static final ZonedDateTime EXPIRY = DateUtils.getUTCDate(2013, 2, 1);
   private static final ZonedDateTime SETTLEMENT = DateUtils.getUTCDate(2013, 2, 4);
   private static final double POINT_VALUE = 2500;
-  private static final EquityFutureDefinition UNDERLYING = new EquityFutureDefinition(EXPIRY, SETTLEMENT, STRIKE, CCY, POINT_VALUE);
+  private static final ExternalId EXTERNAL_ID = ExternalId.of(ExternalScheme.of("BLOOMBERG_TICKER"), "TEST");
+  private static final IndexFutureDefinition UNDERLYING = new IndexFutureDefinition(EXPIRY, SETTLEMENT, STRIKE, CCY, POINT_VALUE, EXTERNAL_ID);
   private static final EquityIndexFutureOptionDefinition AMERICAN_PUT = new EquityIndexFutureOptionDefinition(EXPIRY, UNDERLYING, STRIKE, EXERCISE, IS_CALL, POINT_VALUE);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -79,7 +83,7 @@ public class EquityIndexFutureOptionDefinitionTest {
     assertEquals(AMERICAN_PUT.hashCode(), other.hashCode());
     other = new EquityIndexFutureOptionDefinition(EXPIRY.plusDays(1), UNDERLYING, STRIKE, EXERCISE, IS_CALL, POINT_VALUE);
     assertFalse(AMERICAN_PUT.equals(other));
-    other = new EquityIndexFutureOptionDefinition(EXPIRY, new EquityFutureDefinition(EXPIRY, SETTLEMENT.plusDays(2), STRIKE, CCY, POINT_VALUE), STRIKE, EXERCISE, IS_CALL, POINT_VALUE);
+    other = new EquityIndexFutureOptionDefinition(EXPIRY, new IndexFutureDefinition(EXPIRY, SETTLEMENT.plusDays(2), STRIKE, CCY, POINT_VALUE, EXTERNAL_ID), STRIKE, EXERCISE, IS_CALL, POINT_VALUE);
     assertFalse(AMERICAN_PUT.equals(other));
     other = new EquityIndexFutureOptionDefinition(EXPIRY, UNDERLYING, STRIKE + 1, EXERCISE, IS_CALL, POINT_VALUE);
     assertFalse(AMERICAN_PUT.equals(other));

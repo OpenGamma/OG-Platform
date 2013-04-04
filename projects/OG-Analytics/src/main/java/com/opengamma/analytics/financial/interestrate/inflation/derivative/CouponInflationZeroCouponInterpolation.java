@@ -7,7 +7,7 @@ package com.opengamma.analytics.financial.interestrate.inflation.derivative;
 
 import java.util.Arrays;
 
-import com.opengamma.analytics.financial.instrument.index.PriceIndex;
+import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -50,7 +50,7 @@ public class CouponInflationZeroCouponInterpolation extends CouponInflation {
    * @param weight The weight on the first month index in the interpolation.
    * @param payNotional Flag indicating if the notional is paid (true) or not (false).
    */
-  public CouponInflationZeroCouponInterpolation(final Currency currency, final double paymentTime, final double paymentYearFraction, final double notional, final PriceIndex priceIndex,
+  public CouponInflationZeroCouponInterpolation(final Currency currency, final double paymentTime, final double paymentYearFraction, final double notional, final IndexPrice priceIndex,
       final double indexStartValue,
       final double[] referenceEndTime, final double weight, final boolean payNotional) {
     super(currency, paymentTime, paymentYearFraction, notional, priceIndex);

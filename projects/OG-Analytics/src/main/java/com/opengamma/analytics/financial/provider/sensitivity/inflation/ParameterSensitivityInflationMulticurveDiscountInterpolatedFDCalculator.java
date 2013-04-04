@@ -12,7 +12,7 @@ import java.util.Set;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
-import com.opengamma.analytics.financial.instrument.index.PriceIndex;
+import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
@@ -75,8 +75,8 @@ public class ParameterSensitivityInflationMulticurveDiscountInterpolatedFDCalcul
     }
 
     // Inflation
-    final Set<PriceIndex> indexPrice = multicurve.getPriceIndexes();
-    for (final PriceIndex index : indexPrice) {
+    final Set<IndexPrice> indexPrice = multicurve.getPriceIndexes();
+    for (final IndexPrice index : indexPrice) {
       final PriceIndexCurve curveIndex = multicurve.getCurve(index);
 
       ArgumentChecker.isTrue(curveIndex.getCurve() instanceof InterpolatedDoublesCurve, "Yield curve should be based on InterpolatedDoublesCurve");

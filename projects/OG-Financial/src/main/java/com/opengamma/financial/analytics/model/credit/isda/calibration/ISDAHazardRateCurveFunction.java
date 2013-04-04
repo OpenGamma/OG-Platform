@@ -41,6 +41,7 @@ import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.conversion.CreditDefaultSwapSecurityConverter;
 import com.opengamma.financial.analytics.model.YieldCurveFunctionUtils;
+import com.opengamma.financial.analytics.model.cds.ISDAFunctionConstants;
 import com.opengamma.financial.analytics.model.credit.CreditFunctionUtils;
 import com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.credit.CreditSecurityToIdentifierVisitor;
@@ -141,7 +142,8 @@ public class ISDAHazardRateCurveFunction extends AbstractFunction.NonCompiledInv
     final String yieldCurveName = Iterables.getOnlyElement(yieldCurveNames);
     final String yieldCurveCalculationConfigName = Iterables.getOnlyElement(yieldCurveCalculationConfigNames);
     final String yieldCurveCalculationMethodName = Iterables.getOnlyElement(yieldCurveCalculationMethodNames);
-    final String spreadCurveName = security.accept(CreditSecurityToIdentifierVisitor.getInstance()).getUniqueId().getValue();
+    final CreditSecurityToIdentifierVisitor identifierVisitor = new CreditSecurityToIdentifierVisitor(OpenGammaCompilationContext.getSecuritySource(context));
+    final String spreadCurveName = security.accept(identifierVisitor).getUniqueId().getValue();
     final ValueRequirement yieldCurveRequirement = YieldCurveFunctionUtils.getCurveRequirement(currencyTarget, yieldCurveName, yieldCurveCalculationConfigName,
         yieldCurveCalculationMethodName);
     final ValueProperties spreadCurveProperties = ValueProperties.builder()
@@ -153,7 +155,8 @@ public class ISDAHazardRateCurveFunction extends AbstractFunction.NonCompiledInv
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
-    final ValueProperties.Builder propertiesBuilder = createValueProperties();
+    final ValueProperties.Builder propertiesBuilder = createValueProperties()
+        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, ISDAFunctionConstants.ISDA_METHOD_NAME);
     for (final Map.Entry<ValueSpecification, ValueRequirement> entry : inputs.entrySet()) {
       final ValueSpecification spec = entry.getKey();
       final ValueProperties.Builder inputPropertiesBuilder = spec.getProperties().copy();

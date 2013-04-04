@@ -19,6 +19,7 @@
 'FairValue' java.lang.Double
 'Forward' java.lang.Double
 'ForwardCurve' com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve
+'HazardRateCurve' com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve
 'HistoricalVaR Standard Deviation' java.lang.Double
 'HistoricalVaR' java.lang.Double
 'Implied Volatility' java.lang.Double

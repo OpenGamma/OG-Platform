@@ -13,7 +13,7 @@ import java.util.TreeSet;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
-import com.opengamma.analytics.financial.instrument.index.PriceIndex;
+import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
@@ -64,7 +64,7 @@ public class InflationIssuerProviderDiscount implements InflationIssuerProviderI
    * @param fxMatrix The FXMatrix.
    */
   public InflationIssuerProviderDiscount(final Map<Currency, YieldAndDiscountCurve> discountingCurves, final Map<IborIndex, YieldAndDiscountCurve> forwardIborCurves,
-      final Map<IndexON, YieldAndDiscountCurve> forwardONCurves, final Map<PriceIndex, PriceIndexCurve> priceIndexCurves, final Map<Pair<String, Currency>, YieldAndDiscountCurve> issuerCurves,
+      final Map<IndexON, YieldAndDiscountCurve> forwardONCurves, final Map<IndexPrice, PriceIndexCurve> priceIndexCurves, final Map<Pair<String, Currency>, YieldAndDiscountCurve> issuerCurves,
       final FXMatrix fxMatrix) {
     _inflationProvider = new InflationProviderDiscount(discountingCurves, forwardIborCurves, forwardONCurves, priceIndexCurves, fxMatrix);
     _issuerCurves = issuerCurves;
@@ -132,12 +132,12 @@ public class InflationIssuerProviderDiscount implements InflationIssuerProviderI
   //     =====     Methods related to InflationProvider     =====
 
   @Override
-  public double getPriceIndex(final PriceIndex index, final Double time) {
+  public double getPriceIndex(final IndexPrice index, final Double time) {
     return _inflationProvider.getPriceIndex(index, time);
   }
 
   @Override
-  public String getName(final PriceIndex index) {
+  public String getName(final IndexPrice index) {
     return _inflationProvider.getName(index);
   }
 
@@ -146,12 +146,12 @@ public class InflationIssuerProviderDiscount implements InflationIssuerProviderI
    * @param index The Price index.
    * @return The curve.
    */
-  public PriceIndexCurve getCurve(final PriceIndex index) {
+  public PriceIndexCurve getCurve(final IndexPrice index) {
     return _inflationProvider.getCurve(index);
   }
 
   @Override
-  public Set<PriceIndex> getPriceIndexes() {
+  public Set<IndexPrice> getPriceIndexes() {
     return _inflationProvider.getPriceIndexes();
   }
 
@@ -160,7 +160,7 @@ public class InflationIssuerProviderDiscount implements InflationIssuerProviderI
    * @param index The price index.
    * @param curve The curve.
    */
-  public void setCurve(final PriceIndex index, final PriceIndexCurve curve) {
+  public void setCurve(final IndexPrice index, final PriceIndexCurve curve) {
     _inflationProvider.setCurve(index, curve);
   }
 
@@ -170,7 +170,7 @@ public class InflationIssuerProviderDiscount implements InflationIssuerProviderI
    * @param curve The price curve for the index.
    *  @throws IllegalArgumentException if curve name NOT already present 
    */
-  public void replaceCurve(final PriceIndex index, final PriceIndexCurve curve) {
+  public void replaceCurve(final IndexPrice index, final PriceIndexCurve curve) {
     _inflationProvider.replaceCurve(index, curve);
   }
 

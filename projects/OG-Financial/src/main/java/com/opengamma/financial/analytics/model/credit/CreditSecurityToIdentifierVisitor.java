@@ -5,10 +5,15 @@
  */
 package com.opengamma.financial.analytics.model.credit;
 
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
+import com.opengamma.financial.security.cds.CreditDefaultSwapSecurity;
 import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
 import com.opengamma.financial.security.cds.StandardVanillaCDSSecurity;
+import com.opengamma.financial.security.option.CreditDefaultSwapOptionSecurity;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.credit.CreditCurveIdentifier;
 import com.opengamma.util.money.Currency;
 
@@ -16,13 +21,11 @@ import com.opengamma.util.money.Currency;
  * 
  */
 public final class CreditSecurityToIdentifierVisitor extends FinancialSecurityVisitorAdapter<CreditCurveIdentifier> {
-  private static final CreditSecurityToIdentifierVisitor INSTANCE = new CreditSecurityToIdentifierVisitor();
+  private final SecuritySource _securitySource;
 
-  public static CreditSecurityToIdentifierVisitor getInstance() {
-    return INSTANCE;
-  }
-
-  private CreditSecurityToIdentifierVisitor() {
+  public CreditSecurityToIdentifierVisitor(final SecuritySource securitySource) {
+    ArgumentChecker.notNull(securitySource, "security source");
+    _securitySource = securitySource;
   }
 
   @Override
@@ -43,4 +46,9 @@ public final class CreditSecurityToIdentifierVisitor extends FinancialSecurityVi
     return CreditCurveIdentifier.of(redCode, currency, seniority, restructuringClause);
   }
 
+  @Override
+  public CreditCurveIdentifier visitCreditDefaultSwapOptionSecurity(final CreditDefaultSwapOptionSecurity security) {
+    final CreditDefaultSwapSecurity underlyingSwap = (CreditDefaultSwapSecurity) _securitySource.getSingle(ExternalIdBundle.of(security.getUnderlyingId())); //TODO version correction?
+    return underlyingSwap.accept(this);
+  }
 }
