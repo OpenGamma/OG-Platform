@@ -30,14 +30,15 @@ public class ArrayLocalDateDoubleTimeSeries extends AbstractLocalDateDoubleTimeS
 
   /** Empty instance */
   public static final ArrayLocalDateDoubleTimeSeries EMPTY_SERIES = new ArrayLocalDateDoubleTimeSeries();
-  private static final DateTimeConverter<LocalDate> s_converter = new LocalDateEpochDaysConverter();
+  /** Default converter. */
+  private static final DateTimeConverter<LocalDate> CONVERTER = new LocalDateEpochDaysConverter();
 
   public ArrayLocalDateDoubleTimeSeries() {
     super(new LocalDateEpochDaysConverter(), new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS));
   }
 
   public ArrayLocalDateDoubleTimeSeries(final LocalDate[] dates, final double[] values) {
-    super(s_converter, new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, s_converter.convertToInt(dates), values));
+    super(CONVERTER, new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, CONVERTER.convertToInt(dates), values));
   }
 
   public ArrayLocalDateDoubleTimeSeries(final ZoneId timeZone, final LocalDate[] dates, final double[] values) {
@@ -46,7 +47,7 @@ public class ArrayLocalDateDoubleTimeSeries extends AbstractLocalDateDoubleTimeS
   }
 
   public ArrayLocalDateDoubleTimeSeries(final List<LocalDate> dates, final List<Double> values) {
-    super(s_converter, new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, s_converter.convertToInt(dates), values));
+    super(CONVERTER, new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, CONVERTER.convertToInt(dates), values));
   }
 
   public ArrayLocalDateDoubleTimeSeries(final ZoneId timeZone, final List<LocalDate> dates, final List<Double> values) {
@@ -55,7 +56,7 @@ public class ArrayLocalDateDoubleTimeSeries extends AbstractLocalDateDoubleTimeS
   }
 
   public ArrayLocalDateDoubleTimeSeries(final DoubleTimeSeries<LocalDate> dts) {
-    super(s_converter, s_converter.convertToInt(new FastListIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS), dts));
+    super(CONVERTER, CONVERTER.convertToInt(new FastListIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS), dts));
   }
 
   public ArrayLocalDateDoubleTimeSeries(final ZoneId timeZone, final LocalDateDoubleTimeSeries dts) {
@@ -63,7 +64,7 @@ public class ArrayLocalDateDoubleTimeSeries extends AbstractLocalDateDoubleTimeS
   }
 
   public ArrayLocalDateDoubleTimeSeries(final FastIntDoubleTimeSeries pidts) {
-    super(s_converter, pidts);
+    super(CONVERTER, pidts);
   }
   
   public ArrayLocalDateDoubleTimeSeries(final DateTimeConverter<LocalDate> converter, final FastIntDoubleTimeSeries pidts) {

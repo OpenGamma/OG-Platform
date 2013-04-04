@@ -28,15 +28,16 @@ public class MapLocalDateObjectTimeSeries<T> extends AbstractMutableLocalDateObj
 
   /** An empty time series */
   public static final MapLocalDateObjectTimeSeries<?> EMPTY_SERIES = new MapLocalDateObjectTimeSeries<Object>();
-  private static final DateTimeConverter<LocalDate> s_converter = new LocalDateEpochDaysConverter();
+  /** Default converter. */
+  private static final DateTimeConverter<LocalDate> CONVERTER = new LocalDateEpochDaysConverter();
 
   public MapLocalDateObjectTimeSeries() {
     super(new LocalDateEpochDaysConverter(), new FastMapIntObjectTimeSeries<T>(DateTimeNumericEncoding.DATE_EPOCH_DAYS));
   }
 
   public MapLocalDateObjectTimeSeries(final LocalDate[] dates, final T[] values) {
-    super(s_converter, new FastMapIntObjectTimeSeries<T>(DateTimeNumericEncoding.DATE_EPOCH_DAYS,
-        s_converter.convertToInt(dates), values));
+    super(CONVERTER, new FastMapIntObjectTimeSeries<T>(DateTimeNumericEncoding.DATE_EPOCH_DAYS,
+        CONVERTER.convertToInt(dates), values));
   }
 
   public MapLocalDateObjectTimeSeries(final ZoneId timeZone, final LocalDate[] dates, final T[] values) {
@@ -46,8 +47,8 @@ public class MapLocalDateObjectTimeSeries<T> extends AbstractMutableLocalDateObj
   }
 
   public MapLocalDateObjectTimeSeries(final List<LocalDate> dates, final List<T> values) {
-    super(s_converter, new FastMapIntObjectTimeSeries<T>(DateTimeNumericEncoding.DATE_EPOCH_DAYS,
-        s_converter.convertToInt(dates), values));
+    super(CONVERTER, new FastMapIntObjectTimeSeries<T>(DateTimeNumericEncoding.DATE_EPOCH_DAYS,
+        CONVERTER.convertToInt(dates), values));
   }
 
   public MapLocalDateObjectTimeSeries(final ZoneId timeZone, final List<LocalDate> dates, final List<T> values) {
@@ -57,7 +58,7 @@ public class MapLocalDateObjectTimeSeries<T> extends AbstractMutableLocalDateObj
   }
 
   public MapLocalDateObjectTimeSeries(final ObjectTimeSeries<LocalDate, T> dts) {
-    super(s_converter, (FastMutableIntObjectTimeSeries<T>) s_converter.convertToInt(new FastMapIntObjectTimeSeries<T>(
+    super(CONVERTER, (FastMutableIntObjectTimeSeries<T>) CONVERTER.convertToInt(new FastMapIntObjectTimeSeries<T>(
         DateTimeNumericEncoding.DATE_EPOCH_DAYS), dts));
   }
 
@@ -69,7 +70,7 @@ public class MapLocalDateObjectTimeSeries<T> extends AbstractMutableLocalDateObj
   }
 
   public MapLocalDateObjectTimeSeries(final FastMutableIntObjectTimeSeries<T> pmidts) {
-    super(s_converter, pmidts);
+    super(CONVERTER, pmidts);
   }
 
   public MapLocalDateObjectTimeSeries(final ZoneId timeZone, final FastMutableIntObjectTimeSeries<T> pmidts) {
