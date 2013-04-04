@@ -150,8 +150,8 @@ public class ExtremeValueAndReturnDoubleTimeSeriesFiltersTest {
     final LocalDateDoubleTimeSeries returnTS = RETURN_CALCULATOR.evaluate(ts);
     LocalDate date;
     for (int i = 0; i < 99; i++) {
-      date = returnTS.getTimeAt(i);
-      d = returnTS.getValueAt(i);
+      date = returnTS.getTimeAtIndex(i);
+      d = returnTS.getValueAtIndex(i);
       if (d > MAX || d < MIN) {
         returnRejectedDates.add(date);
         returnRejectedData.add(d);

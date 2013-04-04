@@ -357,67 +357,67 @@ public class InMemoryHistoricalTimeSeriesMasterTest {
     assertEquals(input, test.getTimeSeries());
 
     // Get filtered by time, open-ended end
-    filter.setEarliestDate(reference.getTimeSeries().getTimeAt(1)); // exclude first point
+    filter.setEarliestDate(reference.getTimeSeries().getTimeAtIndex(1)); // exclude first point
     test = testPopulated.getTimeSeries(doc1.getUniqueId(), filter);
     assertEquals(reference.getTimeSeries().size() - 1, test.getTimeSeries().size());
-    assertEquals(reference.getTimeSeries().getValueAt(1), test.getTimeSeries().getEarliestValue());
-    assertEquals(reference.getTimeSeries().getTimeAt(1), test.getTimeSeries().getEarliestTime());
-    assertEquals(reference.getTimeSeries().getValueAt(reference.getTimeSeries().size() - 1), test.getTimeSeries().getLatestValue());
-    assertEquals(reference.getTimeSeries().getTimeAt(reference.getTimeSeries().size() - 1), test.getTimeSeries().getLatestTime());    
+    assertEquals(reference.getTimeSeries().getValueAtIndex(1), test.getTimeSeries().getEarliestValue());
+    assertEquals(reference.getTimeSeries().getTimeAtIndex(1), test.getTimeSeries().getEarliestTime());
+    assertEquals(reference.getTimeSeries().getValueAtIndex(reference.getTimeSeries().size() - 1), test.getTimeSeries().getLatestValue());
+    assertEquals(reference.getTimeSeries().getTimeAtIndex(reference.getTimeSeries().size() - 1), test.getTimeSeries().getLatestTime());    
 
     // Get filtered by time, closed at both ends
-    filter.setLatestDate(reference.getTimeSeries().getTimeAt(reference.getTimeSeries().size() - 2)); // exclude last point
+    filter.setLatestDate(reference.getTimeSeries().getTimeAtIndex(reference.getTimeSeries().size() - 2)); // exclude last point
     test = testPopulated.getTimeSeries(doc1.getUniqueId(), filter);
     assertEquals(reference.getTimeSeries().size() - 2, test.getTimeSeries().size());
-    assertEquals(reference.getTimeSeries().getValueAt(1), test.getTimeSeries().getEarliestValue());
-    assertEquals(reference.getTimeSeries().getTimeAt(1), test.getTimeSeries().getEarliestTime());
-    assertEquals(reference.getTimeSeries().getValueAt(reference.getTimeSeries().size() - 2), test.getTimeSeries().getLatestValue());
-    assertEquals(reference.getTimeSeries().getTimeAt(reference.getTimeSeries().size() - 2), test.getTimeSeries().getLatestTime());
+    assertEquals(reference.getTimeSeries().getValueAtIndex(1), test.getTimeSeries().getEarliestValue());
+    assertEquals(reference.getTimeSeries().getTimeAtIndex(1), test.getTimeSeries().getEarliestTime());
+    assertEquals(reference.getTimeSeries().getValueAtIndex(reference.getTimeSeries().size() - 2), test.getTimeSeries().getLatestValue());
+    assertEquals(reference.getTimeSeries().getTimeAtIndex(reference.getTimeSeries().size() - 2), test.getTimeSeries().getLatestTime());
     
     // Get filtered by time, open-ended start
     filter.setEarliestDate(null);
     test = testPopulated.getTimeSeries(doc1.getUniqueId(), filter);
     assertEquals(reference.getTimeSeries().size() - 1, test.getTimeSeries().size());
-    assertEquals(reference.getTimeSeries().getValueAt(0), test.getTimeSeries().getEarliestValue());
-    assertEquals(reference.getTimeSeries().getTimeAt(0), test.getTimeSeries().getEarliestTime());
-    assertEquals(reference.getTimeSeries().getValueAt(reference.getTimeSeries().size() - 2), test.getTimeSeries().getLatestValue());
-    assertEquals(reference.getTimeSeries().getTimeAt(reference.getTimeSeries().size() - 2), test.getTimeSeries().getLatestTime());
+    assertEquals(reference.getTimeSeries().getValueAtIndex(0), test.getTimeSeries().getEarliestValue());
+    assertEquals(reference.getTimeSeries().getTimeAtIndex(0), test.getTimeSeries().getEarliestTime());
+    assertEquals(reference.getTimeSeries().getValueAtIndex(reference.getTimeSeries().size() - 2), test.getTimeSeries().getLatestValue());
+    assertEquals(reference.getTimeSeries().getTimeAtIndex(reference.getTimeSeries().size() - 2), test.getTimeSeries().getLatestTime());
 
     // Get filtered by +ve maxPoints, open-ended start
     filter.setMaxPoints(2); // get earliest two points
     test = testPopulated.getTimeSeries(doc1.getUniqueId(), filter);
     assertEquals(2, test.getTimeSeries().size());
-    assertEquals(reference.getTimeSeries().getTimeAt(0), test.getTimeSeries().getTimeAt(0));
-    assertEquals(reference.getTimeSeries().getValueAt(0), test.getTimeSeries().getValueAt(0));
-    assertEquals(reference.getTimeSeries().getTimeAt(1), test.getTimeSeries().getTimeAt(1));
-    assertEquals(reference.getTimeSeries().getValueAt(1), test.getTimeSeries().getValueAt(1));
+    assertEquals(reference.getTimeSeries().getTimeAtIndex(0), test.getTimeSeries().getTimeAtIndex(0));
+    assertEquals(reference.getTimeSeries().getValueAtIndex(0), test.getTimeSeries().getValueAtIndex(0));
+    assertEquals(reference.getTimeSeries().getTimeAtIndex(1), test.getTimeSeries().getTimeAtIndex(1));
+    assertEquals(reference.getTimeSeries().getValueAtIndex(1), test.getTimeSeries().getValueAtIndex(1));
     
     // Get filtered by +ve maxPoints, closed date range
-    filter.setEarliestDate(reference.getTimeSeries().getTimeAt(1)); // exclude first point
+    filter.setEarliestDate(reference.getTimeSeries().getTimeAtIndex(1)); // exclude first point
     test = testPopulated.getTimeSeries(doc1.getUniqueId(), filter);
     assertEquals(2, test.getTimeSeries().size());
-    assertEquals(reference.getTimeSeries().getTimeAt(1), test.getTimeSeries().getTimeAt(0));
-    assertEquals(reference.getTimeSeries().getValueAt(1), test.getTimeSeries().getValueAt(0));
-    assertEquals(reference.getTimeSeries().getTimeAt(2), test.getTimeSeries().getTimeAt(1));
-    assertEquals(reference.getTimeSeries().getValueAt(2), test.getTimeSeries().getValueAt(1));
+    assertEquals(reference.getTimeSeries().getTimeAtIndex(1), test.getTimeSeries().getTimeAtIndex(0));
+    assertEquals(reference.getTimeSeries().getValueAtIndex(1), test.getTimeSeries().getValueAtIndex(0));
+    assertEquals(reference.getTimeSeries().getTimeAtIndex(2), test.getTimeSeries().getTimeAtIndex(1));
+    assertEquals(reference.getTimeSeries().getValueAtIndex(2), test.getTimeSeries().getValueAtIndex(1));
     
     // Get filtered by -ve maxPoints, closed date range
     filter.setMaxPoints(-2); // get latest two points
     test = testPopulated.getTimeSeries(doc1.getUniqueId(), filter);
     assertEquals(2, test.getTimeSeries().size());
-    assertEquals(reference.getTimeSeries().getTimeAt(reference.getTimeSeries().size() - 3), test.getTimeSeries().getTimeAt(0));
-    assertEquals(reference.getTimeSeries().getValueAt(reference.getTimeSeries().size() - 3), test.getTimeSeries().getValueAt(0));
-    assertEquals(reference.getTimeSeries().getTimeAt(reference.getTimeSeries().size() - 2), test.getTimeSeries().getTimeAt(1));
-    assertEquals(reference.getTimeSeries().getValueAt(reference.getTimeSeries().size() - 2), test.getTimeSeries().getValueAt(1));
+    assertEquals(reference.getTimeSeries().getTimeAtIndex(reference.getTimeSeries().size() - 3), test.getTimeSeries().getTimeAtIndex(0));
+    assertEquals(reference.getTimeSeries().getValueAtIndex(reference.getTimeSeries().size() - 3), test.getTimeSeries().getValueAtIndex(0));
+    assertEquals(reference.getTimeSeries().getTimeAtIndex(reference.getTimeSeries().size() - 2), test.getTimeSeries().getTimeAtIndex(1));
+    assertEquals(reference.getTimeSeries().getValueAtIndex(reference.getTimeSeries().size() - 2), test.getTimeSeries().getValueAtIndex(1));
     
     // Get filtered by -ve maxPoints, open-ended end
     filter.setLatestDate(null);
     test = testPopulated.getTimeSeries(doc1.getUniqueId(), filter);
     assertEquals(2, test.getTimeSeries().size());
-    assertEquals(reference.getTimeSeries().getTimeAt(reference.getTimeSeries().size() - 2), test.getTimeSeries().getTimeAt(0));
-    assertEquals(reference.getTimeSeries().getValueAt(reference.getTimeSeries().size() - 2), test.getTimeSeries().getValueAt(0));
-    assertEquals(reference.getTimeSeries().getTimeAt(reference.getTimeSeries().size() - 1), test.getTimeSeries().getTimeAt(1));
-    assertEquals(reference.getTimeSeries().getValueAt(reference.getTimeSeries().size() - 1), test.getTimeSeries().getValueAt(1));   
+    assertEquals(reference.getTimeSeries().getTimeAtIndex(reference.getTimeSeries().size() - 2), test.getTimeSeries().getTimeAtIndex(0));
+    assertEquals(reference.getTimeSeries().getValueAtIndex(reference.getTimeSeries().size() - 2), test.getTimeSeries().getValueAtIndex(0));
+    assertEquals(reference.getTimeSeries().getTimeAtIndex(reference.getTimeSeries().size() - 1), test.getTimeSeries().getTimeAtIndex(1));
+    assertEquals(reference.getTimeSeries().getValueAtIndex(reference.getTimeSeries().size() - 1), test.getTimeSeries().getValueAtIndex(1));   
   }
 
 }

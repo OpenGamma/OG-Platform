@@ -99,8 +99,8 @@ public class PreviousValuePaddingTimeSeriesSamplingFunctionTest {
     assertEquals(TS_NO_MISSING_DATA.size(), result.size());
     int i = 0;
     for (final Entry<LocalDate, Double> entry : result) {
-      assertEquals(TS_NO_MISSING_DATA.getTimeAt(i), entry.getKey());
-      assertEquals(TS_NO_MISSING_DATA.getValueAt(i++), entry.getValue(), 0);
+      assertEquals(TS_NO_MISSING_DATA.getTimeAtIndex(i), entry.getKey());
+      assertEquals(TS_NO_MISSING_DATA.getValueAtIndex(i++), entry.getValue(), 0);
     }
   }
 
@@ -125,11 +125,11 @@ public class PreviousValuePaddingTimeSeriesSamplingFunctionTest {
     assertEquals(TS_NO_MISSING_DATA.size(), result.size());
     i = 0;
     for (final Entry<LocalDate, Double> entry : result) {
-      assertEquals(TS_NO_MISSING_DATA.getTimeAt(i), entry.getKey());
+      assertEquals(TS_NO_MISSING_DATA.getTimeAtIndex(i), entry.getKey());
       if (entry.getKey().equals(MISSING_DAY_FRIDAY)) {
-        assertEquals(TS_NO_MISSING_DATA.getValueAt(i - 1), entry.getValue(), 0);
+        assertEquals(TS_NO_MISSING_DATA.getValueAtIndex(i - 1), entry.getValue(), 0);
       } else {
-        assertEquals(TS_NO_MISSING_DATA.getValueAt(i), entry.getValue(), 0);
+        assertEquals(TS_NO_MISSING_DATA.getValueAtIndex(i), entry.getValue(), 0);
       }
       i++;
     }

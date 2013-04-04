@@ -33,8 +33,8 @@ public class LocalDateDoubleTimeSeriesConverter implements ResultConverter<Local
       ZonedDateTimeDoubleTimeSeries zonedTimeSeries = value.toZonedDateTimeDoubleTimeSeries();
       Object[] tsData = new Object[zonedTimeSeries.size()];
       for (int i = 0; i < zonedTimeSeries.size(); i++) {
-        ZonedDateTime time = zonedTimeSeries.getTimeAt(i);
-        double tsValue = zonedTimeSeries.getValueAt(i);
+        ZonedDateTime time = zonedTimeSeries.getTimeAtIndex(i);
+        double tsValue = zonedTimeSeries.getValueAtIndex(i);
         tsData[i] = new Object[] {time.toInstant().toEpochMilli(), tsValue};
       }
       Map<String, Object> ts = ImmutableMap.<String, Object>of(

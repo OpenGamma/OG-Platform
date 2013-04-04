@@ -230,12 +230,12 @@ public class FastArrayIntDoubleTimeSeries extends AbstractFastIntDoubleTimeSerie
   }
 
   @Override
-  public int getTimeFast(final int index) {
+  public int getTimeAtIndexFast(final int index) {
     return _times[index];
   }
 
   @Override
-  public double getValueAtFast(final int index) {
+  public double getValueAtIndexFast(final int index) {
     return _values[index];
   }
 

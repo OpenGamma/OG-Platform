@@ -128,7 +128,7 @@ public class FastMapIntDoubleTimeSeries extends AbstractFastMutableIntDoubleTime
   }
 
   @Override
-  public int getTimeFast(final int index) {
+  public int getTimeAtIndexFast(final int index) {
     if (index >= _map.size()) {
       throw new IndexOutOfBoundsException();
     }
@@ -138,7 +138,7 @@ public class FastMapIntDoubleTimeSeries extends AbstractFastMutableIntDoubleTime
   }
 
   @Override
-  public double getValueAtFast(final int index) {
+  public double getValueAtIndexFast(final int index) {
     if (index >= _map.size()) {
       throw new IndexOutOfBoundsException();
     }

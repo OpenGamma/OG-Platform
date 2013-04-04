@@ -57,13 +57,13 @@ public abstract class AbstractFastIntDoubleTimeSeries
   }
 
   @Override
-  public Integer getTimeAt(final int index) {
-    return getTimeFast(index);
+  public Integer getTimeAtIndex(final int index) {
+    return getTimeAtIndexFast(index);
   }
 
   @Override
-  public Double getValueAt(final int index) {
-    return getValueAtFast(index);
+  public Double getValueAtIndex(final int index) {
+    return getValueAtIndexFast(index);
   }
 
   //-------------------------------------------------------------------------

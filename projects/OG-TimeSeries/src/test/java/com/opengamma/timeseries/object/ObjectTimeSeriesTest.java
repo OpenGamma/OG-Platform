@@ -267,10 +267,10 @@ public abstract class ObjectTimeSeriesTest<E, T> {
     for (int i=0; i<6; i++) {
       T val = dts.getValue(testDates[i]);
       assertEquals(val, testValues[i]);
-      val = dts.getValueAt(i);
+      val = dts.getValueAtIndex(i);
       assertEquals(val, testValues[i]);
     }
-    emptyTS.getValueAt(0);
+    emptyTS.getValueAtIndex(0);
   }
 
   @DataProvider(name = "subSeries")
@@ -311,14 +311,14 @@ public abstract class ObjectTimeSeriesTest<E, T> {
     ObjectTimeSeries<E, T> sub = dts.subSeries(testDates[startIndex], startInclude, testDates[endIndex], endInclude);
     assertEquals(expectedSize, sub.size());
     if (expectedFirstIndex >= 0) {
-      assertEquals(testDates[expectedFirstIndex], sub.getTimeAt(0));
+      assertEquals(testDates[expectedFirstIndex], sub.getTimeAtIndex(0));
     }
     
     if (startInclude && endInclude == false) {
       sub = dts.subSeries(testDates[startIndex], testDates[endIndex]);
       assertEquals(expectedSize, sub.size());
       if (expectedFirstIndex >= 0) {
-        assertEquals(testDates[expectedFirstIndex], sub.getTimeAt(0));
+        assertEquals(testDates[expectedFirstIndex], sub.getTimeAtIndex(0));
       }
     }
   }

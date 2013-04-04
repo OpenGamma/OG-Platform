@@ -82,8 +82,8 @@ public class PerformanceTest extends DbTest {
       
       for (int j = 1; j < NUM_POINTS; j++) {
         ArrayLocalDateDoubleTimeSeries points = new ArrayLocalDateDoubleTimeSeries(
-            Lists.newArrayList(randomPoints.getTimeAt(j)),
-            Lists.newArrayList(randomPoints.getValueAt(j)));
+            Lists.newArrayList(randomPoints.getTimeAtIndex(j)),
+            Lists.newArrayList(randomPoints.getValueAtIndex(j)));
         s_logger.debug("adding data points {}", points);
         _htsMaster.updateTimeSeriesDataPoints(doc.getInfo().getTimeSeriesObjectId(), points);
       }

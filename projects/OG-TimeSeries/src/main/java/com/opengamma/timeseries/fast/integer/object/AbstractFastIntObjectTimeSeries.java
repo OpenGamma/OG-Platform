@@ -63,7 +63,7 @@ public abstract class AbstractFastIntObjectTimeSeries<T>
   }
 
   @Override
-  public Integer getTimeAt(final int index) {
+  public Integer getTimeAtIndex(final int index) {
     return getTimeFast(index);
   }
 
@@ -79,7 +79,7 @@ public abstract class AbstractFastIntObjectTimeSeries<T>
   }
 
   @Override
-  public T getValueAt(final int index) {
+  public T getValueAtIndex(final int index) {
     return getValueAtFast(index);
   }
 

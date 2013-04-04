@@ -178,12 +178,12 @@ public class FastListLongDoubleTimeSeries extends AbstractFastMutableLongDoubleT
   }
 
   @Override
-  public long getTimeFast(final int index) {
+  public long getTimeAtIndexFast(final int index) {
     return _times.getLong(index);
   }
 
   @Override
-  public double getValueAtFast(final int index) {
+  public double getValueAtIndexFast(final int index) {
     return _values.getDouble(index);
   }
 

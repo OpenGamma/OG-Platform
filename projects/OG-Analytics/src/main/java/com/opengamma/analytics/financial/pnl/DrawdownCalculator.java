@@ -39,7 +39,7 @@ public class DrawdownCalculator extends Function1D<DoubleTimeSeries<?>, DoubleTi
     double peak = fastTS.getEarliestValueFast();
     double value;
     for (int i = 1; i < n; i++) {
-      value = fastTS.getValueAtFast(i);
+      value = fastTS.getValueAtIndexFast(i);
       if (value > peak) {
         peak = value;
         drawdown[i] = 0;

@@ -83,13 +83,13 @@ public abstract class AbstractIntDoubleTimeSeries<DATE_TYPE> extends AbstractFas
   }
 
   @Override
-  public DATE_TYPE getTimeAt(final int index) {
-    return _converter.convertFromInt(getFastSeries().getTimeFast(index));
+  public DATE_TYPE getTimeAtIndex(final int index) {
+    return _converter.convertFromInt(getFastSeries().getTimeAtIndexFast(index));
   }
 
   @Override
-  public Double getValueAt(final int index) {
-    return getFastSeries().getValueAtFast(index);
+  public Double getValueAtIndex(final int index) {
+    return getFastSeries().getValueAtIndexFast(index);
   }
 
   //-------------------------------------------------------------------------

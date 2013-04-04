@@ -67,9 +67,9 @@ public class StandardDeviationDoubleTimeSeriesFilterTest {
     final FilteredTimeSeries result = FILTER.evaluate(TS);
     assertEquals(result.getFilteredTS().size(), 498);
     final LocalDateDoubleTimeSeries rejected = result.getRejectedTS();
-    assertEquals(rejected.getTimeAt(0), LocalDate.ofEpochDay(0));
-    assertEquals(rejected.getValueAt(0), DATA1, EPS);
-    assertEquals(rejected.getTimeAt(1), LocalDate.ofEpochDay(1));
-    assertEquals(rejected.getValueAt(1), DATA2, EPS);
+    assertEquals(rejected.getTimeAtIndex(0), LocalDate.ofEpochDay(0));
+    assertEquals(rejected.getValueAtIndex(0), DATA1, EPS);
+    assertEquals(rejected.getTimeAtIndex(1), LocalDate.ofEpochDay(1));
+    assertEquals(rejected.getValueAtIndex(1), DATA2, EPS);
   }
 }

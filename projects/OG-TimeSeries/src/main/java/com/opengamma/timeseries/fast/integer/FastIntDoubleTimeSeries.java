@@ -27,9 +27,9 @@ public interface FastIntDoubleTimeSeries extends FastTimeSeries<Integer> {
 
   double getValueFast(int time);
 
-  double getValueAtFast(int index);
+  double getValueAtIndexFast(int index);
 
-  int getTimeFast(int index);
+  int getTimeAtIndexFast(int index);
 
   int getLatestTimeFast();
 

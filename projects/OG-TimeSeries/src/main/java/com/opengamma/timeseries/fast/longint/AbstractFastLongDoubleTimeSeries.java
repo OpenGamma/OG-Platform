@@ -56,13 +56,13 @@ public abstract class AbstractFastLongDoubleTimeSeries
   }
 
   @Override
-  public Long getTimeAt(final int index) {
-    return getTimeFast(index);
+  public Long getTimeAtIndex(final int index) {
+    return getTimeAtIndexFast(index);
   }
 
   @Override
-  public Double getValueAt(final int index) {
-    return getValueAtFast(index);
+  public Double getValueAtIndex(final int index) {
+    return getValueAtIndexFast(index);
   }
 
   //-------------------------------------------------------------------------

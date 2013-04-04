@@ -60,8 +60,8 @@ public class SpikeDoubleTimeSeriesFilterTest {
     final LocalDateDoubleTimeSeries ts = new ArrayLocalDateDoubleTimeSeries(DATES, data);
     final LocalDateDoubleTimeSeries rejected = FILTER.evaluate(ts).getRejectedTS();
     assertEquals(rejected.size(), 1);
-    assertEquals(rejected.getTimeAt(0), ts.getTimeAt(0));
-    assertEquals(rejected.getValueAt(0), ts.getValueAt(0));
+    assertEquals(rejected.getTimeAtIndex(0), ts.getTimeAtIndex(0));
+    assertEquals(rejected.getValueAtIndex(0), ts.getValueAtIndex(0));
   }
 
   @Test
@@ -80,8 +80,8 @@ public class SpikeDoubleTimeSeriesFilterTest {
   private void assertSeries(final LocalDateDoubleTimeSeries ts, final FilteredTimeSeries filtered, final int index) {
     final LocalDateDoubleTimeSeries rejected = filtered.getRejectedTS();
     assertEquals(rejected.size(), 1);
-    assertEquals(rejected.getTimeAt(0), ts.getTimeAt(index));
-    assertEquals(rejected.getValueAt(0), ts.getValueAt(index));
+    assertEquals(rejected.getTimeAtIndex(0), ts.getTimeAtIndex(index));
+    assertEquals(rejected.getValueAtIndex(0), ts.getValueAtIndex(index));
     assertEquals(filtered.getFilteredTS().size(), 99);
   }
 }

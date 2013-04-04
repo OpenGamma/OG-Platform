@@ -63,10 +63,10 @@ public class DbHistoricalTimeSeriesMasterWorkerRemoveTimeSeriesTest extends Abst
     assertEquals(uniqueId, testCorrected.getUniqueId());
     LocalDateDoubleTimeSeries timeSeries = testCorrected.getTimeSeries();
     assertEquals(2, timeSeries.size());
-    assertEquals(LocalDate.of(2011, 1, 1), timeSeries.getTimeAt(0));
-    assertEquals(3.1d, timeSeries.getValueAt(0), 0.001d);
-    assertEquals(LocalDate.of(2011, 1, 3), timeSeries.getTimeAt(1));
-    assertEquals(3.33d, timeSeries.getValueAt(1), 0.001d);
+    assertEquals(LocalDate.of(2011, 1, 1), timeSeries.getTimeAtIndex(0));
+    assertEquals(3.1d, timeSeries.getValueAtIndex(0), 0.001d);
+    assertEquals(LocalDate.of(2011, 1, 3), timeSeries.getTimeAtIndex(1));
+    assertEquals(3.33d, timeSeries.getValueAtIndex(1), 0.001d);
   }
 
   @Test
@@ -78,8 +78,8 @@ public class DbHistoricalTimeSeriesMasterWorkerRemoveTimeSeriesTest extends Abst
     assertEquals(uniqueId, testCorrected.getUniqueId());
     LocalDateDoubleTimeSeries timeSeries = testCorrected.getTimeSeries();
     assertEquals(1, timeSeries.size());
-    assertEquals(LocalDate.of(2011, 1, 3), timeSeries.getTimeAt(0));
-    assertEquals(3.33d, timeSeries.getValueAt(0), 0.001d);
+    assertEquals(LocalDate.of(2011, 1, 3), timeSeries.getTimeAtIndex(0));
+    assertEquals(3.33d, timeSeries.getValueAtIndex(0), 0.001d);
   }
 
   @Test
@@ -91,8 +91,8 @@ public class DbHistoricalTimeSeriesMasterWorkerRemoveTimeSeriesTest extends Abst
     assertEquals(uniqueId, testCorrected.getUniqueId());
     LocalDateDoubleTimeSeries timeSeries = testCorrected.getTimeSeries();
     assertEquals(1, timeSeries.size());
-    assertEquals(LocalDate.of(2011, 1, 1), timeSeries.getTimeAt(0));
-    assertEquals(3.1d, timeSeries.getValueAt(0), 0.001d);
+    assertEquals(LocalDate.of(2011, 1, 1), timeSeries.getTimeAtIndex(0));
+    assertEquals(3.1d, timeSeries.getValueAtIndex(0), 0.001d);
   }
 
   //-------------------------------------------------------------------------

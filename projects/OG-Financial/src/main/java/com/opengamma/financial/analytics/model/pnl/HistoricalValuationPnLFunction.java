@@ -93,7 +93,7 @@ public class HistoricalValuationPnLFunction extends AbstractFunction.NonCompiled
     int pnlVectorSize = valueTs.size() - 1;
     double[] pnlValues = new double[pnlVectorSize];
     for (int i = 0; i < pnlVectorSize; i++) {
-      pnlValues[i] = valueTs.getValueAt(i + 1) - valueTs.getValueAt(i);
+      pnlValues[i] = valueTs.getValueAtIndex(i + 1) - valueTs.getValueAtIndex(i);
     }
     FastArrayIntDoubleTimeSeries fastTs = (FastArrayIntDoubleTimeSeries) valueTs.getFastSeries();
     int[] pnlDates = new int[fastTs.size() - 1];

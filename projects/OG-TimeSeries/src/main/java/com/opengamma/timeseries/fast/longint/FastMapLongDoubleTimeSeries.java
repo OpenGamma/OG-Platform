@@ -128,7 +128,7 @@ public class FastMapLongDoubleTimeSeries extends AbstractFastMutableLongDoubleTi
   }
 
   @Override
-  public long getTimeFast(final int index) {
+  public long getTimeAtIndexFast(final int index) {
     if (index >= _map.size()) {
       throw new NoSuchElementException();
     }
@@ -138,7 +138,7 @@ public class FastMapLongDoubleTimeSeries extends AbstractFastMutableLongDoubleTi
   }
 
   @Override
-  public double getValueAtFast(final int index) {
+  public double getValueAtIndexFast(final int index) {
     if (index >= _map.size() || index < 0) {
       throw new IndexOutOfBoundsException();
     }

@@ -54,8 +54,8 @@ public abstract class AbstractLocalDateDoubleTimeSeries
           throw new NoSuchElementException("No more elements in the iteration");
         }
         _index++;
-        int date = getFastSeries().getTimeFast(_index);
-        Double value = getFastSeries().getValueAt(_index);
+        int date = getFastSeries().getTimeAtIndexFast(_index);
+        Double value = getFastSeries().getValueAtIndex(_index);
         return getConverter().makeMapEntry(getConverter().convertFromInt(date), value);
       }
 
@@ -65,7 +65,7 @@ public abstract class AbstractLocalDateDoubleTimeSeries
           throw new NoSuchElementException("No more elements in the iteration");
         }
         _index++;
-        return getFastSeries().getTimeFast(_index);
+        return getFastSeries().getTimeAtIndexFast(_index);
       }
 
       @Override
@@ -78,7 +78,7 @@ public abstract class AbstractLocalDateDoubleTimeSeries
         if (_index < 0) {
           throw new IllegalStateException("Iterator has nor has nextDate() or next() called yet");
         }
-        return getFastSeries().getTimeFast(_index);
+        return getFastSeries().getTimeAtIndexFast(_index);
       }
 
       @Override
@@ -91,7 +91,7 @@ public abstract class AbstractLocalDateDoubleTimeSeries
         if (_index < 0) {
           throw new IllegalStateException("Iterator has nor has nextDate() or next() called yet");
         }
-        return getFastSeries().getValueAtFast(_index);
+        return getFastSeries().getValueAtIndexFast(_index);
       }
 
       @Override

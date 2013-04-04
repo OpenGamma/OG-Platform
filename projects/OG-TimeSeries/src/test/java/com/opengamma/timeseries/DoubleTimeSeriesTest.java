@@ -290,10 +290,10 @@ public abstract class DoubleTimeSeriesTest<E> {
     for (int i=0; i<6; i++) {
       Double val = dts.getValue(testDates[i]);
       TimeSeriesUtils.closeEquals(val, i+1);
-      val = dts.getValueAt(i);
+      val = dts.getValueAtIndex(i);
       TimeSeriesUtils.closeEquals(val, i+1);
     }
-    emptyTS.getValueAt(0);
+    emptyTS.getValueAtIndex(0);
   }
 
   @Test
@@ -365,32 +365,32 @@ public abstract class DoubleTimeSeriesTest<E> {
     AssertJUnit.assertEquals(dts, ets.unionAdd(dts));
     final DoubleTimeSeries<E> result = dts.add(dts2);
     AssertJUnit.assertEquals(3, result.size());
-    AssertJUnit.assertEquals(Double.valueOf(8.0), result.getValueAt(0));
-    AssertJUnit.assertEquals(Double.valueOf(10.0), result.getValueAt(1));
-    AssertJUnit.assertEquals(Double.valueOf(12.0), result.getValueAt(2));
-    AssertJUnit.assertEquals(dts.getTimeAt(3), result.getTimeAt(0));
-    AssertJUnit.assertEquals(dts.getTimeAt(4), result.getTimeAt(1));
-    AssertJUnit.assertEquals(dts.getTimeAt(5), result.getTimeAt(2));
+    AssertJUnit.assertEquals(Double.valueOf(8.0), result.getValueAtIndex(0));
+    AssertJUnit.assertEquals(Double.valueOf(10.0), result.getValueAtIndex(1));
+    AssertJUnit.assertEquals(Double.valueOf(12.0), result.getValueAtIndex(2));
+    AssertJUnit.assertEquals(dts.getTimeAtIndex(3), result.getTimeAtIndex(0));
+    AssertJUnit.assertEquals(dts.getTimeAtIndex(4), result.getTimeAtIndex(1));
+    AssertJUnit.assertEquals(dts.getTimeAtIndex(5), result.getTimeAtIndex(2));
     final DoubleTimeSeries<E> unionResult = dts.unionAdd(dts2);
     AssertJUnit.assertEquals(9, unionResult.size());
-    AssertJUnit.assertEquals(Double.valueOf(1.0), unionResult.getValueAt(0));
-    AssertJUnit.assertEquals(Double.valueOf(2.0), unionResult.getValueAt(1));
-    AssertJUnit.assertEquals(Double.valueOf(3.0), unionResult.getValueAt(2));
-    AssertJUnit.assertEquals(Double.valueOf(8.0), unionResult.getValueAt(3));
-    AssertJUnit.assertEquals(Double.valueOf(10.0), unionResult.getValueAt(4));
-    AssertJUnit.assertEquals(Double.valueOf(12.0), unionResult.getValueAt(5));
-    AssertJUnit.assertEquals(Double.valueOf(7.0), unionResult.getValueAt(6));
-    AssertJUnit.assertEquals(Double.valueOf(8.0), unionResult.getValueAt(7));
-    AssertJUnit.assertEquals(Double.valueOf(9.0), unionResult.getValueAt(8));
-    AssertJUnit.assertEquals(dts.getTimeAt(0), unionResult.getTimeAt(0));
-    AssertJUnit.assertEquals(dts.getTimeAt(1), unionResult.getTimeAt(1));
-    AssertJUnit.assertEquals(dts.getTimeAt(2), unionResult.getTimeAt(2));
-    AssertJUnit.assertEquals(dts.getTimeAt(3), unionResult.getTimeAt(3));
-    AssertJUnit.assertEquals(dts.getTimeAt(4), unionResult.getTimeAt(4));
-    AssertJUnit.assertEquals(dts.getTimeAt(5), unionResult.getTimeAt(5));
-    AssertJUnit.assertEquals(dts2.getTimeAt(3), unionResult.getTimeAt(6));
-    AssertJUnit.assertEquals(dts2.getTimeAt(4), unionResult.getTimeAt(7));
-    AssertJUnit.assertEquals(dts2.getTimeAt(5), unionResult.getTimeAt(8));
+    AssertJUnit.assertEquals(Double.valueOf(1.0), unionResult.getValueAtIndex(0));
+    AssertJUnit.assertEquals(Double.valueOf(2.0), unionResult.getValueAtIndex(1));
+    AssertJUnit.assertEquals(Double.valueOf(3.0), unionResult.getValueAtIndex(2));
+    AssertJUnit.assertEquals(Double.valueOf(8.0), unionResult.getValueAtIndex(3));
+    AssertJUnit.assertEquals(Double.valueOf(10.0), unionResult.getValueAtIndex(4));
+    AssertJUnit.assertEquals(Double.valueOf(12.0), unionResult.getValueAtIndex(5));
+    AssertJUnit.assertEquals(Double.valueOf(7.0), unionResult.getValueAtIndex(6));
+    AssertJUnit.assertEquals(Double.valueOf(8.0), unionResult.getValueAtIndex(7));
+    AssertJUnit.assertEquals(Double.valueOf(9.0), unionResult.getValueAtIndex(8));
+    AssertJUnit.assertEquals(dts.getTimeAtIndex(0), unionResult.getTimeAtIndex(0));
+    AssertJUnit.assertEquals(dts.getTimeAtIndex(1), unionResult.getTimeAtIndex(1));
+    AssertJUnit.assertEquals(dts.getTimeAtIndex(2), unionResult.getTimeAtIndex(2));
+    AssertJUnit.assertEquals(dts.getTimeAtIndex(3), unionResult.getTimeAtIndex(3));
+    AssertJUnit.assertEquals(dts.getTimeAtIndex(4), unionResult.getTimeAtIndex(4));
+    AssertJUnit.assertEquals(dts.getTimeAtIndex(5), unionResult.getTimeAtIndex(5));
+    AssertJUnit.assertEquals(dts2.getTimeAtIndex(3), unionResult.getTimeAtIndex(6));
+    AssertJUnit.assertEquals(dts2.getTimeAtIndex(4), unionResult.getTimeAtIndex(7));
+    AssertJUnit.assertEquals(dts2.getTimeAtIndex(5), unionResult.getTimeAtIndex(8));
 
     AssertJUnit.assertEquals(dts, ets.noIntersectionOperation(dts));
     AssertJUnit.assertEquals(dts, dts.noIntersectionOperation(ets));
@@ -402,14 +402,14 @@ public abstract class DoubleTimeSeriesTest<E> {
     }
     final DoubleTimeSeries<E> dts3 = dts2.subSeries(dts.getLatestTime(), false, dts2.getLatestTime(), false);
     final DoubleTimeSeries<E> noIntersecOp = dts.noIntersectionOperation(dts3);
-    AssertJUnit.assertEquals(dts.getValueAt(0), noIntersecOp.getValueAt(0));
-    AssertJUnit.assertEquals(dts.getValueAt(1), noIntersecOp.getValueAt(1));
-    AssertJUnit.assertEquals(dts.getValueAt(2), noIntersecOp.getValueAt(2));
-    AssertJUnit.assertEquals(dts.getValueAt(3), noIntersecOp.getValueAt(3));
-    AssertJUnit.assertEquals(dts.getValueAt(4), noIntersecOp.getValueAt(4));
-    AssertJUnit.assertEquals(dts.getValueAt(5), noIntersecOp.getValueAt(5));
-    AssertJUnit.assertEquals(dts3.getValueAt(0), noIntersecOp.getValueAt(6));
-    AssertJUnit.assertEquals(dts3.getValueAt(1), noIntersecOp.getValueAt(7));
+    AssertJUnit.assertEquals(dts.getValueAtIndex(0), noIntersecOp.getValueAtIndex(0));
+    AssertJUnit.assertEquals(dts.getValueAtIndex(1), noIntersecOp.getValueAtIndex(1));
+    AssertJUnit.assertEquals(dts.getValueAtIndex(2), noIntersecOp.getValueAtIndex(2));
+    AssertJUnit.assertEquals(dts.getValueAtIndex(3), noIntersecOp.getValueAtIndex(3));
+    AssertJUnit.assertEquals(dts.getValueAtIndex(4), noIntersecOp.getValueAtIndex(4));
+    AssertJUnit.assertEquals(dts.getValueAtIndex(5), noIntersecOp.getValueAtIndex(5));
+    AssertJUnit.assertEquals(dts3.getValueAtIndex(0), noIntersecOp.getValueAtIndex(6));
+    AssertJUnit.assertEquals(dts3.getValueAtIndex(1), noIntersecOp.getValueAtIndex(7));
   }
 
   @Test
@@ -457,7 +457,7 @@ public abstract class DoubleTimeSeriesTest<E> {
   protected static void assertOperationSuccessful(final DoubleTimeSeries<?> result, final double[] expected) {
     AssertJUnit.assertEquals(expected.length, result.size());
     for (int i = 0; i < expected.length; i++) {
-      AssertJUnit.assertEquals(expected[i], result.getValueAt(i), 0.001);
+      AssertJUnit.assertEquals(expected[i], result.getValueAtIndex(i), 0.001);
     }
   }
 

@@ -36,7 +36,7 @@ public class PortmanteauIIDHypothesisTest extends IIDHypothesisTestCase {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInsufficientData() {
-    final DoubleTimeSeries<Long> subSeries = RANDOM.subSeries(RANDOM.getTimeAt(0), RANDOM.getTimeAt(3));
+    final DoubleTimeSeries<Long> subSeries = RANDOM.subSeries(RANDOM.getTimeAtIndex(0), RANDOM.getTimeAtIndex(3));
     TEST.evaluate(new FastArrayLongDoubleTimeSeries(ENCODING, subSeries.timesArray(), subSeries.valuesArray()));
   }
 

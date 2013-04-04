@@ -69,7 +69,7 @@ public interface DoubleTimeSeries<T> extends TimeSeries<T, Double> {
 //   * @return the value at the index, null if the implementation permits nulls
 //   * @throws IndexOutOfBoundsException if the index is invalid
 //   */
-//  double getValueDoubleAt(int index);
+//  double getValueDoubleAtIndex(int index);
 //
 //  /**
 //   * Gets the {@code double} value at the latest date-time in the series.

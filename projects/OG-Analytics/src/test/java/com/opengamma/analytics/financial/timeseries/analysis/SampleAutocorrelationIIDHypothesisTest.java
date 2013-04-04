@@ -36,7 +36,7 @@ public class SampleAutocorrelationIIDHypothesisTest extends IIDHypothesisTestCas
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInsufficientData() {
-    final DoubleTimeSeries<Long> subSeries = RANDOM.subSeries(RANDOM.getTimeAt(0), RANDOM.getTimeAt(3));
+    final DoubleTimeSeries<Long> subSeries = RANDOM.subSeries(RANDOM.getTimeAtIndex(0), RANDOM.getTimeAtIndex(3));
     SAMPLE_ACF.evaluate(new FastArrayLongDoubleTimeSeries(ENCODING, subSeries.timesArray(), subSeries.valuesArray()));
   }
 

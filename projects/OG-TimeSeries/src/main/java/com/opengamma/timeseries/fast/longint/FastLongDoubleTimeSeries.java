@@ -29,9 +29,9 @@ public interface FastLongDoubleTimeSeries extends FastTimeSeries<Long>, Iterable
 
   double getValueFast(long time);
 
-  double getValueAtFast(int index);
+  double getValueAtIndexFast(int index);
 
-  long getTimeFast(int index);
+  long getTimeAtIndexFast(int index);
 
   long getLatestTimeFast();
 
