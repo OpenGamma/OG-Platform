@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.analytics.model.future;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
@@ -150,8 +149,6 @@ public class InterestRateFutureYieldCurveNodeSensitivitiesFunction extends Abstr
       return YieldCurveNodeSensitivitiesHelper.getInstrumentLabelledSensitivitiesForCurve(sensitivities, domesticCurrency, foreignCurrency, fullCurveNames,
           curves, configSource, localNow, getResultSpec(target, currency, fullCurveName, curveCalculationConfigName));
     }
-    final Object temp = YieldCurveNodeSensitivitiesHelper.getInstrumentLabelledSensitivitiesForCurve(fullCurveName, bundle, sensitivities, curveSpec,
-        getResultSpec(target, currency, curveName, curveCalculationConfigName));
     return YieldCurveNodeSensitivitiesHelper.getInstrumentLabelledSensitivitiesForCurve(fullCurveName, bundle, sensitivities, curveSpec,
         getResultSpec(target, currency, curveName, curveCalculationConfigName));
   }
@@ -200,7 +197,14 @@ public class InterestRateFutureYieldCurveNodeSensitivitiesFunction extends Abstr
     }
     final String[] curveNames = curveCalculationConfig.getYieldCurveNames();
     final String curve = curves.iterator().next();
-    if (Arrays.binarySearch(curveNames, curve) < 0) {
+
+    boolean found = false;
+    for (String curveName : curveNames) {
+      if (curveName.equals(curve)) {
+        found = true;
+      }
+    }
+    if (!found) {
       s_logger.info("Curve named {} is not available in curve calculation configuration called {}", curve, curveCalculationConfigName);
       return null;
     }

@@ -81,10 +81,11 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
   protected CurrencyInfo audCurrencyInfo() {
     final CurrencyInfo i = super.audCurrencyInfo();
     i.setCurveConfiguration(null, "DefaultTwoCurveAUDConfig");
-    i.setCurveConfiguration("model/cds", "ISDAAUDCurveConfig");
+    i.setCurveConfiguration("model/credit/yield", "ISDAAUDCurveConfig");
     i.setCurveName(null, "Discounting");
-    i.setCurveName("model/cds", "ISDA");
-    i.setCurveCalculationMethodName("model/cds", "ISDA");
+    i.setCurveName("model/credit/yield", "ISDA");
+    i.setCurveCalculationMethodName("model/credit/yield", "ISDA");
+    i.setCurveCalculationMethodName("model/credit/hazardrate", "ISDA");
     i.setCubeName(null, "BLOOMBERG");
     return i;
   }
@@ -101,10 +102,11 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
   protected CurrencyInfo cadCurrencyInfo() {
     final CurrencyInfo i = super.cadCurrencyInfo();
     i.setCurveConfiguration(null, "DefaultTwoCurveCADConfig");
-    i.setCurveConfiguration("model/cds", "ISDACADCurveConfig");
+    i.setCurveConfiguration("model/credit/yield", "ISDACADCurveConfig");
     i.setCurveName(null, "Discounting");
-    i.setCurveName("model/cds", "ISDA");
-    i.setCurveCalculationMethodName("model/cds", "ISDA");
+    i.setCurveName("model/credit/yield", "ISDA");
+    i.setCurveCalculationMethodName("model/credit/yield", "ISDA");
+    i.setCurveCalculationMethodName("model/credit/hazardrate", "ISDA");
     return i;
   }
 
@@ -120,10 +122,11 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
   protected CurrencyInfo eurCurrencyInfo() {
     final CurrencyInfo i = super.eurCurrencyInfo();
     i.setCurveConfiguration(null, "DefaultTwoCurveEURConfig");
-    i.setCurveConfiguration("model/cds", "ISDAEURCurveConfig");
+    i.setCurveConfiguration("model/credit/yield", "ISDAEURCurveConfig");
     i.setCurveName(null, "Discounting");
-    i.setCurveName("model/cds", "ISDA");
-    i.setCurveCalculationMethodName("model/cds", "ISDA");
+    i.setCurveName("model/credit/yield", "ISDA");
+    i.setCurveCalculationMethodName("model/credit/yield", "ISDA");
+    i.setCurveCalculationMethodName("model/credit/hazardrate", "ISDA");
     i.setSurfaceName("model/irfutureoption", "DEFAULT_PRICE");
     i.setSurfaceName("model/swaption", "DEFAULT");
     i.setCubeName(null, "BLOOMBERG");
@@ -134,10 +137,11 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
   protected CurrencyInfo gbpCurrencyInfo() {
     final CurrencyInfo i = super.gbpCurrencyInfo();
     i.setCurveConfiguration(null, "DefaultTwoCurveGBPConfig");
-    i.setCurveConfiguration("model/cds", "ISDAGBPCurveConfig");
+    i.setCurveConfiguration("model/credit/yield", "ISDAGBPCurveConfig");
     i.setCurveName(null, "Discounting");
-    i.setCurveName("model/cds", "ISDA");
-    i.setCurveCalculationMethodName("model/cds", "ISDA");
+    i.setCurveName("model/credit/yield", "ISDA");
+    i.setCurveCalculationMethodName("model/credit/yield", "ISDA");
+    i.setCurveCalculationMethodName("model/credit/hazardrate", "ISDA");
     i.setCubeName(null, "BLOOMBERG");
     return i;
   }
@@ -162,10 +166,11 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
   protected CurrencyInfo jpyCurrencyInfo() {
     final CurrencyInfo i = super.jpyCurrencyInfo();
     i.setCurveConfiguration(null, "DefaultTwoCurveJPYConfig");
-    i.setCurveConfiguration("model/cds", "ISDAJPYCurveConfig");
+    i.setCurveConfiguration("model/credit/yield", "ISDAJPYCurveConfig");
     i.setCurveName(null, "Discounting");
-    i.setCurveName("model/cds", "ISDA");
-    i.setCurveCalculationMethodName("model/cds", "ISDA");
+    i.setCurveName("model/credit/yield", "ISDA");
+    i.setCurveCalculationMethodName("model/credit/yield", "ISDA");
+    i.setCurveCalculationMethodName("model/credit/hazardrate", "ISDA");
     return i;
   }
 
@@ -205,10 +210,11 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
   protected CurrencyInfo usdCurrencyInfo() {
     final CurrencyInfo i = super.usdCurrencyInfo();
     i.setCurveConfiguration(null, "DefaultTwoCurveUSDConfig");
-    i.setCurveConfiguration("model/cds", "ISDAUSDCurveConfig");
+    i.setCurveConfiguration("model/credit/yield", "ISDAUSDCurveConfig");
     i.setCurveName(null, "Discounting");
-    i.setCurveName("model/cds", "ISDA");
-    i.setCurveCalculationMethodName("model/cds", "ISDA");
+    i.setCurveName("model/credit/yield", "ISDA");
+    i.setCurveCalculationMethodName("model/credit/yield", "ISDA");
+    i.setCurveCalculationMethodName("model/credit/hazardrate", "ISDA");
     i.setSurfaceName("model/bondfutureoption", "BBG");
     i.setSurfaceName("model/futureoption", "BBG");
     i.setSurfaceName("model/irfutureoption", "DEFAULT_PRICE");

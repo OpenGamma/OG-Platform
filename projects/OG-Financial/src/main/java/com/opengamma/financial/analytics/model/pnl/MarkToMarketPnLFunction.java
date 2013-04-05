@@ -141,6 +141,9 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
     
     if (isNewTrade) {
       referencePrice = trade.getPremium();
+      if (referencePrice == null) {
+        throw new NullPointerException("Encountered a new future trade without a required premium: " + trade.getUniqueId());
+      }
     } else { 
       for (final ComputedValue input : inputs.getAllValues()) {
         if (input.getSpecification().getValueName().equals(s_valReqPriceHistory)) {

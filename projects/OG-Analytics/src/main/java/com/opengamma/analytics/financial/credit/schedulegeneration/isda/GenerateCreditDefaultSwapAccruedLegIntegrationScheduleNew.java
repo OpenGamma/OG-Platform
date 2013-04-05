@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.credit.schedulegeneration;
+package com.opengamma.analytics.financial.credit.schedulegeneration.isda;
 
 import java.util.Arrays;
 import java.util.LinkedHashSet;
@@ -17,6 +17,7 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
+import com.opengamma.analytics.financial.credit.schedulegeneration.GenerateCreditDefaultSwapPremiumLegSchedule;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
@@ -26,7 +27,7 @@ import com.opengamma.util.ArgumentChecker;
  * Class to generate the integration schedules for instrument legs which require a numerical integration
  * (for example the contingent and accrued legs of a CDS require numerical evaluation of integrals)
  */
-public class GenerateCreditDefaultSwapIntegrationScheduleNew {
+public class GenerateCreditDefaultSwapAccruedLegIntegrationScheduleNew {
   private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
 
   // TODO : Add check that startTime < endTime in schedule generation routine
@@ -41,31 +42,22 @@ public class GenerateCreditDefaultSwapIntegrationScheduleNew {
       final ISDADateCurve yieldCurve,
       final HazardRateCurve hazardRateCurve,
       final boolean includeSchedule) {
-
     // Check input objects are not null
     ArgumentChecker.notNull(cds, "CDS");
     ArgumentChecker.notNull(yieldCurve, "Yield Curve");
     ArgumentChecker.notNull(hazardRateCurve, "Hazard Rate Curve");
-
     // Do we want to include the CDS premium leg cashflow schedule as points
-    //final boolean includeSchedule = false;
-
     // Get the start time of the CDS with respect to the current valuation date (can obviously be negative)
     final double startTime = calculateCreditDefaultSwapStartTime(valuationDate, cds, ACT_365);
-
     // Get the (offset) maturity of the CDS
     final double offsetMaturityTime = calculateCreditDefaultSwapOffsetMaturity(valuationDate, cds, ACT_365);
-
     final ZonedDateTime startDate = cds.getStartDate();
     ZonedDateTime endDate = cds.getMaturityDate();
-
     if (cds.getProtectionStart()) {
       endDate = endDate.plusDays(1);
     }
-
     // Calculate the schedule of integration timenodes for the accrued leg calculation
     final ZonedDateTime[] timeNodes = constructISDACompliantAccruedLegIntegrationSchedule(yieldCurve, hazardRateCurve, startDate, endDate);
-
     return timeNodes;
   }
 
@@ -241,7 +233,7 @@ public class GenerateCreditDefaultSwapIntegrationScheduleNew {
     System.arraycopy(hazardCurveDates, 0, result, nYieldCurveDates, nHazardCurveDates);
     result[total] = startDate;
     result[total + 1] = endDate;
-    return new GenerateCreditDefaultSwapIntegrationScheduleNew().getTruncatedTimeLine(result, startDate, endDate, false);
+    return new GenerateCreditDefaultSwapAccruedLegIntegrationScheduleNew().getTruncatedTimeLine(result, startDate, endDate, false);
   }
 
   public ZonedDateTime[] getTruncatedTimeLine(final ZonedDateTime[] allDates, final ZonedDateTime startDate, final ZonedDateTime endDate,

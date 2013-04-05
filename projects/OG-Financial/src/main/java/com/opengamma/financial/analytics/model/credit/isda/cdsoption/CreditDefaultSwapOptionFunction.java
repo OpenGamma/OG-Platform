@@ -150,10 +150,10 @@ public abstract class CreditDefaultSwapOptionFunction extends AbstractFunction.N
     if (yieldCurveCalculationMethodNames == null || yieldCurveCalculationMethodNames.size() != 1) {
       return null;
     }
-    final Set<String> hazardRateCurveNames = constraints.getValues(PROPERTY_HAZARD_RATE_CURVE);
-    if (hazardRateCurveNames == null || hazardRateCurveNames.size() != 1) {
-      return null;
-    }
+    //    final Set<String> hazardRateCurveNames = constraints.getValues(PROPERTY_HAZARD_RATE_CURVE);
+    //    if (hazardRateCurveNames == null || hazardRateCurveNames.size() != 1) {
+    //      return null;
+    //    }
     final Set<String> hazardRateCurveCalculationMethodNames = constraints.getValues(PROPERTY_HAZARD_RATE_CURVE_CALCULATION_METHOD);
     if (hazardRateCurveCalculationMethodNames == null || hazardRateCurveCalculationMethodNames.size() != 1) {
       return null;
@@ -178,10 +178,10 @@ public abstract class CreditDefaultSwapOptionFunction extends AbstractFunction.N
         .with(CURVE, spreadCurveName)
         .get();
     final ValueRequirement creditSpreadCurveRequirement = new ValueRequirement(ValueRequirementNames.CREDIT_SPREAD_CURVE, ComputationTargetSpecification.NULL, spreadCurveProperties);
-    final String hazardRateCurveName = Iterables.getOnlyElement(hazardRateCurveNames);
+    //final String hazardRateCurveName = Iterables.getOnlyElement(hazardRateCurveNames);
     final String hazardRateCurveCalculationMethod = Iterables.getOnlyElement(hazardRateCurveCalculationMethodNames);
     final ValueProperties hazardRateCurveProperties = ValueProperties.builder()
-        .with(CURVE, hazardRateCurveName)
+        .with(CURVE, spreadCurveName)
         .with(CURVE_CALCULATION_METHOD, hazardRateCurveCalculationMethod)
         .get();
     final ComputationTargetSpecification underlyingTargetSpec = ComputationTargetSpecification.of(underlyingSecurity);

@@ -31,12 +31,12 @@ public class HazardRateCurveCalculatorTest {
   private static final HazardRateCurveCalculator CALCULATOR = new HazardRateCurveCalculator();
   private static final ZonedDateTime VALUATION_DATE = DateUtils.getUTCDate(2013, 3, 4);
   private static final ZonedDateTime[] MARKET_TENORS = new ZonedDateTime[] {DateUtils.getUTCDate(2013, 3, 20), DateUtils.getUTCDate(2013, 6, 19), DateUtils.getUTCDate(2013, 9, 18),
-      DateUtils.getUTCDate(2013, 12, 18), DateUtils.getUTCDate(2014, 3, 19), DateUtils.getUTCDate(2015, 3, 18), DateUtils.getUTCDate(2016, 3, 16), DateUtils.getUTCDate(2018, 3, 15),
-      DateUtils.getUTCDate(2023, 3, 15) };
+    DateUtils.getUTCDate(2013, 12, 18), DateUtils.getUTCDate(2014, 3, 19), DateUtils.getUTCDate(2015, 3, 18), DateUtils.getUTCDate(2016, 3, 16), DateUtils.getUTCDate(2018, 3, 15),
+    DateUtils.getUTCDate(2023, 3, 15) };
   private static final double[] MARKET_SPREADS = new double[] {300, 315, 350, 390, 400, 420, 410, 404, 402 };
   private static final ZonedDateTime[] YIELD_TENORS = new ZonedDateTime[] {DateUtils.getUTCDate(2013, 4, 1), DateUtils.getUTCDate(2013, 5, 1), DateUtils.getUTCDate(2013, 6, 1),
-      DateUtils.getUTCDate(2013, 12, 1), DateUtils.getUTCDate(2014, 3, 1), DateUtils.getUTCDate(2015, 3, 1), DateUtils.getUTCDate(2016, 3, 1), DateUtils.getUTCDate(2018, 3, 1),
-      DateUtils.getUTCDate(2023, 3, 1) };
+    DateUtils.getUTCDate(2013, 12, 1), DateUtils.getUTCDate(2014, 3, 1), DateUtils.getUTCDate(2015, 3, 1), DateUtils.getUTCDate(2016, 3, 1), DateUtils.getUTCDate(2018, 3, 1),
+    DateUtils.getUTCDate(2023, 3, 1) };
   private static final double[] YIELD_TIMES = new double[YIELD_TENORS.length];
   private static final double[] YIELDS = new double[] {0.005, 0.006, 0.008, 0.009, 0.01, 0.012, 0.015, 0.02, 0.03 };
   private static final double OFFSET = 0;
@@ -70,13 +70,13 @@ public class HazardRateCurveCalculatorTest {
     CALCULATOR.calibrateHazardRateCurve(CDS, CURVES_DATA, null);
   }
 
-  //@Test
+  @Test
   public void testCurve() {
     final HazardRateCurve curve = CALCULATOR.calibrateHazardRateCurve(CDS, CURVES_DATA, VALUATION_DATE);
 
   }
 
-  //@Test
+  @Test
   public void testDeprecated() {
     final HazardRateCurve curve1 = CALCULATOR.calibrateHazardRateCurve(CDS, CURVES_DATA, VALUATION_DATE);
     final HazardRateCurve curve2 = DEPRECATED_CALCULATOR.calibrateHazardRateCurve(VALUATION_DATE, CDS, MARKET_TENORS, MARKET_SPREADS, YIELD_CURVE);
@@ -84,26 +84,26 @@ public class HazardRateCurveCalculatorTest {
   }
 
   @Test(enabled = false)
-  public void timeDeprecated() {
+  public void timeBDeprecated() {
     final double startTime = System.currentTimeMillis();
     int j = 0;
-    for (int i = 0; i < 1000; i++) {
+    for (int i = 0; i < 2000; i++) {
       DEPRECATED_CALCULATOR.calibrateHazardRateCurve(VALUATION_DATE, CDS, MARKET_TENORS, MARKET_SPREADS, YIELD_CURVE);
       j++;
     }
     final double endTime = System.currentTimeMillis();
-    System.out.println("Deprecated:\t" + (endTime - startTime) / j * 1000);
+    System.out.println("Deprecated:\t" + (endTime - startTime) / j * 100);
   }
 
   @Test(enabled = false)
-  public void timeRefactored() {
+  public void timeARefactored() {
     final double startTime = System.currentTimeMillis();
     int j = 0;
-    for (int i = 0; i < 1000; i++) {
+    for (int i = 0; i < 2000; i++) {
       CALCULATOR.calibrateHazardRateCurve(CDS, CURVES_DATA, VALUATION_DATE);
       j++;
     }
     final double endTime = System.currentTimeMillis();
-    System.out.println("Refactored:\t" + (endTime - startTime) / j * 1000);
+    System.out.println("Refactored:\t" + (endTime - startTime) / j * 100);
   }
 }

@@ -17,6 +17,6 @@ public enum StandardCDSQuotingConvention {
   /**
    * Quote is a percentage of the notional amount paid upfront
    */
-  POINTSUPFRONT;
+  POINTS_UPFRONT;
 
 }
