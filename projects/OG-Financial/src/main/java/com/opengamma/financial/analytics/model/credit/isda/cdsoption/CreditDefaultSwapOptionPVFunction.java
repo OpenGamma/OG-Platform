@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.model.credit.isda.cdsoption;
 
+import java.util.Collections;
 import java.util.Set;
 
 import org.threeten.bp.ZonedDateTime;
@@ -16,6 +17,8 @@ import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.engine.value.ValueSpecification;
 
 /**
  * 
@@ -25,8 +28,15 @@ public class CreditDefaultSwapOptionPVFunction extends CreditDefaultSwapOptionFu
 
   @Override
   protected Set<ComputedValue> getComputedValue(final CreditDefaultSwapOptionDefinition definition, final ISDADateCurve yieldCurve, final double vol,
-      final HazardRateCurve hazardRateCurve, final ZonedDateTime valuationTime, final ComputationTarget target, final ValueProperties properties) {
-    //final double pv = CALCULATOR.getPresentValueCreditDefaultSwapOption(valuationTime, definition, vol, yieldCurve, hazardRateCurve);
-    return null;
+      final ZonedDateTime[] calibrationTenors, final double[] marketSpreads, final HazardRateCurve hazardRateCurve, final ZonedDateTime valuationTime,
+      final ComputationTarget target, final ValueProperties properties) {
+    final double pv = CALCULATOR.getPresentValueCreditDefaultSwapOption(valuationTime, definition, vol, calibrationTenors, marketSpreads, yieldCurve, hazardRateCurve);
+    final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE, target.toSpecification(), properties);
+    return Collections.singleton(new ComputedValue(spec, pv));
+  }
+
+  @Override
+  protected boolean labelResultWithCurrency() {
+    return true;
   }
 }

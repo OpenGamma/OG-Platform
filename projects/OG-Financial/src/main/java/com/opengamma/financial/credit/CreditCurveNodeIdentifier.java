@@ -1,5 +1,6 @@
 /**
- * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma
+ group of companies
  *
  * Please see distribution for license.
  */
@@ -11,130 +12,74 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdentifiable;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.credit.CreditCurveIdentifier;
 import com.opengamma.util.money.Currency;
 
-/**
- * Stores the date required to uniquely identify a credit curve - the ticker, red code,
- * currency, tenor, seniority and restructuring clause
- */
-public final class CreditCurveNodeIdentifier implements ExternalIdentifiable {
-
-  /**
-   * The scheme to use in external identifiers
-   */
-  public static final ExternalScheme CREDIT_CURVE_SCHEME = ExternalScheme.of("CREDIT_CURVE_NODE");
+public abstract class CreditCurveNodeIdentifier implements ExternalIdentifiable {
 
   /**
    * The separator used in the id construction.
    */
-  private static final String SEPARATOR = "_";
-
+  protected static final String SEPARATOR = "_";
   /**
    * The external id for this curve.
    */
-  private final ExternalId _externalId;
-
+  protected final ExternalId _externalId;
   /**
    * The red code.
    */
-  private final String _redCode;
-
+  protected final String _redCode;
   /**
    * The ticker.
    */
-  private final String _ticker;
-
+  protected final String _ticker;
   /**
    * Seniority of the curve. E.g. LIEN1 (First Lien),
    * SNRFOR (Subordinated or Lower SeniorityLevel 2 Debt (Banks))
    */
-  private final String _seniority;
-
+  protected final String _seniority;
   /**
    * The curve currency.
    */
-  private final Currency _currency;
-
+  protected final Currency _currency;
   /**
    * Term for the curve, 6m, 1y, 2y, ... 30y etc
    */
-  private final Period _term;
-
+  protected final Period _term;
   /**
    * The restructuring clause e.g. MR (Modified restructuring)
    */
-  private final String _restructuringClause;
-
+  protected final String _restructuringClause;
   /**
    * The generated id for this curve.
    */
-  private final String _idValue;
+  protected final String _idValue;
 
-  /**
-   * Create a new identifier from constituent parts.
-   *
-   * @param ticker the ticker
-   * @param redCode the red code
-   * @param currency the currency
-   * @param term the term
-   * @param seniority the seniority
-   * @param restructuringClause the restruturing clause
-   * @return a new identifier
-   */
-  public static CreditCurveNodeIdentifier of(final String ticker,
-                                             final String redCode,
-                                             final Currency currency,
-                                             final Period term,
-                                             final String seniority,
-                                             final String restructuringClause) {
-     return new CreditCurveNodeIdentifier(ticker, redCode, currency, term, seniority, restructuringClause);
-  }
+  public CreditCurveNodeIdentifier(final ExternalScheme creditCurveScheme,
+                                   final String ticker,
+                                   final String redCode,
+                                   final String seniority,
+                                   final Currency currency,
+                                   final Period term,
+                                   final String restructuringClause) {
 
-
-  /**
-   * Create a new identifier from an existing {@link CreditCurveIdentifier}.
-   *
-   * @param id the existing CreditCurveIdentifier
-   * @param ticker the ticker
-   * @param term the term
-   * @return a new identifier
-   */
-  public static CreditCurveNodeIdentifier of(final CreditCurveIdentifier id, final String ticker, final Period term) {
-    return new CreditCurveNodeIdentifier(ticker, id.getRedCode(), id.getCurrency(), term, id.getSeniority(), id.getRestructuringClause());
-  }
-
-  /**
-   * Constructs a new instance
-   *
-   * @param redCode the RED code, not null (underscores replaced with dashes)
-   * @param currency the currency, not null
-   * @param term the term, not null
-   * @param seniority the seniority, not null
-   * @param restructuringClause the restructuring clause, not null
-   */
-  private CreditCurveNodeIdentifier(final String ticker,
-                                    final String redCode,
-                                    final Currency currency,
-                                    final Period term,
-                                    final String seniority,
-                                    final String restructuringClause) {
+    ArgumentChecker.notNull(creditCurveScheme, "creditCurveScheme");
     ArgumentChecker.notNull(ticker, "ticker");
     ArgumentChecker.notNull(redCode, "redCode");
     ArgumentChecker.notNull(currency, "currency");
-    ArgumentChecker.notNull(term, "term");
     ArgumentChecker.notNull(seniority, "seniority");
+    ArgumentChecker.notNull(term, "term");
     ArgumentChecker.notNull(restructuringClause, "restructuring clause");
 
-    _ticker = ticker;
-    _redCode = redCode.replace("_", "-");
     _currency = currency;
     _term = term;
-    _seniority = seniority;
+    _redCode = redCode.replace("_", "-");
+    _ticker = ticker;
     _restructuringClause = restructuringClause;
+    _seniority = seniority;
+
     _idValue = _ticker + SEPARATOR +_redCode + SEPARATOR + _currency.getCode() + SEPARATOR +
         _seniority + SEPARATOR + _restructuringClause + SEPARATOR + _term.toString();
-    _externalId = ExternalId.of(CREDIT_CURVE_SCHEME, _idValue);
+    _externalId = ExternalId.of(creditCurveScheme, _idValue);
   }
 
   @Override
@@ -203,7 +148,7 @@ public final class CreditCurveNodeIdentifier implements ExternalIdentifiable {
    */
   @Override
   public int hashCode() {
-    return _idValue.hashCode();
+    return _externalId.hashCode();
   }
 
   /**
@@ -214,13 +159,13 @@ public final class CreditCurveNodeIdentifier implements ExternalIdentifiable {
    */
   @Override
   public boolean equals(final Object obj) {
+
     if (obj == this) {
       return true;
     }
-    if (obj instanceof CreditCurveNodeIdentifier) {
-      return _idValue.equals(((CreditCurveNodeIdentifier) obj)._idValue);
-    }
-    return false;
+
+    return obj instanceof CreditCurveNodeIdentifier &&
+        _externalId.equals(((CreditCurveNodeIdentifier) obj)._externalId);
   }
 
   /**

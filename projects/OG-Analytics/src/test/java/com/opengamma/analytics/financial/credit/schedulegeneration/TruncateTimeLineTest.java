@@ -14,6 +14,7 @@ import java.util.List;
 import org.testng.annotations.Test;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.analytics.financial.credit.schedulegeneration.isda.GenerateCreditDefaultSwapAccruedLegIntegrationScheduleNew;
 import com.opengamma.util.time.DateUtils;
 
 /**
@@ -21,7 +22,7 @@ import com.opengamma.util.time.DateUtils;
  */
 //@Test(groups = TestGroup.UNIT)
 public class TruncateTimeLineTest {
-  private static final GenerateCreditDefaultSwapIntegrationScheduleNew CALCULATOR = new GenerateCreditDefaultSwapIntegrationScheduleNew();
+  private static final GenerateCreditDefaultSwapAccruedLegIntegrationScheduleNew CALCULATOR = new GenerateCreditDefaultSwapAccruedLegIntegrationScheduleNew();
   private static final GenerateCreditDefaultSwapIntegrationSchedule DEPRECATED_CALCULATOR = new GenerateCreditDefaultSwapIntegrationSchedule();
   private static final ZonedDateTime[] SORTED_DATE_LIST;
   private static final int N;

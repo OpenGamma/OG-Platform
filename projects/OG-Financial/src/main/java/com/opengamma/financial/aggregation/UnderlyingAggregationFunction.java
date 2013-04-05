@@ -25,7 +25,6 @@ import com.opengamma.financial.security.future.EnergyFutureSecurity;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
 import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
 import com.opengamma.financial.security.future.FXFutureSecurity;
-import com.opengamma.financial.security.future.FutureSecurity;
 import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
@@ -34,6 +33,7 @@ import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
+import com.opengamma.financial.security.option.EquityIndexFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
@@ -98,6 +98,16 @@ public class UnderlyingAggregationFunction implements AggregationFunction<String
   private FinancialSecurityVisitor<String> _equityIndexOptionSecurityVisitor = new FinancialSecurityVisitorAdapter<String>() {
     @Override
     public String visitEquityIndexOptionSecurity(EquityIndexOptionSecurity security) {
+      //Security underlying = _secSource.get(ExternalIdBundle.of(security.getUnderlyingId()));
+      // we could use a historical time series source to look up the bundle at this point.
+      String identifier = security.getUnderlyingId().getValue();
+      return identifier != null ? identifier : NOT_APPLICABLE;
+    }
+  };
+
+  private FinancialSecurityVisitor<String> _equityIndexFutureOptionSecurityVisitor = new FinancialSecurityVisitorAdapter<String>() {
+    @Override
+    public String visitEquityIndexFutureOptionSecurity(EquityIndexFutureOptionSecurity security) {
       //Security underlying = _secSource.get(ExternalIdBundle.of(security.getUnderlyingId()));
       // we could use a historical time series source to look up the bundle at this point.
       String identifier = security.getUnderlyingId().getValue();
@@ -339,32 +349,33 @@ public class UnderlyingAggregationFunction implements AggregationFunction<String
       } 
     } else {
       FinancialSecurityVisitor<String> visitorAdapter = FinancialSecurityVisitorAdapter.<String>builder()
-                                                                                              .commodityFutureOptionSecurityVisitor(_commodityFutureOptionSecurityVisitor)
-                                                                                              // .futureSecurityVisitor(_futureSecurityVisitor) // TODO: MANY FUTURES ARE MISSING !!!
-                                                                                              .agricultureFutureSecurityVisitor(_agricultureFutureSecurityVisitor)
-                                                                                              .metalFutureSecurityVisitor(_metalFutureSecurityVisitor)
-                                                                                              .bondFutureSecurityVisitor(_bondFutureSecurityVisitor)
-                                                                                              .energyFutureSecurityVisitor(_energyFutureSecurityVisitor)
-                                                                                              .equityFutureSecurityVisitor(_equityFutureSecurityVisitor)
-                                                                                              .equityIndexDividendFutureSecurityVisitor(_equityIndexDividendFutureSecurityVisitor)
-                                                                                              .fxFutureSecurityVisitor(_fxFutureSecurityVisitor)
-                                                                                              .indexFutureSecurityVisitor(_indexFutureSecurityVisitor)
-                                                                                              .interestRateFutureSecurityVisitor(_interestRateFutureSecurityVisitor)
-                                                                                              .stockFutureSecurityVisitor(_stockFutureSecurityVisitor)
-                                                                                              .equitySecurityVisitor(_equitySecurityVisitor)
-                                                                                              .equityIndexOptionVisitor(_equityIndexOptionSecurityVisitor)
-                                                                                              .equityOptionVisitor(_equityOptionSecurityVisitor)
-                                                                                              .equityBarrierOptionVisitor(_equityBarrierOptionSecurityVisitor)
-                                                                                              .fxForwardVisitor(_fxForwardSecurityVisitor)
-                                                                                              .nonDeliverableFxForwardVisitor(_fxNdfForwardSecurityVisitor)
-                                                                                              .fxOptionVisitor(_fxOptionSecurityVisitor)
-                                                                                              .nonDeliverableFxOptionVisitor(_ndfFxOptionSecurityVisitor)
-                                                                                              .fxDigitalOptionVisitor(_fxDigitalOptionSecurityVisitor)
-                                                                                              .fxNonDeliverableDigitalOptionVisitor(_ndfFxDigitalOptionSecurityVisitor)
-                                                                                              .fxBarrierOptionVisitor(_fxBarrierOptionSecurityVisitor)
-                                                                                              .irfutureOptionVisitor(_irFutureOptionSecurityVisitor)
-                                                                                              .swaptionVisitor(_swaptionSecurityVisitor)
-                                                                                              .create();
+          .commodityFutureOptionSecurityVisitor(_commodityFutureOptionSecurityVisitor)
+          // .futureSecurityVisitor(_futureSecurityVisitor) // TODO: MANY FUTURES ARE MISSING !!!
+          .agricultureFutureSecurityVisitor(_agricultureFutureSecurityVisitor)
+          .metalFutureSecurityVisitor(_metalFutureSecurityVisitor)
+          .bondFutureSecurityVisitor(_bondFutureSecurityVisitor)
+          .energyFutureSecurityVisitor(_energyFutureSecurityVisitor)
+          .equityFutureSecurityVisitor(_equityFutureSecurityVisitor)
+          .equityIndexDividendFutureSecurityVisitor(_equityIndexDividendFutureSecurityVisitor)
+          .fxFutureSecurityVisitor(_fxFutureSecurityVisitor)
+          .indexFutureSecurityVisitor(_indexFutureSecurityVisitor)
+          .interestRateFutureSecurityVisitor(_interestRateFutureSecurityVisitor)
+          .stockFutureSecurityVisitor(_stockFutureSecurityVisitor)
+          .equitySecurityVisitor(_equitySecurityVisitor)
+          .equityIndexOptionVisitor(_equityIndexOptionSecurityVisitor)
+          .equityOptionVisitor(_equityOptionSecurityVisitor)
+          .equityBarrierOptionVisitor(_equityBarrierOptionSecurityVisitor)
+          .fxForwardVisitor(_fxForwardSecurityVisitor)
+          .nonDeliverableFxForwardVisitor(_fxNdfForwardSecurityVisitor)
+          .fxOptionVisitor(_fxOptionSecurityVisitor)
+          .nonDeliverableFxOptionVisitor(_ndfFxOptionSecurityVisitor)
+          .fxDigitalOptionVisitor(_fxDigitalOptionSecurityVisitor)
+          .fxNonDeliverableDigitalOptionVisitor(_ndfFxDigitalOptionSecurityVisitor)
+          .fxBarrierOptionVisitor(_fxBarrierOptionSecurityVisitor)
+          .irfutureOptionVisitor(_irFutureOptionSecurityVisitor)
+          .swaptionVisitor(_swaptionSecurityVisitor)
+          .equityIndexFutureOptionVisitor(_equityIndexFutureOptionSecurityVisitor)
+          .create();
       FinancialSecurity security = (FinancialSecurity) position.getSecurityLink().resolve(_secSource);
       try {
         String classification = security.accept(visitorAdapter);

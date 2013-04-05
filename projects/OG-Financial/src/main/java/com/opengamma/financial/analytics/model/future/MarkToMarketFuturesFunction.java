@@ -16,13 +16,13 @@ import com.opengamma.analytics.financial.simpleinstruments.pricing.SimpleFutureD
 import com.opengamma.core.security.Security;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.future.FutureSecurity;
@@ -34,7 +34,7 @@ import com.opengamma.util.money.Currency;
 public abstract class MarkToMarketFuturesFunction<T> extends FuturesFunction<T> {
   private static final Logger s_logger = LoggerFactory.getLogger(MarkToMarketFuturesFunction.class);
   /** The calculation method name */
-  public static final String CALCULATION_METHOD_NAME = "MarkToMarket";
+  public static final String CALCULATION_METHOD_NAME = CalculationPropertyNamesAndValues.MARK_TO_MARKET_METHOD;
 
   /**
    * @param valueRequirementName String describes the value requested
