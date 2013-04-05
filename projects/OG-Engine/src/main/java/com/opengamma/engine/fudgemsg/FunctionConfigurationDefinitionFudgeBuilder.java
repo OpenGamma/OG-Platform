@@ -28,7 +28,7 @@ import com.opengamma.engine.function.config.StaticFunctionConfiguration;
 public class FunctionConfigurationDefinitionFudgeBuilder implements FudgeBuilder<FunctionConfigurationDefinition> {
 
   private static final String NAME_FIELD = "name";
-  private static final String FUNCTION_CONFIG_DEFINITION_FIELD = "functionConfig";
+  private static final String FUNCTION_CONFIG_DEFINITION_FIELD = "configName";
   private static final String STATIC_FUNCTION_FIELD = "staticFunction";
   private static final String PARAMETERIZED_FUNCTION_FIELD = "parameterizedFunction";
 
