@@ -6,6 +6,8 @@
 package com.opengamma.analytics.financial.curve.inflation.generator;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurveAddSeasonalCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.SeasonalCurve;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
 import com.opengamma.util.ArgumentChecker;
 
@@ -21,26 +23,21 @@ public class GeneratorPriceIndexCurveAddSeasonality extends GeneratorPriceIndexC
    */
   private final GeneratorPriceIndexCurve _generator;
   /**
-   * If true the rate of the new curve will be subtracted from the first one. If false the rates are added.
-   */
-  private final boolean _isAdditive;
-  /**
    * The name of the existing curve.
    */
-  private final String _existingCurveName;
+  private final SeasonalCurve _seasonalCurve;
 
   /**
    * The constructor.
    * @param generator The generator for the new curve.
    * @param isAdditive If true the rate of the new curve will be subtracted from the first one. If false the rates are added.
-   * @param existingCurveName The name of the existing curve.
+   * @param seasonalCurve The seasonal curve.
    */
-  public GeneratorPriceIndexCurveAddSeasonality(final GeneratorPriceIndexCurve generator, final boolean isAdditive, final String existingCurveName) {
+  public GeneratorPriceIndexCurveAddSeasonality(final GeneratorPriceIndexCurve generator, final SeasonalCurve seasonalCurve) {
     ArgumentChecker.notNull(generator, "Generator");
-    ArgumentChecker.notNull(existingCurveName, "Exisitng curve name");
+    ArgumentChecker.notNull(seasonalCurve, "Seasonal curve");
     _generator = generator;
-    _isAdditive = isAdditive;
-    _existingCurveName = existingCurveName;
+    _seasonalCurve = seasonalCurve;
   }
 
   @Override
@@ -50,12 +47,24 @@ public class GeneratorPriceIndexCurveAddSeasonality extends GeneratorPriceIndexC
 
   @Override
   public PriceIndexCurve generateCurve(String name, double[] parameters) {
-    throw new UnsupportedOperationException("Cannot create the curve form the generator without an existing curve");
+    PriceIndexCurve newCurve = _generator.generateCurve(name + "-0", parameters);
+    return new PriceIndexCurveAddSeasonalCurve(name, newCurve, _seasonalCurve);
   }
 
   @Override
-  public PriceIndexCurve generateCurve(String name, InflationProviderInterface multicurves, double[] parameters) {
-    return null;
+  public PriceIndexCurve generateCurve(String name, InflationProviderInterface inflation, double[] parameters) {
+    PriceIndexCurve newCurve = _generator.generateCurve(name + "-0", inflation, parameters);
+    return new PriceIndexCurveAddSeasonalCurve(name, newCurve, _seasonalCurve);
+  }
+
+  @Override
+  public GeneratorPriceIndexCurve finalGenerator(Object data) {
+    return new GeneratorPriceIndexCurveAddSeasonality(_generator.finalGenerator(data), _seasonalCurve);
+  }
+
+  @Override
+  public double[] initialGuess(double[] rates) {
+    return _generator.initialGuess(rates);
   }
 
 }
