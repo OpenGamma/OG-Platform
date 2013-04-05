@@ -32,6 +32,12 @@ div.tooltip-cta{
     text-align: center;
 }
 
+div.reduced div.tooltip-cta{
+    height: 20px;
+    width: auto;
+    max-width: 100px;
+}
+
 div.tooltip-cta.norf {
     width: 150px;
     height: 150px;
@@ -364,6 +370,10 @@ div.tooltip.south-west:after{
     position: absolute;
 }
 
+div.tooltip.north-west-flip{
+    margin-left: 7px;
+}
+
 div.tooltip.north-west:before{
     border-bottom: 7px solid #bdc4c8;
     border-left: 7px solid #bdc4c8;
@@ -385,6 +395,10 @@ div.tooltip.north-west:after{
     left: 0%;
     position: absolute;
     top: -6px;
+}
+
+div.tooltip.north-east-flip{
+    margin-left: -7px;
 }
 
 div.tooltip.north-east-flip:before{
@@ -413,6 +427,10 @@ div.tooltip.north-east-flip:after{
     top: 0;
 }
 
+div.tooltip.south-east-flip{
+    margin-left: -7px;
+}
+
 div.tooltip.south-east-flip:before{
     border-bottom: 7px solid #bdc4c8;
     border-left: 7px solid transparent;
@@ -437,6 +455,10 @@ div.tooltip.south-east-flip:after{
     left: 100%;
     margin-left: -7px;
     position: absolute;
+}
+
+div.tooltip.south-west-flip{
+    margin-left: 7px;
 }
 
 div.tooltip.south-west-flip:before{
