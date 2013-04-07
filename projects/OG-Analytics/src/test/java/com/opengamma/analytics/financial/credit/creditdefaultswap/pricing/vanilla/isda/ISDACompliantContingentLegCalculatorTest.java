@@ -3,19 +3,18 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.credit.schedulegeneration.isda;
+package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isda;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertNull;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.creditdefaultswap.CreditDefaultSwapDefinitionDataSets;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.PresentValueCreditDefaultSwap;
 import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
-import com.opengamma.analytics.financial.credit.schedulegeneration.GenerateCreditDefaultSwapIntegrationSchedule;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.util.time.DateUtils;
@@ -23,9 +22,9 @@ import com.opengamma.util.time.DateUtils;
 /**
  * 
  */
-public class ISDACompliantContingentLegIntegrationScheduleGenerationTest {
-  private static final GenerateCreditDefaultSwapIntegrationSchedule DEPRECATED_CALCULATOR = new GenerateCreditDefaultSwapIntegrationSchedule();
-  private static final GenerateCreditDefaultSwapContingentLegIntegrationScheduleNew CALCULATOR = new GenerateCreditDefaultSwapContingentLegIntegrationScheduleNew();
+public class ISDACompliantContingentLegCalculatorTest {
+  private static final PresentValueCreditDefaultSwap DEPRECATED_CALCULATOR = new PresentValueCreditDefaultSwap();
+  private static final ISDACompliantContingentLegCalculator CALCULATOR = new ISDACompliantContingentLegCalculator();
   private static final ZonedDateTime VALUATION_DATE = DateUtils.getUTCDate(2013, 1, 6);
   private static final ZonedDateTime BASE_DATE = DateUtils.getUTCDate(2013, 3, 1);
   private static final ZonedDateTime[] HR_DATES = new ZonedDateTime[] {DateUtils.getUTCDate(2013, 3, 1), DateUtils.getUTCDate(2013, 6, 1), DateUtils.getUTCDate(2013, 9, 1),
@@ -62,22 +61,18 @@ public class ISDACompliantContingentLegIntegrationScheduleGenerationTest {
   @Test
   public void regressionTest() {
     final CreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaCreditDefaultSwapDefinition().withMaturityDate(VALUATION_DATE.plusYears(10));
-    final ZonedDateTime startDate = getStartDate(cds);
-    final ZonedDateTime endDate = cds.getMaturityDate();
-    final double[] deprecatedResult = DEPRECATED_CALCULATOR.constructCreditDefaultSwapContingentLegIntegrationSchedule(VALUATION_DATE, startDate, endDate, cds, YIELD_CURVE, HAZARD_RATE_CURVE);
-    final Double[] result = CALCULATOR.constructCreditDefaultSwapContingentLegIntegrationSchedule(VALUATION_DATE, startDate, endDate, cds, YIELD_CURVE, HAZARD_RATE_CURVE);
-    assertArrayEquals(deprecatedResult, result, EPS);
+    final double deprecatedResult = DEPRECATED_CALCULATOR.calculateContingentLeg(VALUATION_DATE, cds, YIELD_CURVE, HAZARD_RATE_CURVE);
+    final double result = CALCULATOR.calculateContingentLeg(VALUATION_DATE, cds, YIELD_CURVE, HAZARD_RATE_CURVE);
+    assertEquals(deprecatedResult, result, EPS);
   }
 
   @Test//(enabled = false)
   public void timeBDeprecated() {
     final CreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaCreditDefaultSwapDefinition().withMaturityDate(VALUATION_DATE.plusYears(10));
-    final ZonedDateTime startDate = getStartDate(cds);
-    final ZonedDateTime endDate = cds.getMaturityDate();
     final double startTime = System.currentTimeMillis();
     int j = 0;
-    for (int i = 0; i < 1000000; i++) {
-      DEPRECATED_CALCULATOR.constructCreditDefaultSwapContingentLegIntegrationSchedule(VALUATION_DATE, startDate, endDate, cds, YIELD_CURVE, HAZARD_RATE_CURVE);
+    for (int i = 0; i < 100000; i++) {
+      DEPRECATED_CALCULATOR.calculateContingentLeg(VALUATION_DATE, cds, YIELD_CURVE, HAZARD_RATE_CURVE);
       j++;
     }
     final double endTime = System.currentTimeMillis();
@@ -87,49 +82,14 @@ public class ISDACompliantContingentLegIntegrationScheduleGenerationTest {
   @Test//(enabled = false)
   public void timeARefactored() {
     final CreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaCreditDefaultSwapDefinition().withMaturityDate(VALUATION_DATE.plusYears(10));
-    final ZonedDateTime startDate = getStartDate(cds);
-    final ZonedDateTime endDate = cds.getMaturityDate();
     final double startTime = System.currentTimeMillis();
     int j = 0;
-    for (int i = 0; i < 1000000; i++) {
-      CALCULATOR.constructCreditDefaultSwapContingentLegIntegrationSchedule(VALUATION_DATE, startDate, endDate, cds, YIELD_CURVE, HAZARD_RATE_CURVE);
+    for (int i = 0; i < 100000; i++) {
+      CALCULATOR.calculateContingentLeg(VALUATION_DATE, cds, YIELD_CURVE, HAZARD_RATE_CURVE);
       j++;
     }
     final double endTime = System.currentTimeMillis();
     System.out.println("Refactored:\t" + (endTime - startTime) / j * 100);
   }
 
-  private ZonedDateTime getStartDate(final CreditDefaultSwapDefinition cds) {
-    ZonedDateTime startDate;
-    int offset = 0;
-    if (cds.getProtectionStart()) {
-      offset = 1;
-    }
-    ZonedDateTime clStartDate = VALUATION_DATE;
-    if (cds.getProtectionStart()) {
-      clStartDate = VALUATION_DATE.minusDays(1);
-    }
-    final ZonedDateTime stepinDate = cds.getEffectiveDate();
-    if (clStartDate.isAfter(stepinDate.minusDays(offset))) {
-      startDate = clStartDate;
-    } else {
-      startDate = stepinDate.minusDays(offset);
-    }
-    if (startDate.isAfter(VALUATION_DATE.minusDays(1))) {
-      //startDate = startDate;
-    } else {
-      startDate = VALUATION_DATE.minusDays(1);
-    }
-    return startDate;
-  }
-
-  private void assertArrayEquals(final double[] expected, final Double[] actual, final double eps) {
-    if (expected == null) {
-      assertNull(actual);
-    }
-    assertEquals(expected.length, actual.length);
-    for (int i = 0; i < expected.length; i++) {
-      assertEquals(expected[i], actual[i], eps);
-    }
-  }
 }

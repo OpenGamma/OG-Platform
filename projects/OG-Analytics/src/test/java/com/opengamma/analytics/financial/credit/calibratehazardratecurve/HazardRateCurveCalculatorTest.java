@@ -83,7 +83,7 @@ public class HazardRateCurveCalculatorTest {
     assertEquals(curve1, curve2);
   }
 
-  @Test(enabled = false)
+  @Test//(enabled = false)
   public void timeBDeprecated() {
     final double startTime = System.currentTimeMillis();
     int j = 0;
@@ -95,7 +95,7 @@ public class HazardRateCurveCalculatorTest {
     System.out.println("Deprecated:\t" + (endTime - startTime) / j * 100);
   }
 
-  @Test(enabled = false)
+  @Test//(enabled = false)
   public void timeARefactored() {
     final double startTime = System.currentTimeMillis();
     int j = 0;

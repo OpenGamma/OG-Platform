@@ -5,19 +5,17 @@
  */
 package com.opengamma.analytics.financial.credit.schedulegeneration.isda;
 
-import java.util.Arrays;
-import java.util.LinkedHashSet;
 import java.util.NavigableSet;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
 import com.opengamma.analytics.financial.credit.schedulegeneration.GenerateCreditDefaultSwapPremiumLegSchedule;
+import com.opengamma.analytics.financial.credit.schedulegeneration.ScheduleUtils;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
@@ -36,21 +34,13 @@ public class GenerateCreditDefaultSwapAccruedLegIntegrationScheduleNew {
 
   // Method to calculate the time nodes used to approximate the integral in the accrued leg calculation
 
-  public ZonedDateTime[] constructCreditDefaultSwapAccruedLegIntegrationSchedule(
-      final ZonedDateTime valuationDate,
-      final CreditDefaultSwapDefinition cds,
-      final ISDADateCurve yieldCurve,
-      final HazardRateCurve hazardRateCurve,
-      final boolean includeSchedule) {
+  public ZonedDateTime[] constructCreditDefaultSwapAccruedLegIntegrationSchedule(final CreditDefaultSwapDefinition cds, final ISDADateCurve yieldCurve,
+      final HazardRateCurve hazardRateCurve) {
     // Check input objects are not null
     ArgumentChecker.notNull(cds, "CDS");
     ArgumentChecker.notNull(yieldCurve, "Yield Curve");
     ArgumentChecker.notNull(hazardRateCurve, "Hazard Rate Curve");
     // Do we want to include the CDS premium leg cashflow schedule as points
-    // Get the start time of the CDS with respect to the current valuation date (can obviously be negative)
-    final double startTime = calculateCreditDefaultSwapStartTime(valuationDate, cds, ACT_365);
-    // Get the (offset) maturity of the CDS
-    final double offsetMaturityTime = calculateCreditDefaultSwapOffsetMaturity(valuationDate, cds, ACT_365);
     final ZonedDateTime startDate = cds.getStartDate();
     ZonedDateTime endDate = cds.getMaturityDate();
     if (cds.getProtectionStart()) {
@@ -60,8 +50,6 @@ public class GenerateCreditDefaultSwapAccruedLegIntegrationScheduleNew {
     final ZonedDateTime[] timeNodes = constructISDACompliantAccruedLegIntegrationSchedule(yieldCurve, hazardRateCurve, startDate, endDate);
     return timeNodes;
   }
-
-  // -------------------------------------------------------------------------------------------
 
   // Method to calculate the time nodes used to approximate the integral in the contingent leg calculation
 
@@ -217,72 +205,17 @@ public class GenerateCreditDefaultSwapAccruedLegIntegrationScheduleNew {
   // This is a total hack just to get the accrued leg calculation working - need to re-merge with the other functions
   // This is actually how I want to re-write the other function
 
-  private ZonedDateTime[] constructISDACompliantAccruedLegIntegrationSchedule(
-      final ISDADateCurve yieldCurve,
-      final HazardRateCurve hazardRateCurve,
-      final ZonedDateTime startDate,
-      final ZonedDateTime endDate) {
-    ArgumentChecker.isTrue(startDate.isBefore(endDate), "Start date {} must be before end date {}", startDate, endDate);
+  private ZonedDateTime[] constructISDACompliantAccruedLegIntegrationSchedule(final ISDADateCurve yieldCurve, final HazardRateCurve hazardRateCurve,
+      final ZonedDateTime startDate, final ZonedDateTime endDate) {
     final ZonedDateTime[] yieldCurveDates = yieldCurve.getCurveDates();
     final ZonedDateTime[] hazardCurveDates = hazardRateCurve.getCurveTenors();
     final int nYieldCurveDates = yieldCurveDates.length;
     final int nHazardCurveDates = hazardCurveDates.length;
     final int total = nYieldCurveDates + nHazardCurveDates;
-    final ZonedDateTime[] result = new ZonedDateTime[total + 2];
+    final ZonedDateTime[] result = new ZonedDateTime[total];
     System.arraycopy(yieldCurveDates, 0, result, 0, nYieldCurveDates);
     System.arraycopy(hazardCurveDates, 0, result, nYieldCurveDates, nHazardCurveDates);
-    result[total] = startDate;
-    result[total + 1] = endDate;
-    return new GenerateCreditDefaultSwapAccruedLegIntegrationScheduleNew().getTruncatedTimeLine(result, startDate, endDate, false);
-  }
-
-  public ZonedDateTime[] getTruncatedTimeLine(final ZonedDateTime[] allDates, final ZonedDateTime startDate, final ZonedDateTime endDate,
-      final boolean sorted) {
-    ArgumentChecker.notNull(allDates, "all dates");
-    ArgumentChecker.notNull(startDate, "start date");
-    ArgumentChecker.notNull(endDate, "end date");
-    //TODO should allDates not be empty?
-    ArgumentChecker.isTrue(startDate.isBefore(endDate), "Start date {} must be before end date {}", startDate, endDate);
-    final int n = allDates.length;
-    final ZonedDateTime[] dates = new ZonedDateTime[n];
-    System.arraycopy(allDates, 0, dates, 0, n);
-    final LinkedHashSet<ZonedDateTime> truncated = new LinkedHashSet<>();
-    final LocalDate startDateAsLocal = startDate.toLocalDate();
-    final LocalDate endDateAsLocal = endDate.toLocalDate();
-    for (final ZonedDateTime date : dates) {
-      final LocalDate localDate = date.toLocalDate();
-      if (!(localDate.isBefore(startDateAsLocal) || localDate.isAfter(endDateAsLocal))) {
-        truncated.add(date);
-      }
-    }
-    final int truncatedSize = truncated.size();
-    if (truncatedSize == 0) {
-      return new ZonedDateTime[] {startDate, endDate };
-    }
-    final ZonedDateTime[] truncatedArray = truncated.toArray(new ZonedDateTime[truncatedSize]);
-    if (!sorted) {
-      Arrays.sort(truncatedArray);
-    }
-    if (truncatedArray[0].equals(startDate)) {
-      if (truncatedArray[truncatedSize - 1].equals(endDate)) {
-        return truncatedArray;
-      }
-      final ZonedDateTime[] result = new ZonedDateTime[truncatedSize + 1];
-      System.arraycopy(truncatedArray, 0, result, 0, truncatedSize);
-      result[truncatedSize] = endDate;
-      return result;
-    }
-    if (truncatedArray[truncatedSize - 1].equals(endDate)) {
-      final ZonedDateTime[] result = new ZonedDateTime[truncatedSize + 1];
-      System.arraycopy(truncatedArray, 0, result, 1, truncatedSize);
-      result[0] = startDate;
-      return result;
-    }
-    final ZonedDateTime[] result = new ZonedDateTime[truncatedSize + 2];
-    System.arraycopy(truncatedArray, 0, result, 1, truncatedSize);
-    result[0] = startDate;
-    result[truncatedSize + 1] = endDate;
-    return result;
+    return ScheduleUtils.getTruncatedTimeLine(result, startDate, endDate, false);
   }
 
   // -------------------------------------------------------------------------------------------
