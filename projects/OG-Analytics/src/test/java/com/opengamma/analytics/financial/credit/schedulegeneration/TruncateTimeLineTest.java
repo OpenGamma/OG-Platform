@@ -196,7 +196,7 @@ public class TruncateTimeLineTest {
     testResults(expectedResult, CONCATENATED_SORTED_DATE_LIST, startDate, endDate, false);
   }
 
-  @Test//(enabled = false)
+  @Test(enabled = false)
   public void testDeprecatedUnsorted() {
     int j = 0;
     final ZonedDateTime startDate = SORTED_DATE_LIST[0].minusDays(7);
@@ -210,7 +210,7 @@ public class TruncateTimeLineTest {
     System.out.println("Deprecated unsorted:\t" + (endTime - startTime) / j * 1000);
   }
 
-  @Test//(enabled = false)
+  @Test(enabled = false)
   public void testDeprecatedConcatenated() {
     int j = 0;
     final ZonedDateTime startDate = SORTED_DATE_LIST[0].minusDays(7);
@@ -224,7 +224,7 @@ public class TruncateTimeLineTest {
     System.out.println("Deprecated concatenated:\t" + (endTime - startTime) / j * 1000);
   }
 
-  @Test//(enabled = false)
+  @Test(enabled = false)
   public void testDeprecatedSorted() {
     int j = 0;
     final ZonedDateTime startDate = SORTED_DATE_LIST[0].minusDays(7);
@@ -238,7 +238,7 @@ public class TruncateTimeLineTest {
     System.out.println("Deprecated sorted:\t" + (endTime - startTime) / j * 1000);
   }
 
-  @Test//(enabled = false)
+  @Test(enabled = false)
   public void testDeprecatedCommon() {
     int j = 0;
     final ZonedDateTime startDate = SORTED_DATE_LIST[0].minusDays(7);
@@ -256,7 +256,7 @@ public class TruncateTimeLineTest {
     System.out.println("Deprecated common:\t" + (endTime - startTime) / j * 1000);
   }
 
-  @Test//(enabled = false)
+  @Test(enabled = false)
   public void testARefactoredUnsorted() {
     int j = 0;
     final ZonedDateTime startDate = SORTED_DATE_LIST[0].minusDays(7);
@@ -270,7 +270,7 @@ public class TruncateTimeLineTest {
     System.out.println("Refactored unsorted:\t" + (endTime - startTime) / j * 1000);
   }
 
-  @Test//(enabled = false)
+  @Test(enabled = false)
   public void testARefactoredConcatenated() {
     int j = 0;
     final ZonedDateTime startDate = SORTED_DATE_LIST[0].minusDays(7);
@@ -284,7 +284,7 @@ public class TruncateTimeLineTest {
     System.out.println("Refactored concatenated:\t" + (endTime - startTime) / j * 1000);
   }
 
-  @Test//(enabled = false)
+  @Test(enabled = false)
   public void testARefactoredSorted() {
     int j = 0;
     final ZonedDateTime startDate = SORTED_DATE_LIST[0].minusDays(7);
@@ -298,7 +298,7 @@ public class TruncateTimeLineTest {
     System.out.println("Refactored sorted:\t" + (endTime - startTime) / j * 1000000);
   }
 
-  @Test//(enabled = false)
+  @Test(enabled = false)
   public void testARefactoredCommon() {
     int j = 0;
     final ZonedDateTime startDate = SORTED_DATE_LIST[0].minusDays(7);

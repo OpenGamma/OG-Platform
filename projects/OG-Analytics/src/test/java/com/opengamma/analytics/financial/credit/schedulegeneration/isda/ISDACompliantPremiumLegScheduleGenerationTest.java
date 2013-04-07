@@ -49,7 +49,7 @@ public class ISDACompliantPremiumLegScheduleGenerationTest {
   public void testStartDateEqualsMaturityDate() {
     CreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaCreditDefaultSwapDefinitionWithProtectionStart(true);
     cds = cds.withMaturityDate(cds.getEffectiveDate());
-    assertDateArrayEquals(new ZonedDateTime[] {cds.getStartDate(), cds.getStartDate().plusDays(1)}, CALCULATOR.constructISDACompliantCreditDefaultSwapPremiumLegSchedule(cds));
+    assertDateArrayEquals(new ZonedDateTime[] {cds.getStartDate(), cds.getStartDate().plusDays(1) }, CALCULATOR.constructISDACompliantCreditDefaultSwapPremiumLegSchedule(cds));
   }
 
   @Test
@@ -355,7 +355,7 @@ public class ISDACompliantPremiumLegScheduleGenerationTest {
       dates.add(date);
       date = date.plusMonths(cds.getCouponFrequency().getPeriod().toTotalMonths());
     }
-    final ZonedDateTime[] expected = new ZonedDateTime[] {startDate, endDate};
+    final ZonedDateTime[] expected = new ZonedDateTime[] {startDate, endDate };
     final ZonedDateTime[] actual = CALCULATOR.constructISDACompliantCreditDefaultSwapPremiumLegSchedule(cds);
     assertDateArrayEquals(expected, actual);
     assertDateArrayEquals(expected, DEPRECATED_CALCULATOR.constructISDACompliantCreditDefaultSwapPremiumLegSchedule(cds));
@@ -363,7 +363,7 @@ public class ISDACompliantPremiumLegScheduleGenerationTest {
 
   //TODO test short dates
 
-  @Test//(enabled = false)
+  @Test(enabled = false)
   public void timeBDeprecated() {
     final CreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaCreditDefaultSwapDefinition().withMaturityDate(VALUATION_DATE.plusYears(10));
     final double startTime = System.currentTimeMillis();
@@ -376,7 +376,7 @@ public class ISDACompliantPremiumLegScheduleGenerationTest {
     System.out.println("Deprecated:\t" + (endTime - startTime) / j * 100);
   }
 
-  @Test//(enabled = false)
+  @Test(enabled = false)
   public void timeARefactored() {
     final CreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaCreditDefaultSwapDefinition().withMaturityDate(VALUATION_DATE.plusYears(10));
     final double startTime = System.currentTimeMillis();
