@@ -30,12 +30,11 @@ import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.engine.function.config.CombiningFunctionConfigurationSource;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationBundle;
-import com.opengamma.engine.function.config.ParameterizedFunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
+import com.opengamma.engine.function.config.ParameterizedFunctionConfiguration;
 import com.opengamma.engine.function.config.StaticFunctionConfiguration;
 import com.opengamma.financial.FinancialFunctions;
 import com.opengamma.financial.analytics.ircurve.IRCurveFunctions;
-import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.function.rest.DataRepositoryConfigurationSourceResource;
 import com.opengamma.financial.function.rest.RemoteFunctionConfigurationSource;
 import com.opengamma.master.config.ConfigMaster;
@@ -63,11 +62,6 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
    */
   @PropertyDefinition(validate = "notNull")
   private ConfigMaster _configMaster;
-  /**
-   * The convention bundle source.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private ConventionBundleSource _conventionBundleSource;
 
   //-------------------------------------------------------------------------
   @Override
@@ -218,8 +212,6 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
         return isPublishRest();
       case 10395716:  // configMaster
         return getConfigMaster();
-      case -1281578674:  // conventionBundleSource
-        return getConventionBundleSource();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -236,9 +228,6 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
       case 10395716:  // configMaster
         setConfigMaster((ConfigMaster) newValue);
         return;
-      case -1281578674:  // conventionBundleSource
-        setConventionBundleSource((ConventionBundleSource) newValue);
-        return;
     }
     super.propertySet(propertyName, newValue, quiet);
   }
@@ -247,7 +236,6 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
   protected void validate() {
     JodaBeanUtils.notNull(_classifier, "classifier");
     JodaBeanUtils.notNull(_configMaster, "configMaster");
-    JodaBeanUtils.notNull(_conventionBundleSource, "conventionBundleSource");
     super.validate();
   }
 
@@ -261,7 +249,6 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
           JodaBeanUtils.equal(isPublishRest(), other.isPublishRest()) &&
           JodaBeanUtils.equal(getConfigMaster(), other.getConfigMaster()) &&
-          JodaBeanUtils.equal(getConventionBundleSource(), other.getConventionBundleSource()) &&
           super.equals(obj);
     }
     return false;
@@ -273,7 +260,6 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
     hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
     hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
     hash += hash * 31 + JodaBeanUtils.hashCode(getConfigMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConventionBundleSource());
     return hash ^ super.hashCode();
   }
 
@@ -356,32 +342,6 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the convention bundle source.
-   * @return the value of the property, not null
-   */
-  public ConventionBundleSource getConventionBundleSource() {
-    return _conventionBundleSource;
-  }
-
-  /**
-   * Sets the convention bundle source.
-   * @param conventionBundleSource  the new value of the property, not null
-   */
-  public void setConventionBundleSource(ConventionBundleSource conventionBundleSource) {
-    JodaBeanUtils.notNull(conventionBundleSource, "conventionBundleSource");
-    this._conventionBundleSource = conventionBundleSource;
-  }
-
-  /**
-   * Gets the the {@code conventionBundleSource} property.
-   * @return the property, not null
-   */
-  public final Property<ConventionBundleSource> conventionBundleSource() {
-    return metaBean().conventionBundleSource().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * The meta-bean for {@code FunctionConfigurationSourceComponentFactory}.
    */
   public static class Meta extends AbstractComponentFactory.Meta {
@@ -406,19 +366,13 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
     private final MetaProperty<ConfigMaster> _configMaster = DirectMetaProperty.ofReadWrite(
         this, "configMaster", FunctionConfigurationSourceComponentFactory.class, ConfigMaster.class);
     /**
-     * The meta-property for the {@code conventionBundleSource} property.
-     */
-    private final MetaProperty<ConventionBundleSource> _conventionBundleSource = DirectMetaProperty.ofReadWrite(
-        this, "conventionBundleSource", FunctionConfigurationSourceComponentFactory.class, ConventionBundleSource.class);
-    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier",
         "publishRest",
-        "configMaster",
-        "conventionBundleSource");
+        "configMaster");
 
     /**
      * Restricted constructor.
@@ -435,8 +389,6 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
           return _publishRest;
         case 10395716:  // configMaster
           return _configMaster;
-        case -1281578674:  // conventionBundleSource
-          return _conventionBundleSource;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -479,14 +431,6 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
      */
     public final MetaProperty<ConfigMaster> configMaster() {
       return _configMaster;
-    }
-
-    /**
-     * The meta-property for the {@code conventionBundleSource} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<ConventionBundleSource> conventionBundleSource() {
-      return _conventionBundleSource;
     }
 
   }
