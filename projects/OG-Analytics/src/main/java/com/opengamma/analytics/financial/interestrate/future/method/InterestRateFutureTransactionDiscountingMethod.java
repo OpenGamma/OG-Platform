@@ -39,6 +39,9 @@ public final class InterestRateFutureTransactionDiscountingMethod extends Intere
   private InterestRateFutureTransactionDiscountingMethod() {
   }
 
+  /**
+   * The method to compute result for the underlying security.
+   */
   private static final InterestRateFutureSecurityDiscountingMethod METHOD_SECURITY = InterestRateFutureSecurityDiscountingMethod.getInstance();
 
   public CurrencyAmount presentValue(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
