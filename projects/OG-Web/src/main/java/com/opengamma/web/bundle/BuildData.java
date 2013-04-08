@@ -3,8 +3,10 @@ package com.opengamma.web.bundle;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.URL;
 import java.util.Properties;
 
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,16 +23,19 @@ public class BuildData {
 
   static {
     Properties prop = new Properties();
+    FileInputStream input = null;
     String result;
     try {
-      String resource = ClassLoader.getSystemResource("com/opengamma/web/bundle/BuifldData.txt").getPath();
-      prop.load(new FileInputStream(new File(resource)));
+      String resource = ClassLoader.getSystemResource("com/opengamma/web/bundle/BuildData.txt").getPath();
+      input = new FileInputStream(new File(resource));
+      prop.load(input);
       result = prop.getProperty("version");
       result += prop.getProperty("build.date");
-
-    } catch (IOException e) {
+    } catch (Exception e) {
       result = "default";
       s_logger.warn("Failed to load build data for resource urls", e);
+    } finally {
+      IOUtils.closeQuietly(input);
     }
     s_stamp = result;
   }
