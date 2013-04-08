@@ -811,6 +811,7 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
             }
             removal.add(requirement);
           }
+          // Anything that was in the specific requirements will be captured by the standard invalid identifier tests
         }
         if (removal != null) {
           removeSpecifications[remove] = entry.getKey();

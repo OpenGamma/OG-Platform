@@ -74,24 +74,26 @@ public class HistoricalTimeSeriesSourceComponentFactory extends AbstractComponen
 
   //-------------------------------------------------------------------------
   /**
-   * Initializes the HTS source, setting up component information and REST.
-   * Override using {@link #createResolver(ComponentRepository)} and
+   * Initializes the HTS source, setting up component information and REST. Override using {@link #createResolver(ComponentRepository)} and
    * {@link #createSource(ComponentRepository, HistoricalTimeSeriesResolver)}.
    * 
-   * @param repo  the component repository, not null
-   * @param configuration  the remaining configuration, not null
+   * @param repo the component repository, not null
+   * @param configuration the remaining configuration, not null
    */
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
     HistoricalTimeSeriesResolver resolver = createResolver(repo);
-    
+    if (getCacheManager() != null) {
+      resolver = createCachedResolver(resolver);
+    }
+
     ComponentInfo infoResolver = new ComponentInfo(HistoricalTimeSeriesResolver.class, getClassifier());
     infoResolver.addAttribute(ComponentInfoAttributes.LEVEL, 1);
     infoResolver.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteHistoricalTimeSeriesResolver.class);
     repo.registerComponent(infoResolver, resolver);
-    
+
     HistoricalTimeSeriesSource source = createSource(repo, resolver);
-    
+
     ComponentInfo infoSource = new ComponentInfo(HistoricalTimeSeriesSource.class, getClassifier());
     infoSource.addAttribute(ComponentInfoAttributes.LEVEL, 1);
     infoSource.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteHistoricalTimeSeriesSource.class);
@@ -105,18 +107,16 @@ public class HistoricalTimeSeriesSourceComponentFactory extends AbstractComponen
   /**
    * Creates the HTS provider without registering it.
    * 
-   * @param repo  the component repository, only used to register secondary items like lifecycle, not null
+   * @param repo the component repository, only used to register secondary items like lifecycle, not null
    * @return the provider, not null
    */
   protected HistoricalTimeSeriesResolver createResolver(ComponentRepository repo) {
     HistoricalTimeSeriesSelector selector = new DefaultHistoricalTimeSeriesSelector(getConfigSource());
-    if (getCacheManager() != null) {
-      return new EHCachingHistoricalTimeSeriesResolver(
-          new DefaultHistoricalTimeSeriesResolver(selector, getHistoricalTimeSeriesMaster()),
-          getCacheManager());
-    } else {
-      return new DefaultHistoricalTimeSeriesResolver(selector, getHistoricalTimeSeriesMaster());
-    }
+    return new DefaultHistoricalTimeSeriesResolver(selector, getHistoricalTimeSeriesMaster());
+  }
+
+  protected HistoricalTimeSeriesResolver createCachedResolver(HistoricalTimeSeriesResolver resolver) {
+    return new EHCachingHistoricalTimeSeriesResolver(resolver, getCacheManager());
   }
 
   /**
@@ -124,8 +124,8 @@ public class HistoricalTimeSeriesSourceComponentFactory extends AbstractComponen
    * <p>
    * This calls {@link #createSourcePreCaching(ComponentRepository, HistoricalTimeSeriesResolver)}.
    * 
-   * @param repo  the component repository, only used to register secondary items like lifecycle, not null
-   * @param resolver  the resolver, not null
+   * @param repo the component repository, only used to register secondary items like lifecycle, not null
+   * @param resolver the resolver, not null
    * @return the source, not null
    */
   protected HistoricalTimeSeriesSource createSource(ComponentRepository repo, HistoricalTimeSeriesResolver resolver) {
@@ -139,8 +139,8 @@ public class HistoricalTimeSeriesSourceComponentFactory extends AbstractComponen
   /**
    * Creates the HTS source without registering it before caching.
    * 
-   * @param repo  the component repository, only used to register secondary items like lifecycle, not null
-   * @param resolver  the resolver, not null
+   * @param repo the component repository, only used to register secondary items like lifecycle, not null
+   * @param resolver the resolver, not null
    * @return the source, not null
    */
   protected HistoricalTimeSeriesSource createSourcePreCaching(ComponentRepository repo, HistoricalTimeSeriesResolver resolver) {
@@ -151,11 +151,13 @@ public class HistoricalTimeSeriesSourceComponentFactory extends AbstractComponen
   ///CLOVER:OFF
   /**
    * The meta-bean for {@code HistoricalTimeSeriesSourceComponentFactory}.
+   * 
    * @return the meta-bean, not null
    */
   public static HistoricalTimeSeriesSourceComponentFactory.Meta meta() {
     return HistoricalTimeSeriesSourceComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(HistoricalTimeSeriesSourceComponentFactory.Meta.INSTANCE);
   }
@@ -168,15 +170,15 @@ public class HistoricalTimeSeriesSourceComponentFactory extends AbstractComponen
   @Override
   protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
+      case -281470431: // classifier
         return getClassifier();
-      case -614707837:  // publishRest
+      case -614707837: // publishRest
         return isPublishRest();
-      case -1452875317:  // cacheManager
+      case -1452875317: // cacheManager
         return getCacheManager();
-      case 173967376:  // historicalTimeSeriesMaster
+      case 173967376: // historicalTimeSeriesMaster
         return getHistoricalTimeSeriesMaster();
-      case 195157501:  // configSource
+      case 195157501: // configSource
         return getConfigSource();
     }
     return super.propertyGet(propertyName, quiet);
@@ -185,19 +187,19 @@ public class HistoricalTimeSeriesSourceComponentFactory extends AbstractComponen
   @Override
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
+      case -281470431: // classifier
         setClassifier((String) newValue);
         return;
-      case -614707837:  // publishRest
+      case -614707837: // publishRest
         setPublishRest((Boolean) newValue);
         return;
-      case -1452875317:  // cacheManager
+      case -1452875317: // cacheManager
         setCacheManager((CacheManager) newValue);
         return;
-      case 173967376:  // historicalTimeSeriesMaster
+      case 173967376: // historicalTimeSeriesMaster
         setHistoricalTimeSeriesMaster((HistoricalTimeSeriesMaster) newValue);
         return;
-      case 195157501:  // configSource
+      case 195157501: // configSource
         setConfigSource((ConfigSource) newValue);
         return;
     }
@@ -243,6 +245,7 @@ public class HistoricalTimeSeriesSourceComponentFactory extends AbstractComponen
   //-----------------------------------------------------------------------
   /**
    * Gets the classifier that the factory should publish under.
+   * 
    * @return the value of the property, not null
    */
   public String getClassifier() {
@@ -251,7 +254,8 @@ public class HistoricalTimeSeriesSourceComponentFactory extends AbstractComponen
 
   /**
    * Sets the classifier that the factory should publish under.
-   * @param classifier  the new value of the property, not null
+   * 
+   * @param classifier the new value of the property, not null
    */
   public void setClassifier(String classifier) {
     JodaBeanUtils.notNull(classifier, "classifier");
@@ -260,6 +264,7 @@ public class HistoricalTimeSeriesSourceComponentFactory extends AbstractComponen
 
   /**
    * Gets the the {@code classifier} property.
+   * 
    * @return the property, not null
    */
   public final Property<String> classifier() {
@@ -269,6 +274,7 @@ public class HistoricalTimeSeriesSourceComponentFactory extends AbstractComponen
   //-----------------------------------------------------------------------
   /**
    * Gets the flag determining whether the component should be published by REST (default true).
+   * 
    * @return the value of the property
    */
   public boolean isPublishRest() {
@@ -277,7 +283,8 @@ public class HistoricalTimeSeriesSourceComponentFactory extends AbstractComponen
 
   /**
    * Sets the flag determining whether the component should be published by REST (default true).
-   * @param publishRest  the new value of the property
+   * 
+   * @param publishRest the new value of the property
    */
   public void setPublishRest(boolean publishRest) {
     this._publishRest = publishRest;
@@ -285,6 +292,7 @@ public class HistoricalTimeSeriesSourceComponentFactory extends AbstractComponen
 
   /**
    * Gets the the {@code publishRest} property.
+   * 
    * @return the property, not null
    */
   public final Property<Boolean> publishRest() {
@@ -294,6 +302,7 @@ public class HistoricalTimeSeriesSourceComponentFactory extends AbstractComponen
   //-----------------------------------------------------------------------
   /**
    * Gets the cache manager.
+   * 
    * @return the value of the property
    */
   public CacheManager getCacheManager() {
@@ -302,7 +311,8 @@ public class HistoricalTimeSeriesSourceComponentFactory extends AbstractComponen
 
   /**
    * Sets the cache manager.
-   * @param cacheManager  the new value of the property
+   * 
+   * @param cacheManager the new value of the property
    */
   public void setCacheManager(CacheManager cacheManager) {
     this._cacheManager = cacheManager;
@@ -310,6 +320,7 @@ public class HistoricalTimeSeriesSourceComponentFactory extends AbstractComponen
 
   /**
    * Gets the the {@code cacheManager} property.
+   * 
    * @return the property, not null
    */
   public final Property<CacheManager> cacheManager() {
@@ -319,6 +330,7 @@ public class HistoricalTimeSeriesSourceComponentFactory extends AbstractComponen
   //-----------------------------------------------------------------------
   /**
    * Gets the underlying hts master.
+   * 
    * @return the value of the property, not null
    */
   public HistoricalTimeSeriesMaster getHistoricalTimeSeriesMaster() {
@@ -327,7 +339,8 @@ public class HistoricalTimeSeriesSourceComponentFactory extends AbstractComponen
 
   /**
    * Sets the underlying hts master.
-   * @param historicalTimeSeriesMaster  the new value of the property, not null
+   * 
+   * @param historicalTimeSeriesMaster the new value of the property, not null
    */
   public void setHistoricalTimeSeriesMaster(HistoricalTimeSeriesMaster historicalTimeSeriesMaster) {
     JodaBeanUtils.notNull(historicalTimeSeriesMaster, "historicalTimeSeriesMaster");
@@ -336,6 +349,7 @@ public class HistoricalTimeSeriesSourceComponentFactory extends AbstractComponen
 
   /**
    * Gets the the {@code historicalTimeSeriesMaster} property.
+   * 
    * @return the property, not null
    */
   public final Property<HistoricalTimeSeriesMaster> historicalTimeSeriesMaster() {
@@ -345,6 +359,7 @@ public class HistoricalTimeSeriesSourceComponentFactory extends AbstractComponen
   //-----------------------------------------------------------------------
   /**
    * Gets the config source.
+   * 
    * @return the value of the property, not null
    */
   public ConfigSource getConfigSource() {
@@ -353,7 +368,8 @@ public class HistoricalTimeSeriesSourceComponentFactory extends AbstractComponen
 
   /**
    * Sets the config source.
-   * @param configSource  the new value of the property, not null
+   * 
+   * @param configSource the new value of the property, not null
    */
   public void setConfigSource(ConfigSource configSource) {
     JodaBeanUtils.notNull(configSource, "configSource");
@@ -362,6 +378,7 @@ public class HistoricalTimeSeriesSourceComponentFactory extends AbstractComponen
 
   /**
    * Gets the the {@code configSource} property.
+   * 
    * @return the property, not null
    */
   public final Property<ConfigSource> configSource() {
@@ -423,15 +440,15 @@ public class HistoricalTimeSeriesSourceComponentFactory extends AbstractComponen
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case -281470431:  // classifier
+        case -281470431: // classifier
           return _classifier;
-        case -614707837:  // publishRest
+        case -614707837: // publishRest
           return _publishRest;
-        case -1452875317:  // cacheManager
+        case -1452875317: // cacheManager
           return _cacheManager;
-        case 173967376:  // historicalTimeSeriesMaster
+        case 173967376: // historicalTimeSeriesMaster
           return _historicalTimeSeriesMaster;
-        case 195157501:  // configSource
+        case 195157501: // configSource
           return _configSource;
       }
       return super.metaPropertyGet(propertyName);
@@ -455,6 +472,7 @@ public class HistoricalTimeSeriesSourceComponentFactory extends AbstractComponen
     //-----------------------------------------------------------------------
     /**
      * The meta-property for the {@code classifier} property.
+     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<String> classifier() {
@@ -463,6 +481,7 @@ public class HistoricalTimeSeriesSourceComponentFactory extends AbstractComponen
 
     /**
      * The meta-property for the {@code publishRest} property.
+     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<Boolean> publishRest() {
@@ -471,6 +490,7 @@ public class HistoricalTimeSeriesSourceComponentFactory extends AbstractComponen
 
     /**
      * The meta-property for the {@code cacheManager} property.
+     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<CacheManager> cacheManager() {
@@ -479,6 +499,7 @@ public class HistoricalTimeSeriesSourceComponentFactory extends AbstractComponen
 
     /**
      * The meta-property for the {@code historicalTimeSeriesMaster} property.
+     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<HistoricalTimeSeriesMaster> historicalTimeSeriesMaster() {
@@ -487,6 +508,7 @@ public class HistoricalTimeSeriesSourceComponentFactory extends AbstractComponen
 
     /**
      * The meta-property for the {@code configSource} property.
+     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<ConfigSource> configSource() {
