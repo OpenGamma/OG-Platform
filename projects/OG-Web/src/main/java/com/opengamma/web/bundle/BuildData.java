@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 public class BuildData {
 
   /** Stamp to be appended to resource urls */
-  private static final String _stamp;
+  private static final String s_stamp;
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(ScriptTag.class);
 
@@ -32,11 +32,11 @@ public class BuildData {
       result = "default";
       s_logger.warn("Failed to load build data for resource urls", e);
     }
-    _stamp = result;
+    s_stamp = result;
   }
 
   /** returns the stamp of type String */
   public static String getBuildStamp() {
-    return _stamp;
+    return s_stamp;
   }
 }
