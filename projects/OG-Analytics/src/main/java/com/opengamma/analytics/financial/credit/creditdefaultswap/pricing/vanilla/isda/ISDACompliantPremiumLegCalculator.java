@@ -14,7 +14,6 @@ import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
 import com.opengamma.analytics.financial.credit.schedulegeneration.ScheduleUtils;
 import com.opengamma.analytics.financial.credit.schedulegeneration.isda.GenerateCreditDefaultSwapAccruedLegIntegrationScheduleNew;
 import com.opengamma.analytics.financial.credit.schedulegeneration.isda.GenerateCreditDefaultSwapPremiumLegScheduleNew;
-import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -105,15 +104,19 @@ public class ISDACompliantPremiumLegCalculator {
         } else {
           t = today.isBefore(subStartDate) ? ACT_365.getDayCountFraction(today, subStartDate) : -ACT_365.getDayCountFraction(subStartDate, today);
         }
+        if (Double.compare(t, -0.0) == 0) {
+          t = 0;
+        }
         double s0 = hazardRateCurve.getSurvivalProbability(t);
         double df0 = yieldCurve.getDiscountFactor(t);
         for (int j = 1; j < truncatedDateList.length; ++j) {
           double thisAccPV = 0.0;
           final ZonedDateTime date = truncatedDateList[j];
           if (date.isAfter(offsetStepinDate)) {
-            t = TimeCalculator.getTimeBetween(today, date, ACT_365);
-
             t = today.isBefore(date) ? ACT_365.getDayCountFraction(today, date) : -ACT_365.getDayCountFraction(date, today); //TimeCalculator.getTimeBetween(today, truncatedDateList[j], ACT_365);
+            if (Double.compare(t, -0.0) == 0) {
+              t = 0;
+            }
             final double s1 = hazardRateCurve.getSurvivalProbability(t);
             final double df1 = yieldCurve.getDiscountFactor(t);
             final double t0 = (offsetAccStartDate.isBefore(subStartDate) ? ACT_365.getDayCountFraction(offsetAccStartDate, subStartDate)

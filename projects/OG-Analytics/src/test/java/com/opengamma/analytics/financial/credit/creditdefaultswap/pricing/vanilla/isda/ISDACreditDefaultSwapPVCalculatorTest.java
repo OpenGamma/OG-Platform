@@ -10,9 +10,12 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.analytics.financial.credit.ISDAYieldCurveAndHazardRateCurveProvider;
+import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.CreditDefaultSwapDefinitionDataSets;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.PresentValueCreditDefaultSwap;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.legacy.PresentValueLegacyCreditDefaultSwap;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isda.ISDACreditDefaultSwapPVCalculator;
 import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -22,9 +25,9 @@ import com.opengamma.util.time.DateUtils;
 /**
  * 
  */
-public class ISDACompliantContingentLegCalculatorTest {
-  private static final PresentValueCreditDefaultSwap DEPRECATED_CALCULATOR = new PresentValueCreditDefaultSwap();
-  private static final ISDACompliantContingentLegCalculator CALCULATOR = new ISDACompliantContingentLegCalculator();
+public class ISDACreditDefaultSwapPVCalculatorTest {
+  private static final PresentValueLegacyCreditDefaultSwap DEPRECATED_CALCULATOR = new PresentValueLegacyCreditDefaultSwap();
+  private static final ISDACreditDefaultSwapPVCalculator CALCULATOR = new ISDACreditDefaultSwapPVCalculator();
   private static final ZonedDateTime VALUATION_DATE = DateUtils.getUTCDate(2013, 1, 6);
   private static final ZonedDateTime BASE_DATE = DateUtils.getUTCDate(2013, 3, 1);
   private static final ZonedDateTime[] HR_DATES = new ZonedDateTime[] {DateUtils.getUTCDate(2013, 3, 1), DateUtils.getUTCDate(2013, 6, 1), DateUtils.getUTCDate(2013, 9, 1),
@@ -41,6 +44,7 @@ public class ISDACompliantContingentLegCalculatorTest {
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("ACT/365");
   private static final double OFFSET = 1. / 365;
   private static final ISDADateCurve YIELD_CURVE;
+  private static final ISDAYieldCurveAndHazardRateCurveProvider CURVE_PROVIDER;
   private static final double EPS = 1e-15;
 
   static {
@@ -56,23 +60,24 @@ public class ISDACompliantContingentLegCalculatorTest {
       YC_TIMES[i] = DAY_COUNT.getDayCountFraction(BASE_DATE, YC_DATES[i]);
     }
     YIELD_CURVE = new ISDADateCurve("ISDA", BASE_DATE, YC_DATES, YC_RATES, OFFSET);
+    CURVE_PROVIDER = new ISDAYieldCurveAndHazardRateCurveProvider(YIELD_CURVE, HAZARD_RATE_CURVE);
   }
 
   @Test
   public void regressionTest() {
-    final CreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaCreditDefaultSwapDefinition().withMaturityDate(VALUATION_DATE.plusYears(10));
-    final double deprecatedResult = DEPRECATED_CALCULATOR.calculateContingentLeg(VALUATION_DATE, cds, YIELD_CURVE, HAZARD_RATE_CURVE);
-    final double result = CALCULATOR.calculateContingentLeg(VALUATION_DATE, cds, YIELD_CURVE, HAZARD_RATE_CURVE);
+    final LegacyVanillaCreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaCreditDefaultSwapDefinition().withMaturityDate(VALUATION_DATE.plusYears(10));
+    final double deprecatedResult = DEPRECATED_CALCULATOR.getPresentValueLegacyCreditDefaultSwap(VALUATION_DATE, cds, YIELD_CURVE, HAZARD_RATE_CURVE, PriceType.CLEAN);
+    final double result = CALCULATOR.getPresentValue(cds, CURVE_PROVIDER, VALUATION_DATE, PriceType.CLEAN);
     assertEquals(deprecatedResult, result, EPS);
   }
 
   @Test//(enabled = false)
   public void timeBDeprecated() {
-    final CreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaCreditDefaultSwapDefinition().withMaturityDate(VALUATION_DATE.plusYears(10));
+    final LegacyVanillaCreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaCreditDefaultSwapDefinition().withMaturityDate(VALUATION_DATE.plusYears(10));
     final double startTime = System.currentTimeMillis();
     int j = 0;
-    for (int i = 0; i < 500000; i++) {
-      DEPRECATED_CALCULATOR.calculateContingentLeg(VALUATION_DATE, cds, YIELD_CURVE, HAZARD_RATE_CURVE);
+    for (int i = 0; i < 100000; i++) {
+      DEPRECATED_CALCULATOR.getPresentValueLegacyCreditDefaultSwap(VALUATION_DATE, cds, YIELD_CURVE, HAZARD_RATE_CURVE, PriceType.CLEAN);
       j++;
     }
     final double endTime = System.currentTimeMillis();
@@ -81,11 +86,11 @@ public class ISDACompliantContingentLegCalculatorTest {
 
   @Test//(enabled = false)
   public void timeARefactored() {
-    final CreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaCreditDefaultSwapDefinition().withMaturityDate(VALUATION_DATE.plusYears(10));
+    final LegacyVanillaCreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaCreditDefaultSwapDefinition().withMaturityDate(VALUATION_DATE.plusYears(10));
     final double startTime = System.currentTimeMillis();
     int j = 0;
-    for (int i = 0; i < 500000; i++) {
-      CALCULATOR.calculateContingentLeg(VALUATION_DATE, cds, YIELD_CURVE, HAZARD_RATE_CURVE);
+    for (int i = 0; i < 100000; i++) {
+      CALCULATOR.getPresentValue(cds, CURVE_PROVIDER, VALUATION_DATE, PriceType.CLEAN);
       j++;
     }
     final double endTime = System.currentTimeMillis();
