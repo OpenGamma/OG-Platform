@@ -79,7 +79,7 @@ public class SpreadCurveFunctions {
     // if IMM date take flat spread from imm curve (all values set to single bucket spread)
     if (IMMDateGenerator.isIMMDate((cds.getMaturityDate()))) {
       // find index of bucket this cds maturity is in - should really implement a custom comparator and do a binary search
-      Double spreadRate = Double.valueOf(0.0);
+      Double spreadRate = spreadCurve.getYData()[0];
 
       for (final Tenor tenor : spreadCurve.getXData()) {
         final ZonedDateTime bucketDate = startDate.plus(tenor.getPeriod());
