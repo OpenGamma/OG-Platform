@@ -41,7 +41,6 @@ import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
-import com.opengamma.engine.value.ValueProperties.Builder;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -133,7 +132,7 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
 
   /**
    * Constructs a market data bundle
-   *
+   * 
    * @param underlyingId The underlying id of the index option
    * @param executionContext The execution context
    * @param inputs The market data inputs
@@ -175,7 +174,7 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
 
   /**
    * Calculates the result
-   *
+   * 
    * @param derivative The derivative
    * @param market The market data bundle
    * @param inputs The market data inputs
@@ -221,7 +220,7 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
     String forwardCurveName = null;
     String forwardCurveCalculationMethod = null;
     ValueProperties.Builder additionalConstraintsBuilder = null;
-    if (constraints.getProperties().isEmpty()) {
+    if ((constraints.getProperties() == null) || constraints.getProperties().isEmpty()) {
       return null;
     }
     for (final String property : constraints.getProperties()) {
@@ -343,7 +342,7 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
         //        for (final String property : surfaceProperties.getProperties()) {
         //          properties.with(property, surfaceProperties.getValues(property));
         //        }
-        
+
         surfacePropertiesSet = true; // i.e. don't set any surface properties
       }
     }
@@ -363,6 +362,7 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
 
   /**
    * Converts result properties with a currency property to one without.
+   * 
    * @param resultsWithCurrency The set of results with the currency property set
    * @return A set of results without a currency property
    */
@@ -448,7 +448,7 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
 
   /**
    * Gets the value requirement names
-   *
+   * 
    * @return The value requirement names
    */
   protected String[] getValueRequirementNames() {
@@ -457,14 +457,14 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
 
   /**
    * Gets the calculation method.
-   *
+   * 
    * @return The calculation method
    */
   protected abstract String getCalculationMethod();
 
   /**
    * Gets the model type.
-   *
+   * 
    * @return The model type
    */
   protected abstract String getModelType();

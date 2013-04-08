@@ -61,7 +61,7 @@
         <@rowout label="Yield convention">${security.yieldConvention.conventionName}</@rowout>
         <#if security.guaranteeType?has_content>
           <@rowout label="Guarantee type">${security.guaranteeType}</@rowout>
-        </#if>  
+        </#if>
         <@rowout label="Last trade date">${security.lastTradeDate.expiry}</@rowout>
         <@rowout label="Last trade accuracy">${security.lastTradeDate.accuracy?replace("_", " ")}</@rowout>
         <@rowout label="Coupon type">${security.couponType}</@rowout>
@@ -70,7 +70,7 @@
         <@rowout label="Day count convention">${security.dayCount.conventionName}</@rowout>
         <#if security.businessDayConvention?has_content>
           <@rowout label="Business day convention">${security.businessDayConvention}</@rowout>
-        </#if>  
+        </#if>
         <#if security.announcementDate?has_content>
           <@rowout label="Announcement date">${security.announcementDate}</@rowout>
         </#if>
@@ -100,18 +100,20 @@
         <@rowout label="Redemption value">${security.currency}</@rowout>
         <@rowout label="Unit Amount">${security.unitAmount}</@rowout>
         <#if futureSecurityType == "BondFuture">
-            <@rowout label="First delivery date">${security.firstDeliveryDate}</@rowout>
-            <@rowout label="Last delivery date">${security.lastDeliveryDate}</@rowout>
-            <@rowout label="Underlying Bond"></@rowout>
-            <#list basket?keys as key>
-              <@rowout label="">${key} - ${basket[key]}</@rowout>
-            </#list>
+          <@rowout label="First delivery date">${security.firstDeliveryDate}</@rowout>
+          <@rowout label="Last delivery date">${security.lastDeliveryDate}</@rowout>
+          <@rowout label="Underlying Bond"></@rowout>
+          <#list basket?keys as key>
+            <@rowout label="">${key} - ${basket[key]}</@rowout>
+          </#list>
         <#else>
-            <#if futureSecurityType != "MetalFuture">
+          <#if futureSecurityType != "MetalFuture">
+            <#if security.underlyingId?has_content>
               <@rowout label="Underlying identifier">${security.underlyingId.scheme.name?replace("_", " ")} - ${security.underlyingId.value}</@rowout>
             </#if>
+          </#if>
         </#if>
-        
+
         <#break>
       <#case "EQUITY_OPTION">
         <@rowout label="Currency">${security.currency}</@rowout>
@@ -140,13 +142,13 @@
         <#else>
             <@rowout label="Underlying identifier">${security.underlyingId.scheme.name?replace("_", " ")} - ${security.underlyingId.value}</@rowout>
         </#if>
-        
+
         <@rowout label="Barrier Direction">${security.barrierDirection}</@rowout>
         <@rowout label="Barrier Level">${security.barrierLevel}</@rowout>
         <@rowout label="Barrier Type">${security.barrierType}</@rowout>
         <@rowout label="Sampling Frequency">${security.samplingFrequency}</@rowout>
         <@rowout label="Monitoring Type">${security.monitoringType}</@rowout>
-        
+
         <#break>
       <#case "SWAP">
         <@rowout label="Trade date">${security.tradeDate.toLocalDate()} - ${security.tradeDate.zone}</@rowout>
@@ -233,7 +235,7 @@
         <@rowout label="Forward Date">${security.forwardDate.toLocalDate()} - ${security.forwardDate.zone}</@rowout>
         <@rowout label="Region Identifier">${security.regionId.scheme.name?replace("_", " ")} - ${security.regionId.value}</@rowout>
         <@rowout label="Underlying Identifier">${security.underlyingId.scheme.name?replace("_", " ")} - ${security.underlyingId.value}</@rowout>
-        <#break>        
+        <#break>
       <#case "FX">
         <@rowout label="Pay Amount">${security.payAmount}</@rowout>
         <@rowout label="Pay Currency">${security.payCurrency}</@rowout>
@@ -273,7 +275,7 @@
         <@rowout label="Put Currency">${security.putCurrency}</@rowout>
         <@rowout label="Settlement Date">${security.settlementDate.toLocalDate()} - ${security.settlementDate.zone}</@rowout>
         <@rowout label="Delivery Currency">${security.deliveryCurrency}</@rowout>
-        <#break>        
+        <#break>
       <#case "EQUITY_INDEX_OPTION">
         <@rowout label="Currency">${security.currency}</@rowout>
         <@rowout label="Exchange">${security.exchange}</@rowout>

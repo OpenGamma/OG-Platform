@@ -5,7 +5,10 @@
  */
 package com.opengamma.engine.fudgemsg;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
@@ -18,6 +21,7 @@ import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 import org.fudgemsg.mapping.GenericFudgeBuilderFor;
+import org.fudgemsg.types.IndicatorType;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -39,6 +43,7 @@ public class CompiledViewCalculationConfigurationFudgeBuilder implements FudgeBu
   private static final String COMPUTATION_TARGETS_FIELD = "computationTargets";
   private static final String TERMINAL_OUTPUT_SPECIFICATIONS_FIELD = "terminalOutputSpecifications";
   private static final String MARKET_DATA_REQUIREMENTS_FIELD = "marketDataRequirements";
+  private static final String MARKET_DATA_ALIASES_FIELD = "marketDataAliases";
 
   private static final Integer MAP_KEY = 1;
   private static final Integer MAP_VALUE = 2;
@@ -131,21 +136,65 @@ public class CompiledViewCalculationConfigurationFudgeBuilder implements FudgeBu
     return result;
   }
 
-  protected void encodeMarketDataRequirements(final FudgeSerializer serializer, final MutableFudgeMsg msg, final Set<ValueSpecification> marketData) {
-    final MutableFudgeMsg submsg = msg.addSubMessage(MARKET_DATA_REQUIREMENTS_FIELD, null);
-    for (final ValueSpecification requirement : marketData) {
-      serializer.addToMessage(submsg, null, null, requirement);
+  protected void encodeMarketDataAliases(final FudgeSerializer serializer, final MutableFudgeMsg msg, final Map<ValueSpecification, Collection<ValueSpecification>> marketDataEntries) {
+    final MutableFudgeMsg msgRequirements = msg.addSubMessage(MARKET_DATA_REQUIREMENTS_FIELD, null);
+    final MutableFudgeMsg msgAliases = msg.addSubMessage(MARKET_DATA_ALIASES_FIELD, null);
+    for (final Map.Entry<ValueSpecification, Collection<ValueSpecification>> requirement : marketDataEntries.entrySet()) {
+      final ValueSpecification marketData = requirement.getKey();
+      serializer.addToMessage(msgRequirements, null, null, marketData);
+      if (requirement.getValue().size() == 1) {
+        final ValueSpecification alias = requirement.getValue().iterator().next();
+        if (alias.equals(marketData)) {
+          msgAliases.add(null, null, IndicatorType.INSTANCE);
+        } else {
+          serializer.addToMessage(msgAliases, null, null, alias);
+        }
+      } else {
+        final MutableFudgeMsg aliases = msgAliases.addSubMessage(null, null);
+        aliases.add(null, 0, "list");
+        for (ValueSpecification alias : requirement.getValue()) {
+          if (alias.equals(marketData)) {
+            msgAliases.add(null, null, IndicatorType.INSTANCE);
+          } else {
+            serializer.addToMessage(aliases, null, null, alias);
+          }
+        }
+      }
     }
   }
 
-  protected Set<ValueSpecification> decodeMarketDataRequirements(final FudgeDeserializer deserializer, final FudgeMsg msg) {
-    final FudgeMsg submsg = msg.getMessage(MARKET_DATA_REQUIREMENTS_FIELD);
-    if (submsg == null) {
-      return Collections.emptySet();
+  protected Map<ValueSpecification, Collection<ValueSpecification>> decodeMarketDataAliases(final FudgeDeserializer deserializer, final FudgeMsg msg) {
+    final FudgeMsg msgRequirements = msg.getMessage(MARKET_DATA_REQUIREMENTS_FIELD);
+    final FudgeMsg msgAliases = msg.getMessage(MARKET_DATA_ALIASES_FIELD);
+    if ((msgRequirements == null) || (msgAliases == null) || msgRequirements.isEmpty()) {
+      return Collections.emptyMap();
     }
-    final Set<ValueSpecification> result = Sets.newHashSetWithExpectedSize(submsg.getNumFields());
-    for (final FudgeField field : submsg) {
-      result.add(deserializer.fieldValueToObject(ValueSpecification.class, field));
+    final Map<ValueSpecification, Collection<ValueSpecification>> result = Maps.newHashMapWithExpectedSize(msgRequirements.getNumFields());
+    final Iterator<FudgeField> itrRequirements = msgRequirements.iterator();
+    final Iterator<FudgeField> itrAliases = msgAliases.iterator();
+    while (itrRequirements.hasNext() && itrAliases.hasNext()) {
+      final FudgeField requirement = itrRequirements.next();
+      final FudgeField alias = itrAliases.next();
+      final ValueSpecification spec = deserializer.fieldValueToObject(ValueSpecification.class, requirement);
+      if (alias.getValue() == IndicatorType.INSTANCE) {
+        result.put(spec, Collections.singleton(spec));
+      } else {
+        final FudgeMsg msgAlias = (FudgeMsg) alias.getValue();
+        final String clazz = msgAlias.getString(0);
+        if ("list".equals(clazz)) {
+          final Collection<ValueSpecification> aliases = new ArrayList<ValueSpecification>(msgAlias.getNumFields() - 1);
+          for (FudgeField aliasField : msgAlias) {
+            if (aliasField.getValue() == IndicatorType.INSTANCE) {
+              aliases.add(spec);
+            } else if (aliasField.getValue() instanceof FudgeMsg) {
+              aliases.add(deserializer.fieldValueToObject(ValueSpecification.class, aliasField));
+            }
+          }
+          result.put(spec, aliases);
+        } else {
+          result.put(spec, Collections.singleton(deserializer.fieldValueToObject(ValueSpecification.class, alias)));
+        }
+      }
     }
     return result;
   }
@@ -156,7 +205,7 @@ public class CompiledViewCalculationConfigurationFudgeBuilder implements FudgeBu
     serializer.addToMessage(msg, NAME_FIELD, null, object.getName());
     encodeComputationTargets(serializer, msg, object.getComputationTargets());
     encodeTerminalOutputSpecifications(serializer, msg, object.getTerminalOutputSpecifications());
-    encodeMarketDataRequirements(serializer, msg, object.getMarketDataRequirements());
+    encodeMarketDataAliases(serializer, msg, object.getMarketDataAliases());
     return msg;
   }
 
@@ -165,8 +214,8 @@ public class CompiledViewCalculationConfigurationFudgeBuilder implements FudgeBu
     final String name = message.getString(NAME_FIELD);
     final Set<ComputationTargetSpecification> computationTargets = decodeComputationTargets(deserializer, message);
     final Map<ValueSpecification, Set<ValueRequirement>> terminalOutputSpecifications = decodeTerminalOutputSpecifications(deserializer, message);
-    final Set<ValueSpecification> marketDataRequirements = decodeMarketDataRequirements(deserializer, message);
-    return new CompiledViewCalculationConfigurationImpl(name, computationTargets, terminalOutputSpecifications, marketDataRequirements);
+    final Map<ValueSpecification, Collection<ValueSpecification>> marketDataAliases = decodeMarketDataAliases(deserializer, message);
+    return new CompiledViewCalculationConfigurationImpl(name, computationTargets, terminalOutputSpecifications, marketDataAliases);
   }
 
 }

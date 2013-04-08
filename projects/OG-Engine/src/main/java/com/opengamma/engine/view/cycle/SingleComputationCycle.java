@@ -322,19 +322,14 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
   }
 
   //--------------------------------------------------------------------------
-  // REVIEW jonathan 2011-03-18 -- The following comment should be given some sort of 'listed' status for preservation :-)
-  // REVIEW kirk 2009-11-03 -- This is a database kernel. Act accordingly.
 
   /**
-   * Synchronously runs the cycle.
+   * Prepares the cycle for execution, organising the caches and copying any values salvaged from a previous cycle.
    * 
    * @param previousCycle the previous cycle from which a delta cycle should be performed, or null to perform a full cycle
    * @param marketDataSnapshot the market data snapshot with which to execute the cycle, not null
-   * @param calcJobResultExecutorService the executor to use for streaming calculation job result consumption, not null
-   * @throws InterruptedException if the thread is interrupted while waiting for the computation cycle to complete. Execution of any outstanding jobs will be cancelled, but {@link #release()} still
-   *           must be called.
    */
-  public void execute(final SingleComputationCycle previousCycle, final MarketDataSnapshot marketDataSnapshot, final ExecutorService calcJobResultExecutorService) throws InterruptedException {
+  public void preExecute(final SingleComputationCycle previousCycle, final MarketDataSnapshot marketDataSnapshot) {
     if (_state != ViewCycleState.AWAITING_EXECUTION) {
       throw new IllegalStateException("State must be " + ViewCycleState.AWAITING_EXECUTION);
     }
@@ -347,15 +342,33 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     if (previousCycle != null) {
       computeDelta(previousCycle);
     }
+  }
 
+  /**
+   * Completes the execution cycle.
+   */
+  public void postExecute() {
+    completeResultModel();
+    _state = ViewCycleState.EXECUTED;
+  }
+
+  // REVIEW jonathan 2011-03-18 -- The following comment should be given some sort of 'listed' status for preservation :-)
+  // REVIEW kirk 2009-11-03 -- This is a database kernel. Act accordingly.
+
+  /**
+   * Synchronously runs the cycle.
+   * 
+   * @param calcJobResultExecutorService the executor to use for streaming calculation job result consumption, not null
+   * @throws InterruptedException if the thread is interrupted while waiting for the computation cycle to complete. Execution of any outstanding jobs will be cancelled, but {@link #release()} still
+   *           must be called.
+   */
+  public void execute(final ExecutorService calcJobResultExecutorService) throws InterruptedException {
     final BlockingQueue<ExecutionResult> calcJobResultQueue = new LinkedBlockingQueue<ExecutionResult>();
     final CalculationJobResultStreamConsumer calculationJobResultStreamConsumer = new CalculationJobResultStreamConsumer(calcJobResultQueue, this);
     Future<?> resultStreamConsumerJobInProgress;
     try {
       resultStreamConsumerJobInProgress = calcJobResultExecutorService.submit(calculationJobResultStreamConsumer);
-
       final LinkedList<Future<?>> futures = new LinkedList<Future<?>>();
-
       for (final String calcConfigurationName : getAllCalculationConfigurationNames()) {
         s_logger.info("Executing plans for calculation configuration {}", calcConfigurationName);
         final DependencyGraph depGraph;
@@ -364,7 +377,6 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
         final Future<?> future = getDependencyGraphExecutor().execute(depGraph, calcJobResultQueue, _statisticsGatherer, getLogModeSource());
         futures.add(future);
       }
-
       while (!futures.isEmpty()) {
         final Future<?> future = futures.poll();
         try {
@@ -388,12 +400,10 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
           throw new OpenGammaRuntimeException("Unable to execute dependency graph", e);
         }
       }
-
       _endTime = Instant.now();
     } finally {
       calculationJobResultStreamConsumer.terminate();
     }
-
     // Wait for calculationJobResultStreamConsumer to finish
     try {
       if (resultStreamConsumerJobInProgress != null) {
@@ -402,9 +412,6 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     } catch (final ExecutionException e) {
       Thread.currentThread().interrupt();
     }
-
-    completeResultModel();
-    _state = ViewCycleState.EXECUTED;
   }
 
   /**

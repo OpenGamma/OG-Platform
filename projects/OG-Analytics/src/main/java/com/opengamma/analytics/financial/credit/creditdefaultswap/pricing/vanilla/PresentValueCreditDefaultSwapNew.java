@@ -14,7 +14,6 @@ import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.van
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.legacy.PresentValueLegacyCreditDefaultSwap;
 import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
-import com.opengamma.analytics.financial.credit.schedulegeneration.GenerateCreditDefaultSwapIntegrationSchedule;
 import com.opengamma.analytics.financial.credit.schedulegeneration.GenerateCreditDefaultSwapPremiumLegSchedule;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
@@ -214,140 +213,7 @@ public class PresentValueCreditDefaultSwapNew {
 
   // Method to calculate the contingent leg (replicates the calculation in the ISDA model)
 
-  public double calculateContingentLeg(
-      final ZonedDateTime valuationDate,
-      final CreditDefaultSwapDefinition cds,
-      final ISDADateCurve yieldCurve,
-      final HazardRateCurve hazardRateCurve) {
 
-    // ----------------------------------------------------------------------------------------------------------------------------------------
-
-    /*
-     * if protStart offset = 1 else 0
-     * 
-     * startDate = MAX(cl->startDate(150509), stapinDate(150510) - offset)
-     * startDate = MAX(startDate, today(150509) - offset)
-     * 
-     * case PROT_PAY_DEF goto onePeriodIntegral
-     *    tl = JpmcdsRiskyTimeline
-     * 
-     * 
-     */
-
-    // TODO : Check if valDate > matDate and return zero if so
-
-    // ----------------------------------------------------------------------------------------------------------------------------------------
-
-    // TODO : Remember that the start date for protection to begin is MAX(today, startDate)
-
-    // Local variable definitions
-    double presentValueContingentLeg = 0.0;
-
-    int offset = 0;
-
-    if (cds.getProtectionStart()) {
-      offset = 1;
-    }
-
-    ZonedDateTime startDate;
-    ZonedDateTime clStartDate = valuationDate;
-    final ZonedDateTime clEndDate = cds.getMaturityDate();
-
-    // NOTE :
-    if (cds.getProtectionStart()) {
-      clStartDate = valuationDate.minusDays(1);
-    }
-
-    final ZonedDateTime stepinDate = cds.getEffectiveDate();
-
-    if (clStartDate.isAfter(stepinDate.minusDays(offset))) {
-      startDate = clStartDate;
-    } else {
-      startDate = stepinDate.minusDays(offset);
-    }
-
-    if (startDate.isAfter(valuationDate.minusDays(1))) {
-      //startDate = startDate;
-    } else {
-      startDate = valuationDate.minusDays(1);
-    }
-
-    if (valuationDate.isAfter(clEndDate)) {
-      presentValueContingentLeg = 0.0;
-      return presentValueContingentLeg;
-    }
-
-    // ----------------------------------------------------------------------------------------------------------------------------------------
-
-    // Construct an integration schedule object for the contingent leg
-    final GenerateCreditDefaultSwapIntegrationSchedule contingentLegSchedule = new GenerateCreditDefaultSwapIntegrationSchedule();
-
-    // Build the integration schedule for the calculation of the contingent leg
-    final double[] contingentLegIntegrationSchedule = contingentLegSchedule.constructCreditDefaultSwapContingentLegIntegrationSchedule(valuationDate, startDate, clEndDate, cds, yieldCurve,
-        hazardRateCurve);
-
-    // ----------------------------------------------------------------------------------------------------------------------------------------
-
-    // Get the survival probability at the first point in the integration schedule
-    double survivalProbability = hazardRateCurve.getSurvivalProbability(contingentLegIntegrationSchedule[0]);
-
-    // Get the discount factor at the first point in the integration schedule
-    double discountFactor = yieldCurve.getDiscountFactor(contingentLegIntegrationSchedule[0]);
-
-    final double loss = (1 - cds.getRecoveryRate());
-
-    // ----------------------------------------------------------------------------------------------------------------------------------------
-
-    // Loop over each of the points in the integration schedule
-    for (int i = 1; i < contingentLegIntegrationSchedule.length; ++i) {
-
-      // Calculate the time between adjacent points in the integration schedule
-      final double deltat = contingentLegIntegrationSchedule[i] - contingentLegIntegrationSchedule[i - 1];
-
-      // Set the probability of survival up to the previous point in the integration schedule
-      final double survivalProbabilityPrevious = survivalProbability;
-
-      // Set the discount factor up to the previous point in the integration schedule
-      final double discountFactorPrevious = discountFactor;
-
-      // Get the survival probability at this point in the integration schedule
-      survivalProbability = hazardRateCurve.getSurvivalProbability(contingentLegIntegrationSchedule[i]);
-
-      // Get the discount factor at this point in the integration schedule
-      discountFactor = yieldCurve.getDiscountFactor(contingentLegIntegrationSchedule[i]);
-
-      // Calculate the forward hazard rate over the interval deltat (assumes the hazard rate is constant over this period)
-      final double hazardRate = Math.log(survivalProbabilityPrevious / survivalProbability) / deltat;
-
-      // Calculate the forward interest rate over the interval deltat (assumes the interest rate is constant over this period)
-      final double interestRate = Math.log(discountFactorPrevious / discountFactor) / deltat;
-
-      // Calculate the contribution of the interval deltat to the overall contingent leg integral
-      presentValueContingentLeg += loss * (hazardRate / (hazardRate + interestRate)) * (1.0 - Math.exp(-(hazardRate + interestRate) * deltat)) * survivalProbabilityPrevious * discountFactorPrevious;
-    }
-
-    // ----------------------------------------------------------------------------------------------------------------------------------------
-
-    // TODO : Check this calculation - maybe move it out of this routine and into the PV calculation routine?
-    // TODO : Note the cash settlement date is hardcoded at 3 days
-
-    //final int spotDays = 5;
-
-    //final ZonedDateTime cashSettleDate = valuationDate.plusDays(spotDays);
-    //final double t = TimeCalculator.getTimeBetween(valuationDate, cashSettleDate, ACT_365);
-
-    ZonedDateTime bdaCashSettlementDate = valuationDate.plusDays(spotDays);
-
-    if (businessDayAdjustCashSettlementDate) {
-      bdaCashSettlementDate = cashSettlementDateBusinessDayConvention.adjustDate(cds.getCalendar(), valuationDate.plusDays(spotDays));
-    }
-
-    final double t = TimeCalculator.getTimeBetween(valuationDate, bdaCashSettlementDate, ACT_365);
-
-    final double valueDatePV = yieldCurve.getDiscountFactor(t);
-
-    return cds.getNotional() * presentValueContingentLeg / valueDatePV;
-  }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
