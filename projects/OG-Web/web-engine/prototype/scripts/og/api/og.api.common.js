@@ -6,7 +6,7 @@ $.register_module({
     name: 'og.api.common',
     dependencies: [],
     obj: function () {
-        var module = this, common, warn = og.dev.warn, MAX_INT = Math.pow(2, 31) - 1,
+        var module = this, common, warn = og.dev.warn, MAX_INT = Math.pow(2, 31) - 1, request_id = 1,
             has = 'hasOwnProperty', cache = window['sessionStorage'];
         /** @ignore */
         var check_dependencies = function (bundle, dependencies) {
@@ -115,6 +115,13 @@ $.register_module({
             },
             PAGE: 1,
             PAGE_SIZE: 50,
+            Promise: function () {
+                var deferred = new $.Deferred, promise = deferred.promise();
+                promise.abort = function () {return og.api.rest.abort(promise), promise;};
+                promise.deferred = deferred;
+                promise.id = ++request_id;
+                return promise;
+            },
             str: str
         };
     }
