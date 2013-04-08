@@ -5,6 +5,10 @@
  */
 package com.opengamma.analytics.financial.credit.schedulegeneration.isda;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.lang.NotImplementedException;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.StubType;
@@ -37,65 +41,46 @@ public class GenerateCreditDefaultSwapPremiumLegScheduleNew {
   // TODO : Add WORKDAY equivalent function
 
   public ZonedDateTime[] constructISDACompliantCreditDefaultSwapPremiumLegSchedule(final CreditDefaultSwapDefinition cds) {
-    ArgumentChecker.notNull(cds, "CDS");
-    int totalDates = 0;
-    final ZonedDateTime[] tempCashflowSchedule = new ZonedDateTime[1000];
-    ZonedDateTime date;
+    ArgumentChecker.notNull(cds, "cds");
     final ZonedDateTime startDate = cds.getStartDate();
     final ZonedDateTime endDate = cds.getMaturityDate();
     final boolean protectStart = cds.getProtectionStart();
     final StubType stubType = cds.getStubType();
-    // TODO : Check this logic
-    /*
-    if (protectStart) {
-      ArgumentChecker.isTrue(startDate.isBefore(endDate), null);
-    } else {
-      ArgumentChecker.isTrue(endDate.isAfter(startDate), null);
-    }
-     */
     if (protectStart && endDate.equals(startDate)) {
-      // TODO : Add code for when there are only two dates and break out of routine
+      //note no adjustment of either date
+      return new ZonedDateTime[] {startDate, startDate.plusDays(1)};
     }
     // Is the stub at the front end of the payment schedule
     if (stubType == StubType.FRONTSHORT || stubType == StubType.FRONTLONG) {
-      int i = 0;
-      date = endDate;
+      final List<ZonedDateTime> reversedCashflowSchedule = new ArrayList<>();
+      ZonedDateTime date = endDate;
       while (date.isAfter(startDate)) {
-        tempCashflowSchedule[i] = date;
-        i++;
-        totalDates++;
+        reversedCashflowSchedule.add(date);
         date = date.minus(cds.getCouponFrequency().getPeriod());
       }
       // TODO : Check the FRONTSHORT/FRONTLONG logic here
-      if (date.isEqual(startDate) || totalDates == 1 || stubType == StubType.FRONTSHORT) {
-        totalDates++;
-        tempCashflowSchedule[i] = startDate;
+      if (reversedCashflowSchedule.size() == 1 || date.isEqual(startDate) || stubType == StubType.FRONTSHORT) {
+        reversedCashflowSchedule.add(startDate);
       } else {
-        tempCashflowSchedule[i - 1] = startDate;
+        reversedCashflowSchedule.set(reversedCashflowSchedule.size() - 1, startDate);
       }
+      //TODO this logic assumes list was populated with decreasing dates
+      final int nDatesInSchedule = reversedCashflowSchedule.size();
+      final ZonedDateTime[] cashflowSchedule = new ZonedDateTime[nDatesInSchedule];
+      //TODO not handling protectStart
+      // Remember if protectStart = TRUE then there is an extra day of accrued that is not captured here
+      cashflowSchedule[nDatesInSchedule - 1] = reversedCashflowSchedule.get(0);
+      final Calendar calendar = cds.getCalendar();
+      final BusinessDayConvention bdc = cds.getBusinessDayAdjustmentConvention();
+      for (int i = nDatesInSchedule - 2; i > 0; i--) {
+        cashflowSchedule[nDatesInSchedule - i - 1] = bdc.adjustDate(calendar, reversedCashflowSchedule.get(i));
+      }
+      cashflowSchedule[0] = reversedCashflowSchedule.get(nDatesInSchedule - 1);
+      return cashflowSchedule;
     }
     // TODO : Add the code for the back stub
     // Is the stub at the back end of the payment schedule
-    if (stubType == StubType.BACKSHORT || stubType == StubType.BACKLONG) {
-    }
-    final ZonedDateTime[] cashflowSchedule = new ZonedDateTime[totalDates];
-    for (int i = 0; i < totalDates; i++) {
-      cashflowSchedule[i] = tempCashflowSchedule[totalDates - 1 - i];
-    }
-    final ZonedDateTime[] bdaCashflowSchedule = new ZonedDateTime[cashflowSchedule.length];
-    bdaCashflowSchedule[0] = cashflowSchedule[0];
-    for (int i = 1; i < bdaCashflowSchedule.length - 1; i++) {
-      bdaCashflowSchedule[i] = businessDayAdjustDate(cashflowSchedule[i], cds.getCalendar(), cds.getBusinessDayAdjustmentConvention());
-    }
-    // Careful of this - we are not modifying the maturity date of the CDS
-    /*
-    if (protectStart) {
-      bdaCashflowSchedule[bdaCashflowSchedule.length - 1] = cashflowSchedule[cashflowSchedule.length - 1].plusDays(1);
-    }
-     */
-    // Remember if protectStart = TRUE then there is an extra day of accrued that is not captured here
-    bdaCashflowSchedule[bdaCashflowSchedule.length - 1] = cashflowSchedule[cashflowSchedule.length - 1];
-    return bdaCashflowSchedule;
+    throw new NotImplementedException();
   }
 
   // Public method to generate the premium leg cashflow schedule from the input CDS contract specification

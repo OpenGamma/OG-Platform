@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.credit.schedulegeneration;
 
+import static com.opengamma.analytics.financial.credit.schedulegeneration.ScheduleTestUtils.assertDateArrayEquals;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.ArrayList;
@@ -14,7 +15,6 @@ import java.util.List;
 import org.testng.annotations.Test;
 import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.analytics.financial.credit.schedulegeneration.isda.GenerateCreditDefaultSwapAccruedLegIntegrationScheduleNew;
 import com.opengamma.util.time.DateUtils;
 
 /**
@@ -22,13 +22,12 @@ import com.opengamma.util.time.DateUtils;
  */
 //@Test(groups = TestGroup.UNIT)
 public class TruncateTimeLineTest {
-  private static final GenerateCreditDefaultSwapAccruedLegIntegrationScheduleNew CALCULATOR = new GenerateCreditDefaultSwapAccruedLegIntegrationScheduleNew();
   private static final GenerateCreditDefaultSwapIntegrationSchedule DEPRECATED_CALCULATOR = new GenerateCreditDefaultSwapIntegrationSchedule();
   private static final ZonedDateTime[] SORTED_DATE_LIST;
   private static final int N;
   private static final ZonedDateTime[] UNSORTED_DATE_LIST;
   private static final ZonedDateTime[] CONCATENATED_SORTED_DATE_LIST;
-
+  //TODO add tests for repeated dates
   static {
     final ZonedDateTime startDate = DateUtils.getUTCDate(2013, 3, 20);
     ZonedDateTime date = startDate;
@@ -59,27 +58,27 @@ public class TruncateTimeLineTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullStart() {
-    CALCULATOR.getTruncatedTimeLine(SORTED_DATE_LIST, null, DateUtils.getUTCDate(2015, 1, 21), true);
+    ScheduleUtils.getTruncatedTimeLine(SORTED_DATE_LIST, null, DateUtils.getUTCDate(2015, 1, 21), true);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullEnd() {
-    CALCULATOR.getTruncatedTimeLine(SORTED_DATE_LIST, DateUtils.getUTCDate(2015, 1, 21), null, true);
+    ScheduleUtils.getTruncatedTimeLine(SORTED_DATE_LIST, DateUtils.getUTCDate(2015, 1, 21), null, true);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullList() {
-    CALCULATOR.getTruncatedTimeLine(null, DateUtils.getUTCDate(2015, 1, 21), DateUtils.getUTCDate(2017, 1, 21), true);
+    ScheduleUtils.getTruncatedTimeLine(null, DateUtils.getUTCDate(2015, 1, 21), DateUtils.getUTCDate(2017, 1, 21), true);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testStartAfterEnd() {
-    CALCULATOR.getTruncatedTimeLine(SORTED_DATE_LIST, DateUtils.getUTCDate(2017, 1, 21), DateUtils.getUTCDate(2015, 1, 21), true);
+    ScheduleUtils.getTruncatedTimeLine(SORTED_DATE_LIST, DateUtils.getUTCDate(2017, 1, 21), DateUtils.getUTCDate(2015, 1, 21), true);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testStartEqualsEnd() {
-    CALCULATOR.getTruncatedTimeLine(SORTED_DATE_LIST, DateUtils.getUTCDate(2015, 1, 21), DateUtils.getUTCDate(2015, 1, 21), true);
+    ScheduleUtils.getTruncatedTimeLine(SORTED_DATE_LIST, DateUtils.getUTCDate(2015, 1, 21), DateUtils.getUTCDate(2015, 1, 21), true);
   }
 
   @Test
@@ -200,8 +199,8 @@ public class TruncateTimeLineTest {
   @Test(enabled = false)
   public void testDeprecatedUnsorted() {
     int j = 0;
-    final ZonedDateTime startDate = SORTED_DATE_LIST[0];
-    final ZonedDateTime endDate = SORTED_DATE_LIST[SORTED_DATE_LIST.length - 1];
+    final ZonedDateTime startDate = SORTED_DATE_LIST[0].minusDays(7);
+    final ZonedDateTime endDate = SORTED_DATE_LIST[SORTED_DATE_LIST.length - 1].plusDays(7);
     final double startTime = System.currentTimeMillis();
     for (int i = 0; i < 1000000; i++) {
       DEPRECATED_CALCULATOR.getTruncatedTimeLineDeprecated(UNSORTED_DATE_LIST, startDate, endDate);
@@ -214,8 +213,8 @@ public class TruncateTimeLineTest {
   @Test(enabled = false)
   public void testDeprecatedConcatenated() {
     int j = 0;
-    final ZonedDateTime startDate = SORTED_DATE_LIST[0];
-    final ZonedDateTime endDate = SORTED_DATE_LIST[SORTED_DATE_LIST.length - 1];
+    final ZonedDateTime startDate = SORTED_DATE_LIST[0].minusDays(7);
+    final ZonedDateTime endDate = SORTED_DATE_LIST[SORTED_DATE_LIST.length - 1].plusDays(7);
     final double startTime = System.currentTimeMillis();
     for (int i = 0; i < 1000000; i++) {
       DEPRECATED_CALCULATOR.getTruncatedTimeLineDeprecated(CONCATENATED_SORTED_DATE_LIST, startDate, endDate);
@@ -228,8 +227,8 @@ public class TruncateTimeLineTest {
   @Test(enabled = false)
   public void testDeprecatedSorted() {
     int j = 0;
-    final ZonedDateTime startDate = SORTED_DATE_LIST[0];
-    final ZonedDateTime endDate = SORTED_DATE_LIST[SORTED_DATE_LIST.length - 1];
+    final ZonedDateTime startDate = SORTED_DATE_LIST[0].minusDays(7);
+    final ZonedDateTime endDate = SORTED_DATE_LIST[SORTED_DATE_LIST.length - 1].plusDays(7);
     final double startTime = System.currentTimeMillis();
     for (int i = 0; i < 1000000; i++) {
       DEPRECATED_CALCULATOR.getTruncatedTimeLineDeprecated(SORTED_DATE_LIST, startDate, endDate);
@@ -240,13 +239,31 @@ public class TruncateTimeLineTest {
   }
 
   @Test(enabled = false)
-  public void testRefactoredUnsorted() {
+  public void testDeprecatedCommon() {
     int j = 0;
-    final ZonedDateTime startDate = SORTED_DATE_LIST[0];
-    final ZonedDateTime endDate = SORTED_DATE_LIST[SORTED_DATE_LIST.length - 1];
+    final ZonedDateTime startDate = SORTED_DATE_LIST[0].minusDays(7);
+    final ZonedDateTime endDate = SORTED_DATE_LIST[SORTED_DATE_LIST.length - 1].plusDays(7);
+    final ZonedDateTime[] input = new ZonedDateTime[CONCATENATED_SORTED_DATE_LIST.length + 2];
+    System.arraycopy(CONCATENATED_SORTED_DATE_LIST, 0, input, 0, SORTED_DATE_LIST.length);
+    input[SORTED_DATE_LIST.length] = startDate;
+    input[SORTED_DATE_LIST.length + 1] = endDate;
     final double startTime = System.currentTimeMillis();
     for (int i = 0; i < 1000000; i++) {
-      CALCULATOR.getTruncatedTimeLine(UNSORTED_DATE_LIST, startDate, endDate, false);
+      DEPRECATED_CALCULATOR.getTruncatedTimeLineDeprecated(input, startDate, endDate);
+      j++;
+    }
+    final double endTime = System.currentTimeMillis();
+    System.out.println("Deprecated common:\t" + (endTime - startTime) / j * 1000);
+  }
+
+  @Test(enabled = false)
+  public void testARefactoredUnsorted() {
+    int j = 0;
+    final ZonedDateTime startDate = SORTED_DATE_LIST[0].minusDays(7);
+    final ZonedDateTime endDate = SORTED_DATE_LIST[SORTED_DATE_LIST.length - 1].plusDays(7);
+    final double startTime = System.currentTimeMillis();
+    for (int i = 0; i < 1000000; i++) {
+      ScheduleUtils.getTruncatedTimeLine(UNSORTED_DATE_LIST, startDate, endDate, false);
       j++;
     }
     final double endTime = System.currentTimeMillis();
@@ -254,13 +271,13 @@ public class TruncateTimeLineTest {
   }
 
   @Test(enabled = false)
-  public void testRefactoredConcatenated() {
+  public void testARefactoredConcatenated() {
     int j = 0;
-    final ZonedDateTime startDate = SORTED_DATE_LIST[0];
-    final ZonedDateTime endDate = SORTED_DATE_LIST[SORTED_DATE_LIST.length - 1];
+    final ZonedDateTime startDate = SORTED_DATE_LIST[0].minusDays(7);
+    final ZonedDateTime endDate = SORTED_DATE_LIST[SORTED_DATE_LIST.length - 1].plusDays(7);
     final double startTime = System.currentTimeMillis();
     for (int i = 0; i < 1000000; i++) {
-      CALCULATOR.getTruncatedTimeLine(CONCATENATED_SORTED_DATE_LIST, startDate, endDate, false);
+      ScheduleUtils.getTruncatedTimeLine(CONCATENATED_SORTED_DATE_LIST, startDate, endDate, false);
       j++;
     }
     final double endTime = System.currentTimeMillis();
@@ -268,17 +285,35 @@ public class TruncateTimeLineTest {
   }
 
   @Test(enabled = false)
-  public void testRefactoredSorted() {
+  public void testARefactoredSorted() {
     int j = 0;
-    final ZonedDateTime startDate = SORTED_DATE_LIST[0];
-    final ZonedDateTime endDate = SORTED_DATE_LIST[SORTED_DATE_LIST.length - 1];
+    final ZonedDateTime startDate = SORTED_DATE_LIST[0].minusDays(7);
+    final ZonedDateTime endDate = SORTED_DATE_LIST[SORTED_DATE_LIST.length - 1].plusDays(7);
     final double startTime = System.currentTimeMillis();
     for (int i = 0; i < 1000000; i++) {
-      CALCULATOR.getTruncatedTimeLine(SORTED_DATE_LIST, startDate, endDate, true);
+      ScheduleUtils.getTruncatedTimeLine(SORTED_DATE_LIST, startDate, endDate, true);
       j++;
     }
     final double endTime = System.currentTimeMillis();
     System.out.println("Refactored sorted:\t" + (endTime - startTime) / j * 1000000);
+  }
+
+  @Test(enabled = false)
+  public void testARefactoredCommon() {
+    int j = 0;
+    final ZonedDateTime startDate = SORTED_DATE_LIST[0].minusDays(7);
+    final ZonedDateTime endDate = SORTED_DATE_LIST[SORTED_DATE_LIST.length - 1].plusDays(7);
+    final ZonedDateTime[] input = new ZonedDateTime[CONCATENATED_SORTED_DATE_LIST.length + 2];
+    System.arraycopy(CONCATENATED_SORTED_DATE_LIST, 0, input, 0, SORTED_DATE_LIST.length);
+    input[SORTED_DATE_LIST.length] = startDate;
+    input[SORTED_DATE_LIST.length + 1] = endDate;
+    final double startTime = System.currentTimeMillis();
+    for (int i = 0; i < 1000000; i++) {
+      ScheduleUtils.getTruncatedTimeLine(input, startDate, endDate, false);
+      j++;
+    }
+    final double endTime = System.currentTimeMillis();
+    System.out.println("Refactored common:\t" + (endTime - startTime) / j * 1000);
   }
 
   private void testResults(final ZonedDateTime[] expectedResult, final ZonedDateTime[] dates, final ZonedDateTime startDate, final ZonedDateTime endDate,
@@ -286,16 +321,10 @@ public class TruncateTimeLineTest {
     final ZonedDateTime[] truncatedDeprecated = DEPRECATED_CALCULATOR.getTruncatedTimeLineDeprecated(dates, startDate, endDate);
     assertEquals(expectedResult.length, truncatedDeprecated.length);
     assertDateArrayEquals(expectedResult, truncatedDeprecated);
-    final ZonedDateTime[] truncated = CALCULATOR.getTruncatedTimeLine(dates, startDate, endDate, sorted);
+    final ZonedDateTime[] truncated = ScheduleUtils.getTruncatedTimeLine(dates, startDate, endDate, sorted);
     assertEquals(expectedResult.length, truncated.length);
     assertDateArrayEquals(expectedResult, truncated);
     assertDateArrayEquals(truncatedDeprecated, truncated);
   }
 
-  private void assertDateArrayEquals(final ZonedDateTime[] expected, final ZonedDateTime[] actual) {
-    assertEquals(expected.length, actual.length);
-    for (int i = 0; i < expected.length; i++) {
-      assertEquals(expected[i], actual[i]);
-    }
-  }
 }
