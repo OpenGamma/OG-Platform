@@ -66,7 +66,7 @@ public class ISDACompliantContingentLegCalculatorTest {
     assertEquals(deprecatedResult, result, EPS);
   }
 
-  @Test//(enabled = false)
+  @Test(enabled = false)
   public void timeBDeprecated() {
     final CreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaCreditDefaultSwapDefinition().withMaturityDate(VALUATION_DATE.plusYears(10));
     final double startTime = System.currentTimeMillis();
@@ -79,7 +79,7 @@ public class ISDACompliantContingentLegCalculatorTest {
     System.out.println("Deprecated:\t" + (endTime - startTime) / j * 100);
   }
 
-  @Test//(enabled = false)
+  @Test(enabled = false)
   public void timeARefactored() {
     final CreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaCreditDefaultSwapDefinition().withMaturityDate(VALUATION_DATE.plusYears(10));
     final double startTime = System.currentTimeMillis();

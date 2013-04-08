@@ -15,7 +15,6 @@ import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.CreditDefaultSwapDefinitionDataSets;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.legacy.PresentValueLegacyCreditDefaultSwap;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isda.ISDACreditDefaultSwapPVCalculator;
 import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -71,7 +70,7 @@ public class ISDACreditDefaultSwapPVCalculatorTest {
     assertEquals(deprecatedResult, result, EPS);
   }
 
-  @Test//(enabled = false)
+  @Test(enabled = false)
   public void timeBDeprecated() {
     final LegacyVanillaCreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaCreditDefaultSwapDefinition().withMaturityDate(VALUATION_DATE.plusYears(10));
     final double startTime = System.currentTimeMillis();
@@ -84,7 +83,7 @@ public class ISDACreditDefaultSwapPVCalculatorTest {
     System.out.println("Deprecated:\t" + (endTime - startTime) / j * 100);
   }
 
-  @Test//(enabled = false)
+  @Test(enabled = false)
   public void timeARefactored() {
     final LegacyVanillaCreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaCreditDefaultSwapDefinition().withMaturityDate(VALUATION_DATE.plusYears(10));
     final double startTime = System.currentTimeMillis();

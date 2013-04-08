@@ -25,7 +25,6 @@ import com.opengamma.util.time.DateUtils;
 /**
  * 
  */
-@Test
 public class ISDACreditDefaultSwapParallelCS01CalculatorTest {
   private static final CS01CreditDefaultSwap DEPRECATED_CALCULATOR = new CS01CreditDefaultSwap();
   private static final ISDACreditDefaultSwapParallelCS01Calculator CALCULATOR = new ISDACreditDefaultSwapParallelCS01Calculator();
@@ -73,7 +72,7 @@ public class ISDACreditDefaultSwapParallelCS01CalculatorTest {
     assertEquals(deprecatedResult, result, EPS);
   }
 
-  @Test//(enabled = false)
+  @Test(enabled = false)
   public void timeBDeprecated() {
     final LegacyVanillaCreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaCreditDefaultSwapDefinition().withMaturityDate(VALUATION_DATE.plusYears(10));
     final double startTime = System.currentTimeMillis();
@@ -86,7 +85,7 @@ public class ISDACreditDefaultSwapParallelCS01CalculatorTest {
     System.out.println(total);
   }
 
-  @Test//(enabled = false)
+  @Test(enabled = false)
   public void timeARefactored() {
     final LegacyVanillaCreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaCreditDefaultSwapDefinition().withMaturityDate(VALUATION_DATE.plusYears(10));
     final double startTime = System.currentTimeMillis();
