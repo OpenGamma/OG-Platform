@@ -42,6 +42,7 @@ import com.opengamma.financial.temptarget.TempTarget;
 import com.opengamma.financial.temptarget.TempTargetRepository;
 import com.opengamma.financial.view.HistoricalViewEvaluationResult;
 import com.opengamma.financial.view.HistoricalViewEvaluationTarget;
+import com.opengamma.financial.view.ViewEvaluationFunction;
 import com.opengamma.financial.view.ViewEvaluationTarget;
 import com.opengamma.id.ExternalBundleIdentifiable;
 import com.opengamma.id.ExternalId;
@@ -247,7 +248,8 @@ public class HistoricalValuationFunction extends AbstractFunction.NonCompiledInv
     tempTarget.getViewDefinition().addViewCalculationConfiguration(calcConfig);
     final TempTargetRepository targets = OpenGammaCompilationContext.getTempTargets(context);
     final UniqueId tempTargetId = targets.locateOrStore(tempTarget);
-    return Collections.singleton(new ValueRequirement(ValueRequirementNames.HISTORICAL_TIME_SERIES, new ComputationTargetSpecification(TempTarget.TYPE, tempTargetId), ValueProperties.none()));
+    return Collections.singleton(new ValueRequirement(ValueRequirementNames.HISTORICAL_TIME_SERIES, new ComputationTargetSpecification(TempTarget.TYPE, tempTargetId), ValueProperties.withAny(
+        ViewEvaluationFunction.PROPERTY_CALC_CONFIG).get()));
   }
 
   protected ValueProperties.Builder createValueProperties(final HistoricalViewEvaluationTarget target) {

@@ -313,9 +313,9 @@ $.register_module({
             });
 
             $.when( //TODO AG: Automate this process when an endpoint is available for datasource types
-                og.api.rest.livedatasources.get({}),
-                og.api.rest.configs.get({type: 'HistoricalTimeSeriesRating'}),
-                og.api.rest.marketdatasnapshots.get({})
+                og.api.rest.livedatasources.get({page: '*'}),
+                og.api.rest.configs.get({type: 'HistoricalTimeSeriesRating', page: '*'}),
+                og.api.rest.marketdatasnapshots.get({page: '*'})
             ).pipe(function (live, historical, snapshot) {
                 if (live.data.length) types.push({type: 'Live', source: live.data[0]});
                 if (historical.data && 'data' in historical.data && historical.data.data.length)

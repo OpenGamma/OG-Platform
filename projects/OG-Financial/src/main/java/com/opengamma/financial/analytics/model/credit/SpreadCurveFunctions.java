@@ -95,7 +95,8 @@ public class SpreadCurveFunctions {
           break;
         case POINTS_UPFRONT:
           // can price type vary?
-          spreadRate = cdsPresentValueCalculator.calculateParSpreadFlat(valuationDate, cds, spreadRate, new ZonedDateTime[] { cds.getMaturityDate() }, isdaCurve, PriceType.CLEAN);
+          //FIXME: Conversion to percentage should happen upstream or in analytics
+          spreadRate = cdsPresentValueCalculator.calculateParSpreadFlat(valuationDate, cds, spreadRate / 100.0, new ZonedDateTime[] { cds.getMaturityDate() }, isdaCurve, PriceType.CLEAN);
           break;
         default:
           throw new OpenGammaRuntimeException("Unknown quote convention " + quoteConvention);

@@ -12,8 +12,7 @@ $.register_module({
         var module = this, live_data_root = module.live_data_root, api, warn = og.dev.warn,
             common = og.api.common, routes = og.common.routes, loading_start = common.loading_start,
             loading_end = common.loading_end, encode = window['encodeURIComponent'],
-            // convert all incoming params into strings (so for example, the value 0 ought to be truthy, not falsey)
-            str = common.str,
+            str = common.str, // convert all incoming params into strings (eg, 0 ought to be truthy, not falsey)
             outstanding_requests = {}, registrations = [], subscribe, post_processors = {},
             meta_data = {configs: null, holidays: null, securities: null, viewrequirementnames: null},
             singular = {
@@ -25,26 +24,13 @@ $.register_module({
                 configs: true, exchanges: true, holidays: true, portfolios: true,
                 positions: true, regions: true, securities: true, timeseries: false
             },
-            request_id = 1,
-            MAX_INT = Math.pow(2, 31) - 1, PAGE_SIZE = 50, PAGE = 1, STALL = 500 /* 500ms */,
+            PAGE = common.PAGE, PAGE_SIZE = common.PAGE_SIZE, STALL = 500 /* 500ms */,
             INSTANT = 0 /* 0ms */, RESUBSCRIBE = 10000 /* 10s */,
             TIMEOUTSOON = 120000 /* 2m */, TIMEOUTFOREVER = 7200000 /* 2h */
         var cache_get = function (key) {return common.cache_get(module.name + key);};
         var cache_set = function (key, value) {return common.cache_set(module.name + key, value);};
         var cache_del = function (key) {return common.cache_del(module.name + key);};
-        var check = function (params) {
-            common.check(params);
-            if (typeof params.bundle.config.handler !== 'function') params.bundle.config.handler = $.noop;
-            if (params.bundle.config.page && (params.bundle.config.from || params.bundle.config.to))
-                throw new TypeError(params.bundle.method + ': config.page + config.from/to is ambiguous');
-            if (str(params.bundle.config.to) && !str(params.bundle.config.from))
-                throw new TypeError(params.bundle.method + ': config.to requires config.from');
-            if (params.bundle.config.page_size === '*' || params.bundle.config.page === '*')
-                params.bundle.config.page_size = MAX_INT, params.bundle.config.page = PAGE;
-            return ['handler', 'loading', 'update', 'dependencies', 'cache_for', 'dry'].reduce(function (acc, val) {
-                return (val in params.bundle.config) && (acc[val] = params.bundle.config[val]), acc;
-            }, {type: 'GET'});
-        };
+        var check = common.check;
         var default_del = function (config) {
             config = config || {};
             var root = this.root, method = [root], meta, id = str(config.id), version = str(config.version);
@@ -106,13 +92,6 @@ $.register_module({
         post_processors[live_data_root + 'compressor/compress'] = function (data) {
             return (data.data = data.data.replace(/\=/g, '-').replace(/\//g, '_').replace(/\+/g, '.')), data;
         };
-        var Promise = function () {
-            var deferred = new $.Deferred, promise = deferred.promise();
-            promise.abort = function () {return api.abort(promise), promise;};
-            promise.deferred = deferred;
-            promise.id = ++request_id;
-            return promise;
-        };
         var register = function (req) {
             if (!req.config.meta.update) return true;
             if (!api.id) return false;
@@ -134,7 +113,7 @@ $.register_module({
                     [live_data_root + method.map(encode).join('/'), $.param(config.data, true)]
                         .filter(Boolean).join('?')
                             : live_data_root + method.map(encode).join('/')),
-            promise = promise || new Promise;
+            promise = promise || new common.Promise;
             /** @ignore */
             var send = function () {
                 // GETs are being POSTed with method=GET so they do not cache. TODO: change this
@@ -656,7 +635,7 @@ $.register_module({
                 get: not_available_get,
                 put: function (config, promise) {
                     config = config || {};
-                    var promise = promise || new Promise,
+                    var promise = promise || new common.Promise,
                         root = this.root, method = [root], data = {}, meta,
                         fields = [
                             'viewdefinition', 'aggregators', 'providers', 'valuation',
@@ -732,8 +711,8 @@ $.register_module({
                         },
                         put: function (config) {
                             config = config || {};
-                            var promise = new Promise, root = this.root, method = root.split('/'), data = {}, meta,
-                                fields = ['view_id', 'grid_type', 'row', 'col'],
+                            var promise = new common.Promise, root = this.root, method = root.split('/'),
+                                data = {}, meta, fields = ['view_id', 'grid_type', 'row', 'col'],
                             meta = check({
                                 bundle: {method: root + '#put', config: config}, required: [{all_of: fields}]
                             });
@@ -763,8 +742,8 @@ $.register_module({
                             },
                             put: function (config) {
                                 config = config || {};
-                                var promise = new Promise, root = this.root, method = root.split('/'), data = {}, meta,
-                                    fields = ['cells', 'rows', 'cols', 'format', 'log'],
+                                var promise = new common.Promise, root = this.root, method = root.split('/'),
+                                    data = {}, meta, fields = ['cells', 'rows', 'cols', 'format', 'log'],
                                     api_fields = ['cells', 'rows', 'columns', 'format', 'enableLogging'];
                                 meta = check({
                                     bundle: {method: root + '#put', config: config},
@@ -835,8 +814,8 @@ $.register_module({
                         },
                         put: function (config) {
                             config = config || {};
-                            var promise = new Promise, root = this.root, method = root.split('/'), data = {}, meta,
-                                fields = ['cells', 'rows', 'cols', 'format', 'log'],
+                            var promise = new common.Promise, root = this.root, method = root.split('/'),
+                                data = {}, meta, fields = ['cells', 'rows', 'cols', 'format', 'log'],
                                 api_fields = ['cells', 'rows', 'columns', 'format', 'enableLogging'];
                             meta = check({
                                 bundle: {method: root + '#put', config: config},

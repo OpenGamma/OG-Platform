@@ -8,8 +8,14 @@ $.register_module({
     name: 'og.common.routes',
     dependencies: ['og.dev'],
     obj: function () {
-        var routes, hash = window.RouteMap.hash;
+        var routes, hash = window.RouteMap.hash,
+            SL = '/', MOZSLASH = 'MOZSLOG', MOZSLASH_EXP = new RegExp(MOZSLASH, 'g'), ENCODEDSL = '%2F';
+        var slash_replace = function (obj, acc, val) {return acc[val] = ('' + obj[val]).replace(/\//g, MOZSLASH), acc;};
         return routes = $.extend(true, window.RouteMap, {
+            get: function () {
+                var hash = window.location.hash.replace(MOZSLASH_EXP, ENCODEDSL), index = hash.indexOf(SL);
+                return ~index ? hash.slice(index) : SL;
+            },
             init: function () {
                 var go = routes.go;
                 // overwrite routes.go so it can accept new title parameter
@@ -73,11 +79,10 @@ $.register_module({
                 try {delete window.RouteMap;} catch (error) {window.RouteMap = void 0;}
             },
             hash: function (rule, params, extras) {
-                var modified_params;
-                if (!extras) return hash(rule, params);
-                modified_params = $.extend({}, params);
-                if (extras.add) $.extend(modified_params, extras.add);
-                if (extras.del) extras.del.forEach(function (param) {delete modified_params[param];});
+                var modified_params = Object.keys(params).reduce(slash_replace.partial(params), {});
+                if (extras && extras.add)
+                    $.extend(modified_params, Object.keys(extras.add).reduce(slash_replace.partial(extras.add), {}));
+                if (extras && extras.del) extras.del.forEach(function (param) {delete modified_params[param];});
                 return hash(rule, modified_params);
             },
             post_add: function (compiled) { // add optional debug param to all rules that don't ask for it

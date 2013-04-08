@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.view.compilation;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
@@ -53,5 +54,17 @@ public interface CompiledViewCalculationConfiguration {
    * @return the value specifications for all required market data, not null
    */
   Set<ValueSpecification> getMarketDataRequirements();
+
+  /**
+   * Gets any aliases of requested market data requirements. Aliases occur when there is a mismatch between how targets are quoted or referenced by the function repository and how they are specified
+   * by a market data provider.
+   * <p>
+   * For example a target might be specified by a function as a security unique identifier, a market data provider might need to use the unique identifier of the external system the data it to be
+   * sourced from, and there is nothing in the security definition to provide that mapping. The mapping is then captured by the presence of value aliasing nodes in the dependency graph.
+   * 
+   * @return the value specification aliases of market data as underlying requirements mapped to the aliased values, not null. The keys of this map will correspond to the set returned by
+   *         {@link #getMarketDataRequirements}.
+   */
+  Map<ValueSpecification, Collection<ValueSpecification>> getMarketDataAliases();
 
 }

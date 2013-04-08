@@ -7,7 +7,6 @@ package com.opengamma.engine.view.worker;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
@@ -51,11 +50,7 @@ import com.opengamma.engine.view.impl.ViewProcessImpl;
 import com.opengamma.engine.view.impl.ViewProcessorImpl;
 import com.opengamma.engine.view.worker.SingleThreadViewProcessWorker.BorrowedThread;
 import com.opengamma.id.UniqueId;
-import com.opengamma.livedata.LiveDataClient;
-import com.opengamma.livedata.LiveDataListener;
-import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.UserPrincipal;
-import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.test.Timeout;
@@ -299,54 +294,6 @@ public class SingleThreadViewProcessWorkerTest {
     private final String _sourceName;
     private final InMemoryLKVMarketDataProvider _underlyingProvider;
     private final MarketDataAvailabilityProvider _availability;
-    private final LiveDataClient _dummyLiveDataClient = new LiveDataClient() {
-
-      @Override
-      public Map<LiveDataSpecification, Boolean> isEntitled(final UserPrincipal user, final Collection<LiveDataSpecification> requestedSpecifications) {
-        return null;
-      }
-
-      @Override
-      public boolean isEntitled(final UserPrincipal user, final LiveDataSpecification requestedSpecification) {
-        return false;
-      }
-
-      @Override
-      public void unsubscribe(final UserPrincipal user, final Collection<LiveDataSpecification> fullyQualifiedSpecifications, final LiveDataListener listener) {
-      }
-
-      @Override
-      public void unsubscribe(final UserPrincipal user, final LiveDataSpecification fullyQualifiedSpecification, final LiveDataListener listener) {
-      }
-
-      @Override
-      public void subscribe(final UserPrincipal user, final Collection<LiveDataSpecification> requestedSpecifications, final LiveDataListener listener) {
-      }
-
-      @Override
-      public void subscribe(final UserPrincipal user, final LiveDataSpecification requestedSpecification, final LiveDataListener listener) {
-      }
-
-      @Override
-      public Collection<LiveDataSubscriptionResponse> snapshot(final UserPrincipal user, final Collection<LiveDataSpecification> requestedSpecifications, final long timeout) {
-        return null;
-      }
-
-      @Override
-      public LiveDataSubscriptionResponse snapshot(final UserPrincipal user, final LiveDataSpecification requestedSpecification, final long timeout) {
-        return null;
-      }
-
-      @Override
-      public String getDefaultNormalizationRuleSetId() {
-        return null;
-      }
-
-      @Override
-      public void close() {
-      }
-
-    };
 
     public TestLiveMarketDataProvider(final String sourceName, final InMemoryLKVMarketDataProvider underlyingProvider) {
       this(sourceName, underlyingProvider, defaultAvailability());
