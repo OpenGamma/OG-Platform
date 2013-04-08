@@ -109,9 +109,8 @@ $.register_module({
                                 if (/19|20[0-9]{2}-[01][0-9]-[0123][0-9]/.test(filters['ob_date']))
                                     return acc['observation_date'] = filters[val], acc;
                                 else return acc;
-                            if (val === 'ob_time') {
-                                return acc['observation_time'] = ('*' + filters[val] + '*').replace(/\s/g, '*'), acc
-                            }
+                            if (val === 'ob_time')
+                                return acc['observation_time'] = ('*' + filters[val] + '*').replace(/\s/g, '*'), acc;
                             return acc[val] = ('*' + filters[val] + '*').replace(/\s/g, '*'), acc;
                         }, {});
                     }())));
