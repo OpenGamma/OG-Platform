@@ -108,7 +108,11 @@
             </#list>
         <#else>
             <#if futureSecurityType != "MetalFuture">
-              <@rowout label="Underlying identifier">${security.underlyingId.scheme.name?replace("_", " ")} - ${security.underlyingId.value}</@rowout>
+                <@rowout label="Underlying identifier">
+                    <#if security.underlyingId?has_content>
+                        ${security.underlyingId.scheme.name?replace("_", " ")} - ${security.underlyingId.value}
+                    </#if>
+                </@rowout>
             </#if>
         </#if>
         
