@@ -20,14 +20,15 @@ import javax.ws.rs.core.Response;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import au.com.bytecode.opencsv.CSVWriter;
-
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchRequest;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesLoader;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
+import com.opengamma.util.paging.PagingRequest;
+
+import au.com.bytecode.opencsv.CSVWriter;
 
 /**
  * RESTful resource for a historical time-series.
@@ -139,6 +140,7 @@ public class WebHistoricalTimeSeriesResource extends AbstractWebHistoricalTimeSe
   private Collection<ManageableHistoricalTimeSeriesInfo> getRelatedTimeSeries() {
     HistoricalTimeSeriesInfoSearchRequest searchRequest = 
         new HistoricalTimeSeriesInfoSearchRequest(data().getInfo().getInfo().getExternalIdBundle().toBundle());
+    searchRequest.setPagingRequest(PagingRequest.FIRST_PAGE);
     HistoricalTimeSeriesInfoSearchResult searchResult = data().getHistoricalTimeSeriesMaster().search(searchRequest);    
     Collection<ManageableHistoricalTimeSeriesInfo> result = searchResult.getInfoList();
     result.remove(data().getInfo().getInfo()); // remove the original time series itself from its related list

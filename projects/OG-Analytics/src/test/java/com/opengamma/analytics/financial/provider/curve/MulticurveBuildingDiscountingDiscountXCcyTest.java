@@ -658,8 +658,8 @@ public class MulticurveBuildingDiscountingDiscountXCcyTest {
     final MarketQuoteSensitivityBlockCalculator<MulticurveProviderInterface> MQSC = new MarketQuoteSensitivityBlockCalculator<MulticurveProviderInterface>(PSC);
     @SuppressWarnings("unused")
     final MultipleCurrencyParameterSensitivity mqs = MQSC.fromInstrument(swap, multicurves7, blocks7);
-    int t = 0;
-    t++;
+    //    int t = 0;
+    //    t++;
   }
 
   @Test(enabled = false)

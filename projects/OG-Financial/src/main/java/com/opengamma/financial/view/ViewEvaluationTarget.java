@@ -31,7 +31,14 @@ public class ViewEvaluationTarget extends TempTarget {
    */
   protected static final String EXECUTION_SEQUENCE_FIELD = "executionSequence";
 
+  /**
+   * The view definition to be executed.
+   */
   private final ViewDefinition _viewDefinition;
+
+  /**
+   * The execution sequence.
+   */
   private final ViewCycleExecutionSequenceDescriptor _executionSequence;
 
   /**

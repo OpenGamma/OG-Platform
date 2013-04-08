@@ -106,6 +106,7 @@ public class PresentValueCreditDefaultSwap {
   // The code for the accrued calc has just been lifted from RiskCare's implementation for now because it exactly reproduces
   // the ISDA model - will replace with a better model in due course
 
+  @Deprecated
   public double calculatePremiumLeg(
       final ZonedDateTime valuationDate,
       final CreditDefaultSwapDefinition cds,
@@ -144,7 +145,6 @@ public class PresentValueCreditDefaultSwap {
 
     // Get the (adjusted) maturity date of the trade
     final ZonedDateTime adjustedMaturityDate = cashflowSchedule.getAdjustedMaturityDate(cds);
-
     final ZonedDateTime startDate = premiumLegSchedule[0];
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -156,9 +156,9 @@ public class PresentValueCreditDefaultSwap {
     // If the valuation date is exactly the adjusted maturity date then simply return zero
 
     /*
-    if (valuationDate.equals(adjustedMaturityDate) || cds.getEffectiveDate().equals(adjustedMaturityDate)) {
-      return 0.0;
-    }
+        if (valuationDate.equals(adjustedMaturityDate) || cds.getEffectiveDate().equals(adjustedMaturityDate)) {
+          return 0.0;
+        }
      */
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -294,15 +294,12 @@ public class PresentValueCreditDefaultSwap {
             final double t0 = TimeCalculator.getTimeBetween(offsetAccStartDate, subStartDate, ACT_365) + 0.5 / 365.0;
             final double t1 = TimeCalculator.getTimeBetween(offsetAccStartDate, truncatedDateList[j], ACT_365) + 0.5 / 365.0;
             t = t1 - t0;
-
             final double lambda = Math.log(s0 / s1) / t;
             final double fwdRate = Math.log(df0 / df1) / t;
             final double lambdafwdRate = lambda + fwdRate + 1.0e-50;
 
             thisAccPV = lambda * accRate * s0 * df0 * ((t0 + 1.0 / (lambdafwdRate)) / (lambdafwdRate) - (t1 + 1.0 / (lambdafwdRate)) / (lambdafwdRate) * s1 / s0 * df1 / df0);
-
             myPV += thisAccPV;
-
             s0 = s1;
             df0 = df1;
             subStartDate = truncatedDateList[j];
@@ -375,90 +372,90 @@ public class PresentValueCreditDefaultSwap {
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
     /*
-    // Calculate the value of the remaining premium and accrual payments (due after valuationDate)
-    for (int i = startCashflowIndex; i < premiumLegSchedule.length; i++) {
+          // Calculate the value of the remaining premium and accrual payments (due after valuationDate)
+          for (int i = startCashflowIndex; i < premiumLegSchedule.length; i++) {
 
-      // Get the beginning and end dates of the current coupon
-      ZonedDateTime accrualStart = premiumLegSchedule[i - 1];
-      ZonedDateTime accrualEnd = premiumLegSchedule[i];
+            // Get the beginning and end dates of the current coupon
+            ZonedDateTime accrualStart = premiumLegSchedule[i - 1];
+            ZonedDateTime accrualEnd = premiumLegSchedule[i];
 
-      //ZonedDateTime offsetAccStartDate = accrualStartDate.plusDays(obsOffset);
-      //ZonedDateTime offsetAccEndDate = accrualEndDate.plusDays(obsOffset);
+            //ZonedDateTime offsetAccStartDate = accrualStartDate.plusDays(obsOffset);
+            //ZonedDateTime offsetAccEndDate = accrualEndDate.plusDays(obsOffset);
 
-      //final double startTime = TimeCalculator.getTimeBetween(valuationDate, offsetAccStartDate, ACT_360);
-      //final double endTime = TimeCalculator.getTimeBetween(valuationDate, offsetAccEndDate, ACT_360);
+            //final double startTime = TimeCalculator.getTimeBetween(valuationDate, offsetAccStartDate, ACT_360);
+            //final double endTime = TimeCalculator.getTimeBetween(valuationDate, offsetAccEndDate, ACT_360);
 
-      //final double[] truncatedTimeline = accruedSchedule.getTruncatedTimeLine(accruedLegIntegrationSchedule, startTime, endTime);
+            //final double[] truncatedTimeline = accruedSchedule.getTruncatedTimeLine(accruedLegIntegrationSchedule, startTime, endTime);
 
-      // ----------------------------------------------------------------------------------------------------------------------------------------
+            // ----------------------------------------------------------------------------------------------------------------------------------------
 
-      // Calculate the time between the valuation date (time at which survival probability is unity) and the current cashflow
-      double t = TimeCalculator.getTimeBetween(valuationDate, accrualEnd, ACT_365);
+            // Calculate the time between the valuation date (time at which survival probability is unity) and the current cashflow
+            double t = TimeCalculator.getTimeBetween(valuationDate, accrualEnd, ACT_365);
 
-      // Calculate the discount factor at time t
-      final double discountFactor = yieldCurve.getDiscountFactor(t);
+            // Calculate the discount factor at time t
+            final double discountFactor = yieldCurve.getDiscountFactor(t);
 
-      // ----------------------------------------------------------------------------------------------------------------------------------------
+            // ----------------------------------------------------------------------------------------------------------------------------------------
 
-      // If protection starts at the beginning of the period ...
-      if (cds.getProtectionStart()) {
+            // If protection starts at the beginning of the period ...
+            if (cds.getProtectionStart()) {
 
-        // ... Roll all but the last date back by 1/365 of a year
-        if (i < premiumLegSchedule.length - 1) {
-          t -= cds.getProtectionOffset();
-        }
+              // ... Roll all but the last date back by 1/365 of a year
+              if (i < premiumLegSchedule.length - 1) {
+                t -= cds.getProtectionOffset();
+              }
 
-        // This is a bit of a hack - need a more elegant way of dealing with the timing nuances
-        if (i == 1) {
-          accrualStart = accrualStart.minusDays(1);
-        }
+              // This is a bit of a hack - need a more elegant way of dealing with the timing nuances
+              if (i == 1) {
+                accrualStart = accrualStart.minusDays(1);
+              }
 
-        // ... Roll the final maturity date forward by one day
-        if (i == premiumLegSchedule.length - 1) {
-          accrualEnd = accrualEnd.plusDays(1);
-        }
-      }
+              // ... Roll the final maturity date forward by one day
+              if (i == premiumLegSchedule.length - 1) {
+                accrualEnd = accrualEnd.plusDays(1);
+              }
+            }
 
-      // ----------------------------------------------------------------------------------------------------------------------------------------
+            // ----------------------------------------------------------------------------------------------------------------------------------------
 
-      // Compute the daycount fraction for the current accrual period
-      final double dcf = cds.getDayCountFractionConvention().getDayCountFraction(accrualStart, accrualEnd);
+            // Compute the daycount fraction for the current accrual period
+            final double dcf = cds.getDayCountFractionConvention().getDayCountFraction(accrualStart, accrualEnd);
 
-      // Calculate the survival probability at the modified time t
-      final double survivalProbability = hazardRateCurve.getSurvivalProbability(t);
+            // Calculate the survival probability at the modified time t
+            final double survivalProbability = hazardRateCurve.getSurvivalProbability(t);
 
-      // Add this discounted cashflow to the running total for the value of the premium leg
-      //presentValuePremiumLeg += dcf * discountFactor * survivalProbability;
+            // Add this discounted cashflow to the running total for the value of the premium leg
+            //presentValuePremiumLeg += dcf * discountFactor * survivalProbability;
 
-      // ----------------------------------------------------------------------------------------------------------------------------------------
+            // ----------------------------------------------------------------------------------------------------------------------------------------
 
-      // Now calculate the accrued leg component if required (need to re-write this code)
+            // Now calculate the accrued leg component if required (need to re-write this code)
 
-      if (cds.getIncludeAccruedPremium()) {
-        final double stepinDiscountFactor = 1.0;
-        int endIndex;
+            if (cds.getIncludeAccruedPremium()) {
+              final double stepinDiscountFactor = 1.0;
+              int endIndex;
 
-        Arrays.sort(accruedLegIntegrationSchedule); //TODO is this extra sorting necessary?
+              Arrays.sort(accruedLegIntegrationSchedule); //TODO is this extra sorting necessary?
 
-        for (endIndex = startIndex; endIndex < accruedLegIntegrationSchedule.length; endIndex++) {
-          if (accruedLegIntegrationSchedule[endIndex] >= t) {
-            break;
-          }
-        }
-        if (endIndex >= accruedLegIntegrationSchedule.length) {
-          endIndex = accruedLegIntegrationSchedule.length - 1;
-        }
-        presentValueAccruedInterest += valueFeeLegAccrualOnDefault(dcf, accruedLegIntegrationSchedule, yieldCurve, hazardRateCurve, startIndex, endIndex, offsetStepinTime, stepinDiscountFactor);
+              for (endIndex = startIndex; endIndex < accruedLegIntegrationSchedule.length; endIndex++) {
+                if (accruedLegIntegrationSchedule[endIndex] >= t) {
+                  break;
+                }
+              }
+              if (endIndex >= accruedLegIntegrationSchedule.length) {
+                endIndex = accruedLegIntegrationSchedule.length - 1;
+              }
+              presentValueAccruedInterest += valueFeeLegAccrualOnDefault(dcf, accruedLegIntegrationSchedule, yieldCurve, hazardRateCurve, startIndex, endIndex, offsetStepinTime, stepinDiscountFactor);
 
-      }
+            }
 
-      // ----------------------------------------------------------------------------------------------------------------------------------------
+            // ----------------------------------------------------------------------------------------------------------------------------------------
 
     }
-     */
-
-    // ----------------------------------------------------------------------------------------------------------------------------------------
-
+    //     */
+    //
+    //    // ----------------------------------------------------------------------------------------------------------------------------------------
+    //
     return cds.getNotional() * presentValuePremiumLeg;
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -801,23 +798,23 @@ public class PresentValueCreditDefaultSwap {
     // 1 x 1 vector to hold the flat spread (term structure)
     final double[] marketSpreads = new double[1];
 
-    Function1D<Double, Double> function = new Function1D<Double, Double>() {
+    final Function1D<Double, Double> function = new Function1D<Double, Double>() {
 
       @Override
-      public Double evaluate(Double parSpread) {
+      public Double evaluate(final Double parSpread) {
 
         // For this value of the flat spread, compute the upfront amount
         marketSpreads[0] = parSpread;
         final double pointsUpfront = calculateUpfrontFlat(valuationDate, cds, marketTenors, marketSpreads, yieldCurve, priceType);
 
-        // Compute the difference between the calculated and input upfront amount 
+        // Compute the difference between the calculated and input upfront amount
         final double delta = pointsUpfront - upfrontAmount;
 
         return delta;
       }
     };
 
-    double parSpreadFlat = new BisectionSingleRootFinder().getRoot(function, spreadLowerBound, spreadUpperBound);
+    final double parSpreadFlat = new BisectionSingleRootFinder().getRoot(function, spreadLowerBound, spreadUpperBound);
 
     return parSpreadFlat;
   }

@@ -13,6 +13,7 @@ import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.cashflow.CashFlowFunctions;
+import com.opengamma.financial.analytics.covariance.CovarianceFunctions;
 import com.opengamma.financial.analytics.ircurve.IRCurveFunctions;
 import com.opengamma.financial.analytics.model.ModelFunctions;
 import com.opengamma.financial.analytics.model.riskfactor.option.OptionGreekToValueGreekConverterFunction;
@@ -27,7 +28,7 @@ public class AnalyticsFunctions extends AbstractRepositoryConfigurationBean {
 
   /**
    * Default instance of a repository configuration source exposing the functions from this package and its sub-packages.
-   *
+   * 
    * @return the configuration source exposing functions from this package and its sub-packages
    */
   public static RepositoryConfigurationSource instance() {
@@ -36,7 +37,7 @@ public class AnalyticsFunctions extends AbstractRepositoryConfigurationBean {
 
   /**
    * Adds an aggregation function for the given requirement name that produces the sum of the child position values.
-   *
+   * 
    * @param functions the function configuration list to update, not null
    * @param requirementName the requirement name, not null
    */
@@ -55,7 +56,7 @@ public class AnalyticsFunctions extends AbstractRepositoryConfigurationBean {
   /**
    * Adds a unit scaling function to deliver the value from position's underlying security or trade at the position level. This is normally used for positions in OTC instruments that are stored with a
    * quantity of 1 in OpenGamma.
-   *
+   * 
    * @param functions the function configuration list to update, not null
    * @param requirementName the requirement name, not null
    */
@@ -72,7 +73,7 @@ public class AnalyticsFunctions extends AbstractRepositoryConfigurationBean {
   /**
    * Adds a scaling function to deliver the value from a position's underlying security or trade multiplied by the quantity at the position level. This is used for positions in exchange traded
    * instruments.
-   *
+   * 
    * @param functions the function configuration list to update, not null
    * @param requirementName the requirement name, not null
    */
@@ -182,13 +183,11 @@ public class AnalyticsFunctions extends AbstractRepositoryConfigurationBean {
     addScalingAndSummingFunction(functions, ValueRequirementNames.PNL);
     addSummingFunction(functions, ValueRequirementNames.PNL_SERIES);
     addSummingFunction(functions, ValueRequirementNames.POSITION_DELTA);
-
     addSummingFunction(functions, ValueRequirementNames.POSITION_GAMMA);
     addSummingFunction(functions, ValueRequirementNames.POSITION_RHO);
     addSummingFunction(functions, ValueRequirementNames.POSITION_THETA);
     addSummingFunction(functions, ValueRequirementNames.POSITION_VEGA);
     addSummingFunction(functions, ValueRequirementNames.POSITION_WEIGHTED_VEGA);
-
     addScalingAndSummingFunction(functions, ValueRequirementNames.PRESENT_VALUE);
     addScalingAndSummingFunction(functions, ValueRequirementNames.PRESENT_VALUE_CURVE_SENSITIVITY);
     addScalingAndSummingFunction(functions, ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_NODE_SENSITIVITY);
@@ -264,9 +263,7 @@ public class AnalyticsFunctions extends AbstractRepositoryConfigurationBean {
     addUnitScalingFunction(functions, ValueRequirementNames.BUCKETED_IR01);
     addUnitScalingFunction(functions, ValueRequirementNames.JUMP_TO_DEFAULT);
     addUnitScalingFunction(functions, ValueRequirementNames.HAZARD_RATE_CURVE);
-    addScalingFunction(functions, ValueRequirementNames.MONETIZED_VEGA);
-    addSummingFunction(functions, ValueRequirementNames.MONETIZED_VEGA);
-
+    addScalingAndSummingFunction(functions, ValueRequirementNames.MONETIZED_VEGA);
     addScalingAndSummingFunction(functions, ValueRequirementNames.CLEAN_PRESENT_VALUE);
     addScalingAndSummingFunction(functions, ValueRequirementNames.DIRTY_PRESENT_VALUE);
     addUnitScalingFunction(functions, ValueRequirementNames.ACCRUED_DAYS);
@@ -278,6 +275,10 @@ public class AnalyticsFunctions extends AbstractRepositoryConfigurationBean {
 
   protected RepositoryConfigurationSource cashFlowFunctionConfiguration() {
     return CashFlowFunctions.instance();
+  }
+
+  protected RepositoryConfigurationSource covarianceFunctionConfiguration() {
+    return CovarianceFunctions.instance();
   }
 
   protected RepositoryConfigurationSource irCurveFunctionConfiguration() {
@@ -298,7 +299,7 @@ public class AnalyticsFunctions extends AbstractRepositoryConfigurationBean {
 
   @Override
   protected RepositoryConfigurationSource createObject() {
-    return CombiningRepositoryConfigurationSource.of(super.createObject(), cashFlowFunctionConfiguration(), irCurveFunctionConfiguration(),
+    return CombiningRepositoryConfigurationSource.of(super.createObject(), cashFlowFunctionConfiguration(), covarianceFunctionConfiguration(), irCurveFunctionConfiguration(),
         modelFunctionConfiguration(), timeSeriesFunctionConfiguration(), volatilityFunctionConfiguration());
   }
 

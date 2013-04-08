@@ -76,19 +76,19 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
   private final AtomicReference<ViewComputationResultModel> _latestResult = new AtomicReference<ViewComputationResultModel>();
 
   private final ChangeListener _viewDefinitionChangeListener;
-  
+
   // BEGIN TEMPORARY -- See ViewProcessorImpl
-  
+
   private volatile Object _description;
-  
+
   public Object getDescriptionKey() {
     return _description;
   }
-  
-  public void setDescriptionKey(final Object description)  {
+
+  public void setDescriptionKey(final Object description) {
     _description = description;
   }
-  
+
   // END TEMPORARY CODE
 
   /**
@@ -546,6 +546,8 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
     } finally {
       unlock();
     }
+    // REVIEW 2013-04-01 Andrew -- The listener is in the set, but has not received its compilation message yet; it's possible for a calc thread
+    // to post its first result before the compilation notification has happened.
     if (latestCompilation != null) {
       // [PLAT-1158] The initial notification is performed outside of holding the lock which avoids the deadlock problem, but we'll still
       // block for completion which was the thing PLAT-1158 was trying to avoid. This is because the contracts for the order in which

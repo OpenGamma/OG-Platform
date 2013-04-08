@@ -56,4 +56,9 @@ public class ISDAFunctionConstants {
    * Value property for the ISDA curve date
    */
   public static final String ISDA_CURVE_DATE = "ISDACurveDate";
+
+  /**
+   * Value property for the ISDA curve date
+   */
+  public static final String CDS_QUOTE_CONVENTION = "CDSQuoteConvention";
 }
