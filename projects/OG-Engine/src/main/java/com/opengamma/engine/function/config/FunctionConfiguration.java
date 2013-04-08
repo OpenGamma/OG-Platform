@@ -10,5 +10,5 @@ import java.io.Serializable;
 /**
  * Marker interface for function configuration objects
  */
-public interface FunctionConfiguration extends Serializable {
+public interface FunctionConfiguration extends Serializable, Comparable<FunctionConfiguration> {
 }
