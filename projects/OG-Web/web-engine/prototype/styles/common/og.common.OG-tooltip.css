@@ -370,10 +370,6 @@ div.tooltip.south-west:after{
     position: absolute;
 }
 
-div.tooltip.north-west-flip{
-    margin-left: 7px;
-}
-
 div.tooltip.north-west:before{
     border-bottom: 7px solid #bdc4c8;
     border-left: 7px solid #bdc4c8;
@@ -485,6 +481,10 @@ div.tooltip.south-west-flip:after{
     left: 0%;
     margin-left: -5px;
     position: absolute;
+}
+
+div.tooltip.north-west-flip{
+    margin-left: 7px;
 }
 
 div.tooltip.north-west-flip:before{

@@ -37,7 +37,7 @@
     <fragment>/styles/common/og.common.OG-g.css</fragment>
     <fragment>/styles/common/og.common.OG-grid-options.css</fragment>
     <fragment>/styles/common/og.common.OG-tab-overflow-panel.css</fragment>
-    <fragment>/styles/common/og.common.OG-help-tooltip.css</fragment>
+    <fragment>/styles/common/og.common.OG-tooltip.css</fragment>
   </bundle>
   <bundle id="common.util.css">
     <fragment>/styles/common/util/og.common.util.OG-clearFix.css</fragment>
@@ -334,6 +334,7 @@
     <fragment>/scripts/og/common/search_results/og.common.search.get_quantities.js</fragment>
     <fragment>/scripts/og/common/search_results/og.common.search.filter.js</fragment>
     <fragment>/scripts/og/common/search_results/og.common.search_results.core.js</fragment>
+    <fragment>/scripts/og/common/og.common.tooltip.js</fragment>
   </bundle>
   <bundle id="gadgets.js">
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.manager.js</fragment>
@@ -373,7 +374,6 @@
     <fragment>/scripts/og/analytics/og.analytics.form.filtersmenu.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.form.dropmenu.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.status.js</fragment>
-    <!-- <fragment>/scripts/og/analytics/og.analytics.form.js</fragment> -->
     <fragment>/scripts/og/analytics/og.analytics.form2.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.containers.js</fragment>
   </bundle>
