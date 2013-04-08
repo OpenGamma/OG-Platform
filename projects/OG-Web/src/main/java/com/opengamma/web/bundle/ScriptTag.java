@@ -5,12 +5,7 @@
  */
 package com.opengamma.web.bundle;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.List;
-import java.util.Properties;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,10 +23,6 @@ public class ScriptTag {
    * The request data.
    */
   private final WebBundlesData _data;
-  /**
-   *  Stamp to be appended to resource urls
-   */
-  private static String _stamp = "default";
 
   /**
    * Creates an instance.
@@ -41,17 +32,6 @@ public class ScriptTag {
   public ScriptTag(WebBundlesData data) {
     ArgumentChecker.notNull(data, "data");
     _data = data;
-    Properties prop = new Properties();
-
-    try {
-      String resource = ClassLoader.getSystemResource("com/opengamma/web/bundle/BuildData.txt").getPath();
-      prop.load(new FileInputStream(new File(resource)));
-      _stamp = prop.getProperty("version");
-      _stamp += prop.getProperty("build.date");
-
-    } catch (IOException e) {
-      s_logger.warn("Failed to load type mappings for value names", e);
-    }
   }
 
   //-------------------------------------------------------------------------
@@ -94,7 +74,7 @@ public class ScriptTag {
     buf.append("<script src=\"");
     WebBundlesUris uris = new WebBundlesUris(_data);
     buf.append(uris.bundle(DeployMode.PROD, bundle.getId()));
-    buf.append("?" + _stamp);
+    buf.append("?" + BuildData.getBuildStamp());
     buf.append("\"></script>");
     return buf.toString();
   }
