@@ -124,34 +124,41 @@ public interface DateDoubleTimeSeries<T>
    */
   int[] timesArrayFast();
 
+  //-------------------------------------------------------------------------
+  @Override  // override for covariant return type
+  DateDoubleTimeSeries<T> subSeries(T startTime, boolean includeStart, T endTime, boolean includeEnd);
+
+  @Override  // override for covariant return type
+  DateDoubleTimeSeries<T> subSeries(T startTime, T endTime);
+
+  @Override  // override for covariant return type
+  DateDoubleTimeSeries<T> head(int numItems);
+
+  @Override  // override for covariant return type
+  DateDoubleTimeSeries<T> tail(int numItems);
+
+  @Override  // override for covariant return type
+  DateDoubleTimeSeries<T> lag(final int lagCount);
+
 //  //-------------------------------------------------------------------------
-//  DateDoubleTimeSeries<T> operate(FastTimeSeries<?> other, BinaryOperator operator);
-//
-//  DateDoubleTimeSeries<T> operate(FastBackedDoubleTimeSeries<?> other, BinaryOperator operator);
-//
-//  DateDoubleTimeSeries<T> operate(double other, BinaryOperator operator);
-//
+//  /**
+//   * Returns a time-series where the specified operator has been applied to
+//   * each element in this time-series.
+//   * 
+//   * @param operator  the operator, not null
+//   * @return the time-series, not null
+//   */
 //  DateDoubleTimeSeries<T> operate(UnaryOperator operator);
 //
-//  DateDoubleTimeSeries<T> unionOperate(FastTimeSeries<?> other, BinaryOperator operator);
-//
-//  DateDoubleTimeSeries<T> unionOperate(FastBackedDoubleTimeSeries<?> other, BinaryOperator operator);
-//
-//  //-------------------------------------------------------------------------
-//  @Override  // override for covariant return type
-//  DateDoubleTimeSeries<T> subSeries(T startTime, boolean includeStart, T endTime, boolean includeEnd);
-//
-//  @Override  // override for covariant return type
-//  DateDoubleTimeSeries<T> subSeries(T startTime, T endTime);
-//
-//  @Override  // override for covariant return type
-//  DateDoubleTimeSeries<T> head(int numItems);
-//
-//  @Override  // override for covariant return type
-//  DateDoubleTimeSeries<T> tail(int numItems);
-//
-//  @Override  // override for covariant return type
-//  DateDoubleTimeSeries<T> lag(final int lagCount);
+//  /**
+//   * Returns a time-series where the specified operator has been applied to
+//   * each element in this time-series.
+//   * 
+//   * @param other  the other value to use when applying the operator, not null
+//   * @param operator  the operator, not null
+//   * @return the time-series, not null
+//   */
+//  DateDoubleTimeSeries<T> operate(double other, BinaryOperator operator);
 //
 //  //-------------------------------------------------------------------------
 //  @Override  // override for covariant return type
