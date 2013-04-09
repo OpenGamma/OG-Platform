@@ -658,9 +658,10 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
   }
 
   protected void setCDSFunctionDefaults(final CurrencyInfo i, final CreditFunctions.Defaults.CurrencyInfo defaults) {
-    defaults.setCurveCalculationConfig(i.getCurveConfiguration("model/cds"));
-    defaults.setCurveName(i.getCurveName("model/cds"));
-    defaults.setCurveCalculationMethod(i.getCurveCalculationMethodName("model/cds"));
+    defaults.setCurveCalculationConfig(i.getCurveConfiguration("model/credit/yield"));
+    defaults.setCurveName(i.getCurveName("model/credit/yield"));
+    defaults.setCurveCalculationMethod(i.getCurveCalculationMethodName("model/credit/yield"));
+    defaults.setCurveCalculationMethod(i.getCurveCalculationMethodName("model/credit/hazardrate"));
   }
 
   protected void setCDSFunctionDefaults(final CreditFunctions.Defaults defaults) {

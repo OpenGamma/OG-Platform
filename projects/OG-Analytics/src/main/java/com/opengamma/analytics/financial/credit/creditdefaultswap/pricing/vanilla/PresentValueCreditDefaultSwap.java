@@ -581,6 +581,7 @@ public class PresentValueCreditDefaultSwap {
 
   // Method to calculate the contingent leg (replicates the calculation in the ISDA model)
 
+  @Deprecated
   public double calculateContingentLeg(
       final ZonedDateTime valuationDate,
       final CreditDefaultSwapDefinition cds,
@@ -884,6 +885,7 @@ public class PresentValueCreditDefaultSwap {
 
   // TODO : Need to move this function
 
+  @Deprecated
   public double calibrateAndGetPresentValue(
       final ZonedDateTime valuationDate,
       final LegacyVanillaCreditDefaultSwapDefinition cds,

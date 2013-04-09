@@ -245,6 +245,7 @@ public class AnalyticsFunctions extends AbstractRepositoryConfigurationBean {
     addUnitScalingFunction(functions, ValueRequirementNames.ZOMMA);
     addUnitScalingFunction(functions, ValueRequirementNames.ZOMMA_P);
     addUnitScalingFunction(functions, ValueRequirementNames.BARRIER_DISTANCE);
+    addUnitScalingFunction(functions, ValueRequirementNames.CS01);
     addSummingFunction(functions, ValueRequirementNames.CS01);
     addSummingFunction(functions, ValueRequirementNames.BUCKETED_CS01);
     addSummingFunction(functions, ValueRequirementNames.GAMMA_CS01);
