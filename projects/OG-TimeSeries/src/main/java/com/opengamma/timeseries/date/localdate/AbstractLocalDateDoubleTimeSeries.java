@@ -255,7 +255,7 @@ abstract class AbstractLocalDateDoubleTimeSeries
     throw new UnsupportedOperationException("Can only operate on a DateDoubleTimeSeries");
   }
 
-  private LocalDateDoubleTimeSeries operate(DateDoubleTimeSeries<?> other, BinaryOperator operator) {
+  public LocalDateDoubleTimeSeries operate(DateDoubleTimeSeries<?> other, BinaryOperator operator) {
     int[] aTimes = timesArrayFast0();
     double[] aValues = valuesArrayFast0();
     int aCount = 0;
@@ -292,7 +292,7 @@ abstract class AbstractLocalDateDoubleTimeSeries
     throw new UnsupportedOperationException("Can only operate on a DateDoubleTimeSeries");
   }
 
-  private LocalDateDoubleTimeSeries unionOperate(DateDoubleTimeSeries<?> other, BinaryOperator operator) {
+  public LocalDateDoubleTimeSeries unionOperate(DateDoubleTimeSeries<?> other, BinaryOperator operator) {
     int[] aTimes = timesArrayFast0();
     double[] aValues = valuesArrayFast0();
     int aCount = 0;

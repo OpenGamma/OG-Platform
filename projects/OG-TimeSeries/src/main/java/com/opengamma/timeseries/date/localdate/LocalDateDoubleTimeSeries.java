@@ -70,6 +70,26 @@ public interface LocalDateDoubleTimeSeries
    */
   LocalDateDoubleTimeSeries operate(double other, BinaryOperator operator);
 
+  /**
+   * Applies a binary operator to each value in this time series and
+   * another time-series, returning the intersection of times.
+   * 
+   * @param otherTimeSeries  the other time-series, not null
+   * @param operator  the operator, not null
+   * @return a copy of this series with the operator applied, not null
+   */
+  LocalDateDoubleTimeSeries operate(DateDoubleTimeSeries<?> otherTimeSeries, BinaryOperator operator);
+
+  /**
+   * Applies a binary operator to each value in this time series and
+   * another time-series, returning the union of times.
+   * 
+   * @param otherTimeSeries  the other time-series, not null
+   * @param operator  the operator, not null
+   * @return a copy of this series with the operator applied, not null
+   */
+  LocalDateDoubleTimeSeries unionOperate(DateDoubleTimeSeries<?> otherTimeSeries, BinaryOperator operator);
+
   //-------------------------------------------------------------------------
   @Override  // override for covariant return type
   LocalDateDoubleTimeSeries add(double amountToAdd);
