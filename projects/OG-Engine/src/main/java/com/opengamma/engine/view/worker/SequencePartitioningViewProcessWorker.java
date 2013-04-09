@@ -7,6 +7,7 @@ package com.opengamma.engine.view.worker;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -24,6 +25,7 @@ import com.opengamma.engine.view.execution.ArbitraryViewCycleExecutionSequence;
 import com.opengamma.engine.view.execution.ExecutionOptions;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.execution.ViewCycleExecutionSequence;
+import com.opengamma.engine.view.execution.ViewExecutionFlags;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.impl.ViewProcessContext;
 
@@ -36,8 +38,10 @@ public class SequencePartitioningViewProcessWorker implements ViewProcessWorker,
 
   private final ViewProcessWorkerFactory _delegate;
   private final ViewProcessWorkerContext _context;
-  private final ViewExecutionOptions _executionOptions;
+  private final EnumSet<ViewExecutionFlags> _executionFlags;
+  private final Integer _maxSuccessiveDeltaCycles;
   private final ViewCycleExecutionSequence _sequence;
+  private final ViewCycleExecutionOptions _defaultExecutionOptions;
   private final Queue<ViewProcessWorker> _workers = new LinkedList<ViewProcessWorker>();
   private volatile ViewDefinition _viewDefinition;
   private int _partition;
@@ -45,17 +49,22 @@ public class SequencePartitioningViewProcessWorker implements ViewProcessWorker,
   private int _spawnedWorkerCount;
   private int _spawnedCycleCount;
   private int _spawnedWorkers;
+  private int _trigger;
 
   public SequencePartitioningViewProcessWorker(final ViewProcessWorkerFactory delegate, final ViewProcessWorkerContext context, final ViewExecutionOptions executionOptions,
       final ViewDefinition viewDefinition, final int partition, final int maxWorkers) {
     _delegate = delegate;
     _context = context;
-    _executionOptions = executionOptions;
+    _executionFlags = EnumSet.copyOf(executionOptions.getFlags());
+    _maxSuccessiveDeltaCycles = executionOptions.getMaxSuccessiveDeltaCycles();
+    _defaultExecutionOptions = executionOptions.getDefaultExecutionOptions();
     _sequence = executionOptions.getExecutionSequence();
     _viewDefinition = viewDefinition;
     _partition = partition;
-    for (int i = 0; i < maxWorkers; i++) {
-      spawnWorker();
+    _trigger = maxWorkers;
+    if (!_executionFlags.remove(ViewExecutionFlags.WAIT_FOR_INITIAL_TRIGGER)) {
+      // Kick off first batch of workers
+      triggerCycle();
     }
   }
 
@@ -67,12 +76,20 @@ public class SequencePartitioningViewProcessWorker implements ViewProcessWorker,
     return _context;
   }
 
+  private EnumSet<ViewExecutionFlags> getExecutionFlags() {
+    return _executionFlags;
+  }
+
   private ViewCycleExecutionOptions getDefaultExecutionOptions() {
-    return _executionOptions.getDefaultExecutionOptions();
+    return _defaultExecutionOptions;
+  }
+
+  private Integer getMaxSuccessiveDeltaCycles() {
+    return _maxSuccessiveDeltaCycles;
   }
 
   private ViewExecutionOptions getExecutionOptions(ViewCycleExecutionSequence newSequence) {
-    return new ExecutionOptions(newSequence, _executionOptions.getFlags(), _executionOptions.getMaxSuccessiveDeltaCycles(), getDefaultExecutionOptions());
+    return new ExecutionOptions(newSequence, getExecutionFlags(), getMaxSuccessiveDeltaCycles(), getDefaultExecutionOptions());
   }
 
   private ViewCycleExecutionSequence getSequence() {
@@ -114,8 +131,14 @@ public class SequencePartitioningViewProcessWorker implements ViewProcessWorker,
   // ViewProcessWorker
 
   @Override
-  public void triggerCycle() {
-    s_logger.debug("Ignoring triggerCycle on run-as-fast-as-possible sequence");
+  public synchronized void triggerCycle() {
+    if (s_logger.isDebugEnabled() && (_trigger == 0)) {
+      s_logger.debug("Ignoring triggerCycle on run-as-fast-as-possible sequence");
+    }
+    while (_trigger > 0) {
+      spawnWorker();
+      _trigger--;
+    }
   }
 
   @Override

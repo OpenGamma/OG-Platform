@@ -488,6 +488,10 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
     return defaultCurrencyPairInfo("EUR", "TRY");
   }
 
+  protected CurrencyPairInfo jpyKrwCurrencyPairInfo() {
+    return defaultCurrencyPairInfo("JPY", "KRW");
+  }
+
   protected CurrencyPairInfo sekJpyCurrencyPairInfo() {
     return defaultCurrencyPairInfo("SEK", "JPY");
   }
@@ -565,6 +569,7 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
     setCurrencyPairInfo(Pair.of("EUR", "CHF"), eurChfCurrencyPairInfo());
     setCurrencyPairInfo(Pair.of("EUR", "JPY"), eurJpyCurrencyPairInfo());
     setCurrencyPairInfo(Pair.of("EUR", "TRY"), eurTryCurrencyPairInfo());
+    setCurrencyPairInfo(Pair.of("JPY", "KRW"), jpyKrwCurrencyPairInfo());
     setCurrencyPairInfo(Pair.of("SEK", "JPY"), sekJpyCurrencyPairInfo());
     setCurrencyPairInfo(Pair.of("USD", "AUD"), usdAudCurrencyPairInfo());
     setCurrencyPairInfo(Pair.of("USD", "BRL"), usdBrlCurrencyPairInfo());
@@ -658,9 +663,10 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
   }
 
   protected void setCDSFunctionDefaults(final CurrencyInfo i, final CreditFunctions.Defaults.CurrencyInfo defaults) {
-    defaults.setCurveCalculationConfig(i.getCurveConfiguration("model/cds"));
-    defaults.setCurveName(i.getCurveName("model/cds"));
-    defaults.setCurveCalculationMethod(i.getCurveCalculationMethodName("model/cds"));
+    defaults.setCurveCalculationConfig(i.getCurveConfiguration("model/credit/yield"));
+    defaults.setCurveName(i.getCurveName("model/credit/yield"));
+    defaults.setCurveCalculationMethod(i.getCurveCalculationMethodName("model/credit/yield"));
+    defaults.setCurveCalculationMethod(i.getCurveCalculationMethodName("model/credit/hazardrate"));
   }
 
   protected void setCDSFunctionDefaults(final CreditFunctions.Defaults defaults) {

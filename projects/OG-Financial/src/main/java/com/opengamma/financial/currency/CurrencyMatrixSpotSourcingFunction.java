@@ -69,7 +69,7 @@ public class CurrencyMatrixSpotSourcingFunction extends AbstractCurrencyMatrixSo
   }
 
   @Override
-  protected boolean getRequirements(FunctionCompilationContext context, ValueRequirement desiredValue, CurrencyMatrix matrix, Set<ValueRequirement> requirements, Currency source, Currency target) {
+  protected boolean getRequirements(final FunctionCompilationContext context, final ValueRequirement desiredValue, final CurrencyMatrix matrix, final Set<ValueRequirement> requirements, final Currency source, final Currency target) {
     return getRequirements(matrix, requirements, new HashSet<Pair<Currency, Currency>>(), Pair.of(source, target));
   }
 
@@ -125,7 +125,8 @@ public class CurrencyMatrixSpotSourcingFunction extends AbstractCurrencyMatrixSo
   }
 
   @Override
-  protected Object getRate(CurrencyMatrix matrix, ValueRequirement desiredValue, FunctionExecutionContext executionContext, FunctionInputs inputs, Currency source, Currency target) {
+  protected Object getRate(final CurrencyMatrix matrix, final ValueRequirement desiredValue, final FunctionExecutionContext executionContext,
+      final FunctionInputs inputs, final Currency source, final Currency target) {
     return getRate(matrix, inputs, source, target);
   }
 
@@ -137,6 +138,7 @@ public class CurrencyMatrixSpotSourcingFunction extends AbstractCurrencyMatrixSo
    * @return the requirement, not null
    */
   public static ValueRequirement getConversionRequirement(final Currency source, final Currency target) {
+    //TODO is the reversal of the inputs intentional?
     return new ValueRequirement(ValueRequirementNames.SPOT_RATE, CurrencyPair.TYPE.specification(CurrencyPair.of(target, source)));
   }
 

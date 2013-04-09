@@ -204,7 +204,7 @@ public abstract class FXDigitalCallSpreadBlackFunction extends AbstractFunction.
     final ValueRequirement putFundingCurve = getCurveRequirement(putCurveName, putCurrency, putCurveCalculationConfig);
     final ValueRequirement callFundingCurve = getCurveRequirement(callCurveName, callCurrency, callCurveCalculationConfig);
     final ValueRequirement fxVolatilitySurface = getSurfaceRequirement(surfaceName, putCurrency, callCurrency, interpolatorName, leftExtrapolatorName, rightExtrapolatorName);
-    final ValueRequirement spotRequirement = CurrencyMatrixSpotSourcingFunction.getConversionRequirement(putCurrency, callCurrency);
+    final ValueRequirement spotRequirement = CurrencyMatrixSpotSourcingFunction.getConversionRequirement(callCurrency, putCurrency);
     final ValueRequirement pairQuoteRequirement = new ValueRequirement(ValueRequirementNames.CURRENCY_PAIRS, ComputationTargetSpecification.NULL);
     return Sets.newHashSet(putFundingCurve, callFundingCurve, fxVolatilitySurface, spotRequirement, pairQuoteRequirement);
   }
