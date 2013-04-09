@@ -53,8 +53,21 @@ public interface LocalDateDoubleTimeSeries
   LocalDateDoubleTimeSeries lag(final int lagCount);
 
   //-------------------------------------------------------------------------
+  /**
+   * Applies a unary operator to each value in the time series.
+   * 
+   * @param operator  the operator, not null
+   * @return a copy of this series with the operator applied, not null
+   */
   LocalDateDoubleTimeSeries operate(UnaryOperator operator);
 
+  /**
+   * Applies a binary operator to each value in the time series.
+   * 
+   * @param other  the single value passed into the binary operator
+   * @param operator  the operator, not null
+   * @return a copy of this series with the operator applied, not null
+   */
   LocalDateDoubleTimeSeries operate(double other, BinaryOperator operator);
 
   //-------------------------------------------------------------------------
