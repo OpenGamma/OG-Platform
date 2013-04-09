@@ -19,10 +19,6 @@ public abstract class AbstractDateObjectTimeSeriesBuilder<T, V>
     implements DateObjectTimeSeriesBuilder<T, V> {
 
   /**
-   * The current size.
-   */
-  private int _size;
-  /**
    * The time-series.
    */
   private SortedMap<Integer, V> _series = new ConcurrentSkipListMap<>();  // use this map to block nulls
@@ -135,7 +131,7 @@ public abstract class AbstractDateObjectTimeSeriesBuilder<T, V>
   //-------------------------------------------------------------------------
   @Override
   public String toString() {
-    return "Builder[size=" + _size + "]";
+    return "Builder[size=" + _series.size() + "]";
   }
 
 }

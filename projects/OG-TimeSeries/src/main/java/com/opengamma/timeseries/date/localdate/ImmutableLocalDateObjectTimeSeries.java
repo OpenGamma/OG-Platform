@@ -75,6 +75,17 @@ public final class ImmutableLocalDateObjectTimeSeries<V>
    * Obtains a time-series from a single date and value.
    * 
    * @param <V>  the value being viewed over time
+   * @return the time-series, not null
+   */
+  @SuppressWarnings("unchecked")
+  public static <V> ImmutableLocalDateObjectTimeSeries<V> ofEmpty() {
+    return (ImmutableLocalDateObjectTimeSeries<V>) EMPTY_SERIES;
+  }
+
+  /**
+   * Obtains a time-series from a single date and value.
+   * 
+   * @param <V>  the value being viewed over time
    * @param date  the singleton date, not null
    * @param value  the singleton value
    * @return the time-series, not null
@@ -464,7 +475,7 @@ public final class ImmutableLocalDateObjectTimeSeries<V>
         System.arraycopy(values, -days, resultValues, 0, times.length + days);
         return new ImmutableLocalDateObjectTimeSeries<V>(resultTimes, resultValues);
       } else {
-        return (LocalDateObjectTimeSeries<V>) EMPTY_SERIES;
+        return ImmutableLocalDateObjectTimeSeries.ofEmpty();
       }
     } else { // if (days > 0) {
       if (days < times.length) {
@@ -474,7 +485,7 @@ public final class ImmutableLocalDateObjectTimeSeries<V>
         System.arraycopy(values, 0, resultValues, 0, times.length - days);
         return new ImmutableLocalDateObjectTimeSeries<V>(resultTimes, resultValues);
       } else {
-        return (LocalDateObjectTimeSeries<V>) EMPTY_SERIES;
+        return ImmutableLocalDateObjectTimeSeries.ofEmpty();
       }
     }
   }
@@ -607,6 +618,30 @@ public final class ImmutableLocalDateObjectTimeSeries<V>
   @Override
   public LocalDateObjectTimeSeries<V> noIntersectionOperation(DateObjectTimeSeries<?, V> other) {
     return unionOperate(other, ObjectTimeSeriesOperators.<V>noIntersectionOperator());
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj instanceof ImmutableLocalDateObjectTimeSeries) {
+      ImmutableLocalDateObjectTimeSeries<?> other = (ImmutableLocalDateObjectTimeSeries<?>) obj;
+      return Arrays.equals(_times, other._times) &&
+              Arrays.equals(_values, other._values);
+    }
+    if (obj instanceof DateObjectTimeSeries) {
+      DateObjectTimeSeries<?, ?> other = (DateObjectTimeSeries<?, ?>) obj;
+      return Arrays.equals(timesArrayFast(), other.timesArrayFast()) &&
+              Arrays.equals(valuesArray(), other.valuesArray());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    return Arrays.hashCode(timesArrayFast()) ^ Arrays.hashCode(valuesArray());
   }
 
   //-------------------------------------------------------------------------
