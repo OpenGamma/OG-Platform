@@ -98,7 +98,7 @@ $.register_module({
                 }
                 else if (cell.row in grid.state.nodes || cell.type === 'NODE') {  
                     items.push({name: 'Add Trade', handler: trade_insert_node});
-                    items.push({name: 'Add Sub Portfolio', handler: new_porfolio});
+                    //items.push({name: 'Add Sub Portfolio', handler: new_porfolio});
                     return items;  
                 }
                 // if a cell has a tradeId then edit the trade otherwise it is an empty position
