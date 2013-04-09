@@ -23,10 +23,10 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-public class ISDACompliantPremiumLegCalculator {
-  private static final int spotDays = 3;
-  private static final boolean businessDayAdjustCashSettlementDate = true;
-  private static final BusinessDayConvention cashSettlementDateBusinessDayConvention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("F");
+public class ISDACompliantPremiumLegCalculator extends ISDACompliantLegCalculator {
+  private static final int SPOT_DAYS = 3;
+  private static final boolean ADJUST_CASH_SETTLEMENT_DATE = true;
+  private static final BusinessDayConvention BDA = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("F");
   private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
   private static final DayCount ACT_360 = DayCountFactory.INSTANCE.getDayCount("ACT/360");
   private static final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
@@ -40,11 +40,8 @@ public class ISDACompliantPremiumLegCalculator {
   // The code for the accrued calc has just been lifted from RiskCare's implementation for now because it exactly reproduces
   // the ISDA model - will replace with a better model in due course
 
-  public double calculatePremiumLeg(
-      final ZonedDateTime valuationDate,
-      final CreditDefaultSwapDefinition cds,
-      final ISDADateCurve yieldCurve,
-      final HazardRateCurve hazardRateCurve,
+  @Override
+  public double calculateLeg(final ZonedDateTime valuationDate, final CreditDefaultSwapDefinition cds, final ISDADateCurve yieldCurve, final HazardRateCurve hazardRateCurve,
       final PriceType priceType) {
     double presentValuePremiumLeg = 0.0;
     final ZonedDateTime[] premiumLegSchedule = PREMIUM_LEG_SCHEDULE.constructISDACompliantCreditDefaultSwapPremiumLegSchedule(cds);
@@ -140,9 +137,9 @@ public class ISDACompliantPremiumLegCalculator {
     presentValuePremiumLeg = thisPV;
     // TODO : Check this calculation - maybe move it out of this routine and into the PV calculation routine?
     // TODO : Note the cash settlement date is hardcoded at 3 days
-    ZonedDateTime bdaCashSettlementDate = valuationDate.plusDays(spotDays);
-    if (businessDayAdjustCashSettlementDate) {
-      bdaCashSettlementDate = cashSettlementDateBusinessDayConvention.adjustDate(cds.getCalendar(), bdaCashSettlementDate);
+    ZonedDateTime bdaCashSettlementDate = valuationDate.plusDays(SPOT_DAYS);
+    if (ADJUST_CASH_SETTLEMENT_DATE) {
+      bdaCashSettlementDate = BDA.adjustDate(cds.getCalendar(), bdaCashSettlementDate);
     }
     final double tSett = ACT_ACT.getDayCountFraction(valuationDate, bdaCashSettlementDate);
     final double valueDatePV = yieldCurve.getDiscountFactor(tSett);

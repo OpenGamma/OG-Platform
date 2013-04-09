@@ -19,8 +19,6 @@ import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
 import com.opengamma.analytics.financial.credit.schedulegeneration.GenerateCreditDefaultSwapPremiumLegSchedule;
 import com.opengamma.analytics.financial.credit.util.CreditMarketDataUtils;
-import com.opengamma.analytics.math.function.Function1D;
-import com.opengamma.analytics.math.rootfinding.BisectionSingleRootFinder;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.util.ArgumentChecker;
@@ -142,15 +140,6 @@ public class ISDAHazardRateCurveCalculator {
         upperHazardRate = 1.0;
       }
 
-      final Function1D<Double, Double> function = new Function1D<Double, Double>() {
-
-        @Override
-        public Double evaluate(final Double hazardRate) {
-          return calculateCDSPV(valuationDate, calibrationCDS, marketTenors, runningTenors, hazardRates, hazardRate, yieldCurve, priceType);
-        }
-
-      };
-      new BisectionSingleRootFinder(_tolerance).getRoot(function, lowerHazardRate, upperHazardRate);
       // Now do the root search (in hazard rate space) - simple bisection method for the moment (guaranteed to work and we are not concerned with speed at the moment)
       // Calculate the CDS PV at the lower hazard rate bound
       final double cdsPresentValueAtLowerPoint = calculateCDSPV(valuationDate, calibrationCDS, marketTenors, runningTenors, hazardRates, lowerHazardRate, yieldCurve, priceType);

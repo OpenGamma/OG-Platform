@@ -12,7 +12,7 @@ import com.opengamma.analytics.financial.credit.ISDAYieldCurveAndSpreadsProvider
 import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.bumpers.CreditSpreadBumpersNew;
 import com.opengamma.analytics.financial.credit.bumpers.SpreadBumpType;
-import com.opengamma.analytics.financial.credit.calibratehazardratecurve.HazardRateCurveCalculator;
+import com.opengamma.analytics.financial.credit.calibratehazardratecurve.ISDAHazardRateCurveCalculator;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isda.ISDACreditDefaultSwapPVCalculator;
 import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
@@ -25,7 +25,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class ISDACreditDefaultSwapParallelCS01Calculator {
   private static final CreditSpreadBumpersNew SPREAD_BUMPER = new CreditSpreadBumpersNew();
-  private static final HazardRateCurveCalculator HAZARD_RATE_CALCULATOR = new HazardRateCurveCalculator();
+  private static final ISDAHazardRateCurveCalculator HAZARD_RATE_CALCULATOR = new ISDAHazardRateCurveCalculator();
   private static final ISDACreditDefaultSwapPVCalculator PV_CALCULATOR = new ISDACreditDefaultSwapPVCalculator();
   private static final SpreadTermStructureDataChecker DATA_CHECKER = new SpreadTermStructureDataChecker();
 
