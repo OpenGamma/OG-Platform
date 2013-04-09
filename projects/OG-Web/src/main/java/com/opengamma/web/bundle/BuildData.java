@@ -29,8 +29,7 @@ public class BuildData {
       String resource = ClassLoader.getSystemResource("com/opengamma/web/bundle/BuildData.txt").getPath();
       input = new FileInputStream(new File(resource));
       prop.load(input);
-      result = prop.getProperty("version");
-      result += prop.getProperty("build.date");
+      result = prop.getProperty("web.build.timestamp");
     } catch (Exception e) {
       result = "default";
       s_logger.warn("Failed to load build data for resource urls", e);

@@ -94,7 +94,7 @@
   <properties>
     <tests.testng.includedgroups>unit</tests.testng.includedgroups>
     <tests.testng.excludedgroups>integration, unitdb, unitslow</tests.testng.excludedgroups>
-    <timestamp>${maven.build.timestamp}</timestamp>
+    <web.build.timestamp>${maven.build.timestamp}</web.build.timestamp>
     <maven.build.timestamp.format>yyyyMMddHHmm</maven.build.timestamp.format>
   </properties>
 
