@@ -228,7 +228,7 @@ public class CurveDefinitionAndSpecifications {
     for (final int i : new int[] {1, 2, 3, 4, 5, 6}) {
       strips.add(new FixedIncomeStrip(StripInstrumentType.LIBOR, Tenor.ofMonths(i), "DEFAULT"));
     }
-    for (final int i : new int[] {9, 12, 15}) {
+    for (final int i : new int[] {9, 12}) {
       strips.add(new FixedIncomeStrip(StripInstrumentType.FRA_6M, Tenor.ofMonths(i), "DEFAULT"));
     }
     for (final int i : new int[] {2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30}) {
