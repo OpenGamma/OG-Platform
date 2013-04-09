@@ -19,6 +19,7 @@ import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.curve.inflation.generator.GeneratorPriceIndexCurve;
+import com.opengamma.analytics.financial.curve.inflation.generator.GeneratorPriceIndexCurveAddSeasonality;
 import com.opengamma.analytics.financial.curve.inflation.generator.GeneratorPriceIndexCurveInterpolated;
 import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorCurve;
 import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorCurveYieldInterpolated;
@@ -48,6 +49,7 @@ import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.SeasonalCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.provider.calculator.generic.LastTimeCalculator;
@@ -62,9 +64,11 @@ import com.opengamma.analytics.financial.provider.description.inflation.Inflatio
 import com.opengamma.analytics.financial.provider.sensitivity.inflation.InflationSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterInflationSensitivityParameterCalculator;
+import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
+import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.timeseries.DoubleTimeSeries;
@@ -74,9 +78,9 @@ import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Pair;
 
 /**
- *  Build of inflation curve and discount curve simultaneously in several blocks with relevant Jacobian matrices.
+ *  Build of inflation curve(including seasonality) and discount curve simultaneously in several blocks with relevant Jacobian matrices.
  */
-public class InflationBuildingCurveWithDiscountTestEUR {
+public class InflationBuildingCurveWithDiscountAndSeasonalityTestUS {
 
   private static final Interpolator1D INTERPOLATOR_LINEAR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LOG_LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
       Interpolator1DFactory.FLAT_EXTRAPOLATOR);
@@ -147,7 +151,17 @@ public class InflationBuildingCurveWithDiscountTestEUR {
       CPI_USD_ATTR[loopins] = new GeneratorAttributeIR(CPI_USD_TENOR[loopins]);
     }
   }
+  public static final ZonedDateTime NOW_MINUS_3MONTH = DateUtils.getUTCDate(2012, 6, 28);
+  public static final ZonedDateTime[] seasonalityDate = ScheduleCalculator.getUnadjustedDateSchedule(NOW, NOW.plusYears(30), Period.ofMonths(1), true, false);
+  public static final double[] seasonalStep = new double[seasonalityDate.length];
+  static {
+    for (int loopins = 0; loopins < seasonalityDate.length; loopins++) {
+      seasonalStep[loopins] = TimeCalculator.getTimeBetween(NOW, seasonalityDate[loopins]);
+    }
+  }
 
+  public static final double[] seasonalFactors = {1.005, 1.001, 1.01, .999, .998, .9997, 1.004, 1.006, .994, .993, .9991 };
+  final static SeasonalCurve SEASONAL_CURVE = new SeasonalCurve(seasonalStep, seasonalFactors, false);
   /** Standard USD discounting curve instrument definitions */
   private static final InstrumentDefinition<?>[] DEFINITIONS_DSC_USD;
 
@@ -184,7 +198,8 @@ public class InflationBuildingCurveWithDiscountTestEUR {
     DEFINITIONS_UNITS[1][0] = new InstrumentDefinition<?>[][] {DEFINITIONS_DSC_USD, DEFINITIONS_CPI_USD };
 
     final GeneratorYDCurve genIntLinDiscount = new GeneratorCurveYieldInterpolated(MATURITY_CALCULATOR, INTERPOLATOR_LINEAR);
-    final GeneratorPriceIndexCurve genIntLinInflation = new GeneratorPriceIndexCurveInterpolated(MATURITY_CALCULATOR, INTERPOLATOR_LINEAR);
+    final GeneratorPriceIndexCurve gen = new GeneratorPriceIndexCurveInterpolated(MATURITY_CALCULATOR, INTERPOLATOR_LINEAR);
+    final GeneratorPriceIndexCurve genIntLinInflation = new GeneratorPriceIndexCurveAddSeasonality(gen, SEASONAL_CURVE);
 
     GENERATORS_UNITS[0][0] = new GeneratorYDCurve[] {genIntLinDiscount };
     GENERATORS_UNITS[0][1] = new GeneratorPriceIndexCurve[] {genIntLinInflation };
@@ -229,7 +244,7 @@ public class InflationBuildingCurveWithDiscountTestEUR {
     }
   }
 
-  @Test(enabled = false)
+  @Test(enabled = true)
   public void comparison1Unit2Units() {
     final InflationProviderDiscount[] units = new InflationProviderDiscount[2];
     final CurveBuildingBlockBundle[] bb = new CurveBuildingBlockBundle[2];
