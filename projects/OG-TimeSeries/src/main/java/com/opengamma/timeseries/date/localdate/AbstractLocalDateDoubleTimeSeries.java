@@ -23,6 +23,7 @@ import static com.opengamma.timeseries.DoubleTimeSeriesOperators.SECOND_OPERATOR
 import static com.opengamma.timeseries.DoubleTimeSeriesOperators.SUBTRACT_OPERATOR;
 
 import java.util.AbstractMap.SimpleImmutableEntry;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
@@ -249,7 +250,7 @@ abstract class AbstractLocalDateDoubleTimeSeries
   //-------------------------------------------------------------------------
   private LocalDateDoubleTimeSeries operate(DoubleTimeSeries<?> other, BinaryOperator operator) {
     if (other instanceof DateDoubleTimeSeries) {
-      return operate((DateDoubleTimeSeries<?>) other, ADD_OPERATOR);
+      return operate((DateDoubleTimeSeries<?>) other, operator);
     }
     throw new UnsupportedOperationException("Can only operate on a DateDoubleTimeSeries");
   }
@@ -286,7 +287,7 @@ abstract class AbstractLocalDateDoubleTimeSeries
 
   private LocalDateDoubleTimeSeries unionOperate(DoubleTimeSeries<?> other, BinaryOperator operator) {
     if (other instanceof DateDoubleTimeSeries) {
-      return unionOperate((DateDoubleTimeSeries<?>) other, ADD_OPERATOR);
+      return unionOperate((DateDoubleTimeSeries<?>) other, operator);
     }
     throw new UnsupportedOperationException("Can only operate on a DateDoubleTimeSeries");
   }
@@ -567,6 +568,30 @@ abstract class AbstractLocalDateDoubleTimeSeries
   @Override
   public FastIntDoubleTimeSeries toFastIntDoubleTimeSeries(DateTimeNumericEncoding encoding) {
     return new FastArrayIntDoubleTimeSeries(encoding, timesArrayFast0(), valuesArrayFast0());
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj instanceof AbstractLocalDateDoubleTimeSeries) {
+      AbstractLocalDateDoubleTimeSeries other = (AbstractLocalDateDoubleTimeSeries) obj;
+      return Arrays.equals(timesArrayFast0(), other.timesArrayFast0()) &&
+              Arrays.equals(valuesArrayFast0(), other.valuesArrayFast0());
+    }
+    if (obj instanceof DateDoubleTimeSeries) {
+      DateDoubleTimeSeries<?> other = (DateDoubleTimeSeries<?>) obj;
+      return Arrays.equals(timesArrayFast0(), other.timesArrayFast()) &&
+              Arrays.equals(valuesArrayFast0(), other.valuesArrayFast());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    return Arrays.hashCode(timesArrayFast0()) ^ Arrays.hashCode(valuesArrayFast0());
   }
 
 }

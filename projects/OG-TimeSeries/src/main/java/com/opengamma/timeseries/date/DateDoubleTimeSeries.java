@@ -266,4 +266,22 @@ public interface DateDoubleTimeSeries<T>
 //  @Override  // override for covariant return type
 //  DateDoubleTimeSeries<T> abs();
 
+  //-------------------------------------------------------------------------
+  /**
+   * Checks if this time-series equals the specified time-series.
+   * 
+   * @param obj  the other time-series, null returns false
+   * @return true if equal
+   */
+  @Override
+  boolean equals(Object obj);
+
+  /**
+   * A suitable hash code.
+   * 
+   * @return the hash code
+   */
+  @Override
+  int hashCode();
+
 }

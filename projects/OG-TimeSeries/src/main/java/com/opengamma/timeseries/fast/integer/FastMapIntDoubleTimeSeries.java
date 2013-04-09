@@ -115,7 +115,7 @@ public class FastMapIntDoubleTimeSeries extends AbstractFastMutableIntDoubleTime
   //-------------------------------------------------------------------------
   @Override
   public boolean containsTime(Integer time) {
-    return _map.get(time) != _defaultReturnValue;
+    return time != null && _map.get(time.intValue()) != _defaultReturnValue;
   }
 
   @Override
@@ -129,7 +129,7 @@ public class FastMapIntDoubleTimeSeries extends AbstractFastMutableIntDoubleTime
 
   @Override
   public int getTimeAtIndexFast(final int index) {
-    if (index >= _map.size()) {
+    if (index >= _map.size() || index < 0) {
       throw new IndexOutOfBoundsException();
     }
     final IntBidirectionalIterator iterator = _map.keySet().iterator();
@@ -139,7 +139,7 @@ public class FastMapIntDoubleTimeSeries extends AbstractFastMutableIntDoubleTime
 
   @Override
   public double getValueAtIndexFast(final int index) {
-    if (index >= _map.size()) {
+    if (index >= _map.size() || index < 0) {
       throw new IndexOutOfBoundsException();
     }
     final IntBidirectionalIterator iterator = _map.keySet().iterator();

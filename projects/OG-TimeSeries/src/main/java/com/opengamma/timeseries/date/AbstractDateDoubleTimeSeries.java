@@ -6,6 +6,7 @@
 package com.opengamma.timeseries.date;
 
 import java.util.AbstractList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -124,7 +125,7 @@ public abstract class AbstractDateDoubleTimeSeries<T> implements DateDoubleTimeS
       private int _index = -1;
       @Override
       public boolean hasNext() {
-        return _index < size();
+        return (_index + 1) < size();
       }
       @Override
       public T next() {
@@ -175,7 +176,7 @@ public abstract class AbstractDateDoubleTimeSeries<T> implements DateDoubleTimeS
       private int _index = -1;
       @Override
       public boolean hasNext() {
-        return _index < size();
+        return (_index + 1) < size();
       }
       @Override
       public Double next() {
@@ -313,6 +314,24 @@ public abstract class AbstractDateDoubleTimeSeries<T> implements DateDoubleTimeS
   }
 
   //-------------------------------------------------------------------------
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj instanceof DateDoubleTimeSeries) {
+      DateDoubleTimeSeries<?> other = (DateDoubleTimeSeries<?>) obj;
+      return Arrays.equals(timesArrayFast(), other.timesArrayFast()) &&
+              Arrays.equals(valuesArrayFast(), other.valuesArrayFast());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    return Arrays.hashCode(timesArrayFast()) ^ Arrays.hashCode(valuesArrayFast());
+  }
+
   @Override
   public String toString() {
     return TimeSeriesUtils.toString(this);

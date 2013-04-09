@@ -115,7 +115,7 @@ public class FastMapLongDoubleTimeSeries extends AbstractFastMutableLongDoubleTi
   //-------------------------------------------------------------------------
   @Override
   public boolean containsTime(Long time) {
-    return _map.get(time) != _defaultReturnValue;
+    return time != null && _map.get(time.longValue()) != _defaultReturnValue;
   }
 
   @Override
@@ -129,8 +129,8 @@ public class FastMapLongDoubleTimeSeries extends AbstractFastMutableLongDoubleTi
 
   @Override
   public long getTimeAtIndexFast(final int index) {
-    if (index >= _map.size()) {
-      throw new NoSuchElementException();
+    if (index >= _map.size() || index < 0) {
+      throw new IndexOutOfBoundsException();
     }
     final LongBidirectionalIterator iterator = _map.keySet().iterator();
     iterator.skip(index);
