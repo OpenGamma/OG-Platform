@@ -10,13 +10,7 @@ $.register_module({
             init: (function () {
                 var module = this, tooltip, tooltip_offsets, orientation = '', offsets, height, width,
                     viewport, timed_hover, total_width, total_height, blurkill = false,
-                    tmpl = '<div class="OG-tooltip og-large">'+
-                                'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'+
-                                'Nullam consectetur quam a sapien egestas eget scelerisque'+
-                                'lectus tempor. Duis placerat tellus at erat pellentesque nec'+
-                                'ultricies erat molestie. Integer nec orci id tortor molestie'+
-                                'porta. Suspendisse eu sagittis quam.'+
-                            '</div>';
+                    tmpl = '<div class="OG-tooltip og-large">{{{tip}}}</div>';
 
                 var hide_tooltip = function (event) {
                     tooltip.removeAttr('style').removeClass(orientation).hide();

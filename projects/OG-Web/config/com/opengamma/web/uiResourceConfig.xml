@@ -298,6 +298,7 @@
     <fragment>/scripts/og/api/og.api.text.js</fragment>
     <fragment>/scripts/og/api/og.api.rest.js</fragment>
     <fragment>/scripts/og/api/og.api.fake.js</fragment>
+    <fragment>/scripts/og/api/og.api.tooltip.js</fragment>
   </bundle>
   <bundle id="util.js">
     <fragment>/scripts/og/common/util/og.common.util.hashqueue.js</fragment>
