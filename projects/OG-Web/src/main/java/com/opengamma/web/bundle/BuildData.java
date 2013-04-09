@@ -2,8 +2,6 @@ package com.opengamma.web.bundle;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
-import java.net.URL;
 import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
@@ -26,7 +24,7 @@ public class BuildData {
     FileInputStream input = null;
     String result;
     try {
-      String resource = ClassLoader.getSystemResource("com/opengamma/web/bundle/BuildData.txt").getPath();
+      String resource = ClassLoader.getSystemResource("com/opengamma/web/bundle/build-data.properties").getPath();
       input = new FileInputStream(new File(resource));
       prop.load(input);
       result = prop.getProperty("web.build.timestamp");
