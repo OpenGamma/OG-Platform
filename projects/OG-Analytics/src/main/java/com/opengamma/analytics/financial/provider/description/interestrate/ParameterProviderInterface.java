@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.provider.description.interestrate;
 
+
 /**
  * Interface for parameter provider with multi-curves provider.
  */
