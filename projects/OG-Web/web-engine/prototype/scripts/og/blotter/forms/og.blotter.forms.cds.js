@@ -35,6 +35,7 @@ $.register_module({
                 );
                 form.dom();
                 form.on('form:load', function (){
+                    console.log(data);
                     util.add_date_picker('.blotter-date');
                     util.add_time_picker('.blotter-time');
                     util.set_initial_focus();
@@ -42,11 +43,12 @@ $.register_module({
                     util.check_radio("security.buy", data.security.buy);
                     util.check_checkbox("security.protectionStart", data.security.protectionStart);
                     util.check_checkbox("security.includeAccruedPremium", data.security.includeAccruedPremium);
-                    util.set_select("security.notional.currency", data.security.notional.currency);
                     util.check_checkbox("security.adjustEffectiveDate", data.security.adjustEffectiveDate);
                     util.check_checkbox("security.adjustCashSettlementDate", data.security.adjustCashSettlementDate);
                     util.check_checkbox("security.adjustMaturityDate", data.security.adjustMaturityDate);
                     util.check_checkbox("security.immAdjustMaturityDate", data.security.immAdjustMaturityDate);
+                    if(!data.security.notional) return;
+                    util.set_select("security.notional.currency", data.security.notional.currency);
                     
                 });
                 form.on('form:submit', function (result){
@@ -55,6 +57,7 @@ $.register_module({
             };
             constructor.load();
             constructor.submit = function (handler) {
+                console.log('submit');
                 validate = handler;
                 form.submit();
             };
