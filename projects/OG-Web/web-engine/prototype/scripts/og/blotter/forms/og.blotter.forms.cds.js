@@ -35,7 +35,6 @@ $.register_module({
                 );
                 form.dom();
                 form.on('form:load', function (){
-                    console.log(data);
                     util.add_date_picker('.blotter-date');
                     util.add_time_picker('.blotter-time');
                     util.set_initial_focus();
@@ -57,7 +56,6 @@ $.register_module({
             };
             constructor.load();
             constructor.submit = function (handler) {
-                console.log('submit');
                 validate = handler;
                 form.submit();
             };
