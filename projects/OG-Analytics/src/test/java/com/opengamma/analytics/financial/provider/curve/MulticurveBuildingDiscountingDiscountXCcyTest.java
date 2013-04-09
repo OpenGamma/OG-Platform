@@ -638,7 +638,7 @@ public class MulticurveBuildingDiscountingDiscountXCcyTest {
     }
   }
 
-  @Test(enabled = false)
+  @Test(enabled = true)
   /**
    * Analyzes the shape of the forward curve.
    */
