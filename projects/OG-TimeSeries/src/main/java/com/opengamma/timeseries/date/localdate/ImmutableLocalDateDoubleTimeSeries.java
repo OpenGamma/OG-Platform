@@ -7,14 +7,18 @@ package com.opengamma.timeseries.date.localdate;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 
 import org.threeten.bp.LocalDate;
 
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.DoubleTimeSeriesOperators.BinaryOperator;
 import com.opengamma.timeseries.DoubleTimeSeriesOperators.UnaryOperator;
+import com.opengamma.timeseries.date.AbstractDateDoubleTimeSeriesBuilder;
 import com.opengamma.timeseries.date.DateDoubleTimeSeries;
+import com.opengamma.timeseries.localdate.LocalDateToIntConverter;
 
 /**
  * Standard immutable implementation of {@code LocalDateDoubleTimeSeries}.
@@ -37,6 +41,31 @@ public final class ImmutableLocalDateDoubleTimeSeries
    * The values in the series.
    */
   private final double[] _values;
+
+  //-------------------------------------------------------------------------
+  /**
+   * Obtains a time-series from a single date and value.
+   * 
+   * @return the time-series builder, not null
+   */
+  public static LocalDateDoubleTimeSeriesBuilder builder() {
+    return new Builder();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Obtains a time-series from a single date and value.
+   * 
+   * @param date  the singleton date, not null
+   * @param value  the singleton value
+   * @return the time-series, not null
+   */
+  public static ImmutableLocalDateDoubleTimeSeries of(LocalDate date, double value) {
+    Objects.requireNonNull(date, "date");
+    int[] timesArray = new int[] {LocalDateToIntConverter.convertToInt(date)};
+    double[] valuesArray = new double[] {value};
+    return new ImmutableLocalDateDoubleTimeSeries(timesArray, valuesArray);
+  }
 
   /**
    * Obtains a time-series from matching arrays of dates and values.
@@ -135,7 +164,7 @@ public final class ImmutableLocalDateDoubleTimeSeries
    */
   private static void validate(int[] times, double[] values) {
     if (times == null || values == null) {
-      throw new IllegalArgumentException("Array must not be null");
+      throw new NullPointerException("Array must not be null");
     }
     // check lengths
     if (times.length != values.length) {
@@ -161,47 +190,6 @@ public final class ImmutableLocalDateDoubleTimeSeries
     _times = times;
     _values = values;
   }
-
-//
-//  @Override
-//  protected FastBackedDoubleTimeSeries<LocalDate> intersectionFirstValueFast(FastLongDoubleTimeSeries other) {
-//    //PLAT-1590
-//    int[] aTimes = getFastSeries().timesArrayFast();
-//    double[] aValues = valuesArrayFast();
-//    int aCount = 0;
-//    long[] bTimesLong = other.timesArrayFast();
-//    int[] bTimes = new int[bTimesLong.length];
-//    
-//    DateTimeNumericEncoding aEncoding = getFastSeries().getEncoding();
-//    DateTimeNumericEncoding bEncoding = other.getEncoding();
-//    for (int i = 0; i < bTimesLong.length; i++) {
-//      bTimes[i] = bEncoding.convertToInt(bTimesLong[i], aEncoding);
-//    }
-//    
-//    
-//    int bCount = 0;
-//    int[] resTimes = new int[Math.min(aTimes.length, bTimes.length)];
-//    double[] resValues = new double[resTimes.length];
-//    int resCount = 0;
-//    while (aCount < aTimes.length && bCount < bTimes.length) {
-//      if (aTimes[aCount] == bTimes[bCount]) {
-//        resTimes[resCount] = aTimes[aCount];
-//        resValues[resCount] = aValues[aCount];
-//        resCount++;
-//        aCount++;
-//        bCount++;
-//      } else if (aTimes[aCount] < bTimes[bCount]) {
-//        aCount++;
-//      } else { // if (aTimes[aCount] > bTimes[bCount]) {
-//        bCount++;
-//      }
-//    }
-//    int[] trimmedTimes = new int[resCount];
-//    double[] trimmedValues = new double[resCount];
-//    System.arraycopy(resTimes, 0, trimmedTimes, 0, resCount);
-//    System.arraycopy(resValues, 0, trimmedValues, 0, resCount);
-//    return new ArrayLocalDateDoubleTimeSeries(new FastArrayIntDoubleTimeSeries(getFastSeries().getEncoding(), trimmedTimes, trimmedValues));
-//  }
 
   //-------------------------------------------------------------------------
   @Override
@@ -229,7 +217,7 @@ public final class ImmutableLocalDateDoubleTimeSeries
   @Override
   public boolean containsTime(int date) {
     int binarySearch = Arrays.binarySearch(_times, date);
-    return (binarySearch >= 0 && _times[binarySearch] == date);
+    return (binarySearch >= 0);
   }
 
   @Override
@@ -311,7 +299,7 @@ public final class ImmutableLocalDateDoubleTimeSeries
     startPos = startPos >= 0 ? startPos : -(startPos + 1);
     endPos = endPos >= 0 ? endPos : -(endPos + 1);
     if (endPos > _times.length) {
-      endPos--;
+      endPos = _times.length;
     }
     int[] timesArray = Arrays.copyOfRange(_times, startPos, endPos);
     double[] valuesArray = Arrays.copyOfRange(_values, startPos, endPos);
@@ -363,6 +351,73 @@ public final class ImmutableLocalDateDoubleTimeSeries
       valuesArray[i] = operator.operate(valuesArray[i], other);
     }
     return new ImmutableLocalDateDoubleTimeSeries(_times, valuesArray);  // immutable, so can share times
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * The builder implementation.
+   */
+  private static final class Builder
+      extends AbstractDateDoubleTimeSeriesBuilder<LocalDate>
+      implements LocalDateDoubleTimeSeriesBuilder {
+
+    @Override
+    public LocalDateDoubleTimeSeriesBuilder put(LocalDate time, double value) {
+      return (LocalDateDoubleTimeSeriesBuilder) super.put(time, value);
+    }
+
+    @Override
+    public LocalDateDoubleTimeSeriesBuilder put(int time, double value) {
+      return (LocalDateDoubleTimeSeriesBuilder) super.put(time, value);
+    }
+
+    @Override
+    public LocalDateDoubleTimeSeriesBuilder putAll(LocalDate[] times, double[] values) {
+      return (LocalDateDoubleTimeSeriesBuilder) super.putAll(times, values);
+    }
+
+    @Override
+    public LocalDateDoubleTimeSeriesBuilder putAll(int[] times, double[] values) {
+      return (LocalDateDoubleTimeSeriesBuilder) super.putAll(times, values);
+    }
+
+    @Override
+    public LocalDateDoubleTimeSeriesBuilder putAll(DateDoubleTimeSeries<?> timeSeries) {
+      return (LocalDateDoubleTimeSeriesBuilder) super.putAll(timeSeries);
+    }
+
+    @Override
+    public LocalDateDoubleTimeSeriesBuilder putAll(DateDoubleTimeSeries<?> timeSeries, int startPos, int endPos) {
+      return (LocalDateDoubleTimeSeriesBuilder) super.putAll(timeSeries, startPos, endPos);
+    }
+
+    @Override
+    public LocalDateDoubleTimeSeriesBuilder putAll(Map<LocalDate, Double> timeSeriesMap) {
+      return (LocalDateDoubleTimeSeriesBuilder) super.putAll(timeSeriesMap);
+    }
+
+    @Override
+    public LocalDateDoubleTimeSeriesBuilder clear() {
+      return (LocalDateDoubleTimeSeriesBuilder) super.clear();
+    }
+
+    @Override
+    protected int convertToInt(LocalDate date) {
+      return LocalDateToIntConverter.convertToInt(date);
+    }
+
+    @Override
+    public LocalDateDoubleTimeSeries build() {
+      return (LocalDateDoubleTimeSeries) super.build();
+    }
+
+    @Override
+    protected DateDoubleTimeSeries<LocalDate> createTimeSeries(int[] times, double[] values) {
+      if (times.length == 0) {
+        return EMPTY_SERIES;
+      }
+      return new ImmutableLocalDateDoubleTimeSeries(times, values);
+    }
   }
 
 }
