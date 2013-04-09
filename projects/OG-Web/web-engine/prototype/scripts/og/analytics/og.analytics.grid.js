@@ -389,7 +389,6 @@ $.register_module({
             scrolls = reorder.map(function (idx) {return scrolls[idx];});
             sets = columns.scroll.reduce(function (acc, set) {delete set.columns; return acc.concat(set);}, []);
             columns.scroll = scrolls.reduce(function (acc, col, idx) {
-                if (!col) debugger;
                 var length = acc.length, same_set = length && scrolls[idx - 1].orig_set === col.orig_set, orig_set;
                 if (same_set) return acc[length - 1].columns.push(col), acc;
                 orig_set = sets[col.orig_set];

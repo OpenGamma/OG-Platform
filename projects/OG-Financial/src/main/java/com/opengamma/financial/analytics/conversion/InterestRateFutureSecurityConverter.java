@@ -24,7 +24,6 @@ import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.DateUtils;
 
 /**
  * Converts interest rate future securities into the definition form used by the analytics library
@@ -56,9 +55,12 @@ public class InterestRateFutureSecurityConverter extends FinancialSecurityVisito
     ArgumentChecker.notNull(security, "security");
     final ZonedDateTime lastTradeDate = security.getExpiry().getExpiry();
     final Currency currency = security.getCurrency();
-    final ConventionBundle iborConvention = _conventionSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency.getCode() + "_IR_FUTURE"));
+    ConventionBundle iborConvention = _conventionSource.getConventionBundle(security.getUnderlyingId());
     if (iborConvention == null) {
-      throw new OpenGammaRuntimeException("Could not get ibor convention for " + currency.getCode());
+      iborConvention = _conventionSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency.getCode() + "_IR_FUTURE"));
+      if (iborConvention == null) {
+        throw new OpenGammaRuntimeException("Could not get ibor convention for " + currency.getCode());
+      }
     }
     final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, ExternalSchemes.currencyRegionId(currency));
     final double paymentAccrualFactor = getAccrualFactor(iborConvention.getPeriod());
@@ -69,12 +71,8 @@ public class InterestRateFutureSecurityConverter extends FinancialSecurityVisito
   }
 
   private double getAccrualFactor(final Period period) {
-    if (period.equals(Period.ofMonths(3))) {
-      return 0.25;
-    } else if (period.equals(Period.ofMonths(1))) {
-      return 1. / 12;
-    }
-    throw new OpenGammaRuntimeException("Can only handle 1M and 3M interest rate futures");
+    final long nMonths = period.toTotalMonths();
+    return 1. / nMonths;
   }
 
 }

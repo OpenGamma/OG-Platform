@@ -32,7 +32,8 @@ public class ISDACompliantContingentLegCalculator {
     double presentValueContingentLeg = 0.0;
     final int offset = cds.getProtectionStart() ? 1 : 0;
     ZonedDateTime startDate;
-    final ZonedDateTime clStartDate = cds.getProtectionStart() ? valuationDate.minusDays(1) : valuationDate;
+    ZonedDateTime valuationDateM1 = valuationDate.minusDays(1);
+    final ZonedDateTime clStartDate = cds.getProtectionStart() ? valuationDateM1 : valuationDate;
     final ZonedDateTime clEndDate = cds.getMaturityDate();
     if (valuationDate.isAfter(clEndDate)) {
       presentValueContingentLeg = 0.0;
@@ -44,8 +45,8 @@ public class ISDACompliantContingentLegCalculator {
     } else {
       startDate = stepinDate.minusDays(offset);
     }
-    if (!startDate.isAfter(valuationDate.minusDays(1))) {
-      startDate = valuationDate.minusDays(1);
+    if (!startDate.isAfter(valuationDateM1)) {
+      startDate = valuationDateM1;
     }
     final Double[] contingentLegIntegrationSchedule = SCHEDULE_CALCULATOR.constructCreditDefaultSwapContingentLegIntegrationSchedule(valuationDate, startDate, clEndDate, cds, yieldCurve,
         hazardRateCurve);

@@ -47,8 +47,7 @@ public class GenerateCreditDefaultSwapAccruedLegIntegrationScheduleNew {
       endDate = endDate.plusDays(1);
     }
     // Calculate the schedule of integration timenodes for the accrued leg calculation
-    final ZonedDateTime[] timeNodes = constructISDACompliantAccruedLegIntegrationSchedule(yieldCurve, hazardRateCurve, startDate, endDate);
-    return timeNodes;
+    return constructISDACompliantAccruedLegIntegrationSchedule(yieldCurve, hazardRateCurve, startDate, endDate);
   }
 
   // Method to calculate the time nodes used to approximate the integral in the contingent leg calculation
