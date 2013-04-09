@@ -17,8 +17,8 @@ public class ObjectTimeSeriesOperators {
    * @return the operator, not null
    */
   @SuppressWarnings("unchecked")
-  public static <R> FirstOperator<R> firstOperator() {
-    return (FirstOperator<R>) FIRST_OPERATOR;
+  public static <R> BinaryOperator<R> firstOperator() {
+    return (BinaryOperator<R>) FIRST_OPERATOR;
   }
 
   /**
@@ -28,8 +28,19 @@ public class ObjectTimeSeriesOperators {
    * @return the operator, not null
    */
   @SuppressWarnings("unchecked")
-  public static <R> SecondOperator<R> secondOperator() {
-    return (SecondOperator<R>) SECOND_OPERATOR;
+  public static <R> BinaryOperator<R> secondOperator() {
+    return (BinaryOperator<R>) SECOND_OPERATOR;
+  }
+
+  /**
+   * Binary operator to prevent intersection.
+   * 
+   * @param <R>  the object type
+   * @return the operator, not null
+   */
+  @SuppressWarnings("unchecked")
+  public static <R> BinaryOperator<R> noIntersectionOperator() {
+    return (BinaryOperator<R>) NO_INTERSECTION_OPERATOR;
   }
 
   //-------------------------------------------------------------------------
@@ -79,6 +90,13 @@ public class ObjectTimeSeriesOperators {
   private static class SecondOperator<E> implements BinaryOperator<E> {
     public E operate(final E a, final E b) { 
       return b;
+    }
+  }
+
+  private static final NoIntersectionOperator<?> NO_INTERSECTION_OPERATOR = new NoIntersectionOperator<Object>();
+  private static class NoIntersectionOperator<E> implements BinaryOperator<E> {
+    public E operate(E a, E b) {
+      throw new IllegalStateException("No binary operation permitted");
     }
   }
 

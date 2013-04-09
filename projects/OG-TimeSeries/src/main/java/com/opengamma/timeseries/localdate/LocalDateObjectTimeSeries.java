@@ -16,9 +16,11 @@ import com.opengamma.timeseries.date.DateObjectTimeSeries;
  * The "time" key to the time-series is a {@code LocalDate}.
  * See {@link DateObjectTimeSeries} for details about the "time" represented as an {@code int}.
  * 
- * @param <V>  the type of the values
+ * @param <V>  the value being viewed over time
  */
 public interface LocalDateObjectTimeSeries<V>
     extends DateObjectTimeSeries<LocalDate, V>, FastBackedObjectTimeSeries<LocalDate, V> {
+
+  LocalDateObjectTimeSeries<V> lag(final int lagCount);
 
 }

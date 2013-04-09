@@ -13,13 +13,14 @@ import org.threeten.bp.LocalDate;
 import com.opengamma.timeseries.AbstractIntObjectTimeSeries;
 import com.opengamma.timeseries.DateTimeConverter;
 import com.opengamma.timeseries.ObjectTimeSeries;
+import com.opengamma.timeseries.ObjectTimeSeriesOperators.UnaryOperator;
 import com.opengamma.timeseries.fast.integer.object.FastIntObjectTimeSeries;
 
 /**
  * Partial implementation of the {@link LocalDateObjectTimeSeries} that uses
  * an {@code int} representation of the date.
  * 
- * @param <V>  the type of the values
+ * @param <V>  the value being viewed over time
  */
 public abstract class AbstractLocalDateObjectTimeSeries<V>
     extends AbstractIntObjectTimeSeries<LocalDate, V>
@@ -142,6 +143,37 @@ public abstract class AbstractLocalDateObjectTimeSeries<V>
   @Override
   public int[] timesArrayFast() {
     return getFastSeries().timesArrayFast();
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public LocalDateObjectTimeSeries<V> subSeries(LocalDate startTime, boolean includeStart, LocalDate endTime, boolean includeEnd) {
+    return (LocalDateObjectTimeSeries<V>) super.subSeries(startTime, includeStart, endTime, includeEnd);
+  }
+
+  @Override
+  public LocalDateObjectTimeSeries<V> subSeries(LocalDate startTime, LocalDate endTime) {
+    return (LocalDateObjectTimeSeries<V>) super.subSeries(startTime, endTime);
+  }
+
+  @Override
+  public LocalDateObjectTimeSeries<V> head(int numItems) {
+    return (LocalDateObjectTimeSeries<V>) super.head(numItems);
+  }
+
+  @Override
+  public LocalDateObjectTimeSeries<V> tail(int numItems) {
+    return (LocalDateObjectTimeSeries<V>) super.tail(numItems);
+  }
+
+  @Override
+  public LocalDateObjectTimeSeries<V> lag(final int lagCount) {
+    return (LocalDateObjectTimeSeries<V>) super.lag(lagCount);
+  }
+
+  @Override
+  public LocalDateObjectTimeSeries<V> operate(final UnaryOperator<V> operator) {
+    return (LocalDateObjectTimeSeries<V>) super.operate(operator);
   }
 
   //-------------------------------------------------------------------------

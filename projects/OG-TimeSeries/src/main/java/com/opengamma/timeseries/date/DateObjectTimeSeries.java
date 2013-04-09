@@ -28,7 +28,7 @@ import com.opengamma.timeseries.localdate.LocalDateToIntConverter;
  * Any date with a year outside the range 0000 to 9999 throws an exception.
  * 
  * @param <T>  the date type
- * @param <V> the value being viewed over time
+ * @param <V>  the value being viewed over time
  */
 public interface DateObjectTimeSeries<T, V>
     extends ObjectTimeSeries<T, V> {
@@ -99,5 +99,21 @@ public interface DateObjectTimeSeries<T, V>
    * @return an array of all the values in order from earliest to latest, not null
    */
   int[] timesArrayFast();
+
+  //-------------------------------------------------------------------------
+  @Override  // override for covariant return type
+  DateObjectTimeSeries<T, V> subSeries(T startTime, boolean includeStart, T endTime, boolean includeEnd);
+
+  @Override  // override for covariant return type
+  DateObjectTimeSeries<T, V> subSeries(T startTime, T endTime);
+
+  @Override  // override for covariant return type
+  DateObjectTimeSeries<T, V> head(int numItems);
+
+  @Override  // override for covariant return type
+  DateObjectTimeSeries<T, V> tail(int numItems);
+
+  @Override  // override for covariant return type
+  DateObjectTimeSeries<T, V> lag(final int lagCount);
 
 }
