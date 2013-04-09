@@ -6,6 +6,7 @@
 package com.opengamma.timeseries.localdate;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZoneId;
@@ -33,6 +34,22 @@ public class ArrayLocalDateDoubleTimeSeries extends AbstractLocalDateDoubleTimeS
   /** Default converter. */
   private static final DateTimeConverter<LocalDate> CONVERTER = new LocalDateEpochDaysConverter();
 
+  //-------------------------------------------------------------------------
+  /**
+   * Obtains a time-series from a single date and value.
+   * 
+   * @param date  the singleton date, not null
+   * @param value  the singleton value
+   * @return the time-series, not null
+   */
+  public static ArrayLocalDateDoubleTimeSeries of(LocalDate date, double value) {
+    Objects.requireNonNull(date, "date");
+    LocalDate[] timesArray = new LocalDate[] {date};
+    double[] valuesArray = new double[] {value};
+    return new ArrayLocalDateDoubleTimeSeries(timesArray, valuesArray);
+  }
+
+  //-------------------------------------------------------------------------
   public ArrayLocalDateDoubleTimeSeries() {
     super(new LocalDateEpochDaysConverter(), new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS));
   }

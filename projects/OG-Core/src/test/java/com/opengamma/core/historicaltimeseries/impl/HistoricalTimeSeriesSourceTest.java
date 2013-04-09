@@ -25,8 +25,8 @@ import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.timeseries.localdate.ListLocalDateDoubleTimeSeries;
 import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.localdate.MapLocalDateDoubleTimeSeries;
 import com.opengamma.timeseries.localdate.MutableLocalDateDoubleTimeSeries;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.test.TestGroup;
@@ -47,7 +47,7 @@ public class HistoricalTimeSeriesSourceTest {
   }
 
   private LocalDateDoubleTimeSeries randomTimeSeries() {
-    MutableLocalDateDoubleTimeSeries dts = new ListLocalDateDoubleTimeSeries();
+    MutableLocalDateDoubleTimeSeries dts = new MapLocalDateDoubleTimeSeries();
     LocalDate start = LocalDate.of(2000, 1, 2);
     LocalDate end = start.plusYears(10);
     LocalDate current = start;

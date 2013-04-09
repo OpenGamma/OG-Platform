@@ -19,7 +19,7 @@ import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdSupplier;
-import com.opengamma.timeseries.localdate.ListLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.ObjectsPair;
@@ -362,7 +362,7 @@ public class MockHistoricalTimeSeriesSource implements HistoricalTimeSeriesSourc
       }
     }
     if (start.isAfter(timeSeries.getLatestTime()) || end.isBefore(timeSeries.getEarliestTime())) {
-      return new SimpleHistoricalTimeSeries(hts.getUniqueId(), new ListLocalDateDoubleTimeSeries());
+      return new SimpleHistoricalTimeSeries(hts.getUniqueId(), ArrayLocalDateDoubleTimeSeries.EMPTY_SERIES);
     }
     timeSeries = timeSeries.subSeries(start, true, end, true);
     if (((maxPoints != null) && (Math.abs(maxPoints) < timeSeries.size()))) {

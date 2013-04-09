@@ -20,7 +20,6 @@ import cern.jet.random.engine.RandomEngine;
 import com.opengamma.analytics.financial.timeseries.returns.ContinuouslyCompoundedTimeSeriesReturnCalculator;
 import com.opengamma.analytics.financial.timeseries.returns.TimeSeriesReturnCalculator;
 import com.opengamma.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
-import com.opengamma.timeseries.localdate.ListLocalDateDoubleTimeSeries;
 import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.CalculationMode;
 
@@ -146,7 +145,7 @@ public class ExtremeValueAndReturnDoubleTimeSeriesFiltersTest {
     final List<Double> returnFilteredData = new ArrayList<Double>();
     final List<LocalDate> returnRejectedDates = new ArrayList<LocalDate>();
     final List<Double> returnRejectedData = new ArrayList<Double>();
-    final LocalDateDoubleTimeSeries ts = new ListLocalDateDoubleTimeSeries(dates, data);
+    final LocalDateDoubleTimeSeries ts = new ArrayLocalDateDoubleTimeSeries(dates, data);
     final LocalDateDoubleTimeSeries returnTS = RETURN_CALCULATOR.evaluate(ts);
     LocalDate date;
     for (int i = 0; i < 99; i++) {
@@ -161,10 +160,10 @@ public class ExtremeValueAndReturnDoubleTimeSeriesFiltersTest {
       }
     }
     FilteredTimeSeries result = VALUE_FILTER.evaluate(ts);
-    assertEquals(result, new FilteredTimeSeries(new ListLocalDateDoubleTimeSeries(filteredDates, filteredData), new ListLocalDateDoubleTimeSeries(rejectedDates,
+    assertEquals(result, new FilteredTimeSeries(new ArrayLocalDateDoubleTimeSeries(filteredDates, filteredData), new ArrayLocalDateDoubleTimeSeries(rejectedDates,
         rejectedData)));
     result = RETURN_FILTER.evaluate(ts);
-    assertEquals(result, new FilteredTimeSeries(new ListLocalDateDoubleTimeSeries(returnFilteredDates, returnFilteredData), new ListLocalDateDoubleTimeSeries(
+    assertEquals(result, new FilteredTimeSeries(new ArrayLocalDateDoubleTimeSeries(returnFilteredDates, returnFilteredData), new ArrayLocalDateDoubleTimeSeries(
         returnRejectedDates, returnRejectedData)));
   }
 }

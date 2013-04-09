@@ -21,7 +21,7 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchR
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeries;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
-import com.opengamma.timeseries.localdate.ListLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 
@@ -216,7 +216,7 @@ public class HistoricalTimeSeriesMasterUtils {
    */
   public UniqueId writeTimeSeriesPoint(String description, String dataSource, String dataProvider, String dataField,
       String observationTime, ExternalIdBundle externalIdBundle, LocalDate date, double value) {
-    LocalDateDoubleTimeSeries ts = new ListLocalDateDoubleTimeSeries(new LocalDate[] {date}, new double[] {value});
+    LocalDateDoubleTimeSeries ts = ArrayLocalDateDoubleTimeSeries.of(date, value);
     return writeTimeSeries(description, dataSource, dataProvider, dataField, observationTime, externalIdBundle, ts);
   }
 

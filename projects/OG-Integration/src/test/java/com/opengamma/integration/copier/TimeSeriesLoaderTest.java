@@ -45,7 +45,6 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
 import com.opengamma.master.historicaltimeseries.impl.InMemoryHistoricalTimeSeriesMaster;
 import com.opengamma.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
-import com.opengamma.timeseries.localdate.ListLocalDateDoubleTimeSeries;
 import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.test.TestGroup;
 
@@ -209,7 +208,7 @@ public class TimeSeriesLoaderTest {
     } finally {
       IOUtils.closeQuietly(csvReader);
     }
-    LocalDateDoubleTimeSeries compareDataPoints = new ListLocalDateDoubleTimeSeries(dates, values);
+    LocalDateDoubleTimeSeries compareDataPoints = new ArrayLocalDateDoubleTimeSeries(dates, values);
 
     // Set up the reader to read from file and the writer to write to the in-memory master, and do the import 
     InputStream fileStream = new BufferedInputStream(new FileInputStream(FILENAME));
