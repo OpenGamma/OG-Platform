@@ -170,7 +170,7 @@ a.north-west {
 
 /* TESTING */
 
-div.OG-tooltip {
+div.OG-tooltip.og-large {
     color:#555;
     background: #fff;
     border: 1px solid #bdc4c8;
@@ -183,11 +183,11 @@ div.OG-tooltip {
     display: none;
 }
 
-div.OG-tooltip.og-north{
+div.OG-tooltip.og-large.og-north{
     margin-top: 7px;
 }
 
-div.OG-tooltip.og-north:before{
+div.OG-tooltip.og-large.og-north:before{
     border-bottom: 7px solid #bdc4c8;
     border-bottom-color: rgba(0, 0, 0, 0.2);
     border-left: 7px solid transparent;
@@ -200,7 +200,7 @@ div.OG-tooltip.og-north:before{
     top: -8px;
 }
 
-div.OG-tooltip.og-north:after{
+div.OG-tooltip.og-large.og-north:after{
     border-bottom: 6px solid #fff;
     border-left: 6px solid transparent;
     border-right: 6px solid transparent;
@@ -212,11 +212,11 @@ div.OG-tooltip.og-north:after{
     top: -6px;
 }
 
-div.OG-tooltip.og-east{
+div.OG-tooltip.og-large.og-east{
     margin-left: -7px;
 }
 
-div.OG-tooltip.og-east:before {
+div.OG-tooltip.og-large.og-east:before {
     border-bottom: 7px solid transparent;
     border-left: 7px solid #bdc4c8;
     border-left-color: rgba(0, 0, 0, 0.2);
@@ -229,7 +229,7 @@ div.OG-tooltip.og-east:before {
     top: 50%;
 }
 
-div.OG-tooltip.og-east:after {
+div.OG-tooltip.og-large.og-east:after {
     border-bottom: 6px solid transparent;
     border-left: 6px solid #fff;
     border-top: 6px solid transparent;
@@ -241,11 +241,11 @@ div.OG-tooltip.og-east:after {
     top: 50%;
 }
 
-div.OG-tooltip.og-south{
+div.OG-tooltip.og-large.og-south{
     margin-top: -7px;
 }
 
-div.OG-tooltip.og-south:before{
+div.OG-tooltip.og-large.og-south:before{
     border-left: 7px solid transparent;
     border-right: 7px solid transparent;
     border-top: 7px solid #bdc4c8;
@@ -258,7 +258,7 @@ div.OG-tooltip.og-south:before{
     position: absolute;
 }
 
-div.OG-tooltip.og-south:after{
+div.OG-tooltip.og-large.og-south:after{
     border-left: 6px solid transparent;
     border-right: 6px solid transparent;
     border-top: 6px solid #fff;
@@ -270,11 +270,11 @@ div.OG-tooltip.og-south:after{
     position: absolute;
 }
 
-div.OG-tooltip.og-west{
+div.OG-tooltip.og-large.og-west{
     margin-left: 7px;
 }
 
-div.OG-tooltip.og-west:before {
+div.OG-tooltip.og-large.og-west:before {
     border-bottom: 7px solid transparent;
     border-right: 7px solid #bdc4c8;
     border-right-color: rgba(0, 0, 0, 0.2);
@@ -287,7 +287,7 @@ div.OG-tooltip.og-west:before {
     top: 50%;
 }
 
-div.OG-tooltip.og-west:after {
+div.OG-tooltip.og-large.og-west:after {
     border-bottom: 6px solid transparent;
     border-right: 6px solid #fff;
     border-top: 6px solid transparent;
@@ -299,7 +299,7 @@ div.OG-tooltip.og-west:after {
     top: 50%;
 }
 
-div.OG-tooltip.og-north-east:before{
+div.OG-tooltip.og-large.og-north-east:before{
     border-bottom: 7px solid #bdc4c8;
     border-right: 7px solid #bdc4c8;
     border-top: 7px solid transparent;
@@ -311,7 +311,7 @@ div.OG-tooltip.og-north-east:before{
     top: -8px;
 }
 
-div.OG-tooltip.og-north-east:after{
+div.OG-tooltip.og-large.og-north-east:after{
     border-bottom: 7px solid #fff;
     border-right: 6px solid #fff;
     border-top: 7px solid transparent;
@@ -323,7 +323,7 @@ div.OG-tooltip.og-north-east:after{
     top: -6px;
 }
 
-div.OG-tooltip.og-south-east:before{
+div.OG-tooltip.og-large.og-south-east:before{
     border-bottom: 7px solid transparent;
     border-right: 7px solid #bdc4c8;
     border-top: 7px solid #bdc4c8;
@@ -335,7 +335,7 @@ div.OG-tooltip.og-south-east:before{
     position: absolute;
 }
 
-div.OG-tooltip.og-south-east:after{
+div.OG-tooltip.og-large.og-south-east:after{
     border-bottom: 7px solid transparent;
     border-right: 6px solid #fff;
     border-top: 7px solid #fff;
@@ -347,7 +347,7 @@ div.OG-tooltip.og-south-east:after{
     position: absolute;
 }
 
-div.OG-tooltip.og-south-west:before{
+div.OG-tooltip.og-large.og-south-west:before{
     border-bottom: 7px solid transparent;
     border-left: 7px solid #bdc4c8;
     border-top: 7px solid #bdc4c8;
@@ -359,7 +359,7 @@ div.OG-tooltip.og-south-west:before{
     position: absolute;
 }
 
-div.OG-tooltip.og-south-west:after{
+div.OG-tooltip.og-large.og-south-west:after{
     border-bottom: 7px solid transparent;
     border-left: 6px solid #fff;
     border-top: 7px solid #fff;
@@ -370,7 +370,7 @@ div.OG-tooltip.og-south-west:after{
     position: absolute;
 }
 
-div.OG-tooltip.og-north-west:before{
+div.OG-tooltip.og-large.og-north-west:before{
     border-bottom: 7px solid #bdc4c8;
     border-left: 7px solid #bdc4c8;
     border-top: 7px solid transparent;
@@ -382,7 +382,7 @@ div.OG-tooltip.og-north-west:before{
     top: -8px;
 }
 
-div.OG-tooltip.og-north-west:after{
+div.OG-tooltip.og-large.og-north-west:after{
     border-bottom: 7px solid #fff;
     border-left: 6px solid #fff;
     border-top: 7px solid transparent;
@@ -393,11 +393,11 @@ div.OG-tooltip.og-north-west:after{
     top: -6px;
 }
 
-div.OG-tooltip.og-north-east-flip{
+div.OG-tooltip.og-large.og-north-east-flip{
     margin-left: -7px;
 }
 
-div.OG-tooltip.og-north-east-flip:before{
+div.OG-tooltip.og-large.og-north-east-flip:before{
     border-bottom: 7px solid transparent;
     border-left: 7px solid transparent;
     border-right: 7px solid transparent;
@@ -410,7 +410,7 @@ div.OG-tooltip.og-north-east-flip:before{
     top: -1px;
 }
 
-div.OG-tooltip.og-north-east-flip:after{
+div.OG-tooltip.og-large.og-north-east-flip:after{
     border-bottom: 7px solid transparent;
     border-left: 6px solid transparent;
     border-right: 7px solid transparent;
@@ -423,11 +423,11 @@ div.OG-tooltip.og-north-east-flip:after{
     top: 0;
 }
 
-div.OG-tooltip.og-south-east-flip{
+div.OG-tooltip.og-large.og-south-east-flip{
     margin-left: -7px;
 }
 
-div.OG-tooltip.og-south-east-flip:before{
+div.OG-tooltip.og-large.og-south-east-flip:before{
     border-bottom: 7px solid #bdc4c8;
     border-left: 7px solid transparent;
     border-right: 7px solid transparent;
@@ -440,7 +440,7 @@ div.OG-tooltip.og-south-east-flip:before{
     bottom: -1px;
 }
 
-div.OG-tooltip.og-south-east-flip:after{
+div.OG-tooltip.og-large.og-south-east-flip:after{
     border-bottom: 7px solid #fff;
     border-left: 6px solid transparent;
     border-right: 7px solid transparent;
@@ -453,11 +453,11 @@ div.OG-tooltip.og-south-east-flip:after{
     position: absolute;
 }
 
-div.OG-tooltip.og-south-west-flip{
+div.OG-tooltip.og-large.og-south-west-flip{
     margin-left: 7px;
 }
 
-div.OG-tooltip.og-south-west-flip:before{
+div.OG-tooltip.og-large.og-south-west-flip:before{
     border-bottom: 7px solid #bdc4c8;
     border-left: 7px solid transparent;
     border-right: 7px solid transparent;
@@ -470,7 +470,7 @@ div.OG-tooltip.og-south-west-flip:before{
     position: absolute;
 }
 
-div.OG-tooltip.og-south-west-flip:after{
+div.OG-tooltip.og-large.og-south-west-flip:after{
     border-bottom: 7px solid #fff;
     border-left: 6px solid transparent;
     border-right: 7px solid transparent;
@@ -483,11 +483,11 @@ div.OG-tooltip.og-south-west-flip:after{
     position: absolute;
 }
 
-div.OG-tooltip.og-north-west-flip{
+div.OG-tooltip.og-large.og-north-west-flip{
     margin-left: 7px;
 }
 
-div.OG-tooltip.og-north-west-flip:before{
+div.OG-tooltip.og-large.og-north-west-flip:before{
     border-bottom: 7px solid transparent;
     border-left: 7px solid transparent;
     border-right: 7px solid transparent;
@@ -500,7 +500,7 @@ div.OG-tooltip.og-north-west-flip:before{
     top: -1px;
 }
 
-div.OG-tooltip.og-north-west-flip:after{
+div.OG-tooltip.og-large.og-north-west-flip:after{
     border-bottom: 7px solid transparent;
     border-left: 6px solid transparent;
     border-right: 6px solid transparent;

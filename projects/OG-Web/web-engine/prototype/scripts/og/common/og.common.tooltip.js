@@ -78,7 +78,7 @@ $.register_module({
                     tooltip.show();
                 };
 
-                $('[data-tooltip]').live('click', function (event) {
+                $('[data-tooltip-type="large"]').live('click', function (event) {
                     var elem = $(this);
                     tooltip_offsets = tooltip.offset();
                     tooltip.removeClass(orientation);
@@ -120,16 +120,15 @@ $.register_module({
 
                 $(function () {
                     if (!tooltip) {
-                        tooltip = $(
-                            '<div class="OG-tooltip">'+
+                        $('body').append(tooltip = $(
+                            '<div class="OG-tooltip og-large">'+
                                 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'+
                                 'Nullam consectetur quam a sapien egestas eget scelerisque'+
                                 'lectus tempor. Duis placerat tellus at erat pellentesque nec'+
                                 'ultricies erat molestie. Integer nec orci id tortor molestie'+
                                 'porta. Suspendisse eu sagittis quam.'+
                             '</div>'
-                        ).blurkill(hide_tooltip);
-                        $('body').append(tooltip);
+                        ));
                     }
                 });
             })()
