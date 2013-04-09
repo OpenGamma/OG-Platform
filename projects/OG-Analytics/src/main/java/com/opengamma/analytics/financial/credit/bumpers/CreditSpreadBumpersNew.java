@@ -5,14 +5,11 @@
  */
 package com.opengamma.analytics.financial.credit.bumpers;
 
-import java.util.Arrays;
-
-import com.opengamma.OpenGammaRuntimeException;
 
 /**
  * Class containing utilities for bumping credit spread term structures by user defined methods and amounts
  */
-public class CreditSpreadBumpers {
+public class CreditSpreadBumpersNew {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -25,22 +22,23 @@ public class CreditSpreadBumpers {
 
   public double[] getBumpedCreditSpreads(final double[] marketSpreads, final double spreadBump, final SpreadBumpType spreadBumpType) {
 
-    final double[] bumpedCreditSpreads = new double[marketSpreads.length];
+    final int n = marketSpreads.length;
+    final double[] bumpedCreditSpreads = new double[n];
 
-    // Calculate the bumped spreads
-
-    for (int m = 0; m < marketSpreads.length; m++) {
-
-      if (spreadBumpType == SpreadBumpType.ADDITIVE_PARALLEL) {
-        bumpedCreditSpreads[m] = marketSpreads[m] + spreadBump;
-      }
-
-      if (spreadBumpType == SpreadBumpType.MULTIPLICATIVE_PARALLEL) {
-        bumpedCreditSpreads[m] = marketSpreads[m] * (1 + spreadBump);
-      }
+    switch(spreadBumpType) {
+      case ADDITIVE_PARALLEL:
+        for (int m = 0; m < n; m++) {
+          bumpedCreditSpreads[m] = marketSpreads[m] + spreadBump;
+        }
+        return bumpedCreditSpreads;
+      case MULTIPLICATIVE_PARALLEL:
+        for (int m = 0; m < n; m++) {
+          bumpedCreditSpreads[m] = marketSpreads[m] * (1 + spreadBump);
+        }
+        return bumpedCreditSpreads;
+      default:
+        throw new IllegalArgumentException("Cannot handle bump type " + spreadBumpType);
     }
-
-    return bumpedCreditSpreads;
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -48,21 +46,21 @@ public class CreditSpreadBumpers {
   // Method to bump the credit spread term structure at a single (specified) tenor point by a specified amount
 
   public double[] getBumpedCreditSpreads(final double[] marketSpreads, final int spreadTenorToBump, final double spreadBump, final SpreadBumpType spreadBumpType) {
+    final int n = marketSpreads.length;
+    final double[] bumpedCreditSpreads = new double[n];
+    System.arraycopy(marketSpreads, 0, bumpedCreditSpreads, 0, n);
 
-    final double[] bumpedCreditSpreads = Arrays.copyOf(marketSpreads, marketSpreads.length);
-
-    // Calculate the bumped spreads
-
-    if (spreadBumpType == SpreadBumpType.ADDITIVE_BUCKETED || spreadBumpType == SpreadBumpType.ADDITIVE) {
-      bumpedCreditSpreads[spreadTenorToBump] += spreadBump;
-    } else if (spreadBumpType == SpreadBumpType.MULTIPLICATIVE_BUCKETED || spreadBumpType == SpreadBumpType.MULTIPLICATIVE) {
-      bumpedCreditSpreads[spreadTenorToBump] *= (1 + spreadBump);
-    } else {
-      throw new OpenGammaRuntimeException("Unsupported spread bump type " + spreadBumpType);
+    switch(spreadBumpType) {
+      case ADDITIVE_BUCKETED:
+      case ADDITIVE:
+        bumpedCreditSpreads[spreadTenorToBump] += spreadBump;
+        return bumpedCreditSpreads;
+      case MULTIPLICATIVE_BUCKETED:
+      case MULTIPLICATIVE:
+        bumpedCreditSpreads[spreadTenorToBump] *= (1 + spreadBump);
+        return bumpedCreditSpreads;
+      default:
+        throw new IllegalArgumentException("Cannot handle bump type " + spreadBumpType);
     }
-
-    return bumpedCreditSpreads;
   }
-
-  // ----------------------------------------------------------------------------------------------------------------------------------------
 }

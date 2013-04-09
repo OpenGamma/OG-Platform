@@ -69,27 +69,7 @@ public class CreditDefaultSwapIndexComponent extends DirectBean implements Compa
   CreditDefaultSwapIndexComponent() {
   }
   
-  //-------------------------------------------------------------------------
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      CreditDefaultSwapIndexComponent other = (CreditDefaultSwapIndexComponent) obj;
-      return JodaBeanUtils.equal(getObligorRedCode(), other.getObligorRedCode());
-    }
-    return false;
-  }
 
-  //-------------------------------------------------------------------------
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getObligorRedCode());
-    return hash;
-  }
-  
   //-------------------------------------------------------------------------
   /**
    * Compares the cdsIndex component, sorting by weight followed by name alphabetically.
@@ -165,6 +145,31 @@ public class CreditDefaultSwapIndexComponent extends DirectBean implements Compa
     JodaBeanUtils.notNull(_weight, "weight");
     JodaBeanUtils.notNull(_name, "name");
     super.validate();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      CreditDefaultSwapIndexComponent other = (CreditDefaultSwapIndexComponent) obj;
+      return JodaBeanUtils.equal(getObligorRedCode(), other.getObligorRedCode()) &&
+          JodaBeanUtils.equal(getWeight(), other.getWeight()) &&
+          JodaBeanUtils.equal(getBondId(), other.getBondId()) &&
+          JodaBeanUtils.equal(getName(), other.getName());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getObligorRedCode());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getWeight());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getBondId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
+    return hash;
   }
 
   //-----------------------------------------------------------------------
