@@ -196,13 +196,13 @@ public abstract class DoubleTimeSeriesTest<E> {
       dts.getTimeAtIndex(-1);
       fail();
     } catch (final IndexOutOfBoundsException ex) {
-      return;
+      // expected
     }
     try {
       dts.getTimeAtIndex(6);
       fail();
     } catch (final IndexOutOfBoundsException ex) {
-      return;
+      // expected
     }
   }
 
@@ -217,13 +217,13 @@ public abstract class DoubleTimeSeriesTest<E> {
       dts.getValueAtIndex(-1);
       fail();
     } catch (final IndexOutOfBoundsException ex) {
-      return;
+      // expected
     }
     try {
       dts.getValueAtIndex(6);
       fail();
     } catch (final IndexOutOfBoundsException ex) {
-      return;
+      // expected
     }
   }
 
@@ -236,10 +236,10 @@ public abstract class DoubleTimeSeriesTest<E> {
     assertEquals(testDates[5], dts.getLatestTime());
     try {
       empty.getLatestTime();
-    } catch (final NoSuchElementException nsee) {
-      return;
+      fail();
+    } catch (final NoSuchElementException ex) {
+      // expected
     }
-    Assert.fail();
   }
 
   @Test
@@ -249,10 +249,10 @@ public abstract class DoubleTimeSeriesTest<E> {
     assertTrue(TimeSeriesUtils.closeEquals(6.0d, dts.getLatestValue()));
     try {
       empty.getLatestValue();
-    } catch (final NoSuchElementException nsee) {
-      return;
+      fail();
+    } catch (final NoSuchElementException ex) {
+      // expected
     }
-    Assert.fail();
   }
 
   @Test
@@ -263,10 +263,10 @@ public abstract class DoubleTimeSeriesTest<E> {
     assertEquals(testDates[0], dts.getEarliestTime());
     try {
       empty.getEarliestTime();
-    } catch (final NoSuchElementException nsee) {
-      return;
+      fail();
+    } catch (final NoSuchElementException ex) {
+      // expected
     }
-    Assert.fail();
   }
 
   @Test
@@ -276,18 +276,41 @@ public abstract class DoubleTimeSeriesTest<E> {
     assertTrue(TimeSeriesUtils.closeEquals(1d, dts.getEarliestValue()));
     try {
       empty.getEarliestValue();
-    } catch (final NoSuchElementException nsee) {
-      return;
+      fail();
+    } catch (final NoSuchElementException ex) {
+      // expected
     }
-    Assert.fail();
   }
 
   //-------------------------------------------------------------------------
   @Test
+  public void test_timesIterator() {
+    final Iterator<E> emptyTimesIter = createEmptyTimeSeries().timeIterator();
+    final Iterator<E> dtsTimesIter = createStandardTimeSeries().timeIterator();
+    final E[] testDates = testTimes();
+    for (int i = 0; i < 6; i++) {
+      assertTrue(dtsTimesIter.hasNext());
+      final E time = dtsTimesIter.next();
+      assertEquals(testDates[i], time);
+    }
+    try {
+      dtsTimesIter.next();
+    } catch (final NoSuchElementException ex) {
+      assertFalse(emptyTimesIter.hasNext());
+      try {
+        emptyTimesIter.next();
+        fail();
+      } catch (final NoSuchElementException ex2) {
+        // expected
+      }
+    }
+  }
+
+  @Test
   public void test_valuesIterator() {
     final Iterator<Double> emptyValuesIter = createEmptyTimeSeries().valuesIterator();
     final Iterator<Double> dtsValuesIter = createStandardTimeSeries().valuesIterator();
-    for (double i=1; i<=6.0; i+=1.0d) {
+    for (double i = 1; i <= 6.0; i += 1.0d) {
       assertTrue(dtsValuesIter.hasNext());
       final Double val = dtsValuesIter.next();
       TimeSeriesUtils.closeEquals(val, i);
@@ -298,34 +321,11 @@ public abstract class DoubleTimeSeriesTest<E> {
       assertFalse(emptyValuesIter.hasNext());
       try {
         emptyValuesIter.next();
-      } catch (final NoSuchElementException nsuchee) {
-        return;
+        fail();
+      } catch (final NoSuchElementException ex2) {
+        // expected
       }
     }
-    Assert.fail();
-  }
-
-  @Test
-  public void test_timesIterator() {
-    final Iterator<E> emptyTimesIter = createEmptyTimeSeries().timeIterator();
-    final Iterator<E> dtsTimesIter = createStandardTimeSeries().timeIterator();
-    final E[] testDates = testTimes();
-    for (int i=0; i<6; i++) {
-      assertTrue(dtsTimesIter.hasNext());
-      final E time = dtsTimesIter.next();
-      assertEquals(testDates[i], time);
-    }
-    try {
-      dtsTimesIter.next();
-    } catch (final NoSuchElementException nsee) {
-      assertFalse(emptyTimesIter.hasNext());
-      try {
-        emptyTimesIter.next();
-      } catch (final NoSuchElementException nsuchee) {
-        return;
-      }
-    }
-    Assert.fail();
   }
 
   @Test
@@ -342,15 +342,55 @@ public abstract class DoubleTimeSeriesTest<E> {
     }
     try {
       dtsIter.next();
-    } catch (final NoSuchElementException nsee) {
+    } catch (final NoSuchElementException ex) {
       assertFalse(emptyIter.hasNext());
       try {
         emptyIter.next();
-      } catch (final NoSuchElementException nsuchee) {
-        return;
+        fail();
+      } catch (final NoSuchElementException ex2) {
+        // expected
       }
     }
-    Assert.fail();
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_times() {
+    DoubleTimeSeries<E> dts = createStandardTimeSeries();
+    final E[] testDates = testTimes();
+    assertEquals(6, dts.times().size());
+    for (int i = 0; i < 6; i++) {
+      assertEquals(testDates[i], dts.times().get(i));
+    }
+  }
+
+  @Test
+  public void test_timesArray() {
+    DoubleTimeSeries<E> dts = createStandardTimeSeries();
+    final E[] testDates = testTimes();
+    assertEquals(6, dts.timesArray().length);
+    for (int i = 0; i < 6; i++) {
+      assertEquals(testDates[i], dts.timesArray()[i]);
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_values() {
+    DoubleTimeSeries<E> dts = createStandardTimeSeries();
+    assertEquals(6, dts.values().size());
+    for (int i = 0; i < 6; i++) {
+      assertEquals(i + 1.0d, dts.values().get(i).doubleValue(), 0.01d);
+    }
+  }
+
+  @Test
+  public void test_valuesArray() {
+    DoubleTimeSeries<E> dts = createStandardTimeSeries();
+    assertEquals(6, dts.valuesArray().length);
+    for (int i = 0; i < 6; i++) {
+      assertEquals(i + 1.0d, dts.valuesArray()[i].doubleValue(), 0.01d);
+    }
   }
 
   //-------------------------------------------------------------------------
@@ -394,7 +434,7 @@ public abstract class DoubleTimeSeriesTest<E> {
 
   //-------------------------------------------------------------------------
   @Test
-  public void testOperators() {
+  public void test_add_unionAdd() {
     final DoubleTimeSeries<E> dts = createStandardTimeSeries();
     final DoubleTimeSeries<E> dts2 = createStandardTimeSeries2();
     final DoubleTimeSeries<E> ets = createEmptyTimeSeries();
@@ -402,6 +442,7 @@ public abstract class DoubleTimeSeriesTest<E> {
     assertEquals(ets, ets.add(dts));
     assertEquals(dts, dts.unionAdd(ets));
     assertEquals(dts, ets.unionAdd(dts));
+    
     final DoubleTimeSeries<E> result = dts.add(dts2);
     assertEquals(3, result.size());
     assertEquals(Double.valueOf(8.0), result.getValueAtIndex(0));
@@ -410,6 +451,7 @@ public abstract class DoubleTimeSeriesTest<E> {
     assertEquals(dts.getTimeAtIndex(3), result.getTimeAtIndex(0));
     assertEquals(dts.getTimeAtIndex(4), result.getTimeAtIndex(1));
     assertEquals(dts.getTimeAtIndex(5), result.getTimeAtIndex(2));
+    
     final DoubleTimeSeries<E> unionResult = dts.unionAdd(dts2);
     assertEquals(9, unionResult.size());
     assertEquals(Double.valueOf(1.0), unionResult.getValueAtIndex(0));
@@ -430,12 +472,163 @@ public abstract class DoubleTimeSeriesTest<E> {
     assertEquals(dts2.getTimeAtIndex(3), unionResult.getTimeAtIndex(6));
     assertEquals(dts2.getTimeAtIndex(4), unionResult.getTimeAtIndex(7));
     assertEquals(dts2.getTimeAtIndex(5), unionResult.getTimeAtIndex(8));
+  }
 
+  @Test
+  public void test_subtract_unionSubtract() {
+    final DoubleTimeSeries<E> dts = createStandardTimeSeries();
+    final DoubleTimeSeries<E> dts2 = createStandardTimeSeries2();
+    final DoubleTimeSeries<E> ets = createEmptyTimeSeries();
+    assertEquals(ets, dts.subtract(ets));
+    assertEquals(ets, ets.subtract(dts));
+    assertEquals(dts, dts.unionSubtract(ets));
+    assertEquals(dts, ets.unionSubtract(dts));
+    
+    final DoubleTimeSeries<E> result = dts.subtract(dts2);
+    assertEquals(3, result.size());
+    assertEquals(Double.valueOf(0.0), result.getValueAtIndex(0));
+    assertEquals(Double.valueOf(0.0), result.getValueAtIndex(1));
+    assertEquals(Double.valueOf(0.0), result.getValueAtIndex(2));
+    assertEquals(dts.getTimeAtIndex(3), result.getTimeAtIndex(0));
+    assertEquals(dts.getTimeAtIndex(4), result.getTimeAtIndex(1));
+    assertEquals(dts.getTimeAtIndex(5), result.getTimeAtIndex(2));
+    
+    final DoubleTimeSeries<E> unionResult = dts.unionSubtract(dts2);
+    assertEquals(9, unionResult.size());
+    assertEquals(Double.valueOf(1.0), unionResult.getValueAtIndex(0));
+    assertEquals(Double.valueOf(2.0), unionResult.getValueAtIndex(1));
+    assertEquals(Double.valueOf(3.0), unionResult.getValueAtIndex(2));
+    assertEquals(Double.valueOf(0.0), unionResult.getValueAtIndex(3));
+    assertEquals(Double.valueOf(0.0), unionResult.getValueAtIndex(4));
+    assertEquals(Double.valueOf(0.0), unionResult.getValueAtIndex(5));
+    assertEquals(Double.valueOf(7.0), unionResult.getValueAtIndex(6));
+    assertEquals(Double.valueOf(8.0), unionResult.getValueAtIndex(7));
+    assertEquals(Double.valueOf(9.0), unionResult.getValueAtIndex(8));
+    assertEquals(dts.getTimeAtIndex(0), unionResult.getTimeAtIndex(0));
+    assertEquals(dts.getTimeAtIndex(1), unionResult.getTimeAtIndex(1));
+    assertEquals(dts.getTimeAtIndex(2), unionResult.getTimeAtIndex(2));
+    assertEquals(dts.getTimeAtIndex(3), unionResult.getTimeAtIndex(3));
+    assertEquals(dts.getTimeAtIndex(4), unionResult.getTimeAtIndex(4));
+    assertEquals(dts.getTimeAtIndex(5), unionResult.getTimeAtIndex(5));
+    assertEquals(dts2.getTimeAtIndex(3), unionResult.getTimeAtIndex(6));
+    assertEquals(dts2.getTimeAtIndex(4), unionResult.getTimeAtIndex(7));
+    assertEquals(dts2.getTimeAtIndex(5), unionResult.getTimeAtIndex(8));
+  }
+
+  @Test
+  public void test_multiply_unionMultiply() {
+    final DoubleTimeSeries<E> dts = createStandardTimeSeries();
+    final DoubleTimeSeries<E> dts2 = createStandardTimeSeries2();
+    final DoubleTimeSeries<E> ets = createEmptyTimeSeries();
+    assertEquals(ets, dts.multiply(ets));
+    assertEquals(ets, ets.multiply(dts));
+    assertEquals(dts, dts.unionMultiply(ets));
+    assertEquals(dts, ets.unionMultiply(dts));
+    
+    final DoubleTimeSeries<E> result = dts.multiply(dts2);
+    assertEquals(3, result.size());
+    assertEquals(Double.valueOf(16.0), result.getValueAtIndex(0));
+    assertEquals(Double.valueOf(25.0), result.getValueAtIndex(1));
+    assertEquals(Double.valueOf(36.0), result.getValueAtIndex(2));
+    assertEquals(dts.getTimeAtIndex(3), result.getTimeAtIndex(0));
+    assertEquals(dts.getTimeAtIndex(4), result.getTimeAtIndex(1));
+    assertEquals(dts.getTimeAtIndex(5), result.getTimeAtIndex(2));
+    
+    final DoubleTimeSeries<E> unionResult = dts.unionMultiply(dts2);
+    assertEquals(9, unionResult.size());
+    assertEquals(Double.valueOf(1.0), unionResult.getValueAtIndex(0));
+    assertEquals(Double.valueOf(2.0), unionResult.getValueAtIndex(1));
+    assertEquals(Double.valueOf(3.0), unionResult.getValueAtIndex(2));
+    assertEquals(Double.valueOf(16.0), unionResult.getValueAtIndex(3));
+    assertEquals(Double.valueOf(25.0), unionResult.getValueAtIndex(4));
+    assertEquals(Double.valueOf(36.0), unionResult.getValueAtIndex(5));
+    assertEquals(Double.valueOf(7.0), unionResult.getValueAtIndex(6));
+    assertEquals(Double.valueOf(8.0), unionResult.getValueAtIndex(7));
+    assertEquals(Double.valueOf(9.0), unionResult.getValueAtIndex(8));
+    assertEquals(dts.getTimeAtIndex(0), unionResult.getTimeAtIndex(0));
+    assertEquals(dts.getTimeAtIndex(1), unionResult.getTimeAtIndex(1));
+    assertEquals(dts.getTimeAtIndex(2), unionResult.getTimeAtIndex(2));
+    assertEquals(dts.getTimeAtIndex(3), unionResult.getTimeAtIndex(3));
+    assertEquals(dts.getTimeAtIndex(4), unionResult.getTimeAtIndex(4));
+    assertEquals(dts.getTimeAtIndex(5), unionResult.getTimeAtIndex(5));
+    assertEquals(dts2.getTimeAtIndex(3), unionResult.getTimeAtIndex(6));
+    assertEquals(dts2.getTimeAtIndex(4), unionResult.getTimeAtIndex(7));
+    assertEquals(dts2.getTimeAtIndex(5), unionResult.getTimeAtIndex(8));
+  }
+
+  @Test
+  public void test_divide_unionDivide() {
+    final DoubleTimeSeries<E> dts = createStandardTimeSeries();
+    final DoubleTimeSeries<E> dts2 = createStandardTimeSeries2();
+    final DoubleTimeSeries<E> ets = createEmptyTimeSeries();
+    assertEquals(ets, dts.divide(ets));
+    assertEquals(ets, ets.divide(dts));
+    assertEquals(dts, dts.unionDivide(ets));
+    assertEquals(dts, ets.unionDivide(dts));
+    
+    final DoubleTimeSeries<E> result = dts.divide(dts2);
+    assertEquals(3, result.size());
+    assertEquals(Double.valueOf(1.0), result.getValueAtIndex(0));
+    assertEquals(Double.valueOf(1.0), result.getValueAtIndex(1));
+    assertEquals(Double.valueOf(1.0), result.getValueAtIndex(2));
+    assertEquals(dts.getTimeAtIndex(3), result.getTimeAtIndex(0));
+    assertEquals(dts.getTimeAtIndex(4), result.getTimeAtIndex(1));
+    assertEquals(dts.getTimeAtIndex(5), result.getTimeAtIndex(2));
+    
+    final DoubleTimeSeries<E> unionResult = dts.unionDivide(dts2);
+    assertEquals(9, unionResult.size());
+    assertEquals(Double.valueOf(1.0), unionResult.getValueAtIndex(0));
+    assertEquals(Double.valueOf(2.0), unionResult.getValueAtIndex(1));
+    assertEquals(Double.valueOf(3.0), unionResult.getValueAtIndex(2));
+    assertEquals(Double.valueOf(1.0), unionResult.getValueAtIndex(3));
+    assertEquals(Double.valueOf(1.0), unionResult.getValueAtIndex(4));
+    assertEquals(Double.valueOf(1.0), unionResult.getValueAtIndex(5));
+    assertEquals(Double.valueOf(7.0), unionResult.getValueAtIndex(6));
+    assertEquals(Double.valueOf(8.0), unionResult.getValueAtIndex(7));
+    assertEquals(Double.valueOf(9.0), unionResult.getValueAtIndex(8));
+    assertEquals(dts.getTimeAtIndex(0), unionResult.getTimeAtIndex(0));
+    assertEquals(dts.getTimeAtIndex(1), unionResult.getTimeAtIndex(1));
+    assertEquals(dts.getTimeAtIndex(2), unionResult.getTimeAtIndex(2));
+    assertEquals(dts.getTimeAtIndex(3), unionResult.getTimeAtIndex(3));
+    assertEquals(dts.getTimeAtIndex(4), unionResult.getTimeAtIndex(4));
+    assertEquals(dts.getTimeAtIndex(5), unionResult.getTimeAtIndex(5));
+    assertEquals(dts2.getTimeAtIndex(3), unionResult.getTimeAtIndex(6));
+    assertEquals(dts2.getTimeAtIndex(4), unionResult.getTimeAtIndex(7));
+    assertEquals(dts2.getTimeAtIndex(5), unionResult.getTimeAtIndex(8));
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_minValue() {
+    final DoubleTimeSeries<E> dts = createStandardTimeSeries();
+    final DoubleTimeSeries<E> ets = createEmptyTimeSeries();
+    assertEquals(1.0, dts.minValue(), 0.01d);
+    assertEquals(6.0, dts.maxValue(), 0.01d);
+    try {
+      ets.minValue();
+      fail("Should have failed");
+    } catch (final NoSuchElementException ex) {
+      // expected
+    }
+    try {
+      ets.maxValue();
+      fail("Should have failed");
+    } catch (final NoSuchElementException ex) {
+      // expected
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_noIntersectionOperation() {
+    final DoubleTimeSeries<E> dts = createStandardTimeSeries();
+    final DoubleTimeSeries<E> dts2 = createStandardTimeSeries2();
+    final DoubleTimeSeries<E> ets = createEmptyTimeSeries();
     assertEquals(dts, ets.noIntersectionOperation(dts));
     assertEquals(dts, dts.noIntersectionOperation(ets));
     try {
       dts.noIntersectionOperation(dts2);
-      Assert.fail("Should have failed");
+      fail("Should have failed");
     } catch (final IllegalStateException ex) {
       //do nothing - expected exception because the two timeseries have overlapping dates which will require intersection operation
     }
@@ -451,6 +644,25 @@ public abstract class DoubleTimeSeriesTest<E> {
     assertEquals(dts3.getValueAtIndex(1), noIntersecOp.getValueAtIndex(7));
   }
 
+  @Test
+  public void test_intersectionFirstValue() {
+    final DoubleTimeSeries<E> dts = createStandardTimeSeries();
+    final DoubleTimeSeries<E> dts2 = createStandardTimeSeries2();
+    final DoubleTimeSeries<E> ets = createEmptyTimeSeries();
+    assertEquals(ets, ets.intersectionFirstValue(dts));
+    assertEquals(ets, dts.intersectionFirstValue(ets));
+    
+    final DoubleTimeSeries<E> result = dts.intersectionFirstValue(dts2);
+    assertEquals(3, result.size());
+    assertEquals(Double.valueOf(4.0), result.getValueAtIndex(0));
+    assertEquals(Double.valueOf(5.0), result.getValueAtIndex(1));
+    assertEquals(Double.valueOf(6.0), result.getValueAtIndex(2));
+    assertEquals(dts.getTimeAtIndex(3), result.getTimeAtIndex(0));
+    assertEquals(dts.getTimeAtIndex(4), result.getTimeAtIndex(1));
+    assertEquals(dts.getTimeAtIndex(5), result.getTimeAtIndex(2));
+  }
+
+  //-------------------------------------------------------------------------
   @Test
   public void testScalarOperators() {
     assertOperationSuccessful(createStandardTimeSeries().add(10.0), new double[] {11.0, 12.0, 13.0, 14.0, 15.0, 16.0 });
