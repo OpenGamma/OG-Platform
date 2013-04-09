@@ -9,10 +9,18 @@ $.register_module({
         return {
             init: (function () {
                 var module = this, tooltip, tooltip_offsets, orientation = '', offsets, height, width,
-                    viewport, timed_hover, total_width, total_height;
+                    viewport, timed_hover, total_width, total_height, blurkill = false,
+                    tmpl = '<div class="OG-tooltip og-large">'+
+                                'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'+
+                                'Nullam consectetur quam a sapien egestas eget scelerisque'+
+                                'lectus tempor. Duis placerat tellus at erat pellentesque nec'+
+                                'ultricies erat molestie. Integer nec orci id tortor molestie'+
+                                'porta. Suspendisse eu sagittis quam.'+
+                            '</div>';
 
                 var hide_tooltip = function (event) {
                     tooltip.removeAttr('style').removeClass(orientation).hide();
+                    blurkill = false;
                 };
 
                 var show_tooltip = function (dir) {
@@ -78,13 +86,19 @@ $.register_module({
                     tooltip.show();
                 };
 
-                $('[data-tooltip-type="large"]').live('click', function (event) {
+                $('[data-tooltip-type=large]').live('click', function (event) {
                     var elem = $(this);
-                    tooltip_offsets = tooltip.offset();
                     tooltip.removeClass(orientation);
+                    tooltip_offsets = tooltip.offset();
                     offsets = elem.offset(); width = elem.outerWidth(); height = elem.outerHeight();
                     viewport = { height: $(window).height(), width: $(window).width() };
                     total_width = offsets.left + width, total_height = offsets.top + height;
+
+                    setTimeout(function () {
+                        if (blurkill) return;
+                        blurkill = true;
+                        tooltip.blurkill(hide_tooltip);
+                    }, 0);
 
                     // north
                     if (total_height - tooltip.outerHeight() < 0 && total_width - tooltip.outerWidth() > 0 &&
@@ -119,17 +133,7 @@ $.register_module({
                 });
 
                 $(function () {
-                    if (!tooltip) {
-                        $('body').append(tooltip = $(
-                            '<div class="OG-tooltip og-large">'+
-                                'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'+
-                                'Nullam consectetur quam a sapien egestas eget scelerisque'+
-                                'lectus tempor. Duis placerat tellus at erat pellentesque nec'+
-                                'ultricies erat molestie. Integer nec orci id tortor molestie'+
-                                'porta. Suspendisse eu sagittis quam.'+
-                            '</div>'
-                        ));
-                    }
+                    if (!tooltip) $('body').append(tooltip = $(tmpl));
                 });
             })()
         };
