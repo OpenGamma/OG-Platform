@@ -13,7 +13,7 @@ import com.opengamma.timeseries.date.DateObjectEntryIterator;
  * Specialized iterator that can access primitive values.
  * This iterator is dedicated to {@code LocalDateDoubleTimeSeries}.
  * 
- * @param <V>  the type of the values
+ * @param <V>  the value being viewed over time
  */
 public interface LocalDateObjectEntryIterator<V> extends DateObjectEntryIterator<LocalDate, V> {
 

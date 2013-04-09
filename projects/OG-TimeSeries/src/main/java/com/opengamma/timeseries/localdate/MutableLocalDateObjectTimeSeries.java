@@ -17,9 +17,9 @@ import com.opengamma.timeseries.MutableObjectTimeSeries;
  * Some implementations may store the {@code int} rather than {@code LocalDate} internally.
  * The mapping between the two is available using {@link LocalDateToIntConverter}.
  * 
- * @param <T>  the type of the data
+ * @param <V>  the value being viewed over time
  */
-public interface MutableLocalDateObjectTimeSeries<T>
-    extends LocalDateObjectTimeSeries<T>, MutableObjectTimeSeries<LocalDate, T> {
+public interface MutableLocalDateObjectTimeSeries<V>
+    extends LocalDateObjectTimeSeries<V>, MutableObjectTimeSeries<LocalDate, V> {
 
 }

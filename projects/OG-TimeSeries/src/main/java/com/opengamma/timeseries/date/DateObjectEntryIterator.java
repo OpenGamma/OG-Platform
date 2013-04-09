@@ -14,7 +14,7 @@ import java.util.NoSuchElementException;
  * This iterator is dedicated to {@code DateObjectTimeSeries}.
  * 
  * @param <T>  the date type
- * @param <V>  the value type
+ * @param <V>  the value being viewed over time
  */
 public interface DateObjectEntryIterator<T, V> extends Iterator<Map.Entry<T, V>> {
 

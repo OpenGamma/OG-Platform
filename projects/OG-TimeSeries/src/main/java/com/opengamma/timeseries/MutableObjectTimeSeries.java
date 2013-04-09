@@ -12,8 +12,8 @@ package com.opengamma.timeseries;
  * and a {@code List} of date-time to value pairs.
  * As such, the date/times do not have to be evenly spread over time within the series.
  * 
- * @param <T> the date-time type, such as {@code Instant} or {@code LocalDate}
- * @param <V> the value being viewed over time, such as {@code Double}
+ * @param <T>  the date-time type, such as {@code Instant} or {@code LocalDate}
+ * @param <V>  the value being viewed over time, such as {@code Double}
  */
 public interface MutableObjectTimeSeries<T, V> extends MutableTimeSeries<T, V>, ObjectTimeSeries<T, V> {
 

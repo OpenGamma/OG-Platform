@@ -30,7 +30,7 @@ import com.opengamma.timeseries.zoneddatetime.MutableZonedDateTimeDoubleTimeSeri
 import com.opengamma.timeseries.zoneddatetime.ZonedDateTimeDoubleTimeSeries;
 
 /**
- * Standard immutable implementation of {@code LocalDateDoubleTimeSeries}.
+ * Abstract implementation of {@code DateDoubleTimeSeries}.
  * 
  * @param <T>  the date type
  */
