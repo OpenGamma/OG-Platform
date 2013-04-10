@@ -9,6 +9,9 @@ import org.threeten.bp.YearMonth;
 
 import com.opengamma.util.jaxb.AbstractDateAdapter;
 
+/**
+ * Converts between a String in an XML file and a YearMonth.
+ */
 public class DerivativeExpiryDateAdapter extends AbstractDateAdapter<YearMonth> {
 
   @Override
