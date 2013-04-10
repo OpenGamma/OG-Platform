@@ -116,9 +116,4 @@ public class OtcSecurityVisitor extends FinancialSecurityVisitorSameValueAdapter
     return true;
   }
 
-  @Override
-  public Boolean visitCreditDefaultSwapIndexSecurity(CreditDefaultSwapIndexSecurity security) {
-    return true;
-  }
-
 }
