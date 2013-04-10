@@ -15,6 +15,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
 import com.opengamma.analytics.math.ParallelArrayBinarySort;
 import com.opengamma.analytics.math.curve.NodalObjectsCurve;
@@ -199,7 +200,7 @@ public abstract class StandardVanillaCDSFunction extends AbstractFunction.NonCom
     return results;
   }
 
-  protected abstract Set<ComputedValue> getComputedValue(LegacyVanillaCreditDefaultSwapDefinition definition, ISDADateCurve yieldCurve, ZonedDateTime[] times, double[] marketSpreads,
+  protected abstract Set<ComputedValue> getComputedValue(CreditDefaultSwapDefinition definition, ISDADateCurve yieldCurve, ZonedDateTime[] times, double[] marketSpreads,
       ZonedDateTime valuationTime, ComputationTarget target, ValueProperties properties, FunctionInputs inputs);
 
   protected abstract ValueProperties.Builder getCommonResultProperties();
