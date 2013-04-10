@@ -182,7 +182,7 @@ public class CDSIndexComponentBundleTest {
   }
 
   private ExternalId redCode(String red) {
-    return ExternalSchemes.redCode(red);
+    return ExternalSchemes.markItRedCode(red);
   }
 
 }
