@@ -108,7 +108,7 @@ public abstract class StandardVanillaCDSFunction extends AbstractFunction.NonCom
     final ValueProperties properties = desiredValues.iterator().next().getConstraints().copy()
         .with(ValuePropertyNames.FUNCTION, getUniqueId())
         .get();
-    return getComputedValue(definition, yieldCurve, times, marketSpreads, valuationTime, target, properties);
+    return getComputedValue(definition, yieldCurve, times, marketSpreads, valuationTime, target, properties, inputs);
   }
 
   @Override
@@ -129,6 +129,7 @@ public abstract class StandardVanillaCDSFunction extends AbstractFunction.NonCom
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final ValueProperties constraints = desiredValue.getConstraints();
+    //TODO add check for calculation method = ISDA
     final Set<String> yieldCurveNames = constraints.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_YIELD_CURVE);
     if (yieldCurveNames == null || yieldCurveNames.size() != 1) {
       return null;
@@ -199,7 +200,7 @@ public abstract class StandardVanillaCDSFunction extends AbstractFunction.NonCom
   }
 
   protected abstract Set<ComputedValue> getComputedValue(LegacyVanillaCreditDefaultSwapDefinition definition, ISDADateCurve yieldCurve, ZonedDateTime[] times, double[] marketSpreads,
-      ZonedDateTime valuationTime, ComputationTarget target, ValueProperties properties);
+      ZonedDateTime valuationTime, ComputationTarget target, ValueProperties properties, FunctionInputs inputs);
 
   protected abstract ValueProperties.Builder getCommonResultProperties();
 
