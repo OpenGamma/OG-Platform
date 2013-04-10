@@ -8,9 +8,8 @@ $.register_module({
     obj: function () {
         return {
             init: (function () {
-                var module = this, tooltip, tooltip_offsets, orientation = '', offsets, height, width,
-                    viewport, timed_hover, total_width, total_height, blurkill = false,
-                    tmpl = '<div class="OG-tooltip og-large">{{{tip}}}</div>';
+                var tooltip, tooltip_offsets, orientation = '', offsets, height, width, viewport, total_width,
+                    total_height, blurkill = false, tmpl = '<div class="OG-tooltip og-large">{{{tip}}}</div>';
 
                 var hide_tooltip = function (event) {
                     tooltip.removeAttr('style').removeClass(orientation).hide();
