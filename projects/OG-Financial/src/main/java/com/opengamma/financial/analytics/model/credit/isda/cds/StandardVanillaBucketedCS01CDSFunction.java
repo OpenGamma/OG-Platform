@@ -30,7 +30,6 @@ import com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNa
  * 
  */
 public class StandardVanillaBucketedCS01CDSFunction extends StandardVanillaCS01CDSFunction {
-  //  private static final CS01CreditDefaultSwap CALCULATOR = new CS01CreditDefaultSwap();
   private static final ISDACreditDefaultSwapBucketedCS01Calculator CALCULATOR = new ISDACreditDefaultSwapBucketedCS01Calculator();
 
   public StandardVanillaBucketedCS01CDSFunction() {

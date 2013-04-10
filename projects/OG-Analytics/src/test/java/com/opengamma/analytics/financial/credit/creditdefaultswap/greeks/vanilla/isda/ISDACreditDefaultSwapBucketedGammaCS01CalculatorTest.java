@@ -14,7 +14,8 @@ import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.bumpers.SpreadBumpType;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.CreditDefaultSwapDefinitionDataSets;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.greeks.vanilla.CS01CreditDefaultSwap;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.greeks.vanilla.GammaCreditDefaultSwap;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
@@ -23,9 +24,9 @@ import com.opengamma.util.time.DateUtils;
 /**
  * 
  */
-public class ISDACreditDefaultSwapBucketedCS01CalculatorTest {
-  private static final CS01CreditDefaultSwap DEPRECATED_CALCULATOR = new CS01CreditDefaultSwap();
-  private static final ISDACreditDefaultSwapBucketedCS01Calculator CALCULATOR = new ISDACreditDefaultSwapBucketedCS01Calculator();
+public class ISDACreditDefaultSwapBucketedGammaCS01CalculatorTest {
+  private static final GammaCreditDefaultSwap DEPRECATED_CALCULATOR = new GammaCreditDefaultSwap();
+  private static final ISDACreditDefaultSwapBucketedGammaCS01Calculator CALCULATOR = new ISDACreditDefaultSwapBucketedGammaCS01Calculator();
   private static final ZonedDateTime VALUATION_DATE = DateUtils.getUTCDate(2013, 1, 6);
   private static final ZonedDateTime BASE_DATE = DateUtils.getUTCDate(2013, 3, 1);
   private static final ZonedDateTime[] HR_DATES = new ZonedDateTime[] {DateUtils.getUTCDate(2013, 3, 1), DateUtils.getUTCDate(2013, 6, 1), DateUtils.getUTCDate(2013, 9, 1),
@@ -61,8 +62,8 @@ public class ISDACreditDefaultSwapBucketedCS01CalculatorTest {
   @Test
   public void regressionTest() {
     final LegacyVanillaCreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaCreditDefaultSwapDefinition().withMaturityDate(VALUATION_DATE.plusYears(10));
-    final double[] deprecatedResult = DEPRECATED_CALCULATOR.getCS01BucketedCreditDefaultSwap(VALUATION_DATE, cds, YIELD_CURVE, HR_DATES, HR_RATES, BP, SpreadBumpType.ADDITIVE, PriceType.CLEAN);
-    final double[] result = CALCULATOR.getCS01BucketedCreditDefaultSwap(VALUATION_DATE, cds, YIELD_CURVE, HR_DATES, HR_RATES, BP, SpreadBumpType.ADDITIVE, PriceType.CLEAN);
+    final double[] deprecatedResult = DEPRECATED_CALCULATOR.getGammaBucketedCreditDefaultSwap(VALUATION_DATE, cds, YIELD_CURVE, HR_DATES, HR_RATES, BP, SpreadBumpType.ADDITIVE_BUCKETED, PriceType.CLEAN);
+    final double[] result = CALCULATOR.getGammaCS01BucketedCreditDefaultSwap(VALUATION_DATE, cds, YIELD_CURVE, HR_DATES, HR_RATES, BP, SpreadBumpType.ADDITIVE, PriceType.CLEAN);
     assertArrayEquals(deprecatedResult, result, EPS);
   }
 
@@ -72,7 +73,7 @@ public class ISDACreditDefaultSwapBucketedCS01CalculatorTest {
     final double startTime = System.currentTimeMillis();
     double j = 0;
     for (int i = 0; i < 100; i++) {
-      DEPRECATED_CALCULATOR.getCS01BucketedCreditDefaultSwap(VALUATION_DATE, cds, YIELD_CURVE, HR_DATES, HR_RATES, BP, SpreadBumpType.ADDITIVE, PriceType.CLEAN);
+      DEPRECATED_CALCULATOR.getGammaBucketedCreditDefaultSwap(VALUATION_DATE, cds, YIELD_CURVE, HR_DATES, HR_RATES, BP, SpreadBumpType.ADDITIVE_BUCKETED, PriceType.CLEAN);
       j += i;
     }
     final double endTime = System.currentTimeMillis();
@@ -82,11 +83,11 @@ public class ISDACreditDefaultSwapBucketedCS01CalculatorTest {
 
   @Test(enabled = false)
   public void timeARefactored() {
-    final LegacyVanillaCreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaCreditDefaultSwapDefinition().withMaturityDate(VALUATION_DATE.plusYears(10));
+    final CreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaCreditDefaultSwapDefinition().withMaturityDate(VALUATION_DATE.plusYears(10));
     final double startTime = System.currentTimeMillis();
     double j = 0;
     for (int i = 0; i < 100; i++) {
-      CALCULATOR.getCS01BucketedCreditDefaultSwap(VALUATION_DATE, cds, YIELD_CURVE, HR_DATES, HR_RATES, BP, SpreadBumpType.ADDITIVE, PriceType.CLEAN);
+      CALCULATOR.getGammaCS01BucketedCreditDefaultSwap(VALUATION_DATE, cds, YIELD_CURVE, HR_DATES, HR_RATES, BP, SpreadBumpType.ADDITIVE, PriceType.CLEAN);
       j += i;
     }
     final double endTime = System.currentTimeMillis();

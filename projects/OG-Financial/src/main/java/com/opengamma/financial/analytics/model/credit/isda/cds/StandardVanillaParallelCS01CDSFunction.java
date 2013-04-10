@@ -28,7 +28,6 @@ import com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNa
  * 
  */
 public class StandardVanillaParallelCS01CDSFunction extends StandardVanillaCS01CDSFunction {
-  //private static final CS01CreditDefaultSwap CALCULATOR = new CS01CreditDefaultSwap();
   private static final ISDACreditDefaultSwapParallelCS01Calculator CALCULATOR = new ISDACreditDefaultSwapParallelCS01Calculator();
 
   public StandardVanillaParallelCS01CDSFunction() {
