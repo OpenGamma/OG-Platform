@@ -20,62 +20,54 @@ $.register_module({
                 var show_tooltip = function (dir) {
                     orientation = dir;
                     switch (dir) {
-                        case 'og-north' : {
+                        case 'og-north' :
                             tooltip.addClass(orientation).css({
                                 top: offsets.top + height + 'px',
                                 left: offsets.left - (tooltip.outerWidth()/2) + width/2 + 'px'
-                            })
+                            });
                             break;
-                        }
-                        case 'og-north-east-flip' : {
+                        case 'og-north-east-flip' :
                             tooltip.addClass(orientation).css({
                                 top: offsets.top + height/2 + 'px',
                                 left: offsets.left - tooltip.outerWidth() + 'px'
-                            })
+                            });
                             break;
-                        }
-                        case 'og-north-west-flip' : {
+                        case 'og-north-west-flip' :
                             tooltip.addClass(orientation).css({
                                 top: offsets.top + height/2 + 'px',
                                 left: offsets.left + width + 'px'
-                            })
+                            });
                             break;
-                        }
-                        case 'og-east' : {
+                        case 'og-east' :
                             tooltip.addClass(orientation).css({
                                 top: offsets.top - ((tooltip.outerHeight()-height)/2) + 'px',
                                 left: offsets.left - tooltip.outerWidth() + 'px'
                             });
                             break;
-                        }
-                        case 'og-south' : {
+                        case 'og-south' :
                             tooltip.addClass(orientation).css({
                                 top: offsets.top - tooltip.outerHeight() + 'px',
                                 left: offsets.left - (tooltip.outerWidth()/2) + width/2 + 'px'
                             });
                             break;
-                        }
-                        case 'og-south-east-flip' : {
+                        case 'og-south-east-flip' :
                             tooltip.addClass(orientation).css({
                                 top: offsets.top - tooltip.outerHeight() + height/2 + 'px',
                                 left: offsets.left - tooltip.outerWidth() + 'px'
                             });
                             break;
-                        }
-                        case 'og-south-west-flip' : {
+                        case 'og-south-west-flip' :
                             tooltip.addClass(orientation).css({
                                 top: offsets.top - tooltip.outerHeight() + height/2 + 'px',
                                 left: offsets.left + width + 'px'
                             });
                             break;
-                        }
-                        case 'og-west' : {
+                        case 'og-west' :
                             tooltip.addClass(orientation).css({
                                 top: offsets.top - ((tooltip.outerHeight()-height)/2) + 'px',
                                 left: offsets.left + width + 'px'
                             });
                             break;
-                        }
                     }
                     tooltip.show();
                 };
