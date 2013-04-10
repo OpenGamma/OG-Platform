@@ -5,7 +5,7 @@
  */
 package com.opengamma.analytics.financial.credit.creditdefaultswap.greeks.vanilla.isda;
 
-import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.ZonedDateTime;
@@ -23,9 +23,9 @@ import com.opengamma.util.time.DateUtils;
 /**
  * 
  */
-public class ISDACreditDefaultSwapParallelCS01CalculatorTest {
+public class ISDACreditDefaultSwapBucketedCS01CalculatorTest {
   private static final CS01CreditDefaultSwap DEPRECATED_CALCULATOR = new CS01CreditDefaultSwap();
-  private static final ISDACreditDefaultSwapParallelCS01Calculator CALCULATOR = new ISDACreditDefaultSwapParallelCS01Calculator();
+  private static final ISDACreditDefaultSwapBucketedCS01Calculator CALCULATOR = new ISDACreditDefaultSwapBucketedCS01Calculator();
   private static final ZonedDateTime VALUATION_DATE = DateUtils.getUTCDate(2013, 1, 6);
   private static final ZonedDateTime BASE_DATE = DateUtils.getUTCDate(2013, 3, 1);
   private static final ZonedDateTime[] HR_DATES = new ZonedDateTime[] {DateUtils.getUTCDate(2013, 3, 1), DateUtils.getUTCDate(2013, 6, 1), DateUtils.getUTCDate(2013, 9, 1),
@@ -61,34 +61,36 @@ public class ISDACreditDefaultSwapParallelCS01CalculatorTest {
   @Test
   public void regressionTest() {
     final LegacyVanillaCreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaCreditDefaultSwapDefinition().withMaturityDate(VALUATION_DATE.plusYears(10));
-    final double deprecatedResult = DEPRECATED_CALCULATOR.getCS01ParallelShiftCreditDefaultSwap(VALUATION_DATE, cds, YIELD_CURVE, HR_DATES, HR_RATES, BP, SpreadBumpType.ADDITIVE_PARALLEL, PriceType.CLEAN);
-    final double result = CALCULATOR.getCS01ParallelShiftCreditDefaultSwap(VALUATION_DATE, cds, YIELD_CURVE, HR_DATES, HR_RATES, BP, SpreadBumpType.ADDITIVE_PARALLEL, PriceType.CLEAN);
-    assertEquals(deprecatedResult, result, EPS);
+    final double[] deprecatedResult = DEPRECATED_CALCULATOR.getCS01BucketedCreditDefaultSwap(VALUATION_DATE, cds, YIELD_CURVE, HR_DATES, HR_RATES, BP, SpreadBumpType.ADDITIVE, PriceType.CLEAN);
+    final double[] result = CALCULATOR.getCS01BucketedCreditDefaultSwap(VALUATION_DATE, cds, YIELD_CURVE, HR_DATES, HR_RATES, BP, SpreadBumpType.ADDITIVE, PriceType.CLEAN);
+    assertArrayEquals(deprecatedResult, result, EPS);
   }
 
-  @Test(enabled = false)
+  @Test//(enabled = false)
   public void timeBDeprecated() {
     final LegacyVanillaCreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaCreditDefaultSwapDefinition().withMaturityDate(VALUATION_DATE.plusYears(10));
     final double startTime = System.currentTimeMillis();
-    double total = 0;
-    for (int i = 0; i < 100; i++) {
-      total += DEPRECATED_CALCULATOR.getCS01ParallelShiftCreditDefaultSwap(VALUATION_DATE, cds, YIELD_CURVE, HR_DATES, HR_RATES, BP, SpreadBumpType.ADDITIVE_PARALLEL, PriceType.CLEAN);
+    double j = 0;
+    for (int i = 0; i < 1000; i++) {
+      DEPRECATED_CALCULATOR.getCS01BucketedCreditDefaultSwap(VALUATION_DATE, cds, YIELD_CURVE, HR_DATES, HR_RATES, BP, SpreadBumpType.ADDITIVE, PriceType.CLEAN);
+      j += i;
     }
     final double endTime = System.currentTimeMillis();
     System.out.println("Deprecated:\t" + (endTime - startTime) / 100);
-    System.out.println(total);
+    System.out.println(j);
   }
 
-  @Test(enabled = false)
+  @Test//(enabled = false)
   public void timeARefactored() {
     final LegacyVanillaCreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaCreditDefaultSwapDefinition().withMaturityDate(VALUATION_DATE.plusYears(10));
     final double startTime = System.currentTimeMillis();
-    double total = 0;
-    for (int i = 0; i < 100; i++) {
-      total += CALCULATOR.getCS01ParallelShiftCreditDefaultSwap(VALUATION_DATE, cds, YIELD_CURVE, HR_DATES, HR_RATES, BP, SpreadBumpType.ADDITIVE_PARALLEL, PriceType.CLEAN);
+    double j = 0;
+    for (int i = 0; i < 1000; i++) {
+      CALCULATOR.getCS01BucketedCreditDefaultSwap(VALUATION_DATE, cds, YIELD_CURVE, HR_DATES, HR_RATES, BP, SpreadBumpType.ADDITIVE, PriceType.CLEAN);
+      j += i;
     }
     final double endTime = System.currentTimeMillis();
     System.out.println("Refactored:\t" + (endTime - startTime) / 100);
-    System.out.println(total);
+    System.out.println(j);
   }
 }
