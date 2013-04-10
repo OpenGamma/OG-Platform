@@ -73,7 +73,7 @@ public class FXOptionFunctionUtils {
     final YieldAndDiscountCurve putFundingCurve = getCurveForCurrency(inputs, putCurrency, putCurveName, putCurveConfig);
     final YieldAndDiscountCurve callFundingCurve = getCurveForCurrency(inputs, callCurrency, callCurveName, callCurveConfig);
     final YieldAndDiscountCurve[] curves;
-    final Map<String, Currency> curveCurrency = new HashMap<String, Currency>();
+    final Map<String, Currency> curveCurrency = new HashMap<>();
     curveCurrency.put(fullPutCurveName, putCurrency);
     curveCurrency.put(fullCallCurveName, callCurrency);
     final String[] allCurveNames;

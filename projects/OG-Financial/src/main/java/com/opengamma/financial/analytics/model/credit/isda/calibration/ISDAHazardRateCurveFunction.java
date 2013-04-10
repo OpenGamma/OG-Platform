@@ -15,7 +15,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.credit.ISDAYieldCurveAndSpreadsProvider;
-import com.opengamma.analytics.financial.credit.calibratehazardratecurve.HazardRateCurveCalculator;
+import com.opengamma.analytics.financial.credit.calibratehazardratecurve.ISDAHazardRateCurveCalculator;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
@@ -62,7 +62,7 @@ import com.opengamma.util.time.Tenor;
  */
 public class ISDAHazardRateCurveFunction extends AbstractFunction.NonCompiledInvoker {
   private static final BusinessDayConvention FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
-  private static final HazardRateCurveCalculator CALCULATOR = new HazardRateCurveCalculator();
+  private static final ISDAHazardRateCurveCalculator CALCULATOR = new ISDAHazardRateCurveCalculator();
   private CreditDefaultSwapSecurityConverter _converter;
 
   @Override

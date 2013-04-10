@@ -34,7 +34,6 @@ public class InterestRateFutureSecurity extends FutureSecurity {
   /**
    * The underlying identifier.
    */
-  @PropertyDefinition(validate = "notNull")
   private ExternalId _underlyingId;
 
   /**
@@ -132,7 +131,6 @@ public class InterestRateFutureSecurity extends FutureSecurity {
    * @param underlyingId  the new value of the property, not null
    */
   public void setUnderlyingId(ExternalId underlyingId) {
-    JodaBeanUtils.notNull(underlyingId, "underlyingId");
     this._underlyingId = underlyingId;
   }
 

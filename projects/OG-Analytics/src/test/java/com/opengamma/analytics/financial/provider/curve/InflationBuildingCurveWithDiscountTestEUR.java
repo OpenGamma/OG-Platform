@@ -74,7 +74,7 @@ import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * 
+ *  Build of inflation curve and discount curve simultaneously in several blocks with relevant Jacobian matrices.
  */
 public class InflationBuildingCurveWithDiscountTestEUR {
 

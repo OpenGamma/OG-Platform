@@ -18,8 +18,27 @@
 <stringAttribute key="org.testng.eclipse.LOG_LEVEL" value="2"/>
 <listAttribute key="org.testng.eclipse.METHOD_TEST_LIST"/>
 <listAttribute key="org.testng.eclipse.PACKAGE_TEST_LIST">
+<listEntry value="com.opengamma.analytics.financial.calculator"/>
 <listEntry value="com.opengamma.analytics.financial.commodity.definition"/>
 <listEntry value="com.opengamma.analytics.financial.covariance"/>
+<listEntry value="com.opengamma.analytics.financial.credit.calibratehazardratecurve"/>
+<listEntry value="com.opengamma.analytics.financial.credit.creditdefaultswap"/>
+<listEntry value="com.opengamma.analytics.financial.credit.creditdefaultswap.definition"/>
+<listEntry value="com.opengamma.analytics.financial.credit.creditdefaultswap.greeks"/>
+<listEntry value="com.opengamma.analytics.financial.credit.creditdefaultswap.greeks.vanilla.isda"/>
+<listEntry value="com.opengamma.analytics.financial.credit.creditdefaultswap.pricing"/>
+<listEntry value="com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isda"/>
+<listEntry value="com.opengamma.analytics.financial.credit.creditdefaultswapoption.definition"/>
+<listEntry value="com.opengamma.analytics.financial.credit.creditdefaultswapoption.pricing"/>
+<listEntry value="com.opengamma.analytics.financial.credit.indexcreditdefaultswap.definition"/>
+<listEntry value="com.opengamma.analytics.financial.credit.indexcreditdefaultswap.pricing"/>
+<listEntry value="com.opengamma.analytics.financial.credit.isdayieldcurve"/>
+<listEntry value="com.opengamma.analytics.financial.credit.obligormodel"/>
+<listEntry value="com.opengamma.analytics.financial.credit.portfoliolosssimulationmodel"/>
+<listEntry value="com.opengamma.analytics.financial.credit.recoveryratemodel"/>
+<listEntry value="com.opengamma.analytics.financial.credit.schedulegeneration"/>
+<listEntry value="com.opengamma.analytics.financial.credit.schedulegeneration.isda"/>
+<listEntry value="com.opengamma.analytics.financial.credit.underlyingpool"/>
 <listEntry value="com.opengamma.analytics.financial.equity.capm"/>
 <listEntry value="com.opengamma.analytics.financial.equity.future"/>
 <listEntry value="com.opengamma.analytics.financial.equity.option"/>

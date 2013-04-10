@@ -488,6 +488,10 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
     return defaultCurrencyPairInfo("EUR", "TRY");
   }
 
+  protected CurrencyPairInfo jpyKrwCurrencyPairInfo() {
+    return defaultCurrencyPairInfo("JPY", "KRW");
+  }
+
   protected CurrencyPairInfo sekJpyCurrencyPairInfo() {
     return defaultCurrencyPairInfo("SEK", "JPY");
   }
@@ -565,6 +569,7 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
     setCurrencyPairInfo(Pair.of("EUR", "CHF"), eurChfCurrencyPairInfo());
     setCurrencyPairInfo(Pair.of("EUR", "JPY"), eurJpyCurrencyPairInfo());
     setCurrencyPairInfo(Pair.of("EUR", "TRY"), eurTryCurrencyPairInfo());
+    setCurrencyPairInfo(Pair.of("JPY", "KRW"), jpyKrwCurrencyPairInfo());
     setCurrencyPairInfo(Pair.of("SEK", "JPY"), sekJpyCurrencyPairInfo());
     setCurrencyPairInfo(Pair.of("USD", "AUD"), usdAudCurrencyPairInfo());
     setCurrencyPairInfo(Pair.of("USD", "BRL"), usdBrlCurrencyPairInfo());

@@ -149,7 +149,7 @@ public class CurrencyMatrixSeriesSourcingFunction extends AbstractCurrencyMatrix
     if ((values == null) || values.isEmpty()) {
       requiredConstraints.with(HistoricalTimeSeriesFunctionUtils.END_DATE_PROPERTY, DateConstraint.VALUATION_TIME.toString());
     } else {
-      requiredConstraints.with(HistoricalTimeSeriesFunctionUtils.END_DATE_PROPERTY);
+      requiredConstraints.with(HistoricalTimeSeriesFunctionUtils.END_DATE_PROPERTY, values);
     }
     values = desiredConstraints.getValues(HistoricalTimeSeriesFunctionUtils.INCLUDE_END_PROPERTY);
     if ((values == null) || values.isEmpty()) {

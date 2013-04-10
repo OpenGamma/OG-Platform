@@ -7,6 +7,7 @@ package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanil
 
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
@@ -20,19 +21,20 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 /**
  * 
  */
-public class ISDACompliantContingentLegCalculator {
+public class ISDACompliantContingentLegCalculator extends ISDACompliantLegCalculator {
   private static final GenerateCreditDefaultSwapContingentLegIntegrationScheduleNew SCHEDULE_CALCULATOR = new GenerateCreditDefaultSwapContingentLegIntegrationScheduleNew();
-  private static final int spotDays = 3;
-  private static final boolean businessDayAdjustCashSettlementDate = true;
-  private static final BusinessDayConvention cashSettlementDateBusinessDayConvention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("F");
+  private static final int SPOT_DAYS = 3;
+  private static final boolean ADJUST_CASH_SETTLEMENT_DATE = true;
+  private static final BusinessDayConvention BDA = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("F");
   private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
 
-  public double calculateContingentLeg(final ZonedDateTime valuationDate, final CreditDefaultSwapDefinition cds, final ISDADateCurve yieldCurve,
-      final HazardRateCurve hazardRateCurve) {
+  @Override
+  public double calculateLeg(final ZonedDateTime valuationDate, final CreditDefaultSwapDefinition cds, final ISDADateCurve yieldCurve,
+      final HazardRateCurve hazardRateCurve, final PriceType priceType) {
     double presentValueContingentLeg = 0.0;
     final int offset = cds.getProtectionStart() ? 1 : 0;
     ZonedDateTime startDate;
-    ZonedDateTime valuationDateM1 = valuationDate.minusDays(1);
+    final ZonedDateTime valuationDateM1 = valuationDate.minusDays(1);
     final ZonedDateTime clStartDate = cds.getProtectionStart() ? valuationDateM1 : valuationDate;
     final ZonedDateTime clEndDate = cds.getMaturityDate();
     if (valuationDate.isAfter(clEndDate)) {
@@ -78,12 +80,13 @@ public class ISDACompliantContingentLegCalculator {
     //final int spotDays = 5;
     //final ZonedDateTime cashSettleDate = valuationDate.plusDays(spotDays);
     //final double t = TimeCalculator.getTimeBetween(valuationDate, cashSettleDate, ACT_365);
-    ZonedDateTime bdaCashSettlementDate = valuationDate.plusDays(spotDays);
-    if (businessDayAdjustCashSettlementDate) {
-      bdaCashSettlementDate = cashSettlementDateBusinessDayConvention.adjustDate(cds.getCalendar(), valuationDate.plusDays(spotDays));
+    ZonedDateTime bdaCashSettlementDate = valuationDate.plusDays(SPOT_DAYS);
+    if (ADJUST_CASH_SETTLEMENT_DATE) {
+      bdaCashSettlementDate = BDA.adjustDate(cds.getCalendar(), valuationDate.plusDays(SPOT_DAYS));
     }
     final double t = TimeCalculator.getTimeBetween(valuationDate, bdaCashSettlementDate, ACT_365);
     final double valueDatePV = yieldCurve.getDiscountFactor(t);
     return cds.getNotional() * presentValueContingentLeg / valueDatePV;
   }
+
 }

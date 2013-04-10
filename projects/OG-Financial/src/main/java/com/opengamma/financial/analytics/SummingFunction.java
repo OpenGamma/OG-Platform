@@ -12,7 +12,6 @@ import java.util.Set;
 
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
-import com.opengamma.core.position.impl.PositionAccumulator;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
@@ -28,9 +27,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.property.UnitProperties;
 
 /**
- * Able to sum a particular requirement name from a set of underlying positions.
- * If any values are not produced (because of missing market data or computation
- * errors) a partial sum is produced.
+ * Able to sum a particular requirement name from a set of underlying positions. If any values are not produced (because of missing market data or computation errors) a partial sum is produced.
  */
 public class SummingFunction extends MissingInputsFunction {
 
@@ -85,10 +82,11 @@ public class SummingFunction extends MissingInputsFunction {
       }
       final ValueProperties resultConstraints = resultConstraintsBuilder.get();
       final PortfolioNode node = target.getPortfolioNode();
-      // TODO: We don't need the accumulated positions - the object identifiers only would suffice (don't need to go to both databases!)
-      final Set<Position> allPositions = PositionAccumulator.getAccumulatedPositions(node);
       final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-      for (final Position position : allPositions) {
+      for (final PortfolioNode childNode : node.getChildNodes()) {
+        requirements.add(new ValueRequirement(getRequirementName(), ComputationTargetType.PORTFOLIO_NODE, childNode.getUniqueId(), resultConstraints));
+      }
+      for (final Position position : node.getPositions()) {
         requirements.add(new ValueRequirement(getRequirementName(), ComputationTargetType.POSITION, position.getUniqueId().toLatest(), resultConstraints));
       }
       return requirements;
