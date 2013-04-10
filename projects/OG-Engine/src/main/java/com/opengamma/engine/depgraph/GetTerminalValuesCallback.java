@@ -168,7 +168,7 @@ import com.opengamma.util.tuple.Pair;
 
   @Override
   public void failed(final GraphBuildingContext context, final ValueRequirement value, final ResolutionFailure failure) {
-    s_logger.error("Couldn't resolve {}", value);
+    s_logger.info("Couldn't resolve {}", value);
     if (failure != null) {
       final ResolutionFailure failureImpl = failure.checkFailure(value);
       if (_failureVisitor != null) {
