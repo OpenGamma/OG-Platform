@@ -76,7 +76,7 @@
 .OG-details-grid .OG-link-add {
     padding: 4px 5px 4px 12px;
     position: relative;
-    left: -9px;
+    margin-left: 1px;
     background: #fff;
     opacity: .7;
 }
