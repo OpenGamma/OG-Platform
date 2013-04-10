@@ -82,8 +82,29 @@
     margin-top: 5px;
     margin-bottom: 5px;
 }
-.OG-blotter-trade-select {
+/*.OG-blotter-trade-select {
     width: 100%!important;
+}*/
+.OG-blotter-trade-select{
+    margin-left: 10px;
+}
+.OG-blotter-trade-select h2{
+    padding: 10px 0;
+}
+.OG-blotter-trade-select a{
+    background: none repeat scroll 0 0 transparent;
+    display: inline;
+    margin: 0;
+    padding: 0;
+}
+.OG-blotter-trade-select li{
+    display: block;
+    padding-top: 1px;
+}
+.OG-blotter-trade-select ul{
+    padding bottom: 10px;
+    padding-left: 10px;
+    white-space: nowrap;
 }
 .OG-blotter-form-block .og-blotter-portfolio .premium-toggle{
     cursor:pointer;

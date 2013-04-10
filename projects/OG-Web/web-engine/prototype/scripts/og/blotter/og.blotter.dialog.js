@@ -44,10 +44,14 @@ $.register_module({
                 } else {
                     title = 'Add New Tade', submit = 'Create';
                     og.api.text({module: 'og.blotter.forms.blocks.form_types_tash'}).pipe(function (template){
-                        $selector = $(template)
-                        .on('change', function (event) {
-                            constructor.populate($(event.target).val(), config);
+                        $selector = $(template);
+                        $selector.find('a').on('click', function (event) {
+                            constructor.populate($(event.target).attr('data-type'), config);
+                            $('.OG-blotter-trade-select').hide();
                         });
+                        /*.on('change', function (event) {
+                            constructor.populate($(event.target).val(), config);
+                        });*/
                         constructor.create_dialog();
                     });
                 }
