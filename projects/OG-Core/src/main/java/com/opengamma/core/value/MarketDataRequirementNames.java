@@ -103,6 +103,11 @@ public interface MarketDataRequirementNames {
   String DIVIDEND_YIELD = "Market_DividendYield";
 
   /**
+   * Market estimated annual dividend
+   */
+  String ANNUAL_DIVIDEND = "Market_AnnualDividend";
+
+  /**
    * Market estimated cost of carry, as continuous annual yield (interest - income)
    */
   String COST_OF_CARRY = "Market_CostOfCarry";
