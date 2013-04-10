@@ -14,7 +14,7 @@ import com.google.common.collect.Iterables;
 import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.bumpers.SpreadBumpType;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.greeks.vanilla.CS01CreditDefaultSwap;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.greeks.vanilla.isda.ISDACreditDefaultSwapParallelCS01Calculator;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.value.ComputedValue;
@@ -27,7 +27,8 @@ import com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNa
  * 
  */
 public class StandardVanillaParallelCS01CDSFunction extends StandardVanillaCS01CDSFunction {
-  private static final CS01CreditDefaultSwap CALCULATOR = new CS01CreditDefaultSwap();
+  //private static final CS01CreditDefaultSwap CALCULATOR = new CS01CreditDefaultSwap();
+  private static final ISDACreditDefaultSwapParallelCS01Calculator CALCULATOR = new ISDACreditDefaultSwapParallelCS01Calculator();
 
   public StandardVanillaParallelCS01CDSFunction() {
     super(ValueRequirementNames.CS01);

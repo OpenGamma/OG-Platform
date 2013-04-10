@@ -22,9 +22,9 @@ import com.opengamma.util.time.DateUtils;
 /**
  * 
  */
-public class HazardRateCurveCalculatorTest {
+public class ISDAHazardRateCurveCalculatorTest {
   private static final PresentValueCreditDefaultSwap DEPRECATED_CALCULATOR = new PresentValueCreditDefaultSwap();
-  private static final HazardRateCurveCalculator CALCULATOR = new HazardRateCurveCalculator();
+  private static final ISDAHazardRateCurveCalculator CALCULATOR = new ISDAHazardRateCurveCalculator();
   private static final ZonedDateTime VALUATION_DATE = DateUtils.getUTCDate(2013, 3, 4);
   private static final ZonedDateTime[] MARKET_TENORS = new ZonedDateTime[] {DateUtils.getUTCDate(2013, 3, 20), DateUtils.getUTCDate(2013, 6, 19), DateUtils.getUTCDate(2013, 9, 18),
     DateUtils.getUTCDate(2013, 12, 18), DateUtils.getUTCDate(2014, 3, 19), DateUtils.getUTCDate(2015, 3, 18), DateUtils.getUTCDate(2016, 3, 16), DateUtils.getUTCDate(2018, 3, 15),
@@ -79,7 +79,7 @@ public class HazardRateCurveCalculatorTest {
     assertEquals(curve1, curve2);
   }
 
-  @Test(enabled = false)
+  @Test//(enabled = false)
   public void timeBDeprecated() {
     final double startTime = System.currentTimeMillis();
     int j = 0;
@@ -91,7 +91,7 @@ public class HazardRateCurveCalculatorTest {
     System.out.println("Deprecated:\t" + (endTime - startTime) / j * 100);
   }
 
-  @Test(enabled = false)
+  @Test//(enabled = false)
   public void timeARefactored() {
     final double startTime = System.currentTimeMillis();
     int j = 0;

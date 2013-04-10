@@ -38,6 +38,12 @@ import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.change.ChangeEvent;
 import com.opengamma.core.change.ChangeListener;
+import com.opengamma.core.position.Portfolio;
+import com.opengamma.core.position.PortfolioNode;
+import com.opengamma.core.position.Position;
+import com.opengamma.core.position.Trade;
+import com.opengamma.core.position.impl.PortfolioNodeEquivalenceMapper;
+import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyGraphExplorer;
@@ -805,7 +811,44 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
     return vc;
   }
 
-  private void removePortfolioTerminalOutputs(final Map<String, Pair<DependencyGraph, Set<ValueRequirement>>> previousGraphs, final CompiledViewDefinitionWithGraphs compiledViewDefinition) {
+  private PortfolioNodeEquivalenceMapper getNodeEquivalenceMapper() {
+    return new PortfolioNodeEquivalenceMapper();
+  }
+
+  private void findUnmapped(final PortfolioNode node, final Map<UniqueId, UniqueId> mapped, final Set<UniqueId> unmapped) {
+    if (mapped.containsKey(node.getUniqueId())) {
+      return;
+    }
+    if (unmapped.add(node.getUniqueId())) {
+      for (PortfolioNode child : node.getChildNodes()) {
+        findUnmapped(child, mapped, unmapped);
+      }
+      for (Position child : node.getPositions()) {
+        if (unmapped.add(child.getUniqueId())) {
+          for (Trade trade : child.getTrades()) {
+            unmapped.add(trade.getUniqueId());
+          }
+        }
+      }
+    }
+  }
+
+  private Set<UniqueId> rewritePortfolioNodes(final Map<String, Pair<DependencyGraph, Set<ValueRequirement>>> previousGraphs, final CompiledViewDefinitionWithGraphs compiledViewDefinition,
+      final Portfolio newPortfolio) {
+    // Map any nodes from the old portfolio structure to the new one
+    final Map<UniqueId, UniqueId> mapped;
+    if (newPortfolio != null) {
+      mapped = getNodeEquivalenceMapper().getEquivalentNodes(compiledViewDefinition.getPortfolio().getRootNode(), newPortfolio.getRootNode());
+    } else {
+      mapped = Collections.emptyMap();
+    }
+    // Identify anything not (immediately) mapped to the new portfolio structure
+    final Set<UniqueId> unmapped = new HashSet<UniqueId>();
+    findUnmapped(compiledViewDefinition.getPortfolio().getRootNode(), mapped, unmapped);
+    if (s_logger.isDebugEnabled()) {
+      s_logger.debug("Mapping {} portfolio nodes to new structure, unmapping {} targets", mapped.size(), unmapped.size());
+    }
+    // For anything not mapped, remove the terminal outputs from the graph
     for (final ViewCalculationConfiguration calcConfig : compiledViewDefinition.getViewDefinition().getAllCalculationConfigurations()) {
       final Set<ValueRequirement> specificRequirements = calcConfig.getSpecificRequirements();
       final Pair<DependencyGraph, Set<ValueRequirement>> previousGraphEntry = previousGraphs.get(calcConfig.getName());
@@ -819,25 +862,48 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
       final List<ValueRequirement>[] removeRequirements = new List[terminalOutputs.size()];
       int remove = 0;
       for (final Map.Entry<ValueSpecification, Set<ValueRequirement>> entry : terminalOutputs.entrySet()) {
-        List<ValueRequirement> removal = null;
-        for (final ValueRequirement requirement : entry.getValue()) {
-          if (!specificRequirements.contains(requirement)) {
-            if (removal == null) {
-              removal = new ArrayList<ValueRequirement>(entry.getValue().size());
+        if (unmapped.contains(entry.getKey().getTargetSpecification().getUniqueId())) {
+          List<ValueRequirement> removal = null;
+          for (final ValueRequirement requirement : entry.getValue()) {
+            if (!specificRequirements.contains(requirement)) {
+              if (removal == null) {
+                removal = new ArrayList<ValueRequirement>(entry.getValue().size());
+              }
+              removal.add(requirement);
             }
-            removal.add(requirement);
+            // Anything that was in the specific requirements will be captured by the standard invalid identifier tests
           }
-          // Anything that was in the specific requirements will be captured by the standard invalid identifier tests
-        }
-        if (removal != null) {
-          removeSpecifications[remove] = entry.getKey();
-          removeRequirements[remove++] = removal;
+          if (removal != null) {
+            removeSpecifications[remove] = entry.getKey();
+            removeRequirements[remove++] = removal;
+          }
         }
       }
       for (int i = 0; i < remove; i++) {
         previousGraph.removeTerminalOutputs(removeRequirements[i], removeSpecifications[i]);
       }
+      if (!mapped.isEmpty()) {
+        final ComputationTargetIdentifierRemapVisitor remapper = new ComputationTargetIdentifierRemapVisitor(mapped);
+        final Collection<Object> replacements = new ArrayList<Object>(mapped.size() * 2);
+        for (DependencyNode node : previousGraph.getDependencyNodes()) {
+          final ComputationTargetSpecification newTarget = remapper.remap(node.getComputationTarget());
+          if (newTarget != null) {
+            replacements.add(node);
+            replacements.add(newTarget);
+          }
+        }
+        final Iterator<Object> itrReplacements = replacements.iterator();
+        while (itrReplacements.hasNext()) {
+          final DependencyNode node = (DependencyNode) itrReplacements.next();
+          final ComputationTargetSpecification newTarget = (ComputationTargetSpecification) itrReplacements.next();
+          s_logger.debug("Rewriting {} to {}", node, newTarget);
+          previousGraph.replaceNode(node, newTarget);
+        }
+      }
     }
+    // Remove any PORTFOLIO nodes and any unmapped PORTFOLIO_NODE nodes with the filter
+    filterPreviousGraphs(previousGraphs, new InvalidPortfolioDependencyNodeFilter(unmapped), null);
+    return new HashSet<UniqueId>(mapped.values());
   }
 
   /**
@@ -1005,8 +1071,9 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
    * 
    * @param previousGraphs the previously used graphs as a map from calculation configuration name to the graph and the value requirements that need to be recalculated, not null
    * @param filter the filter to identify invalid nodes, not null
+   * @param unchangedNodes optional identifiers of unchanged portfolio nodes; any nodes filtered out must be removed from this
    */
-  private void filterPreviousGraphs(final Map<String, Pair<DependencyGraph, Set<ValueRequirement>>> previousGraphs, final DependencyNodeFilter filter) {
+  private void filterPreviousGraphs(final Map<String, Pair<DependencyGraph, Set<ValueRequirement>>> previousGraphs, final DependencyNodeFilter filter, final Set<UniqueId> unchangedNodes) {
     final Iterator<Map.Entry<String, Pair<DependencyGraph, Set<ValueRequirement>>>> itr = previousGraphs.entrySet().iterator();
     while (itr.hasNext()) {
       final Map.Entry<String, Pair<DependencyGraph, Set<ValueRequirement>>> entry = itr.next();
@@ -1033,6 +1100,9 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
                 missingRequirements.addAll(terminal);
               }
             }
+            if (unchangedNodes != null) {
+              unchangedNodes.remove(node.getComputationTarget().getUniqueId());
+            }
             return false;
           }
         }
@@ -1041,7 +1111,9 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
         s_logger.info("Discarded total dependency graph for {}", entry.getKey());
         itr.remove();
       } else {
-        s_logger.info("Removed {} nodes from dependency graph for {}", nodes.size() - filtered.getSize(), entry.getKey());
+        if (s_logger.isInfoEnabled()) {
+          s_logger.info("Removed {} nodes from dependency graph for {} by {}", new Object[] {nodes.size() - filtered.getSize(), entry.getKey(), filter });
+        }
         entry.setValue(Pair.of(filtered, missingRequirements));
       }
     }
@@ -1059,8 +1131,8 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
       compiledViewDefinition = getCachedCompiledViewDefinition(valuationTime, versionCorrection);
       Map<String, Pair<DependencyGraph, Set<ValueRequirement>>> previousGraphs = null;
       ConcurrentMap<ComputationTargetReference, UniqueId> previousResolutions = null;
-      boolean portfolioFull = false;
       Set<UniqueId> changedPositions = null;
+      Set<UniqueId> unchangedNodes = null;
       boolean marketDataProviderDirty = _marketDataProviderDirty;
       _marketDataProviderDirty = false;
       if (compiledViewDefinition != null) {
@@ -1080,18 +1152,20 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
             final Map<UniqueId, ComputationTargetSpecification> invalidIdentifiers = getInvalidIdentifiers(resolvedIdentifiers, versionCorrection);
             if (invalidIdentifiers != null) {
               previousGraphs = getPreviousGraphs(previousGraphs, compiledViewDefinition);
-              if (invalidIdentifiers.containsKey(compiledViewDefinition.getPortfolio().getUniqueId())) {
-                // The portfolio resolution is different, invalidate all PORTFOLIO and PORTFOLIO_NODE nodes in the graph
-                removePortfolioTerminalOutputs(previousGraphs, compiledViewDefinition);
-                filterPreviousGraphs(previousGraphs, new InvalidPortfolioDependencyNodeFilter());
-                portfolioFull = true;
+              if ((compiledViewDefinition.getPortfolio() != null) && invalidIdentifiers.containsKey(compiledViewDefinition.getPortfolio().getUniqueId())) {
+                // The portfolio resolution is different, invalidate or rewrite PORTFOLIO and PORTFOLIO_NODE nodes in the graph. Note that incremental
+                // compilation under this circumstance can be flawed if the functions have made notable use of the overall portfolio structure such that
+                // a full re-compilation will yield a different dependency graph to just rewriting the previous one.
+                final ComputationTarget newPortfolio = getProcessContext().getFunctionCompilationService().getFunctionCompilationContext().getRawComputationTargetResolver()
+                    .resolve(new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO, getViewDefinition().getPortfolioId()), versionCorrection);
+                unchangedNodes = rewritePortfolioNodes(previousGraphs, compiledViewDefinition, (Portfolio) newPortfolio.getValue());
               }
               // Invalidate any dependency graph nodes on the invalid targets
-              filterPreviousGraphs(previousGraphs, new InvalidTargetDependencyNodeFilter(invalidIdentifiers.keySet()));
+              filterPreviousGraphs(previousGraphs, new InvalidTargetDependencyNodeFilter(invalidIdentifiers.keySet()), unchangedNodes);
               previousResolutions = new ConcurrentHashMap<ComputationTargetReference, UniqueId>(resolvedIdentifiers.size());
               for (final Map.Entry<ComputationTargetReference, UniqueId> resolvedIdentifier : resolvedIdentifiers.entrySet()) {
                 if (invalidIdentifiers.containsKey(resolvedIdentifier.getValue())) {
-                  if (!portfolioFull && resolvedIdentifier.getKey().getType().isTargetType(ComputationTargetType.POSITION)) {
+                  if ((unchangedNodes == null) && resolvedIdentifier.getKey().getType().isTargetType(ComputationTargetType.POSITION)) {
                     // At least one position has changed, add all portfolio targets
                     ComputationTargetSpecification ctspec = invalidIdentifiers.get(resolvedIdentifier.getValue());
                     if (ctspec != null) {
@@ -1113,7 +1187,7 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
           if (!CompiledViewDefinitionWithGraphsImpl.isValidFor(compiledViewDefinition, valuationTime)) {
             // Invalidate any dependency graph nodes that use functions that are no longer valid
             previousGraphs = getPreviousGraphs(previousGraphs, compiledViewDefinition);
-            filterPreviousGraphs(previousGraphs, new InvalidFunctionDependencyNodeFilter(valuationTime));
+            filterPreviousGraphs(previousGraphs, new InvalidFunctionDependencyNodeFilter(valuationTime), unchangedNodes);
           }
           if (marketDataProviderDirty) {
             // Invalidate any market data sourcing nodes that are no longer valid
@@ -1122,7 +1196,7 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
             getInvalidMarketData(previousGraphs, compiledViewDefinition, filter);
             if (filter.hasInvalidNodes()) {
               previousGraphs = getPreviousGraphs(previousGraphs, compiledViewDefinition);
-              filterPreviousGraphs(previousGraphs, filter);
+              filterPreviousGraphs(previousGraphs, filter, unchangedNodes);
             }
           }
           if (previousGraphs == null) {
@@ -1139,14 +1213,9 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
       final MarketDataAvailabilityProvider availabilityProvider = getMarketDataProvider().getAvailabilityProvider();
       final ViewCompilationServices compilationServices = getProcessContext().asCompilationServices(availabilityProvider);
       if (previousGraphs != null) {
-        if (portfolioFull) {
-          s_logger.info("Performing incremental graph compilation with portfolio resolution");
-          _compilationTask = ViewDefinitionCompiler.incrementalCompileTask(getViewDefinition(), compilationServices, valuationTime, versionCorrection, previousGraphs, previousResolutions);
-        } else {
-          s_logger.info("Performing incremental graph compilation");
-          _compilationTask = ViewDefinitionCompiler.incrementalCompileTask(getViewDefinition(), compilationServices, valuationTime, versionCorrection, previousGraphs, previousResolutions,
-              changedPositions);
-        }
+        s_logger.info("Performing incremental graph compilation");
+        _compilationTask = ViewDefinitionCompiler.incrementalCompileTask(getViewDefinition(), compilationServices, valuationTime, versionCorrection, previousGraphs,
+            previousResolutions, changedPositions, unchangedNodes);
       } else {
         s_logger.info("Performing full graph compilation");
         _compilationTask = ViewDefinitionCompiler.fullCompileTask(getViewDefinition(), compilationServices, valuationTime, versionCorrection);

@@ -75,7 +75,7 @@ public class ISDACreditDefaultSwapPVCalculatorTest {
     final LegacyVanillaCreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaCreditDefaultSwapDefinition().withMaturityDate(VALUATION_DATE.plusYears(10));
     final double startTime = System.currentTimeMillis();
     int j = 0;
-    for (int i = 0; i < 100000; i++) {
+    for (int i = 0; i < 10000; i++) {
       DEPRECATED_CALCULATOR.getPresentValueLegacyCreditDefaultSwap(VALUATION_DATE, cds, YIELD_CURVE, HAZARD_RATE_CURVE, PriceType.CLEAN);
       j++;
     }
@@ -88,7 +88,7 @@ public class ISDACreditDefaultSwapPVCalculatorTest {
     final LegacyVanillaCreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaCreditDefaultSwapDefinition().withMaturityDate(VALUATION_DATE.plusYears(10));
     final double startTime = System.currentTimeMillis();
     int j = 0;
-    for (int i = 0; i < 100000; i++) {
+    for (int i = 0; i < 10000; i++) {
       CALCULATOR.getPresentValue(cds, CURVE_PROVIDER, VALUATION_DATE, PriceType.CLEAN);
       j++;
     }
