@@ -10,12 +10,13 @@ import org.threeten.bp.LocalDate;
 import com.opengamma.timeseries.ObjectTimeSeriesOperators.BinaryOperator;
 import com.opengamma.timeseries.ObjectTimeSeriesOperators.UnaryOperator;
 import com.opengamma.timeseries.date.DateObjectTimeSeries;
+import com.opengamma.timeseries.date.DateTimeSeries;
 
 /**
  * A time series that stores {@code Object} data values against {@code LocalDate} dates.
  * <p>
  * The "time" key to the time-series is a {@code LocalDate}.
- * See {@link DateObjectTimeSeries} for details about the "time" represented as an {@code int}.
+ * See {@link DateTimeSeries} for details about the "time" represented as an {@code int}.
  * 
  * @param <V>  the value being viewed over time
  */

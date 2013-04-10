@@ -8,10 +8,10 @@ package com.opengamma.timeseries.date;
 import java.util.Map;
 
 /**
- * A builder of time-series that stores {@code Object} data values against {@code LocalDate} dates.
+ * A builder of time-series that stores {@code Object} data values against dates.
  * <p>
- * The "time" key to the time-series is a {@code LocalDate}.
- * See {@link DateObjectTimeSeries} for details about the "time" represented as an {@code int}.
+ * The "time" key to the time-series is a date.
+ * See {@link DateTimeSeries} for details about the "time" represented as an {@code int}.
  * 
  * @param <T>  the date type
  * @param <V>  the value being viewed over time
@@ -19,7 +19,7 @@ import java.util.Map;
 public interface DateObjectTimeSeriesBuilder<T, V> {
 
   /**
-   * Puts a time-value pair into the builder.
+   * Puts a date-value pair into the builder.
    * 
    * @param time  the time to add, not null
    * @param value  the value to add, not null
@@ -28,7 +28,7 @@ public interface DateObjectTimeSeriesBuilder<T, V> {
   DateObjectTimeSeriesBuilder<T, V> put(T time, V value);
 
   /**
-   * Puts a time-value pair into the builder.
+   * Puts a date-value pair into the builder.
    * 
    * @param time  the time to add, not null
    * @param value  the value to add, not null
@@ -37,7 +37,7 @@ public interface DateObjectTimeSeriesBuilder<T, V> {
   DateObjectTimeSeriesBuilder<T, V> put(int time, V value);
 
   /**
-   * Puts time-value pairs into the builder.
+   * Puts date-value pairs into the builder.
    * 
    * @param times  the times array to add, not null
    * @param values  the values array to add, not null
@@ -46,7 +46,7 @@ public interface DateObjectTimeSeriesBuilder<T, V> {
   DateObjectTimeSeriesBuilder<T, V> putAll(T[] times, V[] values);
 
   /**
-   * Puts time-value pairs into the builder.
+   * Puts date-value pairs into the builder.
    * 
    * @param times  the times array to add, not null
    * @param values  the values array to add, not null
@@ -56,7 +56,7 @@ public interface DateObjectTimeSeriesBuilder<T, V> {
 
   //-------------------------------------------------------------------------
   /**
-   * Puts time-value pairs into the builder from another series.
+   * Puts date-value pairs into the builder from another series.
    * <p>
    * This adds the whole of the specified series.
    * 
@@ -66,7 +66,7 @@ public interface DateObjectTimeSeriesBuilder<T, V> {
   DateObjectTimeSeriesBuilder<T, V> putAll(DateObjectTimeSeries<?, V> timeSeries);
 
   /**
-   * Puts time-value pairs into the builder from another series.
+   * Puts date-value pairs into the builder from another series.
    * <p>
    * This adds the the specified range of the specified series.
    * 
@@ -79,7 +79,7 @@ public interface DateObjectTimeSeriesBuilder<T, V> {
   DateObjectTimeSeriesBuilder<T, V> putAll(DateObjectTimeSeries<?, V> timeSeries, int startPos, int endPos);
 
   /**
-   * Puts time-value pairs into the builder from another series.
+   * Puts date-value pairs into the builder from another series.
    * <p>
    * This adds the the specified range of the specified series.
    * 

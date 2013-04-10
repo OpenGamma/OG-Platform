@@ -167,7 +167,7 @@ abstract class AbstractLocalDateDoubleTimeSeries
       @Override
       public int currentTimeFast() {
         if (_index < 0) {
-          throw new IllegalStateException("Iterator has nor has nextDate() or next() called yet");
+          throw new IllegalStateException("Iterator has not yet been started");
         }
         return AbstractLocalDateDoubleTimeSeries.this.getTimeAtIndexFast(_index);
       }
@@ -178,9 +178,17 @@ abstract class AbstractLocalDateDoubleTimeSeries
       }
 
       @Override
-      public double currentValue() {
+      public Double currentValue() {
         if (_index < 0) {
-          throw new IllegalStateException("Iterator has nor has nextDate() or next() called yet");
+          throw new IllegalStateException("Iterator has not yet been started");
+        }
+        return AbstractLocalDateDoubleTimeSeries.this.getValueAtIndex(_index);
+      }
+
+      @Override
+      public double currentValueFast() {
+        if (_index < 0) {
+          throw new IllegalStateException("Iterator has not yet been started");
         }
         return AbstractLocalDateDoubleTimeSeries.this.getValueAtIndexFast(_index);
       }

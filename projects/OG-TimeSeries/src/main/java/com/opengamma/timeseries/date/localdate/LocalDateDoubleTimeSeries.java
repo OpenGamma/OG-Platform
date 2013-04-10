@@ -11,12 +11,13 @@ import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.DoubleTimeSeriesOperators.BinaryOperator;
 import com.opengamma.timeseries.DoubleTimeSeriesOperators.UnaryOperator;
 import com.opengamma.timeseries.date.DateDoubleTimeSeries;
+import com.opengamma.timeseries.date.DateTimeSeries;
 
 /**
  * A time series that stores {@code double} data values against {@code LocalDate} dates.
  * <p>
  * The "time" key to the time-series is a {@code LocalDate}.
- * See {@link DateDoubleTimeSeries} for details about the "time" represented as an {@code int}.
+ * See {@link DateTimeSeries} for details about the "time" represented as an {@code int}.
  */
 public interface LocalDateDoubleTimeSeries
     extends DateDoubleTimeSeries<LocalDate> {

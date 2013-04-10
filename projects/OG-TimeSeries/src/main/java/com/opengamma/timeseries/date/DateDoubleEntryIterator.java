@@ -5,70 +5,21 @@
  */
 package com.opengamma.timeseries.date;
 
-import java.util.Iterator;
-import java.util.Map;
-import java.util.NoSuchElementException;
+import com.opengamma.timeseries.DoubleEntryIterator;
 
 /**
- * Specialized iterator that can access primitive values.
+ * Specialized iterator for time-series of {@code double} values.
+ * <p>
+ * This is a map-based iterator that avoids working with {@code Map.Entry}.
+ * Using this iterator typically involves using a while loop.
  * This iterator is dedicated to {@code DateDoubleTimeSeries}.
+ * <p>
+ * The "time" key to the time-series is a date.
+ * See {@link DateTimeSeries} for details about the "time" represented as an {@code int}.
  * 
  * @param <T>  the date type
  */
-public interface DateDoubleEntryIterator<T> extends Iterator<Map.Entry<T, Double>> {
-
-  /**
-   * The next available date in the iterator.
-   * Use instead of calling {@code next()}, use this method and {@code currentValue()}.
-   * 
-   * @return the next date
-   * @throws NoSuchElementException if the iterator is exhausted
-   */
-  int nextTimeFast();
-
-  /**
-   * The next available date in the iterator.
-   * Use instead of calling {@code next()}, use this method and {@code currentValue()}.
-   * 
-   * @return the next date, not null
-   * @throws NoSuchElementException if the iterator is exhausted
-   */
-  T nextTime();
-
-  /**
-   * The current date in the iterator.
-   * This returns the same as the last call to {@code nextTimeFast()}.
-   * 
-   * @return the current date
-   * @throws IllegalStateException if the iterator has not been started
-   */
-  int currentTimeFast();
-
-  /**
-   * The current date in the iterator.
-   * This returns the same as the last call to {@code nextTime()}.
-   * 
-   * @return the current date, not null
-   * @throws IllegalStateException if the iterator has not been started
-   */
-  T currentTime();
-
-  /**
-   * The current value in the iterator.
-   * This returns the value associated with the last call to {@code next()}.
-   * 
-   * @return the current value
-   * @throws IllegalStateException if the iterator has not been started
-   */
-  double currentValue();
-
-  /**
-   * The current index of the iterator.
-   * This returns the index of the time-value pair associated with the
-   * last call to {@code next()}, or -1 if iteration has not yet started.
-   * 
-   * @return the current index, or -1 if iteration has not yet started
-   */
-  int currentIndex();
+public interface DateDoubleEntryIterator<T>
+    extends DateEntryIterator<T, Double>, DoubleEntryIterator<T> {
 
 }

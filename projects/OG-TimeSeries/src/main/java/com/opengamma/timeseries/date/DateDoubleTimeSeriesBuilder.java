@@ -10,15 +10,15 @@ import java.util.Map;
 /**
  * A builder of time-series that stores {@code double} data values against {@code LocalDate} dates.
  * <p>
- * The "time" key to the time-series is a {@code LocalDate}.
- * See {@link DateDoubleTimeSeries} for details about the "time" represented as an {@code int}.
+ * The "time" key to the time-series is a date.
+ * See {@link DateTimeSeries} for details about the "time" represented as an {@code int}.
  * 
  * @param <T>  the date type
  */
 public interface DateDoubleTimeSeriesBuilder<T> {
 
   /**
-   * Puts a time-value pair into the builder.
+   * Puts a date-value pair into the builder.
    * 
    * @param time  the time to add, not null
    * @param value  the value to add, not null
@@ -27,7 +27,7 @@ public interface DateDoubleTimeSeriesBuilder<T> {
   DateDoubleTimeSeriesBuilder<T> put(T time, double value);
 
   /**
-   * Puts a time-value pair into the builder.
+   * Puts a date-value pair into the builder.
    * 
    * @param time  the time to add, not null
    * @param value  the value to add, not null
@@ -36,7 +36,7 @@ public interface DateDoubleTimeSeriesBuilder<T> {
   DateDoubleTimeSeriesBuilder<T> put(int time, double value);
 
   /**
-   * Puts time-value pairs into the builder.
+   * Puts date-value pairs into the builder.
    * 
    * @param times  the times array to add, not null
    * @param values  the values array to add, not null
@@ -45,7 +45,7 @@ public interface DateDoubleTimeSeriesBuilder<T> {
   DateDoubleTimeSeriesBuilder<T> putAll(T[] times, double[] values);
 
   /**
-   * Puts time-value pairs into the builder.
+   * Puts date-value pairs into the builder.
    * 
    * @param times  the times array to add, not null
    * @param values  the values array to add, not null
@@ -55,7 +55,7 @@ public interface DateDoubleTimeSeriesBuilder<T> {
 
   //-------------------------------------------------------------------------
   /**
-   * Puts time-value pairs into the builder from another series.
+   * Puts date-value pairs into the builder from another series.
    * <p>
    * This adds the whole of the specified series.
    * 
@@ -65,7 +65,7 @@ public interface DateDoubleTimeSeriesBuilder<T> {
   DateDoubleTimeSeriesBuilder<T> putAll(DateDoubleTimeSeries<?> timeSeries);
 
   /**
-   * Puts time-value pairs into the builder from another series.
+   * Puts date-value pairs into the builder from another series.
    * <p>
    * This adds the the specified range of the specified series.
    * 
@@ -78,7 +78,7 @@ public interface DateDoubleTimeSeriesBuilder<T> {
   DateDoubleTimeSeriesBuilder<T> putAll(DateDoubleTimeSeries<?> timeSeries, int startPos, int endPos);
 
   /**
-   * Puts time-value pairs into the builder from another series.
+   * Puts date-value pairs into the builder from another series.
    * <p>
    * This adds the the specified range of the specified series.
    * 

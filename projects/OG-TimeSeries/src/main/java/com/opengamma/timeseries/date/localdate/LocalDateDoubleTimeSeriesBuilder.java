@@ -11,17 +11,18 @@ import org.threeten.bp.LocalDate;
 
 import com.opengamma.timeseries.date.DateDoubleTimeSeries;
 import com.opengamma.timeseries.date.DateDoubleTimeSeriesBuilder;
+import com.opengamma.timeseries.date.DateTimeSeries;
 
 /**
  * A builder of time-series that stores {@code double} data values against {@code LocalDate} dates.
  * <p>
  * The "time" key to the time-series is a {@code LocalDate}.
- * See {@link DateDoubleTimeSeries} for details about the "time" represented as an {@code int}.
+ * See {@link DateTimeSeries} for details about the "time" represented as an {@code int}.
  */
 public interface LocalDateDoubleTimeSeriesBuilder extends DateDoubleTimeSeriesBuilder<LocalDate> {
 
   /**
-   * Puts a time-value pair into the builder.
+   * Puts a date-value pair into the builder.
    * 
    * @param time  the time to add, not null
    * @param value  the value to add, not null
@@ -31,7 +32,7 @@ public interface LocalDateDoubleTimeSeriesBuilder extends DateDoubleTimeSeriesBu
   LocalDateDoubleTimeSeriesBuilder put(LocalDate time, double value);
 
   /**
-   * Puts a time-value pair into the builder.
+   * Puts a date-value pair into the builder.
    * 
    * @param time  the time to add, not null
    * @param value  the value to add, not null
@@ -41,7 +42,7 @@ public interface LocalDateDoubleTimeSeriesBuilder extends DateDoubleTimeSeriesBu
   LocalDateDoubleTimeSeriesBuilder put(int time, double value);
 
   /**
-   * Puts time-value pairs into the builder.
+   * Puts date-value pairs into the builder.
    * 
    * @param times  the times array to add, not null
    * @param values  the values array to add, not null
@@ -51,7 +52,7 @@ public interface LocalDateDoubleTimeSeriesBuilder extends DateDoubleTimeSeriesBu
   LocalDateDoubleTimeSeriesBuilder putAll(LocalDate[] times, double[] values);
 
   /**
-   * Puts time-value pairs into the builder.
+   * Puts date-value pairs into the builder.
    * 
    * @param times  the times array to add, not null
    * @param values  the values array to add, not null
@@ -62,7 +63,7 @@ public interface LocalDateDoubleTimeSeriesBuilder extends DateDoubleTimeSeriesBu
 
   //-------------------------------------------------------------------------
   /**
-   * Puts time-value pairs into the builder from another series.
+   * Puts date-value pairs into the builder from another series.
    * <p>
    * This adds the whole of the specified series.
    * 
@@ -73,7 +74,7 @@ public interface LocalDateDoubleTimeSeriesBuilder extends DateDoubleTimeSeriesBu
   LocalDateDoubleTimeSeriesBuilder putAll(DateDoubleTimeSeries<?> timeSeries);
 
   /**
-   * Puts time-value pairs into the builder from another series.
+   * Puts date-value pairs into the builder from another series.
    * <p>
    * This adds the the specified range of the specified series.
    * 
@@ -87,7 +88,7 @@ public interface LocalDateDoubleTimeSeriesBuilder extends DateDoubleTimeSeriesBu
   LocalDateDoubleTimeSeriesBuilder putAll(DateDoubleTimeSeries<?> timeSeries, int startPos, int endPos);
 
   /**
-   * Puts time-value pairs into the builder from another series.
+   * Puts date-value pairs into the builder from another series.
    * <p>
    * This adds the the specified range of the specified series.
    * 

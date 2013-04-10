@@ -7,7 +7,7 @@ package com.opengamma.timeseries.localdate;
 
 import org.threeten.bp.LocalDate;
 
-import com.opengamma.timeseries.date.DateObjectEntryIterator;
+import com.opengamma.timeseries.date.DateEntryIterator;
 
 /**
  * Specialized iterator that can access primitive values.
@@ -15,6 +15,6 @@ import com.opengamma.timeseries.date.DateObjectEntryIterator;
  * 
  * @param <V>  the value being viewed over time
  */
-public interface LocalDateObjectEntryIterator<V> extends DateObjectEntryIterator<LocalDate, V> {
+public interface LocalDateObjectEntryIterator<V> extends DateEntryIterator<LocalDate, V> {
 
 }

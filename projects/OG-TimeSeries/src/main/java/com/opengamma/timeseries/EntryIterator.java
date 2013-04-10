@@ -3,32 +3,25 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.timeseries.date;
+package com.opengamma.timeseries;
 
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
 /**
- * Specialized iterator that can access primitive values.
- * This iterator is dedicated to {@code DateObjectTimeSeries}.
+ * Specialized iterator for time-series.
+ * <p>
+ * This is a map-based iterator that avoids working with {@code Map.Entry}.
+ * Using this iterator typically involves using a while loop.
  * 
- * @param <T>  the date type
+ * @param <T>  the time type
  * @param <V>  the value being viewed over time
  */
-public interface DateObjectEntryIterator<T, V> extends Iterator<Map.Entry<T, V>> {
+public interface EntryIterator<T, V> extends Iterator<Map.Entry<T, V>> {
 
   /**
-   * The next available date in the iterator.
-   * Use instead of calling {@code next()}, use this method and {@code currentValue()}.
-   * 
-   * @return the next date
-   * @throws NoSuchElementException if the iterator is exhausted
-   */
-  int nextTimeFast();
-
-  /**
-   * The next available date in the iterator.
+   * The next available time in the iterator.
    * Use instead of calling {@code next()}, use this method and {@code currentValue()}.
    * 
    * @return the next date, not null
@@ -37,16 +30,7 @@ public interface DateObjectEntryIterator<T, V> extends Iterator<Map.Entry<T, V>>
   T nextTime();
 
   /**
-   * The current date in the iterator.
-   * This returns the same as the last call to {@code nextTimeFast()}.
-   * 
-   * @return the current date
-   * @throws IllegalStateException if the iterator has not been started
-   */
-  int currentTimeFast();
-
-  /**
-   * The current date in the iterator.
+   * The current time in the iterator.
    * This returns the same as the last call to {@code nextTime()}.
    * 
    * @return the current date, not null
