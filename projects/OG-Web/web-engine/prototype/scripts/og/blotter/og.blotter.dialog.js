@@ -17,6 +17,10 @@ $.register_module({
              */
             var constructor = this, $selector, form_block = '.OG-blotter-form-block', form_wrapper, title, submit,
             blotter, error_block = '.OG-blotter-error-block', complete = config.complete || $.noop;
+            /** validation_handler is passed to each form via thier submit or submit_new, 
+             *  The form api's submit listener in each form attempts to sumbit the form
+             *  If an error exists the message is displayed otherwise the form is closed
+             */ 
             var validation_handler = function (result) {
                 if(result.error) {
                     og.common.util.ui.message({css: {position: 'inherit', whiteSpace: 'normal'},
