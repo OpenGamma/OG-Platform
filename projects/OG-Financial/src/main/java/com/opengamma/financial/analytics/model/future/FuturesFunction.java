@@ -119,7 +119,7 @@ public abstract class FuturesFunction<T> extends AbstractFunction.NonCompiledInv
     }
     Double lastMarginPrice = null;
     try {
-      lastMarginPrice = timeSeriesBundle.get(getClosingPriceField(), security.getExternalIdBundle()).getTimeSeries().getLatestValue();
+      lastMarginPrice = timeSeriesBundle.get(MarketDataRequirementNames.MARKET_VALUE, security.getExternalIdBundle()).getTimeSeries().getLatestValue();
     } catch (final NoSuchElementException e) {
       throw new OpenGammaRuntimeException("Time series for " + security.getExternalIdBundle() + " was empty");
     }
@@ -246,12 +246,13 @@ public abstract class FuturesFunction<T> extends AbstractFunction.NonCompiledInv
   protected ValueRequirement getReferencePriceRequirement(final FunctionCompilationContext context, final FutureSecurity security) {
     final HistoricalTimeSeriesResolver resolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
     final ExternalIdBundle idBundle = security.getExternalIdBundle();
-    final HistoricalTimeSeriesResolutionResult timeSeries = resolver.resolve(security.getExternalIdBundle(), null, null, null, getClosingPriceField(), getResolutionKey());
+    // TODO CASE: Test that you can change field to MARKET_VALUE because of the FieldAdjustment in ActivHistoricalTimeSeriesSourceComponentFactory.createResolver
+    final HistoricalTimeSeriesResolutionResult timeSeries = resolver.resolve(security.getExternalIdBundle(), null, null, null, MarketDataRequirementNames.MARKET_VALUE, getResolutionKey()); 
     if (timeSeries == null) {
       s_logger.warn("Failed to find time series for: " + idBundle.toString());
       return null;
     }
-    return HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, getClosingPriceField(),
+    return HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, MarketDataRequirementNames.MARKET_VALUE,
         DateConstraint.VALUATION_TIME.minus(Period.ofDays(7)), true, DateConstraint.VALUATION_TIME, true);
   }
 

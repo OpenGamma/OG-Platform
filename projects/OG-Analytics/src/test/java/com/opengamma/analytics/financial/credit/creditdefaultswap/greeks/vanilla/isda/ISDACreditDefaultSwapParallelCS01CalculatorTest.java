@@ -77,7 +77,7 @@ public class ISDACreditDefaultSwapParallelCS01CalculatorTest {
     final LegacyVanillaCreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaCreditDefaultSwapDefinition().withMaturityDate(VALUATION_DATE.plusYears(10));
     final double startTime = System.currentTimeMillis();
     double total = 0;
-    for (int i = 0; i < 10010; i++) {
+    for (int i = 0; i < 1; i++) {
       total += DEPRECATED_CALCULATOR.getCS01ParallelShiftCreditDefaultSwap(VALUATION_DATE, cds, YIELD_CURVE, HR_DATES, HR_RATES, BP, SpreadBumpType.ADDITIVE_PARALLEL, PriceType.CLEAN);
     }
     final double endTime = System.currentTimeMillis();
@@ -90,7 +90,7 @@ public class ISDACreditDefaultSwapParallelCS01CalculatorTest {
     final LegacyVanillaCreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaCreditDefaultSwapDefinition().withMaturityDate(VALUATION_DATE.plusYears(10));
     final double startTime = System.currentTimeMillis();
     double total = 0;
-    for (int i = 0; i < 10010; i++) {
+    for (int i = 0; i < 1; i++) {
       total += CALCULATOR.getCS01ParallelShiftCreditDefaultSwap(VALUATION_DATE, cds, YIELD_CURVE, HR_DATES, HR_RATES, BP, SpreadBumpType.ADDITIVE_PARALLEL, PriceType.CLEAN);
     }
     final double endTime = System.currentTimeMillis();

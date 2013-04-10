@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+  "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+  "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="com.opengamma.masterdb.security.hibernate.option">
+  <union-subclass name="CreditDefaultSwapOptionSecurityBean" extends="com.opengamma.masterdb.security.hibernate.SecurityBean" table="sec_credit_default_swap_option">
+    <property name="buy" column="buy" type="boolean" not-null="true" />
+    <component name="protectionBuyer" class="com.opengamma.masterdb.security.hibernate.ExternalIdBean">
+      <property name="scheme" column="buyer_scheme" type="string" not-null="true" />
+      <property name="identifier" column="buyer_identifier" type="string" not-null="true" />
+    </component>
+    <component name="protectionSeller" class="com.opengamma.masterdb.security.hibernate.ExternalIdBean">
+      <property name="scheme" column="seller_scheme" type="string" not-null="true" />
+      <property name="identifier" column="seller_identifier" type="string" not-null="true" />
+    </component>
+    <component name="startDate" class="com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean">
+      <property name="date" column="start_date" type="timestamp" />
+      <property name="zone" column="start_date_zone" type="string" />
+    </component>
+    <component name="maturityDate" class="com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean">
+      <property name="date" column="maturity_date" type="timestamp" />
+      <property name="zone" column="maturity_date_zone" type="string" />
+    </component>
+    <many-to-one name="currency" column="currency_id" class="com.opengamma.masterdb.security.hibernate.CurrencyBean" not-null="true" />
+    <property name="notional" type="double" column="notional" />
+    <property name="strike" type="double" column="strike" />
+    <property name="knockOut" column="knock_out" type="boolean" not-null="true" />
+    <property name="payer" column="payer" type="boolean" not-null="true" />
+    <property name="exerciseType" column="exercise_type" type="com.opengamma.masterdb.security.hibernate.option.OptionExerciseTypeUserType" not-null="true" />
+    <component name="underlying" class="com.opengamma.masterdb.security.hibernate.ExternalIdBean">
+      <property name="scheme" column="underlying_scheme" type="string" />
+      <property name="identifier" column="underlying_identifier" type="string" />
+    </component>
+  </union-subclass>
+
+  <query name="CreditDefaultSwapOptionSecurityBean.one.bySecurityId"><![CDATA[
+    from 
+      CreditDefaultSwapOptionSecurityBean as s
+    where
+      s.securityId = :securityId
+  ]]></query>
+
+  <query name="CreditDefaultSwapOptionSecurityBean.all">
+    from CreditDefaultSwapOptionSecurityBean
+  </query>
+
+</hibernate-mapping>

@@ -215,12 +215,7 @@ public class DependencyNode {
     _inputNodes.remove(previousInputNode);
   }
 
-  /**
-   * Cuts all edges linking this node, replacing it with the given node. The new node will be updated to include the input and output value specifications from this node.
-   * 
-   * @param newNode the node to replace this in the graph
-   */
-  /* package */void replaceWith(final DependencyNode newNode) {
+  private void replaceWithCore(final DependencyNode newNode) {
     for (final DependencyNode input : _inputNodes) {
       if (input._dependentNodes.remove(this)) {
         input._dependentNodes.add(newNode);
@@ -234,6 +229,17 @@ public class DependencyNode {
         newNode._dependentNodes.add(output);
       }
     }
+  }
+
+  /**
+   * Cuts all edges linking this node, replacing it with the given node. The new node will be updated to include the input and output value specifications from this node.
+   * <p>
+   * This must only be used on a free node; if the node is part of a graph, the state of the owning graph will be corrupted.
+   * 
+   * @param newNode the node to replace this in the graph
+   */
+  /* package */void replaceWith(final DependencyNode newNode) {
+    replaceWithCore(newNode);
     // Rewrite the original outputs to use the target of the new node
     for (final ValueSpecification outputValue : _outputValues) {
       final ValueSpecification newOutputValue = MemoryUtils.instance(new ValueSpecification(outputValue.getValueName(), newNode.getComputationTarget(), outputValue.getProperties()));
@@ -243,6 +249,27 @@ public class DependencyNode {
           output._inputValues.add(newOutputValue);
         }
       }
+    }
+  }
+
+  /**
+   * Do not call directly; used by {@link DependencyGraph#replaceWithinGraph} only.
+   */
+  /* package */void replaceWithinGraph(final DependencyNode newNode, final DependencyGraph graph) {
+    replaceWithCore(newNode);
+    // Rewrite the original outputs to use the target of the new node
+    for (final ValueSpecification outputValue : _outputValues) {
+      final ValueSpecification newOutputValue = MemoryUtils.instance(new ValueSpecification(outputValue.getValueName(), newNode.getComputationTarget(), outputValue.getProperties()));
+      newNode._outputValues.add(newOutputValue);
+      for (final DependencyNode output : _dependentNodes) {
+        if (output._inputValues.remove(outputValue)) {
+          output._inputValues.add(newOutputValue);
+        }
+      }
+      if (_terminalOutputValues.contains(outputValue)) {
+        newNode._terminalOutputValues.add(newOutputValue);
+      }
+      graph.replaceValueSpecification(outputValue, newOutputValue);
     }
   }
 

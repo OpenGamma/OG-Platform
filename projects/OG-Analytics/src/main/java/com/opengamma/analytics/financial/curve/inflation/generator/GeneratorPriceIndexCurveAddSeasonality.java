@@ -9,6 +9,8 @@ import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurv
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurveAddSeasonalCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.SeasonalCurve;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
+import com.opengamma.analytics.math.curve.AddCurveSpreadFunction;
+import com.opengamma.analytics.math.curve.SpreadDoublesCurve;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -30,7 +32,6 @@ public class GeneratorPriceIndexCurveAddSeasonality extends GeneratorPriceIndexC
   /**
    * The constructor.
    * @param generator The generator for the new curve.
-   * @param isAdditive If true the rate of the new curve will be subtracted from the first one. If false the rates are added.
    * @param seasonalCurve The seasonal curve.
    */
   public GeneratorPriceIndexCurveAddSeasonality(final GeneratorPriceIndexCurve generator, final SeasonalCurve seasonalCurve) {
@@ -47,13 +48,14 @@ public class GeneratorPriceIndexCurveAddSeasonality extends GeneratorPriceIndexC
 
   @Override
   public PriceIndexCurve generateCurve(String name, double[] parameters) {
-    PriceIndexCurve newCurve = _generator.generateCurve(name + "-0", parameters);
-    return new PriceIndexCurveAddSeasonalCurve(name, newCurve, _seasonalCurve);
+    PriceIndexCurve newCurve = _generator.generateCurve(name, parameters);
+    /* return new PriceIndexCurveAddSeasonalCurve(name, newCurve, _seasonalCurve);*/
+    return new PriceIndexCurve(SpreadDoublesCurve.from(new AddCurveSpreadFunction(), name, newCurve.getCurve(), _seasonalCurve));
   }
 
   @Override
   public PriceIndexCurve generateCurve(String name, InflationProviderInterface inflation, double[] parameters) {
-    PriceIndexCurve newCurve = _generator.generateCurve(name + "-0", inflation, parameters);
+    PriceIndexCurve newCurve = _generator.generateCurve(name, inflation, parameters);
     return new PriceIndexCurveAddSeasonalCurve(name, newCurve, _seasonalCurve);
   }
 

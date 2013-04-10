@@ -382,9 +382,11 @@ public class InflationProviderDiscount implements InflationProviderInterface {
     if (!(inflationCurve == null)) {
       return inflationCurve.getNumberOfParameters();
     }
-    else
-    {
+    else if (!(curve == null) && (inflationCurve == null)) {
       return curve.getNumberOfParameters();
+    }
+    else {
+      throw new UnsupportedOperationException("Cannot return the number of parameter for a null curve");
     }
   }
 

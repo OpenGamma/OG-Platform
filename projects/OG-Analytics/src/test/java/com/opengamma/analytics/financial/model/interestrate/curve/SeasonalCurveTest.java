@@ -51,6 +51,28 @@ public class SeasonalCurveTest {
   }
 
   @Test
+  public void values() {
+    double[] factors = new double[12];
+    double product = 1;
+    for (int looptime = 0; looptime < 11; looptime++) {
+      factors[looptime] = MONTHLY_FACTORS[looptime];
+      product = product * MONTHLY_FACTORS[looptime];
+    }
+    factors[11] = 1 / product;
+    double[] cumulativeFactors = new double[12];
+    cumulativeFactors[0] = 1.0;
+    for (int loopmonth = 1; loopmonth < 12; loopmonth++) {
+      cumulativeFactors[loopmonth] = cumulativeFactors[loopmonth - 1] * factors[loopmonth - 1];
+    }
+
+    for (int looptime = 0; looptime < 12; looptime++) {
+
+      assertEquals("Values x month appart " + looptime + "-" + 1, SEASONAL_CURVE.getFunction().evaluate(looptime / 12.0),
+          cumulativeFactors[looptime], 1.0E-10);
+    }
+  }
+
+  @Test
   public void valuesMonthly() {
     double[] factors = new double[12];
     double product = 1;

@@ -87,6 +87,7 @@ import com.opengamma.financial.security.option.BarrierPayoffStyle;
 import com.opengamma.financial.security.option.BermudanExerciseType;
 import com.opengamma.financial.security.option.CappedPoweredPayoffStyle;
 import com.opengamma.financial.security.option.CashOrNothingPayoffStyle;
+import com.opengamma.financial.security.option.CreditDefaultSwapOptionSecurity;
 import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
@@ -998,6 +999,10 @@ public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter i
   public void testCreditDefaultSwapIndexSecurity() {
     assertSecurities(CreditDefaultSwapIndexSecurity.class);
   }
-  
+
+  @Override
+  public void testCreditDefaultSwapOptionSecurity() {
+    assertSecurities(CreditDefaultSwapOptionSecurity.class);
+  }
   
 }

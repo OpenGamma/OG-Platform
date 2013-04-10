@@ -9,11 +9,12 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.CreditInstrumentDefinition;
 import com.opengamma.analytics.financial.credit.CreditInstrumentDefinitionVisitorAdapter;
+import com.opengamma.analytics.financial.credit.ISDAYieldCurveAndHazardRateCurveProvider;
 import com.opengamma.analytics.financial.credit.ISDAYieldCurveAndSpreadsProvider;
 import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.legacy.PresentValueLegacyCreditDefaultSwapNew;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isda.ISDACreditDefaultSwapPVCalculator;
 import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
 import com.opengamma.analytics.financial.credit.schedulegeneration.GenerateCreditDefaultSwapPremiumLegSchedule;
@@ -25,9 +26,9 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-public class HazardRateCurveCalculator {
+public class ISDAHazardRateCurveCalculator {
   private static final GenerateCreditDefaultSwapPremiumLegSchedule SCHEDULE_GENERATOR = new GenerateCreditDefaultSwapPremiumLegSchedule();
-  private static final PresentValueLegacyCreditDefaultSwapNew PV_CALCULATOR = new PresentValueLegacyCreditDefaultSwapNew();
+  private static final ISDACreditDefaultSwapPVCalculator PV_CALCULATOR = new ISDACreditDefaultSwapPVCalculator();
   private static final int DEFAULT_MAX_NUMBER_OF_ITERATIONS = 100;
   private static final double DEFAULT_TOLERANCE = 1e-10;
   private static final double DEFAULT_HAZARD_RATE_RANGE_MULTIPLIER = 0.5;
@@ -37,11 +38,11 @@ public class HazardRateCurveCalculator {
   private final double _tolerance;
   private final double _hazardRateRangeMultiplier;
 
-  public HazardRateCurveCalculator() {
+  public ISDAHazardRateCurveCalculator() {
     this(DEFAULT_MAX_NUMBER_OF_ITERATIONS, DEFAULT_TOLERANCE, DEFAULT_HAZARD_RATE_RANGE_MULTIPLIER);
   }
 
-  public HazardRateCurveCalculator(final int maximumNumberOfIterations, final double tolerance, final double hazardRateRangeMultiplier) {
+  public ISDAHazardRateCurveCalculator(final int maximumNumberOfIterations, final double tolerance, final double hazardRateRangeMultiplier) {
     _tolerance = tolerance;
     _maximumNumberOfIterations = maximumNumberOfIterations;
     _hazardRateRangeMultiplier = hazardRateRangeMultiplier;
@@ -130,6 +131,7 @@ public class HazardRateCurveCalculator {
       // Calculate the initial bounds for the hazard rate search
       double lowerHazardRate = (1.0 - _hazardRateRangeMultiplier) * hazardRateGuess;
       double upperHazardRate = (1.0 + _hazardRateRangeMultiplier) * hazardRateGuess;
+
       // Make sure the initial hazard rate bounds are in the range [0, 1] (otherwise would have arbitrage)
       if (lowerHazardRate < 0.0) {
         lowerHazardRate = 0.0;
@@ -173,15 +175,8 @@ public class HazardRateCurveCalculator {
     }
 
     // Private member function to compute the PV of a CDS given a particular guess for the hazard rate at tenor m (given calibrated hazard rates for tenors 0, ..., m - 1)
-    private double calculateCDSPV(
-        final ZonedDateTime valuationDate,
-        final LegacyCreditDefaultSwapDefinition calibrationCDS,
-        final ZonedDateTime[] tenors,
-        final double[] tenorsAsDoubles,
-        final double[] hazardRates,
-        final double hazardRateMidPoint,
-        final ISDADateCurve yieldCurve,
-        final PriceType priceType) {
+    private double calculateCDSPV(final ZonedDateTime valuationDate, final LegacyCreditDefaultSwapDefinition calibrationCDS, final ZonedDateTime[] tenors,
+        final double[] tenorsAsDoubles, final double[] hazardRates, final double hazardRateMidPoint, final ISDADateCurve yieldCurve, final PriceType priceType) {
 
       // How many tenors in the hazard rate term structure have been previously calibrated
       final int numberOfTenors = tenorsAsDoubles.length;
@@ -193,7 +188,8 @@ public class HazardRateCurveCalculator {
       final HazardRateCurve hazardRateCurve = new HazardRateCurve(tenors, tenorsAsDoubles, hazardRates, 0);
 
       // Compute the PV of the CDS with this term structure of hazard rates
-      return PV_CALCULATOR.getPresentValueLegacyCreditDefaultSwap(valuationDate, calibrationCDS, yieldCurve, hazardRateCurve, priceType);
+      final ISDAYieldCurveAndHazardRateCurveProvider curves = new ISDAYieldCurveAndHazardRateCurveProvider(yieldCurve, hazardRateCurve);
+      return PV_CALCULATOR.getPresentValue(calibrationCDS, curves, valuationDate, priceType);
     }
   }
 }
