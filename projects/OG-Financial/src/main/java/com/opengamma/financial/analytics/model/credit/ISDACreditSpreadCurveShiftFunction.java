@@ -46,7 +46,7 @@ public class ISDACreditSpreadCurveShiftFunction extends AbstractFunction.NonComp
     @SuppressWarnings("unchecked")
     final NodalObjectsCurve<Tenor, Double> creditSpreadCurve = (NodalObjectsCurve<Tenor, Double>) creditSpreadCurveObject;
     final String shiftProperty = desiredValue.getConstraint(PROPERTY_SPREAD_CURVE_SHIFT);
-    final double shift = Double.parseDouble(shiftProperty) / 10000;
+    final double shift = Double.parseDouble(shiftProperty);
     final Tenor[] xs = creditSpreadCurve.getXData();
     final Double[] ys = creditSpreadCurve.getYData();
     final Double[] shiftedYs = new Double[ys.length];
@@ -73,13 +73,12 @@ public class ISDACreditSpreadCurveShiftFunction extends AbstractFunction.NonComp
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final ValueProperties constraints = desiredValue.getConstraints();
     final Set<String> shifts = constraints.getValues(PROPERTY_SPREAD_CURVE_SHIFT);
-    if (shifts == null || shifts.isEmpty() || constraints.isOptional(PROPERTY_SPREAD_CURVE_SHIFT)) {
+    if (shifts == null || shifts.isEmpty()) {
       return null;
     }
     final ValueProperties properties = constraints.copy()
         .withoutAny(PROPERTY_SPREAD_CURVE_SHIFT)
-        .with(PROPERTY_SPREAD_CURVE_SHIFT, "0")
-        .withOptional(PROPERTY_SPREAD_CURVE_SHIFT).get();
+        .get();
     return Collections.singleton(new ValueRequirement(desiredValue.getValueName(), target.toSpecification(), properties));
   }
 

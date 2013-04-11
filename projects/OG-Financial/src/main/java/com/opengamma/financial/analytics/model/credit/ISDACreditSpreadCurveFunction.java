@@ -66,9 +66,18 @@ public class ISDACreditSpreadCurveFunction extends AbstractFunction {
           final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
         final ZonedDateTime now = ZonedDateTime.now(executionContext.getValuationClock());
         final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
-        final String curveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
+        //TODO
+        CurveSpecification curveSpecification;
         final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(executionContext);
-        final CurveSpecification curveSpecification = getCurveSpecification(configSource, now.toLocalDate(), curveName);
+        final String idName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
+        String curveName;
+        try {
+          curveName = "SAMEDAY_" + idName;
+          curveSpecification = getCurveSpecification(configSource, now.toLocalDate(), curveName);
+        } catch (final Exception e) {
+          curveName = idName;
+          curveSpecification = getCurveSpecification(configSource, now.toLocalDate(), idName);
+        }
         final List<Tenor> tenors = new ArrayList<>();
         final List<Double> marketSpreads = new ArrayList<>();
         for (final CurveNodeWithIdentifier strip : curveSpecification.getNodes()) {
@@ -84,7 +93,7 @@ public class ISDACreditSpreadCurveFunction extends AbstractFunction {
         }
         final NodalObjectsCurve<Tenor, Double> curve = NodalObjectsCurve.from(tenors, marketSpreads);
         final ValueProperties properties = createValueProperties()
-            .with(ValuePropertyNames.CURVE, curveName)
+            .with(ValuePropertyNames.CURVE, idName)
             .get();
         final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.CREDIT_SPREAD_CURVE, target.toSpecification(), properties);
         return Collections.singleton(new ComputedValue(spec, curve));
@@ -99,8 +108,8 @@ public class ISDACreditSpreadCurveFunction extends AbstractFunction {
       public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
         @SuppressWarnings("synthetic-access")
         final ValueProperties properties = createValueProperties()
-          .withAny(ValuePropertyNames.CURVE)
-          .get();
+        .withAny(ValuePropertyNames.CURVE)
+        .get();
         return Collections.singleton(new ValueSpecification(ValueRequirementNames.CREDIT_SPREAD_CURVE, target.toSpecification(), properties));
       }
 
@@ -111,7 +120,8 @@ public class ISDACreditSpreadCurveFunction extends AbstractFunction {
         if (curveNames == null || curveNames.size() != 1) {
           return null;
         }
-        final String curveName = Iterables.getOnlyElement(curveNames);
+        //TODO
+        String curveName = "SAMEDAY_" + Iterables.getOnlyElement(curveNames);
         final Set<ValueRequirement> requirements = new HashSet<>();
         final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
         try {
@@ -124,8 +134,21 @@ public class ISDACreditSpreadCurveFunction extends AbstractFunction {
           }
           return requirements;
         } catch (final Exception e) {
-          s_logger.error(e.getMessage());
-          return null;
+          //TODO backwards compatibility - remove when upstream functions select the correct prefix
+          curveName = Iterables.getOnlyElement(curveNames);
+          try {
+            final CurveSpecification specification = getCurveSpecification(configSource, atZDT.toLocalDate(), curveName);
+            for (final CurveNodeWithIdentifier strip : specification.getNodes()) {
+              if (strip.getCurveNode() instanceof CreditSpreadNode) {
+                //              requirements.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, strip.getIdentifier()));
+                requirements.add(new ValueRequirement("PX_LAST", ComputationTargetType.PRIMITIVE, strip.getIdentifier()));
+              }
+            }
+            return requirements;
+          } catch (final Exception e1) {
+            s_logger.error(e1.getMessage());
+            return null;
+          }
         }
       }
 
