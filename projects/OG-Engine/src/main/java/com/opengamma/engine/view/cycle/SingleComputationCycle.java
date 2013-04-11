@@ -16,7 +16,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -86,6 +85,7 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.log.LogLevel;
 import com.opengamma.util.log.SimpleLogEvent;
+import com.opengamma.util.test.Profiler;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -160,7 +160,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     _statisticsGatherer = getViewProcessContext().getGraphExecutorStatisticsGathererProvider().getStatisticsGatherer(getViewProcessId());
   }
 
-  private InMemoryViewComputationResultModel constructTemplateResultModel() {
+  protected InMemoryViewComputationResultModel constructTemplateResultModel() {
     final InMemoryViewComputationResultModel result = new InMemoryViewComputationResultModel();
     result.setViewCycleId(getCycleId());
     result.setViewProcessId(getViewProcessId());
@@ -323,6 +323,10 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
 
   //--------------------------------------------------------------------------
 
+  private static final Profiler s_preExecute = Profiler.create("pre-execute");
+  private static final Profiler s_execute = Profiler.create("execute");
+  private static final Profiler s_waitForResult = Profiler.create("waitForResults");
+
   /**
    * Prepares the cycle for execution, organising the caches and copying any values salvaged from a previous cycle.
    * 
@@ -330,17 +334,22 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
    * @param marketDataSnapshot the market data snapshot with which to execute the cycle, not null
    */
   public void preExecute(final SingleComputationCycle previousCycle, final MarketDataSnapshot marketDataSnapshot) {
-    if (_state != ViewCycleState.AWAITING_EXECUTION) {
-      throw new IllegalStateException("State must be " + ViewCycleState.AWAITING_EXECUTION);
-    }
-    _startTime = Instant.now();
-    _state = ViewCycleState.EXECUTING;
+    s_preExecute.begin();
+    try {
+      if (_state != ViewCycleState.AWAITING_EXECUTION) {
+        throw new IllegalStateException("State must be " + ViewCycleState.AWAITING_EXECUTION);
+      }
+      _startTime = Instant.now();
+      _state = ViewCycleState.EXECUTING;
 
-    createAllCaches();
-    prepareInputs(marketDataSnapshot);
+      createAllCaches();
+      prepareInputs(marketDataSnapshot);
 
-    if (previousCycle != null) {
-      computeDelta(previousCycle);
+      if (previousCycle != null) {
+        computeDelta(previousCycle);
+      }
+    } finally {
+      s_preExecute.end();
     }
   }
 
@@ -363,54 +372,62 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
    *           must be called.
    */
   public void execute(final ExecutorService calcJobResultExecutorService) throws InterruptedException {
-    final BlockingQueue<ExecutionResult> calcJobResultQueue = new LinkedBlockingQueue<ExecutionResult>();
-    final CalculationJobResultStreamConsumer calculationJobResultStreamConsumer = new CalculationJobResultStreamConsumer(calcJobResultQueue, this);
-    Future<?> resultStreamConsumerJobInProgress;
+    s_execute.begin();
     try {
-      resultStreamConsumerJobInProgress = calcJobResultExecutorService.submit(calculationJobResultStreamConsumer);
-      final LinkedList<Future<?>> futures = new LinkedList<Future<?>>();
-      for (final String calcConfigurationName : getAllCalculationConfigurationNames()) {
-        s_logger.info("Executing plans for calculation configuration {}", calcConfigurationName);
-        final DependencyGraph depGraph;
-        depGraph = createExecutableDependencyGraph(calcConfigurationName);
-        s_logger.info("Submitting {} for execution by {}", depGraph, getDependencyGraphExecutor());
-        final Future<?> future = getDependencyGraphExecutor().execute(depGraph, calcJobResultQueue, _statisticsGatherer, getLogModeSource());
-        futures.add(future);
-      }
-      while (!futures.isEmpty()) {
-        final Future<?> future = futures.poll();
-        try {
-          future.get(5, TimeUnit.SECONDS);
-        } catch (final TimeoutException e) {
-          s_logger.info("Waiting for " + future);
+      final BlockingQueue<ExecutionResult> calcJobResultQueue = new LinkedBlockingQueue<ExecutionResult>();
+      final CalculationJobResultStreamConsumer calculationJobResultStreamConsumer = new CalculationJobResultStreamConsumer(calcJobResultQueue, this);
+      Future<?> resultStreamConsumerJobInProgress;
+      try {
+        resultStreamConsumerJobInProgress = calcJobResultExecutorService.submit(calculationJobResultStreamConsumer);
+        final LinkedList<Future<?>> futures = new LinkedList<Future<?>>();
+        for (final String calcConfigurationName : getAllCalculationConfigurationNames()) {
+          s_logger.info("Executing plans for calculation configuration {}", calcConfigurationName);
+          final DependencyGraph depGraph;
+          depGraph = createExecutableDependencyGraph(calcConfigurationName);
+          s_logger.info("Submitting {} for execution by {}", depGraph, getDependencyGraphExecutor());
+          final Future<?> future = getDependencyGraphExecutor().execute(depGraph, calcJobResultQueue, _statisticsGatherer, getLogModeSource());
           futures.add(future);
-        } catch (final InterruptedException e) {
-          Thread.interrupted();
-          // Cancel all outstanding jobs to free up resources
-          future.cancel(true);
-          for (final Future<?> incompleteFuture : futures) {
-            incompleteFuture.cancel(true);
-          }
-          _state = ViewCycleState.EXECUTION_INTERRUPTED;
-          s_logger.info("Execution interrupted before completion.");
-          throw e;
-        } catch (final ExecutionException e) {
-          s_logger.error("Unable to execute dependency graph", e);
-          // Should we be swallowing this or not?
-          throw new OpenGammaRuntimeException("Unable to execute dependency graph", e);
         }
+        while (!futures.isEmpty()) {
+          final Future<?> future = futures.poll();
+          try {
+            future.get(5, TimeUnit.SECONDS);
+          } catch (final TimeoutException e) {
+            s_logger.info("Waiting for " + future);
+            futures.add(future);
+          } catch (final InterruptedException e) {
+            Thread.interrupted();
+            // Cancel all outstanding jobs to free up resources
+            future.cancel(true);
+            for (final Future<?> incompleteFuture : futures) {
+              incompleteFuture.cancel(true);
+            }
+            _state = ViewCycleState.EXECUTION_INTERRUPTED;
+            s_logger.info("Execution interrupted before completion.");
+            throw e;
+          } catch (final ExecutionException e) {
+            s_logger.error("Unable to execute dependency graph", e);
+            // Should we be swallowing this or not?
+            throw new OpenGammaRuntimeException("Unable to execute dependency graph", e);
+          }
+        }
+        _endTime = Instant.now();
+      } finally {
+        calculationJobResultStreamConsumer.terminate();
       }
-      _endTime = Instant.now();
+      // Wait for calculationJobResultStreamConsumer to finish
+      s_waitForResult.begin();
+      try {
+        if (resultStreamConsumerJobInProgress != null) {
+          resultStreamConsumerJobInProgress.get();
+        }
+      } catch (final ExecutionException e) {
+        Thread.currentThread().interrupt();
+      } finally {
+        s_waitForResult.end();
+      }
     } finally {
-      calculationJobResultStreamConsumer.terminate();
-    }
-    // Wait for calculationJobResultStreamConsumer to finish
-    try {
-      if (resultStreamConsumerJobInProgress != null) {
-        resultStreamConsumerJobInProgress.get();
-      }
-    } catch (final ExecutionException e) {
-      Thread.currentThread().interrupt();
+      s_execute.end();
     }
   }
 
@@ -603,26 +620,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     getResultModel().setCalculationDuration(getDuration());
   }
 
-  //-------------------------------------------------------------------------
-  /**
-   * Processes the results from one or more calculation jobs.
-   * <p>
-   * This generates a fragment result immediately from the given results, and also adds the values to the full result model.
-   * 
-   * @param results the execution results, not null
-   */
-  /*package*/void calculationJobsCompleted(final List<ExecutionResult> results) {
-    try {
-      final ViewComputationResultModel fragmentResult = processExecutionResults(results);
-      if (fragmentResult != null) {
-        notifyFragmentCompleted(fragmentResult);
-      }
-    } catch (final Exception e) {
-      s_logger.error("Error processing results after calculation jobs completed: " + results, e);
-    }
-  }
-
-  private void notifyFragmentCompleted(final ViewComputationResultModel fragmentResult) {
+  protected void notifyFragmentCompleted(final ViewComputationResultModel fragmentResult) {
     try {
       _cycleFragmentResultListener.resultAvailable(fragmentResult);
     } catch (final Exception e) {
@@ -630,15 +628,11 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     }
   }
 
-  private ViewComputationResultModel processExecutionResults(final List<ExecutionResult> calculationJobResults) {
-    final InMemoryViewComputationResultModel fragmentResultModel = constructTemplateResultModel();
-    for (final ExecutionResult calculationJobResult : calculationJobResults) {
-      processExecutionResult(calculationJobResult, fragmentResultModel, getResultModel());
-    }
-    return !fragmentResultModel.getAllResults().isEmpty() ? fragmentResultModel : null;
-  }
+  private static final Profiler s_resultItem = Profiler.create("resultItem");
+  private static final Profiler s_getValues = Profiler.create("getValues");
+  private static final Profiler s_valueItem = Profiler.create("valueItem");
 
-  private void processExecutionResult(final ExecutionResult executionResult, final InMemoryViewComputationResultModel fragmentResultModel, final InMemoryViewComputationResultModel fullResultModel) {
+  protected void processExecutionResult(final ExecutionResult executionResult, final InMemoryViewComputationResultModel fragmentResultModel, final InMemoryViewComputationResultModel fullResultModel) {
     final String calcConfigurationName = executionResult.getResult().getSpecification().getCalcConfigName();
     final DependencyGraph depGraph = getDependencyGraph(calcConfigurationName);
     final ViewComputationCache computationCache = getComputationCache(calcConfigurationName);
@@ -649,36 +643,56 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     Map<ValueSpecification, Set<ValueRequirement>> allTerminalOutputs = depGraph.getTerminalOutputs();
     Map<ValueSpecification, Set<ValueRequirement>> processedTerminalOutputs = Maps.newHashMapWithExpectedSize(allTerminalOutputs.size());
     while (itrResultItem.hasNext()) {
-      assert itrNode.hasNext();
-      final CalculationJobResultItem jobResultItem = itrResultItem.next();
-      final DependencyNode node = itrNode.next();
-      final Set<AggregatedExecutionLog> inputLogs = new LinkedHashSet<AggregatedExecutionLog>();
-      for (final ValueSpecification inputValueSpec : node.getInputValues()) {
-        final DependencyNodeJobExecutionResult nodeResult = jobExecutionResultCache.get(inputValueSpec);
-        if (nodeResult == null) {
-          // Market data
-          continue;
+      s_resultItem.begin();
+      try {
+        assert itrNode.hasNext();
+        final CalculationJobResultItem jobResultItem = itrResultItem.next();
+        final DependencyNode node = itrNode.next();
+        final Set<AggregatedExecutionLog> inputLogs = new LinkedHashSet<AggregatedExecutionLog>();
+        for (final ValueSpecification inputValueSpec : node.getInputValues()) {
+          final DependencyNodeJobExecutionResult nodeResult = jobExecutionResultCache.get(inputValueSpec);
+          if (nodeResult == null) {
+            // Market data
+            continue;
+          }
+          inputLogs.add(nodeResult.getAggregatedExecutionLog());
         }
-        inputLogs.add(nodeResult.getAggregatedExecutionLog());
+        final ExecutionLogMode executionLogMode = getLogModeSource().getLogMode(node);
+        final ExecutionLogWithContext executionLogWithContext = ExecutionLogWithContext.of(node, jobResultItem.getExecutionLog());
+        final AggregatedExecutionLog aggregatedExecutionLog = new DefaultAggregatedExecutionLog(executionLogWithContext, new ArrayList<AggregatedExecutionLog>(inputLogs), executionLogMode);
+        final DependencyNodeJobExecutionResult jobExecutionResult = new DependencyNodeJobExecutionResult(computeNodeId, jobResultItem, aggregatedExecutionLog);
+        for (ValueSpecification terminalOutput : node.getTerminalOutputValues()) {
+          processedTerminalOutputs.put(terminalOutput, allTerminalOutputs.get(terminalOutput));
+          jobExecutionResultCache.put(terminalOutput, jobExecutionResult);
+        }
+      } finally {
+        s_resultItem.end();
       }
-      final ExecutionLogMode executionLogMode = getLogModeSource().getLogMode(node);
-      final ExecutionLogWithContext executionLogWithContext = ExecutionLogWithContext.of(node, jobResultItem.getExecutionLog());
-      final AggregatedExecutionLog aggregatedExecutionLog = new DefaultAggregatedExecutionLog(executionLogWithContext, new ArrayList<AggregatedExecutionLog>(inputLogs), executionLogMode);
-      final DependencyNodeJobExecutionResult jobExecutionResult = new DependencyNodeJobExecutionResult(computeNodeId, jobResultItem, aggregatedExecutionLog);
-      for (ValueSpecification terminalOutput : node.getTerminalOutputValues()) {
-        processedTerminalOutputs.put(terminalOutput, allTerminalOutputs.get(terminalOutput));
-        jobExecutionResultCache.put(terminalOutput, jobExecutionResult);
-      }
+    }
+    if (processedTerminalOutputs.isEmpty()) {
+      return;
     }
     fragmentResultModel.addRequirements(processedTerminalOutputs);
     fullResultModel.addRequirements(processedTerminalOutputs);
-    for (final Pair<ValueSpecification, Object> value : computationCache.getValues(processedTerminalOutputs.keySet(), CacheSelectHint.allShared())) {
-      final ValueSpecification valueSpec = value.getFirst();
-      final Object calculatedValue = value.getSecond();
-      if (calculatedValue != null) {
-        final ComputedValueResult computedValueResult = createComputedValueResult(valueSpec, calculatedValue, jobExecutionResultCache.get(valueSpec));
-        fragmentResultModel.addValue(depGraph.getCalculationConfigurationName(), computedValueResult);
-        fullResultModel.addValue(depGraph.getCalculationConfigurationName(), computedValueResult);
+    Collection<Pair<ValueSpecification, Object>> values;
+    s_getValues.begin();
+    try {
+      values = computationCache.getValues(processedTerminalOutputs.keySet(), CacheSelectHint.allShared());
+    } finally {
+      s_getValues.end();
+    }
+    for (final Pair<ValueSpecification, Object> value : values) {
+      s_valueItem.begin();
+      try {
+        final ValueSpecification valueSpec = value.getFirst();
+        final Object calculatedValue = value.getSecond();
+        if (calculatedValue != null) {
+          final ComputedValueResult computedValueResult = createComputedValueResult(valueSpec, calculatedValue, jobExecutionResultCache.get(valueSpec));
+          fragmentResultModel.addValue(depGraph.getCalculationConfigurationName(), computedValueResult);
+          fullResultModel.addValue(depGraph.getCalculationConfigurationName(), computedValueResult);
+        }
+      } finally {
+        s_valueItem.end();
       }
     }
   }
