@@ -202,21 +202,23 @@ public abstract class CreditDefaultSwapOptionFunction extends AbstractFunction.N
       final ValueProperties.Builder inputPropertiesBuilder = spec.getProperties().copy();
       inputPropertiesBuilder.withoutAny(FUNCTION);
       final String valueName = spec.getValueName();
-      final ValueProperties inputProperties = inputPropertiesBuilder.get();
       if (valueName.equals(ValueRequirementNames.YIELD_CURVE)) {
-        propertiesBuilder.with(PROPERTY_YIELD_CURVE, inputProperties.getValues(CURVE));
+        propertiesBuilder.with(PROPERTY_YIELD_CURVE, inputPropertiesBuilder.get().getValues(CURVE));
         inputPropertiesBuilder.withoutAny(CURVE);
-        propertiesBuilder.with(PROPERTY_YIELD_CURVE_CALCULATION_CONFIG, inputProperties.getValues(CURVE_CALCULATION_CONFIG));
+        propertiesBuilder.with(PROPERTY_YIELD_CURVE_CALCULATION_CONFIG, inputPropertiesBuilder.get().getValues(CURVE_CALCULATION_CONFIG));
         inputPropertiesBuilder.withoutAny(CURVE_CALCULATION_CONFIG);
-        propertiesBuilder.with(PROPERTY_YIELD_CURVE_CALCULATION_METHOD, inputProperties.getValues(CURVE_CALCULATION_METHOD));
+        propertiesBuilder.with(PROPERTY_YIELD_CURVE_CALCULATION_METHOD, inputPropertiesBuilder.get().getValues(CURVE_CALCULATION_METHOD));
         inputPropertiesBuilder.withoutAny(CURVE_CALCULATION_METHOD);
       } else if (valueName.equals(ValueRequirementNames.CREDIT_SPREAD_CURVE)) {
-        propertiesBuilder.with(PROPERTY_SPREAD_CURVE, inputProperties.getValues(CURVE));
+        propertiesBuilder.with(PROPERTY_SPREAD_CURVE, inputPropertiesBuilder.get().getValues(CURVE));
         inputPropertiesBuilder.withoutAny(CURVE);
       } else if (valueName.equals(ValueRequirementNames.HAZARD_RATE_CURVE)) {
-        propertiesBuilder.with(PROPERTY_HAZARD_RATE_CURVE, inputProperties.getValues(CURVE));
-        propertiesBuilder.with(PROPERTY_HAZARD_RATE_CURVE_CALCULATION_METHOD, inputProperties.getValues(CURVE_CALCULATION_METHOD));
+        propertiesBuilder.with(PROPERTY_HAZARD_RATE_CURVE, inputPropertiesBuilder.get().getValues(CURVE));
+        inputPropertiesBuilder.withoutAny(CURVE);
+        propertiesBuilder.with(PROPERTY_HAZARD_RATE_CURVE_CALCULATION_METHOD, inputPropertiesBuilder.get().getValues(CURVE_CALCULATION_METHOD));
+        inputPropertiesBuilder.withoutAny(CURVE_CALCULATION_METHOD);
       }
+      final ValueProperties inputProperties = inputPropertiesBuilder.get();
       if (!inputProperties.isEmpty()) {
         for (final String propertyName : inputProperties.getProperties()) {
           propertiesBuilder.with(propertyName, inputProperties.getValues(propertyName));

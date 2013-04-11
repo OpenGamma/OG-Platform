@@ -13,7 +13,7 @@ import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.bumpers.CreditSpreadBumpersNew;
 import com.opengamma.analytics.financial.credit.bumpers.SpreadBumpType;
 import com.opengamma.analytics.financial.credit.calibratehazardratecurve.ISDAHazardRateCurveCalculator;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isda.ISDACreditDefaultSwapPVCalculator;
 import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
@@ -29,15 +29,8 @@ public class ISDACreditDefaultSwapBucketedCS01Calculator {
   private static final ISDACreditDefaultSwapPVCalculator PV_CALCULATOR = new ISDACreditDefaultSwapPVCalculator();
   private static final SpreadTermStructureDataChecker DATA_CHECKER = new SpreadTermStructureDataChecker();
 
-  public double[] getCS01BucketedCreditDefaultSwap(
-      final ZonedDateTime valuationDate,
-      final LegacyVanillaCreditDefaultSwapDefinition cds,
-      final ISDADateCurve yieldCurve,
-      final ZonedDateTime[] marketTenors,
-      final double[] marketSpreads,
-      final double spreadBump,
-      final SpreadBumpType spreadBumpType,
-      final PriceType priceType) {
+  public double[] getCS01BucketedCreditDefaultSwap(final ZonedDateTime valuationDate, final CreditDefaultSwapDefinition cds, final ISDADateCurve yieldCurve,
+      final ZonedDateTime[] marketTenors, final double[] marketSpreads, final double spreadBump, final SpreadBumpType spreadBumpType, final PriceType priceType) {
     ArgumentChecker.notNull(valuationDate, "Valuation date");
     ArgumentChecker.notNull(cds, "LegacyCreditDefaultSwapDefinition");
     ArgumentChecker.notNull(yieldCurve, "YieldCurve");

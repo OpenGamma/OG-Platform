@@ -389,12 +389,12 @@ public class ExternalSchemes {
   }
   
   /**
-   * Creates a RED_CODE identifier
+   * Creates a MarkIt RED_CODE identifier
    * <p>
    * @param redcode the redcode identifier, not null or empty
    * @return the security redcode identifier, not null
    */
-  public static ExternalId redCode(String redcode) {
+  public static ExternalId markItRedCode(String redcode) {
     ArgumentChecker.notNull(redcode, "redcode");
     ArgumentChecker.isFalse(redcode.isEmpty(), "Empty redcode is invalid");
     return ExternalId.of(MARKIT_RED_CODE, redcode);
