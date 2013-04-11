@@ -351,6 +351,14 @@ public class PNLFunctions extends AbstractRepositoryConfigurationBean {
       functions.add(functionConfiguration(BondFutureOptionBlackYieldCurveNodePnLDefaults.class, args));
     }
 
+    protected void addCreditInstrumetCS01PnLDefaults(final List<FunctionConfiguration> functions) {
+      final String[] args = new String[3];
+      args[0] = getSamplingPeriodName();
+      args[1] = getScheduleName();
+      args[2] = getSamplingCalculatorName();
+      functions.add(functionConfiguration(CreditInstrumentCS01PnLDefaults.class, args));
+    }
+
     protected void addFXForwardPnLDefaults(final List<FunctionConfiguration> functions) {
       final String[] args = new String[3 + getPerCurrencyInfo().size() * 3];
       int i = 0;
@@ -490,6 +498,7 @@ public class PNLFunctions extends AbstractRepositoryConfigurationBean {
       if (!getPerCurrencyPairInfo().isEmpty()) {
         addFXOptionBlackPnLSurfaceDefaults(functions);
       }
+      addCreditInstrumetCS01PnLDefaults(functions);
     }
 
   }
@@ -497,6 +506,7 @@ public class PNLFunctions extends AbstractRepositoryConfigurationBean {
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
     functions.add(functionConfiguration(BondFutureOptionBlackYieldCurveNodePnLFunction.class));
+    functions.add(functionConfiguration(CreditInstrumentCS01PnLFunction.class));
     functions.add(functionConfiguration(EquityPnLFunction.class));
     functions.add(functionConfiguration(FXForwardCurrencyExposurePnLFunction.class));
     functions.add(functionConfiguration(FXForwardYieldCurveNodePnLFunction.class));

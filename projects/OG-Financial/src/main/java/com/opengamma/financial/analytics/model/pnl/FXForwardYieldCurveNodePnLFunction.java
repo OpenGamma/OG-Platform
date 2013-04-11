@@ -130,7 +130,7 @@ public class FXForwardYieldCurveNodePnLFunction extends AbstractFunction {
           .withAny(ValuePropertyNames.SAMPLING_PERIOD)
           .withAny(ValuePropertyNames.SCHEDULE_CALCULATOR)
           .withAny(ValuePropertyNames.SAMPLING_FUNCTION)
-          .with(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES)
+          .with(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES)
           .get();
       return Sets.newHashSet(new ValueSpecification(ValueRequirementNames.PNL_SERIES, target.toSpecification(), properties));
     }
