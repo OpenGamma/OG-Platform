@@ -51,7 +51,9 @@ public class ExampleDatabaseCreator {
   private static final String KEY_USERFINANCIAL_PASSWORD = "db.userfinancial.password";
   /** Catalog. */
   private static final String CATALOG = "og-financial";
-  /** Script files. */
+  /** Script files by relative location. */
+  private static final File SCRIPT_RELATIVE_PATH = new File(EXAMPLES_DIR, "../OG-MasterDB");
+  /** Script files using zips built by Ant. */
   private static final File SCRIPT_ZIP_PATH = new File(EXAMPLES_DIR, "lib/sql/com.opengamma/og-masterdb");
   /** Script expansion. */
   private static final File SCRIPT_INSTALL_DIR = new File(EXAMPLES_DIR, "temp/" + ExampleDatabaseCreator.class.getSimpleName());
@@ -84,7 +86,7 @@ public class ExampleDatabaseCreator {
       props.load(in);
     }
     // find the scripts
-    createSQLScripts();
+    String scriptDir = createSQLScripts();
     
     // create main database
     s_logger.warn("Creating main database...");
@@ -96,7 +98,7 @@ public class ExampleDatabaseCreator {
     dbTool.setCreate(true);
     dbTool.setDrop(true);
     dbTool.setCreateTables(true);
-    dbTool.setDbScriptDir(SCRIPT_INSTALL_DIR.getAbsolutePath());
+    dbTool.setDbScriptDir(scriptDir);
     dbTool.execute();
     
     // create user database
@@ -109,7 +111,7 @@ public class ExampleDatabaseCreator {
     dbToolUser.setCreate(true);
     dbToolUser.setDrop(true);
     dbToolUser.setCreateTables(true);
-    dbToolUser.setDbScriptDir(SCRIPT_INSTALL_DIR.getAbsolutePath());
+    dbToolUser.setDbScriptDir(scriptDir);
     dbToolUser.execute();
     
     // populate the database
@@ -119,17 +121,20 @@ public class ExampleDatabaseCreator {
     s_logger.warn("Successfully created example databases");
   }
 
-  private static void createSQLScripts() throws IOException {
-    cleanScriptDir();
-    for (File file : (Collection<File>) FileUtils.listFiles(SCRIPT_ZIP_PATH, new String[] {"zip"}, false)) {
-      ZipUtils.unzipArchive(file, SCRIPT_INSTALL_DIR);
+  private static String createSQLScripts() throws IOException {
+    if (SCRIPT_RELATIVE_PATH.exists()) {
+      return SCRIPT_RELATIVE_PATH.getAbsolutePath();
     }
-  }
-
-  private static void cleanScriptDir() {
-    if (SCRIPT_INSTALL_DIR.exists()) {
-      FileUtils.deleteQuietly(SCRIPT_INSTALL_DIR);
+    if (SCRIPT_ZIP_PATH.exists()) {
+      if (SCRIPT_INSTALL_DIR.exists()) {
+        FileUtils.deleteQuietly(SCRIPT_INSTALL_DIR);
+      }
+      for (File file : (Collection<File>) FileUtils.listFiles(SCRIPT_ZIP_PATH, new String[] {"zip"}, false)) {
+        ZipUtils.unzipArchive(file, SCRIPT_INSTALL_DIR);
+      }
+      return SCRIPT_INSTALL_DIR.getAbsolutePath();
     }
+    throw new IllegalArgumentException("Unable to find database scripts. Tried: " + SCRIPT_RELATIVE_PATH + " and " + SCRIPT_ZIP_PATH);
   }
 
 }
