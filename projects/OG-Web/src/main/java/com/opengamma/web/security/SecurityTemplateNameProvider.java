@@ -38,6 +38,7 @@ import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
+import com.opengamma.financial.security.option.CreditDefaultSwapOptionSecurity;
 import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexFutureOptionSecurity;
@@ -290,6 +291,13 @@ import com.opengamma.financial.security.swap.SwapSecurity;
   @Override
   public String visitLegacyRecoveryLockCDSSecurity(LegacyRecoveryLockCDSSecurity security) {
     return "legacy-recovery-lock-cds.ftl";
+  }
+  
+  
+
+  @Override
+  public String visitCreditDefaultSwapOptionSecurity(CreditDefaultSwapOptionSecurity security) {
+    return "cds-option.ftl";
   }
 
   private String getBond() {

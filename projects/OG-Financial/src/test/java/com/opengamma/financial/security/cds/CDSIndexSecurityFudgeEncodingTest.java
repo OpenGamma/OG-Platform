@@ -23,14 +23,14 @@ public class CDSIndexSecurityFudgeEncodingTest extends FinancialTestBase {
 
   private static final CreditDefaultSwapIndexSecurity s_cdsIndexSecurity;
   static {
-    CreditDefaultSwapIndexComponent component1 = new CreditDefaultSwapIndexComponent("A", ExternalSchemes.redCode("SZRTY"), 10.5, ExternalSchemes.isinSecurityId("ABC3456"));
-    CreditDefaultSwapIndexComponent component2 = new CreditDefaultSwapIndexComponent("B", ExternalSchemes.redCode("ERT234"), 5.7, ExternalSchemes.isinSecurityId("ABC7890"));
+    CreditDefaultSwapIndexComponent component1 = new CreditDefaultSwapIndexComponent("A", ExternalSchemes.markItRedCode("SZRTY"), 10.5, ExternalSchemes.isinSecurityId("ABC3456"));
+    CreditDefaultSwapIndexComponent component2 = new CreditDefaultSwapIndexComponent("B", ExternalSchemes.markItRedCode("ERT234"), 5.7, ExternalSchemes.isinSecurityId("ABC7890"));
     CDSIndexComponentBundle components = CDSIndexComponentBundle.of(component1, component2);
     CreditDefaultSwapIndexSecurity security = new CreditDefaultSwapIndexSecurity("1", "5", "CDX", Currency.USD, 
         CDSIndexTerms.of(Tenor.ONE_WEEK, Tenor.ONE_YEAR), 
         components );
     security.setName("TEST_CDSINDEX_SEC");
-    security.addExternalId(ExternalSchemes.redCode("CDXI234"));
+    security.addExternalId(ExternalSchemes.markItRedCode("CDXI234"));
     s_cdsIndexSecurity = security;
   }
 
