@@ -89,7 +89,7 @@ public class ImmutableLocalDateDoubleTimeSeriesTest extends LocalDateDoubleTimeS
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_of_LDArray_DoubleArray_mismatchedArrays() {
     LocalDate[] inDates = new LocalDate[] {LocalDate.of(2012, 6, 30)};
-    double[] inValues = new double[] {2.0, 3.0};
+    Double[] inValues = new Double[] {2.0, 3.0};
     ImmutableLocalDateDoubleTimeSeries.of(inDates, inValues);
   }
 

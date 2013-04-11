@@ -6,6 +6,7 @@
 package com.opengamma.timeseries.date;
 
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.SortedMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 
@@ -111,7 +112,9 @@ public abstract class AbstractDateObjectTimeSeriesBuilder<T, V>
     if (timeSeriesMap.size() == 0) {
       return this;
     }
-    _series.putAll(_series);
+    for (Entry<T, V> entry : timeSeriesMap.entrySet()) {
+      put(entry.getKey(), entry.getValue());
+    }
     return this;
   }
 

@@ -23,6 +23,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.timeseries.ObjectTimeSeries;
 
+/**
+ * Abstract test class for {@code ObjectTimeSeries}.
+ * 
+ * @param <E>  the time type
+ * @param <T>  the value type
+ */
 @Test(groups = "unit")
 public abstract class ObjectTimeSeriesTest<E, T> {
   

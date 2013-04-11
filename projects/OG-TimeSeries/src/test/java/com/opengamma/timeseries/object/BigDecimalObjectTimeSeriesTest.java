@@ -8,7 +8,7 @@ package com.opengamma.timeseries.object;
 import java.math.BigDecimal;
 
 /**
- * 
+ * Abstract test class with {@code BigDecimal} values.
  */
 public abstract class BigDecimalObjectTimeSeriesTest<DATE_TYPE> extends ObjectTimeSeriesTest<DATE_TYPE, BigDecimal> {
 

@@ -22,6 +22,11 @@ import java.util.NoSuchElementException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+/**
+ * Abstract test class for {@code DoubleTimeSeries}.
+ * 
+ * @param <E>  the time type
+ */
 @Test(groups = "unit")
 public abstract class DoubleTimeSeriesTest<E> {
 
