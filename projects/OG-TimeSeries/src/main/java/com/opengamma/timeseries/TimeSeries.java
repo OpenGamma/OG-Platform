@@ -158,6 +158,19 @@ public interface TimeSeries<T, V> extends Iterable<Map.Entry<T, V>>, Serializabl
    * <p>
    * The date-times do not have to match exactly.
    * The sub-series contains all entries between the two date-times via
+   * {@code Comparable}, with inclusive start and exclusive end.
+   * 
+   * @param startTimeInclusive  the start date-time, not null
+   * @param endTimeExclusive  the end date-time, not null
+   * @return the sub-series between the date-times, not null
+   */
+  TimeSeries<T, V> subSeries(T startTimeInclusive, T endTimeExclusive);
+
+  /**
+   * Gets part of this series as a sub-series between two date-times.
+   * <p>
+   * The date-times do not have to match exactly.
+   * The sub-series contains all entries between the two date-times via
    * {@code Comparable}, as modified by the inclusive start/end flags.
    * 
    * @param startTime  the start date-time, not null
@@ -167,19 +180,6 @@ public interface TimeSeries<T, V> extends Iterable<Map.Entry<T, V>>, Serializabl
    * @return the sub-series between the date-times, not null
    */
   TimeSeries<T, V> subSeries(T startTime, boolean includeStart, T endTime, boolean includeEnd);
-
-  /**
-   * Gets part of this series as a sub-series between two date-times.
-   * <p>
-   * The date-times do not have to match exactly.
-   * The sub-series contains all entries between the two date-times via
-   * {@code Comparable}, with inclusive start and exclusive end.
-   * 
-   * @param startTimeInclusive  the start date-time, not null
-   * @param endTimeExclusive  the end date-time, not null
-   * @return the sub-series between the date-times, not null
-   */
-  TimeSeries<T, V> subSeries(T startTimeInclusive, T endTimeExclusive);
 
   /**
    * Gets part of this series as a sub-series, choosing the earliest entries.

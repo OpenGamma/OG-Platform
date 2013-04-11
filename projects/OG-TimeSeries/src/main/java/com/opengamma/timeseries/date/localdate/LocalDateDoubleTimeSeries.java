@@ -35,12 +35,12 @@ public interface LocalDateDoubleTimeSeries
 
   //-------------------------------------------------------------------------
   @Override  // override for covariant return type
+  LocalDateDoubleTimeSeries subSeries(LocalDate startTime, LocalDate endTime);
+
+  @Override  // override for covariant return type
   LocalDateDoubleTimeSeries subSeries(LocalDate startTime, boolean includeStart, LocalDate endTime, boolean includeEnd);
 
   LocalDateDoubleTimeSeries subSeriesFast(int startTime, int endTime);
-
-  @Override  // override for covariant return type
-  LocalDateDoubleTimeSeries subSeries(LocalDate startTime, LocalDate endTime);
 
   LocalDateDoubleTimeSeries subSeriesFast(int startTime, final boolean includeStart, int endTime, final boolean includeEnd);
 

@@ -20,10 +20,10 @@ public interface DateObjectTimeSeries<T, V>
     extends ObjectTimeSeries<T, V>, DateTimeSeries<T, V> {
 
   @Override  // override for covariant return type
-  DateObjectTimeSeries<T, V> subSeries(T startTime, boolean includeStart, T endTime, boolean includeEnd);
+  DateObjectTimeSeries<T, V> subSeries(T startTime, T endTime);
 
   @Override  // override for covariant return type
-  DateObjectTimeSeries<T, V> subSeries(T startTime, T endTime);
+  DateObjectTimeSeries<T, V> subSeries(T startTime, boolean includeStart, T endTime, boolean includeEnd);
 
   @Override  // override for covariant return type
   DateObjectTimeSeries<T, V> head(int numItems);

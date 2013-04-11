@@ -36,12 +36,12 @@ public interface LocalDateObjectTimeSeries<V>
 
   //-------------------------------------------------------------------------
   @Override  // override for covariant return type
+  LocalDateObjectTimeSeries<V> subSeries(LocalDate startTime, LocalDate endTime);
+
+  @Override  // override for covariant return type
   LocalDateObjectTimeSeries<V> subSeries(LocalDate startTime, boolean includeStart, LocalDate endTime, boolean includeEnd);
 
   LocalDateObjectTimeSeries<V> subSeriesFast(int startTime, int endTime);
-
-  @Override  // override for covariant return type
-  LocalDateObjectTimeSeries<V> subSeries(LocalDate startTime, LocalDate endTime);
 
   LocalDateObjectTimeSeries<V> subSeriesFast(int startTime, final boolean includeStart, int endTime, final boolean includeEnd);
 

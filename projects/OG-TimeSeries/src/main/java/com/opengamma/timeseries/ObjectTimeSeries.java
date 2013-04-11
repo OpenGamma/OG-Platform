@@ -24,10 +24,10 @@ import com.opengamma.timeseries.fast.longint.object.FastMutableLongObjectTimeSer
 public interface ObjectTimeSeries<T, V> extends TimeSeries<T, V> {
 
   @Override  // override for covariant return type
-  ObjectTimeSeries<T, V> subSeries(T startTime, boolean includeStart, T endTime, boolean includeEnd);
+  ObjectTimeSeries<T, V> subSeries(T startTimeInclusive, T endTimeExclusive);
 
   @Override  // override for covariant return type
-  ObjectTimeSeries<T, V> subSeries(T startTimeInclusive, T endTimeExclusive);
+  ObjectTimeSeries<T, V> subSeries(T startTime, boolean includeStart, T endTime, boolean includeEnd);
 
   @Override  // override for covariant return type
   ObjectTimeSeries<T, V> head(int numItems);

@@ -59,10 +59,10 @@ public interface DateDoubleTimeSeries<T>
 
   //-------------------------------------------------------------------------
   @Override  // override for covariant return type
-  DateDoubleTimeSeries<T> subSeries(T startTime, boolean includeStart, T endTime, boolean includeEnd);
+  DateDoubleTimeSeries<T> subSeries(T startTime, T endTime);
 
   @Override  // override for covariant return type
-  DateDoubleTimeSeries<T> subSeries(T startTime, T endTime);
+  DateDoubleTimeSeries<T> subSeries(T startTime, boolean includeStart, T endTime, boolean includeEnd);
 
   @Override  // override for covariant return type
   DateDoubleTimeSeries<T> head(int numItems);
