@@ -250,11 +250,11 @@ import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
 
   @Override
   public List<String> portfolioChanged() {
-    // TODO ignore for now, causes problems when the view take a long time to recompile
-    /*Portfolio portfolio = _portfolioSupplier.get();
+    Portfolio portfolio = _portfolioSupplier.get();
     List<UniqueIdentifiable> entities = PortfolioMapper.flatMap(portfolio.getRootNode(), _portfolioEntityExtractor);
     _cache.put(entities);
-    _portfolioGrid = _portfolioGrid.withUpdatedRows(portfolio);
+    // TODO ignore for now, causes problems when the view take a long time to recompile
+    /*_portfolioGrid = _portfolioGrid.withUpdatedRows(portfolio);
     // TODO this is pretty conservative, refreshes all grids because the portfolio structure has changed
     return getGridIds();*/
     return Collections.emptyList();

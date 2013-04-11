@@ -8,6 +8,9 @@ package com.opengamma.web.analytics;
 import java.math.BigDecimal;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.Trade;
 import com.opengamma.master.position.ManageablePosition;
@@ -17,6 +20,8 @@ import com.opengamma.util.ArgumentChecker;
  * Cell renderer for the quantity column in the portfolio grid.
  */
 /* package */ class QuantityRenderer implements GridColumn.CellRenderer {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(QuantityRenderer.class);
 
   /** The rows in the grid. */
   private final List<PortfolioGridRow> _rows;
@@ -47,8 +52,8 @@ import com.opengamma.util.ArgumentChecker;
       } else if (result.getValue() instanceof Position) {
         quantity = ((Position) result.getValue()).getQuantity();
       } else {
-        throw new IllegalArgumentException("Unexpected type " + result.getValue().getClass().getName() + " for ID " +
-                                               row.getPositionId());
+        s_logger.warn("Unexpected value {} for position ID {}", result.getValue(), row.getPositionId());
+        return ResultsCell.forStaticValue(null, columnType, false);
       }
       updated = result.isUpdated();
     } else {
