@@ -602,7 +602,7 @@ $.register_module({
                     config = config || {};
                     var root = this.root, data = {}, meta;
                     meta = check({bundle: {method: root + '#get', config: config}});
-                    meta.timeout = 12500; meta.is_update = true; // back-end will timeout at 10s, so 12.5 should be fine
+                    meta.is_update = true;
                     return request(null, {url: ['', root, api.id].join('/'), data: data, meta: meta});
                 },
                 put: not_available_put,
