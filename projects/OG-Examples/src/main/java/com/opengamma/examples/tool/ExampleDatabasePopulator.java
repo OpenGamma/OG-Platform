@@ -112,7 +112,6 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
     loadCurveCalculationConfigurations();
     loadDefaultVolatilityCubeDefinition();
     loadTimeSeriesRating();
-    loadYieldCurves();
     loadSimulatedHistoricalData();
     loadMultiCurrencySwapPortfolio();
     loadAUDSwapPortfolio();
@@ -232,16 +231,6 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
     try {
       final ExampleTimeSeriesRatingLoader timeSeriesRatingLoader = new ExampleTimeSeriesRatingLoader();
       timeSeriesRatingLoader.run(getToolContext());
-      log.done();
-    } catch (final RuntimeException t) {
-      log.fail(t);
-    }
-  }
-
-  private void loadYieldCurves() {
-    final Log log = new Log("Creating yield curve definitions");
-    try {
-      YieldCurveConfigPopulator.populateSyntheticCurveConfigMaster(getToolContext().getConfigMaster());
       log.done();
     } catch (final RuntimeException t) {
       log.fail(t);
