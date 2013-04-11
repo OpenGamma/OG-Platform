@@ -42,7 +42,7 @@ $.register_module({
                         constructor.populate(type, config);
                     });
                 } else {
-                    title = 'Add New Tade', submit = 'Create';
+                    title = 'Add New Trade', submit = 'Create';
                     og.api.text({module: 'og.blotter.forms.blocks.form_types_tash'}).pipe(function (template){
                         $selector = $(template);
                         $selector.find('a').on('click', function (event) {
