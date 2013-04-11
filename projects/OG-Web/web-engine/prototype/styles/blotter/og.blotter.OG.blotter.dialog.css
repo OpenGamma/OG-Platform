@@ -82,13 +82,10 @@
     margin-top: 5px;
     margin-bottom: 5px;
 }
-/*.OG-blotter-trade-select {
-    width: 100%!important;
-}*/
-.OG-blotter-trade-select{
-    margin-left: 10px;
+.OG-blotter-trade-select {
+    margin-left: 15px;
 }
-.OG-blotter-trade-select h2{
+.OG-blotter-trade-select h3{
     padding: 10px 0;
 }
 .OG-blotter-trade-select a{
@@ -105,6 +102,15 @@
     padding bottom: 10px;
     padding-left: 10px;
     white-space: nowrap;
+}
+.OG-blotter-trade-select table{
+    width: 100%;
+}
+.OG-blotter-trade-select td{
+    vertical-align: top;
+}
+.OG-blotter-trade-save{
+    display: none;
 }
 .OG-blotter-form-block .og-blotter-portfolio .premium-toggle{
     cursor:pointer;

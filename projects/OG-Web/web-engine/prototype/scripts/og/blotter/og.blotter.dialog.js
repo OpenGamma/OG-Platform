@@ -65,14 +65,21 @@ $.register_module({
                     }, window);
                 if (inner) {
                     form_wrapper = new inner(config);
+                    $('.OG-blotter-trade-save').show();
                     $('.ui-dialog-title').html(form_wrapper.title);
                 }
             };
             constructor.create_dialog = function () {
                 var buttons = {
-                        'Save': function () {form_wrapper.submit(validation_handler);},
-                        'Save as new' : function () {form_wrapper.submit_new(validation_handler);},
-                        'Cancel': function () {$(this).dialog('close');}
+                        'Save': {
+                            text: 'Save', 'class' : 'OG-blotter-trade-save',
+                            click: function () {form_wrapper.submit(validation_handler);}},
+                        'Save as new' : {
+                            text: 'Save as new', 'class': 'OG-blotter-trade-saveasnew',
+                            click: function () {form_wrapper.submit_new(validation_handler);}},
+                        'Cancel': {
+                            text: 'Cancel', 'class': 'OG-blotter-trade-cancel',
+                            click: function () {$(this).dialog('close');}}
                     };
                 if (!config.save_as) delete buttons['Save as new'];
                 blotter = new og.common.util.ui.dialog({
