@@ -633,7 +633,8 @@ $.register_module({
                 .reduce(function (acc, val) {return acc + val;});}, 0);
             if ((remainder = scroll_width - scroll_data_width) <= 0) return;
             meta.columns.widths[meta.columns.widths.length - 1] += remainder;
-            (last_set = scroll_cols[scroll_cols.length - 1].columns)[last_set.length - 1].width += remainder;
+            if (scroll_cols.length)
+                (last_set = scroll_cols[scroll_cols.length - 1].columns)[last_set.length - 1].width += remainder;
         };
         Grid.prototype.fire = og.common.events.fire;
         Grid.prototype.kill = function () {

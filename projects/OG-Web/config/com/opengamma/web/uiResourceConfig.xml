@@ -296,6 +296,26 @@
   <bundle id="api.js">
     <fragment>/scripts/og/api/og.api.text.js</fragment>
     <fragment>/scripts/og/api/og.api.rest.js</fragment>
+    <fragment>/scripts/og/api/og.api.rest.aggregators.js</fragment>
+    <fragment>/scripts/og/api/og.api.rest.blotter.js</fragment>
+    <fragment>/scripts/og/api/og.api.rest.compressor.js</fragment>
+    <fragment>/scripts/og/api/og.api.rest.configs.js</fragment>
+    <fragment>/scripts/og/api/og.api.rest.exchanges.js</fragment>
+    <fragment>/scripts/og/api/og.api.rest.handshake.js</fragment>
+    <fragment>/scripts/og/api/og.api.rest.holidays.js</fragment>
+    <fragment>/scripts/og/api/og.api.rest.legalentities.js</fragment>
+    <fragment>/scripts/og/api/og.api.rest.livedatasources.js</fragment>
+    <fragment>/scripts/og/api/og.api.rest.marketdatasnapshots.js</fragment>
+    <fragment>/scripts/og/api/og.api.rest.portfolios.js</fragment>
+    <fragment>/scripts/og/api/og.api.rest.positions.js</fragment>
+    <fragment>/scripts/og/api/og.api.rest.regions.js</fragment>
+    <fragment>/scripts/og/api/og.api.rest.securities.js</fragment>
+    <fragment>/scripts/og/api/og.api.rest.timeseries.js</fragment>
+    <fragment>/scripts/og/api/og.api.rest.updates.js</fragment>
+    <fragment>/scripts/og/api/og.api.rest.subscribe.js</fragment>
+    <fragment>/scripts/og/api/og.api.rest.valuerequirementnames.js</fragment>
+    <fragment>/scripts/og/api/og.api.rest.viewdefinitions.js</fragment>
+    <fragment>/scripts/og/api/og.api.rest.views.js</fragment>
     <fragment>/scripts/og/api/og.api.fake.js</fragment>
   </bundle>
   <bundle id="util.js">
@@ -441,7 +461,7 @@
     <fragment>/scripts/og/views/config_forms/og.views.config_forms.yieldcurvedefinition.js</fragment>
     <!-- /config forms -->
     <fragment>/scripts/og/views/extras/og.views.extras.portfolios_sync.js</fragment>
-    <fragment>/scripts/og/views/og.views.legal_entities.js</fragment>
+    <fragment>/scripts/og/views/og.views.legalentities.js</fragment>
     <fragment>/scripts/og/views/og.views.portfolios.js</fragment>
     <fragment>/scripts/og/views/og.views.positions.js</fragment>
     <fragment>/scripts/og/views/og.views.securities.js</fragment>
