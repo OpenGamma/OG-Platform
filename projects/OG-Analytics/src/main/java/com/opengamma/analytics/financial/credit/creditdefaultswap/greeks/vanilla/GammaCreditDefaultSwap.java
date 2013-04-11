@@ -85,7 +85,7 @@ public class GammaCreditDefaultSwap {
         bumpedDownMarketSpreads[m] = marketSpreads[m] * (1 - spreadBump);
       }
     }
-    */
+     */
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -175,11 +175,11 @@ public class GammaCreditDefaultSwap {
       if (spreadBumpType == SpreadBumpType.ADDITIVE_BUCKETED) {
         bumpedUpMarketSpreads[m] = marketSpreads[m] + spreadBump;
         bumpedDownMarketSpreads[m] = marketSpreads[m] - spreadBump;
-      }
-
-      if (spreadBumpType == SpreadBumpType.MULTIPLICATIVE_BUCKETED) {
+      } else if (spreadBumpType == SpreadBumpType.MULTIPLICATIVE_BUCKETED) {
         bumpedUpMarketSpreads[m] = marketSpreads[m] * (1 + spreadBump);
         bumpedDownMarketSpreads[m] = marketSpreads[m] * (1 - spreadBump);
+      } else {
+        throw new IllegalArgumentException("Cannot handle bumps of type " + spreadBumpType);
       }
 
       // Calculate the bumped up CDS PV

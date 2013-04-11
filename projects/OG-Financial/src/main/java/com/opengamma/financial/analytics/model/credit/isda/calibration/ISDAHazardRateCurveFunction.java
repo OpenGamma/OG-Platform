@@ -172,9 +172,10 @@ public class ISDAHazardRateCurveFunction extends AbstractFunction.NonCompiledInv
         propertiesBuilder.with(ValuePropertyNames.CURVE, inputPropertiesBuilder.get().getValues(ValuePropertyNames.CURVE));
         inputPropertiesBuilder.withoutAny(ValuePropertyNames.CURVE);
       }
-      if (!inputPropertiesBuilder.get().isEmpty()) {
-        for (final String propertyName : inputPropertiesBuilder.get().getProperties()) {
-          propertiesBuilder.with(propertyName, inputPropertiesBuilder.get().getValues(propertyName));
+      final ValueProperties inputProperties = inputPropertiesBuilder.get();
+      if (!inputProperties.isEmpty()) {
+        for (final String propertyName : inputProperties.getProperties()) {
+          propertiesBuilder.with(propertyName, inputProperties.getValues(propertyName));
         }
       }
     }
