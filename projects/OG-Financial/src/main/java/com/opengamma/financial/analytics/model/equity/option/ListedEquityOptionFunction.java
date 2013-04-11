@@ -22,6 +22,7 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.analytics.financial.model.option.pricing.analytic.BaroneAdesiWhaleyModel;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurface;
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceMoneyness;
@@ -63,6 +64,9 @@ import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.option.EquityIndexFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
+import com.opengamma.financial.security.option.ExerciseType;
+import com.opengamma.financial.security.option.ExerciseTypeVisitorImpl;
+import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
@@ -208,19 +212,27 @@ public abstract class ListedEquityOptionFunction extends AbstractFunction.NonCom
     // From the Security, we get strike and expiry information to compute implied volatility
     final double strike;
     final Expiry expiry;
+    final boolean isCall;
+    final boolean isAmerican;
     final Security security = target.getSecurity();
     if (security instanceof EquityOptionSecurity) {
       final EquityOptionSecurity option = (EquityOptionSecurity) security;
       strike = option.getStrike();
       expiry = option.getExpiry();
+      isCall = option.getOptionType().equals(OptionType.CALL);
+      isAmerican = option.getExerciseType().getName().equalsIgnoreCase("American");
     } else if (security instanceof EquityIndexOptionSecurity) {
       final EquityIndexOptionSecurity option = (EquityIndexOptionSecurity) security;
       strike = option.getStrike();
       expiry = option.getExpiry();
+      isCall = option.getOptionType().equals(OptionType.CALL);
+      isAmerican = option.getExerciseType().getName().equalsIgnoreCase("American");
     } else if (security instanceof EquityIndexFutureOptionSecurity) {
       final EquityIndexFutureOptionSecurity option = (EquityIndexFutureOptionSecurity) security;
       strike = option.getStrike();
       expiry = option.getExpiry();
+      isCall = option.getOptionType().equals(OptionType.CALL);
+      isAmerican = option.getExerciseType().getName().equalsIgnoreCase("American");
     } else {
       throw new OpenGammaRuntimeException("Security type not handled," + security.getName());
     }
@@ -245,10 +257,30 @@ public abstract class ListedEquityOptionFunction extends AbstractFunction.NonCom
       throw new OpenGammaRuntimeException("Could not get market value of underlying option");
     }
     final Double spotOptionPrice = (Double) optionPriceValue.getValue();
-    final Double forwardOptionPrice = spotOptionPrice / discountFactor;
+    final double forwardOptionPrice = spotOptionPrice / discountFactor;
 
-    double impliedVol = BlackFormulaRepository.impliedVolatility(forwardOptionPrice, forward, strike, timeToExpiry, 0.3);
-
+    if (isAmerican) {
+      // This function produces a Black volatility. What we need then, is a volatility, that when put into a Black Pricer, will produce the right price
+      // For deeply ITM American Puts, the price to continue may be lower than the intrinsic price, and hence optimal to exercise 
+      final BaroneAdesiWhaleyModel americanModel = new BaroneAdesiWhaleyModel();
+      final double r = getDiscountingCurve(inputs).getInterestRate(timeToExpiry);
+      final double b = 0.0; // TODO: This is a problem. b is buried in the forward. Need to reparameterise..
+      final double s0 = forward * discountFactor;
+      final double bawImpliedVol = americanModel.impliedVolatility(spotOptionPrice, s0, strike, r, b, timeToExpiry, isCall);  
+    
+      // --- Testing for implied vol problems
+      final double intrinsic =  Math.max(0.0, (forward - strike) * (isCall ? 1.0 : -1.0));
+      if (intrinsic > forwardOptionPrice) {
+        if (isCall) {
+          throw new OpenGammaRuntimeException("American Call with intrinsic value > price!, " + security);
+        } else {
+          throw new OpenGammaRuntimeException("American Put with intrinsic value > price!, " + security);
+        }
+      }
+    }
+    
+    double impliedVol = BlackFormulaRepository.impliedVolatility(forwardOptionPrice, forward, strike, timeToExpiry, isCall);
+    
     final Surface<Double, Double, Double> surface = ConstantDoublesSurface.from(impliedVol);
     final BlackVolatilitySurfaceMoneyness impliedVolatilitySurface = new BlackVolatilitySurfaceMoneyness(surface, forwardCurve);
     return impliedVolatilitySurface;
