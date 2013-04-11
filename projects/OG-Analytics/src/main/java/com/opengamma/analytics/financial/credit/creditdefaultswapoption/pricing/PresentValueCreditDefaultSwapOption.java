@@ -91,6 +91,10 @@ public class PresentValueCreditDefaultSwapOption {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
+    // Calculate the calibrated hazard rate curve
+
+    // ----------------------------------------------------------------------------------------------------------------------------------------
+
     // Get the underlying CDS in the swaption contract
     final CreditDefaultSwapDefinition underlyingCDS = cdsSwaption.getUnderlyingCDS();
 

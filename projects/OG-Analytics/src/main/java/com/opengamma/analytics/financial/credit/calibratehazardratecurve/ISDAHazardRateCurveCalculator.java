@@ -12,8 +12,25 @@ import com.opengamma.analytics.financial.credit.CreditInstrumentDefinitionVisito
 import com.opengamma.analytics.financial.credit.ISDAYieldCurveAndHazardRateCurveProvider;
 import com.opengamma.analytics.financial.credit.ISDAYieldCurveAndSpreadsProvider;
 import com.opengamma.analytics.financial.credit.PriceType;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyCollateralizedVanillaCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyFixedRecoveryCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyForwardStartingCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyMuniCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyQuantoCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyRecoveryLockCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacySovereignCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.standard.StandardCollateralizedVanillaCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.standard.StandardCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.standard.StandardFixedRecoveryCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.standard.StandardForwardStartingCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.standard.StandardMuniCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.standard.StandardQuantoCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.standard.StandardRecoveryLockCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.standard.StandardSovereignCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.standard.StandardVanillaCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isda.ISDACreditDefaultSwapPVCalculator;
 import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
@@ -63,8 +80,7 @@ public class ISDAHazardRateCurveCalculator {
       _valuationDate = valuationDate;
     }
 
-    @Override
-    public HazardRateCurve visitLegacyVanillaCDS(final LegacyVanillaCreditDefaultSwapDefinition cds, final ISDAYieldCurveAndSpreadsProvider data) {
+    private HazardRateCurve calibrateCurve(final CreditDefaultSwapDefinition cds, final ISDAYieldCurveAndSpreadsProvider data) {
       final ZonedDateTime[] marketDates = data.getMarketDates();
       final double[] marketSpreads = data.getMarketSpreads();
       final ISDADateCurve yieldCurve = data.getYieldCurve();
@@ -81,13 +97,8 @@ public class ISDAHazardRateCurveCalculator {
       return new HazardRateCurve(marketDates, times, modifiedHazardRateCurve, 0.0);
     }
 
-    private double[] getCalibratedHazardRateTermStructure(
-        final ZonedDateTime valuationDate,
-        final LegacyCreditDefaultSwapDefinition cds, // Pass in a Legacy CDS object
-        final ZonedDateTime[] marketDates,
-        final double[] marketSpreads,
-        final ISDADateCurve yieldCurve,
-        final PriceType priceType) {
+    private double[] getCalibratedHazardRateTermStructure(final ZonedDateTime valuationDate, final CreditDefaultSwapDefinition cds, final ZonedDateTime[] marketDates,
+        final double[] marketSpreads, final ISDADateCurve yieldCurve, final PriceType priceType) {
       // Check the efficacy of the input market data
       CreditMarketDataUtils.checkSpreadData(valuationDate, marketDates, marketSpreads);
 
@@ -108,26 +119,30 @@ public class ISDAHazardRateCurveCalculator {
         // Construct a temporary vector of the hazard rates corresponding to the first m tenors (note size of array)
         final double[] runningHazardRates = new double[m1];
         System.arraycopy(hazardRates, 0, runningHazardRates, 0, m1);
-        final LegacyCreditDefaultSwapDefinition calibrationCDS = ((LegacyCreditDefaultSwapDefinition) cds.withMaturityDate(marketDates[m])).withSpread(marketSpreads[m]);
+        final CreditDefaultSwapDefinition calibrationCDS = getCDSWithSpread((cds.withMaturityDate(marketDates[m])), marketSpreads[m]);
         // Compute the calibrated hazard rate for tenor[m] (using the calibrated hazard rates for tenors 1, ..., m - 1)
-        hazardRates[m] = calibrateHazardRate(valuationDate, calibrationCDS, yieldCurve, runningDates, runningTenorsAsDoubles, runningHazardRates, priceType);
+        hazardRates[m] = calibrateHazardRate(calibrationCDS, yieldCurve, runningDates, runningTenorsAsDoubles, runningHazardRates, priceType, marketSpreads[m]);
       }
       return hazardRates;
     }
 
+    //TODO remove this
+    private CreditDefaultSwapDefinition getCDSWithSpread(final CreditDefaultSwapDefinition cds, final double spread) {
+      if (cds instanceof LegacyCreditDefaultSwapDefinition) {
+        return ((LegacyCreditDefaultSwapDefinition) cds).withSpread(spread);
+      } else if (cds instanceof StandardCreditDefaultSwapDefinition) {
+        return ((StandardCreditDefaultSwapDefinition) cds).withSpread(spread);
+      }
+      throw new IllegalArgumentException("Cannot handle CDS of type " + cds.getClass());
+    }
+
     // Private method to do the root search to find the hazard rate for tenor m which gives the CDS a PV of zero
-    private double calibrateHazardRate(
-        final ZonedDateTime valuationDate,
-        final LegacyCreditDefaultSwapDefinition calibrationCDS,
-        final ISDADateCurve yieldCurve,
-        final ZonedDateTime[] marketTenors,
-        final double[] runningTenors,
-        final double[] hazardRates,
-        final PriceType priceType) {
+    private double calibrateHazardRate(final CreditDefaultSwapDefinition calibrationCDS, final ISDADateCurve yieldCurve, final ZonedDateTime[] marketTenors, final double[] runningTenors,
+        final double[] hazardRates, final PriceType priceType, final double parSpread) {
       double deltaHazardRate = 0.0;
       double calibratedHazardRate = 0.0;
       // Calculate the initial guess for the calibrated hazard rate for this tenor
-      final double hazardRateGuess = (calibrationCDS.getParSpread() / 10000.0) / (1 - calibrationCDS.getRecoveryRate());
+      final double hazardRateGuess = (parSpread / 10000.0) / (1 - calibrationCDS.getRecoveryRate());
       // Calculate the initial bounds for the hazard rate search
       double lowerHazardRate = (1.0 - _hazardRateRangeMultiplier) * hazardRateGuess;
       double upperHazardRate = (1.0 + _hazardRateRangeMultiplier) * hazardRateGuess;
@@ -142,9 +157,9 @@ public class ISDAHazardRateCurveCalculator {
 
       // Now do the root search (in hazard rate space) - simple bisection method for the moment (guaranteed to work and we are not concerned with speed at the moment)
       // Calculate the CDS PV at the lower hazard rate bound
-      final double cdsPresentValueAtLowerPoint = calculateCDSPV(valuationDate, calibrationCDS, marketTenors, runningTenors, hazardRates, lowerHazardRate, yieldCurve, priceType);
+      final double cdsPresentValueAtLowerPoint = calculateCDSPV(calibrationCDS, marketTenors, runningTenors, hazardRates, lowerHazardRate, yieldCurve, priceType);
       // Calculate the CDS PV at the upper hazard rate bound
-      double cdsPresentValueAtMidPoint = calculateCDSPV(valuationDate, calibrationCDS, marketTenors, runningTenors, hazardRates, upperHazardRate, yieldCurve, priceType);
+      double cdsPresentValueAtMidPoint = calculateCDSPV(calibrationCDS, marketTenors, runningTenors, hazardRates, upperHazardRate, yieldCurve, priceType);
 
       // Orient the search
       if (cdsPresentValueAtLowerPoint < 0.0) {
@@ -162,7 +177,7 @@ public class ISDAHazardRateCurveCalculator {
         // Calculate the new mid-point
         final double hazardRateMidpoint = calibratedHazardRate + deltaHazardRate;
         // Calculate the CDS PV at the hazard rate range midpoint
-        cdsPresentValueAtMidPoint = calculateCDSPV(valuationDate, calibrationCDS, marketTenors, runningTenors, hazardRates, hazardRateMidpoint, yieldCurve, priceType);
+        cdsPresentValueAtMidPoint = calculateCDSPV(calibrationCDS, marketTenors, runningTenors, hazardRates, hazardRateMidpoint, yieldCurve, priceType);
         if (Double.doubleToLongBits(cdsPresentValueAtMidPoint) <= 0.0) {
           calibratedHazardRate = hazardRateMidpoint;
         }
@@ -175,7 +190,7 @@ public class ISDAHazardRateCurveCalculator {
     }
 
     // Private member function to compute the PV of a CDS given a particular guess for the hazard rate at tenor m (given calibrated hazard rates for tenors 0, ..., m - 1)
-    private double calculateCDSPV(final ZonedDateTime valuationDate, final LegacyCreditDefaultSwapDefinition calibrationCDS, final ZonedDateTime[] tenors,
+    private double calculateCDSPV(final CreditDefaultSwapDefinition calibrationCDS, final ZonedDateTime[] tenors,
         final double[] tenorsAsDoubles, final double[] hazardRates, final double hazardRateMidPoint, final ISDADateCurve yieldCurve, final PriceType priceType) {
 
       // How many tenors in the hazard rate term structure have been previously calibrated
@@ -189,7 +204,88 @@ public class ISDAHazardRateCurveCalculator {
 
       // Compute the PV of the CDS with this term structure of hazard rates
       final ISDAYieldCurveAndHazardRateCurveProvider curves = new ISDAYieldCurveAndHazardRateCurveProvider(yieldCurve, hazardRateCurve);
-      return PV_CALCULATOR.getPresentValue(calibrationCDS, curves, valuationDate, priceType);
+      return PV_CALCULATOR.getPresentValue(calibrationCDS, curves, _valuationDate, priceType);
     }
+
+    @Override
+    public HazardRateCurve visitStandardVanillaCDS(final StandardVanillaCreditDefaultSwapDefinition cds, final ISDAYieldCurveAndSpreadsProvider data) {
+      return calibrateCurve(cds, data);
+    }
+
+    @Override
+    public HazardRateCurve visitStandardFixedRecoveryCDS(final StandardFixedRecoveryCreditDefaultSwapDefinition cds, final ISDAYieldCurveAndSpreadsProvider data) {
+      return calibrateCurve(cds, data);
+    }
+
+    @Override
+    public HazardRateCurve visitStandardForwardStartingCDS(final StandardForwardStartingCreditDefaultSwapDefinition cds, final ISDAYieldCurveAndSpreadsProvider data) {
+      return calibrateCurve(cds, data);
+    }
+
+    @Override
+    public HazardRateCurve visitStandardMuniCDS(final StandardMuniCreditDefaultSwapDefinition cds, final ISDAYieldCurveAndSpreadsProvider data) {
+      return calibrateCurve(cds, data);
+    }
+
+    @Override
+    public HazardRateCurve visitStandardQuantoCDS(final StandardQuantoCreditDefaultSwapDefinition cds, final ISDAYieldCurveAndSpreadsProvider data) {
+      return calibrateCurve(cds, data);
+    }
+
+    @Override
+    public HazardRateCurve visitStandardRecoveryLockCDS(final StandardRecoveryLockCreditDefaultSwapDefinition cds, final ISDAYieldCurveAndSpreadsProvider data) {
+      return calibrateCurve(cds, data);
+    }
+
+    @Override
+    public HazardRateCurve visitStandardSovereignCDS(final StandardSovereignCreditDefaultSwapDefinition cds, final ISDAYieldCurveAndSpreadsProvider data) {
+      return calibrateCurve(cds, data);
+    }
+
+    @Override
+    public HazardRateCurve visitStandardCollateralizedVanillaCDS(final StandardCollateralizedVanillaCreditDefaultSwapDefinition cds, final ISDAYieldCurveAndSpreadsProvider data) {
+      return calibrateCurve(cds, data);
+    }
+
+    @Override
+    public HazardRateCurve visitLegacyVanillaCDS(final LegacyVanillaCreditDefaultSwapDefinition cds, final ISDAYieldCurveAndSpreadsProvider data) {
+      return calibrateCurve(cds, data);
+    }
+
+    @Override
+    public HazardRateCurve visitLegacyFixedRecoveryCDS(final LegacyFixedRecoveryCreditDefaultSwapDefinition cds, final ISDAYieldCurveAndSpreadsProvider data) {
+      return calibrateCurve(cds, data);
+    }
+
+    @Override
+    public HazardRateCurve visitLegacyForwardStartingCDS(final LegacyForwardStartingCreditDefaultSwapDefinition cds, final ISDAYieldCurveAndSpreadsProvider data) {
+      return calibrateCurve(cds, data);
+    }
+
+    @Override
+    public HazardRateCurve visitLegacyMuniCDS(final LegacyMuniCreditDefaultSwapDefinition cds, final ISDAYieldCurveAndSpreadsProvider data) {
+      return calibrateCurve(cds, data);
+    }
+
+    @Override
+    public HazardRateCurve visitLegacyQuantoCDS(final LegacyQuantoCreditDefaultSwapDefinition cds, final ISDAYieldCurveAndSpreadsProvider data) {
+      return calibrateCurve(cds, data);
+    }
+
+    @Override
+    public HazardRateCurve visitLegacyRecoveryLockCDS(final LegacyRecoveryLockCreditDefaultSwapDefinition cds, final ISDAYieldCurveAndSpreadsProvider data) {
+      return calibrateCurve(cds, data);
+    }
+
+    @Override
+    public HazardRateCurve visitLegacySovereignCDS(final LegacySovereignCreditDefaultSwapDefinition cds, final ISDAYieldCurveAndSpreadsProvider data) {
+      return calibrateCurve(cds, data);
+    }
+
+    @Override
+    public HazardRateCurve visitLegacyCollateralizedVanillaCDS(final LegacyCollateralizedVanillaCreditDefaultSwapDefinition cds, final ISDAYieldCurveAndSpreadsProvider data) {
+      return calibrateCurve(cds, data);
+    }
+
   }
 }

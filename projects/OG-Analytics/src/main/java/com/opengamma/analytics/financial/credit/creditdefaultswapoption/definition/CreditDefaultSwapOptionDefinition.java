@@ -37,7 +37,7 @@ public class CreditDefaultSwapOptionDefinition {
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // TODO : Add equals and hashcode
-  // TODO : Need to be able to create a CDS option with any type of CDS as its underlying e.g. a muni, quanto, vanilla etc
+  // TODO : Do we need the buy/sell flag? Should use the isPayer flag to determine the direction of the cashflows in the underlying CDS contract
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
