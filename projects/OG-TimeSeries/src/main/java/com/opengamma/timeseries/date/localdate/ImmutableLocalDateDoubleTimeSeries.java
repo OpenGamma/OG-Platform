@@ -412,7 +412,7 @@ public final class ImmutableLocalDateDoubleTimeSeries
     }
 
     @Override
-    protected DateDoubleTimeSeries<LocalDate> createTimeSeries(int[] times, double[] values) {
+    protected LocalDateDoubleTimeSeries createTimeSeries(int[] times, double[] values) {
       if (times.length == 0) {
         return EMPTY_SERIES;
       }

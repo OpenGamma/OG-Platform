@@ -374,7 +374,7 @@ public final class ImmutableLocalDateObjectTimeSeries<V>
       @Override
       public int currentTimeFast() {
         if (_index < 0) {
-          throw new IllegalStateException("Iterator has nor has nextDate() or next() called yet");
+          throw new IllegalStateException("Iterator has not yet been started");
         }
         return ImmutableLocalDateObjectTimeSeries.this.getTimeAtIndexFast(_index);
       }
@@ -387,7 +387,7 @@ public final class ImmutableLocalDateObjectTimeSeries<V>
       @Override
       public V currentValue() {
         if (_index < 0) {
-          throw new IllegalStateException("Iterator has nor has nextDate() or next() called yet");
+          throw new IllegalStateException("Iterator has not yet been started");
         }
         return ImmutableLocalDateObjectTimeSeries.this.getValueAtIndex(_index);
       }
@@ -704,7 +704,7 @@ public final class ImmutableLocalDateObjectTimeSeries<V>
 
     @SuppressWarnings("unchecked")
     @Override
-    protected DateObjectTimeSeries<LocalDate, V> createTimeSeries(SortedMap<Integer, V> series) {
+    protected LocalDateObjectTimeSeries<V> createTimeSeries(SortedMap<Integer, V> series) {
       int[] times = new int[series.size()];
       Object[] values = new Object[series.size()];
       int i = 0;
