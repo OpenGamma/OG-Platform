@@ -224,4 +224,15 @@ public interface DateDoubleTimeSeries<T>
   @Override  // override for covariant return type
   DateDoubleTimeSeries<T> abs();
 
+  //-------------------------------------------------------------------------
+  /**
+   * Returns a builder containing the same data as this time-series.
+   * <p>
+   * The builder has methods to modify the time-series.
+   * Entries can be added, or removed via the iterator.
+   * 
+   * @return the builder, not null
+   */
+  DateDoubleTimeSeriesBuilder<T> toBuilder();
+
 }

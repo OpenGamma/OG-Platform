@@ -51,7 +51,9 @@ public final class ImmutableLocalDateObjectTimeSeries<V>
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a time-series from a single date and value.
+   * Creates an empty builder, used to create time-series.
+   * <p>
+   * The builder has methods to create and modify a time-series.
    * 
    * @param <V>  the value being viewed over time
    * @return the time-series builder, not null
@@ -601,6 +603,12 @@ public final class ImmutableLocalDateObjectTimeSeries<V>
   @Override
   public LocalDateObjectTimeSeries<V> noIntersectionOperation(DateObjectTimeSeries<?, V> other) {
     return unionOperate(other, ObjectTimeSeriesOperators.<V>noIntersectionOperator());
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public LocalDateObjectTimeSeriesBuilder<V> toBuilder() {
+    return ImmutableLocalDateObjectTimeSeries.<V>builder().putAll(this);
   }
 
   //-------------------------------------------------------------------------

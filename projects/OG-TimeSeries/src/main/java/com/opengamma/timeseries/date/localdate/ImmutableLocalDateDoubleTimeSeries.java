@@ -354,6 +354,12 @@ public final class ImmutableLocalDateDoubleTimeSeries
   }
 
   //-------------------------------------------------------------------------
+  @Override
+  public LocalDateDoubleTimeSeriesBuilder toBuilder() {
+    return builder().putAll(this);
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * The builder implementation.
    */

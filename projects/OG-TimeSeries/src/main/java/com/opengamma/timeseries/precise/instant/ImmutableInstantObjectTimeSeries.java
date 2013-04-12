@@ -51,7 +51,9 @@ public final class ImmutableInstantObjectTimeSeries<V>
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a time-series from a single date and value.
+   * Creates an empty builder, used to create time-series.
+   * <p>
+   * The builder has methods to create and modify a time-series.
    * 
    * @param <V>  the value being viewed over time
    * @return the time-series builder, not null
@@ -601,6 +603,12 @@ public final class ImmutableInstantObjectTimeSeries<V>
   @Override
   public InstantObjectTimeSeries<V> noIntersectionOperation(PreciseObjectTimeSeries<?, V> other) {
     return unionOperate(other, ObjectTimeSeriesOperators.<V>noIntersectionOperator());
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public InstantObjectTimeSeriesBuilder<V> toBuilder() {
+    return ImmutableInstantObjectTimeSeries.<V>builder().putAll(this);
   }
 
   //-------------------------------------------------------------------------

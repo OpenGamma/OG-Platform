@@ -174,4 +174,8 @@ public interface LocalDateDoubleTimeSeries
   @Override  // override for covariant return type
   LocalDateDoubleTimeSeries abs();
 
+  //-------------------------------------------------------------------------
+  @Override  // override for covariant return type
+  LocalDateDoubleTimeSeriesBuilder toBuilder();
+
 }

@@ -174,4 +174,8 @@ public interface InstantDoubleTimeSeries
   @Override  // override for covariant return type
   InstantDoubleTimeSeries abs();
 
+  //-------------------------------------------------------------------------
+  @Override  // override for covariant return type
+  InstantDoubleTimeSeriesBuilder toBuilder();
+
 }

@@ -79,4 +79,8 @@ public interface InstantObjectTimeSeries<V>
   @Override  // override for covariant return type
   InstantObjectTimeSeries<V> noIntersectionOperation(PreciseObjectTimeSeries<?, V> other);
 
+  //-------------------------------------------------------------------------
+  @Override  // override for covariant return type
+  InstantObjectTimeSeriesBuilder<V> toBuilder();
+
 }

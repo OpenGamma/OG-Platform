@@ -80,4 +80,8 @@ public interface LocalDateObjectTimeSeries<V>
   @Override  // override for covariant return type
   LocalDateObjectTimeSeries<V> noIntersectionOperation(DateObjectTimeSeries<?, V> other);
 
+  //-------------------------------------------------------------------------
+  @Override  // override for covariant return type
+  LocalDateObjectTimeSeriesBuilder<V> toBuilder();
+
 }

@@ -44,7 +44,9 @@ public final class ImmutableInstantDoubleTimeSeries
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a time-series from a single date and value.
+   * Creates an empty builder, used to create time-series.
+   * <p>
+   * The builder has methods to create and modify a time-series.
    * 
    * @return the time-series builder, not null
    */
@@ -351,6 +353,12 @@ public final class ImmutableInstantDoubleTimeSeries
       valuesArray[i] = operator.operate(valuesArray[i], other);
     }
     return new ImmutableInstantDoubleTimeSeries(_times, valuesArray);  // immutable, so can share times
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public InstantDoubleTimeSeriesBuilder toBuilder() {
+    return builder().putAll(this);
   }
 
   //-------------------------------------------------------------------------
