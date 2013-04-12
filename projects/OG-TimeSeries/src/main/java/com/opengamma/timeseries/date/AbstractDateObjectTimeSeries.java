@@ -21,13 +21,10 @@ import com.opengamma.timeseries.TimeSeriesUtils;
  */
 public abstract class AbstractDateObjectTimeSeries<T, V> implements DateObjectTimeSeries<T, V> {
 
-  /** Serialization version. */
-  private static final long serialVersionUID = -1496963385919362510L;
-
   /**
    * Creates an instance.
    */
-  public AbstractDateObjectTimeSeries() {
+  protected AbstractDateObjectTimeSeries() {
   }
 
   //-------------------------------------------------------------------------

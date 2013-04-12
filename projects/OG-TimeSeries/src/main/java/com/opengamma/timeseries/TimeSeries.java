@@ -5,7 +5,6 @@
  */
 package com.opengamma.timeseries;
 
-import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -20,7 +19,7 @@ import java.util.Map;
  * @param <T> the date-time type, such as {@code Instant} or {@code LocalDate}
  * @param <V> the value being viewed over time, such as {@code Double}
  */
-public interface TimeSeries<T, V> extends Iterable<Map.Entry<T, V>>, Serializable {
+public interface TimeSeries<T, V> extends Iterable<Map.Entry<T, V>> {
   // tailSeries/headSeries by time
 
   /**

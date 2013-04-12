@@ -42,8 +42,11 @@ abstract class AbstractInstantDoubleTimeSeries
     extends AbstractPreciseDoubleTimeSeries<Instant>
     implements InstantDoubleTimeSeries {
 
-  /** Serialization version. */
-  private static final long serialVersionUID = -837582175382L;
+  /**
+   * Creates an instance.
+   */
+  public AbstractInstantDoubleTimeSeries() {
+  }
 
   //-------------------------------------------------------------------------
   static long[] convertToLongArray(Collection<Instant> instants) {

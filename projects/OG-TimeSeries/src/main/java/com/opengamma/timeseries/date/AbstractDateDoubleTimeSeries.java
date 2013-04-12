@@ -20,9 +20,6 @@ import com.opengamma.timeseries.TimeSeriesUtils;
  */
 public abstract class AbstractDateDoubleTimeSeries<T> implements DateDoubleTimeSeries<T> {
 
-  /** Serialization version. */
-  private static final long serialVersionUID = -1496963385919362510L;
-
   /**
    * Creates an instance.
    */

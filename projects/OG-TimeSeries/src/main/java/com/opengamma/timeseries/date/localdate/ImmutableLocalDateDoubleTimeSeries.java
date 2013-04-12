@@ -5,6 +5,7 @@
  */
 package com.opengamma.timeseries.date.localdate;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
@@ -24,7 +25,7 @@ import com.opengamma.timeseries.date.DateDoubleTimeSeries;
  */
 public final class ImmutableLocalDateDoubleTimeSeries
     extends AbstractLocalDateDoubleTimeSeries
-    implements LocalDateDoubleTimeSeries {
+    implements LocalDateDoubleTimeSeries, Serializable {
 
   /** Empty instance. */
   public static final ImmutableLocalDateDoubleTimeSeries EMPTY_SERIES = new ImmutableLocalDateDoubleTimeSeries(new int[0], new double[0]);

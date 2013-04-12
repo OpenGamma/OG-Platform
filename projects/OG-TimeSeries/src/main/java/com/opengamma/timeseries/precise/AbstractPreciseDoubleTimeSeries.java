@@ -20,9 +20,6 @@ import com.opengamma.timeseries.TimeSeriesUtils;
  */
 public abstract class AbstractPreciseDoubleTimeSeries<T> implements PreciseDoubleTimeSeries<T> {
 
-  /** Serialization version. */
-  private static final long serialVersionUID = -234528752886864L;
-
   /**
    * Creates an instance.
    */

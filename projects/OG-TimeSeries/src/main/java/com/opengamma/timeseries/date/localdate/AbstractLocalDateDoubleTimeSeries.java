@@ -42,8 +42,11 @@ abstract class AbstractLocalDateDoubleTimeSeries
     extends AbstractDateDoubleTimeSeries<LocalDate>
     implements LocalDateDoubleTimeSeries {
 
-  /** Serialization version. */
-  private static final long serialVersionUID = -837582175382L;
+  /**
+   * Creates an instance.
+   */
+  public AbstractLocalDateDoubleTimeSeries() {
+  }
 
   //-------------------------------------------------------------------------
   static int[] convertToIntArray(Collection<LocalDate> times) {

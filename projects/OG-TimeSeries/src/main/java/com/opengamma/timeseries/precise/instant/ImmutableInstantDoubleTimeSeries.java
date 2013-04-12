@@ -5,6 +5,7 @@
  */
 package com.opengamma.timeseries.precise.instant;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
@@ -24,7 +25,7 @@ import com.opengamma.timeseries.precise.PreciseDoubleTimeSeries;
  */
 public final class ImmutableInstantDoubleTimeSeries
     extends AbstractInstantDoubleTimeSeries
-    implements InstantDoubleTimeSeries {
+    implements InstantDoubleTimeSeries, Serializable {
 
   /** Empty instance. */
   public static final ImmutableInstantDoubleTimeSeries EMPTY_SERIES = new ImmutableInstantDoubleTimeSeries(new long[0], new double[0]);

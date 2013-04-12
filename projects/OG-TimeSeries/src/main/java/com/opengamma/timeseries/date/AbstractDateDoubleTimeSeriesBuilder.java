@@ -33,7 +33,7 @@ public abstract class AbstractDateDoubleTimeSeriesBuilder<T>
   /**
    * Creates an instance.
    */
-  protected AbstractDateDoubleTimeSeriesBuilder() {
+  public AbstractDateDoubleTimeSeriesBuilder() {
   }
 
   //-------------------------------------------------------------------------

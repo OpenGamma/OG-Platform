@@ -5,6 +5,7 @@
  */
 package com.opengamma.timeseries.precise.instant;
 
+import java.io.Serializable;
 import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.Arrays;
 import java.util.Collection;
@@ -31,7 +32,7 @@ import com.opengamma.timeseries.precise.PreciseObjectTimeSeries;
  */
 public final class ImmutableInstantObjectTimeSeries<V>
     extends AbstractPreciseObjectTimeSeries<Instant, V>
-    implements InstantObjectTimeSeries<V> {
+    implements InstantObjectTimeSeries<V>, Serializable {
 
   /** Empty instance. */
   private static final ImmutableInstantObjectTimeSeries<?> EMPTY_SERIES = new ImmutableInstantObjectTimeSeries<Object>(new long[0], new Object[0]);

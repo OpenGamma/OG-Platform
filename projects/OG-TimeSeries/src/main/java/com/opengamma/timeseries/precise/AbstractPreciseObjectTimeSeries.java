@@ -21,9 +21,6 @@ import com.opengamma.timeseries.TimeSeriesUtils;
  */
 public abstract class AbstractPreciseObjectTimeSeries<T, V> implements PreciseObjectTimeSeries<T, V> {
 
-  /** Serialization version. */
-  private static final long serialVersionUID = -58275238751865L;
-
   /**
    * Creates an instance.
    */

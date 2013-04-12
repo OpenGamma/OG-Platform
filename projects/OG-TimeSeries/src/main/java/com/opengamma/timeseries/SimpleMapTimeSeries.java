@@ -5,6 +5,7 @@
  */
 package com.opengamma.timeseries;
 
+import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,7 +24,7 @@ import java.util.TreeMap;
  * @param <T> the date-time type, such as {@code Instant} or {@code LocalDate}
  * @param <V> the value being viewed over time, such as {@code Double}
  */
-public class SimpleMapTimeSeries<T, V> implements TimeSeries<T, V> {
+public class SimpleMapTimeSeries<T, V> implements TimeSeries<T, V>, Serializable {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
