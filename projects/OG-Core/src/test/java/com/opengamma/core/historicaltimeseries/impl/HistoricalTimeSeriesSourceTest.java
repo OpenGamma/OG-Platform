@@ -25,9 +25,9 @@ import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
-import com.opengamma.timeseries.localdate.MapLocalDateDoubleTimeSeries;
-import com.opengamma.timeseries.localdate.MutableLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeriesBuilder;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
@@ -47,17 +47,17 @@ public class HistoricalTimeSeriesSourceTest {
   }
 
   private LocalDateDoubleTimeSeries randomTimeSeries() {
-    MutableLocalDateDoubleTimeSeries dts = new MapLocalDateDoubleTimeSeries();
+    LocalDateDoubleTimeSeriesBuilder bld = ImmutableLocalDateDoubleTimeSeries.builder();
     LocalDate start = LocalDate.of(2000, 1, 2);
     LocalDate end = start.plusYears(10);
     LocalDate current = start;
     while (current.isBefore(end)) {
       current = current.plusDays(1);
       if (isWeekday(current)) {
-        dts.putDataPoint(current, Math.random());
+        bld.put(current, Math.random());
       }
     }
-    return dts;
+    return bld.build();
   }
 
   private int random(int maxBoundExclusive) {
