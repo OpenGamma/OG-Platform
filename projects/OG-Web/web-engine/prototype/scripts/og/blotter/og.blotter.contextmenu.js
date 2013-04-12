@@ -7,6 +7,7 @@ $.register_module({
     dependencies: [],
     obj: function () {
         return function (cell, event) {
+            console.log(cell);
             var grid = og.analytics.grid;
             var context_items = function (cell) {
                 var items = [];
@@ -96,12 +97,13 @@ $.register_module({
                     });
                 };
                 // if a row is a node AND the cell is a position only the position insert option is relevant
-                // if a row is a node OR the cell is a node only the add new trade option is relevant
-                if (cell.row in grid.state.nodes && cell.type === 'POSITION') {
+                // note that cell.type === 'POSITION' is only relevant for the firs column, so can't be used
+                // else if a row is a node OR the cell is a node only the add new trade option is relevant
+                if (cell.row in grid.state.nodes &&  cell.row_value.positionId) {
                     items.push({name: 'Add Trade', handler: position_insert});
                     return items;
                 }
-                else if (cell.row in grid.state.nodes || cell.type === 'NODE') {  
+                else if (cell.row in grid.state.nodes || cell.type === 'NODE') {
                     items.push({name: 'Add Trade', handler: trade_insert_node});
                     items.push({name: 'Add Sub Portfolio', handler: new_porfolio});
                     return items;  
