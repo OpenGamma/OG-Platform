@@ -275,8 +275,11 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
     FlexiBean out = super.createRootData();
     SecuritySearchRequest searchRequest = new SecuritySearchRequest();
     out.put("searchRequest", searchRequest);
-    SecurityMetaDataResult metaData = data().getSecurityMaster().metaData(new SecurityMetaDataRequest());
+    final SecurityMetaDataRequest request = new SecurityMetaDataRequest();
+    request.setSchemaVersion(true);
+    SecurityMetaDataResult metaData = data().getSecurityMaster().metaData(request);
     out.put("securityTypes", new TreeSet<String>(metaData.getSecurityTypes()));
+    out.put("schemaVersion", metaData.getSchemaVersion());
     return out;
   }
 

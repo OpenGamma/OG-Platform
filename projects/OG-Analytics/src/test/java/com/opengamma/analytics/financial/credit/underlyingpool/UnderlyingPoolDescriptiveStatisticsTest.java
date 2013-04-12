@@ -38,17 +38,23 @@ public class UnderlyingPoolDescriptiveStatisticsTest {
   // Build the underlying pool
   private static final UnderlyingPool dummyPool = pool.constructPool();
 
+  // Get the credit spread tenors of the obligors in the underlying pool
+  private static final CreditSpreadTenors[] dummyCreditSpreadTenors = pool.assignCreditSpreadTenors();
+
+  // Get the term structures of credit spreads for each obligor in the underlying pool
+  private static final double[][] dummyCreditSpreadTermStructures = pool.assignCreditSpreadTermStructures();
+
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 
   // Create a pool statistics calculator object
-  private static final UnderlyingPoolDescriptiveStatistics underlyingPoolStatistics = new UnderlyingPoolDescriptiveStatistics();
+  private static final UnderlyingPoolDescriptiveStatistics underlyingPoolDescriptiveStatistics = new UnderlyingPoolDescriptiveStatistics();
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullUnderlyingPoolTotalNotionalPoolField() {
 
-    underlyingPoolStatistics.getUnderlyingPoolTotalNotional(null);
+    underlyingPoolDescriptiveStatistics.getUnderlyingPoolTotalNotional(null);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -56,7 +62,7 @@ public class UnderlyingPoolDescriptiveStatisticsTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullUnderlyingPoolNotionalMeanPoolField() {
 
-    underlyingPoolStatistics.getUnderlyingPoolNotionalMean(null);
+    underlyingPoolDescriptiveStatistics.getUnderlyingPoolNotionalMean(null);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -64,7 +70,7 @@ public class UnderlyingPoolDescriptiveStatisticsTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullUnderlyingPoolRecoveryRateMeanPoolField() {
 
-    underlyingPoolStatistics.getUnderlyingPoolRecoveryRateMean(null);
+    underlyingPoolDescriptiveStatistics.getUnderlyingPoolRecoveryRateMean(null);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -72,13 +78,25 @@ public class UnderlyingPoolDescriptiveStatisticsTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullUnderlyingPoolCreditSpreadMinPoolField() {
 
-    underlyingPoolStatistics.getUnderlyingPoolCreditSpreadMinimum(null, dummyCreditSpreadTenor);
+    underlyingPoolDescriptiveStatistics.getUnderlyingPoolCreditSpreadMinimum(null, dummyCreditSpreadTenors, dummyCreditSpreadTermStructures, dummyCreditSpreadTenor);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullUnderlyingPoolCreditSpreadMinTenorsField() {
+
+    underlyingPoolDescriptiveStatistics.getUnderlyingPoolCreditSpreadMinimum(dummyPool, null, dummyCreditSpreadTermStructures, dummyCreditSpreadTenor);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullUnderlyingPoolCreditSpreadMinSpreadsField() {
+
+    underlyingPoolDescriptiveStatistics.getUnderlyingPoolCreditSpreadMinimum(dummyPool, dummyCreditSpreadTenors, null, dummyCreditSpreadTenor);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullUnderlyingPoolCreditSpreadMinTenorField() {
 
-    underlyingPoolStatistics.getUnderlyingPoolCreditSpreadMinimum(dummyPool, null);
+    underlyingPoolDescriptiveStatistics.getUnderlyingPoolCreditSpreadMinimum(dummyPool, dummyCreditSpreadTenors, dummyCreditSpreadTermStructures, null);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -86,13 +104,25 @@ public class UnderlyingPoolDescriptiveStatisticsTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullUnderlyingPoolCreditSpreadMaxPoolField() {
 
-    underlyingPoolStatistics.getUnderlyingPoolCreditSpreadMaximum(null, dummyCreditSpreadTenor);
+    underlyingPoolDescriptiveStatistics.getUnderlyingPoolCreditSpreadMaximum(null, dummyCreditSpreadTenors, dummyCreditSpreadTermStructures, dummyCreditSpreadTenor);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullUnderlyingPoolCreditSpreadMaxTenorsField() {
+
+    underlyingPoolDescriptiveStatistics.getUnderlyingPoolCreditSpreadMaximum(dummyPool, null, dummyCreditSpreadTermStructures, dummyCreditSpreadTenor);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullUnderlyingPoolCreditSpreadMaxSpreadsField() {
+
+    underlyingPoolDescriptiveStatistics.getUnderlyingPoolCreditSpreadMaximum(dummyPool, dummyCreditSpreadTenors, null, dummyCreditSpreadTenor);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullUnderlyingPoolCreditSpreadMaxTenorField() {
 
-    underlyingPoolStatistics.getUnderlyingPoolCreditSpreadMaximum(dummyPool, null);
+    underlyingPoolDescriptiveStatistics.getUnderlyingPoolCreditSpreadMaximum(dummyPool, dummyCreditSpreadTenors, dummyCreditSpreadTermStructures, null);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -100,13 +130,25 @@ public class UnderlyingPoolDescriptiveStatisticsTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullUnderlyingPoolCreditSpreadMeanPoolField() {
 
-    underlyingPoolStatistics.getUnderlyingPoolCreditSpreadMean(null, dummyCreditSpreadTenor);
+    underlyingPoolDescriptiveStatistics.getUnderlyingPoolCreditSpreadMean(null, dummyCreditSpreadTenors, dummyCreditSpreadTermStructures, dummyCreditSpreadTenor);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullUnderlyingPoolCreditSpreadMeanTenorsField() {
+
+    underlyingPoolDescriptiveStatistics.getUnderlyingPoolCreditSpreadMean(dummyPool, null, dummyCreditSpreadTermStructures, dummyCreditSpreadTenor);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullUnderlyingPoolCreditSpreadMeanSpreadsField() {
+
+    underlyingPoolDescriptiveStatistics.getUnderlyingPoolCreditSpreadMean(dummyPool, dummyCreditSpreadTenors, null, dummyCreditSpreadTenor);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullUnderlyingPoolCreditSpreadMeanTenorField() {
 
-    underlyingPoolStatistics.getUnderlyingPoolCreditSpreadMean(dummyPool, null);
+    underlyingPoolDescriptiveStatistics.getUnderlyingPoolCreditSpreadMean(dummyPool, dummyCreditSpreadTenors, dummyCreditSpreadTermStructures, null);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -114,13 +156,25 @@ public class UnderlyingPoolDescriptiveStatisticsTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullUnderlyingPoolCreditSpreadMedianPoolField() {
 
-    underlyingPoolStatistics.getUnderlyingPoolCreditSpreadMedian(null, dummyCreditSpreadTenor);
+    underlyingPoolDescriptiveStatistics.getUnderlyingPoolCreditSpreadMedian(null, dummyCreditSpreadTenors, dummyCreditSpreadTermStructures, dummyCreditSpreadTenor);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullUnderlyingPoolCreditSpreadMedianTenorsField() {
+
+    underlyingPoolDescriptiveStatistics.getUnderlyingPoolCreditSpreadMedian(dummyPool, null, dummyCreditSpreadTermStructures, dummyCreditSpreadTenor);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullUnderlyingPoolCreditSpreadMedianSpreadsField() {
+
+    underlyingPoolDescriptiveStatistics.getUnderlyingPoolCreditSpreadMedian(dummyPool, dummyCreditSpreadTenors, null, dummyCreditSpreadTenor);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullUnderlyingPoolCreditSpreadMedianTenorField() {
 
-    underlyingPoolStatistics.getUnderlyingPoolCreditSpreadMedian(dummyPool, null);
+    underlyingPoolDescriptiveStatistics.getUnderlyingPoolCreditSpreadMedian(dummyPool, dummyCreditSpreadTenors, dummyCreditSpreadTermStructures, null);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -128,13 +182,25 @@ public class UnderlyingPoolDescriptiveStatisticsTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullUnderlyingPoolCreditSpreadModePoolField() {
 
-    underlyingPoolStatistics.getUnderlyingPoolCreditSpreadMode(null, dummyCreditSpreadTenor);
+    underlyingPoolDescriptiveStatistics.getUnderlyingPoolCreditSpreadMode(null, dummyCreditSpreadTenors, dummyCreditSpreadTermStructures, dummyCreditSpreadTenor);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullUnderlyingPoolCreditSpreadModeTenorsField() {
+
+    underlyingPoolDescriptiveStatistics.getUnderlyingPoolCreditSpreadMode(dummyPool, null, dummyCreditSpreadTermStructures, dummyCreditSpreadTenor);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullUnderlyingPoolCreditSpreadModeSpreadsField() {
+
+    underlyingPoolDescriptiveStatistics.getUnderlyingPoolCreditSpreadMode(dummyPool, dummyCreditSpreadTenors, null, dummyCreditSpreadTenor);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullUnderlyingPoolCreditSpreadModeTenorField() {
 
-    underlyingPoolStatistics.getUnderlyingPoolCreditSpreadMode(dummyPool, null);
+    underlyingPoolDescriptiveStatistics.getUnderlyingPoolCreditSpreadMode(dummyPool, dummyCreditSpreadTenors, dummyCreditSpreadTermStructures, null);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -142,13 +208,25 @@ public class UnderlyingPoolDescriptiveStatisticsTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullUnderlyingPoolCreditSpreadStandardDeviationPoolField() {
 
-    underlyingPoolStatistics.getUnderlyingPoolCreditSpreadStandardDeviation(null, dummyCreditSpreadTenor);
+    underlyingPoolDescriptiveStatistics.getUnderlyingPoolCreditSpreadStandardDeviation(null, dummyCreditSpreadTenors, dummyCreditSpreadTermStructures, dummyCreditSpreadTenor);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullUnderlyingPoolCreditSpreadStandardDeviationTenorsField() {
+
+    underlyingPoolDescriptiveStatistics.getUnderlyingPoolCreditSpreadStandardDeviation(dummyPool, null, dummyCreditSpreadTermStructures, dummyCreditSpreadTenor);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullUnderlyingPoolCreditSpreadStandardDeviationSpreadsField() {
+
+    underlyingPoolDescriptiveStatistics.getUnderlyingPoolCreditSpreadStandardDeviation(dummyPool, dummyCreditSpreadTenors, null, dummyCreditSpreadTenor);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullUnderlyingPoolCreditSpreadStandardDeviationTenorField() {
 
-    underlyingPoolStatistics.getUnderlyingPoolCreditSpreadStandardDeviation(dummyPool, null);
+    underlyingPoolDescriptiveStatistics.getUnderlyingPoolCreditSpreadStandardDeviation(dummyPool, dummyCreditSpreadTenors, dummyCreditSpreadTermStructures, null);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -156,13 +234,25 @@ public class UnderlyingPoolDescriptiveStatisticsTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullUnderlyingPoolCreditSpreadVariancePoolField() {
 
-    underlyingPoolStatistics.getUnderlyingPoolCreditSpreadVariance(null, dummyCreditSpreadTenor);
+    underlyingPoolDescriptiveStatistics.getUnderlyingPoolCreditSpreadVariance(null, dummyCreditSpreadTenors, dummyCreditSpreadTermStructures, dummyCreditSpreadTenor);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullUnderlyingPoolCreditSpreadVarianceTenorsField() {
+
+    underlyingPoolDescriptiveStatistics.getUnderlyingPoolCreditSpreadVariance(dummyPool, null, dummyCreditSpreadTermStructures, dummyCreditSpreadTenor);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullUnderlyingPoolCreditSpreadVarianceSpreadsField() {
+
+    underlyingPoolDescriptiveStatistics.getUnderlyingPoolCreditSpreadVariance(dummyPool, dummyCreditSpreadTenors, null, dummyCreditSpreadTenor);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullUnderlyingPoolCreditSpreadVarianceTenorField() {
 
-    underlyingPoolStatistics.getUnderlyingPoolCreditSpreadVariance(dummyPool, null);
+    underlyingPoolDescriptiveStatistics.getUnderlyingPoolCreditSpreadVariance(dummyPool, dummyCreditSpreadTenors, dummyCreditSpreadTermStructures, null);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -170,13 +260,25 @@ public class UnderlyingPoolDescriptiveStatisticsTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullUnderlyingPoolCreditSpreadSkewnessPoolField() {
 
-    underlyingPoolStatistics.getUnderlyingPoolCreditSpreadSkewness(null, dummyCreditSpreadTenor);
+    underlyingPoolDescriptiveStatistics.getUnderlyingPoolCreditSpreadSkewness(null, dummyCreditSpreadTenors, dummyCreditSpreadTermStructures, dummyCreditSpreadTenor);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullUnderlyingPoolCreditSpreadSkewnessTenorsField() {
+
+    underlyingPoolDescriptiveStatistics.getUnderlyingPoolCreditSpreadSkewness(dummyPool, null, dummyCreditSpreadTermStructures, dummyCreditSpreadTenor);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullUnderlyingPoolCreditSpreadSkewnessSpreadsField() {
+
+    underlyingPoolDescriptiveStatistics.getUnderlyingPoolCreditSpreadSkewness(dummyPool, dummyCreditSpreadTenors, null, dummyCreditSpreadTenor);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullUnderlyingPoolCreditSpreadSkewnessTenorField() {
 
-    underlyingPoolStatistics.getUnderlyingPoolCreditSpreadSkewness(dummyPool, null);
+    underlyingPoolDescriptiveStatistics.getUnderlyingPoolCreditSpreadSkewness(dummyPool, dummyCreditSpreadTenors, dummyCreditSpreadTermStructures, null);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -184,13 +286,25 @@ public class UnderlyingPoolDescriptiveStatisticsTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullUnderlyingPoolCreditSpreadKurtosisPoolField() {
 
-    underlyingPoolStatistics.getUnderlyingPoolCreditSpreadKurtosis(null, dummyCreditSpreadTenor);
+    underlyingPoolDescriptiveStatistics.getUnderlyingPoolCreditSpreadKurtosis(null, dummyCreditSpreadTenors, dummyCreditSpreadTermStructures, dummyCreditSpreadTenor);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullUnderlyingPoolCreditSpreadKurtosisTenorsField() {
+
+    underlyingPoolDescriptiveStatistics.getUnderlyingPoolCreditSpreadKurtosis(dummyPool, null, dummyCreditSpreadTermStructures, dummyCreditSpreadTenor);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullUnderlyingPoolCreditSpreadKurtosisSpreadsField() {
+
+    underlyingPoolDescriptiveStatistics.getUnderlyingPoolCreditSpreadKurtosis(dummyPool, dummyCreditSpreadTenors, null, dummyCreditSpreadTenor);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullUnderlyingPoolCreditSpreadKurtosisTenorField() {
 
-    underlyingPoolStatistics.getUnderlyingPoolCreditSpreadKurtosis(dummyPool, null);
+    underlyingPoolDescriptiveStatistics.getUnderlyingPoolCreditSpreadKurtosis(dummyPool, dummyCreditSpreadTenors, dummyCreditSpreadTermStructures, null);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -198,25 +312,37 @@ public class UnderlyingPoolDescriptiveStatisticsTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullUnderlyingPoolCreditSpreadPercentilePoolField() {
 
-    underlyingPoolStatistics.getUnderlyingPoolCreditSpreadPercentile(null, dummyCreditSpreadTenor, q);
+    underlyingPoolDescriptiveStatistics.getUnderlyingPoolCreditSpreadPercentile(null, dummyCreditSpreadTenors, dummyCreditSpreadTermStructures, dummyCreditSpreadTenor, q);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullUnderlyingPoolCreditSpreadPercentileTenorsField() {
+
+    underlyingPoolDescriptiveStatistics.getUnderlyingPoolCreditSpreadPercentile(dummyPool, null, dummyCreditSpreadTermStructures, dummyCreditSpreadTenor, q);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullUnderlyingPoolCreditSpreadPercentileSpreadsField() {
+
+    underlyingPoolDescriptiveStatistics.getUnderlyingPoolCreditSpreadPercentile(dummyPool, dummyCreditSpreadTenors, null, dummyCreditSpreadTenor, q);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullUnderlyingPoolCreditSpreadPercentileTenorField() {
 
-    underlyingPoolStatistics.getUnderlyingPoolCreditSpreadPercentile(dummyPool, null, q);
+    underlyingPoolDescriptiveStatistics.getUnderlyingPoolCreditSpreadPercentile(dummyPool, dummyCreditSpreadTenors, dummyCreditSpreadTermStructures, null, q);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullUnderlyingPoolCreditSpreadPercentileLessThanZeroField() {
 
-    underlyingPoolStatistics.getUnderlyingPoolCreditSpreadPercentile(dummyPool, dummyCreditSpreadTenor, -q);
+    underlyingPoolDescriptiveStatistics.getUnderlyingPoolCreditSpreadPercentile(dummyPool, dummyCreditSpreadTenors, dummyCreditSpreadTermStructures, dummyCreditSpreadTenor, -q);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullUnderlyingPoolCreditSpreadPercentileGreaterThanOneField() {
 
-    underlyingPoolStatistics.getUnderlyingPoolCreditSpreadPercentile(dummyPool, dummyCreditSpreadTenor, q + 1.0);
+    underlyingPoolDescriptiveStatistics.getUnderlyingPoolCreditSpreadPercentile(dummyPool, dummyCreditSpreadTenors, dummyCreditSpreadTermStructures, dummyCreditSpreadTenor, q + 1.0);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -224,25 +350,34 @@ public class UnderlyingPoolDescriptiveStatisticsTest {
   @Test
   public void testUnderlyingPoolDescriptiveStatisticsCalculations() {
 
-    double underlyingPoolTotalNotional = underlyingPoolStatistics.getUnderlyingPoolTotalNotional(dummyPool);
-    double underlyingPoolNotionalMean = underlyingPoolStatistics.getUnderlyingPoolNotionalMean(dummyPool);
+    double underlyingPoolTotalNotional = underlyingPoolDescriptiveStatistics.getUnderlyingPoolTotalNotional(dummyPool);
+    double underlyingPoolNotionalMean = underlyingPoolDescriptiveStatistics.getUnderlyingPoolNotionalMean(dummyPool);
 
-    double underlyingPoolRecoveryRateMean = underlyingPoolStatistics.getUnderlyingPoolRecoveryRateMean(dummyPool);
+    double underlyingPoolRecoveryRateMean = underlyingPoolDescriptiveStatistics.getUnderlyingPoolRecoveryRateMean(dummyPool);
 
-    double underlyingPoolCreditSpreadMinimum = underlyingPoolStatistics.getUnderlyingPoolCreditSpreadMinimum(dummyPool, dummyCreditSpreadTenor);
-    double underlyingPoolCreditSpreadMaximum = underlyingPoolStatistics.getUnderlyingPoolCreditSpreadMaximum(dummyPool, dummyCreditSpreadTenor);
+    double underlyingPoolCreditSpreadMinimum = underlyingPoolDescriptiveStatistics.getUnderlyingPoolCreditSpreadMinimum(dummyPool, dummyCreditSpreadTenors, dummyCreditSpreadTermStructures,
+        dummyCreditSpreadTenor);
+    double underlyingPoolCreditSpreadMaximum = underlyingPoolDescriptiveStatistics.getUnderlyingPoolCreditSpreadMaximum(dummyPool, dummyCreditSpreadTenors, dummyCreditSpreadTermStructures,
+        dummyCreditSpreadTenor);
 
-    double underlyingPoolCreditSpreadMean = underlyingPoolStatistics.getUnderlyingPoolCreditSpreadMean(dummyPool, dummyCreditSpreadTenor);
-    double underlyingPoolCreditSpreadMedian = underlyingPoolStatistics.getUnderlyingPoolCreditSpreadMedian(dummyPool, dummyCreditSpreadTenor);
-    //double underlyingPoolCreditSpreadMode = underlyingPoolStatistics.getUnderlyingPoolCreditSpreadMode(dummyPool, dummyCreditSpreadTenor);
+    double underlyingPoolCreditSpreadMean = underlyingPoolDescriptiveStatistics.getUnderlyingPoolCreditSpreadMean(dummyPool, dummyCreditSpreadTenors, dummyCreditSpreadTermStructures,
+        dummyCreditSpreadTenor);
+    double underlyingPoolCreditSpreadMedian = underlyingPoolDescriptiveStatistics.getUnderlyingPoolCreditSpreadMedian(dummyPool, dummyCreditSpreadTenors, dummyCreditSpreadTermStructures,
+        dummyCreditSpreadTenor);
+    //double underlyingPoolCreditSpreadMode = underlyingPoolStatistics.getUnderlyingPoolCreditSpreadMode(dummyPool, dummyCreditSpreadTenors, dummyCreditSpreadTermStructures, dummyCreditSpreadTenor);
 
-    double underlyingPoolCreditSpreadVariance = underlyingPoolStatistics.getUnderlyingPoolCreditSpreadVariance(dummyPool, dummyCreditSpreadTenor);
-    double underlyingPoolCreditSpreadStandardDeviation = underlyingPoolStatistics.getUnderlyingPoolCreditSpreadStandardDeviation(dummyPool, dummyCreditSpreadTenor);
+    double underlyingPoolCreditSpreadVariance = underlyingPoolDescriptiveStatistics.getUnderlyingPoolCreditSpreadVariance(dummyPool, dummyCreditSpreadTenors, dummyCreditSpreadTermStructures,
+        dummyCreditSpreadTenor);
+    double underlyingPoolCreditSpreadStandardDeviation = underlyingPoolDescriptiveStatistics.getUnderlyingPoolCreditSpreadStandardDeviation(dummyPool, dummyCreditSpreadTenors,
+        dummyCreditSpreadTermStructures, dummyCreditSpreadTenor);
 
-    double underlyingPoolCreditSpreadSkewness = underlyingPoolStatistics.getUnderlyingPoolCreditSpreadSkewness(dummyPool, dummyCreditSpreadTenor);
-    double underlyingPoolCreditSpreadKurtosis = underlyingPoolStatistics.getUnderlyingPoolCreditSpreadKurtosis(dummyPool, dummyCreditSpreadTenor);
+    double underlyingPoolCreditSpreadSkewness = underlyingPoolDescriptiveStatistics.getUnderlyingPoolCreditSpreadSkewness(dummyPool, dummyCreditSpreadTenors, dummyCreditSpreadTermStructures,
+        dummyCreditSpreadTenor);
+    double underlyingPoolCreditSpreadKurtosis = underlyingPoolDescriptiveStatistics.getUnderlyingPoolCreditSpreadKurtosis(dummyPool, dummyCreditSpreadTenors, dummyCreditSpreadTermStructures,
+        dummyCreditSpreadTenor);
 
-    double underlyingPoolCreditSpreadqPercentile = underlyingPoolStatistics.getUnderlyingPoolCreditSpreadPercentile(dummyPool, dummyCreditSpreadTenor, q);
+    double underlyingPoolCreditSpreadqPercentile = underlyingPoolDescriptiveStatistics.getUnderlyingPoolCreditSpreadPercentile(dummyPool, dummyCreditSpreadTenors, dummyCreditSpreadTermStructures,
+        dummyCreditSpreadTenor, q);
 
     if (outputResults) {
       System.out.println("Pool statistics report");
@@ -254,20 +389,20 @@ public class UnderlyingPoolDescriptiveStatisticsTest {
 
       System.out.println("Average recovery rate of all obligors in pool = " + underlyingPoolRecoveryRateMean * 100.0 + "%");
 
-      System.out.println("Minimum " + dummyCreditSpreadTenor + " credit spread = " + underlyingPoolCreditSpreadMinimum + "bps");
-      System.out.println("Maximum " + dummyCreditSpreadTenor + " credit spread = " + underlyingPoolCreditSpreadMaximum + "bps");
+      System.out.println("Minimum " + dummyCreditSpreadTenors + " credit spread = " + underlyingPoolCreditSpreadMinimum + "bps");
+      System.out.println("Maximum " + dummyCreditSpreadTenors + " credit spread = " + underlyingPoolCreditSpreadMaximum + "bps");
 
-      System.out.println("Mean " + dummyCreditSpreadTenor + " credit spread = " + underlyingPoolCreditSpreadMean + "bps");
-      System.out.println("Median " + dummyCreditSpreadTenor + " credit spread = " + underlyingPoolCreditSpreadMedian + "bps");
+      System.out.println("Mean " + dummyCreditSpreadTenors + " credit spread = " + underlyingPoolCreditSpreadMean + "bps");
+      System.out.println("Median " + dummyCreditSpreadTenors + " credit spread = " + underlyingPoolCreditSpreadMedian + "bps");
       //System.out.println("Modal " + dummyCreditSpreadTenor + " credit spread = " + underlyingPoolCreditSpreadMode + "bps");
 
-      System.out.println(dummyCreditSpreadTenor + " Credit spread variance = " + underlyingPoolCreditSpreadVariance + "bps");
-      System.out.println(dummyCreditSpreadTenor + " Credit spread standard deviation = " + underlyingPoolCreditSpreadStandardDeviation + "bps");
+      System.out.println(dummyCreditSpreadTenors + " Credit spread variance = " + underlyingPoolCreditSpreadVariance + "bps");
+      System.out.println(dummyCreditSpreadTenors + " Credit spread standard deviation = " + underlyingPoolCreditSpreadStandardDeviation + "bps");
 
-      System.out.println(dummyCreditSpreadTenor + " Credit spread skewness = " + underlyingPoolCreditSpreadSkewness + "bps");
-      System.out.println(dummyCreditSpreadTenor + " Credit spread kurtosis = " + underlyingPoolCreditSpreadKurtosis + "bps");
+      System.out.println(dummyCreditSpreadTenors + " Credit spread skewness = " + underlyingPoolCreditSpreadSkewness + "bps");
+      System.out.println(dummyCreditSpreadTenors + " Credit spread kurtosis = " + underlyingPoolCreditSpreadKurtosis + "bps");
 
-      System.out.println(dummyCreditSpreadTenor + " Credit spread " + q * 100.0 + "% percentile = " + underlyingPoolCreditSpreadqPercentile + "bps");
+      System.out.println(dummyCreditSpreadTenors + " Credit spread " + q * 100.0 + "% percentile = " + underlyingPoolCreditSpreadqPercentile + "bps");
       System.out.println();
     }
   }

@@ -84,13 +84,18 @@ public class UnderlyingAggregationFunction implements AggregationFunction<String
   private FinancialSecurityVisitor<String> _commodityFutureOptionSecurityVisitor = new FinancialSecurityVisitorAdapter<String>() {
     @Override
     public String visitCommodityFutureOptionSecurity(CommodityFutureOptionSecurity security) {
-      Security underlying = _secSource.getSingle(ExternalIdBundle.of(security.getUnderlyingId()));
-      if (underlying != null) {
-        String identifier = underlying.getExternalIdBundle().getValue(_preferredScheme);
-        return identifier != null ? identifier : NOT_APPLICABLE;
+      if (security.getUnderlyingId().isScheme(_preferredScheme)) {
+        String identifier = security.getUnderlyingId().getValue();
+        return identifier != null ? identifier : NOT_APPLICABLE;        
       } else {
-        String identifier = security.getUnderlyingId() != null ? security.getUnderlyingId().getValue() : null;
-        return identifier != null ? identifier : NOT_APPLICABLE;
+        Security underlying = _secSource.getSingle(ExternalIdBundle.of(security.getUnderlyingId()));
+        if (underlying != null) {
+          String identifier = underlying.getExternalIdBundle().getValue(_preferredScheme);
+          return identifier != null ? identifier : NOT_APPLICABLE;
+        } else {
+          String identifier = security.getUnderlyingId() != null ? security.getUnderlyingId().getValue() : null;
+          return identifier != null ? identifier : NOT_APPLICABLE;
+        }
       }
     }    
   };
@@ -118,13 +123,18 @@ public class UnderlyingAggregationFunction implements AggregationFunction<String
   private FinancialSecurityVisitor<String> _equityOptionSecurityVisitor = new FinancialSecurityVisitorAdapter<String>() {
     @Override
     public String visitEquityOptionSecurity(EquityOptionSecurity security) {
-      Security underlying = _secSource.getSingle(ExternalIdBundle.of(security.getUnderlyingId()));
-      if (underlying != null) {
-        String identifier = underlying.getExternalIdBundle().getValue(_preferredScheme);
-        return identifier != null ? identifier : NOT_APPLICABLE;
+      if (security.getUnderlyingId().isScheme(_preferredScheme)) {
+        String identifier = security.getUnderlyingId().getValue();
+        return identifier != null ? identifier : NOT_APPLICABLE;        
       } else {
-        String identifier = security.getUnderlyingId() != null ? security.getUnderlyingId().getValue() : null;
-        return identifier != null ? identifier : NOT_APPLICABLE;
+        Security underlying = _secSource.getSingle(ExternalIdBundle.of(security.getUnderlyingId()));
+        if (underlying != null) {
+          String identifier = underlying.getExternalIdBundle().getValue(_preferredScheme);
+          return identifier != null ? identifier : NOT_APPLICABLE;
+        } else {
+          String identifier = security.getUnderlyingId() != null ? security.getUnderlyingId().getValue() : null;
+          return identifier != null ? identifier : NOT_APPLICABLE;
+        }
       }
     }    
   };
@@ -132,13 +142,18 @@ public class UnderlyingAggregationFunction implements AggregationFunction<String
   private FinancialSecurityVisitor<String> _equityBarrierOptionSecurityVisitor = new FinancialSecurityVisitorAdapter<String>() {
     @Override
     public String visitEquityBarrierOptionSecurity(EquityBarrierOptionSecurity security) {
-      Security underlying = _secSource.getSingle(ExternalIdBundle.of(security.getUnderlyingId()));
-      if (underlying != null) {
-        String identifier = underlying.getExternalIdBundle().getValue(_preferredScheme);
-        return identifier != null ? identifier : NOT_APPLICABLE;
+      if (security.getUnderlyingId().isScheme(_preferredScheme)) {
+        String identifier = security.getUnderlyingId().getValue();
+        return identifier != null ? identifier : NOT_APPLICABLE;        
       } else {
-        String identifier = security.getUnderlyingId() != null ? security.getUnderlyingId().getValue() : null;
-        return identifier != null ? identifier : NOT_APPLICABLE;
+        Security underlying = _secSource.getSingle(ExternalIdBundle.of(security.getUnderlyingId()));
+        if (underlying != null) {
+          String identifier = underlying.getExternalIdBundle().getValue(_preferredScheme);
+          return identifier != null ? identifier : NOT_APPLICABLE;
+        } else {
+          String identifier = security.getUnderlyingId() != null ? security.getUnderlyingId().getValue() : null;
+          return identifier != null ? identifier : NOT_APPLICABLE;
+        }
       }
     }
   };
@@ -324,6 +339,10 @@ public class UnderlyingAggregationFunction implements AggregationFunction<String
   private FinancialSecurityVisitor<String> _irFutureOptionSecurityVisitor = new FinancialSecurityVisitorAdapter<String>() {
     @Override
     public String visitIRFutureOptionSecurity(IRFutureOptionSecurity security) {
+      if (security.getUnderlyingId().isScheme(_preferredScheme)) {
+        String identifier = security.getUnderlyingId().getValue();
+        return identifier != null ? identifier : NOT_APPLICABLE;        
+      }
       Security underlying = _secSource.getSingle(ExternalIdBundle.of(security.getUnderlyingId()));
       String identifier = underlying.getExternalIdBundle().getValue(_preferredScheme);
       return identifier != null ? identifier : NOT_APPLICABLE;
