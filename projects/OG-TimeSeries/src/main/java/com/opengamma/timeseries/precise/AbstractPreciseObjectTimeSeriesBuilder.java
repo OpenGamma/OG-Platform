@@ -49,6 +49,12 @@ public abstract class AbstractPreciseObjectTimeSeriesBuilder<T, V>
 
   //-------------------------------------------------------------------------
   @Override
+  public int size() {
+    return _series.size();
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
   public PreciseObjectTimeSeriesBuilder<T, V> put(T time, V value) {
     return put(convertToLong(time), value);
   }

@@ -64,6 +64,12 @@ public abstract class AbstractDateDoubleTimeSeriesBuilder<T>
 
   //-------------------------------------------------------------------------
   @Override
+  public int size() {
+    return _size;
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
   public DateDoubleTimeSeriesBuilder<T> put(T time, double value) {
     return put(convertToInt(time), value);
   }

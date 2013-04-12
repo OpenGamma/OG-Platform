@@ -49,6 +49,12 @@ public abstract class AbstractDateObjectTimeSeriesBuilder<T, V>
 
   //-------------------------------------------------------------------------
   @Override
+  public int size() {
+    return _series.size();
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
   public DateObjectTimeSeriesBuilder<T, V> put(T time, V value) {
     return put(convertToInt(time), value);
   }

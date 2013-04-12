@@ -18,6 +18,14 @@ import java.util.Map;
 public interface DateDoubleTimeSeriesBuilder<T> {
 
   /**
+   * Gets the size of the builder.
+   * 
+   * @return the number of pairs in the builder
+   */
+  int size();
+
+  //-------------------------------------------------------------------------
+  /**
    * Puts a date-value pair into the builder.
    * 
    * @param time  the time to add, not null

@@ -64,6 +64,12 @@ public abstract class AbstractPreciseDoubleTimeSeriesBuilder<T>
 
   //-------------------------------------------------------------------------
   @Override
+  public int size() {
+    return _size;
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
   public PreciseDoubleTimeSeriesBuilder<T> put(T time, double value) {
     return put(convertToLong(time), value);
   }

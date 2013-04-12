@@ -18,6 +18,14 @@ import java.util.Map;
 public interface PreciseDoubleTimeSeriesBuilder<T> {
 
   /**
+   * Gets the size of the builder.
+   * 
+   * @return the number of pairs in the builder
+   */
+  int size();
+
+  //-------------------------------------------------------------------------
+  /**
    * Puts an instant-value pair into the builder.
    * 
    * @param time  the time to add, not null
