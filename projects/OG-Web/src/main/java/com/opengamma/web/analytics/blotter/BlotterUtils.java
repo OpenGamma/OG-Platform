@@ -109,8 +109,7 @@ import com.opengamma.util.time.Expiry;
       LegacyFixedRecoveryCDSSecurity.meta(),
       StandardVanillaCDSSecurity.meta(),
       StandardRecoveryLockCDSSecurity.meta(),
-      StandardFixedRecoveryCDSSecurity.meta(),
-      CreditDefaultSwapIndexDefinitionSecurity.meta());
+      StandardFixedRecoveryCDSSecurity.meta());
 
   /** Meta bean factory for looking up meta beans by type name. */
   private static final MetaBeanFactory s_metaBeanFactory = new MapMetaBeanFactory(s_metaBeans);

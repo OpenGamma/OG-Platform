@@ -17,7 +17,7 @@ $.register_module({
                     trade: og.blotter.util.otc_trade, security: {type: "SwaptionSecurity", name: "SwaptionSecurity ABC", 
                     externalIdBundle: ""}};
             }
-            data.nodeId = config.portfolio ? config.portfolio.id : null;
+            data.nodeId = config.node ? config.node.id : null;
             constructor.load = function () {
                 constructor.title = 'Swaption';
                 form = new og.common.util.ui.Form({
