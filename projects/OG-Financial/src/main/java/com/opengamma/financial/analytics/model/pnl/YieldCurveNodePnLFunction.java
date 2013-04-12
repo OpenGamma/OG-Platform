@@ -81,8 +81,10 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
   /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(YieldCurveNodePnLFunction.class);
   // Please see http://jira.opengamma.com/browse/PLAT-2330 for information about this constant.
-  /** Property name of the contribution to the P&L (e.g. yield curve, FX rate) */
-  public static final String PROPERTY_PNL_CONTRIBUTIONS = "PnLContribution";
+  /** Property name of the contribution to the P&L (e.g. yield curve, FX rate)
+   * @deprecated Use {@link ValuePropertyNames#PROPERTY_PNL_CONTRIBUTIONS} instead*/
+  @Deprecated
+  public static final String PROPERTY_PNL_CONTRIBUTIONS = ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS;
   /** Removes holidays from schedule */
   private static final HolidayDateRemovalFunction HOLIDAY_REMOVER = HolidayDateRemovalFunction.getInstance();
   /** A calendar containing only weekends */
@@ -251,7 +253,7 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
     if (resultCurrencies != null && resultCurrencies.size() == 1) {
       final ValueRequirement ccyConversionTSRequirement = getCurrencyConversionTSRequirement(position, currencyString, resultCurrencies);
       if (ccyConversionTSRequirement != null) {
-        requirements.add(getCurrencyConversionTSRequirement(position, currencyString, resultCurrencies));
+        requirements.add(ccyConversionTSRequirement);
       }
     }
     return requirements;
@@ -277,7 +279,7 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
         .withAny(ValuePropertyNames.SAMPLING_PERIOD)
         .withAny(ValuePropertyNames.SCHEDULE_CALCULATOR)
         .withAny(ValuePropertyNames.SAMPLING_FUNCTION)
-        .with(PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES).get();
+        .with(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES).get();
     return Sets.newHashSet(new ValueSpecification(ValueRequirementNames.PNL_SERIES, target.toSpecification(), properties));
   }
 
@@ -300,7 +302,7 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
         .withAny(ValuePropertyNames.SAMPLING_PERIOD)
         .withAny(ValuePropertyNames.SCHEDULE_CALCULATOR)
         .withAny(ValuePropertyNames.SAMPLING_FUNCTION)
-        .with(PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES).get();
+        .with(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES).get();
     return Sets.newHashSet(new ValueSpecification(ValueRequirementNames.PNL_SERIES, target.toSpecification(), properties));
   }
 
@@ -331,7 +333,7 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
         .with(ValuePropertyNames.SAMPLING_PERIOD, desiredValue.getConstraint(ValuePropertyNames.SAMPLING_PERIOD))
         .with(ValuePropertyNames.SCHEDULE_CALCULATOR, desiredValue.getConstraint(ValuePropertyNames.SCHEDULE_CALCULATOR))
         .with(ValuePropertyNames.SAMPLING_FUNCTION, desiredValue.getConstraint(ValuePropertyNames.SAMPLING_FUNCTION))
-        .with(PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES).get();
+        .with(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES).get();
   }
 
   private Period getSamplingPeriod(final String samplingPeriodName) {
@@ -372,7 +374,7 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
       }
       final HistoricalTimeSeries dbNodeTimeSeries = timeSeriesBundle.get(MarketDataRequirementNames.MARKET_VALUE, id);
       if (dbNodeTimeSeries == null) {
-        throw new OpenGammaRuntimeException("Could not identifier / price series pair for " + id);
+        throw new OpenGammaRuntimeException("Could not get historical time series for " + id);
       }
       if (dbNodeTimeSeries.getTimeSeries().isEmpty()) {
         throw new OpenGammaRuntimeException("Time series " + id + " is empty");

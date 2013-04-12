@@ -19,6 +19,10 @@ import com.opengamma.util.PublicAPI;
 @PublicAPI
 public final class ValuePropertyNames {
 
+  // Please see http://jira.opengamma.com/browse/PLAT-2330 for information about this constant.
+  /** Property name of the contribution to the P&L (e.g. yield curve, FX rate) */
+  public static final String PROPERTY_PNL_CONTRIBUTIONS = "PnLContribution";
+
   /**
    * Restricted constructor.
    */

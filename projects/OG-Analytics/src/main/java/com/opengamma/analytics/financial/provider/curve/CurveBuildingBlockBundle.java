@@ -12,6 +12,7 @@ import java.util.Map;
 import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
+import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -49,6 +50,10 @@ public class CurveBuildingBlockBundle {
    */
   public void addAll(final CurveBuildingBlockBundle other) {
     _bundle.putAll(other._bundle);
+  }
+
+  public void add(final String name, final CurveBuildingBlock block, final DoubleMatrix2D mat) {
+    _bundle.put(name, new ObjectsPair<CurveBuildingBlock, DoubleMatrix2D>(block, mat));
   }
 
   /**

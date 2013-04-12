@@ -134,7 +134,7 @@ public class FXOptionBlackVegaPnLFunction extends AbstractFunction {
           .withAny(ValuePropertyNames.SAMPLING_PERIOD)
           .withAny(ValuePropertyNames.SCHEDULE_CALCULATOR)
           .withAny(ValuePropertyNames.SAMPLING_FUNCTION)
-          .with(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.VEGA_QUOTE_MATRIX)
+          .with(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.VEGA_QUOTE_MATRIX)
           .get();
       return Collections.singleton(new ValueSpecification(ValueRequirementNames.PNL_SERIES, target.toSpecification(), properties));
     }

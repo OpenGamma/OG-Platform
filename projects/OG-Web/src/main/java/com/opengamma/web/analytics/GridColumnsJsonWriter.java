@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.json.JSONArray;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -20,6 +22,8 @@ import com.opengamma.web.analytics.formatting.ResultsFormatter;
  *
  */
 public class GridColumnsJsonWriter {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(GridColumnsJsonWriter.class);
 
   /** For looking up the {@link DataType} for a column. */
   private final ResultsFormatter _formatter;
@@ -60,6 +64,8 @@ public class GridColumnsJsonWriter {
       groupMap.put("columns", columnList);
       groupList.add(groupMap);
     }
-    return new JSONArray(groupList).toString();
+    String json = new JSONArray(groupList).toString();
+    s_logger.debug("Returning JSON for columns {}", json);
+    return json;
   }
 }
