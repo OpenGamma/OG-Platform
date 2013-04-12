@@ -501,7 +501,7 @@ public class InterpolatedDoublesCurve extends ArraysDoublesCurve {
 
   private void init(final Interpolator1D interpolator) {
     Validate.notNull(interpolator, "interpolator");
-    Validate.isTrue(size() >= 2);
+  //  Validate.isTrue(size() >= 2);
     _dataBundle = interpolator.getDataBundleFromSortedArrays(getXDataAsPrimitive(), getYDataAsPrimitive());
     _interpolator = interpolator;
   }
