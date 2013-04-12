@@ -14,6 +14,7 @@ import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.leg
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.legacy.PresentValueLegacyCreditDefaultSwap;
 import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
+import com.opengamma.analytics.financial.credit.util.CreditMarketDataUtils;
 import com.opengamma.financial.convention.daycount.ActualThreeSixtyFive;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.util.ArgumentChecker;
@@ -22,19 +23,14 @@ import com.opengamma.util.ArgumentChecker;
  * Class containing methods for the computation of Value-on-Default (VoD or jump-to-default risk) for a vanilla Legacy CDS
  */
 public class VoDCreditDefaultSwap {
-
-  //------------------------------------------------------------------------------------------------------------------------------------------
-
+  private static final DayCount ACT_365 = new ActualThreeSixtyFive();
   private final double _tolerance = 1e-15;
-
-  private static final DayCount ACT365 = new ActualThreeSixtyFive();
-
   //-------------------------------------------------------------------------------------------------
 
   // TODO : Lots of ongoing work to do in this class - Work In Progress
 
   // TODO : Further checks on efficacy of input arguments
-  // TODO : Need to consider more sophisticated sensitivity calculations e.g. algorithmic differentiation 
+  // TODO : Need to consider more sophisticated sensitivity calculations e.g. algorithmic differentiation
 
   // TODO : Need to remove the Math.abs() calls on the MtM calc
 
@@ -42,35 +38,23 @@ public class VoDCreditDefaultSwap {
 
   // Compute the VoD
 
-  public double getValueOnDefaultCreditDefaultSwap(
-      final ZonedDateTime valuationDate,
-      final LegacyVanillaCreditDefaultSwapDefinition cds,
-      final ISDADateCurve/*ISDACurve*/yieldCurve,
-      final ZonedDateTime[] marketTenors,
-      final double[] marketSpreads,
-      final PriceType priceType) {
-
-    // ----------------------------------------------------------------------------------------------------------------------------------------
-
-    // Check input objects are not null
-
+  public double getValueOnDefaultCreditDefaultSwap(final ZonedDateTime valuationDate, final LegacyVanillaCreditDefaultSwapDefinition cds, final ISDADateCurve/*ISDACurve*/yieldCurve,
+      final ZonedDateTime[] marketTenors, final double[] marketSpreads, final PriceType priceType) {
     ArgumentChecker.notNull(valuationDate, "Valuation date");
-    ArgumentChecker.notNull(cds, "LegacyCreditDefaultSwapDefinition");
+    ArgumentChecker.notNull(cds, "CreditDefaultSwapDefinition");
     ArgumentChecker.notNull(yieldCurve, "YieldCurve");
     ArgumentChecker.notNull(marketTenors, "Market tenors");
     ArgumentChecker.notNull(marketSpreads, "Market spreads");
-
-    // ----------------------------------------------------------------------------------------------------------------------------------------
+    ArgumentChecker.notNull(priceType, "price type");
+    CreditMarketDataUtils.checkSpreadData(valuationDate, marketTenors, marketSpreads);
 
     // Vector of time nodes for the hazard rate curve
     final double[] times = new double[marketTenors.length];
 
     times[0] = 0.0;
     for (int m = 1; m < marketTenors.length; m++) {
-      times[m] = ACT365.getDayCountFraction(valuationDate, marketTenors[m]);
+      times[m] = ACT_365.getDayCountFraction(valuationDate, marketTenors[m]);
     }
-
-    // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Call the constructor to create a calibrate hazard rate curve object
     final CalibrateHazardRateCurveLegacyCreditDefaultSwap hazardRateCurve = new CalibrateHazardRateCurveLegacyCreditDefaultSwap();
@@ -90,7 +74,7 @@ public class VoDCreditDefaultSwap {
     final double presentValue = creditDefaultSwap.getPresentValueLegacyCreditDefaultSwap(valuationDate, cds, yieldCurve, calibratedHazardRateCurve, priceType);
 
     // Calculate the Loss Given Default (LGD) amount
-    double lossGivenDefault = cds.getNotional() * (1 - cds.getRecoveryRate());
+    final double lossGivenDefault = cds.getNotional() * (1 - cds.getRecoveryRate());
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -105,7 +89,6 @@ public class VoDCreditDefaultSwap {
     }
 
     return valueOnDefault;
-  }
 
-  // ------------------------------------------------------------------------------------------------------------------------------------------
+  }
 }
