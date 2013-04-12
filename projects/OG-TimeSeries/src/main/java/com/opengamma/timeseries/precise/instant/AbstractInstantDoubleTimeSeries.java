@@ -32,10 +32,6 @@ import org.threeten.bp.Instant;
 
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.DoubleTimeSeriesOperators.BinaryOperator;
-import com.opengamma.timeseries.fast.DateTimeNumericEncoding;
-import com.opengamma.timeseries.fast.integer.FastIntDoubleTimeSeries;
-import com.opengamma.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
-import com.opengamma.timeseries.fast.longint.FastLongDoubleTimeSeries;
 import com.opengamma.timeseries.precise.AbstractPreciseDoubleTimeSeries;
 import com.opengamma.timeseries.precise.PreciseDoubleTimeSeries;
 
@@ -570,17 +566,6 @@ abstract class AbstractInstantDoubleTimeSeries
       min = Math.min(min, value);
     }
     return min;
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  public FastIntDoubleTimeSeries toFastIntDoubleTimeSeries(DateTimeNumericEncoding encoding) {
-    throw new UnsupportedOperationException("Instant does not fit into an int");
-  }
-
-  @Override
-  public FastLongDoubleTimeSeries toFastLongDoubleTimeSeries(DateTimeNumericEncoding encoding) {
-    return new FastArrayLongDoubleTimeSeries(encoding, timesArrayFast0(), valuesArrayFast0());
   }
 
   //-------------------------------------------------------------------------

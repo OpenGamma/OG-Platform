@@ -9,7 +9,7 @@ package com.opengamma.timeseries;
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 
-import com.opengamma.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
 
 /**
  * Test to check performance.
@@ -41,7 +41,7 @@ public class TimeSeriesPerformanceTest {
       dates[i] = base.plusDays(i);
       values[i] = i * 1.2d;
     }
-    DoubleTimeSeries<LocalDate> ts = new ArrayLocalDateDoubleTimeSeries(dates, values);
+    DoubleTimeSeries<LocalDate> ts = ImmutableLocalDateDoubleTimeSeries.of(dates, values);
     long start = System.nanoTime();
     for (int j = 0; j < loop; j++) {
       ts = ts.add(1.5d);
@@ -77,8 +77,8 @@ public class TimeSeriesPerformanceTest {
       dates2[i] = base.plusDays(i);
       values2[i] = i * 1.5d;
     }
-    DoubleTimeSeries<LocalDate> ts1 = new ArrayLocalDateDoubleTimeSeries(dates1, values1);
-    DoubleTimeSeries<LocalDate> ts2 = new ArrayLocalDateDoubleTimeSeries(dates2, values2);
+    DoubleTimeSeries<LocalDate> ts1 = ImmutableLocalDateDoubleTimeSeries.of(dates1, values1);
+    DoubleTimeSeries<LocalDate> ts2 = ImmutableLocalDateDoubleTimeSeries.of(dates2, values2);
     long start = System.nanoTime();
     for (int j = 0; j < loop; j++) {
       ts1 = ts1.add(ts2);
@@ -114,8 +114,8 @@ public class TimeSeriesPerformanceTest {
       dates2[i] = base.plusDays(i);
       values2[i] = i * 1.5d;
     }
-    DoubleTimeSeries<LocalDate> ts1 = new ArrayLocalDateDoubleTimeSeries(dates1, values1);
-    DoubleTimeSeries<LocalDate> ts2 = new ArrayLocalDateDoubleTimeSeries(dates2, values2);
+    DoubleTimeSeries<LocalDate> ts1 = ImmutableLocalDateDoubleTimeSeries.of(dates1, values1);
+    DoubleTimeSeries<LocalDate> ts2 = ImmutableLocalDateDoubleTimeSeries.of(dates2, values2);
     long start = System.nanoTime();
     for (int j = 0; j < loop; j++) {
       ts1 = ts1.multiply(ts2);
@@ -147,7 +147,7 @@ public class TimeSeriesPerformanceTest {
       dates[i] = base.plusDays(i);
       values[i] = i * 1.2d;
     }
-    DoubleTimeSeries<LocalDate> ts = new ArrayLocalDateDoubleTimeSeries(dates, values);
+    DoubleTimeSeries<LocalDate> ts = ImmutableLocalDateDoubleTimeSeries.of(dates, values);
     long start = System.nanoTime();
     for (int j = 0; j < loop; j++) {
       ts = ts.reciprocal();

@@ -34,9 +34,6 @@ import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.DoubleTimeSeriesOperators.BinaryOperator;
 import com.opengamma.timeseries.date.AbstractDateDoubleTimeSeries;
 import com.opengamma.timeseries.date.DateDoubleTimeSeries;
-import com.opengamma.timeseries.fast.DateTimeNumericEncoding;
-import com.opengamma.timeseries.fast.integer.FastArrayIntDoubleTimeSeries;
-import com.opengamma.timeseries.fast.integer.FastIntDoubleTimeSeries;
 
 /**
  * Abstract implementation of {@code LocalDateDoubleTimeSeries}.
@@ -569,12 +566,6 @@ abstract class AbstractLocalDateDoubleTimeSeries
       min = Math.min(min, value);
     }
     return min;
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  public FastIntDoubleTimeSeries toFastIntDoubleTimeSeries(DateTimeNumericEncoding encoding) {
-    return new FastArrayIntDoubleTimeSeries(encoding, timesArrayFast0(), valuesArrayFast0());
   }
 
   //-------------------------------------------------------------------------

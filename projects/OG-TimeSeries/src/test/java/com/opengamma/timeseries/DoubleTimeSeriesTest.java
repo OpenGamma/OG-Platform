@@ -11,14 +11,11 @@ import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 
-import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
@@ -90,24 +87,6 @@ public abstract class DoubleTimeSeriesTest<T> {
     Iterator<Double> valuesIter = dts2.valuesIterator();
     for (double i = 1.0; i <= 6.0; i += 1.0) {
       assertTrue(TimeSeriesUtils.closeEquals(i, valuesIter.next()));
-    }
-  }
-
-  @Test
-  public void test_mutabilityOrdering() {
-    DoubleTimeSeries<T> dts = createEmptyTimeSeries();
-    if (dts instanceof MutableDoubleTimeSeries) {
-      MutableDoubleTimeSeries<T> mts = (MutableDoubleTimeSeries<T>) dts;
-      List<T> times = Arrays.asList(testTimes());
-      for (int test = 0; test < 100; test++) {
-        Collections.shuffle(times);
-        @SuppressWarnings("unchecked")
-        T[] shuffledTimes = (T[]) times.toArray();
-        for (int i = 0; i < times.size(); i++) {
-          mts.putDataPoint(shuffledTimes[i], Double.valueOf(i));
-        }
-        Assert.assertEquals(mts.timesArray(), testTimes());
-      }
     }
   }
 

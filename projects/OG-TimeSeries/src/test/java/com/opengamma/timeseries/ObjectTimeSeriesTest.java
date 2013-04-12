@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.timeseries.object;
+package com.opengamma.timeseries;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
@@ -19,8 +19,6 @@ import java.util.Objects;
 
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-
-import com.opengamma.timeseries.ObjectTimeSeries;
 
 /**
  * Abstract test class for {@code ObjectTimeSeries}.
@@ -397,25 +395,6 @@ public abstract class ObjectTimeSeriesTest<T, V> {
     assertFalse(createStandardTimeSeries().equals(createEmptyTimeSeries()));
     assertFalse(createEmptyTimeSeries().equals(createStandardTimeSeries()));
     assertEquals(createEmptyTimeSeries(), createEmptyTimeSeries());
-  }
-
-  //-------------------------------------------------------------------------
-  @Test
-  public void test_intersectionFirstValue() {
-    ObjectTimeSeries<T, V> dts = createStandardTimeSeries();
-    ObjectTimeSeries<T, V> dts2 = createStandardTimeSeries2();
-    ObjectTimeSeries<T, V> ets = createEmptyTimeSeries();
-    assertEquals(ets, ets.intersectionFirstValue(dts));
-    assertEquals(ets, dts.intersectionFirstValue(ets));
-    
-    ObjectTimeSeries<T, V> result = dts.intersectionFirstValue(dts2);
-    assertEquals(3, result.size());
-    assertEquals(testValues()[3], result.getValueAtIndex(0));
-    assertEquals(testValues()[4], result.getValueAtIndex(1));
-    assertEquals(testValues()[5], result.getValueAtIndex(2));
-    assertEquals(dts.getTimeAtIndex(3), result.getTimeAtIndex(0));
-    assertEquals(dts.getTimeAtIndex(4), result.getTimeAtIndex(1));
-    assertEquals(dts.getTimeAtIndex(5), result.getTimeAtIndex(2));
   }
 
 }

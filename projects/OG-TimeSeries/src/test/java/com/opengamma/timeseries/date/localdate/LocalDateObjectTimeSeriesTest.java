@@ -8,7 +8,7 @@ package com.opengamma.timeseries.date.localdate;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Month;
 
-import com.opengamma.timeseries.object.BigDecimalObjectTimeSeriesTest;
+import com.opengamma.timeseries.BigDecimalObjectTimeSeriesTest;
 
 /**
  * Abstract test for LocalDateObjectTimeSeries.

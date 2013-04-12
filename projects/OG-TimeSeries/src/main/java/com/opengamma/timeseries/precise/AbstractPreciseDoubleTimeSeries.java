@@ -11,23 +11,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import org.threeten.bp.ZoneId;
-
 import com.opengamma.timeseries.TimeSeriesUtils;
-import com.opengamma.timeseries.fast.DateTimeNumericEncoding;
-import com.opengamma.timeseries.fast.integer.FastIntDoubleTimeSeries;
-import com.opengamma.timeseries.fast.integer.FastListIntDoubleTimeSeries;
-import com.opengamma.timeseries.fast.integer.FastMutableIntDoubleTimeSeries;
-import com.opengamma.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
-import com.opengamma.timeseries.fast.longint.FastListLongDoubleTimeSeries;
-import com.opengamma.timeseries.fast.longint.FastLongDoubleTimeSeries;
-import com.opengamma.timeseries.fast.longint.FastMutableLongDoubleTimeSeries;
-import com.opengamma.timeseries.localdate.ListLocalDateDoubleTimeSeries;
-import com.opengamma.timeseries.localdate.MutableLocalDateDoubleTimeSeries;
-import com.opengamma.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
-import com.opengamma.timeseries.zoneddatetime.ListZonedDateTimeDoubleTimeSeries;
-import com.opengamma.timeseries.zoneddatetime.MutableZonedDateTimeDoubleTimeSeries;
-import com.opengamma.timeseries.zoneddatetime.ZonedDateTimeDoubleTimeSeries;
 
 /**
  * Abstract implementation of {@code InstantDoubleTimeSeries}.
@@ -219,98 +203,6 @@ public abstract class AbstractPreciseDoubleTimeSeries<T> implements PreciseDoubl
       result[i] = times[i];
     }
     return result;
-  }
-
-  //-------------------------------------------------------------------------
-  private FastIntDoubleTimeSeries toFastIntDaysDTS() {
-    return toFastIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS);
-  }
-
-  private FastMutableIntDoubleTimeSeries toFastMutableIntDaysDTS() {
-    return toFastMutableIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS);
-  }
-
-  private FastLongDoubleTimeSeries toFastLongMillisDTS() {
-    return toFastLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS);
-  }
-
-  private FastMutableLongDoubleTimeSeries toFastMutableLongMillisDTS() {
-    return toFastMutableLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS);
-  }
-
-  @Override
-  public FastIntDoubleTimeSeries toFastIntDoubleTimeSeries() {
-    return toFastIntDaysDTS();
-  }
-
-  @Override
-  public FastMutableIntDoubleTimeSeries toFastMutableIntDoubleTimeSeries() {
-    return new FastListIntDoubleTimeSeries(toFastIntDoubleTimeSeries());
-  }
-
-  @Override
-  public FastMutableIntDoubleTimeSeries toFastMutableIntDoubleTimeSeries(DateTimeNumericEncoding encoding) {
-    return new FastListIntDoubleTimeSeries(encoding, toFastIntDoubleTimeSeries());
-  }
-
-  @Override
-  public FastLongDoubleTimeSeries toFastLongDoubleTimeSeries() {
-    return new FastArrayLongDoubleTimeSeries(toFastIntDaysDTS());
-  }
-
-  @Override
-  public FastLongDoubleTimeSeries toFastLongDoubleTimeSeries(DateTimeNumericEncoding encoding) {
-    return new FastArrayLongDoubleTimeSeries(encoding, toFastIntDaysDTS());
-  }
-
-  @Override
-  public FastMutableLongDoubleTimeSeries toFastMutableLongDoubleTimeSeries() {
-    return new FastListLongDoubleTimeSeries(toFastLongDoubleTimeSeries());
-  }
-
-  @Override
-  public FastMutableLongDoubleTimeSeries toFastMutableLongDoubleTimeSeries(DateTimeNumericEncoding encoding) {
-    return new FastListLongDoubleTimeSeries(encoding, toFastLongDoubleTimeSeries());
-  }
-
-  @Override
-  public ZonedDateTimeDoubleTimeSeries toZonedDateTimeDoubleTimeSeries() {
-    return new ArrayZonedDateTimeDoubleTimeSeries(toFastLongMillisDTS());
-  }
-
-  @Override
-  public ZonedDateTimeDoubleTimeSeries toZonedDateTimeDoubleTimeSeries(ZoneId zone) {
-    return new ArrayZonedDateTimeDoubleTimeSeries(zone, toFastLongMillisDTS());
-  }
-
-  @Override
-  public MutableZonedDateTimeDoubleTimeSeries toMutableZonedDateTimeDoubleTimeSeries() {
-    return new ListZonedDateTimeDoubleTimeSeries(toFastMutableLongMillisDTS());
-  }
-
-  @Override
-  public MutableZonedDateTimeDoubleTimeSeries toMutableZonedDateTimeDoubleTimeSeries(ZoneId timeZone) {
-    return new ListZonedDateTimeDoubleTimeSeries(timeZone, toFastMutableLongMillisDTS());
-  }
-
-  @Override
-  public com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries toLocalDateDoubleTimeSeries() {
-    return new com.opengamma.timeseries.localdate.ArrayLocalDateDoubleTimeSeries(toFastIntDaysDTS());
-  }
-
-  @Override
-  public com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries toLocalDateDoubleTimeSeries(ZoneId zone) {
-    return new com.opengamma.timeseries.localdate.ArrayLocalDateDoubleTimeSeries(zone, toFastIntDaysDTS());
-  }
-
-  @Override
-  public MutableLocalDateDoubleTimeSeries toMutableLocalDateDoubleTimeSeries() {
-    return new ListLocalDateDoubleTimeSeries(toFastMutableIntDaysDTS());
-  }
-
-  @Override
-  public MutableLocalDateDoubleTimeSeries toMutableLocalDateDoubleTimeSeries(ZoneId zone) {
-    return new ListLocalDateDoubleTimeSeries(zone, toFastMutableIntDaysDTS());
   }
 
   //-------------------------------------------------------------------------

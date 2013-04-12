@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.timeseries.object.BigDecimalObjectTimeSeriesTest;
+import com.opengamma.timeseries.BigDecimalObjectTimeSeriesTest;
 
 /**
  * Abstract test class for {@code PreciseObjectTimeSeries}.
@@ -21,6 +21,24 @@ import com.opengamma.timeseries.object.BigDecimalObjectTimeSeriesTest;
  */
 @Test(groups = "unit")
 public abstract class PreciseObjectTimeSeriesTest<T> extends BigDecimalObjectTimeSeriesTest<T> {
+
+  @Test
+  public void test_intersectionFirstValue() {
+    PreciseObjectTimeSeries<T, BigDecimal> dts = (PreciseObjectTimeSeries<T, BigDecimal>) createStandardTimeSeries();
+    PreciseObjectTimeSeries<T, BigDecimal> dts2 = (PreciseObjectTimeSeries<T, BigDecimal>) createStandardTimeSeries2();
+    PreciseObjectTimeSeries<T, BigDecimal> ets = (PreciseObjectTimeSeries<T, BigDecimal>) createEmptyTimeSeries();
+    assertEquals(ets, ets.intersectionFirstValue(dts));
+    assertEquals(ets, dts.intersectionFirstValue(ets));
+    
+    PreciseObjectTimeSeries<T, BigDecimal> result = dts.intersectionFirstValue(dts2);
+    assertEquals(3, result.size());
+    assertEquals(testValues()[3], result.getValueAtIndex(0));
+    assertEquals(testValues()[4], result.getValueAtIndex(1));
+    assertEquals(testValues()[5], result.getValueAtIndex(2));
+    assertEquals(dts.getTimeAtIndex(3), result.getTimeAtIndex(0));
+    assertEquals(dts.getTimeAtIndex(4), result.getTimeAtIndex(1));
+    assertEquals(dts.getTimeAtIndex(5), result.getTimeAtIndex(2));
+  }
 
   @Test
   public void test_noIntersectionOperation() {

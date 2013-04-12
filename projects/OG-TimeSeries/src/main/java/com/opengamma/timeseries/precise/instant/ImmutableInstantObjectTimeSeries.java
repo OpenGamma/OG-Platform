@@ -16,20 +16,10 @@ import java.util.SortedMap;
 
 import org.threeten.bp.Instant;
 
-import com.opengamma.timeseries.FastBackedObjectTimeSeries;
 import com.opengamma.timeseries.ObjectTimeSeries;
 import com.opengamma.timeseries.ObjectTimeSeriesOperators;
 import com.opengamma.timeseries.ObjectTimeSeriesOperators.BinaryOperator;
 import com.opengamma.timeseries.ObjectTimeSeriesOperators.UnaryOperator;
-import com.opengamma.timeseries.fast.DateTimeNumericEncoding;
-import com.opengamma.timeseries.fast.integer.object.FastArrayIntObjectTimeSeries;
-import com.opengamma.timeseries.fast.integer.object.FastIntObjectTimeSeries;
-import com.opengamma.timeseries.fast.integer.object.FastListIntObjectTimeSeries;
-import com.opengamma.timeseries.fast.integer.object.FastMutableIntObjectTimeSeries;
-import com.opengamma.timeseries.fast.longint.object.FastArrayLongObjectTimeSeries;
-import com.opengamma.timeseries.fast.longint.object.FastListLongObjectTimeSeries;
-import com.opengamma.timeseries.fast.longint.object.FastLongObjectTimeSeries;
-import com.opengamma.timeseries.fast.longint.object.FastMutableLongObjectTimeSeries;
 import com.opengamma.timeseries.precise.AbstractPreciseObjectTimeSeries;
 import com.opengamma.timeseries.precise.AbstractPreciseObjectTimeSeriesBuilder;
 import com.opengamma.timeseries.precise.PreciseObjectTimeSeries;
@@ -514,13 +504,6 @@ public final class ImmutableInstantObjectTimeSeries<V>
     return new ImmutableInstantObjectTimeSeries<V>(_times, valuesArray);  // immutable, so can share times
   }
 
-  private InstantObjectTimeSeries<V> operate(ObjectTimeSeries<?, V> other, BinaryOperator<V> operator) {
-    if (other instanceof PreciseObjectTimeSeries) {
-      return operate((PreciseObjectTimeSeries<?, V>) other, operator);
-    }
-    throw new UnsupportedOperationException("Can only operate on a PreciseObjectTimeSeries");
-  }
-
   @Override
   @SuppressWarnings("unchecked")
   public InstantObjectTimeSeries<V> operate(PreciseObjectTimeSeries<?, V> other, BinaryOperator<V> operator) {
@@ -713,82 +696,6 @@ public final class ImmutableInstantObjectTimeSeries<V>
       }
       return new ImmutableInstantObjectTimeSeries<V>(times, (V[]) values);
     }
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  public ObjectTimeSeries<Instant, V> intersectionFirstValue(ObjectTimeSeries<?, V> other) {
-    return operate(other, ObjectTimeSeriesOperators.<V>firstOperator());
-  }
-
-  public ObjectTimeSeries<Instant, V> intersectionFirstValue(FastBackedObjectTimeSeries<?, V> other) {
-    return operate(other, ObjectTimeSeriesOperators.<V>firstOperator());
-  }
-
-  public ObjectTimeSeries<Instant, V> intersectionFirstValue(FastIntObjectTimeSeries<V> other) {
-    return operate(other, ObjectTimeSeriesOperators.<V>firstOperator());
-  }
-
-  public ObjectTimeSeries<Instant, V> intersectionFirstValue(FastLongObjectTimeSeries<V> other) {
-    return operate(other, ObjectTimeSeriesOperators.<V>firstOperator());
-  }
-
-  public ObjectTimeSeries<Instant, V> intersectionSecondValue(ObjectTimeSeries<?, V> other) {
-    return operate(other, ObjectTimeSeriesOperators.<V>secondOperator());
-  }
-
-  public ObjectTimeSeries<Instant, V> intersectionSecondValue(FastBackedObjectTimeSeries<?, V> other) {
-    return operate(other, ObjectTimeSeriesOperators.<V>secondOperator());
-  }
-
-  public ObjectTimeSeries<Instant, V> intersectionSecondValue(FastLongObjectTimeSeries<V> other) {
-    return operate(other, ObjectTimeSeriesOperators.<V>secondOperator());
-  }
-
-  public ObjectTimeSeries<Instant, V> intersectionSecondValue(FastIntObjectTimeSeries<V> other) {
-    return operate(other, ObjectTimeSeriesOperators.<V>secondOperator());
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  public FastIntObjectTimeSeries<V> toFastIntObjectTimeSeries() {
-    throw new UnsupportedOperationException("Instant does not fit into an int");
-  }
-
-  @Override
-  public FastIntObjectTimeSeries<V> toFastIntObjectTimeSeries(DateTimeNumericEncoding encoding) {
-    return new FastArrayIntObjectTimeSeries<V>(encoding, toFastIntObjectTimeSeries());
-  }
-
-  @Override
-  public FastMutableIntObjectTimeSeries<V> toFastMutableIntObjectTimeSeries() {
-    return new FastListIntObjectTimeSeries<V>(toFastIntObjectTimeSeries());
-  }
-
-  @Override
-  public FastMutableIntObjectTimeSeries<V> toFastMutableIntObjectTimeSeries(DateTimeNumericEncoding encoding) {
-    return new FastListIntObjectTimeSeries<V>(encoding, toFastIntObjectTimeSeries());
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  public FastLongObjectTimeSeries<V> toFastLongObjectTimeSeries() {
-    return toFastLongObjectTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS);
-  }
-
-  @Override
-  public FastLongObjectTimeSeries<V> toFastLongObjectTimeSeries(DateTimeNumericEncoding encoding) {
-    return new FastArrayLongObjectTimeSeries<V>(encoding, _times, _values);
-  }
-
-  @Override
-  public FastMutableLongObjectTimeSeries<V> toFastMutableLongObjectTimeSeries() {
-    return new FastListLongObjectTimeSeries<V>(toFastLongObjectTimeSeries());
-  }
-
-  @Override
-  public FastMutableLongObjectTimeSeries<V> toFastMutableLongObjectTimeSeries(DateTimeNumericEncoding encoding) {
-    return new FastListLongObjectTimeSeries<V>(encoding, toFastLongObjectTimeSeries(encoding));
   }
 
 }

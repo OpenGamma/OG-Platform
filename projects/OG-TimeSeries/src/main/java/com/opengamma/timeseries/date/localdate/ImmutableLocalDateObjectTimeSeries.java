@@ -16,7 +16,6 @@ import java.util.SortedMap;
 
 import org.threeten.bp.LocalDate;
 
-import com.opengamma.timeseries.FastBackedObjectTimeSeries;
 import com.opengamma.timeseries.ObjectTimeSeries;
 import com.opengamma.timeseries.ObjectTimeSeriesOperators;
 import com.opengamma.timeseries.ObjectTimeSeriesOperators.BinaryOperator;
@@ -24,15 +23,6 @@ import com.opengamma.timeseries.ObjectTimeSeriesOperators.UnaryOperator;
 import com.opengamma.timeseries.date.AbstractDateObjectTimeSeries;
 import com.opengamma.timeseries.date.AbstractDateObjectTimeSeriesBuilder;
 import com.opengamma.timeseries.date.DateObjectTimeSeries;
-import com.opengamma.timeseries.fast.DateTimeNumericEncoding;
-import com.opengamma.timeseries.fast.integer.object.FastArrayIntObjectTimeSeries;
-import com.opengamma.timeseries.fast.integer.object.FastIntObjectTimeSeries;
-import com.opengamma.timeseries.fast.integer.object.FastListIntObjectTimeSeries;
-import com.opengamma.timeseries.fast.integer.object.FastMutableIntObjectTimeSeries;
-import com.opengamma.timeseries.fast.longint.object.FastArrayLongObjectTimeSeries;
-import com.opengamma.timeseries.fast.longint.object.FastListLongObjectTimeSeries;
-import com.opengamma.timeseries.fast.longint.object.FastLongObjectTimeSeries;
-import com.opengamma.timeseries.fast.longint.object.FastMutableLongObjectTimeSeries;
 
 /**
  * Standard immutable implementation of {@code LocalDateObjectTimeSeries}.
@@ -514,13 +504,6 @@ public final class ImmutableLocalDateObjectTimeSeries<V>
     return new ImmutableLocalDateObjectTimeSeries<V>(_times, valuesArray);  // immutable, so can share times
   }
 
-  private LocalDateObjectTimeSeries<V> operate(ObjectTimeSeries<?, V> other, BinaryOperator<V> operator) {
-    if (other instanceof DateObjectTimeSeries) {
-      return operate((DateObjectTimeSeries<?, V>) other, operator);
-    }
-    throw new UnsupportedOperationException("Can only operate on a DateObjectTimeSeries");
-  }
-
   @Override
   @SuppressWarnings("unchecked")
   public LocalDateObjectTimeSeries<V> operate(DateObjectTimeSeries<?, V> other, BinaryOperator<V> operator) {
@@ -713,81 +696,6 @@ public final class ImmutableLocalDateObjectTimeSeries<V>
       }
       return new ImmutableLocalDateObjectTimeSeries<V>(times, (V[]) values);
     }
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  public ObjectTimeSeries<LocalDate, V> intersectionFirstValue(ObjectTimeSeries<?, V> other) {
-    return operate(other, ObjectTimeSeriesOperators.<V>firstOperator());
-  }
-
-  public ObjectTimeSeries<LocalDate, V> intersectionFirstValue(FastBackedObjectTimeSeries<?, V> other) {
-    return operate(other, ObjectTimeSeriesOperators.<V>firstOperator());
-  }
-
-  public ObjectTimeSeries<LocalDate, V> intersectionFirstValue(FastIntObjectTimeSeries<V> other) {
-    return operate(other, ObjectTimeSeriesOperators.<V>firstOperator());
-  }
-
-  public ObjectTimeSeries<LocalDate, V> intersectionFirstValue(FastLongObjectTimeSeries<V> other) {
-    return operate(other, ObjectTimeSeriesOperators.<V>firstOperator());
-  }
-
-  public ObjectTimeSeries<LocalDate, V> intersectionSecondValue(ObjectTimeSeries<?, V> other) {
-    return operate(other, ObjectTimeSeriesOperators.<V>secondOperator());
-  }
-
-  public ObjectTimeSeries<LocalDate, V> intersectionSecondValue(FastBackedObjectTimeSeries<?, V> other) {
-    return operate(other, ObjectTimeSeriesOperators.<V>secondOperator());
-  }
-
-  public ObjectTimeSeries<LocalDate, V> intersectionSecondValue(FastLongObjectTimeSeries<V> other) {
-    return operate(other, ObjectTimeSeriesOperators.<V>secondOperator());
-  }
-
-  public ObjectTimeSeries<LocalDate, V> intersectionSecondValue(FastIntObjectTimeSeries<V> other) {
-    return operate(other, ObjectTimeSeriesOperators.<V>secondOperator());
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  public FastIntObjectTimeSeries<V> toFastIntObjectTimeSeries() {
-    return new FastArrayIntObjectTimeSeries<>(DateTimeNumericEncoding.DATE_EPOCH_DAYS, _times, _values);
-  }
-
-  @Override
-  public FastMutableIntObjectTimeSeries<V> toFastMutableIntObjectTimeSeries() {
-    return new FastListIntObjectTimeSeries<V>(toFastIntObjectTimeSeries());
-  }
-
-  @Override
-  public FastLongObjectTimeSeries<V> toFastLongObjectTimeSeries() {
-    return new FastArrayLongObjectTimeSeries<V>(toFastIntObjectTimeSeries());
-  }
-
-  @Override
-  public FastMutableLongObjectTimeSeries<V> toFastMutableLongObjectTimeSeries() {
-    return new FastListLongObjectTimeSeries<V>(toFastLongObjectTimeSeries());
-  }
-
-  @Override
-  public FastIntObjectTimeSeries<V> toFastIntObjectTimeSeries(DateTimeNumericEncoding encoding) {
-    return new FastArrayIntObjectTimeSeries<V>(encoding, toFastIntObjectTimeSeries());
-  }
-
-  @Override
-  public FastMutableIntObjectTimeSeries<V> toFastMutableIntObjectTimeSeries(DateTimeNumericEncoding encoding) {
-    return new FastListIntObjectTimeSeries<V>(encoding, toFastIntObjectTimeSeries());
-  }
-
-  @Override
-  public FastLongObjectTimeSeries<V> toFastLongObjectTimeSeries(DateTimeNumericEncoding encoding) {
-    return new FastArrayLongObjectTimeSeries<V>(encoding, toFastLongObjectTimeSeries());
-  }
-
-  @Override
-  public FastMutableLongObjectTimeSeries<V> toFastMutableLongObjectTimeSeries(DateTimeNumericEncoding encoding) {
-    return new FastListLongObjectTimeSeries<V>(encoding, toFastLongObjectTimeSeries());
   }
 
 }

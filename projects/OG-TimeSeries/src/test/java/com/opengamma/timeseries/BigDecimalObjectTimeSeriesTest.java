@@ -3,14 +3,14 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.timeseries.object;
+package com.opengamma.timeseries;
 
 import java.math.BigDecimal;
 
 /**
  * Abstract test class with {@code BigDecimal} values.
  */
-public abstract class BigDecimalObjectTimeSeriesTest<DATE_TYPE> extends ObjectTimeSeriesTest<DATE_TYPE, BigDecimal> {
+public abstract class BigDecimalObjectTimeSeriesTest<T> extends ObjectTimeSeriesTest<T, BigDecimal> {
 
   @Override
   protected BigDecimal[] testValues() {
