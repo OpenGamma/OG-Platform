@@ -48,6 +48,9 @@ public abstract class YieldAndDiscountCurve implements InterestRateModel<Double>
    * @return The discount factor for time to maturity <i>t</i>.
    */
   public double getDiscountFactor(final double t) {
+    if (t == 0) { //short cut rate lookup
+      return 1.0;
+    }
     return Math.exp(-t * getInterestRate(t));
   }
 
