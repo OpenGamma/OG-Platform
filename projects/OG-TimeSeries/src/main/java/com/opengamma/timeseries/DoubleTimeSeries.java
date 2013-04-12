@@ -31,7 +31,7 @@ public interface DoubleTimeSeries<T> extends TimeSeries<T, Double> {
   DoubleTimeSeries<T> tail(int numItems);
 
   @Override  // override for covariant return type
-  DoubleTimeSeries<T> lag(final int lagCount);
+  DoubleTimeSeries<T> lag(int lagCount);
 
 //  //-------------------------------------------------------------------------
 //  /**

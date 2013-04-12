@@ -220,7 +220,7 @@ public interface TimeSeries<T, V> extends Iterable<Map.Entry<T, V>>, Serializabl
    * @param lagCount  the number of entries to lag by, positive or negative
    * @return the new time-series, not null
    */
-  TimeSeries<T, V> lag(final int lagCount);
+  TimeSeries<T, V> lag(int lagCount);
 
   //-------------------------------------------------------------------------
   /**

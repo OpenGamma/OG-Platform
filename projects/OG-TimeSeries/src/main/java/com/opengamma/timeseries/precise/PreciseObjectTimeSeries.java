@@ -39,7 +39,7 @@ public interface PreciseObjectTimeSeries<T, V>
   PreciseObjectTimeSeries<T, V> tail(int numItems);
 
   @Override  // override for covariant return type
-  PreciseObjectTimeSeries<T, V> lag(final int lagCount);
+  PreciseObjectTimeSeries<T, V> lag(int lagCount);
 
   //-------------------------------------------------------------------------
   /**

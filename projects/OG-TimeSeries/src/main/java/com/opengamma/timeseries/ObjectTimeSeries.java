@@ -30,7 +30,7 @@ public interface ObjectTimeSeries<T, V> extends TimeSeries<T, V> {
   ObjectTimeSeries<T, V> tail(int numItems);
 
   @Override  // override for covariant return type
-  ObjectTimeSeries<T, V> lag(final int lagCount);
+  ObjectTimeSeries<T, V> lag(int lagCount);
 
   @Override  // override for covariant return type
   ObjectTimeSeries<T, V> newInstance(T[] dateTimes, V[] values);

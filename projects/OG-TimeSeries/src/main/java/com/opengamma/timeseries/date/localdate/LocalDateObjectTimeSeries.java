@@ -45,7 +45,7 @@ public interface LocalDateObjectTimeSeries<V>
   LocalDateObjectTimeSeries<V> subSeriesFast(int startTime, int endTime);
 
   @Override  // override for covariant return type
-  LocalDateObjectTimeSeries<V> subSeriesFast(int startTime, final boolean includeStart, int endTime, final boolean includeEnd);
+  LocalDateObjectTimeSeries<V> subSeriesFast(int startTime, boolean includeStart, int endTime, boolean includeEnd);
 
   //-------------------------------------------------------------------------
   @Override  // override for covariant return type
@@ -55,7 +55,7 @@ public interface LocalDateObjectTimeSeries<V>
   LocalDateObjectTimeSeries<V> tail(int numItems);
 
   @Override  // override for covariant return type
-  LocalDateObjectTimeSeries<V> lag(final int lagCount);
+  LocalDateObjectTimeSeries<V> lag(int lagCount);
 
   //-------------------------------------------------------------------------
   @Override  // override for covariant return type

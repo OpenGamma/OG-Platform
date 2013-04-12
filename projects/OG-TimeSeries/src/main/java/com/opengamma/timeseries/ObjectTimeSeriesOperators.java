@@ -81,14 +81,14 @@ public class ObjectTimeSeriesOperators {
   //-------------------------------------------------------------------------
   private static final FirstOperator<?> FIRST_OPERATOR = new FirstOperator<Object>();
   private static class FirstOperator<E> implements BinaryOperator<E> {
-    public E operate(final E a, final E b) { 
+    public E operate(E a, E b) { 
       return a;
     }
   }
 
   private static final SecondOperator<?> SECOND_OPERATOR = new SecondOperator<Object>();
   private static class SecondOperator<E> implements BinaryOperator<E> {
-    public E operate(final E a, final E b) { 
+    public E operate(E a, E b) { 
       return b;
     }
   }

@@ -44,7 +44,7 @@ public interface LocalDateDoubleTimeSeries
   LocalDateDoubleTimeSeries subSeriesFast(int startTime, int endTime);
 
   @Override  // override for covariant return type
-  LocalDateDoubleTimeSeries subSeriesFast(int startTime, final boolean includeStart, int endTime, final boolean includeEnd);
+  LocalDateDoubleTimeSeries subSeriesFast(int startTime, boolean includeStart, int endTime, boolean includeEnd);
 
   @Override  // override for covariant return type
   LocalDateDoubleTimeSeries head(int numItems);
@@ -53,7 +53,7 @@ public interface LocalDateDoubleTimeSeries
   LocalDateDoubleTimeSeries tail(int numItems);
 
   @Override  // override for covariant return type
-  LocalDateDoubleTimeSeries lag(final int lagCount);
+  LocalDateDoubleTimeSeries lag(int lagCount);
 
   //-------------------------------------------------------------------------
   @Override  // override for covariant return type

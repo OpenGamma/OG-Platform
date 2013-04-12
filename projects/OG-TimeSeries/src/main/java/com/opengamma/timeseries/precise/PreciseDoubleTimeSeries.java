@@ -78,7 +78,7 @@ public interface PreciseDoubleTimeSeries<T>
   PreciseDoubleTimeSeries<T> tail(int numItems);
 
   @Override  // override for covariant return type
-  PreciseDoubleTimeSeries<T> lag(final int lagCount);
+  PreciseDoubleTimeSeries<T> lag(int lagCount);
 
   //-------------------------------------------------------------------------
   /**

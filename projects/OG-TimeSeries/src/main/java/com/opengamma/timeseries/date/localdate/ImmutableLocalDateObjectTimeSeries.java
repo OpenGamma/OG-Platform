@@ -458,9 +458,9 @@ public final class ImmutableLocalDateObjectTimeSeries<V>
       return new ImmutableLocalDateObjectTimeSeries<V>(times, values);
     } else if (days < 0) {
       if (-days < times.length) {
-        final int[] resultTimes = new int[times.length + days]; // remember days is -ve
+        int[] resultTimes = new int[times.length + days]; // remember days is -ve
         System.arraycopy(times, 0, resultTimes, 0, times.length + days);
-        final V[] resultValues = (V[]) new Object[times.length + days];
+        V[] resultValues = (V[]) new Object[times.length + days];
         System.arraycopy(values, -days, resultValues, 0, times.length + days);
         return new ImmutableLocalDateObjectTimeSeries<V>(resultTimes, resultValues);
       } else {
@@ -468,9 +468,9 @@ public final class ImmutableLocalDateObjectTimeSeries<V>
       }
     } else { // if (days > 0) {
       if (days < times.length) {
-        final int[] resultTimes = new int[times.length - days]; // remember days is +ve
+        int[] resultTimes = new int[times.length - days]; // remember days is +ve
         System.arraycopy(times, days, resultTimes, 0, times.length - days);
-        final V[] resultValues = (V[]) new Object[times.length - days];
+        V[] resultValues = (V[]) new Object[times.length - days];
         System.arraycopy(values, 0, resultValues, 0, times.length - days);
         return new ImmutableLocalDateObjectTimeSeries<V>(resultTimes, resultValues);
       } else {
@@ -507,14 +507,14 @@ public final class ImmutableLocalDateObjectTimeSeries<V>
   @Override
   @SuppressWarnings("unchecked")
   public LocalDateObjectTimeSeries<V> operate(DateObjectTimeSeries<?, V> other, BinaryOperator<V> operator) {
-    final int[] aTimes = timesArrayFast();
-    final V[] aValues = valuesArray();
+    int[] aTimes = timesArrayFast();
+    V[] aValues = valuesArray();
     int aCount = 0;
-    final int[] bTimes = other.timesArrayFast();
-    final V[] bValues = other.valuesArray();
+    int[] bTimes = other.timesArrayFast();
+    V[] bValues = other.valuesArray();
     int bCount = 0;
-    final int[] resTimes = new int[aTimes.length + bTimes.length];
-    final V[] resValues = (V[]) new Object[resTimes.length];
+    int[] resTimes = new int[aTimes.length + bTimes.length];
+    V[] resValues = (V[]) new Object[resTimes.length];
     int resCount = 0;
     while (aCount < aTimes.length && bCount < bTimes.length) {
       if (aTimes[aCount] == bTimes[bCount]) {
@@ -539,14 +539,14 @@ public final class ImmutableLocalDateObjectTimeSeries<V>
   @SuppressWarnings("unchecked")
   @Override
   public LocalDateObjectTimeSeries<V> unionOperate(DateObjectTimeSeries<?, V> other, BinaryOperator<V> operator) {
-    final int[] aTimes = timesArrayFast();
-    final V[] aValues = valuesArray();
+    int[] aTimes = timesArrayFast();
+    V[] aValues = valuesArray();
     int aCount = 0;
-    final int[] bTimes = other.timesArrayFast();
-    final V[] bValues = other.valuesArray();
+    int[] bTimes = other.timesArrayFast();
+    V[] bValues = other.valuesArray();
     int bCount = 0;
-    final int[] resTimes = new int[aTimes.length + bTimes.length];
-    final V[] resValues = (V[]) new Object[resTimes.length];
+    int[] resTimes = new int[aTimes.length + bTimes.length];
+    V[] resValues = (V[]) new Object[resTimes.length];
     int resCount = 0;
     while (aCount < aTimes.length || bCount < bTimes.length) {
       if (aCount >= aTimes.length) {

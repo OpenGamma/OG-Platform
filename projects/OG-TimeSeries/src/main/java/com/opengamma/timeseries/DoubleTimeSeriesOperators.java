@@ -95,61 +95,61 @@ public class DoubleTimeSeriesOperators {
 
   //-------------------------------------------------------------------------
   private static class AddOperator implements BinaryOperator {
-    public double operate(final double a, final double b) {
+    public double operate(double a, double b) {
       return a + b;
     }
   }
 
   private static class SubtractOperator implements BinaryOperator {
-    public double operate(final double a, final double b) {
+    public double operate(double a, double b) {
       return a - b;
     }
   }
 
   private static class MultiplyOperator implements BinaryOperator {
-    public double operate(final double a, final double b) {
+    public double operate(double a, double b) {
       return a * b;
     }
   }
 
   private static class DivideOperator implements BinaryOperator {
-    public double operate(final double a, final double b) {
+    public double operate(double a, double b) {
       return a / b;
     }
   }
 
   private static class PowerOperator implements BinaryOperator {
-    public double operate(final double a, final double b) {
+    public double operate(double a, double b) {
       return Math.pow(a, b);
     }
   }
 
   private static class MinimumOperator implements BinaryOperator {
-    public double operate(final double a, final double b) {
+    public double operate(double a, double b) {
       return Math.min(a, b);
     }
   }
 
   private static class MaximumOperator implements BinaryOperator {
-    public double operate(final double a, final double b) {
+    public double operate(double a, double b) {
       return Math.max(a, b);
     }
   }
 
   private static class AverageOperator implements BinaryOperator {
-    public double operate(final double a, final double b) {
+    public double operate(double a, double b) {
       return (a + b) / 2;
     }
   }
 
   private static class FirstOperator implements BinaryOperator {
-    public double operate(final double a, final double b) {
+    public double operate(double a, double b) {
       return a;
     }
   }
 
   private static class SecondOperator implements BinaryOperator {
-    public double operate(final double a, final double b) {
+    public double operate(double a, double b) {
       return b;
     }
   }
@@ -177,31 +177,31 @@ public class DoubleTimeSeriesOperators {
 
   //-------------------------------------------------------------------------
   private static class ReciprocalOperator implements UnaryOperator {
-    public double operate(final double a) {
+    public double operate(double a) {
       return 1 / a;
     }
   }
 
   private static class NegateOperator implements UnaryOperator {
-    public double operate(final double a) {
+    public double operate(double a) {
       return -a;
     }
   }
 
   private static class LogOperator implements UnaryOperator {
-    public double operate(final double a) {
+    public double operate(double a) {
       return Math.log(a);
     }
   }
 
   private static class Log10Operator implements UnaryOperator {
-    public double operate(final double a) {
+    public double operate(double a) {
       return Math.log10(a);
     }
   }
 
   private static class AbsOperator implements UnaryOperator {
-    public double operate(final double a) {
+    public double operate(double a) {
       return Math.abs(a);
     }
   }

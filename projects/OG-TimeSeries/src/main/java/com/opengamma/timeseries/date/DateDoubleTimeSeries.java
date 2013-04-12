@@ -68,7 +68,7 @@ public interface DateDoubleTimeSeries<T>
 
   DateDoubleTimeSeries<T> subSeriesFast(int startTime, int endTime);
 
-  DateDoubleTimeSeries<T> subSeriesFast(int startTime, final boolean includeStart, int endTime, final boolean includeEnd);
+  DateDoubleTimeSeries<T> subSeriesFast(int startTime, boolean includeStart, int endTime, boolean includeEnd);
 
   //-------------------------------------------------------------------------
   @Override  // override for covariant return type
@@ -78,7 +78,7 @@ public interface DateDoubleTimeSeries<T>
   DateDoubleTimeSeries<T> tail(int numItems);
 
   @Override  // override for covariant return type
-  DateDoubleTimeSeries<T> lag(final int lagCount);
+  DateDoubleTimeSeries<T> lag(int lagCount);
 
   //-------------------------------------------------------------------------
   /**

@@ -29,7 +29,7 @@ public interface DateObjectTimeSeries<T, V>
 
   DateObjectTimeSeries<T, V> subSeriesFast(int startTime, int endTime);
 
-  DateObjectTimeSeries<T, V> subSeriesFast(int startTime, final boolean includeStart, int endTime, final boolean includeEnd);
+  DateObjectTimeSeries<T, V> subSeriesFast(int startTime, boolean includeStart, int endTime, boolean includeEnd);
 
   //-------------------------------------------------------------------------
   @Override  // override for covariant return type
@@ -39,7 +39,7 @@ public interface DateObjectTimeSeries<T, V>
   DateObjectTimeSeries<T, V> tail(int numItems);
 
   @Override  // override for covariant return type
-  DateObjectTimeSeries<T, V> lag(final int lagCount);
+  DateObjectTimeSeries<T, V> lag(int lagCount);
 
   //-------------------------------------------------------------------------
   /**

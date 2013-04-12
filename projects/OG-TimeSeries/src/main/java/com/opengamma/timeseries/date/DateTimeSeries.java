@@ -112,7 +112,7 @@ public interface DateTimeSeries<T, V>
   DateTimeSeries<T, V> tail(int numItems);
 
   @Override  // override for covariant return type
-  DateTimeSeries<T, V> lag(final int lagCount);
+  DateTimeSeries<T, V> lag(int lagCount);
 
   //-------------------------------------------------------------------------
   /**

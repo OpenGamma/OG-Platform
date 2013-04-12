@@ -111,7 +111,7 @@ public interface PreciseTimeSeries<T, V>
   PreciseTimeSeries<T, V> tail(int numItems);
 
   @Override  // override for covariant return type
-  PreciseTimeSeries<T, V> lag(final int lagCount);
+  PreciseTimeSeries<T, V> lag(int lagCount);
 
   //-------------------------------------------------------------------------
   /**

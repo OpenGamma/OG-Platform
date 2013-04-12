@@ -213,7 +213,7 @@ abstract class AbstractLocalDateDoubleTimeSeries
   }
 
   @Override
-  public LocalDateDoubleTimeSeries subSeriesFast(int startTime, final boolean includeStart, int endTime, final boolean includeEnd) {
+  public LocalDateDoubleTimeSeries subSeriesFast(int startTime, boolean includeStart, int endTime, boolean includeEnd) {
     if (startTime != endTime || includeStart || includeEnd) {
       startTime += (includeStart ? 0 : 1);
       endTime += (includeEnd ? 1 : 0);
@@ -223,16 +223,16 @@ abstract class AbstractLocalDateDoubleTimeSeries
 
   //-------------------------------------------------------------------------
   @Override
-  public LocalDateDoubleTimeSeries lag(final int days) {
-    final int[] times = timesArrayFast0();
-    final double[] values = valuesArrayFast0();
+  public LocalDateDoubleTimeSeries lag(int days) {
+    int[] times = timesArrayFast0();
+    double[] values = valuesArrayFast0();
     if (days == 0) {
       return newInstanceFast(times, values);
     } else if (days < 0) {
       if (-days < times.length) {
-        final int[] resultTimes = new int[times.length + days]; // remember days is -ve
+        int[] resultTimes = new int[times.length + days]; // remember days is -ve
         System.arraycopy(times, 0, resultTimes, 0, times.length + days);
-        final double[] resultValues = new double[times.length + days];
+        double[] resultValues = new double[times.length + days];
         System.arraycopy(values, -days, resultValues, 0, times.length + days);
         return newInstanceFast(resultTimes, resultValues);
       } else {
@@ -240,9 +240,9 @@ abstract class AbstractLocalDateDoubleTimeSeries
       }
     } else { // if (days > 0) {
       if (days < times.length) {
-        final int[] resultTimes = new int[times.length - days]; // remember days is +ve
+        int[] resultTimes = new int[times.length - days]; // remember days is +ve
         System.arraycopy(times, days, resultTimes, 0, times.length - days);
-        final double[] resultValues = new double[times.length - days];
+        double[] resultValues = new double[times.length - days];
         System.arraycopy(values, 0, resultValues, 0, times.length - days);
         return newInstanceFast(resultTimes, resultValues);
       } else {
@@ -478,12 +478,12 @@ abstract class AbstractLocalDateDoubleTimeSeries
     // optimize PLAT-1590
     if (other instanceof AbstractLocalDateDoubleTimeSeries) {
       int[] aTimes = timesArrayFast0();
-      final double[] aValues = valuesArrayFast0();
+      double[] aValues = valuesArrayFast0();
       int aCount = 0;
-      final int[] bTimes = ((AbstractLocalDateDoubleTimeSeries) other).timesArrayFast0();
+      int[] bTimes = ((AbstractLocalDateDoubleTimeSeries) other).timesArrayFast0();
       int bCount = 0;
-      final int[] resTimes = new int[Math.min(aTimes.length, bTimes.length)];
-      final double[] resValues = new double[resTimes.length];
+      int[] resTimes = new int[Math.min(aTimes.length, bTimes.length)];
+      double[] resValues = new double[resTimes.length];
       int resCount = 0;
       while (aCount < aTimes.length && bCount < bTimes.length) {
         if (aTimes[aCount] == bTimes[bCount]) {
