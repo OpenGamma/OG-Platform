@@ -15,8 +15,7 @@ $.register_module({
                 var promise = promise || new common.Promise,
                     root = this.root, method = [root], data = {}, meta,
                     fields = [
-                        'viewdefinition', 'aggregators', 'providers', 'valuation',
-                        'version', 'correction', 'blotter'
+                        'viewdefinition', 'aggregators', 'providers', 'valuation', 'version', 'correction', 'blotter'
                     ],
                     api_fields = [
                         'viewDefinitionId', 'aggregators', 'marketDataProviders', 'valuationTime',
