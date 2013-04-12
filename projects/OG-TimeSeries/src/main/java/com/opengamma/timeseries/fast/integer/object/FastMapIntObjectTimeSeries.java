@@ -129,8 +129,8 @@ public class FastMapIntObjectTimeSeries<T> extends AbstractFastMutableIntObjectT
 
   @Override
   public int getTimeFast(final int index) {
-    if (index >= _map.size()) {
-      throw new IndexOutOfBoundsException();
+    if (index < 0 || index >= _map.size()) {
+      throw new IndexOutOfBoundsException("Invalid index: " + index);
     }
     final IntBidirectionalIterator iterator = _map.keySet().iterator();
     iterator.skip(index);
@@ -139,8 +139,8 @@ public class FastMapIntObjectTimeSeries<T> extends AbstractFastMutableIntObjectT
 
   @Override
   public T getValueAtFast(final int index) {
-    if (index >= _map.size()) {
-      throw new IndexOutOfBoundsException();
+    if (index < 0 || index >= _map.size()) {
+      throw new IndexOutOfBoundsException("Invalid index: " + index);
     }
     final IntBidirectionalIterator iterator = _map.keySet().iterator();
     iterator.skip(index);

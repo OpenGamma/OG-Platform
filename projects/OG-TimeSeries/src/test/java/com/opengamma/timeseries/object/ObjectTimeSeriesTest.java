@@ -151,6 +151,73 @@ public abstract class ObjectTimeSeriesTest<T, V> {
   }
 
   //-------------------------------------------------------------------------
+  @Test
+  public void test_containsTime() {
+    ObjectTimeSeries<T, V> emptyTS = createEmptyTimeSeries();
+    ObjectTimeSeries<T, V> dts = createStandardTimeSeries();
+    T[] testDates = testTimes();
+    for (int i = 0; i < 6; i++) {
+      assertEquals(true, dts.containsTime(testDates[i]));
+      assertEquals(false, emptyTS.containsTime(testDates[i]));
+    }
+  }
+
+  @Test
+  public void test_getValue() {
+    ObjectTimeSeries<T, V> emptyTS = createEmptyTimeSeries();
+    ObjectTimeSeries<T, V> dts = createStandardTimeSeries();
+    T[] testDates = testTimes();
+    V[] values = testValues();
+    for (int i = 0; i < 6; i++) {
+      assertEquals(values[i], dts.getValue(testDates[i]));
+      assertEquals(null, emptyTS.getValue(testDates[i]));
+    }
+  }
+
+  @Test
+  public void test_getTimeAtIndex() {
+    ObjectTimeSeries<T, V> dts = createStandardTimeSeries();
+    T[] testDates = testTimes();
+    for (int i = 0; i < 6; i++) {
+      T val = dts.getTimeAtIndex(i);
+      assertEquals(testDates[i], val);
+    }
+    try {
+      dts.getTimeAtIndex(-1);
+      fail();
+    } catch (IndexOutOfBoundsException ex) {
+      // expected
+    }
+    try {
+      dts.getTimeAtIndex(6);
+      fail();
+    } catch (IndexOutOfBoundsException ex) {
+      // expected
+    }
+  }
+
+  @Test
+  public void test_getValueAtIndex() {
+    ObjectTimeSeries<T, V> dts = createStandardTimeSeries();
+    V[] values = testValues();
+    for (int i = 0; i < 6; i++) {
+      assertEquals(values[i], dts.getValueAtIndex(i));
+    }
+    try {
+      dts.getValueAtIndex(-1);
+      fail();
+    } catch (IndexOutOfBoundsException ex) {
+      // expected
+    }
+    try {
+      dts.getValueAtIndex(6);
+      fail();
+    } catch (IndexOutOfBoundsException ex) {
+      // expected
+    }
+  }
+
+  //-------------------------------------------------------------------------
   public void test_getLatestTime() {
     ObjectTimeSeries<T, V> empty = createEmptyTimeSeries();
     ObjectTimeSeries<T, V> dts = createStandardTimeSeries();
@@ -204,6 +271,28 @@ public abstract class ObjectTimeSeriesTest<T, V> {
   }
 
   //-------------------------------------------------------------------------
+  public void test_timesIterator() {
+    Iterator<T> emptyTimesIter = createEmptyTimeSeries().timeIterator();
+    Iterator<T> dtsTimesIter = createStandardTimeSeries().timeIterator();
+    T[] testDates = testTimes();
+    for (int i = 0; i < 6; i++) {
+      assertTrue(dtsTimesIter.hasNext());
+      T time = dtsTimesIter.next();
+      assertEquals(testDates[i], time);
+    }
+    try {
+      dtsTimesIter.next();
+    } catch (NoSuchElementException nsee) {
+      assertFalse(emptyTimesIter.hasNext());
+      try {
+        emptyTimesIter.next();
+        fail();
+      } catch (NoSuchElementException nsuchee) {
+        // expected
+      }
+    }
+  }
+
   public void test_valuesIterator() {
     Iterator<V> emptyValuesIter = createEmptyTimeSeries().valuesIterator();
     Iterator<V> dtsValuesIter = createStandardTimeSeries().valuesIterator();
@@ -219,28 +308,6 @@ public abstract class ObjectTimeSeriesTest<T, V> {
       assertFalse(emptyValuesIter.hasNext());
       try {
         emptyValuesIter.next();
-        fail();
-      } catch (NoSuchElementException nsuchee) {
-        // expected
-      }
-    }
-  }
-
-  public void test_timeIterator() {
-    Iterator<T> emptyTimesIter = createEmptyTimeSeries().timeIterator();
-    Iterator<T> dtsTimesIter = createStandardTimeSeries().timeIterator();
-    T[] testDates = testTimes();
-    for (int i = 0; i < 6; i++) {
-      assertTrue(dtsTimesIter.hasNext());
-      T time = dtsTimesIter.next();
-      assertEquals(testDates[i], time);
-    }
-    try {
-      dtsTimesIter.next();
-    } catch (NoSuchElementException nsee) {
-      assertFalse(emptyTimesIter.hasNext());
-      try {
-        emptyTimesIter.next();
         fail();
       } catch (NoSuchElementException nsuchee) {
         // expected
@@ -274,43 +341,26 @@ public abstract class ObjectTimeSeriesTest<T, V> {
   }
 
   //-------------------------------------------------------------------------
-  @Test(expectedExceptions = IndexOutOfBoundsException.class)
-  public void test_getDataPoint() {
-    ObjectTimeSeries<T, V> emptyTS = createEmptyTimeSeries();
-    ObjectTimeSeries<T, V> dts = createStandardTimeSeries();
-    T[] testDates = testTimes();
-    V[] testValues = testValues();
-    for (int i = 0; i < 6; i++) {
-      V val = dts.getValue(testDates[i]);
-      assertEquals(val, testValues[i]);
-      val = dts.getValueAtIndex(i);
-      assertEquals(val, testValues[i]);
-    }
-    emptyTS.getValueAtIndex(0);
-  }
-
   @DataProvider(name = "subSeries")
-  Object[][] data_subSeries() {
+  static Object[][] data_subSeries() {
     return new Object[][] {
-        //        {0, true, 4, false, 4, 0},
-        //        {0, true, 4, true, 5, 0},
-        //        {0, false, 4, false, 3, 1},
-        //        {0, false, 4, true, 4, 1},
-        //        
-        //        {4, true, 5, false, 1, 4},
-        //        {4, true, 5, true, 2, 4},
-        //        {4, false, 5, false, 0, -1},
-        //        {4, false, 5, true, 1, 5},
-        //        
-        //        {4, true, 4, false, 0, -1},
-        //        {4, true, 4, true, 1, 4},
+        {0, true, 4, false, 4, 0},
+        {0, true, 4, true, 5, 0},
+        {0, false, 4, false, 3, 1},
+        {0, false, 4, true, 4, 1},
+        {4, true, 5, false, 1, 4},
+        {4, true, 5, true, 2, 4},
+        {4, false, 5, false, 0, -1},
+        {4, false, 5, true, 1, 5},
+        {4, true, 4, false, 0, -1},
+        {4, true, 4, true, 1, 4},
         {4, false, 4, false, 0, -1 },  // matches TreeMap definition
         {4, false, 4, true, 0, -1 },
     };
   }
 
   @SuppressWarnings("cast")
-  @Test(dataProvider = "subSeries")
+  @Test(dataProvider = "subSeries", dataProviderClass = ObjectTimeSeriesTest.class)
   public void test_subSeriesInstantProviderInstantProvider(int startIndex, boolean startInclude, int endIndex, boolean endInclude, int expectedSize, int expectedFirstIndex) {
     ObjectTimeSeries<T, V> dts = createStandardTimeSeries();
     T[] testDates = testTimes();
@@ -385,9 +435,9 @@ public abstract class ObjectTimeSeriesTest<T, V> {
     
     ObjectTimeSeries<T, V> result = dts.intersectionFirstValue(dts2);
     assertEquals(3, result.size());
-    assertEquals(Double.valueOf(4.0), result.getValueAtIndex(0));
-    assertEquals(Double.valueOf(5.0), result.getValueAtIndex(1));
-    assertEquals(Double.valueOf(6.0), result.getValueAtIndex(2));
+    assertEquals(testValues()[3], result.getValueAtIndex(0));
+    assertEquals(testValues()[4], result.getValueAtIndex(1));
+    assertEquals(testValues()[5], result.getValueAtIndex(2));
     assertEquals(dts.getTimeAtIndex(3), result.getTimeAtIndex(0));
     assertEquals(dts.getTimeAtIndex(4), result.getTimeAtIndex(1));
     assertEquals(dts.getTimeAtIndex(5), result.getTimeAtIndex(2));
