@@ -19,24 +19,25 @@ import com.opengamma.util.time.Tenor;
  * Test.
  */
 @Test(groups = TestGroup.UNIT)
-public class CDSIndexSecurityFudgeEncodingTest extends FinancialTestBase {
+public class CDSIndexDefinitionSecurityFudgeEncodingTest extends FinancialTestBase {
 
-  private static final CreditDefaultSwapIndexSecurity s_cdsIndexSecurity;
+  private static final CreditDefaultSwapIndexDefinitionSecurity s_cdsIndexDefnSecurity;
   static {
     CreditDefaultSwapIndexComponent component1 = new CreditDefaultSwapIndexComponent("A", ExternalSchemes.markItRedCode("SZRTY"), 10.5, ExternalSchemes.isinSecurityId("ABC3456"));
     CreditDefaultSwapIndexComponent component2 = new CreditDefaultSwapIndexComponent("B", ExternalSchemes.markItRedCode("ERT234"), 5.7, ExternalSchemes.isinSecurityId("ABC7890"));
     CDSIndexComponentBundle components = CDSIndexComponentBundle.of(component1, component2);
-    CreditDefaultSwapIndexSecurity security = new CreditDefaultSwapIndexSecurity("1", "5", "CDX", Currency.USD, 
+    CreditDefaultSwapIndexDefinitionSecurity security = new CreditDefaultSwapIndexDefinitionSecurity("1", "5", "CDX", Currency.USD,
         CDSIndexTerms.of(Tenor.ONE_WEEK, Tenor.ONE_YEAR), 
         components );
     security.setName("TEST_CDSINDEX_SEC");
     security.addExternalId(ExternalSchemes.markItRedCode("CDXI234"));
-    s_cdsIndexSecurity = security;
+    s_cdsIndexDefnSecurity = security;
   }
 
   @Test
   public void testCycle() {
-    assertEquals(s_cdsIndexSecurity, cycleObject(CreditDefaultSwapIndexSecurity.class, s_cdsIndexSecurity));
+    assertEquals(s_cdsIndexDefnSecurity, cycleObject(CreditDefaultSwapIndexDefinitionSecurity.class,
+                                                     s_cdsIndexDefnSecurity));
   }
 
 }

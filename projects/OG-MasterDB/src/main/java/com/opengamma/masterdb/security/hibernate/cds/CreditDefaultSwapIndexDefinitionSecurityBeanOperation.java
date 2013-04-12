@@ -17,7 +17,7 @@ import com.google.common.collect.Lists;
 import com.opengamma.financial.security.cds.CDSIndexComponentBundle;
 import com.opengamma.financial.security.cds.CDSIndexTerms;
 import com.opengamma.financial.security.cds.CreditDefaultSwapIndexComponent;
-import com.opengamma.financial.security.cds.CreditDefaultSwapIndexSecurity;
+import com.opengamma.financial.security.cds.CreditDefaultSwapIndexDefinitionSecurity;
 import com.opengamma.masterdb.security.hibernate.AbstractSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterDao;
 import com.opengamma.masterdb.security.hibernate.OperationContext;
@@ -27,19 +27,19 @@ import com.opengamma.util.time.Tenor;
 /**
  * 
  */
-public final class CreditDefaultSwapIndexSecurityBeanOperation extends AbstractSecurityBeanOperation<CreditDefaultSwapIndexSecurity, CreditDefaultSwapIndexSecurityBean> {
+public final class CreditDefaultSwapIndexDefinitionSecurityBeanOperation extends AbstractSecurityBeanOperation<CreditDefaultSwapIndexDefinitionSecurity, CreditDefaultSwapIndexSecurityBean> {
 
   /**
    * Singleton
    */
-  public static final CreditDefaultSwapIndexSecurityBeanOperation INSTANCE = new CreditDefaultSwapIndexSecurityBeanOperation();
+  public static final CreditDefaultSwapIndexDefinitionSecurityBeanOperation INSTANCE = new CreditDefaultSwapIndexDefinitionSecurityBeanOperation();
   
-  private CreditDefaultSwapIndexSecurityBeanOperation() {
-    super(CreditDefaultSwapIndexSecurity.SECURITY_TYPE, CreditDefaultSwapIndexSecurity.class, CreditDefaultSwapIndexSecurityBean.class);
+  private CreditDefaultSwapIndexDefinitionSecurityBeanOperation() {
+    super(CreditDefaultSwapIndexDefinitionSecurity.SECURITY_TYPE, CreditDefaultSwapIndexDefinitionSecurity.class, CreditDefaultSwapIndexSecurityBean.class);
   }
   
   @Override
-  public CreditDefaultSwapIndexSecurityBean createBean(OperationContext context, HibernateSecurityMasterDao secMasterSession, CreditDefaultSwapIndexSecurity security) {
+  public CreditDefaultSwapIndexSecurityBean createBean(OperationContext context, HibernateSecurityMasterDao secMasterSession, CreditDefaultSwapIndexDefinitionSecurity security) {
 
     CreditDefaultSwapIndexSecurityBean bean = new CreditDefaultSwapIndexSecurityBean();
     bean.setVersion(security.getVersion());
@@ -67,7 +67,7 @@ public final class CreditDefaultSwapIndexSecurityBeanOperation extends AbstractS
   }
 
   @Override
-  public CreditDefaultSwapIndexSecurity createSecurity(OperationContext context, CreditDefaultSwapIndexSecurityBean bean) {
+  public CreditDefaultSwapIndexDefinitionSecurity createSecurity(OperationContext context, CreditDefaultSwapIndexSecurityBean bean) {
     List<Tenor> tenors = Lists.newArrayList();
     for (TenorBean tenorBean : bean.getTenors()) {
       tenors.add(tenorBeanToTenor(tenorBean));
@@ -78,7 +78,7 @@ public final class CreditDefaultSwapIndexSecurityBeanOperation extends AbstractS
       components.add(cdsIndexComponentBeanToCDSIndexComponent(cdsIndexComponentBean));
     }
     
-    final CreditDefaultSwapIndexSecurity security = new CreditDefaultSwapIndexSecurity(bean.getVersion(), 
+    final CreditDefaultSwapIndexDefinitionSecurity security = new CreditDefaultSwapIndexDefinitionSecurity(bean.getVersion(),
         bean.getSeries(), 
         bean.getFamily().getName(), 
         currencyBeanToCurrency(bean.getCurrency()), 

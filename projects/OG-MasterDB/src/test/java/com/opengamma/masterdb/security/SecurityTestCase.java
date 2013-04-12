@@ -57,7 +57,7 @@ import com.opengamma.financial.security.cds.CDSIndexComponentBundle;
 import com.opengamma.financial.security.cds.CDSIndexTerms;
 import com.opengamma.financial.security.cds.CDSSecurity;
 import com.opengamma.financial.security.cds.CreditDefaultSwapIndexComponent;
-import com.opengamma.financial.security.cds.CreditDefaultSwapIndexSecurity;
+import com.opengamma.financial.security.cds.CreditDefaultSwapIndexDefinitionSecurity;
 import com.opengamma.financial.security.cds.LegacyFixedRecoveryCDSSecurity;
 import com.opengamma.financial.security.cds.LegacyRecoveryLockCDSSecurity;
 import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
@@ -997,7 +997,7 @@ public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter i
 
   @Override
   public void testCreditDefaultSwapIndexSecurity() {
-    assertSecurities(CreditDefaultSwapIndexSecurity.class);
+    assertSecurities(CreditDefaultSwapIndexDefinitionSecurity.class);
   }
 
   @Override

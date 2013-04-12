@@ -41,7 +41,7 @@ import com.opengamma.financial.security.LongShort;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
-import com.opengamma.financial.security.cds.CreditDefaultSwapIndexSecurity;
+import com.opengamma.financial.security.cds.CreditDefaultSwapIndexDefinitionSecurity;
 import com.opengamma.financial.security.cds.CreditDefaultSwapSecurity;
 import com.opengamma.financial.security.cds.LegacyFixedRecoveryCDSSecurity;
 import com.opengamma.financial.security.cds.LegacyRecoveryLockCDSSecurity;
@@ -110,7 +110,7 @@ import com.opengamma.util.time.Expiry;
       StandardVanillaCDSSecurity.meta(),
       StandardRecoveryLockCDSSecurity.meta(),
       StandardFixedRecoveryCDSSecurity.meta(),
-      CreditDefaultSwapIndexSecurity.meta());
+      CreditDefaultSwapIndexDefinitionSecurity.meta());
 
   /** Meta bean factory for looking up meta beans by type name. */
   private static final MetaBeanFactory s_metaBeanFactory = new MapMetaBeanFactory(s_metaBeans);
