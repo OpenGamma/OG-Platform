@@ -9,11 +9,9 @@ import java.io.Serializable;
 import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Objects;
-import java.util.SortedMap;
 
 import org.threeten.bp.LocalDate;
 
@@ -22,7 +20,6 @@ import com.opengamma.timeseries.ObjectTimeSeriesOperators;
 import com.opengamma.timeseries.ObjectTimeSeriesOperators.BinaryOperator;
 import com.opengamma.timeseries.ObjectTimeSeriesOperators.UnaryOperator;
 import com.opengamma.timeseries.date.AbstractDateObjectTimeSeries;
-import com.opengamma.timeseries.date.AbstractDateObjectTimeSeriesBuilder;
 import com.opengamma.timeseries.date.DateObjectTimeSeries;
 
 /**
@@ -59,7 +56,7 @@ public final class ImmutableLocalDateObjectTimeSeries<V>
    * @return the time-series builder, not null
    */
   public static <V> LocalDateObjectTimeSeriesBuilder<V> builder() {
-    return new Builder<V>();
+    return new ImmutableLocalDateObjectTimeSeriesBuilder<V>();
   }
 
   //-------------------------------------------------------------------------
@@ -203,7 +200,7 @@ public final class ImmutableLocalDateObjectTimeSeries<V>
    * @param times  the times, not null
    * @param values  the values, not null
    */
-  private ImmutableLocalDateObjectTimeSeries(int[] times, V[] values) {
+  ImmutableLocalDateObjectTimeSeries(int[] times, V[] values) {
     _times = times;
     _values = values;
   }
@@ -633,78 +630,6 @@ public final class ImmutableLocalDateObjectTimeSeries<V>
   @Override
   public int hashCode() {
     return Arrays.hashCode(timesArrayFast()) ^ Arrays.hashCode(valuesArray());
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * The builder implementation.
-   */
-  private static final class Builder<V>
-      extends AbstractDateObjectTimeSeriesBuilder<LocalDate, V>
-      implements LocalDateObjectTimeSeriesBuilder<V> {
-
-    @Override
-    public LocalDateObjectTimeSeriesBuilder<V> put(LocalDate time, V value) {
-      return (LocalDateObjectTimeSeriesBuilder<V>) super.put(time, value);
-    }
-
-    @Override
-    public LocalDateObjectTimeSeriesBuilder<V> put(int time, V value) {
-      return (LocalDateObjectTimeSeriesBuilder<V>) super.put(time, value);
-    }
-
-    @Override
-    public LocalDateObjectTimeSeriesBuilder<V> putAll(LocalDate[] times, V[] values) {
-      return (LocalDateObjectTimeSeriesBuilder<V>) super.putAll(times, values);
-    }
-
-    @Override
-    public LocalDateObjectTimeSeriesBuilder<V> putAll(int[] times, V[] values) {
-      return (LocalDateObjectTimeSeriesBuilder<V>) super.putAll(times, values);
-    }
-
-    @Override
-    public LocalDateObjectTimeSeriesBuilder<V> putAll(DateObjectTimeSeries<?, V> timeSeries) {
-      return (LocalDateObjectTimeSeriesBuilder<V>) super.putAll(timeSeries);
-    }
-
-    @Override
-    public LocalDateObjectTimeSeriesBuilder<V> putAll(DateObjectTimeSeries<?, V> timeSeries, int startPos, int endPos) {
-      return (LocalDateObjectTimeSeriesBuilder<V>) super.putAll(timeSeries, startPos, endPos);
-    }
-
-    @Override
-    public LocalDateObjectTimeSeriesBuilder<V> putAll(Map<LocalDate, V> timeSeriesMap) {
-      return (LocalDateObjectTimeSeriesBuilder<V>) super.putAll(timeSeriesMap);
-    }
-
-    @Override
-    public LocalDateObjectTimeSeriesBuilder<V> clear() {
-      return (LocalDateObjectTimeSeriesBuilder<V>) super.clear();
-    }
-
-    @Override
-    protected int convertToInt(LocalDate date) {
-      return LocalDateToIntConverter.convertToInt(date);
-    }
-
-    @Override
-    public LocalDateObjectTimeSeries<V> build() {
-      return (LocalDateObjectTimeSeries<V>) super.build();
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    protected LocalDateObjectTimeSeries<V> createTimeSeries(SortedMap<Integer, V> series) {
-      int[] times = new int[series.size()];
-      Object[] values = new Object[series.size()];
-      int i = 0;
-      for (Entry<Integer, V> entry : series.entrySet()) {
-        times[i] = entry.getKey();
-        values[i++] = entry.getValue();
-      }
-      return new ImmutableLocalDateObjectTimeSeries<V>(times, (V[]) values);
-    }
   }
 
 }

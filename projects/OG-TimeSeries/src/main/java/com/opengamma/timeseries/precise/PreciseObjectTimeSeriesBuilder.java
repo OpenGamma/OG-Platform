@@ -25,6 +25,16 @@ public interface PreciseObjectTimeSeriesBuilder<T, V> {
    */
   int size();
 
+  /**
+   * Gets an iterator over the date-value pairs.
+   * <p>
+   * Although the pairs are expressed as instances of {@code Map.Entry},
+   * it is recommended to use the primitive methods on {@code PreciseEntryIterator}.
+   * 
+   * @return the iterator, not null
+   */
+  PreciseEntryIterator<T, V> iterator();
+
   //-------------------------------------------------------------------------
   /**
    * Puts an instant-value pair into the builder.

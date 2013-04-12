@@ -7,6 +7,7 @@ package com.opengamma.timeseries.precise.instant;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.util.AbstractMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -245,6 +246,66 @@ public class ImmutableInstantDoubleTimeSeriesTest extends InstantDoubleTimeSerie
   public void test_builder_nothingAdded() {
     InstantDoubleTimeSeriesBuilder bld = ImmutableInstantDoubleTimeSeries.builder();
     assertEquals(ImmutableInstantDoubleTimeSeries.EMPTY_SERIES, bld.build());
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_iterator() {
+    InstantDoubleTimeSeriesBuilder bld = ImmutableInstantDoubleTimeSeries.builder();
+    bld.put(Instant.ofEpochSecond(2222), 2.0).put(Instant.ofEpochSecond(3333), 3.0).put(Instant.ofEpochSecond(1111), 1.0);
+    InstantDoubleEntryIterator it = bld.iterator();
+    assertEquals(true, it.hasNext());
+    assertEquals(new AbstractMap.SimpleImmutableEntry<>(Instant.ofEpochSecond(1111), 1.0d), it.next());
+    assertEquals(Instant.ofEpochSecond(1111), it.currentTime());
+    assertEquals(1111_000_000_000L, it.currentTimeFast());
+    assertEquals(1.0d, it.currentValue());
+    assertEquals(1.0d, it.currentValueFast());
+    assertEquals(Instant.ofEpochSecond(2222), it.nextTime());
+    assertEquals(Instant.ofEpochSecond(3333), it.nextTime());
+    assertEquals(false, it.hasNext());
+  }
+
+  public void test_iterator_empty() {
+    InstantDoubleTimeSeriesBuilder bld = ImmutableInstantDoubleTimeSeries.builder();
+    assertEquals(false, bld.iterator().hasNext());
+  }
+
+  public void test_iterator_removeFirst() {
+    InstantDoubleTimeSeriesBuilder bld = ImmutableInstantDoubleTimeSeries.builder();
+    bld.put(Instant.ofEpochSecond(2222), 2.0).put(Instant.ofEpochSecond(3333), 3.0).put(Instant.ofEpochSecond(1111), 1.0);
+    InstantDoubleEntryIterator it = bld.iterator();
+    it.next();
+    it.remove();
+    assertEquals(2, bld.size());
+    Instant[] outDates = new Instant[] {Instant.ofEpochSecond(2222), Instant.ofEpochSecond(3333)};
+    double[] outValues = new double[] {2.0, 3.0};
+    assertEquals(ImmutableInstantDoubleTimeSeries.of(outDates, outValues), bld.build());
+  }
+
+  public void test_iterator_removeMid() {
+    InstantDoubleTimeSeriesBuilder bld = ImmutableInstantDoubleTimeSeries.builder();
+    bld.put(Instant.ofEpochSecond(2222), 2.0).put(Instant.ofEpochSecond(3333), 3.0).put(Instant.ofEpochSecond(1111), 1.0);
+    InstantDoubleEntryIterator it = bld.iterator();
+    it.next();
+    it.next();
+    it.remove();
+    assertEquals(2, bld.size());
+    Instant[] outDates = new Instant[] {Instant.ofEpochSecond(1111), Instant.ofEpochSecond(3333)};
+    double[] outValues = new double[] {1.0, 3.0};
+    assertEquals(ImmutableInstantDoubleTimeSeries.of(outDates, outValues), bld.build());
+  }
+
+  public void test_iterator_removeLast() {
+    InstantDoubleTimeSeriesBuilder bld = ImmutableInstantDoubleTimeSeries.builder();
+    bld.put(Instant.ofEpochSecond(2222), 2.0).put(Instant.ofEpochSecond(3333), 3.0).put(Instant.ofEpochSecond(1111), 1.0);
+    InstantDoubleEntryIterator it = bld.iterator();
+    it.next();
+    it.next();
+    it.next();
+    it.remove();
+    assertEquals(2, bld.size());
+    Instant[] outDates = new Instant[] {Instant.ofEpochSecond(1111), Instant.ofEpochSecond(2222)};
+    double[] outValues = new double[] {1.0, 2.0};
+    assertEquals(ImmutableInstantDoubleTimeSeries.of(outDates, outValues), bld.build());
   }
 
   //-------------------------------------------------------------------------

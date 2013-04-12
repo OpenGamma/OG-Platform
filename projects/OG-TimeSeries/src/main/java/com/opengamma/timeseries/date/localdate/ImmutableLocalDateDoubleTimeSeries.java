@@ -8,7 +8,6 @@ package com.opengamma.timeseries.date.localdate;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
@@ -17,7 +16,6 @@ import org.threeten.bp.LocalDate;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.DoubleTimeSeriesOperators.BinaryOperator;
 import com.opengamma.timeseries.DoubleTimeSeriesOperators.UnaryOperator;
-import com.opengamma.timeseries.date.AbstractDateDoubleTimeSeriesBuilder;
 import com.opengamma.timeseries.date.DateDoubleTimeSeries;
 
 /**
@@ -44,12 +42,14 @@ public final class ImmutableLocalDateDoubleTimeSeries
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a time-series from a single date and value.
+   * Creates an empty builder, used to create time-series.
+   * <p>
+   * The builder has methods to create and modify a time-series.
    * 
    * @return the time-series builder, not null
    */
   public static LocalDateDoubleTimeSeriesBuilder builder() {
-    return new Builder();
+    return new ImmutableLocalDateDoubleTimeSeriesBuilder();
   }
 
   //-------------------------------------------------------------------------
@@ -186,7 +186,7 @@ public final class ImmutableLocalDateDoubleTimeSeries
    * @param times  the times, not null
    * @param values  the values, not null
    */
-  private ImmutableLocalDateDoubleTimeSeries(int[] times, double[] values) {
+  ImmutableLocalDateDoubleTimeSeries(int[] times, double[] values) {
     _times = times;
     _values = values;
   }
@@ -357,73 +357,6 @@ public final class ImmutableLocalDateDoubleTimeSeries
   @Override
   public LocalDateDoubleTimeSeriesBuilder toBuilder() {
     return builder().putAll(this);
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * The builder implementation.
-   */
-  private static final class Builder
-      extends AbstractDateDoubleTimeSeriesBuilder<LocalDate>
-      implements LocalDateDoubleTimeSeriesBuilder {
-
-    @Override
-    public LocalDateDoubleTimeSeriesBuilder put(LocalDate time, double value) {
-      return (LocalDateDoubleTimeSeriesBuilder) super.put(time, value);
-    }
-
-    @Override
-    public LocalDateDoubleTimeSeriesBuilder put(int time, double value) {
-      return (LocalDateDoubleTimeSeriesBuilder) super.put(time, value);
-    }
-
-    @Override
-    public LocalDateDoubleTimeSeriesBuilder putAll(LocalDate[] times, double[] values) {
-      return (LocalDateDoubleTimeSeriesBuilder) super.putAll(times, values);
-    }
-
-    @Override
-    public LocalDateDoubleTimeSeriesBuilder putAll(int[] times, double[] values) {
-      return (LocalDateDoubleTimeSeriesBuilder) super.putAll(times, values);
-    }
-
-    @Override
-    public LocalDateDoubleTimeSeriesBuilder putAll(DateDoubleTimeSeries<?> timeSeries) {
-      return (LocalDateDoubleTimeSeriesBuilder) super.putAll(timeSeries);
-    }
-
-    @Override
-    public LocalDateDoubleTimeSeriesBuilder putAll(DateDoubleTimeSeries<?> timeSeries, int startPos, int endPos) {
-      return (LocalDateDoubleTimeSeriesBuilder) super.putAll(timeSeries, startPos, endPos);
-    }
-
-    @Override
-    public LocalDateDoubleTimeSeriesBuilder putAll(Map<LocalDate, Double> timeSeriesMap) {
-      return (LocalDateDoubleTimeSeriesBuilder) super.putAll(timeSeriesMap);
-    }
-
-    @Override
-    public LocalDateDoubleTimeSeriesBuilder clear() {
-      return (LocalDateDoubleTimeSeriesBuilder) super.clear();
-    }
-
-    @Override
-    protected int convertToInt(LocalDate date) {
-      return LocalDateToIntConverter.convertToInt(date);
-    }
-
-    @Override
-    public LocalDateDoubleTimeSeries build() {
-      return (LocalDateDoubleTimeSeries) super.build();
-    }
-
-    @Override
-    protected LocalDateDoubleTimeSeries createTimeSeries(int[] times, double[] values) {
-      if (times.length == 0) {
-        return EMPTY_SERIES;
-      }
-      return new ImmutableLocalDateDoubleTimeSeries(times, values);
-    }
   }
 
 }

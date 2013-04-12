@@ -8,7 +8,6 @@ package com.opengamma.timeseries.precise.instant;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
@@ -17,7 +16,6 @@ import org.threeten.bp.Instant;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.DoubleTimeSeriesOperators.BinaryOperator;
 import com.opengamma.timeseries.DoubleTimeSeriesOperators.UnaryOperator;
-import com.opengamma.timeseries.precise.AbstractPreciseDoubleTimeSeriesBuilder;
 import com.opengamma.timeseries.precise.PreciseDoubleTimeSeries;
 
 /**
@@ -51,7 +49,7 @@ public final class ImmutableInstantDoubleTimeSeries
    * @return the time-series builder, not null
    */
   public static InstantDoubleTimeSeriesBuilder builder() {
-    return new Builder();
+    return new ImmutableInstantDoubleTimeSeriesBuilder();
   }
 
   //-------------------------------------------------------------------------
@@ -188,7 +186,7 @@ public final class ImmutableInstantDoubleTimeSeries
    * @param nanos  the times, not null
    * @param values  the values, not null
    */
-  private ImmutableInstantDoubleTimeSeries(long[] nanos, double[] values) {
+  ImmutableInstantDoubleTimeSeries(long[] nanos, double[] values) {
     _times = nanos;
     _values = values;
   }
@@ -359,73 +357,6 @@ public final class ImmutableInstantDoubleTimeSeries
   @Override
   public InstantDoubleTimeSeriesBuilder toBuilder() {
     return builder().putAll(this);
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * The builder implementation.
-   */
-  private static final class Builder
-      extends AbstractPreciseDoubleTimeSeriesBuilder<Instant>
-      implements InstantDoubleTimeSeriesBuilder {
-
-    @Override
-    public InstantDoubleTimeSeriesBuilder put(Instant instant, double value) {
-      return (InstantDoubleTimeSeriesBuilder) super.put(instant, value);
-    }
-
-    @Override
-    public InstantDoubleTimeSeriesBuilder put(long instant, double value) {
-      return (InstantDoubleTimeSeriesBuilder) super.put(instant, value);
-    }
-
-    @Override
-    public InstantDoubleTimeSeriesBuilder putAll(Instant[] instants, double[] values) {
-      return (InstantDoubleTimeSeriesBuilder) super.putAll(instants, values);
-    }
-
-    @Override
-    public InstantDoubleTimeSeriesBuilder putAll(long[] instants, double[] values) {
-      return (InstantDoubleTimeSeriesBuilder) super.putAll(instants, values);
-    }
-
-    @Override
-    public InstantDoubleTimeSeriesBuilder putAll(PreciseDoubleTimeSeries<?> timeSeries) {
-      return (InstantDoubleTimeSeriesBuilder) super.putAll(timeSeries);
-    }
-
-    @Override
-    public InstantDoubleTimeSeriesBuilder putAll(PreciseDoubleTimeSeries<?> timeSeries, int startPos, int endPos) {
-      return (InstantDoubleTimeSeriesBuilder) super.putAll(timeSeries, startPos, endPos);
-    }
-
-    @Override
-    public InstantDoubleTimeSeriesBuilder putAll(Map<Instant, Double> timeSeriesMap) {
-      return (InstantDoubleTimeSeriesBuilder) super.putAll(timeSeriesMap);
-    }
-
-    @Override
-    public InstantDoubleTimeSeriesBuilder clear() {
-      return (InstantDoubleTimeSeriesBuilder) super.clear();
-    }
-
-    @Override
-    protected long convertToLong(Instant instant) {
-      return InstantToLongConverter.convertToLong(instant);
-    }
-
-    @Override
-    public InstantDoubleTimeSeries build() {
-      return (InstantDoubleTimeSeries) super.build();
-    }
-
-    @Override
-    protected InstantDoubleTimeSeries createTimeSeries(long[] instants, double[] values) {
-      if (instants.length == 0) {
-        return EMPTY_SERIES;
-      }
-      return new ImmutableInstantDoubleTimeSeries(instants, values);
-    }
   }
 
 }

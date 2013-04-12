@@ -25,6 +25,16 @@ public interface DateObjectTimeSeriesBuilder<T, V> {
    */
   int size();
 
+  /**
+   * Gets an iterator over the date-value pairs.
+   * <p>
+   * Although the pairs are expressed as instances of {@code Map.Entry},
+   * it is recommended to use the primitive methods on {@code DateEntryIterator}.
+   * 
+   * @return the iterator, not null
+   */
+  DateEntryIterator<T, V> iterator();
+
   //-------------------------------------------------------------------------
   /**
    * Puts a date-value pair into the builder.

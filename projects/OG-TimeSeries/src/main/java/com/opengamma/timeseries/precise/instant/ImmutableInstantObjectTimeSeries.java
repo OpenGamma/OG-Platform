@@ -9,11 +9,9 @@ import java.io.Serializable;
 import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Objects;
-import java.util.SortedMap;
 
 import org.threeten.bp.Instant;
 
@@ -22,7 +20,6 @@ import com.opengamma.timeseries.ObjectTimeSeriesOperators;
 import com.opengamma.timeseries.ObjectTimeSeriesOperators.BinaryOperator;
 import com.opengamma.timeseries.ObjectTimeSeriesOperators.UnaryOperator;
 import com.opengamma.timeseries.precise.AbstractPreciseObjectTimeSeries;
-import com.opengamma.timeseries.precise.AbstractPreciseObjectTimeSeriesBuilder;
 import com.opengamma.timeseries.precise.PreciseObjectTimeSeries;
 
 /**
@@ -59,7 +56,7 @@ public final class ImmutableInstantObjectTimeSeries<V>
    * @return the time-series builder, not null
    */
   public static <V> InstantObjectTimeSeriesBuilder<V> builder() {
-    return new Builder<V>();
+    return new ImmutableInstantObjectTimeSeriesBuilder<V>();
   }
 
   //-------------------------------------------------------------------------
@@ -203,7 +200,7 @@ public final class ImmutableInstantObjectTimeSeries<V>
    * @param instants  the times, not null
    * @param values  the values, not null
    */
-  private ImmutableInstantObjectTimeSeries(long[] instants, V[] values) {
+  ImmutableInstantObjectTimeSeries(long[] instants, V[] values) {
     _times = instants;
     _values = values;
   }
@@ -633,78 +630,6 @@ public final class ImmutableInstantObjectTimeSeries<V>
   @Override
   public int hashCode() {
     return Arrays.hashCode(timesArrayFast()) ^ Arrays.hashCode(valuesArray());
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * The builder implementation.
-   */
-  private static final class Builder<V>
-      extends AbstractPreciseObjectTimeSeriesBuilder<Instant, V>
-      implements InstantObjectTimeSeriesBuilder<V> {
-
-    @Override
-    public InstantObjectTimeSeriesBuilder<V> put(Instant time, V value) {
-      return (InstantObjectTimeSeriesBuilder<V>) super.put(time, value);
-    }
-
-    @Override
-    public InstantObjectTimeSeriesBuilder<V> put(long time, V value) {
-      return (InstantObjectTimeSeriesBuilder<V>) super.put(time, value);
-    }
-
-    @Override
-    public InstantObjectTimeSeriesBuilder<V> putAll(Instant[] times, V[] values) {
-      return (InstantObjectTimeSeriesBuilder<V>) super.putAll(times, values);
-    }
-
-    @Override
-    public InstantObjectTimeSeriesBuilder<V> putAll(long[] times, V[] values) {
-      return (InstantObjectTimeSeriesBuilder<V>) super.putAll(times, values);
-    }
-
-    @Override
-    public InstantObjectTimeSeriesBuilder<V> putAll(PreciseObjectTimeSeries<?, V> timeSeries) {
-      return (InstantObjectTimeSeriesBuilder<V>) super.putAll(timeSeries);
-    }
-
-    @Override
-    public InstantObjectTimeSeriesBuilder<V> putAll(PreciseObjectTimeSeries<?, V> timeSeries, int startPos, int endPos) {
-      return (InstantObjectTimeSeriesBuilder<V>) super.putAll(timeSeries, startPos, endPos);
-    }
-
-    @Override
-    public InstantObjectTimeSeriesBuilder<V> putAll(Map<Instant, V> timeSeriesMap) {
-      return (InstantObjectTimeSeriesBuilder<V>) super.putAll(timeSeriesMap);
-    }
-
-    @Override
-    public InstantObjectTimeSeriesBuilder<V> clear() {
-      return (InstantObjectTimeSeriesBuilder<V>) super.clear();
-    }
-
-    @Override
-    protected long convertToLong(Instant instant) {
-      return InstantToLongConverter.convertToLong(instant);
-    }
-
-    @Override
-    public InstantObjectTimeSeries<V> build() {
-      return (InstantObjectTimeSeries<V>) super.build();
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    protected InstantObjectTimeSeries<V> createTimeSeries(SortedMap<Long, V> series) {
-      long[] times = new long[series.size()];
-      Object[] values = new Object[series.size()];
-      int i = 0;
-      for (Entry<Long, V> entry : series.entrySet()) {
-        times[i] = entry.getKey();
-        values[i++] = entry.getValue();
-      }
-      return new ImmutableInstantObjectTimeSeries<V>(times, (V[]) values);
-    }
   }
 
 }

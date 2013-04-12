@@ -8,6 +8,7 @@ package com.opengamma.timeseries.precise.instant;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.math.BigDecimal;
+import java.util.AbstractMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,7 +65,7 @@ public class ImmutableInstantObjectTimeSeriesTest extends InstantObjectTimeSerie
 
   @Test(expectedExceptions = NullPointerException.class)
   public void test_of_Instant_value_null() {
-    ImmutableInstantDoubleTimeSeries.of((Instant) null, 2.0f);
+    ImmutableInstantObjectTimeSeries.of((Instant) null, 2.0f);
   }
 
   //-------------------------------------------------------------------------
@@ -155,6 +156,65 @@ public class ImmutableInstantObjectTimeSeriesTest extends InstantObjectTimeSerie
   public void test_builder_nothingAdded() {
     InstantObjectTimeSeriesBuilder<Float> bld = ImmutableInstantObjectTimeSeries.builder();
     assertEquals(ImmutableInstantObjectTimeSeries.ofEmpty(), bld.build());
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_iterator() {
+    InstantObjectTimeSeriesBuilder<Float> bld = ImmutableInstantObjectTimeSeries.builder();
+    bld.put(Instant.ofEpochSecond(2222), 2.0f).put(Instant.ofEpochSecond(3333), 3.0f).put(Instant.ofEpochSecond(1111), 1.0f);
+    InstantObjectEntryIterator<Float> it = bld.iterator();
+    assertEquals(true, it.hasNext());
+    assertEquals(new AbstractMap.SimpleImmutableEntry<>(Instant.ofEpochSecond(1111), 1.0f), it.next());
+    assertEquals(Instant.ofEpochSecond(1111), it.currentTime());
+    assertEquals(1111_000_000_000L, it.currentTimeFast());
+    assertEquals(1.0f, it.currentValue());
+    assertEquals(Instant.ofEpochSecond(2222), it.nextTime());
+    assertEquals(Instant.ofEpochSecond(3333), it.nextTime());
+    assertEquals(false, it.hasNext());
+  }
+
+  public void test_iterator_empty() {
+    InstantObjectTimeSeriesBuilder<Float> bld = ImmutableInstantObjectTimeSeries.builder();
+    assertEquals(false, bld.iterator().hasNext());
+  }
+
+  public void test_iterator_removeFirst() {
+    InstantObjectTimeSeriesBuilder<Float> bld = ImmutableInstantObjectTimeSeries.builder();
+    bld.put(Instant.ofEpochSecond(2222), 2.0f).put(Instant.ofEpochSecond(3333), 3.0f).put(Instant.ofEpochSecond(1111), 1.0f);
+    InstantObjectEntryIterator<Float> it = bld.iterator();
+    it.next();
+    it.remove();
+    assertEquals(2, bld.size());
+    Instant[] outDates = new Instant[] {Instant.ofEpochSecond(2222), Instant.ofEpochSecond(3333)};
+    Float[] outValues = new Float[] {2.0f, 3.0f};
+    assertEquals(ImmutableInstantObjectTimeSeries.of(outDates, outValues), bld.build());
+  }
+
+  public void test_iterator_removeMid() {
+    InstantObjectTimeSeriesBuilder<Float> bld = ImmutableInstantObjectTimeSeries.builder();
+    bld.put(Instant.ofEpochSecond(2222), 2.0f).put(Instant.ofEpochSecond(3333), 3.0f).put(Instant.ofEpochSecond(1111), 1.0f);
+    InstantObjectEntryIterator<Float> it = bld.iterator();
+    it.next();
+    it.next();
+    it.remove();
+    assertEquals(2, bld.size());
+    Instant[] outDates = new Instant[] {Instant.ofEpochSecond(1111), Instant.ofEpochSecond(3333)};
+    Float[] outValues = new Float[] {1.0f, 3.0f};
+    assertEquals(ImmutableInstantObjectTimeSeries.of(outDates, outValues), bld.build());
+  }
+
+  public void test_iterator_removeLast() {
+    InstantObjectTimeSeriesBuilder<Float> bld = ImmutableInstantObjectTimeSeries.builder();
+    bld.put(Instant.ofEpochSecond(2222), 2.0f).put(Instant.ofEpochSecond(3333), 3.0f).put(Instant.ofEpochSecond(1111), 1.0f);
+    InstantObjectEntryIterator<Float> it = bld.iterator();
+    it.next();
+    it.next();
+    it.next();
+    it.remove();
+    assertEquals(2, bld.size());
+    Instant[] outDates = new Instant[] {Instant.ofEpochSecond(1111), Instant.ofEpochSecond(2222)};
+    Float[] outValues = new Float[] {1.0f, 2.0f};
+    assertEquals(ImmutableInstantObjectTimeSeries.of(outDates, outValues), bld.build());
   }
 
   //-------------------------------------------------------------------------

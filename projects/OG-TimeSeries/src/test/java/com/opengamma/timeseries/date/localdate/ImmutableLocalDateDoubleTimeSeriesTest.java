@@ -7,6 +7,7 @@ package com.opengamma.timeseries.date.localdate;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.util.AbstractMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -244,7 +245,68 @@ public class ImmutableLocalDateDoubleTimeSeriesTest extends LocalDateDoubleTimeS
   //-------------------------------------------------------------------------
   public void test_builder_nothingAdded() {
     LocalDateDoubleTimeSeriesBuilder bld = ImmutableLocalDateDoubleTimeSeries.builder();
+    assertEquals(0, bld.size());
     assertEquals(ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES, bld.build());
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_iterator() {
+    LocalDateDoubleTimeSeriesBuilder bld = ImmutableLocalDateDoubleTimeSeries.builder();
+    bld.put(LocalDate.of(2012, 6, 30), 2.0).put(LocalDate.of(2012, 7, 1), 3.0).put(LocalDate.of(2012, 6, 1), 1.0);
+    LocalDateDoubleEntryIterator it = bld.iterator();
+    assertEquals(true, it.hasNext());
+    assertEquals(new AbstractMap.SimpleImmutableEntry<>(LocalDate.of(2012, 6, 1), 1.0d), it.next());
+    assertEquals(LocalDate.of(2012, 6, 1), it.currentTime());
+    assertEquals(20120601, it.currentTimeFast());
+    assertEquals(1.0d, it.currentValue());
+    assertEquals(1.0d, it.currentValueFast());
+    assertEquals(LocalDate.of(2012, 6, 30), it.nextTime());
+    assertEquals(LocalDate.of(2012, 7, 1), it.nextTime());
+    assertEquals(false, it.hasNext());
+  }
+
+  public void test_iterator_empty() {
+    LocalDateDoubleTimeSeriesBuilder bld = ImmutableLocalDateDoubleTimeSeries.builder();
+    assertEquals(false, bld.iterator().hasNext());
+  }
+
+  public void test_iterator_removeFirst() {
+    LocalDateDoubleTimeSeriesBuilder bld = ImmutableLocalDateDoubleTimeSeries.builder();
+    bld.put(LocalDate.of(2012, 6, 30), 2.0).put(LocalDate.of(2012, 7, 1), 3.0).put(LocalDate.of(2012, 6, 1), 1.0);
+    LocalDateDoubleEntryIterator it = bld.iterator();
+    it.next();
+    it.remove();
+    assertEquals(2, bld.size());
+    LocalDate[] outDates = new LocalDate[] {LocalDate.of(2012, 6, 30), LocalDate.of(2012, 7, 1)};
+    double[] outValues = new double[] {2.0, 3.0};
+    assertEquals(ImmutableLocalDateDoubleTimeSeries.of(outDates, outValues), bld.build());
+  }
+
+  public void test_iterator_removeMid() {
+    LocalDateDoubleTimeSeriesBuilder bld = ImmutableLocalDateDoubleTimeSeries.builder();
+    bld.put(LocalDate.of(2012, 6, 30), 2.0).put(LocalDate.of(2012, 7, 1), 3.0).put(LocalDate.of(2012, 6, 1), 1.0);
+    LocalDateDoubleEntryIterator it = bld.iterator();
+    it.next();
+    it.next();
+    it.remove();
+    assertEquals(2, bld.size());
+    LocalDate[] outDates = new LocalDate[] {LocalDate.of(2012, 6, 1), LocalDate.of(2012, 7, 1)};
+    double[] outValues = new double[] {1.0, 3.0};
+    assertEquals(ImmutableLocalDateDoubleTimeSeries.of(outDates, outValues), bld.build());
+  }
+
+  public void test_iterator_removeLast() {
+    LocalDateDoubleTimeSeriesBuilder bld = ImmutableLocalDateDoubleTimeSeries.builder();
+    bld.put(LocalDate.of(2012, 6, 30), 2.0).put(LocalDate.of(2012, 7, 1), 3.0).put(LocalDate.of(2012, 6, 1), 1.0);
+    LocalDateDoubleEntryIterator it = bld.iterator();
+    it.next();
+    it.next();
+    it.next();
+    it.remove();
+    assertEquals(2, bld.size());
+    LocalDate[] outDates = new LocalDate[] {LocalDate.of(2012, 6, 1), LocalDate.of(2012, 6, 30)};
+    double[] outValues = new double[] {1.0, 2.0};
+    assertEquals(ImmutableLocalDateDoubleTimeSeries.of(outDates, outValues), bld.build());
   }
 
   //-------------------------------------------------------------------------
