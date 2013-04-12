@@ -10,6 +10,7 @@ import java.text.DecimalFormat;
 
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.position.Counterparty;
 import com.opengamma.financial.currency.CurrencyPair;
@@ -48,6 +49,8 @@ public abstract class AbstractFXSecurityGenerator<T extends ManageableSecurity> 
   private static final DecimalFormat RATE_FORMATTER = new DecimalFormat("###.######");
   private static final DecimalFormat NOTIONAL_FORMATTER = new DecimalFormat("########.###");
   private static final Boolean[] BOOLEAN_VALUES = {Boolean.TRUE, Boolean.FALSE};
+  private static final String CURRENCY_PAIRS_NAME = "DEFAULT";
+  private final CurrencyPairs _currencyPairs;
   private CurrencyPairs _currencyPairs = CurrencyPairsConfigPopulator.createCurrencyPairs();
 
   /**
@@ -289,6 +292,13 @@ public abstract class AbstractFXSecurityGenerator<T extends ManageableSecurity> 
   }
   
   protected CurrencyPair getCurrencyPair(Currency ccy1, Currency ccy2) {
+    if (_currencyPairs == null) {
+      CurrencyPairs currencyPairs = getConfigSource().getSingle(CurrencyPairs.class, CURRENCY_PAIRS_NAME, VersionCorrection.LATEST);
+      if (currencyPairs == null) {
+        throw new OpenGammaRuntimeException("No currency pairs matrix found with name " + CURRENCY_PAIRS_NAME);
+      }
+      _currencyPairs = currencyPairs;
+    }
     return _currencyPairs.getCurrencyPair(ccy1, ccy2);
   }
   
