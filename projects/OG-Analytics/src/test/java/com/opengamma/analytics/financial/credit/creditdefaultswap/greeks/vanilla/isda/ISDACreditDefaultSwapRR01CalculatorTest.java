@@ -11,9 +11,10 @@ import org.testng.annotations.Test;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.PriceType;
+import com.opengamma.analytics.financial.credit.bumpers.RecoveryRateBumpType;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.CreditDefaultSwapDefinitionDataSets;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.greeks.vanilla.VoDCreditDefaultSwap;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.greeks.vanilla.RecRate01CreditDefaultSwap;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
@@ -22,9 +23,9 @@ import com.opengamma.util.time.DateUtils;
 /**
  * 
  */
-public class ISDACreditDefaultSwapParallelVoDCalculatorTest {
-  private static final VoDCreditDefaultSwap DEPRECATED_CALCULATOR = new VoDCreditDefaultSwap();
-  private static final ISDACreditDefaultSwapValueOnDefaultCalculator CALCULATOR = new ISDACreditDefaultSwapValueOnDefaultCalculator();
+public class ISDACreditDefaultSwapRR01CalculatorTest {
+  private static final RecRate01CreditDefaultSwap DEPRECATED_CALCULATOR = new RecRate01CreditDefaultSwap();
+  private static final ISDACreditDefaultSwapRR01Calculator CALCULATOR = new ISDACreditDefaultSwapRR01Calculator();
   private static final ZonedDateTime VALUATION_DATE = DateUtils.getUTCDate(2013, 1, 6);
   private static final ZonedDateTime BASE_DATE = DateUtils.getUTCDate(2013, 3, 1);
   private static final ZonedDateTime[] HR_DATES = new ZonedDateTime[] {DateUtils.getUTCDate(2013, 3, 1), DateUtils.getUTCDate(2013, 6, 1), DateUtils.getUTCDate(2013, 9, 1),
@@ -39,6 +40,7 @@ public class ISDACreditDefaultSwapParallelVoDCalculatorTest {
   private static final double[] YC_RATES = new double[] {0.005, 0.006, 0.008, 0.009, 0.01, 0.012, 0.015, 0.02, 0.03 };
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("ACT/365");
   private static final double OFFSET = 1. / 365;
+  private static final double BP = 0.0001;
   private static final ISDADateCurve YIELD_CURVE;
   private static final double EPS = 1e-15;
 
@@ -59,31 +61,31 @@ public class ISDACreditDefaultSwapParallelVoDCalculatorTest {
   @Test
   public void regressionTest() {
     final LegacyVanillaCreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaCreditDefaultSwapDefinition().withMaturityDate(VALUATION_DATE.plusYears(10));
-    final double deprecatedResult = DEPRECATED_CALCULATOR.getValueOnDefaultCreditDefaultSwap(VALUATION_DATE, cds, YIELD_CURVE, HR_DATES, HR_RATES, PriceType.CLEAN);
-    final double result = CALCULATOR.getValueOnDefaultCreditDefaultSwap(VALUATION_DATE, cds, YIELD_CURVE, HR_DATES, HR_RATES, PriceType.CLEAN);
+    final double deprecatedResult = DEPRECATED_CALCULATOR.getRecoveryRate01CreditDefaultSwap(VALUATION_DATE, cds, YIELD_CURVE, HR_DATES, HR_RATES, BP, RecoveryRateBumpType.ADDITIVE, PriceType.CLEAN);
+    final double result = CALCULATOR.getRecoveryRate01CreditDefaultSwap(VALUATION_DATE, cds, YIELD_CURVE, HR_DATES, HR_RATES, BP, RecoveryRateBumpType.ADDITIVE, PriceType.CLEAN);
     assertEquals(deprecatedResult, result, EPS);
   }
 
-  @Test(enabled = false)
+  @Test//(enabled = false)
   public void timeBDeprecated() {
     final LegacyVanillaCreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaCreditDefaultSwapDefinition().withMaturityDate(VALUATION_DATE.plusYears(10));
     final double startTime = System.currentTimeMillis();
     double total = 0;
     for (int i = 0; i < 1000; i++) {
-      total += DEPRECATED_CALCULATOR.getValueOnDefaultCreditDefaultSwap(VALUATION_DATE, cds, YIELD_CURVE, HR_DATES, HR_RATES, PriceType.CLEAN);
+      total += DEPRECATED_CALCULATOR.getRecoveryRate01CreditDefaultSwap(VALUATION_DATE, cds, YIELD_CURVE, HR_DATES, HR_RATES, BP, RecoveryRateBumpType.ADDITIVE, PriceType.CLEAN);
     }
     final double endTime = System.currentTimeMillis();
     System.out.println("Deprecated:\t" + (endTime - startTime) / 100);
     System.out.println(total);
   }
 
-  @Test(enabled = false)
+  @Test//(enabled = false)
   public void timeARefactored() {
     final LegacyVanillaCreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaCreditDefaultSwapDefinition().withMaturityDate(VALUATION_DATE.plusYears(10));
     final double startTime = System.currentTimeMillis();
     double total = 0;
     for (int i = 0; i < 1000; i++) {
-      total += CALCULATOR.getValueOnDefaultCreditDefaultSwap(VALUATION_DATE, cds, YIELD_CURVE, HR_DATES, HR_RATES, PriceType.CLEAN);
+      total += CALCULATOR.getRecoveryRate01CreditDefaultSwap(VALUATION_DATE, cds, YIELD_CURVE, HR_DATES, HR_RATES, BP, RecoveryRateBumpType.ADDITIVE, PriceType.CLEAN);
     }
     final double endTime = System.currentTimeMillis();
     System.out.println("Refactored:\t" + (endTime - startTime) / 100);
