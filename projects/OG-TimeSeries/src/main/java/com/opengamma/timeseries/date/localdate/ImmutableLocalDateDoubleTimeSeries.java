@@ -18,7 +18,6 @@ import com.opengamma.timeseries.DoubleTimeSeriesOperators.BinaryOperator;
 import com.opengamma.timeseries.DoubleTimeSeriesOperators.UnaryOperator;
 import com.opengamma.timeseries.date.AbstractDateDoubleTimeSeriesBuilder;
 import com.opengamma.timeseries.date.DateDoubleTimeSeries;
-import com.opengamma.timeseries.localdate.LocalDateToIntConverter;
 
 /**
  * Standard immutable implementation of {@code LocalDateDoubleTimeSeries}.

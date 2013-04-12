@@ -8,6 +8,7 @@ package com.opengamma.timeseries.localdate;
 import org.threeten.bp.LocalDate;
 
 import com.opengamma.timeseries.MutableDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateToIntConverter;
 
 /**
  * A mutable time series that stores {@code double} data values against {@code LocalDate} dates.

@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.timeseries.localdate;
+package com.opengamma.timeseries.date.localdate;
 
 import org.threeten.bp.LocalDate;
 

@@ -33,7 +33,6 @@ import com.opengamma.timeseries.fast.longint.object.FastArrayLongObjectTimeSerie
 import com.opengamma.timeseries.fast.longint.object.FastListLongObjectTimeSeries;
 import com.opengamma.timeseries.fast.longint.object.FastLongObjectTimeSeries;
 import com.opengamma.timeseries.fast.longint.object.FastMutableLongObjectTimeSeries;
-import com.opengamma.timeseries.localdate.LocalDateToIntConverter;
 
 /**
  * Standard immutable implementation of {@code LocalDateObjectTimeSeries}.

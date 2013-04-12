@@ -37,7 +37,6 @@ import com.opengamma.timeseries.date.DateDoubleTimeSeries;
 import com.opengamma.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.timeseries.fast.integer.FastArrayIntDoubleTimeSeries;
 import com.opengamma.timeseries.fast.integer.FastIntDoubleTimeSeries;
-import com.opengamma.timeseries.localdate.LocalDateToIntConverter;
 
 /**
  * Abstract implementation of {@code LocalDateDoubleTimeSeries}.
