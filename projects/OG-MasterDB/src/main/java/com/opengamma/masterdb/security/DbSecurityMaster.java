@@ -138,6 +138,9 @@ public class DbSecurityMaster
       List<String> securityTypes = getJdbcTemplate().getJdbcOperations().queryForList(sql, String.class);
       result.getSecurityTypes().addAll(securityTypes);
     }
+    if (request.isSchemaVersion()) {
+      result.setSchemaVersion(String.valueOf(getSchemaVersion()));
+    }
     return result;
   }
 
