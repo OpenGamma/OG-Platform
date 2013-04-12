@@ -100,10 +100,12 @@ public class CalculationJobResultStreamConsumer extends TerminatableJob {
             final AggregatedExecutionLog aggregatedExecutionLog = new DefaultAggregatedExecutionLog(executionLogWithContext, new ArrayList<AggregatedExecutionLog>(inputLogs), executionLogMode);
             final DependencyNodeJobExecutionResult jobExecutionResult = new DependencyNodeJobExecutionResult(computeNodeId, jobResultItem, aggregatedExecutionLog);
             final Set<ValueSpecification> nodeTerminals = node.getTerminalOutputValues();
+            // Not correct when there are multiple calculation configurations, but it will go soon!
             for (ValueSpecification terminalOutput : nodeTerminals) {
-              // Not correct when there are multiple calculation configurations, but it will go soon!
               deprecatedTerminalOutputs.put(terminalOutput, allTerminalOutputs.get(terminalOutput));
-              jobExecutionResultCache.put(terminalOutput, jobExecutionResult);
+            }
+            for (ValueSpecification output : node.getOutputValues()) {
+              jobExecutionResultCache.put(output, jobExecutionResult);
             }
             terminalOutputs.addAll(nodeTerminals);
           }
