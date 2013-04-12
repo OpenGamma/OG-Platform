@@ -259,28 +259,30 @@ public abstract class ListedEquityOptionFunction extends AbstractFunction.NonCom
     final Double spotOptionPrice = (Double) optionPriceValue.getValue();
     final double forwardOptionPrice = spotOptionPrice / discountFactor;
 
+    final double impliedVol;
     if (isAmerican) {
-
-      // --- Testing for implied vol problems
-      final double intrinsic =  Math.max(0.0, (forward - strike) * (isCall ? 1.0 : -1.0));
-      if (intrinsic > forwardOptionPrice) {
+      try {
+        impliedVol = BlackFormulaRepository.impliedVolatility(forwardOptionPrice, forward, strike, timeToExpiry, isCall);  
+      } catch(Exception e) {
+        // --- Testing for implied vol problems
+        final double intrinsic =  Math.max(0.0, (forward - strike) * (isCall ? 1.0 : -1.0));
         if (isCall) {
           throw new OpenGammaRuntimeException("American Call with intrinsic value (" + intrinsic + ") > price (" + forwardOptionPrice + ")!, " + security);
         } else {
           throw new OpenGammaRuntimeException("American Put with intrinsic value (" + intrinsic + ") > price (" + forwardOptionPrice + ")!, " + security);
         }
+        // This function produces a Black volatility. What we need then, is a volatility, that when put into a Black Pricer, will produce the right price
+        // For deeply ITM American Puts, the price to continue may be lower than the intrinsic price, and hence optimal to exercise 
+        // final BaroneAdesiWhaleyModel americanModel = new BaroneAdesiWhaleyModel();
+        // final double r = getDiscountingCurve(inputs).getInterestRate(timeToExpiry);
+        // final double b = 0.0; // TODO: This is a problem. b is buried in the forward. Need to reparameterise..
+        // final double s0 = forward * discountFactor;
+        // final double bawImpliedVol = americanModel.impliedVolatility(spotOptionPrice, s0, strike, r, b, timeToExpiry, isCall);
       }
-      
-      // This function produces a Black volatility. What we need then, is a volatility, that when put into a Black Pricer, will produce the right price
-      // For deeply ITM American Puts, the price to continue may be lower than the intrinsic price, and hence optimal to exercise 
-//      final BaroneAdesiWhaleyModel americanModel = new BaroneAdesiWhaleyModel();
-//      final double r = getDiscountingCurve(inputs).getInterestRate(timeToExpiry);
-//      final double b = 0.0; // TODO: This is a problem. b is buried in the forward. Need to reparameterise..
-//      final double s0 = forward * discountFactor;
-//      final double bawImpliedVol = americanModel.impliedVolatility(spotOptionPrice, s0, strike, r, b, timeToExpiry, isCall);  
+    } else {
+      impliedVol =  BlackFormulaRepository.impliedVolatility(forwardOptionPrice, forward, strike, timeToExpiry, isCall);
     }
     
-    double impliedVol = BlackFormulaRepository.impliedVolatility(forwardOptionPrice, forward, strike, timeToExpiry, isCall);
     
     final Surface<Double, Double, Double> surface = ConstantDoublesSurface.from(impliedVol);
     final BlackVolatilitySurfaceMoneyness impliedVolatilitySurface = new BlackVolatilitySurfaceMoneyness(surface, forwardCurve);
