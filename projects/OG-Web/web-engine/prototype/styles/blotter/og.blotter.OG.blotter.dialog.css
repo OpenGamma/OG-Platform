@@ -85,7 +85,7 @@
 .OG-blotter-trade-select {
     margin-left: 15px;
 }
-.OG-blotter-trade-select h3{
+.OG-blotter-trade-select h3, h2{
     padding: 10px 0;
 }
 .OG-blotter-trade-select a{
@@ -93,15 +93,24 @@
     display: inline;
     margin: 0;
     padding: 0;
+    cursor: pointer;
 }
 .OG-blotter-trade-select li{
     display: block;
-    padding-top: 1px;
+    padding-top: 2px;
 }
 .OG-blotter-trade-select ul{
     padding bottom: 10px;
     padding-left: 10px;
     white-space: nowrap;
+}
+.OG-blotter-trade-select hr{
+    margin-top: 20px;
+    width: 90%;
+}
+.OG-blotter-trade-select .existing-table{
+    margin-top: 15px;
+    width: 90%;
 }
 .OG-blotter-trade-select table{
     width: 100%;
