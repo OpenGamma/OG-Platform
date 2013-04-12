@@ -17,8 +17,8 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeries;
-import com.opengamma.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
-import com.opengamma.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.test.DbTest;
 import com.opengamma.util.test.TestGroup;
 
@@ -40,7 +40,7 @@ public class DbHistoricalTimeSeriesMasterWorkerCorrectTimeSeriesTest extends Abs
   //-------------------------------------------------------------------------
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_correct_nullOID() {
-    _htsMaster.correctTimeSeriesDataPoints((ObjectId) null, new ArrayLocalDateDoubleTimeSeries());
+    _htsMaster.correctTimeSeriesDataPoints((ObjectId) null, ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -51,7 +51,7 @@ public class DbHistoricalTimeSeriesMasterWorkerCorrectTimeSeriesTest extends Abs
   @Test(expectedExceptions = DataNotFoundException.class)
   public void test_correct_versioned_notFoundId() {
     ObjectId oid = ObjectId.of("DbHts", "DP0");
-    _htsMaster.correctTimeSeriesDataPoints(oid, new ArrayLocalDateDoubleTimeSeries());
+    _htsMaster.correctTimeSeriesDataPoints(oid, ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES);
   }
 
   //-------------------------------------------------------------------------
@@ -59,7 +59,7 @@ public class DbHistoricalTimeSeriesMasterWorkerCorrectTimeSeriesTest extends Abs
   public void test_correct_101_startsFull() {
     LocalDate[] dates = {LocalDate.of(2011, 1, 1), LocalDate.of(2011, 1, 2)};
     double[] values = {0.1d, 0.2d};
-    LocalDateDoubleTimeSeries series = new ArrayLocalDateDoubleTimeSeries(dates, values);
+    LocalDateDoubleTimeSeries series = ImmutableLocalDateDoubleTimeSeries.of(dates, values);
     
     ObjectId oid = ObjectId.of("DbHts", "DP101");
     UniqueId uniqueId = _htsMaster.correctTimeSeriesDataPoints(oid, series);
@@ -80,7 +80,7 @@ public class DbHistoricalTimeSeriesMasterWorkerCorrectTimeSeriesTest extends Abs
   public void test_correct_101_insertNew() {
     LocalDate[] dates = {LocalDate.of(2010, 12, 31)};
     double[] values = {0.5d};
-    LocalDateDoubleTimeSeries series = new ArrayLocalDateDoubleTimeSeries(dates, values);
+    LocalDateDoubleTimeSeries series = ImmutableLocalDateDoubleTimeSeries.of(dates, values);
     
     ObjectId oid = ObjectId.of("DbHts", "DP101");
     UniqueId uniqueId = _htsMaster.correctTimeSeriesDataPoints(oid, series);
