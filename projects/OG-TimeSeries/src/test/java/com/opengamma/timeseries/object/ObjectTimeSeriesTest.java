@@ -400,31 +400,6 @@ public abstract class ObjectTimeSeriesTest<T, V> {
   }
 
   //-------------------------------------------------------------------------
-//  @Test
-//  public void test_noIntersectionOperation() {
-//    ObjectTimeSeries<T, V> dts = createStandardTimeSeries();
-//    ObjectTimeSeries<T, V> dts2 = createStandardTimeSeries2();
-//    ObjectTimeSeries<T, V> ets = createEmptyTimeSeries();
-//    assertEquals(dts, ets.noIntersectionOperation(dts));
-//    assertEquals(dts, dts.noIntersectionOperation(ets));
-//    try {
-//      dts.noIntersectionOperation(dts2);
-//      fail("Should have failed");
-//    } catch (IllegalStateException ex) {
-//      //do nothing - expected exception because the two timeseries have overlapping dates which will require intersection operation
-//    }
-//    ObjectTimeSeries<T, V> dts3 = dts2.subSeries(dts.getLatestTime(), false, dts2.getLatestTime(), false);
-//    ObjectTimeSeries<T, V> noIntersecOp = dts.noIntersectionOperation(dts3);
-//    assertEquals(dts.getValueAtIndex(0), noIntersecOp.getValueAtIndex(0));
-//    assertEquals(dts.getValueAtIndex(1), noIntersecOp.getValueAtIndex(1));
-//    assertEquals(dts.getValueAtIndex(2), noIntersecOp.getValueAtIndex(2));
-//    assertEquals(dts.getValueAtIndex(3), noIntersecOp.getValueAtIndex(3));
-//    assertEquals(dts.getValueAtIndex(4), noIntersecOp.getValueAtIndex(4));
-//    assertEquals(dts.getValueAtIndex(5), noIntersecOp.getValueAtIndex(5));
-//    assertEquals(dts3.getValueAtIndex(0), noIntersecOp.getValueAtIndex(6));
-//    assertEquals(dts3.getValueAtIndex(1), noIntersecOp.getValueAtIndex(7));
-//  }
-
   @Test
   public void test_intersectionFirstValue() {
     ObjectTimeSeries<T, V> dts = createStandardTimeSeries();

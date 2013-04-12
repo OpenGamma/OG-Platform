@@ -8,6 +8,8 @@ package com.opengamma.timeseries.precise;
 import java.util.NoSuchElementException;
 
 import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.DoubleTimeSeriesOperators.BinaryOperator;
+import com.opengamma.timeseries.DoubleTimeSeriesOperators.UnaryOperator;
 
 /**
  * A time series that stores {@code double} data values against instants.
@@ -73,130 +75,148 @@ public interface PreciseDoubleTimeSeries<T>
   @Override  // override for covariant return type
   PreciseDoubleTimeSeries<T> lag(final int lagCount);
 
-//  //-------------------------------------------------------------------------
-//  /**
-//   * Returns a time-series where the specified operator has been applied to
-//   * each element in this time-series.
-//   * 
-//   * @param operator  the operator, not null
-//   * @return the time-series, not null
-//   */
-//  InstantDoubleTimeSeries<T> operate(UnaryOperator operator);
-//
-//  /**
-//   * Returns a time-series where the specified operator has been applied to
-//   * each element in this time-series.
-//   * 
-//   * @param other  the other value to use when applying the operator, not null
-//   * @param operator  the operator, not null
-//   * @return the time-series, not null
-//   */
-//  InstantDoubleTimeSeries<T> operate(double other, BinaryOperator operator);
-//
-//  //-------------------------------------------------------------------------
-//  @Override  // override for covariant return type
-//  InstantDoubleTimeSeries<T> add(double amountToAdd);
-//
-//  @Override  // override for covariant return type
-//  InstantDoubleTimeSeries<T> add(DoubleTimeSeries<?> other);
-//
-//  @Override  // override for covariant return type
-//  InstantDoubleTimeSeries<T> unionAdd(DoubleTimeSeries<?> other);
-//
-//  //-------------------------------------------------------------------------
-//  @Override  // override for covariant return type
-//  InstantDoubleTimeSeries<T> subtract(double amountToSubtract);
-//
-//  @Override  // override for covariant return type
-//  InstantDoubleTimeSeries<T> subtract(DoubleTimeSeries<?> other);
-//
-//  @Override  // override for covariant return type
-//  InstantDoubleTimeSeries<T> unionSubtract(DoubleTimeSeries<?> other);
-//
-//  //-------------------------------------------------------------------------
-//  @Override  // override for covariant return type
-//  InstantDoubleTimeSeries<T> multiply(double amountToMultiplyBy);
-//
-//  @Override  // override for covariant return type
-//  InstantDoubleTimeSeries<T> multiply(DoubleTimeSeries<?> other);
-//
-//  @Override  // override for covariant return type
-//  InstantDoubleTimeSeries<T> unionMultiply(DoubleTimeSeries<?> other);
-//
-//  //-------------------------------------------------------------------------
-//  @Override  // override for covariant return type
-//  InstantDoubleTimeSeries<T> divide(double amountToDivideBy);
-//
-//  @Override  // override for covariant return type
-//  InstantDoubleTimeSeries<T> divide(DoubleTimeSeries<?> other);
-//
-//  @Override  // override for covariant return type
-//  InstantDoubleTimeSeries<T> unionDivide(DoubleTimeSeries<?> other);
-//
-//  //-------------------------------------------------------------------------
-//  @Override  // override for covariant return type
-//  InstantDoubleTimeSeries<T> power(double power);
-//
-//  @Override  // override for covariant return type
-//  InstantDoubleTimeSeries<T> power(DoubleTimeSeries<?> other);
-//
-//  @Override  // override for covariant return type
-//  InstantDoubleTimeSeries<T> unionPower(DoubleTimeSeries<?> other);
-//
-//  //-------------------------------------------------------------------------
-//  @Override  // override for covariant return type
-//  InstantDoubleTimeSeries<T> minimum(double minValue);
-//
-//  @Override  // override for covariant return type
-//  InstantDoubleTimeSeries<T> minimum(DoubleTimeSeries<?> other);
-//
-//  @Override  // override for covariant return type
-//  InstantDoubleTimeSeries<T> unionMinimum(DoubleTimeSeries<?> other);
-//
-//  //-------------------------------------------------------------------------
-//  @Override  // override for covariant return type
-//  InstantDoubleTimeSeries<T> maximum(double maxValue);
-//
-//  @Override  // override for covariant return type
-//  InstantDoubleTimeSeries<T> maximum(DoubleTimeSeries<?> other);
-//
-//  @Override  // override for covariant return type
-//  InstantDoubleTimeSeries<T> unionMaximum(DoubleTimeSeries<?> other);
-//
-//  //-------------------------------------------------------------------------
-//  @Override  // override for covariant return type
-//  InstantDoubleTimeSeries<T> average(double value);
-//
-//  @Override  // override for covariant return type
-//  InstantDoubleTimeSeries<T> average(DoubleTimeSeries<?> other);
-//
-//  @Override  // override for covariant return type
-//  InstantDoubleTimeSeries<T> unionAverage(DoubleTimeSeries<?> other);
-//
-//  //-------------------------------------------------------------------------
-//  @Override  // override for covariant return type
-//  InstantDoubleTimeSeries<T> intersectionFirstValue(DoubleTimeSeries<?> other);
-//
-//  @Override  // override for covariant return type
-//  InstantDoubleTimeSeries<T> intersectionSecondValue(DoubleTimeSeries<?> other);
-//
-//  @Override  // override for covariant return type
-//  InstantDoubleTimeSeries<T> noIntersectionOperation(DoubleTimeSeries<?> other);
-//
-//  //-------------------------------------------------------------------------
-//  @Override  // override for covariant return type
-//  InstantDoubleTimeSeries<T> negate();
-//
-//  @Override  // override for covariant return type
-//  InstantDoubleTimeSeries<T> reciprocal();
-//
-//  @Override  // override for covariant return type
-//  InstantDoubleTimeSeries<T> log();
-//
-//  @Override  // override for covariant return type
-//  InstantDoubleTimeSeries<T> log10();
-//
-//  @Override  // override for covariant return type
-//  InstantDoubleTimeSeries<T> abs();
+  //-------------------------------------------------------------------------
+  /**
+   * Applies a unary operator to each value in the time series.
+   * 
+   * @param operator  the operator, not null
+   * @return a copy of this series with the operator applied, not null
+   */
+  PreciseDoubleTimeSeries<T> operate(UnaryOperator operator);
+
+  /**
+   * Applies a binary operator to each value in the time series.
+   * 
+   * @param other  the single value passed into the binary operator
+   * @param operator  the operator, not null
+   * @return a copy of this series with the operator applied, not null
+   */
+  PreciseDoubleTimeSeries<T> operate(double other, BinaryOperator operator);
+
+  /**
+   * Applies a binary operator to each value in this time series and
+   * another time-series, returning the intersection of times.
+   * 
+   * @param otherTimeSeries  the other time-series, not null
+   * @param operator  the operator, not null
+   * @return a copy of this series with the operator applied, not null
+   */
+  PreciseDoubleTimeSeries<T> operate(PreciseDoubleTimeSeries<?> otherTimeSeries, BinaryOperator operator);
+
+  /**
+   * Applies a binary operator to each value in this time series and
+   * another time-series, returning the union of times.
+   * 
+   * @param otherTimeSeries  the other time-series, not null
+   * @param operator  the operator, not null
+   * @return a copy of this series with the operator applied, not null
+   */
+  PreciseDoubleTimeSeries<T> unionOperate(PreciseDoubleTimeSeries<?> otherTimeSeries, BinaryOperator operator);
+
+  //-------------------------------------------------------------------------
+  @Override  // override for covariant return type
+  PreciseDoubleTimeSeries<T> add(double amountToAdd);
+
+  @Override  // override for covariant return type
+  PreciseDoubleTimeSeries<T> add(DoubleTimeSeries<?> other);
+
+  @Override  // override for covariant return type
+  PreciseDoubleTimeSeries<T> unionAdd(DoubleTimeSeries<?> other);
+
+  //-------------------------------------------------------------------------
+  @Override  // override for covariant return type
+  PreciseDoubleTimeSeries<T> subtract(double amountToSubtract);
+
+  @Override  // override for covariant return type
+  PreciseDoubleTimeSeries<T> subtract(DoubleTimeSeries<?> other);
+
+  @Override  // override for covariant return type
+  PreciseDoubleTimeSeries<T> unionSubtract(DoubleTimeSeries<?> other);
+
+  //-------------------------------------------------------------------------
+  @Override  // override for covariant return type
+  PreciseDoubleTimeSeries<T> multiply(double amountToMultiplyBy);
+
+  @Override  // override for covariant return type
+  PreciseDoubleTimeSeries<T> multiply(DoubleTimeSeries<?> other);
+
+  @Override  // override for covariant return type
+  PreciseDoubleTimeSeries<T> unionMultiply(DoubleTimeSeries<?> other);
+
+  //-------------------------------------------------------------------------
+  @Override  // override for covariant return type
+  PreciseDoubleTimeSeries<T> divide(double amountToDivideBy);
+
+  @Override  // override for covariant return type
+  PreciseDoubleTimeSeries<T> divide(DoubleTimeSeries<?> other);
+
+  @Override  // override for covariant return type
+  PreciseDoubleTimeSeries<T> unionDivide(DoubleTimeSeries<?> other);
+
+  //-------------------------------------------------------------------------
+  @Override  // override for covariant return type
+  PreciseDoubleTimeSeries<T> power(double power);
+
+  @Override  // override for covariant return type
+  PreciseDoubleTimeSeries<T> power(DoubleTimeSeries<?> other);
+
+  @Override  // override for covariant return type
+  PreciseDoubleTimeSeries<T> unionPower(DoubleTimeSeries<?> other);
+
+  //-------------------------------------------------------------------------
+  @Override  // override for covariant return type
+  PreciseDoubleTimeSeries<T> minimum(double minValue);
+
+  @Override  // override for covariant return type
+  PreciseDoubleTimeSeries<T> minimum(DoubleTimeSeries<?> other);
+
+  @Override  // override for covariant return type
+  PreciseDoubleTimeSeries<T> unionMinimum(DoubleTimeSeries<?> other);
+
+  //-------------------------------------------------------------------------
+  @Override  // override for covariant return type
+  PreciseDoubleTimeSeries<T> maximum(double maxValue);
+
+  @Override  // override for covariant return type
+  PreciseDoubleTimeSeries<T> maximum(DoubleTimeSeries<?> other);
+
+  @Override  // override for covariant return type
+  PreciseDoubleTimeSeries<T> unionMaximum(DoubleTimeSeries<?> other);
+
+  //-------------------------------------------------------------------------
+  @Override  // override for covariant return type
+  PreciseDoubleTimeSeries<T> average(double value);
+
+  @Override  // override for covariant return type
+  PreciseDoubleTimeSeries<T> average(DoubleTimeSeries<?> other);
+
+  @Override  // override for covariant return type
+  PreciseDoubleTimeSeries<T> unionAverage(DoubleTimeSeries<?> other);
+
+  //-------------------------------------------------------------------------
+  @Override  // override for covariant return type
+  PreciseDoubleTimeSeries<T> intersectionFirstValue(DoubleTimeSeries<?> other);
+
+  @Override  // override for covariant return type
+  PreciseDoubleTimeSeries<T> intersectionSecondValue(DoubleTimeSeries<?> other);
+
+  @Override  // override for covariant return type
+  PreciseDoubleTimeSeries<T> noIntersectionOperation(DoubleTimeSeries<?> other);
+
+  //-------------------------------------------------------------------------
+  @Override  // override for covariant return type
+  PreciseDoubleTimeSeries<T> negate();
+
+  @Override  // override for covariant return type
+  PreciseDoubleTimeSeries<T> reciprocal();
+
+  @Override  // override for covariant return type
+  PreciseDoubleTimeSeries<T> log();
+
+  @Override  // override for covariant return type
+  PreciseDoubleTimeSeries<T> log10();
+
+  @Override  // override for covariant return type
+  PreciseDoubleTimeSeries<T> abs();
 
 }

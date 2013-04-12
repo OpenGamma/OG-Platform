@@ -54,41 +54,16 @@ public interface InstantDoubleTimeSeries
   InstantDoubleTimeSeries lag(int lagCount);
 
   //-------------------------------------------------------------------------
-  /**
-   * Applies a unary operator to each value in the time series.
-   * 
-   * @param operator  the operator, not null
-   * @return a copy of this series with the operator applied, not null
-   */
+  @Override  // override for covariant return type
   InstantDoubleTimeSeries operate(UnaryOperator operator);
 
-  /**
-   * Applies a binary operator to each value in the time series.
-   * 
-   * @param other  the single value passed into the binary operator
-   * @param operator  the operator, not null
-   * @return a copy of this series with the operator applied, not null
-   */
+  @Override  // override for covariant return type
   InstantDoubleTimeSeries operate(double other, BinaryOperator operator);
 
-  /**
-   * Applies a binary operator to each value in this time series and
-   * another time-series, returning the intersection of times.
-   * 
-   * @param otherTimeSeries  the other time-series, not null
-   * @param operator  the operator, not null
-   * @return a copy of this series with the operator applied, not null
-   */
+  @Override  // override for covariant return type
   InstantDoubleTimeSeries operate(PreciseDoubleTimeSeries<?> otherTimeSeries, BinaryOperator operator);
 
-  /**
-   * Applies a binary operator to each value in this time series and
-   * another time-series, returning the union of times.
-   * 
-   * @param otherTimeSeries  the other time-series, not null
-   * @param operator  the operator, not null
-   * @return a copy of this series with the operator applied, not null
-   */
+  @Override  // override for covariant return type
   InstantDoubleTimeSeries unionOperate(PreciseDoubleTimeSeries<?> otherTimeSeries, BinaryOperator operator);
 
   //-------------------------------------------------------------------------

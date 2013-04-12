@@ -9,12 +9,12 @@ import org.threeten.bp.Instant;
 import org.threeten.bp.OffsetDateTime;
 import org.threeten.bp.ZoneOffset;
 
-import com.opengamma.timeseries.object.BigDecimalObjectTimeSeriesTest;
+import com.opengamma.timeseries.precise.PreciseObjectTimeSeriesTest;
 
 /**
  * Abstract test for InstantObjectTimeSeries.
  */
-public abstract class InstantObjectTimeSeriesTest extends BigDecimalObjectTimeSeriesTest<Instant> {
+public abstract class InstantObjectTimeSeriesTest extends PreciseObjectTimeSeriesTest<Instant> {
 
   @Override
   protected Instant[] testTimes() {
