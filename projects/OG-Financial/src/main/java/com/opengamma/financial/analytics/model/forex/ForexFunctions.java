@@ -31,6 +31,7 @@ public class ForexFunctions extends AbstractRepositoryConfigurationBean {
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
     functions.add(functionConfiguration(ConventionBasedFXRateFunction.class));
+    functions.add(functionConfiguration(SecurityFXHistoricalTimeSeriesFunction.class));
   }
 
   protected RepositoryConfigurationSource forwardFunctionConfiguration() {

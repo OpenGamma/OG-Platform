@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.analytics.model.credit.isda.calibration;
 
+import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE_SHIFT;
+
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
@@ -146,10 +148,14 @@ public class ISDAHazardRateCurveFunction extends AbstractFunction.NonCompiledInv
     final String spreadCurveName = security.accept(identifierVisitor).getUniqueId().getValue();
     final ValueRequirement yieldCurveRequirement = YieldCurveFunctionUtils.getCurveRequirement(currencyTarget, yieldCurveName, yieldCurveCalculationConfigName,
         yieldCurveCalculationMethodName);
-    final ValueProperties spreadCurveProperties = ValueProperties.builder()
-        .with(ValuePropertyNames.CURVE, spreadCurveName)
-        .get();
-    final ValueRequirement creditSpreadCurveRequirement = new ValueRequirement(ValueRequirementNames.CREDIT_SPREAD_CURVE, ComputationTargetSpecification.NULL, spreadCurveProperties);
+
+    final ValueProperties.Builder spreadCurveProperties = ValueProperties.builder()
+        .with(ValuePropertyNames.CURVE, spreadCurveName);
+    final Set<String> spreadCurveShift = constraints.getValues(PROPERTY_SPREAD_CURVE_SHIFT);
+    if (spreadCurveShift != null && !spreadCurveShift.isEmpty()) {
+      spreadCurveProperties.with(PROPERTY_SPREAD_CURVE_SHIFT, spreadCurveShift);
+    }
+    final ValueRequirement creditSpreadCurveRequirement = new ValueRequirement(ValueRequirementNames.CREDIT_SPREAD_CURVE, ComputationTargetSpecification.NULL, spreadCurveProperties.get());
     return Sets.newHashSet(yieldCurveRequirement, creditSpreadCurveRequirement);
   }
 

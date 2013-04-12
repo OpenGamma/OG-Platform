@@ -380,6 +380,7 @@ public class CreditFunctions extends AbstractRepositoryConfigurationBean {
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
     functions.add(functionConfiguration(ISDACreditSpreadCurveFunction.class));
+    functions.add(functionConfiguration(ISDACreditSpreadCurveShiftFunction.class));
     functions.add(functionConfiguration(ISDALegacyVanillaCDSCleanPriceFunction.class));
     functions.add(functionConfiguration(ISDALegacyVanillaCDSDirtyPriceFunction.class));
     functions.add(functionConfiguration(ISDAYieldCurveFunction.class));

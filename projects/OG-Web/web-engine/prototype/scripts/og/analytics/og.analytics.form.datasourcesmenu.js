@@ -69,7 +69,7 @@ $.register_module({
                     module: 'og.analytics.form_datasources_source_tash',
                     generator: function (handler, tmpl, data) {
                         datasource.get(obj.api_opts).pipe(function (resp) {
-                            if (resp.error) return og.dev.warn('og.analytics.DatasourcesMenu: ' + resp.error);
+                            if (resp.error) return og.dev.warn('og.analytics.DatasourcesMenu: ' + resp.message);
                             data.source = obj.type === 'Live' ? resp.data.map(function (entry) {
                                 return { text: entry, value: entry, selected: obj.source === entry };
                             }) : obj.type === 'Historical' ? resp.data.data.map(

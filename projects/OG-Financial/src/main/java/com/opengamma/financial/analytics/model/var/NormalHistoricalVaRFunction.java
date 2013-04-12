@@ -32,7 +32,6 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.model.pnl.YieldCurveNodePnLFunction;
 import com.opengamma.timeseries.DoubleTimeSeries;
 
 /**
@@ -129,7 +128,7 @@ public class NormalHistoricalVaRFunction extends AbstractFunction.NonCompiledInv
         .withAny(ValuePropertyNames.CONFIDENCE_LEVEL)
         .withAny(ValuePropertyNames.HORIZON)
         .withAny(ValuePropertyNames.AGGREGATION)
-        .withAny(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS)
+        .withAny(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS)
         .with(PROPERTY_VAR_DISTRIBUTION, NORMAL_VAR).get();
     final ValueSpecification hVaRSpec = new ValueSpecification(ValueRequirementNames.HISTORICAL_VAR, target.toSpecification(), properties);
     // TODO kirk 2012-06-22 -- These are certainly not the optimal properties. Rather,
@@ -163,7 +162,7 @@ public class NormalHistoricalVaRFunction extends AbstractFunction.NonCompiledInv
     if (stdDevCalculatorName == null || stdDevCalculatorName.size() != 1) {
       return null;
     }
-    final Set<String> pnlContributionNames = constraints.getValues(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS);
+    final Set<String> pnlContributionNames = constraints.getValues(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS);
     if (pnlContributionNames != null && pnlContributionNames.size() != 1) {
       return null;
     }
@@ -173,7 +172,7 @@ public class NormalHistoricalVaRFunction extends AbstractFunction.NonCompiledInv
         .with(ValuePropertyNames.SAMPLING_PERIOD, samplingPeriodName.iterator().next())
         .with(ValuePropertyNames.SCHEDULE_CALCULATOR, scheduleCalculatorName.iterator().next())
         .with(ValuePropertyNames.SAMPLING_FUNCTION, samplingFunctionName.iterator().next())
-        .with(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS, pnlContributionName); //TODO
+        .with(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS, pnlContributionName); //TODO
     final Set<String> desiredCurrencyValues = desiredValue.getConstraints().getValues(ValuePropertyNames.CURRENCY);
     if (desiredCurrencyValues == null || desiredCurrencyValues.isEmpty()) {
       properties.withAny(ValuePropertyNames.CURRENCY);
@@ -203,7 +202,7 @@ public class NormalHistoricalVaRFunction extends AbstractFunction.NonCompiledInv
     if (currency == null) {
       return null;
     }
-    final ValueProperties properties = getResultProperties(currency, input.getProperty(ValuePropertyNames.AGGREGATION), input.getProperty(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS));
+    final ValueProperties properties = getResultProperties(currency, input.getProperty(ValuePropertyNames.AGGREGATION), input.getProperty(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS));
     // see note above in other getResults().
     final ValueSpecification varSpecification = new ValueSpecification(ValueRequirementNames.HISTORICAL_VAR, target.toSpecification(), properties);
     final ValueSpecification stddevSpecification = new ValueSpecification(ValueRequirementNames.HISTORICAL_VAR_STDDEV, target.toSpecification(), properties);
@@ -220,7 +219,7 @@ public class NormalHistoricalVaRFunction extends AbstractFunction.NonCompiledInv
         .withAny(ValuePropertyNames.STD_DEV_CALCULATOR)
         .withAny(ValuePropertyNames.CONFIDENCE_LEVEL)
         .withAny(ValuePropertyNames.HORIZON)
-        .with(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS, pnlContribution)
+        .with(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS, pnlContribution)
         .with(PROPERTY_VAR_DISTRIBUTION, NORMAL_VAR);
     if (aggregationStyle != null) {
       properties.with(ValuePropertyNames.AGGREGATION, aggregationStyle);
@@ -238,7 +237,7 @@ public class NormalHistoricalVaRFunction extends AbstractFunction.NonCompiledInv
         .with(ValuePropertyNames.STD_DEV_CALCULATOR, desiredValue.getConstraint(ValuePropertyNames.STD_DEV_CALCULATOR))
         .with(ValuePropertyNames.CONFIDENCE_LEVEL, desiredValue.getConstraint(ValuePropertyNames.CONFIDENCE_LEVEL))
         .with(ValuePropertyNames.HORIZON, desiredValue.getConstraint(ValuePropertyNames.HORIZON))
-        .with(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS, desiredValue.getConstraint(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS))
+        .with(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS, desiredValue.getConstraint(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS))
         .with(PROPERTY_VAR_DISTRIBUTION, NORMAL_VAR);
     final String aggregationStyle = desiredValue.getConstraint(ValuePropertyNames.AGGREGATION);
     if (aggregationStyle != null) {

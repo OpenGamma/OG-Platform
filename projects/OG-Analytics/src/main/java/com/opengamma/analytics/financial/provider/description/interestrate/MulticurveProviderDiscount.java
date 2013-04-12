@@ -406,6 +406,20 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
     setAllCurves();
   }
 
+  /**
+   * Remove the discounting curve for a given currency.
+   * @param ccy The currency.
+   *  @throws IllegalArgumentException if curve name NOT already present
+   */
+  public void removeCurve(final Currency ccy) {
+    ArgumentChecker.notNull(ccy, "Currency");
+    if (!_discountingCurves.containsKey(ccy)) {
+      throw new IllegalArgumentException("Currency discounting curve not in set: " + ccy);
+    }
+    _discountingCurves.remove(ccy);
+    setAllCurves();
+  }
+
   @Override
   public double getFxRate(final Currency ccy1, final Currency ccy2) {
     return _fxMatrix.getFxRate(ccy1, ccy2);

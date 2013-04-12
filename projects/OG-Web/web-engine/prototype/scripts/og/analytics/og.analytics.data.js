@@ -115,7 +115,7 @@ $.register_module({
             };
             var reconnect_handler = function () {initialize();};
             var structure_handler = function (result) {
-                if (!grid_type || (depgraph && !graph_id)) return;
+                if (!result || !grid_type || (depgraph && !graph_id)) return;
                 if (result.error) return fire('fatal', data.prefix + result.message);
                 if (!result.data[SETS].length) return;
                 meta.data_rows = result.data[ROOT] ? result.data[ROOT][1] + 1 : result.data[ROWS];
@@ -215,7 +215,11 @@ $.register_module({
                         view_id: view_id, grid_type: grid_type, graph_id: graph_id, viewport_id: viewport_id,
                         rows: viewport.rows, cols: viewport.cols, cells: viewport.cells,
                         format: viewport.format, log: viewport.log
-                    })).pipe(function (result) {if (result.error) fire('fatal', data.prefix + result.message);});
+                    })).pipe(function (result) {
+                        if (!viewport_id) // race condition: viewport was pulled out from under us
+                            return og.dev.warn(data.prefix + result.message);
+                        if (result.error) fire('fatal', data.prefix + result.message);
+                    });
                     viewport_version = promise.id;
                 } catch (error) {fire('fatal', data.prefix + error.message);}
                 return data;
