@@ -15,7 +15,6 @@ import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 
 import com.opengamma.timeseries.DoubleTimeSeries;
-import com.opengamma.timeseries.LocalDateDoubleTimeSeriesTest;
 import com.opengamma.timeseries.date.DateDoubleTimeSeries;
 
 /**

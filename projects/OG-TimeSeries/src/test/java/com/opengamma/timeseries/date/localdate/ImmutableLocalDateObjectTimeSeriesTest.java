@@ -17,7 +17,6 @@ import org.threeten.bp.LocalDate;
 
 import com.opengamma.timeseries.ObjectTimeSeries;
 import com.opengamma.timeseries.date.DateObjectTimeSeries;
-import com.opengamma.timeseries.object.LocalDateObjectTimeSeriesTest;
 
 /**
  * Test.
