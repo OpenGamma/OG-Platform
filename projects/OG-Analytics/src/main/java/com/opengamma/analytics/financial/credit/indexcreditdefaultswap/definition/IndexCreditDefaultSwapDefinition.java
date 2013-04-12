@@ -47,6 +47,7 @@ public class IndexCreditDefaultSwapDefinition {
   // TODO : Do we need to allow negative notionals to be consistent with end users (convention above is sensible, but might not be market practice)
   // TODO : Need to sort out the quoting conventions for the different indices
   // TODO : Need to sort out the type of CDS used to construct the index (in principle would like to build the index from an arbitrary combination of CDS types)
+  // TODO : Take out the _indexSpread member variable (this is market data that changes on a day-to-day basis therefore should not be part of the instrument definition)
 
   // TODO : Add an overloaded ctor taking in a SNCDS etc
 
@@ -166,7 +167,7 @@ public class IndexCreditDefaultSwapDefinition {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  //Constructor for a CDS index swap definition object (all fields are user specified)
+  // Constructor for a CDS index swap definition object (all fields are user specified)
   public IndexCreditDefaultSwapDefinition(
       final String indexName,
       final BuySellProtection buySellProtection,
