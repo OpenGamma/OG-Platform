@@ -34,7 +34,7 @@ import com.opengamma.id.VersionCorrection;
 public abstract class InMemoryViewResultModel implements ViewResultModel, Serializable {
 
   private static final long serialVersionUID = 1L;
-  
+
   private UniqueId _viewProcessId;
   private UniqueId _viewCycleId;
   private ViewCycleExecutionOptions _viewCycleExecutionOptions;
@@ -44,7 +44,11 @@ public abstract class InMemoryViewResultModel implements ViewResultModel, Serial
   private final Map<String, ViewCalculationResultModelImpl> _resultsByConfiguration = new HashMap<String, ViewCalculationResultModelImpl>();
   private final Map<ComputationTargetSpecification, ViewTargetResultModelImpl> _resultsByTarget = new HashMap<ComputationTargetSpecification, ViewTargetResultModelImpl>();
   private final List<ViewResultEntry> _allResults = new ArrayList<ViewResultEntry>();
-  
+
+  public boolean isEmpty() {
+    return _allResults.isEmpty();
+  }
+
   @Override
   public UniqueId getViewProcessId() {
     return _viewProcessId;
@@ -53,21 +57,21 @@ public abstract class InMemoryViewResultModel implements ViewResultModel, Serial
   public void setViewProcessId(UniqueId viewProcessId) {
     _viewProcessId = viewProcessId;
   }
-  
+
   @Override
   public UniqueId getViewCycleId() {
     return _viewCycleId;
   }
-  
+
   public void setViewCycleId(UniqueId viewCycleId) {
     _viewCycleId = viewCycleId;
   }
-    
+
   @Override
   public ViewCycleExecutionOptions getViewCycleExecutionOptions() {
     return _viewCycleExecutionOptions;
   }
-  
+
   public void setViewCycleExecutionOptions(ViewCycleExecutionOptions viewCycleExecutionOptions) {
     _viewCycleExecutionOptions = viewCycleExecutionOptions;
   }
@@ -80,21 +84,21 @@ public abstract class InMemoryViewResultModel implements ViewResultModel, Serial
   public void setCalculationTime(Instant calculationTime) {
     _calculationTime = calculationTime;
   }
-  
+
   @Override
   public Duration getCalculationDuration() {
     return _calculationDuration;
   }
-  
+
   public void setCalculationDuration(Duration calculationDuration) {
     _calculationDuration = calculationDuration;
   }
-  
+
   @Override
   public VersionCorrection getVersionCorrection() {
     return _versionCorrection;
   }
-  
+
   public void setVersionCorrection(VersionCorrection versionCorrection) {
     _versionCorrection = versionCorrection;
   }
@@ -120,15 +124,15 @@ public abstract class InMemoryViewResultModel implements ViewResultModel, Serial
       _resultsByConfiguration.put(calcConfigurationName, result);
     }
     result.addValue(target, value);
-    
+
     ViewTargetResultModelImpl targetResult = _resultsByTarget.get(target);
     if (targetResult == null) {
       targetResult = new ViewTargetResultModelImpl();
       _resultsByTarget.put(target, targetResult);
     }
-    
+
     targetResult.addValue(calcConfigurationName, value);
-    
+
     _allResults.add(new ViewResultEntry(calcConfigurationName, value));
   }
 
@@ -156,9 +160,9 @@ public abstract class InMemoryViewResultModel implements ViewResultModel, Serial
   public Set<String> getAllOutputValueNames() {
     Set<String> outputValueNames = new HashSet<String>();
     for (ViewResultEntry result : getAllResults()) {
-      outputValueNames.add(result.getComputedValue().getSpecification().getValueName());      
+      outputValueNames.add(result.getComputedValue().getSpecification().getValueName());
     }
     return outputValueNames;
   }
-  
+
 }

@@ -5,14 +5,13 @@
  */
 package com.opengamma.analytics.financial.provider.curve;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -36,6 +35,10 @@ public class CurveBuildingBlock {
     ArgumentChecker.notNull(block, "Curve building block");
     _unit = new LinkedHashMap<>();
     _unit.putAll(block);
+  }
+
+  public void add(String name, int start, int number) {
+    _unit.put(name, new ObjectsPair<Integer, Integer>(start, number));
   }
 
   /**
@@ -68,8 +71,8 @@ public class CurveBuildingBlock {
    * Gets all of the underlying data.
    * @return The data wrapped in an unmodifiable map.
    */
-  public Map<String, Pair<Integer, Integer>> getData() {
-    return Collections.unmodifiableMap(_unit);
+  public LinkedHashMap<String, Pair<Integer, Integer>> getData() {
+    return _unit;
   }
 
   @Override

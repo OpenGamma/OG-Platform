@@ -137,7 +137,7 @@ public class IR01IndexCreditDefaultSwap {
     ArgumentChecker.notNegative(interestRateBump, "Interest rate bump");
 
     int numberOfObligors = indexCDS.getUnderlyingPool().getNumberOfObligors();
-    int numberOfYieldCurveTenors = indexCDS.getUnderlyingPool().getNumberOfCreditSpreadTenors();
+    int numberOfYieldCurveTenors = marketTenors.length;
 
     double[][] ir01 = new double[numberOfObligors][numberOfYieldCurveTenors];
 

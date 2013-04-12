@@ -29,12 +29,15 @@ import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.cashflow.CashFlowSecurity;
+import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
+import com.opengamma.financial.security.cds.StandardVanillaCDSSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.option.BondFutureOptionSecurity;
+import com.opengamma.financial.security.option.CreditDefaultSwapOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
@@ -47,10 +50,10 @@ import com.opengamma.util.money.Currency;
  */
 public class DefaultPnLRequirementsGatherer implements PnLRequirementsGatherer {
 
-  private final Map<String, String> _curveCalculationConfigs = new HashMap<String, String>();
-  private final Map<String, String> _fxCurveCalculationConfigs = new HashMap<String, String>();
-  private final Map<String, String> _fxDiscountingCurveNames = new HashMap<String, String>();
-  private final Map<String, String> _irFuturesCurveCalculationConfigs = new HashMap<String, String>();
+  private final Map<String, String> _curveCalculationConfigs = new HashMap<>();
+  private final Map<String, String> _fxCurveCalculationConfigs = new HashMap<>();
+  private final Map<String, String> _fxDiscountingCurveNames = new HashMap<>();
+  private final Map<String, String> _irFuturesCurveCalculationConfigs = new HashMap<>();
   private String _fxVolSurfaceName = "DEFAULT";
   private String _swaptionVolSurfaceName = "DEFAULT";
   private String _irFutureOptionVolSurfaceName = "DEFAULT";
@@ -129,7 +132,7 @@ public class DefaultPnLRequirementsGatherer implements PnLRequirementsGatherer {
         }
         final ValueProperties properties = commonProperties.copy()
             .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, calculationConfig)
-            .with(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES).get();
+            .with(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES).get();
         return Collections.singleton(new ValueRequirement(ValueRequirementNames.PNL_SERIES, targetSpec, properties));
       }
 
@@ -143,7 +146,7 @@ public class DefaultPnLRequirementsGatherer implements PnLRequirementsGatherer {
         }
         final ValueProperties properties = commonProperties.copy()
             .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, calculationConfig)
-            .with(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES).get();
+            .with(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES).get();
         return Collections.singleton(new ValueRequirement(ValueRequirementNames.PNL_SERIES, targetSpec, properties));
       }
 
@@ -159,7 +162,7 @@ public class DefaultPnLRequirementsGatherer implements PnLRequirementsGatherer {
             .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD)
             .with(ValuePropertyNames.SURFACE, _swaptionVolSurfaceName)
             .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, calculationConfig)
-            .with(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES).get();
+            .with(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES).get();
         return Collections.singleton(new ValueRequirement(ValueRequirementNames.PNL_SERIES, targetSpec, properties));
       }
 
@@ -173,7 +176,7 @@ public class DefaultPnLRequirementsGatherer implements PnLRequirementsGatherer {
         }
         final ValueProperties properties = commonProperties.copy()
             .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, calculationConfig)
-            .with(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES).get();
+            .with(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES).get();
         return Collections.singleton(new ValueRequirement(ValueRequirementNames.PNL_SERIES, targetSpec, properties));
       }
 
@@ -187,7 +190,7 @@ public class DefaultPnLRequirementsGatherer implements PnLRequirementsGatherer {
         }
         final ValueProperties properties = commonProperties.copy()
             .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, calculationConfig)
-            .with(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES).get();
+            .with(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES).get();
         return Collections.singleton(new ValueRequirement(ValueRequirementNames.PNL_SERIES, targetSpec, properties));
       }
 
@@ -217,13 +220,13 @@ public class DefaultPnLRequirementsGatherer implements PnLRequirementsGatherer {
             .with(ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG, payCalculationConfig)
             .with(ValuePropertyNames.RECEIVE_CURVE, receiveDiscountingCurve)
             .with(ValuePropertyNames.RECEIVE_CURVE_CALCULATION_CONFIG, receiveCalculationConfig)
-            .with(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.FX_CURRENCY_EXPOSURE).get();
+            .with(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.FX_CURRENCY_EXPOSURE).get();
         final ValueProperties ycnsProperties = commonProperties.copy()
             .with(ValuePropertyNames.PAY_CURVE, payDiscountingCurve)
             .with(ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG, payCalculationConfig)
             .with(ValuePropertyNames.RECEIVE_CURVE, receiveDiscountingCurve)
             .with(ValuePropertyNames.RECEIVE_CURVE_CALCULATION_CONFIG, receiveCalculationConfig)
-            .with(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES).get();
+            .with(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES).get();
         final ValueRequirement fxCurrencyExposure = new ValueRequirement(ValueRequirementNames.PNL_SERIES, targetSpec, currencyExposureProperties);
         final ValueRequirement fxYCNSExposure = new ValueRequirement(ValueRequirementNames.PNL_SERIES, targetSpec, ycnsProperties);
         return Sets.newHashSet(fxCurrencyExposure, fxYCNSExposure);
@@ -262,7 +265,7 @@ public class DefaultPnLRequirementsGatherer implements PnLRequirementsGatherer {
             .with(InterpolatedDataProperties.X_INTERPOLATOR_NAME, _fxVolInterpolator)
             .with(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME, _fxVolLeftExtrapolator)
             .with(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME, _fxVolRightExtrapolator)
-            .with(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.FX_CURRENCY_EXPOSURE).get();
+            .with(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.FX_CURRENCY_EXPOSURE).get();
         final ValueRequirement delta = new ValueRequirement(ValueRequirementNames.PNL_SERIES, targetSpec, deltaProperties);
         return Sets.newHashSet(delta);
       }
@@ -277,7 +280,7 @@ public class DefaultPnLRequirementsGatherer implements PnLRequirementsGatherer {
         }
         final ValueProperties properties = commonProperties.copy()
             .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, calculationConfig)
-            .with(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES).get();
+            .with(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES).get();
         return Collections.singleton(new ValueRequirement(ValueRequirementNames.PNL_SERIES, targetSpec, properties));
       }
 
@@ -291,7 +294,7 @@ public class DefaultPnLRequirementsGatherer implements PnLRequirementsGatherer {
         }
         final ValueProperties properties = commonProperties.copy()
             .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, calculationConfig)
-            .with(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES).get();
+            .with(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES).get();
         return Collections.singleton(new ValueRequirement(ValueRequirementNames.PNL_SERIES, targetSpec, properties));
       }
 
@@ -306,7 +309,7 @@ public class DefaultPnLRequirementsGatherer implements PnLRequirementsGatherer {
         final ValueProperties properties = commonProperties.copy()
             .with(ValuePropertyNames.SURFACE, _irFutureOptionVolSurfaceName)
             .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, calculationConfig)
-            .with(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES).get();
+            .with(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES).get();
         return Collections.singleton(new ValueRequirement(ValueRequirementNames.PNL_SERIES, targetSpec, properties));
       }
 
@@ -321,21 +324,21 @@ public class DefaultPnLRequirementsGatherer implements PnLRequirementsGatherer {
         final ValueProperties properties = commonProperties.copy()
             .with(ValuePropertyNames.SURFACE, _bondFutureOptionVolSurfaceName)
             .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, calculationConfig)
-            .with(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES).get();
+            .with(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES).get();
         return Collections.singleton(new ValueRequirement(ValueRequirementNames.PNL_SERIES, targetSpec, properties));
       }
 
       @Override
       public Set<ValueRequirement> visitEquitySecurity(final EquitySecurity security) {
         final ValueProperties properties = commonProperties.copy()
-            .with(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS, "Delta").get();
+            .with(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS, "Delta").get();
         return Collections.singleton(new ValueRequirement(ValueRequirementNames.PNL_SERIES, targetSpec, properties));
       }
 
       @Override
       public Set<ValueRequirement> visitEquityOptionSecurity(final EquityOptionSecurity security) {
         final ValueProperties properties = commonProperties.copy()
-            .with(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS, "Delta").get();
+            .with(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS, "Delta").get();
         return Collections.singleton(new ValueRequirement(ValueRequirementNames.PNL_SERIES, targetSpec, properties));
       }
 
@@ -349,14 +352,38 @@ public class DefaultPnLRequirementsGatherer implements PnLRequirementsGatherer {
         return createValueRequirementsForCashLikeSecurity(security.getCurrency());
       }
 
-      private Set<ValueRequirement> createValueRequirementsForCashLikeSecurity(Currency currency) {
+      @Override
+      public Set<ValueRequirement> visitStandardVanillaCDSSecurity(final StandardVanillaCDSSecurity security) {
+        final ValueProperties properties = commonProperties.copy()
+            .with(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.BUCKETED_CS01)
+            .get();
+        return Collections.singleton(new ValueRequirement(ValueRequirementNames.PNL_SERIES, targetSpec, properties));
+      }
+
+      @Override
+      public Set<ValueRequirement> visitLegacyVanillaCDSSecurity(final LegacyVanillaCDSSecurity security) {
+        final ValueProperties properties = commonProperties.copy()
+            .with(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.BUCKETED_CS01)
+            .get();
+        return Collections.singleton(new ValueRequirement(ValueRequirementNames.PNL_SERIES, targetSpec, properties));
+      }
+
+      @Override
+      public Set<ValueRequirement> visitCreditDefaultSwapOptionSecurity(final CreditDefaultSwapOptionSecurity security) {
+        final ValueProperties properties = commonProperties.copy()
+            .with(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.BUCKETED_CS01)
+            .get();
+        return Collections.singleton(new ValueRequirement(ValueRequirementNames.PNL_SERIES, targetSpec, properties));
+      }
+
+      private Set<ValueRequirement> createValueRequirementsForCashLikeSecurity(final Currency currency) {
         final String config = _curveCalculationConfigs.get(currency);
         if (config == null) {
           throw new OpenGammaRuntimeException("Could not get curve calculation configuration for " + currency);
         }
         final ValueProperties properties = commonProperties.copy()
             .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, config)
-            .with(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES).get();
+            .with(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES).get();
         return Collections.singleton(new ValueRequirement(ValueRequirementNames.PNL_SERIES, targetSpec, properties));
       }
 

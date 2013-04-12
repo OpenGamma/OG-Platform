@@ -633,7 +633,8 @@ $.register_module({
                 .reduce(function (acc, val) {return acc + val;});}, 0);
             if ((remainder = scroll_width - scroll_data_width) <= 0) return;
             meta.columns.widths[meta.columns.widths.length - 1] += remainder;
-            (last_set = scroll_cols[scroll_cols.length - 1].columns)[last_set.length - 1].width += remainder;
+            if (scroll_cols.length)
+                (last_set = scroll_cols[scroll_cols.length - 1].columns)[last_set.length - 1].width += remainder;
         };
         Grid.prototype.fire = og.common.events.fire;
         Grid.prototype.kill = function () {
@@ -657,7 +658,7 @@ $.register_module({
                 col_indices, cols_len = viewport.cols.length, types = [], result = null,
                 available = !selection.rows.some(function (row) {return !~viewport.rows.indexOf(row);}) &&
                     !selection.cols.some(function (col) {return !~viewport.cols.indexOf(col);});
-            if (!available) return {data: null, raw: null};
+            if (!available || !grid.data) return {data: null, raw: null};
             row_indices = selection.rows.map(function (row) {return viewport.rows.indexOf(row);});
             col_indices = selection.cols.map(function (col) {return viewport.cols.indexOf(col);});
             result = row_indices.map(function (row_idx) {

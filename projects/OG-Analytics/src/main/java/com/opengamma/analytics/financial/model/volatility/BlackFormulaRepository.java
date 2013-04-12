@@ -27,7 +27,7 @@ public abstract class BlackFormulaRepository {
   private static final double EPS = 1e-15;
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
   private static final double SMALL = 1.0E-12;
-  private static final int MAX_ITERATIONS = 15; //something's wrong if Newton-Raphson taking longer than this
+  private static final int MAX_ITERATIONS = 15; // something's wrong if Newton-Raphson taking longer than this
   private static final double VOL_TOL = 1e-9; // 1 part in 100,000 basis points will do for implied vol
 
   /**
@@ -60,8 +60,32 @@ public abstract class BlackFormulaRepository {
 
   }
 
+  /**
+   * The PV of a single option 
+   * @param data required data on the option 
+   * @param lognormalVol The Black volatility 
+   * @return option PV
+   */
   public static double price(final SimpleOptionData data, final double lognormalVol) {
+    ArgumentChecker.notNull(data, "null data");
     return data.getDiscountFactor() * price(data.getForward(), data.getStrike(), data.getTimeToExpiry(), lognormalVol, data.isCall());
+  }
+
+  /**
+   * The PV of a strip of options all with the same Black volatility 
+   * @param data array of required data on the option 
+   * @param lognormalVol The Black volatility 
+   * @return PV of option strip
+   */
+  public static double price(final SimpleOptionData[] data, final double lognormalVol) {
+    ArgumentChecker.noNulls(data, "null data");
+    final int n = data.length;
+    double sum = 0;
+    for (int i = 0; i < n; i++) {
+      final SimpleOptionData temp = data[i];
+      sum += temp.getDiscountFactor() * price(temp.getForward(), temp.getStrike(), temp.getTimeToExpiry(), lognormalVol, temp.isCall());
+    }
+    return sum;
   }
 
   /**
@@ -170,7 +194,7 @@ public abstract class BlackFormulaRepository {
       if (forward != strike) {
         return 0.0;
       }
-      //The gamma is infinite in this case
+      // The gamma is infinite in this case
       return Double.POSITIVE_INFINITY;
     }
     final double d1 = Math.log(forward / strike) / sigmaRootT + 0.5 * sigmaRootT;
@@ -239,8 +263,8 @@ public abstract class BlackFormulaRepository {
     final double d1 = Math.log(forward / strike) / sigmaRootT + 0.5 * sigmaRootT;
     final double d2 = d1 - sigmaRootT;
 
-    final double value = -forward * NORMAL.getPDF(d1) * lognormalVol / 2 / rootT - sign * (b - interestRate) * forward * NORMAL.getCDF(sign * d1) - sign * interestRate * strike *
-        Math.exp(-interestRate * timeToExpiry) * NORMAL.getCDF(sign * d2);
+    final double value = -forward * NORMAL.getPDF(d1) * lognormalVol / 2 / rootT - sign * (b - interestRate) * forward * NORMAL.getCDF(sign * d1) - sign * interestRate * strike
+        * Math.exp(-interestRate * timeToExpiry) * NORMAL.getCDF(sign * d2);
 
     return value;
   }
@@ -265,7 +289,7 @@ public abstract class BlackFormulaRepository {
       if (forward != strike) {
         return 0.0;
       }
-      //The gamma is infinite in this case
+      // The gamma is infinite in this case
       return Double.POSITIVE_INFINITY;
     }
     final double d1 = Math.log(forward / strike) / sigmaRootT + 0.5 * sigmaRootT;
@@ -405,16 +429,16 @@ public abstract class BlackFormulaRepository {
   public static double impliedVolatility(final double price, final double forward, final double strike, final double timeToExpiry, final boolean isCall) {
     final double intrinsicPrice = Math.max(0, (isCall ? 1 : -1) * (forward - strike));
     Validate.isTrue(strike > 0, "Cannot find an implied volatility when strike is zero as there is no optionality");
-    //    if (price == intrinsicPrice) {
-    //      return 0.0;
-    //    }
-    //  ArgumentChecker.isTrue(price > intrinsicPrice, "price of {} less that intrinsic price of {}", price, intrinsicPrice);
+    // if (price == intrinsicPrice) {
+    // return 0.0;
+    // }
+    // ArgumentChecker.isTrue(price > intrinsicPrice, "price of {} less that intrinsic price of {}", price, intrinsicPrice);
     //
-    //    if (isCall) {
-    //      Validate.isTrue(price < forward, "call price must be less than forward");
-    //    } else {
-    //      Validate.isTrue(price < strike, "put price must be less than strike");
-    //    }
+    // if (isCall) {
+    // Validate.isTrue(price < forward, "call price must be less than forward");
+    // } else {
+    // Validate.isTrue(price < strike, "put price must be less than strike");
+    // }
     final double targetPrice = price - intrinsicPrice;
     double sigmaGuess = 0.3;
     return impliedVolatility(targetPrice, forward, strike, timeToExpiry, sigmaGuess);
@@ -460,7 +484,7 @@ public abstract class BlackFormulaRepository {
     final double maxChange = 0.5;
 
     double[] pnv = priceAndVega(forward, strike, timeToExpiry, sigma, isCall);
-    //TODO check if this is ever called
+    // TODO check if this is ever called
     if (pnv[1] == 0 || Double.isNaN(pnv[1])) {
       return solveByBisection(otmPrice, forward, strike, timeToExpiry, isCall, lowerSigma, upperSigma);
     }
@@ -515,6 +539,14 @@ public abstract class BlackFormulaRepository {
     return impliedVolatility(price / data.getDiscountFactor(), data.getForward(), data.getStrike(), data.getTimeToExpiry(), data.isCall());
   }
 
+  /**
+   * Find the single volatility for a portfolio of European options such that the sum of Black prices of the options (with that volatility)
+   * equals the (market) price of the portfolio - this is the implied volatility of the portfolio. A concrete example is a cap (floor) which
+   * can be viewed as a portfolio of caplets (floorlets)  
+   * @param data basic description of each option 
+   * @param price The (market) price of the portfolio
+   * @return The implied volatility of the portfolio 
+   */
   public static double impliedVolatility(final SimpleOptionData[] data, final double price) {
     Validate.notEmpty(data, "no option data given");
     double intrinsicPrice = 0.0;
@@ -569,7 +601,7 @@ public abstract class BlackFormulaRepository {
         change = sigma;
       }
 
-      //detect oscillation around the solution
+      // detect oscillation around the solution
       if (count > 5 && Math.abs(previousChange + change) < VOL_TOL) {
         change /= 2.0;
       }

@@ -25,7 +25,7 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Immutable set of {@link CreditDefaultSwapIndexComponent} that
- * represents the CreditDefaultSwapIndexSecurity components
+ * represents the CreditDefaultSwapIndexDefinitionSecurity components
  * <p>
  * It uses a comparator based on the ObligorCode of each components
  * as opposed to natural ordering of weight and name.

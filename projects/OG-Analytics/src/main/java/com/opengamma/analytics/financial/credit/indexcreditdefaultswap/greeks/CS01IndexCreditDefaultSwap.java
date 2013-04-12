@@ -70,7 +70,7 @@ public class CS01IndexCreditDefaultSwap {
 
     ArgumentChecker.notNegative(spreadBump, "Spread bump");
 
-    int numberOfCreditSpreadTenors = indexCDS.getUnderlyingPool().getNumberOfCreditSpreadTenors();
+    int numberOfCreditSpreadTenors = marketTenors.length;
 
     double[] bucketedCS01 = new double[numberOfCreditSpreadTenors];
 
@@ -137,7 +137,7 @@ public class CS01IndexCreditDefaultSwap {
     ArgumentChecker.notNegative(spreadBump, "Spread bump");
 
     int numberOfObligors = indexCDS.getUnderlyingPool().getNumberOfObligors();
-    int numberOfCreditSpreadTenors = indexCDS.getUnderlyingPool().getNumberOfCreditSpreadTenors();
+    int numberOfCreditSpreadTenors = marketTenors.length;
 
     double[][] cs01 = new double[numberOfObligors][numberOfCreditSpreadTenors];
 

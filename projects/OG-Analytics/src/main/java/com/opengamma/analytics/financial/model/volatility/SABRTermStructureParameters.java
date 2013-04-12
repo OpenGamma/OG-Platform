@@ -3,14 +3,13 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.interestrate;
+package com.opengamma.analytics.financial.model.volatility;
 
 import java.util.LinkedHashMap;
 
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
-import com.opengamma.analytics.financial.model.volatility.VolatilityModel1D;
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
 import com.opengamma.analytics.financial.model.volatility.smile.function.VolatilityFunctionProvider;
@@ -116,6 +115,11 @@ public class SABRTermStructureParameters implements VolatilityModel1D {
     double vol = func.evaluate(data);
     //The SABR Hagan formula can produce negative vols
     return Math.max(0, vol);
+  }
+
+  @Override
+  public double getVolatility(SimpleOptionData option) {
+    return getVolatility(option.getForward(), option.getStrike(), option.getTimeToExpiry());
   }
 
 }

@@ -16,7 +16,6 @@ import java.util.Set;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.AbstractFunction;
@@ -33,6 +32,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.FinancialSecurityUtils;
+import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 
@@ -84,12 +84,12 @@ public class SecurityFXHistoricalTimeSeriesFunction extends AbstractFunction.Non
     final Currency desiredCurrency = Currency.of(Iterables.getOnlyElement(resultCurrencies));
     if (securityCurrencies.size() == 1) {
       final Currency securityCurrency = Iterables.getOnlyElement(securityCurrencies);
-      ValueRequirement htsRequirement = createRequirement(context, desiredCurrency, securityCurrency);
+      final ValueRequirement htsRequirement = createRequirement(context, desiredCurrency, securityCurrency);
       return htsRequirement != null ? ImmutableSet.of(htsRequirement) : null;
     }
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
     for (final Currency securityCurrency : securityCurrencies) {
-      ValueRequirement htsRequirement = createRequirement(context, desiredCurrency, securityCurrency);
+      final ValueRequirement htsRequirement = createRequirement(context, desiredCurrency, securityCurrency);
       if (htsRequirement != null) {
         requirements.add(htsRequirement);
       }
@@ -107,14 +107,14 @@ public class SecurityFXHistoricalTimeSeriesFunction extends AbstractFunction.Non
         throw new OpenGammaRuntimeException("Do not have one FX series for each requested");
       }
     }
-    final Map<UnorderedCurrencyPair, HistoricalTimeSeries> fxSeries = new HashMap<UnorderedCurrencyPair, HistoricalTimeSeries>();
+    final Map<UnorderedCurrencyPair, DoubleTimeSeries<?>> fxSeries = new HashMap<>();
     final Iterator<Currency> currencyIterator = currencies.iterator();
     for (final ComputedValue input : inputs.getAllValues()) {
       final Currency currency = currencyIterator.next();
       if (currency.getCode().equals(desiredCurrency)) {
         currencyIterator.next();
       } else {
-        fxSeries.put(UnorderedCurrencyPair.of(currency, Currency.of(desiredCurrency)), (HistoricalTimeSeries) input.getValue());
+        fxSeries.put(UnorderedCurrencyPair.of(currency, Currency.of(desiredCurrency)), (DoubleTimeSeries<?>) input.getValue());
       }
     }
     final ValueProperties properties = createValueProperties().with(ValuePropertyNames.CURRENCY, desiredCurrency).get();

@@ -109,4 +109,26 @@ public class BlackFormulaRepositotyTest {
     // Performance note: strike+derivatives: 18-Jul-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 80 ms for 100000.
   }
 
+//  @Test
+//  public void debugTest() {
+//    System.out.println("debug test of American put");
+//    
+//    double spot = 520.15;
+//    double df = 0.997669333179294;
+//    double fv = 521.365128406249;
+//    double k = 945.0;
+//    double t  = 0.769863014;
+//    
+//    double r = -Math.log(df)/t;
+//    double q = 0.0;
+//    
+//    double fwd = spot*Math.exp(t*(r-q));
+//
+//  
+//    double vol = BlackFormulaRepository.impliedVolatility(fv, fwd, k, t, false);
+//    System.out.println(vol);
+//
+//  }
+  
+  
 }
